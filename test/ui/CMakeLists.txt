@@ -1,0 +1,5 @@
+add_subdirectory(mainwindowview)
+#add_subdirectory(newprojectview)
+#add_subdirectory(projectmodel)
+#add_subdirectory(settingsmodel)
+#add_subdirectory(settingsview)
