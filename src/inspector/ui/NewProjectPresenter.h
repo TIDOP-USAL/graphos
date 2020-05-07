@@ -46,6 +46,7 @@ public slots:
 private:
 
   void init() override;
+  void initSignalAndSlots() override;
 
 private:
 

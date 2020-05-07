@@ -54,8 +54,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionFeatureMatching(new QAction(this)),
     mActionOrientation(new QAction(this)),
     mActionDensification(new QAction(this)),
-    mActionViewSettings(new QAction(this)),
-    mActionToolSettings(new QAction(this)),
+    mActionSettings(new QAction(this)),
     mActionHelp(new QAction(this)),
     mActionAbout(new QAction(this)),
     mActionExportTiePoints(new QAction(this)),
@@ -529,37 +528,37 @@ TabHandler *MainWindowView::tabHandler()
 
 void MainWindowView::updateHistory(const QStringList &history)
 {
-//  int n = history.size();
-//  for (int r = 0; r < n; r++) {
-//    QString prjFileName = tr("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
-//    if (mHistory.size() == static_cast<size_t>(r)) {
-//      // Se añade un nuevo elemento
-//      QAction *action = new QAction(prjFileName, this);
-//      action->setData(history[r]);
-//      action->setToolTip(history[r]);
-//      mHistory.push_back(action);
-//      connect(mHistory[static_cast<size_t>(r)], SIGNAL(triggered()), this, SLOT(openFromHistory()));
-//      mMenuRecentProjects->insertAction(mActionNotRecentProjects, mHistory[static_cast<size_t>(r)]);
-//      mMenuRecentProjects->setToolTipsVisible(true);
-//    } else {
-//      mHistory[static_cast<size_t>(r)]->setText(prjFileName);
-//      mHistory[static_cast<size_t>(r)]->setData(history[r]);
-//      mHistory[static_cast<size_t>(r)]->setToolTip(history[r]);
-//    }
-//  }
+  int n = history.size();
+  for (int r = 0; r < n; r++) {
+    QString prjFileName = tr("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
+    if (mHistory.size() == static_cast<size_t>(r)) {
+      // Se añade un nuevo elemento
+      QAction *action = new QAction(prjFileName, this);
+      action->setData(history[r]);
+      action->setToolTip(history[r]);
+      mHistory.push_back(action);
+      connect(mHistory[static_cast<size_t>(r)], SIGNAL(triggered()), this, SLOT(openFromHistory()));
+      mMenuRecentProjects->insertAction(mActionNotRecentProjects, mHistory[static_cast<size_t>(r)]);
+      mMenuRecentProjects->setToolTipsVisible(true);
+    } else {
+      mHistory[static_cast<size_t>(r)]->setText(prjFileName);
+      mHistory[static_cast<size_t>(r)]->setData(history[r]);
+      mHistory[static_cast<size_t>(r)]->setToolTip(history[r]);
+    }
+  }
 
-//  update();
+  update();
 }
 
 void MainWindowView::deleteHistory()
 {
-//  while (mHistory.size() > 0) {
-//    disconnect(mHistory[0], SIGNAL(triggered()), this, SLOT(openFromHistory()));
-//    mMenuRecentProjects->removeAction(mHistory[0]);
-//    mHistory.erase(mHistory.begin());
-//  }
+  while (mHistory.size() > 0) {
+    disconnect(mHistory[0], SIGNAL(triggered()), this, SLOT(openFromHistory()));
+    mMenuRecentProjects->removeAction(mHistory[0]);
+    mHistory.erase(mHistory.begin());
+  }
 
-//  update();
+  update();
 }
 
 void MainWindowView::deleteImage(const QString &file)
@@ -814,18 +813,17 @@ void MainWindowView::retranslate()
   mActionCloseProject->setText(QApplication::translate("MainWindowView", "Close Project", nullptr));
   mActionExit->setText(QApplication::translate("MainWindowView", "Exit", nullptr));
   mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));
-  mActionViewSettings->setText(QApplication::translate("MainWindowView", "View Settings", nullptr));
   mActionLoadImages->setText(QApplication::translate("MainWindowView", "Load Images", nullptr));
   mActionFeatureExtraction->setText(QApplication::translate("MainWindowView", "Feature Extraction", nullptr));
   mActionFeatureMatching->setText(QApplication::translate("MainWindowView", "Feature Matching", nullptr));
   mActionOrientation->setText(QApplication::translate("MainWindowView", "Orientation", nullptr));
   mActionDensification->setText(QApplication::translate("MainWindowView", "Densification", nullptr));
-  mActionToolSettings->setText(QApplication::translate("MainWindowView", "Tools Settings", nullptr));
   mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
   mActionAbout->setText(QApplication::translate("MainWindowView", "About", nullptr));
   mActionFeaturesViewer->setText(QApplication::translate("MainWindowView", "Keypoints Viewer", nullptr));
   mActionMatchesViewer->setText(QApplication::translate("MainWindowView", "Matches Viewer", nullptr));
   mActionPassPointsViewer->setText(QApplication::translate("MainWindowView", "Multiview Matching Assessment", nullptr));
+  mActionSettings->setText(QApplication::translate("MainWindowView", "Settings", nullptr));
   mActionNotRecentProjects->setText(QApplication::translate("MainWindowView", "Not recent projects", nullptr));
   mActionClearHistory->setText(QApplication::translate("MainWindowView", "Clear History", nullptr));
   mMenuRecentProjects->setTitle(QApplication::translate("MainWindowView", "Recent Projects", nullptr));
@@ -845,9 +843,9 @@ void MainWindowView::retranslate()
 
 void MainWindowView::openFromHistory()
 {
-//  QAction *action = qobject_cast<QAction *>(sender());
-//  if (action)
-//    emit openProjectFromHistory(action->data().toString());
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (action)
+    emit openProjectFromHistory(action->data().toString());
 }
 
 void MainWindowView::onSelectionChanged()
@@ -1094,10 +1092,6 @@ void MainWindowView::initUI()
   iconStartPage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-home-page.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionStartPage->setIcon(iconStartPage);
 
-  QIcon iconSettingsView;
-  iconSettingsView.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewSettings->setIcon(iconSettingsView);
-
   QIcon iconLoadImages;
   iconLoadImages.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-add-folder.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionLoadImages->setIcon(iconLoadImages);
@@ -1119,8 +1113,8 @@ void MainWindowView::initUI()
 //  mActionDensification->setIcon(iconDensification);
 
   QIcon iconSettings;
-  iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_automatic_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionToolSettings->setIcon(iconSettings);
+  iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionSettings->setIcon(iconSettings);
 
   QIcon iconHelp;
   iconHelp.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_help_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1220,10 +1214,6 @@ void MainWindowView::initUI()
   mMenuToolBar->addAction(ui->toolBarWorkflow->toggleViewAction());
   ui->menuView->addMenu(mMenuToolBar);
 
-  ui->menuView->addSeparator();
-
-  ui->menuView->addAction(mActionViewSettings);
-
   /* Menu Workflow */
 
   ui->menuWorkflow->addAction(mActionLoadImages);
@@ -1239,7 +1229,7 @@ void MainWindowView::initUI()
   ui->menuTools->addAction(mActionMatchesViewer);
   ui->menuTools->addAction(mActionPassPointsViewer);
   ui->menuTools->addSeparator();
-  ui->menuTools->addAction(mActionToolSettings);
+  ui->menuTools->addAction(mActionSettings);
 
   /* Menu Help */
 
@@ -1298,20 +1288,19 @@ void MainWindowView::initSignalAndSlots()
   /* Menú View */
 
   connect(mActionStartPage,          SIGNAL(triggered(bool)),   this,   SIGNAL(openStartPage()));
-  connect(mActionViewSettings,       SIGNAL(triggered(bool)),   this,   SIGNAL(openViewSettings()));
 
-  /* Menú herramientas */
+  /* Menú Flujo de trabajo */
 
   connect(mActionLoadImages,         SIGNAL(triggered(bool)),   this,   SIGNAL(loadImages()));
   connect(mActionFeatureExtraction,  SIGNAL(triggered(bool)),   this,   SIGNAL(openFeatureExtraction()));
   connect(mActionFeatureMatching,    SIGNAL(triggered(bool)),   this,   SIGNAL(openFeatureMatching()));
-  connect(mActionToolSettings,       SIGNAL(triggered(bool)),   this,   SIGNAL(openToolSettings()));
 
-  /* Quality Control */
+  /* Menú herramientas */
 
   connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
   connect(mActionMatchesViewer,      SIGNAL(triggered(bool)),   this,   SIGNAL(openMatchesViewer()));
   connect(mActionPassPointsViewer,   SIGNAL(triggered(bool)),   this,   SIGNAL(openMultiviewMatchingAssessment()));
+  connect(mActionSettings,           SIGNAL(triggered(bool)),   this,   SIGNAL(openSettings()));
 
   /* Menú Ayuda */
 
@@ -1329,8 +1318,6 @@ void MainWindowView::initSignalAndSlots()
   connect(mTreeWidgetProject, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onTreeContextMenu(const QPoint &)));
   connect(mTreeWidgetProject, SIGNAL(itemSelectionChanged()),   this, SLOT(onSelectionChanged()));
   connect(mTreeWidgetProject, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem *, int)));
-
-  connect(mComboBoxActiveSession, SIGNAL(currentTextChanged(QString)), this, SIGNAL(activeSessionChange(QString)));
 
 }
 

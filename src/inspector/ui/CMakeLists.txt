@@ -29,9 +29,9 @@ set(INSPECTOR_SOURCES
     MainWindowView.cpp
     NewProjectView.cpp
     NewProjectPresenter.cpp
-    # SettingsModel.cpp
-    # SettingsPresenter.cpp
-    # SettingsView.cpp
+    SettingsModel.cpp
+    SettingsPresenter.cpp
+    SettingsView.cpp
     # PreprocessView.cpp
     # PreprocessModel.cpp
     # PreprocessPresenter.cpp
@@ -96,10 +96,10 @@ set(INSPECTOR_HEADERS
     NewProject.h
     NewProjectView.h
     NewProjectPresenter.h
-    # Settings.h
-    # SettingsModel.h
-    # SettingsPresenter.h
-    # SettingsView.h
+    Settings.h
+    SettingsModel.h
+    SettingsPresenter.h
+    SettingsView.h
     # Preprocess.h
     # PreprocessView.h
     # PreprocessModel.h

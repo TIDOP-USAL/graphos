@@ -16,7 +16,7 @@ namespace ui
 class MainWindowView;
 class MainWindowModel;
 class ProjectModel;
-//class SettingsModel;
+class SettingsModel;
 //class HelpDialog;
 class TabHandler;
 
@@ -29,8 +29,8 @@ public:
 
   explicit MainWindowPresenter(MainWindowView *view,
                                MainWindowModel *model,
-                               ProjectModel *projectModel/*,
-                               SettingsModel *settingsModel*/);
+                               ProjectModel *projectModel,
+                               SettingsModel *settingsModel);
   ~MainWindowPresenter() override;
 
 signals:
@@ -114,6 +114,7 @@ public slots:
 private:
 
   void init() override;
+  void initSignalAndSlots() override;
 
 private:
 
@@ -131,11 +132,12 @@ protected:
   MainWindowView *mView;
   MainWindowModel *mModel;
   ProjectModel *mProjectModel;
-  //SettingsModel *mSettingsModel;
+  SettingsModel *mSettingsModel;
   HelpDialog *mHelpDialog;
   TabHandler *mTabHandler;
   StartPageWidget *mStartPageWidget;
   QString mProjectDefaultPath;
+
 };
 
 } // namespace ui

@@ -124,26 +124,25 @@ signals:
   void openExportMatches();
   void closeProject();
   void exit();
-  void openSettings();
+
 
   /* Menú View */
 
   void openStartPage();
-  void openViewSettings();
 
-  /* Menú herramientas */
+  /* Menú flujo de trabajo */
 
   void loadImages();
   void openFeatureExtraction();
   void openFeatureMatching();
   void openBatch();
-  void openToolSettings();
 
-  /* Quality Control */
+  /* Menú herramientas */
 
   void openKeypointsViewer();
   void openMatchesViewer();
   void openMultiviewMatchingAssessment();
+  void openSettings();
 
   /* Menú Ayuda */
 
@@ -152,8 +151,6 @@ signals:
 
   /* Panel de vistas en miniatura */
 
-  ///TODO: asegurarse que se utiliza siempre el mismo criterio como id de la imagen
-  ///      O nombre de la imagen o ruta completa
   void openImage(QString);
   void selectImage(QString);
   void selectImages(QStringList);
@@ -211,8 +208,7 @@ protected:
   QAction *mActionFeatureMatching;
   QAction *mActionOrientation;
   QAction *mActionDensification;
-  QAction *mActionViewSettings;
-  QAction *mActionToolSettings;
+  QAction *mActionSettings;
   QAction *mActionHelp;
   QAction *mActionAbout;
   QAction *mActionExportTiePoints;

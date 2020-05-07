@@ -1,11 +1,11 @@
 #include "MainWindowPresenter.h"
 
-#include "MainWindowView.h"
-#include "MainWindowModel.h"
-#include "ProjectModel.h"
-//#include "SettingsModel.h"
-//#include "SettingsPresenter.h"
-//#include "SettingsView.h"
+#include "inspector/ui/MainWindowView.h"
+#include "inspector/ui/MainWindowModel.h"
+#include "inspector/ui/ProjectModel.h"
+#include "inspector/ui/SettingsModel.h"
+#include "inspector/ui/SettingsPresenter.h"
+#include "inspector/ui/SettingsView.h"
 #include "inspector/ui/utils/TabHandler.h"
 //#include "inspector/ui/utils/GraphicViewer.h"
 //#include "inspector/ui/HelpDialog.h"
@@ -28,75 +28,18 @@ namespace ui
 
 MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          MainWindowModel *model,
-                                         ProjectModel *projectModel/*,
-                                         SettingsModel *settingsModel*/)
+                                         ProjectModel *projectModel,
+                                         SettingsModel *settingsModel)
   : IPresenter(),
     mView(view),
     mModel(model),
-    mProjectModel(projectModel)/*,
-    mSettingsModel(settingsModel)*/,
+    mProjectModel(projectModel),
+    mSettingsModel(settingsModel),
     mTabHandler(nullptr),
     mStartPageWidget(nullptr)
 {
-  init();
-
-  /* Menú Archivo */
-
-  connect(mView, &MainWindowView::openNew,                this, &MainWindowPresenter::openNew);
-  connect(mView, &MainWindowView::openProject,            this, &MainWindowPresenter::openProject);
-  connect(mView, &MainWindowView::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);  ///TODO: falta test señal
-  connect(mView, &MainWindowView::clearHistory,           this, &MainWindowPresenter::deleteHistory);
-  //connect(mView, &MainWindowView::openExportFeatures,     this, &MainWindowPresenter::openExportFeaturesDialog);
-  //connect(mView, &MainWindowView::openExportMatches,      this, &MainWindowPresenter::openExportMatchesDialog);
-  connect(mView, &MainWindowView::saveProject,            this, &MainWindowPresenter::saveProject);
-  connect(mView, &MainWindowView::saveProjectAs,          this, &MainWindowPresenter::saveProjectAs);
-  connect(mView, &MainWindowView::closeProject,           this, &MainWindowPresenter::closeProject);
-  connect(mView, &MainWindowView::exit,                   this, &MainWindowPresenter::exit);
-
-  /* Menú View */
-
-  connect(mView,   &MainWindowView::openStartPage,        this, &MainWindowPresenter::openStartPage);
-  connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
-  connect(mView,   &MainWindowView::openViewSettings,     this, &MainWindowPresenter::openViewSettingsDialog);
-
-  /* Quality Control */
-
-  connect(mView,  SIGNAL(openKeypointsViewer()),      this, SLOT(openKeypointsViewer()));
-  connect(mView,  SIGNAL(openMatchesViewer()),        this, SLOT(openMatchesViewer()));
-  //connect(mView,  &MainWindowView::openMultiviewMatchingAssessment,  this, &MainWindowPresenter::openMultiviewMatchingAssessmentDialog);
-
-  /* Menú herramientas */
-
-  connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::loadImages);
-  connect(mView,   &MainWindowView::openFeatureExtraction, this, &MainWindowPresenter::openFeatureExtractionDialog);
-  connect(mView,   &MainWindowView::openFeatureMatching,   this, &MainWindowPresenter::openFeatureMatchingDialog);
-  connect(mView,   &MainWindowView::openToolSettings,      this, &MainWindowPresenter::openToolSettingsDialog);
-
-  /* Menú Ayuda */
-
-  connect(mView, &MainWindowView::openHelpDialog,     this, &MainWindowPresenter::help);
-  connect(mView, &MainWindowView::openAboutDialog,    this, &MainWindowPresenter::openAboutDialog);
-
-  /* Panel de vistas en miniatura */
-
-  connect(mView, SIGNAL(openImage(QString)),          this, SLOT(openImage(QString)));
-  connect(mView, SIGNAL(selectImage(QString)),        this, SLOT(activeImage(QString)));
-  connect(mView, SIGNAL(selectImages(QStringList)),   this, SLOT(activeImages(QStringList)));
-  connect(mView, SIGNAL(deleteImages(QStringList)),   this, SLOT(deleteImages(QStringList)));
-
-//  connect(mView, SIGNAL(selectPreprocess(QString)),   this, SLOT(selectPreprocess(QString)));
-//  connect(mView, SIGNAL(selectFeatures(QString)),     this, SLOT(selectFeatures(QString)));
-//  connect(mView, SIGNAL(selectDetector(QString)),     this, SLOT(selectDetector(QString)));
-//  connect(mView, SIGNAL(selectDescriptor(QString)),   this, SLOT(selectDescriptor(QString)));
-//  connect(mView, SIGNAL(selectImageFeatures(QString)),   this, SLOT(selectImageFeatures(QString)));
-
-  /* Visor de imagenes */
-
-  connect(mView, SIGNAL(openImageMatches(QString,QString,QString)),   this, SLOT(openImageMatches(QString,QString,QString)));
-
-  connect(mView, SIGNAL(openKeypointsViewer(QString, QString)),         this, SIGNAL(openKeypointsViewerDialogFromSessionAndImage(QString, QString)));
-  connect(mView, SIGNAL(openMatchesViewer(QString, QString, QString)),  this, SIGNAL(openMatchesViewerDialogFromSessionAndImages(QString, QString, QString)));
-
+  this->init();
+  this->initSignalAndSlots();
 }
 
 MainWindowPresenter::~MainWindowPresenter()
@@ -165,52 +108,52 @@ void MainWindowPresenter::openProject()
 
 void MainWindowPresenter::openFromHistory(const QString &file)
 {
-//  if (QFileInfo(file).exists()) {
+  if (QFileInfo(file).exists()) {
 
-//    // Se comprueba si hay un proyecto abierto con cambios sin guardar
-//    if(mProjectModel->checkUnsavedChanges()) {
-//      int i_ret = QMessageBox(QMessageBox::Information,
-//                              tr("Save Changes"),
-//                              tr("There are unsaved changes. Do you want to save them?"),
-//                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-//      if (i_ret == QMessageBox::Yes) {
-//        saveProject();
-//      } else if (i_ret == QMessageBox::Cancel) {
-//        return;
-//      }
-//    }
+    // Se comprueba si hay un proyecto abierto con cambios sin guardar
+    if(mProjectModel->checkUnsavedChanges()) {
+      int i_ret = QMessageBox(QMessageBox::Information,
+                              tr("Save Changes"),
+                              tr("There are unsaved changes. Do you want to save them?"),
+                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
+      if (i_ret == QMessageBox::Yes) {
+        saveProject();
+      } else if (i_ret == QMessageBox::Cancel) {
+        return;
+     }
+    }
 
-//    mProjectModel->clear();
+    mProjectModel->clear();
 
-//    if (mProjectModel->checkOldVersion(file)){
-//      int i_ret = QMessageBox(QMessageBox::Information,
-//                              tr("It is loading an old project"),
-//                              tr("If you accept, a copy of the old project will be created"),
-//                              QMessageBox::Yes|QMessageBox::No).exec();
-//      if (i_ret == QMessageBox::Yes) {
-//        mProjectModel->oldVersionBak(file);
-//        mView->setFlag(MainWindowView::Flag::project_modified, true);
-//      } else if (i_ret == QMessageBox::Cancel) {
-//        return;
-//      }
+    if (mProjectModel->checkOldVersion(file)){
+      int i_ret = QMessageBox(QMessageBox::Information,
+                              tr("It is loading an old project"),
+                              tr("If you accept, a copy of the old project will be created"),
+                              QMessageBox::Yes|QMessageBox::No).exec();
+      if (i_ret == QMessageBox::Yes) {
+        mProjectModel->oldVersionBackup(file);
+        mView->setFlag(MainWindowView::Flag::project_modified, true);
+      } else if (i_ret == QMessageBox::Cancel) {
+        return;
+      }
 
-//    }
+    }
 
-//    mProjectModel->load(file);
-//    loadProject();
+    mProjectModel->load(file);
+    loadProject();
 
-//  } else {
-//    QByteArray ba = file.toLocal8Bit();
-//    const char *cfile = ba.data();
-//    msgWarning("Project file not found: %s", cfile);
-//  }
+  } else {
+    QByteArray ba = file.toLocal8Bit();
+    const char *cfile = ba.data();
+    msgWarning("Project file not found: %s", cfile);
+  }
 }
 
 void MainWindowPresenter::deleteHistory()
 {
-//  mSettingsModel->clearHistory();
-//  mStartPageWidget->setHistory(QStringList());
-//  mView->deleteHistory();
+  mSettingsModel->clearHistory();
+  mStartPageWidget->setHistory(QStringList());
+  mView->deleteHistory();
 }
 
 void MainWindowPresenter::saveProject()
@@ -331,10 +274,10 @@ void MainWindowPresenter::loadProject()
 
   QString prjFile = mProjectModel->projectPath();
 
-//  /// Se añade al historial de proyectos recientes
-//  mSettingsModel->addToHistory(prjFile);
-//  mView->updateHistory(mSettingsModel->history());
-//  mStartPageWidget->setHistory(mSettingsModel->history());
+  /// Se añade al historial de proyectos recientes
+  mSettingsModel->addToHistory(prjFile);
+  mView->updateHistory(mSettingsModel->history());
+  mStartPageWidget->setHistory(mSettingsModel->history());
 
   QString msg = tr("Load project: ").append(prjFile);
   mView->setStatusBarMsg(msg);
@@ -789,9 +732,67 @@ void MainWindowPresenter::init()
   mTabHandler = mView->tabHandler();
   openStartPage(); /// Show Start Page
 
-//  /* Projects history */
-//  mView->updateHistory(mSettingsModel->history());
-//  mStartPageWidget->setHistory(mSettingsModel->history());
+  /* Projects history */
+  mView->updateHistory(mSettingsModel->history());
+  mStartPageWidget->setHistory(mSettingsModel->history());
+}
+
+void MainWindowPresenter::initSignalAndSlots()
+{
+/* Menú Archivo */
+
+  connect(mView, &MainWindowView::openNew,                this, &MainWindowPresenter::openNew);
+  connect(mView, &MainWindowView::openProject,            this, &MainWindowPresenter::openProject);
+  connect(mView, &MainWindowView::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);  ///TODO: falta test señal
+  connect(mView, &MainWindowView::clearHistory,           this, &MainWindowPresenter::deleteHistory);
+  //connect(mView, &MainWindowView::openExportFeatures,     this, &MainWindowPresenter::openExportFeaturesDialog);
+  //connect(mView, &MainWindowView::openExportMatches,      this, &MainWindowPresenter::openExportMatchesDialog);
+  connect(mView, &MainWindowView::saveProject,            this, &MainWindowPresenter::saveProject);
+  connect(mView, &MainWindowView::saveProjectAs,          this, &MainWindowPresenter::saveProjectAs);
+  connect(mView, &MainWindowView::closeProject,           this, &MainWindowPresenter::closeProject);
+  connect(mView, &MainWindowView::exit,                   this, &MainWindowPresenter::exit);
+
+  /* Menú View */
+
+  connect(mView,   &MainWindowView::openStartPage,        this, &MainWindowPresenter::openStartPage);
+
+  /* Menú flujo de trabajo */
+
+  connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::loadImages);
+  connect(mView,   &MainWindowView::openFeatureExtraction, this, &MainWindowPresenter::openFeatureExtractionDialog);
+  connect(mView,   &MainWindowView::openFeatureMatching,   this, &MainWindowPresenter::openFeatureMatchingDialog);
+
+
+  /* Menú herramientas */
+
+  connect(mView,  SIGNAL(openKeypointsViewer()),      this, SLOT(openKeypointsViewer()));
+  connect(mView,  SIGNAL(openMatchesViewer()),        this, SLOT(openMatchesViewer()));
+  //connect(mView,  &MainWindowView::openMultiviewMatchingAssessment,  this, &MainWindowPresenter::openMultiviewMatchingAssessmentDialog);
+  connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
+
+  /* Menú Ayuda */
+
+  connect(mView, &MainWindowView::openHelpDialog,     this, &MainWindowPresenter::help);
+  connect(mView, &MainWindowView::openAboutDialog,    this, &MainWindowPresenter::openAboutDialog);
+
+  /* Panel de vistas en miniatura */
+
+  connect(mView, SIGNAL(openImage(QString)),          this, SLOT(openImage(QString)));
+  connect(mView, SIGNAL(selectImage(QString)),        this, SLOT(activeImage(QString)));
+  connect(mView, SIGNAL(selectImages(QStringList)),   this, SLOT(activeImages(QStringList)));
+  connect(mView, SIGNAL(deleteImages(QStringList)),   this, SLOT(deleteImages(QStringList)));
+
+//  connect(mView, SIGNAL(selectFeatures(QString)),     this, SLOT(selectFeatures(QString)));
+//  connect(mView, SIGNAL(selectDetector(QString)),     this, SLOT(selectDetector(QString)));
+//  connect(mView, SIGNAL(selectDescriptor(QString)),   this, SLOT(selectDescriptor(QString)));
+//  connect(mView, SIGNAL(selectImageFeatures(QString)),   this, SLOT(selectImageFeatures(QString)));
+
+  /* Visor de imagenes */
+
+  connect(mView, SIGNAL(openImageMatches(QString,QString,QString)),   this, SLOT(openImageMatches(QString,QString,QString)));
+
+  //connect(mView, SIGNAL(openKeypointsViewer(QString, QString)),         this, SIGNAL(openKeypointsViewerDialogFromSessionAndImage(QString, QString)));
+  //connect(mView, SIGNAL(openMatchesViewer(QString, QString, QString)),  this, SIGNAL(openMatchesViewerDialogFromSessionAndImages(QString, QString, QString)));
 }
 
 void MainWindowPresenter::initDefaultPath()
@@ -821,4 +822,3 @@ void MainWindowPresenter::initStartPage()
 } // namespace ui
 
 } // namespace inspector
-

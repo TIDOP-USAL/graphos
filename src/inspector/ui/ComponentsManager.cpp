@@ -3,8 +3,10 @@
 #include "inspector/ui/MainWindowModel.h"
 #include "inspector/ui/MainWindowView.h"
 #include "inspector/ui/MainWindowPresenter.h"
-
 #include "inspector/ui/ProjectModel.h"
+#include "inspector/ui/SettingsModel.h"
+#include "inspector/ui/SettingsView.h"
+#include "inspector/ui/SettingsPresenter.h"
 
 #include "inspector/ui/NewProjectPresenter.h"
 #include "inspector/ui/NewProjectView.h"
@@ -23,8 +25,12 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),
     mProject(new ProjectImp),
-    mProjectIO(new ProjectControllerImp),
+    mProjectController(new ProjectControllerImp),
     mProjectModel(nullptr),
+    mSettings(new SettingsImp),
+    mSettingsController(new SettingsControllerImp),
+    mSettingsModel(nullptr),
+    mSettingsPresenter(nullptr),
     mNewProjectPresenter(nullptr)
 {
 
@@ -42,14 +48,34 @@ ComponentsManager::~ComponentsManager()
     mProject = nullptr;
   }
 
-  if (mProjectIO) {
-    delete mProjectIO;
-    mProjectIO =nullptr;
+  if (mProjectController) {
+    delete mProjectController;
+    mProjectController =nullptr;
   }
 
   if (mProjectModel){
     delete mProjectModel;
     mProjectModel = nullptr;
+  }
+
+  if (mSettings){
+    delete mSettings;
+    mSettings = nullptr;
+  }
+
+  if (mSettingsController){
+    delete mSettingsController;
+    mSettingsController = nullptr;
+  }
+
+  if (mSettingsModel){
+    delete mSettingsModel;
+    mSettingsModel = nullptr;
+  }
+
+  if (mSettingsPresenter){
+    delete mSettingsPresenter;
+    mSettingsPresenter = nullptr;
   }
 
   if (mNewProjectPresenter) {
@@ -79,8 +105,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
   if (mMainWindowPresenter == nullptr){
     mMainWindowPresenter = new MainWindowPresenter(this->mainWindowView(),
                                                    this->mainWindowModel(),
-                                                   this->projectModel()/*,
-                                                   this->settingsModel()*/);
+                                                   this->projectModel(),
+                                                   this->settingsModel());
 
 //    mMainWindowPresenter->setHelp(this->helpDialog());
 
@@ -101,10 +127,9 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 //    connect(mMainWindowPresenter, SIGNAL(openROCCurvesViewerDialog()),  this, SLOT(initAndOpenROCCurvesViewerDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openDETCurvesViewerDialog()),  this, SLOT(initAndOpenDETCurvesViewerDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openSettingsDialog()),         this, SLOT(initAndOpenSettingsDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openViewSettingsDialog()),     this, SLOT(initAndOpenViewSettingsDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openQualityControlSettingsDialog()),         this, SLOT(initAndOpenQualityControlDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openToolSettingsDialog()),     this, SLOT(initAndOpenToolSettingsDialog()));
+    connect(mMainWindowPresenter, SIGNAL(openSettingsDialog()),         this, SLOT(initAndOpenSettingsDialog()));
+    connect(mMainWindowPresenter, SIGNAL(openViewSettingsDialog()),     this, SLOT(initAndOpenViewSettingsDialog()));
+    connect(mMainWindowPresenter, SIGNAL(openToolSettingsDialog()),     this, SLOT(initAndOpenToolSettingsDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openMultiviewMatchingAssessmentDialog()),     this, SLOT(initAndOpenMultiviewMatchingAssessmentDialog()));
   }
   return mMainWindowPresenter;
@@ -113,38 +138,28 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 ProjectModel *ComponentsManager::projectModel()
 {
   if (mProjectModel == nullptr){
-    mProjectModel = new ProjectModelImp(mProjectIO, mProject);
+    mProjectModel = new ProjectModelImp(mProjectController, mProject);
   }
   return mProjectModel;
 }
 
-//Settings *ComponentsManager::settings()
-//{
-//  return mSettings;
-//}
+SettingsModel *ComponentsManager::settingsModel()
+{
+  if (mSettingsModel == nullptr){
+    mSettingsModel = new SettingsModelImp(mSettings, mSettingsController);
+    mSettingsModel->read();
+  }
+  return mSettingsModel;
+}
 
-//SettingsController *ComponentsManager::settingsRW()
-//{
-//  return mSettingsRW;
-//}
-
-//SettingsModel *ComponentsManager::settingsModel()
-//{
-//  if (mSettingsModel == nullptr){
-//    mSettingsModel = new SettingsModelImp(mSettings, mSettingsRW);
-//    mSettingsModel->read();
-//  }
-//  return mSettingsModel;
-//}
-
-//SettingsPresenter *ComponentsManager::settingsPresenter()
-//{
-//  if (mSettingsPresenter == nullptr){
-//    SettingsView *view = new SettingsViewImp(this->mainWindowView());
-//    mSettingsPresenter = new SettingsPresenterImp(view, this->settingsModel());
-//  }
-//  return mSettingsPresenter;
-//}
+SettingsPresenter *ComponentsManager::settingsPresenter()
+{
+  if (mSettingsPresenter == nullptr){
+    SettingsView *view = new SettingsViewImp(this->mainWindowView());
+    mSettingsPresenter = new SettingsPresenterImp(view, this->settingsModel());
+  }
+  return mSettingsPresenter;
+}
 
 NewProjectPresenter *ComponentsManager::newProjectPresenter()
 {
@@ -639,44 +654,37 @@ void ComponentsManager::initAndOpenNewProjectDialog()
 //  this->aboutDialog()->open();
 //}
 
-//void ComponentsManager::initAndOpenSettingsDialog()
-//{
-//  this->initSettingsDialog();
-//  this->settingsPresenter()->open();
-//}
+void ComponentsManager::initAndOpenSettingsDialog()
+{
+  this->initSettingsDialog();
+  this->settingsPresenter()->open();
+}
 
-//void ComponentsManager::initAndOpenViewSettingsDialog()
-//{
-//  this->initSettingsDialog();
-//  this->settingsPresenter()->openViewSettings();
-//}
+void ComponentsManager::initAndOpenViewSettingsDialog()
+{
+  this->initSettingsDialog();
+  this->settingsPresenter()->openViewSettings();
+}
 
-//void ComponentsManager::initAndOpenQualityControlDialog()
-//{
-//  this->initSettingsDialog();
-//  this->settingsPresenter()->openQualityControlSettings();
-//}
+void ComponentsManager::initAndOpenToolSettingsDialog()
+{
+  this->initSettingsDialog();
+  this->settingsPresenter()->openToolSettings();
+}
 
-//void ComponentsManager::initAndOpenToolSettingsDialog()
-//{
-//  this->initSettingsDialog();
-//  this->settingsPresenter()->openToolSettings();
-//}
+void ComponentsManager::initSettingsDialog()
+{
+  disconnect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this, SLOT(initAndOpenSettingsDialog()));
+  disconnect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this, SLOT(initAndOpenViewSettingsDialog()));
+  disconnect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this, SLOT(initAndOpenToolSettingsDialog()));
 
-//void ComponentsManager::initSettingsDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this, SLOT(initAndOpenSettingsDialog()));
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this, SLOT(initAndOpenViewSettingsDialog()));
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openQualityControlSettingsDialog()), this, SLOT(initAndOpenQualityControlDialog()));
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this, SLOT(initAndOpenToolSettingsDialog()));
+  connect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this->settingsPresenter(), SLOT(open()));
+  connect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this->settingsPresenter(), SLOT(openViewSettings()));
+  connect(this->mainWindowPresenter(), SIGNAL(openQualityControlSettingsDialog()), this->settingsPresenter(), SLOT(openQualityControlSettings()));
+  connect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this->settingsPresenter(), SLOT(openToolSettings()));
 
-//  connect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this->settingsPresenter(), SLOT(open()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this->settingsPresenter(), SLOT(openViewSettings()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openQualityControlSettingsDialog()), this->settingsPresenter(), SLOT(openQualityControlSettings()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this->settingsPresenter(), SLOT(openToolSettings()));
-
-//  this->settingsPresenter()->setHelp(this->helpDialog());
-//}
+  //this->settingsPresenter()->setHelp(this->helpDialog());
+}
 
 //void ComponentsManager::initAndOpenMultiviewMatchingAssessmentDialog()
 //{

@@ -20,11 +20,8 @@ NewProjectPresenterImp::NewProjectPresenterImp(NewProjectView *view, ProjectMode
     mProjectModel(model),
     mHelp(nullptr)
 {
-  init();
-
-  connect(mView, SIGNAL(accepted()), this, SLOT(saveProject()));
-  connect(mView, SIGNAL(rejected()), this, SLOT(discartProject()));
-  connect(mView, SIGNAL(help()),     this, SLOT(help()));
+  this->init();
+  this->initSignalAndSlots();
 }
 
 NewProjectPresenterImp::~NewProjectPresenterImp()
@@ -107,7 +104,13 @@ void NewProjectPresenterImp::init()
   }
 }
 
+void NewProjectPresenterImp::initSignalAndSlots()
+{
+  connect(mView, SIGNAL(accepted()), this, SLOT(saveProject()));
+  connect(mView, SIGNAL(rejected()), this, SLOT(discartProject()));
+  connect(mView, SIGNAL(help()),     this, SLOT(help()));
+}
+
 } // namespace ui
 
 } // namespace inspector
-

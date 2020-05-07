@@ -8,6 +8,7 @@ class QCheckBox;
 class QDialogButtonBox;
 class QTextEdit;
 class QPushButton;
+class QLabel;
 
 namespace inspector
 {
@@ -57,9 +58,13 @@ private slots:
 
 protected:
 
+  QLabel *mLabelProjectName;
   QLineEdit *mLineEditProjectName;
+  QLabel *mLabelProjectPath;
   QLineEdit *mLineEditProjectPath;
+  QLabel *mLabelProjectFile;
   QLineEdit *mLineEditProjectFile;
+  QLabel *mLabelDescription;
   QTextEdit *mTextEditDescription;
   QCheckBox *mCheckBoxProjectFolder;
   QPushButton *mPushButtonProjectPath;

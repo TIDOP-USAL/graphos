@@ -8,6 +8,8 @@ namespace inspector
 
 class ProjectController;
 class Project;
+class Settings;
+class SettingsController;
 
 namespace ui
 {
@@ -15,13 +17,14 @@ namespace ui
 class MainWindowModel;
 class MainWindowView;
 class MainWindowPresenter;
-
 class ProjectModel;
-
+class SettingsModel;
+class SettingsPresenter;
 class NewProjectPresenter;
 
 
-class ComponentsManager : public QObject
+class ComponentsManager
+  : public QObject
 {
   Q_OBJECT
 
@@ -37,6 +40,9 @@ public:
 
   ProjectModel *projectModel();
   
+  SettingsModel *settingsModel();
+  SettingsPresenter *settingsPresenter();
+
   NewProjectPresenter *newProjectPresenter();
   
 signals:
@@ -44,19 +50,27 @@ signals:
 protected slots:
 
   void initAndOpenNewProjectDialog();
+  void initAndOpenSettingsDialog();
+  void initAndOpenViewSettingsDialog();
+  void initAndOpenToolSettingsDialog();
+  void initSettingsDialog();
 
 protected:
 
   MainWindowView *mMainWindowView;
   MainWindowModel *mMainWindowModel;
   MainWindowPresenter *mMainWindowPresenter;
-
   Project *mProject;
-  ProjectController *mProjectIO;
+  ProjectController *mProjectController;
   ProjectModel *mProjectModel;
+  Settings *mSettings;
+  SettingsController *mSettingsController;
+  SettingsModel *mSettingsModel;
+  SettingsPresenter *mSettingsPresenter;
 
   NewProjectPresenter *mNewProjectPresenter;
-  
+
+
 };
 
 } // namespace ui
