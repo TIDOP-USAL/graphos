@@ -57,7 +57,6 @@ public slots:
 private slots:
 
   virtual void update() = 0;
-
   virtual void retranslate() = 0;
 
 // QWidget interface
@@ -83,7 +82,7 @@ class IModel
 public:
 
   IModel(QObject *parent = nullptr) : QObject(parent){}
-  virtual ~IModel(){}
+  virtual ~IModel() = default;
 
 private:
 
@@ -91,6 +90,10 @@ private:
    * \brief Class Initialization
    */
   virtual void init() = 0;
+
+public slots:
+
+  virtual void clear() = 0;
 
 };
 

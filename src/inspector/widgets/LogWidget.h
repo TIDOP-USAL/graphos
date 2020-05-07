@@ -1,8 +1,6 @@
 #ifndef INSPECTOR_CONSOLE_WIDGET_H
 #define INSPECTOR_CONSOLE_WIDGET_H
 
-#include "inspector/inspector_global.h"
-
 #include "inspector/widgets/InspectorWidget.h"
 
 #include <mutex>

@@ -23,14 +23,12 @@ project(inspector_image)
 set(INSPECTOR_SOURCES
     main.cpp
     ComponentsManager.cpp
+    ProjectModel.cpp
     MainWindowModel.cpp
     MainWindowPresenter.cpp
     MainWindowView.cpp
-    # NewProjectView.cpp
-    # NewProjectPresenter.cpp
-    # NewSessionView.cpp
-    # NewSessionPresenter.cpp
-    # ProjectModel.cpp
+    NewProjectView.cpp
+    NewProjectPresenter.cpp
     # SettingsModel.cpp
     # SettingsPresenter.cpp
     # SettingsView.cpp
@@ -75,15 +73,15 @@ set(INSPECTOR_SOURCES
     # #BatchPresenter.cpp
     # AboutDialog.cpp
     # HelpDialog.cpp
-    # utils/GraphicViewer.cpp
+    utils/GraphicViewer.cpp
     # utils/ProgressDialog.cpp
     # utils/Progress.cpp
     # #utils/KeyPointGraphicsItem.cpp
     # #utils/CrossGraphicItem.cpp
     # #utils/DiagonalCrossGraphicItem.cpp
     # #utils/CircleGraphicItem.cpp
-    # utils/GraphicItem.cpp
-    # utils/TabHandler.cpp
+    utils/GraphicItem.cpp
+    utils/TabHandler.cpp
     # ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
 )
 
@@ -91,16 +89,13 @@ set(INSPECTOR_HEADERS
     ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
     ComponentsManager.h
     ComponentsManager.cpp
+    ProjectModel.h
     MainWindowModel.h
     MainWindowPresenter.h
     MainWindowView.h
-    # NewProject.h
-    # NewProjectView.h
-    # NewProjectPresenter.h
-    # NewSession.h
-    # NewSessionView.h
-    # NewSessionPresenter.h
-    # ProjectModel.h
+    NewProject.h
+    NewProjectView.h
+    NewProjectPresenter.h
     # Settings.h
     # SettingsModel.h
     # SettingsPresenter.h
@@ -158,15 +153,15 @@ set(INSPECTOR_HEADERS
     # #BatchPresenter.h
     # AboutDialog.h
     # HelpDialog.h
-    # utils/GraphicViewer.h
+    utils/GraphicViewer.h
     # utils/ProgressDialog.h
     # utils/Progress.h
     # #utils/KeyPointGraphicsItem.h
     # #utils/CrossGraphicItem.h
     # #utils/DiagonalCrossGraphicItem.h
     # #utils/CircleGraphicItem.h
-    # utils/GraphicItem.h
-    # utils/TabHandler.h
+    utils/GraphicItem.h
+    utils/TabHandler.h
     # ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
 )
 

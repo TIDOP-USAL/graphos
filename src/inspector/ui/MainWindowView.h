@@ -21,9 +21,9 @@ namespace inspector
 class ThumbnailsWidget;
 class LogWidget;
 
+
 namespace ui
 {
-
 
 class GraphicViewer;
 class TabHandler;
@@ -101,8 +101,6 @@ public slots:
    * \brief Borra el historial de proyectos recientes
    */
   void deleteHistory();
-
-  void deleteSession(const QString &session);
 
   /*!
    * \brief Elimina una imagen

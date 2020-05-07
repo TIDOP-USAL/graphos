@@ -1,8 +1,6 @@
 #ifndef INSPECTOR_START_PAGE_WIDGET_H
 #define INSPECTOR_START_PAGE_WIDGET_H
 
-#include "inspector/inspector_global.h"
-
 #include "inspector/widgets/InspectorWidget.h"
 
 class QLabel;
@@ -47,7 +45,6 @@ signals:
   void openNew();
   void openProject();
   void openSettings();
-  //void openGitHub();
   void clearHistory();
   void openProjectFromHistory(QString);
 
@@ -65,7 +62,6 @@ protected:
   QCommandLinkButton *mCommandLinkButtonNewProject;
   QCommandLinkButton *mCommandLinkButtonOpenProject;
   QCommandLinkButton *mCommandLinkButtonSettings;
-  //QCommandLinkButton *mCommandLinkButtonGitHub;
   QListWidget *mListWidgetRecentProjects;
   QCommandLinkButton *mCommandLinkButtonClearHistory;
 };

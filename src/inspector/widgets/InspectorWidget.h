@@ -1,10 +1,11 @@
 #ifndef INSPECTOR_WIDGET_H
 #define INSPECTOR_WIDGET_H
 
+#include "inspector/inspector_global.h"
+
 #include <memory>
 
-#include <QObject>
-#include <QDialog>
+#include <QWidget>
 #include <QEvent>
 
 namespace inspector

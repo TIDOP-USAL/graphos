@@ -3,6 +3,8 @@ include_directories(${CMAKE_SOURCE_DIR}/third_party)
 add_library(inspector_core ${LIB_TYPE}
             project.cpp
             project.h
+            settings.cpp
+            settings.h
             image.cpp
             image.h
             features/features.h

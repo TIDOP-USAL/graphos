@@ -3,9 +3,7 @@
 
 #include "inspector/widgets/ThumbnailsWidget.h"
 #include "inspector/widgets/LogWidget.h"
-////#include "photomatch/ui/utils/GraphicViewer.h"
-////#include "photomatch/ui/utils/GraphicItem.h"
-//#include "photomatch/ui/utils/TabHandler.h"
+#include "inspector/ui/utils/TabHandler.h"
 
 #include <tidop/core/messages.h>
 
@@ -84,18 +82,16 @@ MainWindowView::~MainWindowView()
 void MainWindowView::clear()
 {
   setWindowTitle(QString("Inspector Image"));
-//  const QSignalBlocker blockerTreeWidgetProject(mTreeWidgetProject);
-//  mTreeWidgetProject->clear();
+  const QSignalBlocker blockerTreeWidgetProject(mTreeWidgetProject);
+  mTreeWidgetProject->clear();
   const QSignalBlocker blockerThumbnailsWidget(mThumbnailsWidget);
   mThumbnailsWidget->clear();
-//  ui->treeWidgetProperties->clear();
-//  mFlags.clear();
-//  const QSignalBlocker blockerComboBoxActiveSession(mComboBoxActiveSession);
-//  mComboBoxActiveSession->clear();
+  ui->treeWidgetProperties->clear();
+  mFlags.clear();
 
-//  if (mTabHandler) mTabHandler->clear();
+  if (mTabHandler) mTabHandler->clear();
 
-//  update();
+  update();
 }
 
 void MainWindowView::setProjectTitle(const QString &title)
@@ -510,15 +506,15 @@ void MainWindowView::setStatusBarMsg(const QString &msg)
 
 void MainWindowView::setProperties(const std::list<std::pair<QString, QString>> &properties)
 {
-//  ui->treeWidgetProperties->clear();
-//  ui->treeWidgetProperties->setAlternatingRowColors(true);
+  ui->treeWidgetProperties->clear();
+  ui->treeWidgetProperties->setAlternatingRowColors(true);
 
-//  for (auto it = properties.begin(); it != properties.end(); it++){
-//    QTreeWidgetItem *item = new QTreeWidgetItem();
-//    item->setText(0, it->first);
-//    item->setText(1, it->second);
-//    ui->treeWidgetProperties->addTopLevelItem(item);
-//  }
+  for (auto it = properties.begin(); it != properties.end(); it++){
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    item->setText(0, it->first);
+    item->setText(1, it->second);
+    ui->treeWidgetProperties->addTopLevelItem(item);
+  }
 }
 
 QProgressBar *MainWindowView::progressBar()
@@ -598,40 +594,6 @@ void MainWindowView::deleteImage(const QString &file)
 //  }
 
 //  mThumbnailsWidget->deleteThumbnail(file);
-}
-
-void MainWindowView::deleteSession(const QString &session)
-{
-
-//  int id = mComboBoxActiveSession->findText(session);
-//  if (id != -1){
-//    mComboBoxActiveSession->removeItem(id);
-//  }
-
-//  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
-
-//    QTreeWidgetItem *itemSessions = nullptr;
-//    for (int i = 0; i < itemProject->childCount(); i++) {
-//      if (QTreeWidgetItem *temp = itemProject->child(i)){
-//        if (temp->text(0).compare(tr("Sessions")) == 0) {
-//          itemSessions = itemProject->child(i);
-//          break;
-//        }
-//      }
-//    }
-
-//    if (itemSessions != nullptr) {
-//      for (int i = 0; i < itemSessions->childCount(); i++) {
-//        if (QTreeWidgetItem *itemSession = itemSessions->child(i)){
-//          if (itemSession->text(0).compare(session) == 0){
-//            delete itemSession;
-//            itemSession = nullptr;
-//            break;
-//          }
-//        }
-//      }
-//    }
-//  }
 }
 
 void MainWindowView::deleteFeatures(const QString &session, const QString &feat)
@@ -825,7 +787,6 @@ void MainWindowView::update()
 
 //  mActionLoadImages->setEnabled(bProjectExists && !bProcessing);
 //  mActionGroundTruthEditor->setEnabled(mFlags.isActive(Flag::images_added));
-//  mActionNewSession->setEnabled(mFlags.isActive(Flag::images_added) && !bProcessing);
 //  mActionPreprocess->setEnabled(mFlags.isActive(Flag::session_created) && !bProcessing);
 //  mActionFeatureExtraction->setEnabled(mFlags.isActive(Flag::session_created) && !bProcessing);
 //  mActionFeatureMatching->setEnabled(mFlags.isActive(Flag::feature_extraction) && !bProcessing);
@@ -835,20 +796,11 @@ void MainWindowView::update()
 //  mActionFeaturesViewer->setEnabled(mFlags.isActive(Flag::feature_extraction));
 //  mActionMatchesViewer->setEnabled(mFlags.isActive(Flag::feature_matching));
 //  mActionPassPointsViewer->setEnabled(mFlags.isActive(Flag::feature_matching));
-//  mActionHomography->setEnabled(mFlags.isActive(Flag::feature_matching));
-//  //mActionRepeatability->setEnabled(mFlags.isActive(Flag::feature_matching) && mFlags.isActive(Flag::ground_truth));
-//  mActionPRCurves->setEnabled(mFlags.isActive(Flag::feature_matching) && mFlags.isActive(Flag::ground_truth));
-//  mActionROCCurves->setEnabled(mFlags.isActive(Flag::feature_matching) && mFlags.isActive(Flag::ground_truth));
-//  mActionDETCurves->setEnabled(mFlags.isActive(Flag::feature_matching) && mFlags.isActive(Flag::ground_truth));
 
 //  mActionNotRecentProjects->setVisible(mHistory.size() == 0);
 //  mActionClearHistory->setEnabled(mHistory.size() > 0);
 
-//  mComboBoxActiveSession->setDisabled(bProcessing);
-//  mActionSetSession->setDisabled(bProcessing);
-//  mActionDeleteSession->setDisabled(bProcessing);
-
-  //  mActionLoadImages->setDisabled(bLoadingImages || bProcessing);
+//  mActionLoadImages->setDisabled(bLoadingImages || bProcessing);
 }
 
 void MainWindowView::retranslate()
@@ -1211,11 +1163,11 @@ void MainWindowView::initUI()
   gridLayoutConsole->addWidget(mLogWidget, 0, 0, 1, 1);
 
   /* Tab Handler */
-//  QGridLayout *gridLayoutCentral = new QGridLayout(this->centralWidget());
-//  gridLayoutCentral->setSpacing(6);
-//  gridLayoutCentral->setContentsMargins(0,0,0,0);
-//  mTabHandler = new TabHandler(this->centralWidget());
-//  gridLayoutCentral->addWidget(mTabHandler);
+  QGridLayout *gridLayoutCentral = new QGridLayout(this->centralWidget());
+  gridLayoutCentral->setSpacing(6);
+  gridLayoutCentral->setContentsMargins(0,0,0,0);
+  mTabHandler = new TabHandler(this->centralWidget());
+  gridLayoutCentral->addWidget(mTabHandler);
 
   /* Menu file */
 
@@ -1307,10 +1259,10 @@ void MainWindowView::initUI()
   ui->toolBarTools->addAction(mActionFeatureExtraction);
   ui->toolBarTools->addAction(mActionFeatureMatching);
 
-//  ui->toolBarView->addAction(mTabHandler->actionZoomIn());
-//  ui->toolBarView->addAction(mTabHandler->actionZoomOut());
-//  ui->toolBarView->addAction(mTabHandler->actionZoom11());
-//  ui->toolBarView->addAction(mTabHandler->actionZoomExtend());
+  ui->toolBarView->addAction(mTabHandler->actionZoomIn());
+  ui->toolBarView->addAction(mTabHandler->actionZoomOut());
+  ui->toolBarView->addAction(mTabHandler->actionZoom11());
+  ui->toolBarView->addAction(mTabHandler->actionZoomExtend());
 
   mLayoutCentral = new QGridLayout(this->centralWidget());
   mLayoutCentral->setSpacing(6);

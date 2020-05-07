@@ -22,7 +22,7 @@ public:
    * \brief Devuelve la ruta por defecto donde se situan los proyectos
    * \return
    */
-  QString defaultPath() const;
+  //QString defaultPath() const;
 
 signals:
 
@@ -35,9 +35,14 @@ private:
 
   void init() override;
 
+public slots:
+
+  void clear() override;
+
 protected:
 
   QString mPrjDefaultPath;
+
 };
 
 } // namespace ui

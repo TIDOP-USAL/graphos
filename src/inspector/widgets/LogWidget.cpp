@@ -160,6 +160,8 @@ void LogWidget::initUI()
   mGridLayout->addWidget(toolBar);
   mListWidget = new QListWidget(this);
   mGridLayout->addWidget(mListWidget);
+
+  update();
 }
 
 void LogWidget::initSignalAndSlots()

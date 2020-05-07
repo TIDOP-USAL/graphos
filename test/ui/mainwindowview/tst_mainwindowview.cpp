@@ -43,6 +43,10 @@ private slots:
   void test_closeProject();
   void test_exit();
 
+  /* Menú View */
+
+  void test_openStartPage();
+
   /* Menú herramientas */
 
   void test_loadImages();
@@ -217,18 +221,18 @@ void TestMainWindowView::test_deleteHistory()
 
 void TestMainWindowView::test_openNew()
 {
-/*   QSignalSpy spy_openNew(this, &MainWindowView::openNew);
+  QSignalSpy spy_openNew(this, &MainWindowView::openNew);
 
   emit mActionNewProject->triggered(true);
-  QCOMPARE(spy_openNew.count(), 1); */
+  QCOMPARE(spy_openNew.count(), 1);
 }
 
 void TestMainWindowView::test_openProject()
 {
-/*   QSignalSpy spy_openProject(this, &MainWindowView::openProject);
+  QSignalSpy spy_openProject(this, &MainWindowView::openProject);
 
   emit mActionOpenProject->triggered(true);
-  QCOMPARE(spy_openProject.count(), 1); */
+  QCOMPARE(spy_openProject.count(), 1);
 }
 
 void TestMainWindowView::test_openFromHistory()
@@ -251,42 +255,50 @@ void TestMainWindowView::test_clearHistory()
 
 void TestMainWindowView::test_saveProject()
 {
-//  QSignalSpy spy_saveProject(this, &MainWindowView::saveProject);
-//
-//  emit mActionSaveProject->triggered(true);
-//  QCOMPARE(spy_saveProject.count(), 1);
+  QSignalSpy spy_saveProject(this, &MainWindowView::saveProject);
+
+  emit mActionSaveProject->triggered(true);
+  QCOMPARE(spy_saveProject.count(), 1);
 }
 
 void TestMainWindowView::test_saveProjectAs()
 {
-//  QSignalSpy spy_saveProjectAsy(this, &MainWindowView::saveProjectAs);
-//
-//  emit mActionSaveProjectAs->triggered(true);
-//  QCOMPARE(spy_saveProjectAsy.count(), 1);
+  QSignalSpy spy_saveProjectAsy(this, &MainWindowView::saveProjectAs);
+
+  emit mActionSaveProjectAs->triggered(true);
+  QCOMPARE(spy_saveProjectAsy.count(), 1);
 }
 
 void TestMainWindowView::test_closeProject()
 {
-//  QSignalSpy spy_closeProject(this, &MainWindowView::closeProject);
-//
-//  emit mActionCloseProject->triggered(true);
-//  QCOMPARE(spy_closeProject.count(), 1);
+  QSignalSpy spy_closeProject(this, &MainWindowView::closeProject);
+
+  emit mActionCloseProject->triggered(true);
+  QCOMPARE(spy_closeProject.count(), 1);
 }
 
 void TestMainWindowView::test_exit()
 {
-//  QSignalSpy spy_exit(this, &MainWindowView::exit);
-//
-//  emit mActionExit->triggered(true);
-//  QCOMPARE(spy_exit.count(), 1);
+  QSignalSpy spy_exit(this, &MainWindowView::exit);
+
+  emit mActionExit->triggered(true);
+  QCOMPARE(spy_exit.count(), 1);
+}
+
+void TestMainWindowView::test_openStartPage()
+{
+  QSignalSpy spy_openStartPage(this, &MainWindowView::openStartPage);
+
+  emit mActionStartPage->triggered(true);
+  QCOMPARE(spy_openStartPage.count(), 1);
 }
 
 void TestMainWindowView::test_loadImages()
 {
-//  QSignalSpy spy_loadImages(this, &MainWindowView::loadImages);
-//
-//  emit mActionLoadImages->triggered(true);
-//  QCOMPARE(spy_loadImages.count(), 1);
+  QSignalSpy spy_loadImages(this, &MainWindowView::loadImages);
+
+  emit mActionLoadImages->triggered(true);
+  QCOMPARE(spy_loadImages.count(), 1);
 }
 
 void TestMainWindowView::test_newProcessing()

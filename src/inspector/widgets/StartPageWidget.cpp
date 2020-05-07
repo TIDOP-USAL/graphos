@@ -35,7 +35,6 @@ void StartPageWidget::retranslate()
   mCommandLinkButtonNewProject->setText(QApplication::translate("StartPage", "New Project", nullptr));
   mCommandLinkButtonOpenProject->setText(QApplication::translate("StartPage", "Open Project", nullptr));
   mCommandLinkButtonSettings->setText(QApplication::translate("StartPage", "Settings", nullptr));
-  //mCommandLinkButtonGitHub->setText(QApplication::translate("StartPage", "GitHub", nullptr));
   mLabelRecentProjects->setText(QApplication::translate("StartPage", "Recent Projects", nullptr));
   mCommandLinkButtonClearHistory->setText(QApplication::translate("StartPage", "Clear History", nullptr));
 }
@@ -61,7 +60,7 @@ void StartPageWidget::initUI()
   font.setBold(true);
   font.setWeight(75);
   mLabelPhotoMatch->setFont(font);
-  mLabelPhotoMatch->setStyleSheet(QStringLiteral("color: rgb(26, 188, 156);"));
+  mLabelPhotoMatch->setStyleSheet(QStringLiteral("color: rgb(95, 141, 211);"));
 
   layout->addWidget(mLabelPhotoMatch, 0, 0, 1, 1);
 
@@ -74,7 +73,7 @@ void StartPageWidget::initUI()
   verticalLayout->setContentsMargins(9, 9, 9, 9);
   mCommandLinkButtonNewProject = new QCommandLinkButton(layoutWidgetButtons);
   QIcon icon;
-  icon.addFile(QStringLiteral(":/ico/48/img/material/48/icons8_file_48px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  icon.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
   mCommandLinkButtonNewProject->setIcon(icon);
   mCommandLinkButtonNewProject->setIconSize(QSize(48, 48));
 
@@ -82,7 +81,7 @@ void StartPageWidget::initUI()
 
   mCommandLinkButtonOpenProject = new QCommandLinkButton(layoutWidgetButtons);
   QIcon icon1;
-  icon1.addFile(QStringLiteral(":/ico/48/img/material/48/icons8_opened_folder_48px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  icon1.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-open.png"), QSize(), QIcon::Normal, QIcon::Off);
   mCommandLinkButtonOpenProject->setIcon(icon1);
   mCommandLinkButtonOpenProject->setIconSize(QSize(48, 48));
 
@@ -96,7 +95,7 @@ void StartPageWidget::initUI()
 
   mCommandLinkButtonSettings = new QCommandLinkButton(layoutWidgetButtons);
   QIcon icon2;
-  icon2.addFile(QStringLiteral(":/ico/48/img/material/48/icons8_automatic_48px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  icon2.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
   mCommandLinkButtonSettings->setIcon(icon2);
   mCommandLinkButtonSettings->setIconSize(QSize(48, 48));
 
@@ -105,14 +104,6 @@ void StartPageWidget::initUI()
   QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
   verticalLayout->addItem(verticalSpacer);
-
-//  mCommandLinkButtonGitHub = new QCommandLinkButton(layoutWidgetButtons);
-//  QIcon icon3;
-//  icon3.addFile(QStringLiteral(":/ico/48/img/material/48/icons8_github_48px.png"), QSize(), QIcon::Normal, QIcon::Off);
-//  mCommandLinkButtonGitHub->setIcon(icon3);
-//  mCommandLinkButtonGitHub->setIconSize(QSize(48, 48));
-
-//  verticalLayout->addWidget(mCommandLinkButtonGitHub);
 
   mSplitter->addWidget(layoutWidgetButtons);
 
@@ -144,7 +135,7 @@ void StartPageWidget::initUI()
 
   mCommandLinkButtonClearHistory = new QCommandLinkButton(layoutWidget2);
   QIcon icon4;
-  icon4.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_delete_trash_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  icon4.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-delete-2.png"), QSize(), QIcon::Normal, QIcon::Off);
   mCommandLinkButtonClearHistory->setIcon(icon4);
   mCommandLinkButtonClearHistory->setIconSize(QSize(24, 24));
 
@@ -162,7 +153,6 @@ void StartPageWidget::initSignalAndSlots()
   connect(mCommandLinkButtonNewProject,   &QAbstractButton::clicked,  this, &StartPageWidget::openNew);
   connect(mCommandLinkButtonOpenProject,  &QAbstractButton::clicked,  this, &StartPageWidget::openProject);
   connect(mCommandLinkButtonSettings,     &QAbstractButton::clicked,  this, &StartPageWidget::openSettings);
-  //connect(mCommandLinkButtonGitHub,       &QAbstractButton::clicked,  this, &StartPageWidget::openGitHub);
   connect(mCommandLinkButtonClearHistory, &QAbstractButton::clicked,  this, &StartPageWidget::clearHistory);
 
   connect(mListWidgetRecentProjects,      &QListWidget::currentTextChanged, this, &StartPageWidget::openProjectFromHistory);

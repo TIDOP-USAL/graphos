@@ -8,16 +8,17 @@ class QTextEdit;
 namespace inspector
 {
 
+class StartPageWidget;
+
 namespace ui
 {
 
 class MainWindowView;
 class MainWindowModel;
-//class ProjectModel;
+class ProjectModel;
 //class SettingsModel;
 //class HelpDialog;
-//class TabHandler;
-//class StartPageWidget;
+class TabHandler;
 
 class MainWindowPresenter
   : public IPresenter
@@ -27,8 +28,8 @@ class MainWindowPresenter
 public:
 
   explicit MainWindowPresenter(MainWindowView *view,
-                               MainWindowModel *model/*,
-                               ProjectModel *projectModel,
+                               MainWindowModel *model,
+                               ProjectModel *projectModel/*,
                                SettingsModel *settingsModel*/);
   ~MainWindowPresenter() override;
 
@@ -113,22 +114,28 @@ public slots:
 private:
 
   void init() override;
+
+private:
+
+  void initDefaultPath();
   void initStartPage();
 
 //  bool loadPreprocess(const QString &session);
 //  bool loadFeatures(const QString &session);
 //  bool loadMatches(const QString &session);
 
+
+
 protected:
 
   MainWindowView *mView;
   MainWindowModel *mModel;
-  //ProjectModel *mProjectModel;
+  ProjectModel *mProjectModel;
   //SettingsModel *mSettingsModel;
   HelpDialog *mHelpDialog;
-  //TabHandler *mTabHandler;
-  //StartPageWidget *mStartPageWidget;
-
+  TabHandler *mTabHandler;
+  StartPageWidget *mStartPageWidget;
+  QString mProjectDefaultPath;
 };
 
 } // namespace ui

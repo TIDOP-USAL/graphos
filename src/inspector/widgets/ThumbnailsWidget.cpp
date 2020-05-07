@@ -171,7 +171,7 @@ void ThumbnailsWidget::onSelectionChanged()
   update();
 }
 
-void ThumbnailsWidget::onThumbnailToggled(bool active)
+void ThumbnailsWidget::onThumbnailClicked()
 {
   mIconSize  = QSize(200, 200);
   mListWidget->setIconSize(mIconSize);
@@ -180,12 +180,12 @@ void ThumbnailsWidget::onThumbnailToggled(bool active)
   const QSignalBlocker block0(mThumbnailAction);
   const QSignalBlocker block1(mThumbnailSmallAction);
   const QSignalBlocker block2(mDetailsAction);
-  mThumbnailAction->setChecked(active);
-  mThumbnailSmallAction->setChecked(!active);
-  mDetailsAction->setChecked(!active);
+  mThumbnailAction->setChecked(true);
+  mThumbnailSmallAction->setChecked(false);
+  mDetailsAction->setChecked(false);
 }
 
-void ThumbnailsWidget::onThumbnailSmallToggled(bool active)
+void ThumbnailsWidget::onThumbnailSmallClicked()
 {
   mIconSize  = QSize(100, 100);
   mListWidget->setIconSize(mIconSize);
@@ -194,12 +194,12 @@ void ThumbnailsWidget::onThumbnailSmallToggled(bool active)
   const QSignalBlocker block0(mThumbnailAction);
   const QSignalBlocker block1(mThumbnailSmallAction);
   const QSignalBlocker block2(mDetailsAction);
-  mThumbnailAction->setChecked(!active);
-  mThumbnailSmallAction->setChecked(active);
-  mDetailsAction->setChecked(!active);
+  mThumbnailAction->setChecked(false);
+  mThumbnailSmallAction->setChecked(true);
+  mDetailsAction->setChecked(false);
 }
 
-void ThumbnailsWidget::onDetailsToggled(bool active)
+void ThumbnailsWidget::onDetailsClicked()
 {
   mIconSize  = QSize(50, 50);
   mListWidget->setIconSize(mIconSize);
@@ -208,9 +208,9 @@ void ThumbnailsWidget::onDetailsToggled(bool active)
   const QSignalBlocker block0(mThumbnailAction);
   const QSignalBlocker block1(mThumbnailSmallAction);
   const QSignalBlocker block2(mDetailsAction);
-  mThumbnailAction->setChecked(!active);
-  mThumbnailSmallAction->setChecked(!active);
-  mDetailsAction->setChecked(active);
+  mThumbnailAction->setChecked(false);
+  mThumbnailSmallAction->setChecked(false);
+  mDetailsAction->setChecked(true);
 }
 
 void ThumbnailsWidget::onDeleteImageClicked()
@@ -241,7 +241,11 @@ void ThumbnailsWidget::finished()
 
 void ThumbnailsWidget::update()
 {
-  mDeleteImageAction->setEnabled(mListWidget->selectedItems().size() > 0);
+  bool images_added = mListWidget->selectedItems().size() > 0;
+  mThumbnailAction->setEnabled(images_added);
+  mThumbnailSmallAction->setEnabled(images_added);
+  mDetailsAction->setEnabled(images_added);
+  mDeleteImageAction->setEnabled(images_added);
 }
 
 void ThumbnailsWidget::retranslate()
@@ -297,7 +301,7 @@ void ThumbnailsWidget::initUI()
   mDeleteImageAction->setIcon(QIcon(":/ico/48/img/material/48/icons8-close-button.png"));
   toolBar->addAction(mDeleteImageAction);
 
-  onThumbnailToggled(true);
+  onThumbnailClicked();
 
   mListWidget->setSelectionMode(QListWidget::ExtendedSelection);
 
@@ -316,9 +320,9 @@ void ThumbnailsWidget::initSignalAndSlots()
 {
   connect(mListWidget,             SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(onThumbnailDoubleClicked(QListWidgetItem*)));
   connect(mListWidget,             SIGNAL(itemSelectionChanged()),              this, SLOT(onSelectionChanged()));
-  connect(mThumbnailAction,        SIGNAL(toggled(bool)),                       this, SLOT(onThumbnailToggled(bool)));
-  connect(mThumbnailSmallAction,   SIGNAL(toggled(bool)),                       this, SLOT(onThumbnailSmallToggled(bool)));
-  connect(mDetailsAction,          SIGNAL(toggled(bool)),                       this, SLOT(onDetailsToggled(bool)));
+  connect(mThumbnailAction,        SIGNAL(changed()),                           this, SLOT(onThumbnailClicked()));
+  connect(mThumbnailSmallAction,   SIGNAL(changed()),                           this, SLOT(onThumbnailSmallClicked()));
+  connect(mDetailsAction,          SIGNAL(changed()),                           this, SLOT(onDetailsClicked()));
   connect(mDeleteImageAction,      SIGNAL(triggered(bool)),                     this, SLOT(onDeleteImageClicked()));
   connect(mFutureWatcherThumbnail, SIGNAL(resultReadyAt(int)),                  this, SLOT(showThumbnail(int)));
   connect(mFutureWatcherThumbnail, SIGNAL(finished()),                          this, SLOT(finished()));

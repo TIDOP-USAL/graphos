@@ -17,7 +17,7 @@ public:
 
   CreateProjectModel() {}
 
-  virtual ~CreateProjectModel() {}
+  ~CreateProjectModel() override = default;
   
   /*!
    * \brief Se crea un nuevo proyecto
@@ -49,6 +49,20 @@ public:
 
   virtual void setDatabase(const QString &database) = 0;
 
+
+// IModel interface
+
+private:
+
+  void init() override
+  {
+  }
+
+public slots:
+
+  void clear() override
+  {
+  }
 };
 
 

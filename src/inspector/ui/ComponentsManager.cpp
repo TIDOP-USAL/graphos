@@ -4,6 +4,11 @@
 #include "inspector/ui/MainWindowView.h"
 #include "inspector/ui/MainWindowPresenter.h"
 
+#include "inspector/ui/ProjectModel.h"
+
+#include "inspector/ui/NewProjectPresenter.h"
+#include "inspector/ui/NewProjectView.h"
+
 #include <QProgressBar>
 
 namespace inspector
@@ -16,7 +21,11 @@ ComponentsManager::ComponentsManager(QObject *parent)
   : QObject(parent),
     mMainWindowView(nullptr),
     mMainWindowModel(nullptr),
-    mMainWindowPresenter(nullptr)
+    mMainWindowPresenter(nullptr),
+    mProject(new ProjectImp),
+    mProjectIO(new ProjectControllerImp),
+    mProjectModel(nullptr),
+    mNewProjectPresenter(nullptr)
 {
 
 }
@@ -27,7 +36,26 @@ ComponentsManager::~ComponentsManager()
     delete mMainWindowPresenter;
     mMainWindowPresenter = nullptr;
   }
+  
+  if (mProject) {
+    delete mProject;
+    mProject = nullptr;
+  }
 
+  if (mProjectIO) {
+    delete mProjectIO;
+    mProjectIO =nullptr;
+  }
+
+  if (mProjectModel){
+    delete mProjectModel;
+    mProjectModel = nullptr;
+  }
+
+  if (mNewProjectPresenter) {
+    delete mNewProjectPresenter;
+    mNewProjectPresenter = nullptr;
+  }
 }
 
 MainWindowView *ComponentsManager::mainWindowView()
@@ -50,13 +78,13 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 {
   if (mMainWindowPresenter == nullptr){
     mMainWindowPresenter = new MainWindowPresenter(this->mainWindowView(),
-                                                   this->mainWindowModel()
-                                                   /*this->projectModel(),
+                                                   this->mainWindowModel(),
+                                                   this->projectModel()/*,
                                                    this->settingsModel()*/);
 
 //    mMainWindowPresenter->setHelp(this->helpDialog());
 
-//    connect(mMainWindowPresenter, SIGNAL(openNewProjectDialog()),        this, SLOT(initAndOpenNewProjectDialog()));
+    connect(mMainWindowPresenter, SIGNAL(openNewProjectDialog()),        this, SLOT(initAndOpenNewProjectDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openNewSessionDialog()),        this, SLOT(initAndOpenNewSessionDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openPreprocessDialog()),        this, SLOT(initAndOpenPreprocessDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openFeatureExtractionDialog()), this, SLOT(initAndOpenFeatureExtractionDialog()));
@@ -82,13 +110,13 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
   return mMainWindowPresenter;
 }
 
-//ProjectModel *ComponentsManager::projectModel()
-//{
-//  if (mProjectModel == nullptr){
-//    mProjectModel = new ProjectModelImp(mProjectIO, mProject);
-//  }
-//  return mProjectModel;
-//}
+ProjectModel *ComponentsManager::projectModel()
+{
+  if (mProjectModel == nullptr){
+    mProjectModel = new ProjectModelImp(mProjectIO, mProject);
+  }
+  return mProjectModel;
+}
 
 //Settings *ComponentsManager::settings()
 //{
@@ -118,14 +146,14 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 //  return mSettingsPresenter;
 //}
 
-//NewProjectPresenter *ComponentsManager::newProjectPresenter()
-//{
-//  if (mNewProjectPresenter == nullptr){
-//    NewProjectView *newProjectView = new NewProjectViewImp(this->mainWindowView());
-//    mNewProjectPresenter = new NewProjectPresenterImp(newProjectView, this->projectModel());
-//  }
-//  return mNewProjectPresenter;
-//}
+NewProjectPresenter *ComponentsManager::newProjectPresenter()
+{
+  if (mNewProjectPresenter == nullptr){
+    NewProjectView *newProjectView = new NewProjectViewImp(this->mainWindowView());
+    mNewProjectPresenter = new NewProjectPresenterImp(newProjectView, this->projectModel());
+  }
+  return mNewProjectPresenter;
+}
 
 //NewSessionPresenter *ComponentsManager::newSessionPresenter()
 //{
@@ -431,41 +459,14 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 
 void ComponentsManager::initAndOpenNewProjectDialog()
 {
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openNewProjectDialog()), this, SLOT(initAndOpenNewProjectDialog()));
+  disconnect(this->mainWindowPresenter(), SIGNAL(openNewProjectDialog()), this, SLOT(initAndOpenNewProjectDialog()));
 
-//  connect(this->mainWindowPresenter(), SIGNAL(openNewProjectDialog()), this->newProjectPresenter(), SLOT(open()));
-//  connect(this->newProjectPresenter(), SIGNAL(projectCreate()),        this->mainWindowPresenter(), SLOT(loadProject()));
+  connect(this->mainWindowPresenter(), SIGNAL(openNewProjectDialog()), this->newProjectPresenter(), SLOT(open()));
+  connect(this->newProjectPresenter(), SIGNAL(projectCreate()),        this->mainWindowPresenter(), SLOT(loadProject()));
 
-//  this->newProjectPresenter()->setHelp(this->helpDialog());
-//  this->newProjectPresenter()->open();
+  //this->newProjectPresenter()->setHelp(this->helpDialog());
+  this->newProjectPresenter()->open();
 }
-
-//void ComponentsManager::initAndOpenNewSessionDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openNewSessionDialog()), this, SLOT(initAndOpenNewSessionDialog()));
-
-//  connect(this->mainWindowPresenter(), SIGNAL(openNewSessionDialog()), this->newSessionPresenter(), SLOT(open()));
-//  connect(this->newSessionPresenter(), SIGNAL(sessionCreate(QString)), this->mainWindowPresenter(), SLOT(loadSession(QString)));
-//  connect(this->newSessionPresenter(), SIGNAL(sessionCreate(QString)), this->mainWindowPresenter(), SLOT(activeSession(QString)));
-
-//  this->newSessionPresenter()->setHelp(this->helpDialog());
-//  this->newSessionPresenter()->open();
-//}
-
-//void ComponentsManager::initAndOpenPreprocessDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openPreprocessDialog()), this, SLOT(initAndOpenPreprocessDialog()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openPreprocessDialog()),  this->preprocessPresenter(), SLOT(open()));
-//  connect(this->preprocessPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
-//  connect(this->preprocessPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(deletePreprocess()));
-//  connect(this->preprocessPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinish()));
-//  connect(this->preprocessPresenter(), SIGNAL(imagePreprocessed(QString)),  this->mainWindowPresenter(), SLOT(updatePreprocess()));
-//  connect(this->progressDialog(), SIGNAL(cancel()),     this->preprocessPresenter(), SLOT(cancel()));
-
-//  this->preprocessPresenter()->setProgressHandler(this->progressHandler());
-//  this->preprocessPresenter()->setHelp(this->helpDialog());
-//  this->preprocessPresenter()->open();
-//}
 
 //void ComponentsManager::initAndOpenFeatureExtractionDialog()
 //{

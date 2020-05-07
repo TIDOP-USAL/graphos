@@ -2,14 +2,14 @@
 
 #include "MainWindowView.h"
 #include "MainWindowModel.h"
-//#include "ProjectModel.h"
+#include "ProjectModel.h"
 //#include "SettingsModel.h"
 //#include "SettingsPresenter.h"
 //#include "SettingsView.h"
-//#include "photomatch/ui/utils/TabHandler.h"
-//#include "photomatch/ui/utils/GraphicViewer.h"
-//#include "photomatch/ui/HelpDialog.h"
-//#include "photomatch/widgets/StartPageWidget.h"
+#include "inspector/ui/utils/TabHandler.h"
+//#include "inspector/ui/utils/GraphicViewer.h"
+//#include "inspector/ui/HelpDialog.h"
+#include "inspector/widgets/StartPageWidget.h"
 
 /* TidopLib */
 #include <tidop/core/messages.h>
@@ -27,16 +27,16 @@ namespace ui
 {
 
 MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
-                                         MainWindowModel *model/*,
-                                         ProjectModel *projectModel,
+                                         MainWindowModel *model,
+                                         ProjectModel *projectModel/*,
                                          SettingsModel *settingsModel*/)
   : IPresenter(),
     mView(view),
-    mModel(model)/*,
-    mProjectModel(projectModel),
-    mSettingsModel(settingsModel),
+    mModel(model),
+    mProjectModel(projectModel)/*,
+    mSettingsModel(settingsModel)*/,
     mTabHandler(nullptr),
-    mStartPageWidget(nullptr)*/
+    mStartPageWidget(nullptr)
 {
   init();
 
@@ -105,62 +105,62 @@ MainWindowPresenter::~MainWindowPresenter()
 
 void MainWindowPresenter::openNew()
 {
-//  if(mProjectModel->checkUnsavedChanges()) {
-//    int i_ret = QMessageBox(QMessageBox::Information,
-//                            tr("Save Changes"),
-//                            tr("There are unsaved changes. Do you want to save them?"),
-//                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-//    if (i_ret == QMessageBox::Yes) {
-//      saveProject();
-//    } else if (i_ret == QMessageBox::Cancel) {
-//      return;
-//    }
-//  }
+  if(mProjectModel->checkUnsavedChanges()) {
+    int i_ret = QMessageBox(QMessageBox::Information,
+                            tr("Save Changes"),
+                            tr("There are unsaved changes. Do you want to save them?"),
+                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
+    if (i_ret == QMessageBox::Yes) {
+      saveProject();
+    } else if (i_ret == QMessageBox::Cancel) {
+      return;
+    }
+  }
 
-//  mView->clear();
+  mView->clear();
 
-//  emit openNewProjectDialog();
+  emit openNewProjectDialog();
 }
 
 void MainWindowPresenter::openProject()
 {
-//  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
-//                                              tr("Open PhotoMatch project"),
-//                                              mModel->defaultPath(),
-//                                              tr("PhotoMatch project (*.xml)"));
-//  if (!file.isEmpty()) {
-//    // Se comprueba si hay un proyecto abierto con cambios sin guardar
-//    if (mProjectModel->checkUnsavedChanges()) {
-//      int i_ret = QMessageBox(QMessageBox::Information,
-//                              tr("Save Changes"),
-//                              tr("There are unsaved changes. Do you want to save them?"),
-//                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-//      if (i_ret == QMessageBox::Yes) {
-//        saveProject();
-//      } else if (i_ret == QMessageBox::Cancel) {
-//        return;
-//      }
-//    }
+  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
+                                              tr("Open Inspector Image Project"),
+                                              mProjectDefaultPath,
+                                              tr("Inspector Image Project (*.xml)"));
+  if (!file.isEmpty()) {
+    // Se comprueba si hay un proyecto abierto con cambios sin guardar
+    if (mProjectModel->checkUnsavedChanges()) {
+      int i_ret = QMessageBox(QMessageBox::Information,
+                              tr("Save Changes"),
+                              tr("There are unsaved changes. Do you want to save them?"),
+                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
+      if (i_ret == QMessageBox::Yes) {
+        saveProject();
+      } else if (i_ret == QMessageBox::Cancel) {
+        return;
+      }
+    }
 
-//    mProjectModel->clear();
+    mProjectModel->clear();
 
-//    if (mProjectModel->checkOldVersion(file)){
-//      int i_ret = QMessageBox(QMessageBox::Information,
-//                              tr("It is loading an old project"),
-//                              tr("If you accept, a copy of the old project will be created"),
-//                              QMessageBox::Yes|QMessageBox::No).exec();
-//      if (i_ret == QMessageBox::Yes) {
-//        mProjectModel->oldVersionBak(file);
-//        mView->setFlag(MainWindowView::Flag::project_modified, true);
-//      } else if (i_ret == QMessageBox::Cancel) {
-//        return;
-//      }
+    if (mProjectModel->checkOldVersion(file)){
+      int i_ret = QMessageBox(QMessageBox::Information,
+                              tr("It is loading an old project"),
+                              tr("If you accept, a copy of the old project will be created"),
+                              QMessageBox::Yes|QMessageBox::No).exec();
+      if (i_ret == QMessageBox::Yes) {
+        mProjectModel->oldVersionBackup(file);
+        mView->setFlag(MainWindowView::Flag::project_modified, true);
+      } else if (i_ret == QMessageBox::Cancel) {
+        return;
+      }
 
-//    }
-//    mProjectModel->load(file);
-//    ///TODO: o cambiar el nombre o hacerlo de otra forma
-//    loadProject();
-//  }
+    }
+    mProjectModel->load(file);
+    ///TODO: o cambiar el nombre o hacerlo de otra forma
+    loadProject();
+  }
 }
 
 void MainWindowPresenter::openFromHistory(const QString &file)
@@ -215,81 +215,79 @@ void MainWindowPresenter::deleteHistory()
 
 void MainWindowPresenter::saveProject()
 {
-//  mProjectModel->save();
-//  mView->setFlag(MainWindowView::Flag::project_modified, false);
+  mProjectModel->save();
+  mView->setFlag(MainWindowView::Flag::project_modified, false);
 }
 
 void MainWindowPresenter::saveProjectAs()
 {
-//  QString file = QFileDialog::getSaveFileName(Q_NULLPTR,
-//                                              tr("Save project as..."),
-//                                              mModel->defaultPath(),
-//                                              tr("PhotoMatch project (*.xml)"));
-//  if (file.isEmpty() == false) {
-//    mProjectModel->saveAs(file);
-//    mView->setFlag(MainWindowView::Flag::project_modified, false);
-//  }
+  QString file = QFileDialog::getSaveFileName(Q_NULLPTR,
+                                              tr("Save project as..."),
+                                              mProjectDefaultPath,
+                                              tr("Inspector Image Project (*.xml)"));
+  if (file.isEmpty() == false) {
+    mProjectModel->saveAs(file);
+    mView->setFlag(MainWindowView::Flag::project_modified, false);
+  }
 }
 
 void MainWindowPresenter::closeProject()
 {
-//  if(mProjectModel->checkUnsavedChanges()){
-//    int i_ret = QMessageBox(QMessageBox::Information,
-//                            tr("Save Changes"),
-//                            tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
-//                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-//    if (i_ret == QMessageBox::Yes) {
-//      saveProject();
-//    } else if (i_ret == QMessageBox::Cancel) {
-//      return;
-//    }
-//  }
+  if(mProjectModel->checkUnsavedChanges()){
+    int i_ret = QMessageBox(QMessageBox::Information,
+                            tr("Save Changes"),
+                            tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
+                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
+    if (i_ret == QMessageBox::Yes) {
+      saveProject();
+    } else if (i_ret == QMessageBox::Cancel) {
+      return;
+    }
+  }
 
-//  mProjectModel->clear();
+  mProjectModel->clear();
 /////TODO:  mModel->finishLog();
-//  mView->clear();
-//  mView->setWindowTitle(QString("PhotoMatch"));
+  mView->clear();
 }
 
 void MainWindowPresenter::exit()
 {
-//  ///TODO: Se cierra la aplicación
-//  /// - Comprobar que no haya ningún procesos corriendo
-//  if(mProjectModel->checkUnsavedChanges()){
-//    int i_ret = QMessageBox(QMessageBox::Information,
-//                            tr("Save Changes"),
-//                            tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
-//                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-//    if (i_ret == QMessageBox::Yes) {
-//      saveProject();
-//      //mView->saveWindowState();
-//    } else if (i_ret == QMessageBox::Cancel) {
-//      return;
-//    }
-//  }
+  ///TODO: Se cierra la aplicación
+  /// - Comprobar que no haya ningún proceso corriendo
+  if(mProjectModel->checkUnsavedChanges()){
+    int i_ret = QMessageBox(QMessageBox::Information,
+                            tr("Save Changes"),
+                            tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
+                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
+    if (i_ret == QMessageBox::Yes) {
+      saveProject();
+    } else if (i_ret == QMessageBox::Cancel) {
+      return;
+    }
+  }
 
-//  mView->close();
+  mView->close();
 }
 
 void MainWindowPresenter::openStartPage()
 {
-//  initStartPage();
+  initStartPage();
 
-//  const QSignalBlocker blocker(mTabHandler);
-//  int id = -1;
-//  for (int i = 0; i < mTabHandler->count(); i++){
-//    if (mTabHandler->tabText(i) == mStartPageWidget->windowTitle()){
-//      id = -1;
-//      mTabHandler->setCurrentIndex(id);
-//      break;
-//    }
-//  }
+  const QSignalBlocker blocker(mTabHandler);
+  int id = -1;
+  for (int i = 0; i < mTabHandler->count(); i++){
+    if (mTabHandler->tabText(i) == mStartPageWidget->windowTitle()){
+      id = -1;
+      mTabHandler->setCurrentIndex(id);
+      break;
+    }
+  }
 
-//  if (id == -1){
-//    id = mTabHandler->addTab(mStartPageWidget, mStartPageWidget->windowTitle());
-//    mTabHandler->setCurrentIndex(id);
-//    mTabHandler->setTabToolTip(id, mStartPageWidget->windowTitle());
-//  }
+  if (id == -1){
+    id = mTabHandler->addTab(mStartPageWidget, mStartPageWidget->windowTitle());
+    mTabHandler->setCurrentIndex(id);
+    mTabHandler->setTabToolTip(id, mStartPageWidget->windowTitle());
+  }
 }
 
 void MainWindowPresenter::openKeypointsViewer()
@@ -326,63 +324,23 @@ void MainWindowPresenter::loadImages()
 
 void MainWindowPresenter::loadProject()
 {
-//  mView->clear();
+  mView->clear();
 
-//  QString prjFile = mProjectModel->path();
+  mView->setProjectTitle(mProjectModel->projectName());
+  mView->setFlag(MainWindowView::Flag::project_exists, true);
+
+  QString prjFile = mProjectModel->projectPath();
 
 //  /// Se añade al historial de proyectos recientes
 //  mSettingsModel->addToHistory(prjFile);
 //  mView->updateHistory(mSettingsModel->history());
 //  mStartPageWidget->setHistory(mSettingsModel->history());
 
-//  mView->setProjectTitle(mProjectModel->name());
-//  mView->setFlag(MainWindowView::Flag::project_exists, true);
-//  QString msg = tr("Load project: ").append(prjFile);
-//  mView->setStatusBarMsg(msg);
-//  QByteArray ba = prjFile.toLocal8Bit();
-//  const char *cfile = ba.data();
-//  msgInfo("Load project: %s", cfile);
-
-//  if (mProjectModel->groundTruth().isEmpty() == false)
-//    mView->setFlag(MainWindowView::Flag::ground_truth, true);
-
-//  QStringList images;
-//  TL_TODO("Los iteradores sobre las imagenes deberian ser constantes unicamente para evitar que se modifiquen las imagenes. El problema es que no se notificaria al proyecto que ha cambiado")
-//  for(auto it = mProjectModel->imageBegin(); it != mProjectModel->imageEnd(); it++){
-//    images.push_back((*it)->path());
-//  }
-
-//  if (images.size() > 0){
-//    mView->addImages(images);
-//    mView->setFlag(MainWindowView::Flag::images_added, true);
-//    mView->setFlag(MainWindowView::Flag::loading_images, true);
-//    connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
-//  }
-
-//  if (mProjectModel->sessionCount() > 0 && mProjectModel->currentSession() == nullptr){
-//    auto it = mProjectModel->sessionBegin();
-//    mProjectModel->setCurrentSession((*it)->name());
-//  }
-
-//  for (auto it = mProjectModel->sessionBegin(); it != mProjectModel->sessionEnd(); it++){
-
-
-//    bool bActive = mProjectModel->currentSession()->name().compare((*it)->name()) == 0;
-
-//    mView->addSession((*it)->name(), (*it)->description());
-//    if (bActive) mView->setActiveSession((*it)->name());
-//    mView->setFlag(MainWindowView::Flag::session_created, true);
-
-//    bool bPreprocess = loadPreprocess((*it)->name());
-//    if (bPreprocess){
-//      bool bFeatures = loadFeatures((*it)->name());
-//      if (bFeatures){
-//        loadMatches((*it)->name());
-//      }
-//    }
-
-//  }
-
+  QString msg = tr("Load project: ").append(prjFile);
+  mView->setStatusBarMsg(msg);
+  QByteArray ba = prjFile.toLocal8Bit();
+  const char *cfile = ba.data();
+  msgInfo("Load project: %s", cfile);
 }
 
 void MainWindowPresenter::updateProject()
@@ -826,32 +784,38 @@ void MainWindowPresenter::setHelp(HelpDialog *help)
 
 void MainWindowPresenter::init()
 {
-//  //mProjectModel = new ProjectModel(mProjectIO, mProject);
-//  //mSettingsModel = new SettingsModel(mSettings, mSettingsRW);
-//  //mSettingsModel->read();
+  initDefaultPath();
 
-//  //initHelpDialog();
-
-//  mTabHandler = mView->tabHandler();
-//  openStartPage(); /// Show Start Page
+  mTabHandler = mView->tabHandler();
+  openStartPage(); /// Show Start Page
 
 //  /* Projects history */
 //  mView->updateHistory(mSettingsModel->history());
 //  mStartPageWidget->setHistory(mSettingsModel->history());
 }
 
+void MainWindowPresenter::initDefaultPath()
+{
+  mProjectDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+  mProjectDefaultPath.append("/Inspector/Projects");
+
+  QDir dir(mProjectDefaultPath);
+  if (!dir.exists()) {
+    dir.mkpath(".");
+  }
+}
+
 void MainWindowPresenter::initStartPage()
 {
-//  if (mStartPageWidget == nullptr){
-//    mStartPageWidget = new StartPageWidget(mView);
+  if (mStartPageWidget == nullptr){
+    mStartPageWidget = new StartPageWidget(mView);
 
-//    connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openNew);
-//    connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProject);
-//    connect(mStartPageWidget,   &StartPageWidget::openSettings,           this, &MainWindowPresenter::openSettingsDialog);
-//    connect(mStartPageWidget,   &StartPageWidget::openGitHub,             this, &MainWindowPresenter::openGitHub);
-//    connect(mStartPageWidget,   &StartPageWidget::clearHistory,           this, &MainWindowPresenter::deleteHistory);
-//    connect(mStartPageWidget,   &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);
-//  }
+    connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openNew);
+    connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProject);
+    connect(mStartPageWidget,   &StartPageWidget::openSettings,           this, &MainWindowPresenter::openSettingsDialog);
+    connect(mStartPageWidget,   &StartPageWidget::clearHistory,           this, &MainWindowPresenter::deleteHistory);
+    connect(mStartPageWidget,   &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);
+  }
 }
 
 } // namespace ui

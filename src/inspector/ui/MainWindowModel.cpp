@@ -26,10 +26,10 @@ MainWindowModel::MainWindowModel()
   init();
 }
 
-QString MainWindowModel::defaultPath() const
-{
-  return mPrjDefaultPath;
-}
+//QString MainWindowModel::defaultPath() const
+//{
+//  return mPrjDefaultPath;
+//}
 
 //std::list<std::pair<QString, QString>> MainWindowModel::exif(const QString &image) const
 //{
@@ -119,13 +119,17 @@ QString MainWindowModel::defaultPath() const
 
 void MainWindowModel::init()
 {
-  mPrjDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  mPrjDefaultPath.append("/Inspector/Projects");
+//  mPrjDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+//  mPrjDefaultPath.append("/Inspector/Projects");
 
-  QDir dir(mPrjDefaultPath);
-  if (!dir.exists()) {
-    dir.mkpath(".");
-  }
+//  QDir dir(mPrjDefaultPath);
+//  if (!dir.exists()) {
+//    dir.mkpath(".");
+//  }
+}
+
+void MainWindowModel::clear()
+{
 }
 
 } // namespace ui

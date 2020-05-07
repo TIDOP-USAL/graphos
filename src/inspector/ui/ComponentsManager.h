@@ -6,12 +6,19 @@
 namespace inspector
 {
 
+class ProjectController;
+class Project;
+
 namespace ui
 {
 	
 class MainWindowModel;
 class MainWindowView;
 class MainWindowPresenter;
+
+class ProjectModel;
+
+class NewProjectPresenter;
 
 
 class ComponentsManager : public QObject
@@ -28,6 +35,10 @@ public:
   MainWindowModel *mainWindowModel();
   MainWindowPresenter *mainWindowPresenter();
 
+  ProjectModel *projectModel();
+  
+  NewProjectPresenter *newProjectPresenter();
+  
 signals:
 
 protected slots:
@@ -40,6 +51,12 @@ protected:
   MainWindowModel *mMainWindowModel;
   MainWindowPresenter *mMainWindowPresenter;
 
+  Project *mProject;
+  ProjectController *mProjectIO;
+  ProjectModel *mProjectModel;
+
+  NewProjectPresenter *mNewProjectPresenter;
+  
 };
 
 } // namespace ui

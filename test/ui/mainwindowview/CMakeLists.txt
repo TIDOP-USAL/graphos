@@ -14,12 +14,12 @@ add_executable(${the_target}
     ${CMAKE_SOURCE_DIR}/src/inspector/ui/MainWindowView.cpp
     ${CMAKE_SOURCE_DIR}/src/inspector/ui/MainWindowView.h
     ${CMAKE_SOURCE_DIR}/src/inspector/ui/MainWindowView.ui
-    # ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicViewer.cpp
-    # ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicViewer.h
-    # ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicItem.cpp
-    # ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicItem.h
-    # ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/TabHandler.cpp
-    # ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/TabHandler.h
+    ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicViewer.cpp
+    ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicViewer.h
+    ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicItem.cpp
+    ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicItem.h
+    ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/TabHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/TabHandler.h
     )
 
 target_link_libraries(${the_target} PRIVATE
@@ -44,20 +44,5 @@ set_target_properties(${the_target} PROPERTIES
 if(ENABLE_SOLUTION_FOLDERS)
   set_target_properties(${the_target} PROPERTIES FOLDER "test/mainwindowview")
 endif()
-
-#if(WIN32)
-#  if (MSVC AND NOT BUILD_SHARED_LIBS)
-#    set_target_properties(${the_target} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:atlthunk.lib /NODEFAULTLIB:atlsd.lib /DEBUG")
-#  endif()
-#  install(TARGETS ${the_target}
-#          RUNTIME DESTINATION "${PROJECT_BINARY_DIR}" COMPONENT test)
-#endif()
-
-
-#if (BUILD_SHARED_LIBS)
-#  set_target_properties(${the_target}
-#    PROPERTIES
-#    COMPILE_DEFINITIONS "GTEST_LINKED_AS_SHARED_LIBRARY=1")
-#endif()
 
 add_test(NAME ${the_target} COMMAND $<TARGET_FILE:${the_target}>)
