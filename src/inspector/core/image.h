@@ -60,6 +60,18 @@ public:
   QString name() const;
 
   /*!
+   * \brief Devuelve el identificador de la cámara
+   * \return
+   */
+  int cameraId() const;
+
+  /*!
+   * \brief Establece el identificador de la cámara
+   * \param[in] cameraId Identificador de cámara
+   */
+  void setCameraId(int cameraId);
+
+  /*!
    * \brief longitudeExif
    * \return
    */
@@ -117,6 +129,7 @@ protected:
 
   QString mFilePath;
   QString mName;
+  int mCameraId;
   double mLongitudeExif;
   double mLatitudeExif;
   double mAltitudeExif;

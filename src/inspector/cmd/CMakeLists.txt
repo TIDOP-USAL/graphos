@@ -24,6 +24,7 @@ if(BUILD_INSPECTOR_COMMANDS)
   endif()
 
 add_subdirectory(createproject)
-
+add_subdirectory(img)
+add_subdirectory(featextract)
 
 endif()

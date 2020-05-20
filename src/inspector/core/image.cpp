@@ -8,6 +8,7 @@ namespace inspector
 Image::Image()
   : mFilePath(""),
     mName(""),
+    mCameraId(0),
     mLongitudeExif(0.0),
     mLatitudeExif(0.0),
     mAltitudeExif(0.0)
@@ -16,6 +17,7 @@ Image::Image()
 
 Image::Image(const QString &file)
   : mFilePath(file),
+    mCameraId(0),
     mLongitudeExif(0.0),
     mLatitudeExif(0.0),
     mAltitudeExif(0.0)
@@ -26,6 +28,7 @@ Image::Image(const QString &file)
 Image::Image(const Image &image)
   : mFilePath(image.mFilePath),
     mName(image.mName),
+    mCameraId(image.mCameraId),
     mLongitudeExif(image.mLongitudeExif),
     mLatitudeExif(image.mLatitudeExif),
     mAltitudeExif(image.mAltitudeExif)
@@ -36,6 +39,7 @@ Image::Image(const Image &image)
 Image::Image(Image &&image) noexcept
   : mFilePath(std::move(image.mFilePath)),
     mName(std::move(image.mName)),
+    mCameraId(image.mCameraId),
     mLongitudeExif(image.mLongitudeExif),
     mLatitudeExif(image.mLatitudeExif),
     mAltitudeExif(image.mAltitudeExif)
@@ -62,6 +66,16 @@ void Image::setPath(const QString &file)
 QString Image::name() const
 {
   return mName;
+}
+
+int Image::cameraId() const
+{
+  return mCameraId;
+}
+
+void Image::setCameraId(int cameraId)
+{
+  mCameraId = cameraId;
 }
 
 double Image::longitudeExif() const
@@ -99,6 +113,7 @@ Image &Image::operator =(const Image &image)
   if (this != &image){
     this->mFilePath = image.mFilePath;
     this->mName = image.mName;
+    this->mCameraId = image.mCameraId;
     this->mLongitudeExif = image.mLongitudeExif;
     this->mLatitudeExif = image.mLatitudeExif;
     this->mAltitudeExif = image.mAltitudeExif;
@@ -111,6 +126,7 @@ Image &Image::operator =(Image &&image) noexcept
   if (this != &image){
     this->mFilePath = std::move(image.mFilePath);
     this->mName = std::move(image.mName);
+    this->mCameraId = image.mCameraId;
     this->mLongitudeExif = image.mLongitudeExif;
     this->mLatitudeExif = image.mLatitudeExif;
     this->mAltitudeExif = image.mAltitudeExif;

@@ -7,6 +7,8 @@ add_library(inspector_core ${LIB_TYPE}
             settings.h
             image.cpp
             image.h
+            camera.cpp
+            camera.h
             features/features.h
             features/featio.h
             features/featio.cpp

@@ -14,7 +14,8 @@ namespace inspector
 namespace ui
 {
 	
-NewProjectPresenterImp::NewProjectPresenterImp(NewProjectView *view, ProjectModel *model)
+NewProjectPresenterImp::NewProjectPresenterImp(NewProjectView *view,
+                                               ProjectModel *model)
   : NewProjectPresenter(),
     mView(view),
     mProjectModel(model),
@@ -22,10 +23,6 @@ NewProjectPresenterImp::NewProjectPresenterImp(NewProjectView *view, ProjectMode
 {
   this->init();
   this->initSignalAndSlots();
-}
-
-NewProjectPresenterImp::~NewProjectPresenterImp()
-{
 }
 
 /* public slots */
@@ -50,27 +47,58 @@ void NewProjectPresenterImp::saveProject()
   /// https://www.boost.org/doc/libs/1_43_0/libs/filesystem/doc/portability_guide.htm
 
 
-  QString prj_path = mView->projectPath();
-  if (mView->createProjectFolder())
-    prj_path.append("/").append(mView->projectName());
+  QString prj_folder = this->projectFolder();
+  this->createProjectFolderIfNoExist(prj_folder);
   mProjectModel->setProjectName(mView->projectName());
-  mProjectModel->setProjectFolder(prj_path);
-  QDir dir(prj_path);
-  if (!dir.exists()) {
-    dir.mkpath(".");
-  }
+  mProjectModel->setProjectFolder(prj_folder);
   mProjectModel->setProjectDescription(mView->projectDescription());
-  prj_path.append("/").append(mView->projectName()).append(".xml");
-  mProjectModel->saveAs(prj_path);
+  mProjectModel->setDatabase(this->databasePath(prj_folder));
+  mProjectModel->saveAs(this->projectPath(prj_folder));
 
   emit projectCreate();
 
   mView->clear();
 }
 
+void NewProjectPresenterImp::createProjectFolderIfNoExist(const QString &projectFolder)
+{
+  QDir dir(projectFolder);
+  if (!dir.exists()) {
+    dir.mkpath(".");
+  }
+}
+
+QString NewProjectPresenterImp::projectFolder() const
+{
+  QString prj_path = mView->projectPath();
+  if (mView->createProjectFolder())
+    prj_path.append("/").append(mView->projectName());
+  return prj_path;
+}
+
+QString NewProjectPresenterImp::projectPath(const QString &projectFolder) const
+{
+  QString prj_path = projectFolder;
+  prj_path.append("/").append(mView->projectName()).append(".xml");
+  return prj_path;
+}
+
+QString NewProjectPresenterImp::databasePath(const QString &projectFolder) const
+{
+  QString database_path = projectFolder;
+  database_path.append("/").append(mView->projectName()).append(".db");
+  return database_path;
+}
+
 void NewProjectPresenterImp::discartProject()
 {
   mView->clear();
+}
+
+void NewProjectPresenterImp::checkProjectName() const
+{
+  QString project_path = this->projectPath(this->projectFolder());
+  mView->setExistingProject(QFileInfo(project_path).exists());
 }
 
 // IPresenter interface
@@ -106,9 +134,11 @@ void NewProjectPresenterImp::init()
 
 void NewProjectPresenterImp::initSignalAndSlots()
 {
-  connect(mView, SIGNAL(accepted()), this, SLOT(saveProject()));
-  connect(mView, SIGNAL(rejected()), this, SLOT(discartProject()));
-  connect(mView, SIGNAL(help()),     this, SLOT(help()));
+  connect(mView, &NewProjectView::projectNameChange, this, &NewProjectPresenterImp::checkProjectName);
+
+  connect(mView, &QDialog::accepted,                 this, &NewProjectPresenterImp::saveProject);
+  connect(mView, &QDialog::rejected,                 this, &NewProjectPresenterImp::discartProject);
+  connect(mView, &IDialogView::help,                 this, &NewProjectPresenterImp::help);
 }
 
 } // namespace ui

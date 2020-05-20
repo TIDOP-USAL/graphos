@@ -32,12 +32,16 @@ set(INSPECTOR_SOURCES
     SettingsModel.cpp
     SettingsPresenter.cpp
     SettingsView.cpp
+    ImagesModel.cpp
+    cameras/CamerasModel.cpp
+    cameras/CamerasView.cpp
+    cameras/CamerasPresenter.cpp
     # PreprocessView.cpp
     # PreprocessModel.cpp
     # PreprocessPresenter.cpp
-    # FeatureExtractorView.cpp
-    # FeatureExtractorModel.cpp
-    # FeatureExtractorPresenter.cpp
+    featextract/FeatureExtractorView.cpp
+    featextract/FeatureExtractorModel.cpp
+    featextract/FeatureExtractorPresenter.cpp
     # FeaturesViewerView.cpp
     # FeaturesViewerModel.cpp
     # FeaturesViewerPresenter.cpp
@@ -74,15 +78,15 @@ set(INSPECTOR_SOURCES
     # AboutDialog.cpp
     # HelpDialog.cpp
     utils/GraphicViewer.cpp
-    # utils/ProgressDialog.cpp
-    # utils/Progress.cpp
+    utils/ProgressDialog.cpp
+    utils/Progress.cpp
     # #utils/KeyPointGraphicsItem.cpp
     # #utils/CrossGraphicItem.cpp
     # #utils/DiagonalCrossGraphicItem.cpp
     # #utils/CircleGraphicItem.cpp
     utils/GraphicItem.cpp
     utils/TabHandler.cpp
-    # ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
+    ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
 )
 
 set(INSPECTOR_HEADERS
@@ -100,14 +104,19 @@ set(INSPECTOR_HEADERS
     SettingsModel.h
     SettingsPresenter.h
     SettingsView.h
+    ImagesModel.h
+    cameras/Cameras.h
+    cameras/CamerasModel.h
+    cameras/CamerasView.h
+    cameras/CamerasPresenter.h
     # Preprocess.h
     # PreprocessView.h
     # PreprocessModel.h
     # PreprocessPresenter.h
-    # FeatureExtractor.h
-    # FeatureExtractorView.h
-    # FeatureExtractorModel.h
-    # FeatureExtractorPresenter.h
+    featextract/FeatureExtractor.h
+    featextract/FeatureExtractorView.h
+    featextract/FeatureExtractorModel.h
+    featextract/FeatureExtractorPresenter.h
     # FeaturesViewer.h
     # FeaturesViewerView.h
     # FeaturesViewerModel.h
@@ -154,15 +163,15 @@ set(INSPECTOR_HEADERS
     # AboutDialog.h
     # HelpDialog.h
     utils/GraphicViewer.h
-    # utils/ProgressDialog.h
-    # utils/Progress.h
+    utils/ProgressDialog.h
+    utils/Progress.h
     # #utils/KeyPointGraphicsItem.h
     # #utils/CrossGraphicItem.h
     # #utils/DiagonalCrossGraphicItem.h
     # #utils/CircleGraphicItem.h
     utils/GraphicItem.h
     utils/TabHandler.h
-    # ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
+    ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
 )
 
 if(MSVC)
@@ -173,7 +182,7 @@ endif(MSVC)
 set(INSPECTOR_FORMS
   MainWindowView.ui
   # AboutDialog.ui
-  # utils/ProgressDialog.ui
+  utils/ProgressDialog.ui
 )
 
 # Translation files
@@ -206,10 +215,12 @@ target_link_libraries(${PROJECT_NAME}
                       Qt5::Widgets
                       Qt5::Help
                       Qt5::Concurrent
+                      Qt5::Sql
                       inspector_core
                       inspector_widgets
-                      #inspector_process
+                      inspector_process
                       ${OpenCV_LIBS}
+                      ${COLMAP_LIBRARIES}
 )
 
 target_link_libraries(${PROJECT_NAME}

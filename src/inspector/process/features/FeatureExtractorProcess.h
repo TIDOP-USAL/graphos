@@ -3,6 +3,8 @@
 
 #include "inspector/process/ProcessConcurrent.h"
 #include "inspector/core/features/features.h"
+#include "inspector/core/camera.h"
+#include "inspector/core/image.h"
 
 namespace inspector
 {
@@ -15,23 +17,17 @@ class INSPECTOR_EXPORT FeatureExtractorProcess
 
 public:
 
-  /*!
-   * \brief Constructor FeatureExtractorProcess
-   * \param[in] image Image file
-   * \param[in] features Features output file
-   * \param[in] imageScale Image scale
-   * \param[in] featureExtractor FeatureExtractor object
-   */
-  FeatureExtractorProcess(const QString &image,
-                          const QString &features,
-                          double imageScale,
+  FeatureExtractorProcess(const Image &image,
+                          const Camera &camera,
+                          int maxDimension,
+                          const QString &featureFile,
                           const std::shared_ptr<FeatureExtractor> &featureExtractor);
 
-  QString image() const;
-  void setImage(const QString &image);
-  QString features() const;
-  void setFeatures(const QString &features);
-  void setScale(double scale);
+  Image image() const;
+  void setImage(const Image &image);
+  Camera camera() const;
+  void setCamera(const Camera &camera);
+  void setMaxDimension(int maxDimension);
 
   std::shared_ptr<FeatureExtractor> featureExtractor() const;
 
@@ -47,9 +43,10 @@ protected:
 
 protected:
 
-  QString mImage;
-  QString mFeatures;
-  double mImageScale;
+  Image mImage;
+  Camera mCamera;
+  int mMaxDimension;
+  QString mFeatureFile;
   std::shared_ptr<FeatureExtractor> mFeatureExtractor;
 };
 

@@ -2,6 +2,10 @@
 
 #include <tidop/core/messages.h>
 
+#include <colmap/util/opengl_utils.h>
+#include <colmap/feature/utils.h>
+
+#include <opencv2/imgcodecs.hpp>
 
 namespace inspector
 {
@@ -254,10 +258,10 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
 void SiftCudaDetectorDescriptor::update()
 {
   mSiftGpu.reset(new SiftGPU);
-  mSiftExtractionOptions.max_num_features = SiftProperties::featuresNumber();
-  mSiftExtractionOptions.octave_resolution = SiftProperties::octaveLayers();
-  mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
-  mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
+  //mSiftExtractionOptions.max_num_features = SiftProperties::featuresNumber();
+  //mSiftExtractionOptions.octave_resolution = SiftProperties::octaveLayers();
+  //mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
+  //mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
 
   if (!CreateSiftGPUExtractor(mSiftExtractionOptions, mSiftGpu.get())) {
     return;
@@ -271,6 +275,40 @@ void SiftCudaDetectorDescriptor::run(const colmap::Bitmap &bitmap,
   try {
     bool err = ExtractSiftFeaturesGPU(mSiftExtractionOptions, bitmap, mSiftGpu.get(), &keyPoints, &descriptors);
     if (err == false) throw "ExtractSiftFeaturesGPU fail";
+  } catch (std::exception &e) {
+    msgError("SIFT Detector exception");
+    throw;
+  }
+}
+
+void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap, colmap::FeatureKeypoints &keyPoints, colmap::FeatureDescriptors &descriptors)
+{
+  try {
+    int err = mSiftGpu->RunSIFT(bitmap.cols, bitmap.rows, bitmap.data, GL_LUMINANCE, GL_UNSIGNED_BYTE);
+    if (err != 1) throw "ExtractSiftFeaturesGPU fail";
+
+    int feature_number = mSiftGpu->GetFeatureNum();
+    std::vector<SiftKeypoint> keypoints_data(feature_number);
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float(feature_number, 128);
+
+    mSiftGpu->GetFeatureVector(keypoints_data.data(), descriptors_float.data());
+
+    keyPoints.resize(feature_number);
+    for (size_t i = 0; i < feature_number; i++){
+      keyPoints[i] = colmap::FeatureKeypoint(keypoints_data[i].x, keypoints_data[i].y,
+                                             keypoints_data[i].s, keypoints_data[i].o);
+    }
+
+    if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L2){
+      descriptors_float = colmap::L2NormalizeFeatureDescriptors(descriptors_float);
+    } else if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT){
+      descriptors_float = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float);
+    } else {
+      throw "Description normalization type not supported";
+    }
+
+    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
+
   } catch (std::exception &e) {
     msgError("SIFT Detector exception");
     throw;

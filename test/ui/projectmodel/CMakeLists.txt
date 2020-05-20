@@ -14,8 +14,8 @@ add_executable(${test_target}
     ${CMAKE_SOURCE_DIR}/src/inspector/ui/ProjectModel.cpp
     ${CMAKE_SOURCE_DIR}/src/inspector/ui/ProjectModel.h
     ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
-    ${CMAKE_SOURCE_DIR}/test/fake/ProjectControllerFake.cpp
-    ${CMAKE_SOURCE_DIR}/test/fake/ProjectControllerFake.h
+    ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
+    ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h
     )
 
 target_link_libraries(${test_target} PRIVATE
@@ -25,7 +25,7 @@ target_link_libraries(${test_target} PRIVATE
                       tl_core
                       inspector_core
                       ${OpenCV_LIBS}
-                      ${PIXKIT_LIBRARIES})
+                      ${COLMAP_LIBRARIES})
 
 target_link_libraries(${test_target} PRIVATE
                       ${Boost_FILESYSTEM_LIBRARY}

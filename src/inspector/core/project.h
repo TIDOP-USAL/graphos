@@ -6,11 +6,14 @@
 #include <memory>
 #include <vector>
 #include <mutex>
+#include <map>
 
 #include <QString>
 #include <QSize>
 
 #include "inspector/core/image.h"
+#include "inspector/core/camera.h"
+#include "inspector/core/features/features.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -26,8 +29,14 @@ class Project
 
 public:
 
-  typedef std::vector<std::shared_ptr<Image>>::iterator image_iterator;
-  typedef std::vector<std::shared_ptr<Image>>::const_iterator image_const_iterator;
+  typedef std::vector<Image>::iterator image_iterator;
+  typedef std::vector<Image>::const_iterator image_const_iterator;
+  typedef std::map<int, Camera>::iterator camera_iterator;
+  typedef std::map<int, Camera>::const_iterator camera_const_iterator;
+  typedef std::map<QString, QString>::iterator features_iterator;
+  typedef std::map<QString, QString>::const_iterator features_const_iterator;
+
+public:
 
   Project() {}
   virtual ~Project() = default;
@@ -92,40 +101,40 @@ public:
    * \brief Añade una imagen al proyecto
    * \param[in] img Imagen
    */
-  virtual void addImage(const std::shared_ptr<Image> &img) = 0;
+  virtual void addImage(const Image &img) = 0;
+
+  virtual bool updateImage(size_t imageId, const Image &image) = 0;
 
   /*!
    * \brief Elimina una imagen del proyecto
-   * \param[in] img Ruta de la imagen que se quiere eliminar
+   * \param[in] imgPath Ruta de la imagen que se quiere eliminar
    */
-  virtual void deleteImage(const QString &img) = 0;
+  virtual bool removeImage(const QString &imgPath) = 0;
 
   /*!
    * \brief Elimina una imagen del proyecto
    * \param[in] imgId Identificador de la imagen que se quiere eliminar
    */
-  virtual void deleteImage(size_t imgId) = 0;
+  virtual bool removeImage(size_t imgId) = 0;
 
   /*!
    * \brief Busca una imagen en el proyecto
    * \param[in] path Ruta de la imagen a buscar
    * \return Objeto Image correspondiente o puntero nulo si no se encuentra
    */
-  virtual std::shared_ptr<Image> findImage(const QString &path) = 0;
-  virtual const std::shared_ptr<Image> findImage(const QString &path) const = 0;
+  virtual Image findImage(const QString &path) const = 0;
 
-  virtual std::shared_ptr<Image> findImageById(size_t id) = 0;
-  virtual const std::shared_ptr<Image> findImageById(size_t id) const = 0;
-  virtual std::shared_ptr<Image> findImageByName(const QString &imgName) = 0;
-  virtual const std::shared_ptr<Image> findImageByName(const QString &imgName) const = 0;
+  virtual Image findImageById(size_t id) const = 0;
+  virtual Image findImageByName(const QString &imgName) const = 0;
 
   /*!
    * \brief Busca una imagen en el proyecto
-   * \param[in] path Ruta de la imagen a buscar
+   * \param[in] imgName Nombre de la imagen a buscar
    * \return Objeto Identificador de la imagen o std::numeric_limits<size_t>().max() si no se encuentra.
    */
-  virtual size_t findImageId(const QString &path) const = 0;
+  virtual size_t imageId(const QString &imgName) const = 0;
 
+  virtual bool existImage(const QString &imgName) const = 0;
 
   /// Iteradores para el acceso a las imágenes y las cámaras
 
@@ -162,40 +171,82 @@ public:
   virtual size_t imagesCount() const = 0;
 
   /*!
+   * \brief Añade una cámara al proyecto
+   * \param[in] camera Cámara
+   */
+  virtual int addCamera(const Camera &camera) = 0;
+
+  /*!
+   * \brief Busca una cámara en el proyecto
+   * \param[in] make Marca de la cámara
+   * \param[in] model Modelo de la cámara
+   * \return Objeto Camera correspondiente o puntero nulo si no se encuentra
+   */
+  virtual Camera findCamera(const QString &make, const QString &model) const = 0;
+
+  virtual Camera findCamera(int idCamera) const = 0;
+
+  virtual int cameraId(const QString &make, const QString &model) const = 0;
+
+  virtual bool existCamera(const QString &make, const QString &model) const = 0;
+  virtual bool updateCamera(int idCamera, const Camera &camera) = 0;
+  virtual bool removeCamera(int idCamera) = 0;
+
+  /*!
+   * \brief Devuelve un iterador al inicio del listado de cámaras
+   * \return Iterador al primer elemento del listado de cámaras
+   */
+  virtual camera_iterator cameraBegin() = 0;
+
+  /*!
+   * \brief Devuelve un iterador constante al inicio del listado de cámaras
+   * \return Iterador al primer elemento del listado de cámaras
+   */
+  virtual camera_const_iterator cameraBegin() const = 0;
+
+  /*!
+   * \brief Devuelve un iterador al siguiente elemento después después de la última cámara
+   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
+   * \return Iterador al siguiente elemento después de la última cámara
+   */
+  virtual camera_iterator cameraEnd() = 0;
+
+  /*!
+   * \brief Devuelve un iterador constante al siguiente elemento después de la última cámara
+   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
+   * \return Iterador constante al siguiente elemento después de la última cámara
+   */
+  virtual camera_const_iterator cameraEnd() const = 0;
+
+  virtual std::shared_ptr<Feature> featureExtractor() const = 0;
+  virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
+
+  virtual QString features(const QString &imgName) const = 0;
+  virtual void setFeatures(const QString &imgName, const QString &featureFile) = 0;
+
+  virtual features_iterator featuresBegin() = 0;
+  virtual features_const_iterator featuresBegin() const = 0;
+  virtual features_iterator featuresEnd() = 0;
+  virtual features_const_iterator featuresEnd() const = 0;
+
+  /*!
    * \brief Limpia el proyecto
    */
   virtual void clear() = 0;
 
-
-};
-
-
-/*!
- * \brief Interfaz para las operaciones de lectura y escritura del proyecto
- */
-class INSPECTOR_EXPORT ProjectController
-{
-
-public:
-
-  ProjectController() {}
-  virtual ~ProjectController() = default;
-
   /*!
-   * \brief read
+   * \brief Carga el proyecto
    * \param[in] file Ruta del fichero de proyecto
-   * \param[out] prj
    * \return
    */
-  virtual bool read(const QString &file, Project &prj) = 0;
+  virtual bool load(const QString &file) = 0;
 
   /*!
-   * \brief write
-   * \param prj
+   * \brief Guarda el proyecto
    * \param file
    * \return
    */
-  virtual bool write(const QString &file, const Project &prj) const = 0;
+  virtual bool save(const QString &file) = 0;
 
   /*!
    * \brief checkOldVersion
@@ -209,8 +260,50 @@ public:
    * \param[in] file
    */
   virtual void oldVersionBak(const QString &file) const = 0;
-
 };
+
+
+///*!
+// * \brief Interfaz para las operaciones de lectura y escritura del proyecto
+// */
+//class INSPECTOR_EXPORT ProjectController
+//{
+
+//public:
+
+//  ProjectController() {}
+//  virtual ~ProjectController() = default;
+
+//  /*!
+//   * \brief read
+//   * \param[in] file Ruta del fichero de proyecto
+//   * \param[out] prj
+//   * \return
+//   */
+//  virtual bool read(const QString &file, Project &prj) = 0;
+
+//  /*!
+//   * \brief write
+//   * \param prj
+//   * \param file
+//   * \return
+//   */
+//  virtual bool write(const QString &file, const Project &prj) const = 0;
+
+//  /*!
+//   * \brief checkOldVersion
+//   * \param file
+//   * \return
+//   */
+//  virtual bool checkOldVersion(const QString &file) const = 0;
+
+//  /*!
+//   * \brief Crea una copia de un proyecto antiguo con el mismo nombre y un sufijo con la versión
+//   * \param[in] file
+//   */
+//  virtual void oldVersionBak(const QString &file) const = 0;
+
+//};
 
 
 class INSPECTOR_EXPORT ProjectImp
@@ -235,22 +328,82 @@ public:
   QString version() const override;
   QString database() const override;
   void setDatabase(const QString &database) override;
-  void addImage(const std::shared_ptr<Image> &img) override;
-  void deleteImage(const QString &img) override;
-  void deleteImage(size_t imgId) override;
-  std::shared_ptr<Image> findImage(const QString &path) override;
-  const std::shared_ptr<Image> findImage(const QString &path) const override;
-  std::shared_ptr<Image> findImageById(size_t id) override;
-  const std::shared_ptr<Image> findImageById(size_t id) const override;
-  std::shared_ptr<Image> findImageByName(const QString &imgName) override;
-  const std::shared_ptr<Image> findImageByName(const QString &imgName) const override;
-  size_t findImageId(const QString &path) const override;
+  void addImage(const Image &img) override;
+  bool updateImage(size_t imageId, const Image &image) override;
+  bool removeImage(const QString &imgPath) override;
+  bool removeImage(size_t imgId) override;
+  Image findImage(const QString &imgName) const override;
+  Image findImageById(size_t id) const override;
+  Image findImageByName(const QString &imgName) const override;
+  bool existImage(const QString &imgName) const override;
+  size_t imageId(const QString &imageName) const override;
   image_iterator imageBegin() override;
   image_const_iterator imageBegin() const override;
   image_iterator imageEnd() override;
   image_const_iterator imageEnd() const override;
   size_t imagesCount() const override;
+
+  int addCamera(const Camera &camera) override;
+  Camera findCamera(const QString &make, const QString &model) const override;
+  Camera findCamera(int idCamera) const override;
+  int cameraId(const QString &make, const QString &model) const override;
+  bool existCamera(const QString &make, const QString &model) const override;
+  bool updateCamera(int idCamera, const Camera &camera) override;
+  bool removeCamera(int idCamera) override;
+  camera_iterator cameraBegin() override;
+  camera_const_iterator cameraBegin() const override;
+  camera_iterator cameraEnd() override;
+  camera_const_iterator cameraEnd() const override;
+
+  std::shared_ptr<Feature> featureExtractor() const override;
+  void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
+
+  QString features(const QString &imgName) const override;
+  void setFeatures(const QString &imgName, const QString &featureFile) override;
+
+  features_iterator featuresBegin() override;
+  features_const_iterator featuresBegin() const override;
+  features_iterator featuresEnd() override;
+  features_const_iterator featuresEnd() const override;
+
   void clear() override;
+
+  bool load(const QString &file) override;
+  bool save(const QString &file) override;
+  bool checkOldVersion(const QString &file) const override;
+  void oldVersionBak(const QString &file) const override;
+
+protected:
+
+  void readGeneral(QXmlStreamReader &stream);
+  void readDatabase(QXmlStreamReader &stream);
+  void readImages(QXmlStreamReader &stream);
+  Image readImage(QXmlStreamReader &stream);
+  void readCameras(QXmlStreamReader &stream);
+  Camera readCamera(QXmlStreamReader &stream);
+  void readFeatures(QXmlStreamReader &stream);
+  void readFeatureExtractor(QXmlStreamReader &stream);
+  void readSIFT(QXmlStreamReader &stream);
+  void readFeatureFiles(QXmlStreamReader &stream);
+  void readFeatureFile(QXmlStreamReader &stream);
+
+  void writeVersion(QXmlStreamWriter &stream) const;
+  void writeGeneral(QXmlStreamWriter &stream) const;
+  void writeDatabase(QXmlStreamWriter &stream) const;
+  void writeCameras(QXmlStreamWriter &stream) const;
+  void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
+  void writeImages(QXmlStreamWriter &stream) const;
+  void writeImage(QXmlStreamWriter &stream, const Image &image) const;
+  void writeFeatures(QXmlStreamWriter &stream) const;
+  void writeFeatureExtractor(QXmlStreamWriter &stream) const;
+  void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
+  void writeFeatureFiles(QXmlStreamWriter &stream) const;
+  void writeFeatureFile(QXmlStreamWriter &stream) const;
+
+  QSize readSize(QXmlStreamReader &stream) const;
+  int readInt(QXmlStreamReader &stream) const;
+  double readDouble(QXmlStreamReader &stream) const;
+  bool readBoolean(QXmlStreamReader &stream) const;
 
 protected:
 
@@ -260,51 +413,59 @@ protected:
   QString mProjectFolder;
   QString mVersion;
   QString mDatabase;
-  std::vector<std::shared_ptr<Image>> mImages;
-
-};
-
-
-class INSPECTOR_EXPORT ProjectControllerImp
-  : public ProjectController
-{
-
-public:
-
-  ProjectControllerImp();
-
-// ProjectControllerImp interface
-
-public:
-
-  bool read(const QString &file, Project &prj) override;
-  bool write(const QString &file, const Project &prj) const override;
-  bool checkOldVersion(const QString &file) const override;
-  void oldVersionBak(const QString &file) const override;
-
-protected:
-
-  void readGeneral(QXmlStreamReader &stream, Project &prj);
-  void readDatabase(QXmlStreamReader &stream, Project &prj);
-  void readImages(QXmlStreamReader &stream, Project &prj);
-  std::shared_ptr<Image> readImage(QXmlStreamReader &stream);
-
-  void writeVersion(QXmlStreamWriter &stream, const QString &version) const;
-  void writeGeneral(QXmlStreamWriter &stream, const Project &prj) const;
-  void writeDatabase(QXmlStreamWriter &stream, const Project &prj) const;
-  void writeImages(QXmlStreamWriter &stream, const Project &prj) const;
-  void writeImage(QXmlStreamWriter &stream, const Image *image) const;
-
-  QSize readSize(QXmlStreamReader &stream) const;
-  int readInt(QXmlStreamReader &stream) const;
-  double readDouble(QXmlStreamReader &stream) const;
-  bool readBoolean(QXmlStreamReader &stream) const;
-
-protected:
-
+  std::vector<Image> mImages;
+  std::map<int, Camera> mCameras;
+  std::shared_ptr<Feature> mFeatureExtractor;
+  std::map<QString, QString> mFeatures;
   static std::mutex sMutex;
-
+  static int sCameraCount;
 };
+
+
+//class INSPECTOR_EXPORT ProjectControllerImp
+//  : public ProjectController
+//{
+
+//public:
+
+//  ProjectControllerImp();
+
+//// ProjectControllerImp interface
+
+//public:
+
+//  bool read(const QString &file, Project &prj) override;
+//  bool write(const QString &file, const Project &prj) const override;
+//  bool checkOldVersion(const QString &file) const override;
+//  void oldVersionBak(const QString &file) const override;
+
+//protected:
+
+//  void readGeneral(QXmlStreamReader &stream, Project &prj);
+//  void readDatabase(QXmlStreamReader &stream, Project &prj);
+//  void readImages(QXmlStreamReader &stream, Project &prj);
+//  Image readImage(QXmlStreamReader &stream);
+//  void readCameras(QXmlStreamReader &stream, Project &prj);
+//  std::shared_ptr<Camera> readCamera(QXmlStreamReader &stream);
+
+//  void writeVersion(QXmlStreamWriter &stream, const QString &version) const;
+//  void writeGeneral(QXmlStreamWriter &stream, const Project &prj) const;
+//  void writeDatabase(QXmlStreamWriter &stream, const Project &prj) const;
+//  void writeCameras(QXmlStreamWriter &stream, const Project &prj) const;
+//  void writeCamera(QXmlStreamWriter &stream, int id, const Camera *camera) const;
+//  void writeImages(QXmlStreamWriter &stream, const Project &prj) const;
+//  void writeImage(QXmlStreamWriter &stream, const Image *image) const;
+
+//  QSize readSize(QXmlStreamReader &stream) const;
+//  int readInt(QXmlStreamReader &stream) const;
+//  double readDouble(QXmlStreamReader &stream) const;
+//  bool readBoolean(QXmlStreamReader &stream) const;
+
+//protected:
+
+//  static std::mutex sMutex;
+
+//};
 
 
 } // end namespace inspector

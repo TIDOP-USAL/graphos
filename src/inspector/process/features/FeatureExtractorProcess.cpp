@@ -1,42 +1,53 @@
 #include "FeatureExtractorProcess.h"
 
+#include "inspector/core/features/featio.h"
+#include "inspector/core/features/sift.h"
+
 #include <tidop/core/messages.h>
 
-#include "inspector/core/features/featio.h"
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+
+#include <colmap/base/database.h>
+#include <colmap/base/camera_models.h>
+
+#include <QFileInfo>
 
 namespace inspector
 {
 	
-FeatureExtractorProcess::FeatureExtractorProcess(const QString &image,
-                                                 const QString &features,
-                                                 double imageScale,
+FeatureExtractorProcess::FeatureExtractorProcess(const Image &image,
+                                                 const Camera &camera,
+                                                 int maxDimension,
+                                                 const QString &featureFile,
                                                  const std::shared_ptr<FeatureExtractor> &featureExtractor)
   : ProcessConcurrent(),
     mImage(image),
-    mFeatures(features),
-    mImageScale(imageScale),
+    mCamera(camera),
+    mMaxDimension(maxDimension),
+    mFeatureFile(featureFile),
     mFeatureExtractor(featureExtractor)
 {
 }
 
-QString FeatureExtractorProcess::image() const
+Image FeatureExtractorProcess::image() const
 {
   return mImage;
 }
 
-void FeatureExtractorProcess::setImage(const QString &image)
+void FeatureExtractorProcess::setImage(const Image &image)
 {
   mImage = image;
 }
 
-QString FeatureExtractorProcess::features() const
+Camera FeatureExtractorProcess::camera() const
 {
-  return mFeatures;
+  return mCamera;
 }
 
-void FeatureExtractorProcess::setFeatures(const QString &features)
+void FeatureExtractorProcess::setCamera(const Camera &camera)
 {
-  mFeatures = features;
+  mCamera = camera;
 }
 
 std::shared_ptr<FeatureExtractor> FeatureExtractorProcess::featureExtractor() const
@@ -46,73 +57,100 @@ std::shared_ptr<FeatureExtractor> FeatureExtractorProcess::featureExtractor() co
 
 void FeatureExtractorProcess::run()
 {
-/*   QByteArray ba = mImage.toLocal8Bit();
-  const char *img_file = ba.data();
-  cv::Mat img = cv::imread(img_file, cv::IMREAD_IGNORE_ORIENTATION);
-
-  if (img.empty()) {
-    emit error(0, QString("Could not load image :").append(mImage));
-    return;
-  }
-
-  if (mKeypointDetector == nullptr) {
-    emit error(0, "Keypoint Detector error");
-    return;
-  }
-
-  msgInfo("Searching Keypoints for image %s", img_file);
-
   tl::Chrono chrono;
   chrono.run();
 
-  std::vector<cv::KeyPoint> key_points;
-  if (bool _error = mKeypointDetector->detect(img, key_points)){
-    emit error(0, "Keypoint Detector error");
+  QByteArray ba = mImage.path().toLocal8Bit();
+  const char *img_file = ba.data();
+//  cv::Mat img = cv::imread(img_file, cv::IMREAD_IGNORE_ORIENTATION);
+//  if (img.empty()) {
+//    emit error(0, QString("Could not load image :").append(mImage));
+//    return;
+//  }
+
+  colmap::Bitmap bitmap;
+  msgInfo("Read image: %s", img_file);
+  if (!bitmap.Read(img_file, false)) {
+    msgError("Failed to read image file");
     return;
   }
 
-  uint64_t time = chrono.stop();
-  msgInfo("%i Keypoints detected in image %s [Time: %f seconds]", key_points.size(), img_file, time/1000.);
 
-  /// Filtrado de puntos
-  for(auto &filter : mKeyPointsFiltersProcess){
-    filter->filter(key_points, key_points);
-  }
 
-  if (mDescriptorExtractor == nullptr) {
-    emit error(0, "Descriptor Extractor Error");
+  if (mFeatureExtractor == nullptr) {
+    emit error(0, "Keypoint Detector/descriptor error");
     return;
   }
 
-  msgInfo("Computing keypoints descriptors for image %s", img_file);
+  msgInfo("Extracting features for image %s", img_file);
 
-  chrono.reset();
-  chrono.run();
+  colmap::Database database(mFeatureFile.toStdString());
+  colmap::Camera camera_colmap;
 
-  cv::Mat descriptors;
-  if (bool _error = mDescriptorExtractor->extract(img, key_points, descriptors)){
-    emit error(0, "Descriptor Extractor Error");
-    return;
+  colmap::camera_t camera_id = static_cast<colmap::camera_t>(mImage.cameraId());
+  if (!database.ExistsCamera(camera_id)){
+    int camera_model_id = colmap::CameraModelNameToId(mCamera.type().toStdString());
+    double focal_length = mCamera.focal();
+    size_t width = static_cast<size_t>(mCamera.width());
+    size_t height = static_cast<size_t>(mCamera.height());
+    if (round(1.2 * std::max(width, height)) == round(focal_length)){
+      camera_colmap.SetPriorFocalLength(false);
+    } else {
+      camera_colmap.SetPriorFocalLength(true);
+    }
+    camera_colmap.InitializeWithId(camera_model_id, focal_length, width, height);
+    camera_colmap.SetCameraId(database.WriteCamera(camera_colmap));
   }
 
-  time = chrono.stop();
-  msgInfo("Descriptors computed for image %s [Time: %f seconds]", img_file, time/1000.);
+  QFileInfo file_info(mImage.path());
+  std::string image_name = file_info.fileName().toStdString();
 
-  for (size_t i = 0; i < key_points.size(); i++){
-    key_points[i].pt *= mImageScale;
-    key_points[i].size *= static_cast<float>(mImageScale);
+  colmap::Image image_colmap;
+  image_colmap.SetName(image_name);
+  image_colmap.SetCameraId(camera_id);
+
+  colmap::image_t image_id = database.WriteImage(image_colmap, false);
+
+
+  cv::Mat mat = cv::imread(mImage.path().toStdString(), cv::IMREAD_GRAYSCALE);
+
+  double max_dimension;
+  if (mat.cols > mat.rows){
+    max_dimension = mat.cols;
+  } else {
+    max_dimension = mat.rows;
   }
 
-  std::unique_ptr<FeaturesWriter> writer = FeaturesWriterFactory::createWriter(mFeatures);
-  writer->setKeyPoints(key_points);
-  writer->setDescriptors(descriptors);
-  writer->write();
+  double scale = 1;
+  if (mMaxDimension < max_dimension){
+    cv::Size size(mat.cols, mat.rows);
+    scale = mMaxDimension / max_dimension;
+    size.width *= scale;
+    size.height *= scale;
+    cv::resize(mat, mat, size);
+  }
 
-  ba = mFeatures.toLocal8Bit();
-  const char *cfeat = ba.data();
-  msgInfo("Write features at: %s", cfeat);
-  emit featuresExtracted(mFeatures);
-  emit statusChangedNext(); */
+  colmap::FeatureKeypoints featureKeypoints;
+  colmap::FeatureDescriptors featureDescriptors;
+  mFeatureExtractor->run(mat, featureKeypoints, featureDescriptors);
+
+  if (scale < 1) {
+    for (auto & featureKeypoint : featureKeypoints){
+      featureKeypoint.Rescale(scale, scale);
+    }
+  }
+
+  // Escritura en la base de datos
+
+  database.WriteKeypoints(image_id, featureKeypoints);
+  database.WriteDescriptors(image_id, featureDescriptors);
+
+
+//  ba = mFeatures.toLocal8Bit();
+//  const char *cfeat = ba.data();
+//  msgInfo("Write features at: %s", cfeat);
+//  emit featuresExtracted(mFeatures);
+  emit statusChangedNext();
 }
 
 } // inspector

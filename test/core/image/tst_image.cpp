@@ -23,6 +23,8 @@ private slots:
   void test_path();
   void test_name_data();
   void test_name();
+  void test_cameraId_data();
+  void test_cameraId();
   void test_longitudeExif_data();
   void test_longitudeExif();
   void test_latitudeExif_data();
@@ -51,6 +53,7 @@ void TestImage::initTestCase()
 {
   QCOMPARE(QString(), mImage->path());
   QCOMPARE(QString(), mImage->name());
+  QCOMPARE(0, mImage->cameraId());
   QCOMPARE(0., mImage->longitudeExif());
   QCOMPARE(0., mImage->latitudeExif());
   QCOMPARE(0., mImage->altitudeExif());
@@ -67,18 +70,21 @@ void TestImage::test_constructor()
   mImage = new Image("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png");
   QCOMPARE(QString("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png"), mImage->path());
   QCOMPARE(QString("img001"), mImage->name());
+  QCOMPARE(0, mImage->cameraId());
   QCOMPARE(0., mImage->longitudeExif());
   QCOMPARE(0., mImage->latitudeExif());
   QCOMPARE(0., mImage->altitudeExif());
 
   /// Copy constructor
   Image image("C:/Users/User01/Documents/Graphos/Projects/images/img002.png");
+  image.setCameraId(1);
   image.setLongitudeExif(0.5);
   image.setLatitudeExif(2.3);
   image.setAltitudeExif(10.2);
   mImage = new Image(image);
   QCOMPARE(QString("C:/Users/User01/Documents/Graphos/Projects/images/img002.png"), mImage->path());
   QCOMPARE(QString("img002"), mImage->name());
+  QCOMPARE(1, mImage->cameraId());
   QCOMPARE(0.5, mImage->longitudeExif());
   QCOMPARE(2.3, mImage->latitudeExif());
   QCOMPARE(10.2, mImage->altitudeExif());
@@ -87,6 +93,7 @@ void TestImage::test_constructor()
   mImage = new Image(std::move(image));
   QCOMPARE(QString("C:/Users/User01/Documents/Graphos/Projects/images/img002.png"), mImage->path());
   QCOMPARE(QString("img002"), mImage->name());
+  QCOMPARE(1, mImage->cameraId());
   QCOMPARE(0.5, mImage->longitudeExif());
   QCOMPARE(2.3, mImage->latitudeExif());
   QCOMPARE(10.2, mImage->altitudeExif());
@@ -140,6 +147,25 @@ void TestImage::test_name()
 
   mImage->setPath(value);
   QCOMPARE(result, mImage->name());
+}
+
+void TestImage::test_cameraId_data()
+{
+  QTest::addColumn<int>("value");
+  QTest::addColumn<int>("result");
+
+  QTest::newRow("1") << 1 << 1;
+  QTest::newRow("2") << 2 << 2;
+  QTest::newRow("3") << 3 << 3;
+}
+
+void TestImage::test_cameraId()
+{
+  QFETCH(int, value);
+  QFETCH(int, result);
+
+  mImage->setCameraId(value);
+  QCOMPARE(result, mImage->cameraId());
 }
 
 void TestImage::test_longitudeExif_data()

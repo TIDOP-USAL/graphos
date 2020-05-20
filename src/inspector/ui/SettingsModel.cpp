@@ -13,8 +13,8 @@ namespace ui
 
 
 SettingsModelImp::SettingsModelImp(Settings *settings,
-                             SettingsController *settingsRW,
-                             QObject *parent)
+                                   SettingsController *settingsRW,
+                                   QObject *parent)
   : SettingsModel(parent),
     mSettings(settings),
     mSettingsController(settingsRW)

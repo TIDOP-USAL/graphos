@@ -127,6 +127,10 @@ public:
                    colmap::FeatureKeypoints &keyPoints,
                    colmap::FeatureDescriptors &descriptors) = 0;
 
+  virtual void run(const cv::Mat &bitmap,
+                   colmap::FeatureKeypoints &keyPoints,
+                   colmap::FeatureDescriptors &descriptors) = 0;
+
 };
 
 

@@ -24,21 +24,7 @@ class NewProjectViewImp
 public:
 
   explicit NewProjectViewImp(QWidget *parent = nullptr);
-  ~NewProjectViewImp() override;
-
-// INewProjectView interface
-
-public:
-
-  QString projectName() const override;
-  QString projectPath() const override;
-  void setProjectPath(const QString &path) override;
-  QString projectDescription() const override;
-  bool createProjectFolder() const override;
-
-protected slots:
-
-  void onClickButtonSelectPath() override;
+  ~NewProjectViewImp() override = default;
 
 // IDialogView interface
 
@@ -56,6 +42,21 @@ private slots:
   void update() override;
   void retranslate() override;
 
+// INewProjectView interface
+
+public:
+
+  QString projectName() const override;
+  QString projectPath() const override;
+  void setProjectPath(const QString &path) override;
+  QString projectDescription() const override;
+  bool createProjectFolder() const override;
+  void setExistingProject(bool prjExist) override;
+
+protected slots:
+
+  void onClickButtonSelectPath() override;
+
 protected:
 
   QLabel *mLabelProjectName;
@@ -69,7 +70,7 @@ protected:
   QCheckBox *mCheckBoxProjectFolder;
   QPushButton *mPushButtonProjectPath;
   QDialogButtonBox *mButtonBox;
-
+  bool bPrjExist;
 };
 
 } // namespace ui

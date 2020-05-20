@@ -2,6 +2,8 @@
 
 #include <tidop/core/messages.h>
 
+#include <colmap/base/database.h>
+
 #include <QFileInfo>
 
 #include <stdexcept>
@@ -76,10 +78,14 @@ private:
 
 private:
 
+  std::unique_ptr<colmap::Database> mDatabase;
+  colmap::Image mImageId;
+  bool bOpen = false;
 };
 
 FeaturesReaderColmap::FeaturesReaderColmap(const QString &fileName)
-  : FeaturesReader(fileName)
+  : FeaturesReader(fileName),
+    mDatabase(new colmap::Database)
 {
 
 }
@@ -101,22 +107,32 @@ bool FeaturesReaderColmap::read()
 
 void FeaturesReaderColmap::open()
 {
-
+  try {
+    QStringList string_list = mFileName.split("|");
+    mImageId = mDatabase->ReadImageWithName(string_list[1].toStdString());
+    mDatabase->Open(string_list[0].toStdString());
+    bOpen = true;
+  } catch (std::exception &e){
+    /// No hay ningun método para ver si se ha abierto correctamente la base de datos
+    /// Capturo si hay una excepción y pongo a falso bOpen
+    bOpen = false;
+  }
 }
 
 bool FeaturesReaderColmap::isOpen()
 {
-  return false;
+  return bOpen;
 }
 
 void FeaturesReaderColmap::readDB()
 {
-
+  mImageId;
 }
 
 void FeaturesReaderColmap::close()
 {
-
+  mDatabase->Close();
+  bOpen = false;
 }
 
 
@@ -162,34 +178,47 @@ private:
 
 private:
 
-
-
+  std::unique_ptr<colmap::Database> mDatabase;
+  bool bOpen = false;
+  colmap::Image mImageId;
 };
 
 FeaturesWriterColmap::FeaturesWriterColmap(const QString &fileName)
-  : FeaturesWriter(fileName)
+  : FeaturesWriter(fileName),
+    mDatabase(new colmap::Database)
 {
 
 }
 
 void FeaturesWriterColmap::open()
 {
-
+  try {
+    QStringList string_list = mFileName.split("|");
+    mImageId = mDatabase->ReadImageWithName(string_list[1].toStdString());
+    mDatabase->Open(string_list[0].toStdString());
+    bOpen = true;
+  } catch (std::exception &e){
+    /// No hay ningun método para ver si se ha abierto correctamente la base de datos
+    /// Capturo si hay una excepción y pongo a falso bOpen
+    bOpen = false;
+  }
 }
 
 bool FeaturesWriterColmap::isOpen()
 {
-  return false;
+  return bOpen;
 }
 
 void FeaturesWriterColmap::writeDB()
 {
-
+  mDatabase->WriteKeypoints(mImageId.ImageId(), mKeyPoints);
+  mDatabase->WriteDescriptors(mImageId.ImageId(), mDescriptors);
 }
 
 void FeaturesWriterColmap::close()
 {
-
+  mDatabase->Close();
+  bOpen = false;
 }
 
 

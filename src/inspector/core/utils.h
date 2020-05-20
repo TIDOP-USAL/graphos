@@ -6,6 +6,8 @@
 
 #include <tidop/core/defs.h>
 
+#include <QString>
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -64,6 +66,7 @@ public:
   std::streambuf *rdbuf();
 
 };
+
 
 } // end namespace inspector
 

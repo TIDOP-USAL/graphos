@@ -1,7 +1,6 @@
 #include <QtTest>
 
-#include "inspector/core/project.h"
-#include "fake/ProjectControllerFake.h"
+#include "fake/ProjectFake.h"
 
 using namespace inspector;
 
@@ -29,35 +28,34 @@ private slots:
   void test_projectFolder_data();
   void test_projectFolder();
   void test_findImage();
-  void test_findImageId_data();
-  void test_findImageId();
+  void test_imageId_data();
+  void test_imageId();
+  void test_imageId_exception();
   void test_imageIterator();
   void test_addImage_deleteImage();
+  void test_addCamera();
+  void test_findCamera();
+  void test_findCameraId();
   void test_database_data();
   void test_database();
+  void test_featureExtractor();
+  void test_features();
 
 protected:
 
-  ProjectController *mProjectController;
   Project *mProject;
   Project *mProjectXml;
 };
 
 TestProject::TestProject()
-  : mProjectController(new ProjectControllerFake),
-    mProject(new ProjectImp),
-    mProjectXml(new ProjectImp)
+  : mProject(new ProjectImp),
+    mProjectXml(new ProjectFake)
 {
 
 }
 
 TestProject::~TestProject()
 {
-  if (mProjectController){
-    delete mProjectController;
-    mProjectController = nullptr;
-  }
-
   if (mProject){
     delete mProject;
     mProject = nullptr;
@@ -71,7 +69,7 @@ TestProject::~TestProject()
 
 void TestProject::initTestCase()
 {
-  mProjectController->read("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml", *mProjectXml);
+  mProjectXml->load("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml");
 }
 
 void TestProject::cleanupTestCase()
@@ -164,71 +162,114 @@ void TestProject::test_projectFolder()
 
 void TestProject::test_findImage()
 {
-  std::shared_ptr<Image> img = mProjectXml->findImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png");
-  QCOMPARE("img001", img->name());
-  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", img->path());
-  QCOMPARE(0.5, img->longitudeExif());
-  QCOMPARE(2.3, img->latitudeExif());
-  QCOMPARE(10.2, img->altitudeExif());
+  Image img = mProjectXml->findImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png");
+  QCOMPARE("img001", img.name());
+  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", img.path());
+  QCOMPARE(0.5, img.longitudeExif());
+  QCOMPARE(2.3, img.latitudeExif());
+  QCOMPARE(10.2, img.altitudeExif());
 
-  std::shared_ptr<Image> img2 = mProjectXml->findImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png");
-  QCOMPARE("img002", img2->name());
-  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", img2->path());
-  QCOMPARE(0.51, img2->longitudeExif());
-  QCOMPARE(2.3, img2->latitudeExif());
-  QCOMPARE(10.1, img2->altitudeExif());
+  Image img2 = mProjectXml->findImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png");
+  QCOMPARE("img002", img2.name());
+  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", img2.path());
+  QCOMPARE(0.51, img2.longitudeExif());
+  QCOMPARE(2.3, img2.latitudeExif());
+  QCOMPARE(10.1, img2.altitudeExif());
 }
 
-void TestProject::test_findImageId_data()
+void TestProject::test_imageId_data()
 {
   QTest::addColumn<QString>("value");
   QTest::addColumn<size_t>("result");
 
   QTest::newRow("img001") << "C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png" << size_t{0};
   QTest::newRow("img002") << "C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png" << size_t{1};
-  QTest::newRow("img003") << "C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png" << std::numeric_limits<size_t>().max();
 }
 
-void TestProject::test_findImageId()
+void TestProject::test_imageId()
 {
   QFETCH(QString, value);
   QFETCH(size_t, result);
 
-  QCOMPARE(result, mProjectXml->findImageId(value));
+  QCOMPARE(result, mProjectXml->imageId(value));
+}
+
+void TestProject::test_imageId_exception()
+{
+  //QTest::newRow("img003") << "C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png" << std::numeric_limits<size_t>().max();
+  try {
+    int id = mProjectXml->imageId("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
+  } catch (std::exception &e) {
+    QCOMPARE("Image not found: C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png", e.what());
+  }
 }
 
 void TestProject::test_imageIterator()
 {
-  std::shared_ptr<Image> img;
+  Image img;
   int i = 0;
   for (auto it = mProjectXml->imageBegin(); it != mProjectXml->imageEnd(); it++, i++){
-
+    img = (*it);
     if (i == 0){
-      QCOMPARE("img001", (*it)->name());
-      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", (*it)->path());
-      QCOMPARE(0.5, (*it)->longitudeExif());
-      QCOMPARE(2.3, (*it)->latitudeExif());
-      QCOMPARE(10.2, (*it)->altitudeExif());
+      QCOMPARE("img001", img.name());
+      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", img.path());
+      QCOMPARE(0.5, img.longitudeExif());
+      QCOMPARE(2.3, img.latitudeExif());
+      QCOMPARE(10.2, img.altitudeExif());
     } else {
-      QCOMPARE("img002", (*it)->name());
-      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", (*it)->path());
-      QCOMPARE(0.51, (*it)->longitudeExif());
-      QCOMPARE(2.3, (*it)->latitudeExif());
-      QCOMPARE(10.1, (*it)->altitudeExif());
+      QCOMPARE("img002", img.name());
+      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", img.path());
+      QCOMPARE(0.51, img.longitudeExif());
+      QCOMPARE(2.3, img.latitudeExif());
+      QCOMPARE(10.1, img.altitudeExif());
     }
   }
 }
 
 void TestProject::test_addImage_deleteImage()
 {
-  std::shared_ptr<Image> img(new Image("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png"));
+  Image img("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
 
   mProjectXml->addImage(img);
 
   QCOMPARE(3, mProjectXml->imagesCount());
 
-  mProjectXml->deleteImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
+  mProjectXml->removeImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
   QCOMPARE(2, mProjectXml->imagesCount());
+}
+
+void TestProject::test_addCamera()
+{
+  Camera camera("SONY", "ILCE-6000");
+  camera.setFocal(3552.23);
+  camera.setWidth(5472);
+  camera.setHeight(3648);
+  mProjectXml->addCamera(camera);
+  Camera camera2 = mProjectXml->findCamera("SONY", "ILCE-6000");
+  QCOMPARE(3552.23, camera2.focal());
+  QCOMPARE(5472, camera2.width());
+  QCOMPARE(3648, camera2.height());
+}
+
+void TestProject::test_findCamera()
+{
+  Camera camera = mProjectXml->findCamera("DJI", "FC6310");
+  QCOMPARE(3752.23, camera.focal());
+  QCOMPARE(5472, camera.width());
+  QCOMPARE(3648, camera.height());
+  QCOMPARE(12.8333, camera.sensorSize());
+
+  Camera camera2 = mProjectXml->findCamera(1);
+  QCOMPARE(3752.23, camera2.focal());
+  QCOMPARE(5472, camera2.width());
+  QCOMPARE(3648, camera2.height());
+  QCOMPARE(12.8333, camera2.sensorSize());
+}
+
+void TestProject::test_findCameraId()
+{
+  int id = mProjectXml->cameraId("DJI", "FC6310");
+  QCOMPARE(1, id);
 }
 
 void TestProject::test_database_data()
@@ -247,6 +288,20 @@ void TestProject::test_database()
 
   mProject->setDatabase(value);
   QCOMPARE(result, mProject->database());
+}
+
+void TestProject::test_featureExtractor()
+{
+
+}
+
+void TestProject::test_features()
+{
+  QString features = mProjectXml->features("img001");
+  QCOMPARE("img001@C:/Users/User01/Documents/inspector/Projects/prj001/prj001.db", features);
+
+  features = mProjectXml->features("img002");
+  QCOMPARE("img002@C:/Users/User01/Documents/inspector/Projects/prj001/prj001.db", features);
 }
 
 

@@ -67,6 +67,71 @@ public:
    */
   virtual bool checkOldVersion(const QString &file) const = 0;
 
+  /*!
+   * \brief Add an image to the project
+   * \param[in] img Image
+   */
+  virtual void addImage(const Image &img) = 0;
+
+  /*!
+   * \brief Delete an image from the project
+   * \param[in] img Image path to be deleted
+   */
+  virtual void deleteImage(const QString &img) = 0;
+
+  /*!
+   * \brief Delete an image from the project
+   * \param[in] imgId ID image to be deleted
+   */
+  virtual void deleteImage(size_t imgId) = 0;
+
+  /*!
+   * \brief Search for an image in the project
+   * \param[in] path Image path
+   * \return Image object or null pointer if not found
+   */
+  virtual const Image findImage(const QString &path) const = 0;
+
+  virtual const Image findImageById(size_t id) const = 0;
+  virtual const Image findImageByName(const QString &imgName) const = 0;
+
+  /*!
+   * \brief Search for an image in the project
+   * \param[in] path Image path
+   * \return Image ID o std::numeric_limits<size_t>().max() if it is not found
+   */
+  virtual size_t findImageId(const QString &path) const = 0;
+
+  /*!
+   * \brief Returns a constant iterator at the beginning of the image list
+   * \return Iterator to the first element of the image list
+   */
+  virtual Project::image_const_iterator imageBegin() const = 0;
+
+  /*!
+   * \brief Return a constant iterator to the next element after the last image
+   * \return Constant Iterator to the next element after the last image
+   */
+  virtual Project::image_const_iterator imageEnd() const = 0;
+
+  /*!
+   * \brief Number of images of the project
+   * \return
+   */
+  virtual size_t imagesCount() const = 0;
+
+  /*!
+   * \brief Add images
+   * \param[in] fileNames Image list to be added
+   */
+  virtual void addImages(const QStringList &fileNames) = 0;
+
+  /*!
+   * \brief Delete images
+   * \param[in] images Image list to be deleted
+   */
+  virtual void deleteImages(const QStringList &images) = 0;
+
 public slots:
 
   /*!
@@ -86,6 +151,8 @@ public slots:
    * \param[in] path Project Directory
    */
   virtual void setProjectFolder(const QString &dir) = 0;
+
+  virtual void setDatabase(const QString &database) = 0;
 
   /*!
    * \brief Load a project
@@ -122,8 +189,7 @@ class ProjectModelImp
 
 public:
 
-  explicit ProjectModelImp(ProjectController *projectIO,
-                           Project *project,
+  explicit ProjectModelImp(Project *project,
                            QObject *parent = nullptr);
   ~ProjectModelImp() override;
 
@@ -143,12 +209,25 @@ public:
   bool checkUnsavedChanges() const override;
   bool checkOldVersion(const QString &file) const override;
   void oldVersionBackup(const QString &file) const override;
+  void addImage(const Image &img) override;
+  void deleteImage(const QString &img) override;
+  void deleteImage(size_t imgId) override;
+  const Image findImage(const QString &path) const override;
+  const Image findImageById(size_t id) const override;
+  const Image findImageByName(const QString &imgName) const override;
+  size_t findImageId(const QString &path) const override;
+  Project::image_const_iterator imageBegin() const override;
+  Project::image_const_iterator imageEnd() const override;
+  size_t imagesCount() const override;
+  void addImages(const QStringList &fileNames) override;
+  void deleteImages(const QStringList &images) override;
 
 public slots:
 
   void setProjectName(const QString &name) override;
   void setProjectDescription(const QString &projectDescription) override;
   void setProjectFolder(const QString &dir) override;
+  void setDatabase(const QString &database) override;
   void load(const QString &file) override;
   void save() override;
   void saveAs(const QString &file) override;
@@ -165,7 +244,6 @@ public slots:
 
 protected:
 
-  ProjectController *mProjectController;
   Project *mProject;
   QString mPrjFile;
   bool bUnsavedChanges;

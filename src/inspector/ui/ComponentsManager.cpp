@@ -10,6 +10,18 @@
 
 #include "inspector/ui/NewProjectPresenter.h"
 #include "inspector/ui/NewProjectView.h"
+#include "inspector/ui/featextract/FeatureExtractorModel.h"
+#include "inspector/ui/featextract/FeatureExtractorView.h"
+#include "inspector/ui/featextract/FeatureExtractorPresenter.h"
+
+#include "inspector/ui/cameras/CamerasModel.h"
+#include "inspector/ui/cameras/CamerasView.h"
+#include "inspector/ui/cameras/CamerasPresenter.h"
+
+#include "inspector/ui/ImagesModel.h"
+
+#include "inspector/ui/utils/Progress.h"
+#include "inspector/ui/utils/ProgressDialog.h"
 
 #include <QProgressBar>
 
@@ -25,13 +37,19 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),
     mProject(new ProjectImp),
-    mProjectController(new ProjectControllerImp),
     mProjectModel(nullptr),
+    mImagesModel(nullptr),
+    mCamerasModel(nullptr),
+    mCamerasPresenter(nullptr),
     mSettings(new SettingsImp),
     mSettingsController(new SettingsControllerImp),
     mSettingsModel(nullptr),
     mSettingsPresenter(nullptr),
-    mNewProjectPresenter(nullptr)
+    mNewProjectPresenter(nullptr),
+    mFeatureExtractorModel(nullptr),
+    mFeatureExtractorPresenter(nullptr),
+    mProgressHandler(nullptr),
+    mProgressDialog(nullptr)
 {
 
 }
@@ -48,14 +66,24 @@ ComponentsManager::~ComponentsManager()
     mProject = nullptr;
   }
 
-  if (mProjectController) {
-    delete mProjectController;
-    mProjectController =nullptr;
-  }
-
   if (mProjectModel){
     delete mProjectModel;
     mProjectModel = nullptr;
+  }
+
+  if (mImagesModel){
+    delete mImagesModel;
+    mImagesModel = nullptr;
+  }
+
+  if (mCamerasModel){
+    delete mCamerasModel;
+    mCamerasModel = nullptr;
+  }
+
+  if (mCamerasPresenter){
+    delete mCamerasPresenter;
+    mCamerasPresenter = nullptr;
   }
 
   if (mSettings){
@@ -82,6 +110,26 @@ ComponentsManager::~ComponentsManager()
     delete mNewProjectPresenter;
     mNewProjectPresenter = nullptr;
   }
+
+  if (mFeatureExtractorModel){
+    delete mFeatureExtractorModel;
+    mFeatureExtractorModel = nullptr;
+  }
+
+  if (mFeatureExtractorPresenter){
+    delete mFeatureExtractorPresenter;
+    mFeatureExtractorPresenter = nullptr;
+  }
+
+  if (mProgressHandler){
+    delete mProgressHandler;
+    mProgressHandler = nullptr;
+  }
+
+  if (mProgressDialog){
+    delete mProgressDialog;
+    mProgressDialog = nullptr;
+  }
 }
 
 MainWindowView *ComponentsManager::mainWindowView()
@@ -106,15 +154,20 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
     mMainWindowPresenter = new MainWindowPresenter(this->mainWindowView(),
                                                    this->mainWindowModel(),
                                                    this->projectModel(),
-                                                   this->settingsModel());
+                                                   this->settingsModel(),
+                                                   this->imagesModel(),
+                                                   this->camerasModel());
 
 //    mMainWindowPresenter->setHelp(this->helpDialog());
 
-    connect(mMainWindowPresenter, SIGNAL(openNewProjectDialog()),        this, SLOT(initAndOpenNewProjectDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openNewSessionDialog()),        this, SLOT(initAndOpenNewSessionDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openPreprocessDialog()),        this, SLOT(initAndOpenPreprocessDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openFeatureExtractionDialog()), this, SLOT(initAndOpenFeatureExtractionDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openFeatureMatchingDialog()),   this, SLOT(initAndOpenFeatureMatchingDialog()));
+    connect(mMainWindowPresenter, &MainWindowPresenter::openNewProjectDialog,
+            this, &ComponentsManager::initAndOpenNewProjectDialog);
+
+    connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureExtractionDialog,
+            this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
+    connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureMatchingDialog,
+            this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
+
 //    connect(mMainWindowPresenter, SIGNAL(openKeypointsViewerDialogFromSession(QString)),   this, SLOT(initAndOpenKeypointsViewerDialogFromSession(QString)));
 //    connect(mMainWindowPresenter, SIGNAL(openKeypointsViewerDialogFromSessionAndImage(QString, QString)), this, SLOT(initAndOpenKeypointsViewerDialogFromSessionAndImage(QString, QString)));
 //    connect(mMainWindowPresenter, SIGNAL(openMatchesViewerDialogFromSession(QString)),     this, SLOT(initAndOpenMatchesViewerDialogFromSession(QString)));
@@ -127,9 +180,16 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 //    connect(mMainWindowPresenter, SIGNAL(openROCCurvesViewerDialog()),  this, SLOT(initAndOpenROCCurvesViewerDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openDETCurvesViewerDialog()),  this, SLOT(initAndOpenDETCurvesViewerDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
-    connect(mMainWindowPresenter, SIGNAL(openSettingsDialog()),         this, SLOT(initAndOpenSettingsDialog()));
-    connect(mMainWindowPresenter, SIGNAL(openViewSettingsDialog()),     this, SLOT(initAndOpenViewSettingsDialog()));
-    connect(mMainWindowPresenter, SIGNAL(openToolSettingsDialog()),     this, SLOT(initAndOpenToolSettingsDialog()));
+
+    connect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
+             this, &ComponentsManager::initAndOpenCamerasDialog);
+    connect(mMainWindowPresenter, &MainWindowPresenter::openSettingsDialog,
+            this, &ComponentsManager::initAndOpenSettingsDialog);
+    connect(mMainWindowPresenter, &MainWindowPresenter::openViewSettingsDialog,
+            this, &ComponentsManager::initAndOpenViewSettingsDialog);
+    connect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
+            this, &ComponentsManager::initAndOpenToolSettingsDialog);
+
 //    connect(mMainWindowPresenter, SIGNAL(openMultiviewMatchingAssessmentDialog()),     this, SLOT(initAndOpenMultiviewMatchingAssessmentDialog()));
   }
   return mMainWindowPresenter;
@@ -138,9 +198,36 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 ProjectModel *ComponentsManager::projectModel()
 {
   if (mProjectModel == nullptr){
-    mProjectModel = new ProjectModelImp(mProjectController, mProject);
+    mProjectModel = new ProjectModelImp(mProject);
   }
   return mProjectModel;
+}
+
+ImagesModel *ComponentsManager::imagesModel()
+{
+  if (mImagesModel == nullptr){
+    mImagesModel = new ImagesModelImp(mProject);
+  }
+  return mImagesModel;
+}
+
+CamerasModel *ComponentsManager::camerasModel()
+{
+  if (mCamerasModel == nullptr){
+    mCamerasModel = new CamerasModelImp(mProject);
+  }
+  return mCamerasModel;
+}
+
+CamerasPresenter *ComponentsManager::camerasPresenter()
+{
+  if (mCamerasPresenter == nullptr){
+    CamerasView *view = new CamerasViewImp(this->mainWindowView());
+    mCamerasPresenter = new CamerasPresenterImp(view,
+                                                this->camerasModel(),
+                                                this->imagesModel());
+  }
+  return mCamerasPresenter;
 }
 
 SettingsModel *ComponentsManager::settingsModel()
@@ -168,6 +255,14 @@ NewProjectPresenter *ComponentsManager::newProjectPresenter()
     mNewProjectPresenter = new NewProjectPresenterImp(newProjectView, this->projectModel());
   }
   return mNewProjectPresenter;
+}
+
+FeatureExtractorModel *ComponentsManager::featureExtractorModel()
+{
+  if (mFeatureExtractorModel == nullptr){
+    mFeatureExtractorModel = new FeatureExtractorModelImp(mProject);
+  }
+  return mFeatureExtractorModel;
 }
 
 //NewSessionPresenter *ComponentsManager::newSessionPresenter()
@@ -224,16 +319,18 @@ NewProjectPresenter *ComponentsManager::newProjectPresenter()
 //  return mPreprocessPresenter;
 //}
 
-//FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
-//{
-//  if (mFeatureExtractorPresenter == nullptr){
-//    FeatureExtractorView *featureExtractorView = new FeatureExtractorViewImp(this->mainWindowView());
-//    mFeatureExtractorPresenter = new FeatureExtractorPresenterImp(featureExtractorView,
-//                                                               this->projectModel(),
-//                                                               this->settingsModel());
-//  }
-//  return mFeatureExtractorPresenter;
-//}
+FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
+{
+  if (mFeatureExtractorPresenter == nullptr){
+    FeatureExtractorView *featureExtractorView = new FeatureExtractorViewImp(this->mainWindowView());
+    mFeatureExtractorPresenter = new FeatureExtractorPresenterImp(featureExtractorView,
+                                                                  this->featureExtractorModel(),
+                                                                  this->imagesModel(),
+                                                                  this->camerasModel(),
+                                                                  this->settingsModel());
+  }
+  return mFeatureExtractorPresenter;
+}
 
 //DescriptorMatcherPresenter *ComponentsManager::descriptorMatcherPresenter()
 //{
@@ -440,37 +537,37 @@ NewProjectPresenter *ComponentsManager::newProjectPresenter()
 //  return mHelpDialog;
 //}
 
-//ProgressHandler *ComponentsManager::progressHandler()
-//{
-//  if (mProgressHandler == nullptr){
+ProgressHandler *ComponentsManager::progressHandler()
+{
+  if (mProgressHandler == nullptr){
 
-//    mProgressHandler = new ProgressHandler;
+    mProgressHandler = new ProgressHandler;
 
-//    connect(mProgressHandler, SIGNAL(rangeChange(int, int)),      this->progressDialog(), SLOT(setRange(int, int)));
-//    connect(mProgressHandler, SIGNAL(valueChange(int)),           this->progressDialog(), SLOT(setValue(int)));
-//    connect(mProgressHandler, SIGNAL(initialized()),              this->progressDialog(), SLOT(setInitialized()));
-//    connect(mProgressHandler, SIGNAL(finished()),                 this->progressDialog(), SLOT(setFinished()));
-//    connect(mProgressHandler, SIGNAL(titleChange(QString)),       this->progressDialog(), SLOT(setWindowTitle(QString)));
-//    connect(mProgressHandler, SIGNAL(descriptionChange(QString)), this->progressDialog(), SLOT(setStatusText(QString)));
+    connect(mProgressHandler, SIGNAL(rangeChange(int, int)),      this->progressDialog(), SLOT(setRange(int, int)));
+    connect(mProgressHandler, SIGNAL(valueChange(int)),           this->progressDialog(), SLOT(setValue(int)));
+    connect(mProgressHandler, SIGNAL(initialized()),              this->progressDialog(), SLOT(setInitialized()));
+    connect(mProgressHandler, SIGNAL(finished()),                 this->progressDialog(), SLOT(setFinished()));
+    connect(mProgressHandler, SIGNAL(titleChange(QString)),       this->progressDialog(), SLOT(setWindowTitle(QString)));
+    connect(mProgressHandler, SIGNAL(descriptionChange(QString)), this->progressDialog(), SLOT(setStatusText(QString)));
 
-//    QProgressBar *statusBarProgress = this->mainWindowView()->progressBar();
+    QProgressBar *statusBarProgress = this->mainWindowView()->progressBar();
 
-//    connect(mProgressHandler, SIGNAL(rangeChange(int, int)),      statusBarProgress, SLOT(setRange(int, int)));
-//    connect(mProgressHandler, SIGNAL(valueChange(int)),           statusBarProgress, SLOT(setValue(int)));
-//    connect(mProgressHandler, SIGNAL(initialized()),              statusBarProgress, SLOT(show()));
-//    connect(mProgressHandler, SIGNAL(finished()),                 statusBarProgress, SLOT(hide()));
+    connect(mProgressHandler, SIGNAL(rangeChange(int, int)),      statusBarProgress, SLOT(setRange(int, int)));
+    connect(mProgressHandler, SIGNAL(valueChange(int)),           statusBarProgress, SLOT(setValue(int)));
+    connect(mProgressHandler, SIGNAL(initialized()),              statusBarProgress, SLOT(show()));
+    connect(mProgressHandler, SIGNAL(finished()),                 statusBarProgress, SLOT(hide()));
 
-//  }
-//  return mProgressHandler;
-//}
+  }
+  return mProgressHandler;
+}
 
-//IProgressDialog *ComponentsManager::progressDialog()
-//{
-//  if (mProgressDialog == nullptr){
-//    mProgressDialog = new ProgressDialog;
-//  }
-//  return mProgressDialog;
-//}
+ProgressDialog *ComponentsManager::progressDialog()
+{
+  if (mProgressDialog == nullptr){
+    mProgressDialog = new ProgressDialogImp;
+  }
+  return mProgressDialog;
+}
 
 void ComponentsManager::initAndOpenNewProjectDialog()
 {
@@ -483,26 +580,26 @@ void ComponentsManager::initAndOpenNewProjectDialog()
   this->newProjectPresenter()->open();
 }
 
-//void ComponentsManager::initAndOpenFeatureExtractionDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openFeatureExtractionDialog()), this, SLOT(initAndOpenFeatureExtractionDialog()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openFeatureExtractionDialog()), this->featureExtractorPresenter(), SLOT(open()));
+void ComponentsManager::initAndOpenFeatureExtractionDialog()
+{
+  disconnect(this->mainWindowPresenter(), SIGNAL(openFeatureExtractionDialog()), this, SLOT(initAndOpenFeatureExtractionDialog()));
+  connect(this->mainWindowPresenter(), SIGNAL(openFeatureExtractionDialog()), this->featureExtractorPresenter(), SLOT(open()));
 
-//  connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(processRunning()));
-//  connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(deleteFeatures()));
-//  connect(this->featureExtractorPresenter(), SIGNAL(finished()),                 this->mainWindowPresenter(), SLOT(processFinish()));
-//  connect(this->featureExtractorPresenter(), SIGNAL(imagePreprocessed(QString)), this->mainWindowPresenter(), SLOT(updatePreprocess()));
-//  connect(this->featureExtractorPresenter(), SIGNAL(featuresExtracted(QString)), this->mainWindowPresenter(), SLOT(updateFeatures()));
+  connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(processRunning()));
+  connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(deleteFeatures()));
+  connect(this->featureExtractorPresenter(), SIGNAL(finished()),                 this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->featureExtractorPresenter(), SIGNAL(imagePreprocessed(QString)), this->mainWindowPresenter(), SLOT(updatePreprocess()));
+  connect(this->featureExtractorPresenter(), SIGNAL(featuresExtracted(QString)), this->mainWindowPresenter(), SLOT(updateFeatures()));
 
-//  connect(this->progressDialog(), SIGNAL(cancel()),     this->featureExtractorPresenter(), SLOT(cancel()));
+  connect(this->progressDialog(), SIGNAL(cancel()),     this->featureExtractorPresenter(), SLOT(cancel()));
 
-//  this->featureExtractorPresenter()->setProgressHandler(this->progressHandler());
-//  this->featureExtractorPresenter()->setHelp(this->helpDialog());
-//  this->featureExtractorPresenter()->open();
-//}
+  this->featureExtractorPresenter()->setProgressHandler(this->progressHandler());
+  //this->featureExtractorPresenter()->setHelp(this->helpDialog());
+  this->featureExtractorPresenter()->open();
+}
 
-//void ComponentsManager::initAndOpenFeatureMatchingDialog()
-//{
+void ComponentsManager::initAndOpenFeatureMatchingDialog()
+{
 //  disconnect(this->mainWindowPresenter(), SIGNAL(openFeatureMatchingDialog()), this, SLOT(initAndOpenFeatureMatchingDialog()));
 //  connect(this->mainWindowPresenter(), SIGNAL(openFeatureMatchingDialog()),   this->descriptorMatcherPresenter(), SLOT(open()));
 
@@ -515,8 +612,13 @@ void ComponentsManager::initAndOpenNewProjectDialog()
 
 //  this->descriptorMatcherPresenter()->setProgressHandler(this->progressHandler());
 //  this->descriptorMatcherPresenter()->setHelp(this->helpDialog());
-//  this->descriptorMatcherPresenter()->open();
-//}
+  //  this->descriptorMatcherPresenter()->open();
+}
+
+void ComponentsManager::initAndOpenOrientationDialog()
+{
+
+}
 
 //void ComponentsManager::initAndOpenKeypointsViewerDialogFromSession(const QString &session)
 //{
@@ -670,6 +772,22 @@ void ComponentsManager::initAndOpenToolSettingsDialog()
 {
   this->initSettingsDialog();
   this->settingsPresenter()->openToolSettings();
+}
+
+void ComponentsManager::initAndOpenCamerasDialog()
+{
+  disconnect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
+             this,                 &ComponentsManager::initAndOpenCamerasDialog);
+
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasDialog,
+          this->camerasPresenter(),    &CamerasPresenter::open);
+
+  connect(this->camerasPresenter(), SIGNAL(projectModified()), this->mainWindowPresenter(), SLOT(onProjectModified()));
+
+
+//  this->camerasPresenter()->setHelp(this->helpDialog());
+  this->camerasPresenter()->open();
+
 }
 
 void ComponentsManager::initSettingsDialog()

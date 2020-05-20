@@ -7,7 +7,7 @@
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
 
-#include <colmap/base/database.h>
+//#include <colmap/base/database.h>
 
 #include <QDir>
 #include <QTextStream>
@@ -30,9 +30,8 @@ class CreateProjectModelImpl
 
 public:
 
-  CreateProjectModelImpl(ProjectController *projectIO, Project *project)
-    : mProjectIO(projectIO),
-      mProject(project),
+  CreateProjectModelImpl(Project *project)
+    : mProject(project),
       bUnsavedChanges(false)
 {
   init();
@@ -57,7 +56,7 @@ public:
 
   void save(const QString &file) override
   {
-    mProjectIO->write(file, *mProject);
+    mProject->save(file);
     bUnsavedChanges = false;
   }
 
@@ -86,7 +85,6 @@ public:
 
 protected:
 
-  ProjectController *mProjectIO;
   Project *mProject;
   bool bUnsavedChanges;
 };
@@ -113,21 +111,14 @@ int main(int argc, char** argv)
 
   std::string project_name;
   std::string project_description;
-  size_t idx_camera = 2; /// Camera RADIAL
-  std::vector<std::string> cameras {
-    "SIMPLE_PINHOLE",
-    "SIMPLE_RADIAL",
-    "RADIAL",
-    "FULL_RADIAL"};
   bool force_overwrite = false;
 
   Command cmd("createproj", cmd_description);
   cmd.push_back(std::make_shared<ArgumentStringRequired>("name", 'n', "Project name or project file (.xml)", &project_name));
   cmd.push_back(std::make_shared<ArgumentStringOptional>("description", 'd', "Project description", &project_description));
-  cmd.push_back(std::make_shared<ArgumentListStringOptional>("camera_model", 'c', "Set camera model. Available cameras: SIMPLE_PINHOLE, SIMPLE_RADIAL, RADIAL (default), FULL_RADIAL", cameras, &idx_camera));
   cmd.push_back(std::make_shared<ArgumentBooleanOptional>("overwrite", 'o', "Force project overwrite (default = false)", &force_overwrite));
 
-  cmd.addExample("createproj --name inspector -c RADIAL");
+  cmd.addExample("createproj --name inspector ");
 
   // Parseo de los argumentos y comprobación de los mismos
   Command::Status status = cmd.parse(argc, argv);
@@ -159,7 +150,7 @@ int main(int argc, char** argv)
       file_name = base_name = file_info.baseName();
       file_name.append(".xml");
     }
-    project_path = file_path.append(base_name);
+    project_path = file_path.append(base_name).append("/");
     file_path.append(file_name);
   } else {
     base_name = file_info.baseName();
@@ -181,9 +172,11 @@ int main(int argc, char** argv)
 
 /* Fichero log */
 
+  QString log_file = project_path + base_name + ".log";
+
   tl::Log &log = tl::Log::instance();
   log.setLogLevel(tl::MessageLevel::msg_verbose);
-  QString log_file = dir.filePath("featextract.log");
+  //QString log_file = dir.filePath("featextract.log");
   log.setLogFile(log_file.toLatin1());
 
   /// Se subscribe el log al gestor de mensajes
@@ -203,9 +196,8 @@ int main(int argc, char** argv)
 
 
   ProjectImp project;
-  ProjectControllerImp project_controller;
 
-  CreateProjectModelImpl project_model(&project_controller, &project);
+  CreateProjectModelImpl project_model(&project);
   project_model.setProjectName(base_name);
   project_model.setProjectPath(project_path);
   project_model.setProjectDescription(project_description.c_str());
@@ -214,7 +206,7 @@ int main(int argc, char** argv)
 
   msgInfo("Project created");
 
-  colmap::Database database(database_path.toStdString());
+  //colmap::Database database(database_path.toStdString());
 
   return 0;
 }

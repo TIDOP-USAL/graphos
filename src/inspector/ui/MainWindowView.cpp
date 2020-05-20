@@ -54,6 +54,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionFeatureMatching(new QAction(this)),
     mActionOrientation(new QAction(this)),
     mActionDensification(new QAction(this)),
+    mActionCameras(new QAction(this)),
     mActionSettings(new QAction(this)),
     mActionHelp(new QAction(this)),
     mActionAbout(new QAction(this)),
@@ -64,7 +65,6 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionPassPointsViewer(new QAction(this)),
     mActionNotRecentProjects(new QAction(this)),
     mActionClearHistory(new QAction(this)),
-    mComboBoxActiveSession(new QComboBox(this)),
     ui(new Ui::MainWindowView)
 {
   ui->setupUi(this);
@@ -117,41 +117,41 @@ void MainWindowView::setFlag(MainWindowView::Flag flag, bool value)
 void MainWindowView::addImages(const QStringList &images)
 {
   if (images.empty() == false) {
-//    for (auto &image : images) {
-//      if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+    for (auto &image : images) {
+      if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
-//        /* Fotogramas */
+        /* Fotogramas */
 
-//        QTreeWidgetItem *itemImages = nullptr;
-//        for (int i = 0; i < itemProject->childCount(); i++) {
-//          QTreeWidgetItem *temp = itemProject->child(i);
-//          if (temp->text(0).compare(tr("Images")) == 0) {
-//            itemImages = itemProject->child(i);
-//            break;
-//          }
-//        }
+        QTreeWidgetItem *itemImages = nullptr;
+        for (int i = 0; i < itemProject->childCount(); i++) {
+          QTreeWidgetItem *temp = itemProject->child(i);
+          if (temp->text(0).compare(tr("Images")) == 0) {
+            itemImages = itemProject->child(i);
+            break;
+          }
+        }
 
-//        if (itemImages == nullptr) {
-//          itemImages = new QTreeWidgetItem();
-//          itemImages->setText(0, tr("Images"));
-//          itemImages->setIcon(0, QIcon(":/ico/48/img/material/48/icons8_documents_folder_48px.png"));
-//          itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
-//          itemImages->setData(0, Qt::UserRole, inspector::ui::images);
-//          itemProject->addChild(itemImages);
-//          itemImages->setExpanded(true);
-//        }
+        if (itemImages == nullptr) {
+          itemImages = new QTreeWidgetItem();
+          itemImages->setText(0, tr("Images"));
+          itemImages->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
+          itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
+          itemImages->setData(0, Qt::UserRole, inspector::ui::images);
+          itemProject->addChild(itemImages);
+          itemImages->setExpanded(true);
+        }
 
-//        /* Se añade el fotograma al árbol del proyecto */
-//        QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
-//        itemPhotogram->setText(0, QFileInfo(image).baseName());
-//        itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8_image_48px.png"));
-//        itemPhotogram->setToolTip(0, image);
-//        itemPhotogram->setData(0, Qt::UserRole, inspector::ui::image);
-//        itemImages->addChild(itemPhotogram);
+        /* Se añade el fotograma al árbol del proyecto */
+        QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
+        itemPhotogram->setText(0, QFileInfo(image).baseName());
+        itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
+        itemPhotogram->setToolTip(0, image);
+        itemPhotogram->setData(0, Qt::UserRole, inspector::ui::image);
+        itemImages->addChild(itemPhotogram);
 
-//        update();
-//      }
-//    }
+        update();
+      }
+    }
 
     mThumbnailsWidget->addThumbnails(images);
 
@@ -160,65 +160,65 @@ void MainWindowView::addImages(const QStringList &images)
 
 void MainWindowView::setActiveImage(const QString &image)
 {
-//  const QSignalBlocker blocker1(mTreeWidgetProject);
-//  const QSignalBlocker blocker2(mThumbnailsWidget);
+  const QSignalBlocker blocker1(mTreeWidgetProject);
+  const QSignalBlocker blocker2(mThumbnailsWidget);
 
-//  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
-//    QTreeWidgetItem *itemImages = nullptr;
-//    for (int i = 0; i < itemProject->childCount(); i++) {
-//      QTreeWidgetItem *temp = itemProject->child(i);
-//      if (temp->text(0).compare(tr("Images")) == 0) {
-//        itemImages = itemProject->child(i);
-//        break;
-//      }
-//    }
+    QTreeWidgetItem *itemImages = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("Images")) == 0) {
+        itemImages = itemProject->child(i);
+        break;
+      }
+    }
 
-//    if (itemImages) {
-//      // Se busca la imagen en el árbol
-//      for (int i = 0; i < itemImages->childCount(); i++) {
-//        QTreeWidgetItem *temp = itemImages->child(i);
-//        itemImages->child(i)->setSelected(temp->toolTip(0).compare(image) == 0);
-//      }
-//    }
-//  }
+    if (itemImages) {
+      // Se busca la imagen en el árbol
+      for (int i = 0; i < itemImages->childCount(); i++) {
+        QTreeWidgetItem *temp = itemImages->child(i);
+        itemImages->child(i)->setSelected(temp->text(0).compare(image) == 0);
+      }
+    }
+  }
 
-//  mThumbnailsWidget->setActiveImage(image);
+  mThumbnailsWidget->setActiveImage(image);
 
 }
 
 void MainWindowView::setActiveImages(const QStringList &images)
 {
-//  const QSignalBlocker blocker1(mTreeWidgetProject);
-//  const QSignalBlocker blocker2(mThumbnailsWidget);
+  const QSignalBlocker blocker1(mTreeWidgetProject);
+  const QSignalBlocker blocker2(mThumbnailsWidget);
 
-//  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
-//    QTreeWidgetItem *itemImages = nullptr;
-//    for (int i = 0; i < itemProject->childCount(); i++) {
-//      QTreeWidgetItem *temp = itemProject->child(i);
-//      if (temp->text(0).compare(tr("Images")) == 0) {
-//        itemImages = itemProject->child(i);
-//        break;
-//      }
-//    }
+    QTreeWidgetItem *itemImages = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("Images")) == 0) {
+        itemImages = itemProject->child(i);
+        break;
+      }
+    }
 
-//    if (itemImages) {
-//      // Se busca la imagen en el árbol
-//      for (int i = 0; i < itemImages->childCount(); i++) {
-//        QTreeWidgetItem *temp = itemImages->child(i);
-//        temp->setSelected(false);
-//        for (auto &image : images){
-//          if (temp->toolTip(0).compare(image) == 0){
-//            temp->setSelected(true);
-//            break;
-//          }
-//        }
-//      }
-//    }
-//  }
+    if (itemImages) {
+      // Se busca la imagen en el árbol
+      for (int i = 0; i < itemImages->childCount(); i++) {
+        QTreeWidgetItem *temp = itemImages->child(i);
+        temp->setSelected(false);
+        for (auto &image : images){
+          if (temp->text(0).compare(image) == 0){
+            temp->setSelected(true);
+            break;
+          }
+        }
+      }
+    }
+  }
 
-//  mThumbnailsWidget->setActiveImages(images);
+  mThumbnailsWidget->setActiveImages(images);
 }
 
 void MainWindowView::addFeatures(const QString &sessionName, const QString &detector, const QString &descriptor, const std::vector<QString> &features)
@@ -563,36 +563,36 @@ void MainWindowView::deleteHistory()
 
 void MainWindowView::deleteImage(const QString &file)
 {
-//  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
-//    QTreeWidgetItem *itemImages = nullptr;
-//    for (int i = 0; i < itemProject->childCount(); i++) {
-//      QTreeWidgetItem *temp = itemProject->child(i);
-//      if (temp->text(0).compare(tr("Images")) == 0) {
-//        itemImages = itemProject->child(i);
-//        break;
-//      }
-//    }
+    QTreeWidgetItem *itemImages = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("Images")) == 0) {
+        itemImages = itemProject->child(i);
+        break;
+      }
+    }
 
-//    if (itemImages) {
+    if (itemImages) {
 
-//      // Se busca la imagen en el árbol
-//      QTreeWidgetItem *itemImage = nullptr;
-//      for (int i = 0; i < itemImages->childCount(); i++) {
-//        QTreeWidgetItem *temp = itemImages->child(i);
-//        if (temp->toolTip(0).compare(file) == 0) {
-//          itemImage = itemImages->child(i);
-//          delete itemImage;
-//          itemImage = nullptr;
-//          break;
-//        }
-//      }
-//    }
+      // Se busca la imagen en el árbol
+      QTreeWidgetItem *itemImage = nullptr;
+      for (int i = 0; i < itemImages->childCount(); i++) {
+        QTreeWidgetItem *temp = itemImages->child(i);
+        if (temp->toolTip(0).compare(file) == 0) {
+          itemImage = itemImages->child(i);
+          delete itemImage;
+          itemImage = nullptr;
+          break;
+        }
+      }
+    }
 
-//    setFlag(MainWindowView::Flag::images_added, itemProject->childCount() > 0);
-//  }
+    setFlag(MainWindowView::Flag::images_added, itemProject->childCount() > 0);
+  }
 
-//  mThumbnailsWidget->deleteThumbnail(file);
+  mThumbnailsWidget->deleteThumbnail(file);
 }
 
 void MainWindowView::deleteFeatures(const QString &session, const QString &feat)
@@ -771,35 +771,36 @@ void MainWindowView::update()
 {
   bool bProjectExists = mFlags.isActive(Flag::project_exists);
   bool bProjectModified = mFlags.isActive(Flag::project_modified);
-//  bool bImageOpen = mFlags.isActive(Flag::image_open);
+  bool bImageOpen = mFlags.isActive(Flag::image_open);
   bool bProcessing = mFlags.isActive(Flag::processing);
-//  bool bLoadingImages = mFlags.isActive(Flag::loading_images);
+  bool bLoadingImages = mFlags.isActive(Flag::loading_images);
+  bool bImagesLoaded = mFlags.isActive(Flag::images_added);
+  bool bFeatureExtraction = mFlags.isActive(Flag::feature_extraction);
+  bool bFeatureMatching = mFlags.isActive(Flag::feature_matching);
+  bool bOriented = mFlags.isActive(Flag::oriented);
 
   mActionNewProject->setEnabled(!bProcessing);
   mActionOpenProject->setEnabled(!bProcessing);
-//  mMenuRecentProjects->setEnabled(!bProcessing);
+  mMenuRecentProjects->setEnabled(!bProcessing);
+  mActionNotRecentProjects->setVisible(mHistory.size() == 0);
+  mActionClearHistory->setEnabled(mHistory.size() > 0);
+  mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
+  mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
   mActionSaveProject->setEnabled(bProjectExists && bProjectModified && !bProcessing);
   mActionSaveProjectAs->setEnabled(bProjectExists && !bProcessing);
   mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
   mActionExit->setEnabled(!bProcessing);
 
+  mActionLoadImages->setEnabled(bProjectExists && !bProcessing && !bLoadingImages);
+  mActionFeatureExtraction->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
+  mActionFeatureMatching->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
+  mActionOrientation->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
+  mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
 
-//  mActionLoadImages->setEnabled(bProjectExists && !bProcessing);
-//  mActionGroundTruthEditor->setEnabled(mFlags.isActive(Flag::images_added));
-//  mActionPreprocess->setEnabled(mFlags.isActive(Flag::session_created) && !bProcessing);
-//  mActionFeatureExtraction->setEnabled(mFlags.isActive(Flag::session_created) && !bProcessing);
-//  mActionFeatureMatching->setEnabled(mFlags.isActive(Flag::feature_extraction) && !bProcessing);
-//  //mActionBatch->setEnabled(mFlags.isActive(Flag::session_created) && !bProcessing);
-//  mActionExportTiePoints->setEnabled(mFlags.isActive(Flag::session_created) && !bProcessing);
-//  mActionExportMatches->setEnabled(mFlags.isActive(Flag::session_created) && !bProcessing);
-//  mActionFeaturesViewer->setEnabled(mFlags.isActive(Flag::feature_extraction));
-//  mActionMatchesViewer->setEnabled(mFlags.isActive(Flag::feature_matching));
-//  mActionPassPointsViewer->setEnabled(mFlags.isActive(Flag::feature_matching));
-
-//  mActionNotRecentProjects->setVisible(mHistory.size() == 0);
-//  mActionClearHistory->setEnabled(mHistory.size() > 0);
-
-//  mActionLoadImages->setDisabled(bLoadingImages || bProcessing);
+  mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
+  mActionFeaturesViewer->setEnabled(bFeatureExtraction);
+  mActionMatchesViewer->setEnabled(bFeatureMatching);
+  mActionPassPointsViewer->setEnabled(bFeatureMatching);
 }
 
 void MainWindowView::retranslate()
@@ -818,6 +819,7 @@ void MainWindowView::retranslate()
   mActionFeatureMatching->setText(QApplication::translate("MainWindowView", "Feature Matching", nullptr));
   mActionOrientation->setText(QApplication::translate("MainWindowView", "Orientation", nullptr));
   mActionDensification->setText(QApplication::translate("MainWindowView", "Densification", nullptr));
+  mActionCameras->setText(QApplication::translate("MainWindowView", "Cameras", nullptr));
   mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
   mActionAbout->setText(QApplication::translate("MainWindowView", "About", nullptr));
   mActionFeaturesViewer->setText(QApplication::translate("MainWindowView", "Keypoints Viewer", nullptr));
@@ -850,213 +852,119 @@ void MainWindowView::openFromHistory()
 
 void MainWindowView::onSelectionChanged()
 {
-//  QList<QTreeWidgetItem*> item = mTreeWidgetProject->selectedItems();
-//  if (item.isEmpty()) return;
-//  if (item[0]->data(0, Qt::UserRole) == inspector::ui::project){
+  QList<QTreeWidgetItem*> item = mTreeWidgetProject->selectedItems();
+  if (item.isEmpty()) return;
+  if (item[0]->data(0, Qt::UserRole) == inspector::ui::project){
 
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::images){
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::image ||
-//             item[0]->data(0, Qt::UserRole) == inspector::ui::preprocess_image){
-//    int size = item.size();
-//    if(size > 0){
-//      if (size == 1) {
-//        emit selectImage(item[0]->toolTip(0));
-//      } else {
-//        QStringList selected_images;
-//        for (int i = 0; i < size; i++){
-//          selected_images.push_back(item[i]->toolTip(0));
-//        }
-//        emit selectImages(selected_images);
-//      }
-//    }
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::sessions){
-//    ui->treeWidgetProperties->clear();
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::session){
-//    int size = item.size();
-//    if(size > 0){
-//      if (size == 1) {
-//        emit selectSession(item[0]->text(0));
-//      } /*else {
-//        QStringList selected_images;
-//        for (int i = 0; i < size; i++){
-//          selected_images.push_back(item[i]->toolTip(0));
-//        }
-//        emit selectImages(selected_images);
-//      }*/
-//    }
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::preprocess){
-//    int size = item.size();
-//    if(size > 0){
-//      if (size == 1) {
-//        QString session = item[0]->parent()->text(0);
-//        emit selectPreprocess(session);
-//      }
-//    }
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::features){
-//    ui->treeWidgetProperties->clear();
+  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::images){
+  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::image){
+    int size = item.size();
+    if(size > 0){
+      if (size == 1) {
+        emit selectImage(item[0]->text(0));
+      } else {
+        QStringList selected_images;
+        for (int i = 0; i < size; i++){
+          selected_images.push_back(item[i]->text(0));
+        }
+        emit selectImages(selected_images);
+      }
+    }
+  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::features){
+    ui->treeWidgetProperties->clear();
 //    QString session = item[0]->parent()->text(0);
 //    emit selectFeatures(session);
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::features_images){
-//    ui->treeWidgetProperties->clear();
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::features_image){
-//    ui->treeWidgetProperties->clear();
-//    emit selectImageFeatures(item[0]->toolTip(0));
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::detector){
-//    int size = item.size();
-//    if(size > 0){
-//      if (size == 1) {
-//        QString session = item[0]->parent()->parent()->text(0);
-//        emit selectDetector(session);
-//      }
-//    }
-//  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::descriptor){
-//    int size = item.size();
-//    if(size > 0){
-//      if (size == 1) {
-//        QString session = item[0]->parent()->parent()->text(0);
-//        emit selectDescriptor(session);
-//      }
-//    }
-//  }
-
-////  if (item[0]->parent()->text(0).compare(tr("Images")) == 0){
-////    int size = item.size();
-////    if(size > 0){
-////      if (size == 1) {
-////        emit selectImage(item[0]->toolTip(0));
-////      } else {
-////        QStringList selected_images;
-////        for (int i = 0; i < size; i++){
-////          selected_images.push_back(item[i]->toolTip(0));
-////        }
-////        emit selectImages(selected_images);
-////      }
-////    }
-////  } else if (item[0]->parent()->text(0).compare(tr("Sessions")) == 0){
-////    int size = item.size();
-////    if(size > 0){
-////      if (size == 1) {
-////        emit selectSession(item[0]->text(0));
-////      } /*else {
-////        QStringList selected_images;
-////        for (int i = 0; i < size; i++){
-////          selected_images.push_back(item[i]->toolTip(0));
-////        }
-////        emit selectImages(selected_images);
-////      }*/
-////    }
-//  //  }
+  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::features_images){
+    ui->treeWidgetProperties->clear();
+  } else if (item[0]->data(0, Qt::UserRole) == inspector::ui::features_image){
+    ui->treeWidgetProperties->clear();
+    //emit selectImageFeatures(item[0]->toolTip(0));
+  }
 }
 
 void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-//  if (item){
-//    if (item->data(0, Qt::UserRole) == inspector::ui::image ||
-//      item->data(0, Qt::UserRole) == inspector::ui::preprocess_image){
-//     emit openImage(item->toolTip(column));
-//   } else if (item->data(0, Qt::UserRole) == inspector::ui::pair_right){
-//     QString session = item->parent()->parent()->parent()->parent()->text(0);
-//     emit openImageMatches(session, item->parent()->text(0), item->text(column));
-//   } else if (item->data(0, Qt::UserRole) == inspector::ui::features_image){
-//     QString session = item->parent()->parent()->parent()->text(0);
-//     emit openKeypointsViewer(session, QFileInfo(item->text(column)).baseName());
-//   }
-//  }
+  if (item){
+    if (item->data(0, Qt::UserRole) == inspector::ui::image){
+     emit openImage(item->text(column));
+   } /*else if (item->data(0, Qt::UserRole) == inspector::ui::pair_right){
+     QString session = item->parent()->parent()->parent()->parent()->text(0);
+     emit openImageMatches(session, item->parent()->text(0), item->text(column));
+   } else if (item->data(0, Qt::UserRole) == inspector::ui::features_image){
+     QString session = item->parent()->parent()->parent()->text(0);
+     emit openKeypointsViewer(session, QFileInfo(item->text(column)).baseName());
+   }*/
+  }
 }
 
 void MainWindowView::onTreeContextMenu(const QPoint &point)
 {
-//  QPoint globalPos = mTreeWidgetProject->mapToGlobal(point);
+  QPoint globalPos = mTreeWidgetProject->mapToGlobal(point);
 
-//  QTreeWidgetItem *item = nullptr;
-//  item = mTreeWidgetProject->itemAt(point);
+  QTreeWidgetItem *item = nullptr;
+  item = mTreeWidgetProject->itemAt(point);
 
-//  if (item == nullptr)
-//    return;
+  if (item == nullptr)
+    return;
 
-//  if (item->data(0, Qt::UserRole) == inspector::ui::project){
-//    QMenu menu;
-//    menu.addAction(mActionLoadImages);
+  if (item->data(0, Qt::UserRole) == inspector::ui::project){
+    QMenu menu;
+    menu.addAction(mActionLoadImages);
 
-//    QAction *selectedItem = menu.exec(globalPos);
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::images){
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::image ||
-//             item->data(0, Qt::UserRole) == inspector::ui::preprocess_image){
-//    QMenu menu;
-//    QAction *open_image = new QAction(QIcon(QStringLiteral(":/ico/24/img/material/24/icons8_image_file_24px.png")),
-//                                       tr("Open Image"), this);
-//    menu.addAction(open_image);
-//    QAction *delete_image = new QAction(QIcon(QStringLiteral(":/ico/24/img/material/24/icons8_remove_image_24px.png")),
-//                                       tr("Delete Image"), this);
-//    menu.addAction(delete_image);
-//    if (QAction *selectedItem = menu.exec(globalPos)) {
-//      if (selectedItem->text() == tr("Open Image")) {
-//        emit openImage(item->toolTip(0));
-//      } else if (selectedItem->text() == tr("Delete Image")) {
-//        emit deleteImages(QStringList(item->toolTip(0)));
-//      }
-//    }
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::sessions){
-//    QMenu menu;
-//    menu.addAction(mActionNewSession);
+    QAction *selectedItem = menu.exec(globalPos);
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::images){
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::image){
+    QMenu menu;
+    QAction *open_image = new QAction(QIcon(QStringLiteral(":/ico/24/img/material/24/icons8-image-file.png")),
+                                       tr("Open Image"), this);
+    menu.addAction(open_image);
+    QAction *delete_image = new QAction(QIcon(QStringLiteral(":/ico/24/img/material/24/icons8_remove_image_24px.png")),
+                                       tr("Delete Image"), this);
+    menu.addAction(delete_image);
+    if (QAction *selectedItem = menu.exec(globalPos)) {
+      if (selectedItem->text() == tr("Open Image")) {
+        emit openImage(item->text(0));
+      } else if (selectedItem->text() == tr("Delete Image")) {
+        emit deleteImages(QStringList(item->text(0)));
+      }
+    }
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::features){
 
-//    QAction *selectedItem = menu.exec(globalPos);
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::session){
-//    QMenu menu;
-//    menu.addAction(mActionSetSession);
-//    menu.addAction(mActionDeleteSession);
-////    menu.addSeparator();
-////    menu.addAction(mActionPreprocess);
-////    menu.addAction(mActionFeatureExtraction);
-////    menu.addAction(mActionFeatureMatching);
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::features_images){
 
-//    if (QAction *selectedItem = menu.exec(globalPos)) {
-//      if (selectedItem->text() == tr("Set as current session")) {
-//        emit activeSessionChange(item->text(0));
-//      } else if (selectedItem->text() == tr("Delete session")) {
-//        emit delete_session(item->text(0));
-//      }
-//    }
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::preprocess){
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::features_image){
+    QMenu menu;
+    menu.addAction(tr("View keypoints"));
+    if (QAction *selectedItem = menu.exec(globalPos)) {
+      if (selectedItem->text() == tr("View keypoints")) {
+        QString session = item->parent()->parent()->parent()->text(0);
+        emit openKeypointsViewer(session, QFileInfo(item->text(0)).baseName());
+      }
+    }
 
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::features){
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::detector){
 
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::features_images){
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::descriptor){
 
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::features_image){
-//    QMenu menu;
-//    menu.addAction(tr("View keypoints"));
-//    if (QAction *selectedItem = menu.exec(globalPos)) {
-//      if (selectedItem->text() == tr("View keypoints")) {
-//        QString session = item->parent()->parent()->parent()->text(0);
-//        emit openKeypointsViewer(session, QFileInfo(item->text(0)).baseName());
-//      }
-//    }
-
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::detector){
-
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::descriptor){
-
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::pair_left){
-//    QMenu menu;
-//    menu.addAction(tr("View Matches"));
-//    if (QAction *selectedItem = menu.exec(globalPos)) {
-//      if (selectedItem->text() == tr("View Matches")) {
-//        QString session = item->parent()->parent()->parent()->text(0);
-//        emit openMatchesViewer(session, QFileInfo(item->text(0)).baseName(), QString());
-//      }
-//    }
-//  } else if (item->data(0, Qt::UserRole) == inspector::ui::pair_right){
-//    QMenu menu;
-//    menu.addAction(tr("View Matches"));
-//    if (QAction *selectedItem = menu.exec(globalPos)) {
-//      if (selectedItem->text() == tr("View Matches")) {
-//        QString session = item->parent()->parent()->parent()->parent()->text(0);
-//        emit openMatchesViewer(session, QFileInfo(item->parent()->text(0)).baseName(), QFileInfo(item->text(0)).baseName());
-//      }
-//    }
-//  }
-
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::pair_left){
+    QMenu menu;
+    menu.addAction(tr("View Matches"));
+    if (QAction *selectedItem = menu.exec(globalPos)) {
+      if (selectedItem->text() == tr("View Matches")) {
+        QString session = item->parent()->parent()->parent()->text(0);
+        emit openMatchesViewer(session, QFileInfo(item->text(0)).baseName(), QString());
+      }
+    }
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::pair_right){
+    QMenu menu;
+    menu.addAction(tr("View Matches"));
+    if (QAction *selectedItem = menu.exec(globalPos)) {
+      if (selectedItem->text() == tr("View Matches")) {
+        QString session = item->parent()->parent()->parent()->parent()->text(0);
+        emit openMatchesViewer(session, QFileInfo(item->parent()->text(0)).baseName(), QFileInfo(item->text(0)).baseName());
+      }
+    }
+  }
 }
 
 void MainWindowView::initUI()
@@ -1111,6 +1019,10 @@ void MainWindowView::initUI()
 //  QIcon iconDensification;
 //  iconDensification.addFile(QStringLiteral(":/ico/24/img/material/24/match_view.png"), QSize(), QIcon::Normal, QIcon::Off);
 //  mActionDensification->setIcon(iconDensification);
+
+  QIcon iconCameras;
+  iconCameras.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-camera-outline-2.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionCameras->setIcon(iconCameras);
 
   QIcon iconSettings;
   iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1225,6 +1137,8 @@ void MainWindowView::initUI()
 
   /* Menu Tools */
 
+  ui->menuTools->addAction(mActionCameras);
+  ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionFeaturesViewer);
   ui->menuTools->addAction(mActionMatchesViewer);
   ui->menuTools->addAction(mActionPassPointsViewer);
@@ -1297,6 +1211,7 @@ void MainWindowView::initSignalAndSlots()
 
   /* Menú herramientas */
 
+  connect(mActionCameras,            SIGNAL(triggered(bool)),   this,   SIGNAL(openCamerasDialog()));
   connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
   connect(mActionMatchesViewer,      SIGNAL(triggered(bool)),   this,   SIGNAL(openMatchesViewer()));
   connect(mActionPassPointsViewer,   SIGNAL(triggered(bool)),   this,   SIGNAL(openMultiviewMatchingAssessment()));

@@ -2,7 +2,7 @@
 
 #include "inspector/core/project.h"
 #include "inspector/ui/ProjectModel.h"
-#include "fake/ProjectControllerFake.h"
+#include "fake/ProjectFake.h"
 
 using namespace inspector;
 using namespace ui;
@@ -31,25 +31,19 @@ private slots:
 
 protected:
 
-  ProjectController *mProjectController;
   Project *mProject;
   ProjectModel *mProjectModel;
 };
 
 TestProjectModel::TestProjectModel()
-  : mProjectController(new ProjectControllerFake),
-    mProject(new ProjectImp),
-    mProjectModel(new ProjectModelImp(mProjectController, mProject))
+  : mProject(new ProjectFake),
+    mProjectModel(new ProjectModelImp(mProject))
 {
 
 }
 
 TestProjectModel::~TestProjectModel()
 {
-  if (mProjectController) {
-    delete mProjectController;
-    mProjectController =nullptr;
-  }
 
   if (mProject){
     delete mProject;
@@ -80,19 +74,15 @@ void TestProjectModel::cleanupTestCase()
 
 void TestProjectModel::testConstructor()
 {
-  ProjectControllerFake *projectIOFake = new ProjectControllerFake;
   ProjectImp *project = new ProjectImp;
 
-  ProjectModelImp prj(projectIOFake, project);
+  ProjectModelImp prj(project);
   QCOMPARE(QString(), prj.projectName());
   QCOMPARE(QString(), prj.projectDescription());
   QCOMPARE(QString(), prj.projectFolder());
   QCOMPARE(QString(), prj.projectPath());
   QCOMPARE(QString("1.0"), prj.version());
   QCOMPARE(false, prj.checkUnsavedChanges());
-
-  delete projectIOFake;
-  projectIOFake =nullptr;
 
   delete project;
   project = nullptr;

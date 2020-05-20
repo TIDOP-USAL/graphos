@@ -25,8 +25,9 @@ class NewProjectPresenterImp
 
 public:
 
-  NewProjectPresenterImp(NewProjectView *view, ProjectModel *model);
-  ~NewProjectPresenterImp() override;
+  NewProjectPresenterImp(NewProjectView *view,
+                         ProjectModel *model);
+  ~NewProjectPresenterImp() override = default;
 
 // INewProjectPresenter interface
 
@@ -34,6 +35,7 @@ protected slots:
 
   void saveProject() override;
   void discartProject() override;
+  void checkProjectName() const override;
 
 // IPresenter interface
 
@@ -47,6 +49,15 @@ private:
 
   void init() override;
   void initSignalAndSlots() override;
+
+// Métodos privados
+
+private:
+
+  QString projectFolder() const;
+  void createProjectFolderIfNoExist(const QString &projectFolder);
+  QString databasePath(const QString &projectFolder) const;
+  QString projectPath(const QString &projectFolder) const;
 
 private:
 

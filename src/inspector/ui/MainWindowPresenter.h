@@ -10,6 +10,7 @@ namespace inspector
 
 class StartPageWidget;
 
+
 namespace ui
 {
 
@@ -17,6 +18,9 @@ class MainWindowView;
 class MainWindowModel;
 class ProjectModel;
 class SettingsModel;
+class ImagesModel;
+class CamerasModel;
+
 //class HelpDialog;
 class TabHandler;
 
@@ -30,14 +34,19 @@ public:
   explicit MainWindowPresenter(MainWindowView *view,
                                MainWindowModel *model,
                                ProjectModel *projectModel,
-                               SettingsModel *settingsModel);
+                               SettingsModel *settingsModel,
+                               ImagesModel *imagesModel,
+                               CamerasModel *camerasModel);
   ~MainWindowPresenter() override;
+
 
 signals:
 
   void openNewProjectDialog();
   void openFeatureExtractionDialog();
   void openFeatureMatchingDialog();
+  void openCamerasDialog();
+
 //  void openKeypointsViewerDialogFromSession(QString);
 //  void openKeypointsViewerDialogFromSessionAndImage(QString, QString);
 //  void openMatchesViewerDialogFromSession(QString);
@@ -86,10 +95,10 @@ protected slots:
   void loadProject();
   void updateProject();
 
-  void openImage(const QString &image);
-  void activeImage(const QString &image);
-  void activeImages(const QStringList &images);
-  void deleteImages(const QStringList &images);
+  void openImage(const QString &imageName);
+  void activeImage(const QString &imageName);
+  void activeImages(const QStringList &imageNames);
+  void deleteImages(const QStringList &imageNames);
 
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
@@ -102,6 +111,7 @@ protected slots:
   void processRunning();
 
   void onLoadImages();
+  void onProjectModified();
 
 // IPresenter interface
 
@@ -133,6 +143,9 @@ protected:
   MainWindowModel *mModel;
   ProjectModel *mProjectModel;
   SettingsModel *mSettingsModel;
+  ImagesModel *mImagesModel;
+  CamerasModel *mCamerasModel;
+
   HelpDialog *mHelpDialog;
   TabHandler *mTabHandler;
   StartPageWidget *mStartPageWidget;

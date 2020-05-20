@@ -148,6 +148,10 @@ public:
            colmap::FeatureKeypoints &keyPoints,
            colmap::FeatureDescriptors &descriptors) override;
 
+  void run(const cv::Mat &bitmap,
+           colmap::FeatureKeypoints &keyPoints,
+           colmap::FeatureDescriptors &descriptors) override;
+
 // Sift interface
 
 public:

@@ -18,7 +18,7 @@ class SettingsModel
 public:
 
   SettingsModel(QObject *parent = nullptr) : IModel(parent) {}
-  virtual ~SettingsModel() override {}
+  virtual ~SettingsModel() override = default;
 
   /*!
    * \brief List of available languages

@@ -12,8 +12,7 @@ add_executable(${the_target}
     ${CMAKE_SOURCE_DIR}/src/inspector/ui/NewProjectView.cpp
     ${CMAKE_SOURCE_DIR}/src/inspector/ui/NewProjectView.h
     ${CMAKE_SOURCE_DIR}/src/inspector/ui/NewProject.h
-    ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
-    )
+    ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h)
 
 target_link_libraries(${the_target} PRIVATE 
                       Qt5::Core 

@@ -56,9 +56,13 @@ void SettingsViewImp::onPushButtonImageViewerBGColorClicked()
 
 void SettingsViewImp::initUI()
 {
-  this->setWindowTitle(tr("Settings"));
-  this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
+  if (this->objectName().isEmpty())
+    this->setObjectName(QString("SettingsView"));
+
   this->resize(750, 450);
+
+  this->setWindowIcon(QIcon(":/ico/img/InspectorIcon.ico"));
+
 
   QGridLayout *layout = new QGridLayout();
   this->setLayout(layout);
@@ -191,15 +195,16 @@ void SettingsViewImp::update()
 
 void SettingsViewImp::retranslate()
 {
-  mLabelHistoryMaxSize->setText(QApplication::translate("SettingsViewImp", "History Max Size", nullptr));
-  mLabelLanguages->setText(QApplication::translate("SettingsViewImp", "Language", nullptr));
-  mLabelUseCuda->setText(QApplication::translate("SettingsViewImp", "Use Cuda", nullptr));
-  mLabelImageViewerBGcolor->setText(QApplication::translate("SettingsViewImp", "Background Color:", nullptr));
+  this->setWindowTitle(QApplication::translate("SettingsView", "Settings", nullptr));
+  mLabelHistoryMaxSize->setText(QApplication::translate("SettingsView", "History Max Size", nullptr));
+  mLabelLanguages->setText(QApplication::translate("SettingsView", "Language", nullptr));
+  mLabelUseCuda->setText(QApplication::translate("SettingsView", "Use Cuda", nullptr));
+  mLabelImageViewerBGcolor->setText(QApplication::translate("SettingsView", "Background Color:", nullptr));
 
-  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("SettingsViewImp", "Ok", nullptr));
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("SettingsViewImp", "Cancel", nullptr));
-  mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("SettingsViewImp", "Apply", nullptr));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("SettingsViewImp", "Help", nullptr));
+  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("SettingsView", "Ok", nullptr));
+  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("SettingsView", "Cancel", nullptr));
+  mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("SettingsView", "Apply", nullptr));
+  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("SettingsView", "Help", nullptr));
 }
 
 QString SettingsViewImp::activeLanguage() const

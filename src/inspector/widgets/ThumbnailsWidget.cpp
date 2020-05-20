@@ -44,30 +44,31 @@ ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
     mThumbnailAction(nullptr),
     mDetailsAction(nullptr),
     mDeleteImageAction(nullptr),
-    mThumbnaislSize(0)
+    mThumbnaislSize(0),
+    bLoadingImages(false)
 {
   this->initUI();
   this->initSignalAndSlots();
 }
 
-void ThumbnailsWidget::setActiveImage(const QString &image)
+void ThumbnailsWidget::setActiveImage(const QString &imageName)
 {
   QListWidgetItem *item = nullptr;
   for (int i = 0; i < mListWidget->count(); i++){
    item = mListWidget->item(i);
-   item->setSelected(item->toolTip().compare(image) == 0);
+   item->setSelected(item->text().compare(imageName) == 0);
   }
 }
 
-void ThumbnailsWidget::setActiveImages(const QStringList &images)
+void ThumbnailsWidget::setActiveImages(const QStringList &imageNames)
 {
   const QSignalBlocker blocker(mListWidget);
   QListWidgetItem *item = nullptr;
   for (int i = 0; i < mListWidget->count(); i++){
     item = mListWidget->item(i);
     item->setSelected(false);
-    for (auto &image : images){
-      if (item->toolTip().compare(image) == 0){
+    for (auto &imageName : imageNames){
+      if (item->text().compare(imageName) == 0){
         item->setSelected(true);
         break;
       }
@@ -96,7 +97,7 @@ void ThumbnailsWidget::addThumbnail(const QString &thumb)
   QPixmap pixmap(size.width(), size.height());
   pixmap.fill(QColor(Qt::GlobalColor::lightGray));
   QIcon icon(pixmap);
-  QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.fileName());
+  QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
   item->setToolTip(fileInfo.absoluteFilePath());
   mListWidget->addItem(item);
 
@@ -105,6 +106,8 @@ void ThumbnailsWidget::addThumbnail(const QString &thumb)
 
 void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
 {  
+  bLoadingImages = true;
+
   for (auto thumb : thumbs) {
 
     QImageReader imageReader(thumb);
@@ -123,7 +126,7 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
     QPixmap pixmap(size.width(), size.height());
     pixmap.fill(QColor(Qt::GlobalColor::lightGray));
     QIcon icon(pixmap);
-    QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.fileName());
+    QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
     item->setToolTip(fileInfo.absoluteFilePath());
     mListWidget->addItem(item);
   }
@@ -131,6 +134,7 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
   if (thumbs.empty() == false) {
     mFutureWatcherThumbnail->setFuture(QtConcurrent::mapped(thumbs, /*&ThumbnailsWidget::*/makeThumbnail));
   }
+  update();
 }
 
 void ThumbnailsWidget::deleteThumbnail(const QString &thumb)
@@ -140,17 +144,19 @@ void ThumbnailsWidget::deleteThumbnail(const QString &thumb)
 
   for (int i = 0; i < mListWidget->count(); i++){
    item = mListWidget->item(i);
-   if (item->toolTip().compare(thumb) == 0) {
+   if (item->text().compare(thumb) == 0) {
      delete item;
      item = nullptr;
      break;
    }
   }
+
+  update();
 }
 
 void ThumbnailsWidget::onThumbnailDoubleClicked(QListWidgetItem *item)
 {
-  emit openImage(item->toolTip());
+  emit openImage(item->text());
 }
 
 void ThumbnailsWidget::onSelectionChanged()
@@ -159,11 +165,11 @@ void ThumbnailsWidget::onSelectionChanged()
     QList<QListWidgetItem*> item = mListWidget->selectedItems();
     int size = item.size();
     if (size == 1) {
-      emit selectImage(item[0]->toolTip());
+      emit selectImage(item[0]->text());
     } else {
       QStringList selected_images;
       for (int i = 0; i < size; i++){
-        selected_images.push_back(item[i]->toolTip());
+        selected_images.push_back(item[i]->text());
       }
       emit selectImages(selected_images);
     }
@@ -218,7 +224,7 @@ void ThumbnailsWidget::onDeleteImageClicked()
   if (mListWidget->selectedItems().size() > 0){
     QStringList selectImages;
     for (const auto &item : mListWidget->selectedItems()){
-      selectImages.push_back(item->toolTip());
+      selectImages.push_back(item->text());
     }
     emit deleteImages(selectImages);
   }
@@ -236,16 +242,19 @@ void ThumbnailsWidget::showThumbnail(int id)
 void ThumbnailsWidget::finished()
 {
   mThumbnaislSize = mListWidget->count();
+  bLoadingImages = false;
+  update();
+
   emit imagesLoaded();
 }
 
 void ThumbnailsWidget::update()
 {
-  bool images_added = mListWidget->selectedItems().size() > 0;
+  bool images_added = mListWidget->count() > 0;
   mThumbnailAction->setEnabled(images_added);
   mThumbnailSmallAction->setEnabled(images_added);
   mDetailsAction->setEnabled(images_added);
-  mDeleteImageAction->setEnabled(images_added);
+  mDeleteImageAction->setEnabled(mListWidget->selectedItems().size() > 0 && !bLoadingImages);
 }
 
 void ThumbnailsWidget::retranslate()
@@ -267,6 +276,9 @@ void ThumbnailsWidget::clear()
   }
   mListWidget->clear();
   mThumbnaislSize = 0;
+  bLoadingImages = false;
+
+  update();
 }
 
 /* Private */
@@ -313,19 +325,18 @@ void ThumbnailsWidget::initUI()
 
   this->retranslate();
   this->clear(); /// set default values
-  this->update();
 }
 
 void ThumbnailsWidget::initSignalAndSlots()
 {
-  connect(mListWidget,             SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(onThumbnailDoubleClicked(QListWidgetItem*)));
-  connect(mListWidget,             SIGNAL(itemSelectionChanged()),              this, SLOT(onSelectionChanged()));
-  connect(mThumbnailAction,        SIGNAL(changed()),                           this, SLOT(onThumbnailClicked()));
-  connect(mThumbnailSmallAction,   SIGNAL(changed()),                           this, SLOT(onThumbnailSmallClicked()));
-  connect(mDetailsAction,          SIGNAL(changed()),                           this, SLOT(onDetailsClicked()));
-  connect(mDeleteImageAction,      SIGNAL(triggered(bool)),                     this, SLOT(onDeleteImageClicked()));
-  connect(mFutureWatcherThumbnail, SIGNAL(resultReadyAt(int)),                  this, SLOT(showThumbnail(int)));
-  connect(mFutureWatcherThumbnail, SIGNAL(finished()),                          this, SLOT(finished()));
+  connect(mListWidget,             &QListWidget::itemDoubleClicked,     this, &ThumbnailsWidget::onThumbnailDoubleClicked);
+  connect(mListWidget,             &QListWidget::itemSelectionChanged,  this, &ThumbnailsWidget::onSelectionChanged);
+  connect(mThumbnailAction,        &QAction::changed,                   this, &ThumbnailsWidget::onThumbnailClicked);
+  connect(mThumbnailSmallAction,   &QAction::changed,                   this, &ThumbnailsWidget::onThumbnailSmallClicked);
+  connect(mDetailsAction,          &QAction::changed,                   this, &ThumbnailsWidget::onDetailsClicked);
+  connect(mDeleteImageAction,      &QAction::triggered,                 this, &ThumbnailsWidget::onDeleteImageClicked);
+  connect(mFutureWatcherThumbnail, &QFutureWatcherBase::resultReadyAt,  this, &ThumbnailsWidget::showThumbnail);
+  connect(mFutureWatcherThumbnail, &QFutureWatcherBase::finished,       this, &ThumbnailsWidget::finished);
 }
 
 void ThumbnailsWidget::changeEvent(QEvent *event)

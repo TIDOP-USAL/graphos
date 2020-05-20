@@ -10,6 +10,8 @@
 //#include "inspector/ui/utils/GraphicViewer.h"
 //#include "inspector/ui/HelpDialog.h"
 #include "inspector/widgets/StartPageWidget.h"
+#include "inspector/ui/cameras/CamerasModel.h"
+#include "inspector/ui/ImagesModel.h"
 
 /* TidopLib */
 #include <tidop/core/messages.h>
@@ -29,12 +31,16 @@ namespace ui
 MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          MainWindowModel *model,
                                          ProjectModel *projectModel,
-                                         SettingsModel *settingsModel)
+                                         SettingsModel *settingsModel,
+                                         ImagesModel *imagesModel,
+                                         CamerasModel *camerasModel)
   : IPresenter(),
     mView(view),
     mModel(model),
     mProjectModel(projectModel),
     mSettingsModel(settingsModel),
+    mImagesModel(imagesModel),
+    mCamerasModel(camerasModel),
     mTabHandler(nullptr),
     mStartPageWidget(nullptr)
 {
@@ -245,24 +251,30 @@ void MainWindowPresenter::openMatchesViewer()
 
 void MainWindowPresenter::loadImages()
 {
-//  QStringList fileNames = QFileDialog::getOpenFileNames(Q_NULLPTR,
-//                                                        tr("Add images"),
-//                                                        mProjectModel->projectFolder(),
-//                                                        tr("Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)"));
-//  if (fileNames.size() > 0) {
+  QStringList fileNames = QFileDialog::getOpenFileNames(Q_NULLPTR,
+                                                        tr("Add images"),
+                                                        mProjectDefaultPath,
+                                                        tr("Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)"));
+  if (fileNames.size() > 0) {
 
-//    mProjectModel->addImages(fileNames);
+    TL_TODO("Hacer en un hilo aparte")
+    for (auto &image : fileNames){
+      int id_camera = mCamerasModel->addCamera(image);
+      mImagesModel->addImage(image, id_camera);
+    }
 
-//    mView->addImages(fileNames);
+    mView->addImages(fileNames);
 
-//    msgInfo("Load images");
+    msgInfo("All Images Loaded");
 
-//    mView->setFlag(MainWindowView::Flag::project_modified, true);
-//    mView->setFlag(MainWindowView::Flag::images_added, true);
-//    mView->setFlag(MainWindowView::Flag::loading_images, true);
+    mView->setFlag(MainWindowView::Flag::project_modified, true);
+    mView->setFlag(MainWindowView::Flag::images_added, true);
+    mView->setFlag(MainWindowView::Flag::loading_images, true);
 
-//    connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
-//  }
+    emit openCamerasDialog();
+
+    connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
+  }
 }
 
 void MainWindowPresenter::loadProject()
@@ -284,6 +296,20 @@ void MainWindowPresenter::loadProject()
   QByteArray ba = prjFile.toLocal8Bit();
   const char *cfile = ba.data();
   msgInfo("Load project: %s", cfile);
+
+  QStringList images;
+  for(auto it = mImagesModel->begin(); it != mImagesModel->end(); it++){
+    images.push_back((*it).path());
+  }
+
+  if (images.size() > 0){
+    mView->addImages(images);
+    mView->setFlag(MainWindowView::Flag::images_added, true);
+    mView->setFlag(MainWindowView::Flag::loading_images, true);
+    connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
+  }
+
+
 }
 
 void MainWindowPresenter::updateProject()
@@ -291,34 +317,46 @@ void MainWindowPresenter::updateProject()
 
 }
 
-void MainWindowPresenter::openImage(const QString &image)
+void MainWindowPresenter::openImage(const QString &imageName)
 {
-//  mTabHandler->setImage(image);
+  try {
+    Image image = mImagesModel->findImageByName(imageName);
+    mTabHandler->setImage(image.path());
+  } catch (std::exception &e) {
+    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+  }
 }
 
-void MainWindowPresenter::activeImage(const QString &image)
+void MainWindowPresenter::activeImage(const QString &imageName)
 {
-//  std::list<std::pair<QString, QString>> properties = mModel->exif(image);
-//  mView->setProperties(properties);
-//  mView->setActiveImage(image);
+  try {
+    Image image = mImagesModel->findImageByName(imageName);
+    std::list<std::pair<QString, QString>> properties = mModel->exif(image.path());
+    mView->setProperties(properties);
+    mView->setActiveImage(imageName);
+  } catch (std::exception &e) {
+    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+  }
 }
 
-void MainWindowPresenter::activeImages(const QStringList &images)
+void MainWindowPresenter::activeImages(const QStringList &imageNames)
 {
-//  mView->setActiveImages(images);
+  mView->setActiveImages(imageNames);
 }
 
-void MainWindowPresenter::deleteImages(const QStringList &images)
+void MainWindowPresenter::deleteImages(const QStringList &imageNames)
 {
-//  mProjectModel->deleteImages(images);
+  mProjectModel->deleteImages(imageNames);
 //  TL_TODO("Se tienen que eliminar del proyecto las imagenes procesadas, y los ficheros de keypoints y de matches")
-//  for (const auto &image : images){
-//    mView->deleteImage(image);
+  for (const auto &imageName : imageNames){
+    size_t image_id = mImagesModel->imageID(imageName);
+    mImagesModel->removeImage(image_id);
+    mView->deleteImage(imageName);
 //    TL_TODO("Se tienen que eliminar de la vista las imagenes procesadas, y los ficheros de keypoints y de matches")
-//  }
-//  mView->setFlag(MainWindowView::Flag::project_modified, true);
+  }
 
-//  mView->setFlag(MainWindowView::Flag::images_added, mProjectModel->imagesCount() > 0);
+  mView->setFlag(MainWindowView::Flag::project_modified, true);
+  mView->setFlag(MainWindowView::Flag::images_added, mProjectModel->imagesCount() > 0);
 }
 
 //void MainWindowPresenter::selectFeatures(const QString &session)
@@ -695,18 +733,23 @@ void MainWindowPresenter::deleteMatches()
 
 void MainWindowPresenter::processFinish()
 {
-//  mView->setFlag(MainWindowView::Flag::processing, false);
+  mView->setFlag(MainWindowView::Flag::processing, false);
 }
 
 void MainWindowPresenter::processRunning()
 {
-//  mView->setFlag(MainWindowView::Flag::processing, true);
+  mView->setFlag(MainWindowView::Flag::processing, true);
 }
 
 void MainWindowPresenter::onLoadImages()
 {
-//  mView->setFlag(MainWindowView::Flag::loading_images, false);
-//  disconnect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
+  mView->setFlag(MainWindowView::Flag::loading_images, false);
+  disconnect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
+}
+
+void MainWindowPresenter::onProjectModified()
+{
+  mView->setFlag(MainWindowView::Flag::project_modified, true);
 }
 
 void MainWindowPresenter::help()
@@ -765,6 +808,7 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Menú herramientas */
 
+  connect(mView,  &MainWindowView::openCamerasDialog,   this, &MainWindowPresenter::openCamerasDialog);
   connect(mView,  SIGNAL(openKeypointsViewer()),      this, SLOT(openKeypointsViewer()));
   connect(mView,  SIGNAL(openMatchesViewer()),        this, SLOT(openMatchesViewer()));
   //connect(mView,  &MainWindowView::openMultiviewMatchingAssessment,  this, &MainWindowPresenter::openMultiviewMatchingAssessmentDialog);

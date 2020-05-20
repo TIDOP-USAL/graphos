@@ -6,7 +6,7 @@
 
 #include <QTreeWidgetItem>
 #include <QAction>
-
+#include <QMenu>
 
 using namespace inspector;
 
@@ -47,13 +47,17 @@ private slots:
 
   void test_openStartPage();
 
-  /* Menú herramientas */
+  /* Menú flujo de trabajo */
 
   void test_loadImages();
   void test_newProcessing();
   void test_openPreprocess();
   void test_openFeatureExtraction();
   void test_openFeatureMatching();
+
+  /* Menú herramientas */
+
+  void test_openCameras();
   void test_openSettings();
 
   /* Menú Ayuda */
@@ -83,7 +87,7 @@ TestMainWindowView::~TestMainWindowView()
 
 void TestMainWindowView::initTestCase()
 {
-/*   QStringList history{
+   QStringList history{
     QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba1\\Prueba1.xml"),
     QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba2\\Prueba2.xml"),
     QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba3\\Prueba3.xml")
@@ -95,11 +99,6 @@ void TestMainWindowView::initTestCase()
   setFlag(MainWindowView::Flag::project_exists, true);
   QStringList images {"C:\\img01.jpg", "C:\\img02.jpg"};
   addImages(images);
-
-  //setActiveImage("C:\\img01.jpg");
-
-  this->addSession("session01", "Session 1");
-  this->setActiveSession("session01"); */
 }
 
 void TestMainWindowView::cleanupTestCase()
@@ -117,64 +116,174 @@ void TestMainWindowView::test_setProjectTitle()
 
 void TestMainWindowView::test_setFlag()
 {
+  QCOMPARE(true, mActionNewProject->isEnabled());
+  QCOMPARE(true, mActionOpenProject->isEnabled());
+  QCOMPARE(true, mMenuRecentProjects->isEnabled());
+  QCOMPARE(true, mActionClearHistory->isEnabled());
+  QCOMPARE(false, mActionSaveProject->isEnabled());
+  QCOMPARE(false, mActionSaveProjectAs->isEnabled());
+  QCOMPARE(false, mActionCloseProject->isEnabled());
+  QCOMPARE(true, mActionExit->isEnabled());
+  QCOMPARE(true, mActionStartPage->isEnabled());
+  QCOMPARE(false, mActionLoadImages->isEnabled());
+  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
+  QCOMPARE(false, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionDensification->isEnabled());
+  QCOMPARE(false, mActionCameras->isEnabled());
+  QCOMPARE(true, mActionSettings->isEnabled());
+  QCOMPARE(false, mActionExportTiePoints->isEnabled());
+  QCOMPARE(false, mActionExportMatches->isEnabled());
+  QCOMPARE(false, mActionFeaturesViewer->isEnabled());
+  QCOMPARE(false, mActionMatchesViewer->isEnabled());
+
+  /// proyecto cargado
   this->setFlag(MainWindowView::Flag::project_exists, true);
   QCOMPARE(true, mActionNewProject->isEnabled());
   QCOMPARE(true, mActionOpenProject->isEnabled());
+  QCOMPARE(true, mMenuRecentProjects->isEnabled());
+  QCOMPARE(true, mActionClearHistory->isEnabled());
   QCOMPARE(false, mActionSaveProject->isEnabled());
   QCOMPARE(true, mActionSaveProjectAs->isEnabled());
   QCOMPARE(true, mActionCloseProject->isEnabled());
   QCOMPARE(true, mActionExit->isEnabled());
-//  QCOMPARE(true, mActionStartPage->isEnabled());
-//  QCOMPARE(true, mActionLoadImages->isEnabled());
-//  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
-//  QCOMPARE(false, mActionFeatureMatching->isEnabled());
-//  QCOMPARE(true, mActionToolSettings->isEnabled());
+  QCOMPARE(true, mActionStartPage->isEnabled());
+  QCOMPARE(true, mActionLoadImages->isEnabled());
+  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
+  QCOMPARE(false, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionDensification->isEnabled());
+  QCOMPARE(false, mActionCameras->isEnabled());
+  QCOMPARE(true, mActionSettings->isEnabled());
+  QCOMPARE(false, mActionExportTiePoints->isEnabled());
+  QCOMPARE(false, mActionExportMatches->isEnabled());
+  QCOMPARE(false, mActionFeaturesViewer->isEnabled());
+  QCOMPARE(false, mActionMatchesViewer->isEnabled());
+
 //  QCOMPARE(true, mActionViewSettings->isEnabled());
 //  QCOMPARE(true, mActionHelp->isEnabled());
 //  QCOMPARE(true, mActionAbout->isEnabled());
-//  QCOMPARE(false, mActionExportTiePoints->isEnabled());
-//  QCOMPARE(false, mActionExportMatches->isEnabled());
-//  QCOMPARE(false, mActionMatchesViewer->isEnabled());
 
 
   /// Projecto modificado
   this->setFlag(MainWindowView::Flag::project_modified, true);
+  QCOMPARE(true, mActionNewProject->isEnabled());
+  QCOMPARE(true, mActionOpenProject->isEnabled());
+  QCOMPARE(true, mMenuRecentProjects->isEnabled());
+  QCOMPARE(true, mActionClearHistory->isEnabled());
   QCOMPARE(true, mActionSaveProject->isEnabled());
   QCOMPARE(true, mActionSaveProjectAs->isEnabled());
   QCOMPARE(true, mActionCloseProject->isEnabled());
+  QCOMPARE(true, mActionExit->isEnabled());
+  QCOMPARE(true, mActionStartPage->isEnabled());
   QCOMPARE(true, mActionLoadImages->isEnabled());
+  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
+  QCOMPARE(false, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionDensification->isEnabled());
+  QCOMPARE(false, mActionCameras->isEnabled());
+  QCOMPARE(true, mActionSettings->isEnabled());
+  QCOMPARE(false, mActionExportTiePoints->isEnabled());
+  QCOMPARE(false, mActionExportMatches->isEnabled());
+  QCOMPARE(false, mActionMatchesViewer->isEnabled());
+  QCOMPARE(false, mActionFeaturesViewer->isEnabled());
 
-/*
   /// Imagenes añadidas
   setFlag(MainWindowView::Flag::images_added, true);
-  QCOMPARE(true, mActionNewSession->isEnabled());
-  QCOMPARE(true, mActionGroundTruthEditor->isEnabled());
-
-  /// Procesamiento, sesion o test (no se muy bien como llamarlo todavía)
-  setFlag(MainWindowView::Flag::session_created, true);
-  QCOMPARE(true, mActionPreprocess->isEnabled());
-
-  /// Preprocesado
-  setFlag(MainWindowView::Flag::preprocess, true);
+  QCOMPARE(true, mActionNewProject->isEnabled());
+  QCOMPARE(true, mActionOpenProject->isEnabled());
+  QCOMPARE(true, mMenuRecentProjects->isEnabled());
+  QCOMPARE(true, mActionClearHistory->isEnabled());
+  QCOMPARE(true, mActionSaveProject->isEnabled());
+  QCOMPARE(true, mActionSaveProjectAs->isEnabled());
+  QCOMPARE(true, mActionCloseProject->isEnabled());
+  QCOMPARE(true, mActionExit->isEnabled());
+  QCOMPARE(true, mActionStartPage->isEnabled());
+  QCOMPARE(true, mActionLoadImages->isEnabled());
   QCOMPARE(true, mActionFeatureExtraction->isEnabled());
+  QCOMPARE(false, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionDensification->isEnabled());
+  QCOMPARE(true, mActionCameras->isEnabled());
+  QCOMPARE(true, mActionSettings->isEnabled());
+  QCOMPARE(false, mActionExportTiePoints->isEnabled());
+  QCOMPARE(false, mActionExportMatches->isEnabled());
+  QCOMPARE(false, mActionFeaturesViewer->isEnabled());
+  QCOMPARE(false, mActionMatchesViewer->isEnabled());
 
   /// Extracción de caracteristicas
-  setFlag(MainWindowView::Flag::feature_extraction, true);
+  setFlag(MainWindowView::Flag::feature_extraction, true); 
+  QCOMPARE(true, mActionNewProject->isEnabled());
+  QCOMPARE(true, mActionOpenProject->isEnabled());
+  QCOMPARE(true, mMenuRecentProjects->isEnabled());
+  QCOMPARE(true, mActionClearHistory->isEnabled());
+  QCOMPARE(true, mActionSaveProject->isEnabled());
+  QCOMPARE(true, mActionSaveProjectAs->isEnabled());
+  QCOMPARE(true, mActionCloseProject->isEnabled());
+  QCOMPARE(true, mActionExit->isEnabled());
+  QCOMPARE(true, mActionStartPage->isEnabled());
+  QCOMPARE(true, mActionLoadImages->isEnabled());
+  QCOMPARE(true, mActionFeatureExtraction->isEnabled());
   QCOMPARE(true, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionDensification->isEnabled());
+  QCOMPARE(true, mActionCameras->isEnabled());
+  QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(true, mActionExportTiePoints->isEnabled());
+  QCOMPARE(false, mActionExportMatches->isEnabled());
+  QCOMPARE(true, mActionFeaturesViewer->isEnabled());
+  QCOMPARE(false, mActionMatchesViewer->isEnabled());
 
   ///Matching
   setFlag(MainWindowView::Flag::feature_matching, true);
-  QCOMPARE(true, mActionMatchesViewer->isEnabled());
-  QCOMPARE(true, mActionHomography->isEnabled());
-  //QCOMPARE(true, mActionRepeteability->isEnabled());
-  QCOMPARE(false, mActionPRCurves->isEnabled());
-  QCOMPARE(false, mActionROCCurves->isEnabled());
+  QCOMPARE(true, mActionNewProject->isEnabled());
+  QCOMPARE(true, mActionOpenProject->isEnabled());
+  QCOMPARE(true, mMenuRecentProjects->isEnabled());
+  QCOMPARE(true, mActionClearHistory->isEnabled());
+  QCOMPARE(true, mActionSaveProject->isEnabled());
+  QCOMPARE(true, mActionSaveProjectAs->isEnabled());
+  QCOMPARE(true, mActionCloseProject->isEnabled());
+  QCOMPARE(true, mActionExit->isEnabled());
+  QCOMPARE(true, mActionStartPage->isEnabled());
+  QCOMPARE(true, mActionLoadImages->isEnabled());
+  QCOMPARE(true, mActionFeatureExtraction->isEnabled());
+  QCOMPARE(true, mActionFeatureMatching->isEnabled());
+  QCOMPARE(true, mActionDensification->isEnabled());
+  QCOMPARE(true, mActionCameras->isEnabled());
+  QCOMPARE(true, mActionSettings->isEnabled());
+  QCOMPARE(true, mActionExportTiePoints->isEnabled());
   QCOMPARE(true, mActionExportMatches->isEnabled());
+  QCOMPARE(true, mActionFeaturesViewer->isEnabled());
+  QCOMPARE(true, mActionMatchesViewer->isEnabled());
 
-  setFlag(MainWindowView::Flag::ground_truth, true);
-  QCOMPARE(true, mActionPRCurves->isEnabled());
-  QCOMPARE(true, mActionROCCurves->isEnabled()); */
+  /// Densification
+  //setFlag(MainWindowView::Flag::densification, true);
+
+  setFlag(MainWindowView::Flag::processing, true);
+  QCOMPARE(false, mActionNewProject->isEnabled());
+  QCOMPARE(false, mActionOpenProject->isEnabled());
+  QCOMPARE(false, mMenuRecentProjects->isEnabled());
+  QCOMPARE(false, mActionSaveProject->isEnabled());
+  QCOMPARE(false, mActionSaveProjectAs->isEnabled());
+  QCOMPARE(false, mActionCloseProject->isEnabled());
+  QCOMPARE(false, mActionExit->isEnabled());
+  QCOMPARE(false, mMenuRecentProjects->isEnabled());
+
+  QCOMPARE(false, mActionNewProject->isEnabled());
+  QCOMPARE(false, mActionOpenProject->isEnabled());
+  QCOMPARE(false, mMenuRecentProjects->isEnabled());
+  QCOMPARE(true, mActionClearHistory->isEnabled());
+  QCOMPARE(false, mActionSaveProject->isEnabled());
+  QCOMPARE(false, mActionSaveProjectAs->isEnabled());
+  QCOMPARE(false, mActionCloseProject->isEnabled());
+  QCOMPARE(false, mActionExit->isEnabled());
+  QCOMPARE(true, mActionStartPage->isEnabled());
+  QCOMPARE(false, mActionLoadImages->isEnabled());
+  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
+  QCOMPARE(false, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionDensification->isEnabled());
+  QCOMPARE(true, mActionCameras->isEnabled());
+  QCOMPARE(true, mActionSettings->isEnabled());
+  QCOMPARE(false, mActionExportTiePoints->isEnabled());
+  QCOMPARE(false, mActionExportMatches->isEnabled());
+  QCOMPARE(true, mActionFeaturesViewer->isEnabled());
+  QCOMPARE(true, mActionMatchesViewer->isEnabled());
+
 }
 
 void TestMainWindowView::test_clear()
@@ -193,17 +302,17 @@ void TestMainWindowView::test_clear()
 
 void TestMainWindowView::test_updateHistory()
 {
-/*   QCOMPARE(3, mHistory.size());
+  QCOMPARE(3, mHistory.size());
   QCOMPARE(false, mActionNotRecentProjects->isVisible());
   QCOMPARE(true, mActionClearHistory->isEnabled());
   QCOMPARE(QString("&1 Prueba1.xml"), mHistory[0]->text());
-  QCOMPARE(QString("C:\\Users\\Tido\\Documents\\photomatch\\Projects\\Prueba1\\Prueba1.xml"), mHistory[0]->data());
-  QCOMPARE(QString("C:\\Users\\Tido\\Documents\\photomatch\\Projects\\Prueba1\\Prueba1.xml"), mHistory[0]->toolTip()); */
+  QCOMPARE(QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba1\\Prueba1.xml"), mHistory[0]->data());
+  QCOMPARE(QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba1\\Prueba1.xml"), mHistory[0]->toolTip());
 }
 
 void TestMainWindowView::test_deleteHistory()
 {
-/*   this->deleteHistory();
+   this->deleteHistory();
 
   QCOMPARE(0, mHistory.size());
   QCOMPARE(true, mActionNotRecentProjects->isVisible());
@@ -211,12 +320,11 @@ void TestMainWindowView::test_deleteHistory()
 
   /// Se recupera el historial para evitar problemas con otras pruebas
   QStringList history{
-    QString("C:\\Users\\Tido\\Documents\\photomatch\\Projects\\Prueba1\\Prueba1.xml"),
-    QString("C:\\Users\\Tido\\Documents\\photomatch\\Projects\\Prueba2\\Prueba2.xml"),
-    QString("C:\\Users\\Tido\\Documents\\photomatch\\Projects\\Prueba3\\Prueba3.xml")
+    QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba1\\Prueba1.xml"),
+    QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba2\\Prueba2.xml"),
+    QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba3\\Prueba3.xml")
   };
   this->updateHistory(history);
- */
 }
 
 void TestMainWindowView::test_openNew()
@@ -237,20 +345,20 @@ void TestMainWindowView::test_openProject()
 
 void TestMainWindowView::test_openFromHistory()
 {
-/*   QSignalSpy spy_openProjectFromHistory(this, &MainWindowView::openProjectFromHistory);
+  QSignalSpy spy_openProjectFromHistory(this, &MainWindowView::openProjectFromHistory);
 
   emit mHistory[0]->triggered(true);
   QCOMPARE(spy_openProjectFromHistory.count(), 1);
   QList<QVariant> args = spy_openProjectFromHistory.takeFirst();
-  QCOMPARE(args.at(0).toString(), QString("C:\\Users\\Tido\\Documents\\photomatch\\Projects\\Prueba1\\Prueba1.xml")); */
+  QCOMPARE(args.at(0).toString(), QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba1\\Prueba1.xml"));
 }
 
 void TestMainWindowView::test_clearHistory()
 {
-/*   QSignalSpy spy_clearHistory(this, &MainWindowView::clearHistory);
+  QSignalSpy spy_clearHistory(this, &MainWindowView::clearHistory);
 
   emit mActionClearHistory->triggered(true);
-  QCOMPARE(spy_clearHistory.count(), 1); */
+  QCOMPARE(spy_clearHistory.count(), 1);
 }
 
 void TestMainWindowView::test_saveProject()
@@ -330,20 +438,24 @@ void TestMainWindowView::test_openFeatureMatching()
 //  QSignalSpy spy_openFeatureMatching(this, &MainWindowView::openFeatureMatching);
 //
 //  emit mActionFeatureMatching->triggered(true);
-//  QCOMPARE(spy_openFeatureMatching.count(), 1);
+  //  QCOMPARE(spy_openFeatureMatching.count(), 1);
+}
+
+void TestMainWindowView::test_openCameras()
+{
+  QSignalSpy spy_openCamerasDialog(this, &MainWindowView::openCamerasDialog);
+
+  emit mActionCameras->triggered(true);
+
+  QCOMPARE(spy_openCamerasDialog.count(), 1);
 }
 
 void TestMainWindowView::test_openSettings()
 {
-//  QSignalSpy spy_openSettings(this, &MainWindowView::openToolSettings);
-//
-//  emit mActionToolSettings->triggered(true);
-//  QCOMPARE(spy_openSettings.count(), 1);
-//
-//  QSignalSpy spy_openViewSettings(this, &MainWindowView::openViewSettings);
-//
-//  emit mActionViewSettings->triggered(true);
-//  QCOMPARE(spy_openViewSettings.count(), 1);
+  QSignalSpy spy_openSettings(this, &MainWindowView::openSettings);
+
+  emit mActionSettings->triggered(true);
+  QCOMPARE(spy_openSettings.count(), 1);
 }
 
 void TestMainWindowView::test_openHelpDialog()

@@ -41,10 +41,10 @@ public:
     project_modified      = (1 << 1),  // Se ha modificado el proyecto
     images_added          = (1 << 2),  // Se han añadido fotogramas
     image_open            = (1 << 3),  // Hay una imagen abierta
-    session_created       = (1 << 4),
-    preprocess            = (1 << 5),
-    feature_extraction    = (1 << 6),
-    feature_matching      = (1 << 7),
+    preprocess            = (1 << 4),
+    feature_extraction    = (1 << 5),
+    feature_matching      = (1 << 6),
+    oriented              = (1 << 7),
     processing            = (1 << 20),
     loading_images        = (1 << 21),
     ground_truth          = (1 << 30),
@@ -139,6 +139,7 @@ signals:
 
   /* Menú herramientas */
 
+  void openCamerasDialog();
   void openKeypointsViewer();
   void openMatchesViewer();
   void openMultiviewMatchingAssessment();
@@ -208,6 +209,7 @@ protected:
   QAction *mActionFeatureMatching;
   QAction *mActionOrientation;
   QAction *mActionDensification;
+  QAction *mActionCameras;
   QAction *mActionSettings;
   QAction *mActionHelp;
   QAction *mActionAbout;
@@ -218,18 +220,12 @@ protected:
   QAction *mActionPassPointsViewer;
   QAction *mActionNotRecentProjects;
   QAction *mActionClearHistory;
-  QAction *mActionZoomIn;
-  QAction *mActionZoomOut;
-  QAction *mActionZoomExtend;
-  QAction *mActionZoom11;
   QMenu *mMenuRecentProjects;
   QMenu *mMenuExport;
   QMenu *mMenuPanels;
   QMenu *mMenuToolBar;
   ThumbnailsWidget *mThumbnailsWidget;
   LogWidget *mLogWidget;
-  QWidget *mStartPageWidget;
-  QComboBox *mComboBoxActiveSession;
   QProgressBar *mProgressBar;
 
   tl::EnumFlags<Flag> mFlags;
