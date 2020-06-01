@@ -12,6 +12,8 @@
 #include "inspector/widgets/StartPageWidget.h"
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/ImagesModel.h"
+#include "inspector/ui/FeaturesModel.h"
+#include "inspector/ui/MatchesModel.h"
 
 /* TidopLib */
 #include <tidop/core/messages.h>
@@ -21,6 +23,9 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QApplication>
 
 namespace inspector
 {
@@ -33,7 +38,9 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          ProjectModel *projectModel,
                                          SettingsModel *settingsModel,
                                          ImagesModel *imagesModel,
-                                         CamerasModel *camerasModel)
+                                         CamerasModel *camerasModel,
+                                         FeaturesModel *featuresModel,
+                                         MatchesModel *matchesModel)
   : IPresenter(),
     mView(view),
     mModel(model),
@@ -41,6 +48,8 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
     mSettingsModel(settingsModel),
     mImagesModel(imagesModel),
     mCamerasModel(camerasModel),
+    mFeaturesModel(featuresModel),
+    mMatchesModel(matchesModel),
     mTabHandler(nullptr),
     mStartPageWidget(nullptr)
 {
@@ -253,28 +262,190 @@ void MainWindowPresenter::loadImages()
 {
   QStringList fileNames = QFileDialog::getOpenFileNames(Q_NULLPTR,
                                                         tr("Add images"),
-                                                        mProjectDefaultPath,
+                                                        mProjectModel->projectFolder(),
                                                         tr("Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)"));
-  if (fileNames.size() > 0) {
+  if (fileNames.empty()) return;
 
-    TL_TODO("Hacer en un hilo aparte")
-    for (auto &image : fileNames){
-      int id_camera = mCamerasModel->addCamera(image);
-      mImagesModel->addImage(image, id_camera);
+  TL_TODO("Esto tiene que ser un proceso")
+  tl::Chrono chrono("Load Images");
+  chrono.run();
+
+  QStringList images;
+  colmap::Bitmap bitmap;
+
+  for (auto &image : fileNames){
+    try {
+//      int id_camera = mCamerasModel->addCamera(image);
+//      mImagesModel->addImage(image, id_camera);
+//      images.push_back(image);
+//      //mView->addImage(image);
+
+      int id_camera = 0;
+      if (!bitmap.Read(image.toStdString(), false)) {
+        throw "  Failed to read image file";
+      }
+
+      int width = bitmap.Width();
+      int height = bitmap.Height();
+
+      Camera camera;
+
+      std::string camera_make;
+      std::string camera_model;
+
+      if (bitmap.ReadExifTag(FIMD_EXIF_MAIN, "Make", &camera_make) &&
+          bitmap.ReadExifTag(FIMD_EXIF_MAIN, "Model", &camera_model)) {
+
+        msgInfo(" - Camera: %s %s", camera_make.c_str(), camera_model.c_str());
+
+        id_camera = mCamerasModel->cameraID(camera_make.c_str(), camera_model.c_str());
+        if (id_camera == 0){  /// Se añade la cámara al proyecto
+
+          camera = Camera(camera_make.c_str(), camera_model.c_str());
+
+          camera.setWidth(width);
+          camera.setHeight(height);
+
+          double focal;
+          if (bitmap.ExifFocalLength(&focal)){
+            camera.setFocal(focal);
+          } else {
+            camera.setFocal(1.2 * std::max(width, height));
+          }
+
+          QSqlDatabase database_cameras = QSqlDatabase::addDatabase("QSQLITE");
+          QString database_cameras_path = qApp->applicationDirPath();
+          database_cameras_path.append("/cameras.db");
+          database_cameras.setDatabaseName(database_cameras_path);
+          bool db_open = false;
+          if (QFileInfo(database_cameras_path).exists()){
+            db_open = database_cameras.open();
+          } else {
+            msgError("The camera database does not exist");
+          }
+
+          /// Lectura del tamaño del sensor de la base de datos
+          if (db_open) {
+            double sensor_width_px = std::max(bitmap.Width(), bitmap.Height());
+            double sensor_width_mm = -1;
+            double scale = 1.0;
+
+            QSqlQuery query;
+            query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
+            query.bindValue(":camera_make", camera_make.c_str());
+            if (query.exec()){
+              while(query.next()){
+                id_camera = query.value(0).toInt();
+              }
+            } else {
+              QSqlError err = query.lastError();
+              throw err.text().toStdString();
+            }
+
+            if (id_camera == -1) {
+              msgWarning("Camera '%s' not found in database", camera_make.c_str());
+            } else {
+              query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
+              query.bindValue(":camera_model", camera_model.c_str());
+              query.bindValue(":id_camera", id_camera);
+              if (query.exec()){
+                while(query.next()){
+                  sensor_width_mm = query.value(0).toDouble();
+                  scale = sensor_width_mm / sensor_width_px;
+                  camera.setSensorSize(sensor_width_mm);
+
+                  ///TODO: Focal en mm?
+                  //msgInfo("Sensor size for camera %s %s is %f (mm)", camera_make.c_str(), camera_model.c_str(), sensor_width_mm);
+                }
+
+                if (sensor_width_mm < 0.){
+                  msgWarning("Camera model (%s %s) not found in database", camera_make.c_str(), camera_model.c_str());
+                }
+
+              } else {
+                QSqlError err = query.lastError();
+                msgWarning("%s", err.text().toStdString().c_str());
+              }
+            }
+
+          }
+
+          if (db_open) database_cameras.close();
+
+          id_camera = mCamerasModel->addCamera(camera);
+        }
+
+      } else {
+        /// Camara desconocida
+        msgWarning("Unknow camera for image: %s", image.toStdString().c_str());
+        Camera camera2;
+        bool bFound = false;
+        //int id_camera;
+        int counter = 0;
+        for (auto it = mCamerasModel->begin(); it != mCamerasModel->end(); it++) {
+          camera2 = it->second;
+          if (camera2.make().compare("Unknown camera") == 0){
+            if (camera2.width() == width && camera2.height() == height) {
+              // Misma camara
+              id_camera = it->first;
+              bFound = true;
+              break;
+            }
+            counter++;
+          }
+        }
+
+        if (bFound == false){
+          camera = Camera("Unknown camera", QString::number(counter));
+          camera.setWidth(width);
+          camera.setHeight(height);
+          camera.setFocal(1.2 * std::max(width, height));
+          id_camera = mCamerasModel->addCamera(camera);
+          camera.setModel(QString::number(id_camera));
+        }
+
+      }
+
+      Image img(image);
+      double lon;
+      if (bitmap.ExifLongitude(&lon)){
+        img.setLongitudeExif(lon);
+      }
+      double lat;
+      if (bitmap.ExifLatitude(&lat)){
+        img.setLatitudeExif(lat);
+      }
+      double altitude;
+      if (bitmap.ExifAltitude(&altitude)){
+        img.setAltitudeExif(altitude);
+      }
+
+      msgInfo(" - Coordinates: (%.4lf, %.4lf, %.2lf)", img.longitudeExif(), img.latitudeExif(), img.altitudeExif());
+
+      img.setCameraId(id_camera);
+      mImagesModel->addImage(img);
+
+      images.push_back(image);
+    } catch (std::exception &e) {
+      msgError(e.what());
     }
-
-    mView->addImages(fileNames);
-
-    msgInfo("All Images Loaded");
-
-    mView->setFlag(MainWindowView::Flag::project_modified, true);
-    mView->setFlag(MainWindowView::Flag::images_added, true);
-    mView->setFlag(MainWindowView::Flag::loading_images, true);
-
-    emit openCamerasDialog();
-
-    connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
   }
+
+  uint64_t time = chrono.stop();
+  msgInfo("[Time: %f seconds]", time/1000.);
+
+  mView->addImages(images);
+
+  //msgInfo("Images Loaded");
+
+
+  mView->setFlag(MainWindowView::Flag::project_modified, true);
+  mView->setFlag(MainWindowView::Flag::images_added, true);
+  mView->setFlag(MainWindowView::Flag::loading_images, true);
+
+  emit openCamerasDialog();
+
+  connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
 }
 
 void MainWindowPresenter::loadProject()
@@ -309,12 +480,41 @@ void MainWindowPresenter::loadProject()
     connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
   }
 
+  for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
+    this->loadFeatures(it->first);
+  }
 
+  this->loadMatches();
 }
 
 void MainWindowPresenter::updateProject()
 {
 
+}
+
+void MainWindowPresenter::loadFeatures(const QString &featId)
+{
+  mView->addFeatures(featId);
+  mView->setFlag(MainWindowView::Flag::feature_extraction, true);
+}
+
+void MainWindowPresenter::loadMatches()
+{
+  for(auto it = mImagesModel->begin(); it != mImagesModel->end(); it++){
+    QString imageLeft = it->name();
+    std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
+    for (auto &imageRight : pairs){
+      mView->addMatches(imageLeft, imageRight);
+      mView->setFlag(MainWindowView::Flag::feature_matching, true);
+    }
+  }
+}
+
+void MainWindowPresenter::loadOrientation()
+{
+  TL_TODO("completar")
+  mView->setSparseModel(mProjectModel->sparseModel());
+  mView->setFlag(MainWindowView::Flag::oriented, true);
 }
 
 void MainWindowPresenter::openImage(const QString &imageName)
@@ -346,17 +546,24 @@ void MainWindowPresenter::activeImages(const QStringList &imageNames)
 
 void MainWindowPresenter::deleteImages(const QStringList &imageNames)
 {
-  mProjectModel->deleteImages(imageNames);
-//  TL_TODO("Se tienen que eliminar del proyecto las imagenes procesadas, y los ficheros de keypoints y de matches")
   for (const auto &imageName : imageNames){
-    size_t image_id = mImagesModel->imageID(imageName);
-    mImagesModel->removeImage(image_id);
-    mView->deleteImage(imageName);
-//    TL_TODO("Se tienen que eliminar de la vista las imagenes procesadas, y los ficheros de keypoints y de matches")
+    this->deleteImage(imageName);
   }
 
   mView->setFlag(MainWindowView::Flag::project_modified, true);
-  mView->setFlag(MainWindowView::Flag::images_added, mProjectModel->imagesCount() > 0);
+  mView->setFlag(MainWindowView::Flag::images_added, mImagesModel->begin() != mImagesModel->end());
+}
+
+void MainWindowPresenter::deleteImage(const QString &imageName)
+{
+  try {
+    size_t image_id = mImagesModel->imageID(imageName);
+    mImagesModel->removeImage(image_id);
+    mView->deleteImage(imageName);
+    TL_TODO("Se tienen que eliminar de la vista las imagenes procesadas, y los ficheros de keypoints y de matches")
+  } catch (std::exception &e) {
+    msgError(e.what());
+  }
 }
 
 //void MainWindowPresenter::selectFeatures(const QString &session)
@@ -669,28 +876,29 @@ void MainWindowPresenter::openImageMatches(const QString &sessionName, const QSt
 //  }
 }
 
-void MainWindowPresenter::updateFeatures()
-{
+//void MainWindowPresenter::updateFeatures()
+//{
 //  std::shared_ptr<Session> _session = mProjectModel->currentSession();
 //  if (_session){
 //    bool project_modified = loadFeatures(_session->name());
 //    if (project_modified)
-//      mView->setFlag(MainWindowView::Flag::project_modified, project_modified);
+//      mView->setFlag(MainWindowView::Flag::project_modified, true);
 //  }
-}
+//}
 
-void MainWindowPresenter::updateMatches()
-{
+//void MainWindowPresenter::updateMatches()
+//{
 //  std::shared_ptr<Session> _session = mProjectModel->currentSession();
 //  if (_session){
 //    bool project_modified = loadMatches(_session->name());
 //    if (project_modified)
 //      mView->setFlag(MainWindowView::Flag::project_modified, project_modified);
 //  }
-}
+//}
 
 void MainWindowPresenter::deleteFeatures()
 {
+  TL_TODO("completar")
 //  if (std::shared_ptr<Session> session = mProjectModel->currentSession()){
     
 //    for (auto &feat : session->features()) {
@@ -710,6 +918,7 @@ void MainWindowPresenter::deleteFeatures()
 
 void MainWindowPresenter::deleteMatches()
 {
+  TL_TODO("completar")
 //  if (std::shared_ptr<Session> session = mProjectModel->currentSession()){
 
 //    for (auto it = mProjectModel->imageBegin(); it != mProjectModel->imageEnd(); it++){
@@ -734,6 +943,7 @@ void MainWindowPresenter::deleteMatches()
 void MainWindowPresenter::processFinish()
 {
   mView->setFlag(MainWindowView::Flag::processing, false);
+  mView->setFlag(MainWindowView::Flag::project_modified, true);
 }
 
 void MainWindowPresenter::processRunning()
@@ -804,7 +1014,7 @@ void MainWindowPresenter::initSignalAndSlots()
   connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::loadImages);
   connect(mView,   &MainWindowView::openFeatureExtraction, this, &MainWindowPresenter::openFeatureExtractionDialog);
   connect(mView,   &MainWindowView::openFeatureMatching,   this, &MainWindowPresenter::openFeatureMatchingDialog);
-
+  connect(mView,   &MainWindowView::openOrientation,       this, &MainWindowPresenter::openOrientationDialog);
 
   /* Menú herramientas */
 

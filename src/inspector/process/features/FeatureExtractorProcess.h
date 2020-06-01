@@ -33,7 +33,7 @@ public:
 
 signals:
 
-  void featuresExtracted(QString);
+  void featuresExtracted(QString, QString);
 
 // ProcessConcurrent interface
 

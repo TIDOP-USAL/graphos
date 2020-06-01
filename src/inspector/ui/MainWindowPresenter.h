@@ -20,6 +20,8 @@ class ProjectModel;
 class SettingsModel;
 class ImagesModel;
 class CamerasModel;
+class FeaturesModel;
+class MatchesModel;
 
 //class HelpDialog;
 class TabHandler;
@@ -36,15 +38,17 @@ public:
                                ProjectModel *projectModel,
                                SettingsModel *settingsModel,
                                ImagesModel *imagesModel,
-                               CamerasModel *camerasModel);
+                               CamerasModel *camerasModel,
+                               FeaturesModel *featuresModel,
+                               MatchesModel *matchesModel);
   ~MainWindowPresenter() override;
-
-
+    
 signals:
 
   void openNewProjectDialog();
   void openFeatureExtractionDialog();
   void openFeatureMatchingDialog();
+  void openOrientationDialog();
   void openCamerasDialog();
 
 //  void openKeypointsViewerDialogFromSession(QString);
@@ -58,8 +62,6 @@ signals:
   void openSettingsDialog();
   void openViewSettingsDialog();
   void openToolSettingsDialog();
-
-public slots:
 
 protected slots:
 
@@ -94,16 +96,19 @@ protected slots:
    */
   void loadProject();
   void updateProject();
+  void loadFeatures(const QString &featId);
+  void loadMatches();
+  void loadOrientation();
 
   void openImage(const QString &imageName);
   void activeImage(const QString &imageName);
   void activeImages(const QStringList &imageNames);
   void deleteImages(const QStringList &imageNames);
-
+  void deleteImage(const QString &imageName);
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
-  void updateFeatures();
-  void updateMatches();
+  //void updateFeatures();
+  //void updateMatches();
   void deleteFeatures();
   void deleteMatches();
 
@@ -145,6 +150,8 @@ protected:
   SettingsModel *mSettingsModel;
   ImagesModel *mImagesModel;
   CamerasModel *mCamerasModel;
+  FeaturesModel *mFeaturesModel;
+  MatchesModel *mMatchesModel;
 
   HelpDialog *mHelpDialog;
   TabHandler *mTabHandler;
@@ -152,6 +159,8 @@ protected:
   QString mProjectDefaultPath;
 
 };
+
+
 
 } // namespace ui
 

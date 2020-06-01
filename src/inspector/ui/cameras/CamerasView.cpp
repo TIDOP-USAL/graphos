@@ -28,9 +28,7 @@ CamerasViewImp::CamerasViewImp(QWidget *parent)
 
 void CamerasViewImp::initUI()
 {
-
-  if (this->objectName().isEmpty())
-    this->setObjectName(QString("CamerasView"));
+  this->setObjectName(QString("CamerasView"));
 
   this->resize(800, 660);
 

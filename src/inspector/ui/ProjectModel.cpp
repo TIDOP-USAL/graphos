@@ -61,75 +61,80 @@ void ProjectModelImp::oldVersionBackup(const QString &file) const
   mProject->oldVersionBak(file);
 }
 
-void ProjectModelImp::addImage(const Image &img)
+//void ProjectModelImp::addImage(const Image &img)
+//{
+//  mProject->addImage(img);
+//  bUnsavedChanges = true;
+//}
+
+//void ProjectModelImp::deleteImage(const QString &img)
+//{
+//  mProject->removeImage(img);
+//  bUnsavedChanges = true;
+//}
+
+//void ProjectModelImp::deleteImage(size_t imgId)
+//{
+//  mProject->removeImage(imgId);
+//  bUnsavedChanges = true;
+//}
+
+//const Image ProjectModelImp::findImage(const QString &path) const
+//{
+//  return mProject->findImage(path);
+//}
+
+//const Image ProjectModelImp::findImageById(size_t id) const
+//{
+//  return mProject->findImageById(id);
+//}
+
+//const Image ProjectModelImp::findImageByName(const QString &imgName) const
+//{
+//  return mProject->findImageByName(imgName);
+//}
+
+//size_t ProjectModelImp::findImageId(const QString &path) const
+//{
+//  return mProject->imageId(path);
+//}
+
+//Project::image_const_iterator ProjectModelImp::imageBegin() const
+//{
+//  return mProject->imageBegin();
+//}
+
+//Project::image_const_iterator ProjectModelImp::imageEnd() const
+//{
+//  return mProject->imageEnd();
+//}
+
+//size_t ProjectModelImp::imagesCount() const
+//{
+//  return mProject->imagesCount();
+//}
+
+//void ProjectModelImp::addImages(const QStringList &fileNames)
+//{
+//  for (const auto &file : fileNames){
+//    Image photo(file);
+
+//    ///TODO: Lectura de metadatos EXIF
+
+//    mProject->addImage(photo);
+//  }
+//}
+
+//void ProjectModelImp::deleteImages(const QStringList &images)
+//{
+//  for (const auto &image : images){
+//    deleteImage(image);
+//  }
+//}
+
+QString ProjectModelImp::sparseModel() const
 {
-  mProject->addImage(img);
-  bUnsavedChanges = true;
-}
-
-void ProjectModelImp::deleteImage(const QString &img)
-{
-  mProject->removeImage(img);
-  bUnsavedChanges = true;
-}
-
-void ProjectModelImp::deleteImage(size_t imgId)
-{
-  mProject->removeImage(imgId);
-  bUnsavedChanges = true;
-}
-
-const Image ProjectModelImp::findImage(const QString &path) const
-{
-  return mProject->findImage(path);
-}
-
-const Image ProjectModelImp::findImageById(size_t id) const
-{
-  return mProject->findImageById(id);
-}
-
-const Image ProjectModelImp::findImageByName(const QString &imgName) const
-{
-  return mProject->findImageByName(imgName);
-}
-
-size_t ProjectModelImp::findImageId(const QString &path) const
-{
-  return mProject->imageId(path);
-}
-
-Project::image_const_iterator ProjectModelImp::imageBegin() const
-{
-  return mProject->imageBegin();
-}
-
-Project::image_const_iterator ProjectModelImp::imageEnd() const
-{
-  return mProject->imageEnd();
-}
-
-size_t ProjectModelImp::imagesCount() const
-{
-  return mProject->imagesCount();
-}
-
-void ProjectModelImp::addImages(const QStringList &fileNames)
-{
-  for (const auto &file : fileNames){
-    Image photo(file);
-
-    ///TODO: Lectura de metadatos EXIF
-
-    mProject->addImage(photo);
-  }
-}
-
-void ProjectModelImp::deleteImages(const QStringList &images)
-{
-  for (const auto &image : images){
-    deleteImage(image);
-  }
+  return mProject->sparseModel();
 }
 
 void ProjectModelImp::setProjectName(const QString &name)
@@ -153,6 +158,12 @@ void ProjectModelImp::setProjectFolder(const QString &dir)
 void ProjectModelImp::setDatabase(const QString &database)
 {
   mProject->setDatabase(database);
+  bUnsavedChanges = true;
+}
+
+void ProjectModelImp::setSparseModel(const QString &sparseModel)
+{
+  mProject->setSparseModel(sparseModel);
   bUnsavedChanges = true;
 }
 

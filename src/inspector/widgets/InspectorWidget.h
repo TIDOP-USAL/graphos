@@ -56,7 +56,7 @@ protected:
   void changeEvent(QEvent *event) override
   {
     if (event->type() == QEvent::LanguageChange){
-      retranslate();
+      this->retranslate();
     }
   }
 

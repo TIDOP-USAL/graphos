@@ -66,11 +66,11 @@ protected:
 
   QGridLayout *mGridLayoutDetectorDescriptor;
   QCheckBox *mCheckBoxFullImage;
+  QLabel *mLabelMaxImageSize;
   QSpinBox *mSpinBoxMaxImageSize;
   QLabel *mLabelDetectorDescriptor;
   QComboBox *mComboBoxDetectorDescriptor;
   QDialogButtonBox *mButtonBox;
-
 };
 
 } // namespace ui

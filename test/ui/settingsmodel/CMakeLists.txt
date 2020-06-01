@@ -5,18 +5,16 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 include_directories(${CMAKE_SOURCE_DIR}/test)
 
-set(test_kind test)
-set(test_KIND TEST)
+set(the_target "${test_name}")
 
-set(the_target "${test_kind}_${test_name}")
 add_executable(${the_target}
-    ${test_filename}
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/SettingsModel.cpp
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/SettingsModel.h
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/Settings.h
-    ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
-    ${CMAKE_SOURCE_DIR}/test/fake/SettingsControllerFake.cpp
-    ${CMAKE_SOURCE_DIR}/test/fake/SettingsControllerFake.h)
+               ${test_filename}
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/SettingsModel.cpp
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/SettingsModel.h
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/Settings.h
+               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
+               ${CMAKE_SOURCE_DIR}/test/fake/SettingsControllerFake.cpp
+               ${CMAKE_SOURCE_DIR}/test/fake/SettingsControllerFake.h)
 
 target_link_libraries(${the_target} PRIVATE
                       tl_core
@@ -34,14 +32,13 @@ target_link_libraries(${the_target} PRIVATE
                       ${Boost_DATE_TIME_LIBRARY}
                       ${Boost_CHRONO_LIBRARY})
 
-set_property(TARGET ${the_target} PROPERTY FOLDER "test/settings_model")
-
 set_target_properties(${the_target} PROPERTIES
   OUTPUT_NAME ${the_target}
-  PROJECT_LABEL "(${test_KIND}) ${test_name}")
+  PROJECT_LABEL ${the_target})
 
 if(ENABLE_SOLUTION_FOLDERS)
-  set_target_properties(${the_target} PROPERTIES FOLDER "test/settings_model")
+  set_target_properties(${the_target} PROPERTIES
+                        FOLDER "test/settings_model")
 endif()
 
 

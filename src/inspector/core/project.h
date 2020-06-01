@@ -14,6 +14,7 @@
 #include "inspector/core/image.h"
 #include "inspector/core/camera.h"
 #include "inspector/core/features/features.h"
+#include "inspector/core/orientation/photoorientation.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -96,6 +97,9 @@ public:
    * \param[in] database Base de datos
    */
   virtual void setDatabase(const QString &database) = 0;
+
+  virtual QString imageDirectory() const = 0;
+  virtual void setImageDirectory(const QString &imageDirectory) = 0;
 
   /*!
    * \brief Añade una imagen al proyecto
@@ -222,12 +226,31 @@ public:
   virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
 
   virtual QString features(const QString &imgName) const = 0;
-  virtual void setFeatures(const QString &imgName, const QString &featureFile) = 0;
+  virtual void addFeatures(const QString &imgName, const QString &featureFile) = 0;
+  virtual void removeFeatures() = 0;
+  virtual bool removeFeatures(const QString &imgName) = 0;
 
   virtual features_iterator featuresBegin() = 0;
   virtual features_const_iterator featuresBegin() const = 0;
   virtual features_iterator featuresEnd() = 0;
   virtual features_const_iterator featuresEnd() const = 0;
+
+  virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;
+  virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
+
+  virtual void addMatchesPair(const QString &imageLeft, const QString &imageRight) = 0;
+  virtual const std::vector<QString> matchesPairs(const QString &imageLeft) const = 0;
+  virtual void removeMatchesPair() = 0;
+  virtual void removeMatchesPair(const QString &imageLeft) = 0;
+
+  virtual bool refinePrincipalPoint() const = 0;
+  virtual void setRefinePrincipalPoint(bool refine) = 0;
+
+  virtual QString sparseModel() const = 0;
+  virtual void setSparseModel(const QString &sparseModel) = 0;
+
+  virtual PhotoOrientation photoOrientation(const QString &imgName) const = 0;
+  virtual void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) = 0;
 
   /*!
    * \brief Limpia el proyecto
@@ -328,6 +351,8 @@ public:
   QString version() const override;
   QString database() const override;
   void setDatabase(const QString &database) override;
+  QString imageDirectory() const override;
+  void setImageDirectory(const QString &imageDirectory) override;
   void addImage(const Image &img) override;
   bool updateImage(size_t imageId, const Image &image) override;
   bool removeImage(const QString &imgPath) override;
@@ -359,12 +384,30 @@ public:
   void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
 
   QString features(const QString &imgName) const override;
-  void setFeatures(const QString &imgName, const QString &featureFile) override;
+  void addFeatures(const QString &imgName, const QString &featureFile) override;
+  void removeFeatures() override;
+  bool removeFeatures(const QString &imgName) override;
 
   features_iterator featuresBegin() override;
   features_const_iterator featuresBegin() const override;
   features_iterator featuresEnd() override;
   features_const_iterator featuresEnd() const override;
+
+  std::shared_ptr<FeatureMatching> featureMatching() const override;
+  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
+
+  void addMatchesPair(const QString &imageLeft, const QString &imageRight) override;
+  const std::vector<QString> matchesPairs(const QString &imageLeft) const override;
+  void removeMatchesPair() override;
+  void removeMatchesPair(const QString &imageLeft) override;
+
+  bool refinePrincipalPoint() const override;
+  void setRefinePrincipalPoint(bool refine) override;
+
+  QString sparseModel() const override;
+  void setSparseModel(const QString & sparseModel) override;
+  PhotoOrientation photoOrientation(const QString &imgName) const override;
+  void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) override;
 
   void clear() override;
 
@@ -375,6 +418,7 @@ public:
 
 protected:
 
+  bool read(QXmlStreamReader &stream);
   void readGeneral(QXmlStreamReader &stream);
   void readDatabase(QXmlStreamReader &stream);
   void readImages(QXmlStreamReader &stream);
@@ -386,6 +430,12 @@ protected:
   void readSIFT(QXmlStreamReader &stream);
   void readFeatureFiles(QXmlStreamReader &stream);
   void readFeatureFile(QXmlStreamReader &stream);
+  void readMatches(QXmlStreamReader &stream);
+  void readMatchingMethod(QXmlStreamReader &stream);
+  void readPairs(QXmlStreamReader &stream);
+  void readOrientations(QXmlStreamReader &stream);
+  void readOrientationSparseModel(QXmlStreamReader &stream);
+  void readPhotoOrientations(QXmlStreamReader &stream);
 
   void writeVersion(QXmlStreamWriter &stream) const;
   void writeGeneral(QXmlStreamWriter &stream) const;
@@ -399,6 +449,12 @@ protected:
   void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
   void writeFeatureFiles(QXmlStreamWriter &stream) const;
   void writeFeatureFile(QXmlStreamWriter &stream) const;
+  void writeMatches(QXmlStreamWriter &stream) const;
+  void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
+  void writePairs(QXmlStreamWriter &stream) const;
+  void writeOrientations(QXmlStreamWriter &stream) const;
+  void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
+  void writePhotoOrientations(QXmlStreamWriter &stream) const;
 
   QSize readSize(QXmlStreamReader &stream) const;
   int readInt(QXmlStreamReader &stream) const;
@@ -413,10 +469,16 @@ protected:
   QString mProjectFolder;
   QString mVersion;
   QString mDatabase;
+  QString mImagesDirectory;
   std::vector<Image> mImages;
   std::map<int, Camera> mCameras;
   std::shared_ptr<Feature> mFeatureExtractor;
   std::map<QString, QString> mFeatures;
+  std::shared_ptr<FeatureMatching> mFeatureMatching;
+  std::map<QString, std::vector<QString>> mImagesPairs;
+  std::map<QString, PhotoOrientation> mPhotoOrientation;
+  bool bRefinePrincipalPoint;
+  QString mSparseModel;
   static std::mutex sMutex;
   static int sCameraCount;
 };

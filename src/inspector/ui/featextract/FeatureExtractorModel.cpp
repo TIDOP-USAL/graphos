@@ -1,5 +1,7 @@
 #include "FeatureExtractorModel.h"
 
+#include <QFileInfo>
+
 namespace inspector
 {
 
@@ -21,7 +23,10 @@ void FeatureExtractorModelImp::init()
 
 void FeatureExtractorModelImp::clear()
 {
-
+  TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
+  QFile(this->database()).remove();
+  mProject->removeFeatures();
+  mProject->removeMatchesPair();
 }
 
 std::shared_ptr<Feature> FeatureExtractorModelImp::featureExtractor() const
@@ -37,6 +42,11 @@ void inspector::ui::FeatureExtractorModelImp::setFeatureExtractor(const std::sha
 QString FeatureExtractorModelImp::database() const
 {
   return mProject->database();
+}
+
+void FeatureExtractorModelImp::addFeatures(const QString &imageName, const QString &featuresFile)
+{
+  mProject->addFeatures(imageName, featuresFile);
 }
 
 } // namespace ui

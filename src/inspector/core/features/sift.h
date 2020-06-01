@@ -134,7 +134,7 @@ public:
                              double contrastThreshold,
                              double edgeThreshold,
                              double sigma);
-  ~SiftCudaDetectorDescriptor() override = default;
+  ~SiftCudaDetectorDescriptor() override;
 
 private:
 

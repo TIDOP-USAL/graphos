@@ -116,25 +116,6 @@ void TestMainWindowView::test_setProjectTitle()
 
 void TestMainWindowView::test_setFlag()
 {
-  QCOMPARE(true, mActionNewProject->isEnabled());
-  QCOMPARE(true, mActionOpenProject->isEnabled());
-  QCOMPARE(true, mMenuRecentProjects->isEnabled());
-  QCOMPARE(true, mActionClearHistory->isEnabled());
-  QCOMPARE(false, mActionSaveProject->isEnabled());
-  QCOMPARE(false, mActionSaveProjectAs->isEnabled());
-  QCOMPARE(false, mActionCloseProject->isEnabled());
-  QCOMPARE(true, mActionExit->isEnabled());
-  QCOMPARE(true, mActionStartPage->isEnabled());
-  QCOMPARE(false, mActionLoadImages->isEnabled());
-  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
-  QCOMPARE(false, mActionFeatureMatching->isEnabled());
-  QCOMPARE(false, mActionDensification->isEnabled());
-  QCOMPARE(false, mActionCameras->isEnabled());
-  QCOMPARE(true, mActionSettings->isEnabled());
-  QCOMPARE(false, mActionExportTiePoints->isEnabled());
-  QCOMPARE(false, mActionExportMatches->isEnabled());
-  QCOMPARE(false, mActionFeaturesViewer->isEnabled());
-  QCOMPARE(false, mActionMatchesViewer->isEnabled());
 
   /// proyecto cargado
   this->setFlag(MainWindowView::Flag::project_exists, true);
@@ -150,6 +131,7 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionLoadImages->isEnabled());
   QCOMPARE(false, mActionFeatureExtraction->isEnabled());
   QCOMPARE(false, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionOrientation->isEnabled());
   QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(false, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
@@ -177,6 +159,7 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionLoadImages->isEnabled());
   QCOMPARE(false, mActionFeatureExtraction->isEnabled());
   QCOMPARE(false, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionOrientation->isEnabled());
   QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(false, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
@@ -199,6 +182,7 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionLoadImages->isEnabled());
   QCOMPARE(true, mActionFeatureExtraction->isEnabled());
   QCOMPARE(false, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionOrientation->isEnabled());
   QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(true, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
@@ -221,6 +205,7 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionLoadImages->isEnabled());
   QCOMPARE(true, mActionFeatureExtraction->isEnabled());
   QCOMPARE(true, mActionFeatureMatching->isEnabled());
+  QCOMPARE(false, mActionOrientation->isEnabled());
   QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(true, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
@@ -243,7 +228,8 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionLoadImages->isEnabled());
   QCOMPARE(true, mActionFeatureExtraction->isEnabled());
   QCOMPARE(true, mActionFeatureMatching->isEnabled());
-  QCOMPARE(true, mActionDensification->isEnabled());
+  QCOMPARE(true, mActionOrientation->isEnabled());
+  QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(true, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(true, mActionExportTiePoints->isEnabled());
@@ -251,8 +237,28 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionFeaturesViewer->isEnabled());
   QCOMPARE(true, mActionMatchesViewer->isEnabled());
 
-  /// Densification
-  //setFlag(MainWindowView::Flag::densification, true);
+  /// Orientación
+  setFlag(MainWindowView::Flag::oriented, true);
+  QCOMPARE(true, mActionNewProject->isEnabled());
+  QCOMPARE(true, mActionOpenProject->isEnabled());
+  QCOMPARE(true, mMenuRecentProjects->isEnabled());
+  QCOMPARE(true, mActionClearHistory->isEnabled());
+  QCOMPARE(true, mActionSaveProject->isEnabled());
+  QCOMPARE(true, mActionSaveProjectAs->isEnabled());
+  QCOMPARE(true, mActionCloseProject->isEnabled());
+  QCOMPARE(true, mActionExit->isEnabled());
+  QCOMPARE(true, mActionStartPage->isEnabled());
+  QCOMPARE(true, mActionLoadImages->isEnabled());
+  QCOMPARE(true, mActionFeatureExtraction->isEnabled());
+  QCOMPARE(true, mActionFeatureMatching->isEnabled());
+  QCOMPARE(true, mActionOrientation->isEnabled());
+  QCOMPARE(true, mActionDensification->isEnabled());
+  QCOMPARE(true, mActionCameras->isEnabled());
+  QCOMPARE(true, mActionSettings->isEnabled());
+  QCOMPARE(true, mActionExportTiePoints->isEnabled());
+  QCOMPARE(true, mActionExportMatches->isEnabled());
+  QCOMPARE(true, mActionFeaturesViewer->isEnabled());
+  QCOMPARE(true, mActionMatchesViewer->isEnabled());
 
   setFlag(MainWindowView::Flag::processing, true);
   QCOMPARE(false, mActionNewProject->isEnabled());

@@ -33,6 +33,8 @@ set(INSPECTOR_SOURCES
     SettingsPresenter.cpp
     SettingsView.cpp
     ImagesModel.cpp
+    FeaturesModel.cpp
+    MatchesModel.cpp
     cameras/CamerasModel.cpp
     cameras/CamerasView.cpp
     cameras/CamerasPresenter.cpp
@@ -42,12 +44,15 @@ set(INSPECTOR_SOURCES
     featextract/FeatureExtractorView.cpp
     featextract/FeatureExtractorModel.cpp
     featextract/FeatureExtractorPresenter.cpp
+    featmatch/FeatureMatchingModel.cpp
+    featmatch/FeatureMatchingView.cpp
+    featmatch/FeatureMatchingPresenter.cpp
+    orientation/OrientationModel.cpp
+    orientation/OrientationView.cpp
+    orientation/OrientationPresenter.cpp
     # FeaturesViewerView.cpp
     # FeaturesViewerModel.cpp
     # FeaturesViewerPresenter.cpp
-    # DescriptorMatcherView.cpp
-    # DescriptorMatcherModel.cpp
-    # DescriptorMatcherPresenter.cpp
     # MatchViewerModel.cpp
     # MatchViewerView.cpp
     # MatchViewerPresenter.cpp
@@ -105,6 +110,8 @@ set(INSPECTOR_HEADERS
     SettingsPresenter.h
     SettingsView.h
     ImagesModel.h
+    FeaturesModel.h
+    MatchesModel.h
     cameras/Cameras.h
     cameras/CamerasModel.h
     cameras/CamerasView.h
@@ -117,14 +124,18 @@ set(INSPECTOR_HEADERS
     featextract/FeatureExtractorView.h
     featextract/FeatureExtractorModel.h
     featextract/FeatureExtractorPresenter.h
+    featmatch/FeatureMatching.h
+    featmatch/FeatureMatchingModel.h
+    featmatch/FeatureMatchingView.h
+    featmatch/FeatureMatchingPresenter.h
+    orientation/Orientation.h
+    orientation/OrientationModel.h
+    orientation/OrientationView.h
+    orientation/OrientationPresenter.h
     # FeaturesViewer.h
     # FeaturesViewerView.h
     # FeaturesViewerModel.h
     # FeaturesViewerPresenter.h
-    # DescriptorMatcher.h
-    # DescriptorMatcherView.h
-    # DescriptorMatcherModel.h
-    # DescriptorMatcherPresenter.h
     # MatchViewer.h
     # MatchViewerModel.h
     # MatchViewerView.h

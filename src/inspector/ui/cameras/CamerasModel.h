@@ -26,7 +26,6 @@ public:
 
 public:
 
-  int addCamera(const QString &image) override;
   int addCamera(const Camera &camera) override;
   int cameraID(const Camera &camera) const override;
   int cameraID(const QString &make, const QString &model) const override;

@@ -2,6 +2,7 @@
 #define INSPECTOR_FEATURE_EXTRACTOR_MODEL_H
 
 #include "inspector/ui/featextract/FeatureExtractor.h"
+#include "inspector/core/project.h"
 
 namespace inspector
 {
@@ -36,6 +37,7 @@ public:
   std::shared_ptr<Feature> featureExtractor() const override;
   void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
   QString database() const override;
+  void addFeatures(const QString &imageName, const QString &featuresFile) override;
 
 protected:
 

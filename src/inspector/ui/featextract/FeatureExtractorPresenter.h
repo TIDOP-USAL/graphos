@@ -21,7 +21,6 @@ class ProgressHandler;
 namespace ui
 {
 
-class FeatureExtractorView;
 class ImagesModel;
 class CamerasModel;
 class SettingsModel;
@@ -40,18 +39,16 @@ public:
                                SettingsModel *settingsModel);
   ~FeatureExtractorPresenterImp() override;
 
-// IPresenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+  void setDetectorAndDescriptorProperties();
+  void setSiftProperties();
+
+private slots:
+
+  void onError(int code, const QString &msg);
+  void onFinished();
+  void onFeaturesExtracted(const QString &imageName, const QString &featuresFile);
 
 // FeatureExtractorPresenter interface
 
@@ -65,18 +62,18 @@ private slots:
   void run() override;
   void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
 
-// FeatureExtractorPresenterImp
+// IPresenter interface
+
+public slots:
+
+  void help() override;
+  void open() override;
+  void setHelp(HelpDialog *help) override;
 
 private:
 
-  void setDetectorAndDescriptorProperties();
-  void setSiftProperties();
-
-private slots:
-
-  void onError(int code, const QString &msg);
-  void onFinished();
-  void onFeaturesExtracted(const QString &features);
+  void init() override;
+  void initSignalAndSlots() override;
 
 protected:
 

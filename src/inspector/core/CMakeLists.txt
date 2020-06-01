@@ -16,6 +16,21 @@ add_library(inspector_core ${LIB_TYPE}
             #features/akaze.cpp
             features/sift.h
             features/sift.cpp
+            features/matching.cpp
+            features/matching.h
+            #orientation/orientation.cpp
+            orientation/orientation.h
+            orientation/orientationcolmap.cpp
+            orientation/orientationcolmap.h
+            orientation/orientationexport.cpp
+            orientation/orientationexport.h
+            orientation/photoorientation.cpp
+            orientation/photoorientation.h
+            densification/densification.h
+            densification/CmvsPmvs.cpp
+            densification/CmvsPmvs.h
+            densification/Smvs.cpp
+            densification/Smvs.h
             utils.cpp
             utils.h)
 

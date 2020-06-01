@@ -4,6 +4,7 @@
 #include <tidop/core/exception.h>
 
 #include "inspector/core/features/sift.h"
+#include "inspector/core/features/matching.h"
 #include "inspector/core/utils.h"
 
 #include <QFile>
@@ -25,7 +26,8 @@ ProjectImp::ProjectImp()
     mDescription(""),
     mProjectFolder(""),
     mVersion(INSPECTOR_PROJECT_FILE_VERSION),
-    mDatabase("")
+    mDatabase(""),
+    bRefinePrincipalPoint(true)
 {
 }
 
@@ -75,6 +77,16 @@ void ProjectImp::setDatabase(const QString &database)
   mDatabase = database;
 }
 
+QString ProjectImp::imageDirectory() const
+{
+  return mImagesDirectory;
+}
+
+void ProjectImp::setImageDirectory(const QString &imageDirectory)
+{
+  mImagesDirectory = imageDirectory;
+}
+
 void ProjectImp::addImage(const Image &img)
 {
   if (existImage(img.path())){
@@ -82,7 +94,7 @@ void ProjectImp::addImage(const Image &img)
     msgWarning("Image %s already in the project", ba.data());
   } else {
     mImages.push_back(img);
-    }
+  }
 }
 
 bool ProjectImp::updateImage(size_t imageId, const Image &image)
@@ -303,9 +315,25 @@ QString ProjectImp::features(const QString &imgName) const
   return mFeatures.at(imgName);
 }
 
-void ProjectImp::setFeatures(const QString &imgName, const QString &featureFile)
+void ProjectImp::addFeatures(const QString &imgName, const QString &featureFile)
 {
   mFeatures[imgName] = featureFile;
+}
+
+void ProjectImp::removeFeatures()
+{
+  mFeatures.clear();
+}
+
+bool ProjectImp::removeFeatures(const QString &imgName)
+{
+  auto it = mFeatures.find(imgName);
+  if (it != mFeatures.end()){
+    mFeatures.erase(it);
+    return true;
+  } else {
+    return false;
+  }
 }
 
 Project::features_iterator ProjectImp::featuresBegin()
@@ -328,56 +356,127 @@ Project::features_const_iterator ProjectImp::featuresEnd() const
   return mFeatures.end();
 }
 
+std::shared_ptr<FeatureMatching> ProjectImp::featureMatching() const
+{
+  return mFeatureMatching;
+}
+
+void ProjectImp::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
+{
+  mFeatureMatching = featureMatching;
+}
+
+void ProjectImp::addMatchesPair(const QString &imageLeft, const QString &imageRight)
+{
+  auto it = mImagesPairs.find(imageLeft);
+  if (it != mImagesPairs.end()){
+    std::vector<QString> pairs = it->second;
+    for (auto &pair : pairs) {
+      if (pair.compare(imageRight) == 0){
+        return;
+      }
+    }
+  }
+
+  mImagesPairs[imageLeft].push_back(imageRight);
+  mImagesPairs[imageRight].push_back(imageLeft);
+}
+
+const std::vector<QString> ProjectImp::matchesPairs(const QString &imageLeft) const
+{
+  std::vector<QString> pairs;
+  for (auto &matches : mImagesPairs){
+    if (imageLeft.compare(matches.first) == 0) {
+      pairs = matches.second;
+      break;
+    }
+  }
+  return pairs;
+}
+
+void ProjectImp::removeMatchesPair()
+{
+  mImagesPairs.clear();
+}
+
+void ProjectImp::removeMatchesPair(const QString &imageLeft)
+{
+  auto it = mImagesPairs.find(imageLeft);
+  if (it != mImagesPairs.end()){
+    mImagesPairs.erase(it);
+    }
+}
+
+bool ProjectImp::refinePrincipalPoint() const
+{
+  return bRefinePrincipalPoint;
+}
+
+void ProjectImp::setRefinePrincipalPoint(bool refine)
+{
+  bRefinePrincipalPoint = refine;
+}
+
+QString ProjectImp::sparseModel() const
+{
+  return mSparseModel;
+}
+
+void ProjectImp::setSparseModel(const QString &sparseModel)
+{
+  mSparseModel = sparseModel;
+}
+
+PhotoOrientation ProjectImp::photoOrientation(const QString &imgName) const
+{
+  return mPhotoOrientation.at(imgName);
+}
+
+void ProjectImp::addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation)
+{
+  mPhotoOrientation[imgName] = photoOrientation;
+}
+
 void ProjectImp::clear()
 {
   mName = "";
   mDescription = "";
   mProjectFolder = "";
   mVersion = INSPECTOR_PROJECT_FILE_VERSION;
+  mDatabase = "";
+  mImagesDirectory = "";
   mImages.resize(0);
   mCameras.clear();
   mFeatureExtractor.reset();
   mFeatures.clear();
-  mDatabase = "";
+  mFeatureMatching.reset();
+  mImagesPairs.clear();
+  mPhotoOrientation.clear();
+  bRefinePrincipalPoint = true;
+  mSparseModel = "";
 }
 
 bool ProjectImp::load(const QString &file)
 {
   std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
 
+  bool err = false;
   QFile input(file);
   if (input.open(QIODevice::ReadOnly)) {
     QXmlStreamReader stream;
     stream.setDevice(&input);
 
-    if (stream.readNextStartElement()) {
-      if (stream.name() == "Inspector") {
-        while (stream.readNextStartElement()) {
-          if (stream.name() == "General") {
-            this->readGeneral(stream);
-          } else if (stream.name() == "Database") {
-            this->readDatabase(stream);
-          } else if (stream.name() == "Cameras") {
-            this->readCameras(stream);
-          } else if (stream.name() == "Images") {
-            this->readImages(stream);
-          } else if (stream.name() == "Features") {
-            this->readFeatures(stream);
-          } /*else if (stream.name() == "Sessions") {
-            readSessions(stream, prj);
-          }*/
-        }
-      } else {
-        stream.raiseError(QObject::tr("Incorrect project file"));
-        return true;
-      }
-    }
+    err = this->read(stream);
+
   }
-  return false;
+  return err;
 }
 
 bool ProjectImp::save(const QString &file)
 {
+  bool err = false;
+  std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
+
   QFileInfo file_info(file);
   QString tmpfile = file_info.path().append(file_info.baseName()).append(".bak");
   std::ifstream  src(file.toStdString().c_str(), std::ios::binary);
@@ -386,32 +485,49 @@ bool ProjectImp::save(const QString &file)
   src.close();
   dst.close();
 
-  std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
+  try {
 
-  QFile output(file);
-  output.open(QFile::WriteOnly);
-  QXmlStreamWriter stream(&output);
-  stream.setAutoFormatting(true);
-  stream.writeStartDocument();
+    QFile output(file);
+    if (output.open(QFile::WriteOnly)){
+      QXmlStreamWriter stream(&output);
+      stream.setAutoFormatting(true);
+      stream.writeStartDocument();
 
-  stream.writeStartElement("Inspector");
-  {
-    writeVersion(stream);
-    writeGeneral(stream);
-    writeCameras(stream);
-    writeImages(stream);
-    writeDatabase(stream);
-    writeFeatures(stream);
-//    writeSessions(stream, prj);
+      stream.writeStartElement("Inspector");
+      {
+        writeVersion(stream);
+        writeGeneral(stream);
+        writeCameras(stream);
+        writeImages(stream);
+        writeDatabase(stream);
+        writeFeatures(stream);
+        writeMatches(stream);
+        writeOrientations(stream);
+    //    writeSessions(stream, prj);
+      }
+
+      stream.writeEndElement(); // Inspector
+
+      output.close();
+
+    } else {
+      err = true;
+    }
+  } catch (std::exception &e) {
+    msgError(e.what());
+
+    std::ifstream  src(tmpfile.toStdString().c_str(), std::ios::binary);
+    std::ofstream  dst(file.toStdString().c_str(), std::ios::binary);
+    dst << src.rdbuf();
+    src.close();
+    dst.close();
+
+    err = true;
   }
-
-  stream.writeEndElement(); // Inspector
-
-  output.close();
 
   std::remove(tmpfile.toStdString().c_str());
 
-  return false;
+  return err;
 }
 
 bool ProjectImp::checkOldVersion(const QString &file) const
@@ -473,6 +589,37 @@ void ProjectImp::oldVersionBak(const QString &file) const
   dst.close();
 }
 
+bool ProjectImp::read(QXmlStreamReader &stream)
+{
+  if (stream.readNextStartElement()) {
+    if (stream.name() == "Inspector") {
+      while (stream.readNextStartElement()) {
+        if (stream.name() == "General") {
+          this->readGeneral(stream);
+        } else if (stream.name() == "Database") {
+          this->readDatabase(stream);
+        } else if (stream.name() == "Cameras") {
+          this->readCameras(stream);
+        } else if (stream.name() == "Images") {
+          this->readImages(stream);
+        } else if (stream.name() == "Features") {
+          this->readFeatures(stream);
+        } else if (stream.name() == "Matches") {
+          this->readMatches(stream);
+        } else if (stream.name() == "Orientations") {
+          readOrientations(stream);
+        } else
+          stream.skipCurrentElement();
+        }
+    } else {
+      stream.raiseError(QObject::tr("Incorrect project file"));
+      return true;
+    }
+  } else return true;
+
+  return false;
+}
+
 void ProjectImp::readGeneral(QXmlStreamReader &stream)
 {
   while (stream.readNextStartElement()) {
@@ -495,7 +642,9 @@ void ProjectImp::readDatabase(QXmlStreamReader &stream)
 void ProjectImp::readImages(QXmlStreamReader &stream)
 {
   while (stream.readNextStartElement()) {
-    if (stream.name() == "Image") {
+    if (stream.name() == "ImagesDirectory") {
+      this->setImageDirectory(stream.readElementText());
+    } else if (stream.name() == "Image") {
       this->addImage(readImage(stream));
     } else
       stream.skipCurrentElement();
@@ -667,7 +816,6 @@ void ProjectImp::readFeatures(QXmlStreamReader &stream)
     } else
       stream.skipCurrentElement();
   }
-  readFeatureExtractor(stream);
 }
 
 void ProjectImp::readFeatureExtractor(QXmlStreamReader &stream)
@@ -721,7 +869,110 @@ void ProjectImp::readFeatureFile(QXmlStreamReader &stream)
   }
 
   QString file = stream.readElementText();
-  this->setFeatures(id, file);
+  this->addFeatures(id, file);
+}
+
+void ProjectImp::readMatches(QXmlStreamReader &stream)
+{
+  while (stream.readNextStartElement()){
+    if (stream.name() == "FeatureMatchingMethod") {
+      this->readMatchingMethod(stream);
+    } else if (stream.name() == "Image"){
+      this->readPairs(stream);
+    } else
+      stream.skipCurrentElement();
+  }
+}
+
+void ProjectImp::readMatchingMethod(QXmlStreamReader &stream)
+{
+  std::shared_ptr<FeatureMatching> matchingMethod = std::make_shared<FeatureMatchingProperties>();
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "Distance") {
+      matchingMethod->setDistance(readDouble(stream));
+    } else if (stream.name() == "Ratio") {
+      matchingMethod->setRatio(readDouble(stream));
+    } else if (stream.name() == "MaxError") {
+      matchingMethod->setMaxError(readDouble(stream));
+    } else if (stream.name() == "Confidence") {
+      matchingMethod->setConfidence(readDouble(stream));
+    } else if (stream.name() == "CrossCheck") {
+      matchingMethod->enableCrossCheck(readBoolean(stream));
+    } else
+      stream.skipCurrentElement();
+  }
+  this->setFeatureMatching(matchingMethod);
+}
+
+void ProjectImp::readPairs(QXmlStreamReader &stream)
+{
+  QString id_left_image;
+  for (auto &attr : stream.attributes()) {
+    if (attr.name().compare(QString("id")) == 0) {
+      id_left_image = attr.value().toString();
+      break;
+    }
+  }
+
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "Pair") {
+      this->addMatchesPair(id_left_image, stream.readElementText());
+    } else
+      stream.skipCurrentElement();
+  }
+}
+
+void ProjectImp::readOrientations(QXmlStreamReader &stream)
+{
+  while (stream.readNextStartElement()){
+    if (stream.name() == "SparseModel") {
+      this->readOrientationSparseModel(stream);
+    } else if (stream.name() == "Image"){
+      this->readPhotoOrientations(stream);
+    } else
+      stream.skipCurrentElement();
+  }
+}
+
+void ProjectImp::readOrientationSparseModel(QXmlStreamReader &stream)
+{
+  this->setSparseModel(stream.readElementText());
+}
+
+void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
+{
+  QString id_image;
+  for (auto &attr : stream.attributes()) {
+    if (attr.name().compare(QString("id")) == 0) {
+      id_image = attr.value().toString();
+      break;
+    }
+  }
+
+  PhotoOrientation image_ori;
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "X") {
+      image_ori.x = readDouble(stream);
+    } else if (stream.name() == "Y") {
+      image_ori.y = readDouble(stream);
+    } else if (stream.name() == "Z") {
+      image_ori.z = readDouble(stream);
+    } else if (stream.name() == "Rot") {
+      QStringList rot_string = stream.readElementText().split(" ");
+      image_ori.rot[0][0] = rot_string.at(0).toFloat();
+      image_ori.rot[0][1] = rot_string.at(1).toFloat();
+      image_ori.rot[0][2] = rot_string.at(2).toFloat();
+      image_ori.rot[1][0] = rot_string.at(3).toFloat();
+      image_ori.rot[1][1] = rot_string.at(4).toFloat();
+      image_ori.rot[1][2] = rot_string.at(5).toFloat();
+      image_ori.rot[2][0] = rot_string.at(6).toFloat();
+      image_ori.rot[2][1] = rot_string.at(7).toFloat();
+      image_ori.rot[2][2] = rot_string.at(8).toFloat();
+    } else
+      stream.skipCurrentElement();
+  }
+
+  this->addPhotoOrientation(id_image, image_ori);
 }
 
 void ProjectImp::writeVersion(QXmlStreamWriter &stream) const
@@ -791,6 +1042,7 @@ void ProjectImp::writeImages(QXmlStreamWriter &stream) const
 {
   stream.writeStartElement("Images");
   {
+    stream.writeTextElement("ImagesDirectory", mImagesDirectory);
     for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
       writeImage(stream, (*it));
     }
@@ -830,7 +1082,7 @@ void ProjectImp::writeFeatureExtractor(QXmlStreamWriter &stream) const
       this->writeSIFT(stream, dynamic_cast<Sift *>(feature));
     }
     stream.writeEndElement();
-    }
+  }
 }
 
 void ProjectImp::writeSIFT(QXmlStreamWriter &stream, Sift *sift) const
@@ -860,6 +1112,95 @@ void ProjectImp::writeFeatureFiles(QXmlStreamWriter &stream) const
     }
   }
   stream.writeEndElement(); // Files
+}
+
+void ProjectImp::writeMatches(QXmlStreamWriter &stream) const
+{
+  stream.writeStartElement("Matches");
+  {
+    this->writeFeatureMatchingMethod(stream);
+    this->writePairs(stream);
+  }
+  stream.writeEndElement();
+}
+
+void ProjectImp::writeFeatureMatchingMethod(QXmlStreamWriter &stream) const
+{
+  if (FeatureMatching *matchingMethod = this->featureMatching().get()){
+    stream.writeStartElement("FeatureMatchingMethod");
+    {
+      stream.writeTextElement("Distance", QString::number(matchingMethod->distance()));
+      stream.writeTextElement("Ratio", QString::number(matchingMethod->ratio()));
+      stream.writeTextElement("MaxError", QString::number(matchingMethod->maxError()));
+      stream.writeTextElement("Confidence", QString::number(matchingMethod->confidence()));
+      stream.writeTextElement("CrossCheck", matchingMethod->crossCheck() ? "true" : "false");
+    }
+    stream.writeEndElement();
+  }
+}
+
+void ProjectImp::writePairs(QXmlStreamWriter &stream) const
+{
+  if (!mImagesPairs.empty()){
+    for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
+      stream.writeStartElement("Image");
+      {
+        stream.writeAttribute("id", it->name());
+        std::vector<QString> pairs = this->matchesPairs(it->name());
+        for (size_t i = 0; i < pairs.size(); i++){
+          stream.writeTextElement("Pair", pairs[i]);
+        }
+      }
+      stream.writeEndElement(); // Image
+    }
+  }
+}
+
+void ProjectImp::writeOrientations(QXmlStreamWriter &stream) const
+{
+  stream.writeStartElement("Orientations");
+  {
+    this->writeOrientationSparseModel(stream);
+    this->writePhotoOrientations(stream);
+  }
+  stream.writeEndElement(); // Orientations
+}
+
+void ProjectImp::writeOrientationSparseModel(QXmlStreamWriter &stream) const
+{
+  QString sparse_model = this->sparseModel();
+  if (!sparse_model.isEmpty())
+    stream.writeTextElement("SparseModel", this->sparseModel());
+}
+
+void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
+{
+  if (!mPhotoOrientation.empty()){
+    for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
+      PhotoOrientation photoOrientation = this->photoOrientation(it->name());
+      stream.writeStartElement("Image");
+      {
+        stream.writeAttribute("id", it->name());
+
+        if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
+            stream.writeTextElement("X", QString::number(photoOrientation.x));
+            stream.writeTextElement("Y", QString::number(photoOrientation.y));
+            stream.writeTextElement("Z", QString::number(photoOrientation.z));
+            QString rot_mat = QString::number(photoOrientation.rot[0][0]).append(" ");
+            rot_mat.append(QString::number(photoOrientation.rot[0][1])).append(" ");
+            rot_mat.append(QString::number(photoOrientation.rot[0][2])).append(" ");
+            rot_mat.append(QString::number(photoOrientation.rot[1][0])).append(" ");
+            rot_mat.append(QString::number(photoOrientation.rot[1][1])).append(" ");
+            rot_mat.append(QString::number(photoOrientation.rot[1][2])).append(" ");
+            rot_mat.append(QString::number(photoOrientation.rot[2][0])).append(" ");
+            rot_mat.append(QString::number(photoOrientation.rot[2][1])).append(" ");
+            rot_mat.append(QString::number(photoOrientation.rot[2][2]));
+            stream.writeTextElement("Rot", rot_mat);
+        }
+      }
+      stream.writeEndElement(); // Image
+    }
+  }
 }
 
 QSize ProjectImp::readSize(QXmlStreamReader &stream) const

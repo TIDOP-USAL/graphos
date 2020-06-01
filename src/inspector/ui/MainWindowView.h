@@ -41,10 +41,9 @@ public:
     project_modified      = (1 << 1),  // Se ha modificado el proyecto
     images_added          = (1 << 2),  // Se han añadido fotogramas
     image_open            = (1 << 3),  // Hay una imagen abierta
-    preprocess            = (1 << 4),
-    feature_extraction    = (1 << 5),
-    feature_matching      = (1 << 6),
-    oriented              = (1 << 7),
+    feature_extraction    = (1 << 4),
+    feature_matching      = (1 << 5),
+    oriented              = (1 << 6),
     processing            = (1 << 20),
     loading_images        = (1 << 21),
     ground_truth          = (1 << 30),
@@ -64,12 +63,13 @@ public:
   void setProjectTitle(const QString &title);
 
   void setFlag(Flag flag, bool value);
+  void addImage(const QString &image);
   void addImages(const QStringList &images);
   void setActiveImage(const QString &image);
   void setActiveImages(const QStringList &images);
-  void addFeatures(const QString &sessionName, const QString &detector, const QString &descriptor, const std::vector<QString> &features);
-  void addMatches(const QString &sessionName, const QString &matcher, const QString &left, const QString &right, const QString &file);
-
+  void addFeatures(const QString &features);
+  void addMatches(const QString &imageLeft, const QString &imageRight);
+  void setSparseModel(const QString &sparseModel);
   /*!
    * \brief Añade un mensaje temporal en la barra de herramientas
    * \param msg Mensaje
@@ -135,7 +135,8 @@ signals:
   void loadImages();
   void openFeatureExtraction();
   void openFeatureMatching();
-  void openBatch();
+  void openOrientation();
+  //void openBatch();
 
   /* Menú herramientas */
 
@@ -162,10 +163,11 @@ signals:
   void selectImageFeatures(QString);
   void imagesLoaded();
 
-  void openImageMatches(QString, QString, QString);
+  //void openImageMatches(QString, QString, QString);
 
-  void openKeypointsViewer(QString, QString);
-  void openMatchesViewer(QString, QString, QString);
+  void openKeypointsViewer(QString);
+  void openMatchesViewer(QString);
+  void openMatchesViewer(QString, QString);
   void openMultiView(QString);
 
 protected:
@@ -219,11 +221,19 @@ protected:
   QAction *mActionMatchesViewer;
   QAction *mActionPassPointsViewer;
   QAction *mActionNotRecentProjects;
-  QAction *mActionClearHistory;
+  QAction *mActionClearHistory;  
   QMenu *mMenuRecentProjects;
   QMenu *mMenuExport;
   QMenu *mMenuPanels;
   QMenu *mMenuToolBar;
+  ///TreeWidget
+  QAction *mActionOpenImage;
+  QAction *mActionDeleteImage;
+  QAction *mActionViewKeypoints;
+  QAction *mActionViewMatches;
+  QMenu *mMenuTreeProjectImages;
+  QMenu *mMenuTreeProjectImage;
+
   ThumbnailsWidget *mThumbnailsWidget;
   LogWidget *mLogWidget;
   QProgressBar *mProgressBar;

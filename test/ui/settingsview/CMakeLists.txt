@@ -3,17 +3,14 @@ get_filename_component(test_name ${test_filename} NAME_WE)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(test_kind test)
-set(test_KIND TEST)
+set(the_target "${test_name}")
 
-set(the_target "${test_kind}_${test_name}")
 add_executable(${the_target}
-    ${test_filename}
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/SettingsView.cpp
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/SettingsView.h
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/Settings.h
-    ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
-    )
+               ${test_filename}
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/SettingsView.cpp
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/SettingsView.h
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/Settings.h
+               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h)
 
 target_link_libraries(${the_target} PRIVATE 
                       inspector_core 

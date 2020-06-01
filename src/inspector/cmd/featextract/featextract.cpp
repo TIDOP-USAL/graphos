@@ -50,11 +50,13 @@ int main(int argc, char** argv)
     "RADIAL",
     "FULL_RADIAL"};
 
+  SiftProperties siftProperties;
   int maxImageSize = -1;
-  int maxFeaturesNumber = TL_INT_MIN;
-  int octaveResolution = TL_INT_MIN;
-  double peakThreshold = TL_DOUBLE_MIN;
-  double edgeThreshold = TL_DOUBLE_MIN;
+  int maxFeaturesNumber = siftProperties.featuresNumber();
+  int octaveResolution = siftProperties.octaveLayers();
+  double contrastThreshold = siftProperties.contrastThreshold();
+  double edgeThreshold = siftProperties.edgeThreshold();
+  double sigma = siftProperties.sigma();
 
   Command cmd("featextract", cmd_description);
   cmd.push_back(std::make_shared<ArgumentStringRequired>("prj", 'p', "Project file", &project_file));
@@ -62,10 +64,11 @@ int main(int argc, char** argv)
   cmd.push_back(std::make_shared<ArgumentIntegerOptional>("max_image_size", 's', "Maximum image size (default = 3200)", &maxImageSize));
   cmd.push_back(std::make_shared<ArgumentIntegerOptional>("max_features_number", "Maximum number of features to detect (default = 8192)", &maxFeaturesNumber));
   cmd.push_back(std::make_shared<ArgumentIntegerOptional>("SIFT:octave_resolution", "SIFT: Number of layers in each octave (default = 3)", &octaveResolution));
-  cmd.push_back(std::make_shared<ArgumentDoubleOptional>("SIFT:peak_threshold", "SIFT: Peak Threshold", &peakThreshold));
+  cmd.push_back(std::make_shared<ArgumentDoubleOptional>("SIFT:contrast_threshold", "SIFT: Contrast Threshold", &contrastThreshold));
   cmd.push_back(std::make_shared<ArgumentDoubleOptional>("SIFT:edge_threshold", "SIFT: Threshold used to filter out edge-like features (default = 10.)", &edgeThreshold));
+  cmd.push_back(std::make_shared<ArgumentDoubleOptional>("SIFT:sigma", "", &sigma));
 
-  cmd.addExample("featextract --p 253/253.xml --image_path images --output_path output -c RADIAL");
+  cmd.addExample("featextract --p 253/253.xml -c RADIAL");
 
   // Parseo de los argumentos y comprobación de los mismos
   Command::Status status = cmd.parse(argc, argv);
@@ -131,81 +134,104 @@ int main(int argc, char** argv)
 
   /// Se añaden las imagenes y las cámaras a la base de datos
 
-  std::shared_ptr<FeatureExtractor> feat_extractor = std::make_shared<SiftCudaDetectorDescriptor>();
-  colmap::FeatureKeypoints featureKeypoints;
-  colmap::FeatureDescriptors featureDescriptors;
-  colmap::Camera camera_colmap;
+  try {
+    std::shared_ptr<FeatureExtractor> feat_extractor(new SiftCudaDetectorDescriptor(maxFeaturesNumber,
+                                                                                    octaveResolution,
+                                                                                    contrastThreshold,
+                                                                                    edgeThreshold,
+                                                                                    sigma));
 
-  int camera_id = -1;
-  for (auto it = project.imageBegin(); it != project.imageEnd(); it++){
-    Image image = (*it);
-    //std::string image_name = (*it)->name().toStdString();
-    std::string image_path = image.path().toStdString();
-    QFileInfo file_info(image.path());
-    std::string image_name = file_info.fileName().toStdString();
+    project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feat_extractor));
 
-    msgInfo("Read image: %s", image_path.c_str());
+    colmap::FeatureKeypoints featureKeypoints;
+    colmap::FeatureDescriptors featureDescriptors;
+    colmap::Camera camera_colmap;
 
-    if (camera_id != image.cameraId()){
-      camera_id = image.cameraId();
-      Camera camera = project.findCamera(camera_id);
+    int camera_id = -1;
+    for (auto it = project.imageBegin(); it != project.imageEnd(); it++){
+      Image image = (*it);
+      //std::string image_name = (*it)->name().toStdString();
+      std::string image_path = image.path().toStdString();
+      QFileInfo file_info(image.path());
+      std::string image_name = file_info.fileName().toStdString();
 
-      int camera_model_id = colmap::CameraModelNameToId(camera.type().toStdString());
-      double focal_length = camera.focal();
-      size_t width = static_cast<size_t>(camera.width());
-      size_t height = static_cast<size_t>(camera.height());
-      if (round(1.2 * std::max(width, height)) == round(focal_length)){
-        camera_colmap.SetPriorFocalLength(false);
+      msgInfo("Read image: %s", image_path.c_str());
+
+      if (camera_id != image.cameraId()){
+        camera_id = image.cameraId();
+        Camera camera = project.findCamera(camera_id);
+
+        int camera_model_id = colmap::CameraModelNameToId(camera.type().toStdString());
+        double focal_length = camera.focal();
+        size_t width = static_cast<size_t>(camera.width());
+        size_t height = static_cast<size_t>(camera.height());
+        if (round(1.2 * std::max(width, height)) == round(focal_length)){
+          camera_colmap.SetPriorFocalLength(false);
+        } else {
+          camera_colmap.SetPriorFocalLength(true);
+        }
+        camera_colmap.InitializeWithId(camera_model_id, focal_length, width, height);
+        camera_colmap.SetCameraId(database.WriteCamera(camera_colmap));
+      }
+
+
+      colmap::Image image_colmap;
+      image_colmap.SetName(image_name);
+      image_colmap.SetCameraId(camera_colmap.CameraId());
+
+      colmap::image_t image_id = database.WriteImage(image_colmap, false);
+
+      /* Feature extraction */
+
+      cv::Mat mat = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
+
+      double max_dimension;
+      if (mat.cols > mat.rows){
+        max_dimension = mat.cols;
       } else {
-        camera_colmap.SetPriorFocalLength(true);
+        max_dimension = mat.rows;
       }
-      camera_colmap.InitializeWithId(camera_model_id, focal_length, width, height);
-      camera_colmap.SetCameraId(database.WriteCamera(camera_colmap));
-    }
 
-
-    colmap::Image image_colmap;
-    image_colmap.SetName(image_name);
-    image_colmap.SetCameraId(camera_colmap.CameraId());
-
-    colmap::image_t image_id = database.WriteImage(image_colmap, false);
-
-    /* Feature extraction */
-
-    cv::Mat mat = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
-
-    double max_dimension;
-    if (mat.cols > mat.rows){
-      max_dimension = mat.cols;
-    } else {
-      max_dimension = mat.rows;
-    }
-
-    double scale = 1;
-    if (maxImageSize < max_dimension){
-      cv::Size size(mat.cols, mat.rows);
-      scale = maxImageSize / max_dimension;
-      size.width *= scale;
-      size.height *= scale;
-      cv::resize(mat, mat, size);
-    }
-
-    feat_extractor->run(mat, featureKeypoints, featureDescriptors);
-
-    if (scale < 1) {
-      for (auto & featureKeypoint : featureKeypoints){
-        featureKeypoint.Rescale(scale, scale);
+      double scale = 1;
+      if (maxImageSize < max_dimension){
+        cv::Size size(mat.cols, mat.rows);
+        scale = maxImageSize / max_dimension;
+        size.width *= scale;
+        size.height *= scale;
+        cv::resize(mat, mat, size);
       }
+
+      feat_extractor->run(mat, featureKeypoints, featureDescriptors);
+
+      QByteArray ba = image.name().toLocal8Bit();
+      const char *img_file = ba.data();
+      msgInfo("%i features extracted from image %s", featureKeypoints.size(), img_file);
+
+      if (scale < 1) {
+        for (auto & featureKeypoint : featureKeypoints){
+          featureKeypoint.Rescale(scale, scale);
+        }
+      }
+
+      // Escritura en la base de datos
+      database.WriteKeypoints(image_id, featureKeypoints);
+      database.WriteDescriptors(image_id, featureDescriptors);
+
+      // añade features al proyecto
+      project.addFeatures(image.name(), image.name() + "@" + database_path);
+
     }
 
-    // Escritura en la base de datos
-    database.WriteKeypoints(image_id, featureKeypoints);
-    database.WriteDescriptors(image_id, featureDescriptors);
+    project.save(project_file.c_str());
+    msgInfo("Project saved");
 
+    uint64_t time = chrono.stop();
+    msgInfo("[Time: %f seconds]", time/1000.);
+
+  } catch (std::exception &e) {
+    msgError(e.what());
+    return 1;
   }
-
-  uint64_t time = chrono.stop();
-  msgInfo("[Time: %f seconds]", time/1000.);
 
   return 0;
 }

@@ -11,12 +11,12 @@ add_library(inspector_process ${LIB_TYPE}
             ProcessConcurrent.h
             features/FeatureExtractorProcess.cpp
             features/FeatureExtractorProcess.h
-            #preprocess/ImagePreprocess.cpp
-            #preprocess/ImagePreprocess.h
-            #Matching/MatchingProcess.cpp
-            #Matching/MatchingProcess.h
-            #Matching/PassPointsGroupingProcess.cpp
-            #Matching/PassPointsGroupingProcess.h
+            features/FeatureMatchingProcess.cpp
+            features/FeatureMatchingProcess.h
+            orientation/RelativeOrientationProcess.cpp
+            orientation/RelativeOrientationProcess.h
+            images/LoadImagesProcess.cpp
+            images/LoadImagesProcess.h
            )
 
 set_property(TARGET inspector_process PROPERTY FOLDER "lib")

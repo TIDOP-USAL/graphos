@@ -322,6 +322,31 @@ public:
 
 
 
+class INSPECTOR_EXPORT FeatureMatching
+{
+public:
+
+  FeatureMatching() {}
+  virtual ~FeatureMatching() {}
+
+//  virtual int blockSize() const = 0;
+//  virtual void setBlockSize(int blockSize) = 0;
+  virtual bool crossCheck() const = 0;
+  virtual void enableCrossCheck(bool enable = true) = 0;
+  virtual double ratio() const = 0;
+  virtual void setRatio(double ratio) = 0;
+  virtual double distance() const = 0;
+  virtual void setDistance(double distance) = 0;
+//  virtual int maxMatches() const = 0;
+//  virtual void setMaxMatches(int maxMatches) = 0;
+  virtual double maxError() const = 0;
+  virtual void setMaxError(double error) = 0;
+  virtual double confidence() const = 0;
+  virtual void setConfidence(double error) = 0;
+
+};
+
+
 } // namespace inspector
 
 #endif // INSPECTOR_FEATURES_H

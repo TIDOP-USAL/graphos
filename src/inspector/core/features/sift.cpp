@@ -255,6 +255,11 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
   update();
 }
 
+SiftCudaDetectorDescriptor::~SiftCudaDetectorDescriptor()
+{
+  mSiftGpu.reset();
+}
+
 void SiftCudaDetectorDescriptor::update()
 {
   mSiftGpu.reset(new SiftGPU);
@@ -265,7 +270,7 @@ void SiftCudaDetectorDescriptor::update()
 
   if (!CreateSiftGPUExtractor(mSiftExtractionOptions, mSiftGpu.get())) {
     return;
-    }
+  }
 }
 
 void SiftCudaDetectorDescriptor::run(const colmap::Bitmap &bitmap,
@@ -281,7 +286,9 @@ void SiftCudaDetectorDescriptor::run(const colmap::Bitmap &bitmap,
   }
 }
 
-void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap, colmap::FeatureKeypoints &keyPoints, colmap::FeatureDescriptors &descriptors)
+void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
+                                     colmap::FeatureKeypoints &keyPoints,
+                                     colmap::FeatureDescriptors &descriptors)
 {
   try {
     int err = mSiftGpu->RunSIFT(bitmap.cols, bitmap.rows, bitmap.data, GL_LUMINANCE, GL_UNSIGNED_BYTE);

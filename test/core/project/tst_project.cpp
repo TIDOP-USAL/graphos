@@ -162,14 +162,14 @@ void TestProject::test_projectFolder()
 
 void TestProject::test_findImage()
 {
-  Image img = mProjectXml->findImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png");
+  Image img = mProjectXml->findImage("img001");
   QCOMPARE("img001", img.name());
   QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", img.path());
   QCOMPARE(0.5, img.longitudeExif());
   QCOMPARE(2.3, img.latitudeExif());
   QCOMPARE(10.2, img.altitudeExif());
 
-  Image img2 = mProjectXml->findImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png");
+  Image img2 = mProjectXml->findImage("img002");
   QCOMPARE("img002", img2.name());
   QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", img2.path());
   QCOMPARE(0.51, img2.longitudeExif());
@@ -182,8 +182,8 @@ void TestProject::test_imageId_data()
   QTest::addColumn<QString>("value");
   QTest::addColumn<size_t>("result");
 
-  QTest::newRow("img001") << "C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png" << size_t{0};
-  QTest::newRow("img002") << "C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png" << size_t{1};
+  QTest::newRow("img001") << "img001" << size_t{0};
+  QTest::newRow("img002") << "img002" << size_t{1};
 }
 
 void TestProject::test_imageId()
@@ -234,7 +234,7 @@ void TestProject::test_addImage_deleteImage()
 
   QCOMPARE(3, mProjectXml->imagesCount());
 
-  mProjectXml->removeImage("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
+  mProjectXml->removeImage("img003");
   QCOMPARE(2, mProjectXml->imagesCount());
 }
 

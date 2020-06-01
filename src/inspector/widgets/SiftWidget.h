@@ -23,7 +23,7 @@ class INSPECTOR_EXPORT SiftWidget
 public:
 
   SiftWidget(QWidget *parent = nullptr) : IWidgetView(parent){}
-  virtual ~SiftWidget() = default;
+  ~SiftWidget() override = default;
 
   /*!
    * \brief featuresNumber
@@ -141,12 +141,6 @@ private:
 
   void initUI() override;
   void initSignalAndSlots() override;
-
-// QWidget interface
-
-protected:
-
-  void changeEvent(QEvent *event) override;
 
 protected:
 

@@ -22,10 +22,16 @@ class SettingsModel;
 class SettingsPresenter;
 class NewProjectPresenter;
 class ImagesModel;
+class FeaturesModel;
+class MatchesModel;
 class CamerasModel;
 class CamerasPresenter;
 class FeatureExtractorModel;
 class FeatureExtractorPresenter;
+class FeatureMatchingModel;
+class FeatureMatchingPresenter;
+class OrientationModel;
+class OrientationPresenter;
 class ProgressHandler;
 class ProgressDialog;
 
@@ -48,6 +54,8 @@ public:
   ImagesModel *imagesModel();
   CamerasModel *camerasModel();
   CamerasPresenter *camerasPresenter();
+  FeaturesModel *featuresModel();
+  MatchesModel *matchesModel();
 
   SettingsModel *settingsModel();
   SettingsPresenter *settingsPresenter();
@@ -55,7 +63,10 @@ public:
   NewProjectPresenter *newProjectPresenter();
   FeatureExtractorModel *featureExtractorModel();
   FeatureExtractorPresenter *featureExtractorPresenter();
-
+  FeatureMatchingModel *featureMatchingModel();
+  FeatureMatchingPresenter *featureMatchingPresenter();
+  OrientationModel *orientationModel();
+  OrientationPresenter *orientationPresenter();
   ProgressHandler *progressHandler();
   ProgressDialog *progressDialog();
 
@@ -83,6 +94,8 @@ protected:
   ImagesModel *mImagesModel;
   CamerasModel *mCamerasModel;
   CamerasPresenter *mCamerasPresenter;
+  FeaturesModel *mFeaturesModel;
+  MatchesModel *mMatchesModel;
   Settings *mSettings;
   SettingsController *mSettingsController;
   SettingsModel *mSettingsModel;
@@ -91,6 +104,10 @@ protected:
   NewProjectPresenter *mNewProjectPresenter;
   FeatureExtractorModel *mFeatureExtractorModel;
   FeatureExtractorPresenter *mFeatureExtractorPresenter;
+  FeatureMatchingModel *mFeatureMatchingModel;
+  FeatureMatchingPresenter *mFeatureMatchingPresenter;
+  OrientationModel *mOrientationModel;
+  OrientationPresenter *mOrientationPresenter;
 
   ProgressHandler *mProgressHandler;
   ProgressDialog *mProgressDialog;

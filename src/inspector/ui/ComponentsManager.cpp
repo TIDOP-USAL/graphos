@@ -13,12 +13,20 @@
 #include "inspector/ui/featextract/FeatureExtractorModel.h"
 #include "inspector/ui/featextract/FeatureExtractorView.h"
 #include "inspector/ui/featextract/FeatureExtractorPresenter.h"
+#include "inspector/ui/featmatch/FeatureMatchingModel.h"
+#include "inspector/ui/featmatch/FeatureMatchingView.h"
+#include "inspector/ui/featmatch/FeatureMatchingPresenter.h"
+#include "inspector/ui/orientation/OrientationModel.h"
+#include "inspector/ui/orientation/OrientationView.h"
+#include "inspector/ui/orientation/OrientationPresenter.h"
 
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/cameras/CamerasView.h"
 #include "inspector/ui/cameras/CamerasPresenter.h"
 
 #include "inspector/ui/ImagesModel.h"
+#include "inspector/ui/FeaturesModel.h"
+#include "inspector/ui/MatchesModel.h"
 
 #include "inspector/ui/utils/Progress.h"
 #include "inspector/ui/utils/ProgressDialog.h"
@@ -41,6 +49,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mImagesModel(nullptr),
     mCamerasModel(nullptr),
     mCamerasPresenter(nullptr),
+    mFeaturesModel(nullptr),
+    mMatchesModel(nullptr),
     mSettings(new SettingsImp),
     mSettingsController(new SettingsControllerImp),
     mSettingsModel(nullptr),
@@ -48,6 +58,10 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mNewProjectPresenter(nullptr),
     mFeatureExtractorModel(nullptr),
     mFeatureExtractorPresenter(nullptr),
+    mFeatureMatchingModel(nullptr),
+    mFeatureMatchingPresenter(nullptr),
+    mOrientationModel(nullptr),
+    mOrientationPresenter(nullptr),
     mProgressHandler(nullptr),
     mProgressDialog(nullptr)
 {
@@ -86,6 +100,15 @@ ComponentsManager::~ComponentsManager()
     mCamerasPresenter = nullptr;
   }
 
+  if (mFeaturesModel){
+    delete mFeaturesModel;
+    mFeaturesModel = nullptr;
+  }
+
+  if (mMatchesModel){
+    delete mMatchesModel;
+    mMatchesModel = nullptr;
+  }
   if (mSettings){
     delete mSettings;
     mSettings = nullptr;
@@ -119,6 +142,26 @@ ComponentsManager::~ComponentsManager()
   if (mFeatureExtractorPresenter){
     delete mFeatureExtractorPresenter;
     mFeatureExtractorPresenter = nullptr;
+  }
+
+  if (mFeatureMatchingModel){
+    delete mFeatureMatchingModel;
+    mFeatureMatchingModel = nullptr;
+  }
+
+  if (mFeatureMatchingPresenter){
+    delete mFeatureMatchingPresenter;
+    mFeatureMatchingPresenter = nullptr;
+  }
+
+  if (mOrientationModel){
+    delete mOrientationModel;
+    mOrientationModel = nullptr;
+  }
+
+  if (mOrientationPresenter){
+    delete mOrientationPresenter;
+    mOrientationPresenter = nullptr;
   }
 
   if (mProgressHandler){
@@ -156,7 +199,9 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->projectModel(),
                                                    this->settingsModel(),
                                                    this->imagesModel(),
-                                                   this->camerasModel());
+                                                   this->camerasModel(),
+                                                   this->featuresModel(),
+                                                   this->matchesModel());
 
 //    mMainWindowPresenter->setHelp(this->helpDialog());
 
@@ -167,6 +212,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureMatchingDialog,
             this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
+    connect(mMainWindowPresenter, &MainWindowPresenter::openOrientationDialog,
+            this, &ComponentsManager::initAndOpenOrientationDialog);
 
 //    connect(mMainWindowPresenter, SIGNAL(openKeypointsViewerDialogFromSession(QString)),   this, SLOT(initAndOpenKeypointsViewerDialogFromSession(QString)));
 //    connect(mMainWindowPresenter, SIGNAL(openKeypointsViewerDialogFromSessionAndImage(QString, QString)), this, SLOT(initAndOpenKeypointsViewerDialogFromSessionAndImage(QString, QString)));
@@ -174,11 +221,6 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 //    connect(mMainWindowPresenter, SIGNAL(openMatchesViewerDialogFromSessionAndImages(QString, QString, QString)),     this, SLOT(initAndOpenMatchesViewerDialogFromSessionAndImages(QString, QString, QString)));
 //    connect(mMainWindowPresenter, SIGNAL(openExportFeaturesDialog()),    this, SLOT(initAndOpenExportFeaturesDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openExportMatchesDialog()),     this, SLOT(initAndOpenExportMatchesDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openGroundTruthEditorDialog()), this, SLOT(initAndOpenGroundTruthEditorDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openHomographyViewerDialog()),  this, SLOT(initAndOpenHomographyViewerDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openPRCurvesViewerDialog()),  this, SLOT(initAndOpenPRCurvesViewerDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openROCCurvesViewerDialog()),  this, SLOT(initAndOpenROCCurvesViewerDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openDETCurvesViewerDialog()),  this, SLOT(initAndOpenDETCurvesViewerDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
 
     connect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
@@ -230,6 +272,22 @@ CamerasPresenter *ComponentsManager::camerasPresenter()
   return mCamerasPresenter;
 }
 
+FeaturesModel *ComponentsManager::featuresModel()
+{
+  if (mFeaturesModel == nullptr){
+    mFeaturesModel = new FeaturesModelImp(mProject);
+  }
+  return mFeaturesModel;
+}
+
+MatchesModel *ComponentsManager::matchesModel()
+{
+  if (mMatchesModel == nullptr){
+    mMatchesModel = new MatchesModelImp(mProject);
+  }
+  return mMatchesModel;
+}
+
 SettingsModel *ComponentsManager::settingsModel()
 {
   if (mSettingsModel == nullptr){
@@ -256,23 +314,6 @@ NewProjectPresenter *ComponentsManager::newProjectPresenter()
   }
   return mNewProjectPresenter;
 }
-
-FeatureExtractorModel *ComponentsManager::featureExtractorModel()
-{
-  if (mFeatureExtractorModel == nullptr){
-    mFeatureExtractorModel = new FeatureExtractorModelImp(mProject);
-  }
-  return mFeatureExtractorModel;
-}
-
-//NewSessionPresenter *ComponentsManager::newSessionPresenter()
-//{
-//  if (mNewSessionPresenter == nullptr){
-//    NewSessionView *newSessionView = new NewSessionViewImp(this->mainWindowView());
-//    mNewSessionPresenter = new NewSessionPresenterImp(newSessionView, this->projectModel());
-//  }
-//  return mNewSessionPresenter;
-//}
 
 //ExportFeaturesPresenter *ComponentsManager::exportFeaturesPresenter()
 //{
@@ -308,16 +349,13 @@ FeatureExtractorModel *ComponentsManager::featureExtractorModel()
 //  return mExportMatchesModel;
 //}
 
-//PreprocessPresenter *ComponentsManager::preprocessPresenter()
-//{
-//  if (mPreprocessPresenter == nullptr){
-//    PreprocessView *preprocessView = new PreprocessViewImp(this->mainWindowView());
-//    mPreprocessPresenter = new PreprocessPresenterImp(preprocessView,
-//                                                   this->projectModel(),
-//                                                   this->settingsModel());
-//  }
-//  return mPreprocessPresenter;
-//}
+FeatureExtractorModel *ComponentsManager::featureExtractorModel()
+{
+  if (mFeatureExtractorModel == nullptr){
+    mFeatureExtractorModel = new FeatureExtractorModelImp(mProject);
+  }
+  return mFeatureExtractorModel;
+}
 
 FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
 {
@@ -332,16 +370,42 @@ FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
   return mFeatureExtractorPresenter;
 }
 
-//DescriptorMatcherPresenter *ComponentsManager::descriptorMatcherPresenter()
-//{
-//  if (mDescriptorMatcherPresenter == nullptr){
-//    DescriptorMatcherView *descriptorMatcherView = new DescriptorMatcherViewImp(this->mainWindowView());
-//    mDescriptorMatcherPresenter = new DescriptorMatcherPresenterImp(descriptorMatcherView,
-//                                                                 this->projectModel(),
-//                                                                 this->settingsModel());
-//  }
-//  return mDescriptorMatcherPresenter;
-//}
+FeatureMatchingModel *ComponentsManager::featureMatchingModel()
+{
+  if (mFeatureMatchingModel == nullptr){
+    mFeatureMatchingModel = new FeatureMatchingModelImp(mProject);
+  }
+  return mFeatureMatchingModel;
+}
+
+FeatureMatchingPresenter *ComponentsManager::featureMatchingPresenter()
+{
+  if (mFeatureMatchingPresenter == nullptr){
+    FeatureMatchingView *featureMatchingView = new FeatureMatchingViewImp(this->mainWindowView());
+    mFeatureMatchingPresenter = new FeatureMatchingPresenterImp(featureMatchingView,
+                                                                this->featureMatchingModel(),
+                                                                this->settingsModel());
+  }
+  return mFeatureMatchingPresenter;
+}
+
+OrientationModel *ComponentsManager::orientationModel()
+{
+  if (mOrientationModel == nullptr){
+    mOrientationModel = new OrientationModelImp(mProject);
+  }
+  return mOrientationModel;
+}
+
+OrientationPresenter *ComponentsManager::orientationPresenter()
+{
+  if (mOrientationPresenter == nullptr){
+    OrientationView *orientationview = new OrientationViewImp(this->mainWindowView());
+    mOrientationPresenter = new OrientationPresenterImp(orientationview,
+                                                        this->orientationModel());
+  }
+  return mOrientationPresenter;
+}
 
 //FeaturesViewerPresenter *ComponentsManager::featuresViewerPresenter()
 //{
@@ -405,75 +469,6 @@ FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
 //  return mMultiviewMatchingAssessmentPresenter;
 //}
 
-//GroundTruthPresenter *ComponentsManager::groundTruthPresenter()
-//{
-//  if (mGroundTruthPresenter == nullptr){
-
-//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-//    GroundTruthView *groundTruthView = new GroundTruthViewImp(this->mainWindowView(), f);
-//    mGroundTruthPresenter = new GroundTruthPresenterImp(groundTruthView,
-//                                                     this->groundTruthModel(),
-//                                                     this->settingsModel());
-//  }
-//  return mGroundTruthPresenter;
-//}
-
-//GroundTruthModel *ComponentsManager::groundTruthModel()
-//{
-//  if (mGroundTruthModel == nullptr){
-//    mGroundTruthModel = new GroundTruthModelImp(this->projectModel());
-//  }
-//  return mGroundTruthModel;
-//}
-
-//HomographyViewerPresenter *ComponentsManager::homographyViewerPresenter()
-//{
-//  if (mHomographyViewerPresenter == nullptr) {
-//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-//    HomographyViewerView *homographyViewerView = new HomographyViewerViewImp(this->mainWindowView(), f);
-//    mHomographyViewerPresenter = new HomographyViewerPresenterImp(homographyViewerView,
-//                                                               this->homographyViewerModel(),
-//                                                               this->settingsModel());
-//  }
-//  return mHomographyViewerPresenter;
-//}
-
-//HomographyViewerModel *ComponentsManager::homographyViewerModel()
-//{
-//  if (mHomographyViewerModel == nullptr){
-//    mHomographyViewerModel = new HomographyViewerModelImp(mProjectModel);
-//  }
-//  return mHomographyViewerModel;
-//}
-
-//CurvesViewerPresenter *ComponentsManager::curvesPRViewerPresenter()
-//{
-//  if (mCurvesPRViewerPresenter == nullptr) {
-
-//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-//    CurvesViewerViewImp *curvesViewerView = new PRCurvesViewer(this->mainWindowView(), f);
-//    mCurvesPRViewerPresenter = new CurvesViewerPresenterImp(curvesViewerView, this->curvesPRViewerModel());
-//  }
-//  return mCurvesPRViewerPresenter;
-//}
-
-//CurvesViewerModel *ComponentsManager::curvesPRViewerModel()
-//{
-//  if (mCurvesPRViewerModel == nullptr){
-//    mCurvesPRViewerModel = new PRCurvesViewerModel(mProjectModel);
-//  }
-//  return mCurvesPRViewerModel;
-//}
-
-//CurvesViewerPresenter *ComponentsManager::curvesROCViewerPresenter()
-//{
-//  if (mCurvesROCViewerPresenter == nullptr) {
-//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-//    CurvesViewerViewImp *curvesViewerView = new ROCCurvesViewer(this->mainWindowView(), f);
-//    mCurvesROCViewerPresenter = new CurvesViewerPresenterImp(curvesViewerView, this->curvesROCViewerModel());
-//  }
-//  return mCurvesROCViewerPresenter;
-//}
 
 //CurvesViewerModel *ComponentsManager::curvesROCViewerModel()
 //{
@@ -481,43 +476,6 @@ FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
 //    mCurvesROCViewerModel = new ROCCurvesViewerModel(mProjectModel);
 //  }
 //  return mCurvesROCViewerModel;
-//}
-
-//CurvesViewerPresenter *ComponentsManager::curvesDETViewerPresenter()
-//{
-//  if (mCurvesDETViewerPresenter == nullptr) {
-//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-//    CurvesViewerViewImp *curvesViewerView = new DETCurvesViewer(this->mainWindowView(), f);
-//    mCurvesDETViewerPresenter = new CurvesViewerPresenterImp(curvesViewerView, this->curvesDETViewerModel());
-//  }
-//  return mCurvesDETViewerPresenter;
-//}
-
-//CurvesViewerModel *ComponentsManager::curvesDETViewerModel()
-//{
-//  if (mCurvesDETViewerModel == nullptr){
-//    mCurvesDETViewerModel = new DETCurvesViewerModel(mProjectModel);
-//  }
-//  return mCurvesDETViewerModel;
-//}
-
-//RepeatabilityPresenter *ComponentsManager::repeatabilityPresenter()
-//{
-//  if (mRepeatabilityPresenter == nullptr){
-//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-//    RepeatabilityView *repeatabilityView = new RepeatabilityViewImp(this->mainWindowView(), f);
-//    mRepeatabilityPresenter = new RepeatabilityPresenterImp(repeatabilityView, this->repeatabilityModel());
-//    mRepeatabilityPresenter->setHelp(this->helpDialog());
-//  }
-//  return mRepeatabilityPresenter;
-//}
-
-//RepeatabilityModel *ComponentsManager::repeatabilityModel()
-//{
-//  if (mRepeatabilityModel == nullptr) {
-//    mRepeatabilityModel = new RepeatabilityModelImp(mProjectModel);
-//  }
-//  return mRepeatabilityModel;
 //}
 
 //AboutDialog *ComponentsManager::aboutDialog()
@@ -582,14 +540,16 @@ void ComponentsManager::initAndOpenNewProjectDialog()
 
 void ComponentsManager::initAndOpenFeatureExtractionDialog()
 {
-  disconnect(this->mainWindowPresenter(), SIGNAL(openFeatureExtractionDialog()), this, SLOT(initAndOpenFeatureExtractionDialog()));
-  connect(this->mainWindowPresenter(), SIGNAL(openFeatureExtractionDialog()), this->featureExtractorPresenter(), SLOT(open()));
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureExtractionDialog,
+             this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureExtractionDialog,
+          this->featureExtractorPresenter(), &IPresenter::open);
 
   connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(deleteFeatures()));
+  TL_TODO("Ahora se estan borrando al iniciar el comando...")
+  //connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(deleteFeatures()));
   connect(this->featureExtractorPresenter(), SIGNAL(finished()),                 this->mainWindowPresenter(), SLOT(processFinish()));
-  connect(this->featureExtractorPresenter(), SIGNAL(imagePreprocessed(QString)), this->mainWindowPresenter(), SLOT(updatePreprocess()));
-  connect(this->featureExtractorPresenter(), SIGNAL(featuresExtracted(QString)), this->mainWindowPresenter(), SLOT(updateFeatures()));
+  connect(this->featureExtractorPresenter(), SIGNAL(featuresExtracted(QString)), this->mainWindowPresenter(), SLOT(loadFeatures(QString)));
 
   connect(this->progressDialog(), SIGNAL(cancel()),     this->featureExtractorPresenter(), SLOT(cancel()));
 
@@ -600,24 +560,40 @@ void ComponentsManager::initAndOpenFeatureExtractionDialog()
 
 void ComponentsManager::initAndOpenFeatureMatchingDialog()
 {
-//  disconnect(this->mainWindowPresenter(), SIGNAL(openFeatureMatchingDialog()), this, SLOT(initAndOpenFeatureMatchingDialog()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openFeatureMatchingDialog()),   this->descriptorMatcherPresenter(), SLOT(open()));
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureMatchingDialog,
+             this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureMatchingDialog,
+          this->featureMatchingPresenter(), &IPresenter::open);
 
-//  connect(this->descriptorMatcherPresenter(), SIGNAL(running()),             this->mainWindowPresenter(), SLOT(processRunning()));
-//  connect(this->descriptorMatcherPresenter(), SIGNAL(running()),             this->mainWindowPresenter(), SLOT(deleteMatches()));
-//  connect(this->descriptorMatcherPresenter(), SIGNAL(finished()),            this->mainWindowPresenter(), SLOT(processFinish()));
-//  connect(this->descriptorMatcherPresenter(), SIGNAL(matchCompute(QString)), this->mainWindowPresenter(), SLOT(updateMatches()));
+  connect(this->featureMatchingPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
+  TL_TODO("Ahora se estan borrando al iniciar el comando...")
+  //connect(this->featureMatchingPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(deleteMatches()));
+  connect(this->featureMatchingPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->featureMatchingPresenter(), SIGNAL(matchingFinished()),  this->mainWindowPresenter(), SLOT(loadMatches()));
 
-//  connect(this->progressDialog(), SIGNAL(cancel()),     this->descriptorMatcherPresenter(), SLOT(cancel()));
+  connect(this->progressDialog(), SIGNAL(cancel()),     this->featureMatchingPresenter(), SLOT(cancel()));
 
-//  this->descriptorMatcherPresenter()->setProgressHandler(this->progressHandler());
-//  this->descriptorMatcherPresenter()->setHelp(this->helpDialog());
-  //  this->descriptorMatcherPresenter()->open();
+  this->featureMatchingPresenter()->setProgressHandler(this->progressHandler());
+//  this->featureMatchingPresenter()->setHelp(this->helpDialog());
+  this->featureMatchingPresenter()->open();
 }
 
 void ComponentsManager::initAndOpenOrientationDialog()
 {
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openOrientationDialog,
+             this, &ComponentsManager::initAndOpenOrientationDialog);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openOrientationDialog,
+          this->orientationPresenter(), &IPresenter::open);
 
+  connect(this->orientationPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
+  connect(this->orientationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->orientationPresenter(), SIGNAL(orientationFinished()),  this->mainWindowPresenter(), SLOT(loadOrientation()));
+
+  connect(this->progressDialog(), SIGNAL(cancel()),     this->featureMatchingPresenter(), SLOT(cancel()));
+
+  this->orientationPresenter()->setProgressHandler(this->progressHandler());
+//  this->orientationPresenter()->setHelp(this->helpDialog());
+  this->orientationPresenter()->open();
 }
 
 //void ComponentsManager::initAndOpenKeypointsViewerDialogFromSession(const QString &session)

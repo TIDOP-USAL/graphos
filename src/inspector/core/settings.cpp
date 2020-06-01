@@ -14,7 +14,7 @@ SettingsImp::SettingsImp()
   : Settings(),
     mHistoyMaxSize(10),
     mImageViewerBGcolor("#dcdcdc"),
-    mUseCuda(false)
+    mUseCuda(true)
 {
   reset();
 }

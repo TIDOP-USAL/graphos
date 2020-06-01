@@ -2,7 +2,6 @@
 #define INSPECTOR_FEATURE_EXTRACTOR_INTERFACES_H
 
 #include "inspector/interfaces/mvp.h"
-#include "inspector/core/project.h"
 #include "inspector/core/features/features.h"
 
 namespace inspector
@@ -26,6 +25,7 @@ public:
   virtual std::shared_ptr<Feature> featureExtractor() const = 0;
   virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
   virtual QString database() const = 0;
+  virtual void addFeatures(const QString &imageName, const QString &featuresFile) = 0;
 };
 
 

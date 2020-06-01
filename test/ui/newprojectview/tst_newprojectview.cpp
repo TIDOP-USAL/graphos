@@ -196,6 +196,7 @@ void TestNewProjectView::test_dialogButtonBox()
 
 void TestNewProjectView::test_setExistingProject()
 {
+  this->mLineEditProjectName->setText("Prueba");
   this->setExistingProject(true);
   QPalette palette = mLineEditProjectName->palette();
   QColor color = palette.color(QPalette::Text);

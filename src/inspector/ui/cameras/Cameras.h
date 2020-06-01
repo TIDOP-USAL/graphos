@@ -26,7 +26,6 @@ public:
   CamerasModel(QObject *parent = nullptr) : IModel(parent) {}
   virtual ~CamerasModel() override = default;
 
-  virtual int addCamera(const QString &image) = 0;
   virtual int addCamera(const Camera &camera) = 0;
   virtual int cameraID(const Camera &camera) const = 0;
   virtual int cameraID(const QString &make, const QString &model) const = 0;

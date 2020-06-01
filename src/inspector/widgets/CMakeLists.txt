@@ -10,7 +10,9 @@ add_library(inspector_widgets ${LIB_TYPE}
             LogWidget.cpp
             LogWidget.h
             StartPageWidget.cpp
-            StartPageWidget.h)
+            StartPageWidget.h
+            FeatureMatchingWidget.cpp
+            FeatureMatchingWidget.h)
 
 set_property(TARGET inspector_widgets PROPERTY FOLDER "lib")
 

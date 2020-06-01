@@ -26,7 +26,7 @@ public:
   ImagesModel(QObject *parent = nullptr) : IModel(parent) {}
   virtual ~ImagesModel() override = default;
 
-  virtual void addImage(const QString &imagePath, size_t cameraId) = 0;
+  //virtual void addImage(const QString &imagePath, size_t cameraId) = 0;
   virtual void addImage(Image &image) = 0;
   virtual size_t imageID(const QString &imageName) const = 0;
   virtual Image findImageByName(const QString &imageName) const = 0;
@@ -60,7 +60,6 @@ public:
 
 public:
 
-  void addImage(const QString &imagePath, size_t cameraId) override;
   void addImage(Image &image) override;
   size_t imageID(const QString &imageName) const override;
   Image findImageByName(const QString &imageName) const override;

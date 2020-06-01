@@ -7,13 +7,14 @@ include_directories(${CMAKE_SOURCE_DIR}/third_party)
 set(test_kind test)
 set(test_KIND TEST)
 
-set(the_target "${test_kind}_${test_name}")
+set(the_target "${test_name}")
+
 add_executable(${the_target}
-    ${test_filename}
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/CamerasView.cpp
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/CamerasView.h
-    ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/Cameras.h
-    ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h)
+               ${test_filename}
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/CamerasView.cpp
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/CamerasView.h
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/Cameras.h
+               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h)
 
 target_link_libraries(${the_target} PRIVATE 
                       tl_core
@@ -24,8 +25,8 @@ target_link_libraries(${the_target} PRIVATE
 set_property(TARGET ${the_target} PROPERTY FOLDER "test/cameras_view")
 
 set_target_properties(${the_target} PROPERTIES
-  OUTPUT_NAME ${the_target}
-  PROJECT_LABEL "(${test_KIND}) ${test_name}")
+                      OUTPUT_NAME ${the_target}
+                      PROJECT_LABEL "(${test_KIND}) ${test_name}")
 
 if(ENABLE_SOLUTION_FOLDERS)
   set_target_properties(${the_target} PROPERTIES FOLDER "test/cameras_view")

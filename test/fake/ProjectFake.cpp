@@ -84,26 +84,7 @@ bool ProjectFake::load(const QString &file)
   QXmlStreamReader stream;
   stream.addData(mProjectFileText);
 
-  if (stream.readNextStartElement()) {
-      if (stream.name() == "Inspector") {
-          while (stream.readNextStartElement()) {
-              if (stream.name() == "General") {
-                  readGeneral(stream);
-                } else if (stream.name() == "Database") {
-                  readDatabase(stream);
-                } else if (stream.name() == "Cameras") {
-                  readCameras(stream);
-                } else if (stream.name() == "Images") {
-                  readImages(stream);
-                }
-            }
-        } else {
-          stream.raiseError(QObject::tr("Incorrect project file"));
-          return true;
-        }
-    }
-
-  return false;
+  return this->read(stream);
 }
 
 } // end namespace inspector

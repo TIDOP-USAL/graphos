@@ -2,7 +2,6 @@
 
 #include "inspector/core/features/features.h"
 #include "inspector/core/features/sift.h"
-
 #include "inspector/ui/featextract/FeatureExtractorView.h"
 #include "inspector/ui/featextract/FeatureExtractorModel.h"
 #include "inspector/ui/ImagesModel.h"
@@ -16,7 +15,6 @@
 
 #include <tidop/core/messages.h>
 
-#include <QFileInfo>
 #include <QDir>
 #include <QImageReader>
 #include <QMessageBox>
@@ -70,13 +68,6 @@ void FeatureExtractorPresenterImp::help()
 
 void FeatureExtractorPresenterImp::open()
 {
-//  if (Feature *detector = current_session->detector().get()){
-//    setCurrentkeypointDetector(detector->name());
-//  }
-//  if (Feature *descriptor = current_session->descriptor().get()){
-//    setCurrentDescriptorExtractor(descriptor->name());
-//  }
-
   this->setDetectorAndDescriptorProperties();
 
   mView->exec();
@@ -143,6 +134,8 @@ void FeatureExtractorPresenterImp::run()
   }
   ///
 
+  mModel->clear();
+
   mMultiProcess->clearProcessList();
 
   QString currentKeypointDetector = mView->currentDetectorDescriptor();
@@ -176,12 +169,13 @@ void FeatureExtractorPresenterImp::run()
       maxSize = std::max(size.width(), size.height());
     }
 
+    QString features_file = QString(image->name()).append("@").append(mModel->database());
     std::shared_ptr<FeatureExtractorProcess> feat_extract(new FeatureExtractorProcess(*image,
                                                                                       camera,
                                                                                       maxSize,
-                                                                                      mModel->database(),
+                                                                                      features_file,
                                                                                       feature_extractor));
-    connect(feat_extract.get(), SIGNAL(featuresExtracted(QString)), this, SLOT(onFeaturesExtracted(QString)));
+    connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)), this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
 
     mMultiProcess->appendProcess(feat_extract);
   }
@@ -228,34 +222,22 @@ void FeatureExtractorPresenterImp::setDetectorAndDescriptorProperties()
 
 void FeatureExtractorPresenterImp::setSiftProperties()
 {
-//  mSift->setSigma();
-//  mSift->setOctaveLayers();
-//  mSift->setEdgeThreshold();
-//  mSift->setFeaturesNumber();
-//  mSift->setContrastThreshold();
+  Sift *sift = nullptr;
+  if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()){
+    if (feature_extractor->type() == Feature::Type::sift){
+      sift = dynamic_cast<Sift *>(feature_extractor.get());
+    }
+  } else {
+    TL_TODO("Sift *sift = mSettingsModel->sift();")
+  }
 
-//#ifdef OPENCV_ENABLE_NONFREE
-//  if (std::shared_ptr<Session> current_session = mProjectModel->currentSession()){
-
-//    Feature *detector = current_session->detector().get();
-
-//    mSiftDetector->setSigma(detector && detector->type() == Feature::Type::sift ?
-//                              dynamic_cast<Sift *>(detector)->sigma() :
-//                              mSettingsModel->siftSigma());
-//    mSiftDetector->setOctaveLayers(detector && detector->type() == Feature::Type::sift ?
-//                                     dynamic_cast<Sift *>(detector)->octaveLayers() :
-//                                     mSettingsModel->siftOctaveLayers());
-//    mSiftDetector->setEdgeThreshold(detector && detector->type() == Feature::Type::sift ?
-//                                      dynamic_cast<Sift *>(detector)->edgeThreshold() :
-//                                      mSettingsModel->siftEdgeThreshold());
-//    mSiftDetector->setFeaturesNumber(detector && detector->type() == Feature::Type::sift ?
-//                                       dynamic_cast<Sift *>(detector)->featuresNumber() :
-//                                       mSettingsModel->siftFeaturesNumber());
-//    mSiftDetector->setContrastThreshold(detector && detector->type() == Feature::Type::sift ?
-//                                          dynamic_cast<Sift *>(detector)->contrastThreshold() :
-//                                          mSettingsModel->siftContrastThreshold());
-//  }
-//#endif
+  if (sift){
+    mSift->setSigma(sift->sigma());
+    mSift->setOctaveLayers(sift->octaveLayers());
+    mSift->setEdgeThreshold(sift->edgeThreshold());
+    mSift->setFeaturesNumber(sift->featuresNumber());
+    mSift->setContrastThreshold(sift->contrastThreshold());
+  }
 }
 
 
@@ -299,10 +281,10 @@ void FeatureExtractorPresenterImp::onFinished()
   msgInfo("Feature detection and description finished.");
 }
 
-void FeatureExtractorPresenterImp::onFeaturesExtracted(const QString &features)
+void FeatureExtractorPresenterImp::onFeaturesExtracted(const QString &imageName, const QString &featuresFile)
 {
-  //mProjectModel->addFeatures(features);
-  emit featuresExtracted(features);
+  mModel->addFeatures(imageName, featuresFile);
+  emit featuresExtracted(imageName);
 }
 
 } // namespace ui

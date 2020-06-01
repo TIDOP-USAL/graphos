@@ -2,13 +2,8 @@
 
 #include <tidop/core/messages.h>
 
-#include <colmap/util/bitmap.h>
-
-
-//#include <QSqlQuery>
-//#include <QSqlError>
-//#include <QApplication>
-//#include <QFileInfo>
+#include <QFileInfo>
+#include <QDir>
 
 namespace inspector
 {
@@ -24,42 +19,20 @@ ImagesModelImp::ImagesModelImp(Project *project,
   init();
 }
 
-void ImagesModelImp::addImage(const QString &imagePath, size_t cameraId)
-{
-  colmap::Bitmap bitmap;
-
-  Image img(imagePath);
-
-  if (!bitmap.Read(imagePath.toStdString(), false)) {
-    TL_TODO("Devolver una excepción")
-    msgError("  Failed to read image file");
-    return;
-  } else {
-    msgInfo("Read image: %s", imagePath.toStdString().c_str());
-  }
-
-  double lon;
-  if (bitmap.ExifLongitude(&lon)){
-    img.setLongitudeExif(lon);
-  }
-  double lat;
-  if (bitmap.ExifLatitude(&lat)){
-    img.setLatitudeExif(lat);
-  }
-  double altitude;
-  if (bitmap.ExifAltitude(&altitude)){
-    img.setAltitudeExif(altitude);
-  }
-
-  msgInfo(" - Coordinates: (%.4lf, %.4lf, %.2lf)", img.longitudeExif(), img.latitudeExif(), img.altitudeExif());
-
-  img.setCameraId(cameraId);
-
-  addImage(img);
-}
-
 void ImagesModelImp::addImage(Image &image)
 {
+  QString image_directory = mProject->imageDirectory();
+  QFileInfo file(image.path());
+  if (image_directory.isEmpty()){
+    image_directory = file.dir().absolutePath();
+    mProject->setImageDirectory(image_directory);
+  } else {
+    QString current_image_directory = file.dir().absolutePath();
+    if (current_image_directory.compare(image_directory) != 0) {
+      throw std::runtime_error(std::string("image"));
+    }
+  }
+
   mProject->addImage(image);
 }
 

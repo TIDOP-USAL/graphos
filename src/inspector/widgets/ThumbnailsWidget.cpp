@@ -234,9 +234,12 @@ void ThumbnailsWidget::onDeleteImageClicked()
 void ThumbnailsWidget::showThumbnail(int id)
 {
   QListWidgetItem *item = mListWidget->item(mThumbnaislSize+id);
-  QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
-  QIcon icon(pixmap);
-  item->setIcon(icon);
+  //if (QListWidgetItem *item = mListWidget->item(mThumbnaislSize+id)){
+
+    QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
+    QIcon icon(pixmap);
+    item->setIcon(icon);
+  //}
 }
 
 void ThumbnailsWidget::finished()
