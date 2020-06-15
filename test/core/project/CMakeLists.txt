@@ -8,14 +8,16 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
-               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h)
+               #${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
+               #${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h
+               )
 
 target_link_libraries(${test_target} PRIVATE
                       inspector_core
                       tl_core
                       Qt5::Core
                       Qt5::Test
+                      Qt5::Sql
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES})
 

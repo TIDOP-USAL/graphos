@@ -14,9 +14,8 @@ class MultiProcess;
 namespace inspector
 {
 
-class HelpDialog;
 class SiftWidget;
-class ProgressHandler;
+
 
 namespace ui
 {
@@ -24,6 +23,8 @@ namespace ui
 class ImagesModel;
 class CamerasModel;
 class SettingsModel;
+class ProgressHandler;
+class HelpDialog;
 
 class FeatureExtractorPresenterImp
   : public FeatureExtractorPresenter

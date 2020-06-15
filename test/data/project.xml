@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Inspector version="1.0">
+    <General>
+        <Name>SanSegundo</Name>
+        <Path>C:/Users/esteban/Documents/inspector/Projects/SanSegundo</Path>
+        <Description></Description>
+    </General>
+    <Cameras>
+        <Camera id="1">
+            <Make>Unknown camera</Make>
+            <Model>0</Model>
+            <Type>Radial</Type>
+            <Focal>5835.6</Focal>
+            <Width>4863</Width>
+            <Height>3221</Height>
+            <SensorSize>1</SensorSize>
+            <Calibration>
+                <f>3811.35</f>
+                <cx>2431.5</cx>
+                <cy>1610.5</cy>
+                <k1>-0.00485604</k1>
+                <k2>0.00062608</k2>
+            </Calibration>
+        </Camera>
+    </Cameras>
+    <Images>
+        <ImagesDirectory>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images</ImagesDirectory>
+        <Image>
+            <Name>IMG_7209</Name>
+            <File>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7209.jpg</File>
+            <CameraId>1</CameraId>
+            <LongitudeExif>0</LongitudeExif>
+            <LatitudeExif>0</LatitudeExif>
+            <AltitudeExif>0</AltitudeExif>
+        </Image>
+        <Image>
+            <Name>IMG_7210</Name>
+            <File>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7210.jpg</File>
+            <CameraId>1</CameraId>
+            <LongitudeExif>0</LongitudeExif>
+            <LatitudeExif>0</LatitudeExif>
+            <AltitudeExif>0</AltitudeExif>
+        </Image>
+        <Image>
+            <Name>IMG_7211</Name>
+            <File>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7211.jpg</File>
+            <CameraId>1</CameraId>
+            <LongitudeExif>0</LongitudeExif>
+            <LatitudeExif>0</LatitudeExif>
+            <AltitudeExif>0</AltitudeExif>
+        </Image>
+        <Image>
+            <Name>IMG_7212</Name>
+            <File>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7212.jpg</File>
+            <CameraId>1</CameraId>
+            <LongitudeExif>0</LongitudeExif>
+            <LatitudeExif>0</LatitudeExif>
+            <AltitudeExif>0</AltitudeExif>
+        </Image>
+    </Images>
+    <Database>C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</Database>
+    <Features>
+        <FeatureExtractor>
+            <SIFT>
+                <FeaturesNumber>5000</FeaturesNumber>
+                <OctaveLayers>3</OctaveLayers>
+                <ContrastThreshold>0.00666667</ContrastThreshold>
+                <EdgeThreshold>10</EdgeThreshold>
+                <Sigma>1.6</Sigma>
+            </SIFT>
+        </FeatureExtractor>
+        <Files>
+            <FeatFile id="IMG_7209">IMG_7209@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</FeatFile>
+            <FeatFile id="IMG_7210">IMG_7210@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</FeatFile>
+            <FeatFile id="IMG_7211">IMG_7211@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</FeatFile>
+            <FeatFile id="IMG_7212">IMG_7212@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</FeatFile>
+        </Files>
+    </Features>
+    <Matches>
+        <FeatureMatchingMethod>
+            <Distance>0.7</Distance>
+            <Ratio>0.8</Ratio>
+            <MaxError>4</MaxError>
+            <Confidence>0.999</Confidence>
+            <CrossCheck>true</CrossCheck>
+        </FeatureMatchingMethod>
+        <Image id="IMG_7209">
+            <Pair>IMG_7210</Pair>
+            <Pair>IMG_7211</Pair>
+            <Pair>IMG_7212</Pair>
+        </Image>
+        <Image id="IMG_7210">
+            <Pair>IMG_7209</Pair>
+            <Pair>IMG_7211</Pair>
+            <Pair>IMG_7212</Pair>
+        </Image>
+        <Image id="IMG_7211">
+            <Pair>IMG_7209</Pair>
+            <Pair>IMG_7210</Pair>
+            <Pair>IMG_7212</Pair>
+        </Image>
+        <Image id="IMG_7212">
+            <Pair>IMG_7209</Pair>
+            <Pair>IMG_7210</Pair>
+            <Pair>IMG_7211</Pair>
+        </Image>
+    </Matches>
+    <Orientations>
+        <SparseModel>C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0//sparse.ply</SparseModel>
+        <Image id="IMG_7209">
+            <X>5.30029</X>
+            <Y>-0.162356</Y>
+            <Z>-0.413137</Z>
+            <Rot>0.999996 6.14805e-05 -0.00284948 -6.12795e-05 1 7.06314e-05 0.00284948 -7.04564e-05 0.999996</Rot>
+        </Image>
+        <Image id="IMG_7210">
+            <X>5.40173</X>
+            <Y>-0.155222</Y>
+            <Z>-0.446858</Z>
+            <Rot>0.987211 0.00210523 -0.159403 -0.00230319 0.999997 -0.00105715 0.1594 0.00141077 0.987213</Rot>
+        </Image>
+        <Image id="IMG_7211">
+            <X>-0.697958</X>
+            <Y>0.317578</Y>
+            <Z>0.859996</Z>
+            <Rot>0.993479 -0.000900676 -0.114012 0.00325084 0.999786 0.0204291 0.113969 -0.0206665 0.993269</Rot>
+        </Image>
+        <Image id="IMG_7212">
+            <X>-4.60233</X>
+            <Y>0.589439</Y>
+            <Z>1.2462</Z>
+            <Rot>0.991462 -0.0141086 -0.129627 0.0164493 0.99972 0.0170047 0.12935 -0.0189918 0.991417</Rot>
+        </Image>
+    </Orientations>
+    <Densification/>
+</Inspector>

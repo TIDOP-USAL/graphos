@@ -1,6 +1,7 @@
 #include <QtTest>
 
-#include "fake/ProjectFake.h"
+//#include "fake/ProjectFake.h"
+#include "inspector/core/project.h"
 
 using namespace inspector;
 
@@ -49,7 +50,7 @@ protected:
 
 TestProject::TestProject()
   : mProject(new ProjectImp),
-    mProjectXml(new ProjectFake)
+    mProjectXml(new ProjectImp)
 {
 
 }
@@ -69,7 +70,7 @@ TestProject::~TestProject()
 
 void TestProject::initTestCase()
 {
-  mProjectXml->load("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml");
+  mProjectXml->load(QString(INSPECTOR_SOURCE_PATH).append("/test/data/project.xml"));
 }
 
 void TestProject::cleanupTestCase()

@@ -38,9 +38,6 @@ set(INSPECTOR_SOURCES
     cameras/CamerasModel.cpp
     cameras/CamerasView.cpp
     cameras/CamerasPresenter.cpp
-    # PreprocessView.cpp
-    # PreprocessModel.cpp
-    # PreprocessPresenter.cpp
     featextract/FeatureExtractorView.cpp
     featextract/FeatureExtractorModel.cpp
     featextract/FeatureExtractorPresenter.cpp
@@ -50,27 +47,18 @@ set(INSPECTOR_SOURCES
     orientation/OrientationModel.cpp
     orientation/OrientationView.cpp
     orientation/OrientationPresenter.cpp
-    # FeaturesViewerView.cpp
-    # FeaturesViewerModel.cpp
-    # FeaturesViewerPresenter.cpp
-    # MatchViewerModel.cpp
-    # MatchViewerView.cpp
-    # MatchViewerPresenter.cpp
+    densification/DensificationModel.cpp
+    densification/DensificationView.cpp
+    densification/DensificationPresenter.cpp
+    featviewer/FeaturesViewerView.cpp
+    featviewer/FeaturesViewerModel.cpp
+    featviewer/FeaturesViewerPresenter.cpp
+    matchviewer/MatchViewerModel.cpp
+    matchviewer/MatchViewerView.cpp
+    matchviewer/MatchViewerPresenter.cpp
     # MultiViewModel.cpp
     # MultiViewView.cpp
     # MultiViewPresenter.cpp
-    # HomographyViewerModel.cpp
-    # HomographyViewerView.cpp
-    # HomographyViewerPresenter.cpp
-    # CurvesViewerModel.cpp
-    # CurvesViewerView.cpp
-    # CurvesViewerPresenter.cpp
-    # GroundTruthModel.cpp
-    # GroundTruthView.cpp
-    # GroundTruthPresenter.cpp
-    # RepeatabilityModel.cpp
-    # RepeatabilityView.cpp
-    # RepeatabilityPresenter.cpp
     # ExportFeaturesModel.cpp
     # ExportFeaturesView.cpp
     # ExportFeaturesPresenter.cpp
@@ -81,10 +69,11 @@ set(INSPECTOR_SOURCES
     # #BatchView.cpp
     # #BatchPresenter.cpp
     # AboutDialog.cpp
-    # HelpDialog.cpp
+    HelpDialog.cpp
     utils/GraphicViewer.cpp
     utils/ProgressDialog.cpp
     utils/Progress.cpp
+    utils/Viewer3d.cpp
     # #utils/KeyPointGraphicsItem.cpp
     # #utils/CrossGraphicItem.cpp
     # #utils/DiagonalCrossGraphicItem.cpp
@@ -116,10 +105,6 @@ set(INSPECTOR_HEADERS
     cameras/CamerasModel.h
     cameras/CamerasView.h
     cameras/CamerasPresenter.h
-    # Preprocess.h
-    # PreprocessView.h
-    # PreprocessModel.h
-    # PreprocessPresenter.h
     featextract/FeatureExtractor.h
     featextract/FeatureExtractorView.h
     featextract/FeatureExtractorModel.h
@@ -132,34 +117,22 @@ set(INSPECTOR_HEADERS
     orientation/OrientationModel.h
     orientation/OrientationView.h
     orientation/OrientationPresenter.h
-    # FeaturesViewer.h
-    # FeaturesViewerView.h
-    # FeaturesViewerModel.h
-    # FeaturesViewerPresenter.h
-    # MatchViewer.h
-    # MatchViewerModel.h
-    # MatchViewerView.h
-    # MatchViewerPresenter.h
+    densification/Densification.h
+    densification/DensificationModel.h
+    densification/DensificationView.h
+    densification/DensificationPresenter.h
+    featviewer/FeaturesViewer.h
+    featviewer/FeaturesViewerView.h
+    featviewer/FeaturesViewerModel.h
+    featviewer/FeaturesViewerPresenter.h
+    matchviewer/MatchViewer.h
+    matchviewer/MatchViewerModel.h
+    matchviewer/MatchViewerView.h
+    matchviewer/MatchViewerPresenter.h
     # Multiview.h
     # MultiViewModel.h
     # MultiViewView.h
     # MultiViewPresenter.h
-    # HomographyViewer.h
-    # HomographyViewerModel.h
-    # HomographyViewerView.h
-    # HomographyViewerPresenter.h
-    # CurvesViewer.h
-    # CurvesViewerModel.h
-    # CurvesViewerView.h
-    # CurvesViewerPresenter.h
-    # GroundTruth.h
-    # GroundTruthModel.h
-    # GroundTruthView.h
-    # GroundTruthPresenter.h
-    # Repeatability.h
-    # RepeatabilityModel.h
-    # RepeatabilityView.h
-    # RepeatabilityPresenter.h
     # ExportFeatures.h
     # ExportFeaturesModel.h
     # ExportFeaturesView.h
@@ -172,10 +145,11 @@ set(INSPECTOR_HEADERS
     # #BatchView.h
     # #BatchPresenter.h
     # AboutDialog.h
-    # HelpDialog.h
+    HelpDialog.h
     utils/GraphicViewer.h
     utils/ProgressDialog.h
     utils/Progress.h
+    utils/Viewer3d.h
     # #utils/KeyPointGraphicsItem.h
     # #utils/CrossGraphicItem.h
     # #utils/DiagonalCrossGraphicItem.h
@@ -198,12 +172,12 @@ set(INSPECTOR_FORMS
 
 # Translation files
 ### TODO: Por si se quiere añadir soporte para varios idiomas
-#SET(INSPECTOR_TS_FILES
-#    ${CMAKE_SOURCE_DIR}/resources/lang/inspector_en.ts
-#    ${CMAKE_SOURCE_DIR}/resources/lang/inspector_es.ts
-#)
+SET(INSPECTOR_TS_FILES
+    ${CMAKE_SOURCE_DIR}/resources/lang/inspector_en.ts
+    ${CMAKE_SOURCE_DIR}/resources/lang/inspector_es.ts
+)
 
-#qt5_add_translation(INSPECTOR_QM_FILES ${INSPECTOR_TS_FILES})
+qt5_add_translation(INSPECTOR_QM_FILES ${INSPECTOR_TS_FILES})
 
 QT5_ADD_RESOURCES(UI_INSPECTOR_RES ${INSPECTOR_RESOURCES} )
 
@@ -240,6 +214,13 @@ target_link_libraries(${PROJECT_NAME}
                       ${Boost_THREAD_LIBRARY}
                       ${Boost_DATE_TIME_LIBRARY}
                       ${Boost_CHRONO_LIBRARY})
+
+if (HAVE_CLOUDCOMPARE)
+target_link_libraries(${PROJECT_NAME}
+                      Qt5::OpenGL
+                      Qt5::OpenGLExtensions
+                      ${CLOUDCOMPARE_LIBRARIES})
+endif(HAVE_CLOUDCOMPARE)
 
 if(HAVE_VLD)
 target_link_libraries(${PROJECT_NAME} ${VLD_LIBRARY})

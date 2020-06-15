@@ -14,6 +14,7 @@ namespace inspector
 SiftProperties::SiftProperties()
   : mFeaturesNumber(5000),
     mOctaveLayers(3),
+    mContrastThresholdAuto(true),
     mContrastThreshold(0.04),
     mEdgeThreshold(10.),
     mSigma(1.6)
@@ -24,6 +25,7 @@ SiftProperties::SiftProperties(const SiftProperties &siftProperties)
   : Sift(siftProperties),
     mFeaturesNumber(siftProperties.mFeaturesNumber),
     mOctaveLayers(siftProperties.mOctaveLayers),
+    mContrastThresholdAuto(siftProperties.mContrastThresholdAuto),
     mContrastThreshold(siftProperties.mContrastThreshold),
     mEdgeThreshold(siftProperties.mEdgeThreshold),
     mSigma(siftProperties.mSigma)
@@ -40,9 +42,14 @@ int SiftProperties::octaveLayers() const
   return mOctaveLayers;
 }
 
+bool SiftProperties::constrastThresholdAuto() const
+{
+  return mContrastThresholdAuto;
+}
+
 double SiftProperties::contrastThreshold() const
 {
-  return mContrastThreshold;
+  return mContrastThresholdAuto ? 0.02 / mOctaveLayers : mContrastThreshold;
 }
 
 double SiftProperties::edgeThreshold() const
@@ -65,6 +72,11 @@ void SiftProperties::setOctaveLayers(int octaveLayers)
   mOctaveLayers = octaveLayers;
 }
 
+void SiftProperties::setContrastThresholdAuto(bool active)
+{
+  mContrastThresholdAuto = active;
+}
+
 void SiftProperties::setContrastThreshold(double contrastThreshold)
 {
   mContrastThreshold = contrastThreshold;
@@ -84,6 +96,7 @@ void SiftProperties::reset()
 {
   mFeaturesNumber = 5000;
   mOctaveLayers = 3;
+  mContrastThreshold = true;
   mContrastThreshold = 0.04;
   mEdgeThreshold = 10.;
   mSigma = 1.6;
@@ -249,6 +262,7 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
 {
   SiftProperties::setFeaturesNumber(featuresNumber);
   SiftProperties::setOctaveLayers(octaveLayers);
+  SiftProperties::setContrastThresholdAuto(false);
   SiftProperties::setContrastThreshold(contrastThreshold);
   SiftProperties::setEdgeThreshold(edgeThreshold);
   SiftProperties::setSigma(sigma);
@@ -257,16 +271,16 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
 
 SiftCudaDetectorDescriptor::~SiftCudaDetectorDescriptor()
 {
-  mSiftGpu.reset();
+  //mSiftGpu.reset();
 }
 
 void SiftCudaDetectorDescriptor::update()
 {
   mSiftGpu.reset(new SiftGPU);
-  //mSiftExtractionOptions.max_num_features = SiftProperties::featuresNumber();
-  //mSiftExtractionOptions.octave_resolution = SiftProperties::octaveLayers();
-  //mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
-  //mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
+  mSiftExtractionOptions.max_num_features = SiftProperties::featuresNumber();
+  mSiftExtractionOptions.octave_resolution = SiftProperties::octaveLayers();
+  mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
+  mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
 
   if (!CreateSiftGPUExtractor(mSiftExtractionOptions, mSiftGpu.get())) {
     return;
@@ -300,8 +314,10 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
 
     mSiftGpu->GetFeatureVector(keypoints_data.data(), descriptors_float.data());
 
-    keyPoints.resize(feature_number);
-    for (size_t i = 0; i < feature_number; i++){
+    //size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
+    size_t max_features = feature_number;
+    keyPoints.resize(max_features);
+    for (size_t i = 0; i < max_features; i++){
       keyPoints[i] = colmap::FeatureKeypoint(keypoints_data[i].x, keypoints_data[i].y,
                                              keypoints_data[i].s, keypoints_data[i].o);
     }

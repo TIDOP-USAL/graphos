@@ -21,15 +21,8 @@ class TL_EXPORT OrientationExport
 
 public:
 
-  OrientationExport(const QString &imagePath,
-                    const colmap::Reconstruction *reconstruction);
+  OrientationExport(const colmap::Reconstruction *reconstruction);
   ~OrientationExport();
-
-  /*!
-   * \brief setImagePath
-   * \param imagePath
-   */
-  void setImagePath(const QString &imagePath);
 
   /*!
    * \brief Exportación a formato binario de Colmap
@@ -72,7 +65,7 @@ public:
    * \brief Exportación del resultado de la auto-calibración al formato Pix4D
    * \param[in] path Ruta donde se crea el fichero
    */
-  void exportPix4DCalibration(const QString &path) const;
+  void exportPix4DCalibration(const QString &path, const QString &imagePath) const;
 
   /*!
    * \brief exportMVE
@@ -82,7 +75,6 @@ public:
 
 private:
 
-  QString mImagePath;
   const colmap::Reconstruction *mReconstruction;
 
 };

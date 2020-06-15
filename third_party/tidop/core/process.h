@@ -26,7 +26,6 @@
 
 #include "tidop/core/defs.h"
 
-//#define TL_OLD_PROCESS
 
 namespace tl
 {
@@ -226,7 +225,7 @@ public:
    * \param[in] listener Objeto escuchador
    */
   void addListener(Listener *listener);
-    
+
   /*!
    * \brief Quita un escuchador de mensajes
    * \param[in] listener Objeto escuchador
@@ -252,6 +251,74 @@ protected:
   void runTriggered();
   void stopTriggered();
   void errorTriggered();
+};
+
+/* ---------------------------------------------------------------------------------- */
+
+//TODO: Pendiente para Linux
+class TL_EXPORT CmdProcess
+  : public Process
+{
+public:
+
+#ifdef WIN32
+  //// Añadir prioridad https://msdn.microsoft.com/en-us/library/windows/desktop/ms683211(v=vs.85).aspx
+  enum class Priority
+  {
+    realtime = REALTIME_PRIORITY_CLASS,
+    high = HIGH_PRIORITY_CLASS,
+    above_normal = ABOVE_NORMAL_PRIORITY_CLASS,
+    normal = NORMAL_PRIORITY_CLASS,
+    below_normal = BELOW_NORMAL_PRIORITY_CLASS,
+    idle = IDLE_PRIORITY_CLASS
+  };
+#ifdef TL_ENABLE_DEPRECATED_METHODS
+  enum class PRIORITY
+  {
+    REALTIME = REALTIME_PRIORITY_CLASS,
+    HIGH = HIGH_PRIORITY_CLASS,
+    ABOVE_NORMAL = ABOVE_NORMAL_PRIORITY_CLASS,
+    NORMAL = NORMAL_PRIORITY_CLASS,
+    BELOW_NORMAL = BELOW_NORMAL_PRIORITY_CLASS,
+    IDLE = IDLE_PRIORITY_CLASS
+  };
+#endif
+#endif
+
+protected:
+
+#ifdef WIN32
+  STARTUPINFO si;
+  PROCESS_INFORMATION pi;
+  static DWORD sPriority;
+#endif
+  std::string mCmd;
+
+public:
+
+  CmdProcess(const std::string &cmd, Process *parentProcess = nullptr);
+  ~CmdProcess() override;
+
+  //virtual Process::Status run(Progress *progressBar = nullptr) override;
+
+  /*!
+  * \brief Establece la prioridad del proceso
+  * \param[in] priority
+  */
+  static void setPriority(int priority);
+
+protected:
+
+  /*!
+   * \brief Ejecuta el proceso
+   */
+  void execute(Progress *progressBar = nullptr) override;
+
+private:
+
+#ifdef WIN32
+  std::string formatErrorMsg(DWORD errorCode);
+#endif
 };
 
 
@@ -374,7 +441,7 @@ public:
    * \param[in] process Proceso que se añade
    */
   void push_back(const std::shared_ptr<Process> &process);
-  
+
   TL_TODO("completar los metodos para poder utilizarlo como contenedor")
 
   /*!
@@ -456,7 +523,7 @@ class TL_EXPORT Process
 {
 
 public:
-  
+
   /*!
    * \brief Estados del proceso
    */
@@ -483,7 +550,7 @@ public:
   /*!
    * \brief Interfaz que se debe implementar para recibir los eventos del proceso
    *
-   * Las clases que implementen este listener y se subcriban mediante el método 
+   * Las clases que implementen este listener y se subcriban mediante el método
    * addListener() recibiran los diferentes eventos que se emitan desde el proceso.
    */
   class Listener
@@ -531,13 +598,13 @@ public:
     virtual void onStop(uint64_t id) = 0;
 
     /*!
-     * \brief 
+     * \brief
      * \param id Identificador del proceso
      */
     virtual void onEnd(uint64_t id) = 0;
 
     /*!
-     * \brief 
+     * \brief
      * \param id Identificador del proceso
      */
     virtual void onError(uint64_t id) = 0;
@@ -554,13 +621,13 @@ protected:
   std::list<Listener *> mListeners;
 
   /*!
-   * \brief Identificador del proceso 
-   */    
+   * \brief Identificador del proceso
+   */
   unsigned long mProcessId;
 
   /*!
-   * \brief Nombre del proceso 
-   */  
+   * \brief Nombre del proceso
+   */
   std::string mProcessName;
 
 private:
@@ -612,7 +679,7 @@ public:
   /*!
    * \brief Arranca el proceso
    * Aunque es virtual pura se define el comportamiento por defecto.
-   * Desde la implementación del método en la clase hija se debe incluir 
+   * Desde la implementación del método en la clase hija se debe incluir
    * Process::run() o establecer directamente mStatus = Status::RUNNING
    * al inicio del método para establecer que el proceso esta corriendo.
    */
@@ -663,13 +730,13 @@ protected:
 
   /*!
    * \brief Chequeo del estado del proceso
-   * 
+   *
    * Este método puede llamarse para comprobar el estado actual del proceso
    * y actuar en consecuencia (poner el proceso en pausa, reanudarlo, finalizar)
    *
    */
   virtual Status checkStatus();
-  
+
 public:
 
 #ifdef TL_ENABLE_DEPRECATED_METHODS
@@ -679,7 +746,7 @@ public:
    */
   TL_DEPRECATED("status", "2.0")
   Status getStatus();
-  
+
   /*!
    * \brief Devuelve el identificador del proceso
    * \return
@@ -689,7 +756,7 @@ public:
   uint64_t getProcessId() const;
 
   /*!
-   * \brief Devuelve el nombre del proceso 
+   * \brief Devuelve el nombre del proceso
    * \deprecated Use 'processName()'  en su lugar
    */
   TL_DEPRECATED("processName", "2.0")
@@ -698,69 +765,6 @@ public:
 #endif // TL_ENABLE_DEPRECATED_METHODS
 
 };
-
-
-/* ---------------------------------------------------------------------------------- */
-
-//TODO: Pendiente para Linux
-class TL_EXPORT CmdProcess
-  : public Process
-{
-public:
-
-#ifdef WIN32
-  //// Añadir prioridad https://msdn.microsoft.com/en-us/library/windows/desktop/ms683211(v=vs.85).aspx
-  enum class Priority
-  {
-    realtime = REALTIME_PRIORITY_CLASS,
-    high = HIGH_PRIORITY_CLASS,
-    above_normal = ABOVE_NORMAL_PRIORITY_CLASS,
-    normal = NORMAL_PRIORITY_CLASS,
-    below_normal = BELOW_NORMAL_PRIORITY_CLASS,
-    idle = IDLE_PRIORITY_CLASS
-  };
-#ifdef TL_ENABLE_DEPRECATED_METHODS
-  enum class PRIORITY
-  {
-    REALTIME = REALTIME_PRIORITY_CLASS,
-    HIGH = HIGH_PRIORITY_CLASS,
-    ABOVE_NORMAL = ABOVE_NORMAL_PRIORITY_CLASS,
-    NORMAL = NORMAL_PRIORITY_CLASS,
-    BELOW_NORMAL = BELOW_NORMAL_PRIORITY_CLASS,
-    IDLE = IDLE_PRIORITY_CLASS
-  };
-#endif
-#endif
-
-protected:
-
-#ifdef WIN32
-  STARTUPINFO si;
-  PROCESS_INFORMATION pi;
-  static DWORD sPriority;
-#endif
-  std::string mCmd;
-
-public:
-
-  CmdProcess(const std::string &cmd, Process *parentProcess = nullptr);
-  ~CmdProcess() override;
-
-  virtual Process::Status run(Progress *progressBar = nullptr) override;
-
-  /*!
-  * \brief Establece la prioridad del proceso
-  * \param[in] priority
-  */
-  static void setPriority(int priority);
-
-private:
-
-#ifdef WIN32
-  std::string formatErrorMsg(DWORD errorCode);
-#endif
-};
-
 
 /* ---------------------------------------------------------------------------------- */
 
@@ -1021,7 +1025,7 @@ private:
 
 ///*!
 // * \brief Wrapper de una función para ejecutarla como un proceso.
-// * 
+// *
 // */
 //class TL_EXPORT FunctionProcess : public Process
 //{
@@ -1055,7 +1059,7 @@ private:
  *
  * Por bloque se entiende una tarea particular del proceso que se
  * ejecuta sin comprobación del estado de ejecución del batch.
- * Al finalizar un bloque se comprueba el estado del batch poniendolo 
+ * Al finalizar un bloque se comprueba el estado del batch poniendolo
  * a pausa o obligando a su terminación. Si se indica una barra de proceso
  * también se avanza una posición
  *
@@ -1066,13 +1070,13 @@ private:
 //private:
 //
 //  int mCount;
-//  tl::Progress *mProgressBar;
+//  TL::Progress *mProgressBar;
 //
 //public:
 //
-//  ProcessBlock(int nBlocks, tl::Progress *progressBar = nullptr);
+//  ProcessBlock(int nBlocks, TL::Progress *progressBar = nullptr);
 //  ~ProcessBlock();
-//  
+//
 //  void next();
 //
 //private:

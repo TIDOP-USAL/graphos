@@ -72,9 +72,14 @@ public:
   virtual void setCalibCx(const QString &cx) = 0;
   virtual void setCalibCy(const QString &cy) = 0;
   virtual void setCalibF(const QString &f) = 0;
+  virtual void setCalibFx(const QString &fx) = 0;
+  virtual void setCalibFy(const QString &fy) = 0;
   virtual void setCalibK1(const QString &k1) = 0;
   virtual void setCalibK2(const QString &k2) = 0;
   virtual void setCalibK3(const QString &k3) = 0;
+  virtual void setCalibK4(const QString &k4) = 0;
+  virtual void setCalibK5(const QString &k5) = 0;
+  virtual void setCalibK6(const QString &k6) = 0;
   virtual void setCalibP1(const QString &p1) = 0;
   virtual void setCalibP2(const QString &p2) = 0;
 
@@ -92,9 +97,14 @@ signals:
   void calibCxChange(QString);
   void calibCyChange(QString);
   void calibFChange(QString);
+  void calibFxChange(QString);
+  void calibFyChange(QString);
   void calibK1Change(QString);
   void calibK2Change(QString);
   void calibK3Change(QString);
+  void calibK4Change(QString);
+  void calibK5Change(QString);
+  void calibK6Change(QString);
   void calibP1Change(QString);
   void calibP2Change(QString);
 

@@ -124,7 +124,9 @@ endif(BUILD_TEST)
 # CONFIGURACIÓN DEPENDENCIAS
 
 #OPTION (WITH_BOOST    "Include Boost support"                   ON)
-
+if(MSVC)
+option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
+endif(MSVC)
 
 
 
@@ -313,7 +315,20 @@ else()
 endif(BUILD_INSPECTOR_IMAGE)
 
 
+# VLD
 
+if(WITH_VLD)
+
+    find_package(VLD)
+
+    if(NOT VLD_FOUND)
+        set(HAVE_VLD NO)
+    else()
+        set(HAVE_VLD YES)
+        include_directories(${VLD_INCLUDE_DIRS})
+    endif()
+
+endif(WITH_VLD)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

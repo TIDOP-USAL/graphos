@@ -1,7 +1,8 @@
 #include "SettingsPresenter.h"
 
-#include "SettingsModel.h"
-#include "SettingsView.h"
+#include "inspector/ui/SettingsModel.h"
+#include "inspector/ui/SettingsView.h"
+#include "inspector/ui/HelpDialog.h"
 
 #include <QLocale>
 
@@ -41,10 +42,11 @@ void SettingsPresenterImp::openToolSettings()
 
 void SettingsPresenterImp::help()
 {
-//  if (mHelp){
-//    mHelp->setPage("settings.html");
-//    mHelp->show();
-//  }
+  if (mHelp){
+    mHelp->setPage("settings.html");
+    mHelp->setModal(true);
+    mHelp->showMaximized();
+  }
 }
 
 void SettingsPresenterImp::open()

@@ -50,8 +50,28 @@ public:
    */
   virtual QString imageViewerBGcolor() const = 0;
 
-
   virtual bool useCuda() const = 0;
+
+  ///TODO: Sift Properties
+
+  virtual QString keypointsViewerBGColor() const = 0;
+  virtual int keypointsViewerMarkerType() const = 0;
+  virtual int keypointsViewerMarkerSize() const = 0;
+  virtual int keypointsViewerMarkerWidth() const = 0;
+  virtual QString keypointsViewerMarkerColor() const = 0;
+  virtual int keypointsViewerSelectMarkerWidth() const = 0;
+  virtual QString keypointsViewerSelectMarkerColor() const = 0;
+
+  virtual QString matchesViewerBGColor() const = 0;
+  virtual int matchesViewerMarkerType() const = 0;
+  virtual int matchesViewerMarkerSize() const = 0;
+  virtual int matchesViewerMarkerWidth() const = 0;
+  virtual QString matchesViewerMarkerColor() const = 0;
+  virtual int matchesViewerSelectMarkerWidth() const = 0;
+  virtual QString matchesViewerSelectMarkerColor() const = 0;
+  virtual QString matchesViewerLineColor() const = 0;
+  virtual int matchesViewerLineWidth() const = 0;
+
 
   /*!
    * \brief read

@@ -33,6 +33,8 @@ void inspector::FeatureMatchingProcess::run()
 {
   try {
 
+    msgInfo("Starting Feature Matching");
+
     tl::Chrono chrono;
     chrono.run();
 
@@ -49,9 +51,9 @@ void inspector::FeatureMatchingProcess::run()
     siftMatchingOptions.max_ratio = mFeatureMatching->ratio();
     siftMatchingOptions.max_distance = mFeatureMatching->distance();
     siftMatchingOptions.confidence = mFeatureMatching->confidence();
-//    siftMatchingOptions.max_num_matches = mFeatureMatching->maxMatches();
+    //siftMatchingOptions.max_num_matches = 30000;//mFeatureMatching->maxMatches();
     siftMatchingOptions.use_gpu = bUseCuda;
-
+    //siftMatchingOptions.gpu_index = "0";
     mExhaustiveFeatureMatcher = new colmap::ExhaustiveFeatureMatcher(exhaustiveMatchingOptions,
                                                                      siftMatchingOptions,
                                                                      mDatabase.toStdString());
@@ -60,15 +62,20 @@ void inspector::FeatureMatchingProcess::run()
     mExhaustiveFeatureMatcher->Wait();
 
     colmap::Database database(mDatabase.toStdString());
-    if (database.NumMatches() > 0)
+    if (database.NumMatches() > 0){
       emit featureMatchingFinished();
+    } else {
+      emit error(0, "Feature Matching error: No matching points detected.");
+      return;
+    }
 
     database.Close();
 
     uint64_t time = chrono.stop();
-    msgInfo("[Time: %f seconds]", time/1000.);
+    msgInfo("Feature Matching finished [Time: %f seconds]", time/1000.);
 
   } catch (std::exception &e) {
+    emit error(0, "Feature Matching error");
     msgError(e.what());
   }
 }

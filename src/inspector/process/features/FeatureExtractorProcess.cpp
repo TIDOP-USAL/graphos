@@ -122,15 +122,15 @@ void FeatureExtractorProcess::run()
     double scale = 1;
     if (mMaxDimension < max_dimension){
       cv::Size size(mat.cols, mat.rows);
-      scale = mMaxDimension / max_dimension;
-      size.width *= scale;
-      size.height *= scale;
+      scale = max_dimension / mMaxDimension;
+      size.width /= scale;
+      size.height /= scale;
       cv::resize(mat, mat, size);
     }
 
     mFeatureExtractor->run(mat, featureKeypoints, featureDescriptors);
 
-    if (scale < 1) {
+    if (scale > 1) {
       for (auto & featureKeypoint : featureKeypoints){
         featureKeypoint.Rescale(scale, scale);
       }
@@ -152,6 +152,7 @@ void FeatureExtractorProcess::run()
     msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time/1000.);
 
   } catch (std::exception &e) {
+    emit error(0, "Keypoint Detector/descriptor error");
     msgError(e.what());
   }
 }

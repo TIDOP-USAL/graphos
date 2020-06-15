@@ -11,7 +11,8 @@ target_link_libraries(${test_target} PRIVATE
                       inspector_core
                       tl_core
                       Qt5::Core
-                      Qt5::Test)
+                      Qt5::Test
+                      ${COLMAP_LIBRARIES})
 
 target_link_libraries(${test_target} PRIVATE
                       ${Boost_FILESYSTEM_LIBRARY}

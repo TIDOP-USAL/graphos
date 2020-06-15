@@ -17,6 +17,8 @@ add_library(inspector_process ${LIB_TYPE}
             orientation/RelativeOrientationProcess.h
             images/LoadImagesProcess.cpp
             images/LoadImagesProcess.h
+            densification/DensificationProcess.cpp
+            densification/DensificationProcess.h
            )
 
 set_property(TARGET inspector_process PROPERTY FOLDER "lib")

@@ -8,7 +8,7 @@ namespace inspector
 
 
 class CreateProjectModel
-  : public IModel
+  : public ui::IModel
 {
 
   Q_OBJECT
@@ -68,7 +68,7 @@ public slots:
 
 
 class CreateProjectView
-  : public IDialogView
+  : public ui::IDialogView
 {
 
   Q_OBJECT
@@ -113,7 +113,7 @@ public:
 
 
 class CreateProjectPresenter
-  : public IPresenter
+  : public ui::IPresenter
 {
 
   Q_OBJECT

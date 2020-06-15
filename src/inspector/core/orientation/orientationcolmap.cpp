@@ -147,7 +147,7 @@ void OrientationColmapProcess::run()
     mMapper->AddCallback(
       colmap::IncrementalMapperController::NEXT_IMAGE_REG_CALLBACK, [&]() {
       //if (progressBar) (*progressBar)();
-      msgInfo("-----");
+      //msgInfo("-----");
     });
 
     mMapper->Start(); ///TODO: ¿Como detectar que se ha producido un error?
@@ -172,7 +172,7 @@ void OrientationColmapProcess::run()
       ba_controller.Start();
       ba_controller.Wait();
 
-      OrientationExport orientationExport(mImagePath, &reconstruction);
+      OrientationExport orientationExport(&reconstruction);
 
       QString path = sparse_path + QString::number(id);
 
@@ -190,18 +190,5 @@ void OrientationColmapProcess::run()
     msgError("excepción desconocida");
   }
 }
-
-//void OrientationColmapProcess::setRefineFocalLength(bool refineFocalLength)
-//{
-
-//}
-
-//void OrientationColmapProcess::setRefinePrincipalPoint(bool refinePrincipalPoint)
-//{
-//}
-
-//void OrientationColmapProcess::setRefineExtraParams(bool refineExtraParams)
-//{
-//}
 
 } // namespace inspector

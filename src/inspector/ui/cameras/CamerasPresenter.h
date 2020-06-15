@@ -6,14 +6,13 @@
 namespace inspector
 {
 
-class HelpDialog;
-
 namespace ui
 {
 
 class CamerasView;
 class CamerasModel;
 class ImagesModel;
+class HelpDialog;
 
 class CamerasPresenterImp
   : public CamerasPresenter

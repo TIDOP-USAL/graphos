@@ -58,6 +58,10 @@ public:
    */
   virtual void setZoomCtrlFactor(const double factor) = 0;
 
+  virtual void setContextMenu(QMenu *contextMenu) = 0;
+
+public slots:
+
   /*!
    * \brief Zoom extensión
    */
@@ -80,9 +84,7 @@ public:
    */
   virtual void zoomOut(QPoint point = QPoint()) = 0;
 
-  virtual void setContextMenu(QMenu *contextMenu) = 0;
-
-protected:
+protected slots:
 
   /*!
    * \brief Mostrar el menú contextual (al hacer clic con el botón derecho)
@@ -90,6 +92,12 @@ protected:
    */
   virtual void showContextMenu(const QPoint &pos) = 0;
 
+signals:
+
+  void mousePosition(QPoint);
+  void mouseClicked(QPoint);
+  void mouseClicked(QPointF);
+  void selectionChanged();
 };
 
 
@@ -194,12 +202,12 @@ private:
 
   void init();
 
-signals:
+//signals:
 
-  void mousePosition(QPoint);
-  void mouseClicked(QPoint);
-  void mouseClicked(QPointF);
-  void selectionChanged();
+//  void mousePosition(QPoint);
+//  void mouseClicked(QPoint);
+//  void mouseClicked(QPointF);
+//  void selectionChanged();
 
 protected:
 

@@ -2,7 +2,7 @@
 
 #include "inspector/ui/ProjectModel.h"
 #include "inspector/ui/NewProjectView.h"
-//#include "inspector/ui/HelpDialog.h"
+#include "inspector/ui/HelpDialog.h"
 
 #include <QStandardPaths>
 #include <QDir>
@@ -29,10 +29,10 @@ NewProjectPresenterImp::NewProjectPresenterImp(NewProjectView *view,
 
 void NewProjectPresenterImp::help()
 {
-//  if (mHelp){
-//    mHelp->setPage("menus.html#new_project");
-//    mHelp->show();
-//  }
+  if (mHelp){
+    mHelp->setPage("menus.html#new_project");
+    mHelp->show();
+  }
 }
 
 // INewProjectPresenter interface

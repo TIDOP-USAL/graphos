@@ -265,6 +265,8 @@ public:
    */
   virtual int octaveLayers() const = 0;
 
+  virtual bool constrastThresholdAuto() const = 0;
+
   /*!
    * \brief The contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions.
    * The larger the threshold, the less features are produced by the detector.
@@ -298,6 +300,8 @@ public:
    * \param[in] octaveLayers The number of layers in each octave (3 by default)
    */
   virtual void setOctaveLayers(int octaveLayers) = 0;
+
+  virtual void setContrastThresholdAuto(bool active) = 0;
 
   /*!
    * \brief Set the contrast threshold

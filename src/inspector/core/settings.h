@@ -75,6 +75,40 @@ public:
    */
   virtual void setImageViewerBGcolor(const QString &bgColor) = 0;
 
+virtual QString keypointsViewerBGColor() const = 0;
+  virtual void setKeypointsViewerBGColor(const QString &color) = 0;
+  virtual int keypointsViewerMarkerType() const = 0;
+  virtual void setKeypointsViewerMarkerType(int type) = 0;
+  virtual int keypointsViewerMarkerSize() const = 0;
+  virtual void setKeypointsViewerMarkerSize(int size) = 0;
+  virtual int keypointsViewerMarkerWidth() const = 0;
+  virtual void setKeypointsViewerMarkerWidth(int width) = 0;
+  virtual QString keypointsViewerMarkerColor() const = 0;
+  virtual void setKeypointsViewerMarkerColor(const QString &color) = 0;
+  virtual int keypointsViewerSelectMarkerWidth() const = 0;
+  virtual void setKeypointsViewerSelectMarkerWidth(int width) = 0;
+  virtual QString keypointsViewerSelectMarkerColor() const = 0;
+  virtual void setKeypointsViewerSelectMarkerColor(const QString &color) = 0;
+
+  virtual QString matchesViewerBGColor() const = 0;
+  virtual void setMatchesViewerBGColor(const QString &color) = 0;
+  virtual int matchesViewerMarkerType() const = 0;
+  virtual void setMatchesViewerMarkerType(int type) = 0;
+  virtual int matchesViewerMarkerSize() const = 0;
+  virtual void setMatchesViewerMarkerSize(int size) = 0;
+  virtual int matchesViewerMarkerWidth() const = 0;
+  virtual void setMatchesViewerMarkerWidth(int width) = 0;
+  virtual QString matchesViewerMarkerColor() const = 0;
+  virtual void setMatchesViewerMarkerColor(const QString &color) = 0;
+  virtual int matchesViewerSelectMarkerWidth() const = 0;
+  virtual void setMatchesViewerSelectMarkerWidth(int width) = 0;
+  virtual QString matchesViewerSelectMarkerColor() const = 0;
+  virtual void setMatchesViewerSelectMarkerColor(const QString &color) = 0;
+  virtual QString matchesViewerLineColor() const = 0;
+  virtual void setMatchesViewerLineColor(const QString &color) = 0;
+  virtual int matchesViewerLineWidth() const = 0;
+  virtual void setMatchesViewerLineWidth(int width) = 0;
+
   virtual bool useCuda() const = 0;
   virtual void setUseCuda(bool active) = 0;
 
@@ -145,6 +179,40 @@ public:
   QString imageViewerBGcolor() const override;
   void setImageViewerBGcolor(const QString &bgColor) override;
 
+  QString keypointsViewerBGColor() const override;
+  void setKeypointsViewerBGColor(const QString &color) override;
+  int keypointsViewerMarkerType() const override;
+  void setKeypointsViewerMarkerType(int type) override;
+  int keypointsViewerMarkerSize() const override;
+  void setKeypointsViewerMarkerSize(int size) override;
+  int keypointsViewerMarkerWidth() const override;
+  void setKeypointsViewerMarkerWidth(int width) override;
+  QString keypointsViewerMarkerColor() const override;
+  void setKeypointsViewerMarkerColor(const QString &color) override;
+  int keypointsViewerSelectMarkerWidth() const override;
+  void setKeypointsViewerSelectMarkerWidth(int width) override;
+  QString keypointsViewerSelectMarkerColor() const override;
+  void setKeypointsViewerSelectMarkerColor(const QString &color) override;
+
+  QString matchesViewerBGColor() const override;
+  void setMatchesViewerBGColor(const QString &color) override;
+  int matchesViewerMarkerType() const override;
+  void setMatchesViewerMarkerType(int type) override;
+  int matchesViewerMarkerSize() const override;
+  void setMatchesViewerMarkerSize(int size) override;
+  int matchesViewerMarkerWidth() const override;
+  void setMatchesViewerMarkerWidth(int width) override;
+  QString matchesViewerMarkerColor() const override;
+  void setMatchesViewerMarkerColor(const QString &color) override;
+  int matchesViewerSelectMarkerWidth() const override;
+  void setMatchesViewerSelectMarkerWidth(int width) override;
+  QString matchesViewerSelectMarkerColor() const override;
+  void setMatchesViewerSelectMarkerColor(const QString &color) override;
+  QString matchesViewerLineColor() const override;
+  void setMatchesViewerLineColor(const QString &color) override;
+  int matchesViewerLineWidth() const override;
+  void setMatchesViewerLineWidth(int width) override;
+
   bool useCuda() const override;
   void setUseCuda(bool active) override;
 
@@ -156,6 +224,22 @@ protected:
   int mHistoyMaxSize;
   QStringList mHistory;
   QString mImageViewerBGcolor;
+  QString mKeypointViewerBGColor;
+  int mKeypointsViewerMarkerType;
+  int mKeypointViewerMarkerSize;
+  int mKeypointViewerMarkerWidth;
+  QString mKeypointViewerMarkerColor;
+  int mKeypointViewerSelectMarkerWidth;
+  QString mKeypointViewerSelectMarkerColor;
+  QString mMatchesViewerBGColor;
+  int mMatchesViewerMarkerType;
+  QString mMatchesViewerMarkerColor;
+  int mMatchesViewerMarkerSize;
+  int mMatchesViewerMarkerWidth;
+  int mMatchesViewerSelectMarkerWidth;
+  QString mMatchesViewerSelectMarkerColor;
+  QString mMatchesViewerLineColor;
+  int mMatchesViewerLineWidth;
   bool mUseCuda;
 
 };

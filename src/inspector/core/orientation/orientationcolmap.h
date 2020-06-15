@@ -69,14 +69,6 @@ public:
 
   void run() override;
 
-// OrientationColmapProperties interface
-
-public:
-
-  void setRefineFocalLength(bool refineFocalLength) override;
-  void setRefinePrincipalPoint(bool refinePrincipalPoint) override;
-  void setRefineExtraParams(bool refineExtraParams) override;
-
 private:
 
   QString mDatabase;

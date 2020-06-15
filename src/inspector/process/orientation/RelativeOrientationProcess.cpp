@@ -1,6 +1,7 @@
 #include "RelativeOrientationProcess.h"
 
 #include "inspector/core/orientation/orientationcolmap.h"
+#include "inspector/core/orientation/orientationexport.h"
 
 #include <tidop/core/messages.h>
 
@@ -26,15 +27,24 @@ RelativeOrientationProcess::~RelativeOrientationProcess()
 
 void RelativeOrientationProcess::run()
 {
-  tl::Chrono chrono;
-  chrono.run();
+  try {
 
-  mOrientationProcess->run();
+    msgInfo("Starting Orientation");
 
-  emit orientationFinished();
+    tl::Chrono chrono;
+    chrono.run();
 
-  uint64_t time = chrono.stop();
-  msgInfo("[Time: %f seconds]", time/1000.);
+    mOrientationProcess->run();
+
+    emit orientationFinished();
+
+    uint64_t time = chrono.stop();
+    msgInfo("Orientation process finished [Time: %f seconds]", time/1000.);
+
+  } catch (std::exception &e) {
+    emit error(0, "Relative Orientation error");
+    msgError(e.what());
+  }
 }
 
 } // namespace inspector

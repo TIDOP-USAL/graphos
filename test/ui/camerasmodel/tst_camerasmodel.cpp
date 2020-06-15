@@ -71,7 +71,7 @@ void TestCamerasModel::cleanupTestCase()
 void TestCamerasModel::test_addCamera()
 {
   Camera camera("DJI", "FC6310");
-  camera.setType("SIMPLE_RADIAL");
+  camera.setType("Simple radial");
   camera.setFocal(3552.23);
   camera.setWidth(5472);
   camera.setHeight(3648);
@@ -83,17 +83,17 @@ void TestCamerasModel::test_addCamera()
 void TestCamerasModel::test_updateCamera()
 {
   Camera camera = mCamerasModel->camera(1);
-  camera.setType("FULL_RADIAL");
+  camera.setType("Full radial");
   bool bUpdate = mCamerasModel->updateCamera(1, camera);
 
   QCOMPARE(true, bUpdate);
 
   camera = mCamerasModel->camera(1);
 
-  QCOMPARE(QString("FULL_RADIAL"), camera.type());
+  QCOMPARE(QString("Full radial"), camera.type());
 
   /// Se recupera el estado anterior
-  camera.setType("RADIAL");
+  camera.setType("Radial");
   mCamerasModel->updateCamera(1, camera);
 }
 
@@ -124,7 +124,7 @@ void TestCamerasModel::test_findCamera()
 
   QCOMPARE(QString("DJI"), camera.make());
   QCOMPARE(QString("FC6310"), camera.model());
-  QCOMPARE(QString("RADIAL"), camera.type());
+  QCOMPARE(QString("Radial"), camera.type());
   QCOMPARE(3752.23, camera.focal());
   QCOMPARE(5472, camera.width());
   QCOMPARE(3648, camera.height());
@@ -134,7 +134,7 @@ void TestCamerasModel::test_findCamera()
 
   QCOMPARE(QString("Unknown camera"), camera.make());
   QCOMPARE(QString("0"), camera.model());
-  QCOMPARE(QString("SIMPLE_RADIAL"), camera.type());
+  QCOMPARE(QString("Simple radial"), camera.type());
   QCOMPARE(4753.2, camera.focal());
   QCOMPARE(3961, camera.width());
   QCOMPARE(2968, camera.height());
@@ -144,7 +144,7 @@ void TestCamerasModel::test_findCamera()
 
   QCOMPARE(QString("DJI"), camera.make());
   QCOMPARE(QString("FC6310"), camera.model());
-  QCOMPARE(QString("RADIAL"), camera.type());
+  QCOMPARE(QString("Radial"), camera.type());
   QCOMPARE(3752.23, camera.focal());
   QCOMPARE(5472, camera.width());
   QCOMPARE(3648, camera.height());
@@ -153,7 +153,7 @@ void TestCamerasModel::test_findCamera()
   camera = mCamerasModel->camera("Unknown camera", "0");
 
   QCOMPARE(QString("0"), camera.model());
-  QCOMPARE(QString("SIMPLE_RADIAL"), camera.type());
+  QCOMPARE(QString("Simple radial"), camera.type());
   QCOMPARE(4753.2, camera.focal());
   QCOMPARE(3961, camera.width());
   QCOMPARE(2968, camera.height());
@@ -178,7 +178,7 @@ void TestCamerasModel::test_iterator()
   QCOMPARE(1, id);
   QCOMPARE(QString("DJI"), camera.make());
   QCOMPARE(QString("FC6310"), camera.model());
-  QCOMPARE(QString("RADIAL"), camera.type());
+  QCOMPARE(QString("Radial"), camera.type());
   QCOMPARE(3752.23, camera.focal());
   QCOMPARE(5472, camera.width());
   QCOMPARE(3648, camera.height());
@@ -192,7 +192,7 @@ void TestCamerasModel::test_iterator()
   QCOMPARE(2, id);
   QCOMPARE(QString("Unknown camera"), camera.make());
   QCOMPARE(QString("0"), camera.model());
-  QCOMPARE(QString("SIMPLE_RADIAL"), camera.type());
+  QCOMPARE(QString("Simple radial"), camera.type());
   QCOMPARE(4753.2, camera.focal());
   QCOMPARE(3961, camera.width());
   QCOMPARE(2968, camera.height());

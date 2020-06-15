@@ -7,7 +7,7 @@
 #include "inspector/ui/ImagesModel.h"
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/SettingsModel.h"
-//#include "inspector/ui/HelpDialog.h"
+#include "inspector/ui/HelpDialog.h"
 #include "inspector/ui/utils/Progress.h"
 #include "inspector/widgets/SiftWidget.h"
 #include "inspector/process/MultiProcess.h"
@@ -60,10 +60,11 @@ FeatureExtractorPresenterImp::~FeatureExtractorPresenterImp()
 
 void FeatureExtractorPresenterImp::help()
 {
-//  if (mHelp){
-//    mHelp->setPage("feature_extraction.html");
-//    mHelp->show();
-//  }
+  if (mHelp){
+    mHelp->setPage("feature_extraction.html");
+    mHelp->setModal(true);
+    mHelp->showMaximized();
+  }
 }
 
 void FeatureExtractorPresenterImp::open()
@@ -114,6 +115,8 @@ void FeatureExtractorPresenterImp::cancel()
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
+  mMultiProcess->clearProcessList();
+
   emit finished();
 
   msgWarning("Processing has been canceled by the user");
@@ -135,8 +138,6 @@ void FeatureExtractorPresenterImp::run()
   ///
 
   mModel->clear();
-
-  mMultiProcess->clearProcessList();
 
   QString currentKeypointDetector = mView->currentDetectorDescriptor();
   std::shared_ptr<FeatureExtractor> feature_extractor;
@@ -234,6 +235,7 @@ void FeatureExtractorPresenterImp::setSiftProperties()
   if (sift){
     mSift->setSigma(sift->sigma());
     mSift->setOctaveLayers(sift->octaveLayers());
+    mSift->setContrastThresholdAuto(sift->constrastThresholdAuto());
     mSift->setEdgeThreshold(sift->edgeThreshold());
     mSift->setFeaturesNumber(sift->featuresNumber());
     mSift->setContrastThreshold(sift->contrastThreshold());
@@ -257,6 +259,8 @@ void FeatureExtractorPresenterImp::onError(int code, const QString &msg)
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
+  mMultiProcess->clearProcessList();
+
   emit finished();
 }
 
@@ -275,6 +279,8 @@ void FeatureExtractorPresenterImp::onFinished()
     disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(onNextPosition()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
+
+  mMultiProcess->clearProcessList();
 
   emit finished();
 

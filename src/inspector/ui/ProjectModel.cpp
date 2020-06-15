@@ -137,6 +137,11 @@ QString ProjectModelImp::sparseModel() const
   return mProject->sparseModel();
 }
 
+QString ProjectModelImp::denseModel() const
+{
+  return mProject->denseModel();
+}
+
 void ProjectModelImp::setProjectName(const QString &name)
 {
   mProject->setName(name);
@@ -164,6 +169,12 @@ void ProjectModelImp::setDatabase(const QString &database)
 void ProjectModelImp::setSparseModel(const QString &sparseModel)
 {
   mProject->setSparseModel(sparseModel);
+  bUnsavedChanges = true;
+}
+
+void ProjectModelImp::setDenseModel(const QString &denseModel)
+{
+  mProject->setDenseModel(denseModel);
   bUnsavedChanges = true;
 }
 

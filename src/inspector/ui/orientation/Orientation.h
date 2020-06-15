@@ -2,7 +2,7 @@
 #define INSPECTOR_ORIENTATION_INTERFACES_H
 
 #include "inspector/interfaces/mvp.h"
-
+#include "inspector/core/orientation/photoorientation.h"
 namespace inspector
 {
 
@@ -23,6 +23,7 @@ public:
   virtual bool refinePrincipalPoint() const = 0;
   virtual void setRefinePrincipalPoint(bool refine) = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
+  virtual void addPhotoOrientation(const QString &imgName, const PhotoOrientation &orientation) = 0;
   virtual QString database() const = 0;
   virtual QString imagePath() const = 0;
   virtual QString projectPath() const = 0;
@@ -39,7 +40,7 @@ class OrientationView
 public:
 
   OrientationView(QWidget *parent = nullptr) : IDialogView(parent) {}
-  virtual ~OrientationView() override = default;
+  ~OrientationView() override = default;
 
   virtual bool refinePrincipalPoint() const = 0;
 
@@ -66,7 +67,7 @@ class OrientationPresenter
 public:
 
   OrientationPresenter() {}
-  virtual ~OrientationPresenter() override = default;
+  ~OrientationPresenter() override = default;
 
 signals:
 

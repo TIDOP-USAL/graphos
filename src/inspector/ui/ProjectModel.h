@@ -133,6 +133,7 @@ public:
 //  virtual void deleteImages(const QStringList &images) = 0;
 
   virtual QString sparseModel() const = 0;
+  virtual QString denseModel() const = 0;
 
 public slots:
 
@@ -157,6 +158,7 @@ public slots:
   virtual void setDatabase(const QString &database) = 0;
 
   virtual void setSparseModel(const QString &sparseModel) = 0;
+  virtual void setDenseModel(const QString &denseModel) = 0;
 
   /*!
    * \brief Load a project
@@ -226,6 +228,7 @@ public:
   //void addImages(const QStringList &fileNames) override;
   //void deleteImages(const QStringList &images) override;
   QString sparseModel() const override;
+  QString denseModel() const override;
 
 public slots:
 
@@ -234,6 +237,7 @@ public slots:
   void setProjectFolder(const QString &dir) override;
   void setDatabase(const QString &database) override;
   void setSparseModel(const QString &sparseModel) override;
+  void setDenseModel(const QString &denseModel) override;
   void load(const QString &file) override;
   void save() override;
   void saveAs(const QString &file) override;

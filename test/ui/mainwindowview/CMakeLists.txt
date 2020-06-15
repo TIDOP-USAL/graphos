@@ -19,7 +19,10 @@ add_executable(${test_target}
                ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicItem.cpp
                ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/GraphicItem.h
                ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/TabHandler.cpp
-               ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/TabHandler.h)
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/TabHandler.h
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/Viewer3d.cpp
+               ${CMAKE_SOURCE_DIR}/src/inspector/ui/utils/Viewer3d.h
+               )
 
 target_link_libraries(${test_target} PRIVATE
                       inspector_core
@@ -35,6 +38,12 @@ target_link_libraries(${test_target} PRIVATE
                       ${Boost_FILESYSTEM_LIBRARY}
                       ${Boost_SYSTEM_LIBRARY})
 
+if (HAVE_CLOUDCOMPARE)
+target_link_libraries(${test_target} PRIVATE
+                      Qt5::OpenGL
+                      Qt5::OpenGLExtensions
+                      ${CLOUDCOMPARE_LIBRARIES})
+endif(HAVE_CLOUDCOMPARE)
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}

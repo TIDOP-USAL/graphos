@@ -10,7 +10,6 @@ class Project;
 class Settings;
 class SettingsController;
 
-
 namespace ui
 {
 	
@@ -32,8 +31,16 @@ class FeatureMatchingModel;
 class FeatureMatchingPresenter;
 class OrientationModel;
 class OrientationPresenter;
+class DensificationModel;
+class DensificationPresenter;
 class ProgressHandler;
 class ProgressDialog;
+class FeaturesViewerModel;
+class FeaturesViewerPresenter;
+class MatchViewerModel;
+class MatchViewerPresenter;
+class HelpDialog;
+class AboutDialog;
 
 class ComponentsManager
   : public QObject
@@ -67,6 +74,15 @@ public:
   FeatureMatchingPresenter *featureMatchingPresenter();
   OrientationModel *orientationModel();
   OrientationPresenter *orientationPresenter();
+  DensificationModel *densificationModel();
+  DensificationPresenter *densificationPresenter();
+  FeaturesViewerModel *featuresViewerModel();
+  FeaturesViewerPresenter *featuresViewerPresenter();
+  MatchViewerModel *matchesViewerModel();
+  MatchViewerPresenter *matchesViewerPresenter();
+  //AboutDialog *aboutDialog();
+  HelpDialog *helpDialog();
+
   ProgressHandler *progressHandler();
   ProgressDialog *progressDialog();
 
@@ -78,11 +94,22 @@ protected slots:
   void initAndOpenFeatureExtractionDialog();
   void initAndOpenFeatureMatchingDialog();
   void initAndOpenOrientationDialog();
+  void initAndOpenDensificationDialog();
   void initAndOpenSettingsDialog();
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
   void initAndOpenCamerasDialog();
+  void initAndOpenKeypointsViewerDialog();
+  void initAndOpenKeypointsViewerDialogFromImage(const QString &image);
+  void initAndOpenMatchesViewerDialog();
+  void initAndOpenMatchesViewerDialogFromImages(const QString &leftImage,
+                                                const QString &rightImage);
   void initSettingsDialog();
+
+private:
+
+  void initKeypointsViewer();
+  void initMatchesViewer();
 
 protected:
 
@@ -108,6 +135,16 @@ protected:
   FeatureMatchingPresenter *mFeatureMatchingPresenter;
   OrientationModel *mOrientationModel;
   OrientationPresenter *mOrientationPresenter;
+  DensificationModel *mDensificationModel;
+  DensificationPresenter *mDensificationPresenter;
+  FeaturesViewerModel *mFeaturesViewerModel;
+  FeaturesViewerPresenter *mFeaturesViewerPresenter;
+  MatchViewerModel *mMatchesViewerModel;
+  MatchViewerPresenter *mMatchesViewerPresenter;
+//  MultiViewMatchingAssessmentModel *mMultiviewMatchingAssessmentModel;
+//  MultiViewMatchingAssessmentPresenter *mMultiviewMatchingAssessmentPresenter;
+  //AboutDialog *mAboutDialog;
+  HelpDialog *mHelpDialog;
 
   ProgressHandler *mProgressHandler;
   ProgressDialog *mProgressDialog;

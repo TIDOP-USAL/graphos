@@ -1,7 +1,6 @@
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
 add_library(inspector_widgets ${LIB_TYPE}
-            #${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
 			InspectorWidget.h
             SiftWidget.cpp
             SiftWidget.h
@@ -12,7 +11,11 @@ add_library(inspector_widgets ${LIB_TYPE}
             StartPageWidget.cpp
             StartPageWidget.h
             FeatureMatchingWidget.cpp
-            FeatureMatchingWidget.h)
+            FeatureMatchingWidget.h
+			SmvsWidget.cpp
+            SmvsWidget.h
+			CmvsPmvsWidget.cpp
+			CmvsPmvsWidget.h)
 
 set_property(TARGET inspector_widgets PROPERTY FOLDER "lib")
 

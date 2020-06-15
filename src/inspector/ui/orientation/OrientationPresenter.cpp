@@ -5,7 +5,12 @@
 #include "inspector/core/orientation/orientationcolmap.h"
 #include "inspector/process/MultiProcess.h"
 #include "inspector/process/orientation/RelativeOrientationProcess.h"
-//#include "inspector/ui/HelpDialog.h"
+#include "inspector/core/orientation/photoorientation.h"
+#include "inspector/ui/SettingsModel.h"
+#include "inspector/ui/ImagesModel.h"
+#include "inspector/ui/cameras/CamerasModel.h"
+
+#include "inspector/ui/HelpDialog.h"
 
 #include <tidop/core/messages.h>
 
@@ -18,10 +23,16 @@ namespace ui
 {
 
 OrientationPresenterImp::OrientationPresenterImp(OrientationView *view,
-                                                 OrientationModel *model)
+                                                 OrientationModel *model,
+                                                 ImagesModel *imagesModel,
+                                                 CamerasModel *camerasModel,
+                                                 SettingsModel *settingsModel)
   : OrientationPresenter(),
     mView(view),
     mModel(model),
+    mImagesModel(imagesModel),
+    mCamerasModel(camerasModel),
+    mSettingsModel(settingsModel),
     mHelp(nullptr),
     mMultiProcess(new MultiProcess(true)),
     mProgressHandler(nullptr)
@@ -40,19 +51,21 @@ OrientationPresenterImp::~OrientationPresenterImp()
 
 void OrientationPresenterImp::help()
 {
-//  if (mHelp){
-//    mHelp->setPage("orientation.html");
-//    mHelp->show();
-//  }
+  if (mHelp){
+    mHelp->setPage("orientation.html");
+    mHelp->setModal(true);
+    mHelp->showMaximized();
+  }
 }
 
 void OrientationPresenterImp::open()
 {
+  TL_TODO("mSettingsModel->refinePrincipalPoint();")
   mView->setRefinePrincipalPoint(mModel->refinePrincipalPoint());
   mView->exec();
 }
 
-void OrientationPresenterImp::setHelp(inspector::HelpDialog *help)
+void OrientationPresenterImp::setHelp(HelpDialog *help)
 {
   mHelp = help;
 }
@@ -89,6 +102,8 @@ void OrientationPresenterImp::cancel()
     disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(onNextPosition()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
+
+  mMultiProcess->clearProcessList();
 
   emit finished();
 
@@ -130,8 +145,6 @@ void OrientationPresenterImp::run()
 
   mView->hide();
 
-  msgInfo("Starting Orientation");
-
   emit running();
 
   mMultiProcess->start();
@@ -153,6 +166,8 @@ void OrientationPresenterImp::onError(int code, const QString &msg)
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
+  mMultiProcess->clearProcessList();
+
   emit finished();
 }
 
@@ -162,7 +177,7 @@ void OrientationPresenterImp::onFinished()
   disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
 
   if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
+    mProgressHandler->setRange(0, 1);
     mProgressHandler->setValue(1);
     mProgressHandler->onFinish();
     mProgressHandler->setDescription(tr("Orientation finished"));
@@ -172,15 +187,35 @@ void OrientationPresenterImp::onFinished()
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
-  emit finished();
+  mMultiProcess->clearProcessList();
 
-  msgInfo("Orientation process finished.");
+  emit finished();
 }
 
 void OrientationPresenterImp::onOrientationFinished()
 {
   /// Se comprueba que se han generado todos los productos
   QString sparse_path = mModel->projectPath() + "/sparse/0/";
+
+  ReadPhotoOrientations readPhotoOrientations;
+  readPhotoOrientations.open(sparse_path);
+  for(auto image = mImagesModel->begin(); image != mImagesModel->end(); image++){
+    PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+    mModel->addPhotoOrientation(image->name(), photoOrientation);
+  }
+
+  ReadCalibration readCalibration;
+  readCalibration.open(sparse_path);
+  std::shared_ptr<Calibration> calibration;
+  for(auto camera_it = mCamerasModel->begin(); camera_it != mCamerasModel->end(); camera_it++){
+    calibration = readCalibration.calibration(camera_it->first);
+    if (calibration){
+      Camera camera = camera_it->second;
+      camera.setCalibration(calibration);
+      mCamerasModel->updateCamera(camera_it->first, camera);
+    }
+  }
+
   QString sparse_model = sparse_path + "/sparse.ply";
   if (QFileInfo(sparse_model).exists()){
     mModel->setSparseModel(sparse_path + "/sparse.ply");

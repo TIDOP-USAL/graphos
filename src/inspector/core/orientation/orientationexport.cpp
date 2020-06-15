@@ -17,10 +17,8 @@
 namespace inspector
 {
 
-OrientationExport::OrientationExport(const QString &imagePath,
-                                     const colmap::Reconstruction *reconstruction)
-  : mImagePath(imagePath),
-    mReconstruction(reconstruction)
+OrientationExport::OrientationExport(const colmap::Reconstruction *reconstruction)
+  : mReconstruction(reconstruction)
 {
 
 }
@@ -28,11 +26,6 @@ OrientationExport::OrientationExport(const QString &imagePath,
 OrientationExport::~OrientationExport()
 {
 
-}
-
-void OrientationExport::setImagePath(const QString &imagePath)
-{
-  mImagePath = imagePath;
 }
 
 void OrientationExport::exportBinary(const QString &path) const
@@ -130,7 +123,7 @@ void OrientationExport::exportRelativeOrientation(const QString &path, bool bQua
 
 }
 
-void OrientationExport::exportPix4DCalibration(const QString &path) const
+void OrientationExport::exportPix4DCalibration(const QString &path, const QString &imagePath) const
 {
   /// Se generan los archivos de calibración de cámaras de Pix4D
 
@@ -157,7 +150,7 @@ void OrientationExport::exportPix4DCalibration(const QString &path) const
         for(auto &image : mReconstruction->Images()){
           if (image.second.CameraId() == camera.second.CameraId()){
             std::string img_name = image.second.Name();
-            std::string img_file = std::string(mImagePath.toStdString()).append("/").append(img_name);
+            std::string img_file = std::string(imagePath.toStdString()).append("/").append(img_name);
             colmap::Bitmap bmp;
             if(bmp.Read(img_file, false)){
               sensor_width_px = std::max(bmp.Width(), bmp.Height());

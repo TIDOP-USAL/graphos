@@ -44,7 +44,7 @@ protected:
 TestCamera::TestCamera()
   : mCamera(new Camera("DJI", "FC6310"))
 {
-  mCamera->setType("SIMPLE_RADIAL");
+  mCamera->setType("Simple radial");
   mCamera->setFocal(3552.23);
   mCamera->setWidth(5472);
   mCamera->setHeight(3648);
@@ -62,7 +62,7 @@ void TestCamera::initTestCase()
 {
   QCOMPARE(QString("DJI"), mCamera->make());
   QCOMPARE(QString("FC6310"), mCamera->model());
-  QCOMPARE(QString("SIMPLE_RADIAL"), mCamera->type());
+  QCOMPARE(QString("Simple radial"), mCamera->type());
   QCOMPARE(3552.23, mCamera->focal());
   QCOMPARE(5472, mCamera->width());
   QCOMPARE(3648, mCamera->height());
@@ -91,7 +91,7 @@ void TestCamera::test_constructor()
   Camera camera("SONY", "ILCE-6000");
   QCOMPARE(QString("SONY"), camera.make());
   QCOMPARE(QString("ILCE-6000"), camera.model());
-  QCOMPARE(QString("RADIAL"), camera.type());
+  QCOMPARE(QString("Radial"), camera.type());
   QCOMPARE(1., camera.focal());
   QCOMPARE(0, camera.width());
   QCOMPARE(0, camera.height());
@@ -103,7 +103,7 @@ void TestCamera::test_copy_constructor()
   Camera copy_camera(*mCamera);
   QCOMPARE(QString("DJI"), copy_camera.make());
   QCOMPARE(QString("FC6310"), copy_camera.model());
-  QCOMPARE(QString("SIMPLE_RADIAL"), copy_camera.type());
+  QCOMPARE(QString("Simple radial"), copy_camera.type());
   QCOMPARE(3552.23, copy_camera.focal());
   QCOMPARE(5472, copy_camera.width());
   QCOMPARE(3648, copy_camera.height());
@@ -155,9 +155,9 @@ void TestCamera::test_type_data()
   QTest::addColumn<QString>("value");
   QTest::addColumn<QString>("result");
 
-  QTest::newRow("SIMPLE_RADIAL") << "SIMPLE_RADIAL" << "SIMPLE_RADIAL";
-  QTest::newRow("RADIAL") << "RADIAL" << "RADIAL";
-  QTest::newRow("FULL_RADIAL") << "FULL_RADIAL" << "FULL_RADIAL";
+  QTest::newRow("Simple radial") << "Simple radial" << "Simple radial";
+  QTest::newRow("Radial") << "Radial" << "Radial";
+  QTest::newRow("Full radial") << "Full radial" << "Full radial";
 }
 
 void TestCamera::test_type()

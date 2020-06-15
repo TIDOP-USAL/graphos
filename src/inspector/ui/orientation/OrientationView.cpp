@@ -25,7 +25,7 @@ void OrientationViewImp::initUI()
 {
   this->setObjectName(QString("OrientationView"));
   this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
-  this->resize(380, 350);
+  this->resize(380, 250);
 
   QGridLayout *gridLayout = new QGridLayout();
   this->setLayout(gridLayout);

@@ -2,6 +2,7 @@
 
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/ImagesModel.h"
+#include "inspector/ui/HelpDialog.h"
 
 #include <tidop/core/messages.h>
 
@@ -18,6 +19,7 @@ CamerasPresenterImp::CamerasPresenterImp(CamerasView *view,
     mView(view),
     mModel(model),
     mImagesModel(imagesModel),
+    mHelp(nullptr),
     bModifiedProject(false)
 {
   this->init();
@@ -26,6 +28,11 @@ CamerasPresenterImp::CamerasPresenterImp(CamerasView *view,
 
 void CamerasPresenterImp::help()
 {
+  if (mHelp){
+    mHelp->setPage("cameras.html");
+    mHelp->setModal(true);
+    mHelp->showMaximized();
+  }
 }
 
 void CamerasPresenterImp::open()
@@ -33,18 +40,14 @@ void CamerasPresenterImp::open()
   mView->clear();
 
   loadCameras();
-  activeCamera(1);
+  //activeCamera(1);
 
   mView->exec();
 }
 
-void CamerasPresenterImp::setHelp(inspector::HelpDialog *help)
+void CamerasPresenterImp::setHelp(HelpDialog *help)
 {
-//  if (mHelp){
-//    mHelp->setPage("cameras.html");
-//    mHelp->setModal(true);
-//    mHelp->showMaximized();
-//  }
+  mHelp = help;
 }
 
 void CamerasPresenterImp::init()
@@ -87,15 +90,54 @@ void CamerasPresenterImp::activeCamera(int id)
     mView->setHeight(camera.height());
     mView->setType(camera.type());
     mView->setSensorSize(QString::number(camera.sensorSize()));
-  //  mView->setCalibCx();
-  //  mView->setCalibCy();
-  //  mView->setCalibF();
-  //  mView->setCalibK1();
-  //  mView->setCalibK2();
-  //  mView->setCalibK3();
-  //  mView->setCalibP1();
-  //  mView->setCalibP2();
-  //  mView->setImages();
+    std::shared_ptr<Calibration> calibration = camera.calibration();
+    for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
+      Calibration::Parameters parameter = param->first;
+      double value = param->second;
+      switch (parameter) {
+        case inspector::Calibration::Parameters::focal:
+          mView->setCalibF(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::focalx:
+          mView->setCalibFx(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::focaly:
+          mView->setCalibFy(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::cx:
+          mView->setCalibCx(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::cy:
+          mView->setCalibCy(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::k1:
+          mView->setCalibK1(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::k2:
+          mView->setCalibK2(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::k3:
+          mView->setCalibK3(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::k4:
+          mView->setCalibK4(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::k5:
+          mView->setCalibK5(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::k6:
+          mView->setCalibK6(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::p1:
+          mView->setCalibP1(QString::number(value));
+          break;
+        case inspector::Calibration::Parameters::p2:
+          mView->setCalibP2(QString::number(value));
+          break;
+        default:
+          break;
+      }
+    }
 
     /// Carga las imagenes de la cámara activa
     QStringList images;

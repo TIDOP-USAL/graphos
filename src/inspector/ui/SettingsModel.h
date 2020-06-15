@@ -34,6 +34,25 @@ public:
   QStringList history() const override;
   int historyMaxSize() const override;
   QString imageViewerBGcolor() const override;
+
+  QString keypointsViewerBGColor() const override;
+  int keypointsViewerMarkerType() const override;
+  int keypointsViewerMarkerSize() const override;
+  int keypointsViewerMarkerWidth() const override;
+  QString keypointsViewerMarkerColor() const override;
+  int keypointsViewerSelectMarkerWidth() const override;
+  QString keypointsViewerSelectMarkerColor() const override;
+
+  QString matchesViewerBGColor() const override;
+  int matchesViewerMarkerType() const override;
+  int matchesViewerMarkerSize() const override;
+  int matchesViewerMarkerWidth() const override;
+  QString matchesViewerMarkerColor() const override;
+  int matchesViewerSelectMarkerWidth() const override;
+  QString matchesViewerSelectMarkerColor() const override;
+  QString matchesViewerLineColor() const override;
+  int matchesViewerLineWidth() const override;
+
   bool useCuda() const override;
   void read() override;
   void write() override;

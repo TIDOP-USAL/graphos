@@ -1,9 +1,10 @@
 #include "camera.h"
 
+#include <colmap/base/reconstruction.h>
+
+
 namespace inspector
 {
-
-
 
 /// Cámaras predefinidas
 
@@ -17,8 +18,8 @@ public:
     : Calibration(Calibration::CameraModel::radial1){}
   virtual ~CalibrationRadial1() override {}
 
-  std::string name() const override {
-    return std::string("Simple radial");
+  QString name() const override {
+    return QString("Simple radial");
   }
 
 };
@@ -33,8 +34,8 @@ public:
     : Calibration(Calibration::CameraModel::radial2){}
   virtual ~CalibrationRadial2() override {}
 
-  std::string name() const override {
-    return std::string("Radial");
+  QString name() const override {
+    return QString("Radial");
   }
 
 };
@@ -49,8 +50,8 @@ public:
     : Calibration(Calibration::CameraModel::radial3){}
   virtual ~CalibrationRadial3() override {}
 
-  std::string name() const override {
-    return std::string("Full radial");
+  QString name() const override {
+    return QString("Full radial");
   }
 
 };
@@ -65,8 +66,8 @@ public:
     : Calibration(Calibration::CameraModel::simple_radial_fisheye){}
   virtual ~CalibrationSimpleRadialFisheye() override {}
 
-  std::string name() const override {
-    return std::string("Simple Radial Fisheye");
+  QString name() const override {
+    return QString("Simple Radial Fisheye");
   }
 
 };
@@ -82,8 +83,8 @@ public:
     : Calibration(Calibration::CameraModel::radial_fisheye){}
   virtual ~CalibrationRadialFisheye() override {}
 
-  std::string name() const override {
-    return std::string("Radial Fisheye");
+  QString name() const override {
+    return QString("Radial Fisheye");
   }
 
 };
@@ -99,8 +100,8 @@ public:
     : Calibration(Calibration::CameraModel::opencv){}
   virtual ~CalibrationOpenCV() override {}
 
-  std::string name() const override {
-    return std::string("OpenCV");
+  QString name() const override {
+    return QString("OpenCV");
   }
 
 };
@@ -116,8 +117,8 @@ public:
     : Calibration(Calibration::CameraModel::opencv_fisheye){}
   virtual ~CalibrationOpenCVFisheye() override {}
 
-  std::string name() const override {
-    return std::string("OpenCV Fisheye");
+  QString name() const override {
+    return QString("OpenCV Fisheye");
   }
 
 };
@@ -133,8 +134,8 @@ public:
     : Calibration(Calibration::CameraModel::opencv_full){}
   virtual ~CalibrationOpenCVFull() override {}
 
-  std::string name() const override {
-    return std::string("OpenCV Full");
+  QString name() const override {
+    return QString("OpenCV Full");
   }
 
 };
@@ -150,8 +151,8 @@ public:
     : Calibration(Calibration::CameraModel::simple_pinhole){}
   virtual ~CalibrationSimplePinhole() override {}
 
-  std::string name() const override {
-    return std::string("Simple Pinhole");
+  QString name() const override {
+    return QString("Simple Pinhole");
   }
 
 };
@@ -168,8 +169,8 @@ public:
     : Calibration(Calibration::CameraModel::pinhole){}
   virtual ~CalibrationPinhole() override {}
 
-  std::string name() const override {
-    return std::string("Pinhole");
+  QString name() const override {
+    return QString("Pinhole");
   }
 
 };
@@ -241,40 +242,40 @@ Calibration::CameraModel Calibration::cameraModel() const
   return mCameraModel.flags();
 }
 
-Calibration *Calibration::create(CameraModel cameraModel)
+std::shared_ptr<Calibration> Calibration::create(CameraModel cameraModel)
 {
-  Calibration *calib;
+  std::shared_ptr<Calibration> calib;
   switch (cameraModel)
   {
   case Calibration::CameraModel::radial1:
-    calib = new CalibrationRadial1();
+    calib = std::make_shared<CalibrationRadial1>();
     break;
   case Calibration::CameraModel::radial2:
-    calib = new CalibrationRadial2();
+    calib =std::make_shared<CalibrationRadial2>();
     break;
   case Calibration::CameraModel::radial3:
-    calib = new CalibrationRadial3();
+    calib = std::make_shared<CalibrationRadial3>();
     break;
   case Calibration::CameraModel::simple_radial_fisheye:
-    calib = new CalibrationSimpleRadialFisheye();
+    calib = std::make_shared<CalibrationSimpleRadialFisheye>();
     break;
   case Calibration::CameraModel::radial_fisheye:
-    calib = new CalibrationRadialFisheye();
+    calib = std::make_shared<CalibrationRadialFisheye>();
     break;
   case Calibration::CameraModel::opencv:
-    calib = new CalibrationOpenCV();
+    calib = std::make_shared<CalibrationOpenCV>();
     break;
   case Calibration::CameraModel::opencv_fisheye:
-    calib = new CalibrationOpenCVFisheye();
+    calib = std::make_shared<CalibrationOpenCVFisheye>();
     break;
   case Calibration::CameraModel::opencv_full:
-    calib = new CalibrationOpenCVFull();
+    calib = std::make_shared<CalibrationOpenCVFull>();
     break;
   case Calibration::CameraModel::simple_pinhole:
-    calib = new CalibrationSimplePinhole();
+    calib = std::make_shared<CalibrationSimplePinhole>();
     break;
   case Calibration::CameraModel::pinhole:
-    calib = new CalibrationPinhole();
+    calib = std::make_shared<CalibrationPinhole>();
     break;
   }
   return calib;
@@ -338,51 +339,94 @@ Calibration::parameter_const_iterator Calibration::parametersEnd() const
 //  return parameter_const_iterator();
 //}
 
-std::string Calibration::parameterName(Parameters parameter) const
+QString Calibration::parameterName(Parameters parameter) const
 {
   switch (parameter)
   {
   case Calibration::Parameters::focal:
-    return std::string("f");
+    return QString("f");
   case Calibration::Parameters::focalx:
-    return std::string("fx");
+    return QString("fx");
   case Calibration::Parameters::focaly:
-    return std::string("fy");
+    return QString("fy");
   case Calibration::Parameters::cx:
-    return std::string("cx");
+    return QString("cx");
   case Calibration::Parameters::cy:
-    return std::string("cy");
+    return QString("cy");
   case Calibration::Parameters::k1:
-    return std::string("k1");
+    return QString("k1");
   case Calibration::Parameters::k2:
-    return std::string("k2");
+    return QString("k2");
   case Calibration::Parameters::k3:
-    return std::string("k3");
+    return QString("k3");
   case Calibration::Parameters::k4:
-    return std::string("k4");
+    return QString("k4");
   case Calibration::Parameters::k5:
-    return std::string("k5");
+    return QString("k5");
   case Calibration::Parameters::k6:
-    return std::string("k6");
+    return QString("k6");
   case Calibration::Parameters::p1:
-    return std::string("p1");
+    return QString("p1");
   case Calibration::Parameters::p2:
-    return std::string("p2");
+    return QString("p2");
     }
+}
+
+bool Calibration::existParameter(Calibration::Parameters parameter) const
+{
+  return mParameters.find(parameter) != mParameters.end();
 }
 
 double Calibration::parameter(Calibration::Parameters parameter) const
 {
-  return mParameters.at(parameter);
+  return this->existParameter(parameter) ? mParameters.at(parameter) : 0.0;
 }
 
 void Calibration::setParameter(Calibration::Parameters parameter, double value)
 {
-  mParameters.at(parameter) = value;
+  if (this->existParameter(parameter))
+    mParameters.at(parameter) = value;
+}
+
+
+
+/* ------------------------------------------------------------------ */
+
+
+std::shared_ptr<Calibration> CalibrationFactory::create(const QString &cameraType)
+{
+  std::shared_ptr<Calibration> calibration;
+
+  if (cameraType.compare("Simple Pinhole") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::simple_pinhole);
+  } else if (cameraType.compare("Pinhole") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::pinhole);
+  } else if (cameraType.compare("Simple radial") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::radial1);
+  } else if (cameraType.compare("Radial") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::radial2);
+  } else if (cameraType.compare("OpenCV") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::opencv);
+  } else if (cameraType.compare("OpenCV Fisheye") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::opencv_fisheye);
+  } else if (cameraType.compare("OpenCV Full") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::opencv_full);
+  } else if (cameraType.compare("Simple Radial Fisheye") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::simple_radial_fisheye);
+  } else if (cameraType.compare("Radial Fisheye") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::radial_fisheye);
+  } else if (cameraType.compare("Full radial") == 0){
+    calibration = Calibration::create(Calibration::CameraModel::radial3);
+  } else {
+    throw std::runtime_error("Invalid Camera Type");
+  }
+
+  return calibration;
 }
 
 
 /* ------------------------------------------------------------------ */
+
 
 
 
@@ -393,7 +437,8 @@ Camera::Camera()
       mFocal(1.),
       mWidth(0),
       mHeight(0),
-      mSensorSize(1.)
+      mSensorSize(1.),
+      mCalibration(nullptr)
 {
   init();
 }
@@ -405,7 +450,8 @@ Camera::Camera(const QString &make, const QString &model)
       mFocal(1.),
       mWidth(0),
       mHeight(0),
-      mSensorSize(1.)
+      mSensorSize(1.),
+      mCalibration(nullptr)
 {
   init();
 }
@@ -417,7 +463,8 @@ Camera::Camera(const Camera &camera)
     mFocal(camera.mFocal),
     mWidth(camera.mWidth),
     mHeight(camera.mHeight),
-    mSensorSize(camera.mSensorSize)
+    mSensorSize(camera.mSensorSize),
+    mCalibration(camera.mCalibration)
 {
 }
 
@@ -488,7 +535,17 @@ double Camera::sensorSize() const
 
 void Camera::setSensorSize(double sensorSize)
 {
-    mSensorSize = sensorSize;
+  mSensorSize = sensorSize;
+}
+
+std::shared_ptr<Calibration> Camera::calibration() const
+{
+  return mCalibration;
+}
+
+void Camera::setCalibration(std::shared_ptr<Calibration> &calibration)
+{
+  mCalibration = calibration;
 }
 
 Camera &Camera::operator =(const Camera &camera)
@@ -501,6 +558,7 @@ Camera &Camera::operator =(const Camera &camera)
     this->mWidth = camera.mWidth;
     this->mHeight = camera.mHeight;
     this->mSensorSize = camera.mSensorSize;
+    this->mCalibration = camera.mCalibration;
   }
   return *this;
 }
@@ -508,5 +566,186 @@ Camera &Camera::operator =(const Camera &camera)
 void Camera::init()
 {
 }
+
+
+
+
+
+ReadCalibration::ReadCalibration()
+  : mReconstruction(new colmap::Reconstruction)
+{
+
+}
+
+ReadCalibration::~ReadCalibration()
+{
+  if (mReconstruction){
+    delete mReconstruction;
+    mReconstruction = nullptr;
+  }
+}
+
+void ReadCalibration::open(const QString &path)
+{
+#ifdef _DEBUG
+  TL_TODO("Excepción al leer el binario en debug")
+  mReconstruction->ReadText(path.toStdString());
+#else
+  mReconstruction->ReadBinary(path.toStdString());
+#endif
+}
+
+std::shared_ptr<Calibration> ReadCalibration::calibration(int cameraId) const
+{
+  std::shared_ptr<Calibration> calibration;
+  if (mReconstruction->ExistsCamera(static_cast<colmap::image_t>(cameraId))){
+
+    colmap::Camera &camera = mReconstruction->Camera(static_cast<colmap::image_t>(cameraId));
+    std::vector<double> params = camera.Params();
+
+    std::string model_name = camera.ModelName();
+
+    if (model_name.compare("SIMPLE_PINHOLE") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::simple_pinhole);
+      calibration->setParameter(Calibration::Parameters::focal, params[0]);
+      calibration->setParameter(Calibration::Parameters::cx, params[1]);
+      calibration->setParameter(Calibration::Parameters::cy, params[2]);
+
+    } else if (model_name.compare("PINHOLE") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::pinhole);
+      calibration->setParameter(Calibration::Parameters::focalx, params[0]);
+      calibration->setParameter(Calibration::Parameters::focaly, params[1]);
+      calibration->setParameter(Calibration::Parameters::cx, params[2]);
+      calibration->setParameter(Calibration::Parameters::cy, params[3]);
+
+    } else if (model_name.compare("SIMPLE_RADIAL") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::radial1);
+      calibration->setParameter(Calibration::Parameters::focal, params[0]);
+      calibration->setParameter(Calibration::Parameters::cx, params[1]);
+      calibration->setParameter(Calibration::Parameters::cy, params[2]);
+      calibration->setParameter(Calibration::Parameters::k1, params[3]);
+
+    } else if (model_name.compare("RADIAL") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::radial2);
+      calibration->setParameter(Calibration::Parameters::focal, params[0]);
+      calibration->setParameter(Calibration::Parameters::cx, params[1]);
+      calibration->setParameter(Calibration::Parameters::cy, params[2]);
+      calibration->setParameter(Calibration::Parameters::k1, params[3]);
+      calibration->setParameter(Calibration::Parameters::k2, params[4]);
+
+    } else if (model_name.compare("OPENCV") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::opencv);
+      calibration->setParameter(Calibration::Parameters::focalx, params[0]);
+      calibration->setParameter(Calibration::Parameters::focaly, params[1]);
+      calibration->setParameter(Calibration::Parameters::cx, params[2]);
+      calibration->setParameter(Calibration::Parameters::cy, params[3]);
+      calibration->setParameter(Calibration::Parameters::k1, params[4]);
+      calibration->setParameter(Calibration::Parameters::k2, params[5]);
+      calibration->setParameter(Calibration::Parameters::p1, params[6]);
+      calibration->setParameter(Calibration::Parameters::p2, params[7]);
+
+    } else if (model_name.compare("OPENCV_FISHEYE") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::opencv_fisheye);
+      calibration->setParameter(Calibration::Parameters::focalx, params[0]);
+      calibration->setParameter(Calibration::Parameters::focaly, params[1]);
+      calibration->setParameter(Calibration::Parameters::cx, params[2]);
+      calibration->setParameter(Calibration::Parameters::cy, params[3]);
+      calibration->setParameter(Calibration::Parameters::k1, params[4]);
+      calibration->setParameter(Calibration::Parameters::k2, params[5]);
+      calibration->setParameter(Calibration::Parameters::k3, params[6]);
+      calibration->setParameter(Calibration::Parameters::k4, params[7]);
+
+    } else if (model_name.compare("FULL_OPENCV") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::opencv_full);
+      calibration->setParameter(Calibration::Parameters::focalx, params[0]);
+      calibration->setParameter(Calibration::Parameters::focaly, params[1]);
+      calibration->setParameter(Calibration::Parameters::cx, params[2]);
+      calibration->setParameter(Calibration::Parameters::cy, params[3]);
+      calibration->setParameter(Calibration::Parameters::k1, params[4]);
+      calibration->setParameter(Calibration::Parameters::k2, params[5]);
+      calibration->setParameter(Calibration::Parameters::p1, params[6]);
+      calibration->setParameter(Calibration::Parameters::p2, params[7]);
+      calibration->setParameter(Calibration::Parameters::k3, params[8]);
+      calibration->setParameter(Calibration::Parameters::k4, params[9]);
+      calibration->setParameter(Calibration::Parameters::k5, params[10]);
+      calibration->setParameter(Calibration::Parameters::k6, params[11]);
+
+    } else if (model_name.compare("SIMPLE_RADIAL_FISHEYE") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::simple_radial_fisheye);
+      calibration->setParameter(Calibration::Parameters::focal, params[0]);
+      calibration->setParameter(Calibration::Parameters::cx, params[1]);
+      calibration->setParameter(Calibration::Parameters::cy, params[2]);
+      calibration->setParameter(Calibration::Parameters::k1, params[3]);
+
+    } else if (model_name.compare("RADIAL_FISHEYE") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::radial_fisheye);
+      calibration->setParameter(Calibration::Parameters::focal, params[0]);
+      calibration->setParameter(Calibration::Parameters::cx, params[1]);
+      calibration->setParameter(Calibration::Parameters::cy, params[2]);
+      calibration->setParameter(Calibration::Parameters::k1, params[3]);
+      calibration->setParameter(Calibration::Parameters::k2, params[4]);
+
+    } else if (model_name.compare("FULL_RADIAL") == 0){
+
+      calibration = Calibration::create(Calibration::CameraModel::radial3);
+      calibration->setParameter(Calibration::Parameters::focal, params[0]);
+      calibration->setParameter(Calibration::Parameters::cx, params[1]);
+      calibration->setParameter(Calibration::Parameters::cy, params[2]);
+      calibration->setParameter(Calibration::Parameters::k1, params[3]);
+      calibration->setParameter(Calibration::Parameters::k2, params[4]);
+      calibration->setParameter(Calibration::Parameters::k3, params[5]);
+      calibration->setParameter(Calibration::Parameters::p1, params[6]);
+      calibration->setParameter(Calibration::Parameters::p2, params[7]);
+
+    } else {
+      TL_TODO("camara no soportada")
+      return nullptr;
+    }
+
+  }
+
+  return calibration;
+}
+
+QString cameraToColmapType(const Camera &camera)
+{
+  QString colmap_camera;
+  QString inspector_camera = camera.type();
+
+  if (inspector_camera.compare("Simple Pinhole") == 0){
+    colmap_camera = "SIMPLE_PINHOLE";
+  } else if (inspector_camera.compare("Pinhole") == 0){
+    colmap_camera = "SIMPLE_RADIAL";
+  } else if (inspector_camera.compare("Simple radial") == 0){
+    colmap_camera = "SIMPLE_RADIAL";
+  } else if (inspector_camera.compare("Radial") == 0){
+    colmap_camera = "RADIAL";
+  } else if (inspector_camera.compare("OpenCV") == 0){
+    colmap_camera = "OPENCV";
+  } else if (inspector_camera.compare("OpenCV Fisheye") == 0){
+    colmap_camera = "OPENCV_FISHEYE";
+  } else if (inspector_camera.compare("OpenCV Full") == 0){
+    colmap_camera = "FULL_OPENCV";
+  } else if (inspector_camera.compare("Simple Radial Fisheye") == 0){
+    colmap_camera = "SIMPLE_RADIAL_FISHEYE";
+  } else if (inspector_camera.compare("Radial Fisheye") == 0){
+    colmap_camera = "RADIAL_FISHEYE";
+  } else if (inspector_camera.compare("Full radial") == 0){
+    colmap_camera = "FULL_RADIAL";
+  }
+
+  return colmap_camera;
+}
+
+
 
 } // namespace inspector

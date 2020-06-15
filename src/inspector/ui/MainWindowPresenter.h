@@ -23,7 +23,7 @@ class CamerasModel;
 class FeaturesModel;
 class MatchesModel;
 
-//class HelpDialog;
+class HelpDialog;
 class TabHandler;
 
 class MainWindowPresenter
@@ -49,12 +49,12 @@ signals:
   void openFeatureExtractionDialog();
   void openFeatureMatchingDialog();
   void openOrientationDialog();
+  void openDensificationDialog();
   void openCamerasDialog();
-
-//  void openKeypointsViewerDialogFromSession(QString);
-//  void openKeypointsViewerDialogFromSessionAndImage(QString, QString);
-//  void openMatchesViewerDialogFromSession(QString);
-//  void openMatchesViewerDialogFromSessionAndImages(QString, QString, QString);
+  void openKeypointsViewerDialog();
+  void openKeypointsViewerDialogFromImage(QString);
+  void openMatchesViewerDialog();
+  void openMatchesViewerDialogFromImages(QString, QString);
 //  void openExportFeaturesDialog();
 //  void openExportMatchesDialog();
 //  void openMultiviewMatchingAssessmentDialog();
@@ -82,8 +82,8 @@ protected slots:
 
   /* Quality Control */
 
-  void openKeypointsViewer();
-  void openMatchesViewer();
+//  void openKeypointsViewer();
+//  void openMatchesViewer();
 
   /* Menú herramientas */
 
@@ -99,6 +99,7 @@ protected slots:
   void loadFeatures(const QString &featId);
   void loadMatches();
   void loadOrientation();
+  void loadDenseModel();
 
   void openImage(const QString &imageName);
   void activeImage(const QString &imageName);
@@ -106,6 +107,8 @@ protected slots:
   void deleteImages(const QStringList &imageNames);
   void deleteImage(const QString &imageName);
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
+
+  void openModel3D(const QString &model3D);
 
   //void updateFeatures();
   //void updateMatches();

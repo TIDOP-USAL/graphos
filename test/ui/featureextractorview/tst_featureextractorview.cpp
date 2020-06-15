@@ -56,7 +56,7 @@ TestFeatureExtractorView::~TestFeatureExtractorView()
 void TestFeatureExtractorView::initTestCase()
 {
   QCOMPARE("", this->currentDetectorDescriptor());
-  QCOMPARE(2000, this->maxImageSize());
+  QCOMPARE(3000, this->maxImageSize());
   QCOMPARE(false, this->fullImageSize());
 
   this->addDetectorDescriptor(mSift);
@@ -67,7 +67,7 @@ void TestFeatureExtractorView::cleanupTestCase()
 {
   this->clear();
 
-  QCOMPARE(2000, this->maxImageSize());
+  QCOMPARE(3000, this->maxImageSize());
   QCOMPARE(false, this->fullImageSize());
 }
 

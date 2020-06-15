@@ -2,6 +2,7 @@
 
 #include "inspector/core/camera.h"
 
+
 using namespace inspector;
 
 class TestCalibration
@@ -24,16 +25,16 @@ private slots:
 
 protected:
 
-  Calibration *mCalibrationRadial1;
-  Calibration *mCalibrationRadial2;
-  Calibration *mCalibrationRadial3;
-  Calibration *mCalibrationSimpleRadialFisheye;
-  Calibration *mCalibrationRadialFisheye;
-  Calibration *mCalibrationOpenCV;
-  Calibration *mCalibrationOpenCVFisheye;
-  Calibration *mCalibrationOpenCVFull;
-  Calibration *mCalibrationSimplePinhole;
-  Calibration *mCalibrationPinhole;
+  std::shared_ptr<Calibration> mCalibrationRadial1;
+  std::shared_ptr<Calibration> mCalibrationRadial2;
+  std::shared_ptr<Calibration> mCalibrationRadial3;
+  std::shared_ptr<Calibration> mCalibrationSimpleRadialFisheye;
+  std::shared_ptr<Calibration> mCalibrationRadialFisheye;
+  std::shared_ptr<Calibration> mCalibrationOpenCV;
+  std::shared_ptr<Calibration> mCalibrationOpenCVFisheye;
+  std::shared_ptr<Calibration> mCalibrationOpenCVFull;
+  std::shared_ptr<Calibration> mCalibrationSimplePinhole;
+  std::shared_ptr<Calibration> mCalibrationPinhole;
 };
 
 TestCalibration::TestCalibration()
@@ -122,45 +123,6 @@ TestCalibration::TestCalibration()
 
 TestCalibration::~TestCalibration()
 {
-  if (mCalibrationRadial1){
-    delete mCalibrationRadial1;
-  }
-
-  if (mCalibrationRadial2){
-    delete mCalibrationRadial2;
-  }
-
-  if (mCalibrationRadial3){
-    delete mCalibrationRadial3;
-  }
-
-  if (mCalibrationSimpleRadialFisheye){
-    delete mCalibrationSimpleRadialFisheye;
-  }
-
-  if (mCalibrationRadialFisheye){
-    delete mCalibrationRadialFisheye;
-  }
-
-  if (mCalibrationOpenCV){
-    delete mCalibrationOpenCV;
-  }
-
-  if (mCalibrationOpenCVFisheye){
-    delete mCalibrationOpenCVFisheye;
-  }
-
-  if (mCalibrationOpenCVFull){
-    delete mCalibrationOpenCVFull;
-  }
-
-  if (mCalibrationSimplePinhole){
-    delete mCalibrationSimplePinhole;
-  }
-
-  if (mCalibrationPinhole){
-    delete mCalibrationPinhole;
-  }
 }
 
 void TestCalibration::initTestCase()

@@ -96,6 +96,16 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mLabelF, 0, 0, 1, 1);
   mLineEditF = new QLineEdit(mGroupBoxCalibrationParameters);
   gridLayout2->addWidget(mLineEditF, 0, 1, 1, 3);
+  
+  mLabelFx = new QLabel(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLabelFx, 0, 0, 1, 1);
+  mLineEditFx = new QLineEdit(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLineEditFx, 0, 1, 1, 3);
+    
+  mLabelFy = new QLabel(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLabelFy, 0, 2, 1, 1);
+  mLineEditFy = new QLineEdit(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLineEditFy, 0, 3, 1, 3);
 
   mLabelCx = new QLabel(mGroupBoxCalibrationParameters);
   gridLayout2->addWidget(mLabelCx, 1, 0, 1, 1);
@@ -122,15 +132,30 @@ void CamerasViewImp::initUI()
   mLineEditK3 = new QLineEdit(mGroupBoxCalibrationParameters);
   gridLayout2->addWidget(mLineEditK3, 6, 1, 1, 1);
 
+  mLabelK4 = new QLabel(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLabelK4, 6, 2, 1, 1);
+  mLineEditK4 = new QLineEdit(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLineEditK4, 6, 3, 1, 1);
+
+  mLabelK5 = new QLabel(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLabelK5, 7, 0, 1, 1);
+  mLineEditK5 = new QLineEdit(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLineEditK5, 7, 1, 1, 1);
+
+  mLabelK6 = new QLabel(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLabelK6, 7, 2, 1, 1);
+  mLineEditK6 = new QLineEdit(mGroupBoxCalibrationParameters);
+  gridLayout2->addWidget(mLineEditK6, 7, 3, 1, 1);
+
   mLabelP1 = new QLabel(mGroupBoxCalibrationParameters);
-  gridLayout2->addWidget(mLabelP1, 7, 0, 1, 1);
+  gridLayout2->addWidget(mLabelP1, 8, 0, 1, 1);
   mLineEditP1 = new QLineEdit(mGroupBoxCalibrationParameters);
-  gridLayout2->addWidget(mLineEditP1, 7, 1, 1, 1);
+  gridLayout2->addWidget(mLineEditP1, 8, 1, 1, 1);
 
   mLabelP2 = new QLabel(mGroupBoxCalibrationParameters);
-  gridLayout2->addWidget(mLabelP2, 7, 2, 1, 1);
+  gridLayout2->addWidget(mLabelP2, 8, 2, 1, 1);
   mLineEditP2 = new QLineEdit(mGroupBoxCalibrationParameters);
-  gridLayout2->addWidget(mLineEditP2, 7, 3, 1, 1);
+  gridLayout2->addWidget(mLineEditP2, 8, 3, 1, 1);
 
   layout->addWidget(mGroupBoxCalibrationParameters, 4, 1, 1, 4);
 
@@ -168,9 +193,14 @@ void CamerasViewImp::initSignalAndSlots()
   connect(mLineEditCx, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibCxChange(QString)));
   connect(mLineEditCy, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibCyChange(QString)));
   connect(mLineEditF,  SIGNAL(textEdited(QString)),  this,  SIGNAL(calibFChange(QString)));
+  connect(mLineEditFx,  SIGNAL(textEdited(QString)),  this,  SIGNAL(calibFxChange(QString)));
+  connect(mLineEditFy,  SIGNAL(textEdited(QString)),  this,  SIGNAL(calibFyChange(QString)));
   connect(mLineEditK1, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibK1Change(QString)));
   connect(mLineEditK2, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibK2Change(QString)));
   connect(mLineEditK3, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibK3Change(QString)));
+  connect(mLineEditK4, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibK4Change(QString)));
+  connect(mLineEditK5, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibK5Change(QString)));
+  connect(mLineEditK6, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibK6Change(QString)));
   connect(mLineEditP1, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibP1Change(QString)));
   connect(mLineEditP2, SIGNAL(textEdited(QString)),  this,  SIGNAL(calibP2Change(QString)));
 
@@ -185,25 +215,51 @@ void CamerasViewImp::clear()
   mListWidgetCameras->clear();
   mListWidgetImages->clear();
 
+  mLineEditMake->setText("");
+  mLineEditModel->setText("");
+  mSpinBoxWidth->setValue(0);
+  mSpinBoxHeight->setValue(0);
+  mLineEditSensorSize->setText("");
+  mLineEditFocal->setText("");
   mSpinBoxWidth->setEnabled(false);
   mSpinBoxHeight->setEnabled(false);
   this->enableCameraEdition(false);
+  mLineEditCx->setText("");
+  mLineEditCy->setText("");
+  mLineEditF->setText("");
+  mLineEditFx->setText("");
+  mLineEditFy->setText("");
+  mLineEditK1->setText("");
+  mLineEditK2->setText("");
+  mLineEditK3->setText("");
+  mLineEditK4->setText("");
+  mLineEditK5->setText("");
+  mLineEditK6->setText("");
+  mLineEditP1->setText("");
+  mLineEditP2->setText("");
 }
 
 void CamerasViewImp::update()
 {
-//  if (bModified){
-//    ///TODO: Si añado botón Apply
-//  }
-
   mLineEditCx->setEnabled(mComboBoxType->currentIndex() == 0 || mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2);
   mLineEditCy->setEnabled(mComboBoxType->currentIndex() == 0 || mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2);
   mLineEditF->setEnabled(mComboBoxType->currentIndex() == 0 || mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2);
   mLineEditK1->setEnabled(mComboBoxType->currentIndex() == 0 || mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2);
   mLineEditK2->setEnabled(mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2);
-  mLineEditK3->setEnabled(mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2);
+  mLineEditK3->setEnabled(mComboBoxType->currentIndex() == 2);
   mLineEditP1->setEnabled(mComboBoxType->currentIndex() == 2);
   mLineEditP2->setEnabled(mComboBoxType->currentIndex() == 2);
+
+  if (mComboBoxType->currentIndex() <= 2) {
+    TL_TODO("Añadir el resto de cámaras")
+    mLabelFx->setVisible(false);
+    mLabelFy->setVisible(false);
+    mLineEditFx->setVisible(false);
+    mLineEditFy->setVisible(false);
+    mLineEditK4->setEnabled(false);
+    mLineEditK5->setEnabled(false);
+    mLineEditK6->setEnabled(false);
+  }
 
 }
 
@@ -212,12 +268,17 @@ void CamerasViewImp::retranslate()
   this->setWindowTitle(QApplication::translate("CamerasView", "Cameras", nullptr));
   mGroupBoxCalibrationParameters->setTitle(QApplication::translate("CamerasView", "Calibration parameters", nullptr));
   mLabelF->setText(QApplication::translate("CamerasView", "f", nullptr));
-  mLabelK3->setText(QApplication::translate("CamerasView", "k3", nullptr));
+  mLabelFx->setText(QApplication::translate("CamerasView", "fx", nullptr));
+  mLabelFy->setText(QApplication::translate("CamerasView", "fy", nullptr));
   mLabelCx->setText(QApplication::translate("CamerasView", "cx", nullptr));
-  mLabelP1->setText(QApplication::translate("CamerasView", "p1", nullptr));
-  mLabelK1->setText(QApplication::translate("CamerasView", "k1", nullptr));
   mLabelCy->setText(QApplication::translate("CamerasView", "cy", nullptr));
+  mLabelK1->setText(QApplication::translate("CamerasView", "k1", nullptr));
   mLabelK2->setText(QApplication::translate("CamerasView", "k2", nullptr));
+  mLabelK3->setText(QApplication::translate("CamerasView", "k3", nullptr));
+  mLabelK4->setText(QApplication::translate("CamerasView", "k4", nullptr));
+  mLabelK5->setText(QApplication::translate("CamerasView", "k5", nullptr));
+  mLabelK6->setText(QApplication::translate("CamerasView", "k6", nullptr));
+  mLabelP1->setText(QApplication::translate("CamerasView", "p1", nullptr));
   mLabelP2->setText(QApplication::translate("CamerasView", "p2", nullptr));
   mLabelImages->setText(QApplication::translate("CamerasView", "Images:", nullptr));
   mLabelCameras->setText(QApplication::translate("CamerasView", "Cameras:", nullptr));
@@ -226,9 +287,9 @@ void CamerasViewImp::retranslate()
   mLabelWidth->setText(QApplication::translate("CamerasView", "Width (pixels)", nullptr));
   mLabelSensorSize->setText(QApplication::translate("CamerasView", "Sensor size (mm)", nullptr));
   mLabelFocal->setText(QApplication::translate("CamerasView", "Focal", nullptr));
-  mComboBoxType->setItemText(0, QApplication::translate("CamerasView", "SIMPLE_RADIAL", nullptr));
-  mComboBoxType->setItemText(1, QApplication::translate("CamerasView", "RADIAL", nullptr));
-  mComboBoxType->setItemText(2, QApplication::translate("CamerasView", "FULL_RADIAL", nullptr));
+  mComboBoxType->setItemText(0, QApplication::translate("CamerasView", "Simple Radial", nullptr));
+  mComboBoxType->setItemText(1, QApplication::translate("CamerasView", "Radial", nullptr));
+  mComboBoxType->setItemText(2, QApplication::translate("CamerasView", "Full Radial", nullptr));
 
   mLabelMake->setText(QApplication::translate("CamerasView", "Make", nullptr));
   mLabelModel->setText(QApplication::translate("CamerasView", "Model", nullptr));
@@ -335,6 +396,16 @@ void CamerasViewImp::setCalibF(const QString &f)
   mLineEditF->setText(f);
 }
 
+void CamerasViewImp::setCalibFx(const QString &fx)
+{
+  mLineEditFx->setText(fx);
+}
+
+void CamerasViewImp::setCalibFy(const QString &fy)
+{
+  mLineEditFx->setText(fy);
+}
+
 void CamerasViewImp::setCalibK1(const QString &k1)
 {
   mLineEditK1->setText(k1);
@@ -348,6 +419,21 @@ void CamerasViewImp::setCalibK2(const QString &k2)
 void CamerasViewImp::setCalibK3(const QString &k3)
 {
   mLineEditK3->setText(k3);
+}
+
+void CamerasViewImp::setCalibK4(const QString &k4)
+{
+  mLineEditK4->setText(k4);
+}
+
+void CamerasViewImp::setCalibK5(const QString &k5)
+{
+  mLineEditK5->setText(k5);
+}
+
+void CamerasViewImp::setCalibK6(const QString &k6)
+{
+  mLineEditK6->setText(k6);
 }
 
 void CamerasViewImp::setCalibP1(const QString &p1)
@@ -366,7 +452,7 @@ void CamerasViewImp::onSelectionChanged()
   if (itemsCameras.size() == 1) {
     emit cameraChange(itemsCameras.at(0)->data(Qt::UserRole).toInt());
   }
-  mListWidgetImages->clear();
+  /*mListWidgetImages->clear();*/
 }
 
 } // namespace ui

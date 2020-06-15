@@ -15,6 +15,7 @@
 #include "inspector/core/camera.h"
 #include "inspector/core/features/features.h"
 #include "inspector/core/orientation/photoorientation.h"
+#include "inspector/core/densification/densification.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -252,6 +253,12 @@ public:
   virtual PhotoOrientation photoOrientation(const QString &imgName) const = 0;
   virtual void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) = 0;
 
+  virtual std::shared_ptr<Densification> densification() const = 0;
+  virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
+
+  virtual QString denseModel() const = 0;
+  virtual void setDenseModel(const QString &denseModel) = 0;
+
   /*!
    * \brief Limpia el proyecto
    */
@@ -409,6 +416,12 @@ public:
   PhotoOrientation photoOrientation(const QString &imgName) const override;
   void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) override;
 
+  std::shared_ptr<Densification> densification() const override;
+  void setDensification(const std::shared_ptr<Densification> &densification) override;
+
+  QString denseModel() const override;
+  void setDenseModel(const QString &denseModel) override;
+
   void clear() override;
 
   bool load(const QString &file) override;
@@ -425,6 +438,7 @@ protected:
   Image readImage(QXmlStreamReader &stream);
   void readCameras(QXmlStreamReader &stream);
   Camera readCamera(QXmlStreamReader &stream);
+  void readCalibration(QXmlStreamReader &stream, Camera &camera);
   void readFeatures(QXmlStreamReader &stream);
   void readFeatureExtractor(QXmlStreamReader &stream);
   void readSIFT(QXmlStreamReader &stream);
@@ -436,12 +450,18 @@ protected:
   void readOrientations(QXmlStreamReader &stream);
   void readOrientationSparseModel(QXmlStreamReader &stream);
   void readPhotoOrientations(QXmlStreamReader &stream);
+  void readDensification(QXmlStreamReader &stream);
+  void readDenseModel(QXmlStreamReader &stream);
+  void readDensificationMethod(QXmlStreamReader &stream);
+  void readSmvs(QXmlStreamReader &stream);
+  void readCmvsPmvs(QXmlStreamReader &stream);
 
   void writeVersion(QXmlStreamWriter &stream) const;
   void writeGeneral(QXmlStreamWriter &stream) const;
   void writeDatabase(QXmlStreamWriter &stream) const;
   void writeCameras(QXmlStreamWriter &stream) const;
   void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
+  void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
   void writeImages(QXmlStreamWriter &stream) const;
   void writeImage(QXmlStreamWriter &stream, const Image &image) const;
   void writeFeatures(QXmlStreamWriter &stream) const;
@@ -455,6 +475,9 @@ protected:
   void writeOrientations(QXmlStreamWriter &stream) const;
   void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
   void writePhotoOrientations(QXmlStreamWriter &stream) const;
+  void writeDensification(QXmlStreamWriter &stream) const;
+  void writeDenseModel(QXmlStreamWriter &stream) const;
+  void writeDensificationMethod(QXmlStreamWriter &stream) const;
 
   QSize readSize(QXmlStreamReader &stream) const;
   int readInt(QXmlStreamReader &stream) const;
@@ -479,6 +502,8 @@ protected:
   std::map<QString, PhotoOrientation> mPhotoOrientation;
   bool bRefinePrincipalPoint;
   QString mSparseModel;
+  std::shared_ptr<Densification> mDensification;
+  QString mDenseModel;
   static std::mutex sMutex;
   static int sCameraCount;
 };

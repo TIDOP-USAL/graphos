@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>itos3d.com.inspector.1.0</namespace>
+    <virtualFolder>doc</virtualFolder>
+    <customFilter name="INSPECTOR">
+        <filterAttribute>inspector</filterAttribute>
+        <filterAttribute>1.0</filterAttribute>
+    </customFilter>
+    <filterSection>
+        <filterAttribute>inspector</filterAttribute>
+        <filterAttribute>1.0</filterAttribute>
+        <toc>
+            <section title="Presentación" ref="index.html">
+                <section title="Instalación" ref="installation.html"/>
+                <section title="Guía rápida" ref="guide.html"/>
+            </section>
+            <section title="Interfaz de usuario" ref="interface.html">
+                <section title="Árbol de proyecto" ref="tree_prj.html"/>
+                <section title="Área de trabajo" ref="workarea.html"/>
+                <section title="Menús" ref="menus.html"/>
+                <section title="Barras de herramientas" ref="toolbar.html"/>
+                <section title="Panel miniaturas" ref="thumbnails.html"/>
+            </section>
+            <section title="Flujo de trabajo" ref="workflow.html">
+                <section title="Feature extraction" ref="feature_extraction.html"/>
+                <section title="Feature matching" ref="feature_matching.html"/>
+                <section title="Orientation" ref="orientation.html"/>
+                <section title="Dense cloud" ref="dense_cloud.html"/>
+            </section>
+			<section title="Herramientas" ref="tools.html">
+                <section title="Cámaras" ref="cameras.html"/>
+				<section title="Visor de puntos de interés" ref="keypoints_viewer.html"/>
+				<section title="Visor de correspondencias" ref="matches_viewer.html"/>
+            </section>
+			<section title="Comandos" ref="cmd.html"/>
+            <section title="Teclas rapidas" ref="hotkeys.html"/>
+            <section title="Glosario de términos" ref="glossary.html"/>
+            <section title="FAQ" ref="faq.html"/>
+        </toc>
+        <keywords>
+            <keyword name="Árbol de proyecto" id="INSPECTOR::tree_prj" ref="tree_prj.html"/>
+            <keyword name="Área de trabajo" id="INSPECTOR::workarea" ref="workarea.html"/>
+            <keyword name="Barras de herramientas" id="INSPECTOR::toolbar" ref="toolbar.html"/>
+            <keyword name="FAQ" id="INSPECTOR::faq" ref="faq.html"/>
+            <keyword name="Glosario de términos" id="INSPECTOR::glossary" ref="glossary.html"/>
+            <keyword name="Guía rápida" id="INSPECTOR::guide" ref="guide.html"/>
+            <keyword name="Herramientas" id="INSPECTOR::tools" ref="tools.html"/>
+            <keyword name="Instalación" id="INSPECTOR::instalation" ref="installation.html"/>
+            <keyword name="Interfaz de usuario" id="INSPECTOR::interfaz" ref="interfaz.html" />
+            <keyword name="Menús" id="INSPECTOR::menus" ref="menus.html"/>
+            <keyword name="Panel miniaturas" id="INSPECTOR::thumbnails" ref="thumbnails.html"/>
+            <keyword name="Presentación" id="INSPECTOR::presentation" ref="index.html"/>
+            <keyword name="Teclas rapidas" id="INSPECTOR::hotkeys" ref="hotkeys.html"/>
+			<keyword name="Cámaras" id="INSPECTOR::cameras" ref="cameras.html"/>
+			<section name="Visor de puntos de interés" id="INSPECTOR::keypoints_viewer" ref="keypoints_viewer.html"/>
+			<section name="Visor de correspondencias" id="INSPECTOR::matches_viewer" ref="matches_viewer.html"/>
+        </keywords>
+        <files>
+            <file>css/styles.css</file>
+            <file>*.html</file>
+            <file>images/*.png</file>
+            <file>images/*.jpg</file>
+        </files>
+    </filterSection>
+</QtHelpProject>

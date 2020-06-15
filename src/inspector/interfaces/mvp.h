@@ -10,6 +10,9 @@
 namespace inspector
 {
 
+namespace ui
+{
+
 class HelpDialog;
 
 class IDialogView
@@ -138,6 +141,8 @@ private:
    */
   virtual void initSignalAndSlots() = 0;
 };
+
+} // namespace ui
 
 } // namespace inspector
 

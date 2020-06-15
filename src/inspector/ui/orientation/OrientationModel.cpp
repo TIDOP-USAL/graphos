@@ -38,6 +38,11 @@ void OrientationModelImp::setSparseModel(const QString &sparseModel)
   mProject->setSparseModel(sparseModel);
 }
 
+void OrientationModelImp::addPhotoOrientation(const QString &imgName, const PhotoOrientation &orientation)
+{
+  mProject->addPhotoOrientation(imgName, orientation);
+}
+
 QString OrientationModelImp::database() const
 {
   return mProject->database();

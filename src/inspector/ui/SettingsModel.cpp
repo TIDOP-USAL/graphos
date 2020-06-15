@@ -57,6 +57,86 @@ QString SettingsModelImp::imageViewerBGcolor() const
   return mSettings->imageViewerBGcolor();
 }
 
+QString SettingsModelImp::keypointsViewerBGColor() const
+{
+  return mSettings->keypointsViewerBGColor();
+}
+
+int SettingsModelImp::keypointsViewerMarkerType() const
+{
+  return mSettings->keypointsViewerMarkerType();
+}
+
+int SettingsModelImp::keypointsViewerMarkerSize() const
+{
+  return mSettings->keypointsViewerMarkerSize();
+}
+
+int SettingsModelImp::keypointsViewerMarkerWidth() const
+{
+  return mSettings->keypointsViewerMarkerWidth();
+}
+
+QString SettingsModelImp::keypointsViewerMarkerColor() const
+{
+  return mSettings->keypointsViewerMarkerColor();
+}
+
+int SettingsModelImp::keypointsViewerSelectMarkerWidth() const
+{
+  return mSettings->keypointsViewerSelectMarkerWidth();
+}
+
+QString SettingsModelImp::keypointsViewerSelectMarkerColor() const
+{
+  return mSettings->keypointsViewerSelectMarkerColor();
+}
+
+QString SettingsModelImp::matchesViewerBGColor() const
+{
+  return mSettings->matchesViewerBGColor();
+}
+
+int SettingsModelImp::matchesViewerMarkerType() const
+{
+  return mSettings->matchesViewerMarkerType();
+}
+
+int SettingsModelImp::matchesViewerMarkerSize() const
+{
+  return mSettings->matchesViewerMarkerSize();
+}
+
+int SettingsModelImp::matchesViewerMarkerWidth() const
+{
+  return mSettings->matchesViewerMarkerWidth();
+}
+
+QString SettingsModelImp::matchesViewerMarkerColor() const
+{
+  return mSettings->matchesViewerMarkerColor();
+}
+
+int SettingsModelImp::matchesViewerSelectMarkerWidth() const
+{
+  return mSettings->matchesViewerSelectMarkerWidth();
+}
+
+QString SettingsModelImp::matchesViewerSelectMarkerColor() const
+{
+  return mSettings->matchesViewerSelectMarkerColor();
+}
+
+QString SettingsModelImp::matchesViewerLineColor() const
+{
+  return mSettings->matchesViewerLineColor();
+}
+
+int SettingsModelImp::matchesViewerLineWidth() const
+{
+  return mSettings->matchesViewerLineWidth();
+}
+
 bool SettingsModelImp::useCuda() const
 {
   return mSettings->useCuda();

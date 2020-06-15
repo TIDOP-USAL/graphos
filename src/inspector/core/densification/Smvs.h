@@ -11,7 +11,7 @@ namespace inspector
 {
 
 
-class TL_EXPORT SmvsProperties
+class INSPECTOR_EXPORT SmvsProperties
   : public Smvs
 {
 
@@ -60,34 +60,34 @@ private:
 /*----------------------------------------------------------------*/
 
 
-class TL_EXPORT SmvsProcess
+class INSPECTOR_EXPORT SmvsDensifier
   : public SmvsProperties,
-    public DensificationProcess
+    public Densifier
 {
 
 public:
 
-  SmvsProcess();
-  SmvsProcess(const SmvsProcess &smvs);
-  SmvsProcess(SmvsProcess &&smvs) noexcept;
-  SmvsProcess(int inputImageScale,
-              int outputDepthScale,
-              bool shadingBasedOptimization,
-              bool semiGlobalMatching,
-              double surfaceSmoothingFactor);
-  ~SmvsProcess() override = default;
-  SmvsProcess &operator =(const SmvsProcess &smvs);
-  SmvsProcess &operator =(SmvsProcess &&smvs) noexcept;
+  SmvsDensifier();
+  SmvsDensifier(const SmvsDensifier &smvs);
+  SmvsDensifier(SmvsDensifier &&smvs) noexcept;
+  SmvsDensifier(int inputImageScale,
+                int outputDepthScale,
+                bool shadingBasedOptimization,
+                bool semiGlobalMatching,
+                double surfaceSmoothingFactor);
+  ~SmvsDensifier() override = default;
+  SmvsDensifier &operator =(const SmvsDensifier &smvs);
+  SmvsDensifier &operator =(SmvsDensifier &&smvs) noexcept;
 
 
 // DensificationProcess interface
  
 public:
 
-  bool undistort(const std::string &reconstructionPath, 
-                 const std::string &imagesPath, 
-                 const std::string &outputPath) override;
-  bool densify(const std::string &undistortPath) override;
+  bool undistort(const QString &reconstructionPath,
+                 const QString &imagesPath,
+                 const QString &outputPath) override;
+  bool densify(const QString &undistortPath) override;
 
 // Densification interface
 
@@ -96,11 +96,6 @@ public:
   void reset() override;
 
 protected:
-
-  //cv::Ptr<cv::AgastFeatureDetector> mAgast;
-
-
-
 
 };
 

@@ -5,6 +5,8 @@
 
 #include "inspector/core/features/sift.h"
 #include "inspector/core/features/matching.h"
+#include "inspector/core/densification/Smvs.h"
+#include "inspector/core/densification/CmvsPmvs.h"
 #include "inspector/core/utils.h"
 
 #include <QFile>
@@ -437,6 +439,26 @@ void ProjectImp::addPhotoOrientation(const QString &imgName, const PhotoOrientat
   mPhotoOrientation[imgName] = photoOrientation;
 }
 
+std::shared_ptr<Densification> ProjectImp::densification() const
+{
+  return mDensification;
+}
+
+void ProjectImp::setDensification(const std::shared_ptr<Densification> &densification)
+{
+  mDensification = densification;
+}
+
+void ProjectImp::setDenseModel(const QString &denseModel)
+{
+  mDenseModel = denseModel;
+}
+
+QString ProjectImp::denseModel() const
+{
+  return mDenseModel;
+}
+
 void ProjectImp::clear()
 {
   mName = "";
@@ -454,6 +476,8 @@ void ProjectImp::clear()
   mPhotoOrientation.clear();
   bRefinePrincipalPoint = true;
   mSparseModel = "";
+  mDensification.reset();
+  mDenseModel = "";
 }
 
 bool ProjectImp::load(const QString &file)
@@ -503,7 +527,7 @@ bool ProjectImp::save(const QString &file)
         writeFeatures(stream);
         writeMatches(stream);
         writeOrientations(stream);
-    //    writeSessions(stream, prj);
+        writeDensification(stream);
       }
 
       stream.writeEndElement(); // Inspector
@@ -608,6 +632,8 @@ bool ProjectImp::read(QXmlStreamReader &stream)
           this->readMatches(stream);
         } else if (stream.name() == "Orientations") {
           readOrientations(stream);
+        } else if (stream.name() == "Densification") {
+          readDensification(stream);
         } else
           stream.skipCurrentElement();
         }
@@ -711,99 +737,52 @@ Camera ProjectImp::readCamera(QXmlStreamReader &stream)
     } else if (stream.name() == "SensorSize") {
       camera.setSensorSize(readDouble(stream));
     } else if (stream.name() == "Calibration") {
-
-      QString sensor_type("RADIAL");
-      for (auto &attr : stream.attributes()) {
-        if (attr.name().compare(QString("type")) == 0) {
-          sensor_type = attr.value().toString();
-          break;
-        }
-      }
-      camera.setType(sensor_type);
-
-//                    while (stream.readNextStartElement()) {
-//                      std::shared_ptr<Calibration> calibration = camera->calibration();
-//                      if (stream.name() == "f") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::focal);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "cx") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::cx);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "cy") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::cy);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "fx") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::focalx);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "fy") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::focaly);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "k1") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::k1);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "k2") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::k2);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "k3") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::k3);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "k4") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::k4);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "k5") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::k5);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "k6") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::k6);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "p1") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::p1);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else if (stream.name() == "p2") {
-//                        Calibration::parameter_iterator it_param = calibration->find(Calibration::Parameters::p2);
-//                        if (it_param != calibration->parametersEnd()) {
-//                          it_param->second = stream.readElementText().toDouble();
-//                        }
-//                      } else
-//                        stream.skipCurrentElement();
-//                    }
-
+      this->readCalibration(stream, camera);
     } else
       stream.skipCurrentElement();
-
-//    if (id == 0) {
-//      QByteArray camera_make = camera->make().toLocal8Bit();
-//      QByteArray camera_model = camera->model().toLocal8Bit();
-//      msgWarning("The id of camera %s %s is not valid", camera_make.data(), camera_model.data());
-//    } else {
-//      prj.addCamera(camera);
-//    }
   }
   return camera;
+}
+
+void ProjectImp::readCalibration(QXmlStreamReader &stream, Camera &camera)
+{
+  try {
+    std::shared_ptr<Calibration> calibration;
+    calibration = CalibrationFactory::create(camera.type());
+    while (stream.readNextStartElement()) {
+      if (stream.name().compare(QString("f")) == 0) {
+        calibration->setParameter(Calibration::Parameters::focal, readDouble(stream));
+      } else if (stream.name() == "fx") {
+        calibration->setParameter(Calibration::Parameters::focalx, readDouble(stream));
+      } else if (stream.name() == "fy") {
+        calibration->setParameter(Calibration::Parameters::focaly, readDouble(stream));
+      } else if (stream.name() == "cx") {
+        calibration->setParameter(Calibration::Parameters::cx, readDouble(stream));
+      } else if (stream.name() == "cy") {
+        calibration->setParameter(Calibration::Parameters::cy, readDouble(stream));
+      } else if (stream.name() == "k1") {
+        calibration->setParameter(Calibration::Parameters::k1, readDouble(stream));
+      } else if (stream.name() == "k2") {
+        calibration->setParameter(Calibration::Parameters::k2, readDouble(stream));
+      } else if (stream.name() == "k3") {
+        calibration->setParameter(Calibration::Parameters::k3, readDouble(stream));
+      } else if (stream.name() == "k4") {
+        calibration->setParameter(Calibration::Parameters::k4, readDouble(stream));
+      } else if (stream.name() == "k5") {
+        calibration->setParameter(Calibration::Parameters::k5, readDouble(stream));
+      } else if (stream.name() == "k6") {
+        calibration->setParameter(Calibration::Parameters::k6, readDouble(stream));
+      } else if (stream.name() == "p1") {
+        calibration->setParameter(Calibration::Parameters::p1, readDouble(stream));
+      } else if (stream.name() == "p2") {
+        calibration->setParameter(Calibration::Parameters::p2, readDouble(stream));
+      } else
+        stream.skipCurrentElement();
+    }
+    camera.setCalibration(calibration);
+  } catch (std::exception &e){
+    msgError(e.what());
+  }
 }
 
 void ProjectImp::readFeatures(QXmlStreamReader &stream)
@@ -975,6 +954,79 @@ void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
   this->addPhotoOrientation(id_image, image_ori);
 }
 
+void ProjectImp::readDensification(QXmlStreamReader &stream)
+{
+  while (stream.readNextStartElement()){
+    if (stream.name() == "DenseModel") {
+      this->readDenseModel(stream);
+    } else if (stream.name() == "DensificationMethod"){
+      this->readDensificationMethod(stream);
+    } else
+      stream.skipCurrentElement();
+  }
+}
+
+void ProjectImp::readDenseModel(QXmlStreamReader &stream)
+{
+  this->setDenseModel(stream.readElementText());
+}
+
+void ProjectImp::readDensificationMethod(QXmlStreamReader &stream)
+{
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "Smvs") {
+      this->readSmvs(stream);
+    } else if (stream.name() == "CmvsPmvs"){
+      this->readCmvsPmvs(stream);
+    } else
+      stream.skipCurrentElement();
+  }
+}
+
+void ProjectImp::readSmvs(QXmlStreamReader &stream)
+{
+  std::shared_ptr<Smvs> smvs = std::make_shared<SmvsProperties>();
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "InputImageScale") {
+      smvs->setInputImageScale(readInt(stream));
+    } else if (stream.name() == "OutputDepthScale") {
+      smvs->setOutputDepthScale(readInt(stream));
+    } else if (stream.name() == "SemiGlobalMatching") {
+      smvs->setSemiGlobalMatching(readBoolean(stream));
+    } else if (stream.name() == "SurfaceSmoothingFactor") {
+      smvs->setSurfaceSmoothingFactor(readDouble(stream));
+    } else if (stream.name() == "ShadingBasedOptimization") {
+      smvs->setShadingBasedOptimization(readBoolean(stream));
+    } else
+      stream.skipCurrentElement();
+  }
+  this->setDensification(smvs);
+}
+
+void ProjectImp::readCmvsPmvs(QXmlStreamReader &stream)
+{
+  std::shared_ptr<CmvsPmvs> cmvsPmvs = std::make_shared<CmvsPmvsProperties>();
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "Level") {
+      cmvsPmvs->setLevel(readInt(stream));
+    } else if (stream.name() == "CellSize") {
+      cmvsPmvs->setCellSize(readInt(stream));
+    } else if (stream.name() == "Threshold") {
+      cmvsPmvs->setThreshold(readDouble(stream));
+    } else if (stream.name() == "Confidence") {
+      cmvsPmvs->setWindowSize(readInt(stream));
+    } else if (stream.name() == "ImagesPerCluster") {
+      cmvsPmvs->setImagesPerCluster(readInt(stream));
+    } else if (stream.name() == "MinimunImageNumber") {
+      cmvsPmvs->setMinimunImageNumber(readInt(stream));
+    } else if (stream.name() == "UseVisibilityInformation") {
+      cmvsPmvs->setUseVisibilityInformation(readBoolean(stream));
+    } else
+      stream.skipCurrentElement();
+  }
+  this->setDensification(cmvsPmvs);
+}
+
 void ProjectImp::writeVersion(QXmlStreamWriter &stream) const
 {
   stream.writeAttribute("version", this->version());
@@ -1020,22 +1072,23 @@ void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const Camera &cam
     stream.writeTextElement("Width", QString::number(camera.width()));
     stream.writeTextElement("Height", QString::number(camera.height()));
     stream.writeTextElement("SensorSize", QString::number(camera.sensorSize()));
+    writeCalibration(stream, camera.calibration());
 
-//    stream.writeStartElement("Calibration");
-//    {
-//      std::shared_ptr<Calibration> calibration = it->second->calibration();
-
-//      stream.writeAttribute("type", it->second->type());
-
-//      for (Calibration::parameter_iterator it = calibration->parametersBegin();
-//           it != calibration->parametersEnd(); it++){
-//        QString param_name(calibration->parameterName(it->first).c_str());
-//        stream.writeTextElement(param_name, QString::number(it->second));
-//      }
-//    }
-//    stream.writeEndElement(); // Calibration
   }
   stream.writeEndElement(); // Camera
+}
+
+void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const
+{
+  if (calibration){
+    stream.writeStartElement("Calibration");
+    {
+      for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++){
+        stream.writeTextElement(calibration->parameterName(param->first), QString::number(param->second));
+      }
+    }
+    stream.writeEndElement(); // Calibration
+  }
 }
 
 void ProjectImp::writeImages(QXmlStreamWriter &stream) const
@@ -1200,6 +1253,62 @@ void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
       }
       stream.writeEndElement(); // Image
     }
+  }
+}
+
+void ProjectImp::writeDensification(QXmlStreamWriter &stream) const
+{
+  stream.writeStartElement("Densification");
+  {
+    this->writeDenseModel(stream);
+    this->writeDensificationMethod(stream);
+  }
+  stream.writeEndElement(); // Densification
+}
+
+void ProjectImp::writeDenseModel(QXmlStreamWriter &stream) const
+{
+  QString dense_model = this->denseModel();
+  if (!dense_model.isEmpty())
+    stream.writeTextElement("DenseModel", this->denseModel());
+}
+
+void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
+{
+  if (Densification *densificationMethod = this->densification().get()){
+
+    stream.writeStartElement("DensificationMethod");
+
+    if (densificationMethod->method() == Densification::Method::smvs) {
+
+      stream.writeStartElement("Smvs");
+
+      Smvs *smvs = dynamic_cast<Smvs *>(densificationMethod);
+      stream.writeTextElement("InputImageScale", QString::number(smvs->inputImageScale()));
+      stream.writeTextElement("OutputDepthScale", QString::number(smvs->outputDepthScale()));
+      stream.writeTextElement("SemiGlobalMatching", smvs->semiGlobalMatching() ? "true" : "false");
+      stream.writeTextElement("SurfaceSmoothingFactor", QString::number(smvs->surfaceSmoothingFactor()));
+      stream.writeTextElement("ShadingBasedOptimization", smvs->shadingBasedOptimization() ? "true" : "false");
+
+      stream.writeEndElement();
+
+    } else if (densificationMethod->method() == Densification::Method::cmvs_pmvs) {
+
+      stream.writeStartElement("CmvsPmvs");
+
+      CmvsPmvs *cmvsPmvs = dynamic_cast<CmvsPmvs *>(densificationMethod);
+      stream.writeTextElement("Level", QString::number(cmvsPmvs->level()));
+      stream.writeTextElement("CellSize", QString::number(cmvsPmvs->cellSize()));
+      stream.writeTextElement("Threshold", QString::number(cmvsPmvs->threshold()));
+      stream.writeTextElement("WindowSize", QString::number(cmvsPmvs->windowSize()));
+      stream.writeTextElement("ImagesPerCluster", QString::number(cmvsPmvs->imagesPerCluster()));
+      stream.writeTextElement("MinimunImageNumber", QString::number(cmvsPmvs->minimunImageNumber()));
+      stream.writeTextElement("UseVisibilityInformation", cmvsPmvs->useVisibilityInformation() ? "true" : "false");
+
+      stream.writeEndElement();
+    }
+
+    stream.writeEndElement();
   }
 }
 

@@ -34,11 +34,26 @@ CmvsPmvsProperties::CmvsPmvsProperties()
 }
 
 CmvsPmvsProperties::CmvsPmvsProperties(const CmvsPmvsProperties &cmvsPmvs)
-  : CmvsPmvs(cmvsPmvs)
+  : CmvsPmvs(cmvsPmvs),
+    mUseVisibilityInformation(cmvsPmvs.mUseVisibilityInformation),
+    mImagesPerCluster(cmvsPmvs.mImagesPerCluster),
+    mLevel(cmvsPmvs.mLevel),
+    mCellSize(cmvsPmvs.mCellSize),
+    mThreshold(cmvsPmvs.mThreshold),
+    mWindowSize(cmvsPmvs.mWindowSize),
+    mMinimunImageNumber(cmvsPmvs.mMinimunImageNumber)
 {
 }
 
 CmvsPmvsProperties::CmvsPmvsProperties(CmvsPmvsProperties &&cmvsPmvs) noexcept
+  : CmvsPmvs(std::forward<CmvsPmvs>(cmvsPmvs)),
+    mUseVisibilityInformation(cmvsPmvs.mUseVisibilityInformation),
+    mImagesPerCluster(cmvsPmvs.mImagesPerCluster),
+    mLevel(cmvsPmvs.mLevel),
+    mCellSize(cmvsPmvs.mCellSize),
+    mThreshold(cmvsPmvs.mThreshold),
+    mWindowSize(cmvsPmvs.mWindowSize),
+    mMinimunImageNumber(cmvsPmvs.mMinimunImageNumber)
 {
 }
 
@@ -163,28 +178,28 @@ QString CmvsPmvsProperties::name() const
 /*----------------------------------------------------------------*/
 
 
-CmvsPmvsProcess::CmvsPmvsProcess()
+CmvsPmvsDensifier::CmvsPmvsDensifier()
 {
 
 }
 
-CmvsPmvsProcess::CmvsPmvsProcess(const CmvsPmvsProcess &cmvsPmvsProcess)
+CmvsPmvsDensifier::CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess)
   : CmvsPmvsProperties(cmvsPmvsProcess)
 {
 }
 
-CmvsPmvsProcess::CmvsPmvsProcess(CmvsPmvsProcess &&cmvsPmvsProcess) noexcept
+CmvsPmvsDensifier::CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept
   : CmvsPmvsProperties(std::forward<CmvsPmvsProperties>(cmvsPmvsProcess))
 {
 }
 
-CmvsPmvsProcess::CmvsPmvsProcess(bool useVisibilityInformation,
-                                 int imagesPerCluster,
-                                 int level,
-                                 int cellSize,
-                                 double threshold,
-                                 int windowSize,
-                                 int minimunImageNumber)
+CmvsPmvsDensifier::CmvsPmvsDensifier(bool useVisibilityInformation,
+                                     int imagesPerCluster,
+                                     int level,
+                                     int cellSize,
+                                     double threshold,
+                                     int windowSize,
+                                     int minimunImageNumber)
 {
   CmvsPmvsProperties::setUseVisibilityInformation(useVisibilityInformation);
   CmvsPmvsProperties::setImagesPerCluster(imagesPerCluster);
@@ -195,7 +210,7 @@ CmvsPmvsProcess::CmvsPmvsProcess(bool useVisibilityInformation,
   CmvsPmvsProperties::setMinimunImageNumber(minimunImageNumber);
 }
 
-CmvsPmvsProcess &CmvsPmvsProcess::operator =(const CmvsPmvsProcess &cmvsPmvsProcess)
+CmvsPmvsDensifier &CmvsPmvsDensifier::operator =(const CmvsPmvsDensifier &cmvsPmvsProcess)
 {
   if (this != &cmvsPmvsProcess){
     CmvsPmvsProperties::operator=(cmvsPmvsProcess);
@@ -203,7 +218,7 @@ CmvsPmvsProcess &CmvsPmvsProcess::operator =(const CmvsPmvsProcess &cmvsPmvsProc
   return *this;
 }
 
-CmvsPmvsProcess &CmvsPmvsProcess::operator =(CmvsPmvsProcess &&cmvsPmvsProcess) noexcept
+CmvsPmvsDensifier &CmvsPmvsDensifier::operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept
 {
   if (this != &cmvsPmvsProcess){
     CmvsPmvsProperties::operator=(std::forward<CmvsPmvsProperties>(cmvsPmvsProcess));
@@ -211,53 +226,51 @@ CmvsPmvsProcess &CmvsPmvsProcess::operator =(CmvsPmvsProcess &&cmvsPmvsProcess) 
   return *this;
 }
 
-bool CmvsPmvsProcess::undistort(const std::string &reconstructionPath, 
-                                const std::string &imagesPath, 
-                                const std::string &outputPath)
+bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
+                                  const QString &imagesPath,
+                                  const QString &outputPath)
 {
 
   colmap::Reconstruction reconstruction;
 #ifdef _DEBUG
   //Lectura como texto
-  reconstruction.ReadText(reconstructionPath);
+  reconstruction.ReadText(reconstructionPath.toStdString());
 #else
   //Lectura como binario
-  reconstruction.ReadBinary(reconstructionPath);
+  reconstruction.ReadBinary(reconstructionPath.toStdString());
 #endif
 
   /// Exportar
   colmap::UndistortCameraOptions undistortion_options;
   colmap::PMVSUndistorter *undistorter = new colmap::PMVSUndistorter(undistortion_options, 
                                                                      reconstruction,
-                                                                     imagesPath, 
-                                                                     outputPath);
+                                                                     imagesPath.toStdString(),
+                                                                     outputPath.toStdString());
   undistorter->Start();
   undistorter->Wait();
 
   return false;
 }
 
-bool CmvsPmvsProcess::densify(const std::string &undistortPath)
+bool CmvsPmvsDensifier::densify(const QString &undistortPath)
 {
-//   BatchProcessing batch;
 
-//  fs::path app_path(tl::getRunfile());
-//  std::string cmd_cmvs("/c \"");
-//  cmd_cmvs.append(app_path.parent_path().string());
-//  cmd_cmvs.append("\\pmvs2\" ");
-//  cmd_cmvs.append(undistortPath);
-//  cmd_cmvs.append("/pmvs/ option-all");
-//  //batch.push_back(std::make_shared<CmdProcess>(cmd_cmvs));
-//  CmdProcess process(cmd_cmvs);
+  fs::path app_path(tl::getRunfile());
+  std::string cmd_cmvs("/c \"");
+  cmd_cmvs.append(app_path.parent_path().string());
+  cmd_cmvs.append("\\pmvs2\" ");
+  cmd_cmvs.append(undistortPath.toStdString());
+  cmd_cmvs.append("/pmvs/ option-all");
+  CmdProcess process(cmd_cmvs);
 
-//  if (process.run() == Process::Status::error) {
-//    return true;
-//  }
+  if (process.run() == Process::Status::error) {
+    return true;
+  }
 
   return false;
 }
 
-void CmvsPmvsProcess::reset()
+void CmvsPmvsDensifier::reset()
 {
   CmvsPmvsProperties::reset();
 }

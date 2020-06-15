@@ -70,6 +70,8 @@ public:
   void addFeatures(const QString &features);
   void addMatches(const QString &imageLeft, const QString &imageRight);
   void setSparseModel(const QString &sparseModel);
+  void setDenseModel(const QString &sparseModel);
+
   /*!
    * \brief Añade un mensaje temporal en la barra de herramientas
    * \param msg Mensaje
@@ -136,13 +138,15 @@ signals:
   void openFeatureExtraction();
   void openFeatureMatching();
   void openOrientation();
-  //void openBatch();
+  void openDensification();
 
   /* Menú herramientas */
 
   void openCamerasDialog();
   void openKeypointsViewer();
+  void openKeypointsViewerFromImage(QString);
   void openMatchesViewer();
+  void openMatchesViewerFromImages(QString,QString);
   void openMultiviewMatchingAssessment();
   void openSettings();
 
@@ -163,11 +167,13 @@ signals:
   void selectImageFeatures(QString);
   void imagesLoaded();
 
+  void openModel3D(QString);
+
   //void openImageMatches(QString, QString, QString);
 
-  void openKeypointsViewer(QString);
-  void openMatchesViewer(QString);
-  void openMatchesViewer(QString, QString);
+
+//  void openMatchesViewer(QString);
+//  void openMatchesViewer(QString, QString);
   void openMultiView(QString);
 
 protected:
@@ -175,9 +181,6 @@ protected:
   void changeEvent(QEvent *e) override;
 
 private slots:
-
-  void update();
-  void retranslate();
 
   void openFromHistory();
   void onSelectionChanged();
@@ -187,7 +190,30 @@ private slots:
 private:
 
   void initUI();
+  void initTabHandler();
+  void initThumbnailsTool();
+  void initConsole();
+  void initActions();
+  void initToolbars();
+  void initToolbarFile();
+  void initToolbarWorkflow();
+  void initToolbarView();
+  void initToolbar3dModel();
+  void initToolbarTools();
+  void initTreeWidget();
+  void initMenus();
+  void initMenuFile();
+  void initMenuView();
+  void initMenuWorkflow();
+  void initMenuTools();
+  void initMenuHelp();
+  void initProgressBar();
   void initSignalAndSlots();
+
+private slots:
+
+  void update();
+  void retranslate();
 
 // QWidget interface
 
@@ -219,13 +245,19 @@ protected:
   QAction *mActionExportMatches;
   QAction *mActionFeaturesViewer;
   QAction *mActionMatchesViewer;
-  QAction *mActionPassPointsViewer;
+  //QAction *mActionPassPointsViewer;
   QAction *mActionNotRecentProjects;
   QAction *mActionClearHistory;  
   QMenu *mMenuRecentProjects;
   QMenu *mMenuExport;
   QMenu *mMenuPanels;
   QMenu *mMenuToolBar;
+  QToolBar *mToolBarFile;
+  QToolBar *mToolBarWorkflow;
+  QToolBar *mToolBarTools;
+  QToolBar *mToolBarView;
+  QToolBar *mToolBar3dModel;
+
   ///TreeWidget
   QAction *mActionOpenImage;
   QAction *mActionDeleteImage;
@@ -246,6 +278,7 @@ protected:
 private:
 
   Ui::MainWindowView *ui;
+
 };
 
 ALLOW_BITWISE_FLAG_OPERATIONS(MainWindowView::Flag)

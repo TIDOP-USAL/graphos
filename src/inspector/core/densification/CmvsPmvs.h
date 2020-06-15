@@ -11,7 +11,7 @@ namespace inspector
 {
 
 
-class TL_EXPORT CmvsPmvsProperties
+class INSPECTOR_EXPORT CmvsPmvsProperties
   : public CmvsPmvs
 {
 
@@ -67,46 +67,40 @@ protected:
 /*----------------------------------------------------------------*/
 
 
-class TL_EXPORT CmvsPmvsProcess
+class INSPECTOR_EXPORT CmvsPmvsDensifier
   : public CmvsPmvsProperties,
-    public DensificationProcess
+    public Densifier
 {
 
 public:
 
-  CmvsPmvsProcess();
-  CmvsPmvsProcess(const CmvsPmvsProcess &cmvsPmvsProcess);
-  CmvsPmvsProcess(CmvsPmvsProcess &&cmvsPmvsProcess) noexcept;
-  CmvsPmvsProcess(bool useVisibilityInformation,
-                  int imagesPerCluster,
-                  int level,
-                  int cellSize,
-                  double threshold,
-                  int windowSize,
-                  int minimunImageNumber);
-  ~CmvsPmvsProcess() override = default;
-  CmvsPmvsProcess &operator =(const CmvsPmvsProcess &cmvsPmvsProcess);
-  CmvsPmvsProcess &operator =(CmvsPmvsProcess &&cmvsPmvsProcess) noexcept;
+  CmvsPmvsDensifier();
+  CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess);
+  CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept;
+  CmvsPmvsDensifier(bool useVisibilityInformation,
+                    int imagesPerCluster,
+                    int level,
+                    int cellSize,
+                    double threshold,
+                    int windowSize,
+                    int minimunImageNumber);
+  ~CmvsPmvsDensifier() override = default;
+  CmvsPmvsDensifier &operator =(const CmvsPmvsDensifier &cmvsPmvsProcess);
+  CmvsPmvsDensifier &operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept;
 
 
-// Heredado vía DensificationProcess
+// Heredado vÃ­a DensificationProcess
 
-  bool undistort(const std::string &reconstructionPath, 
-                 const std::string &imagesPath, 
-                 const std::string &outputPath) override;
-  bool densify(const std::string &undistortPath) override;
+  bool undistort(const QString &reconstructionPath,
+                 const QString &imagesPath,
+                 const QString &outputPath) override;
+  bool densify(const QString &undistortPath) override;
 
 // Densification interface
 
 public:
 
   void reset() override;
-
-
-protected:
-
-  //cv::Ptr<cv::AgastFeatureDetector> mAgast;
-
 
 };
 

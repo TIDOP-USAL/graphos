@@ -27,6 +27,7 @@ private slots:
   void test_featuresNumber();
   void test_octaveLayers_data();
   void test_octaveLayers();
+  void test_contrastThresholdAuto();
   void test_contrastThreshold_data();
   void test_contrastThreshold();
   void test_edgeThreshold_data();
@@ -59,7 +60,8 @@ void TestSift::initTestCase()
 {
   QCOMPARE(5000, mSift->featuresNumber());
   QCOMPARE(3, mSift->octaveLayers());
-  QCOMPARE(0.04, mSift->contrastThreshold());
+  QCOMPARE(true, mSift->constrastThresholdAuto());
+  QCOMPARE(0.02/mSift->octaveLayers(), mSift->contrastThreshold());
   QCOMPARE(10., mSift->edgeThreshold());
   QCOMPARE(1.6, mSift->sigma());
 }
@@ -76,7 +78,8 @@ void TestSift::cleanupTestCase()
 
   QCOMPARE(5000, mSift->featuresNumber());
   QCOMPARE(3, mSift->octaveLayers());
-  QCOMPARE(0.04, mSift->contrastThreshold());
+  QCOMPARE(true, mSift->constrastThresholdAuto());
+  QCOMPARE(0.02 / mSift->octaveLayers(), mSift->contrastThreshold());
   QCOMPARE(10., mSift->edgeThreshold());
   QCOMPARE(1.6, mSift->sigma());
 }
@@ -151,6 +154,15 @@ void TestSift::test_octaveLayers()
   QCOMPARE(result, mSift->octaveLayers());
 }
 
+void TestSift::test_contrastThresholdAuto()
+{
+  mSift->setContrastThresholdAuto(true);
+  QCOMPARE(true, mSift->constrastThresholdAuto());
+
+  mSift->setContrastThresholdAuto(false);
+  QCOMPARE(false, mSift->constrastThresholdAuto());
+}
+
 void TestSift::test_contrastThreshold_data()
 {
   QTest::addColumn<double>("value");
@@ -166,6 +178,7 @@ void TestSift::test_contrastThreshold()
   QFETCH(double, value);
   QFETCH(double, result);
 
+  mSift->setContrastThresholdAuto(false);
   mSift->setContrastThreshold(value);
   QCOMPARE(result, mSift->contrastThreshold());
 }

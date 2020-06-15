@@ -33,4 +33,13 @@
 /* Cuda */
 #cmakedefine HAVE_CUDA
 
+/* Inspector Image Version */
+
+#define INSPECTOR_VERSION_MAJOR @INSPECTOR_VERSION_MAJOR@
+#define INSPECTOR_VERSION_MINOR @INSPECTOR_VERSION_MINOR@
+
+/* Inspector Image source path */
+
+#define INSPECTOR_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
+
 #endif // INSPECTOR_CONFIG_H

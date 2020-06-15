@@ -8,7 +8,7 @@
 #include "inspector/ui/SettingsView.h"
 #include "inspector/ui/utils/TabHandler.h"
 //#include "inspector/ui/utils/GraphicViewer.h"
-//#include "inspector/ui/HelpDialog.h"
+#include "inspector/ui/HelpDialog.h"
 #include "inspector/widgets/StartPageWidget.h"
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/ImagesModel.h"
@@ -50,6 +50,7 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
     mCamerasModel(camerasModel),
     mFeaturesModel(featuresModel),
     mMatchesModel(matchesModel),
+    mHelpDialog(nullptr),
     mTabHandler(nullptr),
     mStartPageWidget(nullptr)
 {
@@ -248,15 +249,15 @@ void MainWindowPresenter::openStartPage()
   }
 }
 
-void MainWindowPresenter::openKeypointsViewer()
-{
+//void MainWindowPresenter::openKeypointsViewer()
+//{
 //  emit openKeypointsViewerDialogFromSession(mProjectModel->currentSession()->name());
-}
+//}
 
-void MainWindowPresenter::openMatchesViewer()
-{
+//void MainWindowPresenter::openMatchesViewer()
+//{
 //  emit openMatchesViewerDialogFromSession(mProjectModel->currentSession()->name());
-}
+//}
 
 void MainWindowPresenter::loadImages()
 {
@@ -485,6 +486,7 @@ void MainWindowPresenter::loadProject()
   }
 
   this->loadMatches();
+  this->loadOrientation();
 }
 
 void MainWindowPresenter::updateProject()
@@ -513,8 +515,18 @@ void MainWindowPresenter::loadMatches()
 void MainWindowPresenter::loadOrientation()
 {
   TL_TODO("completar")
-  mView->setSparseModel(mProjectModel->sparseModel());
-  mView->setFlag(MainWindowView::Flag::oriented, true);
+  QString sparse_model = mProjectModel->sparseModel();
+  if (!sparse_model.isEmpty()){
+    mView->setSparseModel(mProjectModel->sparseModel());
+    mView->setFlag(MainWindowView::Flag::oriented, true);
+  }
+}
+
+void MainWindowPresenter::loadDenseModel()
+{
+  QString dense_model = mProjectModel->denseModel();
+  if (!dense_model.isEmpty())
+    mView->setDenseModel(mProjectModel->denseModel());
 }
 
 void MainWindowPresenter::openImage(const QString &imageName)
@@ -873,7 +885,17 @@ void MainWindowPresenter::openImageMatches(const QString &sessionName, const QSt
 //    }
 //  } else {
 //    mTabHandler->setCurrentTab(idTab);
-//  }
+  //  }
+}
+
+void MainWindowPresenter::openModel3D(const QString &model3D)
+{
+  try {
+    //Image image = mImagesModel->findImageByName(imageName);
+    mTabHandler->setModel3D(model3D);
+  } catch (std::exception &e) {
+    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+  }
 }
 
 //void MainWindowPresenter::updateFeatures()
@@ -964,8 +986,11 @@ void MainWindowPresenter::onProjectModified()
 
 void MainWindowPresenter::help()
 {
-//  mHelpDialog->navigateHome();
-//  mHelpDialog->show();
+  if (mHelpDialog) {
+    mHelpDialog->navigateHome();
+    mHelpDialog->setModal(true);
+    mHelpDialog->showMaximized();
+  }
 }
 
 void MainWindowPresenter::open()
@@ -1015,12 +1040,13 @@ void MainWindowPresenter::initSignalAndSlots()
   connect(mView,   &MainWindowView::openFeatureExtraction, this, &MainWindowPresenter::openFeatureExtractionDialog);
   connect(mView,   &MainWindowView::openFeatureMatching,   this, &MainWindowPresenter::openFeatureMatchingDialog);
   connect(mView,   &MainWindowView::openOrientation,       this, &MainWindowPresenter::openOrientationDialog);
+  connect(mView,   &MainWindowView::openDensification,     this, &MainWindowPresenter::openDensificationDialog);
 
   /* Menú herramientas */
 
   connect(mView,  &MainWindowView::openCamerasDialog,   this, &MainWindowPresenter::openCamerasDialog);
-  connect(mView,  SIGNAL(openKeypointsViewer()),      this, SLOT(openKeypointsViewer()));
-  connect(mView,  SIGNAL(openMatchesViewer()),        this, SLOT(openMatchesViewer()));
+  connect(mView,  &MainWindowView::openKeypointsViewer, this, &MainWindowPresenter::openKeypointsViewerDialog);
+  connect(mView,  &MainWindowView::openMatchesViewer,   this, &MainWindowPresenter::openMatchesViewerDialog);
   //connect(mView,  &MainWindowView::openMultiviewMatchingAssessment,  this, &MainWindowPresenter::openMultiviewMatchingAssessmentDialog);
   connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
 
@@ -1045,8 +1071,11 @@ void MainWindowPresenter::initSignalAndSlots()
 
   connect(mView, SIGNAL(openImageMatches(QString,QString,QString)),   this, SLOT(openImageMatches(QString,QString,QString)));
 
-  //connect(mView, SIGNAL(openKeypointsViewer(QString, QString)),         this, SIGNAL(openKeypointsViewerDialogFromSessionAndImage(QString, QString)));
-  //connect(mView, SIGNAL(openMatchesViewer(QString, QString, QString)),  this, SIGNAL(openMatchesViewerDialogFromSessionAndImages(QString, QString, QString)));
+  connect(mView, &MainWindowView::openKeypointsViewerFromImage, this, &MainWindowPresenter::openKeypointsViewerDialogFromImage);
+  connect(mView, &MainWindowView::openMatchesViewerFromImages,  this, &MainWindowPresenter::openMatchesViewerDialogFromImages);
+
+  connect(mView, SIGNAL(openModel3D(QString)),          this, SLOT(openModel3D(QString)));
+
 }
 
 void MainWindowPresenter::initDefaultPath()

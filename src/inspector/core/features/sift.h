@@ -36,11 +36,13 @@ public:
 
   int featuresNumber() const override;
   int octaveLayers() const override;
+  bool constrastThresholdAuto() const override;
   double contrastThreshold() const override;
   double edgeThreshold() const override;
   double sigma() const override;
   void setFeaturesNumber(int featuresNumber) override;
   void setOctaveLayers(int octaveLayers) override;
+  void setContrastThresholdAuto(bool active) override;
   void setContrastThreshold(double contrastThreshold) override;
   void setEdgeThreshold(double edgeThreshold) override;
   void setSigma(double sigma) override;
@@ -56,6 +58,7 @@ private:
 
   int mFeaturesNumber;
   int mOctaveLayers;
+  bool mContrastThresholdAuto;
   double mContrastThreshold;
   double mEdgeThreshold;
   double mSigma;

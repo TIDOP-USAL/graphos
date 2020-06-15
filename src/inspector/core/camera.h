@@ -4,11 +4,17 @@
 #include "inspector/inspector_global.h"
 
 #include <map>
+#include <memory>
 
 #include <QString>
 
 #include <tidop/core/defs.h>
 #include <tidop/core/flags.h>
+
+namespace colmap
+{
+class Reconstruction;
+}
 
 namespace inspector
 {
@@ -19,14 +25,16 @@ class INSPECTOR_EXPORT Calibration
 
 public:
 
-  enum CameraType{
+  enum CameraType
+  {
     radial  = (0 << 0),
     fisheye = (1 << 0),
     pinhole = (1 << 1),
     opencv  = (1 << 2)
   };
 
-  enum class Parameters{
+  enum class Parameters
+  {
     focal = (1 << 10),
     focalx = (1 << 11),
     focaly = (1 << 12),
@@ -42,7 +50,8 @@ public:
     p2 = (1 << 22)
   };
 
-  enum class CameraModel {
+  enum class CameraModel
+  {
     /*!< f, cx, cy, k1 */
     radial1 = CameraType::radial |
               static_cast<std::underlying_type<CameraModel>::type>(Parameters::focal) |
@@ -134,11 +143,6 @@ public:
   typedef std::map<Calibration::Parameters, double>::iterator parameter_iterator;
   typedef std::map<Calibration::Parameters, double>::const_iterator parameter_const_iterator;
 
-protected:
-
-  tl::EnumFlags<CameraModel> mCameraModel;
-  std::map<Parameters, double> mParameters;
-
 public:
 
   Calibration(CameraModel cameraModel);
@@ -147,7 +151,7 @@ public:
 
   virtual ~Calibration() = default;
 
-  static Calibration *create(CameraModel cameraModel);
+  static std::shared_ptr<Calibration> create(CameraModel cameraModel);
 
   CameraModel cameraModel() const;
   int cameraModelId() const;
@@ -191,10 +195,11 @@ public:
 //  parameter_iterator find(Parameters parameter);
 //  parameter_const_iterator find(Parameters parameter) const;
 
-  virtual std::string name() const = 0;
+  virtual QString name() const = 0;
 
-  std::string parameterName(Parameters parameter) const;
+  QString parameterName(Parameters parameter) const;
 
+  bool existParameter(Parameters parameter) const;
   double parameter(Parameters parameter) const;
   void setParameter(Parameters parameter, double value);
 
@@ -202,9 +207,32 @@ protected:
 
   CameraModel convertFlags(Parameters parameter);
 
+protected:
+
+  tl::EnumFlags<CameraModel> mCameraModel;
+  std::map<Parameters, double> mParameters;
 };
 
 ALLOW_BITWISE_FLAG_OPERATIONS(Calibration::CameraModel)
+
+
+
+/* ------------------------------------------------------------------ */
+
+
+
+
+class INSPECTOR_EXPORT CalibrationFactory
+{
+
+private:
+
+  CalibrationFactory() {}
+
+public:
+
+  static std::shared_ptr<Calibration> create(const QString &cameraType);
+};
 
 
 
@@ -328,6 +356,9 @@ public:
    */
   void setSensorSize(double sensorSize);
 
+  std::shared_ptr<Calibration> calibration() const;
+  void setCalibration(std::shared_ptr<Calibration> &calibration);
+
   /*!
    * \brief Operador de asignación
    * \param[in] camera Objeto que se asigna
@@ -348,9 +379,39 @@ protected:
   int mWidth;
   int mHeight;
   double mSensorSize;
+  std::shared_ptr<Calibration> mCalibration;
 
 };
 
+
+
+/* ------------------------------------------------------------------ */
+
+
+
+class INSPECTOR_EXPORT ReadCalibration
+{
+
+public:
+
+  ReadCalibration();
+  ~ReadCalibration();
+
+  void open(const QString &path);
+  std::shared_ptr<Calibration> calibration(int cameraId) const;
+
+protected:
+
+  colmap::Reconstruction *mReconstruction;
+
+};
+
+
+
+/* ------------------------------------------------------------------ */
+
+
+QString cameraToColmapType(const Camera &camera);
 
 } // namespace inspector
 

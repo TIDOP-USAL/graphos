@@ -11,11 +11,15 @@ class MultiProcess;
 namespace inspector
 {
 
-class HelpDialog;
 class ProgressHandler;
 
 namespace ui
 {
+
+class ImagesModel;
+class CamerasModel;
+class SettingsModel;
+class HelpDialog;
 
 class OrientationPresenterImp
   : public OrientationPresenter
@@ -25,7 +29,10 @@ class OrientationPresenterImp
 public:
 
   OrientationPresenterImp(OrientationView *view,
-                          OrientationModel *model);
+                          OrientationModel *model,
+                          ImagesModel *imagesModel,
+                          CamerasModel *camerasModel,
+                          SettingsModel *settingsModel);
   ~OrientationPresenterImp() override;
 
 private slots:
@@ -62,6 +69,9 @@ protected:
 
   OrientationView *mView;
   OrientationModel *mModel;
+  ImagesModel *mImagesModel;
+  CamerasModel *mCamerasModel;
+  SettingsModel *mSettingsModel;
   HelpDialog *mHelp;
   MultiProcess *mMultiProcess;
   ProgressHandler *mProgressHandler;

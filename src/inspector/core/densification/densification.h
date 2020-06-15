@@ -10,8 +10,7 @@
 namespace inspector
 {
 
-
-class TL_EXPORT Densification
+class INSPECTOR_EXPORT Densification
 {
 
 public:
@@ -45,18 +44,18 @@ ALLOW_BITWISE_FLAG_OPERATIONS(Densification::Method)
 
 
 
-class TL_EXPORT DensificationProcess
+class INSPECTOR_EXPORT Densifier
 {
 
 public:
 
-  DensificationProcess() {}
-  virtual ~DensificationProcess() = default;
+  Densifier() {}
+  virtual ~Densifier() = default;
 
-  virtual bool undistort(const std::string &reconstructionPath, 
-                         const std::string &imagesPath, 
-                         const std::string &outputPath) = 0;
-  virtual bool densify(const std::string &undistortPath) = 0;
+  virtual bool undistort(const QString &reconstructionPath,
+                         const QString &imagesPath,
+                         const QString &outputPath) = 0;
+  virtual bool densify(const QString &undistortPath) = 0;
 };
 
 
@@ -65,7 +64,7 @@ public:
 
 
 
-class TL_EXPORT CmvsPmvs
+class INSPECTOR_EXPORT CmvsPmvs
   : public Densification
 {
 
@@ -96,7 +95,7 @@ public:
 
 
 
-class TL_EXPORT Smvs
+class INSPECTOR_EXPORT Smvs
   : public Densification
 {
 
@@ -118,7 +117,6 @@ public:
   virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) = 0;
 
 };
-
 
 
 } // namespace inspector
