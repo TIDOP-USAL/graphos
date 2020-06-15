@@ -433,7 +433,7 @@ std::shared_ptr<Calibration> CalibrationFactory::create(const QString &cameraTyp
 Camera::Camera()
     : mMake(""),
       mModel(""),
-      mType("RADIAL"),
+      mType("Radial"),
       mFocal(1.),
       mWidth(0),
       mHeight(0),
@@ -446,7 +446,7 @@ Camera::Camera()
 Camera::Camera(const QString &make, const QString &model)
     : mMake(make),
       mModel(model),
-      mType("RADIAL"),
+      mType("Radial"),
       mFocal(1.),
       mWidth(0),
       mHeight(0),

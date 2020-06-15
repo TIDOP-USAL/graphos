@@ -98,12 +98,13 @@ void TestProject::test_default_constructor()
 
 void TestProject::test_constructor()
 {
-  QCOMPARE(QString("prj001"), mProjectXml->name());
-  QCOMPARE(QString("Project example"), mProjectXml->description());
-  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj001"), mProjectXml->projectFolder());
+  QCOMPARE(QString("SanSegundo"), mProjectXml->name());
+  QCOMPARE(QString("San Segundo"), mProjectXml->description());
+  QCOMPARE(QString("C:/Users/esteban/Documents/inspector/Projects/SanSegundo"), mProjectXml->projectFolder());
+  QCOMPARE(QString("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images"), mProjectXml->imageDirectory());
   QCOMPARE(QString("1.0"), mProjectXml->version());
-  QCOMPARE(2, mProjectXml->imagesCount());
-  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.db"), mProjectXml->database());
+  QCOMPARE(4, mProjectXml->imagesCount());
+  QCOMPARE(QString("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db"), mProjectXml->database());
 }
 
 void TestProject::test_name_data()
@@ -163,19 +164,13 @@ void TestProject::test_projectFolder()
 
 void TestProject::test_findImage()
 {
-  Image img = mProjectXml->findImage("img001");
-  QCOMPARE("img001", img.name());
-  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", img.path());
-  QCOMPARE(0.5, img.longitudeExif());
-  QCOMPARE(2.3, img.latitudeExif());
-  QCOMPARE(10.2, img.altitudeExif());
+  Image img = mProjectXml->findImage("IMG_7209");
+  QCOMPARE("IMG_7209", img.name());
+  QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7209.jpg", img.path());
 
-  Image img2 = mProjectXml->findImage("img002");
-  QCOMPARE("img002", img2.name());
-  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", img2.path());
-  QCOMPARE(0.51, img2.longitudeExif());
-  QCOMPARE(2.3, img2.latitudeExif());
-  QCOMPARE(10.1, img2.altitudeExif());
+  Image img2 = mProjectXml->findImage("IMG_7210");
+  QCOMPARE("IMG_7210", img2.name());
+  QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7210.jpg", img2.path());
 }
 
 void TestProject::test_imageId_data()
@@ -183,8 +178,10 @@ void TestProject::test_imageId_data()
   QTest::addColumn<QString>("value");
   QTest::addColumn<size_t>("result");
 
-  QTest::newRow("img001") << "img001" << size_t{0};
-  QTest::newRow("img002") << "img002" << size_t{1};
+  QTest::newRow("IMG_7209") << "IMG_7209" << size_t{0};
+  QTest::newRow("IMG_7210") << "IMG_7210" << size_t{1};
+  QTest::newRow("IMG_7211") << "IMG_7211" << size_t{2};
+  QTest::newRow("IMG_7212") << "IMG_7212" << size_t{3};
 }
 
 void TestProject::test_imageId()
@@ -197,7 +194,6 @@ void TestProject::test_imageId()
 
 void TestProject::test_imageId_exception()
 {
-  //QTest::newRow("img003") << "C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png" << std::numeric_limits<size_t>().max();
   try {
     int id = mProjectXml->imageId("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
   } catch (std::exception &e) {
@@ -212,31 +208,31 @@ void TestProject::test_imageIterator()
   for (auto it = mProjectXml->imageBegin(); it != mProjectXml->imageEnd(); it++, i++){
     img = (*it);
     if (i == 0){
-      QCOMPARE("img001", img.name());
-      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", img.path());
-      QCOMPARE(0.5, img.longitudeExif());
-      QCOMPARE(2.3, img.latitudeExif());
-      QCOMPARE(10.2, img.altitudeExif());
-    } else {
-      QCOMPARE("img002", img.name());
-      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", img.path());
-      QCOMPARE(0.51, img.longitudeExif());
-      QCOMPARE(2.3, img.latitudeExif());
-      QCOMPARE(10.1, img.altitudeExif());
+      QCOMPARE("IMG_7209", img.name());
+      QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7209.jpg", img.path());
+    } else if (i == 1) {
+      QCOMPARE("IMG_7210", img.name());
+      QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7210.jpg", img.path());
+    } else if (i == 2) {
+      QCOMPARE("IMG_7211", img.name());
+      QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7211.jpg", img.path());
+    } else if (i == 3) {
+      QCOMPARE("IMG_7212", img.name());
+      QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7212.jpg", img.path());
     }
   }
 }
 
 void TestProject::test_addImage_deleteImage()
 {
-  Image img("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
+  Image img("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7213.png");
 
   mProjectXml->addImage(img);
 
-  QCOMPARE(3, mProjectXml->imagesCount());
+  QCOMPARE(5, mProjectXml->imagesCount());
 
-  mProjectXml->removeImage("img003");
-  QCOMPARE(2, mProjectXml->imagesCount());
+  mProjectXml->removeImage("IMG_7213");
+  QCOMPARE(4, mProjectXml->imagesCount());
 }
 
 void TestProject::test_addCamera()
@@ -254,22 +250,29 @@ void TestProject::test_addCamera()
 
 void TestProject::test_findCamera()
 {
-  Camera camera = mProjectXml->findCamera("DJI", "FC6310");
-  QCOMPARE(3752.23, camera.focal());
-  QCOMPARE(5472, camera.width());
-  QCOMPARE(3648, camera.height());
-  QCOMPARE(12.8333, camera.sensorSize());
+  Camera camera = mProjectXml->findCamera("Unknown camera", "0");
+  QCOMPARE(5835.6, camera.focal());
+  QCOMPARE(4863, camera.width());
+  QCOMPARE(3221, camera.height());
+  QCOMPARE(1, camera.sensorSize());
 
   Camera camera2 = mProjectXml->findCamera(1);
-  QCOMPARE(3752.23, camera2.focal());
-  QCOMPARE(5472, camera2.width());
-  QCOMPARE(3648, camera2.height());
-  QCOMPARE(12.8333, camera2.sensorSize());
+  QCOMPARE(5835.6, camera2.focal());
+  QCOMPARE(4863, camera2.width());
+  QCOMPARE(3221, camera2.height());
+  QCOMPARE(1, camera2.sensorSize());
+
+  try {
+    Camera camera_error = mProjectXml->findCamera("DJI", "FC6310");
+  } catch (std::exception &e) {
+    QString error = e.what();
+    QCOMPARE("Camera not found: DJI FC6310", error);
+  }
 }
 
 void TestProject::test_findCameraId()
 {
-  int id = mProjectXml->cameraId("DJI", "FC6310");
+  int id = mProjectXml->cameraId("Unknown camera", "0");
   QCOMPARE(1, id);
 }
 
@@ -298,11 +301,11 @@ void TestProject::test_featureExtractor()
 
 void TestProject::test_features()
 {
-  QString features = mProjectXml->features("img001");
-  QCOMPARE("img001@C:/Users/User01/Documents/inspector/Projects/prj001/prj001.db", features);
+  QString features = mProjectXml->features("IMG_7209");
+  QCOMPARE("IMG_7209@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db", features);
 
-  features = mProjectXml->features("img002");
-  QCOMPARE("img002@C:/Users/User01/Documents/inspector/Projects/prj001/prj001.db", features);
+  features = mProjectXml->features("IMG_7210");
+  QCOMPARE("IMG_7210@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db", features);
 }
 
 

@@ -90,52 +90,55 @@ void CamerasPresenterImp::activeCamera(int id)
     mView->setHeight(camera.height());
     mView->setType(camera.type());
     mView->setSensorSize(QString::number(camera.sensorSize()));
+    
     std::shared_ptr<Calibration> calibration = camera.calibration();
-    for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-      Calibration::Parameters parameter = param->first;
-      double value = param->second;
-      switch (parameter) {
-        case inspector::Calibration::Parameters::focal:
-          mView->setCalibF(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::focalx:
-          mView->setCalibFx(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::focaly:
-          mView->setCalibFy(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::cx:
-          mView->setCalibCx(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::cy:
-          mView->setCalibCy(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::k1:
-          mView->setCalibK1(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::k2:
-          mView->setCalibK2(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::k3:
-          mView->setCalibK3(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::k4:
-          mView->setCalibK4(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::k5:
-          mView->setCalibK5(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::k6:
-          mView->setCalibK6(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::p1:
-          mView->setCalibP1(QString::number(value));
-          break;
-        case inspector::Calibration::Parameters::p2:
-          mView->setCalibP2(QString::number(value));
-          break;
-        default:
-          break;
+    if (calibration) {
+      for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
+        Calibration::Parameters parameter = param->first;
+        double value = param->second;
+        switch (parameter) {
+          case inspector::Calibration::Parameters::focal:
+            mView->setCalibF(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::focalx:
+            mView->setCalibFx(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::focaly:
+            mView->setCalibFy(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::cx:
+            mView->setCalibCx(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::cy:
+            mView->setCalibCy(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::k1:
+            mView->setCalibK1(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::k2:
+            mView->setCalibK2(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::k3:
+            mView->setCalibK3(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::k4:
+            mView->setCalibK4(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::k5:
+            mView->setCalibK5(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::k6:
+            mView->setCalibK6(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::p1:
+            mView->setCalibP1(QString::number(value));
+            break;
+          case inspector::Calibration::Parameters::p2:
+            mView->setCalibP2(QString::number(value));
+            break;
+          default:
+            break;
+        }
       }
     }
 

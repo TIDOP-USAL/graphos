@@ -487,6 +487,7 @@ void MainWindowPresenter::loadProject()
 
   this->loadMatches();
   this->loadOrientation();
+  this->loadDenseModel();
 }
 
 void MainWindowPresenter::updateProject()
@@ -525,8 +526,10 @@ void MainWindowPresenter::loadOrientation()
 void MainWindowPresenter::loadDenseModel()
 {
   QString dense_model = mProjectModel->denseModel();
-  if (!dense_model.isEmpty())
+  if (!dense_model.isEmpty()) {
     mView->setDenseModel(mProjectModel->denseModel());
+    QByteArray ba = mProjectModel->denseModel().toLocal8Bit();
+  }
 }
 
 void MainWindowPresenter::openImage(const QString &imageName)

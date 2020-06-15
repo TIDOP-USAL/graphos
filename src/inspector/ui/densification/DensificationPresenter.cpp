@@ -287,9 +287,9 @@ void DensificationPresenterImp::onFinishDensification()
   QString dense_path = mModel->projectFolder();
   dense_path.append("/dense");
   QString densification_method = mView->currentDensificationMethod();
-  if (densification_method.compare("SMVS") == 0) {
+  if (densification_method.compare("CMVS/PMVS") == 0) {
     dense_path.append("/pmvs/models/option-all.ply");
-  } else if (densification_method.compare("CMVS/PMVS") == 0) {
+  } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
     dense_path.append("/smvs-B").append(QString::number(mSmvs->inputImageScale())).append(".ply");
   } else {
     return;
