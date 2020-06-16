@@ -29,16 +29,12 @@ public:
 
 public:
 
-//  int blockSize() const override;
-//  void setBlockSize(int blockSize) override;
   bool crossCheck() const override;
   void enableCrossCheck(bool enable) override;
   double ratio() const override;
   void setRatio(double ratio) override;
   double distance() const override;
   void setDistance(double distance) override;
-//  int maxMatches() const override;
-//  void setMaxMatches(int maxMatches) override;
   double maxError() const override;
   void setMaxError(double error) override;
   double confidence() const override;
@@ -46,11 +42,9 @@ public:
 
 private:
 
-  //int mBlockSize;
   bool mCrossCheck;
   double mRatio;
   double mDistance;
-//  int mMaxMatches;
   double mMaxError;
   double mConfidence;
 

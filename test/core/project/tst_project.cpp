@@ -1,6 +1,5 @@
 #include <QtTest>
 
-//#include "fake/ProjectFake.h"
 #include "inspector/core/project.h"
 
 using namespace inspector;
@@ -35,12 +34,21 @@ private slots:
   void test_imageIterator();
   void test_addImage_deleteImage();
   void test_addCamera();
+  void test_updateCamera();
+  void test_removeCamera();
   void test_findCamera();
+  void test_findCamera_exception();
   void test_findCameraId();
+  void test_existCamera();
   void test_database_data();
   void test_database();
   void test_featureExtractor();
   void test_features();
+  void test_matches();
+  void test_orientations();
+  void test_sparseModel();
+  void test_densification();
+  void test_denseModel();
 
 protected:
 
@@ -248,6 +256,18 @@ void TestProject::test_addCamera()
   QCOMPARE(3648, camera2.height());
 }
 
+void TestProject::test_updateCamera()
+{
+
+}
+
+void TestProject::test_removeCamera()
+{
+  int id = mProjectXml->cameraId("SONY", "ILCE-6000");
+  mProjectXml->removeCamera(id);
+  QCOMPARE(false, mProjectXml->existCamera("SONY", "ILCE-6000"));
+}
+
 void TestProject::test_findCamera()
 {
   Camera camera = mProjectXml->findCamera("Unknown camera", "0");
@@ -261,7 +281,10 @@ void TestProject::test_findCamera()
   QCOMPARE(4863, camera2.width());
   QCOMPARE(3221, camera2.height());
   QCOMPARE(1, camera2.sensorSize());
+}
 
+void TestProject::test_findCamera_exception()
+{
   try {
     Camera camera_error = mProjectXml->findCamera("DJI", "FC6310");
   } catch (std::exception &e) {
@@ -274,6 +297,12 @@ void TestProject::test_findCameraId()
 {
   int id = mProjectXml->cameraId("Unknown camera", "0");
   QCOMPARE(1, id);
+}
+
+void TestProject::test_existCamera()
+{
+  QCOMPARE(false, mProjectXml->existCamera("DJI", "FC6310"));
+  QCOMPARE(true, mProjectXml->existCamera("Unknown camera", "0"));
 }
 
 void TestProject::test_database_data()
@@ -296,7 +325,8 @@ void TestProject::test_database()
 
 void TestProject::test_featureExtractor()
 {
-
+  std::shared_ptr<Feature> feature_extractor = mProjectXml->featureExtractor();
+  QCOMPARE(Feature::Type::sift, feature_extractor->type());
 }
 
 void TestProject::test_features()
@@ -308,6 +338,35 @@ void TestProject::test_features()
   QCOMPARE("IMG_7210@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db", features);
 }
 
+void TestProject::test_matches()
+{
+  std::shared_ptr<FeatureMatching> feature_matching = mProjectXml->featureMatching();
+  QCOMPARE(true, feature_matching.get() != nullptr);
+}
+
+void TestProject::test_orientations()
+{
+  PhotoOrientation ori = mProjectXml->photoOrientation("IMG_7209");
+  QCOMPARE(5.30029, ori.x);
+}
+
+void TestProject::test_sparseModel()
+{
+  mProject->setSparseModel("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply");
+  QCOMPARE("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply", mProject->sparseModel());
+}
+
+void TestProject::test_densification()
+{
+  std::shared_ptr<Densification> dense = mProjectXml->densification();
+  QCOMPARE(Densification::Method::cmvs_pmvs, dense->method());
+}
+
+void TestProject::test_denseModel()
+{
+  mProject->setDenseModel("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply");
+  QCOMPARE("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply", mProject->denseModel());
+}
 
 QTEST_APPLESS_MAIN(TestProject)
 

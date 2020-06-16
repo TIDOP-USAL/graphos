@@ -132,5 +132,18 @@
             <Rot>0.991462 -0.0141086 -0.129627 0.0164493 0.99972 0.0170047 0.12935 -0.0189918 0.991417</Rot>
         </Image>
     </Orientations>
-    <Densification/>
+    <Densification>
+        <DenseModel>C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply</DenseModel>
+        <DensificationMethod>
+            <CmvsPmvs>
+                <Level>2</Level>
+                <CellSize>3</CellSize>
+                <Threshold>0.7</Threshold>
+                <WindowSize>7</WindowSize>
+                <ImagesPerCluster>100</ImagesPerCluster>
+                <MinimunImageNumber>3</MinimunImageNumber>
+                <UseVisibilityInformation>true</UseVisibilityInformation>
+            </CmvsPmvs>
+        </DensificationMethod>
+    </Densification>
 </Inspector>

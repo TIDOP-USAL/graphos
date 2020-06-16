@@ -75,7 +75,7 @@ public:
    */
   virtual void setImageViewerBGcolor(const QString &bgColor) = 0;
 
-virtual QString keypointsViewerBGColor() const = 0;
+  virtual QString keypointsViewerBGColor() const = 0;
   virtual void setKeypointsViewerBGColor(const QString &color) = 0;
   virtual int keypointsViewerMarkerType() const = 0;
   virtual void setKeypointsViewerMarkerType(int type) = 0;

@@ -35,6 +35,7 @@ private slots:
   void test_height();
   void test_sensorSize_data();
   void test_sensorSize();
+  void test_calibration();
 
 protected:
 
@@ -79,7 +80,7 @@ void TestCamera::test_default_constructor()
   Camera camera;
   QCOMPARE(QString(), camera.make());
   QCOMPARE(QString(), camera.model());
-  QCOMPARE(QString("RADIAL"), camera.type());
+  QCOMPARE(QString("Radial"), camera.type());
   QCOMPARE(1., camera.focal());
   QCOMPARE(0, camera.width());
   QCOMPARE(0, camera.height());
@@ -244,6 +245,21 @@ void TestCamera::test_sensorSize()
 
   mCamera->setSensorSize(value);
   QCOMPARE(result, mCamera->sensorSize());
+}
+
+void TestCamera::test_calibration()
+{
+  std::shared_ptr<Calibration> calibration = CalibrationFactory::create(mCamera->type());
+  mCamera->setCalibration(calibration);
+  std::shared_ptr<Calibration> calibration2 = mCamera->calibration();
+  Calibration::CameraModel camera_model;
+  if (mCamera->type().compare("Simple radial") == 0)
+    camera_model = Calibration::CameraModel::radial1;
+  else if (mCamera->type().compare("Radial") == 0)
+    camera_model = Calibration::CameraModel::radial2;
+  else if (mCamera->type().compare("Full radial") == 0)
+    camera_model = Calibration::CameraModel::radial3;
+  QCOMPARE(camera_model, calibration2->cameraModel());
 }
 
 QTEST_APPLESS_MAIN(TestCamera)
