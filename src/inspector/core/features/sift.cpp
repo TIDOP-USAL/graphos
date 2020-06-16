@@ -96,7 +96,7 @@ void SiftProperties::reset()
 {
   mFeaturesNumber = 5000;
   mOctaveLayers = 3;
-  mContrastThreshold = true;
+  mContrastThresholdAuto = true;
   mContrastThreshold = 0.04;
   mEdgeThreshold = 10.;
   mSigma = 1.6;

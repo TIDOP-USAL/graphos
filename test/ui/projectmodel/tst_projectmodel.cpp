@@ -2,7 +2,6 @@
 
 #include "inspector/core/project.h"
 #include "inspector/ui/ProjectModel.h"
-#include "fake/ProjectFake.h"
 
 using namespace inspector;
 using namespace ui;
@@ -36,7 +35,7 @@ protected:
 };
 
 TestProjectModel::TestProjectModel()
-  : mProject(new ProjectFake),
+  : mProject(new ProjectImp),
     mProjectModel(new ProjectModelImp(mProject))
 {
 
@@ -59,7 +58,7 @@ TestProjectModel::~TestProjectModel()
 void TestProjectModel::initTestCase()
 {
   /// reading simulation
-  mProjectModel->load("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml");
+  mProjectModel->load(QString(INSPECTOR_SOURCE_PATH).append("/test/data/project.xml"));
 }
 
 void TestProjectModel::cleanupTestCase()
@@ -87,11 +86,11 @@ void TestProjectModel::testConstructor()
   delete project;
   project = nullptr;
 
-  QCOMPARE(QString("prj001"), mProjectModel->projectName());
-  QCOMPARE(QString("Project example"), mProjectModel->projectDescription());
-  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj001"), mProjectModel->projectFolder());
+  QCOMPARE(QString("SanSegundo"), mProjectModel->projectName());
+  QCOMPARE(QString("San Segundo"), mProjectModel->projectDescription());
+  QCOMPARE(QString("C:/Users/esteban/Documents/inspector/Projects/SanSegundo"), mProjectModel->projectFolder());
   QCOMPARE(QString("1.0"), mProjectModel->version());
-  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml"), mProjectModel->projectPath());
+  QCOMPARE(QString(INSPECTOR_SOURCE_PATH).append("/test/data/project.xml"), mProjectModel->projectPath());
   QCOMPARE(false, mProjectModel->checkUnsavedChanges());
 }
 
@@ -161,8 +160,8 @@ void TestProjectModel::test_projectFolder()
 
 void TestProjectModel::test_save()
 {
-  mProjectModel->saveAs("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml");
-  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml"), mProjectModel->projectPath());
+  //mProjectModel->saveAs("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml");
+  //QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml"), mProjectModel->projectPath());
 }
 
 

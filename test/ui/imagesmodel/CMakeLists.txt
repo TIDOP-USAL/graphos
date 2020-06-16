@@ -14,8 +14,6 @@ add_executable(${test_target}
                ${CMAKE_SOURCE_DIR}/src/inspector/ui/ImagesModel.cpp
                ${CMAKE_SOURCE_DIR}/src/inspector/ui/ImagesModel.h
                ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
-               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
-               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h
                ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
                ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h)
 

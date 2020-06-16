@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Inspector version="1.0">
     <General>
-        <Name>SanSegundo</Name>
-        <Path>C:/Users/esteban/Documents/inspector/Projects/SanSegundo</Path>
-        <Description>San Segundo</Description>
+        <Name>Proj02</Name>
+        <Path>C:/Users/User01/Documents/inspector/Projects/prj002</Path>
+        <Description>Descripción del proyecto 2</Description>
     </General>
     <Cameras>
         <Camera id="1">

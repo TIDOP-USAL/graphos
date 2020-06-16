@@ -403,7 +403,7 @@ void CamerasViewImp::setCalibFx(const QString &fx)
 
 void CamerasViewImp::setCalibFy(const QString &fy)
 {
-  mLineEditFx->setText(fy);
+  mLineEditFy->setText(fy);
 }
 
 void CamerasViewImp::setCalibK1(const QString &k1)

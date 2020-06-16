@@ -2,7 +2,7 @@
 
 #include "inspector/core/project.h"
 #include "inspector/ui/cameras/CamerasModel.h"
-#include "fake/ProjectFake.h"
+//#include "fake/ProjectFake.h"
 
 using namespace inspector;
 using namespace ui;
@@ -20,7 +20,6 @@ private slots:
 
   void initTestCase();
   void cleanupTestCase();
-  void test_addCamera();
   void test_updateCamera();
   void test_deleteCamera();
   void test_cameraId();
@@ -35,10 +34,10 @@ protected:
 };
 
 TestCamerasModel::TestCamerasModel()
-  : mProject(new ProjectFake)
+  : mProject(new ProjectImp)
 {
-  /// reading simulation
-  mProject->load("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml");
+
+  mProject->load(QString(INSPECTOR_SOURCE_PATH).append("/test/data/project.xml"));
 
   mCamerasModel = new CamerasModelImp(mProject);
 }
@@ -58,18 +57,6 @@ TestCamerasModel::~TestCamerasModel()
 
 void TestCamerasModel::initTestCase()
 {
-
-}
-
-void TestCamerasModel::cleanupTestCase()
-{
-  mCamerasModel->clear();
-
-  QCOMPARE(mCamerasModel->begin(), mCamerasModel->end());
-}
-
-void TestCamerasModel::test_addCamera()
-{
   Camera camera("DJI", "FC6310");
   camera.setType("Simple radial");
   camera.setFocal(3552.23);
@@ -77,7 +64,14 @@ void TestCamerasModel::test_addCamera()
   camera.setHeight(3648);
   camera.setSensorSize(12.8333);
   int id = mCamerasModel->addCamera(camera);
-  QCOMPARE(3, id);
+  QCOMPARE(2, id);
+}
+
+void TestCamerasModel::cleanupTestCase()
+{
+  mCamerasModel->clear();
+
+  QCOMPARE(mCamerasModel->begin(), mCamerasModel->end());
 }
 
 void TestCamerasModel::test_updateCamera()
@@ -99,19 +93,22 @@ void TestCamerasModel::test_updateCamera()
 
 void TestCamerasModel::test_deleteCamera()
 {
+  Camera camera("SONY", "ILCE-6000");
+  int id = mCamerasModel->addCamera(camera);
+
   bool remove = mCamerasModel->removeCamera(4);
   QCOMPARE(false, remove);
 
-  remove = mCamerasModel->removeCamera(3);
+  remove = mCamerasModel->removeCamera(id);
   QCOMPARE(true, remove);
 }
 
 void TestCamerasModel::test_cameraId()
 {
-  int id = mCamerasModel->cameraID("DJI", "FC6310");
+  int id = mCamerasModel->cameraID("Unknown camera", "0");
   QCOMPARE(1, id);
 
-  id = mCamerasModel->cameraID("Unknown camera", "0");
+  id = mCamerasModel->cameraID("DJI", "FC6310");
   QCOMPARE(2, id);
 
   id = mCamerasModel->cameraID("Sony", "ILCE-6000");
@@ -122,41 +119,21 @@ void TestCamerasModel::test_findCamera()
 {
   Camera camera = mCamerasModel->camera(1);
 
-  QCOMPARE(QString("DJI"), camera.make());
-  QCOMPARE(QString("FC6310"), camera.model());
-  QCOMPARE(QString("Radial"), camera.type());
-  QCOMPARE(3752.23, camera.focal());
-  QCOMPARE(5472, camera.width());
-  QCOMPARE(3648, camera.height());
-  QCOMPARE(12.8333, camera.sensorSize());
-
-  camera = mCamerasModel->camera(2);
-
   QCOMPARE(QString("Unknown camera"), camera.make());
   QCOMPARE(QString("0"), camera.model());
-  QCOMPARE(QString("Simple radial"), camera.type());
-  QCOMPARE(4753.2, camera.focal());
-  QCOMPARE(3961, camera.width());
-  QCOMPARE(2968, camera.height());
-  QCOMPARE(1., camera.sensorSize());
-
-  camera = mCamerasModel->camera("DJI", "FC6310");
-
-  QCOMPARE(QString("DJI"), camera.make());
-  QCOMPARE(QString("FC6310"), camera.model());
   QCOMPARE(QString("Radial"), camera.type());
-  QCOMPARE(3752.23, camera.focal());
-  QCOMPARE(5472, camera.width());
-  QCOMPARE(3648, camera.height());
-  QCOMPARE(12.8333, camera.sensorSize());
+  QCOMPARE(5835.6, camera.focal());
+  QCOMPARE(4863, camera.width());
+  QCOMPARE(3221, camera.height());
+  QCOMPARE(1., camera.sensorSize());
 
   camera = mCamerasModel->camera("Unknown camera", "0");
 
   QCOMPARE(QString("0"), camera.model());
-  QCOMPARE(QString("Simple radial"), camera.type());
-  QCOMPARE(4753.2, camera.focal());
-  QCOMPARE(3961, camera.width());
-  QCOMPARE(2968, camera.height());
+  QCOMPARE(QString("Radial"), camera.type());
+  QCOMPARE(5835.6, camera.focal());
+  QCOMPARE(4863, camera.width());
+  QCOMPARE(3221, camera.height());
   QCOMPARE(1., camera.sensorSize());
 }
 
@@ -176,13 +153,13 @@ void TestCamerasModel::test_iterator()
   Camera camera = it->second;
 
   QCOMPARE(1, id);
-  QCOMPARE(QString("DJI"), camera.make());
-  QCOMPARE(QString("FC6310"), camera.model());
+  QCOMPARE(QString("Unknown camera"), camera.make());
+  QCOMPARE(QString("0"), camera.model());
   QCOMPARE(QString("Radial"), camera.type());
-  QCOMPARE(3752.23, camera.focal());
-  QCOMPARE(5472, camera.width());
-  QCOMPARE(3648, camera.height());
-  QCOMPARE(12.8333, camera.sensorSize());
+  QCOMPARE(5835.6, camera.focal());
+  QCOMPARE(4863, camera.width());
+  QCOMPARE(3221, camera.height());
+  QCOMPARE(1., camera.sensorSize());
 
   it++;
 
@@ -190,13 +167,13 @@ void TestCamerasModel::test_iterator()
   camera = it->second;
 
   QCOMPARE(2, id);
-  QCOMPARE(QString("Unknown camera"), camera.make());
-  QCOMPARE(QString("0"), camera.model());
+  QCOMPARE(QString("DJI"), camera.make());
+  QCOMPARE(QString("FC6310"), camera.model());
   QCOMPARE(QString("Simple radial"), camera.type());
-  QCOMPARE(4753.2, camera.focal());
-  QCOMPARE(3961, camera.width());
-  QCOMPARE(2968, camera.height());
-  QCOMPARE(1., camera.sensorSize());
+  QCOMPARE(3552.23, camera.focal());
+  QCOMPARE(5472, camera.width());
+  QCOMPARE(3648, camera.height());
+  QCOMPARE(12.8333, camera.sensorSize());
 
 }
 

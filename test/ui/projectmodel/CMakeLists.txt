@@ -13,9 +13,7 @@ add_executable(${test_target}
                ${test_filename}
                ${CMAKE_SOURCE_DIR}/src/inspector/ui/ProjectModel.cpp
                ${CMAKE_SOURCE_DIR}/src/inspector/ui/ProjectModel.h
-               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
-               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
-               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h)
+               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h)
 
 target_link_libraries(${test_target} PRIVATE
                       Qt5::Core

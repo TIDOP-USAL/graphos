@@ -196,7 +196,7 @@ void TestSettingsView::test_useCuda()
 
 void TestSettingsView::test_useCudaChange()
 {
-
+QSKIP("");
   QSignalSpy spy_useCudaChange(this, &SettingsViewImp::useCudaChange);
   QTest::mouseClick(this->mCheckBoxUseCuda, Qt::MouseButton::LeftButton);
 

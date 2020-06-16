@@ -19,15 +19,11 @@ private slots:
 
   void initTestCase();
   void cleanupTestCase();
-//  void test_blockSize_data();
-//  void test_blockSize();
   void test_crossCheck();
   void test_ratio_data();
   void test_ratio();
   void test_distance_data();
   void test_distance();
-//  void test_maxMatches_data();
-//  void test_maxMatches();
   void test_maxError_data();
   void test_maxError();
   void test_confidence_data();
@@ -56,11 +52,9 @@ TestFeatureMatchingProperties::~TestFeatureMatchingProperties()
 
 void TestFeatureMatchingProperties::initTestCase()
 {
-//  QCOMPARE(50, mFeatureMatching->blockSize());
   QCOMPARE(true, mFeatureMatching->crossCheck());
   QCOMPARE(0.8, mFeatureMatching->ratio());
   QCOMPARE(0.7, mFeatureMatching->distance());
-//  QCOMPARE(32768, mFeatureMatching->maxMatches());
   QCOMPARE(4.0, mFeatureMatching->maxError());
   QCOMPARE(0.999, mFeatureMatching->confidence());
 }
@@ -69,25 +63,6 @@ void TestFeatureMatchingProperties::cleanupTestCase()
 {
 
 }
-
-//void TestFeatureMatchingProperties::test_blockSize_data()
-//{
-//  QTest::addColumn<int>("value");
-//  QTest::addColumn<int>("result");
-
-//  QTest::newRow("50") << 50 << 50;
-//  QTest::newRow("25") << 25 << 25;
-//  QTest::newRow("100") << 100 << 100;
-//}
-
-//void TestFeatureMatchingProperties::test_blockSize()
-//{
-//  QFETCH(int, value);
-//  QFETCH(int, result);
-
-//  mFeatureMatching->setBlockSize(value);
-//  QCOMPARE(result, mFeatureMatching->blockSize());
-//}
 
 void TestFeatureMatchingProperties::test_crossCheck()
 {
@@ -134,25 +109,6 @@ void TestFeatureMatchingProperties::test_distance()
   mFeatureMatching->setDistance(value);
   QCOMPARE(result, mFeatureMatching->distance());
 }
-
-//void TestFeatureMatchingProperties::test_maxMatches_data()
-//{
-//  QTest::addColumn<int>("value");
-//  QTest::addColumn<int>("result");
-
-//  QTest::newRow("20000") << 20000 << 20000;
-//  QTest::newRow("32768") << 32768 << 32768;
-//  QTest::newRow("50000") << 50000 << 50000;
-//}
-
-//void TestFeatureMatchingProperties::test_maxMatches()
-//{
-//  QFETCH(int, value);
-//  QFETCH(int, result);
-
-//  mFeatureMatching->setMaxMatches(value);
-//  QCOMPARE(result, mFeatureMatching->maxMatches());
-//}
 
 void TestFeatureMatchingProperties::test_maxError_data()
 {

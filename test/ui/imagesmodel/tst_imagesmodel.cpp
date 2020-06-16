@@ -2,7 +2,6 @@
 
 #include "inspector/core/project.h"
 #include "inspector/ui/ImagesModel.h"
-#include "fake/ProjectFake.h"
 
 using namespace inspector;
 using namespace ui;
@@ -34,10 +33,9 @@ protected:
 };
 
 TestImagesModel::TestImagesModel()
-  : mProject(new ProjectFake)
+  : mProject(new ProjectImp)
 {
-  /// reading simulation
-  mProject->load("C:/Users/User01/Documents/inspector/Projects/prj001/prj001.xml");
+  mProject->load(QString(INSPECTOR_SOURCE_PATH).append("/test/data/project.xml"));
 
   mImagesModel = new ImagesModelImp(mProject);
 }
@@ -70,41 +68,40 @@ void TestImagesModel::cleanupTestCase()
 
 void TestImagesModel::test_addImage()
 {
-  Image image("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
+  Image image("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7213.jpg");
   image.setCameraId(1);
   image.setLongitudeExif(0.55);
   image.setLatitudeExif(2.3);
   image.setAltitudeExif(10.2);
   mImagesModel->addImage(image);
 
-  Image image2 = mImagesModel->findImageByName("img003");
-  QCOMPARE(QString("img003"), image2.name());
+  Image image2 = mImagesModel->findImageByName("IMG_7213");
+  QCOMPARE(QString("IMG_7213"), image2.name());
   QCOMPARE(1, image2.cameraId());
   QCOMPARE(0.55, image2.longitudeExif());
   QCOMPARE(2.3, image2.latitudeExif());
   QCOMPARE(10.2, image2.altitudeExif());
-  QCOMPARE(1, image2.cameraId());
 }
 
 void TestImagesModel::test_updateImage()
 {
   Image image1 = mImagesModel->findImageById(0);
-  image1.setCameraId(2);
+  image1.setAltitudeExif(25.0);
 
   bool modified = mImagesModel->updateImage(0, image1);
   QCOMPARE(true, modified);
 
   Image image_modified = mImagesModel->findImageById(0);
-  QCOMPARE(2, image_modified.cameraId());
+  QCOMPARE(25.0, image_modified.altitudeExif());
 
   // Se recupera el estado original
-  image1.setCameraId(1);
+  image1.setAltitudeExif(0);
   mImagesModel->updateImage(0, image1);
 }
 
 void TestImagesModel::test_deleteImage()
 {
-  Image image("C:/Users/User01/Documents/inspector/Projects/prj001/images/img004.png");
+  Image image("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7214.jpg");
   image.setCameraId(1);
   image.setLongitudeExif(0.66);
   image.setLatitudeExif(2.7);
@@ -112,7 +109,7 @@ void TestImagesModel::test_deleteImage()
 
   mImagesModel->addImage(image);
 
-  size_t id = mImagesModel->imageID("img004");
+  size_t id = mImagesModel->imageID("IMG_7214");
 
   bool removed = mImagesModel->removeImage(id);
   QCOMPARE(true, removed);
@@ -123,17 +120,17 @@ void TestImagesModel::test_deleteImage()
 
 void TestImagesModel::test_imageId()
 {
-  size_t id = mImagesModel->imageID("img001");
+  size_t id = mImagesModel->imageID("IMG_7209");
   QCOMPARE(0, id);
 
-  id = mImagesModel->imageID("img002");
+  id = mImagesModel->imageID("IMG_7210");
   QCOMPARE(1, id);
 }
 
 void TestImagesModel::test_findImage()
 {
   Image image1 = mImagesModel->findImageById(0);
-  Image image2 = mImagesModel->findImageByName("img001");
+  Image image2 = mImagesModel->findImageByName("IMG_7209");
 
   QCOMPARE(image1.name(), image2.name());
   QCOMPARE(image1.cameraId(), image2.cameraId());
