@@ -43,18 +43,19 @@ endif()
 
 if (UNIX)
 
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-  if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  else()
-     message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-  endif()
+#  include(CheckCXXCompilerFlag)
+#  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+#  if(COMPILER_SUPPORTS_CXX11)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#  else()
+#     message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+#  endif()
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
   
 endif()
 
+set (CMAKE_CXX_STANDARD 14)
 
 # Directorio con modulos extra de CMAKE
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
@@ -99,21 +100,21 @@ OPTION (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 
 set(BUILD_TL_CORE YES)
 
-if(BUILD_MESSAGE_HANDLER)
-  set(TL_MESSAGE_HANDLER YES)
-  message(STATUS "[TidopLib] Message manager enabled")
-else()
-  set(TL_MESSAGE_HANDLER NO)
-  message(STATUS "[TidopLib] Message manager disabled")
-endif()
+#if(BUILD_MESSAGE_HANDLER)
+#  set(TL_MESSAGE_HANDLER YES)
+#  message(STATUS "[TidopLib] Message manager enabled")
+#else()
+#  set(TL_MESSAGE_HANDLER NO)
+#  message(STATUS "[TidopLib] Message manager disabled")
+#endif()
 
-if(BUILD_DEPRECATED_METHODS)
-  set(TL_ENABLE_DEPRECATED_METHODS YES)
-  message(WARNING "[TidopLib] Enable deprecated methods and class")
-else()
-  set(TL_ENABLE_DEPRECATED_METHODS NO)
-  message(STATUS "[TidopLib] Disable deprecated methods and class")
-endif()
+#if(BUILD_DEPRECATED_METHODS)
+#  set(TL_ENABLE_DEPRECATED_METHODS YES)
+#  message(WARNING "[TidopLib] Enable deprecated methods and class")
+#else()
+#  set(TL_ENABLE_DEPRECATED_METHODS NO)
+#  message(STATUS "[TidopLib] Disable deprecated methods and class")
+#endif()
 
 
 if(BUILD_TEST)
@@ -188,8 +189,6 @@ else()
     include_directories(${OpenCV_INCLUDE_DIRS})
 endif()
 
-
-
 #  Colmap 
 
 
@@ -210,10 +209,6 @@ if(MSVC)
 endif()
 
 
-# Da problemas si las librerias que usa colmap están en otras rutas distintas a las de defecto
-find_package(gflags REQUIRED)
-include_directories(${gflags_INCLUDE_DIR})
-
 find_package(OpenMP)
 
 if(OPENMP_FOUND)
@@ -233,6 +228,18 @@ else()
     message(STATUS "Disabling OpenMP support")
 endif()
 
+
+if(MSVC)
+  # Some fixes for the Glog library.
+  add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
+  add_definitions("-DGL_GLEXT_PROTOTYPES")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+endif()
+
+# find_package(Glog REQUIRED)
+# include_directories(${Glog_INCLUDE_DIRS})
+# find_package(gflags REQUIRED)
+# include_directories(${gflags_INCLUDE_DIRS})
 
 
 #  QT 
@@ -330,6 +337,13 @@ if(WITH_VLD)
 
 endif(WITH_VLD)
 
+set(TL_MESSAGE_HANDLER YES)
+message(STATUS "[TidopLib] Message manager enabled")
+configure_file("${PROJECT_SOURCE_DIR}/cmake/config_tl.h.in" "${PROJECT_BINARY_DIR}/config_tl.h")
+include_directories("${PROJECT_BINARY_DIR}")
+add_subdirectory(third_party)
+
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed
@@ -340,19 +354,16 @@ set(CMAKE_AUTORCC ON)
 
 
 #cabeceras con la configuración
-configure_file("${PROJECT_SOURCE_DIR}/cmake/config_tl.h.in" "${PROJECT_BINARY_DIR}/config_tl.h")
+
 configure_file("${PROJECT_SOURCE_DIR}/cmake/config_inspector.h.in" "${PROJECT_BINARY_DIR}/config_inspector.h")
 
 # include del directorio principal
 include_directories(${CMAKE_BUILD_DIR})
 
-include_directories("${PROJECT_BINARY_DIR}")
 
 #Recursos
 set(INSPECTOR_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/res/res.qrc)
 
-
-add_subdirectory(third_party)
 
 #directorio con el código fuente de los diferentes modulos
 add_subdirectory(src)

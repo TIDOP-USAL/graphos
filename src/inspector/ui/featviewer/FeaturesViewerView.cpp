@@ -41,7 +41,7 @@ void FeaturesViewerViewImp::initUI()
 {
   this->setObjectName(QString("FeaturesViewerView"));
 
-  this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
+  //this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(994, 688);
 
   QGridLayout *gridLayout = new QGridLayout();

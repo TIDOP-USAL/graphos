@@ -23,6 +23,7 @@ add_library(inspector_process ${LIB_TYPE}
 
 set_property(TARGET inspector_process PROPERTY FOLDER "lib")
 
+target_link_libraries(inspector_process glog::glog)
 
 install(TARGETS inspector_process
         LIBRARY DESTINATION lib 

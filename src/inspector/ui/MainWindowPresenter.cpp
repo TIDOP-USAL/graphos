@@ -1028,6 +1028,7 @@ void MainWindowPresenter::initSignalAndSlots()
   connect(mView, &MainWindowView::clearHistory,           this, &MainWindowPresenter::deleteHistory);
   //connect(mView, &MainWindowView::openExportFeatures,     this, &MainWindowPresenter::openExportFeaturesDialog);
   //connect(mView, &MainWindowView::openExportMatches,      this, &MainWindowPresenter::openExportMatchesDialog);
+  connect(mView, &MainWindowView::openExportOrientations, this, &MainWindowPresenter::openExportOrientationsDialog);
   connect(mView, &MainWindowView::saveProject,            this, &MainWindowPresenter::saveProject);
   connect(mView, &MainWindowView::saveProjectAs,          this, &MainWindowPresenter::saveProjectAs);
   connect(mView, &MainWindowView::closeProject,           this, &MainWindowPresenter::closeProject);
@@ -1072,7 +1073,7 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Visor de imagenes */
 
-  connect(mView, SIGNAL(openImageMatches(QString,QString,QString)),   this, SLOT(openImageMatches(QString,QString,QString)));
+  //connect(mView, SIGNAL(openImageMatches(QString,QString,QString)),   this, SLOT(openImageMatches(QString,QString,QString)));
 
   connect(mView, &MainWindowView::openKeypointsViewerFromImage, this, &MainWindowPresenter::openKeypointsViewerDialogFromImage);
   connect(mView, &MainWindowView::openMatchesViewerFromImages,  this, &MainWindowPresenter::openMatchesViewerDialogFromImages);

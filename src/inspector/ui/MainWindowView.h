@@ -21,11 +21,12 @@ namespace inspector
 class ThumbnailsWidget;
 class LogWidget;
 
+class GraphicViewer;
 
 namespace ui
 {
 
-class GraphicViewer;
+
 class TabHandler;
 
 class MainWindowView
@@ -124,6 +125,7 @@ signals:
   void saveProjectAs();
   void openExportFeatures();
   void openExportMatches();
+  void openExportOrientations();
   void closeProject();
   void exit();
 
@@ -243,6 +245,7 @@ protected:
   QAction *mActionAbout;
   QAction *mActionExportTiePoints;
   QAction *mActionExportMatches;
+  QAction *mActionExportOrientations;
   QAction *mActionFeaturesViewer;
   QAction *mActionMatchesViewer;
   //QAction *mActionPassPointsViewer;

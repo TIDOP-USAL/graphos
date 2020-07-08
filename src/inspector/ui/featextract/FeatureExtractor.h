@@ -39,7 +39,7 @@ class FeatureExtractorView
 public:
 
   FeatureExtractorView(QWidget *parent = nullptr) : IDialogView(parent) {}
-  virtual ~FeatureExtractorView() override = default;
+  ~FeatureExtractorView() override = default;
 
   virtual void addDetectorDescriptor(QWidget *detectorDescriptor) = 0;
   virtual QString currentDetectorDescriptor() const = 0;
@@ -68,7 +68,7 @@ class FeatureExtractorPresenter
 public:
 
   FeatureExtractorPresenter() {}
-  virtual ~FeatureExtractorPresenter() override = default;
+  ~FeatureExtractorPresenter() override = default;
 
 signals:
 

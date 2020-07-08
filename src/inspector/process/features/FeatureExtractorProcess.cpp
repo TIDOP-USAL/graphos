@@ -86,7 +86,9 @@ void FeatureExtractorProcess::run()
       colmap::Camera camera_colmap;
       colmap::camera_t camera_id = static_cast<colmap::camera_t>(mImage.cameraId());
       if (!database.ExistsCamera(camera_id)){
-        int camera_model_id = colmap::CameraModelNameToId(mCamera.type().toStdString());
+        QString colmap_camera_type = cameraToColmapType(mCamera);
+        int camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
+        if (camera_model_id == -1) throw std::runtime_error("Camera model unknow");
         double focal_length = mCamera.focal();
         size_t width = static_cast<size_t>(mCamera.width());
         size_t height = static_cast<size_t>(mCamera.height());

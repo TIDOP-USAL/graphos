@@ -16,13 +16,23 @@ target_link_libraries(${PROJECT_NAME}
                       inspector_core
                       inspector_process
                       tl_core
-                      ${COLMAP_LIBRARIES} 
+                      Qt5::Core
+                      Qt5::Widgets
                       Qt5::Sql
-                      ${OpenCV_LIBS})
+                      ${COLMAP_LIBRARIES}
+                      ${FREEIMAGE_LIBRARIES}
+                      ${GLEW_LIBRARIES}
+                      ${CERES_LIBRARIES}
+                      ${OPENGL_gl_LIBRARY}
+                      ${OPENGL_glu_LIBRARY}
+                      ${OpenCV_LIBS}
+                      ${CUDA_LIBRARIES})
+					  
 # link boost libraries
-#target_link_libraries(${PROJECT_NAME}
-#                      ${Boost_FILESYSTEM_LIBRARY}
-#                      ${Boost_SYSTEM_LIBRARY})
+target_link_libraries(${PROJECT_NAME}
+                      ${Boost_FILESYSTEM_LIBRARY}
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_REGEX_LIBRARY})
 
 if (UNIX)
   target_link_libraries(${PROJECT_NAME} 

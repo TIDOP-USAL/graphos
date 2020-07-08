@@ -31,6 +31,9 @@
 #include "inspector/ui/matchviewer/MatchViewerModel.h"
 #include "inspector/ui/matchviewer/MatchViewerView.h"
 #include "inspector/ui/matchviewer/MatchViewerPresenter.h"
+#include "inspector/ui/export/orientations/ExportOrientationsModel.h"
+#include "inspector/ui/export/orientations/ExportOrientationsView.h"
+#include "inspector/ui/export/orientations/ExportOrientationsPresenter.h"
 //#include "inspector/ui/MultiViewModel.h"
 //#include "inspector/ui/MultiViewView.h"
 //#include "inspector/ui/MultiViewPresenter.h"
@@ -78,6 +81,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mFeaturesViewerPresenter(nullptr),
     mMatchesViewerModel(nullptr),
     mMatchesViewerPresenter(nullptr),
+    mExportOrientationsModel(nullptr),
+    mExportOrientationsPresenter(nullptr),
     //mAboutDialog(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
@@ -212,6 +217,16 @@ ComponentsManager::~ComponentsManager()
     mMatchesViewerPresenter = nullptr;
   }
 
+  if (mExportOrientationsModel) {
+    delete mExportOrientationsModel;
+    mExportOrientationsModel = nullptr;
+  }
+
+  if (mExportOrientationsPresenter) {
+    delete mExportOrientationsPresenter;
+    mExportOrientationsPresenter = nullptr;
+  }
+
   if (mProgressHandler){
     delete mProgressHandler;
     mProgressHandler = nullptr;
@@ -275,7 +290,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 
 //    connect(mMainWindowPresenter, SIGNAL(openExportFeaturesDialog()),    this, SLOT(initAndOpenExportFeaturesDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openExportMatchesDialog()),     this, SLOT(initAndOpenExportMatchesDialog()));
-//    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
+    connect(mMainWindowPresenter, &MainWindowPresenter::openExportOrientationsDialog,
+            this, &ComponentsManager::initAndOpenExportOrientationsDialog);
 
     connect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
              this, &ComponentsManager::initAndOpenCamerasDialog);
@@ -286,8 +302,10 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
     connect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
             this, &ComponentsManager::initAndOpenToolSettingsDialog);
 
-//    connect(mMainWindowPresenter, SIGNAL(openMultiviewMatchingAssessmentDialog()),     this, SLOT(initAndOpenMultiviewMatchingAssessmentDialog()));
+//    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
+
   }
+
   return mMainWindowPresenter;
 }
 
@@ -520,6 +538,24 @@ MatchViewerPresenter *ComponentsManager::matchesViewerPresenter()
                                                           this->settingsModel());
   }
   return mMatchesViewerPresenter;
+}
+
+ExportOrientationsModel *ComponentsManager::exportOrientationsModel()
+{
+  if (mExportOrientationsModel == nullptr) {
+    mExportOrientationsModel = new ExportOrientationsModelImp(mProject);
+  }
+  return mExportOrientationsModel;
+}
+
+ExportOrientationsPresenter *ComponentsManager::exportOrientationsPresenter()
+{
+  if (mExportOrientationsPresenter == nullptr){
+    ExportOrientationsView *view = new ExportOrientationsViewImp(this->mainWindowView());
+    mExportOrientationsPresenter = new ExportOrientationsPresenterImp(view,
+                                                                      this->exportOrientationsModel());
+  }
+  return mExportOrientationsPresenter;
 }
 
 HelpDialog *ComponentsManager::helpDialog()
@@ -823,9 +859,15 @@ void ComponentsManager::initMatchesViewer()
 
 void ComponentsManager::initSettingsDialog()
 {
-  disconnect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this, SLOT(initAndOpenSettingsDialog()));
-  disconnect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this, SLOT(initAndOpenViewSettingsDialog()));
-  disconnect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this, SLOT(initAndOpenToolSettingsDialog()));
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openSettingsDialog,
+    this, &ComponentsManager::initAndOpenSettingsDialog);
+  disconnect(mMainWindowPresenter, &MainWindowPresenter::openViewSettingsDialog,
+    this, &ComponentsManager::initAndOpenViewSettingsDialog);
+  disconnect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
+    this, &ComponentsManager::initAndOpenToolSettingsDialog);
+  //disconnect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this, SLOT(initAndOpenSettingsDialog()));
+  //disconnect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this, SLOT(initAndOpenViewSettingsDialog()));
+  //disconnect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this, SLOT(initAndOpenToolSettingsDialog()));
 
   connect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this->settingsPresenter(), SLOT(open()));
   connect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this->settingsPresenter(), SLOT(openViewSettings()));
@@ -833,6 +875,17 @@ void ComponentsManager::initSettingsDialog()
   connect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this->settingsPresenter(), SLOT(openToolSettings()));
 
   this->settingsPresenter()->setHelp(this->helpDialog());
+}
+
+void ComponentsManager::initAndOpenExportOrientationsDialog()
+{
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openExportOrientationsDialog,
+             this, &ComponentsManager::initAndOpenExportOrientationsDialog);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportOrientationsDialog,
+          this->exportOrientationsPresenter(), &ExportOrientationsPresenter::open);
+
+  this->exportOrientationsPresenter()->setHelp(this->helpDialog());
+  this->exportOrientationsPresenter()->open();
 }
 
 //void ComponentsManager::initAndOpenMultiviewMatchingAssessmentDialog()

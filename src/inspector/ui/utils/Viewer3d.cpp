@@ -524,7 +524,7 @@ void CCViewer3D::loadFromFile(const QString &file, const QString &parent)
   size_t childCount = group->getChildrenNumber();
   if (childCount != 0) {
     for (size_t i = 0; i < childCount; ++i) {
-      ccHObject* child = group->getChild(i);
+      ccHObject* child = group->getChild(static_cast<unsigned int>(i));
       QString newName = child->getName();
       if (newName.startsWith("unnamed")) {
         child->setName(file);

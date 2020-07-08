@@ -55,6 +55,13 @@ public:
   void exportVRML(const QString &path) const;
 
   /*!
+   * \brief Exportación de la orientación al formato Bundler
+   * \param[in] oriFile Fichero Bundler de orientaciones
+   * \param[in] imageListFile Fichero con el listado de imágenes
+   */
+  void exportBundler(const QString &oriFile, const QString &imageListFile) const;
+
+  /*!
    * \brief Exportación de la orientación relativa a un fichero de texto
    * \param[in] path Ruta donde se crea el fichero
    * \param[in] bQuaternion Orientaciones como cuaterniones. En caso contrario se escribe la matriz de rotación

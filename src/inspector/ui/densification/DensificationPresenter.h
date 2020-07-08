@@ -29,7 +29,7 @@ class DensificationPresenterImp
 public:
 
   DensificationPresenterImp(DensificationView *view,
-                    DensificationModel *model);
+                            DensificationModel *model);
   ~DensificationPresenterImp() override;
 
 private:
@@ -54,7 +54,7 @@ public slots:
 private slots:
 
   void run() override;
-  void setCurrentDensifier(const QString &desnsifier) override;
+  void setCurrentDensifier(const QString &densifier) override;
 
 // IPresenter interface
 

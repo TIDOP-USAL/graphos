@@ -32,7 +32,7 @@ FeatureMatchingViewImp::~FeatureMatchingViewImp()
 void FeatureMatchingViewImp::initUI()
 {
   this->setObjectName(QString("FeatureMatchingView"));
-  this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
+  //this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(400, 300);
 
   QGridLayout *gridLayout = new QGridLayout();

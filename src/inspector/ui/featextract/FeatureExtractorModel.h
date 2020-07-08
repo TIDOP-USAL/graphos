@@ -2,10 +2,12 @@
 #define INSPECTOR_FEATURE_EXTRACTOR_MODEL_H
 
 #include "inspector/ui/featextract/FeatureExtractor.h"
-#include "inspector/core/project.h"
 
 namespace inspector
 {
+
+class Project;
+class Feature;
 
 namespace ui
 {

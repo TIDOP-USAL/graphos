@@ -39,6 +39,8 @@ class FeaturesViewerModel;
 class FeaturesViewerPresenter;
 class MatchViewerModel;
 class MatchViewerPresenter;
+class ExportOrientationsModel;
+class ExportOrientationsPresenter;
 class HelpDialog;
 class AboutDialog;
 
@@ -51,7 +53,6 @@ public:
 
   explicit ComponentsManager(QObject *parent = nullptr);
   ~ComponentsManager();
-
 
   MainWindowView *mainWindowView();
   MainWindowModel *mainWindowModel();
@@ -80,6 +81,8 @@ public:
   FeaturesViewerPresenter *featuresViewerPresenter();
   MatchViewerModel *matchesViewerModel();
   MatchViewerPresenter *matchesViewerPresenter();
+  ExportOrientationsModel *exportOrientationsModel();
+  ExportOrientationsPresenter *exportOrientationsPresenter();
   //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
 
@@ -105,6 +108,7 @@ protected slots:
   void initAndOpenMatchesViewerDialogFromImages(const QString &leftImage,
                                                 const QString &rightImage);
   void initSettingsDialog();
+  void initAndOpenExportOrientationsDialog();
 
 private:
 
@@ -141,6 +145,8 @@ protected:
   FeaturesViewerPresenter *mFeaturesViewerPresenter;
   MatchViewerModel *mMatchesViewerModel;
   MatchViewerPresenter *mMatchesViewerPresenter;
+  ExportOrientationsModel *mExportOrientationsModel;
+  ExportOrientationsPresenter *mExportOrientationsPresenter;
 //  MultiViewMatchingAssessmentModel *mMultiviewMatchingAssessmentModel;
 //  MultiViewMatchingAssessmentPresenter *mMultiviewMatchingAssessmentPresenter;
   //AboutDialog *mAboutDialog;

@@ -133,6 +133,7 @@ void FeatureExtractorPresenterImp::run()
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
       return;
+    } else {
     }
   }
   ///

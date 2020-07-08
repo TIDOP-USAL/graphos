@@ -64,6 +64,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionAbout(new QAction(this)),
     mActionExportTiePoints(new QAction(this)),
     mActionExportMatches(new QAction(this)),
+    mActionExportOrientations(new QAction(this)),
     mActionFeaturesViewer(new QAction(this)),
     mActionMatchesViewer(new QAction(this)),
     //mActionPassPointsViewer(new QAction(this)),
@@ -887,13 +888,13 @@ void MainWindowView::initActions()
   iconLoadImages.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-add-folder.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionLoadImages->setIcon(iconLoadImages);
 
-//  QIcon iconFeatureExtraction;
-//  iconFeatureExtraction.addFile(QStringLiteral(":/ico/24/img/material/24/features.png"), QSize(), QIcon::Normal, QIcon::Off);
-//  mActionFeatureExtraction->setIcon(iconFeatureExtraction);
+  QIcon iconFeatureExtraction;
+  iconFeatureExtraction.addFile(QStringLiteral(":/ico/24/img/material/24/features.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionFeatureExtraction->setIcon(iconFeatureExtraction);
 
-//  QIcon iconFeatureMatching;
-//  iconFeatureMatching.addFile(QStringLiteral(":/ico/24/img/material/24/match_view.png"), QSize(), QIcon::Normal, QIcon::Off);
-//  mActionFeatureMatching->setIcon(iconFeatureMatching);
+  QIcon iconFeatureMatching;
+  iconFeatureMatching.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-match_view"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionFeatureMatching->setIcon(iconFeatureMatching);
 
 //  QIcon iconOrientation;
 //  iconOrientation.addFile(QStringLiteral(":/ico/24/img/material/24/match_view.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -906,6 +907,14 @@ void MainWindowView::initActions()
   QIcon iconCameras;
   iconCameras.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-camera-outline-2.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionCameras->setIcon(iconCameras);
+
+  QIcon iconFeaturesViewer;
+  iconFeaturesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_points_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionFeaturesViewer->setIcon(iconFeaturesViewer);
+
+  QIcon iconMatchesViewer;
+  iconMatchesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_match_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionMatchesViewer->setIcon(iconMatchesViewer);
 
   QIcon iconSettings;
   iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -926,12 +935,16 @@ void MainWindowView::initActions()
   mActionClearHistory->setIcon(icon_delete_trash);
 
   QIcon iconOpenImage;
-  iconOpenImage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-image-file.png"), QSize(), QIcon::Normal, QIcon::Off);
+  iconOpenImage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_image_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionOpenImage->setIcon(iconOpenImage);
 
   QIcon iconRemoveImage;
   iconRemoveImage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_remove_image_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionDeleteImage->setIcon(iconRemoveImage);
+
+  mActionViewKeypoints->setIcon(iconFeaturesViewer);
+
+  mActionViewMatches->setIcon(iconMatchesViewer);
 }
 
 void MainWindowView::initToolbars()
@@ -1049,6 +1062,7 @@ void MainWindowView::initMenuFile()
   mMenuExport = new QMenu(this);
   mMenuExport->addAction(mActionExportTiePoints);
   mMenuExport->addAction(mActionExportMatches);
+  mMenuExport->addAction(mActionExportOrientations);
   //mMenuExportTiePoints = new QMenu(tr("Tie Points"), this);
   //mMenuExportMatches = new QMenu(tr("Matches"), this);
   //mMenuExportTiePoints->addAction(mActionExportTiePointsCvXml);
@@ -1070,6 +1084,7 @@ void MainWindowView::initMenuView()
   ui->menuView->addAction(mActionStartPage);
   ui->menuView->addSeparator();
   mMenuPanels = new QMenu(this);
+  mMenuPanels->setIcon(QIcon(":/ico/24/img/material/24/icons8_navigation_toolbar_left_24px_1.png"));
   mMenuPanels->addAction(ui->dockWidgetProject->toggleViewAction());
   mMenuPanels->addAction(ui->dockWidgetProperties->toggleViewAction());
   mMenuPanels->addAction(ui->dockWidgetConsole->toggleViewAction());
@@ -1079,6 +1094,7 @@ void MainWindowView::initMenuView()
   ui->menuView->addSeparator();
 
   mMenuToolBar = new QMenu(this);
+  mMenuToolBar->setIcon(QIcon(":/ico/24/img/material/24/icons8_navigation_toolbar_top_24px_1.png"));
   mMenuToolBar->addAction(mToolBarFile->toggleViewAction());
   mMenuToolBar->addAction(mToolBarWorkflow->toggleViewAction());
   mMenuToolBar->addAction(mToolBarView->toggleViewAction());
@@ -1134,6 +1150,7 @@ void MainWindowView::initSignalAndSlots()
   connect(mActionSaveProjectAs,        &QAction::triggered, this,   &MainWindowView::saveProjectAs);
   connect(mActionExportTiePoints,      &QAction::triggered, this,   &MainWindowView::openExportFeatures);
   connect(mActionExportMatches,        &QAction::triggered, this,   &MainWindowView::openExportMatches);
+  connect(mActionExportOrientations,   &QAction::triggered, this,   &MainWindowView::openExportOrientations);
   connect(mActionCloseProject,         &QAction::triggered, this,   &MainWindowView::closeProject);
   connect(mActionExit,                 &QAction::triggered, this,   &MainWindowView::exit);
 
@@ -1195,6 +1212,7 @@ void MainWindowView::update()
   mActionClearHistory->setEnabled(mHistory.size() > 0);
   mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
+  mActionExportOrientations->setEnabled(bProjectExists && bOriented && !bProcessing);
   mActionSaveProject->setEnabled(bProjectExists && bProjectModified && !bProcessing);
   mActionSaveProjectAs->setEnabled(bProjectExists && !bProcessing);
   mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
@@ -1220,6 +1238,7 @@ void MainWindowView::retranslate()
   mActionSaveProjectAs->setText(QApplication::translate("MainWindowView", "Save Project As...", nullptr));
   mActionExportTiePoints->setText(QApplication::translate("MainWindowView", "Export tie points", nullptr));
   mActionExportMatches->setText(QApplication::translate("MainWindowView", "Export Matches", nullptr));
+  mActionExportOrientations->setText(QApplication::translate("MainWindowView", "Export Orientations", nullptr));
   mActionCloseProject->setText(QApplication::translate("MainWindowView", "Close Project", nullptr));
   mActionExit->setText(QApplication::translate("MainWindowView", "Exit", nullptr));
   mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));

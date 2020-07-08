@@ -125,7 +125,7 @@ bool ProjectImp::removeImage(size_t imgId)
 {
   if (imgId != std::numeric_limits<size_t>::max() &&
       imgId < mImages.size()){
-    mImages.erase(mImages.begin()+ static_cast<long long>(imgId));
+    mImages.erase(mImages.begin() + static_cast<long long>(imgId));
     return true;
   } else {
     return false;
@@ -406,7 +406,7 @@ void ProjectImp::removeMatchesPair(const QString &imageLeft)
   auto it = mImagesPairs.find(imageLeft);
   if (it != mImagesPairs.end()){
     mImagesPairs.erase(it);
-    }
+  }
 }
 
 bool ProjectImp::refinePrincipalPoint() const

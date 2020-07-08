@@ -36,6 +36,8 @@ add_library(inspector_core ${LIB_TYPE}
 
 set_property(TARGET inspector_core PROPERTY FOLDER "lib")
 
+target_link_libraries(inspector_core glog::glog)
+
 #if(BUILD_SHARED_LIBS)
 #    
 #  install(TARGETS libgraphos

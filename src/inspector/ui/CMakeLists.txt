@@ -56,6 +56,9 @@ set(INSPECTOR_SOURCES
     matchviewer/MatchViewerModel.cpp
     matchviewer/MatchViewerView.cpp
     matchviewer/MatchViewerPresenter.cpp
+    export/orientations/ExportOrientationsModel.cpp
+    export/orientations/ExportOrientationsView.cpp
+    export/orientations/ExportOrientationsPresenter.cpp
     # MultiViewModel.cpp
     # MultiViewView.cpp
     # MultiViewPresenter.cpp
@@ -129,6 +132,10 @@ set(INSPECTOR_HEADERS
     matchviewer/MatchViewerModel.h
     matchviewer/MatchViewerView.h
     matchviewer/MatchViewerPresenter.h
+    export/orientations/ExportOrientations.h
+    export/orientations/ExportOrientationsModel.h
+    export/orientations/ExportOrientationsView.h
+    export/orientations/ExportOrientationsPresenter.h
     # Multiview.h
     # MultiViewModel.h
     # MultiViewView.h
@@ -206,6 +213,12 @@ target_link_libraries(${PROJECT_NAME}
                       inspector_process
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}
+					  ${CUDA_LIBRARIES}
+					  ${FREEIMAGE_LIBRARIES}
+					  ${GLEW_LIBRARIES}
+					  ${CERES_LIBRARIES}
+                      ${OPENGL_gl_LIBRARY}
+                      ${OPENGL_glu_LIBRARY}
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -213,7 +226,9 @@ target_link_libraries(${PROJECT_NAME}
                       ${Boost_SYSTEM_LIBRARY}
                       ${Boost_THREAD_LIBRARY}
                       ${Boost_DATE_TIME_LIBRARY}
-                      ${Boost_CHRONO_LIBRARY})
+                      ${Boost_CHRONO_LIBRARY}
+					  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+					  ${Boost_REGEX_LIBRARY})
 
 if (HAVE_CLOUDCOMPARE)
 target_link_libraries(${PROJECT_NAME}

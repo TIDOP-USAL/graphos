@@ -22,7 +22,7 @@ QImage makeThumbnail(const QString &thumb)
   double scale = 1.;
   int w = size.width();
   int h = size.height();
-  if (w > h){
+  if (w > h) {
     scale = w / 200.;
   } else {
     scale = h / 200.;

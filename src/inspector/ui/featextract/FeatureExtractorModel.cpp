@@ -1,5 +1,7 @@
 #include "FeatureExtractorModel.h"
 
+#include "inspector/core/project.h"
+
 #include <QFileInfo>
 
 namespace inspector
@@ -26,6 +28,7 @@ void FeatureExtractorModelImp::clear()
   TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
   QFile(this->database()).remove();
   mProject->removeFeatures();
+  TL_TODO("Esto no tiene que estar aqui")
   mProject->removeMatchesPair();
 }
 

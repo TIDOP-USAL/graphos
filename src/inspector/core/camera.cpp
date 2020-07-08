@@ -341,35 +341,37 @@ Calibration::parameter_const_iterator Calibration::parametersEnd() const
 
 QString Calibration::parameterName(Parameters parameter) const
 {
+  QString parameter_name;
   switch (parameter)
   {
   case Calibration::Parameters::focal:
-    return QString("f");
+    parameter_name = "f";
   case Calibration::Parameters::focalx:
-    return QString("fx");
+    parameter_name = "fx";
   case Calibration::Parameters::focaly:
-    return QString("fy");
+    parameter_name = "fy";
   case Calibration::Parameters::cx:
-    return QString("cx");
+    parameter_name = "cx";
   case Calibration::Parameters::cy:
-    return QString("cy");
+    parameter_name = "cy";
   case Calibration::Parameters::k1:
-    return QString("k1");
+    parameter_name = "k1";
   case Calibration::Parameters::k2:
-    return QString("k2");
+    parameter_name = "k2";
   case Calibration::Parameters::k3:
-    return QString("k3");
+    parameter_name = "k3";
   case Calibration::Parameters::k4:
-    return QString("k4");
+    parameter_name = "k4";
   case Calibration::Parameters::k5:
-    return QString("k5");
+    parameter_name = "k5";
   case Calibration::Parameters::k6:
-    return QString("k6");
+    parameter_name = "k6";
   case Calibration::Parameters::p1:
-    return QString("p1");
+    parameter_name = "p1";
   case Calibration::Parameters::p2:
-    return QString("p2");
-    }
+    parameter_name = "p2";
+  }
+  return parameter_name;
 }
 
 bool Calibration::existParameter(Calibration::Parameters parameter) const

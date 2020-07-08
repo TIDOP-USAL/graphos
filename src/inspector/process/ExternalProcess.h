@@ -2,12 +2,14 @@
 #define INSPECTOR_EXTERNALPROCESS_H
 
 #include <QProcess>
-#include <QFileSystemWatcher>
+//#include <QFileSystemWatcher>
 #include <QTimer>
-#include <QFile>
+//
 
 #include "Process.h"
 
+class QFileSystemWatcher;
+class QFile;
 
 
 class INSPECTOR_EXPORT ExternalProcess
@@ -63,6 +65,11 @@ protected:
 
   void run();
 
+private:
+
+  void openLogFiles();
+  void closeLogFiles();
+
 protected slots:
 
   void onError(QProcess::ProcessError commandError);
@@ -96,7 +103,6 @@ private:
   QFileSystemWatcher *mErrorWatcher;
   QTimer mTimer;
   bool mRunning;
-
 
 };
 

@@ -23,7 +23,7 @@ class INSPECTOR_EXPORT SmvsWidget
 public:
 
   SmvsWidget(QWidget *parent = nullptr) : IWidgetView(parent){}
-  virtual ~SmvsWidget() = default;
+  ~SmvsWidget() = default;
 
   virtual int inputImageScale() const = 0;
   virtual int outputDepthScale() const  = 0;

@@ -1,7 +1,7 @@
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
 add_library(inspector_widgets ${LIB_TYPE}
-			InspectorWidget.h
+            InspectorWidget.h
             SiftWidget.cpp
             SiftWidget.h
             ThumbnailsWidget.cpp
@@ -12,10 +12,14 @@ add_library(inspector_widgets ${LIB_TYPE}
             StartPageWidget.h
             FeatureMatchingWidget.cpp
             FeatureMatchingWidget.h
-			SmvsWidget.cpp
+            SmvsWidget.cpp
             SmvsWidget.h
-			CmvsPmvsWidget.cpp
-			CmvsPmvsWidget.h)
+            CmvsPmvsWidget.cpp
+            CmvsPmvsWidget.h
+            NvmFormatWidget.cpp
+            NvmFormatWidget.h
+			BundlerFormatWidget.cpp
+			BundlerFormatWidget.h)
 
 set_property(TARGET inspector_widgets PROPERTY FOLDER "lib")
 

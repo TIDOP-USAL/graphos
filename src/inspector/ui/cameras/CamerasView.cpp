@@ -32,7 +32,7 @@ void CamerasViewImp::initUI()
 
   this->resize(800, 660);
 
-  this->setWindowIcon(QIcon(":/ico/img/InspectorIcon.ico"));
+  //this->setWindowIcon(QIcon(":/ico/img/InspectorIcon.ico"));
 
   QGridLayout *layout = new QGridLayout();
   this->setLayout(layout);

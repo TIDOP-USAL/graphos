@@ -84,7 +84,7 @@ void SiftWidgetImp::initSignalAndSlots()
   connect(mFeaturesNumber,         SIGNAL(valueChanged(int)),    this, SIGNAL(featuresNumberChange(int)));
   connect(mOctaveLayers,           SIGNAL(valueChanged(int)),    this, SIGNAL(octaveLayersChange(int)));
   connect(mContrastThreshold,      SIGNAL(valueChanged(double)), this, SIGNAL(contrastThresholdChange(double)));
-  connect(mContrastThresholdAuto,  SIGNAL(clicked(bool)),        this, SIGNAL(contrastThresholdAuto(bool)));
+  connect(mContrastThresholdAuto,  SIGNAL(clicked(bool)),        this, SIGNAL(contrastThresholdAutoChange(bool)));
   connect(mEdgeThreshold,          SIGNAL(valueChanged(double)), this, SIGNAL(edgeThresholdChange(double)));
   connect(mSigma,                  SIGNAL(valueChanged(double)), this, SIGNAL(sigmaChange(double)));
 

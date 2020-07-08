@@ -57,6 +57,7 @@ signals:
   void openMatchesViewerDialogFromImages(QString, QString);
 //  void openExportFeaturesDialog();
 //  void openExportMatchesDialog();
+  void openExportOrientationsDialog();
 //  void openMultiviewMatchingAssessmentDialog();
   void openAboutDialog();
   void openSettingsDialog();

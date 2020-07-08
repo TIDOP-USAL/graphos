@@ -1,9 +1,11 @@
 #ifndef INSPECTOR_PROCESS_CONCURRENT_H
 #define INSPECTOR_PROCESS_CONCURRENT_H
 
-#include <QFutureWatcher>
+
 
 #include "Process.h"
+#include <QFutureWatcher>
+//template <typename T> class QFutureWatcher;
 
 class  INSPECTOR_EXPORT ProcessConcurrent
   : public Process
@@ -13,7 +15,7 @@ class  INSPECTOR_EXPORT ProcessConcurrent
 public:
 
   ProcessConcurrent();
-  virtual ~ProcessConcurrent() override = default;
+  ~ProcessConcurrent() override;
 
   virtual void start() override;
   virtual void setWaitForFinished(bool wait) override;
@@ -29,7 +31,7 @@ public slots:
 
 protected:
 
-  virtual void run()=0;
+  virtual void run() = 0;
   int runLauncher();
 
 private:

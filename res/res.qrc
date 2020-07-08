@@ -106,6 +106,13 @@
         <file>img/material/24/icons8-cube.png</file>
         <file>img/material/24/icons8-view_right.png</file>
         <file>img/material/24/icons8-github-24.png</file>
+        <file>img/material/24/features.png</file>
+        <file>img/material/24/icons8_image_24px.png</file>
+        <file>img/material/24/icons8_remove_image_24px.png</file>
+        <file>img/material/24/view_match_24px.png</file>
+        <file>img/material/24/view_points_24px.png</file>
+        <file>img/material/24/icons8_navigation_toolbar_left_24px_1.png</file>
+        <file>img/material/24/icons8_navigation_toolbar_top_24px_1.png</file>
     </qresource>
     <qresource prefix="/ico/48">
         <file>img/material/48/icons8-match_view.png</file>
@@ -209,6 +216,7 @@
         <file>img/material/48/icons8-3d-object.png</file>
         <file>img/material/48/icons8-3d-model.png</file>
         <file>img/material/48/icons8-github-48.png</file>
+        <file>img/material/48/icons8_remove_image_48px.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>img/fbk.png</file>
