@@ -84,8 +84,9 @@ endif (BUILD_SHARED_LIBS)
 ## CONFIGURACIÓN COMPONENTES INSPECTOR
 
 # Activación desactivación de los diferentes componentes de INSPECTOR
-OPTION (BUILD_INSPECTOR_IMAGE         "INSPECTOR IMAGE"          OFF)
-OPTION (BUILD_INSPECTOR_COMMANDS      "INSPECTOR COMMANDS"     ON)
+OPTION (BUILD_INSPECTOR_IMAGE           "INSPECTOR IMAGE"          OFF)
+OPTION (BUILD_INSPECTOR_COMMANDS        "INSPECTOR COMMANDS"       ON )
+OPTION (BUILD_INSPECTOR_MICROSERVICES   "INSPECTOR MICROSERVICES"  OFF)
 
 # Activación desactivación de otros componentes 
 OPTION (BUILD_TEST                 "Include test"          OFF)
@@ -336,6 +337,16 @@ if(WITH_VLD)
     endif()
 
 endif(WITH_VLD)
+
+if(BUILD_INSPECTOR_MICROSERVICES)
+
+    find_package(cpprestsdk REQUIRED)
+	
+	find_package(CURL REQUIRED) 
+    include_directories(${CURL_INCLUDE_DIRS})
+
+endif (BUILD_INSPECTOR_MICROSERVICES)
+
 
 set(TL_MESSAGE_HANDLER YES)
 message(STATUS "[TidopLib] Message manager enabled")

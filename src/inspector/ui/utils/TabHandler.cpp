@@ -19,11 +19,11 @@ namespace ui
 TabHandler::TabHandler(QWidget *parent)
   : QTabWidget(parent),
     mGraphicViewer(nullptr),
+    mViewer3D(nullptr),
     mActionZoomIn(new QAction(this)),
     mActionZoomOut(new QAction(this)),
     mActionZoomExtend(new QAction(this)),
     mActionZoom11(new QAction(this)),
-    mViewer3D(nullptr),
     mActionGlobalZoom(new QAction(this)),
     mActionViewFront(new QAction(this)),
     mActionViewTop(new QAction(this)),
@@ -33,7 +33,7 @@ TabHandler::TabHandler(QWidget *parent)
     mActionViewBottom(new QAction(this))
 {
   this->init();
-  this->initSignalsAndSlots();
+  this->connectSignalsAndSlots();
 }
 
 void TabHandler::init()
@@ -42,7 +42,13 @@ void TabHandler::init()
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   this->setTabsClosable(true);
 
+  this->initActions();
+  this->retranslate();
+  this->update();
+}
 
+void TabHandler::initActions()
+{
   QIcon iconZoomIn;
   iconZoomIn.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-in.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionZoomIn->setIcon(iconZoomIn);
@@ -84,12 +90,9 @@ void TabHandler::init()
   QIcon iconViewBottom;
   iconViewBottom.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-bottom-view.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionViewBottom->setIcon(iconViewBottom);
-
-  this->retranslate();
-  this->update();
 }
 
-void TabHandler::initSignalsAndSlots()
+void TabHandler::connectSignalsAndSlots()
 {
   connect(this, SIGNAL(tabCloseRequested(int)),                     this, SLOT(hideTab(int)));
   connect(this, SIGNAL(currentChanged(int)),                        this, SLOT(onTabChanged(int)));

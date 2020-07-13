@@ -31,8 +31,7 @@ class CreateProjectModelImpl
 public:
 
   CreateProjectModelImpl(Project *project)
-    : mProject(project),
-      bUnsavedChanges(false)
+    : mProject(project)
 {
   init();
 }
@@ -57,25 +56,21 @@ public:
   void save(const QString &file) override
   {
     mProject->save(file);
-    bUnsavedChanges = false;
   }
 
   void setProjectName(const QString &name) override
   {
     mProject->setName(name);
-    bUnsavedChanges = true;
   }
 
   void setProjectPath(const QString &path) override
   {
     mProject->setProjectFolder(path);
-    bUnsavedChanges = true;
   }
 
   void setProjectDescription(const QString &description) override
   {
     mProject->setDescription(description);
-    bUnsavedChanges = true;
   }
 
   void setDatabase(const QString &database) override
@@ -86,7 +81,6 @@ public:
 protected:
 
   Project *mProject;
-  bool bUnsavedChanges;
 };
 
 }

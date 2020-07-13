@@ -18,8 +18,6 @@ class TabHandler
 
 Q_OBJECT
 
-  void initSignalsAndSlots();
-
 public:
 
   TabHandler(QWidget *parent = nullptr);
@@ -67,6 +65,8 @@ protected slots:
 protected:
 
   void init();
+  void initActions();
+  void connectSignalsAndSlots();
   void retranslate();
 
 // QWidget interface
@@ -77,12 +77,12 @@ protected:
 
 protected:
 
-  GraphicViewer *mGraphicViewer;
+  GraphicViewer *mGraphicViewer;  
+  Viewer3D *mViewer3D;
   QAction *mActionZoomIn;
   QAction *mActionZoomOut;
   QAction *mActionZoomExtend;
   QAction *mActionZoom11;
-  Viewer3D *mViewer3D;
   QAction *mActionGlobalZoom;
   QAction *mActionViewFront;
   QAction *mActionViewTop;

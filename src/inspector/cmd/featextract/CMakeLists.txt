@@ -41,9 +41,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                       OUTPUT_NAME "${PROJECT_NAME}"
                       PROJECT_LABEL "${PROJECT_NAME}")
 
-if(ENABLE_SOLUTION_FOLDERS)
-  set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "commands")
-endif()
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "commands")
 
 if(WIN32)
   if (MSVC AND NOT BUILD_SHARED_LIBS)

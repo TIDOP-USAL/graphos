@@ -11,3 +11,7 @@ endif (BUILD_INSPECTOR_IMAGE)
 if(BUILD_INSPECTOR_COMMANDS)
 add_subdirectory(inspector/cmd)
 endif (BUILD_INSPECTOR_COMMANDS)
+
+if(BUILD_INSPECTOR_MICROSERVICES)
+add_subdirectory(inspector/microservices)
+endif (BUILD_INSPECTOR_MICROSERVICES)
