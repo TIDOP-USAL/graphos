@@ -655,7 +655,8 @@ ProgressDialog *ComponentsManager::progressDialog()
 
 void ComponentsManager::initAndOpenNewProjectDialog()
 {
-  disconnect(this->mainWindowPresenter(), SIGNAL(openNewProjectDialog()), this, SLOT(initAndOpenNewProjectDialog()));
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog,
+            this, &ComponentsManager::initAndOpenNewProjectDialog);
 
   connect(this->mainWindowPresenter(), SIGNAL(openNewProjectDialog()), this->newProjectPresenter(), SLOT(open()));
   connect(this->newProjectPresenter(), SIGNAL(projectCreate()),        this->mainWindowPresenter(), SLOT(loadProject()));

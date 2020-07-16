@@ -112,7 +112,7 @@ void FeatureExtractorProcess::run()
       image_id = image_colmap.ImageId();
     }
 
-    cv::Mat mat = cv::imread(mImage.path().toStdString(), cv::IMREAD_GRAYSCALE);
+    cv::Mat mat = cv::imread(mImage.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION |cv::IMREAD_GRAYSCALE);
 
     double max_dimension;
     if (mat.cols > mat.rows){
