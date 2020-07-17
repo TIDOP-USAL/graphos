@@ -1,14 +1,16 @@
 #include "TabHandler.h"
 
+#include "inspector/ui/utils/GraphicViewer.h"
+#include "inspector/ui/utils/GraphicItem.h"
+#include "inspector/ui/utils/Viewer3d.h"
+
 #include <QTabBar>
 #include <QMenu>
 #include <QFileInfo>
 #include <QEvent>
 #include <QApplication>
 
-#include "inspector/ui/utils/GraphicViewer.h"
-#include "inspector/ui/utils/GraphicItem.h"
-#include "inspector/ui/utils/Viewer3d.h"
+#include <array>
 
 namespace inspector
 {
@@ -307,6 +309,13 @@ GraphicViewer *TabHandler::addGraphicViewer(const QString &name)
 Viewer3D *TabHandler::viewer3D(int tabId)
 {
   return dynamic_cast<Viewer3D *>(this->widget(tabId));
+}
+
+void TabHandler::addCamera(const QString &image, 
+                           const std::array<float, 3> &cameraPosition, 
+                           const std::array<std::array<float, 3>, 3> &cameraRotationMatrix)
+{
+  mViewer3D->addCamera(image, cameraPosition[0], cameraPosition[1], cameraPosition[2], cameraRotationMatrix);
 }
 
 //Viewer3D *TabHandler::addViewer3D(const QString &name)

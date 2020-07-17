@@ -27,6 +27,7 @@ public:
   bool refinePrincipalPoint() const override;
   void setRefinePrincipalPoint(bool refine) override;
   void setSparseModel(const QString &sparseModel) override;
+  PhotoOrientation photoOrientation(const QString &imgName) const override;
   void addPhotoOrientation(const QString &imgName, const PhotoOrientation &orientation) override;
   QString database() const override;
   QString imagePath() const override;

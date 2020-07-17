@@ -72,7 +72,7 @@ public:
   void addMatches(const QString &imageLeft, const QString &imageRight);
   void setSparseModel(const QString &sparseModel);
   void setDenseModel(const QString &sparseModel);
-
+  
   /*!
    * \brief Añade un mensaje temporal en la barra de herramientas
    * \param msg Mensaje
@@ -169,7 +169,7 @@ signals:
   void selectImageFeatures(QString);
   void imagesLoaded();
 
-  void openModel3D(QString);
+  void openModel3D(QString, bool);
 
   //void openImageMatches(QString, QString, QString);
 

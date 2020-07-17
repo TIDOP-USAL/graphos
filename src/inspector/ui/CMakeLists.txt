@@ -188,7 +188,8 @@ qt5_add_translation(INSPECTOR_QM_FILES ${INSPECTOR_TS_FILES})
 
 QT5_ADD_RESOURCES(UI_INSPECTOR_RES ${INSPECTOR_RESOURCES} )
 
-add_executable(${PROJECT_NAME} WIN32
+add_executable(${PROJECT_NAME}
+#add_executable(${PROJECT_NAME} WIN32
                ${INSPECTOR_SOURCES}
                ${INSPECTOR_HEADERS}
                ${INSPECTOR_FORMS}

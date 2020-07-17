@@ -264,7 +264,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->imagesModel(),
                                                    this->camerasModel(),
                                                    this->featuresModel(),
-                                                   this->matchesModel());
+                                                   this->matchesModel(),
+                                                   this->orientationModel());
 
 //    mMainWindowPresenter->setHelp(this->helpDialog());
 

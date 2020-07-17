@@ -14,6 +14,8 @@
 #include "inspector/ui/ImagesModel.h"
 #include "inspector/ui/FeaturesModel.h"
 #include "inspector/ui/MatchesModel.h"
+#include "inspector/ui/orientation/OrientationModel.h"
+#include "inspector/core/utils.h"
 
 /* TidopLib */
 #include <tidop/core/messages.h>
@@ -40,7 +42,8 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          ImagesModel *imagesModel,
                                          CamerasModel *camerasModel,
                                          FeaturesModel *featuresModel,
-                                         MatchesModel *matchesModel)
+                                         MatchesModel *matchesModel,
+                                         OrientationModel *orientationModel)
   : IPresenter(),
     mView(view),
     mModel(model),
@@ -50,6 +53,7 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
     mCamerasModel(camerasModel),
     mFeaturesModel(featuresModel),
     mMatchesModel(matchesModel),
+    mOrientationModel(orientationModel),
     mHelpDialog(nullptr),
     mTabHandler(nullptr),
     mStartPageWidget(nullptr)
@@ -891,11 +895,30 @@ void MainWindowPresenter::openImageMatches(const QString &sessionName, const QSt
   //  }
 }
 
-void MainWindowPresenter::openModel3D(const QString &model3D)
+void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
 {
   try {
     //Image image = mImagesModel->findImageByName(imageName);
     mTabHandler->setModel3D(model3D);
+    
+    // Load Cameras
+    if (loadCameras) {
+      for (auto image = mImagesModel->begin(); image != mImagesModel->end(); image++) {
+        QFileInfo(image->path()).fileName();
+        QString name = image->name();
+        QString file_name = QFileInfo(image->path()).fileName();
+        PhotoOrientation photoOrientation = mOrientationModel->photoOrientation(name);
+      
+        std::array<float, 3> position;
+        position[0] = photoOrientation.x;
+        position[1] = photoOrientation.y;
+        position[2] = photoOrientation.z;
+      
+        mTabHandler->addCamera(name, position, photoOrientation.rot);
+
+      }
+    }
+
   } catch (std::exception &e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
   }
@@ -1016,6 +1039,8 @@ void MainWindowPresenter::init()
   /* Projects history */
   mView->updateHistory(mSettingsModel->history());
   mStartPageWidget->setHistory(mSettingsModel->history());
+
+  bool bUseGPU = cudaEnabled(8.0, 5.0);
 }
 
 void MainWindowPresenter::initSignalAndSlots()
@@ -1078,7 +1103,7 @@ void MainWindowPresenter::initSignalAndSlots()
   connect(mView, &MainWindowView::openKeypointsViewerFromImage, this, &MainWindowPresenter::openKeypointsViewerDialogFromImage);
   connect(mView, &MainWindowView::openMatchesViewerFromImages,  this, &MainWindowPresenter::openMatchesViewerDialogFromImages);
 
-  connect(mView, SIGNAL(openModel3D(QString)),          this, SLOT(openModel3D(QString)));
+  connect(mView, SIGNAL(openModel3D(QString, bool)),          this, SLOT(openModel3D(QString, bool)));
 
 }
 

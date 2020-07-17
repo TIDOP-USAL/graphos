@@ -297,6 +297,9 @@ void SiftCudaDetectorDescriptor::run(const colmap::Bitmap &bitmap,
   } catch (std::exception &e) {
     msgError("SIFT Detector exception");
     throw;
+  } catch (...) {
+    msgError("SIFT Detector exception");
+    throw;
   }
 }
 

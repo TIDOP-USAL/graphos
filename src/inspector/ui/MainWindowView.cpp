@@ -41,6 +41,7 @@ enum
   matches_pairs,
   pair_left,
   pair_right,
+  sparse_model,
   dense_model
 };
 
@@ -89,7 +90,7 @@ MainWindowView::~MainWindowView()
 
 void MainWindowView::clear()
 {
-  setWindowTitle(QString("Inspector Image"));
+  setWindowTitle(QString("Graphos"));
   const QSignalBlocker blockerTreeWidgetProject(mTreeWidgetProject);
   mTreeWidgetProject->clear();
   const QSignalBlocker blockerThumbnailsWidget(mThumbnailsWidget);
@@ -104,7 +105,7 @@ void MainWindowView::clear()
 
 void MainWindowView::setProjectTitle(const QString &title)
 {
-  this->setWindowTitle(QString("Inspector Image - ").append(title));
+  this->setWindowTitle(QString("Graphos - ").append(title));
 
   QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0);
   if (itemProject == nullptr) {
@@ -366,7 +367,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
     itemSparseModel->setText(0, "SparseModel");
     itemSparseModel->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
     itemSparseModel->setToolTip(0, sparseModel);
-    itemSparseModel->setData(0, Qt::UserRole, inspector::ui::dense_model);
+    itemSparseModel->setData(0, Qt::UserRole, inspector::ui::sparse_model);
   }
 }
 
@@ -723,8 +724,10 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
         item->data(0, Qt::UserRole) == inspector::ui::image_features ||
         item->data(0, Qt::UserRole) == inspector::ui::image_features_matches){
      emit openImage(item->text(column));
+   } else if (item->data(0, Qt::UserRole) == inspector::ui::sparse_model) {
+     emit openModel3D(item->toolTip(column), true);
    } else if (item->data(0, Qt::UserRole) == inspector::ui::dense_model) {
-     emit openModel3D(item->toolTip(column));
+     emit openModel3D(item->toolTip(column), false);
    }
    /*else if (item->data(0, Qt::UserRole) == inspector::ui::pair_right){
      QString session = item->parent()->parent()->parent()->parent()->text(0);
@@ -803,7 +806,7 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
 
 void MainWindowView::initUI()
 {
-  setWindowTitle(QString("Inspector Image"));
+  setWindowTitle(QString("Graphos"));
 
   mLayoutCentral = new QGridLayout(this->centralWidget());
   mLayoutCentral->setSpacing(6);

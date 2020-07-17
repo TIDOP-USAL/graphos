@@ -23,6 +23,7 @@ public:
   virtual bool refinePrincipalPoint() const = 0;
   virtual void setRefinePrincipalPoint(bool refine) = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
+  virtual PhotoOrientation photoOrientation(const QString &imgName) const = 0;
   virtual void addPhotoOrientation(const QString &imgName, const PhotoOrientation &orientation) = 0;
   virtual QString database() const = 0;
   virtual QString imagePath() const = 0;

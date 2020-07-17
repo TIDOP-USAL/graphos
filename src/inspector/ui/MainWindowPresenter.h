@@ -22,6 +22,7 @@ class ImagesModel;
 class CamerasModel;
 class FeaturesModel;
 class MatchesModel;
+class OrientationModel;
 
 class HelpDialog;
 class TabHandler;
@@ -40,7 +41,8 @@ public:
                                ImagesModel *imagesModel,
                                CamerasModel *camerasModel,
                                FeaturesModel *featuresModel,
-                               MatchesModel *matchesModel);
+                               MatchesModel *matchesModel,
+                               OrientationModel *orientationModel);
   ~MainWindowPresenter() override;
     
 signals:
@@ -109,7 +111,7 @@ protected slots:
   void deleteImage(const QString &imageName);
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
-  void openModel3D(const QString &model3D);
+  void openModel3D(const QString &model3D, bool loadCameras);
 
   //void updateFeatures();
   //void updateMatches();
@@ -156,6 +158,7 @@ protected:
   CamerasModel *mCamerasModel;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
+  OrientationModel *mOrientationModel;
 
   HelpDialog *mHelpDialog;
   TabHandler *mTabHandler;
