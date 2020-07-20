@@ -346,30 +346,43 @@ QString Calibration::parameterName(Parameters parameter) const
   {
   case Calibration::Parameters::focal:
     parameter_name = "f";
+    break;
   case Calibration::Parameters::focalx:
     parameter_name = "fx";
+    break;
   case Calibration::Parameters::focaly:
     parameter_name = "fy";
+    break;
   case Calibration::Parameters::cx:
     parameter_name = "cx";
+    break;
   case Calibration::Parameters::cy:
     parameter_name = "cy";
+    break;
   case Calibration::Parameters::k1:
     parameter_name = "k1";
+    break;
   case Calibration::Parameters::k2:
     parameter_name = "k2";
+    break;
   case Calibration::Parameters::k3:
     parameter_name = "k3";
+    break;
   case Calibration::Parameters::k4:
     parameter_name = "k4";
+    break;
   case Calibration::Parameters::k5:
     parameter_name = "k5";
+    break;
   case Calibration::Parameters::k6:
     parameter_name = "k6";
+    break;
   case Calibration::Parameters::p1:
     parameter_name = "p1";
+    break;
   case Calibration::Parameters::p2:
     parameter_name = "p2";
+    break;
   }
   return parameter_name;
 }

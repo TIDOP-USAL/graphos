@@ -257,7 +257,7 @@ bool SmvsDensifier::undistort(const QString &reconstructionPath,
 
           std::string image_file = imagesPath.toStdString();
           image_file.append("/").append(image.second.Name());
-          cv::Mat img = cv::imread(image_file.c_str(), cv::IMREAD_COLOR);
+          cv::Mat img = cv::imread(image_file.c_str(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
           cv::Mat img_undistort;
 #ifdef HAVE_CUDA
           cv::cuda::GpuMat gImgOut(img);

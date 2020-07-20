@@ -13,6 +13,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
+#include <QApplication>
 
 using namespace Qt;
 
@@ -136,11 +137,15 @@ void OrientationExport::exportPix4DCalibration(const QString &path, const QStrin
   if (mReconstruction) {
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    QString database_cameras_path;
 #ifdef _DEBUG
-    db.setDatabaseName("/home/esteban/desarrollo/geomni/resources/cameras.db");
+    database_cameras_path = QString(INSPECTOR_SOURCE_PATH).append("/res");
 #else
-    db.setDatabaseName("cameras.db");
+    database_cameras_path = qApp->applicationDirPath();
 #endif
+    database_cameras_path.append("/cameras.db");
+    db.setDatabaseName(database_cameras_path);
+
     if(db.open()){
 
       for(auto &camera : mReconstruction->Cameras()){

@@ -19,7 +19,6 @@
 namespace inspector
 {
 
-int ProjectImp::sCameraCount = 0;
 std::mutex ProjectImp::sMutex;
 
 ProjectImp::ProjectImp()
@@ -29,7 +28,8 @@ ProjectImp::ProjectImp()
     mProjectFolder(""),
     mVersion(INSPECTOR_PROJECT_FILE_VERSION),
     mDatabase(""),
-    bRefinePrincipalPoint(true)
+    bRefinePrincipalPoint(true),
+    mCameraCount(0)
 {
 }
 
@@ -207,8 +207,8 @@ size_t ProjectImp::imagesCount() const
 
 int ProjectImp::addCamera(const Camera &camera)
 {
-  mCameras[++sCameraCount] = camera;
-  return sCameraCount;
+  mCameras[++mCameraCount] = camera;
+  return mCameraCount;
 }
 
 Camera ProjectImp::findCamera(const QString &make, const QString &model) const
@@ -478,6 +478,7 @@ void ProjectImp::clear()
   mSparseModel = "";
   mDensification.reset();
   mDenseModel = "";
+  mCameraCount = 0;
 }
 
 bool ProjectImp::load(const QString &file)

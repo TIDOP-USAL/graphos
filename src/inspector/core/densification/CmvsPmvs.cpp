@@ -8,6 +8,8 @@
 #include <colmap/base/reconstruction.h>
 #include <colmap/base/undistortion.h>
 
+#include <QDir>
+
 // BOOST
 #include <boost/algorithm/string.hpp>
 using namespace inspector;
@@ -239,6 +241,14 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
   //Lectura como binario
   reconstruction.ReadBinary(reconstructionPath.toStdString());
 #endif
+
+  QDir dir(outputPath);
+  if (!dir.exists()) {
+    if (dir.mkpath(".") == false) {
+      msgError("The output directory cannot be created: %s", outputPath.toStdString().c_str());
+      return true;
+    }
+  }
 
   /// Exportar
   colmap::UndistortCameraOptions undistortion_options;

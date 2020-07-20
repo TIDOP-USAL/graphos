@@ -11,7 +11,7 @@
 #include "inspector/ui/HelpDialog.h"
 #include "inspector/widgets/StartPageWidget.h"
 #include "inspector/ui/cameras/CamerasModel.h"
-#include "inspector/ui/ImagesModel.h"
+#include "inspector/ui/images/ImagesModel.h"
 #include "inspector/ui/FeaturesModel.h"
 #include "inspector/ui/MatchesModel.h"
 #include "inspector/ui/orientation/OrientationModel.h"
@@ -287,7 +287,7 @@ void MainWindowPresenter::loadImages()
 
       int id_camera = 0;
       if (!bitmap.Read(image.toStdString(), false)) {
-        throw "  Failed to read image file";
+        throw std::runtime_error("  Failed to read image file");
       }
 
       int width = bitmap.Width();
@@ -319,7 +319,12 @@ void MainWindowPresenter::loadImages()
           }
 
           QSqlDatabase database_cameras = QSqlDatabase::addDatabase("QSQLITE");
-          QString database_cameras_path = qApp->applicationDirPath();
+          QString database_cameras_path;
+#ifdef _DEBUG
+          database_cameras_path = QString(INSPECTOR_SOURCE_PATH).append("/res");
+#else
+          database_cameras_path = qApp->applicationDirPath();
+#endif
           database_cameras_path.append("/cameras.db");
           database_cameras.setDatabaseName(database_cameras_path);
           bool db_open = false;

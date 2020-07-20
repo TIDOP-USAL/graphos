@@ -16,6 +16,9 @@
 #include "inspector/ui/featmatch/FeatureMatchingModel.h"
 #include "inspector/ui/featmatch/FeatureMatchingView.h"
 #include "inspector/ui/featmatch/FeatureMatchingPresenter.h"
+#include "inspector/ui/images/ImagesModel.h"
+#include "inspector/ui/images/ImagesView.h"
+#include "inspector/ui/images/ImagesPresenter.h"
 #include "inspector/ui/orientation/OrientationModel.h"
 #include "inspector/ui/orientation/OrientationView.h"
 #include "inspector/ui/orientation/OrientationPresenter.h"
@@ -37,7 +40,6 @@
 //#include "inspector/ui/MultiViewModel.h"
 //#include "inspector/ui/MultiViewView.h"
 //#include "inspector/ui/MultiViewPresenter.h"
-#include "inspector/ui/ImagesModel.h"
 #include "inspector/ui/FeaturesModel.h"
 #include "inspector/ui/MatchesModel.h"
 #include "inspector/ui/HelpDialog.h"
@@ -324,6 +326,17 @@ ImagesModel *ComponentsManager::imagesModel()
     mImagesModel = new ImagesModelImp(mProject);
   }
   return mImagesModel;
+}
+
+ImagesPresenter *ComponentsManager::imagesPresenter()
+{
+  if (mImagesPresenter == nullptr){
+    ImagesView *view = new ImagesViewImp(this->mainWindowView());
+    mImagesPresenter = new ImagesPresenterImp(view,
+                                              this->imagesModel(),
+                                              this->camerasModel());
+  }
+  return mImagesPresenter;
 }
 
 CamerasModel *ComponentsManager::camerasModel()

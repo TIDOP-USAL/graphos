@@ -32,7 +32,7 @@ set(INSPECTOR_SOURCES
     SettingsModel.cpp
     SettingsPresenter.cpp
     SettingsView.cpp
-    ImagesModel.cpp
+    #ImagesModel.cpp
     FeaturesModel.cpp
     MatchesModel.cpp
     cameras/CamerasModel.cpp
@@ -44,6 +44,9 @@ set(INSPECTOR_SOURCES
     featmatch/FeatureMatchingModel.cpp
     featmatch/FeatureMatchingView.cpp
     featmatch/FeatureMatchingPresenter.cpp
+    images/ImagesModel.cpp
+    images/ImagesPresenter.cpp
+    images/ImagesView.cpp
     orientation/OrientationModel.cpp
     orientation/OrientationView.cpp
     orientation/OrientationPresenter.cpp
@@ -101,7 +104,7 @@ set(INSPECTOR_HEADERS
     SettingsModel.h
     SettingsPresenter.h
     SettingsView.h
-    ImagesModel.h
+    #ImagesModel.h
     FeaturesModel.h
     MatchesModel.h
     cameras/Cameras.h
@@ -116,6 +119,10 @@ set(INSPECTOR_HEADERS
     featmatch/FeatureMatchingModel.h
     featmatch/FeatureMatchingView.h
     featmatch/FeatureMatchingPresenter.h
+    images/Images.h
+    images/ImagesModel.h
+    images/ImagesPresenter.h
+	images/ImagesView.h
     orientation/Orientation.h
     orientation/OrientationModel.h
     orientation/OrientationView.h

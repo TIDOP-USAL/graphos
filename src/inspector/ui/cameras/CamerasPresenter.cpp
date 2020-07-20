@@ -1,7 +1,7 @@
 #include "CamerasPresenter.h"
 
 #include "inspector/ui/cameras/CamerasModel.h"
-#include "inspector/ui/ImagesModel.h"
+#include "inspector/ui/images/ImagesModel.h"
 #include "inspector/ui/HelpDialog.h"
 
 #include <tidop/core/messages.h>

@@ -12,17 +12,21 @@ class INSPECTOR_EXPORT LoadImagesProcess
   : public ProcessConcurrent
 {
 
+  Q_OBJECT
+
 public:
 
-  LoadImagesProcess(const QString &image);
-
-  QString image() const;
-  void setImage(const QString &image);
+  LoadImagesProcess(const QStringList &images, 
+                    const std::vector<Camera> &cameras);
 
 signals:
 
-  void addCamera(Camera camera);
-  void addImage(Image image);
+  void imageAdded(Image image, Camera camera);
+
+private:
+
+  bool existCamera(const QString &make, const QString &model) const;
+  Camera findCamera(const QString &make, const QString &model) const;
 
 // ProcessConcurrent interface
 
@@ -32,7 +36,8 @@ protected:
 
 protected:
 
-  QString mImage;
+  QStringList mImages;
+  std::vector<Camera> mCameras;
 };
 
 } // inspector

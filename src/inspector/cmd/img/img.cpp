@@ -107,7 +107,12 @@ int main(int argc, char** argv)
   if (!image_to_add.empty()) {
     /// Se abre la base de datos de cámaras
     QSqlDatabase database_cameras = QSqlDatabase::addDatabase("QSQLITE");
-    QString database_cameras_path = qApp->applicationDirPath();
+    QString database_cameras_path;
+#ifdef _DEBUG
+    database_cameras_path = QString(INSPECTOR_SOURCE_PATH).append("/res");
+#else
+    database_cameras_path = qApp->applicationDirPath();
+#endif
     database_cameras_path.append("/cameras.db");
     database_cameras.setDatabaseName(database_cameras_path);
     bool db_open = false;

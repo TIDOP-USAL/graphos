@@ -505,7 +505,7 @@ protected:
   std::shared_ptr<Densification> mDensification;
   QString mDenseModel;
   static std::mutex sMutex;
-  static int sCameraCount;
+  int mCameraCount;
 };
 
 

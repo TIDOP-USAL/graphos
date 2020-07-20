@@ -4,7 +4,7 @@
 #include "inspector/core/features/sift.h"
 #include "inspector/ui/featextract/FeatureExtractorView.h"
 #include "inspector/ui/featextract/FeatureExtractorModel.h"
-#include "inspector/ui/ImagesModel.h"
+#include "inspector/ui/images/ImagesModel.h"
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/HelpDialog.h"

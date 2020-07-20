@@ -21,6 +21,7 @@ class SettingsModel;
 class SettingsPresenter;
 class NewProjectPresenter;
 class ImagesModel;
+class ImagesPresenter;
 class FeaturesModel;
 class MatchesModel;
 class CamerasModel;
@@ -60,6 +61,7 @@ public:
 
   ProjectModel *projectModel();
   ImagesModel *imagesModel();
+  ImagesPresenter *imagesPresenter();
   CamerasModel *camerasModel();
   CamerasPresenter *camerasPresenter();
   FeaturesModel *featuresModel();
@@ -123,6 +125,7 @@ protected:
   Project *mProject;
   ProjectModel *mProjectModel;
   ImagesModel *mImagesModel;
+  ImagesPresenter *mImagesPresenter;
   CamerasModel *mCamerasModel;
   CamerasPresenter *mCamerasPresenter;
   FeaturesModel *mFeaturesModel;
