@@ -33,17 +33,17 @@ void ProgressHandler::setValue(int value)
   emit valueChange(value);
 }
 
-void ProgressHandler::onNextPosition()
+void ProgressHandler::next()
 {
   setValue(++mValue);
 }
 
-void ProgressHandler::onInit()
+void ProgressHandler::init()
 {
   emit initialized();
 }
 
-void ProgressHandler::onFinish()
+void ProgressHandler::finish()
 {
   emit finished();
 }

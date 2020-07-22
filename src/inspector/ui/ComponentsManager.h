@@ -96,6 +96,7 @@ signals:
 protected slots:
 
   void initAndOpenNewProjectDialog();
+  void initAndOpenLoadImagesDialog();
   void initAndOpenFeatureExtractionDialog();
   void initAndOpenFeatureMatchingDialog();
   void initAndOpenOrientationDialog();

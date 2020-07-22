@@ -14,6 +14,7 @@ namespace ui
 {
 
 class HelpDialog;
+class ProgressHandler;
 
 class IDialogView
   : public QDialog
@@ -28,7 +29,7 @@ public:
     Qt::WindowFlags helpFlag = Qt::WindowContextHelpButtonHint;
     Qt::WindowFlags flags = windowFlags();
     flags = flags & (~helpFlag);
-    setWindowFlags(flags);
+    QWidget::setWindowFlags(flags);
   }
 
   virtual ~IDialogView() override = default;
@@ -141,6 +142,42 @@ private:
    */
   virtual void initSignalAndSlots() = 0;
 };
+
+
+class ProcessPresenter
+  : public IPresenter
+{
+
+  Q_OBJECT
+
+public:
+
+  ProcessPresenter() {}
+  ~ProcessPresenter() override = default;
+
+private slots:
+
+  //TODO: el código es el mismo salvo setDescription
+  virtual void onError(int code, const QString &msg) = 0;
+  virtual void onFinished() = 0;
+
+public slots:
+
+  virtual void setProgressHandler(ProgressHandler *progressHandler) = 0;
+  virtual void cancel() = 0;
+
+private slots:
+
+  virtual void run() = 0;
+
+signals:
+
+  void running();
+  void finished();
+
+};
+
+
 
 } // namespace ui
 

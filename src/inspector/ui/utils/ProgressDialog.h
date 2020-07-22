@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QTextEdit>
 
+#include "inspector/interfaces/mvp.h"
 #include "inspector/process/Process.h"
 
 namespace Ui
@@ -18,13 +19,13 @@ namespace ui
 {
 	
 class ProgressDialog
-  : public QDialog
+  : public IDialogView
 {
   Q_OBJECT
 
 public:
 
-  explicit ProgressDialog(QWidget *parent = nullptr) : QDialog(parent){}
+  explicit ProgressDialog(QWidget *parent = nullptr) : IDialogView(parent){}
   virtual ~ProgressDialog() = default;
 
 public slots:
@@ -46,6 +47,8 @@ signals:
 
 };
 
+
+
 class ProgressDialogImp
   : public ProgressDialog
 {
@@ -55,6 +58,8 @@ public:
 
   explicit ProgressDialogImp(QWidget *parent = nullptr);
   ~ProgressDialogImp()  override;
+
+// ProgressDialog interface
 
 protected slots:
 
@@ -72,6 +77,22 @@ public slots:
 protected slots:
 
   void onMinimized() override;
+
+// IDialogView interface
+
+private:
+
+  void initUI() override;
+  void initSignalAndSlots() override;
+
+public slots:
+
+  void clear() override;
+
+private slots:
+
+  void update() override;
+  void retranslate() override;
 
 private:
 

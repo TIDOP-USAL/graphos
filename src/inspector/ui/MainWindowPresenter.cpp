@@ -263,6 +263,7 @@ void MainWindowPresenter::openStartPage()
 //  emit openMatchesViewerDialogFromSession(mProjectModel->currentSession()->name());
 //}
 
+///TODO: borrar
 void MainWindowPresenter::loadImages()
 {
   QStringList fileNames = QFileDialog::getOpenFileNames(Q_NULLPTR,
@@ -1010,6 +1011,16 @@ void MainWindowPresenter::onLoadImages()
   disconnect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
 }
 
+void MainWindowPresenter::loadingImages(bool loading)
+{
+  mView->setFlag(MainWindowView::Flag::loading_images, loading);
+}
+
+void MainWindowPresenter::loadImage(const QString &image)
+{
+  mView->addImage(image);
+}
+
 void MainWindowPresenter::onProjectModified()
 {
   mView->setFlag(MainWindowView::Flag::project_modified, true);
@@ -1050,6 +1061,7 @@ void MainWindowPresenter::init()
 
 void MainWindowPresenter::initSignalAndSlots()
 {
+
 /* Menú Archivo */
 
   connect(mView, &MainWindowView::openNew,                this, &MainWindowPresenter::openNew);
@@ -1070,7 +1082,8 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Menú flujo de trabajo */
 
-  connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::loadImages);
+  //connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::loadImages);
+  connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::openLoadImagesDialog);
   connect(mView,   &MainWindowView::openFeatureExtraction, this, &MainWindowPresenter::openFeatureExtractionDialog);
   connect(mView,   &MainWindowView::openFeatureMatching,   this, &MainWindowPresenter::openFeatureMatchingDialog);
   connect(mView,   &MainWindowView::openOrientation,       this, &MainWindowPresenter::openOrientationDialog);

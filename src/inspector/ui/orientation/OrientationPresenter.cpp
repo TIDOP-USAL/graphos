@@ -95,11 +95,11 @@ void OrientationPresenterImp::cancel()
   if (mProgressHandler){
     mProgressHandler->setRange(0,1);
     mProgressHandler->setValue(1);
-    mProgressHandler->onFinish();
+    mProgressHandler->finish();
     mProgressHandler->setDescription(tr("Processing has been canceled by the user"));
 
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(onNextPosition()));
+    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
@@ -133,14 +133,14 @@ void OrientationPresenterImp::run()
 
   if (mProgressHandler){
     connect(mMultiProcess, SIGNAL(finished()),             mProgressHandler,    SLOT(onFinish()));
-    connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(onNextPosition()));
+    connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(next()));
     connect(mMultiProcess, SIGNAL(error(int, QString)),    mProgressHandler,    SLOT(onFinish()));
 
     mProgressHandler->setRange(0, 0/*mMultiProcess->count()*/);
     mProgressHandler->setValue(0);
     mProgressHandler->setTitle("Computing Orientations...");
     mProgressHandler->setDescription("Computing Orientations...");
-    mProgressHandler->onInit();
+    mProgressHandler->init();
   }
 
   mView->hide();
@@ -158,11 +158,11 @@ void OrientationPresenterImp::onError(int code, const QString &msg)
   if (mProgressHandler){
     mProgressHandler->setRange(0,1);
     mProgressHandler->setValue(1);
-    mProgressHandler->onFinish();
+    mProgressHandler->finish();
     mProgressHandler->setDescription(tr("Orientation process error"));
 
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(onNextPosition()));
+    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
@@ -179,11 +179,11 @@ void OrientationPresenterImp::onFinished()
   if (mProgressHandler){
     mProgressHandler->setRange(0, 1);
     mProgressHandler->setValue(1);
-    mProgressHandler->onFinish();
+    mProgressHandler->finish();
     mProgressHandler->setDescription(tr("Orientation finished"));
 
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(onNextPosition()));
+    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 

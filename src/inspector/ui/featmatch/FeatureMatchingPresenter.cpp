@@ -82,11 +82,11 @@ void FeatureMatchingPresenterImp::onError(int code, const QString &msg)
   if (mProgressHandler){
     mProgressHandler->setRange(0,1);
     mProgressHandler->setValue(1);
-    mProgressHandler->onFinish();
+    mProgressHandler->finish();
     mProgressHandler->setDescription(tr("Feature Matching error"));
 
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(onNextPosition()));
+    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
@@ -103,11 +103,11 @@ void FeatureMatchingPresenterImp::onFinished()
   if (mProgressHandler){
     mProgressHandler->setRange(0,1);
     mProgressHandler->setValue(1);
-    mProgressHandler->onFinish();
+    mProgressHandler->finish();
     mProgressHandler->setDescription(tr("Feature Matching finished"));
 
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(onNextPosition()));
+    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
@@ -157,11 +157,11 @@ void FeatureMatchingPresenterImp::cancel()
   if (mProgressHandler){
     mProgressHandler->setRange(0,1);
     mProgressHandler->setValue(1);
-    mProgressHandler->onFinish();
+    mProgressHandler->finish();
     mProgressHandler->setDescription(tr("Processing has been canceled by the user"));
 
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(onNextPosition()));
+    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
@@ -218,14 +218,14 @@ void FeatureMatchingPresenterImp::run()
 
   if (mProgressHandler){
     connect(mMultiProcess, SIGNAL(finished()),             mProgressHandler,    SLOT(onFinish()));
-    connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(onNextPosition()));
+    connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(next()));
     connect(mMultiProcess, SIGNAL(error(int, QString)),    mProgressHandler,    SLOT(onFinish()));
 
     mProgressHandler->setRange(0, 0/*mMultiProcess->count()*/);
     mProgressHandler->setValue(0);
     mProgressHandler->setTitle("Computing Matches...");
     mProgressHandler->setDescription("Computing Matches...");
-    mProgressHandler->onInit();
+    mProgressHandler->init();
   }
 
   mView->hide();

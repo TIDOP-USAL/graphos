@@ -62,6 +62,7 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mProject(new ProjectImp),
     mProjectModel(nullptr),
     mImagesModel(nullptr),
+    mImagesPresenter(nullptr),
     mCamerasModel(nullptr),
     mCamerasPresenter(nullptr),
     mFeaturesModel(nullptr),
@@ -113,6 +114,11 @@ ComponentsManager::~ComponentsManager()
   if (mImagesModel){
     delete mImagesModel;
     mImagesModel = nullptr;
+  }
+
+  if (mImagesPresenter){
+    delete mImagesPresenter;
+    mImagesPresenter = nullptr;
   }
 
   if (mCamerasModel){
@@ -273,7 +279,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 
     connect(mMainWindowPresenter, &MainWindowPresenter::openNewProjectDialog,
             this, &ComponentsManager::initAndOpenNewProjectDialog);
-
+    connect(mMainWindowPresenter, &MainWindowPresenter::openLoadImagesDialog,
+            this, &ComponentsManager::initAndOpenLoadImagesDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureExtractionDialog,
             this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureMatchingDialog,
@@ -670,13 +677,33 @@ ProgressDialog *ComponentsManager::progressDialog()
 void ComponentsManager::initAndOpenNewProjectDialog()
 {
   disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog,
-            this, &ComponentsManager::initAndOpenNewProjectDialog);
+             this, &ComponentsManager::initAndOpenNewProjectDialog);
 
-  connect(this->mainWindowPresenter(), SIGNAL(openNewProjectDialog()), this->newProjectPresenter(), SLOT(open()));
-  connect(this->newProjectPresenter(), SIGNAL(projectCreate()),        this->mainWindowPresenter(), SLOT(loadProject()));
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog, 
+          this->newProjectPresenter(), &IPresenter::open);
+  connect(this->newProjectPresenter(), SIGNAL(projectCreate()),
+          this->mainWindowPresenter(), SLOT(loadProject()));
 
   this->newProjectPresenter()->setHelp(this->helpDialog());
   this->newProjectPresenter()->open();
+}
+
+void ComponentsManager::initAndOpenLoadImagesDialog()
+{
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openLoadImagesDialog,
+             this, &ComponentsManager::initAndOpenLoadImagesDialog);
+ 
+  connect(this->mainWindowPresenter(), SIGNAL(openLoadImagesDialog()),
+          this->imagesPresenter(), SLOT(open()));
+
+  TL_TODO("indicar que se están cargando imagenes")
+  connect(this->imagesPresenter(), SIGNAL(running()),  this->mainWindowPresenter(), SLOT(processRunning()));
+  connect(this->imagesPresenter(), SIGNAL(finished()), this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->imagesPresenter(), SIGNAL(loadingImages(bool)), this->mainWindowPresenter(), SLOT(loadingImages(bool)));
+  connect(this->imagesPresenter(), SIGNAL(imageLoaded(QString)), this->mainWindowPresenter(), SLOT(loadImage(QString)));
+
+  this->imagesPresenter()->setProgressHandler(this->progressHandler());
+  this->imagesPresenter()->open();
 }
 
 void ComponentsManager::initAndOpenFeatureExtractionDialog()

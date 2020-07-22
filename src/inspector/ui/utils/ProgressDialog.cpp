@@ -16,7 +16,20 @@ ProgressDialogImp::ProgressDialogImp(QWidget *parent)
   : ProgressDialog(parent),
     ui(new Ui::ProgressDialog)
 {
+  this->initUI();
+  this->initSignalAndSlots();
+}
 
+ProgressDialogImp::~ProgressDialogImp()
+{
+  if (ui) {
+    delete ui;
+    ui = nullptr;
+  }
+}
+
+void ProgressDialogImp::initUI()
+{
   this->setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
   this->setWindowFlags(this->windowFlags() & ~Qt::WindowMaximizeButtonHint);
   this->setWindowFlags(this->windowFlags() & ~Qt::WindowCloseButtonHint);
@@ -26,15 +39,25 @@ ProgressDialogImp::ProgressDialogImp(QWidget *parent)
   this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
 
   ui->pushButtonMinimize->setEnabled(false);
+}
 
+void ProgressDialogImp::initSignalAndSlots()
+{
   connect(ui->pushButtonMinimize, SIGNAL(clicked(bool)), this, SLOT(onMinimized()));
   connect(ui->pushButtonCancel, SIGNAL(clicked(bool)), this, SLOT(onPushButtonCancelClicked()));
   connect(ui->pushButtonClose, SIGNAL(clicked(bool)), this, SLOT(close()));
 }
 
-ProgressDialogImp::~ProgressDialogImp()
+void ProgressDialogImp::retranslate()
 {
-  delete ui;
+}
+
+void ProgressDialogImp::clear()
+{
+}
+
+void ProgressDialogImp::update()
+{
 }
 
 void ProgressDialogImp::setStatusText(QString text)

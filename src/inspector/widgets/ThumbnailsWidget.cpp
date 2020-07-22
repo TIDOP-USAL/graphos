@@ -80,6 +80,8 @@ void ThumbnailsWidget::setActiveImages(const QStringList &imageNames)
 
 void ThumbnailsWidget::addThumbnail(const QString &thumb)
 {
+  bLoadingImages = true;
+ 
   QImageReader imageReader(thumb);
   QSize size = imageReader.size();
   double scale = 1.;
@@ -101,7 +103,9 @@ void ThumbnailsWidget::addThumbnail(const QString &thumb)
   item->setToolTip(fileInfo.absoluteFilePath());
   mListWidget->addItem(item);
 
-  mFutureWatcherThumbnail->setFuture(QtConcurrent::mapped(thumb, makeThumbnail));
+  QStringList temp;
+  temp.push_back(thumb);
+  mFutureWatcherThumbnail->setFuture(QtConcurrent::mapped(temp, makeThumbnail));
 }
 
 void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
@@ -132,7 +136,8 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
   }
 
   if (thumbs.empty() == false) {
-    mFutureWatcherThumbnail->setFuture(QtConcurrent::mapped(thumbs, /*&ThumbnailsWidget::*/makeThumbnail));
+    QFuture<QImage> future = QtConcurrent::mapped(thumbs, /*&ThumbnailsWidget::*/makeThumbnail);
+    mFutureWatcherThumbnail->setFuture(future);
   }
   update();
 }

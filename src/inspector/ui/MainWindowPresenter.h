@@ -48,6 +48,7 @@ public:
 signals:
 
   void openNewProjectDialog();
+  void openLoadImagesDialog();
   void openFeatureExtractionDialog();
   void openFeatureMatchingDialog();
   void openOrientationDialog();
@@ -121,7 +122,9 @@ protected slots:
   void processFinish();
   void processRunning();
 
-  void onLoadImages();
+  void onLoadImages(); ///TODO: borrar
+  void loadingImages(bool loading);
+  void loadImage(const QString &image);
   void onProjectModified();
 
 // IPresenter interface

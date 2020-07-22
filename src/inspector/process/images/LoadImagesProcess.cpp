@@ -12,8 +12,8 @@
 namespace inspector
 {
 
-LoadImagesProcess::LoadImagesProcess(const QStringList &images, 
-                                     const std::vector<Camera> &cameras)
+LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images, 
+                                     std::vector<Camera> *cameras)
   : mImages(images),
     mCameras(cameras)
 {
@@ -24,7 +24,7 @@ bool LoadImagesProcess::existCamera(const QString &make, const QString &model) c
 {
   bool camera_exist = false;
   
-  for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
+  for (auto it = mCameras->begin(); it != mCameras->end(); it++) {
     QString camera_make = it->make();
     QString camera_model = it->model();
     if (make.compare(camera_make) == 0 &&
@@ -37,19 +37,35 @@ bool LoadImagesProcess::existCamera(const QString &make, const QString &model) c
   return camera_exist;
 }
 
-Camera LoadImagesProcess::findCamera(const QString &make, const QString &model) const
+//Camera LoadImagesProcess::findCamera(const QString &make, const QString &model) const
+//{
+//  Camera camera;
+//  for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
+//    QString camera_make = it->make();
+//    QString camera_model = it->model();
+//    if (make.compare(camera_make) == 0 &&
+//        model.compare(camera_model) == 0){
+//      camera = *it;
+//      break;
+//    }
+//  }
+//  return camera;
+//}
+
+int LoadImagesProcess::findCamera(const QString &make, const QString &model) const
 {
-  Camera camera;
-  for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
-    QString camera_make = it->make();
-    QString camera_model = it->model();
+  int camera_id = -1;
+  //for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
+  for (size_t i = 0; i < mCameras->size(); i++){
+    QString camera_make = (*mCameras)[i].make();
+    QString camera_model = (*mCameras)[i].model();
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
-      camera = *it;
+      camera_id = i;
       break;
     }
   }
-  return camera;
+  return camera_id;
 }
 
 void inspector::LoadImagesProcess::run()
@@ -60,9 +76,11 @@ void inspector::LoadImagesProcess::run()
   QStringList images;
   colmap::Bitmap bitmap;
 
-  for (auto &image : mImages) {
+  //for (auto &image : mImages) {
+  for (size_t i = 0; i < mImages->size(); i++){
     try {
 
+      QString image = (*mImages)[i].path();
       int id_camera = 0;
       if (!bitmap.Read(image.toStdString(), false)) {
         throw std::runtime_error("  Failed to read image file");
@@ -72,6 +90,7 @@ void inspector::LoadImagesProcess::run()
       int height = bitmap.Height();
 
       Camera camera;
+      int camera_id = -1;
 
       std::string camera_make;
       std::string camera_model;
@@ -83,7 +102,7 @@ void inspector::LoadImagesProcess::run()
 
         if (existCamera(camera_make.c_str(), camera_model.c_str())) {
 
-          camera = findCamera(camera_make.c_str(), camera_model.c_str());
+          camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
 
         } else {
 
@@ -163,7 +182,8 @@ void inspector::LoadImagesProcess::run()
           if (db_open) database_cameras.close();
 
           //id_camera = mCamerasModel->addCamera(camera);
-          mCameras.push_back(camera);
+          camera_id = mCameras->size();
+          mCameras->push_back(camera);
         }
 
       } else {
@@ -173,7 +193,7 @@ void inspector::LoadImagesProcess::run()
         bool bFound = false;
         //int id_camera;
         int counter = 0;
-        for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
+        for (auto it = mCameras->begin(); it != mCameras->end(); it++) {
           camera2 = *it;
           if (camera2.make().compare("Unknown camera") == 0) {
             if (camera2.width() == width && camera2.height() == height) {
@@ -194,28 +214,28 @@ void inspector::LoadImagesProcess::run()
           //id_camera = mCamerasModel->addCamera(camera);
           //camera.setModel(QString::number(id_camera));
         }
-
-        mCameras.push_back(camera);
-
+         
+        camera_id = mCameras->size();
+        mCameras->push_back(camera);
       }
 
-      Image img(image);
+      //Image img(image);
       double lon;
       if (bitmap.ExifLongitude(&lon)) {
-        img.setLongitudeExif(lon);
+        (*mImages)[i].setLongitudeExif(lon);
       }
       double lat;
       if (bitmap.ExifLatitude(&lat)) {
-        img.setLatitudeExif(lat);
+        (*mImages)[i].setLatitudeExif(lat);
       }
       double altitude;
       if (bitmap.ExifAltitude(&altitude)) {
-        img.setAltitudeExif(altitude);
+        (*mImages)[i].setAltitudeExif(altitude);
       }
 
-      msgInfo(" - Coordinates: (%.4lf, %.4lf, %.2lf)", img.longitudeExif(), img.latitudeExif(), img.altitudeExif());
+      msgInfo(" - Coordinates: (%.4lf, %.4lf, %.2lf)", (*mImages)[i].longitudeExif(), (*mImages)[i].latitudeExif(), (*mImages)[i].altitudeExif());
 
-      emit imageAdded(img, camera);
+      emit imageAdded(i, camera_id);
 
       //img.setCameraId(id_camera);
       //mImagesModel->addImage(img);
@@ -224,6 +244,8 @@ void inspector::LoadImagesProcess::run()
     } catch (std::exception & e) {
       msgError(e.what());
     }
+
+    emit statusChangedNext();
   }
 
   uint64_t time = chrono.stop();

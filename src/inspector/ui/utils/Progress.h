@@ -33,9 +33,9 @@ public slots:
 
   void setRange(int min, int max);
   void setValue(int value);
-  void onNextPosition();
-  void onInit();
-  void onFinish();
+  void next();
+  void init();
+  void finish();
   void setTitle(const QString &title);
   void setDescription(const QString &description);
 
