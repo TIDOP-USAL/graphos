@@ -80,32 +80,36 @@ void ThumbnailsWidget::setActiveImages(const QStringList &imageNames)
 
 void ThumbnailsWidget::addThumbnail(const QString &thumb)
 {
-  bLoadingImages = true;
+  //bLoadingImages = true;
  
-  QImageReader imageReader(thumb);
-  QSize size = imageReader.size();
-  double scale = 1.;
-  int w = size.width();
-  int h = size.height();
-  if (w > h){
-    scale = w / 200.;
-  } else {
-    scale = h / 200.;
-  }
-  size /= scale;
+  //QImageReader imageReader(thumb);
+  //QSize size = imageReader.size();
+  //double scale = 1.;
+  //int w = size.width();
+  //int h = size.height();
+  //if (w > h){
+  //  scale = w / 200.;
+  //} else {
+  //  scale = h / 200.;
+  //}
+  //size /= scale;
 
-  QFileInfo fileInfo(thumb);
+  //QFileInfo fileInfo(thumb);
 
-  QPixmap pixmap(size.width(), size.height());
-  pixmap.fill(QColor(Qt::GlobalColor::lightGray));
-  QIcon icon(pixmap);
-  QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
-  item->setToolTip(fileInfo.absoluteFilePath());
-  mListWidget->addItem(item);
+  //QPixmap pixmap(size.width(), size.height());
+  //pixmap.fill(QColor(Qt::GlobalColor::lightGray));
+  //QIcon icon(pixmap);
+  //QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
+  //item->setToolTip(fileInfo.absoluteFilePath());
+  //mListWidget->addItem(item);
 
-  QStringList temp;
-  temp.push_back(thumb);
-  mFutureWatcherThumbnail->setFuture(QtConcurrent::mapped(temp, makeThumbnail));
+  //QStringList temp;
+  //temp.push_back(thumb);
+  //mFutureWatcherThumbnail->setFuture(QtConcurrent::mapped(temp, makeThumbnail));
+
+  QStringList thumbs;
+  thumbs.push_back(thumb);
+  this->addThumbnails(thumbs);
 }
 
 void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
@@ -239,12 +243,9 @@ void ThumbnailsWidget::onDeleteImageClicked()
 void ThumbnailsWidget::showThumbnail(int id)
 {
   QListWidgetItem *item = mListWidget->item(mThumbnaislSize+id);
-  //if (QListWidgetItem *item = mListWidget->item(mThumbnaislSize+id)){
-
-    QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
-    QIcon icon(pixmap);
-    item->setIcon(icon);
-  //}
+  QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
+  QIcon icon(pixmap);
+  item->setIcon(icon);
 }
 
 void ThumbnailsWidget::finished()
@@ -258,6 +259,10 @@ void ThumbnailsWidget::finished()
 
 void ThumbnailsWidget::update()
 {
+  const QSignalBlocker block0(mThumbnailAction);
+  const QSignalBlocker block1(mThumbnailSmallAction);
+  const QSignalBlocker block2(mDetailsAction);
+
   bool images_added = mListWidget->count() > 0;
   mThumbnailAction->setEnabled(images_added);
   mThumbnailSmallAction->setEnabled(images_added);

@@ -91,7 +91,7 @@ protected slots:
 
   /* Menú herramientas */
 
-  void loadImages();
+  //void loadImages();
 
   /* Menú Ayuda */
 
@@ -122,7 +122,7 @@ protected slots:
   void processFinish();
   void processRunning();
 
-  void onLoadImages(); ///TODO: borrar
+  //void onLoadImages(); ///TODO: borrar
   void loadingImages(bool loading);
   void loadImage(const QString &image);
   void onProjectModified();
