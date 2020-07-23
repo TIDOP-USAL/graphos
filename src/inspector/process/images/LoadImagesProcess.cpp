@@ -76,7 +76,6 @@ void inspector::LoadImagesProcess::run()
   QStringList images;
   colmap::Bitmap bitmap;
 
-  //for (auto &image : mImages) {
   for (size_t i = 0; i < mImages->size(); i++){
     try {
 

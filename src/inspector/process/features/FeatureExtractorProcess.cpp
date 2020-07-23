@@ -153,11 +153,11 @@ void FeatureExtractorProcess::run()
     msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time/1000.);
 
   } catch (std::exception &e) {
-    emit error(0, "Keypoint Detector/descriptor error");
+    //emit error(0, "Keypoint Detector/descriptor error");
     msgError(e.what());
   } catch (...) {
-    emit error(0, "Keypoint Detector/descriptor error");
-    msgError("Keypoint Detector/descriptor error");
+    //emit error(0, "Keypoint Detector/descriptor error");
+    msgError("Keypoint Detector/descriptor unknown exception");
   }
   emit statusChangedNext();
 }

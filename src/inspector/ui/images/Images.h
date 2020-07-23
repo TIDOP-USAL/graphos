@@ -4,7 +4,8 @@
 #include "inspector/interfaces/mvp.h"
 #include "inspector/core/image.h"
 #include "inspector/core/camera.h"
-//#include "inspector/ui/utils/ProgressDialog.h"
+#include "inspector/ui/process/ProcessView.h"
+#include "inspector/ui/process/ProcessPresenter.h"
 
 #include <QFileDialog>
 

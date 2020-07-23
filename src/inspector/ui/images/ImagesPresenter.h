@@ -4,8 +4,6 @@
 #include "inspector/ui/images/Images.h"
 #include "inspector/core/camera.h"
 
-class MultiProcess;
-
 namespace inspector
 {
 
@@ -44,17 +42,13 @@ protected slots:
   
 private slots:
 
-  virtual void onError(int code, const QString &msg) override;
-  virtual void onFinished() override;
+  void onError(int code, const QString &msg) override;
+  void onFinished() override;
+  void createProcess() override;
 
 public slots:
  
-  void setProgressHandler(ProgressHandler *progressHandler) override;
   void cancel() override;
-
-private slots:
-
-  void run() override;
 
 // IPresenter interface
 
@@ -75,8 +69,6 @@ private:
   ImagesModel *mModel;
   CamerasModel *mCamerasModel;
   HelpDialog *mHelp;
-  MultiProcess *mMultiProcess;
-  ProgressHandler *mProgressHandler;
   QStringList mImageFiles;
   std::vector<Image> mImages;
   std::vector<Camera> mCameras;

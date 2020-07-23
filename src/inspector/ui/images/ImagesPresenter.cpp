@@ -25,9 +25,7 @@ ImagesPresenterImp::ImagesPresenterImp(ImagesView *view,
     mView(view),
     mModel(model),
     mCamerasModel(camerasModel),
-    mHelp(nullptr),
-    mMultiProcess(new MultiProcess(true)),
-    mProgressHandler(nullptr)
+    mHelp(nullptr)
 {
   this->init();
   this->initSignalAndSlots();
@@ -35,10 +33,6 @@ ImagesPresenterImp::ImagesPresenterImp(ImagesView *view,
 
 ImagesPresenterImp::~ImagesPresenterImp()
 {
-  if (mMultiProcess){
-    delete mMultiProcess;
-    mMultiProcess = nullptr;
-  }
 }
 
 void ImagesPresenterImp::init()
@@ -47,12 +41,6 @@ void ImagesPresenterImp::init()
 
 void ImagesPresenterImp::initSignalAndSlots()
 {
-  //connect(mView, &ImagesView::cameraChange, this, &ImagesPresenterImp::activeCamera);
-  //connect(mView, &ImagesView::typeChange,   this, &ImagesPresenterImp::updateCurrentCameraType);
-  //connect(mView, &ImagesView::makeChanged,  this, &ImagesPresenterImp::updateCurrentCameraMake);
-  //connect(mView, &ImagesView::modelChanged,  this, &ImagesPresenterImp::updateCurrentCameraModel);
-
-
   connect(mView, &ImagesView::accepted,      this, &ImagesPresenterImp::run);
   connect(mView, &ImagesView::rejected,      this, &ImagesPresenterImp::cancel);
   connect(mView, &ImagesView::filesSelected, this, &ImagesPresenterImp::setImages);
@@ -69,8 +57,6 @@ void ImagesPresenterImp::help()
 
 void ImagesPresenterImp::open()
 {
-  //mView->clear();
-  //this->run();
   mView->setImageDirectory(mModel->imageDirectory());
   mView->exec();
 }
@@ -97,86 +83,16 @@ void ImagesPresenterImp::addImage(int imageId, int cameraId)
 
 void ImagesPresenterImp::onFinished()
 {
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
+  ProcessPresenter::onFinished();
 
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
+  if (mProgressHandler) {
     mProgressHandler->setDescription(tr("Images loaded"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(finish()));
-    
   }
 
-  mMultiProcess->clearProcessList();
-
-  emit finished();
-  
   msgInfo("Images loaded");
-
 }
 
-void ImagesPresenterImp::setImages(const QStringList &files)
-{
-  mImageFiles = files;
-}
-
-void ImagesPresenterImp::cancel()
-{
-  mMultiProcess->stop();
-
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Processing has been canceled by the user"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(finish()));
-  }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
-
-  msgWarning("Processing has been canceled by the user");
-}
-
-void ImagesPresenterImp::onError(int code, const QString &msg)
-{
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Load images error"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(finish()));
-  }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
-}
-
-void ImagesPresenterImp::setProgressHandler(ProgressHandler *progressHandler)
-{
-  mProgressHandler = progressHandler;
-}
-
-void ImagesPresenterImp::run()
+void ImagesPresenterImp::createProcess()
 {
   if (mImageFiles.empty()) return;
 
@@ -193,28 +109,36 @@ void ImagesPresenterImp::run()
 
   std::shared_ptr<LoadImagesProcess> load_images(new LoadImagesProcess(&mImages, &mCameras));
 
-  connect(load_images.get(), &LoadImagesProcess::imageAdded, this, &ImagesPresenterImp::addImage, Qt::QueuedConnection);
+  connect(load_images.get(), &LoadImagesProcess::imageAdded, this, &ImagesPresenterImp::addImage);
 
   mMultiProcess->appendProcess(load_images);
 
-  connect(mMultiProcess, SIGNAL(error(int, QString)),          this, SLOT(onError(int, QString)));
-  connect(mMultiProcess, SIGNAL(finished()),                   this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    connect(mMultiProcess, SIGNAL(finished()),             mProgressHandler,    SLOT(finish()));
-    connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(next()));
-    connect(mMultiProcess, SIGNAL(error(int, QString)),    mProgressHandler,    SLOT(finish()));
-
+  if (mProgressHandler) {
     mProgressHandler->setRange(0, mImages.size());
-    mProgressHandler->setValue(0);
     mProgressHandler->setTitle("Load images...");
     mProgressHandler->setDescription("Load images...");
-    mProgressHandler->init();
   }
+}
 
-  emit running();
+void ImagesPresenterImp::setImages(const QStringList &files)
+{
+  mImageFiles = files;
+}
 
-  mMultiProcess->start();
+void ImagesPresenterImp::cancel()
+{
+  ProcessPresenter::cancel();
+
+  msgWarning("Processing has been canceled by the user");
+}
+
+void ImagesPresenterImp::onError(int code, const QString &msg)
+{
+  ProcessPresenter::onError(code, msg);
+
+  if (mProgressHandler) {
+    mProgressHandler->setDescription(tr("Load images error"));
+  }
 }
 
 } // namespace ui

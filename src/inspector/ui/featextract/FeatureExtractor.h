@@ -3,6 +3,7 @@
 
 #include "inspector/interfaces/mvp.h"
 #include "inspector/core/features/features.h"
+#include "inspector/ui/process/ProcessPresenter.h"
 
 namespace inspector
 {
@@ -60,7 +61,7 @@ public slots:
 
 
 class FeatureExtractorPresenter
-  : public IPresenter
+  : public ProcessPresenter
 {
 
   Q_OBJECT
@@ -72,18 +73,10 @@ public:
 
 signals:
 
-  void running();
   void featuresExtracted(QString);
-  void finished();
 
 public slots:
 
-  virtual void setProgressHandler(ProgressHandler *progressHandler) = 0;
-  virtual void cancel() = 0;
-
-private slots:
-
-  virtual void run() = 0;
   virtual void setCurrentDetectorDescriptor(const QString &detectorDescriptor) = 0;
 
 };

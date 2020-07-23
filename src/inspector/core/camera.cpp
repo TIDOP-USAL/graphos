@@ -740,7 +740,7 @@ QString cameraToColmapType(const Camera &camera)
     colmap_camera = "SIMPLE_PINHOLE";
   } else if (inspector_camera.compare("Pinhole") == 0){
     colmap_camera = "SIMPLE_RADIAL";
-  } else if (inspector_camera.compare("Simple radial") == 0){
+  } else if (inspector_camera.compare("Simple Radial") == 0){
     colmap_camera = "SIMPLE_RADIAL";
   } else if (inspector_camera.compare("Radial") == 0){
     colmap_camera = "RADIAL";

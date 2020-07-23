@@ -62,6 +62,8 @@ set(INSPECTOR_SOURCES
     export/orientations/ExportOrientationsModel.cpp
     export/orientations/ExportOrientationsView.cpp
     export/orientations/ExportOrientationsPresenter.cpp
+    process/ProcessPresenter.cpp
+    process/ProcessView.cpp
     # MultiViewModel.cpp
     # MultiViewView.cpp
     # MultiViewPresenter.cpp
@@ -143,6 +145,8 @@ set(INSPECTOR_HEADERS
     export/orientations/ExportOrientationsModel.h
     export/orientations/ExportOrientationsView.h
     export/orientations/ExportOrientationsPresenter.h
+    process/ProcessPresenter.h
+    process/ProcessView.h
     # Multiview.h
     # MultiViewModel.h
     # MultiViewView.h

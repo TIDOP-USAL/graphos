@@ -488,7 +488,7 @@ void MainWindowPresenter::loadProject()
     mView->addImages(images);
     mView->setFlag(MainWindowView::Flag::images_added, true);
     mView->setFlag(MainWindowView::Flag::loading_images, true);
-    connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
+    //connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
   }
 
   for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
@@ -1014,13 +1014,12 @@ void MainWindowPresenter::processRunning()
 void MainWindowPresenter::loadingImages(bool loading)
 {
   mView->setFlag(MainWindowView::Flag::loading_images, loading);
-  if (loading)
-    mView->setFlag(MainWindowView::Flag::images_added, loading);
 }
 
 void MainWindowPresenter::loadImage(const QString &image)
 {
   mView->addImage(image);
+  mView->setFlag(MainWindowView::Flag::images_added, true);
 }
 
 void MainWindowPresenter::onProjectModified()

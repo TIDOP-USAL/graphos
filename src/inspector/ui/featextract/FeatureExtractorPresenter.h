@@ -9,7 +9,6 @@
 
 #include "inspector/ui/featextract/FeatureExtractor.h"
 
-class MultiProcess;
 
 namespace inspector
 {
@@ -47,21 +46,25 @@ private:
 
 private slots:
 
-  void onError(int code, const QString &msg);
-  void onFinished();
   void onFeaturesExtracted(const QString &imageName, const QString &featuresFile);
 
 // FeatureExtractorPresenter interface
 
 public slots:
 
-  void setProgressHandler(ProgressHandler *progressHandler) override;
-  void cancel() override;
-
-private slots:
-
-  void run() override;
   void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
+
+// ProcessPresenter interface
+  
+protected slots:
+
+  void onError(int code, const QString &msg) override;
+  void onFinished() override;
+  void createProcess() override;
+
+public slots:
+
+  void cancel() override;
 
 // IPresenter interface
 
@@ -85,8 +88,6 @@ protected:
   SettingsModel *mSettingsModel;
   HelpDialog *mHelp;
   SiftWidget *mSift;
-  MultiProcess *mMultiProcess;
-  ProgressHandler *mProgressHandler;
 
 };
 

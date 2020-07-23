@@ -20,6 +20,21 @@ ProgressHandler::~ProgressHandler()
 
 }
 
+int ProgressHandler::min() const
+{
+  return mMin;
+}
+
+int ProgressHandler::max() const
+{
+  return mMax;
+}
+
+int ProgressHandler::value() const
+{
+  return mValue;
+}
+
 void ProgressHandler::setRange(int min, int max)
 {
   mMin = min;

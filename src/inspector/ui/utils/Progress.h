@@ -20,6 +20,12 @@ public:
   ProgressHandler(QObject *parent = nullptr);
   ~ProgressHandler() override;
 
+public:
+
+  int min() const;
+  int max() const;
+  int value() const;
+
 signals:
 
   void rangeChange(int, int);

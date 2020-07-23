@@ -702,6 +702,8 @@ void ComponentsManager::initAndOpenLoadImagesDialog()
   connect(this->imagesPresenter(), SIGNAL(loadingImages(bool)), this->mainWindowPresenter(), SLOT(loadingImages(bool)));
   connect(this->imagesPresenter(), SIGNAL(imageLoaded(QString)), this->mainWindowPresenter(), SLOT(loadImage(QString)));
 
+  connect(this->progressDialog(), SIGNAL(cancel()),     this->imagesPresenter(), SLOT(cancel()));
+
   this->imagesPresenter()->setProgressHandler(this->progressHandler());
   this->imagesPresenter()->open();
 }
