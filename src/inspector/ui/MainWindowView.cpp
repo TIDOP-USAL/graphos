@@ -90,7 +90,7 @@ MainWindowView::~MainWindowView()
 
 void MainWindowView::clear()
 {
-  setWindowTitle(QString("Graphos"));
+  setWindowTitle(QString("Inspector Image"));
   const QSignalBlocker blockerTreeWidgetProject(mTreeWidgetProject);
   mTreeWidgetProject->clear();
   const QSignalBlocker blockerThumbnailsWidget(mThumbnailsWidget);
@@ -105,7 +105,7 @@ void MainWindowView::clear()
 
 void MainWindowView::setProjectTitle(const QString &title)
 {
-  this->setWindowTitle(QString("Graphos - ").append(title));
+  this->setWindowTitle(QString("Inspector Image - ").append(title));
 
   QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0);
   if (itemProject == nullptr) {
@@ -806,7 +806,7 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
 
 void MainWindowView::initUI()
 {
-  setWindowTitle(QString("Graphos"));
+  setWindowTitle(QString("Inspector Image"));
 
   mLayoutCentral = new QGridLayout(this->centralWidget());
   mLayoutCentral->setSpacing(6);

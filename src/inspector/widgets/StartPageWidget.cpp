@@ -31,7 +31,7 @@ void StartPageWidget::update()
 void StartPageWidget::retranslate()
 {
   this->setWindowTitle(QApplication::translate("StartPage", "Start Page", nullptr));
-  //mLabelPhotoMatch->setText(QApplication::translate("StartPage", "Inspector Image", nullptr));
+  mLabelPhotoMatch->setText(QApplication::translate("StartPage", "Inspector Image", nullptr));
   mCommandLinkButtonNewProject->setText(QApplication::translate("StartPage", "New Project", nullptr));
   mCommandLinkButtonOpenProject->setText(QApplication::translate("StartPage", "Open Project", nullptr));
   mCommandLinkButtonSettings->setText(QApplication::translate("StartPage", "Settings", nullptr));
@@ -53,15 +53,14 @@ void StartPageWidget::initUI()
   layout->setContentsMargins(11, 11, 11, 11);
 
   mLabelPhotoMatch = new QLabel(this);
-  mLabelPhotoMatch->setPixmap(QPixmap(":/images/img/graphos.png"));
   mLabelPhotoMatch->setMaximumSize(QSize(16777215, 79));
-  //QFont font;
-  //font.setFamily(QStringLiteral("Arial Black"));
-  //font.setPointSize(28);
-  //font.setBold(true);
-  //font.setWeight(75);
-  //mLabelPhotoMatch->setFont(font);
-  //mLabelPhotoMatch->setStyleSheet(QStringLiteral("color: rgb(95, 141, 211);"));
+  QFont font;
+  font.setFamily(QStringLiteral("Arial Black"));
+  font.setPointSize(28);
+  font.setBold(true);
+  font.setWeight(75);
+  mLabelPhotoMatch->setFont(font);
+  mLabelPhotoMatch->setStyleSheet(QStringLiteral("color: rgb(95, 141, 211);"));
 
   layout->addWidget(mLabelPhotoMatch, 0, 0, 1, 1);
 
@@ -172,4 +171,3 @@ void StartPageWidget::changeEvent(QEvent *event)
 }
 
 } // namespace inspector
-
