@@ -63,7 +63,7 @@ void ProcessPresenter::onError(int code, const QString &msg)
     mProgressHandler->setRange(0,1);
     mProgressHandler->setValue(1);
     mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Process error"));
+    mProgressHandler->setDescription(msg);
 
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
     disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));

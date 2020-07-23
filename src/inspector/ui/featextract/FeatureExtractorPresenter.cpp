@@ -170,7 +170,7 @@ void FeatureExtractorPresenterImp::createProcess()
                                                                      mSift->edgeThreshold(),
                                                                      mSift->sigma());
   } else {
-    throw std::runtime_error("Keypoint Detector not valid");
+    throw std::runtime_error("Invalid Keypoint Detector");
   }
 
   mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));

@@ -28,8 +28,6 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
     mModel(model),
     mCmvsPmvs(new CmvsPmvsWidgetImp),
     mSmvs(new SmvsWidgetImp),
-    mMultiProcess(new MultiProcess(true)),
-    mProgressHandler(nullptr),
     mHelp(nullptr)
 {
   this->init();
@@ -38,7 +36,6 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
 
 DensificationPresenterImp::~DensificationPresenterImp()
 {
-
   if (mCmvsPmvs){
     delete mCmvsPmvs;
     mCmvsPmvs = nullptr;
@@ -47,11 +44,6 @@ DensificationPresenterImp::~DensificationPresenterImp()
   if (mSmvs){
     delete mSmvs;
     mSmvs = nullptr;
-  }
-
-  if (mMultiProcess){
-    delete mMultiProcess;
-    mMultiProcess = nullptr;
   }
 }
 
@@ -94,97 +86,11 @@ void DensificationPresenterImp::initSignalAndSlots()
   connect(mView, &IDialogView::help,                       this, &DensificationPresenterImp::help);
 }
 
-void DensificationPresenterImp::setProgressHandler(ProgressHandler *progressHandler)
-{
-  mProgressHandler = progressHandler;
-}
-
 void DensificationPresenterImp::cancel()
 {
-  mMultiProcess->stop();
-
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Processing has been canceled by the user"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
-  }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
+  ProcessPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
-}
-
-void DensificationPresenterImp::run()
-{
-
-  QString densification_method = mView->currentDensificationMethod();
-
-  std::shared_ptr<Densifier> densifier;
-  if (densification_method.compare("CMVS/PMVS") == 0) {
-    densifier = std::make_shared<CmvsPmvsDensifier>(mCmvsPmvs->useVisibilityInformation(),
-                                                    mCmvsPmvs->imagesPerCluster(),
-                                                    mCmvsPmvs->level(),
-                                                    mCmvsPmvs->cellSize(),
-                                                    mCmvsPmvs->threshold(),
-                                                    mCmvsPmvs->windowSize(),
-                                                    mCmvsPmvs->minimunImageNumber());
-  } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
-    densifier = std::make_shared<SmvsDensifier>(mSmvs->inputImageScale(),
-                                                mSmvs->outputDepthScale(),
-                                                mSmvs->shadingBasedOptimization(),
-                                                mSmvs->semiGlobalMatching(),
-                                                mSmvs->surfaceSmoothingFactor());
-
-  } else {
-    msgError("Densification Method not valid");
-    return;
-  }
-
-  mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
-
-  TL_TODO("Revisar ... ")
-  QString mReconstructionPath = mModel->projectFolder() + "/sparse/0";
-  QString mImagesPath = mModel->imageDirectory();
-  QString mOutputPat = mModel->projectFolder() + "/dense";
-  std::shared_ptr<DensificationProcess> densification_process(new DensificationProcess(densifier,
-                                                                                       mReconstructionPath,
-                                                                                       mImagesPath,
-                                                                                       mOutputPat));
-
-  connect(densification_process.get(), &DensificationProcess::densificationFinished, this, &DensificationPresenterImp::onFinishDensification);
-
-  mMultiProcess->appendProcess(densification_process);
-
-  connect(mMultiProcess, SIGNAL(error(int, QString)),          this, SLOT(onError(int, QString)));
-  connect(mMultiProcess, SIGNAL(finished()),                   this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    connect(mMultiProcess, SIGNAL(finished()),             mProgressHandler,    SLOT(onFinish()));
-    connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(next()));
-    connect(mMultiProcess, SIGNAL(error(int, QString)),    mProgressHandler,    SLOT(onFinish()));
-
-    mProgressHandler->setRange(0, 0/*mMultiProcess->count()*/);
-    mProgressHandler->setValue(0);
-    mProgressHandler->setTitle("Generating dense model...");
-    mProgressHandler->setDescription("Generating dense model...");
-    mProgressHandler->init();
-  }
-
-  mView->hide();
-
-  emit running();
-
-  mMultiProcess->start();
 }
 
 void DensificationPresenterImp::setCurrentDensifier(const QString &densifier)
@@ -242,44 +148,71 @@ void DensificationPresenterImp::onDensificationChanged(const QString &densificat
 
 void DensificationPresenterImp::onError(int code, const QString &msg)
 {
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
+  ProcessPresenter::onError(code, msg);
 
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
+  if (mProgressHandler) {
     mProgressHandler->setDescription(tr("Densification error"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
 }
 
 void DensificationPresenterImp::onFinished()
 {
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
+  ProcessPresenter::onFinished();
 
-  if (mProgressHandler){
-    mProgressHandler->setRange(0, 1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
+  if (mProgressHandler) {
     mProgressHandler->setDescription(tr("Densification finished"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
   }
 
-  mMultiProcess->clearProcessList();
+  msgInfo("Densification finished.");
+}
 
-  emit finished();
+void DensificationPresenterImp::createProcess()
+{
+ QString densification_method = mView->currentDensificationMethod();
+
+  std::shared_ptr<Densifier> densifier;
+  if (densification_method.compare("CMVS/PMVS") == 0) {
+    densifier = std::make_shared<CmvsPmvsDensifier>(mCmvsPmvs->useVisibilityInformation(),
+                                                    mCmvsPmvs->imagesPerCluster(),
+                                                    mCmvsPmvs->level(),
+                                                    mCmvsPmvs->cellSize(),
+                                                    mCmvsPmvs->threshold(),
+                                                    mCmvsPmvs->windowSize(),
+                                                    mCmvsPmvs->minimunImageNumber());
+  } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
+    densifier = std::make_shared<SmvsDensifier>(mSmvs->inputImageScale(),
+                                                mSmvs->outputDepthScale(),
+                                                mSmvs->shadingBasedOptimization(),
+                                                mSmvs->semiGlobalMatching(),
+                                                mSmvs->surfaceSmoothingFactor());
+
+  } else {
+    throw std::runtime_error("Densification Method not valid");
+  }
+
+  mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
+
+  TL_TODO("Revisar ... ")
+  QString mReconstructionPath = mModel->projectFolder() + "/sparse/0";
+  QString mImagesPath = mModel->imageDirectory();
+  QString mOutputPat = mModel->projectFolder() + "/dense";
+  std::shared_ptr<DensificationProcess> densification_process(new DensificationProcess(densifier,
+                                                                                       mReconstructionPath,
+                                                                                       mImagesPath,
+                                                                                       mOutputPat));
+
+  connect(densification_process.get(), &DensificationProcess::densificationFinished, 
+          this, &DensificationPresenterImp::onFinishDensification);
+
+  mMultiProcess->appendProcess(densification_process);
+
+  if (mProgressHandler){
+    mProgressHandler->setRange(0, 0);
+    mProgressHandler->setTitle("Generating dense model...");
+    mProgressHandler->setDescription("Generating dense model...");
+  }
+
+  mView->hide();
 }
 
 void DensificationPresenterImp::onFinishDensification()

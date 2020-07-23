@@ -3,8 +3,7 @@
 
 #include "inspector/interfaces/mvp.h"
 #include "inspector/core/densification/densification.h"
-
-#include <tidop/core/process.h>
+#include "inspector/ui/process/ProcessPresenter.h"
 
 #include <QString>
 
@@ -12,12 +11,8 @@ namespace inspector
 {
 
 
-class DensificationProcess;
-
 namespace ui
 {
-
-class ProgressHandler;
 
 class DensificationModel
   : public IModel
@@ -70,7 +65,8 @@ public slots:
 
 
 class DensificationPresenter
-  : public IPresenter
+  : public ProcessPresenter
+
 {
 
   Q_OBJECT
@@ -82,18 +78,10 @@ public:
 
 signals:
 
-  void running();
   void densificationFinished();
-  void finished();
 
 public slots:
 
-  virtual void setProgressHandler(ProgressHandler *progressHandler) = 0;
-  virtual void cancel() = 0;
-
-private slots:
-
-  virtual void run() = 0;
   virtual void setCurrentDensifier(const QString &desnsifier) = 0;
 
 };

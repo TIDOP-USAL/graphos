@@ -953,6 +953,8 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
 void MainWindowPresenter::deleteFeatures()
 {
   TL_TODO("completar")
+
+  mFeaturesModel->clear();
 //  if (std::shared_ptr<Session> session = mProjectModel->currentSession()){
     
 //    for (auto &feat : session->features()) {
@@ -973,6 +975,7 @@ void MainWindowPresenter::deleteFeatures()
 void MainWindowPresenter::deleteMatches()
 {
   TL_TODO("completar")
+  mMatchesModel->clear();
 //  if (std::shared_ptr<Session> session = mProjectModel->currentSession()){
 
 //    for (auto it = mProjectModel->imageBegin(); it != mProjectModel->imageEnd(); it++){

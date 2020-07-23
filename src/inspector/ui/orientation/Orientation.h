@@ -3,13 +3,13 @@
 
 #include "inspector/interfaces/mvp.h"
 #include "inspector/core/orientation/photoorientation.h"
+#include "inspector/ui/process/ProcessPresenter.h"
+
 namespace inspector
 {
 
 namespace ui
 {
-
-class ProgressHandler;
 
 class OrientationModel
   : public IModel
@@ -54,13 +54,11 @@ signals:
   void run();
   void refinePrincipalPoint(bool);
 
-public slots:
-
 };
 
 
 class OrientationPresenter
-  : public IPresenter
+  : public ProcessPresenter
 {
 
   Q_OBJECT
@@ -72,18 +70,7 @@ public:
 
 signals:
 
-  void running();
-  void finished();
   void orientationFinished();
-
-public slots:
-
-  virtual void setProgressHandler(ProgressHandler *progressHandler) = 0;
-  virtual void cancel() = 0;
-
-private slots:
-
-  virtual void run() = 0;
 
 };
 

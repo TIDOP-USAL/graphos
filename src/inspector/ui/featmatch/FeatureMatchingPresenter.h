@@ -5,8 +5,6 @@
 
 #include "inspector/ui/featmatch/FeatureMatching.h"
 
-class MultiProcess;
-
 namespace inspector
 {
 
@@ -16,7 +14,6 @@ namespace ui
 {
 
 class SettingsModel;
-class ProgressHandler;
 class HelpDialog;
 
 class FeatureMatchingPresenterImp
@@ -38,21 +35,25 @@ private:
 
 private slots:
 
-  void onError(int code, const QString &msg);
-  void onFinished();
   void onFinishMatching();
 
 // FeatureMatchingPresenter interface
 
 public slots:
 
-  void setProgressHandler(ProgressHandler *progressHandler) override;
-  void cancel() override;
-
-private slots:
-
-  void run() override;
   void setCurrentMatchMethod(const QString &matchMethod) override;
+
+// ProcessPresenter interface
+  
+protected slots:
+
+  void onError(int code, const QString &msg) override;
+  void onFinished() override;
+  void createProcess() override;
+
+public slots:
+
+  void cancel() override;
 
 // IPresenter interface
 
@@ -74,8 +75,6 @@ private:
   SettingsModel *mSettingsModel;
   HelpDialog *mHelp;
   FeatureMatchingWidget *mFeatureMatchingWidget;
-  MultiProcess *mMultiProcess;
-  ProgressHandler *mProgressHandler;
 
 };
 

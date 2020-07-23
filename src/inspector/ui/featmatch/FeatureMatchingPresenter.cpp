@@ -29,9 +29,7 @@ FeatureMatchingPresenterImp::FeatureMatchingPresenterImp(FeatureMatchingView *vi
     mModel(model),
     mSettingsModel(settingsModel),
     mHelp(nullptr),
-    mFeatureMatchingWidget(new FeatureMatchingWidgetImp),
-    mMultiProcess(new MultiProcess(true)),
-    mProgressHandler(nullptr)
+    mFeatureMatchingWidget(new FeatureMatchingWidgetImp)
 {
   this->init();
   this->initSignalAndSlots();
@@ -43,11 +41,6 @@ FeatureMatchingPresenterImp::~FeatureMatchingPresenterImp()
     delete mFeatureMatchingWidget;
     mFeatureMatchingWidget = nullptr;
   }
-
-  if (mMultiProcess){
-    delete mMultiProcess;
-    mMultiProcess = nullptr;
-    }
 }
 
 void FeatureMatchingPresenterImp::help()
@@ -64,64 +57,6 @@ void FeatureMatchingPresenterImp::open()
   this->setMatchingProperties();
 
   mView->exec();
-}
-
-void FeatureMatchingPresenterImp::setMatchingProperties()
-{
-
-}
-
-void FeatureMatchingPresenterImp::onError(int code, const QString &msg)
-{
-  QByteArray ba = msg.toLocal8Bit();
-  msgError(ba.data());
-
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Feature Matching error"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
-  }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
-}
-
-void FeatureMatchingPresenterImp::onFinished()
-{
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Feature Matching finished"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
-  }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
-
-  //msgInfo("Feature Matching finished.");
-}
-
-void FeatureMatchingPresenterImp::onFinishMatching()
-{
-  mModel->writeMatchPairs();
-  emit matchingFinished();
 }
 
 void FeatureMatchingPresenterImp::setHelp(HelpDialog *help)
@@ -142,46 +77,44 @@ void FeatureMatchingPresenterImp::initSignalAndSlots()
   connect(mView, &IDialogView::help,                       this, &FeatureMatchingPresenterImp::help);
 }
 
-void FeatureMatchingPresenterImp::setProgressHandler(ProgressHandler *progressHandler)
+void FeatureMatchingPresenterImp::setMatchingProperties()
 {
-  mProgressHandler = progressHandler;
+
 }
 
-void FeatureMatchingPresenterImp::cancel()
+void FeatureMatchingPresenterImp::onError(int code, const QString &msg)
 {
-  mMultiProcess->stop();
+  ProcessPresenter::onError(code, msg);
 
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
+  QByteArray ba = msg.toLocal8Bit();
+  msgError(ba.data());
 
   if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Processing has been canceled by the user"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
+    mProgressHandler->setDescription(tr("Feature Matching error"));
   }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
-
-  msgWarning("Processing has been canceled by the user");
 }
 
-void FeatureMatchingPresenterImp::run()
+void FeatureMatchingPresenterImp::onFinished()
 {
-  /// Se comprueba si ya se había ejecutado previante y se borran los datos
+  ProcessPresenter::onFinished();
+
+  if (mProgressHandler) {
+    mProgressHandler->setDescription(tr("Feature detection and description finished"));
+  }
+
+  msgInfo("Feature Matching finished");
+}
+
+void FeatureMatchingPresenterImp::createProcess()
+{
+    /// Se comprueba si ya se había ejecutado previante y se borran los datos
   if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()){
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      return;
+      throw std::runtime_error("Canceled by user");
     }
   }
   ///
@@ -199,8 +132,7 @@ void FeatureMatchingPresenterImp::run()
     featureMatching->setConfidence(mFeatureMatchingWidget->confidence());
     featureMatching->enableCrossCheck(mFeatureMatchingWidget->crossCheck());
   } else {
-    TL_TODO("Devolver una excepción")
-    return;
+    throw std::runtime_error("Invalid Feature Matching method");
   }
 
   mModel->setFeatureMatching(featureMatching);
@@ -213,28 +145,28 @@ void FeatureMatchingPresenterImp::run()
 
   mMultiProcess->appendProcess(featMatchingProcess);
 
-  connect(mMultiProcess, SIGNAL(error(int, QString)),          this, SLOT(onError(int, QString)));
-  connect(mMultiProcess, SIGNAL(finished()),                   this, SLOT(onFinished()));
-
   if (mProgressHandler){
-    connect(mMultiProcess, SIGNAL(finished()),             mProgressHandler,    SLOT(onFinish()));
-    connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(next()));
-    connect(mMultiProcess, SIGNAL(error(int, QString)),    mProgressHandler,    SLOT(onFinish()));
-
-    mProgressHandler->setRange(0, 0/*mMultiProcess->count()*/);
-    mProgressHandler->setValue(0);
+    mProgressHandler->setRange(0, 0);
     mProgressHandler->setTitle("Computing Matches...");
     mProgressHandler->setDescription("Computing Matches...");
-    mProgressHandler->init();
   }
 
   mView->hide();
 
-  //msgInfo("Starting Feature Matching");
+  msgInfo("Starting Feature Matching");
+}
 
-  emit running();
+void FeatureMatchingPresenterImp::onFinishMatching()
+{
+  mModel->writeMatchPairs();
+  emit matchingFinished();
+}
 
-  mMultiProcess->start();
+void FeatureMatchingPresenterImp::cancel()
+{
+  ProcessPresenter::cancel();
+
+  msgWarning("Processing has been canceled by the user");
 }
 
 void FeatureMatchingPresenterImp::setCurrentMatchMethod(const QString &matchMethod)

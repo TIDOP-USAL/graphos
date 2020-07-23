@@ -11,9 +11,6 @@ namespace inspector
 namespace ui
 {
 
-class ProgressHandler;
-
-
 class FeatureExtractorModel
   : public IModel
 {

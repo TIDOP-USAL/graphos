@@ -6,12 +6,8 @@
 #include "inspector/ui/orientation/Orientation.h"
 
 
-class MultiProcess;
-
 namespace inspector
 {
-
-class ProgressHandler;
 
 namespace ui
 {
@@ -37,20 +33,19 @@ public:
 
 private slots:
 
-  void onError(int code, const QString &msg);
-  void onFinished();
   void onOrientationFinished();
 
-// OrientationPresenter interface
+// ProcessPresenter interface
+  
+protected slots:
+
+  void onError(int code, const QString &msg) override;
+  void onFinished() override;
+  void createProcess() override;
 
 public slots:
 
-  void setProgressHandler(ProgressHandler *progressHandler) override;
   void cancel() override;
-
-private slots:
-
-  void run() override;
 
 // IPresenter interface
 
@@ -73,8 +68,6 @@ protected:
   CamerasModel *mCamerasModel;
   SettingsModel *mSettingsModel;
   HelpDialog *mHelp;
-  MultiProcess *mMultiProcess;
-  ProgressHandler *mProgressHandler;
 
 };
 

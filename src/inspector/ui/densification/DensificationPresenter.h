@@ -7,8 +7,6 @@
 
 #include <memory>
 
-class MultiProcess;
-
 namespace inspector
 {
 
@@ -19,7 +17,6 @@ namespace ui
 {
 
 class HelpDialog;
-class ProgressHandler;
 
 class DensificationPresenterImp
   : public DensificationPresenter
@@ -40,21 +37,25 @@ private:
 private slots:
 
   void onDensificationChanged(const QString &densification);
-  void onError(int code, const QString &msg);
-  void onFinished();
   void onFinishDensification();
 
 // DensificationPresenter interface
 
 public slots:
 
-  void setProgressHandler(ProgressHandler *progressHandler) override;
-  void cancel() override;
-
-private slots:
-
-  void run() override;
   void setCurrentDensifier(const QString &densifier) override;
+
+// ProcessPresenter interface
+  
+protected slots:
+
+  void onError(int code, const QString &msg) override;
+  void onFinished() override;
+  void createProcess() override;
+
+public slots:
+
+  void cancel() override;
 
 // IPresenter interface
 
@@ -75,8 +76,6 @@ private:
   DensificationModel *mModel;
   CmvsPmvsWidget *mCmvsPmvs;
   SmvsWidget *mSmvs;
-  MultiProcess *mMultiProcess;
-  ProgressHandler *mProgressHandler;
   HelpDialog *mHelp;
 };
 

@@ -33,9 +33,7 @@ OrientationPresenterImp::OrientationPresenterImp(OrientationView *view,
     mImagesModel(imagesModel),
     mCamerasModel(camerasModel),
     mSettingsModel(settingsModel),
-    mHelp(nullptr),
-    mMultiProcess(new MultiProcess(true)),
-    mProgressHandler(nullptr)
+    mHelp(nullptr)
 {
   this->init();
   this->initSignalAndSlots();
@@ -43,10 +41,6 @@ OrientationPresenterImp::OrientationPresenterImp(OrientationView *view,
 
 OrientationPresenterImp::~OrientationPresenterImp()
 {
-  if (mMultiProcess){
-    delete mMultiProcess;
-    mMultiProcess = nullptr;
-    }
 }
 
 void OrientationPresenterImp::help()
@@ -80,39 +74,35 @@ void OrientationPresenterImp::initSignalAndSlots()
   connect(mView, &OrientationView::help,  this, &OrientationPresenterImp::help);
 }
 
-void OrientationPresenterImp::setProgressHandler(ProgressHandler *progressHandler)
-{
-  mProgressHandler = progressHandler;
-}
-
 void OrientationPresenterImp::cancel()
 {
-  mMultiProcess->stop();
-
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Processing has been canceled by the user"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
-  }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
-
+  ProcessPresenter::cancel();
+  
   msgWarning("Processing has been canceled by the user");
 }
 
-void OrientationPresenterImp::run()
+void OrientationPresenterImp::onError(int code, const QString &msg)
 {
+  ProcessPresenter::onError(code, msg);
 
+  if (mProgressHandler) {
+    mProgressHandler->setDescription(tr("Orientation process error"));
+  }
+}
+
+void OrientationPresenterImp::onFinished()
+{
+  ProcessPresenter::onFinished();
+
+  if (mProgressHandler) {
+    mProgressHandler->setDescription(tr("Orientation finished"));
+  }
+
+  msgInfo("Orientation finished");
+}
+
+void OrientationPresenterImp::createProcess()
+{
   mMultiProcess->clearProcessList();
 
   TL_TODO("Establecer propiedades")
@@ -128,68 +118,13 @@ void OrientationPresenterImp::run()
 
   mMultiProcess->appendProcess(relativeOrientationProcess);
 
-  connect(mMultiProcess, SIGNAL(error(int, QString)),          this, SLOT(onError(int, QString)));
-  connect(mMultiProcess, SIGNAL(finished()),                   this, SLOT(onFinished()));
-
   if (mProgressHandler){
-    connect(mMultiProcess, SIGNAL(finished()),             mProgressHandler,    SLOT(onFinish()));
-    connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(next()));
-    connect(mMultiProcess, SIGNAL(error(int, QString)),    mProgressHandler,    SLOT(onFinish()));
-
-    mProgressHandler->setRange(0, 0/*mMultiProcess->count()*/);
-    mProgressHandler->setValue(0);
+    mProgressHandler->setRange(0, 0);
     mProgressHandler->setTitle("Computing Orientations...");
     mProgressHandler->setDescription("Computing Orientations...");
-    mProgressHandler->init();
   }
 
   mView->hide();
-
-  emit running();
-
-  mMultiProcess->start();
-}
-
-void OrientationPresenterImp::onError(int code, const QString &msg)
-{
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0,1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Orientation process error"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
-  }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
-}
-
-void OrientationPresenterImp::onFinished()
-{
-  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0, 1);
-    mProgressHandler->setValue(1);
-    mProgressHandler->finish();
-    mProgressHandler->setDescription(tr("Orientation finished"));
-
-    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(onFinish()));
-    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(onFinish()));
-  }
-
-  mMultiProcess->clearProcessList();
-
-  emit finished();
 }
 
 void OrientationPresenterImp::onOrientationFinished()

@@ -3,6 +3,7 @@
 
 #include "inspector/interfaces/mvp.h"
 #include "inspector/core/features/features.h"
+#include "inspector/ui/process/ProcessPresenter.h"
 
 #include <QString>
 
@@ -11,8 +12,6 @@ namespace inspector
 
 namespace ui
 {
-
-class ProgressHandler;
 
 class FeatureMatchingModel
   : public IModel
@@ -59,7 +58,7 @@ public slots:
 
 
 class FeatureMatchingPresenter
-  : public IPresenter
+  : public ProcessPresenter
 {
 
   Q_OBJECT
@@ -71,18 +70,10 @@ public:
 
 signals:
 
-  void running();
   void matchingFinished();
-  void finished();
 
 public slots:
 
-  virtual void setProgressHandler(ProgressHandler *progressHandler) = 0;
-  virtual void cancel() = 0;
-
-private slots:
-
-  virtual void run() = 0;
   virtual void setCurrentMatchMethod(const QString &matchMethod) = 0;
 
 };
