@@ -29,6 +29,7 @@ public:
   std::shared_ptr<FeatureMatching> featureMatching() const override;
   void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
   QString database() const override;
+  bool spatialMatching() const override;
   void writeMatchPairs() override;
 
 // IModel interface

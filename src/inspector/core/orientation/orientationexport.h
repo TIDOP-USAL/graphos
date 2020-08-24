@@ -57,9 +57,9 @@ public:
   /*!
    * \brief Exportación de la orientación al formato Bundler
    * \param[in] oriFile Fichero Bundler de orientaciones
-   * \param[in] imageListFile Fichero con el listado de imágenes
    */
-  void exportBundler(const QString &oriFile, const QString &imageListFile) const;
+  //void exportBundler(const QString &oriFile, const QString &imageListFile) const;
+  void exportBundler(const QString &oriFile) const;
 
   /*!
    * \brief Exportación de la orientación relativa a un fichero de texto

@@ -139,6 +139,7 @@ void FeatureMatchingPresenterImp::createProcess()
 
   std::shared_ptr<FeatureMatchingProcess> featMatchingProcess(new FeatureMatchingProcess(mModel->database(),
                                                                                          mSettingsModel->useCuda(),
+                                                                                         mModel->spatialMatching(),
                                                                                          featureMatching));
 
   connect(featMatchingProcess.get(), SIGNAL(featureMatchingFinished()), this, SLOT(onFinishMatching()));

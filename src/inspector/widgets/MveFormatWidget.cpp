@@ -1,4 +1,4 @@
-#include "NvmFormatWidget.h"
+#include "MveFormatWidget.h"
 
 #include <QGridLayout>
 #include <QLabel>
@@ -12,8 +12,8 @@
 namespace inspector
 {
 
-NvmFormatWidgetImp::NvmFormatWidgetImp(QWidget *parent)
-  : NvmFormatWidget(parent),
+MveFormatWidgetImp::MveFormatWidgetImp(QWidget *parent)
+  : MveFormatWidget(parent),
     mGroupBox(new QGroupBox(this)),
     mLabelFile(new QLabel(this)),
     mLineEditFile(new QLineEdit(this)),
@@ -23,10 +23,10 @@ NvmFormatWidgetImp::NvmFormatWidgetImp(QWidget *parent)
   this->initSignalAndSlots();
 }
 
-void NvmFormatWidgetImp::initUI()
+void MveFormatWidgetImp::initUI()
 {
-  this->setWindowTitle("NVM");
-  this->setObjectName("NvmOrientationFormatWidget");
+  this->setWindowTitle("MVE");
+  this->setObjectName("MveOrientationFormatWidget");
 
   QGridLayout *layout = new QGridLayout();
   layout->setContentsMargins(0,0,0,0);
@@ -48,42 +48,42 @@ void NvmFormatWidgetImp::initUI()
   this->update();
 }
 
-void NvmFormatWidgetImp::initSignalAndSlots()
+void MveFormatWidgetImp::initSignalAndSlots()
 {
-  connect(mLineEditFile,         &QLineEdit::textChanged,   this, &NvmFormatWidgetImp::fileChanged);
-  connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &NvmFormatWidgetImp::onPushButtonSelectPath);
+  connect(mLineEditFile,         &QLineEdit::textChanged,   this, &MveFormatWidgetImp::fileChanged);
+  connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &MveFormatWidgetImp::onPushButtonSelectPath);
 }
 
-void NvmFormatWidgetImp::clear()
+void MveFormatWidgetImp::clear()
 {
   const QSignalBlocker blocker(mLineEditFile);
 
   mLineEditFile->clear();
 }
 
-void NvmFormatWidgetImp::update()
+void MveFormatWidgetImp::update()
 {
 }
 
-void NvmFormatWidgetImp::retranslate()
+void MveFormatWidgetImp::retranslate()
 {
-  mLabelFile->setText(QApplication::translate("NvmOrientationFormatWidget", "NVM  export path", nullptr));
+  mLabelFile->setText(QApplication::translate("MveOrientationFormatWidget", "MVE export path", nullptr));
 }
 
-void NvmFormatWidgetImp::setFile(const QString &file)
+void MveFormatWidgetImp::setFile(const QString &file)
 {
   const QSignalBlocker blocker(mLineEditFile);
   mLineEditFile->setText(file);
 }
 
-QString NvmFormatWidgetImp::file() const
+QString MveFormatWidgetImp::file() const
 {
   return mLineEditFile->text();
 }
 
-void NvmFormatWidgetImp::onPushButtonSelectPath()
+void MveFormatWidgetImp::onPushButtonSelectPath()
 {
-  QString pathName = QFileDialog::getExistingDirectory(this,
+   QString pathName = QFileDialog::getExistingDirectory(this,
     tr("Export directory"),
     "",
     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);

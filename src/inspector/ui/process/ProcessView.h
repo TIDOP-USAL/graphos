@@ -20,7 +20,9 @@ public:
   ProcessView();
   ~ProcessView();
 
-private:
+signals:
+
+  void run();
 
 };
 

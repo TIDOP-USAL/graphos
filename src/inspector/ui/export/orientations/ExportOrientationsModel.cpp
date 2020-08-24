@@ -28,7 +28,8 @@ void ExportOrientationsModelImp::clear()
 
 QString ExportOrientationsModelImp::reconstruction() const
 {
-  return QString();
+  QString mReconstructionPath = mProject->projectFolder() + "/sparse/0";
+  return mReconstructionPath;
 }
 
 

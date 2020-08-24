@@ -53,6 +53,18 @@ QString FeatureMatchingModelImp::database() const
   return mProject->database();
 }
 
+bool FeatureMatchingModelImp::spatialMatching() const
+{
+  bool bSpatialMatching = false;
+
+  auto it = mProject->imageBegin();
+  if (it->longitudeExif() != 0.0 &&
+      it->latitudeExif() != 0.0)
+    bSpatialMatching = true;
+
+  return bSpatialMatching;
+}
+
 void FeatureMatchingModelImp::writeMatchPairs()
 {
   QString database_file = mProject->database();

@@ -12,20 +12,22 @@ namespace inspector
 
 FeatureMatchingProcess::FeatureMatchingProcess(QString database,
                                                bool cuda,
+                                               bool spatialMatching,
                                                const std::shared_ptr<FeatureMatching> &featureMatching)
   : ProcessConcurrent(),
-    mExhaustiveFeatureMatcher(nullptr),
+    mFeatureMatcher(nullptr),
     mDatabase(database),
     bUseCuda(cuda),
+    bSpatialMatching(spatialMatching),
     mFeatureMatching(featureMatching)
 {
 }
 
 FeatureMatchingProcess::~FeatureMatchingProcess()
 {
-  if (mExhaustiveFeatureMatcher){
-    delete mExhaustiveFeatureMatcher;
-    mExhaustiveFeatureMatcher = nullptr;
+  if (mFeatureMatcher){
+    delete mFeatureMatcher;
+    mFeatureMatcher = nullptr;
   }
 }
 
@@ -38,13 +40,11 @@ void inspector::FeatureMatchingProcess::run()
     tl::Chrono chrono;
     chrono.run();
 
-    if (mExhaustiveFeatureMatcher){
-      delete mExhaustiveFeatureMatcher;
-      mExhaustiveFeatureMatcher = nullptr;
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
     }
 
-    colmap::ExhaustiveMatchingOptions exhaustiveMatchingOptions;
-//    exhaustiveMatchingOptions.block_size = mFeatureMatching->blockSize();
     colmap::SiftMatchingOptions siftMatchingOptions;
     siftMatchingOptions.max_error = mFeatureMatching->maxError();
     siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
@@ -54,15 +54,32 @@ void inspector::FeatureMatchingProcess::run()
     //siftMatchingOptions.max_num_matches = 30000;//mFeatureMatching->maxMatches();
     siftMatchingOptions.use_gpu = bUseCuda;
     //siftMatchingOptions.gpu_index = "0";
-    mExhaustiveFeatureMatcher = new colmap::ExhaustiveFeatureMatcher(exhaustiveMatchingOptions,
-                                                                     siftMatchingOptions,
-                                                                     mDatabase.toStdString());
 
-    mExhaustiveFeatureMatcher->Start();
-    mExhaustiveFeatureMatcher->Wait();
+    if (bSpatialMatching) {
+
+      colmap::SpatialMatchingOptions spatialMatchingOptions;
+
+      mFeatureMatcher = new colmap::SpatialFeatureMatcher(spatialMatchingOptions,
+                                                          siftMatchingOptions,
+                                                          mDatabase.toStdString());
+      msgInfo("Spatial Matching");
+
+    } else {
+
+      colmap::ExhaustiveMatchingOptions exhaustiveMatchingOptions;
+      //    exhaustiveMatchingOptions.block_size = mFeatureMatching->blockSize();
+      mFeatureMatcher = new colmap::ExhaustiveFeatureMatcher(exhaustiveMatchingOptions,
+                                                             siftMatchingOptions,
+                                                             mDatabase.toStdString());
+      msgInfo("Exhaustive Matching");
+
+    }
+
+    mFeatureMatcher->Start();
+    mFeatureMatcher->Wait();
 
     colmap::Database database(mDatabase.toStdString());
-    if (database.NumMatches() > 0){
+    if (database.NumMatches() > 0) {
       emit featureMatchingFinished();
     } else {
       emit error(0, "Feature Matching error: No matching points detected.");
@@ -72,9 +89,9 @@ void inspector::FeatureMatchingProcess::run()
     database.Close();
 
     uint64_t time = chrono.stop();
-    msgInfo("Feature Matching finished [Time: %f seconds]", time/1000.);
+    msgInfo("Feature Matching finished [Time: %f seconds]", time / 1000.);
 
-  } catch (std::exception &e) {
+  } catch (std::exception & e) {
     emit error(0, "Feature Matching error");
     msgError(e.what());
   }
@@ -98,6 +115,10 @@ bool FeatureMatchingProcess::useGPU() const
 void FeatureMatchingProcess::setUseGPU(bool useGPU)
 {
   bUseCuda = useGPU;
+}
+
+void FeatureMatchingProcess::setSpatialMatching(bool spatialMatching)
+{
 }
 
 std::shared_ptr<FeatureMatching> FeatureMatchingProcess::featureMatching() const

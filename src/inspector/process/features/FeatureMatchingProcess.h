@@ -11,6 +11,7 @@ namespace colmap
 struct ExhaustiveMatchingOptions;
 struct SiftMatchingOptions;
 class ExhaustiveFeatureMatcher;
+class Thread;
 }
 
 namespace inspector
@@ -25,6 +26,7 @@ public:
 
   FeatureMatchingProcess(QString database,
                          bool cuda,
+                         bool spatialMatching,
                          const std::shared_ptr<FeatureMatching> &featureMatching);
   ~FeatureMatchingProcess() override;
 
@@ -45,15 +47,18 @@ public:
   bool useGPU() const;
   void setUseGPU(bool useGPU);
 
+  void setSpatialMatching(bool spatialMatching);
+
 protected:
 
   void run() override;
 
 private:
 
-  colmap::ExhaustiveFeatureMatcher *mExhaustiveFeatureMatcher;
+  colmap::Thread *mFeatureMatcher;
   QString mDatabase;
   bool bUseCuda;
+  bool bSpatialMatching;
   std::shared_ptr<FeatureMatching> mFeatureMatching;
 
 };

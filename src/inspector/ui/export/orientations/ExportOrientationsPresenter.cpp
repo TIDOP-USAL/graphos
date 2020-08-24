@@ -4,9 +4,14 @@
 #include "inspector/ui/export/orientations/ExportOrientationsView.h"
 #include "inspector/widgets/NvmFormatWidget.h"
 #include "inspector/widgets/BundlerFormatWidget.h"
+#include "inspector/widgets/MveFormatWidget.h"
 #include "inspector/ui/HelpDialog.h"
+#include "inspector/core/orientation/orientationexport.h"
 
 #include <tidop/core/defs.h>
+
+// COLMAP
+#include <colmap/base/reconstruction.h>
 
 namespace inspector
 {
@@ -20,6 +25,7 @@ ExportOrientationsPresenterImp::ExportOrientationsPresenterImp(ExportOrientation
     mModel(model),
     mNvmFormatWidget(new NvmFormatWidgetImp),
     mBundlerFormatWidget(new BundlerFormatWidgetImp),
+    mMveFormatWidget(new MveFormatWidgetImp),
     mHelp(nullptr)
 {
   this->init();
@@ -36,6 +42,11 @@ ExportOrientationsPresenterImp::~ExportOrientationsPresenterImp()
   if (mBundlerFormatWidget){
     delete mBundlerFormatWidget;
     mBundlerFormatWidget = nullptr;
+  }
+
+  if (mMveFormatWidget){
+    delete mMveFormatWidget;
+    mMveFormatWidget = nullptr;
   }
 }
 
@@ -64,18 +75,40 @@ void ExportOrientationsPresenterImp::init()
 {
   mView->addFormatWidget(mNvmFormatWidget);
   mView->addFormatWidget(mBundlerFormatWidget);
+  //mView->addFormatWidget(mMveFormatWidget);
   mView->setCurrentFormat(mNvmFormatWidget->windowTitle());
 }
 
 void ExportOrientationsPresenterImp::initSignalAndSlots()
 {
+  connect(mView, &ExportOrientationsView::accepted,     this, &ExportOrientationsPresenterImp::save);
   connect(mView, &ExportOrientationsView::formatChange, this, &ExportOrientationsPresenterImp::setCurrentFormat);
   connect(mView, &IDialogView::help,                    this, &ExportOrientationsPresenterImp::help);
-
 }
 
 void ExportOrientationsPresenterImp::save()
 {
+  QString reconstructionPath = mModel->reconstruction();
+
+  colmap::Reconstruction reconstruction;
+#ifdef _DEBUG
+  //Lectura como texto
+  reconstruction.ReadText(reconstructionPath.toStdString());
+#else
+  //Lectura como binario
+  reconstruction.ReadBinary(reconstructionPath.toStdString());
+#endif
+  OrientationExport orientationExport(&reconstruction);
+
+  QString oriFormat = mView->format();
+  if (oriFormat.compare("NVM") == 0) {
+    orientationExport.exportMVE(mNvmFormatWidget->file());
+  } else if (oriFormat.compare("Bundler") == 0) {
+    orientationExport.exportBundler(mBundlerFormatWidget->file());
+  } else if (oriFormat.compare("MVE") == 0) {
+    orientationExport.exportMVE(mMveFormatWidget->file());
+  }
+
 }
 
 void ExportOrientationsPresenterImp::setCurrentFormat(const QString &format)

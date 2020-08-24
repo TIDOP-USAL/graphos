@@ -488,81 +488,81 @@ void OrientationExport::exportMVE(const QString &path) const
   }
 }
 
-void OrientationExport::exportBundler(const QString &oriFile, const QString &imageListFile) const
+void OrientationExport::exportBundler(const QString &oriFile) const
 {
-  if (mReconstruction)
-    mReconstruction->ExportBundler(oriFile.toStdString(), imageListFile.toStdString());
-  else
+  //if (mReconstruction)
+  //  mReconstruction->ExportBundler(oriFile.toStdString(), imageListFile.toStdString());
+  //else
+  //  msgError("There is not a valid reconstruction");
+  if (mReconstruction) {
+
+    QFile file(oriFile);
+
+    if (file.open(QIODevice::WriteOnly)) {
+
+      QTextStream stream(&file);
+
+      int camera_count = mReconstruction->Images().size();
+      int feature_count = mReconstruction->NumPoints3D();
+
+      stream << "# Bundle file v0.3" << endl;
+      stream << camera_count << " " << feature_count << endl;
+
+      for (auto &camera : mReconstruction->Cameras()) {
+
+        double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
+        double focal = camera.second.FocalLength() / sensor_width_px;
+        int model_id = camera.second.ModelId();
+        std::vector<double> params = camera.second.Params();
+
+        for (auto &image : mReconstruction->Images()) {
+
+          if (image.second.CameraId() == camera.second.CameraId()) {
+
+            std::string img_name = image.second.Name();
+
+            Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
+            Eigen::Vector3d translation = image.second.Tvec();
+
+            stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << endl;
+            stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << endl;
+            stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << endl;
+            stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << endl;
+            stream << translation[0] << " " << translation[1] << " " << translation[2] << endl;
+
+          }
+        }
+      }
+
+
+      for (auto &points_3d : mReconstruction->Points3D()) {
+
+        Eigen::Vector3ub color = points_3d.second.Color();
+        stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << endl;
+
+        stream << color[0] << " " << color[1] << " " << color[2] << endl;
+
+        colmap::Track track = points_3d.second.Track();
+
+        std::map<int, int> track_ids_not_repeat;
+        for (auto &element : track.Elements()) {
+          track_ids_not_repeat[element.image_id - 1] = element.point2D_idx;
+        }
+
+        stream << track_ids_not_repeat.size();
+
+        for (auto &map : track_ids_not_repeat) {
+          stream << " " << map.first << " " << map.second << " 0";
+        }
+
+
+        stream << endl;
+      }
+      file.close();
+
+    }
+  } else 
     msgError("There is not a valid reconstruction");
-  //if (mReconstruction) {
-
-  //  QFile file(filePath);
-
-  //  TL_TODO("Si no puede abrir el fichero tiene que devolver un error")
-  //  if (file.open(QIODevice::WriteOnly)) {
-
-  //    QTextStream stream(&file);
-
-  //    int camera_count = mReconstruction->Images().size();
-  //    int feature_count = mReconstruction->NumPoints3D();
-
-  //    stream << "# Bundle file v0.3" << endl;
-  //    stream << camera_count << " " << feature_count << endl;
-
-  //    for (auto &camera : mReconstruction->Cameras()) {
-
-  //      double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
-  //      double focal = camera.second.FocalLength() / sensor_width_px;
-  //      int model_id = camera.second.ModelId();
-  //      std::vector<double> params = camera.second.Params();
-
-  //      for (auto &image : mReconstruction->Images()) {
-
-  //        if (image.second.CameraId() == camera.second.CameraId()) {
-
-  //          std::string img_name = image.second.Name();
-
-  //          Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
-  //          Eigen::Vector3d translation = image.second.Tvec();
-
-  //          stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << endl;
-  //          stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << endl;
-  //          stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << endl;
-  //          stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << endl;
-  //          stream << translation[0] << " " << translation[1] << " " << translation[2] << endl;
-
-  //        }
-  //      }
-  //    }
-
-
-  //    for (auto &points_3d : mReconstruction->Points3D()) {
-
-  //      Eigen::Vector3ub color = points_3d.second.Color();
-  //      stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << endl;
-
-  //      stream << color[0] << " " << color[1] << " " << color[2] << endl;
-
-  //      colmap::Track track = points_3d.second.Track();
-
-  //      std::map<int, int> track_ids_not_repeat;
-  //      for (auto &element : track.Elements()) {
-  //        track_ids_not_repeat[element.image_id - 1] = element.point2D_idx;
-  //      }
-
-  //      stream << track_ids_not_repeat.size();
-
-  //      for (auto &map : track_ids_not_repeat) {
-  //        stream << " " << map.first << " " << map.second << " 0";
-  //      }
-
-
-  //      stream << endl;
-  //    }
-  //    file.close();
-
-  //  }
-  //}
 }
 
 } // namespace inspector

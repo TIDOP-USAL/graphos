@@ -8,6 +8,7 @@ namespace inspector
 
 class NvmFormatWidget;
 class BundlerFormatWidget;
+class MveFormatWidget;
 
 namespace ui
 {
@@ -50,6 +51,7 @@ private:
   ExportOrientationsModel *mModel;
   NvmFormatWidget *mNvmFormatWidget;
   BundlerFormatWidget *mBundlerFormatWidget;
+  MveFormatWidget *mMveFormatWidget;
   HelpDialog *mHelp;
 };
 

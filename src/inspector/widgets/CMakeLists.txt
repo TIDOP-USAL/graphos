@@ -19,7 +19,9 @@ add_library(inspector_widgets ${LIB_TYPE}
             NvmFormatWidget.cpp
             NvmFormatWidget.h
 			BundlerFormatWidget.cpp
-			BundlerFormatWidget.h)
+			BundlerFormatWidget.h
+			MveFormatWidget.cpp
+			MveFormatWidget.h)
 
 set_property(TARGET inspector_widgets PROPERTY FOLDER "lib")
 
