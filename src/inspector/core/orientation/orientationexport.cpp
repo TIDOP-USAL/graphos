@@ -55,11 +55,102 @@ void OrientationExport::exportNVM(const QString &path) const
     msgError("There is not a valid reconstruction");
 }
 
+struct PointPly 
+{
+  double x = 0.0f;
+  double y = 0.0f;
+  double z = 0.0f;
+  double nx = 0.0f;
+  double ny = 0.0f;
+  double nz = 0.0f;
+  uint8_t r = 0;
+  uint8_t g = 0;
+  uint8_t b = 0;
+};
+
+/// Extraido de colmap para poder generar un ply con puntos double
+
+void writeBinaryPlyPoints(const std::string &path,
+                          const std::vector<PointPly> &points,
+                          bool write_normal, bool write_rgb)
+{
+  std::fstream text_file(path, std::ios::out);
+  CHECK(text_file.is_open()) << path;
+
+  text_file << "ply" << std::endl;
+  text_file << "format binary_little_endian 1.0" << std::endl;
+  text_file << "element vertex " << points.size() << std::endl;
+
+  text_file << "property double x" << std::endl;
+  text_file << "property double y" << std::endl;
+  text_file << "property double z" << std::endl;
+
+  if (write_normal) {
+    text_file << "property double nx" << std::endl;
+    text_file << "property double ny" << std::endl;
+    text_file << "property double nz" << std::endl;
+  }
+
+  if (write_rgb) {
+    text_file << "property uchar red" << std::endl;
+    text_file << "property uchar green" << std::endl;
+    text_file << "property uchar blue" << std::endl;
+  }
+
+  text_file << "end_header" << std::endl;
+  text_file.close();
+
+  std::fstream binary_file(path,
+                           std::ios::out | std::ios::binary | std::ios::app);
+  CHECK(binary_file.is_open()) << path;
+
+  for (const auto& point : points) {
+    colmap::WriteBinaryLittleEndian<double>(&binary_file, point.x);
+    colmap::WriteBinaryLittleEndian<double>(&binary_file, point.y);
+    colmap::WriteBinaryLittleEndian<double>(&binary_file, point.z);
+
+    if (write_normal) {
+      colmap::WriteBinaryLittleEndian<double>(&binary_file, point.nx);
+      colmap::WriteBinaryLittleEndian<double>(&binary_file, point.ny);
+      colmap::WriteBinaryLittleEndian<double>(&binary_file, point.nz);
+    }
+
+    if (write_rgb) {
+      colmap::WriteBinaryLittleEndian<uint8_t>(&binary_file, point.r);
+      colmap::WriteBinaryLittleEndian<uint8_t>(&binary_file, point.g);
+      colmap::WriteBinaryLittleEndian<uint8_t>(&binary_file, point.b);
+    }
+  }
+
+  binary_file.close();
+}
+
 void OrientationExport::exportPLY(const QString &path) const
 {
-  if (mReconstruction)
-    mReconstruction->ExportPLY(path.toStdString());
-  else
+  if (mReconstruction) {
+    
+    // Sólo exporta como float y en UTM se produce una perdida de precisión
+    // mReconstruction->ExportPLY(path.toStdString());
+
+    std::vector<PointPly> ply_points;
+    ply_points.reserve(mReconstruction->NumPoints3D());
+    
+    for (auto &point : mReconstruction->Points3D()) {
+      PointPly ply_point;
+      ply_point.x = point.second.X();
+      ply_point.y = point.second.Y();
+      ply_point.z = point.second.Z();
+      ply_point.r = point.second.Color(0);
+      ply_point.g = point.second.Color(1);
+      ply_point.b = point.second.Color(2);
+      ply_points.push_back(ply_point);
+    }
+    
+    bool kWriteNormal = false;
+    bool kWriteRGB = true;
+    writeBinaryPlyPoints(path.toStdString(), ply_points, kWriteNormal, kWriteRGB);
+
+  } else
     msgError("There is not a valid reconstruction");
 }
 

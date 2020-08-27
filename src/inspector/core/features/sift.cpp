@@ -309,7 +309,7 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
 {
   try {
     int err = mSiftGpu->RunSIFT(bitmap.cols, bitmap.rows, bitmap.data, GL_LUMINANCE, GL_UNSIGNED_BYTE);
-    if (err != 1) throw "ExtractSiftFeaturesGPU fail";
+    if (err != 1) throw std::runtime_error("ExtractSiftFeaturesGPU fail");
 
     int feature_number = mSiftGpu->GetFeatureNum();
     std::vector<SiftKeypoint> keypoints_data(feature_number);
@@ -330,7 +330,7 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
     } else if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT){
       descriptors_float = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float);
     } else {
-      throw "Description normalization type not supported";
+      throw std::runtime_error("Description normalization type not supported");
     }
 
     descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);

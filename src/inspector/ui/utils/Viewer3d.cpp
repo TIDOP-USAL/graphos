@@ -176,7 +176,7 @@ void OsgViewer3D::setScale(double x, double y)
   this->resizeGL(this->width(), this->height());
 }
 
-void OsgViewer3D::addCamera(const QString & id, float x, float y, float z, const std::array<std::array<float, 3>, 3>& rot)
+void OsgViewer3D::addCamera(const QString & id, double x, double y, double z, const std::array<std::array<float, 3>, 3>& rot)
 {
 }
 
@@ -568,14 +568,22 @@ void CCViewer3D::setScale(double x, double y)
   this->resizeGL(this->width(), this->height());
 }
 
-void CCViewer3D::addCamera(const QString &id, float x, float y, float z, const std::array<std::array<float, 3>, 3> &rot)
+void CCViewer3D::addCamera(const QString &id, double x, double y, double z, const std::array<std::array<float, 3>, 3> &rot)
 {
   ccCameraSensor *camera = new ccCameraSensor();
 
   ccHObject *currentRoot = getSceneDB();
+  CCVector3d camera_center(x, y, z);
   if (currentRoot) {
     ccHObject *child = currentRoot->getFirstChild();
     ccGenericPointCloud* cloud = ccHObjectCaster::ToGenericPointCloud(child);
+    bool isShifted = cloud->isShifted();
+    if (isShifted) {
+      CCVector3d shift = cloud->getGlobalShift();
+      msgInfo("Desplazamiento camara [%lf,%lf,%lf]", shift.x, shift.y, shift.z);
+      msgInfo("Camara cargada [%lf,%lf,%lf]", camera_center.x, camera_center.y, camera_center.z);
+      camera_center += shift;
+    }
     ccBBox bb = cloud->getOwnBB();
     double diag = bb.getDiagNorm();
     if (diag < 1.0)
@@ -606,11 +614,14 @@ void CCViewer3D::addCamera(const QString &id, float x, float y, float z, const s
     mat[10] = rot[2][2];
   }
 		
-  CCVector3 center(static_cast<PointCoordinateType>(x), static_cast<PointCoordinateType>(y), static_cast<PointCoordinateType>(z));
+  CCVector3 center(static_cast<PointCoordinateType>(camera_center.x), 
+                   static_cast<PointCoordinateType>(camera_center.y), 
+                   static_cast<PointCoordinateType>(camera_center.z));
   cc_rot.setTranslation(center);
 
 	camera->setRigidTransformation(cc_rot);
 
+  TL_TODO("Esto se tiene que rellenar con la calibración de la cámara")
   /*** Intrinsic parameters ***/
   {
   	ccCameraSensor::IntrinsicParameters iParams;

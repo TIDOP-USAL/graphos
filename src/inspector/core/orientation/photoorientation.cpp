@@ -42,11 +42,11 @@ PhotoOrientation ReadPhotoOrientations::orientation(const QString &imageName) co
       colmap::image_t image_id = image.second.ImageId();
 
       colmap::Image &colmap_image = mReconstruction->Image(image_id);
-      const Eigen::Matrix<float, 3, 4> inv_proj_matrix = colmap_image.InverseProjectionMatrix().cast<float>();
-      const Eigen::Vector3f pc = inv_proj_matrix.rightCols<1>();
-      photoOrientation.x = static_cast<double>(pc(0));
-      photoOrientation.y = static_cast<double>(pc(1));
-      photoOrientation.z = static_cast<double>(pc(2));
+      const Eigen::Matrix<double, 3, 4> inv_proj_matrix = colmap_image.InverseProjectionMatrix();
+      const Eigen::Vector3d pc = inv_proj_matrix.rightCols<1>();
+      photoOrientation.x = pc(0);
+      photoOrientation.y = pc(1);
+      photoOrientation.z = pc(2);
 
       Eigen::Matrix3d rot = colmap_image.RotationMatrix();
       photoOrientation.rot[0][0] = static_cast<float>(rot(0, 0));

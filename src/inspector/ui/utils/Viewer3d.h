@@ -63,7 +63,7 @@ public:
 
   virtual void setVisible(const QString &id, bool visible) = 0;
   
-    virtual void addCamera(const QString &id, float x, float y, float z, const std::array<std::array<float,3>, 3> &rot) = 0;
+    virtual void addCamera(const QString &id, double x, double y, double z, const std::array<std::array<float,3>, 3> &rot) = 0;
 
 protected:
 
@@ -103,7 +103,7 @@ public:
   void loadFromFiles(const QStringList &files, const QString &parent = QString()) override;
 
   void setScale(double x, double y);
-  void addCamera(const QString &id, float x, float y, float z, const std::array<std::array<float, 3>, 3> &rot) override;
+  void addCamera(const QString &id, double x, double y, double z, const std::array<std::array<float, 3>, 3> &rot) override;
 
 public slots:
 
@@ -178,7 +178,7 @@ public:
 
   void setScale(double x, double y);
 
-  void addCamera(const QString &id, float x, float y, float z, const std::array<std::array<float, 3>, 3> &rot) override;
+  void addCamera(const QString &id, double x, double y, double z, const std::array<std::array<float, 3>, 3> &rot) override;
 
 //signals:
 //

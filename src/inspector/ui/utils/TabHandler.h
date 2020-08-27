@@ -48,7 +48,7 @@ public slots:
   Viewer3D *viewer3D(int tabId);
   //Viewer3D *addViewer3D(const QString &name);
   void addCamera(const QString &image, 
-                 const std::array<float, 3> &cameraPosition, 
+                 const std::array<double, 3> &cameraPosition, 
                  const std::array<std::array<float, 3>, 3> &cameraRotationMatrix); 
 
 protected slots:

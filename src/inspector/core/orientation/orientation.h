@@ -15,7 +15,7 @@ class TL_EXPORT Orientation
 
 public:
 
-  enum class Type
+  enum class Method
   {
     colmap
   };
@@ -27,14 +27,15 @@ public:
 
   virtual void reset() = 0;
   virtual QString name() const = 0;
-  Type type() const { return mOrientationType.flags(); }
+  Method method() const { return mOrientationMethod.flags(); }
 
 protected:
 
-  tl::EnumFlags<Type> mOrientationType;
+  tl::EnumFlags<Method> mOrientationMethod;
 
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(Orientation::Type)
+ALLOW_BITWISE_FLAG_OPERATIONS(Orientation::Method)
+
 
 
 /*----------------------------------------------------------------*/
@@ -52,6 +53,48 @@ public:
   virtual void run() = 0;
 };
 
+
+/*----------------------------------------------------------------*/
+
+class TL_EXPORT AbsoluteOrientation
+{
+
+public:
+
+  enum class Method
+  {
+    colmap
+  };
+
+public:
+
+  AbsoluteOrientation(){}
+  virtual ~AbsoluteOrientation() = default;
+
+  virtual void reset() = 0;
+  virtual QString name() const = 0;
+  Method method() const { return mOrientationMethod.flags(); }
+
+protected:
+
+  tl::EnumFlags<Method> mOrientationMethod;
+};
+ALLOW_BITWISE_FLAG_OPERATIONS(AbsoluteOrientation::Method)
+
+
+/*----------------------------------------------------------------*/
+
+
+class TL_EXPORT AbsoluteOrientationProcess
+{
+
+public:
+
+  AbsoluteOrientationProcess() {}
+  virtual ~AbsoluteOrientationProcess() = default;
+
+  virtual void run() = 0;
+};
 
 } // namespace inspector
 

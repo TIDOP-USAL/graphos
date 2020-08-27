@@ -80,6 +80,73 @@ private:
 };
 
 
+
+/*----------------------------------------------------------------*/
+
+class TL_EXPORT AbsoluteOrientationColmapProperties
+  : public AbsoluteOrientation
+{
+
+public:
+
+  AbsoluteOrientationColmapProperties();
+  ~AbsoluteOrientationColmapProperties() override = default;
+
+  virtual int minCommonImages() const;
+  virtual void setMinCommonImages(int minCommonImages);
+
+  virtual bool robustAlignment() const;
+  virtual void setRobustAlignment(bool robustAlignment);
+
+  virtual double robustAlignmentMaxError() const;
+  virtual void setRobustAlignmentMaxError(double robustAlignmentMaxError);
+
+// AbsoluteOrientation Interface
+
+public:
+
+  void reset() override;
+  QString name() const override;
+
+private:
+
+  int mMinCommonImages;
+  bool mRobustAlignment;
+  double mRobustAlignmentMaxError;
+};
+
+
+/*----------------------------------------------------------------*/
+
+
+class AbsoluteOrientationColmapProcess
+  : public AbsoluteOrientationColmapProperties,
+    public AbsoluteOrientationProcess
+{
+
+public:
+
+  AbsoluteOrientationColmapProcess(const QString &inputPath,
+                                   const QString &imagePath,
+                                   const QString &outputPath);
+  ~AbsoluteOrientationColmapProcess() override;
+
+// AbsoluteOrientationProcess interface
+
+public:
+
+  void run() override;
+
+private:
+
+  QString mInputPath;
+  QString mImagePath;
+  QString mOutputPath;
+  std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
+};
+
+
+
 } // namespace inspector
 
 #endif // INSPECTOR_CORE_ORIENTATION_COLMAP_H

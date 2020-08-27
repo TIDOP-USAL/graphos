@@ -191,4 +191,137 @@ void OrientationColmapProcess::run()
   }
 }
 
+
+
+/*----------------------------------------------------------------*/
+
+
+
+AbsoluteOrientationColmapProperties::AbsoluteOrientationColmapProperties()
+  : mMinCommonImages(3),
+    mRobustAlignment(true),
+    mRobustAlignmentMaxError(0.5)
+{
+}
+
+int AbsoluteOrientationColmapProperties::minCommonImages() const
+{
+  return mMinCommonImages;
+}
+
+void AbsoluteOrientationColmapProperties::setMinCommonImages(int minCommonImages)
+{
+  mMinCommonImages = minCommonImages;
+}
+
+bool AbsoluteOrientationColmapProperties::robustAlignment() const
+{
+  return mRobustAlignment;
+}
+
+void AbsoluteOrientationColmapProperties::setRobustAlignment(bool robustAlignment)
+{
+  mRobustAlignment = robustAlignment;
+}
+
+double AbsoluteOrientationColmapProperties::robustAlignmentMaxError() const
+{
+  return mRobustAlignmentMaxError;
+}
+
+void AbsoluteOrientationColmapProperties::setRobustAlignmentMaxError(double robustAlignmentMaxError)
+{
+  mRobustAlignmentMaxError = robustAlignmentMaxError;
+}
+
+void AbsoluteOrientationColmapProperties::reset()
+{
+  mMinCommonImages = 3;
+  mRobustAlignment = true;
+  mRobustAlignmentMaxError = 0.5;
+}
+
+QString AbsoluteOrientationColmapProperties::name() const
+{
+  return QString("Colmap");
+}
+
+
+
+/*----------------------------------------------------------------*/
+
+
+
+AbsoluteOrientationColmapProcess::AbsoluteOrientationColmapProcess(const QString &inputPath,
+                                                                   const QString &imagePath,
+                                                                   const QString &outputPath)
+  : mInputPath(inputPath),
+    mImagePath(imagePath),
+    mOutputPath(outputPath)
+{
+}
+
+AbsoluteOrientationColmapProcess::~AbsoluteOrientationColmapProcess()
+{
+}
+
+void AbsoluteOrientationColmapProcess::run()
+{
+  bool robust_alignment = AbsoluteOrientationColmapProperties::robustAlignment();
+  colmap::RANSACOptions ransac_options;
+  ransac_options.max_error = AbsoluteOrientationColmapProperties::robustAlignmentMaxError();
+  int min_common_images = AbsoluteOrientationColmapProperties::minCommonImages();
+
+  if (robust_alignment && ransac_options.max_error <= 0) {
+    throw std::runtime_error("ERROR: You must provide a maximum alignment error > 0");
+  }
+
+  std::vector<std::string> ref_image_names;
+  std::vector<Eigen::Vector3d> ref_locations;
+  std::vector<std::string> lines = colmap::ReadTextFileLines(mImagePath.toStdString());
+  for (const auto line : lines) {
+    std::stringstream line_parser(line);
+    std::string image_name = "";
+    Eigen::Vector3d camera_position;
+    line_parser >> image_name >> camera_position[0] >> camera_position[1] >>
+      camera_position[2];
+    ref_image_names.push_back(image_name);
+    ref_locations.push_back(camera_position);
+  }
+
+  colmap::Reconstruction reconstruction;
+  reconstruction.Read(mInputPath.toStdString());
+
+  msgInfo("Absolute Orientation");
+
+  bool alignment_success;
+  if (robust_alignment) {
+    alignment_success = reconstruction.AlignRobust(
+      ref_image_names, ref_locations, min_common_images, ransac_options);
+  } else {
+    alignment_success =
+      reconstruction.Align(ref_image_names, ref_locations, min_common_images);
+  }
+
+  if (!alignment_success) throw std::runtime_error("Absolute Orientation failed");
+
+  msgInfo("Absolute Orientation succeeded");
+  reconstruction.Write(mOutputPath.toStdString());
+
+  std::vector<double> errors;
+  errors.reserve(ref_image_names.size());
+
+  for (size_t i = 0; i < ref_image_names.size(); ++i) {
+    const colmap::Image *image = reconstruction.FindImageWithName(ref_image_names[i]);
+    if (image != nullptr) {
+      errors.push_back((image->ProjectionCenter() - ref_locations[i]).norm());
+    }
+  }
+
+  msgInfo("Alignment error: %f (mean), %f (median)",
+          colmap::Mean(errors), colmap::Median(errors));
+}
+
+
+
 } // namespace inspector

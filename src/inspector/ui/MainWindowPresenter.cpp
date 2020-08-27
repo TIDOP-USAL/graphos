@@ -915,7 +915,7 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
         QString file_name = QFileInfo(image->path()).fileName();
         PhotoOrientation photoOrientation = mOrientationModel->photoOrientation(name);
       
-        std::array<float, 3> position;
+        std::array<double, 3> position;
         position[0] = photoOrientation.x;
         position[1] = photoOrientation.y;
         position[2] = photoOrientation.z;
