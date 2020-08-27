@@ -86,7 +86,7 @@ void OrientationPresenterImp::onError(int code, const QString &msg)
   ProcessPresenter::onError(code, msg);
 
   if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Orientation process error"));
+    mProgressHandler->setDescription(tr("Relative Orientation process error"));
   }
 }
 
@@ -95,10 +95,10 @@ void OrientationPresenterImp::onFinished()
   ProcessPresenter::onFinished();
 
   if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Orientation finished"));
+    mProgressHandler->setDescription(tr("Relative Orientation finished"));
   }
 
-  msgInfo("Orientation finished");
+  msgInfo("Relative Orientation finished");
 }
 
 void OrientationPresenterImp::createProcess()
@@ -111,8 +111,8 @@ void OrientationPresenterImp::createProcess()
   QString database = mModel->database();
   QString imagePath = mModel->imagePath();
   QString outputPath = mModel->projectPath();
-  std::shared_ptr<OrientationProcess> orientationProcess = std::make_shared<OrientationColmapProcess>(database, imagePath, outputPath);
-  std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(orientationProcess));
+  std::shared_ptr<RelativeOrientationAlgorithm> orientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, imagePath, outputPath);
+  std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(orientationAlgorithm));
 
   connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onOrientationFinished()));
 
@@ -120,8 +120,8 @@ void OrientationPresenterImp::createProcess()
 
   if (mProgressHandler){
     mProgressHandler->setRange(0, 0);
-    mProgressHandler->setTitle("Computing Orientations...");
-    mProgressHandler->setDescription("Computing Orientations...");
+    mProgressHandler->setTitle("Computing Relative Orientation...");
+    mProgressHandler->setDescription("Computing Relative Orientation...");
   }
 
   mView->hide();

@@ -14,7 +14,7 @@
 namespace inspector
 {
 
-OrientationColmapProperties::OrientationColmapProperties()
+RelativeOrientationColmapProperties::RelativeOrientationColmapProperties()
   : mRefineFocalLength(true),
     mRefinePrincipalPoint(false),
     mRefineExtraParams(true)
@@ -22,44 +22,44 @@ OrientationColmapProperties::OrientationColmapProperties()
 
 }
 
-bool OrientationColmapProperties::refineFocalLength() const
+bool RelativeOrientationColmapProperties::refineFocalLength() const
 {
   return mRefineFocalLength;
 }
 
-void OrientationColmapProperties::setRefineFocalLength(bool refineFocalLength)
+void RelativeOrientationColmapProperties::setRefineFocalLength(bool refineFocalLength)
 {
   mRefineFocalLength = refineFocalLength;
 }
 
-bool OrientationColmapProperties::refinePrincipalPoint() const
+bool RelativeOrientationColmapProperties::refinePrincipalPoint() const
 {
   return mRefinePrincipalPoint;
 }
 
-void OrientationColmapProperties::setRefinePrincipalPoint(bool refinePrincipalPoint)
+void RelativeOrientationColmapProperties::setRefinePrincipalPoint(bool refinePrincipalPoint)
 {
   mRefinePrincipalPoint = refinePrincipalPoint;
 }
 
-bool OrientationColmapProperties::refineExtraParams() const
+bool RelativeOrientationColmapProperties::refineExtraParams() const
 {
   return mRefineExtraParams;
 }
 
-void OrientationColmapProperties::setRefineExtraParams(bool refineExtraParams)
+void RelativeOrientationColmapProperties::setRefineExtraParams(bool refineExtraParams)
 {
   mRefineExtraParams = refineExtraParams;
 }
 
-void OrientationColmapProperties::reset()
+void RelativeOrientationColmapProperties::reset()
 {
   mRefineFocalLength = true;
   mRefinePrincipalPoint = false;
   mRefineExtraParams = true;
 }
 
-QString OrientationColmapProperties::name() const
+QString RelativeOrientationColmapProperties::name() const
 {
   return QString("Colmap");
 }
@@ -70,7 +70,7 @@ QString OrientationColmapProperties::name() const
 
 
 
-OrientationColmapProcess::OrientationColmapProcess(const QString &database,
+RelativeOrientationColmapAlgorithm::RelativeOrientationColmapAlgorithm(const QString &database,
                                                    const QString &imagePath,
                                                    const QString &outputPath)
   : mDatabase(database),
@@ -83,7 +83,7 @@ OrientationColmapProcess::OrientationColmapProcess(const QString &database,
 
 }
 
-OrientationColmapProcess::~OrientationColmapProcess()
+RelativeOrientationColmapAlgorithm::~RelativeOrientationColmapAlgorithm()
 {
   if (mIncrementalMapper) {
     delete mIncrementalMapper;
@@ -99,7 +99,7 @@ OrientationColmapProcess::~OrientationColmapProcess()
   mReconstructionManager.reset();
 }
 
-void OrientationColmapProcess::run()
+void RelativeOrientationColmapAlgorithm::run()
 {
   try {
 
@@ -160,9 +160,9 @@ void OrientationColmapProcess::run()
     }
 
     colmap::OptionManager optionManager;
-    optionManager.bundle_adjustment->refine_focal_length = OrientationColmapProperties::refineFocalLength();
-    optionManager.bundle_adjustment->refine_principal_point = OrientationColmapProperties::refinePrincipalPoint();
-    optionManager.bundle_adjustment->refine_extra_params = OrientationColmapProperties::refineExtraParams();
+    optionManager.bundle_adjustment->refine_focal_length = RelativeOrientationColmapProperties::refineFocalLength();
+    optionManager.bundle_adjustment->refine_principal_point = RelativeOrientationColmapProperties::refinePrincipalPoint();
+    optionManager.bundle_adjustment->refine_extra_params = RelativeOrientationColmapProperties::refineExtraParams();
 
 
     for (size_t id = 0; id < mReconstructionManager->Size(); id++) {
@@ -252,7 +252,7 @@ QString AbsoluteOrientationColmapProperties::name() const
 
 
 
-AbsoluteOrientationColmapProcess::AbsoluteOrientationColmapProcess(const QString &inputPath,
+AbsoluteOrientationColmapAlgorithm::AbsoluteOrientationColmapAlgorithm(const QString &inputPath,
                                                                    const QString &imagePath,
                                                                    const QString &outputPath)
   : mInputPath(inputPath),
@@ -261,11 +261,11 @@ AbsoluteOrientationColmapProcess::AbsoluteOrientationColmapProcess(const QString
 {
 }
 
-AbsoluteOrientationColmapProcess::~AbsoluteOrientationColmapProcess()
+AbsoluteOrientationColmapAlgorithm::~AbsoluteOrientationColmapAlgorithm()
 {
 }
 
-void AbsoluteOrientationColmapProcess::run()
+void AbsoluteOrientationColmapAlgorithm::run()
 {
   bool robust_alignment = AbsoluteOrientationColmapProperties::robustAlignment();
   colmap::RANSACOptions ransac_options;

@@ -14,7 +14,7 @@ class IncrementalMapperController;
 namespace inspector
 {
 
-class OrientationProcess;
+class RelativeOrientationAlgorithm;
 
 class INSPECTOR_EXPORT RelativeOrientationProcess
   : public ProcessConcurrent
@@ -23,7 +23,7 @@ class INSPECTOR_EXPORT RelativeOrientationProcess
 
 public:
 
-  RelativeOrientationProcess(std::shared_ptr<OrientationProcess> &orientationProcess);
+  RelativeOrientationProcess(std::shared_ptr<RelativeOrientationAlgorithm> &orientationAlgorithm);
   ~RelativeOrientationProcess() override;
 
 signals:
@@ -38,7 +38,7 @@ protected:
 
 private:
 
-  std::shared_ptr<OrientationProcess> mOrientationProcess;
+  std::shared_ptr<RelativeOrientationAlgorithm> mRelativeOrientationAlgorithm;
 
 };
 

@@ -14,9 +14,9 @@
 namespace inspector
 {
 
-RelativeOrientationProcess::RelativeOrientationProcess(std::shared_ptr<OrientationProcess> &orientationProcess)
+RelativeOrientationProcess::RelativeOrientationProcess(std::shared_ptr<RelativeOrientationAlgorithm> &orientationAlgorithm)
   : ProcessConcurrent(),
-    mOrientationProcess(orientationProcess)
+    mRelativeOrientationAlgorithm(orientationAlgorithm)
 {
 
 }
@@ -34,7 +34,7 @@ void RelativeOrientationProcess::run()
     tl::Chrono chrono;
     chrono.run();
 
-    mOrientationProcess->run();
+    mRelativeOrientationAlgorithm->run();
 
     emit orientationFinished();
 

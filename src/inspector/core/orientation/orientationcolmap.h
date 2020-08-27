@@ -15,14 +15,14 @@ class IncrementalMapperController;
 namespace inspector
 {
 
-class TL_EXPORT OrientationColmapProperties
-  : public Orientation
+class TL_EXPORT RelativeOrientationColmapProperties
+  : public RelativeOrientation
 {
 
 public:
 
-  OrientationColmapProperties();
-  ~OrientationColmapProperties() override = default;
+  RelativeOrientationColmapProperties();
+  ~RelativeOrientationColmapProperties() override = default;
 
   virtual bool refineFocalLength() const;
   virtual void setRefineFocalLength(bool refineFocalLength);
@@ -33,7 +33,7 @@ public:
   virtual bool refineExtraParams() const;
   virtual void setRefineExtraParams(bool refineExtraParams);
 
-// Orientation interface
+// RelativeOrientation interface
 
 public:
 
@@ -51,19 +51,19 @@ private:
 /*----------------------------------------------------------------*/
 
 
-class TL_EXPORT OrientationColmapProcess
-  : public OrientationColmapProperties,
-    public OrientationProcess
+class TL_EXPORT RelativeOrientationColmapAlgorithm
+  : public RelativeOrientationColmapProperties,
+    public RelativeOrientationAlgorithm
 {
 
 public:
 
-  OrientationColmapProcess(const QString &database,
+  RelativeOrientationColmapAlgorithm(const QString &database,
                            const QString &imagePath,
                            const QString &outputPath);
-  ~OrientationColmapProcess() override;
+  ~RelativeOrientationColmapAlgorithm() override;
 
-// OrientationProcess interface
+// RelativeOrientationAlgorithm interface
 
 public:
 
@@ -119,19 +119,19 @@ private:
 /*----------------------------------------------------------------*/
 
 
-class AbsoluteOrientationColmapProcess
+class AbsoluteOrientationColmapAlgorithm
   : public AbsoluteOrientationColmapProperties,
-    public AbsoluteOrientationProcess
+    public AbsoluteOrientationAlgorithm
 {
 
 public:
 
-  AbsoluteOrientationColmapProcess(const QString &inputPath,
+  AbsoluteOrientationColmapAlgorithm(const QString &inputPath,
                                    const QString &imagePath,
                                    const QString &outputPath);
-  ~AbsoluteOrientationColmapProcess() override;
+  ~AbsoluteOrientationColmapAlgorithm() override;
 
-// AbsoluteOrientationProcess interface
+// AbsoluteOrientationAlgorithm interface
 
 public:
 

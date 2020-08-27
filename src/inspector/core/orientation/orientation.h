@@ -10,7 +10,7 @@
 namespace inspector
 {
 
-class TL_EXPORT Orientation
+class TL_EXPORT RelativeOrientation
 {
 
 public:
@@ -22,8 +22,8 @@ public:
 
 public:
 
-  Orientation(){}
-  virtual ~Orientation() = default;
+  RelativeOrientation(){}
+  virtual ~RelativeOrientation() = default;
 
   virtual void reset() = 0;
   virtual QString name() const = 0;
@@ -34,7 +34,7 @@ protected:
   tl::EnumFlags<Method> mOrientationMethod;
 
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(Orientation::Method)
+ALLOW_BITWISE_FLAG_OPERATIONS(RelativeOrientation::Method)
 
 
 
@@ -42,13 +42,13 @@ ALLOW_BITWISE_FLAG_OPERATIONS(Orientation::Method)
 
 
 
-class TL_EXPORT OrientationProcess
+class TL_EXPORT RelativeOrientationAlgorithm
 {
 
 public:
 
-  OrientationProcess() {}
-  virtual ~OrientationProcess() = default;
+  RelativeOrientationAlgorithm() {}
+  virtual ~RelativeOrientationAlgorithm() = default;
 
   virtual void run() = 0;
 };
@@ -85,13 +85,13 @@ ALLOW_BITWISE_FLAG_OPERATIONS(AbsoluteOrientation::Method)
 /*----------------------------------------------------------------*/
 
 
-class TL_EXPORT AbsoluteOrientationProcess
+class TL_EXPORT AbsoluteOrientationAlgorithm
 {
 
 public:
 
-  AbsoluteOrientationProcess() {}
-  virtual ~AbsoluteOrientationProcess() = default;
+  AbsoluteOrientationAlgorithm() {}
+  virtual ~AbsoluteOrientationAlgorithm() = default;
 
   virtual void run() = 0;
 };
