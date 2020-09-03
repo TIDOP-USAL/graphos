@@ -29,6 +29,7 @@ ProjectImp::ProjectImp()
     mVersion(INSPECTOR_PROJECT_FILE_VERSION),
     mDatabase(""),
     bRefinePrincipalPoint(true),
+    mReconstructionPath(""),
     mCameraCount(0)
 {
 }
@@ -429,6 +430,21 @@ void ProjectImp::setSparseModel(const QString &sparseModel)
   mSparseModel = sparseModel;
 }
 
+QString ProjectImp::reconstructionPath() const
+{
+  return mReconstructionPath;
+}
+
+void ProjectImp::setReconstructionPath(const QString &reconstructionPath)
+{
+  mReconstructionPath = reconstructionPath;
+}
+
+bool ProjectImp::isPhotoOriented(const QString &imgName) const
+{
+  return mPhotoOrientation.find(imgName) != mPhotoOrientation.end();
+}
+
 PhotoOrientation ProjectImp::photoOrientation(const QString &imgName) const
 {
   return mPhotoOrientation.at(imgName);
@@ -476,6 +492,7 @@ void ProjectImp::clear()
   mPhotoOrientation.clear();
   bRefinePrincipalPoint = true;
   mSparseModel = "";
+  mReconstructionPath = "";
   mDensification.reset();
   mDenseModel = "";
   mCameraCount = 0;
@@ -905,13 +922,20 @@ void ProjectImp::readPairs(QXmlStreamReader &stream)
 void ProjectImp::readOrientations(QXmlStreamReader &stream)
 {
   while (stream.readNextStartElement()){
-    if (stream.name() == "SparseModel") {
+    if (stream.name() == "ReconstructionPath") {
+      this->readReconstructionPath(stream);
+    } else if (stream.name() == "SparseModel") {
       this->readOrientationSparseModel(stream);
     } else if (stream.name() == "Image"){
       this->readPhotoOrientations(stream);
     } else
       stream.skipCurrentElement();
   }
+}
+
+void ProjectImp::readReconstructionPath(QXmlStreamReader &stream)
+{
+  this->setReconstructionPath(stream.readElementText());
 }
 
 void ProjectImp::readOrientationSparseModel(QXmlStreamReader &stream)
@@ -1214,17 +1238,25 @@ void ProjectImp::writeOrientations(QXmlStreamWriter &stream) const
 {
   stream.writeStartElement("Orientations");
   {
+    this->writeReconstructionPath(stream);
     this->writeOrientationSparseModel(stream);
     this->writePhotoOrientations(stream);
   }
   stream.writeEndElement(); // Orientations
 }
 
+void ProjectImp::writeReconstructionPath(QXmlStreamWriter &stream) const
+{
+  QString reconstruction_path = this->reconstructionPath();
+  if (!reconstruction_path.isEmpty())
+    stream.writeTextElement("ReconstructionPath", reconstruction_path);
+}
+
 void ProjectImp::writeOrientationSparseModel(QXmlStreamWriter &stream) const
 {
   QString sparse_model = this->sparseModel();
   if (!sparse_model.isEmpty())
-    stream.writeTextElement("SparseModel", this->sparseModel());
+    stream.writeTextElement("SparseModel", sparse_model);
 }
 
 void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const

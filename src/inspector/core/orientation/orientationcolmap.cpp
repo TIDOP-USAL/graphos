@@ -105,7 +105,7 @@ void RelativeOrientationColmapAlgorithm::run()
 
     mReconstructionManager->Clear();
 
-    QString sparse_path = mOutputPath + "/sparse/";
+    QString sparse_path = mOutputPath;// +"/sparse/";
 
     QDir dir(sparse_path);
     if (!dir.exists()){
@@ -132,12 +132,13 @@ void RelativeOrientationColmapAlgorithm::run()
           // If the number of reconstructions has not changed, the last model
           // was discarded for some reason.
           if (mReconstructionManager->Size() > prev_num_reconstructions) {
-            const std::string reconstruction_path = colmap::JoinPaths(sparse_path.toStdString(), std::to_string(prev_num_reconstructions));
+            const std::string reconstruction_path = sparse_path.toStdString(); //colmap::JoinPaths(sparse_path.toStdString(), std::to_string(prev_num_reconstructions));
             const auto& reconstruction = mReconstructionManager->Get(prev_num_reconstructions);
             colmap::CreateDirIfNotExists(reconstruction_path);
             reconstruction.Write(reconstruction_path);
             //mOptions->Write(JoinPaths(reconstruction_path, "project.ini"));
-            prev_num_reconstructions = mReconstructionManager->Size();
+            ///TODO: Por ahora sólo trabajamos con una reconstrucción
+            //prev_num_reconstructions = mReconstructionManager->Size();
           }
         } catch (std::exception &e) {
           msgError(e.what());
@@ -165,8 +166,9 @@ void RelativeOrientationColmapAlgorithm::run()
     optionManager.bundle_adjustment->refine_extra_params = RelativeOrientationColmapProperties::refineExtraParams();
 
 
-    for (size_t id = 0; id < mReconstructionManager->Size(); id++) {
-      colmap::Reconstruction& reconstruction = mReconstructionManager->Get(id);
+    //for (size_t id = 0; id < mReconstructionManager->Size(); id++) {
+    //  colmap::Reconstruction& reconstruction = mReconstructionManager->Get(id);
+      colmap::Reconstruction& reconstruction = mReconstructionManager->Get(0);
 
       colmap::BundleAdjustmentController ba_controller(optionManager, &reconstruction);
       ba_controller.Start();
@@ -174,7 +176,7 @@ void RelativeOrientationColmapAlgorithm::run()
 
       OrientationExport orientationExport(&reconstruction);
 
-      QString path = sparse_path + QString::number(id);
+      QString path = sparse_path; // +QString::number(id);
 
       orientationExport.exportBinary(path);
       orientationExport.exportPLY(path + "/sparse.ply");
@@ -182,7 +184,7 @@ void RelativeOrientationColmapAlgorithm::run()
 #ifdef _DEBUG
       orientationExport.exportText(path);
 #endif
-    }
+    //}
 
   } catch (std::exception &e) {
     msgError(e.what());
@@ -195,12 +197,14 @@ void RelativeOrientationColmapAlgorithm::run()
 
 /*----------------------------------------------------------------*/
 
-
+constexpr auto min_common_images = 3;
+constexpr auto robust_alignment = false;
+constexpr auto robust_alignment_max_error = 1.;
 
 AbsoluteOrientationColmapProperties::AbsoluteOrientationColmapProperties()
-  : mMinCommonImages(3),
-    mRobustAlignment(true),
-    mRobustAlignmentMaxError(0.5)
+  : mMinCommonImages(min_common_images),
+    mRobustAlignment(robust_alignment),
+    mRobustAlignmentMaxError(robust_alignment_max_error)
 {
 }
 
@@ -236,9 +240,9 @@ void AbsoluteOrientationColmapProperties::setRobustAlignmentMaxError(double robu
 
 void AbsoluteOrientationColmapProperties::reset()
 {
-  mMinCommonImages = 3;
-  mRobustAlignment = true;
-  mRobustAlignmentMaxError = 0.5;
+  mMinCommonImages = min_common_images;
+  mRobustAlignment = robust_alignment;
+  mRobustAlignmentMaxError = robust_alignment_max_error;
 }
 
 QString AbsoluteOrientationColmapProperties::name() const
@@ -253,10 +257,10 @@ QString AbsoluteOrientationColmapProperties::name() const
 
 
 AbsoluteOrientationColmapAlgorithm::AbsoluteOrientationColmapAlgorithm(const QString &inputPath,
-                                                                   const QString &imagePath,
-                                                                   const QString &outputPath)
+                                                                       const std::map<QString, std::array<double, 3>>  &cameraPositions,
+                                                                       const QString &outputPath)
   : mInputPath(inputPath),
-    mImagePath(imagePath),
+    mCameraPositions(cameraPositions),
     mOutputPath(outputPath)
 {
 }
@@ -278,14 +282,23 @@ void AbsoluteOrientationColmapAlgorithm::run()
 
   std::vector<std::string> ref_image_names;
   std::vector<Eigen::Vector3d> ref_locations;
-  std::vector<std::string> lines = colmap::ReadTextFileLines(mImagePath.toStdString());
-  for (const auto line : lines) {
-    std::stringstream line_parser(line);
-    std::string image_name = "";
-    Eigen::Vector3d camera_position;
-    line_parser >> image_name >> camera_position[0] >> camera_position[1] >>
-      camera_position[2];
+  //std::vector<std::string> lines = colmap::ReadTextFileLines(mImagePath.toStdString());
+  //for (const auto line : lines) {
+  //  std::stringstream line_parser(line);
+  //  std::string image_name = "";
+  //  Eigen::Vector3d camera_position;
+  //  line_parser >> image_name >> camera_position[0] >> camera_position[1] >>
+  //    camera_position[2];
+  //  ref_image_names.push_back(image_name);
+  //  ref_locations.push_back(camera_position);
+  //}
+  for (const auto &cameraPosition : mCameraPositions) {
+    std::string image_name = cameraPosition.first.toStdString();
     ref_image_names.push_back(image_name);
+    Eigen::Vector3d camera_position;
+    camera_position[0] = cameraPosition.second[0];
+    camera_position[1] = cameraPosition.second[1];
+    camera_position[2] = cameraPosition.second[2];
     ref_locations.push_back(camera_position);
   }
 
@@ -306,7 +319,11 @@ void AbsoluteOrientationColmapAlgorithm::run()
   if (!alignment_success) throw std::runtime_error("Absolute Orientation failed");
 
   msgInfo("Absolute Orientation succeeded");
+  colmap::CreateDirIfNotExists(mOutputPath.toStdString());
   reconstruction.Write(mOutputPath.toStdString());
+
+  OrientationExport orientationExport(&reconstruction);
+  orientationExport.exportPLY(mOutputPath + "/sparse.ply");
 
   std::vector<double> errors;
   errors.reserve(ref_image_names.size());

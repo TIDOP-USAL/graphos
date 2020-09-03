@@ -15,6 +15,8 @@ add_library(inspector_process ${LIB_TYPE}
             features/FeatureMatchingProcess.h
             orientation/RelativeOrientationProcess.cpp
             orientation/RelativeOrientationProcess.h
+			orientation/AbsoluteOrientationProcess.cpp
+			orientation/AbsoluteOrientationProcess.h
             images/LoadImagesProcess.cpp
             images/LoadImagesProcess.h
             densification/DensificationProcess.cpp

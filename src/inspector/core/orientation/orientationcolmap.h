@@ -4,6 +4,7 @@
 #include "inspector/core/orientation/orientation.h"
 
 #include <memory>
+#include <map>
 
 namespace colmap
 {
@@ -127,8 +128,8 @@ class AbsoluteOrientationColmapAlgorithm
 public:
 
   AbsoluteOrientationColmapAlgorithm(const QString &inputPath,
-                                   const QString &imagePath,
-                                   const QString &outputPath);
+                                     const std::map<QString, std::array<double, 3>>  &cameraPositions,
+                                     const QString &outputPath);
   ~AbsoluteOrientationColmapAlgorithm() override;
 
 // AbsoluteOrientationAlgorithm interface
@@ -140,9 +141,9 @@ public:
 private:
 
   QString mInputPath;
-  QString mImagePath;
+  std::map<QString, std::array<double, 3>> mCameraPositions;
   QString mOutputPath;
-  std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
+  //std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
 };
 
 

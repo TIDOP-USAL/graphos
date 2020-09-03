@@ -23,7 +23,7 @@ namespace ui
 {
 
 DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
-                                     DensificationModel *model)
+                                                     DensificationModel *model)
   : mView(view),
     mModel(model),
     mCmvsPmvs(new CmvsPmvsWidgetImp),
@@ -192,8 +192,7 @@ void DensificationPresenterImp::createProcess()
 
   mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
 
-  TL_TODO("Revisar ... ")
-  QString mReconstructionPath = mModel->projectFolder() + "/sparse/0";
+  QString mReconstructionPath = mModel->reconstructionPath();
   QString mImagesPath = mModel->imageDirectory();
   QString mOutputPat = mModel->projectFolder() + "/dense";
   std::shared_ptr<DensificationProcess> densification_process(new DensificationProcess(densifier,

@@ -913,15 +913,18 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
         QFileInfo(image->path()).fileName();
         QString name = image->name();
         QString file_name = QFileInfo(image->path()).fileName();
-        PhotoOrientation photoOrientation = mOrientationModel->photoOrientation(name);
-      
-        std::array<double, 3> position;
-        position[0] = photoOrientation.x;
-        position[1] = photoOrientation.y;
-        position[2] = photoOrientation.z;
-      
-        mTabHandler->addCamera(name, position, photoOrientation.rot);
+        if (mOrientationModel->isPhotoOriented(name)) {
 
+          PhotoOrientation photoOrientation = mOrientationModel->photoOrientation(name);
+
+          std::array<double, 3> position;
+          position[0] = photoOrientation.x;
+          position[1] = photoOrientation.y;
+          position[2] = photoOrientation.z;
+
+          mTabHandler->addCamera(name, position, photoOrientation.rot);
+
+        }
       }
     }
 

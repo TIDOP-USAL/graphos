@@ -354,7 +354,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
     for (int i = 0; i < itemModels->childCount(); i++) {
       QTreeWidgetItem *temp = itemModels->child(i);
       if (temp->text(0).compare(tr("SparseModel")) == 0) {
-        itemSparseModel = itemProject->child(i);
+        itemSparseModel = temp;
         break;
       }
     }
@@ -397,7 +397,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
     for (int i = 0; i < itemModels->childCount(); i++) {
       QTreeWidgetItem *temp = itemModels->child(i);
       if (temp->text(0).compare(tr("DenseModel")) == 0) {
-        itemDenseModel = itemProject->child(i);
+        itemDenseModel = temp;
         break;
       }
     }

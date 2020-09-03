@@ -53,6 +53,11 @@ QString DensificationModelImp::imageDirectory() const
   return mProject->imageDirectory();
 }
 
+QString DensificationModelImp::reconstructionPath() const
+{
+  return mProject->reconstructionPath();
+}
+
 void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)
 {
   mProject->setDensification(densification);

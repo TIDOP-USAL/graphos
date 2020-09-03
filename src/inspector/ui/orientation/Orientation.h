@@ -23,12 +23,15 @@ public:
   virtual bool refinePrincipalPoint() const = 0;
   virtual void setRefinePrincipalPoint(bool refine) = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
+  virtual bool isPhotoOriented(const QString &imgName) const = 0;
   virtual PhotoOrientation photoOrientation(const QString &imgName) const = 0;
   virtual void addPhotoOrientation(const QString &imgName, const PhotoOrientation &orientation) = 0;
   virtual QString database() const = 0;
   virtual QString imagePath() const = 0;
   virtual QString projectPath() const = 0;
-
+  virtual bool gpsOrientation() const = 0;
+  virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
+  virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
 };
 
 

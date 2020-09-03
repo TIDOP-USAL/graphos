@@ -212,10 +212,12 @@ void inspector::LoadImagesProcess::run()
           camera.setFocal(1.2 * std::max(width, height));
           //id_camera = mCamerasModel->addCamera(camera);
           //camera.setModel(QString::number(id_camera));
+          camera_id = mCameras->size();
+          mCameras->push_back(camera);
+        } else {
+          camera_id = mCameras->size() - 1;
         }
-         
-        camera_id = mCameras->size();
-        mCameras->push_back(camera);
+
       }
 
       //Image img(image);

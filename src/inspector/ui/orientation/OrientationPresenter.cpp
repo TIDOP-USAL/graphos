@@ -5,6 +5,7 @@
 #include "inspector/core/orientation/orientationcolmap.h"
 #include "inspector/process/MultiProcess.h"
 #include "inspector/process/orientation/RelativeOrientationProcess.h"
+#include "inspector/process/orientation/AbsoluteOrientationProcess.h"
 #include "inspector/core/orientation/photoorientation.h"
 #include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/images/ImagesModel.h"
@@ -86,7 +87,7 @@ void OrientationPresenterImp::onError(int code, const QString &msg)
   ProcessPresenter::onError(code, msg);
 
   if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Relative Orientation process error"));
+    mProgressHandler->setDescription(tr("Orientation process error"));
   }
 }
 
@@ -95,10 +96,10 @@ void OrientationPresenterImp::onFinished()
   ProcessPresenter::onFinished();
 
   if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Relative Orientation finished"));
+    mProgressHandler->setDescription(tr("Orientation finished"));
   }
 
-  msgInfo("Relative Orientation finished");
+  msgInfo("Orientation finished");
 }
 
 void OrientationPresenterImp::createProcess()
@@ -110,33 +111,58 @@ void OrientationPresenterImp::createProcess()
 
   QString database = mModel->database();
   QString imagePath = mModel->imagePath();
-  QString outputPath = mModel->projectPath();
-  std::shared_ptr<RelativeOrientationAlgorithm> orientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, imagePath, outputPath);
-  std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(orientationAlgorithm));
+  //QString outputPath = mModel->projectPath();
+  QString ori_relative = mModel->projectPath() + "/sparse/relative/";
+  std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, imagePath, ori_relative);
+  std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(relativeOrientationAlgorithm));
 
-  connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onOrientationFinished()));
+  connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onRelativeOrientationFinished()));
 
   mMultiProcess->appendProcess(relativeOrientationProcess);
 
+  //if (mModel->gpsOrientation()) {
+  //  QString ori_absolute = mModel->projectPath() + "/sparse/absolute/";
+  //  std::map<QString, std::array<double, 3>> camera_positions = mModel->cameraPositions();
+  //  std::shared_ptr<AbsoluteOrientationAlgorithm> absoluteOrientationAlgorithm;
+  //  absoluteOrientationAlgorithm = std::make_shared<AbsoluteOrientationColmapAlgorithm>(ori_relative, 
+  //                                                                                      camera_positions, 
+  //                                                                                      ori_absolute);
+
+  //  std::shared_ptr<AbsoluteOrientationProcess> absoluteOrientationProcess(new AbsoluteOrientationProcess(absoluteOrientationAlgorithm));
+  //  
+  //  connect(absoluteOrientationProcess.get(), SIGNAL(absoluteOrientationFinished()), this, SLOT(onAbsoluteOrientationFinished()));
+
+  //  mMultiProcess->appendProcess(absoluteOrientationProcess);
+  //}
+
   if (mProgressHandler){
     mProgressHandler->setRange(0, 0);
-    mProgressHandler->setTitle("Computing Relative Orientation...");
-    mProgressHandler->setDescription("Computing Relative Orientation...");
+    mProgressHandler->setTitle("Computing Orientation...");
+    mProgressHandler->setDescription("Computing Orientation...");
   }
 
   mView->hide();
 }
 
-void OrientationPresenterImp::onOrientationFinished()
+void OrientationPresenterImp::onRelativeOrientationFinished()
 {
   /// Se comprueba que se han generado todos los productos
-  QString sparse_path = mModel->projectPath() + "/sparse/0/";
+  //QString sparse_path = mModel->projectPath() + "/sparse/0/";
+  QString sparse_path = mModel->projectPath() + "/sparse/relative/";
+  mModel->setReconstructionPath(sparse_path);
 
   ReadPhotoOrientations readPhotoOrientations;
   readPhotoOrientations.open(sparse_path);
-  for(auto image = mImagesModel->begin(); image != mImagesModel->end(); image++){
+  for (auto image = mImagesModel->begin(); image != mImagesModel->end(); image++) {
+    QString image_oriented = QFileInfo(image->path()).fileName();
     PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
-    mModel->addPhotoOrientation(image->name(), photoOrientation);
+    if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
+      mModel->addPhotoOrientation(image->name(), photoOrientation);
+    } else {
+      QByteArray ba = image_oriented.toLocal8Bit();
+      const char *msg = ba.constData();
+      msgWarning("Image %s not oriented", msg);
+    }
   }
 
   ReadCalibration readCalibration;
@@ -148,6 +174,28 @@ void OrientationPresenterImp::onOrientationFinished()
       Camera camera = camera_it->second;
       camera.setCalibration(calibration);
       mCamerasModel->updateCamera(camera_it->first, camera);
+    }
+  }
+
+  QString sparse_model = sparse_path + "/sparse.ply";
+  if (QFileInfo(sparse_model).exists()){
+    mModel->setSparseModel(sparse_path + "/sparse.ply");
+
+    emit orientationFinished();
+  }
+}
+
+void OrientationPresenterImp::onAbsoluteOrientationFinished()
+{
+  QString sparse_path = mModel->projectPath() + "/sparse/absolute/";
+  mModel->setReconstructionPath(sparse_path);
+
+  ReadPhotoOrientations readPhotoOrientations;
+  readPhotoOrientations.open(sparse_path);
+  for(auto image = mImagesModel->begin(); image != mImagesModel->end(); image++){
+    PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+    if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
+      mModel->addPhotoOrientation(image->name(), photoOrientation);
     }
   }
 

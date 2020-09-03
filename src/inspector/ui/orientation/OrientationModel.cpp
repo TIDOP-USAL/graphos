@@ -1,5 +1,7 @@
 #include "OrientationModel.h"
 
+#include <QFileInfo>
+
 namespace inspector
 {
 
@@ -38,6 +40,11 @@ void OrientationModelImp::setSparseModel(const QString &sparseModel)
   mProject->setSparseModel(sparseModel);
 }
 
+bool OrientationModelImp::isPhotoOriented(const QString &imgName) const
+{
+  return mProject->isPhotoOriented(imgName);
+}
+
 PhotoOrientation OrientationModelImp::photoOrientation(const QString &imgName) const
 {
   return mProject->photoOrientation(imgName);
@@ -61,6 +68,35 @@ QString OrientationModelImp::imagePath() const
 QString OrientationModelImp::projectPath() const
 {
   return mProject->projectFolder();
+}
+
+bool OrientationModelImp::gpsOrientation() const
+{
+  bool bGpsOrientation = false;
+
+  auto it = mProject->imageBegin();
+  if (it->longitudeExif() != 0.0 &&
+      it->latitudeExif() != 0.0)
+    bGpsOrientation = true;
+
+  return bGpsOrientation;
+}
+
+void OrientationModelImp::setReconstructionPath(const QString &reconstructionPath)
+{
+  mProject->setReconstructionPath(reconstructionPath);
+}
+
+std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() const
+{
+  std::map<QString, std::array<double, 3>> camera_positions;
+  for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++) {
+    QString path = it->path();
+    QString file_name = QFileInfo(path).fileName();
+    std::array<double, 3> positions = {it->longitudeExif(), it->latitudeExif(), it->altitudeExif()};
+    camera_positions[file_name] = positions;
+  }
+  return camera_positions;
 }
 
 } // namespace ui

@@ -249,7 +249,9 @@ public:
 
   virtual QString sparseModel() const = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
-
+  virtual QString reconstructionPath() const = 0;
+  virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
+  virtual bool isPhotoOriented(const QString &imgName) const = 0;
   virtual PhotoOrientation photoOrientation(const QString &imgName) const = 0;
   virtual void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) = 0;
 
@@ -413,6 +415,9 @@ public:
 
   QString sparseModel() const override;
   void setSparseModel(const QString & sparseModel) override;
+  QString reconstructionPath() const override;
+  void setReconstructionPath(const QString &reconstructionPath) override;
+  bool isPhotoOriented(const QString &imgName) const override;
   PhotoOrientation photoOrientation(const QString &imgName) const override;
   void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) override;
 
@@ -448,6 +453,7 @@ protected:
   void readMatchingMethod(QXmlStreamReader &stream);
   void readPairs(QXmlStreamReader &stream);
   void readOrientations(QXmlStreamReader &stream);
+  void readReconstructionPath(QXmlStreamReader &stream);
   void readOrientationSparseModel(QXmlStreamReader &stream);
   void readPhotoOrientations(QXmlStreamReader &stream);
   void readDensification(QXmlStreamReader &stream);
@@ -468,11 +474,12 @@ protected:
   void writeFeatureExtractor(QXmlStreamWriter &stream) const;
   void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
   void writeFeatureFiles(QXmlStreamWriter &stream) const;
-  void writeFeatureFile(QXmlStreamWriter &stream) const;
+  //void writeFeatureFile(QXmlStreamWriter &stream) const;
   void writeMatches(QXmlStreamWriter &stream) const;
   void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
   void writePairs(QXmlStreamWriter &stream) const;
   void writeOrientations(QXmlStreamWriter &stream) const;
+  void writeReconstructionPath(QXmlStreamWriter &stream) const;
   void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
   void writePhotoOrientations(QXmlStreamWriter &stream) const;
   void writeDensification(QXmlStreamWriter &stream) const;
@@ -502,6 +509,7 @@ protected:
   std::map<QString, PhotoOrientation> mPhotoOrientation;
   bool bRefinePrincipalPoint;
   QString mSparseModel;
+  QString mReconstructionPath;
   std::shared_ptr<Densification> mDensification;
   QString mDenseModel;
   static std::mutex sMutex;
