@@ -143,7 +143,7 @@ private:
   QString mInputPath;
   std::map<QString, std::array<double, 3>> mCameraPositions;
   QString mOutputPath;
-  //std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
+  
 };
 
 
