@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 
   tl::Log &log = tl::Log::instance();
   log.setLogLevel(tl::MessageLevel::msg_verbose);
-  log.setLogFile(log_file.toLatin1());
+  log.setLogFile(log_file.toStdString());
   tl::MessageManager::instance().addListener(&log);
 
 /* Chequeo de soporte CUDA */

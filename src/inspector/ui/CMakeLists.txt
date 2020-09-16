@@ -124,7 +124,7 @@ set(INSPECTOR_HEADERS
     images/Images.h
     images/ImagesModel.h
     images/ImagesPresenter.h
-	images/ImagesView.h
+    images/ImagesView.h
     orientation/Orientation.h
     orientation/OrientationModel.h
     orientation/OrientationView.h
@@ -214,7 +214,9 @@ source_group("Resource Files"  FILES ${INSPECTOR_RESOURCES})
 
 # Lincado de librerias
 target_link_libraries(${PROJECT_NAME}
-                      tl_core
+                      TidopLib::tl_core
+                      TidopLib::tl_geom
+                      TidopLib::tl_img
                       Qt5::Core
                       Qt5::Widgets
                       Qt5::Help
@@ -225,12 +227,14 @@ target_link_libraries(${PROJECT_NAME}
                       inspector_process
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}
-					  ${CUDA_LIBRARIES}
-					  ${FREEIMAGE_LIBRARIES}
-					  ${GLEW_LIBRARIES}
-					  ${CERES_LIBRARIES}
+                      ${CUDA_LIBRARIES}
+                      ${FREEIMAGE_LIBRARIES}
+                      ${GLEW_LIBRARIES}
+                      ${CERES_LIBRARIES}
                       ${OPENGL_gl_LIBRARY}
                       ${OPENGL_glu_LIBRARY}
+                      ${GDAL_LIBRARY} 
+                      ${PROJ4_LIBRARY}
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -239,8 +243,8 @@ target_link_libraries(${PROJECT_NAME}
                       ${Boost_THREAD_LIBRARY}
                       ${Boost_DATE_TIME_LIBRARY}
                       ${Boost_CHRONO_LIBRARY}
-					  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-					  ${Boost_REGEX_LIBRARY})
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      ${Boost_REGEX_LIBRARY})
 
 if (HAVE_CLOUDCOMPARE)
 target_link_libraries(${PROJECT_NAME}

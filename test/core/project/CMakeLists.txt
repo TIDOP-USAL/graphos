@@ -14,7 +14,7 @@ add_executable(${test_target}
 
 target_link_libraries(${test_target} PRIVATE
                       inspector_core
-                      tl_core
+                      TidopLib::tl_core
                       Qt5::Core
                       Qt5::Test
                       Qt5::Sql

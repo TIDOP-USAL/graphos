@@ -18,7 +18,7 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
                       inspector_core
-                      tl_core
+                      TidopLib::tl_core
                       cpprestsdk::cpprest
                       Qt5::Core
                       Qt5::Sql

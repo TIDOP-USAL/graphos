@@ -21,7 +21,7 @@ target_link_libraries(${test_target} PRIVATE
                       Qt5::Widgets
                       Qt5::Test
                       Qt5::Sql
-                      tl_core
+                      TidopLib::tl_core
                       inspector_core
                       ${COLMAP_LIBRARIES}
                       ${OpenCV_LIBS})

@@ -11,7 +11,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
                       inspector_core
                       inspector_process
-                      tl_core
+                      TidopLib::tl_core
                       Qt5::Core
                       Qt5::Widgets
                       Qt5::Sql
@@ -22,7 +22,9 @@ target_link_libraries(${PROJECT_NAME}
                       ${OPENGL_gl_LIBRARY}
                       ${OPENGL_glu_LIBRARY}
                       ${OpenCV_LIBS}
-                      ${CUDA_LIBRARIES})
+                      ${CUDA_LIBRARIES}
+                      ${GDAL_LIBRARY}
+                      ${PROJ4_LIBRARY})
 					  
 # link boost libraries
 target_link_libraries(${PROJECT_NAME}

@@ -131,6 +131,11 @@ option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
 endif(MSVC)
 
 
+# TidopLib
+
+find_package(TidopLib REQUIRED)
+include_directories(${TidopLib_INCLUDE_DIRS})
+ 
 
 #  BOOST                                                                           
 

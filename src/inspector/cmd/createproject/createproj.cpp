@@ -171,7 +171,7 @@ int main(int argc, char** argv)
   tl::Log &log = tl::Log::instance();
   log.setLogLevel(tl::MessageLevel::msg_verbose);
   //QString log_file = dir.filePath("featextract.log");
-  log.setLogFile(log_file.toLatin1());
+  log.setLogFile(log_file.toStdString());
 
   /// Se subscribe el log al gestor de mensajes
   tl::MessageManager::instance().addListener(&log);

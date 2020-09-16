@@ -6,14 +6,42 @@
 
 #include <tidop/core/defs.h>
 
+#include <opencv2/photo.hpp>
+
 #include <QString>
+#include <QImageReader>
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 
+
 namespace inspector
 {
+
+/*----------------------------------------------------------------*/
+
+/*!
+ * \brief Convert QImage to cv::Mat
+ * \param[in] image QImage
+ * \return cv::Mat
+ */
+INSPECTOR_EXPORT cv::Mat qImageToCvMat(const QImage &image);
+
+/*!
+ * \brief Convert cv::Mat to QImage
+ * \param[in] image cv::Mat
+ * \return QImage
+ */
+INSPECTOR_EXPORT QImage cvMatToQImage(const cv::Mat &image);
+
+
+INSPECTOR_EXPORT cv::Mat convertToGray(const cv::Mat &image);
+
+INSPECTOR_EXPORT QSize cvSizeToQSize(const cv::Size &size);
+INSPECTOR_EXPORT cv::Size qSizeToCvSize(const QSize &size);
+
+/*----------------------------------------------------------------*/
 
 /*!
  * \brief Comprueba si el procesamiento por cuda está disponible

@@ -1,5 +1,10 @@
 #include "ThumbnailsWidget.h"
 
+#include "inspector/core/utils.h"
+
+#include <tidop/core/utils.h>
+#include <tidop/img/imgreader.h>
+
 #include <QFileInfo>
 #include <QListWidget>
 #include <QGridLayout>
@@ -11,25 +16,46 @@
 #include <QImageReader>
 #include <QApplication>
 
+
 static std::mutex sMutexThumbnail;
 
 QImage makeThumbnail(const QString &thumb)
 {  
   std::lock_guard<std::mutex> lck(sMutexThumbnail);
 
-  QImageReader imageReader(thumb);
-  QSize size = imageReader.size();
-  double scale = 1.;
-  int w = size.width();
-  int h = size.height();
-  if (w > h) {
-    scale = w / 200.;
-  } else {
-    scale = h / 200.;
+  QImage image_scaled;
+
+  try {
+    std::string image_file = thumb.toStdString();
+
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
+    imageReader->open();
+    if (imageReader->isOpen()) {
+      
+      int w = imageReader->cols();
+      int h = imageReader->rows();
+      double scale = 1.;
+      if (w > h) {
+        scale =  200. / static_cast<double>(w);
+      } else {
+        scale = 200. / static_cast<double>(h);
+      }
+         
+      cv::Mat bmp = imageReader->read(scale, scale);
+
+      image_scaled = inspector::cvMatToQImage(bmp);
+
+      imageReader->close();
+
+    } else {
+      msgError("Error al abrir la imagen: %s", image_file.c_str());
+    }
+
+  } catch (const std::exception &e) {
+    msgError(e.what());
+  } catch (...) {
+    msgError("GDAL ERROR (%i): %s", CPLGetLastErrorNo(), CPLGetLastErrorMsg());
   }
-  size /= scale;
-  imageReader.setScaledSize(size);
-  QImage image_scaled = imageReader.read();
 
   return image_scaled;
 }
@@ -80,33 +106,6 @@ void ThumbnailsWidget::setActiveImages(const QStringList &imageNames)
 
 void ThumbnailsWidget::addThumbnail(const QString &thumb)
 {
-  //bLoadingImages = true;
- 
-  //QImageReader imageReader(thumb);
-  //QSize size = imageReader.size();
-  //double scale = 1.;
-  //int w = size.width();
-  //int h = size.height();
-  //if (w > h){
-  //  scale = w / 200.;
-  //} else {
-  //  scale = h / 200.;
-  //}
-  //size /= scale;
-
-  //QFileInfo fileInfo(thumb);
-
-  //QPixmap pixmap(size.width(), size.height());
-  //pixmap.fill(QColor(Qt::GlobalColor::lightGray));
-  //QIcon icon(pixmap);
-  //QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
-  //item->setToolTip(fileInfo.absoluteFilePath());
-  //mListWidget->addItem(item);
-
-  //QStringList temp;
-  //temp.push_back(thumb);
-  //mFutureWatcherThumbnail->setFuture(QtConcurrent::mapped(temp, makeThumbnail));
-
   QStringList thumbs;
   thumbs.push_back(thumb);
   this->addThumbnails(thumbs);
