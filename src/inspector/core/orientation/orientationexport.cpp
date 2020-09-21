@@ -473,6 +473,7 @@ void OrientationExport::exportMVE(const QString &path) const
         //cv::Mat optCameraMat = getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0);
         //initUndistortRectifyMap(cameraMatrix, distCoeffs, Mat(), optCameraMat, imageSize, CV_16SC2, map1, map2);
 
+        TL_TODO("imagenes registradas mejor")
         for (auto &image : mReconstruction->Images()) {
           if (image.second.CameraId() == camera.second.CameraId()) {
 
@@ -576,6 +577,22 @@ void OrientationExport::exportMVE(const QString &path) const
       file.close();
 
     }
+  }
+}
+
+void OrientationExport::exportCMVS(const QString &path) const
+{
+  if (mReconstruction) {
+
+    QDir dir(path);
+    if (!dir.exists()) {
+      if (dir.mkpath(".") == false) {
+        msgError("The output directory cannot be created: %s", path.toStdString().c_str());
+        return;
+      }
+    }
+
+
   }
 }
 

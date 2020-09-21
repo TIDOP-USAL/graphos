@@ -86,7 +86,13 @@ QImage cvMatToQImage(const cv::Mat &image)
   QImage::Format format;
   if (image.channels() == 1){
     format = QImage::Format_Grayscale8;
-    image.copyTo(aux);
+    if (image.depth() == CV_8U) {
+      image.copyTo(aux);
+    } else if (image.depth() == CV_8S || 
+               image.depth() == CV_16U) {
+      cv::normalize(image, aux, 0., 255., cv::NORM_MINMAX, CV_8U);
+    }
+    
   } else if (image.channels() == 3) {
     format = QImage::Format_RGB888;
     cv::cvtColor(image, aux, cv::COLOR_BGR2RGB);

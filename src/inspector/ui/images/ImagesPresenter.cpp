@@ -89,7 +89,7 @@ void ImagesPresenterImp::onFinished()
     mProgressHandler->setDescription(tr("Images loaded"));
   }
 
-  msgInfo("Images loaded");
+  //msgInfo("Images loaded");
 }
 
 void ImagesPresenterImp::createProcess()

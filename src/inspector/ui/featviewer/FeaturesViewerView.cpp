@@ -2,6 +2,9 @@
 
 #include "inspector/ui/utils/GraphicViewer.h"
 #include "inspector/ui/utils/GraphicItem.h"
+#include "inspector/core/utils.h"
+
+#include <tidop/img/imgreader.h>
 
 #include <QGraphicsItem>
 #include <QComboBox>
@@ -219,7 +222,15 @@ void FeaturesViewerViewImp::setCurrentImage(const QString &leftImage)
   QSignalBlocker blocker(mComboBoxImages);
   mComboBoxImages->setCurrentText(leftImage);
   mGraphicView->scene()->clearSelection();
-  mGraphicView->setImage(QImage(mComboBoxImages->currentData().toString()));
+  QString image = mComboBoxImages->currentData().toString();
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+  imageReader->open();
+  if (imageReader->isOpen()) {
+    cv::Mat bmp = imageReader->read();
+    mGraphicView->setImage(cvMatToQImage(bmp));
+    imageReader->close();
+  }
+  //mGraphicView->setImage(QImage(mComboBoxImages->currentData().toString()));
   mGraphicView->zoomExtend();
 }
 

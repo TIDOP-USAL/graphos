@@ -35,6 +35,8 @@ protected:
 
   void run() override;
 
+  double parseFocal(const std::string &focal, double def);
+
 protected:
 
   std::vector<Image> *mImages;

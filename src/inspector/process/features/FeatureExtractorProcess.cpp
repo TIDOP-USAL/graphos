@@ -4,12 +4,20 @@
 #include "inspector/core/features/sift.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/img/imgreader.h>
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/core.hpp>
 
 #include <colmap/base/database.h>
 #include <colmap/base/camera_models.h>
+
+#ifdef HAVE_CUDA
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudawarping.hpp>
+#include <opencv2/cudaarithm.hpp>
+#endif // HAVE_CUDA
 
 #include <QFileInfo>
 
@@ -26,7 +34,8 @@ FeatureExtractorProcess::FeatureExtractorProcess(const Image &image,
     mCamera(camera),
     mMaxDimension(maxDimension),
     mFeatureFile(featureFile),
-    mFeatureExtractor(featureExtractor)
+    mFeatureExtractor(featureExtractor),
+    bOpenCvRead(true)
 {
 }
 
@@ -58,7 +67,7 @@ std::shared_ptr<FeatureExtractor> FeatureExtractorProcess::featureExtractor() co
 void FeatureExtractorProcess::run()
 {
   try {
-    tl::Chrono chrono;
+    tl::Chrono chrono("", false);
     chrono.run();
 
     QByteArray ba = mImage.path().toLocal8Bit();
@@ -112,22 +121,89 @@ void FeatureExtractorProcess::run()
       image_id = image_colmap.ImageId();
     }
 
-    cv::Mat mat = cv::imread(mImage.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION |cv::IMREAD_GRAYSCALE);
+    cv::Mat mat;
+    double scale = 1.;
 
-    double max_dimension;
-    if (mat.cols > mat.rows){
-      max_dimension = mat.cols;
-    } else {
-      max_dimension = mat.rows;
+    if (bOpenCvRead) {
+
+      mat = cv::imread(mImage.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
+
+      if (mat.empty()) {
+        bOpenCvRead = false;
+      } else {
+        double max_dimension;
+        if (mat.cols > mat.rows){
+          max_dimension = mat.cols;
+        } else {
+          max_dimension = mat.rows;
+        }
+
+        if (mMaxDimension < max_dimension){
+          cv::Size size(mat.cols, mat.rows);
+          scale = max_dimension / mMaxDimension;
+          size.width /= scale;
+          size.height /= scale;
+#ifdef HAVE_CUDA
+          cv::cuda::GpuMat gImgIn(mat);
+          cv::cuda::GpuMat gImgResize;
+          cv::cuda::resize(gImgIn, gImgResize, size);
+          gImgResize.download(mat);
+#else
+          cv::resize(mat, mat, size);
+#endif
+        }
+      }
+
     }
 
-    double scale = 1;
-    if (mMaxDimension < max_dimension){
-      cv::Size size(mat.cols, mat.rows);
-      scale = max_dimension / mMaxDimension;
-      size.width /= scale;
-      size.height /= scale;
-      cv::resize(mat, mat, size);
+    if (!bOpenCvRead) {
+      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(mImage.path().toStdString());
+      imageReader->open();
+      if (imageReader->isOpen()) {
+        int w = imageReader->cols();
+        int h = imageReader->rows();
+        double max_dimension;
+        if (w > h){
+          max_dimension = w;
+        } else {
+          max_dimension = h;
+        }
+
+        
+        if (mMaxDimension < max_dimension) {
+          scale = mMaxDimension / max_dimension;
+          mat = imageReader->read(scale, scale);
+          scale = 1. / scale;
+        } else {
+          mat = imageReader->read();
+        }
+        
+        if (imageReader->depth() != 8) {
+#ifdef HAVE_CUDA
+          cv::cuda::GpuMat gImgIn(mat);
+          cv::cuda::GpuMat gImgOut;
+          cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+          gImgOut.download(mat);
+#else
+          cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+#endif
+        }
+
+        if (mat.channels() >= 3) {
+#ifdef HAVE_CUDA
+          cv::cuda::GpuMat gImgIn(mat);
+          cv::cuda::GpuMat gImgGray;
+          cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
+          gImgGray.download(mat);
+#else
+          cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+#endif
+        }
+
+
+
+        imageReader->close();
+      }
     }
 
     mFeatureExtractor->run(mat, featureKeypoints, featureDescriptors);

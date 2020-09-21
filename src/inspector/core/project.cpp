@@ -833,6 +833,8 @@ void ProjectImp::readSIFT(QXmlStreamReader &stream)
       sift->setFeaturesNumber(readInt(stream));
     } else if (stream.name() == "OctaveLayers") {
       sift->setOctaveLayers(readInt(stream));
+    } else if (stream.name() == "ContrastThresholdAuto") {
+      sift->setContrastThresholdAuto(readBoolean(stream));
     } else if (stream.name() == "ContrastThreshold") {
       sift->setContrastThreshold(readDouble(stream));
     } else if (stream.name() == "EdgeThreshold") {
@@ -1169,6 +1171,7 @@ void ProjectImp::writeSIFT(QXmlStreamWriter &stream, Sift *sift) const
   {
     stream.writeTextElement("FeaturesNumber", QString::number(sift->featuresNumber()));
     stream.writeTextElement("OctaveLayers", QString::number(sift->octaveLayers()));
+    stream.writeTextElement("ContrastThresholdAuto", sift->constrastThresholdAuto()  ? "true" : "false");
     stream.writeTextElement("ContrastThreshold", QString::number(sift->contrastThreshold()));
     stream.writeTextElement("EdgeThreshold", QString::number(sift->edgeThreshold()));
     stream.writeTextElement("Sigma", QString::number(sift->sigma()));

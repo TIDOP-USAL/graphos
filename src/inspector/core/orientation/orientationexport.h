@@ -80,6 +80,8 @@ public:
    */
   void exportMVE(const QString &path) const;
 
+  void exportCMVS(const QString &path) const;
+
 private:
 
   const colmap::Reconstruction *mReconstruction;

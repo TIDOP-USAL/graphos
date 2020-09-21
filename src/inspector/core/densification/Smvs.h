@@ -95,7 +95,9 @@ public:
 
   void reset() override;
 
-protected:
+private:
+
+  bool bOpenCvRead;
 
 };
 

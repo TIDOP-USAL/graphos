@@ -217,6 +217,7 @@ target_link_libraries(${PROJECT_NAME}
                       TidopLib::tl_core
                       TidopLib::tl_geom
                       TidopLib::tl_img
+                      TidopLib::tl_math
                       Qt5::Core
                       Qt5::Widgets
                       Qt5::Help

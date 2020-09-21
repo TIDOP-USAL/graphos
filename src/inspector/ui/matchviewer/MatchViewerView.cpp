@@ -2,6 +2,9 @@
 
 #include "inspector/ui/utils/GraphicViewer.h"
 #include "inspector/ui/utils/GraphicItem.h"
+#include "inspector/core/utils.h"
+
+#include <tidop/img/imgreader.h>
 
 #include <QPushButton>
 #include <QDialogButtonBox>
@@ -222,7 +225,15 @@ void MatchViewerViewImp::setLeftImage(const QString &leftImage)
   QSignalBlocker blocker(mComboBoxLeftImage);
   mComboBoxLeftImage->setCurrentText(leftImage);
   mGraphicsViewLeft->scene()->clearSelection();
-  mGraphicsViewLeft->setImage(QImage(mComboBoxLeftImage->currentData().toString()));
+  QString image = mComboBoxLeftImage->currentData().toString();
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+  imageReader->open();
+  if (imageReader->isOpen()) {
+    cv::Mat bmp = imageReader->read();
+    mGraphicsViewLeft->setImage(cvMatToQImage(bmp));
+    imageReader->close();
+  }
+  //mGraphicsViewLeft->setImage(QImage(mComboBoxLeftImage->currentData().toString()));
 }
 
 void MatchViewerViewImp::setRightImage(const QString &rightImage)
@@ -230,7 +241,15 @@ void MatchViewerViewImp::setRightImage(const QString &rightImage)
   QSignalBlocker blocker(mComboBoxRightImage);
   mComboBoxRightImage->setCurrentText(rightImage);
   mGraphicsViewRight->scene()->clearSelection();
-  mGraphicsViewRight->setImage(QImage(mComboBoxRightImage->currentData().toString()));
+  QString image = mComboBoxRightImage->currentData().toString();
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+  imageReader->open();
+  if (imageReader->isOpen()) {
+    cv::Mat bmp = imageReader->read();
+    mGraphicsViewRight->setImage(cvMatToQImage(bmp));
+    imageReader->close();
+  }
+  //mGraphicsViewRight->setImage(QImage(mComboBoxRightImage->currentData().toString()));
 }
 
 void MatchViewerViewImp::setLeftImageList(const std::vector<QString> &leftImageList)

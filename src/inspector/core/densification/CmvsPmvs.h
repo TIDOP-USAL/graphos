@@ -102,6 +102,9 @@ public:
 
   void reset() override;
 
+private:
+
+  bool bOpenCvRead;
 };
 
 

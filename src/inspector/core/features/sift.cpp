@@ -15,7 +15,7 @@ SiftProperties::SiftProperties()
   : mFeaturesNumber(5000),
     mOctaveLayers(3),
     mContrastThresholdAuto(true),
-    mContrastThreshold(0.04),
+    mContrastThreshold(0.0067),
     mEdgeThreshold(10.),
     mSigma(1.6)
 {
@@ -97,7 +97,7 @@ void SiftProperties::reset()
   mFeaturesNumber = 5000;
   mOctaveLayers = 3;
   mContrastThresholdAuto = true;
-  mContrastThreshold = 0.04;
+  mContrastThreshold = 0.02 / 3.;
   mEdgeThreshold = 10.;
   mSigma = 1.6;
 }
@@ -256,14 +256,16 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(const SiftCudaDetectorDes
 
 SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
                                                        int octaveLayers,
-                                                       double contrastThreshold,
                                                        double edgeThreshold,
-                                                       double sigma)
+                                                       double sigma,
+                                                       double contrastThreshold)
 {
   SiftProperties::setFeaturesNumber(featuresNumber);
   SiftProperties::setOctaveLayers(octaveLayers);
-  SiftProperties::setContrastThresholdAuto(false);
-  SiftProperties::setContrastThreshold(contrastThreshold);
+  if (contrastThreshold > 0.) {
+    SiftProperties::setContrastThresholdAuto(false);
+    SiftProperties::setContrastThreshold(contrastThreshold);
+  }
   SiftProperties::setEdgeThreshold(edgeThreshold);
   SiftProperties::setSigma(sigma);
   update();

@@ -5,6 +5,7 @@
 // TIDOP LIB
 #include <tidop/core/messages.h>
 #include <tidop/core/process.h>
+#include <tidop/img/imgreader.h>
 
 // COLMAP
 #include <colmap/base/reconstruction.h>
@@ -17,6 +18,7 @@
 #ifdef HAVE_CUDA
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudawarping.hpp>
+#include <opencv2/cudaarithm.hpp>
 #endif // HAVE_CUDA
 
 // BOOST
@@ -154,16 +156,19 @@ QString SmvsProperties::name() const
 
 
 SmvsDensifier::SmvsDensifier()
+  : bOpenCvRead(true)
 {
 }
 
 SmvsDensifier::SmvsDensifier(const SmvsDensifier &smvs)
-  : SmvsProperties(smvs)
+  : SmvsProperties(smvs),
+    bOpenCvRead(true)
 {
 }
 
 SmvsDensifier::SmvsDensifier(SmvsDensifier &&smvs) noexcept
-  : SmvsProperties(std::forward<SmvsProperties>(smvs))
+  : SmvsProperties(std::forward<SmvsProperties>(smvs)),
+    bOpenCvRead(smvs.bOpenCvRead)
 {
 }
 
@@ -172,6 +177,7 @@ SmvsDensifier::SmvsDensifier(int inputImageScale,
                              bool shadingBasedOptimization,
                              bool semiGlobalMatching,
                              double surfaceSmoothingFactor)
+  : bOpenCvRead(true)
 {
   SmvsDensifier::setInputImageScale(inputImageScale);
   SmvsDensifier::setOutputDepthScale(outputDepthScale);
@@ -184,7 +190,7 @@ SmvsDensifier &SmvsDensifier::operator =(const SmvsDensifier &smvs)
 {
   if (this != &smvs){
     SmvsProperties::operator=(smvs);
-
+    bOpenCvRead = smvs.bOpenCvRead;
   }
   return *this;
 }
@@ -193,6 +199,7 @@ SmvsDensifier &SmvsDensifier::operator =(SmvsDensifier &&smvs) noexcept
 {
   if (this != &smvs){
     SmvsProperties::operator=(std::forward<SmvsProperties>(smvs));
+    bOpenCvRead = smvs.bOpenCvRead;
   }
   return *this;
 }
@@ -200,6 +207,7 @@ SmvsDensifier &SmvsDensifier::operator =(SmvsDensifier &&smvs) noexcept
 void SmvsDensifier::reset()
 {
   SmvsProperties::reset();
+  bOpenCvRead = true;
 }
 
 bool SmvsDensifier::undistort(const QString &reconstructionPath,
@@ -229,7 +237,7 @@ bool SmvsDensifier::undistort(const QString &reconstructionPath,
 
     cv::Size imageSize(static_cast<int>(camera.second.Width()),
                        static_cast<int>(camera.second.Height()));
-    std::array<std::array<float, 3>, 3> camera_matrix_data = {focal, 0, ppx,
+    std::array<std::array<float, 3>, 3> camera_matrix_data = {focal, 0.f, ppx,
                                                               0.f, focal, ppy,
                                                               0.f, 0.f, 1.f};
     cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
@@ -257,7 +265,41 @@ bool SmvsDensifier::undistort(const QString &reconstructionPath,
 
           std::string image_file = imagesPath.toStdString();
           image_file.append("/").append(image.second.Name());
-          cv::Mat img = cv::imread(image_file.c_str(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+          cv::Mat img;
+
+          if (bOpenCvRead) {
+            img = cv::imread(image_file.c_str(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+            if (img.empty()) {
+              bOpenCvRead = false;
+            }
+          }
+
+          if (!bOpenCvRead) {
+            std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
+            imageReader->open();
+            if (imageReader->isOpen()) {
+              img = imageReader->read();
+              if (imageReader->depth() != 8) {
+
+                TL_TODO("Codigo duplicado en FeatureExtractorProcess")
+#ifdef HAVE_CUDA
+                cv::cuda::GpuMat gImgIn(img);
+                cv::cuda::GpuMat gImgOut;
+                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+                gImgOut.download(img);
+#else
+                cv::normalize(img, img, 0., 255., cv::NORM_MINMAX, CV_8U);
+#endif
+              }
+
+              imageReader->close();
+            }
+          }
+                   
+          if (img.channels() == 1) {
+            cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
+          }
+
           cv::Mat img_undistort;
 #ifdef HAVE_CUDA
           cv::cuda::GpuMat gImgOut(img);
@@ -269,6 +311,7 @@ bool SmvsDensifier::undistort(const QString &reconstructionPath,
           gImgUndistort.download(img_undistort);
 #else
           cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
+          img.release();
 #endif
 
 

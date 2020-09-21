@@ -61,8 +61,8 @@ void SiftWidgetImp::initUI()
 
   propertiesLayout->addWidget(mLabelContrastThreshold, 3, 0);
   mContrastThreshold->setRange(0., 10.);  //TODO: ver que el rango tenga sentido
-  mContrastThreshold->setDecimals(3);
-  mContrastThreshold->setSingleStep(0.01);
+  mContrastThreshold->setDecimals(4);
+  mContrastThreshold->setSingleStep(0.001);
   propertiesLayout->addWidget(mContrastThreshold, 3, 1);
 
   propertiesLayout->addWidget(mLabelEdgeThreshold, 4, 0);
@@ -102,7 +102,7 @@ void SiftWidgetImp::clear()
   mFeaturesNumber->setValue(5000);
   mOctaveLayers->setValue(3);
   mContrastThresholdAuto->setChecked(true);
-  mContrastThreshold->setValue(0.04);
+  mContrastThreshold->setValue(0.02/3.);
   mEdgeThreshold->setValue(10.);
   mSigma->setValue(1.6);
 }
@@ -110,7 +110,7 @@ void SiftWidgetImp::clear()
 void SiftWidgetImp::update()
 {
   if (mContrastThresholdAuto) {
-    mContrastThreshold->setValue(0.02 / mOctaveLayers->value());
+    mContrastThreshold->setValue(0.02 / static_cast<double>(mOctaveLayers->value()));
     mContrastThreshold->setDisabled(true);
   } else {
     mContrastThreshold->setDisabled(false);
@@ -170,7 +170,7 @@ void SiftWidgetImp::setOctaveLayers(int octaveLayers)
   mOctaveLayers->setValue(octaveLayers);
   if (mContrastThresholdAuto->isChecked()) {
     const QSignalBlocker blockerContrastThreshold(mContrastThreshold);
-    mContrastThreshold->setValue(0.2 / mOctaveLayers->value());
+    mContrastThreshold->setValue(0.02 / static_cast<double>(mOctaveLayers->value()));
   }
 }
 
@@ -186,7 +186,7 @@ void SiftWidgetImp::setContrastThresholdAuto(bool active)
 {
   mContrastThresholdAuto->setChecked(active);
   const QSignalBlocker blockerContrastThreshold(mContrastThreshold);
-  mContrastThreshold->setValue(0.2 / mOctaveLayers->value());
+  mContrastThreshold->setValue(0.02 / static_cast<double>(mOctaveLayers->value()));
 }
 
 void SiftWidgetImp::setEdgeThreshold(double edgeThreshold)

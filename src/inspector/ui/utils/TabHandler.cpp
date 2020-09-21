@@ -3,12 +3,17 @@
 #include "inspector/ui/utils/GraphicViewer.h"
 #include "inspector/ui/utils/GraphicItem.h"
 #include "inspector/ui/utils/Viewer3d.h"
+#include "inspector/core/utils.h"
+
+#include <tidop/core/utils.h>
+#include <tidop/img/imgreader.h>
 
 #include <QTabBar>
 #include <QMenu>
 #include <QFileInfo>
 #include <QEvent>
 #include <QApplication>
+//#include <QImageReader>
 
 #include <array>
 
@@ -175,7 +180,28 @@ void TabHandler::setImage(const QString &image)
   if (id == -1) {
     GraphicViewer *graphicViewer = new GraphicViewerImp(this);
     mGraphicViewer = graphicViewer;
-    mGraphicViewer->setImage(QImage(image));
+    
+    TL_TODO("Qt no soporta todos los formatos y ademas algunos hay que adaptar las imagenes para su visualización")
+
+    /// QImage => 0.37 s
+    //mGraphicViewer->setImage(QImage(image));
+
+    ///QImageReader => 0.37 s
+    //QImageReader imageReader(image);
+    //mGraphicViewer->setImage(imageReader.read());
+
+    /// OpenCV
+    //cv::Mat mat = cv::imread(image.toStdString(), cv::IMREAD_COLOR || cv::IMREAD_IGNORE_ORIENTATION);
+    //mGraphicViewer->setImage(cvMatToQImage(mat));
+
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+    imageReader->open();
+    if (imageReader->isOpen()) {
+      cv::Mat bmp = imageReader->read();
+      mGraphicViewer->setImage(cvMatToQImage(bmp));
+      imageReader->close();
+    }
+
     id = this->addTab(mGraphicViewer, fileInfo.fileName());
     this->setCurrentIndex(id);
     this->setTabToolTip(id, image);

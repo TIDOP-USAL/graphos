@@ -48,6 +48,7 @@ protected:
   int mMaxDimension;
   QString mFeatureFile;
   std::shared_ptr<FeatureExtractor> mFeatureExtractor;
+  bool bOpenCvRead;
 };
 
 } // inspector

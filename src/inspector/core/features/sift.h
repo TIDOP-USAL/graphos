@@ -134,9 +134,9 @@ public:
   SiftCudaDetectorDescriptor(const SiftCudaDetectorDescriptor &siftDetectorDescriptor);
   SiftCudaDetectorDescriptor(int featuresNumber,
                              int octaveLayers,
-                             double contrastThreshold,
                              double edgeThreshold,
-                             double sigma);
+                             double sigma,
+                             double contrastThreshold = 0.);
   ~SiftCudaDetectorDescriptor() override;
 
 private:
