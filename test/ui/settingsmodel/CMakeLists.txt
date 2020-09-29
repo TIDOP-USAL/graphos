@@ -17,7 +17,7 @@ add_executable(${the_target}
                ${CMAKE_SOURCE_DIR}/test/fake/SettingsControllerFake.h)
 
 target_link_libraries(${the_target} PRIVATE
-                      tl_core
+                      TidopLib::tl_core
                       Qt5::Core
                       Qt5::Widgets
                       Qt5::Test

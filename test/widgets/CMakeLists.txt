@@ -9,13 +9,17 @@ MACRO(DEFINE_TEST_WIDGETS name srcs)
     add_executable(${test_target} ${srcs})
 
     target_link_libraries(${test_target} PRIVATE
-                          tl_core
+                          inspector_core
                           inspector_widgets
+                          TidopLib::tl_core
+                          TidopLib::tl_img
                           Qt5::Core
                           Qt5::Widgets
                           Qt5::Test
                           Qt5::Concurrent
-                          ${OpenCV_LIBS})
+                          ${OpenCV_LIBS}
+                          ${CUDA_LIBRARIES}
+                          ${GDAL_LIBRARY})
 
     target_link_libraries(${test_target} PRIVATE
                          ${Boost_FILESYSTEM_LIBRARY}

@@ -12,11 +12,15 @@ target_link_libraries(${test_target} PRIVATE
                       TidopLib::tl_core
                       Qt5::Core
                       Qt5::Test
-                      ${COLMAP_LIBRARIES})
+                      ${COLMAP_LIBRARIES}
+                      ${FREEIMAGE_LIBRARIES}
+                      ${CERES_LIBRARIES}
+                      ${CUDA_LIBRARIES})
 
 target_link_libraries(${test_target} PRIVATE
                       ${Boost_FILESYSTEM_LIBRARY}
-                      ${Boost_SYSTEM_LIBRARY})
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_REGEX_LIBRARY})
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}

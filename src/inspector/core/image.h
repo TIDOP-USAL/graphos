@@ -3,6 +3,8 @@
 
 #include "inspector/inspector_global.h"
 
+#include <tidop/math/algebra/rotations.h>
+
 #include <QString>
 
 namespace inspector
@@ -10,6 +12,28 @@ namespace inspector
 
 class INSPECTOR_EXPORT Image
 {
+
+public:
+
+  class CameraPosition
+  {
+
+  public:
+
+    CameraPosition() {}
+
+    QString crs() const;
+    void setCrs(const QString &crs);
+
+    double x() const;
+    void double setX();
+    double y() const;
+    void double setY();
+    double z() const;
+    void double setZ();
+    void rotation() const;
+    void setRotation();
+  };
 
 public:
 

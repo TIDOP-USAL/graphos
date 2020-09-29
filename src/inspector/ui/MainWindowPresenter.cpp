@@ -1099,6 +1099,7 @@ void MainWindowPresenter::initSignalAndSlots()
   /* Menú herramientas */
 
   connect(mView,  &MainWindowView::openCamerasDialog,   this, &MainWindowPresenter::openCamerasDialog);
+  connect(mView,  &MainWindowView::openGeoreferenceDialog,   this, &MainWindowPresenter::openGeoreferenceDialog);
   connect(mView,  &MainWindowView::openKeypointsViewer, this, &MainWindowPresenter::openKeypointsViewerDialog);
   connect(mView,  &MainWindowView::openMatchesViewer,   this, &MainWindowPresenter::openMatchesViewerDialog);
   //connect(mView,  &MainWindowView::openMultiviewMatchingAssessment,  this, &MainWindowPresenter::openMultiviewMatchingAssessmentDialog);

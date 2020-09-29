@@ -106,13 +106,13 @@ void TestProject::test_default_constructor()
 
 void TestProject::test_constructor()
 {
-  QCOMPARE(QString("SanSegundo"), mProjectXml->name());
-  QCOMPARE(QString("San Segundo"), mProjectXml->description());
-  QCOMPARE(QString("C:/Users/esteban/Documents/inspector/Projects/SanSegundo"), mProjectXml->projectFolder());
-  QCOMPARE(QString("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images"), mProjectXml->imageDirectory());
+  QCOMPARE(QString("Proj02"), mProjectXml->name());
+  QCOMPARE(QString("Descripción del proyecto 2"), mProjectXml->description());
+  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj002"), mProjectXml->projectFolder());
+  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj002/images"), mProjectXml->imageDirectory());
   QCOMPARE(QString("1.0"), mProjectXml->version());
   QCOMPARE(4, mProjectXml->imagesCount());
-  QCOMPARE(QString("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db"), mProjectXml->database());
+  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj002/database.db"), mProjectXml->database());
 }
 
 void TestProject::test_name_data()
@@ -174,11 +174,11 @@ void TestProject::test_findImage()
 {
   Image img = mProjectXml->findImage("IMG_7209");
   QCOMPARE("IMG_7209", img.name());
-  QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7209.jpg", img.path());
+  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7209.jpg", img.path());
 
   Image img2 = mProjectXml->findImage("IMG_7210");
   QCOMPARE("IMG_7210", img2.name());
-  QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7210.jpg", img2.path());
+  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7210.jpg", img2.path());
 }
 
 void TestProject::test_imageId_data()
@@ -217,16 +217,16 @@ void TestProject::test_imageIterator()
     img = (*it);
     if (i == 0){
       QCOMPARE("IMG_7209", img.name());
-      QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7209.jpg", img.path());
+      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7209.jpg", img.path());
     } else if (i == 1) {
       QCOMPARE("IMG_7210", img.name());
-      QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7210.jpg", img.path());
+      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7210.jpg", img.path());
     } else if (i == 2) {
       QCOMPARE("IMG_7211", img.name());
-      QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7211.jpg", img.path());
+      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7211.jpg", img.path());
     } else if (i == 3) {
       QCOMPARE("IMG_7212", img.name());
-      QCOMPARE("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7212.jpg", img.path());
+      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7212.jpg", img.path());
     }
   }
 }
@@ -332,10 +332,10 @@ void TestProject::test_featureExtractor()
 void TestProject::test_features()
 {
   QString features = mProjectXml->features("IMG_7209");
-  QCOMPARE("IMG_7209@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db", features);
+  QCOMPARE("IMG_7209@C:/Users/User01/Documents/inspector/Projects/prj002/database.db", features);
 
   features = mProjectXml->features("IMG_7210");
-  QCOMPARE("IMG_7210@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db", features);
+  QCOMPARE("IMG_7210@C:/Users/User01/Documents/inspector/Projects/prj002/database.db", features);
 }
 
 void TestProject::test_matches()

@@ -61,7 +61,7 @@ signals:
 //  void openExportFeaturesDialog();
 //  void openExportMatchesDialog();
   void openExportOrientationsDialog();
-//  void openMultiviewMatchingAssessmentDialog();
+  void openGeoreferenceDialog();
   void openAboutDialog();
   void openSettingsDialog();
   void openViewSettingsDialog();

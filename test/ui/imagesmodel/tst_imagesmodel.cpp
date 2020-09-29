@@ -1,7 +1,7 @@
 #include <QtTest>
 
 #include "inspector/core/project.h"
-#include "inspector/ui/ImagesModel.h"
+#include "inspector/ui/images/ImagesModel.h"
 
 using namespace inspector;
 using namespace ui;
@@ -68,7 +68,7 @@ void TestImagesModel::cleanupTestCase()
 
 void TestImagesModel::test_addImage()
 {
-  Image image("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7213.jpg");
+  Image image("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7213.jpg");
   image.setCameraId(1);
   image.setLongitudeExif(0.55);
   image.setLatitudeExif(2.3);
@@ -101,7 +101,7 @@ void TestImagesModel::test_updateImage()
 
 void TestImagesModel::test_deleteImage()
 {
-  Image image("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7214.jpg");
+  Image image("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7214.jpg");
   image.setCameraId(1);
   image.setLongitudeExif(0.66);
   image.setLatitudeExif(2.7);

@@ -29,7 +29,7 @@ public:
 public:
 
   ImagesModel(QObject *parent = nullptr) : IModel(parent) {}
-  virtual ~ImagesModel() override = default;
+  ~ImagesModel() override = default;
 
   //virtual void addImage(const QString &imagePath, size_t cameraId) = 0;
   virtual void addImage(Image &image) = 0;

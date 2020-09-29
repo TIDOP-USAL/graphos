@@ -55,7 +55,7 @@ void TestSiftWidget::initTestCase()
   /// Check default values
   QCOMPARE(5000, mSiftWidget->featuresNumber());
   QCOMPARE(3, mSiftWidget->octaveLayers());
-  QCOMPARE(0.007, mSiftWidget->contrastThreshold());
+  QCOMPARE(0.0067, mSiftWidget->contrastThreshold());
   QCOMPARE(10., mSiftWidget->edgeThreshold());
   QCOMPARE(1.6, mSiftWidget->sigma());
 }
@@ -72,7 +72,7 @@ void TestSiftWidget::cleanupTestCase()
 
   QCOMPARE(5000, mSiftWidget->featuresNumber());
   QCOMPARE(3, mSiftWidget->octaveLayers());
-  QCOMPARE(0.04, mSiftWidget->contrastThreshold());
+  QCOMPARE(0.0067, mSiftWidget->contrastThreshold());
   QCOMPARE(10., mSiftWidget->edgeThreshold());
   QCOMPARE(1.6, mSiftWidget->sigma());
 }

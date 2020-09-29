@@ -2,11 +2,13 @@
 #define INSPECTOR_FEATURE_EXTRACTOR_INTERFACES_H
 
 #include "inspector/interfaces/mvp.h"
-#include "inspector/core/features/features.h"
+//#include "inspector/core/features/features.h"
 #include "inspector/ui/process/ProcessPresenter.h"
 
 namespace inspector
 {
+
+class Feature;
 
 namespace ui
 {

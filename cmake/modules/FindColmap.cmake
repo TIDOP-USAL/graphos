@@ -129,6 +129,17 @@ find_library(COLMAP_CUDA_LIBRARY_DEBUG
              PATHS ${COLMAP_CHECK_LIBRARY_DIRS}
 )
 
+## zlib
+
+find_library(COLMAP_CUDA_LIBRARY
+             NAMES colmap_cuda
+             PATHS ${COLMAP_CHECK_LIBRARY_DIRS}
+)
+find_library(COLMAP_CUDA_LIBRARY_DEBUG
+             NAMES colmap_cudad
+             PATHS ${COLMAP_CHECK_LIBRARY_DIRS}
+)
+
 find_package_handle_standard_args(COLMAP
   FOUND_VAR COLMAP_FOUND
   REQUIRED_VARS
@@ -236,6 +247,8 @@ find_package(OpenGL REQUIRED)
 
 find_package(GLEW REQUIRED)
 
+find_package(ZLIB REQUIRED)
+
 list(APPEND COLMAP_INCLUDE_DIRS
      ${COLMAP_INCLUDE_DIR}
      ${COLMAP_INCLUDE_DIR}/colmap
@@ -247,6 +260,7 @@ list(APPEND COLMAP_INCLUDE_DIRS
      ${FREEIMAGE_INCLUDE_DIRS}
      ${CERES_INCLUDE_DIRS}
      ${GLEW_INCLUDE_DIRS}
+	 ${ZLIB_INCLUDE_DIRS}
 	 )
 
 else()

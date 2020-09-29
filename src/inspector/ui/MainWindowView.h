@@ -145,6 +145,7 @@ signals:
   /* Menú herramientas */
 
   void openCamerasDialog();
+  void openGeoreferenceDialog();
   void openKeypointsViewer();
   void openKeypointsViewerFromImage(QString);
   void openMatchesViewer();
@@ -240,6 +241,7 @@ protected:
   QAction *mActionOrientation;
   QAction *mActionDensification;
   QAction *mActionCameras;
+  QAction *mActionGeoreference;
   QAction *mActionSettings;
   QAction *mActionHelp;
   QAction *mActionAbout;

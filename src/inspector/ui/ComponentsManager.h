@@ -42,6 +42,8 @@ class MatchViewerModel;
 class MatchViewerPresenter;
 class ExportOrientationsModel;
 class ExportOrientationsPresenter;
+class GeoreferenceModel;
+class GeoreferencePresenter;
 class HelpDialog;
 class AboutDialog;
 
@@ -85,6 +87,8 @@ public:
   MatchViewerPresenter *matchesViewerPresenter();
   ExportOrientationsModel *exportOrientationsModel();
   ExportOrientationsPresenter *exportOrientationsPresenter();
+  GeoreferenceModel *georeferenceModel();
+  GeoreferencePresenter *georeferencePresenter();
   //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
 
@@ -112,6 +116,7 @@ protected slots:
                                                 const QString &rightImage);
   void initSettingsDialog();
   void initAndOpenExportOrientationsDialog();
+  void initAndOpenGeoreferenceDialog();
 
 private:
 
@@ -151,8 +156,8 @@ protected:
   MatchViewerPresenter *mMatchesViewerPresenter;
   ExportOrientationsModel *mExportOrientationsModel;
   ExportOrientationsPresenter *mExportOrientationsPresenter;
-//  MultiViewMatchingAssessmentModel *mMultiviewMatchingAssessmentModel;
-//  MultiViewMatchingAssessmentPresenter *mMultiviewMatchingAssessmentPresenter;
+  GeoreferenceModel *mGeoreferenceModel;
+  GeoreferencePresenter *mGeoreferencePresenter;
   //AboutDialog *mAboutDialog;
   HelpDialog *mHelpDialog;
 

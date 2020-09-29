@@ -15,15 +15,24 @@ add_executable(${test_target}
 target_link_libraries(${test_target} PRIVATE
                       inspector_core
                       TidopLib::tl_core
+                      TidopLib::tl_img
                       Qt5::Core
                       Qt5::Test
                       Qt5::Sql
                       ${OpenCV_LIBS}
-                      ${COLMAP_LIBRARIES})
+                      ${COLMAP_LIBRARIES}
+                      ${FREEIMAGE_LIBRARIES}
+                      GLEW::GLEW
+                      ${CERES_LIBRARIES}
+                      ${CUDA_LIBRARIES}
+                      ${OPENGL_gl_LIBRARY}
+                      ${OPENGL_glu_LIBRARY}
+                      ${GDAL_LIBRARY})
 
 target_link_libraries(${test_target} PRIVATE
                       ${Boost_FILESYSTEM_LIBRARY}
-                      ${Boost_SYSTEM_LIBRARY})
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_REGEX_LIBRARY})
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}

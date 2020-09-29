@@ -86,7 +86,7 @@ void TestSift::cleanupTestCase()
 
 void TestSift::test_constructor()
 {
-  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 0.5, 20., 3.);
+  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 20., 3., 0.5);
   QCOMPARE(500, siftDetectorDescriptor.featuresNumber());
   QCOMPARE(4, siftDetectorDescriptor.octaveLayers());
   QCOMPARE(0.5, siftDetectorDescriptor.contrastThreshold());
@@ -96,7 +96,7 @@ void TestSift::test_constructor()
 
 void TestSift::test_copy_constructor()
 {
-  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 0.5, 20., 3.);
+  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 20., 3., 0.5);
   SiftCudaDetectorDescriptor c(siftDetectorDescriptor);
   QCOMPARE(500, c.featuresNumber());
   QCOMPARE(4, c.octaveLayers());

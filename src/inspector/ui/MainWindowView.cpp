@@ -60,6 +60,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionOrientation(new QAction(this)),
     mActionDensification(new QAction(this)),
     mActionCameras(new QAction(this)),
+    mActionGeoreference(new QAction(this)),
     mActionSettings(new QAction(this)),
     mActionHelp(new QAction(this)),
     mActionAbout(new QAction(this)),
@@ -911,6 +912,10 @@ void MainWindowView::initActions()
   iconCameras.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-camera-outline-2.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionCameras->setIcon(iconCameras);
 
+  QIcon iconGeoreference;
+  iconGeoreference.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-coordinate-system.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionGeoreference->setIcon(iconGeoreference);
+
   QIcon iconFeaturesViewer;
   iconFeaturesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_points_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionFeaturesViewer->setIcon(iconFeaturesViewer);
@@ -1012,6 +1017,8 @@ void MainWindowView::initToolbarTools()
   mToolBarTools = new QToolBar(this);
   mToolBarTools->setObjectName("ToolBarTools");
   mToolBarTools->addAction(mActionCameras);
+  mToolBarTools->addSeparator();
+  mToolBarTools->addAction(mActionGeoreference);
   mToolBarTools->addSeparator();
   mToolBarTools->addAction(mActionFeaturesViewer);
   mToolBarTools->addAction(mActionMatchesViewer);
@@ -1120,6 +1127,8 @@ void MainWindowView::initMenuTools()
 {
   ui->menuTools->addAction(mActionCameras);
   ui->menuTools->addSeparator();
+  ui->menuTools->addAction(mActionGeoreference);
+  ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionFeaturesViewer);
   ui->menuTools->addAction(mActionMatchesViewer);
   //ui->menuTools->addAction(mActionPassPointsViewer);
@@ -1172,6 +1181,7 @@ void MainWindowView::initSignalAndSlots()
   /* Menú herramientas */
 
   connect(mActionCameras,            &QAction::triggered,   this,   &MainWindowView::openCamerasDialog);
+  connect(mActionGeoreference,       &QAction::triggered,   this,   &MainWindowView::openGeoreferenceDialog);
   connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
   connect(mActionMatchesViewer,      SIGNAL(triggered(bool)),   this,   SIGNAL(openMatchesViewer()));
   //connect(mActionPassPointsViewer,   SIGNAL(triggered(bool)),   this,   SIGNAL(openMultiviewMatchingAssessment()));
@@ -1228,6 +1238,7 @@ void MainWindowView::update()
   mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
 
   mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
+  mActionGeoreference->setEnabled(bProjectExists && bOriented && !bProcessing);
   mActionFeaturesViewer->setEnabled(bFeatureExtraction);
   mActionMatchesViewer->setEnabled(bFeatureMatching);
   //mActionPassPointsViewer->setEnabled(bFeatureMatching);
@@ -1251,6 +1262,7 @@ void MainWindowView::retranslate()
   mActionOrientation->setText(QApplication::translate("MainWindowView", "Orientation", nullptr));
   mActionDensification->setText(QApplication::translate("MainWindowView", "Densification", nullptr));
   mActionCameras->setText(QApplication::translate("MainWindowView", "Cameras", nullptr));
+  mActionGeoreference->setText(QApplication::translate("MainWindowView", "Georeference", nullptr));
   mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
   mActionAbout->setText(QApplication::translate("MainWindowView", "About", nullptr));
   mActionFeaturesViewer->setText(QApplication::translate("MainWindowView", "Keypoints Viewer", nullptr));

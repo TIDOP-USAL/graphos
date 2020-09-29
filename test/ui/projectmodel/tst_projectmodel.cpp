@@ -86,9 +86,9 @@ void TestProjectModel::testConstructor()
   delete project;
   project = nullptr;
 
-  QCOMPARE(QString("SanSegundo"), mProjectModel->projectName());
-  QCOMPARE(QString("San Segundo"), mProjectModel->projectDescription());
-  QCOMPARE(QString("C:/Users/esteban/Documents/inspector/Projects/SanSegundo"), mProjectModel->projectFolder());
+  QCOMPARE(QString("Proj02"), mProjectModel->projectName());
+  QCOMPARE(QString("Descripción del proyecto 2"), mProjectModel->projectDescription());
+  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj002"), mProjectModel->projectFolder());
   QCOMPARE(QString("1.0"), mProjectModel->version());
   QCOMPARE(QString(INSPECTOR_SOURCE_PATH).append("/test/data/project.xml"), mProjectModel->projectPath());
   QCOMPARE(false, mProjectModel->checkUnsavedChanges());

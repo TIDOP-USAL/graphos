@@ -64,6 +64,9 @@ set(INSPECTOR_SOURCES
     export/orientations/ExportOrientationsPresenter.cpp
     process/ProcessPresenter.cpp
     process/ProcessView.cpp
+    georeference/impl/GeoreferenceModel.cpp
+    georeference/impl/GeoreferenceView.cpp
+    georeference/impl/GeoreferencePresenter.cpp
     # MultiViewModel.cpp
     # MultiViewView.cpp
     # MultiViewPresenter.cpp
@@ -147,6 +150,12 @@ set(INSPECTOR_HEADERS
     export/orientations/ExportOrientationsPresenter.h
     process/ProcessPresenter.h
     process/ProcessView.h
+    georeference/GeoreferenceModel.h
+    georeference/GeoreferencePresenter.h
+    georeference/GeoreferenceView.h
+    georeference/impl/GeoreferenceModel.h
+    georeference/impl/GeoreferencePresenter.h
+    georeference/impl/GeoreferenceView.h
     # Multiview.h
     # MultiViewModel.h
     # MultiViewView.h
@@ -230,7 +239,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
-                      ${GLEW_LIBRARIES}
+                      GLEW::GLEW
                       ${CERES_LIBRARIES}
                       ${OPENGL_gl_LIBRARY}
                       ${OPENGL_glu_LIBRARY}

@@ -24,10 +24,10 @@
         </Camera>
     </Cameras>
     <Images>
-        <ImagesDirectory>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images</ImagesDirectory>
+        <ImagesDirectory>C:/Users/User01/Documents/inspector/Projects/prj002/images</ImagesDirectory>
         <Image>
             <Name>IMG_7209</Name>
-            <File>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7209.jpg</File>
+            <File>C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7209.jpg</File>
             <CameraId>1</CameraId>
             <LongitudeExif>0</LongitudeExif>
             <LatitudeExif>0</LatitudeExif>
@@ -35,7 +35,7 @@
         </Image>
         <Image>
             <Name>IMG_7210</Name>
-            <File>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7210.jpg</File>
+            <File>C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7210.jpg</File>
             <CameraId>1</CameraId>
             <LongitudeExif>0</LongitudeExif>
             <LatitudeExif>0</LatitudeExif>
@@ -43,7 +43,7 @@
         </Image>
         <Image>
             <Name>IMG_7211</Name>
-            <File>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7211.jpg</File>
+            <File>C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7211.jpg</File>
             <CameraId>1</CameraId>
             <LongitudeExif>0</LongitudeExif>
             <LatitudeExif>0</LatitudeExif>
@@ -51,29 +51,30 @@
         </Image>
         <Image>
             <Name>IMG_7212</Name>
-            <File>C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7212.jpg</File>
+            <File>C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7212.jpg</File>
             <CameraId>1</CameraId>
             <LongitudeExif>0</LongitudeExif>
             <LatitudeExif>0</LatitudeExif>
             <AltitudeExif>0</AltitudeExif>
         </Image>
     </Images>
-    <Database>C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</Database>
+    <Database>C:/Users/User01/Documents/inspector/Projects/prj002/database.db</Database>
     <Features>
         <FeatureExtractor>
             <SIFT>
                 <FeaturesNumber>5000</FeaturesNumber>
                 <OctaveLayers>3</OctaveLayers>
+                <ContrastThresholdAuto>true</ContrastThresholdAuto>
                 <ContrastThreshold>0.00666667</ContrastThreshold>
                 <EdgeThreshold>10</EdgeThreshold>
                 <Sigma>1.6</Sigma>
             </SIFT>
         </FeatureExtractor>
         <Files>
-            <FeatFile id="IMG_7209">IMG_7209@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</FeatFile>
-            <FeatFile id="IMG_7210">IMG_7210@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</FeatFile>
-            <FeatFile id="IMG_7211">IMG_7211@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</FeatFile>
-            <FeatFile id="IMG_7212">IMG_7212@C:/Users/esteban/Documents/inspector/Projects/SanSegundo/SanSegundo.db</FeatFile>
+            <FeatFile id="IMG_7209">IMG_7209@C:/Users/User01/Documents/inspector/Projects/prj002/database.db</FeatFile>
+            <FeatFile id="IMG_7210">IMG_7210@C:/Users/User01/Documents/inspector/Projects/prj002/database.db</FeatFile>
+            <FeatFile id="IMG_7211">IMG_7211@C:/Users/User01/Documents/inspector/Projects/prj002/database.db</FeatFile>
+            <FeatFile id="IMG_7212">IMG_7212@C:/Users/User01/Documents/inspector/Projects/prj002/database.db</FeatFile>
         </Files>
     </Features>
     <Matches>
@@ -106,7 +107,7 @@
         </Image>
     </Matches>
     <Orientations>
-        <SparseModel>C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0//sparse.ply</SparseModel>
+        <SparseModel>C:/Users/User01/Documents/inspector/Projects/prj002/sparse/0//sparse.ply</SparseModel>
         <Image id="IMG_7209">
             <X>5.30029</X>
             <Y>-0.162356</Y>
@@ -133,7 +134,7 @@
         </Image>
     </Orientations>
     <Densification>
-        <DenseModel>C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply</DenseModel>
+        <DenseModel>C:/Users/User01/Documents/inspector/Projects/prj002/dense/pmvs/models/option-all.ply</DenseModel>
         <DensificationMethod>
             <CmvsPmvs>
                 <Level>2</Level>

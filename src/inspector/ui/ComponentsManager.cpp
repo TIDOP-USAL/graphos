@@ -37,6 +37,9 @@
 #include "inspector/ui/export/orientations/ExportOrientationsModel.h"
 #include "inspector/ui/export/orientations/ExportOrientationsView.h"
 #include "inspector/ui/export/orientations/ExportOrientationsPresenter.h"
+#include "inspector/ui/georeference/impl/GeoreferenceModel.h"
+#include "inspector/ui/georeference/impl/GeoreferenceView.h"
+#include "inspector/ui/georeference/impl/GeoreferencePresenter.h"
 //#include "inspector/ui/MultiViewModel.h"
 //#include "inspector/ui/MultiViewView.h"
 //#include "inspector/ui/MultiViewPresenter.h"
@@ -86,6 +89,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMatchesViewerPresenter(nullptr),
     mExportOrientationsModel(nullptr),
     mExportOrientationsPresenter(nullptr),
+    mGeoreferenceModel(nullptr),
+    mGeoreferencePresenter(nullptr),
     //mAboutDialog(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
@@ -235,6 +240,16 @@ ComponentsManager::~ComponentsManager()
     mExportOrientationsPresenter = nullptr;
   }
 
+  if (mGeoreferenceModel) {
+    delete mGeoreferenceModel;
+    mGeoreferenceModel = nullptr;
+  }
+
+  if (mGeoreferencePresenter) {
+    delete mGeoreferencePresenter;
+    mGeoreferencePresenter = nullptr;
+  }
+
   if (mProgressHandler){
     delete mProgressHandler;
     mProgressHandler = nullptr;
@@ -311,7 +326,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenViewSettingsDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
             this, &ComponentsManager::initAndOpenToolSettingsDialog);
-
+    connect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
+            this, &ComponentsManager::initAndOpenGeoreferenceDialog);
 //    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
 
   }
@@ -579,6 +595,24 @@ ExportOrientationsPresenter *ComponentsManager::exportOrientationsPresenter()
   return mExportOrientationsPresenter;
 }
 
+GeoreferenceModel *ComponentsManager::georeferenceModel()
+{
+  if (mGeoreferenceModel == nullptr) {
+    mGeoreferenceModel = new GeoreferenceModelImp(mProject);
+  }
+  return mGeoreferenceModel;
+}
+
+GeoreferencePresenter *ComponentsManager::georeferencePresenter()
+{
+  if (mGeoreferencePresenter == nullptr){
+    GeoreferenceView *view = new GeoreferenceViewImp(this->mainWindowView());
+    mGeoreferencePresenter = new GeoreferencePresenterImp(view,
+                                                          this->georeferenceModel());
+  }
+  return mGeoreferencePresenter;
+}
+
 HelpDialog *ComponentsManager::helpDialog()
 {
   if (mHelpDialog == nullptr) {
@@ -696,7 +730,7 @@ void ComponentsManager::initAndOpenLoadImagesDialog()
   connect(this->mainWindowPresenter(), SIGNAL(openLoadImagesDialog()),
           this->imagesPresenter(), SLOT(open()));
 
-  TL_TODO("indicar que se están cargando imagenes")
+  TL_TODO("indicar que se estÃ¡n cargando imagenes")
   connect(this->imagesPresenter(), SIGNAL(running()),  this->mainWindowPresenter(), SLOT(processRunning()));
   connect(this->imagesPresenter(), SIGNAL(finished()), this->mainWindowPresenter(), SLOT(processFinish()));
   connect(this->imagesPresenter(), SIGNAL(loadingImages(bool)), this->mainWindowPresenter(), SLOT(loadingImages(bool)));
@@ -930,6 +964,17 @@ void ComponentsManager::initAndOpenExportOrientationsDialog()
 
   this->exportOrientationsPresenter()->setHelp(this->helpDialog());
   this->exportOrientationsPresenter()->open();
+}
+
+void ComponentsManager::initAndOpenGeoreferenceDialog()
+{
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
+             this, &ComponentsManager::initAndOpenGeoreferenceDialog);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
+          this->georeferencePresenter(), &GeoreferencePresenter::open);
+
+  this->georeferencePresenter()->setHelp(this->helpDialog());
+  this->georeferencePresenter()->open();
 }
 
 //void ComponentsManager::initAndOpenMultiviewMatchingAssessmentDialog()

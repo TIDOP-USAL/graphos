@@ -74,7 +74,7 @@ void TestExportOrientationsView::cleanupTestCase()
 
 void TestExportOrientationsView::test_windowTitle()
 {
-  QCOMPARE("Export Keypoints", this->windowTitle());
+  QCOMPARE("Export Cameras", this->windowTitle());
 }
 
 void TestExportOrientationsView::test_constructor()
