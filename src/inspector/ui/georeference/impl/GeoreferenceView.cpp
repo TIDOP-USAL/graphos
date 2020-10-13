@@ -194,7 +194,7 @@ void GeoreferenceViewImp::retranslate()
   mPushButtonImportCameras->setText(QCoreApplication::translate("GeoreferenceViewImp", "Import Cameras", nullptr));
   mLabelCrsInput->setText(QCoreApplication::translate("GeoreferenceViewImp", "CRS input", nullptr));
   mLabelCrsOutput->setText(QCoreApplication::translate("GeoreferenceViewImp", "CRS output", nullptr));
-  mPushButtonGeoreference->setText(QCoreApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
+  //mPushButtonGeoreference->setText(QCoreApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
   mLabelImageColumn->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image:", nullptr));
   mLabelXColumn->setText(QCoreApplication::translate("GeoreferenceViewImp", "X:", nullptr));
   mLabelYColumn->setText(QCoreApplication::translate("GeoreferenceViewImp", "Y:", nullptr));

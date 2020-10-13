@@ -62,6 +62,7 @@ signals:
 //  void openExportMatchesDialog();
   void openExportOrientationsDialog();
   void openGeoreferenceDialog();
+  void openCamerasImportDialog();
   void openAboutDialog();
   void openSettingsDialog();
   void openViewSettingsDialog();

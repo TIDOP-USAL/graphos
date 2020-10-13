@@ -294,12 +294,12 @@ if(Qt5_FOUND)
 
 
 	include_directories(${Qt5Core_INCLUDE_DIRS}
-						${Qt5OpenGL_INCLUDE_DIRS}
-						${Qt5Widgets_INCLUDE_DIRS}
-						${Qt5Help_INCLUDE_DIRS}
-						${Qt5Sql_INCLUDE_DIRS}
-						${Qt5Concurrent_INCLUDE_DIRS}
-						${Qt5LinguistTools_INCLUDE_DIRS})
+                      ${Qt5OpenGL_INCLUDE_DIRS}
+                      ${Qt5Widgets_INCLUDE_DIRS}
+                      ${Qt5Help_INCLUDE_DIRS}
+                      ${Qt5Sql_INCLUDE_DIRS}
+                      ${Qt5Concurrent_INCLUDE_DIRS}
+                      ${Qt5LinguistTools_INCLUDE_DIRS})
 	if(BUILD_TEST)
 		include_directories(${Qt5Test_INCLUDE_DIRS})
 	endif(BUILD_TEST)

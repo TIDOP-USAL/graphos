@@ -67,6 +67,9 @@ set(INSPECTOR_SOURCES
     georeference/impl/GeoreferenceModel.cpp
     georeference/impl/GeoreferenceView.cpp
     georeference/impl/GeoreferencePresenter.cpp
+    import/cameras/impl/CameraPositionsModel.cpp
+    import/cameras/impl/CameraPositionsView.cpp
+    import/cameras/impl/CameraPositionsPresenter.cpp
     # MultiViewModel.cpp
     # MultiViewView.cpp
     # MultiViewPresenter.cpp
@@ -156,6 +159,12 @@ set(INSPECTOR_HEADERS
     georeference/impl/GeoreferenceModel.h
     georeference/impl/GeoreferencePresenter.h
     georeference/impl/GeoreferenceView.h
+    import/cameras/CameraPositionsModel.h
+    import/cameras/CameraPositionsView.h
+    import/cameras/CameraPositionsPresenter.h
+    import/cameras/impl/CameraPositionsModel.h
+    import/cameras/impl/CameraPositionsView.h
+    import/cameras/impl/CameraPositionsPresenter.h
     # Multiview.h
     # MultiViewModel.h
     # MultiViewView.h
@@ -225,6 +234,7 @@ source_group("Resource Files"  FILES ${INSPECTOR_RESOURCES})
 target_link_libraries(${PROJECT_NAME}
                       TidopLib::tl_core
                       TidopLib::tl_geom
+                      TidopLib::tl_geospatial
                       TidopLib::tl_img
                       TidopLib::tl_math
                       Qt5::Core

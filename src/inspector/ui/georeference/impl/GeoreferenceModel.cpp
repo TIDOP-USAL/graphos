@@ -95,6 +95,14 @@ void GeoreferenceModelImp::importPositionsFromCSV(const QString &csv, const QStr
   }
 }
 
+void GeoreferenceModelImp::loadCameraPositions()
+{
+  ///TODO: leer de proyecto
+
+}
+
 } // namespace ui
 
 } // namespace inspector
+
+

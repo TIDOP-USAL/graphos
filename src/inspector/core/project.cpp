@@ -703,7 +703,9 @@ Image ProjectImp::readImage(QXmlStreamReader &stream)
       photo.setPath(stream.readElementText());
     } else if (stream.name() == "CameraId") {
       photo.setCameraId(readInt(stream));
-    } else if (stream.name() == "LongitudeExif") {
+    } else if (stream.name() == "CameraPosition") {
+      photo.setCameraPosition(readCameraPosition(stream));
+    } /*else if (stream.name() == "LongitudeExif") {
       photo.setLongitudeExif(readDouble(stream));
     } else if (stream.name() == "LongitudeExif") {
       photo.setLongitudeExif(readDouble(stream));
@@ -711,10 +713,31 @@ Image ProjectImp::readImage(QXmlStreamReader &stream)
       photo.setLatitudeExif(readDouble(stream));
     } else if (stream.name() == "AltitudeExif") {
       photo.setAltitudeExif(readDouble(stream));
-    } else
+    }*/ else
       stream.skipCurrentElement();
   }
   return photo;
+}
+
+CameraPosition ProjectImp::readCameraPosition(QXmlStreamReader &stream)
+{
+  CameraPosition cameraPosition;
+
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "CRS") {
+      cameraPosition.setCrs(stream.readElementText());
+    } else if (stream.name() == "X") {
+      cameraPosition.setX(readDouble(stream));
+    } else if (stream.name() == "Y") {
+      cameraPosition.setY(readDouble(stream));
+    } else if (stream.name() == "Z") {
+      cameraPosition.setZ(readInt(stream));
+    } else if (stream.name() == "Source") {
+      cameraPosition.setSource(stream.readElementText());
+    }
+  }
+
+  return cameraPosition;
 }
 
 void ProjectImp::readCameras(QXmlStreamReader &stream)
@@ -1137,9 +1160,24 @@ void ProjectImp::writeImage(QXmlStreamWriter &stream, const Image &image) const
     stream.writeTextElement("Name", image.name());
     stream.writeTextElement("File", image.path());
     stream.writeTextElement("CameraId", QString::number(image.cameraId()));
-    stream.writeTextElement("LongitudeExif", QString::number(image.longitudeExif()));
-    stream.writeTextElement("LatitudeExif", QString::number(image.latitudeExif()));
-    stream.writeTextElement("AltitudeExif", QString::number(image.altitudeExif()));
+    writeCameraPosition(stream, image.cameraPosition());
+//    stream.writeTextElement("LongitudeExif", QString::number(image.longitudeExif()));
+//    stream.writeTextElement("LatitudeExif", QString::number(image.latitudeExif()));
+//    stream.writeTextElement("AltitudeExif", QString::number(image.altitudeExif()));
+  }
+  stream.writeEndElement();
+}
+
+void ProjectImp::writeCameraPosition(QXmlStreamWriter &stream,
+                                     const CameraPosition &cameraPosition) const
+{
+  stream.writeStartElement("CameraPosition");
+  {
+    stream.writeTextElement("CRS", cameraPosition.crs());
+    stream.writeTextElement("X", QString::number(cameraPosition.x(), 'f', 3));
+    stream.writeTextElement("Y", QString::number(cameraPosition.y(), 'f', 3));
+    stream.writeTextElement("Z", QString::number(cameraPosition.z(), 'f', 3));
+    stream.writeTextElement("Source", cameraPosition.source());
   }
   stream.writeEndElement();
 }

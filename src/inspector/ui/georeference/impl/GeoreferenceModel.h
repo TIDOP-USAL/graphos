@@ -32,7 +32,8 @@ public:
 
 public slots:
 
-  void loadCSV(const QString &csv, const QString &split = ";") override;
+  void importPositionsFromCSV(const QString &csv, const QString &split = ";") override;
+  void loadCameraPositions() override;
 
 // IModel interface
 
@@ -48,6 +49,7 @@ protected:
 
   Project *mProject;
   QStandardItemModel *mItemModel;
+
 };
 
 } // namespace ui

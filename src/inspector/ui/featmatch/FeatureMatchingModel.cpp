@@ -58,8 +58,8 @@ bool FeatureMatchingModelImp::spatialMatching() const
   bool bSpatialMatching = false;
 
   auto it = mProject->imageBegin();
-  if (it->longitudeExif() != 0.0 &&
-      it->latitudeExif() != 0.0)
+  CameraPosition cameraPosition = it->cameraPosition();
+  if (!cameraPosition.isEmpty())
     bSpatialMatching = true;
 
   return bSpatialMatching;

@@ -219,6 +219,10 @@ void inspector::LoadImagesProcess::run()
 
       tl::MessageManager::pause();
 
+      double latitudeDecimalDegrees = 0.0;
+      double longitudeDecimalDegrees = 0.0;
+      double altitude = 0.0;
+
       bool bActive = false;
       std::string latitude = image_metadata->metadata("EXIF_GPSLatitude", bActive);
       std::string latitude_ref = image_metadata->metadata("EXIF_GPSLatitudeRef", bActive);
@@ -246,9 +250,9 @@ void inspector::LoadImagesProcess::run()
           seconds = std::stod(latitude.substr(pos1+1, pos2 - pos1+1));
         }
 
-        double latitudeDecimalDegrees = tl::math::degreesToDecimalDegrees(degrees, minutes, seconds);
+        latitudeDecimalDegrees = tl::math::degreesToDecimalDegrees(degrees, minutes, seconds);
         if (latitude_ref.compare("S") == 0) latitudeDecimalDegrees = -latitudeDecimalDegrees;
-        (*mImages)[i].setLatitudeExif(latitudeDecimalDegrees);
+        //(*mImages)[i].setLatitudeExif(latitudeDecimalDegrees);
       }
 
       std::string longitude = image_metadata->metadata("EXIF_GPSLongitude", bActive);
@@ -276,20 +280,30 @@ void inspector::LoadImagesProcess::run()
           seconds = std::stod(longitude.substr(pos1+1, pos2 - pos1+1));
         }
 
-        double longitudeDecimalDegrees = tl::math::degreesToDecimalDegrees(degrees, minutes, seconds);
+        longitudeDecimalDegrees = tl::math::degreesToDecimalDegrees(degrees, minutes, seconds);
         if (longitude_ref.compare("W") == 0) longitudeDecimalDegrees = -longitudeDecimalDegrees;
-        (*mImages)[i].setLongitudeExif(longitudeDecimalDegrees);
+        //(*mImages)[i].setLongitudeExif(longitudeDecimalDegrees);
       }
 
-      std::string altitude = image_metadata->metadata("EXIF_GPSAltitude", bActive);
+      std::string gps_altitude = image_metadata->metadata("EXIF_GPSAltitude", bActive);
       if (bActive) {
-        size_t pos1 = altitude.find("(");
-        size_t pos2 = altitude.find(")");
-        double h;
+        size_t pos1 = gps_altitude.find("(");
+        size_t pos2 = gps_altitude.find(")");
+
         if (pos1 != std::string::npos && pos2 != std::string::npos) {
-          h = std::stod(altitude.substr(pos1+1, pos2 - pos1+1));
+          altitude = std::stod(gps_altitude.substr(pos1+1, pos2 - pos1+1));
         }
-        (*mImages)[i].setAltitudeExif(h);
+        //(*mImages)[i].setAltitudeExif(h);
+      }
+
+      if (latitudeDecimalDegrees != 0.0 && longitudeDecimalDegrees != 0.0 && altitude != 0.0){
+        CameraPosition cameraPosition;
+        cameraPosition.setX(longitudeDecimalDegrees);
+        cameraPosition.setY(latitudeDecimalDegrees);
+        cameraPosition.setZ(altitude);
+        cameraPosition.setCrs("EPSG:4326");
+        cameraPosition.setSource("EXIF");
+        (*mImages)[i].setCameraPosition(cameraPosition);
       }
 
       tl::MessageManager::resume();

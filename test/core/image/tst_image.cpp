@@ -54,9 +54,11 @@ void TestImage::initTestCase()
   QCOMPARE(QString(), mImage->path());
   QCOMPARE(QString(), mImage->name());
   QCOMPARE(0, mImage->cameraId());
-  QCOMPARE(0., mImage->longitudeExif());
-  QCOMPARE(0., mImage->latitudeExif());
-  QCOMPARE(0., mImage->altitudeExif());
+  CameraPosition cameraPosition = mImage->cameraPosition();
+  QCOMPARE(true, cameraPosition.isEmpty());
+  QCOMPARE(TL_DOUBLE_MAX, cameraPosition.x());
+  QCOMPARE(TL_DOUBLE_MAX, cameraPosition.y());
+  QCOMPARE(TL_DOUBLE_MAX, cameraPosition.z());
 }
 
 void TestImage::cleanupTestCase()
@@ -71,38 +73,44 @@ void TestImage::test_constructor()
   QCOMPARE(QString("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png"), mImage->path());
   QCOMPARE(QString("img001"), mImage->name());
   QCOMPARE(0, mImage->cameraId());
-  QCOMPARE(0., mImage->longitudeExif());
-  QCOMPARE(0., mImage->latitudeExif());
-  QCOMPARE(0., mImage->altitudeExif());
+  CameraPosition cameraPosition = mImage->cameraPosition();
+  QCOMPARE(true, cameraPosition.isEmpty());
+  QCOMPARE(TL_DOUBLE_MAX, cameraPosition.x());
+  QCOMPARE(TL_DOUBLE_MAX, cameraPosition.y());
+  QCOMPARE(TL_DOUBLE_MAX, cameraPosition.z());
 
   /// Copy constructor
   Image image("C:/Users/User01/Documents/Graphos/Projects/images/img002.png");
   image.setCameraId(1);
-  image.setLongitudeExif(0.5);
-  image.setLatitudeExif(2.3);
-  image.setAltitudeExif(10.2);
+  CameraPosition cameraPosition2;
+  cameraPosition2.setX(0.5);
+  cameraPosition2.setY(2.3);
+  cameraPosition2.setZ(10.2);
+  image.setCameraPosition(cameraPosition2);
   mImage = new Image(image);
   QCOMPARE(QString("C:/Users/User01/Documents/Graphos/Projects/images/img002.png"), mImage->path());
   QCOMPARE(QString("img002"), mImage->name());
   QCOMPARE(1, mImage->cameraId());
-  QCOMPARE(0.5, mImage->longitudeExif());
-  QCOMPARE(2.3, mImage->latitudeExif());
-  QCOMPARE(10.2, mImage->altitudeExif());
+  cameraPosition = mImage->cameraPosition();
+  QCOMPARE(0.5, cameraPosition.x());
+  QCOMPARE(2.3, cameraPosition.y());
+  QCOMPARE(10.2, cameraPosition.z());
 
   /// Move constructor
   mImage = new Image(std::move(image));
   QCOMPARE(QString("C:/Users/User01/Documents/Graphos/Projects/images/img002.png"), mImage->path());
   QCOMPARE(QString("img002"), mImage->name());
   QCOMPARE(1, mImage->cameraId());
-  QCOMPARE(0.5, mImage->longitudeExif());
-  QCOMPARE(2.3, mImage->latitudeExif());
-  QCOMPARE(10.2, mImage->altitudeExif());
+  cameraPosition = mImage->cameraPosition();
+  QCOMPARE(0.5, cameraPosition.x());
+  QCOMPARE(2.3, cameraPosition.y());
+  QCOMPARE(10.2, cameraPosition.z());
 
   QCOMPARE(QString(""), image.path());
   QCOMPARE(QString(""), image.name());
-  QCOMPARE(0., image.longitudeExif());
-  QCOMPARE(0., image.latitudeExif());
-  QCOMPARE(0., image.altitudeExif());
+  QCOMPARE(TL_DOUBLE_MAX, image.cameraPosition().x());
+  QCOMPARE(TL_DOUBLE_MAX, image.cameraPosition().y());
+  QCOMPARE(TL_DOUBLE_MAX, image.cameraPosition().z());
 }
 
 void TestImage::test_path_data()
@@ -185,8 +193,10 @@ void TestImage::test_longitudeExif()
   QFETCH(double, value);
   QFETCH(double, result);
 
-  mImage->setLongitudeExif(value);
-  QCOMPARE(result, mImage->longitudeExif());
+  CameraPosition cameraPosition;
+
+  cameraPosition.setX(value);
+  QCOMPARE(result, cameraPosition.x());
 }
 
 void TestImage::test_latitudeExif_data()
@@ -205,8 +215,9 @@ void TestImage::test_latitudeExif()
   QFETCH(double, value);
   QFETCH(double, result);
 
-  mImage->setLatitudeExif(value);
-  QCOMPARE(result, mImage->latitudeExif());
+  CameraPosition cameraPosition;
+  cameraPosition.setY(value);
+  QCOMPARE(result, cameraPosition.y());
 }
 
 void TestImage::test_altitudeExif_data()
@@ -224,8 +235,9 @@ void TestImage::test_altitudeExif()
   QFETCH(double, value);
   QFETCH(double, result);
 
-  mImage->setAltitudeExif(value);
-  QCOMPARE(result, mImage->altitudeExif());
+  CameraPosition cameraPosition;
+  cameraPosition.setZ(value);
+  QCOMPARE(result, cameraPosition.z());
 }
 
 QTEST_APPLESS_MAIN(TestImage)

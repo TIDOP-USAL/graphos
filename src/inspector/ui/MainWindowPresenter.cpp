@@ -1075,6 +1075,7 @@ void MainWindowPresenter::initSignalAndSlots()
   connect(mView, &MainWindowView::openProject,            this, &MainWindowPresenter::openProject);
   connect(mView, &MainWindowView::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);  ///TODO: falta test señal
   connect(mView, &MainWindowView::clearHistory,           this, &MainWindowPresenter::deleteHistory);
+  connect(mView,  &MainWindowView::openCamerasImport,     this, &MainWindowPresenter::openCamerasImportDialog);
   //connect(mView, &MainWindowView::openExportFeatures,     this, &MainWindowPresenter::openExportFeaturesDialog);
   //connect(mView, &MainWindowView::openExportMatches,      this, &MainWindowPresenter::openExportMatchesDialog);
   connect(mView, &MainWindowView::openExportOrientations, this, &MainWindowPresenter::openExportOrientationsDialog);

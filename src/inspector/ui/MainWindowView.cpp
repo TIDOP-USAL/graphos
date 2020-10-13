@@ -64,6 +64,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionSettings(new QAction(this)),
     mActionHelp(new QAction(this)),
     mActionAbout(new QAction(this)),
+    mActionImportCameras(new QAction(this)),
     mActionExportTiePoints(new QAction(this)),
     mActionExportMatches(new QAction(this)),
     mActionExportOrientations(new QAction(this)),
@@ -1069,6 +1070,10 @@ void MainWindowView::initMenuFile()
   ui->menuFile->addAction(mActionSaveProject);
   ui->menuFile->addAction(mActionSaveProjectAs);
   ui->menuFile->addSeparator();
+  mMenuImport = new QMenu(this);
+  mMenuImport->addAction(mActionImportCameras);
+  ui->menuFile->addMenu(mMenuImport);
+  ui->menuFile->addSeparator();
   mMenuExport = new QMenu(this);
   mMenuExport->addAction(mActionExportTiePoints);
   mMenuExport->addAction(mActionExportMatches);
@@ -1160,6 +1165,7 @@ void MainWindowView::initSignalAndSlots()
   connect(mActionClearHistory,         &QAction::triggered, this,   &MainWindowView::clearHistory);
   connect(mActionSaveProject,          &QAction::triggered, this,   &MainWindowView::saveProject);
   connect(mActionSaveProjectAs,        &QAction::triggered, this,   &MainWindowView::saveProjectAs);
+  connect(mActionImportCameras,        &QAction::triggered, this,   &MainWindowView::openCamerasImport);
   connect(mActionExportTiePoints,      &QAction::triggered, this,   &MainWindowView::openExportFeatures);
   connect(mActionExportMatches,        &QAction::triggered, this,   &MainWindowView::openExportMatches);
   connect(mActionExportOrientations,   &QAction::triggered, this,   &MainWindowView::openExportOrientations);
@@ -1223,6 +1229,7 @@ void MainWindowView::update()
   mMenuRecentProjects->setEnabled(!bProcessing);
   mActionNotRecentProjects->setVisible(mHistory.size() == 0);
   mActionClearHistory->setEnabled(mHistory.size() > 0);
+  mActionImportCameras->setEnabled(bProjectExists && !bProcessing);
   mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
   mActionExportOrientations->setEnabled(bProjectExists && bOriented && !bProcessing);
@@ -1250,6 +1257,7 @@ void MainWindowView::retranslate()
   mActionOpenProject->setText(QApplication::translate("MainWindowView", "Open Project", nullptr));
   mActionSaveProject->setText(QApplication::translate("MainWindowView", "Save Project", nullptr));
   mActionSaveProjectAs->setText(QApplication::translate("MainWindowView", "Save Project As...", nullptr));
+  mActionImportCameras->setText(QApplication::translate("MainWindowView", "Import Cameras", nullptr));
   mActionExportTiePoints->setText(QApplication::translate("MainWindowView", "Export tie points", nullptr));
   mActionExportMatches->setText(QApplication::translate("MainWindowView", "Export Matches", nullptr));
   mActionExportOrientations->setText(QApplication::translate("MainWindowView", "Export Orientations", nullptr));
@@ -1283,6 +1291,7 @@ void MainWindowView::retranslate()
   mToolBarTools->setWindowTitle(QCoreApplication::translate("MainWindowView", "Tools", nullptr));
 
   mMenuRecentProjects->setTitle(QApplication::translate("MainWindowView", "Recent Projects", nullptr));
+  mMenuImport->setTitle(QApplication::translate("MainWindowView", "Import", nullptr));
   mMenuExport->setTitle(QApplication::translate("MainWindowView", "Export", nullptr));
   mMenuPanels->setTitle(QApplication::translate("MainWindowView", "Dockable panels", nullptr));
   mMenuToolBar->setTitle(QApplication::translate("MainWindowView", "Toolbars", nullptr));

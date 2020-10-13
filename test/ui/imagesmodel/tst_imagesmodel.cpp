@@ -70,32 +70,40 @@ void TestImagesModel::test_addImage()
 {
   Image image("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7213.jpg");
   image.setCameraId(1);
-  image.setLongitudeExif(0.55);
-  image.setLatitudeExif(2.3);
-  image.setAltitudeExif(10.2);
+  CameraPosition cameraPosition2;
+  cameraPosition2.setX(0.5);
+  cameraPosition2.setY(2.3);
+  cameraPosition2.setZ(10.2);
+  image.setCameraPosition(cameraPosition2);
   mImagesModel->addImage(image);
 
   Image image2 = mImagesModel->findImageByName("IMG_7213");
   QCOMPARE(QString("IMG_7213"), image2.name());
   QCOMPARE(1, image2.cameraId());
-  QCOMPARE(0.55, image2.longitudeExif());
-  QCOMPARE(2.3, image2.latitudeExif());
-  QCOMPARE(10.2, image2.altitudeExif());
+  CameraPosition cameraPosition = image2.cameraPosition();
+  QCOMPARE(0.5, cameraPosition.x());
+  QCOMPARE(2.3, cameraPosition.y());
+  QCOMPARE(10.2, cameraPosition.z());
 }
 
 void TestImagesModel::test_updateImage()
 {
   Image image1 = mImagesModel->findImageById(0);
-  image1.setAltitudeExif(25.0);
+  CameraPosition cameraPosition = image1.cameraPosition();
+  double z = cameraPosition.z();
+  cameraPosition.setZ(25.0);
+  image1.setCameraPosition(cameraPosition);
 
   bool modified = mImagesModel->updateImage(0, image1);
   QCOMPARE(true, modified);
 
   Image image_modified = mImagesModel->findImageById(0);
-  QCOMPARE(25.0, image_modified.altitudeExif());
+  cameraPosition = image_modified.cameraPosition();
+  QCOMPARE(25.0, cameraPosition.z());
 
   // Se recupera el estado original
-  image1.setAltitudeExif(0);
+  cameraPosition.setZ(z);
+  image1.setCameraPosition(cameraPosition);
   mImagesModel->updateImage(0, image1);
 }
 
@@ -103,9 +111,6 @@ void TestImagesModel::test_deleteImage()
 {
   Image image("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7214.jpg");
   image.setCameraId(1);
-  image.setLongitudeExif(0.66);
-  image.setLatitudeExif(2.7);
-  image.setAltitudeExif(10.1);
 
   mImagesModel->addImage(image);
 
@@ -134,9 +139,9 @@ void TestImagesModel::test_findImage()
 
   QCOMPARE(image1.name(), image2.name());
   QCOMPARE(image1.cameraId(), image2.cameraId());
-  QCOMPARE(image1.longitudeExif(), image2.longitudeExif());
-  QCOMPARE(image1.latitudeExif(), image2.latitudeExif());
-  QCOMPARE(image1.altitudeExif(), image2.altitudeExif());
+  QCOMPARE(image1.cameraPosition().x(), image2.cameraPosition().x());
+  QCOMPARE(image1.cameraPosition().y(), image2.cameraPosition().y());
+  QCOMPARE(image1.cameraPosition().z(), image2.cameraPosition().z());
   QCOMPARE(image1.cameraId(), image2.cameraId());
 }
 

@@ -75,8 +75,8 @@ bool OrientationModelImp::gpsOrientation() const
   bool bGpsOrientation = false;
 
   auto it = mProject->imageBegin();
-  if (it->longitudeExif() != 0.0 &&
-      it->latitudeExif() != 0.0)
+  CameraPosition cameraPosition = it->cameraPosition();
+  if (!cameraPosition.isEmpty())
     bGpsOrientation = true;
 
   return bGpsOrientation;
@@ -93,7 +93,11 @@ std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() 
   for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++) {
     QString path = it->path();
     QString file_name = QFileInfo(path).fileName();
-    std::array<double, 3> positions = {it->longitudeExif(), it->latitudeExif(), it->altitudeExif()};
+    CameraPosition cameraPosition = it->cameraPosition();
+    std::array<double, 3> positions = {
+    cameraPosition.x(),
+    cameraPosition.y(),
+    cameraPosition.z()};
     camera_positions[file_name] = positions;
   }
   return camera_positions;

@@ -120,20 +120,19 @@ void OrientationPresenterImp::createProcess()
 
   mMultiProcess->appendProcess(relativeOrientationProcess);
 
-  //if (mModel->gpsOrientation()) {
-  //  QString ori_absolute = mModel->projectPath() + "/sparse/absolute/";
-  //  std::map<QString, std::array<double, 3>> camera_positions = mModel->cameraPositions();
-  //  std::shared_ptr<AbsoluteOrientationAlgorithm> absoluteOrientationAlgorithm;
-  //  absoluteOrientationAlgorithm = std::make_shared<AbsoluteOrientationColmapAlgorithm>(ori_relative, 
-  //                                                                                      camera_positions, 
-  //                                                                                      ori_absolute);
+  if (mModel->gpsOrientation()) {
+    QString ori_absolute = mModel->projectPath() + "/sparse/absolute/";
+    std::map<QString, std::array<double, 3>> camera_positions = mModel->cameraPositions();
+    std::shared_ptr<AbsoluteOrientationAlgorithm> absoluteOrientationAlgorithm;
+    absoluteOrientationAlgorithm = std::make_shared<AbsoluteOrientationColmapAlgorithm>(ori_relative,
+                                                                                        camera_positions,
+                                                                                        ori_absolute);
+    std::shared_ptr<AbsoluteOrientationProcess> absoluteOrientationProcess(new AbsoluteOrientationProcess(absoluteOrientationAlgorithm));
 
-  //  std::shared_ptr<AbsoluteOrientationProcess> absoluteOrientationProcess(new AbsoluteOrientationProcess(absoluteOrientationAlgorithm));
-  //  
-  //  connect(absoluteOrientationProcess.get(), SIGNAL(absoluteOrientationFinished()), this, SLOT(onAbsoluteOrientationFinished()));
+    connect(absoluteOrientationProcess.get(), SIGNAL(absoluteOrientationFinished()), this, SLOT(onAbsoluteOrientationFinished()));
 
-  //  mMultiProcess->appendProcess(absoluteOrientationProcess);
-  //}
+    mMultiProcess->appendProcess(absoluteOrientationProcess);
+  }
 
   if (mProgressHandler){
     mProgressHandler->setRange(0, 0);

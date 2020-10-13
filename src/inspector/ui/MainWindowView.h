@@ -123,6 +123,7 @@ signals:
   void clearHistory();
   void saveProject();
   void saveProjectAs();
+  void openCamerasImport();
   void openExportFeatures();
   void openExportMatches();
   void openExportOrientations();
@@ -245,6 +246,7 @@ protected:
   QAction *mActionSettings;
   QAction *mActionHelp;
   QAction *mActionAbout;
+  QAction *mActionImportCameras;
   QAction *mActionExportTiePoints;
   QAction *mActionExportMatches;
   QAction *mActionExportOrientations;
@@ -254,6 +256,7 @@ protected:
   QAction *mActionNotRecentProjects;
   QAction *mActionClearHistory;  
   QMenu *mMenuRecentProjects;
+  QMenu *mMenuImport;
   QMenu *mMenuExport;
   QMenu *mMenuPanels;
   QMenu *mMenuToolBar;

@@ -44,6 +44,8 @@ class ExportOrientationsModel;
 class ExportOrientationsPresenter;
 class GeoreferenceModel;
 class GeoreferencePresenter;
+class CamerasImportModel;
+class CamerasImportPresenter;
 class HelpDialog;
 class AboutDialog;
 
@@ -89,6 +91,9 @@ public:
   ExportOrientationsPresenter *exportOrientationsPresenter();
   GeoreferenceModel *georeferenceModel();
   GeoreferencePresenter *georeferencePresenter();
+  CamerasImportModel *camerasImportModel();
+  CamerasImportPresenter *camerasImportPresenter();
+
   //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
 
@@ -117,6 +122,7 @@ protected slots:
   void initSettingsDialog();
   void initAndOpenExportOrientationsDialog();
   void initAndOpenGeoreferenceDialog();
+  void initAndOpenCamerasImportDialog();
 
 private:
 
@@ -158,6 +164,8 @@ protected:
   ExportOrientationsPresenter *mExportOrientationsPresenter;
   GeoreferenceModel *mGeoreferenceModel;
   GeoreferencePresenter *mGeoreferencePresenter;
+  CamerasImportModel *mCamerasImportModel;
+  CamerasImportPresenter *mCamerasImportPresenter;
   //AboutDialog *mAboutDialog;
   HelpDialog *mHelpDialog;
 

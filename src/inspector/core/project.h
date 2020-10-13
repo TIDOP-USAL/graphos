@@ -441,6 +441,7 @@ protected:
   void readDatabase(QXmlStreamReader &stream);
   void readImages(QXmlStreamReader &stream);
   Image readImage(QXmlStreamReader &stream);
+  CameraPosition readCameraPosition(QXmlStreamReader &stream);
   void readCameras(QXmlStreamReader &stream);
   Camera readCamera(QXmlStreamReader &stream);
   void readCalibration(QXmlStreamReader &stream, Camera &camera);
@@ -470,6 +471,7 @@ protected:
   void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
   void writeImages(QXmlStreamWriter &stream) const;
   void writeImage(QXmlStreamWriter &stream, const Image &image) const;
+  void writeCameraPosition(QXmlStreamWriter &stream, const CameraPosition &cameraPosition) const;
   void writeFeatures(QXmlStreamWriter &stream) const;
   void writeFeatureExtractor(QXmlStreamWriter &stream) const;
   void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;

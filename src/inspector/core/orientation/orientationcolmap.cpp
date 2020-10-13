@@ -292,6 +292,9 @@ void AbsoluteOrientationColmapAlgorithm::run()
   //  ref_image_names.push_back(image_name);
   //  ref_locations.push_back(camera_position);
   //}
+
+  Eigen::Vector3d center;
+
   for (const auto &cameraPosition : mCameraPositions) {
     std::string image_name = cameraPosition.first.toStdString();
     ref_image_names.push_back(image_name);
@@ -299,7 +302,14 @@ void AbsoluteOrientationColmapAlgorithm::run()
     camera_position[0] = cameraPosition.second[0];
     camera_position[1] = cameraPosition.second[1];
     camera_position[2] = cameraPosition.second[2];
+    center += camera_position;
     ref_locations.push_back(camera_position);
+  }
+  center /= mCameraPositions.size();
+  msgInfo("Desplazamiento cámaras %lf,%lf,%lf", center[0], center[1], center[2] );
+
+  for (auto &pos : ref_locations){
+    pos -= center;
   }
 
   colmap::Reconstruction reconstruction;

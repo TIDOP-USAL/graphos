@@ -7,33 +7,50 @@
 
 #include <QString>
 
+#include <memory>
+
 namespace inspector
 {
 
-class INSPECTOR_EXPORT Image
+class CameraPosition
 {
 
 public:
 
-  class CameraPosition
-  {
+  CameraPosition();
+  ~CameraPosition() = default;
 
-  public:
+  QString crs() const;
+  void setCrs(const QString &crs);
 
-    CameraPosition() {}
+  double x() const;
+  void setX(double x);
+  double y() const;
+  void setY(double y);
+  double z() const;
+  void setZ(double z);
 
-    QString crs() const;
-    void setCrs(const QString &crs);
+  QString source() const;
+  void setSource(const QString &source);
 
-    double x() const;
-    void double setX();
-    double y() const;
-    void double setY();
-    double z() const;
-    void double setZ();
-    void rotation() const;
-    void setRotation();
-  };
+  bool isEmpty() const;
+  //std::shared_ptr<tl::math::Rotation> rotation() const;
+  //void setRotation(std::shared_ptr<tl::math::Rotation> &rotation);
+
+private:
+
+  QString mCrs;
+  double mX;
+  double mY;
+  double mZ;
+  QString mSource;
+  //std::shared_ptr<tl::math::Rotation> mRotation;
+};
+
+
+
+class INSPECTOR_EXPORT Image
+{
 
 public:
 
@@ -95,41 +112,44 @@ public:
    */
   void setCameraId(int cameraId);
 
-  /*!
-   * \brief longitudeExif
-   * \return
-   */
-  double longitudeExif() const;
+  CameraPosition cameraPosition() const;
+  void setCameraPosition(const CameraPosition &cameraPosition);
 
-  /*!
-   * \brief setLongitudeExif
-   * \param longitudeExif
-   */
-  void setLongitudeExif(double longitudeExif);
+//  /*!
+//   * \brief longitudeExif
+//   * \return
+//   */
+//  double longitudeExif() const;
 
-  /*!
-   * \brief latitudeExif
-   * \return
-   */
-  double latitudeExif() const;
+//  /*!
+//   * \brief setLongitudeExif
+//   * \param longitudeExif
+//   */
+//  void setLongitudeExif(double longitudeExif);
 
-  /*!
-   * \brief setLatitudeExif
-   * \param latitudeExif
-   */
-  void setLatitudeExif(double latitudeExif);
+//  /*!
+//   * \brief latitudeExif
+//   * \return
+//   */
+//  double latitudeExif() const;
 
-  /*!
-   * \brief altitudeExif
-   * \return
-   */
-  double altitudeExif() const;
+//  /*!
+//   * \brief setLatitudeExif
+//   * \param latitudeExif
+//   */
+//  void setLatitudeExif(double latitudeExif);
 
-  /*!
-   * \brief setAltitudeExif
-   * \param altitudeExif
-   */
-  void setAltitudeExif(double altitudeExif);
+//  /*!
+//   * \brief altitudeExif
+//   * \return
+//   */
+//  double altitudeExif() const;
+
+//  /*!
+//   * \brief setAltitudeExif
+//   * \param altitudeExif
+//   */
+//  void setAltitudeExif(double altitudeExif);
 
   /*!
    * \brief Operador de asignación
@@ -154,10 +174,10 @@ protected:
   QString mFilePath;
   QString mName;
   int mCameraId;
-  double mLongitudeExif;
-  double mLatitudeExif;
-  double mAltitudeExif;
-
+//  double mLongitudeExif;
+//  double mLatitudeExif;
+//  double mAltitudeExif;
+  CameraPosition mCameraPosition;
 };
 
 } // namespace inspector

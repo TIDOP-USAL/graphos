@@ -40,6 +40,10 @@
 #include "inspector/ui/georeference/impl/GeoreferenceModel.h"
 #include "inspector/ui/georeference/impl/GeoreferenceView.h"
 #include "inspector/ui/georeference/impl/GeoreferencePresenter.h"
+#include "inspector/ui/import/cameras/impl/CameraPositionsModel.h"
+#include "inspector/ui/import/cameras/impl/CameraPositionsView.h"
+#include "inspector/ui/import/cameras/impl/CameraPositionsPresenter.h"
+
 //#include "inspector/ui/MultiViewModel.h"
 //#include "inspector/ui/MultiViewView.h"
 //#include "inspector/ui/MultiViewPresenter.h"
@@ -91,6 +95,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mExportOrientationsPresenter(nullptr),
     mGeoreferenceModel(nullptr),
     mGeoreferencePresenter(nullptr),
+    mCamerasImportModel(nullptr),
+    mCamerasImportPresenter(nullptr),
     //mAboutDialog(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
@@ -250,6 +256,16 @@ ComponentsManager::~ComponentsManager()
     mGeoreferencePresenter = nullptr;
   }
 
+  if (mCamerasImportModel) {
+    delete mCamerasImportModel;
+    mCamerasImportModel = nullptr;
+  }
+
+  if (mCamerasImportPresenter) {
+    delete mCamerasImportPresenter;
+    mCamerasImportPresenter = nullptr;
+  }
+
   if (mProgressHandler){
     delete mProgressHandler;
     mProgressHandler = nullptr;
@@ -328,6 +344,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenToolSettingsDialog);
     connect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
             this, &ComponentsManager::initAndOpenGeoreferenceDialog);
+    connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasImportDialog,
+            this, &ComponentsManager::initAndOpenCamerasImportDialog);
 //    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
 
   }
@@ -611,6 +629,24 @@ GeoreferencePresenter *ComponentsManager::georeferencePresenter()
                                                           this->georeferenceModel());
   }
   return mGeoreferencePresenter;
+}
+
+CamerasImportModel *ComponentsManager::camerasImportModel()
+{
+  if (mCamerasImportModel == nullptr) {
+    mCamerasImportModel = new CamerasImportModelImp(mProject);
+  }
+  return mCamerasImportModel;
+}
+
+CamerasImportPresenter *ComponentsManager::camerasImportPresenter()
+{
+  if (mCamerasImportPresenter == nullptr){
+    CamerasImportView *view = new CamerasImportViewImp(this->mainWindowView());
+    mCamerasImportPresenter = new CamerasImportPresenterImp(view,
+                                                            this->camerasImportModel());
+  }
+  return mCamerasImportPresenter;
 }
 
 HelpDialog *ComponentsManager::helpDialog()
@@ -975,6 +1011,19 @@ void ComponentsManager::initAndOpenGeoreferenceDialog()
 
   this->georeferencePresenter()->setHelp(this->helpDialog());
   this->georeferencePresenter()->open();
+}
+
+void ComponentsManager::initAndOpenCamerasImportDialog()
+{
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasImportDialog,
+             this, &ComponentsManager::initAndOpenCamerasImportDialog);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasImportDialog,
+          this->camerasImportPresenter(), &CamerasImportPresenter::open);
+
+  connect(this->camerasImportPresenter(), SIGNAL(projectModified()), this->mainWindowPresenter(), SLOT(onProjectModified()));
+
+  this->camerasImportPresenter()->setHelp(this->helpDialog());
+  this->camerasImportPresenter()->open();
 }
 
 //void ComponentsManager::initAndOpenMultiviewMatchingAssessmentDialog()
