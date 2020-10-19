@@ -731,7 +731,7 @@ CameraPosition ProjectImp::readCameraPosition(QXmlStreamReader &stream)
     } else if (stream.name() == "Y") {
       cameraPosition.setY(readDouble(stream));
     } else if (stream.name() == "Z") {
-      cameraPosition.setZ(readInt(stream));
+      cameraPosition.setZ(readDouble(stream));
     } else if (stream.name() == "Source") {
       cameraPosition.setSource(stream.readElementText());
     }

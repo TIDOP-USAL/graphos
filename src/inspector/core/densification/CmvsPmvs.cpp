@@ -396,14 +396,14 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
             }
           }
           
-          TL_TODO("Las im·genes en escala de grises con canal alfa no estan comprobadas")
+          TL_TODO("Las im√°genes en escala de grises con canal alfa no estan comprobadas")
           if (img.channels() == 1) {
             cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
           }
 
           cv::Mat img_undistort;
 #ifdef HAVE_CUDA
-          TL_TODO("comprobar versiÛn driver cuda");
+          TL_TODO("comprobar versi√≥n driver cuda");
           cv::cuda::GpuMat gImgOut(img);
           img.release();
           cv::cuda::GpuMat gImgUndistort;
@@ -498,7 +498,13 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
         colmap::Point3D& point3D = reconstruction.Point3D(point2D.Point3DId());
         for (const colmap::TrackElement &track_el : point3D.Track().Elements()) {
           if (track_el.image_id != image_id) {
-            visible_image_ids.insert(track_el.image_id);
+            for (size_t j = 0; j < reg_image_ids.size(); ++j) {
+              colmap::image_t image_id_2 = reg_image_ids[j];
+              if (image_id_2 == track_el.image_id){
+                visible_image_ids.insert(j);
+                break;
+              }
+            }
           }
         }
       }
