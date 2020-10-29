@@ -58,7 +58,8 @@ void inspector::FeatureMatchingProcess::run()
     if (bSpatialMatching) {
 
       colmap::SpatialMatchingOptions spatialMatchingOptions;
-      spatialMatchingOptions.max_num_neighbors = 100;
+      //spatialMatchingOptions.max_num_neighbors = 50;
+      spatialMatchingOptions.is_gps = false;
 
       mFeatureMatcher = new colmap::SpatialFeatureMatcher(spatialMatchingOptions,
                                                           siftMatchingOptions,

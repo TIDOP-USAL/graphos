@@ -130,25 +130,26 @@ void OrientationExport::exportPLY(const QString &path) const
   if (mReconstruction) {
     
     // Sólo exporta como float y en UTM se produce una perdida de precisión
-    // mReconstruction->ExportPLY(path.toStdString());
+    // por ahora no se va a trabajar en coordenadas absolutas asi que se deja en float
+    mReconstruction->ExportPLY(path.toStdString());
 
-    std::vector<PointPly> ply_points;
-    ply_points.reserve(mReconstruction->NumPoints3D());
+//    std::vector<PointPly> ply_points;
+//    ply_points.reserve(mReconstruction->NumPoints3D());
     
-    for (auto &point : mReconstruction->Points3D()) {
-      PointPly ply_point;
-      ply_point.x = point.second.X();
-      ply_point.y = point.second.Y();
-      ply_point.z = point.second.Z();
-      ply_point.r = point.second.Color(0);
-      ply_point.g = point.second.Color(1);
-      ply_point.b = point.second.Color(2);
-      ply_points.push_back(ply_point);
-    }
+//    for (auto &point : mReconstruction->Points3D()) {
+//      PointPly ply_point;
+//      ply_point.x = point.second.X();
+//      ply_point.y = point.second.Y();
+//      ply_point.z = point.second.Z();
+//      ply_point.r = point.second.Color(0);
+//      ply_point.g = point.second.Color(1);
+//      ply_point.b = point.second.Color(2);
+//      ply_points.push_back(ply_point);
+//    }
     
-    bool kWriteNormal = false;
-    bool kWriteRGB = true;
-    writeBinaryPlyPoints(path.toStdString(), ply_points, kWriteNormal, kWriteRGB);
+//    bool kWriteNormal = false;
+//    bool kWriteRGB = true;
+//    writeBinaryPlyPoints(path.toStdString(), ply_points, kWriteNormal, kWriteRGB);
 
   } else
     msgError("There is not a valid reconstruction");

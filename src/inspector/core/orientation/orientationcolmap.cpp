@@ -308,6 +308,14 @@ void AbsoluteOrientationColmapAlgorithm::run()
   center /= mCameraPositions.size();
   msgInfo("Desplazamiento cámaras %lf,%lf,%lf", center[0], center[1], center[2] );
 
+  QString offset = mOutputPath + "/offset.txt";
+  std::ofstream stream(offset.toStdString(), std::ios::trunc);
+  if (stream.is_open()) {
+    stream << QString::number(center[0], 'f', 3).toStdString() << " "
+           << QString::number(center[1], 'f', 3).toStdString() << " "
+           << QString::number(center[2], 'f', 3).toStdString() << std::endl;
+  }
+
   for (auto &pos : ref_locations){
     pos -= center;
   }
