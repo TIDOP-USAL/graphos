@@ -62,6 +62,9 @@ set(INSPECTOR_SOURCES
     export/orientations/ExportOrientationsModel.cpp
     export/orientations/ExportOrientationsView.cpp
     export/orientations/ExportOrientationsPresenter.cpp
+    export/densemodel/impl/ExportOrientationsModel.cpp
+    export/densemodel/impl/ExportOrientationsView.cpp
+    export/densemodel/impl/ExportOrientationsPresenter.cpp
     process/ProcessPresenter.cpp
     process/ProcessView.cpp
     georeference/impl/GeoreferenceModel.cpp
@@ -151,6 +154,12 @@ set(INSPECTOR_HEADERS
     export/orientations/ExportOrientationsModel.h
     export/orientations/ExportOrientationsView.h
     export/orientations/ExportOrientationsPresenter.h
+    export/densemodel/ExportOrientationsModel.h
+    export/densemodel/ExportOrientationsView.h
+    export/densemodel/ExportOrientationsPresenter.h
+    export/densemodel/impl/ExportOrientationsModel.h
+    export/densemodel/impl/ExportOrientationsView.h
+    export/densemodel/impl/ExportOrientationsPresenter.h
     process/ProcessPresenter.h
     process/ProcessView.h
     georeference/GeoreferenceModel.h

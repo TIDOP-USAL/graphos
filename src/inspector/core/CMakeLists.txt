@@ -31,6 +31,8 @@ add_library(inspector_core ${LIB_TYPE}
             densification/CmvsPmvs.h
             densification/Smvs.cpp
             densification/Smvs.h
+            densification/DenseExport.cpp
+            densification/DenseExport.h
             utils.cpp
             utils.h)
 
