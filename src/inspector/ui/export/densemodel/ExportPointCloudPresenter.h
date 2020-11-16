@@ -21,8 +21,10 @@ public:
   ExportPointCloudPresenter(){}
   ~ExportPointCloudPresenter() override = default;
 
-signals:
+public slots:
 
+  virtual void save() = 0;
+  virtual void setCurrentFormat(const QString &format) = 0;
 
 };
 

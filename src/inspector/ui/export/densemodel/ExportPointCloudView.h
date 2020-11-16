@@ -22,17 +22,23 @@ public:
   ExportPointCloudView(QWidget *parent) : IDialogView(parent) {}
   ~ExportPointCloudView() override = default;
 
-  virtual QString delimiter() const = 0;
+//  virtual void addFormatWidget(QWidget *formatWidget) = 0;
+//  virtual QString format() const = 0;
+  virtual bool isColorActive() const = 0;
+  virtual bool isNormalsActive() const = 0;
 
 public slots:
 
-  virtual void setDelimiter(const QString &delimiter) = 0;
-  
+//  virtual void setCurrentFormat(const QString &format) = 0;
+  virtual void setActiveColor(bool active) = 0;
+  virtual void setActiveNormals(bool active) = 0;
 
 signals:
 
-  void delimiterChanged(QString);
-  
+//  void formatChange(const QString &);
+  void colorChange(bool);
+  void normalsChange(bool);
+
 };
 
 } // namespace ui

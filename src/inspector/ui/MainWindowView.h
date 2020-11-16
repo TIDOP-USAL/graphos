@@ -45,6 +45,7 @@ public:
     feature_extraction    = (1 << 4),
     feature_matching      = (1 << 5),
     oriented              = (1 << 6),
+    dense_model           = (1 << 7),
     processing            = (1 << 20),
     loading_images        = (1 << 21),
     ground_truth          = (1 << 30),
@@ -127,6 +128,7 @@ signals:
   void openExportFeatures();
   void openExportMatches();
   void openExportOrientations();
+  void openExportPointCloud();
   void closeProject();
   void exit();
 
@@ -250,6 +252,7 @@ protected:
   QAction *mActionExportTiePoints;
   QAction *mActionExportMatches;
   QAction *mActionExportOrientations;
+  QAction *mActionExportPointCloud;
   QAction *mActionFeaturesViewer;
   QAction *mActionMatchesViewer;
   //QAction *mActionPassPointsViewer;

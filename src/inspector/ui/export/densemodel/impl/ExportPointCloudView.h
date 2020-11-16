@@ -1,21 +1,13 @@
-#ifndef INSPECTOR_EXPORT_POINT_CLOUD_VIEW_H
-#define INSPECTOR_EXPORT_POINT_CLOUD_VIEW_H
+#ifndef INSPECTOR_POINT_CLOUD_EXPORT_VIEW_H
+#define INSPECTOR_POINT_CLOUD_EXPORT_VIEW_H
 
 #include "inspector/ui/export/densemodel/ExportPointCloudView.h"
 
-/* class QDialogButtonBox;
-class QTreeWidget;
-class QTableView;
 class QLabel;
-class QLineEdit;
 class QComboBox;
-class QHBoxLayout;
+class QCheckBox;
 class QGridLayout;
-class QGroupBox;
-class QRadioButton;
-class QSpinBox;
-class QStackedWidget;
-class QCheckBox; */
+class QDialogButtonBox;
 
 namespace inspector
 {
@@ -34,19 +26,20 @@ public:
   ExportPointCloudViewImp(QWidget *parent = nullptr);
   ~ExportPointCloudViewImp() override;
 
-public slots:
-
-  void onDelimiterChanged();
-
 // ExportPointCloudView interface
 
 public:
 
-  QString delimiter() const override;
+//  void addFormatWidget(QWidget *formatWidget) override;
+//  QString format() const override;
+  bool isColorActive() const override;
+  bool isNormalsActive() const override;
 
 public slots:
 
-  void void setDelimiter(const QString &delimiter) override;
+//  void setCurrentFormat(const QString &format) override;
+  void setActiveColor(bool active) override;
+  void setActiveNormals(bool active) override;
 
 // IDialogView interface
 
@@ -66,13 +59,12 @@ private slots:
 
 protected:
 
-  QGroupBox *mGroupBoxDelimiter;
-  QRadioButton *mRadioButtonTab;
-  QRadioButton *mRadioButtonComma;
-  QRadioButton *mRadioButtonSpace;
-  QRadioButton *mRadioButtonSemicolon;
+  //QLabel *mLabelFormat;
+  //QComboBox *mComboBoxFormat;
+  QCheckBox *mCheckBoxColor;
+  QCheckBox *mCheckBoxNormals;
+  QGridLayout *mGridLayoutFormat;
   QDialogButtonBox *mButtonBox;
-
 
 };
 
@@ -80,4 +72,4 @@ protected:
 
 } // namespace inspector
 
-#endif // INSPECTOR_EXPORT_POINT_CLOUD_VIEW_H
+#endif // INSPECTOR_POINT_CLOUD_EXPORT_VIEW_H

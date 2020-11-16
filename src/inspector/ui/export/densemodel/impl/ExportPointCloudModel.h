@@ -1,7 +1,7 @@
 #ifndef INSPECTOR_POINT_CLOUD_EXPORT_MODEL_H
 #define INSPECTOR_POINT_CLOUD_EXPORT_MODEL_H
 
-#include "inspector/ui/export/densemodel/CameraPositionsModel.h"
+#include "inspector/ui/export/densemodel/ExportPointCloudModel.h"
 
 
 namespace inspector
@@ -26,13 +26,10 @@ public:
 
 // ExportPointCloudModel interface
 
-public slots:
+public:
 
-  void setCsvFile(const QString &csv) override;
-  void setDelimiter(const QString &delimiter) override;
-  void enableColor(bool active) override;
-  void enableNormals(bool active) override;
-  void exportPointCloud() override;
+  std::array<double, 3> offset() const override;
+  QString denseModel() const override;
 
 // IModel interface
 
@@ -47,10 +44,7 @@ public slots:
 protected:
 
   Project *mProject;
-  QString mCsvFile;
-  QString mDelimiter;
-  bool mColor;
-  bool mNormals;
+
 };
 
 } // namespace ui

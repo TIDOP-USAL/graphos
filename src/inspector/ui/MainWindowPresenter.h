@@ -61,6 +61,7 @@ signals:
 //  void openExportFeaturesDialog();
 //  void openExportMatchesDialog();
   void openExportOrientationsDialog();
+  void openExportPointCloudDialog();
   void openGeoreferenceDialog();
   void openCamerasImportDialog();
   void openAboutDialog();

@@ -4,6 +4,8 @@
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
+#include <tidop/geospatial/crstransf.h>
+#include <tidop/geospatial/util.h>
 
 #include <colmap/util/bitmap.h>
 
@@ -297,11 +299,25 @@ void inspector::LoadImagesProcess::run()
       }
 
       if (latitudeDecimalDegrees != 0.0 && longitudeDecimalDegrees != 0.0 && altitude != 0.0){
+
+        std::shared_ptr<tl::geospatial::Crs> crs_in(new tl::geospatial::Crs("EPSG:4326"));
+        int zone = tl::geospatial::utmZoneFromLongitude(longitudeDecimalDegrees * TL_DEG_TO_RAD);
+        std::string epsg_out = "EPSG:326";
+        epsg_out.append(std::to_string(zone));
+        std::shared_ptr<tl::geospatial::Crs> crs_out(new tl::geospatial::Crs(epsg_out));
+        bool bTrfCrs = crs_in->isValid() && crs_out->isValid();
+        tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
+        tl::Point3D pt_in(latitudeDecimalDegrees, longitudeDecimalDegrees, altitude);
+        tl::Point3D pt_out = crs_trf.transform(pt_in);
+
         CameraPosition cameraPosition;
-        cameraPosition.setX(longitudeDecimalDegrees);
-        cameraPosition.setY(latitudeDecimalDegrees);
-        cameraPosition.setZ(altitude);
-        cameraPosition.setCrs("EPSG:4326");
+//        cameraPosition.setX(longitudeDecimalDegrees);
+//        cameraPosition.setY(latitudeDecimalDegrees);
+//        cameraPosition.setZ(altitude);
+        cameraPosition.setX(pt_out.x);
+        cameraPosition.setY(pt_out.y);
+        cameraPosition.setZ(pt_out.z);
+        cameraPosition.setCrs(epsg_out.c_str()/*"EPSG:4326"*/);
         cameraPosition.setSource("EXIF");
         (*mImages)[i].setCameraPosition(cameraPosition);
       }

@@ -2,7 +2,6 @@
 
 #include <colmap/util/ply.h>
 
-#include <tidop/core/flags.h>
 #include <tidop/geometry/entities/point.h>
 
 #include <fstream>
@@ -23,10 +22,10 @@ void DenseExport::setOffset(double x, double y, double z)
   mOffsetZ = z;
 }
 
-void DenseExport::exportToCSV(const QString &csv, DenseExport::Fields fields)
+void DenseExport::exportToCSV(const QString &csv,
+                              const tl::EnumFlags<DenseExport::Fields> &flag)
 {
-  std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel.toStdString());
-  tl::EnumFlags<DenseExport::Fields> flag(fields);
+  //std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel.toStdString());
 
   std::ofstream stream(csv.toStdString(), std::ios::trunc);
   if (stream.is_open()){
@@ -35,15 +34,17 @@ void DenseExport::exportToCSV(const QString &csv, DenseExport::Fields fields)
 
     stream << "X;Y;Z";
     if (flag.isActive(Fields::rgb)){
-      stream << "R;G;B";
+      stream << ";R;G;B";
     }
 
     if (flag.isActive(Fields::normals)) {
-      stream << "Nx;Ny;Nz";
+      stream << ";Nx;Ny;Nz";
     }
     stream << std::endl;
 
-    for (size_t i = 0; points.size(); i++){
+    std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel.toStdString());
+
+    for (size_t i = 0; i < points.size(); i++){
 
       point.x = points[i].x;
       point.y = points[i].y;
@@ -51,15 +52,15 @@ void DenseExport::exportToCSV(const QString &csv, DenseExport::Fields fields)
 
       point += offset;
 
-      stream << point.x << ";" <<
-                point.y << ";" <<
-                point.z;
+      stream << QString::number(point.x, 'f', 3).toStdString() << ";"
+             << QString::number(point.y, 'f', 3).toStdString() << ";"
+             << QString::number(point.z, 'f', 3).toStdString();
 
       if (flag.isActive(Fields::rgb)){
         stream << ";" <<
-                  points[i].r << ";" <<
-                  points[i].g << ";" <<
-                  points[i].b;
+                  static_cast<int>(points[i].r) << ";" <<
+                  static_cast<int>(points[i].g) << ";" <<
+                  static_cast<int>(points[i].b);
       }
 
       if (flag.isActive(Fields::normals)) {

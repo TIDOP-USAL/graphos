@@ -1,10 +1,13 @@
-#include "CameraPositionsPresenter.h"
+#include "ExportPointCloudPresenter.h"
 
-#include "inspector/ui/import/cameras/impl/CameraPositionsModel.h"
-#include "inspector/ui/import/cameras/impl/CameraPositionsView.h"
+#include "inspector/ui/export/densemodel/impl/ExportPointCloudModel.h"
+#include "inspector/ui/export/densemodel/impl/ExportPointCloudView.h"
 #include "inspector/ui/HelpDialog.h"
+#include "inspector/widgets/PointCloudCSVFormatWidget.h"
+#include "inspector/core/densification/DenseExport.h"
 
 #include <tidop/core/defs.h>
+#include <tidop/core/messages.h>
 
 #include <QFileDialog>
 
@@ -14,45 +17,26 @@ namespace inspector
 namespace ui
 {
 
-CamerasImportPresenterImp::CamerasImportPresenterImp(CamerasImportView *view,
-                                                     CamerasImportModel *model)
+ExportPointCloudPresenterImp::ExportPointCloudPresenterImp(ExportPointCloudView *view,
+                                                           ExportPointCloudModel *model)
   : mView(view),
     mModel(model),
+    //mPointCloudCSVFormatWidget(new PointCloudCSVFormatWidgetImp),
     mHelp(nullptr)
 {
   this->init();
   this->initSignalAndSlots();
 }
 
-CamerasImportPresenterImp::~CamerasImportPresenterImp()
+ExportPointCloudPresenterImp::~ExportPointCloudPresenterImp()
 {
+//  if (mPointCloudCSVFormatWidget){
+//    delete mPointCloudCSVFormatWidget;
+//    mPointCloudCSVFormatWidget = nullptr;
+//  }
 }
 
-void CamerasImportPresenterImp::previewCSV()
-{
-  //mModel->clear();
-  mModel->previewImportCameras();
-}
-
-//bool CamerasImportPresenterImp::checkCRS(const QString &crs)
-//{
-//  tl::geospatial::Crs _crs(crs.toStdString());
-//  return _crs.isValid();
-//}
-
-void CamerasImportPresenterImp::checkInputCRS(const QString &crs)
-{
-  mView->setValidInputCRS(mModel->checkCRS(crs));
-  mModel->setInputCRS(crs);
-}
-
-void CamerasImportPresenterImp::checkOutputCRS(const QString &crs)
-{
-  mView->setValidOutputCRS(mModel->checkCRS(crs));
-  mModel->setOutputCRS(crs);
-}
-
-void CamerasImportPresenterImp::help()
+void ExportPointCloudPresenterImp::help()
 {
   if (mHelp){
     TL_TODO("Añadir ayuda")
@@ -62,71 +46,94 @@ void CamerasImportPresenterImp::help()
   }
 }
 
-void CamerasImportPresenterImp::open()
+void ExportPointCloudPresenterImp::open()
 {
-  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
-                                              tr("Orientation cameras file"),
-                                              "",
-                                              tr("Comma-separated values (*.csv)"));
-  if (!file.isEmpty()){
-    //mFile = file;
-    mModel->setCsvFile(file);
-    previewCSV();
+  QString selectedFilter;
+  mFile = QFileDialog::getSaveFileName(Q_NULLPTR,
+                                       tr("Export Point Cloud"),
+                                       "",
+                                       "Comma-separated values (*.csv)",
+                                       &selectedFilter);
+  if (mFile.isEmpty()) return;
+
+  if (selectedFilter.compare("Comma-separated values (*.csv)") == 0){
+    mFormat = "CSV";
   } else {
-    return;
+    msgError("Unsupported format");
   }
+  //mView->setCurrentFormat(mPointCloudCSVFormatWidget->windowTitle());
 
   mView->exec();
 }
 
-void CamerasImportPresenterImp::setHelp(HelpDialog *help)
+void ExportPointCloudPresenterImp::setHelp(HelpDialog *help)
 {
   mHelp = help;
 }
 
-void CamerasImportPresenterImp::init()
+void ExportPointCloudPresenterImp::init()
 {
-  mView->setItemModel(mModel->itemModelCSV());
-  mView->setItemModelFormatCameras(mModel->itemModelFormatCameras());
+//  mView->addFormatWidget(mPointCloudCSVFormatWidget);
+//  mView->setCurrentFormat(mPointCloudCSVFormatWidget->windowTitle());
 }
 
-void CamerasImportPresenterImp::initSignalAndSlots()
+void ExportPointCloudPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &CamerasImportView::previewCSV,                 this, &CamerasImportPresenterImp::previewCSV);
-  connect(mView, &IDialogView::help,                             this, &CamerasImportPresenterImp::help);
-  connect(mView, &CamerasImportView::crsInputChanged,            this, &CamerasImportPresenterImp::checkInputCRS);
-  connect(mView, &CamerasImportView::crsOutputChanged,           this, &CamerasImportPresenterImp::checkOutputCRS);
+//  connect(mView, &ExportPointCloudView::previewCSV,                 this, &ExportPointCloudPresenterImp::previewCSV);
+//  connect(mView, &IDialogView::help,                             this, &ExportPointCloudPresenterImp::help);
+//  connect(mView, &ExportPointCloudView::crsInputChanged,            this, &ExportPointCloudPresenterImp::checkInputCRS);
+//  connect(mView, &ExportPointCloudView::crsOutputChanged,           this, &ExportPointCloudPresenterImp::checkOutputCRS);
 
-  connect(mView, &CamerasImportView::loadFieldNamesFromFirstRow, mModel, &CamerasImportModel::setFieldNamesFromFirstRow);
-  connect(mView, &CamerasImportView::delimiterChanged,           mModel, &CamerasImportModel::setDelimiter);
-  connect(mView, &CamerasImportView::imageFieldIdChanged,        mModel, &CamerasImportModel::setImageFieldId);
-  connect(mView, &CamerasImportView::xFieldIdChanged,            mModel, &CamerasImportModel::setXFieldId);
-  connect(mView, &CamerasImportView::yFieldIdChanged,            mModel, &CamerasImportModel::setYFieldId);
-  connect(mView, &CamerasImportView::zFieldIdChanged,            mModel, &CamerasImportModel::setZFieldId);
-  //connect(mView, &CamerasImportView::crsChanged,                 mModel, &CamerasImportModel::setCRS);
-  connect(mView, &CamerasImportView::loadFieldNamesFromFirstRow, this, &CamerasImportPresenterImp::previewCSV);
-  connect(mView, &CamerasImportView::delimiterChanged,           this, &CamerasImportPresenterImp::previewCSV);
+//  connect(mView, &ExportPointCloudView::loadFieldNamesFromFirstRow, mModel, &ExportPointCloudModel::setFieldNamesFromFirstRow);
+//  connect(mView, &ExportPointCloudView::delimiterChanged,           mModel, &ExportPointCloudModel::setDelimiter);
+//  connect(mView, &ExportPointCloudView::imageFieldIdChanged,        mModel, &ExportPointCloudModel::setImageFieldId);
+//  connect(mView, &ExportPointCloudView::xFieldIdChanged,            mModel, &ExportPointCloudModel::setXFieldId);
+//  connect(mView, &ExportPointCloudView::yFieldIdChanged,            mModel, &ExportPointCloudModel::setYFieldId);
+//  connect(mView, &ExportPointCloudView::zFieldIdChanged,            mModel, &ExportPointCloudModel::setZFieldId);
+//  //connect(mView, &ExportPointCloudView::crsChanged,                 mModel, &ExportPointCloudModel::setCRS);
+//  connect(mView, &ExportPointCloudView::loadFieldNamesFromFirstRow, this, &ExportPointCloudPresenterImp::previewCSV);
+//  connect(mView, &ExportPointCloudView::delimiterChanged,           this, &ExportPointCloudPresenterImp::previewCSV);
 
-  connect(mView, &CamerasImportView::accepted,     mModel, &CamerasImportModel::importCameras);
+//  connect(mView, &ExportPointCloudView::accepted,     mModel, &ExportPointCloudModel::importCameras);
 
-  connect(mModel, &CamerasImportModel::csvHeader,   mView, &CamerasImportView::setTableHeader);
-  connect(mModel, &CamerasImportModel::imageColumn, mView, &CamerasImportView::setImageColumn);
-  connect(mModel, &CamerasImportModel::xColumn,     mView, &CamerasImportView::setXColumn);
-  connect(mModel, &CamerasImportModel::yColumn,     mView, &CamerasImportView::setYColumn);
-  connect(mModel, &CamerasImportModel::zColumn,     mView, &CamerasImportView::setZColumn);
-  connect(mModel, &CamerasImportModel::qxColumn,    mView, &CamerasImportView::setQxColumn);
-  connect(mModel, &CamerasImportModel::qyColumn,    mView, &CamerasImportView::setQyColumn);
-  connect(mModel, &CamerasImportModel::qzColumn,    mView, &CamerasImportView::setQzColumn);
-  connect(mModel, &CamerasImportModel::qwColumn,    mView, &CamerasImportView::setQwColumn);
-  connect(mModel, &CamerasImportModel::omegaColumn, mView, &CamerasImportView::setOmegaColumn);
-  connect(mModel, &CamerasImportModel::phiColumn,   mView, &CamerasImportView::setPhiColumn);
-  connect(mModel, &CamerasImportModel::kappaColumn, mView, &CamerasImportView::setKappaColumn);
-  connect(mModel, &CamerasImportModel::yawColumn,   mView, &CamerasImportView::setYawColumn);
-  connect(mModel, &CamerasImportModel::pitchColumn, mView, &CamerasImportView::setPitchColumn);
-  connect(mModel, &CamerasImportModel::rollColumn,  mView, &CamerasImportView::setRollColumn);
-  connect(mModel, &CamerasImportModel::parseOk,     mView, &CamerasImportView::setParseOk);
+//  connect(mModel, &ExportPointCloudModel::csvHeader,   mView, &ExportPointCloudView::setTableHeader);
+//  connect(mModel, &ExportPointCloudModel::imageColumn, mView, &ExportPointCloudView::setImageColumn);
+//  connect(mModel, &ExportPointCloudModel::xColumn,     mView, &ExportPointCloudView::setXColumn);
+//  connect(mModel, &ExportPointCloudModel::yColumn,     mView, &ExportPointCloudView::setYColumn);
+//  connect(mModel, &ExportPointCloudModel::zColumn,     mView, &ExportPointCloudView::setZColumn);
+//  connect(mModel, &ExportPointCloudModel::qxColumn,    mView, &ExportPointCloudView::setQxColumn);
+//  connect(mModel, &ExportPointCloudModel::qyColumn,    mView, &ExportPointCloudView::setQyColumn);
+//  connect(mModel, &ExportPointCloudModel::qzColumn,    mView, &ExportPointCloudView::setQzColumn);
+//  connect(mModel, &ExportPointCloudModel::qwColumn,    mView, &ExportPointCloudView::setQwColumn);
+//  connect(mModel, &ExportPointCloudModel::omegaColumn, mView, &ExportPointCloudView::setOmegaColumn);
+//  connect(mModel, &ExportPointCloudModel::phiColumn,   mView, &ExportPointCloudView::setPhiColumn);
+//  connect(mModel, &ExportPointCloudModel::kappaColumn, mView, &ExportPointCloudView::setKappaColumn);
+//  connect(mModel, &ExportPointCloudModel::yawColumn,   mView, &ExportPointCloudView::setYawColumn);
+//  connect(mModel, &ExportPointCloudModel::pitchColumn, mView, &ExportPointCloudView::setPitchColumn);
+//  connect(mModel, &ExportPointCloudModel::rollColumn,  mView, &ExportPointCloudView::setRollColumn);
+//  connect(mModel, &ExportPointCloudModel::parseOk,     mView, &ExportPointCloudView::setParseOk);
 
-  connect(mView, &CamerasImportView::accepted,     this, &CamerasImportPresenter::projectModified);
+  connect(mView, &ExportPointCloudView::accepted,     this, &ExportPointCloudPresenter::save);
+}
+
+void ExportPointCloudPresenterImp::save()
+{
+  std::array<double, 3> offset = mModel->offset();
+  DenseExport denseExport(mModel->denseModel());
+  denseExport.setOffset(offset[0], offset[1], offset[2]);
+
+  tl::EnumFlags<DenseExport::Fields> flag(DenseExport::Fields::xyz);
+  if (mView->isColorActive()) flag.flagOn(DenseExport::Fields::rgb);
+  if (mView->isNormalsActive()) flag.flagOn(DenseExport::Fields::normals);
+
+  if (mFormat.compare("CSV") == 0) {
+    denseExport.exportToCSV(mFile, flag);
+  }
+}
+
+void ExportPointCloudPresenterImp::setCurrentFormat(const QString &format)
+{
+  //mView->setCurrentFormat(format);
 }
 
 

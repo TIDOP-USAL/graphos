@@ -1,39 +1,40 @@
-#ifndef INSPECTOR_CAMERA_POSITIONS_PRESENTER_H
-#define INSPECTOR_CAMERA_POSITIONS_PRESENTER_H
+#ifndef INSPECTOR_POINT_CLOUD_EXPORT_PRESENTER_H
+#define INSPECTOR_POINT_CLOUD_EXPORT_PRESENTER_H
 
-#include "inspector/ui/import/cameras/CameraPositionsPresenter.h"
+#include "inspector/ui/export/densemodel/ExportPointCloudPresenter.h"
 
 namespace inspector
 {
 
+class PointCloudCSVFormatWidget;
+
 namespace ui
 {
 
-class CamerasImportView;
-class CamerasImportModel;
+class ExportPointCloudView;
+class ExportPointCloudModel;
+
+
 class HelpDialog;
 
-class CamerasImportPresenterImp
-  : public CamerasImportPresenter
+class ExportPointCloudPresenterImp
+  : public ExportPointCloudPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  CamerasImportPresenterImp(CamerasImportView *view,
-                            CamerasImportModel *model);
-  ~CamerasImportPresenterImp() override;
+  ExportPointCloudPresenterImp(ExportPointCloudView *view,
+                               ExportPointCloudModel *model);
+  ~ExportPointCloudPresenterImp() override;
 
-private slots:
+// ExportPointCloudPresenter interface
 
-  void previewCSV();
-  void checkInputCRS(const QString &crs);
-  void checkOutputCRS(const QString &crs);
+public slots:
 
-private:
-
-  //bool checkCRS(const QString &crs);
+  void save() override;
+  void setCurrentFormat(const QString &format) override;
 
 // IPresenter interface
 
@@ -50,10 +51,12 @@ private:
 
 private:
 
-  CamerasImportView *mView;
-  CamerasImportModel *mModel;
+  ExportPointCloudView *mView;
+  ExportPointCloudModel *mModel;
+  //PointCloudCSVFormatWidget *mPointCloudCSVFormatWidget;
   HelpDialog *mHelp;
-//  QString mFile;
+  QString mFile;
+  QString mFormat;
 
 };
 
@@ -61,4 +64,4 @@ private:
 
 } // namespace inspector
 
-#endif // INSPECTOR_CAMERA_POSITIONS_PRESENTER_H
+#endif // INSPECTOR_POINT_CLOUD_EXPORT_PRESENTER_H

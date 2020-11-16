@@ -538,6 +538,7 @@ void MainWindowPresenter::loadDenseModel()
   QString dense_model = mProjectModel->denseModel();
   if (!dense_model.isEmpty()) {
     mView->setDenseModel(mProjectModel->denseModel());
+    mView->setFlag(MainWindowView::Flag::dense_model, true);
     QByteArray ba = mProjectModel->denseModel().toLocal8Bit();
   }
 }
@@ -1079,6 +1080,7 @@ void MainWindowPresenter::initSignalAndSlots()
   //connect(mView, &MainWindowView::openExportFeatures,     this, &MainWindowPresenter::openExportFeaturesDialog);
   //connect(mView, &MainWindowView::openExportMatches,      this, &MainWindowPresenter::openExportMatchesDialog);
   connect(mView, &MainWindowView::openExportOrientations, this, &MainWindowPresenter::openExportOrientationsDialog);
+  connect(mView, &MainWindowView::openExportPointCloud,   this, &MainWindowPresenter::openExportPointCloudDialog);
   connect(mView, &MainWindowView::saveProject,            this, &MainWindowPresenter::saveProject);
   connect(mView, &MainWindowView::saveProjectAs,          this, &MainWindowPresenter::saveProjectAs);
   connect(mView, &MainWindowView::closeProject,           this, &MainWindowPresenter::closeProject);

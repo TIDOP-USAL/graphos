@@ -1,8 +1,9 @@
-#ifndef INSPECTOR_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H
-#define INSPECTOR_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H
+#ifndef INSPECTOR_POINT_CLOUD_EXPORT_MODEL_INTERFACE_H
+#define INSPECTOR_POINT_CLOUD_EXPORT_MODEL_INTERFACE_H
+
+#include <array>
 
 #include "inspector/interfaces/mvp.h"
-
 
 namespace inspector
 {
@@ -21,16 +22,8 @@ public:
   ExportPointCloudModel(QObject *parent = nullptr) : IModel(parent) {}
   ~ExportPointCloudModel() override = default;
 
-public slots:
-
-  virtual void setCsvFile(const QString &csv) = 0;
-  virtual void setDelimiter(const QString &delimiter) = 0;
-  virtual void enableColor(bool active) = 0;
-  virtual void enableNormals(bool active) = 0;
-  virtual void exportPointCloud() = 0;
-
-signals:
-
+  virtual std::array<double, 3> offset() const = 0;
+  virtual QString denseModel() const = 0;
 
 };
 
@@ -39,4 +32,4 @@ signals:
 } // namespace inspector
 
 
-#endif // INSPECTOR_EXPORT_POINT_CLOUD_MODEL_H
+#endif // INSPECTOR_POINT_CLOUD_EXPORT_MODEL_INTERFACE_H

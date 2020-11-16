@@ -43,7 +43,9 @@
 #include "inspector/ui/import/cameras/impl/CameraPositionsModel.h"
 #include "inspector/ui/import/cameras/impl/CameraPositionsView.h"
 #include "inspector/ui/import/cameras/impl/CameraPositionsPresenter.h"
-
+#include "inspector/ui/export/densemodel/impl/ExportPointCloudModel.h"
+#include "inspector/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
+#include "inspector/ui/export/densemodel/impl/ExportPointCloudView.h"
 //#include "inspector/ui/MultiViewModel.h"
 //#include "inspector/ui/MultiViewView.h"
 //#include "inspector/ui/MultiViewPresenter.h"
@@ -97,6 +99,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mGeoreferencePresenter(nullptr),
     mCamerasImportModel(nullptr),
     mCamerasImportPresenter(nullptr),
+    mExportPointCloudModel(nullptr),
+    mExportPointCloudPresenter(nullptr),
     //mAboutDialog(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
@@ -266,6 +270,16 @@ ComponentsManager::~ComponentsManager()
     mCamerasImportPresenter = nullptr;
   }
 
+  if (mExportPointCloudModel){
+    delete mExportPointCloudModel;
+    mExportPointCloudModel = nullptr;
+  }
+
+  if (mExportPointCloudPresenter){
+    delete mExportPointCloudPresenter;
+    mExportPointCloudPresenter = nullptr;
+  }
+
   if (mProgressHandler){
     delete mProgressHandler;
     mProgressHandler = nullptr;
@@ -347,7 +361,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
     connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasImportDialog,
             this, &ComponentsManager::initAndOpenCamerasImportDialog);
 //    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
-
+    connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
+            this, &ComponentsManager::initAndOpenExportPointCloudDialog);
   }
 
   return mMainWindowPresenter;
@@ -647,6 +662,24 @@ CamerasImportPresenter *ComponentsManager::camerasImportPresenter()
                                                             this->camerasImportModel());
   }
   return mCamerasImportPresenter;
+}
+
+ExportPointCloudModel *ComponentsManager::exportPointCloudModel()
+{
+  if (mExportPointCloudModel == nullptr) {
+    mExportPointCloudModel = new ExportPointCloudModelImp(mProject);
+  }
+  return mExportPointCloudModel;
+}
+
+ExportPointCloudPresenter *ComponentsManager::exportPointCloudPresenter()
+{
+  if (mExportPointCloudPresenter == nullptr){
+    ExportPointCloudView *view = new ExportPointCloudViewImp(this->mainWindowView());
+    mExportPointCloudPresenter = new ExportPointCloudPresenterImp(view,
+                                                                  this->exportPointCloudModel());
+  }
+  return mExportPointCloudPresenter;
 }
 
 HelpDialog *ComponentsManager::helpDialog()
@@ -1024,6 +1057,17 @@ void ComponentsManager::initAndOpenCamerasImportDialog()
 
   this->camerasImportPresenter()->setHelp(this->helpDialog());
   this->camerasImportPresenter()->open();
+}
+
+void ComponentsManager::initAndOpenExportPointCloudDialog()
+{
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
+             this, &ComponentsManager::initAndOpenExportPointCloudDialog);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
+          this->camerasImportPresenter(), &ExportPointCloudPresenter::open);
+
+  this->exportPointCloudPresenter()->setHelp(this->helpDialog());
+  this->exportPointCloudPresenter()->open();
 }
 
 //void ComponentsManager::initAndOpenMultiviewMatchingAssessmentDialog()

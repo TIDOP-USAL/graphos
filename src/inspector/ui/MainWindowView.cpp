@@ -68,6 +68,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExportTiePoints(new QAction(this)),
     mActionExportMatches(new QAction(this)),
     mActionExportOrientations(new QAction(this)),
+    mActionExportPointCloud(new QAction(this)),
     mActionFeaturesViewer(new QAction(this)),
     mActionMatchesViewer(new QAction(this)),
     //mActionPassPointsViewer(new QAction(this)),
@@ -1078,6 +1079,7 @@ void MainWindowView::initMenuFile()
   mMenuExport->addAction(mActionExportTiePoints);
   mMenuExport->addAction(mActionExportMatches);
   mMenuExport->addAction(mActionExportOrientations);
+  mMenuExport->addAction(mActionExportPointCloud);
   //mMenuExportTiePoints = new QMenu(tr("Tie Points"), this);
   //mMenuExportMatches = new QMenu(tr("Matches"), this);
   //mMenuExportTiePoints->addAction(mActionExportTiePointsCvXml);
@@ -1169,6 +1171,7 @@ void MainWindowView::initSignalAndSlots()
   connect(mActionExportTiePoints,      &QAction::triggered, this,   &MainWindowView::openExportFeatures);
   connect(mActionExportMatches,        &QAction::triggered, this,   &MainWindowView::openExportMatches);
   connect(mActionExportOrientations,   &QAction::triggered, this,   &MainWindowView::openExportOrientations);
+  connect(mActionExportPointCloud,     &QAction::triggered, this,   &MainWindowView::openExportPointCloud);
   connect(mActionCloseProject,         &QAction::triggered, this,   &MainWindowView::closeProject);
   connect(mActionExit,                 &QAction::triggered, this,   &MainWindowView::exit);
 
@@ -1223,6 +1226,7 @@ void MainWindowView::update()
   bool bFeatureExtraction = mFlags.isActive(Flag::feature_extraction);
   bool bFeatureMatching = mFlags.isActive(Flag::feature_matching);
   bool bOriented = mFlags.isActive(Flag::oriented);
+  bool bDenseModel = mFlags.isActive(Flag::dense_model);
 
   mActionNewProject->setEnabled(!bProcessing);
   mActionOpenProject->setEnabled(!bProcessing);
@@ -1233,6 +1237,7 @@ void MainWindowView::update()
   mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
   mActionExportOrientations->setEnabled(bProjectExists && bOriented && !bProcessing);
+  mActionExportPointCloud->setEnabled(bProjectExists && bDenseModel && !bProcessing);
   mActionSaveProject->setEnabled(bProjectExists && bProjectModified && !bProcessing);
   mActionSaveProjectAs->setEnabled(bProjectExists && !bProcessing);
   mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
@@ -1261,6 +1266,7 @@ void MainWindowView::retranslate()
   mActionExportTiePoints->setText(QApplication::translate("MainWindowView", "Export tie points", nullptr));
   mActionExportMatches->setText(QApplication::translate("MainWindowView", "Export Matches", nullptr));
   mActionExportOrientations->setText(QApplication::translate("MainWindowView", "Export Orientations", nullptr));
+  mActionExportPointCloud->setText(QApplication::translate("MainWindowView", "Export Point Cloud", nullptr));
   mActionCloseProject->setText(QApplication::translate("MainWindowView", "Close Project", nullptr));
   mActionExit->setText(QApplication::translate("MainWindowView", "Exit", nullptr));
   mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));

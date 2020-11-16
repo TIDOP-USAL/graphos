@@ -515,6 +515,7 @@ void OrientationExport::exportMVE(const QString &path) const
             }
 
             ///TODO: ver porque pone 0 en la distorsión...
+            TL_TODO("El formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo!!! Aqui supongo que habría que hacerlo igual")
             //stream << focal << " " << "0" << " " << "0" << endl;  // Write '0' distortion values for pre-corrected images
             stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
             stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
@@ -552,14 +553,12 @@ void OrientationExport::exportMVE(const QString &path) const
         stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
 
         //stream << 250 << " " << 100 << " " << 150 << endl;  // Write arbitrary RGB color, see above note
-        stream << color[0] << " " << color[1] << " " << color[2] << std::endl;
+        stream << static_cast<int>(color[0]) << " " <<
+                  static_cast<int>(color[1]) << " " <<
+                  static_cast<int>(color[2]) << std::endl;
 
         colmap::Track track = points_3d.second.Track();
-        //stream << track.Length();
 
-        //for (auto &element : track.Elements()) {
-        //  stream << " " << element.image_id - 1 << " " << element.point2D_idx << " 0";
-        //}
         std::map<int, int> track_ids_not_repeat;
         for (auto &element : track.Elements()) {
           track_ids_not_repeat[element.image_id - 1] = element.point2D_idx;
@@ -630,12 +629,12 @@ void OrientationExport::exportBundler(const QString &oriFile) const
 
             Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
             Eigen::Vector3d translation = image.second.Tvec();
-
+            TL_TODO("El formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo!!! Aqui supongo que habría que hacerlo igual")
             stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
             stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
-            stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << std::endl;
-            stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << std::endl;
-            stream << translation[0] << " " << translation[1] << " " << translation[2] << std::endl;
+            stream << -rotation_matrix(1, 0) << " " << -rotation_matrix(1, 1) << " " << -rotation_matrix(1, 2) << std::endl;
+            stream << -rotation_matrix(2, 0) << " " << -rotation_matrix(2, 1) << " " << -rotation_matrix(2, 2) << std::endl;
+            stream << translation[0] << " " << -translation[1] << " " << -translation[2] << std::endl;
 
           }
         }
@@ -647,7 +646,9 @@ void OrientationExport::exportBundler(const QString &oriFile) const
         Eigen::Vector3ub color = points_3d.second.Color();
         stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
 
-        stream << color[0] << " " << color[1] << " " << color[2] << std::endl;
+        stream << static_cast<int>(color[0]) << " " <<
+                  static_cast<int>(color[1]) << " " <<
+                  static_cast<int>(color[2]) << std::endl;
 
         colmap::Track track = points_3d.second.Track();
 
@@ -659,9 +660,16 @@ void OrientationExport::exportBundler(const QString &oriFile) const
         stream << track_ids_not_repeat.size();
 
         for (auto &map : track_ids_not_repeat) {
-          stream << " " << map.first << " " << map.second << " 0";
-        }
 
+          const colmap::Image &image = mReconstruction->Image(map.first+1);
+          const colmap::Camera &camera = mReconstruction->Camera(image.CameraId());
+
+          const colmap::Point2D &point2D = image.Point2D(map.second);
+
+          stream << " " << map.first << " " << map.second << " ";
+          stream << point2D.X() - camera.PrincipalPointX() << " ";
+          stream << camera.PrincipalPointY() - point2D.Y() << " ";
+        }
 
         stream << std::endl;
       }

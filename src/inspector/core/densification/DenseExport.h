@@ -1,6 +1,8 @@
 #ifndef INSPECTOR_DENSE_EXPORT_H
 #define INSPECTOR_DENSE_EXPORT_H
 
+#include <tidop/core/flags.h>
+
 #include <QString>
 
 namespace inspector
@@ -8,11 +10,14 @@ namespace inspector
 
 class DenseExport
 {
+
+public:
+
   enum class Fields
   {
-    xyz = 0,
-    rgb = 1 << 0,
-    normals = 1 << 1
+    xyz = 1 << 0,
+    rgb = 1 << 1,
+    normals = 1 << 2
   };
 
 public:
@@ -20,7 +25,8 @@ public:
   DenseExport(const QString &denseModel);
 
   void setOffset(double x, double y, double z);
-  void exportToCSV(const QString &csv, Fields fields);
+  void exportToCSV(const QString &csv,
+                   const tl::EnumFlags<Fields> &flag);
 
 protected:
 
