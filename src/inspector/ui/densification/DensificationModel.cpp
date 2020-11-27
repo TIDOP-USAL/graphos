@@ -6,6 +6,8 @@
 
 #include <tidop/core/console.h>
 
+#include <QSettings>
+
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
@@ -56,6 +58,12 @@ QString DensificationModelImp::imageDirectory() const
 QString DensificationModelImp::reconstructionPath() const
 {
   return mProject->reconstructionPath();
+}
+
+bool DensificationModelImp::useCuda() const
+{
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Inspector");
+  return settings.value("General/UseCuda", true).toBool();
 }
 
 void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)

@@ -227,20 +227,23 @@ void WriteProjectionMatrix(const std::string& path, const colmap::Camera& camera
 }
 
 CmvsPmvsDensifier::CmvsPmvsDensifier()
-  : bOpenCvRead(true)
+  : bOpenCvRead(true),
+    bCuda(false)
 {
 
 }
 
 CmvsPmvsDensifier::CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess)
   : CmvsPmvsProperties(cmvsPmvsProcess),
-    bOpenCvRead(true)
+    bOpenCvRead(true),
+    bCuda(false)
 {
 }
 
 CmvsPmvsDensifier::CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept
   : CmvsPmvsProperties(std::forward<CmvsPmvsProperties>(cmvsPmvsProcess)),
-    bOpenCvRead(cmvsPmvsProcess.bOpenCvRead)
+    bOpenCvRead(cmvsPmvsProcess.bOpenCvRead),
+    bCuda(cmvsPmvsProcess.bCuda)
 {
 }
 
@@ -266,6 +269,7 @@ CmvsPmvsDensifier &CmvsPmvsDensifier::operator =(const CmvsPmvsDensifier &cmvsPm
   if (this != &cmvsPmvsProcess){
     CmvsPmvsProperties::operator=(cmvsPmvsProcess);
     this->bOpenCvRead = cmvsPmvsProcess.bOpenCvRead;
+    this->bCuda = cmvsPmvsProcess.bCuda;
   }
   return *this;
 }
@@ -275,6 +279,7 @@ CmvsPmvsDensifier &CmvsPmvsDensifier::operator =(CmvsPmvsDensifier &&cmvsPmvsPro
   if (this != &cmvsPmvsProcess){
     CmvsPmvsProperties::operator=(std::forward<CmvsPmvsProperties>(cmvsPmvsProcess));
     this->bOpenCvRead = cmvsPmvsProcess.bOpenCvRead;
+    this->bCuda = cmvsPmvsProcess.bCuda;
   }
   return *this;
 }
@@ -349,11 +354,12 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
     cv::Mat map1, map2;
     cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
     cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
-
+    
 #ifdef HAVE_CUDA
     cv::cuda::GpuMat gMap1(map1);
     cv::cuda::GpuMat gMap2(map2);
 #endif
+    
 
     try {
       //for (auto &image : reconstruction.Images()) {
@@ -382,13 +388,18 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
               if (imageReader->depth() != 8) {
 
                 TL_TODO("Codigo duplicado en FeatureExtractorProcess")
+
 #ifdef HAVE_CUDA
-                cv::cuda::GpuMat gImgIn(img);
-                cv::cuda::GpuMat gImgOut;
-                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-                gImgOut.download(img);
-#else
-                cv::normalize(img, img, 0., 255., cv::NORM_MINMAX, CV_8U);
+                if (bCuda) {
+                  cv::cuda::GpuMat gImgIn(img);
+                  cv::cuda::GpuMat gImgOut;
+                  cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+                  gImgOut.download(img);
+                } else {
+#endif
+                  cv::normalize(img, img, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
+                }
 #endif
               }
 
@@ -403,19 +414,23 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
 
           cv::Mat img_undistort;
 #ifdef HAVE_CUDA
-          TL_TODO("comprobar versión driver cuda");
-          cv::cuda::GpuMat gImgOut(img);
-          img.release();
-          cv::cuda::GpuMat gImgUndistort;
+          if (bCuda) {
+            TL_TODO("comprobar versión driver cuda");
+            cv::cuda::GpuMat gImgOut(img);
+            img.release();
+            cv::cuda::GpuMat gImgUndistort;
 
-          //cv::cuda::Stream stream;
-          cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream*/);
-          gImgUndistort.download(img_undistort);
+            //cv::cuda::Stream stream;
+            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream*/);
+            gImgUndistort.download(img_undistort);
 
-          //stream.waitForCompletion();
-#else
-          cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
-          img.release();
+            //stream.waitForCompletion();
+          } else {
+#endif
+            cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
+            img.release();
+#ifdef HAVE_CUDA
+          }
 #endif
 
           std::string output_image_path = output_path + colmap::StringPrintf("/visualize/%08d.jpg", i);
@@ -608,6 +623,11 @@ bool CmvsPmvsDensifier::densify(const QString &undistortPath)
   }
 
   return false;
+}
+
+void CmvsPmvsDensifier::enableCuda(bool enable)
+{
+  bCuda = enable;
 }
 
 void CmvsPmvsDensifier::reset()

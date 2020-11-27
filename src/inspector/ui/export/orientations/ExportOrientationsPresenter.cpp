@@ -5,6 +5,7 @@
 #include "inspector/widgets/NvmFormatWidget.h"
 #include "inspector/widgets/BundlerFormatWidget.h"
 #include "inspector/widgets/MveFormatWidget.h"
+#include "inspector/widgets/OriTxtFormatWidget.h"
 #include "inspector/ui/HelpDialog.h"
 #include "inspector/core/orientation/orientationexport.h"
 
@@ -26,6 +27,7 @@ ExportOrientationsPresenterImp::ExportOrientationsPresenterImp(ExportOrientation
     mNvmFormatWidget(new NvmFormatWidgetImp),
     mBundlerFormatWidget(new BundlerFormatWidgetImp),
     mMveFormatWidget(new MveFormatWidgetImp),
+    mOriTxtFormatWidget(new OriTxtFormatWidgetImp),
     mHelp(nullptr)
 {
   this->init();
@@ -47,6 +49,11 @@ ExportOrientationsPresenterImp::~ExportOrientationsPresenterImp()
   if (mMveFormatWidget){
     delete mMveFormatWidget;
     mMveFormatWidget = nullptr;
+  }
+
+  if (mOriTxtFormatWidget){
+    delete mOriTxtFormatWidget;
+    mOriTxtFormatWidget = nullptr;
   }
 }
 
@@ -76,6 +83,7 @@ void ExportOrientationsPresenterImp::init()
   mView->addFormatWidget(mNvmFormatWidget);
   mView->addFormatWidget(mBundlerFormatWidget);
   //mView->addFormatWidget(mMveFormatWidget);
+  mView->addFormatWidget(mOriTxtFormatWidget);
   mView->setCurrentFormat(mNvmFormatWidget->windowTitle());
 }
 
@@ -91,13 +99,13 @@ void ExportOrientationsPresenterImp::save()
   QString reconstructionPath = mModel->reconstruction();
 
   colmap::Reconstruction reconstruction;
-#ifdef _DEBUG
-  //Lectura como texto
-  reconstruction.ReadText(reconstructionPath.toStdString());
-#else
+//#ifdef _DEBUG
+//  //Lectura como texto
+//  reconstruction.ReadText(reconstructionPath.toStdString());
+//#else
   //Lectura como binario
   reconstruction.ReadBinary(reconstructionPath.toStdString());
-#endif
+//#endif
   OrientationExport orientationExport(&reconstruction);
 
   QString oriFormat = mView->format();
@@ -107,6 +115,8 @@ void ExportOrientationsPresenterImp::save()
     orientationExport.exportBundler(mBundlerFormatWidget->file());
   } else if (oriFormat.compare("MVE") == 0) {
     orientationExport.exportMVE(mMveFormatWidget->file());
+  } else if (oriFormat.compare("TXT") == 0){
+    orientationExport.exportOrientation(mOriTxtFormatWidget->file(), mOriTxtFormatWidget->rotation().compare("Quaternions") == 0);
   }
 
 }

@@ -41,6 +41,7 @@ public:
   QString projectFolder() const override;
   QString imageDirectory() const override;
   QString reconstructionPath() const override;
+  bool useCuda() const override;
 
 public slots:
 

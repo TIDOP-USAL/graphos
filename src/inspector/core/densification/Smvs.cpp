@@ -156,19 +156,22 @@ QString SmvsProperties::name() const
 
 
 SmvsDensifier::SmvsDensifier()
-  : bOpenCvRead(true)
+  : bOpenCvRead(true),
+    bCuda(false)
 {
 }
 
 SmvsDensifier::SmvsDensifier(const SmvsDensifier &smvs)
   : SmvsProperties(smvs),
-    bOpenCvRead(true)
+    bOpenCvRead(true),
+    bCuda(false)
 {
 }
 
 SmvsDensifier::SmvsDensifier(SmvsDensifier &&smvs) noexcept
   : SmvsProperties(std::forward<SmvsProperties>(smvs)),
-    bOpenCvRead(smvs.bOpenCvRead)
+    bOpenCvRead(smvs.bOpenCvRead),
+    bCuda(smvs.bCuda)
 {
 }
 
@@ -191,6 +194,7 @@ SmvsDensifier &SmvsDensifier::operator =(const SmvsDensifier &smvs)
   if (this != &smvs){
     SmvsProperties::operator=(smvs);
     bOpenCvRead = smvs.bOpenCvRead;
+    bCuda = smvs.bCuda;
   }
   return *this;
 }
@@ -200,6 +204,7 @@ SmvsDensifier &SmvsDensifier::operator =(SmvsDensifier &&smvs) noexcept
   if (this != &smvs){
     SmvsProperties::operator=(std::forward<SmvsProperties>(smvs));
     bOpenCvRead = smvs.bOpenCvRead;
+    bCuda = smvs.bCuda;
   }
   return *this;
 }
@@ -283,12 +288,16 @@ bool SmvsDensifier::undistort(const QString &reconstructionPath,
 
                 TL_TODO("Codigo duplicado en FeatureExtractorProcess")
 #ifdef HAVE_CUDA
-                cv::cuda::GpuMat gImgIn(img);
-                cv::cuda::GpuMat gImgOut;
-                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-                gImgOut.download(img);
-#else
-                cv::normalize(img, img, 0., 255., cv::NORM_MINMAX, CV_8U);
+                if (bCuda) {
+                  cv::cuda::GpuMat gImgIn(img);
+                  cv::cuda::GpuMat gImgOut;
+                  cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+                  gImgOut.download(img);
+                } else {
+#endif
+                  cv::normalize(img, img, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
+                }
 #endif
               }
 
@@ -302,16 +311,20 @@ bool SmvsDensifier::undistort(const QString &reconstructionPath,
 
           cv::Mat img_undistort;
 #ifdef HAVE_CUDA
-          cv::cuda::GpuMat gImgOut(img);
-          img.release();
-          cv::cuda::GpuMat gImgUndistort;
+          if (bCuda) {
+            cv::cuda::GpuMat gImgOut(img);
+            img.release();
+            cv::cuda::GpuMat gImgUndistort;
 
-          cv::cuda::Stream stream;
-          cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream);
-          gImgUndistort.download(img_undistort);
-#else
-          cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
-          img.release();
+            cv::cuda::Stream stream;
+            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream);
+            gImgUndistort.download(img_undistort);
+          } else {
+#endif
+            cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
+            img.release();
+#ifdef HAVE_CUDA
+          }
 #endif
 
 
@@ -356,6 +369,11 @@ bool SmvsDensifier::densify(const QString &undistortPath)
   }
 
   return false;
+}
+
+void SmvsDensifier::enableCuda(bool enable)
+{
+  bCuda = enable;
 }
 
 } // namespace inspector

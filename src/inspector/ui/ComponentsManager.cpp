@@ -46,6 +46,9 @@
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudModel.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudView.h"
+#include "inspector/ui/dtm/impl/DTMModel.h"
+#include "inspector/ui/dtm/impl/DTMView.h"
+#include "inspector/ui/dtm/impl/DTMPresenter.h"
 //#include "inspector/ui/MultiViewModel.h"
 //#include "inspector/ui/MultiViewView.h"
 //#include "inspector/ui/MultiViewPresenter.h"
@@ -101,6 +104,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mCamerasImportPresenter(nullptr),
     mExportPointCloudModel(nullptr),
     mExportPointCloudPresenter(nullptr),
+    mDtmModel(nullptr),
+    mDtmPresenter(nullptr),
     //mAboutDialog(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
@@ -280,6 +285,16 @@ ComponentsManager::~ComponentsManager()
     mExportPointCloudPresenter = nullptr;
   }
 
+  if(mDtmModel){
+    delete mDtmModel;
+    mDtmModel = nullptr;
+  }
+
+  if(mDtmPresenter){
+    delete mDtmPresenter;
+    mDtmPresenter = nullptr;
+  }
+
   if (mProgressHandler){
     delete mProgressHandler;
     mProgressHandler = nullptr;
@@ -363,6 +378,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 //    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
     connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
             this, &ComponentsManager::initAndOpenExportPointCloudDialog);
+    connect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
+            this, &ComponentsManager::initAndOpenDtmDialog);
   }
 
   return mMainWindowPresenter;
@@ -680,6 +697,23 @@ ExportPointCloudPresenter *ComponentsManager::exportPointCloudPresenter()
                                                                   this->exportPointCloudModel());
   }
   return mExportPointCloudPresenter;
+}
+
+DtmModel *ComponentsManager::dtmModel()
+{
+  if (mDtmModel == nullptr) {
+    mDtmModel = new DtmModelImp(mProject);
+  }
+  return mDtmModel;
+}
+
+DtmPresenter *ComponentsManager::dtmPresenter()
+{
+  if (mDtmPresenter == nullptr){
+    DtmView *view = new DtmViewImp(this->mainWindowView());
+    mDtmPresenter = new DtmPresenterImp(view, this->dtmModel(), this->settingsModel());
+  }
+  return mDtmPresenter;
 }
 
 HelpDialog *ComponentsManager::helpDialog()
@@ -1068,6 +1102,25 @@ void ComponentsManager::initAndOpenExportPointCloudDialog()
 
   this->exportPointCloudPresenter()->setHelp(this->helpDialog());
   this->exportPointCloudPresenter()->open();
+}
+
+void ComponentsManager::initAndOpenDtmDialog()
+{
+  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
+             this, &ComponentsManager::initAndOpenDtmDialog);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
+          this->dtmPresenter(), &DtmPresenter::open);
+
+  connect(this->dtmPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
+  connect(this->dtmPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->dtmPresenter(), SIGNAL(matchingFinished()),  this->mainWindowPresenter(), SLOT(loadMatches()));
+
+  connect(this->progressDialog(), SIGNAL(cancel()),     this->dtmPresenter(), SLOT(cancel()));
+
+  this->dtmPresenter()->setProgressHandler(this->progressHandler());
+
+  this->dtmPresenter()->setHelp(this->helpDialog());
+  this->dtmPresenter()->open();
 }
 
 //void ComponentsManager::initAndOpenMultiviewMatchingAssessmentDialog()

@@ -88,6 +88,7 @@ public:
                  const QString &imagesPath,
                  const QString &outputPath) override;
   bool densify(const QString &undistortPath) override;
+  void enableCuda(bool enable) override;
 
 // Densification interface
 
@@ -98,7 +99,7 @@ public:
 private:
 
   bool bOpenCvRead;
-
+  bool bCuda;
 };
 
 

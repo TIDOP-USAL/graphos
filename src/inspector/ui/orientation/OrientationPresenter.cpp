@@ -113,7 +113,13 @@ void OrientationPresenterImp::createProcess()
   QString imagePath = mModel->imagePath();
   //QString outputPath = mModel->projectPath();
   QString ori_relative = mModel->projectPath() + "/sparse/relative/";
-  std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, imagePath, ori_relative);
+  std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, 
+                                                                                                                                    imagePath, 
+                                                                                                                                    ori_relative,
+                                                                                                                                    true,
+                                                                                                                                    refine_principal_point,
+                                                                                                                                    true);
+
   std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(relativeOrientationAlgorithm));
 
   connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onRelativeOrientationFinished()));

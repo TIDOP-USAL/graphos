@@ -23,7 +23,13 @@ add_library(inspector_widgets ${LIB_TYPE}
             MveFormatWidget.cpp
             MveFormatWidget.h
             PointCloudCSVFormatWidget.cpp
-            PointCloudCSVFormatWidget.h)
+            PointCloudCSVFormatWidget.h
+            DtmInvDistWidget.cpp
+            DtmInvDistWidget.h
+            DtmInvDistNNWidget.cpp
+            DtmInvDistNNWidget.h
+            OriTxtFormatWidget.cpp
+            OriTxtFormatWidget.h)
 
 set_property(TARGET inspector_widgets PROPERTY FOLDER "lib")
 

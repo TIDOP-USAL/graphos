@@ -71,6 +71,8 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExportPointCloud(new QAction(this)),
     mActionFeaturesViewer(new QAction(this)),
     mActionMatchesViewer(new QAction(this)),
+    mActionDtm(new QAction(this)),
+    mActionOrtho(new QAction(this)),
     //mActionPassPointsViewer(new QAction(this)),
     mActionNotRecentProjects(new QAction(this)),
     mActionClearHistory(new QAction(this)),
@@ -955,6 +957,9 @@ void MainWindowView::initActions()
   mActionViewKeypoints->setIcon(iconFeaturesViewer);
 
   mActionViewMatches->setIcon(iconMatchesViewer);
+
+  //mActionDtm->setIcon(iconMatchesViewer);
+  //mActionOrtho->setIcon(iconMatchesViewer);
 }
 
 void MainWindowView::initToolbars()
@@ -1136,11 +1141,15 @@ void MainWindowView::initMenuTools()
   ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionGeoreference);
   ui->menuTools->addSeparator();
+  ui->menuTools->addAction(mActionDtm);
+  ui->menuTools->addAction(mActionOrtho);
+  ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionFeaturesViewer);
   ui->menuTools->addAction(mActionMatchesViewer);
   //ui->menuTools->addAction(mActionPassPointsViewer);
   ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionSettings);
+
 }
 
 void MainWindowView::initMenuHelp()
@@ -1191,6 +1200,7 @@ void MainWindowView::initSignalAndSlots()
 
   connect(mActionCameras,            &QAction::triggered,   this,   &MainWindowView::openCamerasDialog);
   connect(mActionGeoreference,       &QAction::triggered,   this,   &MainWindowView::openGeoreferenceDialog);
+  connect(mActionDtm,                &QAction::triggered,   this,   &MainWindowView::openDtmDialog);
   connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
   connect(mActionMatchesViewer,      SIGNAL(triggered(bool)),   this,   SIGNAL(openMatchesViewer()));
   //connect(mActionPassPointsViewer,   SIGNAL(triggered(bool)),   this,   SIGNAL(openMultiviewMatchingAssessment()));
@@ -1289,6 +1299,8 @@ void MainWindowView::retranslate()
   mActionDeleteImage->setText(QApplication::translate("MainWindowView", "Delete Image", nullptr));
   mActionViewKeypoints->setText(QApplication::translate("MainWindowView", "View Keypoints", nullptr));
   mActionViewMatches->setText(QApplication::translate("MainWindowView", "View Matches", nullptr));
+  mActionDtm->setText(QApplication::translate("MainWindowView", "DTM/DSM", nullptr));
+
 
   mToolBarFile->setWindowTitle(QCoreApplication::translate("MainWindowView", "File", nullptr));
   mToolBarWorkflow->setWindowTitle(QCoreApplication::translate("MainWindowView", "Workflow", nullptr));

@@ -34,7 +34,13 @@ add_library(inspector_core ${LIB_TYPE}
             densification/DenseExport.cpp
             densification/DenseExport.h
             utils.cpp
-            utils.h)
+            utils.h
+            dtm/dtm.cpp
+            dtm/dtm.h
+            dtm/invdist.cpp
+            dtm/invdist.h
+            dtm/invdistnn.cpp
+            dtm/invdistnn.h)
 
 set_property(TARGET inspector_core PROPERTY FOLDER "lib")
 

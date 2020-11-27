@@ -60,8 +60,11 @@ class TL_EXPORT RelativeOrientationColmapAlgorithm
 public:
 
   RelativeOrientationColmapAlgorithm(const QString &database,
-                           const QString &imagePath,
-                           const QString &outputPath);
+                                     const QString &imagePath,
+                                     const QString &outputPath,
+                                     bool refineFocalLength,
+                                     bool refinePrincipalPoint,
+                                     bool refineExtraParams);
   ~RelativeOrientationColmapAlgorithm() override;
 
 // RelativeOrientationAlgorithm interface

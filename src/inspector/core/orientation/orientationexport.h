@@ -66,7 +66,7 @@ public:
    * \param[in] path Ruta donde se crea el fichero
    * \param[in] bQuaternion Orientaciones como cuaterniones. En caso contrario se escribe la matriz de rotación
    */
-  void exportRelativeOrientation(const QString &path, bool bQuaternion = true) const;
+  void exportOrientation(const QString &path, bool bQuaternion = true) const;
 
   /*!
    * \brief Exportación del resultado de la auto-calibración al formato Pix4D

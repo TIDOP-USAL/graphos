@@ -68,6 +68,7 @@ signals:
   void openSettingsDialog();
   void openViewSettingsDialog();
   void openToolSettingsDialog();
+  void openDtmDialog();
 
 protected slots:
 

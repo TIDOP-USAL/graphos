@@ -73,6 +73,9 @@ set(INSPECTOR_SOURCES
     import/cameras/impl/CameraPositionsModel.cpp
     import/cameras/impl/CameraPositionsView.cpp
     import/cameras/impl/CameraPositionsPresenter.cpp
+    dtm/impl/DTMModel.cpp
+    dtm/impl/DTMView.cpp
+    dtm/impl/DTMPresenter.cpp
     # MultiViewModel.cpp
     # MultiViewView.cpp
     # MultiViewPresenter.cpp
@@ -174,6 +177,12 @@ set(INSPECTOR_HEADERS
     import/cameras/impl/CameraPositionsModel.h
     import/cameras/impl/CameraPositionsView.h
     import/cameras/impl/CameraPositionsPresenter.h
+    dtm/DTMModel.h
+    dtm/DTMView.h
+    dtm/DTMPresenter.h
+    dtm/impl/DTMModel.h
+    dtm/impl/DTMView.h
+    dtm/impl/DTMPresenter.h
     # Multiview.h
     # MultiViewModel.h
     # MultiViewView.h

@@ -56,6 +56,8 @@ public:
                          const QString &imagesPath,
                          const QString &outputPath) = 0;
   virtual bool densify(const QString &undistortPath) = 0;
+
+  virtual void enableCuda(bool enable) = 0;
 };
 
 

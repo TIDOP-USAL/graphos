@@ -9,6 +9,7 @@ namespace inspector
 class NvmFormatWidget;
 class BundlerFormatWidget;
 class MveFormatWidget;
+class OriTxtFormatWidget;
 
 namespace ui
 {
@@ -52,6 +53,7 @@ private:
   NvmFormatWidget *mNvmFormatWidget;
   BundlerFormatWidget *mBundlerFormatWidget;
   MveFormatWidget *mMveFormatWidget;
+  OriTxtFormatWidget *mOriTxtFormatWidget;
   HelpDialog *mHelp;
 };
 

@@ -15,12 +15,14 @@ add_library(inspector_process ${LIB_TYPE}
             features/FeatureMatchingProcess.h
             orientation/RelativeOrientationProcess.cpp
             orientation/RelativeOrientationProcess.h
-			orientation/AbsoluteOrientationProcess.cpp
-			orientation/AbsoluteOrientationProcess.h
+            orientation/AbsoluteOrientationProcess.cpp
+            orientation/AbsoluteOrientationProcess.h
             images/LoadImagesProcess.cpp
             images/LoadImagesProcess.h
             densification/DensificationProcess.cpp
             densification/DensificationProcess.h
+            dtm/DtmProcess.cpp
+            dtm/DtmProcess.h
            )
 
 set_property(TARGET inspector_process PROPERTY FOLDER "lib")

@@ -1107,6 +1107,7 @@ void MainWindowPresenter::initSignalAndSlots()
   connect(mView,  &MainWindowView::openMatchesViewer,   this, &MainWindowPresenter::openMatchesViewerDialog);
   //connect(mView,  &MainWindowView::openMultiviewMatchingAssessment,  this, &MainWindowPresenter::openMultiviewMatchingAssessmentDialog);
   connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
+  connect(mView,   &MainWindowView::openDtmDialog,         this, &MainWindowPresenter::openDtmDialog);
 
   /* Menú Ayuda */
 

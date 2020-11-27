@@ -48,6 +48,8 @@ class CamerasImportModel;
 class CamerasImportPresenter;
 class ExportPointCloudModel;
 class ExportPointCloudPresenter;
+class DtmPresenter;
+class DtmModel;
 class HelpDialog;
 class AboutDialog;
 
@@ -97,6 +99,8 @@ public:
   CamerasImportPresenter *camerasImportPresenter();
   ExportPointCloudModel *exportPointCloudModel();
   ExportPointCloudPresenter *exportPointCloudPresenter();
+  DtmModel *dtmModel();
+  DtmPresenter *dtmPresenter();
 
   //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
@@ -128,6 +132,7 @@ protected slots:
   void initAndOpenGeoreferenceDialog();
   void initAndOpenCamerasImportDialog();
   void initAndOpenExportPointCloudDialog();
+  void initAndOpenDtmDialog();
 
 private:
 
@@ -173,7 +178,8 @@ protected:
   CamerasImportPresenter *mCamerasImportPresenter;
   ExportPointCloudModel *mExportPointCloudModel;
   ExportPointCloudPresenter *mExportPointCloudPresenter;
-
+  DtmModel *mDtmModel;
+  DtmPresenter *mDtmPresenter;
   //AboutDialog *mAboutDialog;
   HelpDialog *mHelpDialog;
 

@@ -65,6 +65,7 @@ void CamerasImportViewImp::initUI()
   this->setObjectName(QStringLiteral("ExportOrientationsView"));
   this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(800, 600);
+  this->setMaximumWidth(1000);
 
   QGridLayout *gridLayout = new QGridLayout();
   this->setLayout(gridLayout);

@@ -3,6 +3,12 @@
 
 #include <tidop/core/flags.h>
 
+namespace tl
+{
+template<typename T> class Point3;
+template<typename T> class BoundingBox;
+}
+
 #include <QString>
 
 namespace inspector
@@ -26,7 +32,8 @@ public:
 
   void setOffset(double x, double y, double z);
   void exportToCSV(const QString &csv,
-                   const tl::EnumFlags<Fields> &flag);
+                   const tl::EnumFlags<Fields> &flag,
+                   tl::BoundingBox<tl::Point3<double>> *bbox = nullptr);
 
 protected:
 

@@ -155,6 +155,7 @@ signals:
   void openMatchesViewerFromImages(QString,QString);
   void openMultiviewMatchingAssessment();
   void openSettings();
+  void openDtmDialog();
 
   /* Menú Ayuda */
 
@@ -255,6 +256,8 @@ protected:
   QAction *mActionExportPointCloud;
   QAction *mActionFeaturesViewer;
   QAction *mActionMatchesViewer;
+  QAction *mActionDtm;
+  QAction *mActionOrtho;
   //QAction *mActionPassPointsViewer;
   QAction *mActionNotRecentProjects;
   QAction *mActionClearHistory;  
