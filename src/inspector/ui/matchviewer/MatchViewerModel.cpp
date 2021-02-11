@@ -81,85 +81,30 @@ std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> MatchViewerMod
       }
     }
 
-    colmap::FeatureKeypoints kp_1 = database.ReadKeypoints(image_id_left);
-    colmap::FeatureKeypoints kp_2 = database.ReadKeypoints(image_id_right);
+    if (image_id_right != 0 && image_id_right != 0) {
 
-    colmap::TwoViewGeometry two_view_colmap = database.ReadTwoViewGeometry(image_id_left, image_id_right);
-    colmap::FeatureMatches inlier_matches = two_view_colmap.inlier_matches;
-    colmap::FeatureMatch match_colmap;
-    for (size_t i = 0; i < inlier_matches.size(); i++){
-      match_colmap = inlier_matches[i];
-      QPointF left_point(static_cast<qreal>(kp_1[match_colmap.point2D_idx1].x),
-                         static_cast<qreal>(kp_1[match_colmap.point2D_idx1].y));
-      QPointF right_point(static_cast<qreal>(kp_2[match_colmap.point2D_idx2].x),
-                          static_cast<qreal>(kp_2[match_colmap.point2D_idx2].y));
-      matches.push_back(std::make_tuple(i,
-                                        match_colmap.point2D_idx1,
-                                        left_point,
-                                        match_colmap.point2D_idx1,
-                                        right_point));
+      colmap::FeatureKeypoints kp_1 = database.ReadKeypoints(image_id_left);
+      colmap::FeatureKeypoints kp_2 = database.ReadKeypoints(image_id_right);
+
+      colmap::TwoViewGeometry two_view_colmap = database.ReadTwoViewGeometry(image_id_left, image_id_right);
+      colmap::FeatureMatches inlier_matches = two_view_colmap.inlier_matches;
+      colmap::FeatureMatch match_colmap;
+      for (size_t i = 0; i < inlier_matches.size(); i++) {
+        match_colmap = inlier_matches[i];
+        QPointF left_point(static_cast<qreal>(kp_1[match_colmap.point2D_idx1].x),
+                           static_cast<qreal>(kp_1[match_colmap.point2D_idx1].y));
+        QPointF right_point(static_cast<qreal>(kp_2[match_colmap.point2D_idx2].x),
+                            static_cast<qreal>(kp_2[match_colmap.point2D_idx2].y));
+        matches.push_back(std::make_tuple(i,
+                          match_colmap.point2D_idx1,
+                          left_point,
+                          match_colmap.point2D_idx1,
+                          right_point));
+      }
     }
+
   }
 
-//  if (std::shared_ptr<Session> session = mProjectModel->findSession(mSession)){
-
-//    std::unique_ptr<FeaturesReader> featuresRead = FeaturesReaderFactory::createReader(session->features(imgName1));
-//    featuresRead->read();
-//    std::vector<cv::KeyPoint> keyPoints1 = featuresRead->keyPoints();
-//    featuresRead = FeaturesReaderFactory::createReader(session->features(imgName2));
-//    featuresRead->read();
-//    std::vector<cv::KeyPoint> keyPoints2 = featuresRead->keyPoints();
-
-//    std::vector<std::pair<QString, QString>> matches = session->matches(imgName1);
-//    std::vector<cv::DMatch> match;
-//    if (!matches.empty()){
-//      for (auto &m : matches){
-//        if (m.first.compare(imgName2) == 0){
-//          std::unique_ptr<MatchesReader> matchesReader = MatchesReaderFactory::createReader(m.second);
-//          matchesReader->read();
-//          std::vector<cv::DMatch> match = matchesReader->goodMatches();
-//          matchesReader.reset();
-//          break;
-//        }
-//      }
-//    }
-
-//    for (size_t i = 0; i < mPassPoints.size(); i++) {
-
-//      size_t query_id = 0;
-//      size_t train_id = 0;
-//      int pt_find = 0;
-//      for (size_t j = 0; j < mPassPoints[i].size(); j++) {
-//        if (mPassPoints[i][j].first.compare(imgName1) == 0){
-//          query_id = static_cast<size_t>(mPassPoints[i][j].second);
-//          pt_find++;
-//        } else if (mPassPoints[i][j].first.compare(imgName2) == 0){
-//          train_id = static_cast<size_t>(mPassPoints[i][j].second);
-//          pt_find++;
-//        }
-
-//        if (pt_find == 2){
-//          QPointF pt_query(static_cast<double>(keyPoints1[query_id].pt.x),
-//                           static_cast<double>(keyPoints1[query_id].pt.y));
-//          QPointF pt_train(static_cast<double>(keyPoints2[train_id].pt.x),
-//                           static_cast<double>(keyPoints2[train_id].pt.y));
-
-//          float distance = -0.f;
-//          for (size_t k = 0; k < match.size(); k++){
-//            if ((static_cast<size_t>(match[k].queryIdx) == query_id && static_cast<size_t>(match[k].trainIdx) == train_id) ||
-//                (static_cast<size_t>(match[k].queryIdx) == train_id && static_cast<size_t>(match[k].trainIdx) == query_id)){
-//              distance = match[k].distance;
-//              break;
-//            }
-//          }
-
-//          r_matches.push_back(std::make_tuple(i, query_id, pt_query, train_id, pt_train, distance));
-//          break;
-//        }
-//      }
-
-//    }
-//  }
   return matches;
 }
 

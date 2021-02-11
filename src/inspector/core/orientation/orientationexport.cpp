@@ -136,26 +136,27 @@ void OrientationExport::exportPLY(const QString &path) const
   if (mReconstruction) {
     
     // Sólo exporta como float y en UTM se produce una perdida de precisión
-    // por ahora no se va a trabajar en coordenadas absolutas asi que se deja en float
-    mReconstruction->ExportPLY(path.toStdString());
+    //mReconstruction->ExportPLY(path.toStdString());
 
-//    std::vector<PointPly> ply_points;
-//    ply_points.reserve(mReconstruction->NumPoints3D());
+    //QFileInfo info(path);
+    //QString utm_ori = info.path() + "\\utm_ori" + info.suffix();
+    std::vector<PointPly> ply_points;
+    ply_points.reserve(mReconstruction->NumPoints3D());
     
-//    for (auto &point : mReconstruction->Points3D()) {
-//      PointPly ply_point;
-//      ply_point.x = point.second.X();
-//      ply_point.y = point.second.Y();
-//      ply_point.z = point.second.Z();
-//      ply_point.r = point.second.Color(0);
-//      ply_point.g = point.second.Color(1);
-//      ply_point.b = point.second.Color(2);
-//      ply_points.push_back(ply_point);
-//    }
+    for (auto &point : mReconstruction->Points3D()) {
+      PointPly ply_point;
+      ply_point.x = point.second.X();
+      ply_point.y = point.second.Y();
+      ply_point.z = point.second.Z();
+      ply_point.r = point.second.Color(0);
+      ply_point.g = point.second.Color(1);
+      ply_point.b = point.second.Color(2);
+      ply_points.push_back(ply_point);
+    }
     
-//    bool kWriteNormal = false;
-//    bool kWriteRGB = true;
-//    writeBinaryPlyPoints(path.toStdString(), ply_points, kWriteNormal, kWriteRGB);
+    bool kWriteNormal = false;
+    bool kWriteRGB = true;
+    writeBinaryPlyPoints(path.toStdString(), ply_points, kWriteNormal, kWriteRGB);
 
   } else
     msgError("There is not a valid reconstruction");
@@ -484,7 +485,7 @@ void OrientationExport::exportMVE(const QString &path) const
         for (auto &image : mReconstruction->Images()) {
           if (image.second.CameraId() == camera.second.CameraId()) {
 
-            std::string img_name = image.second.Name();
+            //std::string img_name = image.second.Name();
 
             Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
             Eigen::Vector3d translation = image.second.Tvec();
@@ -521,6 +522,8 @@ void OrientationExport::exportMVE(const QString &path) const
             }
 
             ///TODO: ver porque pone 0 en la distorsión...
+            /// Utiliza las imagenes corregidas... Volver a poner a 0....
+            
             TL_TODO("El formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo!!! Aqui supongo que habría que hacerlo igual")
             //stream << focal << " " << "0" << " " << "0" << endl;  // Write '0' distortion values for pre-corrected images
             stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
@@ -603,6 +606,8 @@ void OrientationExport::exportCMVS(const QString &path) const
 
 void OrientationExport::exportBundler(const QString &oriFile) const
 {
+  ///TODO: ¿En que cambiaba de generarlo yo o Colmap?
+
   //if (mReconstruction)
   //  mReconstruction->ExportBundler(oriFile.toStdString(), imageListFile.toStdString());
   //else
@@ -610,60 +615,66 @@ void OrientationExport::exportBundler(const QString &oriFile) const
 
 
 
-#ifdef _DEBUG
-  /// Borrar
+//#ifdef _DEBUG
+//  /// Borrar
+//  if (mReconstruction) {
+//    const colmap::Image image = mReconstruction->Image(static_cast<colmap::image_t>(3));
+//    std::string name = image.Name().c_str();
+//    msgInfo(image.Name().c_str());
+//    colmap::camera_t camera_id = image.CameraId();
+//    colmap::Camera camera =mReconstruction->Camera(camera_id);
+//
+//    for (auto &points_3d : mReconstruction->Points3D()) {
+//      colmap::point3D_t point_3d_id = points_3d.first;
+//      const colmap::Point3D point_3d = points_3d.second;
+//      if (image.HasPoint3D(point_3d_id)){
+//        colmap::Track track = point_3d.Track();
+//        for (auto &element : track.Elements()) {
+//          colmap::image_t image_id = element.image_id;
+//          if (image_id == image.ImageId()) {
+//            colmap::point2D_t point_2d_id = element.point2D_idx;
+//            const colmap::Point2D point_2d = image.Point2D(point_2d_id);
+//            msgInfo("3D Point: (%lf;%lf;%lf)", point_3d.X(), point_3d.Y(), point_3d.Z());
+//            msgInfo("2D Point: (%lf;%lf)", point_2d.X(), point_2d.Y());
+//            Eigen::Vector3d point3D = point_3d.XYZ();
+//            Eigen::Matrix3x4d proj_matrix = image.ProjectionMatrix();
+//            Eigen::Vector2d image_point = colmap::ProjectPointToImage(point3D, proj_matrix, camera);
+//            msgInfo("Project Point: (%lf;%lf)", image_point[0], image_point[1]);
+//            double x = image_point[0];
+//            double y = image_point[1];
+//            double x_dif = x - point_2d.X();
+//            double y_dif = y - point_2d.Y();
+//            msgInfo("dif: %lf;%lf", x_dif, y_dif);
+//
+//            //Eigen::Vector3d point3D_2(271998 - 272021.250, 4338425.7 - 4338368.076, 351.916 - 379.370);
+//            Eigen::Vector3d point3D_2(-22.9325, 57.457, -27.328);
+//            Eigen::Vector2d image_point_2 = colmap::ProjectPointToImage(point3D_2, proj_matrix, camera);
+//
+//            msgInfo("3D Point: (%lf;%lf;%lf)", point3D_2[0], point3D_2[1], point3D_2[2]);
+//            msgInfo("2D Point: (%lf;%lf)", image_point_2[0], image_point_2[1]);
+//
+//            const Eigen::Matrix<double, 3, 4> inv_proj_matrix = image.InverseProjectionMatrix();
+//            const Eigen::Vector3d point3D_3 = inv_proj_matrix.rightCols<1>();
+//            Eigen::Vector2d image_point_3 = colmap::ProjectPointToImage(point3D_3, proj_matrix, camera);
+//                        
+//            msgInfo("3D Point: (%lf;%lf;%lf)", point3D_3[0], point3D_3[1], point3D_3[2]);
+//            msgInfo("2D Point: (%lf;%lf)", image_point_3[0], image_point_3[1]);
+//            return;
+//          }
+//
+//        }
+//      }
+//
+//    }
+//
+//
+//  }
+//#endif
+
+
+
   if (mReconstruction) {
-    const colmap::Image image = mReconstruction->Image(static_cast<colmap::image_t>(2));
-    std::string name = image.Name().c_str();
-    msgInfo(image.Name().c_str());
-    colmap::camera_t camera_id = image.CameraId();
-    colmap::Camera camera =mReconstruction->Camera(camera_id);
 
-    for (auto &points_3d : mReconstruction->Points3D()) {
-      colmap::point3D_t point_3d_id = points_3d.first;
-      const colmap::Point3D point_3d = points_3d.second;
-      if (image.HasPoint3D(point_3d_id)){
-        colmap::Track track = point_3d.Track();
-        for (auto &element : track.Elements()) {
-          colmap::image_t image_id = element.image_id;
-          if (image_id == image.ImageId()) {
-            colmap::point2D_t point_2d_id = element.point2D_idx;
-            const colmap::Point2D point_2d = image.Point2D(point_2d_id);
-            msgInfo("3D Point: (%lf;%lf;%lf)", point_3d.X(), point_3d.Y(), point_3d.Z());
-            msgInfo("2D Point: (%lf;%lf)", point_2d.X(), point_2d.Y());
-            Eigen::Vector3d point3D = point_3d.XYZ();
-            Eigen::Matrix3x4d proj_matrix = image.ProjectionMatrix();
-            Eigen::Vector2d image_point = colmap::ProjectPointToImage(point3D, proj_matrix, camera);
-            msgInfo("Project Point: (%lf;%lf)", image_point[0], image_point[1]);
-            double x = image_point[0];
-            double y = image_point[1];
-            double x_dif = x - point_2d.X();
-            double y_dif = y - point_2d.Y();
-            msgInfo("dif: %lf;%lf", x_dif, y_dif);
-
-            //Eigen::Vector3d point3D_2(271998 - 272021.250, 4338425.7 - 4338368.076, 351.916 - 379.370);
-            Eigen::Vector3d point3D_2(-22.9325, 57.457, -27.328);
-            Eigen::Vector2d image_point_2 = colmap::ProjectPointToImage(point3D_2, proj_matrix, camera);
-
-            msgInfo("3D Point: (%lf;%lf;%lf)", point3D_2[0], point3D_2[1], point3D_2[2]);
-            msgInfo("2D Point: (%lf;%lf)", image_point_2[0], image_point_2[1]);
-            return;
-          }
-
-        }
-      }
-
-    }
-
-
-  }
-#endif
-
-
-
-  if (mReconstruction) {
-
-    QFile file(oriFile);
     std::ofstream stream(oriFile.toStdString(), std::ios::trunc);
     if (stream.is_open()) {
 

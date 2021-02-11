@@ -4,7 +4,7 @@
 #include "inspector/inspector_global.h"
 
 #include "inspector/ui/orientation/Orientation.h"
-
+#include "inspector/core/orientation/gcp.h"
 
 namespace inspector
 {

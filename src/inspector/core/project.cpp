@@ -430,6 +430,16 @@ void ProjectImp::setSparseModel(const QString &sparseModel)
   mSparseModel = sparseModel;
 }
 
+QString ProjectImp::offset() const
+{
+  return mOffset;
+}
+
+void ProjectImp::setOffset(const QString &offset)
+{
+  mOffset = offset;
+}
+
 QString ProjectImp::reconstructionPath() const
 {
   return mReconstructionPath;
@@ -453,6 +463,16 @@ PhotoOrientation ProjectImp::photoOrientation(const QString &imgName) const
 void ProjectImp::addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation)
 {
   mPhotoOrientation[imgName] = photoOrientation;
+}
+
+void ProjectImp::clearReconstruction()
+{
+  mPhotoOrientation.clear();
+  mSparseModel.clear();
+  mOffset.clear();
+  mReconstructionPath.clear();
+  mDensification.reset();
+  mDenseModel.clear();
 }
 
 std::shared_ptr<Densification> ProjectImp::densification() const
@@ -492,6 +512,7 @@ void ProjectImp::clear()
   mPhotoOrientation.clear();
   bRefinePrincipalPoint = true;
   mSparseModel = "";
+  mOffset = "";
   mReconstructionPath = "";
   mDensification.reset();
   mDenseModel = "";
@@ -951,6 +972,8 @@ void ProjectImp::readOrientations(QXmlStreamReader &stream)
       this->readReconstructionPath(stream);
     } else if (stream.name() == "SparseModel") {
       this->readOrientationSparseModel(stream);
+    } else if (stream.name() == "Offset") {
+      this->readOffset(stream);
     } else if (stream.name() == "Image"){
       this->readPhotoOrientations(stream);
     } else
@@ -966,6 +989,11 @@ void ProjectImp::readReconstructionPath(QXmlStreamReader &stream)
 void ProjectImp::readOrientationSparseModel(QXmlStreamReader &stream)
 {
   this->setSparseModel(stream.readElementText());
+}
+
+void ProjectImp::readOffset(QXmlStreamReader &stream)
+{
+  this->setOffset(stream.readElementText());
 }
 
 void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
@@ -1171,15 +1199,17 @@ void ProjectImp::writeImage(QXmlStreamWriter &stream, const Image &image) const
 void ProjectImp::writeCameraPosition(QXmlStreamWriter &stream,
                                      const CameraPosition &cameraPosition) const
 {
-  stream.writeStartElement("CameraPosition");
-  {
-    stream.writeTextElement("CRS", cameraPosition.crs());
-    stream.writeTextElement("X", QString::number(cameraPosition.x(), 'f', 3));
-    stream.writeTextElement("Y", QString::number(cameraPosition.y(), 'f', 3));
-    stream.writeTextElement("Z", QString::number(cameraPosition.z(), 'f', 3));
-    stream.writeTextElement("Source", cameraPosition.source());
+  if (!cameraPosition.isEmpty()) {
+    stream.writeStartElement("CameraPosition");
+    {
+      stream.writeTextElement("CRS", cameraPosition.crs());
+      stream.writeTextElement("X", QString::number(cameraPosition.x(), 'f', 3));
+      stream.writeTextElement("Y", QString::number(cameraPosition.y(), 'f', 3));
+      stream.writeTextElement("Z", QString::number(cameraPosition.z(), 'f', 3));
+      stream.writeTextElement("Source", cameraPosition.source());
+    }
+    stream.writeEndElement();
   }
-  stream.writeEndElement();
 }
 
 void ProjectImp::writeFeatures(QXmlStreamWriter &stream) const
@@ -1281,6 +1311,7 @@ void ProjectImp::writeOrientations(QXmlStreamWriter &stream) const
   {
     this->writeReconstructionPath(stream);
     this->writeOrientationSparseModel(stream);
+    this->writeOffset(stream);
     this->writePhotoOrientations(stream);
   }
   stream.writeEndElement(); // Orientations
@@ -1300,6 +1331,13 @@ void ProjectImp::writeOrientationSparseModel(QXmlStreamWriter &stream) const
     stream.writeTextElement("SparseModel", sparse_model);
 }
 
+void ProjectImp::writeOffset(QXmlStreamWriter &stream) const
+{
+  QString offset = this->offset();
+  if (!offset.isEmpty())
+    stream.writeTextElement("Offset", offset);
+}
+
 void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
 {
   if (!mPhotoOrientation.empty()){
@@ -1311,9 +1349,9 @@ void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
         {
           stream.writeAttribute("id", it->name());
           if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
-              stream.writeTextElement("X", QString::number(photoOrientation.x));
-              stream.writeTextElement("Y", QString::number(photoOrientation.y));
-              stream.writeTextElement("Z", QString::number(photoOrientation.z));
+              stream.writeTextElement("X", QString::number(photoOrientation.x, 'f', 3));
+              stream.writeTextElement("Y", QString::number(photoOrientation.y, 'f', 3));
+              stream.writeTextElement("Z", QString::number(photoOrientation.z, 'f', 3));
               QString rot_mat = QString::number(photoOrientation.rot[0][0]).append(" ");
               rot_mat.append(QString::number(photoOrientation.rot[0][1])).append(" ");
               rot_mat.append(QString::number(photoOrientation.rot[0][2])).append(" ");

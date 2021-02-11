@@ -3,17 +3,26 @@
 
 #include "inspector/ui/georeference/GeoreferenceView.h"
 
+#include <tidop/geometry/entities/point.h>
+
+#include <QItemSelection>
+
 class QDialogButtonBox;
-class QTreeWidget;
-class QTableView;
+//class QTreeWidget;
 class QLabel;
 class QLineEdit;
 class QComboBox;
 class QHBoxLayout;
 class QGridLayout;
+class QSpacerItem;
+class QMenu;
+class QTableView;
 
 namespace inspector
 {
+
+class GraphicViewer;
+
 
 namespace ui
 {
@@ -26,32 +35,42 @@ class GeoreferenceViewImp
 
 public:
 
-  GeoreferenceViewImp(QWidget *parent = nullptr);
+  GeoreferenceViewImp(QWidget *parent = nullptr,
+                      Qt::WindowFlags f = Qt::WindowFlags());
   ~GeoreferenceViewImp() override;
 
 protected slots:
 
   void openFile();
+  void onGraphicsViewSelectionChanged();
+  void onGraphicsViewRemoveSelectItems();
+
+  void selectionChanged(const QItemSelection &selected, 
+                        const QItemSelection &deselected);
+  //void onTreeWidgetItemSelectionChanged();
+  void clickedPoint(const QPointF &point);
 
 // GeoreferenceView interface
 
 public:
 
-  QString orientationFile() const override;
+  //QString orientationFile() const override;
 
 public slots:
 
   void setProjectPath(const QString &path) override;
-  void setItemModel(QStandardItemModel *model) override;
-  void setTableHeader(const QStringList &header) override;
-  void setImageColumn(const QString &imageColumn) override;
-  void setXColumn(const QString &xColumn) override;
-  void setYColumn(const QString &yColumn) override;
-  void setZColumn(const QString &zColumn) override;
-  void setQxColumn(const QString &qxColumn) override;
-  void setQyColumn(const QString &qyColumn) override;
-  void setQzColumn(const QString &qzColumn) override;
-  void setQwColumn(const QString &qwColumn) override;
+  void setImageList(const std::vector<QString> &imageList) override;
+  void setCurrentImage(const QString &leftImage) override;
+  void setItemModelGroundControlPoints(QAbstractItemModel *model) override;
+  void setItemModelImagePoints(QAbstractItemModel *model) override;
+  //void setTableHeader(const QStringList &header) override;
+  void setEnableImagePointsAddOrEdit(bool active) override;
+  void setPoints(const std::list<std::pair<QString, QPointF>> &points) override;
+  void setCrs(const QString &crs) override;
+
+private slots: 
+
+  void removeGroundControlPoints() override;
 
 // IDialogView interface
 
@@ -69,41 +88,36 @@ private slots:
   void update() override;
   void retranslate() override;
 
-
-
 protected:
 
-  QHBoxLayout *mHorizontalLayoutImportCameras;
-  QLineEdit *mLineEditImportCameras;
-  QPushButton *mPushButtonImportCameras;
-  QTableView *mTableViewImportCameras;
-  QGridLayout *mGridLayoutSelectColmns;
-  QLabel *mLabelImageColumn;
-  QComboBox *mComboBoxImageColumn;
-  QLabel *mLabelXColumn;
-  QComboBox *mComboBoxXColumn;
-  QLabel *mLabelYColumn;
-  QComboBox *mComboBoxYColumn;
-  QLabel *mLabelZColumn;
-  QComboBox *mComboBoxZColumn;
-  QLabel *mLabelQxColumn;
-  QComboBox *mComboBoxQxColumn;
-  QLabel *mLabelQyColumn;
-  QComboBox *mComboBoxQyColumn;
-  QLabel *mLabelQzColumn;
-  QComboBox *mComboBoxQzColumn;
-  QLabel *mLabelQwColumn;
-  QComboBox *mComboBoxQwColumn;
-  QLabel *mLabelCrsInput;
-  QLineEdit *mLineEditCrsInput;
-  QLabel *mLabelCrsOutput;
-  QLineEdit *mLineEditCrsOutput;
-  QHBoxLayout *mHorizontalLayoutCRS;
-  //QPushButton *mPushButtonGeoreference;
-  QTreeWidget *mTreeWidgetGeoreferencedCameras;
+  QLabel *mLabelCRS;
+  QLineEdit *mLineEditCRS;
+  //QTreeWidget *mTreeWidgetGroundControlPoints;
+  QTableView *mTableViewGroundControlPoints;
+  QPushButton *mPushButtonAddPoint;
+  QPushButton *mPushButtonDeletePoint;
+  QPushButton *mPushButtonGeoreference;
+  QSpacerItem *verticalSpacer;
+  
+  //QTreeWidget *mTreeWidgetImagePoints;
+  QLabel *mLabelFilterByControlPoint;
+  QComboBox *mComboBoxFilterByControlPoint;
+  QLabel *mLabelFilterByImage;
+  QComboBox *mComboBoxFilterByImage;
+  QLabel *mLabelImagePoints;
+  QTableView *mTableViewImagePoints;
+  GraphicViewer *mGraphicViewerWidget;
+  QLabel *mLabelImage;
+  QComboBox *mComboBoxImages;
   QDialogButtonBox *mButtonBox;
   QString mProjectPath;
+  QMenu *mContextMenuLeft;
+  QAction *mActionZoomIn;
+  QAction *mActionZoomOut;
+  QAction *mActionZoomExtend;
+  QAction *mActionZoom11;
 
+  bool bSelectedItem;
 };
 
 } // namespace ui

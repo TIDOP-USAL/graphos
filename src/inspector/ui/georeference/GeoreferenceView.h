@@ -3,7 +3,7 @@
 
 #include "inspector/interfaces/mvp.h"
 
-class QStandardItemModel;
+class QAbstractItemModel;
 
 namespace inspector
 {
@@ -19,36 +19,39 @@ class GeoreferenceView
 
 public:
 
-  GeoreferenceView(QWidget *parent) : IDialogView(parent) {}
+  GeoreferenceView(QWidget *parent,
+                   Qt::WindowFlags f = Qt::WindowFlags()) 
+    : IDialogView(parent, f) {}
   ~GeoreferenceView() override = default;
 
-  virtual QString orientationFile() const = 0;
+  //virtual QString orientationFile() const = 0;
 
 public slots:
 
   virtual void setProjectPath(const QString &path) = 0;
-  virtual void setItemModel(QStandardItemModel *model) = 0;
-  virtual void setTableHeader(const QStringList &header) = 0;
-  virtual void setImageColumn(const QString &imageColumn) = 0;
-  virtual void setXColumn(const QString &xColumn) = 0;
-  virtual void setYColumn(const QString &yColumn) = 0;
-  virtual void setZColumn(const QString &zColumn) = 0;
-  virtual void setQxColumn(const QString &qxColumn) = 0;
-  virtual void setQyColumn(const QString &qyColumn) = 0;
-  virtual void setQzColumn(const QString &qzColumn) = 0;
-  virtual void setQwColumn(const QString &qwColumn) = 0;
+  virtual void setImageList(const std::vector<QString> &imageList)  = 0;
+  virtual void setCurrentImage(const QString &image)  = 0;
+  virtual void setItemModelGroundControlPoints(QAbstractItemModel *model) = 0;
+  virtual void setItemModelImagePoints(QAbstractItemModel *model) = 0;
+  //virtual void setTableHeader(const QStringList &header) = 0;
+  virtual void setEnableImagePointsAddOrEdit(bool active) = 0;
+  virtual void setPoints(const std::list<std::pair<QString, QPointF>> &points) = 0;
+  virtual void setCrs(const QString &crs) = 0;
+
+private slots: 
+
+  virtual void removeGroundControlPoints() = 0;
 
 signals:
 
-  void loadCSV(const QString &, const QString &);
-  void imageColumnChange(const QString &);
-  void xColumnChange(const QString &);
-  void yColumnChange(const QString &);
-  void zColumnChange(const QString &);
-  void qxColumnChange(const QString &);
-  void qyColumnChange(const QString &);
-  void qzColumnChange(const QString &);
-  void qwColumnChange(const QString &);
+  void imageChange(QString);
+  void crsChange(QString);
+  //void loadCSV(const QString &, const QString &);
+  void addGroundControlPoint();
+  void removeGroundControlPoint(int);
+  void addImagePoint(const QString &, const QString &, const QPointF &);
+  void removeImagePoint(const QString &, const QString &);
+  void georeference();
 };
 
 } // namespace ui

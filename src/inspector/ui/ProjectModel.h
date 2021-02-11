@@ -133,6 +133,7 @@ public:
 //  virtual void deleteImages(const QStringList &images) = 0;
 
   virtual QString sparseModel() const = 0;
+  virtual bool isAbsoluteOriented() const = 0;
   virtual QString denseModel() const = 0;
 
 public slots:
@@ -228,6 +229,7 @@ public:
   //void addImages(const QStringList &fileNames) override;
   //void deleteImages(const QStringList &images) override;
   QString sparseModel() const override;
+  bool isAbsoluteOriented() const override;
   QString denseModel() const override;
 
 public slots:

@@ -17,6 +17,8 @@ add_library(inspector_process ${LIB_TYPE}
             orientation/RelativeOrientationProcess.h
             orientation/AbsoluteOrientationProcess.cpp
             orientation/AbsoluteOrientationProcess.h
+            orientation/GeoreferenceProcess.cpp
+            orientation/GeoreferenceProcess.h
             images/LoadImagesProcess.cpp
             images/LoadImagesProcess.h
             densification/DensificationProcess.cpp

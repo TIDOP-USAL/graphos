@@ -7,6 +7,12 @@
 
 #include <QString>
 
+namespace colmap
+{
+class Reconstruction;
+}
+
+
 namespace inspector
 {
 
@@ -68,17 +74,21 @@ class INSPECTOR_EXPORT SmvsDensifier
 public:
 
   SmvsDensifier();
-  SmvsDensifier(const SmvsDensifier &smvs);
-  SmvsDensifier(SmvsDensifier &&smvs) noexcept;
+  //SmvsDensifier(const SmvsDensifier &smvs);
+  //SmvsDensifier(SmvsDensifier &&smvs) noexcept;
   SmvsDensifier(int inputImageScale,
                 int outputDepthScale,
                 bool shadingBasedOptimization,
                 bool semiGlobalMatching,
                 double surfaceSmoothingFactor);
-  ~SmvsDensifier() override = default;
-  SmvsDensifier &operator =(const SmvsDensifier &smvs);
-  SmvsDensifier &operator =(SmvsDensifier &&smvs) noexcept;
+  ~SmvsDensifier() override;
+  //SmvsDensifier &operator =(const SmvsDensifier &smvs);
+  //SmvsDensifier &operator =(SmvsDensifier &&smvs) noexcept;
 
+  SmvsDensifier(const SmvsDensifier &smvs) = delete;
+  SmvsDensifier(SmvsDensifier &&smvs) = delete;
+  SmvsDensifier &operator =(const SmvsDensifier &smvs) = delete;
+  SmvsDensifier &operator =(SmvsDensifier &&smvs) = delete;
 
 // DensificationProcess interface
  
@@ -96,10 +106,24 @@ public:
 
   void reset() override;
 
+// Member functions
+
+private:
+
+  void createDirectories();
+  void createDirectory(const std::string &path);
+  void writeMVEFile();
+  void undistortImages();
+
+// Data members
+
 private:
 
   bool bOpenCvRead;
   bool bCuda;
+  std::string mOutputPath;
+  std::string mImagesPath;
+  colmap::Reconstruction *mReconstruction;
 };
 
 

@@ -7,7 +7,6 @@
 #include <QApplication>
 #include <QDialogButtonBox>
 #include <QPushButton>
-#include <QTreeWidget>
 #include <QTableView>
 #include <QFileDialog>
 #include <QComboBox>
@@ -299,7 +298,7 @@ void CamerasImportViewImp::initUI()
 void CamerasImportViewImp::initSignalAndSlots()
 {
   //connect(mLineEditImportCameras, &QLineEdit::textChanged,   this, &CamerasImportViewImp::update);
-  //connect(mPushButtonImportCameras,  &QAbstractButton::clicked, this, &CamerasImportViewImp::openFile);
+  //connect(mPushButtonImportGroundControlPoints,  &QAbstractButton::clicked, this, &CamerasImportViewImp::openFile);
 
   connect(mRadioButtonTab, &QRadioButton::released, this, &CamerasImportViewImp::onDelimiterChanged);
   connect(mRadioButtonComma, &QRadioButton::released, this, &CamerasImportViewImp::onDelimiterChanged);
@@ -490,7 +489,7 @@ void CamerasImportViewImp::retranslate()
   mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("CamerasImportViewImp", "Save", nullptr));
   mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CamerasImportViewImp", "Help", nullptr));
 
-  //mPushButtonImportCameras->setText(QCoreApplication::translate("CamerasImportViewImp", "Import Cameras", nullptr));
+  //mPushButtonImportGroundControlPoints->setText(QCoreApplication::translate("CamerasImportViewImp", "Import Cameras", nullptr));
   //mPushButtonCameraPositions->setText(QCoreApplication::translate("CamerasImportViewImp", "CameraPositions", nullptr));
 }
 
@@ -561,7 +560,7 @@ void CamerasImportViewImp::setTableHeader(const QStringList &header)
   mComboBoxPhiColumn->addItems(reg);
   mComboBoxKappaColumn->addItems(reg);
 
-//  QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(mTableViewImportCameras->model());
+//  QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(mTableViewGroundControlPoints->model());
 //  model->setColumnCount(header.size());
 //  model->setHorizontalHeaderLabels(header);
 }

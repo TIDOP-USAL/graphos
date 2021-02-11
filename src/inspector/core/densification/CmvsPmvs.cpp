@@ -226,25 +226,17 @@ void WriteProjectionMatrix(const std::string& path, const colmap::Camera& camera
   WriteMatrix(proj_matrix, &file);
 }
 
+
+
+
 CmvsPmvsDensifier::CmvsPmvsDensifier()
   : bOpenCvRead(true),
-    bCuda(false)
+    bCuda(false),
+    mOutputPath(""),
+    mImagesPath(""),
+    mReconstruction(nullptr)
 {
 
-}
-
-CmvsPmvsDensifier::CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess)
-  : CmvsPmvsProperties(cmvsPmvsProcess),
-    bOpenCvRead(true),
-    bCuda(false)
-{
-}
-
-CmvsPmvsDensifier::CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept
-  : CmvsPmvsProperties(std::forward<CmvsPmvsProperties>(cmvsPmvsProcess)),
-    bOpenCvRead(cmvsPmvsProcess.bOpenCvRead),
-    bCuda(cmvsPmvsProcess.bCuda)
-{
 }
 
 CmvsPmvsDensifier::CmvsPmvsDensifier(bool useVisibilityInformation,
@@ -254,6 +246,11 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(bool useVisibilityInformation,
                                      double threshold,
                                      int windowSize,
                                      int minimunImageNumber)
+  : bOpenCvRead(true),
+    bCuda(false),
+    mOutputPath(""),
+    mImagesPath(""),
+    mReconstruction(nullptr)
 {
   CmvsPmvsProperties::setUseVisibilityInformation(useVisibilityInformation);
   CmvsPmvsProperties::setImagesPerCluster(imagesPerCluster);
@@ -264,74 +261,201 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(bool useVisibilityInformation,
   CmvsPmvsProperties::setMinimunImageNumber(minimunImageNumber);
 }
 
-CmvsPmvsDensifier &CmvsPmvsDensifier::operator =(const CmvsPmvsDensifier &cmvsPmvsProcess)
+CmvsPmvsDensifier::~CmvsPmvsDensifier()
 {
-  if (this != &cmvsPmvsProcess){
-    CmvsPmvsProperties::operator=(cmvsPmvsProcess);
-    this->bOpenCvRead = cmvsPmvsProcess.bOpenCvRead;
-    this->bCuda = cmvsPmvsProcess.bCuda;
+  if (mReconstruction) {
+    delete mReconstruction;
+    mReconstruction = nullptr;
   }
-  return *this;
-}
-
-CmvsPmvsDensifier &CmvsPmvsDensifier::operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept
-{
-  if (this != &cmvsPmvsProcess){
-    CmvsPmvsProperties::operator=(std::forward<CmvsPmvsProperties>(cmvsPmvsProcess));
-    this->bOpenCvRead = cmvsPmvsProcess.bOpenCvRead;
-    this->bCuda = cmvsPmvsProcess.bCuda;
-  }
-  return *this;
 }
 
 bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
                                   const QString &imagesPath,
                                   const QString &outputPath)
 {
-  Chrono c("undistort");
-  c.run();
+  //Chrono c("undistort");
+  //c.run();
 
-  colmap::Reconstruction reconstruction;
-  reconstruction.ReadBinary(reconstructionPath.toStdString());
+  //colmap::Reconstruction reconstruction;
+  mReconstruction = new colmap::Reconstruction();
+  mReconstruction->ReadBinary(reconstructionPath.toStdString());
 
-  std::string output_path = outputPath.toStdString() + "/pmvs";
+  mOutputPath = outputPath.toStdString() + "/pmvs";
+  mImagesPath = imagesPath.toStdString();
 
-  QDir dir(output_path.c_str());
-  if (!dir.exists()) {
-    if (dir.mkpath(".") == false) {
-      msgError("The output directory cannot be created: %s", output_path.c_str());
-      return true;
-    }
-  }
-  dir.setPath(std::string(output_path).append("/txt").c_str());
-  if (!dir.exists()) {
-    if (dir.mkpath(".") == false) {
-      msgError("The output directory cannot be created: %s", output_path.c_str());
-      return true;
-    }
-  }
-  dir.setPath(std::string(output_path).append("/visualize").c_str());
-  if (!dir.exists()) {
-    if (dir.mkpath(".") == false) {
-      msgError("The output directory cannot be created: %s", output_path.c_str());
-      return true;
-    }
-  }
-  dir.setPath(std::string(output_path).append("/models").c_str());
-  if (!dir.exists()) {
-    if (dir.mkpath(".") == false) {
-      msgError("The output directory cannot be created: %s", output_path.c_str());
-      return true;
-    }
+  this->createDirectories();
+  this->writeBundleFile(); // Realmente no es necesario crearlo ya que no se usa cmvs.exe ni genOption.exe
+  this->undistortImages();
+  this->writeVisibility();
+  this->writeOptions();
+
+  //c.stop();
+  return false;
+}
+
+bool CmvsPmvsDensifier::densify(const QString &undistortPath)
+{
+
+  fs::path app_path(tl::getRunfile());
+  std::string cmd_cmvs("/c \"");
+  cmd_cmvs.append(app_path.parent_path().string());
+  cmd_cmvs.append("\\pmvs2\" ");
+  cmd_cmvs.append(undistortPath.toStdString());
+  cmd_cmvs.append("/pmvs/ option-all");
+  CmdProcess process(cmd_cmvs);
+
+  if (process.run() == Process::Status::error) {
+    return true;
   }
 
-  colmap::UndistortCameraOptions options;
+  return false;
+}
 
-  const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
+void CmvsPmvsDensifier::enableCuda(bool enable)
+{
+  bCuda = enable;
+}
 
-  for (auto &camera : reconstruction.Cameras()) {
+void CmvsPmvsDensifier::reset()
+{
+  CmvsPmvsProperties::reset();
+  bOpenCvRead = true;
+}
 
-    double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
+void CmvsPmvsDensifier::createDirectories()
+{
+  createDirectory(mOutputPath);
+  createDirectory(std::string(mOutputPath).append("/txt"));
+  createDirectory(std::string(mOutputPath).append("/visualize"));
+  createDirectory(std::string(mOutputPath).append("/models"));
+}
+
+void CmvsPmvsDensifier::createDirectory(const std::string &path)
+{
+  fs::path dir(path);
+  
+  if (!fs::exists(dir)) {
+    if (!fs::create_directories(dir)) {
+      std::string err = "The output directory cannot be created: ";
+      err.append(path);
+      throw std::runtime_error(err);
+    }
+  }
+}
+
+void CmvsPmvsDensifier::writeBundleFile()
+{
+  std::string bundler_path = mOutputPath + "/bundle.rd.out";
+  std::string bundler_path_list = bundler_path + ".list.txt";
+
+  if (mReconstruction) {
+
+    std::ofstream stream(bundler_path, std::ios::trunc);
+    std::ofstream stream_image_list(bundler_path_list, std::ios::trunc);
+    if (stream.is_open() && stream_image_list.is_open()) {
+
+      int camera_count = mReconstruction->Images().size();
+      int feature_count = mReconstruction->NumPoints3D();
+
+      stream << "# Bundle file v0.3" << std::endl;
+      stream << camera_count << " " << feature_count << std::endl;
+
+      const std::vector<colmap::image_t> &reg_image_ids = mReconstruction->RegImageIds();
+
+      for (auto &camera : mReconstruction->Cameras()) {
+
+        //double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
+        float focal = static_cast<float>(camera.second.FocalLength());
+        float ppx = static_cast<float>(camera.second.PrincipalPointX());
+        float ppy = static_cast<float>(camera.second.PrincipalPointY());
+        int model_id = camera.second.ModelId();
+
+        cv::Size imageSize(static_cast<int>(camera.second.Width()),
+                           static_cast<int>(camera.second.Height()));
+        std::array<std::array<float, 3>, 3> camera_matrix_data = {focal, 0.f, ppx,
+                                                                  0.f, focal, ppy,
+                                                                  0.f, 0.f, 1.f};
+        cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
+        cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
+        std::vector<double> params = camera.second.Params();
+        distCoeffs.at<float>(0) = (model_id == 0 ? 0.f : static_cast<float>(params[3]));
+        distCoeffs.at<float>(1) = (model_id == 3 || model_id == 50 ? static_cast<float>(params[4]) : 0.0f);
+        distCoeffs.at<float>(2) = (model_id == 50 ? static_cast<float>(params[6]) : 0.0f);
+        distCoeffs.at<float>(3) = (model_id == 50 ? static_cast<float>(params[7]) : 0.0f);
+        distCoeffs.at<float>(4) = (model_id == 50 ? static_cast<float>(params[5]) : 0.0f);
+
+        cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
+        float new_focal = optCameraMat.at<float>(0, 0);
+
+        for (size_t i = 0; i < reg_image_ids.size(); ++i) {
+          colmap::image_t image_id = reg_image_ids[i];
+          colmap::Image &image = mReconstruction->Image(image_id);
+          if (image.CameraId() == camera.second.CameraId()) {
+
+            Eigen::Matrix3d rotation_matrix = image.RotationMatrix();
+            Eigen::Vector3d translation = image.Tvec();
+            // En el formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo
+            stream << new_focal << " 0 0 "  << std::endl;
+            stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
+            stream << -rotation_matrix(1, 0) << " " << -rotation_matrix(1, 1) << " " << -rotation_matrix(1, 2) << std::endl;
+            stream << -rotation_matrix(2, 0) << " " << -rotation_matrix(2, 1) << " " << -rotation_matrix(2, 2) << std::endl;
+            stream << translation[0] << " " << -translation[1] << " " << -translation[2] << std::endl;
+
+            // Undistorted images
+            std::string output_image_path = colmap::StringPrintf("%08d.jpg", i);
+            stream_image_list << output_image_path << std::endl;
+          }
+        }
+      }
+
+
+      for (auto &points_3d : mReconstruction->Points3D()) {
+
+        Eigen::Vector3ub color = points_3d.second.Color();
+        stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
+
+        stream << static_cast<int>(color[0]) << " " <<
+                  static_cast<int>(color[1]) << " " <<
+                  static_cast<int>(color[2]) << std::endl;
+
+        colmap::Track track = points_3d.second.Track();
+
+        std::map<int, int> track_ids_not_repeat;
+        for (auto &element : track.Elements()) {
+          track_ids_not_repeat[element.image_id - 1] = element.point2D_idx;
+        }
+
+        stream << track_ids_not_repeat.size();
+
+        for (auto &map : track_ids_not_repeat) {
+
+          colmap::image_t image_id = map.first+1;
+          const colmap::Image &image = mReconstruction->Image(image_id);
+          const colmap::Camera &camera = mReconstruction->Camera(image.CameraId());
+
+          const colmap::Point2D &point2D = image.Point2D(map.second);
+
+          stream << " " << static_cast<int>(image_id) << " " << map.second << " ";
+          stream << point2D.X() - camera.PrincipalPointX() << " ";
+          stream << camera.PrincipalPointY() - point2D.Y() << " ";
+        }
+
+        stream << std::endl;
+      }
+      stream.close();
+      stream_image_list.close();
+    }
+  } else 
+    msgError("There is not a valid reconstruction");
+}
+
+void CmvsPmvsDensifier::undistortImages()
+{
+  const std::vector<colmap::image_t> &reg_image_ids = mReconstruction->RegImageIds();
+
+  for (auto &camera : mReconstruction->Cameras()) {
+
+    //double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
     float focal = static_cast<float>(camera.second.FocalLength());
     float ppx = static_cast<float>(camera.second.PrincipalPointX());
     float ppy = static_cast<float>(camera.second.PrincipalPointY());
@@ -362,19 +486,23 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
     
 
     try {
-      //for (auto &image : reconstruction.Images()) {
+      
+      TL_TODO("undistortImage()")
+
       for (size_t i = 0; i < reg_image_ids.size(); ++i) {
         colmap::image_t image_id = reg_image_ids[i];
-        colmap::Image &image = reconstruction.Image(image_id);
+        colmap::Image &image = mReconstruction->Image(image_id);
         if (image.CameraId() == camera.second.CameraId()) {
 
 
-          std::string image_file = imagesPath.toStdString();
+          std::string image_file = mImagesPath;
           image_file.append("/").append(image.Name());
           cv::Mat img;
+          //cv::Mat img_original;
 
           if (bOpenCvRead) {
             img = cv::imread(image_file, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+            //img_original = cv::imread(image_file, cv::IMREAD_ANYDEPTH | cv::IMREAD_IGNORE_ORIENTATION);
             if (img.empty()) {
               bOpenCvRead = false;
             }
@@ -387,6 +515,7 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
               img = imageReader->read();
               if (imageReader->depth() != 8) {
 
+                //img_original = img;
                 TL_TODO("Codigo duplicado en FeatureExtractorProcess")
 
 #ifdef HAVE_CUDA
@@ -409,10 +538,12 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
           
           TL_TODO("Las imágenes en escala de grises con canal alfa no estan comprobadas")
           if (img.channels() == 1) {
+            //if (img_original.empty()) img_original = img;
             cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
           }
 
           cv::Mat img_undistort;
+          //cv::Mat img_undistort_original;
 #ifdef HAVE_CUDA
           if (bCuda) {
             TL_TODO("comprobar versión driver cuda");
@@ -420,23 +551,37 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
             img.release();
             cv::cuda::GpuMat gImgUndistort;
 
-            //cv::cuda::Stream stream;
-            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream*/);
+            //cv::cuda::GpuMat gImgOutOriginal(img_original);
+            //img_original.release();
+            //cv::cuda::GpuMat gImgUndistortOriginal;
+
+            //cv::cuda::Stream stream1;
+            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream1*/);
             gImgUndistort.download(img_undistort);
 
-            //stream.waitForCompletion();
+            //cv::cuda::Stream stream2;
+            //cv::cuda::remap(gImgOutOriginal, gImgUndistortOriginal, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream2);
+            //gImgUndistortOriginal.download(img_undistort_original);
+
+            //stream1.waitForCompletion();
+            //stream2.waitForCompletion();
+
           } else {
 #endif
             cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
             img.release();
+
 #ifdef HAVE_CUDA
           }
 #endif
+          msgInfo("Undistort image: %s", image_file.c_str());
 
-          std::string output_image_path = output_path + colmap::StringPrintf("/visualize/%08d.jpg", i);
+          std::string output_image_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.jpg", i);
           cv::imwrite(output_image_path, img_undistort);
+          //std::string output_image_original_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.tif", i);
+          //cv::imwrite(output_image_original_path, img_undistort_original);
 
-          std::string proj_matrix_path = output_path + colmap::StringPrintf("/txt/%08d.txt", i);
+          std::string proj_matrix_path = mOutputPath + colmap::StringPrintf("/txt/%08d.txt", i);
           std::ofstream file(proj_matrix_path, std::ios::trunc);
           CHECK(file.is_open()) << proj_matrix_path;
 
@@ -455,62 +600,36 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
       }
     } catch (const std::exception &e) {
       msgError(e.what());
-      return true;
     }
 
   }
+}
 
-  //for (size_t i = 0; i < reconstruction.NumRegImages(); ++i) {
-  //  std::string output_image_path = output_path + colmap::StringPrintf("/visualize/%08d.jpg", i);
-  //  std::string proj_matrix_path = output_path + colmap::StringPrintf("/txt/%08d.txt", i);
+void CmvsPmvsDensifier::undistortImage()
+{
+}
 
-  //  colmap::image_t image_id = reconstruction.RegImageIds().at(i);
-  //  colmap::Image &image = reconstruction.Image(image_id);
-  //  colmap::Camera &camera = reconstruction.Camera(image.CameraId());
+void CmvsPmvsDensifier::writeVisibility()
+{
 
-  //  colmap::Bitmap distorted_bitmap;
-  //  std::string input_image_path = imagesPath.toStdString() + "/" + image.Name();
-  //  if (!distorted_bitmap.Read(input_image_path)) {
-  //    std::cerr << colmap::StringPrintf("ERROR: Cannot read image at path %s",
-  //                                      input_image_path.c_str())
-  //      << std::endl;
-  //    
-  //  } else {
-  //    colmap::Bitmap undistorted_bitmap;
-  //    colmap::Camera undistorted_camera;
-  //    colmap::UndistortImage(options, distorted_bitmap, camera, &undistorted_bitmap,
-  //                   &undistorted_camera);
-
-  //    undistorted_bitmap.Write(output_image_path);
-  //    WriteProjectionMatrix(proj_matrix_path, undistorted_camera, image, "CONTOUR");
-  //  }
-  //}
-
-  std::string bundler_path = output_path + "/bundle.rd.out";
-  std::string bundler_path_list = bundler_path + ".list.txt";
-  reconstruction.ExportBundler(bundler_path, bundler_path_list);
-
-
-  //// Visibility
-
-  std::string visibility_path = output_path + "/vis.dat";
+  std::string visibility_path = mOutputPath + "/vis.dat";
   std::ofstream file(visibility_path, std::ios::trunc);
   CHECK(file.is_open()) << visibility_path;
 
   file << "VISDATA" << std::endl;
-  file << reconstruction.NumRegImages() << std::endl;
+  file << mReconstruction->NumRegImages() << std::endl;
 
-  
+  const std::vector<colmap::image_t> &reg_image_ids = mReconstruction->RegImageIds();
 
   for (size_t i = 0; i < reg_image_ids.size(); ++i) {
     colmap::image_t image_id = reg_image_ids[i];
-    colmap::Image &image = reconstruction.Image(image_id);
+    colmap::Image &image = mReconstruction->Image(image_id);
     std::unordered_set<colmap::image_t> visible_image_ids;
     for (colmap::point2D_t point2D_idx = 0; point2D_idx < image.NumPoints2D();
          ++point2D_idx) {
       colmap::Point2D &point2D = image.Point2D(point2D_idx);
       if (point2D.HasPoint3D()) {
-        colmap::Point3D& point3D = reconstruction.Point3D(point2D.Point3DId());
+        colmap::Point3D& point3D = mReconstruction->Point3D(point2D.Point3DId());
         for (const colmap::TrackElement &track_el : point3D.Track().Elements()) {
           if (track_el.image_id != image_id) {
             for (size_t j = 0; j < reg_image_ids.size(); ++j) {
@@ -535,13 +654,17 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
     }
     file << std::endl;
   }
+}
 
-
+void CmvsPmvsDensifier::writeOptions()
+{
   /// options
 
-  std::string options_path = output_path + "/option-all";
+  std::string options_path = mOutputPath + "/option-all";
   std::ofstream file_options(options_path, std::ios::trunc);
   CHECK(file_options.is_open()) << options_path;
+
+  TL_TODO("Si hay muchas imagenes separar en clusters pero con solape ya que los generados por cmvs dejan huecos al fusionar")
 
   file_options << "# Generated by Inspector Image - all images, no clustering." << std::endl;
 
@@ -558,82 +681,13 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
   file_options << "maxAngle 10" << std::endl;
   file_options << "quad 2.0" << std::endl;
 
-  file_options << "timages " << reconstruction.NumRegImages();
-  for (size_t i = 0; i < reconstruction.NumRegImages(); ++i) {
+  file_options << "timages " << mReconstruction->NumRegImages();
+  for (size_t i = 0; i < mReconstruction->NumRegImages(); ++i) {
     file_options << " " << i;
   }
   file_options << std::endl;
 
   file_options << "oimages 0" << std::endl;
-
-  c.stop();
-  return false;
-}
-
-//bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
-//                                  const QString &imagesPath,
-//                                  const QString &outputPath)
-//{
-//  Chrono c("undistort");
-//  c.run();
-//  colmap::Reconstruction reconstruction;
-//#ifdef _DEBUG
-//  //Lectura como texto
-//  reconstruction.ReadText(reconstructionPath.toStdString());
-//#else
-//  //Lectura como binario
-//  reconstruction.ReadBinary(reconstructionPath.toStdString());
-//#endif
-//
-//  QDir dir(outputPath);
-//  if (!dir.exists()) {
-//    if (dir.mkpath(".") == false) {
-//      msgError("The output directory cannot be created: %s", outputPath.toStdString().c_str());
-//      return true;
-//    }
-//  }
-//
-//  /// Exportar
-//  colmap::UndistortCameraOptions undistortion_options;
-//  colmap::PMVSUndistorter *undistorter = new colmap::PMVSUndistorter(undistortion_options, 
-//                                                                     reconstruction,
-//                                                                     imagesPath.toStdString(),
-//                                                                     outputPath.toStdString());
-//  undistorter->Start();
-//  undistorter->Wait();
-//
-//  c.stop();
-//
-//  return false;
-//}
-
-bool CmvsPmvsDensifier::densify(const QString &undistortPath)
-{
-
-  fs::path app_path(tl::getRunfile());
-  std::string cmd_cmvs("/c \"");
-  cmd_cmvs.append(app_path.parent_path().string());
-  cmd_cmvs.append("\\pmvs2\" ");
-  cmd_cmvs.append(undistortPath.toStdString());
-  cmd_cmvs.append("/pmvs/ option-all");
-  CmdProcess process(cmd_cmvs);
-
-  if (process.run() == Process::Status::error) {
-    return true;
-  }
-
-  return false;
-}
-
-void CmvsPmvsDensifier::enableCuda(bool enable)
-{
-  bCuda = enable;
-}
-
-void CmvsPmvsDensifier::reset()
-{
-  CmvsPmvsProperties::reset();
-  bOpenCvRead = true;
 }
 
 } // namespace inspector

@@ -230,7 +230,6 @@ void FeaturesViewerViewImp::setCurrentImage(const QString &leftImage)
     mGraphicView->setImage(cvMatToQImage(bmp));
     imageReader->close();
   }
-  //mGraphicView->setImage(QImage(mComboBoxImages->currentData().toString()));
   mGraphicView->zoomExtend();
 }
 

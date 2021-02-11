@@ -110,7 +110,7 @@ void RelativeOrientationColmapAlgorithm::run()
 
     mReconstructionManager->Clear();
 
-    QString sparse_path = mOutputPath;// +"/sparse/";
+    QString sparse_path = mOutputPath;
 
     QDir dir(sparse_path);
     if (!dir.exists()){
@@ -185,6 +185,7 @@ void RelativeOrientationColmapAlgorithm::run()
 
       orientationExport.exportBinary(path);
       orientationExport.exportPLY(path + "/sparse.ply");
+      //reconstruction.ExportPLY(path.toStdString() + "/sparse.ply");
 
 #ifdef _DEBUG
       orientationExport.exportText(path);
@@ -281,6 +282,8 @@ void AbsoluteOrientationColmapAlgorithm::run()
   ransac_options.max_error = AbsoluteOrientationColmapProperties::robustAlignmentMaxError();
   int min_common_images = AbsoluteOrientationColmapProperties::minCommonImages();
 
+  colmap::CreateDirIfNotExists(mOutputPath.toStdString());
+
   if (robust_alignment && ransac_options.max_error <= 0) {
     throw std::runtime_error("ERROR: You must provide a maximum alignment error > 0");
   }
@@ -298,8 +301,9 @@ void AbsoluteOrientationColmapAlgorithm::run()
   //  ref_locations.push_back(camera_position);
   //}
 
-  Eigen::Vector3d center;
+  Eigen::Vector3d offset(0.,0.,0.);
 
+  double i = 1.;
   for (const auto &cameraPosition : mCameraPositions) {
     std::string image_name = cameraPosition.first.toStdString();
     ref_image_names.push_back(image_name);
@@ -307,22 +311,29 @@ void AbsoluteOrientationColmapAlgorithm::run()
     camera_position[0] = cameraPosition.second[0];
     camera_position[1] = cameraPosition.second[1];
     camera_position[2] = cameraPosition.second[2];
-    center += camera_position;
+    //center += camera_position;
+    //Para evitar desbordamiento
+    offset += (camera_position - offset)/(i);
     ref_locations.push_back(camera_position);
+    i++;
   }
-  center /= mCameraPositions.size();
-  msgInfo("Desplazamiento cámaras %lf,%lf,%lf", center[0], center[1], center[2] );
+  //center /= mCameraPositions.size();
+  
 
-  QString offset = mOutputPath + "/offset.txt";
-  std::ofstream stream(offset.toStdString(), std::ios::trunc);
+  QString offset_file = mOutputPath + "/offset.txt";
+  std::ofstream stream(offset_file.toStdString(), std::ios::trunc);
   if (stream.is_open()) {
-    stream << QString::number(center[0], 'f', 3).toStdString() << " "
-           << QString::number(center[1], 'f', 3).toStdString() << " "
-           << QString::number(center[2], 'f', 3).toStdString() << std::endl;
+    stream << QString::number(offset[0], 'f', 3).toStdString() << " "
+           << QString::number(offset[1], 'f', 3).toStdString() << " "
+           << QString::number(offset[2], 'f', 3).toStdString() << std::endl;
+
+    msgInfo("Camera offset: %lf,%lf,%lf", offset[0], offset[1], offset[2] );
+
+    stream.close();
   }
 
   for (auto &pos : ref_locations){
-    pos -= center;
+    pos -= offset;
   }
 
   colmap::Reconstruction reconstruction;
@@ -342,7 +353,6 @@ void AbsoluteOrientationColmapAlgorithm::run()
   if (!alignment_success) throw std::runtime_error("Absolute Orientation failed");
 
   msgInfo("Absolute Orientation succeeded");
-  colmap::CreateDirIfNotExists(mOutputPath.toStdString());
   reconstruction.Write(mOutputPath.toStdString());
 
   OrientationExport orientationExport(&reconstruction);

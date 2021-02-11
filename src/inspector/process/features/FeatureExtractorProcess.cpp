@@ -9,6 +9,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core.hpp>
+#include <opencv2/photo.hpp>
 
 #include <colmap/base/database.h>
 #include <colmap/base/camera_models.h>
@@ -127,6 +128,11 @@ void FeatureExtractorProcess::run()
     if (bOpenCvRead) {
 
       mat = cv::imread(mImage.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
+      //cv::Mat mat2 = cv::imread(mImage.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR);
+      //cv::Mat color_boost;
+      //cv::decolor(mat2, mat, color_boost);
+      //mat2.release();
+      //color_boost.release();
 
       if (mat.empty()) {
         bOpenCvRead = false;

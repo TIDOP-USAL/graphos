@@ -1142,7 +1142,7 @@ void MainWindowView::initMenuTools()
   ui->menuTools->addAction(mActionGeoreference);
   ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionDtm);
-  ui->menuTools->addAction(mActionOrtho);
+  //ui->menuTools->addAction(mActionOrtho);
   ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionFeaturesViewer);
   ui->menuTools->addAction(mActionMatchesViewer);
@@ -1236,6 +1236,7 @@ void MainWindowView::update()
   bool bFeatureExtraction = mFlags.isActive(Flag::feature_extraction);
   bool bFeatureMatching = mFlags.isActive(Flag::feature_matching);
   bool bOriented = mFlags.isActive(Flag::oriented);
+  bool bAbsoluteOriented = mFlags.isActive(Flag::absolute_oriented);
   bool bDenseModel = mFlags.isActive(Flag::dense_model);
 
   mActionNewProject->setEnabled(!bProcessing);
@@ -1260,6 +1261,7 @@ void MainWindowView::update()
   mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
 
   mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
+  mActionDtm->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
   mActionGeoreference->setEnabled(bProjectExists && bOriented && !bProcessing);
   mActionFeaturesViewer->setEnabled(bFeatureExtraction);
   mActionMatchesViewer->setEnabled(bFeatureMatching);

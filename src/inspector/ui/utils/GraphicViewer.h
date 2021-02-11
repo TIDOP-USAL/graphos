@@ -98,6 +98,7 @@ signals:
   void mouseClicked(QPoint);
   void mouseClicked(QPointF);
   void selectionChanged();
+  void removeSelectItems();
 };
 
 
@@ -145,21 +146,21 @@ protected:
 
   virtual void drawOnImage(QPainter *painter, QSize imageSize);
   virtual void drawInViewPort(QPainter *painter, QSize portSize);
-  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
+  void drawForeground(QPainter *painter, const QRectF &rect) override;
 
   /*!
    * \brief mousePressEvent
    * \param event Evento del ratón
    */
-  virtual void mousePressEvent(QMouseEvent *event) override;
+  void mousePressEvent(QMouseEvent *event) override;
 
   /*!
    * \brief mouseReleaseEvent
    * \param event Evento del ratón
    */
-  virtual void mouseReleaseEvent(QMouseEvent *event) override;
+  void mouseReleaseEvent(QMouseEvent *event) override;
 
-  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+  void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 #ifndef QT_NO_WHEELEVENT
 
@@ -167,7 +168,7 @@ protected:
    * \brief wheelEvent Evento movimiento rueda del ratón
    * \param event Evento rueda ratón
    */
-  virtual void wheelEvent(QWheelEvent *event) override;
+  void wheelEvent(QWheelEvent *event) override;
 
 #endif
 
@@ -175,13 +176,15 @@ protected:
    * \brief Evento de movimiento del ratón
    * \param event Evento del ratón
    */
-  virtual void mouseMoveEvent(QMouseEvent *event) override;
+  void mouseMoveEvent(QMouseEvent *event) override;
 
   /*!
    * \brief Evento redimensión
    * \param event Evento resize
    */
-  virtual void resizeEvent(QResizeEvent *event) override;
+  void resizeEvent(QResizeEvent *event) override;
+
+  void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
 

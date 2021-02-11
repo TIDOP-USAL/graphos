@@ -5,12 +5,6 @@
 
 #include <tidop/core/messages.h>
 
-#include <colmap/util/option_manager.h>
-#include <colmap/util/misc.h>
-#include <colmap/feature/sift.h>
-#include <colmap/feature/matching.h>
-#include <colmap/controllers/hierarchical_mapper.h>
-
 namespace inspector
 {
 

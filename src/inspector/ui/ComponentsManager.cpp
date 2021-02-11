@@ -656,9 +656,11 @@ GeoreferenceModel *ComponentsManager::georeferenceModel()
 GeoreferencePresenter *ComponentsManager::georeferencePresenter()
 {
   if (mGeoreferencePresenter == nullptr){
-    GeoreferenceView *view = new GeoreferenceViewImp(this->mainWindowView());
+    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+    GeoreferenceView *view = new GeoreferenceViewImp(this->mainWindowView(), f);
     mGeoreferencePresenter = new GeoreferencePresenterImp(view,
-                                                          this->georeferenceModel());
+                                                          this->georeferenceModel(),
+                                                          this->imagesModel());
   }
   return mGeoreferencePresenter;
 }
@@ -1076,6 +1078,13 @@ void ComponentsManager::initAndOpenGeoreferenceDialog()
   connect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
           this->georeferencePresenter(), &GeoreferencePresenter::open);
 
+  connect(this->georeferencePresenter(), SIGNAL(running()),               this->mainWindowPresenter(), SLOT(processRunning()));
+  connect(this->georeferencePresenter(), SIGNAL(finished()),              this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->georeferencePresenter(), SIGNAL(georeferenceFinished()),  this->mainWindowPresenter(), SLOT(loadOrientation()));
+
+  connect(this->progressDialog(), SIGNAL(cancel()),     this->georeferencePresenter(), SLOT(cancel()));
+
+  this->georeferencePresenter()->setProgressHandler(this->progressHandler());
   this->georeferencePresenter()->setHelp(this->helpDialog());
   this->georeferencePresenter()->open();
 }

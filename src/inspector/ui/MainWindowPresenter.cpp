@@ -530,6 +530,8 @@ void MainWindowPresenter::loadOrientation()
   if (!sparse_model.isEmpty()){
     mView->setSparseModel(mProjectModel->sparseModel());
     mView->setFlag(MainWindowView::Flag::oriented, true);
+    if (mProjectModel->isAbsoluteOriented())
+      mView->setFlag(MainWindowView::Flag::absolute_oriented, true);
   }
 }
 

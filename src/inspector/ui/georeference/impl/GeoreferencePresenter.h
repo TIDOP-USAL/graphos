@@ -11,6 +11,7 @@ namespace ui
 
 class GeoreferenceView;
 class GeoreferenceModel;
+class ImagesModel;
 class HelpDialog;
 
 class GeoreferencePresenterImp
@@ -22,8 +23,31 @@ class GeoreferencePresenterImp
 public:
 
   GeoreferencePresenterImp(GeoreferenceView *view,
-                           GeoreferenceModel *model);
+                           GeoreferenceModel *model,
+                           ImagesModel *imagesModel);
   ~GeoreferencePresenterImp() override;
+
+private slots:
+
+  void onGeoreferenceFinished();
+
+// ProcessPresenter interface
+  
+protected slots:
+
+  void onError(int code, const QString &msg) override;
+  void onFinished() override;
+  void createProcess() override;
+
+public slots:
+
+  void cancel() override;
+
+// GeoreferencePresenter interface
+
+public slots:
+
+  void setImageActive(const QString &image) override;
 
 // IPresenter interface
 
@@ -42,6 +66,7 @@ private:
 
   GeoreferenceView *mView;
   GeoreferenceModel *mModel;
+  ImagesModel *mImagesModel;
   HelpDialog *mHelp;
 };
 

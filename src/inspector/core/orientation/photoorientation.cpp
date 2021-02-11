@@ -23,12 +23,12 @@ ReadPhotoOrientations::~ReadPhotoOrientations()
 
 void ReadPhotoOrientations::open(const QString &path)
 {
-#ifdef _DEBUG
-  TL_TODO("Excepción al leer el binario en debug")
-  mReconstruction->ReadText(path.toStdString());
-#else
+//#ifdef _DEBUG
+//  TL_TODO("Excepción al leer el binario en debug")
+//  mReconstruction->ReadText(path.toStdString());
+//#else
   mReconstruction->ReadBinary(path.toStdString());
-#endif
+//#endif
 }
 
 PhotoOrientation ReadPhotoOrientations::orientation(const QString &imageName) const

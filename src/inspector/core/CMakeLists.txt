@@ -26,6 +26,8 @@ add_library(inspector_core ${LIB_TYPE}
             orientation/orientationexport.h
             orientation/photoorientation.cpp
             orientation/photoorientation.h
+            orientation/gcp.cpp
+            orientation/gcp.h
             densification/densification.h
             densification/CmvsPmvs.cpp
             densification/CmvsPmvs.h

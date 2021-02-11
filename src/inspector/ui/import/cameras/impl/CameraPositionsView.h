@@ -4,7 +4,6 @@
 #include "inspector/ui/import/cameras/CameraPositionsView.h"
 
 class QDialogButtonBox;
-class QTreeWidget;
 class QTableView;
 class QLabel;
 class QLineEdit;

@@ -7,6 +7,11 @@
 
 #include <QString>
 
+namespace colmap
+{
+class Reconstruction;
+}
+
 namespace inspector
 {
 
@@ -75,8 +80,6 @@ class INSPECTOR_EXPORT CmvsPmvsDensifier
 public:
 
   CmvsPmvsDensifier();
-  CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess);
-  CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept;
   CmvsPmvsDensifier(bool useVisibilityInformation,
                     int imagesPerCluster,
                     int level,
@@ -84,12 +87,14 @@ public:
                     double threshold,
                     int windowSize,
                     int minimunImageNumber);
-  ~CmvsPmvsDensifier() override = default;
-  CmvsPmvsDensifier &operator =(const CmvsPmvsDensifier &cmvsPmvsProcess);
-  CmvsPmvsDensifier &operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) noexcept;
+  ~CmvsPmvsDensifier() override;
+  
+  CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
+  CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
+  CmvsPmvsDensifier &operator =(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
+  CmvsPmvsDensifier &operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
 
-
-// Heredado vía DensificationProcess
+// DensificationProcess interface
 
   bool undistort(const QString &reconstructionPath,
                  const QString &imagesPath,
@@ -103,10 +108,27 @@ public:
 
   void reset() override;
 
+// Member functions
+
+private:
+
+  void createDirectories();
+  void createDirectory(const std::string &path);
+  void writeBundleFile();
+  void undistortImages();
+  void undistortImage();
+  void writeVisibility();
+  void writeOptions();
+
+// Data members
+
 private:
 
   bool bOpenCvRead;
   bool bCuda;
+  std::string mOutputPath;
+  std::string mImagesPath;
+  colmap::Reconstruction *mReconstruction;
 };
 
 

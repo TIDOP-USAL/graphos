@@ -26,10 +26,14 @@ public:
 public:
 
   bool refinePrincipalPoint() const override;
+  bool absoluteOrientation() const override;
+  bool isEnabledAbsoluteOrientation() const override;
 
 public slots:
 
   void setRefinePrincipalPoint(bool refine) override;
+  void setAbsoluteOrientation(bool active) override;
+  void enabledAbsoluteOrientation(bool enabled) override;
 
 // IDialogView interface
 
@@ -50,6 +54,7 @@ private slots:
 protected:
 
   QCheckBox *mCheckBoxRefinePrincipalPoint;
+  QCheckBox *mCheckBoxAbsoluteOrientation;
   QDialogButtonBox *mButtonBox;
 
 };

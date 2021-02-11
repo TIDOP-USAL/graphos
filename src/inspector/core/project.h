@@ -249,11 +249,14 @@ public:
 
   virtual QString sparseModel() const = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
+  virtual QString offset() const = 0;
+  virtual void setOffset(const QString &offset) = 0;
   virtual QString reconstructionPath() const = 0;
   virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
   virtual bool isPhotoOriented(const QString &imgName) const = 0;
   virtual PhotoOrientation photoOrientation(const QString &imgName) const = 0;
   virtual void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) = 0;
+  virtual void clearReconstruction() = 0;
 
   virtual std::shared_ptr<Densification> densification() const = 0;
   virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
@@ -415,11 +418,14 @@ public:
 
   QString sparseModel() const override;
   void setSparseModel(const QString & sparseModel) override;
+  QString offset() const override;
+  void setOffset(const QString &offset) override;
   QString reconstructionPath() const override;
   void setReconstructionPath(const QString &reconstructionPath) override;
   bool isPhotoOriented(const QString &imgName) const override;
   PhotoOrientation photoOrientation(const QString &imgName) const override;
   void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) override;
+  void clearReconstruction() override;
 
   std::shared_ptr<Densification> densification() const override;
   void setDensification(const std::shared_ptr<Densification> &densification) override;
@@ -456,6 +462,7 @@ protected:
   void readOrientations(QXmlStreamReader &stream);
   void readReconstructionPath(QXmlStreamReader &stream);
   void readOrientationSparseModel(QXmlStreamReader &stream);
+  void readOffset(QXmlStreamReader &stream);
   void readPhotoOrientations(QXmlStreamReader &stream);
   void readDensification(QXmlStreamReader &stream);
   void readDenseModel(QXmlStreamReader &stream);
@@ -483,6 +490,7 @@ protected:
   void writeOrientations(QXmlStreamWriter &stream) const;
   void writeReconstructionPath(QXmlStreamWriter &stream) const;
   void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
+  void writeOffset(QXmlStreamWriter &stream) const;
   void writePhotoOrientations(QXmlStreamWriter &stream) const;
   void writeDensification(QXmlStreamWriter &stream) const;
   void writeDenseModel(QXmlStreamWriter &stream) const;
@@ -511,6 +519,7 @@ protected:
   std::map<QString, PhotoOrientation> mPhotoOrientation;
   bool bRefinePrincipalPoint;
   QString mSparseModel;
+  QString mOffset;
   QString mReconstructionPath;
   std::shared_ptr<Densification> mDensification;
   QString mDenseModel;

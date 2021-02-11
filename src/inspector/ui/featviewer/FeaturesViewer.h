@@ -51,7 +51,7 @@ public:
   virtual void setCurrentImage(const QString &leftImage) = 0;
 
   /*!
-   * \brief setKeyPoints
+   * \brief setPoints
    * \param[in] keyPoints Keypoints
    */
   virtual void setKeyPoints(const std::vector<QPointF> &keyPoints) = 0;

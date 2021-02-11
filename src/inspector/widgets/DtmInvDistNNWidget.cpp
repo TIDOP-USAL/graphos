@@ -48,12 +48,17 @@ void DtmInvDistNNWidgetImp::initUI()
   mGroupBox->setLayout(propertiesLayout);
 
   propertiesLayout->addWidget(mLabelPower, 0, 0);
+  mDoubleSpinBoxPower->setSingleStep(1.);
   propertiesLayout->addWidget(mDoubleSpinBoxPower, 0, 1);
 
   propertiesLayout->addWidget(mLabelSmoothing, 1, 0);
+  mDoubleSpinBoxSmoothing->setDecimals(3);
+  mDoubleSpinBoxSmoothing->setSingleStep(0.01);
   propertiesLayout->addWidget(mDoubleSpinBoxSmoothing, 1, 1);
-
+  
   propertiesLayout->addWidget(mLabelRadius, 2, 0);
+  mDoubleSpinBoxRadius->setDecimals(3);
+  mDoubleSpinBoxRadius->setSingleStep(0.01);
   propertiesLayout->addWidget(mDoubleSpinBoxRadius, 2, 1);
 
   propertiesLayout->addWidget(mLabelMaxPoints, 3, 0);

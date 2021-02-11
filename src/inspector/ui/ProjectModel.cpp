@@ -137,6 +137,11 @@ QString ProjectModelImp::sparseModel() const
   return mProject->sparseModel();
 }
 
+bool ProjectModelImp::isAbsoluteOriented() const
+{
+  return !mProject->offset().isEmpty();
+}
+
 QString ProjectModelImp::denseModel() const
 {
   return mProject->denseModel();

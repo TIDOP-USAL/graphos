@@ -136,7 +136,8 @@ void CamerasImportModelImp::previewImportCameras()
       for (const QString &item : reg){
         standardItem.append(new QStandardItem(item));
       }
-      mItemModelCSV->insertRow(mItemModelCSV->rowCount(), standardItem);
+      mItemModelCSV->insertRow(mItemModelCSV->rowCount(), 
+                               standardItem);
 
       i++;
     }

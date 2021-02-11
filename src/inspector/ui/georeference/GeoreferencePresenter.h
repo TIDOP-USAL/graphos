@@ -1,7 +1,7 @@
 #ifndef INSPECTOR_GEOREFERENCE_PRESENTER_INTERFACE_H
 #define INSPECTOR_GEOREFERENCE_PRESENTER_INTERFACE_H
 
-#include "inspector/interfaces/mvp.h"
+#include "inspector/ui/process/ProcessPresenter.h"
 
 namespace inspector
 {
@@ -10,7 +10,7 @@ namespace ui
 {
 
 class GeoreferencePresenter
-  : public IPresenter
+  : public ProcessPresenter
 {
 
   Q_OBJECT
@@ -22,6 +22,11 @@ public:
 
 public slots:
 
+  virtual void setImageActive(const QString &image) = 0;
+
+signals:
+
+  void georeferenceFinished();
 
 };
 

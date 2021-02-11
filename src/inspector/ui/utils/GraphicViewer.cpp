@@ -219,6 +219,18 @@ void GraphicViewerImp::resizeEvent(QResizeEvent *event)
   this->fitInView(QRect(P1.toPoint(), P2.toPoint()), Qt::KeepAspectRatio);
 }
 
+void GraphicViewerImp::keyPressEvent(QKeyEvent *event)
+{
+  int key = event->key();
+  switch (key) {
+    case Qt::Key_Delete:
+    {
+      emit removeSelectItems();
+      break;
+    }
+  }
+}
+
 void GraphicViewerImp::zoomExtend()
 {
   Qt::ScrollBarPolicy	currentHorizontalPolicy = horizontalScrollBarPolicy();

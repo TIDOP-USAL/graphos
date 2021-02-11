@@ -23,6 +23,7 @@ void OrientationModelImp::init()
 
 void OrientationModelImp::clear()
 {
+  mProject->clearReconstruction();
 }
 
 bool OrientationModelImp::refinePrincipalPoint() const
@@ -38,6 +39,11 @@ void OrientationModelImp::setRefinePrincipalPoint(bool refine)
 void OrientationModelImp::setSparseModel(const QString &sparseModel)
 {
   mProject->setSparseModel(sparseModel);
+}
+
+void OrientationModelImp::setOffset(const QString &offset)
+{
+  mProject->setOffset(offset);
 }
 
 bool OrientationModelImp::isPhotoOriented(const QString &imgName) const
@@ -80,6 +86,11 @@ bool OrientationModelImp::gpsOrientation() const
     bGpsOrientation = true;
 
   return bGpsOrientation;
+}
+
+QString OrientationModelImp::reconstructionPath() const
+{
+  return mProject->reconstructionPath();
 }
 
 void OrientationModelImp::setReconstructionPath(const QString &reconstructionPath)

@@ -27,6 +27,7 @@ public:
   bool refinePrincipalPoint() const override;
   void setRefinePrincipalPoint(bool refine) override;
   void setSparseModel(const QString &sparseModel) override;
+  void setOffset(const QString &offset) override;
   bool isPhotoOriented(const QString &imgName) const override;
   PhotoOrientation photoOrientation(const QString &imgName) const override;
   void addPhotoOrientation(const QString &imgName, const PhotoOrientation &orientation) override;
@@ -34,6 +35,7 @@ public:
   QString imagePath() const override;
   QString projectPath() const override;
   bool gpsOrientation() const override;
+  QString reconstructionPath() const override;
   void setReconstructionPath(const QString &reconstructionPath) override;
   std::map<QString, std::array<double, 3>> cameraPositions() const override;
 
