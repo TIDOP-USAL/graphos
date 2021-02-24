@@ -141,7 +141,6 @@ void OrientationPresenterImp::createProcess()
 
   mMultiProcess->appendProcess(relativeOrientationProcess);
 
-  //if (mModel->gpsOrientation()) {
   if (mView->absoluteOrientation()) {
     QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
     std::map<QString, std::array<double, 3>> camera_positions = mModel->cameraPositions();

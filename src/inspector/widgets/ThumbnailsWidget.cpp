@@ -163,53 +163,38 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
 
   for (auto thumb : thumbs) {
 
-    //QImageReader imageReader(thumb);
-    //QSize size = imageReader.size();
-    //double scale = 1.;
-    //int w = size.width();
-    //int h = size.height();
-    //if (w > h){
-    //  scale = w / 200.;
-    //} else {
-    //  scale = h / 200.;
-    //}
-    //size /= scale;
+    try {
 
-    //QFileInfo fileInfo(thumb);
-    //QPixmap pixmap(size.width(), size.height());
-    //pixmap.fill(QColor(Qt::GlobalColor::lightGray));
-    //QIcon icon(pixmap);
-    //QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
-    //item->setToolTip(fileInfo.absoluteFilePath());
-    //mListWidget->addItem(item);
-
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(thumb.toStdString());
-    imageReader->open();
-    if (imageReader->isOpen()) {
+      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(thumb.toStdString());
+      imageReader->open();
+      if (imageReader->isOpen()) {
       
-      int w = imageReader->cols();
-      int h = imageReader->rows();
-      QSize size(w, h);
-      double scale = 1.;
-      if (w > h) {
-        scale = static_cast<double>(w) / 200.;
+        int w = imageReader->cols();
+        int h = imageReader->rows();
+        QSize size(w, h);
+        double scale = 1.;
+        if (w > h) {
+          scale = static_cast<double>(w) / 200.;
+        } else {
+          scale = static_cast<double>(h) / 200.;
+        }
+        size /= scale;
+
+        imageReader->close();
+
+        QFileInfo fileInfo(thumb);
+        QPixmap pixmap(size.width(), size.height());
+        pixmap.fill(QColor(Qt::GlobalColor::lightGray));
+        QIcon icon(pixmap);
+        QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
+        item->setToolTip(fileInfo.absoluteFilePath());
+        mListWidget->addItem(item);
+
       } else {
-        scale = static_cast<double>(h) / 200.;
+        msgError("Error al abrir la imagen: %s", thumb.toStdString().c_str());
       }
-      size /= scale;
-
-      imageReader->close();
-
-      QFileInfo fileInfo(thumb);
-      QPixmap pixmap(size.width(), size.height());
-      pixmap.fill(QColor(Qt::GlobalColor::lightGray));
-      QIcon icon(pixmap);
-      QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
-      item->setToolTip(fileInfo.absoluteFilePath());
-      mListWidget->addItem(item);
-
-    } else {
-      msgError("Error al abrir la imagen: %s", thumb.toStdString().c_str());
+    } catch (std::exception &e) {
+      std::cout << e.what();
     }
   }
 
@@ -316,10 +301,11 @@ void ThumbnailsWidget::onDeleteImageClicked()
 
 void ThumbnailsWidget::showThumbnail(int id)
 {
-  QListWidgetItem *item = mListWidget->item(mThumbnaislSize+id);
-  QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
-  QIcon icon(pixmap);
-  item->setIcon(icon);
+  if (QListWidgetItem *item = mListWidget->item(mThumbnaislSize + id)) {
+    QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
+    QIcon icon(pixmap);
+    item->setIcon(icon);
+  }
 }
 
 void ThumbnailsWidget::finished()

@@ -21,6 +21,7 @@ public:
                           const Camera &camera,
                           int maxDimension,
                           const QString &featureFile,
+                          bool cuda,
                           const std::shared_ptr<FeatureExtractor> &featureExtractor);
 
   Image image() const;
@@ -28,7 +29,8 @@ public:
   Camera camera() const;
   void setCamera(const Camera &camera);
   void setMaxDimension(int maxDimension);
-
+  bool useGPU() const;
+  void setUseGPU(bool useGPU);
   std::shared_ptr<FeatureExtractor> featureExtractor() const;
 
 signals:
@@ -47,6 +49,7 @@ protected:
   Camera mCamera;
   int mMaxDimension;
   QString mFeatureFile;
+  bool bUseCuda;
   std::shared_ptr<FeatureExtractor> mFeatureExtractor;
   bool bOpenCvRead;
 };

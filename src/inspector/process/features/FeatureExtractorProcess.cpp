@@ -29,12 +29,14 @@ FeatureExtractorProcess::FeatureExtractorProcess(const Image &image,
                                                  const Camera &camera,
                                                  int maxDimension,
                                                  const QString &featureFile,
+                                                 bool cuda,
                                                  const std::shared_ptr<FeatureExtractor> &featureExtractor)
   : ProcessConcurrent(),
     mImage(image),
     mCamera(camera),
     mMaxDimension(maxDimension),
     mFeatureFile(featureFile),
+    bUseCuda(cuda),
     mFeatureExtractor(featureExtractor),
     bOpenCvRead(true)
 {
@@ -58,6 +60,16 @@ Camera FeatureExtractorProcess::camera() const
 void FeatureExtractorProcess::setCamera(const Camera &camera)
 {
   mCamera = camera;
+}
+
+bool FeatureExtractorProcess::useGPU() const
+{
+  return bUseCuda;
+}
+
+void FeatureExtractorProcess::setUseGPU(bool useGPU)
+{
+  bUseCuda = useGPU;
 }
 
 std::shared_ptr<FeatureExtractor> FeatureExtractorProcess::featureExtractor() const
@@ -150,12 +162,16 @@ void FeatureExtractorProcess::run()
           size.width /= scale;
           size.height /= scale;
 #ifdef HAVE_CUDA
-          cv::cuda::GpuMat gImgIn(mat);
-          cv::cuda::GpuMat gImgResize;
-          cv::cuda::resize(gImgIn, gImgResize, size);
-          gImgResize.download(mat);
-#else
-          cv::resize(mat, mat, size);
+          if (bUseCuda) {
+            cv::cuda::GpuMat gImgIn(mat);
+            cv::cuda::GpuMat gImgResize;
+            cv::cuda::resize(gImgIn, gImgResize, size);
+            gImgResize.download(mat);
+          } else {
+#endif
+            cv::resize(mat, mat, size);
+#ifdef HAVE_CUDA
+          }
 #endif
         }
       }
@@ -186,12 +202,16 @@ void FeatureExtractorProcess::run()
         
         if (imageReader->depth() != 8) {
 #ifdef HAVE_CUDA
-          cv::cuda::GpuMat gImgIn(mat);
-          cv::cuda::GpuMat gImgOut;
-          cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-          gImgOut.download(mat);
-#else
-          cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+          if (bUseCuda) {
+            cv::cuda::GpuMat gImgIn(mat);
+            cv::cuda::GpuMat gImgOut;
+            cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+            gImgOut.download(mat);
+          } else {
+#endif
+            cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
+          }
 #endif
         }
 

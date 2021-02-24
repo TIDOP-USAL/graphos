@@ -4,6 +4,7 @@
 
 #include <colmap/util/opengl_utils.h>
 #include <colmap/feature/utils.h>
+#include "VLFeat/sift.h"
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -110,20 +111,19 @@ QString SiftProperties::name() const
 
 /*----------------------------------------------------------------*/
 
-//#ifdef OPENCV_ENABLE_NONFREE
 
 //SiftDetectorDescriptor::SiftDetectorDescriptor()
 //{
 //  update();
 //}
-
+//
 //SiftDetectorDescriptor::SiftDetectorDescriptor(const SiftDetectorDescriptor &siftDetectorDescriptor)
 //  : SiftProperties(siftDetectorDescriptor),
 //    FeatureExtractor(siftDetectorDescriptor)
 //{
 //  update();
 //}
-
+//
 //SiftDetectorDescriptor::SiftDetectorDescriptor(int featuresNumber,
 //                                               int octaveLayers,
 //                                               double contrastThreshold,
@@ -132,114 +132,91 @@ QString SiftProperties::name() const
 //{
 //  SiftProperties::setFeaturesNumber(featuresNumber);
 //  SiftProperties::setOctaveLayers(octaveLayers);
-//  SiftProperties::setContrastThreshold(contrastThreshold);
+//  if (contrastThreshold > 0.) {
+//    SiftProperties::setContrastThresholdAuto(false);
+//    SiftProperties::setContrastThreshold(contrastThreshold);
+//  }
 //  SiftProperties::setEdgeThreshold(edgeThreshold);
 //  SiftProperties::setSigma(sigma);
 //  update();
 //}
-
+//
 //void SiftDetectorDescriptor::update()
 //{
-//  mSift = cv::xfeatures2d::SIFT::create(SiftProperties::featuresNumber(),
-//                                        SiftProperties::octaveLayers(),
-//                                        SiftProperties::contrastThreshold(),
-//                                        SiftProperties::edgeThreshold(),
-//                                        SiftProperties::sigma());
 //}
-
-//void SiftDetectorDescriptor::run(const cv::Mat &img,
+//
+//void SiftDetectorDescriptor::run(const colmap::Bitmap &bitmap,
 //                                 colmap::FeatureKeypoints &keyPoints,
 //                                 colmap::FeatureDescriptors &descriptors)
 //{
-//  TL_TODO("La escala se tiene que calcular en otra parte")
-//  float scale = 1;
 //  try {
-//    std::vector<cv::KeyPoint> _keyPoints;
-//    cv::Mat _descriptors;
-//    mSift->detectAndCompute(img, cv::noArray(), _keyPoints, _descriptors);
-
-//    size_t kp_size = _keyPoints.size();
-//    keyPoints.resize(kp_size);
-//    for (size_t j = 0; j < kp_size; j++) {
-//      keyPoints[j] = colmap::FeatureKeypoint((_keyPoints[j].pt.x + 0.5f) / scale,
-//                                             (_keyPoints[j].pt.y + 0.5f) / scale ,
-//                                              _keyPoints[j].size / scale,
-//                                              _keyPoints[j].angle * static_cast<float>(TL_DEG_TO_RAD));
-//    }
-//  } catch (cv::Exception &e) {
+//    bool err = ExtractSiftFeaturesCPU(mSiftExtractionOptions, bitmap, &keyPoints, &descriptors);
+//    if (err == false) throw "ExtractSiftFeaturesCPU fail";
+//  } catch (std::exception &e) {
 //    msgError("SIFT Detector exception");
-//    throw ;
+//    throw;
+//  } catch (...) {
+//    msgError("SIFT Detector exception");
+//    throw;
 //  }
 //}
-
-////bool SiftDetectorDescriptor::detect(const cv::Mat &img,
-////                                    std::vector<cv::KeyPoint> &keyPoints,
-////                                    cv::InputArray &mask)
-////{
-////  try {
-////    mSift->detect(img, keyPoints, mask);
-////  } catch (cv::Exception &e) {
-////    msgError("SIFT Detector error: %s", e.what());
-////    return true;
-////  }
-
-////  return false;
-////}
-
-////bool SiftDetectorDescriptor::extract(const cv::Mat &img,
-////                                     std::vector<cv::KeyPoint> &keyPoints,
-////                                     cv::Mat &descriptors)
-////{
-////  try {
-////    mSift->compute(img, keyPoints, descriptors);
-////  } catch (cv::Exception &e) {
-////    msgError("SIFT Descriptor error: %s", e.what());
-////    return true;
-////  }
-
-////  return false;
-////}
-
+//
+//void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
+//                                 colmap::FeatureKeypoints &keyPoints,
+//                                 colmap::FeatureDescriptors &descriptors)
+//{
+//  try {
+//
+//    //std::unique_ptr<VlSiftFilt, void (*)(VlSiftFilt*)> sift(
+//    //  vl_sift_new(bitmap.cols, bitmap.rows, mSiftExtractionOptions.num_octaves,
+//    //              mSiftExtractionOptions.octave_resolution, mSiftExtractionOptions.first_octave),
+//    //              &vl_sift_delete);
+//    //if (!sift) throw std::runtime_error("ExtractSiftFeaturesCPU fail");
+//
+//
+//
+//  } catch (std::exception &e) {
+//    msgError("SIFT Detector exception");
+//    throw;
+//  }
+//}
+//
+//
 //void SiftDetectorDescriptor::setFeaturesNumber(int featuresNumber)
 //{
 //  SiftProperties::setFeaturesNumber(featuresNumber);
 //  update();
 //}
-
+//
 //void SiftDetectorDescriptor::setOctaveLayers(int octaveLayers)
 //{
 //  SiftProperties::setOctaveLayers(octaveLayers);
 //  update();
 //}
-
+//
 //void SiftDetectorDescriptor::setContrastThreshold(double contrastThreshold)
 //{
 //  SiftProperties::setContrastThreshold(contrastThreshold);
 //  update();
 //}
-
+//
 //void SiftDetectorDescriptor::setEdgeThreshold(double edgeThreshold)
 //{
 //  SiftProperties::setEdgeThreshold(edgeThreshold);
 //  update();
 //}
-
+//
 //void SiftDetectorDescriptor::setSigma(double sigma)
 //{
 //  SiftProperties::setSigma(sigma);
 //  update();
 //}
-
+//
 //void SiftDetectorDescriptor::reset()
 //{
 //  SiftProperties::reset();
 //  update();
 //}
-
-//#endif
-
-
-
 
 
 SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor()
@@ -295,7 +272,7 @@ void SiftCudaDetectorDescriptor::run(const colmap::Bitmap &bitmap,
 {
   try {
     bool err = ExtractSiftFeaturesGPU(mSiftExtractionOptions, bitmap, mSiftGpu.get(), &keyPoints, &descriptors);
-    if (err == false) throw "ExtractSiftFeaturesGPU fail";
+    if (err == false) throw std::runtime_error("ExtractSiftFeaturesGPU fail");
   } catch (std::exception &e) {
     msgError("SIFT Detector exception");
     throw;
@@ -342,14 +319,6 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
     throw;
   }
 }
-
-//bool SiftCudaDetectorDescriptor::extract(const cv::Mat &img, std::vector<cv::KeyPoint> &keyPoints, cv::Mat &descriptors)
-//{
-//}
-
-//bool SiftCudaDetectorDescriptor::detect(const cv::Mat &img, std::vector<cv::KeyPoint> &keyPoints, cv::InputArray &mask)
-//{
-//}
 
 void SiftCudaDetectorDescriptor::setFeaturesNumber(int featuresNumber)
 {

@@ -327,6 +327,7 @@ void CmvsPmvsDensifier::createDirectories()
   createDirectory(mOutputPath);
   createDirectory(std::string(mOutputPath).append("/txt"));
   createDirectory(std::string(mOutputPath).append("/visualize"));
+  //createDirectory(std::string(mOutputPath).append("/original"));
   createDirectory(std::string(mOutputPath).append("/models"));
 }
 
@@ -347,12 +348,14 @@ void CmvsPmvsDensifier::writeBundleFile()
 {
   std::string bundler_path = mOutputPath + "/bundle.rd.out";
   std::string bundler_path_list = bundler_path + ".list.txt";
+  //std::string bundler_path_list_original = bundler_path + ".original.list.txt";
 
   if (mReconstruction) {
 
     std::ofstream stream(bundler_path, std::ios::trunc);
     std::ofstream stream_image_list(bundler_path_list, std::ios::trunc);
-    if (stream.is_open() && stream_image_list.is_open()) {
+    //std::ofstream stream_image_list_original(bundler_path_list_original, std::ios::trunc);
+    if (stream.is_open() && stream_image_list.is_open() /*&& stream_image_list_original.is_open()*/) {
 
       int camera_count = mReconstruction->Images().size();
       int feature_count = mReconstruction->NumPoints3D();
@@ -404,6 +407,10 @@ void CmvsPmvsDensifier::writeBundleFile()
             // Undistorted images
             std::string output_image_path = colmap::StringPrintf("%08d.jpg", i);
             stream_image_list << output_image_path << std::endl;
+            
+            //std::string output_image_original_path = image.Name(); //colmap::StringPrintf("%08d.tif", i);
+            //stream_image_list_original << output_image_original_path << std::endl;
+            
           }
         }
       }
@@ -444,6 +451,7 @@ void CmvsPmvsDensifier::writeBundleFile()
       }
       stream.close();
       stream_image_list.close();
+      //stream_image_list_original.close();
     }
   } else 
     msgError("There is not a valid reconstruction");
@@ -543,7 +551,7 @@ void CmvsPmvsDensifier::undistortImages()
           }
 
           cv::Mat img_undistort;
-          //cv::Mat img_undistort_original;
+          cv::Mat img_undistort_original;
 #ifdef HAVE_CUDA
           if (bCuda) {
             TL_TODO("comprobar versión driver cuda");
@@ -568,8 +576,10 @@ void CmvsPmvsDensifier::undistortImages()
 
           } else {
 #endif
-            cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
+            cv::remap(img, img_undistort_original, map1, map2, cv::INTER_LINEAR);
             img.release();
+            //cv::remap(img_original, img_undistort_original, map1, map2, cv::INTER_LINEAR);
+            //img_original.release();
 
 #ifdef HAVE_CUDA
           }
@@ -578,7 +588,7 @@ void CmvsPmvsDensifier::undistortImages()
 
           std::string output_image_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.jpg", i);
           cv::imwrite(output_image_path, img_undistort);
-          //std::string output_image_original_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.tif", i);
+          //std::string output_image_original_path = mOutputPath + "/" + image.Name();// colmap::StringPrintf("/original/%08d.tif", i);
           //cv::imwrite(output_image_original_path, img_undistort_original);
 
           std::string proj_matrix_path = mOutputPath + colmap::StringPrintf("/txt/%08d.txt", i);

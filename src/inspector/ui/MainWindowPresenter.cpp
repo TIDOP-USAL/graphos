@@ -19,6 +19,7 @@
 
 /* TidopLib */
 #include <tidop/core/messages.h>
+#include <tidop/core/exception.h>
 
 /* Qt */
 #include <QFileDialog>
@@ -585,6 +586,9 @@ void MainWindowPresenter::deleteImages(const QStringList &imageNames)
 void MainWindowPresenter::deleteImage(const QString &imageName)
 {
   try {
+    mFeaturesModel->removeFeatures(imageName);
+    mMatchesModel->removeMatchesPair(imageName);
+    /// TODO: Borrar los matches cuando este a la izquierda tambien
     size_t image_id = mImagesModel->imageID(imageName);
     mImagesModel->removeImage(image_id);
     mView->deleteImage(imageName);
@@ -907,7 +911,10 @@ void MainWindowPresenter::openImageMatches(const QString &sessionName, const QSt
 void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
 {
   try {
-    //Image image = mImagesModel->findImageByName(imageName);
+
+    QFileInfo fileInfo(model3D);
+    TL_ASSERT(fileInfo.exists(), "File not found")
+
     mTabHandler->setModel3D(model3D);
     
     // Load Cameras

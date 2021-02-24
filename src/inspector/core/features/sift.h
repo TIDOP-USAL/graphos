@@ -67,58 +67,61 @@ private:
 
 /*----------------------------------------------------------------*/
 
-//#ifdef OPENCV_ENABLE_NONFREE
 
-//class INSPECTOR_EXPORT SiftDetectorDescriptor
+//class SiftDetectorDescriptor
 //  : public SiftProperties,
 //    public FeatureExtractor
 //{
-
+//
 //public:
-
+//
 //  SiftDetectorDescriptor();
 //  SiftDetectorDescriptor(const SiftDetectorDescriptor &siftDetectorDescriptor);
 //  SiftDetectorDescriptor(int featuresNumber,
 //                         int octaveLayers,
-//                         double contrastThreshold,
 //                         double edgeThreshold,
-//                         double sigma);
-//  ~SiftDetectorDescriptor() override = default;
-
+//                         double sigma,
+//                         double contrastThreshold = 0.);
+//  ~SiftDetectorDescriptor() override;
+//
 //private:
-
+//
 //  void update();
-
+//
 //// FeatureExtractor interface
-
+//
 //public:
-
+//
 //  void run(const colmap::Bitmap &bitmap,
 //           colmap::FeatureKeypoints &keyPoints,
 //           colmap::FeatureDescriptors &descriptors) override;
-
-//// ISift interface
-
+//
+//  void run(const cv::Mat &bitmap,
+//           colmap::FeatureKeypoints &keyPoints,
+//           colmap::FeatureDescriptors &descriptors) override;
+//
+//// Sift interface
+//
 //public:
-
+//
 //  void setFeaturesNumber(int featuresNumber) override;
 //  void setOctaveLayers(int octaveLayers) override;
 //  void setContrastThreshold(double contrastThreshold) override;
 //  void setEdgeThreshold(double edgeThreshold) override;
 //  void setSigma(double sigma) override;
-
+//
 //// Feature interface
-
+//
 //public:
-
+//
 //  void reset() override;
-
+//
 //protected:
-
-//  cv::Ptr<cv::xfeatures2d::SIFT> mSift;
+//
+//  std::unique_ptr<SiftGPU> mSiftGpu;
+//  colmap::SiftExtractionOptions mSiftExtractionOptions;
 //};
 
-//#endif
 
 /*----------------------------------------------------------------*/
 

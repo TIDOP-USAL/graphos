@@ -341,7 +341,9 @@ void TabHandler::addCamera(const QString &image,
                            const std::array<double, 3> &cameraPosition, 
                            const std::array<std::array<float, 3>, 3> &cameraRotationMatrix)
 {
-  mViewer3D->addCamera(image, cameraPosition[0], cameraPosition[1], cameraPosition[2], cameraRotationMatrix);
+  if (mViewer3D) {
+    mViewer3D->addCamera(image, cameraPosition[0], cameraPosition[1], cameraPosition[2], cameraRotationMatrix);
+  }
 }
 
 //Viewer3D *TabHandler::addViewer3D(const QString &name)

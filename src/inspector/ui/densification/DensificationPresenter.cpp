@@ -61,7 +61,7 @@ void DensificationPresenterImp::open()
 {
   this->setCmvsPmvsProperties();
   this->setSmvsProperties();
-  mView->setCurrentDensificationMethod(mSmvs->windowTitle());
+  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 
   mView->exec();
 }
@@ -73,10 +73,10 @@ void DensificationPresenterImp::setHelp(HelpDialog *help)
 
 void DensificationPresenterImp::init()
 {
-  mView->addDensification(mSmvs);
   mView->addDensification(mCmvsPmvs);
+  mView->addDensification(mSmvs);
 
-  mView->setCurrentDensificationMethod(mSmvs->windowTitle());
+  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 }
 
 void DensificationPresenterImp::initSignalAndSlots()

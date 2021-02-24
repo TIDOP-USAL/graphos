@@ -197,6 +197,7 @@ void FeatureExtractorPresenterImp::createProcess()
                                                                                       camera,
                                                                                       maxSize,
                                                                                       features_file,
+                                                                                      mSettingsModel->useCuda(),
                                                                                       feature_extractor));
     connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)), this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
 

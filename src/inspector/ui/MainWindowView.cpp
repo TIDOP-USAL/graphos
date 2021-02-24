@@ -138,7 +138,8 @@ void MainWindowView::addImage(const QString &image)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      if (temp->text(0).compare(tr("Images")) == 0) {
+      //if (temp->text(0).compare(tr("Images")) == 0) {
+      if (temp->data(0, Qt::UserRole) == inspector::ui::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -161,6 +162,7 @@ void MainWindowView::addImage(const QString &image)
     itemPhotogram->setToolTip(0, image);
     itemPhotogram->setData(0, Qt::UserRole, inspector::ui::image);
     itemImages->addChild(itemPhotogram);
+    itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
 
     update();
   }
@@ -179,7 +181,8 @@ void MainWindowView::addImages(const QStringList &images)
         QTreeWidgetItem *itemImages = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
           QTreeWidgetItem *temp = itemProject->child(i);
-          if (temp->text(0).compare(tr("Images")) == 0) {
+          //if (temp->text(0).compare(tr("Images")) == 0) {
+          if (temp->data(0, Qt::UserRole) == inspector::ui::images){
             itemImages = itemProject->child(i);
             break;
           }
@@ -202,7 +205,8 @@ void MainWindowView::addImages(const QStringList &images)
         itemPhotogram->setToolTip(0, image);
         itemPhotogram->setData(0, Qt::UserRole, inspector::ui::image);
         itemImages->addChild(itemPhotogram);
-
+        itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
+        
         update();
       }
     }
@@ -222,7 +226,8 @@ void MainWindowView::setActiveImage(const QString &image)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      if (temp->text(0).compare(tr("Images")) == 0) {
+      //if (temp->text(0).compare(tr("Images")) == 0) {
+      if (temp->data(0, Qt::UserRole) == inspector::ui::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -251,7 +256,8 @@ void MainWindowView::setActiveImages(const QStringList &images)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      if (temp->text(0).compare(tr("Images")) == 0) {
+      //if (temp->text(0).compare(tr("Images")) == 0) {
+      if (temp->data(0, Qt::UserRole) == inspector::ui::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -282,7 +288,8 @@ void MainWindowView::addFeatures(const QString &features)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      if (temp->text(0).compare(tr("Images")) == 0) {
+      //if (temp->text(0).compare(tr("Images")) == 0) {
+      if (temp->data(0, Qt::UserRole) == inspector::ui::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -298,8 +305,8 @@ void MainWindowView::addFeatures(const QString &features)
           break;
         }
       }
-
-      itemImage->setData(0, Qt::UserRole, inspector::ui::image_features);
+      if (itemImage)
+        itemImage->setData(0, Qt::UserRole, inspector::ui::image_features);
     }
   }
 }
@@ -311,7 +318,8 @@ void MainWindowView::addMatches(const QString &left, const QString &right)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      if (temp->text(0).compare(tr("Images")) == 0) {
+      //if (temp->text(0).compare(tr("Images")) == 0) {
+      if (temp->data(0, Qt::UserRole) == inspector::ui::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -489,7 +497,8 @@ void MainWindowView::deleteImage(const QString &file)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      if (temp->text(0).compare(tr("Images")) == 0) {
+      //if (temp->text(0).compare(tr("Images")) == 0) {
+      if (temp->data(0, Qt::UserRole) == inspector::ui::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -508,6 +517,7 @@ void MainWindowView::deleteImage(const QString &file)
           break;
         }
       }
+      itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
     }
 
     setFlag(MainWindowView::Flag::images_added, itemProject->childCount() > 0);

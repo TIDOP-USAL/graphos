@@ -89,7 +89,7 @@ void DtmViewImp::update()
 
 void DtmViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("DtmView", "DTM"));
+  this->setWindowTitle(QApplication::translate("DtmView", "DTM/DSM"));
   mLabelDtmMethod->setText(QApplication::translate("DtmView", "Dtm interpolation method:"));
   mLabelGSD->setText(QApplication::translate("DtmView", "Ground sampling distance (GSD):"));
   mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("DtmView", "Cancel"));

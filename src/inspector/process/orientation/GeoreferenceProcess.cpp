@@ -41,9 +41,10 @@ void GeoreferenceProcess::run()
     tl::Chrono chrono;
     chrono.run();
 
-    std::map<std::string, Eigen::Vector3d> triangulate_points;
+    //std::map<std::string, Eigen::Vector3d> triangulate_points;
     std::vector<Eigen::Vector3d> src;
     std::vector<Eigen::Vector3d> dst;
+    std::vector<std::string> gcp_name;
 
     colmap::IncrementalTriangulator::Options options;
     colmap::Reconstruction reconstruction;
@@ -97,11 +98,12 @@ void GeoreferenceProcess::run()
       Eigen::Vector3d xyz;
       std::vector<char> inlier_mask;
       if (colmap::EstimateTriangulation(tri_options, points_data, poses_data, &inlier_mask, &xyz)) {
-        triangulate_points[ground_control_point.name()] = xyz;
+        //triangulate_points[ground_control_point.name()] = xyz;
         src.push_back(xyz);
         dst.push_back(Eigen::Vector3d(ground_control_point.point().x, 
                                       ground_control_point.point().y, 
                                       ground_control_point.point().z));
+        gcp_name.push_back(ground_control_point.name());
       }
 
     }
@@ -138,12 +140,26 @@ void GeoreferenceProcess::run()
 
       colmap::SimilarityTransform3 similarity_transform;
       similarity_transform.Estimate(src, dst);
-
+      
       reconstruction.Transform(similarity_transform);
       reconstruction.Write(path);
 
       OrientationExport orientationExport(&reconstruction);
       orientationExport.exportPLY(QString(path.c_str()).append("\\sparse.ply"));
+
+
+      std::vector<double> errors;
+      errors.reserve(dst.size());
+
+      for (size_t i = 0; i < dst.size(); ++i) {
+        similarity_transform.TransformPoint(&src.at(i));
+        errors.push_back((src[i] - dst[i]).norm());
+        
+        msgInfo("Ground Control Point %s: Error -> %f", gcp_name[i].c_str(), errors[i]);
+      }
+
+      msgInfo("Georeference error: %f (mean), %f (median)",
+              colmap::Mean(errors), colmap::Median(errors));
 
     }
 

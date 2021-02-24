@@ -125,6 +125,8 @@ void RelativeOrientationColmapAlgorithm::run()
       delete mMapper;
       mMapper = nullptr;
     }
+
+    //mIncrementalMapper->min_num_matches = 30;
     mMapper = new colmap::IncrementalMapperController(mIncrementalMapper,
                                                       mImagePath.toStdString(),
                                                       mDatabase.toStdString(),
@@ -204,7 +206,7 @@ void RelativeOrientationColmapAlgorithm::run()
 /*----------------------------------------------------------------*/
 
 constexpr auto min_common_images = 3;
-constexpr auto robust_alignment = false;
+constexpr auto robust_alignment = true;
 constexpr auto robust_alignment_max_error = 1.;
 
 AbsoluteOrientationColmapProperties::AbsoluteOrientationColmapProperties()
