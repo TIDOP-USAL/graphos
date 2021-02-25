@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include <tidop/core/flags.h>
+
 namespace inspector
 {
 
@@ -17,6 +19,7 @@ class MainWindowModel;
 class MainWindowView;
 class MainWindowPresenter;
 class ProjectModel;
+class Component;
 class SettingsModel;
 class SettingsPresenter;
 class NewProjectPresenter;
@@ -48,8 +51,8 @@ class CamerasImportModel;
 class CamerasImportPresenter;
 class ExportPointCloudModel;
 class ExportPointCloudPresenter;
-class DtmPresenter;
-class DtmModel;
+//class DtmPresenter;
+//class DtmModel;
 class HelpDialog;
 class AboutDialog;
 
@@ -60,6 +63,15 @@ class ComponentsManager
 
 public:
 
+  enum class Flags
+  {
+    none = (0 << 0), 
+    separator_before = (1 << 0),
+    separator_after = (1 << 1)
+  };
+
+public:
+
   explicit ComponentsManager(QObject *parent = nullptr);
   ~ComponentsManager();
 
@@ -67,6 +79,10 @@ public:
   MainWindowModel *mainWindowModel();
   MainWindowPresenter *mainWindowPresenter();
 
+  void registerComponent(Component *component,
+                         Flags flags = Flags::none);
+
+  Project *project();
   ProjectModel *projectModel();
   ImagesModel *imagesModel();
   ImagesPresenter *imagesPresenter();
@@ -99,8 +115,8 @@ public:
   CamerasImportPresenter *camerasImportPresenter();
   ExportPointCloudModel *exportPointCloudModel();
   ExportPointCloudPresenter *exportPointCloudPresenter();
-  DtmModel *dtmModel();
-  DtmPresenter *dtmPresenter();
+  //DtmModel *dtmModel();
+  //DtmPresenter *dtmPresenter();
 
   //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
@@ -132,7 +148,7 @@ protected slots:
   void initAndOpenGeoreferenceDialog();
   void initAndOpenCamerasImportDialog();
   void initAndOpenExportPointCloudDialog();
-  void initAndOpenDtmDialog();
+  //void initAndOpenDtmDialog();
 
 private:
 
@@ -178,14 +194,15 @@ protected:
   CamerasImportPresenter *mCamerasImportPresenter;
   ExportPointCloudModel *mExportPointCloudModel;
   ExportPointCloudPresenter *mExportPointCloudPresenter;
-  DtmModel *mDtmModel;
-  DtmPresenter *mDtmPresenter;
+  //DtmModel *mDtmModel;
+  //DtmPresenter *mDtmPresenter;
   //AboutDialog *mAboutDialog;
   HelpDialog *mHelpDialog;
 
   ProgressHandler *mProgressHandler;
   ProgressDialog *mProgressDialog;
 };
+ALLOW_BITWISE_FLAG_OPERATIONS(ComponentsManager::Flags)
 
 } // namespace ui
 

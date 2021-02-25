@@ -45,6 +45,7 @@ public:
                                OrientationModel *orientationModel);
   ~MainWindowPresenter() override;
     
+
 signals:
 
   void openNewProjectDialog();
@@ -122,8 +123,9 @@ protected slots:
   void deleteFeatures();
   void deleteMatches();
 
-  void processFinish();
+  void processFinished();
   void processRunning();
+  void processFailed();
 
   //void onLoadImages(); ///TODO: borrar
   void loadingImages(bool loading);

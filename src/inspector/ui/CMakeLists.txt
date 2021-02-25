@@ -73,7 +73,8 @@ set(INSPECTOR_SOURCES
     import/cameras/impl/CameraPositionsModel.cpp
     import/cameras/impl/CameraPositionsView.cpp
     import/cameras/impl/CameraPositionsPresenter.cpp
-    dtm/impl/DTMModel.cpp
+    dtm/DTMComponent.cpp
+	dtm/impl/DTMModel.cpp
     dtm/impl/DTMView.cpp
     dtm/impl/DTMPresenter.cpp
     # MultiViewModel.cpp
@@ -105,6 +106,7 @@ set(INSPECTOR_SOURCES
 
 set(INSPECTOR_HEADERS
     ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
+	${CMAKE_SOURCE_DIR}/src/inspector/interfaces/Component.h
     ComponentsManager.h
     ComponentsManager.cpp
     ProjectModel.h
@@ -177,7 +179,8 @@ set(INSPECTOR_HEADERS
     import/cameras/impl/CameraPositionsModel.h
     import/cameras/impl/CameraPositionsView.h
     import/cameras/impl/CameraPositionsPresenter.h
-    dtm/DTMModel.h
+    dtm/DTMComponent.h
+	dtm/DTMModel.h
     dtm/DTMView.h
     dtm/DTMPresenter.h
     dtm/impl/DTMModel.h

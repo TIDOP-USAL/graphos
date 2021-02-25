@@ -42,6 +42,7 @@ signals:
 
   void running();
   void finished();
+  void failed();
 
 protected:
 

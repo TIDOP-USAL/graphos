@@ -93,6 +93,38 @@ MainWindowView::~MainWindowView()
   delete ui;
 }
 
+void MainWindowView::addActionToMenu(QAction *action, Menu menu)
+{
+  if (QMenu *_menu = findMenu(menu)) {
+    _menu->addAction(action);
+    this->update();
+  }
+}
+
+void MainWindowView::addSeparatorToMenu(Menu menu)
+{
+  if (QMenu *_menu = findMenu(menu)) {
+    _menu->addSeparator();
+    this->update();
+  }
+}
+
+void MainWindowView::addActionToToolbar(QAction *action, Toolbar toolbar)
+{
+  if (QToolBar *_toolbar = findToolbar(toolbar)) {
+    _toolbar->addAction(action);
+    this->update();
+  }
+}
+
+void MainWindowView::addSeparatorToToolbar(Toolbar toolbar)
+{
+  if (QToolBar *_toolbar = findToolbar(toolbar)) {
+    _toolbar->addSeparator();
+    this->update();
+  }
+}
+
 void MainWindowView::clear()
 {
   setWindowTitle(QString("Inspector Image"));
@@ -1233,6 +1265,57 @@ void MainWindowView::initSignalAndSlots()
   connect(mTreeWidgetProject, SIGNAL(itemSelectionChanged()),   this, SLOT(onSelectionChanged()));
   connect(mTreeWidgetProject, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem *, int)));
 
+}
+
+QMenu *MainWindowView::findMenu(Menu menu)
+{
+  QMenu *_menu = nullptr;
+  switch (menu) {
+    case Menu::file:
+      _menu = ui->menuFile;
+      break;
+    case Menu::view:
+      _menu = ui->menuView;
+      break;
+    case Menu::workflow:
+      _menu = ui->menuWorkflow;
+      break;
+    case Menu::tools:
+      _menu = ui->menuTools;
+      break;
+    case Menu::help:
+      _menu = ui->menuHelp;
+      break;
+  }
+
+  return _menu;
+}
+
+QToolBar *MainWindowView::findToolbar(Toolbar toolbar)
+{
+  QToolBar *_toolbar = nullptr;
+
+  switch (toolbar) {
+    case Toolbar::file:
+      _toolbar = mToolBarFile;
+      break;
+    case Toolbar::view:
+      _toolbar = mToolBarView;
+      break;
+    case Toolbar::workflow:
+      _toolbar = mToolBarWorkflow;
+      break;
+    case Toolbar::model3d:
+      _toolbar = mToolBar3dModel;
+      break;
+    case Toolbar::tools:
+      _toolbar = mToolBarTools;
+      break;
+    default:
+      break;
+  }
+
+  return _toolbar;
 }
 
 void MainWindowView::update()

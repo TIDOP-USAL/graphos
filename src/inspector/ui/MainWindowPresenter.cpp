@@ -1010,7 +1010,7 @@ void MainWindowPresenter::deleteMatches()
 //  }
 }
 
-void MainWindowPresenter::processFinish()
+void MainWindowPresenter::processFinished()
 {
   mView->setFlag(MainWindowView::Flag::processing, false);
   mView->setFlag(MainWindowView::Flag::project_modified, true);
@@ -1019,6 +1019,10 @@ void MainWindowPresenter::processFinish()
 void MainWindowPresenter::processRunning()
 {
   mView->setFlag(MainWindowView::Flag::processing, true);
+}
+
+void MainWindowPresenter::processFailed()
+{
 }
 
 //void MainWindowPresenter::onLoadImages()

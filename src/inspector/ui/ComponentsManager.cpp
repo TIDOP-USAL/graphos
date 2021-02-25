@@ -1,5 +1,6 @@
 #include "ComponentsManager.h"
 
+#include "inspector/interfaces/Component.h"
 #include "inspector/ui/MainWindowModel.h"
 #include "inspector/ui/MainWindowView.h"
 #include "inspector/ui/MainWindowPresenter.h"
@@ -46,9 +47,9 @@
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudModel.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudView.h"
-#include "inspector/ui/dtm/impl/DTMModel.h"
-#include "inspector/ui/dtm/impl/DTMView.h"
-#include "inspector/ui/dtm/impl/DTMPresenter.h"
+//#include "inspector/ui/dtm/impl/DTMModel.h"
+//#include "inspector/ui/dtm/impl/DTMView.h"
+//#include "inspector/ui/dtm/impl/DTMPresenter.h"
 //#include "inspector/ui/MultiViewModel.h"
 //#include "inspector/ui/MultiViewView.h"
 //#include "inspector/ui/MultiViewPresenter.h"
@@ -104,14 +105,14 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mCamerasImportPresenter(nullptr),
     mExportPointCloudModel(nullptr),
     mExportPointCloudPresenter(nullptr),
-    mDtmModel(nullptr),
-    mDtmPresenter(nullptr),
+    //mDtmModel(nullptr),
+    //mDtmPresenter(nullptr),
     //mAboutDialog(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
     mProgressDialog(nullptr)
 {
-
+  this->mainWindowPresenter();
 }
 
 ComponentsManager::~ComponentsManager()
@@ -285,15 +286,15 @@ ComponentsManager::~ComponentsManager()
     mExportPointCloudPresenter = nullptr;
   }
 
-  if(mDtmModel){
-    delete mDtmModel;
-    mDtmModel = nullptr;
-  }
+  //if(mDtmModel){
+  //  delete mDtmModel;
+  //  mDtmModel = nullptr;
+  //}
 
-  if(mDtmPresenter){
-    delete mDtmPresenter;
-    mDtmPresenter = nullptr;
-  }
+  //if(mDtmPresenter){
+  //  delete mDtmPresenter;
+  //  mDtmPresenter = nullptr;
+  //}
 
   if (mProgressHandler){
     delete mProgressHandler;
@@ -378,11 +379,81 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 //    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
     connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
             this, &ComponentsManager::initAndOpenExportPointCloudDialog);
-    connect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
-            this, &ComponentsManager::initAndOpenDtmDialog);
+    //connect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
+    //        this, &ComponentsManager::initAndOpenDtmDialog);
   }
 
   return mMainWindowPresenter;
+}
+
+void ComponentsManager::registerComponent(Component *component, Flags flags)
+{
+  tl::EnumFlags<Flags> register_flags(flags);
+
+  if (component == nullptr) return;
+
+  QAction *action = component->openAction();
+
+  QString menu = component->menu();
+  ///TODO: Artificioso. Mejorar
+  MainWindowView::Menu app_menu;
+  if (menu.compare("file") == 0) {
+    app_menu = MainWindowView::Menu::file;
+  } else if (menu.compare("view") == 0) {
+    app_menu = MainWindowView::Menu::view;
+  } else if (menu.compare("workflow") == 0) {
+    app_menu = MainWindowView::Menu::workflow;
+  } else if (menu.compare("tools") == 0) {
+    app_menu = MainWindowView::Menu::tools;
+  } else if (menu.compare("help") == 0) {
+    app_menu = MainWindowView::Menu::help;
+  } else {
+    return;
+  }
+
+  if (register_flags.isActive(Flags::separator_before)) {
+    mMainWindowView->addSeparatorToMenu(app_menu);
+  }
+  mMainWindowView->addActionToMenu(action, app_menu);
+  if (register_flags.isActive(Flags::separator_after)) {
+    mMainWindowView->addSeparatorToMenu(app_menu);
+  }
+
+  if (ProcessComponent *process_component = dynamic_cast<ProcessComponent *>(component)) {
+    connect(process_component, SIGNAL(running()), 
+            this->mainWindowPresenter(), SLOT(processRunning()));
+    connect(process_component,  SIGNAL(finished()), 
+            this->mainWindowPresenter(), SLOT(processFinished()));
+    connect(process_component,  SIGNAL(failed()), 
+            this->mainWindowPresenter(), SLOT(processFailed()));
+  }
+
+  QString toolbar = component->toolbar();
+  MainWindowView::Toolbar app_toolbar;
+  if (toolbar.compare("file") == 0) {
+    app_toolbar = MainWindowView::Toolbar::file;
+  } else if (toolbar.compare("view") == 0) {
+    app_toolbar = MainWindowView::Toolbar::view;
+  } else if (toolbar.compare("workflow") == 0) {
+    app_toolbar = MainWindowView::Toolbar::workflow;
+  } else if (toolbar.compare("model3d") == 0) {
+    app_toolbar = MainWindowView::Toolbar::model3d;
+  } else if (toolbar.compare("tools") == 0) {
+    app_toolbar = MainWindowView::Toolbar::tools;
+  } else return;
+
+  if (register_flags.isActive(Flags::separator_before)) {
+    mMainWindowView->addSeparatorToToolbar(app_toolbar);
+  }
+  mMainWindowView->addActionToToolbar(action, app_toolbar);
+  if (register_flags.isActive(Flags::separator_after)) {
+    mMainWindowView->addSeparatorToToolbar(app_toolbar);
+  }
+}
+
+Project *ComponentsManager::project()
+{
+  return mProject;
 }
 
 ProjectModel *ComponentsManager::projectModel()
@@ -701,22 +772,22 @@ ExportPointCloudPresenter *ComponentsManager::exportPointCloudPresenter()
   return mExportPointCloudPresenter;
 }
 
-DtmModel *ComponentsManager::dtmModel()
-{
-  if (mDtmModel == nullptr) {
-    mDtmModel = new DtmModelImp(mProject);
-  }
-  return mDtmModel;
-}
+//DtmModel *ComponentsManager::dtmModel()
+//{
+//  if (mDtmModel == nullptr) {
+//    mDtmModel = new DtmModelImp(mProject);
+//  }
+//  return mDtmModel;
+//}
 
-DtmPresenter *ComponentsManager::dtmPresenter()
-{
-  if (mDtmPresenter == nullptr){
-    DtmView *view = new DtmViewImp(this->mainWindowView());
-    mDtmPresenter = new DtmPresenterImp(view, this->dtmModel(), this->settingsModel());
-  }
-  return mDtmPresenter;
-}
+//DtmPresenter *ComponentsManager::dtmPresenter()
+//{
+//  if (mDtmPresenter == nullptr){
+//    DtmView *view = new DtmViewImp(this->mainWindowView());
+//    mDtmPresenter = new DtmPresenterImp(view, this->dtmModel(), this->settingsModel());
+//  }
+//  return mDtmPresenter;
+//}
 
 HelpDialog *ComponentsManager::helpDialog()
 {
@@ -837,7 +908,7 @@ void ComponentsManager::initAndOpenLoadImagesDialog()
 
   TL_TODO("indicar que se están cargando imagenes")
   connect(this->imagesPresenter(), SIGNAL(running()),  this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->imagesPresenter(), SIGNAL(finished()), this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->imagesPresenter(), SIGNAL(finished()), this->mainWindowPresenter(), SLOT(processFinished()));
   connect(this->imagesPresenter(), SIGNAL(loadingImages(bool)), this->mainWindowPresenter(), SLOT(loadingImages(bool)));
   connect(this->imagesPresenter(), SIGNAL(imageLoaded(QString)), this->mainWindowPresenter(), SLOT(loadImage(QString)));
 
@@ -857,7 +928,7 @@ void ComponentsManager::initAndOpenFeatureExtractionDialog()
   connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(processRunning()));
   TL_TODO("Ahora se estan borrando al iniciar el comando...")
   //connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(deleteFeatures()));
-  connect(this->featureExtractorPresenter(), SIGNAL(finished()),                 this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->featureExtractorPresenter(), SIGNAL(finished()),                 this->mainWindowPresenter(), SLOT(processFinished()));
   connect(this->featureExtractorPresenter(), SIGNAL(featuresExtracted(QString)), this->mainWindowPresenter(), SLOT(loadFeatures(QString)));
 
   connect(this->progressDialog(), SIGNAL(cancel()),     this->featureExtractorPresenter(), SLOT(cancel()));
@@ -877,7 +948,7 @@ void ComponentsManager::initAndOpenFeatureMatchingDialog()
   connect(this->featureMatchingPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
   TL_TODO("Ahora se estan borrando al iniciar el comando...")
   //connect(this->featureMatchingPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(deleteMatches()));
-  connect(this->featureMatchingPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->featureMatchingPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
   connect(this->featureMatchingPresenter(), SIGNAL(matchingFinished()),  this->mainWindowPresenter(), SLOT(loadMatches()));
 
   connect(this->progressDialog(), SIGNAL(cancel()),     this->featureMatchingPresenter(), SLOT(cancel()));
@@ -895,7 +966,7 @@ void ComponentsManager::initAndOpenOrientationDialog()
           this->orientationPresenter(), &IPresenter::open);
 
   connect(this->orientationPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->orientationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->orientationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
   connect(this->orientationPresenter(), SIGNAL(orientationFinished()),  this->mainWindowPresenter(), SLOT(loadOrientation()));
 
   connect(this->progressDialog(), SIGNAL(cancel()),     this->orientationPresenter(), SLOT(cancel()));
@@ -913,7 +984,7 @@ void ComponentsManager::initAndOpenDensificationDialog()
           this->densificationPresenter(), &IPresenter::open);
 
   connect(this->densificationPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->densificationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->densificationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
   connect(this->densificationPresenter(), SIGNAL(densificationFinished()),  this->mainWindowPresenter(), SLOT(loadDenseModel()));
 
   connect(this->progressDialog(), SIGNAL(cancel()),     this->densificationPresenter(), SLOT(cancel()));
@@ -1079,7 +1150,7 @@ void ComponentsManager::initAndOpenGeoreferenceDialog()
           this->georeferencePresenter(), &GeoreferencePresenter::open);
 
   connect(this->georeferencePresenter(), SIGNAL(running()),               this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->georeferencePresenter(), SIGNAL(finished()),              this->mainWindowPresenter(), SLOT(processFinish()));
+  connect(this->georeferencePresenter(), SIGNAL(finished()),              this->mainWindowPresenter(), SLOT(processFinished()));
   connect(this->georeferencePresenter(), SIGNAL(georeferenceFinished()),  this->mainWindowPresenter(), SLOT(loadOrientation()));
 
   connect(this->progressDialog(), SIGNAL(cancel()),     this->georeferencePresenter(), SLOT(cancel()));
@@ -1113,24 +1184,24 @@ void ComponentsManager::initAndOpenExportPointCloudDialog()
   this->exportPointCloudPresenter()->open();
 }
 
-void ComponentsManager::initAndOpenDtmDialog()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
-             this, &ComponentsManager::initAndOpenDtmDialog);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
-          this->dtmPresenter(), &DtmPresenter::open);
-
-  connect(this->dtmPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->dtmPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinish()));
-  connect(this->dtmPresenter(), SIGNAL(matchingFinished()),  this->mainWindowPresenter(), SLOT(loadMatches()));
-
-  connect(this->progressDialog(), SIGNAL(cancel()),     this->dtmPresenter(), SLOT(cancel()));
-
-  this->dtmPresenter()->setProgressHandler(this->progressHandler());
-
-  this->dtmPresenter()->setHelp(this->helpDialog());
-  this->dtmPresenter()->open();
-}
+//void ComponentsManager::initAndOpenDtmDialog()
+//{
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
+//             this, &ComponentsManager::initAndOpenDtmDialog);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openDtmDialog,
+//          this->dtmPresenter(), &DtmPresenter::open);
+//
+//  connect(this->dtmPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
+//  connect(this->dtmPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
+//  connect(this->dtmPresenter(), SIGNAL(matchingFinished()),  this->mainWindowPresenter(), SLOT(loadMatches()));
+//
+//  connect(this->progressDialog(), SIGNAL(cancel()),     this->dtmPresenter(), SLOT(cancel()));
+//
+//  this->dtmPresenter()->setProgressHandler(this->progressHandler());
+//
+//  this->dtmPresenter()->setHelp(this->helpDialog());
+//  this->dtmPresenter()->open();
+//}
 
 //void ComponentsManager::initAndOpenMultiviewMatchingAssessmentDialog()
 //{

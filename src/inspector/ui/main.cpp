@@ -3,6 +3,8 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#include "inspector/ui/dtm/DTMComponent.h"
+
 #include <QApplication>
 
 using namespace inspector;
@@ -13,6 +15,11 @@ int main(int argc, char *argv[])
   QApplication a(argc, argv);
 
   ComponentsManager componentsManager;
+
+  DtmComponent dtm_component(componentsManager.project());
+  componentsManager.registerComponent(&dtm_component, 
+                                      ComponentsManager::Flags::separator_after | 
+                                      ComponentsManager::Flags::separator_before);
   componentsManager.mainWindowPresenter()->open();
 
   bool r = a.exec();

@@ -27,12 +27,12 @@ namespace ui
 {
 
 DtmPresenterImp::DtmPresenterImp(DtmView *view,
-                                 DtmModel *model,
-                                 SettingsModel *settingsModel)
+                                 DtmModel *model/*,
+                                 SettingsModel *settingsModel*/)
   : DtmPresenter(),
     mView(view),
     mModel(model),
-    mSettingsModel(settingsModel),
+    //mSettingsModel(settingsModel),
     mHelp(nullptr),
     mDtmInvDistWidget(new DtmInvDistWidgetImp),
     mDtmInvDistNNWidget(new DtmInvDistNNWidgetImp)

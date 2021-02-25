@@ -21,7 +21,7 @@ namespace ui
 
 class DtmView;
 class DtmModel;
-class SettingsModel;
+//class SettingsModel;
 class HelpDialog;
 
 
@@ -33,8 +33,8 @@ class DtmPresenterImp
 public:
 
   DtmPresenterImp(DtmView *view,
-                  DtmModel *model,
-                  SettingsModel *settingsModel);
+                  DtmModel *model/*,
+                  SettingsModel *settingsModel*/);
   ~DtmPresenterImp() override;
 
   void setDtmProperties();
@@ -76,7 +76,7 @@ protected:
 
   DtmView *mView;
   DtmModel *mModel;
-  SettingsModel *mSettingsModel;
+  //SettingsModel *mSettingsModel;
   HelpDialog *mHelp;
   DtmInvDistWidget *mDtmInvDistWidget;
   DtmInvDistNNWidget *mDtmInvDistNNWidget;

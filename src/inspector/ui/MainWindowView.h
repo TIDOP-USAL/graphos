@@ -36,6 +36,24 @@ class MainWindowView
 
 public:
 
+  enum class Menu
+  {
+    file,
+    view,
+    workflow,
+    tools,
+    help
+  };
+
+  enum class Toolbar
+  {
+    file,
+    view,
+    workflow,
+    model3d,
+    tools
+  };
+
   enum class Flag
   {
     project_exists        = (1 << 0),  // Existe un proyecto
@@ -56,6 +74,11 @@ public:
 
   explicit MainWindowView(QWidget *parent = nullptr);
   ~MainWindowView() override;
+
+  void addActionToMenu(QAction *action, Menu menu);
+  void addSeparatorToMenu(Menu menu);
+  void addActionToToolbar(QAction *action, Toolbar toolbar);
+  void addSeparatorToToolbar(Toolbar toolbar);
 
   void clear();
 
@@ -217,6 +240,9 @@ private:
   void initMenuHelp();
   void initProgressBar();
   void initSignalAndSlots();
+
+  QMenu *findMenu(Menu menu);
+  QToolBar *findToolbar(MainWindowView::Toolbar toolbar);
 
 private slots:
 
