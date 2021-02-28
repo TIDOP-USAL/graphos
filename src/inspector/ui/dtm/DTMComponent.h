@@ -1,7 +1,7 @@
 #ifndef INSPECTOR_DTM_COMPONENT_H
 #define INSPECTOR_DTM_COMPONENT_H
 
-#include "inspector/interfaces/Component.h"
+#include "inspector/ui/Component.h"
 
 
 namespace inspector
@@ -12,12 +12,10 @@ class Project;
 namespace ui
 {
 
-class DtmModel;
-class DtmView;
-class DtmPresenter;
+
 class DtmProcess;
 
-class DtmComponent
+class DTMComponent
   : public ProcessComponent
 {
 
@@ -25,31 +23,24 @@ class DtmComponent
 
 public:
 
-  DtmComponent(Project *project);
-  ~DtmComponent() override;
+  DTMComponent(Project *project);
+  ~DTMComponent();
 
-  QAction *openAction() const override;
-  QString menu() const override;
-  QString toolbar() const override;
+// ComponentBase
 
-private:
+protected:
 
-  void init();
-  void initAction();
-  void initComponent();
-  void initModel();
-  void initView();
-  void initPresenter();
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
 
-private:
+protected:
 
-  QAction *mAction;
-  DtmModel *mModel;
-  DtmView *mView;
-  DtmPresenter *mPresenter;
   DtmProcess *mProcess;
   Project *mProject;
+
 };
+
 
 } // namespace ui
 

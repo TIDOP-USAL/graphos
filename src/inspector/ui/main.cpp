@@ -16,10 +16,15 @@ int main(int argc, char *argv[])
 
   ComponentsManager componentsManager;
 
-  DtmComponent dtm_component(componentsManager.project());
+  /*DtmComponent dtm_component(componentsManager.project());
+  componentsManager.registerComponent(&dtm_component, 
+                                      ComponentsManager::Flags::separator_after | 
+                                      ComponentsManager::Flags::separator_before);*/
+  DTMComponent dtm_component(componentsManager.project());
   componentsManager.registerComponent(&dtm_component, 
                                       ComponentsManager::Flags::separator_after | 
                                       ComponentsManager::Flags::separator_before);
+
   componentsManager.mainWindowPresenter()->open();
 
   bool r = a.exec();

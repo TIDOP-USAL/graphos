@@ -1,6 +1,6 @@
 #include "ComponentsManager.h"
 
-#include "inspector/interfaces/Component.h"
+#include "inspector/ui/Component.h"
 #include "inspector/ui/MainWindowModel.h"
 #include "inspector/ui/MainWindowView.h"
 #include "inspector/ui/MainWindowPresenter.h"
@@ -392,10 +392,9 @@ void ComponentsManager::registerComponent(Component *component, Flags flags)
 
   if (component == nullptr) return;
 
-  QAction *action = component->openAction();
+  QAction *action = component->action();
 
   QString menu = component->menu();
-  ///TODO: Artificioso. Mejorar
   MainWindowView::Menu app_menu;
   if (menu.compare("file") == 0) {
     app_menu = MainWindowView::Menu::file;
@@ -427,6 +426,12 @@ void ComponentsManager::registerComponent(Component *component, Flags flags)
     connect(process_component,  SIGNAL(failed()), 
             this->mainWindowPresenter(), SLOT(processFailed()));
   }
+  
+  TL_TODO("Controlar la activación/desactivación de los componentes desde aqui mejor que desde MainWindowView");
+  std::map<QString, tl::EnumFlags<Component::Dependencies>> dependencies;
+  dependencies[component->name()] = component->dependencies();
+  TL_TODO("Controlar la visibilidad de los componentes")
+  TL_TODO("Componentes como Paneles, Dialogos, ... Se podrian generar las vistas como Widget y desde el presentador o desde aqui selecciónar como se va a visualizar")
 
   QString toolbar = component->toolbar();
   MainWindowView::Toolbar app_toolbar;

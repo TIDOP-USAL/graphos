@@ -14,104 +14,44 @@ namespace inspector
 namespace ui
 {
 
-DtmComponent::DtmComponent(Project *project)
+
+DTMComponent::DTMComponent(Project *project)
   : ProcessComponent(),
-    mAction(nullptr),
-    mModel(nullptr),
-    mView(nullptr),
-    mPresenter(nullptr),
     mProject(project)
 {
-  init();
+  this->setName("DTM/DSM");
+  this->setMenu("tools");
+  this->setDependencies(Component::Dependencies::dense_model | 
+                        Component::Dependencies::no_processing);
 }
 
-DtmComponent::~DtmComponent()
+DTMComponent::~DTMComponent()
 {
-  if (mAction) {
-    delete mAction;
-    mAction = nullptr;
-  }
-
-  if (mModel) {
-    delete mModel;
-    mModel = nullptr;
-  }
-
-  if (mPresenter) {
-    delete mPresenter;
-    mPresenter = nullptr;
-  }
-
 }
 
-QAction *DtmComponent::openAction() const
-{
-  return mAction;
-}
-
-QString DtmComponent::menu() const
-{
-  return "tools";
-}
-
-QString DtmComponent::toolbar() const
-{
-  return QString();
-}
-
-void DtmComponent::init()
-{
-  initAction();
-  connect(mAction, &QAction::triggered,
-          this, &DtmComponent::initComponent);
-}
-
-void DtmComponent::initAction()
-{
-  mAction = new QAction();
-  mAction->setText(tr("DTM/DSM"));
-  //QIcon iconOpenFile;
-  //iconOpenFile.addFile(QStringLiteral(":/ico/24px/icons/material/24px/icons8_opened_folder_24px_2.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mAction->setIcon(iconOpenFile);
-}
-
-void DtmComponent::initComponent()
-{
-  disconnect(mAction, &QAction::triggered,
-             this, &DtmComponent::initComponent);
-
-  this->initModel();
-  this->initView();
-  this->initPresenter();
-
-  connect(mAction, &QAction::triggered,
-          this, &DtmComponent::initComponent);
-
-  mPresenter->open();
-}
-
-void DtmComponent::initModel()
+void DTMComponent::createModel()
 {
   mModel = new DtmModelImp(mProject);
 }
 
-void DtmComponent::initView()
+void DTMComponent::createView()
 {
   mView = new DtmViewImp();
 }
 
-void DtmComponent::initPresenter()
+void DTMComponent::createPresenter()
 {
-  mPresenter = new DtmPresenterImp(mView, mModel);
+  mPresenter = new DtmPresenterImp(dynamic_cast<DtmView *>(mView), 
+                                   dynamic_cast<DtmModel *>(mModel));
 
-  connect(mPresenter, &ProcessPresenter::running,
+  connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::running,
           this, &ProcessComponent::running);
-  connect(mPresenter, &ProcessPresenter::finished,
+  connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::finished,
           this, &ProcessComponent::finished);
-  connect(mPresenter, &ProcessPresenter::failed,
+  connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::failed,
           this, &ProcessComponent::failed);
-
 }
+
 
 
 

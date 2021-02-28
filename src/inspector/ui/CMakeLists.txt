@@ -15,13 +15,14 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #--------------------------------------------------------------------------------------------#
-# Ejecutable inspector                                                                             #
+# Ejecutable inspector                                                                       #
 #--------------------------------------------------------------------------------------------#
 
 project(inspector_image)
 
 set(INSPECTOR_SOURCES
     main.cpp
+    Component.cpp
     ComponentsManager.cpp
     ProjectModel.cpp
     MainWindowModel.cpp
@@ -74,7 +75,7 @@ set(INSPECTOR_SOURCES
     import/cameras/impl/CameraPositionsView.cpp
     import/cameras/impl/CameraPositionsPresenter.cpp
     dtm/DTMComponent.cpp
-	dtm/impl/DTMModel.cpp
+    dtm/impl/DTMModel.cpp
     dtm/impl/DTMView.cpp
     dtm/impl/DTMPresenter.cpp
     # MultiViewModel.cpp
@@ -106,7 +107,7 @@ set(INSPECTOR_SOURCES
 
 set(INSPECTOR_HEADERS
     ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
-	${CMAKE_SOURCE_DIR}/src/inspector/interfaces/Component.h
+    Component.h
     ComponentsManager.h
     ComponentsManager.cpp
     ProjectModel.h
@@ -236,7 +237,9 @@ SET(INSPECTOR_TS_FILES
 
 qt5_add_translation(INSPECTOR_QM_FILES ${INSPECTOR_TS_FILES})
 
-QT5_ADD_RESOURCES(UI_INSPECTOR_RES ${INSPECTOR_RESOURCES} )
+QT5_ADD_RESOURCES(UI_INSPECTOR_RES 
+                  ${INSPECTOR_RESOURCES} 
+                  ${CMAKE_SOURCE_DIR}/res/icones.qrc)
 
 add_executable(${PROJECT_NAME}
 #add_executable(${PROJECT_NAME} WIN32
