@@ -1,6 +1,7 @@
 #include "Component.h"
 
 #include "inspector/interfaces/mvp.h"
+#include "inspector/ui/AppStatus.h"
 
 #include <QAction>
 
@@ -13,7 +14,8 @@ namespace ui
 ComponentBase::ComponentBase()
   : mAction(nullptr),
     mModel(nullptr),
-    mView(nullptr)
+    mView(nullptr),
+    mPresenter(nullptr)
 {
   this->init();
 }
@@ -41,6 +43,10 @@ void ComponentBase::init()
   this->createAction();
   connect(mAction, &QAction::triggered,
           this, &ComponentBase::createComponent);
+
+  AppStatus &app_status = AppStatus::instance();
+  connect(&app_status, &AppStatus::update,
+          this, &ComponentBase::update);
 }
 
 void ComponentBase::createComponent()
@@ -83,36 +89,11 @@ QString ComponentBase::toolbar() const
   return mToolbar;
 }
 
-tl::EnumFlags<Component::Dependencies> ComponentBase::dependencies() const
-{
-  return mDependencies;
-}
-
-//IModel *ComponentBase::model()
-//{
-//  return mModel;
-//}
-//
-//IDialogView *ComponentBase::view()
-//{
-//  return mView;
-//}
-
-//IPresenter *ComponentBase::presenter()
-//{
-//  return mPresenter;
-//}
-
 void ComponentBase::setName(const QString &name)
 {
   mName = name;
   mAction->setText(name);
 }
-
-//void ComponentBase::setAction(QAction *action)
-//{
-//  mAction = action;
-//}
 
 void ComponentBase::setMenu(const QString &menu)
 {
@@ -122,11 +103,6 @@ void ComponentBase::setMenu(const QString &menu)
 void ComponentBase::setToolbar(const QString &toolbar)
 {
   mToolbar = toolbar;
-}
-
-void ComponentBase::setDependencies(const tl::EnumFlags<Dependencies> &dependencies)
-{
-  mDependencies = dependencies;
 }
 
 

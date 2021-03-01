@@ -386,7 +386,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
   return mMainWindowPresenter;
 }
 
-void ComponentsManager::registerComponent(Component *component, Flags flags)
+void ComponentsManager::registerComponent(Component *component, 
+                                          Flags flags)
 {
   tl::EnumFlags<Flags> register_flags(flags);
 
@@ -427,12 +428,6 @@ void ComponentsManager::registerComponent(Component *component, Flags flags)
             this->mainWindowPresenter(), SLOT(processFailed()));
   }
   
-  TL_TODO("Controlar la activación/desactivación de los componentes desde aqui mejor que desde MainWindowView");
-  std::map<QString, tl::EnumFlags<Component::Dependencies>> dependencies;
-  dependencies[component->name()] = component->dependencies();
-  TL_TODO("Controlar la visibilidad de los componentes")
-  TL_TODO("Componentes como Paneles, Dialogos, ... Se podrian generar las vistas como Widget y desde el presentador o desde aqui selecciónar como se va a visualizar")
-
   QString toolbar = component->toolbar();
   MainWindowView::Toolbar app_toolbar;
   if (toolbar.compare("file") == 0) {

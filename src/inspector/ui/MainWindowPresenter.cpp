@@ -15,6 +15,7 @@
 #include "inspector/ui/FeaturesModel.h"
 #include "inspector/ui/MatchesModel.h"
 #include "inspector/ui/orientation/OrientationModel.h"
+#include "inspector/ui/AppStatus.h"
 #include "inspector/core/utils.h"
 
 /* TidopLib */
@@ -466,6 +467,8 @@ void MainWindowPresenter::loadProject()
 
   mView->setProjectTitle(mProjectModel->projectName());
   mView->setFlag(MainWindowView::Flag::project_exists, true);
+  ///TODO: Borrar lo anterior cuando termine de refactorizar todos los componentes
+  AppStatus::instance().activeFlag(AppStatus::Flag::project_exists, true);
 
   QString prjFile = mProjectModel->projectPath();
 
@@ -530,9 +533,14 @@ void MainWindowPresenter::loadOrientation()
   QString sparse_model = mProjectModel->sparseModel();
   if (!sparse_model.isEmpty()){
     mView->setSparseModel(mProjectModel->sparseModel());
+    TL_TODO("Por ahora lo añado aqui aunque hay que revisarlo")
+    AppStatus &app_status = AppStatus::instance();
     mView->setFlag(MainWindowView::Flag::oriented, true);
-    if (mProjectModel->isAbsoluteOriented())
+    app_status.activeFlag(AppStatus::Flag::oriented, true);
+    if (mProjectModel->isAbsoluteOriented()) {
       mView->setFlag(MainWindowView::Flag::absolute_oriented, true);
+      app_status.activeFlag(AppStatus::Flag::absolute_oriented, true);
+    }
   }
 }
 
@@ -540,9 +548,13 @@ void MainWindowPresenter::loadDenseModel()
 {
   QString dense_model = mProjectModel->denseModel();
   if (!dense_model.isEmpty()) {
+
     mView->setDenseModel(mProjectModel->denseModel());
     mView->setFlag(MainWindowView::Flag::dense_model, true);
-    QByteArray ba = mProjectModel->denseModel().toLocal8Bit();
+    TL_TODO("Por ahora lo añado aqui aunque hay que revisarlo")
+    AppStatus &app_status = AppStatus::instance();
+    app_status.activeFlag(AppStatus::Flag::dense_model, true);
+    //QByteArray ba = mProjectModel->denseModel().toLocal8Bit();
   }
 }
 

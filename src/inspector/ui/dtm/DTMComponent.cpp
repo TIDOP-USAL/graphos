@@ -4,6 +4,7 @@
 #include "inspector/ui/dtm/impl/DTMView.h"
 #include "inspector/ui/dtm/impl/DTMPresenter.h"
 #include "inspector/core/project.h"
+#include "inspector/ui/AppStatus.h"
 
 #include <QAction>
 #include <QString>
@@ -21,8 +22,6 @@ DTMComponent::DTMComponent(Project *project)
 {
   this->setName("DTM/DSM");
   this->setMenu("tools");
-  this->setDependencies(Component::Dependencies::dense_model | 
-                        Component::Dependencies::no_processing);
 }
 
 DTMComponent::~DTMComponent()
@@ -50,6 +49,15 @@ void DTMComponent::createPresenter()
           this, &ProcessComponent::finished);
   connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::failed,
           this, &ProcessComponent::failed);
+}
+
+void DTMComponent::update()
+{
+  AppStatus &app_status = AppStatus::instance();
+  bool bProjectExists = app_status.isActive(AppStatus::Flag::project_exists);
+  bool bProcessing = app_status.isActive(AppStatus::Flag::processing);
+  bool bAbsoluteOriented = app_status.isActive(AppStatus::Flag::absolute_oriented);
+  mAction->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
 }
 
 

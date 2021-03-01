@@ -4,6 +4,7 @@
 #include "ComponentsManager.h"
 
 #include "inspector/ui/dtm/DTMComponent.h"
+#include "inspector/ui/AppStatus.h"
 
 #include <QApplication>
 
@@ -24,6 +25,9 @@ int main(int argc, char *argv[])
   componentsManager.registerComponent(&dtm_component, 
                                       ComponentsManager::Flags::separator_after | 
                                       ComponentsManager::Flags::separator_before);
+
+  AppStatus &app_status = AppStatus::instance();
+  app_status.activeFlag(AppStatus::Flag::none, true);
 
   componentsManager.mainWindowPresenter()->open();
 

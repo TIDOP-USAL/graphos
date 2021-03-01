@@ -36,6 +36,10 @@ protected:
 
 protected:
 
+  void update() override;
+
+protected:
+
   DtmProcess *mProcess;
   Project *mProject;
 

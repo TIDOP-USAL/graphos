@@ -22,6 +22,7 @@ project(inspector_image)
 
 set(INSPECTOR_SOURCES
     main.cpp
+    AppStatus.cpp
     Component.cpp
     ComponentsManager.cpp
     ProjectModel.cpp
@@ -107,6 +108,7 @@ set(INSPECTOR_SOURCES
 
 set(INSPECTOR_HEADERS
     ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
+    AppStatus.h
     Component.h
     ComponentsManager.h
     ComponentsManager.cpp
