@@ -523,6 +523,8 @@ void MainWindowPresenter::loadMatches()
     for (auto &imageRight : pairs){
       mView->addMatches(imageLeft, imageRight);
       mView->setFlag(MainWindowView::Flag::feature_matching, true);
+      //TODO: Remplaza a lo anterior que hay que quitar
+      AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
     }
   }
 }

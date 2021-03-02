@@ -58,9 +58,10 @@ set(INSPECTOR_SOURCES
     featviewer/FeaturesViewerView.cpp
     featviewer/FeaturesViewerModel.cpp
     featviewer/FeaturesViewerPresenter.cpp
-    matchviewer/MatchViewerModel.cpp
-    matchviewer/MatchViewerView.cpp
-    matchviewer/MatchViewerPresenter.cpp
+    matchviewer/MatchViewerComponent.cpp
+    matchviewer/impl/MatchViewerModel.cpp
+    matchviewer/impl/MatchViewerView.cpp
+    matchviewer/impl/MatchViewerPresenter.cpp
     export/orientations/ExportOrientationsModel.cpp
     export/orientations/ExportOrientationsView.cpp
     export/orientations/ExportOrientationsPresenter.cpp
@@ -111,7 +112,6 @@ set(INSPECTOR_HEADERS
     AppStatus.h
     Component.h
     ComponentsManager.h
-    ComponentsManager.cpp
     ProjectModel.h
     MainWindowModel.h
     MainWindowPresenter.h
@@ -154,10 +154,13 @@ set(INSPECTOR_HEADERS
     featviewer/FeaturesViewerView.h
     featviewer/FeaturesViewerModel.h
     featviewer/FeaturesViewerPresenter.h
-    matchviewer/MatchViewer.h
+    matchviewer/MatchViewerComponent.h
     matchviewer/MatchViewerModel.h
     matchviewer/MatchViewerView.h
     matchviewer/MatchViewerPresenter.h
+    matchviewer/impl/MatchViewerModel.h
+    matchviewer/impl/MatchViewerView.h
+    matchviewer/impl/MatchViewerPresenter.h
     export/orientations/ExportOrientations.h
     export/orientations/ExportOrientationsModel.h
     export/orientations/ExportOrientationsView.h
@@ -255,6 +258,18 @@ add_executable(${PROJECT_NAME}
 source_group("Form Files"  FILES ${INSPECTOR_FORMS})
 source_group("Resource Files"  FILES ${INSPECTOR_RESOURCES})
 #source_group("Translation Files"  FILES ${INSPECTOR_TS_FILES})
+
+foreach(_source IN ITEMS ${INSPECTOR_SOURCES} ${INSPECTOR_HEADERS})
+    get_filename_component(_source_path "${_source}" PATH)
+    string(REPLACE "/" "\\" _group_path "${_source_path}")
+    source_group("Source Files\\${_group_path}" FILES "${_source}")
+endforeach()
+
+foreach(_source IN ITEMS ${INSPECTOR_HEADERS})
+    get_filename_component(_source_path "${_source}" PATH)
+    string(REPLACE "/" "\\" _group_path "${_source_path}")
+    source_group("Header Files\\${_group_path}" FILES "${_source}")
+endforeach()
 
 # Lincado de librerias
 target_link_libraries(${PROJECT_NAME}

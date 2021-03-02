@@ -32,9 +32,9 @@
 #include "inspector/ui/featviewer/FeaturesViewerModel.h"
 #include "inspector/ui/featviewer/FeaturesViewerView.h"
 #include "inspector/ui/featviewer/FeaturesViewerPresenter.h"
-#include "inspector/ui/matchviewer/MatchViewerModel.h"
-#include "inspector/ui/matchviewer/MatchViewerView.h"
-#include "inspector/ui/matchviewer/MatchViewerPresenter.h"
+//#include "inspector/ui/matchviewer/MatchViewerModel.h"
+//#include "inspector/ui/matchviewer/MatchViewerView.h"
+//#include "inspector/ui/matchviewer/MatchViewerPresenter.h"
 #include "inspector/ui/export/orientations/ExportOrientationsModel.h"
 #include "inspector/ui/export/orientations/ExportOrientationsView.h"
 #include "inspector/ui/export/orientations/ExportOrientationsPresenter.h"
@@ -95,8 +95,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mDensificationPresenter(nullptr),
     mFeaturesViewerModel(nullptr),
     mFeaturesViewerPresenter(nullptr),
-    mMatchesViewerModel(nullptr),
-    mMatchesViewerPresenter(nullptr),
+    //mMatchesViewerModel(nullptr),
+    //mMatchesViewerPresenter(nullptr),
     mExportOrientationsModel(nullptr),
     mExportOrientationsPresenter(nullptr),
     mGeoreferenceModel(nullptr),
@@ -236,15 +236,15 @@ ComponentsManager::~ComponentsManager()
     mFeaturesViewerPresenter = nullptr;
   }
 
-  if (mMatchesViewerModel){
-    delete mMatchesViewerModel;
-    mMatchesViewerModel = nullptr;
-  }
+  //if (mMatchesViewerModel){
+  //  delete mMatchesViewerModel;
+  //  mMatchesViewerModel = nullptr;
+  //}
 
-  if (mMatchesViewerPresenter){
-    delete mMatchesViewerPresenter;
-    mMatchesViewerPresenter = nullptr;
-  }
+  //if (mMatchesViewerPresenter){
+  //  delete mMatchesViewerPresenter;
+  //  mMatchesViewerPresenter = nullptr;
+  //}
 
   if (mExportOrientationsModel) {
     delete mExportOrientationsModel;
@@ -354,10 +354,10 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenKeypointsViewerDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openKeypointsViewerDialogFromImage,
             this, &ComponentsManager::initAndOpenKeypointsViewerDialogFromImage);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openMatchesViewerDialog,
-            this, &ComponentsManager::initAndOpenMatchesViewerDialog);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openMatchesViewerDialogFromImages,
-            this, &ComponentsManager::initAndOpenMatchesViewerDialogFromImages);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openMatchesViewerDialog,
+    //        this, &ComponentsManager::initAndOpenMatchesViewerDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openMatchesViewerDialogFromImages,
+    //        this, &ComponentsManager::initAndOpenMatchesViewerDialogFromImages);
 
 //    connect(mMainWindowPresenter, SIGNAL(openExportFeaturesDialog()),    this, SLOT(initAndOpenExportFeaturesDialog()));
 //    connect(mMainWindowPresenter, SIGNAL(openExportMatchesDialog()),     this, SLOT(initAndOpenExportMatchesDialog()));
@@ -678,25 +678,25 @@ FeaturesViewerPresenter *ComponentsManager::featuresViewerPresenter()
   return mFeaturesViewerPresenter;
 }
 
-MatchViewerModel *ComponentsManager::matchesViewerModel()
-{
-  if (mMatchesViewerModel == nullptr) {
-    mMatchesViewerModel = new MatchViewerModelImp(mProject);
-  }
-  return mMatchesViewerModel;
-}
-
-MatchViewerPresenter *ComponentsManager::matchesViewerPresenter()
-{
-  if (mMatchesViewerPresenter == nullptr) {
-    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-    MatchViewerView *matchViewerView = new MatchViewerViewImp(this->mainWindowView(), f);
-    mMatchesViewerPresenter = new MatchViewerPresenterImp(matchViewerView,
-                                                          this->matchesViewerModel(),
-                                                          this->settingsModel());
-  }
-  return mMatchesViewerPresenter;
-}
+//MatchViewerModel *ComponentsManager::matchesViewerModel()
+//{
+//  if (mMatchesViewerModel == nullptr) {
+//    mMatchesViewerModel = new MatchViewerModelImp(mProject);
+//  }
+//  return mMatchesViewerModel;
+//}
+//
+//MatchViewerPresenter *ComponentsManager::matchesViewerPresenter()
+//{
+//  if (mMatchesViewerPresenter == nullptr) {
+//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+//    MatchViewerView *matchViewerView = new MatchViewerViewImp(this->mainWindowView(), f);
+//    mMatchesViewerPresenter = new MatchViewerPresenterImp(matchViewerView,
+//                                                          this->matchesViewerModel(),
+//                                                          this->settingsModel());
+//  }
+//  return mMatchesViewerPresenter;
+//}
 
 ExportOrientationsModel *ComponentsManager::exportOrientationsModel()
 {
@@ -1083,33 +1083,33 @@ void ComponentsManager::initKeypointsViewer()
   //this->featuresViewerPresenter()->setHelp(this->helpDialog());
 }
 
-void ComponentsManager::initAndOpenMatchesViewerDialog()
-{
-  this->initMatchesViewer();
-  this->matchesViewerPresenter()->open();
-}
+//void ComponentsManager::initAndOpenMatchesViewerDialog()
+//{
+//  this->initMatchesViewer();
+//  this->matchesViewerPresenter()->open();
+//}
+//
+//void ComponentsManager::initAndOpenMatchesViewerDialogFromImages(const QString &leftImage,
+//                                                                 const QString &rightImage)
+//{
+//  this->initMatchesViewer();
+//  this->matchesViewerPresenter()->openFromImages(leftImage, rightImage);
+//}
 
-void ComponentsManager::initAndOpenMatchesViewerDialogFromImages(const QString &leftImage,
-                                                                 const QString &rightImage)
-{
-  this->initMatchesViewer();
-  this->matchesViewerPresenter()->openFromImages(leftImage, rightImage);
-}
-
-void ComponentsManager::initMatchesViewer()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openMatchesViewerDialog,
-             this, &ComponentsManager::initAndOpenMatchesViewerDialog);
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openMatchesViewerDialogFromImages,
-             this, &ComponentsManager::initAndOpenMatchesViewerDialogFromImages);
-
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openMatchesViewerDialog,
-          this->matchesViewerPresenter(), &MatchViewerPresenter::open);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openMatchesViewerDialogFromImages,
-          this->matchesViewerPresenter(), &MatchViewerPresenter::openFromImages);
-
-  this->matchesViewerPresenter()->setHelp(this->helpDialog());
-}
+//void ComponentsManager::initMatchesViewer()
+//{
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openMatchesViewerDialog,
+//             this, &ComponentsManager::initAndOpenMatchesViewerDialog);
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openMatchesViewerDialogFromImages,
+//             this, &ComponentsManager::initAndOpenMatchesViewerDialogFromImages);
+//
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openMatchesViewerDialog,
+//          this->matchesViewerPresenter(), &MatchViewerPresenter::open);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openMatchesViewerDialogFromImages,
+//          this->matchesViewerPresenter(), &MatchViewerPresenter::openFromImages);
+//
+//  this->matchesViewerPresenter()->setHelp(this->helpDialog());
+//}
 
 void ComponentsManager::initSettingsDialog()
 {

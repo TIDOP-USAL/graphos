@@ -4,6 +4,7 @@
 #include "ComponentsManager.h"
 
 #include "inspector/ui/dtm/DTMComponent.h"
+#include "inspector/ui/matchviewer/MatchViewerComponent.h"
 #include "inspector/ui/AppStatus.h"
 
 #include <QApplication>
@@ -23,6 +24,10 @@ int main(int argc, char *argv[])
                                       ComponentsManager::Flags::separator_before);*/
   DTMComponent dtm_component(componentsManager.project());
   componentsManager.registerComponent(&dtm_component, 
+                                      ComponentsManager::Flags::separator_after | 
+                                      ComponentsManager::Flags::separator_before);
+  MatchViewerComponent match_viewer_component(componentsManager.project());
+  componentsManager.registerComponent(&match_viewer_component, 
                                       ComponentsManager::Flags::separator_after | 
                                       ComponentsManager::Flags::separator_before);
 

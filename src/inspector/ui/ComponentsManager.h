@@ -41,8 +41,8 @@ class ProgressHandler;
 class ProgressDialog;
 class FeaturesViewerModel;
 class FeaturesViewerPresenter;
-class MatchViewerModel;
-class MatchViewerPresenter;
+//class MatchViewerModel;
+//class MatchViewerPresenter;
 class ExportOrientationsModel;
 class ExportOrientationsPresenter;
 class GeoreferenceModel;
@@ -105,8 +105,8 @@ public:
   DensificationPresenter *densificationPresenter();
   FeaturesViewerModel *featuresViewerModel();
   FeaturesViewerPresenter *featuresViewerPresenter();
-  MatchViewerModel *matchesViewerModel();
-  MatchViewerPresenter *matchesViewerPresenter();
+  //MatchViewerModel *matchesViewerModel();
+  //MatchViewerPresenter *matchesViewerPresenter();
   ExportOrientationsModel *exportOrientationsModel();
   ExportOrientationsPresenter *exportOrientationsPresenter();
   GeoreferenceModel *georeferenceModel();
@@ -140,9 +140,9 @@ protected slots:
   void initAndOpenCamerasDialog();
   void initAndOpenKeypointsViewerDialog();
   void initAndOpenKeypointsViewerDialogFromImage(const QString &image);
-  void initAndOpenMatchesViewerDialog();
-  void initAndOpenMatchesViewerDialogFromImages(const QString &leftImage,
-                                                const QString &rightImage);
+  //void initAndOpenMatchesViewerDialog();
+  //void initAndOpenMatchesViewerDialogFromImages(const QString &leftImage,
+  //                                              const QString &rightImage);
   void initSettingsDialog();
   void initAndOpenExportOrientationsDialog();
   void initAndOpenGeoreferenceDialog();
@@ -184,8 +184,8 @@ protected:
   DensificationPresenter *mDensificationPresenter;
   FeaturesViewerModel *mFeaturesViewerModel;
   FeaturesViewerPresenter *mFeaturesViewerPresenter;
-  MatchViewerModel *mMatchesViewerModel;
-  MatchViewerPresenter *mMatchesViewerPresenter;
+  //MatchViewerModel *mMatchesViewerModel;
+  //MatchViewerPresenter *mMatchesViewerPresenter;
   ExportOrientationsModel *mExportOrientationsModel;
   ExportOrientationsPresenter *mExportOrientationsPresenter;
   GeoreferenceModel *mGeoreferenceModel;

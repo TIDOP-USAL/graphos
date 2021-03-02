@@ -1,8 +1,8 @@
 #include "MatchViewerPresenter.h"
 
-#include "inspector/ui/matchviewer/MatchViewerModel.h"
-#include "inspector/ui/matchviewer/MatchViewerView.h"
-#include "inspector/ui/SettingsModel.h"
+#include "inspector/ui/matchviewer/impl/MatchViewerModel.h"
+#include "inspector/ui/matchviewer/impl/MatchViewerView.h"
+//#include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/HelpDialog.h"
 
 #include <QStandardPaths>
@@ -15,12 +15,12 @@ namespace ui
 {
 
 MatchViewerPresenterImp::MatchViewerPresenterImp(MatchViewerView *view,
-                                                 MatchViewerModel *model,
-                                                 SettingsModel *settings)
+                                                 MatchViewerModel *model/*,
+                                                 SettingsModel *settings*/)
   : MatchViewerPresenter(),
     mView(view),
     mModel(model),
-    mSettingsModel(settings),
+    //mSettingsModel(settings),
     mHelp(nullptr)
 {
   this->init();
@@ -32,7 +32,8 @@ MatchViewerPresenterImp::~MatchViewerPresenterImp()
 
 }
 
-void MatchViewerPresenterImp::openFromImages(const QString &imageLeft, const QString &imageRight)
+void MatchViewerPresenterImp::openFromImages(const QString &imageLeft, 
+                                             const QString &imageRight)
 {
   this->open();
   this->setLeftImage(imageLeft);
@@ -79,17 +80,17 @@ void MatchViewerPresenterImp::open()
 {
   mView->clear();
 
-  mView->setBGColor(mSettingsModel->matchesViewerBGColor());
-  mView->setSelectedMarkerStyle(mSettingsModel->matchesViewerSelectMarkerColor(),
-                                mSettingsModel->matchesViewerSelectMarkerWidth());
-  mView->setMarkerStyle(mSettingsModel->matchesViewerMarkerColor(),
-                        mSettingsModel->matchesViewerMarkerWidth(),
-                        mSettingsModel->matchesViewerMarkerType(),
-                        mSettingsModel->matchesViewerMarkerSize());
-  mView->setLineStyle(mSettingsModel->matchesViewerLineColor(),
-                      mSettingsModel->matchesViewerLineWidth());
+  mView->setBGColor(mModel->viewerBGColor());
+  mView->setSelectedMarkerStyle(mModel->viewerSelectMarkerColor(),
+                                mModel->viewerSelectMarkerWidth());
+  mView->setMarkerStyle(mModel->viewerMarkerColor(),
+                        mModel->viewerMarkerWidth(),
+                        mModel->viewerMarkerType(),
+                        mModel->viewerMarkerSize());
+  mView->setLineStyle(mModel->viewerLineColor(),
+                      mModel->viewerLineWidth());
 
-  /// Se carga el fichero de puntos de paso.
+/// Se carga el fichero de puntos de paso.
 //  mModel->loadPassPoints();
 
   mView->show();

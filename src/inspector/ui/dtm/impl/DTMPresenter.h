@@ -21,7 +21,6 @@ namespace ui
 
 class DtmView;
 class DtmModel;
-//class SettingsModel;
 class HelpDialog;
 
 

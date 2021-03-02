@@ -1,113 +1,69 @@
-#ifndef INSPECTOR_MATCH_VIEWER_VIEW_H
-#define INSPECTOR_MATCH_VIEWER_VIEW_H
+#ifndef INSPECTOR_MATCH_VIEWER_VIEW_INTERFACE_H
+#define INSPECTOR_MATCH_VIEWER_VIEW_INTERFACE_H
 
-#include "inspector/ui/matchviewer/MatchViewer.h"
+#include "inspector/interfaces/mvp.h"
 
-class QDialogButtonBox;
-class QTreeWidget;
-class QComboBox;
-class QTreeWidgetItem;
-class QLabel;
 
 namespace inspector
 {
 
-class GraphicViewer;
-
 namespace ui
 {
 
-class MatchViewerViewImp
-  : public MatchViewerView
+class MatchViewerView
+  : public IDialogView
 {
-
   Q_OBJECT
 
 public:
 
-  MatchViewerViewImp(QWidget *parent = nullptr,
-                     Qt::WindowFlags f = Qt::WindowFlags());
-  ~MatchViewerViewImp() override;
+  explicit MatchViewerView(QWidget *parent = nullptr,
+                            Qt::WindowFlags f = Qt::WindowFlags())
+    : IDialogView(parent, f) {}
+  virtual ~MatchViewerView() = default;
 
-protected slots :
+  /*!
+   * \brief Set the left image
+   * \param[in] leftImage Left image
+   */
+  virtual void setLeftImage(const QString &leftImage) = 0;
 
-  void onComboBoxLeftImageIndexChanged(int idx);
-  void onComboBoxRightImageIndexChanged(int idx);
-  void onTreeWidgetMatchesItemClicked(QTreeWidgetItem *item, int col);
-  void onTreeWidgetMatchesItemSelectionChanged();
-  void onGraphicsViewLeftSelectionChanged();
-  void onGraphicsViewRightSelectionChanged();
-//  void onPushButtonDeleteMatchClicked();
+  /*!
+   * \brief Set the right image
+   * \param[in] rightImage Right image
+   */
+  virtual void setRightImage(const QString &rightImage) = 0;
 
-// IMatchViewerView interface
+  /*!
+   * \brief Set the list of images for image selector left
+   * \param[in] leftImageList List of left images
+   */
+  virtual void setLeftImageList(const std::vector<QString> &leftImageList) = 0;
 
-public:
+  /*!
+   * \brief Set the list of images for image selector right
+   * \param[in] rightImageList List of right images
+   */
+  virtual void setRightImageList(const std::vector<QString> &rightImageList) = 0;
 
-  void setLeftImage(const QString &leftImage) override;
-  void setRightImage(const QString &rightImage) override;
-  void setLeftImageList(const std::vector<QString> &leftImageList) override;
-  void setRightImageList(const std::vector<QString> &rightImageList) override;
-  void setMatches(const std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> &matches) override;
-  void setBGColor(const QString &bgColor) override;
-  void setSelectedMarkerStyle(const QString &color, int width) override;
-  void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) override;
-  void setLineStyle(const QString &color, int width) override;
+  virtual void setMatches(const std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> &matches) = 0;
 
-// IDialogView interface
+  virtual void setBGColor(const QString &bgColor) = 0;
+  virtual void setSelectedMarkerStyle(const QString &color, int width) = 0;
+  virtual void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) = 0;
+  virtual void setLineStyle(const QString &color, int width) = 0;
 
-private:
+signals:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
-
-public slots:
-
-  void clear() override;
-
-private slots:
-
-  void update() override;
-  void retranslate() override;
-
-// QWidget interface
-
-protected:
-
-  void closeEvent(QCloseEvent *event) override;
-
-protected:
-
-  QDialogButtonBox *mButtonBox;
-  QTreeWidget *mTreeWidgetMatches;
-  QLabel *mLabelLeftImage;
-  QLabel *mRightImage;
-  QComboBox  *mComboBoxLeftImage;
-  QComboBox  *mComboBoxRightImage;
-  GraphicViewer *mGraphicsViewRight;
-  GraphicViewer *mGraphicsViewLeft;
-  QLabel *mLabelMatches;
-  QPushButton *mPushButtonDeleteMatch;
-  QAction *mActionLeftZoomIn;
-  QAction *mActionLeftZoomOut;
-  QAction *mActionLeftZoomExtend;
-  QAction *mActionLeftZoom11;
-  QAction *mActionRightZoomIn;
-  QAction *mActionRightZoomOut;
-  QAction *mActionRightZoomExtend;
-  QAction *mActionRightZoom11;
-  bool bUnsavedChanges;
-  QString mMarkerColor;
-  int mMarkerSize;
-  int mMarkerWidth;
-  int mMarkerType;
-  QString mLineColor;
-  int mLineWidth;
-  QString mSelectedMarkerColor;
-  int mSelectedMarkerWidth;
+  void leftImageChange(QString);
+  void rightImageChange(QString);
+  void loadMatches(QString, QString);
+//  void deleteMatch(QString, QString, int, int);
 };
 
 } // namespace ui
 
 } // namespace inspector
 
-#endif // INSPECTOR_MATCH_VIEWER_VIEW_H
+
+#endif // INSPECTOR_MATCH_VIEWER_VIEW_INTERFACE_H

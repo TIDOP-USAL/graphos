@@ -1,10 +1,9 @@
-#ifndef INSPECTOR_MATCH_VIEWER_MODEL_H
-#define INSPECTOR_MATCH_VIEWER_MODEL_H
+#ifndef INSPECTOR_MATCH_VIEWER_MODEL_INTERFACE_H
+#define INSPECTOR_MATCH_VIEWER_MODEL_INTERFACE_H
 
 #include <memory>
 
-#include "inspector/ui/matchviewer/MatchViewer.h"
-#include "inspector/core/project.h"
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
@@ -13,46 +12,34 @@ namespace ui
 {
 
 
-class MatchViewerModelImp
-  : public MatchViewerModel
+class MatchViewerModel
+  : public IModel
 {
 
   Q_OBJECT
 
 public:
 
-  MatchViewerModelImp(Project *project,
-                      QObject *parent = nullptr);
-  ~MatchViewerModelImp() override;
+  MatchViewerModel(QObject *parent = nullptr) : IModel(parent) {}
+  virtual ~MatchViewerModel() = default;
 
-// IMatchViewerModel interface
+  virtual QString viewerBGColor() const = 0;
+  virtual int viewerMarkerType() const = 0;
+  virtual int viewerMarkerSize() const = 0;
+  virtual int viewerMarkerWidth() const = 0;
+  virtual QString viewerMarkerColor() const = 0;
+  virtual int viewerSelectMarkerWidth() const = 0;
+  virtual QString viewerSelectMarkerColor() const = 0;
+  virtual QString viewerLineColor() const = 0;
+  virtual int viewerLineWidth() const = 0;
 
-public:
-
-  std::vector<QString> images() const override;
-  std::vector<QString> imagePairs(const QString &imageName) const override;
-  std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(const QString &imgName1,
-                                                                                const QString &imgName2) const override;
-  void deleteMatch(const QString &imgName1,
-                   const QString &imgName2,
-                   int query_id,
-                   int train_id) override;
-  //void loadPassPoints() override;
-
-// IModel interface
-
-private:
-
-  void init() override;
+  virtual std::vector<QString> images() const = 0;
+  virtual std::vector<QString> imagePairs(const QString &imageName) const = 0;
+  virtual std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(const QString &imgName1, const QString &imgName2) const = 0;
+  virtual void deleteMatch(const QString &imgName1, const QString &imgName2, int query_id, int train_id) = 0;
+  //virtual void loadPassPoints() = 0;
 
 public slots:
-
-  void clear() override;
-
-protected:
-
-  Project *mProject;
-  //std::vector<std::vector<std::pair<QString,int>>> mPassPoints;
 
 };
 
@@ -60,4 +47,4 @@ protected:
 
 } // namespace inspector
 
-#endif // INSPECTOR_MATCH_VIEWER_MODEL_H
+#endif // INSPECTOR_MATCH_VIEWER_MODEL_INTERFACE_H

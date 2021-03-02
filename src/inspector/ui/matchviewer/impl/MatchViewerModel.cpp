@@ -1,11 +1,12 @@
 #include "MatchViewerModel.h"
 
-#include "inspector/ui/ProjectModel.h"
+#include "inspector/core/project.h"
 
 #include <colmap/base/database.h>
 
 #include <QImageReader>
 #include <QFileInfo>
+#include <QSettings>
 
 namespace inspector
 {
@@ -16,14 +17,66 @@ namespace ui
 MatchViewerModelImp::MatchViewerModelImp(Project *project,
                                          QObject *parent)
   : MatchViewerModel(parent),
-    mProject(project)
+    mProject(project),
+    mSettings(new QSettings(QSettings::IniFormat, 
+                            QSettings::UserScope, 
+                            "TIDOP", 
+                            "Inspector"))
 {
   this->init();
 }
 
 MatchViewerModelImp::~MatchViewerModelImp()
 {
+  if (mSettings){
+    delete mSettings;
+    mSettings = nullptr;
+  }
+}
 
+QString MatchViewerModelImp::viewerBGColor() const
+{
+  return mSettings->value("MatchesViewer/BGColor", "#dcdcdc").toString();
+}
+
+int MatchViewerModelImp::viewerMarkerType() const
+{
+  return mSettings->value("MatchesViewer/MarkerType", 0).toInt();
+}
+
+int MatchViewerModelImp::viewerMarkerSize() const
+{
+  return mSettings->value("MatchesViewer/MarkerSize", 20).toInt();
+}
+
+int MatchViewerModelImp::viewerMarkerWidth() const
+{
+  return mSettings->value("MatchesViewer/MarkerWidth", 2).toInt();
+}
+
+QString MatchViewerModelImp::viewerMarkerColor() const
+{
+  return mSettings->value("MatchesViewer/MarkerColor", "#00aa00").toString();
+}
+
+int MatchViewerModelImp::viewerSelectMarkerWidth() const
+{
+  return mSettings->value("MatchesViewer/SelectMarkerWidth", 2).toInt();
+}
+
+QString MatchViewerModelImp::viewerSelectMarkerColor() const
+{
+  return mSettings->value("MatchesViewer/SelectMarkerColor", "#e5097e").toString();
+}
+
+QString MatchViewerModelImp::viewerLineColor() const
+{
+  return mSettings->value("MatchesViewer/LineColor", "#0000ff").toString();
+}
+
+int MatchViewerModelImp::viewerLineWidth() const
+{
+  return mSettings->value("MatchesViewer/LineWidth", 2).toInt();
 }
 
 void MatchViewerModelImp::init()
