@@ -22,12 +22,10 @@ namespace ui
 
 
 FeatureMatchingPresenterImp::FeatureMatchingPresenterImp(FeatureMatchingView *view,
-                                                         FeatureMatchingModel *model,
-                                                         SettingsModel *settingsModel)
+                                                         FeatureMatchingModel *model)
   : FeatureMatchingPresenter(),
     mView(view),
     mModel(model),
-    mSettingsModel(settingsModel),
     mHelp(nullptr),
     mFeatureMatchingWidget(new FeatureMatchingWidgetImp)
 {
@@ -138,7 +136,7 @@ void FeatureMatchingPresenterImp::createProcess()
   mModel->setFeatureMatching(featureMatching);
 
   std::shared_ptr<FeatureMatchingProcess> featMatchingProcess(new FeatureMatchingProcess(mModel->database(),
-                                                                                         mSettingsModel->useCuda(),
+                                                                                         mModel->useCuda(),
                                                                                          false/*mModel->spatialMatching()*/,
                                                                                          featureMatching));
 

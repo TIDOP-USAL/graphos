@@ -1,11 +1,7 @@
 #ifndef INSPECTOR_DENSE_PRESENTER_H
 #define INSPECTOR_DENSE_PRESENTER_H
 
-#include <QObject>
-
 #include "inspector/ui/densification/DensificationPresenter.h"
-
-#include <memory>
 
 namespace inspector
 {

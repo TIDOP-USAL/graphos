@@ -43,9 +43,10 @@ set(INSPECTOR_SOURCES
     featextract/FeatureExtractorView.cpp
     featextract/FeatureExtractorModel.cpp
     featextract/FeatureExtractorPresenter.cpp
-    featmatch/FeatureMatchingModel.cpp
-    featmatch/FeatureMatchingView.cpp
-    featmatch/FeatureMatchingPresenter.cpp
+	featmatch/FeatureMatchingComponent.cpp
+    featmatch/impl/FeatureMatchingModel.cpp
+    featmatch/impl/FeatureMatchingView.cpp
+    featmatch/impl/FeatureMatchingPresenter.cpp
     images/ImagesModel.cpp
     images/ImagesPresenter.cpp
     images/ImagesView.cpp
@@ -137,10 +138,13 @@ set(INSPECTOR_HEADERS
     featextract/FeatureExtractorView.h
     featextract/FeatureExtractorModel.h
     featextract/FeatureExtractorPresenter.h
-    featmatch/FeatureMatching.h
+    featmatch/FeatureMatchingComponent.h
     featmatch/FeatureMatchingModel.h
     featmatch/FeatureMatchingView.h
     featmatch/FeatureMatchingPresenter.h
+    featmatch/impl/FeatureMatchingModel.h
+    featmatch/impl/FeatureMatchingView.h
+    featmatch/impl/FeatureMatchingPresenter.h
     images/Images.h
     images/ImagesModel.h
     images/ImagesPresenter.h

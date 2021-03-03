@@ -5,6 +5,7 @@
 #include <colmap/base/database.h>
 
 #include <QFileInfo>
+#include <QSettings>
 
 namespace inspector
 {
@@ -15,13 +16,21 @@ namespace ui
 FeatureMatchingModelImp::FeatureMatchingModelImp(Project *project,
                                                  QObject *parent)
   : FeatureMatchingModel(parent),
-    mProject(project)
+    mProject(project),
+    mSettings(new QSettings(QSettings::IniFormat, 
+                            QSettings::UserScope, 
+                            "TIDOP", 
+                            "Inspector"))
 {
   this->init();
 }
 
 FeatureMatchingModelImp::~FeatureMatchingModelImp()
 {
+  if (mSettings){
+    delete mSettings;
+    mSettings = nullptr;
+  }
 }
 
 void FeatureMatchingModelImp::init()
@@ -51,6 +60,11 @@ void FeatureMatchingModelImp::setFeatureMatching(const std::shared_ptr<FeatureMa
 QString FeatureMatchingModelImp::database() const
 {
   return mProject->database();
+}
+
+bool FeatureMatchingModelImp::useCuda() const
+{
+  return mSettings->value("General/UseCuda", true).toBool();
 }
 
 bool FeatureMatchingModelImp::spatialMatching() const

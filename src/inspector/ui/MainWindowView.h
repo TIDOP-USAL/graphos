@@ -268,7 +268,7 @@ protected:
   QAction *mActionStartPage;
   QAction *mActionLoadImages;
   QAction *mActionFeatureExtraction;
-  QAction *mActionFeatureMatching;
+  //QAction *mActionFeatureMatching;
   //QAction *mActionOrientation;
   //QAction *mActionDensification;
   QAction *mActionCameras;

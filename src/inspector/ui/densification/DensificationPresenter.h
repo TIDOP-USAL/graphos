@@ -9,8 +9,6 @@ namespace inspector
 namespace ui
 {
 
-class HelpDialog;
-
 class DensificationPresenter
   : public ProcessPresenter
 

@@ -56,7 +56,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionStartPage(new QAction(this)),
     mActionLoadImages(new QAction(this)),
     mActionFeatureExtraction(new QAction(this)),
-    mActionFeatureMatching(new QAction(this)),
+    //mActionFeatureMatching(new QAction(this)),
     //mActionOrientation(new QAction(this)),
     //mActionDensification(new QAction(this)),
     mActionCameras(new QAction(this)),
@@ -942,9 +942,9 @@ void MainWindowView::initActions()
   iconFeatureExtraction.addFile(QStringLiteral(":/ico/24/img/material/24/features.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionFeatureExtraction->setIcon(iconFeatureExtraction);
 
-  QIcon iconFeatureMatching;
-  iconFeatureMatching.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-match_view"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionFeatureMatching->setIcon(iconFeatureMatching);
+  //QIcon iconFeatureMatching;
+  //iconFeatureMatching.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-match_view"), QSize(), QIcon::Normal, QIcon::Off);
+  //mActionFeatureMatching->setIcon(iconFeatureMatching);
 
 //  QIcon iconOrientation;
 //  iconOrientation.addFile(QStringLiteral(":/ico/24/img/material/24/match_view.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1031,7 +1031,7 @@ void MainWindowView::initToolbarWorkflow()
   mToolBarWorkflow->addAction(mActionLoadImages);
   mToolBarWorkflow->addSeparator();
   mToolBarWorkflow->addAction(mActionFeatureExtraction);
-  mToolBarWorkflow->addAction(mActionFeatureMatching);
+  //mToolBarWorkflow->addAction(mActionFeatureMatching);
   this->addToolBar(Qt::TopToolBarArea, mToolBarWorkflow);
 }
 
@@ -1172,7 +1172,7 @@ void MainWindowView::initMenuWorkflow()
   ui->menuWorkflow->addAction(mActionLoadImages);
   ui->menuWorkflow->addSeparator();
   ui->menuWorkflow->addAction(mActionFeatureExtraction);
-  ui->menuWorkflow->addAction(mActionFeatureMatching);
+  //ui->menuWorkflow->addAction(mActionFeatureMatching);
   //ui->menuWorkflow->addAction(mActionOrientation);
   //ui->menuWorkflow->addAction(mActionDensification);
 }
@@ -1234,7 +1234,7 @@ void MainWindowView::initSignalAndSlots()
 
   connect(mActionLoadImages,         &QAction::triggered,   this,   &MainWindowView::loadImages);
   connect(mActionFeatureExtraction,  &QAction::triggered,   this,   &MainWindowView::openFeatureExtraction);
-  connect(mActionFeatureMatching,    &QAction::triggered,   this,   &MainWindowView::openFeatureMatching);
+  //connect(mActionFeatureMatching,    &QAction::triggered,   this,   &MainWindowView::openFeatureMatching);
   //connect(mActionOrientation,        &QAction::triggered,   this,   &MainWindowView::openOrientation);
   //connect(mActionDensification,      &QAction::triggered,   this,   &MainWindowView::openDensification);
 
@@ -1349,7 +1349,7 @@ void MainWindowView::update()
 
   mActionLoadImages->setEnabled(bProjectExists && !bProcessing && !bLoadingImages);
   mActionFeatureExtraction->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
-  mActionFeatureMatching->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
+  //mActionFeatureMatching->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   //mActionOrientation->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
   //mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
 
@@ -1377,7 +1377,7 @@ void MainWindowView::retranslate()
   mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));
   mActionLoadImages->setText(QApplication::translate("MainWindowView", "Load Images", nullptr));
   mActionFeatureExtraction->setText(QApplication::translate("MainWindowView", "Feature Extraction", nullptr));
-  mActionFeatureMatching->setText(QApplication::translate("MainWindowView", "Feature Matching", nullptr));
+  //mActionFeatureMatching->setText(QApplication::translate("MainWindowView", "Feature Matching", nullptr));
   //mActionOrientation->setText(QApplication::translate("MainWindowView", "Orientation", nullptr));
   //mActionDensification->setText(QApplication::translate("MainWindowView", "Densification", nullptr));
   mActionCameras->setText(QApplication::translate("MainWindowView", "Cameras", nullptr));

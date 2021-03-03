@@ -14,9 +14,9 @@
 #include "inspector/ui/featextract/FeatureExtractorModel.h"
 #include "inspector/ui/featextract/FeatureExtractorView.h"
 #include "inspector/ui/featextract/FeatureExtractorPresenter.h"
-#include "inspector/ui/featmatch/FeatureMatchingModel.h"
-#include "inspector/ui/featmatch/FeatureMatchingView.h"
-#include "inspector/ui/featmatch/FeatureMatchingPresenter.h"
+//#include "inspector/ui/featmatch/FeatureMatchingModel.h"
+//#include "inspector/ui/featmatch/FeatureMatchingView.h"
+//#include "inspector/ui/featmatch/FeatureMatchingPresenter.h"
 #include "inspector/ui/images/ImagesModel.h"
 #include "inspector/ui/images/ImagesView.h"
 #include "inspector/ui/images/ImagesPresenter.h"
@@ -87,8 +87,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mNewProjectPresenter(nullptr),
     mFeatureExtractorModel(nullptr),
     mFeatureExtractorPresenter(nullptr),
-    mFeatureMatchingModel(nullptr),
-    mFeatureMatchingPresenter(nullptr),
+    //mFeatureMatchingModel(nullptr),
+    //mFeatureMatchingPresenter(nullptr),
     //mOrientationModel(nullptr),
     //mOrientationPresenter(nullptr),
     //mDensificationModel(nullptr),
@@ -196,15 +196,15 @@ ComponentsManager::~ComponentsManager()
     mFeatureExtractorPresenter = nullptr;
   }
 
-  if (mFeatureMatchingModel){
-    delete mFeatureMatchingModel;
-    mFeatureMatchingModel = nullptr;
-  }
+  //if (mFeatureMatchingModel){
+  //  delete mFeatureMatchingModel;
+  //  mFeatureMatchingModel = nullptr;
+  //}
 
-  if (mFeatureMatchingPresenter){
-    delete mFeatureMatchingPresenter;
-    mFeatureMatchingPresenter = nullptr;
-  }
+  //if (mFeatureMatchingPresenter){
+  //  delete mFeatureMatchingPresenter;
+  //  mFeatureMatchingPresenter = nullptr;
+  //}
 
   //if (mOrientationModel){
   //  delete mOrientationModel;
@@ -344,8 +344,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenLoadImagesDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureExtractionDialog,
             this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureMatchingDialog,
-            this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureMatchingDialog,
+    //        this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openOrientationDialog,
     //        this, &ComponentsManager::initAndOpenOrientationDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openDensificationDialog,
@@ -602,24 +602,24 @@ FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
   return mFeatureExtractorPresenter;
 }
 
-FeatureMatchingModel *ComponentsManager::featureMatchingModel()
-{
-  if (mFeatureMatchingModel == nullptr){
-    mFeatureMatchingModel = new FeatureMatchingModelImp(mProject);
-  }
-  return mFeatureMatchingModel;
-}
-
-FeatureMatchingPresenter *ComponentsManager::featureMatchingPresenter()
-{
-  if (mFeatureMatchingPresenter == nullptr){
-    FeatureMatchingView *featureMatchingView = new FeatureMatchingViewImp(this->mainWindowView());
-    mFeatureMatchingPresenter = new FeatureMatchingPresenterImp(featureMatchingView,
-                                                                this->featureMatchingModel(),
-                                                                this->settingsModel());
-  }
-  return mFeatureMatchingPresenter;
-}
+//FeatureMatchingModel *ComponentsManager::featureMatchingModel()
+//{
+//  if (mFeatureMatchingModel == nullptr){
+//    mFeatureMatchingModel = new FeatureMatchingModelImp(mProject);
+//  }
+//  return mFeatureMatchingModel;
+//}
+//
+//FeatureMatchingPresenter *ComponentsManager::featureMatchingPresenter()
+//{
+//  if (mFeatureMatchingPresenter == nullptr){
+//    FeatureMatchingView *featureMatchingView = new FeatureMatchingViewImp(this->mainWindowView());
+//    mFeatureMatchingPresenter = new FeatureMatchingPresenterImp(featureMatchingView,
+//                                                                this->featureMatchingModel(),
+//                                                                this->settingsModel());
+//  }
+//  return mFeatureMatchingPresenter;
+//}
 
 //OrientationModel *ComponentsManager::orientationModel()
 //{
@@ -940,25 +940,25 @@ void ComponentsManager::initAndOpenFeatureExtractionDialog()
   this->featureExtractorPresenter()->open();
 }
 
-void ComponentsManager::initAndOpenFeatureMatchingDialog()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureMatchingDialog,
-             this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureMatchingDialog,
-          this->featureMatchingPresenter(), &IPresenter::open);
-
-  connect(this->featureMatchingPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
-  TL_TODO("Ahora se estan borrando al iniciar el comando...")
-  //connect(this->featureMatchingPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(deleteMatches()));
-  connect(this->featureMatchingPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
-  connect(this->featureMatchingPresenter(), SIGNAL(matchingFinished()),  this->mainWindowPresenter(), SLOT(loadMatches()));
-
-  connect(this->progressDialog(), SIGNAL(cancel()),     this->featureMatchingPresenter(), SLOT(cancel()));
-
-  this->featureMatchingPresenter()->setProgressHandler(this->progressHandler());
-  this->featureMatchingPresenter()->setHelp(this->helpDialog());
-  this->featureMatchingPresenter()->open();
-}
+//void ComponentsManager::initAndOpenFeatureMatchingDialog()
+//{
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureMatchingDialog,
+//             this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureMatchingDialog,
+//          this->featureMatchingPresenter(), &IPresenter::open);
+//
+//  connect(this->featureMatchingPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
+//  TL_TODO("Ahora se estan borrando al iniciar el comando...")
+//  //connect(this->featureMatchingPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(deleteMatches()));
+//  connect(this->featureMatchingPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
+//  connect(this->featureMatchingPresenter(), SIGNAL(matchingFinished()),  this->mainWindowPresenter(), SLOT(loadMatches()));
+//
+//  connect(this->progressDialog(), SIGNAL(cancel()),     this->featureMatchingPresenter(), SLOT(cancel()));
+//
+//  this->featureMatchingPresenter()->setProgressHandler(this->progressHandler());
+//  this->featureMatchingPresenter()->setHelp(this->helpDialog());
+//  this->featureMatchingPresenter()->open();
+//}
 
 //void ComponentsManager::initAndOpenOrientationDialog()
 //{

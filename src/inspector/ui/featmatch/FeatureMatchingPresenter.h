@@ -1,80 +1,32 @@
-#ifndef INSPECTOR_FEATURE_MATCHING_PRESENTER_H
-#define INSPECTOR_FEATURE_MATCHING_PRESENTER_H
+#ifndef INSPECTOR_FEATURE_MATCHING_PRESENTER_INTERFACE_H
+#define INSPECTOR_FEATURE_MATCHING_PRESENTER_INTERFACE_H
 
-#include <QObject>
-
-#include "inspector/ui/featmatch/FeatureMatching.h"
+#include "inspector/ui/process/ProcessPresenter.h"
 
 namespace inspector
 {
 
-class FeatureMatchingWidget;
-
 namespace ui
 {
 
-class SettingsModel;
-class HelpDialog;
-
-class FeatureMatchingPresenterImp
-  : public FeatureMatchingPresenter
+class FeatureMatchingPresenter
+  : public ProcessPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  FeatureMatchingPresenterImp(FeatureMatchingView *view,
-                              FeatureMatchingModel *model,
-                              SettingsModel *settingsModel);
-  ~FeatureMatchingPresenterImp() override;
+  FeatureMatchingPresenter(){}
+  ~FeatureMatchingPresenter() override = default;
 
-private:
+signals:
 
-  void setMatchingProperties();
-
-private slots:
-
-  void onFinishMatching();
-
-// FeatureMatchingPresenter interface
+  void matchingFinished();
 
 public slots:
 
-  void setCurrentMatchMethod(const QString &matchMethod) override;
-
-// ProcessPresenter interface
-  
-protected slots:
-
-  void onError(int code, const QString &msg) override;
-  void onFinished() override;
-  void createProcess() override;
-
-public slots:
-
-  void cancel() override;
-
-// IPresenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-private:
-
-  FeatureMatchingView *mView;
-  FeatureMatchingModel *mModel;
-  SettingsModel *mSettingsModel;
-  HelpDialog *mHelp;
-  FeatureMatchingWidget *mFeatureMatchingWidget;
+  virtual void setCurrentMatchMethod(const QString &matchMethod) = 0;
 
 };
 
@@ -82,4 +34,4 @@ private:
 
 } // End namespace inspector
 
-#endif // INSPECTOR_FEATURE_MATCHING_PRESENTER_H
+#endif // INSPECTOR_FEATURE_MATCHING_PRESENTER_INTERFACE_H
