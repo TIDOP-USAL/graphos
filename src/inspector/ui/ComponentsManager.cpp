@@ -20,9 +20,9 @@
 #include "inspector/ui/images/ImagesModel.h"
 #include "inspector/ui/images/ImagesView.h"
 #include "inspector/ui/images/ImagesPresenter.h"
-#include "inspector/ui/orientation/OrientationModel.h"
-#include "inspector/ui/orientation/OrientationView.h"
-#include "inspector/ui/orientation/OrientationPresenter.h"
+//#include "inspector/ui/orientation/OrientationModel.h"
+//#include "inspector/ui/orientation/OrientationView.h"
+//#include "inspector/ui/orientation/OrientationPresenter.h"
 //#include "inspector/ui/densification/DensificationModel.h"
 //#include "inspector/ui/densification/DensificationView.h"
 //#include "inspector/ui/densification/DensificationPresenter.h"
@@ -89,8 +89,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mFeatureExtractorPresenter(nullptr),
     mFeatureMatchingModel(nullptr),
     mFeatureMatchingPresenter(nullptr),
-    mOrientationModel(nullptr),
-    mOrientationPresenter(nullptr),
+    //mOrientationModel(nullptr),
+    //mOrientationPresenter(nullptr),
     //mDensificationModel(nullptr),
     //mDensificationPresenter(nullptr),
     //mFeaturesViewerModel(nullptr),
@@ -206,15 +206,15 @@ ComponentsManager::~ComponentsManager()
     mFeatureMatchingPresenter = nullptr;
   }
 
-  if (mOrientationModel){
-    delete mOrientationModel;
-    mOrientationModel = nullptr;
-  }
+  //if (mOrientationModel){
+  //  delete mOrientationModel;
+  //  mOrientationModel = nullptr;
+  //}
 
-  if (mOrientationPresenter){
-    delete mOrientationPresenter;
-    mOrientationPresenter = nullptr;
-  }
+  //if (mOrientationPresenter){
+  //  delete mOrientationPresenter;
+  //  mOrientationPresenter = nullptr;
+  //}
 
   //if (mDensificationModel){
   //  delete mDensificationModel;
@@ -318,7 +318,7 @@ MainWindowView *ComponentsManager::mainWindowView()
 MainWindowModel *ComponentsManager::mainWindowModel()
 {
   if (mMainWindowModel == nullptr){
-    mMainWindowModel = new MainWindowModel;
+    mMainWindowModel = new MainWindowModel(this->project());
   }
   return mMainWindowModel;
 }
@@ -333,8 +333,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->imagesModel(),
                                                    this->camerasModel(),
                                                    this->featuresModel(),
-                                                   this->matchesModel(),
-                                                   this->orientationModel());
+                                                   this->matchesModel()/*,
+                                                   this->orientationModel()*/);
 
 //    mMainWindowPresenter->setHelp(this->helpDialog());
 
@@ -346,8 +346,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureMatchingDialog,
             this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openOrientationDialog,
-            this, &ComponentsManager::initAndOpenOrientationDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openOrientationDialog,
+    //        this, &ComponentsManager::initAndOpenOrientationDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openDensificationDialog,
     //        this, &ComponentsManager::initAndOpenDensificationDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openKeypointsViewerDialog,
@@ -621,26 +621,26 @@ FeatureMatchingPresenter *ComponentsManager::featureMatchingPresenter()
   return mFeatureMatchingPresenter;
 }
 
-OrientationModel *ComponentsManager::orientationModel()
-{
-  if (mOrientationModel == nullptr){
-    mOrientationModel = new OrientationModelImp(mProject);
-  }
-  return mOrientationModel;
-}
-
-OrientationPresenter *ComponentsManager::orientationPresenter()
-{
-  if (mOrientationPresenter == nullptr){
-    OrientationView *orientationview = new OrientationViewImp(this->mainWindowView());
-    mOrientationPresenter = new OrientationPresenterImp(orientationview,
-                                                        this->orientationModel(),
-                                                        this->imagesModel(),
-                                                        this->camerasModel(),
-                                                        this->settingsModel());
-  }
-  return mOrientationPresenter;
-}
+//OrientationModel *ComponentsManager::orientationModel()
+//{
+//  if (mOrientationModel == nullptr){
+//    mOrientationModel = new OrientationModelImp(mProject);
+//  }
+//  return mOrientationModel;
+//}
+//
+//OrientationPresenter *ComponentsManager::orientationPresenter()
+//{
+//  if (mOrientationPresenter == nullptr){
+//    OrientationView *orientationview = new OrientationViewImp(this->mainWindowView());
+//    mOrientationPresenter = new OrientationPresenterImp(orientationview,
+//                                                        this->orientationModel(),
+//                                                        this->imagesModel(),
+//                                                        this->camerasModel(),
+//                                                        this->settingsModel());
+//  }
+//  return mOrientationPresenter;
+//}
 
 //DensificationModel *ComponentsManager::densificationModel()
 //{
@@ -960,23 +960,23 @@ void ComponentsManager::initAndOpenFeatureMatchingDialog()
   this->featureMatchingPresenter()->open();
 }
 
-void ComponentsManager::initAndOpenOrientationDialog()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openOrientationDialog,
-             this, &ComponentsManager::initAndOpenOrientationDialog);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openOrientationDialog,
-          this->orientationPresenter(), &IPresenter::open);
-
-  connect(this->orientationPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->orientationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
-  connect(this->orientationPresenter(), SIGNAL(orientationFinished()),  this->mainWindowPresenter(), SLOT(loadOrientation()));
-
-  connect(this->progressDialog(), SIGNAL(cancel()),     this->orientationPresenter(), SLOT(cancel()));
-
-  this->orientationPresenter()->setProgressHandler(this->progressHandler());
-  this->orientationPresenter()->setHelp(this->helpDialog());
-  this->orientationPresenter()->open();
-}
+//void ComponentsManager::initAndOpenOrientationDialog()
+//{
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openOrientationDialog,
+//             this, &ComponentsManager::initAndOpenOrientationDialog);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openOrientationDialog,
+//          this->orientationPresenter(), &IPresenter::open);
+//
+//  connect(this->orientationPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
+//  connect(this->orientationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
+//  connect(this->orientationPresenter(), SIGNAL(orientationFinished()),  this->mainWindowPresenter(), SLOT(loadOrientation()));
+//
+//  connect(this->progressDialog(), SIGNAL(cancel()),     this->orientationPresenter(), SLOT(cancel()));
+//
+//  this->orientationPresenter()->setProgressHandler(this->progressHandler());
+//  this->orientationPresenter()->setHelp(this->helpDialog());
+//  this->orientationPresenter()->open();
+//}
 
 //void ComponentsManager::initAndOpenDensificationDialog()
 //{

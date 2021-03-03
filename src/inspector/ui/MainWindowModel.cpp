@@ -13,10 +13,11 @@ namespace inspector
 namespace ui
 {
 
-MainWindowModel::MainWindowModel()
-  : mPrjDefaultPath("")
+MainWindowModel::MainWindowModel(Project *project)
+  : mPrjDefaultPath(""),
+    mProject(project)
 {
-  init();
+  this->init();
 }
 
 std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &image) const
@@ -103,6 +104,16 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
   }
 
   return exif;
+}
+
+bool MainWindowModel::isPhotoOriented(const QString &imgName) const
+{
+  return mProject->isPhotoOriented(imgName);
+}
+
+PhotoOrientation MainWindowModel::photoOrientation(const QString &imgName) const
+{
+  return mProject->photoOrientation(imgName);
 }
 
 void MainWindowModel::init()

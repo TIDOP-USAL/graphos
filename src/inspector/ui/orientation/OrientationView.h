@@ -1,10 +1,8 @@
-#ifndef INSPECTOR_ORIENTATION_VIEW_H
-#define INSPECTOR_ORIENTATION_VIEW_H
+#ifndef INSPECTOR_ORIENTATION_VIEW_INTERFACE_H
+#define INSPECTOR_ORIENTATION_VIEW_INTERFACE_H
 
-#include "inspector/ui/orientation/Orientation.h"
+#include "inspector/interfaces/mvp.h"
 
-class QCheckBox;
-class QDialogButtonBox;
 
 namespace inspector
 {
@@ -12,55 +10,37 @@ namespace inspector
 namespace ui
 {
 
-class OrientationViewImp
-  : public OrientationView
+class OrientationView
+  : public IDialogView
 {
 
-public:
-
-  OrientationViewImp(QWidget *parent = nullptr);
-  ~OrientationViewImp() override = default;
-
-// OrientationView interface
+  Q_OBJECT
 
 public:
 
-  bool refinePrincipalPoint() const override;
-  bool absoluteOrientation() const override;
-  bool isEnabledAbsoluteOrientation() const override;
+  OrientationView(QWidget *parent = nullptr) : IDialogView(parent) {}
+  ~OrientationView() override = default;
+
+  virtual bool refinePrincipalPoint() const = 0;
+  virtual bool absoluteOrientation() const = 0;
+  virtual bool isEnabledAbsoluteOrientation() const = 0;
 
 public slots:
 
-  void setRefinePrincipalPoint(bool refine) override;
-  void setAbsoluteOrientation(bool active) override;
-  void enabledAbsoluteOrientation(bool enabled) override;
+  virtual void setRefinePrincipalPoint(bool refine) = 0;
+  virtual void setAbsoluteOrientation(bool active) = 0;
+  virtual void enabledAbsoluteOrientation(bool enabled) = 0;
 
-// IDialogView interface
+signals:
 
-private:
-
-  void initUI() override;
-  void initSignalAndSlots() override;
-
-public slots:
-
-  void clear() override;
-
-private slots:
-
-  void update() override;
-  void retranslate() override;
-
-protected:
-
-  QCheckBox *mCheckBoxRefinePrincipalPoint;
-  QCheckBox *mCheckBoxAbsoluteOrientation;
-  QDialogButtonBox *mButtonBox;
-
+  void run();
+  void refinePrincipalPoint(bool);
+  void absoluteOrientationChange(bool);
+  void enabledAbsoluteOrientationChange(bool);
 };
 
 } // namespace ui
 
 } // namespace inspector
 
-#endif // INSPECTOR_FEATURE_EXTRACTOR_VIEW_H
+#endif // INSPECTOR_FEATURE_EXTRACTOR_VIEW_INTERFACE_H

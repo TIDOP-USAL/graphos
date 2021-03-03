@@ -269,7 +269,7 @@ protected:
   QAction *mActionLoadImages;
   QAction *mActionFeatureExtraction;
   QAction *mActionFeatureMatching;
-  QAction *mActionOrientation;
+  //QAction *mActionOrientation;
   //QAction *mActionDensification;
   QAction *mActionCameras;
   QAction *mActionGeoreference;

@@ -2,6 +2,7 @@
 #define INSPECTOR_MAINWINDOW_MODEL_H
 
 #include "inspector/interfaces/mvp.h"
+#include "inspector/core/project.h"
 
 namespace inspector
 {
@@ -16,7 +17,7 @@ class MainWindowModel
 
 public:
 
-  explicit MainWindowModel();
+  explicit MainWindowModel(Project *project);
 
   /*!
    * \brief Devuelve la ruta por defecto donde se situan los proyectos
@@ -25,6 +26,9 @@ public:
   //QString defaultPath() const;
 
   std::list<std::pair<QString, QString>> exif(const QString &image) const;
+
+  bool isPhotoOriented(const QString &imgName) const;
+  PhotoOrientation photoOrientation(const QString &imgName) const;
 
 signals:
 
@@ -44,7 +48,7 @@ public slots:
 protected:
 
   QString mPrjDefaultPath;
-
+  Project *mProject;
 };
 
 } // namespace ui

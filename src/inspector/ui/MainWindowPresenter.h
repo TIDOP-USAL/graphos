@@ -22,7 +22,6 @@ class ImagesModel;
 class CamerasModel;
 class FeaturesModel;
 class MatchesModel;
-class OrientationModel;
 
 class HelpDialog;
 class TabHandler;
@@ -41,8 +40,7 @@ public:
                                ImagesModel *imagesModel,
                                CamerasModel *camerasModel,
                                FeaturesModel *featuresModel,
-                               MatchesModel *matchesModel,
-                               OrientationModel *orientationModel);
+                               MatchesModel *matchesModel);
   ~MainWindowPresenter() override;
     
 
@@ -166,7 +164,6 @@ protected:
   CamerasModel *mCamerasModel;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
-  OrientationModel *mOrientationModel;
 
   HelpDialog *mHelpDialog;
   TabHandler *mTabHandler;

@@ -42,13 +42,6 @@ void DTMComponent::createPresenter()
 {
   mPresenter = new DtmPresenterImp(dynamic_cast<DtmView *>(mView), 
                                    dynamic_cast<DtmModel *>(mModel));
-
-  //connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::running,
-  //        this, &ProcessComponent::running);
-  //connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::finished,
-  //        this, &ProcessComponent::finished);
-  //connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::failed,
-  //        this, &ProcessComponent::failed);
 }
 
 void DTMComponent::update()

@@ -49,9 +49,10 @@ set(INSPECTOR_SOURCES
     images/ImagesModel.cpp
     images/ImagesPresenter.cpp
     images/ImagesView.cpp
-    orientation/OrientationModel.cpp
-    orientation/OrientationView.cpp
-    orientation/OrientationPresenter.cpp
+	orientation/OrientationComponent.cpp
+    orientation/impl/OrientationModel.cpp
+    orientation/impl/OrientationView.cpp
+    orientation/impl/OrientationPresenter.cpp
 	densification/DensificationComponent.cpp
     densification/impl/DensificationModel.cpp
     densification/impl/DensificationView.cpp
@@ -144,10 +145,13 @@ set(INSPECTOR_HEADERS
     images/ImagesModel.h
     images/ImagesPresenter.h
     images/ImagesView.h
-    orientation/Orientation.h
+    orientation/OrientationComponent.h
     orientation/OrientationModel.h
     orientation/OrientationView.h
     orientation/OrientationPresenter.h
+    orientation/impl/OrientationModel.h
+    orientation/impl/OrientationView.h
+    orientation/impl/OrientationPresenter.h
     densification/DensificationComponent.h
     densification/DensificationModel.h
     densification/DensificationView.h

@@ -14,7 +14,6 @@
 #include "inspector/ui/images/ImagesModel.h"
 #include "inspector/ui/FeaturesModel.h"
 #include "inspector/ui/MatchesModel.h"
-#include "inspector/ui/orientation/OrientationModel.h"
 #include "inspector/ui/AppStatus.h"
 #include "inspector/core/utils.h"
 
@@ -44,8 +43,7 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          ImagesModel *imagesModel,
                                          CamerasModel *camerasModel,
                                          FeaturesModel *featuresModel,
-                                         MatchesModel *matchesModel,
-                                         OrientationModel *orientationModel)
+                                         MatchesModel *matchesModel)
   : IPresenter(),
     mView(view),
     mModel(model),
@@ -55,7 +53,6 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
     mCamerasModel(camerasModel),
     mFeaturesModel(featuresModel),
     mMatchesModel(matchesModel),
-    mOrientationModel(orientationModel),
     mHelpDialog(nullptr),
     mTabHandler(nullptr),
     mStartPageWidget(nullptr)
@@ -935,9 +932,9 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
         QFileInfo(image->path()).fileName();
         QString name = image->name();
         QString file_name = QFileInfo(image->path()).fileName();
-        if (mOrientationModel->isPhotoOriented(name)) {
+        if (mModel->isPhotoOriented(name)) {
 
-          PhotoOrientation photoOrientation = mOrientationModel->photoOrientation(name);
+          PhotoOrientation photoOrientation = mModel->photoOrientation(name);
 
           std::array<double, 3> position;
           position[0] = photoOrientation.x;
@@ -1026,11 +1023,16 @@ void MainWindowPresenter::processFinished()
 {
   mView->setFlag(MainWindowView::Flag::processing, false);
   mView->setFlag(MainWindowView::Flag::project_modified, true);
+
+  AppStatus::instance().activeFlag(AppStatus::Flag::processing, false);
+  AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void MainWindowPresenter::processRunning()
 {
   mView->setFlag(MainWindowView::Flag::processing, true);
+
+  AppStatus::instance().activeFlag(AppStatus::Flag::processing, true);
 }
 
 void MainWindowPresenter::processFailed()

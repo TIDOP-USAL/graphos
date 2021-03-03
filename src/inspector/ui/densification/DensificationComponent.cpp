@@ -43,13 +43,6 @@ void DensificationComponent::createPresenter()
 {
   mPresenter = new DensificationPresenterImp(dynamic_cast<DensificationView *>(mView), 
                                              dynamic_cast<DensificationModel *>(mModel));
-
-  //connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::running,
-  //        this, &ProcessComponent::running);
-  //connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::finished,
-  //        this, &ProcessComponent::finished);
-  //connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::failed,
-  //        this, &ProcessComponent::failed);
 }
 
 void DensificationComponent::update()

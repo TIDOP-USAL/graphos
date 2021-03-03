@@ -114,6 +114,51 @@ std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() 
   return camera_positions;
 }
 
+bool OrientationModelImp::updateCamera(int id, const Camera &camera)
+{
+  return mProject->updateCamera(id, camera);
+}
+
+OrientationModel::camera_iterator OrientationModelImp::cameraBegin()
+{
+  return mProject->cameraBegin();
+}
+
+OrientationModel::camera_const_iterator OrientationModelImp::cameraBegin() const
+{
+  return mProject->cameraBegin();
+}
+
+OrientationModel::camera_iterator OrientationModelImp::cameraEnd()
+{
+  return mProject->cameraEnd();
+}
+
+OrientationModel::camera_const_iterator OrientationModelImp::cameraEnd() const
+{
+  return mProject->cameraEnd();
+}
+
+OrientationModel::image_iterator OrientationModelImp::imageBegin()
+{
+  return mProject->imageBegin();
+}
+
+OrientationModel::image_const_iterator OrientationModelImp::imageBegin() const
+{
+  return mProject->imageBegin();
+}
+
+OrientationModel::image_iterator OrientationModelImp::imageEnd()
+{
+  return mProject->imageEnd();
+}
+
+OrientationModel::image_const_iterator OrientationModelImp::imageEnd() const
+{
+  return mProject->imageEnd();
+}
+
 } // namespace ui
 
 } // namespace inspector

@@ -1,6 +1,7 @@
 #include "OrientationPresenter.h"
 
-
+#include "inspector/ui/orientation/OrientationModel.h"
+#include "inspector/ui/orientation/OrientationView.h"
 #include "inspector/ui/utils/Progress.h"
 #include "inspector/core/orientation/orientationcolmap.h"
 #include "inspector/process/MultiProcess.h"
@@ -25,16 +26,16 @@ namespace ui
 {
 
 OrientationPresenterImp::OrientationPresenterImp(OrientationView *view,
-                                                 OrientationModel *model,
+                                                 OrientationModel *model/*,
                                                  ImagesModel *imagesModel,
                                                  CamerasModel *camerasModel,
-                                                 SettingsModel *settingsModel)
+                                                 SettingsModel *settingsModel*/)
   : OrientationPresenter(),
     mView(view),
     mModel(model),
-    mImagesModel(imagesModel),
-    mCamerasModel(camerasModel),
-    mSettingsModel(settingsModel),
+    //mImagesModel(imagesModel),
+    //mCamerasModel(camerasModel),
+    //mSettingsModel(settingsModel),
     mHelp(nullptr)
 {
   this->init();
@@ -179,7 +180,7 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
     ReadPhotoOrientations readPhotoOrientations;
     readPhotoOrientations.open(ori_relative_path);
     int oriented_images = 0;
-    for (auto image = mImagesModel->begin(); image != mImagesModel->end(); image++) {
+    for (auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++) {
       QString image_oriented = QFileInfo(image->path()).fileName();
       PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
       if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
@@ -197,12 +198,12 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
     ReadCalibration readCalibration;
     readCalibration.open(ori_relative_path);
     std::shared_ptr<Calibration> calibration;
-    for(auto camera_it = mCamerasModel->begin(); camera_it != mCamerasModel->end(); camera_it++){
+    for(auto camera_it = mModel->cameraBegin(); camera_it != mModel->cameraEnd(); camera_it++){
       calibration = readCalibration.calibration(camera_it->first);
       if (calibration){
         Camera camera = camera_it->second;
         camera.setCalibration(calibration);
-        mCamerasModel->updateCamera(camera_it->first, camera);
+        mModel->updateCamera(camera_it->first, camera);
       }
     }
 
@@ -221,7 +222,7 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
 
     ReadPhotoOrientations readPhotoOrientations;
     readPhotoOrientations.open(ori_absolute_path);
-    for(auto image = mImagesModel->begin(); image != mImagesModel->end(); image++){
+    for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
       PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
       if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
