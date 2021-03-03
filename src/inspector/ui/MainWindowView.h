@@ -281,8 +281,8 @@ protected:
   QAction *mActionExportMatches;
   QAction *mActionExportOrientations;
   QAction *mActionExportPointCloud;
-  QAction *mActionFeaturesViewer;
-  QAction *mActionMatchesViewer;
+  //QAction *mActionFeaturesViewer;
+  //QAction *mActionMatchesViewer;
   QAction *mActionDtm;
   QAction *mActionOrtho;
   //QAction *mActionPassPointsViewer;

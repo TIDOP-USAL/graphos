@@ -39,8 +39,8 @@ class DensificationModel;
 class DensificationPresenter;
 class ProgressHandler;
 class ProgressDialog;
-class FeaturesViewerModel;
-class FeaturesViewerPresenter;
+//class FeaturesViewerModel;
+//class FeaturesViewerPresenter;
 //class MatchViewerModel;
 //class MatchViewerPresenter;
 class ExportOrientationsModel;
@@ -103,8 +103,8 @@ public:
   OrientationPresenter *orientationPresenter();
   DensificationModel *densificationModel();
   DensificationPresenter *densificationPresenter();
-  FeaturesViewerModel *featuresViewerModel();
-  FeaturesViewerPresenter *featuresViewerPresenter();
+  //FeaturesViewerModel *featuresViewerModel();
+  //FeaturesViewerPresenter *featuresViewerPresenter();
   //MatchViewerModel *matchesViewerModel();
   //MatchViewerPresenter *matchesViewerPresenter();
   ExportOrientationsModel *exportOrientationsModel();
@@ -138,8 +138,8 @@ protected slots:
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
   void initAndOpenCamerasDialog();
-  void initAndOpenKeypointsViewerDialog();
-  void initAndOpenKeypointsViewerDialogFromImage(const QString &image);
+  //void initAndOpenKeypointsViewerDialog();
+  //void initAndOpenKeypointsViewerDialogFromImage(const QString &image);
   //void initAndOpenMatchesViewerDialog();
   //void initAndOpenMatchesViewerDialogFromImages(const QString &leftImage,
   //                                              const QString &rightImage);
@@ -150,10 +150,10 @@ protected slots:
   void initAndOpenExportPointCloudDialog();
   //void initAndOpenDtmDialog();
 
-private:
-
-  void initKeypointsViewer();
-  void initMatchesViewer();
+//private:
+//
+//  void initKeypointsViewer();
+//  void initMatchesViewer();
 
 protected:
 
@@ -182,8 +182,8 @@ protected:
   OrientationPresenter *mOrientationPresenter;
   DensificationModel *mDensificationModel;
   DensificationPresenter *mDensificationPresenter;
-  FeaturesViewerModel *mFeaturesViewerModel;
-  FeaturesViewerPresenter *mFeaturesViewerPresenter;
+  //FeaturesViewerModel *mFeaturesViewerModel;
+  //FeaturesViewerPresenter *mFeaturesViewerPresenter;
   //MatchViewerModel *mMatchesViewerModel;
   //MatchViewerPresenter *mMatchesViewerPresenter;
   ExportOrientationsModel *mExportOrientationsModel;

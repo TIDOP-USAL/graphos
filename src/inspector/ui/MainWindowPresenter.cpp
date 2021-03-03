@@ -513,6 +513,8 @@ void MainWindowPresenter::loadFeatures(const QString &featId)
 {
   mView->addFeatures(featId);
   mView->setFlag(MainWindowView::Flag::feature_extraction, true);
+  //TODO: Remplaza a lo anterior que hay que quitar
+  AppStatus::instance().activeFlag(AppStatus::Flag::feature_extraction, true);
 }
 
 void MainWindowPresenter::loadMatches()

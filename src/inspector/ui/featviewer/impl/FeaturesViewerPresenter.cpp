@@ -2,7 +2,7 @@
 
 #include "inspector/ui/featviewer/FeaturesViewerModel.h"
 #include "inspector/ui/featviewer/FeaturesViewerView.h"
-#include "inspector/ui/SettingsModel.h"
+//#include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/HelpDialog.h"
 
 #include <QFileInfo>
@@ -14,12 +14,12 @@ namespace ui
 {
 
 FeaturesViewerPresenterImp::FeaturesViewerPresenterImp(FeaturesViewerView *view,
-                                                       FeaturesViewerModel *model,
-                                                       SettingsModel *settingsModel)
+                                                       FeaturesViewerModel *model/*,
+                                                       SettingsModel *settingsModel*/)
   : FeaturesViewerPresenter(),
     mView(view),
     mModel(model),
-    mSettingsModel(settingsModel),
+    //mSettingsModel(settingsModel),
     mHelp(nullptr)
 {
   this->init();
@@ -44,13 +44,13 @@ void FeaturesViewerPresenterImp::open()
 {
   mView->clear();
 
-  mView->setBGColor(mSettingsModel->keypointsViewerBGColor());
-  mView->setSelectedMarkerStyle(mSettingsModel->keypointsViewerSelectMarkerColor(),
-                                mSettingsModel->keypointsViewerSelectMarkerWidth());
-  mView->setMarkerStyle(mSettingsModel->keypointsViewerMarkerColor(),
-                        mSettingsModel->keypointsViewerMarkerWidth(),
-                        mSettingsModel->keypointsViewerMarkerType(),
-                        mSettingsModel->keypointsViewerMarkerSize());
+  mView->setBGColor(mModel->viewerBGColor());
+  mView->setSelectedMarkerStyle(mModel->viewerSelectMarkerColor(),
+                                mModel->viewerSelectMarkerWidth());
+  mView->setMarkerStyle(mModel->viewerMarkerColor(),
+                        mModel->viewerMarkerWidth(),
+                        mModel->viewerMarkerType(),
+                        mModel->viewerMarkerSize());
 
   mView->show();
 

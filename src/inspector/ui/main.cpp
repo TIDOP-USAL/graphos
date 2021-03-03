@@ -4,6 +4,7 @@
 #include "ComponentsManager.h"
 
 #include "inspector/ui/dtm/DTMComponent.h"
+#include "inspector/ui/featviewer/FeaturesViewerComponent.h"
 #include "inspector/ui/matchviewer/MatchViewerComponent.h"
 #include "inspector/ui/AppStatus.h"
 
@@ -24,12 +25,13 @@ int main(int argc, char *argv[])
                                       ComponentsManager::Flags::separator_before);*/
   DTMComponent dtm_component(componentsManager.project());
   componentsManager.registerComponent(&dtm_component, 
-                                      ComponentsManager::Flags::separator_after | 
+                                      ComponentsManager::Flags::separator_before);
+  FeaturesViewerComponent features_viewer_component(componentsManager.project());
+  componentsManager.registerComponent(&features_viewer_component, 
                                       ComponentsManager::Flags::separator_before);
   MatchViewerComponent match_viewer_component(componentsManager.project());
-  componentsManager.registerComponent(&match_viewer_component, 
-                                      ComponentsManager::Flags::separator_after | 
-                                      ComponentsManager::Flags::separator_before);
+  componentsManager.registerComponent(&match_viewer_component,
+                                      ComponentsManager::Flags::separator_after);
 
   AppStatus &app_status = AppStatus::instance();
   app_status.activeFlag(AppStatus::Flag::none, true);

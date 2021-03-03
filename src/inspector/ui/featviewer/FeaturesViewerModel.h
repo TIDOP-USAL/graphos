@@ -1,10 +1,7 @@
-#ifndef INSPECTOR_FEATURES_VIEWER_MODEL_H
-#define INSPECTOR_FEATURES_VIEWER_MODEL_H
+#ifndef INSPECTOR_FEATURES_VIEWER_MODEL_INTERFACE_H
+#define INSPECTOR_FEATURES_VIEWER_MODEL_INTERFACE_H
 
-#include <memory>
-
-#include "inspector/ui/featviewer/FeaturesViewer.h"
-#include "inspector/core/project.h"
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
@@ -12,38 +9,28 @@ namespace inspector
 namespace ui
 {
 
-class FeaturesViewerModelImp
-  : public FeaturesViewerModel
+class FeaturesViewerModel
+  : public IModel
 {
 
- Q_OBJECT
+  Q_OBJECT
 
 public:
 
-  FeaturesViewerModelImp(Project *project,
-                         QObject *parent = nullptr);
-  ~FeaturesViewerModelImp() override;
+  FeaturesViewerModel(QObject *parent = nullptr) : IModel(parent) {}
+  ~FeaturesViewerModel() = default;
 
-// FeaturesViewerModel interface
+  virtual std::vector<QString> images() const = 0;
+  virtual std::vector<QPointF> loadKeypoints(const QString &image) = 0;
 
-public:
+  virtual QString viewerBGColor() const = 0;
+  virtual int viewerMarkerType() const = 0;
+  virtual int viewerMarkerSize() const = 0;
+  virtual int viewerMarkerWidth() const = 0;
+  virtual QString viewerMarkerColor() const = 0;
+  virtual int viewerSelectMarkerWidth() const = 0;
+  virtual QString viewerSelectMarkerColor() const = 0;
 
-  std::vector<QString> images() const override;
-  std::vector<QPointF> loadKeypoints(const QString &imageName) override;
-
-// IModel interface
-
-private:
-
-  void init() override;
-
-public slots:
-
-  void clear() override;
-
-protected:
-
-  Project *mProject;
 
 };
 
@@ -51,4 +38,4 @@ protected:
 
 } // namespace inspector
 
-#endif // INSPECTOR_FEATURES_VIEWER_MODEL_H
+#endif // INSPECTOR_FEATURES_VIEWER_MODEL_INTERFACE_H

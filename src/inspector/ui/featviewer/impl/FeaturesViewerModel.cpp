@@ -1,13 +1,14 @@
 #include "FeaturesViewerModel.h"
 
-#include "inspector/core/features/featio.h"
-#include "inspector/ui/ProjectModel.h"
+#include "inspector/core/project.h"
+//#include "inspector/core/features/featio.h"
 
 #include <tidop/core/messages.h>
 
 #include <colmap/base/database.h>
 
 #include <QFileInfo>
+#include <QSettings>
 
 namespace inspector
 {
@@ -18,7 +19,11 @@ namespace ui
 FeaturesViewerModelImp::FeaturesViewerModelImp(Project *project,
                                                QObject *parent)
   : FeaturesViewerModel(parent),
-    mProject(project)
+    mProject(project),
+    mSettings(new QSettings(QSettings::IniFormat, 
+                            QSettings::UserScope, 
+                            "TIDOP", 
+                            "Inspector"))
 {
   this->init();
 }
@@ -85,6 +90,41 @@ std::vector<QPointF> FeaturesViewerModelImp::loadKeypoints(const QString &imageN
     msgError(e.what());
     return std::vector<QPointF>();
   }
+}
+
+QString FeaturesViewerModelImp::viewerBGColor() const
+{
+  return mSettings->value("KeypointsViewer/BGColor", "#dcdcdc").toString();
+}
+
+int FeaturesViewerModelImp::viewerMarkerType() const
+{
+  return mSettings->value("KeypointsViewer/Type", 0).toInt();
+}
+
+int FeaturesViewerModelImp::viewerMarkerSize() const
+{
+  return mSettings->value("KeypointsViewer/MarkerSize", 20).toInt();
+}
+
+int FeaturesViewerModelImp::viewerMarkerWidth() const
+{
+  return mSettings->value("KeypointsViewer/MarkerWidth", 2).toInt();
+}
+
+QString FeaturesViewerModelImp::viewerMarkerColor() const
+{
+  return mSettings->value("KeypointsViewer/MarkerColor", "#00aa00").toString();
+}
+
+int FeaturesViewerModelImp::viewerSelectMarkerWidth() const
+{
+  return mSettings->value("KeypointsViewer/SelectMarkerWidth", 2).toInt();
+}
+
+QString FeaturesViewerModelImp::viewerSelectMarkerColor() const
+{
+  return mSettings->value("KeypointsViewer/SelectMarkerColor","#e5097e").toString();
 }
 
 } // namespace ui

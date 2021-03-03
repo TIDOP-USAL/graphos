@@ -69,8 +69,8 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExportMatches(new QAction(this)),
     mActionExportOrientations(new QAction(this)),
     mActionExportPointCloud(new QAction(this)),
-    mActionFeaturesViewer(new QAction(this)),
-    mActionMatchesViewer(new QAction(this)),
+    //mActionFeaturesViewer(new QAction(this)),
+    //mActionMatchesViewer(new QAction(this)),
     mActionDtm(new QAction(this)),
     mActionOrtho(new QAction(this)),
     //mActionPassPointsViewer(new QAction(this)),
@@ -962,13 +962,13 @@ void MainWindowView::initActions()
   iconGeoreference.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-coordinate-system.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionGeoreference->setIcon(iconGeoreference);
 
-  QIcon iconFeaturesViewer;
-  iconFeaturesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_points_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionFeaturesViewer->setIcon(iconFeaturesViewer);
+  //QIcon iconFeaturesViewer;
+  //iconFeaturesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_points_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  //mActionFeaturesViewer->setIcon(iconFeaturesViewer);
 
-  QIcon iconMatchesViewer;
-  iconMatchesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_match_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionMatchesViewer->setIcon(iconMatchesViewer);
+  //QIcon iconMatchesViewer;
+  //iconMatchesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_match_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  //mActionMatchesViewer->setIcon(iconMatchesViewer);
 
   QIcon iconSettings;
   iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -996,9 +996,9 @@ void MainWindowView::initActions()
   iconRemoveImage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_remove_image_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionDeleteImage->setIcon(iconRemoveImage);
 
-  mActionViewKeypoints->setIcon(iconFeaturesViewer);
+  //mActionViewKeypoints->setIcon(iconFeaturesViewer);
 
-  mActionViewMatches->setIcon(iconMatchesViewer);
+  //mActionViewMatches->setIcon(iconMatchesViewer);
 
   //mActionDtm->setIcon(iconMatchesViewer);
   //mActionOrtho->setIcon(iconMatchesViewer);
@@ -1068,9 +1068,9 @@ void MainWindowView::initToolbarTools()
   mToolBarTools->addAction(mActionCameras);
   mToolBarTools->addSeparator();
   mToolBarTools->addAction(mActionGeoreference);
-  mToolBarTools->addSeparator();
-  mToolBarTools->addAction(mActionFeaturesViewer);
-  mToolBarTools->addAction(mActionMatchesViewer);
+  //mToolBarTools->addSeparator();
+  //mToolBarTools->addAction(mActionFeaturesViewer);
+  //mToolBarTools->addAction(mActionMatchesViewer);
   this->addToolBar(Qt::TopToolBarArea, mToolBarTools);
 }
 
@@ -1186,8 +1186,8 @@ void MainWindowView::initMenuTools()
   ui->menuTools->addAction(mActionDtm);
   //ui->menuTools->addAction(mActionOrtho);
   ui->menuTools->addSeparator();
-  ui->menuTools->addAction(mActionFeaturesViewer);
-  ui->menuTools->addAction(mActionMatchesViewer);
+  //ui->menuTools->addAction(mActionFeaturesViewer);
+  //ui->menuTools->addAction(mActionMatchesViewer);
   //ui->menuTools->addAction(mActionPassPointsViewer);
   ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionSettings);
@@ -1243,8 +1243,8 @@ void MainWindowView::initSignalAndSlots()
   connect(mActionCameras,            &QAction::triggered,   this,   &MainWindowView::openCamerasDialog);
   connect(mActionGeoreference,       &QAction::triggered,   this,   &MainWindowView::openGeoreferenceDialog);
   connect(mActionDtm,                &QAction::triggered,   this,   &MainWindowView::openDtmDialog);
-  connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
-  connect(mActionMatchesViewer,      SIGNAL(triggered(bool)),   this,   SIGNAL(openMatchesViewer()));
+  //connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
+  //connect(mActionMatchesViewer,      SIGNAL(triggered(bool)),   this,   SIGNAL(openMatchesViewer()));
   //connect(mActionPassPointsViewer,   SIGNAL(triggered(bool)),   this,   SIGNAL(openMultiviewMatchingAssessment()));
   connect(mActionSettings,           SIGNAL(triggered(bool)),   this,   SIGNAL(openSettings()));
 
@@ -1356,8 +1356,8 @@ void MainWindowView::update()
   mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
   mActionDtm->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
   mActionGeoreference->setEnabled(bProjectExists && bOriented && !bProcessing);
-  mActionFeaturesViewer->setEnabled(bFeatureExtraction);
-  mActionMatchesViewer->setEnabled(bFeatureMatching);
+  //mActionFeaturesViewer->setEnabled(bFeatureExtraction);
+  //mActionMatchesViewer->setEnabled(bFeatureMatching);
   //mActionPassPointsViewer->setEnabled(bFeatureMatching);
 }
 
@@ -1384,8 +1384,8 @@ void MainWindowView::retranslate()
   mActionGeoreference->setText(QApplication::translate("MainWindowView", "Georeference", nullptr));
   mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
   mActionAbout->setText(QApplication::translate("MainWindowView", "About", nullptr));
-  mActionFeaturesViewer->setText(QApplication::translate("MainWindowView", "Keypoints Viewer", nullptr));
-  mActionMatchesViewer->setText(QApplication::translate("MainWindowView", "Matches Viewer", nullptr));
+  //mActionFeaturesViewer->setText(QApplication::translate("MainWindowView", "Keypoints Viewer", nullptr));
+  //mActionMatchesViewer->setText(QApplication::translate("MainWindowView", "Matches Viewer", nullptr));
   //mActionPassPointsViewer->setText(QApplication::translate("MainWindowView", "Multiview Matching Assessment", nullptr));
   mActionSettings->setText(QApplication::translate("MainWindowView", "Settings", nullptr));
   mActionNotRecentProjects->setText(QApplication::translate("MainWindowView", "Not recent projects", nullptr));

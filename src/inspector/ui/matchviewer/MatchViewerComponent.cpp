@@ -22,6 +22,7 @@ MatchViewerComponent::MatchViewerComponent(Project *project)
 {
   this->setName("Match Viewer");
   this->setMenu("tools");
+  this->setToolbar("tools");
   QIcon iconMatchesViewer;
   iconMatchesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_match_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
   mAction->setIcon(iconMatchesViewer);

@@ -29,9 +29,9 @@
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/cameras/CamerasView.h"
 #include "inspector/ui/cameras/CamerasPresenter.h"
-#include "inspector/ui/featviewer/FeaturesViewerModel.h"
-#include "inspector/ui/featviewer/FeaturesViewerView.h"
-#include "inspector/ui/featviewer/FeaturesViewerPresenter.h"
+//#include "inspector/ui/featviewer/FeaturesViewerModel.h"
+//#include "inspector/ui/featviewer/FeaturesViewerView.h"
+//#include "inspector/ui/featviewer/FeaturesViewerPresenter.h"
 //#include "inspector/ui/matchviewer/MatchViewerModel.h"
 //#include "inspector/ui/matchviewer/MatchViewerView.h"
 //#include "inspector/ui/matchviewer/MatchViewerPresenter.h"
@@ -93,8 +93,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mOrientationPresenter(nullptr),
     mDensificationModel(nullptr),
     mDensificationPresenter(nullptr),
-    mFeaturesViewerModel(nullptr),
-    mFeaturesViewerPresenter(nullptr),
+    //mFeaturesViewerModel(nullptr),
+    //mFeaturesViewerPresenter(nullptr),
     //mMatchesViewerModel(nullptr),
     //mMatchesViewerPresenter(nullptr),
     mExportOrientationsModel(nullptr),
@@ -226,15 +226,15 @@ ComponentsManager::~ComponentsManager()
     mDensificationPresenter = nullptr;
   }
 
-  if (mFeaturesViewerModel) {
-    delete mFeaturesViewerModel;
-    mFeaturesViewerModel = nullptr;
-  }
+  //if (mFeaturesViewerModel) {
+  //  delete mFeaturesViewerModel;
+  //  mFeaturesViewerModel = nullptr;
+  //}
 
-  if (mFeaturesViewerPresenter){
-    delete mFeaturesViewerPresenter;
-    mFeaturesViewerPresenter = nullptr;
-  }
+  //if (mFeaturesViewerPresenter){
+  //  delete mFeaturesViewerPresenter;
+  //  mFeaturesViewerPresenter = nullptr;
+  //}
 
   //if (mMatchesViewerModel){
   //  delete mMatchesViewerModel;
@@ -350,10 +350,10 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenOrientationDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openDensificationDialog,
             this, &ComponentsManager::initAndOpenDensificationDialog);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openKeypointsViewerDialog,
-            this, &ComponentsManager::initAndOpenKeypointsViewerDialog);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openKeypointsViewerDialogFromImage,
-            this, &ComponentsManager::initAndOpenKeypointsViewerDialogFromImage);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openKeypointsViewerDialog,
+    //        this, &ComponentsManager::initAndOpenKeypointsViewerDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openKeypointsViewerDialogFromImage,
+    //        this, &ComponentsManager::initAndOpenKeypointsViewerDialogFromImage);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openMatchesViewerDialog,
     //        this, &ComponentsManager::initAndOpenMatchesViewerDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openMatchesViewerDialogFromImages,
@@ -657,26 +657,26 @@ DensificationPresenter *ComponentsManager::densificationPresenter()
   }
   return mDensificationPresenter;
 }
+//
+//FeaturesViewerModel *ComponentsManager::featuresViewerModel()
+//{
+//  if (mFeaturesViewerModel == nullptr){
+//    mFeaturesViewerModel = new FeaturesViewerModelImp(mProject);
+//  }
+//  return mFeaturesViewerModel;
+//}
 
-FeaturesViewerModel *ComponentsManager::featuresViewerModel()
-{
-  if (mFeaturesViewerModel == nullptr){
-    mFeaturesViewerModel = new FeaturesViewerModelImp(mProject);
-  }
-  return mFeaturesViewerModel;
-}
-
-FeaturesViewerPresenter *ComponentsManager::featuresViewerPresenter()
-{
-  if (mFeaturesViewerPresenter == nullptr){
-    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-    FeaturesViewerView *featuresViewerView = new FeaturesViewerViewImp(this->mainWindowView(), f);
-    mFeaturesViewerPresenter = new FeaturesViewerPresenterImp(featuresViewerView,
-                                                              this->featuresViewerModel(),
-                                                              this->settingsModel());
-  }
-  return mFeaturesViewerPresenter;
-}
+//FeaturesViewerPresenter *ComponentsManager::featuresViewerPresenter()
+//{
+//  if (mFeaturesViewerPresenter == nullptr){
+//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+//    FeaturesViewerView *featuresViewerView = new FeaturesViewerViewImp(this->mainWindowView(), f);
+//    mFeaturesViewerPresenter = new FeaturesViewerPresenterImp(featuresViewerView,
+//                                                              this->featuresViewerModel(),
+//                                                              this->settingsModel());
+//  }
+//  return mFeaturesViewerPresenter;
+//}
 
 //MatchViewerModel *ComponentsManager::matchesViewerModel()
 //{
@@ -1057,31 +1057,31 @@ void ComponentsManager::initAndOpenCamerasDialog()
 
 }
 
-void ComponentsManager::initAndOpenKeypointsViewerDialog()
-{
-  this->initKeypointsViewer();
-  this->featuresViewerPresenter()->open();
-}
+//void ComponentsManager::initAndOpenKeypointsViewerDialog()
+//{
+//  this->initKeypointsViewer();
+//  this->featuresViewerPresenter()->open();
+//}
 
-void ComponentsManager::initAndOpenKeypointsViewerDialogFromImage(const QString &image)
-{
-  this->initKeypointsViewer();
-  this->featuresViewerPresenter()->openKeypointsFromImage(image);
-}
+//void ComponentsManager::initAndOpenKeypointsViewerDialogFromImage(const QString &image)
+//{
+//  this->initKeypointsViewer();
+//  this->featuresViewerPresenter()->openKeypointsFromImage(image);
+//}
 
-void ComponentsManager::initKeypointsViewer()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openKeypointsViewerDialog,
-             this, &ComponentsManager::initAndOpenKeypointsViewerDialog);
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openKeypointsViewerDialogFromImage,
-             this, &ComponentsManager::initAndOpenKeypointsViewerDialogFromImage);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openKeypointsViewerDialog,
-          this->featuresViewerPresenter(), &FeaturesViewerPresenter::open);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openKeypointsViewerDialogFromImage,
-          this->featuresViewerPresenter(), &FeaturesViewerPresenter::openKeypointsFromImage);
-
-  //this->featuresViewerPresenter()->setHelp(this->helpDialog());
-}
+//void ComponentsManager::initKeypointsViewer()
+//{
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openKeypointsViewerDialog,
+//             this, &ComponentsManager::initAndOpenKeypointsViewerDialog);
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openKeypointsViewerDialogFromImage,
+//             this, &ComponentsManager::initAndOpenKeypointsViewerDialogFromImage);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openKeypointsViewerDialog,
+//          this->featuresViewerPresenter(), &FeaturesViewerPresenter::open);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openKeypointsViewerDialogFromImage,
+//          this->featuresViewerPresenter(), &FeaturesViewerPresenter::openKeypointsFromImage);
+//
+//  //this->featuresViewerPresenter()->setHelp(this->helpDialog());
+//}
 
 //void ComponentsManager::initAndOpenMatchesViewerDialog()
 //{

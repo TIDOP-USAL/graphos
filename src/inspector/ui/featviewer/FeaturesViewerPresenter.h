@@ -1,11 +1,7 @@
-#ifndef INSPECTOR_FEATURES_VIEWER_PRESENTER_H
-#define INSPECTOR_FEATURES_VIEWER_PRESENTER_H
+#ifndef INSPECTOR_FEATURES_VIEWER_PRESENTER_INTERFACE_H
+#define INSPECTOR_FEATURES_VIEWER_PRESENTER_INTERFACE_H
 
-#include <memory>
-
-#include <QObject>
-
-#include "inspector/ui/featviewer/FeaturesViewer.h"
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
@@ -13,54 +9,25 @@ namespace inspector
 namespace ui
 {
 
-class FeaturesViewerView;
-class FeaturesViewerModel;
-class SettingsModel;
-class HelpDialog;
-
-class FeaturesViewerPresenterImp
-  : public FeaturesViewerPresenter
+class FeaturesViewerPresenter
+  : public IPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  FeaturesViewerPresenterImp(FeaturesViewerView *view,
-                             FeaturesViewerModel *model,
-                             SettingsModel *settingsModel);
-  ~FeaturesViewerPresenterImp() override;
-
-// FeaturesViewerPresenter interface
+  FeaturesViewerPresenter() {}
+  ~FeaturesViewerPresenter() {}
 
 public slots:
 
-  void setImageActive(const QString &image) override;
-  void openKeypointsFromImage(const QString &image) override;
+  virtual void setImageActive(const QString &image) = 0;
+  virtual void openKeypointsFromImage(const QString &image) = 0;
 
 protected slots:
 
-  void loadKeypoints(const QString &image) override;
-
-// IPresenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-private:
-
-  FeaturesViewerView *mView;
-  FeaturesViewerModel *mModel;
-  SettingsModel *mSettingsModel;
-  HelpDialog *mHelp;
+  virtual void loadKeypoints(const QString &image) = 0;
 
 };
 
@@ -68,4 +35,4 @@ private:
 
 } // namespace inspector
 
-#endif // INSPECTOR_FEATURES_VIEWER_PRESENTER_H
+#endif // INSPECTOR_FEATURES_VIEWER_PRESENTER_INTERFACE_H

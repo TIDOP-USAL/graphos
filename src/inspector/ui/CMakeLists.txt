@@ -55,9 +55,10 @@ set(INSPECTOR_SOURCES
     densification/DensificationModel.cpp
     densification/DensificationView.cpp
     densification/DensificationPresenter.cpp
-    featviewer/FeaturesViewerView.cpp
-    featviewer/FeaturesViewerModel.cpp
-    featviewer/FeaturesViewerPresenter.cpp
+	featviewer/FeaturesViewerComponent.cpp
+    featviewer/impl/FeaturesViewerView.cpp
+    featviewer/impl/FeaturesViewerModel.cpp
+    featviewer/impl/FeaturesViewerPresenter.cpp
     matchviewer/MatchViewerComponent.cpp
     matchviewer/impl/MatchViewerModel.cpp
     matchviewer/impl/MatchViewerView.cpp
@@ -150,10 +151,13 @@ set(INSPECTOR_HEADERS
     densification/DensificationModel.h
     densification/DensificationView.h
     densification/DensificationPresenter.h
-    featviewer/FeaturesViewer.h
+    featviewer/FeaturesViewerComponent.h
     featviewer/FeaturesViewerView.h
     featviewer/FeaturesViewerModel.h
     featviewer/FeaturesViewerPresenter.h
+    featviewer/impl/FeaturesViewerView.h
+    featviewer/impl/FeaturesViewerModel.h
+    featviewer/impl/FeaturesViewerPresenter.h
     matchviewer/MatchViewerComponent.h
     matchviewer/MatchViewerModel.h
     matchviewer/MatchViewerView.h
