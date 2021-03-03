@@ -52,9 +52,10 @@ set(INSPECTOR_SOURCES
     orientation/OrientationModel.cpp
     orientation/OrientationView.cpp
     orientation/OrientationPresenter.cpp
-    densification/DensificationModel.cpp
-    densification/DensificationView.cpp
-    densification/DensificationPresenter.cpp
+	densification/DensificationComponent.cpp
+    densification/impl/DensificationModel.cpp
+    densification/impl/DensificationView.cpp
+    densification/impl/DensificationPresenter.cpp
 	featviewer/FeaturesViewerComponent.cpp
     featviewer/impl/FeaturesViewerView.cpp
     featviewer/impl/FeaturesViewerModel.cpp
@@ -147,10 +148,13 @@ set(INSPECTOR_HEADERS
     orientation/OrientationModel.h
     orientation/OrientationView.h
     orientation/OrientationPresenter.h
-    densification/Densification.h
+    densification/DensificationComponent.h
     densification/DensificationModel.h
     densification/DensificationView.h
     densification/DensificationPresenter.h
+    densification/impl/DensificationModel.h
+    densification/impl/DensificationView.h
+    densification/impl/DensificationPresenter.h
     featviewer/FeaturesViewerComponent.h
     featviewer/FeaturesViewerView.h
     featviewer/FeaturesViewerModel.h

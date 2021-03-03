@@ -3,6 +3,7 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#include "inspector/ui/densification/DensificationComponent.h"
 #include "inspector/ui/dtm/DTMComponent.h"
 #include "inspector/ui/featviewer/FeaturesViewerComponent.h"
 #include "inspector/ui/matchviewer/MatchViewerComponent.h"
@@ -19,6 +20,8 @@ int main(int argc, char *argv[])
 
   ComponentsManager componentsManager;
 
+  DensificationComponent densification_component(componentsManager.project());
+  componentsManager.registerComponent(&densification_component);
   /*DtmComponent dtm_component(componentsManager.project());
   componentsManager.registerComponent(&dtm_component, 
                                       ComponentsManager::Flags::separator_after | 

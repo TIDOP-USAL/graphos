@@ -16,7 +16,7 @@ namespace ui
 class IModel;
 class IDialogView;
 class IPresenter;
-
+class ProgressHandler;
 
 class Component
   : public QObject
@@ -43,6 +43,10 @@ protected:
 protected:
 
   virtual void update() = 0;
+
+signals:
+
+  void created();
 };
 
 
@@ -105,8 +109,16 @@ class ProcessComponent
 
 public:
 
-  ProcessComponent() {}
+  ProcessComponent();
   ~ProcessComponent() override = default;
+
+public slots:
+
+  virtual void setProgressHandler(ProgressHandler *progressHandler);
+
+private slots:
+
+  void onComponentCreated();
 
 signals:
 
@@ -114,7 +126,9 @@ signals:
   void finished();
   void failed();
 
+private:
 
+  ProgressHandler *mProgressHandler;
 };
 
 } // namespace ui

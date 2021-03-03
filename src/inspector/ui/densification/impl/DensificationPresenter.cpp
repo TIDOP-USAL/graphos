@@ -1,5 +1,7 @@
 #include "DensificationPresenter.h"
 
+#include "inspector/ui/densification/DensificationModel.h"
+#include "inspector/ui/densification/DensificationView.h"
 #include "inspector/widgets/CmvsPmvsWidget.h"
 #include "inspector/widgets/SmvsWidget.h"
 #include "inspector/core/densification/CmvsPmvs.h"

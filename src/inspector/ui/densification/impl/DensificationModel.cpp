@@ -1,6 +1,6 @@
 #include "DensificationModel.h"
 
-
+#include "inspector/core/project.h"
 #include "inspector/core/densification/densification.h"
 
 

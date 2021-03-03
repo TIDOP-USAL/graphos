@@ -270,7 +270,7 @@ protected:
   QAction *mActionFeatureExtraction;
   QAction *mActionFeatureMatching;
   QAction *mActionOrientation;
-  QAction *mActionDensification;
+  //QAction *mActionDensification;
   QAction *mActionCameras;
   QAction *mActionGeoreference;
   QAction *mActionSettings;

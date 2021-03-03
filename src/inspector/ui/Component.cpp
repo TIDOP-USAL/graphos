@@ -2,6 +2,7 @@
 
 #include "inspector/interfaces/mvp.h"
 #include "inspector/ui/AppStatus.h"
+#include "inspector/ui/process/ProcessPresenter.h"
 
 #include <QAction>
 
@@ -47,6 +48,7 @@ void ComponentBase::init()
   AppStatus &app_status = AppStatus::instance();
   connect(&app_status, &AppStatus::update,
           this, &ComponentBase::update);
+
 }
 
 void ComponentBase::createComponent()
@@ -57,6 +59,8 @@ void ComponentBase::createComponent()
   this->createModel();
   this->createView();
   this->createPresenter();
+
+  emit created();
 
   connect(mAction, &QAction::triggered,
           mPresenter, &IPresenter::open);
@@ -105,6 +109,31 @@ void ComponentBase::setToolbar(const QString &toolbar)
   mToolbar = toolbar;
 }
 
+
+
+ProcessComponent::ProcessComponent()
+  : ComponentBase()
+{
+  connect(this, &Component::created, this, &ProcessComponent::onComponentCreated);
+
+}
+
+void ProcessComponent::setProgressHandler(ProgressHandler *progressHandler)
+{
+  mProgressHandler = progressHandler;
+}
+
+void ProcessComponent::onComponentCreated()
+{
+  connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::running,
+          this, &ProcessComponent::running);
+  connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::finished,
+          this, &ProcessComponent::finished);
+  connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::failed,
+          this, &ProcessComponent::failed);
+
+  dynamic_cast<ProcessPresenter *>(mPresenter)->setProgressHandler(mProgressHandler);
+}
 
 } // namespace ui
 

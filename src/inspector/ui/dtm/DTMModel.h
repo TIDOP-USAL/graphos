@@ -7,7 +7,6 @@
 namespace inspector
 {
 
-
 namespace ui
 {
 

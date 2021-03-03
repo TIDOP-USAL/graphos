@@ -1,7 +1,7 @@
-#ifndef INSPECTOR_DENSE_VIEW_H
-#define INSPECTOR_DENSE_VIEW_H
+#ifndef INSPECTOR_DENSE_VIEW_INTERFACE_H
+#define INSPECTOR_DENSE_VIEW_INTERFACE_H
 
-#include "inspector/ui/densification/Densification.h"
+#include "inspector/interfaces/mvp.h"
 
 class QGridLayout;
 class QDialogButtonBox;
@@ -14,51 +14,29 @@ namespace inspector
 namespace ui
 {
 
-
-class DensificationViewImp
-  : public DensificationView
+class DensificationView
+  : public IDialogView
 {
+
   Q_OBJECT
 
-public:
-
-  explicit DensificationViewImp(QWidget *parent = nullptr);
-  ~DensificationViewImp() override;
-
-// DensificationView interface
 
 public:
 
-  QString currentDensificationMethod() const override;
+  DensificationView(QWidget *parent) : IDialogView(parent) {}
+  virtual ~DensificationView() {}
+
+  virtual QString currentDensificationMethod() const = 0;
+
+signals:
+
+  void densificationChanged(QString);
+  void run();
 
 public slots:
 
-  void addDensification(QWidget *densification) override;
-  void setCurrentDensificationMethod(const QString &densificationMethod) override;
-
-// IDialogView interface
-
-private:
-
-  void initUI() override;
-  void initSignalAndSlots() override;
-
-public slots:
-
-  void clear() override;
-
-private slots:
-
-  void update() override;
-  void retranslate() override;
-
-private:
-
-  QGridLayout *mGridLayout;
-  QGridLayout *mGridLayoutDensification;
-  QLabel *mLabelDensification;
-  QComboBox *mComboBoxDensification;
-  QDialogButtonBox *mButtonBox;
+  virtual void addDensification(QWidget *densification) = 0;
+  virtual void setCurrentDensificationMethod(const QString &densificationMethod) = 0;
 
 };
 
@@ -67,4 +45,4 @@ private:
 } // End namespace inspector
 
 
-#endif // INSPECTOR_DENSE_VIEW_H
+#endif // INSPECTOR_DENSE_VIEW_INTERFACE_H

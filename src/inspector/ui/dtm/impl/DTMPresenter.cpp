@@ -1,7 +1,7 @@
 #include "DTMPresenter.h"
 
-#include "inspector/ui/dtm/impl/DTMView.h"
-#include "inspector/ui/dtm/impl/DTMModel.h"
+#include "inspector/ui/dtm/DTMView.h"
+#include "inspector/ui/dtm/DTMModel.h"
 #include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/HelpDialog.h"
 #include "inspector/ui/utils/Progress.h"

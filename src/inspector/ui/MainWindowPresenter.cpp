@@ -552,13 +552,9 @@ void MainWindowPresenter::loadDenseModel()
 {
   QString dense_model = mProjectModel->denseModel();
   if (!dense_model.isEmpty()) {
-
     mView->setDenseModel(mProjectModel->denseModel());
-    mView->setFlag(MainWindowView::Flag::dense_model, true);
-    TL_TODO("Por ahora lo añado aqui aunque hay que revisarlo")
     AppStatus &app_status = AppStatus::instance();
     app_status.activeFlag(AppStatus::Flag::dense_model, true);
-    //QByteArray ba = mProjectModel->denseModel().toLocal8Bit();
   }
 }
 

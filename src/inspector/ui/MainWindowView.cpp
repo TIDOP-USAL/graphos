@@ -58,7 +58,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionFeatureExtraction(new QAction(this)),
     mActionFeatureMatching(new QAction(this)),
     mActionOrientation(new QAction(this)),
-    mActionDensification(new QAction(this)),
+    //mActionDensification(new QAction(this)),
     mActionCameras(new QAction(this)),
     mActionGeoreference(new QAction(this)),
     mActionSettings(new QAction(this)),
@@ -1174,7 +1174,7 @@ void MainWindowView::initMenuWorkflow()
   ui->menuWorkflow->addAction(mActionFeatureExtraction);
   ui->menuWorkflow->addAction(mActionFeatureMatching);
   ui->menuWorkflow->addAction(mActionOrientation);
-  ui->menuWorkflow->addAction(mActionDensification);
+  //ui->menuWorkflow->addAction(mActionDensification);
 }
 
 void MainWindowView::initMenuTools()
@@ -1236,7 +1236,7 @@ void MainWindowView::initSignalAndSlots()
   connect(mActionFeatureExtraction,  &QAction::triggered,   this,   &MainWindowView::openFeatureExtraction);
   connect(mActionFeatureMatching,    &QAction::triggered,   this,   &MainWindowView::openFeatureMatching);
   connect(mActionOrientation,        &QAction::triggered,   this,   &MainWindowView::openOrientation);
-  connect(mActionDensification,      &QAction::triggered,   this,   &MainWindowView::openDensification);
+  //connect(mActionDensification,      &QAction::triggered,   this,   &MainWindowView::openDensification);
 
   /* Menú herramientas */
 
@@ -1351,7 +1351,7 @@ void MainWindowView::update()
   mActionFeatureExtraction->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
   mActionFeatureMatching->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   mActionOrientation->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
-  mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
+  //mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
 
   mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
   mActionDtm->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
@@ -1379,7 +1379,7 @@ void MainWindowView::retranslate()
   mActionFeatureExtraction->setText(QApplication::translate("MainWindowView", "Feature Extraction", nullptr));
   mActionFeatureMatching->setText(QApplication::translate("MainWindowView", "Feature Matching", nullptr));
   mActionOrientation->setText(QApplication::translate("MainWindowView", "Orientation", nullptr));
-  mActionDensification->setText(QApplication::translate("MainWindowView", "Densification", nullptr));
+  //mActionDensification->setText(QApplication::translate("MainWindowView", "Densification", nullptr));
   mActionCameras->setText(QApplication::translate("MainWindowView", "Cameras", nullptr));
   mActionGeoreference->setText(QApplication::translate("MainWindowView", "Georeference", nullptr));
   mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));

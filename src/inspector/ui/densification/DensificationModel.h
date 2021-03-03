@@ -1,61 +1,42 @@
-﻿#ifndef INSPECTOR_DENSE_MODEL_H
-#define INSPECTOR_DENSE_MODEL_H
+﻿#ifndef INSPECTOR_DENSE_MODEL_INTERFACE_H
+#define INSPECTOR_DENSE_MODEL_INTERFACE_H
 
-#include <QObject>
-
-#include "inspector/ui/densification/Densification.h"
-#include "inspector/core/project.h"
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
 
+class Densification;
+
 namespace ui
 {
 
-class DensificationModelImp
-  : public DensificationModel
+class DensificationModel
+  : public IModel
 {
+
   Q_OBJECT
 
 public:
 
-  DensificationModelImp(Project *project,
-                        QObject *parent = nullptr);
-  ~DensificationModelImp() override;
+  DensificationModel(QObject *parent = nullptr) : IModel(parent) {}
+  ~DensificationModel() override = default;
 
-// IModel interface
-
-private:
-
-  void init() override;
-
-public slots:
-
-  void clear() override;
-
-// DensificationModel interface
-
-public:
-
-  std::shared_ptr<Densification> densification() const override;
-  QString projectFolder() const override;
-  QString imageDirectory() const override;
-  QString reconstructionPath() const override;
-  bool useCuda() const override;
+  virtual std::shared_ptr<Densification> densification() const = 0;
+  virtual QString projectFolder() const = 0;
+  virtual QString imageDirectory() const = 0;
+  virtual QString reconstructionPath() const = 0;
+  virtual bool useCuda() const = 0;
 
 public slots:
 
-  void setDensification(const std::shared_ptr<Densification> &densification) override;
-  void setDenseModel(const QString &denseModel) override;
-
-protected:
-
-  Project *mProject;
-
+  virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
+  virtual void setDenseModel(const QString &denseModel) = 0;
 };
+
 
 } // End namespace ui
 
 } // End namespace inspector
 
-#endif // GRAPHOS_DENSE_MODEL_H
+#endif // INSPECTOR_DENSE_MODEL_INTERFACE_H

@@ -23,9 +23,9 @@
 #include "inspector/ui/orientation/OrientationModel.h"
 #include "inspector/ui/orientation/OrientationView.h"
 #include "inspector/ui/orientation/OrientationPresenter.h"
-#include "inspector/ui/densification/DensificationModel.h"
-#include "inspector/ui/densification/DensificationView.h"
-#include "inspector/ui/densification/DensificationPresenter.h"
+//#include "inspector/ui/densification/DensificationModel.h"
+//#include "inspector/ui/densification/DensificationView.h"
+//#include "inspector/ui/densification/DensificationPresenter.h"
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/cameras/CamerasView.h"
 #include "inspector/ui/cameras/CamerasPresenter.h"
@@ -91,8 +91,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mFeatureMatchingPresenter(nullptr),
     mOrientationModel(nullptr),
     mOrientationPresenter(nullptr),
-    mDensificationModel(nullptr),
-    mDensificationPresenter(nullptr),
+    //mDensificationModel(nullptr),
+    //mDensificationPresenter(nullptr),
     //mFeaturesViewerModel(nullptr),
     //mFeaturesViewerPresenter(nullptr),
     //mMatchesViewerModel(nullptr),
@@ -216,15 +216,15 @@ ComponentsManager::~ComponentsManager()
     mOrientationPresenter = nullptr;
   }
 
-  if (mDensificationModel){
-    delete mDensificationModel;
-    mDensificationModel = nullptr;
-  }
+  //if (mDensificationModel){
+  //  delete mDensificationModel;
+  //  mDensificationModel = nullptr;
+  //}
 
-  if (mDensificationPresenter){
-    delete mDensificationPresenter;
-    mDensificationPresenter = nullptr;
-  }
+  //if (mDensificationPresenter){
+  //  delete mDensificationPresenter;
+  //  mDensificationPresenter = nullptr;
+  //}
 
   //if (mFeaturesViewerModel) {
   //  delete mFeaturesViewerModel;
@@ -348,8 +348,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openOrientationDialog,
             this, &ComponentsManager::initAndOpenOrientationDialog);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openDensificationDialog,
-            this, &ComponentsManager::initAndOpenDensificationDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openDensificationDialog,
+    //        this, &ComponentsManager::initAndOpenDensificationDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openKeypointsViewerDialog,
     //        this, &ComponentsManager::initAndOpenKeypointsViewerDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openKeypointsViewerDialogFromImage,
@@ -420,6 +420,8 @@ void ComponentsManager::registerComponent(Component *component,
   }
 
   if (ProcessComponent *process_component = dynamic_cast<ProcessComponent *>(component)) {
+    process_component->setProgressHandler(this->progressHandler());
+    TL_TODO("Hay que revisar MainWindowPresenter y mejor sacar estos SLOTS a otra clase")
     connect(process_component, SIGNAL(running()), 
             this->mainWindowPresenter(), SLOT(processRunning()));
     connect(process_component,  SIGNAL(finished()), 
@@ -640,23 +642,23 @@ OrientationPresenter *ComponentsManager::orientationPresenter()
   return mOrientationPresenter;
 }
 
-DensificationModel *ComponentsManager::densificationModel()
-{
-  if (mDensificationModel == nullptr){
-    mDensificationModel = new DensificationModelImp(mProject);
-  }
-  return mDensificationModel;
-}
-
-DensificationPresenter *ComponentsManager::densificationPresenter()
-{
-  if (mDensificationPresenter == nullptr){
-    DensificationView *densificationView = new DensificationViewImp(this->mainWindowView());
-    mDensificationPresenter = new DensificationPresenterImp(densificationView,
-                                                            this->densificationModel());
-  }
-  return mDensificationPresenter;
-}
+//DensificationModel *ComponentsManager::densificationModel()
+//{
+//  if (mDensificationModel == nullptr){
+//    mDensificationModel = new DensificationModelImp(mProject);
+//  }
+//  return mDensificationModel;
+//}
+//
+//DensificationPresenter *ComponentsManager::densificationPresenter()
+//{
+//  if (mDensificationPresenter == nullptr){
+//    DensificationView *densificationView = new DensificationViewImp(this->mainWindowView());
+//    mDensificationPresenter = new DensificationPresenterImp(densificationView,
+//                                                            this->densificationModel());
+//  }
+//  return mDensificationPresenter;
+//}
 //
 //FeaturesViewerModel *ComponentsManager::featuresViewerModel()
 //{
@@ -976,23 +978,23 @@ void ComponentsManager::initAndOpenOrientationDialog()
   this->orientationPresenter()->open();
 }
 
-void ComponentsManager::initAndOpenDensificationDialog()
-{
-  disconnect(mMainWindowPresenter, &MainWindowPresenter::openDensificationDialog,
-             this, &ComponentsManager::initAndOpenDensificationDialog);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openDensificationDialog,
-          this->densificationPresenter(), &IPresenter::open);
-
-  connect(this->densificationPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->densificationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
-  connect(this->densificationPresenter(), SIGNAL(densificationFinished()),  this->mainWindowPresenter(), SLOT(loadDenseModel()));
-
-  connect(this->progressDialog(), SIGNAL(cancel()),     this->densificationPresenter(), SLOT(cancel()));
-
-  this->densificationPresenter()->setProgressHandler(this->progressHandler());
-  this->densificationPresenter()->setHelp(this->helpDialog());
-  this->densificationPresenter()->open();
-}
+//void ComponentsManager::initAndOpenDensificationDialog()
+//{
+//  disconnect(mMainWindowPresenter, &MainWindowPresenter::openDensificationDialog,
+//             this, &ComponentsManager::initAndOpenDensificationDialog);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openDensificationDialog,
+//          this->densificationPresenter(), &IPresenter::open);
+//
+//  connect(this->densificationPresenter(), SIGNAL(running()),   this->mainWindowPresenter(), SLOT(processRunning()));
+//  connect(this->densificationPresenter(), SIGNAL(finished()),  this->mainWindowPresenter(), SLOT(processFinished()));
+//  connect(this->densificationPresenter(), SIGNAL(densificationFinished()),  this->mainWindowPresenter(), SLOT(loadDenseModel()));
+//
+//  connect(this->progressDialog(), SIGNAL(cancel()),     this->densificationPresenter(), SLOT(cancel()));
+//
+//  this->densificationPresenter()->setProgressHandler(this->progressHandler());
+//  this->densificationPresenter()->setHelp(this->helpDialog());
+//  this->densificationPresenter()->open();
+//}
 
 
 

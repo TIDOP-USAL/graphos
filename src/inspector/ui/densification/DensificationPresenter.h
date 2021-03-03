@@ -1,82 +1,36 @@
-#ifndef INSPECTOR_DENSE_PRESENTER_H
-#define INSPECTOR_DENSE_PRESENTER_H
+#ifndef INSPECTOR_DENSE_PRESENTER_INTERFACE_H
+#define INSPECTOR_DENSE_PRESENTER_INTERFACE_H
 
-#include <QObject>
-
-#include "inspector/ui/densification/Densification.h"
-
-#include <memory>
+#include "inspector/ui/process/ProcessPresenter.h"
 
 namespace inspector
 {
-
-class CmvsPmvsWidget;
-class SmvsWidget;
 
 namespace ui
 {
 
 class HelpDialog;
 
-class DensificationPresenterImp
-  : public DensificationPresenter
+class DensificationPresenter
+  : public ProcessPresenter
+
 {
+
   Q_OBJECT
 
 public:
 
-  DensificationPresenterImp(DensificationView *view,
-                            DensificationModel *model);
-  ~DensificationPresenterImp() override;
+  DensificationPresenter(){}
+  ~DensificationPresenter() override = default;
 
-private:
+signals:
 
-  void setCmvsPmvsProperties();
-  void setSmvsProperties();
-
-private slots:
-
-  void onDensificationChanged(const QString &densification);
-  void onFinishDensification();
-
-// DensificationPresenter interface
+  void densificationFinished();
 
 public slots:
 
-  void setCurrentDensifier(const QString &densifier) override;
+  virtual void setCurrentDensifier(const QString &densifier) = 0;
 
-// ProcessPresenter interface
-  
-protected slots:
-
-  void onError(int code, const QString &msg) override;
-  void onFinished() override;
-  void createProcess() override;
-
-public slots:
-
-  void cancel() override;
-
-// IPresenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-private:
-
-  DensificationView *mView;
-  DensificationModel *mModel;
-  CmvsPmvsWidget *mCmvsPmvs;
-  SmvsWidget *mSmvs;
-  HelpDialog *mHelp;
 };
 
 } // End namespace ui
@@ -84,4 +38,4 @@ private:
 } // End namespace inspector
 
 
-#endif // INSPECTOR_DENSE_PRESENTER_H
+#endif // INSPECTOR_DENSE_PRESENTER_INTERFACE_H
