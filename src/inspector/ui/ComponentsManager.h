@@ -29,20 +29,8 @@ class FeaturesModel;
 class MatchesModel;
 class CamerasModel;
 class CamerasPresenter;
-//class FeatureExtractorModel;
-//class FeatureExtractorPresenter;
-//class FeatureMatchingModel;
-//class FeatureMatchingPresenter;
-//class OrientationModel;
-//class OrientationPresenter;
-//class DensificationModel;
-//class DensificationPresenter;
 class ProgressHandler;
 class ProgressDialog;
-//class FeaturesViewerModel;
-//class FeaturesViewerPresenter;
-//class MatchViewerModel;
-//class MatchViewerPresenter;
 class ExportOrientationsModel;
 class ExportOrientationsPresenter;
 class GeoreferenceModel;
@@ -51,8 +39,6 @@ class CamerasImportModel;
 class CamerasImportPresenter;
 class ExportPointCloudModel;
 class ExportPointCloudPresenter;
-//class DtmPresenter;
-//class DtmModel;
 class HelpDialog;
 class AboutDialog;
 
@@ -95,18 +81,6 @@ public:
   SettingsPresenter *settingsPresenter();
 
   NewProjectPresenter *newProjectPresenter();
-  //FeatureExtractorModel *featureExtractorModel();
-  //FeatureExtractorPresenter *featureExtractorPresenter();
-  //FeatureMatchingModel *featureMatchingModel();
-  //FeatureMatchingPresenter *featureMatchingPresenter();
-  //OrientationModel *orientationModel();
-  //OrientationPresenter *orientationPresenter();
-  //DensificationModel *densificationModel();
-  //DensificationPresenter *densificationPresenter();
-  //FeaturesViewerModel *featuresViewerModel();
-  //FeaturesViewerPresenter *featuresViewerPresenter();
-  //MatchViewerModel *matchesViewerModel();
-  //MatchViewerPresenter *matchesViewerPresenter();
   ExportOrientationsModel *exportOrientationsModel();
   ExportOrientationsPresenter *exportOrientationsPresenter();
   GeoreferenceModel *georeferenceModel();
@@ -115,8 +89,6 @@ public:
   CamerasImportPresenter *camerasImportPresenter();
   ExportPointCloudModel *exportPointCloudModel();
   ExportPointCloudPresenter *exportPointCloudPresenter();
-  //DtmModel *dtmModel();
-  //DtmPresenter *dtmPresenter();
 
   //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
@@ -130,30 +102,15 @@ protected slots:
 
   void initAndOpenNewProjectDialog();
   void initAndOpenLoadImagesDialog();
-  //void initAndOpenFeatureExtractionDialog();
-  //void initAndOpenFeatureMatchingDialog();
-  //void initAndOpenOrientationDialog();
-  //void initAndOpenDensificationDialog();
   void initAndOpenSettingsDialog();
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
   void initAndOpenCamerasDialog();
-  //void initAndOpenKeypointsViewerDialog();
-  //void initAndOpenKeypointsViewerDialogFromImage(const QString &image);
-  //void initAndOpenMatchesViewerDialog();
-  //void initAndOpenMatchesViewerDialogFromImages(const QString &leftImage,
-  //                                              const QString &rightImage);
   void initSettingsDialog();
   void initAndOpenExportOrientationsDialog();
   void initAndOpenGeoreferenceDialog();
   void initAndOpenCamerasImportDialog();
   void initAndOpenExportPointCloudDialog();
-  //void initAndOpenDtmDialog();
-
-//private:
-//
-//  void initKeypointsViewer();
-//  void initMatchesViewer();
 
 protected:
 
@@ -174,18 +131,6 @@ protected:
   SettingsPresenter *mSettingsPresenter;
 
   NewProjectPresenter *mNewProjectPresenter;
-  //FeatureExtractorModel *mFeatureExtractorModel;
-  //FeatureExtractorPresenter *mFeatureExtractorPresenter;
-  //FeatureMatchingModel *mFeatureMatchingModel;
-  //FeatureMatchingPresenter *mFeatureMatchingPresenter;
-  //OrientationModel *mOrientationModel;
-  //OrientationPresenter *mOrientationPresenter;
-  //DensificationModel *mDensificationModel;
-  //DensificationPresenter *mDensificationPresenter;
-  //FeaturesViewerModel *mFeaturesViewerModel;
-  //FeaturesViewerPresenter *mFeaturesViewerPresenter;
-  //MatchViewerModel *mMatchesViewerModel;
-  //MatchViewerPresenter *mMatchesViewerPresenter;
   ExportOrientationsModel *mExportOrientationsModel;
   ExportOrientationsPresenter *mExportOrientationsPresenter;
   GeoreferenceModel *mGeoreferenceModel;
@@ -194,8 +139,6 @@ protected:
   CamerasImportPresenter *mCamerasImportPresenter;
   ExportPointCloudModel *mExportPointCloudModel;
   ExportPointCloudPresenter *mExportPointCloudPresenter;
-  //DtmModel *mDtmModel;
-  //DtmPresenter *mDtmPresenter;
   //AboutDialog *mAboutDialog;
   HelpDialog *mHelpDialog;
 
