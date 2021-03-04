@@ -1,5 +1,7 @@
 #include "OrientationModel.h"
 
+#include "inspector/core/project.h"
+
 #include <QFileInfo>
 
 namespace inspector

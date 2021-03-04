@@ -126,13 +126,33 @@ void ProcessComponent::setProgressHandler(ProgressHandler *progressHandler)
 void ProcessComponent::onComponentCreated()
 {
   connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::running,
-          this, &ProcessComponent::running);
+          this, &ProcessComponent::onRunning);
   connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::finished,
-          this, &ProcessComponent::finished);
+          this, &ProcessComponent::onFinished);
   connect(dynamic_cast<ProcessPresenter *>(mPresenter), &ProcessPresenter::failed,
-          this, &ProcessComponent::failed);
+          this, &ProcessComponent::onFailed);
 
   dynamic_cast<ProcessPresenter *>(mPresenter)->setProgressHandler(mProgressHandler);
+}
+
+void ProcessComponent::onRunning()
+{
+  //emit running(name());
+  AppStatus::instance().activeFlag(AppStatus::Flag::processing, true);
+}
+
+void ProcessComponent::onFinished()
+{
+  //emit finished(name());
+  AppStatus &appstatus = AppStatus::instance();
+  appstatus.activeFlag(AppStatus::Flag::processing, false);
+  appstatus.activeFlag(AppStatus::Flag::project_modified, true);
+}
+
+void ProcessComponent::onFailed()
+{
+  AppStatus::instance().activeFlag(AppStatus::Flag::processing, false);
+  //emit failed(name());
 }
 
 } // namespace ui

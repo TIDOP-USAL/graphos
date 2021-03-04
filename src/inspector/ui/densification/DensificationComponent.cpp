@@ -54,6 +54,23 @@ void DensificationComponent::update()
   mAction->setEnabled(bProjectExists && bOriented && !bProcessing);
 }
 
+void DensificationComponent::onRunning()
+{
+  ProcessComponent::onRunning();
+}
+
+void DensificationComponent::onFinished()
+{
+  ProcessComponent::onFinished();
+  AppStatus::instance().activeFlag(AppStatus::Flag::dense_model, true);
+}
+
+void DensificationComponent::onFailed()
+{
+  ProcessComponent::onFailed();
+  AppStatus::instance().activeFlag(AppStatus::Flag::dense_model, false);
+}
+
 
 
 

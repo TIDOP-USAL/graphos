@@ -1,6 +1,8 @@
 #include "ComponentsManager.h"
 
 #include "inspector/ui/Component.h"
+#include "inspector/ui/AppStatus.h"
+
 #include "inspector/ui/MainWindowModel.h"
 #include "inspector/ui/MainWindowView.h"
 #include "inspector/ui/MainWindowPresenter.h"
@@ -11,9 +13,9 @@
 
 #include "inspector/ui/NewProjectPresenter.h"
 #include "inspector/ui/NewProjectView.h"
-#include "inspector/ui/featextract/FeatureExtractorModel.h"
-#include "inspector/ui/featextract/FeatureExtractorView.h"
-#include "inspector/ui/featextract/FeatureExtractorPresenter.h"
+//#include "inspector/ui/featextract/FeatureExtractorModel.h"
+//#include "inspector/ui/featextract/FeatureExtractorView.h"
+//#include "inspector/ui/featextract/FeatureExtractorPresenter.h"
 //#include "inspector/ui/featmatch/FeatureMatchingModel.h"
 //#include "inspector/ui/featmatch/FeatureMatchingView.h"
 //#include "inspector/ui/featmatch/FeatureMatchingPresenter.h"
@@ -85,8 +87,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mSettingsModel(nullptr),
     mSettingsPresenter(nullptr),
     mNewProjectPresenter(nullptr),
-    mFeatureExtractorModel(nullptr),
-    mFeatureExtractorPresenter(nullptr),
+    //mFeatureExtractorModel(nullptr),
+    //mFeatureExtractorPresenter(nullptr),
     //mFeatureMatchingModel(nullptr),
     //mFeatureMatchingPresenter(nullptr),
     //mOrientationModel(nullptr),
@@ -186,15 +188,15 @@ ComponentsManager::~ComponentsManager()
     mNewProjectPresenter = nullptr;
   }
 
-  if (mFeatureExtractorModel){
-    delete mFeatureExtractorModel;
-    mFeatureExtractorModel = nullptr;
-  }
+  //if (mFeatureExtractorModel){
+  //  delete mFeatureExtractorModel;
+  //  mFeatureExtractorModel = nullptr;
+  //}
 
-  if (mFeatureExtractorPresenter){
-    delete mFeatureExtractorPresenter;
-    mFeatureExtractorPresenter = nullptr;
-  }
+  //if (mFeatureExtractorPresenter){
+  //  delete mFeatureExtractorPresenter;
+  //  mFeatureExtractorPresenter = nullptr;
+  //}
 
   //if (mFeatureMatchingModel){
   //  delete mFeatureMatchingModel;
@@ -342,8 +344,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenNewProjectDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openLoadImagesDialog,
             this, &ComponentsManager::initAndOpenLoadImagesDialog);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureExtractionDialog,
-            this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureExtractionDialog,
+    //        this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openFeatureMatchingDialog,
     //        this, &ComponentsManager::initAndOpenFeatureMatchingDialog);
     //connect(mMainWindowPresenter, &MainWindowPresenter::openOrientationDialog,
@@ -421,13 +423,31 @@ void ComponentsManager::registerComponent(Component *component,
 
   if (ProcessComponent *process_component = dynamic_cast<ProcessComponent *>(component)) {
     process_component->setProgressHandler(this->progressHandler());
-    TL_TODO("Hay que revisar MainWindowPresenter y mejor sacar estos SLOTS a otra clase")
-    connect(process_component, SIGNAL(running()), 
-            this->mainWindowPresenter(), SLOT(processRunning()));
-    connect(process_component,  SIGNAL(finished()), 
-            this->mainWindowPresenter(), SLOT(processFinished()));
-    connect(process_component,  SIGNAL(failed()), 
-            this->mainWindowPresenter(), SLOT(processFailed()));
+    //TL_TODO("Hay que revisar MainWindowPresenter y mejor sacar estos SLOTS a otra clase")
+      //connect(process_component, SIGNAL(running()), 
+      //        this->mainWindowPresenter(), SLOT(processRunning()));
+      //connect(process_component,  SIGNAL(finished()), 
+      //        this->mainWindowPresenter(), SLOT(processFinished()));
+      //connect(process_component,  SIGNAL(failed()), 
+      //        this->mainWindowPresenter(), SLOT(processFailed()));
+
+ /*     connect(process_component, &ProcessComponent::running, [=](const QString &processName) {
+      AppStatus::instance().activeFlag(AppStatus::Flag::processing, true);
+    });
+    connect(process_component, &ProcessComponent::finished, [=](const QString &processName) {
+      AppStatus &app_status = AppStatus::instance();
+      TL_TODO("No me convence. ")
+      app_status.activeFlag(AppStatus::Flag::processing, false);
+      if (processName.compare("Feature Extractor") == 0) {
+        app_status.
+      } else if (processName.compare("Feature Matching") == 0) {
+
+      } else if (processName.compare("Feature Matching") == 0) {
+      }
+    });
+    connect(process_component, &ProcessComponent::failed, [=](const QString &processName) {
+      AppStatus::instance().activeFlag(AppStatus::Flag::processing, false);
+    });*/
   }
   
   QString toolbar = component->toolbar();
@@ -581,26 +601,26 @@ NewProjectPresenter *ComponentsManager::newProjectPresenter()
 //  return mExportMatchesModel;
 //}
 
-FeatureExtractorModel *ComponentsManager::featureExtractorModel()
-{
-  if (mFeatureExtractorModel == nullptr){
-    mFeatureExtractorModel = new FeatureExtractorModelImp(mProject);
-  }
-  return mFeatureExtractorModel;
-}
-
-FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
-{
-  if (mFeatureExtractorPresenter == nullptr){
-    FeatureExtractorView *featureExtractorView = new FeatureExtractorViewImp(this->mainWindowView());
-    mFeatureExtractorPresenter = new FeatureExtractorPresenterImp(featureExtractorView,
-                                                                  this->featureExtractorModel(),
-                                                                  this->imagesModel(),
-                                                                  this->camerasModel(),
-                                                                  this->settingsModel());
-  }
-  return mFeatureExtractorPresenter;
-}
+//FeatureExtractorModel *ComponentsManager::featureExtractorModel()
+//{
+//  if (mFeatureExtractorModel == nullptr){
+//    mFeatureExtractorModel = new FeatureExtractorModelImp(mProject);
+//  }
+//  return mFeatureExtractorModel;
+//}
+//
+//FeatureExtractorPresenter *ComponentsManager::featureExtractorPresenter()
+//{
+//  if (mFeatureExtractorPresenter == nullptr){
+//    FeatureExtractorView *featureExtractorView = new FeatureExtractorViewImp(this->mainWindowView());
+//    mFeatureExtractorPresenter = new FeatureExtractorPresenterImp(featureExtractorView,
+//                                                                  this->featureExtractorModel(),
+//                                                                  this->imagesModel(),
+//                                                                  this->camerasModel(),
+//                                                                  this->settingsModel());
+//  }
+//  return mFeatureExtractorPresenter;
+//}
 
 //FeatureMatchingModel *ComponentsManager::featureMatchingModel()
 //{
@@ -920,25 +940,25 @@ void ComponentsManager::initAndOpenLoadImagesDialog()
   this->imagesPresenter()->open();
 }
 
-void ComponentsManager::initAndOpenFeatureExtractionDialog()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureExtractionDialog,
-             this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureExtractionDialog,
-          this->featureExtractorPresenter(), &IPresenter::open);
-
-  connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(processRunning()));
-  TL_TODO("Ahora se estan borrando al iniciar el comando...")
-  //connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(deleteFeatures()));
-  connect(this->featureExtractorPresenter(), SIGNAL(finished()),                 this->mainWindowPresenter(), SLOT(processFinished()));
-  connect(this->featureExtractorPresenter(), SIGNAL(featuresExtracted(QString)), this->mainWindowPresenter(), SLOT(loadFeatures(QString)));
-
-  connect(this->progressDialog(), SIGNAL(cancel()),     this->featureExtractorPresenter(), SLOT(cancel()));
-
-  this->featureExtractorPresenter()->setProgressHandler(this->progressHandler());
-  this->featureExtractorPresenter()->setHelp(this->helpDialog());
-  this->featureExtractorPresenter()->open();
-}
+//void ComponentsManager::initAndOpenFeatureExtractionDialog()
+//{
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureExtractionDialog,
+//             this, &ComponentsManager::initAndOpenFeatureExtractionDialog);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openFeatureExtractionDialog,
+//          this->featureExtractorPresenter(), &IPresenter::open);
+//
+//  connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(processRunning()));
+//  TL_TODO("Ahora se estan borrando al iniciar el comando...")
+//  //connect(this->featureExtractorPresenter(), SIGNAL(running()),                  this->mainWindowPresenter(), SLOT(deleteFeatures()));
+//  connect(this->featureExtractorPresenter(), SIGNAL(finished()),                 this->mainWindowPresenter(), SLOT(processFinished()));
+//  connect(this->featureExtractorPresenter(), SIGNAL(featuresExtracted(QString)), this->mainWindowPresenter(), SLOT(loadFeatures(QString)));
+//
+//  connect(this->progressDialog(), SIGNAL(cancel()),     this->featureExtractorPresenter(), SLOT(cancel()));
+//
+//  this->featureExtractorPresenter()->setProgressHandler(this->progressHandler());
+//  this->featureExtractorPresenter()->setHelp(this->helpDialog());
+//  this->featureExtractorPresenter()->open();
+//}
 
 //void ComponentsManager::initAndOpenFeatureMatchingDialog()
 //{

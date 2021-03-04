@@ -120,11 +120,17 @@ private slots:
 
   void onComponentCreated();
 
-signals:
+protected slots:
 
-  void running();
-  void finished();
-  void failed();
+  virtual void onRunning();
+  virtual void onFinished();
+  virtual void onFailed();
+
+//signals:
+//
+//  void running(QString);
+//  void finished(QString);
+//  void failed(QString);
 
 private:
 

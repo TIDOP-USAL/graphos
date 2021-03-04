@@ -26,16 +26,16 @@ namespace ui
 {
 
 FeatureExtractorPresenterImp::FeatureExtractorPresenterImp(FeatureExtractorView *view,
-                                                           FeatureExtractorModel *model,
+                                                           FeatureExtractorModel *model/*,
                                                            ImagesModel *imagesModel,
                                                            CamerasModel *camerasModel,
-                                                           SettingsModel *settingsModel)
+                                                           SettingsModel *settingsModel*/)
   : FeatureExtractorPresenter(),
     mView(view),
     mModel(model),
-    mImagesModel(imagesModel),
-    mCamerasModel(camerasModel),
-    mSettingsModel(settingsModel),
+    //mImagesModel(imagesModel),
+    //mCamerasModel(camerasModel),
+    //mSettingsModel(settingsModel),
     mHelp(nullptr),
     mSift(new SiftWidgetImp)
 {
@@ -178,10 +178,10 @@ void FeatureExtractorPresenterImp::createProcess()
   mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
 
 
-  for(auto image = mImagesModel->begin(); image != mImagesModel->end(); image++){
+  for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
 
     int camera_id = image->cameraId();
-    Camera camera = mCamerasModel->camera(camera_id);
+    Camera camera = mModel->camera(camera_id);
 
     int maxSize;
     if (mView->fullImageSize() == false){
@@ -197,7 +197,7 @@ void FeatureExtractorPresenterImp::createProcess()
                                                                                       camera,
                                                                                       maxSize,
                                                                                       features_file,
-                                                                                      mSettingsModel->useCuda(),
+                                                                                      mModel->useCuda(),
                                                                                       feature_extractor));
     connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)), this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
 

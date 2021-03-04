@@ -40,9 +40,10 @@ set(INSPECTOR_SOURCES
     cameras/CamerasModel.cpp
     cameras/CamerasView.cpp
     cameras/CamerasPresenter.cpp
-    featextract/FeatureExtractorView.cpp
-    featextract/FeatureExtractorModel.cpp
-    featextract/FeatureExtractorPresenter.cpp
+    featextract/FeatureExtractorComponent.cpp
+    featextract/impl/FeatureExtractorView.cpp
+    featextract/impl/FeatureExtractorModel.cpp
+    featextract/impl/FeatureExtractorPresenter.cpp
 	featmatch/FeatureMatchingComponent.cpp
     featmatch/impl/FeatureMatchingModel.cpp
     featmatch/impl/FeatureMatchingView.cpp
@@ -134,10 +135,13 @@ set(INSPECTOR_HEADERS
     cameras/CamerasModel.h
     cameras/CamerasView.h
     cameras/CamerasPresenter.h
-    featextract/FeatureExtractor.h
+    featextract/FeatureExtractorComponent.h
     featextract/FeatureExtractorView.h
     featextract/FeatureExtractorModel.h
     featextract/FeatureExtractorPresenter.h
+    featextract/impl/FeatureExtractorView.h
+    featextract/impl/FeatureExtractorModel.h
+    featextract/impl/FeatureExtractorPresenter.h
     featmatch/FeatureMatchingComponent.h
     featmatch/FeatureMatchingModel.h
     featmatch/FeatureMatchingView.h

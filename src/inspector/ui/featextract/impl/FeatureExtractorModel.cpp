@@ -3,6 +3,7 @@
 #include "inspector/core/project.h"
 
 #include <QFileInfo>
+#include <QSettings>
 
 namespace inspector
 {
@@ -13,9 +14,21 @@ namespace ui
 FeatureExtractorModelImp::FeatureExtractorModelImp(Project *project,
                                                    QObject *parent)
   : FeatureExtractorModel(parent),
-    mProject(project)
+    mProject(project),
+    mSettings(new QSettings(QSettings::IniFormat, 
+                            QSettings::UserScope, 
+                            "TIDOP", 
+                            "Inspector"))
 {
   this->init();
+}
+
+FeatureExtractorModelImp::~FeatureExtractorModelImp()
+{
+  if (mSettings){
+    delete mSettings;
+    mSettings = nullptr;
+  }
 }
 
 void FeatureExtractorModelImp::init()
@@ -50,6 +63,36 @@ QString FeatureExtractorModelImp::database() const
 void FeatureExtractorModelImp::addFeatures(const QString &imageName, const QString &featuresFile)
 {
   mProject->addFeatures(imageName, featuresFile);
+}
+
+bool FeatureExtractorModelImp::useCuda() const
+{
+  return mSettings->value("General/UseCuda", true).toBool();
+}
+
+Camera FeatureExtractorModelImp::camera(int id) const
+{
+  return mProject->findCamera(id);
+}
+
+FeatureExtractorModel::image_iterator FeatureExtractorModelImp::imageBegin()
+{
+  return mProject->imageBegin();
+}
+
+FeatureExtractorModel::image_const_iterator FeatureExtractorModelImp::imageBegin() const
+{
+  return mProject->imageBegin();
+}
+
+FeatureExtractorModel::image_iterator FeatureExtractorModelImp::imageEnd()
+{
+  return mProject->imageEnd();
+}
+
+FeatureExtractorModel::image_const_iterator FeatureExtractorModelImp::imageEnd() const
+{
+  return mProject->imageEnd();
 }
 
 } // namespace ui

@@ -1,5 +1,5 @@
-#ifndef INSPECTOR_DENSIFICATION_COMPONENT_H
-#define INSPECTOR_DENSIFICATION_COMPONENT_H
+#ifndef INSPECTOR_FEATURE_EXTRACTOR_COMPONENT_H
+#define INSPECTOR_FEATURE_EXTRACTOR_COMPONENT_H
 
 #include "inspector/ui/Component.h"
 
@@ -13,9 +13,9 @@ namespace ui
 {
 
 
-class DensificationProcess;
+class FeatureExtractorProcess;
 
-class DensificationComponent
+class FeatureExtractorComponent
   : public ProcessComponent
 {
 
@@ -23,8 +23,8 @@ class DensificationComponent
 
 public:
 
-  DensificationComponent(Project *project);
-  ~DensificationComponent();
+  FeatureExtractorComponent(Project *project);
+  ~FeatureExtractorComponent();
 
 // ComponentBase
 
@@ -48,7 +48,7 @@ protected slots:
 
 protected:
 
-  DensificationProcess *mProcess;
+  FeatureExtractorProcess *mProcess;
   Project *mProject;
 
 };
@@ -59,4 +59,4 @@ protected:
 } // namespace inspector
 
 
-#endif // INSPECTOR_DENSIFICATION_COMPONENT_H
+#endif // INSPECTOR_FEATURE_EXTRACTOR_COMPONENT_H

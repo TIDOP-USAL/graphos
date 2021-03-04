@@ -4,6 +4,7 @@
 #include "inspector/widgets/ThumbnailsWidget.h"
 #include "inspector/widgets/LogWidget.h"
 #include "inspector/ui/utils/TabHandler.h"
+#include "inspector/ui/AppStatus.h"
 
 #include <tidop/core/messages.h>
 
@@ -55,7 +56,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExit(new QAction(this)),
     mActionStartPage(new QAction(this)),
     mActionLoadImages(new QAction(this)),
-    mActionFeatureExtraction(new QAction(this)),
+    //mActionFeatureExtraction(new QAction(this)),
     //mActionFeatureMatching(new QAction(this)),
     //mActionOrientation(new QAction(this)),
     //mActionDensification(new QAction(this)),
@@ -86,6 +87,10 @@ MainWindowView::MainWindowView(QWidget *parent)
 
   this->initUI();
   this->initSignalAndSlots();
+
+  AppStatus &app_status = AppStatus::instance();
+  connect(&app_status, &AppStatus::update,
+          this, &MainWindowView::update);
 }
 
 MainWindowView::~MainWindowView()
@@ -938,9 +943,9 @@ void MainWindowView::initActions()
   iconLoadImages.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-add-folder.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionLoadImages->setIcon(iconLoadImages);
 
-  QIcon iconFeatureExtraction;
-  iconFeatureExtraction.addFile(QStringLiteral(":/ico/24/img/material/24/features.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionFeatureExtraction->setIcon(iconFeatureExtraction);
+  //QIcon iconFeatureExtraction;
+  //iconFeatureExtraction.addFile(QStringLiteral(":/ico/24/img/material/24/features.png"), QSize(), QIcon::Normal, QIcon::Off);
+  //mActionFeatureExtraction->setIcon(iconFeatureExtraction);
 
   //QIcon iconFeatureMatching;
   //iconFeatureMatching.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-match_view"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1030,7 +1035,7 @@ void MainWindowView::initToolbarWorkflow()
   mToolBarWorkflow->setObjectName("ToolBarWorkflow");
   mToolBarWorkflow->addAction(mActionLoadImages);
   mToolBarWorkflow->addSeparator();
-  mToolBarWorkflow->addAction(mActionFeatureExtraction);
+  //mToolBarWorkflow->addAction(mActionFeatureExtraction);
   //mToolBarWorkflow->addAction(mActionFeatureMatching);
   this->addToolBar(Qt::TopToolBarArea, mToolBarWorkflow);
 }
@@ -1171,7 +1176,7 @@ void MainWindowView::initMenuWorkflow()
 {
   ui->menuWorkflow->addAction(mActionLoadImages);
   ui->menuWorkflow->addSeparator();
-  ui->menuWorkflow->addAction(mActionFeatureExtraction);
+  //ui->menuWorkflow->addAction(mActionFeatureExtraction);
   //ui->menuWorkflow->addAction(mActionFeatureMatching);
   //ui->menuWorkflow->addAction(mActionOrientation);
   //ui->menuWorkflow->addAction(mActionDensification);
@@ -1233,7 +1238,7 @@ void MainWindowView::initSignalAndSlots()
   /* Menú Flujo de trabajo */
 
   connect(mActionLoadImages,         &QAction::triggered,   this,   &MainWindowView::loadImages);
-  connect(mActionFeatureExtraction,  &QAction::triggered,   this,   &MainWindowView::openFeatureExtraction);
+  //connect(mActionFeatureExtraction,  &QAction::triggered,   this,   &MainWindowView::openFeatureExtraction);
   //connect(mActionFeatureMatching,    &QAction::triggered,   this,   &MainWindowView::openFeatureMatching);
   //connect(mActionOrientation,        &QAction::triggered,   this,   &MainWindowView::openOrientation);
   //connect(mActionDensification,      &QAction::triggered,   this,   &MainWindowView::openDensification);
@@ -1348,7 +1353,7 @@ void MainWindowView::update()
   mActionExit->setEnabled(!bProcessing);
 
   mActionLoadImages->setEnabled(bProjectExists && !bProcessing && !bLoadingImages);
-  mActionFeatureExtraction->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
+  //mActionFeatureExtraction->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
   //mActionFeatureMatching->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   //mActionOrientation->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
   //mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
@@ -1359,6 +1364,14 @@ void MainWindowView::update()
   //mActionFeaturesViewer->setEnabled(bFeatureExtraction);
   //mActionMatchesViewer->setEnabled(bFeatureMatching);
   //mActionPassPointsViewer->setEnabled(bFeatureMatching);
+
+
+  AppStatus &app_status = AppStatus::instance();
+  bool project_exists = app_status.isActive(AppStatus::Flag::project_exists);
+  bool project_modified = app_status.isActive(AppStatus::Flag::project_modified);
+  bool processing = app_status.isActive(AppStatus::Flag::processing);
+  mActionSaveProject->setEnabled(project_exists && project_modified && !processing);
+  mActionSaveProjectAs->setEnabled(project_exists && !processing);
 }
 
 void MainWindowView::retranslate()
@@ -1376,7 +1389,7 @@ void MainWindowView::retranslate()
   mActionExit->setText(QApplication::translate("MainWindowView", "Exit", nullptr));
   mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));
   mActionLoadImages->setText(QApplication::translate("MainWindowView", "Load Images", nullptr));
-  mActionFeatureExtraction->setText(QApplication::translate("MainWindowView", "Feature Extraction", nullptr));
+  //mActionFeatureExtraction->setText(QApplication::translate("MainWindowView", "Feature Extraction", nullptr));
   //mActionFeatureMatching->setText(QApplication::translate("MainWindowView", "Feature Matching", nullptr));
   //mActionOrientation->setText(QApplication::translate("MainWindowView", "Orientation", nullptr));
   //mActionDensification->setText(QApplication::translate("MainWindowView", "Densification", nullptr));

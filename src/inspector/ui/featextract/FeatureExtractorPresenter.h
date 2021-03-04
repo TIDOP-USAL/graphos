@@ -1,92 +1,33 @@
-#ifndef INSPECTOR_FEATURE_EXTRACTOR_PRESENTER_H
-#define INSPECTOR_FEATURE_EXTRACTOR_PRESENTER_H
+#ifndef INSPECTOR_FEATURE_EXTRACTOR_PRESENTER_INTERFACE_H
+#define INSPECTOR_FEATURE_EXTRACTOR_PRESENTER_INTERFACE_H
 
-#include "inspector/inspector_global.h"
-
-#include <QObject>
-
-#include <opencv2/core.hpp>
-
-#include "inspector/ui/featextract/FeatureExtractor.h"
+#include "inspector/ui/process/ProcessPresenter.h"
 
 
 namespace inspector
 {
 
-class SiftWidget;
-
-
 namespace ui
 {
 
-class ImagesModel;
-class CamerasModel;
-class SettingsModel;
-class HelpDialog;
-
-class FeatureExtractorPresenterImp
-  : public FeatureExtractorPresenter
+class FeatureExtractorPresenter
+  : public ProcessPresenter
 {
+
   Q_OBJECT
 
 public:
 
-  FeatureExtractorPresenterImp(FeatureExtractorView *view,
-                               FeatureExtractorModel *model,
-                               ImagesModel *imagesModel,
-                               CamerasModel *camerasModel,
-                               SettingsModel *settingsModel);
-  ~FeatureExtractorPresenterImp() override;
+  FeatureExtractorPresenter() {}
+  ~FeatureExtractorPresenter() override = default;
 
-private:
+signals:
 
-  void setDetectorAndDescriptorProperties();
-  void setSiftProperties();
-
-private slots:
-
-  void onFeaturesExtracted(const QString &imageName, const QString &featuresFile);
-
-// FeatureExtractorPresenter interface
+  void featuresExtracted(QString);
 
 public slots:
 
-  void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
-
-// ProcessPresenter interface
-  
-protected slots:
-
-  void onError(int code, const QString &msg) override;
-  void onFinished() override;
-  void createProcess() override;
-
-public slots:
-
-  void cancel() override;
-
-// IPresenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-protected:
-
-  FeatureExtractorView *mView;
-  FeatureExtractorModel *mModel;
-  ImagesModel *mImagesModel;
-  CamerasModel *mCamerasModel;
-  SettingsModel *mSettingsModel;
-  HelpDialog *mHelp;
-  SiftWidget *mSift;
+  virtual void setCurrentDetectorDescriptor(const QString &detectorDescriptor) = 0;
 
 };
 
@@ -94,4 +35,4 @@ protected:
 
 } // namespace inspector
 
-#endif // INSPECTOR_FEATURE_EXTRACTOR_PRESENTER_H
+#endif // INSPECTOR_FEATURE_EXTRACTOR_PRESENTER_INTERFACE_H

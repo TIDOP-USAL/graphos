@@ -29,8 +29,8 @@ class FeaturesModel;
 class MatchesModel;
 class CamerasModel;
 class CamerasPresenter;
-class FeatureExtractorModel;
-class FeatureExtractorPresenter;
+//class FeatureExtractorModel;
+//class FeatureExtractorPresenter;
 //class FeatureMatchingModel;
 //class FeatureMatchingPresenter;
 //class OrientationModel;
@@ -95,8 +95,8 @@ public:
   SettingsPresenter *settingsPresenter();
 
   NewProjectPresenter *newProjectPresenter();
-  FeatureExtractorModel *featureExtractorModel();
-  FeatureExtractorPresenter *featureExtractorPresenter();
+  //FeatureExtractorModel *featureExtractorModel();
+  //FeatureExtractorPresenter *featureExtractorPresenter();
   //FeatureMatchingModel *featureMatchingModel();
   //FeatureMatchingPresenter *featureMatchingPresenter();
   //OrientationModel *orientationModel();
@@ -130,7 +130,7 @@ protected slots:
 
   void initAndOpenNewProjectDialog();
   void initAndOpenLoadImagesDialog();
-  void initAndOpenFeatureExtractionDialog();
+  //void initAndOpenFeatureExtractionDialog();
   //void initAndOpenFeatureMatchingDialog();
   //void initAndOpenOrientationDialog();
   //void initAndOpenDensificationDialog();
@@ -174,8 +174,8 @@ protected:
   SettingsPresenter *mSettingsPresenter;
 
   NewProjectPresenter *mNewProjectPresenter;
-  FeatureExtractorModel *mFeatureExtractorModel;
-  FeatureExtractorPresenter *mFeatureExtractorPresenter;
+  //FeatureExtractorModel *mFeatureExtractorModel;
+  //FeatureExtractorPresenter *mFeatureExtractorPresenter;
   //FeatureMatchingModel *mFeatureMatchingModel;
   //FeatureMatchingPresenter *mFeatureMatchingPresenter;
   //OrientationModel *mOrientationModel;

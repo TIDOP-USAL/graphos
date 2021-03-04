@@ -57,6 +57,23 @@ void FeatureMatchingComponent::update()
   mAction->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
 }
 
+void FeatureMatchingComponent::onRunning()
+{
+  ProcessComponent::onRunning();
+}
+
+void FeatureMatchingComponent::onFinished()
+{
+  ProcessComponent::onFinished();
+  AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
+}
+
+void FeatureMatchingComponent::onFailed()
+{
+  ProcessComponent::onFailed();
+  AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, false);
+}
+
 
 } // namespace ui
 

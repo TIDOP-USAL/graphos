@@ -53,6 +53,23 @@ void OrientationComponent::update()
   mAction->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
 }
 
+void OrientationComponent::onRunning()
+{
+  ProcessComponent::onRunning();
+}
+
+void OrientationComponent::onFinished()
+{
+  ProcessComponent::onFinished();
+  AppStatus::instance().activeFlag(AppStatus::Flag::oriented, true);
+}
+
+void OrientationComponent::onFailed()
+{
+  ProcessComponent::onFailed();
+  AppStatus::instance().activeFlag(AppStatus::Flag::oriented, false);
+}
+
 
 } // namespace ui
 

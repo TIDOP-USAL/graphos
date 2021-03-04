@@ -178,6 +178,8 @@ void MainWindowPresenter::deleteHistory()
 void MainWindowPresenter::saveProject()
 {
   mProjectModel->save();
+  AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, false);
+  TL_TODO("Quitar")
   mView->setFlag(MainWindowView::Flag::project_modified, false);
 }
 
@@ -189,6 +191,8 @@ void MainWindowPresenter::saveProjectAs()
                                               tr("Inspector Image Project (*.xml)"));
   if (file.isEmpty() == false) {
     mProjectModel->saveAs(file);
+    AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, false);
+    TL_TODO("Quitar")
     mView->setFlag(MainWindowView::Flag::project_modified, false);
   }
 }
@@ -487,8 +491,10 @@ void MainWindowPresenter::loadProject()
 
   if (images.size() > 0){
     mView->addImages(images);
+    AppStatus::instance().activeFlag(AppStatus::Flag::images_added, true);
+    TL_TODO("Quitar")
     mView->setFlag(MainWindowView::Flag::images_added, true);
-    mView->setFlag(MainWindowView::Flag::loading_images, true);
+    //mView->setFlag(MainWindowView::Flag::loading_images, true);
     //connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
   }
 
@@ -509,9 +515,10 @@ void MainWindowPresenter::updateProject()
 void MainWindowPresenter::loadFeatures(const QString &featId)
 {
   mView->addFeatures(featId);
-  mView->setFlag(MainWindowView::Flag::feature_extraction, true);
-  //TODO: Remplaza a lo anterior que hay que quitar
   AppStatus::instance().activeFlag(AppStatus::Flag::feature_extraction, true);
+
+  TL_TODO("Quitar")
+  mView->setFlag(MainWindowView::Flag::feature_extraction, true);
 }
 
 void MainWindowPresenter::loadMatches()
@@ -1047,12 +1054,19 @@ void MainWindowPresenter::processFailed()
 
 void MainWindowPresenter::loadingImages(bool loading)
 {
+  AppStatus::instance().activeFlag(AppStatus::Flag::loading_images, loading);
+
+  TL_TODO("Quitar")
   mView->setFlag(MainWindowView::Flag::loading_images, loading);
 }
 
 void MainWindowPresenter::loadImage(const QString &image)
 {
   mView->addImage(image);
+
+  AppStatus::instance().activeFlag(AppStatus::Flag::images_added, true);
+
+  TL_TODO("Quitar")
   mView->setFlag(MainWindowView::Flag::images_added, true);
 }
 

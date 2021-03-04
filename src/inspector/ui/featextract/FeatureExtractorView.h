@@ -1,14 +1,7 @@
-#ifndef INSPECTOR_FEATURE_EXTRACTOR_VIEW_H
-#define INSPECTOR_FEATURE_EXTRACTOR_VIEW_H
+#ifndef INSPECTOR_FEATURE_EXTRACTOR_VIEW_INTERFACE_H
+#define INSPECTOR_FEATURE_EXTRACTOR_VIEW_INTERFACE_H
 
-#include "inspector/ui/featextract/FeatureExtractor.h"
-
-class QGridLayout;
-class QComboBox;
-class QDialogButtonBox;
-class QSpinBox;
-class QCheckBox;
-class QLabel;
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
@@ -16,65 +9,36 @@ namespace inspector
 namespace ui
 {
 
-class FeatureExtractorViewImp
-  : public FeatureExtractorView
+class FeatureExtractorView
+  : public IDialogView
 {
 
   Q_OBJECT
 
 public:
 
-  FeatureExtractorViewImp(QWidget *parent = nullptr);
-  ~FeatureExtractorViewImp() override;
+  FeatureExtractorView(QWidget *parent = nullptr) : IDialogView(parent) {}
+  ~FeatureExtractorView() override = default;
 
-protected slots:
+  virtual void addDetectorDescriptor(QWidget *detectorDescriptor) = 0;
+  virtual QString currentDetectorDescriptor() const = 0;
+  virtual int maxImageSize() const = 0;
+  virtual bool fullImageSize() const = 0;
 
-    void onCheckBoxFullImageChange();
+signals:
 
-// FeatureExtractorView interface
-
-public:
-
-  void addDetectorDescriptor(QWidget *detectorDescriptor) override;
-  QString currentDetectorDescriptor() const override;
-  int maxImageSize() const override;
-  bool fullImageSize() const override;
+  void detectorDescriptorChange(QString);
+  void run();
 
 public slots:
 
-  void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
-  void setMaxImageSize(int imageSize) override;
-  void setFullImageSize(bool fullImageSize) override;
-
-// IDialogView interface
-
-private:
-
-  void initUI() override;
-  void initSignalAndSlots() override;
-
-public slots:
-
-  void clear() override;
-
-private slots:
-
-  void update() override;
-  void retranslate() override;
-
-protected:
-
-  QGridLayout *mGridLayoutDetectorDescriptor;
-  QCheckBox *mCheckBoxFullImage;
-  QLabel *mLabelMaxImageSize;
-  QSpinBox *mSpinBoxMaxImageSize;
-  QLabel *mLabelDetectorDescriptor;
-  QComboBox *mComboBoxDetectorDescriptor;
-  QDialogButtonBox *mButtonBox;
+  virtual void setCurrentDetectorDescriptor(const QString &detectorDescriptor) = 0;
+  virtual void setMaxImageSize(int imageSize) = 0;
+  virtual void setFullImageSize(bool fullImageSize) = 0;
 };
 
 } // namespace ui
 
 } // namespace inspector
 
-#endif // INSPECTOR_FEATURE_EXTRACTOR_VIEW_H
+#endif // INSPECTOR_FEATURE_EXTRACTOR_VIEW_INTERFACE_H

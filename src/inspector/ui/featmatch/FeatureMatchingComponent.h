@@ -38,6 +38,14 @@ protected:
 
   void update() override;
 
+// ProcessComponent
+
+protected slots:
+
+  void onRunning() override;
+  void onFinished() override;
+  void onFailed() override;
+
 protected:
 
   FeatureMatchingProcess *mProcess;

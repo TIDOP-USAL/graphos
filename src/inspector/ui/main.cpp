@@ -3,6 +3,7 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#include "inspector/ui/featextract/FeatureExtractorComponent.h"
 #include "inspector/ui/featmatch/FeatureMatchingComponent.h"
 #include "inspector/ui/orientation/OrientationComponent.h"
 #include "inspector/ui/densification/DensificationComponent.h"
@@ -22,6 +23,8 @@ int main(int argc, char *argv[])
 
   ComponentsManager componentsManager;
 
+  FeatureExtractorComponent feature_extractor_component(componentsManager.project());
+  componentsManager.registerComponent(&feature_extractor_component);
   FeatureMatchingComponent feature_matching_component(componentsManager.project());
   componentsManager.registerComponent(&feature_matching_component);
   OrientationComponent orientation_component(componentsManager.project());

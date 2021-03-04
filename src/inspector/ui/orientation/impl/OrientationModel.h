@@ -2,10 +2,11 @@
 #define INSPECTOR_ORIENTATION_MODEL_H
 
 #include "inspector/ui/orientation/OrientationModel.h"
-#include "inspector/core/project.h"
 
 namespace inspector
 {
+
+class Project;
 
 namespace ui
 {
