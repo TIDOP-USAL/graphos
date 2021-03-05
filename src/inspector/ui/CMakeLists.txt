@@ -37,6 +37,10 @@ set(INSPECTOR_SOURCES
     #ImagesModel.cpp
     FeaturesModel.cpp
     MatchesModel.cpp
+    createproject/CreateProjectComponent.cpp
+    createproject/impl/CreateProjectModel.cpp
+    createproject/impl/CreateProjectView.cpp
+    createproject/impl/CreateProjectPresenter.cpp
     cameras/CamerasModel.cpp
     cameras/CamerasView.cpp
     cameras/CamerasPresenter.cpp
@@ -44,23 +48,23 @@ set(INSPECTOR_SOURCES
     featextract/impl/FeatureExtractorView.cpp
     featextract/impl/FeatureExtractorModel.cpp
     featextract/impl/FeatureExtractorPresenter.cpp
-	featmatch/FeatureMatchingComponent.cpp
+    featmatch/FeatureMatchingComponent.cpp
     featmatch/impl/FeatureMatchingModel.cpp
     featmatch/impl/FeatureMatchingView.cpp
     featmatch/impl/FeatureMatchingPresenter.cpp
-	images/ImageLoaderComponent.cpp
+    images/ImageLoaderComponent.cpp
     images/impl/ImageLoaderModel.cpp
     images/impl/ImageLoaderPresenter.cpp
     images/impl/ImageLoaderView.cpp
-	orientation/OrientationComponent.cpp
+    orientation/OrientationComponent.cpp
     orientation/impl/OrientationModel.cpp
     orientation/impl/OrientationView.cpp
     orientation/impl/OrientationPresenter.cpp
-	densification/DensificationComponent.cpp
+    densification/DensificationComponent.cpp
     densification/impl/DensificationModel.cpp
     densification/impl/DensificationView.cpp
     densification/impl/DensificationPresenter.cpp
-	featviewer/FeaturesViewerComponent.cpp
+    featviewer/FeaturesViewerComponent.cpp
     featviewer/impl/FeaturesViewerView.cpp
     featviewer/impl/FeaturesViewerModel.cpp
     featviewer/impl/FeaturesViewerPresenter.cpp
@@ -132,6 +136,13 @@ set(INSPECTOR_HEADERS
     #ImagesModel.h
     FeaturesModel.h
     MatchesModel.h
+    createproject/CreateProjectComponent.h
+    createproject/CreateProjectModel.h
+    createproject/CreateProjectView.h
+    createproject/CreateProjectPresenter.h
+    createproject/impl/CreateProjectModel.h
+    createproject/impl/CreateProjectView.h
+    createproject/impl/CreateProjectPresenter.h
     cameras/Cameras.h
     cameras/CamerasModel.h
     cameras/CamerasView.h
@@ -210,7 +221,7 @@ set(INSPECTOR_HEADERS
     import/cameras/impl/CameraPositionsView.h
     import/cameras/impl/CameraPositionsPresenter.h
     dtm/DTMComponent.h
-	dtm/DTMModel.h
+    dtm/DTMModel.h
     dtm/DTMView.h
     dtm/DTMPresenter.h
     dtm/impl/DTMModel.h

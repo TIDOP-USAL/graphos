@@ -3,6 +3,8 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#include "inspector/ui/createproject/CreateProjectComponent.h"
+
 #include "inspector/ui/images/ImageLoaderComponent.h"
 #include "inspector/ui/featextract/FeatureExtractorComponent.h"
 #include "inspector/ui/featmatch/FeatureMatchingComponent.h"
@@ -24,6 +26,9 @@ int main(int argc, char *argv[])
 
   ComponentsManager componentsManager;
 
+  CreateProjectComponent create_project_component(componentsManager.project());
+  componentsManager.registerComponent(&create_project_component);
+
   ImageLoaderComponent image_loader_component(componentsManager.project());
   componentsManager.registerComponent(&image_loader_component, 
                                       ComponentsManager::Flags::separator_after);
@@ -35,10 +40,6 @@ int main(int argc, char *argv[])
   componentsManager.registerComponent(&orientation_component);
   DensificationComponent densification_component(componentsManager.project());
   componentsManager.registerComponent(&densification_component);
-  /*DtmComponent dtm_component(componentsManager.project());
-  componentsManager.registerComponent(&dtm_component, 
-                                      ComponentsManager::Flags::separator_after | 
-                                      ComponentsManager::Flags::separator_before);*/
   DTMComponent dtm_component(componentsManager.project());
   componentsManager.registerComponent(&dtm_component, 
                                       ComponentsManager::Flags::separator_before);
@@ -52,9 +53,12 @@ int main(int argc, char *argv[])
   QObject::connect(&image_loader_component, SIGNAL(imageLoaded(QString)), 
                    componentsManager.mainWindowPresenter(), SLOT(loadImage(QString)));
 
+  ///TODO: por ahora hasta que refactorice MainWindow
+  QObject::connect(&create_project_component, SIGNAL(projectCreated()), 
+                   componentsManager.mainWindowPresenter(), SLOT(loadProject()));
+
   AppStatus &app_status = AppStatus::instance();
   app_status.activeFlag(AppStatus::Flag::none, true);
-
 
   componentsManager.mainWindowPresenter()->open();
 
