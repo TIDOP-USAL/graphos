@@ -2,10 +2,12 @@
 #define INSPECTOR_CAMERAS_INTERFACES_H
 
 #include "inspector/interfaces/mvp.h"
-#include "inspector/core/camera.h"
 
 namespace inspector
 {
+
+class Camera;
+class Image;
 
 namespace ui
 {
@@ -20,6 +22,8 @@ public:
 
   typedef std::map<int, Camera>::iterator camera_iterator;
   typedef std::map<int, Camera>::const_iterator camera_const_iterator;
+  typedef std::vector<Image>::iterator image_iterator;
+  typedef std::vector<Image>::const_iterator image_const_iterator;
 
 public:
 
@@ -39,6 +43,11 @@ public:
   virtual camera_const_iterator begin() const = 0;
   virtual camera_iterator end() = 0;
   virtual camera_const_iterator end() const = 0;
+
+  virtual image_iterator imageBegin() = 0;
+  virtual image_const_iterator imageBegin() const = 0;
+  virtual image_iterator imageEnd() = 0;
+  virtual image_const_iterator imageEnd() const = 0;
 
 };
 

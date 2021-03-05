@@ -1,7 +1,7 @@
-#ifndef INSPECTOR_IMAGES_VIEW_H
-#define INSPECTOR_IMAGES_VIEW_H
+#ifndef INSPECTOR_IMAGE_LOADER_VIEW_H
+#define INSPECTOR_IMAGE_LOADER_VIEW_H
 
-#include "inspector/ui/images/Images.h"
+#include "inspector/ui/images/ImageLoaderView.h"
 
 class QGroupBox;
 class QLineEdit;
@@ -18,16 +18,16 @@ namespace inspector
 namespace ui
 {
 
-class ImagesViewImp
-  : public ImagesView
+class ImageLoaderViewImp
+  : public ImageLoaderView
 {
 
   Q_OBJECT
 
 public:
 
-  explicit ImagesViewImp(QWidget *parent = nullptr);
-  ~ImagesViewImp() override = default;
+  explicit ImageLoaderViewImp(QWidget *parent = nullptr);
+  ~ImageLoaderViewImp() override = default;
 
   void setImageDirectory(const QString &directory) override;
 
@@ -40,4 +40,4 @@ private:
 
 } // namespace inspector
 
-#endif // INSPECTOR_IMAGES_VIEW_H
+#endif // INSPECTOR_IMAGE_LOADER_VIEW_H

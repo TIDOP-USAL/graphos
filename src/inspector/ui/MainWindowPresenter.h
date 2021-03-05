@@ -18,7 +18,7 @@ class MainWindowView;
 class MainWindowModel;
 class ProjectModel;
 class SettingsModel;
-class ImagesModel;
+//class ImagesModel;
 class CamerasModel;
 class FeaturesModel;
 class MatchesModel;
@@ -37,7 +37,7 @@ public:
                                MainWindowModel *model,
                                ProjectModel *projectModel,
                                SettingsModel *settingsModel,
-                               ImagesModel *imagesModel,
+                               //ImagesModel *imagesModel,
                                CamerasModel *camerasModel,
                                FeaturesModel *featuresModel,
                                MatchesModel *matchesModel);
@@ -160,7 +160,7 @@ protected:
   MainWindowModel *mModel;
   ProjectModel *mProjectModel;
   SettingsModel *mSettingsModel;
-  ImagesModel *mImagesModel;
+  //ImagesModel *mImagesModel;
   CamerasModel *mCamerasModel;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;

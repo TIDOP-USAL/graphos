@@ -11,7 +11,7 @@
 #include "inspector/ui/HelpDialog.h"
 #include "inspector/widgets/StartPageWidget.h"
 #include "inspector/ui/cameras/CamerasModel.h"
-#include "inspector/ui/images/ImagesModel.h"
+//#include "inspector/ui/images/ImagesModel.h"
 #include "inspector/ui/FeaturesModel.h"
 #include "inspector/ui/MatchesModel.h"
 #include "inspector/ui/AppStatus.h"
@@ -40,7 +40,7 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          MainWindowModel *model,
                                          ProjectModel *projectModel,
                                          SettingsModel *settingsModel,
-                                         ImagesModel *imagesModel,
+                                         //ImagesModel *imagesModel,
                                          CamerasModel *camerasModel,
                                          FeaturesModel *featuresModel,
                                          MatchesModel *matchesModel)
@@ -49,7 +49,7 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
     mModel(model),
     mProjectModel(projectModel),
     mSettingsModel(settingsModel),
-    mImagesModel(imagesModel),
+    //mImagesModel(imagesModel),
     mCamerasModel(camerasModel),
     mFeaturesModel(featuresModel),
     mMatchesModel(matchesModel),
@@ -214,6 +214,8 @@ void MainWindowPresenter::closeProject()
   mProjectModel->clear();
 /////TODO:  mModel->finishLog();
   mView->clear();
+
+  AppStatus::instance().clear();
 }
 
 void MainWindowPresenter::exit()
@@ -485,7 +487,7 @@ void MainWindowPresenter::loadProject()
   msgInfo("Load project: %s", cfile);
 
   QStringList images;
-  for(auto it = mImagesModel->begin(); it != mImagesModel->end(); it++){
+  for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
     images.push_back((*it).path());
   }
 
@@ -523,7 +525,7 @@ void MainWindowPresenter::loadFeatures(const QString &featId)
 
 void MainWindowPresenter::loadMatches()
 {
-  for(auto it = mImagesModel->begin(); it != mImagesModel->end(); it++){
+  for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
     QString imageLeft = it->name();
     std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
     for (auto &imageRight : pairs){
@@ -565,7 +567,7 @@ void MainWindowPresenter::loadDenseModel()
 void MainWindowPresenter::openImage(const QString &imageName)
 {
   try {
-    Image image = mImagesModel->findImageByName(imageName);
+    Image image = mModel->findImageByName(imageName);
     mTabHandler->setImage(image.path());
   } catch (std::exception &e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
@@ -575,7 +577,7 @@ void MainWindowPresenter::openImage(const QString &imageName)
 void MainWindowPresenter::activeImage(const QString &imageName)
 {
   try {
-    Image image = mImagesModel->findImageByName(imageName);
+    Image image = mModel->findImageByName(imageName);
     std::list<std::pair<QString, QString>> properties = mModel->exif(image.path());
     mView->setProperties(properties);
     mView->setActiveImage(imageName);
@@ -596,7 +598,7 @@ void MainWindowPresenter::deleteImages(const QStringList &imageNames)
   }
 
   mView->setFlag(MainWindowView::Flag::project_modified, true);
-  mView->setFlag(MainWindowView::Flag::images_added, mImagesModel->begin() != mImagesModel->end());
+  mView->setFlag(MainWindowView::Flag::images_added, mModel->imageBegin() != mModel->imageEnd());
 }
 
 void MainWindowPresenter::deleteImage(const QString &imageName)
@@ -605,8 +607,8 @@ void MainWindowPresenter::deleteImage(const QString &imageName)
     mFeaturesModel->removeFeatures(imageName);
     mMatchesModel->removeMatchesPair(imageName);
     /// TODO: Borrar los matches cuando este a la izquierda tambien
-    size_t image_id = mImagesModel->imageID(imageName);
-    mImagesModel->removeImage(image_id);
+    size_t image_id = mModel->imageID(imageName);
+    mModel->removeImage(image_id);
     mView->deleteImage(imageName);
     TL_TODO("Se tienen que eliminar de la vista las imagenes procesadas, y los ficheros de keypoints y de matches")
   } catch (std::exception &e) {
@@ -935,7 +937,7 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
     
     // Load Cameras
     if (loadCameras) {
-      for (auto image = mImagesModel->begin(); image != mImagesModel->end(); image++) {
+      for (auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++) {
         QFileInfo(image->path()).fileName();
         QString name = image->name();
         QString file_name = QFileInfo(image->path()).fileName();

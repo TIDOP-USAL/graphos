@@ -3,6 +3,7 @@
 
 #include "inspector/interfaces/mvp.h"
 #include "inspector/core/project.h"
+#include "inspector/core/image.h"
 
 namespace inspector
 {
@@ -14,6 +15,11 @@ class MainWindowModel
   : public IModel
 {
   Q_OBJECT
+
+public:
+
+  typedef std::vector<Image>::iterator image_iterator;
+  typedef std::vector<Image>::const_iterator image_const_iterator;
 
 public:
 
@@ -29,6 +35,14 @@ public:
 
   bool isPhotoOriented(const QString &imgName) const;
   PhotoOrientation photoOrientation(const QString &imgName) const;
+
+  Image findImageByName(const QString &imageName) const;
+  size_t imageID(const QString &imageName) const;
+  bool removeImage(size_t id);
+  image_iterator imageBegin();
+  image_const_iterator imageBegin() const;
+  image_iterator imageEnd();
+  image_const_iterator imageEnd() const;
 
 signals:
 

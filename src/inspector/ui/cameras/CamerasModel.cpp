@@ -88,6 +88,26 @@ CamerasModel::camera_const_iterator CamerasModelImp::end() const
   return mProject->cameraEnd();
 }
 
+CamerasModel::image_iterator CamerasModelImp::imageBegin()
+{
+  return mProject->imageBegin();
+}
+
+CamerasModel::image_const_iterator CamerasModelImp::imageBegin() const
+{
+  return mProject->imageEnd();
+}
+
+CamerasModel::image_iterator CamerasModelImp::imageEnd()
+{
+  return mProject->imageEnd();
+}
+
+CamerasModel::image_const_iterator CamerasModelImp::imageEnd() const
+{
+  return mProject->imageEnd();
+}
+
 void CamerasModelImp::init()
 {
 

@@ -55,7 +55,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionCloseProject(new QAction(this)),
     mActionExit(new QAction(this)),
     mActionStartPage(new QAction(this)),
-    mActionLoadImages(new QAction(this)),
+    //mActionLoadImages(new QAction(this)),
     //mActionFeatureExtraction(new QAction(this)),
     //mActionFeatureMatching(new QAction(this)),
     //mActionOrientation(new QAction(this)),
@@ -939,9 +939,9 @@ void MainWindowView::initActions()
   iconStartPage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-home-page.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionStartPage->setIcon(iconStartPage);
 
-  QIcon iconLoadImages;
-  iconLoadImages.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-add-folder.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionLoadImages->setIcon(iconLoadImages);
+  //QIcon iconLoadImages;
+  //iconLoadImages.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-add-folder.png"), QSize(), QIcon::Normal, QIcon::Off);
+  //mActionLoadImages->setIcon(iconLoadImages);
 
   //QIcon iconFeatureExtraction;
   //iconFeatureExtraction.addFile(QStringLiteral(":/ico/24/img/material/24/features.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1033,8 +1033,8 @@ void MainWindowView::initToolbarWorkflow()
 {
   mToolBarWorkflow = new QToolBar(this);
   mToolBarWorkflow->setObjectName("ToolBarWorkflow");
-  mToolBarWorkflow->addAction(mActionLoadImages);
-  mToolBarWorkflow->addSeparator();
+  //mToolBarWorkflow->addAction(mActionLoadImages);
+  //mToolBarWorkflow->addSeparator();
   //mToolBarWorkflow->addAction(mActionFeatureExtraction);
   //mToolBarWorkflow->addAction(mActionFeatureMatching);
   this->addToolBar(Qt::TopToolBarArea, mToolBarWorkflow);
@@ -1091,7 +1091,7 @@ void MainWindowView::initTreeWidget()
   ui->gridLayout->addWidget(mTreeWidgetProject, 0, 0, 1, 1);
 
   mMenuTreeProjectImages = new QMenu(this);
-  mMenuTreeProjectImages->addAction(mActionLoadImages);
+  //mMenuTreeProjectImages->addAction(mActionLoadImages);
   mMenuTreeProjectImage = new QMenu(this);
   mMenuTreeProjectImage->addAction(mActionOpenImage);
   mMenuTreeProjectImage->addAction(mActionDeleteImage);
@@ -1174,8 +1174,8 @@ void MainWindowView::initMenuView()
 
 void MainWindowView::initMenuWorkflow()
 {
-  ui->menuWorkflow->addAction(mActionLoadImages);
-  ui->menuWorkflow->addSeparator();
+  //ui->menuWorkflow->addAction(mActionLoadImages);
+  //ui->menuWorkflow->addSeparator();
   //ui->menuWorkflow->addAction(mActionFeatureExtraction);
   //ui->menuWorkflow->addAction(mActionFeatureMatching);
   //ui->menuWorkflow->addAction(mActionOrientation);
@@ -1237,7 +1237,7 @@ void MainWindowView::initSignalAndSlots()
 
   /* Menú Flujo de trabajo */
 
-  connect(mActionLoadImages,         &QAction::triggered,   this,   &MainWindowView::loadImages);
+  //connect(mActionLoadImages,         &QAction::triggered,   this,   &MainWindowView::loadImages);
   //connect(mActionFeatureExtraction,  &QAction::triggered,   this,   &MainWindowView::openFeatureExtraction);
   //connect(mActionFeatureMatching,    &QAction::triggered,   this,   &MainWindowView::openFeatureMatching);
   //connect(mActionOrientation,        &QAction::triggered,   this,   &MainWindowView::openOrientation);
@@ -1352,7 +1352,7 @@ void MainWindowView::update()
   mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
   mActionExit->setEnabled(!bProcessing);
 
-  mActionLoadImages->setEnabled(bProjectExists && !bProcessing && !bLoadingImages);
+  //mActionLoadImages->setEnabled(bProjectExists && !bProcessing && !bLoadingImages);
   //mActionFeatureExtraction->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
   //mActionFeatureMatching->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   //mActionOrientation->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
@@ -1388,7 +1388,7 @@ void MainWindowView::retranslate()
   mActionCloseProject->setText(QApplication::translate("MainWindowView", "Close Project", nullptr));
   mActionExit->setText(QApplication::translate("MainWindowView", "Exit", nullptr));
   mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));
-  mActionLoadImages->setText(QApplication::translate("MainWindowView", "Load Images", nullptr));
+  //mActionLoadImages->setText(QApplication::translate("MainWindowView", "Load Images", nullptr));
   //mActionFeatureExtraction->setText(QApplication::translate("MainWindowView", "Feature Extraction", nullptr));
   //mActionFeatureMatching->setText(QApplication::translate("MainWindowView", "Feature Matching", nullptr));
   //mActionOrientation->setText(QApplication::translate("MainWindowView", "Orientation", nullptr));

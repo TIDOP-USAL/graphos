@@ -10,6 +10,7 @@ namespace inspector
 {
 
 class GroundControlPoint;
+class Image;
 
 namespace ui
 {
@@ -19,6 +20,11 @@ class GeoreferenceModel
 {
 
   Q_OBJECT
+
+public:
+
+  typedef std::vector<Image>::iterator image_iterator;
+  typedef std::vector<Image>::const_iterator image_const_iterator;
 
 public:
 
@@ -42,6 +48,10 @@ public:
   virtual void setOffset(const QString &offset) = 0;
   virtual void addPhotoOrientation(const QString &imgName, 
                                    const PhotoOrientation &orientation) = 0;
+  virtual image_iterator imageBegin() = 0;
+  virtual image_const_iterator imageBegin() const = 0;
+  virtual image_iterator imageEnd() = 0;
+  virtual image_const_iterator imageEnd() const = 0;
 
 public slots:
 

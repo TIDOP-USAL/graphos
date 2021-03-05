@@ -11,7 +11,6 @@ namespace ui
 
 class GeoreferenceView;
 class GeoreferenceModel;
-class ImagesModel;
 class HelpDialog;
 
 class GeoreferencePresenterImp
@@ -23,8 +22,7 @@ class GeoreferencePresenterImp
 public:
 
   GeoreferencePresenterImp(GeoreferenceView *view,
-                           GeoreferenceModel *model,
-                           ImagesModel *imagesModel);
+                           GeoreferenceModel *model);
   ~GeoreferencePresenterImp() override;
 
 private slots:
@@ -66,7 +64,6 @@ private:
 
   GeoreferenceView *mView;
   GeoreferenceModel *mModel;
-  ImagesModel *mImagesModel;
   HelpDialog *mHelp;
 };
 

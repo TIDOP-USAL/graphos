@@ -357,6 +357,26 @@ void GeoreferenceModelImp::addPhotoOrientation(const QString &imgName,
   mProject->addPhotoOrientation(imgName, orientation);
 }
 
+GeoreferenceModel::image_iterator GeoreferenceModelImp::imageBegin()
+{
+  return mProject->imageBegin();
+}
+
+GeoreferenceModel::image_const_iterator GeoreferenceModelImp::imageBegin() const
+{
+  return mProject->imageBegin();
+}
+
+GeoreferenceModel::image_iterator GeoreferenceModelImp::imageEnd()
+{
+  return mProject->imageEnd();
+}
+
+GeoreferenceModel::image_const_iterator GeoreferenceModelImp::imageEnd() const
+{
+  return mProject->imageEnd();
+}
+
 void GeoreferenceModelImp::setCrs(const QString &crs)
 {
   mCrs = crs;

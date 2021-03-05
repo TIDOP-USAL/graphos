@@ -3,6 +3,7 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#include "inspector/ui/images/ImageLoaderComponent.h"
 #include "inspector/ui/featextract/FeatureExtractorComponent.h"
 #include "inspector/ui/featmatch/FeatureMatchingComponent.h"
 #include "inspector/ui/orientation/OrientationComponent.h"
@@ -23,6 +24,9 @@ int main(int argc, char *argv[])
 
   ComponentsManager componentsManager;
 
+  ImageLoaderComponent image_loader_component(componentsManager.project());
+  componentsManager.registerComponent(&image_loader_component, 
+                                      ComponentsManager::Flags::separator_after);
   FeatureExtractorComponent feature_extractor_component(componentsManager.project());
   componentsManager.registerComponent(&feature_extractor_component);
   FeatureMatchingComponent feature_matching_component(componentsManager.project());
@@ -45,8 +49,12 @@ int main(int argc, char *argv[])
   componentsManager.registerComponent(&match_viewer_component,
                                       ComponentsManager::Flags::separator_after);
 
+  QObject::connect(&image_loader_component, SIGNAL(imageLoaded(QString)), 
+                   componentsManager.mainWindowPresenter(), SLOT(loadImage(QString)));
+
   AppStatus &app_status = AppStatus::instance();
   app_status.activeFlag(AppStatus::Flag::none, true);
+
 
   componentsManager.mainWindowPresenter()->open();
 

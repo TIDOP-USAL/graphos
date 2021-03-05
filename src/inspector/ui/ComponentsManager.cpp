@@ -13,9 +13,6 @@
 
 #include "inspector/ui/NewProjectPresenter.h"
 #include "inspector/ui/NewProjectView.h"
-#include "inspector/ui/images/ImagesModel.h"
-#include "inspector/ui/images/ImagesView.h"
-#include "inspector/ui/images/ImagesPresenter.h"
 #include "inspector/ui/cameras/CamerasModel.h"
 #include "inspector/ui/cameras/CamerasView.h"
 #include "inspector/ui/cameras/CamerasPresenter.h"
@@ -52,8 +49,6 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowPresenter(nullptr),
     mProject(new ProjectImp),
     mProjectModel(nullptr),
-    mImagesModel(nullptr),
-    mImagesPresenter(nullptr),
     mCamerasModel(nullptr),
     mCamerasPresenter(nullptr),
     mFeaturesModel(nullptr),
@@ -93,16 +88,6 @@ ComponentsManager::~ComponentsManager()
   if (mProjectModel){
     delete mProjectModel;
     mProjectModel = nullptr;
-  }
-
-  if (mImagesModel){
-    delete mImagesModel;
-    mImagesModel = nullptr;
-  }
-
-  if (mImagesPresenter){
-    delete mImagesPresenter;
-    mImagesPresenter = nullptr;
   }
 
   if (mCamerasModel){
@@ -223,15 +208,13 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->mainWindowModel(),
                                                    this->projectModel(),
                                                    this->settingsModel(),
-                                                   this->imagesModel(),
+                                                   //this->imagesModel(),
                                                    this->camerasModel(),
                                                    this->featuresModel(),
                                                    this->matchesModel());
 
     connect(mMainWindowPresenter, &MainWindowPresenter::openNewProjectDialog,
             this, &ComponentsManager::initAndOpenNewProjectDialog);
-    connect(mMainWindowPresenter, &MainWindowPresenter::openLoadImagesDialog,
-            this, &ComponentsManager::initAndOpenLoadImagesDialog);
 
     connect(mMainWindowPresenter, &MainWindowPresenter::openExportOrientationsDialog,
             this, &ComponentsManager::initAndOpenExportOrientationsDialog);
@@ -291,31 +274,6 @@ void ComponentsManager::registerComponent(Component *component,
 
   if (ProcessComponent *process_component = dynamic_cast<ProcessComponent *>(component)) {
     process_component->setProgressHandler(this->progressHandler());
-    //TL_TODO("Hay que revisar MainWindowPresenter y mejor sacar estos SLOTS a otra clase")
-      //connect(process_component, SIGNAL(running()), 
-      //        this->mainWindowPresenter(), SLOT(processRunning()));
-      //connect(process_component,  SIGNAL(finished()), 
-      //        this->mainWindowPresenter(), SLOT(processFinished()));
-      //connect(process_component,  SIGNAL(failed()), 
-      //        this->mainWindowPresenter(), SLOT(processFailed()));
-
- /*     connect(process_component, &ProcessComponent::running, [=](const QString &processName) {
-      AppStatus::instance().activeFlag(AppStatus::Flag::processing, true);
-    });
-    connect(process_component, &ProcessComponent::finished, [=](const QString &processName) {
-      AppStatus &app_status = AppStatus::instance();
-      TL_TODO("No me convence. ")
-      app_status.activeFlag(AppStatus::Flag::processing, false);
-      if (processName.compare("Feature Extractor") == 0) {
-        app_status.
-      } else if (processName.compare("Feature Matching") == 0) {
-
-      } else if (processName.compare("Feature Matching") == 0) {
-      }
-    });
-    connect(process_component, &ProcessComponent::failed, [=](const QString &processName) {
-      AppStatus::instance().activeFlag(AppStatus::Flag::processing, false);
-    });*/
   }
   
   QString toolbar = component->toolbar();
@@ -354,25 +312,6 @@ ProjectModel *ComponentsManager::projectModel()
   return mProjectModel;
 }
 
-ImagesModel *ComponentsManager::imagesModel()
-{
-  if (mImagesModel == nullptr){
-    mImagesModel = new ImagesModelImp(mProject);
-  }
-  return mImagesModel;
-}
-
-ImagesPresenter *ComponentsManager::imagesPresenter()
-{
-  if (mImagesPresenter == nullptr){
-    ImagesView *view = new ImagesViewImp(this->mainWindowView());
-    mImagesPresenter = new ImagesPresenterImp(view,
-                                              this->imagesModel(),
-                                              this->camerasModel());
-  }
-  return mImagesPresenter;
-}
-
 CamerasModel *ComponentsManager::camerasModel()
 {
   if (mCamerasModel == nullptr){
@@ -386,8 +325,7 @@ CamerasPresenter *ComponentsManager::camerasPresenter()
   if (mCamerasPresenter == nullptr){
     CamerasView *view = new CamerasViewImp(this->mainWindowView());
     mCamerasPresenter = new CamerasPresenterImp(view,
-                                                this->camerasModel(),
-                                                this->imagesModel());
+                                                this->camerasModel());
   }
   return mCamerasPresenter;
 }
@@ -467,8 +405,7 @@ GeoreferencePresenter *ComponentsManager::georeferencePresenter()
     Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
     GeoreferenceView *view = new GeoreferenceViewImp(this->mainWindowView(), f);
     mGeoreferencePresenter = new GeoreferencePresenterImp(view,
-                                                          this->georeferenceModel(),
-                                                          this->imagesModel());
+                                                          this->georeferenceModel());
   }
   return mGeoreferencePresenter;
 }
@@ -562,26 +499,6 @@ void ComponentsManager::initAndOpenNewProjectDialog()
 
   this->newProjectPresenter()->setHelp(this->helpDialog());
   this->newProjectPresenter()->open();
-}
-
-void ComponentsManager::initAndOpenLoadImagesDialog()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openLoadImagesDialog,
-             this, &ComponentsManager::initAndOpenLoadImagesDialog);
- 
-  connect(this->mainWindowPresenter(), SIGNAL(openLoadImagesDialog()),
-          this->imagesPresenter(), SLOT(open()));
-
-  TL_TODO("indicar que se están cargando imagenes")
-  connect(this->imagesPresenter(), SIGNAL(running()),  this->mainWindowPresenter(), SLOT(processRunning()));
-  connect(this->imagesPresenter(), SIGNAL(finished()), this->mainWindowPresenter(), SLOT(processFinished()));
-  connect(this->imagesPresenter(), SIGNAL(loadingImages(bool)), this->mainWindowPresenter(), SLOT(loadingImages(bool)));
-  connect(this->imagesPresenter(), SIGNAL(imageLoaded(QString)), this->mainWindowPresenter(), SLOT(loadImage(QString)));
-
-  connect(this->progressDialog(), SIGNAL(cancel()),     this->imagesPresenter(), SLOT(cancel()));
-
-  this->imagesPresenter()->setProgressHandler(this->progressHandler());
-  this->imagesPresenter()->open();
 }
 
 void ComponentsManager::initAndOpenSettingsDialog()

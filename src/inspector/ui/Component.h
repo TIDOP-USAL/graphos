@@ -6,6 +6,7 @@
 
 
 class QAction;
+class QDialog;
 
 namespace inspector
 {
@@ -90,7 +91,8 @@ protected:
   QString mName;
   QAction *mAction;
   IModel *mModel;
-  IDialogView *mView;
+  //IDialogView *mView;
+  QDialog *mView;
   IPresenter *mPresenter;
 
 private:

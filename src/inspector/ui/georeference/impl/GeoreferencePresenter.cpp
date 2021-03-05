@@ -7,7 +7,8 @@
 #include "inspector/process/MultiProcess.h"
 #include "inspector/process/orientation/GeoreferenceProcess.h"
 #include "inspector/core/orientation/photoorientation.h"
-#include "inspector/ui/images/ImagesModel.h"
+#include "inspector/core/image.h"
+
 
 #include <tidop/core/defs.h>
 #include <tidop/core/messages.h>
@@ -23,11 +24,9 @@ namespace ui
 {
 
 GeoreferencePresenterImp::GeoreferencePresenterImp(GeoreferenceView *view,
-                                                   GeoreferenceModel *model,
-                                                   ImagesModel *imagesModel)
+                                                   GeoreferenceModel *model)
   : mView(view),
     mModel(model),
-    mImagesModel(imagesModel),
     mHelp(nullptr)
 {
   this->init();
@@ -99,7 +98,7 @@ void GeoreferencePresenterImp::onGeoreferenceFinished()
 
     ReadPhotoOrientations readPhotoOrientations;
     readPhotoOrientations.open(ori_relative_path);
-    for(auto image = mImagesModel->begin(); image != mImagesModel->end(); image++){
+    for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
       PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
       if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);

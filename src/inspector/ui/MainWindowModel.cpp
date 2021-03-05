@@ -116,6 +116,41 @@ PhotoOrientation MainWindowModel::photoOrientation(const QString &imgName) const
   return mProject->photoOrientation(imgName);
 }
 
+Image MainWindowModel::findImageByName(const QString &imageName) const
+{
+  return mProject->findImageByName(imageName);
+}
+
+size_t MainWindowModel::imageID(const QString &imageName) const
+{
+  return mProject->imageId(imageName);
+}
+
+bool MainWindowModel::removeImage(size_t id)
+{
+  return mProject->removeImage(id);
+}
+
+MainWindowModel::image_iterator MainWindowModel::imageBegin()
+{
+  return mProject->imageBegin();
+}
+
+MainWindowModel::image_const_iterator MainWindowModel::imageBegin() const
+{
+  return mProject->imageBegin();
+}
+
+MainWindowModel::image_iterator MainWindowModel::imageEnd()
+{
+  return mProject->imageEnd();
+}
+
+MainWindowModel::image_const_iterator MainWindowModel::imageEnd() const
+{
+  return mProject->imageEnd();
+}
+
 void MainWindowModel::init()
 {
 //  mPrjDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);

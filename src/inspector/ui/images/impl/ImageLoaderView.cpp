@@ -1,4 +1,4 @@
-#include "ImagesView.h"
+#include "ImageLoaderView.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -19,20 +19,20 @@ namespace ui
 {
 
 
-ImagesViewImp::ImagesViewImp(QWidget *parent)
-  : ImagesView(parent)
+ImageLoaderViewImp::ImageLoaderViewImp(QWidget *parent)
+  : ImageLoaderView(parent)
 {
   this->init();
 }
 
-void ImagesViewImp::init()
+void ImageLoaderViewImp::init()
 {
   QFileDialog::setWindowTitle(tr("Add images"));
   QFileDialog::setFileMode(QFileDialog::ExistingFiles);
   QFileDialog::setNameFilter(tr("Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)"));
 }
 
-void ImagesViewImp::setImageDirectory(const QString &directory)
+void ImageLoaderViewImp::setImageDirectory(const QString &directory)
 {
   QFileDialog::setDirectory(directory);
 }

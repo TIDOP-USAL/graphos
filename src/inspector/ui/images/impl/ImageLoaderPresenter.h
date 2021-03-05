@@ -1,34 +1,35 @@
-#ifndef INSPECTOR_IMAGES_PRESENTER_H
-#define INSPECTOR_IMAGES_PRESENTER_H
+#ifndef INSPECTOR_IMAGE_LOADER_PRESENTER_H
+#define INSPECTOR_IMAGE_LOADER_PRESENTER_H
 
-#include "inspector/ui/images/Images.h"
-#include "inspector/core/camera.h"
+#include "inspector/ui/images/ImageLoaderPresenter.h"
+
 
 namespace inspector
 {
 
+class Image;
+class Camera;
+
 namespace ui
 {
 
-class ImagesView;
-class ImagesModel;
-class CamerasModel;
+class ImageLoaderView;
+class ImageLoaderModel;
 class HelpDialog;
 
-class ImagesPresenterImp
-  : public ImagesPresenter
+class ImageLoaderPresenterImp
+  : public ImageLoaderPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  ImagesPresenterImp(ImagesView *view,
-                     ImagesModel *model,
-                     CamerasModel *camerasModel);
-  ~ImagesPresenterImp() override;
+  ImageLoaderPresenterImp(ImageLoaderView *view,
+                          ImageLoaderModel *model);
+  ~ImageLoaderPresenterImp() override;
 
-// ImagesPresenter interface
+// ImageLoaderPresenter interface
 
 public slots:
 
@@ -65,9 +66,9 @@ private:
 
 private:
 
-  ImagesView *mView;
-  ImagesModel *mModel;
-  CamerasModel *mCamerasModel;
+  ImageLoaderView *mView;
+  ImageLoaderModel *mModel;
+  //CamerasModel *mCamerasModel;
   HelpDialog *mHelp;
   QStringList mImageFiles;
   std::vector<Image> mImages;
@@ -78,4 +79,4 @@ private:
 
 } // namespace inspector
 
-#endif // INSPECTOR_IMAGES_PRESENTER_H
+#endif // INSPECTOR_IMAGE_LOADER_PRESENTER_H

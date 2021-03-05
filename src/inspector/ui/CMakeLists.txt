@@ -18,7 +18,7 @@ set(CMAKE_AUTORCC ON)
 # Ejecutable inspector                                                                       #
 #--------------------------------------------------------------------------------------------#
 
-project(inspector_image)
+project(inspector_image LANGUAGES CXX)
 
 set(INSPECTOR_SOURCES
     main.cpp
@@ -48,9 +48,10 @@ set(INSPECTOR_SOURCES
     featmatch/impl/FeatureMatchingModel.cpp
     featmatch/impl/FeatureMatchingView.cpp
     featmatch/impl/FeatureMatchingPresenter.cpp
-    images/ImagesModel.cpp
-    images/ImagesPresenter.cpp
-    images/ImagesView.cpp
+	images/ImageLoaderComponent.cpp
+    images/impl/ImageLoaderModel.cpp
+    images/impl/ImageLoaderPresenter.cpp
+    images/impl/ImageLoaderView.cpp
 	orientation/OrientationComponent.cpp
     orientation/impl/OrientationModel.cpp
     orientation/impl/OrientationView.cpp
@@ -149,10 +150,13 @@ set(INSPECTOR_HEADERS
     featmatch/impl/FeatureMatchingModel.h
     featmatch/impl/FeatureMatchingView.h
     featmatch/impl/FeatureMatchingPresenter.h
-    images/Images.h
-    images/ImagesModel.h
-    images/ImagesPresenter.h
-    images/ImagesView.h
+    images/ImageLoaderComponent.h
+    images/ImageLoaderModel.h
+    images/ImageLoaderPresenter.h
+    images/ImageLoaderView.h
+    images/impl/ImageLoaderModel.h
+    images/impl/ImageLoaderPresenter.h
+    images/impl/ImageLoaderView.h
     orientation/OrientationComponent.h
     orientation/OrientationModel.h
     orientation/OrientationView.h

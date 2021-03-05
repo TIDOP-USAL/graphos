@@ -1,7 +1,6 @@
 #include "CamerasPresenter.h"
 
 #include "inspector/ui/cameras/CamerasModel.h"
-#include "inspector/ui/images/ImagesModel.h"
 #include "inspector/ui/HelpDialog.h"
 
 #include <tidop/core/messages.h>
@@ -13,12 +12,10 @@ namespace ui
 {
 
 CamerasPresenterImp::CamerasPresenterImp(CamerasView *view,
-                                         CamerasModel *model,
-                                         ImagesModel *imagesModel)
+                                         CamerasModel *model)
   : CamerasPresenter(),
     mView(view),
     mModel(model),
-    mImagesModel(imagesModel),
     mHelp(nullptr),
     bModifiedProject(false)
 {
@@ -144,7 +141,7 @@ void CamerasPresenterImp::activeCamera(int id)
 
     /// Carga las imagenes de la cámara activa
     QStringList images;
-    for(auto image = mImagesModel->begin(); image != mImagesModel->end(); image++){
+    for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
       if (image->cameraId() == mActiveCameraId){
         images.push_back(image->path());
       }

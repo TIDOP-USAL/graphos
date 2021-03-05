@@ -88,6 +88,10 @@ public:
   void setOffset(const QString &offset) override;
   void addPhotoOrientation(const QString &imgName, 
                            const PhotoOrientation &orientation) override;
+  image_iterator imageBegin();
+  image_const_iterator imageBegin() const;
+  image_iterator imageEnd();
+  image_const_iterator imageEnd() const;
 
 public slots:
 

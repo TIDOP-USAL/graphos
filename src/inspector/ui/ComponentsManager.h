@@ -23,8 +23,6 @@ class Component;
 class SettingsModel;
 class SettingsPresenter;
 class NewProjectPresenter;
-class ImagesModel;
-class ImagesPresenter;
 class FeaturesModel;
 class MatchesModel;
 class CamerasModel;
@@ -70,8 +68,6 @@ public:
 
   Project *project();
   ProjectModel *projectModel();
-  ImagesModel *imagesModel();
-  ImagesPresenter *imagesPresenter();
   CamerasModel *camerasModel();
   CamerasPresenter *camerasPresenter();
   FeaturesModel *featuresModel();
@@ -101,7 +97,6 @@ signals:
 protected slots:
 
   void initAndOpenNewProjectDialog();
-  void initAndOpenLoadImagesDialog();
   void initAndOpenSettingsDialog();
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
@@ -119,8 +114,6 @@ protected:
   MainWindowPresenter *mMainWindowPresenter;
   Project *mProject;
   ProjectModel *mProjectModel;
-  ImagesModel *mImagesModel;
-  ImagesPresenter *mImagesPresenter;
   CamerasModel *mCamerasModel;
   CamerasPresenter *mCamerasPresenter;
   FeaturesModel *mFeaturesModel;

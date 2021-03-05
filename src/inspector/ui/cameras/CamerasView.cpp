@@ -12,6 +12,8 @@
 #include <QSpinBox>
 #include <QPushButton>
 
+#include <tidop/core/defs.h>
+
 namespace inspector
 {
 

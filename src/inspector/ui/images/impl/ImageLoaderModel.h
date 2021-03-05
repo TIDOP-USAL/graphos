@@ -1,27 +1,28 @@
-#ifndef INSPECTOR_IMAGES_MODEL_H
-#define INSPECTOR_IMAGES_MODEL_H
+#ifndef INSPECTOR_IMAGE_LOADER_MODEL_H
+#define INSPECTOR_IMAGE_LOADER_MODEL_H
 
-#include "inspector/ui/images/Images.h"
-#include "inspector/core/project.h"
+#include "inspector/ui/images/ImageLoaderModel.h"
 
 namespace inspector
 {
+
+class Project;
 
 namespace ui
 {
 
 
-class ImagesModelImp
-  : public ImagesModel
+class ImageLoaderModelImp
+  : public ImageLoaderModel
 {
 
   Q_OBJECT
 
 public:
 
-  ImagesModelImp(Project *project,
-                 QObject *parent = nullptr);
-  ~ImagesModelImp() override = default;
+  ImageLoaderModelImp(Project *project,
+                      QObject *parent = nullptr);
+  ~ImageLoaderModelImp() override = default;
 
 // ImagesModel interface
 
@@ -40,6 +41,15 @@ public:
   image_const_iterator begin() const override;
   image_iterator end() override;
   image_const_iterator end() const override;
+
+  int addCamera(const Camera &camera) override;
+  int cameraID(const Camera &camera) const override;
+  int cameraID(const QString &make, 
+               const QString &model) const override;
+  camera_iterator cameraBegin() override;
+  camera_const_iterator cameraBegin() const override;
+  camera_iterator cameraEnd() override;
+  camera_const_iterator cameraEnd() const override;
 
 // IModel interface
 

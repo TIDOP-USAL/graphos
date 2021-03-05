@@ -11,7 +11,6 @@ namespace ui
 
 class CamerasView;
 class CamerasModel;
-class ImagesModel;
 class HelpDialog;
 
 class CamerasPresenterImp
@@ -23,8 +22,7 @@ class CamerasPresenterImp
 public:
 
   CamerasPresenterImp(CamerasView *view,
-                      CamerasModel *model,
-                      ImagesModel *imagesModel);
+                      CamerasModel *model);
   ~CamerasPresenterImp() override = default;
 
 private:
@@ -68,7 +66,6 @@ private:
 
   CamerasView *mView;
   CamerasModel *mModel;
-  ImagesModel *mImagesModel;
   HelpDialog *mHelp;
 
   std::map<int, Camera> mCameraCache;

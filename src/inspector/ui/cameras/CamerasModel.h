@@ -40,6 +40,11 @@ public:
   camera_iterator end() override;
   camera_const_iterator end() const override;
 
+  image_iterator imageBegin() override;
+  image_const_iterator imageBegin() const override;
+  image_iterator imageEnd() override;
+  image_const_iterator imageEnd() const override;
+
 // IModel interface
 
 private:

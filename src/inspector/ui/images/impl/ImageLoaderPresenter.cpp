@@ -1,11 +1,13 @@
-#include "ImagesPresenter.h"
+#include "ImageLoaderPresenter.h"
 
-#include "inspector/ui/images/ImagesModel.h"
-#include "inspector/ui/cameras/CamerasModel.h"
+#include "inspector/ui/images/ImageLoaderModel.h"
+#include "inspector/ui/images/ImageLoaderView.h"
 #include "inspector/ui/HelpDialog.h"
 #include "inspector/ui/utils/Progress.h"
 #include "inspector/process/MultiProcess.h"
 #include "inspector/process/images/LoadImagesProcess.h"
+#include "inspector/core/camera.h"
+#include "inspector/core/image.h"
 
 #include <tidop/core/messages.h>
 
@@ -18,35 +20,33 @@ namespace inspector
 namespace ui
 {
 
-ImagesPresenterImp::ImagesPresenterImp(ImagesView *view,
-                                       ImagesModel *model,
-                                       CamerasModel *camerasModel)
-  : ImagesPresenter(),
+ImageLoaderPresenterImp::ImageLoaderPresenterImp(ImageLoaderView *view,
+                                                 ImageLoaderModel *model)
+  : ImageLoaderPresenter(),
     mView(view),
     mModel(model),
-    mCamerasModel(camerasModel),
     mHelp(nullptr)
 {
   this->init();
   this->initSignalAndSlots();
 }
 
-ImagesPresenterImp::~ImagesPresenterImp()
+ImageLoaderPresenterImp::~ImageLoaderPresenterImp()
 {
 }
 
-void ImagesPresenterImp::init()
+void ImageLoaderPresenterImp::init()
 {
 }
 
-void ImagesPresenterImp::initSignalAndSlots()
+void ImageLoaderPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &ImagesView::accepted,      this, &ImagesPresenterImp::run);
-  connect(mView, &ImagesView::rejected,      this, &ImagesPresenterImp::cancel);
-  connect(mView, &ImagesView::filesSelected, this, &ImagesPresenterImp::setImages);
+  connect(mView, &ImageLoaderView::accepted,      this, &ImageLoaderPresenterImp::run);
+  connect(mView, &ImageLoaderView::rejected,      this, &ImageLoaderPresenterImp::cancel);
+  connect(mView, &ImageLoaderView::filesSelected, this, &ImageLoaderPresenterImp::setImages);
 }
 
-void ImagesPresenterImp::help()
+void ImageLoaderPresenterImp::help()
 {
   if (mHelp){
     mHelp->setPage("Images.html");
@@ -55,25 +55,24 @@ void ImagesPresenterImp::help()
   }
 }
 
-void ImagesPresenterImp::open()
+void ImageLoaderPresenterImp::open()
 {
   mView->setImageDirectory(mModel->imageDirectory());
   mView->exec();
 }
 
-void ImagesPresenterImp::setHelp(HelpDialog *help)
+void ImageLoaderPresenterImp::setHelp(HelpDialog *help)
 {
   mHelp = help;
 }
 
-
-void ImagesPresenterImp::addImage(int imageId, int cameraId)
+void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
 {
   Image image = mImages[imageId];
   Camera camera = mCameras[cameraId];
-  int camera_id = mCamerasModel->cameraID(camera);
+  int camera_id = mModel->cameraID(camera);
   if (camera_id == 0)
-    camera_id = mCamerasModel->addCamera(camera);
+    camera_id = mModel->addCamera(camera);
 
   image.setCameraId(camera_id);
   mModel->addImage(image);
@@ -81,7 +80,7 @@ void ImagesPresenterImp::addImage(int imageId, int cameraId)
   emit imageLoaded(image.path());
 }
 
-void ImagesPresenterImp::onFinished()
+void ImageLoaderPresenterImp::onFinished()
 {
   ProcessPresenter::onFinished();
 
@@ -92,7 +91,7 @@ void ImagesPresenterImp::onFinished()
   //msgInfo("Images loaded");
 }
 
-void ImagesPresenterImp::createProcess()
+void ImageLoaderPresenterImp::createProcess()
 {
   if (mImageFiles.empty()) return;
 
@@ -103,13 +102,13 @@ void ImagesPresenterImp::createProcess()
   }
 
   mCameras.clear();
-  for (auto &it = mCamerasModel->begin(); it != mCamerasModel->end(); it++) {
+  for (auto &it = mModel->cameraBegin(); it != mModel->cameraEnd(); it++) {
     mCameras.push_back(it->second);
   }
 
   std::shared_ptr<LoadImagesProcess> load_images(new LoadImagesProcess(&mImages, &mCameras));
 
-  connect(load_images.get(), &LoadImagesProcess::imageAdded, this, &ImagesPresenterImp::addImage);
+  connect(load_images.get(), &LoadImagesProcess::imageAdded, this, &ImageLoaderPresenterImp::addImage);
 
   mMultiProcess->appendProcess(load_images);
 
@@ -120,19 +119,19 @@ void ImagesPresenterImp::createProcess()
   }
 }
 
-void ImagesPresenterImp::setImages(const QStringList &files)
+void ImageLoaderPresenterImp::setImages(const QStringList &files)
 {
   mImageFiles = files;
 }
 
-void ImagesPresenterImp::cancel()
+void ImageLoaderPresenterImp::cancel()
 {
   ProcessPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }
 
-void ImagesPresenterImp::onError(int code, const QString &msg)
+void ImageLoaderPresenterImp::onError(int code, const QString &msg)
 {
   ProcessPresenter::onError(code, msg);
 
