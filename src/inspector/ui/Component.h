@@ -93,6 +93,7 @@ protected:
   IModel *mModel;
   //IDialogView *mView;
   QDialog *mView;
+  //QWidget *mView;
   IPresenter *mPresenter;
 
 private:

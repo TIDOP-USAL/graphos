@@ -6,6 +6,12 @@
 #include "inspector/ui/MainWindowModel.h"
 #include "inspector/ui/MainWindowView.h"
 #include "inspector/ui/MainWindowPresenter.h"
+
+#include "inspector/ui/createproject/CreateProjectComponent.h"
+#include "inspector/ui/openproject/OpenProjectComponent.h"
+
+
+
 #include "inspector/ui/ProjectModel.h"
 #include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/SettingsView.h"
@@ -71,6 +77,17 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mProgressDialog(nullptr)
 {
   this->mainWindowPresenter();
+  
+  mCreateProjectComponent = new CreateProjectComponent(this->project());
+  this->mainWindowView()->setCreateProjectAction(mCreateProjectComponent->action());
+  mOpenProjectComponent = new OpenProjectComponent(this->project());
+  this->mainWindowView()->setOpenProjectAction(mOpenProjectComponent->action());
+
+  ///TODO: por ahora hasta que refactorice MainWindow
+  connect(mCreateProjectComponent, SIGNAL(projectCreated()), 
+                   this->mainWindowPresenter(), SLOT(loadProject()));
+  connect(mOpenProjectComponent, SIGNAL(projectLoaded()), 
+                   this->mainWindowPresenter(), SLOT(loadProject()));
 }
 
 ComponentsManager::~ComponentsManager()
@@ -298,6 +315,11 @@ void ComponentsManager::registerComponent(Component *component,
     mMainWindowView->addSeparatorToToolbar(app_toolbar);
   }
 }
+
+//void ComponentsManager::registerMenu(QMenu *menu, Flags flags)
+//{
+//  mMainWindowView->addMenu(menu);
+//}
 
 Project *ComponentsManager::project()
 {

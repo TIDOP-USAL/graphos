@@ -3,8 +3,8 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
-#include "inspector/ui/createproject/CreateProjectComponent.h"
-#include "inspector/ui/openproject/OpenProjectComponent.h"
+//#include "inspector/ui/createproject/CreateProjectComponent.h"
+//#include "inspector/ui/openproject/OpenProjectComponent.h"
 
 #include "inspector/ui/images/ImageLoaderComponent.h"
 #include "inspector/ui/featextract/FeatureExtractorComponent.h"
@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
 
   ComponentsManager componentsManager;
 
-  CreateProjectComponent create_project_component(componentsManager.project());
-  componentsManager.registerComponent(&create_project_component);
-  OpenProjectComponent open_project_component(componentsManager.project());
-  componentsManager.registerComponent(&open_project_component);
+  //CreateProjectComponent create_project_component(componentsManager.project());
+  //componentsManager.registerComponent(&create_project_component);
+  //OpenProjectComponent open_project_component(componentsManager.project());
+  //componentsManager.registerComponent(&open_project_component);
 
   ImageLoaderComponent image_loader_component(componentsManager.project());
   componentsManager.registerComponent(&image_loader_component, 
@@ -56,11 +56,11 @@ int main(int argc, char *argv[])
   QObject::connect(&image_loader_component, SIGNAL(imageLoaded(QString)), 
                    componentsManager.mainWindowPresenter(), SLOT(loadImage(QString)));
 
-  ///TODO: por ahora hasta que refactorice MainWindow
-  QObject::connect(&create_project_component, SIGNAL(projectCreated()), 
-                   componentsManager.mainWindowPresenter(), SLOT(loadProject()));
-  QObject::connect(&open_project_component, SIGNAL(projectLoaded()), 
-                   componentsManager.mainWindowPresenter(), SLOT(loadProject()));
+  /////TODO: por ahora hasta que refactorice MainWindow
+  //QObject::connect(&create_project_component, SIGNAL(projectCreated()), 
+  //                 componentsManager.mainWindowPresenter(), SLOT(loadProject()));
+  //QObject::connect(&open_project_component, SIGNAL(projectLoaded()), 
+  //                 componentsManager.mainWindowPresenter(), SLOT(loadProject()));
 
   AppStatus &app_status = AppStatus::instance();
   app_status.activeFlag(AppStatus::Flag::none, true);

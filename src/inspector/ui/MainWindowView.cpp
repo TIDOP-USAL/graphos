@@ -48,8 +48,8 @@ enum
 
 MainWindowView::MainWindowView(QWidget *parent)
   : QMainWindow(parent),
-    //mActionNewProject(new QAction(this)),
-    //mActionOpenProject(new QAction(this)),
+    mActionNewProject(new QAction(this)),
+    mActionOpenProject(new QAction(this)),
     mActionSaveProject(new QAction(this)),
     mActionSaveProjectAs(new QAction(this)),
     mActionCloseProject(new QAction(this)),
@@ -98,11 +98,27 @@ MainWindowView::~MainWindowView()
   delete ui;
 }
 
+void MainWindowView::setCreateProjectAction(QAction *action)
+{
+  ui->menuFile->insertAction(mActionNewProject, action);
+  ui->menuFile->removeAction(mActionNewProject);
+  mToolBarFile->insertAction(mActionNewProject, action);
+  mToolBarFile->removeAction(mActionNewProject);
+}
+
+void MainWindowView::setOpenProjectAction(QAction *action)
+{
+  ui->menuFile->insertAction(mActionOpenProject, action);
+  ui->menuFile->removeAction(mActionOpenProject);
+  mToolBarFile->insertAction(mActionOpenProject, action);
+  mToolBarFile->removeAction(mActionOpenProject);
+}
+
 void MainWindowView::addActionToMenu(QAction *action, Menu menu)
 {
   if (QMenu *_menu = findMenu(menu)) {
     _menu->addAction(action);
-    this->update();
+    //this->update();
   }
 }
 
@@ -110,7 +126,7 @@ void MainWindowView::addSeparatorToMenu(Menu menu)
 {
   if (QMenu *_menu = findMenu(menu)) {
     _menu->addSeparator();
-    this->update();
+    //this->update();
   }
 }
 
@@ -118,7 +134,7 @@ void MainWindowView::addActionToToolbar(QAction *action, Toolbar toolbar)
 {
   if (QToolBar *_toolbar = findToolbar(toolbar)) {
     _toolbar->addAction(action);
-    this->update();
+    //this->update();
   }
 }
 
@@ -126,7 +142,7 @@ void MainWindowView::addSeparatorToToolbar(Toolbar toolbar)
 {
   if (QToolBar *_toolbar = findToolbar(toolbar)) {
     _toolbar->addSeparator();
-    this->update();
+    //this->update();
   }
 }
 
@@ -910,13 +926,13 @@ void MainWindowView::initConsole()
 
 void MainWindowView::initActions()
 {
-  //QIcon iconNewProject;
-  //iconNewProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionNewProject->setIcon(iconNewProject);
+  QIcon iconNewProject;
+  iconNewProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionNewProject->setIcon(iconNewProject);
 
-  //QIcon iconOpenProject;
-  //iconOpenProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-open.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionOpenProject->setIcon(iconOpenProject);
+  QIcon iconOpenProject;
+  iconOpenProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-open.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionOpenProject->setIcon(iconOpenProject);
 
   QIcon iconSaveProject;
   iconSaveProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-save.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1022,8 +1038,8 @@ void MainWindowView::initToolbarFile()
 {
   mToolBarFile = new QToolBar(this);
   mToolBarFile->setObjectName("ToolBarFile");
-  //mToolBarFile->addAction(mActionNewProject);
-  //mToolBarFile->addAction(mActionOpenProject);
+  mToolBarFile->addAction(mActionNewProject);
+  mToolBarFile->addAction(mActionOpenProject);
   mToolBarFile->addAction(mActionSaveProject);
   mToolBarFile->addAction(mActionSaveProjectAs);
   this->addToolBar(Qt::TopToolBarArea, mToolBarFile);
@@ -1112,8 +1128,8 @@ void MainWindowView::initMenus()
 
 void MainWindowView::initMenuFile()
 {
-  //ui->menuFile->addAction(mActionNewProject);
-  //ui->menuFile->addAction(mActionOpenProject);
+  ui->menuFile->addAction(mActionNewProject);
+  ui->menuFile->addAction(mActionOpenProject);
   mMenuRecentProjects = new QMenu(this);
   mMenuRecentProjects->addAction(mActionNotRecentProjects);
   mMenuRecentProjects->addSeparator();
@@ -1218,8 +1234,8 @@ void MainWindowView::initSignalAndSlots()
 {
   /* Menú Archivo */
 
-  //connect(mActionNewProject,           &QAction::triggered, this,   &MainWindowView::openNew);
-  //connect(mActionOpenProject,          &QAction::triggered, this,   &MainWindowView::openProject);
+  connect(mActionNewProject,           &QAction::triggered, this,   &MainWindowView::openNew);
+  connect(mActionOpenProject,          &QAction::triggered, this,   &MainWindowView::openProject);
   connect(mActionClearHistory,         &QAction::triggered, this,   &MainWindowView::clearHistory);
   connect(mActionSaveProject,          &QAction::triggered, this,   &MainWindowView::saveProject);
   connect(mActionSaveProjectAs,        &QAction::triggered, this,   &MainWindowView::saveProjectAs);
@@ -1376,8 +1392,8 @@ void MainWindowView::update()
 
 void MainWindowView::retranslate()
 {
-  //mActionNewProject->setText(QApplication::translate("MainWindowView", "New Project", nullptr));
-  //mActionOpenProject->setText(QApplication::translate("MainWindowView", "Open Project", nullptr));
+  mActionNewProject->setText(QApplication::translate("MainWindowView", "New Project", nullptr));
+  mActionOpenProject->setText(QApplication::translate("MainWindowView", "Open Project", nullptr));
   mActionSaveProject->setText(QApplication::translate("MainWindowView", "Save Project", nullptr));
   mActionSaveProjectAs->setText(QApplication::translate("MainWindowView", "Save Project As...", nullptr));
   mActionImportCameras->setText(QApplication::translate("MainWindowView", "Import Cameras", nullptr));
@@ -1423,8 +1439,8 @@ void MainWindowView::retranslate()
   mMenuToolBar->setTitle(QApplication::translate("MainWindowView", "Toolbars", nullptr));
 
 #ifndef QT_NO_SHORTCUT
-  //mActionNewProject->setShortcut(QApplication::translate("MainWindowView", "Ctrl+N", nullptr));
-  //mActionOpenProject->setShortcut(QApplication::translate("MainWindowView", "Ctrl+O", nullptr));
+  mActionNewProject->setShortcut(QApplication::translate("MainWindowView", "Ctrl+N", nullptr));
+  mActionOpenProject->setShortcut(QApplication::translate("MainWindowView", "Ctrl+O", nullptr));
   mActionSaveProject->setShortcut(QApplication::translate("MainWindowView", "Ctrl+S", nullptr));
   mActionSaveProjectAs->setShortcut(QApplication::translate("MainWindowView", "Ctrl+Shift+S", nullptr));
   mActionExit->setShortcut(QApplication::translate("MainWindowView", "Ctrl+F4", nullptr));

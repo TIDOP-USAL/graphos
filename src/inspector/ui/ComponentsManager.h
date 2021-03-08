@@ -20,6 +20,7 @@ class MainWindowView;
 class MainWindowPresenter;
 class ProjectModel;
 class Component;
+
 class SettingsModel;
 class SettingsPresenter;
 class NewProjectPresenter;
@@ -113,6 +114,9 @@ protected:
   MainWindowModel *mMainWindowModel;
   MainWindowPresenter *mMainWindowPresenter;
   Project *mProject;
+  Component *mCreateProjectComponent;
+  Component *mOpenProjectComponent;
+
   ProjectModel *mProjectModel;
   CamerasModel *mCamerasModel;
   CamerasPresenter *mCamerasPresenter;

@@ -75,6 +75,11 @@ public:
   explicit MainWindowView(QWidget *parent = nullptr);
   ~MainWindowView() override;
 
+  /// Configuración de acciones 
+
+  void setCreateProjectAction(QAction *action);
+  void setOpenProjectAction(QAction *action);
+
   void addActionToMenu(QAction *action, Menu menu);
   void addSeparatorToMenu(Menu menu);
   void addActionToToolbar(QAction *action, Toolbar toolbar);
@@ -259,8 +264,8 @@ public:
 protected:
 
   QTreeWidget *mTreeWidgetProject;
-  //QAction *mActionNewProject;
-  //QAction *mActionOpenProject;
+  QAction *mActionNewProject;
+  QAction *mActionOpenProject;
   QAction *mActionSaveProject;
   QAction *mActionSaveProjectAs;
   QAction *mActionCloseProject;

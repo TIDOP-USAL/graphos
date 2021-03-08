@@ -28,6 +28,11 @@ ComponentBase::~ComponentBase()
     mAction = nullptr;
   }
 
+  if (mPresenter) {
+    delete mPresenter;
+    mPresenter = nullptr;
+  }
+
   if (mModel) {
     delete mModel;
     mModel = nullptr;
@@ -36,11 +41,6 @@ ComponentBase::~ComponentBase()
   if (mView) {
     delete mView;
     mView = nullptr;
-  }
-
-  if (mPresenter) {
-    delete mPresenter;
-    mPresenter = nullptr;
   }
 }
 

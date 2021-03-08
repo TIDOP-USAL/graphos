@@ -52,7 +52,7 @@ void FeatureExtractorViewImp::initUI()
   mComboBoxDetectorDescriptor = new QComboBox(this);
   gridLayout->addWidget(mComboBoxDetectorDescriptor, 2, 1, 1, 1);
 
-  QWidget *widgetFeatureExtractor = new QWidget();
+  QWidget *widgetFeatureExtractor = new QWidget(this);
   mGridLayoutDetectorDescriptor = new QGridLayout(widgetFeatureExtractor);
   mGridLayoutDetectorDescriptor->setContentsMargins(0, 0, 0, 0);
   gridLayout->addWidget(widgetFeatureExtractor, 3, 0, 1, 2);
