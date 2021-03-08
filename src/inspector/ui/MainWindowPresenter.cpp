@@ -65,65 +65,65 @@ MainWindowPresenter::~MainWindowPresenter()
 {
 }
 
-void MainWindowPresenter::openNew()
-{
-  if(mProjectModel->checkUnsavedChanges()) {
-    int i_ret = QMessageBox(QMessageBox::Information,
-                            tr("Save Changes"),
-                            tr("There are unsaved changes. Do you want to save them?"),
-                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-    if (i_ret == QMessageBox::Yes) {
-      saveProject();
-    } else if (i_ret == QMessageBox::Cancel) {
-      return;
-    }
-  }
-
-  mView->clear();
-
-  emit openNewProjectDialog();
-}
-
-void MainWindowPresenter::openProject()
-{
-  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
-                                              tr("Open Inspector Image Project"),
-                                              mProjectDefaultPath,
-                                              tr("Inspector Image Project (*.xml)"));
-  if (!file.isEmpty()) {
-    // Se comprueba si hay un proyecto abierto con cambios sin guardar
-    if (mProjectModel->checkUnsavedChanges()) {
-      int i_ret = QMessageBox(QMessageBox::Information,
-                              tr("Save Changes"),
-                              tr("There are unsaved changes. Do you want to save them?"),
-                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-      if (i_ret == QMessageBox::Yes) {
-        saveProject();
-      } else if (i_ret == QMessageBox::Cancel) {
-        return;
-      }
-    }
-
-    mProjectModel->clear();
-
-    if (mProjectModel->checkOldVersion(file)){
-      int i_ret = QMessageBox(QMessageBox::Information,
-                              tr("It is loading an old project"),
-                              tr("If you accept, a copy of the old project will be created"),
-                              QMessageBox::Yes|QMessageBox::No).exec();
-      if (i_ret == QMessageBox::Yes) {
-        mProjectModel->oldVersionBackup(file);
-        mView->setFlag(MainWindowView::Flag::project_modified, true);
-      } else if (i_ret == QMessageBox::Cancel) {
-        return;
-      }
-
-    }
-    mProjectModel->load(file);
-    ///TODO: o cambiar el nombre o hacerlo de otra forma
-    loadProject();
-  }
-}
+//void MainWindowPresenter::openNew()
+//{
+//  if(mProjectModel->checkUnsavedChanges()) {
+//    int i_ret = QMessageBox(QMessageBox::Information,
+//                            tr("Save Changes"),
+//                            tr("There are unsaved changes. Do you want to save them?"),
+//                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
+//    if (i_ret == QMessageBox::Yes) {
+//      saveProject();
+//    } else if (i_ret == QMessageBox::Cancel) {
+//      return;
+//    }
+//  }
+//
+//  mView->clear();
+//
+//  emit openNewProjectDialog();
+//}
+//
+//void MainWindowPresenter::openProject()
+//{
+//  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
+//                                              tr("Open Inspector Image Project"),
+//                                              mProjectDefaultPath,
+//                                              tr("Inspector Image Project (*.xml)"));
+//  if (!file.isEmpty()) {
+//    // Se comprueba si hay un proyecto abierto con cambios sin guardar
+//    if (mProjectModel->checkUnsavedChanges()) {
+//      int i_ret = QMessageBox(QMessageBox::Information,
+//                              tr("Save Changes"),
+//                              tr("There are unsaved changes. Do you want to save them?"),
+//                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
+//      if (i_ret == QMessageBox::Yes) {
+//        saveProject();
+//      } else if (i_ret == QMessageBox::Cancel) {
+//        return;
+//      }
+//    }
+//
+//    mProjectModel->clear();
+//
+//    if (mProjectModel->checkOldVersion(file)){
+//      int i_ret = QMessageBox(QMessageBox::Information,
+//                              tr("Old project format"),
+//                              tr("If you accept, a copy of the old project will be created"),
+//                              QMessageBox::Yes|QMessageBox::No).exec();
+//      if (i_ret == QMessageBox::Yes) {
+//        mProjectModel->oldVersionBackup(file);
+//        mView->setFlag(MainWindowView::Flag::project_modified, true);
+//      } else if (i_ret == QMessageBox::Cancel) {
+//        return;
+//      }
+//
+//    }
+//    mProjectModel->load(file);
+//    ///TODO: o cambiar el nombre o hacerlo de otra forma
+//    loadProject();
+//  }
+//}
 
 void MainWindowPresenter::openFromHistory(const QString &file)
 {
@@ -1115,8 +1115,8 @@ void MainWindowPresenter::initSignalAndSlots()
 
 /* Menú Archivo */
 
-  connect(mView, &MainWindowView::openNew,                this, &MainWindowPresenter::openNew);
-  connect(mView, &MainWindowView::openProject,            this, &MainWindowPresenter::openProject);
+  //connect(mView, &MainWindowView::openNew,                this, &MainWindowPresenter::openNew);
+  //connect(mView, &MainWindowView::openProject,            this, &MainWindowPresenter::openProject);
   connect(mView, &MainWindowView::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);  ///TODO: falta test señal
   connect(mView, &MainWindowView::clearHistory,           this, &MainWindowPresenter::deleteHistory);
   connect(mView,  &MainWindowView::openCamerasImport,     this, &MainWindowPresenter::openCamerasImportDialog);
@@ -1136,11 +1136,11 @@ void MainWindowPresenter::initSignalAndSlots()
   /* Menú flujo de trabajo */
 
   //connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::loadImages);
-  connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::openLoadImagesDialog);
-  connect(mView,   &MainWindowView::openFeatureExtraction, this, &MainWindowPresenter::openFeatureExtractionDialog);
-  connect(mView,   &MainWindowView::openFeatureMatching,   this, &MainWindowPresenter::openFeatureMatchingDialog);
-  connect(mView,   &MainWindowView::openOrientation,       this, &MainWindowPresenter::openOrientationDialog);
-  connect(mView,   &MainWindowView::openDensification,     this, &MainWindowPresenter::openDensificationDialog);
+  //connect(mView,   &MainWindowView::loadImages,            this, &MainWindowPresenter::openLoadImagesDialog);
+  //connect(mView,   &MainWindowView::openFeatureExtraction, this, &MainWindowPresenter::openFeatureExtractionDialog);
+  //connect(mView,   &MainWindowView::openFeatureMatching,   this, &MainWindowPresenter::openFeatureMatchingDialog);
+  //connect(mView,   &MainWindowView::openOrientation,       this, &MainWindowPresenter::openOrientationDialog);
+  //connect(mView,   &MainWindowView::openDensification,     this, &MainWindowPresenter::openDensificationDialog);
 
   /* Menú herramientas */
 
@@ -1196,8 +1196,8 @@ void MainWindowPresenter::initStartPage()
   if (mStartPageWidget == nullptr){
     mStartPageWidget = new StartPageWidget(mView);
 
-    connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openNew);
-    connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProject);
+    //connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openNew);
+    //connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProject);
     connect(mStartPageWidget,   &StartPageWidget::openSettings,           this, &MainWindowPresenter::openSettingsDialog);
     connect(mStartPageWidget,   &StartPageWidget::clearHistory,           this, &MainWindowPresenter::deleteHistory);
     connect(mStartPageWidget,   &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);

@@ -96,7 +96,7 @@ signals:
 
 protected slots:
 
-  void initAndOpenNewProjectDialog();
+  //void initAndOpenNewProjectDialog();
   void initAndOpenSettingsDialog();
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();

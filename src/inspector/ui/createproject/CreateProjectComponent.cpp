@@ -26,6 +26,9 @@ CreateProjectComponent::CreateProjectComponent(Project *project)
   QIcon iconNewProject;
   iconNewProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
   mAction->setIcon(iconNewProject);
+#ifndef QT_NO_SHORTCUT
+  mAction->setShortcut(tr("Ctrl+N"));
+#endif // QT_NO_SHORTCUT
 }
 
 CreateProjectComponent::~CreateProjectComponent()

@@ -33,6 +33,11 @@ ComponentBase::~ComponentBase()
     mModel = nullptr;
   }
 
+  if (mView) {
+    delete mView;
+    mView = nullptr;
+  }
+
   if (mPresenter) {
     delete mPresenter;
     mPresenter = nullptr;
@@ -48,7 +53,6 @@ void ComponentBase::init()
   AppStatus &app_status = AppStatus::instance();
   connect(&app_status, &AppStatus::update,
           this, &ComponentBase::update);
-
 }
 
 void ComponentBase::createComponent()
@@ -114,7 +118,8 @@ void ComponentBase::setToolbar(const QString &toolbar)
 ProcessComponent::ProcessComponent()
   : ComponentBase()
 {
-  connect(this, &Component::created, this, &ProcessComponent::onComponentCreated);
+  connect(this, &Component::created, 
+          this, &ProcessComponent::onComponentCreated);
 
 }
 

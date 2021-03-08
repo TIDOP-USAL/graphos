@@ -41,6 +41,10 @@ set(INSPECTOR_SOURCES
     createproject/impl/CreateProjectModel.cpp
     createproject/impl/CreateProjectView.cpp
     createproject/impl/CreateProjectPresenter.cpp
+    openproject/OpenProjectComponent.cpp
+    openproject/impl/OpenProjectModel.cpp
+    openproject/impl/OpenProjectView.cpp
+    openproject/impl/OpenProjectPresenter.cpp
     cameras/CamerasModel.cpp
     cameras/CamerasView.cpp
     cameras/CamerasPresenter.cpp
@@ -143,6 +147,13 @@ set(INSPECTOR_HEADERS
     createproject/impl/CreateProjectModel.h
     createproject/impl/CreateProjectView.h
     createproject/impl/CreateProjectPresenter.h
+    openproject/OpenProjectComponent.h
+    openproject/OpenProjectModel.h
+    openproject/OpenProjectView.h
+    openproject/OpenProjectPresenter.h
+    openproject/impl/OpenProjectModel.h
+    openproject/impl/OpenProjectView.h
+    openproject/impl/OpenProjectPresenter.h
     cameras/Cameras.h
     cameras/CamerasModel.h
     cameras/CamerasView.h

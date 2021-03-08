@@ -213,8 +213,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->featuresModel(),
                                                    this->matchesModel());
 
-    connect(mMainWindowPresenter, &MainWindowPresenter::openNewProjectDialog,
-            this, &ComponentsManager::initAndOpenNewProjectDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openNewProjectDialog,
+    //        this, &ComponentsManager::initAndOpenNewProjectDialog);
 
     connect(mMainWindowPresenter, &MainWindowPresenter::openExportOrientationsDialog,
             this, &ComponentsManager::initAndOpenExportOrientationsDialog);
@@ -487,19 +487,19 @@ ProgressDialog *ComponentsManager::progressDialog()
   return mProgressDialog;
 }
 
-void ComponentsManager::initAndOpenNewProjectDialog()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog,
-             this, &ComponentsManager::initAndOpenNewProjectDialog);
-
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog, 
-          this->newProjectPresenter(), &IPresenter::open);
-  connect(this->newProjectPresenter(), SIGNAL(projectCreate()),
-          this->mainWindowPresenter(), SLOT(loadProject()));
-
-  this->newProjectPresenter()->setHelp(this->helpDialog());
-  this->newProjectPresenter()->open();
-}
+//void ComponentsManager::initAndOpenNewProjectDialog()
+//{
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog,
+//             this, &ComponentsManager::initAndOpenNewProjectDialog);
+//
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog, 
+//          this->newProjectPresenter(), &IPresenter::open);
+//  connect(this->newProjectPresenter(), SIGNAL(projectCreate()),
+//          this->mainWindowPresenter(), SLOT(loadProject()));
+//
+//  this->newProjectPresenter()->setHelp(this->helpDialog());
+//  this->newProjectPresenter()->open();
+//}
 
 void ComponentsManager::initAndOpenSettingsDialog()
 {

@@ -46,8 +46,8 @@ public:
 
 signals:
 
-  void openNewProjectDialog();
-  void openLoadImagesDialog();
+  //void openNewProjectDialog();
+  //void openLoadImagesDialog();
   void openFeatureExtractionDialog();
   void openFeatureMatchingDialog();
   void openOrientationDialog();
@@ -73,8 +73,8 @@ protected slots:
 
   /* Menú Archivo */
 
-  void openNew();
-  void openProject();
+  //void openNew();
+  //void openProject();
   void openFromHistory(const QString &file);
   void deleteHistory();
   void saveProject();

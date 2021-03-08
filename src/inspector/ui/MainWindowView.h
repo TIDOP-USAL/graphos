@@ -259,8 +259,8 @@ public:
 protected:
 
   QTreeWidget *mTreeWidgetProject;
-  QAction *mActionNewProject;
-  QAction *mActionOpenProject;
+  //QAction *mActionNewProject;
+  //QAction *mActionOpenProject;
   QAction *mActionSaveProject;
   QAction *mActionSaveProjectAs;
   QAction *mActionCloseProject;

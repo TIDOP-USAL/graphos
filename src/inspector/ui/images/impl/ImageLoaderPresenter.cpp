@@ -11,7 +11,6 @@
 
 #include <tidop/core/messages.h>
 
-#include <QFileDialog>
 
 
 namespace inspector

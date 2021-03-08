@@ -4,6 +4,7 @@
 #include "ComponentsManager.h"
 
 #include "inspector/ui/createproject/CreateProjectComponent.h"
+#include "inspector/ui/openproject/OpenProjectComponent.h"
 
 #include "inspector/ui/images/ImageLoaderComponent.h"
 #include "inspector/ui/featextract/FeatureExtractorComponent.h"
@@ -28,6 +29,8 @@ int main(int argc, char *argv[])
 
   CreateProjectComponent create_project_component(componentsManager.project());
   componentsManager.registerComponent(&create_project_component);
+  OpenProjectComponent open_project_component(componentsManager.project());
+  componentsManager.registerComponent(&open_project_component);
 
   ImageLoaderComponent image_loader_component(componentsManager.project());
   componentsManager.registerComponent(&image_loader_component, 
@@ -55,6 +58,8 @@ int main(int argc, char *argv[])
 
   ///TODO: por ahora hasta que refactorice MainWindow
   QObject::connect(&create_project_component, SIGNAL(projectCreated()), 
+                   componentsManager.mainWindowPresenter(), SLOT(loadProject()));
+  QObject::connect(&open_project_component, SIGNAL(projectLoaded()), 
                    componentsManager.mainWindowPresenter(), SLOT(loadProject()));
 
   AppStatus &app_status = AppStatus::instance();
