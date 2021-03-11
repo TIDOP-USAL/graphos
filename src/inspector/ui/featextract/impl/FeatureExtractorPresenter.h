@@ -19,9 +19,6 @@ class SiftWidget;
 namespace ui
 {
 
-//class ImagesModel;
-//class CamerasModel;
-//class SettingsModel;
 class FeatureExtractorView;
 class FeatureExtractorModel;
 class HelpDialog;
@@ -34,10 +31,7 @@ class FeatureExtractorPresenterImp
 public:
 
   FeatureExtractorPresenterImp(FeatureExtractorView *view,
-                               FeatureExtractorModel *model/*,
-                               ImagesModel *imagesModel,
-                               CamerasModel *camerasModel,
-                               SettingsModel *settingsModel*/);
+                               FeatureExtractorModel *model);
   ~FeatureExtractorPresenterImp() override;
 
 private:
@@ -61,7 +55,7 @@ protected slots:
 
   void onError(int code, const QString &msg) override;
   void onFinished() override;
-  void createProcess() override;
+  bool createProcess() override;
 
 public slots:
 
@@ -84,9 +78,6 @@ protected:
 
   FeatureExtractorView *mView;
   FeatureExtractorModel *mModel;
-  //ImagesModel *mImagesModel;
-  //CamerasModel *mCamerasModel;
-  //SettingsModel *mSettingsModel;
   HelpDialog *mHelp;
   SiftWidget *mSift;
 

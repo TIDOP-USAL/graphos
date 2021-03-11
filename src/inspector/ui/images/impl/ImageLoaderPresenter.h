@@ -45,7 +45,7 @@ private slots:
 
   void onError(int code, const QString &msg) override;
   void onFinished() override;
-  void createProcess() override;
+  bool createProcess() override;
 
 public slots:
  
@@ -68,7 +68,6 @@ private:
 
   ImageLoaderView *mView;
   ImageLoaderModel *mModel;
-  //CamerasModel *mCamerasModel;
   HelpDialog *mHelp;
   QStringList mImageFiles;
   std::vector<Image> mImages;

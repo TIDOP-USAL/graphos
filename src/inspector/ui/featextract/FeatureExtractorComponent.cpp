@@ -23,9 +23,7 @@ FeatureExtractorComponent::FeatureExtractorComponent(Project *project)
   this->setName("Feature Extractor");
   this->setMenu("workflow");
   this->setToolbar("workflow");
-  QIcon iconFeatureExtraction;
-  iconFeatureExtraction.addFile(QStringLiteral(":/ico/24/img/material/24/features.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mAction->setIcon(iconFeatureExtraction);
+  mAction->setIcon(QIcon(":/ico/24/img/material/24/features.png"));
 }
 
 FeatureExtractorComponent::~FeatureExtractorComponent()

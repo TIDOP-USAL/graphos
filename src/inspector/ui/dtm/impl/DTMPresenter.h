@@ -32,8 +32,7 @@ class DtmPresenterImp
 public:
 
   DtmPresenterImp(DtmView *view,
-                  DtmModel *model/*,
-                  SettingsModel *settingsModel*/);
+                  DtmModel *model);
   ~DtmPresenterImp() override;
 
   void setDtmProperties();
@@ -59,7 +58,7 @@ protected slots:
 
   void onError(int code, const QString &msg) override;
   void onFinished() override;
-  void createProcess() override;
+  bool createProcess() override;
 
 public slots:
 
@@ -75,7 +74,6 @@ protected:
 
   DtmView *mView;
   DtmModel *mModel;
-  //SettingsModel *mSettingsModel;
   HelpDialog *mHelp;
   DtmInvDistWidget *mDtmInvDistWidget;
   DtmInvDistNNWidget *mDtmInvDistNNWidget;

@@ -4,8 +4,6 @@
 #include "inspector/core/features/sift.h"
 #include "inspector/ui/featextract/FeatureExtractorView.h"
 #include "inspector/ui/featextract/FeatureExtractorModel.h"
-//#include "inspector/ui/cameras/CamerasModel.h"
-//#include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/HelpDialog.h"
 #include "inspector/ui/utils/Progress.h"
 #include "inspector/widgets/SiftWidget.h"
@@ -25,16 +23,10 @@ namespace ui
 {
 
 FeatureExtractorPresenterImp::FeatureExtractorPresenterImp(FeatureExtractorView *view,
-                                                           FeatureExtractorModel *model/*,
-                                                           ImagesModel *imagesModel,
-                                                           CamerasModel *camerasModel,
-                                                           SettingsModel *settingsModel*/)
+                                                           FeatureExtractorModel *model)
   : FeatureExtractorPresenter(),
     mView(view),
     mModel(model),
-    //mImagesModel(imagesModel),
-    //mCamerasModel(camerasModel),
-    //mSettingsModel(settingsModel),
     mHelp(nullptr),
     mSift(new SiftWidgetImp)
 {
@@ -145,7 +137,7 @@ void FeatureExtractorPresenterImp::onFinished()
   msgInfo("Feature detection and description finished.");
 }
 
-void FeatureExtractorPresenterImp::createProcess()
+bool FeatureExtractorPresenterImp::createProcess()
 {
   /// Se comprueba si ya se había ejecutado previante y se borran los datos
   if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()){
@@ -154,7 +146,9 @@ void FeatureExtractorPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      throw std::runtime_error("Canceled by user");
+      //throw std::runtime_error("Canceled by user");
+      msgWarning("Process canceled by user");
+      return false;
     }
   }
   ///
@@ -171,6 +165,7 @@ void FeatureExtractorPresenterImp::createProcess()
                                                                      mSift->sigma(), 
                                                                      mSift->constrastThresholdAuto() ? 0. : mSift->contrastThreshold());
   } else {
+    mView->hide();
     throw std::runtime_error("Invalid Keypoint Detector");
   }
 
@@ -211,6 +206,8 @@ void FeatureExtractorPresenterImp::createProcess()
   mView->hide();
 
   msgInfo("Starting Feature Extraction");
+
+  return true;
 }
 
 void FeatureExtractorPresenterImp::onFeaturesExtracted(const QString &imageName, const QString &featuresFile)

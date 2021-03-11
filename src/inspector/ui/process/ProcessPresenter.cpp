@@ -91,18 +91,28 @@ void ProcessPresenter::run()
       mProgressHandler->setDescription("Process...");
     }
 
-    createProcess();
+    if (createProcess()) {
+      if (mProgressHandler){
+        if (mProgressHandler->max() == 1)
+          mProgressHandler->setRange(0, mMultiProcess->count());
+        mProgressHandler->setValue(0);
+        mProgressHandler->init();
+      }
 
-    if (mProgressHandler){
-      if (mProgressHandler->max() == 1)
-        mProgressHandler->setRange(0, mMultiProcess->count());
-      mProgressHandler->setValue(0);
-      mProgressHandler->init();
+      emit running();
+
+      mMultiProcess->start();
+    } else {
+      disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
+      disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
+
+      if (mProgressHandler) {
+        disconnect(mMultiProcess, SIGNAL(finished()), mProgressHandler, SLOT(finish()));
+        disconnect(mMultiProcess, SIGNAL(statusChangedNext()), mProgressHandler, SLOT(next()));
+        disconnect(mMultiProcess, SIGNAL(error(int, QString)), mProgressHandler, SLOT(finish()));
+      }
     }
 
-    emit running();
-
-    mMultiProcess->start();
   } catch (std::exception &e) {
     onError(0, e.what());
   } catch (...) {

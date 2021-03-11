@@ -8,9 +8,6 @@
 #include "inspector/process/orientation/RelativeOrientationProcess.h"
 #include "inspector/process/orientation/AbsoluteOrientationProcess.h"
 #include "inspector/core/orientation/photoorientation.h"
-//#include "inspector/ui/SettingsModel.h"
-//#include "inspector/ui/images/ImagesModel.h"
-//#include "inspector/ui/cameras/CamerasModel.h"
 
 #include "inspector/ui/HelpDialog.h"
 
@@ -26,16 +23,10 @@ namespace ui
 {
 
 OrientationPresenterImp::OrientationPresenterImp(OrientationView *view,
-                                                 OrientationModel *model/*,
-                                                 ImagesModel *imagesModel,
-                                                 CamerasModel *camerasModel,
-                                                 SettingsModel *settingsModel*/)
+                                                 OrientationModel *model)
   : OrientationPresenter(),
     mView(view),
     mModel(model),
-    //mImagesModel(imagesModel),
-    //mCamerasModel(camerasModel),
-    //mSettingsModel(settingsModel),
     mHelp(nullptr)
 {
   this->init();
@@ -105,7 +96,7 @@ void OrientationPresenterImp::onFinished()
   msgInfo("Orientation finished");
 }
 
-void OrientationPresenterImp::createProcess()
+bool OrientationPresenterImp::createProcess()
 {
   QString reconstruction_path = mModel->reconstructionPath();
   if (!reconstruction_path.isEmpty()){
@@ -114,11 +105,12 @@ void OrientationPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      throw std::runtime_error("Canceled by user");
+      return false;
     }
   }
 
   mModel->clear();
+  ///TODO: limpiar ficheros
 
   mMultiProcess->clearProcessList();
 
@@ -127,7 +119,6 @@ void OrientationPresenterImp::createProcess()
 
   QString database = mModel->database();
   QString imagePath = mModel->imagePath();
-  //QString outputPath = mModel->projectPath();
   QString ori_relative = mModel->projectPath() + "/ori/relative/";
   std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, 
                                                                                                                                     imagePath, 
@@ -163,6 +154,8 @@ void OrientationPresenterImp::createProcess()
   }
 
   mView->hide();
+
+  return true;
 }
 
 void OrientationPresenterImp::onRelativeOrientationFinished()
@@ -231,7 +224,6 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
 
     emit orientationFinished();
   } else {
-    /// TODO: Devolver error
     msgError("Orientation failed");
   }
 }

@@ -501,6 +501,16 @@ QString ProjectImp::denseModel() const
   return mDenseModel;
 }
 
+void ProjectImp::clearDensification()
+{
+  mPhotoOrientation.clear();
+  mSparseModel.clear();
+  mOffset.clear();
+  mReconstructionPath.clear();
+  mDensification.reset();
+  mDenseModel.clear();
+}
+
 void ProjectImp::clear()
 {
   mName = "";

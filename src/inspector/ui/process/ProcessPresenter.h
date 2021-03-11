@@ -30,7 +30,12 @@ protected slots:
 
   virtual void onError(int code, const QString &msg);
   virtual void onFinished();
-  virtual void createProcess() = 0;
+
+  /*!
+   * \brief Crea y configura el proceso
+   * return True si se se a creado correctamente
+   */
+  virtual bool createProcess() = 0;
 
 public slots:
 

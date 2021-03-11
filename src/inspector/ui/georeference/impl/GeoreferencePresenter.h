@@ -35,7 +35,7 @@ protected slots:
 
   void onError(int code, const QString &msg) override;
   void onFinished() override;
-  void createProcess() override;
+  bool createProcess() override;
 
 public slots:
 

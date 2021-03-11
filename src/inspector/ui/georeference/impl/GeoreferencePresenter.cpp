@@ -57,7 +57,7 @@ void GeoreferencePresenterImp::onFinished()
   //msgInfo("Georeference finished");
 }
 
-void GeoreferencePresenterImp::createProcess()
+bool GeoreferencePresenterImp::createProcess()
 {
   mMultiProcess->clearProcessList();
 
@@ -78,6 +78,7 @@ void GeoreferencePresenterImp::createProcess()
     mProgressHandler->setDescription("Computing Georeference...");
   }
 
+  return true;
 }
 
 void GeoreferencePresenterImp::cancel()

@@ -169,9 +169,23 @@ void DensificationPresenterImp::onFinished()
   msgInfo("Densification finished.");
 }
 
-void DensificationPresenterImp::createProcess()
+bool DensificationPresenterImp::createProcess()
 {
- QString densification_method = mView->currentDensificationMethod();
+  if (std::shared_ptr<Densification> densification = mModel->densification()) {
+    int i_ret = QMessageBox(QMessageBox::Warning,
+                            tr("Previous results"),
+                            tr("The previous results will be overwritten. Do you wish to continue?"),
+                            QMessageBox::Yes|QMessageBox::No).exec();
+    if (i_ret == QMessageBox::No) {
+      //throw std::runtime_error("Canceled by user");
+      msgWarning("Process canceled by user");
+      return false;
+    }
+  }
+  
+  mModel->clear();
+
+  QString densification_method = mView->currentDensificationMethod();
 
   std::shared_ptr<Densifier> densifier;
   if (densification_method.compare("CMVS/PMVS") == 0) {
@@ -190,6 +204,7 @@ void DensificationPresenterImp::createProcess()
                                                 mSmvs->surfaceSmoothingFactor());
 
   } else {
+    mView->hide();
     throw std::runtime_error("Densification Method not valid");
   }
 
@@ -217,6 +232,8 @@ void DensificationPresenterImp::createProcess()
   }
 
   mView->hide();
+
+  return true;
 }
 
 void DensificationPresenterImp::onFinishDensification()

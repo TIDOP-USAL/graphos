@@ -103,7 +103,7 @@ void FeatureMatchingPresenterImp::onFinished()
   msgInfo("Feature Matching finished");
 }
 
-void FeatureMatchingPresenterImp::createProcess()
+bool FeatureMatchingPresenterImp::createProcess()
 {
     /// Se comprueba si ya se había ejecutado previante y se borran los datos
   if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()){
@@ -112,7 +112,9 @@ void FeatureMatchingPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      throw std::runtime_error("Canceled by user");
+      //throw std::runtime_error("Canceled by user");
+      msgWarning("Process canceled by user");
+      return false;
     }
   }
   ///

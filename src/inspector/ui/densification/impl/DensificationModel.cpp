@@ -38,6 +38,7 @@ void DensificationModelImp::init()
 
 void DensificationModelImp::clear()
 {
+  mProject->clearDensification();
 }
 
 std::shared_ptr<Densification> DensificationModelImp::densification() const

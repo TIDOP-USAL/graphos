@@ -90,9 +90,9 @@ void ImageLoaderPresenterImp::onFinished()
   //msgInfo("Images loaded");
 }
 
-void ImageLoaderPresenterImp::createProcess()
+bool ImageLoaderPresenterImp::createProcess()
 {
-  if (mImageFiles.empty()) return;
+  if (mImageFiles.empty()) return false;
 
   mImages.clear();
   for (auto &image : mImageFiles) {
@@ -116,6 +116,8 @@ void ImageLoaderPresenterImp::createProcess()
     mProgressHandler->setTitle("Load images...");
     mProgressHandler->setDescription("Load images...");
   }
+  
+  return true;
 }
 
 void ImageLoaderPresenterImp::setImages(const QStringList &files)

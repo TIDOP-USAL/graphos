@@ -269,6 +269,7 @@ public:
 
   virtual QString denseModel() const = 0;
   virtual void setDenseModel(const QString &denseModel) = 0;
+  virtual void clearDensification() = 0;
 
   /*!
    * \brief Limpia el proyecto
@@ -439,6 +440,7 @@ public:
 
   QString denseModel() const override;
   void setDenseModel(const QString &denseModel) override;
+  void clearDensification();
 
   void clear() override;
 

@@ -27,12 +27,10 @@ namespace ui
 {
 
 DtmPresenterImp::DtmPresenterImp(DtmView *view,
-                                 DtmModel *model/*,
-                                 SettingsModel *settingsModel*/)
+                                 DtmModel *model)
   : DtmPresenter(),
     mView(view),
     mModel(model),
-    //mSettingsModel(settingsModel),
     mHelp(nullptr),
     mDtmInvDistWidget(new DtmInvDistWidgetImp),
     mDtmInvDistNNWidget(new DtmInvDistNNWidgetImp)
@@ -137,7 +135,7 @@ void DtmPresenterImp::onFinished()
   }
 }
 
-void DtmPresenterImp::createProcess()
+bool DtmPresenterImp::createProcess()
 {
   QString currentDtmMethod = mView->currentDtmMethod();
   std::shared_ptr<DtmAlgorithm> dtm_algorithm;
@@ -157,6 +155,7 @@ void DtmPresenterImp::createProcess()
                                                           mDtmInvDistNNWidget->maxPoints(),
                                                           mDtmInvDistNNWidget->minPoints());
   } else {
+    mView->hide();
     throw std::runtime_error("Invalid DTM Method");
   }
 
@@ -187,6 +186,7 @@ void DtmPresenterImp::createProcess()
 
   mView->hide();
 
+  return true;
 }
 
 void DtmPresenterImp::setCurrentDtmMethod(const QString &method)

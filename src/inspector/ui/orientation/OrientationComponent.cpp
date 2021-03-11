@@ -22,6 +22,8 @@ OrientationComponent::OrientationComponent(Project *project)
 {
   this->setName("Orientation");
   this->setMenu("workflow");
+  this->setToolbar("workflow");
+  mAction->setIcon(QIcon(":/ico/24/img/material/24/icons8-coordinate-system.png"));
 }
 
 OrientationComponent::~OrientationComponent()
