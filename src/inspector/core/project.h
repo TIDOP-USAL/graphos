@@ -80,6 +80,12 @@ public:
   virtual void setProjectFolder(const QString &dir) = 0;
 
   /*!
+   * \brief Devuelve el ruta del proyecto
+   * \return Ruta del proyecto
+   */
+  virtual QString projectPath() const = 0;
+
+  /*!
    * \brief Versión del fichero de proyecto
    * La versión del fichero de proyecto se utiliza para actualizar proyectos antiguos
    * \return Versión del fichero de proyecto
@@ -360,6 +366,7 @@ public:
   void setDescription(const QString &description) override;
   QString projectFolder() const override;
   void setProjectFolder(const QString &dir) override;
+  QString projectPath() const override;
   QString version() const override;
   QString database() const override;
   void setDatabase(const QString &database) override;
@@ -507,6 +514,7 @@ protected:
   QString mDescription;
   QString mPath;
   QString mProjectFolder;
+  QString mProjectPath;
   QString mVersion;
   QString mDatabase;
   QString mImagesDirectory;

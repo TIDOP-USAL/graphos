@@ -61,11 +61,11 @@ void FeaturesViewerPresenterImp::open()
   }
 }
 
-void FeaturesViewerPresenterImp::openKeypointsFromImage(const QString &image)
-{
-  this->open();
-  this->setImageActive(image);
-}
+//void FeaturesViewerPresenterImp::openKeypointsFromImage(const QString &image)
+//{
+//  this->open();
+//  this->setImageActive(image);
+//}
 
 void FeaturesViewerPresenterImp::setHelp(HelpDialog *help)
 {

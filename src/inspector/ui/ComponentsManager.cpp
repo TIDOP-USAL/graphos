@@ -41,6 +41,7 @@
 #include "inspector/ui/utils/ProgressDialog.h"
 
 #include <QProgressBar>
+#include <QAction>
 
 namespace inspector
 {
@@ -83,11 +84,16 @@ ComponentsManager::ComponentsManager(QObject *parent)
   mOpenProjectComponent = new OpenProjectComponent(this->project());
   this->mainWindowView()->setOpenProjectAction(mOpenProjectComponent->action());
 
-  ///TODO: por ahora hasta que refactorice MainWindow
+  ///TODO: por ahora hasta que refactorice MainWindowView, MainWindowPresenter
   connect(mCreateProjectComponent, SIGNAL(projectCreated()), 
                    this->mainWindowPresenter(), SLOT(loadProject()));
   connect(mOpenProjectComponent, SIGNAL(projectLoaded()), 
                    this->mainWindowPresenter(), SLOT(loadProject()));
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog, 
+          mCreateProjectComponent->action(), &QAction::trigger);
+  connect(this->mainWindowPresenter(), &MainWindowPresenter::openProjectDialog, 
+          mOpenProjectComponent->action() , &QAction::trigger);
+
 }
 
 ComponentsManager::~ComponentsManager()

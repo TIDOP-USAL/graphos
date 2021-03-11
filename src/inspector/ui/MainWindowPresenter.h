@@ -46,17 +46,18 @@ public:
 
 signals:
 
-  //void openNewProjectDialog();
+  void openCreateProjectDialog();
+  void openProjectDialog();
   //void openLoadImagesDialog();
-  void openFeatureExtractionDialog();
-  void openFeatureMatchingDialog();
-  void openOrientationDialog();
-  void openDensificationDialog();
+  //void openFeatureExtractionDialog();
+  //void openFeatureMatchingDialog();
+  //void openOrientationDialog();
+  //void openDensificationDialog();
   void openCamerasDialog();
-  void openKeypointsViewerDialog();
-  void openKeypointsViewerDialogFromImage(QString);
-  void openMatchesViewerDialog();
-  void openMatchesViewerDialogFromImages(QString, QString);
+  //void openKeypointsViewerDialog();
+  //void openKeypointsViewerDialogFromImage(QString);
+  //void openMatchesViewerDialog();
+  //void openMatchesViewerDialogFromImages(QString, QString);
 //  void openExportFeaturesDialog();
 //  void openExportMatchesDialog();
   void openExportOrientationsDialog();

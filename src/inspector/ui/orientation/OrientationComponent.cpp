@@ -42,6 +42,9 @@ void OrientationComponent::createPresenter()
 {
   mPresenter = new OrientationPresenterImp(dynamic_cast<OrientationView *>(mView), 
                                            dynamic_cast<OrientationModel *>(mModel));
+
+  connect(dynamic_cast<OrientationPresenter *>(mPresenter), &OrientationPresenter::orientationFinished, 
+          this, &OrientationComponent::orientationFinished);
 }
 
 void OrientationComponent::update()

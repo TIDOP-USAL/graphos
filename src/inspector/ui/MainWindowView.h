@@ -147,8 +147,8 @@ signals:
 
   /* Menu File */
 
-  void openNew();
-  void openProject();
+  //void openNew();
+  //void openProject();
   void openProjectFromHistory(QString);
   void clearHistory();
   void saveProject();
@@ -168,21 +168,21 @@ signals:
 
   /* Menú flujo de trabajo */
 
-  void loadImages();
-  void openFeatureExtraction();
-  void openFeatureMatching();
-  void openOrientation();
-  void openDensification();
+  //void loadImages();
+  //void openFeatureExtraction();
+  //void openFeatureMatching();
+  //void openOrientation();
+  //void openDensification();
 
   /* Menú herramientas */
 
   void openCamerasDialog();
   void openGeoreferenceDialog();
-  void openKeypointsViewer();
-  void openKeypointsViewerFromImage(QString);
-  void openMatchesViewer();
-  void openMatchesViewerFromImages(QString,QString);
-  void openMultiviewMatchingAssessment();
+  void openKeypointsViewer(QString);
+  //void openKeypointsViewerFromImage(QString);
+  void openMatchesViewer(QString);
+  //void openMatchesViewerFromImages(QString,QString);
+  //void openMultiviewMatchingAssessment();
   void openSettings();
   void openDtmDialog();
 
@@ -309,8 +309,10 @@ protected:
   QAction *mActionDeleteImage;
   QAction *mActionViewKeypoints;
   QAction *mActionViewMatches;
+  QAction *mActionOpenModel3D;
   QMenu *mMenuTreeProjectImages;
   QMenu *mMenuTreeProjectImage;
+  QMenu *mMenuTreeProjectModel3D;
 
   ThumbnailsWidget *mThumbnailsWidget;
   LogWidget *mLogWidget;

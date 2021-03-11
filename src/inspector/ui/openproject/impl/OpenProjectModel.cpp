@@ -31,8 +31,7 @@ QString OpenProjectModelImp::inspectorDirectory() const
 
 void OpenProjectModelImp::saveProject()
 {
-  QString project_path = mProject->projectFolder() + "/" + mProject->name() + ".xml";
-  mProject->save(project_path);
+  mProject->save(mProject->projectPath());
 }
 
 void OpenProjectModelImp::loadProject(const QString &projectPath)

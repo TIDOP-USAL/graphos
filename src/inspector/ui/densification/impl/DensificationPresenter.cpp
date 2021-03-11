@@ -14,6 +14,7 @@
 #include <tidop/core/messages.h>
 
 #include <QMessageBox>
+#include <QFileInfo>
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -231,8 +232,13 @@ void DensificationPresenterImp::onFinishDensification()
     return;
   }
 
-  mModel->setDenseModel(dense_path);
-  emit densificationFinished();
+  if (QFileInfo(dense_path).exists()) {
+    mModel->setDenseModel(dense_path);
+    emit densificationFinished();
+  } else {
+    /// TODO: Devolver error
+    msgError("Densification failed");
+  }
 }
 
 } // End namespace ui

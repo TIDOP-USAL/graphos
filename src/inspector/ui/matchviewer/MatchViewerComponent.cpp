@@ -32,6 +32,12 @@ MatchViewerComponent::~MatchViewerComponent()
 {
 }
 
+void MatchViewerComponent::openMatchesViewer(const QString &file)
+{
+  mAction->trigger();
+  dynamic_cast<MatchViewerPresenter *>(mPresenter)->setLeftImage(file);
+}
+
 void MatchViewerComponent::createModel()
 {
   mModel = new MatchViewerModelImp(mProject);

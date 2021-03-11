@@ -230,6 +230,9 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
     }
 
     emit orientationFinished();
+  } else {
+    /// TODO: Devolver error
+    msgError("Orientation failed");
   }
 }
 

@@ -26,6 +26,10 @@ public:
   OrientationComponent(Project *project);
   ~OrientationComponent();
 
+signals: 
+
+  void orientationFinished();
+
 // ComponentBase
 
 protected:

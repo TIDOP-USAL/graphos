@@ -36,7 +36,7 @@ public:
 public slots:
 
   void setImageActive(const QString &image) override;
-  void openKeypointsFromImage(const QString &image) override;
+  //void openKeypointsFromImage(const QString &image) override;
 
 protected slots:
 

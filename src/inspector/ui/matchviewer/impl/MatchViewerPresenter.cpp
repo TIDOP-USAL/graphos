@@ -32,13 +32,13 @@ MatchViewerPresenterImp::~MatchViewerPresenterImp()
 
 }
 
-void MatchViewerPresenterImp::openFromImages(const QString &imageLeft, 
-                                             const QString &imageRight)
-{
-  this->open();
-  this->setLeftImage(imageLeft);
-  this->setRightImage(imageRight);
-}
+//void MatchViewerPresenterImp::openFromImages(const QString &imageLeft, 
+//                                             const QString &imageRight)
+//{
+//  this->open();
+//  this->setLeftImage(imageLeft);
+//  this->setRightImage(imageRight);
+//}
 
 void MatchViewerPresenterImp::setLeftImage(const QString &image)
 {

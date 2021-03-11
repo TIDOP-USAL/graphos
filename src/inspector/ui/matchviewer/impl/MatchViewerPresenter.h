@@ -36,8 +36,10 @@ public:
 
 public slots:
 
-  void openFromImages(const QString &imageLeft,
-                                const QString &imageRight) override;
+  //void openFromImages(const QString &imageLeft,
+  //                              const QString &imageRight) override;
+  void setLeftImage(const QString &image) override;
+  void setRightImage(const QString &image) override;
 
 protected slots:
 
@@ -47,8 +49,6 @@ protected slots:
 //                   const QString &imageRight,
 //                   int query_id,
 //                   int train_id) override;
-  void setLeftImage(const QString &image) override;
-  void setRightImage(const QString &image) override;
 
 // IPresenter interface
 

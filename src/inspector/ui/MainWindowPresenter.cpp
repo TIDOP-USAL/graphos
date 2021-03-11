@@ -1146,8 +1146,8 @@ void MainWindowPresenter::initSignalAndSlots()
 
   connect(mView,  &MainWindowView::openCamerasDialog,   this, &MainWindowPresenter::openCamerasDialog);
   connect(mView,  &MainWindowView::openGeoreferenceDialog,   this, &MainWindowPresenter::openGeoreferenceDialog);
-  connect(mView,  &MainWindowView::openKeypointsViewer, this, &MainWindowPresenter::openKeypointsViewerDialog);
-  connect(mView,  &MainWindowView::openMatchesViewer,   this, &MainWindowPresenter::openMatchesViewerDialog);
+  //connect(mView,  &MainWindowView::openKeypointsViewer, this, &MainWindowPresenter::openKeypointsViewerDialog);
+  //connect(mView,  &MainWindowView::openMatchesViewer,   this, &MainWindowPresenter::openMatchesViewerDialog);
   //connect(mView,  &MainWindowView::openMultiviewMatchingAssessment,  this, &MainWindowPresenter::openMultiviewMatchingAssessmentDialog);
   connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
   connect(mView,   &MainWindowView::openDtmDialog,         this, &MainWindowPresenter::openDtmDialog);
@@ -1173,8 +1173,8 @@ void MainWindowPresenter::initSignalAndSlots()
 
   //connect(mView, SIGNAL(openImageMatches(QString,QString,QString)),   this, SLOT(openImageMatches(QString,QString,QString)));
 
-  connect(mView, &MainWindowView::openKeypointsViewerFromImage, this, &MainWindowPresenter::openKeypointsViewerDialogFromImage);
-  connect(mView, &MainWindowView::openMatchesViewerFromImages,  this, &MainWindowPresenter::openMatchesViewerDialogFromImages);
+  //connect(mView, &MainWindowView::openKeypointsViewerFromImage, this, &MainWindowPresenter::openKeypointsViewerDialogFromImage);
+  //connect(mView, &MainWindowView::openMatchesViewerFromImages,  this, &MainWindowPresenter::openMatchesViewerDialogFromImages);
 
   connect(mView, SIGNAL(openModel3D(QString, bool)),          this, SLOT(openModel3D(QString, bool)));
 
@@ -1193,11 +1193,12 @@ void MainWindowPresenter::initDefaultPath()
 
 void MainWindowPresenter::initStartPage()
 {
+  TL_TODO("revisar")
   if (mStartPageWidget == nullptr){
     mStartPageWidget = new StartPageWidget(mView);
 
-    //connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openNew);
-    //connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProject);
+    connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openCreateProjectDialog);
+    connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProjectDialog);
     connect(mStartPageWidget,   &StartPageWidget::openSettings,           this, &MainWindowPresenter::openSettingsDialog);
     connect(mStartPageWidget,   &StartPageWidget::clearHistory,           this, &MainWindowPresenter::deleteHistory);
     connect(mStartPageWidget,   &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);

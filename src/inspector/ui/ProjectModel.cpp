@@ -10,7 +10,7 @@ ProjectModelImp::ProjectModelImp(Project *project,
                                  QObject *parent)
   : ProjectModel(parent),
     mProject(project),
-    mPrjFile(""),
+    //mPrjFile(""),
     bUnsavedChanges(false)
 {
   init();
@@ -38,7 +38,7 @@ QString ProjectModelImp::projectFolder() const
 
 QString ProjectModelImp::projectPath() const
 {
-  return mPrjFile;
+  return mProject->projectPath();
 }
 
 QString ProjectModelImp::version() const
@@ -185,19 +185,19 @@ void ProjectModelImp::setDenseModel(const QString &denseModel)
 
 void ProjectModelImp::load(const QString &file)
 {
-  mPrjFile = file;
+  //mPrjFile = file;
   mProject->load(file);
   bUnsavedChanges = false;
 }
 
 void ProjectModelImp::save()
 {
-  saveAs(mPrjFile);
+  saveAs(mProject->projectPath());
 }
 
 void ProjectModelImp::saveAs(const QString &file)
 {
-  mPrjFile = file;
+  //mPrjFile = file;
   mProject->save(file);
 
   bUnsavedChanges = false;
@@ -211,7 +211,7 @@ void ProjectModelImp::init()
 void ProjectModelImp::clear()
 {
   mProject->clear();
-  mPrjFile = "";
+  //mPrjFile = "";
 }
 
 } // namespace ui

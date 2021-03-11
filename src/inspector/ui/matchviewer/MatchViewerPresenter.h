@@ -22,12 +22,13 @@ public:
 
 public slots:
 
-  virtual void openFromImages(const QString &imageLeft, const QString &imageRight) = 0;
+  //virtual void openFromImages(const QString &imageLeft, const QString &imageRight) = 0;
+  virtual void setLeftImage(const QString &image) = 0;
+  virtual void setRightImage(const QString &image) = 0;
 
 protected slots:
 
-  virtual void setLeftImage(const QString &image) = 0;
-  virtual void setRightImage(const QString &image) = 0;
+
   virtual void loadMatches(const QString &imageLeft, const QString &imageRight) = 0;
 //  virtual void deleteMatch(const QString &imageLeft, const QString &imageRight, int query_id, int train_id) = 0;
 };

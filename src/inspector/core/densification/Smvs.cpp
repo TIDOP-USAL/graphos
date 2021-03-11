@@ -522,7 +522,7 @@ bool SmvsDensifier::densify(const QString &undistortPath)
 
   fs::path app_path(tl::getRunfile());
 
-  std::string cmd("/c \"");
+  std::string cmd("/c \"\"");
   cmd.append(app_path.parent_path().string());
   cmd.append("\\smvsrecon_SSE41.exe\" ");
   cmd.append("--scale=").append(std::to_string(SmvsProperties::inputImageScale()));
@@ -533,7 +533,7 @@ bool SmvsDensifier::densify(const QString &undistortPath)
     cmd.append(" --no-sgm ");
   if (SmvsProperties::shadingBasedOptimization())
     cmd.append(" --shading ");
-  cmd.append(undistortPath.toStdString());
+  cmd.append("\"").append(undistortPath.toStdString()).append("\"\"");
   tl::CmdProcess process(cmd);
   if (process.run() == tl::Process::Status::error) {
     return true;

@@ -81,6 +81,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionDeleteImage(new QAction(this)),
     mActionViewKeypoints(new QAction(this)),
     mActionViewMatches(new QAction(this)),
+    mActionOpenModel3D(new QAction(this)),
     ui(new Ui::MainWindowView)
 {
   ui->setupUi(this);
@@ -419,7 +420,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
     QTreeWidgetItem *itemSparseModel = nullptr;
     for (int i = 0; i < itemModels->childCount(); i++) {
       QTreeWidgetItem *temp = itemModels->child(i);
-      if (temp->text(0).compare(tr("SparseModel")) == 0) {
+      if (temp->text(0).compare(tr("Sparse Model")) == 0) {
         itemSparseModel = temp;
         break;
       }
@@ -430,7 +431,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
       itemModels->addChild(itemSparseModel);
     }
 
-    itemSparseModel->setText(0, "SparseModel");
+    itemSparseModel->setText(0, "Sparse Model");
     itemSparseModel->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
     itemSparseModel->setToolTip(0, sparseModel);
     itemSparseModel->setData(0, Qt::UserRole, inspector::ui::sparse_model);
@@ -462,7 +463,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
     QTreeWidgetItem *itemDenseModel = nullptr;
     for (int i = 0; i < itemModels->childCount(); i++) {
       QTreeWidgetItem *temp = itemModels->child(i);
-      if (temp->text(0).compare(tr("DenseModel")) == 0) {
+      if (temp->text(0).compare(tr("Dense Model")) == 0) {
         itemDenseModel = temp;
         break;
       }
@@ -473,7 +474,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
       itemModels->addChild(itemDenseModel);
     }
 
-    itemDenseModel->setText(0, "DenseModel");
+    itemDenseModel->setText(0, "Dense Model");
     itemDenseModel->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
     itemDenseModel->setToolTip(0, denseModel);
     itemDenseModel->setData(0, Qt::UserRole, inspector::ui::dense_model);
@@ -842,34 +843,24 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
       } else if (selectedItem->text() == tr("Delete Image")) {
         emit deleteImages(QStringList(item->text(0)));
       } else if (selectedItem->text() == tr("View Keypoints")) {
-        emit openKeypointsViewerFromImage(item->text(0));
+        emit openKeypointsViewer(item->text(0));
       } else if (selectedItem->text() == tr("View Matches")) {
-        emit openMatchesViewer();
+        emit openMatchesViewer(item->text(0));
       }
     }
-  } /*else if (item->data(0, Qt::UserRole) == inspector::ui::detector){
-
-  } else if (item->data(0, Qt::UserRole) == inspector::ui::descriptor){
-
-  } else if (item->data(0, Qt::UserRole) == inspector::ui::pair_left){
-    QMenu menu;
-    menu.addAction(tr("View Matches"));
-    if (QAction *selectedItem = menu.exec(globalPos)) {
-      if (selectedItem->text() == tr("View Matches")) {
-        QString session = item->parent()->parent()->parent()->text(0);
-        emit openMatchesViewer(session, QFileInfo(item->text(0)).baseName(), QString());
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::sparse_model){
+    if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
+      if (selectedItem->text() == tr("Open Point Cloud")) {
+        emit openModel3D(item->toolTip(0), true);
       }
     }
-  } else if (item->data(0, Qt::UserRole) == inspector::ui::pair_right){
-    QMenu menu;
-    menu.addAction(tr("View Matches"));
-    if (QAction *selectedItem = menu.exec(globalPos)) {
-      if (selectedItem->text() == tr("View Matches")) {
-        QString session = item->parent()->parent()->parent()->parent()->text(0);
-        emit openMatchesViewer(session, QFileInfo(item->parent()->text(0)).baseName(), QFileInfo(item->text(0)).baseName());
+  } else if (item->data(0, Qt::UserRole) == inspector::ui::dense_model) {
+    if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
+      if (selectedItem->text() == tr("Open Point Cloud")) {
+        emit openModel3D(item->toolTip(0), false);
       }
     }
-  }*/
+  }
 }
 
 void MainWindowView::initUI()
@@ -1017,9 +1008,9 @@ void MainWindowView::initActions()
   iconRemoveImage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_remove_image_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionDeleteImage->setIcon(iconRemoveImage);
 
-  //mActionViewKeypoints->setIcon(iconFeaturesViewer);
-
-  //mActionViewMatches->setIcon(iconMatchesViewer);
+  mActionOpenModel3D->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
+  mActionViewKeypoints->setIcon(QIcon(":/ico/24/img/material/24/view_points_24px.png"));
+  mActionViewMatches->setIcon(QIcon(":/ico/24/img/material/24/view_match_24px.png"));
 
   //mActionDtm->setIcon(iconMatchesViewer);
   //mActionOrtho->setIcon(iconMatchesViewer);
@@ -1115,6 +1106,8 @@ void MainWindowView::initTreeWidget()
   mMenuTreeProjectImage->addAction(mActionViewKeypoints);
   mMenuTreeProjectImage->addSeparator();
   mMenuTreeProjectImage->addAction(mActionViewMatches);
+  mMenuTreeProjectModel3D = new QMenu(this);
+  mMenuTreeProjectModel3D->addAction(mActionOpenModel3D);
 }
 
 void MainWindowView::initMenus()
@@ -1234,8 +1227,8 @@ void MainWindowView::initSignalAndSlots()
 {
   /* Menú Archivo */
 
-  connect(mActionNewProject,           &QAction::triggered, this,   &MainWindowView::openNew);
-  connect(mActionOpenProject,          &QAction::triggered, this,   &MainWindowView::openProject);
+  //connect(mActionNewProject,           &QAction::triggered, this,   &MainWindowView::openNew);
+  //connect(mActionOpenProject,          &QAction::triggered, this,   &MainWindowView::openProject);
   connect(mActionClearHistory,         &QAction::triggered, this,   &MainWindowView::clearHistory);
   connect(mActionSaveProject,          &QAction::triggered, this,   &MainWindowView::saveProject);
   connect(mActionSaveProjectAs,        &QAction::triggered, this,   &MainWindowView::saveProjectAs);
@@ -1423,6 +1416,7 @@ void MainWindowView::retranslate()
   mActionDeleteImage->setText(QApplication::translate("MainWindowView", "Delete Image", nullptr));
   mActionViewKeypoints->setText(QApplication::translate("MainWindowView", "View Keypoints", nullptr));
   mActionViewMatches->setText(QApplication::translate("MainWindowView", "View Matches", nullptr));
+  mActionOpenModel3D->setText(QApplication::translate("MainWindowView", "Open Point Cloud", nullptr));
   mActionDtm->setText(QApplication::translate("MainWindowView", "DTM/DSM", nullptr));
 
 

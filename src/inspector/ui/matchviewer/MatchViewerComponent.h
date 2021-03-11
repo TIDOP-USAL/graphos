@@ -26,6 +26,10 @@ public:
   MatchViewerComponent(Project *project);
   ~MatchViewerComponent();
 
+public slots:
+
+  void openMatchesViewer(const QString &file);
+
 // ComponentBase
 
 protected:

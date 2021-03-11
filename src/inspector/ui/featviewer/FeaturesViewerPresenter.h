@@ -23,7 +23,7 @@ public:
 public slots:
 
   virtual void setImageActive(const QString &image) = 0;
-  virtual void openKeypointsFromImage(const QString &image) = 0;
+  //virtual void openKeypointsFromImage(const QString &image) = 0;
 
 protected slots:
 

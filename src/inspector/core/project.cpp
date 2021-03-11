@@ -26,6 +26,7 @@ ProjectImp::ProjectImp()
     mName(""),
     mDescription(""),
     mProjectFolder(""),
+    mProjectPath(""),
     mVersion(INSPECTOR_PROJECT_FILE_VERSION),
     mDatabase(""),
     bRefinePrincipalPoint(true),
@@ -62,6 +63,11 @@ QString ProjectImp::projectFolder() const
 void ProjectImp::setProjectFolder(const QString &dir)
 {
   mProjectFolder = dir;
+}
+
+QString ProjectImp::projectPath() const
+{
+  return mProjectPath;
 }
 
 
@@ -500,6 +506,7 @@ void ProjectImp::clear()
   mName = "";
   mDescription = "";
   mProjectFolder = "";
+  mProjectPath = "";
   mVersion = INSPECTOR_PROJECT_FILE_VERSION;
   mDatabase = "";
   mImagesDirectory = "";
@@ -525,6 +532,8 @@ bool ProjectImp::load(const QString &file)
 
   bool err = false;
   QFile input(file);
+  mProjectPath = file;
+
   if (input.open(QIODevice::ReadOnly)) {
     QXmlStreamReader stream;
     stream.setDevice(&input);
@@ -539,6 +548,8 @@ bool ProjectImp::save(const QString &file)
 {
   bool err = false;
   std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
+
+  mProjectPath = file;
 
   QFileInfo file_info(file);
   QString tmpfile = file_info.path().append(file_info.baseName()).append(".bak");

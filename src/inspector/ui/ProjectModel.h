@@ -257,7 +257,7 @@ public slots:
 protected:
 
   Project *mProject;
-  QString mPrjFile;
+  //QString mPrjFile;
   bool bUnsavedChanges;
 
 };

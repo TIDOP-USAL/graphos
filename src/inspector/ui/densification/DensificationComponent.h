@@ -26,6 +26,10 @@ public:
   DensificationComponent(Project *project);
   ~DensificationComponent();
 
+signals:
+
+  void densificationFinished();
+
 // ComponentBase
 
 protected:

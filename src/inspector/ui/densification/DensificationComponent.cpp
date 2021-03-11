@@ -43,6 +43,8 @@ void DensificationComponent::createPresenter()
 {
   mPresenter = new DensificationPresenterImp(dynamic_cast<DensificationView *>(mView), 
                                              dynamic_cast<DensificationModel *>(mModel));
+  connect(dynamic_cast<DensificationPresenter *>(mPresenter), &DensificationPresenter::densificationFinished, 
+          this, &DensificationComponent::densificationFinished);
 }
 
 void DensificationComponent::update()

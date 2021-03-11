@@ -32,6 +32,12 @@ FeaturesViewerComponent::~FeaturesViewerComponent()
 {
 }
 
+void FeaturesViewerComponent::openKeypointsViewer(const QString &file)
+{
+  mAction->trigger();
+  dynamic_cast<FeaturesViewerPresenter *>(mPresenter)->setImageActive(file);
+}
+
 void FeaturesViewerComponent::createModel()
 {
   mModel = new FeaturesViewerModelImp(mProject);

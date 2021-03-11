@@ -26,6 +26,10 @@ public:
   FeaturesViewerComponent(Project *project);
   ~FeaturesViewerComponent();
 
+public slots:
+
+  void openKeypointsViewer(const QString &file);
+
 // ComponentBase
 
 protected:
