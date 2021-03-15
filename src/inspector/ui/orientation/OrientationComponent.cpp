@@ -47,6 +47,8 @@ void OrientationComponent::createPresenter()
 
   connect(dynamic_cast<OrientationPresenter *>(mPresenter), &OrientationPresenter::orientationFinished, 
           this, &OrientationComponent::orientationFinished);
+  connect(dynamic_cast<OrientationPresenter *>(mPresenter), &OrientationPresenter::orientationDeleted, 
+          this, &OrientationComponent::orientationDeleted);
 }
 
 void OrientationComponent::update()

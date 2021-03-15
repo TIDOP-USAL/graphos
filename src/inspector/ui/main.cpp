@@ -57,19 +57,25 @@ int main(int argc, char *argv[])
   /////TODO: por ahora hasta que refactorice MainWindow
   QObject::connect(&image_loader_component, SIGNAL(imageLoaded(QString)), 
                    componentsManager.mainWindowPresenter(), SLOT(loadImage(QString)));
-
+  QObject::connect(&feature_extractor_component, SIGNAL(featuresExtracted(QString)), 
+                   componentsManager.mainWindowPresenter(), SLOT(loadFeatures(QString)));
+  QObject::connect(&feature_extractor_component, SIGNAL(featuresDeleted()), 
+                   componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+  QObject::connect(&feature_matching_component, SIGNAL(matchingFinished()), 
+                   componentsManager.mainWindowPresenter(), SLOT(loadMatches()));
+  QObject::connect(&feature_matching_component, SIGNAL(matchesDeleted()), 
+                   componentsManager.mainWindowPresenter(), SLOT(updateProject()));
   QObject::connect(&orientation_component, SIGNAL(orientationFinished()),  
                    componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
+  QObject::connect(&orientation_component, SIGNAL(orientationDeleted()),  
+                   componentsManager.mainWindowPresenter(), SLOT(updateProject()));
   QObject::connect(&densification_component, SIGNAL(densificationFinished()),  
                    componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
   QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openKeypointsViewer,
                    &features_viewer_component, &FeaturesViewerComponent::openKeypointsViewer);
   QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                    &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
-  //QObject::connect(&create_project_component, SIGNAL(projectCreated()), 
-  //                 componentsManager.mainWindowPresenter(), SLOT(loadProject()));
-  //QObject::connect(&open_project_component, SIGNAL(projectLoaded()), 
-  //                 componentsManager.mainWindowPresenter(), SLOT(loadProject()));
+
 
   AppStatus &app_status = AppStatus::instance();
   app_status.activeFlag(AppStatus::Flag::none, true);

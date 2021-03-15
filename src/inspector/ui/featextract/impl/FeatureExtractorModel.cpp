@@ -38,11 +38,7 @@ void FeatureExtractorModelImp::init()
 
 void FeatureExtractorModelImp::clear()
 {
-  TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
-  QFile(this->database()).remove();
-  mProject->removeFeatures();
-  TL_TODO("Esto no tiene que estar aqui")
-  mProject->removeMatchesPair();
+
 }
 
 std::shared_ptr<Feature> FeatureExtractorModelImp::featureExtractor() const
@@ -93,6 +89,13 @@ FeatureExtractorModel::image_iterator FeatureExtractorModelImp::imageEnd()
 FeatureExtractorModel::image_const_iterator FeatureExtractorModelImp::imageEnd() const
 {
   return mProject->imageEnd();
+}
+
+void FeatureExtractorModelImp::clearProject()
+{
+  TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
+  QFile(this->database()).remove();
+  mProject->removeFeatures();
 }
 
 } // namespace ui

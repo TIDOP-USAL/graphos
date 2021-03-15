@@ -67,6 +67,12 @@ bool DensificationModelImp::useCuda() const
   return settings.value("General/UseCuda", true).toBool();
 }
 
+bool DensificationModelImp::existDenseModel() const
+{
+  QString dense_model = mProject->denseModel();
+  return !dense_model.isEmpty();
+}
+
 void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)
 {
   mProject->setDensification(densification);
@@ -76,6 +82,7 @@ void DensificationModelImp::setDenseModel(const QString &denseModel)
 {
   mProject->setDenseModel(denseModel);
 }
+
 
 } // End namespace ui
 

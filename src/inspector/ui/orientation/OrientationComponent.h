@@ -29,6 +29,7 @@ public:
 signals: 
 
   void orientationFinished();
+  void orientationDeleted();
 
 // ComponentBase
 

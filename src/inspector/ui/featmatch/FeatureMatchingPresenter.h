@@ -23,6 +23,7 @@ public:
 signals:
 
   void matchingFinished();
+  void matchesDeleted();
 
 public slots:
 

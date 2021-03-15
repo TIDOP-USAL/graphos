@@ -116,7 +116,6 @@ void FeatureExtractorPresenterImp::setSiftProperties()
   }
 }
 
-
 void FeatureExtractorPresenterImp::onError(int code, const QString &msg)
 {
   ProcessPresenter::onError(code, msg);
@@ -151,9 +150,9 @@ bool FeatureExtractorPresenterImp::createProcess()
       return false;
     }
   }
-  ///
 
-  mModel->clear();
+  mModel->clearProject();
+  emit featuresDeleted();
 
   QString currentKeypointDetector = mView->currentDetectorDescriptor();
   std::shared_ptr<FeatureExtractor> feature_extractor;

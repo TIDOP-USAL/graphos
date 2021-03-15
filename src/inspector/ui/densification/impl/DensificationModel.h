@@ -43,6 +43,7 @@ public:
   QString imageDirectory() const override;
   QString reconstructionPath() const override;
   bool useCuda() const override;
+  bool existDenseModel() const override;
 
 public slots:
 

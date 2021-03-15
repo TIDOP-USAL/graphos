@@ -99,10 +99,14 @@ public:
   void setActiveImage(const QString &image);
   void setActiveImages(const QStringList &images);
   void addFeatures(const QString &features);
-  void addMatches(const QString &imageLeft, const QString &imageRight);
+  void deleteFeatures(const QString &features);
+  void addMatches(const QString &imageLeft);
+  void deleteMatches(const QString &imageLeft);
   void setSparseModel(const QString &sparseModel);
+  void deleteSparseModel();
   void setDenseModel(const QString &sparseModel);
-  
+  void deleteDenseModel();
+
   /*!
    * \brief Añade un mensaje temporal en la barra de herramientas
    * \param msg Mensaje
@@ -140,8 +144,6 @@ public slots:
    * \param[in] file
    */
   void deleteImage(const QString &file);
-  void deleteFeatures(const QString &session, const QString &feat);
-  void deleteMatches(const QString &session, const QString &matches);
 
 signals:
 

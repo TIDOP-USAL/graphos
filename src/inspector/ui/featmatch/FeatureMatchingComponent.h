@@ -26,6 +26,11 @@ public:
   FeatureMatchingComponent(Project *project);
   ~FeatureMatchingComponent();
 
+signals:
+
+  void matchingFinished();
+  void matchesDeleted();
+
 // ComponentBase
 
 protected:

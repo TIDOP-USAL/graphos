@@ -29,6 +29,8 @@ public:
   virtual bool useCuda() const = 0;
   virtual bool spatialMatching() const = 0;
   virtual void writeMatchPairs() = 0;
+  virtual bool existsMatches() const = 0;
+  virtual void clearProject() = 0;
 };
 
 } // End namespace ui

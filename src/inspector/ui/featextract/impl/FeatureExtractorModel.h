@@ -48,6 +48,7 @@ public:
   image_const_iterator imageBegin() const override;
   image_iterator imageEnd() override;
   image_const_iterator imageEnd() const override;
+  void clearProject() override;
 
 protected:
 

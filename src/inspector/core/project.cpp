@@ -332,6 +332,7 @@ void ProjectImp::addFeatures(const QString &imgName, const QString &featureFile)
 void ProjectImp::removeFeatures()
 {
   mFeatures.clear();
+  this->removeMatchesPair();
 }
 
 bool ProjectImp::removeFeatures(const QString &imgName)
@@ -406,6 +407,7 @@ const std::vector<QString> ProjectImp::matchesPairs(const QString &imageLeft) co
 void ProjectImp::removeMatchesPair()
 {
   mImagesPairs.clear();
+  this->clearReconstruction();
 }
 
 void ProjectImp::removeMatchesPair(const QString &imageLeft)
@@ -477,8 +479,7 @@ void ProjectImp::clearReconstruction()
   mSparseModel.clear();
   mOffset.clear();
   mReconstructionPath.clear();
-  mDensification.reset();
-  mDenseModel.clear();
+  this->clearDensification();
 }
 
 std::shared_ptr<Densification> ProjectImp::densification() const
@@ -503,11 +504,6 @@ QString ProjectImp::denseModel() const
 
 void ProjectImp::clearDensification()
 {
-  mPhotoOrientation.clear();
-  mSparseModel.clear();
-  mOffset.clear();
-  mReconstructionPath.clear();
-  mDensification.reset();
   mDenseModel.clear();
 }
 

@@ -39,12 +39,7 @@ void FeatureMatchingModelImp::init()
 
 void FeatureMatchingModelImp::clear()
 {
-  QString database_file = mProject->database();
-  colmap::Database database(database_file.toStdString());
-  database.ClearMatches();
-  database.ClearTwoViewGeometries();
-  database.Close();
-  mProject->removeMatchesPair();
+
 }
 
 std::shared_ptr<FeatureMatching> FeatureMatchingModelImp::featureMatching() const
@@ -99,6 +94,24 @@ void FeatureMatchingModelImp::writeMatchPairs()
       }
     }
   }
+}
+
+bool FeatureMatchingModelImp::existsMatches() const
+{
+  QString database_file = mProject->database();
+  colmap::Database database(database_file.toStdString());
+  size_t num_matches = database.NumMatches();
+  return num_matches > 0;
+}
+
+void FeatureMatchingModelImp::clearProject()
+{
+  QString database_file = mProject->database();
+  colmap::Database database(database_file.toStdString());
+  database.ClearMatches();
+  database.ClearTwoViewGeometries();
+  database.Close();
+  mProject->removeMatchesPair();
 }
 
 } // End namespace ui

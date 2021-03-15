@@ -44,6 +44,11 @@ void FeatureExtractorComponent::createPresenter()
 {
   mPresenter = new FeatureExtractorPresenterImp(dynamic_cast<FeatureExtractorView *>(mView), 
                                                 dynamic_cast<FeatureExtractorModel *>(mModel));
+  
+  connect(dynamic_cast<FeatureExtractorPresenter *>(mPresenter), &FeatureExtractorPresenter::featuresExtracted, 
+          this, &FeatureExtractorComponent::featuresExtracted);
+  connect(dynamic_cast<FeatureExtractorPresenter *>(mPresenter), &FeatureExtractorPresenter::featuresDeleted, 
+          this, &FeatureExtractorComponent::featuresDeleted);
 }
 
 void FeatureExtractorComponent::update()

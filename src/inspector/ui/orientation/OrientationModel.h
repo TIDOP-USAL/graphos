@@ -43,6 +43,7 @@ public:
   virtual QString reconstructionPath() const = 0;
   virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
   virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
+  virtual void clearProject() = 0;
 
   virtual bool updateCamera(int id, const Camera &camera) = 0;
   virtual camera_iterator cameraBegin() = 0;

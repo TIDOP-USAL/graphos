@@ -22,7 +22,8 @@ DensificationComponent::DensificationComponent(Project *project)
 {
   this->setName("Densification");
   this->setMenu("workflow");
-  //this->setToolbar("workflow");
+  this->setToolbar("workflow");
+  mAction->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
 }
 
 DensificationComponent::~DensificationComponent()

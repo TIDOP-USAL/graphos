@@ -511,6 +511,42 @@ void MainWindowPresenter::loadProject()
 
 void MainWindowPresenter::updateProject()
 {
+  AppStatus &app_status = AppStatus::instance();
+  app_status.activeFlag(AppStatus::Flag::feature_extraction, false);
+  app_status.activeFlag(AppStatus::Flag::feature_matching, false);
+  app_status.activeFlag(AppStatus::Flag::oriented, false);
+  app_status.activeFlag(AppStatus::Flag::absolute_oriented, false);
+  app_status.activeFlag(AppStatus::Flag::dense_model, false);
+
+  this->loadDenseModel();
+  this->loadOrientation();
+  this->loadMatches(); /// TODO: cambiar a update matches
+
+  for (auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++) {
+    QString imageLeft = it->name();
+    bool del_features = true;
+    for (auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++) {
+      if (imageLeft.compare(it->first) == 0) {
+        this->loadFeatures(it->first);
+        del_features = false;
+        break;
+      }
+    }
+    if (del_features) mView->deleteFeatures(imageLeft);
+  }
+
+  for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
+
+  }
+
+  //for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
+  //  QString imageLeft = it->name();
+  //  std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
+  //  for (auto &imageRight : pairs){
+  //    mView->deleteMatches(imageLeft);
+  //    AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
+  //  }
+  //}
 
 }
 
@@ -519,8 +555,8 @@ void MainWindowPresenter::loadFeatures(const QString &featId)
   mView->addFeatures(featId);
   AppStatus::instance().activeFlag(AppStatus::Flag::feature_extraction, true);
 
-  TL_TODO("Quitar")
-  mView->setFlag(MainWindowView::Flag::feature_extraction, true);
+  //TL_TODO("Quitar")
+  //mView->setFlag(MainWindowView::Flag::feature_extraction, true);
 }
 
 void MainWindowPresenter::loadMatches()
@@ -528,12 +564,18 @@ void MainWindowPresenter::loadMatches()
   for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
     QString imageLeft = it->name();
     std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
-    for (auto &imageRight : pairs){
-      mView->addMatches(imageLeft, imageRight);
-      mView->setFlag(MainWindowView::Flag::feature_matching, true);
-      //TODO: Remplaza a lo anterior que hay que quitar
+    if (!pairs.empty()) {
+      mView->addMatches(imageLeft);
       AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
+    } else {
+      mView->deleteMatches(imageLeft);
     }
+    //for (auto &imageRight : pairs){
+    //  mView->addMatches(imageLeft, imageRight);
+    //  //mView->setFlag(MainWindowView::Flag::feature_matching, true);
+    //  ////TODO: Remplaza a lo anterior que hay que quitar
+    //  AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
+    //}
   }
 }
 
@@ -545,12 +587,14 @@ void MainWindowPresenter::loadOrientation()
     mView->setSparseModel(mProjectModel->sparseModel());
     TL_TODO("Por ahora lo añado aqui aunque hay que revisarlo")
     AppStatus &app_status = AppStatus::instance();
-    mView->setFlag(MainWindowView::Flag::oriented, true);
+    //mView->setFlag(MainWindowView::Flag::oriented, true);
     app_status.activeFlag(AppStatus::Flag::oriented, true);
     if (mProjectModel->isAbsoluteOriented()) {
-      mView->setFlag(MainWindowView::Flag::absolute_oriented, true);
+      //mView->setFlag(MainWindowView::Flag::absolute_oriented, true);
       app_status.activeFlag(AppStatus::Flag::absolute_oriented, true);
     }
+  } else {
+    mView->deleteSparseModel();
   }
 }
 
@@ -561,6 +605,8 @@ void MainWindowPresenter::loadDenseModel()
     mView->setDenseModel(mProjectModel->denseModel());
     AppStatus &app_status = AppStatus::instance();
     app_status.activeFlag(AppStatus::Flag::dense_model, true);
+  } else {
+    mView->deleteDenseModel();
   }
 }
 

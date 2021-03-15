@@ -42,6 +42,9 @@ void DensificationProcess::run()
   } catch (std::exception &e) {
     emit error(0, "Densification error");
     msgError(e.what());
+  } catch (...) {
+    emit error(0, "Densification error");
+    msgError("Unhandled exception");
   }
 }
 

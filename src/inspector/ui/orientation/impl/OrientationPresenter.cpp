@@ -109,8 +109,8 @@ bool OrientationPresenterImp::createProcess()
     }
   }
 
-  mModel->clear();
-  ///TODO: limpiar ficheros
+  mModel->clearProject();
+  emit orientationDeleted();
 
   mMultiProcess->clearProcessList();
 

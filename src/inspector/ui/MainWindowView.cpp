@@ -365,7 +365,37 @@ void MainWindowView::addFeatures(const QString &features)
   }
 }
 
-void MainWindowView::addMatches(const QString &left, const QString &right)
+void MainWindowView::deleteFeatures(const QString &features)
+{
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem *itemImages = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      //if (temp->text(0).compare(tr("Images")) == 0) {
+      if (temp->data(0, Qt::UserRole) == inspector::ui::images){
+        itemImages = itemProject->child(i);
+        break;
+      }
+    }
+
+    if (itemImages) {
+      // Se busca la imagen en el árbol
+      QTreeWidgetItem *itemImage = nullptr;
+      for (int i = 0; i < itemImages->childCount(); i++) {
+        QTreeWidgetItem *temp = itemImages->child(i);
+        if (temp->text(0).compare(features) == 0){
+          itemImage = itemImages->child(i);
+          break;
+        }
+      }
+      if (itemImage)
+        itemImage->setData(0, Qt::UserRole, inspector::ui::image);
+    }
+  }
+}
+
+void MainWindowView::addMatches(const QString &left)
 {
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
@@ -395,6 +425,35 @@ void MainWindowView::addMatches(const QString &left, const QString &right)
   }
 }
 
+void MainWindowView::deleteMatches(const QString &left)
+{
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem *itemImages = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->data(0, Qt::UserRole) == inspector::ui::images){
+        itemImages = itemProject->child(i);
+        break;
+      }
+    }
+
+    if (itemImages) {
+      // Se busca la imagen en el árbol
+      QTreeWidgetItem *itemImage = nullptr;
+      for (int i = 0; i < itemImages->childCount(); i++) {
+        QTreeWidgetItem *temp = itemImages->child(i);
+        if (temp->text(0).compare(left) == 0){
+          itemImage = itemImages->child(i);
+          break;
+        }
+      }
+
+      itemImage->setData(0, Qt::UserRole, inspector::ui::image_features);
+    }
+  }
+}
+
 void MainWindowView::setSparseModel(const QString &sparseModel)
 {
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
@@ -411,8 +470,6 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
     if (itemModels == nullptr) {
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
-      //itemModels->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
-      //itemModels->setFlags(itemImages->flags() | Qt::ItemIsTristate);
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
     }
@@ -438,6 +495,39 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
   }
 }
 
+void MainWindowView::deleteSparseModel()
+{
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem *itemModels = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("3D Models")) == 0) {
+        itemModels = itemProject->child(i);
+        break;
+      }
+    }
+
+    if (itemModels == nullptr) {
+      itemModels = new QTreeWidgetItem();
+      itemModels->setText(0, tr("3D Models"));
+      itemProject->addChild(itemModels);
+      itemModels->setExpanded(true);
+    }
+
+    QTreeWidgetItem *itemSparseModel = nullptr;
+    for (int i = 0; i < itemModels->childCount(); i++) {
+      QTreeWidgetItem *temp = itemModels->child(i);
+      if (temp->text(0).compare(tr("Sparse Model")) == 0) {
+        itemSparseModel = temp;
+        delete itemSparseModel;
+        itemSparseModel = nullptr;
+        break;
+      }
+    }
+  }
+}
+
 void MainWindowView::setDenseModel(const QString &denseModel)
 {
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
@@ -454,8 +544,6 @@ void MainWindowView::setDenseModel(const QString &denseModel)
     if (itemModels == nullptr) {
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
-      //itemModels->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
-      //itemModels->setFlags(itemImages->flags() | Qt::ItemIsTristate);
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
     }
@@ -478,6 +566,40 @@ void MainWindowView::setDenseModel(const QString &denseModel)
     itemDenseModel->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
     itemDenseModel->setToolTip(0, denseModel);
     itemDenseModel->setData(0, Qt::UserRole, inspector::ui::dense_model);
+  }
+}
+
+void MainWindowView::deleteDenseModel()
+{
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem *itemModels = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("3D Models")) == 0) {
+        itemModels = itemProject->child(i);
+        break;
+      }
+    }
+
+    if (itemModels == nullptr) {
+      itemModels = new QTreeWidgetItem();
+      itemModels->setText(0, tr("3D Models"));
+      itemProject->addChild(itemModels);
+      itemModels->setExpanded(true);
+    }
+
+    QTreeWidgetItem *itemDenseModel = nullptr;
+    for (int i = 0; i < itemModels->childCount(); i++) {
+      QTreeWidgetItem *temp = itemModels->child(i);
+      if (temp->text(0).compare(tr("Dense Model")) == 0) {
+        itemDenseModel = temp;
+        delete itemDenseModel;
+        itemDenseModel = nullptr;
+        break;
+      }
+    }
+
   }
 }
 
@@ -551,7 +673,6 @@ void MainWindowView::deleteImage(const QString &file)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      //if (temp->text(0).compare(tr("Images")) == 0) {
       if (temp->data(0, Qt::UserRole) == inspector::ui::images){
         itemImages = itemProject->child(i);
         break;
@@ -578,165 +699,6 @@ void MainWindowView::deleteImage(const QString &file)
   }
 
   mThumbnailsWidget->deleteThumbnail(file);
-}
-
-void MainWindowView::deleteFeatures(const QString &session, const QString &feat)
-{
-
-//  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
-
-//    QTreeWidgetItem *itemSessions = nullptr;
-//    for (int i = 0; i < itemProject->childCount(); i++) {
-//      if (QTreeWidgetItem *temp = itemProject->child(i)){
-//        if (temp->text(0).compare(tr("Sessions")) == 0) {
-//          itemSessions = itemProject->child(i);
-//          break;
-//        }
-//      }
-//    }
-
-//    if (itemSessions != nullptr) {
-
-//      QTreeWidgetItem *itemFeatures = nullptr;
-//      for (int i = 0; i < itemSessions->childCount(); i++) {
-//        if (QTreeWidgetItem *itemSession = itemSessions->child(i)){
-//          if (itemSession->text(0).compare(session) == 0){
-
-//            for (int j = 0; j < itemSession->childCount(); j++) {
-//              if (QTreeWidgetItem *temp = itemSession->child(j)){
-//                if (temp->text(0).compare(tr("Features")) == 0) {
-//                  itemFeatures = itemSession->child(j);
-//                  break;
-//                }
-//              }
-//            }
-
-//            break;
-
-//          }
-//        }
-//      }
-
-//      if (itemFeatures != nullptr) {
-
-        
-//        QTreeWidgetItem *itemImagesFeatures = nullptr;
-//        for (int i = 0; i < itemFeatures->childCount(); i++) {
-//          QTreeWidgetItem *temp = itemFeatures->child(i);
-//          if (temp && temp->text(0).compare(tr("Keypoints")) == 0) {
-//            itemImagesFeatures = itemFeatures->child(i);
-//            break;
-//          }
-//        }
-
-//        if (itemImagesFeatures != nullptr) {
-
-//          QTreeWidgetItem *itemImageFeatures = nullptr;
-//          for (int i = 0; i < itemImagesFeatures->childCount(); i++) {
-//            QTreeWidgetItem *temp = itemImagesFeatures->child(i);
-//            if (temp->toolTip(0).compare(feat) == 0) {
-//              itemImageFeatures = itemImagesFeatures->child(i);
-//              delete itemImageFeatures;
-//              itemImageFeatures = nullptr;
-//              break;
-//            }
-//          }
-
-//        }
-
-//      }
-    
-//    }
-
-//  }
-}
-
-void MainWindowView::deleteMatches(const QString &session, const QString &matches)
-{
-
-//  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
-
-//    QTreeWidgetItem *itemSessions = nullptr;
-//    for (int i = 0; i < itemProject->childCount(); i++) {
-//      if (QTreeWidgetItem *temp = itemProject->child(i)){
-//        if (temp->text(0).compare(tr("Sessions")) == 0) {
-//          itemSessions = itemProject->child(i);
-//          break;
-//        }
-//      }
-//    }
-
-//    if (itemSessions != nullptr) {
-
-//      QTreeWidgetItem *itemMatches = nullptr;
-//      for (int i = 0; i < itemSessions->childCount(); i++) {
-//        if (QTreeWidgetItem *itemSession = itemSessions->child(i)){
-//          if (itemSession->text(0).compare(session) == 0){
-
-//            for (int j = 0; j < itemSession->childCount(); j++) {
-//              if (QTreeWidgetItem *temp = itemSession->child(j)){
-//                if (temp->text(0).compare(tr("Matches")) == 0) {
-//                  itemMatches = itemSession->child(j);
-//                  break;
-//                }
-//              }
-//            }
-
-//            break;
-
-//          }
-//        }
-//      }
-
-//      if (itemMatches != nullptr) {
-
-
-//        /* Image pairs */
-
-//        QTreeWidgetItem *itemImagePairs = nullptr;
-//        for (int i = 0; i < itemMatches->childCount(); i++) {
-//          QTreeWidgetItem *temp = itemMatches->child(i);
-//          if (temp && temp->text(0).compare(tr("Image Pairs")) == 0) {
-//            itemImagePairs = itemMatches->child(i);
-//            break;
-//          }
-//        }
-
-//        if (itemImagePairs != nullptr) {
-//          QTreeWidgetItem *itemLeftImage = nullptr;
-//          for (int i = 0; i < itemImagePairs->childCount(); i++) {
-//            itemLeftImage = itemImagePairs->child(i);
-//            if (itemLeftImage != nullptr) {
-
-//              QTreeWidgetItem *itemRightImage = nullptr;
-//              for (int j = 0; j < itemLeftImage->childCount(); j++) {
-//                QTreeWidgetItem *temp = itemLeftImage->child(j);
-//                if (temp && temp->toolTip(0).compare(matches) == 0) {
-//                  itemRightImage = itemLeftImage->child(j);
-//                  break;
-//                }
-//              }
-
-//              if (itemRightImage != nullptr) {
-//                delete itemRightImage;
-//                itemRightImage = nullptr;
-//                if (itemLeftImage->childCount() == 0){
-//                  delete itemLeftImage;
-//                  itemLeftImage = nullptr;
-//                }
-//                break;
-//              }
-//            }
-
-//          }
-
-//        }
-
-//      }
-
-//    }
-
-//  }
 }
 
 void MainWindowView::changeEvent(QEvent *e)
@@ -1381,6 +1343,8 @@ void MainWindowView::update()
   bool processing = app_status.isActive(AppStatus::Flag::processing);
   mActionSaveProject->setEnabled(project_exists && project_modified && !processing);
   mActionSaveProjectAs->setEnabled(project_exists && !processing);
+
+
 }
 
 void MainWindowView::retranslate()

@@ -117,9 +117,9 @@ bool FeatureMatchingPresenterImp::createProcess()
       return false;
     }
   }
-  ///
-  TL_TODO("Borrar puntos de matching de la base de datos")
-  mModel->clear();
+
+  mModel->clearProject();
+  emit matchesDeleted();
 
   QString currentMatchMethod = mView->currentMatchMethod();
 

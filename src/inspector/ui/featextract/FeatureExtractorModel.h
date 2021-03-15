@@ -36,6 +36,7 @@ public:
   virtual image_const_iterator imageBegin() const = 0;
   virtual image_iterator imageEnd() = 0;
   virtual image_const_iterator imageEnd() const = 0;
+  virtual void clearProject() = 0;
 };
 
 

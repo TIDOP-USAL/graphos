@@ -26,6 +26,11 @@ public:
   FeatureExtractorComponent(Project *project);
   ~FeatureExtractorComponent();
 
+signals:
+
+  void featuresExtracted(QString);
+  void featuresDeleted();
+
 // ComponentBase
 
 protected:

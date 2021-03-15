@@ -34,6 +34,8 @@ public:
   bool useCuda() const override;
   bool spatialMatching() const override;
   void writeMatchPairs() override;
+  bool existsMatches() const override;
+  void clearProject() override;
 
 // IModel interface
 

@@ -25,7 +25,7 @@ void OrientationModelImp::init()
 
 void OrientationModelImp::clear()
 {
-  mProject->clearReconstruction();
+  
 }
 
 bool OrientationModelImp::refinePrincipalPoint() const
@@ -114,6 +114,11 @@ std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() 
     camera_positions[file_name] = positions;
   }
   return camera_positions;
+}
+
+void OrientationModelImp::clearProject()
+{
+  mProject->clearReconstruction();
 }
 
 bool OrientationModelImp::updateCamera(int id, const Camera &camera)

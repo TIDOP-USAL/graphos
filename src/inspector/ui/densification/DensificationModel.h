@@ -27,6 +27,7 @@ public:
   virtual QString imageDirectory() const = 0;
   virtual QString reconstructionPath() const = 0;
   virtual bool useCuda() const = 0;
+  virtual bool existDenseModel() const = 0;
 
 public slots:
 

@@ -171,7 +171,7 @@ void DensificationPresenterImp::onFinished()
 
 bool DensificationPresenterImp::createProcess()
 {
-  if (std::shared_ptr<Densification> densification = mModel->densification()) {
+  if (mModel->existDenseModel()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),
                             tr("The previous results will be overwritten. Do you wish to continue?"),
@@ -183,7 +183,7 @@ bool DensificationPresenterImp::createProcess()
     }
   }
   
-  mModel->clear();
+  //mModel->clear();
 
   QString densification_method = mView->currentDensificationMethod();
 

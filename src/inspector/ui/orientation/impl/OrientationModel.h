@@ -39,6 +39,7 @@ public:
   QString reconstructionPath() const override;
   void setReconstructionPath(const QString &reconstructionPath) override;
   std::map<QString, std::array<double, 3>> cameraPositions() const override;
+  void clearProject() override;
 
   bool updateCamera(int id, const Camera &camera) override;
   camera_iterator cameraBegin() override;
