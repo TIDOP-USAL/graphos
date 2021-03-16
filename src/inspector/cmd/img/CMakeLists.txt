@@ -2,7 +2,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 	
-project(img)
+project(img LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME}
                img.cpp)

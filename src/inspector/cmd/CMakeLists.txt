@@ -3,7 +3,7 @@
 
 if(BUILD_INSPECTOR_COMMANDS)
 
-  project(commands)
+  project(commands LANGUAGES CXX)
 
   if(CMAKE_COMPILER_IS_GNUCXX AND NOT ENABLE_NOISY_WARNINGS)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function -Wno-missing-declarations")

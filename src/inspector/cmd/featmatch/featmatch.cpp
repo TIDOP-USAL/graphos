@@ -8,6 +8,7 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
+#include <tidop/core/chrono.h>
 
 #include <colmap/util/option_manager.h>
 #include <colmap/util/misc.h>
@@ -31,7 +32,7 @@ int main(int argc, char** argv)
   std::string cmd_description = "Feature Matching";
 
   tl::Console &console = tl::Console::instance();
-  console.setLogLevel(tl::MessageLevel::msg_verbose);
+  console.setMessageLevel(tl::MessageLevel::msg_verbose);
   console.setTitle(cmd_description);
   tl::MessageManager::instance().addListener(&console);
 
@@ -93,7 +94,7 @@ int main(int argc, char** argv)
   QString log_file = project_dir + "/" + project.name() + ".log";
 
   tl::Log &log = tl::Log::instance();
-  log.setLogLevel(tl::MessageLevel::msg_verbose);
+  log.setMessageLevel(tl::MessageLevel::msg_verbose);
   log.setLogFile(log_file.toStdString());
   tl::MessageManager::instance().addListener(&log);
 

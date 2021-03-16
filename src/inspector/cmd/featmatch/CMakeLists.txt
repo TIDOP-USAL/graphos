@@ -2,7 +2,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 	
-project(featmatch)
+project(featmatch LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME}
                featmatch.cpp)
@@ -11,13 +11,18 @@ target_link_libraries(${PROJECT_NAME}
                       inspector_core
                       inspector_process
                       TidopLib::tl_core
+                      TidopLib::tl_img
+                      TidopLib::tl_math
+					  Qt5::Core
                       Qt5::Sql
+					  Qt5::Widgets
                       ${COLMAP_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
                       ${GLEW_LIBRARIES}
                       ${CERES_LIBRARIES}
                       ${OPENGL_gl_LIBRARY}
                       ${OPENGL_glu_LIBRARY}
+                      GLEW::GLEW
                       ${OpenCV_LIBS}
                       ${CUDA_LIBRARIES}
                       ${GDAL_LIBRARY}

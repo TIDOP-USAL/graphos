@@ -97,7 +97,7 @@ int main(int argc, char** argv)
   std::string cmd_description = "Create Project";
 
   tl::Console &console = tl::Console::instance();
-  console.setLogLevel(tl::MessageLevel::msg_verbose);
+  console.setMessageLevel(tl::MessageLevel::msg_verbose);
   console.setTitle(cmd_description);
   tl::MessageManager::instance().addListener(&console);
 
@@ -169,7 +169,7 @@ int main(int argc, char** argv)
   QString log_file = project_path + base_name + ".log";
 
   tl::Log &log = tl::Log::instance();
-  log.setLogLevel(tl::MessageLevel::msg_verbose);
+  log.setMessageLevel(tl::MessageLevel::msg_verbose);
   //QString log_file = dir.filePath("featextract.log");
   log.setLogFile(log_file.toStdString());
 

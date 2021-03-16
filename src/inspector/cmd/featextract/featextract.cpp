@@ -8,12 +8,19 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
+#include <tidop/core/chrono.h>
+#include <tidop/img/imgreader.h>
 
 #include <colmap/base/database.h>
 #include <colmap/base/camera_models.h>
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
+#ifdef HAVE_CUDA
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudawarping.hpp>
+#include <opencv2/cudaarithm.hpp>
+#endif // HAVE_CUDA
 
 #include <QDir>
 #include <QTextStream>
@@ -36,7 +43,7 @@ int main(int argc, char** argv)
   std::string cmd_description = "Feature extraction";
 
   tl::Console &console = tl::Console::instance();
-  console.setLogLevel(tl::MessageLevel::msg_verbose);
+  console.setMessageLevel(tl::MessageLevel::msg_verbose);
   console.setTitle(cmd_description);
   tl::MessageManager::instance().addListener(&console);
 
@@ -51,7 +58,7 @@ int main(int argc, char** argv)
     "FULL_RADIAL"};
 
   SiftProperties siftProperties;
-  int maxImageSize = -1;
+  int maxImageSize = 3200;
   int maxFeaturesNumber = siftProperties.featuresNumber();
   int octaveResolution = siftProperties.octaveLayers();
   double contrastThreshold = siftProperties.contrastThreshold();
@@ -99,12 +106,13 @@ int main(int argc, char** argv)
 
 /* Fichero log */
 
-  QString log_file = project_dir + "/" + project.name() + ".log";
+  ///TODO: Revisar log
+  //QString log_file = project_dir + "/" + project.name() + ".log";
 
-  tl::Log &log = tl::Log::instance();
-  log.setLogLevel(tl::MessageLevel::msg_verbose);
-  log.setLogFile(log_file.toStdString());
-  tl::MessageManager::instance().addListener(&log);
+  //tl::Log &log = tl::Log::instance();
+  //log.setMessageLevel(tl::MessageLevel::msg_verbose);
+  //log.setLogFile(log_file.toStdString());
+  //tl::MessageManager::instance().addListener(&log);
 
 /* Chequeo de soporte CUDA */
 
@@ -134,12 +142,14 @@ int main(int argc, char** argv)
 
   /// Se añaden las imagenes y las cámaras a la base de datos
 
+  bool bOpenCvRead = true;
+
   try {
     std::shared_ptr<FeatureExtractor> feat_extractor(new SiftCudaDetectorDescriptor(maxFeaturesNumber,
                                                                                     octaveResolution,
-                                                                                    contrastThreshold,
                                                                                     edgeThreshold,
-                                                                                    sigma));
+                                                                                    sigma,
+                                                                                    contrastThreshold));
 
     project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feat_extractor));
 
@@ -156,50 +166,163 @@ int main(int argc, char** argv)
       std::string image_name = file_info.fileName().toStdString();
 
       msgInfo("Read image: %s", image_path.c_str());
+      
+      colmap::image_t image_id;
 
-      if (camera_id != image.cameraId()){
-        camera_id = image.cameraId();
-        Camera camera = project.findCamera(camera_id);
+      if (!database.ExistsImageWithName(image_name)){
 
-        int camera_model_id = colmap::CameraModelNameToId(camera.type().toStdString());
-        double focal_length = camera.focal();
-        size_t width = static_cast<size_t>(camera.width());
-        size_t height = static_cast<size_t>(camera.height());
-        if (round(1.2 * std::max(width, height)) == round(focal_length)){
-          camera_colmap.SetPriorFocalLength(false);
-        } else {
-          camera_colmap.SetPriorFocalLength(true);
+        colmap::Camera camera_colmap;
+        colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
+        if (!database.ExistsCamera(image.cameraId())) {
+          Camera camera = project.findCamera(camera_id);
+          QString colmap_camera_type = cameraToColmapType(camera);
+          int camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
+          if (camera_model_id == -1) throw std::runtime_error("Camera model unknow");
+          double focal_length = camera.focal();
+          size_t width = static_cast<size_t>(camera.width());
+          size_t height = static_cast<size_t>(camera.height());
+          if (round(1.2 * std::max(width, height)) == round(focal_length)) {
+            camera_colmap.SetPriorFocalLength(false);
+          } else {
+            camera_colmap.SetPriorFocalLength(true);
+          }
+          camera_colmap.InitializeWithId(camera_model_id, focal_length, width, height);
+          camera_id = database.WriteCamera(camera_colmap);
+          camera_colmap.SetCameraId(camera_id);
         }
-        camera_colmap.InitializeWithId(camera_model_id, focal_length, width, height);
-        camera_colmap.SetCameraId(database.WriteCamera(camera_colmap));
-      }
+        
+        colmap::Image image_colmap;
+        image_colmap.SetName(image_name);
+        image_colmap.SetCameraId(camera_id);
 
+        image_id = database.WriteImage(image_colmap, false);
 
-      colmap::Image image_colmap;
-      image_colmap.SetName(image_name);
-      image_colmap.SetCameraId(camera_colmap.CameraId());
-
-      colmap::image_t image_id = database.WriteImage(image_colmap, false);
-
-      /* Feature extraction */
-
-      cv::Mat mat = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
-
-      double max_dimension;
-      if (mat.cols > mat.rows){
-        max_dimension = mat.cols;
       } else {
-        max_dimension = mat.rows;
+        colmap::Image image_colmap = database.ReadImageWithName(image_name);
+        image_id = image_colmap.ImageId();
       }
 
-      double scale = 1;
-      if (maxImageSize < max_dimension){
-        cv::Size size(mat.cols, mat.rows);
-        scale = maxImageSize / max_dimension;
-        size.width *= scale;
-        size.height *= scale;
-        cv::resize(mat, mat, size);
+      
+      /* Lectura de imagen */
+
+      //cv::Mat mat = cv::imread(image_path, cv::IMREAD_GRAYSCALE);
+
+      //double max_dimension;
+      //if (mat.cols > mat.rows){
+      //  max_dimension = mat.cols;
+      //} else {
+      //  max_dimension = mat.rows;
+      //}
+
+      //double scale = 1;
+      //if (maxImageSize < max_dimension){
+      //  cv::Size size(mat.cols, mat.rows);
+      //  scale = maxImageSize / max_dimension;
+      //  size.width *= scale;
+      //  size.height *= scale;
+      //  cv::resize(mat, mat, size);
+      //}
+      
+      cv::Mat mat;
+      double scale = 1.;
+      
+      if (bOpenCvRead) {
+      
+        mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
+        //cv::Mat mat2 = cv::imread(mImage.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR);
+        //cv::Mat color_boost;
+        //cv::decolor(mat2, mat, color_boost);
+        //mat2.release();
+        //color_boost.release();
+      
+        if (mat.empty()) {
+          bOpenCvRead = false;
+        } else {
+          double max_dimension;
+          if (mat.cols > mat.rows){
+            max_dimension = mat.cols;
+          } else {
+            max_dimension = mat.rows;
+          }
+      
+          if (maxImageSize < max_dimension){
+            cv::Size size(mat.cols, mat.rows);
+            scale = max_dimension / maxImageSize;
+            size.width /= scale;
+            size.height /= scale;
+#ifdef HAVE_CUDA
+            if (bUseGPU) {
+              cv::cuda::GpuMat gImgIn(mat);
+              cv::cuda::GpuMat gImgResize;
+              cv::cuda::resize(gImgIn, gImgResize, size);
+              gImgResize.download(mat);
+            } else {
+#endif
+              cv::resize(mat, mat, size);
+#ifdef HAVE_CUDA
+            }
+#endif
+          }
+        }
+
       }
+
+      if (!bOpenCvRead) {
+        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
+        imageReader->open();
+        if (imageReader->isOpen()) {
+          int w = imageReader->cols();
+          int h = imageReader->rows();
+          double max_dimension;
+          if (w > h) {
+            max_dimension = w;
+          } else {
+            max_dimension = h;
+          }
+      
+      
+          if (maxImageSize < max_dimension) {
+            scale = maxImageSize / max_dimension;
+            mat = imageReader->read(scale, scale);
+            scale = 1. / scale;
+          } else {
+            mat = imageReader->read();
+          }
+      
+          if (imageReader->depth() != 8) {
+#ifdef HAVE_CUDA
+            if (bUseGPU) {
+              cv::cuda::GpuMat gImgIn(mat);
+              cv::cuda::GpuMat gImgOut;
+              cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+              gImgOut.download(mat);
+            } else {
+#endif
+              cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
+            }
+#endif
+          }
+
+          if (mat.channels() >= 3) {
+#ifdef HAVE_CUDA
+            cv::cuda::GpuMat gImgIn(mat);
+            cv::cuda::GpuMat gImgGray;
+            cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
+            gImgGray.download(mat);
+#else
+            cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+#endif
+          }
+
+
+
+          imageReader->close();
+        }
+      }
+
+
+/* Feature extraction */
 
       feat_extractor->run(mat, featureKeypoints, featureDescriptors);
 

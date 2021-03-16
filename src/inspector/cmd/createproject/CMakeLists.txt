@@ -2,7 +2,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 	
-project(createproj)
+project(createproj LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME}
                createproj.cpp
@@ -13,6 +13,8 @@ target_link_libraries(${PROJECT_NAME}
                       inspector_core
                       inspector_process
                       TidopLib::tl_core
+                      TidopLib::tl_img
+                      TidopLib::tl_math
                       Qt5::Core
                       Qt5::Widgets
                       Qt5::Sql
@@ -22,11 +24,12 @@ target_link_libraries(${PROJECT_NAME}
                       ${CERES_LIBRARIES}
                       ${OPENGL_gl_LIBRARY}
                       ${OPENGL_glu_LIBRARY}
+                      GLEW::GLEW
                       ${OpenCV_LIBS}
                       ${CUDA_LIBRARIES}
                       ${GDAL_LIBRARY}
                       ${PROJ4_LIBRARY})
-					  
+  
 # link boost libraries
 target_link_libraries(${PROJECT_NAME}
                       ${Boost_FILESYSTEM_LIBRARY}
