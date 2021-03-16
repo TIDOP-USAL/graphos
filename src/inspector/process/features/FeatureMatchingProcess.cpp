@@ -1,6 +1,7 @@
 #include "FeatureMatchingProcess.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 
 #include <colmap/util/option_manager.h>
 #include <colmap/util/misc.h>

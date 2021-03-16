@@ -27,8 +27,10 @@
 using namespace inspector;
 using namespace tl;
 #if (__cplusplus >= 201703L)
+#include <filesystem>
 namespace fs = std::filesystem;
 #else
+#include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 #endif
 

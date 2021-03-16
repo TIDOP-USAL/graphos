@@ -1,6 +1,7 @@
 #include "DtmProcess.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 #include <tidop/geometry/entities/point.h>
 #include <tidop/geometry/entities/bbox.h>
 #include <tidop/geometry/size.h>

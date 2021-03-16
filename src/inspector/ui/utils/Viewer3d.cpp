@@ -42,6 +42,8 @@ namespace fs = std::filesystem;
 namespace fs = boost::filesystem;
 #endif
 
+#include <array>
+
 namespace inspector
 {
 

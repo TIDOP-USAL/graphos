@@ -4,6 +4,7 @@
 #include "inspector/core/features/sift.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 #include <tidop/img/imgreader.h>
 
 #include <opencv2/imgcodecs.hpp>

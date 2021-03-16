@@ -4,6 +4,7 @@
 #include "inspector/core/orientation/orientationexport.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 
 namespace inspector
 {

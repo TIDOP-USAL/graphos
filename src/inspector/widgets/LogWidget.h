@@ -8,6 +8,7 @@
 #include <tidop/core/defs.h>
 #include <tidop/core/flags.h>
 #include <tidop/core/messages.h>
+#include <tidop/core/log.h>
 
 class QDateTimeEdit;
 class QListWidget;
@@ -39,7 +40,7 @@ public:
    */
   void setLogLevel(tl::MessageLevel level);
 
-  void print(const char *msg, const char *date, tl::MessageLevel level);
+  void print(const std::string &msg, const std::string &date, tl::MessageLevel level);
   void refresh();
 
 private slots:
@@ -71,10 +72,10 @@ private:
 
 public:
 
-  void onMsgDebug(const char *msg, const char *date) override;
-  void onMsgInfo(const char *msg, const char *date) override;
-  void onMsgWarning(const char *msg, const char *date) override;
-  void onMsgError(const char *msg, const char *date) override;
+  void onMsgDebug(const std::string &msg, const std::string &date) override;
+  void onMsgInfo(const std::string &msg, const std::string &date) override;
+  void onMsgWarning(const std::string &msg, const std::string &date) override;
+  void onMsgError(const std::string &msg, const std::string &date) override;
 
 private:
 

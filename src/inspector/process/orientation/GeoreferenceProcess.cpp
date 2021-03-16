@@ -3,6 +3,7 @@
 #include "inspector/core/orientation/orientationexport.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 
 #include <colmap/estimators/triangulation.h>
 #include <colmap/sfm/incremental_triangulator.h>
