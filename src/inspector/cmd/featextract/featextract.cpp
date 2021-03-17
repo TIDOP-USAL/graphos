@@ -62,16 +62,17 @@ public:
   {
   }
   
-  void operator() (/*size_t ini, size_t end*/)
+  void operator() (size_t ini, size_t end)
   {
-    for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++){
+    //for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++){
+    for (auto it = mProject->imageBegin()+ini; it != mProject->imageBegin()+end; it++){
       Image image = (*it);
       //std::string image_name = (*it)->name().toStdString();
       std::string image_path = image.path().toStdString();
       QFileInfo file_info(image.path());
       std::string image_name = file_info.fileName().toStdString();
 
-      //msgInfo("Read image: %s", image_path.c_str());
+      msgInfo("Read image: %s", image_path.c_str());
       
       colmap::image_t image_id;
 
@@ -273,9 +274,9 @@ public:
         
         mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
 
-        //QByteArray ba = data.image_name.toLocal8Bit();
-        //const char *img_file = ba.data();
-        //msgInfo("%i features extracted from image %s", featureKeypoints.size(), img_file);
+        QByteArray ba = data.image_name.toLocal8Bit();
+        const char *img_file = ba.data();
+        msgInfo("%i features extracted from image %s", featureKeypoints.size(), img_file);
 
         if (data.scale > 1) {
           for (auto & featureKeypoint : featureKeypoints){
@@ -310,9 +311,9 @@ public:
 
       mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
 
-      //QByteArray ba = data.image_name.toLocal8Bit();
-      //const char *img_file = ba.data();
-      //msgInfo("%i features extracted from image %s", featureKeypoints.size(), img_file);
+      QByteArray ba = data.image_name.toLocal8Bit();
+      const char *img_file = ba.data();
+      msgInfo("%i features extracted from image %s", featureKeypoints.size(), img_file);
 
       if (data.scale < 1) {
         for (auto &featureKeypoint : featureKeypoints) {
@@ -677,12 +678,39 @@ int main(int argc, char** argv)
                        &database,
                        &buffer);
 
-  std::thread producer_thread(producer);
-  std::thread consumer_thread(consumer);
+  //std::thread producer_thread(producer);
+  //std::thread consumer_thread(consumer);
 
-  producer_thread.join();
+  //producer_thread.join();
+  //done = true;
+  //consumer_thread.join();
+
+  size_t num_threads = tl::optimalNumberOfThreads();
+  std::vector<std::thread> producer_threads(num_threads);
+  std::vector<std::thread> consumer_threads(num_threads);
+
+  
+  size_t size = project.imagesCount() / num_threads;
+  for (int i = 0; i < num_threads; ++i) {
+    size_t _ini = i * size;
+    size_t _end = _ini + size;
+    if (i == num_threads - 1) _end = project.imagesCount();
+
+    producer_threads[i] = std::thread(producer, _ini, _end);
+  }
+
+  for (int i = 0; i < num_threads; ++i) {
+    consumer_threads[i] = std::thread(consumer);
+  }
+
+  for (int i = 0; i < num_threads; ++i)
+    producer_threads[i].join();
   done = true;
-  consumer_thread.join();
+  for (int i = 0; i < num_threads; ++i)
+    consumer_threads[i].join();
+
+  project.save(project_file.c_str());
+  msgInfo("Project saved");
 
   chrono.stop();
 
