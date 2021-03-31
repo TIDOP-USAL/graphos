@@ -55,12 +55,14 @@ void inspector::FeatureMatchingProcess::run()
     //siftMatchingOptions.max_num_matches = 30000;//mFeatureMatching->maxMatches();
     siftMatchingOptions.use_gpu = bUseCuda;
     //siftMatchingOptions.gpu_index = "0";
+    siftMatchingOptions.min_num_inliers = 100;
 
     if (bSpatialMatching) {
 
       colmap::SpatialMatchingOptions spatialMatchingOptions;
-      //spatialMatchingOptions.max_num_neighbors = 50;
-      spatialMatchingOptions.is_gps = false;
+      spatialMatchingOptions.max_num_neighbors = 500;
+      spatialMatchingOptions.ignore_z = true;
+      spatialMatchingOptions.is_gps = false; /// TODO: Comprobar el tipo de sistema de coordenadas
 
       mFeatureMatcher = new colmap::SpatialFeatureMatcher(spatialMatchingOptions,
                                                           siftMatchingOptions,

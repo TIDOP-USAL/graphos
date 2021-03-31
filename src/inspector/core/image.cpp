@@ -10,6 +10,7 @@ CameraPosition::CameraPosition()
     mX(TL_DOUBLE_MAX),
     mY(TL_DOUBLE_MAX),
     mZ(TL_DOUBLE_MAX),
+    mQuaternion(tl::math::Quaterniond::identity()),
     mSource("")
 {}
 
@@ -52,6 +53,16 @@ double CameraPosition::z() const
 void CameraPosition::setZ(double z)
 {
   mZ = z;
+}
+
+tl::math::Quaterniond CameraPosition::quaternion() const
+{
+  return mQuaternion;
+}
+
+void CameraPosition::setQuaternion(const tl::math::Quaterniond &quaternion)
+{
+  mQuaternion = quaternion;
 }
 
 QString CameraPosition::source() const

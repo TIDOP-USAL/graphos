@@ -602,12 +602,12 @@ ReadCalibration::~ReadCalibration()
 
 void ReadCalibration::open(const QString &path)
 {
-#ifdef _DEBUG
-  TL_TODO("Excepción al leer el binario en debug")
-  mReconstruction->ReadText(path.toStdString());
-#else
+//#ifdef _DEBUG
+//  TL_TODO("Excepción al leer el binario en debug")
+//  mReconstruction->ReadText(path.toStdString());
+//#else
   mReconstruction->ReadBinary(path.toStdString());
-#endif
+//#endif
 }
 
 std::shared_ptr<Calibration> ReadCalibration::calibration(int cameraId) const
@@ -739,7 +739,7 @@ QString cameraToColmapType(const Camera &camera)
   if (inspector_camera.compare("Simple Pinhole") == 0){
     colmap_camera = "SIMPLE_PINHOLE";
   } else if (inspector_camera.compare("Pinhole") == 0){
-    colmap_camera = "SIMPLE_RADIAL";
+    colmap_camera = "PINHOLE";
   } else if (inspector_camera.compare("Simple Radial") == 0){
     colmap_camera = "SIMPLE_RADIAL";
   } else if (inspector_camera.compare("Radial") == 0){

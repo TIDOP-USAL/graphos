@@ -103,6 +103,17 @@ void CamerasImportPresenterImp::initSignalAndSlots()
   connect(mView, &CamerasImportView::xFieldIdChanged,            mModel, &CamerasImportModel::setXFieldId);
   connect(mView, &CamerasImportView::yFieldIdChanged,            mModel, &CamerasImportModel::setYFieldId);
   connect(mView, &CamerasImportView::zFieldIdChanged,            mModel, &CamerasImportModel::setZFieldId);
+  connect(mView, &CamerasImportView::rotationChange,             mModel, &CamerasImportModel::setRotationType);
+  connect(mView, &CamerasImportView::qxFieldChange,            mModel, &CamerasImportModel::setQxFieldId);
+  connect(mView, &CamerasImportView::qyFieldChange,            mModel, &CamerasImportModel::setQyFieldId);
+  connect(mView, &CamerasImportView::qzFieldChange,            mModel, &CamerasImportModel::setQzFieldId);
+  connect(mView, &CamerasImportView::qwFieldChange,            mModel, &CamerasImportModel::setQwFieldId);
+  connect(mView, &CamerasImportView::pitchFieldChange,            mModel, &CamerasImportModel::setPitchFieldId);
+  connect(mView, &CamerasImportView::rollFieldChange,            mModel, &CamerasImportModel::setRollFieldId);
+  connect(mView, &CamerasImportView::yawFieldChange,            mModel, &CamerasImportModel::setYawFieldId);
+  connect(mView, &CamerasImportView::omegaFieldChange,            mModel, &CamerasImportModel::setOmegaFieldId);
+  connect(mView, &CamerasImportView::phiFieldChange,            mModel, &CamerasImportModel::setPhiFieldId);
+  connect(mView, &CamerasImportView::kappaFieldChange,            mModel, &CamerasImportModel::setKappaFieldId);
   //connect(mView, &CamerasImportView::crsChanged,                 mModel, &CamerasImportModel::setCRS);
   connect(mView, &CamerasImportView::loadFieldNamesFromFirstRow, this, &CamerasImportPresenterImp::previewCSV);
   connect(mView, &CamerasImportView::delimiterChanged,           this, &CamerasImportPresenterImp::previewCSV);

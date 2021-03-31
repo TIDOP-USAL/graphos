@@ -5,6 +5,9 @@
 #include <tidop/core/messages.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geometry/entities/point.h>
+#include <tidop/math/algebra/rotation_convert.h>
+#include <tidop/math/algebra/euler_angles.h>
+#include <tidop/math/algebra/quaternion.h>
 
 #include <QStandardItemModel>
 #include <QFile>
@@ -151,11 +154,33 @@ void CamerasImportModelImp::previewImportCamerasFormated()
   bool checkX = false;
   bool checkY = false;
   bool checkZ = false;
+  bool checkQw = false;
+  bool checkQx = false;
+  bool checkQy = false;
+  bool checkQz = false;
+  bool checkYaw = false;
+  bool checkPitch = false;
+  bool checkRoll = false;
+  bool checkOmega = false;
+  bool checkPhi = false;
+  bool checkKappa = false;
 
   mItemModelCameras->clear();
 
-  mItemModelCameras->setColumnCount(4);
-  mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z");
+  
+  if (mRotationType.compare("Quaternions") == 0) {
+    mItemModelCameras->setColumnCount(8);
+    mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Qw" << "Qx" << "Qy" << "Qz");
+  } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
+    mItemModelCameras->setColumnCount(7);
+    mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Yaw" << "Pitch" << "Roll");
+  } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
+    mItemModelCameras->setColumnCount(7);
+    mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Omega" << "Phi" << "Kappa");
+  } else {
+    mItemModelCameras->setColumnCount(4);
+    mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z");
+  }
 
   QFile file(mCsvFile);
   if (file.open(QFile::ReadOnly | QFile::Text)){
@@ -170,6 +195,16 @@ void CamerasImportModelImp::previewImportCamerasFormated()
     QString x;
     QString y;
     QString z;
+    QString qx;
+    QString qy;
+    QString qz;
+    QString qw;
+    QString yaw;
+    QString pitch;
+    QString roll;
+    QString omega;
+    QString phi;
+    QString kappa;
 
     int i = 0;
     while (!stream.atEnd() && i < 20){
@@ -215,6 +250,107 @@ void CamerasImportModelImp::previewImportCamerasFormated()
 
       standardItem.append(new QStandardItem(z));
 
+      if (mRotationType.compare("Quaternions") == 0) {
+
+        it = mFieldIds.find("Qw");
+        if (it != mFieldIds.end() && it->second != -1) {
+          qw = reg.at(it->second);
+          if (i == 0) qw.toDouble(&checkQw);
+        } else {
+          qw = "";
+        }
+        standardItem.append(new QStandardItem(qw));
+
+
+        it = mFieldIds.find("Qx");
+        if (it != mFieldIds.end() && it->second != -1) {
+          qx = reg.at(it->second);
+          if (i == 0) qx.toDouble(&checkQx);
+        } else {
+          qx = "";
+        }
+        standardItem.append(new QStandardItem(qx));
+
+
+        it = mFieldIds.find("Qy");
+        if (it != mFieldIds.end() && it->second != -1) {
+          qy = reg.at(it->second);
+          if (i == 0) qy.toDouble(&checkQy);
+        } else {
+          qy = "";
+        }
+        standardItem.append(new QStandardItem(qy));
+
+            
+        it = mFieldIds.find("Qz");
+        if (it != mFieldIds.end() && it->second != -1) {
+          qz = reg.at(it->second);
+          if (i == 0) qz.toDouble(&checkQz);
+        } else {
+          qz = "";
+        }
+        standardItem.append(new QStandardItem(qz));
+
+      } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
+
+        it = mFieldIds.find("Yaw");
+        if (it != mFieldIds.end() && it->second != -1) {
+          yaw = reg.at(it->second);
+          if (i == 0) yaw.toDouble(&checkYaw);
+        } else {
+          yaw = "";
+        }
+        standardItem.append(new QStandardItem(yaw));
+
+        it = mFieldIds.find("Pitch");
+        if (it != mFieldIds.end() && it->second != -1) {
+          pitch = reg.at(it->second);
+          if (i == 0) pitch.toDouble(&checkPitch);
+        } else {
+          pitch = "";
+        }
+        standardItem.append(new QStandardItem(pitch));
+
+        it = mFieldIds.find("Roll");
+        if (it != mFieldIds.end() && it->second != -1) {
+          roll = reg.at(it->second);
+          if (i == 0) roll.toDouble(&checkRoll);
+        } else {
+          roll = "";
+        }
+        standardItem.append(new QStandardItem(roll));
+
+      } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
+
+        it = mFieldIds.find("Omega");
+        if (it != mFieldIds.end() && it->second != -1) {
+          omega = reg.at(it->second);
+          if (i == 0) omega.toDouble(&checkOmega);
+        } else {
+          omega = "";
+        }
+        standardItem.append(new QStandardItem(omega));
+
+        it = mFieldIds.find("Phi");
+        if (it != mFieldIds.end() && it->second != -1) {
+          phi = reg.at(it->second);
+          if (i == 0) phi.toDouble(&checkPhi);
+        } else {
+          phi = "";
+        }
+        standardItem.append(new QStandardItem(phi));
+
+        it = mFieldIds.find("Kappa");
+        if (it != mFieldIds.end() && it->second != -1) {
+          kappa = reg.at(it->second);
+          if (i == 0) kappa.toDouble(&checkKappa);
+        } else {
+          kappa = "";
+        }
+
+        standardItem.append(new QStandardItem(kappa));
+      }
+
       mItemModelCameras->insertRow(mItemModelCameras->rowCount(), standardItem);
 
       i++;
@@ -223,8 +359,16 @@ void CamerasImportModelImp::previewImportCamerasFormated()
     file.close();
   }
 
-  emit parseOk(checkX && checkY && checkZ);
-
+  
+  if (mRotationType.compare("Quaternions") == 0) {
+    emit parseOk(checkX && checkY && checkZ && checkQw && checkQx && checkQy && checkQz);
+  } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
+    emit parseOk(checkX && checkY && checkZ && checkYaw && checkPitch && checkRoll);
+  } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
+    emit parseOk(checkX && checkY && checkZ && checkOmega && checkKappa && checkPhi);
+  } else {
+    emit parseOk(checkX && checkY && checkZ);
+  }
 }
 
 void CamerasImportModelImp::loadCameras()
@@ -267,6 +411,71 @@ void CamerasImportModelImp::setZFieldId(int id)
   previewImportCamerasFormated();
 }
 
+void CamerasImportModelImp::setRotationType(const QString &rotationType)
+{
+  mRotationType = rotationType;
+}
+
+void CamerasImportModelImp::setQxFieldId(int id)
+{
+  mFieldIds["Qx"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setQyFieldId(int id)
+{
+  mFieldIds["Qy"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setQzFieldId(int id)
+{
+  mFieldIds["Qz"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setQwFieldId(int id)
+{
+  mFieldIds["Qw"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setYawFieldId(int id)
+{
+  mFieldIds["Yaw"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setPitchFieldId(int id)
+{
+  mFieldIds["Pitch"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setRollFieldId(int id)
+{
+  mFieldIds["Roll"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setOmegaFieldId(int id)
+{
+  mFieldIds["Omega"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setPhiFieldId(int id)
+{
+  mFieldIds["Phi"] = id-1;
+  previewImportCamerasFormated();
+}
+
+void CamerasImportModelImp::setKappaFieldId(int id)
+{
+  mFieldIds["Kappa"] = id-1;
+  previewImportCamerasFormated();
+}
+
 void CamerasImportModelImp::setInputCRS(const QString &crs)
 {
   mInputCrs = crs;
@@ -293,6 +502,16 @@ void CamerasImportModelImp::importCameras()
     QString x;
     QString y;
     QString z;
+    QString qx;
+    QString qy;
+    QString qz;
+    QString qw;
+    QString yaw;
+    QString pitch;
+    QString roll;
+    QString omega;
+    QString phi;
+    QString kappa;
 
     std::shared_ptr<tl::geospatial::Crs> crs_in(new tl::geospatial::Crs(mInputCrs.toStdString()));
     std::shared_ptr<tl::geospatial::Crs> crs_out(new tl::geospatial::Crs(mOutputCrs.toStdString()));
@@ -311,7 +530,7 @@ void CamerasImportModelImp::importCameras()
       it = mFieldIds.find("X");
       if (it != mFieldIds.end() && it->second != -1) {
         x = reg.at(it->second);
-      } else{
+      } else {
         x = "";
       }
 
@@ -327,6 +546,83 @@ void CamerasImportModelImp::importCameras()
         z = reg.at(it->second);
       } else {
         z = "";
+      }
+
+      if (mRotationType.compare("Quaternions") == 0) {
+
+        it = mFieldIds.find("Qw");
+        if (it != mFieldIds.end() && it->second != -1) {
+          qw = reg.at(it->second);
+        } else {
+          qw = "";
+        }
+
+        it = mFieldIds.find("Qx");
+        if (it != mFieldIds.end() && it->second != -1) {
+          qx = reg.at(it->second);
+        } else {
+          qx = "";
+        }
+
+        it = mFieldIds.find("Qy");
+        if (it != mFieldIds.end() && it->second != -1) {
+          qy = reg.at(it->second);
+        } else {
+          qy = "";
+        }
+            
+        it = mFieldIds.find("Qz");
+        if (it != mFieldIds.end() && it->second != -1) {
+          qz = reg.at(it->second);
+        } else {
+          qz = "";
+        }
+
+      } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
+
+        it = mFieldIds.find("Yaw");
+        if (it != mFieldIds.end() && it->second != -1) {
+          yaw = reg.at(it->second);
+        } else {
+          yaw = "";
+        }
+
+        it = mFieldIds.find("Pitch");
+        if (it != mFieldIds.end() && it->second != -1) {
+          pitch = reg.at(it->second);
+        } else {
+          pitch = "";
+        }
+
+        it = mFieldIds.find("Roll");
+        if (it != mFieldIds.end() && it->second != -1) {
+          roll = reg.at(it->second);
+        } else {
+          roll = "";
+        }
+
+      } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
+
+        it = mFieldIds.find("Omega");
+        if (it != mFieldIds.end() && it->second != -1) {
+          omega = reg.at(it->second);
+        } else {
+          omega = "";
+        }
+
+        it = mFieldIds.find("Phi");
+        if (it != mFieldIds.end() && it->second != -1) {
+          phi = reg.at(it->second);
+        } else {
+          phi = "";
+        }
+
+        it = mFieldIds.find("Kappa");
+        if (it != mFieldIds.end() && it->second != -1) {
+          kappa = reg.at(it->second);
+        } else {
+          kappa = "";
+        }
       }
 
       for (auto image_it = mProject->imageBegin(); image_it != mProject->imageEnd(); image_it++){
@@ -359,6 +655,21 @@ void CamerasImportModelImp::importCameras()
             cameraPosition.setZ(z.toDouble());
             cameraPosition.setCrs(mInputCrs);
           }
+
+          tl::math::Quaternion<double> quaternion = tl::math::Quaternion<double>::identity();
+          if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
+            tl::math::EulerAngles<double> ypr(yaw.toDouble(), pitch.toDouble(), roll.toDouble(), tl::math::EulerAngles<double>::Axes::xyz);
+            tl::math::RotationConverter<double>::convert(ypr, quaternion);
+          } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
+            tl::math::EulerAngles<double> opk(omega.toDouble(), phi.toDouble(), kappa.toDouble(), tl::math::EulerAngles<double>::Axes::xyz);
+            tl::math::RotationConverter<double>::convert(opk, quaternion);
+          } else {
+            quaternion.x = qx.toDouble();
+            quaternion.y = qy.toDouble();
+            quaternion.z = qz.toDouble();
+            quaternion.w = qw.toDouble();
+          }
+          cameraPosition.setQuaternion(quaternion);
 
           image_it->setCameraPosition(cameraPosition);
 

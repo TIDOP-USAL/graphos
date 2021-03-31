@@ -39,7 +39,8 @@ public:
   virtual QString database() const = 0;
   virtual QString imagePath() const = 0;
   virtual QString projectPath() const = 0;
-  virtual bool gpsOrientation() const = 0;
+  virtual bool gpsPositions() const = 0;
+  virtual bool rtkOrientations() const = 0;
   virtual QString reconstructionPath() const = 0;
   virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
   virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;

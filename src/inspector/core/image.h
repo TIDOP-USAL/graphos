@@ -4,6 +4,7 @@
 #include "inspector/inspector_global.h"
 
 #include <tidop/math/algebra/rotations.h>
+#include <tidop/math/algebra/quaternion.h>
 
 #include <QString>
 
@@ -29,6 +30,8 @@ public:
   void setY(double y);
   double z() const;
   void setZ(double z);
+  tl::math::Quaterniond quaternion() const;
+  void setQuaternion(const tl::math::Quaterniond &quaternion);
 
   QString source() const;
   void setSource(const QString &source);
@@ -43,6 +46,7 @@ private:
   double mX;
   double mY;
   double mZ;
+  tl::math::Quaterniond mQuaternion;
   QString mSource;
   //std::shared_ptr<tl::math::Rotation> mRotation;
 };

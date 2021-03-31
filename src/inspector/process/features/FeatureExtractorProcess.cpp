@@ -127,6 +127,13 @@ void FeatureExtractorProcess::run()
 
       colmap::Image image_colmap;
       image_colmap.SetName(image_name);
+      image_colmap.TvecPrior(0) = mImage.cameraPosition().x();
+      image_colmap.TvecPrior(1) = mImage.cameraPosition().y();
+      image_colmap.TvecPrior(2) = mImage.cameraPosition().z();
+      image_colmap.QvecPrior(0) = mImage.cameraPosition().quaternion().w;
+      image_colmap.QvecPrior(1) = mImage.cameraPosition().quaternion().x;
+      image_colmap.QvecPrior(2) = mImage.cameraPosition().quaternion().y;
+      image_colmap.QvecPrior(3) = mImage.cameraPosition().quaternion().z;
       image_colmap.SetCameraId(camera_id);
 
       image_id = database.WriteImage(image_colmap, false);

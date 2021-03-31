@@ -50,7 +50,7 @@ void OrientationPresenterImp::open()
 {
   TL_TODO("mSettingsModel->refinePrincipalPoint();")
   mView->setRefinePrincipalPoint(mModel->refinePrincipalPoint());
-  mView->enabledAbsoluteOrientation(mModel->gpsOrientation());
+  mView->enabledAbsoluteOrientation(mModel->gpsPositions());
   mView->exec();
 }
 
@@ -116,6 +116,14 @@ bool OrientationPresenterImp::createProcess()
 
   TL_TODO("Establecer propiedades")
   bool refine_principal_point = mView->refinePrincipalPoint();
+
+  /// RTK
+  //if (mModel->rtkOrientations()) {
+
+  //} else {
+
+  //}
+
 
   QString database = mModel->database();
   QString imagePath = mModel->imagePath();

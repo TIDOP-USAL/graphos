@@ -375,5 +375,47 @@ void AbsoluteOrientationColmapAlgorithm::run()
 }
 
 
+/*----------------------------------------------------------------*/
+
+
+AbsoluteOrientationColmapProperties2::AbsoluteOrientationColmapProperties2()
+{
+}
+
+
+void AbsoluteOrientationColmapProperties2::reset()
+{
+
+}
+
+QString AbsoluteOrientationColmapProperties2::name() const
+{
+  return QString("Colmap");
+}
+
+
+
+/*----------------------------------------------------------------*/
+
+
+
+AbsoluteOrientationColmapAlgorithm2::AbsoluteOrientationColmapAlgorithm2(const QString &inputPath,
+                                                                       const std::map<QString, std::array<double, 7>>  &cameraPositions,
+                                                                       const QString &outputPath)
+  : mInputPath(inputPath),
+    mCameraPositions(cameraPositions),
+    mOutputPath(outputPath)
+{
+}
+
+AbsoluteOrientationColmapAlgorithm2::~AbsoluteOrientationColmapAlgorithm2()
+{
+}
+
+void AbsoluteOrientationColmapAlgorithm2::run()
+{
+
+}
+
 
 } // namespace inspector

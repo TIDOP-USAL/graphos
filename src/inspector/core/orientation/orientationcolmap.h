@@ -150,6 +150,58 @@ private:
 };
 
 
+/*----------------------------------------------------------------*/
+
+class TL_EXPORT AbsoluteOrientationColmapProperties2
+  : public AbsoluteOrientation
+{
+
+public:
+
+  AbsoluteOrientationColmapProperties2();
+  ~AbsoluteOrientationColmapProperties2() override = default;
+
+// AbsoluteOrientation Interface
+
+public:
+
+  void reset() override;
+  QString name() const override;
+
+private:
+
+};
+
+
+/*----------------------------------------------------------------*/
+
+
+class AbsoluteOrientationColmapAlgorithm2
+  : public AbsoluteOrientationColmapProperties2,
+    public AbsoluteOrientationAlgorithm
+{
+
+public:
+
+  AbsoluteOrientationColmapAlgorithm2(const QString &inputPath,
+                                     const std::map<QString, std::array<double, 7>>  &cameraPositions,
+                                     const QString &outputPath);
+  ~AbsoluteOrientationColmapAlgorithm2() override;
+
+// AbsoluteOrientationAlgorithm interface
+
+public:
+
+  void run() override;
+
+private:
+
+  QString mInputPath;
+  std::map<QString, std::array<double, 7>> mCameraPositions;
+  QString mOutputPath;
+  
+};
+
 
 } // namespace inspector
 

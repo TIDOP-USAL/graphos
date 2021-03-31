@@ -3,6 +3,7 @@
 #include <inspector/core/project.h>
 #include <inspector/core/features/sift.h>
 #include <inspector/core/features/featio.h>
+#include <inspector/core/image.h>
 
 #include <tidop/core/utils.h>
 #include <tidop/core/messages.h>
@@ -108,6 +109,13 @@ public:
         
         colmap::Image image_colmap;
         image_colmap.SetName(image_name);
+        image_colmap.TvecPrior(0) = image.cameraPosition().x();
+        image_colmap.TvecPrior(1) = image.cameraPosition().y();
+        image_colmap.TvecPrior(2) = image.cameraPosition().z();
+        image_colmap.QvecPrior(0) = image.cameraPosition().quaternion().w;
+        image_colmap.QvecPrior(1) = image.cameraPosition().quaternion().x;
+        image_colmap.QvecPrior(2) = image.cameraPosition().quaternion().y;
+        image_colmap.QvecPrior(3) = image.cameraPosition().quaternion().z;
         image_colmap.SetCameraId(camera_id);
                 
         mutex.lock();
@@ -666,6 +674,32 @@ int main(int argc, char** argv)
 //    msgError(e.what());
 //    return 1;
 //  }
+
+/********************************************************************************/
+
+  //  for (auto it = project.imageBegin(); it != project.imageEnd(); it++) {
+  //    Image image = (*it);
+
+  //    std::string image_path = image.path().toStdString();
+  //    QFileInfo file_info(image.path());
+  //    QString image_name = file_info.fileName();
+
+  //    colmap::image_t image_id;
+
+  //    if (database.ExistsImageWithName(image_name.toStdString())) {
+
+  //      colmap::Image image_colmap = database.ReadImageWithName(image_name.toStdString());
+  //      image_id = image_colmap.ImageId();
+  //      QStringList l = image_name.split(" ");
+  //      image_colmap.SetName(QString(l[0]).append("_").append(l[1]).toStdString() );
+  //      database.UpdateImage(image_colmap);
+  //    }
+
+  //  }
+
+  //return 0;
+
+/********************************************************************************/
 
   QueueMPMC<queue_data> buffer(50);
   ProducerImp producer(&project,

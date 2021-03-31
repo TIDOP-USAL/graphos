@@ -78,7 +78,7 @@ QString OrientationModelImp::projectPath() const
   return mProject->projectFolder();
 }
 
-bool OrientationModelImp::gpsOrientation() const
+bool OrientationModelImp::gpsPositions() const
 {
   bool bGpsOrientation = false;
 
@@ -88,6 +88,23 @@ bool OrientationModelImp::gpsOrientation() const
     bGpsOrientation = true;
 
   return bGpsOrientation;
+}
+
+bool OrientationModelImp::rtkOrientations() const
+{
+  bool bRtkOrientations = false;
+
+  auto it = mProject->imageBegin();
+  CameraPosition cameraPosition = it->cameraPosition();
+  if (!cameraPosition.isEmpty()){
+    tl::math::Quaternion<double> q = cameraPosition.quaternion();
+    if (q.x == 0 && q.y == 0 && q.z == 0 && q.w == 0)
+      bRtkOrientations = false;
+    else 
+      bRtkOrientations = true;
+  }
+
+  return bRtkOrientations;
 }
 
 QString OrientationModelImp::reconstructionPath() const

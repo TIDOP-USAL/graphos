@@ -45,6 +45,17 @@ public slots:
   void setXFieldId(int id) override;
   void setYFieldId(int id) override;
   void setZFieldId(int id) override;
+  void setRotationType(const QString &rotationType) override;
+  void setQxFieldId(int id) override;
+  void setQyFieldId(int id) override;
+  void setQzFieldId(int id) override;
+  void setQwFieldId(int id) override;
+  void setYawFieldId(int id) override;
+  void setPitchFieldId(int id) override;
+  void setRollFieldId(int id) override;
+  void setOmegaFieldId(int id) override;
+  void setPhiFieldId(int id) override;
+  void setKappaFieldId(int id) override;
   void setInputCRS(const QString &crs) override;
   void setOutputCRS(const QString &crs) override;
   void importCameras() override;
@@ -67,6 +78,7 @@ protected:
   QString mDelimiter;
   QString mInputCrs;
   QString mOutputCrs;
+  QString mRotationType;
   std::map<QString, int> mFieldIds;
   QStandardItemModel *mItemModelCSV;
   QStandardItemModel *mItemModelCameras;

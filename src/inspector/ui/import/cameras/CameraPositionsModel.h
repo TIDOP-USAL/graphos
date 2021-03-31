@@ -39,6 +39,17 @@ public slots:
   virtual void setXFieldId(int id) = 0;
   virtual void setYFieldId(int id) = 0;
   virtual void setZFieldId(int id) = 0;
+  virtual void setRotationType(const QString &rotationType) = 0;
+  virtual void setQxFieldId(int id) = 0;
+  virtual void setQyFieldId(int id) = 0;
+  virtual void setQzFieldId(int id) = 0;
+  virtual void setQwFieldId(int id) = 0;
+  virtual void setYawFieldId(int id) = 0;
+  virtual void setPitchFieldId(int id) = 0;
+  virtual void setRollFieldId(int id) = 0;
+  virtual void setOmegaFieldId(int id) = 0;
+  virtual void setPhiFieldId(int id) = 0;
+  virtual void setKappaFieldId(int id) = 0;
   virtual void setInputCRS(const QString &crs) = 0;
   virtual void setOutputCRS(const QString &crs) = 0;
   virtual void importCameras() = 0;

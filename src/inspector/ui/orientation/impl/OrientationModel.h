@@ -35,7 +35,8 @@ public:
   QString database() const override;
   QString imagePath() const override;
   QString projectPath() const override;
-  bool gpsOrientation() const override;
+  bool gpsPositions() const override;
+  bool rtkOrientations() const override;
   QString reconstructionPath() const override;
   void setReconstructionPath(const QString &reconstructionPath) override;
   std::map<QString, std::array<double, 3>> cameraPositions() const override;

@@ -772,6 +772,22 @@ CameraPosition ProjectImp::readCameraPosition(QXmlStreamReader &stream)
       cameraPosition.setZ(readDouble(stream));
     } else if (stream.name() == "Source") {
       cameraPosition.setSource(stream.readElementText());
+    } else if (stream.name() == "QX") {
+      tl::math::Quaterniond q = cameraPosition.quaternion();
+      q.x = readDouble(stream);
+      cameraPosition.setQuaternion(q);
+    } else if (stream.name() == "QY") {
+      tl::math::Quaterniond q = cameraPosition.quaternion();
+      q.y = readDouble(stream);
+      cameraPosition.setQuaternion(q);
+    } else if (stream.name() == "QZ") {
+      tl::math::Quaterniond q = cameraPosition.quaternion();
+      q.z = readDouble(stream);
+      cameraPosition.setQuaternion(q);
+    } else if (stream.name() == "QW") {
+      tl::math::Quaterniond q = cameraPosition.quaternion();
+      q.w = readDouble(stream);
+      cameraPosition.setQuaternion(q);
     }
   }
 
@@ -1223,6 +1239,10 @@ void ProjectImp::writeCameraPosition(QXmlStreamWriter &stream,
       stream.writeTextElement("X", QString::number(cameraPosition.x(), 'f', 3));
       stream.writeTextElement("Y", QString::number(cameraPosition.y(), 'f', 3));
       stream.writeTextElement("Z", QString::number(cameraPosition.z(), 'f', 3));
+      stream.writeTextElement("QX", QString::number(cameraPosition.quaternion().x, 'f', 6));
+      stream.writeTextElement("QY", QString::number(cameraPosition.quaternion().y, 'f', 6));
+      stream.writeTextElement("QZ", QString::number(cameraPosition.quaternion().z, 'f', 6));
+      stream.writeTextElement("QW", QString::number(cameraPosition.quaternion().w, 'f', 6));
       stream.writeTextElement("Source", cameraPosition.source());
     }
     stream.writeEndElement();
