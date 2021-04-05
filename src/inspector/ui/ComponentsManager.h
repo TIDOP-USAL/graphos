@@ -34,8 +34,8 @@ class ExportOrientationsModel;
 class ExportOrientationsPresenter;
 class GeoreferenceModel;
 class GeoreferencePresenter;
-class CamerasImportModel;
-class CamerasImportPresenter;
+//class CamerasImportModel;
+//class ImportCamerasPresenter;
 class ExportPointCloudModel;
 class ExportPointCloudPresenter;
 class HelpDialog;
@@ -82,8 +82,8 @@ public:
   ExportOrientationsPresenter *exportOrientationsPresenter();
   GeoreferenceModel *georeferenceModel();
   GeoreferencePresenter *georeferencePresenter();
-  CamerasImportModel *camerasImportModel();
-  CamerasImportPresenter *camerasImportPresenter();
+  //CamerasImportModel *camerasImportModel();
+  //ImportCamerasPresenter *ImportCamerasPresenter();
   ExportPointCloudModel *exportPointCloudModel();
   ExportPointCloudPresenter *exportPointCloudPresenter();
 
@@ -105,7 +105,7 @@ protected slots:
   void initSettingsDialog();
   void initAndOpenExportOrientationsDialog();
   void initAndOpenGeoreferenceDialog();
-  void initAndOpenCamerasImportDialog();
+  //void initAndOpenCamerasImportDialog();
   void initAndOpenExportPointCloudDialog();
 
 protected:
@@ -116,6 +116,7 @@ protected:
   Project *mProject;
   Component *mCreateProjectComponent;
   Component *mOpenProjectComponent;
+  Component *mImportCamerasComponent;
 
   ProjectModel *mProjectModel;
   CamerasModel *mCamerasModel;
@@ -132,8 +133,8 @@ protected:
   ExportOrientationsPresenter *mExportOrientationsPresenter;
   GeoreferenceModel *mGeoreferenceModel;
   GeoreferencePresenter *mGeoreferencePresenter;
-  CamerasImportModel *mCamerasImportModel;
-  CamerasImportPresenter *mCamerasImportPresenter;
+  //CamerasImportModel *mCamerasImportModel;
+  //ImportCamerasPresenter *mImportCamerasPresenter;
   ExportPointCloudModel *mExportPointCloudModel;
   ExportPointCloudPresenter *mExportPointCloudPresenter;
   //AboutDialog *mAboutDialog;

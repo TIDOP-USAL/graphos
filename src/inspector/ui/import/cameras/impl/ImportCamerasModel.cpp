@@ -1,4 +1,4 @@
-#include "CameraPositionsModel.h"
+#include "ImportCamerasModel.h"
 
 #include "inspector/core/project.h"
 
@@ -20,13 +20,14 @@ namespace inspector
 namespace ui
 {
 
-CamerasImportModelImp::CamerasImportModelImp(Project *project,
+ImportCamerasModelImp::ImportCamerasModelImp(Project *project,
                                              QObject *parent)
-  : CamerasImportModel(parent),
+  : ImportCamerasModel(parent),
     mProject(project),
     mCsvFile(""),
     bFieldNamesFromFirstRow(true),
     mDelimiter(","),
+    mIniLine(0),
     mInputCrs(""),
     mItemModelCSV(new QStandardItemModel(this)),
     mItemModelCameras(new QStandardItemModel(this))
@@ -34,36 +35,37 @@ CamerasImportModelImp::CamerasImportModelImp(Project *project,
   this->init();
 }
 
-QStandardItemModel *CamerasImportModelImp::itemModelCSV()
+QStandardItemModel *ImportCamerasModelImp::itemModelCSV()
 {
   return mItemModelCSV;
 }
 
-QStandardItemModel *CamerasImportModelImp::itemModelFormatCameras()
+QStandardItemModel *ImportCamerasModelImp::itemModelFormatCameras()
 {
   return mItemModelCameras;
 }
 
-void CamerasImportModelImp::setCsvFile(const QString &csv)
+void ImportCamerasModelImp::setCsvFile(const QString &csv)
 {
   mCsvFile = csv;
 }
 
-void CamerasImportModelImp::init()
+void ImportCamerasModelImp::init()
 {
 }
 
-void CamerasImportModelImp::clear()
+void ImportCamerasModelImp::clear()
 {
   mCsvFile.clear();
   bFieldNamesFromFirstRow = true;
   mDelimiter = ",";
+  mIniLine = 0;
   mInputCrs = "";
   mItemModelCSV->clear();
   mItemModelCameras->clear();
 }
 
-void CamerasImportModelImp::previewImportCameras()
+void ImportCamerasModelImp::previewImportCameras()
 {
   mItemModelCSV->clear();
 
@@ -72,6 +74,12 @@ void CamerasImportModelImp::previewImportCameras()
   QFile file(mCsvFile);
   if (file.open(QFile::ReadOnly | QFile::Text)){
     QTextStream stream(&file);
+
+    if (mIniLine) {
+
+      for (size_t i = 0; i < mIniLine; i++)
+        stream.readLine();
+    }
 
     QString line;
     if (bFieldNamesFromFirstRow){
@@ -149,7 +157,7 @@ void CamerasImportModelImp::previewImportCameras()
   }
 }
 
-void CamerasImportModelImp::previewImportCamerasFormated()
+void ImportCamerasModelImp::previewImportCamerasFormated()
 {
   bool checkX = false;
   bool checkY = false;
@@ -185,6 +193,11 @@ void CamerasImportModelImp::previewImportCamerasFormated()
   QFile file(mCsvFile);
   if (file.open(QFile::ReadOnly | QFile::Text)){
     QTextStream stream(&file);
+
+    if (mIniLine) {
+      for (size_t i = 0; i < mIniLine; i++)
+        stream.readLine();
+    }
 
     QString line;
     if (bFieldNamesFromFirstRow){
@@ -371,127 +384,138 @@ void CamerasImportModelImp::previewImportCamerasFormated()
   }
 }
 
-void CamerasImportModelImp::loadCameras()
+void ImportCamerasModelImp::loadCameras()
 {
   ///TODO: leer de proyecto
 
 }
 
-void CamerasImportModelImp::setFieldNamesFromFirstRow(bool active)
+void ImportCamerasModelImp::setFieldNamesFromFirstRow(bool active)
 {
   bFieldNamesFromFirstRow = active;
 }
 
-void CamerasImportModelImp::setDelimiter(const QString &delimiter)
+void ImportCamerasModelImp::setDelimiter(const QString &delimiter)
 {
   mDelimiter = delimiter;
 }
 
-void CamerasImportModelImp::setImageFieldId(int id)
+void ImportCamerasModelImp::setInitialLine(int iniLine)
+{
+  mIniLine = iniLine;
+  previewImportCamerasFormated();
+}
+
+void ImportCamerasModelImp::setImageFieldId(int id)
 {
   mFieldIds["Image"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setXFieldId(int id)
+void ImportCamerasModelImp::setXFieldId(int id)
 {
   mFieldIds["X"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setYFieldId(int id)
+void ImportCamerasModelImp::setYFieldId(int id)
 {
   mFieldIds["Y"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setZFieldId(int id)
+void ImportCamerasModelImp::setZFieldId(int id)
 {
   mFieldIds["Z"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setRotationType(const QString &rotationType)
+void ImportCamerasModelImp::setRotationType(const QString &rotationType)
 {
   mRotationType = rotationType;
 }
 
-void CamerasImportModelImp::setQxFieldId(int id)
+void ImportCamerasModelImp::setQxFieldId(int id)
 {
   mFieldIds["Qx"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setQyFieldId(int id)
+void ImportCamerasModelImp::setQyFieldId(int id)
 {
   mFieldIds["Qy"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setQzFieldId(int id)
+void ImportCamerasModelImp::setQzFieldId(int id)
 {
   mFieldIds["Qz"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setQwFieldId(int id)
+void ImportCamerasModelImp::setQwFieldId(int id)
 {
   mFieldIds["Qw"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setYawFieldId(int id)
+void ImportCamerasModelImp::setYawFieldId(int id)
 {
   mFieldIds["Yaw"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setPitchFieldId(int id)
+void ImportCamerasModelImp::setPitchFieldId(int id)
 {
   mFieldIds["Pitch"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setRollFieldId(int id)
+void ImportCamerasModelImp::setRollFieldId(int id)
 {
   mFieldIds["Roll"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setOmegaFieldId(int id)
+void ImportCamerasModelImp::setOmegaFieldId(int id)
 {
   mFieldIds["Omega"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setPhiFieldId(int id)
+void ImportCamerasModelImp::setPhiFieldId(int id)
 {
   mFieldIds["Phi"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setKappaFieldId(int id)
+void ImportCamerasModelImp::setKappaFieldId(int id)
 {
   mFieldIds["Kappa"] = id-1;
   previewImportCamerasFormated();
 }
 
-void CamerasImportModelImp::setInputCRS(const QString &crs)
+void ImportCamerasModelImp::setInputCRS(const QString &crs)
 {
   mInputCrs = crs;
 }
 
-void CamerasImportModelImp::setOutputCRS(const QString &crs)
+void ImportCamerasModelImp::setOutputCRS(const QString &crs)
 {
   mOutputCrs = crs;
 }
 
-void CamerasImportModelImp::importCameras()
+void ImportCamerasModelImp::importCameras()
 {
 
   QFile file(mCsvFile);
   if (file.open(QFile::ReadOnly | QFile::Text)){
     QTextStream stream(&file);
+
+    if (mIniLine) {
+      for (size_t i = 0; i < mIniLine; i++)
+        stream.readLine();
+    }
 
     QString line;
     if (bFieldNamesFromFirstRow){
@@ -685,7 +709,7 @@ void CamerasImportModelImp::importCameras()
 
 }
 
-bool CamerasImportModelImp::checkCRS(const QString &crs)
+bool ImportCamerasModelImp::checkCRS(const QString &crs)
 {
   tl::geospatial::Crs _crs(crs.toStdString());
   return _crs.isValid();

@@ -1,7 +1,7 @@
-#ifndef INSPECTOR_CAMERA_POSITIONS_MODEL_H
-#define INSPECTOR_CAMERA_POSITIONS_MODEL_H
+#ifndef INSPECTOR_IMPORT_CAMERAS_MODEL_H
+#define INSPECTOR_IMPORT_CAMERAS_MODEL_H
 
-#include "inspector/ui/import/cameras/CameraPositionsModel.h"
+#include "inspector/ui/import/cameras/ImportCamerasModel.h"
 
 
 namespace inspector
@@ -12,19 +12,19 @@ class Project;
 namespace ui
 {
 
-class CamerasImportModelImp
-  : public CamerasImportModel
+class ImportCamerasModelImp
+  : public ImportCamerasModel
 {
 
   Q_OBJECT
 
 public:
 
-  CamerasImportModelImp(Project *project,
+  ImportCamerasModelImp(Project *project,
                        QObject *parent = nullptr);
-  ~CamerasImportModelImp() override = default;
+  ~ImportCamerasModelImp() override = default;
 
-// CamerasImportModel interface
+// ImportCamerasModel interface
 
 public:
 
@@ -41,6 +41,7 @@ public slots:
 
   void setFieldNamesFromFirstRow(bool active) override;
   void setDelimiter(const QString &delimiter) override;
+  void setInitialLine(int iniLine) override;
   void setImageFieldId(int id) override;
   void setXFieldId(int id) override;
   void setYFieldId(int id) override;
@@ -76,6 +77,7 @@ protected:
   QString mCsvFile;
   bool bFieldNamesFromFirstRow;
   QString mDelimiter;
+  int mIniLine;
   QString mInputCrs;
   QString mOutputCrs;
   QString mRotationType;
@@ -88,4 +90,4 @@ protected:
 
 } // namespace inspector
 
-#endif // INSPECTOR_CAMERA_POSITIONS_MODEL_H
+#endif // INSPECTOR_IMPORT_CAMERAS_MODEL_H

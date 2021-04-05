@@ -1,7 +1,7 @@
-#ifndef INSPECTOR_CAMERA_POSITIONS_PRESENTER_H
-#define INSPECTOR_CAMERA_POSITIONS_PRESENTER_H
+#ifndef INSPECTOR_IMPORT_CAMERAS_PRESENTER_H
+#define INSPECTOR_IMPORT_CAMERAS_PRESENTER_H
 
-#include "inspector/ui/import/cameras/CameraPositionsPresenter.h"
+#include "inspector/ui/import/cameras/ImportCamerasPresenter.h"
 
 namespace inspector
 {
@@ -9,21 +9,21 @@ namespace inspector
 namespace ui
 {
 
-class CamerasImportView;
-class CamerasImportModel;
+class ImportCamerasView;
+class ImportCamerasModel;
 class HelpDialog;
 
-class CamerasImportPresenterImp
-  : public CamerasImportPresenter
+class ImportCamerasPresenterImp
+  : public ImportCamerasPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  CamerasImportPresenterImp(CamerasImportView *view,
-                            CamerasImportModel *model);
-  ~CamerasImportPresenterImp() override;
+  ImportCamerasPresenterImp(ImportCamerasView *view,
+                            ImportCamerasModel *model);
+  ~ImportCamerasPresenterImp() override;
 
 private slots:
 
@@ -50,8 +50,8 @@ private:
 
 private:
 
-  CamerasImportView *mView;
-  CamerasImportModel *mModel;
+  ImportCamerasView *mView;
+  ImportCamerasModel *mModel;
   HelpDialog *mHelp;
 //  QString mFile;
 
@@ -61,4 +61,4 @@ private:
 
 } // namespace inspector
 
-#endif // INSPECTOR_CAMERA_POSITIONS_PRESENTER_H
+#endif // INSPECTOR_IMPORT_CAMERAS_PRESENTER_H

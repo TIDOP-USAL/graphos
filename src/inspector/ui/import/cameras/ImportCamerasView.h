@@ -1,5 +1,5 @@
-#ifndef INSPECTOR_CAMERA_POSITIONS_VIEW_INTERFACE_H
-#define INSPECTOR_CAMERA_POSITIONS_VIEW_INTERFACE_H
+#ifndef INSPECTOR_IMPORT_CAMERAS_VIEW_INTERFACE_H
+#define INSPECTOR_IMPORT_CAMERAS_VIEW_INTERFACE_H
 
 #include "inspector/interfaces/mvp.h"
 
@@ -11,7 +11,7 @@ namespace inspector
 namespace ui
 {
 
-class CamerasImportView
+class ImportCamerasView
   : public IDialogView
 {
 
@@ -19,8 +19,8 @@ class CamerasImportView
 
 public:
 
-  CamerasImportView(QWidget *parent) : IDialogView(parent) {}
-  ~CamerasImportView() override = default;
+  ImportCamerasView(QWidget *parent) : IDialogView(parent) {}
+  ~ImportCamerasView() override = default;
 
   virtual QString delimiter() const = 0;
 
@@ -52,6 +52,7 @@ signals:
   void previewCSV();
   void delimiterChanged(QString);
   void loadFieldNamesFromFirstRow(bool);
+  void skipLines(int);
   void imageColumnChange(const QString &);
   void imageFieldIdChanged(int);
   void xFieldIdChanged(int);
@@ -76,4 +77,4 @@ signals:
 
 } // namespace inspector
 
-#endif // INSPECTOR_CAMERA_POSITIONS_VIEW_INTERFACE_H
+#endif // INSPECTOR_IMPORT_CAMERAS_VIEW_INTERFACE_H

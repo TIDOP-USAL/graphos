@@ -87,9 +87,10 @@ set(INSPECTOR_SOURCES
     georeference/impl/GeoreferenceModel.cpp
     georeference/impl/GeoreferenceView.cpp
     georeference/impl/GeoreferencePresenter.cpp
-    import/cameras/impl/CameraPositionsModel.cpp
-    import/cameras/impl/CameraPositionsView.cpp
-    import/cameras/impl/CameraPositionsPresenter.cpp
+    import/cameras/ImportCamerasComponent.cpp
+	import/cameras/impl/ImportCamerasModel.cpp
+    import/cameras/impl/ImportCamerasView.cpp
+    import/cameras/impl/ImportCamerasPresenter.cpp
     dtm/DTMComponent.cpp
     dtm/impl/DTMModel.cpp
     dtm/impl/DTMView.cpp
@@ -225,12 +226,13 @@ set(INSPECTOR_HEADERS
     georeference/impl/GeoreferenceModel.h
     georeference/impl/GeoreferencePresenter.h
     georeference/impl/GeoreferenceView.h
-    import/cameras/CameraPositionsModel.h
-    import/cameras/CameraPositionsView.h
-    import/cameras/CameraPositionsPresenter.h
-    import/cameras/impl/CameraPositionsModel.h
-    import/cameras/impl/CameraPositionsView.h
-    import/cameras/impl/CameraPositionsPresenter.h
+    import/cameras/ImportCamerasComponent.h
+    import/cameras/ImportCamerasModel.h
+    import/cameras/ImportCamerasView.h
+    import/cameras/ImportCamerasPresenter.h
+    import/cameras/impl/ImportCamerasModel.h
+    import/cameras/impl/ImportCamerasView.h
+    import/cameras/impl/ImportCamerasPresenter.h
     dtm/DTMComponent.h
     dtm/DTMModel.h
     dtm/DTMView.h

@@ -1,4 +1,4 @@
-#include "CameraPositionsView.h"
+#include "ImportCamerasView.h"
 
 #include <QIcon>
 #include <QGridLayout>
@@ -24,25 +24,25 @@ namespace inspector
 namespace ui
 {
 
-CamerasImportViewImp::CamerasImportViewImp(QWidget *parent)
-  : CamerasImportView(parent)
+ImportCamerasViewImp::ImportCamerasViewImp(QWidget *parent)
+  : ImportCamerasView(parent)
 {
   this->initUI();
   this->initSignalAndSlots();
 }
 
-CamerasImportViewImp::~CamerasImportViewImp()
+ImportCamerasViewImp::~ImportCamerasViewImp()
 {
 
 }
 
-void CamerasImportViewImp::onDelimiterChanged()
+void ImportCamerasViewImp::onDelimiterChanged()
 {
   emit delimiterChanged(this->delimiter());
   emit previewCSV();
 }
 
-QString CamerasImportViewImp::delimiter() const
+QString ImportCamerasViewImp::delimiter() const
 {
   QString delimiter;
   if (mRadioButtonTab->isChecked()){
@@ -59,21 +59,15 @@ QString CamerasImportViewImp::delimiter() const
   return delimiter;
 }
 
-void CamerasImportViewImp::initUI()
+void ImportCamerasViewImp::initUI()
 {
   this->setObjectName(QStringLiteral("ExportOrientationsView"));
   this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
-  this->resize(800, 600);
-  this->setMaximumWidth(1000);
+  this->resize(1000, 800);
+  this->setMaximumWidth(1200);
 
   QGridLayout *gridLayout = new QGridLayout();
   this->setLayout(gridLayout);
-
-//  mLabelImportRow = new QLabel(this);
-//  gridLayout->addWidget(mLabelImportRow, 0, 0, 1, 1);
-
-//  mSpinBoxImportRow = new QSpinBox(this);
-//  gridLayout->addWidget(mSpinBoxImportRow, 0, 1, 1, 1);
 
   mGroupBoxDelimiter = new QGroupBox(this);
   QGridLayout *gridLayoutDelimiter = new QGridLayout(mGroupBoxDelimiter);
@@ -94,11 +88,19 @@ void CamerasImportViewImp::initUI()
   mCheckBoxFieldNamesAuto = new QCheckBox(this);
   gridLayout->addWidget(mCheckBoxFieldNamesAuto, 1, 0, 1, 1);
 
+  mLabelSkipLines = new QLabel(this);
+  gridLayout->addWidget(mLabelSkipLines, 2, 0, 1, 1);
+
+  mSpinBoxSkipLines = new QSpinBox(this);
+  gridLayout->addWidget(mSpinBoxSkipLines, 2, 1, 1, 1);
+
   mLabelPreview = new QLabel(this);
-  gridLayout->addWidget(mLabelPreview, 2, 0, 1, 1);
+  gridLayout->addWidget(mLabelPreview, 3, 0, 1, 1);
 
   mTableViewImportCameras = new QTableView(this);
-  gridLayout->addWidget(mTableViewImportCameras, 3, 0, 1, 3);
+  //QHeaderView::ResizeToContents
+  //mTableViewImportCameras->setMaximumWidth(600);
+  gridLayout->addWidget(mTableViewImportCameras, 4, 0, 1, 3);
 
   mGroupBoxColumns = new QGroupBox(this);
   QGridLayout *gridLayoutColumns = new QGridLayout(mGroupBoxColumns);
@@ -277,7 +279,7 @@ void CamerasImportViewImp::initUI()
   gridLayoutColumns->addItem(horizontalSpacer_2, 0, 2, 1, 1);
 
 
-  gridLayout->addWidget(mGroupBoxColumns, 4, 0, 1, 3);
+  gridLayout->addWidget(mGroupBoxColumns, 5, 0, 1, 3);
 
   mLabelCameras = new QLabel(this);
   gridLayout->addWidget(mLabelPreview, 5, 0, 1, 1);
@@ -288,49 +290,50 @@ void CamerasImportViewImp::initUI()
   mButtonBox = new QDialogButtonBox(this);
   mButtonBox->setOrientation(Qt::Horizontal);
   mButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 7, 2, 1, 1);
+  gridLayout->addWidget(mButtonBox, 8, 2, 1, 1);
 
   this->retranslate();
   this->clear();
   this->update();
 }
 
-void CamerasImportViewImp::initSignalAndSlots()
+void ImportCamerasViewImp::initSignalAndSlots()
 {
-  //connect(mLineEditImportCameras, &QLineEdit::textChanged,   this, &CamerasImportViewImp::update);
-  //connect(mPushButtonImportGroundControlPoints,  &QAbstractButton::clicked, this, &CamerasImportViewImp::openFile);
+  //connect(mLineEditImportCameras, &QLineEdit::textChanged,   this, &ImportCamerasViewImp::update);
+  //connect(mPushButtonImportGroundControlPoints,  &QAbstractButton::clicked, this, &ImportCamerasViewImp::openFile);
 
-  connect(mRadioButtonTab, &QRadioButton::released, this, &CamerasImportViewImp::onDelimiterChanged);
-  connect(mRadioButtonComma, &QRadioButton::released, this, &CamerasImportViewImp::onDelimiterChanged);
-  connect(mRadioButtonSpace, &QRadioButton::released, this, &CamerasImportViewImp::onDelimiterChanged);
-  connect(mRadioButtonSemicolon, &QRadioButton::released, this, &CamerasImportViewImp::onDelimiterChanged);
-  connect(mRadioButtonOther, &QRadioButton::released, this, &CamerasImportViewImp::onDelimiterChanged);
-  connect(mRadioButtonOther, &QRadioButton::released, this, &CamerasImportViewImp::update);
-  connect(mLineEditOther, &QLineEdit::textChanged, this, &CamerasImportViewImp::onDelimiterChanged);
-  connect(mCheckBoxFieldNamesAuto, &QCheckBox::clicked, this, &CamerasImportView::loadFieldNamesFromFirstRow);
-  connect(mComboBoxImageColumn, &QComboBox::currentTextChanged, this, &CamerasImportView::imageColumnChange);
-  connect(mComboBoxImageColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::imageFieldIdChanged);
-  //connect(mComboBoxImageColumn, &QComboBox::currentTextChanged, this, &CamerasImportViewImp::update);
-  connect(mComboBoxXColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::xFieldIdChanged);
-  connect(mComboBoxYColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::yFieldIdChanged);
-  connect(mComboBoxZColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::zFieldIdChanged);
-  //connect(mComboBoxXColumn, &QComboBox::currentTextChanged, this, &CamerasImportViewImp::update);
-  //connect(mComboBoxYColumn, &QComboBox::currentTextChanged, this, &CamerasImportViewImp::update);
-  //connect(mComboBoxZColumn, &QComboBox::currentTextChanged, this, &CamerasImportViewImp::update);
-  connect(mComboBoxQxColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::qxFieldChange);
-  connect(mComboBoxQyColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::qyFieldChange);
-  connect(mComboBoxQzColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::qzFieldChange);
-  connect(mComboBoxQwColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::qwFieldChange);
-  connect(mComboBoxYawColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::yawFieldChange);
-  connect(mComboBoxPitchColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::pitchFieldChange);
-  connect(mComboBoxRollColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::rollFieldChange);
-  connect(mComboBoxOmegaColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::omegaFieldChange);
-  connect(mComboBoxPhiColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::phiFieldChange);
-  connect(mComboBoxKappaColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &CamerasImportView::kappaFieldChange);
+  connect(mRadioButtonTab, &QRadioButton::released, this, &ImportCamerasViewImp::onDelimiterChanged);
+  connect(mRadioButtonComma, &QRadioButton::released, this, &ImportCamerasViewImp::onDelimiterChanged);
+  connect(mRadioButtonSpace, &QRadioButton::released, this, &ImportCamerasViewImp::onDelimiterChanged);
+  connect(mRadioButtonSemicolon, &QRadioButton::released, this, &ImportCamerasViewImp::onDelimiterChanged);
+  connect(mRadioButtonOther, &QRadioButton::released, this, &ImportCamerasViewImp::onDelimiterChanged);
+  connect(mRadioButtonOther, &QRadioButton::released, this, &ImportCamerasViewImp::update);
+  connect(mLineEditOther, &QLineEdit::textChanged, this, &ImportCamerasViewImp::onDelimiterChanged);
+  connect(mCheckBoxFieldNamesAuto, &QCheckBox::clicked, this, &ImportCamerasView::loadFieldNamesFromFirstRow);
+  connect(mSpinBoxSkipLines, QOverload<int>::of(&QSpinBox::valueChanged), this, &ImportCamerasView::skipLines);
+  connect(mComboBoxImageColumn, &QComboBox::currentTextChanged, this, &ImportCamerasView::imageColumnChange);
+  connect(mComboBoxImageColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::imageFieldIdChanged);
+  //connect(mComboBoxImageColumn, &QComboBox::currentTextChanged, this, &ImportCamerasViewImp::update);
+  connect(mComboBoxXColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::xFieldIdChanged);
+  connect(mComboBoxYColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::yFieldIdChanged);
+  connect(mComboBoxZColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::zFieldIdChanged);
+  //connect(mComboBoxXColumn, &QComboBox::currentTextChanged, this, &ImportCamerasViewImp::update);
+  //connect(mComboBoxYColumn, &QComboBox::currentTextChanged, this, &ImportCamerasViewImp::update);
+  //connect(mComboBoxZColumn, &QComboBox::currentTextChanged, this, &ImportCamerasViewImp::update);
+  connect(mComboBoxQxColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::qxFieldChange);
+  connect(mComboBoxQyColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::qyFieldChange);
+  connect(mComboBoxQzColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::qzFieldChange);
+  connect(mComboBoxQwColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::qwFieldChange);
+  connect(mComboBoxYawColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::yawFieldChange);
+  connect(mComboBoxPitchColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::pitchFieldChange);
+  connect(mComboBoxRollColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::rollFieldChange);
+  connect(mComboBoxOmegaColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::omegaFieldChange);
+  connect(mComboBoxPhiColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::phiFieldChange);
+  connect(mComboBoxKappaColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::kappaFieldChange);
   connect(mComboBoxRotation, QOverload<int>::of(&QComboBox::currentIndexChanged), mStackedWidget, &QStackedWidget::setCurrentIndex);
-  connect(mComboBoxRotation, &QComboBox::currentTextChanged, this, &CamerasImportView::rotationChange);
-  connect(mLineEditCrsInput, &QLineEdit::textChanged, this, &CamerasImportViewImp::crsInputChanged);
-  connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &CamerasImportViewImp::crsOutputChanged);
+  connect(mComboBoxRotation, &QComboBox::currentTextChanged, this, &ImportCamerasView::rotationChange);
+  connect(mLineEditCrsInput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsInputChanged);
+  connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsOutputChanged);
 
 //  connect(mComboBoxImageColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
 //  connect(mComboBoxXColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
@@ -342,7 +345,7 @@ void CamerasImportViewImp::initSignalAndSlots()
   connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked,   this, &IDialogView::help);
 }
 
-void CamerasImportViewImp::clear()
+void ImportCamerasViewImp::clear()
 {
   QSignalBlocker blocker1(mRadioButtonComma);
   QSignalBlocker blocker2(mComboBoxImageColumn);
@@ -386,7 +389,7 @@ void CamerasImportViewImp::clear()
   update();
 }
 
-void CamerasImportViewImp::update()
+void ImportCamerasViewImp::update()
 {
 //  QFileInfo file_info(mLineEditImportCameras->text());
 //  bool file_exist = file_info.exists();
@@ -403,7 +406,7 @@ void CamerasImportViewImp::update()
 //  bool by = mComboBoxYColumn->currentText().compare("--") != 0;
 //  bool bz = mComboBoxZColumn->currentText().compare("--") != 0;
 
-//  mPushButtonCameraPositions->setEnabled(file_exist && bx && by && bz);
+//  mPushButtonImportCameras->setEnabled(file_exist && bx && by && bz);
 
 //  QString rotation = mComboBoxRotation->currentText();
 //  bool bQuaternions = rotation.compare("Quaternions") == 0;
@@ -448,50 +451,50 @@ void CamerasImportViewImp::update()
   mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(bParseOk && bValidCRS);
 }
 
-void CamerasImportViewImp::retranslate()
+void ImportCamerasViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("CamerasImportViewImp", "Import cameras", nullptr));
-  mGroupBoxDelimiter->setTitle(QCoreApplication::translate("CamerasImportViewImp", "Delimiter", nullptr));
-  mRadioButtonTab->setText(QCoreApplication::translate("CamerasImportViewImp", "Tab", nullptr));
-  mRadioButtonComma->setText(QCoreApplication::translate("CamerasImportViewImp", "Comma", nullptr));
-  mRadioButtonSpace->setText(QCoreApplication::translate("CamerasImportViewImp", "Space", nullptr));
-  mRadioButtonSemicolon->setText(QCoreApplication::translate("CamerasImportViewImp", "Semicolon", nullptr));
-  mRadioButtonOther->setText(QCoreApplication::translate("CamerasImportViewImp", "Other", nullptr));
-  mCheckBoxFieldNamesAuto->setText(QCoreApplication::translate("CamerasImportViewImp", "First record has field names", nullptr));
-  //mLabelImportRow->setText(QCoreApplication::translate("CamerasImportViewImp", "From file", nullptr));
-  mGroupBoxColumns->setTitle(QCoreApplication::translate("CamerasImportViewImp", "Columns", nullptr));
-  mLabelImageColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Image name:", nullptr));
-  mGroupBoxCoordinates->setTitle(QCoreApplication::translate("CamerasImportViewImp", "Coordinates", nullptr));
-  mLabelYColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Y:", nullptr));
-  mLabelXColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "X:", nullptr));
-  mLabelZColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Z:", nullptr));
-  mLabelCrs->setText(QCoreApplication::translate("CamerasImportViewImp", "CRS Input:", nullptr));
-  mLabelCrsOut->setText(QCoreApplication::translate("CamerasImportViewImp", "CRS Output:", nullptr));
-  mGroupBoxRotations->setTitle(QCoreApplication::translate("CamerasImportViewImp", "Rotations", nullptr));
-  mLabelRotation->setText(QCoreApplication::translate("CamerasImportViewImp", "Rotation", nullptr));
-  mComboBoxRotation->setItemText(0, QCoreApplication::translate("CamerasImportViewImp", "Quaternions", nullptr));
-  mComboBoxRotation->setItemText(1, QCoreApplication::translate("CamerasImportViewImp", "Yaw, Pitch, Roll", nullptr));
-  mComboBoxRotation->setItemText(2, QCoreApplication::translate("CamerasImportViewImp", "Omega, Phi, Kappa", nullptr));
-  mLabelQxColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Qx:", nullptr));
-  mLabelQyColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Qy:", nullptr));
-  mLabelQzColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Qz:", nullptr));
-  mLabelQwColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Qw:", nullptr));
-  mLabelYawColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Yaw:", nullptr));
-  mLabelPitchColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Pitch:", nullptr));
-  mLabelRollColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Roll:", nullptr));
-  mLabelOmegaColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Omega:", nullptr));
-  mLabelPhiColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Phi:", nullptr));
-  mLabelKappaColumn->setText(QCoreApplication::translate("CamerasImportViewImp", "Kappa:", nullptr));
-  mLabelPreview->setText(QCoreApplication::translate("CamerasImportViewImp", "Preview:", nullptr));
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("CamerasImportViewImp", "Cancel", nullptr));
-  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("CamerasImportViewImp", "Save", nullptr));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CamerasImportViewImp", "Help", nullptr));
+  this->setWindowTitle(QApplication::translate("ImportCamerasViewImp", "Import cameras", nullptr));
+  mGroupBoxDelimiter->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Delimiter", nullptr));
+  mRadioButtonTab->setText(QCoreApplication::translate("ImportCamerasViewImp", "Tab", nullptr));
+  mRadioButtonComma->setText(QCoreApplication::translate("ImportCamerasViewImp", "Comma", nullptr));
+  mRadioButtonSpace->setText(QCoreApplication::translate("ImportCamerasViewImp", "Space", nullptr));
+  mRadioButtonSemicolon->setText(QCoreApplication::translate("ImportCamerasViewImp", "Semicolon", nullptr));
+  mRadioButtonOther->setText(QCoreApplication::translate("ImportCamerasViewImp", "Other", nullptr));
+  mCheckBoxFieldNamesAuto->setText(QCoreApplication::translate("ImportCamerasViewImp", "First record has field names", nullptr));
+  mLabelSkipLines->setText(QCoreApplication::translate("ImportCamerasViewImp", "Skip lines", nullptr));
+  mGroupBoxColumns->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Columns", nullptr));
+  mLabelImageColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Image name:", nullptr));
+  mGroupBoxCoordinates->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Coordinates", nullptr));
+  mLabelYColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Y:", nullptr));
+  mLabelXColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "X:", nullptr));
+  mLabelZColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Z:", nullptr));
+  mLabelCrs->setText(QCoreApplication::translate("ImportCamerasViewImp", "CRS Input:", nullptr));
+  mLabelCrsOut->setText(QCoreApplication::translate("ImportCamerasViewImp", "CRS Output:", nullptr));
+  mGroupBoxRotations->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Rotations", nullptr));
+  mLabelRotation->setText(QCoreApplication::translate("ImportCamerasViewImp", "Rotation", nullptr));
+  mComboBoxRotation->setItemText(0, QCoreApplication::translate("ImportCamerasViewImp", "Quaternions", nullptr));
+  mComboBoxRotation->setItemText(1, QCoreApplication::translate("ImportCamerasViewImp", "Yaw, Pitch, Roll", nullptr));
+  mComboBoxRotation->setItemText(2, QCoreApplication::translate("ImportCamerasViewImp", "Omega, Phi, Kappa", nullptr));
+  mLabelQxColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Qx:", nullptr));
+  mLabelQyColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Qy:", nullptr));
+  mLabelQzColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Qz:", nullptr));
+  mLabelQwColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Qw:", nullptr));
+  mLabelYawColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Yaw:", nullptr));
+  mLabelPitchColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Pitch:", nullptr));
+  mLabelRollColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Roll:", nullptr));
+  mLabelOmegaColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Omega:", nullptr));
+  mLabelPhiColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Phi:", nullptr));
+  mLabelKappaColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Kappa:", nullptr));
+  mLabelPreview->setText(QCoreApplication::translate("ImportCamerasViewImp", "Preview:", nullptr));
+  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ImportCamerasViewImp", "Cancel", nullptr));
+  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ImportCamerasViewImp", "Save", nullptr));
+  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ImportCamerasViewImp", "Help", nullptr));
 
-  //mPushButtonImportGroundControlPoints->setText(QCoreApplication::translate("CamerasImportViewImp", "Import Cameras", nullptr));
-  //mPushButtonCameraPositions->setText(QCoreApplication::translate("CamerasImportViewImp", "CameraPositions", nullptr));
+  //mPushButtonImportGroundControlPoints->setText(QCoreApplication::translate("ImportCamerasViewImp", "Import Cameras", nullptr));
+  //mPushButtonImportCameras->setText(QCoreApplication::translate("ImportCamerasViewImp", "ImportCameras", nullptr));
 }
 
-//void CamerasImportViewImp::openFile()
+//void ImportCamerasViewImp::openFile()
 //{
 //  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
 //                                              tr("Orientation cameras file"),
@@ -504,12 +507,12 @@ void CamerasImportViewImp::retranslate()
 //  }
 //}
 
-//QString CamerasImportViewImp::orientationFile() const
+//QString ImportCamerasViewImp::orientationFile() const
 //{
 //  return mLineEditImportCameras->text();
 //}
 
-void CamerasImportViewImp::setTableHeader(const QStringList &header)
+void ImportCamerasViewImp::setTableHeader(const QStringList &header)
 {
   QSignalBlocker blocker2(mComboBoxImageColumn);
   QSignalBlocker blocker3(mComboBoxXColumn);
@@ -563,12 +566,12 @@ void CamerasImportViewImp::setTableHeader(const QStringList &header)
 //  model->setHorizontalHeaderLabels(header);
 }
 
-void CamerasImportViewImp::setItemModel(QStandardItemModel *model)
+void ImportCamerasViewImp::setItemModel(QStandardItemModel *model)
 {
   mTableViewImportCameras->setModel(model);
 }
 
-void CamerasImportViewImp::setItemModelFormatCameras(QStandardItemModel *model)
+void ImportCamerasViewImp::setItemModelFormatCameras(QStandardItemModel *model)
 {
     //mItemModelCameras->setColumnCount(4);
   //mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z");
@@ -576,117 +579,117 @@ void CamerasImportViewImp::setItemModelFormatCameras(QStandardItemModel *model)
   mTableViewFormatCameras->setModel(model);
 }
 
-void CamerasImportViewImp::setImageColumn(const QString &imageColumn)
+void ImportCamerasViewImp::setImageColumn(const QString &imageColumn)
 {
   //QSignalBlocker blocker(mComboBoxImageColumn);
   mComboBoxImageColumn->setCurrentText(imageColumn);
   update();
 }
 
-void CamerasImportViewImp::setXColumn(const QString &xColumn)
+void ImportCamerasViewImp::setXColumn(const QString &xColumn)
 {
   //QSignalBlocker blocker(mComboBoxXColumn);
   mComboBoxXColumn->setCurrentText(xColumn);
   update();
 }
 
-void CamerasImportViewImp::setYColumn(const QString &yColumn)
+void ImportCamerasViewImp::setYColumn(const QString &yColumn)
 {
   //QSignalBlocker blocker(mComboBoxYColumn);
   mComboBoxYColumn->setCurrentText(yColumn);
   update();
 }
 
-void CamerasImportViewImp::setZColumn(const QString &zColumn)
+void ImportCamerasViewImp::setZColumn(const QString &zColumn)
 {
   //QSignalBlocker blocker(mComboBoxZColumn);
   mComboBoxZColumn->setCurrentText(zColumn);
   update();
 }
 
-void CamerasImportViewImp::setQxColumn(const QString &qxColumn)
+void ImportCamerasViewImp::setQxColumn(const QString &qxColumn)
 {
   QSignalBlocker blocker(mComboBoxQxColumn);
   mComboBoxQxColumn->setCurrentText(qxColumn);
   update();
 }
 
-void CamerasImportViewImp::setQyColumn(const QString &qyColumn)
+void ImportCamerasViewImp::setQyColumn(const QString &qyColumn)
 {
   QSignalBlocker blocker(mComboBoxQyColumn);
   mComboBoxQyColumn->setCurrentText(qyColumn);
   update();
 }
 
-void CamerasImportViewImp::setQzColumn(const QString &qzColumn)
+void ImportCamerasViewImp::setQzColumn(const QString &qzColumn)
 {
   QSignalBlocker blocker7(mComboBoxQzColumn);
   mComboBoxQzColumn->setCurrentText(qzColumn);
   update();
 }
 
-void CamerasImportViewImp::setQwColumn(const QString &qwColumn)
+void ImportCamerasViewImp::setQwColumn(const QString &qwColumn)
 {
   QSignalBlocker blocker(mComboBoxQwColumn);
   mComboBoxQwColumn->setCurrentText(qwColumn);
   update();
 }
 
-void CamerasImportViewImp::setOmegaColumn(const QString &omegaColumn)
+void ImportCamerasViewImp::setOmegaColumn(const QString &omegaColumn)
 {
   QSignalBlocker blocker(mComboBoxOmegaColumn);
   mComboBoxOmegaColumn->setCurrentText(omegaColumn);
   update();
 }
 
-void CamerasImportViewImp::setPhiColumn(const QString &phiColumn)
+void ImportCamerasViewImp::setPhiColumn(const QString &phiColumn)
 {
   QSignalBlocker blocker(mComboBoxPhiColumn);
   mComboBoxPhiColumn->setCurrentText(phiColumn);
   update();
 }
 
-void CamerasImportViewImp::setKappaColumn(const QString &kappaColumn)
+void ImportCamerasViewImp::setKappaColumn(const QString &kappaColumn)
 {
   QSignalBlocker blocker(mComboBoxKappaColumn);
   mComboBoxKappaColumn->setCurrentText(kappaColumn);
   update();
 }
 
-void CamerasImportViewImp::setYawColumn(const QString &yawColumn)
+void ImportCamerasViewImp::setYawColumn(const QString &yawColumn)
 {
   QSignalBlocker blocker(mComboBoxYawColumn);
   mComboBoxYawColumn->setCurrentText(yawColumn);
   update();
 }
 
-void CamerasImportViewImp::setPitchColumn(const QString &pitchColumn)
+void ImportCamerasViewImp::setPitchColumn(const QString &pitchColumn)
 {
   QSignalBlocker blocker(mComboBoxPitchColumn);
   mComboBoxPitchColumn->setCurrentText(pitchColumn);
   update();
 }
 
-void CamerasImportViewImp::setRollColumn(const QString &rollColumn)
+void ImportCamerasViewImp::setRollColumn(const QString &rollColumn)
 {
   QSignalBlocker blocker(mComboBoxRollColumn);
   mComboBoxRollColumn->setCurrentText(rollColumn);
   update();
 }
 
-void CamerasImportViewImp::setParseOk(bool parseOk)
+void ImportCamerasViewImp::setParseOk(bool parseOk)
 {
   bParseOk = parseOk;
   update();
 }
 
-void CamerasImportViewImp::setValidInputCRS(bool valid)
+void ImportCamerasViewImp::setValidInputCRS(bool valid)
 {
   bValidCRS = valid;
   update();
 }
 
-void CamerasImportViewImp::setValidOutputCRS(bool valid)
+void ImportCamerasViewImp::setValidOutputCRS(bool valid)
 {
 
   update();

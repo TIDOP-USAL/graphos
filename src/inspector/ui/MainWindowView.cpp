@@ -114,6 +114,11 @@ void MainWindowView::setOpenProjectAction(QAction *action)
   mToolBarFile->insertAction(mActionOpenProject, action);
   mToolBarFile->removeAction(mActionOpenProject);
 }
+void MainWindowView::setImportCamerasAction(QAction *action)
+{
+  mMenuImport->insertAction(mActionImportCameras, action);
+  mMenuImport->removeAction(mActionImportCameras);
+}
 
 void MainWindowView::addActionToMenu(QAction *action, Menu menu)
 {
@@ -1194,7 +1199,7 @@ void MainWindowView::initSignalAndSlots()
   connect(mActionClearHistory,         &QAction::triggered, this,   &MainWindowView::clearHistory);
   connect(mActionSaveProject,          &QAction::triggered, this,   &MainWindowView::saveProject);
   connect(mActionSaveProjectAs,        &QAction::triggered, this,   &MainWindowView::saveProjectAs);
-  connect(mActionImportCameras,        &QAction::triggered, this,   &MainWindowView::openCamerasImport);
+  //connect(mActionImportCameras,        &QAction::triggered, this,   &MainWindowView::openCamerasImport);
   connect(mActionExportTiePoints,      &QAction::triggered, this,   &MainWindowView::openExportFeatures);
   connect(mActionExportMatches,        &QAction::triggered, this,   &MainWindowView::openExportMatches);
   connect(mActionExportOrientations,   &QAction::triggered, this,   &MainWindowView::openExportOrientations);
@@ -1313,7 +1318,7 @@ void MainWindowView::update()
   mMenuRecentProjects->setEnabled(!bProcessing);
   mActionNotRecentProjects->setVisible(mHistory.size() == 0);
   mActionClearHistory->setEnabled(mHistory.size() > 0);
-  mActionImportCameras->setEnabled(bProjectExists && !bProcessing);
+  //mActionImportCameras->setEnabled(bProjectExists && !bProcessing);
   mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
   mActionExportOrientations->setEnabled(bProjectExists && bOriented && !bProcessing);

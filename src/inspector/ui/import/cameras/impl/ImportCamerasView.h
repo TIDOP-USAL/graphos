@@ -1,7 +1,7 @@
-#ifndef INSPECTOR_CAMERA_POSITIONS_VIEW_H
-#define INSPECTOR_CAMERA_POSITIONS_VIEW_H
+#ifndef INSPECTOR_IMPORT_CAMERAS_VIEW_H
+#define INSPECTOR_IMPORT_CAMERAS_VIEW_H
 
-#include "inspector/ui/import/cameras/CameraPositionsView.h"
+#include "inspector/ui/import/cameras/ImportCamerasView.h"
 
 class QDialogButtonBox;
 class QTableView;
@@ -22,22 +22,22 @@ namespace inspector
 namespace ui
 {
 
-class CamerasImportViewImp
-  : public CamerasImportView
+class ImportCamerasViewImp
+  : public ImportCamerasView
 {
 
   Q_OBJECT
 
 public:
 
-  CamerasImportViewImp(QWidget *parent = nullptr);
-  ~CamerasImportViewImp() override;
+  ImportCamerasViewImp(QWidget *parent = nullptr);
+  ~ImportCamerasViewImp() override;
 
 public slots:
 
   void onDelimiterChanged();
 
-// CamerasImportView interface
+// ImportCamerasView interface
 
 public:
 
@@ -91,9 +91,9 @@ protected:
   QRadioButton *mRadioButtonSemicolon;
   QRadioButton *mRadioButtonOther;
   QLineEdit *mLineEditOther;
-//  QLabel *mLabelImportRow;
   QCheckBox *mCheckBoxFieldNamesAuto;
-//  QSpinBox *mSpinBoxImportRow;
+  QLabel *mLabelSkipLines;
+  QSpinBox *mSpinBoxSkipLines;
   QGroupBox *mGroupBoxColumns;
   QLabel *mLabelImageColumn;
   QComboBox *mComboBoxImageColumn;
@@ -151,4 +151,4 @@ protected:
 
 } // namespace inspector
 
-#endif // INSPECTOR_CAMERA_POSITIONS_VIEW_H
+#endif // INSPECTOR_IMPORT_CAMERAS_VIEW_H

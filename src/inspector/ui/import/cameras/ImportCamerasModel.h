@@ -1,5 +1,5 @@
-#ifndef INSPECTOR_CAMERA_POSITIONS_MODEL_INTERFACE_H
-#define INSPECTOR_CAMERA_POSITIONS_MODEL_INTERFACE_H
+#ifndef INSPECTOR_IMPORT_CAMERAS_MODEL_INTERFACE_H
+#define INSPECTOR_IMPORT_CAMERAS_MODEL_INTERFACE_H
 
 #include "inspector/interfaces/mvp.h"
 
@@ -11,7 +11,7 @@ namespace inspector
 namespace ui
 {
 
-class CamerasImportModel
+class ImportCamerasModel
   : public IModel
 {
 
@@ -19,8 +19,8 @@ class CamerasImportModel
 
 public:
 
-  CamerasImportModel(QObject *parent = nullptr) : IModel(parent) {}
-  ~CamerasImportModel() override = default;
+  ImportCamerasModel(QObject *parent = nullptr) : IModel(parent) {}
+  ~ImportCamerasModel() override = default;
 
   virtual QStandardItemModel *itemModelCSV() = 0;
   virtual QStandardItemModel *itemModelFormatCameras() = 0;
@@ -35,6 +35,7 @@ public slots:
 
   virtual void setFieldNamesFromFirstRow(bool active) = 0;
   virtual void setDelimiter(const QString &delimiter) = 0;
+  virtual void setInitialLine(int iniLine) = 0;
   virtual void setImageFieldId(int id) = 0;
   virtual void setXFieldId(int id) = 0;
   virtual void setYFieldId(int id) = 0;
