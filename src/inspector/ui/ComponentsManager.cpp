@@ -10,6 +10,8 @@
 #include "inspector/ui/createproject/CreateProjectComponent.h"
 #include "inspector/ui/openproject/OpenProjectComponent.h"
 #include "inspector/ui/import/cameras/ImportCamerasComponent.h"
+#include "inspector/ui/cameras/CamerasComponent.h"
+
 
 
 #include "inspector/ui/ProjectModel.h"
@@ -17,11 +19,11 @@
 #include "inspector/ui/SettingsView.h"
 #include "inspector/ui/SettingsPresenter.h"
 
-#include "inspector/ui/NewProjectPresenter.h"
-#include "inspector/ui/NewProjectView.h"
-#include "inspector/ui/cameras/CamerasModel.h"
-#include "inspector/ui/cameras/CamerasView.h"
-#include "inspector/ui/cameras/CamerasPresenter.h"
+//#include "inspector/ui/NewProjectPresenter.h"
+//#include "inspector/ui/NewProjectView.h"
+//#include "inspector/ui/cameras/CamerasModel.h"
+//#include "inspector/ui/cameras/CamerasView.h"
+//#include "inspector/ui/cameras/CamerasPresenter.h"
 #include "inspector/ui/export/orientations/ExportOrientationsModel.h"
 #include "inspector/ui/export/orientations/ExportOrientationsView.h"
 #include "inspector/ui/export/orientations/ExportOrientationsPresenter.h"
@@ -56,15 +58,15 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowPresenter(nullptr),
     mProject(new ProjectImp),
     mProjectModel(nullptr),
-    mCamerasModel(nullptr),
-    mCamerasPresenter(nullptr),
+    //mCamerasModel(nullptr),
+    //mCamerasPresenter(nullptr),
     mFeaturesModel(nullptr),
     mMatchesModel(nullptr),
     mSettings(new SettingsImp),
     mSettingsController(new SettingsControllerImp),
     mSettingsModel(nullptr),
     mSettingsPresenter(nullptr),
-    mNewProjectPresenter(nullptr),
+    //mNewProjectPresenter(nullptr),
     mExportOrientationsModel(nullptr),
     mExportOrientationsPresenter(nullptr),
     mGeoreferenceModel(nullptr),
@@ -88,12 +90,14 @@ ComponentsManager::ComponentsManager(QObject *parent)
   this->mainWindowView()->setOpenProjectAction(mOpenProjectComponent->action());
   mImportCamerasComponent = new ImportCamerasComponent(this->project());
   this->mainWindowView()->setImportCamerasAction(mImportCamerasComponent->action());
+  mCamerasComponent = new CamerasComponent(this->project());
+  this->mainWindowView()->setCamerasToolAction(mCamerasComponent->action());
 
   ///TODO: por ahora hasta que refactorice MainWindowView, MainWindowPresenter
   connect(mCreateProjectComponent, SIGNAL(projectCreated()), 
-                   this->mainWindowPresenter(), SLOT(loadProject()));
+          this->mainWindowPresenter(), SLOT(loadProject()));
   connect(mOpenProjectComponent, SIGNAL(projectLoaded()), 
-                   this->mainWindowPresenter(), SLOT(loadProject()));
+          this->mainWindowPresenter(), SLOT(loadProject()));
   connect(this->mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog, 
           mCreateProjectComponent->action(), &QAction::trigger);
   connect(this->mainWindowPresenter(), &MainWindowPresenter::openProjectDialog, 
@@ -118,15 +122,15 @@ ComponentsManager::~ComponentsManager()
     mProjectModel = nullptr;
   }
 
-  if (mCamerasModel){
-    delete mCamerasModel;
-    mCamerasModel = nullptr;
-  }
+  //if (mCamerasModel){
+  //  delete mCamerasModel;
+  //  mCamerasModel = nullptr;
+  //}
 
-  if (mCamerasPresenter){
-    delete mCamerasPresenter;
-    mCamerasPresenter = nullptr;
-  }
+  //if (mCamerasPresenter){
+  //  delete mCamerasPresenter;
+  //  mCamerasPresenter = nullptr;
+  //}
 
   if (mFeaturesModel){
     delete mFeaturesModel;
@@ -157,10 +161,10 @@ ComponentsManager::~ComponentsManager()
     mSettingsPresenter = nullptr;
   }
 
-  if (mNewProjectPresenter) {
-    delete mNewProjectPresenter;
-    mNewProjectPresenter = nullptr;
-  }
+  //if (mNewProjectPresenter) {
+  //  delete mNewProjectPresenter;
+  //  mNewProjectPresenter = nullptr;
+  //}
 
   if (mExportOrientationsModel) {
     delete mExportOrientationsModel;
@@ -253,7 +257,7 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->projectModel(),
                                                    this->settingsModel(),
                                                    //this->imagesModel(),
-                                                   this->camerasModel(),
+                                                   //this->camerasModel(),
                                                    this->featuresModel(),
                                                    this->matchesModel());
 
@@ -263,8 +267,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
     connect(mMainWindowPresenter, &MainWindowPresenter::openExportOrientationsDialog,
             this, &ComponentsManager::initAndOpenExportOrientationsDialog);
 
-    connect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
-             this, &ComponentsManager::initAndOpenCamerasDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
+    //         this, &ComponentsManager::initAndOpenCamerasDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openSettingsDialog,
             this, &ComponentsManager::initAndOpenSettingsDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openViewSettingsDialog,
@@ -361,23 +365,23 @@ ProjectModel *ComponentsManager::projectModel()
   return mProjectModel;
 }
 
-CamerasModel *ComponentsManager::camerasModel()
-{
-  if (mCamerasModel == nullptr){
-    mCamerasModel = new CamerasModelImp(mProject);
-  }
-  return mCamerasModel;
-}
+//CamerasModel *ComponentsManager::camerasModel()
+//{
+//  if (mCamerasModel == nullptr){
+//    mCamerasModel = new CamerasModelImp(mProject);
+//  }
+//  return mCamerasModel;
+//}
 
-CamerasPresenter *ComponentsManager::camerasPresenter()
-{
-  if (mCamerasPresenter == nullptr){
-    CamerasView *view = new CamerasViewImp(this->mainWindowView());
-    mCamerasPresenter = new CamerasPresenterImp(view,
-                                                this->camerasModel());
-  }
-  return mCamerasPresenter;
-}
+//CamerasPresenter *ComponentsManager::camerasPresenter()
+//{
+//  if (mCamerasPresenter == nullptr){
+//    CamerasView *view = new CamerasViewImp(this->mainWindowView());
+//    mCamerasPresenter = new CamerasPresenterImp(view,
+//                                                this->camerasModel());
+//  }
+//  return mCamerasPresenter;
+//}
 
 FeaturesModel *ComponentsManager::featuresModel()
 {
@@ -413,14 +417,14 @@ SettingsPresenter *ComponentsManager::settingsPresenter()
   return mSettingsPresenter;
 }
 
-NewProjectPresenter *ComponentsManager::newProjectPresenter()
-{
-  if (mNewProjectPresenter == nullptr){
-    NewProjectView *newProjectView = new NewProjectViewImp(this->mainWindowView());
-    mNewProjectPresenter = new NewProjectPresenterImp(newProjectView, this->projectModel());
-  }
-  return mNewProjectPresenter;
-}
+//NewProjectPresenter *ComponentsManager::newProjectPresenter()
+//{
+//  if (mNewProjectPresenter == nullptr){
+//    NewProjectView *newProjectView = new NewProjectViewImp(this->mainWindowView());
+//    mNewProjectPresenter = new NewProjectPresenterImp(newProjectView, this->projectModel());
+//  }
+//  return mNewProjectPresenter;
+//}
 
 ExportOrientationsModel *ComponentsManager::exportOrientationsModel()
 {
@@ -568,21 +572,21 @@ void ComponentsManager::initAndOpenToolSettingsDialog()
   this->settingsPresenter()->openToolSettings();
 }
 
-void ComponentsManager::initAndOpenCamerasDialog()
-{
-  disconnect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
-             this,                 &ComponentsManager::initAndOpenCamerasDialog);
-
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasDialog,
-          this->camerasPresenter(),    &CamerasPresenter::open);
-
-  connect(this->camerasPresenter(), SIGNAL(projectModified()), this->mainWindowPresenter(), SLOT(onProjectModified()));
-
-
-  this->camerasPresenter()->setHelp(this->helpDialog());
-  this->camerasPresenter()->open();
-
-}
+//void ComponentsManager::initAndOpenCamerasDialog()
+//{
+//  disconnect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
+//             this,                 &ComponentsManager::initAndOpenCamerasDialog);
+//
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasDialog,
+//          this->camerasPresenter(),    &CamerasPresenter::open);
+//
+//  connect(this->camerasPresenter(), SIGNAL(projectModified()), this->mainWindowPresenter(), SLOT(onProjectModified()));
+//
+//
+//  this->camerasPresenter()->setHelp(this->helpDialog());
+//  this->camerasPresenter()->open();
+//
+//}
 
 void ComponentsManager::initSettingsDialog()
 {

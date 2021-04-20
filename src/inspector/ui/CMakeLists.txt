@@ -45,9 +45,10 @@ set(INSPECTOR_SOURCES
     openproject/impl/OpenProjectModel.cpp
     openproject/impl/OpenProjectView.cpp
     openproject/impl/OpenProjectPresenter.cpp
-    cameras/CamerasModel.cpp
-    cameras/CamerasView.cpp
-    cameras/CamerasPresenter.cpp
+    cameras/CamerasComponent.cpp
+    cameras/impl/CamerasModel.cpp
+    cameras/impl/CamerasView.cpp
+    cameras/impl/CamerasPresenter.cpp
     featextract/FeatureExtractorComponent.cpp
     featextract/impl/FeatureExtractorView.cpp
     featextract/impl/FeatureExtractorModel.cpp
@@ -88,7 +89,7 @@ set(INSPECTOR_SOURCES
     georeference/impl/GeoreferenceView.cpp
     georeference/impl/GeoreferencePresenter.cpp
     import/cameras/ImportCamerasComponent.cpp
-	import/cameras/impl/ImportCamerasModel.cpp
+    import/cameras/impl/ImportCamerasModel.cpp
     import/cameras/impl/ImportCamerasView.cpp
     import/cameras/impl/ImportCamerasPresenter.cpp
     dtm/DTMComponent.cpp
@@ -155,10 +156,13 @@ set(INSPECTOR_HEADERS
     openproject/impl/OpenProjectModel.h
     openproject/impl/OpenProjectView.h
     openproject/impl/OpenProjectPresenter.h
-    cameras/Cameras.h
+    cameras/CamerasComponent.h
     cameras/CamerasModel.h
     cameras/CamerasView.h
     cameras/CamerasPresenter.h
+    cameras/impl/CamerasModel.h
+    cameras/impl/CamerasView.h
+    cameras/impl/CamerasPresenter.h
     featextract/FeatureExtractorComponent.h
     featextract/FeatureExtractorView.h
     featextract/FeatureExtractorModel.h
@@ -338,7 +342,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
-                      GLEW::GLEW
+                      GLEW::glew
                       ${CERES_LIBRARIES}
                       ${OPENGL_gl_LIBRARY}
                       ${OPENGL_glu_LIBRARY}

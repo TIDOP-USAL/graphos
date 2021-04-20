@@ -32,7 +32,7 @@ ImportCamerasComponent::~ImportCamerasComponent()
 
 void ImportCamerasComponent::onImportedCameras()
 {
-  AppStatus& app_status = AppStatus::instance();
+  AppStatus &app_status = AppStatus::instance();
   app_status.activeFlag(AppStatus::Flag::project_modified, true);
 }
 

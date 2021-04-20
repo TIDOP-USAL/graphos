@@ -1,16 +1,8 @@
-#ifndef INSPECTOR_CAMERAS_VIEW_H
-#define INSPECTOR_CAMERAS_VIEW_H
+#ifndef INSPECTOR_CAMERAS_VIEW_INTERFACE_H
+#define INSPECTOR_CAMERAS_VIEW_INTERFACE_H
 
-#include "inspector/ui/cameras/Cameras.h"
+#include "inspector/interfaces/mvp.h"
 
-class QGroupBox;
-class QLineEdit;
-class QLabel;
-class QListWidget;
-class QComboBox;
-class QSpinBox;
-class QSpinBox;
-class QDialogButtonBox;
 
 namespace inspector
 {
@@ -18,116 +10,78 @@ namespace inspector
 namespace ui
 {
 
-class CamerasViewImp
-  : public CamerasView
+class CamerasView
+  : public IDialogView
 {
 
   Q_OBJECT
 
-public:
-
-  explicit CamerasViewImp(QWidget *parent = nullptr);
-  ~CamerasViewImp() override = default;
-
-// IDialogView interface
-
-private:
-
-  void initUI() override;
-  void initSignalAndSlots() override;
-
-public slots:
-
-  void clear() override;
-
-private slots:
-
-  void update() override;
-  void retranslate() override;
-
-// CamerasView interface
 
 public:
 
-  int activeCamera() const override;
-  void setActiveCamera(int id) override;
-  void enableCameraEdition(bool enable) override;
-  void addCamera(int cameraId, const QString &cameraName) override;
-  void setMake(const QString &make) override;
-  void setModel(const QString &model) override;
-  void setWidth(int width) override;
-  void setHeight(int height) override;
-  void setSensorSize(const QString &sensorSize) override;
-  void setFocal(const QString &focal) override;
-  void setType(const QString &type) override;
-  void setImages(const QStringList &images) override;
-  void setCalibCx(const QString &cx) override;
-  void setCalibCy(const QString &cy) override;
-  void setCalibF(const QString &f) override;
-  void setCalibFx(const QString &fx) override;
-  void setCalibFy(const QString &fy) override;
-  void setCalibK1(const QString &k1) override;
-  void setCalibK2(const QString &k2) override;
-  void setCalibK3(const QString &k3) override;
-  void setCalibK4(const QString &k4) override;
-  void setCalibK5(const QString &k5) override;
-  void setCalibK6(const QString &k6) override;
-  void setCalibP1(const QString &p1) override;
-  void setCalibP2(const QString &p2) override;
+  CamerasView(QWidget *parent) : IDialogView(parent) {}
+  virtual ~CamerasView() {}
+
+  virtual int activeCamera() const = 0;
+  virtual void setActiveCamera(int id) = 0;
+
+  virtual void enableCameraEdition(bool enable) = 0;
+  virtual void addCamera(int cameraId, const QString &cameraName) = 0;
+  virtual void setMake(const QString &make) = 0;
+  virtual void setModel(const QString &model) = 0;
+  virtual void setWidth(int width) = 0;
+  virtual void setHeight(int height) = 0;
+  virtual void setSensorSize(const QString &sensorSize) = 0;
+  virtual void setFocal(const QString &focal) = 0;
+  virtual void setType(const QString &type) = 0;
+  virtual void setImages(const QStringList &images) = 0;
+
+  virtual void setCalibCx(double cx) = 0;
+  virtual void setCalibCy(double cy) = 0;
+  virtual void setCalibF(double f) = 0;
+  virtual void setCalibFx(double fx) = 0;
+  virtual void setCalibFy(double fy) = 0;
+  virtual void setCalibK1(double k1) = 0;
+  virtual void setCalibK2(double k2) = 0;
+  virtual void setCalibK3(double k3) = 0;
+  virtual void setCalibK4(double k4) = 0;
+  virtual void setCalibK5(double k5) = 0;
+  virtual void setCalibK6(double k6) = 0;
+  virtual void setCalibP1(double p1) = 0;
+  virtual void setCalibP2(double p2) = 0;
+
+signals:
+
+  void cameraChange(int);
+  void makeChanged(QString);
+  void modelChanged(QString);
+  //void widthChanged(int);
+  //void heightChange(int);
+  void sensorSizeChange(QString);
+  void focalChange(QString);
+  void typeChange(QString);
+
+  void calibrationImport(QString, QString);
+  void calibrationExport(QString, QString);
+  void fixCalibration(bool);
+
+  void calibCxChange(double);
+  void calibCyChange(double);
+  void calibFChange(double);
+  void calibFxChange(double);
+  void calibFyChange(double);
+  void calibK1Change(double);
+  void calibK2Change(double);
+  void calibK3Change(double);
+  void calibK4Change(double);
+  void calibK5Change(double);
+  void calibK6Change(double);
+  void calibP1Change(double);
+  void calibP2Change(double);
 
 protected slots:
 
-  void onSelectionChanged() override;
-
-protected:
-
-    QLabel *mLabelCameras;
-    QListWidget *mListWidgetCameras;
-    QGroupBox *mGroupBoxCamera;
-    QLabel *mLabelMake;
-    QLineEdit *mLineEditMake;
-    QLabel *mLabelModel;
-    QLineEdit *mLineEditModel;
-    QLabel *mLabelWidth;
-    QSpinBox *mSpinBoxWidth;
-    QLabel *mLabelHeight;
-    QSpinBox *mSpinBoxHeight;
-    QLabel *mLabelSensorSize;
-    QLineEdit *mLineEditSensorSize;
-    QLabel *mLabelFocal;
-    QLineEdit *mLineEditFocal;
-    QLabel *mLabelType;
-    QComboBox *mComboBoxType;
-    QGroupBox *mGroupBoxCalibrationParameters;
-    QLabel *mLabelF;
-    QLineEdit *mLineEditF;
-    QLabel *mLabelFx;
-    QLineEdit *mLineEditFx;
-    QLabel *mLabelFy;
-    QLineEdit *mLineEditFy;
-    QLabel *mLabelCx;
-    QLineEdit *mLineEditCx;
-    QLabel *mLabelCy;
-    QLineEdit *mLineEditCy;
-    QLabel *mLabelK1;
-    QLineEdit *mLineEditK1;
-    QLabel *mLabelK2;
-    QLineEdit *mLineEditK2;
-    QLabel *mLabelK3;
-    QLineEdit *mLineEditK3;
-    QLabel *mLabelK4;
-    QLineEdit *mLineEditK4;
-    QLabel *mLabelK5;
-    QLineEdit *mLineEditK5;
-    QLabel *mLabelK6;
-    QLineEdit *mLineEditK6;
-    QLabel *mLabelP1;
-    QLineEdit *mLineEditP1;
-    QLabel *mLabelP2;
-    QLineEdit *mLineEditP2;
-    QLabel *mLabelImages;
-    QListWidget *mListWidgetImages;
-    QDialogButtonBox *mButtonBox;
+  virtual void onSelectionChanged() = 0;
 
 };
 
@@ -135,4 +89,4 @@ protected:
 
 } // namespace inspector
 
-#endif // INSPECTOR_CAMERAS_VIEW_H
+#endif // INSPECTOR_CAMERAS_VIEW_INTERFACE_H

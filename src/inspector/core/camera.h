@@ -406,7 +406,22 @@ protected:
 
 };
 
-
+//class INSPECTOR_EXPORT WriteCalibration
+//{
+//
+//public:
+//
+//  WriteCalibration();
+//  ~WriteCalibration();
+//
+//  void open(const QString &path);
+//  std::shared_ptr<Calibration> calibration(int cameraId) const;
+//
+//protected:
+//
+//  colmap::Reconstruction *mReconstruction;
+//
+//};
 
 /* ------------------------------------------------------------------ */
 

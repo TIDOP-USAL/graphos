@@ -120,6 +120,14 @@ void MainWindowView::setImportCamerasAction(QAction *action)
   mMenuImport->removeAction(mActionImportCameras);
 }
 
+void MainWindowView::setCamerasToolAction(QAction* action)
+{
+  ui->menuTools->insertAction(mActionCameras, action);
+  ui->menuTools->removeAction(mActionCameras);
+  mToolBarTools->insertAction(mActionCameras, action);
+  mToolBarTools->removeAction(mActionCameras);
+}
+
 void MainWindowView::addActionToMenu(QAction *action, Menu menu)
 {
   if (QMenu *_menu = findMenu(menu)) {
@@ -933,9 +941,9 @@ void MainWindowView::initActions()
 //  iconDensification.addFile(QStringLiteral(":/ico/24/img/material/24/match_view.png"), QSize(), QIcon::Normal, QIcon::Off);
 //  mActionDensification->setIcon(iconDensification);
 
-  QIcon iconCameras;
-  iconCameras.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-camera-outline-2.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionCameras->setIcon(iconCameras);
+  //QIcon iconCameras;
+  //iconCameras.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-camera-outline-2.png"), QSize(), QIcon::Normal, QIcon::Off);
+  //mActionCameras->setIcon(iconCameras);
 
   QIcon iconGeoreference;
   iconGeoreference.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-coordinate-system.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1221,7 +1229,7 @@ void MainWindowView::initSignalAndSlots()
 
   /* Menú herramientas */
 
-  connect(mActionCameras,            &QAction::triggered,   this,   &MainWindowView::openCamerasDialog);
+  //connect(mActionCameras,            &QAction::triggered,   this,   &MainWindowView::openCamerasDialog);
   connect(mActionGeoreference,       &QAction::triggered,   this,   &MainWindowView::openGeoreferenceDialog);
   connect(mActionDtm,                &QAction::triggered,   this,   &MainWindowView::openDtmDialog);
   //connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
@@ -1334,7 +1342,7 @@ void MainWindowView::update()
   //mActionOrientation->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
   //mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
 
-  mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
+  //mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
   mActionDtm->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
   mActionGeoreference->setEnabled(bProjectExists && bOriented && !bProcessing);
   //mActionFeaturesViewer->setEnabled(bFeatureExtraction);

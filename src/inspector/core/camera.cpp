@@ -731,6 +731,28 @@ std::shared_ptr<Calibration> ReadCalibration::calibration(int cameraId) const
   return calibration;
 }
 
+
+
+
+//WriteCalibration::WriteCalibration()
+//  : mReconstruction(new colmap::Reconstruction)
+//{
+//
+//}
+//
+//WriteCalibration::~WriteCalibration()
+//{
+//  if (mReconstruction) {
+//    delete mReconstruction;
+//    mReconstruction = nullptr;
+//  }
+//}
+
+
+
+
+
+
 QString cameraToColmapType(const Camera &camera)
 {
   QString colmap_camera;

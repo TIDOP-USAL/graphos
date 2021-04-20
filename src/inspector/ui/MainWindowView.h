@@ -80,6 +80,7 @@ public:
   void setCreateProjectAction(QAction *action);
   void setOpenProjectAction(QAction *action);
   void setImportCamerasAction(QAction* action);
+  void setCamerasToolAction(QAction* action);
 
   void addActionToMenu(QAction *action, Menu menu);
   void addSeparatorToMenu(Menu menu);

@@ -719,7 +719,7 @@ int main(int argc, char** argv)
   //done = true;
   //consumer_thread.join();
 
-  size_t num_threads = tl::optimalNumberOfThreads();
+  size_t num_threads = 1;// tl::optimalNumberOfThreads();
   std::vector<std::thread> producer_threads(num_threads);
   std::vector<std::thread> consumer_threads(num_threads);
 

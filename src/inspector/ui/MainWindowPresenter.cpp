@@ -41,7 +41,7 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          ProjectModel *projectModel,
                                          SettingsModel *settingsModel,
                                          //ImagesModel *imagesModel,
-                                         CamerasModel *camerasModel,
+                                         //CamerasModel *camerasModel,
                                          FeaturesModel *featuresModel,
                                          MatchesModel *matchesModel)
   : IPresenter(),
@@ -50,7 +50,7 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
     mProjectModel(projectModel),
     mSettingsModel(settingsModel),
     //mImagesModel(imagesModel),
-    mCamerasModel(camerasModel),
+    //mCamerasModel(camerasModel),
     mFeaturesModel(featuresModel),
     mMatchesModel(matchesModel),
     mHelpDialog(nullptr),
@@ -1190,7 +1190,7 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Menú herramientas */
 
-  connect(mView,  &MainWindowView::openCamerasDialog,   this, &MainWindowPresenter::openCamerasDialog);
+  //connect(mView,  &MainWindowView::openCamerasDialog,   this, &MainWindowPresenter::openCamerasDialog);
   connect(mView,  &MainWindowView::openGeoreferenceDialog,   this, &MainWindowPresenter::openGeoreferenceDialog);
   //connect(mView,  &MainWindowView::openKeypointsViewer, this, &MainWindowPresenter::openKeypointsViewerDialog);
   //connect(mView,  &MainWindowView::openMatchesViewer,   this, &MainWindowPresenter::openMatchesViewerDialog);

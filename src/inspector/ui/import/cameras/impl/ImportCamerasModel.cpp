@@ -9,6 +9,10 @@
 #include <tidop/math/algebra/euler_angles.h>
 #include <tidop/math/algebra/quaternion.h>
 
+///TODO: Esto no debería estar aqui
+#include <colmap/base/database.h>
+///
+
 #include <QStandardItemModel>
 #include <QFile>
 #include <QTextStream>
@@ -707,6 +711,30 @@ void ImportCamerasModelImp::importCameras()
     file.close();
   }
 
+
+  /// TODO: Esto no debería estar aqui
+
+  colmap::Database database(mProject->database().toStdString());
+
+  for (auto image_it = mProject->imageBegin(); image_it != mProject->imageEnd(); image_it++) {
+    QFileInfo file_info(image_it->path());
+    std::string image_name = file_info.fileName().toStdString();
+
+    if (database.ExistsImageWithName(image_name)) {
+
+      colmap::Image image_colmap = database.ReadImageWithName(image_name);
+      image_colmap.TvecPrior(0) = image_it->cameraPosition().x();
+      image_colmap.TvecPrior(1) = image_it->cameraPosition().y();
+      image_colmap.TvecPrior(2) = image_it->cameraPosition().z();
+      image_colmap.QvecPrior(0) = image_it->cameraPosition().quaternion().w;
+      image_colmap.QvecPrior(1) = image_it->cameraPosition().quaternion().x;
+      image_colmap.QvecPrior(2) = image_it->cameraPosition().quaternion().y;
+      image_colmap.QvecPrior(3) = image_it->cameraPosition().quaternion().z;
+      database.UpdateImage(image_colmap);
+    }
+  }
+
+  /// 
 }
 
 bool ImportCamerasModelImp::checkCRS(const QString &crs)

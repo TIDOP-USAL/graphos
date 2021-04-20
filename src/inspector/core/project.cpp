@@ -545,7 +545,7 @@ bool ProjectImp::load(const QString &file)
     stream.setDevice(&input);
 
     err = this->read(stream);
-
+    input.close();
   }
   return err;
 }
@@ -1195,7 +1195,7 @@ void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Cali
     stream.writeStartElement("Calibration");
     {
       for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++){
-        stream.writeTextElement(calibration->parameterName(param->first), QString::number(param->second));
+        stream.writeTextElement(calibration->parameterName(param->first), QString::number(param->second, 'f', 8));
       }
     }
     stream.writeEndElement(); // Calibration
@@ -1386,9 +1386,9 @@ void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
         {
           stream.writeAttribute("id", it->name());
           if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
-              stream.writeTextElement("X", QString::number(photoOrientation.x, 'f', 3));
-              stream.writeTextElement("Y", QString::number(photoOrientation.y, 'f', 3));
-              stream.writeTextElement("Z", QString::number(photoOrientation.z, 'f', 3));
+              stream.writeTextElement("X", QString::number(photoOrientation.x, 'f', 6));
+              stream.writeTextElement("Y", QString::number(photoOrientation.y, 'f', 6));
+              stream.writeTextElement("Z", QString::number(photoOrientation.z, 'f', 6));
               QString rot_mat = QString::number(photoOrientation.rot[0][0]).append(" ");
               rot_mat.append(QString::number(photoOrientation.rot[0][1])).append(" ");
               rot_mat.append(QString::number(photoOrientation.rot[0][2])).append(" ");

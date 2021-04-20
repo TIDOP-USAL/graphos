@@ -26,8 +26,8 @@ class SettingsPresenter;
 class NewProjectPresenter;
 class FeaturesModel;
 class MatchesModel;
-class CamerasModel;
-class CamerasPresenter;
+//class CamerasModel;
+//class CamerasPresenter;
 class ProgressHandler;
 class ProgressDialog;
 class ExportOrientationsModel;
@@ -69,15 +69,15 @@ public:
 
   Project *project();
   ProjectModel *projectModel();
-  CamerasModel *camerasModel();
-  CamerasPresenter *camerasPresenter();
+  //CamerasModel *camerasModel();
+  //CamerasPresenter *camerasPresenter();
   FeaturesModel *featuresModel();
   MatchesModel *matchesModel();
 
   SettingsModel *settingsModel();
   SettingsPresenter *settingsPresenter();
 
-  NewProjectPresenter *newProjectPresenter();
+  //NewProjectPresenter *newProjectPresenter();
   ExportOrientationsModel *exportOrientationsModel();
   ExportOrientationsPresenter *exportOrientationsPresenter();
   GeoreferenceModel *georeferenceModel();
@@ -101,7 +101,7 @@ protected slots:
   void initAndOpenSettingsDialog();
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
-  void initAndOpenCamerasDialog();
+  //void initAndOpenCamerasDialog();
   void initSettingsDialog();
   void initAndOpenExportOrientationsDialog();
   void initAndOpenGeoreferenceDialog();
@@ -117,10 +117,13 @@ protected:
   Component *mCreateProjectComponent;
   Component *mOpenProjectComponent;
   Component *mImportCamerasComponent;
+  Component *mCamerasComponent;
+
+
 
   ProjectModel *mProjectModel;
-  CamerasModel *mCamerasModel;
-  CamerasPresenter *mCamerasPresenter;
+  //CamerasModel *mCamerasModel;
+  //CamerasPresenter *mCamerasPresenter;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
   Settings *mSettings;
@@ -128,7 +131,7 @@ protected:
   SettingsModel *mSettingsModel;
   SettingsPresenter *mSettingsPresenter;
 
-  NewProjectPresenter *mNewProjectPresenter;
+  //NewProjectPresenter *mNewProjectPresenter;
   ExportOrientationsModel *mExportOrientationsModel;
   ExportOrientationsPresenter *mExportOrientationsPresenter;
   GeoreferenceModel *mGeoreferenceModel;

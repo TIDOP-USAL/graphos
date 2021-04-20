@@ -8,6 +8,8 @@
 
 #include <opencv2/imgcodecs.hpp>
 
+#include <gl/GL.h>
+
 namespace inspector
 {
 
@@ -422,7 +424,7 @@ void SiftCudaDetectorDescriptor::update()
   mSiftExtractionOptions.octave_resolution = SiftProperties::octaveLayers();
   mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
   mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
-
+  mSiftExtractionOptions.domain_size_pooling = true;
   if (!CreateSiftGPUExtractor(mSiftExtractionOptions, mSiftGpu.get())) {
     return;
   }

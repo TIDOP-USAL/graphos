@@ -38,7 +38,7 @@ public:
                                ProjectModel *projectModel,
                                SettingsModel *settingsModel,
                                //ImagesModel *imagesModel,
-                               CamerasModel *camerasModel,
+                               //CamerasModel *camerasModel,
                                FeaturesModel *featuresModel,
                                MatchesModel *matchesModel);
   ~MainWindowPresenter() override;
@@ -53,7 +53,7 @@ signals:
   //void openFeatureMatchingDialog();
   //void openOrientationDialog();
   //void openDensificationDialog();
-  void openCamerasDialog();
+  //void openCamerasDialog();
   //void openKeypointsViewerDialog();
   //void openKeypointsViewerDialogFromImage(QString);
   //void openMatchesViewerDialog();
@@ -162,7 +162,7 @@ protected:
   ProjectModel *mProjectModel;
   SettingsModel *mSettingsModel;
   //ImagesModel *mImagesModel;
-  CamerasModel *mCamerasModel;
+  //CamerasModel *mCamerasModel;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
 

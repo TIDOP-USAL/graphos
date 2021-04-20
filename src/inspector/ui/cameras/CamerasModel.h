@@ -1,68 +1,91 @@
-#ifndef INSPECTOR_CAMERAS_MODEL_H
-#define INSPECTOR_CAMERAS_MODEL_H
+#ifndef INSPECTOR_CAMERAS_MODEL_INTERFACE_H
+#define INSPECTOR_CAMERAS_MODEL_INTERFACE_H
 
-#include "inspector/ui/cameras/Cameras.h"
-#include "inspector/core/project.h"
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
 
+class Camera;
+//class Image;
+
 namespace ui
 {
 
-class CamerasModelImp
-  : public CamerasModel
+class CamerasModel
+  : public IModel
 {
 
   Q_OBJECT
 
 public:
 
-  CamerasModelImp(Project *project,
-                  QObject *parent = nullptr);
-  ~CamerasModelImp() override = default;
-
-// CamerasModel interface
+  typedef std::map<int, Camera>::iterator camera_iterator;
+  typedef std::map<int, Camera>::const_iterator camera_const_iterator;
+  //typedef std::vector<Image>::iterator image_iterator;
+  //typedef std::vector<Image>::const_iterator image_const_iterator;
 
 public:
 
-  int addCamera(const Camera &camera) override;
-  int cameraID(const Camera &camera) const override;
-  int cameraID(const QString &make, const QString &model) const override;
-  Camera camera(int id) const override;
-  Camera camera(const QString &make, const QString &model) const override;
-  bool updateCamera(int id, const Camera &camera) override;
-  bool removeCamera(int id) override;
-  bool removeCamera(const Camera &camera) override;
+  CamerasModel(QObject *parent = nullptr) : IModel(parent) {}
+  virtual ~CamerasModel() override = default;
 
-  camera_iterator begin() override;
-  camera_const_iterator begin() const override;
-  camera_iterator end() override;
-  camera_const_iterator end() const override;
+  virtual int addCamera(const Camera &camera) = 0;
+  virtual int cameraID(const Camera &camera) const = 0;
+  virtual int cameraID(const QString &make, 
+                       const QString &model) const = 0;
+  virtual Camera camera(int id) const = 0;
+  virtual Camera camera(const QString &make, const QString &model) const = 0;
+  virtual int currentCameraID() const = 0;
+  virtual bool updateCamera(int id, const Camera &camera) = 0;
 
-  image_iterator imageBegin() override;
-  image_const_iterator imageBegin() const override;
-  image_iterator imageEnd() override;
-  image_const_iterator imageEnd() const override;
+  virtual bool removeCamera(int id) = 0;
+  virtual bool removeCamera(const Camera &camera) = 0;
+  virtual QStringList imagesFromCamera(int id) const = 0;
 
-// IModel interface
+  virtual camera_iterator begin() = 0;
+  virtual camera_const_iterator begin() const = 0;
+  virtual camera_iterator end() = 0;
+  virtual camera_const_iterator end() const = 0;
 
-private:
+  virtual void save() = 0;
 
-  void init() override;
+  //virtual image_iterator imageBegin() = 0;
+  //virtual image_const_iterator imageBegin() const = 0;
+  //virtual image_iterator imageEnd() = 0;
+  //virtual image_const_iterator imageEnd() const = 0;
 
 public slots:
 
-  void clear() override;
+  virtual void updateCurrentCameraMake(const QString &make) = 0;
+  virtual void updateCurrentCameraModel(const QString &model) = 0;
+  //virtual void updateCurrentCameraWidth(int width) = 0;
+  //virtual void updateCurrentCameraHeight(int height) = 0;
+  virtual void updateCurrentCameraSensorSize(const QString &sensorSize) = 0;
+  virtual void updateCurrentCameraFocal(const QString &focal) = 0;
+  virtual void updateCurrentCameraType(const QString &type) = 0;
+  virtual void updateCurrentCameraCalibCx(double cx) = 0;
+  virtual void updateCurrentCameraCalibCy(double cy) = 0;
+  virtual void updateCurrentCameraCalibF(double f) = 0;
+  virtual void updateCurrentCameraCalibFx(double fx) = 0;
+  virtual void updateCurrentCameraCalibFy(double fy) = 0;
+  virtual void updateCurrentCameraCalibK1(double k1) = 0;
+  virtual void updateCurrentCameraCalibK2(double k2) = 0;
+  virtual void updateCurrentCameraCalibK3(double k3) = 0;
+  virtual void updateCurrentCameraCalibK4(double k4) = 0;
+  virtual void updateCurrentCameraCalibK5(double k5) = 0;
+  virtual void updateCurrentCameraCalibK6(double k6) = 0;
+  virtual void updateCurrentCameraCalibP1(double p1) = 0;
+  virtual void updateCurrentCameraCalibP2(double p2) = 0;
 
-protected:
-
-  Project *mProject;
-
+  virtual void calibrationImport(const QString &file,
+                                 const QString &format) = 0;
+  virtual void calibrationExport(const QString &file,
+                                 const QString &format) = 0;
 };
 
 } // namespace ui
 
 } // namespace inspector
 
-#endif // INSPECTOR_CAMERAS_MODEL_H
+#endif // INSPECTOR_CAMERAS_MODEL_INTERFACE_H

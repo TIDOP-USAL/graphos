@@ -24,7 +24,6 @@
 
 // BOOST
 #include <boost/algorithm/string.hpp>
-using namespace inspector;
 using namespace tl;
 #if (__cplusplus >= 201703L)
 #include <filesystem>

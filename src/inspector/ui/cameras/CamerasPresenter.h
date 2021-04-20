@@ -1,7 +1,7 @@
-#ifndef INSPECTOR_CAMERAS_PRESENTER_H
-#define INSPECTOR_CAMERAS_PRESENTER_H
+#ifndef INSPECTOR_CAMERAS_PRESENTER_INTERFACE_H
+#define INSPECTOR_CAMERAS_PRESENTER_INTERFACE_H
 
-#include "inspector/ui/cameras/Cameras.h"
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
@@ -9,73 +9,45 @@ namespace inspector
 namespace ui
 {
 
-class CamerasView;
-class CamerasModel;
-class HelpDialog;
 
-class CamerasPresenterImp
-  : public CamerasPresenter
+class CamerasPresenter
+  : public IPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  CamerasPresenterImp(CamerasView *view,
-                      CamerasModel *model);
-  ~CamerasPresenterImp() override = default;
-
-private:
-
-  void loadCameras();
-
-// IPresenter interface
+  CamerasPresenter(){}
+  virtual ~CamerasPresenter() override = default;
 
 public slots:
 
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-// CamerasPresenter interface
-
-public slots:
-
-  void activeCamera(int id) override;
+  virtual void activeCamera(int id) = 0;
+  virtual void fixCalibration(bool fix) = 0;
 
 protected slots:
 
-  //void onTypeChange(const QString &type) override;
-  void updateCurrentCameraMake(const QString &make) override;
-  void updateCurrentCameraModel(const QString &model) override;
-  void updateCurrentCameraWidth(int width) override;
-  void updateCurrentCameraHeight(int height) override;
-  void updateCurrentCameraSensorSize(const QString &sensorSize) override;
-  void updateCurrentCameraFocal(const QString &focal) override;
-  void updateCurrentCameraType(const QString &type) override;
+  //virtual void onTypeChange(const QString &type) = 0;
+  //virtual void updateCurrentCameraMake(const QString &make) = 0;
+  //virtual void updateCurrentCameraModel(const QString &model) = 0;
+  //virtual void updateCurrentCameraWidth(int width) = 0;
+  //virtual void updateCurrentCameraHeight(int height) = 0;
+  //virtual void updateCurrentCameraSensorSize(const QString &sensorSize) = 0;
+  //virtual void updateCurrentCameraFocal(const QString &focal) = 0;
+  //virtual void updateCurrentCameraType(const QString &type) = 0;
 
-  void save() override;
-  void discart() override;
+  virtual void save() = 0;
+  virtual void discart() = 0;
 
-private:
+signals:
 
-  CamerasView *mView;
-  CamerasModel *mModel;
-  HelpDialog *mHelp;
+  void updateCameras();
 
-  std::map<int, Camera> mCameraCache;
-  int mActiveCameraId;
-  bool bModifiedProject;
-  void clear();
 };
 
 } // namespace ui
 
 } // namespace inspector
 
-#endif // INSPECTOR_CAMERAS_PRESENTER_H
+#endif // INSPECTOR_CAMERAS_PRESENTER_INTERFACE_H

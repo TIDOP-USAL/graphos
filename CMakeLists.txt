@@ -318,7 +318,7 @@ if(BUILD_INSPECTOR_IMAGE)
         set(HAVE_CLOUDCOMPARE NO)
     else()
         set(HAVE_CLOUDCOMPARE YES)
-        include_directories(${CLOUDCOMPARE_INCLUDE_DIRS})
+        include_directories(${CLOUDCOMPARE_INCLUDE_DIR})
     endif()
   
 else()

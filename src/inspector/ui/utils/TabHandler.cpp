@@ -259,6 +259,9 @@ void TabHandler::setModel3D(const QString &model3D)
     mViewer3D = new CCViewer3D(/*this*/);
 #elif defined (HAVE_OPENSCENEGRAPH)
     mViewer3D = new OsgViewer3D(this);
+#else
+    /// Devolver error
+    return;
 #endif
 
     mViewer3D->loadFromFile(model3D);
