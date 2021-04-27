@@ -36,12 +36,6 @@ std::mutex AppStatus::sMutex;
 
 AppStatus::AppStatus()
 {
-  //ImageManager &image_manager = ImageManager::instance();
-
-  //connect(&image_manager, &ImageManager::imagesLoaded, [=](bool active) {
-  //  AppStatus &app_status = AppStatus::instance();
-  //  app_status.activeFlag(AppStatus::Flag::image_open, active);
-  //});
 }
 
 AppStatus::~AppStatus()

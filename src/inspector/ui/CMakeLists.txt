@@ -29,12 +29,9 @@ set(INSPECTOR_SOURCES
     MainWindowModel.cpp
     MainWindowPresenter.cpp
     MainWindowView.cpp
-    NewProjectView.cpp
-    NewProjectPresenter.cpp
     SettingsModel.cpp
     SettingsPresenter.cpp
     SettingsView.cpp
-    #ImagesModel.cpp
     FeaturesModel.cpp
     MatchesModel.cpp
     createproject/CreateProjectComponent.cpp
@@ -96,28 +93,11 @@ set(INSPECTOR_SOURCES
     dtm/impl/DTMModel.cpp
     dtm/impl/DTMView.cpp
     dtm/impl/DTMPresenter.cpp
-    # MultiViewModel.cpp
-    # MultiViewView.cpp
-    # MultiViewPresenter.cpp
-    # ExportFeaturesModel.cpp
-    # ExportFeaturesView.cpp
-    # ExportFeaturesPresenter.cpp
-    # ExportMatchesModel.cpp
-    # ExportMatchesView.cpp
-    # ExportMatchesPresenter.cpp
-    # #BatchModel.cpp
-    # #BatchView.cpp
-    # #BatchPresenter.cpp
-    # AboutDialog.cpp
     HelpDialog.cpp
     utils/GraphicViewer.cpp
     utils/ProgressDialog.cpp
     utils/Progress.cpp
     utils/Viewer3d.cpp
-    # #utils/KeyPointGraphicsItem.cpp
-    # #utils/CrossGraphicItem.cpp
-    # #utils/DiagonalCrossGraphicItem.cpp
-    # #utils/CircleGraphicItem.cpp
     utils/GraphicItem.cpp
     utils/TabHandler.cpp
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
@@ -132,14 +112,10 @@ set(INSPECTOR_HEADERS
     MainWindowModel.h
     MainWindowPresenter.h
     MainWindowView.h
-    NewProject.h
-    NewProjectView.h
-    NewProjectPresenter.h
     Settings.h
     SettingsModel.h
     SettingsPresenter.h
     SettingsView.h
-    #ImagesModel.h
     FeaturesModel.h
     MatchesModel.h
     createproject/CreateProjectComponent.h
@@ -244,31 +220,11 @@ set(INSPECTOR_HEADERS
     dtm/impl/DTMModel.h
     dtm/impl/DTMView.h
     dtm/impl/DTMPresenter.h
-    # Multiview.h
-    # MultiViewModel.h
-    # MultiViewView.h
-    # MultiViewPresenter.h
-    # ExportFeatures.h
-    # ExportFeaturesModel.h
-    # ExportFeaturesView.h
-    # ExportFeaturesPresenter.h
-    # ExportMatches.h
-    # ExportMatchesModel.h
-    # ExportMatchesView.h
-    # ExportMatchesPresenter.h
-    # #BatchModel.h
-    # #BatchView.h
-    # #BatchPresenter.h
-    # AboutDialog.h
     HelpDialog.h
     utils/GraphicViewer.h
     utils/ProgressDialog.h
     utils/Progress.h
     utils/Viewer3d.h
-    # #utils/KeyPointGraphicsItem.h
-    # #utils/CrossGraphicItem.h
-    # #utils/DiagonalCrossGraphicItem.h
-    # #utils/CircleGraphicItem.h
     utils/GraphicItem.h
     utils/TabHandler.h
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h

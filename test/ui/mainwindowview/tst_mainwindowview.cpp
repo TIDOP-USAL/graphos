@@ -34,8 +34,6 @@ private slots:
 
   /* Menu File */
 
-  void test_openNew();
-  void test_openProject();
   void test_openFromHistory();
   void test_clearHistory();
   void test_saveProject();
@@ -49,7 +47,6 @@ private slots:
 
   /* Menú flujo de trabajo */
 
-  void test_loadImages();
   void test_newProcessing();
   void test_openPreprocess();
   void test_openFeatureExtraction();
@@ -129,16 +126,10 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionExit->isEnabled());
   QCOMPARE(true, mActionStartPage->isEnabled());
   QCOMPARE(true, mActionLoadImages->isEnabled());
-  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
-  QCOMPARE(false, mActionFeatureMatching->isEnabled());
-  QCOMPARE(false, mActionOrientation->isEnabled());
-  QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(false, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(false, mActionExportTiePoints->isEnabled());
   QCOMPARE(false, mActionExportMatches->isEnabled());
-  QCOMPARE(false, mActionFeaturesViewer->isEnabled());
-  QCOMPARE(false, mActionMatchesViewer->isEnabled());
 
 //  QCOMPARE(true, mActionViewSettings->isEnabled());
 //  QCOMPARE(true, mActionHelp->isEnabled());
@@ -157,16 +148,10 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionExit->isEnabled());
   QCOMPARE(true, mActionStartPage->isEnabled());
   QCOMPARE(true, mActionLoadImages->isEnabled());
-  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
-  QCOMPARE(false, mActionFeatureMatching->isEnabled());
-  QCOMPARE(false, mActionOrientation->isEnabled());
-  QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(false, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(false, mActionExportTiePoints->isEnabled());
   QCOMPARE(false, mActionExportMatches->isEnabled());
-  QCOMPARE(false, mActionMatchesViewer->isEnabled());
-  QCOMPARE(false, mActionFeaturesViewer->isEnabled());
 
   /// Imagenes añadidas
   setFlag(MainWindowView::Flag::images_added, true);
@@ -180,16 +165,10 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionExit->isEnabled());
   QCOMPARE(true, mActionStartPage->isEnabled());
   QCOMPARE(true, mActionLoadImages->isEnabled());
-  QCOMPARE(true, mActionFeatureExtraction->isEnabled());
-  QCOMPARE(false, mActionFeatureMatching->isEnabled());
-  QCOMPARE(false, mActionOrientation->isEnabled());
-  QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(true, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(false, mActionExportTiePoints->isEnabled());
   QCOMPARE(false, mActionExportMatches->isEnabled());
-  QCOMPARE(false, mActionFeaturesViewer->isEnabled());
-  QCOMPARE(false, mActionMatchesViewer->isEnabled());
 
   /// Extracción de caracteristicas
   setFlag(MainWindowView::Flag::feature_extraction, true); 
@@ -203,16 +182,10 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionExit->isEnabled());
   QCOMPARE(true, mActionStartPage->isEnabled());
   QCOMPARE(true, mActionLoadImages->isEnabled());
-  QCOMPARE(true, mActionFeatureExtraction->isEnabled());
-  QCOMPARE(true, mActionFeatureMatching->isEnabled());
-  QCOMPARE(false, mActionOrientation->isEnabled());
-  QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(true, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(true, mActionExportTiePoints->isEnabled());
   QCOMPARE(false, mActionExportMatches->isEnabled());
-  QCOMPARE(true, mActionFeaturesViewer->isEnabled());
-  QCOMPARE(false, mActionMatchesViewer->isEnabled());
 
   ///Matching
   setFlag(MainWindowView::Flag::feature_matching, true);
@@ -226,16 +199,10 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionExit->isEnabled());
   QCOMPARE(true, mActionStartPage->isEnabled());
   QCOMPARE(true, mActionLoadImages->isEnabled());
-  QCOMPARE(true, mActionFeatureExtraction->isEnabled());
-  QCOMPARE(true, mActionFeatureMatching->isEnabled());
-  QCOMPARE(true, mActionOrientation->isEnabled());
-  QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(true, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(true, mActionExportTiePoints->isEnabled());
   QCOMPARE(true, mActionExportMatches->isEnabled());
-  QCOMPARE(true, mActionFeaturesViewer->isEnabled());
-  QCOMPARE(true, mActionMatchesViewer->isEnabled());
 
   /// Orientación
   setFlag(MainWindowView::Flag::oriented, true);
@@ -249,16 +216,10 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(true, mActionExit->isEnabled());
   QCOMPARE(true, mActionStartPage->isEnabled());
   QCOMPARE(true, mActionLoadImages->isEnabled());
-  QCOMPARE(true, mActionFeatureExtraction->isEnabled());
-  QCOMPARE(true, mActionFeatureMatching->isEnabled());
-  QCOMPARE(true, mActionOrientation->isEnabled());
-  QCOMPARE(true, mActionDensification->isEnabled());
   QCOMPARE(true, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(true, mActionExportTiePoints->isEnabled());
   QCOMPARE(true, mActionExportMatches->isEnabled());
-  QCOMPARE(true, mActionFeaturesViewer->isEnabled());
-  QCOMPARE(true, mActionMatchesViewer->isEnabled());
 
   setFlag(MainWindowView::Flag::processing, true);
   QCOMPARE(false, mActionNewProject->isEnabled());
@@ -280,15 +241,10 @@ void TestMainWindowView::test_setFlag()
   QCOMPARE(false, mActionExit->isEnabled());
   QCOMPARE(true, mActionStartPage->isEnabled());
   QCOMPARE(false, mActionLoadImages->isEnabled());
-  QCOMPARE(false, mActionFeatureExtraction->isEnabled());
-  QCOMPARE(false, mActionFeatureMatching->isEnabled());
-  QCOMPARE(false, mActionDensification->isEnabled());
   QCOMPARE(true, mActionCameras->isEnabled());
   QCOMPARE(true, mActionSettings->isEnabled());
   QCOMPARE(false, mActionExportTiePoints->isEnabled());
   QCOMPARE(false, mActionExportMatches->isEnabled());
-  QCOMPARE(true, mActionFeaturesViewer->isEnabled());
-  QCOMPARE(true, mActionMatchesViewer->isEnabled());
 
 }
 
@@ -331,22 +287,6 @@ void TestMainWindowView::test_deleteHistory()
     QString("C:\\Users\\Tido\\Documents\\inspector\\Projects\\Prueba3\\Prueba3.xml")
   };
   this->updateHistory(history);
-}
-
-void TestMainWindowView::test_openNew()
-{
-  QSignalSpy spy_openNew(this, &MainWindowView::openNew);
-
-  emit mActionNewProject->triggered(true);
-  QCOMPARE(spy_openNew.count(), 1);
-}
-
-void TestMainWindowView::test_openProject()
-{
-  QSignalSpy spy_openProject(this, &MainWindowView::openProject);
-
-  emit mActionOpenProject->triggered(true);
-  QCOMPARE(spy_openProject.count(), 1);
 }
 
 void TestMainWindowView::test_openFromHistory()
@@ -405,14 +345,6 @@ void TestMainWindowView::test_openStartPage()
 
   emit mActionStartPage->triggered(true);
   QCOMPARE(spy_openStartPage.count(), 1);
-}
-
-void TestMainWindowView::test_loadImages()
-{
-  QSignalSpy spy_loadImages(this, &MainWindowView::loadImages);
-
-  emit mActionLoadImages->triggered(true);
-  QCOMPARE(spy_loadImages.count(), 1);
 }
 
 void TestMainWindowView::test_newProcessing()

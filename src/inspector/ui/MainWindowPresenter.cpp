@@ -40,8 +40,6 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          MainWindowModel *model,
                                          ProjectModel *projectModel,
                                          SettingsModel *settingsModel,
-                                         //ImagesModel *imagesModel,
-                                         //CamerasModel *camerasModel,
                                          FeaturesModel *featuresModel,
                                          MatchesModel *matchesModel)
   : IPresenter(),
@@ -49,8 +47,6 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
     mModel(model),
     mProjectModel(projectModel),
     mSettingsModel(settingsModel),
-    //mImagesModel(imagesModel),
-    //mCamerasModel(camerasModel),
     mFeaturesModel(featuresModel),
     mMatchesModel(matchesModel),
     mHelpDialog(nullptr),
@@ -989,14 +985,26 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
         QString file_name = QFileInfo(image->path()).fileName();
         if (mModel->isPhotoOriented(name)) {
 
-          PhotoOrientation photoOrientation = mModel->photoOrientation(name);
+          CameraPose photoOrientation = mModel->photoOrientation(name);
 
           std::array<double, 3> position;
-          position[0] = photoOrientation.x;
-          position[1] = photoOrientation.y;
-          position[2] = photoOrientation.z;
+          position[0] = photoOrientation.position.x;
+          position[1] = photoOrientation.position.y;
+          position[2] = photoOrientation.position.z;
 
-          mTabHandler->addCamera(name, position, photoOrientation.rot);
+          std::array<std::array<float, 3>, 3> cameraRotationMatrix;
+          photoOrientation.rotation.at(0, 0);
+          cameraRotationMatrix[0][0] = photoOrientation.rotation.at(0, 0);
+          cameraRotationMatrix[0][1] = photoOrientation.rotation.at(0, 1);
+          cameraRotationMatrix[0][2] = photoOrientation.rotation.at(0, 2);
+          cameraRotationMatrix[1][0] = photoOrientation.rotation.at(1, 0);
+          cameraRotationMatrix[1][1] = photoOrientation.rotation.at(1, 1);
+          cameraRotationMatrix[1][2] = photoOrientation.rotation.at(1, 2);
+          cameraRotationMatrix[2][0] = photoOrientation.rotation.at(2, 0);
+          cameraRotationMatrix[2][1] = photoOrientation.rotation.at(2, 1);
+          cameraRotationMatrix[2][2] = photoOrientation.rotation.at(2, 2);
+
+          mTabHandler->addCamera(name, position, cameraRotationMatrix);
 
         }
       }

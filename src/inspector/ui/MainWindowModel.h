@@ -34,7 +34,7 @@ public:
   std::list<std::pair<QString, QString>> exif(const QString &image) const;
 
   bool isPhotoOriented(const QString &imgName) const;
-  PhotoOrientation photoOrientation(const QString &imgName) const;
+  CameraPose photoOrientation(const QString &imgName) const;
 
   Image findImageByName(const QString &imageName) const;
   size_t imageID(const QString &imageName) const;

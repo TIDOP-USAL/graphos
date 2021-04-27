@@ -38,9 +38,7 @@ set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}
                       PROJECT_LABEL ${test_target})
 
-if(ENABLE_SOLUTION_FOLDERS)
-    set_target_properties(${test_target} PROPERTIES 
-	                      FOLDER "test/core")
-endif()
+set_target_properties(${test_target} PROPERTIES 
+	                    FOLDER "test/core")
 
 add_test(NAME ${test_target} COMMAND $<TARGET_FILE:${test_target}>)

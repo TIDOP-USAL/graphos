@@ -352,7 +352,7 @@ void GeoreferenceModelImp::setOffset(const QString &offset)
 }
 
 void GeoreferenceModelImp::addPhotoOrientation(const QString &imgName, 
-                                               const PhotoOrientation &orientation)
+                                               const CameraPose &orientation)
 {
   mProject->addPhotoOrientation(imgName, orientation);
 }

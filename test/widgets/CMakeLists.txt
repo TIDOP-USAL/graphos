@@ -29,9 +29,7 @@ MACRO(DEFINE_TEST_WIDGETS name srcs)
       OUTPUT_NAME ${test_target}
       PROJECT_LABEL "(${test_KIND}) ${name}")
 
-    if(ENABLE_SOLUTION_FOLDERS)
-      set_target_properties(${test_target} PROPERTIES FOLDER "test/widgets")
-    endif()
+    set_target_properties(${test_target} PROPERTIES FOLDER "test/widgets")
 
     add_test(NAME ${test_target} COMMAND $<TARGET_FILE:${test_target}>)
 

@@ -53,12 +53,12 @@ bool OrientationModelImp::isPhotoOriented(const QString &imgName) const
   return mProject->isPhotoOriented(imgName);
 }
 
-PhotoOrientation OrientationModelImp::photoOrientation(const QString &imgName) const
+CameraPose OrientationModelImp::photoOrientation(const QString &imgName) const
 {
   return mProject->photoOrientation(imgName);
 }
 
-void OrientationModelImp::addPhotoOrientation(const QString &imgName, const PhotoOrientation &orientation)
+void OrientationModelImp::addPhotoOrientation(const QString &imgName, const CameraPose &orientation)
 {
   mProject->addPhotoOrientation(imgName, orientation);
 }

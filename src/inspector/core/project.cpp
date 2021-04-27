@@ -139,16 +139,17 @@ bool ProjectImp::removeImage(size_t imgId)
   }
 }
 
-Image ProjectImp::findImage(const QString &imgName) const
-{
-  for (auto &image : mImages) {
-    if (image.name().compare(imgName) == 0) {
-      return image;
-    }
-  }
-  QByteArray ba = imgName.toLocal8Bit();
-  throw TL_ERROR("Image not found: %s", ba.data());
-}
+//Image ProjectImp::findImage(const QString &imgName) const
+//{
+//  TL_TODO("Esto deberia devolver un iterador o quitarse. Ademas esta repetida con findImageByName")
+//  for (auto &image : mImages) {
+//    if (image.name().compare(imgName) == 0) {
+//      return image;
+//    }
+//  }
+//  QByteArray ba = imgName.toLocal8Bit();
+//  throw TL_ERROR("Image not found: %s", ba.data());
+//}
 
 Image ProjectImp::findImageById(size_t id) const
 {
@@ -157,13 +158,16 @@ Image ProjectImp::findImageById(size_t id) const
 
 Image ProjectImp::findImageByName(const QString &imgName) const
 {
+  Image image;
   for (auto &image : mImages) {
     if (image.name().compare(imgName) == 0) {
       return image;
     }
   }
-  QByteArray ba = imgName.toLocal8Bit();
-  throw TL_ERROR("Image not found: %s", ba.data());
+  return image;
+
+  //QByteArray ba = imgName.toLocal8Bit();
+  //throw TL_ERROR("Image not found: %s", ba.data());
 }
 
 bool ProjectImp::existImage(const QString &imgName) const
@@ -307,6 +311,11 @@ Project::camera_iterator ProjectImp::cameraEnd()
 Project::camera_const_iterator ProjectImp::cameraEnd() const
 {
   return mCameras.cend();
+}
+
+size_t ProjectImp::camerasCount() const
+{
+  return mCameras.size();
 }
 
 std::shared_ptr<Feature> ProjectImp::featureExtractor() const
@@ -463,12 +472,12 @@ bool ProjectImp::isPhotoOriented(const QString &imgName) const
   return mPhotoOrientation.find(imgName) != mPhotoOrientation.end();
 }
 
-PhotoOrientation ProjectImp::photoOrientation(const QString &imgName) const
+CameraPose ProjectImp::photoOrientation(const QString &imgName) const
 {
   return mPhotoOrientation.at(imgName);
 }
 
-void ProjectImp::addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation)
+void ProjectImp::addPhotoOrientation(const QString &imgName, const CameraPose &photoOrientation)
 {
   mPhotoOrientation[imgName] = photoOrientation;
 }
@@ -1039,25 +1048,25 @@ void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
     }
   }
 
-  PhotoOrientation image_ori;
+  CameraPose image_ori;
   while (stream.readNextStartElement()) {
     if (stream.name() == "X") {
-      image_ori.x = readDouble(stream);
+      image_ori.position.x = readDouble(stream);
     } else if (stream.name() == "Y") {
-      image_ori.y = readDouble(stream);
+      image_ori.position.y = readDouble(stream);
     } else if (stream.name() == "Z") {
-      image_ori.z = readDouble(stream);
+      image_ori.position.z = readDouble(stream);
     } else if (stream.name() == "Rot") {
       QStringList rot_string = stream.readElementText().split(" ");
-      image_ori.rot[0][0] = rot_string.at(0).toFloat();
-      image_ori.rot[0][1] = rot_string.at(1).toFloat();
-      image_ori.rot[0][2] = rot_string.at(2).toFloat();
-      image_ori.rot[1][0] = rot_string.at(3).toFloat();
-      image_ori.rot[1][1] = rot_string.at(4).toFloat();
-      image_ori.rot[1][2] = rot_string.at(5).toFloat();
-      image_ori.rot[2][0] = rot_string.at(6).toFloat();
-      image_ori.rot[2][1] = rot_string.at(7).toFloat();
-      image_ori.rot[2][2] = rot_string.at(8).toFloat();
+      image_ori.rotation.at(0, 0) = rot_string.at(0).toDouble();
+      image_ori.rotation.at(0, 1) = rot_string.at(1).toDouble();
+      image_ori.rotation.at(0, 2) = rot_string.at(2).toDouble();
+      image_ori.rotation.at(1, 0) = rot_string.at(3).toDouble();
+      image_ori.rotation.at(1, 1) = rot_string.at(4).toDouble();
+      image_ori.rotation.at(1, 2) = rot_string.at(5).toDouble();
+      image_ori.rotation.at(2, 0) = rot_string.at(6).toDouble();
+      image_ori.rotation.at(2, 1) = rot_string.at(7).toDouble();
+      image_ori.rotation.at(2, 2) = rot_string.at(8).toDouble();
     } else
       stream.skipCurrentElement();
   }
@@ -1381,23 +1390,26 @@ void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
     for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
       if (this->isPhotoOriented(it->name()))
       {
-        PhotoOrientation photoOrientation = this->photoOrientation(it->name());
+        CameraPose photoOrientation = this->photoOrientation(it->name());
         stream.writeStartElement("Image");
         {
           stream.writeAttribute("id", it->name());
-          if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
-              stream.writeTextElement("X", QString::number(photoOrientation.x, 'f', 6));
-              stream.writeTextElement("Y", QString::number(photoOrientation.y, 'f', 6));
-              stream.writeTextElement("Z", QString::number(photoOrientation.z, 'f', 6));
-              QString rot_mat = QString::number(photoOrientation.rot[0][0]).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rot[0][1])).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rot[0][2])).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rot[1][0])).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rot[1][1])).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rot[1][2])).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rot[2][0])).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rot[2][1])).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rot[2][2]));
+          if (photoOrientation.position.x != 0. && 
+              photoOrientation.position.y != 0. && 
+              photoOrientation.position.z != 0.) {
+
+              stream.writeTextElement("X", QString::number(photoOrientation.position.x, 'f', 6));
+              stream.writeTextElement("Y", QString::number(photoOrientation.position.y, 'f', 6));
+              stream.writeTextElement("Z", QString::number(photoOrientation.position.z, 'f', 6));
+              QString rot_mat = QString::number(photoOrientation.rotation.at(0, 0)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(0, 1))).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(0, 2))).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 0))).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 1))).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 2))).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 0))).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 1))).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 2)));
               stream.writeTextElement("Rot", rot_mat);
           }
         }

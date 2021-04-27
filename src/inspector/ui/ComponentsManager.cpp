@@ -19,20 +19,12 @@
 #include "inspector/ui/SettingsView.h"
 #include "inspector/ui/SettingsPresenter.h"
 
-//#include "inspector/ui/NewProjectPresenter.h"
-//#include "inspector/ui/NewProjectView.h"
-//#include "inspector/ui/cameras/CamerasModel.h"
-//#include "inspector/ui/cameras/CamerasView.h"
-//#include "inspector/ui/cameras/CamerasPresenter.h"
 #include "inspector/ui/export/orientations/ExportOrientationsModel.h"
 #include "inspector/ui/export/orientations/ExportOrientationsView.h"
 #include "inspector/ui/export/orientations/ExportOrientationsPresenter.h"
 #include "inspector/ui/georeference/impl/GeoreferenceModel.h"
 #include "inspector/ui/georeference/impl/GeoreferenceView.h"
 #include "inspector/ui/georeference/impl/GeoreferencePresenter.h"
-//#include "inspector/ui/import/cameras/impl/CameraPositionsModel.h"
-//#include "inspector/ui/import/cameras/impl/CameraPositionsView.h"
-//#include "inspector/ui/import/cameras/impl/CameraPositionsPresenter.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudModel.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudView.h"
@@ -58,21 +50,16 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowPresenter(nullptr),
     mProject(new ProjectImp),
     mProjectModel(nullptr),
-    //mCamerasModel(nullptr),
-    //mCamerasPresenter(nullptr),
     mFeaturesModel(nullptr),
     mMatchesModel(nullptr),
     mSettings(new SettingsImp),
     mSettingsController(new SettingsControllerImp),
     mSettingsModel(nullptr),
     mSettingsPresenter(nullptr),
-    //mNewProjectPresenter(nullptr),
     mExportOrientationsModel(nullptr),
     mExportOrientationsPresenter(nullptr),
     mGeoreferenceModel(nullptr),
     mGeoreferencePresenter(nullptr),
-    //mCamerasImportModel(nullptr),
-    //mImportCamerasPresenter(nullptr),
     mExportPointCloudModel(nullptr),
     mExportPointCloudPresenter(nullptr),
     mHelpDialog(nullptr),
@@ -122,16 +109,6 @@ ComponentsManager::~ComponentsManager()
     mProjectModel = nullptr;
   }
 
-  //if (mCamerasModel){
-  //  delete mCamerasModel;
-  //  mCamerasModel = nullptr;
-  //}
-
-  //if (mCamerasPresenter){
-  //  delete mCamerasPresenter;
-  //  mCamerasPresenter = nullptr;
-  //}
-
   if (mFeaturesModel){
     delete mFeaturesModel;
     mFeaturesModel = nullptr;
@@ -161,11 +138,6 @@ ComponentsManager::~ComponentsManager()
     mSettingsPresenter = nullptr;
   }
 
-  //if (mNewProjectPresenter) {
-  //  delete mNewProjectPresenter;
-  //  mNewProjectPresenter = nullptr;
-  //}
-
   if (mExportOrientationsModel) {
     delete mExportOrientationsModel;
     mExportOrientationsModel = nullptr;
@@ -185,16 +157,6 @@ ComponentsManager::~ComponentsManager()
     delete mGeoreferencePresenter;
     mGeoreferencePresenter = nullptr;
   }
-
-  //if (mCamerasImportModel) {
-  //  delete mCamerasImportModel;
-  //  mCamerasImportModel = nullptr;
-  //}
-
-  //if (mImportCamerasPresenter) {
-  //  delete mImportCamerasPresenter;
-  //  mImportCamerasPresenter = nullptr;
-  //}
 
   if (mExportPointCloudModel){
     delete mExportPointCloudModel;
@@ -256,19 +218,13 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->mainWindowModel(),
                                                    this->projectModel(),
                                                    this->settingsModel(),
-                                                   //this->imagesModel(),
-                                                   //this->camerasModel(),
                                                    this->featuresModel(),
                                                    this->matchesModel());
 
-    //connect(mMainWindowPresenter, &MainWindowPresenter::openNewProjectDialog,
-    //        this, &ComponentsManager::initAndOpenNewProjectDialog);
 
     connect(mMainWindowPresenter, &MainWindowPresenter::openExportOrientationsDialog,
             this, &ComponentsManager::initAndOpenExportOrientationsDialog);
 
-    //connect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
-    //         this, &ComponentsManager::initAndOpenCamerasDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openSettingsDialog,
             this, &ComponentsManager::initAndOpenSettingsDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openViewSettingsDialog,
@@ -277,9 +233,6 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenToolSettingsDialog);
     connect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
             this, &ComponentsManager::initAndOpenGeoreferenceDialog);
-    //connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasImportDialog,
-    //        this, &ComponentsManager::initAndOpenCamerasImportDialog);
-//    connect(mMainWindowPresenter, SIGNAL(openAboutDialog()),            this, SLOT(initAndOpenAboutDialog()));
     connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
             this, &ComponentsManager::initAndOpenExportPointCloudDialog);
   }
@@ -347,11 +300,6 @@ void ComponentsManager::registerComponent(Component *component,
   }
 }
 
-//void ComponentsManager::registerMenu(QMenu *menu, Flags flags)
-//{
-//  mMainWindowView->addMenu(menu);
-//}
-
 Project *ComponentsManager::project()
 {
   return mProject;
@@ -364,24 +312,6 @@ ProjectModel *ComponentsManager::projectModel()
   }
   return mProjectModel;
 }
-
-//CamerasModel *ComponentsManager::camerasModel()
-//{
-//  if (mCamerasModel == nullptr){
-//    mCamerasModel = new CamerasModelImp(mProject);
-//  }
-//  return mCamerasModel;
-//}
-
-//CamerasPresenter *ComponentsManager::camerasPresenter()
-//{
-//  if (mCamerasPresenter == nullptr){
-//    CamerasView *view = new CamerasViewImp(this->mainWindowView());
-//    mCamerasPresenter = new CamerasPresenterImp(view,
-//                                                this->camerasModel());
-//  }
-//  return mCamerasPresenter;
-//}
 
 FeaturesModel *ComponentsManager::featuresModel()
 {
@@ -416,15 +346,6 @@ SettingsPresenter *ComponentsManager::settingsPresenter()
   }
   return mSettingsPresenter;
 }
-
-//NewProjectPresenter *ComponentsManager::newProjectPresenter()
-//{
-//  if (mNewProjectPresenter == nullptr){
-//    NewProjectView *newProjectView = new NewProjectViewImp(this->mainWindowView());
-//    mNewProjectPresenter = new NewProjectPresenterImp(newProjectView, this->projectModel());
-//  }
-//  return mNewProjectPresenter;
-//}
 
 ExportOrientationsModel *ComponentsManager::exportOrientationsModel()
 {
@@ -462,24 +383,6 @@ GeoreferencePresenter *ComponentsManager::georeferencePresenter()
   }
   return mGeoreferencePresenter;
 }
-
-//CamerasImportModel *ComponentsManager::camerasImportModel()
-//{
-//  if (mCamerasImportModel == nullptr) {
-//    mCamerasImportModel = new CamerasImportModelImp(mProject);
-//  }
-//  return mCamerasImportModel;
-//}
-//
-//ImportCamerasPresenter *ComponentsManager::ImportCamerasPresenter()
-//{
-//  if (mImportCamerasPresenter == nullptr){
-//    ImportCamerasView *view = new ImportCamerasViewImp(this->mainWindowView());
-//    mImportCamerasPresenter = new ImportCamerasPresenterImp(view,
-//                                                            this->camerasImportModel());
-//  }
-//  return mImportCamerasPresenter;
-//}
 
 ExportPointCloudModel *ComponentsManager::exportPointCloudModel()
 {
@@ -540,20 +443,6 @@ ProgressDialog *ComponentsManager::progressDialog()
   return mProgressDialog;
 }
 
-//void ComponentsManager::initAndOpenNewProjectDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog,
-//             this, &ComponentsManager::initAndOpenNewProjectDialog);
-//
-//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openNewProjectDialog, 
-//          this->newProjectPresenter(), &IPresenter::open);
-//  connect(this->newProjectPresenter(), SIGNAL(projectCreate()),
-//          this->mainWindowPresenter(), SLOT(loadProject()));
-//
-//  this->newProjectPresenter()->setHelp(this->helpDialog());
-//  this->newProjectPresenter()->open();
-//}
-
 void ComponentsManager::initAndOpenSettingsDialog()
 {
   this->initSettingsDialog();
@@ -571,22 +460,6 @@ void ComponentsManager::initAndOpenToolSettingsDialog()
   this->initSettingsDialog();
   this->settingsPresenter()->openToolSettings();
 }
-
-//void ComponentsManager::initAndOpenCamerasDialog()
-//{
-//  disconnect(mMainWindowPresenter, &MainWindowPresenter::openCamerasDialog,
-//             this,                 &ComponentsManager::initAndOpenCamerasDialog);
-//
-//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasDialog,
-//          this->camerasPresenter(),    &CamerasPresenter::open);
-//
-//  connect(this->camerasPresenter(), SIGNAL(projectModified()), this->mainWindowPresenter(), SLOT(onProjectModified()));
-//
-//
-//  this->camerasPresenter()->setHelp(this->helpDialog());
-//  this->camerasPresenter()->open();
-//
-//}
 
 void ComponentsManager::initSettingsDialog()
 {
@@ -636,19 +509,6 @@ void ComponentsManager::initAndOpenGeoreferenceDialog()
   this->georeferencePresenter()->setHelp(this->helpDialog());
   this->georeferencePresenter()->open();
 }
-
-//void ComponentsManager::initAndOpenCamerasImportDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasImportDialog,
-//             this, &ComponentsManager::initAndOpenCamerasImportDialog);
-//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openCamerasImportDialog,
-//          this->ImportCamerasPresenter(), &ImportCamerasPresenter::open);
-//
-//  connect(this->ImportCamerasPresenter(), SIGNAL(projectModified()), this->mainWindowPresenter(), SLOT(onProjectModified()));
-//
-//  this->ImportCamerasPresenter()->setHelp(this->helpDialog());
-//  this->ImportCamerasPresenter()->open();
-//}
 
 void ComponentsManager::initAndOpenExportPointCloudDialog()
 {

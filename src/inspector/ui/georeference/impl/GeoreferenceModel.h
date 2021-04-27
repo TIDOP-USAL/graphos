@@ -87,7 +87,7 @@ public:
   void setSparseModel(const QString &sparseModel) override;
   void setOffset(const QString &offset) override;
   void addPhotoOrientation(const QString &imgName, 
-                           const PhotoOrientation &orientation) override;
+                           const CameraPose &orientation) override;
   image_iterator imageBegin();
   image_const_iterator imageBegin() const;
   image_iterator imageEnd();

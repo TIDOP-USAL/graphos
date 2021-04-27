@@ -133,7 +133,7 @@ public:
    * \param[in] path Ruta de la imagen a buscar
    * \return Objeto Image correspondiente o puntero nulo si no se encuentra
    */
-  virtual Image findImage(const QString &path) const = 0;
+  //virtual Image findImage(const QString &path) const = 0;
 
   virtual Image findImageById(size_t id) const = 0;
   virtual Image findImageByName(const QString &imgName) const = 0;
@@ -229,6 +229,8 @@ public:
    */
   virtual camera_const_iterator cameraEnd() const = 0;
 
+  virtual size_t camerasCount() const = 0;
+
   virtual std::shared_ptr<Feature> featureExtractor() const = 0;
   virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
 
@@ -260,8 +262,8 @@ public:
   virtual QString reconstructionPath() const = 0;
   virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
   virtual bool isPhotoOriented(const QString &imgName) const = 0;
-  virtual PhotoOrientation photoOrientation(const QString &imgName) const = 0;
-  virtual void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) = 0;
+  virtual CameraPose photoOrientation(const QString &imgName) const = 0;
+  virtual void addPhotoOrientation(const QString &imgName, const CameraPose &photoOrientation) = 0;
   virtual void clearReconstruction() = 0;
 
   virtual std::shared_ptr<Densification> densification() const = 0;
@@ -377,7 +379,7 @@ public:
   bool updateImage(size_t imageId, const Image &image) override;
   bool removeImage(const QString &imgPath) override;
   bool removeImage(size_t imgId) override;
-  Image findImage(const QString &imgName) const override;
+  //Image findImage(const QString &imgName) const override;
   Image findImageById(size_t id) const override;
   Image findImageByName(const QString &imgName) const override;
   bool existImage(const QString &imgName) const override;
@@ -399,6 +401,7 @@ public:
   camera_const_iterator cameraBegin() const override;
   camera_iterator cameraEnd() override;
   camera_const_iterator cameraEnd() const override;
+  size_t camerasCount() const override;
 
   std::shared_ptr<Feature> featureExtractor() const override;
   void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
@@ -431,8 +434,8 @@ public:
   QString reconstructionPath() const override;
   void setReconstructionPath(const QString &reconstructionPath) override;
   bool isPhotoOriented(const QString &imgName) const override;
-  PhotoOrientation photoOrientation(const QString &imgName) const override;
-  void addPhotoOrientation(const QString &imgName, const PhotoOrientation &photoOrientation) override;
+  CameraPose photoOrientation(const QString &imgName) const override;
+  void addPhotoOrientation(const QString &imgName, const CameraPose &photoOrientation) override;
   void clearReconstruction() override;
 
   std::shared_ptr<Densification> densification() const override;
@@ -526,7 +529,7 @@ protected:
   std::map<QString, QString> mFeatures;
   std::shared_ptr<FeatureMatching> mFeatureMatching;
   std::map<QString, std::vector<QString>> mImagesPairs;
-  std::map<QString, PhotoOrientation> mPhotoOrientation;
+  std::map<QString, CameraPose> mPhotoOrientation;
   bool bRefinePrincipalPoint;
   QString mSparseModel;
   QString mOffset;

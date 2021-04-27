@@ -183,8 +183,8 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
     int oriented_images = 0;
     for (auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++) {
       QString image_oriented = QFileInfo(image->path()).fileName();
-      PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
-      if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
+      CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+      if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
         oriented_images++;
       } else {
@@ -224,8 +224,8 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
     ReadPhotoOrientations readPhotoOrientations;
     readPhotoOrientations.open(ori_absolute_path);
     for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
-      PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
-      if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
+      CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+      if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
       }
     }

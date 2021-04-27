@@ -26,16 +26,12 @@ class SettingsPresenter;
 class NewProjectPresenter;
 class FeaturesModel;
 class MatchesModel;
-//class CamerasModel;
-//class CamerasPresenter;
 class ProgressHandler;
 class ProgressDialog;
 class ExportOrientationsModel;
 class ExportOrientationsPresenter;
 class GeoreferenceModel;
 class GeoreferencePresenter;
-//class CamerasImportModel;
-//class ImportCamerasPresenter;
 class ExportPointCloudModel;
 class ExportPointCloudPresenter;
 class HelpDialog;
@@ -69,21 +65,16 @@ public:
 
   Project *project();
   ProjectModel *projectModel();
-  //CamerasModel *camerasModel();
-  //CamerasPresenter *camerasPresenter();
   FeaturesModel *featuresModel();
   MatchesModel *matchesModel();
 
   SettingsModel *settingsModel();
   SettingsPresenter *settingsPresenter();
 
-  //NewProjectPresenter *newProjectPresenter();
   ExportOrientationsModel *exportOrientationsModel();
   ExportOrientationsPresenter *exportOrientationsPresenter();
   GeoreferenceModel *georeferenceModel();
   GeoreferencePresenter *georeferencePresenter();
-  //CamerasImportModel *camerasImportModel();
-  //ImportCamerasPresenter *ImportCamerasPresenter();
   ExportPointCloudModel *exportPointCloudModel();
   ExportPointCloudPresenter *exportPointCloudPresenter();
 
@@ -97,15 +88,12 @@ signals:
 
 protected slots:
 
-  //void initAndOpenNewProjectDialog();
   void initAndOpenSettingsDialog();
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
-  //void initAndOpenCamerasDialog();
   void initSettingsDialog();
   void initAndOpenExportOrientationsDialog();
   void initAndOpenGeoreferenceDialog();
-  //void initAndOpenCamerasImportDialog();
   void initAndOpenExportPointCloudDialog();
 
 protected:
@@ -122,8 +110,6 @@ protected:
 
 
   ProjectModel *mProjectModel;
-  //CamerasModel *mCamerasModel;
-  //CamerasPresenter *mCamerasPresenter;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
   Settings *mSettings;
@@ -131,13 +117,10 @@ protected:
   SettingsModel *mSettingsModel;
   SettingsPresenter *mSettingsPresenter;
 
-  //NewProjectPresenter *mNewProjectPresenter;
   ExportOrientationsModel *mExportOrientationsModel;
   ExportOrientationsPresenter *mExportOrientationsPresenter;
   GeoreferenceModel *mGeoreferenceModel;
   GeoreferencePresenter *mGeoreferencePresenter;
-  //CamerasImportModel *mCamerasImportModel;
-  //ImportCamerasPresenter *mImportCamerasPresenter;
   ExportPointCloudModel *mExportPointCloudModel;
   ExportPointCloudPresenter *mExportPointCloudPresenter;
   //AboutDialog *mAboutDialog;

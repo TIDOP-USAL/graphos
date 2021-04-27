@@ -302,7 +302,7 @@ void inspector::LoadImagesProcess::run()
       if (latitudeDecimalDegrees != 0.0 && longitudeDecimalDegrees != 0.0 && altitude != 0.0){
 
         std::shared_ptr<tl::geospatial::Crs> crs_in(new tl::geospatial::Crs("EPSG:4326"));
-        int zone = tl::geospatial::utmZoneFromLongitude(longitudeDecimalDegrees * TL_DEG_TO_RAD);
+        int zone = tl::geospatial::utmZoneFromLongitude(longitudeDecimalDegrees * tl::math::consts::deg_to_grad<double>);
         std::string epsg_out = "EPSG:326";
         epsg_out.append(std::to_string(zone));
         std::shared_ptr<tl::geospatial::Crs> crs_out(new tl::geospatial::Crs(epsg_out));

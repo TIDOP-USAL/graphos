@@ -5,6 +5,9 @@
 
 #include <QString>
 
+#include <tidop/geometry/entities/point.h>
+#include <tidop/math/algebra/rotation_matrix.h>
+
 #include "inspector/inspector_global.h"
 
 namespace colmap
@@ -15,12 +18,10 @@ class Reconstruction;
 namespace inspector
 {
 
-struct INSPECTOR_EXPORT PhotoOrientation
+struct INSPECTOR_EXPORT CameraPose
 {
-  double x = 0.;
-  double y = 0.;
-  double z = 0.;
-  std::array<std::array<float, 3>, 3> rot;
+  tl::Point3D position{};
+  tl::math::RotationMatrix<double> rotation{};
 };
 
 
@@ -33,7 +34,7 @@ public:
   ~ReadPhotoOrientations();
 
   void open(const QString &path);
-  PhotoOrientation orientation(const QString &image) const;
+  CameraPose orientation(const QString &image) const;
 
 protected:
 

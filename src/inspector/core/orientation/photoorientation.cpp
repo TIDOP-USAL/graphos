@@ -31,9 +31,9 @@ void ReadPhotoOrientations::open(const QString &path)
 //#endif
 }
 
-PhotoOrientation ReadPhotoOrientations::orientation(const QString &imageName) const
+CameraPose ReadPhotoOrientations::orientation(const QString &imageName) const
 {
-  PhotoOrientation photoOrientation;
+  CameraPose photoOrientation;
 
   for (auto &image : mReconstruction->Images()) {
     std::string image_name = image.second.Name();
@@ -44,20 +44,20 @@ PhotoOrientation ReadPhotoOrientations::orientation(const QString &imageName) co
       colmap::Image &colmap_image = mReconstruction->Image(image_id);
       const Eigen::Matrix<double, 3, 4> inv_proj_matrix = colmap_image.InverseProjectionMatrix();
       const Eigen::Vector3d pc = inv_proj_matrix.rightCols<1>();
-      photoOrientation.x = pc(0);
-      photoOrientation.y = pc(1);
-      photoOrientation.z = pc(2);
+      photoOrientation.position.x = pc(0);
+      photoOrientation.position.y = pc(1);
+      photoOrientation.position.z = pc(2);
 
       Eigen::Matrix3d rot = colmap_image.RotationMatrix();
-      photoOrientation.rot[0][0] = static_cast<float>(rot(0, 0));
-      photoOrientation.rot[0][1] = static_cast<float>(rot(0, 1));
-      photoOrientation.rot[0][2] = static_cast<float>(rot(0, 2));
-      photoOrientation.rot[1][0] = static_cast<float>(rot(1, 0));
-      photoOrientation.rot[1][1] = static_cast<float>(rot(1, 1));
-      photoOrientation.rot[1][2] = static_cast<float>(rot(1, 2));
-      photoOrientation.rot[2][0] = static_cast<float>(rot(2, 0));
-      photoOrientation.rot[2][1] = static_cast<float>(rot(2, 1));
-      photoOrientation.rot[2][2] = static_cast<float>(rot(2, 2));
+      photoOrientation.rotation.at(0, 0) = rot(0, 0);
+      photoOrientation.rotation.at(0, 1) = rot(0, 1);
+      photoOrientation.rotation.at(0, 2) = rot(0, 2);
+      photoOrientation.rotation.at(1, 0) = rot(1, 0);
+      photoOrientation.rotation.at(1, 1) = rot(1, 1);
+      photoOrientation.rotation.at(1, 2) = rot(1, 2);
+      photoOrientation.rotation.at(2, 0) = rot(2, 0);
+      photoOrientation.rotation.at(2, 1) = rot(2, 1);
+      photoOrientation.rotation.at(2, 2) = rot(2, 2);
     }
   }
 

@@ -47,7 +47,7 @@ public:
   virtual void setSparseModel(const QString &sparseModel) = 0;
   virtual void setOffset(const QString &offset) = 0;
   virtual void addPhotoOrientation(const QString &imgName, 
-                                   const PhotoOrientation &orientation) = 0;
+                                   const CameraPose &orientation) = 0;
   virtual image_iterator imageBegin() = 0;
   virtual image_const_iterator imageBegin() const = 0;
   virtual image_iterator imageEnd() = 0;

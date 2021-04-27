@@ -100,8 +100,8 @@ void GeoreferencePresenterImp::onGeoreferenceFinished()
     ReadPhotoOrientations readPhotoOrientations;
     readPhotoOrientations.open(ori_relative_path);
     for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
-      PhotoOrientation photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
-      if (photoOrientation.x != 0. && photoOrientation.y != 0. && photoOrientation.z != 0.) {
+      CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+      if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
       }
     }

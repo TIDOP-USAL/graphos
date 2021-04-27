@@ -33,9 +33,9 @@ public:
   virtual void setSparseModel(const QString &sparseModel) = 0;
   virtual void setOffset(const QString &offset) = 0;
   virtual bool isPhotoOriented(const QString &imgName) const = 0;
-  virtual PhotoOrientation photoOrientation(const QString &imgName) const = 0;
+  virtual CameraPose photoOrientation(const QString &imgName) const = 0;
   virtual void addPhotoOrientation(const QString &imgName, 
-                                   const PhotoOrientation &orientation) = 0;
+                                   const CameraPose &orientation) = 0;
   virtual QString database() const = 0;
   virtual QString imagePath() const = 0;
   virtual QString projectPath() const = 0;

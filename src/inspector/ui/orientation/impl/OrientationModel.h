@@ -30,8 +30,8 @@ public:
   void setSparseModel(const QString &sparseModel) override;
   void setOffset(const QString &offset) override;
   bool isPhotoOriented(const QString &imgName) const override;
-  PhotoOrientation photoOrientation(const QString &imgName) const override;
-  void addPhotoOrientation(const QString &imgName, const PhotoOrientation &orientation) override;
+  CameraPose photoOrientation(const QString &imgName) const override;
+  void addPhotoOrientation(const QString &imgName, const CameraPose &orientation) override;
   QString database() const override;
   QString imagePath() const override;
   QString projectPath() const override;

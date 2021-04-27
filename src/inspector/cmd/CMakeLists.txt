@@ -28,5 +28,6 @@ add_subdirectory(img)
 add_subdirectory(featextract)
 add_subdirectory(featmatch)
 add_subdirectory(georef)
-
+add_subdirectory(import_poses)
+add_subdirectory(orientation)
 endif()
