@@ -213,11 +213,11 @@ bool DtmInvDistAlgorithm::run(const QString &pointCloud,
   cmd.append(dtmFile.toStdString()).append(" ");
   cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS");
 
-  CmdProcess process(cmd);
-
-  if (process.run() == Process::Status::error) {
-    return true;
-  }
+  ExternalProcess process(cmd);
+  process.run();
+  //if (process.run() == Process::Status::error) {
+  //  return true;
+  //}
 
   return false;
 }

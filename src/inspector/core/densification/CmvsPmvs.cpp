@@ -303,11 +303,12 @@ bool CmvsPmvsDensifier::densify(const QString &undistortPath)
   cmd_cmvs.append("\\pmvs2\" \"");
   cmd_cmvs.append(undistortPath.toStdString());
   cmd_cmvs.append("/pmvs/\" option-all\"");
-  CmdProcess process(cmd_cmvs);
+  ExternalProcess process(cmd_cmvs);
 
-  if (process.run() == Process::Status::error) {
-    return true;
-  }
+  //if (process.run() == Process::Status::error) {
+  //  return true;
+  //}
+  process.run();
 
   return false;
 }

@@ -24,6 +24,8 @@ public:
   virtual QByteArray readStdout() override;
   virtual QByteArray readStderr() override;
 
+  bool isWaitingForFinished() const override;
+
 public slots:
 
   virtual void stop() override;

@@ -199,9 +199,9 @@ int main(int argc, char** argv)
           /// Omega Phi Kappa
 
           math::EulerAngles<double> opk;
-          opk.omega = stod(vector_out[4]) * math::consts::deg_to_rad<double>;
-          opk.phi = stod(vector_out[5]) * math::consts::deg_to_rad<double>;
-          opk.kappa = stod(vector_out[6]) * math::consts::deg_to_rad<double>;
+          opk.x = stod(vector_out[4]) * math::consts::deg_to_rad<double>;
+          opk.y = stod(vector_out[5]) * math::consts::deg_to_rad<double>;
+          opk.z = stod(vector_out[6]) * math::consts::deg_to_rad<double>;
           
           tl::math::RotationConverter<double>::convert(opk, camera_pose.rotation);
 

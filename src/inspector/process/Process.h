@@ -33,6 +33,8 @@ public:
   void setStartupMessage(const QString &message);
   void setSteps(int steps);
 
+  virtual bool isWaitingForFinished() const = 0;
+
 public slots:
 
   virtual void stop();

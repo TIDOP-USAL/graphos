@@ -34,6 +34,7 @@ signals:
   void finished();
   void titleChange(QString);
   void descriptionChange(QString);
+  void cancel();
 
 public slots:
 

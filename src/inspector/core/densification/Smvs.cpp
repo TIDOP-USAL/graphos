@@ -536,10 +536,11 @@ bool SmvsDensifier::densify(const QString &undistortPath)
   if (SmvsProperties::shadingBasedOptimization())
     cmd.append(" --shading ");
   cmd.append("\"").append(undistortPath.toStdString()).append("\"\"");
-  tl::CmdProcess process(cmd);
-  if (process.run() == tl::Process::Status::error) {
-    return true;
-  }
+  tl::ExternalProcess process(cmd);
+  process.run();
+  //if (process.run() == tl::Process::Status::error) {
+  //  return true;
+  //}
 
   return false;
 }

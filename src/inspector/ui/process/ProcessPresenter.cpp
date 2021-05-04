@@ -68,6 +68,8 @@ void ProcessPresenter::onError(int code, const QString &msg)
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
     disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(finish()));
+
+    disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
   }
 
   mMultiProcess->clearProcessList();
@@ -86,6 +88,8 @@ void ProcessPresenter::run()
       connect(mMultiProcess, SIGNAL(finished()),             mProgressHandler,    SLOT(finish()));
       connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(next()));
       connect(mMultiProcess, SIGNAL(error(int, QString)),    mProgressHandler,    SLOT(finish()));
+      
+      connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
 
       mProgressHandler->setTitle("Process...");
       mProgressHandler->setDescription("Process...");
@@ -110,6 +114,8 @@ void ProcessPresenter::run()
         disconnect(mMultiProcess, SIGNAL(finished()), mProgressHandler, SLOT(finish()));
         disconnect(mMultiProcess, SIGNAL(statusChangedNext()), mProgressHandler, SLOT(next()));
         disconnect(mMultiProcess, SIGNAL(error(int, QString)), mProgressHandler, SLOT(finish()));
+
+        disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
       }
     }
 
@@ -136,6 +142,7 @@ void ProcessPresenter::cancel()
     disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
     disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
     disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(finish()));
+    disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
   }
 
   mMultiProcess->clearProcessList();

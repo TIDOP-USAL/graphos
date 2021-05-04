@@ -41,7 +41,8 @@ private:
 
 private slots:
 
-  void onFeaturesExtracted(const QString &imageName, const QString &featuresFile);
+  void onFeaturesExtracted(const QString &imageName, 
+                           const QString &featuresFile);
 
 // FeatureExtractorPresenter interface
 

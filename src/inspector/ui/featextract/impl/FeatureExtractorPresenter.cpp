@@ -95,10 +95,10 @@ void FeatureExtractorPresenterImp::setDetectorAndDescriptorProperties()
 
 void FeatureExtractorPresenterImp::setSiftProperties()
 {
-  Sift *sift = nullptr;
+  std::shared_ptr<Sift> sift;
   if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()){
     if (feature_extractor->type() == Feature::Type::sift){
-      sift = dynamic_cast<Sift *>(feature_extractor.get());
+      sift = std::dynamic_pointer_cast<Sift>(feature_extractor);
     }
   } else {
     TL_TODO("Sift *sift = mSettingsModel->sift();")
@@ -139,11 +139,11 @@ void FeatureExtractorPresenterImp::onFinished()
 bool FeatureExtractorPresenterImp::createProcess()
 {
   /// Se comprueba si ya se había ejecutado previante y se borran los datos
-  if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()){
+  if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),
                             tr("The previous results will be overwritten. Do you wish to continue?"),
-                            QMessageBox::Yes|QMessageBox::No).exec();
+                            QMessageBox::Yes | QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
       //throw std::runtime_error("Canceled by user");
       msgWarning("Process canceled by user");
@@ -157,11 +157,12 @@ bool FeatureExtractorPresenterImp::createProcess()
   QString currentKeypointDetector = mView->currentDetectorDescriptor();
   std::shared_ptr<FeatureExtractor> feature_extractor;
 
-  if (currentKeypointDetector.compare("SIFT") == 0){
+  ///TODO: Actualizar progreso
+  if (currentKeypointDetector.compare("SIFT") == 0) {
     feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
                                                                      mSift->octaveLayers(),
                                                                      mSift->edgeThreshold(),
-                                                                     mSift->sigma(), 
+                                                                     mSift->sigma(),
                                                                      mSift->constrastThresholdAuto() ? 0. : mSift->contrastThreshold());
   } else {
     mView->hide();
@@ -170,34 +171,55 @@ bool FeatureExtractorPresenterImp::createProcess()
 
   mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
 
+  std::vector<Image> images = mModel->images();
+  std::map<int, Camera> cameras = mModel->cameras();
+  QString database = mModel->database();
 
-  for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
-
-    int camera_id = image->cameraId();
-    Camera camera = mModel->camera(camera_id);
-
-    int maxSize;
-    if (mView->fullImageSize() == false){
-      maxSize = mView->maxImageSize();
-    } else {
-      QImageReader imageReader(image->path());
-      QSize size = imageReader.size();
-      maxSize = std::max(size.width(), size.height());
-    }
-
-    QString features_file = QString(image->name()).append("@").append(mModel->database());
-    std::shared_ptr<FeatureExtractorProcess> feat_extract(new FeatureExtractorProcess(*image,
-                                                                                      camera,
-                                                                                      maxSize,
-                                                                                      features_file,
-                                                                                      mModel->useCuda(),
-                                                                                      feature_extractor));
-    connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)), this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
-
-    mMultiProcess->appendProcess(feat_extract);
+  int maxSize = -1;
+  if (mView->fullImageSize() == false) {
+    maxSize = mView->maxImageSize();
   }
 
-  if (mProgressHandler){
+  std::shared_ptr<FeatureExtractorProcess> feat_extract(new FeatureExtractorProcess(images,
+                                                                                    cameras,
+                                                                                    database,
+                                                                                    maxSize,
+                                                                                    mModel->useCuda(),
+                                                                                    feature_extractor));
+
+  connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)), this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
+
+  /// Hacer privadas
+  mMultiProcess->appendProcess(feat_extract);
+  mProgressHandler->setRange(0, images.size());
+
+  //for (auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++) {
+
+  //  int camera_id = image->cameraId();
+  //  Camera camera = mModel->camera(camera_id);
+
+  //  int maxSize;
+  //  if (mView->fullImageSize() == false) {
+  //    maxSize = mView->maxImageSize();
+  //  } else {
+  //    QImageReader imageReader(image->path());
+  //    QSize size = imageReader.size();
+  //    maxSize = std::max(size.width(), size.height());
+  //  }
+
+  //  QString features_file = QString(image->name()).append("@").append(mModel->database());
+  //  std::shared_ptr<FeatureExtractorProcess> feat_extract(new FeatureExtractorProcess(*image,
+  //                                                        camera,
+  //                                                        maxSize,
+  //                                                        features_file,
+  //                                                        mModel->useCuda(),
+  //                                                        feature_extractor));
+  //  connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)), this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
+
+  //  mMultiProcess->appendProcess(feat_extract);
+  //}
+
+  if (mProgressHandler) {
     mProgressHandler->setTitle("Computing Features...");
     mProgressHandler->setDescription("Computing Features...");
   }
@@ -209,7 +231,81 @@ bool FeatureExtractorPresenterImp::createProcess()
   return true;
 }
 
-void FeatureExtractorPresenterImp::onFeaturesExtracted(const QString &imageName, const QString &featuresFile)
+//bool FeatureExtractorPresenterImp::createProcess()
+//{
+//  /// Se comprueba si ya se había ejecutado previante y se borran los datos
+//  if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()){
+//    int i_ret = QMessageBox(QMessageBox::Warning,
+//                            tr("Previous results"),
+//                            tr("The previous results will be overwritten. Do you wish to continue?"),
+//                            QMessageBox::Yes|QMessageBox::No).exec();
+//    if (i_ret == QMessageBox::No) {
+//      //throw std::runtime_error("Canceled by user");
+//      msgWarning("Process canceled by user");
+//      return false;
+//    }
+//  }
+//
+//  mModel->clearProject();
+//  emit featuresDeleted();
+//
+//  QString currentKeypointDetector = mView->currentDetectorDescriptor();
+//  std::shared_ptr<FeatureExtractor> feature_extractor;
+//
+//  if (currentKeypointDetector.compare("SIFT") == 0){
+//    feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
+//                                                                     mSift->octaveLayers(),
+//                                                                     mSift->edgeThreshold(),
+//                                                                     mSift->sigma(), 
+//                                                                     mSift->constrastThresholdAuto() ? 0. : mSift->contrastThreshold());
+//  } else {
+//    mView->hide();
+//    throw std::runtime_error("Invalid Keypoint Detector");
+//  }
+//
+//  mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
+//
+//
+//  for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
+//
+//    int camera_id = image->cameraId();
+//    Camera camera = mModel->camera(camera_id);
+//
+//    int maxSize;
+//    if (mView->fullImageSize() == false){
+//      maxSize = mView->maxImageSize();
+//    } else {
+//      QImageReader imageReader(image->path());
+//      QSize size = imageReader.size();
+//      maxSize = std::max(size.width(), size.height());
+//    }
+//
+//    QString features_file = QString(image->name()).append("@").append(mModel->database());
+//    std::shared_ptr<FeatureExtractorProcess> feat_extract(new FeatureExtractorProcess(*image,
+//                                                                                      camera,
+//                                                                                      maxSize,
+//                                                                                      features_file,
+//                                                                                      mModel->useCuda(),
+//                                                                                      feature_extractor));
+//    connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)), this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
+//
+//    mMultiProcess->appendProcess(feat_extract);
+//  }
+//
+//  if (mProgressHandler){
+//    mProgressHandler->setTitle("Computing Features...");
+//    mProgressHandler->setDescription("Computing Features...");
+//  }
+//
+//  mView->hide();
+//
+//  msgInfo("Starting Feature Extraction");
+//
+//  return true;
+//}
+
+void FeatureExtractorPresenterImp::onFeaturesExtracted(const QString &imageName, 
+                                                       const QString &featuresFile)
 {
   mModel->addFeatures(imageName, featuresFile);
   emit featuresExtracted(imageName);

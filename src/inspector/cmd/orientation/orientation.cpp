@@ -1,5 +1,6 @@
 #include <inspector/core/utils.h>
 #include <inspector/core/project.h>
+#include <inspector/core/orientation/orientationexport.h>
 
 #include <tidop/core/utils.h>
 #include <tidop/core/messages.h>
@@ -12,7 +13,7 @@
 //#include <tidop/geometry/entities/point.h>
 //#include <tidop/math/algebra/euler_angles.h>
 #include <tidop/math/algebra/quaternion.h>
-//#include <tidop/math/algebra/rotation_convert.h>
+#include <tidop/math/algebra/rotation_convert.h>
 //#include <tidop/math/math.h>
 
 #include <colmap/util/option_manager.h>
@@ -71,6 +72,8 @@ int main(int argc, char** argv)
   input_path.append("import_ori");
   Path::createDirectory(input_path);
 
+  bool bLocalCoord = true;
+  Point3D offset(0., 0., 0.);
   /// leer imagenes y escribir images.txt en reconstrucción temporal
   {
     tl::Path images_path(input_path);
@@ -81,18 +84,66 @@ int main(int argc, char** argv)
 
     if (!ofs.is_open()) return 1;
 
+    
+    auto it = project.imageBegin();
+    if (it != project.imageEnd()) {
+      CameraPosition cameraPosition = it->cameraPosition();
+      if (cameraPosition.crs() != "") bLocalCoord = false;
+    }
+
+    int i = 1;
+    for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
+      CameraPosition cameraPosition = image->cameraPosition(); 
+      tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
+      offset += (position - offset) / i;
+      i++;
+    }
+
     size_t id = 1;
     for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-
-      std::string file_name = Path(image->path().toStdString()).fileName();
-
+      
       CameraPosition cameraPosition = image->cameraPosition();
       math::Quaternion<double> quaternion = cameraPosition.quaternion();
+      std::string file_name = Path(image->path().toStdString()).fileName();
+      tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
+
+      if (!bLocalCoord) {
+        position -= offset;
+      }
+
+      math::Vector<double, 3> vector_camera_position = position.vector();
+
+      math::RotationMatrix<double> r_ip_ic = math::RotationMatrix<double>::identity();
+      r_ip_ic.at(1, 1) = -1;
+      r_ip_ic.at(2, 2) = -1;
+
+      math::RotationMatrix<double> rotation_matrix;
+      math::RotationConverter<double>::convert(quaternion, rotation_matrix);
+
+      math::RotationMatrix<double> rotation = r_ip_ic * rotation_matrix.transpose();
+      tl::math::RotationConverter<double>::convert(rotation, quaternion);
+      quaternion.normalize();
+
+      vector_camera_position = rotation * -vector_camera_position;
 
       ofs << std::fixed << id++ << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " " <<
-        cameraPosition.x() << " " << cameraPosition.y() << " " << cameraPosition.z() << " 1 " << file_name << std::endl;
+        vector_camera_position[0] << " " << vector_camera_position[1] << " " << vector_camera_position[2] << " 1 " << file_name << std::endl;
       ofs << std::endl;
+
     }
+
+    //size_t id = 1;
+    //for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
+
+    //  std::string file_name = Path(image->path().toStdString()).fileName();
+
+    //  CameraPosition cameraPosition = image->cameraPosition();
+    //  math::Quaternion<double> quaternion = cameraPosition.quaternion();
+
+    //  ofs << std::fixed << id++ << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " " <<
+    //    cameraPosition.x() << " " << cameraPosition.y() << " " << cameraPosition.z() << " 1 " << file_name << std::endl;
+    //  ofs << std::endl;
+    //}
 
     ofs.close();
   }
@@ -184,9 +235,9 @@ int main(int argc, char** argv)
 
 
 
+  std::string reconstruction_path = project.projectFolder().toStdString() + "/ori/relative/";
+  Path::createDirectory(reconstruction_path);
 
-
-  std::string reconstruction_path = project.reconstructionPath().toStdString();
   bool clear_points = false;
 
   colmap::OptionManager options;
@@ -335,6 +386,34 @@ int main(int argc, char** argv)
   mapper.EndReconstruction(kDiscardReconstruction);
 
   reconstruction.Write(reconstruction_path);
+
+  OrientationExport orientationExport(&reconstruction);
+  std::string sparse_model = reconstruction_path + "/sparse.ply";
+  orientationExport.exportPLY(sparse_model.c_str());
+
+  project.setReconstructionPath(reconstruction_path.c_str());
+  project.setSparseModel(sparse_model.c_str());
+  
+  if (!bLocalCoord) {
+    std::string offset_file = reconstruction_path + "/offset.txt";
+
+    std::ofstream ofs;
+    ofs.open(offset_file, std::ofstream::out | std::ofstream::trunc);
+    
+    ofs << QString::number(offset.x, 'f', 3).toStdString() << " "
+        << QString::number(offset.y, 'f', 3).toStdString() << " "
+        << QString::number(offset.z, 'f', 3).toStdString() << std::endl;
+
+    msgInfo("Camera offset: %lf,%lf,%lf", offset.x, offset.y, offset.z);
+
+
+    ofs.close();
+
+    project.setOffset(offset_file.c_str());
+
+    project.save(project_file.toString().c_str());
+  }
+
 
   return 0;
 }

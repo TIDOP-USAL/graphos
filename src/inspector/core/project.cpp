@@ -191,6 +191,11 @@ size_t ProjectImp::imageId(const QString &imageName) const
   throw std::runtime_error(msg.c_str());
 }
 
+std::vector<Image> ProjectImp::images() const
+{
+  return mImages;
+}
+
 Project::image_iterator ProjectImp::imageBegin()
 {
   return mImages.begin();
@@ -220,6 +225,11 @@ int ProjectImp::addCamera(const Camera &camera)
 {
   mCameras[++mCameraCount] = camera;
   return mCameraCount;
+}
+
+std::map<int, Camera> ProjectImp::cameras() const
+{
+  return mCameras;
 }
 
 Camera ProjectImp::findCamera(const QString &make, const QString &model) const

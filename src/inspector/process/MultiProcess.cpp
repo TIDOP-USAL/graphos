@@ -158,6 +158,11 @@ int MultiProcess::getSteps()
   return Process::getSteps();
 }
 
+bool MultiProcess::isWaitingForFinished() const
+{
+  return mWaitForFinished;
+}
+
 void MultiProcess::onError(int code, const QString &cause)
 {
   emit error(code, cause);

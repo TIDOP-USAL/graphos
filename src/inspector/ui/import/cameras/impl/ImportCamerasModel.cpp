@@ -5,6 +5,7 @@
 #include <tidop/core/messages.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geometry/entities/point.h>
+#include <tidop/math/math.h>
 #include <tidop/math/algebra/rotation_convert.h>
 #include <tidop/math/algebra/euler_angles.h>
 #include <tidop/math/algebra/quaternion.h>
@@ -686,10 +687,16 @@ void ImportCamerasModelImp::importCameras()
 
           tl::math::Quaternion<double> quaternion = tl::math::Quaternion<double>::identity();
           if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
-            tl::math::EulerAngles<double> ypr(yaw.toDouble(), pitch.toDouble(), roll.toDouble(), tl::math::EulerAngles<double>::Axes::xyz);
+            tl::math::EulerAngles<double> ypr(yaw.toDouble() * tl::math::consts::deg_to_rad<double>, 
+                                              pitch.toDouble() *tl::math::consts::deg_to_rad<double>,
+                                              roll.toDouble() *tl::math::consts::deg_to_rad<double>,
+                                              tl::math::EulerAngles<double>::Axes::xyz);
             tl::math::RotationConverter<double>::convert(ypr, quaternion);
           } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
-            tl::math::EulerAngles<double> opk(omega.toDouble(), phi.toDouble(), kappa.toDouble(), tl::math::EulerAngles<double>::Axes::xyz);
+            tl::math::EulerAngles<double> opk(omega.toDouble() * tl::math::consts::deg_to_rad<double>, 
+                                              phi.toDouble() * tl::math::consts::deg_to_rad<double>,
+                                              kappa.toDouble() * tl::math::consts::deg_to_rad<double>, 
+                                              tl::math::EulerAngles<double>::Axes::xyz);
             tl::math::RotationConverter<double>::convert(opk, quaternion);
           } else {
             quaternion.x = qx.toDouble();
@@ -697,6 +704,7 @@ void ImportCamerasModelImp::importCameras()
             quaternion.z = qz.toDouble();
             quaternion.w = qw.toDouble();
           }
+          quaternion.normalize();
           cameraPosition.setQuaternion(quaternion);
 
           image_it->setCameraPosition(cameraPosition);

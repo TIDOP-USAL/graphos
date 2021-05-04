@@ -32,6 +32,7 @@ public:
   Process *at(int i);
 
   virtual int getSteps() override;
+  bool isWaitingForFinished() const override;
 
 public slots:
 

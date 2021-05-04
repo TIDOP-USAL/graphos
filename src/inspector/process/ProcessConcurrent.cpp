@@ -56,11 +56,20 @@ QByteArray ProcessConcurrent::readStderr()
   return "";
 }
 
+bool ProcessConcurrent::isWaitingForFinished() const
+{
+  return mWait;
+}
+
 void ProcessConcurrent::stop()
 {
   mWatcher->cancel();
-  if (mWatcher->isRunning())
+  if (mWatcher->isRunning()) {
+    mWait = true;
     mWatcher->waitForFinished();
+    mWait = false;
+  }
+    
   mRunning = false;
 
   if (mWatcher) {

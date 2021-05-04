@@ -147,6 +147,9 @@ public:
 
   virtual bool existImage(const QString &imgName) const = 0;
 
+  //TODO: ¿Quitar los iteradores y simplificar?
+  virtual std::vector<Image> images() const = 0;
+
   /// Iteradores para el acceso a las imágenes y las cámaras
 
   /*!
@@ -202,6 +205,7 @@ public:
   virtual bool existCamera(const QString &make, const QString &model) const = 0;
   virtual bool updateCamera(int idCamera, const Camera &camera) = 0;
   virtual bool removeCamera(int idCamera) = 0;
+  virtual std::map<int, Camera> cameras() const  = 0;
 
   /*!
    * \brief Devuelve un iterador al inicio del listado de cámaras
@@ -384,6 +388,7 @@ public:
   Image findImageByName(const QString &imgName) const override;
   bool existImage(const QString &imgName) const override;
   size_t imageId(const QString &imageName) const override;
+  std::vector<Image> images() const override;
   image_iterator imageBegin() override;
   image_const_iterator imageBegin() const override;
   image_iterator imageEnd() override;
@@ -391,6 +396,7 @@ public:
   size_t imagesCount() const override;
 
   int addCamera(const Camera &camera) override;
+  std::map<int, Camera> cameras() const override;
   Camera findCamera(const QString &make, const QString &model) const override;
   Camera findCamera(int idCamera) const override;
   int cameraId(const QString &make, const QString &model) const override;
