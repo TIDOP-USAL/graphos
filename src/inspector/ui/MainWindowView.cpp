@@ -72,7 +72,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExportPointCloud(new QAction(this)),
     //mActionFeaturesViewer(new QAction(this)),
     //mActionMatchesViewer(new QAction(this)),
-    mActionDtm(new QAction(this)),
+    //mActionDtm(new QAction(this)),
     mActionOrtho(new QAction(this)),
     //mActionPassPointsViewer(new QAction(this)),
     mActionNotRecentProjects(new QAction(this)),
@@ -1172,7 +1172,7 @@ void MainWindowView::initMenuTools()
   ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionGeoreference);
   ui->menuTools->addSeparator();
-  ui->menuTools->addAction(mActionDtm);
+  //ui->menuTools->addAction(mActionDtm);
   //ui->menuTools->addAction(mActionOrtho);
   ui->menuTools->addSeparator();
   //ui->menuTools->addAction(mActionFeaturesViewer);
@@ -1231,7 +1231,7 @@ void MainWindowView::initSignalAndSlots()
 
   //connect(mActionCameras,            &QAction::triggered,   this,   &MainWindowView::openCamerasDialog);
   connect(mActionGeoreference,       &QAction::triggered,   this,   &MainWindowView::openGeoreferenceDialog);
-  connect(mActionDtm,                &QAction::triggered,   this,   &MainWindowView::openDtmDialog);
+  //connect(mActionDtm,                &QAction::triggered,   this,   &MainWindowView::openDtmDialog);
   //connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
   //connect(mActionMatchesViewer,      SIGNAL(triggered(bool)),   this,   SIGNAL(openMatchesViewer()));
   //connect(mActionPassPointsViewer,   SIGNAL(triggered(bool)),   this,   SIGNAL(openMultiviewMatchingAssessment()));
@@ -1343,7 +1343,7 @@ void MainWindowView::update()
   //mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
 
   //mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
-  mActionDtm->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
+  //mActionDtm->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
   mActionGeoreference->setEnabled(bProjectExists && bOriented && !bProcessing);
   //mActionFeaturesViewer->setEnabled(bFeatureExtraction);
   //mActionMatchesViewer->setEnabled(bFeatureMatching);
@@ -1394,7 +1394,7 @@ void MainWindowView::retranslate()
   mActionViewKeypoints->setText(QApplication::translate("MainWindowView", "View Keypoints", nullptr));
   mActionViewMatches->setText(QApplication::translate("MainWindowView", "View Matches", nullptr));
   mActionOpenModel3D->setText(QApplication::translate("MainWindowView", "Open Point Cloud", nullptr));
-  mActionDtm->setText(QApplication::translate("MainWindowView", "DTM/DSM", nullptr));
+  //mActionDtm->setText(QApplication::translate("MainWindowView", "DTM/DSM", nullptr));
 
 
   mToolBarFile->setWindowTitle(QCoreApplication::translate("MainWindowView", "File", nullptr));

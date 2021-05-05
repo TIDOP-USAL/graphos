@@ -177,7 +177,8 @@ bool DtmPresenterImp::createProcess()
   std::shared_ptr<DtmProcess> dtm_process(new DtmProcess(dtm_algorithm,
                                                          denseExport,
                                                          dtm_file,
-                                                         mView->gsd()));
+                                                         mView->gsd()),
+                                                         mView->isDSM());
 
   //connect(dtm_process.get(), &DtmProcess::dtmFinished, 
   //        this, &DtmPresenterImp::onFinishDtm);

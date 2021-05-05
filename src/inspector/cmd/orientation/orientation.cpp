@@ -233,10 +233,14 @@ int main(int argc, char** argv)
     ofs.close();
   }
 
+  std::string reconstruction_path = project.projectFolder().toStdString();
 
-
-  std::string reconstruction_path = project.projectFolder().toStdString() + "/ori/relative/";
-  Path::createDirectory(reconstruction_path);
+  if (bLocalCoord) {
+    reconstruction_path.append("/ori/relative/");
+  } else {
+    reconstruction_path.append("/ori/absolute/");
+  }
+  Path::createDirectories(reconstruction_path);
 
   bool clear_points = false;
 
@@ -391,10 +395,10 @@ int main(int argc, char** argv)
   std::string sparse_model = reconstruction_path + "/sparse.ply";
   orientationExport.exportPLY(sparse_model.c_str());
 
-  project.setReconstructionPath(reconstruction_path.c_str());
-  project.setSparseModel(sparse_model.c_str());
-  
+  std::string offset_file{};
+
   if (!bLocalCoord) {
+
     std::string offset_file = reconstruction_path + "/offset.txt";
 
     std::ofstream ofs;
@@ -408,12 +412,44 @@ int main(int argc, char** argv)
 
 
     ofs.close();
+  }
+    
+  project.setReconstructionPath(reconstruction_path.c_str());
+  project.setSparseModel(sparse_model.c_str());
+  project.setOffset(offset_file.c_str());
 
-    project.setOffset(offset_file.c_str());
+  ReadPhotoOrientations readPhotoOrientations;
+  readPhotoOrientations.open(reconstruction_path.c_str());
+  int oriented_images = 0;
 
-    project.save(project_file.toString().c_str());
+  for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
+    QString image_oriented = QFileInfo(image->path()).fileName();
+    CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+    if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
+      project.addPhotoOrientation(image->name(), photoOrientation);
+      oriented_images++;
+    } else {
+      QByteArray ba = image_oriented.toLocal8Bit();
+      const char *msg = ba.constData();
+      msgWarning("Image %s not oriented", msg);
+    }
   }
 
+  msgInfo("Oriented %i images", oriented_images);
+
+  ReadCalibration readCalibration;
+  readCalibration.open(reconstruction_path.c_str());
+  std::shared_ptr<Calibration> calibration;
+  for (auto camera_it = project.cameraBegin(); camera_it != project.cameraEnd(); camera_it++) {
+    calibration = readCalibration.calibration(camera_it->first);
+    if (calibration) {
+      Camera camera = camera_it->second;
+      camera.setCalibration(calibration);
+      project.updateCamera(camera_it->first, camera);
+    }
+  }
+
+  project.save(project_file.toString().c_str());
 
   return 0;
 }

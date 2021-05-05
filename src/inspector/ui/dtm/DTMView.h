@@ -25,6 +25,7 @@ public:
 
   virtual void addDtmMethod(QWidget *method) = 0;
   virtual QString currentDtmMethod() const = 0;
+  virtual bool isDSM() const = 0;
 
 signals:
 
@@ -35,7 +36,7 @@ public slots:
 
   virtual void setGSD(double gsd) = 0;
   virtual void setCurrentDtmMethod(const QString &method) = 0;
-
+  virtual void setDSM(bool active) = 0;
 };
 
 } // namespace ui

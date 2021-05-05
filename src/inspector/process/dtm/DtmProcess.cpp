@@ -17,12 +17,14 @@ namespace inspector
 DtmProcess::DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
                        const std::shared_ptr<DenseExport> &denseExport,
                        const QString &dtmFile,
-                       double gsd)
+                       double gsd,
+                       bool dsm)
   : ProcessConcurrent(),
     mDtmAlgorithm(dtmAlgorithm),
     mDenseExport(denseExport),
     mDtmFile(dtmFile),
-    mGSD(gsd)
+    mGSD(gsd),
+    mDSM(dsm)
 {
 
 }
@@ -36,25 +38,33 @@ void DtmProcess::run()
     tl::Chrono chrono("DTM finished");
     chrono.run();
 
-    QFileInfo info(mDtmFile);
-    
-    QDir dir = info.absoluteDir();
-    if (!dir.exists()) {
-      if (dir.mkpath(".") == false) {
-        throw std::runtime_error("The output directory cannot be created");
+    if (mDSM) {
+
+      /// Aplicar filtro CSF
+
+
+    } else {
+
+      QFileInfo info(mDtmFile);
+
+      QDir dir = info.absoluteDir();
+      if (!dir.exists()) {
+        if (dir.mkpath(".") == false) {
+          throw std::runtime_error("The output directory cannot be created");
+        }
       }
+
+      QString point_cloud = info.path() + "/" + info.completeBaseName() + ".csv";
+
+      tl::BoundingBox<tl::Point3<double>> bbox;
+
+      mDenseExport->exportToCSV(point_cloud, DenseExport::Fields::rgb, &bbox);
+
+      tl::Size<int> size(bbox.width() / mGSD, bbox.height() / mGSD);
+
+      mDtmAlgorithm->run(point_cloud, mDtmFile, size);
     }
-
-    QString point_cloud = info.path() + "/" + info.completeBaseName() + ".csv";
-
-    tl::BoundingBox<tl::Point3<double>> bbox;
-
-    mDenseExport->exportToCSV(point_cloud, DenseExport::Fields::rgb, &bbox);
     
-    tl::Size<int> size(bbox.width() / mGSD, bbox.height() / mGSD);
-
-    mDtmAlgorithm->run(point_cloud, mDtmFile, size);
-
     chrono.stop();
 
     emit dtmFinished();

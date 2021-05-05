@@ -55,11 +55,11 @@ std::array<double, 3> DtmModelImp::offset() const
   return offset;
 }
 
-void inspector::ui::DtmModelImp::init()
+void DtmModelImp::init()
 {
 }
 
-void inspector::ui::DtmModelImp::clear()
+void DtmModelImp::clear()
 {
 }
 

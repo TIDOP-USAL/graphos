@@ -292,7 +292,7 @@ protected:
   QAction *mActionExportPointCloud;
   //QAction *mActionFeaturesViewer;
   //QAction *mActionMatchesViewer;
-  QAction *mActionDtm;
+  //QAction *mActionDtm;
   QAction *mActionOrtho;
   //QAction *mActionPassPointsViewer;
   QAction *mActionNotRecentProjects;

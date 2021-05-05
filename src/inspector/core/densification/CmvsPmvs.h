@@ -7,14 +7,13 @@
 
 #include <QString>
 
-namespace colmap
-{
-class Reconstruction;
-}
-
 namespace inspector
 {
 
+namespace internal
+{
+class Reconstruction;
+}
 
 class INSPECTOR_EXPORT CmvsPmvsProperties
   : public CmvsPmvs
@@ -128,7 +127,7 @@ private:
   bool bCuda;
   std::string mOutputPath;
   std::string mImagesPath;
-  colmap::Reconstruction *mReconstruction;
+  internal::Reconstruction *mReconstruction;
 };
 
 

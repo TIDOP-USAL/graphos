@@ -166,7 +166,7 @@ void DensificationPresenterImp::onFinished()
     mProgressHandler->setDescription(tr("Densification finished"));
   }
 
-  msgInfo("Densification finished.");
+  //msgInfo("Densification finished.");
 }
 
 bool DensificationPresenterImp::createProcess()

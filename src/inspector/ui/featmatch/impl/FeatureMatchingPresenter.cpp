@@ -99,8 +99,6 @@ void FeatureMatchingPresenterImp::onFinished()
   if (mProgressHandler) {
     mProgressHandler->setDescription(tr("Feature detection and description finished"));
   }
-
-  msgInfo("Feature Matching finished");
 }
 
 bool FeatureMatchingPresenterImp::createProcess()
@@ -153,8 +151,6 @@ bool FeatureMatchingPresenterImp::createProcess()
   }
 
   mView->hide();
-
-  msgInfo("Starting Feature Matching");
 }
 
 void FeatureMatchingPresenterImp::onFinishMatching()

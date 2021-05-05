@@ -50,9 +50,9 @@ void DTMComponent::update()
   bool bProjectExists = app_status.isActive(AppStatus::Flag::project_exists);
   bool bProcessing = app_status.isActive(AppStatus::Flag::processing);
   bool bAbsoluteOriented = app_status.isActive(AppStatus::Flag::absolute_oriented);
-  mAction->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
+  bool bDenseModel = app_status.isActive(AppStatus::Flag::dense_model);
+  mAction->setEnabled(bProjectExists && bAbsoluteOriented && bDenseModel && !bProcessing);
 }
-
 
 
 

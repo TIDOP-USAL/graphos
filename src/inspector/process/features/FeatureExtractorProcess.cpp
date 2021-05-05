@@ -68,7 +68,7 @@ public:
 
     for (auto &image : *mImages) {
 
-      tl::Chrono chrono("", false);
+      tl::Chrono chrono;
       chrono.run();
 
       std::string image_path = image.path().toStdString();
@@ -241,8 +241,8 @@ public:
 
       mBuffer->push(data); /// Aqui se pasa lo necesario al consumidor
 
-      uint64_t time = chrono.stop();
-      msgInfo("Read image %s: [Time: %f seconds]",  image_path.c_str(), time / 1000.);
+      double time = chrono.stop();
+      msgInfo("Read image %s: [Time: %f seconds]",  image_path.c_str(), time);
 
       if (mFeatureExtractorProcess->isWaitingForFinished()) {
         done = true;
@@ -299,7 +299,7 @@ public:
 
   void consumer()
   {
-    tl::Chrono chrono("", false);
+    tl::Chrono chrono;
     chrono.run();
 
     queue_data data;
@@ -318,9 +318,8 @@ public:
 
     QByteArray ba = data.image_name.toLocal8Bit();
     const char *img_file = ba.data();
-    //msgInfo("%i features extracted from image %s", featureKeypoints.size(), img_file);
-    uint64_t time = chrono.stop();
-    msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time / 1000.);
+    double time = chrono.stop();
+    msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
 
     if (data.scale > 1) {
       for (auto &featureKeypoint : featureKeypoints) {
@@ -377,7 +376,7 @@ void FeatureExtractorProcess::run()
 {
   try {
 
-    tl::Chrono chrono("", false);
+    tl::Chrono chrono("Feature extraction finished ");
     chrono.run();
 
     colmap::Database database(mDatabase.toStdString());
@@ -400,6 +399,7 @@ void FeatureExtractorProcess::run()
     std::vector<std::thread> producer_threads(num_threads);
     std::vector<std::thread> consumer_threads(num_threads);
 
+    done = false;
 
     size_t size = mImages.size() / num_threads;
     for (int i = 0; i < num_threads; ++i) {

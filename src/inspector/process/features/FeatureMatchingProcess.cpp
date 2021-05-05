@@ -93,8 +93,8 @@ void inspector::FeatureMatchingProcess::run()
 
     database.Close();
 
-    uint64_t time = chrono.stop();
-    msgInfo("Feature Matching finished [Time: %f seconds]", time / 1000.);
+    double time = chrono.stop();
+    msgInfo("Feature Matching finished [Time: %f seconds]", time);
 
   } catch (std::exception & e) {
     emit error(0, "Feature Matching error");

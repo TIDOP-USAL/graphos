@@ -21,7 +21,8 @@ public:
   DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
              const std::shared_ptr<DenseExport> &denseExport,
              const QString &dtmFile,
-             double gsd);
+             double gsd,
+             bool dsm);
   ~DtmProcess() override = default;
 
 signals:
@@ -41,6 +42,7 @@ private:
   QString mDenseModel;
   QString mDtmFile;
   double mGSD;
+  bool mDSM;
 };
 
 } // namespace inspector

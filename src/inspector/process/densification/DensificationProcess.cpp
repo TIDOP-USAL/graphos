@@ -32,8 +32,8 @@ void DensificationProcess::run()
 
     mDensifier->densify(mOutputPat);
 
-    uint64_t time = chrono.stop();
-    msgInfo("[Time: %f seconds]", time/1000.);
+    double time = chrono.stop();
+    msgInfo("[Time: %f seconds]", time);
 
     emit densificationFinished();
 

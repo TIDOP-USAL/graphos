@@ -583,10 +583,8 @@ void MainWindowPresenter::loadOrientation()
     mView->setSparseModel(mProjectModel->sparseModel());
     TL_TODO("Por ahora lo añado aqui aunque hay que revisarlo")
     AppStatus &app_status = AppStatus::instance();
-    //mView->setFlag(MainWindowView::Flag::oriented, true);
     app_status.activeFlag(AppStatus::Flag::oriented, true);
     if (mProjectModel->isAbsoluteOriented()) {
-      //mView->setFlag(MainWindowView::Flag::absolute_oriented, true);
       app_status.activeFlag(AppStatus::Flag::absolute_oriented, true);
     }
   } else {

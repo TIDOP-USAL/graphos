@@ -36,6 +36,38 @@ namespace fs = boost::filesystem;
 namespace inspector
 {
 
+namespace internal
+{
+//class Reconstruction;
+
+class Reconstruction
+{
+public:
+  Reconstruction(const std::string &path)
+    :  mReconstruction(new colmap::Reconstruction())
+  {
+    mReconstruction->ReadBinary(path);
+  }
+  ~Reconstruction()
+  {
+    if (mReconstruction) {
+      delete mReconstruction;
+      mReconstruction = nullptr;
+    }
+  }
+
+  colmap::Reconstruction &colmap()
+  {
+    return *mReconstruction;
+  }
+
+private:
+
+  colmap::Reconstruction *mReconstruction;
+};
+
+}
+
 
 CmvsPmvsProperties::CmvsPmvsProperties()
   : mUseVisibilityInformation(true),
@@ -278,8 +310,9 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
   //c.run();
 
   //colmap::Reconstruction reconstruction;
-  mReconstruction = new colmap::Reconstruction();
-  mReconstruction->ReadBinary(reconstructionPath.toStdString());
+  //mReconstruction = new colmap::Reconstruction();
+  //mReconstruction->ReadBinary(reconstructionPath.toStdString());
+  mReconstruction = new internal::Reconstruction(reconstructionPath.toStdString());
 
   mOutputPath = outputPath.toStdString() + "/pmvs";
   mImagesPath = imagesPath.toStdString();
@@ -354,20 +387,22 @@ void CmvsPmvsDensifier::writeBundleFile()
 
   if (mReconstruction) {
 
+    colmap::Reconstruction &reconstruction = mReconstruction->colmap();
+
     std::ofstream stream(bundler_path, std::ios::trunc);
     std::ofstream stream_image_list(bundler_path_list, std::ios::trunc);
     //std::ofstream stream_image_list_original(bundler_path_list_original, std::ios::trunc);
     if (stream.is_open() && stream_image_list.is_open() /*&& stream_image_list_original.is_open()*/) {
 
-      int camera_count = mReconstruction->Images().size();
-      int feature_count = mReconstruction->NumPoints3D();
+      int camera_count = reconstruction.Images().size();
+      int feature_count = reconstruction.NumPoints3D();
 
       stream << "# Bundle file v0.3" << std::endl;
       stream << camera_count << " " << feature_count << std::endl;
 
-      const std::vector<colmap::image_t> &reg_image_ids = mReconstruction->RegImageIds();
+      const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
 
-      for (auto &camera : mReconstruction->Cameras()) {
+      for (auto &camera : reconstruction.Cameras()) {
 
         //double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
         float focal = static_cast<float>(camera.second.FocalLength());
@@ -394,7 +429,7 @@ void CmvsPmvsDensifier::writeBundleFile()
 
         for (size_t i = 0; i < reg_image_ids.size(); ++i) {
           colmap::image_t image_id = reg_image_ids[i];
-          colmap::Image &image = mReconstruction->Image(image_id);
+          colmap::Image &image = reconstruction.Image(image_id);
           if (image.CameraId() == camera.second.CameraId()) {
 
             Eigen::Matrix3d rotation_matrix = image.RotationMatrix();
@@ -418,7 +453,7 @@ void CmvsPmvsDensifier::writeBundleFile()
       }
 
 
-      for (auto &points_3d : mReconstruction->Points3D()) {
+      for (auto &points_3d : reconstruction.Points3D()) {
 
         Eigen::Vector3ub color = points_3d.second.Color();
         stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
@@ -439,8 +474,8 @@ void CmvsPmvsDensifier::writeBundleFile()
         for (auto &map : track_ids_not_repeat) {
 
           colmap::image_t image_id = map.first+1;
-          const colmap::Image &image = mReconstruction->Image(image_id);
-          const colmap::Camera &camera = mReconstruction->Camera(image.CameraId());
+          const colmap::Image &image = reconstruction.Image(image_id);
+          const colmap::Camera &camera = reconstruction.Camera(image.CameraId());
 
           const colmap::Point2D &point2D = image.Point2D(map.second);
 
@@ -461,9 +496,10 @@ void CmvsPmvsDensifier::writeBundleFile()
 
 void CmvsPmvsDensifier::undistortImages()
 {
-  const std::vector<colmap::image_t> &reg_image_ids = mReconstruction->RegImageIds();
+  colmap::Reconstruction &reconstruction = mReconstruction->colmap();
+  const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
 
-  for (auto &camera : mReconstruction->Cameras()) {
+  for (auto &camera : reconstruction.Cameras()) {
 
     //double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
     float focal = static_cast<float>(camera.second.FocalLength());
@@ -501,7 +537,7 @@ void CmvsPmvsDensifier::undistortImages()
 
       for (size_t i = 0; i < reg_image_ids.size(); ++i) {
         colmap::image_t image_id = reg_image_ids[i];
-        colmap::Image &image = mReconstruction->Image(image_id);
+        colmap::Image &image = reconstruction.Image(image_id);
         if (image.CameraId() == camera.second.CameraId()) {
 
 
@@ -623,25 +659,26 @@ void CmvsPmvsDensifier::undistortImage()
 
 void CmvsPmvsDensifier::writeVisibility()
 {
+  colmap::Reconstruction &reconstruction = mReconstruction->colmap();
 
   std::string visibility_path = mOutputPath + "/vis.dat";
   std::ofstream file(visibility_path, std::ios::trunc);
   CHECK(file.is_open()) << visibility_path;
 
   file << "VISDATA" << std::endl;
-  file << mReconstruction->NumRegImages() << std::endl;
+  file << reconstruction.NumRegImages() << std::endl;
 
-  const std::vector<colmap::image_t> &reg_image_ids = mReconstruction->RegImageIds();
+  const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
 
   for (size_t i = 0; i < reg_image_ids.size(); ++i) {
     colmap::image_t image_id = reg_image_ids[i];
-    colmap::Image &image = mReconstruction->Image(image_id);
+    colmap::Image &image = reconstruction.Image(image_id);
     std::unordered_set<colmap::image_t> visible_image_ids;
     for (colmap::point2D_t point2D_idx = 0; point2D_idx < image.NumPoints2D();
          ++point2D_idx) {
       colmap::Point2D &point2D = image.Point2D(point2D_idx);
       if (point2D.HasPoint3D()) {
-        colmap::Point3D& point3D = mReconstruction->Point3D(point2D.Point3DId());
+        colmap::Point3D& point3D = reconstruction.Point3D(point2D.Point3DId());
         for (const colmap::TrackElement &track_el : point3D.Track().Elements()) {
           if (track_el.image_id != image_id) {
             for (size_t j = 0; j < reg_image_ids.size(); ++j) {
@@ -670,6 +707,8 @@ void CmvsPmvsDensifier::writeVisibility()
 
 void CmvsPmvsDensifier::writeOptions()
 {
+  colmap::Reconstruction &reconstruction = mReconstruction->colmap();
+
   /// options
 
   std::string options_path = mOutputPath + "/option-all";
@@ -693,8 +732,8 @@ void CmvsPmvsDensifier::writeOptions()
   file_options << "maxAngle 10" << std::endl;
   file_options << "quad 2.0" << std::endl;
 
-  file_options << "timages " << mReconstruction->NumRegImages();
-  for (size_t i = 0; i < mReconstruction->NumRegImages(); ++i) {
+  file_options << "timages " << reconstruction.NumRegImages();
+  for (size_t i = 0; i < reconstruction.NumRegImages(); ++i) {
     file_options << " " << i;
   }
   file_options << std::endl;

@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
   componentsManager.registerComponent(&orientation_component);
   DensificationComponent densification_component(componentsManager.project());
   componentsManager.registerComponent(&densification_component);
+  
   DTMComponent dtm_component(componentsManager.project());
   componentsManager.registerComponent(&dtm_component, 
                                       ComponentsManager::Flags::separator_before);
