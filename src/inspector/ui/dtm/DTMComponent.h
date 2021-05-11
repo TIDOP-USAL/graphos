@@ -26,6 +26,10 @@ public:
   DTMComponent(Project *project);
   ~DTMComponent();
 
+signals:
+
+  //void finished();
+
 // ComponentBase
 
 protected:
@@ -37,6 +41,14 @@ protected:
 protected:
 
   void update() override;
+
+  // ProcessComponent
+
+protected slots:
+
+  void onRunning() override;
+  void onFinished() override;
+  void onFailed() override;
 
 protected:
 

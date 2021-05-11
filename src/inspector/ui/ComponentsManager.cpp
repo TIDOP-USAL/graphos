@@ -94,11 +94,21 @@ ComponentsManager::ComponentsManager(QObject *parent)
 
 ComponentsManager::~ComponentsManager()
 {
+  if (mMainWindowView) {
+    delete mMainWindowView;
+    mMainWindowView = nullptr;
+  }
+  
+  if (mMainWindowModel) {
+    delete mMainWindowModel;
+    mMainWindowModel = nullptr;
+  }
+
   if (mMainWindowPresenter){
     delete mMainWindowPresenter;
     mMainWindowPresenter = nullptr;
   }
-  
+
   if (mProject) {
     delete mProject;
     mProject = nullptr;
@@ -193,6 +203,10 @@ ComponentsManager::~ComponentsManager()
     mImportCamerasComponent = nullptr;
   }
 
+  if (mCamerasComponent) {
+    delete mCamerasComponent;
+    mCamerasComponent = nullptr;
+  }
 }
 
 MainWindowView *ComponentsManager::mainWindowView()

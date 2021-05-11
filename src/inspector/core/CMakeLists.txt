@@ -1,6 +1,8 @@
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
-add_library(inspector_core ${LIB_TYPE}
+project(inspector_core LANGUAGES CXX)
+
+add_library(${PROJECT_NAME} ${LIB_TYPE}
             project.cpp
             project.h
             settings.cpp
@@ -42,11 +44,15 @@ add_library(inspector_core ${LIB_TYPE}
             dtm/invdist.cpp
             dtm/invdist.h
             dtm/invdistnn.cpp
-            dtm/invdistnn.h)
+            dtm/invdistnn.h
+            dtm/csf.h
+            dtm/csf.cpp)
 
-set_property(TARGET inspector_core PROPERTY FOLDER "lib")
+set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 
-target_link_libraries(inspector_core glog::glog)
+target_link_libraries(${PROJECT_NAME} PRIVATE glog::glog)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE CSF)
 
 #if(BUILD_SHARED_LIBS)
 #    
@@ -59,7 +65,7 @@ target_link_libraries(inspector_core glog::glog)
 #                        DEFINE_SYMBOL PHOTOMATCH_EXPORTS)
 #	target_link_libraries(libprocess .... ) 
 #else()
-  install(TARGETS inspector_core
+  install(TARGETS ${PROJECT_NAME}
           LIBRARY DESTINATION lib 
           ARCHIVE DESTINATION lib)
 #endif()

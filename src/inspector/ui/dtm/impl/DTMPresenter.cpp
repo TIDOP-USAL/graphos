@@ -12,7 +12,7 @@
 #include "inspector/core/dtm/invdist.h"
 #include "inspector/core/dtm/invdistnn.h"
 #include "inspector/process/dtm/DtmProcess.h"
-#include "inspector/core/densification/DenseExport.h"
+//#include "inspector/core/densification/DenseExport.h"
 
 #include <tidop/core/messages.h>
 
@@ -60,26 +60,36 @@ void DtmPresenterImp::setDtmProperties()
 
 void DtmPresenterImp::setInvDistProperties()
 {
-  DtmInvDistProperties invdist;
-  //TODO: Recuperar valores por defecto
-  mDtmInvDistWidget->setPower(invdist.power());
-  mDtmInvDistWidget->setSmoothing(invdist.smoothing());
-  mDtmInvDistWidget->setRadius1(invdist.radius1());
-  mDtmInvDistWidget->setRadius2(invdist.radius2());
-  mDtmInvDistWidget->setAngle(invdist.angle());
-  mDtmInvDistWidget->setMaxPoints(invdist.maxPoints());
-  mDtmInvDistWidget->setMinPoints(invdist.minPoints());
+  std::shared_ptr<DtmInvDist> invdist = std::make_shared<DtmInvDistProperties>();
+  if (std::shared_ptr<Dtm> dtm_properties = mModel->dtmMethod()) {
+    if (dtm_properties->interpolation() == Dtm::Interpolation::inv_dist) {
+      invdist = std::dynamic_pointer_cast<DtmInvDist>(dtm_properties);
+    }
+  }
+
+  mDtmInvDistWidget->setPower(invdist->power());
+  mDtmInvDistWidget->setSmoothing(invdist->smoothing());
+  mDtmInvDistWidget->setRadius1(invdist->radius1());
+  mDtmInvDistWidget->setRadius2(invdist->radius2());
+  mDtmInvDistWidget->setAngle(invdist->angle());
+  mDtmInvDistWidget->setMaxPoints(invdist->maxPoints());
+  mDtmInvDistWidget->setMinPoints(invdist->minPoints());
 }
 
 void DtmPresenterImp::setInvDistNNProperties()
 {
-  DtmInvDistNNProperties invdistnn;
-  //TODO: Recuperar valores por defecto
-  mDtmInvDistNNWidget->setPower(invdistnn.power());
-  mDtmInvDistNNWidget->setSmoothing(invdistnn.smoothing());
-  mDtmInvDistNNWidget->setRadius(invdistnn.radius());
-  mDtmInvDistNNWidget->setMaxPoints(invdistnn.maxPoints());
-  mDtmInvDistNNWidget->setMinPoints(invdistnn.minPoints());
+  std::shared_ptr<DtmInvDistNN> invdistnn = std::make_shared<DtmInvDistNNProperties>();;
+  if (std::shared_ptr<Dtm> dtm_properties = mModel->dtmMethod()) {
+    if (dtm_properties->interpolation() == Dtm::Interpolation::inv_distnn) {
+      invdistnn = std::dynamic_pointer_cast<DtmInvDistNN>(dtm_properties);
+    }
+  }
+
+  mDtmInvDistNNWidget->setPower(invdistnn->power());
+  mDtmInvDistNNWidget->setSmoothing(invdistnn->smoothing());
+  mDtmInvDistNNWidget->setRadius(invdistnn->radius());
+  mDtmInvDistNNWidget->setMaxPoints(invdistnn->maxPoints());
+  mDtmInvDistNNWidget->setMinPoints(invdistnn->minPoints());
 }
 
 void DtmPresenterImp::help()
@@ -133,6 +143,10 @@ void DtmPresenterImp::onFinished()
   if (mProgressHandler) {
     mProgressHandler->setDescription(tr("DTM finished"));
   }
+
+  QString dtm_file = mModel->projectPath();
+  dtm_file.append("\\dtm\\dtm.tif");
+  mModel->setDtmPath(dtm_file);
 }
 
 bool DtmPresenterImp::createProcess()
@@ -150,16 +164,16 @@ bool DtmPresenterImp::createProcess()
                                                           mDtmInvDistWidget->minPoints());
   } else if (currentDtmMethod.compare("Inverse distance to a power with nearest neighbor searching") == 0){
     dtm_algorithm = std::make_shared<DtmInvDistNNAlgorithm>(mDtmInvDistNNWidget->power(),
-                                                          mDtmInvDistNNWidget->smoothing(),
-                                                          mDtmInvDistNNWidget->radius(),
-                                                          mDtmInvDistNNWidget->maxPoints(),
-                                                          mDtmInvDistNNWidget->minPoints());
+                                                            mDtmInvDistNNWidget->smoothing(),
+                                                            mDtmInvDistNNWidget->radius(),
+                                                            mDtmInvDistNNWidget->maxPoints(),
+                                                            mDtmInvDistNNWidget->minPoints());
   } else {
     mView->hide();
     throw std::runtime_error("Invalid DTM Method");
   }
 
-  //mModel->setDtmMethod(std::dynamic_pointer_cast<Dtm>(dtm_algorithm));
+  mModel->setDtmMethod(std::dynamic_pointer_cast<Dtm>(dtm_algorithm));
 
   if (mProgressHandler){
     mProgressHandler->setRange(0, 0);
@@ -170,15 +184,12 @@ bool DtmPresenterImp::createProcess()
   QString dtm_file = mModel->projectPath();
   dtm_file.append("\\dtm\\dtm.tif");
 
-  std::shared_ptr<DenseExport> denseExport(new DenseExport(mModel->denseModel()));
-  std::array<double, 3> offset = mModel->offset();
-  denseExport->setOffset(offset[0], offset[1], offset[2]);
-
   std::shared_ptr<DtmProcess> dtm_process(new DtmProcess(dtm_algorithm,
-                                                         denseExport,
+                                                         mModel->denseModel(),
+                                                         mModel->offset(),
                                                          dtm_file,
-                                                         mView->gsd()),
-                                                         mView->isDSM());
+                                                         mView->gsd(),
+                                                         mView->isDSM()));
 
   //connect(dtm_process.get(), &DtmProcess::dtmFinished, 
   //        this, &DtmPresenterImp::onFinishDtm);

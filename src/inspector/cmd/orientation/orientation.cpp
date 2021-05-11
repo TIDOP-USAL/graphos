@@ -69,7 +69,7 @@ int main(int argc, char** argv)
   
   /// 1 - reconstrucción temporal con orientaciones importadas
   tl::Path input_path = tl::Path::tempDirectory(); // Tiene que ser un directorio temporal en el que se exporte la reconstrucción como texto.
-  input_path.append("import_ori");
+  //input_path.append("import_ori");
   Path::createDirectory(input_path);
 
   bool bLocalCoord = true;

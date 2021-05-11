@@ -6,10 +6,9 @@
 #include <map>
 #include <memory>
 
-#include <QString>
-
 #include <tidop/core/defs.h>
 #include <tidop/core/flags.h>
+#include <tidop/geometry/entities/bbox.h>
 
 namespace tl
 {
@@ -38,7 +37,7 @@ public:
   virtual ~Dtm() = default;
 
   virtual Interpolation interpolation() const = 0;
-  virtual QString name() const = 0;
+  virtual std::string name() const = 0;
   virtual void reset() = 0;
 };
 
@@ -67,9 +66,14 @@ public:
   DtmAlgorithm() {}
   virtual ~DtmAlgorithm() = default;
 
-  virtual bool run(const QString &pointCloud,
-                   const QString &dtmFile,
+  virtual bool run(const std::string &pointCloud,
+                   const std::string &dtmFile,
                    const tl::Size<int> &size) = 0;
+
+  virtual bool run(const std::string &pointCloud,
+                   const std::string &dtmFile,
+                   const tl::BoundingBox<tl::Point3<double>> &bbox,
+                   double gsd) = 0;
 
 };
 

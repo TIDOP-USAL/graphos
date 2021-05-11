@@ -32,7 +32,7 @@ public:
 
 public:
 
-  QString name() const override final;
+  std::string name() const override final;
   void reset() override;
 
 protected:
@@ -67,9 +67,14 @@ public:
 
 public:
 
-  bool run(const QString &pointCloud,
-           const QString &dtmFile,
+  bool run(const std::string &pointCloud,
+           const std::string &dtmFile,
            const tl::Size<int> &size) override;
+
+  bool run(const std::string &pointCloud,
+           const std::string &dtmFile,
+           const tl::BoundingBox<tl::Point3<double>> &bbox,
+           double gsd) override;
 
 };
 

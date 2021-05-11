@@ -28,6 +28,11 @@ public:
   QString projectPath() const override;
   QString denseModel() const override;
 
+  std::shared_ptr<Dtm> dtmMethod() const override;
+  void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
+  QString dtmPath() const override;
+  void setDtmPath(const QString &dtmPath) override;
+
 // IModel interface
 
 private:

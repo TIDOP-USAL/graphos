@@ -2,14 +2,8 @@
 #define INSPECTOR_DENSE_EXPORT_H
 
 #include <tidop/core/flags.h>
-
-namespace tl
-{
-template<typename T> class Point3;
-template<typename T> class BoundingBox;
-}
-
-#include <QString>
+#include <tidop/geometry/entities/point.h>
+#include <tidop/geometry/entities/bbox.h>
 
 namespace inspector
 {
@@ -28,19 +22,17 @@ public:
 
 public:
 
-  DenseExport(const QString &denseModel);
+  DenseExport(const std::string &denseModel);
 
-  void setOffset(double x, double y, double z);
-  void exportToCSV(const QString &csv,
+  void setOffset(const tl::Point3<double> &point);
+  void exportToCSV(const std::string &csv,
                    const tl::EnumFlags<Fields> &flag,
                    tl::BoundingBox<tl::Point3<double>> *bbox = nullptr);
 
 protected:
 
-  QString mDenseModel;
-  double mOffsetX;
-  double mOffsetY;
-  double mOffsetZ;
+  std::string mDenseModel;
+  tl::Point3<double> mOffset;
 };
 
 } // namespace inspector

@@ -77,7 +77,13 @@ void FeatureMatchingPresenterImp::initSignalAndSlots()
 
 void FeatureMatchingPresenterImp::setMatchingProperties()
 {
-
+  if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()) {
+    mFeatureMatchingWidget->setConfidence(feature_matcher->confidence());
+    mFeatureMatchingWidget->enableCrossCheck(feature_matcher->crossCheck());
+    mFeatureMatchingWidget->setDistance(feature_matcher->distance());
+    mFeatureMatchingWidget->setMaxError(feature_matcher->maxError());
+    mFeatureMatchingWidget->setRatio(feature_matcher->ratio());
+  }
 }
 
 void FeatureMatchingPresenterImp::onError(int code, const QString &msg)
@@ -137,7 +143,7 @@ bool FeatureMatchingPresenterImp::createProcess()
 
   std::shared_ptr<FeatureMatchingProcess> featMatchingProcess(new FeatureMatchingProcess(mModel->database(),
                                                                                          mModel->useCuda(),
-                                                                                         /*false*/mModel->spatialMatching(),
+                                                                                         mModel->spatialMatching(),
                                                                                          featureMatching));
 
   connect(featMatchingProcess.get(), SIGNAL(featureMatchingFinished()), this, SLOT(onFinishMatching()));

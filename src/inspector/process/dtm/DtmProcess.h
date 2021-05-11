@@ -4,7 +4,7 @@
 #include "inspector/process/ProcessConcurrent.h"
 #include "inspector/core/dtm/dtm.h"
 
-
+#include <tidop/geometry/entities/point.h>
 
 namespace inspector
 {
@@ -19,7 +19,8 @@ class INSPECTOR_EXPORT DtmProcess
 public:
 
   DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
-             const std::shared_ptr<DenseExport> &denseExport,
+             const QString &pointCloud,
+             const tl::Point3<double> &offset,
              const QString &dtmFile,
              double gsd,
              bool dsm);
@@ -38,8 +39,8 @@ protected:
 private:
 
   std::shared_ptr<DtmAlgorithm> mDtmAlgorithm;
-  std::shared_ptr<DenseExport> mDenseExport;
-  QString mDenseModel;
+  QString mPointCloud;
+  tl::Point3<double> mOffset;
   QString mDtmFile;
   double mGSD;
   bool mDSM;

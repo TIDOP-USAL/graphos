@@ -42,6 +42,8 @@ void DTMComponent::createPresenter()
 {
   mPresenter = new DtmPresenterImp(dynamic_cast<DtmView *>(mView), 
                                    dynamic_cast<DtmModel *>(mModel));
+  //connect(dynamic_cast<DtmPresenterImp *>(mPresenter), &DtmPresenter::finished,
+  //        this, &DTMComponent::finished);
 }
 
 void DTMComponent::update()
@@ -54,7 +56,22 @@ void DTMComponent::update()
   mAction->setEnabled(bProjectExists && bAbsoluteOriented && bDenseModel && !bProcessing);
 }
 
+void DTMComponent::onRunning()
+{
+  ProcessComponent::onRunning();
+}
 
+void DTMComponent::onFinished()
+{
+  ProcessComponent::onFinished();
+  AppStatus::instance().activeFlag(AppStatus::Flag::dtm, true);
+}
+
+void DTMComponent::onFailed()
+{
+  ProcessComponent::onFailed();
+  AppStatus::instance().activeFlag(AppStatus::Flag::dtm, false);
+}
 
 } // namespace ui
 

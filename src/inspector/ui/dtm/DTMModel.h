@@ -7,6 +7,8 @@
 namespace inspector
 {
 
+class Dtm;
+
 namespace ui
 {
 
@@ -23,8 +25,10 @@ public:
   virtual QString projectPath() const = 0;
   virtual QString denseModel() const = 0;
 
-  //virtual std::shared_ptr<Feature> featureExtractor() const = 0;
-  //virtual void setCurrentDtmMethod(const std::shared_ptr<Feature> &featureExtractor) = 0;
+  virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
+  virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
+  virtual QString dtmPath() const = 0;
+  virtual void setDtmPath(const QString &dtmPath) = 0;
 };
 
 } // namespace ui

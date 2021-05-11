@@ -4,7 +4,7 @@
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudView.h"
 #include "inspector/ui/HelpDialog.h"
 #include "inspector/widgets/PointCloudCSVFormatWidget.h"
-#include "inspector/core/densification/DenseExport.h"
+//#include "inspector/core/densification/DenseExport.h"
 
 #include <tidop/core/defs.h>
 #include <tidop/core/messages.h>
@@ -118,17 +118,18 @@ void ExportPointCloudPresenterImp::initSignalAndSlots()
 
 void ExportPointCloudPresenterImp::save()
 {
-  std::array<double, 3> offset = mModel->offset();
-  DenseExport denseExport(mModel->denseModel());
-  denseExport.setOffset(offset[0], offset[1], offset[2]);
+  ///TODO: Comentado porque aqui no esta bien
+  //std::array<double, 3> offset = mModel->offset();
+  //DenseExport denseExport(mModel->denseModel());
+  //denseExport.setOffset(offset[0], offset[1], offset[2]);
 
-  tl::EnumFlags<DenseExport::Fields> flag(DenseExport::Fields::xyz);
-  if (mView->isColorActive()) flag.flagOn(DenseExport::Fields::rgb);
-  if (mView->isNormalsActive()) flag.flagOn(DenseExport::Fields::normals);
+  //tl::EnumFlags<DenseExport::Fields> flag(DenseExport::Fields::xyz);
+  //if (mView->isColorActive()) flag.flagOn(DenseExport::Fields::rgb);
+  //if (mView->isNormalsActive()) flag.flagOn(DenseExport::Fields::normals);
 
-  if (mFormat.compare("CSV") == 0) {
-    denseExport.exportToCSV(mFile, flag);
-  }
+  //if (mFormat.compare("CSV") == 0) {
+  //  denseExport.exportToCSV(mFile, flag);
+  //}
 }
 
 void ExportPointCloudPresenterImp::setCurrentFormat(const QString &format)

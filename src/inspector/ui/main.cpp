@@ -18,6 +18,11 @@
 
 #include <QApplication>
 
+#ifdef HAVE_VLD
+#include "gflags/gflags.h"
+#include "vld.h"
+#endif
+
 using namespace inspector;
 using namespace inspector::ui;
 
@@ -84,6 +89,13 @@ int main(int argc, char *argv[])
   componentsManager.mainWindowPresenter()->open();
 
   bool r = a.exec();
+
+#ifdef HAVE_VLD
+  // Clean up memory allocated by flags.  This is only needed to reduce
+  // the quantity of "potentially leaked" reports emitted by memory
+  // debugging tools such as valgrind. 
+  google::ShutDownCommandLineFlags();
+#endif
 
   return r;
 }

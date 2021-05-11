@@ -30,6 +30,26 @@ QString DtmModelImp::denseModel() const
   return mProject->denseModel();
 }
 
+std::shared_ptr<Dtm> DtmModelImp::dtmMethod() const
+{
+  return mProject->dtmMethod();
+}
+
+void DtmModelImp::setDtmMethod(const std::shared_ptr<Dtm> &dtm)
+{
+  mProject->setDtmMethod(dtm);
+}
+
+QString DtmModelImp::dtmPath() const
+{
+  return mProject->dtmPath();
+}
+
+void DtmModelImp::setDtmPath(const QString &dtmPath)
+{
+  mProject->setDtmPath(dtmPath);
+}
+
 std::array<double, 3> DtmModelImp::offset() const
 {
   std::array<double, 3> offset;

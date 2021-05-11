@@ -236,6 +236,7 @@ bool DensificationPresenterImp::createProcess()
   return true;
 }
 
+/// Redundante con DensificationPresenterImp::onFinished()
 void DensificationPresenterImp::onFinishDensification()
 {
   QString dense_path = mModel->projectFolder();

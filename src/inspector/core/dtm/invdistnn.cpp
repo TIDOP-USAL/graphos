@@ -3,17 +3,13 @@
 // TIDOP LIB
 #include <tidop/core/messages.h>
 #include <tidop/core/process.h>
+#include <tidop/core/path.h>
 #include <tidop/geometry/size.h>
-
-// BOOST
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
 
 
 using namespace inspector;
 using namespace tl;
 
-namespace fs = boost::filesystem;
 
 namespace inspector
 {
@@ -90,9 +86,9 @@ void DtmInvDistNNProperties::setMinPoints(int minPoints)
   mMinPoints = minPoints;
 }
 
-QString DtmInvDistNNProperties::name() const
+std::string DtmInvDistNNProperties::name() const
 {
-  return QString("INVDISTNN");
+  return std::string("INVDISTNN");
 }
 
 void DtmInvDistNNProperties::reset()
@@ -139,30 +135,30 @@ DtmInvDistNNAlgorithm::~DtmInvDistNNAlgorithm()
 
 }
 
-bool DtmInvDistNNAlgorithm::run(const QString &pointCloud,
-                                const QString &dtmFile,
+bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
+                                const std::string &dtmFile,
                                 const tl::Size<int> &size)
 {
   
-  fs::path gdal_vrt_file = pointCloud.toStdString();
-  gdal_vrt_file.replace_extension(".vrt");
-  std::string layer_name = gdal_vrt_file.stem().string();
-  std::ofstream file(gdal_vrt_file.string(), std::ios::trunc);
+  tl::Path gdal_vrt_file(pointCloud);
+  gdal_vrt_file.replaceExtension(".vrt");
+  std::string layer_name = gdal_vrt_file.baseName();
+  std::ofstream file(gdal_vrt_file.toString(), std::ios::trunc);
   if (!file.is_open()) return false;
   file << "<OGRVRTDataSource>" << std::endl;
   file << "    <OGRVRTLayer name=\"" << layer_name << "\">" << std::endl;
-  file << "        <SrcDataSource>" << pointCloud.toStdString() << "</SrcDataSource>"  << std::endl;
+  file << "        <SrcDataSource>" << pointCloud << "</SrcDataSource>"  << std::endl;
   file << "        <GeometryType>wkbPoint</GeometryType>"  << std::endl;
   file << "        <GeometryField encoding=\"PointFromColumns\" x=\"X\" y=\"Y\" z=\"Z\"/>"  << std::endl;
   file << "    </OGRVRTLayer>"  << std::endl;
   file << "</OGRVRTDataSource>"  << std::endl;
   file.close();
 
-  fs::path app_path(tl::getRunfile());
+  tl::Path app_path(tl::getRunfile());
 
-  std::string cmd("/c \"");
-  cmd.append(app_path.parent_path().string());
-  cmd.append("\\gdal_grid.exe\" ");
+  std::string cmd("/c \"\"");
+  cmd.append(app_path.parentPath().toString());
+  cmd.append("\\gdal_grid.exe\"");
   cmd.append(" -a invdistnn");
   cmd.append(":power=").append(std::to_string(DtmInvDistNNProperties::power()));
   cmd.append(":smoothing=").append(std::to_string(DtmInvDistNNProperties::smoothing()));
@@ -170,10 +166,60 @@ bool DtmInvDistNNAlgorithm::run(const QString &pointCloud,
   cmd.append(":max_points=").append(std::to_string(DtmInvDistNNProperties::maxPoints()));
   cmd.append(":min_points=").append(std::to_string(DtmInvDistNNProperties::minPoints()));
   cmd.append(" -outsize ").append(std::to_string(size.width)).append(" ").append(std::to_string(size.height));
-  cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" ");
-  cmd.append(gdal_vrt_file.string()).append(" ");
-  cmd.append(dtmFile.toStdString()).append(" ");
-  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS");
+  cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
+  cmd.append(gdal_vrt_file.toString()).append("\" \"");
+  cmd.append(dtmFile).append("\" ");
+  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS\"");
+
+  ExternalProcess process(cmd);
+  process.run();
+  //if (process.run() == Process::Status::error) {
+  //  return true;
+  //}
+
+  return false;
+}
+
+bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
+                                const std::string &dtmFile,
+                                const tl::BoundingBox<tl::Point3<double>> &bbox,
+                                double gsd)
+{
+
+  tl::Path gdal_vrt_file(pointCloud);
+  gdal_vrt_file.replaceExtension(".vrt");
+  std::string layer_name = gdal_vrt_file.baseName();
+  std::ofstream file(gdal_vrt_file.toString(), std::ios::trunc);
+  if (!file.is_open()) return false;
+  file << "<OGRVRTDataSource>" << std::endl;
+  file << "    <OGRVRTLayer name=\"" << layer_name << "\">" << std::endl;
+  file << "        <SrcDataSource>" << pointCloud << "</SrcDataSource>" << std::endl;
+  file << "        <GeometryType>wkbPoint</GeometryType>" << std::endl;
+  file << "        <GeometryField encoding=\"PointFromColumns\" x=\"X\" y=\"Y\" z=\"Z\"/>" << std::endl;
+  file << "    </OGRVRTLayer>" << std::endl;
+  file << "</OGRVRTDataSource>" << std::endl;
+  file.close();
+
+  tl::Path app_path(tl::getRunfile());
+
+  tl::Size<int> size(bbox.width() / gsd, bbox.height() / gsd);
+
+  std::string cmd("/c \"\"");
+  cmd.append(app_path.parentPath().toString());
+  cmd.append("\\gdal_grid.exe\"");
+  cmd.append(" -a invdistnn");
+  cmd.append(":power=").append(std::to_string(DtmInvDistNNProperties::power()));
+  cmd.append(":smoothing=").append(std::to_string(DtmInvDistNNProperties::smoothing()));
+  cmd.append(":radius=").append(std::to_string(DtmInvDistNNProperties::radius()));
+  cmd.append(":max_points=").append(std::to_string(DtmInvDistNNProperties::maxPoints()));
+  cmd.append(":min_points=").append(std::to_string(DtmInvDistNNProperties::minPoints()));
+  cmd.append(" -txe ").append(std::to_string(bbox.pt1.x)).append(" ").append(std::to_string(bbox.pt2.x));
+  cmd.append(" -tye ").append(std::to_string(bbox.pt1.y)).append(" ").append(std::to_string(bbox.pt2.y));
+  cmd.append(" -outsize ").append(std::to_string(size.width)).append(" ").append(std::to_string(size.height));
+  cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
+  cmd.append(gdal_vrt_file.toString()).append("\" \"");
+  cmd.append(dtmFile).append("\" ");
+  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS\"");
 
   ExternalProcess process(cmd);
   process.run();

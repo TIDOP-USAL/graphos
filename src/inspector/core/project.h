@@ -23,6 +23,8 @@ class QXmlStreamReader;
 namespace inspector
 {
 
+class Dtm;
+
 /*!
  * \brief Interfaz Project
  */
@@ -277,6 +279,12 @@ public:
   virtual void setDenseModel(const QString &denseModel) = 0;
   virtual void clearDensification() = 0;
 
+  virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
+  virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
+  virtual QString dtmPath() const = 0;
+  virtual void setDtmPath(const QString &dtmPath) = 0;
+  virtual void clearDTM() = 0;
+
   /*!
    * \brief Limpia el proyecto
    */
@@ -451,6 +459,12 @@ public:
   void setDenseModel(const QString &denseModel) override;
   void clearDensification();
 
+  std::shared_ptr<Dtm> dtmMethod() const override;
+  void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
+  QString dtmPath() const override;
+  void setDtmPath(const QString &dtmPath) override;
+  void clearDTM() override;
+
   void clear() override;
 
   bool load(const QString &file) override;
@@ -487,6 +501,11 @@ protected:
   void readDensificationMethod(QXmlStreamReader &stream);
   void readSmvs(QXmlStreamReader &stream);
   void readCmvsPmvs(QXmlStreamReader &stream);
+  void readDtm(QXmlStreamReader &stream);
+  void readDtmPath(QXmlStreamReader &stream);
+  void readDtmInterpolation(QXmlStreamReader &stream);
+  void readInvDist(QXmlStreamReader &stream);
+  void readInvDistNN(QXmlStreamReader &stream);
 
   void writeVersion(QXmlStreamWriter &stream) const;
   void writeGeneral(QXmlStreamWriter &stream) const;
@@ -513,6 +532,9 @@ protected:
   void writeDensification(QXmlStreamWriter &stream) const;
   void writeDenseModel(QXmlStreamWriter &stream) const;
   void writeDensificationMethod(QXmlStreamWriter &stream) const;
+  void writeDtm(QXmlStreamWriter &stream) const;
+  void writeDtmPath(QXmlStreamWriter &stream) const;
+  void writeDtmInterpolation(QXmlStreamWriter &stream) const;
 
   QSize readSize(QXmlStreamReader &stream) const;
   int readInt(QXmlStreamReader &stream) const;
@@ -542,6 +564,8 @@ protected:
   QString mReconstructionPath;
   std::shared_ptr<Densification> mDensification;
   QString mDenseModel;
+  std::shared_ptr<Dtm> mDtmMethod;
+  QString mDTM;
   static std::mutex sMutex;
   int mCameraCount;
 };

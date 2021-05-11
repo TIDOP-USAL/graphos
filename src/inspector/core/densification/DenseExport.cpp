@@ -2,39 +2,34 @@
 
 #include <colmap/util/ply.h>
 
-#include <tidop/geometry/entities/point.h>
-#include <tidop/geometry/entities/bbox.h>
-
 #include <fstream>
+#include <iomanip>
 
 namespace inspector
 {
 
-DenseExport::DenseExport(const QString &denseModel)
+DenseExport::DenseExport(const std::string &denseModel)
   : mDenseModel(denseModel),
-    mOffsetX(0.0),
-    mOffsetY(0.0),
-    mOffsetZ(0.0)
+    mOffset()
 {
 
 }
 
-void DenseExport::setOffset(double x, double y, double z)
+void DenseExport::setOffset(const tl::Point3<double> &point)
 {
-  mOffsetX = x;
-  mOffsetY = y;
-  mOffsetZ = z;
+  mOffset = point;
 }
 
-void DenseExport::exportToCSV(const QString &csv,
+void DenseExport::exportToCSV(const std::string &csv,
                               const tl::EnumFlags<DenseExport::Fields> &flag,
                               tl::BoundingBox<tl::Point3<double>> *bbox)
 {
   //std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel.toStdString());
 
-  std::ofstream stream(csv.toStdString(), std::ios::trunc);
+  std::ofstream stream(csv, std::ios::trunc);
+
   if (stream.is_open()){
-    tl::Point3<double> offset(mOffsetX, mOffsetY, mOffsetZ);
+
     tl::Point3<double> point;
 
     stream << "X;Y;Z";
@@ -47,7 +42,7 @@ void DenseExport::exportToCSV(const QString &csv,
     }
     stream << std::endl;
 
-    std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel.toStdString());
+    std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel);
 
     //tl::BoundingBox<tl::Point3<double>> bounding_box;
 
@@ -57,7 +52,7 @@ void DenseExport::exportToCSV(const QString &csv,
       point.y = points[i].y;
       point.z = points[i].z;
 
-      point += offset;
+      point += mOffset;
 
       if (bbox) {
         bbox->pt1.x = std::min(bbox->pt1.x, point.x);
@@ -68,9 +63,10 @@ void DenseExport::exportToCSV(const QString &csv,
         bbox->pt2.z = std::max(bbox->pt2.z, point.z);
       }
 
-      stream << QString::number(point.x, 'f', 3).toStdString() << ";"
-             << QString::number(point.y, 'f', 3).toStdString() << ";"
-             << QString::number(point.z, 'f', 3).toStdString();
+      stream << std::fixed << std::setprecision(3)
+             << point.x << ";"
+             << point.y << ";"
+             << point.z;
 
       if (flag.isActive(Fields::rgb)){
         stream << ";" <<
