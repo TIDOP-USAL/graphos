@@ -30,8 +30,8 @@ class ProgressHandler;
 class ProgressDialog;
 class ExportOrientationsModel;
 class ExportOrientationsPresenter;
-class GeoreferenceModel;
-class GeoreferencePresenter;
+//class GeoreferenceModel;
+//class GeoreferencePresenter;
 class ExportPointCloudModel;
 class ExportPointCloudPresenter;
 class HelpDialog;
@@ -73,8 +73,8 @@ public:
 
   ExportOrientationsModel *exportOrientationsModel();
   ExportOrientationsPresenter *exportOrientationsPresenter();
-  GeoreferenceModel *georeferenceModel();
-  GeoreferencePresenter *georeferencePresenter();
+  //GeoreferenceModel *georeferenceModel();
+  //GeoreferencePresenter *georeferencePresenter();
   ExportPointCloudModel *exportPointCloudModel();
   ExportPointCloudPresenter *exportPointCloudPresenter();
 
@@ -93,7 +93,7 @@ protected slots:
   void initAndOpenToolSettingsDialog();
   void initSettingsDialog();
   void initAndOpenExportOrientationsDialog();
-  void initAndOpenGeoreferenceDialog();
+  //void initAndOpenGeoreferenceDialog();
   void initAndOpenExportPointCloudDialog();
 
 protected:
@@ -119,8 +119,8 @@ protected:
 
   ExportOrientationsModel *mExportOrientationsModel;
   ExportOrientationsPresenter *mExportOrientationsPresenter;
-  GeoreferenceModel *mGeoreferenceModel;
-  GeoreferencePresenter *mGeoreferencePresenter;
+  //GeoreferenceModel *mGeoreferenceModel;
+  //GeoreferencePresenter *mGeoreferencePresenter;
   ExportPointCloudModel *mExportPointCloudModel;
   ExportPointCloudPresenter *mExportPointCloudPresenter;
   //AboutDialog *mAboutDialog;

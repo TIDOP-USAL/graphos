@@ -82,6 +82,7 @@ set(INSPECTOR_SOURCES
     export/densemodel/impl/ExportPointCloudPresenter.cpp
     process/ProcessPresenter.cpp
     process/ProcessView.cpp
+	georeference/GeoreferenceComponent.cpp
     georeference/impl/GeoreferenceModel.cpp
     georeference/impl/GeoreferenceView.cpp
     georeference/impl/GeoreferencePresenter.cpp
@@ -200,6 +201,7 @@ set(INSPECTOR_HEADERS
     export/densemodel/impl/ExportPointCloudPresenter.h
     process/ProcessPresenter.h
     process/ProcessView.h
+	georeference/GeoreferenceComponent.h
     georeference/GeoreferenceModel.h
     georeference/GeoreferencePresenter.h
     georeference/GeoreferenceView.h

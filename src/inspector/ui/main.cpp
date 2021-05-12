@@ -12,6 +12,7 @@
 #include "inspector/ui/orientation/OrientationComponent.h"
 #include "inspector/ui/densification/DensificationComponent.h"
 #include "inspector/ui/dtm/DTMComponent.h"
+#include "inspector/ui/georeference/GeoreferenceComponent.h"
 #include "inspector/ui/featviewer/FeaturesViewerComponent.h"
 #include "inspector/ui/matchviewer/MatchViewerComponent.h"
 #include "inspector/ui/AppStatus.h"
@@ -49,6 +50,9 @@ int main(int argc, char *argv[])
   DensificationComponent densification_component(componentsManager.project());
   componentsManager.registerComponent(&densification_component);
   
+  GeoreferenceComponent georeference_component(componentsManager.project());
+  componentsManager.registerComponent(&georeference_component,
+                                      ComponentsManager::Flags::separator_before);
   DTMComponent dtm_component(componentsManager.project());
   componentsManager.registerComponent(&dtm_component, 
                                       ComponentsManager::Flags::separator_before);
@@ -81,7 +85,8 @@ int main(int argc, char *argv[])
                    &features_viewer_component, &FeaturesViewerComponent::openKeypointsViewer);
   QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                    &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
-
+  QObject::connect(&georeference_component, SIGNAL(georeferenceFinished()), 
+                   componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
 
   AppStatus &app_status = AppStatus::instance();
   app_status.activeFlag(AppStatus::Flag::none, true);
