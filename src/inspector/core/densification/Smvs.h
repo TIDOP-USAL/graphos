@@ -7,15 +7,14 @@
 
 #include <QString>
 
-namespace colmap
-{
-class Reconstruction;
-}
-
 
 namespace inspector
 {
 
+namespace internal
+{
+class Reconstruction;
+}
 
 class INSPECTOR_EXPORT SmvsProperties
   : public Smvs
@@ -35,16 +34,16 @@ public:
 
 public:
 
-  virtual int inputImageScale() const override;
-  virtual int outputDepthScale() const override;
-  virtual bool shadingBasedOptimization() const override;
-  virtual bool semiGlobalMatching() const override;
-  virtual double surfaceSmoothingFactor() const override;
-  virtual void setInputImageScale(int inputImageScale) override;
-  virtual void setOutputDepthScale(int outputDepthScale) override;
-  virtual void setShadingBasedOptimization(bool shadingBasedOptimization) override;
-  virtual void setSemiGlobalMatching(bool semiGlobalMatching) override;
-  virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) override;
+  int inputImageScale() const override;
+  int outputDepthScale() const override;
+  bool shadingBasedOptimization() const override;
+  bool semiGlobalMatching() const override;
+  double surfaceSmoothingFactor() const override;
+  void setInputImageScale(int inputImageScale) override;
+  void setOutputDepthScale(int outputDepthScale) override;
+  void setShadingBasedOptimization(bool shadingBasedOptimization) override;
+  void setSemiGlobalMatching(bool semiGlobalMatching) override;
+  void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) override;
 
 // Densification interface
 
@@ -74,16 +73,12 @@ class INSPECTOR_EXPORT SmvsDensifier
 public:
 
   SmvsDensifier();
-  //SmvsDensifier(const SmvsDensifier &smvs);
-  //SmvsDensifier(SmvsDensifier &&smvs) noexcept;
   SmvsDensifier(int inputImageScale,
                 int outputDepthScale,
                 bool shadingBasedOptimization,
                 bool semiGlobalMatching,
                 double surfaceSmoothingFactor);
   ~SmvsDensifier() override;
-  //SmvsDensifier &operator =(const SmvsDensifier &smvs);
-  //SmvsDensifier &operator =(SmvsDensifier &&smvs) noexcept;
 
   SmvsDensifier(const SmvsDensifier &smvs) = delete;
   SmvsDensifier(SmvsDensifier &&smvs) = delete;
@@ -123,7 +118,7 @@ private:
   bool bCuda;
   std::string mOutputPath;
   std::string mImagesPath;
-  colmap::Reconstruction *mReconstruction;
+  internal::Reconstruction *mReconstruction;
 };
 
 

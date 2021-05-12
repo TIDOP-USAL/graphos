@@ -22,9 +22,6 @@
 #include "inspector/ui/export/orientations/ExportOrientationsModel.h"
 #include "inspector/ui/export/orientations/ExportOrientationsView.h"
 #include "inspector/ui/export/orientations/ExportOrientationsPresenter.h"
-//#include "inspector/ui/georeference/impl/GeoreferenceModel.h"
-//#include "inspector/ui/georeference/impl/GeoreferenceView.h"
-//#include "inspector/ui/georeference/impl/GeoreferencePresenter.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudModel.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudView.h"
@@ -58,8 +55,6 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mSettingsPresenter(nullptr),
     mExportOrientationsModel(nullptr),
     mExportOrientationsPresenter(nullptr),
-    //mGeoreferenceModel(nullptr),
-    //mGeoreferencePresenter(nullptr),
     mExportPointCloudModel(nullptr),
     mExportPointCloudPresenter(nullptr),
     mHelpDialog(nullptr),
@@ -158,16 +153,6 @@ ComponentsManager::~ComponentsManager()
     mExportOrientationsPresenter = nullptr;
   }
 
-  //if (mGeoreferenceModel) {
-  //  delete mGeoreferenceModel;
-  //  mGeoreferenceModel = nullptr;
-  //}
-
-  //if (mGeoreferencePresenter) {
-  //  delete mGeoreferencePresenter;
-  //  mGeoreferencePresenter = nullptr;
-  //}
-
   if (mExportPointCloudModel){
     delete mExportPointCloudModel;
     mExportPointCloudModel = nullptr;
@@ -245,8 +230,6 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenViewSettingsDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
             this, &ComponentsManager::initAndOpenToolSettingsDialog);
-    //connect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
-    //        this, &ComponentsManager::initAndOpenGeoreferenceDialog);
     connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
             this, &ComponentsManager::initAndOpenExportPointCloudDialog);
   }
@@ -379,25 +362,6 @@ ExportOrientationsPresenter *ComponentsManager::exportOrientationsPresenter()
   return mExportOrientationsPresenter;
 }
 
-//GeoreferenceModel *ComponentsManager::georeferenceModel()
-//{
-//  if (mGeoreferenceModel == nullptr) {
-//    mGeoreferenceModel = new GeoreferenceModelImp(mProject);
-//  }
-//  return mGeoreferenceModel;
-//}
-
-//GeoreferencePresenter *ComponentsManager::georeferencePresenter()
-//{
-//  if (mGeoreferencePresenter == nullptr){
-//    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-//    GeoreferenceView *view = new GeoreferenceViewImp(this->mainWindowView(), f);
-//    mGeoreferencePresenter = new GeoreferencePresenterImp(view,
-//                                                          this->georeferenceModel());
-//  }
-//  return mGeoreferencePresenter;
-//}
-
 ExportPointCloudModel *ComponentsManager::exportPointCloudModel()
 {
   if (mExportPointCloudModel == nullptr) {
@@ -505,24 +469,6 @@ void ComponentsManager::initAndOpenExportOrientationsDialog()
   this->exportOrientationsPresenter()->setHelp(this->helpDialog());
   this->exportOrientationsPresenter()->open();
 }
-
-//void ComponentsManager::initAndOpenGeoreferenceDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
-//             this, &ComponentsManager::initAndOpenGeoreferenceDialog);
-//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openGeoreferenceDialog,
-//          this->georeferencePresenter(), &GeoreferencePresenter::open);
-//
-//  connect(this->georeferencePresenter(), SIGNAL(running()),               this->mainWindowPresenter(), SLOT(processRunning()));
-//  connect(this->georeferencePresenter(), SIGNAL(finished()),              this->mainWindowPresenter(), SLOT(processFinished()));
-//  connect(this->georeferencePresenter(), SIGNAL(georeferenceFinished()),  this->mainWindowPresenter(), SLOT(loadOrientation()));
-//
-//  connect(this->progressDialog(), SIGNAL(cancel()),     this->georeferencePresenter(), SLOT(cancel()));
-//
-//  this->georeferencePresenter()->setProgressHandler(this->progressHandler());
-//  this->georeferencePresenter()->setHelp(this->helpDialog());
-//  this->georeferencePresenter()->open();
-//}
 
 void ComponentsManager::initAndOpenExportPointCloudDialog()
 {

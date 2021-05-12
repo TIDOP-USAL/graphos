@@ -43,13 +43,10 @@ void DtmProcess::run()
     chrono.run();
 
     tl::Path dtm_path(mDtmFile.toStdString());
-    tl::Path::createDirectories(dtm_path.parentPath());
+    dtm_path.parentPath().createDirectories();
 
     tl::TemporalDir temporal_dir;
     tl::Path temp_path = temporal_dir.path();
-    //tl::Path temp_path = tl::Path::tempDirectory();
-    //temp_path.append("inspector");
-    //tl::Path::createDirectory(temp_path);
 
     if (mDSM) {
 

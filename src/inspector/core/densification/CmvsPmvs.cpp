@@ -3,6 +3,7 @@
 // TIDOP LIB
 #include <tidop/core/messages.h>
 #include <tidop/core/process.h>
+#include <tidop/core/path.h>
 #include <tidop/img/imgreader.h>
 
 // COLMAP
@@ -20,25 +21,11 @@
 #include <opencv2/cudaarithm.hpp>
 #endif // HAVE_CUDA
 
-#include <QDir>
-
-// BOOST
-#include <boost/algorithm/string.hpp>
-using namespace tl;
-#if (__cplusplus >= 201703L)
-#include <filesystem>
-namespace fs = std::filesystem;
-#else
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
-#endif
-
 namespace inspector
 {
 
 namespace internal
 {
-//class Reconstruction;
 
 class Reconstruction
 {
@@ -330,17 +317,13 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
 bool CmvsPmvsDensifier::densify(const QString &undistortPath)
 {
 
-  fs::path app_path(tl::getRunfile());
+  tl::Path app_path(tl::getRunfile());
   std::string cmd_cmvs("/c \"\"");
-  cmd_cmvs.append(app_path.parent_path().string());
+  cmd_cmvs.append(app_path.parentPath().toString());
   cmd_cmvs.append("\\pmvs2\" \"");
   cmd_cmvs.append(undistortPath.toStdString());
   cmd_cmvs.append("/pmvs/\" option-all\"");
-  ExternalProcess process(cmd_cmvs);
-
-  //if (process.run() == Process::Status::error) {
-  //  return true;
-  //}
+  tl::ExternalProcess process(cmd_cmvs);
   process.run();
 
   return false;
@@ -368,14 +351,12 @@ void CmvsPmvsDensifier::createDirectories()
 
 void CmvsPmvsDensifier::createDirectory(const std::string &path)
 {
-  fs::path dir(path);
+  tl::Path dir(path);
   
-  if (!fs::exists(dir)) {
-    if (!fs::create_directories(dir)) {
+  if (!dir.createDirectories()) {
       std::string err = "The output directory cannot be created: ";
       err.append(path);
       throw std::runtime_error(err);
-    }
   }
 }
 
@@ -531,7 +512,7 @@ void CmvsPmvsDensifier::undistortImages()
 #endif
     
 
-    try {
+    //try {
       
       TL_TODO("undistortImage()")
 
@@ -646,9 +627,9 @@ void CmvsPmvsDensifier::undistortImages()
           WriteMatrix(proj_matrix, &file);
         }
       }
-    } catch (const std::exception &e) {
-      msgError(e.what());
-    }
+    //} catch (const std::exception &e) {
+    //  msgError(e.what());
+    //}
 
   }
 }

@@ -55,13 +55,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionCloseProject(new QAction(this)),
     mActionExit(new QAction(this)),
     mActionStartPage(new QAction(this)),
-    //mActionLoadImages(new QAction(this)),
-    //mActionFeatureExtraction(new QAction(this)),
-    //mActionFeatureMatching(new QAction(this)),
-    //mActionOrientation(new QAction(this)),
-    //mActionDensification(new QAction(this)),
     mActionCameras(new QAction(this)),
-    //mActionGeoreference(new QAction(this)),
     mActionSettings(new QAction(this)),
     mActionHelp(new QAction(this)),
     mActionAbout(new QAction(this)),
@@ -70,11 +64,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExportMatches(new QAction(this)),
     mActionExportOrientations(new QAction(this)),
     mActionExportPointCloud(new QAction(this)),
-    //mActionFeaturesViewer(new QAction(this)),
-    //mActionMatchesViewer(new QAction(this)),
-    //mActionDtm(new QAction(this)),
     mActionOrtho(new QAction(this)),
-    //mActionPassPointsViewer(new QAction(this)),
     mActionNotRecentProjects(new QAction(this)),
     mActionClearHistory(new QAction(this)),
     mActionOpenImage(new QAction(this)),
@@ -921,42 +911,6 @@ void MainWindowView::initActions()
   iconStartPage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-home-page.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionStartPage->setIcon(iconStartPage);
 
-  //QIcon iconLoadImages;
-  //iconLoadImages.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-add-folder.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionLoadImages->setIcon(iconLoadImages);
-
-  //QIcon iconFeatureExtraction;
-  //iconFeatureExtraction.addFile(QStringLiteral(":/ico/24/img/material/24/features.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionFeatureExtraction->setIcon(iconFeatureExtraction);
-
-  //QIcon iconFeatureMatching;
-  //iconFeatureMatching.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-match_view"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionFeatureMatching->setIcon(iconFeatureMatching);
-
-//  QIcon iconOrientation;
-//  iconOrientation.addFile(QStringLiteral(":/ico/24/img/material/24/match_view.png"), QSize(), QIcon::Normal, QIcon::Off);
-//  mActionOrientation->setIcon(iconOrientation);
-
-//  QIcon iconDensification;
-//  iconDensification.addFile(QStringLiteral(":/ico/24/img/material/24/match_view.png"), QSize(), QIcon::Normal, QIcon::Off);
-//  mActionDensification->setIcon(iconDensification);
-
-  //QIcon iconCameras;
-  //iconCameras.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-camera-outline-2.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionCameras->setIcon(iconCameras);
-
-  //QIcon iconGeoreference;
-  //iconGeoreference.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-coordinate-system.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionGeoreference->setIcon(iconGeoreference);
-
-  //QIcon iconFeaturesViewer;
-  //iconFeaturesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_points_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionFeaturesViewer->setIcon(iconFeaturesViewer);
-
-  //QIcon iconMatchesViewer;
-  //iconMatchesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_match_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionMatchesViewer->setIcon(iconMatchesViewer);
-
   QIcon iconSettings;
   iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionSettings->setIcon(iconSettings);
@@ -987,8 +941,6 @@ void MainWindowView::initActions()
   mActionViewKeypoints->setIcon(QIcon(":/ico/24/img/material/24/view_points_24px.png"));
   mActionViewMatches->setIcon(QIcon(":/ico/24/img/material/24/view_match_24px.png"));
 
-  //mActionDtm->setIcon(iconMatchesViewer);
-  //mActionOrtho->setIcon(iconMatchesViewer);
 }
 
 void MainWindowView::initToolbars()
@@ -1015,10 +967,6 @@ void MainWindowView::initToolbarWorkflow()
 {
   mToolBarWorkflow = new QToolBar(this);
   mToolBarWorkflow->setObjectName("ToolBarWorkflow");
-  //mToolBarWorkflow->addAction(mActionLoadImages);
-  //mToolBarWorkflow->addSeparator();
-  //mToolBarWorkflow->addAction(mActionFeatureExtraction);
-  //mToolBarWorkflow->addAction(mActionFeatureMatching);
   this->addToolBar(Qt::TopToolBarArea, mToolBarWorkflow);
 }
 
@@ -1053,11 +1001,6 @@ void MainWindowView::initToolbarTools()
   mToolBarTools = new QToolBar(this);
   mToolBarTools->setObjectName("ToolBarTools");
   mToolBarTools->addAction(mActionCameras);
-  //mToolBarTools->addSeparator();
-  //mToolBarTools->addAction(mActionGeoreference);
-  //mToolBarTools->addSeparator();
-  //mToolBarTools->addAction(mActionFeaturesViewer);
-  //mToolBarTools->addAction(mActionMatchesViewer);
   this->addToolBar(Qt::TopToolBarArea, mToolBarTools);
 }
 
@@ -1073,7 +1016,6 @@ void MainWindowView::initTreeWidget()
   ui->gridLayout->addWidget(mTreeWidgetProject, 0, 0, 1, 1);
 
   mMenuTreeProjectImages = new QMenu(this);
-  //mMenuTreeProjectImages->addAction(mActionLoadImages);
   mMenuTreeProjectImage = new QMenu(this);
   mMenuTreeProjectImage->addAction(mActionOpenImage);
   mMenuTreeProjectImage->addAction(mActionDeleteImage);
@@ -1116,15 +1058,6 @@ void MainWindowView::initMenuFile()
   mMenuExport->addAction(mActionExportMatches);
   mMenuExport->addAction(mActionExportOrientations);
   mMenuExport->addAction(mActionExportPointCloud);
-  //mMenuExportTiePoints = new QMenu(tr("Tie Points"), this);
-  //mMenuExportMatches = new QMenu(tr("Matches"), this);
-  //mMenuExportTiePoints->addAction(mActionExportTiePointsCvXml);
-  //mMenuExportTiePoints->addAction(mActionExportTiePointsCvYml);
-  //mMenuExportMatches->addAction(mActionExportMatchesToCvXml);
-  //mMenuExportMatches->addAction(mActionExportMatchesToCvYml);
-  //mMenuExportMatches->addAction(mActionExportMatchesToTxt);
-  //mMenuExport->addMenu(mMenuExportTiePoints);
-  //mMenuExport->addMenu(mMenuExportMatches);
   ui->menuFile->addMenu(mMenuExport);
   ui->menuFile->addSeparator();
   ui->menuFile->addAction(mActionCloseProject);
@@ -1158,26 +1091,11 @@ void MainWindowView::initMenuView()
 
 void MainWindowView::initMenuWorkflow()
 {
-  //ui->menuWorkflow->addAction(mActionLoadImages);
-  //ui->menuWorkflow->addSeparator();
-  //ui->menuWorkflow->addAction(mActionFeatureExtraction);
-  //ui->menuWorkflow->addAction(mActionFeatureMatching);
-  //ui->menuWorkflow->addAction(mActionOrientation);
-  //ui->menuWorkflow->addAction(mActionDensification);
 }
 
 void MainWindowView::initMenuTools()
 {
   ui->menuTools->addAction(mActionCameras);
-  //ui->menuTools->addSeparator();
-  //ui->menuTools->addAction(mActionGeoreference);
-  ui->menuTools->addSeparator();
-  //ui->menuTools->addAction(mActionDtm);
-  //ui->menuTools->addAction(mActionOrtho);
-  ui->menuTools->addSeparator();
-  //ui->menuTools->addAction(mActionFeaturesViewer);
-  //ui->menuTools->addAction(mActionMatchesViewer);
-  //ui->menuTools->addAction(mActionPassPointsViewer);
   ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionSettings);
 
@@ -1202,12 +1120,9 @@ void MainWindowView::initSignalAndSlots()
 {
   /* Menú Archivo */
 
-  //connect(mActionNewProject,           &QAction::triggered, this,   &MainWindowView::openNew);
-  //connect(mActionOpenProject,          &QAction::triggered, this,   &MainWindowView::openProject);
   connect(mActionClearHistory,         &QAction::triggered, this,   &MainWindowView::clearHistory);
   connect(mActionSaveProject,          &QAction::triggered, this,   &MainWindowView::saveProject);
   connect(mActionSaveProjectAs,        &QAction::triggered, this,   &MainWindowView::saveProjectAs);
-  //connect(mActionImportCameras,        &QAction::triggered, this,   &MainWindowView::openCamerasImport);
   connect(mActionExportTiePoints,      &QAction::triggered, this,   &MainWindowView::openExportFeatures);
   connect(mActionExportMatches,        &QAction::triggered, this,   &MainWindowView::openExportMatches);
   connect(mActionExportOrientations,   &QAction::triggered, this,   &MainWindowView::openExportOrientations);
@@ -1221,20 +1136,8 @@ void MainWindowView::initSignalAndSlots()
 
   /* Menú Flujo de trabajo */
 
-  //connect(mActionLoadImages,         &QAction::triggered,   this,   &MainWindowView::loadImages);
-  //connect(mActionFeatureExtraction,  &QAction::triggered,   this,   &MainWindowView::openFeatureExtraction);
-  //connect(mActionFeatureMatching,    &QAction::triggered,   this,   &MainWindowView::openFeatureMatching);
-  //connect(mActionOrientation,        &QAction::triggered,   this,   &MainWindowView::openOrientation);
-  //connect(mActionDensification,      &QAction::triggered,   this,   &MainWindowView::openDensification);
-
   /* Menú herramientas */
 
-  //connect(mActionCameras,            &QAction::triggered,   this,   &MainWindowView::openCamerasDialog);
-  //connect(mActionGeoreference,       &QAction::triggered,   this,   &MainWindowView::openGeoreferenceDialog);
-  //connect(mActionDtm,                &QAction::triggered,   this,   &MainWindowView::openDtmDialog);
-  //connect(mActionFeaturesViewer,     SIGNAL(triggered(bool)),   this,   SIGNAL(openKeypointsViewer()));
-  //connect(mActionMatchesViewer,      SIGNAL(triggered(bool)),   this,   SIGNAL(openMatchesViewer()));
-  //connect(mActionPassPointsViewer,   SIGNAL(triggered(bool)),   this,   SIGNAL(openMultiviewMatchingAssessment()));
   connect(mActionSettings,           SIGNAL(triggered(bool)),   this,   SIGNAL(openSettings()));
 
   /* Menú Ayuda */
@@ -1321,12 +1224,9 @@ void MainWindowView::update()
   bool bAbsoluteOriented = mFlags.isActive(Flag::absolute_oriented);
   bool bDenseModel = mFlags.isActive(Flag::dense_model);
 
-  //mActionNewProject->setEnabled(!bProcessing);
-  //mActionOpenProject->setEnabled(!bProcessing);
   mMenuRecentProjects->setEnabled(!bProcessing);
   mActionNotRecentProjects->setVisible(mHistory.size() == 0);
   mActionClearHistory->setEnabled(mHistory.size() > 0);
-  //mActionImportCameras->setEnabled(bProjectExists && !bProcessing);
   mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
   mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
   mActionExportOrientations->setEnabled(bProjectExists && bOriented && !bProcessing);
@@ -1335,20 +1235,6 @@ void MainWindowView::update()
   mActionSaveProjectAs->setEnabled(bProjectExists && !bProcessing);
   mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
   mActionExit->setEnabled(!bProcessing);
-
-  //mActionLoadImages->setEnabled(bProjectExists && !bProcessing && !bLoadingImages);
-  //mActionFeatureExtraction->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
-  //mActionFeatureMatching->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
-  //mActionOrientation->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
-  //mActionDensification->setEnabled(bProjectExists && bOriented && !bProcessing);
-
-  //mActionCameras->setEnabled(bProjectExists && bImagesLoaded);
-  //mActionDtm->setEnabled(bProjectExists && bAbsoluteOriented && !bProcessing);
-  //mActionGeoreference->setEnabled(bProjectExists && bOriented && !bProcessing);
-  //mActionFeaturesViewer->setEnabled(bFeatureExtraction);
-  //mActionMatchesViewer->setEnabled(bFeatureMatching);
-  //mActionPassPointsViewer->setEnabled(bFeatureMatching);
-
 
   AppStatus &app_status = AppStatus::instance();
   bool project_exists = app_status.isActive(AppStatus::Flag::project_exists);
@@ -1374,18 +1260,9 @@ void MainWindowView::retranslate()
   mActionCloseProject->setText(QApplication::translate("MainWindowView", "Close Project", nullptr));
   mActionExit->setText(QApplication::translate("MainWindowView", "Exit", nullptr));
   mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));
-  //mActionLoadImages->setText(QApplication::translate("MainWindowView", "Load Images", nullptr));
-  //mActionFeatureExtraction->setText(QApplication::translate("MainWindowView", "Feature Extraction", nullptr));
-  //mActionFeatureMatching->setText(QApplication::translate("MainWindowView", "Feature Matching", nullptr));
-  //mActionOrientation->setText(QApplication::translate("MainWindowView", "Orientation", nullptr));
-  //mActionDensification->setText(QApplication::translate("MainWindowView", "Densification", nullptr));
   mActionCameras->setText(QApplication::translate("MainWindowView", "Cameras", nullptr));
-  //mActionGeoreference->setText(QApplication::translate("MainWindowView", "Georeference", nullptr));
   mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
   mActionAbout->setText(QApplication::translate("MainWindowView", "About", nullptr));
-  //mActionFeaturesViewer->setText(QApplication::translate("MainWindowView", "Keypoints Viewer", nullptr));
-  //mActionMatchesViewer->setText(QApplication::translate("MainWindowView", "Matches Viewer", nullptr));
-  //mActionPassPointsViewer->setText(QApplication::translate("MainWindowView", "Multiview Matching Assessment", nullptr));
   mActionSettings->setText(QApplication::translate("MainWindowView", "Settings", nullptr));
   mActionNotRecentProjects->setText(QApplication::translate("MainWindowView", "Not recent projects", nullptr));
   mActionClearHistory->setText(QApplication::translate("MainWindowView", "Clear History", nullptr));
@@ -1394,8 +1271,6 @@ void MainWindowView::retranslate()
   mActionViewKeypoints->setText(QApplication::translate("MainWindowView", "View Keypoints", nullptr));
   mActionViewMatches->setText(QApplication::translate("MainWindowView", "View Matches", nullptr));
   mActionOpenModel3D->setText(QApplication::translate("MainWindowView", "Open Point Cloud", nullptr));
-  //mActionDtm->setText(QApplication::translate("MainWindowView", "DTM/DSM", nullptr));
-
 
   mToolBarFile->setWindowTitle(QCoreApplication::translate("MainWindowView", "File", nullptr));
   mToolBarWorkflow->setWindowTitle(QCoreApplication::translate("MainWindowView", "Workflow", nullptr));

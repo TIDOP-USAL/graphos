@@ -6,6 +6,7 @@
 // TIDOP LIB
 #include <tidop/core/messages.h>
 #include <tidop/core/process.h>
+#include <tidop/core/path.h>
 #include <tidop/img/imgreader.h>
 
 // COLMAP
@@ -22,20 +23,39 @@
 #include <opencv2/cudaarithm.hpp>
 #endif // HAVE_CUDA
 
-// BOOST
-#include <boost/algorithm/string.hpp>
-using namespace inspector;
-using namespace tl;
-#if (__cplusplus >= 201703L)
-#include <filesystem>
-namespace fs = std::filesystem;
-#else
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
-#endif
-
 namespace inspector
 {
+
+namespace internal
+{
+
+class Reconstruction
+{
+public:
+  Reconstruction(const std::string &path)
+    : mReconstruction(new colmap::Reconstruction())
+  {
+    mReconstruction->ReadBinary(path);
+  }
+  ~Reconstruction()
+  {
+    if (mReconstruction) {
+      delete mReconstruction;
+      mReconstruction = nullptr;
+    }
+  }
+
+  colmap::Reconstruction &colmap()
+  {
+    return *mReconstruction;
+  }
+
+private:
+
+  colmap::Reconstruction *mReconstruction;
+};
+
+}
 
 
 SmvsProperties::SmvsProperties()
@@ -167,20 +187,6 @@ SmvsDensifier::SmvsDensifier()
 {
 }
 
-//SmvsDensifier::SmvsDensifier(const SmvsDensifier &smvs)
-//  : SmvsProperties(smvs),
-//    bOpenCvRead(true),
-//    bCuda(false)
-//{
-//}
-//
-//SmvsDensifier::SmvsDensifier(SmvsDensifier &&smvs) noexcept
-//  : SmvsProperties(std::forward<SmvsProperties>(smvs)),
-//    bOpenCvRead(smvs.bOpenCvRead),
-//    bCuda(smvs.bCuda)
-//{
-//}
-
 SmvsDensifier::SmvsDensifier(int inputImageScale,
                              int outputDepthScale,
                              bool shadingBasedOptimization,
@@ -206,26 +212,6 @@ SmvsDensifier::~SmvsDensifier()
   }
 }
 
-//SmvsDensifier &SmvsDensifier::operator =(const SmvsDensifier &smvs)
-//{
-//  if (this != &smvs){
-//    SmvsProperties::operator=(smvs);
-//    bOpenCvRead = smvs.bOpenCvRead;
-//    bCuda = smvs.bCuda;
-//  }
-//  return *this;
-//}
-//
-//SmvsDensifier &SmvsDensifier::operator =(SmvsDensifier &&smvs) noexcept
-//{
-//  if (this != &smvs){
-//    SmvsProperties::operator=(std::forward<SmvsProperties>(smvs));
-//    bOpenCvRead = smvs.bOpenCvRead;
-//    bCuda = smvs.bCuda;
-//  }
-//  return *this;
-//}
-
 void SmvsDensifier::reset()
 {
   SmvsProperties::reset();
@@ -237,8 +223,7 @@ bool SmvsDensifier::undistort(const QString &reconstructionPath,
                               const QString &outputPath)
 {
   
-  mReconstruction = new colmap::Reconstruction();
-  mReconstruction->ReadBinary(reconstructionPath.toStdString());
+  mReconstruction = new internal::Reconstruction(reconstructionPath.toStdString());
 
   mOutputPath = outputPath.toStdString();
   mImagesPath = imagesPath.toStdString();
@@ -260,14 +245,12 @@ void SmvsDensifier::createDirectories()
 
 void SmvsDensifier::createDirectory(const std::string &path)
 {
-  fs::path dir(path);
-  
-  if (!fs::exists(dir)) {
-    if (!fs::create_directories(dir)) {
-      std::string err = "The output directory cannot be created: ";
-      err.append(path);
-      throw std::runtime_error(err);
-    }
+  tl::Path dir(path);
+
+  if (!dir.createDirectories()) {
+    std::string err = "The output directory cannot be created: ";
+    err.append(path);
+    throw std::runtime_error(err);
   }
 }
 
@@ -278,15 +261,17 @@ void SmvsDensifier::writeMVEFile()
   std::ofstream stream(mve_path, std::ios::trunc);
   if (stream.is_open()) {
 
-    int camera_count = static_cast<int>(mReconstruction->Images().size());
-    int feature_count = static_cast<int>(mReconstruction->NumPoints3D());
+    colmap::Reconstruction &reconstruction = mReconstruction->colmap();
+
+    int camera_count = static_cast<int>(reconstruction.Images().size());
+    int feature_count = static_cast<int>(reconstruction.NumPoints3D());
 
     stream << "drews 1.0" << std::endl;
     stream << camera_count << " " << feature_count << std::endl;
 
-    const std::vector<colmap::image_t> &reg_image_ids = mReconstruction->RegImageIds();
+    const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
 
-    for (auto &camera : mReconstruction->Cameras()) {
+    for (auto &camera : reconstruction.Cameras()) {
 
       double focal = camera.second.FocalLength();
       double ppx = camera.second.PrincipalPointX();
@@ -316,7 +301,7 @@ void SmvsDensifier::writeMVEFile()
         colmap::image_t image_id = reg_image_ids[i];
         colmap::Image &image = mReconstruction->Image(image_id);
         if (image.CameraId() == camera.second.CameraId()) {*/
-      for (auto &image : mReconstruction->Images()) {
+      for (auto &image : reconstruction.Images()) {
           if (image.second.CameraId() == camera.second.CameraId()) {
 
           /*Eigen::Matrix3d rotation_matrix = image.RotationMatrix();
@@ -366,7 +351,7 @@ void SmvsDensifier::writeMVEFile()
       }
     }
 
-    for (auto &points_3d : mReconstruction->Points3D()) {
+    for (auto &points_3d : reconstruction.Points3D()) {
 
       Eigen::Vector3ub color = points_3d.second.Color();
       stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
@@ -399,9 +384,10 @@ void SmvsDensifier::writeMVEFile()
 
 void SmvsDensifier::undistortImages()
 {
-  const std::vector<colmap::image_t> &reg_image_ids = mReconstruction->RegImageIds();
+  colmap::Reconstruction &reconstruction = mReconstruction->colmap();
+  const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
 
-  for (auto &camera : mReconstruction->Cameras()) {
+  for (auto &camera : reconstruction.Cameras()) {
 
     double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
     float focal = static_cast<float>(camera.second.FocalLength());
@@ -433,7 +419,7 @@ void SmvsDensifier::undistortImages()
 #endif
 
     try {
-      for (auto &image : mReconstruction->Images()) {
+      for (auto &image : reconstruction.Images()) {
       //for (size_t i = 0; i < reg_image_ids.size(); ++i) {
         
         //colmap::image_t image_id = reg_image_ids[i];
@@ -522,10 +508,10 @@ bool SmvsDensifier::densify(const QString &undistortPath)
 
   /// smvsrecon_SSE41.exe  --scale=2 --output-scale=3 --alpha=1.000000 --force C:\Users\esteban\Documents\Inspector\Projects\planta solar\out"
 
-  fs::path app_path(tl::getRunfile());
+  tl::Path app_path(tl::getRunfile());
 
   std::string cmd("/c \"\"");
-  cmd.append(app_path.parent_path().string());
+  cmd.append(app_path.parentPath().toString());
   cmd.append("\\smvsrecon_SSE41.exe\" ");
   cmd.append("--scale=").append(std::to_string(SmvsProperties::inputImageScale()));
   cmd.append(" --output-scale=").append(std::to_string(SmvsProperties::outputDepthScale()));
@@ -538,9 +524,6 @@ bool SmvsDensifier::densify(const QString &undistortPath)
   cmd.append("\"").append(undistortPath.toStdString()).append("\"\"");
   tl::ExternalProcess process(cmd);
   process.run();
-  //if (process.run() == tl::Process::Status::error) {
-  //  return true;
-  //}
 
   return false;
 }

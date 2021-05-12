@@ -18,7 +18,6 @@ class MainWindowView;
 class MainWindowModel;
 class ProjectModel;
 class SettingsModel;
-//class ImagesModel;
 class CamerasModel;
 class FeaturesModel;
 class MatchesModel;
@@ -37,8 +36,6 @@ public:
                                MainWindowModel *model,
                                ProjectModel *projectModel,
                                SettingsModel *settingsModel,
-                               //ImagesModel *imagesModel,
-                               //CamerasModel *camerasModel,
                                FeaturesModel *featuresModel,
                                MatchesModel *matchesModel);
   ~MainWindowPresenter() override;
@@ -48,18 +45,6 @@ signals:
 
   void openCreateProjectDialog();
   void openProjectDialog();
-  //void openLoadImagesDialog();
-  //void openFeatureExtractionDialog();
-  //void openFeatureMatchingDialog();
-  //void openOrientationDialog();
-  //void openDensificationDialog();
-  //void openCamerasDialog();
-  //void openKeypointsViewerDialog();
-  //void openKeypointsViewerDialogFromImage(QString);
-  //void openMatchesViewerDialog();
-  //void openMatchesViewerDialogFromImages(QString, QString);
-//  void openExportFeaturesDialog();
-//  void openExportMatchesDialog();
   void openExportOrientationsDialog();
   void openExportPointCloudDialog();
   void openGeoreferenceDialog();
@@ -74,8 +59,6 @@ protected slots:
 
   /* Menú Archivo */
 
-  //void openNew();
-  //void openProject();
   void openFromHistory(const QString &file);
   void deleteHistory();
   void saveProject();
@@ -86,15 +69,6 @@ protected slots:
   /* Menú View */
 
   void openStartPage();
-
-  /* Quality Control */
-
-//  void openKeypointsViewer();
-//  void openMatchesViewer();
-
-  /* Menú herramientas */
-
-  //void loadImages();
 
   /* Menú Ayuda */
 
@@ -117,8 +91,6 @@ protected slots:
 
   void openModel3D(const QString &model3D, bool loadCameras);
 
-  //void updateFeatures();
-  //void updateMatches();
   void deleteFeatures();
   void deleteMatches();
 
@@ -126,7 +98,6 @@ protected slots:
   void processRunning();
   void processFailed();
 
-  //void onLoadImages(); ///TODO: borrar
   void loadingImages(bool loading);
   void loadImage(const QString &image);
   void onProjectModified();
@@ -149,20 +120,12 @@ private:
   void initDefaultPath();
   void initStartPage();
 
-//  bool loadPreprocess(const QString &session);
-//  bool loadFeatures(const QString &session);
-//  bool loadMatches(const QString &session);
-
-
-
 protected:
 
   MainWindowView *mView;
   MainWindowModel *mModel;
   ProjectModel *mProjectModel;
   SettingsModel *mSettingsModel;
-  //ImagesModel *mImagesModel;
-  //CamerasModel *mCamerasModel;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
 

@@ -5,12 +5,6 @@
 
 #include "inspector/core/features/features.h"
 
-/* namespace colmap
-{
-struct ExhaustiveMatchingOptions;
-struct SiftMatchingOptions;
-class ExhaustiveFeatureMatcher;
-} */
 
 namespace inspector
 {
@@ -50,28 +44,6 @@ private:
 
 };
 
-
-//class INSPECTOR_EXPORT FeatureMatchingImp
-//  : public FeatureMatchingProperties
-//{
-
-//public:
-
-//  FeatureMatchingImp() {}
-
-//// FeatureMatching interface
-
-//public:
-
-//  void setBlockSize(int blockSize) override;
-//  void enableCrossCheck(bool enable) override;
-//  void setRatio(double ratio) override;
-//  void setDistance(double distance) override;
-//  void setMaxMatches(int maxMatches) override;
-//  void setMaxError(double error) override;
-//  void setConfidence(double error) override;
-
-//};
 
 } // namespace inspector
 
