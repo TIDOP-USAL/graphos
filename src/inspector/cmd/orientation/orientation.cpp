@@ -358,6 +358,9 @@ int main(int argc, char** argv)
 
   Path project_file{};
   bool enu = false;
+  //bool fix_focal = false;
+  //bool fix_principal_point = true;
+  //bool fix_distortions = false;
 
   Command cmd("orientation", cmd_description);
   cmd.push_back(std::make_shared<ArgumentPathRequired>("prj", 'p', "Project file", &project_file));
@@ -508,7 +511,7 @@ int main(int argc, char** argv)
   
   /// Escritura de fichero cameras.txt
   /// Ver si hay calibración o se añade calibración por defecto
-  bool bNoCalibration = true;
+  //bool bNoCalibration = true;
   
   {
     tl::Path cameras_path(input_path);
@@ -530,7 +533,7 @@ int main(int argc, char** argv)
       
       if (calibration) {
 
-        bNoCalibration = false;
+        //bNoCalibration = false;
 
         double focal = calibration->existParameter(Calibration::Parameters::focal) ? calibration->parameter(Calibration::Parameters::focal) : std::min(camera.width(), camera.height());
         double cx = calibration->existParameter(Calibration::Parameters::cx) ? calibration->parameter(Calibration::Parameters::cx) : camera.width() / 2.;
@@ -703,9 +706,9 @@ int main(int argc, char** argv)
   //////////////////////////////////////////////////////////////////////////////
 
   auto ba_options = mapper_options.GlobalBundleAdjustment();
-  ba_options.refine_focal_length = bNoCalibration ? true : false;
-  ba_options.refine_principal_point = bNoCalibration ? true : false;
-  ba_options.refine_extra_params = bNoCalibration ? true : false;
+  ba_options.refine_focal_length = true;//bNoCalibration ? true : false;
+  ba_options.refine_principal_point = false; //bNoCalibration ? true : false;
+  ba_options.refine_extra_params = true;//bNoCalibration ? true : false;
   ba_options.refine_extrinsics = true;
 
   // Configure bundle adjustment.
@@ -719,6 +722,30 @@ int main(int argc, char** argv)
     //ba_config.SetConstantTvec(image_id, {0, 1, 2 }); // Asi da un error
   }
 
+  for (int i = 0; i < mapper_options.ba_global_max_refinements; ++i) {
+    // Avoid degeneracies in bundle adjustment.
+    reconstruction.FilterObservationsWithNegativeDepth();
+
+    const size_t num_observations = reconstruction.ComputeNumObservations();
+
+    //PrintHeading1("Bundle adjustment");
+    inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    CHECK(bundle_adjuster.Solve(&reconstruction));
+
+    size_t num_changed_observations = 0;
+    num_changed_observations += CompleteAndMergeTracks(mapper_options, &mapper);
+    num_changed_observations += FilterPoints(mapper_options, &mapper);
+    const double changed =
+      static_cast<double>(num_changed_observations) / num_observations;
+    std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed)
+      << std::endl;
+    if (changed < mapper_options.ba_global_max_refinement_change) {
+      break;
+    }
+  }
+
+  /// Se incluye el punto principal en el ajuste
+  ba_options.refine_principal_point = true;
   for (int i = 0; i < mapper_options.ba_global_max_refinements; ++i) {
     // Avoid degeneracies in bundle adjustment.
     reconstruction.FilterObservationsWithNegativeDepth();
