@@ -1,6 +1,8 @@
 #ifndef INSPECTOR_COMPONENT_H
 #define INSPECTOR_COMPONENT_H
 
+#include "inspector/interfaces/Component.h"
+
 #include <QObject>
 #include <QString>
 
@@ -15,40 +17,39 @@ namespace ui
 {
 
 class IModel;
-class IDialogView;
 class IPresenter;
 class ProgressHandler;
 
-class Component
-  : public QObject
-{
-
-  Q_OBJECT
-
-public:
-
-  Component() {}
-  virtual ~Component() = default;
-
-  virtual QString name() const = 0;
-  virtual QAction *action() const = 0;
-  virtual QString menu() const = 0;
-  virtual QString toolbar() const = 0;
-
-protected:
-
-  virtual void setName(const QString &name) = 0;
-  virtual void setMenu(const QString &menu) = 0;
-  virtual void setToolbar(const QString &toolbar) = 0;
-
-protected:
-
-  virtual void update() = 0;
-
-signals:
-
-  void created();
-};
+//class Component
+//  : public QObject
+//{
+//
+//  Q_OBJECT
+//
+//public:
+//
+//  Component() {}
+//  virtual ~Component() = default;
+//
+//  virtual QString name() const = 0;
+//  virtual QAction *action() const = 0;
+//  virtual QString menu() const = 0;
+//  virtual QString toolbar() const = 0;
+//
+//protected:
+//
+//  virtual void setName(const QString &name) = 0;
+//  virtual void setMenu(const QString &menu) = 0;
+//  virtual void setToolbar(const QString &toolbar) = 0;
+//
+//protected:
+//
+//  virtual void update() = 0;
+//
+//signals:
+//
+//  void created();
+//};
 
 
 class ComponentBase
@@ -80,20 +81,20 @@ public:
   QString menu() const override;
   QString toolbar() const override;
 
-protected:
-
   void setName(const QString &name) override;
   void setMenu(const QString &menu) override;
   void setToolbar(const QString &toolbar) override;
 
 protected:
 
+  virtual void update() = 0;
+
+protected:
+
   QString mName;
   QAction *mAction;
   IModel *mModel;
-  //IDialogView *mView;
   QDialog *mView;
-  //QWidget *mView;
   IPresenter *mPresenter;
 
 private:

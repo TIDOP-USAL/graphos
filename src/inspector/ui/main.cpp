@@ -38,6 +38,8 @@ int main(int argc, char *argv[])
   //OpenProjectComponent open_project_component(componentsManager.project());
   //componentsManager.registerComponent(&open_project_component);
 
+  /* Workflow menu */
+
   ImageLoaderComponent image_loader_component(componentsManager.project());
   componentsManager.registerComponent(&image_loader_component, 
                                       ComponentsManager::Flags::separator_after);
@@ -50,6 +52,8 @@ int main(int argc, char *argv[])
   DensificationComponent densification_component(componentsManager.project());
   componentsManager.registerComponent(&densification_component);
   
+  /* Tools menu */
+
   GeoreferenceComponent georeference_component(componentsManager.project());
   componentsManager.registerComponent(&georeference_component,
                                       ComponentsManager::Flags::separator_before);

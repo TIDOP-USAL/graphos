@@ -352,8 +352,7 @@ void CmvsPmvsDensifier::createDirectories()
 void CmvsPmvsDensifier::createDirectory(const std::string &path)
 {
   tl::Path dir(path);
-  
-  if (!dir.createDirectories()) {
+  if (!dir.exists() && !dir.createDirectories()) {
       std::string err = "The output directory cannot be created: ";
       err.append(path);
       throw std::runtime_error(err);

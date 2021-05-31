@@ -106,6 +106,7 @@ set(INSPECTOR_SOURCES
 
 set(INSPECTOR_HEADERS
     ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
+	${CMAKE_SOURCE_DIR}/src/inspector/interfaces/Component.h
     AppStatus.h
     Component.h
     ComponentsManager.h

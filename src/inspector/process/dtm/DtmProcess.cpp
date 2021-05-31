@@ -45,8 +45,11 @@ void DtmProcess::run()
     tl::Path dtm_path(mDtmFile.toStdString());
     dtm_path.parentPath().createDirectories();
 
-    tl::TemporalDir temporal_dir;
-    tl::Path temp_path = temporal_dir.path();
+    //tl::TemporalDir temporal_dir;
+    //tl::Path temp_path = temporal_dir.path();
+    tl::Path temp_path = tl::Path::tempPath();
+    temp_path.append("inspector_dsm");
+    temp_path.createDirectories();
 
     if (mDSM) {
 
@@ -95,8 +98,8 @@ void DtmProcess::run()
         
         //tl::Size<int> size(bbox.width() / mGSD, bbox.height() / mGSD);
 
-        mDtmAlgorithm->run(mds_ground_csv.toString(), mds_ground.toString(), bbox, mGSD);
-        mDtmAlgorithm->run(mds_out_ground_csv.toString(), mds_out_ground.toString(), bbox, mGSD);
+        //mDtmAlgorithm->run(mds_ground_csv.toString(), mds_ground.toString(), bbox, mGSD);
+        //mDtmAlgorithm->run(mds_out_ground_csv.toString(), mds_out_ground.toString(), bbox, mGSD);
 
       }
 
