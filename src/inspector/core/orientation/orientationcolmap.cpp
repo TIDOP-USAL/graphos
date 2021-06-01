@@ -3,13 +3,12 @@
 #include "inspector/core/orientation/orientationexport.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/path.h>
 
 #include <colmap/util/option_manager.h>
 #include <colmap/util/misc.h>
 #include <colmap/controllers/hierarchical_mapper.h>
 #include <colmap/controllers/bundle_adjustment.h>
-
-#include <QDir>
 
 namespace inspector
 {
@@ -104,99 +103,83 @@ RelativeOrientationColmapAlgorithm::~RelativeOrientationColmapAlgorithm()
 
 void RelativeOrientationColmapAlgorithm::run()
 {
-  try {
+  mReconstructionManager->Clear();
 
-    mReconstructionManager->Clear();
+  std::string sparse_path = mOutputPath.toStdString();
 
-    QString sparse_path = mOutputPath;
+  tl::Path dir(sparse_path);
+  if (!dir.exists() && !dir.createDirectories()) {
+    throw std::runtime_error(std::string("Directory couldn't be created: ").append(sparse_path));
+  }
 
-    QDir dir(sparse_path);
-    if (!dir.exists()){
-      if (dir.mkpath(".") == false){
-        QByteArray ba = sparse_path.toLocal8Bit();
-        msgError("Directory cannot be created: %s", ba.data());
-        return;
-      }
-    }
+  if (mMapper) {
+    delete mMapper;
+    mMapper = nullptr;
+  }
 
-    if (mMapper) {
-      delete mMapper;
-      mMapper = nullptr;
-    }
+  //mIncrementalMapper->min_num_matches = 30;
+  mMapper = new colmap::IncrementalMapperController(mIncrementalMapper,
+                                                    "",
+                                                    mDatabase.toStdString(),
+                                                    mReconstructionManager.get());
 
-    //mIncrementalMapper->min_num_matches = 30;
-    mMapper = new colmap::IncrementalMapperController(mIncrementalMapper,
-                                                      "",
-                                                      mDatabase.toStdString(),
-                                                      mReconstructionManager.get());
-
-    size_t prev_num_reconstructions = 0;
-    mMapper->AddCallback(
-      colmap::IncrementalMapperController::LAST_IMAGE_REG_CALLBACK, [&]() {
-        try {
-          // If the number of reconstructions has not changed, the last model
-          // was discarded for some reason.
-          if (mReconstructionManager->Size() > prev_num_reconstructions) {
-            const std::string reconstruction_path = sparse_path.toStdString(); //colmap::JoinPaths(sparse_path.toStdString(), std::to_string(prev_num_reconstructions));
-            const auto& reconstruction = mReconstructionManager->Get(prev_num_reconstructions);
-            colmap::CreateDirIfNotExists(reconstruction_path);
-            reconstruction.Write(reconstruction_path);
-            //mOptions->Write(JoinPaths(reconstruction_path, "project.ini"));
-            ///TODO: Por ahora sólo trabajamos con una reconstrucción
-            //prev_num_reconstructions = mReconstructionManager->Size();
-          }
-        } catch (std::exception &e) {
-          msgError(e.what());
+  size_t prev_num_reconstructions = 0;
+  mMapper->AddCallback(
+    colmap::IncrementalMapperController::LAST_IMAGE_REG_CALLBACK, [&]() {
+      try {
+        // If the number of reconstructions has not changed, the last model
+        // was discarded for some reason.
+        if (mReconstructionManager->Size() > prev_num_reconstructions) {
+          const std::string reconstruction_path = sparse_path;
+          const auto &reconstruction = mReconstructionManager->Get(prev_num_reconstructions);
+          colmap::CreateDirIfNotExists(reconstruction_path);
+          reconstruction.Write(reconstruction_path);
+          //mOptions->Write(JoinPaths(reconstruction_path, "project.ini"));
+          ///TODO: Por ahora sólo trabajamos con una reconstrucción
+          //prev_num_reconstructions = mReconstructionManager->Size();
         }
+      } catch (std::exception &e) {
+        msgError(e.what());
+      }
     });
 
-    mMapper->AddCallback(
-      colmap::IncrementalMapperController::NEXT_IMAGE_REG_CALLBACK, [&]() {
+  mMapper->AddCallback(
+    colmap::IncrementalMapperController::NEXT_IMAGE_REG_CALLBACK, [&]() {
       //if (progressBar) (*progressBar)();
       //msgInfo("-----");
     });
 
-    mMapper->Start(); ///TODO: ¿Como detectar que se ha producido un error?
-    mMapper->Wait();
+  mMapper->Start(); ///TODO: ¿Como detectar que se ha producido un error?
+  mMapper->Wait();
 
-    if (mReconstructionManager->Size() == 0) {
-      //throw  "Reconstruction fail";
-      msgError("Reconstruction fail");
-      return;
-    }
+  if (mReconstructionManager->Size() == 0) throw std::runtime_error("Reconstruction fail");
 
-    colmap::OptionManager optionManager;
-    optionManager.bundle_adjustment->refine_focal_length = RelativeOrientationColmapProperties::refineFocalLength();
-    optionManager.bundle_adjustment->refine_principal_point = RelativeOrientationColmapProperties::refinePrincipalPoint();
-    optionManager.bundle_adjustment->refine_extra_params = RelativeOrientationColmapProperties::refineExtraParams();
+  colmap::OptionManager optionManager;
+  optionManager.bundle_adjustment->refine_focal_length = RelativeOrientationColmapProperties::refineFocalLength();
+  optionManager.bundle_adjustment->refine_principal_point = RelativeOrientationColmapProperties::refinePrincipalPoint();
+  optionManager.bundle_adjustment->refine_extra_params = RelativeOrientationColmapProperties::refineExtraParams();
 
 
-    //for (size_t id = 0; id < mReconstructionManager->Size(); id++) {
-    //  colmap::Reconstruction& reconstruction = mReconstructionManager->Get(id);
-      colmap::Reconstruction& reconstruction = mReconstructionManager->Get(0);
+  //for (size_t id = 0; id < mReconstructionManager->Size(); id++) {
+  //  colmap::Reconstruction& reconstruction = mReconstructionManager->Get(id);
+  colmap::Reconstruction &reconstruction = mReconstructionManager->Get(0);
 
-      colmap::BundleAdjustmentController ba_controller(optionManager, &reconstruction);
-      ba_controller.Start();
-      ba_controller.Wait();
+  colmap::BundleAdjustmentController ba_controller(optionManager, &reconstruction);
+  ba_controller.Start();
+  ba_controller.Wait();
 
-      OrientationExport orientationExport(&reconstruction);
+  OrientationExport orientationExport(&reconstruction);
 
-      QString path = sparse_path; // +QString::number(id);
-
-      orientationExport.exportBinary(path);
-      orientationExport.exportPLY(path + "/sparse.ply");
-      //reconstruction.ExportPLY(path.toStdString() + "/sparse.ply");
+  QString path;
+  path.fromStdString(sparse_path);
+  orientationExport.exportBinary(path);
+  orientationExport.exportPLY(path + "/sparse.ply");
+  //reconstruction.ExportPLY(path.toStdString() + "/sparse.ply");
 
 #ifdef _DEBUG
-      orientationExport.exportText(path);
+  orientationExport.exportText(path);
 #endif
-    //}
-
-  } catch (std::exception &e) {
-    msgError(e.what());
-  } catch (...) {
-    msgError("excepción desconocida");
-  }
+  //}
 }
 
 
@@ -282,7 +265,11 @@ void AbsoluteOrientationColmapAlgorithm::run()
   ransac_options.max_error = AbsoluteOrientationColmapProperties::robustAlignmentMaxError();
   int min_common_images = AbsoluteOrientationColmapProperties::minCommonImages();
 
-  colmap::CreateDirIfNotExists(mOutputPath.toStdString());
+  //colmap::CreateDirIfNotExists(mOutputPath.toStdString());
+  tl::Path dir(mOutputPath.toStdString());
+  if (!dir.exists() && !dir.createDirectories()) {
+    throw std::runtime_error(std::string("Directory couldn't be created: ").append(mOutputPath.toStdString()));
+  }
 
   if (robust_alignment && ransac_options.max_error <= 0) {
     throw std::runtime_error("ERROR: You must provide a maximum alignment error > 0");
@@ -335,6 +322,9 @@ void AbsoluteOrientationColmapAlgorithm::run()
   for (auto &pos : ref_locations){
     pos -= offset;
   }
+
+  if (!tl::Path(mInputPath.toStdString()).exists())
+    throw std::runtime_error(std::string("Reconstruction not found in path: ").append(mInputPath.toStdString()));
 
   colmap::Reconstruction reconstruction;
   reconstruction.Read(mInputPath.toStdString());

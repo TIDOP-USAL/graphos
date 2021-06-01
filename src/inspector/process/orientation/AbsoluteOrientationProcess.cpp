@@ -39,6 +39,9 @@ void AbsoluteOrientationProcess::run()
   } catch (std::exception &e) {
     emit error(0, "Absolute Orientation error");
     msgError(e.what());
+  } catch (...) {
+    emit error(0, "Absolute Orientation error");
+    msgError("Unknow Exception");
   }
 }
 

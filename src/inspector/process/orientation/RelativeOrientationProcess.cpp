@@ -39,6 +39,9 @@ void RelativeOrientationProcess::run()
   } catch (std::exception &e) {
     emit error(0, "Relative Orientation error");
     msgError(e.what());
+  } catch (...) {
+    emit error(0, "Relative Orientation error");
+    msgError("Unknow Exception");
   }
 }
 
