@@ -45,11 +45,6 @@ public:
   std::vector<QString> imagePairs(const QString &imageName) const override;
   std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(const QString &imgName1,
                                                                                 const QString &imgName2) const override;
-  void deleteMatch(const QString &imgName1,
-                   const QString &imgName2,
-                   int query_id,
-                   int train_id) override;
-  //void loadPassPoints() override;
 
 // IModel interface
 

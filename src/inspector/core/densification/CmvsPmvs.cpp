@@ -253,7 +253,6 @@ CmvsPmvsDensifier::CmvsPmvsDensifier()
   : bOpenCvRead(true),
     bCuda(false),
     mOutputPath(""),
-    mImagesPath(""),
     mReconstruction(nullptr)
 {
 
@@ -269,7 +268,6 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(bool useVisibilityInformation,
   : bOpenCvRead(true),
     bCuda(false),
     mOutputPath(""),
-    mImagesPath(""),
     mReconstruction(nullptr)
 {
   CmvsPmvsProperties::setUseVisibilityInformation(useVisibilityInformation);
@@ -290,19 +288,11 @@ CmvsPmvsDensifier::~CmvsPmvsDensifier()
 }
 
 bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
-                                  const QString &imagesPath,
                                   const QString &outputPath)
 {
-  //Chrono c("undistort");
-  //c.run();
-
-  //colmap::Reconstruction reconstruction;
-  //mReconstruction = new colmap::Reconstruction();
-  //mReconstruction->ReadBinary(reconstructionPath.toStdString());
   mReconstruction = new internal::Reconstruction(reconstructionPath.toStdString());
 
   mOutputPath = outputPath.toStdString() + "/pmvs";
-  mImagesPath = imagesPath.toStdString();
 
   this->createDirectories();
   this->writeBundleFile(); // Realmente no es necesario crearlo ya que no se usa cmvs.exe ni genOption.exe
@@ -310,7 +300,6 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
   this->writeVisibility();
   this->writeOptions();
 
-  //c.stop();
   return false;
 }
 
@@ -520,9 +509,8 @@ void CmvsPmvsDensifier::undistortImages()
         colmap::Image &image = reconstruction.Image(image_id);
         if (image.CameraId() == camera.second.CameraId()) {
 
-
-          std::string image_file = mImagesPath;
-          image_file.append("/").append(image.Name());
+          std::string image_file = image.Name();
+          
           cv::Mat img;
           //cv::Mat img_original;
 

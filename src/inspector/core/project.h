@@ -107,8 +107,6 @@ public:
    */
   virtual void setDatabase(const QString &database) = 0;
 
-  virtual QString imageDirectory() const = 0;
-  virtual void setImageDirectory(const QString &imageDirectory) = 0;
 
   /*!
    * \brief Añade una imagen al proyecto
@@ -385,8 +383,6 @@ public:
   QString version() const override;
   QString database() const override;
   void setDatabase(const QString &database) override;
-  QString imageDirectory() const override;
-  void setImageDirectory(const QString &imageDirectory) override;
   void addImage(const Image &img) override;
   bool updateImage(size_t imageId, const Image &image) override;
   bool removeImage(const QString &imgPath) override;
@@ -550,7 +546,6 @@ protected:
   QString mProjectPath;
   QString mVersion;
   QString mDatabase;
-  QString mImagesDirectory;
   std::vector<Image> mImages;
   std::map<int, Camera> mCameras;
   std::shared_ptr<Feature> mFeatureExtractor;

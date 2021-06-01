@@ -126,10 +126,9 @@ bool OrientationPresenterImp::createProcess()
 
 
   QString database = mModel->database();
-  QString imagePath = mModel->imagePath();
   QString ori_relative = mModel->projectPath() + "/ori/relative/";
   std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, 
-                                                                                                                                    imagePath, 
+                                                                                                                                    //imagePath, 
                                                                                                                                     ori_relative,
                                                                                                                                     true,
                                                                                                                                     refine_principal_point,

@@ -33,7 +33,6 @@ public:
   CameraPose photoOrientation(const QString &imgName) const override;
   void addPhotoOrientation(const QString &imgName, const CameraPose &orientation) override;
   QString database() const override;
-  QString imagePath() const override;
   QString projectPath() const override;
   bool gpsPositions() const override;
   bool rtkOrientations() const override;

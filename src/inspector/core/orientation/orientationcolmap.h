@@ -60,7 +60,6 @@ class TL_EXPORT RelativeOrientationColmapAlgorithm
 public:
 
   RelativeOrientationColmapAlgorithm(const QString &database,
-                                     const QString &imagePath,
                                      const QString &outputPath,
                                      bool refineFocalLength,
                                      bool refinePrincipalPoint,
@@ -76,7 +75,6 @@ public:
 private:
 
   QString mDatabase;
-  QString mImagePath;
   QString mOutputPath;
   colmap::IncrementalMapperOptions *mIncrementalMapper;
   colmap::IncrementalMapperController *mMapper;

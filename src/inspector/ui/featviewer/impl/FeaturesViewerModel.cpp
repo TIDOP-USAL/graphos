@@ -1,7 +1,6 @@
 #include "FeaturesViewerModel.h"
 
 #include "inspector/core/project.h"
-//#include "inspector/core/features/featio.h"
 
 #include <tidop/core/messages.h>
 
@@ -53,43 +52,31 @@ std::vector<QString> FeaturesViewerModelImp::images() const
 
 std::vector<QPointF> FeaturesViewerModelImp::loadKeypoints(const QString &imageName)
 {
-  try {
-    std::vector<QPointF> keyPoints;
+  std::vector<QPointF> keyPoints;
 
-    QString database_path = mProject->database();
-    Image image = mProject->findImageByName(imageName);
-    QString image_file_name = QFileInfo(image.path()).fileName();
+  Image image = mProject->findImageByName(imageName);
 
-    if (QFileInfo(database_path).exists()){
+  QString database_path = mProject->database();
+  if (!QFileInfo(database_path).exists()) throw std::runtime_error("Database not found");
+  
+  colmap::Database database(database_path.toStdString());
+  
+  if (!database.ExistsImageWithName(image.path().toStdString())) throw std::runtime_error(std::string("Image not found in database: ").append(image.name().toStdString()));
+  
+  colmap::Image image_colmap = database.ReadImageWithName(image.path().toStdString());
+  colmap::image_t image_id = image_colmap.ImageId();
 
-      colmap::Database database(database_path.toStdString());
-      std::vector<colmap::Image> db_images = database.ReadAllImages();
-      colmap::image_t image_id = 0;
-      for (size_t i = 0; i < db_images.size(); i++){
-        if (image_file_name.compare(db_images[i].Name().c_str()) == 0){
-          image_id = db_images[i].ImageId();
-          break;
-        }
-      }
-
-      if (image_id > 0){
-        colmap::FeatureKeypoints colmap_feature_keypoints = database.ReadKeypoints(image_id);
-        size_t size = colmap_feature_keypoints.size();
-        keyPoints.resize(size);
-        for (size_t i = 0; i < size; i++){
-          keyPoints[i].setX(static_cast<qreal>(colmap_feature_keypoints[i].x));
-          keyPoints[i].setY(static_cast<qreal>(colmap_feature_keypoints[i].y));
-        }
-
-      }
+  if (image_id > 0) {
+    colmap::FeatureKeypoints colmap_feature_keypoints = database.ReadKeypoints(image_id);
+    size_t size = colmap_feature_keypoints.size();
+    keyPoints.resize(size);
+    for (size_t i = 0; i < size; i++){
+      keyPoints[i].setX(static_cast<qreal>(colmap_feature_keypoints[i].x));
+      keyPoints[i].setY(static_cast<qreal>(colmap_feature_keypoints[i].y));
     }
-
-    return keyPoints;
-
-  } catch (std::exception &e) {
-    msgError(e.what());
-    return std::vector<QPointF>();
   }
+
+  return keyPoints;
 }
 
 QString FeaturesViewerModelImp::viewerBGColor() const
@@ -99,7 +86,7 @@ QString FeaturesViewerModelImp::viewerBGColor() const
 
 int FeaturesViewerModelImp::viewerMarkerType() const
 {
-  return mSettings->value("KeypointsViewer/Type", 0).toInt();
+  return mSettings->value("KeypointsViewer/Type", 1).toInt();
 }
 
 int FeaturesViewerModelImp::viewerMarkerSize() const

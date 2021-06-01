@@ -725,12 +725,12 @@ void ImportCamerasModelImp::importCameras()
   colmap::Database database(mProject->database().toStdString());
 
   for (auto image_it = mProject->imageBegin(); image_it != mProject->imageEnd(); image_it++) {
-    QFileInfo file_info(image_it->path());
-    std::string image_name = file_info.fileName().toStdString();
 
-    if (database.ExistsImageWithName(image_name)) {
+    std::string image_path = image_it->path().toStdString();
 
-      colmap::Image image_colmap = database.ReadImageWithName(image_name);
+    if (database.ExistsImageWithName(image_path)) {
+
+      colmap::Image image_colmap = database.ReadImageWithName(image_path);
       image_colmap.TvecPrior(0) = image_it->cameraPosition().x();
       image_colmap.TvecPrior(1) = image_it->cameraPosition().y();
       image_colmap.TvecPrior(2) = image_it->cameraPosition().z();

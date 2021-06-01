@@ -68,10 +68,6 @@ QString OrientationModelImp::database() const
   return mProject->database();
 }
 
-QString OrientationModelImp::imagePath() const
-{
-  return mProject->imageDirectory();
-}
 
 QString OrientationModelImp::projectPath() const
 {

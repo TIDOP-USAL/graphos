@@ -40,7 +40,6 @@ public:
 
   std::shared_ptr<Densification> densification() const override;
   QString projectFolder() const override;
-  QString imageDirectory() const override;
   QString reconstructionPath() const override;
   bool useCuda() const override;
   bool existDenseModel() const override;

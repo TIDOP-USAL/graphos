@@ -32,7 +32,7 @@ void ImageLoaderViewImp::init()
   QFileDialog::setNameFilter(tr("Image files (*.tif *.tiff *.jpg *.png);;TIFF (*.tif *.tiff);;png (*.png);;JPEG (*.jpg)"));
 }
 
-void ImageLoaderViewImp::setImageDirectory(const QString &directory)
+void ImageLoaderViewImp::setImagesDirectory(const QString &directory)
 {
   QFileDialog::setDirectory(directory);
 }

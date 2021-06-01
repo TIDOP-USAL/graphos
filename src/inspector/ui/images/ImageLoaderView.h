@@ -21,7 +21,7 @@ public:
   ImageLoaderView(QWidget *parent) : QFileDialog(parent) {}
   ~ImageLoaderView() override = default;
 
-  virtual void setImageDirectory(const QString &directory) = 0;
+  virtual void setImagesDirectory(const QString &directory) = 0;
 
 };
 

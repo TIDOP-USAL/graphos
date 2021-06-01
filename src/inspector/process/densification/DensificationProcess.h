@@ -18,15 +18,12 @@ public:
 
   DensificationProcess(const std::shared_ptr<Densifier> &densifier,
                        const QString &reconstructionPath,
-                       const QString &imagesPath,
                        const QString &outputPath);
   ~DensificationProcess() override = default;
 
   QString reconstructionPath() const;
   void setReconstructionPath(const QString &reconstructionPath);
 
-  QString imagesPath() const;
-  void setImagesPath(const QString &imagesPath);
 
   QString outputPat() const;
   void setOutputPat(const QString &outputPat);
@@ -45,7 +42,6 @@ private:
 
   std::shared_ptr<Densifier> mDensifier;
   QString mReconstructionPath;
-  QString mImagesPath;
   QString mOutputPat;
 };
 

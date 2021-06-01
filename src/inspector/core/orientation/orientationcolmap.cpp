@@ -71,13 +71,11 @@ QString RelativeOrientationColmapProperties::name() const
 
 
 RelativeOrientationColmapAlgorithm::RelativeOrientationColmapAlgorithm(const QString &database,
-                                                                       const QString &imagePath,
                                                                        const QString &outputPath,
                                                                        bool refineFocalLength,
                                                                        bool refinePrincipalPoint,
                                                                        bool refineExtraParams)
   : mDatabase(database),
-    mImagePath(imagePath),
     mOutputPath(outputPath),
     mIncrementalMapper(new colmap::IncrementalMapperOptions),
     mMapper(nullptr),
@@ -128,7 +126,7 @@ void RelativeOrientationColmapAlgorithm::run()
 
     //mIncrementalMapper->min_num_matches = 30;
     mMapper = new colmap::IncrementalMapperController(mIncrementalMapper,
-                                                      mImagePath.toStdString(),
+                                                      "",
                                                       mDatabase.toStdString(),
                                                       mReconstructionManager.get());
 

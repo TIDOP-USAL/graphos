@@ -24,7 +24,6 @@ public:
 
   virtual std::shared_ptr<Densification> densification() const = 0;
   virtual QString projectFolder() const = 0;
-  virtual QString imageDirectory() const = 0;
   virtual QString reconstructionPath() const = 0;
   virtual bool useCuda() const = 0;
   virtual bool existDenseModel() const = 0;

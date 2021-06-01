@@ -27,8 +27,7 @@ class FeaturesViewerPresenterImp
 public:
 
   FeaturesViewerPresenterImp(FeaturesViewerView *view,
-                             FeaturesViewerModel *model/*,
-                             SettingsModel *settingsModel*/);
+                             FeaturesViewerModel *model);
   ~FeaturesViewerPresenterImp() override;
 
 // FeaturesViewerPresenter interface

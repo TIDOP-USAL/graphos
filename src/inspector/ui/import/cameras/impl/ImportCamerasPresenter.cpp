@@ -69,7 +69,6 @@ void ImportCamerasPresenterImp::open()
                                               "",
                                               tr("Comma-separated values (*.csv);;Plain text (*.txt)"));
   if (!file.isEmpty()){
-    //mFile = file;
     mModel->setCsvFile(file);
     previewCSV();
   } else {

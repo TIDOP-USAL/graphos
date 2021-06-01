@@ -53,7 +53,6 @@ public:
   virtual ~Densifier() = default;
 
   virtual bool undistort(const QString &reconstructionPath,
-                         const QString &imagesPath,
                          const QString &outputPath) = 0;
   virtual bool densify(const QString &undistortPath) = 0;
 

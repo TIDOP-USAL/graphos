@@ -88,15 +88,7 @@ void ProjectImp::setDatabase(const QString &database)
   mDatabase = database;
 }
 
-QString ProjectImp::imageDirectory() const
-{
-  return mImagesDirectory;
-}
 
-void ProjectImp::setImageDirectory(const QString &imageDirectory)
-{
-  mImagesDirectory = imageDirectory;
-}
 
 void ProjectImp::addImage(const Image &img)
 {
@@ -561,7 +553,6 @@ void ProjectImp::clear()
   mProjectPath = "";
   mVersion = INSPECTOR_PROJECT_FILE_VERSION;
   mDatabase = "";
-  mImagesDirectory = "";
   mImages.resize(0);
   mCameras.clear();
   mFeatureExtractor.reset();
@@ -775,9 +766,7 @@ void ProjectImp::readDatabase(QXmlStreamReader &stream)
 void ProjectImp::readImages(QXmlStreamReader &stream)
 {
   while (stream.readNextStartElement()) {
-    if (stream.name() == "ImagesDirectory") {
-      this->setImageDirectory(stream.readElementText());
-    } else if (stream.name() == "Image") {
+    if (stream.name() == "Image") {
       this->addImage(readImage(stream));
     } else
       stream.skipCurrentElement();
@@ -1330,7 +1319,6 @@ void ProjectImp::writeImages(QXmlStreamWriter &stream) const
 {
   stream.writeStartElement("Images");
   {
-    stream.writeTextElement("ImagesDirectory", mImagesDirectory);
     for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
       writeImage(stream, (*it));
     }

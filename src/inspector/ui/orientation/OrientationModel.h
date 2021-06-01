@@ -37,7 +37,6 @@ public:
   virtual void addPhotoOrientation(const QString &imgName, 
                                    const CameraPose &orientation) = 0;
   virtual QString database() const = 0;
-  virtual QString imagePath() const = 0;
   virtual QString projectPath() const = 0;
   virtual bool gpsPositions() const = 0;
   virtual bool rtkOrientations() const = 0;

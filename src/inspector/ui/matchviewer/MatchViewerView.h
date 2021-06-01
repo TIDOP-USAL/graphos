@@ -58,7 +58,7 @@ signals:
   void leftImageChange(QString);
   void rightImageChange(QString);
   void loadMatches(QString, QString);
-//  void deleteMatch(QString, QString, int, int);
+
 };
 
 } // namespace ui

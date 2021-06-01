@@ -8,12 +8,10 @@ namespace inspector
 
 DensificationProcess::DensificationProcess(const std::shared_ptr<Densifier> &densifier,
                                            const QString &reconstructionPath,
-                                           const QString &imagesPath,
                                            const QString &outputPath)
   : ProcessConcurrent(),
     mDensifier(densifier),
     mReconstructionPath(reconstructionPath),
-    mImagesPath(imagesPath),
     mOutputPat(outputPath)
 {
 
@@ -28,7 +26,7 @@ void DensificationProcess::run()
     tl::Chrono chrono;
     chrono.run();
 
-    mDensifier->undistort(mReconstructionPath, mImagesPath, mOutputPat);
+    mDensifier->undistort(mReconstructionPath, mOutputPat);
 
     mDensifier->densify(mOutputPat);
 
@@ -58,15 +56,6 @@ void DensificationProcess::setOutputPat(const QString &outputPat)
   mOutputPat = outputPat;
 }
 
-QString DensificationProcess::imagesPath() const
-{
-  return mImagesPath;
-}
-
-void DensificationProcess::setImagesPath(const QString &imagesPath)
-{
-  mImagesPath = imagesPath;
-}
 
 QString DensificationProcess::reconstructionPath() const
 {

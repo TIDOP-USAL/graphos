@@ -182,7 +182,6 @@ SmvsDensifier::SmvsDensifier()
   : bOpenCvRead(true),
     bCuda(false),
     mOutputPath(""),
-    mImagesPath(""),
     mReconstruction(nullptr)
 {
 }
@@ -194,7 +193,6 @@ SmvsDensifier::SmvsDensifier(int inputImageScale,
                              double surfaceSmoothingFactor)
   : bOpenCvRead(true),
     mOutputPath(""),
-    mImagesPath(""),
     mReconstruction(nullptr)
 {
   SmvsDensifier::setInputImageScale(inputImageScale);
@@ -219,14 +217,12 @@ void SmvsDensifier::reset()
 }
 
 bool SmvsDensifier::undistort(const QString &reconstructionPath,
-                              const QString &imagesPath,
                               const QString &outputPath)
 {
   
   mReconstruction = new internal::Reconstruction(reconstructionPath.toStdString());
 
   mOutputPath = outputPath.toStdString();
-  mImagesPath = imagesPath.toStdString();
 
   //OrientationExport orientationExport(&reconstruction);
   //orientationExport.exportMVE(outputPath);
@@ -247,7 +243,7 @@ void SmvsDensifier::createDirectory(const std::string &path)
 {
   tl::Path dir(path);
 
-  if (!dir.createDirectories()) {
+  if (!dir.exists() && !dir.createDirectories()) {
     std::string err = "The output directory cannot be created: ";
     err.append(path);
     throw std::runtime_error(err);
@@ -427,9 +423,8 @@ void SmvsDensifier::undistortImages()
 
         if (image.second.CameraId() == camera.second.CameraId()) {
 
+          std::string image_file = image.second.Name();
 
-          std::string image_file = mImagesPath;
-          image_file.append("/").append(image.second.Name());
           cv::Mat img;
 
           if (bOpenCvRead) {

@@ -38,7 +38,7 @@ public:
   virtual bool updateImage(size_t id, const Image &image) = 0;
   virtual bool removeImage(size_t id) = 0;
   virtual bool removeImage(const Image &image) = 0;
-  virtual QString imageDirectory() const = 0;
+  virtual QString imagesDirectory() const = 0;
 
   virtual image_iterator begin() = 0;
   virtual image_const_iterator begin() const = 0;

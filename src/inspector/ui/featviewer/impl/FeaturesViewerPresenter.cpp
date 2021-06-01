@@ -1,8 +1,9 @@
 #include "FeaturesViewerPresenter.h"
 
+#include <tidop/core/messages.h>
+
 #include "inspector/ui/featviewer/FeaturesViewerModel.h"
 #include "inspector/ui/featviewer/FeaturesViewerView.h"
-//#include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/HelpDialog.h"
 
 #include <QFileInfo>
@@ -14,12 +15,10 @@ namespace ui
 {
 
 FeaturesViewerPresenterImp::FeaturesViewerPresenterImp(FeaturesViewerView *view,
-                                                       FeaturesViewerModel *model/*,
-                                                       SettingsModel *settingsModel*/)
+                                                       FeaturesViewerModel *model)
   : FeaturesViewerPresenter(),
     mView(view),
     mModel(model),
-    //mSettingsModel(settingsModel),
     mHelp(nullptr)
 {
   this->init();
@@ -61,12 +60,6 @@ void FeaturesViewerPresenterImp::open()
   }
 }
 
-//void FeaturesViewerPresenterImp::openKeypointsFromImage(const QString &image)
-//{
-//  this->open();
-//  this->setImageActive(image);
-//}
-
 void FeaturesViewerPresenterImp::setHelp(HelpDialog *help)
 {
   mHelp = help;
@@ -90,8 +83,12 @@ void FeaturesViewerPresenterImp::setImageActive(const QString &image)
 
 void FeaturesViewerPresenterImp::loadKeypoints(const QString &image)
 {
-  std::vector<QPointF> keypoints = mModel->loadKeypoints(image);
-  mView->setKeyPoints(keypoints);
+  try	{
+    std::vector<QPointF> keypoints = mModel->loadKeypoints(image);
+    mView->setKeyPoints(keypoints);
+  } catch (const std::exception &e) 	{
+    msgError(e.what());
+  }
 }
 
 } // namespace ui

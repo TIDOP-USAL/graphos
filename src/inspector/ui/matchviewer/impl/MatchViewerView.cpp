@@ -45,7 +45,6 @@ void MatchViewerViewImp::initUI()
 {
   this->setObjectName(QString("MatchViewerView"));
 
-  //this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(994, 688);
 
   QGridLayout *gridLayout = new QGridLayout();
@@ -124,15 +123,6 @@ void MatchViewerViewImp::initUI()
 
   mGraphicsViewLeft->setContextMenu(contextMenuLeft);
 
-
-//  QMenu *contextMenuLeft = new QMenu(mGraphicsViewLeft);
-
-//  contextMenuLeft->addAction(QIcon(":/ico/24/img/material/24/icons8-zoom-in.png"), tr("Zoom In"), mGraphicsViewLeft, SLOT(zoomIn()));
-//  contextMenuLeft->addAction(QIcon(":/ico/24/img/material/24/icons8_zoom_out_24px.png"), tr("Zoom Out"), mGraphicsViewLeft, SLOT(zoomOut()));
-//  contextMenuLeft->addAction(QIcon(":/ico/24/img/material/24/icons8_zoom_to_extents_24px.png"), tr("Zoom Extend"), mGraphicsViewLeft, SLOT(zoomExtend()));
-//  contextMenuLeft->addAction(QIcon(":/ico/24/img/material/24/icons8_zoom_to_actual_size_24px.png"), tr("Zoom 1:1"), mGraphicsViewLeft, SLOT(zoom11()));
-//  mGraphicsViewLeft->setContextMenu(contextMenuLeft);
-
   QMenu *contextMenuRight = new QMenu(mGraphicsViewRight);
 
   mActionRightZoomIn = new QAction(this);
@@ -162,7 +152,6 @@ void MatchViewerViewImp::initSignalAndSlots()
   connect(mComboBoxLeftImage,     SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxLeftImageIndexChanged(int)));
   connect(mComboBoxRightImage,    SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxRightImageIndexChanged(int)));
   connect(mTreeWidgetMatches,     SIGNAL(itemSelectionChanged()),   this, SLOT(onTreeWidgetMatchesItemSelectionChanged()));
-  //connect(mPushButtonDeleteMatch, SIGNAL(clicked(bool)),            this, SLOT(onPushButtonDeleteMatchClicked()));
   connect(mGraphicsViewLeft,      SIGNAL(selectionChanged()),       this, SLOT(onGraphicsViewLeftSelectionChanged()));
   connect(mGraphicsViewRight,     SIGNAL(selectionChanged()),       this, SLOT(onGraphicsViewRightSelectionChanged()));
   connect(mActionLeftZoomIn,      SIGNAL(triggered(bool)), mGraphicsViewLeft, SLOT(zoomIn()));
@@ -233,7 +222,6 @@ void MatchViewerViewImp::setLeftImage(const QString &leftImage)
     mGraphicsViewLeft->setImage(cvMatToQImage(bmp));
     imageReader->close();
   }
-  //mGraphicsViewLeft->setImage(QImage(mComboBoxLeftImage->currentData().toString()));
 }
 
 void MatchViewerViewImp::setRightImage(const QString &rightImage)
@@ -249,7 +237,6 @@ void MatchViewerViewImp::setRightImage(const QString &rightImage)
     mGraphicsViewRight->setImage(cvMatToQImage(bmp));
     imageReader->close();
   }
-  //mGraphicsViewRight->setImage(QImage(mComboBoxRightImage->currentData().toString()));
 }
 
 void MatchViewerViewImp::setLeftImageList(const std::vector<QString> &leftImageList)
@@ -754,54 +741,6 @@ void MatchViewerViewImp::onGraphicsViewRightSelectionChanged()
 
   update();
 }
-
-//void MatchViewerViewImp::onPushButtonDeleteMatchClicked()
-//{
-//  const QSignalBlocker blocker1(mGraphicsViewLeft);
-//  const QSignalBlocker blocker2(mGraphicsViewRight);
-//  const QSignalBlocker blocker3(mTreeWidgetMatches);
-
-//  QString id;
-//  int query_id = -1;
-//  int train_id = -1;
-//  if (QTreeWidgetItem *item = mTreeWidgetMatches->currentItem()){
-//    id = item->text(0);
-//    query_id = item->text(1).toInt();
-//    train_id = item->text(4).toInt();
-//    delete item;
-//    item = nullptr;
-//  }
-
-//  mTreeWidgetMatches->selectionModel()->clearSelection();
-
-//  QList<QGraphicsItem *> items = mGraphicsViewLeft->items();
-//  for (int i = 0; i < items.size(); i++){
-//    QGraphicsItem *item = items[i];
-//    if (items[i]->toolTip().compare(id) == 0) {
-//      mGraphicsViewLeft->scene()->removeItem(item);
-//      delete item;
-//      item = nullptr;
-//    }
-//  }
-
-//  items = mGraphicsViewRight->items();
-//  for (int i = 0; i < items.size(); i++){
-//    QGraphicsItem *item = items[i];
-//    if (items[i]->toolTip().compare(id) == 0) {
-//      mGraphicsViewRight->scene()->removeItem(item);
-//      delete item;
-//      item = nullptr;
-//    }
-//  }
-
-//  if (query_id != -1 && train_id != -1) {
-//    QString image_right(mComboBoxRightImage->currentText());
-//    QString image_left(mComboBoxLeftImage->currentText());
-//    emit deleteMatch(image_right, image_left, query_id, train_id);
-//  }
-
-//  update();
-//}
 
 void MatchViewerViewImp::closeEvent(QCloseEvent *event)
 {

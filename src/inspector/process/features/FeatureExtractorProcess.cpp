@@ -72,13 +72,11 @@ public:
       chrono.run();
 
       std::string image_path = image.path().toStdString();
-      QFileInfo file_info(image.path());
-      std::string image_name = file_info.fileName().toStdString();
 
       colmap::image_t image_id;
 
       mutex.lock();
-      bool exist_image = mDatabase->ExistsImageWithName(image_name);
+      bool exist_image = mDatabase->ExistsImageWithName(image_path);
       mutex.unlock();
       if (!exist_image) {
 
@@ -116,7 +114,7 @@ public:
         }
 
         colmap::Image image_colmap;
-        image_colmap.SetName(image_name);
+        image_colmap.SetName(image_path);
         image_colmap.TvecPrior(0) = image.cameraPosition().x();
         image_colmap.TvecPrior(1) = image.cameraPosition().y();
         image_colmap.TvecPrior(2) = image.cameraPosition().z();
@@ -133,7 +131,7 @@ public:
       } else {
 
         mutex.lock();
-        colmap::Image image_colmap = mDatabase->ReadImageWithName(image_name);
+        colmap::Image image_colmap = mDatabase->ReadImageWithName(image_path);
         mutex.unlock();
         image_id = image_colmap.ImageId();
       }

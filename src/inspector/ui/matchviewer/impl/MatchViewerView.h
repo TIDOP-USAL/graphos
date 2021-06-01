@@ -37,9 +37,8 @@ protected slots :
   void onTreeWidgetMatchesItemSelectionChanged();
   void onGraphicsViewLeftSelectionChanged();
   void onGraphicsViewRightSelectionChanged();
-//  void onPushButtonDeleteMatchClicked();
 
-// IMatchViewerView interface
+// MatchViewerView interface
 
 public:
 
