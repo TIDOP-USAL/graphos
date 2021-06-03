@@ -26,15 +26,14 @@ void AbsoluteOrientationProcess::run()
 
     msgInfo("Starting Orientation");
 
-    tl::Chrono chrono;
+    tl::Chrono chrono("Absolute Orientation process finished");
     chrono.run();
 
     mAbsoluteOrientationAlgorithm->run();
 
     emit absoluteOrientationFinished();
 
-    uint64_t time = chrono.stop();
-    msgInfo("Absolute Orientation process finished [Time: %f seconds]", time/1000.);
+    chrono.stop();
 
   } catch (std::exception &e) {
     emit error(0, "Absolute Orientation error");

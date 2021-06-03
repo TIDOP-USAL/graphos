@@ -33,7 +33,7 @@ public slots:
   void save() override;
   void setCurrentFormat(const QString &format) override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

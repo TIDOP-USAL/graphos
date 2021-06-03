@@ -152,7 +152,7 @@ void GeoreferencePresenterImp::initSignalAndSlots()
   connect(mView, &GeoreferenceView::imageChange, this, &GeoreferencePresenterImp::setImageActive);
   connect(mView, &GeoreferenceView::addGroundControlPoint, mModel, &GeoreferenceModel::addGroundControlPoint);
   connect(mView, &GeoreferenceView::accepted,     mModel, &GeoreferenceModel::save);
-  connect(mView, &IDialogView::help,                    this, &GeoreferencePresenterImp::help);
+  connect(mView, &DialogView::help,                    this, &GeoreferencePresenterImp::help);
   connect(mView, &GeoreferenceView::removeGroundControlPoint, mModel, &GeoreferenceModel::removeGroundControlPoint);
   connect(mView, &GeoreferenceView::addImagePoint, mModel, &GeoreferenceModel::addImagePoint);
   connect(mView, &GeoreferenceView::removeImagePoint, mModel, &GeoreferenceModel::removeImagePoint);

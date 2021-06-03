@@ -41,7 +41,7 @@ public slots:
   void setActiveColor(bool active) override;
   void setActiveNormals(bool active) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

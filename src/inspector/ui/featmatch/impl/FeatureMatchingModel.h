@@ -37,7 +37,7 @@ public:
   bool existsMatches() const override;
   void clearProject() override;
 
-// IModel interface
+// Model interface
 
 private:
 

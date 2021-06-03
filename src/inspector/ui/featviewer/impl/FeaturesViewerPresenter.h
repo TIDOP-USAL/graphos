@@ -41,7 +41,7 @@ protected slots:
 
   void loadKeypoints(const QString &image) override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

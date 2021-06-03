@@ -10,14 +10,14 @@ namespace ui
 {
 
 class SettingsModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  SettingsModel(QObject *parent = nullptr) : IModel(parent) {}
+  SettingsModel(QObject *parent = nullptr) : Model(parent) {}
   virtual ~SettingsModel() override = default;
 
   /*!
@@ -125,14 +125,14 @@ signals:
 
 
 class SettingsView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  SettingsView(QWidget *parent = nullptr) : IDialogView(parent) {}
+  SettingsView(QWidget *parent = nullptr) : DialogView(parent) {}
   virtual ~SettingsView(){}
 
   /*!
@@ -191,7 +191,7 @@ signals:
 
 
 class SettingsPresenter
-  : public IPresenter
+  : public Presenter
 {
   Q_OBJECT
 

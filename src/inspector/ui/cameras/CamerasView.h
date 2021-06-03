@@ -11,15 +11,30 @@ namespace ui
 {
 
 class CamerasView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
+public:
+
+  enum cameraType
+  {
+    radial_1,
+    radial_2,
+    radial_3,
+    pinhole_1,
+    pinhole_2,
+    opencv_1,
+    opencv_2,
+    opencv_fisheye,
+    radial_fisheye_1,
+    radial_fisheye_2
+  };
 
 public:
 
-  CamerasView(QWidget *parent) : IDialogView(parent) {}
+  CamerasView(QWidget *parent) : DialogView(parent) {}
   virtual ~CamerasView() {}
 
   virtual int activeCamera() const = 0;

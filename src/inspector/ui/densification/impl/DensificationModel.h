@@ -24,7 +24,7 @@ public:
                         QObject *parent = nullptr);
   ~DensificationModelImp() override;
 
-// IModel interface
+// Model interface
 
 private:
 

@@ -92,7 +92,7 @@ void ImportCamerasPresenterImp::init()
 void ImportCamerasPresenterImp::initSignalAndSlots()
 {
   connect(mView, &ImportCamerasView::previewCSV,                 this, &ImportCamerasPresenterImp::previewCSV);
-  connect(mView, &IDialogView::help,                             this, &ImportCamerasPresenterImp::help);
+  connect(mView, &DialogView::help,                             this, &ImportCamerasPresenterImp::help);
   connect(mView, &ImportCamerasView::crsInputChanged,            this, &ImportCamerasPresenterImp::checkInputCRS);
   connect(mView, &ImportCamerasView::crsOutputChanged,           this, &ImportCamerasPresenterImp::checkOutputCRS);
 

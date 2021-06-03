@@ -31,7 +31,7 @@ protected slots:
 
   void setProjectFile(const QString &file) override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

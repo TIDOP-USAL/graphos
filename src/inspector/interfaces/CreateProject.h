@@ -8,7 +8,7 @@ namespace inspector
 
 
 class CreateProjectModel
-  : public ui::IModel
+  : public ui::Model
 {
 
   Q_OBJECT
@@ -50,7 +50,7 @@ public:
   virtual void setDatabase(const QString &database) = 0;
 
 
-// IModel interface
+// Model interface
 
 private:
 
@@ -68,14 +68,14 @@ public slots:
 
 
 class CreateProjectView
-  : public ui::IDialogView
+  : public ui::DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  CreateProjectView(QWidget *parent) : IDialogView(parent) {}
+  CreateProjectView(QWidget *parent) : DialogView(parent) {}
   virtual ~CreateProjectView() override = default;
 
   /*!
@@ -102,7 +102,7 @@ public:
    */
   virtual QString projectDescription() const = 0;
 
-  //virtual bool createProjectFolder() const = 0;
+  //virtual bool createProjectFolderEnable() const = 0;
 
 //protected slots:
 
@@ -113,7 +113,7 @@ public:
 
 
 class CreateProjectPresenter
-  : public ui::IPresenter
+  : public ui::Presenter
 {
 
   Q_OBJECT

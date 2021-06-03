@@ -358,10 +358,12 @@ int main(int argc, char** argv)
 
   Path project_file{};
   bool enu = false;
+  bool fix_calibration = false;
 
   Command cmd("orientation", cmd_description);
   cmd.push_back(std::make_shared<ArgumentPathRequired>("prj", 'p', "Project file", &project_file));
   cmd.push_back(std::make_shared<ArgumentBooleanOptional>("enu", 'e', "Convert to ENU", &enu));
+  cmd.push_back(std::make_shared<ArgumentBooleanOptional>("fix_calibration", "Deja fijos los parámetros de calibración", &fix_calibration));
 
   cmd.addExample("orientation --prj 253/253.xml");
 
@@ -381,8 +383,8 @@ int main(int argc, char** argv)
   project.load(project_file.toString().c_str());
   
   /// 1 - reconstrucción temporal con orientaciones importadas
-  tl::Path input_path("C:\\Users\\esteban\\Documents\\Inspector\\Projects\\Madrigalejo\\zona1\\ori\\import");
-  //tl::Path input_path = tl::Path::tempDirectory(); // Tiene que ser un directorio temporal en el que se exporte la reconstrucción como texto.
+  //tl::Path input_path("C:\\Users\\esteban\\Documents\\Inspector\\Projects\\Madrigalejo\\zona1\\ori\\import");
+  tl::Path input_path = tl::Path::tempDirectory(); // Tiene que ser un directorio temporal en el que se exporte la reconstrucción como texto.
   //input_path.append("import_ori");
   input_path.createDirectory();
 
@@ -438,7 +440,8 @@ int main(int argc, char** argv)
 
         CameraPosition cameraPosition = image->cameraPosition();
         math::Quaternion<double> quaternion = cameraPosition.quaternion();
-        std::string file_name = Path(image->path().toStdString()).fileName();
+        /// Colmap da problemas con el formato texto si la ruta del fichero tiene espacios...
+        std::string file_name = image->path().toStdString();//Path(image->path().toStdString()).fileName();
         tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
 
         /// Paso a coordenadas geocentricas
@@ -474,7 +477,7 @@ int main(int argc, char** argv)
       
         CameraPosition cameraPosition = image->cameraPosition();
         math::Quaternion<double> quaternion = cameraPosition.quaternion();
-        std::string file_name = Path(image->path().toStdString()).fileName();
+        std::string file_name = image->path().toStdString(); //Path(image->path().toStdString()).fileName();
         tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
 
         if (!bLocalCoord) {
@@ -507,8 +510,6 @@ int main(int argc, char** argv)
   }
   
   /// Escritura de fichero cameras.txt
-  /// Ver si hay calibración o se añade calibración por defecto
-  bool bNoCalibration = true;
   
   {
     tl::Path cameras_path(input_path);
@@ -529,8 +530,6 @@ int main(int argc, char** argv)
       std::shared_ptr<Calibration> calibration = camera.calibration();
       
       if (calibration) {
-
-        bNoCalibration = false;
 
         double focal = calibration->existParameter(Calibration::Parameters::focal) ? calibration->parameter(Calibration::Parameters::focal) : std::min(camera.width(), camera.height());
         double cx = calibration->existParameter(Calibration::Parameters::cx) ? calibration->parameter(Calibration::Parameters::cx) : camera.width() / 2.;
@@ -703,9 +702,9 @@ int main(int argc, char** argv)
   //////////////////////////////////////////////////////////////////////////////
 
   auto ba_options = mapper_options.GlobalBundleAdjustment();
-  ba_options.refine_focal_length = bNoCalibration ? true : false;
-  ba_options.refine_principal_point = bNoCalibration ? true : false;
-  ba_options.refine_extra_params = bNoCalibration ? true : false;
+  ba_options.refine_focal_length = fix_calibration ? true : false;
+  ba_options.refine_principal_point = /*fix_calibration ? true :*/ false;
+  ba_options.refine_extra_params = fix_calibration ? true : false;
   ba_options.refine_extrinsics = true;
 
   // Configure bundle adjustment.
@@ -742,7 +741,7 @@ int main(int argc, char** argv)
   }
 
   msgInfo("Extracting colors");
-  reconstruction.ExtractColorsForAllImages(project.imageDirectory().toStdString());
+  reconstruction.ExtractColorsForAllImages(""/*project.imageDirectory().toStdString()*/);
 
   const bool kDiscardReconstruction = false;
   mapper.EndReconstruction(kDiscardReconstruction);
@@ -782,7 +781,7 @@ int main(int argc, char** argv)
   int oriented_images = 0;
 
   for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-    QString image_oriented = QFileInfo(image->path()).fileName();
+    QString image_oriented = image->path(); //QFileInfo(image->path()).fileName();
     CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
     if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
       project.addPhotoOrientation(image->name(), photoOrientation);

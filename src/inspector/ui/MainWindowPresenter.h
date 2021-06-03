@@ -26,7 +26,7 @@ class HelpDialog;
 class TabHandler;
 
 class MainWindowPresenter
-  : public IPresenter
+  : public Presenter
 {
   Q_OBJECT
 
@@ -102,7 +102,7 @@ protected slots:
   void loadImage(const QString &image);
   void onProjectModified();
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

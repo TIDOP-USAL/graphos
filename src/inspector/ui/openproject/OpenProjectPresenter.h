@@ -11,7 +11,7 @@ namespace ui
 
 
 class OpenProjectPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

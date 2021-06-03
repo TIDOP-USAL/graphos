@@ -91,7 +91,7 @@ void ExportOrientationsPresenterImp::initSignalAndSlots()
 {
   connect(mView, &ExportOrientationsView::accepted,     this, &ExportOrientationsPresenterImp::save);
   connect(mView, &ExportOrientationsView::formatChange, this, &ExportOrientationsPresenterImp::setCurrentFormat);
-  connect(mView, &IDialogView::help,                    this, &ExportOrientationsPresenterImp::help);
+  connect(mView, &DialogView::help,                    this, &ExportOrientationsPresenterImp::help);
 }
 
 void ExportOrientationsPresenterImp::save()

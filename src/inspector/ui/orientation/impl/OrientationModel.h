@@ -52,7 +52,7 @@ public:
   image_iterator imageEnd() override;
   image_const_iterator imageEnd() const override;
 
-// IModel interface
+// Model interface
 
 private:
 

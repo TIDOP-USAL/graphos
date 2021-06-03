@@ -11,7 +11,7 @@ namespace ui
 {
 
 class ExportPointCloudPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

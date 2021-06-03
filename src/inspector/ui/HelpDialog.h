@@ -67,7 +67,7 @@ private slots:
   void searchInvoked();
   void searchFinished(int hits);
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

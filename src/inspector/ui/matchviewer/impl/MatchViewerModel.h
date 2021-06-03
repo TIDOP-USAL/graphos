@@ -46,7 +46,7 @@ public:
   std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(const QString &imgName1,
                                                                                 const QString &imgName2) const override;
 
-// IModel interface
+// Model interface
 
 private:
 

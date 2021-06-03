@@ -72,7 +72,7 @@ void FeaturesViewerPresenterImp::init()
 void FeaturesViewerPresenterImp::initSignalAndSlots()
 {
   connect(mView, &FeaturesViewerView::imageChange, this, &FeaturesViewerPresenterImp::setImageActive);
-  connect(mView, &IDialogView::help,               this, &FeaturesViewerPresenterImp::help);
+  connect(mView, &DialogView::help,               this, &FeaturesViewerPresenterImp::help);
 }
 
 void FeaturesViewerPresenterImp::setImageActive(const QString &image)

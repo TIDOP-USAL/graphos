@@ -10,7 +10,7 @@ namespace ui
 {
 
 class ImportCamerasPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

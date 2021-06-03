@@ -84,7 +84,7 @@ void DensificationPresenterImp::initSignalAndSlots()
 {
   connect(mView, &DensificationView::densificationChanged, this, &DensificationPresenterImp::onDensificationChanged);
   connect(mView, &DensificationView::run,                  this, &DensificationPresenterImp::run);
-  connect(mView, &IDialogView::help,                       this, &DensificationPresenterImp::help);
+  connect(mView, &DialogView::help,                       this, &DensificationPresenterImp::help);
 }
 
 void DensificationPresenterImp::cancel()

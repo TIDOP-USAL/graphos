@@ -62,7 +62,7 @@ void DensificationViewImp::initSignalAndSlots()
 
   connect(mButtonBox,                                    &QDialogButtonBox::rejected, this, &QDialog::reject);
   connect(mButtonBox->button(QDialogButtonBox::Apply),   &QAbstractButton::clicked,   this, &DensificationView::run);
-  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked,   this, &IDialogView::help);
+  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked,   this, &DialogView::help);
 }
 
 void DensificationViewImp::clear()

@@ -342,7 +342,7 @@ void ImportCamerasViewImp::initSignalAndSlots()
 
   connect(mButtonBox,                                   &QDialogButtonBox::rejected, this, &QDialog::reject);
   connect(mButtonBox->button(QDialogButtonBox::Ok),     &QAbstractButton::clicked,   this, &QDialog::accept);
-  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked,   this, &IDialogView::help);
+  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked,   this, &DialogView::help);
 }
 
 void ImportCamerasViewImp::clear()
@@ -609,70 +609,70 @@ void ImportCamerasViewImp::setZColumn(const QString &zColumn)
 
 void ImportCamerasViewImp::setQxColumn(const QString &qxColumn)
 {
-  QSignalBlocker blocker(mComboBoxQxColumn);
+  //QSignalBlocker blocker(mComboBoxQxColumn);
   mComboBoxQxColumn->setCurrentText(qxColumn);
   update();
 }
 
 void ImportCamerasViewImp::setQyColumn(const QString &qyColumn)
 {
-  QSignalBlocker blocker(mComboBoxQyColumn);
+  //QSignalBlocker blocker(mComboBoxQyColumn);
   mComboBoxQyColumn->setCurrentText(qyColumn);
   update();
 }
 
 void ImportCamerasViewImp::setQzColumn(const QString &qzColumn)
 {
-  QSignalBlocker blocker7(mComboBoxQzColumn);
+  //QSignalBlocker blocker7(mComboBoxQzColumn);
   mComboBoxQzColumn->setCurrentText(qzColumn);
   update();
 }
 
 void ImportCamerasViewImp::setQwColumn(const QString &qwColumn)
 {
-  QSignalBlocker blocker(mComboBoxQwColumn);
+  //QSignalBlocker blocker(mComboBoxQwColumn);
   mComboBoxQwColumn->setCurrentText(qwColumn);
   update();
 }
 
 void ImportCamerasViewImp::setOmegaColumn(const QString &omegaColumn)
 {
-  QSignalBlocker blocker(mComboBoxOmegaColumn);
+  //QSignalBlocker blocker(mComboBoxOmegaColumn);
   mComboBoxOmegaColumn->setCurrentText(omegaColumn);
   update();
 }
 
 void ImportCamerasViewImp::setPhiColumn(const QString &phiColumn)
 {
-  QSignalBlocker blocker(mComboBoxPhiColumn);
+  //QSignalBlocker blocker(mComboBoxPhiColumn);
   mComboBoxPhiColumn->setCurrentText(phiColumn);
   update();
 }
 
 void ImportCamerasViewImp::setKappaColumn(const QString &kappaColumn)
 {
-  QSignalBlocker blocker(mComboBoxKappaColumn);
+  //QSignalBlocker blocker(mComboBoxKappaColumn);
   mComboBoxKappaColumn->setCurrentText(kappaColumn);
   update();
 }
 
 void ImportCamerasViewImp::setYawColumn(const QString &yawColumn)
 {
-  QSignalBlocker blocker(mComboBoxYawColumn);
+  //QSignalBlocker blocker(mComboBoxYawColumn);
   mComboBoxYawColumn->setCurrentText(yawColumn);
   update();
 }
 
 void ImportCamerasViewImp::setPitchColumn(const QString &pitchColumn)
 {
-  QSignalBlocker blocker(mComboBoxPitchColumn);
+  //QSignalBlocker blocker(mComboBoxPitchColumn);
   mComboBoxPitchColumn->setCurrentText(pitchColumn);
   update();
 }
 
 void ImportCamerasViewImp::setRollColumn(const QString &rollColumn)
 {
-  QSignalBlocker blocker(mComboBoxRollColumn);
+  //QSignalBlocker blocker(mComboBoxRollColumn);
   mComboBoxRollColumn->setCurrentText(rollColumn);
   update();
 }

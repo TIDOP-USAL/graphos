@@ -43,7 +43,7 @@ protected slots:
   void loadMatches(const QString &imageLeft,
                    const QString &imageRight) override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

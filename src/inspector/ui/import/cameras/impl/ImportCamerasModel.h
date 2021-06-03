@@ -61,7 +61,7 @@ public slots:
   void setOutputCRS(const QString &crs) override;
   void importCameras() override;
 
-// IModel interface
+// Model interface
 
 private:
 

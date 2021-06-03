@@ -27,7 +27,7 @@ public:
 
   QString reconstruction() const override;
 
-// IModel interface
+// Model interface
 
 private:
 

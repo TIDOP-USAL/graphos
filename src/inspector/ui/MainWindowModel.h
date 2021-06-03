@@ -12,7 +12,7 @@ namespace ui
 {
 
 class MainWindowModel
-  : public IModel
+  : public Model
 {
   Q_OBJECT
 
@@ -49,7 +49,7 @@ signals:
 public slots:
 
 
-// IModel interface
+// Model interface
 
 private:
 

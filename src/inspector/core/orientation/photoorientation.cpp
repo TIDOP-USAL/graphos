@@ -1,6 +1,7 @@
 #include "photoorientation.h"
 
 #include <tidop/core/defs.h>
+#include <tidop/core/path.h>
 
 #include <colmap/base/reconstruction.h>
 
@@ -36,7 +37,7 @@ CameraPose ReadPhotoOrientations::orientation(const QString &imageName) const
   CameraPose photoOrientation;
 
   for (auto &image : mReconstruction->Images()) {
-    std::string image_name = image.second.Name();
+    std::string image_name = tl::Path(image.second.Name()).fileName();
     if (imageName.compare(image_name.c_str()) == 0) {
 
       colmap::image_t image_id = image.second.ImageId();

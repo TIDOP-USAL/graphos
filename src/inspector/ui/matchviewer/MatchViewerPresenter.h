@@ -10,7 +10,7 @@ namespace ui
 {
 
 class MatchViewerPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

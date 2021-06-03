@@ -47,7 +47,7 @@ public slots:
 
   void setImageActive(const QString &image) override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

@@ -44,7 +44,7 @@ protected slots:
   void setSelectedMarkerStyle(const QString &color, int width) override;
   void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

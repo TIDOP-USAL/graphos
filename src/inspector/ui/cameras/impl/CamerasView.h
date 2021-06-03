@@ -29,12 +29,7 @@ public:
   explicit CamerasViewImp(QWidget *parent = nullptr);
   ~CamerasViewImp() override = default;
 
-private slots:
-
-  void onCalibrationImport();
-  void onCalibrationExport();
-
-// IDialogView interface
+// DialogView interface
 
 private:
 
@@ -83,6 +78,29 @@ public:
 protected slots:
 
   void onSelectionChanged() override;
+
+//  CamerasViewImp
+
+private:
+
+  bool isPrincipalPointEnable() const;
+  bool isFocalEnable() const;
+  bool isFocalXYEnable() const;
+  bool isK1Enable() const;
+  bool isK2Enable() const;
+  bool isK3Enable() const;
+  bool isK4Enable() const;
+  bool isK5Enable() const;
+  bool isK6Enable() const;
+  bool isP1Enable() const;
+  bool isP2Enable() const;
+  bool isFocalVisible() const;
+  bool isFocalXYVisible() const;
+
+private slots:
+
+  void onCalibrationImport();
+  void onCalibrationExport();
 
 protected:
 

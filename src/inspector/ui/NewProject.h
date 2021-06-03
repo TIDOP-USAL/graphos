@@ -13,14 +13,14 @@ namespace ui
  * \brief INewProjectView
  */
 class NewProjectView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  NewProjectView(QWidget *parent) : IDialogView(parent) {}
+  NewProjectView(QWidget *parent) : DialogView(parent) {}
   virtual ~NewProjectView() override = default;
 
   /*!
@@ -47,7 +47,7 @@ public:
    */
   virtual QString projectDescription() const = 0;
 
-  virtual bool createProjectFolder() const = 0;
+  virtual bool createProjectFolderEnable() const = 0;
   virtual void setExistingProject(bool prjExist) = 0;
 
 protected slots:
@@ -64,7 +64,7 @@ signals:
  * \brief The INewProjectPresenter class
  */
 class NewProjectPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

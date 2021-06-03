@@ -15,14 +15,14 @@ namespace ui
 {
 
 class FeatureMatchingView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  FeatureMatchingView(QWidget *parent) : IDialogView(parent) {}
+  FeatureMatchingView(QWidget *parent) : DialogView(parent) {}
   ~FeatureMatchingView() override = default;
 
   virtual void addMatchMethod(QWidget *matchMethod) = 0;

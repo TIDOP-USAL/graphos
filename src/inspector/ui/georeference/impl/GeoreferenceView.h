@@ -72,7 +72,7 @@ private slots:
 
   void removeGroundControlPoints() override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

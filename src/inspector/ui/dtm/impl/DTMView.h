@@ -32,7 +32,7 @@ public:
 //  void onMdtSelect();
 //  void onMdsSelect();
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

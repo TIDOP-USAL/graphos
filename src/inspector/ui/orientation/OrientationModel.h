@@ -13,7 +13,7 @@ namespace ui
 {
 
 class OrientationModel
-  : public IModel
+  : public Model
 {
 
 public:
@@ -25,7 +25,7 @@ public:
 
 public:
 
-  OrientationModel(QObject *parent = nullptr) : IModel(parent) {}
+  OrientationModel(QObject *parent = nullptr) : Model(parent) {}
   ~OrientationModel() override = default;
 
   virtual bool refinePrincipalPoint() const = 0;

@@ -51,7 +51,7 @@ public:
   camera_iterator cameraEnd() override;
   camera_const_iterator cameraEnd() const override;
 
-// IModel interface
+// Model interface
 
 private:
 

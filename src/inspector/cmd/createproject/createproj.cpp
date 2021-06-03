@@ -37,7 +37,7 @@ public:
 }
   ~CreateProjectModelImpl() override = default;
 
-// IModel interface
+// Model interface
 
 private:
 

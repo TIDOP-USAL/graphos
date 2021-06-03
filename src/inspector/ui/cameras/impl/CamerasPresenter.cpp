@@ -85,7 +85,7 @@ void CamerasPresenterImp::initSignalAndSlots()
 
   connect(mView, &QDialog::accepted, this, &CamerasPresenterImp::save);
   connect(mView, &QDialog::rejected, this, &CamerasPresenterImp::discart);
-  connect(mView, &IDialogView::help, this, &CamerasPresenterImp::help);
+  connect(mView, &DialogView::help, this, &CamerasPresenterImp::help);
 }
 
 void CamerasPresenterImp::activeCamera(int id)

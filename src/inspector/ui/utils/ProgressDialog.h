@@ -19,13 +19,13 @@ namespace ui
 {
 	
 class ProgressDialog
-  : public IDialogView
+  : public DialogView
 {
   Q_OBJECT
 
 public:
 
-  explicit ProgressDialog(QWidget *parent = nullptr) : IDialogView(parent){}
+  explicit ProgressDialog(QWidget *parent = nullptr) : DialogView(parent){}
   virtual ~ProgressDialog() = default;
 
 public slots:

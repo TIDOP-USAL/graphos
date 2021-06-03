@@ -19,7 +19,7 @@ public:
   virtual ~CalibrationRadial1() override {}
 
   QString name() const override {
-    return QString("Simple radial");
+    return QString("Radial 1");
   }
 
 };
@@ -35,7 +35,7 @@ public:
   virtual ~CalibrationRadial2() override {}
 
   QString name() const override {
-    return QString("Radial");
+    return QString("Radial 2");
   }
 
 };
@@ -51,7 +51,7 @@ public:
   virtual ~CalibrationRadial3() override {}
 
   QString name() const override {
-    return QString("Full radial");
+    return QString("Radial 3");
   }
 
 };
@@ -67,7 +67,7 @@ public:
   virtual ~CalibrationSimpleRadialFisheye() override {}
 
   QString name() const override {
-    return QString("Simple Radial Fisheye");
+    return QString("Radial Fisheye 1");
   }
 
 };
@@ -84,7 +84,7 @@ public:
   virtual ~CalibrationRadialFisheye() override {}
 
   QString name() const override {
-    return QString("Radial Fisheye");
+    return QString("Radial Fisheye 2");
   }
 
 };
@@ -101,7 +101,7 @@ public:
   virtual ~CalibrationOpenCV() override {}
 
   QString name() const override {
-    return QString("OpenCV");
+    return QString("OpenCV 1");
   }
 
 };
@@ -135,7 +135,7 @@ public:
   virtual ~CalibrationOpenCVFull() override {}
 
   QString name() const override {
-    return QString("OpenCV Full");
+    return QString("OpenCV 2");
   }
 
 };
@@ -152,7 +152,7 @@ public:
   virtual ~CalibrationSimplePinhole() override {}
 
   QString name() const override {
-    return QString("Simple Pinhole");
+    return QString("Pinhole 1");
   }
 
 };
@@ -170,7 +170,7 @@ public:
   virtual ~CalibrationPinhole() override {}
 
   QString name() const override {
-    return QString("Pinhole");
+    return QString("Pinhole 2");
   }
 
 };
@@ -412,25 +412,25 @@ std::shared_ptr<Calibration> CalibrationFactory::create(const QString &cameraTyp
 {
   std::shared_ptr<Calibration> calibration;
 
-  if (cameraType.compare("Simple Pinhole") == 0){
+  if (cameraType.compare("Pinhole 1") == 0){
     calibration = Calibration::create(Calibration::CameraModel::simple_pinhole);
-  } else if (cameraType.compare("Pinhole") == 0){
+  } else if (cameraType.compare("Pinhole 2") == 0){
     calibration = Calibration::create(Calibration::CameraModel::pinhole);
-  } else if (cameraType.compare("Simple radial") == 0){
+  } else if (cameraType.compare("Radial 1") == 0){
     calibration = Calibration::create(Calibration::CameraModel::radial1);
-  } else if (cameraType.compare("Radial") == 0){
+  } else if (cameraType.compare("Radial 2") == 0){
     calibration = Calibration::create(Calibration::CameraModel::radial2);
-  } else if (cameraType.compare("OpenCV") == 0){
+  } else if (cameraType.compare("OpenCV 1") == 0){
     calibration = Calibration::create(Calibration::CameraModel::opencv);
   } else if (cameraType.compare("OpenCV Fisheye") == 0){
     calibration = Calibration::create(Calibration::CameraModel::opencv_fisheye);
-  } else if (cameraType.compare("OpenCV Full") == 0){
+  } else if (cameraType.compare("OpenCV 2") == 0){
     calibration = Calibration::create(Calibration::CameraModel::opencv_full);
-  } else if (cameraType.compare("Simple Radial Fisheye") == 0){
+  } else if (cameraType.compare("Radial Fisheye 1") == 0){
     calibration = Calibration::create(Calibration::CameraModel::simple_radial_fisheye);
-  } else if (cameraType.compare("Radial Fisheye") == 0){
+  } else if (cameraType.compare("Radial Fisheye 2") == 0){
     calibration = Calibration::create(Calibration::CameraModel::radial_fisheye);
-  } else if (cameraType.compare("Full radial") == 0){
+  } else if (cameraType.compare("Radial 3") == 0){
     calibration = Calibration::create(Calibration::CameraModel::radial3);
   } else {
     throw std::runtime_error("Invalid Camera Type");
@@ -448,7 +448,7 @@ std::shared_ptr<Calibration> CalibrationFactory::create(const QString &cameraTyp
 Camera::Camera()
     : mMake(""),
       mModel(""),
-      mType("Radial"),
+      mType("Radial 2"),
       mFocal(1.),
       mWidth(0),
       mHeight(0),
@@ -461,7 +461,7 @@ Camera::Camera()
 Camera::Camera(const QString &make, const QString &model)
     : mMake(make),
       mModel(model),
-      mType("Radial"),
+      mType("Radial 2"),
       mFocal(1.),
       mWidth(0),
       mHeight(0),
@@ -758,25 +758,25 @@ QString cameraToColmapType(const Camera &camera)
   QString colmap_camera;
   QString inspector_camera = camera.type();
 
-  if (inspector_camera.compare("Simple Pinhole") == 0){
+  if (inspector_camera.compare("Pinhole 1") == 0){
     colmap_camera = "SIMPLE_PINHOLE";
-  } else if (inspector_camera.compare("Pinhole") == 0){
+  } else if (inspector_camera.compare("Pinhole 2") == 0){
     colmap_camera = "PINHOLE";
-  } else if (inspector_camera.compare("Simple Radial") == 0){
+  } else if (inspector_camera.compare("Radial 1") == 0){
     colmap_camera = "SIMPLE_RADIAL";
-  } else if (inspector_camera.compare("Radial") == 0){
+  } else if (inspector_camera.compare("Radial 2") == 0){
     colmap_camera = "RADIAL";
-  } else if (inspector_camera.compare("OpenCV") == 0){
+  } else if (inspector_camera.compare("OpenCV 1") == 0){
     colmap_camera = "OPENCV";
   } else if (inspector_camera.compare("OpenCV Fisheye") == 0){
     colmap_camera = "OPENCV_FISHEYE";
-  } else if (inspector_camera.compare("OpenCV Full") == 0){
+  } else if (inspector_camera.compare("OpenCV 2") == 0){
     colmap_camera = "FULL_OPENCV";
-  } else if (inspector_camera.compare("Simple Radial Fisheye") == 0){
+  } else if (inspector_camera.compare("Radial Fisheye 1") == 0){
     colmap_camera = "SIMPLE_RADIAL_FISHEYE";
-  } else if (inspector_camera.compare("Radial Fisheye") == 0){
+  } else if (inspector_camera.compare("Radial Fisheye 2") == 0){
     colmap_camera = "RADIAL_FISHEYE";
-  } else if (inspector_camera.compare("Full radial") == 0){
+  } else if (inspector_camera.compare("Radial 3") == 0){
     colmap_camera = "FULL_RADIAL";
   }
 

@@ -16,14 +16,14 @@ namespace ui
 class HelpDialog;
 //class ProgressHandler;
 
-class IDialogView
+class DialogView
   : public QDialog
 {
   Q_OBJECT
 
 public:
 
-  IDialogView(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags())
+  DialogView(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags())
     : QDialog(parent, f)
   {
     Qt::WindowFlags helpFlag = Qt::WindowContextHelpButtonHint;
@@ -32,7 +32,7 @@ public:
     QWidget::setWindowFlags(flags);
   }
 
-  virtual ~IDialogView() override = default;
+  virtual ~DialogView() override = default;
 
 private:
 
@@ -77,7 +77,7 @@ protected:
 
 
 
-class IModel
+class Model
   : public QObject
 {
 
@@ -85,8 +85,8 @@ class IModel
 
 public:
 
-  IModel(QObject *parent = nullptr) : QObject(parent){}
-  virtual ~IModel() = default;
+  Model(QObject *parent = nullptr) : QObject(parent){}
+  virtual ~Model() = default;
 
 private:
 
@@ -102,15 +102,15 @@ public slots:
 };
 
 
-class IPresenter
+class Presenter
   : public QObject
 {
   Q_OBJECT
 
 public:
 
-  IPresenter() : QObject(){}
-  virtual ~IPresenter() = default;
+  Presenter() : QObject(){}
+  virtual ~Presenter() = default;
 
 public slots:
 

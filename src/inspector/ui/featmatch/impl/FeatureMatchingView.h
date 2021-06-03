@@ -37,7 +37,7 @@ public slots:
 
   void setCurrentMatchMethod(const QString &matchMethodName) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

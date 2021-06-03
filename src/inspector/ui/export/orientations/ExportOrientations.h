@@ -10,14 +10,14 @@ namespace ui
 {
 
 class ExportOrientationsModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  ExportOrientationsModel(QObject *parent = nullptr) : IModel(parent) {}
+  ExportOrientationsModel(QObject *parent = nullptr) : Model(parent) {}
   ~ExportOrientationsModel() override = default;
 
   virtual QString reconstruction() const = 0;
@@ -26,14 +26,14 @@ public:
 
 
 class ExportOrientationsView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  ExportOrientationsView(QWidget *parent) : IDialogView(parent) {}
+  ExportOrientationsView(QWidget *parent) : DialogView(parent) {}
   ~ExportOrientationsView() override = default;
 
   virtual void addFormatWidget(QWidget *formatWidget) = 0;
@@ -49,7 +49,7 @@ signals:
 };
 
 class ExportOrientationsPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

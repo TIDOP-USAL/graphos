@@ -11,7 +11,7 @@ namespace ui
 
 
 class FeaturesViewerView
-  : public IDialogView
+  : public DialogView
 {
   Q_OBJECT
 
@@ -19,7 +19,7 @@ public:
 
   explicit FeaturesViewerView(QWidget *parent = nullptr,
                                Qt::WindowFlags f = Qt::WindowFlags())
-       : IDialogView(parent, f) {}
+       : DialogView(parent, f) {}
   ~FeaturesViewerView() = default;
 
   /*!

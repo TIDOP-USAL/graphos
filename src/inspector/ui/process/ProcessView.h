@@ -12,7 +12,7 @@ namespace ui
 
 
 class ProcessView
-  : public IDialogView
+  : public DialogView
 {
 
 public:

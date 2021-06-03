@@ -13,14 +13,14 @@ namespace ui
 
 
 class MatchViewerModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  MatchViewerModel(QObject *parent = nullptr) : IModel(parent) {}
+  MatchViewerModel(QObject *parent = nullptr) : Model(parent) {}
   virtual ~MatchViewerModel() = default;
 
   virtual QString viewerBGColor() const = 0;

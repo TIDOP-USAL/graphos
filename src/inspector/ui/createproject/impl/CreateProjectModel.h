@@ -45,7 +45,7 @@ public slots:
   void setDatabase(const QString &database) override;
   void saveAs(const QString &file) override;
 
-// IModel interface
+// Model interface
 
 private:
 

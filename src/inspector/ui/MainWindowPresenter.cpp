@@ -40,7 +40,7 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          SettingsModel *settingsModel,
                                          FeaturesModel *featuresModel,
                                          MatchesModel *matchesModel)
-  : IPresenter(),
+  : Presenter(),
     mView(view),
     mModel(model),
     mProjectModel(projectModel),

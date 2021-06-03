@@ -89,8 +89,6 @@ void CamerasViewImp::initUI()
 
   this->resize(800, 660);
 
-  //this->setWindowIcon(QIcon(":/ico/img/InspectorIcon.ico"));
-
   QGridLayout *layout = new QGridLayout();
   this->setLayout(layout);
 
@@ -142,6 +140,13 @@ void CamerasViewImp::initUI()
   mComboBoxType->addItem(QString());
   mComboBoxType->addItem(QString());
   mComboBoxType->addItem(QString());
+  mComboBoxType->addItem(QString());
+  mComboBoxType->addItem(QString());
+  mComboBoxType->addItem(QString());
+  mComboBoxType->addItem(QString());
+  mComboBoxType->addItem(QString());
+  mComboBoxType->addItem(QString());
+  mComboBoxType->addItem(QString());
   gridLayout3->addWidget(mComboBoxType, 7, 1, 1, 5);
 
   mPushButtonEditCamera = new QPushButton(mGroupBoxCamera);
@@ -176,6 +181,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(toolBar, 0, 0, 1, 4);
 
   mLabelF = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelF->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelF, 1, 0, 1, 1);
   mDoubleSpinBoxF = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxF->setRange(0., 100000.);
@@ -183,27 +189,31 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxF, 1, 1, 1, 3);
   
   mLabelFx = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelFx->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelFx, 1, 0, 1, 1);
   mDoubleSpinBoxFx = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxFx->setRange(0., 100000.);
   mDoubleSpinBoxFx->setDecimals(8);
-  gridLayout2->addWidget(mDoubleSpinBoxFx, 1, 1, 1, 3);
+  gridLayout2->addWidget(mDoubleSpinBoxFx, 1, 1, 1, 1);
     
   mLabelFy = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelFy->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelFy, 1, 2, 1, 1);
   mDoubleSpinBoxFy = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxFy->setRange(0., 100000.);
   mDoubleSpinBoxFy->setDecimals(8);
-  gridLayout2->addWidget(mDoubleSpinBoxFy, 1, 3, 1, 3);
+  gridLayout2->addWidget(mDoubleSpinBoxFy, 1, 3, 1, 1);
 
   mLabelCx = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelCx->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelCx, 2, 0, 1, 1);
   mDoubleSpinBoxCx = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxCx->setRange(-100000., 100000.);
   mDoubleSpinBoxCx->setDecimals(8);
-  gridLayout2->addWidget(mDoubleSpinBoxCx, 2, 1, 2, 1);
+  gridLayout2->addWidget(mDoubleSpinBoxCx, 2, 1, 1, 1);
 
   mLabelCy = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelCy->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelCy, 2, 2, 1, 1);
   mDoubleSpinBoxCy = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxCy->setRange(-100000., 100000.);
@@ -211,6 +221,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxCy, 2, 3, 1, 1);
 
   mLabelK1 = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelK1->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelK1, 4, 0, 1, 1);
   mDoubleSpinBoxK1 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxK1->setRange(-100000., 100000.);
@@ -218,6 +229,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxK1, 4, 1, 1, 1);
 
   mLabelK2 = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelK2->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelK2, 4, 2, 1, 1);
   mDoubleSpinBoxK2 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxK2->setRange(-100000., 100000.);
@@ -225,6 +237,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxK2, 4, 3, 1, 1);
 
   mLabelK3 = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelK3->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelK3, 6, 0, 1, 1);
   mDoubleSpinBoxK3 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxK3->setRange(-100000., 100000.);
@@ -232,6 +245,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxK3, 6, 1, 1, 1);
 
   mLabelK4 = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelK4->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelK4, 6, 2, 1, 1);
   mDoubleSpinBoxK4 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxK4->setRange(-100000., 100000.);
@@ -239,6 +253,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxK4, 6, 3, 1, 1);
 
   mLabelK5 = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelK5->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelK5, 7, 0, 1, 1);
   mDoubleSpinBoxK5 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxK5->setRange(-100000., 100000.);
@@ -246,6 +261,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxK5, 7, 1, 1, 1);
 
   mLabelK6 = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelK6->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelK6, 7, 2, 1, 1);
   mDoubleSpinBoxK6 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxK6->setRange(-100000., 100000.);
@@ -253,6 +269,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxK6, 7, 3, 1, 1);
 
   mLabelP1 = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelP1->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelP1, 8, 0, 1, 1);
   mDoubleSpinBoxP1 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxP1->setRange(-100000., 100000.);
@@ -260,6 +277,7 @@ void CamerasViewImp::initUI()
   gridLayout2->addWidget(mDoubleSpinBoxP1, 8, 1, 1, 1);
 
   mLabelP2 = new QLabel(mGroupBoxCalibrationParameters);
+  mLabelP2->setMaximumWidth(50);
   gridLayout2->addWidget(mLabelP2, 8, 2, 1, 1);
   mDoubleSpinBoxP2 = new QDoubleSpinBox(mGroupBoxCalibrationParameters);
   mDoubleSpinBoxP2->setRange(-100000., 100000.);
@@ -320,7 +338,7 @@ void CamerasViewImp::initSignalAndSlots()
 
   connect(mButtonBox->button(QDialogButtonBox::Ok),     &QAbstractButton::clicked, this, &QDialog::accept);
   connect(mButtonBox->button(QDialogButtonBox::Cancel), &QAbstractButton::clicked, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked, this, &IDialogView::help);
+  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void CamerasViewImp::clear()
@@ -382,32 +400,48 @@ void CamerasViewImp::update()
 {
   bool selected_camera = !mListWidgetCameras->selectedItems().empty();
   bool fix_calibration = mActionFixCalibration->isChecked();
+  int camera_index = mComboBoxType->currentIndex();
+  bool cx_enable = isPrincipalPointEnable();
+  bool cy_enable = isPrincipalPointEnable();
+  bool f_enable = isFocalEnable();
+  bool fx_enable = isFocalXYEnable();
+  bool fy_enable = isFocalXYEnable();
+  bool k1_enable = isK1Enable();
+  bool k2_enable = isK2Enable();
+  bool k3_enable = isK3Enable();
+  bool k4_enable = isK4Enable();
+  bool k5_enable = isK5Enable();
+  bool k6_enable = isK6Enable();
+  bool p1_enable = isP1Enable();
+  bool p2_enable = isP2Enable();
 
   mComboBoxType->setEnabled(selected_camera);
   mPushButtonEditCamera->setEnabled(selected_camera);
 
-  mDoubleSpinBoxCx->setEnabled(selected_camera && !fix_calibration && (mComboBoxType->currentIndex() == 0 || mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2));
-  mDoubleSpinBoxCy->setEnabled(selected_camera && !fix_calibration && (mComboBoxType->currentIndex() == 0 || mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2));
-  mDoubleSpinBoxF->setEnabled(selected_camera && !fix_calibration && (mComboBoxType->currentIndex() == 0 || mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2));
-  mDoubleSpinBoxK1->setEnabled(selected_camera && !fix_calibration && (mComboBoxType->currentIndex() == 0 || mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2));
-  mDoubleSpinBoxK2->setEnabled(selected_camera && !fix_calibration && (mComboBoxType->currentIndex() == 1 || mComboBoxType->currentIndex() == 2));
-  mDoubleSpinBoxK3->setEnabled(selected_camera && !fix_calibration && (mComboBoxType->currentIndex() == 2));
-  mDoubleSpinBoxP1->setEnabled(selected_camera && !fix_calibration && (mComboBoxType->currentIndex() == 2));
-  mDoubleSpinBoxP2->setEnabled(selected_camera && !fix_calibration && (mComboBoxType->currentIndex() == 2));
+  mDoubleSpinBoxF->setEnabled(selected_camera && !fix_calibration && f_enable);
+  mDoubleSpinBoxFx->setEnabled(selected_camera && !fix_calibration && fx_enable);
+  mDoubleSpinBoxFy->setEnabled(selected_camera && !fix_calibration && fy_enable); 
+  mDoubleSpinBoxCx->setEnabled(selected_camera && !fix_calibration && cx_enable);
+  mDoubleSpinBoxCy->setEnabled(selected_camera && !fix_calibration && cy_enable);
+  mDoubleSpinBoxK1->setEnabled(selected_camera && !fix_calibration && k1_enable);
+  mDoubleSpinBoxK2->setEnabled(selected_camera && !fix_calibration && k2_enable);
+  mDoubleSpinBoxK3->setEnabled(selected_camera && !fix_calibration && k3_enable);
+  mDoubleSpinBoxK4->setEnabled(selected_camera && !fix_calibration && k4_enable);
+  mDoubleSpinBoxK5->setEnabled(selected_camera && !fix_calibration && k5_enable);
+  mDoubleSpinBoxK6->setEnabled(selected_camera && !fix_calibration && k6_enable);
+  mDoubleSpinBoxP1->setEnabled(selected_camera && !fix_calibration && p1_enable);
+  mDoubleSpinBoxP2->setEnabled(selected_camera && !fix_calibration && p2_enable);
 
-  if (mComboBoxType->currentIndex() <= 2) {
-    TL_TODO("Añadir el resto de cámaras")
-    mLabelFx->setVisible(false);
-    mLabelFy->setVisible(false);
-    mDoubleSpinBoxFx->setVisible(false);
-    mDoubleSpinBoxFy->setVisible(false);
-    mDoubleSpinBoxK4->setEnabled(false);
-    mDoubleSpinBoxK5->setEnabled(false);
-    mDoubleSpinBoxK6->setEnabled(false);
-  }
+  mLabelF->setVisible(isFocalVisible());
+  mDoubleSpinBoxF->setVisible(isFocalVisible());
+  mLabelFx->setVisible(isFocalXYVisible());
+  mDoubleSpinBoxFx->setVisible(isFocalXYVisible());
+  mLabelFy->setVisible(isFocalXYVisible());
+  mDoubleSpinBoxFy->setVisible(isFocalXYVisible());
 
   mActionImportCalibration->setEnabled(selected_camera && !fix_calibration);
   mActionExportCalibration->setEnabled(selected_camera && !fix_calibration);
+
   mActionFixCalibration->setEnabled(selected_camera);
 }
 
@@ -441,9 +475,16 @@ void CamerasViewImp::retranslate()
   mLabelWidth->setText(QApplication::translate("CamerasView", "Width (pixels)", nullptr));
   mLabelSensorSize->setText(QApplication::translate("CamerasView", "Sensor size (mm)", nullptr));
   mLabelFocal->setText(QApplication::translate("CamerasView", "Focal", nullptr));
-  mComboBoxType->setItemText(0, QApplication::translate("CamerasView", "Simple Radial", nullptr));
-  mComboBoxType->setItemText(1, QApplication::translate("CamerasView", "Radial", nullptr));
-  mComboBoxType->setItemText(2, QApplication::translate("CamerasView", "Full Radial", nullptr));
+  mComboBoxType->setItemText(radial_1, QApplication::translate("CamerasView", "Radial 1", nullptr));
+  mComboBoxType->setItemText(radial_2, QApplication::translate("CamerasView", "Radial 2", nullptr));
+  mComboBoxType->setItemText(radial_3, QApplication::translate("CamerasView", "Radial 3", nullptr));
+  mComboBoxType->setItemText(pinhole_1, QApplication::translate("CamerasView", "Pinhole 1", nullptr));
+  mComboBoxType->setItemText(pinhole_2, QApplication::translate("CamerasView", "Pinhole 2", nullptr));
+  mComboBoxType->setItemText(opencv_1, QApplication::translate("CamerasView", "OpenCV 1", nullptr));
+  mComboBoxType->setItemText(opencv_2, QApplication::translate("CamerasView", "OpenCV 2", nullptr));
+  mComboBoxType->setItemText(opencv_fisheye, QApplication::translate("CamerasView", "OpenCV Fisheye", nullptr));
+  mComboBoxType->setItemText(radial_fisheye_1, QApplication::translate("CamerasView", "Radial Fisheye 1", nullptr));
+  mComboBoxType->setItemText(radial_fisheye_2, QApplication::translate("CamerasView", "Radial Fisheye 2", nullptr));
 
   mLabelMake->setText(QApplication::translate("CamerasView", "Make", nullptr));
   mLabelModel->setText(QApplication::translate("CamerasView", "Model", nullptr));
@@ -608,6 +649,128 @@ void CamerasViewImp::onSelectionChanged()
     emit cameraChange(itemsCameras.at(0)->data(Qt::UserRole).toInt());
   }
   /*mListWidgetImages->clear();*/
+}
+
+bool CamerasViewImp::isPrincipalPointEnable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == radial_1 ||
+         camera_index == radial_2 ||
+         camera_index == radial_3 ||
+         camera_index == pinhole_1 ||
+         camera_index == pinhole_2 ||
+         camera_index == opencv_1 ||
+         camera_index == opencv_2 ||
+         camera_index == opencv_fisheye ||
+         camera_index == radial_fisheye_1 ||
+         camera_index == radial_fisheye_2;
+}
+
+bool CamerasViewImp::isFocalEnable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == radial_1 ||
+         camera_index == radial_2 ||
+         camera_index == radial_3 ||
+         camera_index == pinhole_1 ||
+         camera_index == radial_fisheye_1 ||
+         camera_index == radial_fisheye_2;
+}
+
+bool CamerasViewImp::isFocalXYEnable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == pinhole_2 ||
+         camera_index == opencv_1 ||
+         camera_index == opencv_2 ||
+         camera_index == opencv_fisheye;
+}
+
+bool CamerasViewImp::isK1Enable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == radial_1 ||
+         camera_index == radial_2 ||
+         camera_index == radial_3 ||
+         camera_index == opencv_1 ||
+         camera_index == opencv_2 ||
+         camera_index == opencv_fisheye ||
+         camera_index == radial_fisheye_1 ||
+         camera_index == radial_fisheye_2;
+}
+
+bool CamerasViewImp::isK2Enable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == radial_2 ||
+         camera_index == radial_3 ||
+         camera_index == opencv_1 ||
+         camera_index == opencv_2 ||
+         camera_index == opencv_fisheye ||
+         camera_index == radial_fisheye_1 ||
+         camera_index == radial_fisheye_2;
+}
+
+bool CamerasViewImp::isK3Enable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == radial_3 ||
+         camera_index == opencv_2 ||
+         camera_index == opencv_fisheye ||
+         camera_index == radial_fisheye_2;
+}
+
+bool CamerasViewImp::isK4Enable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == opencv_2 || 
+         camera_index == opencv_fisheye;
+}
+
+bool CamerasViewImp::isK5Enable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == opencv_2;
+}
+
+bool CamerasViewImp::isK6Enable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == opencv_2;
+}
+
+bool CamerasViewImp::isP1Enable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == radial_3 ||
+         camera_index == opencv_1 ||
+         camera_index == opencv_2 ||
+         camera_index == radial_fisheye_2;
+}
+
+bool CamerasViewImp::isP2Enable() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == radial_3 ||
+         camera_index == opencv_1 ||
+         camera_index == opencv_2 ||
+         camera_index == radial_fisheye_2;
+}
+
+bool CamerasViewImp::isFocalVisible() const
+{
+  int camera_index = mComboBoxType->currentIndex();
+  return camera_index == pinhole_1 || 
+         camera_index == radial_1 || 
+         camera_index == radial_2 ||
+         camera_index == radial_3 ||
+         camera_index == radial_fisheye_1 ||
+         camera_index == radial_fisheye_2;
+}
+
+bool CamerasViewImp::isFocalXYVisible() const
+{
+  return !isFocalVisible();
 }
 
 } // namespace ui

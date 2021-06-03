@@ -12,14 +12,14 @@ namespace ui
 {
 
 class ImportCamerasModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  ImportCamerasModel(QObject *parent = nullptr) : IModel(parent) {}
+  ImportCamerasModel(QObject *parent = nullptr) : Model(parent) {}
   ~ImportCamerasModel() override = default;
 
   virtual QStandardItemModel *itemModelCSV() = 0;

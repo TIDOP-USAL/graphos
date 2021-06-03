@@ -33,7 +33,7 @@ public:
   QString dtmPath() const override;
   void setDtmPath(const QString &dtmPath) override;
 
-// IModel interface
+// Model interface
 
 private:
 

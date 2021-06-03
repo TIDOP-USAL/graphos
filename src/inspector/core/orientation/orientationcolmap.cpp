@@ -116,13 +116,13 @@ void RelativeOrientationColmapAlgorithm::run()
     delete mMapper;
     mMapper = nullptr;
   }
-
+  
   //mIncrementalMapper->min_num_matches = 30;
   mMapper = new colmap::IncrementalMapperController(mIncrementalMapper,
                                                     "",
                                                     mDatabase.toStdString(),
                                                     mReconstructionManager.get());
-
+  
   size_t prev_num_reconstructions = 0;
   mMapper->AddCallback(
     colmap::IncrementalMapperController::LAST_IMAGE_REG_CALLBACK, [&]() {
@@ -142,44 +142,38 @@ void RelativeOrientationColmapAlgorithm::run()
         msgError(e.what());
       }
     });
-
+  
   mMapper->AddCallback(
     colmap::IncrementalMapperController::NEXT_IMAGE_REG_CALLBACK, [&]() {
       //if (progressBar) (*progressBar)();
       //msgInfo("-----");
     });
-
+  
   mMapper->Start(); ///TODO: ¿Como detectar que se ha producido un error?
   mMapper->Wait();
-
+  
   if (mReconstructionManager->Size() == 0) throw std::runtime_error("Reconstruction fail");
-
+  
   colmap::OptionManager optionManager;
   optionManager.bundle_adjustment->refine_focal_length = RelativeOrientationColmapProperties::refineFocalLength();
   optionManager.bundle_adjustment->refine_principal_point = RelativeOrientationColmapProperties::refinePrincipalPoint();
   optionManager.bundle_adjustment->refine_extra_params = RelativeOrientationColmapProperties::refineExtraParams();
-
-
+  
+  
   //for (size_t id = 0; id < mReconstructionManager->Size(); id++) {
   //  colmap::Reconstruction& reconstruction = mReconstructionManager->Get(id);
   colmap::Reconstruction &reconstruction = mReconstructionManager->Get(0);
-
+  
   colmap::BundleAdjustmentController ba_controller(optionManager, &reconstruction);
   ba_controller.Start();
   ba_controller.Wait();
-
+  
   OrientationExport orientationExport(&reconstruction);
-
-  QString path;
-  path.fromStdString(sparse_path);
+  
+  QString path = QString::fromStdString(sparse_path);
   orientationExport.exportBinary(path);
   orientationExport.exportPLY(path + "/sparse.ply");
-  //reconstruction.ExportPLY(path.toStdString() + "/sparse.ply");
 
-#ifdef _DEBUG
-  orientationExport.exportText(path);
-#endif
-  //}
 }
 
 
@@ -265,7 +259,6 @@ void AbsoluteOrientationColmapAlgorithm::run()
   ransac_options.max_error = AbsoluteOrientationColmapProperties::robustAlignmentMaxError();
   int min_common_images = AbsoluteOrientationColmapProperties::minCommonImages();
 
-  //colmap::CreateDirIfNotExists(mOutputPath.toStdString());
   tl::Path dir(mOutputPath.toStdString());
   if (!dir.exists() && !dir.createDirectories()) {
     throw std::runtime_error(std::string("Directory couldn't be created: ").append(mOutputPath.toStdString()));
@@ -298,13 +291,12 @@ void AbsoluteOrientationColmapAlgorithm::run()
     camera_position[0] = cameraPosition.second[0];
     camera_position[1] = cameraPosition.second[1];
     camera_position[2] = cameraPosition.second[2];
-    //center += camera_position;
+
     //Para evitar desbordamiento
     offset += (camera_position - offset)/(i);
     ref_locations.push_back(camera_position);
     i++;
   }
-  //center /= mCameraPositions.size();
   
 
   QString offset_file = mOutputPath + "/offset.txt";

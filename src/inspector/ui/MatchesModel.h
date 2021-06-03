@@ -11,14 +11,14 @@ namespace ui
 {
 
 class MatchesModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  MatchesModel(QObject *parent = nullptr) : IModel(parent) {}
+  MatchesModel(QObject *parent = nullptr) : Model(parent) {}
   ~MatchesModel() override = default;
 
   virtual void addMatchesPair(const QString &imageLeft, const QString &imageRight) = 0;
@@ -50,7 +50,7 @@ public:
   void removeMatchesPair() override;
   void removeMatchesPair(const QString &imageLeft) override;
 
-// IModel interface
+// Model interface
 
 private:
 

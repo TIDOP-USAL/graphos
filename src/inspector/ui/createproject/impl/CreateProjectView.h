@@ -26,7 +26,7 @@ public:
   explicit CreateProjectViewImp(QWidget *parent = nullptr);
   ~CreateProjectViewImp() override = default;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 
@@ -50,7 +50,7 @@ public:
   QString projectPath() const override;
   void setProjectPath(const QString &path) override;
   QString projectDescription() const override;
-  bool createProjectFolder() const override;
+  bool createProjectFolderEnable() const override;
   void setExistingProject(bool prjExist) override;
 
 protected slots:

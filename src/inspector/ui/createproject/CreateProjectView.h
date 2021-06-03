@@ -11,14 +11,14 @@ namespace ui
 {
 
 class CreateProjectView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  CreateProjectView(QWidget *parent) : IDialogView(parent) {}
+  CreateProjectView(QWidget *parent) : DialogView(parent) {}
   virtual ~CreateProjectView() override = default;
 
   /*!
@@ -45,7 +45,7 @@ public:
    */
   virtual QString projectDescription() const = 0;
 
-  virtual bool createProjectFolder() const = 0;
+  virtual bool createProjectFolderEnable() const = 0;
   virtual void setExistingProject(bool prjExist) = 0;
 
 protected slots:

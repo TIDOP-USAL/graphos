@@ -422,7 +422,7 @@ void GeoreferenceViewImp::initSignalAndSlots()
 
   connect(mButtonBox,                                   &QDialogButtonBox::rejected, this, &QDialog::reject);
   connect(mButtonBox->button(QDialogButtonBox::Ok),     &QAbstractButton::clicked,   this, &QDialog::accept);
-  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked,   this, &IDialogView::help);
+  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked,   this, &DialogView::help);
 }
 
 void GeoreferenceViewImp::clear()

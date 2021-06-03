@@ -35,7 +35,7 @@ public slots:
   void setAbsoluteOrientation(bool active) override;
   void enabledAbsoluteOrientation(bool enabled) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

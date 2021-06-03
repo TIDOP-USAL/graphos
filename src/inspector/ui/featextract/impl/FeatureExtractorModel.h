@@ -24,7 +24,7 @@ public:
                            QObject *parent = nullptr);
   ~FeatureExtractorModelImp() override;
 
-// IModel interface
+// Model interface
 
 private:
 

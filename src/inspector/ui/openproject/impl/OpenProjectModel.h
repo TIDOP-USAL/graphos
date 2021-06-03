@@ -34,7 +34,7 @@ public slots:
   void saveProject() override;
   void loadProject(const QString &projectPath) override;
 
-// IModel interface
+// Model interface
 
 private:
 

@@ -11,14 +11,14 @@ namespace ui
 {
 
 class DtmView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  DtmView(QWidget *parent = nullptr) : IDialogView(parent) {}
+  DtmView(QWidget *parent = nullptr) : DialogView(parent) {}
   ~DtmView() override = default;
  
   virtual double gsd() const = 0;
