@@ -93,7 +93,7 @@ void OrientationPresenterImp::onFinished()
     mProgressHandler->setDescription(tr("Orientation finished"));
   }
 
-  msgInfo("Orientation finished");
+  //msgInfo("Orientation finished");
 }
 
 bool OrientationPresenterImp::createProcess()
@@ -126,10 +126,9 @@ bool OrientationPresenterImp::createProcess()
 
 
   QString database = mModel->database();
-  QString imagePath = mModel->imagePath();
   QString ori_relative = mModel->projectPath() + "/ori/relative/";
   std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, 
-                                                                                                                                    imagePath, 
+                                                                                                                                    //imagePath, 
                                                                                                                                     ori_relative,
                                                                                                                                     true,
                                                                                                                                     refine_principal_point,
@@ -170,28 +169,31 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
 {
   /// Se comprueba que se han generado todos los productos
   QString ori_relative_path = mModel->projectPath() + "/ori/relative/";
-  QString sparse_model = ori_relative_path + "/sparse.ply";
+  QString sparse_model = ori_relative_path + "sparse.ply";
 
   if (QFileInfo(sparse_model).exists()){
 
     mModel->setReconstructionPath(ori_relative_path);
-    mModel->setSparseModel(ori_relative_path + "/sparse.ply");
+    mModel->setSparseModel(sparse_model);
     mModel->setOffset("");
 
     ReadPhotoOrientations readPhotoOrientations;
     readPhotoOrientations.open(ori_relative_path);
     int oriented_images = 0;
+
     for (auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++) {
-      QString image_oriented = QFileInfo(image->path()).fileName();
+      QString image_oriented = image->path();
       CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
       if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
         oriented_images++;
       } else {
+        QString image_oriented = QFileInfo(image->path()).fileName();
         QByteArray ba = image_oriented.toLocal8Bit();
         const char *msg = ba.constData();
         msgWarning("Image %s not oriented", msg);
       }
+
     }
 
     msgInfo("Oriented %i images", oriented_images);

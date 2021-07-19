@@ -37,9 +37,8 @@ protected slots :
   void onTreeWidgetMatchesItemSelectionChanged();
   void onGraphicsViewLeftSelectionChanged();
   void onGraphicsViewRightSelectionChanged();
-//  void onPushButtonDeleteMatchClicked();
 
-// IMatchViewerView interface
+// MatchViewerView interface
 
 public:
 
@@ -53,7 +52,7 @@ public:
   void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) override;
   void setLineStyle(const QString &color, int width) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

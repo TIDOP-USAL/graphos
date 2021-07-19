@@ -12,14 +12,14 @@ namespace ui
 {
 
 class ImportCamerasView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  ImportCamerasView(QWidget *parent) : IDialogView(parent) {}
+  ImportCamerasView(QWidget *parent) : DialogView(parent) {}
   ~ImportCamerasView() override = default;
 
   virtual QString delimiter() const = 0;

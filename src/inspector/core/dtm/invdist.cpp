@@ -208,6 +208,7 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
   cmd.append(":angle=").append(std::to_string(DtmInvDistProperties::angle()));
   cmd.append(":max_points=").append(std::to_string(DtmInvDistProperties::maxPoints()));
   cmd.append(":min_points=").append(std::to_string(DtmInvDistProperties::minPoints()));
+  cmd.append(":nodata=-9999");
   cmd.append(" -outsize ").append(std::to_string(size.width)).append(" ").append(std::to_string(size.height));
   cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
   cmd.append(gdal_vrt_file.toString()).append("\" \"");

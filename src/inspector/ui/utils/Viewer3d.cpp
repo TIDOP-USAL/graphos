@@ -582,8 +582,8 @@ void CCViewer3D::addCamera(const QString &id, double x, double y, double z, cons
     bool isShifted = cloud->isShifted();
     if (isShifted) {
       CCVector3d shift = cloud->getGlobalShift();
-      msgInfo("Desplazamiento camara [%lf,%lf,%lf]", shift.x, shift.y, shift.z);
-      msgInfo("Camara cargada [%lf,%lf,%lf]", camera_center.x, camera_center.y, camera_center.z);
+      //msgInfo("Desplazamiento camara [%lf,%lf,%lf]", shift.x, shift.y, shift.z);
+      //msgInfo("Camara cargada [%lf,%lf,%lf]", camera_center.x, camera_center.y, camera_center.z);
       camera_center += shift;
     }
     ccBBox bb = cloud->getOwnBB();

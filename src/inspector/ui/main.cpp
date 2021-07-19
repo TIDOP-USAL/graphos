@@ -21,7 +21,7 @@
 
 #ifdef HAVE_VLD
 #include "gflags/gflags.h"
-#include "vld.h"
+//#include "vld.h"
 #endif
 
 using namespace inspector;

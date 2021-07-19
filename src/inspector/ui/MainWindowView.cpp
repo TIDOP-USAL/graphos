@@ -167,7 +167,7 @@ void MainWindowView::clear()
 
 void MainWindowView::setProjectTitle(const QString &title)
 {
-  this->setWindowTitle(QString("Inspector Image - ").append(title));
+  this->setWindowTitle(QString("Graphos - ").append(title));
 
   QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0);
   if (itemProject == nullptr) {
@@ -830,7 +830,7 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
 
 void MainWindowView::initUI()
 {
-  setWindowTitle(QString("Inspector Image"));
+  setWindowTitle(QString("Graphos"));
 
   mLayoutCentral = new QGridLayout(this->centralWidget());
   mLayoutCentral->setSpacing(6);

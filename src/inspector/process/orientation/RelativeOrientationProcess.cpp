@@ -26,19 +26,21 @@ void RelativeOrientationProcess::run()
 
     msgInfo("Starting Orientation");
 
-    tl::Chrono chrono;
+    tl::Chrono chrono("Orientation process finished");
     chrono.run();
 
     mRelativeOrientationAlgorithm->run();
 
     emit orientationFinished();
 
-    uint64_t time = chrono.stop();
-    msgInfo("Orientation process finished [Time: %f seconds]", time/1000.);
+    chrono.stop();
 
   } catch (std::exception &e) {
     emit error(0, "Relative Orientation error");
     msgError(e.what());
+  } catch (...) {
+    emit error(0, "Relative Orientation error");
+    msgError("Unknow Exception");
   }
 }
 

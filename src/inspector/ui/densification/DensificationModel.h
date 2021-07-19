@@ -12,19 +12,18 @@ namespace ui
 {
 
 class DensificationModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  DensificationModel(QObject *parent = nullptr) : IModel(parent) {}
+  DensificationModel(QObject *parent = nullptr) : Model(parent) {}
   ~DensificationModel() override = default;
 
   virtual std::shared_ptr<Densification> densification() const = 0;
   virtual QString projectFolder() const = 0;
-  virtual QString imageDirectory() const = 0;
   virtual QString reconstructionPath() const = 0;
   virtual bool useCuda() const = 0;
   virtual bool existDenseModel() const = 0;

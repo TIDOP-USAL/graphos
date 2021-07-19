@@ -27,17 +27,14 @@ class MatchViewerPresenterImp
 public:
 
   MatchViewerPresenterImp(MatchViewerView *view,
-                          MatchViewerModel *model/*,
-                          SettingsModel *settings*/);
+                          MatchViewerModel *model);
 
   ~MatchViewerPresenterImp() override;
 
-// IMatchViewerPresenter interface
+// MatchViewerPresenter interface
 
 public slots:
 
-  //void openFromImages(const QString &imageLeft,
-  //                              const QString &imageRight) override;
   void setLeftImage(const QString &image) override;
   void setRightImage(const QString &image) override;
 
@@ -45,12 +42,8 @@ protected slots:
 
   void loadMatches(const QString &imageLeft,
                    const QString &imageRight) override;
-//  void deleteMatch(const QString &imageLeft,
-//                   const QString &imageRight,
-//                   int query_id,
-//                   int train_id) override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 
@@ -74,7 +67,6 @@ private:
 
   MatchViewerView *mView;
   MatchViewerModel *mModel;
-  //SettingsModel *mSettingsModel;
   HelpDialog *mHelp;
 
 };

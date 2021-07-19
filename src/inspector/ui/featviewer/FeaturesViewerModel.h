@@ -10,14 +10,14 @@ namespace ui
 {
 
 class FeaturesViewerModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  FeaturesViewerModel(QObject *parent = nullptr) : IModel(parent) {}
+  FeaturesViewerModel(QObject *parent = nullptr) : Model(parent) {}
   ~FeaturesViewerModel() = default;
 
   virtual std::vector<QString> images() const = 0;

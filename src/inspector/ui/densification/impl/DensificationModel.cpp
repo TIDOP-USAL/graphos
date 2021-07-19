@@ -51,10 +51,6 @@ QString DensificationModelImp::projectFolder() const
   return mProject->projectFolder();
 }
 
-QString DensificationModelImp::imageDirectory() const
-{
-  return mProject->imageDirectory();
-}
 
 QString DensificationModelImp::reconstructionPath() const
 {

@@ -79,8 +79,7 @@ bool CameraPosition::isEmpty() const
 {
   return mX == TL_DOUBLE_MAX ||
          mY == TL_DOUBLE_MAX ||
-         mZ == TL_DOUBLE_MAX ||
-         mCrs == "";
+         mZ == TL_DOUBLE_MAX;
 }
 
 //std::shared_ptr<tl::math::Rotation> CameraPosition::rotation() const

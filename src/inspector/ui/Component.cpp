@@ -67,7 +67,7 @@ void ComponentBase::createComponent()
   emit created();
 
   connect(mAction, &QAction::triggered,
-          mPresenter, &IPresenter::open);
+          mPresenter, &Presenter::open);
 
   mPresenter->open();
 }

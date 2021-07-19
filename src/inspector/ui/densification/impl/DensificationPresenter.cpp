@@ -16,8 +16,6 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
 
 namespace inspector
 {
@@ -86,7 +84,7 @@ void DensificationPresenterImp::initSignalAndSlots()
 {
   connect(mView, &DensificationView::densificationChanged, this, &DensificationPresenterImp::onDensificationChanged);
   connect(mView, &DensificationView::run,                  this, &DensificationPresenterImp::run);
-  connect(mView, &IDialogView::help,                       this, &DensificationPresenterImp::help);
+  connect(mView, &DialogView::help,                       this, &DensificationPresenterImp::help);
 }
 
 void DensificationPresenterImp::cancel()
@@ -213,11 +211,9 @@ bool DensificationPresenterImp::createProcess()
   mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
 
   QString mReconstructionPath = mModel->reconstructionPath();
-  QString mImagesPath = mModel->imageDirectory();
   QString mOutputPat = mModel->projectFolder() + "/dense";
   std::shared_ptr<DensificationProcess> densification_process(new DensificationProcess(densifier,
                                                                                        mReconstructionPath,
-                                                                                       mImagesPath,
                                                                                        mOutputPat));
 
   connect(densification_process.get(), &DensificationProcess::densificationFinished, 

@@ -36,7 +36,7 @@ private slots:
   void calibrationImport(const QString &file,
                          const QString &format);
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

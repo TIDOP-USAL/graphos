@@ -115,16 +115,38 @@ void ImportCamerasModelImp::previewImportCameras()
           emit zColumn(label);
         } else if (label.compare("Quat.x", Qt::CaseInsensitive) == 0 ||
                    label.compare("Qx", Qt::CaseInsensitive) == 0){
+          mRotationType = "Quaternions";
           emit qxColumn(label);
         } else if (label.compare("Quat.y", Qt::CaseInsensitive) == 0 ||
                    label.compare("Qy", Qt::CaseInsensitive) == 0){
+          mRotationType = "Quaternions";
           emit qyColumn(label);
         } else if (label.compare("Quat.z", Qt::CaseInsensitive) == 0 ||
                    label.compare("Qz", Qt::CaseInsensitive) == 0){
+          mRotationType = "Quaternions";
           emit qzColumn(label);
         } else if (label.compare("Quat.w", Qt::CaseInsensitive) == 0 ||
                    label.compare("Qw", Qt::CaseInsensitive) == 0){
+          mRotationType = "Quaternions";
           emit qwColumn(label);
+        } else if (label.compare("Omega", Qt::CaseInsensitive) == 0) {
+          mRotationType = "Omega, Phi, Kappa";
+          emit omegaColumn(label);
+        } else if (label.compare("Phi", Qt::CaseInsensitive) == 0) {
+          mRotationType = "Omega, Phi, Kappa";
+          emit phiColumn(label);
+        } else if (label.compare("Kappa", Qt::CaseInsensitive) == 0) {
+          mRotationType = "Omega, Phi, Kappa";
+          emit kappaColumn(label);
+        } else if (label.compare("Yaw", Qt::CaseInsensitive) == 0) {
+          mRotationType = "Yaw, Pitch, Roll";
+          emit yawColumn(label);
+        } else if (label.compare("Pitch", Qt::CaseInsensitive) == 0) {
+          mRotationType = "Yaw, Pitch, Roll";
+          emit pitchColumn(label);
+        } else if (label.compare("Roll", Qt::CaseInsensitive) == 0) {
+          mRotationType = "Yaw, Pitch, Roll";
+          emit rollColumn(label);
         }
       }
     }
@@ -233,8 +255,11 @@ void ImportCamerasModelImp::previewImportCamerasFormated()
       QList<QStandardItem *> standardItem;
 
       auto it = mFieldIds.find("Image");
-      if (it != mFieldIds.end()) image = reg.at(it->second);
-      else image = "";
+      if (it != mFieldIds.end() && it->second != -1) {
+        image = reg.at(it->second);
+      } else {
+        image = "";
+      }
 
       standardItem.append(new QStandardItem(image));
 
@@ -545,7 +570,7 @@ void ImportCamerasModelImp::importCameras()
     std::shared_ptr<tl::geospatial::Crs> crs_in(new tl::geospatial::Crs(mInputCrs.toStdString()));
     std::shared_ptr<tl::geospatial::Crs> crs_out(new tl::geospatial::Crs(mOutputCrs.toStdString()));
     bool bTrfCrs = crs_in->isValid() && crs_out->isValid();
-    tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
+    //tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
 
     while (!stream.atEnd()){
 
@@ -553,8 +578,11 @@ void ImportCamerasModelImp::importCameras()
       QStringList reg = line.split(mDelimiter);
 
       auto it = mFieldIds.find("Image");
-      if (it != mFieldIds.end()) image = reg.at(it->second);
-      else image = "";
+      if (it != mFieldIds.end() && it->second != -1) {
+        image = reg.at(it->second);
+      } else {
+        image = "";
+      }
 
       it = mFieldIds.find("X");
       if (it != mFieldIds.end() && it->second != -1) {
@@ -662,6 +690,8 @@ void ImportCamerasModelImp::importCameras()
           CameraPosition cameraPosition;
           cameraPosition.setSource(mCsvFile);
           if (bTrfCrs){
+            tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
+
             tl::Point3D pt_in;
             if (crs_in->isGeographic())
               pt_in = tl::Point3D(y.toDouble(), x.toDouble(), z.toDouble());
@@ -725,12 +755,12 @@ void ImportCamerasModelImp::importCameras()
   colmap::Database database(mProject->database().toStdString());
 
   for (auto image_it = mProject->imageBegin(); image_it != mProject->imageEnd(); image_it++) {
-    QFileInfo file_info(image_it->path());
-    std::string image_name = file_info.fileName().toStdString();
 
-    if (database.ExistsImageWithName(image_name)) {
+    std::string image_path = image_it->path().toStdString();
 
-      colmap::Image image_colmap = database.ReadImageWithName(image_name);
+    if (database.ExistsImageWithName(image_path)) {
+
+      colmap::Image image_colmap = database.ReadImageWithName(image_path);
       image_colmap.TvecPrior(0) = image_it->cameraPosition().x();
       image_colmap.TvecPrior(1) = image_it->cameraPosition().y();
       image_colmap.TvecPrior(2) = image_it->cameraPosition().z();

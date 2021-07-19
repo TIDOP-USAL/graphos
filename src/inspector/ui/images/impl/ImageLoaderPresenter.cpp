@@ -56,7 +56,7 @@ void ImageLoaderPresenterImp::help()
 
 void ImageLoaderPresenterImp::open()
 {
-  mView->setImageDirectory(mModel->imageDirectory());
+  mView->setImagesDirectory(mModel->imagesDirectory());
   mView->exec();
 }
 

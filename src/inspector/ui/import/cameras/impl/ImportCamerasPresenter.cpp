@@ -69,7 +69,6 @@ void ImportCamerasPresenterImp::open()
                                               "",
                                               tr("Comma-separated values (*.csv);;Plain text (*.txt)"));
   if (!file.isEmpty()){
-    //mFile = file;
     mModel->setCsvFile(file);
     previewCSV();
   } else {
@@ -93,7 +92,7 @@ void ImportCamerasPresenterImp::init()
 void ImportCamerasPresenterImp::initSignalAndSlots()
 {
   connect(mView, &ImportCamerasView::previewCSV,                 this, &ImportCamerasPresenterImp::previewCSV);
-  connect(mView, &IDialogView::help,                             this, &ImportCamerasPresenterImp::help);
+  connect(mView, &DialogView::help,                             this, &ImportCamerasPresenterImp::help);
   connect(mView, &ImportCamerasView::crsInputChanged,            this, &ImportCamerasPresenterImp::checkInputCRS);
   connect(mView, &ImportCamerasView::crsOutputChanged,           this, &ImportCamerasPresenterImp::checkOutputCRS);
 

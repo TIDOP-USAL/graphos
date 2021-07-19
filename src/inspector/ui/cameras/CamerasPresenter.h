@@ -11,7 +11,7 @@ namespace ui
 
 
 class CamerasPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

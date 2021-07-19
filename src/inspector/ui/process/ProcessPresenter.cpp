@@ -13,7 +13,7 @@ namespace ui
 {
 	
 ProcessPresenter::ProcessPresenter()
-  : IPresenter(),
+  : Presenter(),
     mMultiProcess(new MultiProcess(true)),
     mProgressHandler(nullptr)
 {

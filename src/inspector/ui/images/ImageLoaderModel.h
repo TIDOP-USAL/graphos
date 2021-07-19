@@ -14,7 +14,7 @@ namespace ui
 
 
 class ImageLoaderModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
@@ -28,7 +28,7 @@ public:
   
 public:
 
-  ImageLoaderModel(QObject *parent = nullptr) : IModel(parent) {}
+  ImageLoaderModel(QObject *parent = nullptr) : Model(parent) {}
   ~ImageLoaderModel() override = default;
 
   virtual void addImage(Image &image) = 0;
@@ -38,7 +38,7 @@ public:
   virtual bool updateImage(size_t id, const Image &image) = 0;
   virtual bool removeImage(size_t id) = 0;
   virtual bool removeImage(const Image &image) = 0;
-  virtual QString imageDirectory() const = 0;
+  virtual QString imagesDirectory() const = 0;
 
   virtual image_iterator begin() = 0;
   virtual image_const_iterator begin() const = 0;

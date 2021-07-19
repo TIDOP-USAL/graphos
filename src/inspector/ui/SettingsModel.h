@@ -66,7 +66,7 @@ public slots:
   void setImageViewerBGcolor(const QString &bgColor) override;
   void setUseCuda(bool active) override;
 
-// IModel interface
+// Model interface
 
 private:
 

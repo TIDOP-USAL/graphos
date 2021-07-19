@@ -12,14 +12,14 @@ namespace ui
 {
 
 class ExportPointCloudView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  ExportPointCloudView(QWidget *parent) : IDialogView(parent) {}
+  ExportPointCloudView(QWidget *parent) : DialogView(parent) {}
   ~ExportPointCloudView() override = default;
 
 //  virtual void addFormatWidget(QWidget *formatWidget) = 0;

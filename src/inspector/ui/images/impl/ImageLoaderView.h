@@ -29,7 +29,7 @@ public:
   explicit ImageLoaderViewImp(QWidget *parent = nullptr);
   ~ImageLoaderViewImp() override = default;
 
-  void setImageDirectory(const QString &directory) override;
+  void setImagesDirectory(const QString &directory) override;
 
 private:
 

@@ -10,14 +10,14 @@ namespace ui
 {
 
 class CreateProjectModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  CreateProjectModel(QObject *parent = nullptr) : IModel(parent) {}
+  CreateProjectModel(QObject *parent = nullptr) : Model(parent) {}
   ~CreateProjectModel() override = default;
 
   /*!

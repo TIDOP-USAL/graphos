@@ -13,14 +13,14 @@ namespace ui
 
 
 class FeatureMatchingModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  FeatureMatchingModel(QObject *parent = nullptr) : IModel(parent) {}
+  FeatureMatchingModel(QObject *parent = nullptr) : Model(parent) {}
   ~FeatureMatchingModel() override = default;
 
   virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;

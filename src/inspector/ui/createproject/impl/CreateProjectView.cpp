@@ -35,10 +35,6 @@ CreateProjectViewImp::CreateProjectViewImp(QWidget *parent)
   this->initSignalAndSlots();
 }
 
-// IDialogView interface
-
-// private:
-
 void CreateProjectViewImp::initUI()
 {
   this->setObjectName(QString("CreateProjectView"));
@@ -87,10 +83,8 @@ void CreateProjectViewImp::initSignalAndSlots()
 
   connect(mButtonBox,  &QDialogButtonBox::accepted, this, &QDialog::accept);
   connect(mButtonBox,  &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked, this, &IDialogView::help);
+  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked, this, &DialogView::help);
 }
-
-// public slots:
 
 void CreateProjectViewImp::clear()
 {
@@ -100,8 +94,6 @@ void CreateProjectViewImp::clear()
   mTextEditDescription->clear();
   mCheckBoxProjectFolder->setChecked(true);
 }
-
-// private slots:
 
 void CreateProjectViewImp::update()
 {
@@ -134,10 +126,6 @@ void CreateProjectViewImp::retranslate()
   mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CreateProjectView", "Help", nullptr));
 }
 
-// CreateProjectView interface
-
-// public:
-
 QString CreateProjectViewImp::projectName() const
 {
   return mLineEditProjectName->text();
@@ -158,7 +146,7 @@ QString CreateProjectViewImp::projectDescription() const
   return mTextEditDescription->toPlainText();
 }
 
-bool CreateProjectViewImp::createProjectFolder() const
+bool CreateProjectViewImp::createProjectFolderEnable() const
 {
   return mCheckBoxProjectFolder->isChecked();
 }
@@ -175,8 +163,6 @@ void CreateProjectViewImp::setExistingProject(bool prjExist)
   mLineEditProjectName->setPalette(palette);
   this->update();
 }
-
-// protected slots:
 
 void CreateProjectViewImp::onClickButtonSelectPath()
 {

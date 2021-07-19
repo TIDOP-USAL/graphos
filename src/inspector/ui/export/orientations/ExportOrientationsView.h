@@ -37,7 +37,7 @@ public slots:
 
   void setCurrentFormat(const QString &format) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

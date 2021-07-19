@@ -11,14 +11,14 @@ namespace ui
 {
 
 class OrientationView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  OrientationView(QWidget *parent = nullptr) : IDialogView(parent) {}
+  OrientationView(QWidget *parent = nullptr) : DialogView(parent) {}
   ~OrientationView() override = default;
 
   virtual bool refinePrincipalPoint() const = 0;

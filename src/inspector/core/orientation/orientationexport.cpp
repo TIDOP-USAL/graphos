@@ -81,7 +81,7 @@ void writeBinaryPlyPoints(const std::string &path,
                           bool write_normal, bool write_rgb)
 {
   std::fstream text_file(path, std::ios::out);
-  CHECK(text_file.is_open()) << path;
+  if (!text_file.is_open()) throw std::runtime_error(std::string("File not open: ").append(path));
 
   text_file << "ply" << std::endl;
   text_file << "format binary_little_endian 1.0" << std::endl;
@@ -108,7 +108,7 @@ void writeBinaryPlyPoints(const std::string &path,
 
   std::fstream binary_file(path,
                            std::ios::out | std::ios::binary | std::ios::app);
-  CHECK(binary_file.is_open()) << path;
+  if (!binary_file.is_open()) throw std::runtime_error(std::string("File not open: ").append(path));
 
   for (const auto& point : points) {
     colmap::WriteBinaryLittleEndian<double>(&binary_file, point.x);

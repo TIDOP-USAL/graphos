@@ -19,7 +19,7 @@ namespace ui
  * \brief The CreateProjectPresenter class
  */
 class CreateProjectPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

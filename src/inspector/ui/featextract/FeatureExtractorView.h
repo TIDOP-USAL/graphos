@@ -10,14 +10,14 @@ namespace ui
 {
 
 class FeatureExtractorView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  FeatureExtractorView(QWidget *parent = nullptr) : IDialogView(parent) {}
+  FeatureExtractorView(QWidget *parent = nullptr) : DialogView(parent) {}
   ~FeatureExtractorView() override = default;
 
   virtual void addDetectorDescriptor(QWidget *detectorDescriptor) = 0;

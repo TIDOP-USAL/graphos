@@ -81,7 +81,7 @@ public slots:
   void calibrationExport(const QString &file,
                          const QString &format) override;
 
-// IModel interface
+// Model interface
 
 private:
 

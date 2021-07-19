@@ -11,7 +11,7 @@ namespace ui
 {
 
 class FeaturesModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
@@ -24,7 +24,7 @@ public:
 
 public:
 
-  FeaturesModel(QObject *parent = nullptr) : IModel(parent) {}
+  FeaturesModel(QObject *parent = nullptr) : Model(parent) {}
   virtual ~FeaturesModel() override = default;
 
   virtual QString features(const QString &imgName) const = 0;
@@ -51,7 +51,7 @@ public:
                    QObject *parent = nullptr);
   ~FeaturesModelImp() override = default;
 
-// IModel interface
+// Model interface
 
 private:
 

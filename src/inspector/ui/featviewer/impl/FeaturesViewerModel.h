@@ -42,7 +42,7 @@ public:
   int viewerSelectMarkerWidth() const override;
   QString viewerSelectMarkerColor() const override;
 
-// IModel interface
+// Model interface
 
 private:
 

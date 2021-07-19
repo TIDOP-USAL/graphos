@@ -90,7 +90,6 @@ public:
 public:
 
   bool undistort(const QString &reconstructionPath,
-                 const QString &imagesPath,
                  const QString &outputPath) override;
   bool densify(const QString &undistortPath) override;
   void enableCuda(bool enable) override;
@@ -117,7 +116,6 @@ private:
   bool bOpenCvRead;
   bool bCuda;
   std::string mOutputPath;
-  std::string mImagesPath;
   internal::Reconstruction *mReconstruction;
 };
 

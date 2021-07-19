@@ -27,8 +27,6 @@ CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
   this->initSignalAndSlots();
 }
 
-/* public slots */
-
 void CreateProjectPresenterImp::help()
 {
   if (mHelp){
@@ -36,10 +34,6 @@ void CreateProjectPresenterImp::help()
     mHelp->show();
   }
 }
-
-// INewProjectPresenter interface
-
-// protected slots
 
 void CreateProjectPresenterImp::saveProject()
 {
@@ -73,7 +67,7 @@ void CreateProjectPresenterImp::createProjectFolderIfNoExist(const QString &proj
 QString CreateProjectPresenterImp::projectFolder() const
 {
   QString prj_path = mView->projectPath();
-  if (mView->createProjectFolder())
+  if (mView->createProjectFolderEnable())
     prj_path.append("/").append(mView->projectName());
   return prj_path;
 }
@@ -103,10 +97,6 @@ void CreateProjectPresenterImp::checkProjectName() const
   mView->setExistingProject(QFileInfo(project_path).exists());
 }
 
-// IPresenter interface
-
-// public slots:
-
 void CreateProjectPresenterImp::open()
 {
   AppStatus &app_status = AppStatus::instance();
@@ -135,8 +125,6 @@ void CreateProjectPresenterImp::setHelp(HelpDialog *help)
   mHelp = help;
 }
 
-// private
-
 void CreateProjectPresenterImp::init()
 {
   mProjectsDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
@@ -154,7 +142,7 @@ void CreateProjectPresenterImp::initSignalAndSlots()
 
   connect(mView, &QDialog::accepted,                 this, &CreateProjectPresenterImp::saveProject);
   connect(mView, &QDialog::rejected,                 this, &CreateProjectPresenterImp::discartProject);
-  connect(mView, &IDialogView::help,                 this, &CreateProjectPresenterImp::help);
+  connect(mView, &DialogView::help,                 this, &CreateProjectPresenterImp::help);
 }
 
 } // namespace ui

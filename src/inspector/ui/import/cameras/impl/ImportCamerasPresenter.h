@@ -35,7 +35,7 @@ private:
 
   //bool checkCRS(const QString &crs);
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

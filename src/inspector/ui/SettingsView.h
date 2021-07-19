@@ -35,7 +35,7 @@ protected slots:
 
   void onPushButtonImageViewerBGColorClicked();
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

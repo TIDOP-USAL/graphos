@@ -13,14 +13,14 @@ namespace ui
 {
 
 class ProjectModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  ProjectModel(QObject *parent = nullptr) : IModel(parent) {}
+  ProjectModel(QObject *parent = nullptr) : Model(parent) {}
   ~ProjectModel() override = default;
 
   /*!
@@ -244,7 +244,7 @@ public slots:
   void save() override;
   void saveAs(const QString &file) override;
 
-// IModel interface
+// Model interface
 
 private:
 

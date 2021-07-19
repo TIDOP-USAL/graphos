@@ -13,7 +13,7 @@ namespace ui
 {
 
 class CamerasModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
@@ -27,7 +27,7 @@ public:
 
 public:
 
-  CamerasModel(QObject *parent = nullptr) : IModel(parent) {}
+  CamerasModel(QObject *parent = nullptr) : Model(parent) {}
   virtual ~CamerasModel() override = default;
 
   virtual int addCamera(const Camera &camera) = 0;

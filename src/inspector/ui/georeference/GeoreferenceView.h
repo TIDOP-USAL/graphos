@@ -12,7 +12,7 @@ namespace ui
 {
 
 class GeoreferenceView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
@@ -21,7 +21,7 @@ public:
 
   GeoreferenceView(QWidget *parent,
                    Qt::WindowFlags f = Qt::WindowFlags()) 
-    : IDialogView(parent, f) {}
+    : DialogView(parent, f) {}
   ~GeoreferenceView() override = default;
 
   //virtual QString orientationFile() const = 0;

@@ -36,7 +36,7 @@ public slots:
   void addDensification(QWidget *densification) override;
   void setCurrentDensificationMethod(const QString &densificationMethod) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

@@ -165,6 +165,7 @@ bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
   cmd.append(":radius=").append(std::to_string(DtmInvDistNNProperties::radius()));
   cmd.append(":max_points=").append(std::to_string(DtmInvDistNNProperties::maxPoints()));
   cmd.append(":min_points=").append(std::to_string(DtmInvDistNNProperties::minPoints()));
+  cmd.append(":nodata=-9999");
   cmd.append(" -outsize ").append(std::to_string(size.width)).append(" ").append(std::to_string(size.height));
   cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
   cmd.append(gdal_vrt_file.toString()).append("\" \"");
@@ -213,6 +214,7 @@ bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
   cmd.append(":radius=").append(std::to_string(DtmInvDistNNProperties::radius()));
   cmd.append(":max_points=").append(std::to_string(DtmInvDistNNProperties::maxPoints()));
   cmd.append(":min_points=").append(std::to_string(DtmInvDistNNProperties::minPoints()));
+  cmd.append(":nodata=-9999");
   cmd.append(" -txe ").append(std::to_string(bbox.pt1.x)).append(" ").append(std::to_string(bbox.pt2.x));
   cmd.append(" -tye ").append(std::to_string(bbox.pt1.y)).append(" ").append(std::to_string(bbox.pt2.y));
   cmd.append(" -outsize ").append(std::to_string(size.width)).append(" ").append(std::to_string(size.height));

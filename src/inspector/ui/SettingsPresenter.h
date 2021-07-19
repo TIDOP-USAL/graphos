@@ -34,7 +34,7 @@ public slots:
   void openViewSettings() override;
   void openToolSettings() override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

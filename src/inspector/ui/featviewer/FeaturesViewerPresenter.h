@@ -10,7 +10,7 @@ namespace ui
 {
 
 class FeaturesViewerPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

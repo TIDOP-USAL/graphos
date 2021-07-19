@@ -11,14 +11,14 @@ namespace ui
 
 
 class OpenProjectModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  OpenProjectModel(QObject *parent = nullptr) : IModel(parent) {}
+  OpenProjectModel(QObject *parent = nullptr) : Model(parent) {}
   ~OpenProjectModel() override = default;
 
   virtual QString inspectorDirectory() const = 0;

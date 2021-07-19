@@ -51,7 +51,6 @@ public:
 
   bool Solve(colmap::Reconstruction *reconstruction)
   {
-    msgWarning("inspector::Solve(colmap::Reconstruction *reconstruction)!!!");
     CHECK_NOTNULL(reconstruction);
     CHECK(!problem_) << "Cannot use the same BundleAdjuster multiple times";
 
@@ -358,13 +357,12 @@ int main(int argc, char** argv)
 
   Path project_file{};
   bool enu = false;
-  //bool fix_focal = false;
-  //bool fix_principal_point = true;
-  //bool fix_distortions = false;
+  bool fix_calibration = false;
 
   Command cmd("orientation", cmd_description);
   cmd.push_back(std::make_shared<ArgumentPathRequired>("prj", 'p', "Project file", &project_file));
   cmd.push_back(std::make_shared<ArgumentBooleanOptional>("enu", 'e', "Convert to ENU", &enu));
+  cmd.push_back(std::make_shared<ArgumentBooleanOptional>("fix_calibration", "Deja fijos los parámetros de calibración", &fix_calibration));
 
   cmd.addExample("orientation --prj 253/253.xml");
 
@@ -384,10 +382,10 @@ int main(int argc, char** argv)
   project.load(project_file.toString().c_str());
   
   /// 1 - reconstrucción temporal con orientaciones importadas
-  tl::Path input_path("C:\\Users\\esteban\\Documents\\Inspector\\Projects\\Madrigalejo\\zona1\\ori\\import");
+  tl::Path input_path("C:\\temp\\inspector\\reconstruction_import");
   //tl::Path input_path = tl::Path::tempDirectory(); // Tiene que ser un directorio temporal en el que se exporte la reconstrucción como texto.
   //input_path.append("import_ori");
-  input_path.createDirectory();
+  //input_path.createDirectory();
 
   bool bLocalCoord = true;
   Point3D offset(0., 0., 0.);
@@ -395,19 +393,19 @@ int main(int argc, char** argv)
   {
     tl::Path images_path(input_path);
     images_path.append("images.txt");
-
+  
     std::ofstream ofs;
     ofs.open(images_path.toString(), std::ofstream::out | std::ofstream::trunc);
-
+  
     if (!ofs.is_open()) return 1;
-
+  
     
     auto it = project.imageBegin();
     if (it != project.imageEnd()) {
       CameraPosition cameraPosition = it->cameraPosition();
       if (cameraPosition.crs() != "") bLocalCoord = false;
     }
-
+  
     int i = 1;
     for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
       CameraPosition cameraPosition = image->cameraPosition(); 
@@ -417,178 +415,175 @@ int main(int argc, char** argv)
     }
      
     size_t id = 1;
-
+  
     if (enu) {
-
+  
       std::shared_ptr<Crs> epsgGeographic(new Crs("EPSG:4258"));
       std::shared_ptr<Crs> epsgGeocentric(new Crs("EPSG:4936"));
       std::shared_ptr<Crs> epsgUTM(new Crs("EPSG:25830"));
       CrsTransform<Point3D> crsTransformUtmToGeographic(epsgUTM, epsgGeographic);
       CrsTransform<Point3D> crsTransformUtmToGeocentric(epsgUTM, epsgGeocentric);
-
+  
       /// Paso a coordenadas geograficas
-
+  
       Point3D center_geographic = crsTransformUtmToGeographic.transform(offset);
-
+  
       /// Paso a coordenadas geocentricas
-
+  
       Point3D center_geocentric = crsTransformUtmToGeocentric.transform(offset);
-
+  
       math::RotationMatrix<double> rotation_enu = rotationMatrixEnu(center_geographic.y, center_geographic.x);
-
-
+  
+  
       for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-
+  
         CameraPosition cameraPosition = image->cameraPosition();
         math::Quaternion<double> quaternion = cameraPosition.quaternion();
-        std::string file_name = Path(image->path().toStdString()).fileName();
+        /// Colmap da problemas con el formato texto si la ruta del fichero tiene espacios...
+        std::string file_name = image->path().toStdString();//Path(image->path().toStdString()).fileName();
         tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
-
+  
         /// Paso a coordenadas geocentricas
-
+  
         Point3D point_geocentric = crsTransformUtmToGeocentric.transform(position);
-
+  
         /// Paso coodenadas geocentricas (ECEF) a coordenadas ENU
-
+  
         math::Vector<double, 3> vector_camera_position = ecefToEnu(center_geocentric, point_geocentric, rotation_enu);
       
         math::RotationMatrix<double> rotation_matrix;
         math::RotationConverter<double>::convert(quaternion, rotation_matrix);
-
+  
         math::RotationMatrix<double> r_ip_ic = math::RotationMatrix<double>::identity();
         //r_ip_ic.at(0, 0) = -1;
         r_ip_ic.at(1, 1) = -1;
         r_ip_ic.at(2, 2) = -1;
-
+  
         math::RotationMatrix<double> rotation = r_ip_ic * rotation_matrix.transpose();
         vector_camera_position = rotation * -vector_camera_position;
         tl::math::RotationConverter<double>::convert(rotation, quaternion);
         quaternion.normalize();
-
+  
         ofs << std::fixed << id++ << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " " <<
           vector_camera_position[0] << " " << vector_camera_position[1] << " " << vector_camera_position[2] << " 1 " << file_name << std::endl;
         ofs << std::endl;
-
+  
       }
-
+  
     } else {
-
+  
       for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
       
         CameraPosition cameraPosition = image->cameraPosition();
         math::Quaternion<double> quaternion = cameraPosition.quaternion();
-        std::string file_name = Path(image->path().toStdString()).fileName();
+        std::string file_name = image->path().toStdString(); //Path(image->path().toStdString()).fileName();
         tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
-
+  
         if (!bLocalCoord) {
           position -= offset;
         }
-
+  
         math::Vector<double, 3> vector_camera_position = position.vector();
-
+  
         math::RotationMatrix<double> r_ip_ic = math::RotationMatrix<double>::identity();
         r_ip_ic.at(1, 1) = -1;
         r_ip_ic.at(2, 2) = -1;
-
+  
         math::RotationMatrix<double> rotation_matrix;
         math::RotationConverter<double>::convert(quaternion, rotation_matrix);
-
+  
         math::RotationMatrix<double> rotation = r_ip_ic * rotation_matrix.transpose();
         tl::math::RotationConverter<double>::convert(rotation, quaternion);
         quaternion.normalize();
-
+  
         vector_camera_position = rotation * -vector_camera_position;
-
+  
         ofs << std::fixed << id++ << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " " <<
           vector_camera_position[0] << " " << vector_camera_position[1] << " " << vector_camera_position[2] << " 1 " << file_name << std::endl;
         ofs << std::endl;
-
+  
       }
     }
-
+  
     ofs.close();
   }
   
   /// Escritura de fichero cameras.txt
-  /// Ver si hay calibración o se añade calibración por defecto
-  //bool bNoCalibration = true;
   
   {
     tl::Path cameras_path(input_path);
     cameras_path.append("cameras.txt");
-
+  
     std::ofstream ofs;
     ofs.open(cameras_path.toString(), std::ofstream::out | std::ofstream::trunc);
-
+  
     if (!ofs.is_open()) return 1;
-
+  
     ofs << "# Camera list with one line of data per camera: \n";
     ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
     ofs << "# Number of cameras: " << project.camerasCount() << "\n";
-
+  
     for (auto it = project.cameraBegin(); it != project.cameraEnd(); it++) {
       Camera camera = it->second;
       std::string camera_type = cameraToColmapType(camera).toStdString();
       std::shared_ptr<Calibration> calibration = camera.calibration();
       
       if (calibration) {
-
-        //bNoCalibration = false;
-
+  
         double focal = calibration->existParameter(Calibration::Parameters::focal) ? calibration->parameter(Calibration::Parameters::focal) : std::min(camera.width(), camera.height());
         double cx = calibration->existParameter(Calibration::Parameters::cx) ? calibration->parameter(Calibration::Parameters::cx) : camera.width() / 2.;
         double cy = calibration->existParameter(Calibration::Parameters::cy) ? calibration->parameter(Calibration::Parameters::cy) : camera.height() / 2.;
         double k1 = calibration->existParameter(Calibration::Parameters::k1) ? calibration->parameter(Calibration::Parameters::k1) : 0.0;
-
+  
         ofs << it->first << " " << camera_type << " " << camera.width() << " " << camera.height() << " "
           << focal << " " << cx << " " << cy << " " << k1;
-
+  
         if (camera_type.compare("RADIAL") == 0 || camera_type.compare("FULL_RADIAL") == 0) {
           double k2 = calibration->existParameter(Calibration::Parameters::k2) ? calibration->parameter(Calibration::Parameters::k2) : 0.0;
           ofs << " " << k2;
         }
-
+  
         if (camera_type.compare("FULL_RADIAL") == 0) {
           double p1 = calibration->existParameter(Calibration::Parameters::p1) ? calibration->parameter(Calibration::Parameters::p1) : 0.0;
           double p2 = calibration->existParameter(Calibration::Parameters::p2) ? calibration->parameter(Calibration::Parameters::p2) : 0.0;
           ofs << " " << p1 << " " << p2;
         }
-
+  
       } else {
-
+  
         double focal = std::min(camera.width(), camera.height());
         double cx = camera.width() / 2.;
         double cy = camera.height() / 2.;
         double k1 = 0.0;
-
+  
         ofs << it->first << " " << camera_type << " " << camera.width() << " " << camera.height() << " "
           << focal << " " << cx << " " << cy << " " << k1;
-
+  
         if (camera_type.compare("RADIAL") == 0 || camera_type.compare("FULL_RADIAL") == 0) {
           double k2 = 0.0;
           ofs << " " << k2;
         }
-
+  
         if (camera_type.compare("FULL_RADIAL") == 0) {
           double p1 = 0.0;
           double p2 = 0.0;
           ofs << " " << p1 << " " << p2;
         }
-
+  
       }
-
+  
       ofs << std::endl;
     }
-
-
+  
+  
     ofs.close();
   }
-
+  
   {
-
+  
     tl::Path points3d_path(input_path);
     points3d_path.append("points3D.txt");
-
+  
     std::ofstream ofs;
     ofs.open(points3d_path.toString(), std::ofstream::out | std::ofstream::trunc);
     ofs.close();
@@ -706,10 +701,11 @@ int main(int argc, char** argv)
   //////////////////////////////////////////////////////////////////////////////
 
   auto ba_options = mapper_options.GlobalBundleAdjustment();
-  ba_options.refine_focal_length = true;//bNoCalibration ? true : false;
-  ba_options.refine_principal_point = false; //bNoCalibration ? true : false;
-  ba_options.refine_extra_params = true;//bNoCalibration ? true : false;
-  ba_options.refine_extrinsics = true;
+
+  ba_options.refine_focal_length = !fix_calibration;
+  ba_options.refine_principal_point = false;
+  ba_options.refine_extra_params = !fix_calibration;
+  ba_options.refine_extrinsics = false;
 
   // Configure bundle adjustment.
   colmap::BundleAdjustmentConfig ba_config;
@@ -729,7 +725,8 @@ int main(int argc, char** argv)
     const size_t num_observations = reconstruction.ComputeNumObservations();
 
     //PrintHeading1("Bundle adjustment");
-    inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
     CHECK(bundle_adjuster.Solve(&reconstruction));
 
     size_t num_changed_observations = 0;
@@ -744,18 +741,19 @@ int main(int argc, char** argv)
     }
   }
 
-  /// Se incluye el punto principal en el ajuste
+  // Se incluye el punto principal en el ajuste
   ba_options.refine_principal_point = true;
   for (int i = 0; i < mapper_options.ba_global_max_refinements; ++i) {
     // Avoid degeneracies in bundle adjustment.
     reconstruction.FilterObservationsWithNegativeDepth();
-
+  
     const size_t num_observations = reconstruction.ComputeNumObservations();
-
+  
     //PrintHeading1("Bundle adjustment");
-    inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
     CHECK(bundle_adjuster.Solve(&reconstruction));
-
+  
     size_t num_changed_observations = 0;
     num_changed_observations += CompleteAndMergeTracks(mapper_options, &mapper);
     num_changed_observations += FilterPoints(mapper_options, &mapper);
@@ -769,7 +767,7 @@ int main(int argc, char** argv)
   }
 
   msgInfo("Extracting colors");
-  reconstruction.ExtractColorsForAllImages(project.imageDirectory().toStdString());
+  reconstruction.ExtractColorsForAllImages(""/*project.imageDirectory().toStdString()*/);
 
   const bool kDiscardReconstruction = false;
   mapper.EndReconstruction(kDiscardReconstruction);
@@ -809,7 +807,7 @@ int main(int argc, char** argv)
   int oriented_images = 0;
 
   for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-    QString image_oriented = QFileInfo(image->path()).fileName();
+    QString image_oriented = image->path(); //QFileInfo(image->path()).fileName();
     CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
     if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
       project.addPhotoOrientation(image->name(), photoOrientation);

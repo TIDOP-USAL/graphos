@@ -1,11 +1,9 @@
 #include "ImageLoaderModel.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/path.h>
 
 #include "inspector/core/project.h"
-
-#include <QFileInfo>
-#include <QDir>
 
 namespace inspector
 {
@@ -23,18 +21,6 @@ ImageLoaderModelImp::ImageLoaderModelImp(Project *project,
 
 void ImageLoaderModelImp::addImage(Image &image)
 {
-  QString image_directory = mProject->imageDirectory();
-  QFileInfo file(image.path());
-  if (image_directory.isEmpty()){
-    image_directory = file.dir().absolutePath();
-    mProject->setImageDirectory(image_directory);
-  } else {
-    QString current_image_directory = file.dir().absolutePath();
-    if (current_image_directory.compare(image_directory) != 0) {
-      throw std::runtime_error(std::string("image"));
-    }
-  }
-
   mProject->addImage(image);
 }
 
@@ -69,11 +55,13 @@ bool ImageLoaderModelImp::removeImage(const Image &image)
   return mProject->removeImage(id_image);
 }
 
-QString ImageLoaderModelImp::imageDirectory() const
+QString ImageLoaderModelImp::imagesDirectory() const
 {
-  QString image_directory = mProject->imageDirectory();
-  if (image_directory.isEmpty()) {
-    image_directory = mProject->projectFolder();
+  QString image_directory = mProject->projectFolder();
+  tl::Path path(mProject->projectFolder().toStdString());
+  path.append("images");
+  if (path.exists()) {
+    image_directory = path.toString().c_str();
   }
   return image_directory;
 }

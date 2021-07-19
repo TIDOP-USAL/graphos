@@ -16,40 +16,9 @@ namespace inspector
 namespace ui
 {
 
-class IModel;
-class IPresenter;
+class Model;
+class Presenter;
 class ProgressHandler;
-
-//class Component
-//  : public QObject
-//{
-//
-//  Q_OBJECT
-//
-//public:
-//
-//  Component() {}
-//  virtual ~Component() = default;
-//
-//  virtual QString name() const = 0;
-//  virtual QAction *action() const = 0;
-//  virtual QString menu() const = 0;
-//  virtual QString toolbar() const = 0;
-//
-//protected:
-//
-//  virtual void setName(const QString &name) = 0;
-//  virtual void setMenu(const QString &menu) = 0;
-//  virtual void setToolbar(const QString &toolbar) = 0;
-//
-//protected:
-//
-//  virtual void update() = 0;
-//
-//signals:
-//
-//  void created();
-//};
 
 
 class ComponentBase
@@ -93,9 +62,9 @@ protected:
 
   QString mName;
   QAction *mAction;
-  IModel *mModel;
+  Model *mModel;
   QDialog *mView;
-  IPresenter *mPresenter;
+  Presenter *mPresenter;
 
 private:
 

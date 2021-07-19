@@ -16,7 +16,7 @@ namespace ui
 {
 
 class GeoreferenceModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
@@ -28,7 +28,7 @@ public:
 
 public:
 
-  GeoreferenceModel(QObject *parent = nullptr) : IModel(parent) {}
+  GeoreferenceModel(QObject *parent = nullptr) : Model(parent) {}
   ~GeoreferenceModel() override = default;
 
   virtual void loadGroundControlPoints() = 0;

@@ -68,10 +68,6 @@ QString OrientationModelImp::database() const
   return mProject->database();
 }
 
-QString OrientationModelImp::imagePath() const
-{
-  return mProject->imageDirectory();
-}
 
 QString OrientationModelImp::projectPath() const
 {
@@ -122,13 +118,13 @@ std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() 
   std::map<QString, std::array<double, 3>> camera_positions;
   for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++) {
     QString path = it->path();
-    QString file_name = QFileInfo(path).fileName();
+    //QString file_name = QFileInfo(path).fileName();
     CameraPosition cameraPosition = it->cameraPosition();
     std::array<double, 3> positions = {
     cameraPosition.x(),
     cameraPosition.y(),
     cameraPosition.z()};
-    camera_positions[file_name] = positions;
+    camera_positions[path] = positions;
   }
   return camera_positions;
 }

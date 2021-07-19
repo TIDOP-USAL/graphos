@@ -27,8 +27,7 @@ class FeaturesViewerPresenterImp
 public:
 
   FeaturesViewerPresenterImp(FeaturesViewerView *view,
-                             FeaturesViewerModel *model/*,
-                             SettingsModel *settingsModel*/);
+                             FeaturesViewerModel *model);
   ~FeaturesViewerPresenterImp() override;
 
 // FeaturesViewerPresenter interface
@@ -42,7 +41,7 @@ protected slots:
 
   void loadKeypoints(const QString &image) override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

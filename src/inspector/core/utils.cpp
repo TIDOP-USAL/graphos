@@ -90,7 +90,10 @@ QImage cvMatToQImage(const cv::Mat &image)
       image.copyTo(aux);
     } else if (image.depth() == CV_8S || 
                image.depth() == CV_16U) {
+      //format = QImage::Format_RGB888;
+      //cv::Mat temp;
       cv::normalize(image, aux, 0., 255., cv::NORM_MINMAX, CV_8U);
+      //cv::applyColorMap(temp, aux, cv::COLORMAP_HOT);
     }
     
   } else if (image.channels() == 3) {

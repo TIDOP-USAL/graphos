@@ -12,14 +12,14 @@ namespace ui
 {
 
 class ExportPointCloudModel
-  : public IModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  ExportPointCloudModel(QObject *parent = nullptr) : IModel(parent) {}
+  ExportPointCloudModel(QObject *parent = nullptr) : Model(parent) {}
   ~ExportPointCloudModel() override = default;
 
   virtual std::array<double, 3> offset() const = 0;

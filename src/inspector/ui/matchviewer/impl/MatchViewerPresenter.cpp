@@ -1,12 +1,12 @@
 #include "MatchViewerPresenter.h"
 
+#include <tidop/core/messages.h>
+
 #include "inspector/ui/matchviewer/impl/MatchViewerModel.h"
 #include "inspector/ui/matchviewer/impl/MatchViewerView.h"
-//#include "inspector/ui/SettingsModel.h"
 #include "inspector/ui/HelpDialog.h"
 
-#include <QStandardPaths>
-#include <QDir>
+#include <QFileInfo>
 
 namespace inspector
 {
@@ -15,12 +15,10 @@ namespace ui
 {
 
 MatchViewerPresenterImp::MatchViewerPresenterImp(MatchViewerView *view,
-                                                 MatchViewerModel *model/*,
-                                                 SettingsModel *settings*/)
+                                                 MatchViewerModel *model)
   : MatchViewerPresenter(),
     mView(view),
     mModel(model),
-    //mSettingsModel(settings),
     mHelp(nullptr)
 {
   this->init();
@@ -31,14 +29,6 @@ MatchViewerPresenterImp::~MatchViewerPresenterImp()
 {
 
 }
-
-//void MatchViewerPresenterImp::openFromImages(const QString &imageLeft, 
-//                                             const QString &imageRight)
-//{
-//  this->open();
-//  this->setLeftImage(imageLeft);
-//  this->setRightImage(imageRight);
-//}
 
 void MatchViewerPresenterImp::setLeftImage(const QString &image)
 {
@@ -58,14 +48,13 @@ void MatchViewerPresenterImp::setRightImage(const QString &image)
 
 void MatchViewerPresenterImp::loadMatches(const QString &imageLeft, const QString &imageRight)
 {
-  std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> matches = mModel->loadMatches(imageLeft, imageRight);
-  mView->setMatches(matches);
+  try {
+    std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> matches = mModel->loadMatches(imageLeft, imageRight);
+    mView->setMatches(matches);
+  } catch (const std::exception &e) {
+    msgError(e.what());
+  }
 }
-
-//void MatchViewerPresenterImp::deleteMatch(const QString &imageLeft, const QString &imageRight, int query_id, int train_id)
-//{
-//  mModel->deleteMatch(imageLeft, imageRight, query_id, train_id);
-//}
 
 void MatchViewerPresenterImp::help()
 {
@@ -89,9 +78,6 @@ void MatchViewerPresenterImp::open()
                         mModel->viewerMarkerSize());
   mView->setLineStyle(mModel->viewerLineColor(),
                       mModel->viewerLineWidth());
-
-/// Se carga el fichero de puntos de paso.
-//  mModel->loadPassPoints();
 
   mView->show();
 
@@ -119,9 +105,6 @@ void MatchViewerPresenterImp::initSignalAndSlots()
   connect(mView, SIGNAL(leftImageChange(QString)),         this, SLOT(setLeftImage(QString)));
   connect(mView, SIGNAL(rightImageChange(QString)),        this, SLOT(setRightImage(QString)));
   connect(mView, SIGNAL(loadMatches(QString, QString)),    this, SLOT(loadMatches(QString, QString)));
-
-//  connect(mView, SIGNAL(deleteMatch(QString, QString, int, int)),
-//          this,  SLOT(deleteMatch(QString, QString, int, int)));
 
   connect(mView, SIGNAL(help()),     this, SLOT(help()));
 }

@@ -33,7 +33,7 @@ protected slots:
   void discartProject() override;
   void checkProjectName() const override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

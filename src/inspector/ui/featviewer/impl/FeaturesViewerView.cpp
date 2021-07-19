@@ -117,7 +117,7 @@ void FeaturesViewerViewImp::initSignalAndSlots()
   connect(mActionZoom11,     SIGNAL(triggered(bool)), mGraphicView, SLOT(zoom11()));
 
   connect(mButtonBox->button(QDialogButtonBox::Close),  &QAbstractButton::clicked, this, &QDialog::accept);
-  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked, this, &IDialogView::help);
+  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void FeaturesViewerViewImp::clear()

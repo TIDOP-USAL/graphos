@@ -35,7 +35,7 @@ public:
   bool updateImage(size_t id, const Image &image) override;
   bool removeImage(size_t id) override;
   bool removeImage(const Image &image) override;
-  QString imageDirectory() const override;
+  QString imagesDirectory() const override;
 
   image_iterator begin() override;
   image_const_iterator begin() const override;
@@ -51,7 +51,7 @@ public:
   camera_iterator cameraEnd() override;
   camera_const_iterator cameraEnd() const override;
 
-// IModel interface
+// Model interface
 
 private:
 

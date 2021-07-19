@@ -31,7 +31,7 @@ public:
   std::array<double, 3> offset() const override;
   QString denseModel() const override;
 
-// IModel interface
+// Model interface
 
 private:
 

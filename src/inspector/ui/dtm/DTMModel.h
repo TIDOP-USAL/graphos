@@ -13,12 +13,12 @@ namespace ui
 {
 
 class DtmModel
-  : public IModel
+  : public Model
 {
 
 public:
 
-  DtmModel(QObject *parent = nullptr) : IModel(parent) {}
+  DtmModel(QObject *parent = nullptr) : Model(parent) {}
   ~DtmModel() override = default;
 
   virtual std::array<double, 3> offset() const = 0;

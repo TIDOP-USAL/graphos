@@ -62,7 +62,7 @@ public slots:
 
   void cancel() override;
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 

@@ -16,7 +16,7 @@ namespace ui
 class ProgressHandler;
 
 class ProcessPresenter
-  : public IPresenter
+  : public Presenter
 {
 
   Q_OBJECT

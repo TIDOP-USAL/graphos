@@ -65,20 +65,26 @@ public:
 
   void operator() (size_t ini, size_t end)
   {
+    for (const auto &image : *mImages) {
+      producer(image);
+    }
+  }
 
-    for (auto &image : *mImages) {
+private:
+
+  void producer(const Image &image)
+  {
+    try {
 
       tl::Chrono chrono;
       chrono.run();
 
       std::string image_path = image.path().toStdString();
-      QFileInfo file_info(image.path());
-      std::string image_name = file_info.fileName().toStdString();
 
       colmap::image_t image_id;
 
       mutex.lock();
-      bool exist_image = mDatabase->ExistsImageWithName(image_name);
+      bool exist_image = mDatabase->ExistsImageWithName(image_path);
       mutex.unlock();
       if (!exist_image) {
 
@@ -96,7 +102,7 @@ public:
           if (it != mCameras->end()) {
             camera = mCameras->at(camera_id);
           } else {
-            continue;
+            return;
           }
 
           QString colmap_camera_type = cameraToColmapType(camera);
@@ -116,7 +122,7 @@ public:
         }
 
         colmap::Image image_colmap;
-        image_colmap.SetName(image_name);
+        image_colmap.SetName(image_path);
         image_colmap.TvecPrior(0) = image.cameraPosition().x();
         image_colmap.TvecPrior(1) = image.cameraPosition().y();
         image_colmap.TvecPrior(2) = image.cameraPosition().z();
@@ -133,7 +139,7 @@ public:
       } else {
 
         mutex.lock();
-        colmap::Image image_colmap = mDatabase->ReadImageWithName(image_name);
+        colmap::Image image_colmap = mDatabase->ReadImageWithName(image_path);
         mutex.unlock();
         image_id = image_colmap.ImageId();
       }
@@ -239,13 +245,16 @@ public:
       mBuffer->push(data); /// Aqui se pasa lo necesario al consumidor
 
       double time = chrono.stop();
-      msgInfo("Read image %s: [Time: %f seconds]",  image_path.c_str(), time);
+      msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
 
       if (mFeatureExtractorProcess->isWaitingForFinished()) {
         done = true;
         return;
       }
-        
+
+    } catch (std::exception &e) {
+      msgError(e.what());
+      done = true;
     }
   }
 
@@ -294,45 +303,54 @@ public:
 
   }
 
+private: 
+
   void consumer()
   {
-    tl::Chrono chrono;
-    chrono.run();
+    try {
 
-    queue_data data;
-    mBuffer->pop(data);
+      tl::Chrono chrono;
+      chrono.run();
 
-    /* Feature extraction */
+      queue_data data;
+      mBuffer->pop(data);
 
-    colmap::FeatureKeypoints featureKeypoints;
-    colmap::FeatureDescriptors featureDescriptors;
+      /* Feature extraction */
 
-    mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
+      colmap::FeatureKeypoints featureKeypoints;
+      colmap::FeatureDescriptors featureDescriptors;
 
-    QByteArray ba = data.image_name.toLocal8Bit();
-    const char *img_file = ba.data();
-    double time = chrono.stop();
-    msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
+      mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
 
-    if (data.scale > 1) {
-      for (auto &featureKeypoint : featureKeypoints) {
-        featureKeypoint.Rescale(data.scale, data.scale);
+      QByteArray ba = data.image_name.toLocal8Bit();
+      const char *img_file = ba.data();
+      double time = chrono.stop();
+      msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
+
+      if (data.scale > 1) {
+        for (auto &featureKeypoint : featureKeypoints) {
+          featureKeypoint.Rescale(data.scale, data.scale);
+        }
       }
+
+      // Escritura en la base de datos
+
+      mutex.lock();
+      mDatabase->WriteKeypoints(data.image_id, featureKeypoints);
+      mDatabase->WriteDescriptors(data.image_id, featureDescriptors);
+      mutex.unlock();
+
+      // añade features al proyecto
+      //mProject->addFeatures(data.image_name, data.image_name + "@" + mProject->database());
+      //emit featuresExtracted(mImage.name(), mFeatureFile);
+      //emit statusChangedNext();
+      mFeatureExtractorProcess->featuresExtracted(data.image_name, data.image_name + "@" + mDatabaseFile.c_str());
+      mFeatureExtractorProcess->statusChangedNext();
+
+    } catch (std::exception &e) {
+      msgError(e.what());
+      done = true;
     }
-
-    // Escritura en la base de datos
-
-    mutex.lock();
-    mDatabase->WriteKeypoints(data.image_id, featureKeypoints);
-    mDatabase->WriteDescriptors(data.image_id, featureDescriptors);
-    mutex.unlock();
-
-    // añade features al proyecto
-    //mProject->addFeatures(data.image_name, data.image_name + "@" + mProject->database());
-    //emit featuresExtracted(mImage.name(), mFeatureFile);
-    //emit statusChangedNext();
-    mFeatureExtractorProcess->featuresExtracted(data.image_name, data.image_name + "@" + mDatabaseFile.c_str());
-    mFeatureExtractorProcess->statusChangedNext();
   }
 
 private:

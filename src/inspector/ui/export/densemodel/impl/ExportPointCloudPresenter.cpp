@@ -80,7 +80,7 @@ void ExportPointCloudPresenterImp::init()
 void ExportPointCloudPresenterImp::initSignalAndSlots()
 {
 //  connect(mView, &ExportPointCloudView::previewCSV,                 this, &ExportPointCloudPresenterImp::previewCSV);
-//  connect(mView, &IDialogView::help,                             this, &ExportPointCloudPresenterImp::help);
+//  connect(mView, &DialogView::help,                             this, &ExportPointCloudPresenterImp::help);
 //  connect(mView, &ExportPointCloudView::crsInputChanged,            this, &ExportPointCloudPresenterImp::checkInputCRS);
 //  connect(mView, &ExportPointCloudView::crsOutputChanged,           this, &ExportPointCloudPresenterImp::checkOutputCRS);
 

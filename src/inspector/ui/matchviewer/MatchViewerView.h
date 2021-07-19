@@ -11,7 +11,7 @@ namespace ui
 {
 
 class MatchViewerView
-  : public IDialogView
+  : public DialogView
 {
   Q_OBJECT
 
@@ -19,7 +19,7 @@ public:
 
   explicit MatchViewerView(QWidget *parent = nullptr,
                             Qt::WindowFlags f = Qt::WindowFlags())
-    : IDialogView(parent, f) {}
+    : DialogView(parent, f) {}
   virtual ~MatchViewerView() = default;
 
   /*!
@@ -58,7 +58,7 @@ signals:
   void leftImageChange(QString);
   void rightImageChange(QString);
   void loadMatches(QString, QString);
-//  void deleteMatch(QString, QString, int, int);
+
 };
 
 } // namespace ui

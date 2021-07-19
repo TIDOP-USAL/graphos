@@ -15,7 +15,7 @@ namespace ui
 {
 
 class DensificationView
-  : public IDialogView
+  : public DialogView
 {
 
   Q_OBJECT
@@ -23,7 +23,7 @@ class DensificationView
 
 public:
 
-  DensificationView(QWidget *parent) : IDialogView(parent) {}
+  DensificationView(QWidget *parent) : DialogView(parent) {}
   virtual ~DensificationView() {}
 
   virtual QString currentDensificationMethod() const = 0;

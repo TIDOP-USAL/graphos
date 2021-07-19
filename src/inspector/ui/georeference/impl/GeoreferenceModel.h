@@ -98,7 +98,7 @@ public slots:
   void save() override;
   void setCrs(const QString &crs) override;
 
-// IModel interface
+// Model interface
 
 private:
 

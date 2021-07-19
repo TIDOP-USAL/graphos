@@ -13,7 +13,7 @@ namespace ui
 {
 
 class OrientationModel
-  : public IModel
+  : public Model
 {
 
 public:
@@ -25,7 +25,7 @@ public:
 
 public:
 
-  OrientationModel(QObject *parent = nullptr) : IModel(parent) {}
+  OrientationModel(QObject *parent = nullptr) : Model(parent) {}
   ~OrientationModel() override = default;
 
   virtual bool refinePrincipalPoint() const = 0;
@@ -37,7 +37,6 @@ public:
   virtual void addPhotoOrientation(const QString &imgName, 
                                    const CameraPose &orientation) = 0;
   virtual QString database() const = 0;
-  virtual QString imagePath() const = 0;
   virtual QString projectPath() const = 0;
   virtual bool gpsPositions() const = 0;
   virtual bool rtkOrientations() const = 0;

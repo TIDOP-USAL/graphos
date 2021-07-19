@@ -46,7 +46,7 @@ public slots:
   void setMaxImageSize(int imageSize) override;
   void setFullImageSize(bool fullImageSize) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

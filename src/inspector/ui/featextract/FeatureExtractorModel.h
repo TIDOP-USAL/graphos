@@ -14,7 +14,7 @@ namespace ui
 {
 
 class FeatureExtractorModel
-  : public IModel
+  : public Model
 {
 //public:
 //
@@ -23,7 +23,7 @@ class FeatureExtractorModel
 
 public:
 
-  FeatureExtractorModel(QObject *parent = nullptr) : IModel(parent) {}
+  FeatureExtractorModel(QObject *parent = nullptr) : Model(parent) {}
   ~FeatureExtractorModel() override = default;
 
   virtual std::shared_ptr<Feature> featureExtractor() const = 0;

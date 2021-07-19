@@ -35,7 +35,7 @@ NewProjectViewImp::NewProjectViewImp(QWidget *parent)
   this->initSignalAndSlots();
 }
 
-// IDialogView interface
+// DialogView interface
 
 // private:
 
@@ -87,7 +87,7 @@ void NewProjectViewImp::initSignalAndSlots()
 
   connect(mButtonBox,  &QDialogButtonBox::accepted, this, &QDialog::accept);
   connect(mButtonBox,  &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked, this, &IDialogView::help);
+  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 // public slots:
@@ -158,7 +158,7 @@ QString NewProjectViewImp::projectDescription() const
   return mTextEditDescription->toPlainText();
 }
 
-bool NewProjectViewImp::createProjectFolder() const
+bool NewProjectViewImp::createProjectFolderEnable() const
 {
   return mCheckBoxProjectFolder->isChecked();
 }

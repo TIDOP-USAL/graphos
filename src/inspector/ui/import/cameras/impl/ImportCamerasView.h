@@ -66,7 +66,7 @@ public slots:
   void setValidInputCRS(bool valid) override;
   void setValidOutputCRS(bool valid) override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 

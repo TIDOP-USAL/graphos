@@ -39,7 +39,7 @@ public:
   void setInvDistProperties();
   void setInvDistNNProperties();
 
-// IPresenter interface
+// Presenter interface
 
 public slots:
 
