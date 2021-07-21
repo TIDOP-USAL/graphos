@@ -15,6 +15,7 @@
 #include "inspector/ui/georeference/GeoreferenceComponent.h"
 #include "inspector/ui/featviewer/FeaturesViewerComponent.h"
 #include "inspector/ui/matchviewer/MatchViewerComponent.h"
+#include "inspector/ui/export/orientations/ExportOrientationsComponent.h"
 #include "inspector/ui/AppStatus.h"
 
 #include <QApplication>
@@ -37,6 +38,11 @@ int main(int argc, char *argv[])
   //componentsManager.registerComponent(&create_project_component);
   //OpenProjectComponent open_project_component(componentsManager.project());
   //componentsManager.registerComponent(&open_project_component);
+
+  /* File menu */
+
+  ExportOrientationsComponent export_orientations_component(componentsManager.project());
+  componentsManager.registerComponent(&export_orientations_component);
 
   /* Workflow menu */
 

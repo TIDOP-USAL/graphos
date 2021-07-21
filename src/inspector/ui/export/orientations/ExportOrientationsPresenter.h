@@ -1,64 +1,34 @@
-#ifndef INSPECTOR_EXPORT_ORIENTATIONS_PRESENTER_H
-#define INSPECTOR_EXPORT_ORIENTATIONS_PRESENTER_H
+#ifndef INSPECTOR_EXPORT_ORIENTATIONS_PRESENTER_INTERFACE_H
+#define INSPECTOR_EXPORT_ORIENTATIONS_PRESENTER_INTERFACE_H
 
-#include "inspector/ui/export/orientations/ExportOrientations.h"
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
 
-class NvmFormatWidget;
-class BundlerFormatWidget;
-class MveFormatWidget;
-class OriTxtFormatWidget;
-
 namespace ui
 {
 
-class HelpDialog;
 
-class ExportOrientationsPresenterImp
-  : public ExportOrientationsPresenter
+class ExportOrientationsPresenter
+  : public Presenter
 {
+
+  Q_OBJECT
 
 public:
 
-  ExportOrientationsPresenterImp(ExportOrientationsView *view,
-                                 ExportOrientationsModel *model);
-  ~ExportOrientationsPresenterImp() override;
-
-// ExportOrientationsPresenter interface
+  ExportOrientationsPresenter(){}
+  ~ExportOrientationsPresenter() override = default;
 
 public slots:
 
-  void save() override;
-  void setCurrentFormat(const QString &format) override;
-
-// Presenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-private:
-
-  ExportOrientationsView *mView;
-  ExportOrientationsModel *mModel;
-  NvmFormatWidget *mNvmFormatWidget;
-  BundlerFormatWidget *mBundlerFormatWidget;
-  MveFormatWidget *mMveFormatWidget;
-  OriTxtFormatWidget *mOriTxtFormatWidget;
-  HelpDialog *mHelp;
+  virtual void save() = 0;
+  virtual void setCurrentFormat(const QString &format) = 0;
 };
 
 } // namespace ui
 
 } // namespace inspector
 
-#endif // INSPECTOR_EXPORT_ORIENTATIONS_PRESENTER_H
+#endif // INSPECTOR_EXPORT_ORIENTATIONS_PRESENTER_INTERFACE_H

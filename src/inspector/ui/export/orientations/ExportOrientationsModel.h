@@ -1,50 +1,32 @@
-#ifndef INSPECTOR_EXPORT_ORIENTATIONS_MODEL_H
-#define INSPECTOR_EXPORT_ORIENTATIONS_MODEL_H
+#ifndef INSPECTOR_EXPORT_ORIENTATIONS_MODEL_INTERFACE_H
+#define INSPECTOR_EXPORT_ORIENTATIONS_MODEL_INTERFACE_H
 
-#include "inspector/ui/export/orientations/ExportOrientations.h"
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
 
-class Project;
-
 namespace ui
 {
 
-class ExportOrientationsModelImp
-  : public ExportOrientationsModel
+class ExportOrientationsModel
+  : public Model
 {
 
-public:
-
-  ExportOrientationsModelImp(Project *project,
-                             QObject *parent = nullptr);
-  ~ExportOrientationsModelImp() override = default;
-
-// ExportOrientationsModel interface
+  Q_OBJECT
 
 public:
 
-  QString reconstruction() const override;
+  ExportOrientationsModel(QObject *parent = nullptr) : Model(parent) {}
+  ~ExportOrientationsModel() override = default;
 
-// Model interface
-
-private:
-
-  void init() override;
-
-public slots:
-
-  void clear() override;
-
-protected:
-
-  Project *mProject;
+  virtual QString reconstruction() const = 0;
 
 };
+
 
 } // namespace ui
 
 } // namespace inspector
 
-#endif // INSPECTOR_EXPORT_ORIENTATIONS_MODEL_H
+#endif // INSPECTOR_EXPORT_ORIENTATIONS_MODEL_INTERFACE_H

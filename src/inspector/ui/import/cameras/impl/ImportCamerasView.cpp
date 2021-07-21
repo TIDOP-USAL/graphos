@@ -140,8 +140,10 @@ void ImportCamerasViewImp::initUI()
   gridLayoutCoordinates->addWidget(mLineEditCrsInput, 1, 1, 1, 1);
 
   mLabelCrsOut = new QLabel(this);
+  mLabelCrsOut->setVisible(false);
   gridLayoutCoordinates->addWidget(mLabelCrsOut, 1, 2, 1, 1);
   mLineEditCrsOutput = new QLineEdit(this);
+  mLineEditCrsOutput->setVisible(false);
   gridLayoutCoordinates->addWidget(mLineEditCrsOutput, 1, 3, 1, 1);
 
   gridLayoutColumns->addWidget(mGroupBoxCoordinates, 1, 0, 1, 3);
@@ -333,7 +335,7 @@ void ImportCamerasViewImp::initSignalAndSlots()
   connect(mComboBoxRotation, QOverload<int>::of(&QComboBox::currentIndexChanged), mStackedWidget, &QStackedWidget::setCurrentIndex);
   connect(mComboBoxRotation, &QComboBox::currentTextChanged, this, &ImportCamerasView::rotationChange);
   connect(mLineEditCrsInput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsInputChanged);
-  connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsOutputChanged);
+  //connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsOutputChanged);
 
 //  connect(mComboBoxImageColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
 //  connect(mComboBoxXColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));

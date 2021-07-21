@@ -195,7 +195,7 @@ void OrientationExport::exportOrientation(const QString &path, bool bQuaternion)
 
         if (bQuaternion){
           Eigen::Vector4d quaternion = image.second.Qvec();
-          stream << image.second.ImageId() << " " <<
+          stream << std::fixed << image.second.ImageId() << " " <<
                     quaternion[0] << " " <<
                     quaternion[1] << " " <<
                     quaternion[2] << " " <<
@@ -209,7 +209,7 @@ void OrientationExport::exportOrientation(const QString &path, bool bQuaternion)
           Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
           Eigen::Vector3d euler_angles = rotation_matrix.eulerAngles(0, 1, 2);
 
-          stream << "\"" << image.second.Name() << "\" " <<
+          stream << std::fixed << "\"" << image.second.Name() << "\" " <<
                     t[0] << " " <<
                     t[1] << " " <<
                     t[2] << " " <<

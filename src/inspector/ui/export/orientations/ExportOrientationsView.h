@@ -1,12 +1,7 @@
-#ifndef INSPECTOR_EXPORT_ORIENTATIONS_VIEW_H
-#define INSPECTOR_EXPORT_ORIENTATIONS_VIEW_H
+#ifndef INSPECTOR_EXPORT_ORIENTATIONS_VIEW_INTERFACE_H
+#define INSPECTOR_EXPORT_ORIENTATIONS_VIEW_INTERFACE_H
 
-#include "inspector/ui/export/orientations/ExportOrientations.h"
-
-class QLabel;
-class QComboBox;
-class QDialogButtonBox;
-class QGridLayout;
+#include "inspector/interfaces/mvp.h"
 
 namespace inspector
 {
@@ -15,55 +10,32 @@ namespace ui
 {
 
 
-class ExportOrientationsViewImp
-  : public ExportOrientationsView
+class ExportOrientationsView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  ExportOrientationsViewImp(QWidget *parent = nullptr);
-  ~ExportOrientationsViewImp() override;
+  ExportOrientationsView(QWidget *parent) : DialogView(parent) {}
+  ~ExportOrientationsView() override = default;
 
-// ExportOrientationsView interface
-
-public:
-
-  void addFormatWidget(QWidget *formatWidget) override;
-  QString format() const override;
+  virtual void addFormatWidget(QWidget *formatWidget) = 0;
+  virtual QString format() const = 0;
 
 public slots:
 
-  void setCurrentFormat(const QString &format) override;
+  virtual void setCurrentFormat(const QString &format) = 0;
 
-// DialogView interface
+signals:
 
-private:
-
-  void initUI() override;
-  void initSignalAndSlots() override;
-
-public slots:
-
-  void clear() override;
-
-private slots:
-
-  void update() override;
-  void retranslate() override;
-
-protected:
-
-  QLabel *mLabelFormat;
-  QComboBox *mComboBoxFormat;
-  QGridLayout *mGridLayoutFormat;
-  QDialogButtonBox *mButtonBox;
-
+  void formatChange(const QString &);
 };
+
 
 } // namespace ui
 
 } // namespace inspector
 
-#endif // INSPECTOR_EXPORT_ORIENTATIONS_VIEW_H
+#endif // INSPECTOR_EXPORT_ORIENTATIONS_VIEW_INTERFACE_H

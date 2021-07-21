@@ -28,8 +28,8 @@ class FeaturesModel;
 class MatchesModel;
 class ProgressHandler;
 class ProgressDialog;
-class ExportOrientationsModel;
-class ExportOrientationsPresenter;
+//class ExportOrientationsModel;
+//class ExportOrientationsPresenter;
 class ExportPointCloudModel;
 class ExportPointCloudPresenter;
 class HelpDialog;
@@ -69,8 +69,8 @@ public:
   SettingsModel *settingsModel();
   SettingsPresenter *settingsPresenter();
 
-  ExportOrientationsModel *exportOrientationsModel();
-  ExportOrientationsPresenter *exportOrientationsPresenter();
+  //ExportOrientationsModel *exportOrientationsModel();
+  //ExportOrientationsPresenter *exportOrientationsPresenter();
   ExportPointCloudModel *exportPointCloudModel();
   ExportPointCloudPresenter *exportPointCloudPresenter();
 
@@ -88,7 +88,7 @@ protected slots:
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
   void initSettingsDialog();
-  void initAndOpenExportOrientationsDialog();
+  //void initAndOpenExportOrientationsDialog();
   void initAndOpenExportPointCloudDialog();
 
 protected:
@@ -112,8 +112,8 @@ protected:
   SettingsModel *mSettingsModel;
   SettingsPresenter *mSettingsPresenter;
 
-  ExportOrientationsModel *mExportOrientationsModel;
-  ExportOrientationsPresenter *mExportOrientationsPresenter;
+  //ExportOrientationsModel *mExportOrientationsModel;
+  //ExportOrientationsPresenter *mExportOrientationsPresenter;
   ExportPointCloudModel *mExportPointCloudModel;
   ExportPointCloudPresenter *mExportPointCloudPresenter;
   //AboutDialog *mAboutDialog;

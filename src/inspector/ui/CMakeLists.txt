@@ -74,9 +74,10 @@ set(INSPECTOR_SOURCES
     matchviewer/impl/MatchViewerModel.cpp
     matchviewer/impl/MatchViewerView.cpp
     matchviewer/impl/MatchViewerPresenter.cpp
-    export/orientations/ExportOrientationsModel.cpp
-    export/orientations/ExportOrientationsView.cpp
-    export/orientations/ExportOrientationsPresenter.cpp
+    export/orientations/ExportOrientationsComponent.cpp
+    export/orientations/impl/ExportOrientationsModel.cpp
+    export/orientations/impl/ExportOrientationsView.cpp
+    export/orientations/impl/ExportOrientationsPresenter.cpp
     export/densemodel/impl/ExportPointCloudModel.cpp
     export/densemodel/impl/ExportPointCloudView.cpp
     export/densemodel/impl/ExportPointCloudPresenter.cpp
@@ -190,10 +191,13 @@ set(INSPECTOR_HEADERS
     matchviewer/impl/MatchViewerModel.h
     matchviewer/impl/MatchViewerView.h
     matchviewer/impl/MatchViewerPresenter.h
-    export/orientations/ExportOrientations.h
+    export/orientations/ExportOrientationsComponent.h
     export/orientations/ExportOrientationsModel.h
     export/orientations/ExportOrientationsView.h
     export/orientations/ExportOrientationsPresenter.h
+    export/orientations/impl/ExportOrientationsModel.h
+    export/orientations/impl/ExportOrientationsView.h
+    export/orientations/impl/ExportOrientationsPresenter.h
     export/densemodel/ExportPointCloudModel.h
     export/densemodel/ExportPointCloudView.h
     export/densemodel/ExportPointCloudPresenter.h

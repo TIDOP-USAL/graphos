@@ -39,6 +39,7 @@ public:
   enum class Menu
   {
     file,
+    file_export,
     view,
     workflow,
     tools,
@@ -288,7 +289,7 @@ protected:
   QAction *mActionImportCameras;
   QAction *mActionExportTiePoints;
   QAction *mActionExportMatches;
-  QAction *mActionExportOrientations;
+  //QAction *mActionExportOrientations;
   QAction *mActionExportPointCloud;
   //QAction *mActionFeaturesViewer;
   //QAction *mActionMatchesViewer;

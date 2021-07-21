@@ -13,9 +13,10 @@ target_link_libraries(${PROJECT_NAME}
                       TidopLib::tl_core
                       TidopLib::tl_img
                       TidopLib::tl_math
-					  Qt5::Core
+                      TidopLib::tl_geospatial
+                      Qt5::Core
                       Qt5::Sql
-					  Qt5::Widgets
+                      Qt5::Widgets
                       ${COLMAP_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
                       ${GLEW_LIBRARIES}

@@ -725,8 +725,8 @@ int main(int argc, char** argv)
     const size_t num_observations = reconstruction.ComputeNumObservations();
 
     //PrintHeading1("Bundle adjustment");
-    //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-    colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    //colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
     CHECK(bundle_adjuster.Solve(&reconstruction));
 
     size_t num_changed_observations = 0;
@@ -750,8 +750,8 @@ int main(int argc, char** argv)
     const size_t num_observations = reconstruction.ComputeNumObservations();
   
     //PrintHeading1("Bundle adjustment");
-    //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-    colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    //colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
     CHECK(bundle_adjuster.Solve(&reconstruction));
   
     size_t num_changed_observations = 0;

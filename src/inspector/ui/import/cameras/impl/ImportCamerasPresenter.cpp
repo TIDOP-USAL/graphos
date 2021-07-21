@@ -48,6 +48,7 @@ void ImportCamerasPresenterImp::checkInputCRS(const QString &crs)
 
 void ImportCamerasPresenterImp::checkOutputCRS(const QString &crs)
 {
+  ///TODO: no se usa
   mView->setValidOutputCRS(mModel->checkCRS(crs));
   mModel->setOutputCRS(crs);
 }
@@ -94,7 +95,7 @@ void ImportCamerasPresenterImp::initSignalAndSlots()
   connect(mView, &ImportCamerasView::previewCSV,                 this, &ImportCamerasPresenterImp::previewCSV);
   connect(mView, &DialogView::help,                             this, &ImportCamerasPresenterImp::help);
   connect(mView, &ImportCamerasView::crsInputChanged,            this, &ImportCamerasPresenterImp::checkInputCRS);
-  connect(mView, &ImportCamerasView::crsOutputChanged,           this, &ImportCamerasPresenterImp::checkOutputCRS);
+  //connect(mView, &ImportCamerasView::crsOutputChanged,           this, &ImportCamerasPresenterImp::checkOutputCRS);
 
   connect(mView, &ImportCamerasView::loadFieldNamesFromFirstRow, mModel, &ImportCamerasModel::setFieldNamesFromFirstRow);
   connect(mView, &ImportCamerasView::skipLines,                  mModel, &ImportCamerasModel::setInitialLine);

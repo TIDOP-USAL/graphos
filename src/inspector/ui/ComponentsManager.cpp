@@ -19,9 +19,9 @@
 #include "inspector/ui/SettingsView.h"
 #include "inspector/ui/SettingsPresenter.h"
 
-#include "inspector/ui/export/orientations/ExportOrientationsModel.h"
-#include "inspector/ui/export/orientations/ExportOrientationsView.h"
-#include "inspector/ui/export/orientations/ExportOrientationsPresenter.h"
+//#include "inspector/ui/export/orientations/ExportOrientationsModel.h"
+//#include "inspector/ui/export/orientations/ExportOrientationsView.h"
+//#include "inspector/ui/export/orientations/ExportOrientationsPresenter.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudModel.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
 #include "inspector/ui/export/densemodel/impl/ExportPointCloudView.h"
@@ -53,8 +53,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mSettingsController(new SettingsControllerImp),
     mSettingsModel(nullptr),
     mSettingsPresenter(nullptr),
-    mExportOrientationsModel(nullptr),
-    mExportOrientationsPresenter(nullptr),
+    //mExportOrientationsModel(nullptr),
+    //mExportOrientationsPresenter(nullptr),
     mExportPointCloudModel(nullptr),
     mExportPointCloudPresenter(nullptr),
     mHelpDialog(nullptr),
@@ -143,15 +143,15 @@ ComponentsManager::~ComponentsManager()
     mSettingsPresenter = nullptr;
   }
 
-  if (mExportOrientationsModel) {
-    delete mExportOrientationsModel;
-    mExportOrientationsModel = nullptr;
-  }
+  //if (mExportOrientationsModel) {
+  //  delete mExportOrientationsModel;
+  //  mExportOrientationsModel = nullptr;
+  //}
 
-  if (mExportOrientationsPresenter) {
-    delete mExportOrientationsPresenter;
-    mExportOrientationsPresenter = nullptr;
-  }
+  //if (mExportOrientationsPresenter) {
+  //  delete mExportOrientationsPresenter;
+  //  mExportOrientationsPresenter = nullptr;
+  //}
 
   if (mExportPointCloudModel){
     delete mExportPointCloudModel;
@@ -221,8 +221,8 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->matchesModel());
 
 
-    connect(mMainWindowPresenter, &MainWindowPresenter::openExportOrientationsDialog,
-            this, &ComponentsManager::initAndOpenExportOrientationsDialog);
+    //connect(mMainWindowPresenter, &MainWindowPresenter::openExportOrientationsDialog,
+    //        this, &ComponentsManager::initAndOpenExportOrientationsDialog);
 
     connect(mMainWindowPresenter, &MainWindowPresenter::openSettingsDialog,
             this, &ComponentsManager::initAndOpenSettingsDialog);
@@ -250,6 +250,8 @@ void ComponentsManager::registerComponent(Component *component,
   MainWindowView::Menu app_menu;
   if (menu.compare("file") == 0) {
     app_menu = MainWindowView::Menu::file;
+  } else if (menu.compare("file_export") == 0) {
+    app_menu = MainWindowView::Menu::file_export;
   } else if (menu.compare("view") == 0) {
     app_menu = MainWindowView::Menu::view;
   } else if (menu.compare("workflow") == 0) {
@@ -344,23 +346,23 @@ SettingsPresenter *ComponentsManager::settingsPresenter()
   return mSettingsPresenter;
 }
 
-ExportOrientationsModel *ComponentsManager::exportOrientationsModel()
-{
-  if (mExportOrientationsModel == nullptr) {
-    mExportOrientationsModel = new ExportOrientationsModelImp(mProject);
-  }
-  return mExportOrientationsModel;
-}
-
-ExportOrientationsPresenter *ComponentsManager::exportOrientationsPresenter()
-{
-  if (mExportOrientationsPresenter == nullptr){
-    ExportOrientationsView *view = new ExportOrientationsViewImp(this->mainWindowView());
-    mExportOrientationsPresenter = new ExportOrientationsPresenterImp(view,
-                                                                      this->exportOrientationsModel());
-  }
-  return mExportOrientationsPresenter;
-}
+//ExportOrientationsModel *ComponentsManager::exportOrientationsModel()
+//{
+//  if (mExportOrientationsModel == nullptr) {
+//    mExportOrientationsModel = new ExportOrientationsModelImp(mProject);
+//  }
+//  return mExportOrientationsModel;
+//}
+//
+//ExportOrientationsPresenter *ComponentsManager::exportOrientationsPresenter()
+//{
+//  if (mExportOrientationsPresenter == nullptr){
+//    ExportOrientationsView *view = new ExportOrientationsViewImp(this->mainWindowView());
+//    mExportOrientationsPresenter = new ExportOrientationsPresenterImp(view,
+//                                                                      this->exportOrientationsModel());
+//  }
+//  return mExportOrientationsPresenter;
+//}
 
 ExportPointCloudModel *ComponentsManager::exportPointCloudModel()
 {
@@ -459,16 +461,16 @@ void ComponentsManager::initSettingsDialog()
   this->settingsPresenter()->setHelp(this->helpDialog());
 }
 
-void ComponentsManager::initAndOpenExportOrientationsDialog()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openExportOrientationsDialog,
-             this, &ComponentsManager::initAndOpenExportOrientationsDialog);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportOrientationsDialog,
-          this->exportOrientationsPresenter(), &ExportOrientationsPresenter::open);
-
-  this->exportOrientationsPresenter()->setHelp(this->helpDialog());
-  this->exportOrientationsPresenter()->open();
-}
+//void ComponentsManager::initAndOpenExportOrientationsDialog()
+//{
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openExportOrientationsDialog,
+//             this, &ComponentsManager::initAndOpenExportOrientationsDialog);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportOrientationsDialog,
+//          this->exportOrientationsPresenter(), &ExportOrientationsPresenter::open);
+//
+//  this->exportOrientationsPresenter()->setHelp(this->helpDialog());
+//  this->exportOrientationsPresenter()->open();
+//}
 
 void ComponentsManager::initAndOpenExportPointCloudDialog()
 {

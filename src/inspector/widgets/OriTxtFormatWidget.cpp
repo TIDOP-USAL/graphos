@@ -78,7 +78,7 @@ void OriTxtFormatWidgetImp::update()
 
 void OriTxtFormatWidgetImp::retranslate()
 {
-  mLabelFile->setText(QApplication::translate("OriTxtFormatWidget", "OriTxt File", nullptr));
+  mLabelFile->setText(QApplication::translate("OriTxtFormatWidget", "File", nullptr));
 }
 
 void OriTxtFormatWidgetImp::setFile(const QString &file)
