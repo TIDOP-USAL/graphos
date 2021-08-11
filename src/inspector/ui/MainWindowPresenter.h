@@ -86,7 +86,7 @@ protected slots:
   void activeImage(const QString &imageName);
   void activeImages(const QStringList &imageNames);
   void deleteImages(const QStringList &imageNames);
-  void deleteImage(const QString &imageName);
+  //void deleteImage(const QString &imageName);
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
   void openModel3D(const QString &model3D, bool loadCameras);

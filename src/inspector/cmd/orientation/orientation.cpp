@@ -341,6 +341,9 @@ Point3D enuToEcef(const Point3D enu, const Point3D center_geocentric, double lon
 }
 
 
+/// -p "C:\Users\esteban\Documents\Inspector\Projects\Madrigalejo\zona1_thermal\zona1_thermal.xml" --fix_calibration
+/// -p "C:\Users\esteban\Documents\Inspector\Projects\Madrigalejo\zona1_thermal\zona1_thermal.xml" --fix_calibration
+
 int main(int argc, char** argv)
 {
 
@@ -385,11 +388,104 @@ int main(int argc, char** argv)
   tl::Path input_path("C:\\temp\\inspector\\reconstruction_import");
   //tl::Path input_path = tl::Path::tempDirectory(); // Tiene que ser un directorio temporal en el que se exporte la reconstrucción como texto.
   //input_path.append("import_ori");
-  //input_path.createDirectory();
+  input_path.createDirectory();
 
   bool bLocalCoord = true;
   Point3D offset(0., 0., 0.);
   /// leer imagenes y escribir images.txt en reconstrucción temporal
+  //{
+  //  offset = Point3D(272020.115, 4338394.551, 321.311);
+  //  bLocalCoord = false;
+  //  // --import C:\Users\esteban\Documents\Inspector\Projects\Madrigalejo\ori\absolute\images.txt 
+  //  // --list C:\Users\esteban\Documents\Inspector\prueba_ori_termico\rgb_termico.txt --export C:\temp\inspector\reconstruction_import\images.txt
+  //  Path import_ori("C:\\Users\\esteban\\Documents\\Inspector\\Projects\\Madrigalejo\\ori\\absolute\\images.txt");
+  //  Path images("C:\\Users\\esteban\\Documents\\Inspector\\prueba_ori_termico\\rgb_termico.txt");
+  //  Path images_path(input_path);
+  //  images_path.append("images.txt");
+
+  //  if (!import_ori.exists()) throw std::runtime_error("");
+  //  if (!images.exists()) throw std::runtime_error("");
+
+  //  std::map<std::string, std::string> map_thermal;
+
+  //  std::ifstream ifs;
+  //  ifs.open(images.toString(), std::ifstream::in);
+  //  if (ifs.is_open()) {
+
+  //    std::string rgb;
+  //    std::string thermal;
+  //    while (std::getline(ifs, rgb)) {
+  //      std::getline(ifs, thermal);
+  //      map_thermal[rgb] = thermal;
+  //    }
+  //    ifs.close();
+  //  }
+
+  //  ifs.open(import_ori.toString(), std::ifstream::in);
+  //  std::ofstream ofs;
+  //  ofs.open(images_path.toString(), std::ofstream::out | std::ofstream::trunc);
+  //  if (ifs.is_open() && ofs.is_open()) {
+
+  //    std::string line;
+  //    std::getline(ifs, line);
+  //    std::stringstream string_stream(line);
+
+  //    ofs << line << "\n";
+
+  //    std::getline(ifs, line);
+  //    ofs << line << "\n";
+
+  //    std::getline(ifs, line);
+  //    ofs << line << "\n";
+
+  //    std::getline(ifs, line);
+  //    ofs << line << "\n";
+
+  //    int image_id_in;
+  //    double qw{};
+  //    double qx{};
+  //    double qy{};
+  //    double qz{};
+  //    double x{};
+  //    double y{};
+  //    double z{};
+  //    int camera;
+
+  //    std::string image;
+
+  //    int image_id = 0;
+
+  //    while (std::getline(ifs, line)) {
+
+  //      string_stream.str(line);
+  //      string_stream.clear();
+
+  //      string_stream >> image_id_in >> qw >> qx >> qy >> qz >> x >> y >> z >> camera >> image;
+
+  //      Path path_image(image);
+  //      auto it = map_thermal.find(path_image.fileName());
+  //      if (it != map_thermal.end()) {
+  //        path_image.replaceFileName(it->second);
+
+  //        if (project.existImage(path_image.baseName().c_str())) {
+
+  //          image_id = project.imageId(path_image.baseName().c_str());
+  //          Image _image = project.findImageById(image_id);
+  //          
+  //          ofs << std::fixed << image_id+1 << " " << qw << " " << qx << " " << qy << " " << qz << " " << x << " " << y << " " << z << " " << 1 << " " << _image.path().toStdString().c_str() << "\n\n";
+
+  //        }
+
+  //      }
+
+  //      std::getline(ifs, line);
+  //    }
+  //    ofs << std::endl;
+
+  //    ifs.close();
+  //    ofs.close();
+  //  }
+  //}
   {
     tl::Path images_path(input_path);
     images_path.append("images.txt");
@@ -408,7 +504,8 @@ int main(int argc, char** argv)
   
     int i = 1;
     for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-      CameraPosition cameraPosition = image->cameraPosition(); 
+      CameraPosition cameraPosition = image->cameraPosition();
+      if (cameraPosition.isEmpty()) continue;
       tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
       offset += (position - offset) / i;
       i++;
@@ -438,6 +535,11 @@ int main(int argc, char** argv)
       for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
   
         CameraPosition cameraPosition = image->cameraPosition();
+        if (cameraPosition.isEmpty()) {
+          id++;
+          continue; /// Se saltan las imagenes no orientadas
+        }
+  
         math::Quaternion<double> quaternion = cameraPosition.quaternion();
         /// Colmap da problemas con el formato texto si la ruta del fichero tiene espacios...
         std::string file_name = image->path().toStdString();//Path(image->path().toStdString()).fileName();
@@ -475,6 +577,11 @@ int main(int argc, char** argv)
       for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
       
         CameraPosition cameraPosition = image->cameraPosition();
+        if (cameraPosition.isEmpty()) {
+          id++;
+          continue; /// Se saltan las imagenes no orientadas
+        }
+  
         math::Quaternion<double> quaternion = cameraPosition.quaternion();
         std::string file_name = image->path().toStdString(); //Path(image->path().toStdString()).fileName();
         tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
@@ -627,6 +734,8 @@ int main(int argc, char** argv)
 
   colmap::Reconstruction reconstruction;
   reconstruction.Read(input_path.toString());
+  //colmap::Reconstruction reconstruction2;
+  //reconstruction2.Read(input_path.toString());
 
   msgInfo("Loading database");
 
@@ -711,11 +820,6 @@ int main(int argc, char** argv)
   colmap::BundleAdjustmentConfig ba_config;
   for (const colmap::image_t image_id : reconstruction.RegImageIds()) {
     ba_config.AddImage(image_id);
-    //ba_config.SetVariablePose(image_id);
-    //ba_config.SetConstantTvec(image_id, {0});
-    //ba_config.SetConstantTvec(image_id, {1});
-    //ba_config.SetConstantTvec(image_id, {2});
-    //ba_config.SetConstantTvec(image_id, {0, 1, 2 }); // Asi da un error
   }
 
   for (int i = 0; i < mapper_options.ba_global_max_refinements; ++i) {
@@ -725,8 +829,8 @@ int main(int argc, char** argv)
     const size_t num_observations = reconstruction.ComputeNumObservations();
 
     //PrintHeading1("Bundle adjustment");
-    inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-    //colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
     CHECK(bundle_adjuster.Solve(&reconstruction));
 
     size_t num_changed_observations = 0;
@@ -742,29 +846,66 @@ int main(int argc, char** argv)
   }
 
   // Se incluye el punto principal en el ajuste
-  ba_options.refine_principal_point = true;
-  for (int i = 0; i < mapper_options.ba_global_max_refinements; ++i) {
-    // Avoid degeneracies in bundle adjustment.
-    reconstruction.FilterObservationsWithNegativeDepth();
-  
-    const size_t num_observations = reconstruction.ComputeNumObservations();
-  
-    //PrintHeading1("Bundle adjustment");
-    inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-    //colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-    CHECK(bundle_adjuster.Solve(&reconstruction));
-  
-    size_t num_changed_observations = 0;
-    num_changed_observations += CompleteAndMergeTracks(mapper_options, &mapper);
-    num_changed_observations += FilterPoints(mapper_options, &mapper);
-    const double changed =
-      static_cast<double>(num_changed_observations) / num_observations;
-    std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed)
-      << std::endl;
-    if (changed < mapper_options.ba_global_max_refinement_change) {
-      break;
+  if (!fix_calibration) {
+    ba_options.refine_principal_point = true;
+    for (int i = 0; i < mapper_options.ba_global_max_refinements; ++i) {
+      // Avoid degeneracies in bundle adjustment.
+      reconstruction.FilterObservationsWithNegativeDepth();
+
+      const size_t num_observations = reconstruction.ComputeNumObservations();
+
+      //PrintHeading1("Bundle adjustment");
+      //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+      colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+      CHECK(bundle_adjuster.Solve(&reconstruction));
+
+      size_t num_changed_observations = 0;
+      num_changed_observations += CompleteAndMergeTracks(mapper_options, &mapper);
+      num_changed_observations += FilterPoints(mapper_options, &mapper);
+      const double changed =
+        static_cast<double>(num_changed_observations) / num_observations;
+      std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed)
+        << std::endl;
+      if (changed < mapper_options.ba_global_max_refinement_change) {
+        break;
+      }
     }
   }
+  
+
+  //for (const colmap::image_t image_id : reconstruction.RegImageIds()) {
+  //  colmap::Image &image = reconstruction.Image(image_id);
+  //  image.SetQvec(reconstruction2.Image(image_id).Qvec());
+  //  image.SetTvec(reconstruction2.Image(image_id).Tvec());
+  //}
+
+  //ba_options.refine_focal_length = false;
+  //ba_options.refine_principal_point = false;
+  //ba_options.refine_extra_params = false;
+  //ba_options.refine_extrinsics = false;
+
+  //for (int i = 0; i < mapper_options.ba_global_max_refinements; ++i) {
+  //  // Avoid degeneracies in bundle adjustment.
+  //  reconstruction.FilterObservationsWithNegativeDepth();
+
+  //  const size_t num_observations = reconstruction.ComputeNumObservations();
+
+  //  //PrintHeading1("Bundle adjustment");
+  //  //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+  //  colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+  //  CHECK(bundle_adjuster.Solve(&reconstruction));
+
+  //  size_t num_changed_observations = 0;
+  //  num_changed_observations += CompleteAndMergeTracks(mapper_options, &mapper);
+  //  num_changed_observations += FilterPoints(mapper_options, &mapper);
+  //  const double changed =
+  //    static_cast<double>(num_changed_observations) / num_observations;
+  //  std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed)
+  //    << std::endl;
+  //  if (changed < mapper_options.ba_global_max_refinement_change) {
+  //    break;
+  //  }
+  //}
 
   msgInfo("Extracting colors");
   reconstruction.ExtractColorsForAllImages(""/*project.imageDirectory().toStdString()*/);

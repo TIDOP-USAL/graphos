@@ -4,14 +4,8 @@
 
 #include <QXmlStreamReader>
 #include <QFile>
-
-#if (__cplusplus >= 201703L)
-#include <filesystem>
-namespace fs = std::filesystem;
-#else
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
-#endif
+#include <QFileInfo>
+#include <QDir>
 
 namespace inspector
 {
@@ -216,9 +210,7 @@ void CamerasModelImp::calibrationImport(const QString &file,
                                         const QString &format)
 {
 
-  fs::path path(file.toStdString());
-
-  if (fs::exists(path)) {
+  if (QFileInfo(file).exists()) {
 
     if (format.compare("Pix4D") == 0) {
       
@@ -311,8 +303,10 @@ void CamerasModelImp::calibrationImport(const QString &file,
                 stream.skipCurrentElement();
             }
 
-          } else
-            stream.skipCurrentElement();
+          } else {
+            stream.raiseError(QObject::tr("Incorrect OpenCV Calibration file"));
+            msgError("Incorrect OpenCV Calibration file");
+          }
 
         } else {
           stream.raiseError(QObject::tr("Incorrect OpenCV Calibration file"));
@@ -333,13 +327,15 @@ void CamerasModelImp::calibrationExport(const QString &file,
 {
   TL_TODO("Extraer a clases para la importación exportación")
 
-  fs::path path(file.toStdString());
-  fs::path parent_path = path.parent_path();
+  QFileInfo file_info(file);
+  QDir parent_path(file_info.absolutePath());
+  //tl::Path path(file.toStdString());
+  //tl::Path parent_path = path.parentPath();
 
-  if (!fs::exists(parent_path)) {
-    if (!fs::create_directories(path)) {
+  if (!parent_path.exists()/*parent_path.exists()*/) {
+    if (!parent_path.mkpath(".")/*path.createDirectories()*/) {
       std::string err = "The output directory cannot be created: ";
-      err.append(parent_path.string());
+      err.append(file_info.absolutePath().toStdString());
       throw std::runtime_error(err);
     }
   }

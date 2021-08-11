@@ -671,6 +671,9 @@ void MainWindowView::deleteHistory()
 
 void MainWindowView::deleteImage(const QString &file)
 {
+  const QSignalBlocker blocker1(mTreeWidgetProject);
+  const QSignalBlocker blocker2(mThumbnailsWidget);
+
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
     QTreeWidgetItem *itemImages = nullptr;
@@ -1215,38 +1218,43 @@ QToolBar *MainWindowView::findToolbar(Toolbar toolbar)
 
 void MainWindowView::update()
 {
-  bool bProjectExists = mFlags.isActive(Flag::project_exists);
-  bool bProjectModified = mFlags.isActive(Flag::project_modified);
-  bool bImageOpen = mFlags.isActive(Flag::image_open);
-  bool bProcessing = mFlags.isActive(Flag::processing);
-  bool bLoadingImages = mFlags.isActive(Flag::loading_images);
-  bool bImagesLoaded = mFlags.isActive(Flag::images_added);
-  bool bFeatureExtraction = mFlags.isActive(Flag::feature_extraction);
-  bool bFeatureMatching = mFlags.isActive(Flag::feature_matching);
-  bool bOriented = mFlags.isActive(Flag::oriented);
-  bool bAbsoluteOriented = mFlags.isActive(Flag::absolute_oriented);
-  bool bDenseModel = mFlags.isActive(Flag::dense_model);
+  //bool bProjectExists = mFlags.isActive(Flag::project_exists);
+  //bool bProjectModified = mFlags.isActive(Flag::project_modified);
+  //bool bImageOpen = mFlags.isActive(Flag::image_open);
+  //bool bProcessing = mFlags.isActive(Flag::processing);
+  //bool bLoadingImages = mFlags.isActive(Flag::loading_images);
+  //bool bImagesLoaded = mFlags.isActive(Flag::images_added);
+  //bool bFeatureExtraction = mFlags.isActive(Flag::feature_extraction);
+  //bool bFeatureMatching = mFlags.isActive(Flag::feature_matching);
+  //bool bOriented = mFlags.isActive(Flag::oriented);
+  //bool bAbsoluteOriented = mFlags.isActive(Flag::absolute_oriented);
+  //bool bDenseModel = mFlags.isActive(Flag::dense_model);
 
-  mMenuRecentProjects->setEnabled(!bProcessing);
-  mActionNotRecentProjects->setVisible(mHistory.size() == 0);
-  mActionClearHistory->setEnabled(mHistory.size() > 0);
-  //mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
-  //mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
-  //mActionExportOrientations->setEnabled(bProjectExists && bOriented && !bProcessing);
-  //mActionExportPointCloud->setEnabled(bProjectExists && bDenseModel && !bProcessing);
-  mActionSaveProject->setEnabled(bProjectExists && bProjectModified && !bProcessing);
-  mActionSaveProjectAs->setEnabled(bProjectExists && !bProcessing);
-  mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
-  mActionExit->setEnabled(!bProcessing);
+  //mMenuRecentProjects->setEnabled(!bProcessing);
+  //mActionNotRecentProjects->setVisible(mHistory.size() == 0);
+  //mActionClearHistory->setEnabled(mHistory.size() > 0);
+  ////mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
+  ////mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
+  ////mActionExportOrientations->setEnabled(bProjectExists && bOriented && !bProcessing);
+  ////mActionExportPointCloud->setEnabled(bProjectExists && bDenseModel && !bProcessing);
+  //mActionSaveProject->setEnabled(bProjectExists && bProjectModified && !bProcessing);
+  //mActionSaveProjectAs->setEnabled(bProjectExists && !bProcessing);
+  //mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
+  //mActionExit->setEnabled(!bProcessing);
 
   AppStatus &app_status = AppStatus::instance();
   bool project_exists = app_status.isActive(AppStatus::Flag::project_exists);
   bool project_modified = app_status.isActive(AppStatus::Flag::project_modified);
+  bool image_open = app_status.isActive(AppStatus::Flag::image_open);
   bool processing = app_status.isActive(AppStatus::Flag::processing);
+  
+  mMenuRecentProjects->setEnabled(!processing);
+  mActionNotRecentProjects->setVisible(mHistory.size() == 0);
+  mActionClearHistory->setEnabled(mHistory.size() > 0);
   mActionSaveProject->setEnabled(project_exists && project_modified && !processing);
   mActionSaveProjectAs->setEnabled(project_exists && !processing);
-
-
+  mActionCloseProject->setEnabled(project_exists && !processing);
+  mActionExit->setEnabled(!processing);
 }
 
 void MainWindowView::retranslate()

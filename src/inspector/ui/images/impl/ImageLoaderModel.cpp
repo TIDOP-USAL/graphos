@@ -19,6 +19,16 @@ ImageLoaderModelImp::ImageLoaderModelImp(Project *project,
   init();
 }
 
+QString ImageLoaderModelImp::projectCRS() const
+{
+  return mProject->crs();
+}
+
+void ImageLoaderModelImp::setProjectCRS(const QString &crs)
+{
+  mProject->setCrs(crs);
+}
+
 void ImageLoaderModelImp::addImage(Image &image)
 {
   mProject->addImage(image);

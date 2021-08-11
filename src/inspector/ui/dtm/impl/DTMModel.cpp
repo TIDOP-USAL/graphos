@@ -30,6 +30,11 @@ QString DtmModelImp::denseModel() const
   return mProject->denseModel();
 }
 
+QString DtmModelImp::crs() const
+{
+  return mProject->crs();
+}
+
 std::shared_ptr<Dtm> DtmModelImp::dtmMethod() const
 {
   return mProject->dtmMethod();

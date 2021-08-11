@@ -21,7 +21,7 @@ class ImportCamerasModelImp
 public:
 
   ImportCamerasModelImp(Project *project,
-                       QObject *parent = nullptr);
+                        QObject *parent = nullptr);
   ~ImportCamerasModelImp() override = default;
 
 // ImportCamerasModel interface
@@ -31,6 +31,7 @@ public:
   QStandardItemModel *itemModelCSV() override;
   QStandardItemModel *itemModelFormatCameras() override;
   bool checkCRS(const QString &crs) override;
+  QString outputCRS() const override;
 
 public slots:
 

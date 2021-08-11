@@ -29,7 +29,7 @@ void RelativeOrientationProcess::run()
     tl::Chrono chrono("Orientation process finished");
     chrono.run();
 
-    //mRelativeOrientationAlgorithm->run();
+    mRelativeOrientationAlgorithm->run();
 
     emit orientationFinished();
 

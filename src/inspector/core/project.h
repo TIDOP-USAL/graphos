@@ -107,6 +107,15 @@ public:
    */
   virtual void setDatabase(const QString &database) = 0;
 
+  /*!
+   * \brief Sistema de referencia (código EPSG)
+   */
+  virtual QString crs() const = 0;
+
+  /*!
+   * \brief Establece el sistema de referencia (código EPSG)
+   */
+  virtual void setCrs(const QString &crs) = 0;
 
   /*!
    * \brief Añade una imagen al proyecto
@@ -383,6 +392,8 @@ public:
   QString version() const override;
   QString database() const override;
   void setDatabase(const QString &database) override;
+  QString crs() const override;
+  void setCrs(const QString &crs) override;
   void addImage(const Image &img) override;
   bool updateImage(size_t imageId, const Image &image) override;
   bool removeImage(const QString &imgPath) override;
@@ -473,6 +484,7 @@ protected:
   bool read(QXmlStreamReader &stream);
   void readGeneral(QXmlStreamReader &stream);
   void readDatabase(QXmlStreamReader &stream);
+  void readCrs(QXmlStreamReader &stream);
   void readImages(QXmlStreamReader &stream);
   Image readImage(QXmlStreamReader &stream);
   CameraPosition readCameraPosition(QXmlStreamReader &stream);
@@ -506,6 +518,7 @@ protected:
   void writeVersion(QXmlStreamWriter &stream) const;
   void writeGeneral(QXmlStreamWriter &stream) const;
   void writeDatabase(QXmlStreamWriter &stream) const;
+  void writeCrs(QXmlStreamWriter &stream) const;
   void writeCameras(QXmlStreamWriter &stream) const;
   void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
   void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
@@ -546,6 +559,7 @@ protected:
   QString mProjectPath;
   QString mVersion;
   QString mDatabase;
+  QString mCrs;
   std::vector<Image> mImages;
   std::map<int, Camera> mCameras;
   std::shared_ptr<Feature> mFeatureExtractor;

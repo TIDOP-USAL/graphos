@@ -17,7 +17,8 @@ class INSPECTOR_EXPORT LoadImagesProcess
 public:
 
   LoadImagesProcess(std::vector<Image> *images, 
-                    std::vector<Camera> *cameras);
+                    std::vector<Camera> *cameras,
+                    const QString &epsg = QString());
 
 signals:
 
@@ -26,7 +27,6 @@ signals:
 private:
 
   bool existCamera(const QString &make, const QString &model) const;
-  //Camera findCamera(const QString &make, const QString &model) const;
   int findCamera(const QString &make, const QString &model) const;
 
 // ProcessConcurrent interface
@@ -41,6 +41,7 @@ protected:
 
   std::vector<Image> *mImages;
   std::vector<Camera> *mCameras;
+  QString mEPSG;
 };
 
 } // inspector

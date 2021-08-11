@@ -505,7 +505,19 @@ bool SmvsDensifier::densify(const QString &undistortPath)
 
   tl::Path app_path(tl::getRunfile());
 
-  std::string cmd("/c \"\"");
+  //std::string cmd("/c \"\"");
+  //cmd.append(app_path.parentPath().toString());
+  //cmd.append("\\smvsrecon_SSE41.exe\" ");
+  //cmd.append("--scale=").append(std::to_string(SmvsProperties::inputImageScale()));
+  //cmd.append(" --output-scale=").append(std::to_string(SmvsProperties::outputDepthScale()));
+  //cmd.append(" --alpha=").append(std::to_string(SmvsProperties::surfaceSmoothingFactor()));
+  //cmd.append(" --force ");
+  //if (!SmvsProperties::semiGlobalMatching())
+  //  cmd.append(" --no-sgm ");
+  //if (SmvsProperties::shadingBasedOptimization())
+  //  cmd.append(" --shading ");
+  //cmd.append("\"").append(undistortPath.toStdString()).append("\"\"");
+  std::string cmd("\"");
   cmd.append(app_path.parentPath().toString());
   cmd.append("\\smvsrecon_SSE41.exe\" ");
   cmd.append("--scale=").append(std::to_string(SmvsProperties::inputImageScale()));
@@ -516,7 +528,7 @@ bool SmvsDensifier::densify(const QString &undistortPath)
     cmd.append(" --no-sgm ");
   if (SmvsProperties::shadingBasedOptimization())
     cmd.append(" --shading ");
-  cmd.append("\"").append(undistortPath.toStdString()).append("\"\"");
+  cmd.append("\"").append(undistortPath.toStdString()).append("\"");
   tl::ExternalProcess process(cmd);
   process.run();
 

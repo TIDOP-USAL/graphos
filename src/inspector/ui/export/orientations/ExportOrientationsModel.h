@@ -3,6 +3,8 @@
 
 #include "inspector/interfaces/mvp.h"
 
+#include <tidop/geometry/entities/point.h>
+
 namespace inspector
 {
 
@@ -21,6 +23,7 @@ public:
   ~ExportOrientationsModel() override = default;
 
   virtual QString reconstruction() const = 0;
+  virtual tl::Point3D offset() const = 0;
 
 };
 

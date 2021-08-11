@@ -85,7 +85,8 @@ void MainWindowPresenter::openFromHistory(const QString &file)
                               QMessageBox::Yes|QMessageBox::No).exec();
       if (i_ret == QMessageBox::Yes) {
         mProjectModel->oldVersionBackup(file);
-        mView->setFlag(MainWindowView::Flag::project_modified, true);
+        //mView->setFlag(MainWindowView::Flag::project_modified, true);
+        AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
       } else if (i_ret == QMessageBox::Cancel) {
         return;
       }
@@ -114,7 +115,7 @@ void MainWindowPresenter::saveProject()
   mProjectModel->save();
   AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, false);
   TL_TODO("Quitar")
-  mView->setFlag(MainWindowView::Flag::project_modified, false);
+  //mView->setFlag(MainWindowView::Flag::project_modified, false);
 }
 
 void MainWindowPresenter::saveProjectAs()
@@ -127,7 +128,7 @@ void MainWindowPresenter::saveProjectAs()
     mProjectModel->saveAs(file);
     AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, false);
     TL_TODO("Quitar")
-    mView->setFlag(MainWindowView::Flag::project_modified, false);
+    //mView->setFlag(MainWindowView::Flag::project_modified, false);
   }
 }
 
@@ -197,7 +198,7 @@ void MainWindowPresenter::loadProject()
   mView->clear();
 
   mView->setProjectTitle(mProjectModel->projectName());
-  mView->setFlag(MainWindowView::Flag::project_exists, true);
+  //mView->setFlag(MainWindowView::Flag::project_exists, true);
   ///TODO: Borrar lo anterior cuando termine de refactorizar todos los componentes
   AppStatus::instance().activeFlag(AppStatus::Flag::project_exists, true);
 
@@ -356,28 +357,35 @@ void MainWindowPresenter::activeImages(const QStringList &imageNames)
 
 void MainWindowPresenter::deleteImages(const QStringList &imageNames)
 {
+  mModel->removeImages(imageNames);
+
   for (const auto &imageName : imageNames){
-    this->deleteImage(imageName);
-  }
-
-  mView->setFlag(MainWindowView::Flag::project_modified, true);
-  mView->setFlag(MainWindowView::Flag::images_added, mModel->imageBegin() != mModel->imageEnd());
-}
-
-void MainWindowPresenter::deleteImage(const QString &imageName)
-{
-  try {
     mFeaturesModel->removeFeatures(imageName);
     mMatchesModel->removeMatchesPair(imageName);
-    /// TODO: Borrar los matches cuando este a la izquierda tambien
-    size_t image_id = mModel->imageID(imageName);
-    mModel->removeImage(image_id);
     mView->deleteImage(imageName);
-    TL_TODO("Se tienen que eliminar de la vista las imagenes procesadas, y los ficheros de keypoints y de matches")
-  } catch (std::exception &e) {
-    msgError(e.what());
+    msgInfo("Delete image %s", imageName.toStdString().c_str());
   }
+
+  //mView->setFlag(MainWindowView::Flag::project_modified, true);
+  //mView->setFlag(MainWindowView::Flag::images_added, mModel->imageBegin() != mModel->imageEnd());
+  AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
+  AppStatus::instance().activeFlag(AppStatus::Flag::images_added, mModel->imageBegin() != mModel->imageEnd());
 }
+
+//void MainWindowPresenter::deleteImage(const QString &imageName)
+//{
+//  try {
+//    mFeaturesModel->removeFeatures(imageName);
+//    mMatchesModel->removeMatchesPair(imageName);
+//    /// TODO: Borrar los matches cuando este a la izquierda tambien
+//    //size_t image_id = mModel->imageID(imageName);
+//    //mModel->removeImage(image_id);
+//    mModel->removeImage(imageName);
+//    mView->deleteImage(imageName);
+//  } catch (std::exception &e) {
+//    msgError(e.what());
+//  }
+//}
 
 void MainWindowPresenter::openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2)
 {
@@ -446,8 +454,8 @@ void MainWindowPresenter::deleteMatches()
 
 void MainWindowPresenter::processFinished()
 {
-  mView->setFlag(MainWindowView::Flag::processing, false);
-  mView->setFlag(MainWindowView::Flag::project_modified, true);
+  //mView->setFlag(MainWindowView::Flag::processing, false);
+  //mView->setFlag(MainWindowView::Flag::project_modified, true);
 
   AppStatus::instance().activeFlag(AppStatus::Flag::processing, false);
   AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
@@ -455,7 +463,7 @@ void MainWindowPresenter::processFinished()
 
 void MainWindowPresenter::processRunning()
 {
-  mView->setFlag(MainWindowView::Flag::processing, true);
+  //mView->setFlag(MainWindowView::Flag::processing, true);
 
   AppStatus::instance().activeFlag(AppStatus::Flag::processing, true);
 }
@@ -469,7 +477,7 @@ void MainWindowPresenter::loadingImages(bool loading)
   AppStatus::instance().activeFlag(AppStatus::Flag::loading_images, loading);
 
   TL_TODO("Quitar")
-  mView->setFlag(MainWindowView::Flag::loading_images, loading);
+  //mView->setFlag(MainWindowView::Flag::loading_images, loading);
 }
 
 void MainWindowPresenter::loadImage(const QString &image)
@@ -479,12 +487,13 @@ void MainWindowPresenter::loadImage(const QString &image)
   AppStatus::instance().activeFlag(AppStatus::Flag::images_added, true);
 
   TL_TODO("Quitar")
-  mView->setFlag(MainWindowView::Flag::images_added, true);
+  //mView->setFlag(MainWindowView::Flag::images_added, true);
 }
 
 void MainWindowPresenter::onProjectModified()
 {
-  mView->setFlag(MainWindowView::Flag::project_modified, true);
+  AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
+  //mView->setFlag(MainWindowView::Flag::project_modified, true);
 }
 
 void MainWindowPresenter::help()

@@ -6,6 +6,7 @@
 #include <colmap/base/camera_database.h>
 
 #include <tidop/core/messages.h>
+#include <tidop/math/algebra/rotation_matrix.h>
 
 //#include <QFile>
 //#include <QTextStream>
@@ -26,15 +27,15 @@ using namespace Qt;
 namespace inspector
 {
 
-OrientationExport::OrientationExport(const colmap::Reconstruction *reconstruction)
-  : mReconstruction(reconstruction)
+OrientationExport::OrientationExport(const colmap::Reconstruction *reconstruction,
+                                     const tl::Point3D &offset)
+  : mReconstruction(reconstruction),
+    mOffset(offset)
 {
-
 }
 
 OrientationExport::~OrientationExport()
 {
-
 }
 
 void OrientationExport::exportBinary(const QString &path) const
@@ -191,32 +192,92 @@ void OrientationExport::exportOrientation(const QString &path, bool bQuaternion)
 
       for(auto &image : mReconstruction->Images()){
 
-        Eigen::Vector3d t = image.second.Tvec();
 
-        if (bQuaternion){
-          Eigen::Vector4d quaternion = image.second.Qvec();
-          stream << std::fixed << image.second.ImageId() << " " <<
-                    quaternion[0] << " " <<
-                    quaternion[1] << " " <<
-                    quaternion[2] << " " <<
-                    quaternion[3] << " " <<
-                    t[0] << " " <<
-                    t[1] << " " <<
-                    t[2] << " " <<
-                    image.second.CameraId() << " " <<
-                    image.second.Name() << std::endl;
-        } else {
+
+        {
+
           Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
+          Eigen::Vector3d translation = image.second.Tvec();
+          rotation_matrix(1, 0) = -rotation_matrix(1, 0);
+          rotation_matrix(1, 1) = -rotation_matrix(1, 1);
+          rotation_matrix(1, 2) = -rotation_matrix(1, 2);
+          rotation_matrix(2, 0) = -rotation_matrix(2, 0);
+          rotation_matrix(2, 1) = -rotation_matrix(2, 1);
+          rotation_matrix(2, 2) = -rotation_matrix(2, 2);
+
+          tl::math::RotationMatrix<double> _rotation_matrix;
+          _rotation_matrix.at(0, 0) = rotation_matrix(0, 0);
+          _rotation_matrix.at(0, 1) = rotation_matrix(0, 1);
+          _rotation_matrix.at(0, 2) = rotation_matrix(0, 2);
+          _rotation_matrix.at(1, 0) = rotation_matrix(1, 0);
+          _rotation_matrix.at(1, 1) = rotation_matrix(1, 1);
+          _rotation_matrix.at(1, 2) = rotation_matrix(1, 2);
+          _rotation_matrix.at(2, 0) = rotation_matrix(2, 0);
+          _rotation_matrix.at(2, 1) = rotation_matrix(2, 1);
+          _rotation_matrix.at(2, 2) = rotation_matrix(2, 2);
+
+          tl::math::RotationMatrix<double> rotation_transpose = _rotation_matrix.transpose();
+
+          tl::Point3D position;
+
+          position.x = -(rotation_transpose.at(0, 0) * translation[0] +
+                         rotation_transpose.at(0, 1) * -translation[1] +
+                         rotation_transpose.at(0, 2) * -translation[2]) + mOffset.x;
+          position.y = -(rotation_transpose.at(1, 0) * translation[0] +
+                         rotation_transpose.at(1, 1) * -translation[1] +
+                         rotation_transpose.at(1, 2) * -translation[2]) + mOffset.y;
+          position.z = -(rotation_transpose.at(2, 0) * translation[0] +
+                         rotation_transpose.at(2, 1) * -translation[1] +
+                         rotation_transpose.at(2, 2) * -translation[2]) + mOffset.z;
+
           Eigen::Vector3d euler_angles = rotation_matrix.eulerAngles(0, 1, 2);
 
           stream << std::fixed << "\"" << image.second.Name() << "\" " <<
-                    t[0] << " " <<
-                    t[1] << " " <<
-                    t[2] << " " <<
-                    euler_angles[0] << " " <<
-                    euler_angles[1] << " " <<
-                    euler_angles[2] << " " << std::endl;
+            position.x << " " <<
+            position.y << " " <<
+            position.z << " " <<
+            euler_angles[0] << " " <<
+            euler_angles[1] << " " <<
+            euler_angles[2] << " " << std::endl;
         }
+
+        ////Eigen::Vector3d t = image.second.Tvec();
+        //Eigen::Matrix<double, 3, 4> inv_proj_matrix = image.second.InverseProjectionMatrix();
+        //Eigen::Vector3d t = inv_proj_matrix.rightCols<1>();
+        //Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
+        //rotation_matrix(1, 0) = -rotation_matrix(1, 0);
+        //rotation_matrix(1, 1) = -rotation_matrix(1, 1);
+        //rotation_matrix(1, 2) = -rotation_matrix(1, 2);
+        //rotation_matrix(2, 0) = -rotation_matrix(2, 0);
+        //rotation_matrix(2, 1) = -rotation_matrix(2, 1);
+        //rotation_matrix(2, 2) = -rotation_matrix(2, 2);
+
+
+        //if (bQuaternion){
+        //  //Eigen::Vector4d quaternion = image.second.Qvec();
+        //  Eigen::Quaterniond quaternion(rotation_matrix);
+        //  stream << std::fixed << image.second.ImageId() << " " <<
+        //            quaternion.w() << " " <<
+        //            quaternion.x() << " " <<
+        //            quaternion.y() << " " <<
+        //            quaternion.z() << " " <<
+        //            t[0] + mOffset.x << " " <<
+        //            t[1] + mOffset.y << " " <<
+        //            t[2] + mOffset.z << " " <<
+        //            image.second.CameraId() << " " <<
+        //            image.second.Name() << std::endl;
+        //} else {
+        //  
+        //  Eigen::Vector3d euler_angles = rotation_matrix.eulerAngles(0, 1, 2);
+
+        //  stream << std::fixed << "\"" << image.second.Name() << "\" " <<
+        //            t[0] + mOffset.x << " " <<
+        //            t[1] + mOffset.y << " " <<
+        //            t[2] + mOffset.z << " " <<
+        //            euler_angles[0] << " " <<
+        //            euler_angles[1] << " " <<
+        //            euler_angles[2] << " " << std::endl;
+        //}
 
       }
       stream.close();

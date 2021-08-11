@@ -197,7 +197,7 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
 
   tl::Path app_path(tl::getRunfile());
 
-  std::string cmd("/c \"\"");
+  std::string cmd("\"");
   cmd.append(app_path.parentPath().toString());
   cmd.append("\\gdal_grid.exe\"");
   cmd.append(" -a invdist");
@@ -213,13 +213,10 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
   cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
   cmd.append(gdal_vrt_file.toString()).append("\" \"");
   cmd.append(dtmFile).append("\" ");
-  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS\"");
+  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS");
 
   ExternalProcess process(cmd);
   process.run();
-  //if (process.run() == Process::Status::error) {
-  //  return true;
-  //}
 
   return false;
 }
@@ -248,7 +245,7 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
 
   tl::Size<int> size(bbox.width() / gsd, bbox.height() / gsd);
 
-  std::string cmd("/c \"\"");
+  std::string cmd("\"");
   cmd.append(app_path.parentPath().toString());
   cmd.append("\\gdal_grid.exe\"");
   cmd.append(" -a invdist");
@@ -259,19 +256,17 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
   cmd.append(":angle=").append(std::to_string(DtmInvDistProperties::angle()));
   cmd.append(":max_points=").append(std::to_string(DtmInvDistProperties::maxPoints()));
   cmd.append(":min_points=").append(std::to_string(DtmInvDistProperties::minPoints()));
+  cmd.append(":nodata=-9999");
   cmd.append(" -txe ").append(std::to_string(bbox.pt1.x)).append(" ").append(std::to_string(bbox.pt2.x));
   cmd.append(" -tye ").append(std::to_string(bbox.pt1.y)).append(" ").append(std::to_string(bbox.pt2.y));
   cmd.append(" -outsize ").append(std::to_string(size.width)).append(" ").append(std::to_string(size.height));
   cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
   cmd.append(gdal_vrt_file.toString()).append("\" \"");
   cmd.append(dtmFile).append("\" ");
-  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS\"");
+  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS");
 
   ExternalProcess process(cmd);
   process.run();
-  //if (process.run() == Process::Status::error) {
-  //  return true;
-  //}
 
   return false;
 }

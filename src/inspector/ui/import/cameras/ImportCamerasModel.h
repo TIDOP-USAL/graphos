@@ -25,6 +25,7 @@ public:
   virtual QStandardItemModel *itemModelCSV() = 0;
   virtual QStandardItemModel *itemModelFormatCameras() = 0;
   virtual bool checkCRS(const QString &crs) = 0;
+  virtual QString outputCRS() const = 0;
 
 public slots:
 

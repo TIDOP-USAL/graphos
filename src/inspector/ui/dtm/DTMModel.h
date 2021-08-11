@@ -24,6 +24,7 @@ public:
   virtual std::array<double, 3> offset() const = 0;
   virtual QString projectPath() const = 0;
   virtual QString denseModel() const = 0;
+  virtual QString crs() const = 0;
 
   virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
   virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;

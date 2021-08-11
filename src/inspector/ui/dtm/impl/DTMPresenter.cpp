@@ -189,7 +189,8 @@ bool DtmPresenterImp::createProcess()
                                                          mModel->offset(),
                                                          dtm_file,
                                                          mView->gsd(),
-                                                         mView->isDSM()));
+                                                         mView->isDSM(),
+                                                         mModel->crs()));
 
   //connect(dtm_process.get(), &DtmProcess::dtmFinished, 
   //        this, &DtmPresenterImp::onFinishDtm);

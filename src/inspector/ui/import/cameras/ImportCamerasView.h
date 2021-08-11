@@ -46,6 +46,7 @@ public slots:
   virtual void setParseOk(bool parseOk) = 0;
   virtual void setValidInputCRS(bool valid) = 0;
   virtual void setValidOutputCRS(bool valid) = 0;
+  virtual void setOutputCRS(const QString &crs) = 0;
 
 signals:
 

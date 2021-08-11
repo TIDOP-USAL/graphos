@@ -27,6 +27,7 @@ public:
   std::array<double, 3> offset() const override;
   QString projectPath() const override;
   QString denseModel() const override;
+  QString crs() const override;
 
   std::shared_ptr<Dtm> dtmMethod() const override;
   void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;

@@ -65,6 +65,7 @@ public slots:
   void setParseOk(bool parseOk) override;
   void setValidInputCRS(bool valid) override;
   void setValidOutputCRS(bool valid) override;
+  void setOutputCRS(const QString &crs) override;
 
 // DialogView interface
 
@@ -143,8 +144,8 @@ protected:
   QDialogButtonBox *mButtonBox;
   //QString mProjectPath;
   bool bParseOk;
-  bool bValidCRS;
-
+  bool bValidCrsIn;
+  bool bValidCrsOut;
 };
 
 } // namespace ui

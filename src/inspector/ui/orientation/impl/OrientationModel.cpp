@@ -120,11 +120,13 @@ std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() 
     QString path = it->path();
     //QString file_name = QFileInfo(path).fileName();
     CameraPosition cameraPosition = it->cameraPosition();
-    std::array<double, 3> positions = {
-    cameraPosition.x(),
-    cameraPosition.y(),
-    cameraPosition.z()};
-    camera_positions[path] = positions;
+    if (!cameraPosition.isEmpty()) {
+      std::array<double, 3> positions = {
+      cameraPosition.x(),
+      cameraPosition.y(),
+      cameraPosition.z()};
+      camera_positions[path] = positions;
+    }
   }
   return camera_positions;
 }

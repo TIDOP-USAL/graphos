@@ -19,9 +19,11 @@ namespace inspector
 {
 
 LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images, 
-                                     std::vector<Camera> *cameras)
+                                     std::vector<Camera> *cameras,
+                                     const QString &epsg)
   : mImages(images),
-    mCameras(cameras)
+    mCameras(cameras),
+    mEPSG(epsg)
 {
 
 }
@@ -79,6 +81,14 @@ void inspector::LoadImagesProcess::run()
     db_open = database_cameras.open();
   } else {
     msgError("The camera database does not exist");
+  }
+
+  std::string epsg_out = "EPSG:326";
+  std::shared_ptr<tl::geospatial::Crs> crs_in = std::make_shared<tl::geospatial::Crs>("EPSG:4326");
+  std::shared_ptr<tl::geospatial::Crs> crs_out;
+  if (!mEPSG.isEmpty()) {
+    crs_out = std::make_shared<tl::geospatial::Crs>(mEPSG.toStdString());
+    epsg_out = mEPSG.toStdString();
   }
 
   for (size_t i = 0; i < mImages->size(); i++){
@@ -301,24 +311,22 @@ void inspector::LoadImagesProcess::run()
 
       if (latitudeDecimalDegrees != 0.0 && longitudeDecimalDegrees != 0.0 && altitude != 0.0){
 
-        std::shared_ptr<tl::geospatial::Crs> crs_in(new tl::geospatial::Crs("EPSG:4326"));
-        int zone = tl::geospatial::utmZoneFromLongitude(longitudeDecimalDegrees * tl::math::consts::deg_to_grad<double>);
-        std::string epsg_out = "EPSG:326";
-        epsg_out.append(std::to_string(zone));
-        std::shared_ptr<tl::geospatial::Crs> crs_out(new tl::geospatial::Crs(epsg_out));
+        if (!crs_out) {
+          int zone = tl::geospatial::utmZoneFromLongitude(longitudeDecimalDegrees * tl::math::consts::deg_to_grad<double>);
+          epsg_out.append(std::to_string(zone));
+          crs_out = std::make_shared<tl::geospatial::Crs>(epsg_out);
+        }
+        
         bool bTrfCrs = crs_in->isValid() && crs_out->isValid();
         tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
         tl::Point3D pt_in(latitudeDecimalDegrees, longitudeDecimalDegrees, altitude);
         tl::Point3D pt_out = crs_trf.transform(pt_in);
 
         CameraPosition cameraPosition;
-//        cameraPosition.setX(longitudeDecimalDegrees);
-//        cameraPosition.setY(latitudeDecimalDegrees);
-//        cameraPosition.setZ(altitude);
         cameraPosition.setX(pt_out.x);
         cameraPosition.setY(pt_out.y);
         cameraPosition.setZ(pt_out.z);
-        cameraPosition.setCrs(epsg_out.c_str()/*"EPSG:4326"*/);
+        cameraPosition.setCrs(epsg_out.c_str());
         cameraPosition.setSource("EXIF");
         (*mImages)[i].setCameraPosition(cameraPosition);
       }

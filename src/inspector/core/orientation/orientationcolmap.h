@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <map>
+#include <vector>
 
 namespace colmap
 {
@@ -199,6 +200,12 @@ private:
   QString mOutputPath;
   
 };
+
+
+/*----------------------------------------------------------------*/
+
+void colmapRemoveOrientations(const std::vector<std::string> &images, 
+                              const std::string &reconstruction);
 
 
 } // namespace inspector

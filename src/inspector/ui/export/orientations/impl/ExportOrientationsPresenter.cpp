@@ -10,6 +10,7 @@
 #include "inspector/core/orientation/orientationexport.h"
 
 #include <tidop/core/defs.h>
+#include <tidop/geometry/entities/point.h>
 
 // COLMAP
 #include <colmap/base/reconstruction.h>
@@ -91,7 +92,7 @@ void ExportOrientationsPresenterImp::initSignalAndSlots()
 {
   connect(mView, &ExportOrientationsView::accepted,     this, &ExportOrientationsPresenterImp::save);
   connect(mView, &ExportOrientationsView::formatChange, this, &ExportOrientationsPresenterImp::setCurrentFormat);
-  connect(mView, &DialogView::help,                    this, &ExportOrientationsPresenterImp::help);
+  connect(mView, &DialogView::help,                     this, &ExportOrientationsPresenterImp::help);
 }
 
 void ExportOrientationsPresenterImp::save()
@@ -106,7 +107,9 @@ void ExportOrientationsPresenterImp::save()
   //Lectura como binario
   reconstruction.ReadBinary(reconstructionPath.toStdString());
 //#endif
-  OrientationExport orientationExport(&reconstruction);
+
+  tl::Point3D offset = mModel->offset();
+  OrientationExport orientationExport(&reconstruction, offset);
 
   QString oriFormat = mView->format();
   if (oriFormat.compare("NVM") == 0) {

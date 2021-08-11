@@ -57,6 +57,10 @@ void ImportCamerasModelImp::setCsvFile(const QString &csv)
 
 void ImportCamerasModelImp::init()
 {
+  QString crs = mProject->crs();
+  if (!crs.isEmpty()) {
+    mOutputCrs = crs;
+  }
 }
 
 void ImportCamerasModelImp::clear()
@@ -567,8 +571,11 @@ void ImportCamerasModelImp::importCameras()
     QString phi;
     QString kappa;
 
+    QString epsg_out = mProject->crs();
     std::shared_ptr<tl::geospatial::Crs> crs_in(new tl::geospatial::Crs(mInputCrs.toStdString()));
     std::shared_ptr<tl::geospatial::Crs> crs_out(new tl::geospatial::Crs(mOutputCrs.toStdString()));
+    mProject->setCrs(mOutputCrs);
+
     bool bTrfCrs = crs_in->isValid() && crs_out->isValid();
     //tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
 
@@ -779,6 +786,11 @@ bool ImportCamerasModelImp::checkCRS(const QString &crs)
 {
   tl::geospatial::Crs _crs(crs.toStdString());
   return _crs.isValid();
+}
+
+QString ImportCamerasModelImp::outputCRS() const
+{
+  return mOutputCrs;
 }
 
 } // namespace ui

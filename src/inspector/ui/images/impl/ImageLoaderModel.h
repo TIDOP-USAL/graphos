@@ -28,6 +28,9 @@ public:
 
 public:
 
+  QString projectCRS() const override;
+  void setProjectCRS(const QString &crs) override;
+
   void addImage(Image &image) override;
   size_t imageID(const QString &imageName) const override;
   Image findImageByName(const QString &imageName) const override;

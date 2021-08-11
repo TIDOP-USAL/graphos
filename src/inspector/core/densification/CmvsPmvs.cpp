@@ -307,11 +307,16 @@ bool CmvsPmvsDensifier::densify(const QString &undistortPath)
 {
 
   tl::Path app_path(tl::getRunfile());
-  std::string cmd_cmvs("/c \"\"");
+  //std::string cmd_cmvs("/c \"\"");
+  //cmd_cmvs.append(app_path.parentPath().toString());
+  //cmd_cmvs.append("\\pmvs2\" \"");
+  //cmd_cmvs.append(undistortPath.toStdString());
+  //cmd_cmvs.append("/pmvs/\" option-all\"");
+  std::string cmd_cmvs("\"");
   cmd_cmvs.append(app_path.parentPath().toString());
   cmd_cmvs.append("\\pmvs2\" \"");
   cmd_cmvs.append(undistortPath.toStdString());
-  cmd_cmvs.append("/pmvs/\" option-all\"");
+  cmd_cmvs.append("/pmvs/\" option-all");
   tl::ExternalProcess process(cmd_cmvs);
   process.run();
 

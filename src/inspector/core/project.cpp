@@ -31,6 +31,7 @@ ProjectImp::ProjectImp()
     mProjectPath(""),
     mVersion(INSPECTOR_PROJECT_FILE_VERSION),
     mDatabase(""),
+    mCrs(""),
     bRefinePrincipalPoint(true),
     mReconstructionPath(""),
     mCameraCount(0)
@@ -86,6 +87,16 @@ QString ProjectImp::database() const
 void ProjectImp::setDatabase(const QString &database)
 {
   mDatabase = database;
+}
+
+QString ProjectImp::crs() const
+{
+  return mCrs;
+}
+
+void ProjectImp::setCrs(const QString &crs)
+{
+  mCrs = crs;
 }
 
 
@@ -553,6 +564,7 @@ void ProjectImp::clear()
   mProjectPath = "";
   mVersion = INSPECTOR_PROJECT_FILE_VERSION;
   mDatabase = "";
+  mCrs = "";
   mImages.resize(0);
   mCameras.clear();
   mFeatureExtractor.reset();
@@ -619,6 +631,7 @@ bool ProjectImp::save(const QString &file)
         writeCameras(stream);
         writeImages(stream);
         writeDatabase(stream);
+        writeCrs(stream);
         writeFeatures(stream);
         writeMatches(stream);
         writeOrientations(stream);
@@ -718,6 +731,8 @@ bool ProjectImp::read(QXmlStreamReader &stream)
           this->readGeneral(stream);
         } else if (stream.name() == "Database") {
           this->readDatabase(stream);
+        } else if (stream.name() == "ProjectCRS") {
+          this->readCrs(stream);
         } else if (stream.name() == "Cameras") {
           this->readCameras(stream);
         } else if (stream.name() == "Images") {
@@ -761,6 +776,11 @@ void ProjectImp::readGeneral(QXmlStreamReader &stream)
 void ProjectImp::readDatabase(QXmlStreamReader &stream)
 {
   this->setDatabase(stream.readElementText());
+}
+
+void ProjectImp::readCrs(QXmlStreamReader &stream)
+{
+  this->setCrs(stream.readElementText());
 }
 
 void ProjectImp::readImages(QXmlStreamReader &stream)
@@ -1270,6 +1290,11 @@ void ProjectImp::writeGeneral(QXmlStreamWriter &stream) const
 void ProjectImp::writeDatabase(QXmlStreamWriter &stream) const
 {
   stream.writeTextElement("Database", this->database());
+}
+
+void ProjectImp::writeCrs(QXmlStreamWriter &stream) const
+{
+  stream.writeTextElement("ProjectCRS", this->crs());
 }
 
 void ProjectImp::writeCameras(QXmlStreamWriter &stream) const

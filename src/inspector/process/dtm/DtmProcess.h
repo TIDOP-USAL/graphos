@@ -23,7 +23,8 @@ public:
              const tl::Point3<double> &offset,
              const QString &dtmFile,
              double gsd,
-             bool dsm);
+             bool dsm,
+             const QString &crs);
   ~DtmProcess() override = default;
 
 signals:
@@ -44,6 +45,7 @@ private:
   QString mDtmFile;
   double mGSD;
   bool mDSM;
+  QString mCrs;
 };
 
 } // namespace inspector

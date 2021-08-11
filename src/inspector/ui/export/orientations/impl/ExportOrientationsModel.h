@@ -26,6 +26,7 @@ public:
 public:
 
   QString reconstruction() const override;
+  tl::Point3D offset() const override;
 
 // Model interface
 

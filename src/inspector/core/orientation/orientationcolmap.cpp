@@ -395,4 +395,21 @@ void AbsoluteOrientationColmapAlgorithm2::run()
 }
 
 
+
+
+
+void colmapRemoveOrientations(const std::vector<std::string> &images, const std::string &reconstruction)
+{
+  colmap::Reconstruction _reconstruction;
+  _reconstruction.Read(reconstruction);
+
+  for (const auto &image : images) {
+    if (const colmap::Image *_image = _reconstruction.FindImageWithName(image)) {
+      _reconstruction.DeRegisterImage(_image->ImageId());
+    }
+  }
+
+  _reconstruction.Write(reconstruction);
+}
+
 } // namespace inspector

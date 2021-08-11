@@ -4,6 +4,7 @@
 #include "inspector/inspector_global.h"
 
 #include <tidop/core/defs.h>
+#include <tidop/geometry/entities/point.h>
 
 #include <QString>
 
@@ -21,7 +22,8 @@ class TL_EXPORT OrientationExport
 
 public:
 
-  OrientationExport(const colmap::Reconstruction *reconstruction);
+  OrientationExport(const colmap::Reconstruction *reconstruction, 
+                    const tl::Point3D &offset = tl::Point3D(0,0,0));
   ~OrientationExport();
 
   /*!
@@ -85,7 +87,7 @@ public:
 private:
 
   const colmap::Reconstruction *mReconstruction;
-
+  tl::Point3D mOffset;
 };
 
 } // namespace inspector

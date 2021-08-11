@@ -140,10 +140,8 @@ void ImportCamerasViewImp::initUI()
   gridLayoutCoordinates->addWidget(mLineEditCrsInput, 1, 1, 1, 1);
 
   mLabelCrsOut = new QLabel(this);
-  mLabelCrsOut->setVisible(false);
   gridLayoutCoordinates->addWidget(mLabelCrsOut, 1, 2, 1, 1);
   mLineEditCrsOutput = new QLineEdit(this);
-  mLineEditCrsOutput->setVisible(false);
   gridLayoutCoordinates->addWidget(mLineEditCrsOutput, 1, 3, 1, 1);
 
   gridLayoutColumns->addWidget(mGroupBoxCoordinates, 1, 0, 1, 3);
@@ -335,7 +333,7 @@ void ImportCamerasViewImp::initSignalAndSlots()
   connect(mComboBoxRotation, QOverload<int>::of(&QComboBox::currentIndexChanged), mStackedWidget, &QStackedWidget::setCurrentIndex);
   connect(mComboBoxRotation, &QComboBox::currentTextChanged, this, &ImportCamerasView::rotationChange);
   connect(mLineEditCrsInput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsInputChanged);
-  //connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsOutputChanged);
+  connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsOutputChanged);
 
 //  connect(mComboBoxImageColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
 //  connect(mComboBoxXColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
@@ -365,6 +363,8 @@ void ImportCamerasViewImp::clear()
   QSignalBlocker blocker15(mComboBoxPhiColumn);
   QSignalBlocker blocker16(mComboBoxKappaColumn);
   QSignalBlocker blocker17(mLineEditOther);
+  QSignalBlocker blocker18(mLineEditCrsInput);
+  QSignalBlocker blocker19(mLineEditCrsOutput);
 
   mRadioButtonComma->setChecked(true);
   mCheckBoxFieldNamesAuto->setChecked(true);
@@ -384,9 +384,12 @@ void ImportCamerasViewImp::clear()
   mComboBoxPhiColumn->clear();
   mComboBoxKappaColumn->clear();
   mLineEditOther->clear();
-//  mLineEditCrsInput->clear();
-//  mLineEditCrsOutput->clear();
-  bParseOk = bValidCRS = false;
+  mLineEditCrsInput->clear();
+  mLineEditCrsOutput->clear();
+  mLineEditCrsOutput->setEnabled(true);
+  bParseOk = false;
+  bValidCrsIn = false;
+  bValidCrsOut = false;
 
   update();
 }
@@ -450,7 +453,9 @@ void ImportCamerasViewImp::update()
 //  bSave = checkX && checkY && checkZ;
 //  mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(bSave);
 
-  mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(bParseOk /*&& bValidCRS*/);
+  mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(bParseOk && 
+                                                       ((bValidCrsIn && bValidCrsOut) || 
+                                                        (mLineEditCrsInput->text().isEmpty() && mLineEditCrsOutput->text().isEmpty())));
 }
 
 void ImportCamerasViewImp::retranslate()
@@ -687,14 +692,24 @@ void ImportCamerasViewImp::setParseOk(bool parseOk)
 
 void ImportCamerasViewImp::setValidInputCRS(bool valid)
 {
-  bValidCRS = valid;
+  bValidCrsIn = valid;
   update();
 }
 
 void ImportCamerasViewImp::setValidOutputCRS(bool valid)
 {
-
+  bValidCrsOut = valid;
   update();
+}
+
+void ImportCamerasViewImp::setOutputCRS(const QString &crs)
+{
+  if (!crs.isEmpty()) {
+    QSignalBlocker blocker(mLineEditCrsOutput);
+    mLineEditCrsOutput->setText(crs);
+    mLineEditCrsOutput->setEnabled(false); // CRS de proyecto. No editable
+    bValidCrsOut = true;
+  } else bValidCrsOut = false;
 }
 
 } // namespace ui

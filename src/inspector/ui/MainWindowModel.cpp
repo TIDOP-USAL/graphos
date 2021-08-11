@@ -1,5 +1,7 @@
 #include "MainWindowModel.h"
 
+#include "inspector/core/orientation/orientationcolmap.h"
+
 #include <tidop/core/messages.h>
 
 #include <easyexif/exif.h>
@@ -126,9 +128,31 @@ size_t MainWindowModel::imageID(const QString &imageName) const
   return mProject->imageId(imageName);
 }
 
-bool MainWindowModel::removeImage(size_t id)
+//bool MainWindowModel::removeImage(size_t id)
+//{
+//  ///TODO: Esto esta fatal...
+//  Image img = mProject->findImageById(id);
+//  colmapRemoveOrientation(img.path().toStdString(), mProject->reconstructionPath().toStdString());
+//  return mProject->removeImage(id);
+//}
+
+bool MainWindowModel::removeImage(const QString &imageName)
 {
-  return mProject->removeImage(id);
+  Image img = mProject->findImageByName(imageName);
+  std::vector<std::string> _images;
+  _images.push_back(img.path().toStdString());
+  colmapRemoveOrientations(_images, mProject->reconstructionPath().toStdString());
+  return mProject->removeImage(imageID(imageName));
+}
+
+void MainWindowModel::removeImages(const QStringList &images)
+{
+  std::vector<std::string> _images(images.size());
+  for (size_t i = 0; i < images.size(); i++) {
+    _images[i] = mProject->findImageByName(images[i]).path().toStdString();
+    mProject->removeImage(imageID(images[i]));
+  }
+  colmapRemoveOrientations(_images, mProject->reconstructionPath().toStdString());
 }
 
 MainWindowModel::image_iterator MainWindowModel::imageBegin()

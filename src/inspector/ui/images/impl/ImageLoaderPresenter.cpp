@@ -76,6 +76,12 @@ void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
   image.setCameraId(camera_id);
   mModel->addImage(image);
 
+  QString crs_proj = mModel->projectCRS();
+  QString crs_image = image.cameraPosition().crs();
+  if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
+    mModel->setProjectCRS(crs_image);
+  }
+
   emit imageLoaded(image.path());
 }
 
@@ -105,7 +111,7 @@ bool ImageLoaderPresenterImp::createProcess()
     mCameras.push_back(it->second);
   }
 
-  std::shared_ptr<LoadImagesProcess> load_images(new LoadImagesProcess(&mImages, &mCameras));
+  std::shared_ptr<LoadImagesProcess> load_images(new LoadImagesProcess(&mImages, &mCameras, mModel->projectCRS()));
 
   connect(load_images.get(), &LoadImagesProcess::imageAdded, this, &ImageLoaderPresenterImp::addImage);
 

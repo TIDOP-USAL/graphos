@@ -38,7 +38,9 @@ public:
 
   Image findImageByName(const QString &imageName) const;
   size_t imageID(const QString &imageName) const;
-  bool removeImage(size_t id);
+  //bool removeImage(size_t id);
+  bool removeImage(const QString &imageName);
+  void removeImages(const QStringList &images);
   image_iterator imageBegin();
   image_const_iterator imageBegin() const;
   image_iterator imageEnd();

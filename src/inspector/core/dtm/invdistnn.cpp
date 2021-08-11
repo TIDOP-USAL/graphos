@@ -156,7 +156,7 @@ bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
 
   tl::Path app_path(tl::getRunfile());
 
-  std::string cmd("/c \"\"");
+  std::string cmd("\"");
   cmd.append(app_path.parentPath().toString());
   cmd.append("\\gdal_grid.exe\"");
   cmd.append(" -a invdistnn");
@@ -170,13 +170,10 @@ bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
   cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
   cmd.append(gdal_vrt_file.toString()).append("\" \"");
   cmd.append(dtmFile).append("\" ");
-  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS\"");
+  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS");
 
   ExternalProcess process(cmd);
   process.run();
-  //if (process.run() == Process::Status::error) {
-  //  return true;
-  //}
 
   return false;
 }
@@ -205,7 +202,7 @@ bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
 
   tl::Size<int> size(bbox.width() / gsd, bbox.height() / gsd);
 
-  std::string cmd("/c \"\"");
+  std::string cmd("\"");
   cmd.append(app_path.parentPath().toString());
   cmd.append("\\gdal_grid.exe\"");
   cmd.append(" -a invdistnn");
@@ -221,13 +218,10 @@ bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
   cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
   cmd.append(gdal_vrt_file.toString()).append("\" \"");
   cmd.append(dtmFile).append("\" ");
-  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS\"");
+  cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS");
 
   ExternalProcess process(cmd);
   process.run();
-  //if (process.run() == Process::Status::error) {
-  //  return true;
-  //}
 
   return false;
 }

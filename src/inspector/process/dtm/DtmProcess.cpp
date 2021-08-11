@@ -21,14 +21,16 @@ DtmProcess::DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
                        const tl::Point3<double> &offset,
                        const QString &dtmFile,
                        double gsd,
-                       bool dsm)
+                       bool dsm,
+                       const QString &crs)
   : ProcessConcurrent(),
     mDtmAlgorithm(dtmAlgorithm),
     mPointCloud(pointCloud),
     mOffset(offset),
     mDtmFile(dtmFile),
     mGSD(gsd),
-    mDSM(dsm)
+    mDSM(dsm),
+    mCrs(crs)
 {
 
 }
@@ -45,14 +47,14 @@ void DtmProcess::run()
     tl::Path dtm_path(mDtmFile.toStdString());
     dtm_path.parentPath().createDirectories();
 
-#ifdef _DEBUG
-    tl::Path temp_path = tl::Path::tempPath();
-    temp_path.append("inspector_dsm");
-    temp_path.createDirectories();
-#else
+//#ifdef _DEBUG
+//    tl::Path temp_path = tl::Path::tempPath();
+//    temp_path.append("inspector_dsm");
+//    temp_path.createDirectories();
+//#else
     tl::TemporalDir temporal_dir;
     tl::Path temp_path = temporal_dir.path();
-#endif
+//#endif
 
     if (mDSM) {
 
@@ -96,12 +98,6 @@ void DtmProcess::run()
 
         tl::BoundingBox<tl::Point3<double>> bbox = tl::joinBoundingBoxes(bbox_ground, bbox_out_ground);
 
-        //-txe <xmin> <xmax>
-        // -tye <ymin> <ymax>
-        // 
-        
-        //tl::Size<int> size(bbox.width() / mGSD, bbox.height() / mGSD);
-
         mDtmAlgorithm->run(mds_ground_csv.toString(), mds_ground.toString(), bbox, mGSD);
         mDtmAlgorithm->run(mds_out_ground_csv.toString(), mds_out_ground.toString(), bbox, mGSD);
 
@@ -123,7 +119,7 @@ void DtmProcess::run()
 
 
         cv::Mat mask = cv::Mat::zeros(ground.size(), CV_8U);
-        mask.setTo(1, out_ground > 0);
+        mask.setTo(1, out_ground > -9999);
 
         out_ground.copyTo(ground, mask);
         out_ground.release();
@@ -138,6 +134,8 @@ void DtmProcess::run()
                                           image_reader_mds_ground->channels(), 
                                           image_reader_mds_ground->dataType());
           image_writer_mds_ground->setGeoreference(georeference);
+          image_writer_mds_ground->setCRS(mCrs.toStdString());
+          image_writer_mds_ground->setNoDataValue(-9999.);
           image_writer_mds_ground->write(ground);
           ground.release();
 
