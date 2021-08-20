@@ -1,0 +1,45 @@
+#ifndef GRAPHOS_CONFIG_H
+#define GRAPHOS_CONFIG_H
+
+/* Cabecera para configuración de GRAPHOS */
+
+/* OpenCV */
+#cmakedefine HAVE_OPENCV
+
+/* Colmap */
+#cmakedefine HAVE_COLMAP
+
+/* GDAL */
+#cmakedefine HAVE_GDAL
+
+/* Eigen */
+#cmakedefine HAVE_EIGEN
+
+/* PCL */
+#cmakedefine HAVE_PCL
+
+/* Visual Leak Detector */
+#cmakedefine HAVE_VLD
+
+/* boost */
+#cmakedefine HAVE_BOOST
+
+/* OpenSceneGraph */
+#cmakedefine HAVE_OPENSCENEGRAPH
+
+/* CloudCompare */
+#cmakedefine HAVE_CLOUDCOMPARE
+
+/* Cuda */
+#cmakedefine HAVE_CUDA
+
+/* Graphos Version */
+
+#define GRAPHOS_VERSION_MAJOR @GRAPHOS_VERSION_MAJOR@
+#define GRAPHOS_VERSION_MINOR @GRAPHOS_VERSION_MINOR@
+
+/* Graphos source path */
+
+#define GRAPHOS_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
+
+#endif // GRAPHOS_CONFIG_H

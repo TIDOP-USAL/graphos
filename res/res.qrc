@@ -229,7 +229,7 @@
         <file>img/usal.png</file>
     </qresource>
     <qresource prefix="/ico">
-        <file>img/InspectorIcon.ico</file>
+        <file>img/GraphosIcon.ico</file>
     </qresource>
     <qresource prefix="/ico/96">
         <file>img/material/96/icons8-tif.png</file>

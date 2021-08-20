@@ -1,0 +1,67 @@
+#ifndef GRAPHOS_FEATURE_EXTRACTOR_COMPONENT_H
+#define GRAPHOS_FEATURE_EXTRACTOR_COMPONENT_H
+
+#include "graphos/ui/Component.h"
+
+
+namespace graphos
+{
+
+class Project;
+
+namespace ui
+{
+
+
+class FeatureExtractorProcess;
+
+class FeatureExtractorComponent
+  : public ProcessComponent
+{
+
+  Q_OBJECT
+
+public:
+
+  FeatureExtractorComponent(Project *project);
+  ~FeatureExtractorComponent();
+
+signals:
+
+  void featuresExtracted(QString);
+  void featuresDeleted();
+
+// ComponentBase
+
+protected:
+
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
+
+protected:
+
+  void update() override;
+
+// ProcessComponent
+
+protected slots:
+
+  void onRunning() override;
+  void onFinished() override;
+  void onFailed() override;
+
+protected:
+
+  FeatureExtractorProcess *mProcess;
+  Project *mProject;
+
+};
+
+
+} // namespace ui
+
+} // namespace graphos
+
+
+#endif // GRAPHOS_FEATURE_EXTRACTOR_COMPONENT_H

@@ -1,0 +1,173 @@
+#include "StartPageWidget.h"
+
+#include <QGridLayout>
+#include <QLabel>
+#include <QApplication>
+#include <QSplitter>
+#include <QCommandLinkButton>
+#include <QListWidget>
+
+namespace graphos
+{
+
+StartPageWidget::StartPageWidget(QWidget *parent)
+  : IWidgetView(parent)
+{
+  this->initUI();
+  this->initSignalAndSlots();
+}
+
+void StartPageWidget::setHistory(const QStringList &history)
+{
+  const QSignalBlocker blocker(mListWidgetRecentProjects);
+  mListWidgetRecentProjects->clear();
+  mListWidgetRecentProjects->addItems(history);
+}
+
+void StartPageWidget::update()
+{
+}
+
+void StartPageWidget::retranslate()
+{
+  this->setWindowTitle(QApplication::translate("StartPage", "Start Page", nullptr));
+  mLabelPhotoMatch->setText(QApplication::translate("StartPage", "Graphos", nullptr));
+  mCommandLinkButtonNewProject->setText(QApplication::translate("StartPage", "New Project", nullptr));
+  mCommandLinkButtonOpenProject->setText(QApplication::translate("StartPage", "Open Project", nullptr));
+  mCommandLinkButtonSettings->setText(QApplication::translate("StartPage", "Settings", nullptr));
+  mLabelRecentProjects->setText(QApplication::translate("StartPage", "Recent Projects", nullptr));
+  mCommandLinkButtonClearHistory->setText(QApplication::translate("StartPage", "Clear History", nullptr));
+}
+
+void StartPageWidget::clear()
+{
+  const QSignalBlocker blocker(mListWidgetRecentProjects);
+  mListWidgetRecentProjects->clear();
+}
+
+void StartPageWidget::initUI()
+{
+
+  QGridLayout *layout = new QGridLayout(this);
+  layout->setSpacing(6);
+  layout->setContentsMargins(11, 11, 11, 11);
+
+  mLabelPhotoMatch = new QLabel(this);
+  mLabelPhotoMatch->setMaximumSize(QSize(16777215, 79));
+  QFont font;
+  font.setFamily(QStringLiteral("Arial Black"));
+  font.setPointSize(28);
+  font.setBold(true);
+  font.setWeight(75);
+  mLabelPhotoMatch->setFont(font);
+  mLabelPhotoMatch->setStyleSheet(QStringLiteral("color: rgb(95, 141, 211);"));
+
+  layout->addWidget(mLabelPhotoMatch, 0, 0, 1, 1);
+
+  mSplitter = new QSplitter(this);
+  mSplitter->setOrientation(Qt::Horizontal);
+  QWidget *layoutWidgetButtons = new QWidget(mSplitter);
+  QVBoxLayout *verticalLayout = new QVBoxLayout(layoutWidgetButtons);
+  verticalLayout->setSpacing(6);
+  verticalLayout->setContentsMargins(11, 11, 11, 11);
+  verticalLayout->setContentsMargins(9, 9, 9, 9);
+  mCommandLinkButtonNewProject = new QCommandLinkButton(layoutWidgetButtons);
+  QIcon icon;
+  icon.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mCommandLinkButtonNewProject->setIcon(icon);
+  mCommandLinkButtonNewProject->setIconSize(QSize(48, 48));
+
+  verticalLayout->addWidget(mCommandLinkButtonNewProject);
+
+  mCommandLinkButtonOpenProject = new QCommandLinkButton(layoutWidgetButtons);
+  QIcon icon1;
+  icon1.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-open.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mCommandLinkButtonOpenProject->setIcon(icon1);
+  mCommandLinkButtonOpenProject->setIconSize(QSize(48, 48));
+
+  verticalLayout->addWidget(mCommandLinkButtonOpenProject);
+
+  QFrame *line = new QFrame(layoutWidgetButtons);
+  line->setFrameShape(QFrame::HLine);
+  line->setFrameShadow(QFrame::Sunken);
+
+  verticalLayout->addWidget(line);
+
+  mCommandLinkButtonSettings = new QCommandLinkButton(layoutWidgetButtons);
+  QIcon icon2;
+  icon2.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mCommandLinkButtonSettings->setIcon(icon2);
+  mCommandLinkButtonSettings->setIconSize(QSize(48, 48));
+
+  verticalLayout->addWidget(mCommandLinkButtonSettings);
+
+  QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+  verticalLayout->addItem(verticalSpacer);
+
+  mSplitter->addWidget(layoutWidgetButtons);
+
+  QWidget *layoutWidget2 = new QWidget(mSplitter);
+  QVBoxLayout *verticalLayout2 = new QVBoxLayout(layoutWidget2);
+  verticalLayout2->setSpacing(6);
+  verticalLayout2->setContentsMargins(11, 11, 11, 11);
+  verticalLayout2->setContentsMargins(9, 9, 9, 9);
+  mLabelRecentProjects = new QLabel(layoutWidget2);
+  mLabelRecentProjects->setMinimumSize(QSize(0, 68));
+  mLabelRecentProjects->setMaximumSize(QSize(16777215, 68));
+  QFont font1;
+  font1.setFamily(QStringLiteral("Segoe UI"));
+  font1.setPointSize(12);
+  mLabelRecentProjects->setFont(font1);
+  mLabelRecentProjects->setStyleSheet(QStringLiteral("color: rgb(0, 0, 127);"));
+
+  verticalLayout2->addWidget(mLabelRecentProjects);
+
+  mListWidgetRecentProjects = new QListWidget(layoutWidget2);
+  QFont font2;
+  font2.setPointSize(11);
+  mListWidgetRecentProjects->setFont(font2);
+  mListWidgetRecentProjects->setFrameShape(QFrame::NoFrame);
+  mListWidgetRecentProjects->setFrameShadow(QFrame::Sunken);
+  mListWidgetRecentProjects->setViewMode(QListView::ListMode);
+
+  verticalLayout2->addWidget(mListWidgetRecentProjects);
+
+  mCommandLinkButtonClearHistory = new QCommandLinkButton(layoutWidget2);
+  QIcon icon4;
+  icon4.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-delete-2.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mCommandLinkButtonClearHistory->setIcon(icon4);
+  mCommandLinkButtonClearHistory->setIconSize(QSize(24, 24));
+
+  verticalLayout2->addWidget(mCommandLinkButtonClearHistory);
+
+  mSplitter->addWidget(layoutWidget2);
+
+  layout->addWidget(mSplitter, 1, 0, 1, 1);
+
+  this->retranslate();
+}
+
+void StartPageWidget::initSignalAndSlots()
+{
+  connect(mCommandLinkButtonNewProject,   &QAbstractButton::clicked,  this, &StartPageWidget::openNew);
+  connect(mCommandLinkButtonOpenProject,  &QAbstractButton::clicked,  this, &StartPageWidget::openProject);
+  connect(mCommandLinkButtonSettings,     &QAbstractButton::clicked,  this, &StartPageWidget::openSettings);
+  connect(mCommandLinkButtonClearHistory, &QAbstractButton::clicked,  this, &StartPageWidget::clearHistory);
+
+  connect(mListWidgetRecentProjects,      &QListWidget::currentTextChanged, this, &StartPageWidget::openProjectFromHistory);
+}
+
+void StartPageWidget::changeEvent(QEvent *event)
+{
+  QWidget::changeEvent(event);
+  switch (event->type()) {
+    case QEvent::LanguageChange:
+      this->retranslate();
+      break;
+    default:
+      break;
+  }
+}
+
+} // namespace graphos

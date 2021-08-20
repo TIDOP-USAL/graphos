@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
 
-# Proyecto INSPECTOR (Inspección y mantenimiento en entornos complejos desasistidos)
-project(inspector 
+# Proyecto GRAPHOS (InteGRAted PHOtogrammetric Suite)
+project(graphos 
         VERSION 0.2.0
         LANGUAGES CXX)
 		
@@ -81,16 +81,16 @@ endif (BUILD_SHARED_LIBS)
 
 
 
-## CONFIGURACIÓN COMPONENTES INSPECTOR
+## CONFIGURACIÓN COMPONENTES GRAPHOS
 
-# Activación desactivación de los diferentes componentes de INSPECTOR
-OPTION (BUILD_INSPECTOR_IMAGE           "INSPECTOR IMAGE"          OFF)
-OPTION (BUILD_INSPECTOR_COMMANDS        "INSPECTOR COMMANDS"       ON )
-OPTION (BUILD_INSPECTOR_MICROSERVICES   "INSPECTOR MICROSERVICES"  OFF)
+# Activación desactivación de los diferentes componentes de GRAPHOS
+OPTION (BUILD_GRAPHOS                 "GRAPHOS"                OFF)
+OPTION (BUILD_GRAPHOS_COMMANDS        "GRAPHOS COMMANDS"       ON )
+OPTION (BUILD_GRAPHOS_MICROSERVICES   "GRAPHOS MICROSERVICES"  OFF)
 
 # Activación desactivación de otros componentes 
 OPTION (BUILD_TEST                 "Include test"          OFF)
-#OPTION (BUILD_INSPECTOR_DOC        "Build documentation"   OFF)
+OPTION (BUILD_PLUGINS              "Build Plugins"         ON )
 
 # Activa el gestor de mensajes. Si se desactiva no se mostrarán los mensajes del la librería
 # por consola ni se escribirán en el log
@@ -99,23 +99,12 @@ OPTION (BUILD_MESSAGE_HANDLER "Active message handle" ON)
 # Si se activa esta opción se pueden utilizar los métodos marcados como obsoletos (deprecated)
 OPTION (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 
-set(BUILD_TL_CORE YES)
+#set(BUILD_TL_CORE YES)
 
-#if(BUILD_MESSAGE_HANDLER)
-#  set(TL_MESSAGE_HANDLER YES)
-#  message(STATUS "[TidopLib] Message manager enabled")
-#else()
-#  set(TL_MESSAGE_HANDLER NO)
-#  message(STATUS "[TidopLib] Message manager disabled")
-#endif()
 
-#if(BUILD_DEPRECATED_METHODS)
-#  set(TL_ENABLE_DEPRECATED_METHODS YES)
-#  message(WARNING "[TidopLib] Enable deprecated methods and class")
-#else()
-#  set(TL_ENABLE_DEPRECATED_METHODS NO)
-#  message(STATUS "[TidopLib] Disable deprecated methods and class")
-#endif()
+if (BUILD_PLUGINS)
+  add_subdirectory(plugins)
+endif(BUILD_PLUGINS)
 
 
 if(BUILD_TEST)
@@ -266,7 +255,7 @@ if(BUILD_TEST)
                  Test)
 endif(BUILD_TEST)
 
-if(BUILD_INSPECTOR_IMAGE)
+if(BUILD_GRAPHOS)
   find_package(Qt5 REQUIRED
                COMPONENTS
                  OpenGLExtensions)
@@ -288,9 +277,9 @@ if(Qt5_FOUND)
     if(BUILD_TEST)
       message(STATUS "  Module : ${Qt5Test_DIR}")
     endif(BUILD_TEST)
-    if(BUILD_INSPECTOR_IMAGE)
+    if(BUILD_GRAPHOS)
       message(STATUS "  Module : ${Qt5OpenGLExtensions_DIR}")
-    endif(BUILD_INSPECTOR_IMAGE)
+    endif(BUILD_GRAPHOS)
 
 
 	include_directories(${Qt5Core_INCLUDE_DIRS}
@@ -304,13 +293,13 @@ if(Qt5_FOUND)
 		include_directories(${Qt5Test_INCLUDE_DIRS})
 	endif(BUILD_TEST)
 
-	if(BUILD_INSPECTOR_IMAGE)
+	if(BUILD_GRAPHOS)
 		include_directories(${Qt5OpenGLExtensions_INCLUDE_DIRS})
-	endif(BUILD_INSPECTOR_IMAGE)
+	endif(BUILD_GRAPHOS)
 
 endif()
 
-if(BUILD_INSPECTOR_IMAGE)
+if(BUILD_GRAPHOS)
 
     find_package(CloudCompare)
 
@@ -325,7 +314,7 @@ else()
   
     set(HAVE_CLOUDCOMPARE NO)
   
-endif(BUILD_INSPECTOR_IMAGE)
+endif(BUILD_GRAPHOS)
 
 
 # VLD
@@ -343,14 +332,14 @@ if(WITH_VLD)
 
 endif(WITH_VLD)
 
-if(BUILD_INSPECTOR_MICROSERVICES)
+if(BUILD_GRAPHOS_MICROSERVICES)
 
     find_package(cpprestsdk REQUIRED)
 	
 	find_package(CURL REQUIRED) 
     include_directories(${CURL_INCLUDE_DIRS})
 
-endif (BUILD_INSPECTOR_MICROSERVICES)
+endif (BUILD_GRAPHOS_MICROSERVICES)
 
 
 set(TL_MESSAGE_HANDLER YES)
@@ -371,14 +360,14 @@ set(CMAKE_AUTORCC ON)
 
 #cabeceras con la configuración
 
-configure_file("${PROJECT_SOURCE_DIR}/cmake/config_inspector.h.in" "${PROJECT_BINARY_DIR}/config_inspector.h")
+configure_file("${PROJECT_SOURCE_DIR}/cmake/config_graphos.h.in" "${PROJECT_BINARY_DIR}/config_graphos.h")
 
 # include del directorio principal
 include_directories(${CMAKE_BUILD_DIR})
 
 
 #Recursos
-set(INSPECTOR_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/res/res.qrc)
+set(GRAPHOS_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/res/res.qrc)
 
 
 #directorio con el código fuente de los diferentes modulos
@@ -401,4 +390,4 @@ endif(BUILD_TEST)
 # Install
 
 install(FILES ${PROJECT_BINARY_DIR}/config_tl.h DESTINATION include)
-install(FILES ${PROJECT_BINARY_DIR}/config_inspector.h DESTINATION include)
+install(FILES ${PROJECT_BINARY_DIR}/config_graphos.h DESTINATION include)

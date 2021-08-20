@@ -1,0 +1,47 @@
+#ifndef GRAPHOS_PROCESS_CONCURRENT_H
+#define GRAPHOS_PROCESS_CONCURRENT_H
+
+
+
+#include "Process.h"
+#include <QFutureWatcher>
+//template <typename T> class QFutureWatcher;
+
+class  GRAPHOS_EXPORT ProcessConcurrent
+  : public Process
+{   
+    Q_OBJECT
+
+public:
+
+  ProcessConcurrent();
+  ~ProcessConcurrent() override;
+
+  virtual void start() override;
+  virtual void setWaitForFinished(bool wait) override;
+  virtual bool isRunning() override;
+
+  virtual QByteArray readStdout() override;
+  virtual QByteArray readStderr() override;
+
+  bool isWaitingForFinished() const override;
+
+public slots:
+
+  virtual void stop() override;
+  void on_mProcessFinished();
+
+protected:
+
+  virtual void run() = 0;
+  int runLauncher();
+
+private:
+
+  bool mRunning;
+  QFutureWatcher<int> *mWatcher;
+  bool mWait;
+
+};
+
+#endif // GRAPHOS_PROCESS_CONCURRENT_H

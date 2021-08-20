@@ -1,0 +1,85 @@
+#include "DensificationModel.h"
+
+#include "graphos/core/project.h"
+#include "graphos/core/densification/densification.h"
+
+
+#include <tidop/core/console.h>
+
+#include <QSettings>
+
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
+namespace graphos
+{
+
+
+namespace ui
+{
+
+
+DensificationModelImp::DensificationModelImp(Project *project,
+                                             QObject *parent)
+  : DensificationModel(parent),
+    mProject(project)
+{
+  init();
+}
+
+DensificationModelImp::~DensificationModelImp()
+{
+
+}
+
+void DensificationModelImp::init()
+{
+}
+
+void DensificationModelImp::clear()
+{
+  mProject->clearDensification();
+}
+
+std::shared_ptr<Densification> DensificationModelImp::densification() const
+{
+  return mProject->densification();
+}
+
+QString DensificationModelImp::projectFolder() const
+{
+  return mProject->projectFolder();
+}
+
+
+QString DensificationModelImp::reconstructionPath() const
+{
+  return mProject->reconstructionPath();
+}
+
+bool DensificationModelImp::useCuda() const
+{
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  return settings.value("General/UseCuda", true).toBool();
+}
+
+bool DensificationModelImp::existDenseModel() const
+{
+  QString dense_model = mProject->denseModel();
+  return !dense_model.isEmpty();
+}
+
+void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)
+{
+  mProject->setDensification(densification);
+}
+
+void DensificationModelImp::setDenseModel(const QString &denseModel)
+{
+  mProject->setDenseModel(denseModel);
+}
+
+
+} // End namespace ui
+
+} // End namespace graphos
