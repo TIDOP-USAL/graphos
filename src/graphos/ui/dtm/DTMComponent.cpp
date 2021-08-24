@@ -1,10 +1,33 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "DTMComponent.h"
 
 #include "graphos/ui/dtm/impl/DTMModel.h"
 #include "graphos/ui/dtm/impl/DTMView.h"
 #include "graphos/ui/dtm/impl/DTMPresenter.h"
 #include "graphos/core/project.h"
-#include "graphos/ui/AppStatus.h"
+#include "graphos/core/AppStatus.h"
 
 #include <QAction>
 #include <QString>
@@ -12,12 +35,9 @@
 namespace graphos
 {
 
-namespace ui
-{
-
-
-DTMComponent::DTMComponent(Project *project)
-  : ProcessComponent(),
+DTMComponent::DTMComponent(Project *project,
+                           Application *application)
+  : ProcessComponent(application),
     mProject(project)
 {
   this->setName("DTM/DSM");
@@ -30,30 +50,34 @@ DTMComponent::~DTMComponent()
 
 void DTMComponent::createModel()
 {
-  mModel = new DtmModelImp(mProject);
+  setModel(new DtmModelImp(mProject));
 }
 
 void DTMComponent::createView()
 {
-  mView = new DtmViewImp();
+  setView(new DtmViewImp());
 }
 
 void DTMComponent::createPresenter()
 {
-  mPresenter = new DtmPresenterImp(dynamic_cast<DtmView *>(mView), 
-                                   dynamic_cast<DtmModel *>(mModel));
+  setPresenter(new DtmPresenterImp(dynamic_cast<DtmView *>(view()), 
+                                   dynamic_cast<DtmModel *>(model())));
   //connect(dynamic_cast<DtmPresenterImp *>(mPresenter), &DtmPresenter::finished,
   //        this, &DTMComponent::finished);
 }
 
 void DTMComponent::update()
 {
-  AppStatus &app_status = AppStatus::instance();
-  bool bProjectExists = app_status.isActive(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status.isActive(AppStatus::Flag::processing);
-  bool bAbsoluteOriented = app_status.isActive(AppStatus::Flag::absolute_oriented);
-  bool bDenseModel = app_status.isActive(AppStatus::Flag::dense_model);
-  mAction->setEnabled(bProjectExists && bAbsoluteOriented && bDenseModel && !bProcessing);
+  Application *app = this->app();
+  TL_ASSERT(app != nullptr, "Application is null");
+  AppStatus *app_status = app->status();
+  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+
+  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
+  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
+  bool bAbsoluteOriented = app_status->isActive(AppStatus::Flag::absolute_oriented);
+  bool bDenseModel = app_status->isActive(AppStatus::Flag::dense_model);
+  action()->setEnabled(bProjectExists && bAbsoluteOriented && bDenseModel && !bProcessing);
 }
 
 void DTMComponent::onRunning()
@@ -63,16 +87,24 @@ void DTMComponent::onRunning()
 
 void DTMComponent::onFinished()
 {
+  Application *app = this->app();
+  TL_ASSERT(app != nullptr, "Application is null");
+  AppStatus *app_status = app->status();
+  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+
   ProcessComponent::onFinished();
-  AppStatus::instance().activeFlag(AppStatus::Flag::dtm, true);
+  app_status->activeFlag(AppStatus::Flag::dtm, true);
 }
 
 void DTMComponent::onFailed()
 {
-  ProcessComponent::onFailed();
-  AppStatus::instance().activeFlag(AppStatus::Flag::dtm, false);
-}
+  Application *app = this->app();
+  TL_ASSERT(app != nullptr, "Application is null");
+  AppStatus *app_status = app->status();
+  TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-} // namespace ui
+  ProcessComponent::onFailed();
+  app_status->activeFlag(AppStatus::Flag::dtm, false);
+}
 
 } // namespace graphos

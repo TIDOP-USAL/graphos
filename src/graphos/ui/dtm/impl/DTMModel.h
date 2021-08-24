@@ -9,9 +9,6 @@ namespace graphos
 class Project;
 class Feature;
 
-namespace ui
-{
-
 class DtmModelImp
   : public DtmModel
 {
@@ -48,12 +45,8 @@ protected:
 
   Project *mProject;
 
-
-
 };
 
-
-} // namespace ui
 
 } // namespace graphos
 

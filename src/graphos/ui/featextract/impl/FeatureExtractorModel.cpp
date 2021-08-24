@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "FeatureExtractorModel.h"
 
 #include "graphos/core/project.h"
@@ -6,9 +29,6 @@
 #include <QSettings>
 
 namespace graphos
-{
-
-namespace ui
 {
 	
 FeatureExtractorModelImp::FeatureExtractorModelImp(Project *project,
@@ -46,7 +66,7 @@ std::shared_ptr<Feature> FeatureExtractorModelImp::featureExtractor() const
   return mProject->featureExtractor();
 }
 
-void graphos::ui::FeatureExtractorModelImp::setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor)
+void FeatureExtractorModelImp::setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor)
 {
   mProject->setFeatureExtractor(featureExtractor);
 }
@@ -107,7 +127,5 @@ void FeatureExtractorModelImp::clearProject()
   QFile(this->database()).remove();
   mProject->removeFeatures();
 }
-
-} // namespace ui
 
 } // namespace graphos

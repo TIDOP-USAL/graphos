@@ -1,10 +1,33 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "FeatureMatchingPresenter.h"
 
 #include "graphos/core/features/matching.h"
 #include "graphos/ui/featmatch/FeatureMatchingView.h"
 #include "graphos/ui/featmatch/FeatureMatchingModel.h"
 #include "graphos/ui/SettingsModel.h"
-#include "graphos/ui/utils/Progress.h"
+#include "graphos/core/process/Progress.h"
 #include "graphos/ui/HelpDialog.h"
 #include "graphos/process/MultiProcess.h"
 #include "graphos/process/features/FeatureMatchingProcess.h"
@@ -16,10 +39,6 @@
 
 namespace graphos
 {
-
-namespace ui
-{
-
 
 FeatureMatchingPresenterImp::FeatureMatchingPresenterImp(FeatureMatchingView *view,
                                                          FeatureMatchingModel *model)
@@ -176,8 +195,6 @@ void FeatureMatchingPresenterImp::setCurrentMatchMethod(const QString &matchMeth
 {
   mView->setCurrentMatchMethod(matchMethod);
 }
-
-} // End namespace ui
 
 } // End namespace graphos
 

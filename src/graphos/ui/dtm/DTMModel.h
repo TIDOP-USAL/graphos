@@ -9,9 +9,6 @@ namespace graphos
 
 class Dtm;
 
-namespace ui
-{
-
 class DtmModel
   : public Model
 {
@@ -31,8 +28,6 @@ public:
   virtual QString dtmPath() const = 0;
   virtual void setDtmPath(const QString &dtmPath) = 0;
 };
-
-} // namespace ui
 
 } // namespace graphos
 

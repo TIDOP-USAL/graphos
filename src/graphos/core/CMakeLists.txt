@@ -3,6 +3,12 @@ include_directories(${CMAKE_SOURCE_DIR}/third_party)
 project(graphos_core LANGUAGES CXX)
 
 add_library(${PROJECT_NAME} ${LIB_TYPE}
+            Application.cpp
+            Application.h
+            AppStatus.cpp
+            AppStatus.h
+            Component.cpp
+            Component.h
             project.cpp
             project.h
             settings.cpp
@@ -11,6 +17,12 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             image.h
             camera.cpp
             camera.h
+            process/ProcessPresenter.cpp
+            process/ProcessPresenter.h            
+            process/ProcessView.cpp
+            process/ProcessView.h
+            process/Progress.cpp
+            process/Progress.h
             features/features.h
             features/featio.h
             features/featio.cpp
@@ -46,7 +58,9 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             dtm/invdistnn.cpp
             dtm/invdistnn.h
             dtm/csf.h
-            dtm/csf.cpp)
+            dtm/csf.cpp
+            Orthophoto.cpp
+            Orthophoto.h)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 

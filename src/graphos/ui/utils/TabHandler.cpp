@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "TabHandler.h"
 
 #include "graphos/ui/utils/GraphicViewer.h"
@@ -13,14 +36,10 @@
 #include <QFileInfo>
 #include <QEvent>
 #include <QApplication>
-//#include <QImageReader>
 
 #include <array>
 
 namespace graphos
-{
-
-namespace ui
 {
 
 TabHandler::TabHandler(QWidget *parent)
@@ -183,17 +202,6 @@ void TabHandler::setImage(const QString &image)
     
     TL_TODO("Qt no soporta todos los formatos y ademas algunos hay que adaptar las imagenes para su visualización")
 
-    /// QImage => 0.37 s
-    //mGraphicViewer->setImage(QImage(image));
-
-    ///QImageReader => 0.37 s
-    //QImageReader imageReader(image);
-    //mGraphicViewer->setImage(imageReader.read());
-
-    /// OpenCV
-    //cv::Mat mat = cv::imread(image.toStdString(), cv::IMREAD_COLOR || cv::IMREAD_IGNORE_ORIENTATION);
-    //mGraphicViewer->setImage(cvMatToQImage(mat));
-
     std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
     imageReader->open();
     if (imageReader->isOpen()) {
@@ -348,11 +356,6 @@ void TabHandler::addCamera(const QString &image,
     mViewer3D->addCamera(image, cameraPosition[0], cameraPosition[1], cameraPosition[2], cameraRotationMatrix);
   }
 }
-
-//Viewer3D *TabHandler::addViewer3D(const QString &name)
-//{
-
-//}
 
 void TabHandler::onTabChanged(int tabId)
 {
@@ -555,8 +558,6 @@ void TabHandler::setRightView()
     mViewer3D->setRightView();
   }
 }
-
-} // namespace ui
 
 } // namespace graphos
 

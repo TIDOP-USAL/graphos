@@ -1,10 +1,34 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "MainWindowView.h"
 #include "ui_MainWindowView.h"
 
 #include "graphos/widgets/ThumbnailsWidget.h"
 #include "graphos/widgets/LogWidget.h"
 #include "graphos/ui/utils/TabHandler.h"
-#include "graphos/ui/AppStatus.h"
+#include "graphos/core/Application.h"
+#include "graphos/core/AppStatus.h"
 
 #include <tidop/core/messages.h>
 
@@ -20,9 +44,6 @@
 #include <QToolBar>
 
 namespace graphos
-{
-
-namespace ui
 {
 
 enum
@@ -79,8 +100,9 @@ MainWindowView::MainWindowView(QWidget *parent)
   this->initUI();
   this->initSignalAndSlots();
 
-  AppStatus &app_status = AppStatus::instance();
-  connect(&app_status, &AppStatus::update,
+  Application &app = Application::instance();
+  AppStatus *app_status = app.status();
+  connect(app_status, &AppStatus::update,
           this, &MainWindowView::update);
 }
 
@@ -174,7 +196,7 @@ void MainWindowView::setProjectTitle(const QString &title)
     itemProject = new QTreeWidgetItem();
     mTreeWidgetProject->addTopLevelItem(itemProject);
     itemProject->setExpanded(true);
-    itemProject->setData(0, Qt::UserRole, graphos::ui::project);
+    itemProject->setData(0, Qt::UserRole, graphos::project);
   }
 
   itemProject->setText(0, tr("Project: ").append(title));
@@ -195,8 +217,7 @@ void MainWindowView::addImage(const QString &image)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      //if (temp->text(0).compare(tr("Images")) == 0) {
-      if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+      if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -207,7 +228,7 @@ void MainWindowView::addImage(const QString &image)
       itemImages->setText(0, tr("Images"));
       itemImages->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
       itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
-      itemImages->setData(0, Qt::UserRole, graphos::ui::images);
+      itemImages->setData(0, Qt::UserRole, graphos::images);
       itemProject->addChild(itemImages);
       itemImages->setExpanded(true);
     }
@@ -217,7 +238,7 @@ void MainWindowView::addImage(const QString &image)
     itemPhotogram->setText(0, QFileInfo(image).baseName());
     itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
     itemPhotogram->setToolTip(0, image);
-    itemPhotogram->setData(0, Qt::UserRole, graphos::ui::image);
+    itemPhotogram->setData(0, Qt::UserRole, graphos::image);
     itemImages->addChild(itemPhotogram);
     itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
 
@@ -239,7 +260,7 @@ void MainWindowView::addImages(const QStringList &images)
         for (int i = 0; i < itemProject->childCount(); i++) {
           QTreeWidgetItem *temp = itemProject->child(i);
           //if (temp->text(0).compare(tr("Images")) == 0) {
-          if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+          if (temp->data(0, Qt::UserRole) == graphos::images){
             itemImages = itemProject->child(i);
             break;
           }
@@ -250,7 +271,7 @@ void MainWindowView::addImages(const QStringList &images)
           itemImages->setText(0, tr("Images"));
           itemImages->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
           itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
-          itemImages->setData(0, Qt::UserRole, graphos::ui::images);
+          itemImages->setData(0, Qt::UserRole, graphos::images);
           itemProject->addChild(itemImages);
           itemImages->setExpanded(true);
         }
@@ -260,7 +281,7 @@ void MainWindowView::addImages(const QStringList &images)
         itemPhotogram->setText(0, QFileInfo(image).baseName());
         itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
         itemPhotogram->setToolTip(0, image);
-        itemPhotogram->setData(0, Qt::UserRole, graphos::ui::image);
+        itemPhotogram->setData(0, Qt::UserRole, graphos::image);
         itemImages->addChild(itemPhotogram);
         itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
         
@@ -284,7 +305,7 @@ void MainWindowView::setActiveImage(const QString &image)
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
       //if (temp->text(0).compare(tr("Images")) == 0) {
-      if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+      if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -313,8 +334,7 @@ void MainWindowView::setActiveImages(const QStringList &images)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      //if (temp->text(0).compare(tr("Images")) == 0) {
-      if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+      if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -345,8 +365,7 @@ void MainWindowView::addFeatures(const QString &features)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      //if (temp->text(0).compare(tr("Images")) == 0) {
-      if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+      if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -363,7 +382,7 @@ void MainWindowView::addFeatures(const QString &features)
         }
       }
       if (itemImage)
-        itemImage->setData(0, Qt::UserRole, graphos::ui::image_features);
+        itemImage->setData(0, Qt::UserRole, graphos::image_features);
     }
   }
 }
@@ -375,8 +394,7 @@ void MainWindowView::deleteFeatures(const QString &features)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      //if (temp->text(0).compare(tr("Images")) == 0) {
-      if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+      if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -393,7 +411,7 @@ void MainWindowView::deleteFeatures(const QString &features)
         }
       }
       if (itemImage)
-        itemImage->setData(0, Qt::UserRole, graphos::ui::image);
+        itemImage->setData(0, Qt::UserRole, graphos::image);
     }
   }
 }
@@ -406,7 +424,7 @@ void MainWindowView::addMatches(const QString &left)
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
       //if (temp->text(0).compare(tr("Images")) == 0) {
-      if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+      if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -423,7 +441,7 @@ void MainWindowView::addMatches(const QString &left)
         }
       }
 
-      itemImage->setData(0, Qt::UserRole, graphos::ui::image_features_matches);
+      itemImage->setData(0, Qt::UserRole, graphos::image_features_matches);
     }
   }
 }
@@ -435,7 +453,7 @@ void MainWindowView::deleteMatches(const QString &left)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+      if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -452,7 +470,7 @@ void MainWindowView::deleteMatches(const QString &left)
         }
       }
 
-      itemImage->setData(0, Qt::UserRole, graphos::ui::image_features);
+      itemImage->setData(0, Qt::UserRole, graphos::image_features);
     }
   }
 }
@@ -494,7 +512,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
     itemSparseModel->setText(0, "Sparse Model");
     itemSparseModel->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
     itemSparseModel->setToolTip(0, sparseModel);
-    itemSparseModel->setData(0, Qt::UserRole, graphos::ui::sparse_model);
+    itemSparseModel->setData(0, Qt::UserRole, graphos::sparse_model);
   }
 }
 
@@ -568,7 +586,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
     itemDenseModel->setText(0, "Dense Model");
     itemDenseModel->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
     itemDenseModel->setToolTip(0, denseModel);
-    itemDenseModel->setData(0, Qt::UserRole, graphos::ui::dense_model);
+    itemDenseModel->setData(0, Qt::UserRole, graphos::dense_model);
   }
 }
 
@@ -679,7 +697,7 @@ void MainWindowView::deleteImage(const QString &file)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      if (temp->data(0, Qt::UserRole) == graphos::ui::images){
+      if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
       }
@@ -733,12 +751,12 @@ void MainWindowView::onSelectionChanged()
 {
   QList<QTreeWidgetItem*> item = mTreeWidgetProject->selectedItems();
   if (item.isEmpty()) return;
-  if (item[0]->data(0, Qt::UserRole) == graphos::ui::project){
+  if (item[0]->data(0, Qt::UserRole) == graphos::project){
 
-  } else if (item[0]->data(0, Qt::UserRole) == graphos::ui::images){
-  } else if (item[0]->data(0, Qt::UserRole) == graphos::ui::image ||
-             item[0]->data(0, Qt::UserRole) == graphos::ui::image_features ||
-             item[0]->data(0, Qt::UserRole) == graphos::ui::image_features_matches){
+  } else if (item[0]->data(0, Qt::UserRole) == graphos::images){
+  } else if (item[0]->data(0, Qt::UserRole) == graphos::image ||
+             item[0]->data(0, Qt::UserRole) == graphos::image_features ||
+             item[0]->data(0, Qt::UserRole) == graphos::image_features_matches){
     int size = item.size();
     if(size > 0){
       if (size == 1) {
@@ -757,13 +775,13 @@ void MainWindowView::onSelectionChanged()
 void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
 {
   if (item){
-    if (item->data(0, Qt::UserRole) == graphos::ui::image ||
-        item->data(0, Qt::UserRole) == graphos::ui::image_features ||
-        item->data(0, Qt::UserRole) == graphos::ui::image_features_matches){
+    if (item->data(0, Qt::UserRole) == graphos::image ||
+        item->data(0, Qt::UserRole) == graphos::image_features ||
+        item->data(0, Qt::UserRole) == graphos::image_features_matches){
      emit openImage(item->text(column));
-   } else if (item->data(0, Qt::UserRole) == graphos::ui::sparse_model) {
+   } else if (item->data(0, Qt::UserRole) == graphos::sparse_model) {
      emit openModel3D(item->toolTip(column), true);
-   } else if (item->data(0, Qt::UserRole) == graphos::ui::dense_model) {
+   } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
      emit openModel3D(item->toolTip(column), false);
    }
    /*else if (item->data(0, Qt::UserRole) == graphos::ui::pair_right){
@@ -786,18 +804,18 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
   if (item == nullptr)
     return;
 
-  if (item->data(0, Qt::UserRole) == graphos::ui::project){
+  if (item->data(0, Qt::UserRole) == graphos::project){
     /*QAction *selectedItem = */mMenuTreeProjectImages->exec(globalPos);
-  } else if (item->data(0, Qt::UserRole) == graphos::ui::images){
+  } else if (item->data(0, Qt::UserRole) == graphos::images){
 
-  } else if (item->data(0, Qt::UserRole) == graphos::ui::image ||
-             item->data(0, Qt::UserRole) == graphos::ui::image_features ||
-             item->data(0, Qt::UserRole) == graphos::ui::image_features_matches){
+  } else if (item->data(0, Qt::UserRole) == graphos::image ||
+             item->data(0, Qt::UserRole) == graphos::image_features ||
+             item->data(0, Qt::UserRole) == graphos::image_features_matches){
 
-    if (item->data(0, Qt::UserRole) == graphos::ui::image) {
+    if (item->data(0, Qt::UserRole) == graphos::image) {
       mActionViewKeypoints->setEnabled(false);
       mActionViewMatches->setEnabled(false);
-    } else if (item->data(0, Qt::UserRole) == graphos::ui::image_features) {
+    } else if (item->data(0, Qt::UserRole) == graphos::image_features) {
       mActionViewKeypoints->setEnabled(true);
       mActionViewMatches->setEnabled(false);
     } else {
@@ -816,13 +834,13 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
         emit openMatchesViewer(item->text(0));
       }
     }
-  } else if (item->data(0, Qt::UserRole) == graphos::ui::sparse_model){
+  } else if (item->data(0, Qt::UserRole) == graphos::sparse_model){
     if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
       if (selectedItem->text() == tr("Open Point Cloud")) {
         emit openModel3D(item->toolTip(0), true);
       }
     }
-  } else if (item->data(0, Qt::UserRole) == graphos::ui::dense_model) {
+  } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
     if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
       if (selectedItem->text() == tr("Open Point Cloud")) {
         emit openModel3D(item->toolTip(0), false);
@@ -1242,11 +1260,12 @@ void MainWindowView::update()
   //mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
   //mActionExit->setEnabled(!bProcessing);
 
-  AppStatus &app_status = AppStatus::instance();
-  bool project_exists = app_status.isActive(AppStatus::Flag::project_exists);
-  bool project_modified = app_status.isActive(AppStatus::Flag::project_modified);
-  bool image_open = app_status.isActive(AppStatus::Flag::image_open);
-  bool processing = app_status.isActive(AppStatus::Flag::processing);
+  Application &app = Application::instance();
+  AppStatus *app_status = app.status();
+  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
+  bool project_modified = app_status->isActive(AppStatus::Flag::project_modified);
+  bool image_open = app_status->isActive(AppStatus::Flag::image_open);
+  bool processing = app_status->isActive(AppStatus::Flag::processing);
   
   mMenuRecentProjects->setEnabled(!processing);
   mActionNotRecentProjects->setVisible(mHistory.size() == 0);
@@ -1312,7 +1331,5 @@ void MainWindowView::closeEvent(QCloseEvent *event)
   settings.setValue("windowState", saveState());
   QMainWindow::closeEvent(event);
 }
-
-} // namespace ui
 
 } // namespace graphos

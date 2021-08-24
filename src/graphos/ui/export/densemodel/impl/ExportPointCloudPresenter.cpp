@@ -1,10 +1,32 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "ExportPointCloudPresenter.h"
 
 #include "graphos/ui/export/densemodel/impl/ExportPointCloudModel.h"
 #include "graphos/ui/export/densemodel/impl/ExportPointCloudView.h"
 #include "graphos/ui/HelpDialog.h"
 #include "graphos/widgets/PointCloudCSVFormatWidget.h"
-//#include "graphos/core/densification/DenseExport.h"
 
 #include <tidop/core/defs.h>
 #include <tidop/core/messages.h>
@@ -12,9 +34,6 @@
 #include <QFileDialog>
 
 namespace graphos
-{
-
-namespace ui
 {
 
 ExportPointCloudPresenterImp::ExportPointCloudPresenterImp(ExportPointCloudView *view,
@@ -30,10 +49,6 @@ ExportPointCloudPresenterImp::ExportPointCloudPresenterImp(ExportPointCloudView 
 
 ExportPointCloudPresenterImp::~ExportPointCloudPresenterImp()
 {
-//  if (mPointCloudCSVFormatWidget){
-//    delete mPointCloudCSVFormatWidget;
-//    mPointCloudCSVFormatWidget = nullptr;
-//  }
 }
 
 void ExportPointCloudPresenterImp::help()
@@ -136,8 +151,5 @@ void ExportPointCloudPresenterImp::setCurrentFormat(const QString &format)
 {
   //mView->setCurrentFormat(format);
 }
-
-
-} // namespace ui
 
 } // namespace graphos

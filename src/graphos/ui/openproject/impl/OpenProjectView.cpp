@@ -3,9 +3,6 @@
 namespace graphos
 {
 
-namespace ui
-{
-
 OpenProjectViewImp::OpenProjectViewImp(QWidget *parent)
   : OpenProjectView(parent)
 {
@@ -23,7 +20,5 @@ void OpenProjectViewImp::setInspectorPath(const QString &directory)
 {
   QFileDialog::setDirectory(directory);
 }
-
-} // namespace ui
 
 } // namespace graphos

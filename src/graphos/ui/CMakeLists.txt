@@ -15,15 +15,15 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #--------------------------------------------------------------------------------------------#
-# Ejecutable graphos                                                                       #
+# Ejecutable graphos                                                                         #
 #--------------------------------------------------------------------------------------------#
 
 project(graphos LANGUAGES CXX)
 
 set(GRAPHOS_SOURCES
     main.cpp
-    AppStatus.cpp
-    Component.cpp
+    #AppStatus.cpp
+    #Component.cpp
     ComponentsManager.cpp
     ProjectModel.cpp
     MainWindowModel.cpp
@@ -78,12 +78,13 @@ set(GRAPHOS_SOURCES
     export/orientations/impl/ExportOrientationsModel.cpp
     export/orientations/impl/ExportOrientationsView.cpp
     export/orientations/impl/ExportOrientationsPresenter.cpp
+    export/densemodel/ExportPointCloudComponent.cpp
     export/densemodel/impl/ExportPointCloudModel.cpp
     export/densemodel/impl/ExportPointCloudView.cpp
     export/densemodel/impl/ExportPointCloudPresenter.cpp
-    process/ProcessPresenter.cpp
-    process/ProcessView.cpp
-	georeference/GeoreferenceComponent.cpp
+    #process/ProcessPresenter.cpp
+    #process/ProcessView.cpp
+    georeference/GeoreferenceComponent.cpp
     georeference/impl/GeoreferenceModel.cpp
     georeference/impl/GeoreferenceView.cpp
     georeference/impl/GeoreferencePresenter.cpp
@@ -95,10 +96,14 @@ set(GRAPHOS_SOURCES
     dtm/impl/DTMModel.cpp
     dtm/impl/DTMView.cpp
     dtm/impl/DTMPresenter.cpp
+    orthophoto/OrthophotoComponent.cpp
+    orthophoto/impl/OrthophotoModel.cpp
+    orthophoto/impl/OrthophotoView.cpp
+    orthophoto/impl/OrthophotoPresenter.cpp
     HelpDialog.cpp
     utils/GraphicViewer.cpp
     utils/ProgressDialog.cpp
-    utils/Progress.cpp
+    #utils/Progress.cpp
     utils/Viewer3d.cpp
     utils/GraphicItem.cpp
     utils/TabHandler.cpp
@@ -108,8 +113,8 @@ set(GRAPHOS_SOURCES
 set(GRAPHOS_HEADERS
     ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
 	${CMAKE_SOURCE_DIR}/src/graphos/interfaces/Component.h
-    AppStatus.h
-    Component.h
+    #AppStatus.h
+    #Component.h
     ComponentsManager.h
     ProjectModel.h
     MainWindowModel.h
@@ -198,15 +203,16 @@ set(GRAPHOS_HEADERS
     export/orientations/impl/ExportOrientationsModel.h
     export/orientations/impl/ExportOrientationsView.h
     export/orientations/impl/ExportOrientationsPresenter.h
+    export/densemodel/ExportPointCloudComponent.h
     export/densemodel/ExportPointCloudModel.h
     export/densemodel/ExportPointCloudView.h
     export/densemodel/ExportPointCloudPresenter.h
     export/densemodel/impl/ExportPointCloudModel.h
     export/densemodel/impl/ExportPointCloudView.h
     export/densemodel/impl/ExportPointCloudPresenter.h
-    process/ProcessPresenter.h
-    process/ProcessView.h
-	georeference/GeoreferenceComponent.h
+    #process/ProcessPresenter.h
+    #process/ProcessView.h
+    georeference/GeoreferenceComponent.h
     georeference/GeoreferenceModel.h
     georeference/GeoreferencePresenter.h
     georeference/GeoreferenceView.h
@@ -227,10 +233,17 @@ set(GRAPHOS_HEADERS
     dtm/impl/DTMModel.h
     dtm/impl/DTMView.h
     dtm/impl/DTMPresenter.h
+    orthophoto/OrthophotoComponent.h
+    orthophoto/OrthophotoModel.h
+    orthophoto/OrthophotoView.h
+    orthophoto/OrthophotoPresenter.h
+    orthophoto/impl/OrthophotoModel.h
+    orthophoto/impl/OrthophotoView.h
+    orthophoto/impl/OrthophotoPresenter.h
     HelpDialog.h
     utils/GraphicViewer.h
     utils/ProgressDialog.h
-    utils/Progress.h
+    #utils/Progress.h
     utils/Viewer3d.h
     utils/GraphicItem.h
     utils/TabHandler.h

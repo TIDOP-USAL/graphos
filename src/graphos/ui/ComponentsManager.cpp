@@ -1,43 +1,59 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "ComponentsManager.h"
 
-#include "graphos/ui/Component.h"
-#include "graphos/ui/AppStatus.h"
-
+#include "graphos/core/Component.h"
+#include "graphos/core/AppStatus.h"
 #include "graphos/ui/MainWindowModel.h"
 #include "graphos/ui/MainWindowView.h"
 #include "graphos/ui/MainWindowPresenter.h"
-
 #include "graphos/ui/createproject/CreateProjectComponent.h"
 #include "graphos/ui/openproject/OpenProjectComponent.h"
 #include "graphos/ui/import/cameras/ImportCamerasComponent.h"
 #include "graphos/ui/cameras/CamerasComponent.h"
-
-
-
 #include "graphos/ui/ProjectModel.h"
 #include "graphos/ui/SettingsModel.h"
 #include "graphos/ui/SettingsView.h"
 #include "graphos/ui/SettingsPresenter.h"
-
-//#include "graphos/ui/export/orientations/ExportOrientationsModel.h"
-//#include "graphos/ui/export/orientations/ExportOrientationsView.h"
-//#include "graphos/ui/export/orientations/ExportOrientationsPresenter.h"
-#include "graphos/ui/export/densemodel/impl/ExportPointCloudModel.h"
-#include "graphos/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
-#include "graphos/ui/export/densemodel/impl/ExportPointCloudView.h"
+//#include "graphos/ui/export/densemodel/impl/ExportPointCloudModel.h"
+//#include "graphos/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
+//#include "graphos/ui/export/densemodel/impl/ExportPointCloudView.h"
 #include "graphos/ui/FeaturesModel.h"
 #include "graphos/ui/MatchesModel.h"
 #include "graphos/ui/HelpDialog.h"
-#include "graphos/ui/utils/Progress.h"
+#include "graphos/core/process/Progress.h"
 #include "graphos/ui/utils/ProgressDialog.h"
+#include "graphos/interfaces/Plugin.h"
 
 #include <QProgressBar>
 #include <QAction>
+#include <QPluginLoader>
+#include <QDir>
+#include <QCoreApplication>
+
 
 namespace graphos
-{
-
-namespace ui
 {
 
 ComponentsManager::ComponentsManager(QObject *parent)
@@ -53,10 +69,8 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mSettingsController(new SettingsControllerImp),
     mSettingsModel(nullptr),
     mSettingsPresenter(nullptr),
-    //mExportOrientationsModel(nullptr),
-    //mExportOrientationsPresenter(nullptr),
-    mExportPointCloudModel(nullptr),
-    mExportPointCloudPresenter(nullptr),
+    //mExportPointCloudModel(nullptr),
+    //mExportPointCloudPresenter(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
     mProgressDialog(nullptr),
@@ -66,13 +80,15 @@ ComponentsManager::ComponentsManager(QObject *parent)
 {
   this->mainWindowPresenter();
   
-  mCreateProjectComponent = new CreateProjectComponent(this->project());
+  Application &app = Application::instance();
+
+  mCreateProjectComponent = new CreateProjectComponent(this->project(), &app);
   this->mainWindowView()->setCreateProjectAction(mCreateProjectComponent->action());
-  mOpenProjectComponent = new OpenProjectComponent(this->project());
+  mOpenProjectComponent = new OpenProjectComponent(this->project(), &app);
   this->mainWindowView()->setOpenProjectAction(mOpenProjectComponent->action());
-  mImportCamerasComponent = new ImportCamerasComponent(this->project());
+  mImportCamerasComponent = new ImportCamerasComponent(this->project(), &app);
   this->mainWindowView()->setImportCamerasAction(mImportCamerasComponent->action());
-  mCamerasComponent = new CamerasComponent(this->project());
+  mCamerasComponent = new CamerasComponent(this->project(), &app);
   this->mainWindowView()->setCamerasToolAction(mCamerasComponent->action());
 
   ///TODO: por ahora hasta que refactorice MainWindowView, MainWindowPresenter
@@ -143,25 +159,15 @@ ComponentsManager::~ComponentsManager()
     mSettingsPresenter = nullptr;
   }
 
-  //if (mExportOrientationsModel) {
-  //  delete mExportOrientationsModel;
-  //  mExportOrientationsModel = nullptr;
+  //if (mExportPointCloudModel){
+  //  delete mExportPointCloudModel;
+  //  mExportPointCloudModel = nullptr;
   //}
 
-  //if (mExportOrientationsPresenter) {
-  //  delete mExportOrientationsPresenter;
-  //  mExportOrientationsPresenter = nullptr;
+  //if (mExportPointCloudPresenter){
+  //  delete mExportPointCloudPresenter;
+  //  mExportPointCloudPresenter = nullptr;
   //}
-
-  if (mExportPointCloudModel){
-    delete mExportPointCloudModel;
-    mExportPointCloudModel = nullptr;
-  }
-
-  if (mExportPointCloudPresenter){
-    delete mExportPointCloudPresenter;
-    mExportPointCloudPresenter = nullptr;
-  }
 
   if (mProgressHandler){
     delete mProgressHandler;
@@ -194,6 +200,11 @@ ComponentsManager::~ComponentsManager()
   }
 }
 
+void ComponentsManager::openApp()
+{
+  this->mainWindowView()->showMaximized();
+}
+
 MainWindowView *ComponentsManager::mainWindowView()
 {
   if (mMainWindowView == nullptr){
@@ -221,17 +232,14 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->matchesModel());
 
 
-    //connect(mMainWindowPresenter, &MainWindowPresenter::openExportOrientationsDialog,
-    //        this, &ComponentsManager::initAndOpenExportOrientationsDialog);
-
     connect(mMainWindowPresenter, &MainWindowPresenter::openSettingsDialog,
             this, &ComponentsManager::initAndOpenSettingsDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openViewSettingsDialog,
             this, &ComponentsManager::initAndOpenViewSettingsDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
             this, &ComponentsManager::initAndOpenToolSettingsDialog);
-    connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
-            this, &ComponentsManager::initAndOpenExportPointCloudDialog);
+    //connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
+    //        this, &ComponentsManager::initAndOpenExportPointCloudDialog);
   }
 
   return mMainWindowPresenter;
@@ -299,6 +307,43 @@ void ComponentsManager::registerComponent(Component *component,
   }
 }
 
+void ComponentsManager::loadPlugins()
+{
+  auto pluginsDir = QDir(QCoreApplication::applicationDirPath());
+  const auto entryList = pluginsDir.entryList(QDir::Files);
+  for (const QString &fileName : entryList) {
+
+    QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+    loadPlugin(loader.instance());
+
+  }
+}
+
+void ComponentsManager::loadPlugin(QObject *plugin)
+{
+  try {
+
+    if (plugin) {
+
+      if (auto plugin_component = qobject_cast<GraphosPluginComponent *>(plugin)) {
+        QString name = plugin_component->name();
+        QString description = plugin_component->description();
+        plugin_component->setApp(&Application::instance());
+        registerComponent(plugin_component->component());
+      //} else if (auto plugin_multi_component = qobject_cast<CVStudioPluginMultiComponent *>(plugin)) {
+      //  QString name = plugin_multi_component->name();
+      //  QString description = plugin_multi_component->description();
+      //  plugin_multi_component->setApp(&Application::instance());
+      //  //registerComponent(plugin_component->component());
+      }
+
+    }
+
+  } catch (const std::exception &e) {
+    msgError("Could not load plugin: %s", e.what());
+  }
+}
+
 Project *ComponentsManager::project()
 {
   return mProject;
@@ -346,41 +391,23 @@ SettingsPresenter *ComponentsManager::settingsPresenter()
   return mSettingsPresenter;
 }
 
-//ExportOrientationsModel *ComponentsManager::exportOrientationsModel()
+//ExportPointCloudModel *ComponentsManager::exportPointCloudModel()
 //{
-//  if (mExportOrientationsModel == nullptr) {
-//    mExportOrientationsModel = new ExportOrientationsModelImp(mProject);
+//  if (mExportPointCloudModel == nullptr) {
+//    mExportPointCloudModel = new ExportPointCloudModelImp(mProject);
 //  }
-//  return mExportOrientationsModel;
+//  return mExportPointCloudModel;
 //}
 //
-//ExportOrientationsPresenter *ComponentsManager::exportOrientationsPresenter()
+//ExportPointCloudPresenter *ComponentsManager::exportPointCloudPresenter()
 //{
-//  if (mExportOrientationsPresenter == nullptr){
-//    ExportOrientationsView *view = new ExportOrientationsViewImp(this->mainWindowView());
-//    mExportOrientationsPresenter = new ExportOrientationsPresenterImp(view,
-//                                                                      this->exportOrientationsModel());
+//  if (mExportPointCloudPresenter == nullptr){
+//    ExportPointCloudView *view = new ExportPointCloudViewImp(this->mainWindowView());
+//    mExportPointCloudPresenter = new ExportPointCloudPresenterImp(view,
+//                                                                  this->exportPointCloudModel());
 //  }
-//  return mExportOrientationsPresenter;
+//  return mExportPointCloudPresenter;
 //}
-
-ExportPointCloudModel *ComponentsManager::exportPointCloudModel()
-{
-  if (mExportPointCloudModel == nullptr) {
-    mExportPointCloudModel = new ExportPointCloudModelImp(mProject);
-  }
-  return mExportPointCloudModel;
-}
-
-ExportPointCloudPresenter *ComponentsManager::exportPointCloudPresenter()
-{
-  if (mExportPointCloudPresenter == nullptr){
-    ExportPointCloudView *view = new ExportPointCloudViewImp(this->mainWindowView());
-    mExportPointCloudPresenter = new ExportPointCloudPresenterImp(view,
-                                                                  this->exportPointCloudModel());
-  }
-  return mExportPointCloudPresenter;
-}
 
 HelpDialog *ComponentsManager::helpDialog()
 {
@@ -449,9 +476,6 @@ void ComponentsManager::initSettingsDialog()
     this, &ComponentsManager::initAndOpenViewSettingsDialog);
   disconnect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
     this, &ComponentsManager::initAndOpenToolSettingsDialog);
-  //disconnect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this, SLOT(initAndOpenSettingsDialog()));
-  //disconnect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this, SLOT(initAndOpenViewSettingsDialog()));
-  //disconnect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this, SLOT(initAndOpenToolSettingsDialog()));
 
   connect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this->settingsPresenter(), SLOT(open()));
   connect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this->settingsPresenter(), SLOT(openViewSettings()));
@@ -461,29 +485,15 @@ void ComponentsManager::initSettingsDialog()
   this->settingsPresenter()->setHelp(this->helpDialog());
 }
 
-//void ComponentsManager::initAndOpenExportOrientationsDialog()
+//void ComponentsManager::initAndOpenExportPointCloudDialog()
 //{
-//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openExportOrientationsDialog,
-//             this, &ComponentsManager::initAndOpenExportOrientationsDialog);
-//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportOrientationsDialog,
-//          this->exportOrientationsPresenter(), &ExportOrientationsPresenter::open);
+//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
+//             this, &ComponentsManager::initAndOpenExportPointCloudDialog);
+//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
+//          this->exportPointCloudPresenter(), &ExportPointCloudPresenter::open);
 //
-//  this->exportOrientationsPresenter()->setHelp(this->helpDialog());
-//  this->exportOrientationsPresenter()->open();
+//  this->exportPointCloudPresenter()->setHelp(this->helpDialog());
+//  this->exportPointCloudPresenter()->open();
 //}
-
-void ComponentsManager::initAndOpenExportPointCloudDialog()
-{
-  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
-             this, &ComponentsManager::initAndOpenExportPointCloudDialog);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
-          this->exportPointCloudPresenter(), &ExportPointCloudPresenter::open);
-
-  this->exportPointCloudPresenter()->setHelp(this->helpDialog());
-  this->exportPointCloudPresenter()->open();
-}
-
-
-} // namespace ui
 
 } // namespace graphos

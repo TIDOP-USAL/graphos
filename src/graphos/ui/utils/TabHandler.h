@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #ifndef GRAPHOS_TAB_HANDLER_H
 #define GRAPHOS_TAB_HANDLER_H
 
@@ -8,9 +31,6 @@ namespace graphos
 
 class GraphicViewer;
 class Viewer3D;
-
-namespace ui
-{
 
 class TabHandler
   : public QTabWidget
@@ -46,7 +66,6 @@ public slots:
   GraphicViewer *graphicViewer(int tabId);
   GraphicViewer *addGraphicViewer(const QString &name);
   Viewer3D *viewer3D(int tabId);
-  //Viewer3D *addViewer3D(const QString &name);
   void addCamera(const QString &image, 
                  const std::array<double, 3> &cameraPosition, 
                  const std::array<std::array<float, 3>, 3> &cameraRotationMatrix); 
@@ -95,8 +114,6 @@ protected:
   QAction *mActionViewBottom;
 
 };
-
-} // namespace ui
 
 } // namespace graphos
 

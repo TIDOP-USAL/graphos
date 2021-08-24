@@ -25,6 +25,8 @@ add_library(graphos_process ${LIB_TYPE}
             densification/DensificationProcess.h
             dtm/DtmProcess.cpp
             dtm/DtmProcess.h
+            orthophoto/OrthophotoProcess.cpp
+            orthophoto/OrthophotoProcess.h
            )
 
 set_property(TARGET graphos_process PROPERTY FOLDER "lib")

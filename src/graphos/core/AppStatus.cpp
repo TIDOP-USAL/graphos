@@ -1,18 +1,18 @@
 /************************************************************************
  *                                                                      *
- * Copyright 2020 by Esteban Ruiz de Oña Crespo <estebanrdo@gmail.com>  *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
- * This file is part of Computer Vision Studio                          *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
- * CV Studio is free software: you can redistribute it and/or modify    *
- * it under the terms of the GNU General Public License as published by *
- * the Free Software Foundation, either version 3 of the License, or    *
- * (at your option) any later version.                                  *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
  *                                                                      *
- * CV Studio is distributed in the hope that it will be useful,         *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of       *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        *
- * GNU General Public License for more details.                         *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
  *                                                                      *
  * You should have received a copy of the GNU General Public License    *
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
@@ -21,18 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-
 #include "AppStatus.h"
 
 
 namespace graphos
 {
-
-namespace ui
-{
-
-std::unique_ptr<AppStatus> AppStatus::sAppStatus;
-std::mutex AppStatus::sMutex;
 
 AppStatus::AppStatus()
 {
@@ -40,7 +33,6 @@ AppStatus::AppStatus()
 
 AppStatus::~AppStatus()
 {
-  sAppStatus.release();
 }
 
 void AppStatus::activeFlag(Flag flag, bool active)
@@ -83,19 +75,5 @@ void AppStatus::clear()
   mFlags.clear();
   emit update();
 }
-
-AppStatus &AppStatus::instance()
-{
-  if (sAppStatus.get() == nullptr) {
-    std::lock_guard<std::mutex> lck(AppStatus::sMutex);
-    if (sAppStatus.get() == nullptr) {
-      sAppStatus.reset(new AppStatus());
-    }
-  }
-  return *sAppStatus;
-}
-
-
-} // namespace ui
 
 } // namespace graphos

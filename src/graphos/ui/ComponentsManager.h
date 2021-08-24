@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #ifndef GRAPHOS_COMPONENTS_MANAGER_H
 #define GRAPHOS_COMPONENTS_MANAGER_H
 
@@ -11,16 +34,11 @@ namespace graphos
 class Project;
 class Settings;
 class SettingsController;
-
-namespace ui
-{
-	
+class Component;
 class MainWindowModel;
 class MainWindowView;
 class MainWindowPresenter;
 class ProjectModel;
-class Component;
-
 class SettingsModel;
 class SettingsPresenter;
 class NewProjectPresenter;
@@ -28,10 +46,8 @@ class FeaturesModel;
 class MatchesModel;
 class ProgressHandler;
 class ProgressDialog;
-//class ExportOrientationsModel;
-//class ExportOrientationsPresenter;
-class ExportPointCloudModel;
-class ExportPointCloudPresenter;
+//class ExportPointCloudModel;
+//class ExportPointCloudPresenter;
 class HelpDialog;
 class AboutDialog;
 
@@ -54,12 +70,15 @@ public:
   explicit ComponentsManager(QObject *parent = nullptr);
   ~ComponentsManager();
 
+  void openApp();
+
   MainWindowView *mainWindowView();
   MainWindowModel *mainWindowModel();
   MainWindowPresenter *mainWindowPresenter();
 
   void registerComponent(Component *component,
                          Flags flags = Flags::none);
+  void loadPlugins();
 
   Project *project();
   ProjectModel *projectModel();
@@ -69,10 +88,8 @@ public:
   SettingsModel *settingsModel();
   SettingsPresenter *settingsPresenter();
 
-  //ExportOrientationsModel *exportOrientationsModel();
-  //ExportOrientationsPresenter *exportOrientationsPresenter();
-  ExportPointCloudModel *exportPointCloudModel();
-  ExportPointCloudPresenter *exportPointCloudPresenter();
+  //ExportPointCloudModel *exportPointCloudModel();
+  //ExportPointCloudPresenter *exportPointCloudPresenter();
 
   //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
@@ -82,14 +99,17 @@ public:
 
 signals:
 
+private:
+  
+  void loadPlugin(QObject *plugin);
+
 protected slots:
 
   void initAndOpenSettingsDialog();
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
   void initSettingsDialog();
-  //void initAndOpenExportOrientationsDialog();
-  void initAndOpenExportPointCloudDialog();
+  //void initAndOpenExportPointCloudDialog();
 
 protected:
 
@@ -112,10 +132,8 @@ protected:
   SettingsModel *mSettingsModel;
   SettingsPresenter *mSettingsPresenter;
 
-  //ExportOrientationsModel *mExportOrientationsModel;
-  //ExportOrientationsPresenter *mExportOrientationsPresenter;
-  ExportPointCloudModel *mExportPointCloudModel;
-  ExportPointCloudPresenter *mExportPointCloudPresenter;
+  //ExportPointCloudModel *mExportPointCloudModel;
+  //ExportPointCloudPresenter *mExportPointCloudPresenter;
   //AboutDialog *mAboutDialog;
   HelpDialog *mHelpDialog;
 
@@ -123,8 +141,6 @@ protected:
   ProgressDialog *mProgressDialog;
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(ComponentsManager::Flags)
-
-} // namespace ui
 
 } // namespace graphos
 

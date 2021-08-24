@@ -7,9 +7,6 @@
 namespace graphos
 {
 
-namespace ui
-{
-
 class CreateProjectView
   : public DialogView
 {
@@ -56,8 +53,6 @@ signals:
 
   void projectNameChange();
 };
-
-} // namespace ui
 
 } // namespace graphos
 

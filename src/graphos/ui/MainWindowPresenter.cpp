@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "MainWindowPresenter.h"
 
 #include "graphos/ui/MainWindowView.h"
@@ -12,7 +35,8 @@
 #include "graphos/ui/cameras/CamerasModel.h"
 #include "graphos/ui/FeaturesModel.h"
 #include "graphos/ui/MatchesModel.h"
-#include "graphos/ui/AppStatus.h"
+#include "graphos/core/Application.h"
+#include "graphos/core/AppStatus.h"
 #include "graphos/core/utils.h"
 
 /* TidopLib */
@@ -31,8 +55,6 @@
 namespace graphos
 {
 
-namespace ui
-{
 
 MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          MainWindowModel *model,
@@ -85,8 +107,8 @@ void MainWindowPresenter::openFromHistory(const QString &file)
                               QMessageBox::Yes|QMessageBox::No).exec();
       if (i_ret == QMessageBox::Yes) {
         mProjectModel->oldVersionBackup(file);
-        //mView->setFlag(MainWindowView::Flag::project_modified, true);
-        AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
+        Application &app = Application::instance(); 
+        app.status()->activeFlag(AppStatus::Flag::project_modified, true);
       } else if (i_ret == QMessageBox::Cancel) {
         return;
       }
@@ -113,9 +135,8 @@ void MainWindowPresenter::deleteHistory()
 void MainWindowPresenter::saveProject()
 {
   mProjectModel->save();
-  AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, false);
-  TL_TODO("Quitar")
-  //mView->setFlag(MainWindowView::Flag::project_modified, false);
+  Application &app = Application::instance();
+  app.status()->activeFlag(AppStatus::Flag::project_modified, false);
 }
 
 void MainWindowPresenter::saveProjectAs()
@@ -126,9 +147,8 @@ void MainWindowPresenter::saveProjectAs()
                                               tr("Graphos Project (*.xml)"));
   if (file.isEmpty() == false) {
     mProjectModel->saveAs(file);
-    AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, false);
-    TL_TODO("Quitar")
-    //mView->setFlag(MainWindowView::Flag::project_modified, false);
+    Application &app = Application::instance();
+    app.status()->activeFlag(AppStatus::Flag::project_modified, false);
   }
 }
 
@@ -150,7 +170,8 @@ void MainWindowPresenter::closeProject()
 /////TODO:  mModel->finishLog();
   mView->clear();
 
-  AppStatus::instance().clear();
+  Application &app = Application::instance();
+  app.status()->clear();
 }
 
 void MainWindowPresenter::exit()
@@ -198,9 +219,8 @@ void MainWindowPresenter::loadProject()
   mView->clear();
 
   mView->setProjectTitle(mProjectModel->projectName());
-  //mView->setFlag(MainWindowView::Flag::project_exists, true);
-  ///TODO: Borrar lo anterior cuando termine de refactorizar todos los componentes
-  AppStatus::instance().activeFlag(AppStatus::Flag::project_exists, true);
+  Application &app = Application::instance();
+  app.status()->activeFlag(AppStatus::Flag::project_exists, true);
 
   QString prjFile = mProjectModel->projectPath();
 
@@ -222,11 +242,8 @@ void MainWindowPresenter::loadProject()
 
   if (images.size() > 0){
     mView->addImages(images);
-    AppStatus::instance().activeFlag(AppStatus::Flag::images_added, true);
-    TL_TODO("Quitar")
-    //mView->setFlag(MainWindowView::Flag::images_added, true);
-    //mView->setFlag(MainWindowView::Flag::loading_images, true);
-    //connect(mView, SIGNAL(imagesLoaded()),   this,  SLOT(onLoadImages()));
+    Application &app = Application::instance();
+    app.status()->activeFlag(AppStatus::Flag::images_added, true);
   }
 
   for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
@@ -240,12 +257,13 @@ void MainWindowPresenter::loadProject()
 
 void MainWindowPresenter::updateProject()
 {
-  AppStatus &app_status = AppStatus::instance();
-  app_status.activeFlag(AppStatus::Flag::feature_extraction, false);
-  app_status.activeFlag(AppStatus::Flag::feature_matching, false);
-  app_status.activeFlag(AppStatus::Flag::oriented, false);
-  app_status.activeFlag(AppStatus::Flag::absolute_oriented, false);
-  app_status.activeFlag(AppStatus::Flag::dense_model, false);
+  Application &app = Application::instance();
+  AppStatus *app_status = app.status();
+  app_status->activeFlag(AppStatus::Flag::feature_extraction, false);
+  app_status->activeFlag(AppStatus::Flag::feature_matching, false);
+  app_status->activeFlag(AppStatus::Flag::oriented, false);
+  app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
+  app_status->activeFlag(AppStatus::Flag::dense_model, false);
 
   this->loadDenseModel();
   this->loadOrientation();
@@ -282,7 +300,8 @@ void MainWindowPresenter::updateProject()
 void MainWindowPresenter::loadFeatures(const QString &featId)
 {
   mView->addFeatures(featId);
-  AppStatus::instance().activeFlag(AppStatus::Flag::feature_extraction, true);
+  Application &app = Application::instance();
+  app.status()->activeFlag(AppStatus::Flag::feature_extraction, true);
 }
 
 void MainWindowPresenter::loadMatches()
@@ -292,7 +311,8 @@ void MainWindowPresenter::loadMatches()
     std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
     if (!pairs.empty()) {
       mView->addMatches(imageLeft);
-      AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
+      Application &app = Application::instance();
+      app.status()->activeFlag(AppStatus::Flag::feature_matching, true);
     } else {
       mView->deleteMatches(imageLeft);
     }
@@ -306,10 +326,11 @@ void MainWindowPresenter::loadOrientation()
   if (!sparse_model.isEmpty()){
     mView->setSparseModel(mProjectModel->sparseModel());
     TL_TODO("Por ahora lo añado aqui aunque hay que revisarlo")
-    AppStatus &app_status = AppStatus::instance();
-    app_status.activeFlag(AppStatus::Flag::oriented, true);
+    Application &app = Application::instance();
+    AppStatus *app_status = app.status();
+    app_status->activeFlag(AppStatus::Flag::oriented, true);
     if (mProjectModel->isAbsoluteOriented()) {
-      app_status.activeFlag(AppStatus::Flag::absolute_oriented, true);
+      app_status->activeFlag(AppStatus::Flag::absolute_oriented, true);
     }
   } else {
     mView->deleteSparseModel();
@@ -321,8 +342,8 @@ void MainWindowPresenter::loadDenseModel()
   QString dense_model = mProjectModel->denseModel();
   if (!dense_model.isEmpty()) {
     mView->setDenseModel(mProjectModel->denseModel());
-    AppStatus &app_status = AppStatus::instance();
-    app_status.activeFlag(AppStatus::Flag::dense_model, true);
+    Application &app = Application::instance();
+    app.status()->activeFlag(AppStatus::Flag::dense_model, true);
   } else {
     mView->deleteDenseModel();
   }
@@ -366,10 +387,10 @@ void MainWindowPresenter::deleteImages(const QStringList &imageNames)
     msgInfo("Delete image %s", imageName.toStdString().c_str());
   }
 
-  //mView->setFlag(MainWindowView::Flag::project_modified, true);
-  //mView->setFlag(MainWindowView::Flag::images_added, mModel->imageBegin() != mModel->imageEnd());
-  AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
-  AppStatus::instance().activeFlag(AppStatus::Flag::images_added, mModel->imageBegin() != mModel->imageEnd());
+  Application &app = Application::instance();
+  AppStatus *app_status = app.status();
+  app_status->activeFlag(AppStatus::Flag::project_modified, true);
+  app_status->activeFlag(AppStatus::Flag::images_added, mModel->imageBegin() != mModel->imageEnd());
 }
 
 //void MainWindowPresenter::deleteImage(const QString &imageName)
@@ -454,18 +475,19 @@ void MainWindowPresenter::deleteMatches()
 
 void MainWindowPresenter::processFinished()
 {
-  //mView->setFlag(MainWindowView::Flag::processing, false);
-  //mView->setFlag(MainWindowView::Flag::project_modified, true);
+  Application &app = Application::instance();
+  AppStatus *app_status = app.status();
 
-  AppStatus::instance().activeFlag(AppStatus::Flag::processing, false);
-  AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
+  app_status->activeFlag(AppStatus::Flag::processing, false);
+  app_status->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void MainWindowPresenter::processRunning()
 {
   //mView->setFlag(MainWindowView::Flag::processing, true);
 
-  AppStatus::instance().activeFlag(AppStatus::Flag::processing, true);
+  Application &app = Application::instance();
+  app.status()->activeFlag(AppStatus::Flag::processing, true);
 }
 
 void MainWindowPresenter::processFailed()
@@ -474,26 +496,22 @@ void MainWindowPresenter::processFailed()
 
 void MainWindowPresenter::loadingImages(bool loading)
 {
-  AppStatus::instance().activeFlag(AppStatus::Flag::loading_images, loading);
-
-  TL_TODO("Quitar")
-  //mView->setFlag(MainWindowView::Flag::loading_images, loading);
+  Application &app = Application::instance();
+  app.status()->activeFlag(AppStatus::Flag::loading_images, loading);
 }
 
 void MainWindowPresenter::loadImage(const QString &image)
 {
   mView->addImage(image);
 
-  AppStatus::instance().activeFlag(AppStatus::Flag::images_added, true);
-
-  TL_TODO("Quitar")
-  //mView->setFlag(MainWindowView::Flag::images_added, true);
+  Application &app = Application::instance();
+  app.status()->activeFlag(AppStatus::Flag::images_added, true);
 }
 
 void MainWindowPresenter::onProjectModified()
 {
-  AppStatus::instance().activeFlag(AppStatus::Flag::project_modified, true);
-  //mView->setFlag(MainWindowView::Flag::project_modified, true);
+  Application &app = Application::instance();
+  app.status()->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void MainWindowPresenter::help()
@@ -597,7 +615,5 @@ void MainWindowPresenter::initStartPage()
     connect(mStartPageWidget,   &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);
   }
 }
-
-} // namespace ui
 
 } // namespace graphos

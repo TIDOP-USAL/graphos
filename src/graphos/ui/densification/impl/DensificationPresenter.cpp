@@ -6,7 +6,7 @@
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/core/densification/CmvsPmvs.h"
 #include "graphos/core/densification/Smvs.h"
-#include "graphos/ui/utils/Progress.h"
+#include "graphos/core/process/Progress.h"
 #include "graphos/process/densification/DensificationProcess.h"
 #include "graphos/process/MultiProcess.h"
 #include "graphos/ui/HelpDialog.h"
@@ -18,9 +18,6 @@
 
 
 namespace graphos
-{
-
-namespace ui
 {
 
 DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
@@ -254,8 +251,6 @@ void DensificationPresenterImp::onFinishDensification()
     msgError("Densification failed");
   }
 }
-
-} // End namespace ui
 
 } // End namespace graphos
 
