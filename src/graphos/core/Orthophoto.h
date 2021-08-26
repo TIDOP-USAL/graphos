@@ -21,11 +21,14 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_PROPERTIES_H
-#define GRAPHOS_ORTHOPHOTO_PROPERTIES_H
+#ifndef GRAPHOS_ORTHOPHOTO_ALGORITHM_H
+#define GRAPHOS_ORTHOPHOTO_ALGORITHM_H
 
 #include "graphos/graphos_global.h"
+
 #include "graphos/core/utils.h"
+
+#include <tidop/geospatial/photo.h>
 
 #include <vector>
 #include <map>
@@ -44,9 +47,7 @@ public:
   ~OrthophotoParameters();
 
   virtual double resolution() const;
-
   virtual void setResolution(double resolution);
-
 
   void clear();
 
@@ -57,7 +58,42 @@ private:
 };
 
 
+
+
+
+class OrthophotoAlgorithm
+  : public OrthophotoParameters
+{
+
+public:
+
+  OrthophotoAlgorithm();
+  OrthophotoAlgorithm(double resolution,
+                      const std::vector<tl::Photo> &photos,
+                      const QString &orthoPath,
+                      const QString &mdt,
+                      const QString &epsg);
+  ~OrthophotoAlgorithm();
+
+public:
+
+  void run();
+
+  void setPhotos(const std::vector<tl::Photo> &photos);
+  void setOrthoPath(const QString &orthoPath);
+  void setMdt(const QString &mdt);
+  void setCrs(const QString &epsg);
+
+private:
+
+  std::vector<tl::Photo> mPhotos;
+  QString mOrthoPath;
+  QString mMdt;
+  QString mEpsg;
+};
+
+
 } // namespace graphos
 
 
-#endif // GRAPHOS_ORTHOPHOTO_PROPERTIES_H
+#endif // GRAPHOS_ORTHOPHOTO_ALGORITHM_H

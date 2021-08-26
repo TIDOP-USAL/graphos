@@ -28,6 +28,10 @@
 #include <QFile>
 #include <QTextStream>
 #include <QSettings>
+#include <QFileInfo>
+
+/// TODO: mover
+#include <colmap/base/reconstruction.h>
 
 namespace graphos
 {
@@ -58,6 +62,8 @@ void OrthophotoModelImp::loadSettings()
 {
   if (mReadSettings) {
 	  
+    mParameters->setResolution(mSettings->value("ORTHOPHOTO/Resolution", mParameters->resolution()).toDouble());
+
 	/* Read Settings here
 	
 	Example (replace PropertyName):
@@ -73,8 +79,10 @@ void OrthophotoModelImp::saveSettings()
 {
   if (mReadSettings) {
 	
+    mSettings->setValue("ORTHOPHOTO/Resolution", mParameters->resolution());
+
 	/* Write Settings here
-	
+
 	Example:
 	
     mSettings->setValue("ORTHOPHOTO/PropertyName", mParameters->propertyName());
@@ -87,6 +95,85 @@ void OrthophotoModelImp::saveSettings()
 OrthophotoParameters *OrthophotoModelImp::parameters() const
 {
   return mParameters;
+}
+
+std::vector<tl::Photo> OrthophotoModelImp::photos() const
+{
+  std::vector<tl::Photo> photos;
+
+  tl::Point3D offset;
+
+  std::ifstream ifs;
+  ifs.open(mProject->offset().toStdString(), std::ifstream::in);
+  if (ifs.is_open()) {
+
+    ifs >> offset.x >> offset.y >> offset.z;
+
+    ifs.close();
+  }
+
+  QString undistort_images_path = mProject->projectFolder();
+  std::shared_ptr<Densification> densification = mProject->densification();
+  if (densification->method() == Densification::Method::smvs) {
+    undistort_images_path.append("/dense/pmvs/visualize/");
+  } else if (densification->method() == Densification::Method::cmvs_pmvs) {
+    //undistort_images_path.append("/dense/");
+  } else {
+    /// Devolver error o volver a corregir las imagenes
+  }
+
+  for (auto image = mProject->imageBegin(); image != mProject->imageEnd(); image++) {
+
+    QFileInfo file_info(image->path());
+    QString image_path = undistort_images_path;
+    image_path.append(file_info.fileName());
+
+    tl::Photo photo(image_path.toStdString());
+
+    CameraPose photoOrientation = mProject->photoOrientation(image->name());
+    photoOrientation.rotation.at(1, 0) = -photoOrientation.rotation.at(1, 0);
+    photoOrientation.rotation.at(1, 1) = -photoOrientation.rotation.at(1, 1);
+    photoOrientation.rotation.at(1, 2) = -photoOrientation.rotation.at(1, 2);
+    photoOrientation.rotation.at(2, 0) = -photoOrientation.rotation.at(2, 0);
+    photoOrientation.rotation.at(2, 1) = -photoOrientation.rotation.at(2, 1);
+    photoOrientation.rotation.at(2, 2) = -photoOrientation.rotation.at(2, 2);
+
+    photoOrientation.position += offset;
+
+    tl::Photo::Orientation orientation(photoOrientation.position, photoOrientation.rotation);
+    photo.setOrientation(orientation);
+
+    int camera_id = image->cameraId();
+    tl::Camera camera = mProject->findCamera(camera_id);
+    photo.setCamera(camera);
+    
+    photos.push_back(photo);
+
+    
+  }
+
+  return photos;
+}
+
+QString OrthophotoModelImp::orthoPath() const
+{
+  return mProject->projectFolder() + "/ortho";
+}
+
+QString OrthophotoModelImp::dtmPath() const
+{
+  return mProject->dtmPath();
+}
+
+QString OrthophotoModelImp::epsCode() const
+{
+  return mProject->crs();
+}
+
+void OrthophotoModelImp::clearProject()
+{
+  /// TODO: 
+  //mProject->clearOrtho();
 }
 
 void OrthophotoModelImp::init()

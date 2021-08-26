@@ -48,17 +48,17 @@ public:
 
 public:
 
-  int addCamera(const Camera &camera) override;
-  int cameraID(const Camera &camera) const override;
+  int addCamera(const tl::Camera &camera) override;
+  int cameraID(const tl::Camera &camera) const override;
   int cameraID(const QString &make, 
                const QString &model) const override;
-  Camera camera(int id) const override;
-  Camera camera(const QString &make, 
-                const QString &model) const override;
+  tl::Camera camera(int id) const override;
+  tl::Camera camera(const QString &make,
+                    const QString &model) const override;
   int currentCameraID() const override;
-  bool updateCamera(int id, const Camera &camera) override;
+  bool updateCamera(int id, const tl::Camera &camera) override;
   bool removeCamera(int id) override;
-  bool removeCamera(const Camera &camera) override;
+  bool removeCamera(const tl::Camera &camera) override;
   QStringList imagesFromCamera(int id) const override;
 
   camera_iterator begin() override;
@@ -115,14 +115,14 @@ public slots:
 
 private:
 
-  void updateCalibrationParameter(Calibration::Parameters param, double value);
+  void updateCalibrationParameter(tl::Calibration::Parameters param, double value);
 
 protected:
 
   Project *mProject;
   bool bModifiedProject;
   mutable int mActiveCameraId;
-  mutable std::map<int, Camera> mCameraCache;
+  mutable std::map<int, tl::Camera> mCameraCache;
 };
 
 } // namespace graphos

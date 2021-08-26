@@ -31,10 +31,12 @@
 #include "graphos/process/orientation/RelativeOrientationProcess.h"
 #include "graphos/process/orientation/AbsoluteOrientationProcess.h"
 #include "graphos/core/orientation/photoorientation.h"
+#include "graphos/core/camera/colmap.h"
 
 #include "graphos/ui/HelpDialog.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/geospatial/camera.h>
 
 #include <QFileInfo>
 #include <QMessageBox>
@@ -220,11 +222,11 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
 
     ReadCalibration readCalibration;
     readCalibration.open(ori_relative_path);
-    std::shared_ptr<Calibration> calibration;
+    std::shared_ptr<tl::Calibration> calibration;
     for(auto camera_it = mModel->cameraBegin(); camera_it != mModel->cameraEnd(); camera_it++){
       calibration = readCalibration.calibration(camera_it->first);
       if (calibration){
-        Camera camera = camera_it->second;
+        tl::Camera camera = camera_it->second;
         camera.setCalibration(calibration);
         mModel->updateCamera(camera_it->first, camera);
       }

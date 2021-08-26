@@ -50,6 +50,12 @@ public:
 
   OrthophotoParameters *parameters() const override;
 
+  std::vector<tl::Photo> photos() const override;
+  QString orthoPath() const override;
+  QString dtmPath() const override;
+  QString epsCode() const override;
+  void clearProject() override;
+
 public slots:
 
   void loadSettings() override;

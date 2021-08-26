@@ -24,6 +24,8 @@
 
 #include "OrthophotoProcess.h"
 
+#include "graphos/core/Orthophoto.h"
+
 #include <tidop/core/messages.h>
 
 namespace graphos
@@ -46,7 +48,7 @@ void OrthophotoProcess::run()
 	
   try {
     
-	//mOrthophotoAlgorithm->run();
+	mOrthophotoAlgorithm->run();
 
   } catch (std::exception &e) {
     emit error(0, "Process error");

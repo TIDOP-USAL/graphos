@@ -26,6 +26,8 @@
 
 #include <array>
 
+#include "tidop/geospatial/photo.h"
+
 #include "graphos/interfaces/mvp.h"
 
 namespace graphos
@@ -45,6 +47,12 @@ public:
   ~OrthophotoModel() override = default;
   
   virtual OrthophotoParameters *parameters() const = 0;
+ 
+  virtual std::vector<tl::Photo> photos() const = 0;
+  virtual QString orthoPath() const = 0;
+  virtual QString dtmPath() const = 0;
+  virtual QString epsCode() const = 0;
+  virtual void clearProject() = 0;
 
 public slots:
 

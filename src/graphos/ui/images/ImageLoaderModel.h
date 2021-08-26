@@ -26,11 +26,15 @@
 
 #include "graphos/interfaces/mvp.h"
 
+namespace tl
+{
+class Camera;
+}
+
 namespace graphos
 {
 
 class Image;
-class Camera;
 
 class ImageLoaderModel
   : public Model
@@ -42,8 +46,8 @@ public:
 
   typedef std::vector<Image>::iterator image_iterator;
   typedef std::vector<Image>::const_iterator image_const_iterator;
-  typedef std::map<int, Camera>::iterator camera_iterator;
-  typedef std::map<int, Camera>::const_iterator camera_const_iterator;
+  typedef std::map<int, tl::Camera>::iterator camera_iterator;
+  typedef std::map<int, tl::Camera>::const_iterator camera_const_iterator;
   
 public:
 
@@ -67,8 +71,8 @@ public:
   virtual image_iterator end() = 0;
   virtual image_const_iterator end() const = 0;
   
-  virtual int addCamera(const Camera &camera) = 0;
-  virtual int cameraID(const Camera &camera) const = 0;
+  virtual int addCamera(const tl::Camera &camera) = 0;
+  virtual int cameraID(const tl::Camera &camera) const = 0;
   virtual int cameraID(const QString &make, 
                        const QString &model) const = 0;
   virtual camera_iterator cameraBegin() = 0;

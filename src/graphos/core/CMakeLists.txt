@@ -15,8 +15,8 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             settings.h
             image.cpp
             image.h
-            camera.cpp
-            camera.h
+            #camera.cpp
+            #camera.h
             process/ProcessPresenter.cpp
             process/ProcessPresenter.h            
             process/ProcessView.cpp
@@ -60,7 +60,9 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             dtm/csf.h
             dtm/csf.cpp
             Orthophoto.cpp
-            Orthophoto.h)
+            Orthophoto.h
+            camera/colmap.cpp
+            camera/colmap.h)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 

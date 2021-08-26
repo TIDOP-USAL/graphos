@@ -155,6 +155,7 @@ public:
   virtual QString sparseModel() const = 0;
   virtual bool isAbsoluteOriented() const = 0;
   virtual QString denseModel() const = 0;
+  virtual QString dtm() const = 0;
 
 public slots:
 
@@ -251,6 +252,7 @@ public:
   QString sparseModel() const override;
   bool isAbsoluteOriented() const override;
   QString denseModel() const override;
+  QString dtm() const override;
 
 public slots:
 

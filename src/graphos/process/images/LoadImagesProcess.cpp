@@ -7,6 +7,7 @@
 #include <tidop/math/angles.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
+#include <tidop/geospatial/camera.h>
 
 #include <colmap/util/bitmap.h>
 
@@ -19,7 +20,7 @@ namespace graphos
 {
 
 LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images, 
-                                     std::vector<Camera> *cameras,
+                                     std::vector<tl::Camera> *cameras,
                                      const QString &epsg)
   : mImages(images),
     mCameras(cameras),
@@ -33,8 +34,8 @@ bool LoadImagesProcess::existCamera(const QString &make, const QString &model) c
   bool camera_exist = false;
   
   for (auto it = mCameras->begin(); it != mCameras->end(); it++) {
-    QString camera_make = it->make();
-    QString camera_model = it->model();
+    QString camera_make = it->make().c_str();
+    QString camera_model = it->model().c_str();
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
       camera_exist = true;
@@ -49,8 +50,8 @@ int LoadImagesProcess::findCamera(const QString &make, const QString &model) con
 {
   int camera_id = -1;
   for (size_t i = 0; i < mCameras->size(); i++){
-    QString camera_make = (*mCameras)[i].make();
-    QString camera_model = (*mCameras)[i].model();
+    QString camera_make = (*mCameras)[i].make().c_str();
+    QString camera_model = (*mCameras)[i].model().c_str();
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
       camera_id = i;
@@ -108,7 +109,7 @@ void graphos::LoadImagesProcess::run()
       int id_camera = 0;
       int width = imageReader->cols();
       int height = imageReader->rows();
-      Camera camera;
+      tl::Camera camera;
       int camera_id = -1;
 
       tl::MessageManager::pause();
@@ -129,7 +130,7 @@ void graphos::LoadImagesProcess::run()
 
         } else {
 
-          camera = Camera(camera_make.c_str(), camera_model.c_str());
+          camera = tl::Camera(camera_make.c_str(), camera_model.c_str());
 
           camera.setWidth(width);
           camera.setHeight(height);
@@ -198,7 +199,7 @@ void graphos::LoadImagesProcess::run()
       } else {
         /// Camara desconocida
         msgWarning("Unknow camera for image: %s", image.toStdString().c_str());
-        Camera camera2;
+        tl::Camera camera2;
         bool bFound = false;
         //int id_camera;
         int counter = 0;
@@ -216,7 +217,7 @@ void graphos::LoadImagesProcess::run()
         }
 
         if (bFound == false) {
-          camera = Camera("Unknown camera", QString::number(counter));
+          camera = tl::Camera("Unknown camera", std::to_string(counter));
           camera.setWidth(width);
           camera.setHeight(height);
           camera.setFocal(1.2 * std::max(width, height));

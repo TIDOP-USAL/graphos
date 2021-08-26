@@ -26,10 +26,10 @@
 #include "graphos/ui/cameras/CamerasModel.h"
 #include "graphos/ui/cameras/CamerasView.h"
 #include "graphos/ui/HelpDialog.h"
-#include "graphos/core/camera.h"
 #include "graphos/core/image.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/geospatial/camera.h>
 
 namespace graphos
 {
@@ -112,59 +112,59 @@ void CamerasPresenterImp::activeCamera(int id)
 
     mView->setActiveCamera(id);
 
-    Camera camera = mModel->camera(id);
+    tl::Camera camera = mModel->camera(id);
 
-    mView->setMake(camera.make());
-    mView->setModel(camera.model());
+    mView->setMake(camera.make().c_str());
+    mView->setModel(camera.model().c_str());
     mView->setFocal(QString::number(camera.focal()));
     mView->setWidth(camera.width());
     mView->setHeight(camera.height());
-    mView->setType(camera.type());
+    mView->setType(camera.type().c_str());
     mView->setSensorSize(QString::number(camera.sensorSize()));
     
-    std::shared_ptr<Calibration> calibration = camera.calibration();
+    std::shared_ptr<tl::Calibration> calibration = camera.calibration();
     if (calibration) {
       for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-        Calibration::Parameters parameter = param->first;
+        tl::Calibration::Parameters parameter = param->first;
         double value = param->second;
         switch (parameter) {
-          case graphos::Calibration::Parameters::focal:
+          case tl::Calibration::Parameters::focal:
             mView->setCalibF(value);
             break;
-          case graphos::Calibration::Parameters::focalx:
+          case tl::Calibration::Parameters::focalx:
             mView->setCalibFx(value);
             break;
-          case graphos::Calibration::Parameters::focaly:
+          case tl::Calibration::Parameters::focaly:
             mView->setCalibFy(value);
             break;
-          case graphos::Calibration::Parameters::cx:
+          case tl::Calibration::Parameters::cx:
             mView->setCalibCx(value);
             break;
-          case graphos::Calibration::Parameters::cy:
+          case tl::Calibration::Parameters::cy:
             mView->setCalibCy(value);
             break;
-          case graphos::Calibration::Parameters::k1:
+          case tl::Calibration::Parameters::k1:
             mView->setCalibK1(value);
             break;
-          case graphos::Calibration::Parameters::k2:
+          case tl::Calibration::Parameters::k2:
             mView->setCalibK2(value);
             break;
-          case graphos::Calibration::Parameters::k3:
+          case tl::Calibration::Parameters::k3:
             mView->setCalibK3(value);
             break;
-          case graphos::Calibration::Parameters::k4:
+          case tl::Calibration::Parameters::k4:
             mView->setCalibK4(value);
             break;
-          case graphos::Calibration::Parameters::k5:
+          case tl::Calibration::Parameters::k5:
             mView->setCalibK5(value);
             break;
-          case graphos::Calibration::Parameters::k6:
+          case tl::Calibration::Parameters::k6:
             mView->setCalibK6(value);
             break;
-          case graphos::Calibration::Parameters::p1:
+          case tl::Calibration::Parameters::p1:
             mView->setCalibP1(value);
             break;
-          case graphos::Calibration::Parameters::p2:
+          case tl::Calibration::Parameters::p2:
             mView->setCalibP2(value);
             break;
           default:
@@ -202,8 +202,8 @@ void CamerasPresenterImp::loadCameras()
 {
   for(auto it = mModel->begin(); it != mModel->end(); it++) {
     int camera_id = it->first;
-    Camera camera = it->second;
-    QString camera_name = QString(camera.make()).append("-").append(camera.model());
+    tl::Camera camera = it->second;
+    QString camera_name = QString(camera.make().c_str()).append("-").append(camera.model().c_str());
     mView->addCamera(camera_id, camera_name);
   }
 

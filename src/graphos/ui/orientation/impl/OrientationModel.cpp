@@ -156,7 +156,7 @@ void OrientationModelImp::clearProject()
   mProject->clearReconstruction();
 }
 
-bool OrientationModelImp::updateCamera(int id, const Camera &camera)
+bool OrientationModelImp::updateCamera(int id, const tl::Camera &camera)
 {
   return mProject->updateCamera(id, camera);
 }

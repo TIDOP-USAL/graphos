@@ -2,6 +2,7 @@
 
 #include "graphos/core/features/featio.h"
 #include "graphos/core/features/sift.h"
+#include "graphos/core/camera/colmap.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -47,7 +48,7 @@ class ProducerImp
 public:
 
   ProducerImp(const std::vector<Image> *images,
-              const std::map<int, Camera> *cameras,
+              const std::map<int, tl::Camera> *cameras,
               const colmap::Database *database,
               int maxImageSize,
               bool useGPU,
@@ -367,7 +368,7 @@ private:
 
 
 FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &images,
-                                                 const std::map<int, Camera> &cameras,
+                                                 const std::map<int, tl::Camera> &cameras,
                                                  const QString &database,
                                                  int maxImageSize,
                                                  bool cuda,

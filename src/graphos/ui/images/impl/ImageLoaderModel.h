@@ -64,8 +64,8 @@ public:
   image_iterator end() override;
   image_const_iterator end() const override;
 
-  int addCamera(const Camera &camera) override;
-  int cameraID(const Camera &camera) const override;
+  int addCamera(const tl::Camera &camera) override;
+  int cameraID(const tl::Camera &camera) const override;
   int cameraID(const QString &make, 
                const QString &model) const override;
   camera_iterator cameraBegin() override;

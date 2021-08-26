@@ -226,24 +226,24 @@ size_t ProjectImp::imagesCount() const
   return mImages.size();
 }
 
-int ProjectImp::addCamera(const Camera &camera)
+int ProjectImp::addCamera(const tl::Camera &camera)
 {
   mCameras[++mCameraCount] = camera;
   return mCameraCount;
 }
 
-std::map<int, Camera> ProjectImp::cameras() const
+std::map<int, tl::Camera> ProjectImp::cameras() const
 {
   return mCameras;
 }
 
-Camera ProjectImp::findCamera(const QString &make, const QString &model) const
+tl::Camera ProjectImp::findCamera(const QString &make, const QString &model) const
 {
-  Camera camera;
+  tl::Camera camera;
   for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
     camera = it->second;
-    if (camera.make().compare(make) == 0 &&
-        camera.model().compare(model) == 0) {
+    if (camera.make().compare(make.toStdString()) == 0 &&
+        camera.model().compare(model.toStdString()) == 0) {
       return camera;
     }
   }
@@ -251,7 +251,7 @@ Camera ProjectImp::findCamera(const QString &make, const QString &model) const
   throw std::runtime_error(msg.c_str());
 }
 
-Camera ProjectImp::findCamera(int idCamera) const
+tl::Camera ProjectImp::findCamera(int idCamera) const
 {
   camera_const_iterator it = mCameras.find(idCamera);
   if (it != mCameras.end()){
@@ -264,16 +264,16 @@ Camera ProjectImp::findCamera(int idCamera) const
 bool ProjectImp::existCamera(const QString &make, const QString &model) const
 {
   for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
-    Camera camera = it->second;
-    if (camera.make().compare(make) == 0 &&
-        camera.model().compare(model) == 0) {
+    tl::Camera camera = it->second;
+    if (camera.make().compare(make.toStdString()) == 0 &&
+        camera.model().compare(model.toStdString()) == 0) {
       return true;
     }
   }
   return false;
 }
 
-bool ProjectImp::updateCamera(int idCamera, const Camera &camera)
+bool ProjectImp::updateCamera(int idCamera, const tl::Camera &camera)
 {
   auto it = mCameras.find(idCamera);
   if (it != mCameras.end()){
@@ -297,11 +297,11 @@ bool ProjectImp::removeCamera(int idCamera)
 
 int ProjectImp::cameraId(const QString &make, const QString &model) const
 {
-  Camera camera;
+  tl::Camera camera;
   for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
     camera = it->second;
-    if (camera.make().compare(make) == 0 &&
-        camera.model().compare(model) == 0) {
+    if (camera.make().compare(make.toStdString()) == 0 &&
+        camera.model().compare(model.toStdString()) == 0) {
       return it->first;
     }
   }
@@ -864,9 +864,9 @@ void ProjectImp::readCameras(QXmlStreamReader &stream)
   }
 }
 
-Camera ProjectImp::readCamera(QXmlStreamReader &stream)
+tl::Camera ProjectImp::readCamera(QXmlStreamReader &stream)
 {
-  Camera camera;
+  tl::Camera camera;
 
   int id = 0;
   for (auto &attr : stream.attributes()) {
@@ -878,11 +878,11 @@ Camera ProjectImp::readCamera(QXmlStreamReader &stream)
 
   while (stream.readNextStartElement()) {
     if (stream.name() == "Make") {
-      camera.setMake(stream.readElementText());
+      camera.setMake(stream.readElementText().toStdString());
     } else if (stream.name() == "Model") {
-      camera.setModel(stream.readElementText());
+      camera.setModel(stream.readElementText().toStdString());
     } else if (stream.name() == "Type") {
-      camera.setType(stream.readElementText());
+      camera.setType(stream.readElementText().toStdString());
     } else if (stream.name() == "Focal") {
       camera.setFocal(readDouble(stream));
     } else if (stream.name() == "Width") {
@@ -899,38 +899,38 @@ Camera ProjectImp::readCamera(QXmlStreamReader &stream)
   return camera;
 }
 
-void ProjectImp::readCalibration(QXmlStreamReader &stream, Camera &camera)
+void ProjectImp::readCalibration(QXmlStreamReader &stream, tl::Camera &camera)
 {
   try {
-    std::shared_ptr<Calibration> calibration;
-    calibration = CalibrationFactory::create(camera.type());
+    std::shared_ptr<tl::Calibration> calibration;
+    calibration = tl::CalibrationFactory::create(camera.type());
     while (stream.readNextStartElement()) {
       if (stream.name().compare(QString("f")) == 0) {
-        calibration->setParameter(Calibration::Parameters::focal, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::focal, readDouble(stream));
       } else if (stream.name() == "fx") {
-        calibration->setParameter(Calibration::Parameters::focalx, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::focalx, readDouble(stream));
       } else if (stream.name() == "fy") {
-        calibration->setParameter(Calibration::Parameters::focaly, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::focaly, readDouble(stream));
       } else if (stream.name() == "cx") {
-        calibration->setParameter(Calibration::Parameters::cx, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::cx, readDouble(stream));
       } else if (stream.name() == "cy") {
-        calibration->setParameter(Calibration::Parameters::cy, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::cy, readDouble(stream));
       } else if (stream.name() == "k1") {
-        calibration->setParameter(Calibration::Parameters::k1, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::k1, readDouble(stream));
       } else if (stream.name() == "k2") {
-        calibration->setParameter(Calibration::Parameters::k2, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::k2, readDouble(stream));
       } else if (stream.name() == "k3") {
-        calibration->setParameter(Calibration::Parameters::k3, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::k3, readDouble(stream));
       } else if (stream.name() == "k4") {
-        calibration->setParameter(Calibration::Parameters::k4, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::k4, readDouble(stream));
       } else if (stream.name() == "k5") {
-        calibration->setParameter(Calibration::Parameters::k5, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::k5, readDouble(stream));
       } else if (stream.name() == "k6") {
-        calibration->setParameter(Calibration::Parameters::k6, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::k6, readDouble(stream));
       } else if (stream.name() == "p1") {
-        calibration->setParameter(Calibration::Parameters::p1, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::p1, readDouble(stream));
       } else if (stream.name() == "p2") {
-        calibration->setParameter(Calibration::Parameters::p2, readDouble(stream));
+        calibration->setParameter(tl::Calibration::Parameters::p2, readDouble(stream));
       } else
         stream.skipCurrentElement();
     }
@@ -1308,15 +1308,15 @@ void ProjectImp::writeCameras(QXmlStreamWriter &stream) const
   stream.writeEndElement();
 }
 
-void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const
+void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const tl::Camera &camera) const
 {
   stream.writeStartElement("Camera");
   {
     stream.writeAttribute("id", QString::number(id));
 
-    stream.writeTextElement("Make", camera.make());
-    stream.writeTextElement("Model", camera.model());
-    stream.writeTextElement("Type", camera.type());
+    stream.writeTextElement("Make", camera.make().c_str());
+    stream.writeTextElement("Model", camera.model().c_str());
+    stream.writeTextElement("Type", camera.type().c_str());
     stream.writeTextElement("Focal", QString::number(camera.focal()));
     stream.writeTextElement("Width", QString::number(camera.width()));
     stream.writeTextElement("Height", QString::number(camera.height()));
@@ -1327,13 +1327,13 @@ void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const Camera &cam
   stream.writeEndElement(); // Camera
 }
 
-void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const
+void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<tl::Calibration> calibration) const
 {
   if (calibration){
     stream.writeStartElement("Calibration");
     {
       for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++){
-        stream.writeTextElement(calibration->parameterName(param->first), QString::number(param->second, 'f', 8));
+        stream.writeTextElement(calibration->parameterName(param->first).c_str(), QString::number(param->second, 'f', 8));
       }
     }
     stream.writeEndElement(); // Calibration

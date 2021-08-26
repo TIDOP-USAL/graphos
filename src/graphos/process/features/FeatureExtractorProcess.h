@@ -1,9 +1,10 @@
 #ifndef GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
 #define GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
 
+#include <tidop/geospatial/camera.h>
+
 #include "graphos/process/ProcessConcurrent.h"
 #include "graphos/core/features/features.h"
-#include "graphos/core/camera.h"
 #include "graphos/core/image.h"
 
 namespace graphos
@@ -18,7 +19,7 @@ class GRAPHOS_EXPORT FeatureExtractorProcess
 public:
 
   FeatureExtractorProcess(const std::vector<Image> &images,
-                          const std::map<int, Camera> &cameras,
+                          const std::map<int, tl::Camera> &cameras,
                           const QString &database,
                           int maxImageSize,
                           bool cuda,
@@ -46,7 +47,7 @@ protected:
 protected:
 
   std::vector<Image> mImages;
-  std::map<int, Camera> mCameras;
+  std::map<int, tl::Camera> mCameras;
   QString mDatabase;
   int mMaxImageSize;
   bool bUseCuda;

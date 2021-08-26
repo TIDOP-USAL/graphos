@@ -192,7 +192,7 @@ bool FeatureExtractorPresenterImp::createProcess()
   mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
 
   std::vector<Image> images = mModel->images();
-  std::map<int, Camera> cameras = mModel->cameras();
+  std::map<int, tl::Camera> cameras = mModel->cameras();
   QString database = mModel->database();
 
   int maxSize = -1;

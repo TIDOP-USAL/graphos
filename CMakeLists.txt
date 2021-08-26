@@ -169,7 +169,8 @@ find_package(OpenCV REQUIRED
                  calib3d
                  features2d
                  flann
-                 objdetect)
+                 objdetect
+                 stitching)
 if (HAVE_CUDA)
  find_package(OpenCV REQUIRED
               COMPONENTS

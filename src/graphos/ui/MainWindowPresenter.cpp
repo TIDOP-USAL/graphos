@@ -253,6 +253,8 @@ void MainWindowPresenter::loadProject()
   this->loadMatches();
   this->loadOrientation();
   this->loadDenseModel();
+  this->loadDTM();
+  this->loadOrtho();
 }
 
 void MainWindowPresenter::updateProject()
@@ -347,6 +349,22 @@ void MainWindowPresenter::loadDenseModel()
   } else {
     mView->deleteDenseModel();
   }
+}
+
+void MainWindowPresenter::loadDTM()
+{
+  QString dtm = mProjectModel->dtm();
+  if (!dtm.isEmpty()) {
+    //mView->setDTM(dtm);
+    Application &app = Application::instance();
+    app.status()->activeFlag(AppStatus::Flag::dtm, true);
+  } else {
+    //mView->deleteDTM();
+  }
+}
+
+void MainWindowPresenter::loadOrtho()
+{
 }
 
 void MainWindowPresenter::openImage(const QString &imageName)

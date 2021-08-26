@@ -21,7 +21,6 @@
  *                                                                      *
  ************************************************************************/
 
-
 #include "OrthophotoPresenter.h"
 
 #include "graphos/process/orthophoto/OrthophotoProcess.h"
@@ -30,18 +29,21 @@
 #include "graphos/ui/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/ui/orthophoto/impl/OrthophotoView.h"
 #include "graphos/core/utils.h"
-
-//#include "cvstudio/ui/HelpDialog.h"
+#include "graphos/process/MultiProcess.h"
+#include "graphos/ui/HelpDialog.h"
 
 #include <tidop/core/defs.h>
+#include <tidop/geospatial/photo.h>
 
-#include <QFileDialog>
+//#include <QFileDialog>
+#include <QFileInfo>
+#include <QMessageBox>
 
 namespace graphos
 {
 
 OrthophotoPresenterImp::OrthophotoPresenterImp(OrthophotoView *view,
-                                                         OrthophotoModel *model)
+                                               OrthophotoModel *model)
   : OrthophotoPresenter(),
     mView(view),
     mModel(model),
@@ -58,12 +60,11 @@ OrthophotoPresenterImp::~OrthophotoPresenterImp()
 
 void OrthophotoPresenterImp::help()
 {
-  //if (mHelp){
-  //  TL_TODO("Añadir ayuda")
-  //  mHelp->setPage("");
-  //  mHelp->setModal(true);
-  //  mHelp->showMaximized();
-  //}
+  if (mHelp){
+    mHelp->setPage("orthophoto.html");
+    mHelp->setModal(true);
+    mHelp->showMaximized();
+  }
 }
 
 void OrthophotoPresenterImp::open()
@@ -71,14 +72,14 @@ void OrthophotoPresenterImp::open()
   mModel->loadSettings();
   OrthophotoParameters *parameters = mModel->parameters();
 
-  /* Configure View here */
-  
+  mView->setResolution(parameters->resolution());
+
   mView->exec();
 }
 
 void OrthophotoPresenterImp::setHelp(HelpDialog *help)
 {
-  //mHelp = help;
+  mHelp = help;
 }
 
 void OrthophotoPresenterImp::init()
@@ -97,7 +98,7 @@ void OrthophotoPresenterImp::onError(int code, const QString &msg)
   ProcessPresenter::onError(code, msg);
 
   if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Process error"));
+    mProgressHandler->setDescription(tr("Orthophoto process error"));
   }
 }
 
@@ -106,17 +107,48 @@ void OrthophotoPresenterImp::onFinished()
   ProcessPresenter::onFinished();
 
   if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Process finished"));
+    mProgressHandler->setDescription(tr("Orthophoto finished"));
   }
 }
 
 bool OrthophotoPresenterImp::createProcess()
 {
+  QString ortho_path = mModel->orthoPath();
+  if (!ortho_path.isEmpty()) {
+    int i_ret = QMessageBox(QMessageBox::Warning,
+                            tr("Previous results"),
+                            tr("The previous results will be overwritten. Do you wish to continue?"),
+                            QMessageBox::Yes | QMessageBox::No).exec();
+    if (i_ret == QMessageBox::No) {
+      return false;
+    }
+  }
+
+  mModel->clearProject();
+
+  mMultiProcess->clearProcessList();
   
-  // std::shared_ptr<ImageProcess> image_process = std::make_shared<OrthophotoAlgorithm>();
+  OrthophotoParameters *parameters = mModel->parameters();
+  parameters->setResolution(mView->resolution());
 
-  // mProcess = std::make_unique<process::OrthophotoProcess>(this->image(), image_process);
+  std::shared_ptr<OrthophotoAlgorithm> algorithm = std::make_shared<OrthophotoAlgorithm>(mView->resolution(),
+                                                                                         mModel->photos(),
+                                                                                         mModel->orthoPath(),
+                                                                                         mModel->dtmPath(),
+                                                                                         mModel->epsCode());
 
+  std::shared_ptr<OrthophotoProcess> process = std::make_unique<OrthophotoProcess>(algorithm);
+  
+  connect(process.get(), SIGNAL(finished()), this, SLOT(onOrthophotoFinished()));
+  
+  mMultiProcess->appendProcess(process);
+  
+  if (mProgressHandler){
+    mProgressHandler->setRange(0, 0);
+    mProgressHandler->setTitle("Computing Orthophoto...");
+    mProgressHandler->setDescription("Computing Orthophoto...");
+  }
+  
   mView->hide();
   
   return true;
@@ -127,6 +159,11 @@ void OrthophotoPresenterImp::cancel()
   ProcessPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
+}
+
+void OrthophotoPresenterImp::onOrthophotoFinished()
+{
+
 }
 
 } // namespace graphos

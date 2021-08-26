@@ -72,8 +72,9 @@ void OrthophotoComponent::update()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
+  bool dtm = app_status->isActive(AppStatus::Flag::dtm);
   bool process_run = app_status->isActive(AppStatus::Flag::processing);
-  action()->setEnabled(bProjectExists && !process_run);
+  action()->setEnabled(bProjectExists && dtm&& !process_run);
 }
 
 void OrthophotoComponent::onRunning()
@@ -89,7 +90,7 @@ void OrthophotoComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFinished();
-  //app_status->activeFlag(AppStatus::Flag::orthophoto, true);
+  app_status->activeFlag(AppStatus::Flag::ortho, true);
 }
 
 void OrthophotoComponent::onFailed()
@@ -100,7 +101,7 @@ void OrthophotoComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFailed();
-  //app_status->activeFlag(AppStatus::Flag::..., false);
+  app_status->activeFlag(AppStatus::Flag::ortho, false);
 }
 
 

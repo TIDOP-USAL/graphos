@@ -47,6 +47,10 @@ public:
                               OrthophotoModel *model);
   ~OrthophotoPresenterImp() override;
 
+private slots:
+
+  void onOrthophotoFinished();
+  
 // Presenter interface
 
 public slots:

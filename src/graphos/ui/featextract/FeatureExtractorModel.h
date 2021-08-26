@@ -24,8 +24,9 @@
 #ifndef GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
 #define GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
 
+#include <tidop/geospatial/camera.h>
+
 #include "graphos/interfaces/mvp.h"
-#include "graphos/core/camera.h"
 #include "graphos/core/image.h"
 
 namespace graphos
@@ -53,7 +54,7 @@ public:
   virtual bool useCuda() const = 0;
   //virtual Camera camera(int id) const = 0;
   virtual std::vector<Image> images() const = 0;
-  virtual std::map<int, Camera> cameras() const = 0;
+  virtual std::map<int, tl::Camera> cameras() const = 0;
   //virtual image_iterator imageBegin() = 0;
   //virtual image_const_iterator imageBegin() const = 0;
   //virtual image_iterator imageEnd() = 0;

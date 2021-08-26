@@ -43,6 +43,10 @@ CameraPose ReadPhotoOrientations::orientation(const QString &imageName) const
       colmap::image_t image_id = image.second.ImageId();
 
       colmap::Image &colmap_image = mReconstruction->Image(image_id);
+      
+      Eigen::Matrix3d rotation_matrix = colmap_image.RotationMatrix();
+      Eigen::Vector3d translation = colmap_image.Tvec();
+
       const Eigen::Matrix<double, 3, 4> inv_proj_matrix = colmap_image.InverseProjectionMatrix();
       const Eigen::Vector3d pc = inv_proj_matrix.rightCols<1>();
       photoOrientation.position.x = pc(0);

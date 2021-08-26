@@ -57,9 +57,9 @@ public:
     absolute_oriented     = (1 << 7),
     dense_model           = (1 << 8),
     dtm                   = (1 << 9),
+    ortho                 = (1 << 10),
     processing            = (1 << 20),
-    loading_images        = (1 << 21),
-    ground_truth          = (1 << 30)
+    loading_images        = (1 << 21)
   };
 
 public:

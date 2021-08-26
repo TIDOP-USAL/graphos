@@ -26,10 +26,14 @@
 
 #include "graphos/interfaces/mvp.h"
 
+namespace tl
+{
+class Camera;
+}
+
+
 namespace graphos
 {
-
-class Camera;
 
 class CamerasModel
   : public Model
@@ -39,8 +43,8 @@ class CamerasModel
 
 public:
 
-  typedef std::map<int, Camera>::iterator camera_iterator;
-  typedef std::map<int, Camera>::const_iterator camera_const_iterator;
+  typedef std::map<int, tl::Camera>::iterator camera_iterator;
+  typedef std::map<int, tl::Camera>::const_iterator camera_const_iterator;
   //typedef std::vector<Image>::iterator image_iterator;
   //typedef std::vector<Image>::const_iterator image_const_iterator;
 
@@ -49,17 +53,17 @@ public:
   CamerasModel(QObject *parent = nullptr) : Model(parent) {}
   virtual ~CamerasModel() override = default;
 
-  virtual int addCamera(const Camera &camera) = 0;
-  virtual int cameraID(const Camera &camera) const = 0;
+  virtual int addCamera(const tl::Camera &camera) = 0;
+  virtual int cameraID(const tl::Camera &camera) const = 0;
   virtual int cameraID(const QString &make, 
                        const QString &model) const = 0;
-  virtual Camera camera(int id) const = 0;
-  virtual Camera camera(const QString &make, const QString &model) const = 0;
+  virtual tl::Camera camera(int id) const = 0;
+  virtual tl::Camera camera(const QString &make, const QString &model) const = 0;
   virtual int currentCameraID() const = 0;
-  virtual bool updateCamera(int id, const Camera &camera) = 0;
+  virtual bool updateCamera(int id, const tl::Camera &camera) = 0;
 
   virtual bool removeCamera(int id) = 0;
-  virtual bool removeCamera(const Camera &camera) = 0;
+  virtual bool removeCamera(const tl::Camera &camera) = 0;
   virtual QStringList imagesFromCamera(int id) const = 0;
 
   virtual camera_iterator begin() = 0;

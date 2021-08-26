@@ -98,6 +98,8 @@ protected slots:
   void loadMatches();
   void loadOrientation();
   void loadDenseModel();
+  void loadDTM();
+  void loadOrtho();
 
   void openImage(const QString &imageName);
   void activeImage(const QString &imageName);

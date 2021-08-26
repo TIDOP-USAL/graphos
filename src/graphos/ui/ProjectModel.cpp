@@ -167,6 +167,11 @@ QString ProjectModelImp::denseModel() const
   return mProject->denseModel();
 }
 
+QString ProjectModelImp::dtm() const
+{
+  return mProject->dtmPath();
+}
+
 void ProjectModelImp::setProjectName(const QString &name)
 {
   mProject->setName(name);

@@ -116,14 +116,14 @@ ImageLoaderModel::image_const_iterator ImageLoaderModelImp::end() const
   return mProject->imageEnd();
 }
 
-int ImageLoaderModelImp::addCamera(const Camera &camera)
+int ImageLoaderModelImp::addCamera(const tl::Camera &camera)
 {
   return mProject->addCamera(camera);
 }
 
-int ImageLoaderModelImp::cameraID(const Camera &camera) const
+int ImageLoaderModelImp::cameraID(const tl::Camera &camera) const
 {
-  return cameraID(camera.make(), camera.model());
+  return cameraID(camera.make().c_str(), camera.model().c_str());
 }
 
 int ImageLoaderModelImp::cameraID(const QString &make, 
@@ -131,8 +131,8 @@ int ImageLoaderModelImp::cameraID(const QString &make,
 {
   int id_camera = 0;
   for (auto it = cameraBegin(); it != cameraEnd(); it++){
-    QString camera_make = it->second.make();
-    QString camera_model = it->second.model();
+    QString camera_make = it->second.make().c_str();
+    QString camera_model = it->second.model().c_str();
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
       id_camera = it->first;
