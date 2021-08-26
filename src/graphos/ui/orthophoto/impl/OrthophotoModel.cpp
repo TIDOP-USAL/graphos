@@ -115,9 +115,9 @@ std::vector<tl::Photo> OrthophotoModelImp::photos() const
   QString undistort_images_path = mProject->projectFolder();
   std::shared_ptr<Densification> densification = mProject->densification();
   if (densification->method() == Densification::Method::smvs) {
-    undistort_images_path.append("/dense/pmvs/visualize/");
-  } else if (densification->method() == Densification::Method::cmvs_pmvs) {
     //undistort_images_path.append("/dense/");
+  } else if (densification->method() == Densification::Method::cmvs_pmvs) {
+    undistort_images_path.append("/dense/pmvs/visualize/");
   } else {
     /// Devolver error o volver a corregir las imagenes
   }

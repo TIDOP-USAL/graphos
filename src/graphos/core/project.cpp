@@ -1373,13 +1373,13 @@ void ProjectImp::writeCameraPosition(QXmlStreamWriter &stream,
     stream.writeStartElement("CameraPosition");
     {
       stream.writeTextElement("CRS", cameraPosition.crs());
-      stream.writeTextElement("X", QString::number(cameraPosition.x(), 'f', 3));
-      stream.writeTextElement("Y", QString::number(cameraPosition.y(), 'f', 3));
-      stream.writeTextElement("Z", QString::number(cameraPosition.z(), 'f', 3));
-      stream.writeTextElement("QX", QString::number(cameraPosition.quaternion().x, 'f', 6));
-      stream.writeTextElement("QY", QString::number(cameraPosition.quaternion().y, 'f', 6));
-      stream.writeTextElement("QZ", QString::number(cameraPosition.quaternion().z, 'f', 6));
-      stream.writeTextElement("QW", QString::number(cameraPosition.quaternion().w, 'f', 6));
+      stream.writeTextElement("X", QString::number(cameraPosition.x(), 'f', 10));
+      stream.writeTextElement("Y", QString::number(cameraPosition.y(), 'f', 10));
+      stream.writeTextElement("Z", QString::number(cameraPosition.z(), 'f', 10));
+      stream.writeTextElement("QX", QString::number(cameraPosition.quaternion().x, 'f', 10));
+      stream.writeTextElement("QY", QString::number(cameraPosition.quaternion().y, 'f', 10));
+      stream.writeTextElement("QZ", QString::number(cameraPosition.quaternion().z, 'f', 10));
+      stream.writeTextElement("QW", QString::number(cameraPosition.quaternion().w, 'f', 10));
       stream.writeTextElement("Source", cameraPosition.source());
     }
     stream.writeEndElement();
@@ -1526,18 +1526,18 @@ void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
               photoOrientation.position.y != 0. && 
               photoOrientation.position.z != 0.) {
 
-              stream.writeTextElement("X", QString::number(photoOrientation.position.x, 'f', 6));
-              stream.writeTextElement("Y", QString::number(photoOrientation.position.y, 'f', 6));
-              stream.writeTextElement("Z", QString::number(photoOrientation.position.z, 'f', 6));
-              QString rot_mat = QString::number(photoOrientation.rotation.at(0, 0)).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(0, 1))).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(0, 2))).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 0))).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 1))).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 2))).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 0))).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 1))).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 2)));
+              stream.writeTextElement("X", QString::number(photoOrientation.position.x, 'f', 10));
+              stream.writeTextElement("Y", QString::number(photoOrientation.position.y, 'f', 10));
+              stream.writeTextElement("Z", QString::number(photoOrientation.position.z, 'f', 10));
+              QString rot_mat = QString::number(photoOrientation.rotation.at(0, 0), 'f', 10).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(0, 1), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(0, 2), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 0), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 1), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 2), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 0), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 1), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 2), 'f', 10));
               stream.writeTextElement("Rot", rot_mat);
           }
         }

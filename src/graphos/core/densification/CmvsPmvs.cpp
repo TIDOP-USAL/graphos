@@ -307,11 +307,6 @@ bool CmvsPmvsDensifier::densify(const QString &undistortPath)
 {
 
   tl::Path app_path(tl::getRunfile());
-  //std::string cmd_cmvs("/c \"\"");
-  //cmd_cmvs.append(app_path.parentPath().toString());
-  //cmd_cmvs.append("\\pmvs2\" \"");
-  //cmd_cmvs.append(undistortPath.toStdString());
-  //cmd_cmvs.append("/pmvs/\" option-all\"");
   std::string cmd_cmvs("\"");
   cmd_cmvs.append(app_path.parentPath().toString());
   cmd_cmvs.append("\\pmvs2\" \"");
@@ -371,17 +366,20 @@ void CmvsPmvsDensifier::writeBundleFile()
       }
     }
 
-    std::string bundler_path = mOutputPath + "/bundle.rd.out";
-    std::string bundler_path_list = bundler_path + ".list.txt";
-    std::string bundler_path_list_original;
-    if (mImageOriginalDepth) 
-      bundler_path_list_original = bundler_path + ".original.list.txt";
+    tl::Path bundler_path(mOutputPath);
+    bundler_path.append("bundle.rd.out");
+    tl::Path bundler_path_list(mOutputPath);
+    bundler_path_list.append("bundle.rd.out.list.txt");
+    tl::Path bundler_path_list_original;
+    if (mImageOriginalDepth) {
+      bundler_path_list_original = tl::Path(mOutputPath).append("bundle.rd.out.original.list.txt");
+    }
 
-    std::ofstream stream(bundler_path, std::ios::trunc);
-    std::ofstream stream_image_list(bundler_path_list, std::ios::trunc);
+    std::ofstream stream(bundler_path.toString(), std::ios::trunc);
+    std::ofstream stream_image_list(bundler_path_list.toString(), std::ios::trunc);
     std::ofstream stream_image_list_original;
     if (mImageOriginalDepth)
-      stream_image_list_original.open(bundler_path_list_original, std::ios::trunc);
+      stream_image_list_original.open(bundler_path_list_original.toString(), std::ios::trunc);
 
     if (stream.is_open() && stream_image_list.is_open() /*&& stream_image_list_original.is_open()*/) {
 
@@ -433,11 +431,13 @@ void CmvsPmvsDensifier::writeBundleFile()
             stream << translation[0] << " " << -translation[1] << " " << -translation[2] << std::endl;
 
             // Undistorted images
-            std::string output_image_path = colmap::StringPrintf("%08d.jpg", i);
+            //std::string output_image_path = colmap::StringPrintf("%08d.jpg", i);
+            tl::Path output_image_path(image.Name());
             stream_image_list << output_image_path << std::endl;
             
             if (mImageOriginalDepth) {
-              std::string output_image_original_path = colmap::StringPrintf("%08d.tif", i);
+              //std::string output_image_original_path = colmap::StringPrintf("%08d.tif", i);
+              std::string output_image_original_path = output_image_path.replaceExtension(".tif").toString();
               stream_image_list_original << output_image_original_path << std::endl;
             }
             
@@ -491,6 +491,11 @@ void CmvsPmvsDensifier::undistortImages()
 {
   colmap::Reconstruction &reconstruction = mReconstruction->colmap();
   const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
+
+  tl::Path output_images_path(mOutputPath);
+  output_images_path.append("visualize");
+  tl::Path output_proj_matrix_path(mOutputPath);
+  output_proj_matrix_path.append("txt");
 
   for (auto &camera : reconstruction.Cameras()) {
 
@@ -627,17 +632,26 @@ void CmvsPmvsDensifier::undistortImages()
 #ifdef HAVE_CUDA
           }
 #endif
-          msgInfo("Undistort image: %s", image_file.c_str());
+          tl::Path image_path(image_file);
 
-          std::string output_image_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.jpg", i);
-          cv::imwrite(output_image_path, img_undistort);
+          msgInfo("Undistort image: %s", image_path.fileName().c_str());
+
+          //std::string output_image_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.jpg", i);
+          tl::Path output_image_path(output_images_path);
+          output_image_path.append(image_path.fileName());
+
+          cv::imwrite(output_image_path.toString(), img_undistort);
+
           if (mImageOriginalDepth) {
-            std::string output_image_original_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.tif", i);
-            cv::imwrite(output_image_original_path, img_undistort_original);
+            //std::string output_image_original_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.tif", i);
+            output_image_path.replaceExtension(".tif");
+            cv::imwrite(output_image_path.toString(), img_undistort_original);
           }
 
-          std::string proj_matrix_path = mOutputPath + colmap::StringPrintf("/txt/%08d.txt", i);
-          std::ofstream file(proj_matrix_path, std::ios::trunc);
+          //std::string proj_matrix_path = mOutputPath + colmap::StringPrintf("/txt/%08d.txt", i);
+          tl::Path proj_matrix_path = tl::Path(output_proj_matrix_path).append(image_path.fileName());
+          proj_matrix_path.replaceExtension(".txt");
+          std::ofstream file(proj_matrix_path.toString(), std::ios::trunc);
           CHECK(file.is_open()) << proj_matrix_path;
 
           Eigen::Matrix3d calib_matrix = Eigen::Matrix3d::Identity();
