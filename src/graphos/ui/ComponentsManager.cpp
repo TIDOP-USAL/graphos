@@ -266,6 +266,8 @@ void ComponentsManager::registerComponent(Component *component,
     app_menu = MainWindowView::Menu::workflow;
   } else if (menu.compare("tools") == 0) {
     app_menu = MainWindowView::Menu::tools;
+  } else if (menu.compare("plugins") == 0) {
+    app_menu = MainWindowView::Menu::plugins;
   } else if (menu.compare("help") == 0) {
     app_menu = MainWindowView::Menu::help;
   } else {

@@ -130,7 +130,8 @@ int main(int argc, char *argv[])
   QObject::connect(&georeference_component, SIGNAL(georeferenceFinished()), 
                    componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
 
-  //AppStatus &app_status = AppStatus::instance();
+  componentsManager.loadPlugins();
+
   app.status()->activeFlag(AppStatus::Flag::none, true);
 
   componentsManager.mainWindowPresenter()->open();

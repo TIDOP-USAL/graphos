@@ -102,16 +102,6 @@ OPTION (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 #set(BUILD_TL_CORE YES)
 
 
-if (BUILD_PLUGINS)
-  add_subdirectory(plugins)
-endif(BUILD_PLUGINS)
-
-
-if(BUILD_TEST)
-    enable_testing()
-endif(BUILD_TEST)
-
-
 # CONFIGURACIÓN DEPENDENCIAS
 
 #OPTION (WITH_BOOST    "Include Boost support"                   ON)
@@ -379,11 +369,23 @@ add_subdirectory(src)
 #directorio con la documentación
 #add_subdirectory(doc)
 
-#Se incluye el directorio con los test
+##############################################################
+# Plugins                                                    #
+##############################################################
+
+if (BUILD_PLUGINS)
+  add_subdirectory(plugins)
+endif(BUILD_PLUGINS)
+
+
+##############################################################
+# Test                                                       #
+##############################################################
+
 if(BUILD_TEST)
+    enable_testing()
     add_subdirectory(test)
 endif(BUILD_TEST)
-
 
 
 

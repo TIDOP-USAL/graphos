@@ -111,8 +111,8 @@ set(GRAPHOS_SOURCES
 )
 
 set(GRAPHOS_HEADERS
-    ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
-	${CMAKE_SOURCE_DIR}/src/graphos/interfaces/Component.h
+    #${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
+    #${CMAKE_SOURCE_DIR}/src/graphos/interfaces/Component.h
     #AppStatus.h
     #Component.h
     ComponentsManager.h
@@ -352,6 +352,10 @@ if(ENABLE_SOLUTION_FOLDERS)
   set_target_properties(${PROJECT_NAME}  PROPERTIES FOLDER "graphos")
 endif()
 
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
 
 ##############################################################
 # Install                                                    #

@@ -3,6 +3,8 @@ include_directories(${CMAKE_SOURCE_DIR}/third_party)
 project(graphos_core LANGUAGES CXX)
 
 add_library(${PROJECT_NAME} ${LIB_TYPE}
+            ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
+            ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/Component.h
             Application.cpp
             Application.h
             AppStatus.cpp

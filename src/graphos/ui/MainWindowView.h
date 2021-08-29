@@ -60,6 +60,7 @@ public:
     view,
     workflow,
     tools,
+    plugins,
     help
   };
 
@@ -264,6 +265,7 @@ private:
   void initMenuView();
   void initMenuWorkflow();
   void initMenuTools();
+  void initMenuPlugins();
   void initMenuHelp();
   void initProgressBar();
   void initSignalAndSlots();

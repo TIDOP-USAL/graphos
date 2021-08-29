@@ -59,9 +59,25 @@ public:
   virtual Component *component() = 0;
 };
 
+
+
+class GraphosPluginMultiComponent
+	: public GraphosPlugin
+{
+
+public:
+	
+  GraphosPluginMultiComponent() = default;
+  ~GraphosPluginMultiComponent() override = default;
+
+  virtual std::list<Component *> components() = 0;
+};
+
+
 } // namespace graphos
 
 Q_DECLARE_INTERFACE(graphos::GraphosPlugin, "tidop.graphos.inspector.plugin.interface/2.0")
 Q_DECLARE_INTERFACE(graphos::GraphosPluginComponent, "tidop.graphos.inspector.plugin.component/2.0")
+Q_DECLARE_INTERFACE(graphos::GraphosPluginMultiComponent, "tidop.graphos.inspector.plugin.multicomponent/2.0")
 
 #endif // GRAPHOS_PLUGIN_INTERFACES_H

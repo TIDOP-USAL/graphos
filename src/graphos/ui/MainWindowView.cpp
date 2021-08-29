@@ -1054,6 +1054,7 @@ void MainWindowView::initMenus()
   this->initMenuView();
   this->initMenuWorkflow();
   this->initMenuTools();
+  this->initMenuPlugins();
   this->initMenuHelp();
 }
 
@@ -1119,6 +1120,10 @@ void MainWindowView::initMenuTools()
   ui->menuTools->addAction(mActionCameras);
   ui->menuTools->addSeparator();
   ui->menuTools->addAction(mActionSettings);
+}
+
+void MainWindowView::initMenuPlugins()
+{
 
 }
 
@@ -1198,6 +1203,9 @@ QMenu *MainWindowView::findMenu(Menu menu)
       break;
     case Menu::tools:
       _menu = ui->menuTools;
+      break;
+    case Menu::plugins:
+      _menu = ui->menuPlugins;
       break;
     case Menu::help:
       _menu = ui->menuHelp;
