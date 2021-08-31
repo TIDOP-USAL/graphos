@@ -8,8 +8,8 @@ add_executable(${PROJECT_NAME}
                import_poses.cpp)
 
 target_link_libraries(${PROJECT_NAME}
-                      inspector_core
-                      inspector_process
+                      graphos_core
+                      graphos_process
                       TidopLib::tl_core
                       TidopLib::tl_geom
                       TidopLib::tl_math

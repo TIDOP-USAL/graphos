@@ -28,7 +28,7 @@ void DensificationProcess::run()
 
     mDensifier->undistort(mReconstructionPath, mOutputPat);
 
-    //mDensifier->densify(mOutputPat);
+    mDensifier->densify(mOutputPat);
 
     double time = chrono.stop();
     msgInfo("[Time: %f seconds]", time);

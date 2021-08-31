@@ -1333,7 +1333,7 @@ void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<tl::
     stream.writeStartElement("Calibration");
     {
       for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++){
-        stream.writeTextElement(calibration->parameterName(param->first).c_str(), QString::number(param->second, 'f', 8));
+        stream.writeTextElement(calibration->parameterName(param->first).c_str(), QString::number(param->second, 'f', 10));
       }
     }
     stream.writeEndElement(); // Calibration

@@ -8,8 +8,8 @@ add_executable(${PROJECT_NAME}
                georef.cpp)
 
 target_link_libraries(${PROJECT_NAME}
-                      inspector_core
-                      inspector_process
+                      graphos_core
+                      graphos_process
                       TidopLib::tl_core
                       Qt5::Sql
                       ${COLMAP_LIBRARIES}

@@ -1,9 +1,10 @@
-#include <inspector/process/features/FeatureExtractorProcess.h>
-#include <inspector/core/utils.h>
-#include <inspector/core/project.h>
-#include <inspector/core/features/sift.h>
-#include <inspector/core/features/featio.h>
-#include <inspector/core/image.h>
+#include <graphos/process/features/FeatureExtractorProcess.h>
+#include <graphos/core/utils.h>
+#include <graphos/core/project.h>
+#include <graphos/core/features/sift.h>
+#include <graphos/core/features/featio.h>
+#include <graphos/core/image.h>
+#include <graphos/core/camera/colmap.h>
 
 #include <tidop/core/utils.h>
 #include <tidop/core/messages.h>
@@ -31,7 +32,7 @@
 #include <iostream>
 
 
-using namespace inspector;
+using namespace graphos;
 using namespace tl;
 
 std::atomic<bool> bOpenCvRead = true;

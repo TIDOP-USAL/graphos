@@ -1,6 +1,7 @@
-#include <inspector/core/utils.h>
-#include <inspector/core/project.h>
-#include <inspector/core/orientation/orientationexport.h>
+#include <graphos/core/utils.h>
+#include <graphos/core/project.h>
+#include <graphos/core/orientation/orientationexport.h>
+#include "graphos/core/camera/colmap.h"
 
 #include <tidop/core/utils.h>
 #include <tidop/core/messages.h>
@@ -10,11 +11,8 @@
 #include <tidop/core/path.h>
 #include <tidop/geospatial/crs.h>
 #include <tidop/geospatial/crstransf.h>
-//#include <tidop/geometry/entities/point.h>
-//#include <tidop/math/algebra/euler_angles.h>
 #include <tidop/math/algebra/quaternion.h>
 #include <tidop/math/algebra/rotation_convert.h>
-//#include <tidop/math/math.h>
 
 #include <colmap/util/option_manager.h>
 #include <colmap/base/reconstruction.h>
@@ -28,11 +26,11 @@
 #include <QDir>
 #include <QTextStream>
 
-using namespace inspector;
+using namespace graphos;
 using namespace tl;
 using namespace geospatial;
 
-namespace inspector
+namespace graphos
 {
 
 class BundleAdjuster
@@ -341,8 +339,8 @@ Point3D enuToEcef(const Point3D enu, const Point3D center_geocentric, double lon
 }
 
 
-/// -p "C:\Users\esteban\Documents\Inspector\Projects\Madrigalejo\zona1_thermal\zona1_thermal.xml" --fix_calibration
-/// -p "C:\Users\esteban\Documents\Inspector\Projects\Madrigalejo\zona1_thermal\zona1_thermal.xml" --fix_calibration
+/// -p "C:\Users\esteban\Documents\graphos\Projects\Madrigalejo\zona1_thermal\zona1_thermal.xml" --fix_calibration
+/// -p "C:\Users\esteban\Documents\graphos\Projects\Madrigalejo\zona1_thermal\zona1_thermal.xml" --fix_calibration
 
 int main(int argc, char** argv)
 {
@@ -385,10 +383,10 @@ int main(int argc, char** argv)
   project.load(project_file.toString().c_str());
   
   /// 1 - reconstrucción temporal con orientaciones importadas
-  tl::Path input_path("C:\\temp\\inspector\\reconstruction_import");
+  tl::Path input_path("C:\\temp\\graphos\\reconstruction_import");
   //tl::Path input_path = tl::Path::tempDirectory(); // Tiene que ser un directorio temporal en el que se exporte la reconstrucción como texto.
   //input_path.append("import_ori");
-  input_path.createDirectory();
+  input_path.createDirectories();
 
   bool bLocalCoord = true;
   Point3D offset(0., 0., 0.);
@@ -396,10 +394,10 @@ int main(int argc, char** argv)
   //{
   //  offset = Point3D(272020.115, 4338394.551, 321.311);
   //  bLocalCoord = false;
-  //  // --import C:\Users\esteban\Documents\Inspector\Projects\Madrigalejo\ori\absolute\images.txt 
-  //  // --list C:\Users\esteban\Documents\Inspector\prueba_ori_termico\rgb_termico.txt --export C:\temp\inspector\reconstruction_import\images.txt
-  //  Path import_ori("C:\\Users\\esteban\\Documents\\Inspector\\Projects\\Madrigalejo\\ori\\absolute\\images.txt");
-  //  Path images("C:\\Users\\esteban\\Documents\\Inspector\\prueba_ori_termico\\rgb_termico.txt");
+  //  // --import C:\Users\esteban\Documents\graphos\Projects\Madrigalejo\ori\absolute\images.txt 
+  //  // --list C:\Users\esteban\Documents\graphos\prueba_ori_termico\rgb_termico.txt --export C:\temp\graphos\reconstruction_import\images.txt
+  //  Path import_ori("C:\\Users\\esteban\\Documents\\graphos\\Projects\\Madrigalejo\\ori\\absolute\\images.txt");
+  //  Path images("C:\\Users\\esteban\\Documents\\graphos\\prueba_ori_termico\\rgb_termico.txt");
   //  Path images_path(input_path);
   //  images_path.append("images.txt");
 
@@ -566,8 +564,13 @@ int main(int argc, char** argv)
         tl::math::RotationConverter<double>::convert(rotation, quaternion);
         quaternion.normalize();
   
-        ofs << std::fixed << id++ << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " " <<
-          vector_camera_position[0] << " " << vector_camera_position[1] << " " << vector_camera_position[2] << " 1 " << file_name << std::endl;
+        ofs << std::fixed << id++ << " " << QString::number(quaternion.w, 'g', 10).toStdString() << " " 
+            << QString::number(quaternion.x, 'g', 10).toStdString() << " "
+            << QString::number(quaternion.y, 'g', 10).toStdString() << " "
+            << QString::number(quaternion.z, 'g', 10).toStdString() << " "
+            << QString::number(vector_camera_position[0], 'g', 10).toStdString() << " " 
+            << QString::number(vector_camera_position[1], 'g', 10).toStdString() << " " 
+            << QString::number(vector_camera_position[2], 'g', 10).toStdString() << " 1 " << file_name << std::endl;
         ofs << std::endl;
   
       }
@@ -605,8 +608,13 @@ int main(int argc, char** argv)
   
         vector_camera_position = rotation * -vector_camera_position;
   
-        ofs << std::fixed << id++ << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " " <<
-          vector_camera_position[0] << " " << vector_camera_position[1] << " " << vector_camera_position[2] << " 1 " << file_name << std::endl;
+        ofs << std::fixed << id++ << " " << QString::number(quaternion.w, 'g', 10).toStdString() << " "
+          << QString::number(quaternion.x, 'g', 10).toStdString() << " "
+          << QString::number(quaternion.y, 'g', 10).toStdString() << " "
+          << QString::number(quaternion.z, 'g', 10).toStdString() << " "
+          << QString::number(vector_camera_position[0], 'g', 10).toStdString() << " "
+          << QString::number(vector_camera_position[1], 'g', 10).toStdString() << " "
+          << QString::number(vector_camera_position[2], 'g', 10).toStdString() << " 1 " << file_name << std::endl;
         ofs << std::endl;
   
       }
@@ -643,17 +651,20 @@ int main(int argc, char** argv)
         double k1 = calibration->existParameter(Calibration::Parameters::k1) ? calibration->parameter(Calibration::Parameters::k1) : 0.0;
   
         ofs << it->first << " " << camera_type << " " << camera.width() << " " << camera.height() << " "
-          << focal << " " << cx << " " << cy << " " << k1;
+          << QString::number(focal, 'g', 10).toStdString() << " " 
+          << QString::number(cx, 'g', 10).toStdString() << " " 
+          << QString::number(cy, 'g', 10).toStdString() << " "
+          << QString::number(k1, 'g', 10).toStdString();
   
         if (camera_type.compare("RADIAL") == 0 || camera_type.compare("FULL_RADIAL") == 0) {
           double k2 = calibration->existParameter(Calibration::Parameters::k2) ? calibration->parameter(Calibration::Parameters::k2) : 0.0;
-          ofs << " " << k2;
+          ofs << " " << QString::number(k2, 'g', 10).toStdString();
         }
   
         if (camera_type.compare("FULL_RADIAL") == 0) {
           double p1 = calibration->existParameter(Calibration::Parameters::p1) ? calibration->parameter(Calibration::Parameters::p1) : 0.0;
           double p2 = calibration->existParameter(Calibration::Parameters::p2) ? calibration->parameter(Calibration::Parameters::p2) : 0.0;
-          ofs << " " << p1 << " " << p2;
+          ofs << " " << QString::number(p1, 'g', 10).toStdString() << " " << QString::number(p2, 'g', 10).toStdString();
         }
   
       } else {
@@ -829,7 +840,7 @@ int main(int argc, char** argv)
     const size_t num_observations = reconstruction.ComputeNumObservations();
 
     //PrintHeading1("Bundle adjustment");
-    //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    //graphos::BundleAdjuster bundle_adjuster(ba_options, ba_config);
     colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
     CHECK(bundle_adjuster.Solve(&reconstruction));
 
@@ -855,7 +866,7 @@ int main(int argc, char** argv)
       const size_t num_observations = reconstruction.ComputeNumObservations();
 
       //PrintHeading1("Bundle adjustment");
-      //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+      //graphos::BundleAdjuster bundle_adjuster(ba_options, ba_config);
       colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
       CHECK(bundle_adjuster.Solve(&reconstruction));
 
@@ -891,7 +902,7 @@ int main(int argc, char** argv)
   //  const size_t num_observations = reconstruction.ComputeNumObservations();
 
   //  //PrintHeading1("Bundle adjustment");
-  //  //inspector::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+  //  //graphos::BundleAdjuster bundle_adjuster(ba_options, ba_config);
   //  colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
   //  CHECK(bundle_adjuster.Solve(&reconstruction));
 

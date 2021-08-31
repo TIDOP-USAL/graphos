@@ -6,12 +6,12 @@ project(createproj LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME}
                createproj.cpp
-               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h
-               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/CreateProject.h)
+               ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/CreateProject.h)
 
 target_link_libraries(${PROJECT_NAME}
-                      inspector_core
-                      inspector_process
+                      graphos_core
+                      graphos_process
                       TidopLib::tl_core
                       TidopLib::tl_img
                       TidopLib::tl_math

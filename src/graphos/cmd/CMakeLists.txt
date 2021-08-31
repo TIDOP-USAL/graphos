@@ -1,7 +1,7 @@
 # Tools
 # Macro para crear los ejecutables en modo consola. Es una adaptación de una macro de OpenCV
 
-if(BUILD_INSPECTOR_COMMANDS)
+if(BUILD_GRAPHOS_COMMANDS)
 
   project(commands LANGUAGES CXX)
 

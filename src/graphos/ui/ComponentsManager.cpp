@@ -311,7 +311,7 @@ void ComponentsManager::registerComponent(Component *component,
 
 void ComponentsManager::loadPlugins()
 {
-  auto pluginsDir = QDir(QCoreApplication::applicationDirPath());
+  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
   const auto entryList = pluginsDir.entryList(QDir::Files);
   for (const QString &fileName : entryList) {
 

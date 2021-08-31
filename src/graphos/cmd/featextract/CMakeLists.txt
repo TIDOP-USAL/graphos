@@ -9,8 +9,8 @@ add_executable(${PROJECT_NAME}
 			   )
 
 target_link_libraries(${PROJECT_NAME}
-                      inspector_core
-                      inspector_process
+                      graphos_core
+                      graphos_process
                       TidopLib::tl_core
                       TidopLib::tl_img
                       TidopLib::tl_math

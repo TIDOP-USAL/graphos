@@ -8,7 +8,7 @@ add_executable(${PROJECT_NAME}
                img.cpp)
 
 target_link_libraries(${PROJECT_NAME}
-                      inspector_core
+                      graphos_core
                       TidopLib::tl_core
                       Qt5::Core
                       Qt5::Sql
