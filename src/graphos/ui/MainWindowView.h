@@ -101,7 +101,8 @@ public:
   void setImportCamerasAction(QAction* action);
   void setCamerasToolAction(QAction* action);
 
-  void addActionToMenu(QAction *action, Menu menu);
+  void addActionToMenu(QAction *action, Menu menuName);
+  void addMenuToMenu(QMenu *menu, Menu menuName);
   void addSeparatorToMenu(Menu menu);
   void addActionToToolbar(QAction *action, Toolbar toolbar);
   void addSeparatorToToolbar(Toolbar toolbar);

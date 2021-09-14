@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_PLUGIN_INTERFACES_H
 #define GRAPHOS_PLUGIN_INTERFACES_H
 
+#include <memory>
+
 #include <QtPlugin>
 #include <QString>
 
@@ -70,7 +72,10 @@ public:
   GraphosPluginMultiComponent() = default;
   ~GraphosPluginMultiComponent() override = default;
 
-  virtual std::list<Component *> components() = 0;
+  virtual QString menu() const = 0;
+  virtual QString toolbar() const = 0;
+  virtual std::list<std::shared_ptr<graphos::Component>> components() = 0;
+
 };
 
 

@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_COMPONENTS_MANAGER_H
 #define GRAPHOS_COMPONENTS_MANAGER_H
 
+#include <memory>
+
 #include <QObject>
 
 #include <tidop/core/flags.h>
@@ -78,6 +80,11 @@ public:
 
   void registerComponent(Component *component,
                          Flags flags = Flags::none);
+  void registerMultiComponent(const QString &name, 
+                              const QString &menu,
+                              const QString &toolbar,
+                              std::list<std::shared_ptr<graphos::Component>> &components,
+                              Flags flags = Flags::none);
   void loadPlugins();
 
   Project *project();

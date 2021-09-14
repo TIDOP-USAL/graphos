@@ -140,11 +140,17 @@ void MainWindowView::setCamerasToolAction(QAction* action)
   mToolBarTools->removeAction(mActionCameras);
 }
 
-void MainWindowView::addActionToMenu(QAction *action, Menu menu)
+void MainWindowView::addActionToMenu(QAction *action, Menu menuName)
 {
-  if (QMenu *_menu = findMenu(menu)) {
+  if (QMenu *_menu = findMenu(menuName)) {
     _menu->addAction(action);
-    //this->update();
+  }
+}
+
+void MainWindowView::addMenuToMenu(QMenu *menu, Menu menuName)
+{
+  if (QMenu *_menu = findMenu(menuName)) {
+    _menu->addMenu(menu);
   }
 }
 

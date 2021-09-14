@@ -51,7 +51,7 @@
 #include <QPluginLoader>
 #include <QDir>
 #include <QCoreApplication>
-
+#include <QMenu>
 
 namespace graphos
 {
@@ -309,9 +309,83 @@ void ComponentsManager::registerComponent(Component *component,
   }
 }
 
+void ComponentsManager::registerMultiComponent(const QString &name,
+                                               const QString &menu,
+                                               const QString &toolbar,
+                                               std::list<std::shared_ptr<graphos::Component>> &components,
+                                               Flags flags)
+{
+
+  if (components.empty()) return;
+
+  QMenu *_menu = new QMenu(name, this->mainWindowView());
+
+  MainWindowView::Menu app_menu;
+  if (menu.compare("file") == 0) {
+    app_menu = MainWindowView::Menu::file;
+  } else if (menu.compare("file_export") == 0) {
+    app_menu = MainWindowView::Menu::file_export;
+  } else if (menu.compare("view") == 0) {
+    app_menu = MainWindowView::Menu::view;
+  } else if (menu.compare("workflow") == 0) {
+    app_menu = MainWindowView::Menu::workflow;
+  } else if (menu.compare("tools") == 0) {
+    app_menu = MainWindowView::Menu::tools;
+  } else if (menu.compare("plugins") == 0) {
+    app_menu = MainWindowView::Menu::plugins;
+  } else if (menu.compare("help") == 0) {
+    app_menu = MainWindowView::Menu::help;
+  } else {
+    return;
+  }
+
+  for (auto component : components) {
+    _menu->addAction(component->action());
+    if (ProcessComponent *process_component = dynamic_cast<ProcessComponent *>(component.get())) {
+      process_component->setProgressHandler(this->progressHandler());
+    }
+  }
+  //if (register_flags.isActive(Flags::separator_before)) {
+  //  mMainWindowView->addSeparatorToMenu(app_menu);
+  //}
+  mMainWindowView->addMenuToMenu(_menu, app_menu);
+  //if (register_flags.isActive(Flags::separator_after)) {
+  //  mMainWindowView->addSeparatorToMenu(app_menu);
+  //}
+
+
+
+  MainWindowView::Toolbar app_toolbar;
+  if (toolbar.compare("file") == 0) {
+    app_toolbar = MainWindowView::Toolbar::file;
+  } else if (toolbar.compare("view") == 0) {
+    app_toolbar = MainWindowView::Toolbar::view;
+  } else if (toolbar.compare("workflow") == 0) {
+    app_toolbar = MainWindowView::Toolbar::workflow;
+  } else if (toolbar.compare("model3d") == 0) {
+    app_toolbar = MainWindowView::Toolbar::model3d;
+  } else if (toolbar.compare("tools") == 0) {
+    app_toolbar = MainWindowView::Toolbar::tools;
+  } else return;
+
+  //if (register_flags.isActive(Flags::separator_before)) {
+  //  mMainWindowView->addSeparatorToToolbar(app_toolbar);
+  //}
+  //mMainWindowView->addActionToToolbar(action, app_toolbar);
+  //if (register_flags.isActive(Flags::separator_after)) {
+  //  mMainWindowView->addSeparatorToToolbar(app_toolbar);
+  //}
+
+}
+
 void ComponentsManager::loadPlugins()
 {
+#ifdef _DEBUG
+  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath());
+#else
   QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
+#endif // _DEBUG
+
   const auto entryList = pluginsDir.entryList(QDir::Files);
   for (const QString &fileName : entryList) {
 
@@ -337,6 +411,13 @@ void ComponentsManager::loadPlugin(QObject *plugin)
       //  QString description = plugin_multi_component->description();
       //  plugin_multi_component->setApp(&Application::instance());
       //  //registerComponent(plugin_component->component());
+      } else if (auto plugin_multi_component = qobject_cast<GraphosPluginMultiComponent *>(plugin)) {
+        QString name = plugin_multi_component->name();
+        QString description = plugin_multi_component->description();
+        plugin_multi_component->setApp(&Application::instance());
+        QString menu = plugin_multi_component->menu();
+        QString toolbar = plugin_multi_component->toolbar();
+        registerMultiComponent(name, menu, toolbar, plugin_multi_component->components());
       }
 
     }
