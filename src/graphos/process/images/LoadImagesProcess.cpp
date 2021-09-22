@@ -9,7 +9,7 @@
 #include <tidop/geospatial/util.h>
 #include <tidop/geospatial/camera.h>
 
-#include <colmap/util/bitmap.h>
+//#include <colmap/util/bitmap.h>
 
 #include <QFileInfo>
 #include <QSqlQuery>

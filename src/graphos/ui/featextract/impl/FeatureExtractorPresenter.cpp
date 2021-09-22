@@ -93,7 +93,7 @@ void FeatureExtractorPresenterImp::initSignalAndSlots()
 {
   connect(mView, &FeatureExtractorView::detectorDescriptorChange,  this, &FeatureExtractorPresenterImp::setCurrentDetectorDescriptor);
   connect(mView, &FeatureExtractorView::run,                       this, &FeatureExtractorPresenterImp::run);
-  connect(mView, &DialogView::help,                               this, &FeatureExtractorPresenterImp::help);
+  connect(mView, &DialogView::help,                                this, &FeatureExtractorPresenterImp::help);
 }
 
 void FeatureExtractorPresenterImp::cancel()

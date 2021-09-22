@@ -19,6 +19,8 @@ add_library(graphos_process ${LIB_TYPE}
             orientation/AbsoluteOrientationProcess.h
             orientation/GeoreferenceProcess.cpp
             orientation/GeoreferenceProcess.h
+            orientation/ImportOrientationProcess.cpp
+            orientation/ImportOrientationProcess.h
             images/LoadImagesProcess.cpp
             images/LoadImagesProcess.h
             densification/DensificationProcess.cpp

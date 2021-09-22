@@ -49,6 +49,7 @@ public:
   OrientationModel(QObject *parent = nullptr) : Model(parent) {}
   ~OrientationModel() override = default;
 
+  virtual bool calibratedCamera() const = 0;
   virtual bool refinePrincipalPoint() const = 0;
   virtual void setRefinePrincipalPoint(bool refine) = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
@@ -66,12 +67,14 @@ public:
   virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
   virtual void clearProject() = 0;
 
+  virtual std::map<int, tl::Camera> cameras() const = 0;
   virtual bool updateCamera(int id, const tl::Camera &camera) = 0;
   virtual camera_iterator cameraBegin() = 0;
   virtual camera_const_iterator cameraBegin() const = 0;
   virtual camera_iterator cameraEnd() = 0;
   virtual camera_const_iterator cameraEnd() const = 0;
-
+  
+  virtual std::vector<Image> images() const = 0;
   virtual image_iterator imageBegin() = 0;
   virtual image_const_iterator imageBegin() const = 0;
   virtual image_iterator imageEnd() = 0;

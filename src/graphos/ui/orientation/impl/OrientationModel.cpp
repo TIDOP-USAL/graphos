@@ -48,6 +48,16 @@ void OrientationModelImp::clear()
   
 }
 
+bool OrientationModelImp::calibratedCamera() const
+{
+  TL_TODO("Deberia contemplarse cámaras calibradas y sin calibrar")
+  bool calibrated = false;
+  for (const auto &camera : mProject->cameras()) {
+    if (camera.second.calibration()) calibrated = true;
+  }
+  return calibrated;
+}
+
 bool OrientationModelImp::refinePrincipalPoint() const
 {
   return mProject->refinePrincipalPoint();
@@ -156,6 +166,11 @@ void OrientationModelImp::clearProject()
   mProject->clearReconstruction();
 }
 
+std::map<int, tl::Camera> OrientationModelImp::cameras() const
+{
+  return mProject->cameras();
+}
+
 bool OrientationModelImp::updateCamera(int id, const tl::Camera &camera)
 {
   return mProject->updateCamera(id, camera);
@@ -179,6 +194,11 @@ OrientationModel::camera_iterator OrientationModelImp::cameraEnd()
 OrientationModel::camera_const_iterator OrientationModelImp::cameraEnd() const
 {
   return mProject->cameraEnd();
+}
+
+std::vector<Image> OrientationModelImp::images() const
+{
+  return mProject->images();
 }
 
 OrientationModel::image_iterator OrientationModelImp::imageBegin()

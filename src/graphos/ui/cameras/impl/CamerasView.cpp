@@ -58,14 +58,15 @@ void CamerasViewImp::onCalibrationImport()
   QString pathName = QFileDialog::getOpenFileName(nullptr,
                                                   tr("Import calibration"),
                                                   QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                  tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
+                                                  //tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
+                                                  tr("Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
                                                   &selectedFilter);
 
   if (!pathName.isEmpty()) {
     QString format;
-    if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
+    /*if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
       format = "Pix4D";
-    } else if (selectedFilter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
+    } else */if (selectedFilter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
       format = "Agisoft";
     } else if (selectedFilter.compare("OpenCV Camera Calibration (*.xml)") == 0) {
       format = "OpenCV";
@@ -83,15 +84,16 @@ void CamerasViewImp::onCalibrationExport()
   QString pathName = QFileDialog::getSaveFileName(nullptr,
                                                   tr("Export Calibration"),
                                                   QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                  tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
+                                                  //tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
+                                                  tr("Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
                                                   &selectedFilter);
 
   if (!pathName.isEmpty()) {
 
     QString format;
-    if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
+    /*if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
       format = "Pix4D";
-    } else if (selectedFilter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
+    } else */if (selectedFilter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
       format = "Agisoft";
     } else if (selectedFilter.compare("OpenCV Camera Calibration (*.xml)") == 0) {
       format = "OpenCV";

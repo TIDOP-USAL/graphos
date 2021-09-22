@@ -215,10 +215,14 @@ void CamerasPresenterImp::loadCameras()
 void CamerasPresenterImp::calibrationImport(const QString &file, 
                                             const QString &format)
 {
-  mModel->calibrationImport(file, format);
-  int camera_id = mModel->currentCameraID();
-  if (camera_id != 0)
-    activeCamera(camera_id);
+  try {
+    mModel->calibrationImport(file, format);
+    int camera_id = mModel->currentCameraID();
+    if (camera_id != 0)
+      activeCamera(camera_id);
+  } catch (const std::exception &e) 	{
+    msgError(e.what());
+  }
 }
 
 void CamerasPresenterImp::fixCalibration(bool fix)

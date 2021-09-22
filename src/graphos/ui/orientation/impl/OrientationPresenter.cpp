@@ -30,6 +30,7 @@
 #include "graphos/process/MultiProcess.h"
 #include "graphos/process/orientation/RelativeOrientationProcess.h"
 #include "graphos/process/orientation/AbsoluteOrientationProcess.h"
+#include "graphos/process/orientation/ImportOrientationProcess.h"
 #include "graphos/core/orientation/photoorientation.h"
 #include "graphos/core/camera/colmap.h"
 
@@ -71,8 +72,27 @@ void OrientationPresenterImp::help()
 void OrientationPresenterImp::open()
 {
   TL_TODO("mSettingsModel->refinePrincipalPoint();")
-  mView->setRefinePrincipalPoint(mModel->refinePrincipalPoint());
-  mView->enabledAbsoluteOrientation(mModel->gpsPositions());
+  //mView->setRefinePrincipalPoint(mModel->refinePrincipalPoint());
+
+  mView->setCalibration(mModel->calibratedCamera());
+  mView->enabledCalibration(mModel->calibratedCamera());
+  if (mModel->rtkOrientations()) {
+    mView->enabledAbsoluteOrientation(true);
+    mView->setAbsoluteOrientation(true);
+    mView->enabledPoses(true);
+    mView->setPoses(true);
+  } else if(mModel->gpsPositions()){
+    mView->enabledAbsoluteOrientation(true);
+    mView->setAbsoluteOrientation(true);
+    mView->enabledPoses(false);
+    mView->setPoses(false);
+  } else {
+    mView->enabledAbsoluteOrientation(false);
+    mView->setAbsoluteOrientation(false);
+    mView->enabledPoses(false);
+    mView->setPoses(false);
+  }
+  /*mView->enabledAbsoluteOrientation(mModel->gpsPositions());*/
   mView->exec();
 }
 
@@ -137,43 +157,52 @@ bool OrientationPresenterImp::createProcess()
   mMultiProcess->clearProcessList();
 
   TL_TODO("Establecer propiedades")
-  bool refine_principal_point = mView->refinePrincipalPoint();
-
-  /// RTK
-  //if (mModel->rtkOrientations()) {
-
-  //} else {
-
-  //}
-
-
+  //bool refine_principal_point = mView->refinePrincipalPoint();
+  bool refine_calibration = mView->isEnabledCalibration();
+  bool refine_poses = mView->isEnabledPoses();
   QString database = mModel->database();
-  QString ori_relative = mModel->projectPath() + "/ori/relative/";
-  std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database, 
-                                                                                                                                    //imagePath, 
-                                                                                                                                    ori_relative,
-                                                                                                                                    true,
-                                                                                                                                    refine_principal_point,
-                                                                                                                                    true);
 
-  std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(relativeOrientationAlgorithm));
+  if (mModel->rtkOrientations()) {
 
-  connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onRelativeOrientationFinished()));
+    auto import_orientation_process = std::make_shared<ImportOrientationProcess>(mModel->images(),
+                                                                                 mModel->cameras(),
+                                                                                 mModel->projectPath(),
+                                                                                 mModel->database(),
+                                                                                 mView->fixCalibration(),
+                                                                                 mView->fixPoses());
 
-  mMultiProcess->appendProcess(relativeOrientationProcess);
+    connect(import_orientation_process.get(), &ImportOrientationProcess::importOrientationFinished,
+            this, &OrientationPresenterImp::onAbsoluteOrientationFinished);
 
-  if (mView->absoluteOrientation()) {
-    QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
-    std::map<QString, std::array<double, 3>> camera_positions = mModel->cameraPositions();
-    std::shared_ptr<AbsoluteOrientationAlgorithm> absoluteOrientationAlgorithm;
-    absoluteOrientationAlgorithm = std::make_shared<AbsoluteOrientationColmapAlgorithm>(ori_relative,
-                                                                                        camera_positions,
-                                                                                        ori_absolute);
-    std::shared_ptr<AbsoluteOrientationProcess> absoluteOrientationProcess(new AbsoluteOrientationProcess(absoluteOrientationAlgorithm));
+    mMultiProcess->appendProcess(import_orientation_process);
 
-    connect(absoluteOrientationProcess.get(), SIGNAL(absoluteOrientationFinished()), this, SLOT(onAbsoluteOrientationFinished()));
+  } else {
+    QString ori_relative = mModel->projectPath() + "/ori/relative/";
+    std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database,
+                                                                                                                                      ori_relative,
+                                                                                                                                      refine_calibration,
+                                                                                                                                      refine_calibration,
+                                                                                                                                      refine_calibration);
 
-    mMultiProcess->appendProcess(absoluteOrientationProcess);
+    std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(relativeOrientationAlgorithm));
+
+    connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onRelativeOrientationFinished()));
+
+    mMultiProcess->appendProcess(relativeOrientationProcess);
+
+    if (mView->absoluteOrientation()) {
+      QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
+      std::map<QString, std::array<double, 3>> camera_positions = mModel->cameraPositions();
+      std::shared_ptr<AbsoluteOrientationAlgorithm> absoluteOrientationAlgorithm;
+      absoluteOrientationAlgorithm = std::make_shared<AbsoluteOrientationColmapAlgorithm>(ori_relative,
+                                                                                          camera_positions,
+                                                                                          ori_absolute);
+      std::shared_ptr<AbsoluteOrientationProcess> absoluteOrientationProcess(new AbsoluteOrientationProcess(absoluteOrientationAlgorithm));
+
+      connect(absoluteOrientationProcess.get(), SIGNAL(absoluteOrientationFinished()), this, SLOT(onAbsoluteOrientationFinished()));
+
+      mMultiProcess->appendProcess(absoluteOrientationProcess);
+    }
   }
 
   if (mProgressHandler){
@@ -251,6 +280,18 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
       CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
       if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
+      }
+    }
+
+    ReadCalibration readCalibration;
+    readCalibration.open(ori_absolute_path);
+    std::shared_ptr<tl::Calibration> calibration;
+    for (auto camera_it = mModel->cameraBegin(); camera_it != mModel->cameraEnd(); camera_it++) {
+      calibration = readCalibration.calibration(camera_it->first);
+      if (calibration) {
+        tl::Camera camera = camera_it->second;
+        camera.setCalibration(calibration);
+        mModel->updateCamera(camera_it->first, camera);
       }
     }
 

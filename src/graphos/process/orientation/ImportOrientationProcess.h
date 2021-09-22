@@ -21,79 +21,52 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_VIEW_H
-#define GRAPHOS_ORIENTATION_VIEW_H
+#ifndef GRAPHOS_IMPORT_ORIENTATION_PROCESS_H
+#define GRAPHOS_IMPORT_ORIENTATION_PROCESS_H
 
-#include "graphos/ui/orientation/OrientationView.h"
+#include <tidop/geospatial/camera.h>
 
-class QCheckBox;
-class QDialogButtonBox;
+#include "graphos/process/ProcessConcurrent.h"
+#include "graphos/core/image.h"
 
 namespace graphos
 {
 
-class OrientationViewImp
-  : public OrientationView
+class GRAPHOS_EXPORT ImportOrientationProcess
+  : public ProcessConcurrent
 {
+  Q_OBJECT
 
 public:
 
-  OrientationViewImp(QWidget *parent = nullptr);
-  ~OrientationViewImp() override = default;
+  ImportOrientationProcess(const std::vector<Image> &images, 
+                           const std::map<int, tl::Camera> &cameras,
+                           const QString &projectPath, 
+                           const QString &database,
+                           bool fixCalibration,
+                           bool fixPoses);
+  ~ImportOrientationProcess() override;
 
-// OrientationView interface
+signals:
 
-public:
+  void importOrientationFinished();
 
-  //bool refineFocal() const override;
-  //bool refinePrincipalPoint() const override;
-  //bool refineDistortionParameters() const override;
-  //bool refinePoses() const override;
-  bool fixCalibration() const override;
-  bool isEnabledCalibration() const override;
-  bool absoluteOrientation() const override;
-  bool isEnabledAbsoluteOrientation() const override;
-  bool fixPoses() const override;
-  bool isEnabledPoses() const override;
-
-public slots:
-
-  //void setRefineFocal(bool active) override;
-  //void setRefinePrincipalPoint(bool refine) override;
-  //void setRefineDistortionParameters(bool active) override;
-  //void setRefinePoses(bool active) override;
-  void setCalibration(bool active) override;
-  void enabledCalibration(bool enabled) override;
-  void setAbsoluteOrientation(bool active) override;
-  void enabledAbsoluteOrientation(bool enabled) override;
-  void setPoses(bool active) override;
-  void enabledPoses(bool enabled) override;
-
-// DialogView interface
-
-private:
-
-  void initUI() override;
-  void initSignalAndSlots() override;
-
-public slots:
-
-  void clear() override;
-
-private slots:
-
-  void update() override;
-  void retranslate() override;
+// ProcessConcurrent interface
 
 protected:
 
-  QCheckBox *mCheckBoxFixCalibration;
-  QCheckBox *mCheckBoxFixPoses;
-  QCheckBox *mCheckBoxAbsoluteOrientation;
-  QDialogButtonBox *mButtonBox;
+  void run() override;
 
+private:
+
+  std::vector<Image> mImages;
+  std::map<int, tl::Camera> mCameras;
+  QString mProjectPath;
+  QString mDatabase;
+  bool mFixCalibration;
+  bool mFixPoses;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_FEATURE_EXTRACTOR_VIEW_H
+#endif // GRAPHOS_IMPORT_ORIENTATION_PROCESS_H

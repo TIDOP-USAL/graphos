@@ -64,8 +64,11 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             Orthophoto.cpp
             Orthophoto.h
             camera/colmap.cpp
-            camera/colmap.h)
-
+            camera/colmap.h
+            #camera/calibio.h
+            #camera/calibio.cpp
+            )
+            
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glog::glog)

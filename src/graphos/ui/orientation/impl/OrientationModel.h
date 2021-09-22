@@ -45,6 +45,7 @@ public:
 
 public:
 
+  bool calibratedCamera() const override;
   bool refinePrincipalPoint() const override;
   void setRefinePrincipalPoint(bool refine) override;
   void setSparseModel(const QString &sparseModel) override;
@@ -61,12 +62,14 @@ public:
   std::map<QString, std::array<double, 3>> cameraPositions() const override;
   void clearProject() override;
 
+  std::map<int, tl::Camera> cameras() const override;
   bool updateCamera(int id, const tl::Camera &camera) override;
   camera_iterator cameraBegin() override;
   camera_const_iterator cameraBegin() const override;
   camera_iterator cameraEnd() override;
   camera_const_iterator cameraEnd() const override;
 
+  std::vector<Image> images() const override;
   image_iterator imageBegin() override;
   image_const_iterator imageBegin() const override;
   image_iterator imageEnd() override;

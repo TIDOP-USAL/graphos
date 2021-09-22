@@ -10,6 +10,8 @@
 namespace graphos
 {
 
+class ReadCalibration;
+
 namespace internal
 {
 class Reconstruction;
@@ -127,6 +129,7 @@ private:
   bool bCuda;
   std::string mOutputPath;
   internal::Reconstruction *mReconstruction;
+  ReadCalibration *mCalibrationReader;
 };
 
 

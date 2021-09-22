@@ -238,7 +238,10 @@ void DensificationPresenterImp::onFinishDensification()
   if (densification_method.compare("CMVS/PMVS") == 0) {
     dense_path.append("/pmvs/models/option-all.ply");
   } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
-    dense_path.append("/smvs-B").append(QString::number(mSmvs->inputImageScale())).append(".ply");
+    dense_path.append("/smvs-");
+    if (mSmvs->shadingBasedOptimization()) dense_path.append("S");
+    else dense_path.append("B");
+    dense_path.append(QString::number(mSmvs->inputImageScale())).append(".ply");
   } else {
     return;
   }

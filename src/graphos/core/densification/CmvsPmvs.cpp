@@ -1,5 +1,7 @@
 #include "CmvsPmvs.h"
 
+#include "graphos/core/camera/colmap.h"
+
 // TIDOP LIB
 #include <tidop/core/messages.h>
 #include <tidop/core/process.h>
@@ -253,7 +255,8 @@ CmvsPmvsDensifier::CmvsPmvsDensifier()
   : bOpenCvRead(true),
     bCuda(false),
     mOutputPath(""),
-    mReconstruction(nullptr)
+    mReconstruction(nullptr),
+    mCalibrationReader(nullptr)
 {
 
 }
@@ -268,7 +271,8 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(bool useVisibilityInformation,
   : bOpenCvRead(true),
     bCuda(false),
     mOutputPath(""),
-    mReconstruction(nullptr)
+    mReconstruction(nullptr),
+    mCalibrationReader(nullptr)
 {
   CmvsPmvsProperties::setUseVisibilityInformation(useVisibilityInformation);
   CmvsPmvsProperties::setImagesPerCluster(imagesPerCluster);
@@ -285,12 +289,19 @@ CmvsPmvsDensifier::~CmvsPmvsDensifier()
     delete mReconstruction;
     mReconstruction = nullptr;
   }
+
+  if (mCalibrationReader) {
+    delete mCalibrationReader;
+    mCalibrationReader = nullptr;
+  }
 }
 
 bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
                                   const QString &outputPath)
 {
   mReconstruction = new internal::Reconstruction(reconstructionPath.toStdString());
+  mCalibrationReader = new ReadCalibration();
+  mCalibrationReader->open(reconstructionPath);
 
   mOutputPath = outputPath.toStdString() + "/pmvs";
 
@@ -395,28 +406,41 @@ void CmvsPmvsDensifier::writeBundleFile()
 
       for (auto &camera : reconstruction.Cameras()) {
 
-        //double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
-        float focal = static_cast<float>(camera.second.FocalLength());
-        float ppx = static_cast<float>(camera.second.PrincipalPointX());
-        float ppy = static_cast<float>(camera.second.PrincipalPointY());
-        int model_id = camera.second.ModelId();
+        std::shared_ptr<tl::Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
+        
+        float focal_x{};
+        float focal_y{};
+        if (calibration->existParameter(tl::Calibration::Parameters::focal)) {
+          focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
+          focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
+        } else {
+          focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focalx));
+          focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focaly));
+        }
+        
+        float ppx = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cx));
+        float ppy = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cy));
 
         cv::Size imageSize(static_cast<int>(camera.second.Width()),
                            static_cast<int>(camera.second.Height()));
-        std::array<std::array<float, 3>, 3> camera_matrix_data = {focal, 0.f, ppx,
-                                                                  0.f, focal, ppy,
+        std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
+                                                                  0.f, focal_y, ppy,
                                                                   0.f, 0.f, 1.f};
         cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
         cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
-        std::vector<double> params = camera.second.Params();
-        distCoeffs.at<float>(0) = (model_id == 0 ? 0.f : static_cast<float>(params[3]));
-        distCoeffs.at<float>(1) = (model_id == 3 || model_id == 50 ? static_cast<float>(params[4]) : 0.0f);
-        distCoeffs.at<float>(2) = (model_id == 50 ? static_cast<float>(params[6]) : 0.0f);
-        distCoeffs.at<float>(3) = (model_id == 50 ? static_cast<float>(params[7]) : 0.0f);
-        distCoeffs.at<float>(4) = (model_id == 50 ? static_cast<float>(params[5]) : 0.0f);
+        distCoeffs.at<float>(0) = calibration->existParameter(tl::Calibration::Parameters::k1) ?
+                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
+        distCoeffs.at<float>(1) = calibration->existParameter(tl::Calibration::Parameters::k2) ?
+                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k2)) : 0.f;
+        distCoeffs.at<float>(2) = calibration->existParameter(tl::Calibration::Parameters::p1) ?
+                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p1)) : 0.f;
+        distCoeffs.at<float>(3) = calibration->existParameter(tl::Calibration::Parameters::p2) ?
+                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p2)) : 0.f;
+        distCoeffs.at<float>(4) = calibration->existParameter(tl::Calibration::Parameters::k3) ?
+                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k3)) : 0.f;
 
         cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
-        float new_focal = optCameraMat.at<float>(0, 0);
+        float new_focal = (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.f;
 
         for (size_t i = 0; i < reg_image_ids.size(); ++i) {
           colmap::image_t image_id = reg_image_ids[i];
@@ -506,27 +530,42 @@ void CmvsPmvsDensifier::undistortImages()
 
   for (auto &camera : reconstruction.Cameras()) {
 
-    //double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
-    float focal = static_cast<float>(camera.second.FocalLength());
-    float ppx = static_cast<float>(camera.second.PrincipalPointX());
-    float ppy = static_cast<float>(camera.second.PrincipalPointY());
-    int model_id = camera.second.ModelId();
+    std::shared_ptr<tl::Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
+
+    float focal_x{};
+    float focal_y{};
+    if (calibration->existParameter(tl::Calibration::Parameters::focal)) {
+      focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
+      focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
+    } else {
+      focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focalx));
+      focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focaly));
+    }
+
+    float ppx = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cx));
+    float ppy = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cy));
 
     cv::Size imageSize(static_cast<int>(camera.second.Width()),
                        static_cast<int>(camera.second.Height()));
-    std::array<std::array<float, 3>, 3> camera_matrix_data = {focal, 0.f, ppx,
-                                                              0.f, focal, ppy,
+    std::array<std::array<float, 3>, 3> camera_matrix_data = { focal_x, 0.f, ppx,
+                                                              0.f, focal_y, ppy,
                                                               0.f, 0.f, 1.f};
     cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
     cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
     std::vector<double> params = camera.second.Params();
-    distCoeffs.at<float>(0) = (model_id == 0 ? 0.f : static_cast<float>(params[3]));
-    distCoeffs.at<float>(1) = (model_id == 3 || model_id == 50 ? static_cast<float>(params[4]) : 0.0f);
-    distCoeffs.at<float>(2) = (model_id == 50 ? static_cast<float>(params[6]) : 0.0f);
-    distCoeffs.at<float>(3) = (model_id == 50 ? static_cast<float>(params[7]) : 0.0f);
-    distCoeffs.at<float>(4) = (model_id == 50 ? static_cast<float>(params[5]) : 0.0f);
-
-    cv::Mat map1, map2;
+    distCoeffs.at<float>(0) = calibration->existParameter(tl::Calibration::Parameters::k1) ?
+                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
+    distCoeffs.at<float>(1) = calibration->existParameter(tl::Calibration::Parameters::k2) ?
+                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k2)) : 0.f;
+    distCoeffs.at<float>(2) = calibration->existParameter(tl::Calibration::Parameters::p1) ?
+                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p1)) : 0.f;
+    distCoeffs.at<float>(3) = calibration->existParameter(tl::Calibration::Parameters::p2) ?
+                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p2)) : 0.f;
+    distCoeffs.at<float>(4) = calibration->existParameter(tl::Calibration::Parameters::k3) ?
+                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k3)) : 0.f;
+    
+    cv::Mat map1;
+    cv::Mat map2;
     cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
     cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
     

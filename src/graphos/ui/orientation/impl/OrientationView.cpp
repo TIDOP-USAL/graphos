@@ -34,7 +34,8 @@ namespace graphos
 
 OrientationViewImp::OrientationViewImp(QWidget *parent)
   : OrientationView(parent),
-    mCheckBoxRefinePrincipalPoint(new QCheckBox(this)),
+    mCheckBoxFixCalibration(new QCheckBox(this)),
+    mCheckBoxFixPoses(new QCheckBox(this)),
     mCheckBoxAbsoluteOrientation(new QCheckBox(this)),
     mButtonBox(new QDialogButtonBox(this))
 {
@@ -50,12 +51,13 @@ void OrientationViewImp::initUI()
   QGridLayout *gridLayout = new QGridLayout();
   this->setLayout(gridLayout);
 
-  gridLayout->addWidget(mCheckBoxRefinePrincipalPoint, 0, 0, 1, 2);
-  gridLayout->addWidget(mCheckBoxAbsoluteOrientation, 1, 0, 1, 2);
+  gridLayout->addWidget(mCheckBoxFixCalibration, 0, 0, 1, 2);
+  gridLayout->addWidget(mCheckBoxFixPoses, 1, 0, 1, 2);
+  gridLayout->addWidget(mCheckBoxAbsoluteOrientation, 2, 0, 1, 2);
 
   mButtonBox->setOrientation(Qt::Orientation::Horizontal);
   mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 2, 0, 1, 2);
+  gridLayout->addWidget(mButtonBox, 3, 0, 1, 2);
 
   this->retranslate();
   this->clear();
@@ -64,7 +66,8 @@ void OrientationViewImp::initUI()
 
 void OrientationViewImp::initSignalAndSlots()
 {
-  connect(mCheckBoxRefinePrincipalPoint, SIGNAL(clicked(bool)), this, SIGNAL(refinePrincipalPoint(bool)));
+  connect(mCheckBoxFixCalibration, SIGNAL(clicked(bool)), this, SIGNAL(calibrationChange(bool)));
+  connect(mCheckBoxFixPoses, SIGNAL(clicked(bool)), this, SIGNAL(posesChange(bool)));
   connect(mCheckBoxAbsoluteOrientation, SIGNAL(clicked(bool)), this, SIGNAL(absoluteOrientationChange(bool)));
   
   connect(mButtonBox,                                    &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -74,7 +77,8 @@ void OrientationViewImp::initSignalAndSlots()
 
 void OrientationViewImp::clear()
 {
-  mCheckBoxRefinePrincipalPoint->setChecked(true);
+  mCheckBoxFixCalibration->setChecked(false);
+  mCheckBoxFixPoses->setChecked(false);
   mCheckBoxAbsoluteOrientation->setChecked(false);
   mCheckBoxAbsoluteOrientation->setEnabled(false);
 }
@@ -86,16 +90,23 @@ void OrientationViewImp::update()
 void OrientationViewImp::retranslate()
 {
   this->setWindowTitle(QApplication::translate("OrientationView", "Orientation", nullptr));
-  mCheckBoxRefinePrincipalPoint->setText(QApplication::translate("OrientationView", "Refine principal point", nullptr));
+  //mCheckBoxRefinePrincipalPoint->setText(QApplication::translate("OrientationView", "Refine principal point", nullptr));
+  mCheckBoxFixCalibration->setText(QApplication::translate("OrientationView", "Fix Calibration", nullptr));
+  mCheckBoxFixPoses->setText(QApplication::translate("OrientationView", "Fix Poses", nullptr));
   mCheckBoxAbsoluteOrientation->setText(QApplication::translate("OrientationView", "Absolute Orientation", nullptr));
   mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrientationView", "Cancel"));
   mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrientationView", "Run"));
   mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("OrientationView", "Help"));
 }
 
-bool OrientationViewImp::refinePrincipalPoint() const
+bool OrientationViewImp::fixCalibration() const
 {
-  return mCheckBoxRefinePrincipalPoint->isChecked();
+  return mCheckBoxFixCalibration->isChecked();
+}
+
+bool OrientationViewImp::isEnabledCalibration() const
+{
+  return mCheckBoxFixCalibration->isEnabled();
 }
 
 bool OrientationViewImp::absoluteOrientation() const
@@ -108,6 +119,26 @@ bool OrientationViewImp::isEnabledAbsoluteOrientation() const
   return mCheckBoxAbsoluteOrientation->isEnabled();
 }
 
+bool OrientationViewImp::fixPoses() const
+{
+  return mCheckBoxFixPoses->isChecked();;
+}
+
+bool OrientationViewImp::isEnabledPoses() const
+{
+  return mCheckBoxFixPoses->isEnabled();
+}
+
+void OrientationViewImp::setCalibration(bool active)
+{
+  mCheckBoxFixCalibration->setChecked(active);
+}
+
+void OrientationViewImp::enabledCalibration(bool enabled)
+{
+  mCheckBoxFixCalibration->setEnabled(enabled);
+}
+
 void OrientationViewImp::setAbsoluteOrientation(bool active)
 {
   mCheckBoxAbsoluteOrientation->setChecked(active);
@@ -118,9 +149,14 @@ void OrientationViewImp::enabledAbsoluteOrientation(bool enabled)
   mCheckBoxAbsoluteOrientation->setEnabled(enabled);
 }
 
-void OrientationViewImp::setRefinePrincipalPoint(bool refine)
+void OrientationViewImp::setPoses(bool active)
 {
-  mCheckBoxRefinePrincipalPoint->setChecked(refine);
+  mCheckBoxFixPoses->setChecked(active);
+}
+
+void OrientationViewImp::enabledPoses(bool enabled)
+{
+  mCheckBoxFixPoses->setEnabled(enabled);
 }
 
 } // namespace graphos

@@ -172,7 +172,9 @@ void MainWindowModel::removeImages(const QStringList &images)
     _images[i] = mProject->findImageByName(images[i]).path().toStdString();
     mProject->removeImage(imageID(images[i]));
   }
-  colmapRemoveOrientations(_images, mProject->reconstructionPath().toStdString());
+  QString reconstruction_path = mProject->reconstructionPath();
+  if (!reconstruction_path.isEmpty())
+    colmapRemoveOrientations(_images, reconstruction_path.toStdString());
 }
 
 MainWindowModel::image_iterator MainWindowModel::imageBegin()
