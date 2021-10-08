@@ -27,6 +27,7 @@
 #include "graphos/interfaces/mvp.h"
 #include "graphos/core/project.h"
 #include "graphos/core/image.h"
+#include "graphos/core/orientation/poses.h"
 
 namespace graphos
 {
@@ -54,7 +55,7 @@ public:
   std::list<std::pair<QString, QString>> exif(const QString &image) const;
 
   bool isPhotoOriented(const QString &imgName) const;
-  CameraPose photoOrientation(const QString &imgName) const;
+  CameraPose cameraPose(const QString &imgName) const;
 
   Image findImageByName(const QString &imageName) const;
   size_t imageID(const QString &imageName) const;

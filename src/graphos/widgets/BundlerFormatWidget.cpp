@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "BundlerFormatWidget.h"
 
 #include <QGridLayout>
@@ -12,6 +35,15 @@
 namespace graphos
 {
 
+BundlerFormatWidget::BundlerFormatWidget(QWidget *parent)
+ : GraphosWidgetView(parent)
+{
+
+}
+
+
+
+
 BundlerFormatWidgetImp::BundlerFormatWidgetImp(QWidget *parent)
   : BundlerFormatWidget(parent),
     mGroupBox(new QGroupBox(this)),
@@ -19,8 +51,8 @@ BundlerFormatWidgetImp::BundlerFormatWidgetImp(QWidget *parent)
     mLineEditFile(new QLineEdit(this)),
     mPushButtonSelectPath(new QPushButton(this))
 {
-  this->initUI();
-  this->initSignalAndSlots();
+  BundlerFormatWidgetImp::initUI();
+  BundlerFormatWidgetImp::initSignalAndSlots();
 }
 
 void BundlerFormatWidgetImp::initUI()
@@ -43,9 +75,9 @@ void BundlerFormatWidgetImp::initUI()
   mPushButtonSelectPath->setText("...");
   propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
 
-  this->retranslate();
-  this->clear(); /// set default values
-  this->update();
+  BundlerFormatWidgetImp::retranslate();
+  BundlerFormatWidgetImp::clear(); /// set default values
+  BundlerFormatWidgetImp::update();
 }
 
 void BundlerFormatWidgetImp::initSignalAndSlots()
@@ -94,5 +126,6 @@ void BundlerFormatWidgetImp::onPushButtonSelectPath()
 
   update();
 }
+
 
 } // namespace graphos

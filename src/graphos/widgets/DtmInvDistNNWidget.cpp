@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "DtmInvDistNNWidget.h"
 
 #include <QGroupBox>
@@ -9,6 +32,16 @@
 
 namespace graphos
 {
+
+
+DtmInvDistNNWidget::DtmInvDistNNWidget(QWidget *parent)
+  :
+GraphosWidgetView(parent)
+{
+}
+
+
+
 
 DtmInvDistNNWidgetImp::DtmInvDistNNWidgetImp(QWidget *parent)
   : DtmInvDistNNWidget(parent),
@@ -24,8 +57,8 @@ DtmInvDistNNWidgetImp::DtmInvDistNNWidgetImp(QWidget *parent)
     mLabelMinPoints(new QLabel(this)),
     mSpinBoxMinPoints(new QSpinBox(this))
 {
-  this->initUI();
-  this->initSignalAndSlots();
+  DtmInvDistNNWidgetImp::initUI();
+  DtmInvDistNNWidgetImp::initSignalAndSlots();
 }
 
 DtmInvDistNNWidgetImp::~DtmInvDistNNWidgetImp()
@@ -67,9 +100,9 @@ void DtmInvDistNNWidgetImp::initUI()
   propertiesLayout->addWidget(mLabelMinPoints, 4, 0);
   propertiesLayout->addWidget(mSpinBoxMinPoints, 4, 1);
 
-  this->retranslate();
-  this->clear(); /// set default values
-  this->update();
+  DtmInvDistNNWidgetImp::retranslate();
+  DtmInvDistNNWidgetImp::clear(); /// set default values
+  DtmInvDistNNWidgetImp::update();
 }
 
 void DtmInvDistNNWidgetImp::initSignalAndSlots()
@@ -91,7 +124,7 @@ void DtmInvDistNNWidgetImp::clear()
 
   mDoubleSpinBoxPower->setValue(2.0);
   mDoubleSpinBoxSmoothing->setValue(0.0);
-  mDoubleSpinBoxRadius->setValue(0.0);
+  mDoubleSpinBoxRadius->setValue(1.0);
   mSpinBoxMaxPoints->setValue(0);
   mSpinBoxMinPoints->setValue(0);
 
@@ -166,6 +199,7 @@ void DtmInvDistNNWidgetImp::setMinPoints(int minPoints)
   const QSignalBlocker signalBlocker(mSpinBoxMinPoints);
   mSpinBoxMinPoints->setValue(minPoints);
 }
+
 
 } // namespace graphos
 

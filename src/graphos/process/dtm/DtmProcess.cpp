@@ -8,6 +8,7 @@
 #include <tidop/geometry/size.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/imgwriter.h>
+#include <tidop/geospatial/crs.h>
 
 #include "graphos/core/densification/DenseExport.h"
 #include "graphos/core/densification/DenseExport.h"
@@ -47,14 +48,8 @@ void DtmProcess::run()
     tl::Path dtm_path(mDtmFile.toStdString());
     dtm_path.parentPath().createDirectories();
 
-//#ifdef _DEBUG
-//    tl::Path temp_path = tl::Path::tempPath();
-//    temp_path.append("inspector_dsm");
-//    temp_path.createDirectories();
-//#else
     tl::TemporalDir temporal_dir;
     tl::Path temp_path = temporal_dir.path();
-//#endif
 
     if (mDSM) {
 
@@ -84,8 +79,6 @@ void DtmProcess::run()
         DenseExport denseExport(ground_path.toString());
         denseExport.setOffset(mOffset);
         denseExport.exportToCSV(mds_ground_csv.toString(), DenseExport::Fields::xyz, &bbox_ground);
-
-        //tl::Size<int> size(bbox_ground.width() / mGSD, bbox_ground.height() / mGSD);
 
         tl::Path mds_out_ground_csv(temp_path);
         mds_out_ground_csv.append("mds_out_ground.csv");
@@ -128,13 +121,12 @@ void DtmProcess::run()
         image_writer_mds_ground->open();
         if (image_writer_mds_ground->isOpen()) {
           tl::Affine<tl::PointD> georeference = image_reader_mds_ground->georeference();
-
           image_writer_mds_ground->create(image_reader_mds_ground->rows(), 
                                           image_reader_mds_ground->cols(), 
                                           image_reader_mds_ground->channels(), 
                                           image_reader_mds_ground->dataType());
           image_writer_mds_ground->setGeoreference(georeference);
-          image_writer_mds_ground->setCRS(mCrs.toStdString());
+          image_writer_mds_ground->setCRS(tl::geospatial::Crs(mCrs.toStdString()));
           image_writer_mds_ground->setNoDataValue(-9999.);
           image_writer_mds_ground->write(ground);
           ground.release();

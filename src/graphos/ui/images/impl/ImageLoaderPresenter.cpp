@@ -95,7 +95,7 @@ void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
   mModel->addImage(image);
 
   QString crs_proj = mModel->projectCRS();
-  QString crs_image = image.cameraPosition().crs();
+  QString crs_image = image.cameraPose().crs();
   if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
     mModel->setProjectCRS(crs_image);
   }

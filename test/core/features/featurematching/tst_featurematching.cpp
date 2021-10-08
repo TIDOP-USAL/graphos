@@ -1,9 +1,9 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "inspector/core/features/matching.h"
+#include "graphos/core/features/matching.h"
 
-using namespace inspector;
+using namespace graphos;
 
 class TestFeatureMatchingProperties
   : public QObject

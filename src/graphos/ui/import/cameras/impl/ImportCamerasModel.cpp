@@ -597,7 +597,6 @@ void ImportCamerasModelImp::importCameras()
     mProject->setCrs(mOutputCrs);
 
     bool bTrfCrs = crs_in->isValid() && crs_out->isValid();
-    //tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
 
     while (!stream.atEnd()){
 
@@ -714,8 +713,8 @@ void ImportCamerasModelImp::importCameras()
 
         if (image_it->name().compare(base_name) == 0){
 
-          CameraPosition cameraPosition;
-          cameraPosition.setSource(mCsvFile);
+          CameraPose camera_pose;
+          camera_pose.setSource(mCsvFile);
           if (bTrfCrs){
             tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
 
@@ -727,19 +726,14 @@ void ImportCamerasModelImp::importCameras()
 
             tl::Point3D pt_out = crs_trf.transform(pt_in);
             if (crs_out->isGeographic()) {
-              cameraPosition.setX(pt_out.y);
-              cameraPosition.setY(pt_out.x);
-            } else {
-              cameraPosition.setX(pt_out.x);
-              cameraPosition.setY(pt_out.y);
+              double x = pt_out.y;
+              pt_out.y = pt_out.x;
+              pt_out.x = x;
             }
-            cameraPosition.setZ(pt_out.z);
-            cameraPosition.setCrs(mOutputCrs);
+            camera_pose.setPosition(pt_out);
+            camera_pose.setCrs(mOutputCrs);
           } else {
-            cameraPosition.setX(x.toDouble());
-            cameraPosition.setY(y.toDouble());
-            cameraPosition.setZ(z.toDouble());
-            cameraPosition.setCrs(mInputCrs);
+            camera_pose.setPosition(tl::Point3D(x.toDouble(), y.toDouble(), z.toDouble()));
           }
 
           tl::math::Quaternion<double> quaternion = tl::math::Quaternion<double>::identity();
@@ -762,9 +756,9 @@ void ImportCamerasModelImp::importCameras()
             quaternion.w = qw.toDouble();
           }
           quaternion.normalize();
-          cameraPosition.setQuaternion(quaternion);
+          camera_pose.setQuaternion(quaternion);
 
-          image_it->setCameraPosition(cameraPosition);
+          image_it->setCameraPose(camera_pose);
 
           msgInfo("Camera coordinates found for %s : [%lf,%lf,%lf]", base_name.toStdString().c_str(), x.toDouble(), y.toDouble(), z.toDouble());
           break;
@@ -788,13 +782,13 @@ void ImportCamerasModelImp::importCameras()
     if (database.ExistsImageWithName(image_path)) {
 
       colmap::Image image_colmap = database.ReadImageWithName(image_path);
-      image_colmap.TvecPrior(0) = image_it->cameraPosition().x();
-      image_colmap.TvecPrior(1) = image_it->cameraPosition().y();
-      image_colmap.TvecPrior(2) = image_it->cameraPosition().z();
-      image_colmap.QvecPrior(0) = image_it->cameraPosition().quaternion().w;
-      image_colmap.QvecPrior(1) = image_it->cameraPosition().quaternion().x;
-      image_colmap.QvecPrior(2) = image_it->cameraPosition().quaternion().y;
-      image_colmap.QvecPrior(3) = image_it->cameraPosition().quaternion().z;
+      image_colmap.TvecPrior(0) = image_it->cameraPose().position().x;
+      image_colmap.TvecPrior(1) = image_it->cameraPose().position().y;
+      image_colmap.TvecPrior(2) = image_it->cameraPose().position().z;
+      image_colmap.QvecPrior(0) = image_it->cameraPose().quaternion().w;
+      image_colmap.QvecPrior(1) = image_it->cameraPose().quaternion().x;
+      image_colmap.QvecPrior(2) = image_it->cameraPose().quaternion().y;
+      image_colmap.QvecPrior(3) = image_it->cameraPose().quaternion().z;
       database.UpdateImage(image_colmap);
     }
   }

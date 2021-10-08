@@ -29,7 +29,7 @@
 #include "graphos/core/process/Progress.h"
 #include "graphos/process/MultiProcess.h"
 #include "graphos/process/orientation/GeoreferenceProcess.h"
-#include "graphos/core/orientation/photoorientation.h"
+#include "graphos/core/orientation/posesio.h"
 #include "graphos/core/image.h"
 
 
@@ -112,16 +112,16 @@ void GeoreferencePresenterImp::onGeoreferenceFinished()
 {
   QString ori_relative_path = mModel->projectPath() + "/ori/absolute/";
   QString sparse_model = ori_relative_path + "/sparse.ply";
-  if (QFileInfo(sparse_model).exists()){
+  if (QFileInfo::exists(sparse_model)){
     mModel->setReconstructionPath(ori_relative_path);
     mModel->setSparseModel(ori_relative_path + "/sparse.ply");
     mModel->setOffset(ori_relative_path + "/offset.txt");
 
-    ReadPhotoOrientations readPhotoOrientations;
+    ReadCameraPoses readPhotoOrientations;
     readPhotoOrientations.open(ori_relative_path);
     for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
       CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
-      if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
+      if (photoOrientation.position() != tl::Point3D()) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
       }
     }

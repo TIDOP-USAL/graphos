@@ -1,9 +1,9 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "inspector/core/features/sift.h"
+#include "graphos/core/features/sift.h"
 
-using namespace inspector;
+using namespace graphos;
 
 class TestSift
   : public QObject

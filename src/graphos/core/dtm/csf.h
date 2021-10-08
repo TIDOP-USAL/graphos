@@ -45,9 +45,7 @@ public:
               const std::string &ground, 
               const std::string &outGround);
 
-private:
-
-
+  void reset();
 
 private:
 

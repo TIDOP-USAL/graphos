@@ -40,7 +40,7 @@ ComponentBase::ComponentBase(Application *application)
     mPresenter(nullptr),
     mApplication(application)
 {
-  this->init();
+  ComponentBase::init();
 }
 
 ComponentBase::~ComponentBase()
@@ -69,7 +69,7 @@ ComponentBase::~ComponentBase()
 
 void ComponentBase::init()
 {
-  this->createAction();
+  ComponentBase::createAction();
 
   connect(mAction, &QAction::triggered,
           this, &ComponentBase::createComponent);
@@ -96,11 +96,6 @@ void ComponentBase::createComponent()
 
 void ComponentBase::openComponent()
 {
-/*   if (ImageProcessPresenter *imageProcessPresenter = dynamic_cast<ImageProcessPresenter *>(mPresenter)) {
-    ImageManager *image_manager = mApplication->imageManager();
-    imageProcessPresenter->setImage(image_manager->activeImage());
-  } */
-
   mPresenter->open();
 }
 

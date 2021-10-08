@@ -96,16 +96,15 @@ void ImportOrientationProcess::run()
 
       auto it = mImages.begin();
       if (it != mImages.end()) {
-        CameraPosition cameraPosition = it->cameraPosition();
-        if (cameraPosition.crs() != "") bLocalCoord = false;
+        CameraPose camera_pose = it->cameraPose();
+        if (camera_pose.crs() != "") bLocalCoord = false;
       }
 
       int i = 1;
       for (const auto &image : mImages){
-        CameraPosition cameraPosition = image.cameraPosition();
-        if (cameraPosition.isEmpty()) continue;
-        tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
-        offset += (position - offset) / i;
+        CameraPose camera_pose = image.cameraPose();
+        if (camera_pose.isEmpty()) continue;
+        offset += (camera_pose.position() - offset) / i;
         i++;
       }
 
@@ -179,15 +178,15 @@ void ImportOrientationProcess::run()
 
       for (const auto &image : mImages) {
 
-          CameraPosition cameraPosition = image.cameraPosition();
-          if (cameraPosition.isEmpty()) {
+          CameraPose camera_pose = image.cameraPose();
+          if (camera_pose.isEmpty()) {
             id++;
             continue; /// Se saltan las imagenes no orientadas
           }
 
-          tl::math::Quaternion<double> quaternion = cameraPosition.quaternion();
+          tl::math::Quaternion<double> quaternion = camera_pose.quaternion();
           std::string file_name = image.path().toStdString();
-          tl::Point3D position(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
+          tl::Point3D position = camera_pose.position();
 
           if (!bLocalCoord) {
             position -= offset;
@@ -580,7 +579,18 @@ void ImportOrientationProcess::run()
 
       reconstruction.Write(reconstruction_path.toString());
       reconstruction.WriteText(reconstruction_path.toString());
-      reconstruction.ExportPLY(reconstruction_path.append("sparse.ply").toString());
+      reconstruction.ExportPLY(tl::Path(reconstruction_path).append("sparse.ply").toString());
+
+      std::ofstream stream(tl::Path(reconstruction_path).append("offset.txt").toString(), std::ios::trunc);
+      if (stream.is_open()) {
+        stream << QString::number(offset.x, 'f', 6).toStdString() << " "
+               << QString::number(offset.y, 'f', 6).toStdString() << " "
+               << QString::number(offset.z, 'f', 6).toStdString() << std::endl;
+
+        msgInfo("Camera offset: %lf,%lf,%lf", offset.x, offset.y, offset.z);
+
+        stream.close();
+      }
 
     }
 

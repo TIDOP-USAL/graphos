@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "FeatureMatchingWidget.h"
 
 #include <QSpinBox>
@@ -10,6 +33,14 @@
 
 namespace graphos
 {
+
+
+FeatureMatchingWidget::FeatureMatchingWidget(QWidget *parent)
+  : GraphosWidgetView(parent)
+{
+}
+
+
 
 FeatureMatchingWidgetImp::FeatureMatchingWidgetImp(QWidget *parent)
   : FeatureMatchingWidget(parent),
@@ -24,8 +55,8 @@ FeatureMatchingWidgetImp::FeatureMatchingWidgetImp(QWidget *parent)
     mLabelConfidence(new QLabel(this)),
     mDoubleSpinBoxConfidence(new QDoubleSpinBox(this))
 {
-  this->initUI();
-  this->initSignalAndSlots();
+  FeatureMatchingWidgetImp::initUI();
+  FeatureMatchingWidgetImp::initSignalAndSlots();
 }
 
 FeatureMatchingWidgetImp::~FeatureMatchingWidgetImp()
@@ -36,7 +67,6 @@ void FeatureMatchingWidgetImp::initUI()
 {
   this->setObjectName(QStringLiteral("FeatureMatchingWidget"));
   this->setWindowTitle("Feature Matching Colmap");
-  //this->resize(439, 371);
 
   QGridLayout *layout = new QGridLayout();
   layout->setContentsMargins(0,0,0,0);
@@ -67,9 +97,9 @@ void FeatureMatchingWidgetImp::initUI()
   mDoubleSpinBoxConfidence->setSingleStep(0.0001);
   propertiesLayout->addWidget(mDoubleSpinBoxConfidence, 4, 1, 1, 2);
 
-  this->retranslate();
-  this->clear();
-  this->update();
+  FeatureMatchingWidgetImp::retranslate();
+  FeatureMatchingWidgetImp::clear();
+  FeatureMatchingWidgetImp::update();
 }
 
 void FeatureMatchingWidgetImp::initSignalAndSlots()
@@ -170,5 +200,6 @@ void FeatureMatchingWidgetImp::setConfidence(double confidence)
   const QSignalBlocker blockerConfidence(mDoubleSpinBoxConfidence);
   mDoubleSpinBoxConfidence->setValue(confidence);
 }
+
 
 } // namespace graphos

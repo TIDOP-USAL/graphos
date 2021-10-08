@@ -27,6 +27,8 @@
 
 #include "graphos/graphos_global.h"
 
+#include <tidop/core/messages.h>
+
 #include <QObject>
 
 #include <memory>
@@ -36,7 +38,6 @@ namespace graphos
 {
 
 class AppStatus;
-//class ImageManager;
 
 class Application
   : public QObject
@@ -59,14 +60,13 @@ public:
   Application operator=(Application &&) = delete;
 
   AppStatus *status();
-  //ImageManager *imageManager();
+  tl::MessageManager *messageManager();
 
 private:
 
   static std::unique_ptr<Application> sApplication;
   static std::mutex sMutex;
   AppStatus *mAppStatus;
-  //ImageManager *mImageManager;
 };
 
 } // namespace graphos

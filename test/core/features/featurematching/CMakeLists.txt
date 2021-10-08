@@ -8,12 +8,13 @@ set(test_target "${test_name}")
 add_executable(${test_target} ${test_filename})
 
 target_link_libraries(${test_target} PRIVATE
-                      inspector_core
+                      graphos_core
                       TidopLib::tl_core
                       Qt5::Core
                       Qt5::Test
                       ${COLMAP_LIBRARIES}
-                      ${OpenCV_LIBS})
+                      ${OpenCV_LIBS}
+                      ${CERES_LIBRARIES})
 
 target_link_libraries(${test_target} PRIVATE
                       ${Boost_FILESYSTEM_LIBRARY}

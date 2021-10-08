@@ -609,7 +609,7 @@ bool ProjectImp::save(const QString &file)
   mProjectPath = file;
 
   QFileInfo file_info(file);
-  QString tmpfile = file_info.path().append(file_info.baseName()).append(".bak");
+  QString tmpfile = file_info.path().append("/").append(file_info.baseName()).append(".bak");
   std::ifstream  src(file.toStdString().c_str(), std::ios::binary);
   std::ofstream  dst(tmpfile.toStdString().c_str(), std::ios::binary);
   dst << src.rdbuf();
@@ -802,7 +802,7 @@ Image ProjectImp::readImage(QXmlStreamReader &stream)
     } else if (stream.name() == "CameraId") {
       photo.setCameraId(readInt(stream));
     } else if (stream.name() == "CameraPosition") {
-      photo.setCameraPosition(readCameraPosition(stream));
+      photo.setCameraPose(readCameraPosition(stream));
     } /*else if (stream.name() == "LongitudeExif") {
       photo.setLongitudeExif(readDouble(stream));
     } else if (stream.name() == "LongitudeExif") {
@@ -817,41 +817,36 @@ Image ProjectImp::readImage(QXmlStreamReader &stream)
   return photo;
 }
 
-CameraPosition ProjectImp::readCameraPosition(QXmlStreamReader &stream)
+CameraPose ProjectImp::readCameraPosition(QXmlStreamReader &stream)
 {
-  CameraPosition cameraPosition;
+  CameraPose cameraPose;
+  tl::Point3D p;
+  tl::math::Quaterniond q;
 
   while (stream.readNextStartElement()) {
     if (stream.name() == "CRS") {
-      cameraPosition.setCrs(stream.readElementText());
+      cameraPose.setCrs(stream.readElementText());
     } else if (stream.name() == "X") {
-      cameraPosition.setX(readDouble(stream));
+      p.x = readDouble(stream);
     } else if (stream.name() == "Y") {
-      cameraPosition.setY(readDouble(stream));
+      p.y = readDouble(stream);
     } else if (stream.name() == "Z") {
-      cameraPosition.setZ(readDouble(stream));
+      p.z = readDouble(stream);
     } else if (stream.name() == "Source") {
-      cameraPosition.setSource(stream.readElementText());
+      cameraPose.setSource(stream.readElementText());
     } else if (stream.name() == "QX") {
-      tl::math::Quaterniond q = cameraPosition.quaternion();
       q.x = readDouble(stream);
-      cameraPosition.setQuaternion(q);
     } else if (stream.name() == "QY") {
-      tl::math::Quaterniond q = cameraPosition.quaternion();
       q.y = readDouble(stream);
-      cameraPosition.setQuaternion(q);
     } else if (stream.name() == "QZ") {
-      tl::math::Quaterniond q = cameraPosition.quaternion();
       q.z = readDouble(stream);
-      cameraPosition.setQuaternion(q);
     } else if (stream.name() == "QW") {
-      tl::math::Quaterniond q = cameraPosition.quaternion();
       q.w = readDouble(stream);
-      cameraPosition.setQuaternion(q);
     }
   }
-
-  return cameraPosition;
+  cameraPose.setPosition(p);
+  cameraPose.setQuaternion(q);
+  return cameraPose;
 }
 
 void ProjectImp::readCameras(QXmlStreamReader &stream)
@@ -1099,30 +1094,36 @@ void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
     }
   }
 
-  CameraPose image_ori;
+  CameraPose camera_pose;
+  tl::Point3D p;
+  tl::math::RotationMatrix<double> rot;
+
   while (stream.readNextStartElement()) {
     if (stream.name() == "X") {
-      image_ori.position.x = readDouble(stream);
+      p.x = readDouble(stream);
     } else if (stream.name() == "Y") {
-      image_ori.position.y = readDouble(stream);
+      p.y = readDouble(stream);
     } else if (stream.name() == "Z") {
-      image_ori.position.z = readDouble(stream);
+      p.z = readDouble(stream);
     } else if (stream.name() == "Rot") {
       QStringList rot_string = stream.readElementText().split(" ");
-      image_ori.rotation.at(0, 0) = rot_string.at(0).toDouble();
-      image_ori.rotation.at(0, 1) = rot_string.at(1).toDouble();
-      image_ori.rotation.at(0, 2) = rot_string.at(2).toDouble();
-      image_ori.rotation.at(1, 0) = rot_string.at(3).toDouble();
-      image_ori.rotation.at(1, 1) = rot_string.at(4).toDouble();
-      image_ori.rotation.at(1, 2) = rot_string.at(5).toDouble();
-      image_ori.rotation.at(2, 0) = rot_string.at(6).toDouble();
-      image_ori.rotation.at(2, 1) = rot_string.at(7).toDouble();
-      image_ori.rotation.at(2, 2) = rot_string.at(8).toDouble();
+      rot.at(0, 0) = rot_string.at(0).toDouble();
+      rot.at(0, 1) = rot_string.at(1).toDouble();
+      rot.at(0, 2) = rot_string.at(2).toDouble();
+      rot.at(1, 0) = rot_string.at(3).toDouble();
+      rot.at(1, 1) = rot_string.at(4).toDouble();
+      rot.at(1, 2) = rot_string.at(5).toDouble();
+      rot.at(2, 0) = rot_string.at(6).toDouble();
+      rot.at(2, 1) = rot_string.at(7).toDouble();
+      rot.at(2, 2) = rot_string.at(8).toDouble();
     } else
       stream.skipCurrentElement();
   }
 
-  this->addPhotoOrientation(id_image, image_ori);
+  camera_pose.setPosition(p);
+  camera_pose.setRotationMatrix(rot);
+
+  this->addPhotoOrientation(id_image, camera_pose);
 }
 
 void ProjectImp::readDensification(QXmlStreamReader &stream)
@@ -1358,7 +1359,7 @@ void ProjectImp::writeImage(QXmlStreamWriter &stream, const Image &image) const
     stream.writeTextElement("Name", image.name());
     stream.writeTextElement("File", image.path());
     stream.writeTextElement("CameraId", QString::number(image.cameraId()));
-    writeCameraPosition(stream, image.cameraPosition());
+    writeCameraPosition(stream, image.cameraPose());
 //    stream.writeTextElement("LongitudeExif", QString::number(image.longitudeExif()));
 //    stream.writeTextElement("LatitudeExif", QString::number(image.latitudeExif()));
 //    stream.writeTextElement("AltitudeExif", QString::number(image.altitudeExif()));
@@ -1367,15 +1368,15 @@ void ProjectImp::writeImage(QXmlStreamWriter &stream, const Image &image) const
 }
 
 void ProjectImp::writeCameraPosition(QXmlStreamWriter &stream,
-                                     const CameraPosition &cameraPosition) const
+                                     const CameraPose &cameraPosition) const
 {
   if (!cameraPosition.isEmpty()) {
     stream.writeStartElement("CameraPosition");
     {
       stream.writeTextElement("CRS", cameraPosition.crs());
-      stream.writeTextElement("X", QString::number(cameraPosition.x(), 'f', 10));
-      stream.writeTextElement("Y", QString::number(cameraPosition.y(), 'f', 10));
-      stream.writeTextElement("Z", QString::number(cameraPosition.z(), 'f', 10));
+      stream.writeTextElement("X", QString::number(cameraPosition.position().x, 'f', 10));
+      stream.writeTextElement("Y", QString::number(cameraPosition.position().y, 'f', 10));
+      stream.writeTextElement("Z", QString::number(cameraPosition.position().z, 'f', 10));
       stream.writeTextElement("QX", QString::number(cameraPosition.quaternion().x, 'f', 10));
       stream.writeTextElement("QY", QString::number(cameraPosition.quaternion().y, 'f', 10));
       stream.writeTextElement("QZ", QString::number(cameraPosition.quaternion().z, 'f', 10));
@@ -1522,22 +1523,22 @@ void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
         stream.writeStartElement("Image");
         {
           stream.writeAttribute("id", it->name());
-          if (photoOrientation.position.x != 0. && 
-              photoOrientation.position.y != 0. && 
-              photoOrientation.position.z != 0.) {
+          if (photoOrientation.position().x != 0. &&
+              photoOrientation.position().y != 0. &&
+              photoOrientation.position().z != 0.) {
 
-              stream.writeTextElement("X", QString::number(photoOrientation.position.x, 'f', 10));
-              stream.writeTextElement("Y", QString::number(photoOrientation.position.y, 'f', 10));
-              stream.writeTextElement("Z", QString::number(photoOrientation.position.z, 'f', 10));
-              QString rot_mat = QString::number(photoOrientation.rotation.at(0, 0), 'f', 10).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(0, 1), 'f', 10)).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(0, 2), 'f', 10)).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 0), 'f', 10)).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 1), 'f', 10)).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(1, 2), 'f', 10)).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 0), 'f', 10)).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 1), 'f', 10)).append(" ");
-              rot_mat.append(QString::number(photoOrientation.rotation.at(2, 2), 'f', 10));
+              stream.writeTextElement("X", QString::number(photoOrientation.position().x, 'f', 10));
+              stream.writeTextElement("Y", QString::number(photoOrientation.position().y, 'f', 10));
+              stream.writeTextElement("Z", QString::number(photoOrientation.position().z, 'f', 10));
+              QString rot_mat = QString::number(photoOrientation.rotationMatrix().at(0, 0), 'f', 10).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotationMatrix().at(0, 1), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotationMatrix().at(0, 2), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotationMatrix().at(1, 0), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotationMatrix().at(1, 1), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotationMatrix().at(1, 2), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotationMatrix().at(2, 0), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotationMatrix().at(2, 1), 'f', 10)).append(" ");
+              rot_mat.append(QString::number(photoOrientation.rotationMatrix().at(2, 2), 'f', 10));
               stream.writeTextElement("Rot", rot_mat);
           }
         }

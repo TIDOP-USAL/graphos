@@ -1,9 +1,9 @@
 #include <QtTest>
 #include <QCoreApplication>
 
- #include "inspector/core/densification/CmvsPmvs.h"
+ #include "graphos/core/densification/CmvsPmvs.h"
 
-using namespace inspector;
+using namespace graphos;
 
 class TestCmvsPmvs
   : public QObject
@@ -20,7 +20,6 @@ private slots:
   void initTestCase();
   void cleanupTestCase();
   void test_constructor();
-  void test_copy_constructor();
   void test_method();
   void test_name();
   void test_useVisibilityInformation_data();
@@ -93,19 +92,6 @@ void TestCmvsPmvs::test_constructor()
   QCOMPARE(0.5, cmvsPmvsDensifier.threshold());
   QCOMPARE(10, cmvsPmvsDensifier.windowSize());
   QCOMPARE(2, cmvsPmvsDensifier.minimunImageNumber());
-}
-
-void TestCmvsPmvs::test_copy_constructor()
-{
-  CmvsPmvsDensifier cmvsPmvsDensifier(true, 50, 2, 3, 0.5, 10, 2);
-  CmvsPmvsDensifier c(cmvsPmvsDensifier);
-  QCOMPARE(true, c.useVisibilityInformation());
-  QCOMPARE(50, c.imagesPerCluster());
-  QCOMPARE(2, c.level());
-  QCOMPARE(3, c.cellSize());
-  QCOMPARE(0.5, c.threshold());
-  QCOMPARE(10, c.windowSize());
-  QCOMPARE(2, c.minimunImageNumber());
 }
 
 void TestCmvsPmvs::test_method()

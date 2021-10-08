@@ -79,7 +79,7 @@ protected:
 
   Project *mProject;
   QString mPrjFile;
-  bool bUnsavedChanges;
+//  bool bUnsavedChanges;
 
 };
 

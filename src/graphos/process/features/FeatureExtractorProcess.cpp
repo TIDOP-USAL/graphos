@@ -124,13 +124,13 @@ private:
 
         colmap::Image image_colmap;
         image_colmap.SetName(image_path);
-        image_colmap.TvecPrior(0) = image.cameraPosition().x();
-        image_colmap.TvecPrior(1) = image.cameraPosition().y();
-        image_colmap.TvecPrior(2) = image.cameraPosition().z();
-        image_colmap.QvecPrior(0) = image.cameraPosition().quaternion().w;
-        image_colmap.QvecPrior(1) = image.cameraPosition().quaternion().x;
-        image_colmap.QvecPrior(2) = image.cameraPosition().quaternion().y;
-        image_colmap.QvecPrior(3) = image.cameraPosition().quaternion().z;
+        image_colmap.TvecPrior(0) = image.cameraPose().position().x;
+        image_colmap.TvecPrior(1) = image.cameraPose().position().y;
+        image_colmap.TvecPrior(2) = image.cameraPose().position().z;
+        image_colmap.QvecPrior(0) = image.cameraPose().quaternion().w;
+        image_colmap.QvecPrior(1) = image.cameraPose().quaternion().x;
+        image_colmap.QvecPrior(2) = image.cameraPose().quaternion().y;
+        image_colmap.QvecPrior(3) = image.cameraPose().quaternion().z;
         image_colmap.SetCameraId(camera_id);
 
         mutex.lock();

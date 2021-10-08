@@ -25,7 +25,7 @@
 #define GRAPHOS_GEOREFERENCE_MODEL_INTERFACE_H
 
 #include "graphos/interfaces/mvp.h"
-#include "graphos/core/orientation/photoorientation.h"
+#include "graphos/core/orientation/poses.h"
 
 class QStandardItemModel;
 

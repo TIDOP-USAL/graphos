@@ -2,9 +2,7 @@
 #define GRAPHOS_H
 
 #include "graphos/graphos_global.h"
-
-#include <tidop/math/algebra/rotations.h>
-#include <tidop/math/algebra/quaternion.h>
+#include "graphos/core/orientation/poses.h"
 
 #include <QString>
 
@@ -12,45 +10,6 @@
 
 namespace graphos
 {
-
-class CameraPosition
-{
-
-public:
-
-  CameraPosition();
-  ~CameraPosition() = default;
-
-  QString crs() const;
-  void setCrs(const QString &crs);
-
-  double x() const;
-  void setX(double x);
-  double y() const;
-  void setY(double y);
-  double z() const;
-  void setZ(double z);
-  tl::math::Quaterniond quaternion() const;
-  void setQuaternion(const tl::math::Quaterniond &quaternion);
-
-  QString source() const;
-  void setSource(const QString &source);
-
-  bool isEmpty() const;
-  //std::shared_ptr<tl::math::Rotation> rotation() const;
-  //void setRotation(std::shared_ptr<tl::math::Rotation> &rotation);
-
-private:
-
-  QString mCrs;
-  double mX;
-  double mY;
-  double mZ;
-  tl::math::Quaterniond mQuaternion;
-  QString mSource;
-  //std::shared_ptr<tl::math::Rotation> mRotation;
-};
-
 
 
 class GRAPHOS_EXPORT Image
@@ -116,44 +75,19 @@ public:
    */
   void setCameraId(int cameraId);
 
-  CameraPosition cameraPosition() const;
-  void setCameraPosition(const CameraPosition &cameraPosition);
+  /*!
+   * \brief Posición y orientación de la imagen
+   * Posición (coordenadas XYZ) y orientación de la cámara en el caso
+   * de que sean conocidas.
+   * \return
+   */
+  CameraPose cameraPose() const;
 
-//  /*!
-//   * \brief longitudeExif
-//   * \return
-//   */
-//  double longitudeExif() const;
-
-//  /*!
-//   * \brief setLongitudeExif
-//   * \param longitudeExif
-//   */
-//  void setLongitudeExif(double longitudeExif);
-
-//  /*!
-//   * \brief latitudeExif
-//   * \return
-//   */
-//  double latitudeExif() const;
-
-//  /*!
-//   * \brief setLatitudeExif
-//   * \param latitudeExif
-//   */
-//  void setLatitudeExif(double latitudeExif);
-
-//  /*!
-//   * \brief altitudeExif
-//   * \return
-//   */
-//  double altitudeExif() const;
-
-//  /*!
-//   * \brief setAltitudeExif
-//   * \param altitudeExif
-//   */
-//  void setAltitudeExif(double altitudeExif);
+  /*!
+   * \brief Establece la Posición y orientación de la imagen
+   * \param[in] cameraPose
+   */
+  void setCameraPose(const CameraPose &cameraPose);
 
   /*!
    * \brief Operador de asignación
@@ -178,10 +112,7 @@ protected:
   QString mFilePath;
   QString mName;
   int mCameraId;
-//  double mLongitudeExif;
-//  double mLatitudeExif;
-//  double mAltitudeExif;
-  CameraPosition mCameraPosition;
+  CameraPose mCameraPose;
 };
 
 } // namespace graphos

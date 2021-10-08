@@ -14,9 +14,8 @@
 #include <tidop/geospatial/camera.h>
 
 #include "graphos/core/image.h"
-//#include "graphos/core/camera.h"
 #include "graphos/core/features/features.h"
-#include "graphos/core/orientation/photoorientation.h"
+#include "graphos/core/orientation/poses.h"
 #include "graphos/core/densification/densification.h"
 
 class QXmlStreamWriter;
@@ -489,7 +488,7 @@ protected:
   void readCrs(QXmlStreamReader &stream);
   void readImages(QXmlStreamReader &stream);
   Image readImage(QXmlStreamReader &stream);
-  CameraPosition readCameraPosition(QXmlStreamReader &stream);
+  CameraPose readCameraPosition(QXmlStreamReader &stream);
   void readCameras(QXmlStreamReader &stream);
   tl::Camera readCamera(QXmlStreamReader &stream);
   void readCalibration(QXmlStreamReader &stream, tl::Camera &camera);
@@ -526,7 +525,7 @@ protected:
   void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<tl::Calibration> calibration) const;
   void writeImages(QXmlStreamWriter &stream) const;
   void writeImage(QXmlStreamWriter &stream, const Image &image) const;
-  void writeCameraPosition(QXmlStreamWriter &stream, const CameraPosition &cameraPosition) const;
+  void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
   void writeFeatures(QXmlStreamWriter &stream) const;
   void writeFeatureExtractor(QXmlStreamWriter &stream) const;
   void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;

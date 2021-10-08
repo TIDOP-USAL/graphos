@@ -31,7 +31,7 @@
 #include "graphos/process/orientation/RelativeOrientationProcess.h"
 #include "graphos/process/orientation/AbsoluteOrientationProcess.h"
 #include "graphos/process/orientation/ImportOrientationProcess.h"
-#include "graphos/core/orientation/photoorientation.h"
+#include "graphos/core/orientation/posesio.h"
 #include "graphos/core/camera/colmap.h"
 
 #include "graphos/ui/HelpDialog.h"
@@ -228,14 +228,14 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
     mModel->setSparseModel(sparse_model);
     mModel->setOffset("");
 
-    ReadPhotoOrientations readPhotoOrientations;
+    ReadCameraPoses readPhotoOrientations;
     readPhotoOrientations.open(ori_relative_path);
     int oriented_images = 0;
 
     for (auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++) {
       QString image_oriented = image->path();
       CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
-      if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
+      if (photoOrientation.position() != tl::Point3D()) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
         oriented_images++;
       } else {
@@ -269,16 +269,16 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
 {
   QString ori_absolute_path = mModel->projectPath() + "/ori/absolute/";
   QString sparse_model = ori_absolute_path + "/sparse.ply";
-  if (QFileInfo(sparse_model).exists()){
+  if (QFileInfo::exists(sparse_model)){
     mModel->setReconstructionPath(ori_absolute_path);
     mModel->setSparseModel(ori_absolute_path + "/sparse.ply");
     mModel->setOffset(ori_absolute_path + "/offset.txt");
 
-    ReadPhotoOrientations readPhotoOrientations;
+    ReadCameraPoses readPhotoOrientations;
     readPhotoOrientations.open(ori_absolute_path);
     for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
       CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
-      if (photoOrientation.position.x != 0. && photoOrientation.position.y != 0. && photoOrientation.position.z != 0.) {
+      if (photoOrientation.position() != tl::Point3D()) {
         mModel->addPhotoOrientation(image->name(), photoOrientation);
       }
     }

@@ -302,9 +302,9 @@ void AbsoluteOrientationColmapAlgorithm::run()
   QString offset_file = mOutputPath + "/offset.txt";
   std::ofstream stream(offset_file.toStdString(), std::ios::trunc);
   if (stream.is_open()) {
-    stream << QString::number(offset[0], 'f', 3).toStdString() << " "
-           << QString::number(offset[1], 'f', 3).toStdString() << " "
-           << QString::number(offset[2], 'f', 3).toStdString() << std::endl;
+    stream << QString::number(offset[0], 'f', 6).toStdString() << " "
+           << QString::number(offset[1], 'f', 6).toStdString() << " "
+           << QString::number(offset[2], 'f', 6).toStdString() << std::endl;
 
     msgInfo("Camera offset: %lf,%lf,%lf", offset[0], offset[1], offset[2] );
 

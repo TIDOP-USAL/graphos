@@ -32,7 +32,7 @@
 #include "graphos/ui/utils/TabHandler.h"
 #include "graphos/ui/HelpDialog.h"
 #include "graphos/widgets/StartPageWidget.h"
-#include "graphos/ui/cameras/CamerasModel.h"
+//#include "graphos/ui/cameras/CamerasModel.h"
 #include "graphos/ui/FeaturesModel.h"
 #include "graphos/ui/MatchesModel.h"
 #include "graphos/core/Application.h"
@@ -95,7 +95,7 @@ void MainWindowPresenter::openFromHistory(const QString &file)
         saveProject();
       } else if (i_ret == QMessageBox::Cancel) {
         return;
-     }
+      }
     }
 
     mProjectModel->clear();
@@ -448,24 +448,23 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
         QString file_name = QFileInfo(image->path()).fileName();
         if (mModel->isPhotoOriented(name)) {
 
-          CameraPose photoOrientation = mModel->photoOrientation(name);
+          CameraPose photoOrientation = mModel->cameraPose(name);
 
           std::array<double, 3> position;
-          position[0] = photoOrientation.position.x;
-          position[1] = photoOrientation.position.y;
-          position[2] = photoOrientation.position.z;
+          position[0] = photoOrientation.position().x;
+          position[1] = photoOrientation.position().y;
+          position[2] = photoOrientation.position().z;
 
           std::array<std::array<float, 3>, 3> cameraRotationMatrix;
-          photoOrientation.rotation.at(0, 0);
-          cameraRotationMatrix[0][0] = photoOrientation.rotation.at(0, 0);
-          cameraRotationMatrix[0][1] = photoOrientation.rotation.at(0, 1);
-          cameraRotationMatrix[0][2] = photoOrientation.rotation.at(0, 2);
-          cameraRotationMatrix[1][0] = photoOrientation.rotation.at(1, 0);
-          cameraRotationMatrix[1][1] = photoOrientation.rotation.at(1, 1);
-          cameraRotationMatrix[1][2] = photoOrientation.rotation.at(1, 2);
-          cameraRotationMatrix[2][0] = photoOrientation.rotation.at(2, 0);
-          cameraRotationMatrix[2][1] = photoOrientation.rotation.at(2, 1);
-          cameraRotationMatrix[2][2] = photoOrientation.rotation.at(2, 2);
+          cameraRotationMatrix[0][0] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 0));
+          cameraRotationMatrix[0][1] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 1));
+          cameraRotationMatrix[0][2] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 2));
+          cameraRotationMatrix[1][0] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 0));
+          cameraRotationMatrix[1][1] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 1));
+          cameraRotationMatrix[1][2] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 2));
+          cameraRotationMatrix[2][0] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 0));
+          cameraRotationMatrix[2][1] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 1));
+          cameraRotationMatrix[2][2] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 2));
 
           mTabHandler->addCamera(name, position, cameraRotationMatrix);
 

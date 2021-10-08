@@ -96,8 +96,6 @@ public:
     this->do_filtering(groundIdx, offGroundIdx);
   }
 
-private:
-
   void setDefaultConfig()
   {
     //this->params.k_nearest_points = 1; //CloudCompare
@@ -230,6 +228,11 @@ void Csf::filter(const std::string &pointCloud,
   } catch (const std::bad_alloc &) {
     //m_app->dispToConsole("Not enough memory!", ccMainAppInterface::ERR_CONSOLE_MESSAGE);
   }
+}
+
+void Csf::reset()
+{
+  mCSF->setDefaultConfig();
 }
 
 } // namespace graphos

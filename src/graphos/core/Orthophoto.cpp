@@ -423,44 +423,53 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
       blender->prepare(rect);
 
       for (size_t j = 0; j < compensated_orthos.size(); j++) {
-        std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::createReader(compensated_orthos[j]);
-        std::unique_ptr<tl::ImageReader> image_reader_seam = tl::ImageReaderFactory::createReader(ortho_seams[j]);
-        image_reader->open();
-        image_reader_seam->open();
-        if (!image_reader->isOpen() || !image_reader_seam->isOpen()) throw std::runtime_error("Image open error");
-
-        if (!intersectWindows(image_reader->window(), grid[i]) ||
-            !intersectWindows(image_reader_seam->window(), grid[i])) continue;
-
-        double scale_x = image_reader->georeference().scaleX();
-        double scale_y = image_reader->georeference().scaleY();
-        double read_scale_x = scale_x / res_ortho;
-        double read_scale_y = scale_y / res_ortho;
-        tl::PointD p1 = image_reader->georeference().transform(grid[i].pt1, tl::Transform::Order::inverse);
-        tl::PointD p2 = image_reader->georeference().transform(grid[i].pt2, tl::Transform::Order::inverse);
-        tl::WindowI window_to_read(static_cast<tl::PointI>(p1), static_cast<tl::PointI>(p2));
-        window_to_read.normalized();
-
-        tl::Affine<tl::PointI> affine;
-        cv::Mat compensate_image;
-        cv::Mat seam_image;
         try {
+          std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::createReader(compensated_orthos[j]);
+          std::unique_ptr<tl::ImageReader> image_reader_seam = tl::ImageReaderFactory::createReader(ortho_seams[j]);
+          image_reader->open();
+          image_reader_seam->open();
+          if (!image_reader->isOpen()) {
+            msgError(std::string("Image open error :").append("").c_str());
+            continue;
+          }
+          if (!image_reader_seam->isOpen()) {
+            msgError(std::string("Image open error :").append("").c_str());
+            continue;
+          }
+
+          if (!intersectWindows(image_reader->window(), grid[i]) ||
+              !intersectWindows(image_reader_seam->window(), grid[i])) continue;
+
+          double scale_x = image_reader->georeference().scaleX();
+          double scale_y = image_reader->georeference().scaleY();
+          double read_scale_x = scale_x / res_ortho;
+          double read_scale_y = scale_y / res_ortho;
+          tl::PointD p1 = image_reader->georeference().transform(grid[i].pt1, tl::Transform::Order::inverse);
+          tl::PointD p2 = image_reader->georeference().transform(grid[i].pt2, tl::Transform::Order::inverse);
+          tl::WindowI window_to_read(static_cast<tl::PointI>(p1), static_cast<tl::PointI>(p2));
+          window_to_read.normalized();
+
+          tl::Affine<tl::PointI> affine;
+          cv::Mat compensate_image;
+          cv::Mat seam_image;
+
           compensate_image = image_reader->read(grid[i], read_scale_x, read_scale_y, &affine);
           seam_image = image_reader_seam->read(grid[i], read_scale_x, read_scale_y);
+
+
+          if (!compensate_image.empty() && !seam_image.empty()) {
+
+            msgInfo("Ortho grid %i: %s", i, compensated_orthos[j].c_str());
+
+            cv::Mat compensate_image_16s;
+            compensate_image.convertTo(compensate_image_16s, CV_16S);
+            compensate_image.release();
+
+            cv::Rect rect = cv::Rect(affine.tx, affine.ty, compensate_image_16s.cols, compensate_image_16s.rows);
+            blender->feed(compensate_image_16s, seam_image, rect.tl());
+          }
         } catch (...) {
           continue;
-        }
-
-        if (!compensate_image.empty() && !seam_image.empty()) {
-
-          msgInfo("Ortho grid %i", i, compensated_orthos[j].c_str());
-
-          cv::Mat compensate_image_16s;
-          compensate_image.convertTo(compensate_image_16s, CV_16S);
-          compensate_image.release();
-
-          cv::Rect rect = cv::Rect(affine.tx, affine.ty, compensate_image_16s.cols, compensate_image_16s.rows);
-          blender->feed(compensate_image_16s, seam_image, rect.tl());
         }
       }
       cv::Mat ortho_blend;
@@ -474,7 +483,8 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
       tl::PointD p2 = affine_ortho.transform(grid[i].pt2, tl::Transform::Order::inverse);
       tl::WindowI window_to_write(static_cast<tl::PointI>(p1), static_cast<tl::PointI>(p2));
       window_to_write.normalized();
-      image_writer->write(ortho_blend, window_to_write);
+      if (window_to_write.isValid())
+        image_writer->write(ortho_blend, window_to_write);
 
     }
 

@@ -17,8 +17,6 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             settings.h
             image.cpp
             image.h
-            #camera.cpp
-            #camera.h
             process/ProcessPresenter.cpp
             process/ProcessPresenter.h            
             process/ProcessView.cpp
@@ -40,8 +38,10 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             orientation/orientationcolmap.h
             orientation/orientationexport.cpp
             orientation/orientationexport.h
-            orientation/photoorientation.cpp
-            orientation/photoorientation.h
+            orientation/poses.cpp
+            orientation/poses.h
+            orientation/posesio.cpp
+            orientation/posesio.h
             orientation/gcp.cpp
             orientation/gcp.h
             densification/densification.h

@@ -7,7 +7,6 @@
 
 #include <QString>
 
-//#include <opencv2/features2d.hpp>
 #include <colmap/feature/sift.h>
 
 namespace graphos

@@ -9,10 +9,11 @@ MACRO(DEFINE_TEST_WIDGETS name srcs)
     add_executable(${test_target} ${srcs})
 
     target_link_libraries(${test_target} PRIVATE
-                          inspector_core
-                          inspector_widgets
+                          graphos_core
+                          graphos_widgets
                           TidopLib::tl_core
                           TidopLib::tl_img
+                          TidopLib::tl_geospatial
                           Qt5::Core
                           Qt5::Widgets
                           Qt5::Test
@@ -43,5 +44,10 @@ add_subdirectory(startpagewidget)
 add_subdirectory(featurematchingwidget)
 add_subdirectory(cmvs_pmvs_widget)
 add_subdirectory(smvs_widget)
+add_subdirectory(mve_format_widget)
 add_subdirectory(nvm_format_widget)
+add_subdirectory(ori_format_widget)
+add_subdirectory(pointcloud_csv_format_widget)
 add_subdirectory(bundler_format_widget)
+add_subdirectory(dtm_inv_dist_widget)
+add_subdirectory(dtm_inv_dist_nn_widget)

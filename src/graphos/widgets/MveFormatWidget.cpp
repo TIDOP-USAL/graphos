@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "MveFormatWidget.h"
 
 #include <QGridLayout>
@@ -12,6 +35,14 @@
 namespace graphos
 {
 
+
+MveFormatWidget::MveFormatWidget(QWidget *parent)
+  : GraphosWidgetView(parent)
+{
+}
+
+
+
 MveFormatWidgetImp::MveFormatWidgetImp(QWidget *parent)
   : MveFormatWidget(parent),
     mGroupBox(new QGroupBox(this)),
@@ -19,8 +50,8 @@ MveFormatWidgetImp::MveFormatWidgetImp(QWidget *parent)
     mLineEditFile(new QLineEdit(this)),
     mPushButtonSelectPath(new QPushButton(this))
 {
-  this->initUI();
-  this->initSignalAndSlots();
+  MveFormatWidgetImp::initUI();
+  MveFormatWidgetImp::initSignalAndSlots();
 }
 
 void MveFormatWidgetImp::initUI()
@@ -43,9 +74,9 @@ void MveFormatWidgetImp::initUI()
   mPushButtonSelectPath->setText("...");
   propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
 
-  this->retranslate();
-  this->clear(); /// set default values
-  this->update();
+  MveFormatWidgetImp::retranslate();
+  MveFormatWidgetImp::clear(); /// set default values
+  MveFormatWidgetImp::update();
 }
 
 void MveFormatWidgetImp::initSignalAndSlots()
@@ -94,5 +125,6 @@ void MveFormatWidgetImp::onPushButtonSelectPath()
 
   update();
 }
+
 
 } // namespace graphos

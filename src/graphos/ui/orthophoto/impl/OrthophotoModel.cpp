@@ -197,9 +197,11 @@ std::vector<tl::Photo> OrthophotoModelImp::photos() const
         cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, dist_coeffs, imageSize, 1, imageSize, nullptr);
 
         tl::Camera camera_dist = camera->second;
-        camera_dist.setFocal(optCameraMat.at<float>(0, 0));
+        camera_dist.setFocal((optCameraMat.at<float>(0, 0)+ optCameraMat.at<float>(1, 1))/2.);
         std::shared_ptr<tl::Calibration> calibration_dist = tl::CalibrationFactory::create(calibration->cameraModel());
-        calibration_dist->setParameter(tl::Calibration::Parameters::focal, optCameraMat.at<float>(0, 0));
+        calibration_dist->setParameter(tl::Calibration::Parameters::focal, (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
+        calibration_dist->setParameter(tl::Calibration::Parameters::focalx, optCameraMat.at<float>(0, 0));
+        calibration_dist->setParameter(tl::Calibration::Parameters::focaly, optCameraMat.at<float>(1, 1));
         calibration_dist->setParameter(tl::Calibration::Parameters::cx, optCameraMat.at<float>(0, 2));
         calibration_dist->setParameter(tl::Calibration::Parameters::cy, optCameraMat.at<float>(1, 2));
         camera_dist.setCalibration(calibration_dist);
@@ -220,27 +222,25 @@ std::vector<tl::Photo> OrthophotoModelImp::photos() const
     tl::Photo photo(image_path.toStdString());
 
     CameraPose photoOrientation = mProject->photoOrientation(image->name());
-    photoOrientation.rotation.at(1, 0) = -photoOrientation.rotation.at(1, 0);
-    photoOrientation.rotation.at(1, 1) = -photoOrientation.rotation.at(1, 1);
-    photoOrientation.rotation.at(1, 2) = -photoOrientation.rotation.at(1, 2);
-    photoOrientation.rotation.at(2, 0) = -photoOrientation.rotation.at(2, 0);
-    photoOrientation.rotation.at(2, 1) = -photoOrientation.rotation.at(2, 1);
-    photoOrientation.rotation.at(2, 2) = -photoOrientation.rotation.at(2, 2);
+    auto rotation_matrix = photoOrientation.rotationMatrix();
+    rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
+    rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
+    rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
+    rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
+    rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
+    rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
+    photoOrientation.setRotationMatrix(rotation_matrix);
 
-    photoOrientation.position += offset;
+    photoOrientation.setPosition(photoOrientation.position() + offset);
 
-    tl::Photo::Orientation orientation(photoOrientation.position, photoOrientation.rotation);
-    photo.setOrientation(orientation);
+    photo.setCameraPose(photoOrientation);
 
-    TL_TODO("La camara tiene que corregirse de distorsión ya que las imagenes están corregidas")
     int camera_id = image->cameraId();
-    //tl::Camera camera = mProject->findCamera(camera_id);
     auto camera = cameras.find(camera_id);
     if (camera != cameras.end()) {
       photo.setCamera(camera->second);
     } else continue;
     
-
     photos.push_back(photo);
 
     

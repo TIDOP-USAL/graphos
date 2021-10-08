@@ -1,7 +1,7 @@
 add_subdirectory(core)
 #add_subdirectory(process)
 
-if (BUILD_INSPECTOR_IMAGE)
+if (BUILD_GRAPHOS)
 add_subdirectory(ui)
 add_subdirectory(widgets)
-endif (BUILD_INSPECTOR_IMAGE)
+endif (BUILD_GRAPHOS)

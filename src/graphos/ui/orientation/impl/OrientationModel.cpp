@@ -109,8 +109,8 @@ bool OrientationModelImp::gpsPositions() const
   bool bGpsOrientation = false;
 
   auto it = mProject->imageBegin();
-  CameraPosition cameraPosition = it->cameraPosition();
-  if (!cameraPosition.isEmpty())
+  CameraPose camera_pose = it->cameraPose();
+  if (!camera_pose.isEmpty())
     bGpsOrientation = true;
 
   return bGpsOrientation;
@@ -121,10 +121,10 @@ bool OrientationModelImp::rtkOrientations() const
   bool bRtkOrientations = false;
 
   auto it = mProject->imageBegin();
-  CameraPosition cameraPosition = it->cameraPosition();
-  if (!cameraPosition.isEmpty()){
-    tl::math::Quaternion<double> q = cameraPosition.quaternion();
-    if (q.x == 0 && q.y == 0 && q.z == 0 && q.w == 0)
+  CameraPose camera_pose = it->cameraPose();
+  if (!camera_pose.isEmpty()){
+    tl::math::Quaternion<double> q = camera_pose.quaternion();
+    if (q == tl::math::Quaternion<double>::zero())
       bRtkOrientations = false;
     else 
       bRtkOrientations = true;
@@ -148,13 +148,12 @@ std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() 
   std::map<QString, std::array<double, 3>> camera_positions;
   for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++) {
     QString path = it->path();
-    //QString file_name = QFileInfo(path).fileName();
-    CameraPosition cameraPosition = it->cameraPosition();
-    if (!cameraPosition.isEmpty()) {
+    CameraPose camera_pose = it->cameraPose();
+    if (!camera_pose.isEmpty()) {
       std::array<double, 3> positions = {
-      cameraPosition.x(),
-      cameraPosition.y(),
-      cameraPosition.z()};
+      camera_pose.position().x,
+      camera_pose.position().y,
+      camera_pose.position().z};
       camera_positions[path] = positions;
     }
   }

@@ -323,13 +323,11 @@ void graphos::LoadImagesProcess::run()
         tl::Point3D pt_in(latitudeDecimalDegrees, longitudeDecimalDegrees, altitude);
         tl::Point3D pt_out = crs_trf.transform(pt_in);
 
-        CameraPosition cameraPosition;
-        cameraPosition.setX(pt_out.x);
-        cameraPosition.setY(pt_out.y);
-        cameraPosition.setZ(pt_out.z);
-        cameraPosition.setCrs(epsg_out.c_str());
-        cameraPosition.setSource("EXIF");
-        (*mImages)[i].setCameraPosition(cameraPosition);
+        CameraPose camera_pose;
+        camera_pose.setPosition(pt_out);
+        camera_pose.setCrs(epsg_out.c_str());
+        camera_pose.setSource("EXIF");
+        (*mImages)[i].setCameraPose(camera_pose);
       }
 
       tl::MessageManager::resume();

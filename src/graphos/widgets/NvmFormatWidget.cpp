@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ *                                                                      *
+ * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ *                                                                      *
+ ************************************************************************/
+
 #include "NvmFormatWidget.h"
 
 #include <QGridLayout>
@@ -19,8 +42,8 @@ NvmFormatWidgetImp::NvmFormatWidgetImp(QWidget *parent)
     mLineEditFile(new QLineEdit(this)),
     mPushButtonSelectPath(new QPushButton(this))
 {
-  this->initUI();
-  this->initSignalAndSlots();
+  NvmFormatWidgetImp::initUI();
+  NvmFormatWidgetImp::initSignalAndSlots();
 }
 
 void NvmFormatWidgetImp::initUI()
@@ -43,9 +66,9 @@ void NvmFormatWidgetImp::initUI()
   mPushButtonSelectPath->setText("...");
   propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
 
-  this->retranslate();
-  this->clear(); /// set default values
-  this->update();
+  NvmFormatWidgetImp::retranslate();
+  NvmFormatWidgetImp::clear(); /// set default values
+  NvmFormatWidgetImp::update();
 }
 
 void NvmFormatWidgetImp::initSignalAndSlots()

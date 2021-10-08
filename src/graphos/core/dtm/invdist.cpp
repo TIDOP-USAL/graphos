@@ -6,15 +6,9 @@
 #include <tidop/geometry/size.h>
 #include <tidop/core/path.h>
 
-// BOOST
-//#include <boost/filesystem.hpp>
-//#include <boost/algorithm/string.hpp>
-
 
 using namespace graphos;
 using namespace tl;
-
-//namespace fs = boost::filesystem;
 
 namespace tl
 {

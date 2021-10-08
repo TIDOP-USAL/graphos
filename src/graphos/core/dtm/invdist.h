@@ -63,12 +63,12 @@ public:
 
   DtmInvDistAlgorithm();
   DtmInvDistAlgorithm(double power,
-                    double smoothing,
-                    double radius1,
-                    double radius2,
-                    double angle,
-                    int maxPoints,
-                    int minPoints);
+                      double smoothing,
+                      double radius1,
+                      double radius2,
+                      double angle,
+                      int maxPoints,
+                      int minPoints);
   ~DtmInvDistAlgorithm();
 
 // DtmAlgorithm interface

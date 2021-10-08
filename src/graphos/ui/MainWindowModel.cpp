@@ -133,7 +133,7 @@ bool MainWindowModel::isPhotoOriented(const QString &imgName) const
   return mProject->isPhotoOriented(imgName);
 }
 
-CameraPose MainWindowModel::photoOrientation(const QString &imgName) const
+CameraPose MainWindowModel::cameraPose(const QString &imgName) const
 {
   return mProject->photoOrientation(imgName);
 }

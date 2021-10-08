@@ -22,11 +22,9 @@
  ************************************************************************/
 
 
-
 #include "Application.h"
 
 #include "graphos/core/AppStatus.h"
-//#include "graphos/core/ImageManager.h"
 
 namespace graphos
 {
@@ -35,12 +33,8 @@ std::unique_ptr<Application> Application::sApplication;
 std::mutex Application::sMutex;
 
 Application::Application()
-  : mAppStatus(new AppStatus())/* ,
-    mImageManager(new ImageManager()) */
+  : mAppStatus(new AppStatus())
 {
-/*   connect(mImageManager, &ImageManager::imagesLoaded, [=](bool active) {
-    mAppStatus->activeFlag(AppStatus::Flag::image_open, active);
-  }); */
 }
 
 Application::~Application()
@@ -50,11 +44,6 @@ Application::~Application()
     mAppStatus = nullptr;
   }
 
-/*   if (mImageManager != nullptr) {
-    delete mImageManager;
-    mImageManager = nullptr;
-  } */
-
   sApplication.release();
 }
 
@@ -63,10 +52,10 @@ AppStatus *Application::status()
   return mAppStatus;
 }
 
-/* ImageManager *Application::imageManager()
+tl::MessageManager *Application::messageManager()
 {
-  return mImageManager;
-} */
+  return &tl::MessageManager::instance();
+}
 
 Application &Application::instance()
 {

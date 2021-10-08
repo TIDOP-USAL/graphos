@@ -28,7 +28,7 @@
 
 #include "graphos/interfaces/mvp.h"
 #include "graphos/core/image.h"
-#include "graphos/core/orientation/photoorientation.h"
+#include "graphos/core/orientation/poses.h"
 
 namespace graphos
 {

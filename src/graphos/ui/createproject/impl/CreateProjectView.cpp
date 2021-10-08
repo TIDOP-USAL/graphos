@@ -51,8 +51,8 @@ CreateProjectViewImp::CreateProjectViewImp(QWidget *parent)
     mButtonBox(new QDialogButtonBox(this)),
     bPrjExist(false)
 {
-  this->initUI();
-  this->initSignalAndSlots();
+  CreateProjectViewImp::initUI();
+  CreateProjectViewImp::initSignalAndSlots();
 }
 
 void CreateProjectViewImp::initUI()
@@ -88,8 +88,8 @@ void CreateProjectViewImp::initUI()
   mButtonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
   layout->addWidget(mButtonBox, 7, 0, 1, 3);
 
-  this->retranslate();
-  this->update();
+  CreateProjectViewImp::retranslate();
+  CreateProjectViewImp::update();
 }
 
 void CreateProjectViewImp::initSignalAndSlots()

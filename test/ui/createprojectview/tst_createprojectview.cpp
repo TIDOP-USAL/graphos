@@ -1,7 +1,7 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "inspector/ui/NewProjectView.h"
+#include "graphos/ui/createproject/impl/CreateProjectView.h"
 
 #include <QLineEdit>
 #include <QCheckBox>
@@ -9,18 +9,17 @@
 #include <QDialogButtonBox>
 #include <QTextEdit>
 
-using namespace inspector;
-using namespace ui;
+using namespace graphos;
 
-class TestNewProjectView
-  : public NewProjectViewImp
+class TestCreateProjectView
+  : public CreateProjectViewImp
 {
   Q_OBJECT
 
 public:
 
-  TestNewProjectView();
-  ~TestNewProjectView();
+  TestCreateProjectView();
+  ~TestCreateProjectView();
 
 private slots:
 
@@ -40,22 +39,22 @@ private slots:
 
 };
 
-TestNewProjectView::TestNewProjectView()
-  : NewProjectViewImp()
+TestCreateProjectView::TestCreateProjectView()
+  : CreateProjectViewImp()
 {
   QApplication::setActiveWindow(this);
 }
 
-TestNewProjectView::~TestNewProjectView()
+TestCreateProjectView::~TestCreateProjectView()
 {
 }
 
-void TestNewProjectView::initTestCase()
+void TestCreateProjectView::initTestCase()
 {
 
 }
 
-void TestNewProjectView::cleanupTestCase()
+void TestCreateProjectView::cleanupTestCase()
 {
   this->clear();
 
@@ -63,19 +62,19 @@ void TestNewProjectView::cleanupTestCase()
   QCOMPARE(this->projectPath(), QString(""));
   QCOMPARE(this->mLineEditProjectFile->text(), QString(""));
   QCOMPARE(this->projectDescription(), QString(""));
-  QCOMPARE(true, this->createProjectFolder());
+  QCOMPARE(true, this->createProjectFolderEnable());
 }
 
-void TestNewProjectView::test_constructor()
+void TestCreateProjectView::test_constructor()
 {
-  NewProjectViewImp newProjectView;
+  CreateProjectViewImp newProjectView;
   QCOMPARE("", newProjectView.projectName());
   QCOMPARE("", newProjectView.projectPath());
   QCOMPARE("", newProjectView.projectDescription());
-  QCOMPARE(true, newProjectView.createProjectFolder());
+  QCOMPARE(true, newProjectView.createProjectFolderEnable());
 }
 
-void TestNewProjectView::test_projectName()
+void TestCreateProjectView::test_projectName()
 {
 
   /// Simulación de entrada por teclado
@@ -86,7 +85,7 @@ void TestNewProjectView::test_projectName()
   QCOMPARE(this->projectName(), QString("project"));
 }
 
-void TestNewProjectView::test_projectPath_data()
+void TestCreateProjectView::test_projectPath_data()
 {
   QTest::addColumn<QString>("value");
   QTest::addColumn<QString>("result");
@@ -95,7 +94,7 @@ void TestNewProjectView::test_projectPath_data()
   QTest::newRow("C:/Users/user1/Documents/photomatch/Projects") << "C:/Users/user1/Documents/photomatch/Projects" << "C:/Users/user1/Documents/photomatch/Projects";
 }
 
-void TestNewProjectView::test_projectPath()
+void TestCreateProjectView::test_projectPath()
 {
   QFETCH(QString, value);
   QFETCH(QString, result);
@@ -104,7 +103,7 @@ void TestNewProjectView::test_projectPath()
   QCOMPARE(result, this->projectPath());
 }
 
-void TestNewProjectView::test_projectPath_signals()
+void TestCreateProjectView::test_projectPath_signals()
 {
   /// Simulación de entrada por teclado
 
@@ -118,7 +117,7 @@ void TestNewProjectView::test_projectPath_signals()
   QCOMPARE(this->projectPath(), QString("C:/Users/user1/Documents/photomatch/Projects"));
 }
 
-void TestNewProjectView::test_lineEditProjectFile()
+void TestCreateProjectView::test_lineEditProjectFile()
 {
   /// Desactivado
   QCOMPARE(this->mLineEditProjectFile->isEnabled(), false);
@@ -132,7 +131,7 @@ void TestNewProjectView::test_lineEditProjectFile()
 
   QTest::mouseClick(this->mCheckBoxProjectFolder, Qt::MouseButton::LeftButton);
   QString file(this->projectPath());
-  if (createProjectFolder())
+  if (createProjectFolderEnable())
     file.append(QDir::separator()).append(this->projectName());
   file.append(QDir::separator()).append(this->projectName()).append(".xml");
   QCOMPARE(this->mLineEditProjectFile->text(), QDir::cleanPath(file));
@@ -140,7 +139,7 @@ void TestNewProjectView::test_lineEditProjectFile()
 
   QTest::mouseClick(this->mCheckBoxProjectFolder, Qt::MouseButton::LeftButton);
   file = this->projectPath();
-  if (createProjectFolder())
+  if (createProjectFolderEnable())
     file.append(QDir::separator()).append(this->projectName());
   file.append(QDir::separator()).append(this->projectName()).append(".xml");
   QCOMPARE(this->mLineEditProjectFile->text(), QDir::cleanPath(file));
@@ -149,7 +148,7 @@ void TestNewProjectView::test_lineEditProjectFile()
   QCOMPARE(this->mLineEditProjectFile->text(), "");
 }
 
-void TestNewProjectView::test_projectDescription()
+void TestCreateProjectView::test_projectDescription()
 {
   /// Simulación de entrada por teclado
 
@@ -164,37 +163,37 @@ void TestNewProjectView::test_projectDescription()
   QCOMPARE(QString("description"), this->projectDescription());
 }
 
-void TestNewProjectView::test_createProjectFolder()
+void TestCreateProjectView::test_createProjectFolder()
 {
   mCheckBoxProjectFolder->setChecked(true);
-  QCOMPARE(true, this->createProjectFolder());
+  QCOMPARE(true, this->createProjectFolderEnable());
 
   mCheckBoxProjectFolder->setChecked(false);
-  QCOMPARE(false, this->createProjectFolder());
+  QCOMPARE(false, this->createProjectFolderEnable());
 }
 
-void TestNewProjectView::test_pushButtonProjectPath()
+void TestCreateProjectView::test_pushButtonProjectPath()
 {
 
 }
 
-void TestNewProjectView::test_dialogButtonBox()
+void TestCreateProjectView::test_dialogButtonBox()
 {
-  QSignalSpy spy_rejected(this, &NewProjectViewImp::rejected);
+  QSignalSpy spy_rejected(this, &CreateProjectViewImp::rejected);
   QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Cancel), Qt::LeftButton);
   QCOMPARE(spy_rejected.count(), 1);
 
   mButtonBox->button(QDialogButtonBox::Save)->setEnabled(true);
-  QSignalSpy spy_accepted(this, &NewProjectViewImp::accepted);
+  QSignalSpy spy_accepted(this, &CreateProjectViewImp::accepted);
   QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Save), Qt::LeftButton);
   QCOMPARE(spy_accepted.count(), 1);
 
-  QSignalSpy spy_help(this, &NewProjectViewImp::help);
+  QSignalSpy spy_help(this, &CreateProjectViewImp::help);
   QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Help), Qt::LeftButton);
   QCOMPARE(spy_help.count(), 1);
 }
 
-void TestNewProjectView::test_setExistingProject()
+void TestCreateProjectView::test_setExistingProject()
 {
   this->mLineEditProjectName->setText("Prueba");
   this->setExistingProject(true);
@@ -211,6 +210,6 @@ void TestNewProjectView::test_setExistingProject()
 }
 
 
-QTEST_MAIN(TestNewProjectView)
+QTEST_MAIN(TestCreateProjectView)
 
-#include "tst_newprojectview.moc"
+#include "tst_createprojectview.moc"

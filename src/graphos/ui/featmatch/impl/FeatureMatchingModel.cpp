@@ -87,7 +87,7 @@ bool FeatureMatchingModelImp::spatialMatching() const
   bool bSpatialMatching = false;
 
   auto it = mProject->imageBegin();
-  CameraPosition cameraPosition = it->cameraPosition();
+  CameraPose cameraPosition = it->cameraPose();
   if (!cameraPosition.isEmpty())
     bSpatialMatching = true;
 

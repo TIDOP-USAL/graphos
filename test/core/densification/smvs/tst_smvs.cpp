@@ -1,9 +1,9 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "inspector/core/densification/Smvs.h"
+#include "graphos/core/densification/Smvs.h"
 
-using namespace inspector;
+using namespace graphos;
 
 class TestSmvs
   : public QObject
@@ -20,7 +20,6 @@ private slots:
   void initTestCase();
   void cleanupTestCase();
   void test_constructor();
-  void test_copy_constructor();
   void test_type();
   void test_name();
   void test_inputImageScale_data();
@@ -83,17 +82,6 @@ void TestSmvs::test_constructor()
   QCOMPARE(false, smvsDensifier.semiGlobalMatching());
   QCOMPARE(0.7, smvsDensifier.surfaceSmoothingFactor());
   QCOMPARE(true, smvsDensifier.shadingBasedOptimization());
-}
-
-void TestSmvs::test_copy_constructor()
-{
-  SmvsDensifier smvsDensifier(2, 3, true, false, 0.7);
-  SmvsDensifier c(smvsDensifier);
-  QCOMPARE(2, c.inputImageScale());
-  QCOMPARE(3, c.outputDepthScale());
-  QCOMPARE(false, c.semiGlobalMatching());
-  QCOMPARE(0.7, c.surfaceSmoothingFactor());
-  QCOMPARE(true, c.shadingBasedOptimization());
 }
 
 void TestSmvs::test_type()
