@@ -1,8 +1,8 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "inspector/ui/featextract/FeatureExtractorView.h"
-#include "inspector/widgets/SiftWidget.h"
+#include "graphos/ui/featextract/impl/FeatureExtractorView.h"
+#include "graphos/widgets/SiftWidget.h"
 
 #include <QLineEdit>
 #include <QCheckBox>
@@ -10,8 +10,7 @@
 #include <QDialogButtonBox>
 #include <QTextEdit>
 
-using namespace inspector;
-using namespace ui;
+using namespace graphos;
 
 class TestFeatureExtractorView
   : public FeatureExtractorViewImp

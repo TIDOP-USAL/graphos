@@ -65,7 +65,17 @@ public:
    */
   virtual QString projectDescription() const = 0;
 
+  /*!
+   * \brief Comprueba si se creará una carpeta con el nombre del proyecto
+   */
   virtual bool createProjectFolderEnable() const = 0;
+
+  /*!
+   * \brief Establece si existe o no el proyecto
+   * Si ya existe se desactiva el botón de salvar y la
+   * ruta se cambia a color rojo
+   * \param[in] prjExist
+   */
   virtual void setExistingProject(bool prjExist) = 0;
 
 protected slots:

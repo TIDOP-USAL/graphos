@@ -41,25 +41,25 @@ public:
   ~CreateProjectModel() override = default;
 
   /*!
-   * \brief Returns the name of the project
+   * \brief Returns project name
    * \return Project name
    */
   virtual QString projectName() const = 0;
 
   /*!
-   * \brief Returns the project description
+   * \brief Returns project description
    * \return Project description
    */
   virtual QString projectDescription() const = 0;
 
   /*!
-   * \brief Returns the project directory
+   * \brief Returns project directory
    * \return Project directory
    */
   virtual QString projectFolder() const = 0;
 
   /*!
-   * \brief Returns the project file path
+   * \brief Returns project file path
    * \return Project directory
    */
   virtual QString projectPath() const = 0;
@@ -67,23 +67,27 @@ public:
 public slots:
 
   /*!
-   * \brief Set the project name
+   * \brief Set project name
    * \param[in] name Project's name
    */
   virtual void setProjectName(const QString &name) = 0;
 
   /*!
-   * \brief Set the project description
+   * \brief Set project description
    * \param[in] description Project description
    */
   virtual void setProjectDescription(const QString &projectDescription) = 0;
 
   /*!
-   * \brief Set the project directory
+   * \brief Set project directory
    * \param[in] path Project Directory
    */
   virtual void setProjectFolder(const QString &dir) = 0;
 
+  /*!
+   * \brief Set project database
+   * \param[in] path Database path
+   */
   virtual void setDatabase(const QString &database) = 0;
 
   /*!

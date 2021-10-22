@@ -26,9 +26,6 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
-//#include "graphos/ui/createproject/CreateProjectComponent.h"
-//#include "graphos/ui/openproject/OpenProjectComponent.h"
-
 #include "graphos/ui/images/ImageLoaderComponent.h"
 #include "graphos/ui/featextract/FeatureExtractorComponent.h"
 #include "graphos/ui/featmatch/FeatureMatchingComponent.h"

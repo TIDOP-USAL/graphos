@@ -35,11 +35,11 @@ OpenProjectModelImp::OpenProjectModelImp(Project *project,
   : OpenProjectModel(parent),
     mProject(project)
 {
+  OpenProjectModelImp::init();
 }
 
 OpenProjectModelImp::~OpenProjectModelImp()
 {
-  init();
 }
 
 QString OpenProjectModelImp::inspectorDirectory() const

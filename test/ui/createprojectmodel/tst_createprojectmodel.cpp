@@ -2,6 +2,7 @@
 
 #include "graphos/ui/createproject/impl/CreateProjectModel.h"
 #include "graphos/core/project.h"
+#include "../test/fake/ProjectFake.h"
 
 #include <QLineEdit>
 #include <QCheckBox>
@@ -10,6 +11,7 @@
 #include <QTextEdit>
 
 using namespace graphos;
+
 
 class TestCreateProjectModel
   : public QObject
@@ -24,22 +26,24 @@ public:
 private slots:
 
   void initTestCase();
-/*   void cleanupTestCase();
-  void test_constructor();
+  void cleanupTestCase();
+  void test_projectName_data();
   void test_projectName();
+  void test_projectDescription_data();
+  void test_projectDescription();
+  void test_projectFolder_data();
+  void test_projectFolder();
   void test_projectPath_data();
   void test_projectPath();
-  void test_projectPath_signals();
-  void test_lineEditProjectFile();
-  void test_projectDescription();
-  void test_createProjectFolder();
-  void test_pushButtonProjectPath();
-  void test_dialogButtonBox();
-  void test_setExistingProject(); */
 
+private:
+  Project *project;
+  CreateProjectModel *mProjectModel;
 };
 
 TestCreateProjectModel::TestCreateProjectModel()
+  : project(new ProjectFake),
+    mProjectModel(new CreateProjectModelImp(project))
 {
 }
 
@@ -49,38 +53,78 @@ TestCreateProjectModel::~TestCreateProjectModel()
 
 void TestCreateProjectModel::initTestCase()
 {
-
+  QCOMPARE(QString(""), mProjectModel->projectName());
+  QCOMPARE(QString(""), mProjectModel->projectPath());
+  QCOMPARE(QString(""), mProjectModel->projectDescription());
+  QCOMPARE(QString(""), mProjectModel->projectFolder());
 }
 
-/* void TestCreateProjectModel::cleanupTestCase()
+void TestCreateProjectModel::cleanupTestCase()
 {
-  this->clear();
+  mProjectModel->clear();
 
-  QCOMPARE(this->projectName(), QString(""));
-  QCOMPARE(this->projectPath(), QString(""));
-  QCOMPARE(this->mLineEditProjectFile->text(), QString(""));
-  QCOMPARE(this->projectDescription(), QString(""));
-  QCOMPARE(true, this->createProjectFolderEnable());
+  QCOMPARE(QString(""), mProjectModel->projectName());
+  QCOMPARE(QString(""), mProjectModel->projectPath());
+  QCOMPARE(QString(""), mProjectModel->projectDescription());
+  QCOMPARE(QString(""), mProjectModel->projectFolder());
 }
 
-void TestCreateProjectModel::test_constructor()
+void TestCreateProjectModel::test_projectName_data()
 {
-  CreateProjectModelImp newProjectModel;
-  QCOMPARE("", newProjectModel.projectName());
-  QCOMPARE("", newProjectModel.projectPath());
-  QCOMPARE("", newProjectModel.projectDescription());
-  QCOMPARE(true, newProjectModel.createProjectFolderEnable());
+  QTest::addColumn<QString>("value");
+  QTest::addColumn<QString>("result");
+
+  QTest::newRow("Project 1") << "Project 1" << "Project 1";
+  QTest::newRow("Project 2") << "Project 2" << "Project 2";
 }
 
 void TestCreateProjectModel::test_projectName()
 {
+  QFETCH(QString, value);
+  QFETCH(QString, result);
 
-  /// Simulación de entrada por teclado
+  mProjectModel->setProjectName(value);
+  QCOMPARE(result, mProjectModel->projectName());
+}
 
-  this->mLineEditProjectName->clear();
-  QTest::keyClicks(this->mLineEditProjectName, "project");
+void TestCreateProjectModel::test_projectDescription_data()
+{
+  QTest::addColumn<QString>("value");
+  QTest::addColumn<QString>("result");
 
-  QCOMPARE(this->projectName(), QString("project"));
+  QTest::newRow("Project 1") << "Project 1" << "Project 1";
+  QTest::newRow("Project 2") << "Project 2" << "Project 2";
+}
+
+void TestCreateProjectModel::test_projectDescription()
+{
+  QFETCH(QString, value);
+  QFETCH(QString, result);
+
+  mProjectModel->setProjectDescription(value);
+  QCOMPARE(result, mProjectModel->projectDescription());
+}
+
+void TestCreateProjectModel::test_projectFolder_data()
+{
+  QTest::addColumn<QString>("value");
+  QTest::addColumn<QString>("result");
+
+  QTest::newRow("C:/Users/Tido/Documents/graphos/Projects")
+                << "C:/Users/Tido/Documents/graphos/Projects"
+                << "C:/Users/Tido/Documents/graphos/Projects";
+  QTest::newRow("C:/Users/user1/Documents/graphos/Projects")
+                << "C:/Users/user1/Documents/graphos/Projects"
+                << "C:/Users/user1/Documents/graphos/Projects";
+}
+
+void TestCreateProjectModel::test_projectFolder()
+{
+  QFETCH(QString, value);
+  QFETCH(QString, result);
+
+  mProjectModel->setProjectFolder(value);
+  QCOMPARE(result, mProjectModel->projectFolder());
 }
 
 void TestCreateProjectModel::test_projectPath_data()
@@ -88,8 +132,12 @@ void TestCreateProjectModel::test_projectPath_data()
   QTest::addColumn<QString>("value");
   QTest::addColumn<QString>("result");
 
-  QTest::newRow("C:/Users/Tido/Documents/photomatch/Projects") << "C:/Users/Tido/Documents/photomatch/Projects" << "C:/Users/Tido/Documents/photomatch/Projects";
-  QTest::newRow("C:/Users/user1/Documents/photomatch/Projects") << "C:/Users/user1/Documents/photomatch/Projects" << "C:/Users/user1/Documents/photomatch/Projects";
+  QTest::newRow("C:/Users/Tido/Documents/graphos/Projects/Project 1/Project 1.xml")
+                << "C:/Users/Tido/Documents/graphos/Projects/Project 1/Project 1.xml"
+                << "C:/Users/Tido/Documents/graphos/Projects/Project 1/Project 1.xml";
+  QTest::newRow("C:/Users/user1/Documents/graphos/Projects/Project 2/Project 2.xml")
+                << "C:/Users/user1/Documents/graphos/Projects/Project 2/Project 2.xml"
+                << "C:/Users/user1/Documents/graphos/Projects/Project 2/Project 2.xml";
 }
 
 void TestCreateProjectModel::test_projectPath()
@@ -97,116 +145,9 @@ void TestCreateProjectModel::test_projectPath()
   QFETCH(QString, value);
   QFETCH(QString, result);
 
-  this->setProjectPath(value);
-  QCOMPARE(result, this->projectPath());
+  mProjectModel->saveAs(value);
+  QCOMPARE(result, mProjectModel->projectPath());
 }
-
-void TestCreateProjectModel::test_projectPath_signals()
-{
-  /// Simulación de entrada por teclado
-
-  QString project_path = this->projectPath();
-
-  QTest::keyClick(this->mLineEditProjectPath, '_');
-  QCOMPARE(this->projectPath(), project_path.append("_"));
-
-  this->mLineEditProjectPath->clear();
-  QTest::keyClicks(this->mLineEditProjectPath, "C:/Users/user1/Documents/photomatch/Projects");
-  QCOMPARE(this->projectPath(), QString("C:/Users/user1/Documents/photomatch/Projects"));
-}
-
-void TestCreateProjectModel::test_lineEditProjectFile()
-{
-  /// Desactivado
-  QCOMPARE(this->mLineEditProjectFile->isEnabled(), false);
-
-
-  this->mLineEditProjectPath->clear();
-  QTest::keyClicks(this->mLineEditProjectPath, "C:/Users/user1/Documents/photomatch/Projects");
-
-  this->mLineEditProjectName->clear();
-  QTest::keyClicks(this->mLineEditProjectName, "project_name");
-
-  QTest::mouseClick(this->mCheckBoxProjectFolder, Qt::MouseButton::LeftButton);
-  QString file(this->projectPath());
-  if (createProjectFolderEnable())
-    file.append(QDir::separator()).append(this->projectName());
-  file.append(QDir::separator()).append(this->projectName()).append(".xml");
-  QCOMPARE(this->mLineEditProjectFile->text(), QDir::cleanPath(file));
-
-
-  QTest::mouseClick(this->mCheckBoxProjectFolder, Qt::MouseButton::LeftButton);
-  file = this->projectPath();
-  if (createProjectFolderEnable())
-    file.append(QDir::separator()).append(this->projectName());
-  file.append(QDir::separator()).append(this->projectName()).append(".xml");
-  QCOMPARE(this->mLineEditProjectFile->text(), QDir::cleanPath(file));
-
-  this->mLineEditProjectName->clear();
-  QCOMPARE(this->mLineEditProjectFile->text(), "");
-}
-
-void TestCreateProjectModel::test_projectDescription()
-{
-  /// Simulación de entrada por teclado
-
-  QString project_description = this->projectDescription();
-
-  QTest::keyClick(this->mTextEditDescription, '_');
-  QCOMPARE(project_description.append("_"), this->projectDescription());
-
-  this->mTextEditDescription->clear();
-
-  QTest::keyClicks(this->mTextEditDescription, "description");
-  QCOMPARE(QString("description"), this->projectDescription());
-}
-
-void TestCreateProjectModel::test_createProjectFolder()
-{
-  mCheckBoxProjectFolder->setChecked(true);
-  QCOMPARE(true, this->createProjectFolderEnable());
-
-  mCheckBoxProjectFolder->setChecked(false);
-  QCOMPARE(false, this->createProjectFolderEnable());
-}
-
-void TestCreateProjectModel::test_pushButtonProjectPath()
-{
-
-}
-
-void TestCreateProjectModel::test_dialogButtonBox()
-{
-  QSignalSpy spy_rejected(this, &CreateProjectModelImp::rejected);
-  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Cancel), Qt::LeftButton);
-  QCOMPARE(spy_rejected.count(), 1);
-
-  mButtonBox->button(QDialogButtonBox::Save)->setEnabled(true);
-  QSignalSpy spy_accepted(this, &CreateProjectModelImp::accepted);
-  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Save), Qt::LeftButton);
-  QCOMPARE(spy_accepted.count(), 1);
-
-  QSignalSpy spy_help(this, &CreateProjectModelImp::help);
-  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Help), Qt::LeftButton);
-  QCOMPARE(spy_help.count(), 1);
-}
-
-void TestCreateProjectModel::test_setExistingProject()
-{
-  this->mLineEditProjectName->setText("Prueba");
-  this->setExistingProject(true);
-  QPalette palette = mLineEditProjectName->palette();
-  QColor color = palette.color(QPalette::Text);
-  QCOMPARE(QColor(Qt::red), color);
-  QCOMPARE(false, this->mButtonBox->button(QDialogButtonBox::Save)->isEnabled());
-
-  this->setExistingProject(false);
-  palette = mLineEditProjectName->palette();
-  color = palette.color(QPalette::Text);
-  QCOMPARE(QColor(Qt::black), color);
-  QCOMPARE(true, this->mButtonBox->button(QDialogButtonBox::Save)->isEnabled());
-} */
-
 
 QTEST_APPLESS_MAIN(TestCreateProjectModel)
 

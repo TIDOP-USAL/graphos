@@ -46,8 +46,8 @@ CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
     mAppStatus(status),
     mHelp(nullptr)
 {
-  this->init();
-  this->initSignalAndSlots();
+  CreateProjectPresenterImp::init();
+  CreateProjectPresenterImp::initSignalAndSlots();
 }
 
 void CreateProjectPresenterImp::help()
@@ -117,7 +117,7 @@ void CreateProjectPresenterImp::discartProject()
 void CreateProjectPresenterImp::checkProjectName() const
 {
   QString project_path = this->projectPath(this->projectFolder());
-  mView->setExistingProject(QFileInfo(project_path).exists());
+  mView->setExistingProject(QFileInfo::exists(project_path));
 }
 
 void CreateProjectPresenterImp::open()
@@ -162,8 +162,8 @@ void CreateProjectPresenterImp::initSignalAndSlots()
 {
   connect(mView, &CreateProjectView::projectNameChange, this, &CreateProjectPresenterImp::checkProjectName);
 
-  connect(mView, &QDialog::accepted,                 this, &CreateProjectPresenterImp::saveProject);
-  connect(mView, &QDialog::rejected,                 this, &CreateProjectPresenterImp::discartProject);
+  connect(mView, &QDialog::accepted,                this, &CreateProjectPresenterImp::saveProject);
+  connect(mView, &QDialog::rejected,                this, &CreateProjectPresenterImp::discartProject);
   connect(mView, &DialogView::help,                 this, &CreateProjectPresenterImp::help);
 }
 

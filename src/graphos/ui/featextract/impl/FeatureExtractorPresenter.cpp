@@ -50,8 +50,8 @@ FeatureExtractorPresenterImp::FeatureExtractorPresenterImp(FeatureExtractorView 
     mHelp(nullptr),
     mSift(new SiftWidgetImp)
 {
-  this->init();
-  this->initSignalAndSlots();
+  FeatureExtractorPresenterImp::init();
+  FeatureExtractorPresenterImp::initSignalAndSlots();
 }
 
 FeatureExtractorPresenterImp::~FeatureExtractorPresenterImp()
@@ -91,9 +91,12 @@ void FeatureExtractorPresenterImp::init()
 
 void FeatureExtractorPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &FeatureExtractorView::detectorDescriptorChange,  this, &FeatureExtractorPresenterImp::setCurrentDetectorDescriptor);
-  connect(mView, &FeatureExtractorView::run,                       this, &FeatureExtractorPresenterImp::run);
-  connect(mView, &DialogView::help,                                this, &FeatureExtractorPresenterImp::help);
+  connect(mView, &FeatureExtractorView::detectorDescriptorChange,
+          this, &FeatureExtractorPresenterImp::setCurrentDetectorDescriptor);
+  connect(mView, &FeatureExtractorView::run,
+          this, &FeatureExtractorPresenterImp::run);
+  connect(mView, &DialogView::help,
+          this, &FeatureExtractorPresenterImp::help);
 }
 
 void FeatureExtractorPresenterImp::cancel()
@@ -152,8 +155,6 @@ void FeatureExtractorPresenterImp::onFinished()
   if (mProgressHandler) {
     mProgressHandler->setDescription(tr("Feature detection and description finished"));
   }
-
-  //msgInfo("Feature detection and description finished.");
 }
 
 bool FeatureExtractorPresenterImp::createProcess()
@@ -177,7 +178,6 @@ bool FeatureExtractorPresenterImp::createProcess()
   QString currentKeypointDetector = mView->currentDetectorDescriptor();
   std::shared_ptr<FeatureExtractor> feature_extractor;
 
-  ///TODO: Actualizar progreso
   if (currentKeypointDetector.compare("SIFT") == 0) {
     feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
                                                                      mSift->octaveLayers(),
@@ -207,7 +207,8 @@ bool FeatureExtractorPresenterImp::createProcess()
                                                                                     mModel->useCuda(),
                                                                                     feature_extractor));
 
-  connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)), this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
+  connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)),
+          this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
 
   /// Hacer privadas
   mMultiProcess->appendProcess(feat_extract);

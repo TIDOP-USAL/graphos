@@ -1,8 +1,8 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "inspector/ui/featmatch/FeatureMatchingView.h"
-#include "inspector/widgets/FeatureMatchingWidget.h"
+#include "graphos/ui/featmatch/impl/FeatureMatchingView.h"
+#include "graphos/widgets/FeatureMatchingWidget.h"
 
 #include <QLineEdit>
 #include <QCheckBox>
@@ -10,8 +10,7 @@
 #include <QDialogButtonBox>
 #include <QTextEdit>
 
-using namespace inspector;
-using namespace ui;
+using namespace graphos;
 
 class TestFeatureMatchingView
   : public FeatureMatchingViewImp

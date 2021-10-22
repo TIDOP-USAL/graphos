@@ -1,4 +1,4 @@
-set(test_filename tst_createprojectmodel)
+set(test_filename tst_createprojectpresenter.cpp)
 get_filename_component(test_name ${test_filename} NAME_WE)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
@@ -7,17 +7,22 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectModel.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectModel.h
                ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectModel.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectView.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectPresenter.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectPresenter.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectPresenter.h
+               #${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
-               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h)
+               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/HelpDialog.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/HelpDialog.h)
 
 target_link_libraries(${test_target} PRIVATE
                       Qt5::Core 
                       Qt5::Widgets 
                       Qt5::Test
+                      Qt5::Help
                       graphos_core
                       TidopLib::tl_core
                       TidopLib::tl_img
@@ -44,6 +49,6 @@ set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}
                       PROJECT_LABEL ${test_target})
 
-set_target_properties(${test_target} PROPERTIES FOLDER "test/createproject/model")
+set_target_properties(${test_target} PROPERTIES FOLDER "test/createproject/presenter")
 
 add_test(NAME ${test_target} COMMAND $<TARGET_FILE:${test_target}>)

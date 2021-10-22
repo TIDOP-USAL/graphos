@@ -35,19 +35,19 @@ class HelpDialog;
 class AppStatus;
 
 class OpenProjectPresenterImp
-	: public OpenProjectPresenter
+  : public OpenProjectPresenter
 {
 
-	Q_OBJECT
+  Q_OBJECT
 
 public:
 
-	OpenProjectPresenterImp(OpenProjectView *view,
+  OpenProjectPresenterImp(OpenProjectView *view,
                           OpenProjectModel *model,
                           AppStatus *status);
-	~OpenProjectPresenterImp() override;
+  ~OpenProjectPresenterImp() override;
 
- // OpenProjectPresenter interface
+// OpenProjectPresenter interface
 
 protected slots:
 

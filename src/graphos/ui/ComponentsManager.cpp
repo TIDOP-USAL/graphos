@@ -36,9 +36,6 @@
 #include "graphos/ui/SettingsModel.h"
 #include "graphos/ui/SettingsView.h"
 #include "graphos/ui/SettingsPresenter.h"
-//#include "graphos/ui/export/densemodel/impl/ExportPointCloudModel.h"
-//#include "graphos/ui/export/densemodel/impl/ExportPointCloudPresenter.h"
-//#include "graphos/ui/export/densemodel/impl/ExportPointCloudView.h"
 #include "graphos/ui/FeaturesModel.h"
 #include "graphos/ui/MatchesModel.h"
 #include "graphos/ui/HelpDialog.h"
@@ -62,6 +59,10 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),
     mProject(new ProjectImp),
+    mCreateProjectComponent(nullptr),
+    mOpenProjectComponent(nullptr),
+    mImportCamerasComponent(nullptr),
+    mCamerasComponent(nullptr),
     mProjectModel(nullptr),
     mFeaturesModel(nullptr),
     mMatchesModel(nullptr),
@@ -69,14 +70,9 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mSettingsController(new SettingsControllerImp),
     mSettingsModel(nullptr),
     mSettingsPresenter(nullptr),
-    //mExportPointCloudModel(nullptr),
-    //mExportPointCloudPresenter(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
-    mProgressDialog(nullptr),
-    mCreateProjectComponent(nullptr),
-    mOpenProjectComponent(nullptr),
-    mImportCamerasComponent(nullptr)
+    mProgressDialog(nullptr)
 {
   this->mainWindowPresenter();
   
@@ -125,6 +121,26 @@ ComponentsManager::~ComponentsManager()
     mProject = nullptr;
   }
 
+  if (mCreateProjectComponent) {
+    delete mCreateProjectComponent;
+    mCreateProjectComponent = nullptr;
+  }
+
+  if (mOpenProjectComponent) {
+    delete mOpenProjectComponent;
+    mOpenProjectComponent = nullptr;
+  }
+
+  if (mImportCamerasComponent) {
+    delete mImportCamerasComponent;
+    mImportCamerasComponent = nullptr;
+  }
+
+  if (mCamerasComponent) {
+    delete mCamerasComponent;
+    mCamerasComponent = nullptr;
+  }
+
   if (mProjectModel){
     delete mProjectModel;
     mProjectModel = nullptr;
@@ -159,16 +175,6 @@ ComponentsManager::~ComponentsManager()
     mSettingsPresenter = nullptr;
   }
 
-  //if (mExportPointCloudModel){
-  //  delete mExportPointCloudModel;
-  //  mExportPointCloudModel = nullptr;
-  //}
-
-  //if (mExportPointCloudPresenter){
-  //  delete mExportPointCloudPresenter;
-  //  mExportPointCloudPresenter = nullptr;
-  //}
-
   if (mProgressHandler){
     delete mProgressHandler;
     mProgressHandler = nullptr;
@@ -179,25 +185,6 @@ ComponentsManager::~ComponentsManager()
     mProgressDialog = nullptr;
   }
 
-  if (mCreateProjectComponent) {
-    delete mCreateProjectComponent;
-    mCreateProjectComponent = nullptr;
-  }
-
-  if (mOpenProjectComponent) {
-    delete mOpenProjectComponent;
-    mOpenProjectComponent = nullptr;
-  }
-   
-  if (mImportCamerasComponent) {
-    delete mImportCamerasComponent;
-    mImportCamerasComponent = nullptr;
-  }
-
-  if (mCamerasComponent) {
-    delete mCamerasComponent;
-    mCamerasComponent = nullptr;
-  }
 }
 
 void ComponentsManager::openApp()
@@ -238,8 +225,6 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
             this, &ComponentsManager::initAndOpenViewSettingsDialog);
     connect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
             this, &ComponentsManager::initAndOpenToolSettingsDialog);
-    //connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
-    //        this, &ComponentsManager::initAndOpenExportPointCloudDialog);
   }
 
   return mMainWindowPresenter;
@@ -312,8 +297,8 @@ void ComponentsManager::registerComponent(Component *component,
 void ComponentsManager::registerMultiComponent(const QString &name,
                                                const QString &menu,
                                                const QString &toolbar,
-                                               std::list<std::shared_ptr<graphos::Component>> &components,
-                                               Flags flags)
+                                               const std::list<std::shared_ptr<graphos::Component>> &components,
+                                               Flags)
 {
 
   if (components.empty()) return;
@@ -387,9 +372,9 @@ void ComponentsManager::loadPlugins()
 #endif // _DEBUG
 
   const auto entryList = pluginsDir.entryList(QDir::Files);
-  for (const QString &fileName : entryList) {
+  for (const QString &plugin : entryList) {
 
-    QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+    QPluginLoader loader(pluginsDir.absoluteFilePath(plugin));
     loadPlugin(loader.instance());
 
   }
@@ -474,24 +459,6 @@ SettingsPresenter *ComponentsManager::settingsPresenter()
   return mSettingsPresenter;
 }
 
-//ExportPointCloudModel *ComponentsManager::exportPointCloudModel()
-//{
-//  if (mExportPointCloudModel == nullptr) {
-//    mExportPointCloudModel = new ExportPointCloudModelImp(mProject);
-//  }
-//  return mExportPointCloudModel;
-//}
-//
-//ExportPointCloudPresenter *ComponentsManager::exportPointCloudPresenter()
-//{
-//  if (mExportPointCloudPresenter == nullptr){
-//    ExportPointCloudView *view = new ExportPointCloudViewImp(this->mainWindowView());
-//    mExportPointCloudPresenter = new ExportPointCloudPresenterImp(view,
-//                                                                  this->exportPointCloudModel());
-//  }
-//  return mExportPointCloudPresenter;
-//}
-
 HelpDialog *ComponentsManager::helpDialog()
 {
   if (mHelpDialog == nullptr) {
@@ -554,11 +521,11 @@ void ComponentsManager::initAndOpenToolSettingsDialog()
 void ComponentsManager::initSettingsDialog()
 {
   disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openSettingsDialog,
-    this, &ComponentsManager::initAndOpenSettingsDialog);
+             this, &ComponentsManager::initAndOpenSettingsDialog);
   disconnect(mMainWindowPresenter, &MainWindowPresenter::openViewSettingsDialog,
-    this, &ComponentsManager::initAndOpenViewSettingsDialog);
+             this, &ComponentsManager::initAndOpenViewSettingsDialog);
   disconnect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
-    this, &ComponentsManager::initAndOpenToolSettingsDialog);
+             this, &ComponentsManager::initAndOpenToolSettingsDialog);
 
   connect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this->settingsPresenter(), SLOT(open()));
   connect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this->settingsPresenter(), SLOT(openViewSettings()));
@@ -567,16 +534,5 @@ void ComponentsManager::initSettingsDialog()
 
   this->settingsPresenter()->setHelp(this->helpDialog());
 }
-
-//void ComponentsManager::initAndOpenExportPointCloudDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
-//             this, &ComponentsManager::initAndOpenExportPointCloudDialog);
-//  connect(this->mainWindowPresenter(), &MainWindowPresenter::openExportPointCloudDialog,
-//          this->exportPointCloudPresenter(), &ExportPointCloudPresenter::open);
-//
-//  this->exportPointCloudPresenter()->setHelp(this->helpDialog());
-//  this->exportPointCloudPresenter()->open();
-//}
 
 } // namespace graphos

@@ -552,7 +552,7 @@ void CmvsPmvsDensifier::undistortImages()
                                                               0.f, 0.f, 1.f};
     cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
     cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
-    std::vector<double> params = camera.second.Params();
+
     distCoeffs.at<float>(0) = calibration->existParameter(tl::Calibration::Parameters::k1) ?
                               static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
     distCoeffs.at<float>(1) = calibration->existParameter(tl::Calibration::Parameters::k2) ?

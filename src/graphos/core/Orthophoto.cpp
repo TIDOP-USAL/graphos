@@ -96,45 +96,32 @@ std::vector<tl::WindowD> findGrid(const tl::Path &footprint_file)
   return grid;
 }
 
-std::shared_ptr<tl::graph::GPolygon> bestImage(const tl::PointD &pt, const std::string &footprint_file)
+std::shared_ptr<tl::graph::GPolygon> bestImage(const tl::PointD &pt, std::shared_ptr<tl::graph::GLayer> layer)
 {
   std::shared_ptr<tl::graph::GPolygon> footprint_image;
 
-  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::createReader(footprint_file);
-  vectorReader->open();
-  if (vectorReader->isOpen()) {
+  std::map<double, std::shared_ptr<tl::graph::GPolygon>> entities;
 
-    if (vectorReader->layersCount() >= 1) {
+  for (const auto &entity : *layer) {
+    tl::graph::GraphicEntity::Type type = entity->type();
+    if (type == tl::graph::GraphicEntity::Type::polygon_2d) {
 
-      std::map<double, std::shared_ptr<tl::graph::GPolygon>> entities;
-      std::shared_ptr<tl::graph::GLayer> layer = vectorReader->read(0);
-
-      for (const auto &entity : *layer) {
-        tl::graph::GraphicEntity::Type type = entity->type();
-        if (type == tl::graph::GraphicEntity::Type::polygon_2d) {
-
-          std::shared_ptr<tl::graph::GPolygon> polygon = std::dynamic_pointer_cast<tl::graph::GPolygon>(entity);
-          if (polygon->isInner(pt)) {
-            tl::PointD center = polygon->window().center();
-            double distance = tl::distance(center, pt);
-            entities[distance] = polygon;
-          }
-
-        } else {
-          msgError("No es un fichero de huella de vuelo");
-          break;
-        }
-
+      std::shared_ptr<tl::graph::GPolygon> polygon = std::dynamic_pointer_cast<tl::graph::GPolygon>(entity);
+      if (polygon->isInner(pt)) {
+        tl::PointD center = polygon->window().center();
+        double distance = tl::distance(center, pt);
+        entities[distance] = polygon;
       }
 
-      if (!entities.empty()) {
-        footprint_image = entities.begin()->second;
-      }
-
+    } else {
+      msgError("No es un fichero de huella de vuelo");
+      break;
     }
 
-    vectorReader->close();
+  }
 
+  if (!entities.empty()) {
+    footprint_image = entities.begin()->second;
   }
 
   return footprint_image;
@@ -147,45 +134,59 @@ void findOptimalFootprint(const tl::Path &footprint_file,
 {
   std::map<std::string, std::shared_ptr<tl::graph::GPolygon>> clean_footprint;
 
-  for (size_t i = 0; i < grid.size(); i++) {
+  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::createReader(footprint_file);
+  vectorReader->open();
+  if (vectorReader->isOpen()) {
 
-    /// Busqueda de imagen mas centrada
-    std::shared_ptr<tl::graph::GPolygon> polygon = bestImage(grid[i].center(), footprint_file.toString());
-    if (polygon) {
-      std::shared_ptr<tl::TableRegister> data = polygon->data();
-      std::string ortho_to_compensate = data->value(0);
-      clean_footprint[ortho_to_compensate] = polygon;
+    if (vectorReader->layersCount() >= 1) {
+
+      std::map<double, std::shared_ptr<tl::graph::GPolygon>> entities;
+      std::shared_ptr<tl::graph::GLayer> layer = vectorReader->read(0);
+
+      for (size_t i = 0; i < grid.size(); i++) {
+
+        /// Busqueda de imagen mas centrada
+        std::shared_ptr<tl::graph::GPolygon> polygon = bestImage(grid[i].center(), layer);
+        if (polygon) {
+          std::shared_ptr<tl::TableRegister> data = polygon->data();
+          std::string ortho_to_compensate = data->value(0);
+          clean_footprint[ortho_to_compensate] = polygon;
+        }
+
+      }
+
+      vectorReader->close();
+
     }
 
+    msgInfo("Optimal footprint. %i retained images", clean_footprint.size());
+
+    std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::createWriter(optimal_footprint_path.toString());
+    vector_writer->open();
+    if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
+    vector_writer->create();
+    vector_writer->setCRS(crs);
+
+    std::shared_ptr<tl::TableField> field(new tl::TableField("image",
+                                          tl::TableField::Type::STRING,
+                                          254));
+    std::vector<std::shared_ptr<tl::TableField>> fields;
+    fields.push_back(field);
+
+    tl::graph::GLayer layer;
+    layer.setName("footprint");
+    layer.addDataField(field);
+
+    for (const auto &footprint : clean_footprint) {
+      std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
+      data->setValue(0, footprint.first);
+      layer.push_back(footprint.second);
+    }
+
+    vector_writer->write(layer);
+
+    vector_writer->close();
   }
-
-  msgInfo("Optimal footprint. %i retained images", clean_footprint.size());
-
-  std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::createWriter(optimal_footprint_path.toString());
-  vector_writer->open();
-  if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
-  vector_writer->create();
-  vector_writer->setCRS(crs);
-
-  std::shared_ptr<tl::TableField> field(new tl::TableField("image",
-                                                           tl::TableField::Type::STRING,
-                                                           254));
-  std::vector<std::shared_ptr<tl::TableField>> fields;
-  fields.push_back(field);
-
-  tl::graph::GLayer layer;
-  layer.setName("footprint");
-  layer.addDataField(field);
-
-  for (const auto &footprint : clean_footprint) {
-    std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
-    data->setValue(0, footprint.first);
-    layer.push_back(footprint.second);
-  }
-
-  vector_writer->write(layer);
-
-  vector_writer->close();
 }
 
 void orthoMosaic(tl::Path &optimal_footprint_path,
@@ -274,21 +275,27 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
 
             std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::createReader(orthos[i]);
             image_reader->open();
-            if (!image_reader->isOpen()) throw std::runtime_error("Image open error");
-            cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
-            mat_orthos[i] = image.clone();
-            double scale = image_reader->georeference().scaleX();
+            if (image_reader->isOpen()) {
+              cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
+              mat_orthos[i] = image.clone();
+              double scale = image_reader->georeference().scaleX();
 
-            /// Esquinas
-            corners[i].x = (windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale;
-            corners[i].y = (window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale;
+              /// Esquinas
+              corners[i].x = (windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale;
+              corners[i].y = (window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale;
 
-            /// La mascara debería leerse si se creó en la generación del MDS.
-            ortho_masks[i].create(image.size(), CV_8U);
-            cv::Mat gray;
-            cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-            ortho_masks[i].setTo(cv::Scalar::all(0));
-            ortho_masks[i].setTo(cv::Scalar::all(255), gray > 0);
+              /// La mascara debería leerse si se creó en la generación del MDS.
+              ortho_masks[i].create(image.size(), CV_8U);
+              cv::Mat gray;
+              if (image.channels() != 1) {
+                cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+              } else {
+                gray = image;
+              }
+
+              ortho_masks[i].setTo(cv::Scalar::all(0));
+              ortho_masks[i].setTo(cv::Scalar::all(255), gray > 0);
+            }
           }
 
           cv::InputArrayOfArrays(mat_orthos).getUMatVector(umat_orthos);
@@ -307,60 +314,64 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
 
           std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::createReader(ortho_to_compensate);
           image_reader->open();
-          if (!image_reader->isOpen()) throw std::runtime_error("Image open error");
-          cv::Mat compensate_image = image_reader->read();
+          if (image_reader->isOpen()) {
+            cv::Mat compensate_image = image_reader->read();
 
-          /// Se compensa la imagen
-          cv::Point corner = corners[0] / exposure_compensator_factor;
-          cv::Mat gray;
-          cv::cvtColor(compensate_image, gray, cv::COLOR_BGR2GRAY);
-          cv::Mat mask_full_size(compensate_image.size(), CV_8U);
-          mask_full_size.setTo(cv::Scalar::all(0));
-          mask_full_size.setTo(cv::Scalar::all(255), gray > 0);
-          cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT,
-                                                  cv::Size(2 * 2 + 1, 2 * 2 + 1),
-                                                  cv::Point(2, 2));
-          cv::erode(mask_full_size, mask_full_size, element);
-          compensator->apply(0, corner, compensate_image, mask_full_size);
+            /// Se compensa la imagen
+            cv::Point corner = corners[0] / exposure_compensator_factor;
+            cv::Mat gray;
+            if (compensate_image.channels() == 1)
+              gray = compensate_image;
+            else
+              cv::cvtColor(compensate_image, gray, cv::COLOR_BGR2GRAY);
+            cv::Mat mask_full_size(compensate_image.size(), CV_8U);
+            mask_full_size.setTo(cv::Scalar::all(0));
+            mask_full_size.setTo(cv::Scalar::all(255), gray > 0);
+            cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT,
+                                                    cv::Size(2 * 2 + 1, 2 * 2 + 1),
+                                                    cv::Point(2, 2));
+            cv::erode(mask_full_size, mask_full_size, element);
+            compensator->apply(0, corner, compensate_image, mask_full_size);
 
-          tl::Path orto_compensate(ortho_to_compensate);
-          std::string name = orto_compensate.baseName() + "_compensate.png";
-          orto_compensate.replaceFileName(name);
-          std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::createWriter(orto_compensate.toString());
-          image_writer->open();
-          if (image_writer->isOpen()) {
-            image_writer->create(image_reader->rows(), image_reader->cols(), image_reader->channels(), image_reader->dataType());
-            image_writer->setCRS(image_reader->crs());
-            image_writer->setGeoreference(image_reader->georeference());
-            image_writer->write(compensate_image);
-            image_writer->close();
-            msgInfo("Image Compensate: %s", orto_compensate.fileName().c_str());
-            compensated_orthos.push_back(orto_compensate.toString());
+            tl::Path orto_compensate(ortho_to_compensate);
+            std::string name = orto_compensate.baseName() + "_compensate.png";
+            orto_compensate.replaceFileName(name);
+            std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::createWriter(orto_compensate.toString());
+            image_writer->open();
+            if (image_writer->isOpen()) {
+              image_writer->create(image_reader->rows(), image_reader->cols(), image_reader->channels(), image_reader->dataType());
+              image_writer->setCRS(image_reader->crs());
+              image_writer->setGeoreference(image_reader->georeference());
+              image_writer->write(compensate_image);
+              image_writer->close();
+              msgInfo("Image Compensate: %s", orto_compensate.fileName().c_str());
+              compensated_orthos.push_back(orto_compensate.toString());
+            }
+
+            /// 2 - Busqueda de costuras (seam finder)
+
+            cv::Mat mask_finder = ortho_masks[0].getMat(cv::ACCESS_READ);
+            cv::erode(mask_finder, mask_finder, element);
+            cv::resize(mask_finder, mask_finder, compensate_image.size());
+            mask_finder = mask_finder & mask_full_size;
+
+            tl::Path orto_seam(ortho_to_compensate);
+            name = orto_seam.baseName() + "_seam.tif";
+            orto_seam.replaceFileName(name);
+            image_writer = tl::ImageWriterFactory::createWriter(orto_seam.toString());
+            image_writer->open();
+            if (image_writer->isOpen()) {
+              image_writer->create(image_reader->rows(), image_reader->cols(), 1, image_reader->dataType());
+              image_writer->setCRS(image_reader->crs());
+              image_writer->setGeoreference(image_reader->georeference());
+              image_writer->write(mask_finder);
+              image_writer->close();
+              msgInfo("Image seam: %s", orto_seam.fileName().c_str());
+              ortho_seams.push_back(orto_seam.toString());
+            }
+
+            image_reader->close();
           }
-
-          /// 2 - Busqueda de costuras (seam finder)
-
-          cv::Mat mask_finder = ortho_masks[0].getMat(cv::ACCESS_READ);
-          cv::erode(mask_finder, mask_finder, element);
-          cv::resize(mask_finder, mask_finder, compensate_image.size());
-          mask_finder = mask_finder & mask_full_size;
-
-          tl::Path orto_seam(ortho_to_compensate);
-          name = orto_seam.baseName() + "_seam.tif";
-          orto_seam.replaceFileName(name);
-          image_writer = tl::ImageWriterFactory::createWriter(orto_seam.toString());
-          image_writer->open();
-          if (image_writer->isOpen()) {
-            image_writer->create(image_reader->rows(), image_reader->cols(), 1, image_reader->dataType());
-            image_writer->setCRS(image_reader->crs());
-            image_writer->setGeoreference(image_reader->georeference());
-            image_writer->write(mask_finder);
-            image_writer->close();
-            msgInfo("Image seam: %s", orto_seam.fileName().c_str());
-            ortho_seams.push_back(orto_seam.toString());
-          }
-
-          image_reader->close();
 
         } else {
           msgError("No es un fichero de huella de vuelo");

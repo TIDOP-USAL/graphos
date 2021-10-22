@@ -7,17 +7,18 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/inspector/ui/featmatch/FeatureMatchingView.cpp
-               ${CMAKE_SOURCE_DIR}/src/inspector/ui/featmatch/FeatureMatchingView.h
-               ${CMAKE_SOURCE_DIR}/src/inspector/ui/featmatch/FeatureMatching.h
-               ${CMAKE_SOURCE_DIR}/src/inspector/ui/process/ProcessPresenter.h
-               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h)
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/featmatch/impl/FeatureMatchingView.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/featmatch/impl/FeatureMatchingView.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/featmatch/FeatureMatchingView.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/core/process/ProcessView.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h)
 
 target_link_libraries(${test_target} PRIVATE
-                      inspector_core
-                      inspector_widgets
+                      graphos_core
+                      graphos_widgets
                       TidopLib::tl_core
                       TidopLib::tl_img
+                      TidopLib::tl_geospatial
                       Qt5::Core 
                       Qt5::Widgets 
                       Qt5::Test
@@ -37,7 +38,7 @@ set_target_properties(${test_target} PROPERTIES
 
 if(ENABLE_SOLUTION_FOLDERS)
   set_target_properties(${test_target} PROPERTIES
-                        FOLDER "test/featurematchingview")
+                        FOLDER "test/featurematching/view")
 endif()
 
 add_test(NAME ${test_target} COMMAND $<TARGET_FILE:${test_target}>)

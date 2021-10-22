@@ -30,15 +30,15 @@ namespace graphos
 {
 
 class OpenProjectViewImp
-	: public OpenProjectView
+  : public OpenProjectView
 {
 
   Q_OBJECT
 
 public:
 
-	explicit OpenProjectViewImp(QWidget *parent = nullptr);
-	~OpenProjectViewImp() override = default;
+  explicit OpenProjectViewImp(QWidget *parent = nullptr);
+  ~OpenProjectViewImp() override = default;
 
 private:
 
@@ -50,7 +50,7 @@ private:
 
 public:
 
-	void setInspectorPath(const QString &directory) override;
+  void setInspectorPath(const QString &directory) override;
 
 };
 

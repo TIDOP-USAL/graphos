@@ -48,8 +48,6 @@ class FeaturesModel;
 class MatchesModel;
 class ProgressHandler;
 class ProgressDialog;
-//class ExportPointCloudModel;
-//class ExportPointCloudPresenter;
 class HelpDialog;
 class AboutDialog;
 
@@ -80,10 +78,10 @@ public:
 
   void registerComponent(Component *component,
                          Flags flags = Flags::none);
-  void registerMultiComponent(const QString &name, 
+  void registerMultiComponent(const QString &name,
                               const QString &menu,
                               const QString &toolbar,
-                              std::list<std::shared_ptr<graphos::Component>> &components,
+                              const std::list<std::shared_ptr<Component> > &components,
                               Flags flags = Flags::none);
   void loadPlugins();
 
@@ -94,9 +92,6 @@ public:
 
   SettingsModel *settingsModel();
   SettingsPresenter *settingsPresenter();
-
-  //ExportPointCloudModel *exportPointCloudModel();
-  //ExportPointCloudPresenter *exportPointCloudPresenter();
 
   //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
@@ -116,7 +111,6 @@ protected slots:
   void initAndOpenViewSettingsDialog();
   void initAndOpenToolSettingsDialog();
   void initSettingsDialog();
-  //void initAndOpenExportPointCloudDialog();
 
 protected:
 
@@ -129,8 +123,6 @@ protected:
   Component *mImportCamerasComponent;
   Component *mCamerasComponent;
 
-
-
   ProjectModel *mProjectModel;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
@@ -139,9 +131,6 @@ protected:
   SettingsModel *mSettingsModel;
   SettingsPresenter *mSettingsPresenter;
 
-  //ExportPointCloudModel *mExportPointCloudModel;
-  //ExportPointCloudPresenter *mExportPointCloudPresenter;
-  //AboutDialog *mAboutDialog;
   HelpDialog *mHelpDialog;
 
   ProgressHandler *mProgressHandler;

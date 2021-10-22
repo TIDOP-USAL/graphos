@@ -34,8 +34,7 @@ CreateProjectModelImp::CreateProjectModelImp(Project *project,
                                              QObject *parent)
   : CreateProjectModel(parent),
     mProject(project),
-    mPrjFile("")/*,
-    bUnsavedChanges(false)*/
+    mPrjFile("")
 {
   CreateProjectModelImp::init();
 }
@@ -68,33 +67,27 @@ QString CreateProjectModelImp::projectPath() const
 void CreateProjectModelImp::setProjectName(const QString &name)
 {
   mProject->setName(name);
-//  bUnsavedChanges = true;
 }
 
 void CreateProjectModelImp::setProjectDescription(const QString &description)
 {
   mProject->setDescription(description);
-//  bUnsavedChanges = true;
 }
 
 void CreateProjectModelImp::setProjectFolder(const QString &dir)
 {
   mProject->setProjectFolder(dir);
-//  bUnsavedChanges = true;
 }
 
 void CreateProjectModelImp::setDatabase(const QString &database)
 {
   mProject->setDatabase(database);
-  //bUnsavedChanges = true;
 }
 
 void CreateProjectModelImp::saveAs(const QString &file)
 {
   mPrjFile = file;
   mProject->save(file);
-
-//  bUnsavedChanges = false;
 }
 
 void CreateProjectModelImp::init()

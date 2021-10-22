@@ -64,7 +64,7 @@ public:
   {
   }
 
-  void operator() (size_t ini, size_t end)
+  void operator() (size_t , size_t )
   {
     for (const auto &image : *mImages) {
       producer(image);
@@ -324,7 +324,6 @@ private:
       mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
 
       QByteArray ba = data.image_name.toLocal8Bit();
-      const char *img_file = ba.data();
       double time = chrono.stop();
       msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
 
@@ -341,7 +340,7 @@ private:
       mDatabase->WriteDescriptors(data.image_id, featureDescriptors);
       mutex.unlock();
 
-      // añade features al proyecto
+      // aÃ±ade features al proyecto
       //mProject->addFeatures(data.image_name, data.image_name + "@" + mProject->database());
       //emit featuresExtracted(mImage.name(), mFeatureFile);
       //emit statusChangedNext();
@@ -414,7 +413,7 @@ void FeatureExtractorProcess::run()
     done = false;
 
     size_t size = mImages.size() / num_threads;
-    for (int i = 0; i < num_threads; ++i) {
+    for (size_t i = 0; i < num_threads; ++i) {
       size_t _ini = i * size;
       size_t _end = _ini + size;
       if (i == num_threads - 1) _end = mImages.size();
@@ -422,14 +421,16 @@ void FeatureExtractorProcess::run()
       producer_threads[i] = std::thread(producer, _ini, _end);
     }
 
-    for (int i = 0; i < num_threads; ++i) {
+    for (size_t i = 0; i < num_threads; ++i) {
       consumer_threads[i] = std::thread(consumer);
     }
 
-    for (int i = 0; i < num_threads; ++i)
+    for (size_t i = 0; i < num_threads; ++i)
       producer_threads[i].join();
+
     done = true;
-    for (int i = 0; i < num_threads; ++i)
+
+    for (size_t i = 0; i < num_threads; ++i)
       consumer_threads[i].join();
 
     chrono.stop();

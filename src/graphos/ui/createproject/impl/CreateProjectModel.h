@@ -46,8 +46,6 @@ public:
 
 signals:
 
-
-
 // CreateProjectModel interface
 
 public:
@@ -79,7 +77,7 @@ protected:
 
   Project *mProject;
   QString mPrjFile;
-//  bool bUnsavedChanges;
+
 
 };
 

@@ -37,10 +37,6 @@ class Feature;
 class FeatureExtractorModel
   : public Model
 {
-//public:
-//
-//  typedef std::vector<Image>::iterator image_iterator;
-//  typedef std::vector<Image>::const_iterator image_const_iterator;
 
 public:
 
@@ -52,14 +48,10 @@ public:
   virtual QString database() const = 0;
   virtual void addFeatures(const QString &imageName, const QString &featuresFile) = 0;
   virtual bool useCuda() const = 0;
-  //virtual Camera camera(int id) const = 0;
   virtual std::vector<Image> images() const = 0;
   virtual std::map<int, tl::Camera> cameras() const = 0;
-  //virtual image_iterator imageBegin() = 0;
-  //virtual image_const_iterator imageBegin() const = 0;
-  //virtual image_iterator imageEnd() = 0;
-  //virtual image_const_iterator imageEnd() const = 0;
   virtual void clearProject() = 0;
+
 };
 
 } // namespace graphos

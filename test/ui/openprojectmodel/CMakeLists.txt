@@ -1,4 +1,4 @@
-set(test_filename tst_createprojectmodel)
+set(test_filename tst_openprojectmodel.cpp)
 get_filename_component(test_name ${test_filename} NAME_WE)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
@@ -7,9 +7,9 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectModel.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectModel.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectModel.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/impl/OpenProjectModel.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/impl/OpenProjectModel.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/OpenProjectModel.h
                ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h)
@@ -44,6 +44,6 @@ set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}
                       PROJECT_LABEL ${test_target})
 
-set_target_properties(${test_target} PROPERTIES FOLDER "test/createproject/model")
+set_target_properties(${test_target} PROPERTIES FOLDER "test/openproject/model")
 
 add_test(NAME ${test_target} COMMAND $<TARGET_FILE:${test_target}>)

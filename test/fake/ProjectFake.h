@@ -1,6 +1,9 @@
-#include <inspector/core/project.h>
+#ifndef GRAPHOS_TEST_PROJECT_FAKE_H
+#define GRAPHOS_TEST_PROJECT_FAKE_H
 
-namespace inspector
+#include <graphos/core/project.h>
+
+namespace graphos
 {
 
 class ProjectFake
@@ -25,4 +28,6 @@ protected:
 
 };
 
-} // end namespace inspector
+} // end namespace graphos
+
+#endif GRAPHOS_TEST_PROJECT_FAKE_H

@@ -86,11 +86,6 @@ bool FeatureExtractorModelImp::useCuda() const
   return mSettings->value("General/UseCuda", true).toBool();
 }
 
-//Camera FeatureExtractorModelImp::camera(int id) const
-//{
-//  return mProject->findCamera(id);
-//}
-
 std::vector<Image> FeatureExtractorModelImp::images() const
 {
   return mProject->images();
@@ -100,26 +95,6 @@ std::map<int, tl::Camera> FeatureExtractorModelImp::cameras() const
 {
   return mProject->cameras();
 }
-
-//FeatureExtractorModel::image_iterator FeatureExtractorModelImp::imageBegin()
-//{
-//  return mProject->imageBegin();
-//}
-//
-//FeatureExtractorModel::image_const_iterator FeatureExtractorModelImp::imageBegin() const
-//{
-//  return mProject->imageBegin();
-//}
-//
-//FeatureExtractorModel::image_iterator FeatureExtractorModelImp::imageEnd()
-//{
-//  return mProject->imageEnd();
-//}
-//
-//FeatureExtractorModel::image_const_iterator FeatureExtractorModelImp::imageEnd() const
-//{
-//  return mProject->imageEnd();
-//}
 
 void FeatureExtractorModelImp::clearProject()
 {

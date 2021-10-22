@@ -63,13 +63,8 @@ public:
   QString database() const override;
   void addFeatures(const QString &imageName, const QString &featuresFile) override;
   bool useCuda() const override;
-  //Camera camera(int id) const override;
   std::vector<Image> images() const override;
   std::map<int, tl::Camera> cameras() const override;
-  //image_iterator imageBegin() override;
-  //image_const_iterator imageBegin() const override;
-  //image_iterator imageEnd() override;
-  //image_const_iterator imageEnd() const override;
   void clearProject() override;
 
 protected:

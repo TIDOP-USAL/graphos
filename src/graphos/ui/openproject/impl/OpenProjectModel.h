@@ -32,22 +32,22 @@ namespace graphos
 class Project;
 
 class OpenProjectModelImp
-	: public OpenProjectModel
+  : public OpenProjectModel
 {
 
   Q_OBJECT
 
 public:
 
-	OpenProjectModelImp(Project *project,
+  OpenProjectModelImp(Project *project,
 											QObject *parent = nullptr);
-	~OpenProjectModelImp();
+  ~OpenProjectModelImp();
 
 // OpenProjectModel interface
 
 public:
 
-	QString inspectorDirectory() const override;
+  QString inspectorDirectory() const override;
 
 public slots:
 
