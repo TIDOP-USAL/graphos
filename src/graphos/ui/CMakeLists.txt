@@ -107,6 +107,7 @@ set(GRAPHOS_SOURCES
     utils/Viewer3d.cpp
     utils/GraphicItem.cpp
     utils/TabHandler.cpp
+    utils/Pdf.cpp
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
 )
 
@@ -247,6 +248,7 @@ set(GRAPHOS_HEADERS
     utils/Viewer3d.h
     utils/GraphicItem.h
     utils/TabHandler.h
+    utils/Pdf.h
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
 )
 
@@ -314,6 +316,7 @@ target_link_libraries(${PROJECT_NAME}
                       Qt5::Help
                       Qt5::Concurrent
                       Qt5::Sql
+                      Qt5::PrintSupport
                       graphos_core
                       graphos_widgets
                       graphos_process

@@ -10,11 +10,18 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
                       graphos_core
                       TidopLib::tl_core
+                      TidopLib::tl_geom
+                      TidopLib::tl_geospatial
+                      TidopLib::tl_img
+                      TidopLib::tl_math
+                      TidopLib::tl_vect
+                      TidopLib::tl_graphic
+                      TidopLib::tl_imgprocess
                       Qt5::Core
                       Qt5::Sql
                       ${COLMAP_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
-                      ${GLEW_LIBRARIES}
+                      GLEW::glew
                       ${CERES_LIBRARIES}
                       ${OPENGL_gl_LIBRARY}
                       ${OPENGL_glu_LIBRARY}

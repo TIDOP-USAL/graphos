@@ -1,21 +1,14 @@
-#include <inspector/process/features/FeatureExtractorProcess.h>
-#include <inspector/core/utils.h>
-#include <inspector/core/project.h>
-#include <inspector/core/camera.h>
-#include <inspector/core/features/sift.h>
-#include <inspector/core/features/featio.h>
+#include <graphos/process/features/FeatureExtractorProcess.h>
+#include <graphos/core/utils.h>
+#include <graphos/core/project.h>
+#include <graphos/core/features/sift.h>
+#include <graphos/core/features/featio.h>
 
 #include <tidop/core/utils.h>
 #include <tidop/core/messages.h>
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
 #include <tidop/core/chrono.h>
-
-//#include <colmap/base/database.h>
-//#include <colmap/base/camera_models.h>
-
-//#include <opencv2/imgcodecs.hpp>
-//#include <opencv2/imgproc.hpp>
 
 #include <QDir>
 #include <QTextStream>
@@ -27,14 +20,13 @@
 #include <iostream>
 
 
-using namespace inspector;
+using namespace graphos;
 using namespace tl;
 
 static std::string cmd_description = QT_TRANSLATE_NOOP("", "Images");
 
 void consoleConfig()
 {
-
   tl::Console &console = tl::Console::instance();
   console.setMessageLevel(tl::MessageLevel::msg_verbose);
   console.setTitle(cmd_description);
@@ -43,74 +35,77 @@ void consoleConfig()
 
 int main(int argc, char** argv)
 {
-//  QCoreApplication app(argc, argv);
-//
-//  tl::Chrono chrono("img");
-//  chrono.run();
-//
-//  consoleConfig();
-//
-///* Parseo de argumentos */
-//
-//  std::string project_file;
-//  std::string image_to_add;
-//  std::string image_to_remove;
-//  size_t idx_camera = 2; /// Camera RADIAL
-//  std::vector<std::string> cameras {
-//    "SIMPLE_PINHOLE",
-//    "SIMPLE_RADIAL",
-//    "RADIAL",
-//    "FULL_RADIAL"};
-//
-//  Command cmd("featextract", cmd_description);
-//  cmd.push_back(std::make_shared<ArgumentStringRequired>("prj", 'p', "Project file", &project_file));
-//  cmd.push_back(std::make_shared<ArgumentListStringOptional>("camera_model", 'c', "Set camera model. Available cameras: SIMPLE_PINHOLE, SIMPLE_RADIAL, RADIAL (default), FULL_RADIAL", cameras, &idx_camera));
-//  cmd.push_back(std::make_shared<ArgumentStringOptional>("image_add", 'a', "Add an image to the project", &image_to_add));
-//  cmd.push_back(std::make_shared<ArgumentStringOptional>("image_remove", 'r', "Remove an image from the project", &image_to_remove));
-//
-//  cmd.addExample("img --p 253/253.xml --image_add image001.jpg");
-//  cmd.addExample("img --p 253/253.xml --image_remove image001.jpg");
-//
-//  // Parseo de los argumentos y comprobación de los mismos
-//  Command::Status status = cmd.parse(argc, argv);
-//  if (status == Command::Status::parse_error ) {
-//    return 1;
-//  } else if (status == Command::Status::show_help) {
-//    return 0;
-//  } else if (status == Command::Status::show_licence) {
-//    return 0;
-//  } else if (status == Command::Status::show_version) {
-//    return 0;
-//  }
-//
-//  QFileInfo file_info(project_file.c_str());
-//  if (!file_info.exists()){
-//    msgError("The project doesn't exist");
-//    return 1;
-//  }
-//
-//  ProjectImp project;
-//  project.load(file_info.absoluteFilePath());
-//
-//  QString project_dir = project.projectFolder();
-//
-///* Fichero log */
-//
-//  QString log_file = file_info.path() + "/" + file_info.baseName() + ".log";
-//
-//  tl::Log &log = tl::Log::instance();
-//  log.setMessageLevel(tl::MessageLevel::msg_verbose);
-//  log.setLogFile(log_file.toStdString());
-//  tl::MessageManager::instance().addListener(&log);
-//
-///* Chequeos previos para comprobar que todo este bien */
-//
+  QCoreApplication app(argc, argv);
+
+  tl::Chrono chrono("img");
+  chrono.run();
+
+  consoleConfig();
+
+/* Parseo de argumentos */
+
+  std::string project_file;
+  std::string image_to_add;
+  std::string image_to_remove;
+  //size_t idx_camera = 2; /// Camera RADIAL
+  //std::vector<std::string> cameras {
+  //  "SIMPLE_PINHOLE",
+  //  "SIMPLE_RADIAL",
+  //  "RADIAL",
+  //  "FULL_RADIAL"};
+
+  Command cmd("featextract", cmd_description);
+  cmd.push_back(std::make_shared<ArgumentStringRequired>("prj", 'p', "Project file", &project_file));
+  //cmd.push_back(std::make_shared<ArgumentListStringOptional>("camera_model", 'c', "Set camera model. Available cameras: SIMPLE_PINHOLE, SIMPLE_RADIAL, RADIAL (default), FULL_RADIAL", cameras, &idx_camera));
+  cmd.push_back(std::make_shared<ArgumentStringOptional>("image_add", 'a', "Add an image to the project", &image_to_add));
+  cmd.push_back(std::make_shared<ArgumentStringOptional>("image_remove", 'r', "Remove an image from the project", &image_to_remove));
+
+  cmd.addExample("img --p 253/253.xml --image_add image001.jpg");
+  cmd.addExample("img --p 253/253.xml --image_remove image001.jpg");
+
+  // Parseo de los argumentos y comprobación de los mismos
+  Command::Status status = cmd.parse(argc, argv);
+  if (status == Command::Status::parse_error ) {
+    return 1;
+  } else if (status == Command::Status::show_help) {
+    return 0;
+  } else if (status == Command::Status::show_licence) {
+    return 0;
+  } else if (status == Command::Status::show_version) {
+    return 0;
+  }
+
+  try {
+
+  QFileInfo file_info(project_file.c_str());
+  if (!file_info.exists()){
+    msgError("The project doesn't exist");
+    return 1;
+  }
+
+  QString base_name = file_info.baseName();
+
+  ProjectImp project;
+  project.load(file_info.absoluteFilePath());
+
+  QString project_path = project.projectFolder();
+
+/* Fichero log */
+
+  QString log_file = project_path + base_name + ".log";
+  tl::Log &log = tl::Log::instance();
+  log.setMessageLevel(tl::MessageLevel::msg_verbose);
+  log.setLogFile(log_file.toStdString());
+  tl::MessageManager::instance().addListener(&log);
+
+/* Chequeos previos para comprobar que todo este bien */
+
 //  if (!image_to_add.empty()) {
 //    /// Se abre la base de datos de cámaras
 //    QSqlDatabase database_cameras = QSqlDatabase::addDatabase("QSQLITE");
 //    QString database_cameras_path;
 //#ifdef _DEBUG
-//    database_cameras_path = QString(INSPECTOR_SOURCE_PATH).append("/res");
+//    database_cameras_path = QString(GRAPHOS_SOURCE_PATH).append("/res");
 //#else
 //    database_cameras_path = qApp->applicationDirPath();
 //#endif
@@ -283,6 +278,10 @@ int main(int argc, char** argv)
 //
 //  uint64_t time = chrono.stop();
 //  msgInfo("[Time: %f seconds]", time/1000.);
+
+  } catch (const std::exception &e) {
+    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+  }
 
   return 0;
 }

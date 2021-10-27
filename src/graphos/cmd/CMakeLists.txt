@@ -23,8 +23,8 @@ if(BUILD_GRAPHOS_COMMANDS)
 
   endif()
 
-#add_subdirectory(createproject)
-#add_subdirectory(img)
+add_subdirectory(createproject)
+add_subdirectory(img)
 #add_subdirectory(featextract)
 #add_subdirectory(featmatch)
 #add_subdirectory(georef)

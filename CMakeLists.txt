@@ -238,7 +238,8 @@ find_package(Qt5 REQUIRED
                Help 
                Sql 
                Concurrent 
-               LinguistTools)
+               LinguistTools
+               PrintSupport)
 
 if(BUILD_TEST)
   find_package(Qt5 REQUIRED

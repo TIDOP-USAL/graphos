@@ -1,13 +1,10 @@
-#include <inspector/core/utils.h>
-#include <inspector/interfaces/CreateProject.h>
-#include <inspector/core/project.h>
+#include <graphos/core/utils.h>
+#include <graphos/core/project.h>
 
 #include <tidop/core/utils.h>
 #include <tidop/core/messages.h>
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
-
-//#include <colmap/base/database.h>
 
 #include <QDir>
 #include <QTextStream>
@@ -17,76 +14,8 @@
 #include <iostream>
 
 
-using namespace inspector;
+using namespace graphos;
 using namespace tl;
-
-namespace inspector
-{
-
-
-class CreateProjectModelImpl
-  : public CreateProjectModel
-{
-
-public:
-
-  CreateProjectModelImpl(Project *project)
-    : mProject(project)
-{
-  init();
-}
-  ~CreateProjectModelImpl() override = default;
-
-// Model interface
-
-private:
-
-  void init() override
-  {
-  }
-
-// CreateProjectModel interface
-
-public:
-
-  void create() override
-  {
-  }
-
-  void save(const QString &file) override
-  {
-    mProject->save(file);
-  }
-
-  void setProjectName(const QString &name) override
-  {
-    mProject->setName(name);
-  }
-
-  void setProjectPath(const QString &path) override
-  {
-    mProject->setProjectFolder(path);
-  }
-
-  void setProjectDescription(const QString &description) override
-  {
-    mProject->setDescription(description);
-  }
-
-  void setDatabase(const QString &database) override
-  {
-    mProject->setDatabase(database);
-  }
-
-protected:
-
-  Project *mProject;
-};
-
-}
-
-
-
 
 
 int main(int argc, char** argv)
@@ -130,77 +59,70 @@ int main(int argc, char** argv)
   QString base_name;
   QString project_path;
 
-  QFileInfo file_info(project_name.c_str());
-  if (file_info.isRelative()){
-    file_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    file_path.append("/Inspector/Projects/");
+  try 	{
 
-    QString extension = file_info.suffix();
-    QString file_name;
-    if (extension.compare(".xml", Qt::CaseInsensitive) == 0){
+    QFileInfo file_info(project_name.c_str());
+    if (file_info.isRelative()) {
+      file_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+      file_path.append("/graphos/Projects/");
+
+      QString extension = file_info.suffix();
+      QString file_name;
+      if (extension.compare(".xml", Qt::CaseInsensitive) == 0) {
+        base_name = file_info.baseName();
+        file_name = file_info.fileName();
+      } else {
+        file_name = base_name = file_info.baseName();
+        file_name.append(".xml");
+      }
+      project_path = file_path.append(base_name).append("/");
+      file_path.append(file_name);
+    } else {
       base_name = file_info.baseName();
-      file_name = file_info.fileName();
-    } else {
-      file_name = base_name = file_info.baseName();
-      file_name.append(".xml");
+      file_path = project_name.c_str();
+      project_path = file_info.path();
     }
-    project_path = file_path.append(base_name).append("/");
-    file_path.append(file_name);
-  } else {
-    base_name = file_info.baseName();
-    file_path = project_name.c_str();
-    project_path = file_info.path();
-  }
 
-  QString database_path = project_path;
-  database_path.append(base_name).append(".db");
+    QString database_path = project_path;
+    database_path.append(base_name).append(".db");
 
-  std::string s_path = project_path.toStdString();
-  QDir dir(project_path);
-  if (!dir.exists()){
-    if (dir.mkpath(".") == false){
-      msgError("Project directory cannot be created: %s", s_path.c_str());
-      return 1;
+    std::string s_path = project_path.toStdString();
+    QDir dir(project_path);
+    if (dir.exists()) {
+      if (force_overwrite) {
+        dir.removeRecursively();
+      } else {
+        throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
+      }
+    } 
+
+    if (dir.mkpath(".") == false) {
+      throw std::runtime_error("Project directory cannot be created: " + s_path);
     }
+
+    /* Fichero log */
+
+    QString log_file = project_path + base_name + ".log";
+    tl::Log &log = tl::Log::instance();
+    log.setMessageLevel(tl::MessageLevel::msg_verbose);
+    log.setLogFile(log_file.toStdString());
+    tl::MessageManager::instance().addListener(&log);
+
+    ProjectImp project;
+
+    project.setName(base_name);
+    project.setProjectFolder(project_path);
+    project.setDescription(project_description.c_str());
+    project.setDatabase(database_path);
+    project.save(file_path);
+
+    msgInfo("Project created");
+    msgInfo("Project name: %s", base_name.toStdString().c_str());
+    msgInfo("Project Description: %s", project_description.c_str());
+
+  } catch (const std::exception &e) 	{
+    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
   }
-
-/* Fichero log */
-
-  QString log_file = project_path + base_name + ".log";
-
-  tl::Log &log = tl::Log::instance();
-  log.setMessageLevel(tl::MessageLevel::msg_verbose);
-  //QString log_file = dir.filePath("featextract.log");
-  log.setLogFile(log_file.toStdString());
-
-  /// Se subscribe el log al gestor de mensajes
-  tl::MessageManager::instance().addListener(&log);
-
-/* Chequeos previos para comprobar que todo este bien */
-
-  if (QFileInfo(project_path).exists()){
-    if (force_overwrite){
-      QFile(project_path).remove();
-      QFile(database_path).remove();
-    } else {
-      msgError("The project already exists");
-      return 1;
-    }
-  }
-
-
-  ProjectImp project;
-
-  CreateProjectModelImpl project_model(&project);
-  project_model.setProjectName(base_name);
-  project_model.setProjectPath(project_path);
-  project_model.setProjectDescription(project_description.c_str());
-  project_model.setDatabase(database_path);
-  project_model.save(file_path);
-
-  msgInfo("Project created");
-
-  //colmap::Database database(database_path.toStdString());
-
+  
   return 0;
 }
