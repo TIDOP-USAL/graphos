@@ -21,151 +21,76 @@
  *                                                                      *
  ************************************************************************/
 
-
-#ifndef GRAPHOS_MVP_H
-#define GRAPHOS_MVP_H
+#ifndef GRAPHOS_MATCH_VIEWER_PRESENTER_H
+#define GRAPHOS_MATCH_VIEWER_PRESENTER_H
 
 #include <memory>
 
 #include <QObject>
-#include <QDialog>
-#include <QEvent>
+
+#include "graphos/components/matchviewer/MatchViewerPresenter.h"
 
 namespace graphos
 {
 
+class MatchViewerView;
+class MatchViewerModel;
+class SettingsModel;
 class HelpDialog;
 
-using View = QObject;
 
-class DialogView
-  : public QDialog
+class MatchViewerPresenterImp
+  : public MatchViewerPresenter
 {
   Q_OBJECT
 
 public:
 
-  DialogView(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags())
-    : QDialog(parent, f)
-  {
-    Qt::WindowFlags helpFlag = Qt::WindowContextHelpButtonHint;
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~helpFlag);
-    QWidget::setWindowFlags(flags);
-  }
+  MatchViewerPresenterImp(MatchViewerView *view,
+                          MatchViewerModel *model);
 
-  virtual ~DialogView() override = default;
+  ~MatchViewerPresenterImp() override;
 
-private:
-
-  /*!
-   * \brief Dialog initialization UI
-   */
-  virtual void initUI() = 0;
-
-  /*!
-   * \brief Signal and slots initialization
-   */
-  virtual void initSignalAndSlots() = 0;
-
-signals:
-
-  void help();
-  void restore();
+// MatchViewerPresenter interface
 
 public slots:
 
-  /*!
-   * \brief Clear dialog
-   */
-  virtual void clear() = 0;
+  void setLeftImage(const QString &image) override;
+  void setRightImage(const QString &image) override;
 
-private slots:
+protected slots:
 
-  virtual void update() = 0;
-  virtual void retranslate() = 0;
+  void loadMatches(const QString &imageLeft,
+                   const QString &imageRight) override;
 
-// QWidget interface
-
-protected:
-
-  void changeEvent(QEvent *event) override
-  {
-    if (event->type() == QEvent::LanguageChange){
-      retranslate();
-    }
-  }
-};
-
-
-
-class Model
-  : public QObject
-{
-
-  Q_OBJECT
-
-public:
-
-  Model(QObject *parent = nullptr) : QObject(parent){}
-  virtual ~Model() = default;
-
-private:
-
-  /*!
-   * \brief Class Initialization
-   */
-  virtual void init() = 0;
+// Presenter interface
 
 public slots:
 
-  virtual void clear() = 0;
-
-};
-
-
-class Presenter
-  : public QObject
-{
-  Q_OBJECT
-
-public:
-
-  Presenter() : QObject(){}
-  virtual ~Presenter() = default;
-
-public slots:
-
- /*!
-  * \brief Show help
-  */
-  virtual void help() = 0;
-
- /*!
-  * \brief Open
-  */
-  virtual void open() = 0;
-
-  /*!
-   * \brief Set Help
-   * \param[in] help
-   */
-  virtual void setHelp(HelpDialog *help) = 0;
+  void help() override;
+  void open() override;
+  void setHelp(HelpDialog *help) override;
 
 private:
 
-  /*!
-   * \brief Class Initialization
-   */
-  virtual void init() = 0;
+  void init() override;
+  void initSignalAndSlots() override;
 
-  /*!
-   * \brief Signal and slots initialization
-   */
-  virtual void initSignalAndSlots() = 0;
+public slots:
+
+// MatchViewerPresenter interface
+
+
+protected slots:
+
+private:
+
+  MatchViewerView *mView;
+  MatchViewerModel *mModel;
+  HelpDialog *mHelp;
+
 };
-
 
 } // namespace graphos
 
-#endif // GRAPHOS_MVP_H
+#endif // GRAPHOS_MATCH_VIEWER_PRESENTER_H

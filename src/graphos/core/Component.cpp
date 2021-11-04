@@ -24,7 +24,6 @@
 
 #include "Component.h"
 
-#include "graphos/interfaces/mvp.h"
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/process/ProcessPresenter.h"
 
@@ -145,7 +144,7 @@ Model *ComponentBase::model()
   return mModel;
 }
 
-QDialog *ComponentBase::view()
+View *ComponentBase::view()
 {
   return mView;
 }
@@ -160,7 +159,7 @@ void ComponentBase::setModel(Model *model)
   mModel = model;
 }
 
-void ComponentBase::setView(QDialog *view)
+void ComponentBase::setView(View *view)
 {
   mView = view;
 }

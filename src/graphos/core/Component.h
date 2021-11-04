@@ -26,6 +26,7 @@
 #define GRAPHOS_COMPONENT_H
 
 #include "graphos/interfaces/Component.h"
+#include "graphos/interfaces/mvp.h"
 #include "graphos/core/Application.h"
 
 #include <QString>
@@ -36,8 +37,6 @@ class QDialog;
 namespace graphos
 {
 
-class Model;
-class Presenter;
 class ProgressHandler;
 
 
@@ -79,10 +78,10 @@ public:
 protected:
 
   Model *model();
-  QDialog *view();
+  View *view();
   Presenter *presenter();
   void setModel(Model *model);
-  void setView(QDialog *view);
+  void setView(View *view);
   void setPresenter(Presenter *presenter);
   Application *app();
 
@@ -93,7 +92,7 @@ private:
   QString mName;
   QAction *mAction;
   Model *mModel;
-  QDialog *mView;
+  View *mView;
   Presenter *mPresenter;
   Application *mApplication;
 };

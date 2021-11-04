@@ -5,7 +5,7 @@ add_subdirectory(graphos/process)
 
 if (BUILD_GRAPHOS)
 add_subdirectory(graphos/widgets)
-add_subdirectory(graphos/ui)
+add_subdirectory(graphos/components)
 endif (BUILD_GRAPHOS)
 
 if(BUILD_GRAPHOS_COMMANDS)
