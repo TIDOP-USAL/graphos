@@ -17,6 +17,8 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             settings.h
             image.cpp
             image.h
+            Pdf.cpp
+            Pdf.h
             process/ProcessPresenter.cpp
             process/ProcessPresenter.h            
             process/ProcessView.cpp
@@ -74,6 +76,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 target_link_libraries(${PROJECT_NAME} PRIVATE glog::glog)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE CSF)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::PrintSupport)
 
 #if(BUILD_SHARED_LIBS)
 #    

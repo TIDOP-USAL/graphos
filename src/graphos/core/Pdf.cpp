@@ -155,13 +155,13 @@ QPen TablePdf::borderTable(Border border) const
   return mBorders.at(border);
 }
 
-const TablePdf::Cell *TablePdf::getCell(int r, int c) const
+const TablePdf::Cell *TablePdf::cell(int r, int c) const
 {
   if (r < mRows && c < mCols) {
     if (c < mValues[r].size())
       return &mValues[r][c];
   } 
-  return NULL;
+  return nullptr;
 }
 
 int TablePdf::cols() const
@@ -179,7 +179,7 @@ PdfStyle TablePdf::styleTable() const
   return mStyleTable;
 }
 
-const char *TablePdf::value(int r, int c) const
+QString TablePdf::value(int r, int c) const
 {
   if (r < mRows && c < mCols) {
     if (c < mValues[r].size())
@@ -188,14 +188,19 @@ const char *TablePdf::value(int r, int c) const
   return NULL;
 }
 
-void TablePdf::setBorderCell(int r, int c, TablePdf::Border border, const QPen &pen)
+void TablePdf::setBorderCell(int r,
+                             int c, 
+                             TablePdf::Border border,
+                             const QPen &pen)
 {
   if (r >= 0 && r < mRows && c >= 0 && c < mCols) {
     mValues[r][c].setBorder(border, pen);
   }
 }
 
-void TablePdf::setBorderCol(int c, TablePdf::Border border, const QPen &pen)
+void TablePdf::setBorderCol(int c, 
+                            TablePdf::Border border, 
+                            const QPen &pen)
 {
   if (c >= 0 && c < mCols) {
     for (int r = 0; r < mRows; r++) {
@@ -204,7 +209,12 @@ void TablePdf::setBorderCol(int c, TablePdf::Border border, const QPen &pen)
   }
 }
 
-void TablePdf::setBorderRange(int r1, int c1, int r2, int c2, TablePdf::Border border, const QPen &pen)
+void TablePdf::setBorderRange(int r1, 
+                              int c1, 
+                              int r2, 
+                              int c2, 
+                              TablePdf::Border border, 
+                              const QPen &pen)
 {
   if (r1 >= 0 && r1 < mRows && c1 >= 0 && c1 < mCols && 
       r2 >= 0 && r2 < mRows && c2 >= 0 && c2 < mCols) {
@@ -220,7 +230,9 @@ void TablePdf::setBorderRange(int r1, int c1, int r2, int c2, TablePdf::Border b
   }
 }
 
-void TablePdf::setBorderRow(int r, TablePdf::Border border, const QPen &pen)
+void TablePdf::setBorderRow(int r, 
+                            TablePdf::Border border, 
+                            const QPen &pen)
 {
   if (r >= 0 && r < mRows) {
     for (int c = 0; c < mCols; c++) {
@@ -229,7 +241,8 @@ void TablePdf::setBorderRow(int r, TablePdf::Border border, const QPen &pen)
   }
 }
 
-void TablePdf::setBorderTable(Border border, const QPen &pen)
+void TablePdf::setBorderTable(Border border,
+                              const QPen &pen)
 {
   switch (border) {
   case Border::none:
@@ -270,7 +283,9 @@ void TablePdf::setRows(int rows)
   updateTable();
 }
 
-void TablePdf::setSpacingCol(int c, TablePdf::Border border, int spacing)
+void TablePdf::setSpacingCol(int c, 
+                             TablePdf::Border border, 
+                             int spacing)
 {
   if (c >= 0 && c < mCols) {
     for (int r = 0; r < mRows; r++) {
@@ -279,7 +294,9 @@ void TablePdf::setSpacingCol(int c, TablePdf::Border border, int spacing)
   }
 }
 
-void TablePdf::setSpacingRow(int r, TablePdf::Border border, int spacing)
+void TablePdf::setSpacingRow(int r, 
+                             TablePdf::Border border,
+                             int spacing)
 {
   if (r >= 0 && r < mRows) {
     for (int c = 0; c < mCols; c++) {
@@ -288,7 +305,8 @@ void TablePdf::setSpacingRow(int r, TablePdf::Border border, int spacing)
   }
 }
 
-void TablePdf::setSpacingTable(TablePdf::Border border, int spacing)
+void TablePdf::setSpacingTable(TablePdf::Border border, 
+                               int spacing)
 {
   for (int r = 0; r < mRows; r++) {
     for (int c = 0; c < mCols; c++) {
@@ -298,14 +316,17 @@ void TablePdf::setSpacingTable(TablePdf::Border border, int spacing)
 }
 
 
-void TablePdf::setStyleCell(int r, int c, const PdfStyle &style)
+void TablePdf::setStyleCell(int r, 
+                            int c, 
+                            const PdfStyle &style)
 {
   if (r >= 0 && r < mRows && c >= 0 && c < mCols) {
     mValues[r][c].setStyle(style);
   }
 }
 
-void TablePdf::setStyleCol(int c, const PdfStyle &style)
+void TablePdf::setStyleCol(int c,
+                           const PdfStyle &style)
 {
   if (c >= 0 && c < mCols) {
     for (int r = 0; r < mRows; r++) {
@@ -314,7 +335,11 @@ void TablePdf::setStyleCol(int c, const PdfStyle &style)
   }
 }
 
-void TablePdf::setStyleRange(int r1, int c1, int r2, int c2, const PdfStyle &style)
+void TablePdf::setStyleRange(int r1, 
+                             int c1, 
+                             int r2, 
+                             int c2, 
+                             const PdfStyle &style)
 {
   //TODO: Ver si utilizo esta expresiÃ³n o relleno lo que se pueda
   if (r1 >= 0 && r1 < mRows && c1 >= 0 && c1 < mCols && 
@@ -331,7 +356,8 @@ void TablePdf::setStyleRange(int r1, int c1, int r2, int c2, const PdfStyle &sty
   }
 }
 
-void TablePdf::setStyleRow(int r, const PdfStyle &style)
+void TablePdf::setStyleRow(int r, 
+                           const PdfStyle &style)
 {
   if (r >= 0 && r < mRows) {
     for (int c = 0; c < mCols; c++) {
@@ -345,12 +371,21 @@ void TablePdf::setStyleTable(const PdfStyle &style)
   mStyleTable = style;
 }
 
-void TablePdf::setValue(int r, int c, const std::string &value, int colspan, int rowspan)
+void TablePdf::setValue(int r,
+                        int c, 
+                        const QString &value,
+                        int colspan,
+                        int rowspan)
 {
   setValue(r, c, value, nullptr, colspan, rowspan);
 }
   
-void TablePdf::setValue(int r, int c, const std::string &value, const PdfStyle *style, int colspan, int rowspan)
+void TablePdf::setValue(int r,
+                        int c, 
+                        const QString &value, 
+                        const PdfStyle *style,
+                        int colspan, 
+                        int rowspan)
 {
   if (rowspan < 1) rowspan = 1;
   if (colspan < 1) colspan = 1;
@@ -402,7 +437,7 @@ TablePdf::Cell::Cell(TablePdf *parent)
   setSpacing(Border::all, 15);
 }
 
-TablePdf::Cell::Cell(std::string value, 
+TablePdf::Cell::Cell(QString value,
                      int colspan, 
                      int rowspan) 
   : mParent(nullptr),
@@ -453,9 +488,9 @@ PdfStyle TablePdf::Cell::style() const
   return mStyle;
 }
 
-const char *TablePdf::Cell::text() const
+QString TablePdf::Cell::text() const
 {
-  return mText.c_str();
+  return mText;
 }
 
 bool TablePdf::Cell::isSpan() const
@@ -547,14 +582,14 @@ void TablePdf::Cell::setStyle(const PdfStyle &style)
   mStyle = style;
 }
 
-void TablePdf::Cell::setText(const std::string &text)
+void TablePdf::Cell::setText(const QString &text)
 {
   mText = text;
 }
 
 
 
-Pdf::Pdf(const char *file)
+Pdf::Pdf(const QString &file)
   : mFile(file),
     pPdfWriter(new QPdfWriter(file)),
     pPainter(0),
@@ -584,7 +619,7 @@ Pdf::~Pdf()
   //if (mTextBodyFont) delete mTextBodyFont;
 }
 
-void Pdf::addHeader(const char *text)
+void Pdf::addHeader(const QString &text)
 {
   bHeader = true;
   mHeaderText = text;
@@ -597,50 +632,53 @@ void Pdf::addHeader(std::function<void(QRect *)> f)
 }
 
 
-void Pdf::addFooter(const char *text)
+void Pdf::addFooter(const QString &text)
 {
   bFooter = true;
   mFooterText = text;
 }
 
-void Pdf::drawTitle(const char *text)
+void Pdf::drawTitle(const  QString &text)
 {
   drawTextBlock(text, mTitleStyle);
 }
 
-void Pdf::drawHeading1(const char *text)
+void Pdf::drawHeading1(const  QString &text)
 {
   drawTextBlock(text, mHeading1Style);
 }
 
-void Pdf::drawHeading2(const char *text)
+void Pdf::drawHeading2(const QString &text)
 {
   drawTextBlock(text, mHeading2Style);
 }
 
-void Pdf::drawHeading3(const char *text)
+void Pdf::drawHeading3(const QString &text)
 {
   drawTextBlock(text, mHeading3Style);
 }
 
-void Pdf::drawText(const char *text)
+void Pdf::drawText(const QString &text)
 {
   drawTextBlock(text, mDefStyle);
 }
 
-void Pdf::drawTextBody(const char *text)
+void Pdf::drawTextBody(const QString &text)
 {
   drawTextBlock(text, mTextBodyStyle);
 }
 
-void Pdf::drawImage(const char *img, const std::string &caption)
+QRect Pdf::drawImage(const QString &img, const QString &caption)
 {
-  drawImage(QImage(img), caption);
+  return drawImage(QImage(img), caption);
 }
 
-void Pdf::drawImage(const QImage &image, const std::string &caption)
+QRect Pdf::drawImage(const QImage &image, const QString &caption)
 {
+  QRect used_rect(mX, mY, mWidth, 0);
+
   if (!image.isNull()) {
+
     QImage _image = image;
   
     double scale = pPdfWriter->logicalDpiX() / _image.logicalDpiX();
@@ -653,18 +691,23 @@ void Pdf::drawImage(const QImage &image, const std::string &caption)
 
     int height = _image.height();
     int captionHeight = 0;
-    if (caption.empty() == false) {
+    if (caption.isEmpty() == false) {
       PdfStyle style(QFont("Helvetica", 6, QFont::StyleItalic));
       QFontMetrics fontMetrics(style.font(), pPainter->device());
-      QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), caption.c_str());
+      QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), caption);
       captionHeight = checkRect.height();
       height += checkRect.height() * 2;
     }
 
-    if (height > mHeight)
+    if (height > mHeight) {
+      QRect rect(mX, mRectBody.y(), mWidth, mRectBody.height());
       newPage();
+      setPaintRect(rect);
+      used_rect.setY(rect.y());
+    }
+      
 
-    int x = (mWidth - _image.width()) / 2;
+    int x = mX + (mWidth - _image.width()) / 2;
     if (x < 0) x = 0;
 
     QRect rect(x, mY, _image.width(), _image.height());
@@ -673,24 +716,28 @@ void Pdf::drawImage(const QImage &image, const std::string &caption)
     mY += _image.height();
     mHeight -= _image.height();
 
-    if (caption.empty() == false) {
-      std::string legend("Imagen ");
-      legend.append(std::to_string(++mImgCaption));
+    if (caption.isEmpty() == false) {
+      QString legend("Imagen ");
+      legend.append(QString::number(++mImgCaption));
       legend.append(": ");
       legend.append(caption);
       PdfStyle style(QFont("Helvetica", 6, QFont::Normal, true));
       pPainter->setFont(style.font());
       QRect usedRect;
-      pPainter->drawText(QRect::QRect(x, mY + captionHeight / 2, mWidth, mHeight), style.options(), legend.c_str(), &usedRect);
+      pPainter->drawText(QRect::QRect(x, mY + captionHeight / 2, mWidth, mHeight), style.options(), legend, &usedRect);
       pPainter->setFont(mCurrentStyle.font());
     }
 
     mY += captionHeight + mSpace;
     mHeight -= (captionHeight + mSpace);
+
+    used_rect.setHeight(mY - used_rect.y());
   }
+ 
+  return used_rect;
 }
 
-void Pdf::drawList(const char *text)
+void Pdf::drawList(const QString &text)
 {
   if (pPainter) {
     QRect usedRect;
@@ -717,10 +764,13 @@ void Pdf::drawList(const char *text)
   }
 }
 
-void Pdf::drawTable(const TablePdf &table, const std::string &caption)
+QRect Pdf::drawTable(const TablePdf &table,
+                    const QString &caption)
 {
+  QRect rect(mX, mY, mWidth, 0);
+
   if (pPainter) {
-    //TODO: calcular tamaÃ±o y ver si hay que cambiar de pÃ¡gina
+    //TODO: calcular tamaño y ver si hay que cambiar de pÃ¡gina
     int rows = table.rows();
     int cols = table.cols();
     std::vector<int> maxHeight(rows, -std::numeric_limits<double>().max());
@@ -729,7 +779,7 @@ void Pdf::drawTable(const TablePdf &table, const std::string &caption)
     for (int r = 0; r < rows; r++) {
 
       for (int c = 0; c < cols; c++) {
-        const TablePdf::Cell *cell = table.getCell(r, c);
+        const TablePdf::Cell *cell = table.cell(r, c);
         PdfStyle style = cell->style();
         QFontMetrics fontMetrics(style.font(), pPainter->device());
 
@@ -751,7 +801,7 @@ void Pdf::drawTable(const TablePdf &table, const std::string &caption)
 
       // Se vuelve a recorrer para ajustar con las celdas unidas
       for (int c = 0; c < cols; c++) {
-        const TablePdf::Cell *cell = table.getCell(r, c);
+        const TablePdf::Cell *cell = table.cell(r, c);
         PdfStyle style = cell->style();
         QFontMetrics fontMetrics(style.font(), pPainter->device());
         if (cell->colspan() > 1) {
@@ -789,26 +839,29 @@ void Pdf::drawTable(const TablePdf &table, const std::string &caption)
     }
 
     int captionHeight = 0;
-    if (caption.empty() == false) {
+    if (caption.isEmpty() == false) {
       PdfStyle style(QFont("Helvetica", 6, QFont::StyleItalic));
       QFontMetrics fontMetrics(style.font(), pPainter->device());
-      QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), caption.c_str());
+      QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), caption);
       captionHeight = checkRect.height();
       total_height += checkRect.height() * 2;
     }
 
-    if (total_height > mHeight)
+    if (total_height > mHeight) {
+      QRect rect(mX, mRectBody.y(), mWidth, mRectBody.height());
       newPage();
+      setPaintRect(rect);
+    }
 
     //int height = table_height / rows;
-    int x = (mWidth - total_width) / 2;
+    int x = mX + (mWidth - total_width) / 2;
 
     QRect rectCell;
     QRect rectText;
     for (int r = 0; r < rows; r++) {
       mX = x;
       for (int c = 0; c < cols; c++) {
-        const TablePdf::Cell *cell = table.getCell(r, c);
+        const TablePdf::Cell *cell = table.cell(r, c);
         if (cell->isSpan() == false) {
           int _height = cell->rowspan() <= 1 ? maxHeight[r] : maxHeight[r] * cell->rowspan();
           int width = maxWidth[c];
@@ -890,15 +943,15 @@ void Pdf::drawTable(const TablePdf &table, const std::string &caption)
     mHeight -= total_height;
 
 
-    if (caption.empty() == false) {
-      std::string legend("Tabla ");
-      legend.append(std::to_string(++mTableCaption));
+    if (caption.isEmpty() == false) {
+      QString legend("Tabla ");
+      legend.append(QString::number(++mTableCaption));
       legend.append(": ");
       legend.append(caption);
       PdfStyle style(QFont("Helvetica", 6, QFont::Normal, true));
       pPainter->setFont(style.font());
       QRect usedRect;
-      pPainter->drawText(QRect::QRect(x, mY + captionHeight / 2, mWidth, mHeight), style.options(), legend.c_str(), &usedRect);
+      pPainter->drawText(QRect::QRect(x, mY + captionHeight / 2, mWidth, mHeight), style.options(), legend, &usedRect);
       pPainter->setFont(mCurrentStyle.font());
 
       mY += usedRect.height();
@@ -906,7 +959,12 @@ void Pdf::drawTable(const TablePdf &table, const std::string &caption)
     }
 
     newLine();
+
+    rect.setHeight(mY - rect.y());
+
   }
+
+  return rect;
 }
 
 void Pdf::endDraw()
@@ -938,7 +996,7 @@ void Pdf::initDraw()
     // Se reserva espacio para la cabecera
     if (bHeader) {
       QFontMetrics fontMetrics(mHeaderStyle.font(), pPainter->device());
-      QRect aux_rect = fontMetrics.boundingRect(rect, mHeaderStyle.options(), mHeaderText.c_str());
+      QRect aux_rect = fontMetrics.boundingRect(rect, mHeaderStyle.options(), mHeaderText);
       mRectHeader.setX(rect.x());
       mRectHeader.setY(rect.y());
       mRectHeader.setWidth(rect.width());
@@ -952,7 +1010,7 @@ void Pdf::initDraw()
     // Se reserva espacio para el pie de pÃ¡gina
     if (bFooter) {
       QFontMetrics fontMetrics(mFooterStyle.font(), pPainter->device());
-      QRect aux_rect = fontMetrics.boundingRect(rect, mFooterStyle.options(), mFooterText.c_str());
+      QRect aux_rect = fontMetrics.boundingRect(rect, mFooterStyle.options(), mFooterText);
       int h = aux_rect.height() * 3;
 
       mRectFooter.setX(rect.x());
@@ -1004,13 +1062,16 @@ void Pdf::newPage()
   }
 }
 
-void Pdf::setCreator(const char *creator)
+void Pdf::setCreator(const QString &creator)
 {
   pPdfWriter->setCreator(creator);
-  mTagValues["Creator"] = creator;
+  mTagValues["Creator"] = creator.toStdString();
 }
 
-void Pdf::setFont(const char *family, int pointSize, int weight, bool italic)
+void Pdf::setFont(const QString &family,
+                  int pointSize, 
+                  int weight, 
+                  bool italic)
 {
   mCurrentStyle.setFont(family, pointSize, weight, italic);
   if (pPainter) {
@@ -1026,7 +1087,10 @@ void Pdf::setFontDefault()
   }
 }
 
-void Pdf::setMargins(int left, int right, int top, int bottom)
+void Pdf::setMargins(int left, 
+                     int right, 
+                     int top, 
+                     int bottom)
 {
   if (!bIniDraw) {
     QPagedPaintDevice::Margins margins;
@@ -1159,17 +1223,17 @@ void Pdf::setPageSize(Pdf::PageSize pageSize)
   }
 }
 
-void Pdf::setTitle(const char *title)
+void Pdf::setTitle(const QString &title)
 {
   pPdfWriter->setTitle(title);
-  mTagValues["Title"] = title;
+  mTagValues["Title"] = title.toStdString();
 }
 
 void Pdf::show()
 {
-  QFileInfo fileInfo(mFile.c_str());
+  QFileInfo fileInfo(mFile);
   if (fileInfo.exists()) {
-    QDesktopServices::openUrl(QUrl::fromLocalFile(mFile.c_str()));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(mFile));
   }
 }
 
@@ -1178,7 +1242,8 @@ void Pdf::update()
 
 }
 
-void Pdf::drawTextBlock(const char *text, const PdfStyle &style)
+void Pdf::drawTextBlock(const QString &text, 
+                        const PdfStyle &style)
 {
   if (pPainter) {
     pPainter->setFont(style.font());
@@ -1212,9 +1277,8 @@ void Pdf::drawHeader()
   if (pPainter) {
     pPainter->setFont(mHeaderStyle.font());
     pPainter->setPen(QPen(Qt::darkGray));
-    std::string header_text;
-    replace(mHeaderText, &header_text);
-    pPainter->drawText(mRectHeader, mHeaderStyle.options(), header_text.c_str());
+    QString header_text = replace(mHeaderText);
+    pPainter->drawText(mRectHeader, mHeaderStyle.options(), header_text);
     pPainter->setFont(mCurrentStyle.font());
     pPainter->setPen(QPen(Qt::black));
   }
@@ -1225,34 +1289,32 @@ void Pdf::drawFooter()
   if (pPainter) {
     pPainter->setFont(mFooterStyle.font());
     pPainter->setPen(QPen(Qt::darkGray));
-    std::string footer_text;
-    replace(mFooterText, &footer_text);
-    pPainter->drawText(mRectFooter, mFooterStyle.options(), footer_text.c_str());
+    QString footer_text = replace(mFooterText);
+    pPainter->drawText(mRectFooter, mFooterStyle.options(), footer_text);
     pPainter->setFont(mCurrentStyle.font());
     pPainter->setPen(QPen(Qt::black));
   }
 }
 
-int Pdf::replace(const std::string &input, std::string *output) const
+QString Pdf::replace(const QString &input) const
 {
-  int i_ret = 0;
-  *output = input;
-  std::size_t ini = output->find("#");
+  std::string output = input.toStdString();
+  std::size_t ini = output.find("#");
   std::size_t end;
   while (ini!=std::string::npos)
   {
-    end = output->find("#", ini+1);
+    end = output.find("#", ini+1);
     int size = end-ini+1;
-    std::string tagString = output->substr(ini+1,end-(ini+1));
+    std::string tagString = output.substr(ini+1,end-(ini+1));
     std::string replaceText = "";
     std::map<std::string, std::string>::const_iterator it = mTagValues.find(tagString);
     if (it != mTagValues.end())
       replaceText.append(it->second);
 
-    output->replace(ini, size, replaceText);
-    ini = output->find("#", replaceText.size());
+    output.replace(ini, size, replaceText);
+    ini = output.find("#", replaceText.size());
   }
-  return i_ret;
+  return QString::fromStdString(output);
 }
 
 
@@ -1310,6 +1372,24 @@ PdfStyle Pdf::textBodyStyle() const
 void Pdf::setTextBodyStyle(const PdfStyle &textBodyStyle)
 {
   mTextBodyStyle = textBodyStyle;
+}
+
+QRect Pdf::rectBody() const
+{
+  return mRectBody;
+}
+
+QPoint Pdf::currentPosition() const
+{
+  return QPoint(mX, mY);
+}
+
+void Pdf::setPaintRect(const QRect &rect)
+{
+  mX = rect.x();
+  mY = rect.y();
+  mWidth = rect.width();
+  mHeight = rect.height();
 }
 
 
