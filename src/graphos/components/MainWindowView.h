@@ -128,6 +128,10 @@ public:
   void deleteSparseModel();
   void setDenseModel(const QString &sparseModel);
   void deleteDenseModel();
+  void setDSM(const QString &dsm);
+  void deleteDsm();
+  void setOrtho(const QString &ortho);
+  void deleteOrtho();
 
   /*!
    * \brief Añade un mensaje temporal en la barra de herramientas
@@ -228,6 +232,9 @@ signals:
   void imagesLoaded();
 
   void openModel3D(QString, bool);
+
+  void openDtm();
+  void openOrtho(QString);
 
   //void openImageMatches(QString, QString, QString);
 

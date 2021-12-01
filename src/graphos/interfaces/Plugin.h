@@ -75,7 +75,8 @@ public:
   virtual QString menu() const = 0;
   virtual QString toolbar() const = 0;
   virtual std::list<std::shared_ptr<graphos::Component>> components() = 0;
-
+  //virtual graphos::Component *component(size_t id) = 0;
+  //virtual size_t size() const = 0;
 };
 
 

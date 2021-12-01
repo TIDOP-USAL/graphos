@@ -44,6 +44,8 @@ MainWindowModel::MainWindowModel(Project *project)
 
 std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &image) const
 {
+  tl::MessageManager::pause();
+
   std::list<std::pair<QString, QString>> exif;
 
   QByteArray ba = image.toLocal8Bit();
@@ -124,6 +126,8 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
     exif.push_back(std::make_pair(QString("Focal plane XRes"), QString::number(result.LensInfo.FocalPlaneXResolution)));
     exif.push_back(std::make_pair(QString("Focal plane YRes"), QString::number(result.LensInfo.FocalPlaneYResolution)));
   }
+
+  tl::MessageManager::resume();
 
   return exif;
 }

@@ -463,23 +463,31 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
 
     mSiftGpu->GetFeatureVector(keypoints_data.data(), descriptors_float.data());
 
-    //size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
-    size_t max_features = feature_number;
+    size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
+    //size_t max_features = feature_number;
     keyPoints.resize(max_features);
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float_resize(max_features, descriptors_float.cols());
     for (size_t i = 0; i < max_features; i++){
       keyPoints[i] = colmap::FeatureKeypoint(keypoints_data[i].x, keypoints_data[i].y,
                                              keypoints_data[i].s, keypoints_data[i].o);
+      /// Ver si se puede mejorar
+      for (size_t j = 0; j < descriptors_float.cols(); j++) {
+        descriptors_float_resize(i, j) = descriptors_float(i, j);
+      }
     }
 
+    /// Destruye el contenido
+    ///descriptors_float.resize(max_features, Eigen::NoChange);
+
     if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L2){
-      descriptors_float = colmap::L2NormalizeFeatureDescriptors(descriptors_float);
+      descriptors_float_resize = colmap::L2NormalizeFeatureDescriptors(descriptors_float_resize);
     } else if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT){
-      descriptors_float = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float);
+      descriptors_float_resize = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float_resize);
     } else {
       throw std::runtime_error("Description normalization type not supported");
     }
-
-    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
+    
+    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float_resize);
 
   } catch (std::exception &e) {
     msgError("SIFT Detector exception");

@@ -79,6 +79,10 @@ void CamerasComponent::createPresenter()
           this, &CamerasComponent::onUpdateCameras); 
 }
 
+void CamerasComponent::createCommand()
+{
+}
+
 void CamerasComponent::update()
 {
   Application *app = this->app();

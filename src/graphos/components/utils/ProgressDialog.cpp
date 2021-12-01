@@ -34,7 +34,8 @@ namespace graphos
 
 ProgressDialogImp::ProgressDialogImp(QWidget *parent)
   : ProgressDialog(parent),
-    ui(new Ui::ProgressDialog)
+    ui(new Ui::ProgressDialog),
+    mAutoClose(false)
 {
   this->initUI();
   this->initSignalAndSlots();
@@ -85,6 +86,11 @@ void ProgressDialogImp::setStatusText(QString text)
   ui->labelStatus->setText(text);
 }
 
+void ProgressDialogImp::setCloseAuto(bool active)
+{
+  mAutoClose = active;
+}
+
 void ProgressDialogImp::setRange(int min, int max)
 {
   ui->progressBar->setRange(min, max);
@@ -109,8 +115,10 @@ void ProgressDialogImp::setFinished()
   ui->pushButtonCancel->setVisible(false);
   ui->pushButtonClose->setVisible(true);
   ui->pushButtonClose->setText(tr("Close"));
-  if (!this->isVisible()){
+  if (!this->isVisible() && !mAutoClose){
     this->show();
+  } else if (mAutoClose) {
+    this->close();
   }
   ui->pushButtonMinimize->setDisabled(true);
 }
@@ -128,7 +136,7 @@ void ProgressDialogImp::onMinimized()
 void ProgressDialogImp::onPushButtonCancelClicked()
 {
   emit cancel();
-  close();
+  this->close();
 }
 
 } // namespace graphos

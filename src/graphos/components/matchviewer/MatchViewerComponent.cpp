@@ -74,6 +74,10 @@ void MatchViewerComponent::createPresenter()
                                            dynamic_cast<MatchViewerModel *>(model())));
 }
 
+void MatchViewerComponent::createCommand()
+{
+}
+
 void MatchViewerComponent::update()
 {
   Application *app = this->app();

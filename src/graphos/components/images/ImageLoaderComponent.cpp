@@ -71,6 +71,10 @@ void ImageLoaderComponent::createPresenter()
           this, &ImageLoaderComponent::imageLoaded);
 }
 
+void ImageLoaderComponent::createCommand()
+{
+}
+
 void ImageLoaderComponent::update()
 {
   Application *app = this->app();

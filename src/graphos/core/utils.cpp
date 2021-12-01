@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <graphos/core/Pdf.h>
+
 #include <tidop/core/messages.h>
 
 #ifdef HAVE_CUDA
@@ -240,6 +242,12 @@ TL_EXPORT bool cudaEnabled(double minDriver, double minCapability)
   return bUseGPU;
 }
 
+void openPdf(const QString &pdf)
+{
+  Pdf pdf_file(pdf);
+  pdf_file.show();
+}
+
 
 LogStreamBuf::LogStreamBuf(std::streambuf *sb)
   : std::streambuf(),
@@ -304,5 +312,7 @@ std::streambuf *LogStream::rdbuf()
 {
   return &mLogStreamBuf;
 }
+
+
 
 } // end namespace graphos

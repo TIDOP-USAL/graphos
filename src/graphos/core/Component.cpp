@@ -26,6 +26,9 @@
 
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/command.h"
+
+//#include <tidop/core/console.h>
 
 #include <QAction>
 
@@ -37,6 +40,7 @@ ComponentBase::ComponentBase(Application *application)
     mModel(nullptr),
     mView(nullptr),
     mPresenter(nullptr),
+    //mCommand(nullptr),
     mApplication(application)
 {
   ComponentBase::init();
@@ -68,12 +72,14 @@ ComponentBase::~ComponentBase()
 
 void ComponentBase::init()
 {
+
   ComponentBase::createAction();
 
   connect(mAction, &QAction::triggered,
           this, &ComponentBase::createComponent);
   connect(mApplication->status(), &AppStatus::update,
           this, &ComponentBase::update);
+
 }
 
 void ComponentBase::createComponent()
@@ -103,6 +109,10 @@ void ComponentBase::createAction()
   mAction = new QAction();
 }
 
+//void ComponentBase::createCommand()
+//{
+//}
+
 QString ComponentBase::name() const
 {
   return mName;
@@ -121,6 +131,14 @@ QString ComponentBase::menu() const
 QString ComponentBase::toolbar() const
 {
   return mToolbar;
+}
+
+std::shared_ptr<Command> ComponentBase::command()
+{
+  if (!mCommand) {
+    this->createCommand();
+  }
+  return mCommand;
 }
 
 void ComponentBase::setName(const QString &name)
@@ -167,6 +185,11 @@ void ComponentBase::setView(View *view)
 void ComponentBase::setPresenter(Presenter *presenter)
 {
   mPresenter = presenter;
+}
+
+void ComponentBase::setCommand(std::shared_ptr<Command> command)
+{
+  mCommand = command;
 }
 
 Application *ComponentBase::app()

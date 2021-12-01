@@ -266,7 +266,11 @@ void MainWindowPresenter::updateProject()
   app_status->activeFlag(AppStatus::Flag::oriented, false);
   app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
   app_status->activeFlag(AppStatus::Flag::dense_model, false);
+  app_status->activeFlag(AppStatus::Flag::dtm, false);
+  app_status->activeFlag(AppStatus::Flag::ortho, false);
 
+  this->loadOrtho();
+  this->loadDTM();
   this->loadDenseModel();
   this->loadOrientation();
   this->loadMatches(); /// TODO: cambiar a update matches
@@ -343,7 +347,7 @@ void MainWindowPresenter::loadDenseModel()
 {
   QString dense_model = mProjectModel->denseModel();
   if (!dense_model.isEmpty()) {
-    mView->setDenseModel(mProjectModel->denseModel());
+    mView->setDenseModel(dense_model);
     Application &app = Application::instance();
     app.status()->activeFlag(AppStatus::Flag::dense_model, true);
   } else {
@@ -355,16 +359,24 @@ void MainWindowPresenter::loadDTM()
 {
   QString dtm = mProjectModel->dtm();
   if (!dtm.isEmpty()) {
-    //mView->setDTM(dtm);
+    mView->setDSM(dtm);
     Application &app = Application::instance();
     app.status()->activeFlag(AppStatus::Flag::dtm, true);
   } else {
-    //mView->deleteDTM();
+    mView->deleteDsm();
   }
 }
 
 void MainWindowPresenter::loadOrtho()
 {
+  //QString ortho = mProjectModel->ortho();
+  //if (!ortho.isEmpty()) {
+  //  mView->setOrtho(ortho);
+  //  Application& app = Application::instance();
+  //  app.status()->activeFlag(AppStatus::Flag::ortho, true);
+  //} else {
+  //  mView->deleteOrtho();
+  //}
 }
 
 void MainWindowPresenter::openImage(const QString &imageName)
@@ -472,6 +484,15 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
       }
     }
 
+  } catch (std::exception &e) {
+    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+  }
+}
+
+void MainWindowPresenter::openDtm()
+{
+  try {
+    //mTabHandler->setImage(mProjectModel->dtm());
   } catch (std::exception &e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
   }
@@ -606,6 +627,9 @@ void MainWindowPresenter::initSignalAndSlots()
 
   connect(mView, SIGNAL(openModel3D(QString, bool)),          this, SLOT(openModel3D(QString, bool)));
 
+  /* Visor DTM/DSM */
+
+  connect(mView, SIGNAL(openDtm()), this, SLOT(openDtm()));
 }
 
 void MainWindowPresenter::initDefaultPath()

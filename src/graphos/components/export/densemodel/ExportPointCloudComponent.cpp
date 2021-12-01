@@ -65,6 +65,10 @@ void ExportPointCloudComponent::createPresenter()
                                                 dynamic_cast<ExportPointCloudModel *>(model())));
 }
 
+void ExportPointCloudComponent::createCommand()
+{
+}
+
 void ExportPointCloudComponent::update()
 {
   Application *app = this->app();

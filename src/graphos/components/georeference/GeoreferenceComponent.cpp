@@ -71,6 +71,10 @@ void GeoreferenceComponent::createPresenter()
           this, &GeoreferenceComponent::georeferenceFinished);
 }
 
+void GeoreferenceComponent::createCommand()
+{
+}
+
 void GeoreferenceComponent::update()
 {
   Application *app = this->app();

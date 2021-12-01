@@ -798,7 +798,9 @@ void ImportCamerasModelImp::importCameras()
 
 bool ImportCamerasModelImp::checkCRS(const QString &crs)
 {
+  tl::MessageManager::pause();
   tl::geospatial::Crs _crs(crs.toStdString());
+  tl::MessageManager::resume();
   return _crs.isValid();
 }
 

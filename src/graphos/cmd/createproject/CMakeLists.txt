@@ -5,9 +5,7 @@ include_directories(${CMAKE_SOURCE_DIR}/third_party)
 project(createproj LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME}
-               createproj.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/CreateProject.h)
+               createproj.cpp)
 
 target_link_libraries(${PROJECT_NAME}
                       graphos_core

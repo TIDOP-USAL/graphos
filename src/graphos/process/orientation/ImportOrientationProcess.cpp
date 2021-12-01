@@ -366,13 +366,13 @@ void ImportOrientationProcess::run()
             ofs << " 0.0 0.0";
           
           if (camera_type == "OPENCV")
-            ofs << " 0.0  0.0  0.0  0.0";
+            ofs << " 0.0 0.0 0.0 0.0";
 
           if (camera_type == "OPENCV_FISHEYE")
-            ofs << " 0.0  0.0  0.0  0.0";
+            ofs << " 0.0 0.0 0.0 0.0";
 
           if (camera_type == "FULL_OPENCV")
-            ofs << " 0.0  0.0  0.0  0.0 0.0  0.0  0.0  0.0";
+            ofs << " 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
 
           if (camera_type == "SIMPLE_RADIAL_FISHEYE")
             ofs << " 0.0";
@@ -381,7 +381,7 @@ void ImportOrientationProcess::run()
             ofs << " 0.0 0.0";
 
           if (camera_type == "THIN_PRISM_FISHEYE")
-            ofs << " 0.0  0.0  0.0  0.0 0.0  0.0  0.0  0.0";
+            ofs << " 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
 
           if (camera_type.compare("FULL_RADIAL") == 0)
             ofs << " 0.0 0.0 0.0 0.0 0.0 0.0";

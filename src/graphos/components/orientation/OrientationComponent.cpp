@@ -71,6 +71,10 @@ void OrientationComponent::createPresenter()
           this, &OrientationComponent::orientationDeleted);
 }
 
+void OrientationComponent::createCommand()
+{
+}
+
 void OrientationComponent::update()
 {
   Application *app = this->app();

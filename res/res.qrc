@@ -219,6 +219,7 @@
         <file>img/material/48/icons8-3d-model.png</file>
         <file>img/material/48/icons8-github-48.png</file>
         <file>img/material/48/icons8_remove_image_48px.png</file>
+		<file>img/material/48/icons8_calendar_1_48px.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>img/fbk.png</file>

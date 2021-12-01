@@ -21,61 +21,34 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_COMPONENT_H
-#define GRAPHOS_ORIENTATION_COMPONENT_H
 
-#include "graphos/core/Component.h"
+#ifndef GRAPHOS_COMMAND_H
+#define GRAPHOS_COMMAND_H
 
+
+#include <tidop/core/console.h>
 
 namespace graphos
 {
 
-class Project;
-class OrientationProcess;
-
-class OrientationComponent
-  : public ProcessComponent
+class Command
+  : public tl::Command
 {
-
-  Q_OBJECT
 
 public:
 
-  OrientationComponent(Project *project,
-                       Application *application);
-  ~OrientationComponent();
+  Command(std::string name,
+          std::string description) 
+    : tl::Command(std::move(name), std::move(description))
+  {}
+  virtual ~Command() = default;
 
-signals: 
-
-  void orientationFinished();
-  void orientationDeleted();
-
-// ComponentBase
-
-protected:
-
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
-
-// ProcessComponent
-
-protected slots:
-
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
-
-protected:
-
-  OrientationProcess *mProcess;
-  Project *mProject;
+  virtual bool run() = 0;
 
 };
+
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_ORIENTATION_COMPONENT_H
+#endif // GRAPHOS_COMMAND_H

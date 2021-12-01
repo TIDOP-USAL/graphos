@@ -21,23 +21,30 @@
  *                                                                      *
  ************************************************************************/
 
-
 #ifndef GRAPHOS_APPLICATION_H
 #define GRAPHOS_APPLICATION_H
 
 #include "graphos/graphos_global.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/console.h>
 
 #include <QObject>
 
 #include <memory>
 #include <mutex>
 
+namespace tl
+{
+class CommandList;
+}
+
+
 namespace graphos
 {
 
 class AppStatus;
+class Component;
 
 class Application
   : public QObject
@@ -62,11 +69,17 @@ public:
   AppStatus *status();
   tl::MessageManager *messageManager();
 
+  void addComponent(Component *component);
+  tl::CommandList::Status parse(int argc, char **argv);
+  bool runCommand();
+
 private:
 
   static std::unique_ptr<Application> sApplication;
   static std::mutex sMutex;
   AppStatus *mAppStatus;
+  std::list<Component *> mComponents;
+  tl::CommandList *mCommandList;
 };
 
 } // namespace graphos

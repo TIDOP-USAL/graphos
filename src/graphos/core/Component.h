@@ -34,11 +34,16 @@
 class QAction;
 class QDialog;
 
+//namespace tl
+//{
+//class Command;
+//}
+
 namespace graphos
 {
 
 class ProgressHandler;
-
+class Command;
 
 class ComponentBase
   : public Component
@@ -60,6 +65,7 @@ protected:
   virtual void createModel() = 0;
   virtual void createView() = 0;
   virtual void createPresenter() = 0;
+  virtual void createCommand() = 0;
   virtual void update() = 0;
 
 // Component
@@ -70,6 +76,7 @@ public:
   QAction *action() const override;
   QString menu() const override;
   QString toolbar() const override;
+  std::shared_ptr<Command> command() override;
 
   void setName(const QString &name) override;
   void setMenu(const QString &menu) override;
@@ -83,6 +90,7 @@ protected:
   void setModel(Model *model);
   void setView(View *view);
   void setPresenter(Presenter *presenter);
+  void setCommand(std::shared_ptr<Command> command);
   Application *app();
 
 private:
@@ -94,6 +102,7 @@ private:
   Model *mModel;
   View *mView;
   Presenter *mPresenter;
+  std::shared_ptr<Command> mCommand;
   Application *mApplication;
 };
 

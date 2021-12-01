@@ -498,6 +498,84 @@ private:
 
 };
 
+class PdfHeader
+{
+
+public:
+  
+  PdfHeader()
+    : bImage(false),
+      bText(false)
+  {
+  }
+
+  ~PdfHeader()
+  {
+  }
+
+  void addImage(const QImage &image, const QRect &rect)
+  {
+    bImage = true;
+    mImage = image;
+    mImageRect = rect;
+  }
+  void addText(const QString &text, const QRect &rect)
+  {
+    bText = true;
+    mText = text;
+    mTextRect = rect;
+  }
+
+  bool hasImage() const
+  {
+    return bImage;
+  }
+
+  bool hasText() const
+  {
+    return bText;
+  }
+
+  QImage image() const
+  {
+    return mImage;
+  }
+
+  QRect imageRect() const
+  {
+    return mImageRect;
+  }
+
+  QString text() const
+  {
+    return mText;
+  }
+
+  QRect textRect() const
+  {
+    return mTextRect;
+  }
+
+  PdfStyle style() const
+  {
+    return mStyle;
+  }
+
+  void setStyle(const PdfStyle &style)
+  {
+    mStyle = style;
+  }
+
+private:
+
+  bool bImage;
+  bool bText;
+  QImage mImage;
+  QRect mImageRect;
+  QString mText;
+  QRect mTextRect;
+  PdfStyle mStyle;
+};
 
 
 //TODO: listas númeradas
@@ -568,6 +646,12 @@ public:
 
   };
 
+  enum class PageOrientation
+  {
+    portrait,
+    landscape
+  };
+
 public:
 
   Pdf(const QString &file);
@@ -585,6 +669,7 @@ public:
    */
   void addHeader(const QString &text);
   void addHeader(std::function<void(QRect *)> f);
+  void addHeader(const PdfHeader &header);
 
   /*!
    * \brief Pie de página
@@ -601,13 +686,16 @@ public:
   //void drawText(Style style, const char *text, ...);
   void drawTextBody(const QString &text);
   QRect drawImage(const QString &img,
-                  const QString &caption = "");
+                  const QString &caption = "", 
+                  int options = Qt::AlignCenter);
   QRect drawImage(const QImage &image,
-                  const QString &caption = "");
+                  const QString &caption = "",
+                  int options = Qt::AlignCenter);
   void drawList(const QString &text);
   //void drawNumberedList(const char *text);
   QRect drawTable(const TablePdf &table,
                   const QString &caption = "");
+  void drawLine(const QPoint &pt1, const QPoint &pt2, PdfStyle &style = PdfStyle());
 
   void endDraw();
   void initDraw();
@@ -652,6 +740,8 @@ public:
    */
   void setPageSize(PageSize pageSize);
 
+  void setPageOrientation(PageOrientation pageOrientation);
+
   /*!
    * \brief Establece el titulo del documento pdf
    * \param[in] title Titulo del pdf
@@ -679,6 +769,10 @@ public:
   QPoint currentPosition() const;
   void setPaintRect(const QRect &rect);
 
+  QRect rectHeader() const
+  {
+    return mRectHeader;
+  }
 private:
 
   void update();
@@ -750,6 +844,7 @@ protected:
   int mSpace;
 
   PageSize mPageSize;
+  PageOrientation mPageOrientation;
 
   /*!
    * \brief Una vez que se empieza a dibujar no se pueden modificar las opciones de página.
@@ -770,8 +865,9 @@ protected:
    * \brief Texto del encabezado de página
    */
   QString mHeaderText;
+  PdfHeader mHeader;
 
-  std::function<void(QRect *)> *mHeaderFunction;
+  std::function<void(QRect *)> mHeaderFunction;
 
   /*!
    * \brief Texto del pie de página

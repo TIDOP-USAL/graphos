@@ -26,6 +26,10 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#include "graphos/components/createproject/CreateProjectComponent.h"
+#include "graphos/components/openproject/OpenProjectComponent.h"
+#include "graphos/components/import/cameras/ImportCamerasComponent.h"
+#include "graphos/components/cameras/CamerasComponent.h"
 #include "graphos/components/images/ImageLoaderComponent.h"
 #include "graphos/components/featextract/FeatureExtractorComponent.h"
 #include "graphos/components/featmatch/FeatureMatchingComponent.h"
@@ -41,7 +45,10 @@
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
+#include <tidop/core/console.h>
+
 #include <QApplication>
+#include <QAction>
 
 #ifdef HAVE_VLD
 #include "gflags/gflags.h"
@@ -56,84 +63,177 @@ int main(int argc, char *argv[])
 
   Application &app = Application::instance();
 
-  ComponentsManager componentsManager;
+  tl::Console &console = tl::Console::instance();
+  console.setMessageLevel(tl::MessageLevel::msg_verbose);
+  console.setTitle("Graphos");
+  app.messageManager()->addListener(&console);
 
-  //CreateProjectComponent create_project_component(componentsManager.project());
-  //componentsManager.registerComponent(&create_project_component);
-  //OpenProjectComponent open_project_component(componentsManager.project());
-  //componentsManager.registerComponent(&open_project_component);
+  ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
 
-  /* File menu */
+  /// Load Components
+
+  CreateProjectComponent create_project_component(componentsManager.project(), &app);
+  app.addComponent(&create_project_component);
+
+  OpenProjectComponent open_project_component(componentsManager.project(), &app);
+  app.addComponent(&open_project_component);
+
+  ImportCamerasComponent import_cameras_component(componentsManager.project(), &app);
+  app.addComponent(&import_cameras_component);
+
+  CamerasComponent cameras_component(componentsManager.project(), &app);
+  app.addComponent(&cameras_component);
 
   ExportOrientationsComponent export_orientations_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&export_orientations_component);
-  ExportPointCloudComponent export_point_cloud_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&export_point_cloud_component);
+  app.addComponent(&export_orientations_component);
 
-  /* Workflow menu */
+  ExportPointCloudComponent export_point_cloud_component(componentsManager.project(), &app);
+  app.addComponent(&export_point_cloud_component);
 
   ImageLoaderComponent image_loader_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&image_loader_component, 
-                                      ComponentsManager::Flags::separator_after);
+  app.addComponent(&image_loader_component);
+
   FeatureExtractorComponent feature_extractor_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&feature_extractor_component);
+  app.addComponent(&feature_extractor_component);
+
   FeatureMatchingComponent feature_matching_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&feature_matching_component);
+  app.addComponent(&feature_matching_component);
+
   OrientationComponent orientation_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&orientation_component);
+  app.addComponent(&orientation_component);
+
   DensificationComponent densification_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&densification_component);
-  
-  /* Tools menu */
+  app.addComponent(&densification_component);
 
   GeoreferenceComponent georeference_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&georeference_component,
-                                      ComponentsManager::Flags::separator_before);
+  app.addComponent(&georeference_component);
+
   DTMComponent dtm_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&dtm_component, 
-                                      ComponentsManager::Flags::separator_before);
+  app.addComponent(&dtm_component);
+
   OrthophotoComponent orthophoto_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&orthophoto_component,
-                                      ComponentsManager::Flags::separator_before);
+  app.addComponent(&orthophoto_component);
+
   FeaturesViewerComponent features_viewer_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&features_viewer_component, 
-                                      ComponentsManager::Flags::separator_before);
+  app.addComponent(&features_viewer_component);
+
   MatchViewerComponent match_viewer_component(componentsManager.project(), &app);
-  componentsManager.registerComponent(&match_viewer_component,
-                                      ComponentsManager::Flags::separator_after);
+  app.addComponent(&match_viewer_component);
+
+  bool r;
+
+  tl::CommandList::Status status = app.parse(argc, argv);
+  if (status == tl::CommandList::Status::parse_success) {
+
+    r = app.runCommand();
+
+  } else if (status == tl::CommandList::Status::parse_error) {
+
+    /// Load gui
+    /*QApplication a(argc, argv);*/
+
+    /* File menu */
+
+    componentsManager.mainWindowView()->setCreateProjectAction(create_project_component.action());
+    
+    componentsManager.mainWindowView()->setOpenProjectAction(open_project_component.action());
+
+    componentsManager.mainWindowView()->setImportCamerasAction(import_cameras_component.action());
+
+    componentsManager.mainWindowView()->setCamerasToolAction(cameras_component.action());
+
+    componentsManager.registerComponent(&export_orientations_component);
+
+    componentsManager.registerComponent(&export_point_cloud_component);
+
+    /* Workflow menu */
+
+    componentsManager.registerComponent(&image_loader_component,
+                                        ComponentsManager::Flags::separator_after);
+    
+    componentsManager.registerComponent(&feature_extractor_component);
+    
+    componentsManager.registerComponent(&feature_matching_component);
+    
+    componentsManager.registerComponent(&orientation_component);
+    
+    componentsManager.registerComponent(&densification_component);
+
+    /* Tools menu */
+
+    componentsManager.registerComponent(&georeference_component,
+                                        ComponentsManager::Flags::separator_before);
+
+    componentsManager.registerComponent(&dtm_component,
+                                        ComponentsManager::Flags::separator_before);
+
+    componentsManager.registerComponent(&orthophoto_component,
+                                        ComponentsManager::Flags::separator_before);
+
+    componentsManager.registerComponent(&features_viewer_component,
+                                        ComponentsManager::Flags::separator_before);
+    
+    componentsManager.registerComponent(&match_viewer_component,
+                                        ComponentsManager::Flags::separator_after);
 
 
-  /////TODO: por ahora hasta que refactorice MainWindow
-  QObject::connect(&image_loader_component, SIGNAL(imageLoaded(QString)), 
-                   componentsManager.mainWindowPresenter(), SLOT(loadImage(QString)));
-  QObject::connect(&feature_extractor_component, SIGNAL(featuresExtracted(QString)), 
-                   componentsManager.mainWindowPresenter(), SLOT(loadFeatures(QString)));
-  QObject::connect(&feature_extractor_component, SIGNAL(featuresDeleted()), 
-                   componentsManager.mainWindowPresenter(), SLOT(updateProject()));
-  QObject::connect(&feature_matching_component, SIGNAL(matchingFinished()), 
-                   componentsManager.mainWindowPresenter(), SLOT(loadMatches()));
-  QObject::connect(&feature_matching_component, SIGNAL(matchesDeleted()), 
-                   componentsManager.mainWindowPresenter(), SLOT(updateProject()));
-  QObject::connect(&orientation_component, SIGNAL(orientationFinished()),  
-                   componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
-  QObject::connect(&orientation_component, SIGNAL(orientationDeleted()),  
-                   componentsManager.mainWindowPresenter(), SLOT(updateProject()));
-  QObject::connect(&densification_component, SIGNAL(densificationFinished()),  
-                   componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
-  QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openKeypointsViewer,
-                   &features_viewer_component, &FeaturesViewerComponent::openKeypointsViewer);
-  QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
-                   &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
-  QObject::connect(&georeference_component, SIGNAL(georeferenceFinished()), 
-                   componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
+    /// 
 
-  componentsManager.loadPlugins();
+    QObject::connect(&create_project_component, SIGNAL(projectCreated()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadProject()));
+   
+    QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog,
+                     create_project_component.action(), &QAction::trigger);
+    
+    QObject::connect(&open_project_component, SIGNAL(projectLoaded()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadProject()));
 
-  app.status()->activeFlag(AppStatus::Flag::none, true);
+    QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openProjectDialog,
+                     open_project_component.action(), &QAction::trigger);
 
-  componentsManager.mainWindowPresenter()->open();
+    /////TODO: por ahora hasta que refactorice MainWindow
+    QObject::connect(&image_loader_component, SIGNAL(imageLoaded(QString)),
+                     componentsManager.mainWindowPresenter(), SLOT(loadImage(QString)));
+    QObject::connect(&feature_extractor_component, SIGNAL(featuresExtracted(QString)),
+                     componentsManager.mainWindowPresenter(), SLOT(loadFeatures(QString)));
+    QObject::connect(&feature_extractor_component, SIGNAL(featuresDeleted()),
+                     componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+    QObject::connect(&feature_matching_component, SIGNAL(matchingFinished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadMatches()));
+    QObject::connect(&feature_matching_component, SIGNAL(matchesDeleted()),
+                     componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+    QObject::connect(&orientation_component, SIGNAL(orientationFinished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
+    QObject::connect(&orientation_component, SIGNAL(orientationDeleted()),
+                     componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+    QObject::connect(&densification_component, SIGNAL(densificationFinished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
+    QObject::connect(&dtm_component, SIGNAL(finished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
+    QObject::connect(&orthophoto_component, SIGNAL(finished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadOrtho()));
+    QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openKeypointsViewer,
+                     &features_viewer_component, &FeaturesViewerComponent::openKeypointsViewer);
+    QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
+                     &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
+    QObject::connect(&georeference_component, SIGNAL(georeferenceFinished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
 
-  bool r = a.exec();
+    componentsManager.loadPlugins();
+
+    app.status()->activeFlag(AppStatus::Flag::none, true);
+
+    componentsManager.mainWindowPresenter()->open();
+
+    r = a.exec();
+
+  } else if (status == tl::CommandList::Status::show_help) {
+    r = false;
+  } else if (status == tl::CommandList::Status::show_licence) {
+    r = false;
+  } else if (status == tl::CommandList::Status::show_version) {
+    r = false;
+  }
 
 #ifdef HAVE_VLD
   // Clean up memory allocated by flags.  This is only needed to reduce

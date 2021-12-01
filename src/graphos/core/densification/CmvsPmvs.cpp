@@ -368,31 +368,31 @@ void CmvsPmvsDensifier::writeBundleFile()
   if (mReconstruction) {
 
     colmap::Reconstruction &reconstruction = mReconstruction->colmap();
-    const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
-    colmap::Image &image = reconstruction.Image(reg_image_ids[0]);
+    //const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
+    //colmap::Image &image = reconstruction.Image(reg_image_ids[0]);
 
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.Name());
-    imageReader->open();
-    if (imageReader->isOpen()) {
-      if (imageReader->depth() != 8) {
-        mImageOriginalDepth = true;
-      }
-    }
+    //std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.Name());
+    //imageReader->open();
+    //if (imageReader->isOpen()) {
+    //  if (imageReader->depth() != 8) {
+    //    mImageOriginalDepth = true;
+    //  }
+    //}
 
     tl::Path bundler_path(mOutputPath);
     bundler_path.append("bundle.rd.out");
     tl::Path bundler_path_list(mOutputPath);
     bundler_path_list.append("bundle.rd.out.list.txt");
-    tl::Path bundler_path_list_original;
+    //tl::Path bundler_path_list_original;
     //if (mImageOriginalDepth) {
-      bundler_path_list_original = tl::Path(mOutputPath).append("bundle.rd.out.ortho.list.txt");
+    //  bundler_path_list_original = tl::Path(mOutputPath).append("bundle.rd.out.ortho.list.txt");
     //}
 
     std::ofstream stream(bundler_path.toString(), std::ios::trunc);
     std::ofstream stream_image_list(bundler_path_list.toString(), std::ios::trunc);
     std::ofstream stream_image_list_original;
     //if (mImageOriginalDepth)
-      stream_image_list_original.open(bundler_path_list_original.toString(), std::ios::trunc);
+    //  stream_image_list_original.open(bundler_path_list_original.toString(), std::ios::trunc);
 
     if (stream.is_open() && stream_image_list.is_open() /*&& stream_image_list_original.is_open()*/) {
 
@@ -462,15 +462,15 @@ void CmvsPmvsDensifier::writeBundleFile()
             //tl::Path output_image_path(image.Name());
             //stream_image_list << output_image_path.fileName() << std::endl;
             
-            if (mImageOriginalDepth) {
-              //std::string output_image_original_path = colmap::StringPrintf("%08d.tif", i);
-              tl::Path output_image_ortho_path(image.Name());
-              //std::string output_image_original_path = output_image_ortho_path.replaceExtension(".tif").fileName();
-              stream_image_list_original << output_image_ortho_path.fileName() << std::endl;
-            } else {
-              tl::Path output_image_ortho_path(image.Name());
-              stream_image_list_original << output_image_ortho_path.fileName() << std::endl;
-            }
+            //if (mImageOriginalDepth) {
+            //  //std::string output_image_original_path = colmap::StringPrintf("%08d.tif", i);
+            //  tl::Path output_image_ortho_path(image.Name());
+            //  //std::string output_image_original_path = output_image_ortho_path.replaceExtension(".tif").fileName();
+            //  stream_image_list_original << output_image_ortho_path.fileName() << std::endl;
+            //} else {
+            //  tl::Path output_image_ortho_path(image.Name());
+            //  stream_image_list_original << output_image_ortho_path.fileName() << std::endl;
+            //}
             
           }
         }
@@ -591,10 +591,10 @@ void CmvsPmvsDensifier::undistortImages()
 
           if (bOpenCvRead) {
             img = cv::imread(image_file, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-            if (mImageOriginalDepth)
-              img_original = cv::imread(image_file, cv::IMREAD_ANYDEPTH | cv::IMREAD_IGNORE_ORIENTATION);
-            else
-              img_original = cv::imread(image_file, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+            //if (mImageOriginalDepth)
+            //  img_original = cv::imread(image_file, cv::IMREAD_ANYDEPTH | cv::IMREAD_IGNORE_ORIENTATION);
+            //else
+            //  img_original = cv::imread(image_file, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
 
             if (img.empty()) {
               bOpenCvRead = false;
@@ -608,8 +608,8 @@ void CmvsPmvsDensifier::undistortImages()
               img = imageReader->read();
               if (imageReader->depth() != 8) {
 
-                if (mImageOriginalDepth) 
-                  img_original = img;
+                //if (mImageOriginalDepth) 
+                //  img_original = img;
 
                 TL_TODO("Codigo duplicado en FeatureExtractorProcess")
 
@@ -633,7 +633,7 @@ void CmvsPmvsDensifier::undistortImages()
           
           TL_TODO("Las imágenes en escala de grises con canal alfa no estan comprobadas")
           if (img.channels() == 1) {
-            if (mImageOriginalDepth && img_original.empty()) img_original = img;
+            //if (mImageOriginalDepth && img_original.empty()) img_original = img;
             cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
           }
 
@@ -646,28 +646,28 @@ void CmvsPmvsDensifier::undistortImages()
             img.release();
             cv::cuda::GpuMat gImgUndistort;
 
-            cv::cuda::GpuMat gImgOutOriginal;
+            //cv::cuda::GpuMat gImgOutOriginal;
             //if (mImageOriginalDepth) {
-              gImgOutOriginal.upload(img_original);
-              img_original.release();
+            //  gImgOutOriginal.upload(img_original);
+            //  img_original.release();
             //}
 
 
-            cv::cuda::Stream stream1;
-            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream1);
+            //cv::cuda::Stream stream1;
+            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream1*/);
             gImgUndistort.download(img_undistort);
 
-            cv::cuda::Stream stream2;
+            //cv::cuda::Stream stream2;
             //if (mImageOriginalDepth) {
-              cv::cuda::GpuMat gImgUndistortOriginal;
-              cv::cuda::remap(gImgOutOriginal, gImgUndistortOriginal, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream2);
-              gImgUndistortOriginal.download(img_undistort_original);
+            //  cv::cuda::GpuMat gImgUndistortOriginal;
+            //  cv::cuda::remap(gImgOutOriginal, gImgUndistortOriginal, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream2);
+            //  gImgUndistortOriginal.download(img_undistort_original);
             //}
 
 
-            stream1.waitForCompletion();
+            //stream1.waitForCompletion();
             //if (mImageOriginalDepth) {
-              stream2.waitForCompletion();
+            //  stream2.waitForCompletion();
             //}
 
           } else {
@@ -675,8 +675,8 @@ void CmvsPmvsDensifier::undistortImages()
             cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
             img.release();
             //if (mImageOriginalDepth) {
-              cv::remap(img_original, img_undistort_original, map1, map2, cv::INTER_LINEAR);
-              img_original.release();
+            //  cv::remap(img_original, img_undistort_original, map1, map2, cv::INTER_LINEAR);
+            //  img_original.release();
             //}
 
 #ifdef HAVE_CUDA
@@ -692,18 +692,18 @@ void CmvsPmvsDensifier::undistortImages()
 
           cv::imwrite(output_image_path, img_undistort);
 
-          if (mImageOriginalDepth) {
-            //std::string output_image_original_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.tif", i);
-            tl::Path output_image_path(output_images_path);
-            output_image_path.append(image_path.fileName());
-            //output_image_path.replaceExtension(".tif");
-            cv::imwrite(output_image_path.toString(), img_undistort_original);
-          } else {
-            tl::Path output_image_path(output_images_path);
-            output_image_path.append(image_path.fileName());
-            //output_image_path.replaceExtension(".tif");
-            cv::imwrite(output_image_path.toString(), img_undistort_original);
-          }
+          //if (mImageOriginalDepth) {
+          //  //std::string output_image_original_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.tif", i);
+          //  tl::Path output_image_path(output_images_path);
+          //  output_image_path.append(image_path.fileName());
+          //  //output_image_path.replaceExtension(".tif");
+          //  cv::imwrite(output_image_path.toString(), img_undistort_original);
+          //} else {
+          //  tl::Path output_image_path(output_images_path);
+          //  output_image_path.append(image_path.fileName());
+          //  //output_image_path.replaceExtension(".tif");
+          //  cv::imwrite(output_image_path.toString(), img_undistort_original);
+          //}
 
           std::string proj_matrix_path = mOutputPath + colmap::StringPrintf("/txt/%08d.txt", i);
           //tl::Path proj_matrix_path = tl::Path(output_proj_matrix_path).append(image_path.fileName());

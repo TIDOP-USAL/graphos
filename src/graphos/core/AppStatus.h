@@ -44,7 +44,7 @@ class AppStatus
 
 public:
 
-  enum class Flag
+  enum class Flag : uint32_t
   {
     none                  = (0 << 0),
     project_exists        = (1 << 0),  // Existe un proyecto
@@ -59,7 +59,8 @@ public:
     dtm                   = (1 << 9),
     ortho                 = (1 << 10),
     processing            = (1 << 20),
-    loading_images        = (1 << 21)
+    loading_images        = (1 << 21),
+    command_mode          = (1 << 30)
   };
 
 public:

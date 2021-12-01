@@ -26,6 +26,7 @@
 #include "graphos/components/createproject/impl/CreateProjectModel.h"
 #include "graphos/components/createproject/impl/CreateProjectView.h"
 #include "graphos/components/createproject/impl/CreateProjectPresenter.h"
+#include "graphos/components/createproject/impl/CreateProjectCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -34,6 +35,7 @@
 
 namespace graphos
 {
+
 
 
 CreateProjectComponent::CreateProjectComponent(Project *project, 
@@ -75,6 +77,11 @@ void CreateProjectComponent::createPresenter()
           this, &CreateProjectComponent::onProjectCreated);
 }
 
+void CreateProjectComponent::createCommand()
+{
+  setCommand(std::make_shared<CreateProjectCommand>());
+}
+
 void CreateProjectComponent::update()
 {
   Application *app = this->app();
@@ -97,5 +104,7 @@ void CreateProjectComponent::onProjectCreated()
   
   emit projectCreated();
 }
+
+
 
 } // namespace graphos

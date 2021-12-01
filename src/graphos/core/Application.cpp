@@ -25,6 +25,12 @@
 #include "Application.h"
 
 #include "graphos/core/AppStatus.h"
+#include "graphos/core/Component.h"
+#include "graphos/core/command.h"
+
+#include <tidop/core/console.h>
+
+#include <QAction>
 
 namespace graphos
 {
@@ -33,7 +39,8 @@ std::unique_ptr<Application> Application::sApplication;
 std::mutex Application::sMutex;
 
 Application::Application()
-  : mAppStatus(new AppStatus())
+  : mAppStatus(new AppStatus()),
+    mCommandList(new tl::CommandList("Graphos", "Graphos commands"))
 {
 }
 
@@ -44,7 +51,13 @@ Application::~Application()
     mAppStatus = nullptr;
   }
 
-  sApplication.release();
+  if (mCommandList) {
+    mCommandList->clear();
+    delete mCommandList;
+    mCommandList = nullptr;
+  }
+
+  //sApplication.release();
 }
 
 AppStatus *Application::status()
@@ -55,6 +68,37 @@ AppStatus *Application::status()
 tl::MessageManager *Application::messageManager()
 {
   return &tl::MessageManager::instance();
+}
+
+void Application::addComponent(Component *component)
+{
+  mComponents.push_back(component);
+  if (std::shared_ptr<Command> command = component->command())
+    mCommandList->push_back(command);
+}
+
+tl::CommandList::Status Application::parse(int argc, char **argv)
+{
+  tl::CommandList::Status status = mCommandList->parse(argc, argv);
+
+  if (status == tl::CommandList::Status::parse_success)
+    mAppStatus->activeFlag(AppStatus::Flag::command_mode, true);
+
+  return status;
+}
+
+bool Application::runCommand()
+{
+  bool err = false;
+
+  for (auto component : mComponents) {
+    if (component->command()->name() == mCommandList->commandName()) {
+      component->command()->run();
+      break;
+    }
+  }
+
+  return err;
 }
 
 Application &Application::instance()

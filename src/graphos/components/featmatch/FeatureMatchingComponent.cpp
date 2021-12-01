@@ -43,7 +43,7 @@ FeatureMatchingComponent::FeatureMatchingComponent(Project *project,
   this->setName("Feature Matching");
   this->setMenu("workflow");
   this->setToolbar("workflow");
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-match_view"));
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-match_view.png"));
 }
 
 FeatureMatchingComponent::~FeatureMatchingComponent()
@@ -69,6 +69,10 @@ void FeatureMatchingComponent::createPresenter()
           this, &FeatureMatchingComponent::matchingFinished);
   connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), &FeatureMatchingPresenter::matchesDeleted,
           this, &FeatureMatchingComponent::matchesDeleted);
+}
+
+void FeatureMatchingComponent::createCommand()
+{
 }
 
 void FeatureMatchingComponent::update()

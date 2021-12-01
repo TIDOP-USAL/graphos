@@ -71,6 +71,10 @@ void FeatureExtractorComponent::createPresenter()
           this, &FeatureExtractorComponent::featuresDeleted);
 }
 
+void FeatureExtractorComponent::createCommand()
+{
+}
+
 void FeatureExtractorComponent::update()
 {
   Application *app = this->app();

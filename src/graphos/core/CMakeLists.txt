@@ -11,6 +11,7 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             AppStatus.h
             Component.cpp
             Component.h
+			command.h
             project.cpp
             project.h
             settings.cpp

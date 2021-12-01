@@ -110,6 +110,8 @@ protected slots:
 
   void openModel3D(const QString &model3D, bool loadCameras);
 
+  void openDtm();
+
   void deleteFeatures();
   void deleteMatches();
 

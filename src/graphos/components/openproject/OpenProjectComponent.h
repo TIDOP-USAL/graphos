@@ -55,9 +55,7 @@ protected:
   void createModel() override;
   void createView() override;
   void createPresenter() override;
-
-protected:
-
+  void createCommand() override;
   void update() override;
 
 protected:

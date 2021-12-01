@@ -64,6 +64,10 @@ void OrthophotoComponent::createPresenter()
                                                dynamic_cast<OrthophotoModel *>(model())));
 }
 
+void OrthophotoComponent::createCommand()
+{
+}
+
 void OrthophotoComponent::update()
 {
   Application *app = this->app();

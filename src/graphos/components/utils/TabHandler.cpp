@@ -31,6 +31,8 @@
 #include <tidop/core/utils.h>
 #include <tidop/img/imgreader.h>
 
+#include <opencv2/imgcodecs.hpp>
+
 #include <QTabBar>
 #include <QMenu>
 #include <QFileInfo>
@@ -205,7 +207,21 @@ void TabHandler::setImage(const QString &image)
     std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
     imageReader->open();
     if (imageReader->isOpen()) {
-      cv::Mat bmp = imageReader->read();
+
+      /// Imagen georeferenciada.
+      /// TODO: mostrar coordenadas en la barra de estado
+      bool geo = imageReader->isGeoreferenced();
+
+      cv::Mat bmp; 
+
+      tl::DataType data_type = imageReader->dataType();
+      if (data_type == tl::DataType::TL_32F || 
+          data_type == tl::DataType::TL_64F) {
+        /// TODO: Aplicar paleta, mapa de sombras, etc, al DTM
+      } else {
+        bmp = imageReader->read();
+      }
+      
       mGraphicViewer->setImage(cvMatToQImage(bmp));
       imageReader->close();
     }

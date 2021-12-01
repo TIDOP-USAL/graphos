@@ -68,6 +68,10 @@ void DensificationComponent::createPresenter()
           this, &DensificationComponent::densificationFinished);
 }
 
+void DensificationComponent::createCommand()
+{
+}
+
 void DensificationComponent::update()
 {
   Application *app = this->app();

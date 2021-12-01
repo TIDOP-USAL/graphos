@@ -55,6 +55,7 @@ signals:
   void titleChange(QString);
   void descriptionChange(QString);
   void cancel();
+  void closeAuto(bool);
 
 public slots:
 
@@ -65,6 +66,7 @@ public slots:
   void finish();
   void setTitle(const QString &title);
   void setDescription(const QString &description);
+  void setCloseAuto(bool active);
 
 protected:
 

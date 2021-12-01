@@ -24,13 +24,22 @@
 #ifndef GRAPHOS_COMPONENT_INTERFACE_H
 #define GRAPHOS_COMPONENT_INTERFACE_H
 
+#include <memory>
+
 #include <QObject>
 #include <QString>
 
 class QAction;
 
+//namespace tl
+//{
+//class Command;
+//}
+
 namespace graphos
 {
+
+class Command;
 
 class Component
   : public QObject
@@ -47,7 +56,7 @@ public:
   virtual QAction *action() const = 0;
   virtual QString menu() const = 0;
   virtual QString toolbar() const = 0;
-
+  virtual std::shared_ptr<Command> command() = 0;
   virtual void setName(const QString &name) = 0;
   virtual void setMenu(const QString &menu) = 0;
   virtual void setToolbar(const QString &toolbar) = 0;

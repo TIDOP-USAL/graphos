@@ -65,6 +65,10 @@ void ExportOrientationsComponent::createPresenter()
                                                   dynamic_cast<ExportOrientationsModel *>(model())));
 }
 
+void ExportOrientationsComponent::createCommand()
+{
+}
+
 void ExportOrientationsComponent::update()
 {
   Application *app = this->app();

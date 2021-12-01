@@ -79,6 +79,10 @@ void ImportCamerasComponent::createPresenter()
           this, &ImportCamerasComponent::onImportedCameras);
 }
 
+void ImportCamerasComponent::createCommand()
+{
+}
+
 void ImportCamerasComponent::update()
 {
   Application *app = this->app();

@@ -74,6 +74,10 @@ void FeaturesViewerComponent::createPresenter()
                                               dynamic_cast<FeaturesViewerModel *>(model())));
 }
 
+void FeaturesViewerComponent::createCommand()
+{
+}
+
 void FeaturesViewerComponent::update()
 {
   Application *app = this->app();

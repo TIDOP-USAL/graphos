@@ -56,6 +56,7 @@ public slots:
   virtual void setFinished() = 0;
   virtual void setTitle(QString text) = 0;
   virtual void setStatusText(QString text) = 0;
+  virtual void setCloseAuto(bool active = false) = 0;
 
 protected slots:
 
@@ -93,12 +94,13 @@ public slots:
   void setFinished() override;
   void setTitle(QString title) override;
   void setStatusText(QString text) override;
+  void setCloseAuto(bool active = false) override;
 
 protected slots:
 
   void onMinimized() override;
 
-// IDialogView interface
+// DialogView interface
 
 private:
 
@@ -118,7 +120,7 @@ private:
 
   Ui::ProgressDialog *ui;
   Process *mProcess;
-
+  bool mAutoClose;
 };
 
 } // namespace graphos

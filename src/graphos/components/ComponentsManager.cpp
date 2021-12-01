@@ -28,9 +28,9 @@
 #include "graphos/components/MainWindowModel.h"
 #include "graphos/components/MainWindowView.h"
 #include "graphos/components/MainWindowPresenter.h"
-#include "graphos/components/createproject/CreateProjectComponent.h"
-#include "graphos/components/openproject/OpenProjectComponent.h"
-#include "graphos/components/import/cameras/ImportCamerasComponent.h"
+//#include "graphos/components/createproject/CreateProjectComponent.h"
+//#include "graphos/components/openproject/OpenProjectComponent.h"
+//#include "graphos/components/import/cameras/ImportCamerasComponent.h"
 #include "graphos/components/cameras/CamerasComponent.h"
 #include "graphos/components/ProjectModel.h"
 #include "graphos/components/SettingsModel.h"
@@ -42,6 +42,8 @@
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/utils/ProgressDialog.h"
 #include "graphos/interfaces/Plugin.h"
+
+#include <tidop/core/console.h>
 
 #include <QProgressBar>
 #include <QAction>
@@ -59,10 +61,11 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),
     mProject(new ProjectImp),
-    mCreateProjectComponent(nullptr),
-    mOpenProjectComponent(nullptr),
-    mImportCamerasComponent(nullptr),
-    mCamerasComponent(nullptr),
+    //mCreateProjectComponent(nullptr),
+    //mOpenProjectComponent(nullptr),
+    //mImportCamerasComponent(nullptr),
+    //mCamerasComponent(nullptr),
+    //mCommandList(new tl::CommandList("Graphos", "Graphos commands")),
     mProjectModel(nullptr),
     mFeaturesModel(nullptr),
     mMatchesModel(nullptr),
@@ -74,28 +77,29 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mProgressHandler(nullptr),
     mProgressDialog(nullptr)
 {
-  this->mainWindowPresenter();
+  this->mainWindowPresenter(); /// Esto ya no hace falta llamarlo aqui
   
-  Application &app = Application::instance();
+  //Application &app = Application::instance();
 
-  mCreateProjectComponent = new CreateProjectComponent(this->project(), &app);
-  this->mainWindowView()->setCreateProjectAction(mCreateProjectComponent->action());
-  mOpenProjectComponent = new OpenProjectComponent(this->project(), &app);
-  this->mainWindowView()->setOpenProjectAction(mOpenProjectComponent->action());
-  mImportCamerasComponent = new ImportCamerasComponent(this->project(), &app);
-  this->mainWindowView()->setImportCamerasAction(mImportCamerasComponent->action());
-  mCamerasComponent = new CamerasComponent(this->project(), &app);
-  this->mainWindowView()->setCamerasToolAction(mCamerasComponent->action());
+  //mCreateProjectComponent = new CreateProjectComponent(this->project(), &app);
+  //app.addCommand(mCreateProjectComponent->command());
+  //this->mainWindowView()->setCreateProjectAction(mCreateProjectComponent->action());
+  //mOpenProjectComponent = new OpenProjectComponent(this->project(), &app);
+  //this->mainWindowView()->setOpenProjectAction(mOpenProjectComponent->action());
+  //mImportCamerasComponent = new ImportCamerasComponent(this->project(), &app);
+  //this->mainWindowView()->setImportCamerasAction(mImportCamerasComponent->action());
+  //mCamerasComponent = new CamerasComponent(this->project(), &app);
+  //this->mainWindowView()->setCamerasToolAction(mCamerasComponent->action());
 
   ///TODO: por ahora hasta que refactorice MainWindowView, MainWindowPresenter
-  connect(mCreateProjectComponent, SIGNAL(projectCreated()), 
-          this->mainWindowPresenter(), SLOT(loadProject()));
-  connect(mOpenProjectComponent, SIGNAL(projectLoaded()), 
-          this->mainWindowPresenter(), SLOT(loadProject()));
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog, 
-          mCreateProjectComponent->action(), &QAction::trigger);
-  connect(this->mainWindowPresenter(), &MainWindowPresenter::openProjectDialog, 
-          mOpenProjectComponent->action() , &QAction::trigger);
+  //connect(mCreateProjectComponent, SIGNAL(projectCreated()), 
+  //        this->mainWindowPresenter(), SLOT(loadProject()));
+  //connect(mOpenProjectComponent, SIGNAL(projectLoaded()), 
+  //        this->mainWindowPresenter(), SLOT(loadProject()));
+  //connect(this->mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog, 
+  //        mCreateProjectComponent->action(), &QAction::trigger);
+  //connect(this->mainWindowPresenter(), &MainWindowPresenter::openProjectDialog, 
+  //        mOpenProjectComponent->action() , &QAction::trigger);
 
 }
 
@@ -121,25 +125,30 @@ ComponentsManager::~ComponentsManager()
     mProject = nullptr;
   }
 
-  if (mCreateProjectComponent) {
-    delete mCreateProjectComponent;
-    mCreateProjectComponent = nullptr;
-  }
+  //if (mCreateProjectComponent) {
+  //  delete mCreateProjectComponent;
+  //  mCreateProjectComponent = nullptr;
+  //}
 
-  if (mOpenProjectComponent) {
-    delete mOpenProjectComponent;
-    mOpenProjectComponent = nullptr;
-  }
+  //if (mOpenProjectComponent) {
+  //  delete mOpenProjectComponent;
+  //  mOpenProjectComponent = nullptr;
+  //}
 
-  if (mImportCamerasComponent) {
-    delete mImportCamerasComponent;
-    mImportCamerasComponent = nullptr;
-  }
+  //if (mImportCamerasComponent) {
+  //  delete mImportCamerasComponent;
+  //  mImportCamerasComponent = nullptr;
+  //}
 
-  if (mCamerasComponent) {
-    delete mCamerasComponent;
-    mCamerasComponent = nullptr;
-  }
+  //if (mCamerasComponent) {
+  //  delete mCamerasComponent;
+  //  mCamerasComponent = nullptr;
+  //}
+
+  //if (mCommandList) {
+  //  delete mCommandList;
+  //  mCommandList = nullptr;
+  //}
 
   if (mProjectModel){
     delete mProjectModel;
@@ -272,26 +281,36 @@ void ComponentsManager::registerComponent(Component *component,
   }
   
   QString toolbar = component->toolbar();
-  MainWindowView::Toolbar app_toolbar;
-  if (toolbar.compare("file") == 0) {
-    app_toolbar = MainWindowView::Toolbar::file;
-  } else if (toolbar.compare("view") == 0) {
-    app_toolbar = MainWindowView::Toolbar::view;
-  } else if (toolbar.compare("workflow") == 0) {
-    app_toolbar = MainWindowView::Toolbar::workflow;
-  } else if (toolbar.compare("model3d") == 0) {
-    app_toolbar = MainWindowView::Toolbar::model3d;
-  } else if (toolbar.compare("tools") == 0) {
-    app_toolbar = MainWindowView::Toolbar::tools;
-  } else return;
+  if (!toolbar.isEmpty()) {
+    MainWindowView::Toolbar app_toolbar;
+    if (toolbar.compare("file") == 0) {
+      app_toolbar = MainWindowView::Toolbar::file;
+    } else if (toolbar.compare("view") == 0) {
+      app_toolbar = MainWindowView::Toolbar::view;
+    } else if (toolbar.compare("workflow") == 0) {
+      app_toolbar = MainWindowView::Toolbar::workflow;
+    } else if (toolbar.compare("model3d") == 0) {
+      app_toolbar = MainWindowView::Toolbar::model3d;
+    } else if (toolbar.compare("tools") == 0) {
+      app_toolbar = MainWindowView::Toolbar::tools;
+    }
 
-  if (register_flags.isActive(Flags::separator_before)) {
-    mMainWindowView->addSeparatorToToolbar(app_toolbar);
+    if (register_flags.isActive(Flags::separator_before)) {
+      mMainWindowView->addSeparatorToToolbar(app_toolbar);
+    }
+
+    mMainWindowView->addActionToToolbar(action, app_toolbar);
+
+    if (register_flags.isActive(Flags::separator_after)) {
+      mMainWindowView->addSeparatorToToolbar(app_toolbar);
+    }
   }
-  mMainWindowView->addActionToToolbar(action, app_toolbar);
-  if (register_flags.isActive(Flags::separator_after)) {
-    mMainWindowView->addSeparatorToToolbar(app_toolbar);
-  }
+
+  //if (std::shared_ptr<tl::Command> command = component->command()) {
+  //  Application &app = Application::instance(); 
+  //  app.addCommand(command);
+  //}
+
 }
 
 void ComponentsManager::registerMultiComponent(const QString &name,
@@ -371,12 +390,17 @@ void ComponentsManager::loadPlugins()
   QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
 #endif // _DEBUG
 
+  msgInfo("Load Plugins from: %s", pluginsDir.path().toStdString().c_str());
+
   const auto entryList = pluginsDir.entryList(QDir::Files);
   for (const QString &plugin : entryList) {
 
     QPluginLoader loader(pluginsDir.absoluteFilePath(plugin));
-    loadPlugin(loader.instance());
-
+    if (loader.load()) {
+      loadPlugin(loader.instance());
+    } else {
+      msgWarning(loader.errorString().toStdString().c_str());
+    }
   }
 }
 
@@ -390,6 +414,9 @@ void ComponentsManager::loadPlugin(QObject *plugin)
         QString name = plugin_component->name();
         QString description = plugin_component->description();
         plugin_component->setApp(&Application::instance());
+        msgInfo("Plugin loaded: ");
+        msgInfo(" - Name: %s", name.toStdString().c_str());
+        msgInfo(" - Description: %s", description.toStdString().c_str());
         registerComponent(plugin_component->component());
       //} else if (auto plugin_multi_component = qobject_cast<CVStudioPluginMultiComponent *>(plugin)) {
       //  QString name = plugin_multi_component->name();
@@ -399,6 +426,9 @@ void ComponentsManager::loadPlugin(QObject *plugin)
       } else if (auto plugin_multi_component = qobject_cast<GraphosPluginMultiComponent *>(plugin)) {
         QString name = plugin_multi_component->name();
         QString description = plugin_multi_component->description();
+        msgInfo("Plugin loaded: ");
+        msgInfo(" - Name: %s", name.toStdString().c_str());
+        msgInfo(" - Description: %s", description.toStdString().c_str());
         plugin_multi_component->setApp(&Application::instance());
         QString menu = plugin_multi_component->menu();
         QString toolbar = plugin_multi_component->toolbar();
@@ -480,6 +510,8 @@ ProgressHandler *ComponentsManager::progressHandler()
     connect(mProgressHandler, SIGNAL(finished()),                 this->progressDialog(), SLOT(setFinished()));
     connect(mProgressHandler, SIGNAL(titleChange(QString)),       this->progressDialog(), SLOT(setWindowTitle(QString)));
     connect(mProgressHandler, SIGNAL(descriptionChange(QString)), this->progressDialog(), SLOT(setStatusText(QString)));
+    connect(mProgressHandler, SIGNAL(closeAuto(bool)),            this->progressDialog(), SLOT(setCloseAuto(bool)));
+
     connect(this->progressDialog(), SIGNAL(cancel()),             mProgressHandler, SIGNAL(cancel()));
     QProgressBar *statusBarProgress = this->mainWindowView()->progressBar();
 

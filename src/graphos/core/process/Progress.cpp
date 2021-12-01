@@ -93,6 +93,11 @@ void ProgressHandler::setDescription(const QString &description)
   emit descriptionChange(description);
 }
 
+void ProgressHandler::setCloseAuto(bool active)
+{
+  emit closeAuto(active);
+}
+
 } // namespace graphos
 
 

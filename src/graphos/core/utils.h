@@ -95,6 +95,7 @@ public:
 
 };
 
+GRAPHOS_EXPORT void openPdf(const QString &pdf);
 
 } // end namespace graphos
 

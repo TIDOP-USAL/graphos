@@ -75,6 +75,10 @@ void OpenProjectComponent::createPresenter()
           this, &OpenProjectComponent::projectLoaded);
 }
 
+void OpenProjectComponent::createCommand()
+{
+}
+
 void OpenProjectComponent::update()
 {
   Application *app = this->app();

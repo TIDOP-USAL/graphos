@@ -31,12 +31,32 @@
 #include <QDialog>
 #include <QEvent>
 
+namespace tl
+{
+class Command;
+}
+
 namespace graphos
 {
 
 class HelpDialog;
 
 using View = QObject;
+
+class CommandView
+  : public View
+{
+
+public:
+
+  CommandView(QObject *parent = nullptr)
+    : View(parent) { }
+  virtual ~CommandView() override = default;
+
+  virtual std::shared_ptr<tl::Command> command() = 0;
+
+};
+
 
 class DialogView
   : public QDialog

@@ -38,6 +38,7 @@ set(GRAPHOS_SOURCES
     createproject/impl/CreateProjectModel.cpp
     createproject/impl/CreateProjectView.cpp
     createproject/impl/CreateProjectPresenter.cpp
+    createproject/impl/CreateProjectCommand.cpp
     openproject/OpenProjectComponent.cpp
     openproject/impl/OpenProjectModel.cpp
     openproject/impl/OpenProjectView.cpp
@@ -133,6 +134,7 @@ set(GRAPHOS_HEADERS
     createproject/impl/CreateProjectModel.h
     createproject/impl/CreateProjectView.h
     createproject/impl/CreateProjectPresenter.h
+    createproject/impl/CreateProjectCommand.h
     openproject/OpenProjectComponent.h
     openproject/OpenProjectModel.h
     openproject/OpenProjectView.h
@@ -284,7 +286,7 @@ add_executable(${PROJECT_NAME}
 )
 
 source_group("Form Files"  FILES ${GRAPHOS_FORMS})
-source_group("Resource Files"  FILES ${GRAPHOS_RESOURCES})
+source_group("Resource Files"  FILES ${GRAPHOS_RESOURCES} ${UI_GRAPHOS_RES})
 #source_group("Translation Files"  FILES ${GRAPHOS_TS_FILES})
 
 #foreach(_source IN ITEMS ${GRAPHOS_SOURCES} ${GRAPHOS_HEADERS})

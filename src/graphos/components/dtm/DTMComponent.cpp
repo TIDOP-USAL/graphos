@@ -62,8 +62,10 @@ void DTMComponent::createPresenter()
 {
   setPresenter(new DtmPresenterImp(dynamic_cast<DtmView *>(view()), 
                                    dynamic_cast<DtmModel *>(model())));
-  //connect(dynamic_cast<DtmPresenterImp *>(mPresenter), &DtmPresenter::finished,
-  //        this, &DTMComponent::finished);
+}
+
+void DTMComponent::createCommand()
+{
 }
 
 void DTMComponent::update()

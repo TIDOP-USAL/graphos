@@ -64,7 +64,9 @@ enum
   pair_left,
   pair_right,
   sparse_model,
-  dense_model
+  dense_model,
+  dsm,
+  ortho
 };
 
 MainWindowView::MainWindowView(QWidget *parent)
@@ -630,6 +632,56 @@ void MainWindowView::deleteDenseModel()
   }
 }
 
+void MainWindowView::setDSM(const QString &dsm)
+{
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem* itemDSM = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem* temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("DTM/DSM")) == 0) {
+        itemDSM = temp;
+        break;
+      }
+    }
+
+    if (itemDSM == nullptr) {
+      itemDSM = new QTreeWidgetItem();
+      itemProject->addChild(itemDSM);
+    }
+
+    itemDSM->setText(0, "DTM/DSM");
+    itemDSM->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
+    itemDSM->setToolTip(0, dsm);
+    itemDSM->setData(0, Qt::UserRole, graphos::dsm);
+  }
+}
+
+void MainWindowView::deleteDsm()
+{
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem *itemDSM = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem* temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("DTM/DSM")) == 0) {
+        itemDSM = temp;
+        delete itemDSM;
+        itemDSM = nullptr;
+        break;
+      }
+    }
+  }
+}
+
+void MainWindowView::setOrtho(const QString& ortho)
+{
+}
+
+void MainWindowView::deleteOrtho()
+{
+}
+
 void MainWindowView::setStatusBarMsg(const QString &msg)
 {
   ui->statusBar->showMessage(msg, 2000);
@@ -789,7 +841,12 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
      emit openModel3D(item->toolTip(column), true);
    } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
      emit openModel3D(item->toolTip(column), false);
+   } else if (item->data(0, Qt::UserRole) == graphos::dsm) {
+     emit openDtm();
+   } else if (item->data(0, Qt::UserRole) == graphos::ortho) {
+     emit openOrtho(item->toolTip(column));
    }
+
    /*else if (item->data(0, Qt::UserRole) == graphos::ui::pair_right){
      QString session = item->parent()->parent()->parent()->parent()->text(0);
      emit openImageMatches(session, item->parent()->text(0), item->text(column));

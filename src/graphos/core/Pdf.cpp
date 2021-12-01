@@ -600,6 +600,7 @@ Pdf::Pdf(const QString &file)
     mTextBodyStyle(QFont("Times", 9, QFont::Normal), QBrush(), QPen(), Qt::TextWordWrap | Qt::AlignJustify),
     mSpace(100),
     mPageSize(PageSize::A4),
+    mPageOrientation(PageOrientation::portrait),
     bIniDraw(false),
     bHeader(false),
     bFooter(false),
@@ -628,9 +629,14 @@ void Pdf::addHeader(const QString &text)
 void Pdf::addHeader(std::function<void(QRect *)> f)
 {
   bHeader = true;
-  *mHeaderFunction = f;
+  mHeaderFunction = f;
 }
 
+void Pdf::addHeader(const PdfHeader &header)
+{
+  bHeader = true;
+  mHeader = header;
+}
 
 void Pdf::addFooter(const QString &text)
 {
@@ -668,12 +674,12 @@ void Pdf::drawTextBody(const QString &text)
   drawTextBlock(text, mTextBodyStyle);
 }
 
-QRect Pdf::drawImage(const QString &img, const QString &caption)
+QRect Pdf::drawImage(const QString &img, const QString &caption, int options)
 {
-  return drawImage(QImage(img), caption);
+  return drawImage(QImage(img), caption, options);
 }
 
-QRect Pdf::drawImage(const QImage &image, const QString &caption)
+QRect Pdf::drawImage(const QImage &image, const QString &caption, int options)
 {
   QRect used_rect(mX, mY, mWidth, 0);
 
@@ -683,11 +689,22 @@ QRect Pdf::drawImage(const QImage &image, const QString &caption)
   
     double scale = pPdfWriter->logicalDpiX() / _image.logicalDpiX();
 
-    if (_image.width() * scale > mWidth) {
-      _image = _image.scaledToWidth(mWidth);
+    double scale_x = mWidth / _image.width();
+    double scale_y = mHeight / _image.height();
+    if (scale_x < scale_y) {
+      if (_image.width() * scale > mWidth) {
+        _image = _image.scaledToWidth(mWidth);
+      } else {
+        _image = _image.scaledToWidth(_image.width() * scale);
+      }
     } else {
-      _image = _image.scaledToWidth(_image.width() * scale);
+      if (_image.height() * scale > mHeight) {
+        _image = _image.scaledToHeight(mHeight);
+      } else {
+        _image = _image.scaledToHeight(_image.height() * scale);
+      }
     }
+
 
     int height = _image.height();
     int captionHeight = 0;
@@ -699,15 +716,22 @@ QRect Pdf::drawImage(const QImage &image, const QString &caption)
       height += checkRect.height() * 2;
     }
 
-    if (height > mHeight) {
+    if (mY + height > mRectBody.height()) {
       QRect rect(mX, mRectBody.y(), mWidth, mRectBody.height());
       newPage();
       setPaintRect(rect);
       used_rect.setY(rect.y());
     }
-      
+     
+    int x{};
+    if (options & Qt::AlignLeft) {
+      x = mX;
+    } else if (options & Qt::AlignRight) {
+      x = mX + (mWidth - _image.width());
+    } else {
+      x = mX + (mWidth - _image.width()) / 2;
+    }
 
-    int x = mX + (mWidth - _image.width()) / 2;
     if (x < 0) x = 0;
 
     QRect rect(x, mY, _image.width(), _image.height());
@@ -765,7 +789,7 @@ void Pdf::drawList(const QString &text)
 }
 
 QRect Pdf::drawTable(const TablePdf &table,
-                    const QString &caption)
+                     const QString &caption)
 {
   QRect rect(mX, mY, mWidth, 0);
 
@@ -967,6 +991,14 @@ QRect Pdf::drawTable(const TablePdf &table,
   return rect;
 }
 
+void Pdf::drawLine(const QPoint &pt1, const QPoint &pt2, PdfStyle &style)
+{
+  pPainter->setBrush(style.brush());
+  pPainter->setPen(style.pen());
+
+  pPainter->drawLine(pt1, pt2);
+}
+
 void Pdf::endDraw()
 {
   if (pPainter) {
@@ -990,37 +1022,57 @@ void Pdf::initDraw()
 
     mRectBody = rect;
 
-    // Primera pÃ¡gina
+    // Primera página
     setPageNumber(1);
 
     // Se reserva espacio para la cabecera
     if (bHeader) {
-      QFontMetrics fontMetrics(mHeaderStyle.font(), pPainter->device());
-      QRect aux_rect = fontMetrics.boundingRect(rect, mHeaderStyle.options(), mHeaderText);
+      //QFontMetrics fontMetrics(mHeaderStyle.font(), pPainter->device());
+      //QRect aux_rect = fontMetrics.boundingRect(rect, mHeaderStyle.options(), mHeaderText);
       mRectHeader.setX(rect.x());
       mRectHeader.setY(rect.y());
       mRectHeader.setWidth(rect.width());
-      mRectHeader.setHeight(aux_rect.height() * 3);
+      mRectHeader.setHeight(300 /*aux_rect.height() * 3*/);
 
-      drawHeader();
+      //drawHeader();
 
-      mRectBody.setY(mRectHeader.height());
+      mRectBody.setY(mRectHeader.height()+200);
     }
     
-    // Se reserva espacio para el pie de pÃ¡gina
+    // Se reserva espacio para el pie de página
+
     if (bFooter) {
-      QFontMetrics fontMetrics(mFooterStyle.font(), pPainter->device());
-      QRect aux_rect = fontMetrics.boundingRect(rect, mFooterStyle.options(), mFooterText);
-      int h = aux_rect.height() * 3;
+
+      int height = 0;
+      if (mHeaderText.isEmpty()) {
+
+        QRect text_rect;
+        if (mHeader.hasText()) {
+          text_rect = mHeader.textRect();
+        }
+
+        QRect image_rect;
+        if (mHeader.hasImage()) {
+          image_rect = mHeader.imageRect();
+        }
+
+        height = std::max(text_rect.height(), image_rect.height());
+
+
+      } else {
+        QFontMetrics fontMetrics(mFooterStyle.font(), pPainter->device());
+        QRect aux_rect = fontMetrics.boundingRect(rect, mFooterStyle.options(), mFooterText);
+        height = aux_rect.height() * 3;
+      }
 
       mRectFooter.setX(rect.x());
-      mRectFooter.setY(rect.height() - h);
+      mRectFooter.setY(rect.height() - height);
       mRectFooter.setWidth(rect.width());
-      mRectFooter.setHeight(h);
+      mRectFooter.setHeight(height);
 
       mRectBody.setHeight(mRectBody.height() - mRectFooter.height());
 
-      drawFooter();
+      //drawFooter();
     }
 
     mX = mRectBody.x();
@@ -1223,6 +1275,31 @@ void Pdf::setPageSize(Pdf::PageSize pageSize)
   }
 }
 
+void Pdf::setPageOrientation(PageOrientation pageOrientation)
+{
+  if (!bIniDraw) {
+
+    mPageOrientation = pageOrientation;
+
+    QPageLayout::Orientation orientation;
+
+    switch (pageOrientation) 	{
+      case graphos::Pdf::PageOrientation::portrait:
+        orientation = QPageLayout::Orientation::Portrait;
+        break;
+      case graphos::Pdf::PageOrientation::landscape:
+        orientation = QPageLayout::Orientation::Landscape;
+        break;
+      default:
+        orientation = QPageLayout::Orientation::Portrait;
+        break;
+    }
+      
+    pPdfWriter->setPageOrientation(orientation);
+    update();
+  }
+}
+
 void Pdf::setTitle(const QString &title)
 {
   pPdfWriter->setTitle(title);
@@ -1275,12 +1352,32 @@ void Pdf::drawTextBlock(const QString &text,
 void Pdf::drawHeader()
 {
   if (pPainter) {
-    pPainter->setFont(mHeaderStyle.font());
-    pPainter->setPen(QPen(Qt::darkGray));
-    QString header_text = replace(mHeaderText);
-    pPainter->drawText(mRectHeader, mHeaderStyle.options(), header_text);
-    pPainter->setFont(mCurrentStyle.font());
-    pPainter->setPen(QPen(Qt::black));
+    /*if (mHeaderText.isEmpty()) {
+
+      setPaintRect(mHeader.imageRect());
+      drawImage(mHeader.image());
+      PdfStyle style = mHeader.style();
+      pPainter->setFont(style.font());
+      pPainter->setPen(QPen(Qt::darkGray));
+      pPainter->drawText(mHeader.textRect(), style.options(), mHeader.text());
+      pPainter->setFont(mCurrentStyle.font());
+      pPainter->setPen(QPen(Qt::black));
+
+    } */
+    if (mHeaderText.isEmpty()) {
+
+      mHeaderFunction(&mRectHeader);
+
+    } else {
+
+      pPainter->setFont(mHeaderStyle.font());
+      pPainter->setPen(QPen(Qt::darkGray));
+      QString header_text = replace(mHeaderText);
+      pPainter->drawText(mRectHeader, mHeaderStyle.options(), header_text);
+      pPainter->setFont(mCurrentStyle.font());
+      pPainter->setPen(QPen(Qt::black));
+
+    }
   }
 }
 
@@ -1386,6 +1483,7 @@ QPoint Pdf::currentPosition() const
 
 void Pdf::setPaintRect(const QRect &rect)
 {
+  /// TODO: setPaintRect debería ser privada
   mX = rect.x();
   mY = rect.y();
   mWidth = rect.width();
