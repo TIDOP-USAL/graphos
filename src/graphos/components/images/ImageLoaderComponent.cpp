@@ -26,6 +26,7 @@
 #include "graphos/components/images/impl/ImageLoaderModel.h"
 #include "graphos/components/images/impl/ImageLoaderView.h"
 #include "graphos/components/images/impl/ImageLoaderPresenter.h"
+#include "graphos/components/images/impl/ImageLoaderCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -73,6 +74,7 @@ void ImageLoaderComponent::createPresenter()
 
 void ImageLoaderComponent::createCommand()
 {
+  setCommand(std::make_shared<ImageLoaderCommand>());
 }
 
 void ImageLoaderComponent::update()

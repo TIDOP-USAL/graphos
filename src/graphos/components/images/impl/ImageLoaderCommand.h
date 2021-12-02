@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#ifndef GRAPHOS_IMAGE_LOADER_COMMAND_H
+#define GRAPHOS_IMAGE_LOADER_COMMAND_H
 
 #include "graphos/core/command.h"
 #include "graphos/core/project.h"
@@ -34,15 +34,15 @@
 namespace graphos
 {
 	
-class CreateProjectCommand
+class ImageLoaderCommand
   : public Command
 {
 
 public:
 
-  CreateProjectCommand();
+  ImageLoaderCommand();
 
-  ~CreateProjectCommand() override;
+  ~ImageLoaderCommand() override;
 
 private:
 
@@ -53,12 +53,14 @@ private:
 
 private:
 
-  std::string mProjectName;
-  std::string mProjectDescription;
-  bool mForceOverwrite;
+  tl::Path mProjectFile;
+  tl::Path mImage;
+  tl::Path mImageList;
+  bool mDelete;
+  std::string mCamera;
 };
 
 	
 } // namespace graphos
 
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H
+#endif // GRAPHOS_IMAGE_LOADER_COMMAND_H

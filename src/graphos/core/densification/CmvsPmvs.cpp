@@ -684,7 +684,7 @@ void CmvsPmvsDensifier::undistortImages()
 #endif
           tl::Path image_path(image_file);
 
-          msgInfo("Undistort image: %s", image_path.fileName().c_str());
+          msgInfo("Undistort image: %s", image_path.fileName().toString().c_str());
 
           std::string output_image_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.jpg", i);
           //tl::Path output_image_path(output_images_path);

@@ -59,6 +59,7 @@ set(GRAPHOS_SOURCES
     images/impl/ImageLoaderModel.cpp
     images/impl/ImageLoaderPresenter.cpp
     images/impl/ImageLoaderView.cpp
+    images/impl/ImageLoaderCommand.cpp
     orientation/OrientationComponent.cpp
     orientation/impl/OrientationModel.cpp
     orientation/impl/OrientationView.cpp

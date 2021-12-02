@@ -177,7 +177,7 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
 
   tl::Path gdal_vrt_file(pointCloud);
   gdal_vrt_file.replaceExtension(".vrt");
-  std::string layer_name = gdal_vrt_file.baseName();
+  std::string layer_name = gdal_vrt_file.baseName().toString();
   std::ofstream file(gdal_vrt_file.toString(), std::ios::trunc);
   if (!file.is_open()) return false;
   file << "<OGRVRTDataSource>" << std::endl;
@@ -223,7 +223,7 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
 
   tl::Path gdal_vrt_file(pointCloud);
   gdal_vrt_file.replaceExtension(".vrt");
-  std::string layer_name = gdal_vrt_file.baseName();
+  std::string layer_name = gdal_vrt_file.baseName().toString();
   std::ofstream file(gdal_vrt_file.toString(), std::ios::trunc);
   if (!file.is_open()) return false;
   file << "<OGRVRTDataSource>" << std::endl;

@@ -92,7 +92,7 @@ bool Application::runCommand()
   bool err = false;
 
   for (auto component : mComponents) {
-    if (component->command()->name() == mCommandList->commandName()) {
+    if (component->command() && component->command()->name() == mCommandList->commandName()) {
       component->command()->run();
       break;
     }

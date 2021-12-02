@@ -31,7 +31,7 @@ CameraPose ReadCameraPoses::orientation(const QString &imageName) const
   CameraPose photoOrientation;
 
   for (auto &image : mReconstruction->Images()) {
-    std::string image_name = tl::Path(image.second.Name()).fileName();
+    std::string image_name = tl::Path(image.second.Name()).fileName().toString();
     if (imageName.compare(image_name.c_str()) == 0) {
 
       colmap::image_t image_id = image.second.ImageId();
