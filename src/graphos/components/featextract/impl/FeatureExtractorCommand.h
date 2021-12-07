@@ -21,70 +21,47 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
+#ifndef GRAPHOS_FEATURE_EXTRACTOR_COMMAND_COMMAND_H
+#define GRAPHOS_FEATURE_EXTRACTOR_COMMAND_COMMAND_H
 
-#include "graphos/graphos_global.h"
+#include "graphos/core/command.h"
+#include "graphos/core/project.h"
 
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
-
-#include <QObject>
-
-#include <memory>
-#include <mutex>
-
-namespace tl
-{
-class CommandList;
-}
-
+#include <QDir>
+#include <QFileInfo>
+#include <QStandardPaths>
 
 namespace graphos
 {
-
-class AppStatus;
-class Component;
-
-class Application
-  : public QObject
+	
+class FeatureExtractorCommand
+  : public Command
 {
-
-  Q_OBJECT
-
-private:
-
-  Application();
 
 public:
 
-  static Application &instance();
-  ~Application();
-
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
-
-  AppStatus *status();
-  tl::MessageManager *messageManager();
-
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
-
-  void freeMemory();
+  FeatureExtractorCommand();
+  ~FeatureExtractorCommand() override;
 
 private:
 
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  AppStatus *mAppStatus;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
+
+// Command
+
+  bool run() override;
+
+private:
+
+  tl::Path mProjectFile;
+  int mMaxImageSize;
+  int mMaxFeaturesNumber;
+  int mOctaveResolution;
+  double mContrastThreshold;
+  double mEdgeThreshold;
+  double mSigma;
 };
 
+	
 } // namespace graphos
 
-
-#endif // GRAPHOS_APPLICATION_H
+#endif // GRAPHOS_FEATURE_EXTRACTOR_COMMAND_COMMAND_H

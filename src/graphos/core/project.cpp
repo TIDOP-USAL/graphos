@@ -36,6 +36,7 @@ ProjectImp::ProjectImp()
     mReconstructionPath(""),
     mCameraCount(0)
 {
+  mImages.reserve(1000);
 }
 
 QString ProjectImp::name() const

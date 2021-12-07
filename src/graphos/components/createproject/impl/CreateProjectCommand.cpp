@@ -29,9 +29,9 @@ namespace graphos
   
 CreateProjectCommand::CreateProjectCommand()
   : Command("createproj", "Create Graphos project"),
-  mProjectName(""),
-  mProjectDescription(""),
-  mForceOverwrite(false)
+    mProjectName(""),
+    mProjectDescription(""),
+    mForceOverwrite(false)
 {
   this->push_back(CreateArgumentStringRequired("name", 'n', "Project name or project file (.xml)", &mProjectName));
   this->push_back(CreateArgumentStringOptional("description", 'd', "Project description", &mProjectDescription));
@@ -64,15 +64,13 @@ bool CreateProjectCommand::run()
       if (extension.compare(".xml", Qt::CaseInsensitive) == 0) {
         base_name = file_info.baseName();
         file_name = file_info.fileName();
-      }
-      else {
+      } else {
         file_name = base_name = file_info.baseName();
         file_name.append(".xml");
       }
       project_path = file_path.append(base_name).append("/");
       file_path.append(file_name);
-    }
-    else {
+    } else {
       base_name = file_info.baseName();
       file_path = mProjectName.c_str();
       project_path = file_info.path();
@@ -86,8 +84,7 @@ bool CreateProjectCommand::run()
     if (dir.exists()) {
       if (mForceOverwrite) {
         dir.removeRecursively();
-      }
-      else {
+      } else {
         throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
       }
     }
@@ -116,8 +113,7 @@ bool CreateProjectCommand::run()
     msgInfo("Project name: %s", base_name.toStdString().c_str());
     msgInfo("Project Description: %s", mProjectDescription.c_str());
 
-  }
-  catch (const std::exception& e) {
+  } catch (const std::exception& e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
     r = true;
   }

@@ -157,6 +157,34 @@ void ComponentBase::setToolbar(const QString &toolbar)
   mToolbar = toolbar;
 }
 
+void ComponentBase::freeMemory()
+{
+
+  if (mPresenter) {
+
+    disconnect(mAction, &QAction::triggered,
+               this, &ComponentBase::openComponent);
+    connect(mAction, &QAction::triggered,
+            this, &ComponentBase::createComponent);
+
+    delete mPresenter;
+    mPresenter = nullptr;
+  }
+
+  if (mModel) {
+    delete mModel;
+    mModel = nullptr;
+  }
+
+  if (mView) {
+    delete mView;
+    mView = nullptr;
+  }
+
+  mCommand.reset();
+
+}
+
 Model *ComponentBase::model()
 {
   return mModel;

@@ -82,6 +82,8 @@ public:
   void setMenu(const QString &menu) override;
   void setToolbar(const QString &toolbar) override;
 
+  void freeMemory() override;
+
 protected:
 
   Model *model();

@@ -101,6 +101,13 @@ bool Application::runCommand()
   return err;
 }
 
+void Application::freeMemory()
+{
+  for (auto component : mComponents) {
+    component->freeMemory();
+  }
+}
+
 Application &Application::instance()
 {
   if (sApplication.get() == nullptr) {

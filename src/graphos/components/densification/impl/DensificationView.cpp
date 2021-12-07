@@ -98,7 +98,7 @@ void DensificationViewImp::update()
 void DensificationViewImp::retranslate()
 {
   this->setWindowTitle(QApplication::translate("DensificationView", "Densification", nullptr));
-  mLabelDensification->setText(QApplication::translate("DensificationView", "Preprocess:", nullptr));
+  mLabelDensification->setText(QApplication::translate("DensificationView", "Method:", nullptr));
   mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureExtractorView", "Cancel"));
   mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureExtractorView", "Run"));
   mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureExtractorView", "Help"));

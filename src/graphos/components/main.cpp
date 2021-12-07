@@ -129,8 +129,9 @@ int main(int argc, char *argv[])
 
   } else if (status == tl::CommandList::Status::parse_error) {
 
+    app.freeMemory();
+
     /// Load gui
-    /*QApplication a(argc, argv);*/
 
     /* File menu */
 

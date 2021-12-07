@@ -61,6 +61,8 @@ public:
   virtual void setMenu(const QString &menu) = 0;
   virtual void setToolbar(const QString &toolbar) = 0;
 
+  virtual void freeMemory() = 0;
+
 signals:
 
   void created();

@@ -166,7 +166,6 @@ bool FeatureExtractorPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes | QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      //throw std::runtime_error("Canceled by user");
       msgWarning("Process canceled by user");
       return false;
     }

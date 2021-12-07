@@ -26,6 +26,7 @@
 #include "graphos/components/featextract/impl/FeatureExtractorModel.h"
 #include "graphos/components/featextract/impl/FeatureExtractorView.h"
 #include "graphos/components/featextract/impl/FeatureExtractorPresenter.h"
+#include "graphos/components/featextract/impl/FeatureExtractorCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -73,6 +74,7 @@ void FeatureExtractorComponent::createPresenter()
 
 void FeatureExtractorComponent::createCommand()
 {
+  setCommand(std::make_shared<FeatureExtractorCommand>());
 }
 
 void FeatureExtractorComponent::update()

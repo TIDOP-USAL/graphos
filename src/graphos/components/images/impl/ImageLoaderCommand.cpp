@@ -94,107 +94,6 @@ ImageLoaderCommand::~ImageLoaderCommand()
 {
 }
 
-//bool ImageLoaderCommand::run()
-//{
-//  bool r = false;
-//
-//  QString file_path;
-//  QString project_path;
-//
-//  try {
-//
-//    if (!mProjectFile.exists()) {
-//      msgError("Project doesn't exist");
-//      return 1;
-//    }
-//
-//
-//    QString project_file = QString::fromStdWString(mProjectFile.toWString());
-//
-//    ProjectImp project;
-//    project.load(project_file);
-//
-//    QStringList image_list;
-//    if (!mImage.empty()) image_list.push_back(QString::fromStdWString(mImage.toWString()));
-//   
-//    if (!mImageList.empty() && mImageList.exists()) {
-//
-//      std::ifstream ifs;
-//      ifs.open(mImageList.toWString(), std::ifstream::in);
-//      if (ifs.is_open()) {
-//
-//        std::string line;
-//        while (std::getline(ifs, line)) {
-//          image_list.push_back(QString::fromStdString(line));
-//        }
-//
-//        ifs.close();
-//      }
-//
-//    }
-//    
-//    std::vector<Image> images;
-//    for (auto &image : image_list) {
-//      Image img(image);
-//      images.push_back(img);
-//    }
-//
-//    std::vector<tl::Camera> cameras;
-//    for (auto &it = project.cameraBegin(); it != project.cameraEnd(); it++) {
-//      cameras.push_back(it->second);
-//    }
-//
-//    std::shared_ptr<LoadImagesProcess> load_images(new LoadImagesProcess(&images, &cameras, project.crs()));
-//
-//    QObject::connect(load_images.get(), &LoadImagesProcess::imageAdded, [&](int imageId, int cameraId) {
-//
-//      Image image = images[imageId];
-//      tl::Camera camera = cameras[cameraId];
-//      int camera_id = project.cameraId(camera.make().c_str(), camera.model().c_str());
-//      if (camera_id == 0)
-//        camera_id = project.addCamera(camera);
-//
-//      image.setCameraId(camera_id);
-//      project.addImage(image);
-//
-//      QString crs_proj = project.crs();
-//      QString crs_image = image.cameraPose().crs();
-//      if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
-//        project.setCrs(crs_image);
-//      }
-//    });
-//
-//    //QObject::connect(load_images.get(), &LoadImagesProcess::finished, [&]() {
-//    //  load_images->setWaitForFinished(false);
-//    //  });
-//
-//    //load_images->setWaitForFinished(true);
-//    //QFuture<int> future = load_images->start();
-//    //future.waitForFinished();
-//    //while (load_images->isWaitingForFinished());
-//
-//    MultiProcess process;
-//    process.appendProcess(load_images);
-//
-//    QObject::connect(&process, &MultiProcess::finished, [&]() {
-//      process.setWaitForFinished(false);
-//    });
-//
-//    process.setWaitForFinished(true);
-//    process.start();
-//    
-//    while (process.isWaitingForFinished()); 
-//
-//    project.save(project_file);
-//
-//  } catch (const std::exception &e) {
-//    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
-//    r = true;
-//  }
-//
-//  return r;
-//}
-
 bool ImageLoaderCommand::run()
 {
   bool r = false;
@@ -209,13 +108,14 @@ bool ImageLoaderCommand::run()
       return 1;
     }
 
-
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 
     ProjectImp project;
     project.load(project_file);
 
-    QStringList image_list;
+    std::vector<QString> image_list;
+    image_list.reserve(1000);
+
     if (!mImage.empty()) image_list.push_back(QString::fromStdWString(mImage.toWString()));
 
     if (!mImageList.empty() && mImageList.exists()) {
@@ -234,17 +134,6 @@ bool ImageLoaderCommand::run()
 
     }
 
-    std::vector<Image> images;
-    for (auto& image : image_list) {
-      Image img(image);
-      images.push_back(img);
-    }
-
-    //std::vector<tl::Camera> cameras;
-    //for (auto& it = project.cameraBegin(); it != project.cameraEnd(); it++) {
-    //  cameras.push_back(it->second);
-    //}
-
     tl::Chrono chrono("Images loaded");
     chrono.run();
 
@@ -262,8 +151,7 @@ bool ImageLoaderCommand::run()
     bool db_open = false;
     if (QFileInfo(database_cameras_path).exists()) {
       db_open = database_cameras.open();
-    }
-    else {
+    } else {
       msgError("The camera database does not exist");
     }
 
@@ -275,15 +163,13 @@ bool ImageLoaderCommand::run()
       epsg_out = project.crs().toStdString();
     }
 
-    for (size_t i = 0; i < images.size(); i++) {
+    for (auto &image : image_list) {
 
       try {
 
-        QString image = images[i].path();
+        Image img(image);
 
         msgInfo("Load image: %s", image.toStdString().c_str());
-        //tl::Chrono crono(std::string("Read image :").append(image.toStdString()));
-        //crono.run();
 
         std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
         imageReader->open();
@@ -305,14 +191,13 @@ bool ImageLoaderCommand::run()
 
         if (bActiveCameraName && bActiveCameraModel) {
 
-          msgInfo(" - Camera: %s %s", camera_make.c_str(), camera_model.c_str());
-
-          
           if (project.existCamera(camera_make.c_str(), camera_model.c_str())) {
 
             camera_id = project.cameraId(camera_make.c_str(), camera_model.c_str());
 
           } else {
+
+            msgInfo("New Camera detected: %s %s", camera_make.c_str(), camera_model.c_str());
 
             camera = tl::Camera(camera_make.c_str(), camera_model.c_str());
 
@@ -323,8 +208,7 @@ bool ImageLoaderCommand::run()
             std::string focal = image_metadata->metadata("EXIF_FocalLength", bActive);
             if (bActive) {
               camera.setFocal(parseFocal(focal, 1.2 * std::max(width, height)));
-            }
-            else {
+            } else {
               camera.setFocal(1.2 * std::max(width, height));
             }
 
@@ -341,16 +225,14 @@ bool ImageLoaderCommand::run()
                 while (query.next()) {
                   id_camera = query.value(0).toInt();
                 }
-              }
-              else {
+              } else {
                 QSqlError err = query.lastError();
                 throw err.text().toStdString();
               }
 
               if (id_camera == -1) {
                 msgWarning("Camera '%s' not found in database", camera_make.c_str());
-              }
-              else {
+              } else {
                 query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
                 query.bindValue(":camera_model", camera_model.c_str());
                 query.bindValue(":id_camera", id_camera);
@@ -368,8 +250,7 @@ bool ImageLoaderCommand::run()
                     msgWarning("Camera model (%s %s) not found in database", camera_make.c_str(), camera_model.c_str());
                   }
 
-                }
-                else {
+                } else {
                   QSqlError err = query.lastError();
                   msgWarning("%s", err.text().toStdString().c_str());
                 }
@@ -379,24 +260,21 @@ bool ImageLoaderCommand::run()
 
             if (db_open) database_cameras.close();
 
-            camera_id = project.camerasCount();
-            project.addCamera(camera);
+            camera_id = project.addCamera(camera);
           }
 
-        }
-        else {
+        } else {
+
           /// Camara desconocida
           msgWarning("Unknow camera for image: %s", image.toStdString().c_str());
           tl::Camera camera2;
           bool bFound = false;
-          //int id_camera;
           int counter = 0;
           for (auto it = project.cameraBegin(); it != project.cameraEnd(); it++) {
             camera2 = it->second;
             if (camera2.make().compare("Unknown camera") == 0) {
               if (camera2.width() == width && camera2.height() == height) {
                 // Misma camara
-                //id_camera = it->first;
                 bFound = true;
                 break;
               }
@@ -409,10 +287,9 @@ bool ImageLoaderCommand::run()
             camera.setWidth(width);
             camera.setHeight(height);
             camera.setFocal(1.2 * std::max(width, height));
-            camera_id = project.camerasCount();
-            project.addCamera(camera);
+            camera_id = project.addCamera(camera);
           } else {
-            camera_id = project.camerasCount() - 1;
+            camera_id = project.camerasCount();
           }
 
         }
@@ -452,7 +329,6 @@ bool ImageLoaderCommand::run()
 
           latitudeDecimalDegrees = tl::math::degreesToDecimalDegrees(degrees, minutes, seconds);
           if (latitude_ref.compare("S") == 0) latitudeDecimalDegrees = -latitudeDecimalDegrees;
-          //(*mImages)[i].setLatitudeExif(latitudeDecimalDegrees);
         }
 
         std::string longitude = image_metadata->metadata("EXIF_GPSLongitude", bActive);
@@ -482,7 +358,6 @@ bool ImageLoaderCommand::run()
 
           longitudeDecimalDegrees = tl::math::degreesToDecimalDegrees(degrees, minutes, seconds);
           if (longitude_ref.compare("W") == 0) longitudeDecimalDegrees = -longitudeDecimalDegrees;
-          //(*mImages)[i].setLongitudeExif(longitudeDecimalDegrees);
         }
 
         std::string gps_altitude = image_metadata->metadata("EXIF_GPSAltitude", bActive);
@@ -493,7 +368,6 @@ bool ImageLoaderCommand::run()
           if (pos1 != std::string::npos && pos2 != std::string::npos) {
             altitude = std::stod(gps_altitude.substr(pos1 + 1, pos2 - pos1 + 1));
           }
-          //(*mImages)[i].setAltitudeExif(h);
         }
 
         if (latitudeDecimalDegrees != 0.0 && longitudeDecimalDegrees != 0.0 && altitude != 0.0) {
@@ -513,20 +387,19 @@ bool ImageLoaderCommand::run()
           camera_pose.setPosition(pt_out);
           camera_pose.setCrs(epsg_out.c_str());
           camera_pose.setSource("EXIF");
-          images[i].setCameraPose(camera_pose);
+          img.setCameraPose(camera_pose);
         }
 
         tl::MessageManager::resume();
 
-        images[i].setCameraId(camera_id);
-        project.addImage(image);
+        img.setCameraId(camera_id);
+        project.addImage(img);
 
         QString crs_proj = project.crs();
-        QString crs_image = images[i].cameraPose().crs();
+        QString crs_image = img.cameraPose().crs();
         if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
           project.setCrs(crs_image);
         }
-        //crono.stop();
 
       } catch (std::exception& e) {
         msgError(e.what());
@@ -534,7 +407,7 @@ bool ImageLoaderCommand::run()
 
     }
 
-    /*uint64_t time = */chrono.stop();
+    chrono.stop();
 
     project.save(project_file);
 
