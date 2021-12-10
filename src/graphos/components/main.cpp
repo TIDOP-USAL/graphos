@@ -63,11 +63,6 @@ int main(int argc, char *argv[])
 
   Application &app = Application::instance();
 
-  tl::Console &console = tl::Console::instance();
-  console.setMessageLevel(tl::MessageLevel::msg_verbose);
-  console.setTitle("Graphos");
-  app.messageManager()->addListener(&console);
-
   ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
 
   /// Load Components
@@ -119,6 +114,11 @@ int main(int argc, char *argv[])
 
   MatchViewerComponent match_viewer_component(componentsManager.project(), &app);
   app.addComponent(&match_viewer_component);
+
+  tl::Console& console = tl::Console::instance();
+  console.setMessageLevel(tl::MessageLevel::msg_verbose);
+  console.setTitle("Graphos");
+  app.messageManager()->addListener(&console);
 
   bool r;
 

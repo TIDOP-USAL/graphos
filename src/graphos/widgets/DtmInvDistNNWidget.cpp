@@ -35,8 +35,7 @@ namespace graphos
 
 
 DtmInvDistNNWidget::DtmInvDistNNWidget(QWidget *parent)
-  :
-GraphosWidgetView(parent)
+  : GraphosWidgetView(parent)
 {
 }
 

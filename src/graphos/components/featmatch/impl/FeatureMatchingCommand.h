@@ -21,26 +21,24 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#ifndef GRAPHOS_FEATURE_MATCHING_COMMAND_H
+#define GRAPHOS_FEATURE_MATCHING_COMMAND_H
 
 #include "graphos/core/command.h"
 
 namespace graphos
 {
 	
-class CreateProjectCommand
+class FeatureMatchingCommand
   : public Command
 {
 
 public:
 
-  CreateProjectCommand();
-
-  ~CreateProjectCommand() override;
+  FeatureMatchingCommand();
+  ~FeatureMatchingCommand() override;
 
 private:
-
 
 // Command
 
@@ -48,12 +46,17 @@ private:
 
 private:
 
-  std::string mProjectName;
-  std::string mProjectDescription;
-  bool mForceOverwrite;
+  tl::Path mProjectFile;
+  bool mCrossCheck;
+  double mRatio;
+  double mDistance;
+  double mMaxError;
+  double mConfidence;
+  bool mDisableCuda;
+  bool mForceExhaustiveMatching;
 };
 
 	
 } // namespace graphos
 
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H
+#endif // GRAPHOS_FEATURE_MATCHING_COMMAND_H

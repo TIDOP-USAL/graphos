@@ -24,6 +24,12 @@
 
 #include "CreateProjectCommand.h"
 
+#include "graphos/core/project.h"
+
+#include <QDir>
+#include <QFileInfo>
+#include <QStandardPaths>
+
 namespace graphos
 {
   

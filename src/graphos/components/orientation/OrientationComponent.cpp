@@ -26,6 +26,7 @@
 #include "graphos/components/orientation/impl/OrientationModel.h"
 #include "graphos/components/orientation/impl/OrientationView.h"
 #include "graphos/components/orientation/impl/OrientationPresenter.h"
+#include "graphos/components/orientation/impl/OrientationCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -73,6 +74,7 @@ void OrientationComponent::createPresenter()
 
 void OrientationComponent::createCommand()
 {
+  setCommand(std::make_shared<OrientationCommand>());
 }
 
 void OrientationComponent::update()

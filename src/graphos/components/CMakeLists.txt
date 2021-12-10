@@ -56,6 +56,7 @@ set(GRAPHOS_SOURCES
     featmatch/impl/FeatureMatchingModel.cpp
     featmatch/impl/FeatureMatchingView.cpp
     featmatch/impl/FeatureMatchingPresenter.cpp
+    featmatch/impl/FeatureMatchingCommand.cpp
     images/ImageLoaderComponent.cpp
     images/impl/ImageLoaderModel.cpp
     images/impl/ImageLoaderPresenter.cpp
@@ -65,6 +66,7 @@ set(GRAPHOS_SOURCES
     orientation/impl/OrientationModel.cpp
     orientation/impl/OrientationView.cpp
     orientation/impl/OrientationPresenter.cpp
+    orientation/impl/OrientationCommand.cpp
     densification/DensificationComponent.cpp
     densification/impl/DensificationModel.cpp
     densification/impl/DensificationView.cpp
@@ -166,6 +168,7 @@ set(GRAPHOS_HEADERS
     featmatch/impl/FeatureMatchingModel.h
     featmatch/impl/FeatureMatchingView.h
     featmatch/impl/FeatureMatchingPresenter.h
+    featmatch/impl/FeatureMatchingCommand.h
     images/ImageLoaderComponent.h
     images/ImageLoaderModel.h
     images/ImageLoaderPresenter.h
@@ -180,6 +183,7 @@ set(GRAPHOS_HEADERS
     orientation/impl/OrientationModel.h
     orientation/impl/OrientationView.h
     orientation/impl/OrientationPresenter.h
+    orientation/impl/OrientationCommand.h
     densification/DensificationComponent.h
     densification/DensificationModel.h
     densification/DensificationView.h

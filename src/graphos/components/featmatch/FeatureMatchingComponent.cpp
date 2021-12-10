@@ -26,6 +26,7 @@
 #include "graphos/components/featmatch/impl/FeatureMatchingModel.h"
 #include "graphos/components/featmatch/impl/FeatureMatchingView.h"
 #include "graphos/components/featmatch/impl/FeatureMatchingPresenter.h"
+#include "graphos/components/featmatch/impl/FeatureMatchingCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -73,6 +74,7 @@ void FeatureMatchingComponent::createPresenter()
 
 void FeatureMatchingComponent::createCommand()
 {
+  setCommand(std::make_shared<FeatureMatchingCommand>());
 }
 
 void FeatureMatchingComponent::update()

@@ -21,26 +21,26 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_COMMAND_H
-#define GRAPHOS_CREATE_PROJECT_COMMAND_H
+#ifndef GRAPHOS_ORIENTATION_COMMAND_H
+#define GRAPHOS_ORIENTATION_COMMAND_H
 
 #include "graphos/core/command.h"
 
 namespace graphos
 {
 	
-class CreateProjectCommand
+class Project;
+
+class OrientationCommand
   : public Command
 {
 
 public:
 
-  CreateProjectCommand();
-
-  ~CreateProjectCommand() override;
+  OrientationCommand();
+  ~OrientationCommand() override;
 
 private:
-
 
 // Command
 
@@ -48,12 +48,15 @@ private:
 
 private:
 
-  std::string mProjectName;
-  std::string mProjectDescription;
-  bool mForceOverwrite;
+  tl::Path mProjectFile;
+  bool mFixCalibration;
+  bool mFixPoses;
+  bool mAbsoluteOrientation;
+
+  Project *mProject;
 };
 
 	
 } // namespace graphos
 
-#endif // GRAPHOS_CREATE_PROJECT_COMMAND_H
+#endif // GRAPHOS_ORIENTATION_COMMAND_H

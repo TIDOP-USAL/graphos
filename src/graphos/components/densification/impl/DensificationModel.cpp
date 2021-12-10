@@ -62,6 +62,7 @@ void DensificationModelImp::clear()
 
 std::shared_ptr<Densification> DensificationModelImp::densification() const
 {
+  ///TODO: Densificación guardada en proyecto y si no de configuración
   return mProject->densification();
 }
 

@@ -424,9 +424,7 @@ void ImportOrientationProcess::run()
       options.AddImageOptions();
       options.AddRequiredOption("input_path", &input_path.toString());
       options.AddRequiredOption("reconstruction_path", &reconstruction_path.toString());
-      options.AddDefaultOption(
-        "clear_points", &clear_points,
-        "Whether to clear all existing points and observations");
+      options.AddDefaultOption("clear_points", &clear_points, "Whether to clear all existing points and observations");
       options.AddMapperOptions();
 
       if (!reconstruction_path.exists()) {

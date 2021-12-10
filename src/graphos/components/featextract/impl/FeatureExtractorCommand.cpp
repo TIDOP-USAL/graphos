@@ -27,6 +27,7 @@
 #include "graphos/core/features/featio.h"
 #include "graphos/core/features/sift.h"
 #include "graphos/core/camera/colmap.h"
+#include "graphos/core/project.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -406,9 +407,7 @@ FeatureExtractorCommand::FeatureExtractorCommand()
   mEdgeThreshold = siftProperties.edgeThreshold();
   mSigma = siftProperties.sigma();
 
-  //Command cmd("featextract", cmd_description);
   this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
-  //this->push_back(CreateArgumentListStringOptional("camera_model", 'c', "Set camera model. Available cameras: SIMPLE_PINHOLE, SIMPLE_RADIAL, RADIAL (default), FULL_RADIAL", cameras, &idx_camera));
   this->push_back(CreateArgumentIntegerOptional("max_image_size", 's', std::string("Maximum image size (default = ").append(std::to_string(mMaxImageSize)), &mMaxImageSize));
   this->push_back(CreateArgumentIntegerOptional("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(mMaxFeaturesNumber)), &mMaxFeaturesNumber));
   this->push_back(CreateArgumentIntegerOptional("SIFT:octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(mOctaveResolution)), &mOctaveResolution));

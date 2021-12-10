@@ -21,15 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_COMMAND_COMMAND_H
-#define GRAPHOS_FEATURE_EXTRACTOR_COMMAND_COMMAND_H
+#ifndef GRAPHOS_FEATURE_EXTRACTOR_COMMAND_H
+#define GRAPHOS_FEATURE_EXTRACTOR_COMMAND_H
 
 #include "graphos/core/command.h"
-#include "graphos/core/project.h"
-
-#include <QDir>
-#include <QFileInfo>
-#include <QStandardPaths>
 
 namespace graphos
 {
@@ -64,4 +59,4 @@ private:
 	
 } // namespace graphos
 
-#endif // GRAPHOS_FEATURE_EXTRACTOR_COMMAND_COMMAND_H
+#endif // GRAPHOS_FEATURE_EXTRACTOR_COMMAND_H
