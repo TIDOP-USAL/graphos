@@ -28,9 +28,6 @@
 #include "graphos/components/MainWindowModel.h"
 #include "graphos/components/MainWindowView.h"
 #include "graphos/components/MainWindowPresenter.h"
-//#include "graphos/components/createproject/CreateProjectComponent.h"
-//#include "graphos/components/openproject/OpenProjectComponent.h"
-//#include "graphos/components/import/cameras/ImportCamerasComponent.h"
 #include "graphos/components/cameras/CamerasComponent.h"
 #include "graphos/components/ProjectModel.h"
 #include "graphos/components/SettingsModel.h"
@@ -60,12 +57,6 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowView(nullptr),
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),
-    mProject(new ProjectImp),
-    //mCreateProjectComponent(nullptr),
-    //mOpenProjectComponent(nullptr),
-    //mImportCamerasComponent(nullptr),
-    //mCamerasComponent(nullptr),
-    //mCommandList(new tl::CommandList("Graphos", "Graphos commands")),
     mProjectModel(nullptr),
     mFeaturesModel(nullptr),
     mMatchesModel(nullptr),
@@ -79,28 +70,7 @@ ComponentsManager::ComponentsManager(QObject *parent)
 {
   this->mainWindowPresenter(); /// Esto ya no hace falta llamarlo aqui
   
-  //Application &app = Application::instance();
-
-  //mCreateProjectComponent = new CreateProjectComponent(this->project(), &app);
-  //app.addCommand(mCreateProjectComponent->command());
-  //this->mainWindowView()->setCreateProjectAction(mCreateProjectComponent->action());
-  //mOpenProjectComponent = new OpenProjectComponent(this->project(), &app);
-  //this->mainWindowView()->setOpenProjectAction(mOpenProjectComponent->action());
-  //mImportCamerasComponent = new ImportCamerasComponent(this->project(), &app);
-  //this->mainWindowView()->setImportCamerasAction(mImportCamerasComponent->action());
-  //mCamerasComponent = new CamerasComponent(this->project(), &app);
-  //this->mainWindowView()->setCamerasToolAction(mCamerasComponent->action());
-
-  ///TODO: por ahora hasta que refactorice MainWindowView, MainWindowPresenter
-  //connect(mCreateProjectComponent, SIGNAL(projectCreated()), 
-  //        this->mainWindowPresenter(), SLOT(loadProject()));
-  //connect(mOpenProjectComponent, SIGNAL(projectLoaded()), 
-  //        this->mainWindowPresenter(), SLOT(loadProject()));
-  //connect(this->mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog, 
-  //        mCreateProjectComponent->action(), &QAction::trigger);
-  //connect(this->mainWindowPresenter(), &MainWindowPresenter::openProjectDialog, 
-  //        mOpenProjectComponent->action() , &QAction::trigger);
-
+  
 }
 
 ComponentsManager::~ComponentsManager()
@@ -119,36 +89,6 @@ ComponentsManager::~ComponentsManager()
     delete mMainWindowPresenter;
     mMainWindowPresenter = nullptr;
   }
-
-  if (mProject) {
-    delete mProject;
-    mProject = nullptr;
-  }
-
-  //if (mCreateProjectComponent) {
-  //  delete mCreateProjectComponent;
-  //  mCreateProjectComponent = nullptr;
-  //}
-
-  //if (mOpenProjectComponent) {
-  //  delete mOpenProjectComponent;
-  //  mOpenProjectComponent = nullptr;
-  //}
-
-  //if (mImportCamerasComponent) {
-  //  delete mImportCamerasComponent;
-  //  mImportCamerasComponent = nullptr;
-  //}
-
-  //if (mCamerasComponent) {
-  //  delete mCamerasComponent;
-  //  mCamerasComponent = nullptr;
-  //}
-
-  //if (mCommandList) {
-  //  delete mCommandList;
-  //  mCommandList = nullptr;
-  //}
 
   if (mProjectModel){
     delete mProjectModel;
@@ -212,7 +152,7 @@ MainWindowView *ComponentsManager::mainWindowView()
 MainWindowModel *ComponentsManager::mainWindowModel()
 {
   if (mMainWindowModel == nullptr){
-    mMainWindowModel = new MainWindowModel(this->project());
+    mMainWindowModel = new MainWindowModel(Application::instance().project());
   }
   return mMainWindowModel;
 }
@@ -442,15 +382,15 @@ void ComponentsManager::loadPlugin(QObject *plugin)
   }
 }
 
-Project *ComponentsManager::project()
-{
-  return mProject;
-}
+//Project *ComponentsManager::project()
+//{
+//  return mProject;
+//}
 
 ProjectModel *ComponentsManager::projectModel()
 {
   if (mProjectModel == nullptr){
-    mProjectModel = new ProjectModelImp(mProject);
+    mProjectModel = new ProjectModelImp(Application::instance().project());
   }
   return mProjectModel;
 }
@@ -458,7 +398,7 @@ ProjectModel *ComponentsManager::projectModel()
 FeaturesModel *ComponentsManager::featuresModel()
 {
   if (mFeaturesModel == nullptr){
-    mFeaturesModel = new FeaturesModelImp(mProject);
+    mFeaturesModel = new FeaturesModelImp(Application::instance().project());
   }
   return mFeaturesModel;
 }
@@ -466,7 +406,7 @@ FeaturesModel *ComponentsManager::featuresModel()
 MatchesModel *ComponentsManager::matchesModel()
 {
   if (mMatchesModel == nullptr){
-    mMatchesModel = new MatchesModelImp(mProject);
+    mMatchesModel = new MatchesModelImp(Application::instance().project());
   }
   return mMatchesModel;
 }

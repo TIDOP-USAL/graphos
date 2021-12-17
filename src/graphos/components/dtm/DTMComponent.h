@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class DtmProcess;
 
 class DTMComponent
@@ -41,8 +40,7 @@ class DTMComponent
 
 public:
 
-  DTMComponent(Project *project,
-               Application *application);
+  DTMComponent(Application *application);
   ~DTMComponent();
 
 signals:
@@ -68,7 +66,6 @@ protected slots:
 protected:
 
   DtmProcess *mProcess;
-  Project *mProject;
 
 };
 

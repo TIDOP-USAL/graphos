@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class FeatureExtractorProcess;
 
 class FeatureExtractorComponent
@@ -41,8 +40,7 @@ class FeatureExtractorComponent
 
 public:
 
-  FeatureExtractorComponent(Project *project,
-                            Application *application);
+  FeatureExtractorComponent(Application *application);
   ~FeatureExtractorComponent();
 
 signals:
@@ -71,7 +69,6 @@ protected slots:
 protected:
 
   FeatureExtractorProcess *mProcess;
-  Project *mProject;
 
 };
 

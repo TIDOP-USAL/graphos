@@ -36,10 +36,8 @@ namespace graphos
 {
 
 
-ExportOrientationsComponent::ExportOrientationsComponent(Project *project,
-                                                         Application *application)
-  : ComponentBase(application),
-    mProject(project)
+ExportOrientationsComponent::ExportOrientationsComponent(Application *application)
+  : ComponentBase(application)
 {
   this->setName("Export Cameras");
   this->setMenu("file_export");
@@ -51,7 +49,7 @@ ExportOrientationsComponent::~ExportOrientationsComponent()
 
 void ExportOrientationsComponent::createModel()
 {
-  setModel(new ExportOrientationsModelImp(mProject));
+  setModel(new ExportOrientationsModelImp(app()->project()));
 }
 
 void ExportOrientationsComponent::createView()

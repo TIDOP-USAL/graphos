@@ -36,10 +36,8 @@
 namespace graphos
 {
 
-OrientationComponent::OrientationComponent(Project *project,
-                                           Application *application)
-  : ProcessComponent(application),
-    mProject(project)
+OrientationComponent::OrientationComponent(Application *application)
+  : ProcessComponent(application)
 {
   this->setName("Orientation");
   this->setMenu("workflow");
@@ -53,7 +51,7 @@ OrientationComponent::~OrientationComponent()
 
 void OrientationComponent::createModel()
 {
-  setModel(new OrientationModelImp(mProject));
+  setModel(new OrientationModelImp(app()->project()));
 }
 
 void OrientationComponent::createView()

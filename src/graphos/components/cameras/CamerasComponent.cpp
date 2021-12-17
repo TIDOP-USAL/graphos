@@ -35,10 +35,8 @@
 namespace graphos
 {
 
-CamerasComponent::CamerasComponent(Project *project,
-                                   Application *application)
-  : ComponentBase(application),
-    mProject(project)
+CamerasComponent::CamerasComponent(Application *application)
+  : ComponentBase(application)
 {
   this->setName("Cameras");
   this->setMenu("tools");
@@ -63,7 +61,7 @@ void CamerasComponent::onUpdateCameras()
 
 void CamerasComponent::createModel()
 {
-  setModel(new CamerasModelImp(mProject));
+  setModel(new CamerasModelImp(app()->project()));
 }
 
 void CamerasComponent::createView()

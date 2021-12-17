@@ -30,16 +30,9 @@
 
 #include <tidop/core/flags.h>
 
-//namespace tl
-//{
-//class CommandList;
-//}
-
-
 namespace graphos
 {
 
-class Project;
 class Settings;
 class SettingsController;
 class Component;
@@ -49,7 +42,6 @@ class MainWindowPresenter;
 class ProjectModel;
 class SettingsModel;
 class SettingsPresenter;
-//class NewProjectPresenter;
 class FeaturesModel;
 class MatchesModel;
 class ProgressHandler;
@@ -91,7 +83,6 @@ public:
                               Flags flags = Flags::none);
   void loadPlugins();
 
-  Project *project();
   ProjectModel *projectModel();
   FeaturesModel *featuresModel();
   MatchesModel *matchesModel();
@@ -99,7 +90,6 @@ public:
   SettingsModel *settingsModel();
   SettingsPresenter *settingsPresenter();
 
-  //AboutDialog *aboutDialog();
   HelpDialog *helpDialog();
 
   ProgressHandler *progressHandler();
@@ -123,12 +113,6 @@ protected:
   MainWindowView *mMainWindowView;
   MainWindowModel *mMainWindowModel;
   MainWindowPresenter *mMainWindowPresenter;
-  Project *mProject;
-  //Component *mCreateProjectComponent;
-  //Component *mOpenProjectComponent;
-  //Component *mImportCamerasComponent;
-  //Component *mCamerasComponent;
-  //tl::CommandList *mCommandList;
 
   ProjectModel *mProjectModel;
   FeaturesModel *mFeaturesModel;

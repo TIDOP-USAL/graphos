@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
 
 # Proyecto GRAPHOS (InteGRAted PHOtogrammetric Suite)
-project(graphos 
-        VERSION 0.2.0
+project(GRAPHOS 
+        VERSION 2.0.0
         LANGUAGES CXX)
 		
 		
@@ -334,9 +334,9 @@ if(BUILD_GRAPHOS_MICROSERVICES)
 endif (BUILD_GRAPHOS_MICROSERVICES)
 
 
-set(TL_MESSAGE_HANDLER YES)
-message(STATUS "[TidopLib] Message manager enabled")
-configure_file("${PROJECT_SOURCE_DIR}/cmake/config_tl.h.in" "${PROJECT_BINARY_DIR}/config_tl.h")
+#set(TL_MESSAGE_HANDLER YES)
+#message(STATUS "[TidopLib] Message manager enabled")
+#configure_file("${PROJECT_SOURCE_DIR}/cmake/config_tl.h.in" "${PROJECT_BINARY_DIR}/config_tl.h")
 include_directories("${PROJECT_BINARY_DIR}")
 add_subdirectory(third_party)
 

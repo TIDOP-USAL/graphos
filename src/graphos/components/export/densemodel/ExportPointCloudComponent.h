@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class Project;
-
 class ExportPointCloudComponent
   : public ComponentBase
 {
@@ -40,8 +38,7 @@ class ExportPointCloudComponent
 
 public:
 
-  ExportPointCloudComponent(Project *project,
-                            Application *application);
+  ExportPointCloudComponent(Application *application);
   ~ExportPointCloudComponent();
 
 private slots:
@@ -58,10 +55,6 @@ protected:
   void createPresenter() override;
   void createCommand() override;
   void update() override;
-
-protected:
-
-  Project *mProject;
 
 };
 

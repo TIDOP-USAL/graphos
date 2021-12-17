@@ -36,10 +36,8 @@ namespace graphos
 {
 
 
-ExportPointCloudComponent::ExportPointCloudComponent(Project *project,
-                                                     Application *application)
-  : ComponentBase(application),
-    mProject(project)
+ExportPointCloudComponent::ExportPointCloudComponent(Application *application)
+  : ComponentBase(application)
 {
   this->setName("Export Point Cloud");
   this->setMenu("file_export");
@@ -51,7 +49,7 @@ ExportPointCloudComponent::~ExportPointCloudComponent()
 
 void ExportPointCloudComponent::createModel()
 {
-  setModel(new ExportPointCloudModelImp(mProject));
+  setModel(new ExportPointCloudModelImp(app()->project()));
 }
 
 void ExportPointCloudComponent::createView()

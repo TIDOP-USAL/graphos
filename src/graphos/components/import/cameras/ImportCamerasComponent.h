@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class Project;
-
 class ImportCamerasComponent
   : public ComponentBase
 {
@@ -40,8 +38,7 @@ class ImportCamerasComponent
 
 public:
 
-  ImportCamerasComponent(Project *project,
-                         Application *application);
+  ImportCamerasComponent(Application *application);
   ~ImportCamerasComponent();
 
 private slots:
@@ -60,10 +57,6 @@ protected:
   void createPresenter() override;
   void createCommand() override;
   void update() override;
-
-protected:
-
-  Project *mProject;
 
 };
 

@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class DtmProcess;
 
 class MatchViewerComponent
@@ -41,8 +40,7 @@ class MatchViewerComponent
 
 public:
 
-  MatchViewerComponent(Project *project,
-                       Application *application);
+  MatchViewerComponent(Application *application);
   ~MatchViewerComponent();
 
 public slots:
@@ -58,10 +56,6 @@ protected:
   void createPresenter() override;
   void createCommand() override;
   void update() override;
-
-protected:
-
-  Project *mProject;
 
 };
 

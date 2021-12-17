@@ -73,7 +73,7 @@ public slots:
 
   void clear() override;
 
-protected:
+private:
 
   Project *mProject;
   QString mPrjFile;

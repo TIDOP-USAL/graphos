@@ -35,10 +35,8 @@
 namespace graphos
 {
 
-ImportCamerasComponent::ImportCamerasComponent(Project *project,
-                                               Application *application)
-  : ComponentBase(application),
-    mProject(project)
+ImportCamerasComponent::ImportCamerasComponent(Application *application)
+  : ComponentBase(application)
 {
   this->setName("Import Cameras");
   this->setMenu("file");
@@ -62,7 +60,7 @@ void ImportCamerasComponent::onImportedCameras()
 
 void ImportCamerasComponent::createModel()
 {
-  setModel(new ImportCamerasModelImp(mProject));
+  setModel(new ImportCamerasModelImp(app()->project()));
 }
 
 void ImportCamerasComponent::createView()

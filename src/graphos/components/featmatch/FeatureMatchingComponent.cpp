@@ -36,10 +36,8 @@
 namespace graphos
 {
 
-FeatureMatchingComponent::FeatureMatchingComponent(Project *project,
-                                                   Application *application)
-  : ProcessComponent(application),
-    mProject(project)
+FeatureMatchingComponent::FeatureMatchingComponent(Application *application)
+  : ProcessComponent(application)
 {
   this->setName("Feature Matching");
   this->setMenu("workflow");
@@ -53,7 +51,7 @@ FeatureMatchingComponent::~FeatureMatchingComponent()
 
 void FeatureMatchingComponent::createModel()
 {
-  setModel(new FeatureMatchingModelImp(mProject));
+  setModel(new FeatureMatchingModelImp(app()->project()));
 }
 
 void FeatureMatchingComponent::createView()

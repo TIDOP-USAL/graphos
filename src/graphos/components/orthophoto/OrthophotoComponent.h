@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class OrthophotoProcess;
 
 class OrthophotoComponent
@@ -41,7 +40,7 @@ class OrthophotoComponent
 
 public:
 
-  OrthophotoComponent(Project *project, Application *application);
+  OrthophotoComponent(Application *application);
   ~OrthophotoComponent() override;
 
 // ComponentBase
@@ -65,7 +64,6 @@ protected slots:
 private:
 
   OrthophotoProcess *mProcess;
-  Project *mProject;
 
 };
 

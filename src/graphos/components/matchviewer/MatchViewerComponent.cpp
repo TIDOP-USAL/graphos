@@ -35,10 +35,8 @@
 namespace graphos
 {
 
-MatchViewerComponent::MatchViewerComponent(Project *project,
-                                           Application *application)
-  : ComponentBase(application),
-    mProject(project)
+MatchViewerComponent::MatchViewerComponent(Application *application)
+  : ComponentBase(application)
 {
   this->setName("Match Viewer");
   this->setMenu("tools");
@@ -60,7 +58,7 @@ void MatchViewerComponent::openMatchesViewer(const QString &file)
 
 void MatchViewerComponent::createModel()
 {
-  setModel(new MatchViewerModelImp(mProject));
+  setModel(new MatchViewerModelImp(app()->project()));
 }
 
 void MatchViewerComponent::createView()

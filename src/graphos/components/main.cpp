@@ -42,6 +42,8 @@
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
 #include "graphos/components/export/orientations/ExportOrientationsComponent.h"
 #include "graphos/components/export/densemodel/ExportPointCloudComponent.h"
+#include "graphos/components/about/AboutComponent.h"
+
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
@@ -55,67 +57,74 @@
 #include "vld.h"
 #endif
 
+//#if defined WIN32
+//#include <Windows.h>
+//#endif
+
 using namespace graphos;
 
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
-
+  
   Application &app = Application::instance();
 
   ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
 
   /// Load Components
 
-  CreateProjectComponent create_project_component(componentsManager.project(), &app);
+  CreateProjectComponent create_project_component(&app);
   app.addComponent(&create_project_component);
 
-  OpenProjectComponent open_project_component(componentsManager.project(), &app);
+  OpenProjectComponent open_project_component(&app);
   app.addComponent(&open_project_component);
 
-  ImportCamerasComponent import_cameras_component(componentsManager.project(), &app);
+  ImportCamerasComponent import_cameras_component(&app);
   app.addComponent(&import_cameras_component);
 
-  CamerasComponent cameras_component(componentsManager.project(), &app);
+  CamerasComponent cameras_component(&app);
   app.addComponent(&cameras_component);
 
-  ExportOrientationsComponent export_orientations_component(componentsManager.project(), &app);
+  ExportOrientationsComponent export_orientations_component(&app);
   app.addComponent(&export_orientations_component);
 
-  ExportPointCloudComponent export_point_cloud_component(componentsManager.project(), &app);
+  ExportPointCloudComponent export_point_cloud_component(&app);
   app.addComponent(&export_point_cloud_component);
 
-  ImageLoaderComponent image_loader_component(componentsManager.project(), &app);
+  ImageLoaderComponent image_loader_component(&app);
   app.addComponent(&image_loader_component);
 
-  FeatureExtractorComponent feature_extractor_component(componentsManager.project(), &app);
+  FeatureExtractorComponent feature_extractor_component(&app);
   app.addComponent(&feature_extractor_component);
 
-  FeatureMatchingComponent feature_matching_component(componentsManager.project(), &app);
+  FeatureMatchingComponent feature_matching_component(&app);
   app.addComponent(&feature_matching_component);
 
-  OrientationComponent orientation_component(componentsManager.project(), &app);
+  OrientationComponent orientation_component(&app);
   app.addComponent(&orientation_component);
 
-  DensificationComponent densification_component(componentsManager.project(), &app);
+  DensificationComponent densification_component(&app);
   app.addComponent(&densification_component);
 
-  GeoreferenceComponent georeference_component(componentsManager.project(), &app);
+  GeoreferenceComponent georeference_component(&app);
   app.addComponent(&georeference_component);
 
-  DTMComponent dtm_component(componentsManager.project(), &app);
+  DTMComponent dtm_component(&app);
   app.addComponent(&dtm_component);
 
-  OrthophotoComponent orthophoto_component(componentsManager.project(), &app);
+  OrthophotoComponent orthophoto_component(&app);
   app.addComponent(&orthophoto_component);
 
-  FeaturesViewerComponent features_viewer_component(componentsManager.project(), &app);
+  FeaturesViewerComponent features_viewer_component(&app);
   app.addComponent(&features_viewer_component);
 
-  MatchViewerComponent match_viewer_component(componentsManager.project(), &app);
+  MatchViewerComponent match_viewer_component(&app);
   app.addComponent(&match_viewer_component);
 
-  tl::Console& console = tl::Console::instance();
+  AboutComponent about_component(&app);
+  app.addComponent(&about_component);
+
+  tl::Console &console = tl::Console::instance();
   console.setMessageLevel(tl::MessageLevel::msg_verbose);
   console.setTitle("Graphos");
   app.messageManager()->addListener(&console);
@@ -128,6 +137,11 @@ int main(int argc, char *argv[])
     r = app.runCommand();
 
   } else if (status == tl::CommandList::Status::parse_error) {
+
+#if defined WIN32
+    HWND hwnd = GetConsoleWindow();
+    ShowWindow(hwnd, 0);
+#endif
 
     app.freeMemory();
 
@@ -177,7 +191,8 @@ int main(int argc, char *argv[])
     componentsManager.registerComponent(&match_viewer_component,
                                         ComponentsManager::Flags::separator_after);
 
-
+    componentsManager.registerComponent(&about_component,
+                                        ComponentsManager::Flags::separator_before);
     /// 
 
     QObject::connect(&create_project_component, SIGNAL(projectCreated()),
@@ -191,6 +206,9 @@ int main(int argc, char *argv[])
 
     QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openProjectDialog,
                      open_project_component.action(), &QAction::trigger);
+
+    QObject::connect(&app, SIGNAL(imageLoaded(QString)),
+                     componentsManager.mainWindowPresenter(), SLOT(loadImage(QString)));
 
     /////TODO: por ahora hasta que refactorice MainWindow
     QObject::connect(&image_loader_component, SIGNAL(imageLoaded(QString)),
@@ -227,6 +245,10 @@ int main(int argc, char *argv[])
     componentsManager.mainWindowPresenter()->open();
 
     r = a.exec();
+
+#if defined WIN32
+    ShowWindow(hwnd, 1);
+#endif
 
   } else if (status == tl::CommandList::Status::show_help) {
     r = false;

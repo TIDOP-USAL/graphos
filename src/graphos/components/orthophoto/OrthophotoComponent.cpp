@@ -36,9 +36,8 @@
 namespace graphos
 {
 
-OrthophotoComponent::OrthophotoComponent(Project *project, Application *application)
-  : ProcessComponent(application),
-    mProject(project)
+OrthophotoComponent::OrthophotoComponent(Application *application)
+  : ProcessComponent(application)
 {
   this->setName(tr("Orthophoto"));
   this->setMenu("tools");
@@ -50,7 +49,7 @@ OrthophotoComponent::~OrthophotoComponent()
 
 void OrthophotoComponent::createModel()
 {
-  setModel(new OrthophotoModelImp(mProject));
+  setModel(new OrthophotoModelImp(app()->project()));
 }
 
 void OrthophotoComponent::createView()
@@ -61,7 +60,7 @@ void OrthophotoComponent::createView()
 void OrthophotoComponent::createPresenter()
 {
   setPresenter(new OrthophotoPresenterImp(dynamic_cast<OrthophotoView *>(view()),
-                                               dynamic_cast<OrthophotoModel *>(model())));
+                                          dynamic_cast<OrthophotoModel *>(model())));
 }
 
 void OrthophotoComponent::createCommand()

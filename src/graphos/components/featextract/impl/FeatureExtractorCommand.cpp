@@ -408,14 +408,16 @@ FeatureExtractorCommand::FeatureExtractorCommand()
   mSigma = siftProperties.sigma();
 
   this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
-  this->push_back(CreateArgumentIntegerOptional("max_image_size", 's', std::string("Maximum image size (default = ").append(std::to_string(mMaxImageSize)), &mMaxImageSize));
-  this->push_back(CreateArgumentIntegerOptional("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(mMaxFeaturesNumber)), &mMaxFeaturesNumber));
-  this->push_back(CreateArgumentIntegerOptional("SIFT:octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(mOctaveResolution)), &mOctaveResolution));
-  this->push_back(CreateArgumentDoubleOptional("SIFT:contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(mContrastThreshold)), &mContrastThreshold));
-  this->push_back(CreateArgumentDoubleOptional("SIFT:edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(mEdgeThreshold)), &mEdgeThreshold));
-  this->push_back(CreateArgumentDoubleOptional("SIFT:sigma", std::string("(default = ").append(std::to_string(mSigma)), &mSigma));
+  this->push_back(CreateArgumentIntegerOptional("max_image_size", 's', std::string("Maximum image size (default = ").append(std::to_string(mMaxImageSize)).append(")"), &mMaxImageSize));
+  this->push_back(CreateArgumentIntegerOptional("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(mMaxFeaturesNumber)).append(")"), &mMaxFeaturesNumber));
+  this->push_back(CreateArgumentIntegerOptional("SIFT:octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(mOctaveResolution)).append(")"), &mOctaveResolution));
+  this->push_back(CreateArgumentDoubleOptional("SIFT:contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(mContrastThreshold)).append(")"), &mContrastThreshold));
+  this->push_back(CreateArgumentDoubleOptional("SIFT:edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(mEdgeThreshold)).append(")"), &mEdgeThreshold));
+  this->push_back(CreateArgumentDoubleOptional("SIFT:sigma", std::string("(default = ").append(std::to_string(mSigma)).append(")"), &mSigma));
 
   this->addExample("featextract --p 253/253.xml");
+
+  this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
 FeatureExtractorCommand::~FeatureExtractorCommand()

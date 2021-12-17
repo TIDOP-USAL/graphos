@@ -53,16 +53,17 @@ FeatureMatchingCommand::FeatureMatchingCommand()
   mCrossCheck = featureMatchingProperties.crossCheck();
 
   this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
-  this->push_back(CreateArgumentDoubleOptional("ratio", 'r', std::string("Ratio (default = ").append(std::to_string(mRatio)), &mRatio));
-  this->push_back(CreateArgumentDoubleOptional("distance", 'd', std::string("Distance (default = ").append(std::to_string(mDistance)), &mDistance));
-  this->push_back(CreateArgumentDoubleOptional("max_error", 'e', std::string("Maximun error (default = ").append(std::to_string(mMaxError)), &mMaxError));
-  this->push_back(CreateArgumentDoubleOptional("confidence", 'c', std::string("Confidence (default = ").append(std::to_string(mConfidence)), &mConfidence));
+  this->push_back(CreateArgumentDoubleOptional("ratio", 'r', std::string("Ratio (default = ").append(std::to_string(mRatio)).append(")"), &mRatio));
+  this->push_back(CreateArgumentDoubleOptional("distance", 'd', std::string("Distance (default = ").append(std::to_string(mDistance)).append(")"), &mDistance));
+  this->push_back(CreateArgumentDoubleOptional("max_error", 'e', std::string("Maximun error (default = ").append(std::to_string(mMaxError)).append(")"), &mMaxError));
+  this->push_back(CreateArgumentDoubleOptional("confidence", 'c', std::string("Confidence (default = ").append(std::to_string(mConfidence)).append(")"), &mConfidence));
   this->push_back(CreateArgumentBooleanOptional("cross_check", 'x', std::string("If true, cross checking is enabled (default = ").append(mCrossCheck ? "true)" : "false)"), &mCrossCheck));
   this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
   this->push_back(CreateArgumentBooleanOptional("exhaustive_matching", "Force exhaustive matching (default = false)", &mForceExhaustiveMatching));
  
   this->addExample("featmatch --p 253/253.xml");
 
+  this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
 FeatureMatchingCommand::~FeatureMatchingCommand()

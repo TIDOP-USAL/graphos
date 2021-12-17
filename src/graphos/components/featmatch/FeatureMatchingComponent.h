@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class FeatureMatchingProcess;
 
 class FeatureMatchingComponent
@@ -41,8 +40,7 @@ class FeatureMatchingComponent
 
 public:
 
-  FeatureMatchingComponent(Project *project,
-                           Application *application);
+  FeatureMatchingComponent(Application *application);
   ~FeatureMatchingComponent();
 
 signals:
@@ -71,7 +69,6 @@ protected slots:
 protected:
 
   FeatureMatchingProcess *mProcess;
-  Project *mProject;
 
 };
 

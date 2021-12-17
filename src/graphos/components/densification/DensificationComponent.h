@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class DensificationProcess;
 
 class DensificationComponent
@@ -41,8 +40,7 @@ class DensificationComponent
 
 public:
 
-  DensificationComponent(Project *project,
-                         Application *application);
+  DensificationComponent(Application *application);
   ~DensificationComponent();
 
 signals:
@@ -70,7 +68,6 @@ protected slots:
 protected:
 
   DensificationProcess *mProcess;
-  Project *mProject;
 
 };
 

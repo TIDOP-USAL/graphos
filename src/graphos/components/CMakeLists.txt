@@ -18,6 +18,8 @@ set(CMAKE_AUTORCC ON)
 # Ejecutable graphos                                                                         #
 #--------------------------------------------------------------------------------------------#
 
+#TODO: Subir un nivel y cargar los componentes automaticamente de la carpeta components
+
 project(graphos LANGUAGES CXX)
 
 set(GRAPHOS_SOURCES
@@ -105,6 +107,10 @@ set(GRAPHOS_SOURCES
     orthophoto/impl/OrthophotoModel.cpp
     orthophoto/impl/OrthophotoView.cpp
     orthophoto/impl/OrthophotoPresenter.cpp
+    about/AboutComponent.cpp
+    about/impl/AboutModel.cpp
+    about/impl/AboutView.cpp
+    about/impl/AboutPresenter.cpp
     HelpDialog.cpp
     utils/GraphicViewer.cpp
     utils/ProgressDialog.cpp
@@ -250,6 +256,13 @@ set(GRAPHOS_HEADERS
     orthophoto/impl/OrthophotoView.h
     orthophoto/impl/OrthophotoPresenter.h
     HelpDialog.h
+    about/AboutComponent.h
+    about/AboutModel.h
+    about/AboutView.h
+    about/AboutPresenter.h
+    about/impl/AboutModel.h
+    about/impl/AboutView.h
+    about/impl/AboutPresenter.h
     utils/GraphicViewer.h
     utils/ProgressDialog.h
     #utils/Progress.h
@@ -266,7 +279,6 @@ endif(MSVC)
 # forms
 set(GRAPHOS_FORMS
   MainWindowView.ui
-  # AboutDialog.ui
   utils/ProgressDialog.ui
 )
 
@@ -296,7 +308,6 @@ source_group("Form Files"  FILES ${GRAPHOS_FORMS})
 source_group("Resource Files"  FILES ${GRAPHOS_RESOURCES} ${UI_GRAPHOS_RES})
 #source_group("Translation Files"  FILES ${GRAPHOS_TS_FILES})
 
-#foreach(_source IN ITEMS ${GRAPHOS_SOURCES} ${GRAPHOS_HEADERS})
 foreach(_source IN ITEMS ${GRAPHOS_SOURCES})
     get_filename_component(_source_path "${_source}" PATH)
     string(REPLACE "/" "\\" _group_path "${_source_path}")

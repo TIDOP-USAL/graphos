@@ -44,6 +44,8 @@ CreateProjectCommand::CreateProjectCommand()
   this->push_back(CreateArgumentBooleanOptional("overwrite", 'o', "Force project overwrite (default = false)", &mForceOverwrite));
 
   this->addExample("createproj --name inspector ");
+
+  this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
 CreateProjectCommand::~CreateProjectCommand()

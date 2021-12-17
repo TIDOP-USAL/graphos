@@ -29,8 +29,6 @@
 namespace graphos
 {
 
-class Project;
-
 /*!
  * \brief Componente para la creación de proyectos
  */
@@ -42,8 +40,7 @@ class CreateProjectComponent
 
 public:
 
-  CreateProjectComponent(Project *project,
-                         Application *application);
+  CreateProjectComponent(Application *application);
   ~CreateProjectComponent();
 
 private slots:
@@ -66,10 +63,6 @@ protected:
   void createPresenter() override;
   void createCommand() override;
   void update() override;
-
-protected:
-
-  Project *mProject;
 
 };
 

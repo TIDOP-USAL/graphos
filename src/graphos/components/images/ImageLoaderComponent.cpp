@@ -36,10 +36,8 @@
 namespace graphos
 {
 
-ImageLoaderComponent::ImageLoaderComponent(Project *project,
-                                           Application *application)
-  : ProcessComponent(application),
-    mProject(project)
+ImageLoaderComponent::ImageLoaderComponent(Application *application)
+  : ProcessComponent(application)
 {
   this->setName("Load Images");
   this->setMenu("workflow");
@@ -55,7 +53,7 @@ ImageLoaderComponent::~ImageLoaderComponent()
 
 void ImageLoaderComponent::createModel()
 {
-  setModel(new ImageLoaderModelImp(mProject));
+  setModel(new ImageLoaderModelImp(app()->project()));
 }
 
 void ImageLoaderComponent::createView()

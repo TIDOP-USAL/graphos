@@ -35,10 +35,8 @@
 namespace graphos
 {
 
-GeoreferenceComponent::GeoreferenceComponent(Project *project,
-                                             Application *application)
-  : ProcessComponent(application),
-    mProject(project)
+GeoreferenceComponent::GeoreferenceComponent(Application *application)
+  : ProcessComponent(application)
 {
   this->setName("Georeference");
   this->setMenu("tools");
@@ -54,7 +52,7 @@ GeoreferenceComponent::~GeoreferenceComponent()
 
 void GeoreferenceComponent::createModel()
 {
-  setModel(new GeoreferenceModelImp(mProject));
+  setModel(new GeoreferenceModelImp(app()->project()));
 }
 
 void GeoreferenceComponent::createView()

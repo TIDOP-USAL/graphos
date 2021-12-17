@@ -91,7 +91,7 @@ void FeatureMatchingPresenterImp::initSignalAndSlots()
 {
   connect(mView, &FeatureMatchingView::matchMethodChange,  this, &FeatureMatchingPresenterImp::setCurrentMatchMethod);
   connect(mView, &FeatureMatchingView::run,                this, &FeatureMatchingPresenterImp::run);
-  connect(mView, &DialogView::help,                       this, &FeatureMatchingPresenterImp::help);
+  connect(mView, &DialogView::help,                        this, &FeatureMatchingPresenterImp::help);
 }
 
 void FeatureMatchingPresenterImp::setMatchingProperties()

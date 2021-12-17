@@ -35,10 +35,8 @@
 namespace graphos
 {
 
-DensificationComponent::DensificationComponent(Project *project,
-                                               Application *application)
-  : ProcessComponent(application),
-    mProject(project)
+DensificationComponent::DensificationComponent(Application *application)
+  : ProcessComponent(application)
 {
   this->setName("Densification");
   this->setMenu("workflow");
@@ -52,7 +50,7 @@ DensificationComponent::~DensificationComponent()
 
 void DensificationComponent::createModel()
 {
-  setModel(new DensificationModelImp(mProject));
+  setModel(new DensificationModelImp(app()->project()));
 }
 
 void DensificationComponent::createView()

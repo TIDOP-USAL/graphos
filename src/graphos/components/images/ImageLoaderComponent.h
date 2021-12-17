@@ -29,7 +29,6 @@
 namespace graphos
 {
 
-class Project;
 class LoadImagesProcess;
 
 class ImageLoaderComponent
@@ -40,8 +39,7 @@ class ImageLoaderComponent
 
 public:
 
-  ImageLoaderComponent(Project *project,
-                       Application *application);
+  ImageLoaderComponent(Application *application);
   ~ImageLoaderComponent();
 
 signals:
@@ -69,7 +67,6 @@ protected slots:
 protected:
 
   LoadImagesProcess *mProcess;
-  Project *mProject;
 
 };
 

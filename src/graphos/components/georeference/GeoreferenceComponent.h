@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class Project;
-
 class GeoreferenceComponent
   : public ProcessComponent
 {
@@ -40,13 +38,11 @@ class GeoreferenceComponent
 
 public:
 
-  GeoreferenceComponent(Project *project,
-                        Application *application);
+  GeoreferenceComponent(Application *application);
   ~GeoreferenceComponent();
 
 signals:
 
-  //void finished();
   void georeferenceFinished();
 
 // ComponentBase
@@ -69,8 +65,6 @@ protected slots:
 
 protected:
 
-  //DtmProcess *mProcess;
-  Project *mProject;
 
 };
 

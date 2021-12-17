@@ -312,7 +312,7 @@ protected:
   //QAction *mActionGeoreference;
   QAction *mActionSettings;
   QAction *mActionHelp;
-  QAction *mActionAbout;
+  //QAction *mActionAbout;
   QAction *mActionImportCameras;
   QAction *mActionExportTiePoints;
   QAction *mActionExportMatches;

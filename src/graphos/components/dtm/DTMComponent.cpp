@@ -35,10 +35,8 @@
 namespace graphos
 {
 
-DTMComponent::DTMComponent(Project *project,
-                           Application *application)
-  : ProcessComponent(application),
-    mProject(project)
+DTMComponent::DTMComponent(Application *application)
+  : ProcessComponent(application)
 {
   this->setName("DTM/DSM");
   this->setMenu("tools");
@@ -50,7 +48,7 @@ DTMComponent::~DTMComponent()
 
 void DTMComponent::createModel()
 {
-  setModel(new DtmModelImp(mProject));
+  setModel(new DtmModelImp(app()->project()));
 }
 
 void DTMComponent::createView()

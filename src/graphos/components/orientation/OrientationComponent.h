@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class OrientationProcess;
 
 class OrientationComponent
@@ -41,8 +40,7 @@ class OrientationComponent
 
 public:
 
-  OrientationComponent(Project *project,
-                       Application *application);
+  OrientationComponent(Application *application);
   ~OrientationComponent();
 
 signals: 
@@ -71,7 +69,6 @@ protected slots:
 protected:
 
   OrientationProcess *mProcess;
-  Project *mProject;
 
 };
 

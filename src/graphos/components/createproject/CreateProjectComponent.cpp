@@ -38,10 +38,8 @@ namespace graphos
 
 
 
-CreateProjectComponent::CreateProjectComponent(Project *project, 
-                                               Application *application)
-  : ComponentBase(application),
-    mProject(project)
+CreateProjectComponent::CreateProjectComponent(Application *application)
+  : ComponentBase(application)
 {
   this->setName("New Project");
   this->setMenu("file");
@@ -60,7 +58,7 @@ CreateProjectComponent::~CreateProjectComponent()
 
 void CreateProjectComponent::createModel()
 {
-  setModel(new CreateProjectModelImp(mProject));
+  setModel(new CreateProjectModelImp(app()->project()));
 }
 
 void CreateProjectComponent::createView()

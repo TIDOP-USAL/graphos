@@ -27,6 +27,7 @@
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/Component.h"
 #include "graphos/core/command.h"
+#include "graphos/core/project.h"
 
 #include <tidop/core/console.h>
 
@@ -40,8 +41,10 @@ std::mutex Application::sMutex;
 
 Application::Application()
   : mAppStatus(new AppStatus()),
+    mProject(new ProjectImp),
     mCommandList(new tl::CommandList("Graphos", "Graphos commands"))
 {
+  mCommandList->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
 Application::~Application()
@@ -49,6 +52,11 @@ Application::~Application()
   if (mAppStatus != nullptr) {
     delete mAppStatus;
     mAppStatus = nullptr;
+  }
+
+  if (mProject) {
+    delete mProject;
+    mProject = nullptr;
   }
 
   if (mCommandList) {
@@ -68,6 +76,11 @@ AppStatus *Application::status()
 tl::MessageManager *Application::messageManager()
 {
   return &tl::MessageManager::instance();
+}
+
+Project *Application::project()
+{
+  return mProject;
 }
 
 void Application::addComponent(Component *component)

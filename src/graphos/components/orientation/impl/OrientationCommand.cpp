@@ -609,6 +609,8 @@ OrientationCommand::OrientationCommand()
   this->push_back(CreateArgumentBooleanOptional("absolute_orientation", 'a', "Absolute Orientation", &mAbsoluteOrientation));
 
   this->addExample("featextract --p 253/253.xml");
+
+  this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
 OrientationCommand::~OrientationCommand()

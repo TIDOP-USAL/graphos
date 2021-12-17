@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class DtmProcess;
 
 class CamerasComponent
@@ -41,8 +40,7 @@ class CamerasComponent
 
 public:
 
-  CamerasComponent(Project *project,
-                   Application *application);
+  CamerasComponent(Application *application);
   ~CamerasComponent();
 
 private slots:
@@ -58,10 +56,6 @@ protected:
   void createPresenter() override;
   void createCommand() override;
   void update() override;
-
-protected:
-
-  Project *mProject;
 
 };
 

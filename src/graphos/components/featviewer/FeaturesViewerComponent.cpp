@@ -35,10 +35,8 @@
 namespace graphos
 {
 
-FeaturesViewerComponent::FeaturesViewerComponent(Project *project,
-                                                 Application *application)
-  : ComponentBase(application),
-    mProject(project)
+FeaturesViewerComponent::FeaturesViewerComponent(Application *application)
+  : ComponentBase(application)
 {
   this->setName("Features Viewer");
   this->setMenu("tools");
@@ -60,7 +58,7 @@ void FeaturesViewerComponent::openKeypointsViewer(const QString &file)
 
 void FeaturesViewerComponent::createModel()
 {
-  setModel(new FeaturesViewerModelImp(mProject));
+  setModel(new FeaturesViewerModelImp(app()->project()));
 }
 
 void FeaturesViewerComponent::createView()

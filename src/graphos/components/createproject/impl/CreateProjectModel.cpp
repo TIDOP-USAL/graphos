@@ -21,7 +21,6 @@
  *                                                                      *
  ************************************************************************/
 
-
 #include "CreateProjectModel.h"
 
 #include "graphos/core/project.h"

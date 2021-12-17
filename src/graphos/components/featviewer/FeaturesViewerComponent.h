@@ -30,7 +30,6 @@
 namespace graphos
 {
 
-class Project;
 class DtmProcess;
 
 class FeaturesViewerComponent
@@ -41,8 +40,7 @@ class FeaturesViewerComponent
 
 public:
 
-  FeaturesViewerComponent(Project *project,
-                          Application *application);
+  FeaturesViewerComponent(Application *application);
   ~FeaturesViewerComponent();
 
 public slots:
@@ -58,10 +56,6 @@ protected:
   void createPresenter() override;
   void createCommand() override;
   void update() override;
-
-protected:
-
-  Project *mProject;
 
 };
 

@@ -45,6 +45,7 @@ namespace graphos
 
 class AppStatus;
 class Component;
+class Project;
 
 class Application
   : public QObject
@@ -68,6 +69,7 @@ public:
 
   AppStatus *status();
   tl::MessageManager *messageManager();
+  Project *project();
 
   void addComponent(Component *component);
   tl::CommandList::Status parse(int argc, char **argv);
@@ -75,11 +77,16 @@ public:
 
   void freeMemory();
 
+signals:
+
+  void imageLoaded(QString);
+
 private:
 
   static std::unique_ptr<Application> sApplication;
   static std::mutex sMutex;
   AppStatus *mAppStatus;
+  Project *mProject;
   std::list<Component *> mComponents;
   tl::CommandList *mCommandList;
 };

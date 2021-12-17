@@ -36,10 +36,8 @@
 namespace graphos
 {
 
-FeatureExtractorComponent::FeatureExtractorComponent(Project *project,
-                                                     Application *application)
-  : ProcessComponent(application),
-    mProject(project)
+FeatureExtractorComponent::FeatureExtractorComponent(Application *application)
+  : ProcessComponent(application)
 {
   this->setName("Feature Extractor");
   this->setMenu("workflow");
@@ -53,7 +51,7 @@ FeatureExtractorComponent::~FeatureExtractorComponent()
 
 void FeatureExtractorComponent::createModel()
 {
-  setModel(new FeatureExtractorModelImp(mProject));
+  setModel(new FeatureExtractorModelImp(app()->project()));
 }
 
 void FeatureExtractorComponent::createView()

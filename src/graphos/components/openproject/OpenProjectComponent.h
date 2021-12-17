@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class Project;
-
 class OpenProjectComponent
   : public ComponentBase
 {
@@ -40,8 +38,7 @@ class OpenProjectComponent
 
 public:
 
-  OpenProjectComponent(Project *project,
-                       Application *application);
+  OpenProjectComponent(Application *application);
   ~OpenProjectComponent();
 
 signals:
@@ -57,10 +54,6 @@ protected:
   void createPresenter() override;
   void createCommand() override;
   void update() override;
-
-protected:
-
-  Project *mProject;
 
 };
 

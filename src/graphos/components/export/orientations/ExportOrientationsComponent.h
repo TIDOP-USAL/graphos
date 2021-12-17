@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class Project;
-
 class ExportOrientationsComponent
   : public ComponentBase
 {
@@ -40,8 +38,7 @@ class ExportOrientationsComponent
 
 public:
 
-  ExportOrientationsComponent(Project *project,
-                              Application *application);
+  ExportOrientationsComponent(Application *application);
   ~ExportOrientationsComponent();
 
 private slots:
@@ -60,10 +57,6 @@ protected:
   void createPresenter() override;
   void createCommand() override;
   void update() override;
-
-protected:
-
-  Project *mProject;
 
 };
 
