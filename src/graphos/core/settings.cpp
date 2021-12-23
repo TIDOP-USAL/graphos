@@ -1,5 +1,9 @@
 #include "settings.h"
 
+#include "graphos/core/utils.h"
+
+#include "tidop/core/messages.h"
+
 #include <QSettings>
 #include <QLocale>
 #include <QFileInfo>
@@ -50,24 +54,24 @@ void SettingsImp::setLanguage(const QString &language)
   mLanguage = language;
 }
 
-QStringList SettingsImp::history() const
-{
-  return mHistory;
-}
+//QStringList SettingsImp::history() const
+//{
+//  return mHistory;
+//}
+//
+//void SettingsImp::addToHistory(const QString &project)
+//{
+//  mHistory.removeAll(project);
+//  mHistory.prepend(project);
+//
+//  while (mHistory.size() > mHistoyMaxSize)
+//    mHistory.removeLast();
+//}
 
-void SettingsImp::addToHistory(const QString &project)
-{
-  mHistory.removeAll(project);
-  mHistory.prepend(project);
-
-  while (mHistory.size() > mHistoyMaxSize)
-    mHistory.removeLast();
-}
-
-void SettingsImp::clearHistory()
-{
-  mHistory.clear();
-}
+//void SettingsImp::clearHistory()
+//{
+//  mHistory.clear();
+//}
 
 int SettingsImp::historyMaxSize() const
 {
@@ -263,7 +267,7 @@ void SettingsImp::reset()
 {
   mLanguage = "en";
   mHistoyMaxSize = 10;
-  mHistory.clear();
+  //mHistory.clear();
   mImageViewerBGcolor = "#dcdcdc";
   mKeypointViewerBGColor = "#dcdcdc";
   mKeypointsViewerMarkerType = 0;
@@ -310,13 +314,13 @@ void SettingsControllerImp::read(Settings &settings)
   settings.setLanguage(mSettingsController->value("lang", lang).toString());
 
   settings.setHistoryMaxSize(mSettingsController->value("HISTORY/MaxSize", settings.historyMaxSize()).toInt());
-  QStringList history = mSettingsController->value("HISTORY/RecentProjects", settings.history()).toStringList();
-  settings.clearHistory();
-  for(auto &prj : history){
-    if (QFileInfo(prj).exists()){
-      settings.addToHistory(prj);
-    }
-  }
+  //QStringList history = mSettingsController->value("HISTORY/RecentProjects", settings.history()).toStringList();
+  //settings.clearHistory();
+  //for(auto &prj : history){
+  //  if (QFileInfo(prj).exists()){
+  //    settings.addToHistory(prj);
+  //  }
+  //}
 
   settings.setImageViewerBGcolor(mSettingsController->value("ImageViewer/BGColor", settings.imageViewerBGcolor()).toString());
 
@@ -340,7 +344,11 @@ void SettingsControllerImp::read(Settings &settings)
   settings.setMatchesViewerLineColor(mSettingsController->value("MatchesViewer/LineColor", settings.matchesViewerLineColor()).toString());
   settings.setMatchesViewerLineWidth(mSettingsController->value("MatchesViewer/LineWidth", settings.matchesViewerLineWidth()).toInt());
 
-  settings.setUseCuda(mSettingsController->value("General/UseCuda", settings.useCuda()).toBool());
+  tl::MessageManager::instance().pause();
+  bool bUseGPU = cudaEnabled(10.0, 3.0);
+  tl::MessageManager::instance().resume();
+
+  settings.setUseCuda(mSettingsController->value("General/UseCuda", bUseGPU).toBool());
 }
 
 void SettingsControllerImp::write(const Settings &settings)
@@ -348,7 +356,7 @@ void SettingsControllerImp::write(const Settings &settings)
   mSettingsController->setValue("lang", settings.language());
 
   mSettingsController->setValue("HISTORY/MaxSize", settings.historyMaxSize());
-  mSettingsController->setValue("HISTORY/RecentProjects", settings.history());
+  //mSettingsController->setValue("HISTORY/RecentProjects", settings.history());
 
   mSettingsController->setValue("ImageViewer/BGColor", settings.imageViewerBGcolor());
 
@@ -375,9 +383,9 @@ void SettingsControllerImp::write(const Settings &settings)
   mSettingsController->setValue("General/UseCuda", settings.useCuda());
 }
 
-void SettingsControllerImp::writeHistory(const Settings &settings)
-{
-  mSettingsController->setValue("HISTORY/RecentProjects", settings.history());
-}
+//void SettingsControllerImp::writeHistory(const Settings &settings)
+//{
+//  mSettingsController->setValue("HISTORY/RecentProjects", settings.history());
+//}
 
 } // namespace graphos

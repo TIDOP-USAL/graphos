@@ -27,10 +27,11 @@
 #include <QObject>
 
 #include "graphos/core/settings.h"
-#include "graphos/components/Settings.h"
+#include "graphos/components/settings/SettingsModel.h"
 
 namespace graphos
 {
+
 
 class SettingsModelImp
   : public SettingsModel
@@ -40,7 +41,7 @@ class SettingsModelImp
 public:
 
   SettingsModelImp(Settings *settings,
-                   SettingsController *settingsRW,
+                   /*SettingsController *settingsRW,*/
                    QObject *parent = nullptr);
   ~SettingsModelImp() override;
 
@@ -50,7 +51,7 @@ public:
 
   QStringList languages() const override;
   QString language() const override;
-  QStringList history() const override;
+  //QStringList history() const override;
   int historyMaxSize() const override;
   QString imageViewerBGcolor() const override;
 
@@ -73,14 +74,15 @@ public:
   int matchesViewerLineWidth() const override;
 
   bool useCuda() const override;
+  bool checkDevice() const override;
   void read() override;
   void write() override;
 
 public slots:
 
   void setLanguage(const QString &language) override;
-  void addToHistory(const QString &project) override;
-  void clearHistory() override;
+  //void addToHistory(const QString &project) override;
+  //void clearHistory() override;
   void setHistoryMaxSize(int maxSize) override;
   void setImageViewerBGcolor(const QString &bgColor) override;
   void setUseCuda(bool active) override;

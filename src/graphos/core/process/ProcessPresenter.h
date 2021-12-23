@@ -68,6 +68,7 @@ signals:
   void running();
   void finished();
   void failed();
+  void canceled();
 
 protected:
 

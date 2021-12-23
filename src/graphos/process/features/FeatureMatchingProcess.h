@@ -34,6 +34,10 @@ signals:
 
   void featureMatchingFinished();
 
+//private slots:
+//
+//  void onCancel();
+
 // ProcessConcurrent interface
 
 public:
@@ -52,6 +56,12 @@ public:
 protected:
 
   void run() override;
+
+// Process interface
+
+public slots:
+
+  void stop() override;
 
 private:
 

@@ -21,67 +21,29 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SETTINGS_PRESENTER_H
-#define GRAPHOS_SETTINGS_PRESENTER_H
+#ifndef GRAPHOS_ABOUT_VIEW_INTERFACE_H
+#define GRAPHOS_ABOUT_VIEW_INTERFACE_H
 
-#include <QObject>
-
-#include "graphos/components/Settings.h"
+#include "graphos/interfaces/mvp.h"
 
 namespace graphos
 {
 
-class HelpDialog;
-class SettingsView;
-class SettingsModel;
-
-
-class SettingsPresenterImp
-  : public SettingsPresenter
+class AboutView
+  : public DialogView
 {
-
   Q_OBJECT
 
 public:
 
-  SettingsPresenterImp(SettingsView *view,
-                       SettingsModel *model);
-  ~SettingsPresenterImp() override;
+  explicit AboutView(QWidget *parent) : DialogView(parent) {}
+  ~AboutView() override = default;
 
-public slots:
-
-  void openViewSettings() override;
-  void openToolSettings() override;
-
-// Presenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-// ISettingsPresenter interface
-
-private slots:
-
-  void setLanguage(const QString &language) override;
-  void save() override;
-  void discart() override;
-
-protected:
-
-  SettingsView *mView;
-  SettingsModel *mModel;
-  HelpDialog *mHelp;
-  std::map<QString, QString> mLang;
+  virtual void setGraphosVersion(const QString &version) = 0;
+  virtual void setGraphosLicence(const QString &licence) = 0;
+  virtual void addLicence(const QString &product, const QString &licence) = 0;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_SETTINGS_PRESENTER_H
+#endif // GRAPHOS_ABOUT_VIEW_INTERFACE_H

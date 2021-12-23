@@ -54,6 +54,7 @@ private:
   double mContrastThreshold;
   double mEdgeThreshold;
   double mSigma;
+  bool mDisableCuda;
 };
 
 	

@@ -35,7 +35,6 @@ class StartPageWidget;
 class MainWindowView;
 class MainWindowModel;
 class ProjectModel;
-class SettingsModel;
 class CamerasModel;
 class FeaturesModel;
 class MatchesModel;
@@ -52,7 +51,6 @@ public:
   explicit MainWindowPresenter(MainWindowView *view,
                                MainWindowModel *model,
                                ProjectModel *projectModel,
-                               SettingsModel *settingsModel,
                                FeaturesModel *featuresModel,
                                MatchesModel *matchesModel);
   ~MainWindowPresenter() override;
@@ -67,9 +65,9 @@ signals:
   void openGeoreferenceDialog();
   void openCamerasImportDialog();
   void openAboutDialog();
-  void openSettingsDialog();
-  void openViewSettingsDialog();
-  void openToolSettingsDialog();
+  //void openSettingsDialog();
+  //void openViewSettingsDialog();
+  //void openToolSettingsDialog();
   void openDtmDialog();
 
 protected slots:
@@ -146,7 +144,6 @@ protected:
   MainWindowView *mView;
   MainWindowModel *mModel;
   ProjectModel *mProjectModel;
-  SettingsModel *mSettingsModel;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
 

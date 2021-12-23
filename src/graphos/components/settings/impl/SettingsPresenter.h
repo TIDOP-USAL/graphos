@@ -20,86 +20,69 @@
  * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
  *                                                                      *
  ************************************************************************/
-
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
+ 
+#ifndef GRAPHOS_SETTINGS_PRESENTER_H
+#define GRAPHOS_SETTINGS_PRESENTER_H
 
 #include "graphos/graphos_global.h"
 
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
-
-#include <QObject>
-
-#include <memory>
-#include <mutex>
-
-namespace tl
-{
-class CommandList;
-}
-
+#include "graphos/components/settings/SettingsPresenter.h"
 
 namespace graphos
 {
 
-class AppStatus;
-class Component;
-class Project;
-class Settings;
+class HelpDialog;
+class SettingsView;
+class SettingsModel;
 
-class Application
-  : public QObject
+
+class SettingsPresenterImp
+  : public SettingsPresenter
 {
 
   Q_OBJECT
 
-private:
-
-  Application();
-
 public:
 
-  static Application &instance();
-  ~Application();
+  SettingsPresenterImp(SettingsView *view,
+                       SettingsModel *model);
+  ~SettingsPresenterImp() override = default;
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+// Presenter interface
 
-  AppStatus *status();
-  tl::MessageManager *messageManager();
-  Project *project();
-  Settings *settings();
+public slots:
 
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
-
-  void freeMemory();
-
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
-
-signals:
-
-  void imageLoaded(QString);
+  void help() override;
+  void open() override;
+  void setHelp(HelpDialog *help) override;
 
 private:
 
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  QStringList mHistory;
+  void init() override;
+  void initSignalAndSlots() override;
+
+// SettingsPresenter interface
+
+//public slots:
+//
+//  void openViewSettings() override;
+//  void openToolSettings() override;
+
+private slots:
+
+  void setLanguage(const QString &language) override;
+  void save() override;
+  void discart() override;
+
+protected:
+
+  SettingsView *mView;
+  SettingsModel *mModel;
+  HelpDialog *mHelp;
+  std::map<QString, QString> mLang;
 };
+
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_APPLICATION_H
+#endif // GRAPHOS_SETTINGS_PRESENTER_H

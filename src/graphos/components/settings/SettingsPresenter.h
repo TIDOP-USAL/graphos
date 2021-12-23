@@ -20,86 +20,41 @@
  * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
  *                                                                      *
  ************************************************************************/
+ 
+#ifndef GRAPHOS_SETTINGS_PRESENTER_INTERFACE_H
+#define GRAPHOS_SETTINGS_PRESENTER_INTERFACE_H
 
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
-
-#include "graphos/graphos_global.h"
-
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
-
-#include <QObject>
-
-#include <memory>
-#include <mutex>
-
-namespace tl
-{
-class CommandList;
-}
-
+#include "graphos/interfaces/mvp.h"
 
 namespace graphos
 {
 
-class AppStatus;
-class Component;
-class Project;
-class Settings;
 
-class Application
-  : public QObject
+class SettingsPresenter
+  : public Presenter
 {
 
   Q_OBJECT
 
-private:
-
-  Application();
-
 public:
 
-  static Application &instance();
-  ~Application();
+  SettingsPresenter() = default;
+  virtual ~SettingsPresenter() override = default;
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+//public slots:
+//
+//  virtual void openViewSettings() = 0;
+//  virtual void openToolSettings() = 0;
 
-  AppStatus *status();
-  tl::MessageManager *messageManager();
-  Project *project();
-  Settings *settings();
+private slots:
 
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
+  virtual void setLanguage(const QString &language) = 0;
+  virtual void save() = 0;
+  virtual void discart() = 0;
 
-  void freeMemory();
-
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
-
-signals:
-
-  void imageLoaded(QString);
-
-private:
-
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  QStringList mHistory;
 };
+
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_APPLICATION_H
+#endif // GRAPHOS_SETTINGS_PRESENTER_INTERFACE_H

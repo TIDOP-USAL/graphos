@@ -126,7 +126,8 @@ void DtmProcess::run()
                                           image_reader_mds_ground->channels(), 
                                           image_reader_mds_ground->dataType());
           image_writer_mds_ground->setGeoreference(georeference);
-          image_writer_mds_ground->setCRS(tl::geospatial::Crs(mCrs.toStdString()));
+          tl::geospatial::Crs crs(mCrs.toStdString());
+          image_writer_mds_ground->setCRS(crs.toWktFormat());
           image_writer_mds_ground->setNoDataValue(-9999.);
           image_writer_mds_ground->write(ground);
           ground.release();

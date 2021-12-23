@@ -40,7 +40,6 @@ ComponentBase::ComponentBase(Application *application)
     mModel(nullptr),
     mView(nullptr),
     mPresenter(nullptr),
-    //mCommand(nullptr),
     mApplication(application)
 {
   ComponentBase::init();
@@ -108,10 +107,6 @@ void ComponentBase::createAction()
 {
   mAction = new QAction();
 }
-
-//void ComponentBase::createCommand()
-//{
-//}
 
 QString ComponentBase::name() const
 {
@@ -248,6 +243,8 @@ void ProcessComponent::onComponentCreated()
           this, &ProcessComponent::onFinished);
   connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::failed,
           this, &ProcessComponent::onFailed);
+  connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::canceled,
+          this, &ProcessComponent::onCanceled);
 
   dynamic_cast<ProcessPresenter *>(presenter)->setProgressHandler(mProgressHandler);
 }
@@ -266,6 +263,11 @@ void ProcessComponent::onFinished()
 }
 
 void ProcessComponent::onFailed()
+{
+  app()->status()->activeFlag(AppStatus::Flag::processing, false);
+}
+
+void ProcessComponent::onCanceled()
 {
   app()->status()->activeFlag(AppStatus::Flag::processing, false);
 }

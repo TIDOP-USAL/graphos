@@ -55,6 +55,7 @@ public:
   QString dtmPath() const override;
   QString epsCode() const override;
   void clearProject() override;
+  bool useCuda() const override;
 
 public slots:
 

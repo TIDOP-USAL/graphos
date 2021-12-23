@@ -88,7 +88,8 @@ public:
                     int cellSize,
                     double threshold,
                     int windowSize,
-                    int minimunImageNumber);
+                    int minimunImageNumber,
+                    bool cuda);
   ~CmvsPmvsDensifier() override;
   
   CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;

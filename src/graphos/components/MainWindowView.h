@@ -211,7 +211,7 @@ signals:
   void openMatchesViewer(QString);
   //void openMatchesViewerFromImages(QString,QString);
   //void openMultiviewMatchingAssessment();
-  void openSettings();
+  //void openSettings();
   void openDtmDialog();
 
   /* Menú Ayuda */
@@ -310,7 +310,7 @@ protected:
   //QAction *mActionDensification;
   QAction *mActionCameras;
   //QAction *mActionGeoreference;
-  QAction *mActionSettings;
+  //QAction *mActionSettings;
   QAction *mActionHelp;
   //QAction *mActionAbout;
   QAction *mActionImportCameras;

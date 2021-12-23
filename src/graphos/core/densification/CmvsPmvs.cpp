@@ -267,9 +267,10 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(bool useVisibilityInformation,
                                      int cellSize,
                                      double threshold,
                                      int windowSize,
-                                     int minimunImageNumber)
+                                     int minimunImageNumber,
+                                     bool cuda)
   : bOpenCvRead(true),
-    bCuda(false),
+    bCuda(cuda),
     mOutputPath(""),
     mReconstruction(nullptr),
     mCalibrationReader(nullptr)
@@ -570,8 +571,8 @@ void CmvsPmvsDensifier::undistortImages()
     cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
     
 #ifdef HAVE_CUDA
-    cv::cuda::GpuMat gMap1(map1);
-    cv::cuda::GpuMat gMap2(map2);
+    //cv::cuda::GpuMat gMap1(map1);
+    //cv::cuda::GpuMat gMap2(map2);
 #endif
     
 
@@ -646,38 +647,15 @@ void CmvsPmvsDensifier::undistortImages()
             img.release();
             cv::cuda::GpuMat gImgUndistort;
 
-            //cv::cuda::GpuMat gImgOutOriginal;
-            //if (mImageOriginalDepth) {
-            //  gImgOutOriginal.upload(img_original);
-            //  img_original.release();
-            //}
-
-
-            //cv::cuda::Stream stream1;
+            cv::cuda::GpuMat gMap1(map1);
+            cv::cuda::GpuMat gMap2(map2);
             cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream1*/);
             gImgUndistort.download(img_undistort);
-
-            //cv::cuda::Stream stream2;
-            //if (mImageOriginalDepth) {
-            //  cv::cuda::GpuMat gImgUndistortOriginal;
-            //  cv::cuda::remap(gImgOutOriginal, gImgUndistortOriginal, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream2);
-            //  gImgUndistortOriginal.download(img_undistort_original);
-            //}
-
-
-            //stream1.waitForCompletion();
-            //if (mImageOriginalDepth) {
-            //  stream2.waitForCompletion();
-            //}
 
           } else {
 #endif
             cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
             img.release();
-            //if (mImageOriginalDepth) {
-            //  cv::remap(img_original, img_undistort_original, map1, map2, cv::INTER_LINEAR);
-            //  img_original.release();
-            //}
 
 #ifdef HAVE_CUDA
           }
@@ -687,27 +665,10 @@ void CmvsPmvsDensifier::undistortImages()
           msgInfo("Undistort image: %s", image_path.fileName().toString().c_str());
 
           std::string output_image_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.jpg", i);
-          //tl::Path output_image_path(output_images_path);
-          //output_image_path.append(image_path.fileName());
 
           cv::imwrite(output_image_path, img_undistort);
 
-          //if (mImageOriginalDepth) {
-          //  //std::string output_image_original_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.tif", i);
-          //  tl::Path output_image_path(output_images_path);
-          //  output_image_path.append(image_path.fileName());
-          //  //output_image_path.replaceExtension(".tif");
-          //  cv::imwrite(output_image_path.toString(), img_undistort_original);
-          //} else {
-          //  tl::Path output_image_path(output_images_path);
-          //  output_image_path.append(image_path.fileName());
-          //  //output_image_path.replaceExtension(".tif");
-          //  cv::imwrite(output_image_path.toString(), img_undistort_original);
-          //}
-
           std::string proj_matrix_path = mOutputPath + colmap::StringPrintf("/txt/%08d.txt", i);
-          //tl::Path proj_matrix_path = tl::Path(output_proj_matrix_path).append(image_path.fileName());
-          //proj_matrix_path.replaceExtension(".txt");
           std::ofstream file(proj_matrix_path/*.toString()*/, std::ios::trunc);
           CHECK(file.is_open()) << proj_matrix_path;
 

@@ -152,14 +152,6 @@ size_t MainWindowModel::imageID(const QString &imageName) const
   return mProject->imageId(imageName);
 }
 
-//bool MainWindowModel::removeImage(size_t id)
-//{
-//  ///TODO: Esto esta fatal...
-//  Image img = mProject->findImageById(id);
-//  colmapRemoveOrientation(img.path().toStdString(), mProject->reconstructionPath().toStdString());
-//  return mProject->removeImage(id);
-//}
-
 bool MainWindowModel::removeImage(const QString &imageName)
 {
   Image img = mProject->findImageByName(imageName);

@@ -42,6 +42,7 @@
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
 #include "graphos/components/export/orientations/ExportOrientationsComponent.h"
 #include "graphos/components/export/densemodel/ExportPointCloudComponent.h"
+#include "graphos/components/settings/SettingsComponent.h"
 #include "graphos/components/about/AboutComponent.h"
 
 #include "graphos/core/Application.h"
@@ -121,6 +122,9 @@ int main(int argc, char *argv[])
   MatchViewerComponent match_viewer_component(&app);
   app.addComponent(&match_viewer_component);
 
+  SettingsComponent settings_component(&app);
+  app.addComponent(&settings_component);
+
   AboutComponent about_component(&app);
   app.addComponent(&about_component);
 
@@ -138,6 +142,7 @@ int main(int argc, char *argv[])
 
   } else if (status == tl::CommandList::Status::parse_error) {
 
+    TL_TODO("Añadir como opción")
 #if defined WIN32
     HWND hwnd = GetConsoleWindow();
     ShowWindow(hwnd, 0);
@@ -190,6 +195,10 @@ int main(int argc, char *argv[])
     
     componentsManager.registerComponent(&match_viewer_component,
                                         ComponentsManager::Flags::separator_after);
+
+    componentsManager.registerComponent(&settings_component);
+
+    /* Help menu */
 
     componentsManager.registerComponent(&about_component,
                                         ComponentsManager::Flags::separator_before);

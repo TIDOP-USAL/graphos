@@ -26,13 +26,9 @@
 #include "graphos/components/MainWindowView.h"
 #include "graphos/components/MainWindowModel.h"
 #include "graphos/components/ProjectModel.h"
-#include "graphos/components/SettingsModel.h"
-#include "graphos/components/SettingsPresenter.h"
-#include "graphos/components/SettingsView.h"
 #include "graphos/components/utils/TabHandler.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/widgets/StartPageWidget.h"
-//#include "graphos/components/cameras/CamerasModel.h"
 #include "graphos/components/FeaturesModel.h"
 #include "graphos/components/MatchesModel.h"
 #include "graphos/core/Application.h"
@@ -51,6 +47,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QApplication>
+#include <QSettings>
 
 namespace graphos
 {
@@ -59,14 +56,12 @@ namespace graphos
 MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          MainWindowModel *model,
                                          ProjectModel *projectModel,
-                                         SettingsModel *settingsModel,
                                          FeaturesModel *featuresModel,
                                          MatchesModel *matchesModel)
   : Presenter(),
     mView(view),
     mModel(model),
     mProjectModel(projectModel),
-    mSettingsModel(settingsModel),
     mFeaturesModel(featuresModel),
     mMatchesModel(matchesModel),
     mHelpDialog(nullptr),
@@ -127,7 +122,8 @@ void MainWindowPresenter::openFromHistory(const QString &file)
 
 void MainWindowPresenter::deleteHistory()
 {
-  mSettingsModel->clearHistory();
+  Application::instance().clearHistory();
+  //mSettingsModel->clearHistory();
   mStartPageWidget->setHistory(QStringList());
   mView->deleteHistory();
 }
@@ -225,9 +221,10 @@ void MainWindowPresenter::loadProject()
   QString prjFile = mProjectModel->projectPath();
 
   /// Se añade al historial de proyectos recientes
-  mSettingsModel->addToHistory(prjFile);
-  mView->updateHistory(mSettingsModel->history());
-  mStartPageWidget->setHistory(mSettingsModel->history());
+  app.addToHistory(prjFile);
+  //mSettingsModel->addToHistory(prjFile);
+  mView->updateHistory(app.history()/*mSettingsModel->history()*/);
+  mStartPageWidget->setHistory(app.history()/*mSettingsModel->history()*/);
 
   QString msg = tr("Load project: ").append(prjFile);
   mView->setStatusBarMsg(msg);
@@ -579,10 +576,13 @@ void MainWindowPresenter::init()
   openStartPage(); /// Show Start Page
 
   /* Projects history */
-  mView->updateHistory(mSettingsModel->history());
-  mStartPageWidget->setHistory(mSettingsModel->history());
+  Application &app = Application::instance();
+  mView->updateHistory(app.history());
+  mStartPageWidget->setHistory(app.history());
 
-  bool bUseGPU = cudaEnabled(8.0, 5.0);
+  bool bUseGPU = cudaEnabled(10.0, 3.0);
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  settings.setValue("General/UseCuda", bUseGPU);
 }
 
 void MainWindowPresenter::initSignalAndSlots()
@@ -608,7 +608,7 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Menú herramientas */
 
-  connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
+  //connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
   connect(mView,   &MainWindowView::openDtmDialog,         this, &MainWindowPresenter::openDtmDialog);
 
   /* Menú Ayuda */
@@ -651,7 +651,7 @@ void MainWindowPresenter::initStartPage()
 
     connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openCreateProjectDialog);
     connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProjectDialog);
-    connect(mStartPageWidget,   &StartPageWidget::openSettings,           this, &MainWindowPresenter::openSettingsDialog);
+    //connect(mStartPageWidget,   &StartPageWidget::openSettings,           this, &MainWindowPresenter::openSettingsDialog);
     connect(mStartPageWidget,   &StartPageWidget::clearHistory,           this, &MainWindowPresenter::deleteHistory);
     connect(mStartPageWidget,   &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);
   }

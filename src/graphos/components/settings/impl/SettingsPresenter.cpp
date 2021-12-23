@@ -23,8 +23,8 @@
 
 #include "SettingsPresenter.h"
 
-#include "graphos/components/SettingsModel.h"
-#include "graphos/components/SettingsView.h"
+#include "graphos/components/settings/SettingsModel.h"
+#include "graphos/components/settings/SettingsView.h"
 #include "graphos/components/HelpDialog.h"
 
 #include <QLocale>
@@ -32,7 +32,9 @@
 namespace graphos
 {
 
-SettingsPresenterImp::SettingsPresenterImp(SettingsView *view, SettingsModel *model)
+
+SettingsPresenterImp::SettingsPresenterImp(SettingsView *view,
+                                           SettingsModel *model)
   : SettingsPresenter(),
     mView(view),
     mModel(model),
@@ -42,22 +44,17 @@ SettingsPresenterImp::SettingsPresenterImp(SettingsView *view, SettingsModel *mo
   this->initSignalAndSlots();
 }
 
-SettingsPresenterImp::~SettingsPresenterImp()
-{
-
-}
-
-void SettingsPresenterImp::openViewSettings()
-{
-  mView->setPage(1);
-  this->open();
-}
-
-void SettingsPresenterImp::openToolSettings()
-{
-  mView->setPage(2);
-  this->open();
-}
+//void SettingsPresenterImp::openViewSettings()
+//{
+//  mView->setPage(1);
+//  this->open();
+//}
+//
+//void SettingsPresenterImp::openToolSettings()
+//{
+//  mView->setPage(2);
+//  this->open();
+//}
 
 void SettingsPresenterImp::help()
 {
@@ -86,13 +83,13 @@ void SettingsPresenterImp::open()
   mView->setLanguages(langs);
 
   mView->setHistoryMaxSize(mModel->historyMaxSize());
-  mView->setUseCuda(mModel->useCuda());
-  mView->setCudaEnabled(false);
-#ifdef HAVE_CUDA
-  mView->setCudaEnabled(true);
-#else
-  mView->setCudaEnabled(false);
-#endif //HAVE_CUDA
+  mView->setUseCuda(mModel->useCuda() && mModel->checkDevice());
+  mView->setCudaEnabled(mModel->checkDevice());
+//#ifdef HAVE_CUDA
+//  mView->setCudaEnabled(true);
+//#else
+//  mView->setCudaEnabled(false);
+//#endif //HAVE_CUDA
 
   mView->exec();
 }

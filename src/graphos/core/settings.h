@@ -38,18 +38,18 @@ public:
    * \brief Recent history projects
    * \return List of recent projects
    */
-  virtual QStringList history() const = 0;
+  //virtual QStringList history() const = 0;
 
   /*!
    * \brief Add a project to the history
    * \param[in] project Project path
    */
-  virtual void addToHistory(const QString &project) = 0;
+  //virtual void addToHistory(const QString &project) = 0;
 
   /*!
    * \brief Clear the history of recent projects
    */
-  virtual void clearHistory() = 0;
+  //virtual void clearHistory() = 0;
 
   /*!
    * \brief Maximum history size
@@ -143,7 +143,7 @@ public:
    */
   virtual void write(const Settings &settings) = 0;
 
-  virtual void writeHistory(const Settings &settings) = 0;
+  //virtual void writeHistory(const Settings &settings) = 0;
 };
 
 
@@ -170,9 +170,9 @@ public:
   QString language() const override;
   void setLanguage(const QString &language) override;
 
-  QStringList history() const override;
-  void addToHistory(const QString &project) override;
-  void clearHistory() override;
+  //QStringList history() const override;
+  //void addToHistory(const QString &project) override;
+  //void clearHistory() override;
   int historyMaxSize() const override;
   void setHistoryMaxSize(int maxSize) override;
 
@@ -222,7 +222,7 @@ protected:
 
   QString mLanguage;
   int mHistoyMaxSize;
-  QStringList mHistory;
+  //QStringList mHistory;
   QString mImageViewerBGcolor;
   QString mKeypointViewerBGColor;
   int mKeypointsViewerMarkerType;
@@ -263,7 +263,7 @@ public:
 
   void read(Settings &settings) override;
   void write(const Settings &settings) override;
-  void writeHistory(const Settings &settings) override;
+  //void writeHistory(const Settings &settings) override;
 
 protected:
 

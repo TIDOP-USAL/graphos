@@ -47,15 +47,6 @@ public slots:
 
 protected slots:
 
-  //virtual void onTypeChange(const QString &type) = 0;
-  //virtual void updateCurrentCameraMake(const QString &make) = 0;
-  //virtual void updateCurrentCameraModel(const QString &model) = 0;
-  //virtual void updateCurrentCameraWidth(int width) = 0;
-  //virtual void updateCurrentCameraHeight(int height) = 0;
-  //virtual void updateCurrentCameraSensorSize(const QString &sensorSize) = 0;
-  //virtual void updateCurrentCameraFocal(const QString &focal) = 0;
-  //virtual void updateCurrentCameraType(const QString &type) = 0;
-
   virtual void save() = 0;
   virtual void discart() = 0;
 

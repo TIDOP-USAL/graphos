@@ -165,7 +165,7 @@ void findOptimalFootprint(const tl::Path &footprint_file,
     vector_writer->open();
     if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
     vector_writer->create();
-    vector_writer->setCRS(crs);
+    vector_writer->setCRS(crs.toWktFormat());
 
     std::shared_ptr<tl::TableField> field(new tl::TableField("image",
                                           tl::TableField::Type::STRING,
@@ -340,7 +340,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
             image_writer->open();
             if (image_writer->isOpen()) {
               image_writer->create(image_reader->rows(), image_reader->cols(), image_reader->channels(), image_reader->dataType());
-              image_writer->setCRS(image_reader->crs());
+              image_writer->setCRS(image_reader->crsWkt());
               image_writer->setGeoreference(image_reader->georeference());
               image_writer->write(compensate_image);
               image_writer->close();
@@ -362,7 +362,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
             image_writer->open();
             if (image_writer->isOpen()) {
               image_writer->create(image_reader->rows(), image_reader->cols(), 1, image_reader->dataType());
-              image_writer->setCRS(image_reader->crs());
+              image_writer->setCRS(image_reader->crsWkt());
               image_writer->setGeoreference(image_reader->georeference());
               image_writer->write(mask_finder);
               image_writer->close();
@@ -402,7 +402,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
 
   if (image_writer->isOpen()) {
     image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
-    image_writer->setCRS(crs);
+    image_writer->setCRS(crs.toWktFormat());
     tl::Affine<tl::PointD> affine_ortho(window_all.pt1.x,
                                         window_all.pt2.y,
                                         res_ortho, -res_ortho, 0.0);
@@ -563,11 +563,13 @@ OrthophotoAlgorithm::OrthophotoAlgorithm(double resolution,
                                          const std::vector<tl::Photo> &photos,
                                          const QString &orthoPath,
                                          const QString &mdt,
-                                         const QString &epsg)
+                                         const QString &epsg,
+                                         bool cuda)
   : mPhotos(photos),
     mOrthoPath(orthoPath),
     mMdt(mdt),
-    mEpsg(epsg)
+    mEpsg(epsg),
+    bCuda(cuda)
 {
   OrthophotoParameters::setResolution(resolution);
 }
@@ -592,7 +594,8 @@ void OrthophotoAlgorithm::run()
                                                   crs, 
                                                   footprint_file, 
                                                   OrthophotoParameters::resolution(),
-                                                  0.4);
+                                                  0.4,
+                                                  bCuda);
   ortho_process.run();
 
   std::vector<tl::WindowD> grid = findGrid(graph_orthos);
@@ -624,6 +627,11 @@ void OrthophotoAlgorithm::setMdt(const QString &mdt)
 void OrthophotoAlgorithm::setCrs(const QString &epsg)
 {
   mEpsg = epsg;
+}
+
+void OrthophotoAlgorithm::setCuda(bool active)
+{
+  bCuda = active;
 }
 
 } // namespace graphos

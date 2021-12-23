@@ -23,6 +23,10 @@
 
 #include "SettingsModel.h"
 
+#include "graphos/core/utils.h"
+
+#include "tidop/core/messages.h"
+
 #include <QDir>
 #include <QSettings>
 #include <QLocale>
@@ -33,17 +37,20 @@ namespace graphos
 
 
 SettingsModelImp::SettingsModelImp(Settings *settings,
-                                   SettingsController *settingsRW,
                                    QObject *parent)
   : SettingsModel(parent),
     mSettings(settings),
-    mSettingsController(settingsRW)
+    mSettingsController(new SettingsControllerImp)
 {
   init();
 }
 
 SettingsModelImp::~SettingsModelImp()
 {
+  if (mSettingsController) {
+    delete mSettingsController;
+    mSettingsController = nullptr;
+  }
 }
 
 QStringList SettingsModelImp::languages() const
@@ -62,10 +69,10 @@ QString SettingsModelImp::language() const
   return mSettings->language();
 }
 
-QStringList SettingsModelImp::history() const
-{
-  return mSettings->history();
-}
+//QStringList SettingsModelImp::history() const
+//{
+//  return mSettings->history();
+//}
 
 int SettingsModelImp::historyMaxSize() const
 {
@@ -162,6 +169,19 @@ bool SettingsModelImp::useCuda() const
   return mSettings->useCuda();
 }
 
+bool SettingsModelImp::checkDevice() const
+{
+  bool bUseGPU = false;
+
+#ifdef HAVE_CUDA
+  tl::MessageManager::instance().pause();
+  bUseGPU = cudaEnabled(10.0, 3.0);
+  tl::MessageManager::instance().resume();
+#endif //HAVE_CUDA
+
+  return bUseGPU;
+}
+
 void SettingsModelImp::read()
 {
   mSettingsController->read(*mSettings);
@@ -179,17 +199,17 @@ void SettingsModelImp::setLanguage(const QString &language)
   emit unsavedChanges(true);
 }
 
-void SettingsModelImp::addToHistory(const QString &project)
-{
-  mSettings->addToHistory(project);
-  mSettingsController->writeHistory(*mSettings);
-}
-
-void SettingsModelImp::clearHistory()
-{
-  mSettings->clearHistory();
-  mSettingsController->writeHistory(*mSettings);
-}
+//void SettingsModelImp::addToHistory(const QString &project)
+//{
+//  mSettings->addToHistory(project);
+//  mSettingsController->writeHistory(*mSettings);
+//}
+//
+//void SettingsModelImp::clearHistory()
+//{
+//  mSettings->clearHistory();
+//  mSettingsController->writeHistory(*mSettings);
+//}
 
 void SettingsModelImp::setHistoryMaxSize(int maxSize)
 {
@@ -211,6 +231,7 @@ void SettingsModelImp::setUseCuda(bool active)
 
 void SettingsModelImp::init()
 {
+  read();
 }
 
 void SettingsModelImp::clear()

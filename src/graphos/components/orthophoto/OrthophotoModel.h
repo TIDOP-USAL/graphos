@@ -53,6 +53,7 @@ public:
   virtual QString dtmPath() const = 0;
   virtual QString epsCode() const = 0;
   virtual void clearProject() = 0;
+  virtual bool useCuda() const = 0;
 
 public slots:
 

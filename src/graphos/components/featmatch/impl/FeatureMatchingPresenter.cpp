@@ -26,7 +26,7 @@
 #include "graphos/core/features/matching.h"
 #include "graphos/components/featmatch/FeatureMatchingView.h"
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
-#include "graphos/components/SettingsModel.h"
+//#include "graphos/components/SettingsModel.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/process/MultiProcess.h"

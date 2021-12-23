@@ -120,6 +120,7 @@ protected:
 
   VlSiftFilt *mSiftCpu;
   colmap::SiftExtractionOptions mSiftExtractionOptions;
+  std::mutex mMutex;
 };
 
 

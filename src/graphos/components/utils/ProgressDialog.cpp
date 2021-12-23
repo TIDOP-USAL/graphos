@@ -105,6 +105,7 @@ void ProgressDialogImp::setInitialized()
 {
   //ui->pushButton->setText(tr("Cancel"));
   ui->pushButtonCancel->setVisible(true);
+  ui->pushButtonCancel->setEnabled(true);
   ui->pushButtonClose->setVisible(false);
   ui->pushButtonMinimize->setEnabled(true);
   this->show();
@@ -135,6 +136,7 @@ void ProgressDialogImp::onMinimized()
 
 void ProgressDialogImp::onPushButtonCancelClicked()
 {
+  ui->pushButtonCancel->setEnabled(false);
   emit cancel();
   this->close();
 }

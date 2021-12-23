@@ -416,6 +416,11 @@ void OrthophotoModelImp::clearProject()
   //mProject->clearOrtho();
 }
 
+bool OrthophotoModelImp::useCuda() const
+{
+  return mSettings->value("General/UseCuda", true).toBool();
+}
+
 void OrthophotoModelImp::init()
 {
   mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();

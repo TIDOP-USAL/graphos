@@ -94,7 +94,7 @@ void ProcessPresenter::onError(int code, const QString &msg)
 
   mMultiProcess->clearProcessList();
 
-  emit finished();
+  emit failed();
 }
 
 void ProcessPresenter::run()
@@ -167,7 +167,7 @@ void ProcessPresenter::cancel()
 
   mMultiProcess->clearProcessList();
 
-  emit finished();
+  emit canceled();
 }
 
 } // namespace graphos

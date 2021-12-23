@@ -21,85 +21,39 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
+#ifndef GRAPHOS_SETTINGS_COMPONENT_H
+#define GRAPHOS_SETTINGS_COMPONENT_H
 
-#include "graphos/graphos_global.h"
-
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
-
-#include <QObject>
-
-#include <memory>
-#include <mutex>
-
-namespace tl
-{
-class CommandList;
-}
+#include "graphos/core/Component.h"
 
 
 namespace graphos
 {
 
-class AppStatus;
-class Component;
-class Project;
-class Settings;
-
-class Application
-  : public QObject
+class SettingsComponent
+  : public ComponentBase
 {
 
   Q_OBJECT
 
-private:
-
-  Application();
-
 public:
 
-  static Application &instance();
-  ~Application();
+  SettingsComponent(Application *application);
+  ~SettingsComponent();
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+// ComponentBase
 
-  AppStatus *status();
-  tl::MessageManager *messageManager();
-  Project *project();
-  Settings *settings();
+protected:
 
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
+  void createCommand() override;
+  void update() override;
 
-  void freeMemory();
-
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
-
-signals:
-
-  void imageLoaded(QString);
-
-private:
-
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  QStringList mHistory;
 };
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_APPLICATION_H
+#endif // GRAPHOS_SETTINGS_COMPONENT_H

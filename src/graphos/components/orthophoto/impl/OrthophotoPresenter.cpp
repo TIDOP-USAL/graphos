@@ -135,7 +135,8 @@ bool OrthophotoPresenterImp::createProcess()
                                                                                          mModel->photos(),
                                                                                          mModel->orthoPath(),
                                                                                          mModel->dtmPath(),
-                                                                                         mModel->epsCode());
+                                                                                         mModel->epsCode(),
+                                                                                         mModel->useCuda());
 
   std::shared_ptr<OrthophotoProcess> process = std::make_unique<OrthophotoProcess>(algorithm);
   

@@ -716,7 +716,7 @@ void ImportCamerasModelImp::importCameras()
           CameraPose camera_pose;
           camera_pose.setSource(mCsvFile);
           if (bTrfCrs){
-            tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
+            tl::geospatial::CrsTransform crs_trf(crs_in, crs_out);
 
             tl::Point3D pt_in;
             if (crs_in->isGeographic())

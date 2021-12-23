@@ -1,6 +1,7 @@
 #include "FeatureMatchingProcess.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/exception.h>
 #include <tidop/core/chrono.h>
 
 #include <colmap/util/option_manager.h>
@@ -52,10 +53,11 @@ void graphos::FeatureMatchingProcess::run()
     siftMatchingOptions.max_ratio = mFeatureMatching->ratio();
     siftMatchingOptions.max_distance = mFeatureMatching->distance();
     siftMatchingOptions.confidence = mFeatureMatching->confidence();
-    //siftMatchingOptions.max_num_matches = 30000;//mFeatureMatching->maxMatches();
     siftMatchingOptions.use_gpu = bUseCuda;
-    //siftMatchingOptions.gpu_index = "0";
     siftMatchingOptions.min_num_inliers = 15;// 100;
+
+    colmap::Database database(mDatabase.toStdString());
+    TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database")
 
     if (bSpatialMatching) {
 
@@ -84,7 +86,7 @@ void graphos::FeatureMatchingProcess::run()
     mFeatureMatcher->Start();
     mFeatureMatcher->Wait();
 
-    colmap::Database database(mDatabase.toStdString());
+    
     if (database.NumMatches() > 0) {
       emit featureMatchingFinished();
     } else {
@@ -101,6 +103,12 @@ void graphos::FeatureMatchingProcess::run()
     emit error(0, "Feature Matching error");
     msgError(e.what());
   }
+}
+
+void FeatureMatchingProcess::stop()
+{
+  //mFeatureMatcher->Stop();
+  //Process::stop();
 }
 
 QString FeatureMatchingProcess::database() const
@@ -126,6 +134,11 @@ void FeatureMatchingProcess::setUseGPU(bool useGPU)
 void FeatureMatchingProcess::setSpatialMatching(bool spatialMatching)
 {
 }
+
+//void FeatureMatchingProcess::onCancel()
+//{
+//  mFeatureMatcher->Stop();
+//}
 
 std::shared_ptr<FeatureMatching> FeatureMatchingProcess::featureMatching() const
 {

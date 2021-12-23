@@ -184,19 +184,22 @@ bool DensificationPresenterImp::createProcess()
 
   std::shared_ptr<Densifier> densifier;
   if (densification_method.compare("CMVS/PMVS") == 0) {
+
     densifier = std::make_shared<CmvsPmvsDensifier>(mCmvsPmvs->useVisibilityInformation(),
                                                     mCmvsPmvs->imagesPerCluster(),
                                                     mCmvsPmvs->level(),
                                                     mCmvsPmvs->cellSize(),
                                                     mCmvsPmvs->threshold(),
                                                     mCmvsPmvs->windowSize(),
-                                                    mCmvsPmvs->minimunImageNumber());
+                                                    mCmvsPmvs->minimunImageNumber(),
+                                                    mModel->useCuda());
   } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
     densifier = std::make_shared<SmvsDensifier>(mSmvs->inputImageScale(),
                                                 mSmvs->outputDepthScale(),
                                                 mSmvs->shadingBasedOptimization(),
                                                 mSmvs->semiGlobalMatching(),
-                                                mSmvs->surfaceSmoothingFactor());
+                                                mSmvs->surfaceSmoothingFactor(),
+                                                mModel->useCuda());
 
   } else {
     mView->hide();

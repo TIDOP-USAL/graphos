@@ -79,7 +79,8 @@ public:
                 int outputDepthScale,
                 bool shadingBasedOptimization,
                 bool semiGlobalMatching,
-                double surfaceSmoothingFactor);
+                double surfaceSmoothingFactor,
+                bool cuda = false);
   ~SmvsDensifier() override;
 
   SmvsDensifier(const SmvsDensifier &smvs) = delete;

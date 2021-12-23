@@ -192,8 +192,10 @@ SmvsDensifier::SmvsDensifier(int inputImageScale,
                              int outputDepthScale,
                              bool shadingBasedOptimization,
                              bool semiGlobalMatching,
-                             double surfaceSmoothingFactor)
+                             double surfaceSmoothingFactor,
+                             bool cuda)
   : bOpenCvRead(true),
+    bCuda(cuda),
     mOutputPath(""),
     mReconstruction(nullptr),
     mCalibrationReader(nullptr)

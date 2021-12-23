@@ -31,9 +31,10 @@ set(GRAPHOS_SOURCES
     MainWindowModel.cpp
     MainWindowPresenter.cpp
     MainWindowView.cpp
-    SettingsModel.cpp
-    SettingsPresenter.cpp
-    SettingsView.cpp
+    settings/SettingsComponent.cpp
+    settings/impl/SettingsModel.cpp
+    settings/impl/SettingsView.cpp
+    settings/impl/SettingsPresenter.cpp
     FeaturesModel.cpp
     MatchesModel.cpp
     createproject/CreateProjectComponent.cpp
@@ -122,19 +123,18 @@ set(GRAPHOS_SOURCES
 )
 
 set(GRAPHOS_HEADERS
-    #${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
-    #${CMAKE_SOURCE_DIR}/src/graphos/interfaces/Component.h
-    #AppStatus.h
-    #Component.h
     ComponentsManager.h
     ProjectModel.h
     MainWindowModel.h
     MainWindowPresenter.h
     MainWindowView.h
-    Settings.h
-    SettingsModel.h
-    SettingsPresenter.h
-    SettingsView.h
+	settings/SettingsComponent.h
+    settings/SettingsModel.h
+    settings/SettingsView.h
+    settings/SettingsPresenter.h
+    settings/impl/SettingsModel.h
+    settings/impl/SettingsView.h
+    settings/impl/SettingsPresenter.h
     FeaturesModel.h
     MatchesModel.h
     createproject/CreateProjectComponent.h
@@ -225,8 +225,6 @@ set(GRAPHOS_HEADERS
     export/densemodel/impl/ExportPointCloudModel.h
     export/densemodel/impl/ExportPointCloudView.h
     export/densemodel/impl/ExportPointCloudPresenter.h
-    #process/ProcessPresenter.h
-    #process/ProcessView.h
     georeference/GeoreferenceComponent.h
     georeference/GeoreferenceModel.h
     georeference/GeoreferencePresenter.h
@@ -265,7 +263,6 @@ set(GRAPHOS_HEADERS
     about/impl/AboutPresenter.h
     utils/GraphicViewer.h
     utils/ProgressDialog.h
-    #utils/Progress.h
     utils/Viewer3d.h
     utils/GraphicItem.h
     utils/TabHandler.h

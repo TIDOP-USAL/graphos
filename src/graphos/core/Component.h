@@ -34,11 +34,6 @@
 class QAction;
 class QDialog;
 
-//namespace tl
-//{
-//class Command;
-//}
-
 namespace graphos
 {
 
@@ -134,12 +129,14 @@ protected slots:
   virtual void onRunning();
   virtual void onFinished();
   virtual void onFailed();
+  virtual void onCanceled();
 
 signals:
 
   void running();
   void finished();
   void failed();
+  void canceled();
 
 private:
 

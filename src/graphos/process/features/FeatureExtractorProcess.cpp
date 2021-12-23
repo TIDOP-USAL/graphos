@@ -37,6 +37,7 @@ std::atomic<bool> done(false);
 struct queue_data
 {
   cv::Mat mat;
+  std::shared_ptr<colmap::Bitmap> bitmap; // Por ahora para procesar con CPU
   colmap::image_t image_id;
   double scale;
   QString image_name;
@@ -67,6 +68,12 @@ public:
   void operator() (size_t , size_t )
   {
     for (const auto &image : *mImages) {
+      
+      if (mFeatureExtractorProcess->isWaitingForFinished()) {
+        done = true;
+        break;
+      }
+
       producer(image);
     }
   }
@@ -103,7 +110,7 @@ private:
           if (it != mCameras->end()) {
             camera = mCameras->at(camera_id);
           } else {
-            return;
+            throw std::runtime_error(std::string("Camera not found for image: ").append(image_path));
           }
 
           QString colmap_camera_type = cameraToColmapType(camera);
@@ -148,97 +155,124 @@ private:
       /* Lectura de imagen */
 
       cv::Mat mat;
+      std::shared_ptr<colmap::Bitmap> bitmap = std::shared_ptr<colmap::Bitmap>(new colmap::Bitmap());
       double scale = 1.;
 
-      if (bOpenCvRead) {
+      if (bUseGPU == false) {
+        //TODO: Esto se tiene que cambiar cuando no necesite usar el formato colmap::Bitmap para
+        bitmap->Read(image.path().toStdString(), false);
 
-        mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
+        cv::Size size(bitmap->Width(), bitmap->Height());
+        double max_dimension = std::max(size.width, size.height);
+        if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+          scale = max_dimension / mMaxImageSize;
+          size.width /= scale;
+          size.height /= scale;
+          bitmap->Rescale(size.width, size.height);
+        }
 
-        if (mat.empty()) {
-          bOpenCvRead = false;
-        } else {
-          double max_dimension;
-          if (mat.cols > mat.rows) {
-            max_dimension = mat.cols;
+      } else {
+
+        if (bOpenCvRead) {
+
+          mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
+          std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
+          imageReader->open();
+          cv::Mat mat2 = imageReader->read();
+
+          if (mat.empty()) {
+            bOpenCvRead = false;
           } else {
-            max_dimension = mat.rows;
-          }
 
-          if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
             cv::Size size(mat.cols, mat.rows);
-            scale = max_dimension / mMaxImageSize;
-            size.width /= scale;
-            size.height /= scale;
+            double max_dimension = std::max(size.width, size.height);
+            //if (mat.cols > mat.rows) {
+            //  max_dimension = mat.cols;
+            //} else {
+            //  max_dimension = mat.rows;
+            //}
+
+            if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+              
+              scale = max_dimension / mMaxImageSize;
+              size.width /= scale;
+              size.height /= scale;
 #ifdef HAVE_CUDA
-            if (bUseGPU) {
-              cv::cuda::GpuMat gImgIn(mat);
-              cv::cuda::GpuMat gImgResize;
-              cv::cuda::resize(gImgIn, gImgResize, size);
-              gImgResize.download(mat);
-            } else {
+              if (bUseGPU) {
+                cv::cuda::GpuMat gImgIn(mat);
+                cv::cuda::GpuMat gImgResize;
+                cv::cuda::resize(gImgIn, gImgResize, size);
+                gImgResize.download(mat);
+              } else {
 #endif
-              cv::resize(mat, mat, size);
+                cv::resize(mat, mat, size);
 #ifdef HAVE_CUDA
+              }
+#endif
             }
-#endif
           }
         }
-      }
 
-      if (!bOpenCvRead) {
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
-        imageReader->open();
-        if (imageReader->isOpen()) {
-          int w = imageReader->cols();
-          int h = imageReader->rows();
-          double max_dimension;
-          if (w > h) {
-            max_dimension = w;
-          } else {
-            max_dimension = h;
-          }
+        if (!bOpenCvRead) {
+          std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
+          imageReader->open();
+          if (imageReader->isOpen()) {
+            //int w = imageReader->cols();
+            //int h = imageReader->rows();
+            //cv::Size size(imageReader->cols(), imageReader->rows());
+            double max_dimension = std::max(imageReader->cols(), imageReader->rows());
+            //double max_dimension;
+            //if (w > h) {
+            //  max_dimension = w;
+            //} else {
+            //  max_dimension = h;
+            //}
 
 
-          if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-            scale = mMaxImageSize / max_dimension;
-            mat = imageReader->read(scale, scale);
-            scale = 1. / scale;
-          } else {
-            mat = imageReader->read();
-          }
-
-          if (imageReader->depth() != 8) {
-#ifdef HAVE_CUDA
-            if (bUseGPU) {
-              cv::cuda::GpuMat gImgIn(mat);
-              cv::cuda::GpuMat gImgOut;
-              cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-              gImgOut.download(mat);
+            if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+              scale = mMaxImageSize / max_dimension;
+              mat = imageReader->read(scale, scale);
+              scale = 1. / scale;
             } else {
-#endif
-              cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_CUDA
+              mat = imageReader->read();
             }
-#endif
-          }
 
-          if (mat.channels() >= 3) {
+            if (imageReader->depth() != 8) {
 #ifdef HAVE_CUDA
-            cv::cuda::GpuMat gImgIn(mat);
-            cv::cuda::GpuMat gImgGray;
-            cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
-            gImgGray.download(mat);
+              if (bUseGPU) {
+                cv::cuda::GpuMat gImgIn(mat);
+                cv::cuda::GpuMat gImgOut;
+                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+                gImgOut.download(mat);
+              } else {
+#endif
+                cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
+              }
+#endif
+            }
+
+            if (mat.channels() >= 3) {
+#ifdef HAVE_CUDA
+              cv::cuda::GpuMat gImgIn(mat);
+              cv::cuda::GpuMat gImgGray;
+              cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
+              gImgGray.download(mat);
 #else
-            cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+              cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
 #endif
-          }
+            }
 
-          imageReader->close();
+            imageReader->close();
+          }
         }
       }
+
+
 
       queue_data data;
       data.mat = mat;
+      data.bitmap = bitmap;
       data.image_id = image_id;
       data.scale = scale;
       data.image_name = image.name();
@@ -247,11 +281,6 @@ private:
 
       double time = chrono.stop();
       msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
-
-      if (mFeatureExtractorProcess->isWaitingForFinished()) {
-        done = true;
-        return;
-      }
 
     } catch (std::exception &e) {
       msgError(e.what());
@@ -281,12 +310,14 @@ public:
               const std::string &databaseFile,
               colmap::Database *database,
               QueueMPMC<queue_data> *buffer,
-              FeatureExtractorProcess *featureExtractorProcess)
+              FeatureExtractorProcess *featureExtractorProcess,
+              bool useGPU)
     : mFeatExtractor(feat_extractor),
       mDatabaseFile(databaseFile),
       mDatabase(database),
       mBuffer(buffer),
-      mFeatureExtractorProcess(featureExtractorProcess)
+      mFeatureExtractorProcess(featureExtractorProcess),
+      bUseGPU(useGPU)
   {
   }
 
@@ -310,6 +341,11 @@ private:
   {
     try {
 
+      if (mFeatureExtractorProcess->isWaitingForFinished()) {
+        done = true;
+        return;
+      }
+
       tl::Chrono chrono;
       chrono.run();
 
@@ -321,7 +357,12 @@ private:
       colmap::FeatureKeypoints featureKeypoints;
       colmap::FeatureDescriptors featureDescriptors;
 
-      mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
+      if (bUseGPU) {
+        mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
+      } else {
+        auto w = data.bitmap->Width();
+        mFeatExtractor->run(*data.bitmap, featureKeypoints, featureDescriptors);
+      }
 
       QByteArray ba = data.image_name.toLocal8Bit();
       double time = chrono.stop();
@@ -360,6 +401,7 @@ private:
   colmap::Database *mDatabase;
   QueueMPMC<queue_data> *mBuffer;
   FeatureExtractorProcess *mFeatureExtractorProcess;
+  bool bUseGPU;
 };
 
 
@@ -404,7 +446,8 @@ void FeatureExtractorProcess::run()
                          mDatabase.toStdString(),
                          &database,
                          &buffer,
-                         this);
+                         this,
+                         bUseCuda);
 
     size_t num_threads = 1;// tl::optimalNumberOfThreads();
     std::vector<std::thread> producer_threads(num_threads);
@@ -433,7 +476,14 @@ void FeatureExtractorProcess::run()
     for (size_t i = 0; i < num_threads; ++i)
       consumer_threads[i].join();
 
-    chrono.stop();
+    size_t keypoints = database.NumKeypoints();
+    if (keypoints == 0) {
+      emit error(0, "Keypoint Detector/descriptor");
+    } else if (isWaitingForFinished()) {
+      chrono.reset();
+    } else {
+      chrono.stop();
+    }
 
   } catch (std::exception &e) {
     msgError(e.what());

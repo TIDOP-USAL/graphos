@@ -45,6 +45,15 @@ private:
 TestSift::TestSift()
 {
   mSift = new SiftProperties();
+  mSiftDetectorDescriptor = new SiftDetectorDescriptor(6000,
+                             4,
+                             9.,
+                             2.2);
+  mSiftCudaDetectorDescriptor = new SiftCudaDetectorDescriptor(10000,
+                             8,
+                             11.,
+                             1.,
+                             0.8);
 }
 
 TestSift::~TestSift()
@@ -64,6 +73,20 @@ void TestSift::initTestCase()
   QCOMPARE(0.02/mSift->octaveLayers(), mSift->contrastThreshold());
   QCOMPARE(10., mSift->edgeThreshold());
   QCOMPARE(1.6, mSift->sigma());
+  
+  QCOMPARE(6000, mSiftDetectorDescriptor->featuresNumber());
+  QCOMPARE(4, mSiftDetectorDescriptor->octaveLayers());
+  QCOMPARE(true, mSiftDetectorDescriptor->constrastThresholdAuto());
+  QCOMPARE(0.02/mSiftDetectorDescriptor->octaveLayers(), mSiftDetectorDescriptor->contrastThreshold());
+  QCOMPARE(9., mSiftDetectorDescriptor->edgeThreshold());
+  QCOMPARE(2.2, mSiftDetectorDescriptor->sigma());
+  
+  QCOMPARE(10000, mSiftCudaDetectorDescriptor->featuresNumber());
+  QCOMPARE(8, mSiftCudaDetectorDescriptor->octaveLayers());
+  QCOMPARE(false, mSiftCudaDetectorDescriptor->constrastThresholdAuto());
+  QCOMPARE(0.8, mSiftCudaDetectorDescriptor->contrastThreshold());
+  QCOMPARE(11., mSiftCudaDetectorDescriptor->edgeThreshold());
+  QCOMPARE(1.0, mSiftCudaDetectorDescriptor->sigma());
 }
 
 void TestSift::cleanupTestCase()

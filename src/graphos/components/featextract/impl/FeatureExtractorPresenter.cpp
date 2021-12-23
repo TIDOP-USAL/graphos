@@ -178,11 +178,20 @@ bool FeatureExtractorPresenterImp::createProcess()
   std::shared_ptr<FeatureExtractor> feature_extractor;
 
   if (currentKeypointDetector.compare("SIFT") == 0) {
-    feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
-                                                                     mSift->octaveLayers(),
-                                                                     mSift->edgeThreshold(),
-                                                                     mSift->sigma(),
-                                                                     mSift->constrastThresholdAuto() ? 0. : mSift->contrastThreshold());
+    if (mModel->useCuda()) {
+      feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
+                                                                       mSift->octaveLayers(),
+                                                                       mSift->edgeThreshold(),
+                                                                       mSift->sigma(),
+                                                                       mSift->constrastThresholdAuto() ? 0. : mSift->contrastThreshold());
+    } else {
+      feature_extractor = std::make_shared<SiftDetectorDescriptor>(mSift->featuresNumber(),
+                                                                   mSift->octaveLayers(),
+                                                                   mSift->edgeThreshold(),
+                                                                   mSift->sigma(),
+                                                                   mSift->constrastThresholdAuto() ? 0. : mSift->contrastThreshold());
+    }
+
   } else {
     mView->hide();
     throw std::runtime_error("Invalid Keypoint Detector");

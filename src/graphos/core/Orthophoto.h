@@ -72,7 +72,8 @@ public:
                       const std::vector<tl::Photo> &photos,
                       const QString &orthoPath,
                       const QString &mdt,
-                      const QString &epsg);
+                      const QString &epsg,
+                      bool cuda = false);
   ~OrthophotoAlgorithm();
 
 public:
@@ -83,6 +84,7 @@ public:
   void setOrthoPath(const QString &orthoPath);
   void setMdt(const QString &mdt);
   void setCrs(const QString &epsg);
+  void setCuda(bool active);
 
 private:
 
@@ -90,6 +92,7 @@ private:
   QString mOrthoPath;
   QString mMdt;
   QString mEpsg;
+  bool bCuda;
 };
 
 

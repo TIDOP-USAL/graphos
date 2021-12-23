@@ -31,11 +31,6 @@
 
 class QAction;
 
-//namespace tl
-//{
-//class Command;
-//}
-
 namespace graphos
 {
 

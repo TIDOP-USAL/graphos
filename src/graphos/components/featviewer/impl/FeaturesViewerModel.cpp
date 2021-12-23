@@ -74,31 +74,35 @@ std::vector<QPointF> FeaturesViewerModelImp::loadKeypoints(const QString &imageN
 {
   std::vector<QPointF> keyPoints;
 
-  Image image = mProject->findImageByName(imageName);
+  try {
+    Image image = mProject->findImageByName(imageName);
 
-  QString database_path = mProject->database();
-  if (!QFileInfo(database_path).exists()) throw std::runtime_error("Database not found");
+    QString database_path = mProject->database();
+    if (!QFileInfo(database_path).exists()) throw std::runtime_error("Database not found");
   
-  colmap::Database database(database_path.toStdString());
+    colmap::Database database(database_path.toStdString());
   
-  auto _images = database.ReadAllImages();
-  for (const auto &image : _images) {
-    std::string name = image.Name();
-  }
-
-  if (!database.ExistsImageWithName(image.path().toStdString())) throw std::runtime_error(std::string("Image not found in database: ").append(image.path().toStdString()));
-  
-  colmap::Image image_colmap = database.ReadImageWithName(image.path().toStdString());
-  colmap::image_t image_id = image_colmap.ImageId();
-
-  if (image_id > 0) {
-    colmap::FeatureKeypoints colmap_feature_keypoints = database.ReadKeypoints(image_id);
-    size_t size = colmap_feature_keypoints.size();
-    keyPoints.resize(size);
-    for (size_t i = 0; i < size; i++){
-      keyPoints[i].setX(static_cast<qreal>(colmap_feature_keypoints[i].x));
-      keyPoints[i].setY(static_cast<qreal>(colmap_feature_keypoints[i].y));
+    auto _images = database.ReadAllImages();
+    for (const auto &image : _images) {
+      std::string name = image.Name();
     }
+
+    if (!database.ExistsImageWithName(image.path().toStdString())) throw std::runtime_error(std::string("Image not found in database: ").append(image.path().toStdString()));
+  
+    colmap::Image image_colmap = database.ReadImageWithName(image.path().toStdString());
+    colmap::image_t image_id = image_colmap.ImageId();
+
+    if (image_id > 0) {
+      colmap::FeatureKeypoints colmap_feature_keypoints = database.ReadKeypoints(image_id);
+      size_t size = colmap_feature_keypoints.size();
+      keyPoints.resize(size);
+      for (size_t i = 0; i < size; i++){
+        keyPoints[i].setX(static_cast<qreal>(colmap_feature_keypoints[i].x));
+        keyPoints[i].setY(static_cast<qreal>(colmap_feature_keypoints[i].y));
+      }
+    }
+  } catch (std::exception &e) {
+    msgError(e.what());
   }
 
   return keyPoints;

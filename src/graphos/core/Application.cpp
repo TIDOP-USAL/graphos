@@ -28,10 +28,13 @@
 #include "graphos/core/Component.h"
 #include "graphos/core/command.h"
 #include "graphos/core/project.h"
+#include "graphos/core/settings.h"
 
 #include <tidop/core/console.h>
 
 #include <QAction>
+#include <QSettings>
+#include <QFileInfo>
 
 namespace graphos
 {
@@ -42,9 +45,19 @@ std::mutex Application::sMutex;
 Application::Application()
   : mAppStatus(new AppStatus()),
     mProject(new ProjectImp),
+    mSettings(new SettingsImp),
     mCommandList(new tl::CommandList("Graphos", "Graphos commands"))
 {
   mCommandList->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
+
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  QStringList history = settings.value("HISTORY/RecentProjects", mHistory).toStringList();
+  mHistory.clear();
+  for (auto &prj : history) {
+    if (QFileInfo(prj).exists()) {
+      mHistory.push_back(prj);
+    }
+  }
 }
 
 Application::~Application()
@@ -57,6 +70,11 @@ Application::~Application()
   if (mProject) {
     delete mProject;
     mProject = nullptr;
+  }
+
+  if (mSettings) {
+    delete mSettings;
+    mSettings = nullptr;
   }
 
   if (mCommandList) {
@@ -81,6 +99,11 @@ tl::MessageManager *Application::messageManager()
 Project *Application::project()
 {
   return mProject;
+}
+
+Settings *Application::settings()
+{
+  return mSettings;
 }
 
 void Application::addComponent(Component *component)
@@ -119,6 +142,28 @@ void Application::freeMemory()
   for (auto component : mComponents) {
     component->freeMemory();
   }
+}
+
+QStringList Application::history() const
+{
+  return mHistory;
+}
+
+void Application::addToHistory(const QString &project)
+{
+  mHistory.removeAll(project);
+  mHistory.prepend(project);
+
+  while (mHistory.size() > mSettings->historyMaxSize())
+    mHistory.removeLast();
+
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  settings.setValue("HISTORY/RecentProjects", mHistory);
+}
+
+void Application::clearHistory()
+{
+  mHistory.clear();
 }
 
 Application &Application::instance()

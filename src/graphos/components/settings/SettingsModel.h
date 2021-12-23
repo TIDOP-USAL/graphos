@@ -21,13 +21,15 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_SETTINGS_INTERFACES_H
-#define GRAPHOS_SETTINGS_INTERFACES_H
+#ifndef GRAPHOS_SETTINGS_MODEL_INTERFACE_H
+#define GRAPHOS_SETTINGS_MODEL_INTERFACE_H
 
 #include "graphos/interfaces/mvp.h"
 
+
 namespace graphos
 {
+
 
 class SettingsModel
   : public Model
@@ -56,7 +58,7 @@ public:
    * \brief Recent history projects
    * \return List of recent projects
    */
-  virtual QStringList history() const = 0;
+  //virtual QStringList history() const = 0;
 
   /*!
    * \brief Maximum history size
@@ -71,7 +73,7 @@ public:
   virtual QString imageViewerBGcolor() const = 0;
 
   virtual bool useCuda() const = 0;
-
+  virtual bool checkDevice() const = 0;
   ///TODO: Sift Properties
 
   virtual QString keypointsViewerBGColor() const = 0;
@@ -117,12 +119,12 @@ public slots:
    * \brief Add a project to the history
    * \param[in] project Project path
    */
-  virtual void addToHistory(const QString &project) = 0;
+  //virtual void addToHistory(const QString &project) = 0;
 
   /*!
    * \brief Clear the history of recent projects
    */
-  virtual void clearHistory() = 0;
+  //virtual void clearHistory() = 0;
 
   /*!
    * \brief Set the size number of history items
@@ -144,108 +146,6 @@ signals:
 };
 
 
-class SettingsView
-  : public DialogView
-{
-
-  Q_OBJECT
-
-public:
-
-  SettingsView(QWidget *parent = nullptr) : DialogView(parent) {}
-  virtual ~SettingsView(){}
-
-  /*!
-   * \brief Active language
-   */
-  virtual QString activeLanguage() const = 0;
-
-  /*!
-   * \brief History size
-   */
-  virtual int historyMaxSize() const = 0;
-
-  virtual QString imageViewerBGColor() const = 0;
-
-  virtual bool useCuda() const = 0;
-
-public slots:
-
-  /*!
-   * \brief Set active page
-   * \param[in] page Active page
-   */
-  virtual void setPage(int page) = 0;
-
-  /*!
-   * \brief Set available languages
-   * \param[in] languages Available languages
-   */
-  virtual void setLanguages(const QStringList &languages) = 0;
-
-  /*!
-   * \brief Set active language
-   * \param[in] language Active language
-   */
-  virtual void setActiveLanguage(const QString &language) = 0;
-
-  /*!
-   * \brief Set history size
-   * \param[in] size History size
-   */
-  virtual void setHistoryMaxSize(int size) = 0;
-
-  virtual void setImageViewerBGcolor(const QString &color) = 0;
-  virtual void setUseCuda(bool active) = 0;
-  virtual void setCudaEnabled(bool enabled) = 0;
-  virtual void setUnsavedChanges(bool unsaveChanges) = 0;
-
-signals:
-
-  void languageChange(QString);
-  void historyMaxSizeChange(int);
-  void imageViewerBGColorChange(QString);
-  void useCudaChange(bool);
-  void applyChanges();
-};
-
-
-class SettingsPresenter
-  : public Presenter
-{
-  Q_OBJECT
-
-public:
-
-  SettingsPresenter() {}
-  virtual ~SettingsPresenter(){}
-
-public slots:
-
-  virtual void openViewSettings() = 0;
-  virtual void openToolSettings() = 0;
-
-signals:
-
-private slots:
-
-  /*!
-   * \brief Establece el idioma de la aplicación
-   * \param[in] language
-   */
-  virtual void setLanguage(const QString &language) = 0;
-
-  /*!
-   * \brief save
-   */
-  virtual void save() = 0;
-
-  /*!
-   * \brief discart
-   */
-  virtual void discart() = 0;
-};
-
 } // namespace graphos
 
-#endif // GRAPHOS_SETTINGS_INTERFACES_H
+#endif // GRAPHOS_SETTINGS_MODEL_INTERFACE_H

@@ -20,86 +20,44 @@
  * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
  *                                                                      *
  ************************************************************************/
+ 
+#ifndef GRAPHOS_ABOUT_MODEL_INTERFACE_H
+#define GRAPHOS_ABOUT_MODEL_INTERFACE_H
 
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
-
-#include "graphos/graphos_global.h"
-
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
-
-#include <QObject>
-
-#include <memory>
-#include <mutex>
+#include <tidop/core/defs.h>
+#include "graphos/interfaces/mvp.h"
 
 namespace tl
 {
-class CommandList;
+class Licence;
 }
-
 
 namespace graphos
 {
-
-class AppStatus;
-class Component;
-class Project;
-class Settings;
-
-class Application
-  : public QObject
+  
+class AboutModel
+  : public Model
 {
 
   Q_OBJECT
 
-private:
-
-  Application();
+public:
+  
+  using const_iterator = std::list<tl::Licence>::const_iterator;
 
 public:
 
-  static Application &instance();
-  ~Application();
+  AboutModel(QObject *parent = nullptr) : Model(parent) {}
+  ~AboutModel() override = default;
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+  virtual const tl::Licence &graphosLicence() const = 0;
+  virtual QString readLicence(const QString &licence) = 0;
 
-  AppStatus *status();
-  tl::MessageManager *messageManager();
-  Project *project();
-  Settings *settings();
+  virtual const_iterator begin() const = 0 ;
+  virtual const_iterator end() const = 0 ;
 
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
-
-  void freeMemory();
-
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
-
-signals:
-
-  void imageLoaded(QString);
-
-private:
-
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  QStringList mHistory;
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_APPLICATION_H
+#endif // GRAPHOS_ABOUT_MODEL_INTERFACE_H

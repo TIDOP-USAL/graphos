@@ -79,7 +79,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExit(new QAction(this)),
     mActionStartPage(new QAction(this)),
     mActionCameras(new QAction(this)),
-    mActionSettings(new QAction(this)),
+    //mActionSettings(new QAction(this)),
     mActionHelp(new QAction(this)),
     //mActionAbout(new QAction(this)),
     mActionImportCameras(new QAction(this)),
@@ -995,9 +995,9 @@ void MainWindowView::initActions()
   iconStartPage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-home-page.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionStartPage->setIcon(iconStartPage);
 
-  QIcon iconSettings;
-  iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionSettings->setIcon(iconSettings);
+  //QIcon iconSettings;
+  //iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
+  //mActionSettings->setIcon(iconSettings);
 
   QIcon iconHelp;
   iconHelp.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_help_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1182,7 +1182,7 @@ void MainWindowView::initMenuTools()
 {
   ui->menuTools->addAction(mActionCameras);
   ui->menuTools->addSeparator();
-  ui->menuTools->addAction(mActionSettings);
+  //ui->menuTools->addAction(mActionSettings);
 }
 
 void MainWindowView::initMenuPlugins()
@@ -1227,7 +1227,7 @@ void MainWindowView::initSignalAndSlots()
 
   /* Menú herramientas */
 
-  connect(mActionSettings,           SIGNAL(triggered(bool)),   this,   SIGNAL(openSettings()));
+  //connect(mActionSettings,           SIGNAL(triggered(bool)),   this,   SIGNAL(openSettings()));
 
   /* Menú Ayuda */
 
@@ -1364,7 +1364,7 @@ void MainWindowView::retranslate()
   mActionCameras->setText(QApplication::translate("MainWindowView", "Cameras", nullptr));
   mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
   //mActionAbout->setText(QApplication::translate("MainWindowView", "About", nullptr));
-  mActionSettings->setText(QApplication::translate("MainWindowView", "Settings", nullptr));
+  //mActionSettings->setText(QApplication::translate("MainWindowView", "Settings", nullptr));
   mActionNotRecentProjects->setText(QApplication::translate("MainWindowView", "Not recent projects", nullptr));
   mActionClearHistory->setText(QApplication::translate("MainWindowView", "Clear History", nullptr));
   mActionOpenImage->setText(QApplication::translate("MainWindowView", "Open Image", nullptr));

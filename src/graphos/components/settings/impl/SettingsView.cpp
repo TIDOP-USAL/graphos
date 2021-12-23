@@ -42,6 +42,7 @@
 namespace graphos
 {
 
+
 SettingsViewImp::SettingsViewImp(QWidget *parent)
   : SettingsView(parent),
     mListWidget(new QListWidget(this)),

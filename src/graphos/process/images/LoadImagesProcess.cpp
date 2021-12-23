@@ -319,7 +319,7 @@ void graphos::LoadImagesProcess::run()
         }
         
         bool bTrfCrs = crs_in->isValid() && crs_out->isValid();
-        tl::geospatial::CrsTransform<tl::Point3D> crs_trf(crs_in, crs_out);
+        tl::geospatial::CrsTransform crs_trf(crs_in, crs_out);
         tl::Point3D pt_in(latitudeDecimalDegrees, longitudeDecimalDegrees, altitude);
         tl::Point3D pt_out = crs_trf.transform(pt_in);
 

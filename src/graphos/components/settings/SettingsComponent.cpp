@@ -21,85 +21,62 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
+#include "SettingsComponent.h"
 
-#include "graphos/graphos_global.h"
+#include "graphos/components/settings/impl/SettingsModel.h"
+#include "graphos/components/settings/impl/SettingsView.h"
+#include "graphos/components/settings/impl/SettingsPresenter.h"
+#include "graphos/core/project.h"
+#include "graphos/core/AppStatus.h"
 
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
-
-#include <QObject>
-
-#include <memory>
-#include <mutex>
-
-namespace tl
-{
-class CommandList;
-}
-
+#include <QAction>
+#include <QString>
 
 namespace graphos
 {
 
-class AppStatus;
-class Component;
-class Project;
-class Settings;
 
-class Application
-  : public QObject
+SettingsComponent::SettingsComponent(Application *application)
+  : ComponentBase(application)
 {
+  this->setName("Settings");
+  this->setMenu("tools");
+  this->setToolbar("tools");
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-settings.png"));
+}
 
-  Q_OBJECT
+SettingsComponent::~SettingsComponent()
+{
+}
 
-private:
+void SettingsComponent::createModel()
+{
+  setModel(new SettingsModelImp(app()->settings()));
+}
 
-  Application();
+void SettingsComponent::createView()
+{
+  setView(new SettingsViewImp());
+}
 
-public:
+void SettingsComponent::createPresenter()
+{
+  setPresenter(new SettingsPresenterImp(dynamic_cast<SettingsView *>(view()),
+                                        dynamic_cast<SettingsModel *>(model())));
+}
 
-  static Application &instance();
-  ~Application();
+void SettingsComponent::createCommand()
+{
+}
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+void SettingsComponent::update()
+{
+  Application *app = this->app();
+  TL_ASSERT(app != nullptr, "Application is null");
+  AppStatus *app_status = app->status();
+  TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  AppStatus *status();
-  tl::MessageManager *messageManager();
-  Project *project();
-  Settings *settings();
-
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
-
-  void freeMemory();
-
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
-
-signals:
-
-  void imageLoaded(QString);
-
-private:
-
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  QStringList mHistory;
-};
+  action()->setEnabled(true);
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_APPLICATION_H

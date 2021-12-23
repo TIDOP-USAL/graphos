@@ -21,85 +21,70 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
+#include "AboutPresenter.h"
 
-#include "graphos/graphos_global.h"
+#include "graphos/components/about/AboutModel.h"
+#include "graphos/components/about/AboutView.h"
+#include "graphos/components/HelpDialog.h"
+#include "graphos/core/AppStatus.h"
 
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
+#include <tidop/core/licence.h>
 
-#include <QObject>
-
-#include <memory>
-#include <mutex>
-
-namespace tl
-{
-class CommandList;
-}
-
+#include <QStandardPaths>
+#include <QDir>
 
 namespace graphos
 {
 
-class AppStatus;
-class Component;
-class Project;
-class Settings;
+AboutPresenterImp::AboutPresenterImp(AboutView *view,
+                                     AboutModel *model,
+                                     AppStatus *status)
+  : AboutPresenter(),
+    mView(view),
+    mModel(model)
+{
+  init();
+}
 
-class Application
-  : public QObject
+void AboutPresenterImp::help()
+{
+  if (mHelp){
+    mHelp->setPage("menus.html#about");
+    mHelp->show();
+  }
+}
+
+void AboutPresenterImp::open()
 {
 
-  Q_OBJECT
+  mView->exec();
+}
 
-private:
+void AboutPresenterImp::setHelp(HelpDialog *help)
+{
+  mHelp = help;
+}
 
-  Application();
+void AboutPresenterImp::init()
+{
+  tl::Licence licence = mModel->graphosLicence();
+  licence.productName();
+  licence.version();
+  mView->setGraphosVersion(QString::fromStdString(licence.version()));
+  mView->setGraphosLicence(mModel->readLicence(QString::fromStdString(licence.type())));
 
-public:
+  for (const auto &licence : *mModel) {
+    std::string name = licence.productName();
+    name.append("  ").append(licence.version());
+    QString licence_text = mModel->readLicence(QString::fromStdString(licence.type()));
+    mView->addLicence(QString::fromStdString(name), licence_text);
+  }
 
-  static Application &instance();
-  ~Application();
+}
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+void AboutPresenterImp::initSignalAndSlots()
+{
 
-  AppStatus *status();
-  tl::MessageManager *messageManager();
-  Project *project();
-  Settings *settings();
-
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
-
-  void freeMemory();
-
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
-
-signals:
-
-  void imageLoaded(QString);
-
-private:
-
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  QStringList mHistory;
-};
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_APPLICATION_H

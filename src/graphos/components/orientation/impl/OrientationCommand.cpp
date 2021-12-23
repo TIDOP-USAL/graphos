@@ -656,10 +656,10 @@ bool OrientationCommand::run()
 
       QString ori_relative = mProject->projectFolder() + "/ori/relative/";
       RelativeOrientationColmapAlgorithm relativeOrientationAlgorithm(database_path,
-        ori_relative,
-        !mFixCalibration,
-        !mFixCalibration,
-        !mFixCalibration);
+                                                                      ori_relative,
+                                                                      !mFixCalibration,
+                                                                      !mFixCalibration,
+                                                                      !mFixCalibration);
 
       relativeOrientationAlgorithm.run();
 

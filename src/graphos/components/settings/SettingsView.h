@@ -21,85 +21,53 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
+#ifndef GRAPHOS_SETTINGS_VIEW_INTERFACE_H
+#define GRAPHOS_SETTINGS_VIEW_INTERFACE_H
 
-#include "graphos/graphos_global.h"
-
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
-
-#include <QObject>
-
-#include <memory>
-#include <mutex>
-
-namespace tl
-{
-class CommandList;
-}
-
+#include "graphos/interfaces/mvp.h"
 
 namespace graphos
 {
 
-class AppStatus;
-class Component;
-class Project;
-class Settings;
 
-class Application
-  : public QObject
+class SettingsView
+  : public DialogView
 {
-
   Q_OBJECT
-
-private:
-
-  Application();
 
 public:
 
-  static Application &instance();
-  ~Application();
+  SettingsView(QWidget *parent) : DialogView(parent) {}
+  virtual ~SettingsView() override = default;
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+public:
 
-  AppStatus *status();
-  tl::MessageManager *messageManager();
-  Project *project();
-  Settings *settings();
+  virtual QString activeLanguage() const = 0;
+  virtual int historyMaxSize() const = 0;
+  virtual QString imageViewerBGColor() const = 0;
+  virtual bool useCuda() const = 0;
 
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
+public slots:
 
-  void freeMemory();
-
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
+  virtual void setPage(int page) = 0;
+  virtual void setLanguages(const QStringList &languages) = 0;
+  virtual void setActiveLanguage(const QString &language) = 0;
+  virtual void setHistoryMaxSize(int size) = 0;
+  virtual void setImageViewerBGcolor(const QString &color) = 0;
+  virtual void setUseCuda(bool active) = 0;
+  virtual void setCudaEnabled(bool enabled) = 0;
+  virtual void setUnsavedChanges(bool unsaveChanges) = 0;
 
 signals:
 
-  void imageLoaded(QString);
+  void languageChange(QString);
+  void historyMaxSizeChange(int);
+  void imageViewerBGColorChange(QString);
+  void useCudaChange(bool);
+  void applyChanges();
 
-private:
-
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  QStringList mHistory;
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_APPLICATION_H
+#endif // GRAPHOS_SETTINGS_VIEW_INTERFACE_H
