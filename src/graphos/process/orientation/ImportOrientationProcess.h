@@ -15,9 +15,9 @@
  * PURPOSE.  See the GNU General Public License for more details.       *
  *                                                                      *
  * You should have received a copy of the GNU General Public License    *
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.      *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
  *                                                                      *
- * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>                *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
  *                                                                      *
  ************************************************************************/
 
