@@ -42,6 +42,8 @@
 
 #include <QFileInfo>
 
+#include <fstream>
+
 using namespace tl;
 
 namespace graphos

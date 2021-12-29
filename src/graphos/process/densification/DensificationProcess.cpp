@@ -56,7 +56,6 @@ void DensificationProcess::setOutputPat(const QString &outputPat)
   mOutputPat = outputPat;
 }
 
-
 QString DensificationProcess::reconstructionPath() const
 {
   return mReconstructionPath;

@@ -8,6 +8,7 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/process.h>
 #include <tidop/core/path.h>
+#include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
 
 // COLMAP
@@ -538,7 +539,7 @@ bool SmvsDensifier::densify(const QString &undistortPath)
 
   /// smvsrecon_SSE41.exe  --scale=2 --output-scale=3 --alpha=1.000000 --force C:\Users\esteban\Documents\Inspector\Projects\planta solar\out"
 
-  tl::Path app_path(tl::getRunfile());
+  tl::Path app_path = tl::App::instance().path();
 
   //std::string cmd("/c \"\"");
   //cmd.append(app_path.parentPath().toString());

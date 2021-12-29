@@ -6,6 +6,7 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/process.h>
 #include <tidop/core/path.h>
+#include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
 
 // COLMAP
@@ -22,6 +23,8 @@
 #include <opencv2/cudawarping.hpp>
 #include <opencv2/cudaarithm.hpp>
 #endif // HAVE_CUDA
+
+#include <fstream>
 
 namespace graphos
 {
@@ -317,8 +320,7 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
 
 bool CmvsPmvsDensifier::densify(const QString &undistortPath)
 {
-   
-  tl::Path app_path(tl::getRunfile());
+  tl::Path app_path = tl::App::instance().path();
   std::string cmd_cmvs("\"");
   cmd_cmvs.append(app_path.parentPath().toString());
   cmd_cmvs.append("\\pmvs2\" \"");

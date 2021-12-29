@@ -26,6 +26,7 @@
 #include "graphos/components/densification/impl/DensificationModel.h"
 #include "graphos/components/densification/impl/DensificationView.h"
 #include "graphos/components/densification/impl/DensificationPresenter.h"
+#include "graphos/components/densification/impl/DensificationCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -68,6 +69,7 @@ void DensificationComponent::createPresenter()
 
 void DensificationComponent::createCommand()
 {
+  setCommand(std::make_shared<DensificationCommand>());
 }
 
 void DensificationComponent::update()

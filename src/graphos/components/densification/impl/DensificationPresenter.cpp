@@ -206,7 +206,7 @@ bool DensificationPresenterImp::createProcess()
     throw std::runtime_error("Densification Method not valid");
   }
 
-  densifier->enableCuda(mModel->useCuda());
+  //densifier->enableCuda(mModel->useCuda());
 
   mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
 

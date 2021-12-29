@@ -74,6 +74,7 @@ set(GRAPHOS_SOURCES
     densification/impl/DensificationModel.cpp
     densification/impl/DensificationView.cpp
     densification/impl/DensificationPresenter.cpp
+    densification/impl/DensificationCommand.cpp
     featviewer/FeaturesViewerComponent.cpp
     featviewer/impl/FeaturesViewerView.cpp
     featviewer/impl/FeaturesViewerModel.cpp
@@ -197,6 +198,7 @@ set(GRAPHOS_HEADERS
     densification/impl/DensificationModel.h
     densification/impl/DensificationView.h
     densification/impl/DensificationPresenter.h
+    densification/impl/DensificationCommand.h
     featviewer/FeaturesViewerComponent.h
     featviewer/FeaturesViewerView.h
     featviewer/FeaturesViewerModel.h

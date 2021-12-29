@@ -35,6 +35,8 @@
 #include <QFileInfo>
 #include <QDir>
 
+#include <fstream>
+
 namespace graphos
 {
 

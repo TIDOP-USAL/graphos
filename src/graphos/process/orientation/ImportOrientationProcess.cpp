@@ -40,6 +40,8 @@
 #include <colmap/base/database_cache.h>
 #include <colmap/controllers/incremental_mapper.h>
 
+#include <fstream>
+
 namespace graphos
 {
 

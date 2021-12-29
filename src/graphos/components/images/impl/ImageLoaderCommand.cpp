@@ -41,6 +41,8 @@
 #include <QSqlError>
 #include <QCoreApplication>
 
+#include <fstream>
+
 namespace graphos
 {
   

@@ -21,70 +21,53 @@
  *                                                                      *
  ************************************************************************/
 
-#include "AboutPresenter.h"
+#ifndef GRAPHOS_DENSIFICATION_COMMAND_H
+#define GRAPHOS_DENSIFICATION_COMMAND_H
 
-#include "graphos/components/about/AboutModel.h"
-#include "graphos/components/about/AboutView.h"
-#include "graphos/components/HelpDialog.h"
-#include "graphos/core/AppStatus.h"
-
-#include <tidop/core/licence.h>
-
-#include <QStandardPaths>
-#include <QDir>
+#include "graphos/core/command.h"
 
 namespace graphos
 {
+	
+class Project;
 
-AboutPresenterImp::AboutPresenterImp(AboutView *view,
-                                     AboutModel *model,
-                                     AppStatus *status)
-  : AboutPresenter(),
-    mView(view),
-    mModel(model)
-{
-  init();
-}
-
-void AboutPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("menus.html#about");
-    mHelp->show();
-  }
-}
-
-void AboutPresenterImp::open()
+class DensificationCommand
+  : public Command
 {
 
-  mView->exec();
-}
+public:
 
-void AboutPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
+  DensificationCommand();
+  ~DensificationCommand() override;
 
-void AboutPresenterImp::init()
-{
-  tl::Licence licence = mModel->graphosLicence();
-  licence.productName();
-  licence.version();
-  mView->setGraphosVersion(QString::fromStdString(licence.version()));
-  mView->setGraphosLicence(mModel->readLicence(QString::fromStdString(licence.text())));
+private:
 
-  for (const auto &licence : *mModel) {
-    std::string name = licence.productName();
-    name.append("  ").append(licence.version());
-    QString licence_text = mModel->readLicence(QString::fromStdString(licence.text()));
-    mView->addLicence(QString::fromStdString(name), licence_text);
-  }
+// Command
 
-}
+  bool run() override;
 
-void AboutPresenterImp::initSignalAndSlots()
-{
+private:
 
-}
+  tl::Path mProjectFile;
+  std::string mDensificationMethod;
+  bool mPmvsUseVisibilityInformation;
+  int mPmvsImagesPerCluster;
+  int mPmvsLevel;
+  int mPmvsCellSize;
+  double mPmvsThreshold;
+  int mPmvsWindowSize;
+  int mPmvsMinimunImageNumber;
+  bool mPmvsImageOriginalDepth;
+  int mSmvsInputImageScale;
+  int mSmvsOutputDepthScale;
+  bool mSmvsShadingBasedOptimization;
+  bool mSmvsSemiGlobalMatching;
+  double mSmvsSurfaceSmoothingFactor;
+  bool mDisableCuda;
+  Project *mProject;
+};
 
+	
 } // namespace graphos
+
+#endif // GRAPHOS_DENSIFICATION_COMMAND_H

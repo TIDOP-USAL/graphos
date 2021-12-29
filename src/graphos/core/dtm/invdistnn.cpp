@@ -4,8 +4,10 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/process.h>
 #include <tidop/core/path.h>
+#include <tidop/core/app.h>
 #include <tidop/geometry/size.h>
 
+#include <fstream>
 
 using namespace graphos;
 using namespace tl;
@@ -154,7 +156,7 @@ bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
   file << "</OGRVRTDataSource>"  << std::endl;
   file.close();
 
-  tl::Path app_path(tl::getRunfile());
+  tl::Path app_path = tl::App::instance().path();
 
   std::string cmd("\"");
   cmd.append(app_path.parentPath().toString());
@@ -198,7 +200,7 @@ bool DtmInvDistNNAlgorithm::run(const std::string &pointCloud,
   file << "</OGRVRTDataSource>" << std::endl;
   file.close();
 
-  tl::Path app_path(tl::getRunfile());
+  tl::Path app_path = tl::App::instance().path();
 
   tl::Size<int> size(bbox.width() / gsd, bbox.height() / gsd);
 

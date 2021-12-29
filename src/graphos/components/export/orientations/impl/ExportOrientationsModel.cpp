@@ -25,6 +25,7 @@
 
 #include "graphos/core/project.h"
 
+#include <fstream>
 
 namespace graphos
 {

@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
   } else if (status == tl::CommandList::Status::parse_error) {
 
-    TL_TODO("Añadir como opción")
+//    TL_TODO("Añadir como opción")
 #if defined WIN32
     HWND hwnd = GetConsoleWindow();
     ShowWindow(hwnd, 0);

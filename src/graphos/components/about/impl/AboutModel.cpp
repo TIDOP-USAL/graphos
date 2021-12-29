@@ -118,7 +118,7 @@ void AboutModelImp::init()
     if (!json_value.isNull()) {
       tl::Path path_licence(path);
       path_licence.append(json_value.toString().toStdString());
-      mAppLicence->setType(path_licence.toString()); /// Cambiar nombre de metodo
+      mAppLicence->setText(path_licence.toString());
     }
 
 
@@ -143,7 +143,7 @@ void AboutModelImp::init()
         if (!json_value.isNull()) {
           tl::Path path_licence(path);
           path_licence.append(json_value.toString().toStdString());
-          licence.setType(path_licence.toString());
+          licence.setText(path_licence.toString());
         }
 
         mAppLicence->push_back(licence);

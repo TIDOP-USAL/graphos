@@ -33,15 +33,11 @@
 namespace graphos
 {
 
-//class Settings;
-//class SettingsController;
 class Component;
 class MainWindowModel;
 class MainWindowView;
 class MainWindowPresenter;
 class ProjectModel;
-//class SettingsModel;
-//class SettingsPresenter;
 class FeaturesModel;
 class MatchesModel;
 class ProgressHandler;
@@ -86,9 +82,6 @@ public:
   FeaturesModel *featuresModel();
   MatchesModel *matchesModel();
 
-  //SettingsModel *settingsModel();
-  //SettingsPresenter *settingsPresenter();
-
   HelpDialog *helpDialog();
 
   ProgressHandler *progressHandler();
@@ -100,13 +93,6 @@ private:
   
   void loadPlugin(QObject *plugin);
 
-//protected slots:
-//
-//  void initAndOpenSettingsDialog();
-//  void initAndOpenViewSettingsDialog();
-//  void initAndOpenToolSettingsDialog();
-//  void initSettingsDialog();
-
 protected:
 
   MainWindowView *mMainWindowView;
@@ -116,10 +102,6 @@ protected:
   ProjectModel *mProjectModel;
   FeaturesModel *mFeaturesModel;
   MatchesModel *mMatchesModel;
-  //Settings *mSettings;
-  //SettingsController *mSettingsController;
-  //SettingsModel *mSettingsModel;
-  //SettingsPresenter *mSettingsPresenter;
 
   HelpDialog *mHelpDialog;
 

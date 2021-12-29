@@ -30,9 +30,6 @@
 #include "graphos/components/MainWindowPresenter.h"
 #include "graphos/components/cameras/CamerasComponent.h"
 #include "graphos/components/ProjectModel.h"
-//#include "graphos/components/SettingsModel.h"
-//#include "graphos/components/SettingsView.h"
-//#include "graphos/components/SettingsPresenter.h"
 #include "graphos/components/FeaturesModel.h"
 #include "graphos/components/MatchesModel.h"
 #include "graphos/components/HelpDialog.h"
@@ -60,10 +57,6 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mProjectModel(nullptr),
     mFeaturesModel(nullptr),
     mMatchesModel(nullptr),
-    //mSettings(new SettingsImp),
-    //mSettingsController(new SettingsControllerImp),
-    //mSettingsModel(nullptr),
-    //mSettingsPresenter(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
     mProgressDialog(nullptr)
@@ -104,25 +97,6 @@ ComponentsManager::~ComponentsManager()
     delete mMatchesModel;
     mMatchesModel = nullptr;
   }
-  //if (mSettings){
-  //  delete mSettings;
-  //  mSettings = nullptr;
-  //}
-
-  //if (mSettingsController){
-  //  delete mSettingsController;
-  //  mSettingsController = nullptr;
-  //}
-
-  //if (mSettingsModel){
-  //  delete mSettingsModel;
-  //  mSettingsModel = nullptr;
-  //}
-
-  //if (mSettingsPresenter){
-  //  delete mSettingsPresenter;
-  //  mSettingsPresenter = nullptr;
-  //}
 
   if (mProgressHandler){
     delete mProgressHandler;
@@ -167,13 +141,6 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
                                                    this->featuresModel(),
                                                    this->matchesModel());
 
-
-    //connect(mMainWindowPresenter, &MainWindowPresenter::openSettingsDialog,
-    //        this, &ComponentsManager::initAndOpenSettingsDialog);
-    //connect(mMainWindowPresenter, &MainWindowPresenter::openViewSettingsDialog,
-    //        this, &ComponentsManager::initAndOpenViewSettingsDialog);
-    //connect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
-    //        this, &ComponentsManager::initAndOpenToolSettingsDialog);
   }
 
   return mMainWindowPresenter;
@@ -246,11 +213,6 @@ void ComponentsManager::registerComponent(Component *component,
     }
   }
 
-  //if (std::shared_ptr<tl::Command> command = component->command()) {
-  //  Application &app = Application::instance(); 
-  //  app.addCommand(command);
-  //}
-
 }
 
 void ComponentsManager::registerMultiComponent(const QString &name,
@@ -289,14 +251,8 @@ void ComponentsManager::registerMultiComponent(const QString &name,
       process_component->setProgressHandler(this->progressHandler());
     }
   }
-  //if (register_flags.isActive(Flags::separator_before)) {
-  //  mMainWindowView->addSeparatorToMenu(app_menu);
-  //}
-  mMainWindowView->addMenuToMenu(_menu, app_menu);
-  //if (register_flags.isActive(Flags::separator_after)) {
-  //  mMainWindowView->addSeparatorToMenu(app_menu);
-  //}
 
+  mMainWindowView->addMenuToMenu(_menu, app_menu);
 
 
   MainWindowView::Toolbar app_toolbar;
@@ -311,14 +267,6 @@ void ComponentsManager::registerMultiComponent(const QString &name,
   } else if (toolbar.compare("tools") == 0) {
     app_toolbar = MainWindowView::Toolbar::tools;
   } else return;
-
-  //if (register_flags.isActive(Flags::separator_before)) {
-  //  mMainWindowView->addSeparatorToToolbar(app_toolbar);
-  //}
-  //mMainWindowView->addActionToToolbar(action, app_toolbar);
-  //if (register_flags.isActive(Flags::separator_after)) {
-  //  mMainWindowView->addSeparatorToToolbar(app_toolbar);
-  //}
 
 }
 
@@ -382,11 +330,6 @@ void ComponentsManager::loadPlugin(QObject *plugin)
   }
 }
 
-//Project *ComponentsManager::project()
-//{
-//  return mProject;
-//}
-
 ProjectModel *ComponentsManager::projectModel()
 {
   if (mProjectModel == nullptr){
@@ -410,24 +353,6 @@ MatchesModel *ComponentsManager::matchesModel()
   }
   return mMatchesModel;
 }
-
-//SettingsModel *ComponentsManager::settingsModel()
-//{
-//  if (mSettingsModel == nullptr){
-//    mSettingsModel = new SettingsModelImp(mSettings, mSettingsController);
-//    mSettingsModel->read();
-//  }
-//  return mSettingsModel;
-//}
-
-//SettingsPresenter *ComponentsManager::settingsPresenter()
-//{
-//  if (mSettingsPresenter == nullptr){
-//    SettingsView *view = new SettingsViewImp(this->mainWindowView());
-//    mSettingsPresenter = new SettingsPresenterImp(view, this->settingsModel());
-//  }
-//  return mSettingsPresenter;
-//}
 
 HelpDialog *ComponentsManager::helpDialog()
 {
@@ -471,40 +396,5 @@ ProgressDialog *ComponentsManager::progressDialog()
   }
   return mProgressDialog;
 }
-
-//void ComponentsManager::initAndOpenSettingsDialog()
-//{
-//  this->initSettingsDialog();
-//  this->settingsPresenter()->open();
-//}
-//
-//void ComponentsManager::initAndOpenViewSettingsDialog()
-//{
-//  this->initSettingsDialog();
-//  this->settingsPresenter()->openViewSettings();
-//}
-//
-//void ComponentsManager::initAndOpenToolSettingsDialog()
-//{
-//  this->initSettingsDialog();
-//  this->settingsPresenter()->openToolSettings();
-//}
-
-//void ComponentsManager::initSettingsDialog()
-//{
-//  disconnect(this->mainWindowPresenter(), &MainWindowPresenter::openSettingsDialog,
-//             this, &ComponentsManager::initAndOpenSettingsDialog);
-//  disconnect(mMainWindowPresenter, &MainWindowPresenter::openViewSettingsDialog,
-//             this, &ComponentsManager::initAndOpenViewSettingsDialog);
-//  disconnect(mMainWindowPresenter, &MainWindowPresenter::openToolSettingsDialog,
-//             this, &ComponentsManager::initAndOpenToolSettingsDialog);
-//
-//  connect(this->mainWindowPresenter(), SIGNAL(openSettingsDialog()), this->settingsPresenter(), SLOT(open()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openViewSettingsDialog()), this->settingsPresenter(), SLOT(openViewSettings()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openQualityControlSettingsDialog()), this->settingsPresenter(), SLOT(openQualityControlSettings()));
-//  connect(this->mainWindowPresenter(), SIGNAL(openToolSettingsDialog()), this->settingsPresenter(), SLOT(openToolSettings()));
-//
-//  this->settingsPresenter()->setHelp(this->helpDialog());
-//}
 
 } // namespace graphos
