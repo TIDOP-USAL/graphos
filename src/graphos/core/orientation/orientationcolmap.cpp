@@ -117,7 +117,16 @@ void RelativeOrientationColmapAlgorithm::run()
     mMapper = nullptr;
   }
   
+  mIncrementalMapper->ba_refine_focal_length = RelativeOrientationColmapProperties::refineFocalLength();
+  mIncrementalMapper->ba_refine_principal_point = false;
+  mIncrementalMapper->ba_refine_extra_params = RelativeOrientationColmapProperties::refineExtraParams();
   //mIncrementalMapper->min_num_matches = 30;
+  //mIncrementalMapper->ba_global_images_ratio = 1.2;
+  //mIncrementalMapper->ba_global_points_ratio = 1.2;
+  //mIncrementalMapper->ba_global_max_num_iterations = 20;
+  //mIncrementalMapper->ba_global_max_refinements = 3;
+  //mIncrementalMapper->ba_global_points_freq = 200000;
+
   mMapper = new colmap::IncrementalMapperController(mIncrementalMapper,
                                                     "",
                                                     mDatabase.toStdString(),

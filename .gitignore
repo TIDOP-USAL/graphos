@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+/res/help/es/graphos.qch
+/res/help/es/graphos.qhc
+/res/help/es/.graphos
