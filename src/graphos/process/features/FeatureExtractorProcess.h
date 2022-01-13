@@ -43,7 +43,7 @@ protected:
   int mMaxImageSize;
   bool bUseCuda;
   std::shared_ptr<FeatureExtractor> mFeatureExtractor;
-  bool bOpenCvRead;
+  //bool bOpenCvRead;
 };
 
 

@@ -28,7 +28,7 @@ namespace graphos
 	
 ProcessView::ProcessView(QWidget *parent,
                          Qt::WindowFlags f)
-  : DialogView(parent)
+  : DialogView(parent, f)
 {
 }
 

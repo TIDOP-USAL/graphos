@@ -38,7 +38,7 @@ class MatchViewerView
 public:
 
   explicit MatchViewerView(QWidget *parent = nullptr,
-                            Qt::WindowFlags f = Qt::WindowFlags())
+                           Qt::WindowFlags f = Qt::WindowFlags())
     : DialogView(parent, f) {}
   virtual ~MatchViewerView() = default;
 

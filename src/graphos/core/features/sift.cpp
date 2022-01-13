@@ -167,9 +167,10 @@ void SiftDetectorDescriptor::run(const colmap::Bitmap &bitmap,
                                  colmap::FeatureKeypoints &keyPoints,
                                  colmap::FeatureDescriptors &descriptors)
 {
-  //std::lock_guard<std::mutex> lck(mMutex);
+  std::lock_guard<std::mutex> lck(mMutex);
+
   try {
-    mSiftExtractionOptions.max_image_size = bitmap.Width();
+    mSiftExtractionOptions.max_image_size = std::max(bitmap.Width(), bitmap.Height());
     mSiftExtractionOptions.use_gpu = false;
     bool err = ExtractSiftFeaturesCPU(mSiftExtractionOptions, bitmap, &keyPoints, &descriptors);
     if (err == false) throw "ExtractSiftFeaturesCPU fail";
@@ -407,6 +408,9 @@ void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
   try {
 
     /// Copiado mas o menos de Colmap
+
+    mSiftExtractionOptions.max_image_size = std::max(bitmap.rows, bitmap.cols);
+    mSiftExtractionOptions.use_gpu = false;
 
     mSiftCpu = vl_sift_new(bitmap.cols,
                            bitmap.rows,
@@ -664,7 +668,8 @@ void SiftCudaDetectorDescriptor::update()
   mSiftExtractionOptions.octave_resolution = SiftProperties::octaveLayers();
   mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
   mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
-  mSiftExtractionOptions.domain_size_pooling = true;
+  mSiftExtractionOptions.domain_size_pooling = false;
+  mSiftExtractionOptions.use_gpu = true;
   if (!CreateSiftGPUExtractor(mSiftExtractionOptions, mSiftGpu.get())) {
     return;
   }
@@ -676,6 +681,8 @@ void SiftCudaDetectorDescriptor::run(const colmap::Bitmap &bitmap,
 {
   std::lock_guard<std::mutex> lck(mMutex);
   try {
+    mSiftExtractionOptions.max_image_size = std::max(bitmap.Width(), bitmap.Height());
+    mSiftGpu->SetMaxDimension(mSiftExtractionOptions.max_image_size);
     bool err = ExtractSiftFeaturesGPU(mSiftExtractionOptions, bitmap, mSiftGpu.get(), &keyPoints, &descriptors);
     if (err == false) throw std::runtime_error("ExtractSiftFeaturesGPU fail");
   } catch (std::exception &e) {
@@ -703,31 +710,31 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
 
     mSiftGpu->GetFeatureVector(keypoints_data.data(), descriptors_float.data());
 
-    size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
-    //size_t max_features = feature_number;
+    //size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
+    size_t max_features = feature_number;
     keyPoints.resize(max_features);
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float_resize(max_features, descriptors_float.cols());
     for (size_t i = 0; i < max_features; i++){
       keyPoints[i] = colmap::FeatureKeypoint(keypoints_data[i].x, keypoints_data[i].y,
                                              keypoints_data[i].s, keypoints_data[i].o);
       /// Ver si se puede mejorar
-      for (size_t j = 0; j < descriptors_float.cols(); j++) {
-        descriptors_float_resize(i, j) = descriptors_float(i, j);
-      }
+      //for (size_t j = 0; j < descriptors_float.cols(); j++) {
+      //  descriptors_float_resize(i, j) = descriptors_float(i, j);
+      //}
     }
 
     /// Destruye el contenido
     ///descriptors_float.resize(max_features, Eigen::NoChange);
 
     if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L2){
-      descriptors_float_resize = colmap::L2NormalizeFeatureDescriptors(descriptors_float_resize);
+      descriptors_float = colmap::L2NormalizeFeatureDescriptors(descriptors_float);
     } else if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT){
-      descriptors_float_resize = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float_resize);
+      descriptors_float = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float);
     } else {
       throw std::runtime_error("Description normalization type not supported");
     }
     
-    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float_resize);
+    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
 
   } catch (std::exception &) {
     msgError("SIFT Detector exception");

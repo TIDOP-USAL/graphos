@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "GraphicViewer.h"
+#include "graphos/widgets/GraphicViewer.h"
 
 #include <QWheelEvent>
 #include <QMessageBox>

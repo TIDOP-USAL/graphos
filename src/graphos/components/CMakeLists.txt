@@ -114,11 +114,9 @@ set(GRAPHOS_SOURCES
     about/impl/AboutView.cpp
     about/impl/AboutPresenter.cpp
     HelpDialog.cpp
-    utils/GraphicViewer.cpp
     utils/ProgressDialog.cpp
     #utils/Progress.cpp
     utils/Viewer3d.cpp
-    utils/GraphicItem.cpp
     utils/TabHandler.cpp
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
 )
@@ -263,10 +261,8 @@ set(GRAPHOS_HEADERS
     about/impl/AboutModel.h
     about/impl/AboutView.h
     about/impl/AboutPresenter.h
-    utils/GraphicViewer.h
     utils/ProgressDialog.h
     utils/Viewer3d.h
-    utils/GraphicItem.h
     utils/TabHandler.h
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
 )

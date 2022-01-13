@@ -81,7 +81,10 @@ void MainWindowPresenter::openFromHistory(const QString &file)
   if (QFileInfo(file).exists()) {
 
     // Se comprueba si hay un proyecto abierto con cambios sin guardar
-    if(mProjectModel->checkUnsavedChanges()) {
+    Application &app = Application::instance();
+    AppStatus *app_status = app.status();
+
+    if(app_status && app_status->isActive(AppStatus::Flag::project_modified)) {
       int i_ret = QMessageBox(QMessageBox::Information,
                               tr("Save Changes"),
                               tr("There are unsaved changes. Do you want to save them?"),
@@ -174,7 +177,11 @@ void MainWindowPresenter::exit()
 {
   ///TODO: Se cierra la aplicación
   /// - Comprobar que no haya ningún proceso corriendo
-  if(mProjectModel->checkUnsavedChanges()){
+  
+  Application &app = Application::instance();
+  AppStatus *app_status = app.status();
+
+  if(app_status && app_status->isActive(AppStatus::Flag::project_modified)){
     int i_ret = QMessageBox(QMessageBox::Information,
                             tr("Save Changes"),
                             tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
@@ -186,7 +193,6 @@ void MainWindowPresenter::exit()
     }
   }
 
-  mView->close();
 }
 
 void MainWindowPresenter::openStartPage()
@@ -582,7 +588,7 @@ void MainWindowPresenter::init()
 
   bool bUseGPU = cudaEnabled(10.0, 3.0);
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
-  settings.setValue("General/UseCuda", bUseGPU);
+  settings.setValue("UseCuda", settings.value("UseCuda", bUseGPU).toBool());
 }
 
 void MainWindowPresenter::initSignalAndSlots()

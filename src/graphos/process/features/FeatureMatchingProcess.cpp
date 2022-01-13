@@ -133,6 +133,7 @@ void FeatureMatchingProcess::setUseGPU(bool useGPU)
 
 void FeatureMatchingProcess::setSpatialMatching(bool spatialMatching)
 {
+  bSpatialMatching = spatialMatching;
 }
 
 //void FeatureMatchingProcess::onCancel()

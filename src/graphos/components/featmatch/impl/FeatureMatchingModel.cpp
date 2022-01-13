@@ -79,7 +79,7 @@ QString FeatureMatchingModelImp::database() const
 
 bool FeatureMatchingModelImp::useCuda() const
 {
-  return mSettings->value("General/UseCuda", true).toBool();
+  return mSettings->value("UseCuda", true).toBool();
 }
 
 bool FeatureMatchingModelImp::spatialMatching() const

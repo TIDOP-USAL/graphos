@@ -63,7 +63,8 @@ void FeaturesViewerComponent::createModel()
 
 void FeaturesViewerComponent::createView()
 {
-  setView(new FeaturesViewerViewImp());
+  Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+  setView(new FeaturesViewerViewImp(nullptr, f));
 }
 
 void FeaturesViewerComponent::createPresenter()

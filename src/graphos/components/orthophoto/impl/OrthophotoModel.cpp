@@ -418,7 +418,7 @@ void OrthophotoModelImp::clearProject()
 
 bool OrthophotoModelImp::useCuda() const
 {
-  return mSettings->value("General/UseCuda", true).toBool();
+  return mSettings->value("UseCuda", true).toBool();
 }
 
 void OrthophotoModelImp::init()

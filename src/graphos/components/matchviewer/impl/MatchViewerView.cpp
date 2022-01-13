@@ -23,8 +23,8 @@
 
 #include "MatchViewerView.h"
 
-#include "graphos/components/utils/GraphicViewer.h"
-#include "graphos/components/utils/GraphicItem.h"
+#include "graphos/widgets/GraphicViewer.h"
+#include "graphos/widgets/GraphicItem.h"
 #include "graphos/core/utils.h"
 
 #include <tidop/img/imgreader.h>

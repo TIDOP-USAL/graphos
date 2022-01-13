@@ -83,7 +83,7 @@ void FeatureExtractorModelImp::addFeatures(const QString &imageName, const QStri
 
 bool FeatureExtractorModelImp::useCuda() const
 {
-  return mSettings->value("General/UseCuda", true).toBool();
+  return mSettings->value("UseCuda", true).toBool();
 }
 
 std::vector<Image> FeatureExtractorModelImp::images() const

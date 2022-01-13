@@ -158,113 +158,100 @@ private:
       std::shared_ptr<colmap::Bitmap> bitmap = std::shared_ptr<colmap::Bitmap>(new colmap::Bitmap());
       double scale = 1.;
 
-      if (bUseGPU == false) {
-        //TODO: Esto se tiene que cambiar cuando no necesite usar el formato colmap::Bitmap para
-        bitmap->Read(image.path().toStdString(), false);
+      //TODO: Esto se tiene que cambiar cuando no necesite usar el formato colmap::Bitmap para
+      bitmap->Read(image.path().toStdString(), false);
 
-        cv::Size size(bitmap->Width(), bitmap->Height());
-        double max_dimension = std::max(size.width, size.height);
-        if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-          scale = max_dimension / mMaxImageSize;
-          size.width /= scale;
-          size.height /= scale;
-          bitmap->Rescale(size.width, size.height);
-        }
+      cv::Size size(bitmap->Width(), bitmap->Height());
+      double max_dimension = std::max(size.width, size.height);
+      if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+        scale = max_dimension / mMaxImageSize;
+        size.width /= scale;
+        size.height /= scale;
+        bitmap->Rescale(size.width, size.height);
+      }
+      std::vector<uchar> data_uint8 = bitmap->ConvertToRowMajorArray();
+      cv::Mat _bitmap = cv::Mat(size, CV_8U, data_uint8.data());
+      mat = _bitmap.clone();
 
-      } else {
+//      if (bOpenCvRead) {
+//
+//        mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
+//        //mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR);
+//
+//        //cv::Mat color_boost;
+//        //cv::decolor(mat, mat, color_boost);
+//        //color_boost.release();
+//
+//        if (mat.empty()) {
+//          bOpenCvRead = false;
+//        } else {
+//
+//          cv::Size size(mat.cols, mat.rows);
+//          double max_dimension = std::max(size.width, size.height);
+//
+//          if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+//            
+//            scale = max_dimension / mMaxImageSize;
+//            size.width /= scale;
+//            size.height /= scale;
+//#ifdef HAVE_CUDA
+//            if (bUseGPU) {
+//              cv::cuda::GpuMat gImgIn(mat);
+//              cv::cuda::GpuMat gImgResize;
+//              cv::cuda::resize(gImgIn, gImgResize, size);
+//              gImgResize.download(mat);
+//            } else {
+//#endif
+//              cv::resize(mat, mat, size);
+//#ifdef HAVE_CUDA
+//            }
+//#endif
+//          }
+//        }
+//      }
 
-        if (bOpenCvRead) {
+      if (!bOpenCvRead) {
+        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
+        imageReader->open();
+        if (imageReader->isOpen()) {
 
-          mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
-          std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
-          imageReader->open();
-          cv::Mat mat2 = imageReader->read();
+          double max_dimension = std::max(imageReader->cols(), imageReader->rows());
 
-          if (mat.empty()) {
-            bOpenCvRead = false;
+          if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+            scale = mMaxImageSize / max_dimension;
+            mat = imageReader->read(scale, scale);
+            scale = 1. / scale;
           } else {
-
-            cv::Size size(mat.cols, mat.rows);
-            double max_dimension = std::max(size.width, size.height);
-            //if (mat.cols > mat.rows) {
-            //  max_dimension = mat.cols;
-            //} else {
-            //  max_dimension = mat.rows;
-            //}
-
-            if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-              
-              scale = max_dimension / mMaxImageSize;
-              size.width /= scale;
-              size.height /= scale;
-#ifdef HAVE_CUDA
-              if (bUseGPU) {
-                cv::cuda::GpuMat gImgIn(mat);
-                cv::cuda::GpuMat gImgResize;
-                cv::cuda::resize(gImgIn, gImgResize, size);
-                gImgResize.download(mat);
-              } else {
-#endif
-                cv::resize(mat, mat, size);
-#ifdef HAVE_CUDA
-              }
-#endif
-            }
+            mat = imageReader->read();
           }
-        }
 
-        if (!bOpenCvRead) {
-          std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
-          imageReader->open();
-          if (imageReader->isOpen()) {
-            //int w = imageReader->cols();
-            //int h = imageReader->rows();
-            //cv::Size size(imageReader->cols(), imageReader->rows());
-            double max_dimension = std::max(imageReader->cols(), imageReader->rows());
-            //double max_dimension;
-            //if (w > h) {
-            //  max_dimension = w;
-            //} else {
-            //  max_dimension = h;
-            //}
-
-
-            if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-              scale = mMaxImageSize / max_dimension;
-              mat = imageReader->read(scale, scale);
-              scale = 1. / scale;
-            } else {
-              mat = imageReader->read();
-            }
-
-            if (imageReader->depth() != 8) {
+          if (imageReader->depth() != 8) {
 #ifdef HAVE_CUDA
-              if (bUseGPU) {
-                cv::cuda::GpuMat gImgIn(mat);
-                cv::cuda::GpuMat gImgOut;
-                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-                gImgOut.download(mat);
-              } else {
-#endif
-                cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_CUDA
-              }
-#endif
-            }
-
-            if (mat.channels() >= 3) {
-#ifdef HAVE_CUDA
+            if (bUseGPU) {
               cv::cuda::GpuMat gImgIn(mat);
-              cv::cuda::GpuMat gImgGray;
-              cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
-              gImgGray.download(mat);
-#else
-              cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+              cv::cuda::GpuMat gImgOut;
+              cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+              gImgOut.download(mat);
+            } else {
 #endif
+              cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
             }
-
-            imageReader->close();
+#endif
           }
+
+          if (mat.channels() >= 3) {
+#ifdef HAVE_CUDA
+            cv::cuda::GpuMat gImgIn(mat);
+            cv::cuda::GpuMat gImgGray;
+            cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
+            gImgGray.download(mat);
+#else
+            cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+#endif
+          }
+
+          imageReader->close();
         }
       }
 
@@ -357,12 +344,14 @@ private:
       colmap::FeatureKeypoints featureKeypoints;
       colmap::FeatureDescriptors featureDescriptors;
 
-      if (bUseGPU) {
+      //if (bUseGPU) {
         mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
-      } else {
-        auto w = data.bitmap->Width();
-        mFeatExtractor->run(*data.bitmap, featureKeypoints, featureDescriptors);
-      }
+      //} else {
+      //  auto w = data.bitmap->Width();
+        colmap::FeatureKeypoints featureKeypoints2;
+        colmap::FeatureDescriptors featureDescriptors2;
+        mFeatExtractor->run(*data.bitmap, featureKeypoints2, featureDescriptors2);
+      //}
 
       QByteArray ba = data.image_name.toLocal8Bit();
       double time = chrono.stop();
@@ -420,8 +409,8 @@ FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &image
     mDatabase(database),
     mMaxImageSize(maxImageSize),
     bUseCuda(cuda),
-    mFeatureExtractor(featureExtractor),
-    bOpenCvRead(true)
+    mFeatureExtractor(featureExtractor)/*,
+    bOpenCvRead(true)*/
 {
 }
 

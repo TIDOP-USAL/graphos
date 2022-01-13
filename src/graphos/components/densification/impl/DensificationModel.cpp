@@ -80,7 +80,7 @@ QString DensificationModelImp::reconstructionPath() const
 bool DensificationModelImp::useCuda() const
 {
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
-  return settings.value("General/UseCuda", true).toBool();
+  return settings.value("UseCuda", true).toBool();
 }
 
 bool DensificationModelImp::existDenseModel() const

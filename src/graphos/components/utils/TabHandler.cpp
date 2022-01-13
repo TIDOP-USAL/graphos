@@ -23,8 +23,8 @@
 
 #include "TabHandler.h"
 
-#include "graphos/components/utils/GraphicViewer.h"
-#include "graphos/components/utils/GraphicItem.h"
+#include "graphos/widgets/GraphicViewer.h"
+#include "graphos/widgets/GraphicItem.h"
 #include "graphos/components/utils/Viewer3d.h"
 #include "graphos/core/utils.h"
 

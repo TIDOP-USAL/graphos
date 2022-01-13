@@ -29,7 +29,11 @@ add_library(graphos_widgets ${LIB_TYPE}
             DtmInvDistNNWidget.cpp
             DtmInvDistNNWidget.h
             OriTxtFormatWidget.cpp
-            OriTxtFormatWidget.h)
+            OriTxtFormatWidget.h
+			GraphicItem.cpp
+			GraphicItem.h
+			GraphicViewer.cpp
+			GraphicViewer.h)
 
 set_property(TARGET graphos_widgets PROPERTY FOLDER "lib")
 

@@ -1217,7 +1217,8 @@ void MainWindowView::initSignalAndSlots()
   //connect(mActionExportOrientations,   &QAction::triggered, this,   &MainWindowView::openExportOrientations);
   connect(mActionExportPointCloud,     &QAction::triggered, this,   &MainWindowView::openExportPointCloud);
   connect(mActionCloseProject,         &QAction::triggered, this,   &MainWindowView::closeProject);
-  connect(mActionExit,                 &QAction::triggered, this,   &MainWindowView::exit);
+  //connect(mActionExit,                 &QAction::triggered, this,   &MainWindowView::exit);
+  connect(mActionExit, &QAction::triggered,                 this, &MainWindowView::close);
 
   /* Menú View */
 
@@ -1397,6 +1398,8 @@ void MainWindowView::retranslate()
 
 void MainWindowView::closeEvent(QCloseEvent *event)
 {
+  emit exit();
+
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
   settings.setValue("geometry", saveGeometry());
   settings.setValue("windowState", saveState());

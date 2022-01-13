@@ -25,6 +25,7 @@
 
 #include "graphos/components/openproject/OpenProjectModel.h"
 #include "graphos/components/openproject/OpenProjectView.h"
+#include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QFileDialog>

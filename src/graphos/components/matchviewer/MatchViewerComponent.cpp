@@ -63,7 +63,8 @@ void MatchViewerComponent::createModel()
 
 void MatchViewerComponent::createView()
 {
-  setView(new MatchViewerViewImp());
+  Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+  setView(new MatchViewerViewImp(nullptr, f));
 }
 
 void MatchViewerComponent::createPresenter()

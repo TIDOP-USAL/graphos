@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "GraphicItem.h"
+#include "graphos/widgets/GraphicItem.h"
 
 #include <tidop/math/math.h>
 
