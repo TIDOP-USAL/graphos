@@ -30,7 +30,7 @@ public:
   SiftProperties(const SiftProperties &siftProperties);
   ~SiftProperties() override = default;
 
-// ISift interface
+// Sift interface
 
 public:
 

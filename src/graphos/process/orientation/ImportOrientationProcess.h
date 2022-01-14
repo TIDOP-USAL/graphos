@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_IMPORT_ORIENTATION_PROCESS_H
 #define GRAPHOS_IMPORT_ORIENTATION_PROCESS_H
 
-#include <tidop/geospatial/camera.h>
+//#include <tidop/geospatial/camera.h>
 
 #include "graphos/process/ProcessConcurrent.h"
 #include "graphos/core/image.h"

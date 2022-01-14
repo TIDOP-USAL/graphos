@@ -680,6 +680,7 @@ void SiftCudaDetectorDescriptor::run(const colmap::Bitmap &bitmap,
                                      colmap::FeatureDescriptors &descriptors)
 {
   std::lock_guard<std::mutex> lck(mMutex);
+  update();
   try {
     mSiftExtractionOptions.max_image_size = std::max(bitmap.Width(), bitmap.Height());
     mSiftGpu->SetMaxDimension(mSiftExtractionOptions.max_image_size);
@@ -699,7 +700,7 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
                                      colmap::FeatureDescriptors &descriptors)
 {
   std::lock_guard<std::mutex> lck(mMutex);
-
+  update();
   try {
     int err = mSiftGpu->RunSIFT(bitmap.cols, bitmap.rows, bitmap.data, GL_LUMINANCE, GL_UNSIGNED_BYTE);
     if (err != 1) throw std::runtime_error("ExtractSiftFeaturesGPU fail");

@@ -1,7 +1,7 @@
 #ifndef GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
 #define GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
 
-#include <tidop/geospatial/camera.h>
+//#include <tidop/geospatial/camera.h>
 
 #include "graphos/process/ProcessConcurrent.h"
 #include "graphos/core/features/features.h"

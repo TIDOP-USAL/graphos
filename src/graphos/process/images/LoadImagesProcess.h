@@ -1,7 +1,7 @@
 #ifndef GRAPHOS_LOAD_IMAGES_PROCESS_H
 #define GRAPHOS_LOAD_IMAGES_PROCESS_H
 
-#include <tidop/geospatial/camera.h>
+//#include <tidop/geospatial/camera.h>
 
 #include "graphos/process/ProcessConcurrent.h"
 #include "graphos/core/image.h"
