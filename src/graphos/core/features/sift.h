@@ -39,13 +39,13 @@ public:
   bool constrastThresholdAuto() const override;
   double contrastThreshold() const override;
   double edgeThreshold() const override;
-  double sigma() const override;
+  //double sigma() const override;
   void setFeaturesNumber(int featuresNumber) override;
   void setOctaveLayers(int octaveLayers) override;
   void setContrastThresholdAuto(bool active) override;
   void setContrastThreshold(double contrastThreshold) override;
   void setEdgeThreshold(double edgeThreshold) override;
-  void setSigma(double sigma) override;
+  //void setSigma(double sigma) override;
 
 // Feature interface
 
@@ -61,7 +61,7 @@ private:
   bool mContrastThresholdAuto;
   double mContrastThreshold;
   double mEdgeThreshold;
-  double mSigma;
+  //double mSigma;
 };
 
 
@@ -80,7 +80,7 @@ public:
   SiftDetectorDescriptor(int featuresNumber,
                          int octaveLayers,
                          double edgeThreshold,
-                         double sigma,
+                         //double sigma,
                          double contrastThreshold = 0.);
   ~SiftDetectorDescriptor() override;
 
@@ -108,7 +108,7 @@ public:
   void setOctaveLayers(int octaveLayers) override;
   void setContrastThreshold(double contrastThreshold) override;
   void setEdgeThreshold(double edgeThreshold) override;
-  void setSigma(double sigma) override;
+  //void setSigma(double sigma) override;
 
 // Feature interface
 
@@ -139,7 +139,7 @@ public:
   SiftCudaDetectorDescriptor(int featuresNumber,
                              int octaveLayers,
                              double edgeThreshold,
-                             double sigma,
+                             //double sigma,
                              double contrastThreshold = 0.);
   ~SiftCudaDetectorDescriptor() override;
 
@@ -167,7 +167,7 @@ public:
   void setOctaveLayers(int octaveLayers) override;
   void setContrastThreshold(double contrastThreshold) override;
   void setEdgeThreshold(double edgeThreshold) override;
-  void setSigma(double sigma) override;
+  //void setSigma(double sigma) override;
 
 // Feature interface
 

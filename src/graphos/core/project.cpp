@@ -972,9 +972,9 @@ void ProjectImp::readSIFT(QXmlStreamReader &stream)
       sift->setContrastThreshold(readDouble(stream));
     } else if (stream.name() == "EdgeThreshold") {
       sift->setEdgeThreshold(readDouble(stream));
-    } else if (stream.name() == "Sigma") {
+    } /*else if (stream.name() == "Sigma") {
       sift->setSigma(readDouble(stream));
-    } else
+    }*/ else
       stream.skipCurrentElement();
   }
   this->setFeatureExtractor(sift);
@@ -1418,7 +1418,7 @@ void ProjectImp::writeSIFT(QXmlStreamWriter &stream, Sift *sift) const
     stream.writeTextElement("ContrastThresholdAuto", sift->constrastThresholdAuto()  ? "true" : "false");
     stream.writeTextElement("ContrastThreshold", QString::number(sift->contrastThreshold()));
     stream.writeTextElement("EdgeThreshold", QString::number(sift->edgeThreshold()));
-    stream.writeTextElement("Sigma", QString::number(sift->sigma()));
+    //stream.writeTextElement("Sigma", QString::number(sift->sigma()));
   }
   stream.writeEndElement(); // SIFT
 }

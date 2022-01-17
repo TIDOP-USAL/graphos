@@ -71,18 +71,16 @@ QString RelativeOrientationColmapProperties::name() const
 
 RelativeOrientationColmapAlgorithm::RelativeOrientationColmapAlgorithm(const QString &database,
                                                                        const QString &outputPath,
-                                                                       bool refineFocalLength,
-                                                                       bool refinePrincipalPoint,
-                                                                       bool refineExtraParams)
+                                                                       bool fixCalibration)
   : mDatabase(database),
     mOutputPath(outputPath),
     mIncrementalMapper(new colmap::IncrementalMapperOptions),
     mMapper(nullptr),
     mReconstructionManager(new colmap::ReconstructionManager)
 {
-  RelativeOrientationColmapProperties::setRefineFocalLength(refineFocalLength);
-  RelativeOrientationColmapProperties::setRefinePrincipalPoint(refinePrincipalPoint);
-  RelativeOrientationColmapProperties::setRefineExtraParams(refineExtraParams);
+  RelativeOrientationColmapProperties::setRefineFocalLength(!fixCalibration);
+  RelativeOrientationColmapProperties::setRefinePrincipalPoint(!fixCalibration);
+  RelativeOrientationColmapProperties::setRefineExtraParams(!fixCalibration);
 }
 
 RelativeOrientationColmapAlgorithm::~RelativeOrientationColmapAlgorithm()

@@ -53,7 +53,6 @@ private:
   int mOctaveResolution;
   double mContrastThreshold;
   double mEdgeThreshold;
-  double mSigma;
   bool mDisableCuda;
 };
 

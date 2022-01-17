@@ -62,9 +62,7 @@ public:
 
   RelativeOrientationColmapAlgorithm(const QString &database,
                                      const QString &outputPath,
-                                     bool refineFocalLength,
-                                     bool refinePrincipalPoint,
-                                     bool refineExtraParams);
+                                     bool fixCalibration);
   ~RelativeOrientationColmapAlgorithm() override;
 
 // RelativeOrientationAlgorithm interface

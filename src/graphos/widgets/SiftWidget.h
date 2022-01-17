@@ -79,7 +79,7 @@ public:
    * \brief sigma
    * \return
    */
-  virtual double sigma() const = 0;
+  //virtual double sigma() const = 0;
 
 signals:
 
@@ -88,7 +88,7 @@ signals:
   void contrastThresholdAutoChange(bool);
   void contrastThresholdChange(double);
   void edgeThresholdChange(double);
-  void sigmaChange(double);
+  //void sigmaChange(double);
 
 public slots:
 
@@ -122,7 +122,7 @@ public slots:
    * \brief setSigma
    * \param sigma
    */
-  virtual void setSigma(double sigma) = 0;
+  //virtual void setSigma(double sigma) = 0;
 
 };
 
@@ -146,7 +146,7 @@ public:
   double contrastThreshold() const override;
   bool constrastThresholdAuto() const override;
   double edgeThreshold() const override;
-  double sigma() const override;
+  //double sigma() const override;
 
 public slots:
 
@@ -155,7 +155,7 @@ public slots:
   void setContrastThreshold(double contrastThreshold) override;
   void setContrastThresholdAuto(bool active) override;
   void setEdgeThreshold(double edgeThreshold) override;
-  void setSigma(double sigma) override;
+  //void setSigma(double sigma) override;
 
 // PhotoMatchWidget interface
 
@@ -185,8 +185,8 @@ protected:
   QDoubleSpinBox *mContrastThreshold;
   QLabel *mLabelEdgeThreshold;
   QDoubleSpinBox *mEdgeThreshold;
-  QLabel *mLabelSigma;
-  QDoubleSpinBox *mSigma;
+  //QLabel *mLabelSigma;
+  //QDoubleSpinBox *mSigma;
 
 };
 

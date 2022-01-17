@@ -287,7 +287,7 @@ public:
    * If your image is captured with a weak camera with soft lenses, you might want to reduce the number.
    * \return
    */
-  virtual double sigma() const = 0;
+  //virtual double sigma() const = 0;
 
   /*!
    * \brief Set the number of best features to retain
@@ -319,7 +319,7 @@ public:
    * \brief Set sigma of the Gaussian
    * \param[in] sigma Sigma of the Gaussian
    */
-  virtual void setSigma(double sigma) = 0;
+  //virtual void setSigma(double sigma) = 0;
 
 };
 

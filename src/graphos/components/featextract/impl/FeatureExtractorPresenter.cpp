@@ -128,7 +128,7 @@ void FeatureExtractorPresenterImp::setSiftProperties()
   }
 
   if (sift){
-    mSift->setSigma(sift->sigma());
+    //mSift->setSigma(sift->sigma());
     mSift->setOctaveLayers(sift->octaveLayers());
     bool thresholdAuto = sift->constrastThresholdAuto();
     mSift->setContrastThresholdAuto(thresholdAuto);
@@ -182,13 +182,13 @@ bool FeatureExtractorPresenterImp::createProcess()
       feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
                                                                        mSift->octaveLayers(),
                                                                        mSift->edgeThreshold(),
-                                                                       mSift->sigma(),
+                                                                       //mSift->sigma(),
                                                                        mSift->constrastThresholdAuto() ? 0. : mSift->contrastThreshold());
     } else {
       feature_extractor = std::make_shared<SiftDetectorDescriptor>(mSift->featuresNumber(),
                                                                    mSift->octaveLayers(),
                                                                    mSift->edgeThreshold(),
-                                                                   mSift->sigma(),
+                                                                   //mSift->sigma(),
                                                                    mSift->constrastThresholdAuto() ? 0. : mSift->contrastThreshold());
     }
 

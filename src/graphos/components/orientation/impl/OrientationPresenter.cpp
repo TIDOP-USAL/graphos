@@ -157,9 +157,9 @@ bool OrientationPresenterImp::createProcess()
   mMultiProcess->clearProcessList();
 
   TL_TODO("Establecer propiedades")
-  //bool refine_principal_point = mView->refinePrincipalPoint();
-  bool refine_calibration = mView->isEnabledCalibration();
-  bool refine_poses = mView->isEnabledPoses();
+
+  bool fix_calibration = mView->fixCalibration();
+  bool fix_poses = mView->fixPoses();
   QString database = mModel->database();
 
   if (mModel->rtkOrientations()) {
@@ -180,9 +180,7 @@ bool OrientationPresenterImp::createProcess()
     QString ori_relative = mModel->projectPath() + "/ori/relative/";
     std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database,
                                                                                                                                       ori_relative,
-                                                                                                                                      refine_calibration,
-                                                                                                                                      refine_calibration,
-                                                                                                                                      refine_calibration);
+                                                                                                                                      mView->fixCalibration());
 
     std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(relativeOrientationAlgorithm));
 

@@ -46,7 +46,7 @@
 namespace graphos
 {
   
-double parseFocal(const std::string& focal, double def)
+double parseFocal(const std::string &focal, double def)
 {
   double r_focal;
 
@@ -66,8 +66,7 @@ double parseFocal(const std::string& focal, double def)
     std::string::size_type sz;
     r_focal = std::stod(f, &sz);
 
-  }
-  catch (...) {
+  } catch (...) {
     r_focal = def;
   }
 
