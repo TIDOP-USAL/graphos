@@ -20,8 +20,7 @@ SiftProperties::SiftProperties()
     mOctaveLayers(3),
     mContrastThresholdAuto(true),
     mContrastThreshold(0.0067),
-    mEdgeThreshold(10.)/*,
-    mSigma(1.6)*/
+    mEdgeThreshold(10.)
 {
 }
 
@@ -31,8 +30,7 @@ SiftProperties::SiftProperties(const SiftProperties &siftProperties)
     mOctaveLayers(siftProperties.mOctaveLayers),
     mContrastThresholdAuto(siftProperties.mContrastThresholdAuto),
     mContrastThreshold(siftProperties.mContrastThreshold),
-    mEdgeThreshold(siftProperties.mEdgeThreshold)/*,
-    mSigma(siftProperties.mSigma)*/
+    mEdgeThreshold(siftProperties.mEdgeThreshold)
 {
 }
 
@@ -61,11 +59,6 @@ double SiftProperties::edgeThreshold() const
   return mEdgeThreshold;
 }
 
-//double SiftProperties::sigma() const
-//{
-//  return mSigma;
-//}
-
 void SiftProperties::setFeaturesNumber(int featuresNumber)
 {
   mFeaturesNumber = featuresNumber;
@@ -91,11 +84,6 @@ void SiftProperties::setEdgeThreshold(double edgeThreshold)
   mEdgeThreshold = edgeThreshold;
 }
 
-//void SiftProperties::setSigma(double sigma)
-//{
-//  mSigma = sigma;
-//}
-
 void SiftProperties::reset()
 {
   mFeaturesNumber = 5000;
@@ -103,7 +91,6 @@ void SiftProperties::reset()
   mContrastThresholdAuto = true;
   mContrastThreshold = 0.02 / 3.;
   mEdgeThreshold = 10.;
-  //mSigma = 1.6;
 }
 
 QString SiftProperties::name() const
@@ -132,7 +119,6 @@ SiftDetectorDescriptor::SiftDetectorDescriptor(const SiftDetectorDescriptor &sif
 SiftDetectorDescriptor::SiftDetectorDescriptor(int featuresNumber,
                                                int octaveLayers,
                                                double edgeThreshold,
-                                               //double sigma,
                                                double contrastThreshold)
   : mSiftCpu(nullptr)
 {
@@ -143,7 +129,6 @@ SiftDetectorDescriptor::SiftDetectorDescriptor(int featuresNumber,
     SiftProperties::setContrastThreshold(contrastThreshold);
   }
   SiftProperties::setEdgeThreshold(edgeThreshold);
-  //SiftProperties::setSigma(sigma);
   update();
 }
 
@@ -430,7 +415,6 @@ void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
     bool first_octave = true;
     while (true) {
       if (first_octave) {
-        //const std::vector<uint8_t> data_uint8 = bitmap.ConvertToRowMajorArray();
         std::vector<uint8_t> data_uint8(bitmap.rows * bitmap.cols, 0);
         data_uint8.assign(bitmap.data, bitmap.data + data_uint8.size());
         std::vector<float> data_float(data_uint8.size());
@@ -465,10 +449,7 @@ void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
           if (i > 0) {
             // Resize containers of previous DOG level.
             level_keypoints.back().resize(level_idx);
-            // No lo paso como puntero y no es opcional
-            //if (descriptors != nullptr) {
-              level_descriptors.back().conservativeResize(level_idx, 128);
-            //}
+            level_descriptors.back().conservativeResize(level_idx, 128);
           }
 
           // Add containers for new DOG level.
@@ -477,10 +458,7 @@ void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
           /// Pongo en valor por defecto de Colmap
           level_keypoints.emplace_back(mSiftExtractionOptions.max_num_orientations *
                                        num_keypoints);
-          //if (descriptors != nullptr) {
-            level_descriptors.emplace_back(
-                mSiftExtractionOptions.max_num_orientations * num_keypoints, 128);
-          //}
+          level_descriptors.emplace_back(mSiftExtractionOptions.max_num_orientations * num_keypoints, 128);
         }
 
         level_num_features.back() += 1;
@@ -528,9 +506,7 @@ void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
 
       // Resize containers for last DOG level in octave.
       level_keypoints.back().resize(level_idx);
-      //if (descriptors != nullptr) {
-        level_descriptors.back().conservativeResize(level_idx, 128);
-      //}
+      level_descriptors.back().conservativeResize(level_idx, 128);
     }
 
     // Determine how many DOG levels to keep to satisfy max_num_features option.
@@ -547,9 +523,10 @@ void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
     }
 
     // Extract the features to be kept.
+    size_t max_features = std::min(num_features_with_orientations, SiftProperties::featuresNumber());
     {
       size_t k = 0;
-      keyPoints.resize(num_features_with_orientations);
+      keyPoints.resize(max_features/*num_features_with_orientations*/);
       for (size_t i = first_level_to_keep; i < level_keypoints.size(); ++i) {
         for (size_t j = 0; j < level_keypoints[i].size(); ++j) {
           keyPoints[k] = level_keypoints[i][j];
@@ -559,30 +536,29 @@ void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
     }
 
     // Compute the descriptors for the detected keypoints.
-    //if (descriptors != nullptr) {
-      size_t k = 0;
-      descriptors.resize(num_features_with_orientations, 128);
-      for (size_t i = first_level_to_keep; i < level_keypoints.size(); ++i) {
-        for (size_t j = 0; j < level_keypoints[i].size(); ++j) {
-          descriptors.row(k) = level_descriptors[i].row(j);
-          k += 1;
-        }
+    size_t k = 0;
+    descriptors.resize(max_features/*num_features_with_orientations*/, 128);
+    for (size_t i = first_level_to_keep; i < level_keypoints.size(); ++i) {
+      for (size_t j = 0; j < level_keypoints[i].size(); ++j) {
+        descriptors.row(k) = level_descriptors[i].row(j);
+        k += 1;
       }
-      //descriptors = colmap::TransformVLFeatToUBCFeatureDescriptors(descriptors);
-      colmap::FeatureDescriptors ubc_descriptors(descriptors.rows(),
-                                                 descriptors.cols());
-      const std::array<int, 8> q{{0, 7, 6, 5, 4, 3, 2, 1}};
-      for (colmap::FeatureDescriptors::Index n = 0; n < descriptors.rows(); ++n) {
-        for (int i = 0; i < 4; ++i) {
-          for (int j = 0; j < 4; ++j) {
-            for (int k = 0; k < 8; ++k) {
-              ubc_descriptors(n, 8 * (j + 4 * i) + q[k]) =
-                descriptors(n, 8 * (j + 4 * i) + k);
-            }
+    }
+    //descriptors = colmap::TransformVLFeatToUBCFeatureDescriptors(descriptors);
+    colmap::FeatureDescriptors ubc_descriptors(descriptors.rows(),
+                                               descriptors.cols());
+    const std::array<int, 8> q{{0, 7, 6, 5, 4, 3, 2, 1}};
+    for (colmap::FeatureDescriptors::Index n = 0; n < descriptors.rows(); ++n) {
+      for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+          for (int k = 0; k < 8; ++k) {
+            ubc_descriptors(n, 8 * (j + 4 * i) + q[k]) =
+              descriptors(n, 8 * (j + 4 * i) + k);
           }
         }
       }
-    //}
+    }
+    
   } catch (std::exception &e) {
     msgError("SIFT Detector exception");
     throw;
@@ -614,12 +590,6 @@ void SiftDetectorDescriptor::setEdgeThreshold(double edgeThreshold)
   update();
 }
 
-//void SiftDetectorDescriptor::setSigma(double sigma)
-//{
-//  SiftProperties::setSigma(sigma);
-//  update();
-//}
-
 void SiftDetectorDescriptor::reset()
 {
   SiftProperties::reset();
@@ -642,7 +612,6 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(const SiftCudaDetectorDes
 SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
                                                        int octaveLayers,
                                                        double edgeThreshold,
-                                                       //double sigma,
                                                        double contrastThreshold)
 {
   SiftProperties::setFeaturesNumber(featuresNumber);
@@ -652,7 +621,6 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
     SiftProperties::setContrastThreshold(contrastThreshold);
   }
   SiftProperties::setEdgeThreshold(edgeThreshold);
-  //SiftProperties::setSigma(sigma);
   update();
 }
 
@@ -711,31 +679,28 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
 
     mSiftGpu->GetFeatureVector(keypoints_data.data(), descriptors_float.data());
 
-    //size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
-    size_t max_features = feature_number;
+    size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
+    //size_t max_features = feature_number;
     keyPoints.resize(max_features);
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float_resize(max_features, descriptors_float.cols());
     for (size_t i = 0; i < max_features; i++){
       keyPoints[i] = colmap::FeatureKeypoint(keypoints_data[i].x, keypoints_data[i].y,
                                              keypoints_data[i].s, keypoints_data[i].o);
       /// Ver si se puede mejorar
-      //for (size_t j = 0; j < descriptors_float.cols(); j++) {
-      //  descriptors_float_resize(i, j) = descriptors_float(i, j);
-      //}
+      for (size_t j = 0; j < descriptors_float.cols(); j++) {
+        descriptors_float_resize(i, j) = descriptors_float(i, j);
+      }
     }
 
-    /// Destruye el contenido
-    ///descriptors_float.resize(max_features, Eigen::NoChange);
-
     if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L2){
-      descriptors_float = colmap::L2NormalizeFeatureDescriptors(descriptors_float);
+      descriptors_float_resize = colmap::L2NormalizeFeatureDescriptors(descriptors_float_resize);
     } else if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT){
-      descriptors_float = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float);
+      descriptors_float_resize = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float_resize);
     } else {
       throw std::runtime_error("Description normalization type not supported");
     }
     
-    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
+    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float_resize);
 
   } catch (std::exception &) {
     msgError("SIFT Detector exception");
@@ -766,12 +731,6 @@ void SiftCudaDetectorDescriptor::setEdgeThreshold(double edgeThreshold)
   SiftProperties::setEdgeThreshold(edgeThreshold);
   update();
 }
-
-//void SiftCudaDetectorDescriptor::setSigma(double sigma)
-//{
-//  SiftProperties::setSigma(sigma);
-//  update();
-//}
 
 void SiftCudaDetectorDescriptor::reset()
 {

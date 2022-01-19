@@ -64,18 +64,18 @@ void OrientationExport::exportNVM(const QString &path) const
 
 struct PointPly 
 {
-  double x = 0.0f;
-  double y = 0.0f;
-  double z = 0.0f;
-  double nx = 0.0f;
-  double ny = 0.0f;
-  double nz = 0.0f;
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
+  float nx = 0.0f;
+  float ny = 0.0f;
+  float nz = 0.0f;
   uint8_t r = 0;
   uint8_t g = 0;
   uint8_t b = 0;
 };
 
-/// Extraido de colmap para poder generar un ply con puntos double
+/// Extraido de colmap para filtra los puntos para visualización
 
 void writeBinaryPlyPoints(const std::string &path,
                           const std::vector<PointPly> &points,
@@ -88,14 +88,14 @@ void writeBinaryPlyPoints(const std::string &path,
   text_file << "format binary_little_endian 1.0" << std::endl;
   text_file << "element vertex " << points.size() << std::endl;
 
-  text_file << "property double x" << std::endl;
-  text_file << "property double y" << std::endl;
-  text_file << "property double z" << std::endl;
+  text_file << "property float x" << std::endl;
+  text_file << "property float y" << std::endl;
+  text_file << "property float z" << std::endl;
 
   if (write_normal) {
-    text_file << "property double nx" << std::endl;
-    text_file << "property double ny" << std::endl;
-    text_file << "property double nz" << std::endl;
+    text_file << "property float nx" << std::endl;
+    text_file << "property float ny" << std::endl;
+    text_file << "property float nz" << std::endl;
   }
 
   if (write_rgb) {
@@ -112,14 +112,14 @@ void writeBinaryPlyPoints(const std::string &path,
   if (!binary_file.is_open()) throw std::runtime_error(std::string("File not open: ").append(path));
 
   for (const auto& point : points) {
-    colmap::WriteBinaryLittleEndian<double>(&binary_file, point.x);
-    colmap::WriteBinaryLittleEndian<double>(&binary_file, point.y);
-    colmap::WriteBinaryLittleEndian<double>(&binary_file, point.z);
+    colmap::WriteBinaryLittleEndian<float>(&binary_file, point.x);
+    colmap::WriteBinaryLittleEndian<float>(&binary_file, point.y);
+    colmap::WriteBinaryLittleEndian<float>(&binary_file, point.z);
 
     if (write_normal) {
-      colmap::WriteBinaryLittleEndian<double>(&binary_file, point.nx);
-      colmap::WriteBinaryLittleEndian<double>(&binary_file, point.ny);
-      colmap::WriteBinaryLittleEndian<double>(&binary_file, point.nz);
+      colmap::WriteBinaryLittleEndian<float>(&binary_file, point.nx);
+      colmap::WriteBinaryLittleEndian<float>(&binary_file, point.ny);
+      colmap::WriteBinaryLittleEndian<float>(&binary_file, point.nz);
     }
 
     if (write_rgb) {
@@ -136,23 +136,20 @@ void OrientationExport::exportPLY(const QString &path) const
 {
   if (mReconstruction) {
     
-    // Sólo exporta como float y en UTM se produce una perdida de precisión
-    //mReconstruction->ExportPLY(path.toStdString());
-
-    //QFileInfo info(path);
-    //QString utm_ori = info.path() + "\\utm_ori" + info.suffix();
     std::vector<PointPly> ply_points;
     ply_points.reserve(mReconstruction->NumPoints3D());
     
     for (auto &point : mReconstruction->Points3D()) {
-      PointPly ply_point;
-      ply_point.x = point.second.X();
-      ply_point.y = point.second.Y();
-      ply_point.z = point.second.Z();
-      ply_point.r = point.second.Color(0);
-      ply_point.g = point.second.Color(1);
-      ply_point.b = point.second.Color(2);
-      ply_points.push_back(ply_point);
+      if (point.second.Error() < 2) {
+        PointPly ply_point;
+        ply_point.x = point.second.X();
+        ply_point.y = point.second.Y();
+        ply_point.z = point.second.Z();
+        ply_point.r = point.second.Color(0);
+        ply_point.g = point.second.Color(1);
+        ply_point.b = point.second.Color(2);
+        ply_points.push_back(ply_point);
+      }
     }
     
     bool kWriteNormal = false;

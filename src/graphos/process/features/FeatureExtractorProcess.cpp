@@ -115,14 +115,10 @@ private:
           QString colmap_camera_type = cameraToColmapType(camera);
           int camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
           if (camera_model_id == -1) throw std::runtime_error("Camera model unknow");
-          //double focal_length = camera.focal();
+
           size_t width = static_cast<size_t>(camera.width());
           size_t height = static_cast<size_t>(camera.height());
-          //if (round(1.2 * std::max(width, height)) == round(focal_length)) {
-          //  camera_colmap.SetPriorFocalLength(false);
-          //} else {
-          //  camera_colmap.SetPriorFocalLength(true);
-          //}
+
           colmap::Bitmap bitmap;
           double focal_lenght = 0.0;
           if (bitmap.Read(image_path, false)) {
@@ -141,13 +137,24 @@ private:
 
         colmap::Image image_colmap;
         image_colmap.SetName(image_path);
-        image_colmap.TvecPrior(0) = image.cameraPose().position().x;
-        image_colmap.TvecPrior(1) = image.cameraPose().position().y;
-        image_colmap.TvecPrior(2) = image.cameraPose().position().z;
-        image_colmap.QvecPrior(0) = image.cameraPose().quaternion().w;
-        image_colmap.QvecPrior(1) = image.cameraPose().quaternion().x;
-        image_colmap.QvecPrior(2) = image.cameraPose().quaternion().y;
-        image_colmap.QvecPrior(3) = image.cameraPose().quaternion().z;
+
+        tl::Point3D position = image.cameraPose().position();
+        if (position != tl::Point3D()) {
+          image_colmap.TvecPrior(0) = image.cameraPose().position().x;
+          image_colmap.TvecPrior(1) = image.cameraPose().position().y;
+          image_colmap.TvecPrior(2) = image.cameraPose().position().z;
+        }
+
+        tl::math::Quaternion<double> q = image.cameraPose().quaternion();
+        if (q != tl::math::Quaternion<double>()) {
+          image_colmap.QvecPrior(0) = q.w;
+          image_colmap.QvecPrior(1) = q.x;
+          image_colmap.QvecPrior(2) = q.y;
+          image_colmap.QvecPrior(3) = q.z;
+        } else {
+          image_colmap.QvecPrior().setConstant(std::numeric_limits<double>::quiet_NaN());
+        }
+
         image_colmap.SetCameraId(camera_id);
 
         mutex.lock();
@@ -164,24 +171,10 @@ private:
 
       /* Lectura de imagen */
 
+      TL_TODO("lectura de metadatos con exiftool")
+
       cv::Mat mat;
-      //std::shared_ptr<colmap::Bitmap> bitmap = std::shared_ptr<colmap::Bitmap>(new colmap::Bitmap());
       double scale = 1.;
-
-      ////TODO: Esto se tiene que cambiar cuando no necesite usar el formato colmap::Bitmap para
-      //bitmap->Read(image.path().toStdString(), false);
-
-      //cv::Size size(bitmap->Width(), bitmap->Height());
-      //double max_dimension = std::max(size.width, size.height);
-      //if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-      //  scale = max_dimension / mMaxImageSize;
-      //  size.width /= scale;
-      //  size.height /= scale;
-      //  bitmap->Rescale(size.width, size.height);
-      //}
-      //std::vector<uchar> data_uint8 = bitmap->ConvertToRowMajorArray();
-      //cv::Mat _bitmap = cv::Mat(size, CV_8U, data_uint8.data());
-      //mat = _bitmap.clone();
 
       if (bOpenCvRead) {
 
@@ -353,14 +346,7 @@ private:
       colmap::FeatureKeypoints featureKeypoints;
       colmap::FeatureDescriptors featureDescriptors;
 
-      //if (bUseGPU) {
-        mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
-      //} else {
-      //  auto w = data.bitmap->Width();
-      //  colmap::FeatureKeypoints featureKeypoints2;
-      //  colmap::FeatureDescriptors featureDescriptors2;
-      //  mFeatExtractor->run(*data.bitmap, featureKeypoints2, featureDescriptors2);
-      //}
+      mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
 
       QByteArray ba = data.image_name.toLocal8Bit();
       double time = chrono.stop();
@@ -380,9 +366,6 @@ private:
       mutex.unlock();
 
       // añade features al proyecto
-      //mProject->addFeatures(data.image_name, data.image_name + "@" + mProject->database());
-      //emit featuresExtracted(mImage.name(), mFeatureFile);
-      //emit statusChangedNext();
       mFeatureExtractorProcess->featuresExtracted(data.image_name, data.image_name + "@" + mDatabaseFile.c_str());
       mFeatureExtractorProcess->statusChangedNext();
 
@@ -418,8 +401,7 @@ FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &image
     mDatabase(database),
     mMaxImageSize(maxImageSize),
     bUseCuda(cuda),
-    mFeatureExtractor(featureExtractor)/*,
-    bOpenCvRead(true)*/
+    mFeatureExtractor(featureExtractor)
 {
 }
 

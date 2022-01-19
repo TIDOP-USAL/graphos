@@ -350,7 +350,6 @@ void CmvsPmvsDensifier::createDirectories()
   createDirectory(mOutputPath);
   createDirectory(std::string(mOutputPath).append("/txt"));
   createDirectory(std::string(mOutputPath).append("/visualize"));
-  //createDirectory(std::string(mOutputPath).append("/original"));
   createDirectory(std::string(mOutputPath).append("/models"));
 }
 
@@ -371,33 +370,17 @@ void CmvsPmvsDensifier::writeBundleFile()
   if (mReconstruction) {
 
     colmap::Reconstruction &reconstruction = mReconstruction->colmap();
-    //const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
-    //colmap::Image &image = reconstruction.Image(reg_image_ids[0]);
-
-    //std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.Name());
-    //imageReader->open();
-    //if (imageReader->isOpen()) {
-    //  if (imageReader->depth() != 8) {
-    //    mImageOriginalDepth = true;
-    //  }
-    //}
 
     tl::Path bundler_path(mOutputPath);
     bundler_path.append("bundle.rd.out");
     tl::Path bundler_path_list(mOutputPath);
     bundler_path_list.append("bundle.rd.out.list.txt");
-    //tl::Path bundler_path_list_original;
-    //if (mImageOriginalDepth) {
-    //  bundler_path_list_original = tl::Path(mOutputPath).append("bundle.rd.out.ortho.list.txt");
-    //}
 
     std::ofstream stream(bundler_path.toString(), std::ios::trunc);
     std::ofstream stream_image_list(bundler_path_list.toString(), std::ios::trunc);
     std::ofstream stream_image_list_original;
-    //if (mImageOriginalDepth)
-    //  stream_image_list_original.open(bundler_path_list_original.toString(), std::ios::trunc);
 
-    if (stream.is_open() && stream_image_list.is_open() /*&& stream_image_list_original.is_open()*/) {
+    if (stream.is_open() && stream_image_list.is_open()) {
 
       int camera_count = reconstruction.Images().size();
       int feature_count = reconstruction.NumPoints3D();
@@ -462,18 +445,6 @@ void CmvsPmvsDensifier::writeBundleFile()
             // Undistorted images
             std::string output_image_path = colmap::StringPrintf("%08d.jpg", i);
             stream_image_list << output_image_path << std::endl;
-            //tl::Path output_image_path(image.Name());
-            //stream_image_list << output_image_path.fileName() << std::endl;
-            
-            //if (mImageOriginalDepth) {
-            //  //std::string output_image_original_path = colmap::StringPrintf("%08d.tif", i);
-            //  tl::Path output_image_ortho_path(image.Name());
-            //  //std::string output_image_original_path = output_image_ortho_path.replaceExtension(".tif").fileName();
-            //  stream_image_list_original << output_image_ortho_path.fileName() << std::endl;
-            //} else {
-            //  tl::Path output_image_ortho_path(image.Name());
-            //  stream_image_list_original << output_image_ortho_path.fileName() << std::endl;
-            //}
             
           }
         }
@@ -550,71 +521,57 @@ void CmvsPmvsDensifier::undistortImages()
 
     cv::Size imageSize(static_cast<int>(camera.second.Width()),
                        static_cast<int>(camera.second.Height()));
-    std::array<std::array<float, 3>, 3> camera_matrix_data = { focal_x, 0.f, ppx,
+    std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
                                                               0.f, focal_y, ppy,
                                                               0.f, 0.f, 1.f};
     cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
     cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
 
     distCoeffs.at<float>(0) = calibration->existParameter(tl::Calibration::Parameters::k1) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
+      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
     distCoeffs.at<float>(1) = calibration->existParameter(tl::Calibration::Parameters::k2) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k2)) : 0.f;
+      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k2)) : 0.f;
     distCoeffs.at<float>(2) = calibration->existParameter(tl::Calibration::Parameters::p1) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p1)) : 0.f;
+      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p1)) : 0.f;
     distCoeffs.at<float>(3) = calibration->existParameter(tl::Calibration::Parameters::p2) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p2)) : 0.f;
+      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p2)) : 0.f;
     distCoeffs.at<float>(4) = calibration->existParameter(tl::Calibration::Parameters::k3) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k3)) : 0.f;
-    
+      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k3)) : 0.f;
+
     cv::Mat map1;
     cv::Mat map2;
     cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
     cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
-    
-#ifdef HAVE_CUDA
-    //cv::cuda::GpuMat gMap1(map1);
-    //cv::cuda::GpuMat gMap2(map2);
-#endif
-    
 
-    //try {
-      
-      TL_TODO("undistortImage()")
 
-      for (size_t i = 0; i < reg_image_ids.size(); ++i) {
-        colmap::image_t image_id = reg_image_ids[i];
-        colmap::Image &image = reconstruction.Image(image_id);
-        if (image.CameraId() == camera.second.CameraId()) {
+    TL_TODO("undistortImage()")
 
-          std::string image_file = image.Name();
-          
-          cv::Mat img;
-          cv::Mat img_original;
+    for (size_t i = 0; i < reg_image_ids.size(); ++i) {
+      colmap::image_t image_id = reg_image_ids[i];
+      colmap::Image &image = reconstruction.Image(image_id);
+      if (image.CameraId() == camera.second.CameraId()) {
 
-          if (bOpenCvRead) {
-            img = cv::imread(image_file, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-            //if (mImageOriginalDepth)
-            //  img_original = cv::imread(image_file, cv::IMREAD_ANYDEPTH | cv::IMREAD_IGNORE_ORIENTATION);
-            //else
-            //  img_original = cv::imread(image_file, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+        std::string image_file = image.Name();
 
-            if (img.empty()) {
-              bOpenCvRead = false;
-            }
+        cv::Mat img;
+        cv::Mat img_original;
+
+        if (bOpenCvRead) {
+          img = cv::imread(image_file, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
+
+          if (img.empty()) {
+            bOpenCvRead = false;
           }
-          
-          if (!bOpenCvRead) {
-            std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
-            imageReader->open();
-            if (imageReader->isOpen()) {
-              img = imageReader->read();
-              if (imageReader->depth() != 8) {
+        }
 
-                //if (mImageOriginalDepth) 
-                //  img_original = img;
+        if (!bOpenCvRead) {
+          std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
+          imageReader->open();
+          if (imageReader->isOpen()) {
+            img = imageReader->read();
+            if (imageReader->depth() != 8) {
 
-                TL_TODO("Codigo duplicado en FeatureExtractorProcess")
+              TL_TODO("Codigo duplicado en FeatureExtractorProcess")
 
 #ifdef HAVE_CUDA
                 if (bCuda) {
@@ -628,68 +585,64 @@ void CmvsPmvsDensifier::undistortImages()
 #ifdef HAVE_CUDA
                 }
 #endif
-              }
-
-              imageReader->close();
             }
+
+            imageReader->close();
           }
-          
-          TL_TODO("Las imágenes en escala de grises con canal alfa no estan comprobadas")
+        }
+
+        TL_TODO("Las imágenes en escala de grises con canal alfa no estan comprobadas")
           if (img.channels() == 1) {
-            //if (mImageOriginalDepth && img_original.empty()) img_original = img;
             cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
           }
 
-          cv::Mat img_undistort;
-          cv::Mat img_undistort_original;
+        cv::Mat img_undistort;
+        cv::Mat img_undistort_original;
 #ifdef HAVE_CUDA
-          if (bCuda) {
-            TL_TODO("comprobar versión driver cuda");
-            cv::cuda::GpuMat gImgOut(img);
-            img.release();
-            cv::cuda::GpuMat gImgUndistort;
+        if (bCuda) {
+          TL_TODO("comprobar versión driver cuda");
+          cv::cuda::GpuMat gImgOut(img);
+          img.release();
+          cv::cuda::GpuMat gImgUndistort;
 
-            cv::cuda::GpuMat gMap1(map1);
-            cv::cuda::GpuMat gMap2(map2);
-            cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream1*/);
-            gImgUndistort.download(img_undistort);
+          cv::cuda::GpuMat gMap1(map1);
+          cv::cuda::GpuMat gMap2(map2);
+          cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream1*/);
+          gImgUndistort.download(img_undistort);
 
-          } else {
+        } else {
 #endif
-            cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
-            img.release();
+          cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
+          img.release();
 
 #ifdef HAVE_CUDA
-          }
-#endif
-          tl::Path image_path(image_file);
-
-          msgInfo("Undistort image: %s", image_path.fileName().toString().c_str());
-
-          std::string output_image_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.jpg", i);
-
-          cv::imwrite(output_image_path, img_undistort);
-
-          std::string proj_matrix_path = mOutputPath + colmap::StringPrintf("/txt/%08d.txt", i);
-          std::ofstream file(proj_matrix_path/*.toString()*/, std::ios::trunc);
-          CHECK(file.is_open()) << proj_matrix_path;
-
-          Eigen::Matrix3d calib_matrix = Eigen::Matrix3d::Identity();
-          calib_matrix(0, 0) = optCameraMat.at<float>(0,0);
-          calib_matrix(1, 1) = optCameraMat.at<float>(1,1);
-          calib_matrix(0, 2) = optCameraMat.at<float>(0,2);
-          calib_matrix(1, 2) = optCameraMat.at<float>(1,2);
-
-          const Eigen::Matrix3x4d proj_matrix = calib_matrix * image.ProjectionMatrix();
-
-          file << "CONTOUR" << std::endl;
-
-          WriteMatrix(proj_matrix, &file);
         }
+#endif
+        tl::Path image_path(image_file);
+
+        msgInfo("Undistort image: %s", image_path.fileName().toString().c_str());
+
+        std::string output_image_path = mOutputPath + colmap::StringPrintf("/visualize/%08d.jpg", i);
+
+        cv::imwrite(output_image_path, img_undistort);
+
+        std::string proj_matrix_path = mOutputPath + colmap::StringPrintf("/txt/%08d.txt", i);
+        std::ofstream file(proj_matrix_path, std::ios::trunc);
+        CHECK(file.is_open()) << proj_matrix_path;
+
+        Eigen::Matrix3d calib_matrix = Eigen::Matrix3d::Identity();
+        calib_matrix(0, 0) = optCameraMat.at<float>(0, 0);
+        calib_matrix(1, 1) = optCameraMat.at<float>(1, 1);
+        calib_matrix(0, 2) = optCameraMat.at<float>(0, 2);
+        calib_matrix(1, 2) = optCameraMat.at<float>(1, 2);
+
+        const Eigen::Matrix3x4d proj_matrix = calib_matrix * image.ProjectionMatrix();
+
+        file << "CONTOUR" << std::endl;
+
+        WriteMatrix(proj_matrix, &file);
       }
-    //} catch (const std::exception &e) {
-    //  msgError(e.what());
-    //}
+    }
 
   }
 }

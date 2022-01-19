@@ -237,8 +237,6 @@ bool SmvsDensifier::undistort(const QString &reconstructionPath,
 
   mOutputPath = outputPath.toStdString();
 
-  //OrientationExport orientationExport(&reconstruction);
-  //orientationExport.exportMVE(outputPath);
   this->createDirectories();
   this->writeMVEFile();
   this->undistortImages();
@@ -445,17 +443,9 @@ void SmvsDensifier::undistortImages()
     cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
     cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
 
-#ifdef HAVE_CUDA
-    cv::cuda::GpuMat gMap1(map1);
-    cv::cuda::GpuMat gMap2(map2);
-#endif
-
     try {
+
       for (auto &image : reconstruction.Images()) {
-      //for (size_t i = 0; i < reg_image_ids.size(); ++i) {
-        
-        //colmap::image_t image_id = reg_image_ids[i];
-        //colmap::Image &image = mReconstruction->Image(image_id);
 
         if (image.second.CameraId() == camera.second.CameraId()) {
 
@@ -508,6 +498,8 @@ void SmvsDensifier::undistortImages()
             cv::cuda::GpuMat gImgUndistort;
 
             cv::cuda::Stream stream;
+            cv::cuda::GpuMat gMap1(map1);
+            cv::cuda::GpuMat gMap2(map2);
             cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream);
             gImgUndistort.download(img_undistort);
           } else {
@@ -522,7 +514,6 @@ void SmvsDensifier::undistortImages()
           std::string image_file_undistort = mOutputPath;
           image_file_undistort.append(colmap::StringPrintf("\\views\\view_%04d.mve\\", image.second.ImageId() - 1));
           image_file_undistort.append("undistorted.png");
-          //image_file_undistort.append("\\views\\view_000").append(std::to_string(image.second.ImageId() - 1)).append(".mve\\").append("undistorted.png");
           cv::imwrite(image_file_undistort.c_str(), img_undistort);
 
         }
@@ -541,18 +532,6 @@ bool SmvsDensifier::densify(const QString &undistortPath)
 
   tl::Path app_path = tl::App::instance().path();
 
-  //std::string cmd("/c \"\"");
-  //cmd.append(app_path.parentPath().toString());
-  //cmd.append("\\smvsrecon_SSE41.exe\" ");
-  //cmd.append("--scale=").append(std::to_string(SmvsProperties::inputImageScale()));
-  //cmd.append(" --output-scale=").append(std::to_string(SmvsProperties::outputDepthScale()));
-  //cmd.append(" --alpha=").append(std::to_string(SmvsProperties::surfaceSmoothingFactor()));
-  //cmd.append(" --force ");
-  //if (!SmvsProperties::semiGlobalMatching())
-  //  cmd.append(" --no-sgm ");
-  //if (SmvsProperties::shadingBasedOptimization())
-  //  cmd.append(" --shading ");
-  //cmd.append("\"").append(undistortPath.toStdString()).append("\"\"");
   std::string cmd("\"");
   cmd.append(app_path.parentPath().toString());
   cmd.append("\\smvsrecon_SSE41.exe\" ");
