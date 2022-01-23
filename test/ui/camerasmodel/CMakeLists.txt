@@ -11,10 +11,10 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/Cameras.h
-               ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/CamerasModel.cpp
-               ${CMAKE_SOURCE_DIR}/src/inspector/ui/cameras/CamerasModel.h
-               ${CMAKE_SOURCE_DIR}/src/inspector/interfaces/mvp.h)
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/cameras/CamerasModel.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/cameras/impl/CamerasModel.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/cameras/impl/CamerasModel.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h)
 
 target_link_libraries(${test_target} PRIVATE
                       Qt5::Core

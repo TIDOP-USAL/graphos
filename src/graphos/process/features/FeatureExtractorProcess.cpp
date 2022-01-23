@@ -25,6 +25,7 @@
 
 #include <QFileInfo>
 
+
 using namespace tl;
 
 namespace graphos
@@ -119,15 +120,13 @@ private:
           size_t width = static_cast<size_t>(camera.width());
           size_t height = static_cast<size_t>(camera.height());
 
-          colmap::Bitmap bitmap;
-          double focal_lenght = 0.0;
-          if (bitmap.Read(image_path, false)) {
-            if (bitmap.ExifFocalLength(&focal_lenght)) {
-              camera_colmap.SetPriorFocalLength(true);
-            } else {
-              focal_lenght = 1.2 * std::max(width, height);
-              camera_colmap.SetPriorFocalLength(false);
-            }
+          double focal_lenght = camera.focal();
+
+          if (focal_lenght > 0.) {
+            camera_colmap.SetPriorFocalLength(true);
+          } else {
+            focal_lenght = 1.2 * std::max(width, height);
+            camera_colmap.SetPriorFocalLength(false);
           }
 
           camera_colmap.InitializeWithId(camera_model_id, focal_lenght, width, height);
@@ -146,7 +145,7 @@ private:
         }
 
         tl::math::Quaternion<double> q = image.cameraPose().quaternion();
-        if (q != tl::math::Quaternion<double>()) {
+        if (q != tl::math::Quaternion<double>::zero()) {
           image_colmap.QvecPrior(0) = q.w;
           image_colmap.QvecPrior(1) = q.x;
           image_colmap.QvecPrior(2) = q.y;
@@ -173,92 +172,10 @@ private:
 
       TL_TODO("lectura de metadatos con exiftool")
 
-      cv::Mat mat;
       double scale = 1.;
+      cv::Mat mat = readImage(image, scale);
 
-      if (bOpenCvRead) {
-
-        mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
-        //mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR);
-
-        //cv::Mat color_boost;
-        //cv::decolor(mat, mat, color_boost);
-        //color_boost.release();
-
-        if (mat.empty()) {
-          bOpenCvRead = false;
-        } else {
-
-          cv::Size size(mat.cols, mat.rows);
-          double max_dimension = std::max(size.width, size.height);
-
-          if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-            
-            scale = max_dimension / mMaxImageSize;
-            size.width /= scale;
-            size.height /= scale;
-#ifdef HAVE_CUDA
-            if (bUseGPU) {
-              cv::cuda::GpuMat gImgIn(mat);
-              cv::cuda::GpuMat gImgResize;
-              cv::cuda::resize(gImgIn, gImgResize, size);
-              gImgResize.download(mat);
-            } else {
-#endif
-              cv::resize(mat, mat, size);
-#ifdef HAVE_CUDA
-            }
-#endif
-          }
-        }
-      }
-
-      if (!bOpenCvRead) {
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
-        imageReader->open();
-        if (imageReader->isOpen()) {
-
-          double max_dimension = std::max(imageReader->cols(), imageReader->rows());
-
-          if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-            scale = mMaxImageSize / max_dimension;
-            mat = imageReader->read(scale, scale);
-            scale = 1. / scale;
-          } else {
-            mat = imageReader->read();
-          }
-
-          if (imageReader->depth() != 8) {
-#ifdef HAVE_CUDA
-            if (bUseGPU) {
-              cv::cuda::GpuMat gImgIn(mat);
-              cv::cuda::GpuMat gImgOut;
-              cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-              gImgOut.download(mat);
-            } else {
-#endif
-              cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_CUDA
-            }
-#endif
-          }
-
-          if (mat.channels() >= 3) {
-#ifdef HAVE_CUDA
-            cv::cuda::GpuMat gImgIn(mat);
-            cv::cuda::GpuMat gImgGray;
-            cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
-            gImgGray.download(mat);
-#else
-            cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
-#endif
-          }
-
-          imageReader->close();
-        }
-      }
-
-
+      /* Write queue */
 
       queue_data data;
       data.mat = mat;
@@ -266,7 +183,7 @@ private:
       data.scale = scale;
       data.image_name = image.name();
 
-      mBuffer->push(data); /// Aqui se pasa lo necesario al consumidor
+      mBuffer->push(data);
 
       double time = chrono.stop();
       msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
@@ -275,6 +192,115 @@ private:
       msgError(e.what());
       done = true;
     }
+  }
+
+  cv::Mat readImage(const Image &image, double &scale)
+  {
+    cv::Mat mat;
+
+    if (bOpenCvRead) {
+
+      mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH);
+      
+      //mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR);
+      //cv::Mat color_boost;
+      //cv::decolor(mat, mat, color_boost);
+      //color_boost.release();
+
+      if (mat.empty()) {
+        bOpenCvRead = false;
+      } else {
+
+        cv::Size size(mat.cols, mat.rows);
+        double max_dimension = std::max(size.width, size.height);
+
+        if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+
+          scale = max_dimension / mMaxImageSize;
+          size.width /= scale;
+          size.height /= scale;
+
+          resizeImage(mat, size);
+        }
+      }
+    }
+
+    if (!bOpenCvRead) {
+      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
+      imageReader->open();
+      if (imageReader->isOpen()) {
+
+        double max_dimension = std::max(imageReader->cols(), imageReader->rows());
+
+        if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+          scale = mMaxImageSize / max_dimension;
+          mat = imageReader->read(scale, scale);
+          scale = 1. / scale;
+        } else {
+          mat = imageReader->read();
+        }
+
+        if (mat.channels() >= 3) {
+          convertRgbToGray(mat);
+        }
+
+        imageReader->close();
+      }
+    }
+
+    normalizeImage(mat);
+
+    return mat;
+  }
+
+  /*!
+   * \brief Convert an RGB image to gray
+   * \param [in|out] mat Image to convert
+   */
+  void convertRgbToGray(cv::Mat &mat)
+  {
+#ifdef HAVE_CUDA
+    cv::cuda::GpuMat gImgIn(mat);
+    cv::cuda::GpuMat gImgGray;
+    cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
+    gImgGray.download(mat);
+#else
+    cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+#endif
+  }
+
+  void normalizeImage(cv::Mat &mat)
+  {
+    if (mat.depth() != CV_8U) {
+#ifdef HAVE_CUDA
+      if (bUseGPU) {
+        cv::cuda::GpuMat gImgIn(mat);
+        cv::cuda::GpuMat gImgOut;
+        cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+        gImgOut.download(mat);
+      } else {
+#endif
+        cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
+      }
+#endif
+    }
+  }
+
+  void resizeImage(cv::Mat &mat, const cv::Size &size)
+  {
+#ifdef HAVE_CUDA
+    if (bUseGPU) {
+      cv::cuda::GpuMat gImgIn(mat);
+      cv::cuda::GpuMat gImgResize;
+      cv::cuda::resize(gImgIn, gImgResize, size);
+      gImgResize.download(mat);
+    } else {
+#endif
+      cv::resize(mat, mat, size);
+#ifdef HAVE_CUDA
+    }
+#endif
   }
 
 protected:
@@ -346,33 +372,51 @@ private:
       colmap::FeatureKeypoints featureKeypoints;
       colmap::FeatureDescriptors featureDescriptors;
 
-      mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
-
-      QByteArray ba = data.image_name.toLocal8Bit();
-      double time = chrono.stop();
-      msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
-
-      if (data.scale > 1) {
-        for (auto &featureKeypoint : featureKeypoints) {
-          featureKeypoint.Rescale(data.scale, data.scale);
-        }
-      }
-
-      // Escritura en la base de datos
-
-      mutex.lock();
-      mDatabase->WriteKeypoints(data.image_id, featureKeypoints);
-      mDatabase->WriteDescriptors(data.image_id, featureDescriptors);
-      mutex.unlock();
+      featureExtraction(data.mat, featureKeypoints, featureDescriptors);
+      resizeFeatures(featureKeypoints, data.scale);
+      writeFeatures(data.image_id, featureKeypoints, featureDescriptors);
 
       // añade features al proyecto
       mFeatureExtractorProcess->featuresExtracted(data.image_name, data.image_name + "@" + mDatabaseFile.c_str());
       mFeatureExtractorProcess->statusChangedNext();
 
+      double time = chrono.stop();
+      msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
+
     } catch (std::exception &e) {
       msgError(e.what());
       done = true;
     }
+  }
+
+
+
+  void featureExtraction(const cv::Mat &mat,
+                         colmap::FeatureKeypoints &featureKeypoints,
+                         colmap::FeatureDescriptors &featureDescriptors)
+  {
+    mFeatExtractor->run(mat, featureKeypoints, featureDescriptors);
+  }
+
+  void resizeFeatures(colmap::FeatureKeypoints &featureKeypoints, 
+                      double scale)
+  {
+    if (scale > 1) {
+      for (auto &featureKeypoint : featureKeypoints) {
+        featureKeypoint.Rescale(scale, scale);
+      }
+    }
+  }
+
+  void writeFeatures(const colmap::image_t &image_id,
+                     colmap::FeatureKeypoints &featureKeypoints, 
+                     colmap::FeatureDescriptors &featureDescriptors)
+  {
+    std::lock_guard<std::mutex> lck(mutex);
+
+    mDatabase->WriteKeypoints(image_id, featureKeypoints);
+    mDatabase->WriteDescriptors(image_id, featureDescriptors);
+
   }
 
 private:

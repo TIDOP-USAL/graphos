@@ -48,7 +48,6 @@ private slots:
   void test_octaveLayersChange();
   void test_contrastThresholdChange();
   void test_edgeThresholdChange();
-  void test_sigmaChange();
 
 };
 
@@ -74,13 +73,11 @@ void TestSiftWidgetSignals::cleanupTestCase()
   QSignalSpy spyOctaveLayers(this, &SiftWidgetImp::octaveLayersChange);
   QSignalSpy spyContrastThreshold(this, &SiftWidgetImp::contrastThresholdChange);
   QSignalSpy spyEdgeThreshold(this, &SiftWidgetImp::edgeThresholdChange);
-  QSignalSpy spySigma(this, &SiftWidgetImp::sigmaChange);
 
   this->setFeaturesNumber(5000);
   this->setOctaveLayers(6);
   this->setContrastThreshold(0.6);
   this->setEdgeThreshold(15.);
-  this->setSigma(5.2);
 
   this->clear();
 
@@ -88,7 +85,6 @@ void TestSiftWidgetSignals::cleanupTestCase()
   QCOMPARE(spyOctaveLayers.count(), 0);
   QCOMPARE(spyContrastThreshold.count(), 0);
   QCOMPARE(spyEdgeThreshold.count(), 0);
-  QCOMPARE(spySigma.count(), 0);
 }
 
 void TestSiftWidgetSignals::test_featuresNumberChange()
@@ -149,21 +145,6 @@ void TestSiftWidgetSignals::test_edgeThresholdChange()
 
   this->setEdgeThreshold(15.);
   QCOMPARE(spyEdgeThreshold.count(), 0);
-}
-
-void TestSiftWidgetSignals::test_sigmaChange()
-{
-  QSignalSpy spySigma(this, &SiftWidgetImp::sigmaChange);
-
-  this->mSigma->setValue(3.2);
-
-  QCOMPARE(spySigma.count(), 1);
-
-  QList<QVariant> args = spySigma.takeFirst();
-  QCOMPARE(args.at(0).toDouble(), 3.2);
-
-  this->setSigma(5.2);
-  QCOMPARE(spySigma.count(), 0);
 }
 
 

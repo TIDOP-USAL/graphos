@@ -84,7 +84,7 @@ void TestCmvsPmvs::cleanupTestCase()
 
 void TestCmvsPmvs::test_constructor()
 {
-  CmvsPmvsDensifier cmvsPmvsDensifier(true, 50, 2, 3, 0.5, 10, 2);
+  CmvsPmvsDensifier cmvsPmvsDensifier(true, 50, 2, 3, 0.5, 10, 2, true);
   QCOMPARE(true, cmvsPmvsDensifier.useVisibilityInformation());
   QCOMPARE(50, cmvsPmvsDensifier.imagesPerCluster());
   QCOMPARE(2, cmvsPmvsDensifier.level());

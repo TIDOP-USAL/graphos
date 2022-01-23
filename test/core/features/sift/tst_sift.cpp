@@ -32,13 +32,12 @@ private slots:
   void test_contrastThreshold();
   void test_edgeThreshold_data();
   void test_edgeThreshold();
-  void test_sigma_data();
-  void test_sigma();
 
 private:
 
   Sift *mSift;
-
+  SiftDetectorDescriptor *mSiftDetectorDescriptor;
+  SiftCudaDetectorDescriptor *mSiftCudaDetectorDescriptor;
 };
 
 
@@ -46,14 +45,12 @@ TestSift::TestSift()
 {
   mSift = new SiftProperties();
   mSiftDetectorDescriptor = new SiftDetectorDescriptor(6000,
-                             4,
-                             9.,
-                             2.2);
+                                                       4,
+                                                       9. );
   mSiftCudaDetectorDescriptor = new SiftCudaDetectorDescriptor(10000,
-                             8,
-                             11.,
-                             1.,
-                             0.8);
+                                                               8,
+                                                               11.,
+                                                               0.8);
 }
 
 TestSift::~TestSift()
@@ -72,21 +69,18 @@ void TestSift::initTestCase()
   QCOMPARE(true, mSift->constrastThresholdAuto());
   QCOMPARE(0.02/mSift->octaveLayers(), mSift->contrastThreshold());
   QCOMPARE(10., mSift->edgeThreshold());
-  QCOMPARE(1.6, mSift->sigma());
   
   QCOMPARE(6000, mSiftDetectorDescriptor->featuresNumber());
   QCOMPARE(4, mSiftDetectorDescriptor->octaveLayers());
   QCOMPARE(true, mSiftDetectorDescriptor->constrastThresholdAuto());
   QCOMPARE(0.02/mSiftDetectorDescriptor->octaveLayers(), mSiftDetectorDescriptor->contrastThreshold());
   QCOMPARE(9., mSiftDetectorDescriptor->edgeThreshold());
-  QCOMPARE(2.2, mSiftDetectorDescriptor->sigma());
   
   QCOMPARE(10000, mSiftCudaDetectorDescriptor->featuresNumber());
   QCOMPARE(8, mSiftCudaDetectorDescriptor->octaveLayers());
   QCOMPARE(false, mSiftCudaDetectorDescriptor->constrastThresholdAuto());
   QCOMPARE(0.8, mSiftCudaDetectorDescriptor->contrastThreshold());
   QCOMPARE(11., mSiftCudaDetectorDescriptor->edgeThreshold());
-  QCOMPARE(1.0, mSiftCudaDetectorDescriptor->sigma());
 }
 
 void TestSift::cleanupTestCase()
@@ -95,7 +89,6 @@ void TestSift::cleanupTestCase()
   mSift->setOctaveLayers(4);
   mSift->setContrastThreshold(0.5);
   mSift->setEdgeThreshold(20.);
-  mSift->setSigma(3.);
 
   mSift->reset();
 
@@ -104,28 +97,25 @@ void TestSift::cleanupTestCase()
   QCOMPARE(true, mSift->constrastThresholdAuto());
   QCOMPARE(0.02 / mSift->octaveLayers(), mSift->contrastThreshold());
   QCOMPARE(10., mSift->edgeThreshold());
-  QCOMPARE(1.6, mSift->sigma());
 }
 
 void TestSift::test_constructor()
 {
-  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 20., 3., 0.5);
+  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 20., 0.5);
   QCOMPARE(500, siftDetectorDescriptor.featuresNumber());
   QCOMPARE(4, siftDetectorDescriptor.octaveLayers());
   QCOMPARE(0.5, siftDetectorDescriptor.contrastThreshold());
   QCOMPARE(20., siftDetectorDescriptor.edgeThreshold());
-  QCOMPARE(3., siftDetectorDescriptor.sigma());
 }
 
 void TestSift::test_copy_constructor()
 {
-  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 20., 3., 0.5);
+  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 20., 0.5);
   SiftCudaDetectorDescriptor c(siftDetectorDescriptor);
   QCOMPARE(500, c.featuresNumber());
   QCOMPARE(4, c.octaveLayers());
   QCOMPARE(0.5, c.contrastThreshold());
   QCOMPARE(20., c.edgeThreshold());
-  QCOMPARE(3., c.sigma());
 }
 
 void TestSift::test_type()
@@ -223,25 +213,6 @@ void TestSift::test_edgeThreshold()
 
   mSift->setEdgeThreshold(value);
   QCOMPARE(result, mSift->edgeThreshold());
-}
-
-void TestSift::test_sigma_data()
-{
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
-
-  QTest::newRow("10.") << 10. << 10.;
-  QTest::newRow("1.") << 1. << 1.;
-  QTest::newRow("20.") << 20. << 20.;
-}
-
-void TestSift::test_sigma()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mSift->setSigma(value);
-  QCOMPARE(result, mSift->sigma());
 }
 
 

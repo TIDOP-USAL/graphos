@@ -51,8 +51,6 @@ private slots:
   void test_contrastThreshold();
   void test_edgeThreshold_data();
   void test_edgeThreshold();
-  void test_sigma_data();
-  void test_sigma();
 
 private:
 
@@ -80,7 +78,6 @@ void TestSiftWidget::initTestCase()
   QCOMPARE(3, mSiftWidget->octaveLayers());
   QCOMPARE(0.0067, mSiftWidget->contrastThreshold());
   QCOMPARE(10., mSiftWidget->edgeThreshold());
-  QCOMPARE(1.6, mSiftWidget->sigma());
 }
 
 void TestSiftWidget::cleanupTestCase()
@@ -89,7 +86,6 @@ void TestSiftWidget::cleanupTestCase()
   mSiftWidget->setOctaveLayers(4);
   mSiftWidget->setContrastThreshold(0.5);
   mSiftWidget->setEdgeThreshold(20.);
-  mSiftWidget->setSigma(3.);
 
   mSiftWidget->clear();
 
@@ -97,7 +93,6 @@ void TestSiftWidget::cleanupTestCase()
   QCOMPARE(3, mSiftWidget->octaveLayers());
   QCOMPARE(0.0067, mSiftWidget->contrastThreshold());
   QCOMPARE(10., mSiftWidget->edgeThreshold());
-  QCOMPARE(1.6, mSiftWidget->sigma());
 }
 
 void TestSiftWidget::test_windowTitle()
@@ -185,26 +180,6 @@ void TestSiftWidget::test_edgeThreshold()
 
   mSiftWidget->setEdgeThreshold(value);
   QCOMPARE(result, mSiftWidget->edgeThreshold());
-}
-
-void TestSiftWidget::test_sigma_data()
-{
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
-
-  QTest::newRow("10.") << 10. << 10.;
-  QTest::newRow("1.") << 1. << 1.;
-  QTest::newRow("20.") << 20. << 20.;
-  QTest::newRow("Out of range value") << 100.1 << 100.;
-}
-
-void TestSiftWidget::test_sigma()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mSiftWidget->setSigma(value);
-  QCOMPARE(result, mSiftWidget->sigma());
 }
 
 

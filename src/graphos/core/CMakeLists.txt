@@ -68,9 +68,8 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             Orthophoto.h
             camera/colmap.cpp
             camera/colmap.h
-            #camera/calibio.h
-            #camera/calibio.cpp
-            )
+            camera/database.h
+            camera/database.cpp)
             
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 

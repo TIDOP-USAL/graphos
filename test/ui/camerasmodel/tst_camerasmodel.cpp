@@ -1,11 +1,10 @@
 #include <QtTest>
 
-#include "inspector/core/project.h"
-#include "inspector/ui/cameras/CamerasModel.h"
+#include "graphos/core/project.h"
+#include "graphos/components/cameras/CamerasModel.h"
 //#include "fake/ProjectFake.h"
 
-using namespace inspector;
-using namespace ui;
+using namespace graphos;
 
 class TestCamerasModel : public QObject
 {

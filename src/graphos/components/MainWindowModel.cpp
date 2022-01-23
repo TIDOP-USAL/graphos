@@ -44,7 +44,7 @@ MainWindowModel::MainWindowModel(Project *project)
 
 std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &image) const
 {
-  tl::MessageManager::pause();
+  //tl::MessageManager::pause();
 
   std::list<std::pair<QString, QString>> exif;
 
@@ -85,7 +85,7 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
     int code = result.parseFrom(buf, fsize);
     delete[] buf;
     if (code) {
-      msgWarning("Error parsing EXIF: code %d\n", code);
+      msgWarning("Error parsing EXIF: code %d ", code);
       return exif;
     }
     exif.push_back(std::make_pair(QString("Camera make"), QString(result.Make.c_str())));
@@ -127,7 +127,7 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
     exif.push_back(std::make_pair(QString("Focal plane YRes"), QString::number(result.LensInfo.FocalPlaneYResolution)));
   }
 
-  tl::MessageManager::resume();
+  //tl::MessageManager::resume();
 
   return exif;
 }

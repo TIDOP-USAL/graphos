@@ -729,7 +729,6 @@ bool CamerasViewImp::isK2Enable() const
          camera_index == opencv_1 ||
          camera_index == opencv_2 ||
          camera_index == opencv_fisheye ||
-         camera_index == radial_fisheye_1 ||
          camera_index == radial_fisheye_2;
 }
 
@@ -738,8 +737,7 @@ bool CamerasViewImp::isK3Enable() const
   int camera_index = mComboBoxType->currentIndex();
   return camera_index == radial_3 ||
          camera_index == opencv_2 ||
-         camera_index == opencv_fisheye ||
-         camera_index == radial_fisheye_2;
+         camera_index == opencv_fisheye;
 }
 
 bool CamerasViewImp::isK4Enable() const
@@ -766,8 +764,7 @@ bool CamerasViewImp::isP1Enable() const
   int camera_index = mComboBoxType->currentIndex();
   return camera_index == radial_3 ||
          camera_index == opencv_1 ||
-         camera_index == opencv_2 ||
-         camera_index == radial_fisheye_2;
+         camera_index == opencv_2;
 }
 
 bool CamerasViewImp::isP2Enable() const
@@ -775,8 +772,7 @@ bool CamerasViewImp::isP2Enable() const
   int camera_index = mComboBoxType->currentIndex();
   return camera_index == radial_3 ||
          camera_index == opencv_1 ||
-         camera_index == opencv_2 ||
-         camera_index == radial_fisheye_2;
+         camera_index == opencv_2;
 }
 
 bool CamerasViewImp::isFocalVisible() const
