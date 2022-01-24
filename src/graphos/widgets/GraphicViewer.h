@@ -118,6 +118,7 @@ protected slots:
 signals:
 
   void mousePosition(QPoint);
+  void mouseScenePosition(QPointF);
   void mouseClicked(QPoint);
   void mouseClicked(QPointF);
   void selectionChanged();

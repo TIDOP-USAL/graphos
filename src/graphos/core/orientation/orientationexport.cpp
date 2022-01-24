@@ -140,7 +140,8 @@ void OrientationExport::exportPLY(const QString &path) const
     ply_points.reserve(mReconstruction->NumPoints3D());
     
     for (auto &point : mReconstruction->Points3D()) {
-      if (point.second.Error() < 2) {
+      if (point.second.Error() < 2 &&
+          point.second.Track().Length() >= 3) {
         PointPly ply_point;
         ply_point.x = point.second.X();
         ply_point.y = point.second.Y();

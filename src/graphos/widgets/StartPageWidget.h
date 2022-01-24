@@ -79,7 +79,7 @@ protected:
 
 protected:
 
-  QLabel *mLabelPhotoMatch;
+  QLabel *mLabelGraphosLogo;
   QLabel *mLabelRecentProjects;
   QSplitter *mSplitter;
   QCommandLinkButton *mCommandLinkButtonNewProject;

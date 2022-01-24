@@ -209,17 +209,9 @@ void GraphicViewerImp::wheelEvent(QWheelEvent *event)
 
 void GraphicViewerImp::mouseMoveEvent(QMouseEvent *event)
 {
-  // es QPoint(event->x(), event->y()) == event->pos() ???
-  //QPointF imagePoint = mapToScene(QPoint(event->x(), event->y()));
 
-  if (event->pos() == mPointOld){
-
-  }
-  //setToolTip(setToolTipText(QPoint((int)imagePoint.x(),(int)imagePoint.y())));
-
-//  if (event->button() == Qt::LeftButton){
-//    setDragMode(QGraphicsView::ScrollHandDrag);
-//  }
+  QPointF imagePoint = mapToScene(QPoint(event->x(), event->y()));
+  emit mouseScenePosition(imagePoint);
 
   QGraphicsView::mouseMoveEvent(event);
 }
