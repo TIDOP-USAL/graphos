@@ -38,7 +38,7 @@
 #include <mutex>
 //#include <QImageReader>
 #include <QApplication>
-
+#include <QScrollBar>
 
 static std::mutex sMutexThumbnail;
 
@@ -274,6 +274,7 @@ void ThumbnailsWidget::onThumbnailClicked()
   mListWidget->setIconSize(mIconSize);
   mListWidget->setViewMode(QListWidget::IconMode);
   mListWidget->setResizeMode(QListWidget::Adjust);
+  mListWidget->verticalScrollBar()->setSingleStep(175);
   const QSignalBlocker block0(mThumbnailAction);
   const QSignalBlocker block1(mThumbnailSmallAction);
   const QSignalBlocker block2(mDetailsAction);
@@ -288,6 +289,7 @@ void ThumbnailsWidget::onThumbnailSmallClicked()
   mListWidget->setIconSize(mIconSize);
   mListWidget->setViewMode(QListWidget::IconMode);
   mListWidget->setResizeMode(QListWidget::Adjust);
+  mListWidget->verticalScrollBar()->setSingleStep(100);
   const QSignalBlocker block0(mThumbnailAction);
   const QSignalBlocker block1(mThumbnailSmallAction);
   const QSignalBlocker block2(mDetailsAction);

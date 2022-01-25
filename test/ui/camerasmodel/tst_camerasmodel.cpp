@@ -1,7 +1,7 @@
 #include <QtTest>
 
 #include "graphos/core/project.h"
-#include "graphos/components/cameras/CamerasModel.h"
+#include "graphos/components/cameras/impl/CamerasModel.h"
 //#include "fake/ProjectFake.h"
 
 using namespace graphos;
@@ -36,7 +36,7 @@ TestCamerasModel::TestCamerasModel()
   : mProject(new ProjectImp)
 {
 
-  mProject->load(QString(INSPECTOR_SOURCE_PATH).append("/test/data/project.xml"));
+  mProject->load(QString(GRAPHOS_SOURCE_PATH).append("/test/data/project.xml"));
 
   mCamerasModel = new CamerasModelImp(mProject);
 }
@@ -56,7 +56,7 @@ TestCamerasModel::~TestCamerasModel()
 
 void TestCamerasModel::initTestCase()
 {
-  Camera camera("DJI", "FC6310");
+  tl::Camera camera("DJI", "FC6310");
   camera.setType("Simple radial");
   camera.setFocal(3552.23);
   camera.setWidth(5472);
@@ -75,7 +75,7 @@ void TestCamerasModel::cleanupTestCase()
 
 void TestCamerasModel::test_updateCamera()
 {
-  Camera camera = mCamerasModel->camera(1);
+  tl::Camera camera = mCamerasModel->camera(1);
   camera.setType("Full radial");
   bool bUpdate = mCamerasModel->updateCamera(1, camera);
 
@@ -83,7 +83,7 @@ void TestCamerasModel::test_updateCamera()
 
   camera = mCamerasModel->camera(1);
 
-  QCOMPARE(QString("Full radial"), camera.type());
+  QCOMPARE("Full radial", camera.type());
 
   /// Se recupera el estado anterior
   camera.setType("Radial");
@@ -92,7 +92,7 @@ void TestCamerasModel::test_updateCamera()
 
 void TestCamerasModel::test_deleteCamera()
 {
-  Camera camera("SONY", "ILCE-6000");
+  tl::Camera camera("SONY", "ILCE-6000");
   int id = mCamerasModel->addCamera(camera);
 
   bool remove = mCamerasModel->removeCamera(4);
@@ -116,11 +116,11 @@ void TestCamerasModel::test_cameraId()
 
 void TestCamerasModel::test_findCamera()
 {
-  Camera camera = mCamerasModel->camera(1);
+  tl::Camera camera = mCamerasModel->camera(1);
 
-  QCOMPARE(QString("Unknown camera"), camera.make());
-  QCOMPARE(QString("0"), camera.model());
-  QCOMPARE(QString("Radial"), camera.type());
+  QCOMPARE("Unknown camera", camera.make());
+  QCOMPARE("0", camera.model());
+  QCOMPARE("Radial", camera.type());
   QCOMPARE(5835.6, camera.focal());
   QCOMPARE(4863, camera.width());
   QCOMPARE(3221, camera.height());
@@ -128,8 +128,8 @@ void TestCamerasModel::test_findCamera()
 
   camera = mCamerasModel->camera("Unknown camera", "0");
 
-  QCOMPARE(QString("0"), camera.model());
-  QCOMPARE(QString("Radial"), camera.type());
+  QCOMPARE("0", camera.model());
+  QCOMPARE("Radial", camera.type());
   QCOMPARE(5835.6, camera.focal());
   QCOMPARE(4863, camera.width());
   QCOMPARE(3221, camera.height());
@@ -139,7 +139,7 @@ void TestCamerasModel::test_findCamera()
 void TestCamerasModel::test_findCamera_exception()
 {
   try {
-    Camera camera = mCamerasModel->camera(5);
+    tl::Camera camera = mCamerasModel->camera(5);
   } catch (std::exception &e) {
     QCOMPARE("Camera not exist", e.what());
   }
@@ -149,12 +149,12 @@ void TestCamerasModel::test_iterator()
 {
   auto it = mCamerasModel->begin();
   int id = it->first;
-  Camera camera = it->second;
+  tl::Camera camera = it->second;
 
   QCOMPARE(1, id);
-  QCOMPARE(QString("Unknown camera"), camera.make());
-  QCOMPARE(QString("0"), camera.model());
-  QCOMPARE(QString("Radial"), camera.type());
+  QCOMPARE("Unknown camera", camera.make());
+  QCOMPARE("0", camera.model());
+  QCOMPARE("Radial", camera.type());
   QCOMPARE(5835.6, camera.focal());
   QCOMPARE(4863, camera.width());
   QCOMPARE(3221, camera.height());
@@ -166,9 +166,9 @@ void TestCamerasModel::test_iterator()
   camera = it->second;
 
   QCOMPARE(2, id);
-  QCOMPARE(QString("DJI"), camera.make());
-  QCOMPARE(QString("FC6310"), camera.model());
-  QCOMPARE(QString("Simple radial"), camera.type());
+  QCOMPARE("DJI", camera.make());
+  QCOMPARE("FC6310", camera.model());
+  QCOMPARE("Simple radial", camera.type());
   QCOMPARE(3552.23, camera.focal());
   QCOMPARE(5472, camera.width());
   QCOMPARE(3648, camera.height());
