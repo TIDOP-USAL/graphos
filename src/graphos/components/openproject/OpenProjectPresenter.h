@@ -29,6 +29,9 @@
 namespace graphos
 {
 
+/*!
+ * \brief OpenProjectPresenter interface
+ */
 class OpenProjectPresenter
   : public Presenter
 {
@@ -42,10 +45,17 @@ public:
 
 protected slots:
 
+  /*!
+   * \brief Set Graphos project file
+   * \param[in] file Graphos projects file
+   */
   virtual void setProjectFile(const QString &file) = 0;
 
 signals:
 
+  /*!
+   * \brief Signal emitted when the project is loaded
+   */
   void projectLoaded();
 
 };

@@ -29,6 +29,9 @@
 namespace graphos
 {
 
+/*!
+ * \brief CreateProjectModel interface
+ */
 class CreateProjectModel
   : public Model
 {

@@ -30,7 +30,7 @@ namespace graphos
 {
 
 /*!
- * \brief Componente para la creación de proyectos
+ * \brief Project creation component
  */
 class CreateProjectComponent
   : public ComponentBase
@@ -50,7 +50,7 @@ private slots:
 signals:
 
   /*!
-   * \brief Señal emitida cuando se crea un nuevo proyecto
+   * \brief Signal emitted when a new project is created
    */
   void projectCreated();
 

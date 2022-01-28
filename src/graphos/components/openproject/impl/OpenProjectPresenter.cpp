@@ -76,7 +76,7 @@ void OpenProjectPresenterImp::setProjectFile(const QString &file)
 
 void OpenProjectPresenterImp::open()
 {
-  mView->setInspectorPath(mModel->inspectorDirectory());
+  mView->setGraphosProjectsPath(mModel->graphosProjectsDirectory());
   mView->exec();
 }
 
@@ -90,8 +90,6 @@ void OpenProjectPresenterImp::init()
 
 void OpenProjectPresenterImp::initSignalAndSlots()
 {
-  //connect(mView, &OpenProjectView::accepted,      this, &OpenProjectPresenterImp::run);
-  //connect(mView, &OpenProjectView::rejected,      this, &OpenProjectPresenterImp::cancel);
   connect(mView, &OpenProjectView::fileSelected, this, &OpenProjectPresenterImp::setProjectFile);
 }
 

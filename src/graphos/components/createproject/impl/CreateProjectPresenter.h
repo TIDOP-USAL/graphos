@@ -47,6 +47,13 @@ public:
                             AppStatus *status);
   ~CreateProjectPresenterImp() override = default;
 
+private:
+
+  QString projectFolder() const;
+  void createProjectFolderIfNoExist(const QString &projectFolder);
+  QString databasePath(const QString &projectFolder) const;
+  QString projectPath(const QString &projectFolder) const;
+
 // CreateProjectPresenter interface
 
 protected slots:
@@ -67,15 +74,6 @@ private:
 
   void init() override;
   void initSignalAndSlots() override;
-
-// Métodos privados
-
-private:
-
-  QString projectFolder() const;
-  void createProjectFolderIfNoExist(const QString &projectFolder);
-  QString databasePath(const QString &projectFolder) const;
-  QString projectPath(const QString &projectFolder) const;
 
 private:
 

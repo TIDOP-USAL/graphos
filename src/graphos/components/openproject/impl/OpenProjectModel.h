@@ -47,7 +47,7 @@ public:
 
 public:
 
-  QString inspectorDirectory() const override;
+  QString graphosProjectsDirectory() const override;
 
 public slots:
 

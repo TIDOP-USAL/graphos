@@ -39,7 +39,6 @@ AboutComponent::AboutComponent(Application *application)
 {
   this->setName("About Graphos");
   this->setMenu("help");
-  //this->setToolbar("help");
   QIcon iconAbout;
   iconAbout.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-about.png"), QSize(), QIcon::Normal, QIcon::Off);
   action()->setIcon(iconAbout);
@@ -72,12 +71,7 @@ void AboutComponent::createCommand()
 
 void AboutComponent::update()
 {
-/*   Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null"); */
 
-  action()->setEnabled(true);
 }
 
 } // namespace graphos

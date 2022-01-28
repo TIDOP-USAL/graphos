@@ -116,7 +116,6 @@ private:
 
   void createDirectories();
   void createDirectory(const std::string &path);
-  void writeBundleFile();
   void undistortImages();
   void undistortImage();
   void writeVisibility();

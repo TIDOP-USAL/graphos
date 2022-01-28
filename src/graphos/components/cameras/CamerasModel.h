@@ -45,8 +45,6 @@ public:
 
   typedef std::map<int, tl::Camera>::iterator camera_iterator;
   typedef std::map<int, tl::Camera>::const_iterator camera_const_iterator;
-  //typedef std::vector<Image>::iterator image_iterator;
-  //typedef std::vector<Image>::const_iterator image_const_iterator;
 
 public:
 
@@ -73,17 +71,10 @@ public:
 
   virtual void save() = 0;
 
-  //virtual image_iterator imageBegin() = 0;
-  //virtual image_const_iterator imageBegin() const = 0;
-  //virtual image_iterator imageEnd() = 0;
-  //virtual image_const_iterator imageEnd() const = 0;
-
 public slots:
 
   virtual void updateCurrentCameraMake(const QString &make) = 0;
   virtual void updateCurrentCameraModel(const QString &model) = 0;
-  //virtual void updateCurrentCameraWidth(int width) = 0;
-  //virtual void updateCurrentCameraHeight(int height) = 0;
   virtual void updateCurrentCameraSensorSize(const QString &sensorSize) = 0;
   virtual void updateCurrentCameraFocal(const QString &focal) = 0;
   virtual void updateCurrentCameraType(const QString &type) = 0;

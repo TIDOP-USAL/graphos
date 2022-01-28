@@ -35,6 +35,9 @@ namespace graphos
 
 class HelpDialog;
 
+/*!
+ * \brief CreateProjectPresenter interface
+ */
 class CreateProjectPresenter
   : public Presenter
 {
@@ -44,30 +47,29 @@ class CreateProjectPresenter
 public:
 
   CreateProjectPresenter(){}
-
   virtual ~CreateProjectPresenter() override = default;
 
 signals:
 
   /*!
-   * \brief Señal que se emite cuando se crea el proyecto
+   * \brief Signal emitted when the project is created
    */
   void projectCreate();
 
 protected slots:
 
   /*!
-   * \brief Guarda el proyecto
+   * \brief Save the project
    */
   virtual void saveProject() = 0;
 
   /*!
-   * \brief Descarta los cambios en el proyecto
+   * \brief Discard the changes in the project
    */
   virtual void discartProject() = 0;
 
   /*!
-   * \brief Comprueba si ya existe un proyecto con el mismo nombre
+   * \brief Check if a project with the same name already exists
    */
   virtual void checkProjectName() const = 0;
 

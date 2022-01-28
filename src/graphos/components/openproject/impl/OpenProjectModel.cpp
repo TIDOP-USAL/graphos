@@ -42,7 +42,7 @@ OpenProjectModelImp::~OpenProjectModelImp()
 {
 }
 
-QString OpenProjectModelImp::inspectorDirectory() const
+QString OpenProjectModelImp::graphosProjectsDirectory() const
 {
   QString inspector_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
   inspector_directory.append("/graphos/Projects");

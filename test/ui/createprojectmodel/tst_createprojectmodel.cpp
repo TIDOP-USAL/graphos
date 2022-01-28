@@ -1,6 +1,6 @@
 #include <QtTest>
 
-#include "graphos/ui/createproject/impl/CreateProjectModel.h"
+#include "graphos/components/createproject/impl/CreateProjectModel.h"
 #include "graphos/core/project.h"
 #include "../test/fake/ProjectFake.h"
 

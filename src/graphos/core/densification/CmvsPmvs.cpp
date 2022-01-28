@@ -34,12 +34,15 @@ namespace internal
 
 class Reconstruction
 {
+
 public:
+
   Reconstruction(const std::string &path)
-    :  mReconstruction(new colmap::Reconstruction())
+    : mReconstruction(new colmap::Reconstruction())
   {
     mReconstruction->ReadBinary(path);
   }
+
   ~Reconstruction()
   {
     if (mReconstruction) {
@@ -231,7 +234,6 @@ void WriteMatrix(const Eigen::MatrixBase<Derived>& matrix,
 // Write projection matrix P = K * [R t] to file and prepend given header.
 void WriteProjectionMatrix(const std::string& path, const colmap::Camera& camera,
                            const colmap::Image& image, const std::string& header) {
-  //CHECK_EQ(camera.ModelId(), colmap::PinholeCameraModel::model_id);
 
   std::ofstream file(path, std::ios::trunc);
   CHECK(file.is_open()) << path;
@@ -310,7 +312,6 @@ bool CmvsPmvsDensifier::undistort(const QString &reconstructionPath,
   mOutputPath = outputPath.toStdString() + "/pmvs";
 
   this->createDirectories();
-  this->writeBundleFile(); // Realmente no es necesario crearlo ya que no se usa cmvs.exe ni genOption.exe
   this->undistortImages();
   this->writeVisibility();
   this->writeOptions();
@@ -363,135 +364,6 @@ void CmvsPmvsDensifier::createDirectory(const std::string &path)
   }
 }
 
-void CmvsPmvsDensifier::writeBundleFile()
-{
-
-
-  if (mReconstruction) {
-
-    colmap::Reconstruction &reconstruction = mReconstruction->colmap();
-
-    tl::Path bundler_path(mOutputPath);
-    bundler_path.append("bundle.rd.out");
-    tl::Path bundler_path_list(mOutputPath);
-    bundler_path_list.append("bundle.rd.out.list.txt");
-
-    std::ofstream stream(bundler_path.toString(), std::ios::trunc);
-    std::ofstream stream_image_list(bundler_path_list.toString(), std::ios::trunc);
-    std::ofstream stream_image_list_original;
-
-    if (stream.is_open() && stream_image_list.is_open()) {
-
-      int camera_count = reconstruction.Images().size();
-      int feature_count = reconstruction.NumPoints3D();
-
-      stream << "# Bundle file v0.3" << std::endl;
-      stream << camera_count << " " << feature_count << std::endl;
-
-      const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
-
-      for (auto &camera : reconstruction.Cameras()) {
-
-        std::shared_ptr<tl::Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
-        
-        float focal_x{};
-        float focal_y{};
-        if (calibration->existParameter(tl::Calibration::Parameters::focal)) {
-          focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
-          focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
-        } else {
-          focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focalx));
-          focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focaly));
-        }
-        
-        float ppx = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cx));
-        float ppy = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cy));
-
-        cv::Size imageSize(static_cast<int>(camera.second.Width()),
-                           static_cast<int>(camera.second.Height()));
-        std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
-                                                                  0.f, focal_y, ppy,
-                                                                  0.f, 0.f, 1.f};
-        cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
-        cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
-        distCoeffs.at<float>(0) = calibration->existParameter(tl::Calibration::Parameters::k1) ?
-                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
-        distCoeffs.at<float>(1) = calibration->existParameter(tl::Calibration::Parameters::k2) ?
-                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k2)) : 0.f;
-        distCoeffs.at<float>(2) = calibration->existParameter(tl::Calibration::Parameters::p1) ?
-                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p1)) : 0.f;
-        distCoeffs.at<float>(3) = calibration->existParameter(tl::Calibration::Parameters::p2) ?
-                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p2)) : 0.f;
-        distCoeffs.at<float>(4) = calibration->existParameter(tl::Calibration::Parameters::k3) ?
-                                  static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k3)) : 0.f;
-
-        cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
-        float new_focal = (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.f;
-
-        for (size_t i = 0; i < reg_image_ids.size(); ++i) {
-          colmap::image_t image_id = reg_image_ids[i];
-          colmap::Image &image = reconstruction.Image(image_id);
-          if (image.CameraId() == camera.second.CameraId()) {
-
-            Eigen::Matrix3d rotation_matrix = image.RotationMatrix();
-            Eigen::Vector3d translation = image.Tvec();
-            // En el formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo
-            stream << new_focal << " 0 0 "  << std::endl;
-            stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
-            stream << -rotation_matrix(1, 0) << " " << -rotation_matrix(1, 1) << " " << -rotation_matrix(1, 2) << std::endl;
-            stream << -rotation_matrix(2, 0) << " " << -rotation_matrix(2, 1) << " " << -rotation_matrix(2, 2) << std::endl;
-            stream << translation[0] << " " << -translation[1] << " " << -translation[2] << std::endl;
-
-            // Undistorted images
-            std::string output_image_path = colmap::StringPrintf("%08d.jpg", i);
-            stream_image_list << output_image_path << std::endl;
-            
-          }
-        }
-      }
-
-
-      for (auto &points_3d : reconstruction.Points3D()) {
-
-        Eigen::Vector3ub color = points_3d.second.Color();
-        stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
-
-        stream << static_cast<int>(color[0]) << " " <<
-                  static_cast<int>(color[1]) << " " <<
-                  static_cast<int>(color[2]) << std::endl;
-
-        colmap::Track track = points_3d.second.Track();
-
-        std::map<int, int> track_ids_not_repeat;
-        for (auto &element : track.Elements()) {
-          track_ids_not_repeat[element.image_id - 1] = element.point2D_idx;
-        }
-
-        stream << track_ids_not_repeat.size();
-
-        for (auto &map : track_ids_not_repeat) {
-
-          colmap::image_t image_id = map.first+1;
-          const colmap::Image &image = reconstruction.Image(image_id);
-          const colmap::Camera &camera = reconstruction.Camera(image.CameraId());
-
-          const colmap::Point2D &point2D = image.Point2D(map.second);
-
-          stream << " " << static_cast<int>(image_id) << " " << map.second << " ";
-          stream << point2D.X() - camera.PrincipalPointX() << " ";
-          stream << camera.PrincipalPointY() - point2D.Y() << " ";
-        }
-
-        stream << std::endl;
-      }
-      stream.close();
-      stream_image_list.close();
-      stream_image_list_original.close();
-    }
-  } else 
-    msgError("There is not a valid reconstruction");
-}
-
 void CmvsPmvsDensifier::undistortImages()
 {
   colmap::Reconstruction &reconstruction = mReconstruction->colmap();
@@ -505,44 +377,24 @@ void CmvsPmvsDensifier::undistortImages()
   for (auto &camera : reconstruction.Cameras()) {
 
     std::shared_ptr<tl::Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
-
-    float focal_x{};
-    float focal_y{};
-    if (calibration->existParameter(tl::Calibration::Parameters::focal)) {
-      focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
-      focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
-    } else {
-      focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focalx));
-      focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focaly));
-    }
-
-    float ppx = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cx));
-    float ppy = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cy));
-
-    cv::Size imageSize(static_cast<int>(camera.second.Width()),
-                       static_cast<int>(camera.second.Height()));
-    std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
-                                                              0.f, focal_y, ppy,
-                                                              0.f, 0.f, 1.f};
-    cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
-    cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
-
-    distCoeffs.at<float>(0) = calibration->existParameter(tl::Calibration::Parameters::k1) ?
-      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
-    distCoeffs.at<float>(1) = calibration->existParameter(tl::Calibration::Parameters::k2) ?
-      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k2)) : 0.f;
-    distCoeffs.at<float>(2) = calibration->existParameter(tl::Calibration::Parameters::p1) ?
-      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p1)) : 0.f;
-    distCoeffs.at<float>(3) = calibration->existParameter(tl::Calibration::Parameters::p2) ?
-      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p2)) : 0.f;
-    distCoeffs.at<float>(4) = calibration->existParameter(tl::Calibration::Parameters::k3) ?
-      static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k3)) : 0.f;
+    
+    cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
+    cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);
 
     cv::Mat map1;
     cv::Mat map2;
-    cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
-    cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
+    cv::Mat optCameraMat;
+    cv::Size imageSize(static_cast<int>(camera.second.Width()),
+                       static_cast<int>(camera.second.Height()));
+    bool b_fisheye = calibration->checkCameraType(tl::Calibration::CameraType::fisheye);
 
+    if (!b_fisheye) {
+      optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
+      cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
+    } else {
+      cv::fisheye::estimateNewCameraMatrixForUndistortRectify(cameraMatrix, distCoeffs, imageSize, cv::Mat(), optCameraMat, 0.0, imageSize);
+      cv::fisheye::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
+    }
 
     TL_TODO("undistortImage()")
 
@@ -597,7 +449,6 @@ void CmvsPmvsDensifier::undistortImages()
           }
 
         cv::Mat img_undistort;
-        cv::Mat img_undistort_original;
 #ifdef HAVE_CUDA
         if (bCuda) {
           TL_TODO("comprobar versión driver cuda");
@@ -711,26 +562,26 @@ void CmvsPmvsDensifier::writeOptions()
 
   TL_TODO("Si hay muchas imagenes separar en clusters pero con solape ya que los generados por cmvs dejan huecos al fusionar")
 
-  file_options << "# Generated by Graphos - all images, no clustering." << std::endl;
+  file_options << "# Generated by Graphos - all images, no clustering.\n";
 
-  file_options << "level " << CmvsPmvsProperties::level() << std::endl;
-  file_options << "csize " << CmvsPmvsProperties::cellSize() << std::endl;
-  file_options << "threshold " << CmvsPmvsProperties::threshold() << std::endl;
-  file_options << "wsize " << CmvsPmvsProperties::windowSize() << std::endl;
-  file_options << "minImageNum " << CmvsPmvsProperties::minimunImageNumber() << std::endl;
-  file_options << "CPU " << std::thread::hardware_concurrency() << std::endl;
-  file_options << "setEdge 0" << std::endl;
-  file_options << "useBound 0" << std::endl;
-  file_options << "useVisData " << (CmvsPmvsProperties::useVisibilityInformation() ? 1 : 0) << std::endl;
-  file_options << "sequence -1" << std::endl;
-  file_options << "maxAngle 10" << std::endl;
-  file_options << "quad 2.0" << std::endl;
+  file_options << "level " << CmvsPmvsProperties::level() << "\n";
+  file_options << "csize " << CmvsPmvsProperties::cellSize() << "\n";
+  file_options << "threshold " << CmvsPmvsProperties::threshold() << "\n";
+  file_options << "wsize " << CmvsPmvsProperties::windowSize() << "\n";
+  file_options << "minImageNum " << CmvsPmvsProperties::minimunImageNumber() << "\n";
+  file_options << "CPU " << std::thread::hardware_concurrency() << "\n";
+  file_options << "setEdge 0" << "\n";
+  file_options << "useBound 0" << "\n";
+  file_options << "useVisData " << (CmvsPmvsProperties::useVisibilityInformation() ? 1 : 0) << "\n";
+  file_options << "sequence -1" << "\n";
+  file_options << "maxAngle 10" << "\n";
+  file_options << "quad 2.0" << "\n";
 
   file_options << "timages " << reconstruction.NumRegImages();
   for (size_t i = 0; i < reconstruction.NumRegImages(); ++i) {
     file_options << " " << i;
   }
-  file_options << std::endl;
+  file_options << "\n";
 
   file_options << "oimages 0" << std::endl;
 }

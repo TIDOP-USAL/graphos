@@ -30,6 +30,9 @@
 namespace graphos
 {
 
+/*!
+ * \brief CreateProjectView interface
+ */
 class CreateProjectView
   : public DialogView
 {
@@ -42,38 +45,38 @@ public:
   virtual ~CreateProjectView() override = default;
 
   /*!
-   * \brief Devuelve el nombre del proyecto
-   * \return Nombre del proyecto
+   * \brief Return the project name
+   * \return Project name
    */
   virtual QString projectName() const = 0;
 
   /*!
-   * \brief Devuelve la ruta del proyecto
-   * \return Ruta del proyecto
+   * \brief Returns the project path
+   * \return Project path
    */
   virtual QString projectPath() const = 0;
 
   /*!
-   * \brief Establece la ruta del proyecto
-   * \param path Ruta del proyecto
+   * \brief Set the project path
+   * \param path Project path
    */
   virtual void setProjectPath(const QString &path) = 0;
 
   /*!
-   * \brief Devuelve la descripción del proyecto
-   * \return Descripción del proyecto
+   * \brief Returns the description of the project
+   * \return Project description
    */
   virtual QString projectDescription() const = 0;
 
   /*!
-   * \brief Comprueba si se creará una carpeta con el nombre del proyecto
+   * \brief Check if a folder with the name of the project will be created
    */
   virtual bool createProjectFolderEnable() const = 0;
 
   /*!
-   * \brief Establece si existe o no el proyecto
-   * Si ya existe se desactiva el botón de salvar y la
-   * ruta se cambia a color rojo
+   * \brief Sets if the project exists or not
+   * If it already exists, the save button is disabled and the path 
+   * is changed to red.
    * \param[in] prjExist
    */
   virtual void setExistingProject(bool prjExist) = 0;

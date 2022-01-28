@@ -101,14 +101,6 @@ bool CreateProjectCommand::run()
       throw std::runtime_error("Project directory cannot be created: " + s_path);
     }
 
-    /* Fichero log */
-
-    //QString log_file = project_path + base_name + ".log";
-    //tl::Log &log = tl::Log::instance();
-    //log.setMessageLevel(tl::MessageLevel::msg_verbose);
-    //log.setLogFile(log_file.toStdString());
-    //tl::MessageManager::instance().addListener(&log);
-
     ProjectImp project;
 
     project.setName(base_name);

@@ -36,13 +36,11 @@ class CreateProjectCommand
 public:
 
   CreateProjectCommand();
-
   ~CreateProjectCommand() override;
 
 private:
 
-
-// Command
+// Command interface
 
   bool run() override;
 

@@ -23,7 +23,7 @@ target_link_libraries(${test_target} PRIVATE
                       Qt5::Sql
                       TidopLib::tl_core
                       TidopLib::tl_img
-                      inspector_core
+                      graphos_core
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}

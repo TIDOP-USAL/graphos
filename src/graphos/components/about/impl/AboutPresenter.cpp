@@ -56,7 +56,6 @@ void AboutPresenterImp::help()
 
 void AboutPresenterImp::open()
 {
-
   mView->exec();
 }
 
@@ -68,10 +67,15 @@ void AboutPresenterImp::setHelp(HelpDialog *help)
 void AboutPresenterImp::init()
 {
   tl::Licence licence = mModel->graphosLicence();
+
+  // Set Graphos licence
+
   licence.productName();
   licence.version();
   mView->setGraphosVersion(QString::fromStdString(licence.version()));
   mView->setGraphosLicence(mModel->readLicence(QString::fromStdString(licence.text())));
+
+  // Set licenses 
 
   for (const auto &licence : *mModel) {
     std::string name = licence.productName();

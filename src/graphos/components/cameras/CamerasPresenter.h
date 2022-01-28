@@ -43,7 +43,6 @@ public:
 public slots:
 
   virtual void activeCamera(int id) = 0;
-  virtual void fixCalibration(bool fix) = 0;
 
 protected slots:
 

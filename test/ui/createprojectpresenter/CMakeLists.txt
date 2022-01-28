@@ -7,16 +7,15 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectModel.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectView.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectPresenter.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectPresenter.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectPresenter.h
-               #${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/impl/CreateProjectModel.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/impl/CreateProjectView.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/CreateProjectPresenter.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/impl/CreateProjectPresenter.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/impl/CreateProjectPresenter.h
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/HelpDialog.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/HelpDialog.h)
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/HelpDialog.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/HelpDialog.h)
 
 target_link_libraries(${test_target} PRIVATE
                       Qt5::Core 

@@ -7,9 +7,9 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectView.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectView.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectView.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/impl/CreateProjectView.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/impl/CreateProjectView.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/CreateProjectView.h
                ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h)
 
 target_link_libraries(${test_target} PRIVATE

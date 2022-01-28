@@ -242,11 +242,7 @@ TL_EXPORT bool cudaEnabled(double minDriver, double minCapability)
   return bUseGPU;
 }
 
-void openPdf(const QString &pdf)
-{
-  Pdf pdf_file(pdf);
-  pdf_file.show();
-}
+
 
 
 LogStreamBuf::LogStreamBuf(std::streambuf *sb)
@@ -313,6 +309,74 @@ std::streambuf *LogStream::rdbuf()
   return &mLogStreamBuf;
 }
 
+
+
+
+void openPdf(const QString &pdf)
+{
+  Pdf pdf_file(pdf);
+  pdf_file.show();
+}
+
+tl::math::Degrees<double> formatLatitudeFromExif(const std::string &latitude, const std::string &ref)
+{
+  tl::math::Degrees<double> lat;
+
+  size_t pos1 = latitude.find("(");
+  size_t pos2 = latitude.find(")");
+
+  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+    int degrees = std::stoi(latitude.substr(pos1 + 1, pos2 - pos1 + 1));
+    if (ref.compare("S") == 0) degrees = -degrees;
+    lat.setDegrees(degrees);
+  }
+
+  pos1 = latitude.find("(", pos2);
+  pos2 = latitude.find(")", pos1);
+
+  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+    lat.setMinutes(std::stoi(latitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+  }
+
+  pos1 = latitude.find("(", pos2);
+  pos2 = latitude.find(")", pos1);
+
+  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+    lat.setSeconds(std::stod(latitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+  }
+
+  return lat;
+}
+
+tl::math::Degrees<double> formatLongitudeFromExif(const std::string &longitude, const std::string &ref)
+{
+  tl::math::Degrees<double> lon;
+
+  size_t pos1 = longitude.find("(");
+  size_t pos2 = longitude.find(")");
+
+  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+    int degrees = std::stoi(longitude.substr(pos1 + 1, pos2 - pos1 + 1));
+    if (ref.compare("W") == 0) degrees = -degrees;
+    lon.setDegrees(degrees);
+  }
+
+  pos1 = longitude.find("(", pos2);
+  pos2 = longitude.find(")", pos1);
+
+  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+    lon.setMinutes(std::stoi(longitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+  }
+
+  pos1 = longitude.find("(", pos2);
+  pos2 = longitude.find(")", pos1);
+
+  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+    lon.setSeconds(std::stod(longitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+  }
+
+  return lon;
+}
 
 
 } // end namespace graphos

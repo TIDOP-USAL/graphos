@@ -26,9 +26,6 @@
 
 #include "graphos/components/about/AboutView.h"
 
-//namespace Ui {
-//class AboutView;
-//}
 class QGridLayout;
 class QLabel;
 class QTabWidget;

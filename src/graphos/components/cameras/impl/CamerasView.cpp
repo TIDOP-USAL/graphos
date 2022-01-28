@@ -331,8 +331,6 @@ void CamerasViewImp::initSignalAndSlots()
   connect(mListWidgetCameras,   &QListWidget::itemSelectionChanged,  this,  &CamerasViewImp::onSelectionChanged);
   connect(mLineEditMake,        &QLineEdit::textEdited,              this,  &CamerasView::makeChanged);
   connect(mLineEditModel,       &QLineEdit::textEdited,              this,  &CamerasView::modelChanged);
-  //connect(mSpinBoxWidth,        SIGNAL(valueChanged(int)),           this,  SIGNAL(widthChange(int)));
-  //connect(mSpinBoxHeight,       SIGNAL(valueChanged(int)),           this,  SIGNAL(heightChange(int)));
   connect(mLineEditSensorSize,  &QLineEdit::textEdited,              this,  &CamerasView::sensorSizeChange);
   connect(mLineEditFocal,       &QLineEdit::textEdited,              this,  &CamerasView::focalChange);
   connect(mComboBoxType,        &QComboBox::currentTextChanged,      this,  &CamerasView::typeChange);
@@ -670,7 +668,6 @@ void CamerasViewImp::onSelectionChanged()
   if (itemsCameras.size() == 1) {
     emit cameraChange(itemsCameras.at(0)->data(Qt::UserRole).toInt());
   }
-  /*mListWidgetImages->clear();*/
 }
 
 bool CamerasViewImp::isPrincipalPointEnable() const

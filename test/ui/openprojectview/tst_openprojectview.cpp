@@ -1,7 +1,7 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "graphos/ui/openproject/impl/OpenProjectView.h"
+#include "graphos/components/openproject/impl/OpenProjectView.h"
 
 #include <QLineEdit>
 #include <QCheckBox>
@@ -25,8 +25,8 @@ private slots:
 
   void initTestCase();
   void cleanupTestCase();
-  void test_setInspectorPath_data();
-  void test_setInspectorPath();
+  void test_setGraphosProjectsPath_data();
+  void test_setGraphosProjectsPath();
 
 };
 
@@ -53,7 +53,7 @@ void TestOpenProjectView::cleanupTestCase()
 }
 
 
-void TestOpenProjectView::test_setInspectorPath_data()
+void TestOpenProjectView::test_setGraphosProjectsPath_data()
 {
   QTest::addColumn<QString>("value");
   QTest::addColumn<QString>("result");
@@ -62,13 +62,13 @@ void TestOpenProjectView::test_setInspectorPath_data()
   QTest::newRow("C:/Users/user1/Documents/photomatch/Projects") << "C:/Users/user1/Documents/photomatch/Projects" << "C:/Users/user1/Documents/photomatch/Projects";
 }
 
-void TestOpenProjectView::test_setInspectorPath()
+void TestOpenProjectView::test_setGraphosProjectsPath()
 {
   QFETCH(QString, value);
   QFETCH(QString, result);
 
-//  this->setInspectorPath(value);
-//  QCOMPARE(result, this->directory().absolutePath());
+  this->setGraphosProjectsPath(value);
+  QCOMPARE(result, this->directory().absolutePath());
 }
 
 QTEST_MAIN(TestOpenProjectView)

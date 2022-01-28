@@ -1,8 +1,8 @@
 #include <QtTest>
 
-#include "graphos/ui/createproject/impl/CreateProjectPresenter.h"
-#include "graphos/ui/createproject/CreateProjectModel.h"
-#include "graphos/ui/createproject/CreateProjectView.h"
+#include "graphos/components/createproject/impl/CreateProjectPresenter.h"
+#include "graphos/components/createproject/impl/CreateProjectModel.h"
+#include "graphos/components/createproject/impl/CreateProjectView.h"
 #include "graphos/core/project.h"
 #include "../test/fake/ProjectFake.h"
 
@@ -14,84 +14,6 @@
 
 using namespace graphos;
 
-//class TestCreateProjectModel
-//  : CreateProjectModel
-//{
-//  Q_OBJECT
-//public:
-
-//  TestCreateProjectModel() {}
-
-//// Model interface
-
-//private:
-
-//  void init() override { }
-
-//public slots:
-
-//  void clear() override { }
-
-//// CreateProjectModel interface
-
-//public:
-
-//  QString projectName() const override { return QString(); }
-//  QString projectDescription() const override { return QString(); }
-//  QString projectFolder() const override { return QString(); }
-//  QString projectPath() const override { return QString(); }
-
-//public slots:
-
-//  void setProjectName(const QString &) override {}
-//  void setProjectDescription(const QString &projectDescription) override {}
-//  void setProjectFolder(const QString &dir) override { }
-//  void setDatabase(const QString &database) override { }
-//  void saveAs(const QString &file) override { }
-//};
-
-//class TestCreateProjectView
-//  : public CreateProjectView
-//{
-//Q_OBJECT
-//public:
-
-//  TestCreateProjectView(QWidget *parent) : CreateProjectView(parent) {}
-
-//  // DialogView interface
-//private:
-//  void initUI() override
-//  {
-//  }
-//  void initSignalAndSlots() override
-//  {
-//  }
-
-//public slots:
-//  void clear() override
-//  {
-//  }
-
-//private slots:
-//  void update() override
-//  {
-//  }
-//  void retranslate() override
-//  {
-//  }
-
-//  // CreateProjectView interface
-//public:
-//  QString projectName() const override { return QString(); }
-//  QString projectPath() const override { return QString(); }
-//  void setProjectPath(const QString &path) override { }
-//  QString projectDescription() const override { return QString(); }
-//  bool createProjectFolderEnable() const override { }
-//  void setExistingProject(bool prjExist) override { }
-
-//protected slots:
-//  void onClickButtonSelectPath() override { }
-//};
 
 
 class TestCreateProjectPresenter
@@ -108,16 +30,9 @@ private slots:
 
   void initTestCase();
   void cleanupTestCase();
-/*   void test_projectName_data();
-  void test_projectName();
-  void test_projectDescription_data();
-  void test_projectDescription();
-  void test_projectFolder_data();
-  void test_projectFolder();
-  void test_projectPath_data();
-  void test_projectPath(); */
 
 private:
+
   Project *project;
   CreateProjectModel *createProjectModel;
   CreateProjectView *createProjectViewImp;

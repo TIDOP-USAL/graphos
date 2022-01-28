@@ -7,9 +7,9 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/impl/OpenProjectView.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/impl/OpenProjectView.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/OpenProjectView.h)
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/openproject/impl/OpenProjectView.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/openproject/impl/OpenProjectView.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/openproject/OpenProjectView.h)
 
 target_link_libraries(${test_target} PRIVATE
                       Qt5::Core 

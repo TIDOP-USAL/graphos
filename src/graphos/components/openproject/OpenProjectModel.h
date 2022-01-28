@@ -29,6 +29,9 @@
 namespace graphos
 {
 
+/*!
+ * \brief OpenProjectModel interface
+ */
 class OpenProjectModel
   : public Model
 {
@@ -40,11 +43,21 @@ public:
   OpenProjectModel(QObject *parent = nullptr) : Model(parent) {}
   ~OpenProjectModel() override = default;
 
-  virtual QString inspectorDirectory() const = 0;
+  /*!
+   * \brief Returns Graphos projects path
+   */
+  virtual QString graphosProjectsDirectory() const = 0;
 
 public slots:
 
+  /*!
+   * \brief Save Graphos project
+   */
   virtual void saveProject() = 0;
+  
+  /*!
+   * \brief Load Graphos projects
+   */
   virtual void loadProject(const QString &projectPath) = 0;
 
 };

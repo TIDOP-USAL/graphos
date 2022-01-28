@@ -49,6 +49,7 @@ public:
 private:
 
   void loadCameras();
+  void clear();
 
 private slots:
 
@@ -73,18 +74,8 @@ private:
 public slots:
 
   void activeCamera(int id) override;
-  void fixCalibration(bool fix);
 
 protected slots:
-
-  //void onTypeChange(const QString &type) override;
-  //void updateCurrentCameraMake(const QString &make) override;
-  //void updateCurrentCameraModel(const QString &model) override;
-  //void updateCurrentCameraWidth(int width) override;
-  //void updateCurrentCameraHeight(int height) override;
-  //void updateCurrentCameraSensorSize(const QString &sensorSize) override;
-  //void updateCurrentCameraFocal(const QString &focal) override;
-  //void updateCurrentCameraType(const QString &type) override;
 
   void save() override;
   void discart() override;
@@ -95,10 +86,6 @@ private:
   CamerasModel *mModel;
   HelpDialog *mHelp;
 
-  //std::map<int, Camera> mCameraCache;
-  //int mActiveCameraId;
-  //bool bModifiedProject;
-  void clear();
 };
 
 } // namespace graphos

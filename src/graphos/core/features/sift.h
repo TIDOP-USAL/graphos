@@ -5,7 +5,10 @@
 
 #include "graphos/core/features/features.h"
 
+#include <opencv2/features2d.hpp>
+#if defined OPENCV_ENABLE_NONFREE && defined HAVE_OPENCV_XFEATURES2D
 #include <opencv2/xfeatures2d.hpp>
+#endif // HAVE_OPENCV_XFEATURES2D
 
 #include "SiftGPU/SiftGPU.h"
 #include <colmap/feature/sift.h>
@@ -117,6 +120,67 @@ public:
 protected:
 
   VlSiftFilt *mSiftCpu;
+  colmap::SiftExtractionOptions mSiftExtractionOptions;
+  std::mutex mMutex;
+};
+
+
+/*----------------------------------------------------------------*/
+
+
+class SiftCPUDetectorDescriptor
+  : public SiftProperties,
+  public FeatureExtractor
+{
+
+public:
+
+  SiftCPUDetectorDescriptor();
+  SiftCPUDetectorDescriptor(const SiftCPUDetectorDescriptor &siftDetectorDescriptor);
+  SiftCPUDetectorDescriptor(int featuresNumber,
+                         int octaveLayers,
+                         double edgeThreshold,
+                         double contrastThreshold = 0.);
+  ~SiftCPUDetectorDescriptor() override;
+
+private:
+
+  void update();
+
+  // FeatureExtractor interface
+
+public:
+
+  void run(const colmap::Bitmap &bitmap,
+           colmap::FeatureKeypoints &keyPoints,
+           colmap::FeatureDescriptors &descriptors) override;
+
+  void run(const cv::Mat &bitmap,
+           colmap::FeatureKeypoints &keyPoints,
+           colmap::FeatureDescriptors &descriptors) override;
+
+  // Sift interface
+
+public:
+
+  void setFeaturesNumber(int featuresNumber) override;
+  void setOctaveLayers(int octaveLayers) override;
+  void setContrastThreshold(double contrastThreshold) override;
+  void setEdgeThreshold(double edgeThreshold) override;
+
+  // Feature interface
+
+public:
+
+  void reset() override;
+
+protected:
+
+#if (CV_VERSION_MAJOR > 4 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 4))
+  cv::Ptr <cv::SIFT>  mSift;
+#elif defined OPENCV_ENABLE_NONFREE && defined HAVE_OPENCV_XFEATURES2D
+  cv::Ptr<cv::xfeatures2d::SIFT> mSift;
+#endif // HAVE_OPENCV_XFEATURES2D
   colmap::SiftExtractionOptions mSiftExtractionOptions;
   std::mutex mMutex;
 };

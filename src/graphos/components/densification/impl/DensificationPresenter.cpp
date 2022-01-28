@@ -160,8 +160,6 @@ void DensificationPresenterImp::onFinished()
   if (mProgressHandler) {
     mProgressHandler->setDescription(tr("Densification finished"));
   }
-
-  //msgInfo("Densification finished.");
 }
 
 bool DensificationPresenterImp::createProcess()
@@ -172,13 +170,10 @@ bool DensificationPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      //throw std::runtime_error("Canceled by user");
       msgWarning("Process canceled by user");
       return false;
     }
   }
-  
-  //mModel->clear();
 
   QString densification_method = mView->currentDensificationMethod();
 
@@ -205,8 +200,6 @@ bool DensificationPresenterImp::createProcess()
     mView->hide();
     throw std::runtime_error("Densification Method not valid");
   }
-
-  //densifier->enableCuda(mModel->useCuda());
 
   mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
 

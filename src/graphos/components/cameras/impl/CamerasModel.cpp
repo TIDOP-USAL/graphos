@@ -129,18 +129,6 @@ void CamerasModelImp::updateCurrentCameraModel(const QString &model)
   }
 }
 
-//void CamerasModelImp::updateCurrentCameraWidth(int width)
-//{
-//  mCameraCache[ mActiveCameraId ].setWidth(width);
-//  bModifiedProject = true;
-//}
-//
-//void CamerasModelImp::updateCurrentCameraHeight(int height)
-//{
-//  mCameraCache[ mActiveCameraId ].setHeight(height);
-//  bModifiedProject = true;
-//}
-
 void CamerasModelImp::updateCurrentCameraSensorSize(const QString &sensorSize)
 {
   auto it = mCameraCache.find(mActiveCameraId);
@@ -450,11 +438,9 @@ void CamerasModelImp::calibrationExport(const QString &file,
 
   QFileInfo file_info(file);
   QDir parent_path(file_info.absolutePath());
-  //tl::Path path(file.toStdString());
-  //tl::Path parent_path = path.parentPath();
 
-  if (!parent_path.exists()/*parent_path.exists()*/) {
-    if (!parent_path.mkpath(".")/*path.createDirectories()*/) {
+  if (!parent_path.exists()) {
+    if (!parent_path.mkpath(".")) {
       std::string err = "The output directory cannot be created: ";
       err.append(file_info.absolutePath().toStdString());
       throw std::runtime_error(err);
@@ -643,7 +629,6 @@ void CamerasModelImp::save()
       colmap::Database database(mProject->database().toStdString());
       colmap::Camera camera_colmap = database.ReadCamera(camera_id);
       QString colmap_camera_type = cameraToColmapType(camera.second);
-      //int camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
       camera_colmap.SetModelIdFromName(colmap_camera_type.toStdString());
       database.UpdateCamera(camera_colmap);
     }
@@ -651,26 +636,6 @@ void CamerasModelImp::save()
     bModifiedProject = false;
   }
 }
-
-//CamerasModel::image_iterator CamerasModelImp::imageBegin()
-//{
-//  return mProject->imageBegin();
-//}
-//
-//CamerasModel::image_const_iterator CamerasModelImp::imageBegin() const
-//{
-//  return mProject->imageEnd();
-//}
-//
-//CamerasModel::image_iterator CamerasModelImp::imageEnd()
-//{
-//  return mProject->imageEnd();
-//}
-//
-//CamerasModel::image_const_iterator CamerasModelImp::imageEnd() const
-//{
-//  return mProject->imageEnd();
-//}
 
 void CamerasModelImp::init()
 {

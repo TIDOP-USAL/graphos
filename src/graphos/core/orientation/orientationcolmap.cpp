@@ -350,7 +350,9 @@ void AbsoluteOrientationColmapAlgorithm::run()
   for (size_t i = 0; i < ref_image_names.size(); ++i) {
     const colmap::Image *image = reconstruction.FindImageWithName(ref_image_names[i]);
     if (image != nullptr) {
-      errors.push_back((image->ProjectionCenter() - ref_locations[i]).norm());
+      double error = (image->ProjectionCenter() - ref_locations[i]).norm();
+      std::cout << image->Name() << "[ Error: " << error << std::endl;
+      errors.push_back(error);
     }
   }
 

@@ -1,6 +1,6 @@
 #include <QtTest>
 
-#include "graphos/ui/openproject/impl/OpenProjectModel.h"
+#include "graphos/components/openproject/impl/OpenProjectModel.h"
 #include "graphos/core/project.h"
 #include "../test/fake/ProjectFake.h"
 
@@ -45,10 +45,10 @@ TestOpenProjectModel::~TestOpenProjectModel()
 
 void TestOpenProjectModel::initTestCase()
 {
-  QString inspector_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  inspector_directory.append("/graphos/Projects");
+  QString graphos_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+  graphos_directory.append("/graphos/Projects");
 
-  QCOMPARE(inspector_directory, mProjectModel->inspectorDirectory());
+  QCOMPARE(graphos_directory, mProjectModel->graphosProjectsDirectory());
 }
 
 void TestOpenProjectModel::cleanupTestCase()

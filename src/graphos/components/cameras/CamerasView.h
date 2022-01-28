@@ -90,8 +90,6 @@ signals:
   void cameraChange(int);
   void makeChanged(QString);
   void modelChanged(QString);
-  //void widthChanged(int);
-  //void heightChange(int);
   void sensorSizeChange(QString);
   void focalChange(QString);
   void typeChange(QString);

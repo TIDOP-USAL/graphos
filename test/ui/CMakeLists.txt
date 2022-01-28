@@ -1,12 +1,12 @@
 #add_subdirectory(mainwindowview)
 
-#add_subdirectory(createprojectview)
-#add_subdirectory(createprojectmodel)
+add_subdirectory(createprojectview)
+add_subdirectory(createprojectmodel)
 #add_subdirectory(createprojectpresenter)
-#
-#add_subdirectory(openprojectview)
-#add_subdirectory(openprojectmodel)
-#
+
+add_subdirectory(openprojectview)
+add_subdirectory(openprojectmodel)
+
 #add_subdirectory(featureextractorview)
 #add_subdirectory(featureextractormodel)
 #

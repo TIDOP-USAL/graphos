@@ -514,26 +514,26 @@ void MainWindowPresenter::deleteMatches()
   mMatchesModel->clear();
 }
 
-void MainWindowPresenter::processFinished()
-{
-  Application &app = Application::instance();
-  AppStatus *app_status = app.status();
-
-  app_status->activeFlag(AppStatus::Flag::processing, false);
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-}
-
-void MainWindowPresenter::processRunning()
-{
-  //mView->setFlag(MainWindowView::Flag::processing, true);
-
-  Application &app = Application::instance();
-  app.status()->activeFlag(AppStatus::Flag::processing, true);
-}
-
-void MainWindowPresenter::processFailed()
-{
-}
+//void MainWindowPresenter::processFinished()
+//{
+//  Application &app = Application::instance();
+//  AppStatus *app_status = app.status();
+//
+//  app_status->activeFlag(AppStatus::Flag::processing, false);
+//  app_status->activeFlag(AppStatus::Flag::project_modified, true);
+//}
+//
+//void MainWindowPresenter::processRunning()
+//{
+//  //mView->setFlag(MainWindowView::Flag::processing, true);
+//
+//  Application &app = Application::instance();
+//  app.status()->activeFlag(AppStatus::Flag::processing, true);
+//}
+//
+//void MainWindowPresenter::processFailed()
+//{
+//}
 
 void MainWindowPresenter::loadingImages(bool loading)
 {

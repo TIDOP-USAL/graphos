@@ -40,7 +40,6 @@ namespace graphos
 AboutViewImp::AboutViewImp(QWidget *parent) 
   : AboutView(parent)
 {
-
   AboutViewImp::initUI();
   AboutViewImp::initSignalAndSlots();
 }
@@ -140,7 +139,8 @@ void AboutViewImp::initUI()
 
 void AboutViewImp::initSignalAndSlots()
 {
-  connect(mListWidgetThirdPartyLiceses, &QListWidget::currentRowChanged, mStackedWidgetThirdPartyLicenses, &QStackedWidget::setCurrentIndex);
+  connect(mListWidgetThirdPartyLiceses, &QListWidget::currentRowChanged,
+          mStackedWidgetThirdPartyLicenses, &QStackedWidget::setCurrentIndex);
   connect(mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::close);
 }
 

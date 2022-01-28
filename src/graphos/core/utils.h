@@ -5,6 +5,7 @@
 #include "graphos/graphos_global.h"
 
 #include <tidop/core/defs.h>
+#include <tidop/math/angles.h>
 
 #include <opencv2/photo.hpp>
 
@@ -96,6 +97,10 @@ public:
 };
 
 GRAPHOS_EXPORT void openPdf(const QString &pdf);
+
+GRAPHOS_EXPORT tl::math::Degrees<double> formatLatitudeFromExif(const std::string &latitude, const std::string &ref);
+GRAPHOS_EXPORT tl::math::Degrees<double> formatLongitudeFromExif(const std::string &longitude, const std::string &ref);
+
 
 } // end namespace graphos
 

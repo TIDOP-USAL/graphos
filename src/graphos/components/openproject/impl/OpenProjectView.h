@@ -50,7 +50,7 @@ private:
 
 public:
 
-  void setInspectorPath(const QString &directory) override;
+  void setGraphosProjectsPath(const QString &directory) override;
 
 };
 

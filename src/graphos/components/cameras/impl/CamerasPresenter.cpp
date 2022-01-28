@@ -82,8 +82,6 @@ void CamerasPresenterImp::initSignalAndSlots()
   connect(mView, &CamerasView::typeChange, mModel, &CamerasModel::updateCurrentCameraType);
   connect(mView, &CamerasView::makeChanged, mModel, &CamerasModel::updateCurrentCameraMake);
   connect(mView, &CamerasView::modelChanged, mModel, &CamerasModel::updateCurrentCameraModel);
-  //connect(mView, &CamerasView::widthChange, mModel, &CamerasModel::updateCurrentCameraWidth);
-  //connect(mView, &CamerasView::heightChange, mModel, &CamerasModel::updateCurrentCameraHeight);
   connect(mView, &CamerasView::sensorSizeChange, mModel, &CamerasModel::updateCurrentCameraSensorSize);
   connect(mView, &CamerasView::focalChange, mModel, &CamerasModel::updateCurrentCameraFocal);
 
@@ -223,11 +221,6 @@ void CamerasPresenterImp::calibrationImport(const QString &file,
   } catch (const std::exception &e) 	{
     msgError(e.what());
   }
-}
-
-void CamerasPresenterImp::fixCalibration(bool fix)
-{
-  TL_TODO("Fijar calibración")
 }
 
 } // namespace graphos

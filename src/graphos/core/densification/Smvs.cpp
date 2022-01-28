@@ -34,11 +34,13 @@ namespace internal
 class Reconstruction
 {
 public:
+
   Reconstruction(const std::string &path)
     : mReconstruction(new colmap::Reconstruction())
   {
     mReconstruction->ReadBinary(path);
   }
+
   ~Reconstruction()
   {
     if (mReconstruction) {
@@ -273,8 +275,8 @@ void SmvsDensifier::writeMVEFile()
     int camera_count = static_cast<int>(reconstruction.Images().size());
     int feature_count = static_cast<int>(reconstruction.NumPoints3D());
 
-    stream << "drews 1.0" << std::endl;
-    stream << camera_count << " " << feature_count << std::endl;
+    stream << "drews 1.0\n";
+    stream << camera_count << " " << feature_count << "\n";
 
     const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
 
@@ -282,39 +284,20 @@ void SmvsDensifier::writeMVEFile()
 
       std::shared_ptr<tl::Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
 
-      float focal_x{};
-      float focal_y{};
-      if (calibration->existParameter(tl::Calibration::Parameters::focal)) {
-        focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
-        focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
-      } else {
-        focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focalx));
-        focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focaly));
-      }
+      cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
+      cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);
 
-      float ppx = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cx));
-      float ppy = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cy));
-
+      cv::Mat optCameraMat;
       cv::Size imageSize(static_cast<int>(camera.second.Width()),
                          static_cast<int>(camera.second.Height()));
-      std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
-                                                                0.f, focal_y, ppy,
-                                                                0.f, 0.f, 1.f};
-      cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
-      cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
-      std::vector<double> params = camera.second.Params();
-      distCoeffs.at<float>(0) = calibration->existParameter(tl::Calibration::Parameters::k1) ?
-                                static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
-      distCoeffs.at<float>(1) = calibration->existParameter(tl::Calibration::Parameters::k2) ?
-                                static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k2)) : 0.f;
-      distCoeffs.at<float>(2) = calibration->existParameter(tl::Calibration::Parameters::p1) ?
-                                static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p1)) : 0.f;
-      distCoeffs.at<float>(3) = calibration->existParameter(tl::Calibration::Parameters::p2) ?
-                                static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p2)) : 0.f;
-      distCoeffs.at<float>(4) = calibration->existParameter(tl::Calibration::Parameters::k3) ?
-                                static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k3)) : 0.f;
+      bool b_fisheye = calibration->checkCameraType(tl::Calibration::CameraType::fisheye);
 
-      cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
+      if (!b_fisheye) {
+        optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
+      } else {
+        cv::fisheye::estimateNewCameraMatrixForUndistortRectify(cameraMatrix, distCoeffs, imageSize, cv::Mat(), optCameraMat, 0.0, imageSize);
+      }
+
       double new_focal = ((optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.f) / std::max(camera.second.Width(), camera.second.Height());
       double new_ppx = optCameraMat.at<float>(0, 2) / camera.second.Width();
       double new_ppy = optCameraMat.at<float>(1, 2) / camera.second.Height();
@@ -333,33 +316,28 @@ void SmvsDensifier::writeMVEFile()
           std::ofstream stream_ini(ini_file, std::ios::trunc);
 
           if (stream_ini.is_open()) {
-            stream_ini << "# MVE view meta data is stored in INI-file syntax." << std::endl;
-            stream_ini << "# This file is generated, formatting will get lost." << std::endl << std::endl;
-            stream_ini << "[camera]" << std::endl;
-            stream_ini << "focal_length = " << new_focal << std::endl;
-            stream_ini << "pixel_aspect = " << 1. << std::endl;
-            stream_ini << "principal_point = " << new_ppx << " " << new_ppy << std::endl;
-            //stream_ini << "principal_point = 0.5 0.5" << std::endl;
+            stream_ini << "# MVE view meta data is stored in INI-file syntax.\n";
+            stream_ini << "# This file is generated, formatting will get lost.\n\n";
+            stream_ini << "[camera]\n";
+            stream_ini << "focal_length = " << new_focal << "\n";
+            stream_ini << "pixel_aspect = " << 1. << "\n";
+            stream_ini << "principal_point = " << new_ppx << " " << new_ppy << "\n";
             stream_ini << "rotation = " << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << " "
                        << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << " "
-                       << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << std::endl;
-            stream_ini << "translation = " << translation[0] << " " << translation[1] << " " << translation[2] << std::endl << std::endl;
-            stream_ini << "[view]" << std::endl;
-            stream_ini << "id = " << image.second.ImageId() - 1 << std::endl;
+                       << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << "\n";
+            stream_ini << "translation = " << translation[0] << " " << translation[1] << " " << translation[2] << "\n\n";
+            stream_ini << "[view]\n";
+            stream_ini << "id = " << image.second.ImageId() - 1 << "\n";
             stream_ini << "name = " << image.second.Name().c_str() << std::endl;
 
             stream_ini.close();
           }
-
-          ///TODO: ver porque pone 0 en la distorsión...
-          /// Utiliza las imagenes corregidas... Volver a poner a 0....
           
           TL_TODO("El formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo!!! Aqui supongo que habría que hacerlo igual")
-          stream << new_focal << " " << "0" << " " << "0" << std::endl;  // Write '0' distortion values for pre-corrected images
-          //stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
-          stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
-          stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << std::endl;
-          stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << std::endl;
+          stream << new_focal << " " << "0" << " " << "0" << "\n";
+          stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << "\n";
+          stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << "\n";
+          stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << "\n";
           stream << translation[0] << " " << translation[1] << " " << translation[2] << std::endl;
 
         }
@@ -369,11 +347,11 @@ void SmvsDensifier::writeMVEFile()
     for (auto &points_3d : reconstruction.Points3D()) {
 
       Eigen::Vector3ub color = points_3d.second.Color();
-      stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
+      stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << "\n";
 
       stream << static_cast<int>(color[0]) << " " <<
                 static_cast<int>(color[1]) << " " <<
-                static_cast<int>(color[2]) << std::endl;
+                static_cast<int>(color[2]) << "\n";
 
       colmap::Track track = points_3d.second.Track();
 
@@ -406,42 +384,23 @@ void SmvsDensifier::undistortImages()
 
     std::shared_ptr<tl::Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
 
-    float focal_x{};
-    float focal_y{};
-    if (calibration->existParameter(tl::Calibration::Parameters::focal)) {
-      focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
-      focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focal));
-    } else {
-      focal_x = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focalx));
-      focal_y = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::focaly));
-    }
+    cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
+    cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);
 
-    float ppx = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cx));
-    float ppy = static_cast<float>(calibration->parameter(tl::Calibration::Parameters::cy));
-
-
+    cv::Mat map1;
+    cv::Mat map2;
+    cv::Mat optCameraMat;
     cv::Size imageSize(static_cast<int>(camera.second.Width()),
                        static_cast<int>(camera.second.Height()));
-    std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
-                                                              0.f, focal_y, ppy,
-                                                              0.f, 0.f, 1.f};
-    cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
-    cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
-    std::vector<double> params = camera.second.Params();
-    distCoeffs.at<float>(0) = calibration->existParameter(tl::Calibration::Parameters::k1) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k1)) : 0.f;
-    distCoeffs.at<float>(1) = calibration->existParameter(tl::Calibration::Parameters::k2) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k2)) : 0.f;
-    distCoeffs.at<float>(2) = calibration->existParameter(tl::Calibration::Parameters::p1) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p1)) : 0.f;
-    distCoeffs.at<float>(3) = calibration->existParameter(tl::Calibration::Parameters::p2) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::p2)) : 0.f;
-    distCoeffs.at<float>(4) = calibration->existParameter(tl::Calibration::Parameters::k3) ?
-                              static_cast<float>(calibration->parameter(tl::Calibration::Parameters::k3)) : 0.f;
+    bool b_fisheye = calibration->checkCameraType(tl::Calibration::CameraType::fisheye);
 
-    cv::Mat map1, map2;
-    cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
-    cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
+    if (!b_fisheye) {
+      optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
+      cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
+    } else {
+      cv::fisheye::estimateNewCameraMatrixForUndistortRectify(cameraMatrix, distCoeffs, imageSize, cv::Mat(), optCameraMat, 0.0, imageSize);
+      cv::fisheye::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
+    }
 
     try {
 
@@ -527,8 +486,6 @@ void SmvsDensifier::undistortImages()
 
 bool SmvsDensifier::densify(const QString &undistortPath)
 {
-
-  /// smvsrecon_SSE41.exe  --scale=2 --output-scale=3 --alpha=1.000000 --force C:\Users\esteban\Documents\Inspector\Projects\planta solar\out"
 
   tl::Path app_path = tl::App::instance().path();
 

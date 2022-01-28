@@ -1,7 +1,7 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "graphos/ui/createproject/impl/CreateProjectView.h"
+#include "graphos/components/createproject/impl/CreateProjectView.h"
 
 #include <QLineEdit>
 #include <QCheckBox>

@@ -16,7 +16,7 @@ void OpenProjectViewImp::init()
   QFileDialog::setFileMode(QFileDialog::ExistingFile);
 }
 
-void OpenProjectViewImp::setInspectorPath(const QString &directory)
+void OpenProjectViewImp::setGraphosProjectsPath(const QString &directory)
 {
   QFileDialog::setDirectory(directory);
 }

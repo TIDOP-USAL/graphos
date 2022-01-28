@@ -113,9 +113,9 @@ protected slots:
   void deleteFeatures();
   void deleteMatches();
 
-  void processFinished();
-  void processRunning();
-  void processFailed();
+  //void processFinished();
+  //void processRunning();
+  //void processFailed();
 
   void loadingImages(bool loading);
   void loadImage(const QString &image);

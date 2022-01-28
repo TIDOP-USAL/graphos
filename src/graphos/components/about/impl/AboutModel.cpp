@@ -89,14 +89,14 @@ void AboutModelImp::init()
 {
   // Lectura de la licencia y de las licencias de terceros
 
-  QString json;
+
   QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "\\licenses");
-  //QFile file("C:\\Desarrollo\\instaladores\\inspector\\licenses\\licence.json");
   QFile file(pluginsDir.absoluteFilePath("licence.json"));
-  
-  tl::Path path(pluginsDir.absolutePath().toStdString());
+  tl::Path path(pluginsDir.absolutePath().toStdWString());
 
   file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+  QString json;
 
   if (file.isOpen()) {
 

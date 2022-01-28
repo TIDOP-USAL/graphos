@@ -7,9 +7,9 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/impl/OpenProjectModel.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/impl/OpenProjectModel.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/openproject/OpenProjectModel.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/openproject/impl/OpenProjectModel.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/openproject/impl/OpenProjectModel.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/openproject/OpenProjectModel.h
                ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h)

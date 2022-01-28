@@ -1,4 +1,4 @@
-set(test_filename tst_createprojectmodel)
+set(test_filename tst_createprojectmodel.cpp)
 get_filename_component(test_name ${test_filename} NAME_WE)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
@@ -7,9 +7,9 @@ set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectModel.cpp
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/impl/CreateProjectModel.h
-               ${CMAKE_SOURCE_DIR}/src/graphos/ui/createproject/CreateProjectModel.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/impl/CreateProjectModel.cpp
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/impl/CreateProjectModel.h
+               ${CMAKE_SOURCE_DIR}/src/graphos/components/createproject/CreateProjectModel.h
                ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h)
