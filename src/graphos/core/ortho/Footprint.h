@@ -21,38 +21,65 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
-#define GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
+#ifndef GRAPHOS_CORE_ORTHO_FOOTPRINT_H
+#define GRAPHOS_CORE_ORTHO_FOOTPRINT_H
 
-#include "graphos/interfaces/mvp.h"
+//#include <string>
+//#include <memory>
+
+#include <tidop/core/path.h>
+#include <tidop/core/process.h>
+//#include "tidop/math/algebra/rotation_matrix.h"
+//#include "tidop/img/imgreader.h"
+//#include "tidop/img/imgwriter.h"
+#include <tidop/vect/vectwriter.h>
+//#include "tidop/geometry/entities/window.h"
+//#include "tidop/geometry/transform/affine.h"
+//#include "tidop/geometry/rect.h"
+//#include "tidop/geospatial/diffrect.h"
+//#include "tidop/geospatial/camera.h"
+//#include "tidop/geospatial/photo.h"
+#include <tidop/geospatial/crs.h>
+//#include "tidop/graphic/entities/polygon.h"
+
 #include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-class Feature;
-class Camera;
-
-class FeatureExtractorModel
-  : public Model
+/*!
+ * \brief Footprint
+ */
+class Footprint
+	: public tl::ProcessBase
 {
 
 public:
 
-  FeatureExtractorModel(QObject *parent = nullptr) : Model(parent) {}
-  ~FeatureExtractorModel() override = default;
+	Footprint(const std::vector<Image> &images,
+						const std::map<int, Camera> &cameras,
+		        const tl::Path &dtm,
+		        const tl::geospatial::Crs &crs,
+		        const tl::Path &footprint);
+	~Footprint();
+	
+// Heredado vía ProcessBase
 
-  virtual std::shared_ptr<Feature> featureExtractor() const = 0;
-  virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
-  virtual QString database() const = 0;
-  virtual void addFeatures(const QString &imageName, const QString &featuresFile) = 0;
-  virtual bool useCuda() const = 0;
-  virtual std::vector<Image> images() const = 0;
-  virtual std::map<int, Camera> cameras() const = 0;
-  virtual void clearProject() = 0;
+private:
 
+	void execute(tl::Progress *progressBar = nullptr) override;
+
+private:
+
+	std::vector<Image> mImages;
+	std::map<int, Camera> mCameras;
+	tl::Path mDtm;
+	tl::geospatial::Crs mCrs;
+	std::unique_ptr<tl::VectorWriter> mFootprintWriter;
 };
 
-} // namespace graphos
 
-#endif // GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
+} // End namespace graphos
+
+#endif // GRAPHOS_CORE_ORTHO_FOOTPRINT_H

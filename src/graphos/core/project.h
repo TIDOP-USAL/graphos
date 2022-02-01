@@ -11,8 +11,7 @@
 #include <QString>
 #include <QSize>
 
-#include <tidop/geospatial/camera.h>
-
+#include "graphos/core/camera/Camera.h"
 #include "graphos/core/image.h"
 #include "graphos/core/features/features.h"
 #include "graphos/core/orientation/poses.h"
@@ -36,8 +35,8 @@ public:
 
   typedef std::vector<Image>::iterator image_iterator;
   typedef std::vector<Image>::const_iterator image_const_iterator;
-  typedef std::map<int, tl::Camera>::iterator camera_iterator;
-  typedef std::map<int, tl::Camera>::const_iterator camera_const_iterator;
+  typedef std::map<int, Camera>::iterator camera_iterator;
+  typedef std::map<int, Camera>::const_iterator camera_const_iterator;
   typedef std::map<QString, QString>::iterator features_iterator;
   typedef std::map<QString, QString>::const_iterator features_const_iterator;
 
@@ -198,7 +197,7 @@ public:
    * \brief Añade una cámara al proyecto
    * \param[in] camera Cámara
    */
-  virtual int addCamera(const tl::Camera &camera) = 0;
+  virtual int addCamera(const Camera &camera) = 0;
 
   /*!
    * \brief Busca una cámara en el proyecto
@@ -206,16 +205,16 @@ public:
    * \param[in] model Modelo de la cámara
    * \return Objeto Camera correspondiente o puntero nulo si no se encuentra
    */
-  virtual tl::Camera findCamera(const QString &make, const QString &model) const = 0;
+  virtual Camera findCamera(const QString &make, const QString &model) const = 0;
 
-  virtual tl::Camera findCamera(int idCamera) const = 0;
+  virtual Camera findCamera(int idCamera) const = 0;
 
   virtual int cameraId(const QString &make, const QString &model) const = 0;
 
   virtual bool existCamera(const QString &make, const QString &model) const = 0;
-  virtual bool updateCamera(int idCamera, const tl::Camera &camera) = 0;
+  virtual bool updateCamera(int idCamera, const Camera &camera) = 0;
   virtual bool removeCamera(int idCamera) = 0;
-  virtual std::map<int, tl::Camera> cameras() const  = 0;
+  virtual std::map<int, Camera> cameras() const  = 0;
 
   /*!
    * \brief Devuelve un iterador al inicio del listado de cámaras
@@ -411,13 +410,13 @@ public:
   image_const_iterator imageEnd() const override;
   size_t imagesCount() const override;
 
-  int addCamera(const tl::Camera &camera) override;
-  std::map<int, tl::Camera> cameras() const override;
-  tl::Camera findCamera(const QString &make, const QString &model) const override;
-  tl::Camera findCamera(int idCamera) const override;
+  int addCamera(const Camera &camera) override;
+  std::map<int, Camera> cameras() const override;
+  Camera findCamera(const QString &make, const QString &model) const override;
+  Camera findCamera(int idCamera) const override;
   int cameraId(const QString &make, const QString &model) const override;
   bool existCamera(const QString &make, const QString &model) const override;
-  bool updateCamera(int idCamera, const tl::Camera &camera) override;
+  bool updateCamera(int idCamera, const Camera &camera) override;
   bool removeCamera(int idCamera) override;
   camera_iterator cameraBegin() override;
   camera_const_iterator cameraBegin() const override;
@@ -490,8 +489,8 @@ protected:
   Image readImage(QXmlStreamReader &stream);
   CameraPose readCameraPosition(QXmlStreamReader &stream);
   void readCameras(QXmlStreamReader &stream);
-  tl::Camera readCamera(QXmlStreamReader &stream);
-  void readCalibration(QXmlStreamReader &stream, tl::Camera &camera);
+  Camera readCamera(QXmlStreamReader &stream);
+  void readCalibration(QXmlStreamReader &stream, Camera &camera);
   void readFeatures(QXmlStreamReader &stream);
   void readFeatureExtractor(QXmlStreamReader &stream);
   void readSIFT(QXmlStreamReader &stream);
@@ -521,8 +520,8 @@ protected:
   void writeDatabase(QXmlStreamWriter &stream) const;
   void writeCrs(QXmlStreamWriter &stream) const;
   void writeCameras(QXmlStreamWriter &stream) const;
-  void writeCamera(QXmlStreamWriter &stream, int id, const tl::Camera &camera) const;
-  void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<tl::Calibration> calibration) const;
+  void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
+  void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
   void writeImages(QXmlStreamWriter &stream) const;
   void writeImage(QXmlStreamWriter &stream, const Image &image) const;
   void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
@@ -562,7 +561,7 @@ protected:
   QString mDatabase;
   QString mCrs;
   std::vector<Image> mImages;
-  std::map<int, tl::Camera> mCameras;
+  std::map<int, Camera> mCameras;
   std::shared_ptr<Feature> mFeatureExtractor;
   std::map<QString, QString> mFeatures;
   std::shared_ptr<FeatureMatching> mFeatureMatching;

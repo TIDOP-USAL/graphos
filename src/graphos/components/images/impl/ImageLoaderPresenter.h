@@ -26,15 +26,11 @@
 
 #include "graphos/components/images/ImageLoaderPresenter.h"
 
-namespace tl
-{
-class Camera;
-}
-
 namespace graphos
 {
 
 class Image;
+class Camera;
 class ImageLoaderView;
 class ImageLoaderModel;
 class HelpDialog;
@@ -93,7 +89,7 @@ private:
   HelpDialog *mHelp;
   QStringList mImageFiles;
   std::vector<Image> mImages;
-  std::vector<tl::Camera> mCameras;
+  std::vector<Camera> mCameras;
 };
 
 } // namespace graphos

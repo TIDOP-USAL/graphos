@@ -50,7 +50,8 @@ public:
 
   OrthophotoParameters *parameters() const override;
 
-  std::vector<tl::Photo> photos() const override;
+  std::vector<Image> images() const override;
+  std::map<int, Camera> cameras() const override;
   QString orthoPath() const override;
   QString dtmPath() const override;
   QString epsCode() const override;

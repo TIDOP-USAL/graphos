@@ -1,6 +1,8 @@
 #include "CmvsPmvs.h"
 
-#include "graphos/core/camera/colmap.h"
+#include "graphos/core/camera/Calibration.h"
+#include "graphos/core/camera/Colmap.h"
+#include "graphos/core/camera/Utils.h"
 
 // TIDOP LIB
 #include <tidop/core/messages.h>
@@ -376,7 +378,7 @@ void CmvsPmvsDensifier::undistortImages()
 
   for (auto &camera : reconstruction.Cameras()) {
 
-    std::shared_ptr<tl::Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
+    std::shared_ptr<Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
     
     cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
     cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);
@@ -386,7 +388,7 @@ void CmvsPmvsDensifier::undistortImages()
     cv::Mat optCameraMat;
     cv::Size imageSize(static_cast<int>(camera.second.Width()),
                        static_cast<int>(camera.second.Height()));
-    bool b_fisheye = calibration->checkCameraType(tl::Calibration::CameraType::fisheye);
+    bool b_fisheye = calibration->checkCameraType(Calibration::CameraType::fisheye);
 
     if (!b_fisheye) {
       optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);

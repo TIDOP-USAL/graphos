@@ -25,7 +25,7 @@
 #include "OrientationCommand.h"
 
 #include "graphos/core/project.h"
-#include "graphos/core/camera/colmap.h"
+#include "graphos/core/camera/Colmap.h"
 #include "graphos/core/orientation/orientation.h"
 #include "graphos/core/orientation/orientationcolmap.h"
 #include "graphos/core/orientation/posesio.h"
@@ -281,9 +281,9 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
   ofs << "# Number of cameras: " << mProject->camerasCount() << "\n";
 
   for (auto it_camera = mProject->cameraBegin(); it_camera != mProject->cameraEnd(); it_camera++) {
-    tl::Camera camera = it_camera->second;
+    Camera camera = it_camera->second;
     std::string camera_type = cameraToColmapType(camera).toStdString();
-    std::shared_ptr<tl::Calibration> calibration = camera.calibration();
+    std::shared_ptr<Calibration> calibration = camera.calibration();
 
     if (calibration) {
 
@@ -294,25 +294,25 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
         camera_type == "FULL_RADIAL" ||
         camera_type == "SIMPLE_RADIAL_FISHEYE" ||
         camera_type == "RADIAL_FISHEYE") {
-        double focal = calibration->existParameter(tl::Calibration::Parameters::focal) ?
-          calibration->parameter(tl::Calibration::Parameters::focal) :
+        double focal = calibration->existParameter(Calibration::Parameters::focal) ?
+          calibration->parameter(Calibration::Parameters::focal) :
           std::min(camera.width(), camera.height());
         ofs << QString::number(focal, 'g', 10).toStdString() << " ";
       } else {
-        double focal_x = calibration->existParameter(tl::Calibration::Parameters::focalx) ?
-          calibration->parameter(tl::Calibration::Parameters::focalx) :
+        double focal_x = calibration->existParameter(Calibration::Parameters::focalx) ?
+          calibration->parameter(Calibration::Parameters::focalx) :
           std::min(camera.width(), camera.height());
-        double focal_y = calibration->existParameter(tl::Calibration::Parameters::focaly) ?
-          calibration->parameter(tl::Calibration::Parameters::focaly) :
+        double focal_y = calibration->existParameter(Calibration::Parameters::focaly) ?
+          calibration->parameter(Calibration::Parameters::focaly) :
           std::min(camera.width(), camera.height());
         ofs << QString::number(focal_x, 'g', 10).toStdString() << " " << QString::number(focal_y, 'g', 10).toStdString() << " ";
       }
 
-      double cx = calibration->existParameter(tl::Calibration::Parameters::cx) ?
-        calibration->parameter(tl::Calibration::Parameters::cx) :
+      double cx = calibration->existParameter(Calibration::Parameters::cx) ?
+        calibration->parameter(Calibration::Parameters::cx) :
         camera.width() / 2.;
-      double cy = calibration->existParameter(tl::Calibration::Parameters::cy) ?
-        calibration->parameter(tl::Calibration::Parameters::cy) :
+      double cy = calibration->existParameter(Calibration::Parameters::cy) ?
+        calibration->parameter(Calibration::Parameters::cy) :
         camera.height() / 2.;
 
       ofs << QString::number(cx, 'g', 10).toStdString() << " "
@@ -327,8 +327,8 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
         camera_type == "SIMPLE_RADIAL_FISHEYE" ||
         camera_type == "RADIAL_FISHEYE" ||
         camera_type == "THIN_PRISM_FISHEYE") {
-        double k1 = calibration->existParameter(tl::Calibration::Parameters::k1) ?
-          calibration->parameter(tl::Calibration::Parameters::k1) : 0.0;
+        double k1 = calibration->existParameter(Calibration::Parameters::k1) ?
+          calibration->parameter(Calibration::Parameters::k1) : 0.0;
         ofs << " " << QString::number(k1, 'g', 10).toStdString();
       }
 
@@ -339,8 +339,8 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
         camera_type == "FULL_OPENCV" ||
         camera_type == "RADIAL_FISHEYE" ||
         camera_type == "THIN_PRISM_FISHEYE") {
-        double k2 = calibration->existParameter(tl::Calibration::Parameters::k2) ?
-          calibration->parameter(tl::Calibration::Parameters::k2) : 0.0;
+        double k2 = calibration->existParameter(Calibration::Parameters::k2) ?
+          calibration->parameter(Calibration::Parameters::k2) : 0.0;
         ofs << " " << QString::number(k2, 'g', 10).toStdString();
       }
 
@@ -348,10 +348,10 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
         camera_type == "FULL_OPENCV" ||
         camera_type == "THIN_PRISM_FISHEYE" ||
         camera_type == "FULL_RADIAL") {
-        double p1 = calibration->existParameter(tl::Calibration::Parameters::p1) ?
-          calibration->parameter(tl::Calibration::Parameters::p1) : 0.0;
-        double p2 = calibration->existParameter(tl::Calibration::Parameters::p2) ?
-          calibration->parameter(tl::Calibration::Parameters::p2) : 0.0;
+        double p1 = calibration->existParameter(Calibration::Parameters::p1) ?
+          calibration->parameter(Calibration::Parameters::p1) : 0.0;
+        double p2 = calibration->existParameter(Calibration::Parameters::p2) ?
+          calibration->parameter(Calibration::Parameters::p2) : 0.0;
         ofs << " " << QString::number(p1, 'g', 10).toStdString()
           << " " << QString::number(p2, 'g', 10).toStdString();
       }
@@ -360,24 +360,24 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
         camera_type == "FULL_OPENCV" ||
         camera_type == "THIN_PRISM_FISHEYE" ||
         camera_type == "FULL_RADIAL") {
-        double k3 = calibration->existParameter(tl::Calibration::Parameters::k3) ?
-          calibration->parameter(tl::Calibration::Parameters::k3) : 0.0;
+        double k3 = calibration->existParameter(Calibration::Parameters::k3) ?
+          calibration->parameter(Calibration::Parameters::k3) : 0.0;
         ofs << " " << QString::number(k3, 'g', 10).toStdString();
       }
 
       if (camera_type == "OPENCV_FISHEYE" ||
         camera_type == "FULL_OPENCV" ||
         camera_type == "THIN_PRISM_FISHEYE") {
-        double k4 = calibration->existParameter(tl::Calibration::Parameters::k4) ?
-          calibration->parameter(tl::Calibration::Parameters::k4) : 0.0;
+        double k4 = calibration->existParameter(Calibration::Parameters::k4) ?
+          calibration->parameter(Calibration::Parameters::k4) : 0.0;
         ofs << " " << QString::number(k4, 'g', 10).toStdString();
       }
 
       if (camera_type == "FULL_OPENCV") {
-        double k5 = calibration->existParameter(tl::Calibration::Parameters::k5) ?
-          calibration->parameter(tl::Calibration::Parameters::k5) : 0.0;
-        double k6 = calibration->existParameter(tl::Calibration::Parameters::k6) ?
-          calibration->parameter(tl::Calibration::Parameters::k6) : 0.0;
+        double k5 = calibration->existParameter(Calibration::Parameters::k5) ?
+          calibration->parameter(Calibration::Parameters::k5) : 0.0;
+        double k6 = calibration->existParameter(Calibration::Parameters::k6) ?
+          calibration->parameter(Calibration::Parameters::k6) : 0.0;
         ofs << " " << QString::number(k5, 'g', 10).toStdString()
           << " " << QString::number(k6, 'g', 10).toStdString();
       }
@@ -646,7 +646,7 @@ bool OrientationCommand::run()
     mProject->load(project_file);
     QString database_path = mProject->database();
     std::vector<Image> images = mProject->images();
-    std::map<int, tl::Camera> cameras = mProject->cameras();
+    std::map<int, Camera> cameras = mProject->cameras();
 
     if (mFixPoses) {
 
@@ -695,11 +695,11 @@ bool OrientationCommand::run()
 
         ReadCalibration readCalibration;
         readCalibration.open(ori_relative);
-        std::shared_ptr<tl::Calibration> calibration;
+        std::shared_ptr<Calibration> calibration;
         for (auto camera_it = mProject->cameraBegin(); camera_it != mProject->cameraEnd(); camera_it++) {
           calibration = readCalibration.calibration(camera_it->first);
           if (calibration) {
-            tl::Camera camera = camera_it->second;
+            Camera camera = camera_it->second;
             camera.setCalibration(calibration);
             mProject->updateCamera(camera_it->first, camera);
           }
@@ -745,11 +745,11 @@ bool OrientationCommand::run()
 
           ReadCalibration readCalibration;
           readCalibration.open(ori_absolute);
-          std::shared_ptr<tl::Calibration> calibration;
+          std::shared_ptr<Calibration> calibration;
           for (auto camera_it = mProject->cameraBegin(); camera_it != mProject->cameraEnd(); camera_it++) {
             calibration = readCalibration.calibration(camera_it->first);
             if (calibration) {
-              tl::Camera camera = camera_it->second;
+              Camera camera = camera_it->second;
               camera.setCalibration(calibration);
               mProject->updateCamera(camera_it->first, camera);
             }

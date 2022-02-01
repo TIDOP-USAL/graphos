@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/camera/database.h"
+#include "graphos/core/camera/Database.h"
 
 #include <tidop/core/exception.h>
 #include <tidop/core/messages.h>

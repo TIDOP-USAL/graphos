@@ -18,7 +18,8 @@ class Crs;
 namespace graphos
 {
 
-class DatabaseCameras;
+//class DatabaseCameras;
+class Camera;
 
 class GRAPHOS_EXPORT LoadImagesProcess
   : public ProcessConcurrent
@@ -29,7 +30,7 @@ class GRAPHOS_EXPORT LoadImagesProcess
 public:
 
   LoadImagesProcess(std::vector<Image> *images, 
-                    std::vector<tl::Camera> *cameras,
+                    std::vector<Camera> *cameras,
                     const QString &epsg = QString());
   ~LoadImagesProcess() override;
 
@@ -55,11 +56,12 @@ protected:
 protected:
 
   std::vector<Image> *mImages;
-  std::vector<tl::Camera> *mCameras;
+  std::vector<Camera> *mCameras;
   QString mEPSG;
   std::shared_ptr<tl::geospatial::Crs> mCrsIn;
   std::shared_ptr<tl::geospatial::Crs> mCrsOut;
-  DatabaseCameras *mDatabaseCameras;
+  //DatabaseCameras *mDatabaseCameras;
+  QString mDatabaseCamerasPath;
 };
 
 } // graphos

@@ -21,82 +21,46 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_ALGORITHM_H
-#define GRAPHOS_ORTHOPHOTO_ALGORITHM_H
+#ifndef GRAPHOS_COLMAP_CAMERA_H
+#define GRAPHOS_COLMAP_CAMERA_H
 
 #include "graphos/graphos_global.h"
 
-#include "graphos/core/utils.h"
+#include <memory>
 
-#include <tidop/geospatial/photo.h>
+#include <QString>
 
-#include <vector>
-#include <map>
-#include <string>
+
+namespace colmap
+{
+class Reconstruction;
+}
 
 namespace graphos
 {
 
+class Calibration;
+class Camera;
 
-class OrthophotoParameters
-{ 
-
-public:
-
-  OrthophotoParameters();
-  ~OrthophotoParameters();
-
-  virtual double resolution() const;
-  virtual void setResolution(double resolution);
-
-  void clear();
-
-private:
-
-  double mResolution;
-
-};
-
-
-
-
-
-class OrthophotoAlgorithm
-  : public OrthophotoParameters
+class GRAPHOS_EXPORT ReadCalibration
 {
 
 public:
 
-  OrthophotoAlgorithm();
-  OrthophotoAlgorithm(double resolution,
-                      const std::vector<tl::Photo> &photos,
-                      const QString &orthoPath,
-                      const QString &mdt,
-                      const QString &epsg,
-                      bool cuda = false);
-  ~OrthophotoAlgorithm();
+  ReadCalibration();
+  ~ReadCalibration();
 
-public:
+  void open(const QString &path);
+  std::shared_ptr<Calibration> calibration(int cameraId) const;
 
-  void run();
+protected:
 
-  void setPhotos(const std::vector<tl::Photo> &photos);
-  void setOrthoPath(const QString &orthoPath);
-  void setMdt(const QString &mdt);
-  void setCrs(const QString &epsg);
-  void setCuda(bool active);
+  colmap::Reconstruction *mReconstruction;
 
-private:
-
-  std::vector<tl::Photo> mPhotos;
-  QString mOrthoPath;
-  QString mMdt;
-  QString mEpsg;
-  bool bCuda;
 };
 
+QString cameraToColmapType(const Camera &camera);
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_ORTHOPHOTO_ALGORITHM_H
+#endif // GRAPHOS_COLMAP_CAMERA_H

@@ -27,9 +27,9 @@
 #include "graphos/components/cameras/CamerasView.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 #include <tidop/core/messages.h>
-#include <tidop/geospatial/camera.h>
 
 namespace graphos
 {
@@ -77,7 +77,7 @@ void CamerasPresenterImp::initSignalAndSlots()
   connect(mView, &CamerasView::cameraChange, this, &CamerasPresenterImp::activeCamera);
   connect(mView, &CamerasView::calibrationImport, this, &CamerasPresenterImp::calibrationImport);
   connect(mView, &CamerasView::calibrationExport, mModel, &CamerasModel::calibrationExport);
-  connect(mView, &CamerasView::fixCalibration, this, &CamerasPresenterImp::fixCalibration);
+  //connect(mView, &CamerasView::fixCalibration, this, &CamerasPresenterImp::fixCalibration);
 
   connect(mView, &CamerasView::typeChange, mModel, &CamerasModel::updateCurrentCameraType);
   connect(mView, &CamerasView::makeChanged, mModel, &CamerasModel::updateCurrentCameraMake);
@@ -110,7 +110,7 @@ void CamerasPresenterImp::activeCamera(int id)
 
     mView->setActiveCamera(id);
 
-    tl::Camera camera = mModel->camera(id);
+    Camera camera = mModel->camera(id);
 
     mView->setMake(camera.make().c_str());
     mView->setModel(camera.model().c_str());
@@ -120,49 +120,49 @@ void CamerasPresenterImp::activeCamera(int id)
     mView->setType(camera.type().c_str());
     mView->setSensorSize(QString::number(camera.sensorSize()));
     
-    std::shared_ptr<tl::Calibration> calibration = camera.calibration();
+    std::shared_ptr<Calibration> calibration = camera.calibration();
     if (calibration) {
       for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-        tl::Calibration::Parameters parameter = param->first;
+        Calibration::Parameters parameter = param->first;
         double value = param->second;
         switch (parameter) {
-          case tl::Calibration::Parameters::focal:
+          case Calibration::Parameters::focal:
             mView->setCalibF(value);
             break;
-          case tl::Calibration::Parameters::focalx:
+          case Calibration::Parameters::focalx:
             mView->setCalibFx(value);
             break;
-          case tl::Calibration::Parameters::focaly:
+          case Calibration::Parameters::focaly:
             mView->setCalibFy(value);
             break;
-          case tl::Calibration::Parameters::cx:
+          case Calibration::Parameters::cx:
             mView->setCalibCx(value);
             break;
-          case tl::Calibration::Parameters::cy:
+          case Calibration::Parameters::cy:
             mView->setCalibCy(value);
             break;
-          case tl::Calibration::Parameters::k1:
+          case Calibration::Parameters::k1:
             mView->setCalibK1(value);
             break;
-          case tl::Calibration::Parameters::k2:
+          case Calibration::Parameters::k2:
             mView->setCalibK2(value);
             break;
-          case tl::Calibration::Parameters::k3:
+          case Calibration::Parameters::k3:
             mView->setCalibK3(value);
             break;
-          case tl::Calibration::Parameters::k4:
+          case Calibration::Parameters::k4:
             mView->setCalibK4(value);
             break;
-          case tl::Calibration::Parameters::k5:
+          case Calibration::Parameters::k5:
             mView->setCalibK5(value);
             break;
-          case tl::Calibration::Parameters::k6:
+          case Calibration::Parameters::k6:
             mView->setCalibK6(value);
             break;
-          case tl::Calibration::Parameters::p1:
+          case Calibration::Parameters::p1:
             mView->setCalibP1(value);
             break;
-          case tl::Calibration::Parameters::p2:
+          case Calibration::Parameters::p2:
             mView->setCalibP2(value);
             break;
           default:
@@ -200,7 +200,7 @@ void CamerasPresenterImp::loadCameras()
 {
   for(auto it = mModel->begin(); it != mModel->end(); it++) {
     int camera_id = it->first;
-    tl::Camera camera = it->second;
+    Camera camera = it->second;
     QString camera_name = QString(camera.make().c_str()).append("-").append(camera.model().c_str());
     mView->addCamera(camera_id, camera_name);
   }

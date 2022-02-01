@@ -1,6 +1,8 @@
 #include "LoadImagesProcess.h"
 
-#include "graphos/core/camera/database.h"
+#include "graphos/core/utils.h"
+#include "graphos/core/camera/Camera.h"
+#include "graphos/core/camera/Database.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -20,30 +22,28 @@ namespace graphos
 {
 
 LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images, 
-                                     std::vector<tl::Camera> *cameras,
+                                     std::vector<Camera> *cameras,
                                      const QString &epsg)
   : mImages(images),
     mCameras(cameras),
-    mEPSG(epsg),
-    mDatabaseCameras(nullptr)
+    mEPSG(epsg)/*,
+    mDatabaseCameras(nullptr)*/
 {
-  QString database_cameras_path;
 #ifdef _DEBUG
-  database_cameras_path = QString(GRAPHOS_SOURCE_PATH).append("/res");
+  mDatabaseCamerasPath = QString(GRAPHOS_SOURCE_PATH).append("/res");
 #else
-  database_cameras_path = qApp->applicationDirPath();
+  mDatabaseCamerasPath = qApp->applicationDirPath();
 #endif
-  database_cameras_path.append("/cameras.db");
-
-  mDatabaseCameras = new DatabaseCameras(database_cameras_path);
+  mDatabaseCamerasPath.append("/cameras.db");
+  //mDatabaseCameras = new DatabaseCameras(database_cameras_path);
 }
 
 LoadImagesProcess::~LoadImagesProcess()
 {
-  if (mDatabaseCameras) {
-    delete mDatabaseCameras;
-    mDatabaseCameras = nullptr;
-  }
+  //if (mDatabaseCameras) {
+  //  delete mDatabaseCameras;
+  //  mDatabaseCameras = nullptr;
+  //}
 }
 
 bool LoadImagesProcess::existCamera(const QString &make, const QString &model) const
@@ -117,96 +117,31 @@ void LoadImagesProcess::loadImage(size_t imageId)
 
     tl::MessageManager::pause();
 
-    double latitudeDecimalDegrees = TL_DOUBLE_MIN;
-    double longitudeDecimalDegrees = TL_DOUBLE_MIN;
-    double altitude = TL_DOUBLE_MIN;
+    tl::math::Degrees<double> latitude_degrees{};
+    tl::math::Degrees<double> longitude_degrees{};
+    double altitude{};
 
-    bool bActive = false;
+    bool latitude_active = false;
 
-    std::string latitude = image_metadata->metadata("EXIF_GPSLatitude", bActive);
-    std::string latitude_ref = image_metadata->metadata("EXIF_GPSLatitudeRef", bActive);
-
-    if (bActive) {
-
-      double degrees = TL_DOUBLE_MIN;
-      double minutes = TL_DOUBLE_MIN;
-      double seconds = TL_DOUBLE_MIN;
-
-      size_t pos1 = latitude.find("(");
-      size_t pos2 = latitude.find(")");
-
-      if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        degrees = std::stod(latitude.substr(pos1 + 1, pos2 - pos1 + 1));
-      }
-
-      pos1 = latitude.find("(", pos2);
-      pos2 = latitude.find(")", pos1);
-
-      if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        minutes = std::stod(latitude.substr(pos1 + 1, pos2 - pos1 + 1));
-      }
-
-      pos1 = latitude.find("(", pos2);
-      pos2 = latitude.find(")", pos1);
-
-      if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        seconds = std::stod(latitude.substr(pos1 + 1, pos2 - pos1 + 1));
-      }
-
-      if (degrees != TL_DOUBLE_MIN && 
-          minutes != TL_DOUBLE_MIN && 
-          seconds != TL_DOUBLE_MIN) {
-
-        latitudeDecimalDegrees = tl::math::degreesToDecimalDegrees(degrees, minutes, seconds);
-        if (latitude_ref.compare("S") == 0) latitudeDecimalDegrees = -latitudeDecimalDegrees;
-
-      }
+    std::string latitude = image_metadata->metadata("EXIF_GPSLatitude", latitude_active);
+    if (latitude_active) {
+      std::string latitude_ref = image_metadata->metadata("EXIF_GPSLatitudeRef", latitude_active);
+      latitude_degrees = formatDegreesFromExif(latitude, latitude_ref);
     }
 
-    std::string longitude = image_metadata->metadata("EXIF_GPSLongitude", bActive);
-    std::string longitude_ref = image_metadata->metadata("EXIF_GPSLongitudeRef", bActive);
+    bool longitude_active = false;
 
-    if (bActive) {
-
-      double degrees = TL_DOUBLE_MIN;
-      double minutes = TL_DOUBLE_MIN;
-      double seconds = TL_DOUBLE_MIN;
-
-      size_t pos1 = longitude.find("(");
-      size_t pos2 = longitude.find(")");
-
-      if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        degrees = std::stod(longitude.substr(pos1 + 1, pos2 - pos1 + 1));
-      }
-
-      pos1 = longitude.find("(", pos2);
-      pos2 = longitude.find(")", pos1);
-
-      if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        minutes = std::stod(longitude.substr(pos1 + 1, pos2 - pos1 + 1));
-      }
-
-      pos1 = longitude.find("(", pos2);
-      pos2 = longitude.find(")", pos1);
-
-      if (pos1 != std::string::npos && pos2 != std::string::npos) {
-        seconds = std::stod(longitude.substr(pos1 + 1, pos2 - pos1 + 1));
-      }
-
-      if (degrees != TL_DOUBLE_MIN &&
-          minutes != TL_DOUBLE_MIN &&
-          seconds != TL_DOUBLE_MIN) {
-
-        longitudeDecimalDegrees = tl::math::degreesToDecimalDegrees(degrees, minutes, seconds);
-        if (longitude_ref.compare("W") == 0) longitudeDecimalDegrees = -longitudeDecimalDegrees;
-
-      }
-
+    std::string longitude = image_metadata->metadata("EXIF_GPSLongitude", longitude_active);
+    if (longitude_active) {
+      std::string longitude_ref = image_metadata->metadata("EXIF_GPSLongitudeRef", longitude_active);
+      longitude_degrees = formatDegreesFromExif(longitude, longitude_ref);
     }
 
-    std::string gps_altitude = image_metadata->metadata("EXIF_GPSAltitude", bActive);
+    bool altitude_active = false;
 
-    if (bActive) {
+    std::string gps_altitude = image_metadata->metadata("EXIF_GPSAltitude", altitude_active);
+
+    if (altitude_active) {
 
       size_t pos1 = gps_altitude.find("(");
       size_t pos2 = gps_altitude.find(")");
@@ -217,13 +152,11 @@ void LoadImagesProcess::loadImage(size_t imageId)
 
     }
 
-    if (latitudeDecimalDegrees != TL_DOUBLE_MIN &&
-        longitudeDecimalDegrees != TL_DOUBLE_MIN && 
-        altitude != TL_DOUBLE_MIN) {
+    if (latitude_active && longitude_active && altitude_active) {
 
       std::string epsg_out;
       if (!mCrsOut) {
-        int zone = tl::geospatial::utmZoneFromLongitude(longitudeDecimalDegrees * tl::math::consts::deg_to_grad<double>);
+        int zone = tl::geospatial::utmZoneFromLongitude(longitude_degrees.value());
         epsg_out = "EPSG:326"; 
         epsg_out.append(std::to_string(zone));
         mCrsOut = std::make_shared<tl::geospatial::Crs>(epsg_out);
@@ -233,7 +166,7 @@ void LoadImagesProcess::loadImage(size_t imageId)
 
       bool bTrfCrs = mCrsIn->isValid() && mCrsOut->isValid();
       tl::geospatial::CrsTransform crs_trf(mCrsIn, mCrsOut);
-      tl::Point3D pt_in(latitudeDecimalDegrees, longitudeDecimalDegrees, altitude);
+      tl::Point3D pt_in(latitude_degrees.value(), longitude_degrees.value(), altitude);
       tl::Point3D pt_out = crs_trf.transform(pt_in);
 
       CameraPose camera_pose;
@@ -267,7 +200,7 @@ int LoadImagesProcess::loadCamera(tl::ImageReader *imageReader)
   tl::MessageManager::resume();
 
   if (!bActiveCameraName && !bActiveCameraModel) {
-    tl::Camera camera2;
+    Camera camera2;
     int counter = 0;
     for (auto it = mCameras->begin(); it != mCameras->end(); it++) {
       camera2 = *it;
@@ -283,20 +216,26 @@ int LoadImagesProcess::loadCamera(tl::ImageReader *imageReader)
     camera_model = std::to_string(counter);
   }
 
-  tl::Camera camera(camera_make, camera_model);
+  Camera camera(camera_make, camera_model);
   camera.setWidth(width);
   camera.setHeight(height);
 
   /// Extract sensor size
   double sensor_width_mm = -1.;
+  DatabaseCameras databaseCameras(mDatabaseCamerasPath);
+  databaseCameras.open();
 
-  if (mDatabaseCameras->isOpen() &&
-      mDatabaseCameras->existCameraMakeId(camera_make.c_str())) {
-    int camera_make_id = mDatabaseCameras->cameraMakeId(camera_make.c_str());
+  if (databaseCameras.isOpen()) {
 
-    if (mDatabaseCameras->existCameraModel(camera_make_id, camera_model.c_str())) {
-      sensor_width_mm = mDatabaseCameras->cameraSensorSize(camera_make_id, camera_model.c_str());
+    if (databaseCameras.existCameraMakeId(camera_make.c_str())) {
+      int camera_make_id = databaseCameras.cameraMakeId(camera_make.c_str());
+
+      if (databaseCameras.existCameraModel(camera_make_id, camera_model.c_str())) {
+        sensor_width_mm = databaseCameras.cameraSensorSize(camera_make_id, camera_model.c_str());
+      }
     }
+
+    databaseCameras.close();
   }
 
   /// Extract focal
@@ -383,7 +322,7 @@ void graphos::LoadImagesProcess::run()
   chrono.run();
 
 
-  mDatabaseCameras->open();
+  //mDatabaseCameras->open();
 
   mCrsIn = std::make_shared<tl::geospatial::Crs>("EPSG:4326");
   std::shared_ptr<tl::geospatial::Crs> crs_out;
@@ -399,7 +338,7 @@ void graphos::LoadImagesProcess::run()
 
   }
 
-  mDatabaseCameras->close();
+  //mDatabaseCameras->close();
 
   chrono.stop();
 

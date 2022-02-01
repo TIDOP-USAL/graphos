@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APPLICATION_H
-#define GRAPHOS_APPLICATION_H
+#ifndef GRAPHOS_CORE_APPLICATION_H
+#define GRAPHOS_CORE_APPLICATION_H
 
 #include "graphos/graphos_global.h"
 
@@ -102,4 +102,4 @@ private:
 } // namespace graphos
 
 
-#endif // GRAPHOS_APPLICATION_H
+#endif // GRAPHOS_CORE_APPLICATION_H

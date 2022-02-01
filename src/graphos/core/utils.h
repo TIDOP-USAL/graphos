@@ -98,8 +98,9 @@ public:
 
 GRAPHOS_EXPORT void openPdf(const QString &pdf);
 
-GRAPHOS_EXPORT tl::math::Degrees<double> formatLatitudeFromExif(const std::string &latitude, const std::string &ref);
-GRAPHOS_EXPORT tl::math::Degrees<double> formatLongitudeFromExif(const std::string &longitude, const std::string &ref);
+tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const std::string &ref);
+//GRAPHOS_EXPORT tl::math::Degrees<double> formatLatitudeFromExif(const std::string &latitude, const std::string &ref);
+//GRAPHOS_EXPORT tl::math::Degrees<double> formatLongitudeFromExif(const std::string &longitude, const std::string &ref);
 
 
 } // end namespace graphos

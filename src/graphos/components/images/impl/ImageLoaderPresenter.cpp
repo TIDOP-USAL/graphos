@@ -30,9 +30,10 @@
 #include "graphos/process/MultiProcess.h"
 #include "graphos/process/images/LoadImagesProcess.h"
 #include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 #include <tidop/core/messages.h>
-#include <tidop/geospatial/camera.h>
+
 
 namespace graphos
 {
@@ -86,7 +87,7 @@ void ImageLoaderPresenterImp::setHelp(HelpDialog *help)
 void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
 {
   Image image = mImages[imageId];
-  tl::Camera camera = mCameras[cameraId];
+  Camera camera = mCameras[cameraId];
   int camera_id = mModel->cameraID(camera);
   if (camera_id == 0)
     camera_id = mModel->addCamera(camera);
@@ -121,7 +122,8 @@ bool ImageLoaderPresenterImp::createProcess()
   mImages.clear();
   for (auto &image : mImageFiles) {
     Image img(image);
-    mImages.push_back(img);
+    if (!mModel->existImage(img.name()))
+      mImages.push_back(img);
   }
 
   mCameras.clear();

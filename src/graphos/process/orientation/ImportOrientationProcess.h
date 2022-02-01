@@ -24,10 +24,9 @@
 #ifndef GRAPHOS_IMPORT_ORIENTATION_PROCESS_H
 #define GRAPHOS_IMPORT_ORIENTATION_PROCESS_H
 
-//#include <tidop/geospatial/camera.h>
-
 #include "graphos/process/ProcessConcurrent.h"
 #include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
@@ -40,7 +39,7 @@ class GRAPHOS_EXPORT ImportOrientationProcess
 public:
 
   ImportOrientationProcess(const std::vector<Image> &images, 
-                           const std::map<int, tl::Camera> &cameras,
+                           const std::map<int, Camera> &cameras,
                            const QString &projectPath, 
                            const QString &database,
                            bool fixCalibration,
@@ -60,7 +59,7 @@ protected:
 private:
 
   std::vector<Image> mImages;
-  std::map<int, tl::Camera> mCameras;
+  std::map<int, Camera> mCameras;
   QString mProjectPath;
   QString mDatabase;
   bool mFixCalibration;

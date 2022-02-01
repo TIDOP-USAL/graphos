@@ -91,7 +91,7 @@ std::vector<Image> FeatureExtractorModelImp::images() const
   return mProject->images();
 }
 
-std::map<int, tl::Camera> FeatureExtractorModelImp::cameras() const
+std::map<int, Camera> FeatureExtractorModelImp::cameras() const
 {
   return mProject->cameras();
 }

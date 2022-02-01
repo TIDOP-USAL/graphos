@@ -190,15 +190,15 @@ void CamerasViewImp::initUI()
   mActionExportCalibration->setIcon(QIcon(":/ico/24/img/material/24/icons8-save.png"));
   toolBar->addAction(mActionExportCalibration);
 
-  toolBar->addSeparator();
+  //toolBar->addSeparator();
 
-  QIcon ico;
-  ico.addPixmap(QPixmap(":/ico/24/img/material/24/icons8_lock_24px.png"), QIcon::Normal, QIcon::On);
-  ico.addPixmap(QPixmap(":/ico/24/img/material/24/icons8_padlock_24px.png"), QIcon::Normal, QIcon::Off);
-  mActionFixCalibration = new QAction(this);
-  mActionFixCalibration->setIcon(ico);
-  mActionFixCalibration->setCheckable(true);
-  toolBar->addAction(mActionFixCalibration);
+  //QIcon ico;
+  //ico.addPixmap(QPixmap(":/ico/24/img/material/24/icons8_lock_24px.png"), QIcon::Normal, QIcon::On);
+  //ico.addPixmap(QPixmap(":/ico/24/img/material/24/icons8_padlock_24px.png"), QIcon::Normal, QIcon::Off);
+  //mActionFixCalibration = new QAction(this);
+  //mActionFixCalibration->setIcon(ico);
+  //mActionFixCalibration->setCheckable(true);
+  //toolBar->addAction(mActionFixCalibration);
 
   gridLayout2->addWidget(toolBar, 0, 0, 1, 4);
 
@@ -339,8 +339,8 @@ void CamerasViewImp::initSignalAndSlots()
 
   connect(mActionImportCalibration, &QAction::triggered, this, &CamerasViewImp::onCalibrationImport);
   connect(mActionExportCalibration, &QAction::triggered, this, &CamerasViewImp::onCalibrationExport);
-  connect(mActionFixCalibration, SIGNAL(toggled(bool)), this, SIGNAL(fixCalibration(bool)));
-  connect(mActionFixCalibration, SIGNAL(toggled(bool)), this, SLOT(update()));
+  //connect(mActionFixCalibration, SIGNAL(toggled(bool)), this, SIGNAL(fixCalibration(bool)));
+  //connect(mActionFixCalibration, SIGNAL(toggled(bool)), this, SLOT(update()));
 
   connect(mDoubleSpinBoxCx,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),  this,  &CamerasView::calibCxChange);
   connect(mDoubleSpinBoxCy,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),  this,  &CamerasView::calibCyChange);
@@ -385,7 +385,7 @@ void CamerasViewImp::clear()
   const QSignalBlocker blocker19(mDoubleSpinBoxK6);
   const QSignalBlocker blocker20(mDoubleSpinBoxP1);
   const QSignalBlocker blocker21(mDoubleSpinBoxP2);
-  const QSignalBlocker blocker22(mActionFixCalibration);
+  //const QSignalBlocker blocker22(mActionFixCalibration);
 
   mListWidgetCameras->clear();
   mListWidgetImages->clear();
@@ -413,13 +413,13 @@ void CamerasViewImp::clear()
   mDoubleSpinBoxP1->setValue(0.);
   mDoubleSpinBoxP2->setValue(0.);
 
-  mActionFixCalibration->setChecked(false);
+  //mActionFixCalibration->setChecked(false);
 }
 
 void CamerasViewImp::update()
 {
   bool selected_camera = !mListWidgetCameras->selectedItems().empty();
-  bool fix_calibration = mActionFixCalibration->isChecked();
+  //bool fix_calibration = mActionFixCalibration->isChecked();
   int camera_index = mComboBoxType->currentIndex();
   bool cx_enable = isPrincipalPointEnable();
   bool cy_enable = isPrincipalPointEnable();
@@ -438,19 +438,19 @@ void CamerasViewImp::update()
   mComboBoxType->setEnabled(selected_camera);
   mPushButtonEditCamera->setEnabled(selected_camera);
 
-  mDoubleSpinBoxF->setEnabled(selected_camera && !fix_calibration && f_enable);
-  mDoubleSpinBoxFx->setEnabled(selected_camera && !fix_calibration && fx_enable);
-  mDoubleSpinBoxFy->setEnabled(selected_camera && !fix_calibration && fy_enable); 
-  mDoubleSpinBoxCx->setEnabled(selected_camera && !fix_calibration && cx_enable);
-  mDoubleSpinBoxCy->setEnabled(selected_camera && !fix_calibration && cy_enable);
-  mDoubleSpinBoxK1->setEnabled(selected_camera && !fix_calibration && k1_enable);
-  mDoubleSpinBoxK2->setEnabled(selected_camera && !fix_calibration && k2_enable);
-  mDoubleSpinBoxK3->setEnabled(selected_camera && !fix_calibration && k3_enable);
-  mDoubleSpinBoxK4->setEnabled(selected_camera && !fix_calibration && k4_enable);
-  mDoubleSpinBoxK5->setEnabled(selected_camera && !fix_calibration && k5_enable);
-  mDoubleSpinBoxK6->setEnabled(selected_camera && !fix_calibration && k6_enable);
-  mDoubleSpinBoxP1->setEnabled(selected_camera && !fix_calibration && p1_enable);
-  mDoubleSpinBoxP2->setEnabled(selected_camera && !fix_calibration && p2_enable);
+  mDoubleSpinBoxF->setEnabled(selected_camera && /*!fix_calibration &&*/ f_enable);
+  mDoubleSpinBoxFx->setEnabled(selected_camera && /*!fix_calibration &&*/ fx_enable);
+  mDoubleSpinBoxFy->setEnabled(selected_camera && /*!fix_calibration &&*/ fy_enable); 
+  mDoubleSpinBoxCx->setEnabled(selected_camera && /*!fix_calibration &&*/ cx_enable);
+  mDoubleSpinBoxCy->setEnabled(selected_camera && /*!fix_calibration &&*/ cy_enable);
+  mDoubleSpinBoxK1->setEnabled(selected_camera && /*!fix_calibration &&*/ k1_enable);
+  mDoubleSpinBoxK2->setEnabled(selected_camera && /*!fix_calibration &&*/ k2_enable);
+  mDoubleSpinBoxK3->setEnabled(selected_camera && /*!fix_calibration &&*/ k3_enable);
+  mDoubleSpinBoxK4->setEnabled(selected_camera && /*!fix_calibration &&*/ k4_enable);
+  mDoubleSpinBoxK5->setEnabled(selected_camera && /*!fix_calibration &&*/ k5_enable);
+  mDoubleSpinBoxK6->setEnabled(selected_camera && /*!fix_calibration &&*/ k6_enable);
+  mDoubleSpinBoxP1->setEnabled(selected_camera && /*!fix_calibration &&*/ p1_enable);
+  mDoubleSpinBoxP2->setEnabled(selected_camera && /*!fix_calibration &&*/ p2_enable);
 
   mLabelF->setVisible(isFocalVisible());
   mDoubleSpinBoxF->setVisible(isFocalVisible());
@@ -459,10 +459,10 @@ void CamerasViewImp::update()
   mLabelFy->setVisible(isFocalXYVisible());
   mDoubleSpinBoxFy->setVisible(isFocalXYVisible());
 
-  mActionImportCalibration->setEnabled(selected_camera && !fix_calibration);
-  mActionExportCalibration->setEnabled(selected_camera && !fix_calibration);
+  mActionImportCalibration->setEnabled(selected_camera /*&& !fix_calibration*/);
+  mActionExportCalibration->setEnabled(selected_camera /*&& !fix_calibration*/);
 
-  mActionFixCalibration->setEnabled(selected_camera);
+  //mActionFixCalibration->setEnabled(selected_camera);
 }
 
 void CamerasViewImp::retranslate()
@@ -473,8 +473,8 @@ void CamerasViewImp::retranslate()
   mActionImportCalibration->setStatusTip(QApplication::translate("CamerasView", "Import Calibration", nullptr));
   mActionExportCalibration->setText(QApplication::translate("CamerasView", "Export Calibration", nullptr));
   mActionExportCalibration->setStatusTip(QApplication::translate("CamerasView", "Export Calibration", nullptr));
-  mActionFixCalibration->setText(QApplication::translate("CamerasView", "Fix Calibration", nullptr));
-  mActionFixCalibration->setStatusTip(QApplication::translate("CamerasView", "Fix Calibration", nullptr));
+  //mActionFixCalibration->setText(QApplication::translate("CamerasView", "Fix Calibration", nullptr));
+  //mActionFixCalibration->setStatusTip(QApplication::translate("CamerasView", "Fix Calibration", nullptr));
   mLabelF->setText(QApplication::translate("CamerasView", "f", nullptr));
   mLabelFx->setText(QApplication::translate("CamerasView", "fx", nullptr));
   mLabelFy->setText(QApplication::translate("CamerasView", "fy", nullptr));

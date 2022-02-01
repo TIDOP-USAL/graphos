@@ -64,7 +64,7 @@ public:
   void addFeatures(const QString &imageName, const QString &featuresFile) override;
   bool useCuda() const override;
   std::vector<Image> images() const override;
-  std::map<int, tl::Camera> cameras() const override;
+  std::map<int, Camera> cameras() const override;
   void clearProject() override;
 
 protected:

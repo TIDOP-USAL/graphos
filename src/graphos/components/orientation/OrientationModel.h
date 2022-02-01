@@ -24,8 +24,6 @@
 #ifndef GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
 #define GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
 
-#include <tidop/geospatial/camera.h>
-
 #include "graphos/interfaces/mvp.h"
 #include "graphos/core/image.h"
 #include "graphos/core/orientation/poses.h"
@@ -33,14 +31,16 @@
 namespace graphos
 {
 
+class Camera;
+
 class OrientationModel
   : public Model
 {
 
 public:
 
-  typedef std::map<int, tl::Camera>::iterator camera_iterator;
-  typedef std::map<int, tl::Camera>::const_iterator camera_const_iterator;
+  typedef std::map<int, Camera>::iterator camera_iterator;
+  typedef std::map<int, Camera>::const_iterator camera_const_iterator;
   typedef std::vector<Image>::iterator image_iterator;
   typedef std::vector<Image>::const_iterator image_const_iterator;
 
@@ -67,8 +67,8 @@ public:
   virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
   virtual void clearProject() = 0;
 
-  virtual std::map<int, tl::Camera> cameras() const = 0;
-  virtual bool updateCamera(int id, const tl::Camera &camera) = 0;
+  virtual std::map<int, Camera> cameras() const = 0;
+  virtual bool updateCamera(int id, const Camera &camera) = 0;
   virtual camera_iterator cameraBegin() = 0;
   virtual camera_const_iterator cameraBegin() const = 0;
   virtual camera_iterator cameraEnd() = 0;

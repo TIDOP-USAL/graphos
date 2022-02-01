@@ -179,7 +179,7 @@ bool ImageLoaderCommand::run()
         int id_camera = 0;
         int width = imageReader->cols();
         int height = imageReader->rows();
-        tl::Camera camera;
+        Camera camera;
         int camera_id = -1;
 
         tl::MessageManager::pause();
@@ -200,7 +200,7 @@ bool ImageLoaderCommand::run()
 
             msgInfo("New Camera detected: %s %s", camera_make.c_str(), camera_model.c_str());
 
-            camera = tl::Camera(camera_make.c_str(), camera_model.c_str());
+            camera = Camera(camera_make.c_str(), camera_model.c_str());
 
             camera.setWidth(width);
             camera.setHeight(height);
@@ -268,7 +268,7 @@ bool ImageLoaderCommand::run()
 
           /// Camara desconocida
           msgWarning("Unknow camera for image: %s", image.toStdString().c_str());
-          tl::Camera camera2;
+          Camera camera2;
           bool bFound = false;
           int counter = 0;
           for (auto it = project.cameraBegin(); it != project.cameraEnd(); it++) {
@@ -284,7 +284,7 @@ bool ImageLoaderCommand::run()
           }
 
           if (bFound == false) {
-            camera = tl::Camera("Unknown camera", std::to_string(counter));
+            camera = Camera("Unknown camera", std::to_string(counter));
             camera.setWidth(width);
             camera.setHeight(height);
             camera.setFocal(1.2 * std::max(width, height));
@@ -374,7 +374,7 @@ bool ImageLoaderCommand::run()
         if (latitudeDecimalDegrees != 0.0 && longitudeDecimalDegrees != 0.0 && altitude != 0.0) {
 
           if (!crs_out) {
-            int zone = tl::geospatial::utmZoneFromLongitude(longitudeDecimalDegrees * tl::math::consts::deg_to_grad<double>);
+            int zone = tl::geospatial::utmZoneFromLongitude(longitudeDecimalDegrees);
             epsg_out.append(std::to_string(zone));
             crs_out = std::make_shared<tl::geospatial::Crs>(epsg_out);
           }

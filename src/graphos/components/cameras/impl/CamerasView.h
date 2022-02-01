@@ -145,7 +145,7 @@ protected:
     QGroupBox *mGroupBoxCalibrationParameters;
     QAction *mActionImportCalibration;
     QAction *mActionExportCalibration;
-    QAction *mActionFixCalibration;
+    //QAction *mActionFixCalibration;
     QLabel *mLabelF;
     QDoubleSpinBox *mDoubleSpinBoxF;
     QLabel *mLabelFx;

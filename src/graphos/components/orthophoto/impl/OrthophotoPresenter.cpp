@@ -132,7 +132,8 @@ bool OrthophotoPresenterImp::createProcess()
   parameters->setResolution(mView->resolution());
 
   std::shared_ptr<OrthophotoAlgorithm> algorithm = std::make_shared<OrthophotoAlgorithm>(mView->resolution(),
-                                                                                         mModel->photos(),
+                                                                                         mModel->images(),
+                                                                                         mModel->cameras(),
                                                                                          mModel->orthoPath(),
                                                                                          mModel->dtmPath(),
                                                                                          mModel->epsCode(),

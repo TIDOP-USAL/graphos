@@ -23,7 +23,7 @@
 
 #include "CamerasModel.h"
 
-#include "graphos/core/camera/colmap.h"
+#include "graphos/core/camera/Colmap.h"
 
 #include <tidop/core/messages.h>
 
@@ -51,12 +51,12 @@ CamerasModelImp::CamerasModelImp(Project *project,
   init();
 }
 
-int CamerasModelImp::addCamera(const tl::Camera &camera)
+int CamerasModelImp::addCamera(const Camera &camera)
 {
   return mProject->addCamera(camera);
 }
 
-int CamerasModelImp::cameraID(const tl::Camera &camera) const
+int CamerasModelImp::cameraID(const Camera &camera) const
 {
   return cameraID(camera.make().c_str(), camera.model().c_str());
 }
@@ -77,9 +77,9 @@ int CamerasModelImp::cameraID(const QString &make,
   return id_camera;
 }
 
-tl::Camera CamerasModelImp::camera(int id) const
+Camera CamerasModelImp::camera(int id) const
 {
-  tl::Camera camera;
+  Camera camera;
 
   auto it = mCameraCache.find(id);
   if (it != mCameraCache.end()) {
@@ -94,7 +94,7 @@ tl::Camera CamerasModelImp::camera(int id) const
   return camera;
 }
 
-tl::Camera CamerasModelImp::camera(const QString &make,
+Camera CamerasModelImp::camera(const QString &make,
                                    const QString &model) const
 {
   int camera_id = cameraID(make, model);
@@ -106,7 +106,7 @@ int CamerasModelImp::currentCameraID() const
   return mActiveCameraId;
 }
 
-bool CamerasModelImp::updateCamera(int id, const tl::Camera &camera)
+bool CamerasModelImp::updateCamera(int id, const Camera &camera)
 {
   return mProject->updateCamera(id, camera);
 }
@@ -155,23 +155,23 @@ void CamerasModelImp::updateCurrentCameraType(const QString &type)
     if (it != mCameraCache.end()) {
       mCameraCache[mActiveCameraId].setType(type.toStdString());
       bModifiedProject = true;
-      if (std::shared_ptr<tl::Calibration> calibration_old = mCameraCache[mActiveCameraId].calibration()) {
+      if (std::shared_ptr<Calibration> calibration_old = mCameraCache[mActiveCameraId].calibration()) {
 
-        std::shared_ptr<tl::Calibration> calibration = tl::CalibrationFactory::create(type.toStdString());
+        std::shared_ptr<Calibration> calibration = CalibrationFactory::create(type.toStdString());
 
         for (auto param = calibration->parametersBegin();
              param != calibration->parametersEnd();
              param++) {
 
-          tl::Calibration::Parameters param_name = param->first;
+          Calibration::Parameters param_name = param->first;
           double param_value = param->second;
 
-          if (param_name == tl::Calibration::Parameters::focal && !calibration_old->existParameter(param_name)) {
-            double focal = calibration_old->parameter(tl::Calibration::Parameters::focalx) + calibration_old->parameter(tl::Calibration::Parameters::focaly) / 2.;
+          if (param_name == Calibration::Parameters::focal && !calibration_old->existParameter(param_name)) {
+            double focal = calibration_old->parameter(Calibration::Parameters::focalx) + calibration_old->parameter(Calibration::Parameters::focaly) / 2.;
             calibration->setParameter(param_name, focal);
-          } else if ((param_name == tl::Calibration::Parameters::focalx || param_name == tl::Calibration::Parameters::focaly) &&
-                     calibration_old->existParameter(tl::Calibration::Parameters::focal)) {
-            calibration->setParameter(param_name, calibration_old->parameter(tl::Calibration::Parameters::focal));
+          } else if ((param_name == Calibration::Parameters::focalx || param_name == Calibration::Parameters::focaly) &&
+                     calibration_old->existParameter(Calibration::Parameters::focal)) {
+            calibration->setParameter(param_name, calibration_old->parameter(Calibration::Parameters::focal));
           } else if (calibration_old->existParameter(param_name)) {
             calibration->setParameter(param_name, calibration_old->parameter(param_name));
           }
@@ -190,67 +190,67 @@ void CamerasModelImp::updateCurrentCameraType(const QString &type)
 
 void CamerasModelImp::updateCurrentCameraCalibCx(double cx)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::cx, cx);
+  updateCalibrationParameter(Calibration::Parameters::cx, cx);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibCy(double cy)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::cy, cy);
+  updateCalibrationParameter(Calibration::Parameters::cy, cy);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibF(double f)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::focal, f);
+  updateCalibrationParameter(Calibration::Parameters::focal, f);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibFx(double fx)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::focalx, fx);
+  updateCalibrationParameter(Calibration::Parameters::focalx, fx);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibFy(double fy)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::focaly, fy);
+  updateCalibrationParameter(Calibration::Parameters::focaly, fy);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibK1(double k1)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::k1, k1);
+  updateCalibrationParameter(Calibration::Parameters::k1, k1);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibK2(double k2)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::k2, k2);
+  updateCalibrationParameter(Calibration::Parameters::k2, k2);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibK3(double k3)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::k3, k3);
+  updateCalibrationParameter(Calibration::Parameters::k3, k3);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibK4(double k4)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::k4, k4);
+  updateCalibrationParameter(Calibration::Parameters::k4, k4);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibK5(double k5)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::k5, k5);
+  updateCalibrationParameter(Calibration::Parameters::k5, k5);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibK6(double k6)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::k6, k6);
+  updateCalibrationParameter(Calibration::Parameters::k6, k6);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibP1(double p1)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::p1, p1);
+  updateCalibrationParameter(Calibration::Parameters::p1, p1);
 }
 
 void CamerasModelImp::updateCurrentCameraCalibP2(double p2)
 {
-  updateCalibrationParameter(tl::Calibration::Parameters::p2, p2);
+  updateCalibrationParameter(Calibration::Parameters::p2, p2);
 }
 
 void CamerasModelImp::calibrationImport(const QString &file,
@@ -288,9 +288,9 @@ void CamerasModelImp::calibrationImport(const QString &file,
 
           if (stream.name() == "calibration") {
 
-            std::shared_ptr<tl::Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
+            std::shared_ptr<Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
             if (!calibration) {
-              calibration = tl::CalibrationFactory::create(mCameraCache[mActiveCameraId].type());
+              calibration = CalibrationFactory::create(mCameraCache[mActiveCameraId].type());
               mCameraCache[mActiveCameraId].setCalibration(calibration);
             }
 
@@ -304,23 +304,23 @@ void CamerasModelImp::calibrationImport(const QString &file,
               } else if (stream.name() == "height") {
                 mCameraCache[mActiveCameraId].setHeight(stream.readElementText().toInt());
               } else if (stream.name() == "f") {
-                calibration->setParameter(tl::Calibration::Parameters::focal, stream.readElementText().toDouble());
-                calibration->setParameter(tl::Calibration::Parameters::focalx, stream.readElementText().toDouble());
-                calibration->setParameter(tl::Calibration::Parameters::focaly, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::focal, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::focalx, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::focaly, stream.readElementText().toDouble());
               } else if (stream.name() == "cx") {
-                calibration->setParameter(tl::Calibration::Parameters::cx, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::cx, stream.readElementText().toDouble());
               } else if (stream.name() == "cy") {
-                calibration->setParameter(tl::Calibration::Parameters::cy, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::cy, stream.readElementText().toDouble());
               } else if (stream.name() == "k1") {
-                calibration->setParameter(tl::Calibration::Parameters::k1, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::k1, stream.readElementText().toDouble());
               } else if (stream.name() == "k2") {
-                calibration->setParameter(tl::Calibration::Parameters::k2, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::k2, stream.readElementText().toDouble());
               } else if (stream.name() == "k3") {
-                calibration->setParameter(tl::Calibration::Parameters::k3, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::k3, stream.readElementText().toDouble());
               } else if (stream.name() == "p1") {
-                calibration->setParameter(tl::Calibration::Parameters::p1, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::p1, stream.readElementText().toDouble());
               } else if (stream.name() == "p2") {
-                calibration->setParameter(tl::Calibration::Parameters::p2, stream.readElementText().toDouble());
+                calibration->setParameter(Calibration::Parameters::p2, stream.readElementText().toDouble());
               } else if (stream.name() == "date") {
               } else
                 stream.skipCurrentElement();
@@ -368,16 +368,16 @@ void CamerasModelImp::calibrationImport(const QString &file,
                     QString text = stream.readElementText();
                     QStringList list = text.trimmed().split(" ", QString::SkipEmptyParts);
 
-                    std::shared_ptr<tl::Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
+                    std::shared_ptr<Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
                     if (!calibration) {
-                      calibration = tl::CalibrationFactory::create(mCameraCache[mActiveCameraId].type());
+                      calibration = CalibrationFactory::create(mCameraCache[mActiveCameraId].type());
                       mCameraCache[mActiveCameraId].setCalibration(calibration);
                     }
-                    calibration->setParameter(tl::Calibration::Parameters::focal, list[0].toDouble());
-                    calibration->setParameter(tl::Calibration::Parameters::focalx, list[0].toDouble());
-                    calibration->setParameter(tl::Calibration::Parameters::focaly, list[4].toDouble());
-                    calibration->setParameter(tl::Calibration::Parameters::cx, list[2].toDouble() - 0.5);
-                    calibration->setParameter(tl::Calibration::Parameters::cy, list[5].toDouble() - 0.5);
+                    calibration->setParameter(Calibration::Parameters::focal, list[0].toDouble());
+                    calibration->setParameter(Calibration::Parameters::focalx, list[0].toDouble());
+                    calibration->setParameter(Calibration::Parameters::focaly, list[4].toDouble());
+                    calibration->setParameter(Calibration::Parameters::cx, list[2].toDouble() - 0.5);
+                    calibration->setParameter(Calibration::Parameters::cy, list[5].toDouble() - 0.5);
 
                   } else
                     stream.skipCurrentElement();
@@ -396,12 +396,12 @@ void CamerasModelImp::calibrationImport(const QString &file,
                     QString text = stream.readElementText();
                     QStringList list = text.trimmed().split(" ", QString::SkipEmptyParts);
 
-                    std::shared_ptr<tl::Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
-                    calibration->setParameter(tl::Calibration::Parameters::k1, list[0].toDouble());
-                    calibration->setParameter(tl::Calibration::Parameters::k2, list[1].toDouble());
-                    calibration->setParameter(tl::Calibration::Parameters::p1, list[2].toDouble());
-                    calibration->setParameter(tl::Calibration::Parameters::p2, list[3].toDouble());
-                    calibration->setParameter(tl::Calibration::Parameters::k3, list[4].toDouble());
+                    std::shared_ptr<Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
+                    calibration->setParameter(Calibration::Parameters::k1, list[0].toDouble());
+                    calibration->setParameter(Calibration::Parameters::k2, list[1].toDouble());
+                    calibration->setParameter(Calibration::Parameters::p1, list[2].toDouble());
+                    calibration->setParameter(Calibration::Parameters::p2, list[3].toDouble());
+                    calibration->setParameter(Calibration::Parameters::k3, list[4].toDouble());
 
                   } else
                     stream.skipCurrentElement();
@@ -452,7 +452,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
 
     if (format.compare("Pix4D") == 0) {
 
-      tl::Camera camera = mCameraCache[mActiveCameraId];
+      Camera camera = mCameraCache[mActiveCameraId];
 
       QString model_id = camera.type().c_str();
       if (model_id.compare("Pinhole 1") == 0 ||
@@ -466,30 +466,30 @@ void CamerasModelImp::calibrationExport(const QString &file,
         double w = camera.width() * scale;
         double h = camera.height() * scale;
 
-        std::shared_ptr<tl::Calibration> calibration = camera.calibration();
-        double focal = calibration->parameter(tl::Calibration::Parameters::focal) * scale;
+        std::shared_ptr<Calibration> calibration = camera.calibration();
+        double focal = calibration->parameter(Calibration::Parameters::focal) * scale;
 
         ///TODO: ¿El 0 se refiere a un identificador de cámara??
         stream << "Pix4D camera calibration file 0\n";
         stream << "#Focal Length mm assuming a sensor width of " << w << "x" << h << "mm\n";
         stream << "F " << focal << "\n";
         stream << "#Principal Point mm" << "\n";
-        stream << "Px " << calibration->parameter(tl::Calibration::Parameters::cx) * scale << "\n";
-        stream << "Py " << calibration->parameter(tl::Calibration::Parameters::cy) * scale << "\n";
+        stream << "Px " << calibration->parameter(Calibration::Parameters::cx) * scale << "\n";
+        stream << "Py " << calibration->parameter(Calibration::Parameters::cy) * scale << "\n";
         stream << "#Symmetrical Lens Distortion Coeffs" << std::endl;
-        stream << "K1 " << (calibration->existParameter(tl::Calibration::Parameters::k1) ? calibration->parameter(tl::Calibration::Parameters::k1) : 0.0) << "\n";
-        stream << "K2 " << (calibration->existParameter(tl::Calibration::Parameters::k2) ? calibration->parameter(tl::Calibration::Parameters::k2) : 0.0) << "\n";
-        stream << "K3 " << (calibration->existParameter(tl::Calibration::Parameters::k3) ? calibration->parameter(tl::Calibration::Parameters::k3) : 0.0) << "\n";
+        stream << "K1 " << (calibration->existParameter(Calibration::Parameters::k1) ? calibration->parameter(Calibration::Parameters::k1) : 0.0) << "\n";
+        stream << "K2 " << (calibration->existParameter(Calibration::Parameters::k2) ? calibration->parameter(Calibration::Parameters::k2) : 0.0) << "\n";
+        stream << "K3 " << (calibration->existParameter(Calibration::Parameters::k3) ? calibration->parameter(Calibration::Parameters::k3) : 0.0) << "\n";
         stream << "#Tangential Lens Distortion Coeffs\n";
-        stream << "T1 " << (calibration->existParameter(tl::Calibration::Parameters::p1) ? calibration->parameter(tl::Calibration::Parameters::p1) : 0.0) << "\n";
-        stream << "T2 " << (calibration->existParameter(tl::Calibration::Parameters::p2) ? calibration->parameter(tl::Calibration::Parameters::p2) : 0.0) << "\n" << std::endl;
+        stream << "T1 " << (calibration->existParameter(Calibration::Parameters::p1) ? calibration->parameter(Calibration::Parameters::p1) : 0.0) << "\n";
+        stream << "T2 " << (calibration->existParameter(Calibration::Parameters::p2) ? calibration->parameter(Calibration::Parameters::p2) : 0.0) << "\n" << std::endl;
       } else {
         ///TODO: Cámara no soportada. ¿devolver error, escribir mensaje de error, ...?
       }
 
     } else if (format.compare("Agisoft") == 0) {
 
-      tl::Camera camera = mCameraCache[mActiveCameraId];
+      Camera camera = mCameraCache[mActiveCameraId];
 
       QString model_id = camera.type().c_str();
       if (model_id.compare("Pinhole 1") == 0 ||
@@ -497,26 +497,26 @@ void CamerasModelImp::calibrationExport(const QString &file,
           model_id.compare("Radial 2") == 0 ||
           model_id.compare("Radial 3") == 0) {
 
-        std::shared_ptr<tl::Calibration> calibration = camera.calibration();
+        std::shared_ptr<Calibration> calibration = camera.calibration();
 
         stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
         stream << "<calibration>\n";
         stream << "  <projection>frame</projection>\n";
         stream << "  <width>" << camera.width() << "</width>\n";
         stream << "  <height>" << camera.height() << "</height>\n";
-        stream << "  <f>" << calibration->parameter(tl::Calibration::Parameters::focal) << "</f>\n";
-        stream << "  <cx>" << static_cast<double>(camera.width()) / 2. - calibration->parameter(tl::Calibration::Parameters::cx) << "</cx>\n";
-        stream << "  <cy>" << static_cast<double>(camera.height()) / 2. - calibration->parameter(tl::Calibration::Parameters::cy) << "</cy>\n";
-        if (calibration->existParameter(tl::Calibration::Parameters::k1))
-          stream << "  <k1>" << calibration->parameter(tl::Calibration::Parameters::k1) << "</k1>\n";
-        if (calibration->existParameter(tl::Calibration::Parameters::k2))
-          stream << "  <k2>" << calibration->parameter(tl::Calibration::Parameters::k2) << "</k2>\n";
-        if (calibration->existParameter(tl::Calibration::Parameters::k3))
-          stream << "  <k3>" << calibration->parameter(tl::Calibration::Parameters::k3) << "</k3>";
-        if (calibration->existParameter(tl::Calibration::Parameters::p1))
-          stream << "  <p1>" << calibration->parameter(tl::Calibration::Parameters::p1) << "</p1>\n";
-        if (calibration->existParameter(tl::Calibration::Parameters::p2))
-          stream << "  <p2>" << calibration->parameter(tl::Calibration::Parameters::p2) << "</p2>\n";
+        stream << "  <f>" << calibration->parameter(Calibration::Parameters::focal) << "</f>\n";
+        stream << "  <cx>" << static_cast<double>(camera.width()) / 2. - calibration->parameter(Calibration::Parameters::cx) << "</cx>\n";
+        stream << "  <cy>" << static_cast<double>(camera.height()) / 2. - calibration->parameter(Calibration::Parameters::cy) << "</cy>\n";
+        if (calibration->existParameter(Calibration::Parameters::k1))
+          stream << "  <k1>" << calibration->parameter(Calibration::Parameters::k1) << "</k1>\n";
+        if (calibration->existParameter(Calibration::Parameters::k2))
+          stream << "  <k2>" << calibration->parameter(Calibration::Parameters::k2) << "</k2>\n";
+        if (calibration->existParameter(Calibration::Parameters::k3))
+          stream << "  <k3>" << calibration->parameter(Calibration::Parameters::k3) << "</k3>";
+        if (calibration->existParameter(Calibration::Parameters::p1))
+          stream << "  <p1>" << calibration->parameter(Calibration::Parameters::p1) << "</p1>\n";
+        if (calibration->existParameter(Calibration::Parameters::p2))
+          stream << "  <p2>" << calibration->parameter(Calibration::Parameters::p2) << "</p2>\n";
         stream << "  <date></date>\n";
         stream << "</calibration>\n";
       } else {
@@ -525,7 +525,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
 
     } else if (format.compare("OpenCV") == 0) {
 
-      tl::Camera camera = mCameraCache[mActiveCameraId];
+      Camera camera = mCameraCache[mActiveCameraId];
 
       QString model_id = camera.type().c_str();
       if (model_id.compare("Pinhole 1") == 0 ||
@@ -533,7 +533,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
           model_id.compare("Radial 2") == 0 ||
           model_id.compare("Radial 3") == 0) {
 
-        std::shared_ptr<tl::Calibration> calibration = camera.calibration();
+        std::shared_ptr<Calibration> calibration = camera.calibration();
 
         stream << "<?xml version=\"1.0\"?>\n";
         stream << "<opencv_storage>\n";
@@ -545,8 +545,8 @@ void CamerasModelImp::calibrationExport(const QString &file,
         stream << "  <cols>3</cols>\n";
         stream << "  <dt>d</dt>\n";
         stream << "  <data>\n";
-        stream << "    " << QString::number(calibration->parameter(tl::Calibration::Parameters::focal), 'e', 8).toStdString() << " 0. " << QString::number(calibration->parameter(tl::Calibration::Parameters::cx) + 0.5, 'e', 8).toStdString() << " 0. \n";
-        stream << "    " << QString::number(calibration->parameter(tl::Calibration::Parameters::focal), 'e', 8).toStdString() << " " << QString::number(calibration->parameter(tl::Calibration::Parameters::cy) + 0.5, 'e', 8).toStdString() << " 0. 0. 1.\n";
+        stream << "    " << QString::number(calibration->parameter(Calibration::Parameters::focal), 'e', 8).toStdString() << " 0. " << QString::number(calibration->parameter(Calibration::Parameters::cx) + 0.5, 'e', 8).toStdString() << " 0. \n";
+        stream << "    " << QString::number(calibration->parameter(Calibration::Parameters::focal), 'e', 8).toStdString() << " " << QString::number(calibration->parameter(Calibration::Parameters::cy) + 0.5, 'e', 8).toStdString() << " 0. 0. 1.\n";
         stream << "  </data>\n";
         stream << "</Camera_Matrix>\n";
         stream << "<Distortion_Coefficients type_id=\"opencv-matrix\">\n";
@@ -554,11 +554,11 @@ void CamerasModelImp::calibrationExport(const QString &file,
         stream << "  <cols>1</cols>\n";
         stream << "  <dt>d</dt>\n";
         stream << "  <data>\n";
-        stream << "    " << (calibration->existParameter(tl::Calibration::Parameters::k1) ? QString::number(calibration->parameter(tl::Calibration::Parameters::k1)).toStdString() : "0.0") << " "
-          << (calibration->existParameter(tl::Calibration::Parameters::k2) ? QString::number(calibration->parameter(tl::Calibration::Parameters::k2), 'e', 8).toStdString() : "0.0") << " "
-          << (calibration->existParameter(tl::Calibration::Parameters::p1) ? QString::number(calibration->parameter(tl::Calibration::Parameters::p1), 'e', 8).toStdString() : "0.0") << " "
-          << (calibration->existParameter(tl::Calibration::Parameters::p2) ? QString::number(calibration->parameter(tl::Calibration::Parameters::p2), 'e', 8).toStdString() : "0.0") << " \n    "
-          << (calibration->existParameter(tl::Calibration::Parameters::k3) ? QString::number(calibration->parameter(tl::Calibration::Parameters::k3), 'e', 8).toStdString() : "0.0") << "</data>";
+        stream << "    " << (calibration->existParameter(Calibration::Parameters::k1) ? QString::number(calibration->parameter(Calibration::Parameters::k1)).toStdString() : "0.0") << " "
+          << (calibration->existParameter(Calibration::Parameters::k2) ? QString::number(calibration->parameter(Calibration::Parameters::k2), 'e', 8).toStdString() : "0.0") << " "
+          << (calibration->existParameter(Calibration::Parameters::p1) ? QString::number(calibration->parameter(Calibration::Parameters::p1), 'e', 8).toStdString() : "0.0") << " "
+          << (calibration->existParameter(Calibration::Parameters::p2) ? QString::number(calibration->parameter(Calibration::Parameters::p2), 'e', 8).toStdString() : "0.0") << " \n    "
+          << (calibration->existParameter(Calibration::Parameters::k3) ? QString::number(calibration->parameter(Calibration::Parameters::k3), 'e', 8).toStdString() : "0.0") << "</data>";
         stream << "</Distortion_Coefficients>\n";
         stream << "</opencv_storage>\n";
 
@@ -580,7 +580,7 @@ bool CamerasModelImp::removeCamera(int id)
   return mProject->removeCamera(id);
 }
 
-bool CamerasModelImp::removeCamera(const tl::Camera &camera)
+bool CamerasModelImp::removeCamera(const Camera &camera)
 {
   int id_camera = cameraID(camera.make().c_str(), camera.model().c_str());
   return mProject->removeCamera(id_camera);
@@ -642,11 +642,11 @@ void CamerasModelImp::init()
 
 }
 
-void CamerasModelImp::updateCalibrationParameter(tl::Calibration::Parameters param, double value)
+void CamerasModelImp::updateCalibrationParameter(Calibration::Parameters param, double value)
 {
   auto it = mCameraCache.find(mActiveCameraId);
   if (it != mCameraCache.end()) {
-    std::shared_ptr<tl::Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
+    std::shared_ptr<Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
     if (calibration) {
       calibration->setParameter(param, value);
       bModifiedProject = true;

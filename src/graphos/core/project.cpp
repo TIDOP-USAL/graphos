@@ -227,20 +227,20 @@ size_t ProjectImp::imagesCount() const
   return mImages.size();
 }
 
-int ProjectImp::addCamera(const tl::Camera &camera)
+int ProjectImp::addCamera(const Camera &camera)
 {
   mCameras[++mCameraCount] = camera;
   return mCameraCount;
 }
 
-std::map<int, tl::Camera> ProjectImp::cameras() const
+std::map<int, Camera> ProjectImp::cameras() const
 {
   return mCameras;
 }
 
-tl::Camera ProjectImp::findCamera(const QString &make, const QString &model) const
+Camera ProjectImp::findCamera(const QString &make, const QString &model) const
 {
-  tl::Camera camera;
+  Camera camera;
   for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
     camera = it->second;
     if (camera.make().compare(make.toStdString()) == 0 &&
@@ -252,7 +252,7 @@ tl::Camera ProjectImp::findCamera(const QString &make, const QString &model) con
   throw std::runtime_error(msg.c_str());
 }
 
-tl::Camera ProjectImp::findCamera(int idCamera) const
+Camera ProjectImp::findCamera(int idCamera) const
 {
   camera_const_iterator it = mCameras.find(idCamera);
   if (it != mCameras.end()){
@@ -265,7 +265,7 @@ tl::Camera ProjectImp::findCamera(int idCamera) const
 bool ProjectImp::existCamera(const QString &make, const QString &model) const
 {
   for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
-    tl::Camera camera = it->second;
+    Camera camera = it->second;
     if (camera.make().compare(make.toStdString()) == 0 &&
         camera.model().compare(model.toStdString()) == 0) {
       return true;
@@ -274,7 +274,7 @@ bool ProjectImp::existCamera(const QString &make, const QString &model) const
   return false;
 }
 
-bool ProjectImp::updateCamera(int idCamera, const tl::Camera &camera)
+bool ProjectImp::updateCamera(int idCamera, const Camera &camera)
 {
   auto it = mCameras.find(idCamera);
   if (it != mCameras.end()){
@@ -298,7 +298,7 @@ bool ProjectImp::removeCamera(int idCamera)
 
 int ProjectImp::cameraId(const QString &make, const QString &model) const
 {
-  tl::Camera camera;
+  Camera camera;
   for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
     camera = it->second;
     if (camera.make().compare(make.toStdString()) == 0 &&
@@ -860,9 +860,9 @@ void ProjectImp::readCameras(QXmlStreamReader &stream)
   }
 }
 
-tl::Camera ProjectImp::readCamera(QXmlStreamReader &stream)
+Camera ProjectImp::readCamera(QXmlStreamReader &stream)
 {
-  tl::Camera camera;
+  Camera camera;
 
   int id = 0;
   for (auto &attr : stream.attributes()) {
@@ -895,38 +895,38 @@ tl::Camera ProjectImp::readCamera(QXmlStreamReader &stream)
   return camera;
 }
 
-void ProjectImp::readCalibration(QXmlStreamReader &stream, tl::Camera &camera)
+void ProjectImp::readCalibration(QXmlStreamReader &stream, Camera &camera)
 {
   try {
-    std::shared_ptr<tl::Calibration> calibration;
-    calibration = tl::CalibrationFactory::create(camera.type());
+    std::shared_ptr<Calibration> calibration;
+    calibration = CalibrationFactory::create(camera.type());
     while (stream.readNextStartElement()) {
       if (stream.name().compare(QString("f")) == 0) {
-        calibration->setParameter(tl::Calibration::Parameters::focal, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::focal, readDouble(stream));
       } else if (stream.name() == "fx") {
-        calibration->setParameter(tl::Calibration::Parameters::focalx, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::focalx, readDouble(stream));
       } else if (stream.name() == "fy") {
-        calibration->setParameter(tl::Calibration::Parameters::focaly, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::focaly, readDouble(stream));
       } else if (stream.name() == "cx") {
-        calibration->setParameter(tl::Calibration::Parameters::cx, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::cx, readDouble(stream));
       } else if (stream.name() == "cy") {
-        calibration->setParameter(tl::Calibration::Parameters::cy, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::cy, readDouble(stream));
       } else if (stream.name() == "k1") {
-        calibration->setParameter(tl::Calibration::Parameters::k1, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::k1, readDouble(stream));
       } else if (stream.name() == "k2") {
-        calibration->setParameter(tl::Calibration::Parameters::k2, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::k2, readDouble(stream));
       } else if (stream.name() == "k3") {
-        calibration->setParameter(tl::Calibration::Parameters::k3, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::k3, readDouble(stream));
       } else if (stream.name() == "k4") {
-        calibration->setParameter(tl::Calibration::Parameters::k4, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::k4, readDouble(stream));
       } else if (stream.name() == "k5") {
-        calibration->setParameter(tl::Calibration::Parameters::k5, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::k5, readDouble(stream));
       } else if (stream.name() == "k6") {
-        calibration->setParameter(tl::Calibration::Parameters::k6, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::k6, readDouble(stream));
       } else if (stream.name() == "p1") {
-        calibration->setParameter(tl::Calibration::Parameters::p1, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::p1, readDouble(stream));
       } else if (stream.name() == "p2") {
-        calibration->setParameter(tl::Calibration::Parameters::p2, readDouble(stream));
+        calibration->setParameter(Calibration::Parameters::p2, readDouble(stream));
       } else
         stream.skipCurrentElement();
     }
@@ -1310,7 +1310,7 @@ void ProjectImp::writeCameras(QXmlStreamWriter &stream) const
   stream.writeEndElement();
 }
 
-void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const tl::Camera &camera) const
+void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const
 {
   stream.writeStartElement("Camera");
   {
@@ -1329,7 +1329,7 @@ void ProjectImp::writeCamera(QXmlStreamWriter &stream, int id, const tl::Camera 
   stream.writeEndElement(); // Camera
 }
 
-void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<tl::Calibration> calibration) const
+void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const
 {
   if (calibration){
     stream.writeStartElement("Calibration");
@@ -1518,8 +1518,7 @@ void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
 {
   if (!mPhotoOrientation.empty()){
     for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
-      if (this->isPhotoOriented(it->name()))
-      {
+      if (this->isPhotoOriented(it->name())){
         CameraPose photoOrientation = this->photoOrientation(it->name());
         stream.writeStartElement("Image");
         {

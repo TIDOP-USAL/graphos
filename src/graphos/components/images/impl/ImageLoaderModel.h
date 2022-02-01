@@ -51,6 +51,7 @@ public:
   void setProjectCRS(const QString &crs) override;
 
   void addImage(Image &image) override;
+  bool existImage(const QString &imgName) const;
   size_t imageID(const QString &imageName) const override;
   Image findImageByName(const QString &imageName) const override;
   Image findImageById(size_t id) const override;
@@ -64,8 +65,8 @@ public:
   image_iterator end() override;
   image_const_iterator end() const override;
 
-  int addCamera(const tl::Camera &camera) override;
-  int cameraID(const tl::Camera &camera) const override;
+  int addCamera(const Camera &camera) override;
+  int cameraID(const Camera &camera) const override;
   int cameraID(const QString &make, 
                const QString &model) const override;
   camera_iterator cameraBegin() override;

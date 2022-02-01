@@ -21,38 +21,69 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
-#define GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
+#ifndef GRAPHOS_CORE_ORTHO_ZBUFFER
+#define GRAPHOS_CORE_ORTHO_ZBUFFER
 
-#include "graphos/interfaces/mvp.h"
-#include "graphos/core/image.h"
+#include "graphos/graphos_global.h"
+
+#include <opencv2/core/mat.hpp>
+
+//#include <string>
+//#include <memory>
+
+//#include "tidop/core/path.h"
+//#include "tidop/core/process.h"
+//#include "tidop/math/algebra/rotation_matrix.h"
+//#include "tidop/img/imgreader.h"
+//#include "tidop/img/imgwriter.h"
+//#include "tidop/vect/vectwriter.h"
+//#include "tidop/geometry/entities/window.h"
+//#include "tidop/geometry/transform/affine.h"
+//#include "tidop/geometry/rect.h"
+//#include "tidop/geospatial/diffrect.h"
+//#include "tidop/geospatial/camera.h"
+//#include "tidop/geospatial/photo.h"
+//#include "tidop/geospatial/crs.h"
+//#include "tidop/graphic/entities/polygon.h"
+
+#include "graphos/core/ortho/Orthorectification.h"
 
 namespace graphos
 {
 
-class Feature;
-class Camera;
-
-class FeatureExtractorModel
-  : public Model
+/*!
+ * \brief ZBuffer
+ */
+class ZBuffer
 {
-
 public:
 
-  FeatureExtractorModel(QObject *parent = nullptr) : Model(parent) {}
-  ~FeatureExtractorModel() override = default;
+  ZBuffer(Orthorectification *orthorectification,
+          const tl::Rect<int> &rectOrtho,
+          const tl::Affine<tl::PointD> &georeference);
+  ~ZBuffer();
 
-  virtual std::shared_ptr<Feature> featureExtractor() const = 0;
-  virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
-  virtual QString database() const = 0;
-  virtual void addFeatures(const QString &imageName, const QString &featuresFile) = 0;
-  virtual bool useCuda() const = 0;
-  virtual std::vector<Image> images() const = 0;
-  virtual std::map<int, Camera> cameras() const = 0;
-  virtual void clearProject() = 0;
+  void run();
+
+  cv::Mat distances() const;
+  cv::Mat mapX() const;
+  cv::Mat mapY() const;
+
+  void clear();
+
+private:
+
+  Orthorectification *mOrthorectification;
+  tl::Rect<int> mRectOrtho;
+  tl::Affine<tl::PointD> mGeoreference;
+  tl::Window<tl::PointD> mWindowOrthoTerrain;
+  cv::Mat mDistances;
+  cv::Mat mY;
+  cv::Mat mX;
 
 };
 
-} // namespace graphos
 
-#endif // GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
+} // End namespace graphos
+
+#endif // GRAPHOS_CORE_ORTHO_ZBUFFER

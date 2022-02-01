@@ -96,7 +96,7 @@ signals:
 
   void calibrationImport(QString, QString);
   void calibrationExport(QString, QString);
-  void fixCalibration(bool);
+  //void fixCalibration(bool);
 
   void calibCxChange(double);
   void calibCyChange(double);

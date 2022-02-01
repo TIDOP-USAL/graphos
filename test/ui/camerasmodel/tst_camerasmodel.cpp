@@ -56,7 +56,7 @@ TestCamerasModel::~TestCamerasModel()
 
 void TestCamerasModel::initTestCase()
 {
-  tl::Camera camera("DJI", "FC6310");
+  Camera camera("DJI", "FC6310");
   camera.setType("Simple radial");
   camera.setFocal(3552.23);
   camera.setWidth(5472);
@@ -75,7 +75,7 @@ void TestCamerasModel::cleanupTestCase()
 
 void TestCamerasModel::test_updateCamera()
 {
-  tl::Camera camera = mCamerasModel->camera(1);
+  Camera camera = mCamerasModel->camera(1);
   camera.setType("Full radial");
   bool bUpdate = mCamerasModel->updateCamera(1, camera);
 
@@ -92,7 +92,7 @@ void TestCamerasModel::test_updateCamera()
 
 void TestCamerasModel::test_deleteCamera()
 {
-  tl::Camera camera("SONY", "ILCE-6000");
+  Camera camera("SONY", "ILCE-6000");
   int id = mCamerasModel->addCamera(camera);
 
   bool remove = mCamerasModel->removeCamera(4);
@@ -116,7 +116,7 @@ void TestCamerasModel::test_cameraId()
 
 void TestCamerasModel::test_findCamera()
 {
-  tl::Camera camera = mCamerasModel->camera(1);
+  Camera camera = mCamerasModel->camera(1);
 
   QCOMPARE("Unknown camera", camera.make());
   QCOMPARE("0", camera.model());
@@ -139,7 +139,7 @@ void TestCamerasModel::test_findCamera()
 void TestCamerasModel::test_findCamera_exception()
 {
   try {
-    tl::Camera camera = mCamerasModel->camera(5);
+    Camera camera = mCamerasModel->camera(5);
   } catch (std::exception &e) {
     QCOMPARE("Camera not exist", e.what());
   }
@@ -149,7 +149,7 @@ void TestCamerasModel::test_iterator()
 {
   auto it = mCamerasModel->begin();
   int id = it->first;
-  tl::Camera camera = it->second;
+  Camera camera = it->second;
 
   QCOMPARE(1, id);
   QCOMPARE("Unknown camera", camera.make());

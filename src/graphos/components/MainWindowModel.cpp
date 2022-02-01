@@ -457,7 +457,7 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
     value = image_metadata->metadata("EXIF_GPSLatitude", active);
     if (active) {
       std::string ref = image_metadata->metadata("EXIF_GPSLatitudeRef", active);
-      tl::math::Degrees<double> latitude = formatLatitudeFromExif(value, ref);
+      tl::math::Degrees<double> latitude = formatDegreesFromExif(value, ref);
       exif.push_back(std::make_pair(QString("GPS Latitude"), QString("%1º%2'%3'' %4").arg(std::abs(latitude.degrees()))
                                                                                      .arg(latitude.minutes())
                                                                                      .arg(latitude.seconds())
@@ -467,7 +467,7 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
     value = image_metadata->metadata("EXIF_GPSLongitude", active);
     if (active) {
       std::string ref = image_metadata->metadata("EXIF_GPSLongitudeRef", active);
-      tl::math::Degrees<double> longitude = formatLongitudeFromExif(value, ref);
+      tl::math::Degrees<double> longitude = formatDegreesFromExif(value, ref);
       exif.push_back(std::make_pair(QString("GPS Longitude"), QString("%1º%2'%3'' %4").arg(std::abs(longitude.degrees()))
                                                                                       .arg(longitude.minutes())
                                                                                       .arg(longitude.seconds())

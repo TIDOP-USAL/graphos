@@ -16,7 +16,7 @@ namespace graphos
 
 SettingsImp::SettingsImp()
   : Settings(),
-    mHistoyMaxSize(10),
+    mHistoyMaxSize(20),
     mImageViewerBGcolor("#dcdcdc"),
     mKeypointViewerBGColor("#dcdcdc"),
     mKeypointsViewerMarkerType(0),

@@ -21,44 +21,19 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_COLMAP_CAMERA_H
-#define GRAPHOS_COLMAP_CAMERA_H
+#ifndef GRAPHOS_CORE_CAMERA_UTILS
+#define GRAPHOS_CORE_CAMERA_UTILS
 
-#include "graphos/graphos_global.h"
+#include <opencv2/core/core.hpp>
 
-#include <memory>
-
-#include <QString>
-
-#include <tidop/geospatial/camera.h>
-
-namespace colmap
-{
-class Reconstruction;
-}
+#include "graphos/core/camera/Calibration.h"
 
 namespace graphos
 {
 
-class GRAPHOS_EXPORT ReadCalibration
-{
-
-public:
-
-  ReadCalibration();
-  ~ReadCalibration();
-
-  void open(const QString &path);
-  std::shared_ptr<tl::Calibration> calibration(int cameraId) const;
-
-protected:
-
-  colmap::Reconstruction *mReconstruction;
-
-};
-
-QString cameraToColmapType(const tl::Camera &camera);
+cv::Mat openCVCameraMatrix(const Calibration &calibration);
+cv::Mat openCVDistortionCoefficients(const Calibration &calibration);
 
 } // namespace graphos
 
-#endif // GRAPHOS_COLMAP_CAMERA_H
+#endif // GRAPHOS_CORE_CAMERA_UTILS

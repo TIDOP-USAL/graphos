@@ -184,11 +184,16 @@ bool FeatureExtractorPresenterImp::createProcess()
                                                                        mSift->constrastThresholdAuto() ? 
                                                                        0. : mSift->contrastThreshold());
     } else {
-      feature_extractor = std::make_shared<SiftDetectorDescriptor>(mSift->featuresNumber(),
-                                                                   mSift->octaveLayers(),
-                                                                   mSift->edgeThreshold(),
-                                                                   mSift->constrastThresholdAuto() ? 
-                                                                   0. : mSift->contrastThreshold());
+      //feature_extractor = std::make_shared<SiftDetectorDescriptor>(mSift->featuresNumber(),
+      //                                                             mSift->octaveLayers(),
+      //                                                             mSift->edgeThreshold(),
+      //                                                             mSift->constrastThresholdAuto() ? 
+      //                                                             0. : mSift->contrastThreshold());
+      feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(mSift->featuresNumber(),
+                                                                      mSift->octaveLayers(),
+                                                                      mSift->edgeThreshold(),
+                                                                      mSift->constrastThresholdAuto() ?
+                                                                      0. : mSift->contrastThreshold());
     }
 
   } else {
@@ -199,7 +204,7 @@ bool FeatureExtractorPresenterImp::createProcess()
   mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
 
   std::vector<Image> images = mModel->images();
-  std::map<int, tl::Camera> cameras = mModel->cameras();
+  std::map<int, Camera> cameras = mModel->cameras();
   QString database = mModel->database();
 
   int maxSize = -1;

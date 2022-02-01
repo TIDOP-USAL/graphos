@@ -54,6 +54,11 @@ void ImageLoaderModelImp::addImage(Image &image)
   mProject->addImage(image);
 }
 
+bool ImageLoaderModelImp::existImage(const QString &imgName) const
+{
+  return mProject->existImage(imgName);
+}
+
 size_t ImageLoaderModelImp::imageID(const QString &imageName) const
 {
   return mProject->imageId(imageName);
@@ -116,12 +121,12 @@ ImageLoaderModel::image_const_iterator ImageLoaderModelImp::end() const
   return mProject->imageEnd();
 }
 
-int ImageLoaderModelImp::addCamera(const tl::Camera &camera)
+int ImageLoaderModelImp::addCamera(const Camera &camera)
 {
   return mProject->addCamera(camera);
 }
 
-int ImageLoaderModelImp::cameraID(const tl::Camera &camera) const
+int ImageLoaderModelImp::cameraID(const Camera &camera) const
 {
   return cameraID(camera.make().c_str(), camera.model().c_str());
 }

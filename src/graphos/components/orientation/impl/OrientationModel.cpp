@@ -165,12 +165,12 @@ void OrientationModelImp::clearProject()
   mProject->clearReconstruction();
 }
 
-std::map<int, tl::Camera> OrientationModelImp::cameras() const
+std::map<int, Camera> OrientationModelImp::cameras() const
 {
   return mProject->cameras();
 }
 
-bool OrientationModelImp::updateCamera(int id, const tl::Camera &camera)
+bool OrientationModelImp::updateCamera(int id, const Camera &camera)
 {
   return mProject->updateCamera(id, camera);
 }

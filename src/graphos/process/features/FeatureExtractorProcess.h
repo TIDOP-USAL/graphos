@@ -6,6 +6,7 @@
 #include "graphos/process/ProcessConcurrent.h"
 #include "graphos/core/features/features.h"
 #include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
@@ -19,7 +20,7 @@ class GRAPHOS_EXPORT FeatureExtractorProcess
 public:
 
   FeatureExtractorProcess(const std::vector<Image> &images,
-                          const std::map<int, tl::Camera> &cameras,
+                          const std::map<int, Camera> &cameras,
                           const QString &database,
                           int maxImageSize,
                           bool cuda,
@@ -38,7 +39,7 @@ protected:
 protected:
 
   std::vector<Image> mImages;
-  std::map<int, tl::Camera> mCameras;
+  std::map<int, Camera> mCameras;
   QString mDatabase;
   int mMaxImageSize;
   bool bUseCuda;

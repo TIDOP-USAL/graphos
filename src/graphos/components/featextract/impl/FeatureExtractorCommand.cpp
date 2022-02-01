@@ -26,7 +26,8 @@
 
 #include "graphos/core/features/featio.h"
 #include "graphos/core/features/sift.h"
-#include "graphos/core/camera/colmap.h"
+#include "graphos/core/camera/Camera.h"
+#include "graphos/core/camera/Colmap.h"
 #include "graphos/core/project.h"
 
 #include <tidop/core/messages.h>
@@ -84,7 +85,7 @@ class ProducerImp
 public:
 
   ProducerImp(const std::vector<Image> *images,
-    const std::map<int, tl::Camera> *cameras,
+    const std::map<int, Camera> *cameras,
     const colmap::Database *database,
     int maxImageSize,
     bool useGPU,
@@ -448,7 +449,7 @@ bool FeatureExtractorCommand::run()
     project.load(project_file);
     QString database_path = project.database();
     std::vector<Image> images = project.images();
-    std::map<int, tl::Camera> cameras = project.cameras();
+    std::map<int, Camera> cameras = project.cameras();
 
     colmap::Database database(database_path.toStdString());
 

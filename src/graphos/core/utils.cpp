@@ -318,65 +318,95 @@ void openPdf(const QString &pdf)
   pdf_file.show();
 }
 
-tl::math::Degrees<double> formatLatitudeFromExif(const std::string &latitude, const std::string &ref)
+tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const std::string &ref)
 {
-  tl::math::Degrees<double> lat;
+  tl::math::Degrees<double> angle;
 
-  size_t pos1 = latitude.find("(");
-  size_t pos2 = latitude.find(")");
-
-  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-    int degrees = std::stoi(latitude.substr(pos1 + 1, pos2 - pos1 + 1));
-    if (ref.compare("S") == 0) degrees = -degrees;
-    lat.setDegrees(degrees);
-  }
-
-  pos1 = latitude.find("(", pos2);
-  pos2 = latitude.find(")", pos1);
+  size_t pos1 = exifAngle.find("(");
+  size_t pos2 = exifAngle.find(")");
 
   if (pos1 != std::string::npos && pos2 != std::string::npos) {
-    lat.setMinutes(std::stoi(latitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+    int degrees = std::stoi(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1));
+    if (ref.compare("S") == 0 || ref.compare("W") == 0) degrees = -degrees;
+    angle.setDegrees(degrees);
   }
 
-  pos1 = latitude.find("(", pos2);
-  pos2 = latitude.find(")", pos1);
+  pos1 = exifAngle.find("(", pos2);
+  pos2 = exifAngle.find(")", pos1);
 
   if (pos1 != std::string::npos && pos2 != std::string::npos) {
-    lat.setSeconds(std::stod(latitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+    angle.setMinutes(std::stoi(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1)));
   }
 
-  return lat;
+  pos1 = exifAngle.find("(", pos2);
+  pos2 = exifAngle.find(")", pos1);
+
+  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+    angle.setSeconds(std::stod(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1)));
+  }
+
+  return angle;
 }
 
-tl::math::Degrees<double> formatLongitudeFromExif(const std::string &longitude, const std::string &ref)
-{
-  tl::math::Degrees<double> lon;
-
-  size_t pos1 = longitude.find("(");
-  size_t pos2 = longitude.find(")");
-
-  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-    int degrees = std::stoi(longitude.substr(pos1 + 1, pos2 - pos1 + 1));
-    if (ref.compare("W") == 0) degrees = -degrees;
-    lon.setDegrees(degrees);
-  }
-
-  pos1 = longitude.find("(", pos2);
-  pos2 = longitude.find(")", pos1);
-
-  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-    lon.setMinutes(std::stoi(longitude.substr(pos1 + 1, pos2 - pos1 + 1)));
-  }
-
-  pos1 = longitude.find("(", pos2);
-  pos2 = longitude.find(")", pos1);
-
-  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-    lon.setSeconds(std::stod(longitude.substr(pos1 + 1, pos2 - pos1 + 1)));
-  }
-
-  return lon;
-}
+//tl::math::Degrees<double> formatLatitudeFromExif(const std::string &latitude, const std::string &ref)
+//{
+//  tl::math::Degrees<double> lat;
+//
+//  size_t pos1 = latitude.find("(");
+//  size_t pos2 = latitude.find(")");
+//
+//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+//    int degrees = std::stoi(latitude.substr(pos1 + 1, pos2 - pos1 + 1));
+//    if (ref.compare("S") == 0) degrees = -degrees;
+//    lat.setDegrees(degrees);
+//  }
+//
+//  pos1 = latitude.find("(", pos2);
+//  pos2 = latitude.find(")", pos1);
+//
+//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+//    lat.setMinutes(std::stoi(latitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+//  }
+//
+//  pos1 = latitude.find("(", pos2);
+//  pos2 = latitude.find(")", pos1);
+//
+//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+//    lat.setSeconds(std::stod(latitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+//  }
+//
+//  return lat;
+//}
+//
+//tl::math::Degrees<double> formatLongitudeFromExif(const std::string &longitude, const std::string &ref)
+//{
+//  tl::math::Degrees<double> lon;
+//
+//  size_t pos1 = longitude.find("(");
+//  size_t pos2 = longitude.find(")");
+//
+//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+//    int degrees = std::stoi(longitude.substr(pos1 + 1, pos2 - pos1 + 1));
+//    if (ref.compare("W") == 0) degrees = -degrees;
+//    lon.setDegrees(degrees);
+//  }
+//
+//  pos1 = longitude.find("(", pos2);
+//  pos2 = longitude.find(")", pos1);
+//
+//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+//    lon.setMinutes(std::stoi(longitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+//  }
+//
+//  pos1 = longitude.find("(", pos2);
+//  pos2 = longitude.find(")", pos1);
+//
+//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
+//    lon.setSeconds(std::stod(longitude.substr(pos1 + 1, pos2 - pos1 + 1)));
+//  }
+//
+//  return lon;
+//}
 
 
 } // end namespace graphos

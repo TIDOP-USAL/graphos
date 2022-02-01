@@ -32,7 +32,7 @@
 #include "graphos/process/orientation/AbsoluteOrientationProcess.h"
 #include "graphos/process/orientation/ImportOrientationProcess.h"
 #include "graphos/core/orientation/posesio.h"
-#include "graphos/core/camera/colmap.h"
+#include "graphos/core/camera/Colmap.h"
 
 #include "graphos/components/HelpDialog.h"
 
@@ -242,18 +242,17 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
         const char *msg = ba.constData();
         msgWarning("Image %s not oriented", msg);
       }
-
     }
 
     msgInfo("Oriented %i images", oriented_images);
 
     ReadCalibration readCalibration;
     readCalibration.open(ori_relative_path);
-    std::shared_ptr<tl::Calibration> calibration;
+    std::shared_ptr<Calibration> calibration;
     for(auto camera_it = mModel->cameraBegin(); camera_it != mModel->cameraEnd(); camera_it++){
       calibration = readCalibration.calibration(camera_it->first);
       if (calibration){
-        tl::Camera camera = camera_it->second;
+        Camera camera = camera_it->second;
         camera.setCalibration(calibration);
         mModel->updateCamera(camera_it->first, camera);
       }
@@ -283,11 +282,11 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
 
     ReadCalibration readCalibration;
     readCalibration.open(ori_absolute_path);
-    std::shared_ptr<tl::Calibration> calibration;
+    std::shared_ptr<Calibration> calibration;
     for (auto camera_it = mModel->cameraBegin(); camera_it != mModel->cameraEnd(); camera_it++) {
       calibration = readCalibration.calibration(camera_it->first);
       if (calibration) {
-        tl::Camera camera = camera_it->second;
+        Camera camera = camera_it->second;
         camera.setCalibration(calibration);
         mModel->updateCamera(camera_it->first, camera);
       }

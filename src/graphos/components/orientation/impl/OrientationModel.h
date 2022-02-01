@@ -62,8 +62,8 @@ public:
   std::map<QString, std::array<double, 3>> cameraPositions() const override;
   void clearProject() override;
 
-  std::map<int, tl::Camera> cameras() const override;
-  bool updateCamera(int id, const tl::Camera &camera) override;
+  std::map<int, Camera> cameras() const override;
+  bool updateCamera(int id, const Camera &camera) override;
   camera_iterator cameraBegin() override;
   camera_const_iterator cameraBegin() const override;
   camera_iterator cameraEnd() override;
