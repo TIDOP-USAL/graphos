@@ -46,17 +46,18 @@ void DtmProcess::run()
     chrono.run();
 
     tl::Path dtm_path(mDtmFile.toStdString());
-    dtm_path.parentPath().createDirectories();
+    tl::Path dtm_folder = dtm_path.parentPath();
+    dtm_folder.createDirectories();
 
-    tl::TemporalDir temporal_dir;
-    tl::Path temp_path = temporal_dir.path();
+    //tl::TemporalDir temporal_dir;
+    //tl::Path temp_path = temporal_dir.path();
 
     if (mDSM) {
 
-      tl::Path ground_path(temp_path);
+      tl::Path ground_path(dtm_folder/*temp_path*/);
       ground_path.append("ground.ply");
 
-      tl::Path out_ground_path(temp_path);
+      tl::Path out_ground_path(dtm_folder/*temp_path*/);
       out_ground_path.append("out_ground.ply");
 
       Csf csf;
@@ -65,13 +66,13 @@ void DtmProcess::run()
 
       /// Refactorizar
 
-      tl::Path mds_ground(temp_path);
+      tl::Path mds_ground(dtm_folder/*temp_path*/);
       mds_ground.append("mds_ground.tif");
-      tl::Path mds_out_ground(temp_path);
+      tl::Path mds_out_ground(dtm_folder/*temp_path*/);
       mds_out_ground.append("mds_out_ground.tif");
 
       {
-        tl::Path mds_ground_csv(temp_path);
+        tl::Path mds_ground_csv(dtm_folder/*temp_path*/);
         mds_ground_csv.append("mds_ground.csv");
 
         tl::BoundingBox<tl::Point3<double>> bbox_ground;
@@ -80,7 +81,7 @@ void DtmProcess::run()
         denseExport.setOffset(mOffset);
         denseExport.exportToCSV(mds_ground_csv.toString(), DenseExport::Fields::xyz, &bbox_ground);
 
-        tl::Path mds_out_ground_csv(temp_path);
+        tl::Path mds_out_ground_csv(dtm_folder/*temp_path*/);
         mds_out_ground_csv.append("mds_out_ground.csv");
 
         tl::BoundingBox<tl::Point3<double>> bbox_out_ground;
@@ -142,7 +143,7 @@ void DtmProcess::run()
 
     } else {
 
-      tl::Path csv_path(temp_path);
+      tl::Path csv_path(dtm_folder/*temp_path*/);
       csv_path.append("dtm.csv");
 
       tl::BoundingBox<tl::Point3<double>> bbox;

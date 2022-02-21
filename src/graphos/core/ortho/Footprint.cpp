@@ -25,33 +25,9 @@
 
 #include "graphos/core/ortho/Orthorectification.h"
 
-//#include "tidop/core/chrono.h"
-//#include "tidop/core/progress.h"
-//#include "tidop/img/formats.h"
-//#include "tidop/math/algebra/rotation_matrix.h"
-//#include "tidop/math/algebra/rotation_convert.h"
-//#include "tidop/math/algebra/matrix.h"
-//#include "tidop/geospatial/util.h"
-//#include "tidop/geospatial/crs.h"
-//#include "tidop/geometry/algorithms.h"
-//#include "tidop/geometry/transform/perspective.h"
 #include <tidop/graphic/layer.h>
 #include <tidop/graphic/entities/polygon.h>
 #include <tidop/graphic/datamodel.h>
-//#include "tidop/vect/vectreader.h"
-//
-//#ifdef TL_HAVE_OPENCV
-//#include <opencv2/calib3d.hpp>
-//#include <opencv2/core.hpp>
-//#include <opencv2/imgproc.hpp>
-//#include <opencv2/stitching.hpp>
-//#include <opencv2/imgcodecs.hpp>
-//#ifdef HAVE_OPENCV_CUDAARITHM
-//#include <opencv2/cudaarithm.hpp>
-//#endif
-//#ifdef HAVE_OPENCV_CUDAWARPING
-//#include <opencv2/cudawarping.hpp>
-//#endif
 
 namespace graphos
 {

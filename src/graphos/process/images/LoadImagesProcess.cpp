@@ -11,7 +11,6 @@
 #include <tidop/math/angles.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
-#include <tidop/geospatial/camera.h>
 
 #include <QFileInfo>
 #include <QSqlQuery>
@@ -166,7 +165,7 @@ void LoadImagesProcess::loadImage(size_t imageId)
 
       bool bTrfCrs = mCrsIn->isValid() && mCrsOut->isValid();
       tl::geospatial::CrsTransform crs_trf(mCrsIn, mCrsOut);
-      tl::Point3D pt_in(latitude_degrees.value(), longitude_degrees.value(), altitude);
+      tl::Point3D pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
       tl::Point3D pt_out = crs_trf.transform(pt_in);
 
       CameraPose camera_pose;

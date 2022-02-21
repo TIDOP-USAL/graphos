@@ -24,10 +24,6 @@
 
 #include "graphos/core/camera/Camera.h"
 
-//#include <stdexcept>
-//
-//#include <tidop/math/algebra/rotation_convert.h>
-
 namespace graphos
 {
 

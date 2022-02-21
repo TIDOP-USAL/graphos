@@ -83,11 +83,11 @@ void MatchViewerViewImp::initUI()
   mComboBoxRightImage = new QComboBox(this);
   gridLayout->addWidget(mComboBoxRightImage, 1, 1, 1, 1);
 
-  mGraphicsViewLeft = new GraphicViewerImp(this);
-  gridLayout->addWidget(mGraphicsViewLeft, 2, 0, 1, 1);
+  mGraphicsViewImage = new GraphicViewerImp(this);
+  gridLayout->addWidget(mGraphicsViewImage, 2, 0, 1, 1);
 
-  mGraphicsViewRight = new GraphicViewerImp(this);
-  gridLayout->addWidget(mGraphicsViewRight, 2, 1, 1, 1);
+  mGraphicsViewPseudoimage = new GraphicViewerImp(this);
+  gridLayout->addWidget(mGraphicsViewPseudoimage, 2, 1, 1, 1);
 
   mLabelMatches = new QLabel(this);
   gridLayout->addWidget(mLabelMatches, 3, 0, 1, 1);
@@ -123,7 +123,7 @@ void MatchViewerViewImp::initUI()
   QIcon iconZoom11;
   iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
 
-  QMenu *contextMenuLeft = new QMenu(mGraphicsViewLeft);
+  QMenu *contextMenuLeft = new QMenu(mGraphicsViewImage);
 
   mActionLeftZoomIn = new QAction(this);
   mActionLeftZoomIn->setIcon(iconZoomIn);
@@ -141,9 +141,9 @@ void MatchViewerViewImp::initUI()
   mActionLeftZoom11->setIcon(iconZoom11);
   contextMenuLeft->addAction(mActionLeftZoom11);
 
-  mGraphicsViewLeft->setContextMenu(contextMenuLeft);
+  mGraphicsViewImage->setContextMenu(contextMenuLeft);
 
-  QMenu *contextMenuRight = new QMenu(mGraphicsViewRight);
+  QMenu *contextMenuRight = new QMenu(mGraphicsViewPseudoimage);
 
   mActionRightZoomIn = new QAction(this);
   mActionRightZoomIn->setIcon(iconZoomIn);
@@ -161,7 +161,7 @@ void MatchViewerViewImp::initUI()
   mActionRightZoom11->setIcon(iconZoom11);
   contextMenuRight->addAction(mActionRightZoom11);
 
-  mGraphicsViewRight->setContextMenu(contextMenuRight);
+  mGraphicsViewPseudoimage->setContextMenu(contextMenuRight);
 
   this->retranslate();
   this->update();
@@ -172,16 +172,16 @@ void MatchViewerViewImp::initSignalAndSlots()
   connect(mComboBoxLeftImage,     SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxLeftImageIndexChanged(int)));
   connect(mComboBoxRightImage,    SIGNAL(currentIndexChanged(int)), this, SLOT(onComboBoxRightImageIndexChanged(int)));
   connect(mTreeWidgetMatches,     SIGNAL(itemSelectionChanged()),   this, SLOT(onTreeWidgetMatchesItemSelectionChanged()));
-  connect(mGraphicsViewLeft,      SIGNAL(selectionChanged()),       this, SLOT(onGraphicsViewLeftSelectionChanged()));
-  connect(mGraphicsViewRight,     SIGNAL(selectionChanged()),       this, SLOT(onGraphicsViewRightSelectionChanged()));
-  connect(mActionLeftZoomIn,      SIGNAL(triggered(bool)), mGraphicsViewLeft, SLOT(zoomIn()));
-  connect(mActionLeftZoomOut,     SIGNAL(triggered(bool)), mGraphicsViewLeft, SLOT(zoomOut()));
-  connect(mActionLeftZoomExtend,  SIGNAL(triggered(bool)), mGraphicsViewLeft, SLOT(zoomExtend()));
-  connect(mActionLeftZoom11,      SIGNAL(triggered(bool)), mGraphicsViewLeft, SLOT(zoom11()));
-  connect(mActionRightZoomIn,     SIGNAL(triggered(bool)), mGraphicsViewRight, SLOT(zoomIn()));
-  connect(mActionRightZoomOut,    SIGNAL(triggered(bool)), mGraphicsViewRight, SLOT(zoomOut()));
-  connect(mActionRightZoomExtend, SIGNAL(triggered(bool)), mGraphicsViewRight, SLOT(zoomExtend()));
-  connect(mActionRightZoom11,     SIGNAL(triggered(bool)), mGraphicsViewRight, SLOT(zoom11()));
+  connect(mGraphicsViewImage,      SIGNAL(selectionChanged()),       this, SLOT(onGraphicsViewLeftSelectionChanged()));
+  connect(mGraphicsViewPseudoimage,     SIGNAL(selectionChanged()),       this, SLOT(onGraphicsViewRightSelectionChanged()));
+  connect(mActionLeftZoomIn,      SIGNAL(triggered(bool)), mGraphicsViewImage, SLOT(zoomIn()));
+  connect(mActionLeftZoomOut,     SIGNAL(triggered(bool)), mGraphicsViewImage, SLOT(zoomOut()));
+  connect(mActionLeftZoomExtend,  SIGNAL(triggered(bool)), mGraphicsViewImage, SLOT(zoomExtend()));
+  connect(mActionLeftZoom11,      SIGNAL(triggered(bool)), mGraphicsViewImage, SLOT(zoom11()));
+  connect(mActionRightZoomIn,     SIGNAL(triggered(bool)), mGraphicsViewPseudoimage, SLOT(zoomIn()));
+  connect(mActionRightZoomOut,    SIGNAL(triggered(bool)), mGraphicsViewPseudoimage, SLOT(zoomOut()));
+  connect(mActionRightZoomExtend, SIGNAL(triggered(bool)), mGraphicsViewPseudoimage, SLOT(zoomExtend()));
+  connect(mActionRightZoom11,     SIGNAL(triggered(bool)), mGraphicsViewPseudoimage, SLOT(zoom11()));
 
   connect(mButtonBox->button(QDialogButtonBox::Close),  SIGNAL(clicked(bool)), this, SLOT(accept()));
   connect(mButtonBox->button(QDialogButtonBox::Help),   SIGNAL(clicked(bool)), this, SIGNAL(help()));
@@ -233,13 +233,13 @@ void MatchViewerViewImp::setLeftImage(const QString &leftImage)
 {
   QSignalBlocker blocker(mComboBoxLeftImage);
   mComboBoxLeftImage->setCurrentText(leftImage);
-  mGraphicsViewLeft->scene()->clearSelection();
+  mGraphicsViewImage->scene()->clearSelection();
   QString image = mComboBoxLeftImage->currentData().toString();
   std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
   imageReader->open();
   if (imageReader->isOpen()) {
     cv::Mat bmp = imageReader->read();
-    mGraphicsViewLeft->setImage(cvMatToQImage(bmp));
+    mGraphicsViewImage->setImage(cvMatToQImage(bmp));
     imageReader->close();
   }
 }
@@ -248,13 +248,13 @@ void MatchViewerViewImp::setRightImage(const QString &rightImage)
 {
   QSignalBlocker blocker(mComboBoxRightImage);
   mComboBoxRightImage->setCurrentText(rightImage);
-  mGraphicsViewRight->scene()->clearSelection();
+  mGraphicsViewPseudoimage->scene()->clearSelection();
   QString image = mComboBoxRightImage->currentData().toString();
   std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
   imageReader->open();
   if (imageReader->isOpen()) {
     cv::Mat bmp = imageReader->read();
-    mGraphicsViewRight->setImage(cvMatToQImage(bmp));
+    mGraphicsViewPseudoimage->setImage(cvMatToQImage(bmp));
     imageReader->close();
   }
 }
@@ -284,50 +284,50 @@ void MatchViewerViewImp::setMatches(const std::vector<std::tuple<size_t, size_t,
   QSignalBlocker blocker(mTreeWidgetMatches);
   mTreeWidgetMatches->clear();
 
-  for (auto &item : mGraphicsViewLeft->scene()->items()) {
+  for (auto &item : mGraphicsViewImage->scene()->items()) {
     if (mMarkerType == 0){
       // Circle
       if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
-        mGraphicsViewLeft->scene()->removeItem(item);
+        mGraphicsViewImage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     } else if (mMarkerType == 1){
       // Cross
       if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
-        mGraphicsViewLeft->scene()->removeItem(item);
+        mGraphicsViewImage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     } else if (mMarkerType == 2){
       // Diagonal cross
       if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
-        mGraphicsViewLeft->scene()->removeItem(item);
+        mGraphicsViewImage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     }
   }
 
-  for (auto &item : mGraphicsViewRight->scene()->items()) {
+  for (auto &item : mGraphicsViewPseudoimage->scene()->items()) {
     if (mMarkerType == 0){
       // Circle
       if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
-        mGraphicsViewRight->scene()->removeItem(item);
+        mGraphicsViewPseudoimage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     } else if (mMarkerType == 1){
       // Cross
       if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
-        mGraphicsViewRight->scene()->removeItem(item);
+        mGraphicsViewPseudoimage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     } else if (mMarkerType == 2){
       // Diagonal cross
       if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
-        mGraphicsViewRight->scene()->removeItem(item);
+        mGraphicsViewPseudoimage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
@@ -335,8 +335,8 @@ void MatchViewerViewImp::setMatches(const std::vector<std::tuple<size_t, size_t,
   }
 
 
-  mGraphicsViewLeft->zoomExtend();
-  mGraphicsViewRight->zoomExtend();
+  mGraphicsViewImage->zoomExtend();
+  mGraphicsViewPseudoimage->zoomExtend();
 
   QPen pen(QColor(mMarkerColor), mMarkerWidth);
   pen.setCosmetic(true);
@@ -364,13 +364,13 @@ void MatchViewerViewImp::setMatches(const std::vector<std::tuple<size_t, size_t,
       itemLeft->setSelectedPen(select_pen);
       itemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
       itemLeft->setToolTip(QString::number(static_cast<int>(pp_id)));
-      mGraphicsViewLeft->scene()->addItem(itemLeft);
+      mGraphicsViewImage->scene()->addItem(itemLeft);
       CircleGraphicItem *itemRight = new CircleGraphicItem(train_point, mMarkerSize);
       itemRight->setPen(pen);
       itemRight->setFlag(QGraphicsItem::ItemIsSelectable, true);
       itemRight->setSelectedPen(select_pen);
       itemRight->setToolTip(QString::number(static_cast<int>(pp_id)));
-      mGraphicsViewRight->scene()->addItem(itemRight);
+      mGraphicsViewPseudoimage->scene()->addItem(itemRight);
     } else if (mMarkerType == 1){
       // Cross
       CrossGraphicItem *crossGraphicItemLeft = new CrossGraphicItem(query_point, mMarkerSize);
@@ -378,13 +378,13 @@ void MatchViewerViewImp::setMatches(const std::vector<std::tuple<size_t, size_t,
       crossGraphicItemLeft->setSelectedPen(select_pen);
       crossGraphicItemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
       crossGraphicItemLeft->setToolTip(QString::number(static_cast<int>(pp_id)));
-      mGraphicsViewLeft->scene()->addItem(crossGraphicItemLeft);
+      mGraphicsViewImage->scene()->addItem(crossGraphicItemLeft);
       CrossGraphicItem *crossGraphicItemRight = new CrossGraphicItem(train_point, mMarkerSize);
       crossGraphicItemRight->setPen(pen);
       crossGraphicItemRight->setSelectedPen(select_pen);
       crossGraphicItemRight->setFlag(QGraphicsItem::ItemIsSelectable, true);
       crossGraphicItemRight->setToolTip(QString::number(static_cast<int>(pp_id)));
-      mGraphicsViewRight->scene()->addItem(crossGraphicItemRight);
+      mGraphicsViewPseudoimage->scene()->addItem(crossGraphicItemRight);
     } else if (mMarkerType == 2){
       // Diagonal cross
       DiagonalCrossGraphicItem *crossGraphicItemLeft = new DiagonalCrossGraphicItem(query_point, mMarkerSize);
@@ -392,21 +392,21 @@ void MatchViewerViewImp::setMatches(const std::vector<std::tuple<size_t, size_t,
       crossGraphicItemLeft->setSelectedPen(select_pen);
       crossGraphicItemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
       crossGraphicItemLeft->setToolTip(QString::number(static_cast<int>(pp_id)));
-      mGraphicsViewLeft->scene()->addItem(crossGraphicItemLeft);
+      mGraphicsViewImage->scene()->addItem(crossGraphicItemLeft);
       DiagonalCrossGraphicItem *crossGraphicItemRight = new DiagonalCrossGraphicItem(train_point, mMarkerSize);
       crossGraphicItemRight->setPen(pen);
       crossGraphicItemRight->setSelectedPen(select_pen);
       crossGraphicItemRight->setFlag(QGraphicsItem::ItemIsSelectable, true);
       crossGraphicItemRight->setToolTip(QString::number(static_cast<int>(pp_id)));
-      mGraphicsViewRight->scene()->addItem(crossGraphicItemRight);
+      mGraphicsViewPseudoimage->scene()->addItem(crossGraphicItemRight);
     }
   }
 }
 
 void MatchViewerViewImp::setBGColor(const QString &bgColor)
 {
-  mGraphicsViewLeft->setBackgroundBrush(QBrush(QColor(bgColor)));
-  mGraphicsViewRight->setBackgroundBrush(QBrush(QColor(bgColor)));
+  mGraphicsViewImage->setBackgroundBrush(QBrush(QColor(bgColor)));
+  mGraphicsViewPseudoimage->setBackgroundBrush(QBrush(QColor(bgColor)));
 }
 
 void MatchViewerViewImp::setSelectedMarkerStyle(const QString &color, int width)
@@ -430,7 +430,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
 
   if (markerTypeOld != mMarkerType){
 
-    for (auto &item : mGraphicsViewLeft->scene()->items()) {
+    for (auto &item : mGraphicsViewImage->scene()->items()) {
 
       QPointF point;
       int id = 0;
@@ -438,7 +438,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
       if (markerTypeOld == 0) {
         // Circle
         if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
-          mGraphicsViewLeft->scene()->removeItem(item);
+          mGraphicsViewImage->scene()->removeItem(item);
           point = item->pos();
           id = item->toolTip().toInt();
           delete keyPoint;
@@ -447,14 +447,14 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
       } else if (markerTypeOld == 1) {
         // Cross
         if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
-          mGraphicsViewLeft->scene()->removeItem(item);
+          mGraphicsViewImage->scene()->removeItem(item);
           delete keyPoint;
           keyPoint = nullptr;
         }
       } else if (markerTypeOld == 2) {
         // Diagonal cross
         if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
-          mGraphicsViewLeft->scene()->removeItem(item);
+          mGraphicsViewImage->scene()->removeItem(item);
           delete keyPoint;
           keyPoint = nullptr;
         }
@@ -469,7 +469,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
         itemLeft->setSelectedPen(select_pen);
         itemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
         itemLeft->setToolTip(QString::number(id));
-        mGraphicsViewLeft->scene()->addItem(itemLeft);
+        mGraphicsViewImage->scene()->addItem(itemLeft);
       } else if (mMarkerType == 1) {
         // Cross
         CrossGraphicItem *crossGraphicItemLeft = new CrossGraphicItem(point, mMarkerSize);
@@ -477,7 +477,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
         crossGraphicItemLeft->setSelectedPen(select_pen);
         crossGraphicItemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
         crossGraphicItemLeft->setToolTip(QString::number(id));
-        mGraphicsViewLeft->scene()->addItem(crossGraphicItemLeft);
+        mGraphicsViewImage->scene()->addItem(crossGraphicItemLeft);
       } else if (mMarkerType == 2) {
         // Diagonal cross
         DiagonalCrossGraphicItem *crossGraphicItemLeft = new DiagonalCrossGraphicItem(point, mMarkerSize);
@@ -485,11 +485,11 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
         crossGraphicItemLeft->setSelectedPen(select_pen);
         crossGraphicItemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
         crossGraphicItemLeft->setToolTip(QString::number(id));
-        mGraphicsViewLeft->scene()->addItem(crossGraphicItemLeft);
+        mGraphicsViewImage->scene()->addItem(crossGraphicItemLeft);
       }
     }
 
-    for (auto &item : mGraphicsViewRight->scene()->items()) {
+    for (auto &item : mGraphicsViewPseudoimage->scene()->items()) {
 
       QPointF point;
       int id = 0;
@@ -497,7 +497,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
       if (markerTypeOld == 0){
         // Circle
         if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
-          mGraphicsViewRight->scene()->removeItem(item);
+          mGraphicsViewPseudoimage->scene()->removeItem(item);
           point = item->pos();
           id = item->toolTip().toInt();
           delete keyPoint;
@@ -506,7 +506,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
       } else if (markerTypeOld == 1){
         // Cross
         if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
-          mGraphicsViewRight->scene()->removeItem(item);
+          mGraphicsViewPseudoimage->scene()->removeItem(item);
           point = item->pos();
           id = item->toolTip().toInt();
           delete keyPoint;
@@ -515,7 +515,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
       } else if (markerTypeOld == 2){
         // Diagonal cross
         if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
-          mGraphicsViewRight->scene()->removeItem(item);
+          mGraphicsViewPseudoimage->scene()->removeItem(item);
           point = item->pos();
           id = item->toolTip().toInt();
           delete keyPoint;
@@ -532,7 +532,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
         itemRight->setSelectedPen(select_pen);
         itemRight->setFlag(QGraphicsItem::ItemIsSelectable, true);
         itemRight->setToolTip(QString::number(id));
-        mGraphicsViewRight->scene()->addItem(itemRight);
+        mGraphicsViewPseudoimage->scene()->addItem(itemRight);
       } else if (mMarkerType == 1){
         // Cross
         CrossGraphicItem *crossGraphicItemRight = new CrossGraphicItem(point, mMarkerSize);
@@ -540,7 +540,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
         crossGraphicItemRight->setSelectedPen(select_pen);
         crossGraphicItemRight->setFlag(QGraphicsItem::ItemIsSelectable, true);
         crossGraphicItemRight->setToolTip(QString::number(id));
-        mGraphicsViewRight->scene()->addItem(crossGraphicItemRight);
+        mGraphicsViewPseudoimage->scene()->addItem(crossGraphicItemRight);
       } else if (mMarkerType == 2){
         // Diagonal cross
         DiagonalCrossGraphicItem *crossGraphicItemRight = new DiagonalCrossGraphicItem(point, mMarkerSize);
@@ -548,13 +548,13 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
         crossGraphicItemRight->setSelectedPen(select_pen);
         crossGraphicItemRight->setFlag(QGraphicsItem::ItemIsSelectable, true);
         crossGraphicItemRight->setToolTip(QString::number(id));
-        mGraphicsViewRight->scene()->addItem(crossGraphicItemRight);
+        mGraphicsViewPseudoimage->scene()->addItem(crossGraphicItemRight);
       }
     }
 
   } else {
 
-    for (auto &item : mGraphicsViewLeft->scene()->items()) {
+    for (auto &item : mGraphicsViewImage->scene()->items()) {
       if (mMarkerType == 0){
         // Circle
         if (CircleGraphicItem *keyPoints = dynamic_cast<CircleGraphicItem *>(item)){
@@ -579,7 +579,7 @@ void MatchViewerViewImp::setMarkerStyle(const QString &color, int width, int typ
       }
     }
 
-    for (auto &item : mGraphicsViewRight->scene()->items()) {
+    for (auto &item : mGraphicsViewPseudoimage->scene()->items()) {
       if (mMarkerType == 0) {
         // Circle
         if (CircleGraphicItem *keyPoints = dynamic_cast<CircleGraphicItem *>(item)){
@@ -634,57 +634,57 @@ void MatchViewerViewImp::onTreeWidgetMatchesItemClicked(QTreeWidgetItem *item, i
   QPointF query_point(item->text(1).toDouble(), item->text(2).toDouble());
   QPointF train_point(item->text(3).toDouble(), item->text(4).toDouble());
 
-  mGraphicsViewLeft->zoom11();
-  mGraphicsViewLeft->centerOn(query_point);
-  mGraphicsViewRight->zoom11();
-  mGraphicsViewRight->centerOn(train_point);
+  mGraphicsViewImage->zoom11();
+  mGraphicsViewImage->centerOn(query_point);
+  mGraphicsViewPseudoimage->zoom11();
+  mGraphicsViewPseudoimage->centerOn(train_point);
 }
 
 void MatchViewerViewImp::onTreeWidgetMatchesItemSelectionChanged()
 {
-  const QSignalBlocker blocker1(mGraphicsViewLeft);
-  const QSignalBlocker blocker2(mGraphicsViewRight);
+  const QSignalBlocker blocker1(mGraphicsViewImage);
+  const QSignalBlocker blocker2(mGraphicsViewPseudoimage);
 
   if (QTreeWidgetItem *item = mTreeWidgetMatches->currentItem()){
 
     QPointF query_point(item->text(2).toDouble(), item->text(3).toDouble());
     QPointF train_point(item->text(5).toDouble(), item->text(6).toDouble());
 
-    mGraphicsViewLeft->scene()->clearSelection();
-    mGraphicsViewRight->scene()->clearSelection();
+    mGraphicsViewImage->scene()->clearSelection();
+    mGraphicsViewPseudoimage->scene()->clearSelection();
 
-    mGraphicsViewLeft->zoom11();
-    mGraphicsViewLeft->centerOn(query_point);
-    QPoint pt_left = mGraphicsViewLeft->mapFromScene(query_point);
-    QGraphicsItem *select_item_left = mGraphicsViewLeft->itemAt(pt_left);
+    mGraphicsViewImage->zoom11();
+    mGraphicsViewImage->centerOn(query_point);
+    QPoint pt_left = mGraphicsViewImage->mapFromScene(query_point);
+    QGraphicsItem *select_item_left = mGraphicsViewImage->itemAt(pt_left);
     if (select_item_left) {
       select_item_left->setSelected(true);
     }
-    mGraphicsViewRight->zoom11();
-    mGraphicsViewRight->centerOn(train_point);
-    QPoint pt_right = mGraphicsViewRight->mapFromScene(train_point);
-    QGraphicsItem *select_item_right = mGraphicsViewRight->itemAt(pt_right);
+    mGraphicsViewPseudoimage->zoom11();
+    mGraphicsViewPseudoimage->centerOn(train_point);
+    QPoint pt_right = mGraphicsViewPseudoimage->mapFromScene(train_point);
+    QGraphicsItem *select_item_right = mGraphicsViewPseudoimage->itemAt(pt_right);
     if (select_item_right) {
       select_item_right->setSelected(true);
     }
   } else {
-    mGraphicsViewLeft->scene()->clearSelection();
-    mGraphicsViewRight->scene()->clearSelection();
+    mGraphicsViewImage->scene()->clearSelection();
+    mGraphicsViewPseudoimage->scene()->clearSelection();
   }
   update();
 }
 
 void MatchViewerViewImp::onGraphicsViewLeftSelectionChanged()
 {
-  const QSignalBlocker blocker1(mGraphicsViewRight);
+  const QSignalBlocker blocker1(mGraphicsViewPseudoimage);
   const QSignalBlocker blocker2(mTreeWidgetMatches);
 
-  QList<QGraphicsItem *> items = mGraphicsViewLeft->items();
+  QList<QGraphicsItem *> items = mGraphicsViewImage->items();
   bool bSelectedItem = false;
   for (int i = 0; i < items.size(); i++){
     if (items[i]->isSelected() == true) {
-      mGraphicsViewRight->scene()->clearSelection();
-      QList<QGraphicsItem *> items_right = mGraphicsViewRight->items();
+      mGraphicsViewPseudoimage->scene()->clearSelection();
+      QList<QGraphicsItem *> items_right = mGraphicsViewPseudoimage->items();
       items_right[i]->setSelected(true);
       mTreeWidgetMatches->selectionModel()->clearSelection();
       for (int j = 0; j < mTreeWidgetMatches->topLevelItemCount(); j++){
@@ -692,7 +692,7 @@ void MatchViewerViewImp::onGraphicsViewLeftSelectionChanged()
         if (item && item->text(0).compare(items[i]->toolTip()) == 0){
           item->setSelected(true);
           QPointF train_point(item->text(5).toDouble(), item->text(6).toDouble());
-          mGraphicsViewRight->centerOn(train_point);
+          mGraphicsViewPseudoimage->centerOn(train_point);
 
           QModelIndex index = mTreeWidgetMatches->model()->index(j, 0);
           mTreeWidgetMatches->scrollTo(index);
@@ -708,7 +708,7 @@ void MatchViewerViewImp::onGraphicsViewLeftSelectionChanged()
   }
 
   if (bSelectedItem == false){
-    QList<QGraphicsItem *> items = mGraphicsViewRight->items();
+    QList<QGraphicsItem *> items = mGraphicsViewPseudoimage->items();
     for (int i = 0; i < items.size(); i++){
       items[i]->setSelected(false);
     }
@@ -720,15 +720,15 @@ void MatchViewerViewImp::onGraphicsViewLeftSelectionChanged()
 
 void MatchViewerViewImp::onGraphicsViewRightSelectionChanged()
 {
-  const QSignalBlocker blocker1(mGraphicsViewLeft);
+  const QSignalBlocker blocker1(mGraphicsViewImage);
   const QSignalBlocker blocker2(mTreeWidgetMatches);
 
-  QList<QGraphicsItem *> items = mGraphicsViewRight->items();
+  QList<QGraphicsItem *> items = mGraphicsViewPseudoimage->items();
   bool bSelectedItem = false;
   for (int i = 0; i < items.size(); i++){
     if (items[i]->isSelected() == true) {
-      mGraphicsViewLeft->scene()->clearSelection();
-      QList<QGraphicsItem *> items_left = mGraphicsViewLeft->items();
+      mGraphicsViewImage->scene()->clearSelection();
+      QList<QGraphicsItem *> items_left = mGraphicsViewImage->items();
       items_left[i]->setSelected(true);
       mTreeWidgetMatches->selectionModel()->clearSelection();
       for (int j = 0; j < mTreeWidgetMatches->topLevelItemCount(); j++){
@@ -736,7 +736,7 @@ void MatchViewerViewImp::onGraphicsViewRightSelectionChanged()
         if (itemProject && itemProject->text(0).compare(items[i]->toolTip()) == 0){
           itemProject->setSelected(true);
           QPointF query_point(itemProject->text(2).toDouble(), itemProject->text(3).toDouble());
-          mGraphicsViewLeft->centerOn(query_point);
+          mGraphicsViewImage->centerOn(query_point);
 
           QModelIndex index = mTreeWidgetMatches->model()->index(j, 0);
           mTreeWidgetMatches->scrollTo(index);
@@ -752,7 +752,7 @@ void MatchViewerViewImp::onGraphicsViewRightSelectionChanged()
   }
 
   if (bSelectedItem == false){
-    QList<QGraphicsItem *> items = mGraphicsViewLeft->items();
+    QList<QGraphicsItem *> items = mGraphicsViewImage->items();
     for (int i = 0; i < items.size(); i++){
       items[i]->setSelected(false);
     }
@@ -764,50 +764,50 @@ void MatchViewerViewImp::onGraphicsViewRightSelectionChanged()
 
 void MatchViewerViewImp::closeEvent(QCloseEvent *event)
 {
-  for (auto &item : mGraphicsViewLeft->scene()->items()) {
+  for (auto &item : mGraphicsViewImage->scene()->items()) {
     if (mMarkerType == 0){
       // Circle
       if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
-        mGraphicsViewLeft->scene()->removeItem(item);
+        mGraphicsViewImage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     } else if (mMarkerType == 1){
       // Cross
       if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
-        mGraphicsViewLeft->scene()->removeItem(item);
+        mGraphicsViewImage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     } else if (mMarkerType == 2){
       // Diagonal cross
       if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
-        mGraphicsViewLeft->scene()->removeItem(item);
+        mGraphicsViewImage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     }
   }
 
-  for (auto &item : mGraphicsViewRight->scene()->items()) {
+  for (auto &item : mGraphicsViewPseudoimage->scene()->items()) {
     if (mMarkerType == 0){
       // Circle
       if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
-        mGraphicsViewRight->scene()->removeItem(item);
+        mGraphicsViewPseudoimage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     } else if (mMarkerType == 1){
       // Cross
       if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
-        mGraphicsViewRight->scene()->removeItem(item);
+        mGraphicsViewPseudoimage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
     } else if (mMarkerType == 2){
       // Diagonal cross
       if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
-        mGraphicsViewRight->scene()->removeItem(item);
+        mGraphicsViewPseudoimage->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }

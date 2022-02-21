@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
+
 #include "sift.h"
 
 #include <tidop/core/messages.h>
@@ -147,242 +170,6 @@ void SiftDetectorDescriptor::update()
   mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
   mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
 }
-
-void SiftDetectorDescriptor::run(const colmap::Bitmap &bitmap,
-                                 colmap::FeatureKeypoints &keyPoints,
-                                 colmap::FeatureDescriptors &descriptors)
-{
-  std::lock_guard<std::mutex> lck(mMutex);
-
-  try {
-    mSiftExtractionOptions.max_image_size = std::max(bitmap.Width(), bitmap.Height());
-    mSiftExtractionOptions.use_gpu = false;
-    bool err = ExtractSiftFeaturesCPU(mSiftExtractionOptions, bitmap, &keyPoints, &descriptors);
-    if (err == false) throw "ExtractSiftFeaturesCPU fail";
-  } catch (std::exception &) {
-    msgError("SIFT Detector exception");
-    throw;
-  } catch (...) {
-    msgError("SIFT Detector exception");
-    throw;
-  }
-}
-
-//colmap::FeatureDescriptors TransformVLFeatToUBCFeatureDescriptors(
-//  const colmap::FeatureDescriptors &vlfeat_descriptors)
-//{
-//  colmap::FeatureDescriptors ubc_descriptors(vlfeat_descriptors.rows(),
-//                                     vlfeat_descriptors.cols());
-//  const std::array<int, 8> q{{0, 7, 6, 5, 4, 3, 2, 1}};
-//  for (colmap::FeatureDescriptors::Index n = 0; n < vlfeat_descriptors.rows(); ++n) {
-//    for (int i = 0; i < 4; ++i) {
-//      for (int j = 0; j < 4; ++j) {
-//        for (int k = 0; k < 8; ++k) {
-//          ubc_descriptors(n, 8 * (j + 4 * i) + q[k]) =
-//            vlfeat_descriptors(n, 8 * (j + 4 * i) + k);
-//        }
-//      }
-//    }
-//  }
-//  return ubc_descriptors;
-//}
-//
-//void SiftDetectorDescriptor::run(const colmap::Bitmap &bitmap,
-//                                 colmap::FeatureKeypoints &keyPoints,
-//                                 colmap::FeatureDescriptors &descriptors)
-//{
-//  std::lock_guard<std::mutex> lck(mMutex);
-//  try {
-//
-//    using namespace colmap;
-//
-//    mSiftExtractionOptions.use_gpu = false;
-//
-//    TL_ASSERT(mSiftExtractionOptions.Check(),"");
-//    TL_ASSERT(bitmap.IsGrey(), "");
-//
-//    CHECK(!mSiftExtractionOptions.estimate_affine_shape);
-//    CHECK(!mSiftExtractionOptions.domain_size_pooling);
-//    
-//    //if (mSiftExtractionOptions.darkness_adaptivity) {
-//    //  WarnDarknessAdaptivityNotAvailable();
-//    //}
-//
-//    // Setup SIFT extractor.
-//    //std::unique_ptr<VlSiftFilt, void (*)(VlSiftFilt *)> sift(
-//    //  vl_sift_new(bitmap.Width(), bitmap.Height(), mSiftExtractionOptions.num_octaves,
-//    //              mSiftExtractionOptions.octave_resolution, mSiftExtractionOptions.first_octave),
-//    //  &vl_sift_delete);
-//    int w = bitmap.Width();
-//    int h = bitmap.Height();
-//    mSiftCpu = vl_sift_new(w, h,
-//                           mSiftExtractionOptions.num_octaves,
-//                           mSiftExtractionOptions.octave_resolution,
-//                           mSiftExtractionOptions.first_octave);
-//    if (!mSiftCpu) throw std::runtime_error("ExtractSiftFeaturesCPU fail");
-//    //if (!sift) {
-//    //  return;
-//    //}
-//
-//    vl_sift_set_peak_thresh(mSiftCpu, mSiftExtractionOptions.peak_threshold);
-//    vl_sift_set_edge_thresh(mSiftCpu, mSiftExtractionOptions.edge_threshold);
-//
-//    // Iterate through octaves.
-//    std::vector<size_t> level_num_features;
-//    std::vector<FeatureKeypoints> level_keypoints;
-//    std::vector<FeatureDescriptors> level_descriptors;
-//    bool first_octave = true;
-//    while (true) {
-//      if (first_octave) {
-//        const std::vector<uint8_t> data_uint8 = bitmap.ConvertToRowMajorArray();
-//        std::vector<float> data_float(data_uint8.size());
-//        for (size_t i = 0; i < data_uint8.size(); ++i) {
-//          data_float[i] = static_cast<float>(data_uint8[i]) / 255.0f;
-//        }
-//        if (vl_sift_process_first_octave(mSiftCpu, data_float.data())) {
-//          break;
-//        }
-//        first_octave = false;
-//      } else {
-//        if (vl_sift_process_next_octave(mSiftCpu)) {
-//          break;
-//        }
-//      }
-//
-//      // Detect keypoints.
-//      vl_sift_detect(mSiftCpu);
-//
-//      // Extract detected keypoints.
-//      const VlSiftKeypoint *vl_keypoints = vl_sift_get_keypoints(mSiftCpu);
-//      const int num_keypoints = vl_sift_get_nkeypoints(mSiftCpu);
-//      if (num_keypoints == 0) {
-//        continue;
-//      }
-//
-//      // Extract features with different orientations per DOG level.
-//      size_t level_idx = 0;
-//      int prev_level = -1;
-//      for (int i = 0; i < num_keypoints; ++i) {
-//        if (vl_keypoints[i].is != prev_level) {
-//          if (i > 0) {
-//            // Resize containers of previous DOG level.
-//            level_keypoints.back().resize(level_idx);
-//            //if (descriptors != nullptr) {
-//              level_descriptors.back().conservativeResize(level_idx, 128);
-//            //}
-//          }
-//
-//          // Add containers for new DOG level.
-//          level_idx = 0;
-//          level_num_features.push_back(0);
-//          level_keypoints.emplace_back(mSiftExtractionOptions.max_num_orientations *
-//                                       num_keypoints);
-//          //if (descriptors != nullptr) {
-//            level_descriptors.emplace_back(
-//              mSiftExtractionOptions.max_num_orientations * num_keypoints, 128);
-//          //}
-//        }
-//
-//        level_num_features.back() += 1;
-//        prev_level = vl_keypoints[i].is;
-//
-//        // Extract feature orientations.
-//        double angles[4];
-//        int num_orientations;
-//        if (mSiftExtractionOptions.upright) {
-//          num_orientations = 1;
-//          angles[0] = 0.0;
-//        } else {
-//          num_orientations = vl_sift_calc_keypoint_orientations(
-//            mSiftCpu, angles, &vl_keypoints[i]);
-//        }
-//
-//        // Note that this is different from SiftGPU, which selects the top
-//        // global maxima as orientations while this selects the first two
-//        // local maxima. It is not clear which procedure is better.
-//        const int num_used_orientations =
-//          std::min(num_orientations, mSiftExtractionOptions.max_num_orientations);
-//
-//        for (int o = 0; o < num_used_orientations; ++o) {
-//          level_keypoints.back()[level_idx] =
-//            FeatureKeypoint(vl_keypoints[i].x + 0.5f, vl_keypoints[i].y + 0.5f,
-//                            vl_keypoints[i].sigma, angles[o]);
-//          //if (descriptors != nullptr) {
-//            Eigen::MatrixXf desc(1, 128);
-//            vl_sift_calc_keypoint_descriptor(mSiftCpu, desc.data(),
-//                                             &vl_keypoints[i], angles[o]);
-//            if (mSiftExtractionOptions.normalization ==
-//                SiftExtractionOptions::Normalization::L2) {
-//              desc = L2NormalizeFeatureDescriptors(desc);
-//            } else if (mSiftExtractionOptions.normalization ==
-//                       SiftExtractionOptions::Normalization::L1_ROOT) {
-//              desc = L1RootNormalizeFeatureDescriptors(desc);
-//            } else {
-//              LOG(FATAL) << "Normalization type not supported";
-//            }
-//
-//            level_descriptors.back().row(level_idx) =
-//              FeatureDescriptorsToUnsignedByte(desc);
-//          //}
-//
-//          level_idx += 1;
-//        }
-//      }
-//
-//      // Resize containers for last DOG level in octave.
-//      level_keypoints.back().resize(level_idx);
-//      //if (descriptors != nullptr) {
-//        level_descriptors.back().conservativeResize(level_idx, 128);
-//      //}
-//    }
-//
-//    // Determine how many DOG levels to keep to satisfy max_num_features option.
-//    int first_level_to_keep = 0;
-//    int num_features = 0;
-//    int num_features_with_orientations = 0;
-//    for (int i = level_keypoints.size() - 1; i >= 0; --i) {
-//      num_features += level_num_features[i];
-//      num_features_with_orientations += level_keypoints[i].size();
-//      if (num_features > mSiftExtractionOptions.max_num_features) {
-//        first_level_to_keep = i;
-//        break;
-//      }
-//    }
-//
-//    // Extract the features to be kept.
-//    {
-//      size_t k = 0;
-//      keyPoints.resize(num_features_with_orientations);
-//      for (size_t i = first_level_to_keep; i < level_keypoints.size(); ++i) {
-//        for (size_t j = 0; j < level_keypoints[i].size(); ++j) {
-//          keyPoints[k] = level_keypoints[i][j];
-//          k += 1;
-//        }
-//      }
-//    }
-//
-//    // Compute the descriptors for the detected keypoints.
-//    //if (descriptors != nullptr) {
-//      size_t k = 0;
-//      descriptors.resize(num_features_with_orientations, 128);
-//      for (size_t i = first_level_to_keep; i < level_keypoints.size(); ++i) {
-//        for (size_t j = 0; j < level_keypoints[i].size(); ++j) {
-//          descriptors.row(k) = level_descriptors[i].row(j);
-//          k += 1;
-//        }
-//      }
-//      descriptors = TransformVLFeatToUBCFeatureDescriptors(descriptors);
-//    //}
-//
-//
-//  } catch (std::exception &) {
-//    msgError("SIFT Detector exception");
-//    throw;
-//  } catch (...) {
-//    msgError("SIFT Detector exception");
-//    throw;
-//  }
-//}
 
 void SiftDetectorDescriptor::run(const cv::Mat &bitmap,
                                  colmap::FeatureKeypoints &keyPoints,
@@ -629,38 +416,21 @@ SiftCPUDetectorDescriptor::SiftCPUDetectorDescriptor(int featuresNumber,
 
 SiftCPUDetectorDescriptor::~SiftCPUDetectorDescriptor()
 {
-  //if (mSiftCpu) {
-  //  vl_sift_delete(mSiftCpu);
-  //  mSiftCpu = nullptr;
-  //}
 }
 
 void SiftCPUDetectorDescriptor::update()
 {
-  //mSiftExtractionOptions.max_num_features = SiftProperties::featuresNumber();
-  //mSiftExtractionOptions.octave_resolution = SiftProperties::octaveLayers();
-  //mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
-  //mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
 #if (CV_VERSION_MAJOR > 4 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 4))
   mSift = cv::SIFT::create(SiftProperties::featuresNumber(),
                            SiftProperties::octaveLayers(),
                            SiftProperties::contrastThreshold(),
-                           SiftProperties::edgeThreshold()/*,
-                           SiftProperties::sigma()*/);
+                           SiftProperties::edgeThreshold());
 #elif defined HAVE_OPENCV_XFEATURES2D && defined OPENCV_ENABLE_NONFREE
   mSift = cv::xfeatures2d::SIFT::create(SiftProperties::featuresNumber(),
                                         SiftProperties::octaveLayers(),
                                         SiftProperties::contrastThreshold(),
-                                        SiftProperties::edgeThreshold()/*,
-                                        SiftProperties::sigma()*/);
+                                        SiftProperties::edgeThreshold());
 #endif
-}
-
-void SiftCPUDetectorDescriptor::run(const colmap::Bitmap &bitmap,
-                                    colmap::FeatureKeypoints &keyPoints,
-                                    colmap::FeatureDescriptors &descriptors)
-{
-
 }
 
 void SiftCPUDetectorDescriptor::run(const cv::Mat &bitmap,
@@ -691,7 +461,6 @@ void SiftCPUDetectorDescriptor::run(const cv::Mat &bitmap,
 #endif // HAVE_OPENCV_XFEATURES2D
 
     size_t max_features = std::min(static_cast<int>(opencv_key_points.size()), SiftProperties::featuresNumber());
-    //size_t max_features = feature_number;
     keyPoints.resize(max_features);
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float_resize(max_features, 
                                                                                                    opencv_descriptors.cols);
@@ -800,26 +569,6 @@ void SiftCudaDetectorDescriptor::update()
   mSiftExtractionOptions.use_gpu = true;
   if (!CreateSiftGPUExtractor(mSiftExtractionOptions, mSiftGpu.get())) {
     return;
-  }
-}
-
-void SiftCudaDetectorDescriptor::run(const colmap::Bitmap &bitmap,
-                                     colmap::FeatureKeypoints &keyPoints,
-                                     colmap::FeatureDescriptors &descriptors)
-{
-  std::lock_guard<std::mutex> lck(mMutex);
-  update();
-  try {
-    mSiftExtractionOptions.max_image_size = std::max(bitmap.Width(), bitmap.Height());
-    mSiftGpu->SetMaxDimension(mSiftExtractionOptions.max_image_size);
-    bool err = ExtractSiftFeaturesGPU(mSiftExtractionOptions, bitmap, mSiftGpu.get(), &keyPoints, &descriptors);
-    if (err == false) throw std::runtime_error("ExtractSiftFeaturesGPU fail");
-  } catch (std::exception &e) {
-    msgError("SIFT Detector exception");
-    throw;
-  } catch (...) {
-    msgError("SIFT Detector exception");
-    throw;
   }
 }
 

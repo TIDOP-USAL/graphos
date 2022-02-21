@@ -24,12 +24,8 @@
 #ifndef GRAPHOS_CORE_CAMERA_CALIBRATION_H
 #define GRAPHOS_CORE_CAMERA_CALIBRATION_H
 
-//#include <string>
-#include <map>
-//#include <memory>
-//
-//#include <opencv2/core/core.hpp>
 
+#include <map>
 
 #include <tidop/core/flags.h>
 #include <tidop/geometry/entities/point.h>

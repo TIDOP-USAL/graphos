@@ -1,6 +1,29 @@
-#include "utils.h"
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
 
-#include <graphos/core/Pdf.h>
+#include "graphos/core/utils.h"
+
+#include "graphos/core/Pdf.h"
 
 #include <tidop/core/messages.h>
 
@@ -347,66 +370,5 @@ tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, co
 
   return angle;
 }
-
-//tl::math::Degrees<double> formatLatitudeFromExif(const std::string &latitude, const std::string &ref)
-//{
-//  tl::math::Degrees<double> lat;
-//
-//  size_t pos1 = latitude.find("(");
-//  size_t pos2 = latitude.find(")");
-//
-//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-//    int degrees = std::stoi(latitude.substr(pos1 + 1, pos2 - pos1 + 1));
-//    if (ref.compare("S") == 0) degrees = -degrees;
-//    lat.setDegrees(degrees);
-//  }
-//
-//  pos1 = latitude.find("(", pos2);
-//  pos2 = latitude.find(")", pos1);
-//
-//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-//    lat.setMinutes(std::stoi(latitude.substr(pos1 + 1, pos2 - pos1 + 1)));
-//  }
-//
-//  pos1 = latitude.find("(", pos2);
-//  pos2 = latitude.find(")", pos1);
-//
-//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-//    lat.setSeconds(std::stod(latitude.substr(pos1 + 1, pos2 - pos1 + 1)));
-//  }
-//
-//  return lat;
-//}
-//
-//tl::math::Degrees<double> formatLongitudeFromExif(const std::string &longitude, const std::string &ref)
-//{
-//  tl::math::Degrees<double> lon;
-//
-//  size_t pos1 = longitude.find("(");
-//  size_t pos2 = longitude.find(")");
-//
-//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-//    int degrees = std::stoi(longitude.substr(pos1 + 1, pos2 - pos1 + 1));
-//    if (ref.compare("W") == 0) degrees = -degrees;
-//    lon.setDegrees(degrees);
-//  }
-//
-//  pos1 = longitude.find("(", pos2);
-//  pos2 = longitude.find(")", pos1);
-//
-//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-//    lon.setMinutes(std::stoi(longitude.substr(pos1 + 1, pos2 - pos1 + 1)));
-//  }
-//
-//  pos1 = longitude.find("(", pos2);
-//  pos2 = longitude.find(")", pos1);
-//
-//  if (pos1 != std::string::npos && pos2 != std::string::npos) {
-//    lon.setSeconds(std::stod(longitude.substr(pos1 + 1, pos2 - pos1 + 1)));
-//  }
-//
-//  return lon;
-//}
-
 
 } // end namespace graphos

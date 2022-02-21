@@ -719,17 +719,17 @@ void ImportCamerasModelImp::importCameras()
             tl::geospatial::CrsTransform crs_trf(crs_in, crs_out);
 
             tl::Point3D pt_in;
-            if (crs_in->isGeographic())
-              pt_in = tl::Point3D(y.toDouble(), x.toDouble(), z.toDouble());
-            else
+            //if (crs_in->isGeographic())
+            //  pt_in = tl::Point3D(y.toDouble(), x.toDouble(), z.toDouble());
+            //else
               pt_in = tl::Point3D(x.toDouble(), y.toDouble(), z.toDouble());
 
             tl::Point3D pt_out = crs_trf.transform(pt_in);
-            if (crs_out->isGeographic()) {
-              double x = pt_out.y;
-              pt_out.y = pt_out.x;
-              pt_out.x = x;
-            }
+            //if (crs_out->isGeographic()) {
+            //  double x = pt_out.y;
+            //  pt_out.y = pt_out.x;
+            //  pt_out.x = x;
+            //}
             camera_pose.setPosition(pt_out);
             camera_pose.setCrs(mOutputCrs);
           } else {

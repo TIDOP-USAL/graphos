@@ -21,16 +21,14 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_COLMAP_CAMERA_DATABASE_H
-#define GRAPHOS_COLMAP_CAMERA_DATABASE_H
+#ifndef GRAPHOS_CORE_CAMERA_DATABASE_H
+#define GRAPHOS_CORE_CAMERA_DATABASE_H
 
 #include "graphos/graphos_global.h"
 
 #include <memory>
 
 #include <QString>
-
-#include <tidop/geospatial/camera.h>
 
 class QSqlDatabase;
 
@@ -70,4 +68,4 @@ private:
 
 } // namespace graphos
 
-#endif // GRAPHOS_COLMAP_CAMERA_DATABASE_H
+#endif // GRAPHOS_CORE_CAMERA_DATABASE_H

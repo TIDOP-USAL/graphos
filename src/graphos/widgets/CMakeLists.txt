@@ -33,7 +33,9 @@ add_library(graphos_widgets ${LIB_TYPE}
 			GraphicItem.cpp
 			GraphicItem.h
 			GraphicViewer.cpp
-			GraphicViewer.h)
+			GraphicViewer.h
+            Viewer3d.cpp
+            Viewer3d.h)
 
 set_property(TARGET graphos_widgets PROPERTY FOLDER "lib")
 

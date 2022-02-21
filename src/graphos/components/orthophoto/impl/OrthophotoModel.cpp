@@ -23,7 +23,7 @@
 
 #include "OrthophotoModel.h"
 
-#include "graphos/core/Orthophoto.h"
+#include "graphos/core/ortho/Orthomosaic.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/orientation/poses.h"
 

@@ -25,7 +25,6 @@
 
 #include "graphos/components/dtm/DTMView.h"
 #include "graphos/components/dtm/DTMModel.h"
-//#include "graphos/components/SettingsModel.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/process/MultiProcess.h"

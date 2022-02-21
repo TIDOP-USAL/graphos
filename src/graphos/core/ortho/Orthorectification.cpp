@@ -25,30 +25,7 @@
 
 #include "graphos/core/camera/Utils.h"
 
-//#include "tidop/core/chrono.h"
-//#include "tidop/core/progress.h"
-//#include "tidop/img/formats.h"
-//#include "tidop/math/algebra/rotation_matrix.h"
-//#include "tidop/math/algebra/rotation_convert.h"
-//#include "tidop/math/algebra/matrix.h"
-//#include "tidop/geospatial/util.h"
-//#include "tidop/geospatial/crs.h"
-//#include "tidop/geometry/algorithms.h"
-//#include "tidop/geometry/transform/perspective.h"
-//#include "tidop/graphic/layer.h"
-//#include "tidop/graphic/entities/polygon.h"
-//#include "tidop/graphic/datamodel.h"
-//#include "tidop/vect/vectreader.h"
-//
-//#ifdef TL_HAVE_OPENCV
 #include <opencv2/calib3d.hpp>
-//#include <opencv2/core.hpp>
-//#include <opencv2/imgproc.hpp>
-//#include <opencv2/stitching.hpp>
-//#include <opencv2/imgcodecs.hpp>
-//#ifdef HAVE_OPENCV_CUDAARITHM
-//#include <opencv2/cudaarithm.hpp>
-//#endif
 #ifdef HAVE_OPENCV_CUDAWARPING
 #include <opencv2/cudawarping.hpp>
 #endif
@@ -303,74 +280,9 @@ void Orthorectification::init()
 void Orthorectification::initUndistortCamera()
 {
   std::shared_ptr<Calibration> calibration = mCamera.calibration();
-
-  //float focal_x = 1.f;
-  //float focal_y = 1.f;
-  //{
-  //  for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-  //    Calibration::Parameters parameter = param->first;
-  //    float value = static_cast<float>(param->second);
-  //    switch (parameter) {
-  //      case Calibration::Parameters::focal:
-  //        focal_x = value;
-  //        focal_y = value;
-  //        break;
-  //      case Calibration::Parameters::focalx:
-  //        focal_x = value;
-  //        break;
-  //      case Calibration::Parameters::focaly:
-  //        focal_y = value;
-  //        break;
-  //      default:
-  //        break;
-  //    }
-  //  }
-  //}
-  //
-  //float ppx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
-  //float ppy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
-  //std::array<std::array<float, 3>, 3> camera_matrix_data = { focal_x, 0.f, ppx,
-  //                                                          0.f, focal_y, ppy,
-  //                                                          0.f, 0.f, 1.f };
-  //cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
   
   cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
   cv::Mat dist_coeffs = openCVDistortionCoefficients(*calibration);
-  
-  //cv::Mat dist_coeffs = cv::Mat::zeros(1, 5, CV_32F);
-  //
-  //for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-  //  Calibration::Parameters parameter = param->first;
-  //  float value = static_cast<float>(param->second);
-  //  switch (parameter) {
-  //    case Calibration::Parameters::k1:
-  //      dist_coeffs.at<float>(0) = value;
-  //      break;
-  //    case Calibration::Parameters::k2:
-  //      dist_coeffs.at<float>(1) = value;
-  //      break;
-  //    case Calibration::Parameters::k3:
-  //      dist_coeffs.at<float>(4) = value;
-  //      break;
-  //    case Calibration::Parameters::k4:
-  //      dist_coeffs.at<float>(5) = value;
-  //      break;
-  //    case Calibration::Parameters::k5:
-  //      dist_coeffs.at<float>(6) = value;
-  //      break;
-  //    case Calibration::Parameters::k6:
-  //      dist_coeffs.at<float>(7) = value;
-  //      break;
-  //    case Calibration::Parameters::p1:
-  //      dist_coeffs.at<float>(2) = value;
-  //      break;
-  //    case Calibration::Parameters::p2:
-  //      dist_coeffs.at<float>(3) = value;
-  //      break;
-  //    default:
-  //      break;
-  //  }
-  //}
   
   cv::Size imageSize(static_cast<int>(mCamera.width()),
                      static_cast<int>(mCamera.height()));
@@ -396,24 +308,6 @@ float Orthorectification::focal() const
 
   std::shared_ptr<Calibration> calibration = mUndistortCamera.calibration();
 
-  //for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-  //  Calibration::Parameters parameter = param->first;
-  //  float value = static_cast<float>(param->second);
-  //  switch (parameter) {
-  //    case Calibration::Parameters::focal:
-  //      focal_x = value;
-  //      focal_y = value;
-  //      break;
-  //    case Calibration::Parameters::focalx:
-  //      focal_x = value;
-  //      break;
-  //    case Calibration::Parameters::focaly:
-  //      focal_y = value;
-  //      break;
-  //    default:
-  //      break;
-  //  }
-  //}
   if (calibration->existParameter(Calibration::Parameters::focal)) {
     focal_x = static_cast<float>(calibration->parameter(Calibration::Parameters::focal));
     focal_y = static_cast<float>(calibration->parameter(Calibration::Parameters::focal));
@@ -431,20 +325,6 @@ tl::PointF Orthorectification::principalPoint() const
 
   std::shared_ptr<Calibration> calibration = mUndistortCamera.calibration();
 
-  //for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-  //  Calibration::Parameters parameter = param->first;
-  //  float value = static_cast<float>(param->second);
-  //  switch (parameter) {
-  //    case Calibration::Parameters::cx:
-  //      principal_point.x = value;
-  //      break;
-  //    case Calibration::Parameters::cy:
-  //      principal_point.y = value;
-  //      break;
-  //    default:
-  //      break;
-  //  }
-  //}
   principal_point.x = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
   principal_point.y = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
 
@@ -453,44 +333,9 @@ tl::PointF Orthorectification::principalPoint() const
 
 cv::Mat Orthorectification::distCoeffs() const
 {
-  //cv::Mat dist_coeffs = cv::Mat::zeros(1, 5, CV_32F);
-
   std::shared_ptr<Calibration> calibration = mUndistortCamera.calibration();
 
   cv::Mat dist_coeffs = openCVDistortionCoefficients(*calibration);
-
-  /*for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-    Calibration::Parameters parameter = param->first;
-    float value = static_cast<float>(param->second);
-    switch (parameter) {
-      case Calibration::Parameters::k1:
-        dist_coeffs.at<float>(0) = value;
-        break;
-      case Calibration::Parameters::k2:
-        dist_coeffs.at<float>(1) = value;
-        break;
-      case Calibration::Parameters::k3:
-        dist_coeffs.at<float>(4) = value;
-        break;
-      case Calibration::Parameters::k4:
-        dist_coeffs.at<float>(5) = value;
-        break;
-      case Calibration::Parameters::k5:
-        dist_coeffs.at<float>(6) = value;
-        break;
-      case Calibration::Parameters::k6:
-        dist_coeffs.at<float>(7) = value;
-        break;
-      case Calibration::Parameters::p1:
-        dist_coeffs.at<float>(2) = value;
-        break;
-      case Calibration::Parameters::p2:
-        dist_coeffs.at<float>(3) = value;
-        break;
-      default:
-        break;
-    }
-  }*/
 
   return dist_coeffs;
 }
@@ -509,50 +354,6 @@ cv::Mat Orthorectification::undistort(const cv::Mat &image)
   try {
 
     std::shared_ptr<Calibration> calibration = mCamera.calibration();
-
-    //float ppx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
-    //float ppy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
-
-    //float focal_x = 1.f;
-    //float focal_y = 1.f;
-
-    //for (auto param = calibration->parametersBegin(); 
-    //     param != calibration->parametersEnd(); param++) {
-    //  Calibration::Parameters parameter = param->first;
-    //  float value = static_cast<float>(param->second);
-    //  switch (parameter) {
-    //    case Calibration::Parameters::focal:
-    //      focal_x = value;
-    //      focal_y = value;
-    //      break;
-    //    case Calibration::Parameters::focalx:
-    //      focal_x = value;
-    //      break;
-    //    case Calibration::Parameters::focaly:
-    //      focal_y = value;
-    //      break;
-    //    default:
-    //      break;
-    //  }
-    //}
-
-    //std::array<std::array<float, 3>, 3> camera_matrix_data = { focal_x, 0.f, ppx,
-    //                                                          0.f, focal_y, ppy,
-    //                                                          0.f, 0.f, 1.f };
-
-
-    //cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
-    //cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
-    //distCoeffs.at<float>(0) = calibration->existParameter(Calibration::Parameters::k1) ?
-    //                          static_cast<float>(calibration->parameter(Calibration::Parameters::k1)) : 0.f;
-    //distCoeffs.at<float>(1) = calibration->existParameter(Calibration::Parameters::k2) ?
-    //                          static_cast<float>(calibration->parameter(Calibration::Parameters::k2)) : 0.f;
-    //distCoeffs.at<float>(2) = calibration->existParameter(Calibration::Parameters::p1) ?
-    //                          static_cast<float>(calibration->parameter(Calibration::Parameters::p1)) : 0.f;
-    //distCoeffs.at<float>(3) = calibration->existParameter(Calibration::Parameters::p2) ?
-    //                          static_cast<float>(calibration->parameter(Calibration::Parameters::p2)) : 0.f;
-    //distCoeffs.at<float>(4) = calibration->existParameter(Calibration::Parameters::k3) ?
-    //                          static_cast<float>(calibration->parameter(Calibration::Parameters::k3)) : 0.f;
 
     cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
     cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);

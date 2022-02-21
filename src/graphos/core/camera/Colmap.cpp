@@ -49,12 +49,7 @@ ReadCalibration::~ReadCalibration()
 
 void ReadCalibration::open(const QString &path)
 {
-//#ifdef _DEBUG
-//  TL_TODO("Excepción al leer el binario en debug")
-//  mReconstruction->ReadText(path.toStdString());
-//#else
   mReconstruction->ReadBinary(path.toStdString());
-//#endif
 }
 
 std::shared_ptr<Calibration> ReadCalibration::calibration(int cameraId) const

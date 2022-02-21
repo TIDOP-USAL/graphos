@@ -21,52 +21,55 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORTHO_FOOTPRINT_H
-#define GRAPHOS_CORE_ORTHO_FOOTPRINT_H
+#ifndef GRAPHOS_CAMERA_CALIBRATION_IO_H
+#define GRAPHOS_CAMERA_CALIBRATION_IO_H
 
-#include <tidop/core/path.h>
-#include <tidop/core/process.h>
-#include <tidop/vect/vectwriter.h>
-#include <tidop/geospatial/crs.h>
+#include "graphos/graphos_global.h"
 
-#include "graphos/core/image.h"
-#include "graphos/core/camera/Camera.h"
+#include <memory>
+
+#include <QString>
+
+#include <tidop/geospatial/camera.h>
 
 namespace graphos
 {
 
-/*!
- * \brief Footprint
- */
-class Footprint
-	: public tl::ProcessBase
+
+class GRAPHOS_EXPORT CalibrationIO
 {
 
 public:
 
-	Footprint(const std::vector<Image> &images,
-						const std::map<int, Camera> &cameras,
-		        const tl::Path &dtm,
-		        const tl::geospatial::Crs &crs,
-		        const tl::Path &footprint);
-	~Footprint();
-	
-// Heredado vía ProcessBase
+  CalibrationIO();
+  virtual ~CalibrationIO() = default;
 
-private:
+  virtual bool write(std::shared_ptr<tl::Calibration> &calibration, 
+                     const QString &file) = 0;
+  virtual std::shared_ptr<tl::Calibration> read(const QString &file) = 0;
 
-	void execute(tl::Progress *progressBar = nullptr) override;
-
-private:
-
-	std::vector<Image> mImages;
-	std::map<int, Camera> mCameras;
-	tl::Path mDtm;
-	tl::geospatial::Crs mCrs;
-	std::unique_ptr<tl::VectorWriter> mFootprintWriter;
 };
 
 
-} // End namespace graphos
 
-#endif // GRAPHOS_CORE_ORTHO_FOOTPRINT_H
+/*----------------------------------------------------------------*/
+
+
+
+class GRAPHOS_EXPORT CalibrationIOFactory
+{
+
+private:
+
+  CalibrationIOFactory() {}
+
+public:
+
+  static std::unique_ptr<CalibrationIO> create(const QString &format);
+
+};
+
+} // namespace graphos
+
+
+#endif // GRAPHOS_CAMERA_CALIBRATION_IO_H

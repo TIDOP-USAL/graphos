@@ -24,20 +24,6 @@
 #ifndef GRAPHOS_CORE_CAMERA_H
 #define GRAPHOS_CORE_CAMERA_H
 
-//#include "config_tl.h"
-//
-//#include <string>
-//#include <map>
-//#include <memory>
-//
-//#include <opencv2/core/core.hpp>
-//
-//#include "tidop/core/defs.h"
-//#include "tidop/core/flags.h"
-//#include "tidop/geometry/entities/point.h"
-//#include "tidop/math/algebra/rotation_matrix.h"
-//#include "tidop/math/algebra/quaternion.h"
-
 #include "graphos/core/camera/Calibration.h"
 
 namespace graphos

@@ -25,7 +25,7 @@
 
 #include "graphos/widgets/GraphicViewer.h"
 #include "graphos/widgets/GraphicItem.h"
-#include "graphos/components/utils/Viewer3d.h"
+#include "graphos/widgets/Viewer3d.h"
 #include "graphos/core/utils.h"
 
 #include <tidop/core/utils.h>

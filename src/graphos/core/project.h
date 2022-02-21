@@ -1,5 +1,28 @@
-#ifndef GRAPHOS_PROJECT_H
-#define GRAPHOS_PROJECT_H
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
+
+#ifndef GRAPHOS_CORE_PROJECT_H
+#define GRAPHOS_CORE_PROJECT_H
 
 #include "graphos/graphos_global.h"
 
@@ -579,53 +602,6 @@ protected:
   int mCameraCount;
 };
 
-
-//class GRAPHOS_EXPORT ProjectControllerImp
-//  : public ProjectController
-//{
-
-//public:
-
-//  ProjectControllerImp();
-
-//// ProjectControllerImp interface
-
-//public:
-
-//  bool read(const QString &file, Project &prj) override;
-//  bool write(const QString &file, const Project &prj) const override;
-//  bool checkOldVersion(const QString &file) const override;
-//  void oldVersionBak(const QString &file) const override;
-
-//protected:
-
-//  void readGeneral(QXmlStreamReader &stream, Project &prj);
-//  void readDatabase(QXmlStreamReader &stream, Project &prj);
-//  void readImages(QXmlStreamReader &stream, Project &prj);
-//  Image readImage(QXmlStreamReader &stream);
-//  void readCameras(QXmlStreamReader &stream, Project &prj);
-//  std::shared_ptr<Camera> readCamera(QXmlStreamReader &stream);
-
-//  void writeVersion(QXmlStreamWriter &stream, const QString &version) const;
-//  void writeGeneral(QXmlStreamWriter &stream, const Project &prj) const;
-//  void writeDatabase(QXmlStreamWriter &stream, const Project &prj) const;
-//  void writeCameras(QXmlStreamWriter &stream, const Project &prj) const;
-//  void writeCamera(QXmlStreamWriter &stream, int id, const Camera *camera) const;
-//  void writeImages(QXmlStreamWriter &stream, const Project &prj) const;
-//  void writeImage(QXmlStreamWriter &stream, const Image *image) const;
-
-//  QSize readSize(QXmlStreamReader &stream) const;
-//  int readInt(QXmlStreamReader &stream) const;
-//  double readDouble(QXmlStreamReader &stream) const;
-//  bool readBoolean(QXmlStreamReader &stream) const;
-
-//protected:
-
-//  static std::mutex sMutex;
-
-//};
-
-
 } // end namespace graphos
 
-#endif // GRAPHOS_PROJECT_H
+#endif // GRAPHOS_CORE_PROJECT_H

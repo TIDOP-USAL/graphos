@@ -37,7 +37,6 @@
 #include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/messages.h>
-#include <tidop/geospatial/camera.h>
 
 #include <QFileInfo>
 #include <QMessageBox>

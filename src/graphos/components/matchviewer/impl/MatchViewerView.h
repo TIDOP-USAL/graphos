@@ -102,8 +102,8 @@ protected:
   QLabel *mRightImage;
   QComboBox  *mComboBoxLeftImage;
   QComboBox  *mComboBoxRightImage;
-  GraphicViewer *mGraphicsViewRight;
-  GraphicViewer *mGraphicsViewLeft;
+  GraphicViewer *mGraphicsViewPseudoimage;
+  GraphicViewer *mGraphicsViewImage;
   QLabel *mLabelMatches;
   QPushButton *mPushButtonDeleteMatch;
   QAction *mActionLeftZoomIn;

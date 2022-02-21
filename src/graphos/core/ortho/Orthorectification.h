@@ -25,26 +25,16 @@
 #ifndef GRAPHOS_CORE_ORTHO_ORTHORECTIFICATION_H
 #define GRAPHOS_CORE_ORTHO_ORTHORECTIFICATION_H
 
-//#include <string>
 #include <memory>
 
 #include <tidop/core/path.h>
-//#include "tidop/core/process.h"
-//#include "tidop/math/algebra/rotation_matrix.h"
 #include <tidop/img/imgreader.h>
-//#include "tidop/img/imgwriter.h"
-//#include "tidop/vect/vectwriter.h"
-//#include "tidop/geometry/entities/window.h"
 #include <tidop/geometry/transform/affine.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/diffrect.h>
-//#include "tidop/geospatial/camera.h"
-//#include "tidop/geospatial/photo.h"
-//#include "tidop/geospatial/crs.h"
 #include <tidop/graphic/entities/polygon.h>
 
 #include "graphos/core/camera/Camera.h"
-//#include "graphos/core/camera/CameraPose.h"
 #include "graphos/core/orientation/poses.h"
 
 namespace graphos

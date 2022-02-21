@@ -222,6 +222,7 @@
         <file>img/material/48/icons8_calendar_1_48px.png</file>
         <file>img/material/48/icons8_Location_Pin_48px.png</file>
         <file>img/material/48/icons8_ruler_48px.png</file>
+        <file>img/material/48/icons8_Location_info_48px.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>img/graphos.png</file>

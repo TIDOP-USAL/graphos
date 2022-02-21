@@ -476,7 +476,13 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
 
     value = image_metadata->metadata("EXIF_GPSAltitude", active);
     if (active) {
-      exif.push_back(std::make_pair(QString("GPS Altitude"), QString::fromStdString(value)));
+      size_t pos1 = value.find("(");
+      size_t pos2 = value.find(")");
+
+      if (pos1 != std::string::npos && pos2 != std::string::npos) {
+        std::string altitude = value.substr(pos1 + 1, pos2 - pos1 + 1);
+        exif.push_back(std::make_pair(QString("GPS Altitude"), QString::fromStdString(value)));
+      }
     }
 
     value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);

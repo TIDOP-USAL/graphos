@@ -28,8 +28,6 @@
 #include "graphos/core/process/ProcessPresenter.h"
 #include "graphos/core/command.h"
 
-//#include <tidop/core/console.h>
-
 #include <QAction>
 
 namespace graphos
