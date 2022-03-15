@@ -85,7 +85,6 @@ endif (BUILD_SHARED_LIBS)
 
 # Activación desactivación de los diferentes componentes de GRAPHOS
 OPTION (BUILD_GRAPHOS                 "GRAPHOS"                OFF)
-OPTION (BUILD_GRAPHOS_COMMANDS        "GRAPHOS COMMANDS"       ON )
 OPTION (BUILD_GRAPHOS_MICROSERVICES   "GRAPHOS MICROSERVICES"  OFF)
 
 # Activación desactivación de otros componentes 

@@ -8,10 +8,6 @@ add_subdirectory(graphos/widgets)
 add_subdirectory(graphos/components)
 endif (BUILD_GRAPHOS)
 
-if(BUILD_GRAPHOS_COMMANDS)
-add_subdirectory(graphos/cmd)
-endif (BUILD_GRAPHOS_COMMANDS)
-
 if(BUILD_GRAPHOS_MICROSERVICES)
 add_subdirectory(graphos/microservices)
 endif (BUILD_GRAPHOS_MICROSERVICES)
