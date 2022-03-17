@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "posesio.h"
+#include "graphos/core/orientation/posesio.h"
 
 #include <colmap/base/reconstruction.h>
 

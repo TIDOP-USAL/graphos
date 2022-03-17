@@ -21,10 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-
-#include "OrthophotoProcess.h"
-
-#include "graphos/core/Orthophoto.h"
+#include "graphos/process/orthophoto/OrthophotoProcess.h"
+#include "graphos/core/ortho/Orthomosaic.h"
 
 #include <tidop/core/messages.h>
 

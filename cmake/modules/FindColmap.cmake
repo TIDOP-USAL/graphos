@@ -238,7 +238,7 @@ find_package(Boost REQUIRED
                system
                unit_test_framework)
 			   
-#find_package(Eigen3 REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 find_package(FREEIMAGE REQUIRED)
     

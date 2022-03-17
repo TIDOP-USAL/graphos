@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "csf.h"
+#include "graphos/core/dtm/csf.h"
 
 #include <colmap/util/ply.h>
 

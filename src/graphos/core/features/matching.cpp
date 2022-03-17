@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "matching.h"
+#include "graphos/core/features/matching.h"
 
 namespace graphos
 {

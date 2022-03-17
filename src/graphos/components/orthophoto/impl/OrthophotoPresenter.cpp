@@ -24,7 +24,7 @@
 #include "OrthophotoPresenter.h"
 
 #include "graphos/process/orthophoto/OrthophotoProcess.h"
-#include "graphos/core/Orthophoto.h"
+#include "graphos/core/ortho/Orthomosaic.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"

@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "image.h"
+#include "graphos/core/image.h"
 
 #include <QFileInfo>
 

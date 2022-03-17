@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "Pdf.h"
+#include "graphos/core/Pdf.h"
 
 #include <QTextDocument>
 #include <QPrinter>

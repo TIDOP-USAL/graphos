@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "AbsoluteOrientationProcess.h"
+#include "graphos/process/orientation/AbsoluteOrientationProcess.h"
 
 #include "graphos/core/orientation/orientationcolmap.h"
 #include "graphos/core/orientation/orientationexport.h"

@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ImportOrientationProcess.h"
+#include "graphos/process/orientation/ImportOrientationProcess.h"
 
 #include "graphos/core/orientation/orientationcolmap.h"
 #include "graphos/core/orientation/orientationexport.h"

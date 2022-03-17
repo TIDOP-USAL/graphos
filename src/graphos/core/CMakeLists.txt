@@ -103,10 +103,12 @@ endforeach()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glog::glog)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE CSF)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::PrintSupport)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+                      CSF
+                      glog::glog
+                      Qt5::PrintSupport
+                      Eigen3::Eigen
+                      Ceres::ceres)
 
 install(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION lib 

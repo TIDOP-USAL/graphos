@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "gcp.h"
+#include "graphos/core/orientation/gcp.h"
 
 namespace graphos
 {

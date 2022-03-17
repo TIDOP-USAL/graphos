@@ -1,4 +1,27 @@
-#include "FeatureExtractorProcess.h"
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
+
+#include "graphos/process/features/FeatureExtractorProcess.h"
 
 #include "graphos/core/features/featio.h"
 #include "graphos/core/features/sift.h"
@@ -13,18 +36,18 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/photo.hpp>
-
-#include <colmap/base/database.h>
-#include <colmap/base/camera_models.h>
-
 #ifdef HAVE_CUDA
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudawarping.hpp>
 #include <opencv2/cudaarithm.hpp>
 #endif // HAVE_CUDA
 
+#include <colmap/base/database.h>
+#include <colmap/base/camera_models.h>
+
 #include <QFileInfo>
 
+#include <atomic>
 
 using namespace tl;
 
@@ -485,11 +508,11 @@ void FeatureExtractorProcess::run()
       size_t _end = _ini + size;
       if (i == num_threads - 1) _end = mImages.size();
 
-      producer_threads[i] = std::thread(producer, _ini, _end);
+      producer_threads[i] = std::move(std::thread(producer, _ini, _end));
     }
 
     for (size_t i = 0; i < num_threads; ++i) {
-      consumer_threads[i] = std::thread(consumer);
+      consumer_threads[i] = std::move(std::thread(consumer));
     }
 
     for (size_t i = 0; i < num_threads; ++i)

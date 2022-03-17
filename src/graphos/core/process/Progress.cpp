@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "Progress.h"
+#include "graphos/core/process/Progress.h"
 
 namespace graphos
 {

@@ -21,8 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "settings.h"
-
+#include "graphos/core/settings.h"
 #include "graphos/core/utils.h"
 
 #include "tidop/core/messages.h"

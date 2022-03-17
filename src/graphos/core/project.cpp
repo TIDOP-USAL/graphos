@@ -22,10 +22,6 @@
  ************************************************************************/
 
 #include "graphos/core/project.h"
-
-#include <tidop/core/messages.h>
-#include <tidop/core/exception.h>
-
 #include "graphos/core/features/sift.h"
 #include "graphos/core/features/matching.h"
 #include "graphos/core/densification/Smvs.h"
@@ -33,6 +29,9 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/dtm/invdist.h"
 #include "graphos/core/dtm/invdistnn.h"
+
+#include <tidop/core/messages.h>
+#include <tidop/core/exception.h>
 
 #include <QFile>
 #include <QFileInfo>

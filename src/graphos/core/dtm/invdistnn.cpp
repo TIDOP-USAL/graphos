@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "invdistnn.h"
+#include "graphos/core/dtm/invdistnn.h"
 
 // TIDOP LIB
 #include <tidop/core/messages.h>

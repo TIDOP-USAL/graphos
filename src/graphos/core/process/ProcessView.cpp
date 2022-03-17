@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ProcessView.h"
+#include "graphos/core/process/ProcessView.h"
 
 namespace graphos
 {

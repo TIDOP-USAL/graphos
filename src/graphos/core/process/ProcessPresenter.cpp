@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ProcessPresenter.h"
+#include "graphos/core/process/ProcessPresenter.h"
 
 #include "graphos/core/process/Progress.h"
 #include "graphos/process/MultiProcess.h"

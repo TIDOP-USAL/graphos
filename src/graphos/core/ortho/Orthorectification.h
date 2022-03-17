@@ -21,11 +21,12 @@
  *                                                                      *
  ************************************************************************/
 
-#include <opencv2/core/mat.hpp>
 #ifndef GRAPHOS_CORE_ORTHO_ORTHORECTIFICATION_H
 #define GRAPHOS_CORE_ORTHO_ORTHORECTIFICATION_H
 
 #include <memory>
+
+#include <opencv2/core/mat.hpp>
 
 #include <tidop/core/path.h>
 #include <tidop/img/imgreader.h>

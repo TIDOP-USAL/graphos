@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "DenseExport.h"
+#include "graphos/core/densification/DenseExport.h"
 
 #include <colmap/util/ply.h>
 

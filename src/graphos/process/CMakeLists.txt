@@ -33,7 +33,11 @@ add_library(graphos_process ${LIB_TYPE}
 
 set_property(TARGET graphos_process PROPERTY FOLDER "lib")
 
-target_link_libraries(graphos_process glog::glog)
+target_link_libraries(graphos_process 
+                      Qt5::Core
+                      glog::glog
+                      Eigen3::Eigen
+                      Ceres::ceres)
 
 install(TARGETS graphos_process
         LIBRARY DESTINATION lib 

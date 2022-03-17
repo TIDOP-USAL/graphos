@@ -28,7 +28,7 @@
 #include <tidop/core/messages.h>
 
 #include <colmap/base/database.h>
-#include <colmap/base/camera_models.h>
+//#include <colmap/base/camera_models.h>
 
 #include <QXmlStreamReader>
 #include <QFile>

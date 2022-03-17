@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "featio.h"
+#include "graphos/core/features/featio.h"
 
 #include <tidop/core/messages.h>
 

@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "AppStatus.h"
+#include "graphos/core/AppStatus.h"
 
 
 namespace graphos

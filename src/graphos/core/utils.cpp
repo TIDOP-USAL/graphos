@@ -22,7 +22,6 @@
  ************************************************************************/
 
 #include "graphos/core/utils.h"
-
 #include "graphos/core/Pdf.h"
 
 #include <tidop/core/messages.h>

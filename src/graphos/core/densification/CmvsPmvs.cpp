@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "CmvsPmvs.h"
+#include "graphos/core/densification/CmvsPmvs.h"
 
 #include "graphos/core/camera/Calibration.h"
 #include "graphos/core/camera/Colmap.h"

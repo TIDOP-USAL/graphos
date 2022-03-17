@@ -21,9 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-
-#include "Component.h"
-
+#include "graphos/core/Component.h"
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/process/ProcessPresenter.h"
 #include "graphos/core/command.h"

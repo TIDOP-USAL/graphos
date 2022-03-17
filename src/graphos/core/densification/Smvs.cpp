@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "Smvs.h"
+#include "graphos/core/densification/Smvs.h"
 
 #include "graphos/core/orientation/orientationexport.h"
 #include "graphos/core/utils.h"

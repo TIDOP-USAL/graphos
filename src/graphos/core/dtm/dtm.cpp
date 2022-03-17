@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "dtm.h"
+#include "graphos/core/dtm/dtm.h"
 
 namespace graphos
 {

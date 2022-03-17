@@ -52,11 +52,9 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QCoreApplication>
-
-#include <atomic>
-
 #include <QDir>
 
+#include <atomic>
 
 using namespace tl;
 
