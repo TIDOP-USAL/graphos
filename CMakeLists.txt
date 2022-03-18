@@ -202,6 +202,8 @@ set(HAVE_COLMAP YES)
 include_directories(${COLMAP_INCLUDE_DIRS})
 link_directories(${COLMAP_LINK_DIRS})
         
+message("Colmap: " ${COLMAP_LIBRARIES})
+
 if(MSVC)
   # Some fixes for the Glog library.
   add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")

@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -23,6 +23,8 @@
 
 #ifndef GRAPHOS_MULTIPROCESS_H
 #define GRAPHOS_MULTIPROCESS_H
+
+#include <memory>
 
 #include <QList>
 

@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -474,69 +474,69 @@ FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &image
 
 void FeatureExtractorProcess::run()
 {
-  try {
+  //try {
 
-    tl::Chrono chrono("Feature extraction finished ");
-    chrono.run();
+  //  tl::Chrono chrono("Feature extraction finished ");
+  //  chrono.run();
 
-    colmap::Database database(mDatabase.toStdString());
+  //  colmap::Database database(mDatabase.toStdString());
 
-    QueueMPMC<queue_data> buffer(50);
-    ProducerImp producer(&mImages,
-                         &mCameras,
-                         &database,
-                         mMaxImageSize,
-                         bUseCuda,
-                         &buffer,
-                         this);
-    ConsumerImp consumer(mFeatureExtractor.get(),
-                         mDatabase.toStdString(),
-                         &database,
-                         &buffer,
-                         this,
-                         bUseCuda);
+  //  QueueMPMC<queue_data> buffer(50);
+  //  ProducerImp producer(&mImages,
+  //                       &mCameras,
+  //                       &database,
+  //                       mMaxImageSize,
+  //                       bUseCuda,
+  //                       &buffer,
+  //                       this);
+  //  ConsumerImp consumer(mFeatureExtractor.get(),
+  //                       mDatabase.toStdString(),
+  //                       &database,
+  //                       &buffer,
+  //                       this,
+  //                       bUseCuda);
 
-    size_t num_threads = 1;// tl::optimalNumberOfThreads();
-    std::vector<std::thread> producer_threads(num_threads);
-    std::vector<std::thread> consumer_threads(num_threads);
+  //  size_t num_threads = 1;// tl::optimalNumberOfThreads();
+  //  std::vector<std::thread> producer_threads(num_threads);
+  //  std::vector<std::thread> consumer_threads(num_threads);
 
-    done = false;
+  //  done = false;
 
-    size_t size = mImages.size() / num_threads;
-    for (size_t i = 0; i < num_threads; ++i) {
-      size_t _ini = i * size;
-      size_t _end = _ini + size;
-      if (i == num_threads - 1) _end = mImages.size();
+  //  size_t size = mImages.size() / num_threads;
+  //  for (size_t i = 0; i < num_threads; ++i) {
+  //    size_t _ini = i * size;
+  //    size_t _end = _ini + size;
+  //    if (i == num_threads - 1) _end = mImages.size();
 
-      producer_threads[i] = std::move(std::thread(producer, _ini, _end));
-    }
+  //    producer_threads[i] = std::move(std::thread(producer, _ini, _end));
+  //  }
 
-    for (size_t i = 0; i < num_threads; ++i) {
-      consumer_threads[i] = std::move(std::thread(consumer));
-    }
+  //  for (size_t i = 0; i < num_threads; ++i) {
+  //    consumer_threads[i] = std::move(std::thread(consumer));
+  //  }
 
-    for (size_t i = 0; i < num_threads; ++i)
-      producer_threads[i].join();
+  //  for (size_t i = 0; i < num_threads; ++i)
+  //    producer_threads[i].join();
 
-    done = true;
+  //  done = true;
 
-    for (size_t i = 0; i < num_threads; ++i)
-      consumer_threads[i].join();
+  //  for (size_t i = 0; i < num_threads; ++i)
+  //    consumer_threads[i].join();
 
-    size_t keypoints = database.NumKeypoints();
-    if (keypoints == 0) {
-      emit error(0, "Keypoint Detector/descriptor");
-    } else if (isWaitingForFinished()) {
-      chrono.reset();
-    } else {
-      chrono.stop();
-    }
+  //  size_t keypoints = database.NumKeypoints();
+  //  if (keypoints == 0) {
+  //    emit error(0, "Keypoint Detector/descriptor");
+  //  } else if (isWaitingForFinished()) {
+  //    chrono.reset();
+  //  } else {
+  //    chrono.stop();
+  //  }
 
-  } catch (std::exception &e) {
-    msgError(e.what());
-  } catch (...) {
-    msgError("Keypoint Detector/descriptor unknown exception");
-  }
+  //} catch (std::exception &e) {
+  //  msgError(e.what());
+  //} catch (...) {
+  //  msgError("Keypoint Detector/descriptor unknown exception");
+  //}
 
 }
 

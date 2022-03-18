@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -23,14 +23,14 @@
 
 #include "graphos/process/ExternalProcess.h"
 
-#include <iostream>
-
 #include <QDir>
 #include <QWaitCondition>
 #include <QDebug>
-#include <csignal>
 #include <QFileSystemWatcher>
 #include <QFile>
+
+#include <iostream>
+#include <csignal>
 
 ExternalProcess::ExternalProcess(const QString &commandPath)
   : mCommandPath(commandPath),

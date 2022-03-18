@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -24,12 +24,11 @@
 #ifndef GRAPHOS_EXTERNALPROCESS_H
 #define GRAPHOS_EXTERNALPROCESS_H
 
-#include <QProcess>
-//#include <QFileSystemWatcher>
-#include <QTimer>
-//
-
 #include "graphos/process/Process.h"
+
+#include <QProcess>
+#include <QTimer>
+
 
 class QFileSystemWatcher;
 class QFile;
