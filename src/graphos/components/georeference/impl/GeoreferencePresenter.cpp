@@ -25,13 +25,11 @@
 
 #include "graphos/components/georeference/impl/GeoreferenceModel.h"
 #include "graphos/components/georeference/impl/GeoreferenceView.h"
+#include "graphos/components/georeference/impl/GeoreferenceProcess.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/process/MultiProcess.h"
-#include "graphos/process/orientation/GeoreferenceProcess.h"
 #include "graphos/core/orientation/posesio.h"
 #include "graphos/core/image.h"
-
 
 #include <tidop/core/defs.h>
 #include <tidop/core/messages.h>
@@ -57,48 +55,49 @@ GeoreferencePresenterImp::~GeoreferencePresenterImp()
 {
 }
 
-void GeoreferencePresenterImp::onError(int code, const QString &msg)
+void GeoreferencePresenterImp::onError(tl::ProcessErrorEvent *event)
 {
-  ProcessPresenter::onError(code, msg);
+  ProcessPresenter::onError(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Georeference process error"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Georeference process error"));
   }
 }
 
-void GeoreferencePresenterImp::onFinished()
+void GeoreferencePresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished();
+  ProcessPresenter::onFinished(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Georeference finished"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Georeference finished"));
   }
 
   //msgInfo("Georeference finished");
 }
 
-bool GeoreferencePresenterImp::createProcess()
+std::unique_ptr<tl::Process> GeoreferencePresenterImp::createProcess()
 {
-  mMultiProcess->clearProcessList();
+  std::unique_ptr<tl::Process> georeference_process;
 
   QString ori_relative = mModel->projectPath() + "/ori/relative/";
   QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
 
-  std::shared_ptr<GeoreferenceProcess> georeference_process(new GeoreferenceProcess(ori_relative, 
-                                                                                    ori_absolute, 
-                                                                                    mModel->groundControlPoints()));
+  georeference_process = std::make_unique<GeoreferenceProcess>(ori_relative,
+                                                               ori_absolute, 
+                                                               mModel->groundControlPoints());
 
-  connect(georeference_process.get(), SIGNAL(georeferenceFinished()), this, SLOT(onGeoreferenceFinished()));
+  connect(dynamic_cast<GeoreferenceProcess *>(georeference_process.get()), SIGNAL(georeferenceFinished()), 
+          this, SLOT(onGeoreferenceFinished()));
 
-  mMultiProcess->appendProcess(georeference_process);
+  //mMultiProcess->appendProcess(georeference_process);
 
-  if (mProgressHandler){
-    mProgressHandler->setRange(0, 0);
-    mProgressHandler->setTitle("Computing Georeference...");
-    mProgressHandler->setDescription("Computing Georeference...");
+  if (progressHandler()){
+    progressHandler()->setRange(0, 0);
+    progressHandler()->setTitle("Computing Georeference...");
+    progressHandler()->setDescription("Computing Georeference...");
   }
 
-  return true;
+  return georeference_process;
 }
 
 void GeoreferencePresenterImp::cancel()

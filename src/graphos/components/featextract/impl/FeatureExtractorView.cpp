@@ -51,7 +51,7 @@ FeatureExtractorViewImp::~FeatureExtractorViewImp()
 void FeatureExtractorViewImp::initUI()
 {
   this->setObjectName(QString("FeatureExtractorView"));
-  this->resize(380, 350);
+  this->resize(380, 300);
 
   QGridLayout *gridLayout = new QGridLayout();
   this->setLayout(gridLayout);
@@ -75,7 +75,7 @@ void FeatureExtractorViewImp::initUI()
   mGridLayoutDetectorDescriptor->setContentsMargins(0, 0, 0, 0);
   gridLayout->addWidget(widgetFeatureExtractor, 3, 0, 1, 2);
 
-  gridLayout->addItem(new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding), 2, 0, 1, 2);
+  gridLayout->addItem(new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding), 4, 0, 1, 2);
 
   mButtonBox->setOrientation(Qt::Orientation::Horizontal);
   mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);

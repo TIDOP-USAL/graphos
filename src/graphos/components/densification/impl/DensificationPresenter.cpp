@@ -2,13 +2,12 @@
 
 #include "graphos/components/densification/DensificationModel.h"
 #include "graphos/components/densification/DensificationView.h"
+#include "graphos/components/densification/impl/DensificationProcess.h"
 #include "graphos/widgets/CmvsPmvsWidget.h"
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/core/densification/CmvsPmvs.h"
 #include "graphos/core/densification/Smvs.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/process/densification/DensificationProcess.h"
-#include "graphos/process/MultiProcess.h"
 #include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/messages.h>
@@ -144,26 +143,28 @@ void DensificationPresenterImp::onDensificationChanged(const QString &densificat
   mView->setCurrentDensificationMethod(densification);
 }
 
-void DensificationPresenterImp::onError(int code, const QString &msg)
+void DensificationPresenterImp::onError(tl::ProcessErrorEvent *event)
 {
-  ProcessPresenter::onError(code, msg);
+  ProcessPresenter::onError(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Densification error"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Densification error"));
   }
 }
 
-void DensificationPresenterImp::onFinished()
+void DensificationPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished();
+  ProcessPresenter::onFinished(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Densification finished"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Densification finished"));
   }
 }
 
-bool DensificationPresenterImp::createProcess()
+std::unique_ptr<tl::Process> DensificationPresenterImp::createProcess()
 {
+  std::unique_ptr<tl::Process> dense_process;
+
   if (mModel->existDenseModel()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),
@@ -171,7 +172,7 @@ bool DensificationPresenterImp::createProcess()
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
       msgWarning("Process canceled by user");
-      return false;
+      return dense_process;
     }
   }
 
@@ -205,24 +206,25 @@ bool DensificationPresenterImp::createProcess()
 
   QString mReconstructionPath = mModel->reconstructionPath();
   QString mOutputPat = mModel->projectFolder() + "/dense";
-  std::shared_ptr<DensificationProcess> densification_process(new DensificationProcess(densifier,
-                                                                                       mReconstructionPath,
-                                                                                       mOutputPat));
 
-  connect(densification_process.get(), &DensificationProcess::densificationFinished, 
+  dense_process = std::make_unique<DensificationProcess>(densifier,
+                                                         mReconstructionPath,
+                                                         mOutputPat);
+
+  connect(dynamic_cast<DensificationProcess *>(dense_process.get()), &DensificationProcess::densificationFinished,
           this, &DensificationPresenterImp::onFinishDensification);
 
-  mMultiProcess->appendProcess(densification_process);
+  //mMultiProcess->appendProcess(densification_process);
 
-  if (mProgressHandler){
-    mProgressHandler->setRange(0, 0);
-    mProgressHandler->setTitle("Generating dense model...");
-    mProgressHandler->setDescription("Generating dense model...");
+  if (progressHandler()){
+    progressHandler()->setRange(0, 1);
+    progressHandler()->setTitle("Generating dense model...");
+    progressHandler()->setDescription("Generating dense model...");
   }
 
   mView->hide();
 
-  return true;
+  return dense_process;
 }
 
 /// Redundante con DensificationPresenterImp::onFinished()

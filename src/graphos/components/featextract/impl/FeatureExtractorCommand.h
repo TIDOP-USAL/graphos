@@ -25,13 +25,64 @@
 #define GRAPHOS_FEATURE_EXTRACTOR_COMMAND_H
 
 #include "graphos/core/command.h"
+#include "graphos/core/features/features.h"
+#include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
+
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
+
+#include <QObject>
 
 namespace graphos
 {
 	
-class FeatureExtractorCommand
-  : public Command
+
+class FeatureExtractorProcess
+  : public QObject,
+    public tl::ProcessBase
 {
+
+  Q_OBJECT
+
+public:
+
+  FeatureExtractorProcess(const std::vector<Image> &images,
+                          const std::map<int, Camera> &cameras,
+                          const QString &database,
+                          int maxImageSize,
+                          bool cuda,
+                          const std::shared_ptr<FeatureExtractor> &featureExtractor);
+
+signals:
+
+  void featuresExtracted(QString, QString);
+
+// tl::ProcessBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+protected:
+
+  std::vector<Image> mImages;
+  std::map<int, Camera> mCameras;
+  QString mDatabase;
+  int mMaxImageSize;
+  bool bUseCuda;
+  std::shared_ptr<FeatureExtractor> mFeatureExtractor;
+};
+
+
+
+
+class FeatureExtractorCommand
+  : public QObject,
+    public Command
+{
+
+  Q_OBJECT
 
 public:
 
@@ -54,6 +105,7 @@ private:
   double mContrastThreshold;
   double mEdgeThreshold;
   bool mDisableCuda;
+
 };
 
 	

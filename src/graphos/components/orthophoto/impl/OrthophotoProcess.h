@@ -21,55 +21,45 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_ORTHOPHOTO_PROCESS_H
+#define GRAPHOS_ORTHOPHOTO_PROCESS_H
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include <vector>
+#include <map>
 
-#include "graphos/core/process/Task.h"
+#include <QObject>
 
-#include <tidop/core/console.h>
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
 
 
 namespace graphos
 {
+	
+class OrthophotoAlgorithm;
 
-class Command
-  : public tl::Command
+class OrthophotoProcess
+  : public QObject,
+    public tl::ProcessBase
 {
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+  OrthophotoProcess(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm);
+  ~OrthophotoProcess();
 
-  virtual bool run() = 0;
+// tl::ProcessBase interface
 
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  std::shared_ptr<OrthophotoAlgorithm> mOrthophotoAlgorithm;
+  
 };
-
-
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_ORTHOPHOTO_PROCESS_H

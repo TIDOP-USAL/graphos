@@ -26,25 +26,29 @@
 
 #include <QObject>
 
+#include <tidop/core/progress.h>
+
 namespace graphos
 {
 
 
 class ProgressHandler
-  : public QObject
+  : public QObject,
+    public tl::ProgressBase
 {
   Q_OBJECT
 
 public:
 
   ProgressHandler(QObject *parent = nullptr);
+  ProgressHandler(size_t min, size_t max, QObject *parent = nullptr);
   ~ProgressHandler() override;
 
 public:
 
-  int min() const;
-  int max() const;
-  int value() const;
+  //int min() const;
+  //int max() const;
+  //int value() const;
 
 signals:
 
@@ -54,25 +58,29 @@ signals:
   void finished();
   void titleChange(QString);
   void descriptionChange(QString);
-  void cancel();
+  //void cancel();
   void closeAuto(bool);
 
 public slots:
 
-  void setRange(int min, int max);
-  void setValue(int value);
-  void next();
-  void init();
+  //void setValue(int value);
+  //void next();
+  //void init();
   void finish();
   void setTitle(const QString &title);
   void setDescription(const QString &description);
   void setCloseAuto(bool active);
 
+// ProgressBase interface
+
+public:
+
+  void setRange(size_t min, size_t max) override;
+
 protected:
 
-  int mMin;
-  int mMax;
-  int mValue;
+  void updateProgress() override;
+  void terminate() override;
 
 };
 

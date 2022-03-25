@@ -41,10 +41,6 @@ public:
   OrientationView(QWidget *parent = nullptr) : DialogView(parent) {}
   ~OrientationView() override = default;
 
-  //virtual bool refineFocal() const = 0;
-  //virtual bool refinePrincipalPoint() const = 0;
-  //virtual bool refineDistortionParameters() const = 0;
-  //virtual bool refinePoses() const = 0;
   virtual bool fixCalibration() const = 0;
   virtual bool isEnabledCalibration() const = 0;
   virtual bool absoluteOrientation() const = 0;
@@ -54,10 +50,6 @@ public:
 
 public slots:
 
-  //virtual void setRefineFocal(bool active) = 0;
-  //virtual void setRefinePrincipalPoint(bool active) = 0;
-  //virtual void setRefineDistortionParameters(bool active) = 0;
-  //virtual void setRefinePoses(bool active) = 0;
   virtual void setCalibration(bool active) = 0;
   virtual void enabledCalibration(bool enabled) = 0;
   virtual void setAbsoluteOrientation(bool active) = 0;
@@ -68,10 +60,6 @@ public slots:
 signals:
 
   void run();
-  //void refineFocal(bool);
-  //void refinePrincipalPoint(bool);
-  //void refineDistortionParametersChange(bool);
-  //void refinePosesChange(bool);
   void calibrationChange(bool);
   void absoluteOrientationChange(bool);
   void posesChange(bool);

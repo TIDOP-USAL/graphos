@@ -1,3 +1,26 @@
+##########################################################################
+#                                                                        #
+# Copyright 2016 by Tidop Research Group <daguilera@usal.es>             #
+#                                                                        #
+# This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.       #
+#                                                                        #
+# GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can   #
+# redistribute it and/or modify it under the terms of the GNU General    #
+# Public License as published by the Free Software Foundation, either    #
+# version 3 of the License, or (at your option) any later version.       #
+#                                                                        #
+# GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the       #
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even    #
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR    #
+# PURPOSE.  See the GNU General Public License for more details.         #
+#                                                                        #
+# You should have received a copy of the GNU General Public License      #
+# along with Graphos.  If not, see <http://www.gnu.org/licenses/>.       #
+#                                                                        #
+# https://spdx.org/licenses/GPL-3.0-or-later.html                        #
+#                                                                        #
+##########################################################################
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
@@ -60,21 +83,27 @@ set(GRAPHOS_SOURCES
     featmatch/impl/FeatureMatchingView.cpp
     featmatch/impl/FeatureMatchingPresenter.cpp
     featmatch/impl/FeatureMatchingCommand.cpp
+    featmatch/impl/FeatureMatchingProcess.cpp
     images/ImageLoaderComponent.cpp
     images/impl/ImageLoaderModel.cpp
     images/impl/ImageLoaderPresenter.cpp
     images/impl/ImageLoaderView.cpp
     images/impl/ImageLoaderCommand.cpp
+    images/impl/ImageLoaderProcess.cpp
     orientation/OrientationComponent.cpp
     orientation/impl/OrientationModel.cpp
     orientation/impl/OrientationView.cpp
     orientation/impl/OrientationPresenter.cpp
     orientation/impl/OrientationCommand.cpp
+    orientation/impl/RelativeOrientationProcess.cpp
+    orientation/impl/AbsoluteOrientationProcess.cpp
+    orientation/impl/ImportOrientationProcess.cpp
     densification/DensificationComponent.cpp
     densification/impl/DensificationModel.cpp
     densification/impl/DensificationView.cpp
     densification/impl/DensificationPresenter.cpp
     densification/impl/DensificationCommand.cpp
+    densification/impl/DensificationProcess.cpp
     featviewer/FeaturesViewerComponent.cpp
     featviewer/impl/FeaturesViewerView.cpp
     featviewer/impl/FeaturesViewerModel.cpp
@@ -97,6 +126,7 @@ set(GRAPHOS_SOURCES
     georeference/impl/GeoreferenceModel.cpp
     georeference/impl/GeoreferenceView.cpp
     georeference/impl/GeoreferencePresenter.cpp
+    georeference/impl/GeoreferenceProcess.cpp
     import/cameras/ImportCamerasComponent.cpp
     import/cameras/impl/ImportCamerasModel.cpp
     import/cameras/impl/ImportCamerasView.cpp
@@ -105,10 +135,12 @@ set(GRAPHOS_SOURCES
     dtm/impl/DTMModel.cpp
     dtm/impl/DTMView.cpp
     dtm/impl/DTMPresenter.cpp
+    dtm/impl/DTMProcess.cpp
     orthophoto/OrthophotoComponent.cpp
     orthophoto/impl/OrthophotoModel.cpp
     orthophoto/impl/OrthophotoView.cpp
     orthophoto/impl/OrthophotoPresenter.cpp
+    orthophoto/impl/OrthophotoProcess.cpp
     about/AboutComponent.cpp
     about/impl/AboutModel.cpp
     about/impl/AboutView.cpp
@@ -174,6 +206,7 @@ set(GRAPHOS_HEADERS
     featmatch/impl/FeatureMatchingView.h
     featmatch/impl/FeatureMatchingPresenter.h
     featmatch/impl/FeatureMatchingCommand.h
+    featmatch/impl/FeatureMatchingProcess.h
     images/ImageLoaderComponent.h
     images/ImageLoaderModel.h
     images/ImageLoaderPresenter.h
@@ -181,6 +214,7 @@ set(GRAPHOS_HEADERS
     images/impl/ImageLoaderModel.h
     images/impl/ImageLoaderPresenter.h
     images/impl/ImageLoaderView.h
+    images/impl/ImageLoaderProcess.h
     orientation/OrientationComponent.h
     orientation/OrientationModel.h
     orientation/OrientationView.h
@@ -189,6 +223,9 @@ set(GRAPHOS_HEADERS
     orientation/impl/OrientationView.h
     orientation/impl/OrientationPresenter.h
     orientation/impl/OrientationCommand.h
+    orientation/impl/RelativeOrientationProcess.h
+    orientation/impl/AbsoluteOrientationProcess.h
+    orientation/impl/ImportOrientationProcess.h
     densification/DensificationComponent.h
     densification/DensificationModel.h
     densification/DensificationView.h
@@ -197,6 +234,7 @@ set(GRAPHOS_HEADERS
     densification/impl/DensificationView.h
     densification/impl/DensificationPresenter.h
     densification/impl/DensificationCommand.h
+    densification/impl/DensificationProcess.h
     featviewer/FeaturesViewerComponent.h
     featviewer/FeaturesViewerView.h
     featviewer/FeaturesViewerModel.h
@@ -232,6 +270,7 @@ set(GRAPHOS_HEADERS
     georeference/impl/GeoreferenceModel.h
     georeference/impl/GeoreferencePresenter.h
     georeference/impl/GeoreferenceView.h
+    georeference/impl/GeoreferenceProcess.h
     import/cameras/ImportCamerasComponent.h
     import/cameras/ImportCamerasModel.h
     import/cameras/ImportCamerasView.h
@@ -246,6 +285,7 @@ set(GRAPHOS_HEADERS
     dtm/impl/DTMModel.h
     dtm/impl/DTMView.h
     dtm/impl/DTMPresenter.h
+    dtm/impl/DTMProcess.h
     orthophoto/OrthophotoComponent.h
     orthophoto/OrthophotoModel.h
     orthophoto/OrthophotoView.h
@@ -253,6 +293,7 @@ set(GRAPHOS_HEADERS
     orthophoto/impl/OrthophotoModel.h
     orthophoto/impl/OrthophotoView.h
     orthophoto/impl/OrthophotoPresenter.h
+    orthophoto/impl/OrthophotoProcess.h
     HelpDialog.h
     about/AboutComponent.h
     about/AboutModel.h

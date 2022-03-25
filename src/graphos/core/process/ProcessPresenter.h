@@ -26,14 +26,64 @@
 
 #include <QObject>
 
+#include <tidop/core/process.h>
+
 #include "graphos/interfaces/mvp.h"
 
-class MultiProcess;
+//class MultiProcess;
+
+namespace tl
+{
+class ProcessErrorEvent;
+class ProcessFinalizedEvent;
+}
+
 
 namespace graphos
 {
 
 class ProgressHandler;
+
+//class ProcessPresenter
+//  : public Presenter
+//{
+//
+//  Q_OBJECT
+//
+//public:
+//
+//  ProcessPresenter();
+//  ~ProcessPresenter() override;
+//
+//protected slots:
+//
+//  virtual void onError(int code, const QString &msg);
+//  virtual void onFinished();
+//
+//  /*!
+//   * \brief Crea y configura el proceso
+//   * return True si se se ha creado correctamente
+//   */
+//  virtual bool createProcess() = 0;
+//
+//public slots:
+//
+//  virtual void setProgressHandler(ProgressHandler *progressHandler);
+//  virtual void run();
+//  virtual void cancel();
+//
+//signals:
+//
+//  void running();
+//  void finished();
+//  void failed();
+//  void canceled();
+//
+//protected:
+//
+//  MultiProcess *mMultiProcess;
+//  ProgressHandler *mProgressHandler;
+//};
 
 class ProcessPresenter
   : public Presenter
@@ -48,14 +98,16 @@ public:
 
 protected slots:
 
-  virtual void onError(int code, const QString &msg);
-  virtual void onFinished();
+  virtual void onError(tl::ProcessErrorEvent *event);
+  virtual void onFinished(tl::ProcessFinalizedEvent *event);
+  
+  ProgressHandler *progressHandler();
 
   /*!
    * \brief Crea y configura el proceso
-   * return True si se se a creado correctamente
+   * return Proceso
    */
-  virtual bool createProcess() = 0;
+  virtual std::unique_ptr<tl::Process> createProcess() = 0;
 
 public slots:
 
@@ -70,9 +122,9 @@ signals:
   void failed();
   void canceled();
 
-protected:
+private:
 
-  MultiProcess *mMultiProcess;
+  std::unique_ptr<tl::Process> mProcess;
   ProgressHandler *mProgressHandler;
 };
 

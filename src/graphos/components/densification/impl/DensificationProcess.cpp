@@ -21,55 +21,66 @@
  *                                                                      *
  ************************************************************************/
 
+#include "DensificationProcess.h"
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include "graphos/core/densification/densification.h"
 
-#include "graphos/core/process/Task.h"
-
-#include <tidop/core/console.h>
-
+#include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+DensificationProcess::DensificationProcess(const std::shared_ptr<Densifier> &densifier,
+                                           const QString &reconstructionPath,
+                                           const QString &outputPath)
+  : tl::ProcessBase(),
+    mDensifier(densifier),
+    mReconstructionPath(reconstructionPath),
+    mOutputPat(outputPath)
 {
 
-public:
+}
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+void DensificationProcess::execute(tl::Progress *progressBar)
+{
+  try {
 
-  virtual bool run() = 0;
+    tl::Chrono chrono("Densification finished");
+    chrono.run();
 
-};
+    mDensifier->undistort(mReconstructionPath, mOutputPat);
 
+    mDensifier->densify(mOutputPat);
 
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
+    chrono.stop();
 
-} // namespace graphos
+    emit densificationFinished();
+    if(progressBar) (*progressBar)();
 
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
+  }
+}
 
-#endif // GRAPHOS_COMMAND_H
+QString DensificationProcess::outputPat() const
+{
+  return mOutputPat;
+}
+
+void DensificationProcess::setOutputPat(const QString &outputPat)
+{
+  mOutputPat = outputPat;
+}
+
+QString DensificationProcess::reconstructionPath() const
+{
+  return mReconstructionPath;
+}
+
+void DensificationProcess::setReconstructionPath(const QString &reconstructionPath)
+{
+  mReconstructionPath = reconstructionPath;
+}
+
+} // graphos

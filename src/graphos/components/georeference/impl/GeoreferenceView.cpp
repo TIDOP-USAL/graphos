@@ -29,15 +29,12 @@
 
 #include <tidop/img/imgreader.h>
 
-//#include <QFileDialog>
-//#include <QIcon>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QApplication>
 #include <QDialogButtonBox>
 #include <QPushButton>
-//#include <QTreeWidget>
 #include <QTableView>
 #include <QFileDialog>
 #include <QComboBox>

@@ -31,7 +31,6 @@
 #include <QItemSelection>
 
 class QDialogButtonBox;
-//class QTreeWidget;
 class QLabel;
 class QLineEdit;
 class QComboBox;

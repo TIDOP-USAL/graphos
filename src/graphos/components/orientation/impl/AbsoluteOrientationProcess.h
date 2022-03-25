@@ -21,55 +21,54 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_ABSOLUTE_ORIENTATION_PROCESS_H
+#define GRAPHOS_ABSOLUTE_ORIENTATION_PROCESS_H
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
 
-#include "graphos/core/process/Task.h"
+#include <QObject>
 
-#include <tidop/core/console.h>
-
+namespace colmap
+{
+class OptionManager;
+struct IncrementalMapperOptions;
+class ReconstructionManager;
+class IncrementalMapperController;
+}
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+class AbsoluteOrientationAlgorithm;
+
+class AbsoluteOrientationProcess
+  : public QObject,
+    public tl::ProcessBase
 {
+  Q_OBJECT
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+  AbsoluteOrientationProcess(std::shared_ptr<AbsoluteOrientationAlgorithm> &orientationAlgorithm);
+  ~AbsoluteOrientationProcess() override;
 
-  virtual bool run() = 0;
+signals:
+
+  void absoluteOrientationFinished();
+
+// tl::ProcessBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  std::shared_ptr<AbsoluteOrientationAlgorithm> mAbsoluteOrientationAlgorithm;
 
 };
 
-
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
-
 } // namespace graphos
 
-
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_ABSOLUTE_ORIENTATION_PROCESS_H

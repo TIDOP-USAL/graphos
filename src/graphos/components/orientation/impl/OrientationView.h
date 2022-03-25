@@ -45,10 +45,6 @@ public:
 
 public:
 
-  //bool refineFocal() const override;
-  //bool refinePrincipalPoint() const override;
-  //bool refineDistortionParameters() const override;
-  //bool refinePoses() const override;
   bool fixCalibration() const override;
   bool isEnabledCalibration() const override;
   bool absoluteOrientation() const override;
@@ -58,10 +54,6 @@ public:
 
 public slots:
 
-  //void setRefineFocal(bool active) override;
-  //void setRefinePrincipalPoint(bool refine) override;
-  //void setRefineDistortionParameters(bool active) override;
-  //void setRefinePoses(bool active) override;
   void setCalibration(bool active) override;
   void enabledCalibration(bool enabled) override;
   void setAbsoluteOrientation(bool active) override;

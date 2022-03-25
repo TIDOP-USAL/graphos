@@ -23,20 +23,19 @@
 
 #include "OrientationPresenter.h"
 
-#include "graphos/components/orientation/OrientationModel.h"
-#include "graphos/components/orientation/OrientationView.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/core/orientation/orientationcolmap.h"
-#include "graphos/process/MultiProcess.h"
-#include "graphos/process/orientation/RelativeOrientationProcess.h"
-#include "graphos/process/orientation/AbsoluteOrientationProcess.h"
-#include "graphos/process/orientation/ImportOrientationProcess.h"
 #include "graphos/core/orientation/posesio.h"
 #include "graphos/core/camera/Colmap.h"
-
+#include "graphos/components/orientation/OrientationModel.h"
+#include "graphos/components/orientation/OrientationView.h"
+#include "graphos/components/orientation/impl/RelativeOrientationProcess.h"
+#include "graphos/components/orientation/impl/AbsoluteOrientationProcess.h"
+#include "graphos/components/orientation/impl/ImportOrientationProcess.h"
 #include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/process.h>
 
 #include <QFileInfo>
 #include <QMessageBox>
@@ -117,28 +116,29 @@ void OrientationPresenterImp::cancel()
   msgWarning("Processing has been canceled by the user");
 }
 
-void OrientationPresenterImp::onError(int code, const QString &msg)
+void OrientationPresenterImp::onError(tl::ProcessErrorEvent *event)
 {
-  ProcessPresenter::onError(code, msg);
+  ProcessPresenter::onError(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Orientation process error"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Orientation process error"));
   }
 }
 
-void OrientationPresenterImp::onFinished()
+void OrientationPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished();
+  ProcessPresenter::onFinished(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Orientation finished"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Orientation finished"));
   }
-
-  //msgInfo("Orientation finished");
 }
 
-bool OrientationPresenterImp::createProcess()
+std::unique_ptr<tl::Process> OrientationPresenterImp::createProcess()
 {
+ 
+  std::unique_ptr<tl::Process> orientation_process;
+
   QString reconstruction_path = mModel->reconstructionPath();
   if (!reconstruction_path.isEmpty()){
     int i_ret = QMessageBox(QMessageBox::Warning,
@@ -146,14 +146,12 @@ bool OrientationPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      return false;
+      return orientation_process;
     }
   }
 
   mModel->clearProject();
   emit orientationDeleted();
-
-  mMultiProcess->clearProcessList();
 
   TL_TODO("Establecer propiedades")
 
@@ -163,19 +161,20 @@ bool OrientationPresenterImp::createProcess()
 
   if (mModel->rtkOrientations()) {
 
-    auto import_orientation_process = std::make_shared<ImportOrientationProcess>(mModel->images(),
-                                                                                 mModel->cameras(),
-                                                                                 mModel->projectPath(),
-                                                                                 mModel->database(),
-                                                                                 mView->fixCalibration(),
-                                                                                 mView->fixPoses());
+    orientation_process = std::make_unique<ImportOrientationProcess>(mModel->images(),
+                                                                     mModel->cameras(),
+                                                                     mModel->projectPath(),
+                                                                     mModel->database(),
+                                                                     mView->fixCalibration(),
+                                                                     mView->fixPoses());
 
-    connect(import_orientation_process.get(), &ImportOrientationProcess::importOrientationFinished,
+    connect(dynamic_cast<ImportOrientationProcess *>(orientation_process.get()), &ImportOrientationProcess::importOrientationFinished,
             this, &OrientationPresenterImp::onAbsoluteOrientationFinished);
 
-    mMultiProcess->appendProcess(import_orientation_process);
-
   } else {
+
+    orientation_process = std::make_unique<tl::BatchProcess>();
+
     QString ori_relative = mModel->projectPath() + "/ori/relative/";
     std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database,
                                                                                                                                       ori_relative,
@@ -185,7 +184,7 @@ bool OrientationPresenterImp::createProcess()
 
     connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onRelativeOrientationFinished()));
 
-    mMultiProcess->appendProcess(relativeOrientationProcess);
+    dynamic_cast<tl::BatchProcess *>(orientation_process.get())->push_back(relativeOrientationProcess);
 
     if (mView->absoluteOrientation()) {
       QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
@@ -198,19 +197,19 @@ bool OrientationPresenterImp::createProcess()
 
       connect(absoluteOrientationProcess.get(), SIGNAL(absoluteOrientationFinished()), this, SLOT(onAbsoluteOrientationFinished()));
 
-      mMultiProcess->appendProcess(absoluteOrientationProcess);
+      dynamic_cast<tl::BatchProcess *>(orientation_process.get())->push_back(absoluteOrientationProcess);
     }
   }
 
-  if (mProgressHandler){
-    mProgressHandler->setRange(0, 0);
-    mProgressHandler->setTitle("Computing Orientation...");
-    mProgressHandler->setDescription("Computing Orientation...");
+  if (progressHandler()){
+    progressHandler()->setRange(0, 1);
+    progressHandler()->setTitle("Computing Orientation...");
+    progressHandler()->setDescription("Computing Orientation...");
   }
 
   mView->hide();
 
-  return true;
+  return orientation_process;
 }
 
 void OrientationPresenterImp::onRelativeOrientationFinished()
@@ -292,6 +291,7 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
     }
 
     emit orientationFinished();
+
   } else {
     msgError("Orientation failed");
   }

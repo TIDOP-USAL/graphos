@@ -25,10 +25,11 @@
 
 #include "graphos/components/dtm/DTMView.h"
 #include "graphos/components/dtm/DTMModel.h"
+#include "graphos/components/dtm/impl/DTMProcess.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/process/MultiProcess.h"
-#include "graphos/process/features/FeatureExtractorProcess.h"
+//#include "graphos/process/features/FeatureExtractorProcess.h"
 #include "graphos/widgets/DtmInvDistWidget.h"
 #include "graphos/widgets/DtmInvDistNNWidget.h"
 #include "graphos/core/dtm/invdist.h"
@@ -146,21 +147,21 @@ void DtmPresenterImp::initSignalAndSlots()
   connect(mView, &DtmView::help,  this, &DtmPresenterImp::help);
 }
 
-void DtmPresenterImp::onError(int code, const QString &msg)
+void DtmPresenterImp::onError(tl::ProcessErrorEvent *event)
 {
-  ProcessPresenter::onError(code, msg);
+  ProcessPresenter::onError(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("DTM error"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("DTM error"));
   }
 }
 
-void DtmPresenterImp::onFinished()
+void DtmPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished();
+  ProcessPresenter::onFinished(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("DTM finished"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("DTM finished"));
   }
 
   QString dtm_file = mModel->projectPath();
@@ -168,8 +169,10 @@ void DtmPresenterImp::onFinished()
   mModel->setDtmPath(dtm_file);
 }
 
-bool DtmPresenterImp::createProcess()
+std::unique_ptr<tl::Process> DtmPresenterImp::createProcess()
 {
+  std::unique_ptr<tl::Process> dtm_process;
+
   QString currentDtmMethod = mView->currentDtmMethod();
   std::shared_ptr<DtmAlgorithm> dtm_algorithm;
 
@@ -194,31 +197,31 @@ bool DtmPresenterImp::createProcess()
 
   mModel->setDtmMethod(std::dynamic_pointer_cast<Dtm>(dtm_algorithm));
 
-  if (mProgressHandler){
-    mProgressHandler->setRange(0, 0);
-    mProgressHandler->setTitle("DTM generation...");
-    mProgressHandler->setDescription("DTM generation...");
+  if (progressHandler()){
+    progressHandler()->setRange(0, 0);
+    progressHandler()->setTitle("DTM generation...");
+    progressHandler()->setDescription("DTM generation...");
   }
 
   QString dtm_file = mModel->projectPath();
   dtm_file.append("\\dtm\\dtm.tif");
 
-  std::shared_ptr<DtmProcess> dtm_process(new DtmProcess(dtm_algorithm,
-                                                         mModel->denseModel(),
-                                                         mModel->offset(),
-                                                         dtm_file,
-                                                         mView->gsd(),
-                                                         mView->isDSM(),
-                                                         mModel->crs()));
+  dtm_process = std::make_unique<DtmProcess>(dtm_algorithm,
+                                             mModel->denseModel(),
+                                             mModel->offset(),
+                                             dtm_file,
+                                             mView->gsd(),
+                                             mView->isDSM(),
+                                             mModel->crs());
 
   //connect(dtm_process.get(), &DtmProcess::dtmFinished, 
   //        this, &DtmPresenterImp::onFinishDtm);
 
-  mMultiProcess->appendProcess(dtm_process);
+  //mMultiProcess->appendProcess(dtm_process);
 
   mView->hide();
 
-  return true;
+  return dtm_process;
 }
 
 void DtmPresenterImp::setCurrentDtmMethod(const QString &method)

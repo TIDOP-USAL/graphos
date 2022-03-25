@@ -82,10 +82,14 @@ void OrientationComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  bool bFeatureMatching = app_status->isActive(AppStatus::Flag::feature_matching);
-  action()->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
+  bool oriented_active = app_status->isActive(AppStatus::Flag::project_exists) &&
+                         app_status->isActive(AppStatus::Flag::feature_matching) &&
+                         !app_status->isActive(AppStatus::Flag::processing);
+  
+  //if (!oriented_active) 
+  //  app_status->flagOff(AppStatus::Flag::oriented);
+  
+  action()->setEnabled(oriented_active);
 }
 
 void OrientationComponent::onRunning()

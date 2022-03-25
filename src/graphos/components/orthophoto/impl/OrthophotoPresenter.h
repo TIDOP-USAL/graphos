@@ -68,9 +68,9 @@ private:
 
 protected slots:
 
-  void onError(int code, const QString &msg) override;
-  void onFinished() override;
-  bool createProcess() override;
+  void onError(tl::ProcessErrorEvent *event) override;
+  void onFinished(tl::ProcessFinalizedEvent *event) override;
+  std::unique_ptr<tl::Process> createProcess() override;
   
 public slots:
 

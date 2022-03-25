@@ -46,7 +46,6 @@ signals:
   void featuresExtracted(QString);
   void featuresDeleted();
 
-
 public slots:
 
   virtual void setCurrentDetectorDescriptor(const QString &detectorDescriptor) = 0;

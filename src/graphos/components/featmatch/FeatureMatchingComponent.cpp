@@ -82,10 +82,14 @@ void FeatureMatchingComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  bool bFeatureExtraction = app_status->isActive(AppStatus::Flag::feature_extraction);
-  action()->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
+  bool feature_matching_active = app_status->isActive(AppStatus::Flag::project_exists) &&
+                                 app_status->isActive(AppStatus::Flag::feature_extraction) && 
+                                 !app_status->isActive(AppStatus::Flag::processing);
+
+  //if (!feature_matching_active)
+  //  app_status->flagOff(AppStatus::Flag::feature_matching);
+
+  action()->setEnabled(feature_matching_active);
 }
 
 void FeatureMatchingComponent::onRunning()

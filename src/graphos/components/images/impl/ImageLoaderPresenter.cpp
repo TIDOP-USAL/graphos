@@ -25,10 +25,10 @@
 
 #include "graphos/components/images/ImageLoaderModel.h"
 #include "graphos/components/images/ImageLoaderView.h"
+#include "graphos/components/images/impl/ImageLoaderProcess.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/process/MultiProcess.h"
-#include "graphos/process/images/LoadImagesProcess.h"
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
@@ -104,19 +104,30 @@ void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
   emit imageLoaded(image.path());
 }
 
-void ImageLoaderPresenterImp::onFinished()
+void ImageLoaderPresenterImp::onError(tl::ProcessErrorEvent *event)
 {
-  ProcessPresenter::onFinished();
+  ProcessPresenter::onError(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Images loaded"));
+  if(progressHandler()) {
+    progressHandler()->setDescription(tr("Load images error"));
+  }
+}
+
+void ImageLoaderPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+{
+  ProcessPresenter::onFinished(event);
+
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Images loaded"));
   }
 
   //msgInfo("Images loaded");
 }
 
-bool ImageLoaderPresenterImp::createProcess()
+std::unique_ptr<tl::Process> ImageLoaderPresenterImp::createProcess()
 {
+  std::unique_ptr<tl::Process> image_loader_process;
+
   if (mImageFiles.empty()) return false;
 
   mImages.clear();
@@ -131,19 +142,22 @@ bool ImageLoaderPresenterImp::createProcess()
     mCameras.push_back(it->second);
   }
 
-  std::shared_ptr<LoadImagesProcess> load_images(new LoadImagesProcess(&mImages, &mCameras, mModel->projectCRS()));
+  image_loader_process = std::make_unique<LoadImagesProcess>(&mImages, &mCameras, mModel->projectCRS());
+  //std::shared_ptr<LoadImagesProcess> load_images(new LoadImagesProcess(&mImages, &mCameras, mModel->projectCRS()));
 
-  connect(load_images.get(), &LoadImagesProcess::imageAdded, this, &ImageLoaderPresenterImp::addImage);
+  connect(dynamic_cast<LoadImagesProcess *>(image_loader_process.get()),
+          &LoadImagesProcess::imageAdded, 
+          this, &ImageLoaderPresenterImp::addImage);
 
-  mMultiProcess->appendProcess(load_images);
+  //mMultiProcess->appendProcess(load_images);
 
-  if (mProgressHandler) {
-    mProgressHandler->setRange(0, mImages.size());
-    mProgressHandler->setTitle("Load images...");
-    mProgressHandler->setDescription("Load images...");
+  if (progressHandler()) {
+    progressHandler()->setRange(0, mImages.size());
+    progressHandler()->setTitle("Load images...");
+    progressHandler()->setDescription("Load images...");
   }
   
-  return true;
+  return image_loader_process;
 }
 
 void ImageLoaderPresenterImp::setImages(const QStringList &files)
@@ -156,15 +170,6 @@ void ImageLoaderPresenterImp::cancel()
   ProcessPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
-}
-
-void ImageLoaderPresenterImp::onError(int code, const QString &msg)
-{
-  ProcessPresenter::onError(code, msg);
-
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Load images error"));
-  }
 }
 
 } // namespace graphos

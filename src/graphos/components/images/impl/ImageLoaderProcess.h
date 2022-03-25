@@ -21,55 +21,76 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_LOADER_IMAGES_PROCESS_H
+#define GRAPHOS_LOADER_IMAGES_PROCESS_H
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include "graphos/core/image.h"
 
-#include "graphos/core/process/Task.h"
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
 
-#include <tidop/core/console.h>
+#include <QObject>
 
+namespace tl
+{
+class ImageReader;
+
+namespace geospatial
+{
+class Crs;
+}
+
+}
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+
+class Camera;
+
+class LoadImagesProcess
+  : public QObject,
+    public tl::ProcessBase
 {
+
+  Q_OBJECT
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+  LoadImagesProcess(std::vector<Image> *images, 
+                    std::vector<Camera> *cameras,
+                    const QString &epsg = QString());
+  ~LoadImagesProcess() override;
 
-  virtual bool run() = 0;
+signals:
 
+  void imageAdded(int, int);
+
+private:
+
+  bool existCamera(const QString &make, const QString &model) const;
+  int findCamera(const QString &make, const QString &model) const;
+  void loadImage(size_t imageId);
+  int loadCamera(tl::ImageReader *imageReader);
+  double parseFocal(const std::string &focal, double def);
+
+  // tl::ProcessBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+protected:
+
+  std::vector<Image> *mImages;
+  std::vector<Camera> *mCameras;
+  QString mEPSG;
+  std::shared_ptr<tl::geospatial::Crs> mCrsIn;
+  std::shared_ptr<tl::geospatial::Crs> mCrsOut;
+  //DatabaseCameras *mDatabaseCameras;
+  QString mDatabaseCamerasPath;
 };
-
-
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_LOADER_IMAGES_PROCESS_H

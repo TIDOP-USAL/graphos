@@ -21,55 +21,61 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_DTM_PROCESS_H
+#define GRAPHOS_DTM_PROCESS_H
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include "graphos/core/dtm/dtm.h"
 
-#include "graphos/core/process/Task.h"
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
+#include <tidop/geometry/entities/point.h>
 
-#include <tidop/core/console.h>
-
+#include <QObject>
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+class DenseExport;
+
+class GRAPHOS_EXPORT DtmProcess
+  : public QObject,
+    public tl::ProcessBase
 {
+
+  Q_OBJECT
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+  DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
+             const QString &pointCloud,
+             const tl::Point3<double> &offset,
+             const QString &dtmFile,
+             double gsd,
+             bool dsm,
+             const QString &crs);
+  ~DtmProcess() override = default;
 
-  virtual bool run() = 0;
+signals:
 
+  //void dtmFinished();
+
+// tl::ProcessBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  std::shared_ptr<DtmAlgorithm> mDtmAlgorithm;
+  QString mPointCloud;
+  tl::Point3<double> mOffset;
+  QString mDtmFile;
+  double mGSD;
+  bool mDSM;
+  QString mCrs;
 };
-
-
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_DTM_PROCESS_H

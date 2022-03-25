@@ -21,55 +21,37 @@
  *                                                                      *
  ************************************************************************/
 
+#include "OrthophotoProcess.h"
+#include "graphos/core/ortho/Orthomosaic.h"
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
-
-#include "graphos/core/process/Task.h"
-
-#include <tidop/core/console.h>
-
+#include <tidop/core/messages.h>
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+OrthophotoProcess::OrthophotoProcess(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm)
+  : tl::ProcessBase(),
+    mOrthophotoAlgorithm(orthophotoAlgorithm)
 {
 
-public:
+}
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+OrthophotoProcess::~OrthophotoProcess()
+{
 
-  virtual bool run() = 0;
+}
 
-};
+void OrthophotoProcess::execute(tl::Progress *progressBar)
+{
+	
+  try {
+    
+  	mOrthophotoAlgorithm->run();
 
+  } catch(...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Orthophoto process error");
+  }
 
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_COMMAND_H

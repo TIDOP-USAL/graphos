@@ -21,55 +21,48 @@
  *                                                                      *
  ************************************************************************/
 
+#include "RelativeOrientationProcess.h"
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include "graphos/core/orientation/orientationcolmap.h"
+#include "graphos/core/orientation/orientationexport.h"
 
-#include "graphos/core/process/Task.h"
-
-#include <tidop/core/console.h>
-
+#include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+RelativeOrientationProcess::RelativeOrientationProcess(std::shared_ptr<RelativeOrientationAlgorithm> &orientationAlgorithm)
+  : tl::ProcessBase(),
+    mRelativeOrientationAlgorithm(orientationAlgorithm)
 {
 
-public:
+}
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+RelativeOrientationProcess::~RelativeOrientationProcess()
+{
+}
 
-  virtual bool run() = 0;
+void RelativeOrientationProcess::execute(tl::Progress *progressBar)
+{
+  try {
 
-};
+    msgInfo("Starting Orientation");
 
+    tl::Chrono chrono("Orientation process finished");
+    chrono.run();
 
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
+    mRelativeOrientationAlgorithm->run();
+
+    emit orientationFinished();
+
+    chrono.stop();
+
+    if(progressBar) (*progressBar)();
+
+  } catch(...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Relative Orientation error");
+  }
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_COMMAND_H

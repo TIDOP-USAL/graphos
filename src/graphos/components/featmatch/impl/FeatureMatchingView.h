@@ -30,6 +30,7 @@ class QGridLayout;
 class QLabel;
 class QComboBox;
 class QDialogButtonBox;
+class QCheckBox;
 
 namespace graphos
 {
@@ -52,10 +53,13 @@ public:
 
   void addMatchMethod(QWidget *matchMethod) override;
   QString currentMatchMethod() const override;
+  bool spatialMatching() const override;
 
 public slots:
 
   void setCurrentMatchMethod(const QString &matchMethodName) override;
+  void setSpatialMatching(bool active) override;
+  void enabledSpatialMatching(bool enabled) override;
 
 // DialogView interface
 
@@ -78,6 +82,7 @@ protected:
   QLabel *mLabelMatcher;
   QComboBox *mComboBoxMatcher;
   QGridLayout *mGridLayoutMatcher;
+  QCheckBox *mCheckBoxSpatialMatching;
   QDialogButtonBox *mButtonBox;
 
 };

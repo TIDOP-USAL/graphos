@@ -27,6 +27,7 @@
 
 #include <QLabel>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QGridLayout>
 #include <QFileDialog>
 #include <QPushButton>
@@ -38,6 +39,7 @@ namespace graphos
 
 FeatureMatchingViewImp::FeatureMatchingViewImp(QWidget *parent)
   : FeatureMatchingView(parent),
+    mCheckBoxSpatialMatching(new QCheckBox(this)),
     mButtonBox(new QDialogButtonBox(this))
 {
   this->initUI();
@@ -52,7 +54,6 @@ FeatureMatchingViewImp::~FeatureMatchingViewImp()
 void FeatureMatchingViewImp::initUI()
 {
   this->setObjectName(QString("FeatureMatchingView"));
-  //this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(400, 300);
 
   QGridLayout *gridLayout = new QGridLayout();
@@ -68,11 +69,13 @@ void FeatureMatchingViewImp::initUI()
   mGridLayoutMatcher->setContentsMargins(0, 0, 0, 0);
   gridLayout->addWidget(widgetFeatureMatching, 1, 0, 1, 2);
 
-  gridLayout->addItem(new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding), 2, 0, 1, 2);
+  gridLayout->addWidget(mCheckBoxSpatialMatching, 2, 0, 1, 2);
+
+  gridLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding), 3, 0, 1, 2);
 
   mButtonBox->setOrientation(Qt::Orientation::Horizontal);
   mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 3, 0, 1, 2);
+  gridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
 
   this->retranslate();
   this->clear();
@@ -82,15 +85,16 @@ void FeatureMatchingViewImp::initUI()
 void FeatureMatchingViewImp::initSignalAndSlots()
 {
   connect(mComboBoxMatcher,  &QComboBox::currentTextChanged, this, &FeatureMatchingView::matchMethodChange);
+  connect(mCheckBoxSpatialMatching, SIGNAL(clicked(bool)), this, SIGNAL(spatialMatchingChange(bool)));
 
   connect(mButtonBox,                                    &QDialogButtonBox::rejected, this, &QDialog::reject);
   connect(mButtonBox->button(QDialogButtonBox::Apply),   &QAbstractButton::clicked,   this, &FeatureMatchingViewImp::run);
   connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked,   this, &DialogView::help);
-
 }
 
 void FeatureMatchingViewImp::clear()
 {
+  mCheckBoxSpatialMatching->setChecked(false);
 }
 
 void FeatureMatchingViewImp::update()
@@ -103,6 +107,7 @@ void FeatureMatchingViewImp::update()
 void FeatureMatchingViewImp::retranslate()
 {
   this->setWindowTitle(QApplication::translate("FeatureMatchingView", "Feature Matching"));
+  mCheckBoxSpatialMatching->setText(QApplication::translate("FeatureMatchingView", "Spatial Matching", nullptr));
   mLabelMatcher->setText(QApplication::translate("FeatureMatchingView", "Feature Matching Method:"));
   mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureMatchingView", "Cancel"));
   mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureMatchingView", "Run"));
@@ -121,6 +126,21 @@ void FeatureMatchingViewImp::addMatchMethod(QWidget *matchMethod)
 QString FeatureMatchingViewImp::currentMatchMethod() const
 {
   return mComboBoxMatcher->currentText();
+}
+
+bool FeatureMatchingViewImp::spatialMatching() const
+{
+  return mCheckBoxSpatialMatching->isChecked();
+}
+
+void FeatureMatchingViewImp::setSpatialMatching(bool active)
+{
+  mCheckBoxSpatialMatching->setChecked(active);
+}
+
+void FeatureMatchingViewImp::enabledSpatialMatching(bool enabled)
+{
+  mCheckBoxSpatialMatching->setEnabled(enabled);
 }
 
 void FeatureMatchingViewImp::setCurrentMatchMethod(const QString &matchMethodName)

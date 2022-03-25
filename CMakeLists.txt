@@ -1,29 +1,53 @@
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
+##########################################################################
+#                                                                        #
+# Copyright 2016 by Tidop Research Group <daguilera@usal.es>             #
+#                                                                        #
+# This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.       #
+#                                                                        #
+# GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can   #
+# redistribute it and/or modify it under the terms of the GNU General    #
+# Public License as published by the Free Software Foundation, either    #
+# version 3 of the License, or (at your option) any later version.       #
+#                                                                        #
+# GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the       #
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even    #
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR    #
+# PURPOSE.  See the GNU General Public License for more details.         #
+#                                                                        #
+# You should have received a copy of the GNU General Public License      #
+# along with Graphos.  If not, see <http://www.gnu.org/licenses/>.       #
+#                                                                        #
+# https://spdx.org/licenses/GPL-3.0-or-later.html                        #
+#                                                                        #
+##########################################################################
+
+cmake_minimum_required(VERSION 3.10.0...3.22)
+
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+endif()
 
 
-# Proyecto GRAPHOS (InteGRAted PHOtogrammetric Suite)
 project(GRAPHOS 
         VERSION 2.0.0
+        DESCRIPTION "GRAPHOS (InteGRAted PHOtogrammetric Suite)"
+        HOMEPAGE_URL "http://tidop.usal.es"
         LANGUAGES CXX)
-		
-		
-		
-		
-## CONFIGURACIÓN GENERAL    
+
+
+# Configuration 
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Sufijo para librerias de debug
 set(CMAKE_DEBUG_POSTFIX d)
-
-# Tipos de configuración
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 set(CMAKE_CONFIGURATION_TYPES Release;Debug)
 
-# MACRO PARA DEPURACION
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
-
-# Configuracion especifica de Visual Studio
 if(MSVC)
 
   # Nivel de warning
@@ -55,9 +79,6 @@ if (UNIX)
   
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
 
@@ -100,6 +121,34 @@ endif (BUILD_SHARED_LIBS)
 
 
 
+# Compiler info
+
+message(STATUS "\nCompiler info:\n")
+if(CMAKE_CXX_COMPILER_LOADED)
+  message(STATUS "  C++ compiler:         ${CMAKE_CXX_COMPILER}")
+  message(STATUS "  C++ compiler ID:      ${CMAKE_CXX_COMPILER_ID}")
+  message(STATUS "  C++ compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
+  message(STATUS "  C++ estandar:         ${CMAKE_CXX_STANDARD}\n")
+endif()
+
+# Operating system info
+
+message(STATUS "\nOperating system info:\n")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  message(STATUS "  Linux ${CMAKE_SYSTEM_VERSION}\n")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  message(STATUS "  macOS ${CMAKE_SYSTEM_VERSION}\n")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  message(STATUS "  Windows ${CMAKE_SYSTEM_VERSION}\n")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "AIX")
+  message(STATUS "  IBM AIX ${CMAKE_SYSTEM_VERSION}\n")
+else()
+  message(STATUS "  ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}\n")
+endif()
+
+
+
+
 ## CONFIGURACIÓN COMPONENTES GRAPHOS
 
 # Activación desactivación de los diferentes componentes de GRAPHOS
@@ -117,24 +166,45 @@ OPTION (BUILD_MESSAGE_HANDLER "Active message handle" ON)
 # Si se activa esta opción se pueden utilizar los métodos marcados como obsoletos (deprecated)
 OPTION (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 
-#set(BUILD_TL_CORE YES)
 
 
-# CONFIGURACIÓN DEPENDENCIAS
 
-#OPTION (WITH_BOOST    "Include Boost support"                   ON)
+
+
+##########################################################################
+#  Dependencies                                                          #
+#------------------------------------------------------------------------#
+# - TidopLib                  REQUIRED                                   #
+# - BOOST                     REQUIRED                                   #
+# - CUDA                      REQUIRED                                   #
+# - OpenCV                    REQUIRED                                   #
+# - COLMAP                    REQUIRED                                   #
+# - OpenMP                    OPTIONAL                                   #
+# - Qt5                       REQUIRED                                   #
+# - CloudCompare              REQUIRED                                   #
+# - VLD                       OPTIONAL                                   #
+##########################################################################
+
+
 if(MSVC)
 option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
 endif(MSVC)
 
+message(STATUS "\nDependency loading:\n")
 
-# TidopLib
+
+
+##########################################################################
+# TidopLib (REQUIRED)                                                    #
+##########################################################################      
 
 find_package(TidopLib REQUIRED)
 include_directories(${TidopLib_INCLUDE_DIRS})
- 
 
-#  BOOST                                                                           
+
+##########################################################################
+# BOOST (REQUIRED)                                                       #
+##########################################################################                                                                        
 
 set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
@@ -149,22 +219,9 @@ else()
 endif()
 
 
-
-
-#  CUDA  
-
-find_package(CUDA)
-include_directories(${CUDA_INCLUDE_DIRS})
-
-if (CUDA_FOUND)
-  set(HAVE_CUDA YES)
-else()
-  set(HAVE_CUDA NO)
-endif()
-
-
-
-#  OPENCV  
+##########################################################################
+# OpenCV  (REQUIRED)                                                     #
+##########################################################################
 
 find_package(OpenCV REQUIRED
              COMPONENTS
@@ -193,8 +250,23 @@ else()
     include_directories(${OpenCV_INCLUDE_DIRS})
 endif()
 
-#  Colmap 
 
+#  CUDA  
+
+find_package(CUDA)
+include_directories(${CUDA_INCLUDE_DIRS})
+
+if (CUDA_FOUND)
+  set(HAVE_CUDA YES)
+else()
+  set(HAVE_CUDA NO)
+endif()
+
+
+
+##########################################################################
+# Colmap (REQUIRED)                                                      #
+##########################################################################   
 
 find_package(COLMAP REQUIRED)
 
@@ -202,7 +274,6 @@ set(HAVE_COLMAP YES)
 include_directories(${COLMAP_INCLUDE_DIRS})
 link_directories(${COLMAP_LINK_DIRS})
         
-message("Colmap: " ${COLMAP_LIBRARIES})
 
 if(MSVC)
   # Some fixes for the Glog library.
@@ -214,6 +285,10 @@ if(MSVC)
   #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
+
+##########################################################################
+# Colmap (OPTIONAL)                                                      #
+##########################################################################  
 
 find_package(OpenMP)
 
@@ -307,7 +382,7 @@ endif()
 
 if(BUILD_GRAPHOS)
 
-    find_package(CloudCompare)
+    find_package(CloudCompare REQUIRED)
 
     if (NOT CLOUDCOMPARE_FOUND)
         set(HAVE_CLOUDCOMPARE NO)

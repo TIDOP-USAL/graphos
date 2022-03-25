@@ -53,6 +53,7 @@
 #include <QSqlError>
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 
 #include <atomic>
 
@@ -83,30 +84,38 @@ class ProducerImp
 public:
 
   ProducerImp(const std::vector<Image> *images,
-    const std::map<int, Camera> *cameras,
-    const colmap::Database *database,
-    int maxImageSize,
-    bool useGPU,
-    QueueMPMC<queue_data> *buffer)
+              const std::map<int, Camera> *cameras,
+              const colmap::Database *database,
+              int maxImageSize,
+              bool useGPU,
+              QueueMPMC<queue_data> *buffer,
+              FeatureExtractorProcess *featureExtractorProcess)
     : mImages(images),
       mCameras(cameras),
       mDatabase(database),
       mMaxImageSize(maxImageSize),
       bUseGPU(useGPU),
-      mBuffer(buffer)
+      mBuffer(buffer),
+      mFeatureExtractorProcess(featureExtractorProcess)
   {
   }
 
   void operator() (size_t, size_t)
   {
-    for (const auto& image : *mImages) {
+    for (const auto &image : *mImages) {
+
+      //if(mFeatureExtractorProcess->isWaitingForFinished()) {
+      //  done = true;
+      //  break;
+      //}
+
       producer(image);
     }
   }
 
 private:
 
-  void producer(const Image& image)
+  void producer(const Image &image)
   {
     try {
 
@@ -142,23 +151,17 @@ private:
           QString colmap_camera_type = cameraToColmapType(camera);
           int camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
           if (camera_model_id == -1) throw std::runtime_error("Camera model unknow");
-          //double focal_length = camera.focal();
+
           size_t width = static_cast<size_t>(camera.width());
           size_t height = static_cast<size_t>(camera.height());
-          //if (round(1.2 * std::max(width, height)) == round(focal_length)) {
-          //  camera_colmap.SetPriorFocalLength(false);
-          //} else {
-          //  camera_colmap.SetPriorFocalLength(true);
-          //}
-          colmap::Bitmap bitmap;
-          double focal_lenght = 0.0;
-          if (bitmap.Read(image_path, false)) {
-            if (bitmap.ExifFocalLength(&focal_lenght)) {
-              camera_colmap.SetPriorFocalLength(true);
-            } else {
-              focal_lenght = 1.2 *  std::max(width, height);
-              camera_colmap.SetPriorFocalLength(false);
-            }
+
+          double focal_lenght = camera.focal();
+
+          if(focal_lenght > 0.) {
+            camera_colmap.SetPriorFocalLength(true);
+          } else {
+            focal_lenght = 1.2 * std::max(width, height);
+            camera_colmap.SetPriorFocalLength(false);
           }
 
           camera_colmap.InitializeWithId(camera_model_id, focal_lenght, width, height);
@@ -168,13 +171,24 @@ private:
 
         colmap::Image image_colmap;
         image_colmap.SetName(image_path);
-        image_colmap.TvecPrior(0) = image.cameraPose().position().x;
-        image_colmap.TvecPrior(1) = image.cameraPose().position().y;
-        image_colmap.TvecPrior(2) = image.cameraPose().position().z;
-        image_colmap.QvecPrior(0) = image.cameraPose().quaternion().w;
-        image_colmap.QvecPrior(1) = image.cameraPose().quaternion().x;
-        image_colmap.QvecPrior(2) = image.cameraPose().quaternion().y;
-        image_colmap.QvecPrior(3) = image.cameraPose().quaternion().z;
+
+        tl::Point3D position = image.cameraPose().position();
+        if(position != tl::Point3D()) {
+          image_colmap.TvecPrior(0) = image.cameraPose().position().x;
+          image_colmap.TvecPrior(1) = image.cameraPose().position().y;
+          image_colmap.TvecPrior(2) = image.cameraPose().position().z;
+        }
+
+        tl::math::Quaternion<double> q = image.cameraPose().quaternion();
+        if(q != tl::math::Quaternion<double>::zero()) {
+          image_colmap.QvecPrior(0) = q.w;
+          image_colmap.QvecPrior(1) = q.x;
+          image_colmap.QvecPrior(2) = q.y;
+          image_colmap.QvecPrior(3) = q.z;
+        } else {
+          image_colmap.QvecPrior().setConstant(std::numeric_limits<double>::quiet_NaN());
+        }
+
         image_colmap.SetCameraId(camera_id);
 
         featextract_mutex.lock();
@@ -191,85 +205,10 @@ private:
 
       /* Lectura de imagen */
 
-      cv::Mat mat;
       double scale = 1.;
+      cv::Mat mat = readImage(image, scale);
 
-      if (featextract_opencv_read) {
-
-          mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE);
-
-          if (mat.empty()) {
-            featextract_opencv_read = false;
-          } else {
-            
-            cv::Size size(mat.cols, mat.rows);
-            double max_dimension = std::max(size.width, size.height);
-
-            if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-
-              scale = max_dimension / mMaxImageSize;
-              size.width /= scale;
-              size.height /= scale;
-#ifdef HAVE_CUDA
-              if (bUseGPU) {
-                cv::cuda::GpuMat gImgIn(mat);
-                cv::cuda::GpuMat gImgResize;
-                cv::cuda::resize(gImgIn, gImgResize, size);
-                gImgResize.download(mat);
-              } else {
-#endif
-                cv::resize(mat, mat, size);
-#ifdef HAVE_CUDA
-              }
-#endif
-            }
-          }
-        }
-
-      if (!featextract_opencv_read) {
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
-        imageReader->open();
-        if (imageReader->isOpen()) {
-
-          double max_dimension = std::max(imageReader->cols(), imageReader->rows());
-
-          if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
-            scale = mMaxImageSize / max_dimension;
-            mat = imageReader->read(scale, scale);
-            scale = 1. / scale;
-          } else {
-            mat = imageReader->read();
-          }
-
-          if (imageReader->depth() != 8) {
-#ifdef HAVE_CUDA
-            if (bUseGPU) {
-              cv::cuda::GpuMat gImgIn(mat);
-              cv::cuda::GpuMat gImgOut;
-              cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-              gImgOut.download(mat);
-            } else {
-#endif
-              cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_CUDA
-            }
-#endif
-          }
-
-          if (mat.channels() >= 3) {
-#ifdef HAVE_CUDA
-            cv::cuda::GpuMat gImgIn(mat);
-            cv::cuda::GpuMat gImgGray;
-            cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
-            gImgGray.download(mat);
-#else
-            cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
-#endif
-          }
-
-          imageReader->close();
-        }
-      }
+      /* Write queue */
 
       queue_data data;
       data.mat = mat;
@@ -277,7 +216,7 @@ private:
       data.scale = scale;
       data.image_name = image.name();
 
-      mBuffer->push(data); /// Aqui se pasa lo necesario al consumidor
+      mBuffer->push(data);
 
       double time = chrono.stop();
       msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
@@ -288,14 +227,124 @@ private:
     }
   }
 
+  cv::Mat readImage(const Image &image, double &scale)
+  {
+    cv::Mat mat;
+
+    if(featextract_opencv_read) {
+
+      mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH);
+
+      //mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR);
+      //cv::Mat color_boost;
+      //cv::decolor(mat, mat, color_boost);
+      //color_boost.release();
+
+      if(mat.empty()) {
+        featextract_opencv_read = false;
+      } else {
+
+        cv::Size size(mat.cols, mat.rows);
+        double max_dimension = std::max(size.width, size.height);
+
+        if(mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+
+          scale = max_dimension / mMaxImageSize;
+          size.width /= scale;
+          size.height /= scale;
+
+          resizeImage(mat, size);
+        }
+      }
+    }
+
+    if(!featextract_opencv_read) {
+      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
+      imageReader->open();
+      if(imageReader->isOpen()) {
+
+        double max_dimension = std::max(imageReader->cols(), imageReader->rows());
+
+        if(mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+          scale = mMaxImageSize / max_dimension;
+          mat = imageReader->read(scale, scale);
+          scale = 1. / scale;
+        } else {
+          mat = imageReader->read();
+        }
+
+        if(mat.channels() >= 3) {
+          convertRgbToGray(mat);
+        }
+
+        imageReader->close();
+      }
+    }
+
+    normalizeImage(mat);
+
+    return mat;
+  }
+
+  /*!
+   * \brief Convert an RGB image to gray
+   * \param [in|out] mat Image to convert
+   */
+  void convertRgbToGray(cv::Mat &mat)
+  {
+#ifdef HAVE_CUDA
+    cv::cuda::GpuMat gImgIn(mat);
+    cv::cuda::GpuMat gImgGray;
+    cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
+    gImgGray.download(mat);
+#else
+    cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+#endif
+  }
+
+  void normalizeImage(cv::Mat &mat)
+  {
+    if(mat.depth() != CV_8U) {
+#ifdef HAVE_CUDA
+      if(bUseGPU) {
+        cv::cuda::GpuMat gImgIn(mat);
+        cv::cuda::GpuMat gImgOut;
+        cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+        gImgOut.download(mat);
+      } else {
+#endif
+        cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
+      }
+#endif
+    }
+  }
+
+  void resizeImage(cv::Mat &mat, const cv::Size &size)
+  {
+#ifdef HAVE_CUDA
+    if(bUseGPU) {
+      cv::cuda::GpuMat gImgIn(mat);
+      cv::cuda::GpuMat gImgResize;
+      cv::cuda::resize(gImgIn, gImgResize, size);
+      gImgResize.download(mat);
+    } else {
+#endif
+      cv::resize(mat, mat, size);
+#ifdef HAVE_CUDA
+    }
+#endif
+  }
+
 protected:
 
-  const std::vector<Image>* mImages;
-  const std::map<int, Camera>* mCameras;
-  const colmap::Database* mDatabase;
+  const std::vector<Image> *mImages;
+  const std::map<int, Camera> *mCameras;
+  const colmap::Database *mDatabase;
   int mMaxImageSize;
   bool bUseGPU;
-  QueueMPMC<queue_data>* mBuffer;
+  QueueMPMC<queue_data> *mBuffer;
+  FeatureExtractorProcess *mFeatureExtractorProcess;
 };
 
 
@@ -305,16 +354,20 @@ class ConsumerImp
 
 public:
 
-  ConsumerImp(FeatureExtractor* feat_extractor,
-              ProjectImp *project,
+  ConsumerImp(FeatureExtractor *feat_extractor,
+              const std::string &databaseFile,
               colmap::Database *database,
               QueueMPMC<queue_data> *buffer,
-              bool useGPU)
+              FeatureExtractorProcess *featureExtractorProcess,
+              bool useGPU,
+              tl::Progress *progressBar)
     : mFeatExtractor(feat_extractor),
-      mProject(project),
+      mDatabaseFile(databaseFile),
       mDatabase(database),
       mBuffer(buffer),
-      bUseGPU(useGPU)
+      mFeatureExtractorProcess(featureExtractorProcess),
+      bUseGPU(useGPU),
+      mProgressBar(progressBar)
   {
   }
 
@@ -338,6 +391,11 @@ private:
   {
     try {
 
+      //if(mFeatureExtractorProcess->isWaitingForFinished()) {
+      //  done = true;
+      //  return;
+      //}
+
       tl::Chrono chrono;
       chrono.run();
 
@@ -349,31 +407,17 @@ private:
       colmap::FeatureKeypoints featureKeypoints;
       colmap::FeatureDescriptors featureDescriptors;
 
-      mFeatExtractor->run(data.mat, featureKeypoints, featureDescriptors);
+      featureExtraction(data.mat, featureKeypoints, featureDescriptors);
+      resizeFeatures(featureKeypoints, data.scale);
+      writeFeatures(data.image_id, featureKeypoints, featureDescriptors);
 
-      QByteArray ba = data.image_name.toLocal8Bit();
+
       double time = chrono.stop();
       msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
 
-      if (data.scale > 1) {
-        for (auto& featureKeypoint : featureKeypoints) {
-          featureKeypoint.Rescale(data.scale, data.scale);
-        }
-      }
-
-      // Escritura en la base de datos
-      {
-        colmap::DatabaseTransaction database_transaction(mDatabase);
-        mDatabase->WriteKeypoints(data.image_id, featureKeypoints);
-        mDatabase->WriteDescriptors(data.image_id, featureDescriptors);
-      }
-      //featextract_mutex.lock();
-      //mDatabase->WriteKeypoints(data.image_id, featureKeypoints);
-      //mDatabase->WriteDescriptors(data.image_id, featureDescriptors);
-      //featextract_mutex.unlock();
-
       // añade features al proyecto
-      mProject->addFeatures(data.image_name, data.image_name + "@" + mProject->database());
+      mFeatureExtractorProcess->featuresExtracted(data.image_name, data.image_name + "@" + mDatabaseFile.c_str());
+      if(mProgressBar) (*mProgressBar)();
 
     } catch (std::exception& e) {
       msgError(e.what());
@@ -381,14 +425,133 @@ private:
     }
   }
 
+  void featureExtraction(const cv::Mat &mat,
+                         colmap::FeatureKeypoints &featureKeypoints,
+                         colmap::FeatureDescriptors &featureDescriptors)
+  {
+    mFeatExtractor->run(mat, featureKeypoints, featureDescriptors);
+  }
+
+  void resizeFeatures(colmap::FeatureKeypoints &featureKeypoints,
+                      double scale)
+  {
+    if(scale > 1) {
+      for(auto &featureKeypoint : featureKeypoints) {
+        featureKeypoint.Rescale(scale, scale);
+      }
+    }
+  }
+
+  void writeFeatures(const colmap::image_t &image_id,
+                     colmap::FeatureKeypoints &featureKeypoints,
+                     colmap::FeatureDescriptors &featureDescriptors)
+  {
+    std::lock_guard<std::mutex> lck(featextract_mutex);
+
+    mDatabase->WriteKeypoints(image_id, featureKeypoints);
+    mDatabase->WriteDescriptors(image_id, featureDescriptors);
+
+  }
+
 private:
 
   FeatureExtractor *mFeatExtractor;
-  ProjectImp* mProject;
+  std::string mDatabaseFile;
   colmap::Database* mDatabase;
   QueueMPMC<queue_data>* mBuffer;
+  FeatureExtractorProcess *mFeatureExtractorProcess;
   bool bUseGPU;
+  tl::Progress *mProgressBar;
 };
+
+}
+
+
+
+/******************************************************************/
+
+
+
+FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &images,
+                                                 const std::map<int, Camera> &cameras,
+                                                 const QString &database,
+                                                 int maxImageSize,
+                                                 bool cuda,
+                                                 const std::shared_ptr<FeatureExtractor> &featureExtractor)
+  : tl::ProcessBase(),
+    mImages(images),
+    mCameras(cameras),
+    mDatabase(database),
+    mMaxImageSize(maxImageSize),
+    bUseCuda(cuda),
+    mFeatureExtractor(featureExtractor)
+{
+}
+
+
+void FeatureExtractorProcess::execute(tl::Progress *progressBar)
+{
+
+  try {
+
+    tl::Chrono chrono("Feature extraction finished ");
+    chrono.run();
+
+    colmap::Database database(mDatabase.toStdString());
+
+    QueueMPMC<internal::queue_data> buffer(50);
+    internal::ProducerImp producer(&mImages,
+                                   &mCameras,
+                                   &database,
+                                   mMaxImageSize,
+                                   bUseCuda,
+                                   &buffer,
+                                   this);
+    internal::ConsumerImp consumer(mFeatureExtractor.get(),
+                                   mDatabase.toStdString(),
+                                   &database,
+                                   &buffer,
+                                   this,
+                                   bUseCuda,
+                                   progressBar);
+
+    size_t num_threads = 1;
+    std::vector<std::thread> producer_threads(num_threads);
+    std::vector<std::thread> consumer_threads(num_threads);
+
+    internal::featextract_done = false;
+
+    size_t size = mImages.size() / num_threads;
+    for(size_t i = 0; i < num_threads; ++i) {
+      size_t _ini = i * size;
+      size_t _end = _ini + size;
+      if(i == num_threads - 1) _end = mImages.size();
+
+      producer_threads[i] = std::move(std::thread(producer, _ini, _end));
+    }
+
+    for(size_t i = 0; i < num_threads; ++i) {
+      consumer_threads[i] = std::move(std::thread(consumer));
+    }
+
+    for(size_t i = 0; i < num_threads; ++i)
+      producer_threads[i].join();
+
+    internal::featextract_done = true;
+
+    for(size_t i = 0; i < num_threads; ++i)
+      consumer_threads[i].join();
+
+    size_t keypoints = database.NumKeypoints();
+    TL_ASSERT(keypoints > 0, "Keypoints not detected");
+    /*else if (isWaitingForFinished()) {
+      chrono.reset();
+    }*/
+    chrono.stop();
+  
+  } catch(...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
+  }
 
 }
 
@@ -433,9 +596,6 @@ bool FeatureExtractorCommand::run()
 
   try {
 
-    tl::Chrono chrono("Feature extraction finished ");
-    chrono.run();
-
     if (!mProjectFile.exists()) {
       msgError("Project doesn't exist");
       return 1;
@@ -449,61 +609,47 @@ bool FeatureExtractorCommand::run()
     std::vector<Image> images = project.images();
     std::map<int, Camera> cameras = project.cameras();
 
+    TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
+    QFile(database_path).remove();
+    project.removeFeatures();
+
     colmap::Database database(database_path.toStdString());
 
-    std::shared_ptr<FeatureExtractor> feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mMaxFeaturesNumber,
-                                                                                                       mOctaveResolution,
-                                                                                                       mEdgeThreshold,
-                                                                                                       //mSigma,
-                                                                                                       mContrastThreshold);
+    std::shared_ptr<FeatureExtractor> feature_extractor;
 
-    QueueMPMC<internal::queue_data> buffer(50);
-    internal::ProducerImp producer(&images,
-                                   &cameras,
-                                   &database,
-                                   mMaxImageSize,
-                                   mDisableCuda,
-                                   &buffer);
-
-    internal::ConsumerImp consumer(feature_extractor.get(),
-                                   &project,
-                                   &database,
-                                   &buffer,
-                                   mDisableCuda);
-
-    size_t num_threads = 1;
-    std::vector<std::thread> producer_threads(num_threads);
-    std::vector<std::thread> consumer_threads(num_threads);
-
-    internal::featextract_done = false;
-
-    size_t size = images.size() / num_threads;
-    for (size_t i = 0; i < num_threads; ++i) {
-      size_t _ini = i * size;
-      size_t _end = _ini + size;
-      if (i == num_threads - 1) _end = images.size();
-
-      producer_threads[i] = std::thread(producer, _ini, _end);
+    if(mDisableCuda) {
+      feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(mMaxFeaturesNumber,
+                                                                      mOctaveResolution,
+                                                                      mEdgeThreshold,
+                                                                      mContrastThreshold);
+      
+    } else {
+      feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mMaxFeaturesNumber,
+                                                                       mOctaveResolution,
+                                                                       mEdgeThreshold,
+                                                                       mContrastThreshold);
     }
 
-    for (size_t i = 0; i < num_threads; ++i) {
-      consumer_threads[i] = std::thread(consumer);
-    }
+    FeatureExtractorProcess Feature_extractor_process(images,
+                                                      cameras,
+                                                      database_path,
+                                                      mMaxImageSize,
+                                                      !mDisableCuda,
+                                                      feature_extractor);
 
-    for (size_t i = 0; i < num_threads; ++i)
-      producer_threads[i].join();
+    connect(&Feature_extractor_process, &FeatureExtractorProcess::featuresExtracted, 
+            [&](const QString &imageName, const QString &featuresFile){
+              project.addFeatures(imageName, featuresFile);
+            });
 
-    internal::featextract_done = true;
-
-    for (size_t i = 0; i < num_threads; ++i)
-      consumer_threads[i].join();
+    Feature_extractor_process.run();
 
     project.save(project_file);
 
-    chrono.stop();
+  } catch (const std::exception &e) {
 
-  } catch (const std::exception& e) {
-    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+    printException(e);
+    
     r = true;
   }
 

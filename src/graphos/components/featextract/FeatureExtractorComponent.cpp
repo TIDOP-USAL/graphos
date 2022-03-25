@@ -82,10 +82,14 @@ void FeatureExtractorComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  bool bImagesLoaded = app_status->isActive(AppStatus::Flag::images_added);
-  action()->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
+  bool feature_extraction_active = app_status->isActive(AppStatus::Flag::project_exists) && 
+                                   app_status->isActive(AppStatus::Flag::images_added) &&
+                                  !app_status->isActive(AppStatus::Flag::processing);
+  
+  //if (!feature_extraction_active) 
+  //  app_status->flagOff(AppStatus::Flag::feature_extraction);
+  
+  action()->setEnabled(feature_extraction_active);
 }
 
 void FeatureExtractorComponent::onRunning()

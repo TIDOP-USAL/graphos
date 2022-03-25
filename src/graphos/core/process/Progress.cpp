@@ -28,11 +28,20 @@ namespace graphos
 
 ProgressHandler::ProgressHandler(QObject *parent)
   : QObject(parent),
-    mMin(0),
-    mMax(1),
-    mValue(0)
+    tl::ProgressBase()
 {
+  emit valueChange(0);
+  emit initialized();
+}
 
+ProgressHandler::ProgressHandler(size_t min, 
+                                 size_t max, 
+                                 QObject *parent)
+  : QObject(parent),
+    tl::ProgressBase(min, max)
+{
+  emit valueChange(0);
+  emit initialized();
 }
 
 ProgressHandler::~ProgressHandler()
@@ -40,43 +49,36 @@ ProgressHandler::~ProgressHandler()
 
 }
 
-int ProgressHandler::min() const
-{
-  return mMin;
-}
+//int ProgressHandler::min() const
+//{
+//  return mMin;
+//}
+//
+//int ProgressHandler::max() const
+//{
+//  return mMax;
+//}
 
-int ProgressHandler::max() const
-{
-  return mMax;
-}
+//int ProgressHandler::value() const
+//{
+//  return mValue;
+//}
 
-int ProgressHandler::value() const
-{
-  return mValue;
-}
+//void ProgressHandler::setValue(int value)
+//{
+//  mValue = value;
+//  emit valueChange(value);
+//}
 
-void ProgressHandler::setRange(int min, int max)
-{
-  mMin = min;
-  mMax = max;
-  emit rangeChange(min, max);
-}
+//void ProgressHandler::next()
+//{
+//  setValue(++mValue);
+//}
 
-void ProgressHandler::setValue(int value)
-{
-  mValue = value;
-  emit valueChange(value);
-}
-
-void ProgressHandler::next()
-{
-  setValue(++mValue);
-}
-
-void ProgressHandler::init()
-{
-  emit initialized();
-}
+//void ProgressHandler::init()
+//{
+//  emit initialized();
+//}
 
 void ProgressHandler::finish()
 {
@@ -96,6 +98,31 @@ void ProgressHandler::setDescription(const QString &description)
 void ProgressHandler::setCloseAuto(bool active)
 {
   emit closeAuto(active);
+}
+
+void ProgressHandler::setRange(size_t min, size_t max)
+{
+  ProgressBase::setRange(min, max);
+  emit valueChange(0);
+  if (min == 0 && max == 1)
+    emit rangeChange(0, 0);
+  else 
+    emit rangeChange(0, 100);
+  emit initialized();
+}
+
+void ProgressHandler::updateProgress()
+{
+  emit valueChange(percent());
+}
+
+void ProgressHandler::terminate()
+{
+  if(minimun() == 0 && maximun() == 1) {
+    emit rangeChange(0, 100);
+    emit valueChange(100);
+  }
+  emit finished();
 }
 
 } // namespace graphos

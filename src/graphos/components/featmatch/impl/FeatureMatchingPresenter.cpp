@@ -26,14 +26,13 @@
 #include "graphos/core/features/matching.h"
 #include "graphos/components/featmatch/FeatureMatchingView.h"
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
-//#include "graphos/components/SettingsModel.h"
+#include "graphos/components/featmatch/impl/FeatureMatchingProcess.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/HelpDialog.h"
-#include "graphos/process/MultiProcess.h"
-#include "graphos/process/features/FeatureMatchingProcess.h"
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/process.h>
 
 #include <QMessageBox>
 
@@ -73,6 +72,9 @@ void FeatureMatchingPresenterImp::open()
 {
   this->setMatchingProperties();
 
+  mView->setSpatialMatching(mModel->spatialMatching());
+  mView->enabledSpatialMatching(mModel->spatialMatching());
+
   mView->exec();
 }
 
@@ -105,29 +107,31 @@ void FeatureMatchingPresenterImp::setMatchingProperties()
   }
 }
 
-void FeatureMatchingPresenterImp::onError(int code, const QString &msg)
+void FeatureMatchingPresenterImp::onError(tl::ProcessErrorEvent *event)
 {
-  ProcessPresenter::onError(code, msg);
+  ProcessPresenter::onError(event);
 
-  QByteArray ba = msg.toLocal8Bit();
-  msgError(ba.data());
-
-  if (mProgressHandler){
-    mProgressHandler->setDescription(tr("Feature Matching error"));
+  if (progressHandler()){
+    progressHandler()->setDescription(tr("Feature Matching error"));
   }
 }
 
-void FeatureMatchingPresenterImp::onFinished()
+void FeatureMatchingPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished();
+  ProcessPresenter::onFinished(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Feature detection and description finished"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Feature detection and description finished"));
   }
+
+  mModel->writeMatchPairs();
+  emit matchingFinished();
 }
 
-bool FeatureMatchingPresenterImp::createProcess()
+std::unique_ptr<tl::Process> FeatureMatchingPresenterImp::createProcess()
 {
+  std::unique_ptr<tl::Process> featmatching_process;
+
     /// Se comprueba si ya se había ejecutado previante y se borran los datos
   if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()){
     int i_ret = QMessageBox(QMessageBox::Warning,
@@ -135,9 +139,8 @@ bool FeatureMatchingPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes|QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      //throw std::runtime_error("Canceled by user");
       msgWarning("Process canceled by user");
-      return false;
+      return featmatching_process;
     }
   }
 
@@ -159,29 +162,21 @@ bool FeatureMatchingPresenterImp::createProcess()
   }
 
   mModel->setFeatureMatching(featureMatching);
+  
+  featmatching_process = std::make_unique<FeatureMatchingProcess>(mModel->database(),
+                                                                  mModel->useCuda(),
+                                                                  mView->spatialMatching(),
+                                                                  featureMatching);
 
-  std::shared_ptr<FeatureMatchingProcess> featMatchingProcess(new FeatureMatchingProcess(mModel->database(),
-                                                                                         mModel->useCuda(),
-                                                                                         mModel->spatialMatching(),
-                                                                                         featureMatching));
-
-  connect(featMatchingProcess.get(), SIGNAL(featureMatchingFinished()), this, SLOT(onFinishMatching()));
-
-  mMultiProcess->appendProcess(featMatchingProcess);
-
-  if (mProgressHandler){
-    mProgressHandler->setRange(0, 0);
-    mProgressHandler->setTitle("Computing Matches...");
-    mProgressHandler->setDescription("Computing Matches...");
+  if (progressHandler()){
+    progressHandler()->setRange(0, 1);
+    progressHandler()->setTitle("Computing Matches...");
+    progressHandler()->setDescription("Computing Matches...");
   }
 
   mView->hide();
-}
 
-void FeatureMatchingPresenterImp::onFinishMatching()
-{
-  mModel->writeMatchPairs();
-  emit matchingFinished();
+  return featmatching_process;
 }
 
 void FeatureMatchingPresenterImp::cancel()

@@ -21,55 +21,56 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_IMPORT_ORIENTATION_PROCESS_H
+#define GRAPHOS_IMPORT_ORIENTATION_PROCESS_H
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
-#include "graphos/core/process/Task.h"
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
 
-#include <tidop/core/console.h>
-
+#include <QObject>
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+class ImportOrientationProcess
+  : public QObject,
+    public tl::ProcessBase
 {
+  Q_OBJECT
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+  ImportOrientationProcess(const std::vector<Image> &images, 
+                           const std::map<int, Camera> &cameras,
+                           const QString &projectPath, 
+                           const QString &database,
+                           bool fixCalibration,
+                           bool fixPoses);
+  ~ImportOrientationProcess() override;
 
-  virtual bool run() = 0;
+signals:
 
+  void importOrientationFinished();
+
+// tl::ProcessBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  std::vector<Image> mImages;
+  std::map<int, Camera> mCameras;
+  QString mProjectPath;
+  QString mDatabase;
+  bool mFixCalibration;
+  bool mFixPoses;
 };
-
-
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_IMPORT_ORIENTATION_PROCESS_H

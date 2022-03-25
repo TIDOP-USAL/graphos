@@ -21,55 +21,59 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_GEOREFERENCE_PROCESS_H
+#define GRAPHOS_GEOREFERENCE_PROCESS_H
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include "graphos/core/orientation/gcp.h"
 
-#include "graphos/core/process/Task.h"
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
 
-#include <tidop/core/console.h>
+#include <QObject>
 
+namespace colmap
+{
+class OptionManager;
+struct IncrementalMapperOptions;
+class ReconstructionManager;
+class IncrementalMapperController;
+}
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+class AbsoluteOrientationAlgorithm;
+
+class GRAPHOS_EXPORT GeoreferenceProcess
+  : public QObject,
+    public tl::ProcessBase
 {
+  Q_OBJECT
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+  GeoreferenceProcess(const QString &inputPath,
+                      const QString &outputPath,
+                      const std::vector<GroundControlPoint> &groundControlPoints);
+  ~GeoreferenceProcess() override;
 
-  virtual bool run() = 0;
+signals:
 
+  void georeferenceFinished();
+
+// tl::ProcessBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  QString mInputPath;
+  QString mOutputPath;
+  std::vector<GroundControlPoint> mGroundControlPoints;
 };
-
-
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_GEOREFERENCE_PROCESS_H

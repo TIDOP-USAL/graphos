@@ -30,10 +30,11 @@
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/widgets/SiftWidget.h"
-#include "graphos/process/MultiProcess.h"
-#include "graphos/process/features/FeatureExtractorProcess.h"
+#include "graphos/core/camera/Camera.h"
+#include "graphos/components/featextract/impl/FeatureExtractorCommand.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/process.h>
 
 #include <QDir>
 #include <QImageReader>
@@ -138,26 +139,28 @@ void FeatureExtractorPresenterImp::setSiftProperties()
   }
 }
 
-void FeatureExtractorPresenterImp::onError(int code, const QString &msg)
+void FeatureExtractorPresenterImp::onError(tl::ProcessErrorEvent *event)
 {
-  ProcessPresenter::onError(code, msg);
+  ProcessPresenter::onError(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Feature detection and description error"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Feature detection and description error"));
   }
 }
 
-void FeatureExtractorPresenterImp::onFinished()
+void FeatureExtractorPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished();
+  ProcessPresenter::onFinished(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Feature detection and description finished"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Feature detection and description finished"));
   }
 }
 
-bool FeatureExtractorPresenterImp::createProcess()
+std::unique_ptr<tl::Process> FeatureExtractorPresenterImp::createProcess()
 {
+  std::unique_ptr<tl::Process> feat_extract_process;
+
   /// Se comprueba si ya se había ejecutado previante y se borran los datos
   if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
@@ -166,7 +169,7 @@ bool FeatureExtractorPresenterImp::createProcess()
                             QMessageBox::Yes | QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
       msgWarning("Process canceled by user");
-      return false;
+      return feat_extract_process;
     }
   }
 
@@ -184,11 +187,6 @@ bool FeatureExtractorPresenterImp::createProcess()
                                                                        mSift->constrastThresholdAuto() ? 
                                                                        0. : mSift->contrastThreshold());
     } else {
-      //feature_extractor = std::make_shared<SiftDetectorDescriptor>(mSift->featuresNumber(),
-      //                                                             mSift->octaveLayers(),
-      //                                                             mSift->edgeThreshold(),
-      //                                                             mSift->constrastThresholdAuto() ? 
-      //                                                             0. : mSift->contrastThreshold());
       feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(mSift->featuresNumber(),
                                                                       mSift->octaveLayers(),
                                                                       mSift->edgeThreshold(),
@@ -212,30 +210,25 @@ bool FeatureExtractorPresenterImp::createProcess()
     maxSize = mView->maxImageSize();
   }
 
-  std::shared_ptr<FeatureExtractorProcess> feat_extract(new FeatureExtractorProcess(images,
-                                                                                    cameras,
-                                                                                    database,
-                                                                                    maxSize,
-                                                                                    mModel->useCuda(),
-                                                                                    feature_extractor));
+  feat_extract_process = std::make_unique<FeatureExtractorProcess>(images,
+                                                                   cameras,
+                                                                   database,
+                                                                   maxSize,
+                                                                   mModel->useCuda(),
+                                                                   feature_extractor);
 
-  connect(feat_extract.get(), SIGNAL(featuresExtracted(QString, QString)),
+  connect(dynamic_cast<FeatureExtractorProcess *>(feat_extract_process.get()), SIGNAL(featuresExtracted(QString, QString)),
           this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
 
-  /// Hacer privadas
-  mMultiProcess->appendProcess(feat_extract);
-  mProgressHandler->setRange(0, images.size());
-
-  if (mProgressHandler) {
-    mProgressHandler->setTitle("Computing Features...");
-    mProgressHandler->setDescription("Computing Features...");
+  if (progressHandler()) {
+    progressHandler()->setRange(0, images.size());
+    progressHandler()->setTitle("Computing Features...");
+    progressHandler()->setDescription("Computing Features...");
   }
 
   mView->hide();
 
-  msgInfo("Starting Feature Extraction");
-
-  return true;
+  return feat_extract_process;
 }
 
 void FeatureExtractorPresenterImp::onFeaturesExtracted(const QString &imageName, 

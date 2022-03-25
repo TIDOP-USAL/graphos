@@ -21,55 +21,56 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_DENSIFICATION_PROCESS_H
+#define GRAPHOS_DENSIFICATION_PROCESS_H
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
 
-#include "graphos/core/process/Task.h"
-
-#include <tidop/core/console.h>
-
+#include <QObject>
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+class Densifier;
+
+class DensificationProcess
+  : public QObject,
+    public tl::ProcessBase
 {
+  Q_OBJECT
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+  DensificationProcess(const std::shared_ptr<Densifier> &densifier,
+                       const QString &reconstructionPath,
+                       const QString &outputPath);
+  ~DensificationProcess() override = default;
 
-  virtual bool run() = 0;
+  QString reconstructionPath() const;
+  void setReconstructionPath(const QString &reconstructionPath);
 
+
+  QString outputPat() const;
+  void setOutputPat(const QString &outputPat);
+
+signals:
+
+  void densificationFinished();
+
+// tl::ProcessBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  std::shared_ptr<Densifier> mDensifier;
+  QString mReconstructionPath;
+  QString mOutputPat;
 };
-
-
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_DENSIFICATION_PROCESS_H

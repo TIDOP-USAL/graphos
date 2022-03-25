@@ -21,55 +21,48 @@
  *                                                                      *
  ************************************************************************/
 
+#include "AbsoluteOrientationProcess.h"
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include "graphos/core/orientation/orientationcolmap.h"
+#include "graphos/core/orientation/orientationexport.h"
 
-#include "graphos/core/process/Task.h"
-
-#include <tidop/core/console.h>
-
+#include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+AbsoluteOrientationProcess::AbsoluteOrientationProcess(std::shared_ptr<AbsoluteOrientationAlgorithm> &orientationAlgorithm)
+  : tl::ProcessBase(),
+    mAbsoluteOrientationAlgorithm(orientationAlgorithm)
 {
 
-public:
+}
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+AbsoluteOrientationProcess::~AbsoluteOrientationProcess()
+{
+}
 
-  virtual bool run() = 0;
+void AbsoluteOrientationProcess::execute(tl::Progress *progressBar)
+{
+  try {
 
-};
+    msgInfo("Starting Absolute Orientation");
 
+    tl::Chrono chrono("Absolute Orientation process finished");
+    chrono.run();
 
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
+    mAbsoluteOrientationAlgorithm->run();
+
+    emit absoluteOrientationFinished();
+
+    chrono.stop();
+
+    if(progressBar) (*progressBar)();
+
+  } catch(...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Absolute Orientation error");
+  }
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_COMMAND_H

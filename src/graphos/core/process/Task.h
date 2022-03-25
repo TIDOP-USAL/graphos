@@ -22,54 +22,37 @@
  ************************************************************************/
 
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#ifndef GRAPHOS_CORE_TASK_H
+#define GRAPHOS_CORE_TASK_H
 
-#include "graphos/core/process/Task.h"
 
-#include <tidop/core/console.h>
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
+
+/// TODO: la clase Command extendera las clases tl::Command y la clase Task
+///       La clase Task a su vez extendera la clase tl::ProcessBase
+///       La clase PresenterProcess tendra una instancia de Task que se le pasará por
+///       inyección de dependencias. Se construira como un objeto Command aunque al
+///       Presentador se le pasara como Task
+///       
 
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+class Task
+  : public tl::ProcessBase
 {
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
-
-  virtual bool run() = 0;
+  Task() : tl::ProcessBase(){}
+  virtual ~Task() = default;
 
 };
 
 
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
-
 } // namespace graphos
 
 
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_CORE_TASK_H

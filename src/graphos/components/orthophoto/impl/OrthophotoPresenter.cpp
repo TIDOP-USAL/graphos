@@ -23,13 +23,14 @@
 
 #include "OrthophotoPresenter.h"
 
-#include "graphos/process/orthophoto/OrthophotoProcess.h"
+//#include "graphos/process/orthophoto/OrthophotoProcess.h"
 #include "graphos/core/ortho/Orthomosaic.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
+#include "graphos/components/orthophoto/impl/OrthophotoProcess.h"
 #include "graphos/core/utils.h"
-#include "graphos/process/MultiProcess.h"
+//#include "graphos/process/MultiProcess.h"
 #include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/defs.h>
@@ -93,26 +94,28 @@ void OrthophotoPresenterImp::initSignalAndSlots()
   connect(mView, &DialogView::help,     this,   &Presenter::help);
 }
 
-void OrthophotoPresenterImp::onError(int code, const QString &msg)
+void OrthophotoPresenterImp::onError(tl::ProcessErrorEvent *event)
 {
-  ProcessPresenter::onError(code, msg);
+  ProcessPresenter::onError(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Orthophoto process error"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Orthophoto process error"));
   }
 }
 
-void OrthophotoPresenterImp::onFinished()
+void OrthophotoPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished();
+  ProcessPresenter::onFinished(event);
 
-  if (mProgressHandler) {
-    mProgressHandler->setDescription(tr("Orthophoto finished"));
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Orthophoto finished"));
   }
 }
 
-bool OrthophotoPresenterImp::createProcess()
+std::unique_ptr<tl::Process> OrthophotoPresenterImp::createProcess()
 {
+  std::unique_ptr<tl::Process> ortho_process;
+
   QString ortho_path = mModel->orthoPath();
   if (!ortho_path.isEmpty()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
@@ -120,13 +123,13 @@ bool OrthophotoPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes | QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      return false;
+      return ortho_process;
     }
   }
 
   mModel->clearProject();
 
-  mMultiProcess->clearProcessList();
+  //mMultiProcess->clearProcessList();
   
   OrthophotoParameters *parameters = mModel->parameters();
   parameters->setResolution(mView->resolution());
@@ -143,17 +146,17 @@ bool OrthophotoPresenterImp::createProcess()
   
   connect(process.get(), SIGNAL(finished()), this, SLOT(onOrthophotoFinished()));
   
-  mMultiProcess->appendProcess(process);
+  //mMultiProcess->appendProcess(process);
   
-  if (mProgressHandler){
-    mProgressHandler->setRange(0, 0);
-    mProgressHandler->setTitle("Computing Orthophoto...");
-    mProgressHandler->setDescription("Computing Orthophoto...");
+  if (progressHandler()){
+    progressHandler()->setRange(0, 0);
+    progressHandler()->setTitle("Computing Orthophoto...");
+    progressHandler()->setDescription("Computing Orthophoto...");
   }
   
   mView->hide();
   
-  return true;
+  return ortho_process;
 }
 
 void OrthophotoPresenterImp::cancel()

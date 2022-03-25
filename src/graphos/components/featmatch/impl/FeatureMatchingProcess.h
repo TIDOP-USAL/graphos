@@ -21,55 +21,78 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_FEATURE_MATCHING_PROCESS_H
+#define GRAPHOS_FEATURE_MATCHING_PROCESS_H
 
-#ifndef GRAPHOS_COMMAND_H
-#define GRAPHOS_COMMAND_H
+#include <QObject>
 
-#include "graphos/core/process/Task.h"
+#include <tidop/core/process.h>
+#include <tidop/core/progress.h>
 
-#include <tidop/core/console.h>
 
+
+
+namespace colmap
+{
+struct ExhaustiveMatchingOptions;
+struct SiftMatchingOptions;
+class ExhaustiveFeatureMatcher;
+class Thread;
+}
 
 namespace graphos
 {
 
-class Command
-  : public tl::Command
+class FeatureMatching;
+
+class FeatureMatchingProcess
+  : public QObject,
+    public tl::ProcessBase
 {
+
+  Q_OBJECT
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+  FeatureMatchingProcess(QString database,
+                         bool cuda,
+                         bool spatialMatching,
+                         const std::shared_ptr<FeatureMatching> &featureMatching);
+  ~FeatureMatchingProcess() override;
 
-  virtual bool run() = 0;
+//signals:
+//
+//  void featureMatchingFinished();
+
+public:
+
+  std::shared_ptr<FeatureMatching> featureMatching() const;
+  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
+
+  QString database() const;
+  void setDatabase(const QString &database);
+
+  bool useGPU() const;
+  void setUseGPU(bool useGPU);
+
+  void setSpatialMatching(bool spatialMatching);
+
+// tl::ProcessBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  colmap::Thread *mFeatureMatcher;
+  QString mDatabase;
+  bool bUseCuda;
+  bool bSpatialMatching;
+  std::shared_ptr<FeatureMatching> mFeatureMatching;
 
 };
 
-
-//class Command
-//  : public tl::Command,
-//    public Task
-//
-//{
-//
-//public:
-//
-//  Command(std::string name,
-//          std::string description)
-//    : tl::Command(std::move(name),
-//                  std::move(description))
-//  {
-//  }
-//  virtual ~Command() = default;
-//
-//};
-
 } // namespace graphos
 
-
-#endif // GRAPHOS_COMMAND_H
+#endif // GRAPHOS_FEATURE_MATCHING_PROCESS_H
