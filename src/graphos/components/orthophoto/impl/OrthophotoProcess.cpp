@@ -30,7 +30,7 @@ namespace graphos
 {
 
 OrthophotoProcess::OrthophotoProcess(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm)
-  : tl::ProcessBase(),
+  : tl::TaskBase(),
     mOrthophotoAlgorithm(orthophotoAlgorithm)
 {
 

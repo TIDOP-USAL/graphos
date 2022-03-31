@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_DENSIFICATION_PROCESS_H
 #define GRAPHOS_DENSIFICATION_PROCESS_H
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 #include <QObject>
@@ -36,7 +36,7 @@ class Densifier;
 
 class DensificationProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
   Q_OBJECT
 
@@ -58,7 +58,7 @@ signals:
 
   void densificationFinished();
 
-// tl::ProcessBase interface
+// tl::TaskBase interface
 
 protected:
 

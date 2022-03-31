@@ -25,7 +25,7 @@
 #define GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H
 
 #include <tidop/core/path.h>
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/imgwriter.h>
 #include <tidop/vect/vectwriter.h>
@@ -80,7 +80,7 @@ private:
  * \brief OrthoimageProcess
  */
 class OrthoimageProcess
-	: public tl::ProcessBase
+	: public tl::TaskBase
 {
 
 public:
@@ -105,7 +105,7 @@ private:
 	cv::Mat visibilityMap(const Orthorectification &orthorectification,
 		                    const ZBuffer &zBuffer) const;
 
-// Heredado vía ProcessBase
+// Heredado vía TaskBase
 
 private:
 

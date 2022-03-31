@@ -104,10 +104,10 @@ public:
   {
     for (const auto &image : *mImages) {
 
-      //if(mFeatureExtractorProcess->isWaitingForFinished()) {
-      //  done = true;
-      //  break;
-      //}
+      if(mFeatureExtractorProcess->status() == tl::Task::Status::stopping) {
+        featextract_done = true;
+        return;
+      }
 
       producer(image);
     }
@@ -373,15 +373,20 @@ public:
 
   void operator() ()
   {
-    while (!featextract_done) {
-      while (mBuffer->size()) {
-        consumer();
+    while (!featextract_done || mBuffer->size()) {
+      //while (mBuffer->size()) {
+      if(mFeatureExtractorProcess->status() == tl::Task::Status::stopping) {
+        featextract_done = true;
+        return;
       }
+      
+      consumer();
+      //}
     }
 
-    while (mBuffer->size()) {
-      consumer();
-    }
+    //while (mBuffer->size()) {
+    //  consumer();
+    //}
 
   }
 
@@ -390,11 +395,6 @@ private:
   void consumer()
   {
     try {
-
-      //if(mFeatureExtractorProcess->isWaitingForFinished()) {
-      //  done = true;
-      //  return;
-      //}
 
       tl::Chrono chrono;
       chrono.run();
@@ -478,7 +478,7 @@ FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &image
                                                  int maxImageSize,
                                                  bool cuda,
                                                  const std::shared_ptr<FeatureExtractor> &featureExtractor)
-  : tl::ProcessBase(),
+  : tl::TaskBase(),
     mImages(images),
     mCameras(cameras),
     mDatabase(database),
@@ -542,13 +542,15 @@ void FeatureExtractorProcess::execute(tl::Progress *progressBar)
     for(size_t i = 0; i < num_threads; ++i)
       consumer_threads[i].join();
 
-    size_t keypoints = database.NumKeypoints();
-    TL_ASSERT(keypoints > 0, "Keypoints not detected");
-    /*else if (isWaitingForFinished()) {
+    if(status() == tl::Task::Status::stopping) {
       chrono.reset();
-    }*/
-    chrono.stop();
-  
+    } else {
+      size_t keypoints = database.NumKeypoints();
+      TL_ASSERT(keypoints > 0, "Keypoints not detected");
+
+      chrono.stop();
+    }
+    
   } catch(...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
   }

@@ -41,7 +41,7 @@ FeatureMatchingProcess::FeatureMatchingProcess(QString database,
                                                bool cuda,
                                                bool spatialMatching,
                                                const std::shared_ptr<FeatureMatching> &featureMatching)
-  : tl::ProcessBase(),
+  : tl::TaskBase(),
     mFeatureMatcher(nullptr),
     mDatabase(database),
     bUseCuda(cuda),
@@ -112,10 +112,13 @@ void FeatureMatchingProcess::execute(tl::Progress *progressBar)
     int num_matches = database.NumMatches();
     database.Close();
 
-    TL_ASSERT(num_matches > 0, "Matching points not detected");
+    if(status() == tl::Task::Status::stopping) {
+      chrono.reset();
+    } else {
+      TL_ASSERT(num_matches > 0, "Matching points not detected");
+      chrono.stop();
+    }
 
-    chrono.stop();
-    
     if(progressBar) (*progressBar)();
 
   } catch (...) {
@@ -123,11 +126,11 @@ void FeatureMatchingProcess::execute(tl::Progress *progressBar)
   }
 }
 
-//void FeatureMatchingProcess::stop()
-//{
-//  //mFeatureMatcher->Stop();
-//  //Process::stop();
-//}
+void FeatureMatchingProcess::stop()
+{
+  TaskBase::stop();
+  mFeatureMatcher->Stop();
+}
 
 QString FeatureMatchingProcess::database() const
 {

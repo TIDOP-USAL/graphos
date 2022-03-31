@@ -34,7 +34,7 @@
 #include "graphos/components/featextract/impl/FeatureExtractorCommand.h"
 
 #include <tidop/core/messages.h>
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 
 #include <QDir>
 #include <QImageReader>
@@ -139,7 +139,7 @@ void FeatureExtractorPresenterImp::setSiftProperties()
   }
 }
 
-void FeatureExtractorPresenterImp::onError(tl::ProcessErrorEvent *event)
+void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -148,7 +148,7 @@ void FeatureExtractorPresenterImp::onError(tl::ProcessErrorEvent *event)
   }
 }
 
-void FeatureExtractorPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -157,11 +157,10 @@ void FeatureExtractorPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
   }
 }
 
-std::unique_ptr<tl::Process> FeatureExtractorPresenterImp::createProcess()
+std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Process> feat_extract_process;
+  std::unique_ptr<tl::Task> feat_extract_process;
 
-  /// Se comprueba si ya se había ejecutado previante y se borran los datos
   if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),

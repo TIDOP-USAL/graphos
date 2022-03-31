@@ -30,8 +30,8 @@ ProgressHandler::ProgressHandler(QObject *parent)
   : QObject(parent),
     tl::ProgressBase()
 {
-  emit valueChange(0);
-  emit initialized();
+  //emit valueChange(0);
+  //emit initialized();
 }
 
 ProgressHandler::ProgressHandler(size_t min, 
@@ -40,8 +40,8 @@ ProgressHandler::ProgressHandler(size_t min,
   : QObject(parent),
     tl::ProgressBase(min, max)
 {
-  emit valueChange(0);
-  emit initialized();
+  //emit valueChange(0);
+  //emit initialized();
 }
 
 ProgressHandler::~ProgressHandler()
@@ -75,10 +75,11 @@ ProgressHandler::~ProgressHandler()
 //  setValue(++mValue);
 //}
 
-//void ProgressHandler::init()
-//{
-//  emit initialized();
-//}
+void ProgressHandler::init()
+{
+  emit valueChange(0);
+  emit initialized();
+}
 
 void ProgressHandler::finish()
 {
@@ -108,7 +109,7 @@ void ProgressHandler::setRange(size_t min, size_t max)
     emit rangeChange(0, 0);
   else 
     emit rangeChange(0, 100);
-  emit initialized();
+  //emit initialized();
 }
 
 void ProgressHandler::updateProgress()

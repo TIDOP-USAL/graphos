@@ -26,7 +26,7 @@
 
 #include <QObject>
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 
@@ -47,7 +47,7 @@ class FeatureMatching;
 
 class FeatureMatchingProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
 
   Q_OBJECT
@@ -59,10 +59,6 @@ public:
                          bool spatialMatching,
                          const std::shared_ptr<FeatureMatching> &featureMatching);
   ~FeatureMatchingProcess() override;
-
-//signals:
-//
-//  void featureMatchingFinished();
 
 public:
 
@@ -77,7 +73,11 @@ public:
 
   void setSpatialMatching(bool spatialMatching);
 
-// tl::ProcessBase interface
+// tl::TaskBase interface
+
+public:
+  
+  void stop() override;
 
 protected:
 

@@ -30,7 +30,7 @@
 
 // TIDOP LIB
 #include <tidop/core/messages.h>
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/path.h>
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
@@ -525,7 +525,7 @@ bool SmvsDensifier::densify(const QString &undistortPath)
   if (SmvsProperties::shadingBasedOptimization())
     cmd.append(" --shading ");
   cmd.append("\"").append(undistortPath.toStdString()).append("\"");
-  tl::ExternalProcess process(cmd);
+  tl::Process process(cmd);
   process.run();
 
   return false;

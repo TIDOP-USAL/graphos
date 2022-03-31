@@ -138,7 +138,7 @@ void ProgressDialogImp::onPushButtonCancelClicked()
 {
   ui->pushButtonCancel->setEnabled(false);
   emit cancel();
-  this->close();
+  //this->close();
 }
 
 } // namespace graphos

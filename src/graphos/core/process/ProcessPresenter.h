@@ -26,16 +26,14 @@
 
 #include <QObject>
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 
 #include "graphos/interfaces/mvp.h"
 
-//class MultiProcess;
-
 namespace tl
 {
-class ProcessErrorEvent;
-class ProcessFinalizedEvent;
+class TaskErrorEvent;
+class TaskFinalizedEvent;
 }
 
 
@@ -43,47 +41,6 @@ namespace graphos
 {
 
 class ProgressHandler;
-
-//class ProcessPresenter
-//  : public Presenter
-//{
-//
-//  Q_OBJECT
-//
-//public:
-//
-//  ProcessPresenter();
-//  ~ProcessPresenter() override;
-//
-//protected slots:
-//
-//  virtual void onError(int code, const QString &msg);
-//  virtual void onFinished();
-//
-//  /*!
-//   * \brief Crea y configura el proceso
-//   * return True si se se ha creado correctamente
-//   */
-//  virtual bool createProcess() = 0;
-//
-//public slots:
-//
-//  virtual void setProgressHandler(ProgressHandler *progressHandler);
-//  virtual void run();
-//  virtual void cancel();
-//
-//signals:
-//
-//  void running();
-//  void finished();
-//  void failed();
-//  void canceled();
-//
-//protected:
-//
-//  MultiProcess *mMultiProcess;
-//  ProgressHandler *mProgressHandler;
-//};
 
 class ProcessPresenter
   : public Presenter
@@ -98,16 +55,17 @@ public:
 
 protected slots:
 
-  virtual void onError(tl::ProcessErrorEvent *event);
-  virtual void onFinished(tl::ProcessFinalizedEvent *event);
-  
+  virtual void onError(tl::TaskErrorEvent *event);
+  virtual void onFinished(tl::TaskFinalizedEvent *event);
+  virtual void onStopped(tl::TaskStoppedEvent *event);
+
   ProgressHandler *progressHandler();
 
   /*!
-   * \brief Crea y configura el proceso
-   * return Proceso
+   * \brief Create task
+   * return Task
    */
-  virtual std::unique_ptr<tl::Process> createProcess() = 0;
+  virtual std::unique_ptr<tl::Task> createProcess() = 0;
 
 public slots:
 
@@ -124,7 +82,12 @@ signals:
 
 private:
 
-  std::unique_ptr<tl::Process> mProcess;
+  void init() override;
+  void initSignalAndSlots() override;
+
+private:
+
+  std::unique_ptr<tl::Task> mProcess;
   ProgressHandler *mProgressHandler;
 };
 

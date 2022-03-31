@@ -34,7 +34,7 @@ namespace graphos
 DensificationProcess::DensificationProcess(const std::shared_ptr<Densifier> &densifier,
                                            const QString &reconstructionPath,
                                            const QString &outputPath)
-  : tl::ProcessBase(),
+  : tl::TaskBase(),
     mDensifier(densifier),
     mReconstructionPath(reconstructionPath),
     mOutputPat(outputPath)

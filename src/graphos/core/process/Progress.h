@@ -58,14 +58,14 @@ signals:
   void finished();
   void titleChange(QString);
   void descriptionChange(QString);
-  //void cancel();
+  void cancel();
   void closeAuto(bool);
 
 public slots:
 
   //void setValue(int value);
   //void next();
-  //void init();
+  void init();
   void finish();
   void setTitle(const QString &title);
   void setDescription(const QString &description);

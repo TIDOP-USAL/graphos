@@ -26,11 +26,11 @@
 #define GRAPHOS_CORE_TASK_H
 
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 /// TODO: la clase Command extendera las clases tl::Command y la clase Task
-///       La clase Task a su vez extendera la clase tl::ProcessBase
+///       La clase Task a su vez extendera la clase tl::TaskBase
 ///       La clase PresenterProcess tendra una instancia de Task que se le pasará por
 ///       inyección de dependencias. Se construira como un objeto Command aunque al
 ///       Presentador se le pasara como Task
@@ -41,12 +41,12 @@ namespace graphos
 {
 
 class Task
-  : public tl::ProcessBase
+  : public tl::TaskBase
 {
 
 public:
 
-  Task() : tl::ProcessBase(){}
+  Task() : tl::TaskBase(){}
   virtual ~Task() = default;
 
 };

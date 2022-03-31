@@ -35,7 +35,7 @@
 #include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/messages.h>
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 
 #include <QFileInfo>
 #include <QMessageBox>
@@ -116,7 +116,7 @@ void OrientationPresenterImp::cancel()
   msgWarning("Processing has been canceled by the user");
 }
 
-void OrientationPresenterImp::onError(tl::ProcessErrorEvent *event)
+void OrientationPresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -125,7 +125,7 @@ void OrientationPresenterImp::onError(tl::ProcessErrorEvent *event)
   }
 }
 
-void OrientationPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -134,10 +134,10 @@ void OrientationPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
   }
 }
 
-std::unique_ptr<tl::Process> OrientationPresenterImp::createProcess()
+std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 {
  
-  std::unique_ptr<tl::Process> orientation_process;
+  std::unique_ptr<tl::Task> orientation_process;
 
   QString reconstruction_path = mModel->reconstructionPath();
   if (!reconstruction_path.isEmpty()){
@@ -173,31 +173,35 @@ std::unique_ptr<tl::Process> OrientationPresenterImp::createProcess()
 
   } else {
 
-    orientation_process = std::make_unique<tl::BatchProcess>();
+    orientation_process = std::make_unique<tl::TaskList>();
 
-    QString ori_relative = mModel->projectPath() + "/ori/relative/";
-    std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database,
-                                                                                                                                      ori_relative,
-                                                                                                                                      mView->fixCalibration());
+    QString ori_relative_path = mModel->projectPath() + "/ori/relative/";
+    //std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database,
+    //                                                                                                                                  ori_relative_path,
+    //                                                                                                                                  mView->fixCalibration());
 
-    std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(relativeOrientationAlgorithm));
+    std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(database,
+                                                                                                          ori_relative_path,
+                                                                                                          mView->fixCalibration()));
 
     connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onRelativeOrientationFinished()));
 
-    dynamic_cast<tl::BatchProcess *>(orientation_process.get())->push_back(relativeOrientationProcess);
+    dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(relativeOrientationProcess);
 
     if (mView->absoluteOrientation()) {
       QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
       std::map<QString, std::array<double, 3>> camera_positions = mModel->cameraPositions();
-      std::shared_ptr<AbsoluteOrientationAlgorithm> absoluteOrientationAlgorithm;
-      absoluteOrientationAlgorithm = std::make_shared<AbsoluteOrientationColmapAlgorithm>(ori_relative,
+      /*std::shared_ptr<AbsoluteOrientationAlgorithm> absoluteOrientationAlgorithm;
+      absoluteOrientationAlgorithm = std::make_shared<AbsoluteOrientationColmapAlgorithm>(ori_relative_path,
                                                                                           camera_positions,
-                                                                                          ori_absolute);
-      std::shared_ptr<AbsoluteOrientationProcess> absoluteOrientationProcess(new AbsoluteOrientationProcess(absoluteOrientationAlgorithm));
+                                                                                          ori_absolute);*/
+      std::shared_ptr<AbsoluteOrientationProcess> absoluteOrientationProcess(new AbsoluteOrientationProcess(ori_relative_path,
+                                                                                                            camera_positions,
+                                                                                                            ori_absolute));
 
       connect(absoluteOrientationProcess.get(), SIGNAL(absoluteOrientationFinished()), this, SLOT(onAbsoluteOrientationFinished()));
 
-      dynamic_cast<tl::BatchProcess *>(orientation_process.get())->push_back(absoluteOrientationProcess);
+      dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(absoluteOrientationProcess);
     }
   }
 

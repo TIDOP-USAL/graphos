@@ -28,14 +28,10 @@
 #include "graphos/components/dtm/impl/DTMProcess.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/process/MultiProcess.h"
-//#include "graphos/process/features/FeatureExtractorProcess.h"
 #include "graphos/widgets/DtmInvDistWidget.h"
 #include "graphos/widgets/DtmInvDistNNWidget.h"
 #include "graphos/core/dtm/invdist.h"
 #include "graphos/core/dtm/invdistnn.h"
-#include "graphos/process/dtm/DtmProcess.h"
-//#include "graphos/core/densification/DenseExport.h"
 
 #include <tidop/core/messages.h>
 
@@ -147,7 +143,7 @@ void DtmPresenterImp::initSignalAndSlots()
   connect(mView, &DtmView::help,  this, &DtmPresenterImp::help);
 }
 
-void DtmPresenterImp::onError(tl::ProcessErrorEvent *event)
+void DtmPresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -156,7 +152,7 @@ void DtmPresenterImp::onError(tl::ProcessErrorEvent *event)
   }
 }
 
-void DtmPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -169,9 +165,9 @@ void DtmPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
   mModel->setDtmPath(dtm_file);
 }
 
-std::unique_ptr<tl::Process> DtmPresenterImp::createProcess()
+std::unique_ptr<tl::Task> DtmPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Process> dtm_process;
+  std::unique_ptr<tl::Task> dtm_process;
 
   QString currentDtmMethod = mView->currentDtmMethod();
   std::shared_ptr<DtmAlgorithm> dtm_algorithm;

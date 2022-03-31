@@ -46,7 +46,7 @@ namespace graphos
 LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images, 
                                      std::vector<Camera> *cameras,
                                      const QString &epsg)
-  : tl::ProcessBase(), 
+  : tl::TaskBase(), 
     mImages(images),
     mCameras(cameras),
     mEPSG(epsg)/*,
@@ -354,17 +354,23 @@ void graphos::LoadImagesProcess::execute(tl::Progress *progressBar)
 
     for(size_t i = 0; i < mImages->size(); i++) {
 
+      if(status() == tl::Task::Status::stopping) {
+        break;
+      }
       loadImage(i);
 
-      //emit statusChangedNext();
       if(progressBar) (*progressBar)();
 
     }
 
-    chrono.stop();
+    if(status() == tl::Task::Status::stopping) {
+      chrono.reset();
+    } else {
+      chrono.stop();
+    }
 
   } catch(...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
+    TL_THROW_EXCEPTION_WITH_NESTED("Load images error");
   }
 
 }

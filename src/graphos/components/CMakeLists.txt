@@ -373,7 +373,6 @@ target_link_libraries(${PROJECT_NAME}
                       Qt5::PrintSupport
                       graphos_core
                       graphos_widgets
-                      graphos_process
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}

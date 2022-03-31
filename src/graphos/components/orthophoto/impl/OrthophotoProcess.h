@@ -29,7 +29,7 @@
 
 #include <QObject>
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 
@@ -40,7 +40,7 @@ class OrthophotoAlgorithm;
 
 class OrthophotoProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
 
 public:
@@ -48,7 +48,7 @@ public:
   OrthophotoProcess(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm);
   ~OrthophotoProcess();
 
-// tl::ProcessBase interface
+// tl::TaskBase interface
 
 protected:
 

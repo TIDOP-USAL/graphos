@@ -29,7 +29,7 @@
 
 // TIDOP LIB
 #include <tidop/core/messages.h>
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/path.h>
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
@@ -355,7 +355,7 @@ bool CmvsPmvsDensifier::densify(const QString &undistortPath)
   cmd_cmvs.append("/pmvs/\" option-all");
 
   msgInfo("Process: %s", cmd_cmvs.c_str());
-  tl::ExternalProcess process(cmd_cmvs);
+  tl::Process process(cmd_cmvs);
   process.run();
 
   return false;

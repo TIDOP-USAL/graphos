@@ -28,7 +28,6 @@
 #include "graphos/components/images/impl/ImageLoaderProcess.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/process/MultiProcess.h"
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
@@ -45,8 +44,8 @@ ImageLoaderPresenterImp::ImageLoaderPresenterImp(ImageLoaderView *view,
     mModel(model),
     mHelp(nullptr)
 {
-  this->init();
-  this->initSignalAndSlots();
+  ImageLoaderPresenterImp::init();
+  ImageLoaderPresenterImp::initSignalAndSlots();
 }
 
 ImageLoaderPresenterImp::~ImageLoaderPresenterImp()
@@ -104,7 +103,7 @@ void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
   emit imageLoaded(image.path());
 }
 
-void ImageLoaderPresenterImp::onError(tl::ProcessErrorEvent *event)
+void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -113,7 +112,7 @@ void ImageLoaderPresenterImp::onError(tl::ProcessErrorEvent *event)
   }
 }
 
-void ImageLoaderPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -124,9 +123,9 @@ void ImageLoaderPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
   //msgInfo("Images loaded");
 }
 
-std::unique_ptr<tl::Process> ImageLoaderPresenterImp::createProcess()
+std::unique_ptr<tl::Task> ImageLoaderPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Process> image_loader_process;
+  std::unique_ptr<tl::Task> image_loader_process;
 
   if (mImageFiles.empty()) return false;
 
@@ -143,13 +142,10 @@ std::unique_ptr<tl::Process> ImageLoaderPresenterImp::createProcess()
   }
 
   image_loader_process = std::make_unique<LoadImagesProcess>(&mImages, &mCameras, mModel->projectCRS());
-  //std::shared_ptr<LoadImagesProcess> load_images(new LoadImagesProcess(&mImages, &mCameras, mModel->projectCRS()));
 
   connect(dynamic_cast<LoadImagesProcess *>(image_loader_process.get()),
           &LoadImagesProcess::imageAdded, 
           this, &ImageLoaderPresenterImp::addImage);
-
-  //mMultiProcess->appendProcess(load_images);
 
   if (progressHandler()) {
     progressHandler()->setRange(0, mImages.size());

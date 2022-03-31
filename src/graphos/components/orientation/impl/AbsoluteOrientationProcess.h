@@ -24,14 +24,13 @@
 #ifndef GRAPHOS_ABSOLUTE_ORIENTATION_PROCESS_H
 #define GRAPHOS_ABSOLUTE_ORIENTATION_PROCESS_H
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 #include <QObject>
 
 namespace colmap
 {
-class OptionManager;
 struct IncrementalMapperOptions;
 class ReconstructionManager;
 class IncrementalMapperController;
@@ -40,24 +39,28 @@ class IncrementalMapperController;
 namespace graphos
 {
 
-class AbsoluteOrientationAlgorithm;
-
 class AbsoluteOrientationProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
   Q_OBJECT
 
 public:
 
-  AbsoluteOrientationProcess(std::shared_ptr<AbsoluteOrientationAlgorithm> &orientationAlgorithm);
+  AbsoluteOrientationProcess(const QString &inputPath,
+                             const std::map<QString, std::array<double, 3>> &cameraPositions,
+                             const QString &outputPath);
   ~AbsoluteOrientationProcess() override;
 
 signals:
 
   void absoluteOrientationFinished();
 
-// tl::ProcessBase interface
+// tl::TaskBase interface
+
+public:
+
+  void stop() override;
 
 protected:
 
@@ -65,7 +68,12 @@ protected:
 
 private:
 
-  std::shared_ptr<AbsoluteOrientationAlgorithm> mAbsoluteOrientationAlgorithm;
+  int mMinCommonImages;
+  bool mRobustAlignment;
+  double mRobustAlignmentMaxError;
+  QString mInputPath;
+  std::map<QString, std::array<double, 3>> mCameraPositions;
+  QString mOutputPath;
 
 };
 

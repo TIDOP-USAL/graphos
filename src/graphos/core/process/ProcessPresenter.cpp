@@ -22,9 +22,7 @@
  ************************************************************************/
 
 #include "graphos/core/process/ProcessPresenter.h"
-
 #include "graphos/core/process/Progress.h"
-#include "graphos/process/MultiProcess.h"
 
 #include <tidop/core/progress.h>
 
@@ -34,162 +32,23 @@
 namespace graphos
 {
 	
-//ProcessPresenter::ProcessPresenter()
-//  : Presenter(),
-//    mMultiProcess(new MultiProcess(true)),
-//    mProgressHandler(nullptr)
-//{
-//}
-//
-//ProcessPresenter::~ProcessPresenter()
-//{
-//  if (mMultiProcess){
-//    delete mMultiProcess;
-//    mMultiProcess = nullptr;
-//  }
-//}
-//
-//void ProcessPresenter::setProgressHandler(ProgressHandler *progressHandler)
-//{
-//  mProgressHandler = progressHandler;
-//}
-//
-//void ProcessPresenter::onFinished()
-//{
-//  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-//  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-//
-//  if (mProgressHandler){
-//    mProgressHandler->setRange(0,1);
-//    mProgressHandler->setValue(1);
-//    mProgressHandler->finish();
-//    mProgressHandler->setDescription(tr("Process Finished"));
-//
-//    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
-//    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-//    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(finish()));
-//    
-//  }
-//
-//  mMultiProcess->clearProcessList();
-//
-//  emit finished();
-//}
-//
-//void ProcessPresenter::onError(int code, const QString &msg)
-//{
-//  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-//  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-//
-//  if (mProgressHandler){
-//    mProgressHandler->setRange(0,1);
-//    mProgressHandler->setValue(1);
-//    mProgressHandler->finish();
-//    mProgressHandler->setDescription(msg);
-//
-//    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
-//    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-//    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(finish()));
-//
-//    disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-//  }
-//
-//  mMultiProcess->clearProcessList();
-//
-//  emit failed();
-//}
-//
-//void ProcessPresenter::run()
-//{
-//  try {
-//
-//    connect(mMultiProcess, SIGNAL(error(int, QString)),          this, SLOT(onError(int, QString)));
-//    connect(mMultiProcess, SIGNAL(finished()),                   this, SLOT(onFinished()));
-//
-//    if (mProgressHandler){
-//      connect(mMultiProcess, SIGNAL(finished()),             mProgressHandler,    SLOT(finish()));
-//      connect(mMultiProcess, SIGNAL(statusChangedNext()),    mProgressHandler,    SLOT(next()));
-//      connect(mMultiProcess, SIGNAL(error(int, QString)),    mProgressHandler,    SLOT(finish()));
-//      
-//      connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-//
-//      mProgressHandler->setTitle("Process...");
-//      mProgressHandler->setDescription("Process...");
-//    }
-//
-//    if (createProcess()) {
-//      if (mProgressHandler){
-//        if (mProgressHandler->max() == 1)
-//          mProgressHandler->setRange(0, mMultiProcess->count());
-//        mProgressHandler->setValue(0);
-//        mProgressHandler->init();
-//      }
-//
-//      emit running();
-//
-//      mMultiProcess->start();
-//    } else {
-//      disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-//      disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-//
-//      if (mProgressHandler) {
-//        disconnect(mMultiProcess, SIGNAL(finished()), mProgressHandler, SLOT(finish()));
-//        disconnect(mMultiProcess, SIGNAL(statusChangedNext()), mProgressHandler, SLOT(next()));
-//        disconnect(mMultiProcess, SIGNAL(error(int, QString)), mProgressHandler, SLOT(finish()));
-//
-//        disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-//      }
-//    }
-//
-//  } catch (std::exception &e) {
-//    onError(0, e.what());
-//  } catch (...) {
-//    onError(0, "Unknown exception");
-//  }
-//}
-//
-//void ProcessPresenter::cancel()
-//{
-//  mMultiProcess->stop();
-//
-//  disconnect(mMultiProcess, SIGNAL(error(int, QString)), this, SLOT(onError(int, QString)));
-//  disconnect(mMultiProcess, SIGNAL(finished()),          this, SLOT(onFinished()));
-//
-//  if (mProgressHandler){
-//    mProgressHandler->setRange(0,1);
-//    mProgressHandler->setValue(1);
-//    mProgressHandler->finish();
-//    mProgressHandler->setDescription(tr("Processing has been canceled by the user"));
-//
-//    disconnect(mMultiProcess, SIGNAL(finished()),                 mProgressHandler,    SLOT(finish()));
-//    disconnect(mMultiProcess, SIGNAL(statusChangedNext()),        mProgressHandler,    SLOT(next()));
-//    disconnect(mMultiProcess, SIGNAL(error(int, QString)),        mProgressHandler,    SLOT(finish()));
-//    disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-//  }
-//
-//  mMultiProcess->clearProcessList();
-//
-//  emit canceled();
-//}
-
-
-
-
 ProcessPresenter::ProcessPresenter()
   : Presenter(),
-    mProcess(nullptr)
+    mProcess(nullptr),
+    mProgressHandler(nullptr)
 {
+  ProcessPresenter::init();
+  ProcessPresenter::initSignalAndSlots();
 }
 
 ProcessPresenter::~ProcessPresenter()
 {
 }
 
-void ProcessPresenter::onError(tl::ProcessErrorEvent *event)
+void ProcessPresenter::onError(tl::TaskErrorEvent *event)
 {
 
   if (mProgressHandler){
-    //mProgressHandler->setRange(0,1);
     mProgressHandler->finish();
     mProgressHandler->reset();
     mProgressHandler->setDescription(QString::fromStdString(event->errorMessage()));
@@ -200,10 +59,9 @@ void ProcessPresenter::onError(tl::ProcessErrorEvent *event)
   emit failed();
 }
 
-void ProcessPresenter::onFinished(tl::ProcessFinalizedEvent *event)
+void ProcessPresenter::onFinished(tl::TaskFinalizedEvent *event)
 {
   if (mProgressHandler){
-    //mProgressHandler->setRange(0,1);
     mProgressHandler->finish();
     mProgressHandler->reset();
     mProgressHandler->setDescription(tr("Process Finished"));
@@ -212,6 +70,19 @@ void ProcessPresenter::onFinished(tl::ProcessFinalizedEvent *event)
   }
 
   emit finished();
+}
+
+void ProcessPresenter::onStopped(tl::TaskStoppedEvent *event)
+{
+  if(mProgressHandler) {
+    mProgressHandler->finish();
+    mProgressHandler->reset();
+    mProgressHandler->setDescription(tr("Process canceled"));
+
+    disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
+  }
+
+  emit canceled();
 }
 
 ProgressHandler *ProcessPresenter::progressHandler()
@@ -228,14 +99,22 @@ void ProcessPresenter::run()
 {
   try {
 
+    tl::Task *p = mProcess.release();
+    delete p;
+    p = nullptr;
+
     mProcess = this->createProcess();
 
     if(mProcess == nullptr) throw std::runtime_error("");
 
     mProcess->subscribe(std::bind(&ProcessPresenter::onError, this, std::placeholders::_1));
     mProcess->subscribe(std::bind(&ProcessPresenter::onFinished, this, std::placeholders::_1));
-    
-    connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
+    mProcess->subscribe(std::bind(&ProcessPresenter::onStopped, this, std::placeholders::_1));
+
+    if(mProgressHandler) {
+      connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
+      mProgressHandler->init();
+    }
 
     mProcess->runAsync(mProgressHandler);
 
@@ -245,18 +124,26 @@ void ProcessPresenter::run()
   }
 }
 
+// Añadir onCancel...
 void ProcessPresenter::cancel()
 {
   if(mProcess) {
     mProcess->stop();
+    if(mProgressHandler) {
+      mProgressHandler->setDescription(tr("Stopping process"));
+    }
   }
 
-  emit canceled();
+  //emit canceled();
 }
 
+void ProcessPresenter::init()
+{
+}
 
-
-
+void ProcessPresenter::initSignalAndSlots()
+{
+}
 
 
 } // namespace graphos

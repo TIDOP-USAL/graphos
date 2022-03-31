@@ -24,9 +24,6 @@
 
 #include "ImageLoaderCommand.h"
 
-#include "graphos/process/images/LoadImagesProcess.h"
-#include "graphos/process/MultiProcess.h"
-
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
 #include <tidop/img/imgreader.h>
@@ -39,6 +36,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QCoreApplication>
+#include <QVariant>
 
 #include <fstream>
 
@@ -220,7 +218,7 @@ bool ImageLoaderCommand::run()
 
               QSqlQuery query;
               query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
-              query.bindValue(":camera_make", camera_make.c_str());
+              query.bindValue(":camera_make", QString::fromStdString(camera_make));
               if (query.exec()) {
                 while (query.next()) {
                   id_camera = query.value(0).toInt();

@@ -32,7 +32,7 @@
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
 #include <tidop/core/messages.h>
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 
 #include <QMessageBox>
 
@@ -107,7 +107,7 @@ void FeatureMatchingPresenterImp::setMatchingProperties()
   }
 }
 
-void FeatureMatchingPresenterImp::onError(tl::ProcessErrorEvent *event)
+void FeatureMatchingPresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -116,7 +116,7 @@ void FeatureMatchingPresenterImp::onError(tl::ProcessErrorEvent *event)
   }
 }
 
-void FeatureMatchingPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -128,11 +128,10 @@ void FeatureMatchingPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
   emit matchingFinished();
 }
 
-std::unique_ptr<tl::Process> FeatureMatchingPresenterImp::createProcess()
+std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Process> featmatching_process;
+  std::unique_ptr<tl::Task> featmatching_process;
 
-    /// Se comprueba si ya se había ejecutado previante y se borran los datos
   if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()){
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),

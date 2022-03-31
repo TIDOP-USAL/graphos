@@ -75,9 +75,9 @@ private:
 
 protected slots:
 
-  void onError(tl::ProcessErrorEvent *event) override;
-  void onFinished(tl::ProcessFinalizedEvent *event) override;
-  std::unique_ptr<tl::Process> createProcess() override;
+  void onError(tl::TaskErrorEvent *event) override;
+  void onFinished(tl::TaskFinalizedEvent *event) override;
+  std::unique_ptr<tl::Task> createProcess() override;
 
 public slots:
 

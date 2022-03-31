@@ -47,7 +47,7 @@ DtmProcess::DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
                        double gsd,
                        bool dsm,
                        const QString &crs)
-  : tl::ProcessBase(),
+  : tl::TaskBase(),
     mDtmAlgorithm(dtmAlgorithm),
     mPointCloud(pointCloud),
     mOffset(offset),

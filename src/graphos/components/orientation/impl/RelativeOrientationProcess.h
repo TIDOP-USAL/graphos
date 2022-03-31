@@ -24,40 +24,44 @@
 #ifndef GRAPHOS_RELATIVE_ORIENTATION_PROCESS_H
 #define GRAPHOS_RELATIVE_ORIENTATION_PROCESS_H
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 #include <QObject>
 
 namespace colmap
 {
-class OptionManager;
 struct IncrementalMapperOptions;
 class ReconstructionManager;
 class IncrementalMapperController;
+class BundleAdjustmentController;
 }
 
 namespace graphos
 {
 
-class RelativeOrientationAlgorithm;
-
 class RelativeOrientationProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
   Q_OBJECT
 
 public:
 
-  RelativeOrientationProcess(std::shared_ptr<RelativeOrientationAlgorithm> &orientationAlgorithm);
+  RelativeOrientationProcess(const QString &database,
+                             const QString &outputPath,
+                             bool fixCalibration);
   ~RelativeOrientationProcess() override;
 
 signals:
 
   void orientationFinished();
 
-// tl::ProcessBase interface
+// tl::TaskBase interface
+
+public:
+
+  void stop() override;
 
 protected:
 
@@ -65,8 +69,15 @@ protected:
 
 private:
 
-  std::shared_ptr<RelativeOrientationAlgorithm> mRelativeOrientationAlgorithm;
-
+  QString mDatabase;
+  QString mOutputPath;
+  colmap::IncrementalMapperOptions *mIncrementalMapper;
+  colmap::IncrementalMapperController *mMapper;
+  colmap::BundleAdjustmentController *mBundleAdjustmentController;
+  std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
+  bool mRefineFocalLength;
+  bool mRefinePrincipalPoint;
+  bool mRefineExtraParams;
 };
 
 } // namespace graphos

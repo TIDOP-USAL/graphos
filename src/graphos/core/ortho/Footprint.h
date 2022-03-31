@@ -25,7 +25,7 @@
 #define GRAPHOS_CORE_ORTHO_FOOTPRINT_H
 
 #include <tidop/core/path.h>
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/vect/vectwriter.h>
 #include <tidop/geospatial/crs.h>
 
@@ -39,7 +39,7 @@ namespace graphos
  * \brief Footprint
  */
 class Footprint
-	: public tl::ProcessBase
+	: public tl::TaskBase
 {
 
 public:
@@ -51,7 +51,7 @@ public:
 		        const tl::Path &footprint);
 	~Footprint();
 	
-// Heredado vía ProcessBase
+// Heredado vía TaskBase
 
 private:
 

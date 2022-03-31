@@ -55,7 +55,7 @@ GeoreferencePresenterImp::~GeoreferencePresenterImp()
 {
 }
 
-void GeoreferencePresenterImp::onError(tl::ProcessErrorEvent *event)
+void GeoreferencePresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -64,7 +64,7 @@ void GeoreferencePresenterImp::onError(tl::ProcessErrorEvent *event)
   }
 }
 
-void GeoreferencePresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -75,9 +75,9 @@ void GeoreferencePresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
   //msgInfo("Georeference finished");
 }
 
-std::unique_ptr<tl::Process> GeoreferencePresenterImp::createProcess()
+std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Process> georeference_process;
+  std::unique_ptr<tl::Task> georeference_process;
 
   QString ori_relative = mModel->projectPath() + "/ori/relative/";
   QString ori_absolute = mModel->projectPath() + "/ori/absolute/";

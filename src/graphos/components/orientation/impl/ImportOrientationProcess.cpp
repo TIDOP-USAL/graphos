@@ -51,7 +51,7 @@ ImportOrientationProcess::ImportOrientationProcess(const std::vector<Image> &ima
                                                    const QString &database,
                                                    bool fixCalibration,
                                                    bool fixPoses)
-  : tl::ProcessBase(),
+  : tl::TaskBase(),
     mImages(images),
     mCameras(cameras),
     mProjectPath(projectPath), 
@@ -223,6 +223,8 @@ void ImportOrientationProcess::execute(tl::Progress *progressBar)
 
       ofs.close();
     }
+
+    if(status() == tl::Task::Status::stopping) return;
 
     /// 2 - Escritura de fichero cameras.txt
 
@@ -397,6 +399,8 @@ void ImportOrientationProcess::execute(tl::Progress *progressBar)
       ofs.close();
     }
 
+    if(status() == tl::Task::Status::stopping) return;
+
     /// 3 - Escritura de fichero points3D.txt (En blanco)
     {
 
@@ -466,6 +470,8 @@ void ImportOrientationProcess::execute(tl::Progress *progressBar)
 
       std::cout << std::endl;
 
+      if(status() == tl::Task::Status::stopping) return;
+
       TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation")
 
       colmap::IncrementalMapper mapper(&database_cache);
@@ -480,6 +486,9 @@ void ImportOrientationProcess::execute(tl::Progress *progressBar)
       const auto &reg_image_ids = reconstruction.RegImageIds();
 
       for (size_t i = 0; i < reg_image_ids.size(); ++i) {
+
+        if(status() == tl::Task::Status::stopping) return;
+
         const colmap::image_t image_id = reg_image_ids[i];
 
         const auto &image = reconstruction.Image(image_id);
@@ -521,6 +530,8 @@ void ImportOrientationProcess::execute(tl::Progress *progressBar)
         ba_config.AddImage(image_id);
       }
 
+      if(status() == tl::Task::Status::stopping) return;
+
       for (int i = 0; i < mapper_options->ba_global_max_refinements; ++i) {
         // Avoid degeneracies in bundle adjustment.
         reconstruction.FilterObservationsWithNegativeDepth();
@@ -543,6 +554,8 @@ void ImportOrientationProcess::execute(tl::Progress *progressBar)
           break;
         }
       }
+
+      if(status() == tl::Task::Status::stopping) return;
 
       // Se incluye el punto principal en el ajuste
       if (!mFixCalibration) {

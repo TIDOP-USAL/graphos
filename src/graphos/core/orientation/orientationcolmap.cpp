@@ -180,7 +180,7 @@ void RelativeOrientationColmapAlgorithm::run()
   
   mMapper->Start(); ///TODO: ¿Como detectar que se ha producido un error?
   mMapper->Wait();
-  
+  //mMapper->Stop();
   if (mReconstructionManager->Size() == 0) throw std::runtime_error("Reconstruction fail");
   
   colmap::OptionManager optionManager;

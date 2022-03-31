@@ -27,7 +27,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 #include <QObject>
@@ -37,7 +37,7 @@ namespace graphos
 
 class ImportOrientationProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
   Q_OBJECT
 
@@ -55,7 +55,7 @@ signals:
 
   void importOrientationFinished();
 
-// tl::ProcessBase interface
+// tl::TaskBase interface
 
 protected:
 

@@ -94,7 +94,7 @@ void OrthophotoPresenterImp::initSignalAndSlots()
   connect(mView, &DialogView::help,     this,   &Presenter::help);
 }
 
-void OrthophotoPresenterImp::onError(tl::ProcessErrorEvent *event)
+void OrthophotoPresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -103,7 +103,7 @@ void OrthophotoPresenterImp::onError(tl::ProcessErrorEvent *event)
   }
 }
 
-void OrthophotoPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -112,9 +112,9 @@ void OrthophotoPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
   }
 }
 
-std::unique_ptr<tl::Process> OrthophotoPresenterImp::createProcess()
+std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Process> ortho_process;
+  std::unique_ptr<tl::Task> ortho_process;
 
   QString ortho_path = mModel->orthoPath();
   if (!ortho_path.isEmpty()) {
@@ -142,9 +142,9 @@ std::unique_ptr<tl::Process> OrthophotoPresenterImp::createProcess()
                                                                                          mModel->epsCode(),
                                                                                          mModel->useCuda());
 
-  std::shared_ptr<OrthophotoProcess> process = std::make_unique<OrthophotoProcess>(algorithm);
+  ortho_process = std::make_unique<OrthophotoProcess>(algorithm);
   
-  connect(process.get(), SIGNAL(finished()), this, SLOT(onOrthophotoFinished()));
+  connect(dynamic_cast<OrthophotoProcess *>(ortho_process.get()), SIGNAL(finished()), this, SLOT(onOrthophotoFinished()));
   
   //mMultiProcess->appendProcess(process);
   

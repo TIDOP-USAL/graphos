@@ -26,7 +26,7 @@
 
 #include "graphos/core/image.h"
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 #include <QObject>
@@ -50,7 +50,7 @@ class Camera;
 
 class LoadImagesProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
 
   Q_OBJECT
@@ -74,7 +74,7 @@ private:
   int loadCamera(tl::ImageReader *imageReader);
   double parseFocal(const std::string &focal, double def);
 
-  // tl::ProcessBase interface
+  // tl::TaskBase interface
 
 protected:
 

@@ -143,7 +143,7 @@ void DensificationPresenterImp::onDensificationChanged(const QString &densificat
   mView->setCurrentDensificationMethod(densification);
 }
 
-void DensificationPresenterImp::onError(tl::ProcessErrorEvent *event)
+void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -152,7 +152,7 @@ void DensificationPresenterImp::onError(tl::ProcessErrorEvent *event)
   }
 }
 
-void DensificationPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
+void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -161,9 +161,9 @@ void DensificationPresenterImp::onFinished(tl::ProcessFinalizedEvent *event)
   }
 }
 
-std::unique_ptr<tl::Process> DensificationPresenterImp::createProcess()
+std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Process> dense_process;
+  std::unique_ptr<tl::Task> dense_process;
 
   if (mModel->existDenseModel()) {
     int i_ret = QMessageBox(QMessageBox::Warning,

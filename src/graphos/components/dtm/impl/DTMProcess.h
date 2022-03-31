@@ -26,7 +26,7 @@
 
 #include "graphos/core/dtm/dtm.h"
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 #include <tidop/geometry/entities/point.h>
 
@@ -39,7 +39,7 @@ class DenseExport;
 
 class GRAPHOS_EXPORT DtmProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
 
   Q_OBJECT
@@ -55,11 +55,7 @@ public:
              const QString &crs);
   ~DtmProcess() override = default;
 
-signals:
-
-  //void dtmFinished();
-
-// tl::ProcessBase interface
+// tl::TaskBase interface
 
 protected:
 

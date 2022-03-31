@@ -26,7 +26,7 @@
 
 #include "graphos/core/orientation/gcp.h"
 
-#include <tidop/core/process.h>
+#include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 #include <QObject>
@@ -46,7 +46,7 @@ class AbsoluteOrientationAlgorithm;
 
 class GRAPHOS_EXPORT GeoreferenceProcess
   : public QObject,
-    public tl::ProcessBase
+    public tl::TaskBase
 {
   Q_OBJECT
 
@@ -61,7 +61,7 @@ signals:
 
   void georeferenceFinished();
 
-// tl::ProcessBase interface
+// tl::TaskBase interface
 
 protected:
 

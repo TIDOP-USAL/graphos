@@ -28,7 +28,6 @@
 #include <QTextEdit>
 
 #include "graphos/interfaces/mvp.h"
-#include "graphos/process/Process.h"
 
 namespace Ui
 {
@@ -119,7 +118,6 @@ private slots:
 private:
 
   Ui::ProgressDialog *ui;
-  Process *mProcess;
   bool mAutoClose;
 };
 

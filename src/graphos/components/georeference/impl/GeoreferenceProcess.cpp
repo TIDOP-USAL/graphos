@@ -44,7 +44,7 @@ namespace graphos
 GeoreferenceProcess::GeoreferenceProcess(const QString &inputPath,
                                          const QString &outputPath,
                                          const std::vector<GroundControlPoint> &groundControlPoints)
-  : tl::ProcessBase(),
+  : tl::TaskBase(),
     mInputPath(inputPath),
     mOutputPath(outputPath),
     mGroundControlPoints(groundControlPoints)
