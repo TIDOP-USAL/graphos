@@ -3,12 +3,14 @@
 #include "graphos/components/densification/DensificationModel.h"
 #include "graphos/components/densification/DensificationView.h"
 #include "graphos/components/densification/impl/DensificationProcess.h"
-#include "graphos/widgets/CmvsPmvsWidget.h"
-#include "graphos/widgets/SmvsWidget.h"
 #include "graphos/core/densification/CmvsPmvs.h"
 #include "graphos/core/densification/Smvs.h"
+#include "graphos/core/densification/mvs.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/HelpDialog.h"
+#include "graphos/widgets/CmvsPmvsWidget.h"
+#include "graphos/widgets/SmvsWidget.h"
+#include "graphos/widgets/MvsWidget.h"
 
 #include <tidop/core/messages.h>
 
@@ -25,6 +27,7 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
     mModel(model),
     mCmvsPmvs(new CmvsPmvsWidgetImp),
     mSmvs(new SmvsWidgetImp),
+    mMVS(new MvsWidget),
     mHelp(nullptr)
 {
   this->init();
@@ -41,6 +44,11 @@ DensificationPresenterImp::~DensificationPresenterImp()
   if (mSmvs){
     delete mSmvs;
     mSmvs = nullptr;
+  }
+
+  if(mMVS) {
+    delete mMVS;
+    mMVS = nullptr;
   }
 }
 
@@ -72,6 +80,7 @@ void DensificationPresenterImp::init()
 {
   mView->addDensification(mCmvsPmvs);
   mView->addDensification(mSmvs);
+  mView->addDensification(mMVS);
 
   mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 }
@@ -138,6 +147,10 @@ void DensificationPresenterImp::setSmvsProperties()
   }
 }
 
+void DensificationPresenterImp::setMvsProperties()
+{
+}
+
 void DensificationPresenterImp::onDensificationChanged(const QString &densification)
 {
   mView->setCurrentDensificationMethod(densification);
@@ -197,6 +210,9 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                 mSmvs->surfaceSmoothingFactor(),
                                                 mModel->useCuda());
 
+  } else if(densification_method.compare("MVS") == 0) {
+    densifier = std::make_shared<MvsDensifier>();
+
   } else {
     mView->hide();
     throw std::runtime_error("Densification Method not valid");
@@ -213,8 +229,6 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
   connect(dynamic_cast<DensificationProcess *>(dense_process.get()), &DensificationProcess::densificationFinished,
           this, &DensificationPresenterImp::onFinishDensification);
-
-  //mMultiProcess->appendProcess(densification_process);
 
   if (progressHandler()){
     progressHandler()->setRange(0, 1);
@@ -240,6 +254,8 @@ void DensificationPresenterImp::onFinishDensification()
     if (mSmvs->shadingBasedOptimization()) dense_path.append("S");
     else dense_path.append("B");
     dense_path.append(QString::number(mSmvs->inputImageScale())).append(".ply");
+  } else if(densification_method.compare("MVS") == 0) {
+    dense_path.append("/mvs/model_dense.ply");
   } else {
     return;
   }

@@ -23,7 +23,7 @@
 
 #include "graphos/core/ortho/Orthorectification.h"
 
-#include "graphos/core/camera/Utils.h"
+#include "graphos/core/camera/Undistort.h"
 
 #include <opencv2/calib3d.hpp>
 #ifdef HAVE_OPENCV_CUDAWARPING
@@ -212,7 +212,7 @@ Camera Orthorectification::camera() const
 
 Camera Orthorectification::undistortCamera() const
 {
-  return Camera();
+  return mUndistortCamera;
 }
 
 bool Orthorectification::hasNodataValue() const
@@ -279,26 +279,26 @@ void Orthorectification::init()
 
 void Orthorectification::initUndistortCamera()
 {
-  std::shared_ptr<Calibration> calibration = mCamera.calibration();
-  
-  cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
-  cv::Mat dist_coeffs = openCVDistortionCoefficients(*calibration);
-  
-  cv::Size imageSize(static_cast<int>(mCamera.width()),
-                     static_cast<int>(mCamera.height()));
-  
-  cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, dist_coeffs, imageSize, 1, imageSize, nullptr);
-  
-  mUndistortCamera = mCamera;
-  mUndistortCamera.setFocal((optCameraMat.at<float>(0, 0)+ optCameraMat.at<float>(1, 1))/2.);
-  std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(calibration->cameraModel());
-  undistort_calibration->setParameter(Calibration::Parameters::focal, (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
-  undistort_calibration->setParameter(Calibration::Parameters::focalx, optCameraMat.at<float>(0, 0));
-  undistort_calibration->setParameter(Calibration::Parameters::focaly, optCameraMat.at<float>(1, 1));
-  undistort_calibration->setParameter(Calibration::Parameters::cx, optCameraMat.at<float>(0, 2));
-  undistort_calibration->setParameter(Calibration::Parameters::cy, optCameraMat.at<float>(1, 2));
-  mUndistortCamera.setCalibration(undistort_calibration);
-
+  //std::shared_ptr<Calibration> calibration = mCamera.calibration();
+  //
+  //cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
+  //cv::Mat dist_coeffs = openCVDistortionCoefficients(*calibration);
+  //
+  //cv::Size imageSize(static_cast<int>(mCamera.width()),
+  //                   static_cast<int>(mCamera.height()));
+  //
+  //cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, dist_coeffs, imageSize, 1, imageSize, nullptr);
+  //
+  //mUndistortCamera = mCamera;
+  //mUndistortCamera.setFocal((optCameraMat.at<float>(0, 0)+ optCameraMat.at<float>(1, 1))/2.);
+  //std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(calibration->cameraModel());
+  //undistort_calibration->setParameter(Calibration::Parameters::focal, (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
+  //undistort_calibration->setParameter(Calibration::Parameters::focalx, optCameraMat.at<float>(0, 0));
+  //undistort_calibration->setParameter(Calibration::Parameters::focaly, optCameraMat.at<float>(1, 1));
+  //undistort_calibration->setParameter(Calibration::Parameters::cx, optCameraMat.at<float>(0, 2));
+  //undistort_calibration->setParameter(Calibration::Parameters::cy, optCameraMat.at<float>(1, 2));
+  //mUndistortCamera.setCalibration(undistort_calibration);
+  mUndistortCamera = graphos::undistortCamera(mCamera);
 }
 
 float Orthorectification::focal() const

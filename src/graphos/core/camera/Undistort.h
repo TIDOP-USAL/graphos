@@ -21,85 +21,44 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_PRESENTER_H
-#define GRAPHOS_DENSE_PRESENTER_H
+#ifndef GRAPHOS_CORE_CAMERA_UNDISTORT
+#define GRAPHOS_CORE_CAMERA_UNDISTORT
 
-#include "graphos/components/densification/DensificationPresenter.h"
+#include <opencv2/core/core.hpp>
+
+#include <tidop/core/task.h>
+
+#include "graphos/core/camera/Camera.h"
+#include "graphos/core/camera/Calibration.h"
+
+namespace tl
+{
+class Progress;
+}
 
 namespace graphos
 {
 
-class CmvsPmvsWidget;
-class SmvsWidget;
-class MvsWidget;
-class DensificationView;
-class DensificationModel;
-class HelpDialog;
+cv::Mat openCVCameraMatrix(const Calibration &calibration);
+cv::Mat openCVDistortionCoefficients(const Calibration &calibration);
+Camera undistortCamera(const Camera &camera);
 
-class DensificationPresenterImp
-  : public DensificationPresenter
-{
-  Q_OBJECT
-
-public:
-
-  DensificationPresenterImp(DensificationView *view,
-                            DensificationModel *model);
-  ~DensificationPresenterImp() override;
-
-private:
-
-  void setCmvsPmvsProperties();
-  void setSmvsProperties();
-  void setMvsProperties();
-
-private slots:
-
-  void onDensificationChanged(const QString &densification);
-  void onFinishDensification();
-
-// DensificationPresenter interface
-
-public slots:
-
-  void setCurrentDensifier(const QString &densifier) override;
-
-// ProcessPresenter interface
-  
-protected slots:
-
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
-
-public slots:
-
-  void cancel() override;
-
-// Presenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-private:
-
-  DensificationView *mView;
-  DensificationModel *mModel;
-  CmvsPmvsWidget *mCmvsPmvs;
-  SmvsWidget *mSmvs;
-  MvsWidget *mMVS;
-  HelpDialog *mHelp;
-};
-
-} // End namespace graphos
+//class UndistortTask
+//  : public tl::TaskBase
+//{
+//
+//public:
+//
+//  UndistortTask();
+//  ~UndistortTask();
+//
+//// TaskBase interface
+//
+//  virtual void execute(tl::Progress *progressBar = nullptr) override;
+//
+//};
 
 
-#endif // GRAPHOS_DENSE_PRESENTER_H
+} // namespace graphos
+
+#endif // GRAPHOS_CORE_CAMERA_UNDISTORT

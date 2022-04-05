@@ -21,85 +21,81 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_PRESENTER_H
-#define GRAPHOS_DENSE_PRESENTER_H
+#ifndef GRAPHOS_MVS_WIDGET_H
+#define GRAPHOS_MVS_WIDGET_H
 
-#include "graphos/components/densification/DensificationPresenter.h"
+#include "graphos/widgets/GraphosWidget.h"
+
+class QGroupBox;
+class QLabel;
+class QSpinBox;
+class QDoubleSpinBox;
+class QCheckBox;
 
 namespace graphos
 {
 
-class CmvsPmvsWidget;
-class SmvsWidget;
-class MvsWidget;
-class DensificationView;
-class DensificationModel;
-class HelpDialog;
-
-class DensificationPresenterImp
-  : public DensificationPresenter
+class MvsWidget
+  : public GraphosWidgetView
 {
   Q_OBJECT
 
 public:
 
-  DensificationPresenterImp(DensificationView *view,
-                            DensificationModel *model);
-  ~DensificationPresenterImp() override;
+  MvsWidget(QWidget *parent = nullptr);
+  ~MvsWidget() override;
 
-private:
+public:
 
-  void setCmvsPmvsProperties();
-  void setSmvsProperties();
-  void setMvsProperties();
+  int resolutionLevel() const;
+  int minResolution() const;
+  int maxResolution() const;
+  int numberViewsFuse() const;
+  
+signals:
 
-private slots:
-
-  void onDensificationChanged(const QString &densification);
-  void onFinishDensification();
-
-// DensificationPresenter interface
-
+  void resolutionLevelChanged(int);
+  void minResolutionChanged(int);
+  void maxResolutionChanged(int);
+  void numberViewsFuseChanged(int);
+  
 public slots:
 
-  void setCurrentDensifier(const QString &densifier) override;
+  void setResolutionLevel(int resolutionLevel);
+  void setMinResolution(int minResolution);
+  void setMaxResolution(int maxResolution);
+  void setNumberViewsFuse(int numberViewsFuse);
 
-// ProcessPresenter interface
-  
+// GraphosWidgetView interface
+
 protected slots:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
+  void update() override;
+  void retranslate() override;
 
 public slots:
 
-  void cancel() override;
-
-// Presenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
+  void clear() override;
 
 private:
 
-  void init() override;
+  void initUI() override;
   void initSignalAndSlots() override;
 
-private:
+protected:
+  
+  QGroupBox *mGroupBox;
+  QLabel *mLabelResolutionLevel;
+  QSpinBox *mSpinBoxResolutionLevel;
+  QLabel *mLabelMinResolution;
+  QSpinBox *mSpinBoxMinResolution;
+  QLabel *mLabelMaxResolution;
+  QSpinBox *mSpinBoxMaxResolution;
+  QLabel *mLabelNumberViewsFuse;
+  QSpinBox *mSpinBoxNumberViewsFuse;
 
-  DensificationView *mView;
-  DensificationModel *mModel;
-  CmvsPmvsWidget *mCmvsPmvs;
-  SmvsWidget *mSmvs;
-  MvsWidget *mMVS;
-  HelpDialog *mHelp;
 };
 
-} // End namespace graphos
+} // namespace graphos
 
-
-#endif // GRAPHOS_DENSE_PRESENTER_H
+#endif // GRAPHOS_MVS_WIDGET_H

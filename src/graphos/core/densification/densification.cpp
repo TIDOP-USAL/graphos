@@ -21,19 +21,15 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_CAMERA_UTILS
-#define GRAPHOS_CORE_CAMERA_UTILS
-
-#include <opencv2/core/core.hpp>
-
-#include "graphos/core/camera/Calibration.h"
+#include "graphos/core/densification/densification.h"
 
 namespace graphos
 {
 
-cv::Mat openCVCameraMatrix(const Calibration &calibration);
-cv::Mat openCVDistortionCoefficients(const Calibration &calibration);
+bool Densifier::undistort(const QString &reconstructionPath, 
+                          const QString &outputPath)
+{
+  return false;
+}
 
-} // namespace graphos
-
-#endif // GRAPHOS_CORE_CAMERA_UTILS
+}

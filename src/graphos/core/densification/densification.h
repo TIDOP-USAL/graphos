@@ -41,7 +41,8 @@ public:
   enum class Method
   {
     cmvs_pmvs,
-    smvs
+    smvs,
+    mvs
   };
 
 public:
@@ -76,7 +77,7 @@ public:
   virtual ~Densifier() = default;
 
   virtual bool undistort(const QString &reconstructionPath,
-                         const QString &outputPath) = 0;
+                         const QString &outputPath);
   virtual bool densify(const QString &undistortPath) = 0;
 
   virtual void enableCuda(bool enable) = 0;
@@ -142,6 +143,22 @@ public:
 
 };
 
+/*----------------------------------------------------------------*/
+
+
+
+class GRAPHOS_EXPORT Mvs
+  : public Densification
+{
+
+public:
+
+  Mvs() : Densification(Densification::Method::mvs)
+  {
+  }
+  ~Mvs() override = default;
+
+};
 
 } // namespace graphos
 

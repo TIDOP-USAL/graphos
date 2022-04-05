@@ -16,6 +16,8 @@ add_library(graphos_widgets ${LIB_TYPE}
             SmvsWidget.h
             CmvsPmvsWidget.cpp
             CmvsPmvsWidget.h
+            MvsWidget.cpp
+            MvsWidget.h
             NvmFormatWidget.cpp
             NvmFormatWidget.h
             BundlerFormatWidget.cpp
@@ -30,10 +32,10 @@ add_library(graphos_widgets ${LIB_TYPE}
             DtmInvDistNNWidget.h
             OriTxtFormatWidget.cpp
             OriTxtFormatWidget.h
-			GraphicItem.cpp
-			GraphicItem.h
-			GraphicViewer.cpp
-			GraphicViewer.h
+            GraphicItem.cpp
+            GraphicItem.h
+            GraphicViewer.cpp
+            GraphicViewer.h
             Viewer3d.cpp
             Viewer3d.h)
 

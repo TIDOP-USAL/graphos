@@ -46,7 +46,9 @@ set(GRAPHOS_CORE_SOURCES
     orientation/gcp.cpp
     densification/CmvsPmvs.cpp
     densification/Smvs.cpp
+    densification/Mvs.cpp
     densification/DenseExport.cpp
+    densification/densification.cpp
     utils.cpp
     dtm/dtm.cpp
     dtm/invdist.cpp
@@ -56,7 +58,7 @@ set(GRAPHOS_CORE_SOURCES
     camera/Camera.cpp
     camera/Colmap.cpp
     camera/Database.cpp
-    camera/Utils.cpp
+    camera/Undistort.cpp
     ortho/Orthorectification.cpp
     ortho/ZBuffer.cpp
     ortho/Footprint.cpp
@@ -91,6 +93,7 @@ set(GRAPHOS_CORE_HEADERS
     densification/densification.h
     densification/CmvsPmvs.h
     densification/Smvs.h
+    densification/Mvs.h
     densification/DenseExport.h
     utils.h
     dtm/dtm.h
@@ -101,7 +104,7 @@ set(GRAPHOS_CORE_HEADERS
     camera/Camera.h
     camera/Colmap.h
     camera/Database.h
-    camera/Utils.h
+    camera/Undistort.h
     ortho/Orthorectification.h
     ortho/ZBuffer.h
     ortho/Footprint.h
