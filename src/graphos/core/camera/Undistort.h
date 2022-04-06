@@ -41,22 +41,36 @@ namespace graphos
 
 cv::Mat openCVCameraMatrix(const Calibration &calibration);
 cv::Mat openCVDistortionCoefficients(const Calibration &calibration);
-Camera undistortCamera(const Camera &camera);
+//Camera undistortCamera(const Camera &camera);
 
-//class UndistortTask
-//  : public tl::TaskBase
-//{
-//
-//public:
-//
-//  UndistortTask();
-//  ~UndistortTask();
-//
-//// TaskBase interface
-//
-//  virtual void execute(tl::Progress *progressBar = nullptr) override;
-//
-//};
+class Undistort
+{
+
+public:
+
+  Undistort(Camera camera);
+  ~Undistort() = default;
+
+  Camera undistortCamera();
+  cv::Mat undistortImage(const cv::Mat &image, bool cuda = false);
+
+private:
+
+  void init();
+  void initCameraMatrix();
+  void initDistCoeffs();
+  void initOptimalNewCameraMatrix();
+  void initUndistortMaps();
+
+private:
+
+  Camera mCamera;
+  cv::Mat mCameraMatrix;
+  cv::Mat mDistCoeffs;
+  cv::Mat mOptimalNewCameraMatrix;
+  cv::Mat mMap1;
+  cv::Mat mMap2;
+};
 
 
 } // namespace graphos

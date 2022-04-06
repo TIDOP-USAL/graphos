@@ -134,39 +134,121 @@ cv::Mat openCVDistortionCoefficients(const Calibration &calibration)
   return distCoeffs;
 }
 
-
-//UndistortTask::UndistortTask()
+//Camera undistortCamera(const Camera &camera)
 //{
-//}
+//  std::shared_ptr<Calibration> calibration = camera.calibration();
 //
-//void UndistortTask::execute(tl::Progress *progressBar)
-//{
+//  cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
+//  cv::Mat dist_coeffs = openCVDistortionCoefficients(*calibration);
 //
+//  cv::Size imageSize(static_cast<int>(camera.width()),
+//                     static_cast<int>(camera.height()));
+//
+//  cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, dist_coeffs, imageSize, 1, imageSize, nullptr);
+//
+//  Camera undistort_camera = camera;
+//  undistort_camera.setFocal((optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
+//  std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(calibration->cameraModel());
+//  undistort_calibration->setParameter(Calibration::Parameters::focal, (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
+//  undistort_calibration->setParameter(Calibration::Parameters::focalx, optCameraMat.at<float>(0, 0));
+//  undistort_calibration->setParameter(Calibration::Parameters::focaly, optCameraMat.at<float>(1, 1));
+//  undistort_calibration->setParameter(Calibration::Parameters::cx, optCameraMat.at<float>(0, 2));
+//  undistort_calibration->setParameter(Calibration::Parameters::cy, optCameraMat.at<float>(1, 2));
+//  undistort_camera.setCalibration(undistort_calibration);
+//  
+//  return undistort_camera;
 //}
 
-Camera undistortCamera(const Camera &camera)
+
+
+Undistort::Undistort(Camera camera)
+  : mCamera(std::move(camera))
 {
-  std::shared_ptr<Calibration> calibration = camera.calibration();
+  init();
+}
 
-  cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
-  cv::Mat dist_coeffs = openCVDistortionCoefficients(*calibration);
+Camera Undistort::undistortCamera()
+{
+  Camera undistort_camera = mCamera;
 
-  cv::Size imageSize(static_cast<int>(camera.width()),
-                     static_cast<int>(camera.height()));
-
-  cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, dist_coeffs, imageSize, 1, imageSize, nullptr);
-
-  Camera undistort_camera = camera;
-  undistort_camera.setFocal((optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
-  std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(calibration->cameraModel());
-  undistort_calibration->setParameter(Calibration::Parameters::focal, (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
-  undistort_calibration->setParameter(Calibration::Parameters::focalx, optCameraMat.at<float>(0, 0));
-  undistort_calibration->setParameter(Calibration::Parameters::focaly, optCameraMat.at<float>(1, 1));
-  undistort_calibration->setParameter(Calibration::Parameters::cx, optCameraMat.at<float>(0, 2));
-  undistort_calibration->setParameter(Calibration::Parameters::cy, optCameraMat.at<float>(1, 2));
+  double fx = static_cast<double>(mOptimalNewCameraMatrix.at<float>(0, 0));
+  double fy = static_cast<double>(mOptimalNewCameraMatrix.at<float>(1, 1));
+  double focal = (fx + fy) / 2.;
+  undistort_camera.setFocal(focal);
+  std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(mCamera.calibration()->cameraModel());
+  undistort_calibration->setParameter(Calibration::Parameters::focal, focal);
+  undistort_calibration->setParameter(Calibration::Parameters::focalx, mOptimalNewCameraMatrix.at<float>(0, 0));
+  undistort_calibration->setParameter(Calibration::Parameters::focaly, mOptimalNewCameraMatrix.at<float>(1, 1));
+  undistort_calibration->setParameter(Calibration::Parameters::cx, mOptimalNewCameraMatrix.at<float>(0, 2));
+  undistort_calibration->setParameter(Calibration::Parameters::cy, mOptimalNewCameraMatrix.at<float>(1, 2));
   undistort_camera.setCalibration(undistort_calibration);
-  
+
   return undistort_camera;
 }
+
+cv::Mat Undistort::undistortImage(const cv::Mat &image, bool cuda)
+{
+  cv::Mat img_undistort;
+
+  try {
+
+#ifdef HAVE_OPENCV_CUDAWARPING
+    if(cuda) {
+      cv::cuda::GpuMat gMap1(mMap1);
+      cv::cuda::GpuMat gMap2(mMap2);
+      cv::cuda::GpuMat gImgOut(image);
+      cv::cuda::GpuMat gImgUndistort;
+
+      cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar());
+      gImgUndistort.download(img_undistort);
+    } else {
+#endif
+
+      cv::remap(image, img_undistort, mMap1, mMap2, cv::INTER_LINEAR);
+
+#ifdef HAVE_OPENCV_CUDAWARPING
+    }
+#endif
+
+  } catch(...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
+
+  return img_undistort;
+}
+
+void Undistort::init()
+{
+  initCameraMatrix();
+  initDistCoeffs();
+  initOptimalNewCameraMatrix();
+  initUndistortMaps();
+}
+
+void Undistort::initCameraMatrix()
+{
+  mCameraMatrix = openCVCameraMatrix(*mCamera.calibration());
+}
+
+void Undistort::initDistCoeffs()
+{
+  mDistCoeffs = openCVDistortionCoefficients(*mCamera.calibration());
+}
+
+void Undistort::initOptimalNewCameraMatrix()
+{
+  cv::Size size(static_cast<int>(mCamera.width()),
+                static_cast<int>(mCamera.height()));
+
+  mOptimalNewCameraMatrix = cv::getOptimalNewCameraMatrix(mCameraMatrix, mDistCoeffs, size, 1, size, nullptr);
+}
+
+void Undistort::initUndistortMaps()
+{
+  cv::Size size(static_cast<int>(mCamera.width()),
+                static_cast<int>(mCamera.height()));
+  cv::initUndistortRectifyMap(mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix, size, CV_32FC1, mMap1, mMap2);
+}
+
 
 } // namespace graphos
