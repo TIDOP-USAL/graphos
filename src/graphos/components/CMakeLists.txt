@@ -47,8 +47,6 @@ project(graphos LANGUAGES CXX)
 
 set(GRAPHOS_SOURCES
     main.cpp
-    #AppStatus.cpp
-    #Component.cpp
     ComponentsManager.cpp
     ProjectModel.cpp
     MainWindowModel.cpp
@@ -120,8 +118,6 @@ set(GRAPHOS_SOURCES
     export/densemodel/impl/ExportPointCloudModel.cpp
     export/densemodel/impl/ExportPointCloudView.cpp
     export/densemodel/impl/ExportPointCloudPresenter.cpp
-    #process/ProcessPresenter.cpp
-    #process/ProcessView.cpp
     georeference/GeoreferenceComponent.cpp
     georeference/impl/GeoreferenceModel.cpp
     georeference/impl/GeoreferenceView.cpp
@@ -147,8 +143,6 @@ set(GRAPHOS_SOURCES
     about/impl/AboutPresenter.cpp
     HelpDialog.cpp
     utils/ProgressDialog.cpp
-    #utils/Progress.cpp
-    #utils/Viewer3d.cpp
     utils/TabHandler.cpp
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
 )
@@ -303,7 +297,6 @@ set(GRAPHOS_HEADERS
     about/impl/AboutView.h
     about/impl/AboutPresenter.h
     utils/ProgressDialog.h
-    #utils/Viewer3d.h
     utils/TabHandler.h
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
 )
@@ -371,6 +364,8 @@ target_link_libraries(${PROJECT_NAME}
                       Qt5::Concurrent
                       Qt5::Sql
                       Qt5::PrintSupport
+                      Qt5::OpenGL
+                      Qt5::OpenGLExtensions
                       graphos_core
                       graphos_widgets
                       ${OpenCV_LIBS}
@@ -383,23 +378,15 @@ target_link_libraries(${PROJECT_NAME}
                       ${OPENGL_glu_LIBRARY}
                       ${GDAL_LIBRARY} 
                       ${PROJ4_LIBRARY}
-)
-
-target_link_libraries(${PROJECT_NAME}
                       ${Boost_FILESYSTEM_LIBRARY}
                       ${Boost_SYSTEM_LIBRARY}
                       ${Boost_THREAD_LIBRARY}
                       ${Boost_DATE_TIME_LIBRARY}
                       ${Boost_CHRONO_LIBRARY}
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                      ${Boost_REGEX_LIBRARY})
-
-if (HAVE_CLOUDCOMPARE)
-target_link_libraries(${PROJECT_NAME}
-                      Qt5::OpenGL
-                      Qt5::OpenGLExtensions
+                      ${Boost_REGEX_LIBRARY}
                       ${CLOUDCOMPARE_LIBRARIES})
-endif(HAVE_CLOUDCOMPARE)
+
 
 if(HAVE_VLD)
 target_link_libraries(${PROJECT_NAME} ${VLD_LIBRARY})

@@ -23,20 +23,16 @@
 
 #include "OrthophotoPresenter.h"
 
-//#include "graphos/process/orthophoto/OrthophotoProcess.h"
 #include "graphos/core/ortho/Orthomosaic.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoProcess.h"
 #include "graphos/core/utils.h"
-//#include "graphos/process/MultiProcess.h"
 #include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/defs.h>
-#include <tidop/geospatial/photo.h>
 
-//#include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
 

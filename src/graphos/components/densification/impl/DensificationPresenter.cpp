@@ -66,6 +66,7 @@ void DensificationPresenterImp::open()
 {
   this->setCmvsPmvsProperties();
   this->setSmvsProperties();
+  this->setMvsProperties();
   mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 
   mView->exec();
@@ -89,7 +90,7 @@ void DensificationPresenterImp::initSignalAndSlots()
 {
   connect(mView, &DensificationView::densificationChanged, this, &DensificationPresenterImp::onDensificationChanged);
   connect(mView, &DensificationView::run,                  this, &DensificationPresenterImp::run);
-  connect(mView, &DialogView::help,                       this, &DensificationPresenterImp::help);
+  connect(mView, &DialogView::help,                        this, &DensificationPresenterImp::help);
 }
 
 void DensificationPresenterImp::cancel()
@@ -149,6 +150,21 @@ void DensificationPresenterImp::setSmvsProperties()
 
 void DensificationPresenterImp::setMvsProperties()
 {
+  Mvs *mvs = nullptr;
+  if (std::shared_ptr<Densification> densification = mModel->densification()) {
+    if (densification->method() == Densification::Method::mvs) {
+      mvs = dynamic_cast<Mvs *>(densification.get());
+    }
+  } else {
+    TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
+  }
+
+  if (mvs) {
+    mMVS->setResolutionLevel(mvs->resolutionLevel());
+    mMVS->setMinResolution(mvs->minResolution());
+    mMVS->setMaxResolution(mvs->maxResolution());
+    mMVS->setNumberViewsFuse(mvs->numberViewsFuse());
+  }
 }
 
 void DensificationPresenterImp::onDensificationChanged(const QString &densification)

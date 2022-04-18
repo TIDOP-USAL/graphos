@@ -158,6 +158,15 @@ public:
   }
   ~Mvs() override = default;
 
+  virtual int resolutionLevel() const = 0;
+  virtual int minResolution() const = 0;
+  virtual int maxResolution() const = 0;
+  virtual int numberViewsFuse() const = 0;
+
+  virtual void setResolutionLevel(int resolutionLevel) = 0;
+  virtual void setMinResolution(int minResolution) = 0;
+  virtual void setMaxResolution(int maxResolution) = 0;
+  virtual void setNumberViewsFuse(int numberViewsFuse) = 0;
 };
 
 } // namespace graphos

@@ -130,8 +130,6 @@ MatchViewerModelImp::loadMatches(const QString &imgName1,
 
   Image imageLeft = mProject->findImageByName(imgName1);
   Image imageRight = mProject->findImageByName(imgName2);
-  //QString image_left_file_name = QFileInfo(imageLeft.path()).fileName();
-  //QString image_right_file_name = QFileInfo(imageRight.path()).fileName();
 
   QString database_path = mProject->database();
   if (!QFileInfo(database_path).exists()) throw std::runtime_error("Database not found");

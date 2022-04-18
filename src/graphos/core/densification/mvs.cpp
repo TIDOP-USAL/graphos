@@ -89,40 +89,107 @@ private:
 
 }
 
+constexpr auto mvsDefaultResolutionLevel = 1;
+constexpr auto mvsDefaultMinResolution = 640;
+constexpr auto mvsDefaultMaxResolution = 3200;
+constexpr auto mvsDefaultNumberViewsFuse = 5;
 
 MvsProperties::MvsProperties()
+  : mResolutionLevel(mvsDefaultResolutionLevel),
+    mMinResolution(mvsDefaultMinResolution),
+    mMaxResolution(mvsDefaultMaxResolution),
+    mNumberViewsFuse(mvsDefaultNumberViewsFuse)
 {
 }
 
 MvsProperties::MvsProperties(const MvsProperties &mvs)
-  : Mvs(mvs)
+  : Mvs(mvs),
+    mResolutionLevel(mvs.mResolutionLevel),
+    mMinResolution(mvs.mMinResolution),
+    mMaxResolution(mvs.mMaxResolution),
+    mNumberViewsFuse(mvs.mNumberViewsFuse)
 {
 }
 
 MvsProperties::MvsProperties(MvsProperties &&mvs) noexcept
-  : Mvs(std::forward<Mvs>(mvs))
+  : Mvs(std::forward<Mvs>(mvs)),
+    mResolutionLevel(mvs.mResolutionLevel),
+    mMinResolution(mvs.mMinResolution),
+    mMaxResolution(mvs.mMaxResolution),
+    mNumberViewsFuse(mvs.mNumberViewsFuse)
 {
 }
 
 MvsProperties &MvsProperties::operator =(const MvsProperties &mvs)
 {
   if (this != &mvs) {
-
+    mResolutionLevel = mvs.mResolutionLevel;
+    mMinResolution = mvs.mMinResolution;
+    mMaxResolution = mvs.mMaxResolution;
+    mNumberViewsFuse = mvs.mNumberViewsFuse;
   }
+
   return *this;
 }
 
 MvsProperties &MvsProperties::operator =(MvsProperties &&mvs) noexcept
 {
   if (this != &mvs) {
-
+    mResolutionLevel = mvs.mResolutionLevel;
+    mMinResolution = mvs.mMinResolution;
+    mMaxResolution = mvs.mMaxResolution;
+    mNumberViewsFuse = mvs.mNumberViewsFuse;
   }
+
   return *this;
+}
+
+int MvsProperties::resolutionLevel() const
+{
+  return mResolutionLevel;
+}
+
+int MvsProperties::minResolution() const
+{
+  return mMinResolution;
+}
+
+int MvsProperties::maxResolution() const
+{
+  return mMaxResolution;
+}
+
+int MvsProperties::numberViewsFuse() const
+{
+  return mNumberViewsFuse;
+}
+
+void MvsProperties::setResolutionLevel(int resolutionLevel)
+{
+  mResolutionLevel = resolutionLevel;
+}
+
+void MvsProperties::setMinResolution(int minResolution)
+{
+  mMinResolution = minResolution;
+}
+
+void MvsProperties::setMaxResolution(int maxResolution)
+{
+  mMaxResolution = maxResolution;
+}
+
+void MvsProperties::setNumberViewsFuse(int numberViewsFuse)
+{
+  mNumberViewsFuse = numberViewsFuse;
 }
 
 void MvsProperties::reset()
 {
-
+  mResolutionLevel = mvsDefaultResolutionLevel;
+  mMinResolution = mvsDefaultMinResolution;
+  mMaxResolution = mvsDefaultMaxResolution;
+  mNumberViewsFuse = mvsDefaultNumberViewsFuse;
 }
 
 
@@ -147,13 +214,21 @@ MvsDensifier::MvsDensifier()
 
 }
 
-MvsDensifier::MvsDensifier(bool cuda)
+MvsDensifier::MvsDensifier(int resolutionLevel,
+                           int minResolution,
+                           int maxResolution,
+                           int numberViewsFuse,
+                           bool cuda)
   : bOpenCvRead(true),
     bCuda(cuda),
     mOutputPath(""),
     mReconstruction(nullptr),
     mCalibrationReader(nullptr)
 {
+  MvsProperties::setResolutionLevel(resolutionLevel);
+  MvsProperties::setMinResolution(minResolution);
+  MvsProperties::setMaxResolution(maxResolution);
+  MvsProperties::setNumberViewsFuse(numberViewsFuse);
 }
 
 MvsDensifier::~MvsDensifier()
@@ -191,9 +266,13 @@ bool MvsDensifier::densify(const QString &undistortPath)
   tl::Path app_path = tl::App::instance().path();
   std::string cmd_mvs("\"");
   //cmd_mvs.append(app_path.parentPath().toString());
-  cmd_mvs.append("C:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
+  cmd_mvs.append("C:\\OpenMVS\\DensifyPointCloud\" -w \"");
   cmd_mvs.append(mOutputPath);
   cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 0");
+  cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
+  cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
+  cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
+  cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
 
   msgInfo("Process: %s", cmd_mvs.c_str());
   tl::Process process(cmd_mvs);
@@ -493,7 +572,8 @@ void MvsDensifier::exportToMVS()
   tl::Path app_path = tl::App::instance().path();
   std::string cmd_mvs("\"");
   //cmd_mvs.append(app_path.parentPath().toString());
-  cmd_mvs.append("C:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
+  //cmd_mvs.append("C:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
+  cmd_mvs.append("C:\\OpenMVS\\InterfaceCOLMAP.exe\" - w \"");
   cmd_mvs.append(mOutputPath);
   cmd_mvs.append("\" -i model.nvm -o model.mvs -v 0");
 

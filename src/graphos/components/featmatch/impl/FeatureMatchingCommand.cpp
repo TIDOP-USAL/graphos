@@ -25,12 +25,15 @@
 
 #include "graphos/core/features/matching.h"
 #include "graphos/core/project.h"
+#include "graphos/components/featmatch/impl/FeatureMatchingProcess.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
 
 #include <colmap/feature/matching.h>
 #include <colmap/base/database.h>
+
+#include <QFileInfo>
 
 using namespace tl;
 
@@ -80,91 +83,72 @@ bool FeatureMatchingCommand::run()
 
   try {
 
-    tl::Chrono chrono("Feature Matching finished ");
-    chrono.run();
-
     if (!mProjectFile.exists()) {
       msgError("Project doesn't exist");
       return 1;
     }
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
-
     ProjectImp project;
     project.load(project_file);
-    std::string database_path = project.database().toStdString();
+
+    QString database_file = project.database();
+    colmap::Database database(database_file.toStdString());
+    database.ClearMatches();
+    database.ClearTwoViewGeometries();
+    database.Close();
+    project.removeMatchesPair();
+
+    std::shared_ptr<FeatureMatching> feature_matching_properties = std::make_shared<FeatureMatchingProperties>();
+    feature_matching_properties->setRatio(mRatio);
+    feature_matching_properties->setDistance(mDistance);
+    feature_matching_properties->setMaxError(mMaxError);
+    feature_matching_properties->setConfidence(mConfidence);
+    feature_matching_properties->enableCrossCheck(mCrossCheck);
 
     bool spatial_matching = false;
 
-    auto it = project.imageBegin();
-    if (it != project.imageEnd()) {
-      CameraPose cameraPosition = it->cameraPose();
-      if (!cameraPosition.isEmpty())
-        spatial_matching = true;
-    }
-    
-    std::shared_ptr<colmap::Thread> feature_matcher;
-
-    colmap::SiftMatchingOptions sift_matching_options;
-    sift_matching_options.max_error = mMaxError;
-    sift_matching_options.cross_check = mCrossCheck;
-    sift_matching_options.max_ratio = mRatio;
-    sift_matching_options.max_distance = mDistance;
-    sift_matching_options.confidence = mConfidence;
-    sift_matching_options.use_gpu = !mDisableCuda;
-    sift_matching_options.min_num_inliers = 15;// 100;
-
-
-    if (spatial_matching && !mForceExhaustiveMatching) {
-
-      colmap::SpatialMatchingOptions spatial_matching_options;
-      spatial_matching_options.max_num_neighbors = 100;// 500;
-      //spatialMatchingOptions.max_distance = 250;
-      spatial_matching_options.ignore_z = true;
-      spatial_matching_options.is_gps = false;
-
-      feature_matcher = std::make_unique<colmap::SpatialFeatureMatcher>(spatial_matching_options,
-                                                                        sift_matching_options,
-                                                                        database_path);
-      msgInfo("Spatial Matching");
-
-    } else {
-
-      colmap::ExhaustiveMatchingOptions exhaustive_matching_options;
-      //exhaustive_matching_options.block_size = mFeatureMatching->blockSize();
-      feature_matcher = std::make_unique<colmap::ExhaustiveFeatureMatcher>(exhaustive_matching_options,
-                                                                           sift_matching_options,
-                                                                           database_path);
-      msgInfo("Exhaustive Matching");
-
+    if (!mForceExhaustiveMatching) {
+      auto it = project.imageBegin();
+      if (it != project.imageEnd()) {
+        CameraPose cameraPosition = it->cameraPose();
+        if (!cameraPosition.isEmpty())
+          spatial_matching = true;
+      }
     }
 
-    feature_matcher->Start();
-    feature_matcher->Wait();
+    FeatureMatchingProcess featmatching_process(project.database(),
+                                                !mDisableCuda,
+                                                spatial_matching,
+                                                feature_matching_properties);
 
-    colmap::Database database(database_path);
-    if (database.NumMatches() > 0) {
+    featmatching_process.run();
 
-      std::shared_ptr<FeatureMatchingProperties> feature_matching_properties = std::make_shared<FeatureMatchingProperties>();
-      feature_matching_properties->setRatio(mRatio);
-      feature_matching_properties->setDistance(mDistance);
-      feature_matching_properties->setMaxError(mMaxError);
-      feature_matching_properties->setConfidence(mConfidence);
-      feature_matching_properties->enableCrossCheck(mCrossCheck);
-      project.setFeatureMatching(feature_matching_properties);
 
-      project.save(project_file);
+    std::vector<colmap::Image> db_images = database.ReadAllImages();
+    colmap::image_t image_id_l = 0;
+    colmap::image_t image_id_r = 0;
+    for (size_t i = 0; i < db_images.size(); i++) {
+      image_id_l = db_images[i].ImageId();
+      for (size_t j = 0; j < i; j++) {
+        image_id_r = db_images[j].ImageId();
 
-    } else {
-      msgError("Feature Matching error: No matching points detected.");
+        colmap::FeatureMatches matches = database.ReadMatches(image_id_l, image_id_r);
+        if (matches.size() > 0) {
+          QString path_left = QFileInfo(QString::fromStdString(db_images[i].Name())).baseName();
+          QString path_right = QFileInfo(QString::fromStdString(db_images[j].Name())).baseName();
+          project.addMatchesPair(path_left, path_right);
+        }
+      }
     }
 
-    database.Close();
-
-    chrono.stop();
+    project.setFeatureMatching(feature_matching_properties);
+    project.save(project_file);
 
   } catch (const std::exception &e) {
-    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+
+    printException(e);
+
     r = true;
   }
 

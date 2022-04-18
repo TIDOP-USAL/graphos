@@ -120,10 +120,10 @@ void MvsWidget::clear()
   const QSignalBlocker blockerMaxResolution(mSpinBoxMaxResolution);
   const QSignalBlocker blockerNumberViewsFuse(mSpinBoxNumberViewsFuse);
 
-  mSpinBoxResolutionLevel->setValue(3);
-  mSpinBoxMinResolution->setValue(500);
-  mSpinBoxMaxResolution->setValue(400);
-  mSpinBoxNumberViewsFuse->setValue(2);
+  mSpinBoxResolutionLevel->setValue(1);
+  mSpinBoxMinResolution->setValue(640);
+  mSpinBoxMaxResolution->setValue(3200);
+  mSpinBoxNumberViewsFuse->setValue(5);
 }
 
 void MvsWidget::initUI()

@@ -157,11 +157,6 @@ void FeatureMatchingProcess::setSpatialMatching(bool spatialMatching)
   bSpatialMatching = spatialMatching;
 }
 
-//void FeatureMatchingProcess::onCancel()
-//{
-//  mFeatureMatcher->Stop();
-//}
-
 std::shared_ptr<FeatureMatching> FeatureMatchingProcess::featureMatching() const
 {
   return mFeatureMatching;

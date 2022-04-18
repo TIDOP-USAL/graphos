@@ -152,8 +152,8 @@ endif()
 ## CONFIGURACIÓN COMPONENTES GRAPHOS
 
 # Activación desactivación de los diferentes componentes de GRAPHOS
-OPTION (BUILD_GRAPHOS                 "GRAPHOS"                OFF)
-OPTION (BUILD_GRAPHOS_MICROSERVICES   "GRAPHOS MICROSERVICES"  OFF)
+#OPTION (BUILD_GRAPHOS                 "GRAPHOS"                OFF)
+#OPTION (BUILD_GRAPHOS_MICROSERVICES   "GRAPHOS MICROSERVICES"  OFF)
 
 # Activación desactivación de otros componentes 
 OPTION (BUILD_TEST                 "Include test"          OFF)
@@ -336,11 +336,9 @@ if(BUILD_TEST)
                  Test)
 endif(BUILD_TEST)
 
-if(BUILD_GRAPHOS)
-  find_package(Qt5 REQUIRED
-               COMPONENTS
-                 OpenGLExtensions)
-endif()
+find_package(Qt5 REQUIRED
+             COMPONENTS
+               OpenGLExtensions)
   
 if (Qt5_POSITION_INDEPENDENT_CODE)
   SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -358,9 +356,7 @@ if(Qt5_FOUND)
     if(BUILD_TEST)
       message(STATUS "  Module : ${Qt5Test_DIR}")
     endif(BUILD_TEST)
-    if(BUILD_GRAPHOS)
-      message(STATUS "  Module : ${Qt5OpenGLExtensions_DIR}")
-    endif(BUILD_GRAPHOS)
+    message(STATUS "  Module : ${Qt5OpenGLExtensions_DIR}")
 
 
 	include_directories(${Qt5Core_INCLUDE_DIRS}
@@ -369,33 +365,23 @@ if(Qt5_FOUND)
                       ${Qt5Help_INCLUDE_DIRS}
                       ${Qt5Sql_INCLUDE_DIRS}
                       ${Qt5Concurrent_INCLUDE_DIRS}
-                      ${Qt5LinguistTools_INCLUDE_DIRS})
+                      ${Qt5LinguistTools_INCLUDE_DIRS}
+                      ${Qt5OpenGLExtensions_INCLUDE_DIRS})
 	if(BUILD_TEST)
 		include_directories(${Qt5Test_INCLUDE_DIRS})
 	endif(BUILD_TEST)
 
-	if(BUILD_GRAPHOS)
-		include_directories(${Qt5OpenGLExtensions_INCLUDE_DIRS})
-	endif(BUILD_GRAPHOS)
-
 endif()
 
-if(BUILD_GRAPHOS)
 
-    find_package(CloudCompare REQUIRED)
+find_package(CloudCompare REQUIRED)
 
-    if (NOT CLOUDCOMPARE_FOUND)
-        set(HAVE_CLOUDCOMPARE NO)
-    else()
-        set(HAVE_CLOUDCOMPARE YES)
-        include_directories(${CLOUDCOMPARE_INCLUDE_DIR})
-    endif()
-  
-else()
-  
+if (NOT CLOUDCOMPARE_FOUND)
     set(HAVE_CLOUDCOMPARE NO)
-  
-endif(BUILD_GRAPHOS)
+else()
+    set(HAVE_CLOUDCOMPARE YES)
+    include_directories(${CLOUDCOMPARE_INCLUDE_DIR})
+endif()
 
 
 # VLD
@@ -413,14 +399,14 @@ if(WITH_VLD)
 
 endif(WITH_VLD)
 
-if(BUILD_GRAPHOS_MICROSERVICES)
-
-    find_package(cpprestsdk REQUIRED)
-	
-	find_package(CURL REQUIRED) 
-    include_directories(${CURL_INCLUDE_DIRS})
-
-endif (BUILD_GRAPHOS_MICROSERVICES)
+#if(BUILD_GRAPHOS_MICROSERVICES)
+#
+#    find_package(cpprestsdk REQUIRED)
+#	
+#	find_package(CURL REQUIRED) 
+#    include_directories(${CURL_INCLUDE_DIRS})
+#
+#endif (BUILD_GRAPHOS_MICROSERVICES)
 
 
 #set(TL_MESSAGE_HANDLER YES)
