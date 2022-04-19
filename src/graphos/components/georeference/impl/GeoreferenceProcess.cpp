@@ -62,7 +62,7 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
 
     msgInfo("Starting Georeference");
 
-    tl::Chrono chrono;
+    tl::Chrono chrono("Georeference process finished");
     chrono.run();
 
     //std::map<std::string, Eigen::Vector3d> triangulate_points;
@@ -189,11 +189,10 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
 
     emit georeferenceFinished();
 
-    uint64_t time = chrono.stop();
-    msgInfo("Georeference process finished [Time: %f seconds]", time / 1000.);
+    chrono.stop();
 
   } catch(...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
+    TL_THROW_EXCEPTION_WITH_NESTED("Georeference error");
   }
 }
 
