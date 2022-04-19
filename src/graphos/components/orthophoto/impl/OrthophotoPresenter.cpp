@@ -34,7 +34,6 @@
 #include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/defs.h>
-#include <tidop/geospatial/photo.h>
 
 //#include <QFileDialog>
 #include <QFileInfo>

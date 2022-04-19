@@ -191,7 +191,7 @@ bool MvsDensifier::densify(const QString &undistortPath)
   tl::Path app_path = tl::App::instance().path();
   std::string cmd_mvs("\"");
   //cmd_mvs.append(app_path.parentPath().toString());
-  cmd_mvs.append("C:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
+  cmd_mvs.append("C:\\openMVS\\DensifyPointCloud\" -w \"");
   cmd_mvs.append(mOutputPath);
   cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 0");
 
