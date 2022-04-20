@@ -58,6 +58,15 @@ public:
 
 public:
 
+  int resolutionLevel() const override;
+  int minResolution() const override;
+  int maxResolution() const override;
+  int numberViewsFuse() const override;
+
+  void setResolutionLevel(int resolutionLevel) override;
+  void setMinResolution(int minResolution) override;
+  void setMaxResolution(int maxResolution) override;
+  void setNumberViewsFuse(int numberViewsFuse) override;
 
 // Densification interface
 
@@ -68,6 +77,10 @@ public:
 
 protected:
 
+  int mResolutionLevel;
+  int mMinResolution;
+  int mMaxResolution;
+  int mNumberViewsFuse;
 
 };
 
@@ -83,7 +96,11 @@ class GRAPHOS_EXPORT MvsDensifier
 public:
 
   MvsDensifier();
-  MvsDensifier(bool cuda);
+  MvsDensifier(int resolutionLevel,
+               int minResolution,
+               int maxResolution,
+               int numberViewsFuse,
+               bool cuda);
   ~MvsDensifier() override;
   
   MvsDensifier(const MvsDensifier &MvsProcess) = delete;

@@ -374,19 +374,13 @@ public:
   void operator() ()
   {
     while (!featextract_done || mBuffer->size()) {
-      //while (mBuffer->size()) {
       if(mFeatureExtractorProcess->status() == tl::Task::Status::stopping) {
         featextract_done = true;
         return;
       }
       
       consumer();
-      //}
     }
-
-    //while (mBuffer->size()) {
-    //  consumer();
-    //}
 
   }
 

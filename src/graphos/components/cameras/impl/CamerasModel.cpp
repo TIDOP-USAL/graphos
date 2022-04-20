@@ -495,7 +495,9 @@ void CamerasModelImp::calibrationExport(const QString &file,
       if (model_id.compare("Pinhole 1") == 0 ||
           model_id.compare("Radial 1") == 0 ||
           model_id.compare("Radial 2") == 0 ||
-          model_id.compare("Radial 3") == 0) {
+          model_id.compare("Radial 3") == 0 ||
+          model_id.compare("OpenCV 1") == 0 ||
+          model_id.compare("OpenCV 2") == 0) {
 
         std::shared_ptr<Calibration> calibration = camera.calibration();
 
@@ -520,7 +522,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
         stream << "  <date></date>\n";
         stream << "</calibration>\n";
       } else {
-        ///TODO: Cámara no soportada. ¿devolver error, escribir mensaje de error, ...?
+        msgError("Unsupported camera type");
       }
 
     } else if (format.compare("OpenCV") == 0) {
@@ -531,9 +533,12 @@ void CamerasModelImp::calibrationExport(const QString &file,
       if (model_id.compare("Pinhole 1") == 0 ||
           model_id.compare("Radial 1") == 0 ||
           model_id.compare("Radial 2") == 0 ||
-          model_id.compare("Radial 3") == 0) {
+          model_id.compare("Radial 3") == 0 ||
+          model_id.compare("OpenCV 1") == 0 || 
+          model_id.compare("OpenCV 2") == 0) {
 
         std::shared_ptr<Calibration> calibration = camera.calibration();
+        bool b_fisheye = calibration->checkCameraType(Calibration::CameraType::fisheye);
 
         stream << "<?xml version=\"1.0\"?>\n";
         stream << "<opencv_storage>\n";
@@ -545,8 +550,12 @@ void CamerasModelImp::calibrationExport(const QString &file,
         stream << "  <cols>3</cols>\n";
         stream << "  <dt>d</dt>\n";
         stream << "  <data>\n";
-        stream << "    " << QString::number(calibration->parameter(Calibration::Parameters::focal), 'e', 8).toStdString() << " 0. " << QString::number(calibration->parameter(Calibration::Parameters::cx) + 0.5, 'e', 8).toStdString() << " 0. \n";
-        stream << "    " << QString::number(calibration->parameter(Calibration::Parameters::focal), 'e', 8).toStdString() << " " << QString::number(calibration->parameter(Calibration::Parameters::cy) + 0.5, 'e', 8).toStdString() << " 0. 0. 1.\n";
+        stream << "    " << QString::number(calibration->existParameter(Calibration::Parameters::focal) ? 
+                                            calibration->parameter(Calibration::Parameters::focal) : 
+                                            calibration->parameter(Calibration::Parameters::focalx), 'e', 8).toStdString() << " 0. " << QString::number(calibration->parameter(Calibration::Parameters::cx) + 0.5, 'e', 8).toStdString() << " 0. \n";
+        stream << "    " << QString::number(calibration->existParameter(Calibration::Parameters::focal) ? 
+                                            calibration->parameter(Calibration::Parameters::focal) :
+                                            calibration->parameter(Calibration::Parameters::focaly), 'e', 8).toStdString() << " " << QString::number(calibration->parameter(Calibration::Parameters::cy) + 0.5, 'e', 8).toStdString() << " 0. 0. 1.\n";
         stream << "  </data>\n";
         stream << "</Camera_Matrix>\n";
         stream << "<Distortion_Coefficients type_id=\"opencv-matrix\">\n";
@@ -554,16 +563,23 @@ void CamerasModelImp::calibrationExport(const QString &file,
         stream << "  <cols>1</cols>\n";
         stream << "  <dt>d</dt>\n";
         stream << "  <data>\n";
-        stream << "    " << (calibration->existParameter(Calibration::Parameters::k1) ? QString::number(calibration->parameter(Calibration::Parameters::k1)).toStdString() : "0.0") << " "
-          << (calibration->existParameter(Calibration::Parameters::k2) ? QString::number(calibration->parameter(Calibration::Parameters::k2), 'e', 8).toStdString() : "0.0") << " "
-          << (calibration->existParameter(Calibration::Parameters::p1) ? QString::number(calibration->parameter(Calibration::Parameters::p1), 'e', 8).toStdString() : "0.0") << " "
-          << (calibration->existParameter(Calibration::Parameters::p2) ? QString::number(calibration->parameter(Calibration::Parameters::p2), 'e', 8).toStdString() : "0.0") << " \n    "
-          << (calibration->existParameter(Calibration::Parameters::k3) ? QString::number(calibration->parameter(Calibration::Parameters::k3), 'e', 8).toStdString() : "0.0") << "</data>";
+        stream << "    " << (calibration->existParameter(Calibration::Parameters::k1) ? QString::number(calibration->parameter(Calibration::Parameters::k1), 'e', 8).toStdString() : "0.0") << " "
+                         << (calibration->existParameter(Calibration::Parameters::k2) ? QString::number(calibration->parameter(Calibration::Parameters::k2), 'e', 8).toStdString() : "0.0") << " ";
+
+        if(b_fisheye) {
+          stream << (calibration->existParameter(Calibration::Parameters::k3) ? QString::number(calibration->parameter(Calibration::Parameters::k3), 'e', 8).toStdString() : "0.0") << " "
+                 << (calibration->existParameter(Calibration::Parameters::k4) ? QString::number(calibration->parameter(Calibration::Parameters::k4), 'e', 8).toStdString() : "0.0");
+        } else {
+          stream  << (calibration->existParameter(Calibration::Parameters::p1) ? QString::number(calibration->parameter(Calibration::Parameters::p1), 'e', 8).toStdString() : "0.0") << " "
+                  << (calibration->existParameter(Calibration::Parameters::p2) ? QString::number(calibration->parameter(Calibration::Parameters::p2), 'e', 8).toStdString() : "0.0") << " \n    "
+                  << (calibration->existParameter(Calibration::Parameters::k3) ? QString::number(calibration->parameter(Calibration::Parameters::k3), 'e', 8).toStdString() : "0.0");
+        }
+        stream << "</data>";
         stream << "</Distortion_Coefficients>\n";
         stream << "</opencv_storage>\n";
 
       } else {
-        ///TODO: Cámara no soportada. ¿devolver error, escribir mensaje de error, ...?
+        msgError("Unsupported camera type");
       }
 
     } else {
@@ -635,6 +651,11 @@ void CamerasModelImp::save()
 
     bModifiedProject = false;
   }
+}
+
+bool CamerasModelImp::modified()
+{
+  return bModifiedProject;
 }
 
 void CamerasModelImp::init()

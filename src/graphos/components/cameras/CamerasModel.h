@@ -65,6 +65,8 @@ public:
   virtual camera_iterator end() = 0;
   virtual camera_const_iterator end() const = 0;
 
+  virtual bool modified() = 0;
+
   virtual void save() = 0;
 
 public slots:

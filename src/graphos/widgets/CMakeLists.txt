@@ -1,6 +1,8 @@
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
-add_library(graphos_widgets ${LIB_TYPE}
+project(graphos_widgets LANGUAGES CXX)
+
+add_library(${PROJECT_NAME} ${LIB_TYPE}
             GraphosWidget.h
             SiftWidget.cpp
             SiftWidget.h
@@ -39,9 +41,18 @@ add_library(graphos_widgets ${LIB_TYPE}
             Viewer3d.cpp
             Viewer3d.h)
 
-set_property(TARGET graphos_widgets PROPERTY FOLDER "lib")
+target_link_libraries(${PROJECT_NAME}
+                      TidopLib::tl_core
+                      TidopLib::tl_geom
+                      TidopLib::tl_geospatial
+                      TidopLib::tl_img
+                      TidopLib::tl_math
+                      TidopLib::tl_vect
+                      TidopLib::tl_graphic)
 
-install(TARGETS graphos_widgets 
+set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
+
+install(TARGETS ${PROJECT_NAME} 
         LIBRARY DESTINATION lib 
         ARCHIVE DESTINATION lib)
 

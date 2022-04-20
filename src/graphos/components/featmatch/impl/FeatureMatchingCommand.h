@@ -38,9 +38,9 @@ public:
   FeatureMatchingCommand();
   ~FeatureMatchingCommand() override;
 
-private:
-
 // Command
+
+public:
 
   bool run() override;
 

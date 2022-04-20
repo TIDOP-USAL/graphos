@@ -68,6 +68,8 @@ public:
 
   void save() override;
 
+  bool modified() override;
+
   //image_iterator imageBegin() override;
   //image_const_iterator imageBegin() const override;
   //image_iterator imageEnd() override;

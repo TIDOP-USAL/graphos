@@ -67,82 +67,68 @@ using namespace graphos;
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
-  
   Application &app = Application::instance();
 
-  ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
-
-  /// Load Components
-
   CreateProjectComponent create_project_component(&app);
-  app.addComponent(&create_project_component);
-
   OpenProjectComponent open_project_component(&app);
-  app.addComponent(&open_project_component);
-
   ImportCamerasComponent import_cameras_component(&app);
-  app.addComponent(&import_cameras_component);
-
   CamerasComponent cameras_component(&app);
-  app.addComponent(&cameras_component);
-
   ExportOrientationsComponent export_orientations_component(&app);
-  app.addComponent(&export_orientations_component);
-
   ExportPointCloudComponent export_point_cloud_component(&app);
-  app.addComponent(&export_point_cloud_component);
-
   ImageLoaderComponent image_loader_component(&app);
-  app.addComponent(&image_loader_component);
-
   FeatureExtractorComponent feature_extractor_component(&app);
-  app.addComponent(&feature_extractor_component);
-
   FeatureMatchingComponent feature_matching_component(&app);
-  app.addComponent(&feature_matching_component);
-
   OrientationComponent orientation_component(&app);
-  app.addComponent(&orientation_component);
-
   DensificationComponent densification_component(&app);
-  app.addComponent(&densification_component);
-
   GeoreferenceComponent georeference_component(&app);
-  app.addComponent(&georeference_component);
-
   DTMComponent dtm_component(&app);
-  app.addComponent(&dtm_component);
-
   OrthophotoComponent orthophoto_component(&app);
-  app.addComponent(&orthophoto_component);
-
   FeaturesViewerComponent features_viewer_component(&app);
-  app.addComponent(&features_viewer_component);
-
   MatchViewerComponent match_viewer_component(&app);
-  app.addComponent(&match_viewer_component);
-
   SettingsComponent settings_component(&app);
-  app.addComponent(&settings_component);
-
   AboutComponent about_component(&app);
-  app.addComponent(&about_component);
+  
 
   tl::Console &console = tl::Console::instance();
   console.setMessageLevel(tl::MessageLevel::msg_verbose);
   console.setTitle("Graphos");
   app.messageManager()->addListener(&console);
 
-  bool r;
+  bool r = false;
 
-  tl::CommandList::Status status = app.parse(argc, argv);
-  if (status == tl::CommandList::Status::parse_success) {
+  if (argc > 1) {
 
-    r = app.runCommand();
+    app.addComponent(&create_project_component);
+    app.addComponent(&open_project_component);
+    app.addComponent(&import_cameras_component);
+    app.addComponent(&cameras_component);
+    app.addComponent(&export_orientations_component);
+    app.addComponent(&export_point_cloud_component);
+    app.addComponent(&image_loader_component);
+    app.addComponent(&feature_extractor_component);
+    app.addComponent(&feature_matching_component);
+    app.addComponent(&orientation_component);
+    app.addComponent(&densification_component);
+    app.addComponent(&georeference_component);
+    app.addComponent(&dtm_component);
+    app.addComponent(&orthophoto_component);
+    app.addComponent(&features_viewer_component);
+    app.addComponent(&match_viewer_component);
+    app.addComponent(&settings_component);
+    app.addComponent(&about_component);
 
-  } else if (status == tl::CommandList::Status::parse_error) {
+    tl::CommandList::Status status = app.parse(argc, argv);
+    if (status == tl::CommandList::Status::parse_success) {
 
-//    TL_TODO("Añadir como opción")
+      r = app.runCommand();
+
+    } /*else if (status == tl::CommandList::Status::parse_error) {
+    } else if (status == tl::CommandList::Status::show_help) {
+    } else if (status == tl::CommandList::Status::show_licence) {
+    } else if (status == tl::CommandList::Status::show_version) {
+    }*/
+  } else {
+    //    TL_TODO("Añadir como opción")
 //#if defined WIN32
 //    HWND hwnd = GetConsoleWindow();
 //    ShowWindow(hwnd, 0);
@@ -150,12 +136,14 @@ int main(int argc, char *argv[])
 
     app.freeMemory();
 
+    ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
+
     /// Load gui
 
     /* File menu */
 
     componentsManager.mainWindowView()->setCreateProjectAction(create_project_component.action());
-    
+
     componentsManager.mainWindowView()->setOpenProjectAction(open_project_component.action());
 
     componentsManager.mainWindowView()->setImportCamerasAction(import_cameras_component.action());
@@ -170,13 +158,13 @@ int main(int argc, char *argv[])
 
     componentsManager.registerComponent(&image_loader_component,
                                         ComponentsManager::Flags::separator_after);
-    
+
     componentsManager.registerComponent(&feature_extractor_component);
-    
+
     componentsManager.registerComponent(&feature_matching_component);
-    
+
     componentsManager.registerComponent(&orientation_component);
-    
+
     componentsManager.registerComponent(&densification_component);
 
     /* Tools menu */
@@ -192,7 +180,7 @@ int main(int argc, char *argv[])
 
     componentsManager.registerComponent(&features_viewer_component,
                                         ComponentsManager::Flags::separator_before);
-    
+
     componentsManager.registerComponent(&match_viewer_component,
                                         ComponentsManager::Flags::separator_after);
 
@@ -206,10 +194,10 @@ int main(int argc, char *argv[])
 
     QObject::connect(&create_project_component, SIGNAL(projectCreated()),
                      componentsManager.mainWindowPresenter(), SLOT(loadProject()));
-   
+
     QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog,
                      create_project_component.action(), &QAction::trigger);
-    
+
     QObject::connect(&open_project_component, SIGNAL(projectLoaded()),
                      componentsManager.mainWindowPresenter(), SLOT(loadProject()));
 
@@ -255,16 +243,9 @@ int main(int argc, char *argv[])
 
     r = a.exec();
 
-//#if defined WIN32
-//    ShowWindow(hwnd, 1);
-//#endif
-
-  } else if (status == tl::CommandList::Status::show_help) {
-    r = false;
-  } else if (status == tl::CommandList::Status::show_licence) {
-    r = false;
-  } else if (status == tl::CommandList::Status::show_version) {
-    r = false;
+    //#if defined WIN32
+    //    ShowWindow(hwnd, 1);
+    //#endif
   }
 
 #ifdef HAVE_VLD

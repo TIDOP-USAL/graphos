@@ -28,8 +28,6 @@
 
 namespace graphos
 {
-	
-class Project;
 
 class OrientationCommand
   : public Command
@@ -52,8 +50,6 @@ private:
   bool mFixCalibration;
   bool mFixPoses;
   bool mAbsoluteOrientation;
-
-  Project *mProject;
 };
 
 	

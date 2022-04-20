@@ -252,14 +252,14 @@ list(APPEND COLMAP_INCLUDE_DIRS
      ${COLMAP_INCLUDE_DIR}
      ${COLMAP_INCLUDE_DIR}/colmap
      ${COLMAP_INCLUDE_DIR}/colmap/lib
-	   ${Boost_INCLUDE_DIRS}
+	 ${Boost_INCLUDE_DIRS}
      ${EIGEN_INCLUDE_DIRS}
      #${Glog_INCLUDE_DIRS}
      # ${gflags_INCLUDE_DIRS}   
      ${FREEIMAGE_INCLUDE_DIRS}
      ${CERES_INCLUDE_DIRS}
      ${GLEW_INCLUDE_DIRS}
-	   ${ZLIB_INCLUDE_DIRS}
+	 ${ZLIB_INCLUDE_DIRS}
 	 )
 
 else()

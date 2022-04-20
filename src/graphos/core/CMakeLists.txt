@@ -131,6 +131,13 @@ endforeach()
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+                      TidopLib::tl_core
+                      TidopLib::tl_geom
+                      TidopLib::tl_geospatial
+                      TidopLib::tl_img
+                      TidopLib::tl_math
+                      TidopLib::tl_vect
+                      TidopLib::tl_graphic
                       CSF
                       glog::glog
                       Qt5::PrintSupport

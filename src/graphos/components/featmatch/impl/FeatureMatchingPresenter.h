@@ -52,10 +52,6 @@ private:
 
   void setMatchingProperties();
 
-//private slots:
-//
-//  void onFinishMatching();
-
 // FeatureMatchingPresenter interface
 
 public slots:

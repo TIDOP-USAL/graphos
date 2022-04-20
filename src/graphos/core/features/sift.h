@@ -35,7 +35,6 @@
 
 #include "SiftGPU/SiftGPU.h"
 #include <colmap/feature/sift.h>
-//#include "VLFeat/sift.h"
 
 
 namespace graphos
@@ -93,62 +92,9 @@ private:
 /*----------------------------------------------------------------*/
 
 
-//class SiftDetectorDescriptor
-//  : public SiftProperties,
-//    public FeatureExtractor
-//{
-//
-//public:
-//
-//  SiftDetectorDescriptor();
-//  SiftDetectorDescriptor(const SiftDetectorDescriptor &siftDetectorDescriptor);
-//  SiftDetectorDescriptor(int featuresNumber,
-//                         int octaveLayers,
-//                         double edgeThreshold,
-//                         double contrastThreshold = 0.);
-//  ~SiftDetectorDescriptor() override;
-//
-//private:
-//
-//  void update();
-//
-//// FeatureExtractor interface
-//
-//public:
-//
-//  void run(const cv::Mat &bitmap,
-//           colmap::FeatureKeypoints &keyPoints,
-//           colmap::FeatureDescriptors &descriptors) override;
-//
-//// Sift interface
-//
-//public:
-//
-//  void setFeaturesNumber(int featuresNumber) override;
-//  void setOctaveLayers(int octaveLayers) override;
-//  void setContrastThreshold(double contrastThreshold) override;
-//  void setEdgeThreshold(double edgeThreshold) override;
-//
-//// Feature interface
-//
-//public:
-//
-//  void reset() override;
-//
-//protected:
-//
-//  VlSiftFilt *mSiftCpu;
-//  colmap::SiftExtractionOptions mSiftExtractionOptions;
-//  std::mutex mMutex;
-//};
-
-
-/*----------------------------------------------------------------*/
-
-
 class SiftCPUDetectorDescriptor
   : public SiftProperties,
-  public FeatureExtractor
+    public FeatureExtractor
 {
 
 public:
@@ -156,16 +102,16 @@ public:
   SiftCPUDetectorDescriptor();
   SiftCPUDetectorDescriptor(const SiftCPUDetectorDescriptor &siftDetectorDescriptor);
   SiftCPUDetectorDescriptor(int featuresNumber,
-                         int octaveLayers,
-                         double edgeThreshold,
-                         double contrastThreshold = 0.);
+                            int octaveLayers,
+                            double edgeThreshold,
+                            double contrastThreshold = 0.);
   ~SiftCPUDetectorDescriptor() override;
 
 private:
 
   void update();
 
-  // FeatureExtractor interface
+// FeatureExtractor interface
 
 public:
 
@@ -173,7 +119,7 @@ public:
            colmap::FeatureKeypoints &keyPoints,
            colmap::FeatureDescriptors &descriptors) override;
 
-  // Sift interface
+// Sift interface
 
 public:
 
