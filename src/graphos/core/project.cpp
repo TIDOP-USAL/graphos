@@ -614,13 +614,14 @@ bool ProjectImp::load(const QString &file)
   QFile input(file);
   mProjectPath = file;
 
-  if (input.open(QIODevice::ReadOnly)) {
+  if(input.open(QIODevice::ReadOnly)) {
     QXmlStreamReader stream;
     stream.setDevice(&input);
 
     err = this->read(stream);
     input.close();
-  }
+  } else err = true;
+
   return err;
 }
 

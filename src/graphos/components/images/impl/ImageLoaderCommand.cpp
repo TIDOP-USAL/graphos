@@ -101,10 +101,8 @@ bool ImageLoaderCommand::run()
 
   try {
 
-    if (!mProjectFile.exists()) {
-      msgError("Project doesn't exist");
-      return 1;
-    }
+    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist")
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 

@@ -24,6 +24,7 @@
 
 #include "DensificationCommand.h"
 
+#include "graphos/core/utils.h"
 #include "graphos/core/project.h"
 #include "graphos/core/densification/CmvsPmvs.h"
 #include "graphos/core/densification/Smvs.h"
@@ -74,7 +75,17 @@ DensificationCommand::DensificationCommand()
   this->push_back(CreateArgumentBooleanOptional("smvs:shading_optimization", std::string("Shading Based Optimization (default=").append(mSmvsShadingBasedOptimization ? "true)" : "false)"), &mSmvsShadingBasedOptimization));
   this->push_back(CreateArgumentBooleanOptional("smvs:sgm", std::string("Semi-global Matching (default=").append(mSmvsSemiGlobalMatching ? "true)" : "false)"), &mSmvsSemiGlobalMatching));
   this->push_back(CreateArgumentDoubleOptional("smvs:smooth_factor", std::string("Surface Smoothing Factor (default=").append(std::to_string(mSmvsSurfaceSmoothingFactor)).append(")"), &mSmvsSurfaceSmoothingFactor));
-  this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
+
+#ifdef HAVE_CUDA
+  tl::MessageManager::instance().pause();
+  bool cuda_enabled = cudaEnabled(10.0, 3.0);
+  tl::MessageManager::instance().resume();
+  if(cuda_enabled)
+    this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
+  else mDisableCuda = true;
+#else
+  mDisableCuda = true;
+#endif //HAVE_CUDA
 
   this->addExample("dense --p 253/253.xml --method PMVS");
 
@@ -98,15 +109,11 @@ bool DensificationCommand::run()
 
   try {
 
-    msgInfo("Densification start");
-
     tl::Chrono chrono("Densification finished");
     chrono.run();
 
-    if (!mProjectFile.exists()) {
-      msgError("Project doesn't exist");
-      return 1;
-    }
+    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist")
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 
@@ -117,7 +124,18 @@ bool DensificationCommand::run()
 
     std::shared_ptr<Densifier> densifier;
     if (mDensificationMethod == "PMVS") {
-    
+
+      msgInfo("PMVS Properties:");
+      msgInfo("- Use Visibility Information: %s", mPmvsUseVisibilityInformation ? "True" : "False");
+      msgInfo("- Use Visibility Information: %s", mPmvsUseVisibilityInformation ? "True" : "False");
+      msgInfo("- Images per cluster: %i", mPmvsImagesPerCluster);
+      msgInfo("- Level: %i", mPmvsLevel);
+      msgInfo("- Cell Size: %i", mPmvsCellSize);
+      msgInfo("- Threshold: %lf", mPmvsThreshold);
+      msgInfo("- Window Size: %i", mPmvsWindowSize);
+      msgInfo("- Minimun Image Number: %i", mPmvsMinimunImageNumber);
+      msgInfo("- Image Original Depth: %s", mPmvsImageOriginalDepth ? "true" : "false");
+
       densifier = std::make_shared<CmvsPmvsDensifier>(mPmvsUseVisibilityInformation,
                                                       mPmvsImagesPerCluster,
                                                       mPmvsLevel,
@@ -126,7 +144,15 @@ bool DensificationCommand::run()
                                                       mPmvsWindowSize,
                                                       mPmvsMinimunImageNumber,
                                                       !mDisableCuda);
-    } else if (mDensificationMethod == "Shading-Aware Multi-View Stereo") {
+    } else if (mDensificationMethod == "SMVS") {
+
+      msgInfo("SMVS Properties:");
+      msgInfo("- Input Image Scale: %i", mSmvsInputImageScale);
+      msgInfo("- Output Depth Scale: %i", mSmvsOutputDepthScale);
+      msgInfo("- Shading Based Optimization: %s", mSmvsShadingBasedOptimization ? "true" : "false");
+      msgInfo("- Semi-global Matching: %s", mSmvsSemiGlobalMatching ? "true" : "false");
+      msgInfo("- Surface Smoothing Factor: %lf", mSmvsSurfaceSmoothingFactor);
+
       densifier = std::make_shared<SmvsDensifier>(mSmvsInputImageScale,
                                                   mSmvsOutputDepthScale,
                                                   mSmvsShadingBasedOptimization,
@@ -155,6 +181,8 @@ bool DensificationCommand::run()
       dense_model.append(QString::number(mSmvsInputImageScale)).append(".ply");
     }
 
+    msgInfo("Dense model write at: %s", dense_model.toStdString().c_str());
+
     if (QFileInfo(dense_model).exists()) {
       mProject->setDenseModel(dense_model);
     } else {
@@ -163,12 +191,12 @@ bool DensificationCommand::run()
 
     mProject->save(project_file);
 
-    
-
     chrono.stop();
 
   } catch (const std::exception& e) {
-    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+
+    printException(e);
+
     r = true;
   }
 

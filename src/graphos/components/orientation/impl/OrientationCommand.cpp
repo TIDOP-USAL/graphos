@@ -799,6 +799,7 @@ bool OrientationCommand::run()
   try{
 
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 
