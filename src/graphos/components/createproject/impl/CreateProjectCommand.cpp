@@ -63,7 +63,9 @@ bool CreateProjectCommand::run()
   try {
 
     QFileInfo file_info(mProjectName.c_str());
+    
     if (file_info.isRelative()) {
+
       file_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
       file_path.append("/graphos/Projects/");
 
@@ -76,16 +78,19 @@ bool CreateProjectCommand::run()
         file_name = base_name = file_info.baseName();
         file_name.append(".xml");
       }
-      project_path = file_path.append(base_name).append("/");
+      project_path = file_path.append(base_name);
       file_path.append(file_name);
+
     } else {
+      
       base_name = file_info.baseName();
       file_path = mProjectName.c_str();
       project_path = file_info.path();
+
     }
 
     QString database_path = project_path;
-    database_path.append(base_name).append(".db");
+    database_path.append("/").append(base_name).append(".db");
 
     std::string s_path = project_path.toStdString();
     QDir dir(project_path);
