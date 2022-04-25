@@ -180,9 +180,11 @@ void CamerasPresenterImp::activeCamera(int id)
 
 void CamerasPresenterImp::save()
 {
-  mModel->save();
-  clear();
-  emit updateCameras();
+  if(mModel->modified()) {
+    mModel->save();
+    clear();
+    emit updateCameras();
+  }
 }
 
 void CamerasPresenterImp::discart()

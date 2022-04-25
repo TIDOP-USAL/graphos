@@ -23,6 +23,7 @@
 
 #include "FeatureMatchingCommand.h"
 
+#include "graphos/core/utils.h"
 #include "graphos/core/features/matching.h"
 #include "graphos/core/project.h"
 #include "graphos/components/featmatch/impl/FeatureMatchingProcess.h"
@@ -61,9 +62,19 @@ FeatureMatchingCommand::FeatureMatchingCommand()
   this->push_back(CreateArgumentDoubleOptional("max_error", 'e', std::string("Maximun error (default = ").append(std::to_string(mMaxError)).append(")"), &mMaxError));
   this->push_back(CreateArgumentDoubleOptional("confidence", 'c', std::string("Confidence (default = ").append(std::to_string(mConfidence)).append(")"), &mConfidence));
   this->push_back(CreateArgumentBooleanOptional("cross_check", 'x', std::string("If true, cross checking is enabled (default = ").append(mCrossCheck ? "true)" : "false)"), &mCrossCheck));
-  this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
   this->push_back(CreateArgumentBooleanOptional("exhaustive_matching", "Force exhaustive matching (default = false)", &mForceExhaustiveMatching));
- 
+
+#ifdef HAVE_CUDA
+  tl::MessageManager::instance().pause();
+  bool cuda_enabled = cudaEnabled(10.0, 3.0);
+  tl::MessageManager::instance().resume();
+  if(cuda_enabled)
+    this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
+  else mDisableCuda = true;
+#else
+  mDisableCuda = true;
+#endif //HAVE_CUDA
+
   this->addExample("featmatch --p 253/253.xml");
 
   this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
@@ -83,10 +94,8 @@ bool FeatureMatchingCommand::run()
 
   try {
 
-    if (!mProjectFile.exists()) {
-      msgError("Project doesn't exist");
-      return 1;
-    }
+    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist")
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
     ProjectImp project;

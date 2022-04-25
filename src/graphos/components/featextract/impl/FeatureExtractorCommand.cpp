@@ -24,6 +24,7 @@
 
 #include "FeatureExtractorCommand.h"
 
+#include "graphos/core/utils.h"
 #include "graphos/core/features/featio.h"
 #include "graphos/core/features/sift.h"
 #include "graphos/core/camera/Camera.h"
@@ -572,7 +573,17 @@ FeatureExtractorCommand::FeatureExtractorCommand()
   this->push_back(CreateArgumentIntegerOptional("SIFT:octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(mOctaveResolution)).append(")"), &mOctaveResolution));
   this->push_back(CreateArgumentDoubleOptional("SIFT:contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(mContrastThreshold)).append(")"), &mContrastThreshold));
   this->push_back(CreateArgumentDoubleOptional("SIFT:edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(mEdgeThreshold)).append(")"), &mEdgeThreshold));
-  this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
+  
+#ifdef HAVE_CUDA
+  tl::MessageManager::instance().pause();
+  bool cuda_enabled = cudaEnabled(10.0, 3.0);
+  tl::MessageManager::instance().resume();
+  if(cuda_enabled)
+    this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
+  else mDisableCuda = true;
+#else
+  mDisableCuda = true;
+#endif //HAVE_CUDA
 
   this->addExample("featextract --p 253/253.xml");
 
@@ -592,10 +603,8 @@ bool FeatureExtractorCommand::run()
 
   try {
 
-    if (!mProjectFile.exists()) {
-      msgError("Project doesn't exist");
-      return 1;
-    }
+    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist")
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 

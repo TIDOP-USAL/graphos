@@ -122,11 +122,7 @@ int main(int argc, char *argv[])
 
       r = app.runCommand();
 
-    } /*else if (status == tl::CommandList::Status::parse_error) {
-    } else if (status == tl::CommandList::Status::show_help) {
-    } else if (status == tl::CommandList::Status::show_licence) {
-    } else if (status == tl::CommandList::Status::show_version) {
-    }*/
+    }
   } else {
     //    TL_TODO("Añadir como opción")
 //#if defined WIN32
