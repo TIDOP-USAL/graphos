@@ -76,13 +76,25 @@ ImageLoaderCommand::ImageLoaderCommand()
     mImage(""),
     mImageList(""),
     mDelete(false),
-    mCamera("")
+    mCameraId(4)
 {
+  mCameraTypes.push_back("Pinhole_1");
+  mCameraTypes.push_back("Pinhole_2");
+  mCameraTypes.push_back("Radial_1");
+  mCameraTypes.push_back("Radial_2");
+  mCameraTypes.push_back("OpenCV_1");
+  mCameraTypes.push_back("OpenCV_Fisheye");
+  mCameraTypes.push_back("OpenCV_2");
+  mCameraTypes.push_back("Radial_Fisheye_1");
+  mCameraTypes.push_back("Radial_Fisheye_2");
+  mCameraTypes.push_back("Radial_3");
+
   this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
   this->push_back(CreateArgumentPathOptional("image", 'i', "Image added or removed (with option [--delete|-d]) from project.", &mImage));
   this->push_back(CreateArgumentPathOptional("image_list", 'l', "List of images added or removed (with option [--delete|-d]) from project.", &mImageList));
   this->push_back(CreateArgumentBooleanOptional("delete", 'd', "Delete an image in project", &mDelete));
-  this->push_back(CreateArgumentStringOptional("camera", 'c', "Camera type", &mCamera));
+  //this->push_back(CreateArgumentStringOptional("camera", 'c', "Camera type", &mCamera));
+  this->push_back(CreateArgumentListStringOptional("camera", 'c', "Camera type", mCameraTypes, &mCameraId));
 
   this->addExample("image_manager --p 253/253.xml -i image001.jpg");
   this->addExample("image_manager --p 253/253.xml -i image001.jpg -d");
@@ -129,6 +141,17 @@ bool ImageLoaderCommand::run()
       }
 
     }
+
+    std::vector<std::string> cameras{"Pinhole 1",
+                                     "Pinhole 2",
+                                     "Radial 1",
+                                     "Radial 2",
+                                     "OpenCV 1",
+                                     "OpenCV Fisheye",
+                                     "OpenCV 2",
+                                     "Radial Fisheye 1",
+                                     "Radial Fisheye 2",
+                                     "Radial 3"};
 
     tl::Chrono chrono("Images loaded");
     chrono.run();
@@ -196,7 +219,7 @@ bool ImageLoaderCommand::run()
             msgInfo("New Camera detected: %s %s", camera_make.c_str(), camera_model.c_str());
 
             camera = Camera(camera_make.c_str(), camera_model.c_str());
-
+            camera.setType(cameras[mCameraId]);
             camera.setWidth(width);
             camera.setHeight(height);
 
@@ -283,6 +306,7 @@ bool ImageLoaderCommand::run()
             camera.setWidth(width);
             camera.setHeight(height);
             camera.setFocal(1.2 * std::max(width, height));
+            camera.setType(cameras[mCameraId]);
             camera_id = project.addCamera(camera);
           } else {
             camera_id = project.camerasCount();

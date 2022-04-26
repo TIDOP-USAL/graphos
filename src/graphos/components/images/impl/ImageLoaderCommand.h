@@ -41,7 +41,6 @@ class ImageLoaderCommand
 public:
 
   ImageLoaderCommand();
-
   ~ImageLoaderCommand() override;
 
 private:
@@ -57,7 +56,8 @@ private:
   tl::Path mImage;
   tl::Path mImageList;
   bool mDelete;
-  std::string mCamera;
+  std::vector<std::string> mCameraTypes;
+  size_t mCameraId;
 };
 
 	
