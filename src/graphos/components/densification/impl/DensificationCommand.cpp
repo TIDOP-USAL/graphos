@@ -127,7 +127,6 @@ bool DensificationCommand::run()
 
       msgInfo("PMVS Properties:");
       msgInfo("- Use Visibility Information: %s", mPmvsUseVisibilityInformation ? "True" : "False");
-      msgInfo("- Use Visibility Information: %s", mPmvsUseVisibilityInformation ? "True" : "False");
       msgInfo("- Images per cluster: %i", mPmvsImagesPerCluster);
       msgInfo("- Level: %i", mPmvsLevel);
       msgInfo("- Cell Size: %i", mPmvsCellSize);
@@ -193,7 +192,7 @@ bool DensificationCommand::run()
 
     chrono.stop();
 
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
 
     printException(e);
 

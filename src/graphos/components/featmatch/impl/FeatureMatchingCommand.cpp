@@ -100,13 +100,16 @@ bool FeatureMatchingCommand::run()
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
     ProjectImp project;
     project.load(project_file);
-
     QString database_file = project.database();
-    colmap::Database database(database_file.toStdString());
-    database.ClearMatches();
-    database.ClearTwoViewGeometries();
-    database.Close();
-    project.removeMatchesPair();
+
+    {
+      colmap::Database database(database_file.toStdString());
+      database.ClearMatches();
+      database.ClearTwoViewGeometries();
+      database.Close();
+      project.removeMatchesPair();
+    }
+
 
     std::shared_ptr<FeatureMatching> feature_matching_properties = std::make_shared<FeatureMatchingProperties>();
     feature_matching_properties->setRatio(mRatio);
@@ -133,23 +136,27 @@ bool FeatureMatchingCommand::run()
 
     featmatching_process.run();
 
+    {
+      colmap::Database database(database_file.toStdString());
+      std::vector<colmap::Image> db_images = database.ReadAllImages();
+      colmap::image_t image_id_l = 0;
+      colmap::image_t image_id_r = 0;
+      for (size_t i = 0; i < db_images.size(); i++) {
+        image_id_l = db_images[i].ImageId();
+        for (size_t j = 0; j < i; j++) {
+          image_id_r = db_images[j].ImageId();
 
-    std::vector<colmap::Image> db_images = database.ReadAllImages();
-    colmap::image_t image_id_l = 0;
-    colmap::image_t image_id_r = 0;
-    for (size_t i = 0; i < db_images.size(); i++) {
-      image_id_l = db_images[i].ImageId();
-      for (size_t j = 0; j < i; j++) {
-        image_id_r = db_images[j].ImageId();
-
-        colmap::FeatureMatches matches = database.ReadMatches(image_id_l, image_id_r);
-        if (matches.size() > 0) {
-          QString path_left = QFileInfo(QString::fromStdString(db_images[i].Name())).baseName();
-          QString path_right = QFileInfo(QString::fromStdString(db_images[j].Name())).baseName();
-          project.addMatchesPair(path_left, path_right);
+          colmap::FeatureMatches matches = database.ReadMatches(image_id_l, image_id_r);
+          if (matches.size() > 0) {
+            QString path_left = QFileInfo(QString::fromStdString(db_images[i].Name())).baseName();
+            QString path_right = QFileInfo(QString::fromStdString(db_images[j].Name())).baseName();
+            project.addMatchesPair(path_left, path_right);
+          }
         }
       }
+      database.Close();
     }
+    
 
     project.setFeatureMatching(feature_matching_properties);
     writeMatchPairs(&project);
