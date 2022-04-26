@@ -21,55 +21,40 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_GROUND_CONTROL_POINT_H
-#define GRAPHOS_CORE_GROUND_CONTROL_POINT_H
+#ifndef GRAPHOS_GEOREFERENCE_COMMAND_H
+#define GRAPHOS_GEOREFERENCE_COMMAND_H
 
+#include "graphos/core/command.h"
+#include "graphos/core/project.h"
 
-#include "graphos/graphos_global.h"
-
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
-
-#include <map>
 
 namespace graphos
 {
 	
-class GroundControlPoint
+class GeoreferenceCommand
+  : public Command
 {
 
 public:
 
-  GroundControlPoint();
-  ~GroundControlPoint();
+  GeoreferenceCommand();
 
-  std::string name() const;
-  void setName(const std::string &name);
-  tl::Point3D point() const;
-  void setPoint(const tl::Point3D &point);
-  double x() const;
-  void setX(double x);
-  double y() const;
-  void setY(double y);
-  double z() const;
-  void setZ(double z);
-  void addImagePoint(const std::string &image, const tl::PointD &point);
-  tl::PointD imagePoint(const std::string &image);
-  bool existImagePoint(const std::string &image);
+  ~GeoreferenceCommand() override;
 
-protected:
+private:
 
-  std::string mName;
-  tl::Point3D mCoordinates;
-  std::map<std::string, tl::PointD> mPoints;
+
+// Command
+
+  bool run() override;
+
+private:
+
+  tl::Path mProjectFile;
+  tl::Path mGCP;
 };
 
-
-///TODO: Crear una factoria de clases para lectura/escritura de 
-//       diferentes formatos de puntos de control
-std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile);
-
-
+	
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_GROUND_CONTROL_POINT_H
+#endif // GRAPHOS_GEOREFERENCE_COMMAND_H

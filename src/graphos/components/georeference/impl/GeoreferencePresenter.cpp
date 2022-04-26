@@ -89,8 +89,6 @@ std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
   connect(dynamic_cast<GeoreferenceProcess *>(georeference_process.get()), SIGNAL(georeferenceFinished()), 
           this, SLOT(onGeoreferenceFinished()));
 
-  //mMultiProcess->appendProcess(georeference_process);
-
   if (progressHandler()){
     progressHandler()->setRange(0, 0);
     progressHandler()->setTitle("Computing Georeference...");
@@ -109,15 +107,15 @@ void GeoreferencePresenterImp::cancel()
 
 void GeoreferencePresenterImp::onGeoreferenceFinished()
 {
-  QString ori_relative_path = mModel->projectPath() + "/ori/absolute/";
-  QString sparse_model = ori_relative_path + "/sparse.ply";
+  QString ori_absolute_path = mModel->projectPath() + "/ori/absolute/";
+  QString sparse_model = ori_absolute_path + "/sparse.ply";
   if (QFileInfo::exists(sparse_model)){
-    mModel->setReconstructionPath(ori_relative_path);
-    mModel->setSparseModel(ori_relative_path + "/sparse.ply");
-    mModel->setOffset(ori_relative_path + "/offset.txt");
+    mModel->setReconstructionPath(ori_absolute_path);
+    mModel->setSparseModel(sparse_model);
+    mModel->setOffset(ori_absolute_path + "/offset.txt");
 
     ReadCameraPoses readPhotoOrientations;
-    readPhotoOrientations.open(ori_relative_path);
+    readPhotoOrientations.open(ori_absolute_path);
     for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
       CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
       if (photoOrientation.position() != tl::Point3D()) {

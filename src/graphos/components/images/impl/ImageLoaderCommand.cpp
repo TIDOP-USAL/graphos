@@ -407,8 +407,10 @@ bool ImageLoaderCommand::run()
 
     project.save(project_file);
 
-  } catch (const std::exception& e) {
-    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+  } catch (const std::exception &e) {
+
+    tl::printException(e);
+
     r = true;
   }
 

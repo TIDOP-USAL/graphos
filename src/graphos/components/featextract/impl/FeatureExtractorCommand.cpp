@@ -649,6 +649,7 @@ bool FeatureExtractorCommand::run()
 
     Feature_extractor_process.run();
 
+    project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
     project.save(project_file);
 
   } catch (const std::exception &e) {
