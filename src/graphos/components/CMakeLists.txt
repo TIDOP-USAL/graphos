@@ -123,6 +123,7 @@ set(GRAPHOS_SOURCES
     georeference/impl/GeoreferenceView.cpp
     georeference/impl/GeoreferencePresenter.cpp
     georeference/impl/GeoreferenceProcess.cpp
+    georeference/impl/GeoreferenceCommand.cpp
     import/cameras/ImportCamerasComponent.cpp
     import/cameras/impl/ImportCamerasModel.cpp
     import/cameras/impl/ImportCamerasView.cpp
@@ -265,6 +266,7 @@ set(GRAPHOS_HEADERS
     georeference/impl/GeoreferencePresenter.h
     georeference/impl/GeoreferenceView.h
     georeference/impl/GeoreferenceProcess.h
+    georeference/impl/GeoreferenceCommand.h
     import/cameras/ImportCamerasComponent.h
     import/cameras/ImportCamerasModel.h
     import/cameras/ImportCamerasView.h

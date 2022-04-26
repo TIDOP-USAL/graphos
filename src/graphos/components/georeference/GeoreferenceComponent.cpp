@@ -26,6 +26,7 @@
 #include "graphos/components/georeference/impl/GeoreferenceModel.h"
 #include "graphos/components/georeference/impl/GeoreferenceView.h"
 #include "graphos/components/georeference/impl/GeoreferencePresenter.h"
+#include "graphos/components/georeference/impl/GeoreferenceCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -71,6 +72,7 @@ void GeoreferenceComponent::createPresenter()
 
 void GeoreferenceComponent::createCommand()
 {
+  setCommand(std::make_shared<GeoreferenceCommand>());
 }
 
 void GeoreferenceComponent::update()

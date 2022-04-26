@@ -29,6 +29,8 @@
 namespace graphos
 {
 	
+class Project;
+
 class FeatureMatchingCommand
   : public Command
 {
@@ -37,6 +39,10 @@ public:
 
   FeatureMatchingCommand();
   ~FeatureMatchingCommand() override;
+
+private:
+
+  void writeMatchPairs(Project *project);
 
 // Command
 

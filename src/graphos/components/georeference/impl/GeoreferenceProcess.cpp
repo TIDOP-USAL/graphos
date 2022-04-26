@@ -60,12 +60,9 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
 {
   try {
 
-    msgInfo("Starting Georeference");
-
     tl::Chrono chrono("Georeference process finished");
     chrono.run();
 
-    //std::map<std::string, Eigen::Vector3d> triangulate_points;
     std::vector<Eigen::Vector3d> src;
     std::vector<Eigen::Vector3d> dst;
     std::vector<std::string> gcp_name;

@@ -23,6 +23,10 @@
 
 #include "graphos/core/orientation/gcp.h"
 
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+
 namespace graphos
 {
 
@@ -100,6 +104,95 @@ bool GroundControlPoint::existImagePoint(const std::string &image)
   auto it = mPoints.find(image);
   
   return (it != mPoints.end());
+}
+
+
+
+std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile)
+{
+  std::vector<GroundControlPoint> ground_control_points;
+
+  QString gcp_file = QString::fromStdString(gcpFile.toString());
+  QFile file(gcp_file);
+  if(file.open(QFile::ReadOnly)) {
+
+    QXmlStreamReader stream;
+    stream.setDevice(&file);
+
+    if(stream.readNextStartElement()) {
+      if(stream.name() == "Graphos") {
+        while(stream.readNextStartElement()) {
+          if(stream.name() == "GroundControlPoints") {
+            while(stream.readNextStartElement()) {
+              if(stream.name() == "Crs") {
+                ///TODO: Ahora no lo estoy usando
+                QString crs = stream.readElementText();
+              } else if(stream.name() == "GroundControlPoint") {
+
+                GroundControlPoint gcp;
+                tl::Point3D point;
+
+                while(stream.readNextStartElement()) {
+                  if(stream.name() == "Name") {
+                    gcp.setName(stream.readElementText().toStdString());
+                  } else if(stream.name() == "x") {
+                    point.x = stream.readElementText().toDouble();
+                  } else if(stream.name() == "y") {
+                    point.y = stream.readElementText().toDouble();
+                  } else if(stream.name() == "z") {
+                    point.z = stream.readElementText().toDouble();
+                  } else if(stream.name() == "error") {
+                    QString error = stream.readElementText();
+                  } else if(stream.name() == "ImagePoints") {
+
+                    while(stream.readNextStartElement()) {
+
+                      std::string image_id;
+                      tl::PointD point_2d;
+
+                      if(stream.name() == "ImagePoint") {
+
+                        while(stream.readNextStartElement()) {
+                          if(stream.name() == "Image") {
+                            image_id = stream.readElementText().toStdString();
+                          } else if(stream.name() == "x") {
+                            point_2d.x = stream.readElementText().toDouble();
+                          } else if(stream.name() == "y") {
+                            point_2d.y = stream.readElementText().toDouble();
+                          } else {
+                            stream.skipCurrentElement();
+                          }
+                        }
+                      } else
+                        stream.skipCurrentElement();
+
+                      gcp.addImagePoint(image_id, point_2d);
+
+                    }
+
+                  } else {
+                    stream.skipCurrentElement();
+                  }
+                }
+
+                gcp.setPoint(point);
+                ground_control_points.push_back(gcp);
+
+              } else
+                stream.skipCurrentElement();
+            }
+          } else
+            stream.skipCurrentElement();
+        }
+      } else {
+        stream.raiseError(QObject::tr("Incorrect project file"));
+      }
+
+      file.close();
+    }
+  }
+
+  return ground_control_points;
 }
 
 }

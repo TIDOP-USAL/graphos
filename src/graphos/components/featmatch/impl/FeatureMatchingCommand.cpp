@@ -152,6 +152,7 @@ bool FeatureMatchingCommand::run()
     }
 
     project.setFeatureMatching(feature_matching_properties);
+    writeMatchPairs(&project);
     project.save(project_file);
 
   } catch (const std::exception &e) {
@@ -162,6 +163,28 @@ bool FeatureMatchingCommand::run()
   }
 
   return r;
+}
+
+void FeatureMatchingCommand::writeMatchPairs(Project *project)
+{
+  QString database_file = project->database();
+  colmap::Database database(database_file.toStdString());
+  std::vector<colmap::Image> db_images = database.ReadAllImages();
+  colmap::image_t image_id_l = 0;
+  colmap::image_t image_id_r = 0;
+  for(size_t i = 0; i < db_images.size(); i++) {
+    image_id_l = db_images[i].ImageId();
+    for(size_t j = 0; j < i; j++) {
+      image_id_r = db_images[j].ImageId();
+
+      colmap::FeatureMatches matches = database.ReadMatches(image_id_l, image_id_r);
+      if(matches.size() > 0) {
+        QString path_left = QFileInfo(db_images[i].Name().c_str()).baseName();
+        QString path_right = QFileInfo(db_images[j].Name().c_str()).baseName();
+        project->addMatchesPair(path_left, path_right);
+      }
+    }
+  }
 }
 
 } // namespace graphos
