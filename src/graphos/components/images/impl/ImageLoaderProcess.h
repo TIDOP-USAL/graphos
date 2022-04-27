@@ -74,7 +74,7 @@ private:
   int loadCamera(tl::ImageReader *imageReader);
   double parseFocal(const std::string &focal, double def);
 
-  // tl::TaskBase interface
+// tl::TaskBase interface
 
 protected:
 

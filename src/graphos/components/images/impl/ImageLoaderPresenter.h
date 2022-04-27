@@ -59,7 +59,7 @@ protected slots:
 
 // ProcessPresenter interface
   
-private slots:
+private:
 
   void onError(tl::TaskErrorEvent *event) override;
   void onFinished(tl::TaskFinalizedEvent *event) override;

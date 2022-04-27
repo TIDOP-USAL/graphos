@@ -53,7 +53,7 @@ public:
   ProcessPresenter();
   ~ProcessPresenter() override;
 
-protected slots:
+protected:
 
   virtual void onError(tl::TaskErrorEvent *event);
   virtual void onFinished(tl::TaskFinalizedEvent *event);

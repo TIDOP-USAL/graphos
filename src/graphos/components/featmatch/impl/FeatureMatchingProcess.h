@@ -29,9 +29,6 @@
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
-
-
-
 namespace colmap
 {
 struct ExhaustiveMatchingOptions;
