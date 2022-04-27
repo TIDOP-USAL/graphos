@@ -35,8 +35,11 @@ namespace graphos
 {
 	
 class ImageLoaderCommand
-  : public Command
+  : public QObject, 
+    public Command
 {
+
+  Q_OBJECT
 
 public:
 
