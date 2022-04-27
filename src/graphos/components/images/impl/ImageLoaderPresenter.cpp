@@ -119,8 +119,6 @@ void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Images loaded"));
   }
-
-  //msgInfo("Images loaded");
 }
 
 std::unique_ptr<tl::Task> ImageLoaderPresenterImp::createProcess()
@@ -141,7 +139,7 @@ std::unique_ptr<tl::Task> ImageLoaderPresenterImp::createProcess()
     mCameras.push_back(it->second);
   }
 
-  image_loader_process = std::make_unique<LoadImagesProcess>(&mImages, &mCameras, mModel->projectCRS());
+  image_loader_process = std::make_unique<LoadImagesProcess>(&mImages, &mCameras, "OpenCV 1", mModel->projectCRS());
 
   connect(dynamic_cast<LoadImagesProcess *>(image_loader_process.get()),
           &LoadImagesProcess::imageAdded, 

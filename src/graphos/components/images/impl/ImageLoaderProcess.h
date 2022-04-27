@@ -59,6 +59,7 @@ public:
 
   LoadImagesProcess(std::vector<Image> *images, 
                     std::vector<Camera> *cameras,
+                    const std::string &cameraType,
                     const QString &epsg = QString());
   ~LoadImagesProcess() override;
 
@@ -87,8 +88,8 @@ protected:
   QString mEPSG;
   std::shared_ptr<tl::geospatial::Crs> mCrsIn;
   std::shared_ptr<tl::geospatial::Crs> mCrsOut;
-  //DatabaseCameras *mDatabaseCameras;
   QString mDatabaseCamerasPath;
+  std::string mCameraType;
 };
 
 } // namespace graphos

@@ -45,12 +45,13 @@ namespace graphos
 
 LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images, 
                                      std::vector<Camera> *cameras,
+                                     const std::string &cameraType,
                                      const QString &epsg)
   : tl::TaskBase(), 
     mImages(images),
     mCameras(cameras),
-    mEPSG(epsg)/*,
-    mDatabaseCameras(nullptr)*/
+    mCameraType(cameraType),
+    mEPSG(epsg)
 {
 #ifdef _DEBUG
   mDatabaseCamerasPath = QString(GRAPHOS_SOURCE_PATH).append("/res");
@@ -58,15 +59,11 @@ LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images,
   mDatabaseCamerasPath = qApp->applicationDirPath();
 #endif
   mDatabaseCamerasPath.append("/cameras.db");
-  //mDatabaseCameras = new DatabaseCameras(database_cameras_path);
 }
 
 LoadImagesProcess::~LoadImagesProcess()
 {
-  //if (mDatabaseCameras) {
-  //  delete mDatabaseCameras;
-  //  mDatabaseCameras = nullptr;
-  //}
+
 }
 
 bool LoadImagesProcess::existCamera(const QString &make, const QString &model) const
@@ -242,7 +239,7 @@ int LoadImagesProcess::loadCamera(tl::ImageReader *imageReader)
   Camera camera(camera_make, camera_model);
   camera.setWidth(width);
   camera.setHeight(height);
-
+  camera.setType(mCameraType);
   /// Extract sensor size
   double sensor_width_mm = -1.;
   DatabaseCameras databaseCameras(mDatabaseCamerasPath);
