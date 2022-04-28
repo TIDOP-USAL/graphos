@@ -76,6 +76,7 @@ set(GRAPHOS_SOURCES
     featextract/impl/FeatureExtractorModel.cpp
     featextract/impl/FeatureExtractorPresenter.cpp
     featextract/impl/FeatureExtractorCommand.cpp
+    featextract/impl/FeatureExtractorProcess.cpp
     featmatch/FeatureMatchingComponent.cpp
     featmatch/impl/FeatureMatchingModel.cpp
     featmatch/impl/FeatureMatchingView.cpp
@@ -193,6 +194,7 @@ set(GRAPHOS_HEADERS
     featextract/impl/FeatureExtractorModel.h
     featextract/impl/FeatureExtractorPresenter.h
     featextract/impl/FeatureExtractorCommand.h
+    featextract/impl/FeatureExtractorProcess.h
     featmatch/FeatureMatchingComponent.h
     featmatch/FeatureMatchingModel.h
     featmatch/FeatureMatchingView.h

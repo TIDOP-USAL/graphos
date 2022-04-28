@@ -31,7 +31,7 @@
 #include "graphos/core/process/Progress.h"
 #include "graphos/widgets/SiftWidget.h"
 #include "graphos/core/camera/Camera.h"
-#include "graphos/components/featextract/impl/FeatureExtractorCommand.h"
+#include "graphos/components/featextract/impl/FeatureExtractorProcess.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/task.h>

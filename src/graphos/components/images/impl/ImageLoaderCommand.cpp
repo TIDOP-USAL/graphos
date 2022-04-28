@@ -117,7 +117,22 @@ bool ImageLoaderCommand::run()
     }
 
     if (mDelete) {
-      /// TODO: Borrar las imágenes
+      ///// TODO: Borrar las imágenes
+      ////std::vector<std::string> _images(image_list.size());
+      //for(size_t i = 0; i < image_list.size(); i++) {
+      //  //_images[i] = project.findImageByName(image_list[i]).path().toStdString();
+      //  project.removeImage(project.imageId(image_list[i]));
+      //}
+      //QString reconstruction_path = mProject->reconstructionPath();
+      //if(!reconstruction_path.isEmpty())
+      //  colmapRemoveOrientations(_images, reconstruction_path.toStdString());
+
+      //for(const auto &imageName : imageNames) {
+      //  mFeaturesModel->removeFeatures(imageName);
+      //  mMatchesModel->removeMatchesPair(imageName);
+      //  mView->deleteImage(imageName);
+      //  msgInfo("Delete image %s", imageName.toStdString().c_str());
+      //}
     } else {
 
       std::vector<Image> images;

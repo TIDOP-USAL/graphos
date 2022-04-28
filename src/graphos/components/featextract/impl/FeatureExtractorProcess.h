@@ -21,48 +21,60 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_COMMAND_H
-#define GRAPHOS_FEATURE_EXTRACTOR_COMMAND_H
-
-#include "graphos/core/command.h"
+#ifndef GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
+#define GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
 
 #include <QObject>
+
+#include <tidop/core/task.h>
+#include <tidop/core/progress.h>
+
+#include "graphos/core/features/features.h"
+#include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-class FeatureExtractorCommand
+class FeatureExtractorProcess
   : public QObject,
-    public Command
+    public tl::TaskBase
 {
 
   Q_OBJECT
 
 public:
 
-  FeatureExtractorCommand();
-  ~FeatureExtractorCommand() override;
+  FeatureExtractorProcess(const std::vector<Image> &images,
+                          const std::map<int, Camera> &cameras,
+                          const QString &database,
+                          int maxImageSize,
+                          bool cuda,
+                          const std::shared_ptr<FeatureExtractor> &featureExtractor);
 
-private:
+  ~FeatureExtractorProcess() override = default;
 
+signals:
 
-// Command
+  void featuresExtracted(QString, QString);
 
-  bool run() override;
+// tl::TaskBase interface
 
-private:
+protected:
 
-  tl::Path mProjectFile;
+  void execute(tl::Progress *progressBar) override;
+
+protected:
+
+  std::vector<Image> mImages;
+  std::map<int, Camera> mCameras;
+  QString mDatabase;
   int mMaxImageSize;
-  int mMaxFeaturesNumber;
-  int mOctaveResolution;
-  double mContrastThreshold;
-  double mEdgeThreshold;
-  bool mDisableCuda;
+  bool bUseCuda;
+  std::shared_ptr<FeatureExtractor> mFeatureExtractor;
 
 };
 
-	
 } // namespace graphos
 
-#endif // GRAPHOS_FEATURE_EXTRACTOR_COMMAND_H
+#endif // GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
