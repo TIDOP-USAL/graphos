@@ -42,8 +42,8 @@ public:
 
 signals:
 
-  void orientationFinished();
-  void orientationDeleted();
+  void orientation_finished();
+  void orientation_deleted();
 };
 
 } // namespace graphos

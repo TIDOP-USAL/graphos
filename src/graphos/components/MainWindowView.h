@@ -116,14 +116,18 @@ public:
   void setProjectTitle(const QString &title);
 
   void setFlag(Flag flag, bool value);
-  void addImage(const QString &image);
-  void addImages(const QStringList &images);
-  void setActiveImage(const QString &image);
-  void setActiveImages(const QStringList &images);
-  void addFeatures(const QString &features);
-  void deleteFeatures(const QString &features);
-  void addMatches(const QString &imageLeft);
-  void deleteMatches(const QString &imageLeft);
+  void addImage(const QString &image, size_t imageId);
+  void setActiveImage(size_t imageId);
+  void setActiveImages(const std::vector<size_t> &imageIds);
+  void addFeatures(size_t imageId);
+  void deleteFeatures(size_t imageId);
+  void addMatches(size_t imageId);
+  void deleteMatches(size_t imageId);
+
+  // Por refactorizar ....
+  //void addImages(const QStringList &images);
+  
+  
   void setSparseModel(const QString &sparseModel);
   void deleteSparseModel();
   void setDenseModel(const QString &sparseModel);
@@ -169,7 +173,7 @@ public slots:
    * \brief Elimina una imagen
    * \param[in] file
    */
-  void deleteImage(const QString &file);
+  void deleteImages(const std::vector<size_t> &imageIds);
 
 signals:
 
@@ -206,9 +210,9 @@ signals:
 
   void openCamerasDialog();
   //void openGeoreferenceDialog();
-  void openKeypointsViewer(QString);
+  void openKeypointsViewer(size_t);
   //void openKeypointsViewerFromImage(QString);
-  void openMatchesViewer(QString);
+  void openMatchesViewer(size_t);
   //void openMatchesViewerFromImages(QString,QString);
   //void openMultiviewMatchingAssessment();
   //void openSettings();
@@ -218,13 +222,16 @@ signals:
 
   void openHelpDialog();
   void openAboutDialog();
+  
+  void selectImage(size_t);
+  void selectImages(std::vector<size_t>);
+  void delete_images(std::vector<size_t>);
+  void openImage(size_t);
 
-  /* Panel de vistas en miniatura */
-
-  void openImage(QString);
-  void selectImage(QString);
-  void selectImages(QStringList);
-  void deleteImages(QStringList);
+  /// Sin refactorizar
+  
+  
+  
   void selectFeatures(QString);
   void selectDetector(QString);
   void selectDescriptor(QString);

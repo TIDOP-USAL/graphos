@@ -28,7 +28,6 @@
 #include <tidop/core/messages.h>
 
 #include <colmap/base/database.h>
-//#include <colmap/base/camera_models.h>
 
 #include <QXmlStreamReader>
 #include <QFile>
@@ -51,6 +50,11 @@ CamerasModelImp::CamerasModelImp(Project *project,
   init();
 }
 
+const std::map<int, Camera> &CamerasModelImp::cameras() const
+{
+  return mProject->cameras();
+}
+
 int CamerasModelImp::addCamera(const Camera &camera)
 {
   return mProject->addCamera(camera);
@@ -65,15 +69,22 @@ int CamerasModelImp::cameraID(const QString &make,
                               const QString &model) const
 {
   int id_camera = 0;
-  for (auto it = begin(); it != end(); it++){
-    QString camera_make = it->second.make().c_str();
-    QString camera_model = it->second.model().c_str();
+
+  QString camera_make;
+  QString camera_model;
+
+  for (const auto &camera : mProject->cameras()){
+
+    camera_make.fromStdString(camera.second.make());
+    camera_model.fromStdString(camera.second.model());
+
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
-      id_camera = it->first;
+      id_camera = camera.first;
       break;
     }
   }
+
   return id_camera;
 }
 
@@ -95,7 +106,7 @@ Camera CamerasModelImp::camera(int id) const
 }
 
 Camera CamerasModelImp::camera(const QString &make,
-                                   const QString &model) const
+                               const QString &model) const
 {
   int camera_id = cameraID(make, model);
   return camera(camera_id);
@@ -604,34 +615,15 @@ bool CamerasModelImp::removeCamera(const Camera &camera)
 
 QStringList CamerasModelImp::imagesFromCamera(int id) const
 {
-  QStringList images;
-  for(auto image = mProject->imageBegin(); image != mProject->imageEnd(); image++){
-    if (image->cameraId() == id){
-      images.push_back(image->path());
+  QStringList images_list;
+  auto &images = mProject->images();
+  for(auto image = images.begin(); image != images.end(); image++){
+    if (image->second.cameraId() == id){
+      images_list.push_back(image->second.path());
     }
   }
 
-  return images;
-}
-
-CamerasModel::camera_iterator CamerasModelImp::begin()
-{
-  return mProject->cameraBegin();
-}
-
-CamerasModel::camera_const_iterator CamerasModelImp::begin() const
-{
-  return mProject->cameraBegin();
-}
-
-CamerasModel::camera_iterator CamerasModelImp::end()
-{
-  return mProject->cameraEnd();
-}
-
-CamerasModel::camera_const_iterator CamerasModelImp::end() const
-{
-  return mProject->cameraEnd();
+  return images_list;
 }
 
 void CamerasModelImp::save()

@@ -90,7 +90,6 @@ void OrientationViewImp::update()
 void OrientationViewImp::retranslate()
 {
   this->setWindowTitle(QApplication::translate("OrientationView", "Orientation", nullptr));
-  //mCheckBoxRefinePrincipalPoint->setText(QApplication::translate("OrientationView", "Refine principal point", nullptr));
   mCheckBoxFixCalibration->setText(QApplication::translate("OrientationView", "Fix Calibration", nullptr));
   mCheckBoxFixPoses->setText(QApplication::translate("OrientationView", "Fix Poses", nullptr));
   mCheckBoxAbsoluteOrientation->setText(QApplication::translate("OrientationView", "Absolute Orientation", nullptr));

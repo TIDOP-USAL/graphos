@@ -55,7 +55,7 @@ public:
 
 signals:
 
-  void orientationFinished();
+  void orientation_finished();
 
 // tl::TaskBase interface
 

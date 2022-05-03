@@ -183,7 +183,7 @@ void RelativeOrientationProcess::execute(tl::Progress *progressBar)
 
     chrono.stop();
     
-    emit orientationFinished();
+    emit orientation_finished();
 
     if(progressBar) (*progressBar)();
 

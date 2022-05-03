@@ -25,8 +25,10 @@
 #define GRAPHOS_MATCH_VIEWER_MODEL_INTERFACE_H
 
 #include <memory>
+#include <unordered_map>
 
 #include "graphos/interfaces/mvp.h"
+#include "graphos/core/image.h"
 
 namespace graphos
 {
@@ -52,9 +54,11 @@ public:
   virtual QString viewerLineColor() const = 0;
   virtual int viewerLineWidth() const = 0;
 
-  virtual std::vector<QString> images() const = 0;
-  virtual std::vector<QString> imagePairs(const QString &imageName) const = 0;
-  virtual std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(const QString &imgName1, const QString &imgName2) const = 0;
+  virtual const std::unordered_map<size_t, Image> &images() const = 0;
+  virtual Image image(size_t imageId) const = 0;
+  virtual std::vector<size_t> imagePairs(size_t imageId) const = 0;
+  virtual std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(size_t imageId1,
+                                                                                        size_t imageId2) const = 0;
 
 public slots:
 

@@ -43,6 +43,10 @@ public:
   CreateProjectComponent(Application *application);
   ~CreateProjectComponent();
 
+private:
+
+  void init();
+
 private slots:
 
   void onProjectCreated();
@@ -52,7 +56,7 @@ signals:
   /*!
    * \brief Signal emitted when a new project is created
    */
-  void projectCreated();
+  void project_created();
 
 // ComponentBase
 

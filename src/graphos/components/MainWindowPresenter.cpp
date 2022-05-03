@@ -25,12 +25,9 @@
 
 #include "graphos/components/MainWindowView.h"
 #include "graphos/components/MainWindowModel.h"
-#include "graphos/components/ProjectModel.h"
 #include "graphos/components/utils/TabHandler.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/widgets/StartPageWidget.h"
-#include "graphos/components/FeaturesModel.h"
-#include "graphos/components/MatchesModel.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/utils.h"
@@ -54,16 +51,10 @@ namespace graphos
 
 
 MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
-                                         MainWindowModel *model,
-                                         ProjectModel *projectModel,
-                                         FeaturesModel *featuresModel,
-                                         MatchesModel *matchesModel)
+                                         MainWindowModel *model)
   : Presenter(),
     mView(view),
     mModel(model),
-    mProjectModel(projectModel),
-    mFeaturesModel(featuresModel),
-    mMatchesModel(matchesModel),
     mHelpDialog(nullptr),
     mTabHandler(nullptr),
     mStartPageWidget(nullptr)
@@ -78,82 +69,100 @@ MainWindowPresenter::~MainWindowPresenter()
 
 void MainWindowPresenter::openFromHistory(const QString &file)
 {
-  if (QFileInfo(file).exists()) {
+  try {
 
-    // Se comprueba si hay un proyecto abierto con cambios sin guardar
-    Application &app = Application::instance();
-    AppStatus *app_status = app.status();
+    if (QFileInfo(file).exists()) {
 
-    if(app_status && app_status->isActive(AppStatus::Flag::project_modified)) {
-      int i_ret = QMessageBox(QMessageBox::Information,
-                              tr("Save Changes"),
-                              tr("There are unsaved changes. Do you want to save them?"),
-                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-      if (i_ret == QMessageBox::Yes) {
-        saveProject();
-      } else if (i_ret == QMessageBox::Cancel) {
-        return;
-      }
-    }
+      // Se comprueba si hay un proyecto abierto con cambios sin guardar
+      Application &app = Application::instance();
+      AppStatus *app_status = app.status();
 
-    mProjectModel->clear();
-
-    if (mProjectModel->checkOldVersion(file)){
-      int i_ret = QMessageBox(QMessageBox::Information,
-                              tr("It is loading an old project"),
-                              tr("If you accept, a copy of the old project will be created"),
-                              QMessageBox::Yes|QMessageBox::No).exec();
-      if (i_ret == QMessageBox::Yes) {
-        mProjectModel->oldVersionBackup(file);
-        Application &app = Application::instance(); 
-        app.status()->activeFlag(AppStatus::Flag::project_modified, true);
-      } else if (i_ret == QMessageBox::Cancel) {
-        return;
+      if (app_status && app_status->isActive(AppStatus::Flag::project_modified)) {
+        int i_ret = QMessageBox(QMessageBox::Information,
+                                tr("Save Changes"),
+                                tr("There are unsaved changes. Do you want to save them?"),
+                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+        if (i_ret == QMessageBox::Yes) {
+          saveProject();
+        } else if (i_ret == QMessageBox::Cancel) {
+          return;
+        }
       }
 
+      mModel->clear();
+
+      if (mModel->checkOldVersion(file)) {
+        int i_ret = QMessageBox(QMessageBox::Information,
+                                tr("It is loading an old project"),
+                                tr("If you accept, a copy of the old project will be created"),
+                                QMessageBox::Yes | QMessageBox::No).exec();
+        if (i_ret == QMessageBox::Yes) {
+          mModel->oldVersionBackup(file);
+          Application &app = Application::instance();
+          app.status()->activeFlag(AppStatus::Flag::project_modified, true);
+        } else if (i_ret == QMessageBox::Cancel) {
+          return;
+        }
+
+      }
+
+      mModel->load(file);
+      loadProject();
+
+    } else {
+      QByteArray ba = file.toLocal8Bit();
+      const char *cfile = ba.data();
+      msgWarning("Project file not found: %s", cfile);
     }
 
-    mProjectModel->load(file);
-    loadProject();
-
-  } else {
-    QByteArray ba = file.toLocal8Bit();
-    const char *cfile = ba.data();
-    msgWarning("Project file not found: %s", cfile);
+  } catch (std::exception &e) {
+    tl::printException(e);
   }
 }
 
 void MainWindowPresenter::deleteHistory()
 {
   Application::instance().clearHistory();
-  //mSettingsModel->clearHistory();
   mStartPageWidget->setHistory(QStringList());
   mView->deleteHistory();
 }
 
 void MainWindowPresenter::saveProject()
 {
-  mProjectModel->save();
-  Application &app = Application::instance();
-  app.status()->activeFlag(AppStatus::Flag::project_modified, false);
+  try {
+    
+    mModel->save();
+    
+    Application &app = Application::instance();
+    app.status()->activeFlag(AppStatus::Flag::project_modified, false);
+ 
+  } catch (std::exception &e) {
+    tl::printException(e);
+  }
 }
 
 void MainWindowPresenter::saveProjectAs()
 {
-  QString file = QFileDialog::getSaveFileName(Q_NULLPTR,
-                                              tr("Save project as..."),
-                                              mProjectDefaultPath,
-                                              tr("Graphos Project (*.xml)"));
-  if (file.isEmpty() == false) {
-    mProjectModel->saveAs(file);
-    Application &app = Application::instance();
-    app.status()->activeFlag(AppStatus::Flag::project_modified, false);
+  try {
+
+    QString file = QFileDialog::getSaveFileName(Q_NULLPTR,
+                                                tr("Save project as..."),
+                                                mProjectDefaultPath,
+                                                tr("Graphos Project (*.xml)"));
+    if (file.isEmpty() == false) {
+      mModel->saveAs(file);
+      Application &app = Application::instance();
+      app.status()->activeFlag(AppStatus::Flag::project_modified, false);
+    }
+
+  } catch (std::exception &e) {
+    tl::printException(e);
   }
 }
 
 void MainWindowPresenter::closeProject()
 {
-  if(mProjectModel->checkUnsavedChanges()){
+  if(mModel->checkUnsavedChanges()){
     int i_ret = QMessageBox(QMessageBox::Information,
                             tr("Save Changes"),
                             tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
@@ -165,7 +174,7 @@ void MainWindowPresenter::closeProject()
     }
   }
 
-  mProjectModel->clear();
+  mModel->clear();
 /////TODO:  mModel->finishLog();
   mView->clear();
 
@@ -220,110 +229,120 @@ void MainWindowPresenter::loadProject()
 {
   mView->clear();
 
-  mView->setProjectTitle(mProjectModel->projectName());
+  mView->setProjectTitle(mModel->projectName());
   Application &app = Application::instance();
   app.status()->activeFlag(AppStatus::Flag::project_exists, true);
 
-  QString prjFile = mProjectModel->projectPath();
+  QString project_path = mModel->projectPath();
 
   /// Se añade al historial de proyectos recientes
-  app.addToHistory(prjFile);
-  //mSettingsModel->addToHistory(prjFile);
-  mView->updateHistory(app.history()/*mSettingsModel->history()*/);
-  mStartPageWidget->setHistory(app.history()/*mSettingsModel->history()*/);
+  app.addToHistory(project_path);
+  mView->updateHistory(app.history());
+  mStartPageWidget->setHistory(app.history());
 
-  QString msg = tr("Load project: ").append(prjFile);
+  QString msg = tr("Load project: ").append(project_path);
   mView->setStatusBarMsg(msg);
-  QByteArray ba = prjFile.toLocal8Bit();
+  QByteArray ba = project_path.toLocal8Bit();
   const char *cfile = ba.data();
   msgInfo("Load project: %s", cfile);
 
-  QStringList images;
-  for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
-    images.push_back((*it).path());
-  }
-
-  if (images.size() > 0){
-    mView->addImages(images);
-    Application &app = Application::instance();
+  for (const auto &image : mModel->images()) {
+    mView->addImage(image.second.path(), image.second.id());
     app.status()->activeFlag(AppStatus::Flag::images_added, true);
   }
+  //QStringList images;
+  //for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
+  //  images.push_back((*it).path());
+  //}
 
-  for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
-    this->loadFeatures(it->first);
+  //if (images.size() > 0){
+  //  mView->addImages(images);
+  //  Application &app = Application::instance();
+  //  app.status()->activeFlag(AppStatus::Flag::images_added, true);
+  //}
+
+  for (const auto &feat : mModel->features()) {
+    this->loadFeatures(feat.first);
   }
 
-  this->loadMatches();
+  //for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
+  //  this->loadFeatures(it->first);
+  //}
+
+  this->updateMatches();
   this->loadOrientation();
   this->loadDenseModel();
-  this->loadDTM();
-  this->loadOrtho();
+  //this->loadDTM();
+  //this->loadOrtho();
 }
 
 void MainWindowPresenter::updateProject()
 {
   Application &app = Application::instance();
   AppStatus *app_status = app.status();
-  app_status->activeFlag(AppStatus::Flag::feature_extraction, false);
-  app_status->activeFlag(AppStatus::Flag::feature_matching, false);
-  app_status->activeFlag(AppStatus::Flag::oriented, false);
-  app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
-  app_status->activeFlag(AppStatus::Flag::dense_model, false);
-  app_status->activeFlag(AppStatus::Flag::dtm, false);
-  app_status->activeFlag(AppStatus::Flag::ortho, false);
+  //app_status->activeFlag(AppStatus::Flag::feature_extraction, false);
+  //app_status->activeFlag(AppStatus::Flag::feature_matching, false);
+  //app_status->activeFlag(AppStatus::Flag::oriented, false);
+  //app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
+  //app_status->activeFlag(AppStatus::Flag::dense_model, false);
+  //app_status->activeFlag(AppStatus::Flag::dtm, false);
+  //app_status->activeFlag(AppStatus::Flag::ortho, false);
 
-  this->loadOrtho();
-  this->loadDTM();
+  //this->loadOrtho();
+  //this->loadDTM();
   this->loadDenseModel();
   this->loadOrientation();
-  this->loadMatches(); /// TODO: cambiar a update matches
+  this->updateMatches();
 
-  for (auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++) {
-    QString imageLeft = it->name();
-    bool del_features = true;
-    for (auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++) {
-      if (imageLeft.compare(it->first) == 0) {
-        this->loadFeatures(it->first);
-        del_features = false;
-        break;
-      }
-    }
-    if (del_features) mView->deleteFeatures(imageLeft);
-  }
-
-  for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
-
-  }
-
-  //for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
+  //for (auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++) {
   //  QString imageLeft = it->name();
-  //  std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
-  //  for (auto &imageRight : pairs){
-  //    mView->deleteMatches(imageLeft);
-  //    AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
+  //  bool del_features = true;
+  //  for (auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++) {
+  //    if (imageLeft.compare(it->first) == 0) {
+  //      this->loadFeatures(it->first);
+  //      del_features = false;
+  //      break;
+  //    }
   //  }
+  //  if (del_features) mView->deleteFeatures(imageLeft);
   //}
+
+  //for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
+
+  //}
+
+  ////for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
+  ////  QString imageLeft = it->name();
+  ////  std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
+  ////  for (auto &imageRight : pairs){
+  ////    mView->deleteMatches(imageLeft);
+  ////    AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
+  ////  }
+  ////}
 
 }
 
-void MainWindowPresenter::loadFeatures(const QString &featId)
+void MainWindowPresenter::loadFeatures(size_t imageId)
 {
-  mView->addFeatures(featId);
+  mView->addFeatures(imageId);
   Application &app = Application::instance();
   app.status()->activeFlag(AppStatus::Flag::feature_extraction, true);
 }
 
-void MainWindowPresenter::loadMatches()
+void MainWindowPresenter::updateMatches()
 {
-  for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
-    QString imageLeft = it->name();
-    std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
+  Application &app = Application::instance();
+  
+  app.status()->activeFlag(AppStatus::Flag::feature_matching, false);
+
+  for (const auto &image : mModel->images()){
+    size_t image_left_id = image.first;
+    std::vector<size_t> pairs = mModel->imagePairs(image_left_id);
     if (!pairs.empty()) {
-      mView->addMatches(imageLeft);
-      Application &app = Application::instance();
+      mView->addMatches(image_left_id);
       app.status()->activeFlag(AppStatus::Flag::feature_matching, true);
     } else {
-      mView->deleteMatches(imageLeft);
+      mView->deleteMatches(image_left_id);
     }
   }
 }
@@ -331,43 +350,51 @@ void MainWindowPresenter::loadMatches()
 void MainWindowPresenter::loadOrientation()
 {
   TL_TODO("completar")
-  QString sparse_model = mProjectModel->sparseModel();
+  
+  Application &app = Application::instance();
+  AppStatus *app_status = app.status();
+
+  QString sparse_model = mModel->sparseModel();
+
   if (!sparse_model.isEmpty()){
-    mView->setSparseModel(mProjectModel->sparseModel());
+    mView->setSparseModel(sparse_model);
     TL_TODO("Por ahora lo añado aqui aunque hay que revisarlo")
-    Application &app = Application::instance();
-    AppStatus *app_status = app.status();
+
     app_status->activeFlag(AppStatus::Flag::oriented, true);
-    if (mProjectModel->isAbsoluteOriented()) {
-      app_status->activeFlag(AppStatus::Flag::absolute_oriented, true);
-    }
+    app_status->activeFlag(AppStatus::Flag::absolute_oriented, mModel->isAbsoluteOrientation());
   } else {
     mView->deleteSparseModel();
+    app_status->activeFlag(AppStatus::Flag::oriented, false);
+    app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
   }
 }
 
 void MainWindowPresenter::loadDenseModel()
 {
-  QString dense_model = mProjectModel->denseModel();
+  Application &app = Application::instance();
+
+  QString dense_model = mModel->denseModel();
+
   if (!dense_model.isEmpty()) {
     mView->setDenseModel(dense_model);
-    Application &app = Application::instance();
+    
     app.status()->activeFlag(AppStatus::Flag::dense_model, true);
   } else {
     mView->deleteDenseModel();
+    app.status()->activeFlag(AppStatus::Flag::dense_model, false);
   }
 }
 
 void MainWindowPresenter::loadDTM()
 {
-  QString dtm = mProjectModel->dtm();
-  if (!dtm.isEmpty()) {
-    mView->setDSM(dtm);
-    Application &app = Application::instance();
-    app.status()->activeFlag(AppStatus::Flag::dtm, true);
-  } else {
-    mView->deleteDsm();
-  }
+//  QString dtm = mProjectModel->dtm();
+//  if (!dtm.isEmpty()) {
+//    mView->setDSM(dtm);
+//    Application &app = Application::instance();
+//    app.status()->activeFlag(AppStatus::Flag::dtm, true);
+//  } else {
+//    mView->deleteDsm();
+//  }
 }
 
 void MainWindowPresenter::loadOrtho()
@@ -382,48 +409,58 @@ void MainWindowPresenter::loadOrtho()
   //}
 }
 
-void MainWindowPresenter::openImage(const QString &imageName)
+void MainWindowPresenter::openImage(size_t imageId)
 {
   try {
-    Image image = mModel->findImageByName(imageName);
+
+    const Image &image = mModel->image(imageId);
     mTabHandler->setImage(image.path());
+
   } catch (std::exception &e) {
-    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+    tl::printException(e);
   }
 }
 
-void MainWindowPresenter::activeImage(const QString &imageName)
+void MainWindowPresenter::activeImage(size_t imageId)
 {
   try {
-    Image image = mModel->findImageByName(imageName);
+
+    const Image &image = mModel->image(imageId);
     std::list<std::pair<QString, QString>> properties = mModel->exif(image.path());
     mView->setProperties(properties);
-    mView->setActiveImage(imageName);
+    mView->setActiveImage(imageId);
+
   } catch (std::exception &e) {
-    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+    tl::printException(e);
   }
 }
 
-void MainWindowPresenter::activeImages(const QStringList &imageNames)
+void MainWindowPresenter::activeImages(const std::vector<size_t> &imageIds)
 {
-  mView->setActiveImages(imageNames);
+  mView->setActiveImages(imageIds);
 }
 
-void MainWindowPresenter::deleteImages(const QStringList &imageNames)
+void MainWindowPresenter::deleteImages(const std::vector<size_t> &imageIds)
 {
-  mModel->removeImages(imageNames);
+  try {
 
-  for (const auto &imageName : imageNames){
-    mFeaturesModel->removeFeatures(imageName);
-    mMatchesModel->removeMatchesPair(imageName);
-    mView->deleteImage(imageName);
-    msgInfo("Delete image %s", imageName.toStdString().c_str());
+    mModel->deleteImages(imageIds);
+    mView->deleteImages(imageIds);
+    //for (const auto &imageName : imageNames){
+    //  mFeaturesModel->removeFeatures(imageName);
+    //  mMatchesModel->removeMatchesPair(imageName);
+    //  mView->deleteImage(imageName);
+    //  msgInfo("Delete image %s", imageName.toStdString().c_str());
+    //}
+    
+    Application &app = Application::instance();
+    AppStatus *app_status = app.status();
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::images_added, mModel->images().size() != 0);
+
+  } catch (std::exception &e) {
+    tl::printException(e);
   }
-
-  Application &app = Application::instance();
-  AppStatus *app_status = app.status();
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::images_added, mModel->imageBegin() != mModel->imageEnd());
 }
 
 //void MainWindowPresenter::deleteImage(const QString &imageName)
@@ -457,13 +494,14 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
     
     // Load Cameras
     if (loadCameras) {
-      for (auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++) {
+      for (const auto &image : mModel->images()) {
+        size_t image_id = image.first;
         //QFileInfo(image->path()).fileName();
-        QString name = image->name();
+        QString name = image.second.name();
         //QString file_name = QFileInfo(image->path()).fileName();
-        if (mModel->isPhotoOriented(name)) {
+        if (mModel->isPhotoOriented(image_id)) {
 
-          CameraPose photoOrientation = mModel->cameraPose(name);
+          CameraPose photoOrientation = mModel->cameraPose(image_id);
 
           std::array<double, 3> position;
           position[0] = photoOrientation.position().x;
@@ -503,15 +541,15 @@ void MainWindowPresenter::openDtm()
 
 void MainWindowPresenter::deleteFeatures()
 {
-  TL_TODO("completar")
-
-  mFeaturesModel->clear();
+//  TL_TODO("completar")
+//
+//  mFeaturesModel->clear();
 }
 
 void MainWindowPresenter::deleteMatches()
 {
-  TL_TODO("completar")
-  mMatchesModel->clear();
+//  TL_TODO("completar")
+//  mMatchesModel->clear();
 }
 
 //void MainWindowPresenter::processFinished()
@@ -541,12 +579,20 @@ void MainWindowPresenter::loadingImages(bool loading)
   app.status()->activeFlag(AppStatus::Flag::loading_images, loading);
 }
 
-void MainWindowPresenter::loadImage(const QString &image)
+/// Refactorizado
+void MainWindowPresenter::loadImage(size_t imageId)
 {
-  mView->addImage(image);
+  try {
 
-  Application &app = Application::instance();
-  app.status()->activeFlag(AppStatus::Flag::images_added, true);
+    const Image &image = mModel->image(imageId);
+    mView->addImage(image.path(), image.id());
+
+    Application &app = Application::instance();
+    app.status()->activeFlag(AppStatus::Flag::images_added, true);
+
+  } catch (std::exception &e) {
+    tl::printException(e);
+  }
 }
 
 void MainWindowPresenter::onProjectModified()
@@ -624,10 +670,10 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Panel de vistas en miniatura */
 
-  connect(mView, SIGNAL(openImage(QString)),          this, SLOT(openImage(QString)));
-  connect(mView, SIGNAL(selectImage(QString)),        this, SLOT(activeImage(QString)));
-  connect(mView, SIGNAL(selectImages(QStringList)),   this, SLOT(activeImages(QStringList)));
-  connect(mView, SIGNAL(deleteImages(QStringList)),   this, SLOT(deleteImages(QStringList)));
+  connect(mView, &MainWindowView::openImage,          this, &MainWindowPresenter::openImage);
+  connect(mView, SIGNAL(selectImage(size_t)),        this, SLOT(activeImage(size_t)));
+  connect(mView, SIGNAL(selectImages(std::vector<size_t>)),   this, SLOT(activeImages(std::vector<size_t>)));
+  connect(mView, SIGNAL(delete_images(std::vector<size_t>)),   this, SLOT(deleteImages(std::vector<size_t>)));
 
   /* Visor de imagenes */
 

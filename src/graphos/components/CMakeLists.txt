@@ -48,7 +48,7 @@ project(graphos LANGUAGES CXX)
 set(GRAPHOS_SOURCES
     main.cpp
     ComponentsManager.cpp
-    ProjectModel.cpp
+    #ProjectModel.cpp
     MainWindowModel.cpp
     MainWindowPresenter.cpp
     MainWindowView.cpp
@@ -56,8 +56,8 @@ set(GRAPHOS_SOURCES
     settings/impl/SettingsModel.cpp
     settings/impl/SettingsView.cpp
     settings/impl/SettingsPresenter.cpp
-    FeaturesModel.cpp
-    MatchesModel.cpp
+    #FeaturesModel.cpp
+    #MatchesModel.cpp
     createproject/CreateProjectComponent.cpp
     createproject/impl/CreateProjectModel.cpp
     createproject/impl/CreateProjectView.cpp
@@ -110,34 +110,34 @@ set(GRAPHOS_SOURCES
     matchviewer/impl/MatchViewerModel.cpp
     matchviewer/impl/MatchViewerView.cpp
     matchviewer/impl/MatchViewerPresenter.cpp
-    export/orientations/ExportOrientationsComponent.cpp
-    export/orientations/impl/ExportOrientationsModel.cpp
-    export/orientations/impl/ExportOrientationsView.cpp
-    export/orientations/impl/ExportOrientationsPresenter.cpp
-    export/densemodel/ExportPointCloudComponent.cpp
-    export/densemodel/impl/ExportPointCloudModel.cpp
-    export/densemodel/impl/ExportPointCloudView.cpp
-    export/densemodel/impl/ExportPointCloudPresenter.cpp
-    georeference/GeoreferenceComponent.cpp
-    georeference/impl/GeoreferenceModel.cpp
-    georeference/impl/GeoreferenceView.cpp
-    georeference/impl/GeoreferencePresenter.cpp
-    georeference/impl/GeoreferenceProcess.cpp
-    georeference/impl/GeoreferenceCommand.cpp
-    import/cameras/ImportCamerasComponent.cpp
-    import/cameras/impl/ImportCamerasModel.cpp
-    import/cameras/impl/ImportCamerasView.cpp
-    import/cameras/impl/ImportCamerasPresenter.cpp
-    dtm/DTMComponent.cpp
-    dtm/impl/DTMModel.cpp
-    dtm/impl/DTMView.cpp
-    dtm/impl/DTMPresenter.cpp
-    dtm/impl/DTMProcess.cpp
-    orthophoto/OrthophotoComponent.cpp
-    orthophoto/impl/OrthophotoModel.cpp
-    orthophoto/impl/OrthophotoView.cpp
-    orthophoto/impl/OrthophotoPresenter.cpp
-    orthophoto/impl/OrthophotoProcess.cpp
+    #export/orientations/ExportOrientationsComponent.cpp
+    #export/orientations/impl/ExportOrientationsModel.cpp
+    #export/orientations/impl/ExportOrientationsView.cpp
+    #export/orientations/impl/ExportOrientationsPresenter.cpp
+    #export/densemodel/ExportPointCloudComponent.cpp
+    #export/densemodel/impl/ExportPointCloudModel.cpp
+    #export/densemodel/impl/ExportPointCloudView.cpp
+    #export/densemodel/impl/ExportPointCloudPresenter.cpp
+    #georeference/GeoreferenceComponent.cpp
+    #georeference/impl/GeoreferenceModel.cpp
+    #georeference/impl/GeoreferenceView.cpp
+    #georeference/impl/GeoreferencePresenter.cpp
+    #georeference/impl/GeoreferenceProcess.cpp
+    #georeference/impl/GeoreferenceCommand.cpp
+    #import/cameras/ImportCamerasComponent.cpp
+    #import/cameras/impl/ImportCamerasModel.cpp
+    #import/cameras/impl/ImportCamerasView.cpp
+    #import/cameras/impl/ImportCamerasPresenter.cpp
+    #dtm/DTMComponent.cpp
+    #dtm/impl/DTMModel.cpp
+    #dtm/impl/DTMView.cpp
+    #dtm/impl/DTMPresenter.cpp
+    #dtm/impl/DTMProcess.cpp
+    #orthophoto/OrthophotoComponent.cpp
+    #orthophoto/impl/OrthophotoModel.cpp
+    #orthophoto/impl/OrthophotoView.cpp
+    #orthophoto/impl/OrthophotoPresenter.cpp
+    #orthophoto/impl/OrthophotoProcess.cpp
     about/AboutComponent.cpp
     about/impl/AboutModel.cpp
     about/impl/AboutView.cpp
@@ -150,7 +150,7 @@ set(GRAPHOS_SOURCES
 
 set(GRAPHOS_HEADERS
     ComponentsManager.h
-    ProjectModel.h
+    #ProjectModel.h
     MainWindowModel.h
     MainWindowPresenter.h
     MainWindowView.h
@@ -161,8 +161,8 @@ set(GRAPHOS_HEADERS
     settings/impl/SettingsModel.h
     settings/impl/SettingsView.h
     settings/impl/SettingsPresenter.h
-    FeaturesModel.h
-    MatchesModel.h
+    #FeaturesModel.h
+    #MatchesModel.h
     createproject/CreateProjectComponent.h
     createproject/CreateProjectModel.h
     createproject/CreateProjectView.h
@@ -209,6 +209,7 @@ set(GRAPHOS_HEADERS
     images/impl/ImageLoaderModel.h
     images/impl/ImageLoaderPresenter.h
     images/impl/ImageLoaderView.h
+    images/impl/ImageLoaderCommand.h
     images/impl/ImageLoaderProcess.h
     orientation/OrientationComponent.h
     orientation/OrientationModel.h
@@ -244,52 +245,52 @@ set(GRAPHOS_HEADERS
     matchviewer/impl/MatchViewerModel.h
     matchviewer/impl/MatchViewerView.h
     matchviewer/impl/MatchViewerPresenter.h
-    export/orientations/ExportOrientationsComponent.h
-    export/orientations/ExportOrientationsModel.h
-    export/orientations/ExportOrientationsView.h
-    export/orientations/ExportOrientationsPresenter.h
-    export/orientations/impl/ExportOrientationsModel.h
-    export/orientations/impl/ExportOrientationsView.h
-    export/orientations/impl/ExportOrientationsPresenter.h
-    export/densemodel/ExportPointCloudComponent.h
-    export/densemodel/ExportPointCloudModel.h
-    export/densemodel/ExportPointCloudView.h
-    export/densemodel/ExportPointCloudPresenter.h
-    export/densemodel/impl/ExportPointCloudModel.h
-    export/densemodel/impl/ExportPointCloudView.h
-    export/densemodel/impl/ExportPointCloudPresenter.h
-    georeference/GeoreferenceComponent.h
-    georeference/GeoreferenceModel.h
-    georeference/GeoreferencePresenter.h
-    georeference/GeoreferenceView.h
-    georeference/impl/GeoreferenceModel.h
-    georeference/impl/GeoreferencePresenter.h
-    georeference/impl/GeoreferenceView.h
-    georeference/impl/GeoreferenceProcess.h
-    georeference/impl/GeoreferenceCommand.h
-    import/cameras/ImportCamerasComponent.h
-    import/cameras/ImportCamerasModel.h
-    import/cameras/ImportCamerasView.h
-    import/cameras/ImportCamerasPresenter.h
-    import/cameras/impl/ImportCamerasModel.h
-    import/cameras/impl/ImportCamerasView.h
-    import/cameras/impl/ImportCamerasPresenter.h
-    dtm/DTMComponent.h
-    dtm/DTMModel.h
-    dtm/DTMView.h
-    dtm/DTMPresenter.h
-    dtm/impl/DTMModel.h
-    dtm/impl/DTMView.h
-    dtm/impl/DTMPresenter.h
-    dtm/impl/DTMProcess.h
-    orthophoto/OrthophotoComponent.h
-    orthophoto/OrthophotoModel.h
-    orthophoto/OrthophotoView.h
-    orthophoto/OrthophotoPresenter.h
-    orthophoto/impl/OrthophotoModel.h
-    orthophoto/impl/OrthophotoView.h
-    orthophoto/impl/OrthophotoPresenter.h
-    orthophoto/impl/OrthophotoProcess.h
+    #export/orientations/ExportOrientationsComponent.h
+    #export/orientations/ExportOrientationsModel.h
+    #export/orientations/ExportOrientationsView.h
+    #export/orientations/ExportOrientationsPresenter.h
+    #export/orientations/impl/ExportOrientationsModel.h
+    #export/orientations/impl/ExportOrientationsView.h
+    #export/orientations/impl/ExportOrientationsPresenter.h
+    #export/densemodel/ExportPointCloudComponent.h
+    #export/densemodel/ExportPointCloudModel.h
+    #export/densemodel/ExportPointCloudView.h
+    #export/densemodel/ExportPointCloudPresenter.h
+    #export/densemodel/impl/ExportPointCloudModel.h
+    #export/densemodel/impl/ExportPointCloudView.h
+    #export/densemodel/impl/ExportPointCloudPresenter.h
+    #georeference/GeoreferenceComponent.h
+    #georeference/GeoreferenceModel.h
+    #georeference/GeoreferencePresenter.h
+    #georeference/GeoreferenceView.h
+    #georeference/impl/GeoreferenceModel.h
+    #georeference/impl/GeoreferencePresenter.h
+    #georeference/impl/GeoreferenceView.h
+    #georeference/impl/GeoreferenceProcess.h
+    #georeference/impl/GeoreferenceCommand.h
+    #import/cameras/ImportCamerasComponent.h
+    #import/cameras/ImportCamerasModel.h
+    #import/cameras/ImportCamerasView.h
+    #import/cameras/ImportCamerasPresenter.h
+    #import/cameras/impl/ImportCamerasModel.h
+    #import/cameras/impl/ImportCamerasView.h
+    #import/cameras/impl/ImportCamerasPresenter.h
+    #dtm/DTMComponent.h
+    #dtm/DTMModel.h
+    #dtm/DTMView.h
+    #dtm/DTMPresenter.h
+    #dtm/impl/DTMModel.h
+    #dtm/impl/DTMView.h
+    #dtm/impl/DTMPresenter.h
+    #dtm/impl/DTMProcess.h
+    #orthophoto/OrthophotoComponent.h
+    #orthophoto/OrthophotoModel.h
+    #orthophoto/OrthophotoView.h
+    #orthophoto/OrthophotoPresenter.h
+    #orthophoto/impl/OrthophotoModel.h
+    #orthophoto/impl/OrthophotoView.h
+    #orthophoto/impl/OrthophotoPresenter.h
+    #orthophoto/impl/OrthophotoProcess.h
     HelpDialog.h
     about/AboutComponent.h
     about/AboutModel.h

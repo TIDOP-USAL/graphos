@@ -50,27 +50,35 @@ MatchViewerPresenterImp::~MatchViewerPresenterImp()
 
 }
 
-void MatchViewerPresenterImp::setLeftImage(const QString &image)
+void MatchViewerPresenterImp::setLeftImage(size_t imageId)
 {
-  mView->setLeftImage(image);
-  std::vector<QString> imagesRight = mModel->imagePairs(image);
-  if (imagesRight.empty() == false){
-    mView->setRightImageList(imagesRight);
-    mView->setRightImage(QFileInfo(imagesRight[0]).baseName());
-    loadMatches(image, QFileInfo(imagesRight[0]).baseName());
+  Image image = mModel->image(imageId);
+  mView->setLeftImage(image.path());
+
+  std::vector<std::pair<size_t, QString>> pairs;
+  for (const auto &pair_id : mModel->imagePairs(imageId)) {
+    pairs.emplace_back(pair_id, mModel->image(pair_id).path());
+  }
+
+  if (!pairs.empty()){
+    mView->setRightImageList(pairs);
+    mView->setRightImage(pairs[0].second);
+    loadMatches(imageId, pairs[0].first);
   }
 }
 
-void MatchViewerPresenterImp::setRightImage(const QString &image)
+void MatchViewerPresenterImp::setRightImage(size_t imageId)
 {
-  mView->setRightImage(image);
+  mView->setRightImage(mModel->image(imageId).path());
 }
 
-void MatchViewerPresenterImp::loadMatches(const QString &imageLeft, const QString &imageRight)
+void MatchViewerPresenterImp::loadMatches(size_t imageId1,
+                                          size_t imageId2)
 {
   try {
-    std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> matches = mModel->loadMatches(imageLeft, imageRight);
-    mView->setMatches(matches);
+
+    mView->setMatches(mModel->loadMatches(imageId1, imageId2));
+
   } catch (const std::exception &e) {
     msgError(e.what());
   }
@@ -101,12 +109,14 @@ void MatchViewerPresenterImp::open()
 
   mView->show();
 
-  /// Se cargan las imágenes despues de mostrar el Dialog porque si se hace antes
-  /// el QGraphicView no tiene el tamaño adecuado
-  std::vector<QString> imagesLeft = mModel->images();
-  if (imagesLeft.empty() == false) {
-    mView->setLeftImageList(imagesLeft);
-    setLeftImage(QFileInfo(imagesLeft[0]).baseName());
+  std::vector<std::pair<size_t, QString>> images;
+  for (const auto &pair_id_image : mModel->images()) {
+    images.emplace_back(pair_id_image.first, pair_id_image.second.path());
+  }
+
+  if (!images.empty()) {
+    mView->setLeftImageList(images);
+    setLeftImage(images[0].first);
   }
 
 }
@@ -122,11 +132,11 @@ void MatchViewerPresenterImp::init()
 
 void MatchViewerPresenterImp::initSignalAndSlots()
 {
-  connect(mView, SIGNAL(leftImageChange(QString)),         this, SLOT(setLeftImage(QString)));
-  connect(mView, SIGNAL(rightImageChange(QString)),        this, SLOT(setRightImage(QString)));
-  connect(mView, SIGNAL(loadMatches(QString, QString)),    this, SLOT(loadMatches(QString, QString)));
+  connect(mView, &MatchViewerView::leftImageChange,         this, &MatchViewerPresenterImp::setLeftImage);
+  connect(mView, &MatchViewerView::rightImageChange,        this, &MatchViewerPresenterImp::setRightImage);
+  connect(mView, &MatchViewerView::loadMatches,             this, &MatchViewerPresenterImp::loadMatches);
 
-  connect(mView, SIGNAL(help()),     this, SLOT(help()));
+  connect(mView, &MatchViewerView::help,     this, &MatchViewerPresenterImp::help);
 }
 
 } // namespace graphos

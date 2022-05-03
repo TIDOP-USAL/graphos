@@ -100,7 +100,7 @@ void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
     mModel->setProjectCRS(crs_image);
   }
 
-  emit imageLoaded(image.path());
+  emit image_loaded(image.id());
 }
 
 void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent *event)
@@ -130,13 +130,13 @@ std::unique_ptr<tl::Task> ImageLoaderPresenterImp::createProcess()
   mImages.clear();
   for (auto &image : mImageFiles) {
     Image img(image);
-    if (!mModel->existImage(img.name()))
+    if (!mModel->existImage(img.id()))
       mImages.push_back(img);
   }
 
   mCameras.clear();
-  for (auto &it = mModel->cameraBegin(); it != mModel->cameraEnd(); it++) {
-    mCameras.push_back(it->second);
+  for (const auto &camera : mModel->cameras()) {
+    mCameras.push_back(camera.second);
   }
 
   image_loader_process = std::make_unique<LoadImagesProcess>(&mImages, &mCameras, "OpenCV 1", mModel->projectCRS());

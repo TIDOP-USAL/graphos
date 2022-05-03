@@ -61,21 +61,23 @@ void FeaturesViewerModelImp::clear()
 
 }
 
-std::vector<QString> FeaturesViewerModelImp::images() const
+const std::unordered_map<size_t, Image> &FeaturesViewerModelImp::images() const
 {
-  std::vector<QString> images;
-  for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++){
-    images.push_back((*it).path());
-  }
-  return images;
+  return mProject->images();
 }
 
-std::vector<QPointF> FeaturesViewerModelImp::loadKeypoints(const QString &imageName)
+Image FeaturesViewerModelImp::image(size_t imageId) const
+{
+  return mProject->findImageById(imageId);
+}
+
+std::vector<QPointF> FeaturesViewerModelImp::loadKeypoints(size_t imageId)
 {
   std::vector<QPointF> keyPoints;
 
   try {
-    Image image = mProject->findImageByName(imageName);
+
+    Image image = mProject->findImageById(imageId);
 
     QString database_path = mProject->database();
     if (!QFileInfo(database_path).exists()) throw std::runtime_error("Database not found");
@@ -87,7 +89,8 @@ std::vector<QPointF> FeaturesViewerModelImp::loadKeypoints(const QString &imageN
       std::string name = image.Name();
     }
 
-    if (!database.ExistsImageWithName(image.path().toStdString())) throw std::runtime_error(std::string("Image not found in database: ").append(image.path().toStdString()));
+    if (!database.ExistsImageWithName(image.path().toStdString()))
+      throw std::runtime_error(std::string("Image not found in database: ").append(image.path().toStdString()));
   
     colmap::Image image_colmap = database.ReadImageWithName(image.path().toStdString());
     colmap::image_t image_id = image_colmap.ImageId();

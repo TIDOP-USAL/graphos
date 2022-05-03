@@ -74,9 +74,10 @@ std::atomic<bool> featextract_done(false);
 struct queue_data
 {
   cv::Mat mat;
-  colmap::image_t image_id;
+  colmap::image_t colmap_image_id;
   double scale;
-  QString image_name;
+  //QString image_name;
+  size_t image_id;
 };
 
 class ProducerImp
@@ -84,7 +85,7 @@ class ProducerImp
 
 public:
 
-  ProducerImp(const std::vector<Image> *images,
+  ProducerImp(const std::unordered_map<size_t, Image> *images,
               const std::map<int, Camera> *cameras,
               const colmap::Database *database,
               int maxImageSize,
@@ -110,7 +111,7 @@ public:
         return;
       }
 
-      producer(image);
+      producer(image.second);
     }
   }
 
@@ -125,7 +126,7 @@ private:
 
       std::string image_path = image.path().toStdString();
 
-      colmap::image_t image_id;
+      colmap::image_t colmap_image_id;
 
       featextract_mutex.lock();
       bool exist_image = mDatabase->ExistsImageWithName(image_path);
@@ -193,7 +194,7 @@ private:
         image_colmap.SetCameraId(camera_id);
 
         featextract_mutex.lock();
-        image_id = mDatabase->WriteImage(image_colmap, false);
+        colmap_image_id = mDatabase->WriteImage(image_colmap, false);
         featextract_mutex.unlock();
 
       } else {
@@ -201,7 +202,7 @@ private:
         featextract_mutex.lock();
         colmap::Image image_colmap = mDatabase->ReadImageWithName(image_path);
         featextract_mutex.unlock();
-        image_id = image_colmap.ImageId();
+        colmap_image_id = image_colmap.ImageId();
       }
 
       /* Lectura de imagen */
@@ -213,9 +214,10 @@ private:
 
       queue_data data;
       data.mat = mat;
-      data.image_id = image_id;
+      data.colmap_image_id = colmap_image_id;
+      data.image_id = image.id();//image_id;
       data.scale = scale;
-      data.image_name = image.name();
+      //data.image_name = image.name();
 
       mBuffer->push(data);
 
@@ -339,7 +341,7 @@ private:
 
 protected:
 
-  const std::vector<Image> *mImages;
+  const std::unordered_map<size_t, Image> *mImages;
   const std::map<int, Camera> *mCameras;
   const colmap::Database *mDatabase;
   int mMaxImageSize;
@@ -355,14 +357,16 @@ class ConsumerImp
 
 public:
 
-  ConsumerImp(FeatureExtractor *feat_extractor,
+  ConsumerImp(const std::unordered_map<size_t, Image> *images,
+              FeatureExtractor *feat_extractor,
               const std::string &databaseFile,
               colmap::Database *database,
               QueueMPMC<queue_data> *buffer,
               FeatureExtractorProcess *featureExtractorProcess,
               bool useGPU,
               tl::Progress *progressBar)
-    : mFeatExtractor(feat_extractor),
+    : mImages(images), 
+      mFeatExtractor(feat_extractor),
       mDatabaseFile(databaseFile),
       mDatabase(database),
       mBuffer(buffer),
@@ -404,14 +408,15 @@ private:
 
       featureExtraction(data.mat, featureKeypoints, featureDescriptors);
       resizeFeatures(featureKeypoints, data.scale);
-      writeFeatures(data.image_id, featureKeypoints, featureDescriptors);
+      writeFeatures(data.colmap_image_id, featureKeypoints, featureDescriptors);
 
 
       double time = chrono.stop();
       msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
 
       // añade features al proyecto
-      mFeatureExtractorProcess->featuresExtracted(data.image_name, data.image_name + "@" + mDatabaseFile.c_str());
+      QString image_name = mImages->at(data.image_id).name();
+      mFeatureExtractorProcess->features_extracted(data.image_id, image_name + "@" + mDatabaseFile.c_str());
       if(mProgressBar) (*mProgressBar)();
 
     } catch (std::exception& e) {
@@ -450,6 +455,7 @@ private:
 
 private:
 
+  const std::unordered_map<size_t, Image> *mImages;
   FeatureExtractor *mFeatExtractor;
   std::string mDatabaseFile;
   colmap::Database* mDatabase;
@@ -467,7 +473,7 @@ private:
 
 
 
-FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &images,
+FeatureExtractorProcess::FeatureExtractorProcess(const std::unordered_map<size_t, Image> &images,
                                                  const std::map<int, Camera> &cameras,
                                                  const QString &database,
                                                  int maxImageSize,
@@ -502,7 +508,8 @@ void FeatureExtractorProcess::execute(tl::Progress *progressBar)
                                    bUseCuda,
                                    &buffer,
                                    this);
-    internal::ConsumerImp consumer(mFeatureExtractor.get(),
+    internal::ConsumerImp consumer(&mImages, 
+                                   mFeatureExtractor.get(),
                                    mDatabase.toStdString(),
                                    &database,
                                    &buffer,
@@ -611,14 +618,10 @@ bool FeatureExtractorCommand::run()
     ProjectImp project;
     project.load(project_file);
     QString database_path = project.database();
-    std::vector<Image> images = project.images();
-    std::map<int, Camera> cameras = project.cameras();
 
     TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
     QFile(database_path).remove();
     project.removeFeatures();
-
-    colmap::Database database(database_path.toStdString());
 
     std::shared_ptr<FeatureExtractor> feature_extractor;
 
@@ -635,16 +638,16 @@ bool FeatureExtractorCommand::run()
                                                                        mContrastThreshold);
     }
 
-    FeatureExtractorProcess Feature_extractor_process(images,
-                                                      cameras,
+    FeatureExtractorProcess Feature_extractor_process(project.images(),
+                                                      project.cameras(),
                                                       database_path,
                                                       mMaxImageSize,
                                                       !mDisableCuda,
                                                       feature_extractor);
 
-    connect(&Feature_extractor_process, &FeatureExtractorProcess::featuresExtracted, 
-            [&](const QString &imageName, const QString &featuresFile){
-              project.addFeatures(imageName, featuresFile);
+    connect(&Feature_extractor_process, &FeatureExtractorProcess::features_extracted, 
+            [&](size_t imageId, const QString &featuresFile){
+              project.addFeatures(imageId, featuresFile);
             });
 
     Feature_extractor_process.run();

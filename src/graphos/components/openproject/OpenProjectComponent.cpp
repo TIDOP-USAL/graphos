@@ -39,19 +39,23 @@ namespace graphos
 OpenProjectComponent::OpenProjectComponent(Application *application)
   : ComponentBase(application)
 {
-  this->setName("Open Project");
-  this->setMenu("file");
-  this->setToolbar("file");
-  QIcon iconOpenProject;
-  iconOpenProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-open.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(iconOpenProject);
-#ifndef QT_NO_SHORTCUT
-  action()->setShortcut(tr("Ctrl+O"));
-#endif // QT_NO_SHORTCUT
+  init();
 }
 
 OpenProjectComponent::~OpenProjectComponent()
 {
+}
+
+void OpenProjectComponent::init()
+{
+  this->setName("Open Project");
+  this->setMenu("file");
+  this->setToolbar("file");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-open.png"));
+#ifndef QT_NO_SHORTCUT
+  action()->setShortcut(tr("Ctrl+O"));
+#endif // QT_NO_SHORTCUT
 }
 
 void OpenProjectComponent::createModel()
@@ -69,8 +73,11 @@ void OpenProjectComponent::createPresenter()
   setPresenter(new OpenProjectPresenterImp(dynamic_cast<OpenProjectView *>(view()),
                                            dynamic_cast<OpenProjectModel *>(model()),
                                            app()->status()));
-  connect(dynamic_cast<OpenProjectPresenter *>(presenter()), &OpenProjectPresenter::projectLoaded, 
-          this, &OpenProjectComponent::projectLoaded);
+
+  connect(dynamic_cast<OpenProjectPresenter *>(presenter()),
+          &OpenProjectPresenter::project_loaded, 
+          this,
+          &OpenProjectComponent::project_loaded);
 }
 
 void OpenProjectComponent::createCommand()

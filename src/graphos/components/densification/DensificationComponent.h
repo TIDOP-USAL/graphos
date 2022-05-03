@@ -43,9 +43,13 @@ public:
   DensificationComponent(Application *application);
   ~DensificationComponent();
 
+private:
+
+  void init();
+
 signals:
 
-  void densificationFinished();
+  void densification_finished();
 
 // ComponentBase
 

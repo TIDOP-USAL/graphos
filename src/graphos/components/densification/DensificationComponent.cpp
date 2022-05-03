@@ -39,14 +39,20 @@ namespace graphos
 DensificationComponent::DensificationComponent(Application *application)
   : ProcessComponent(application)
 {
-  this->setName("Densification");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
-  action()->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
+  init();
 }
 
 DensificationComponent::~DensificationComponent()
 {
+}
+
+void DensificationComponent::init()
+{
+  this->setName("Densification");
+  this->setMenu("workflow");
+  this->setToolbar("workflow");
+
+  action()->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
 }
 
 void DensificationComponent::createModel()
@@ -63,8 +69,10 @@ void DensificationComponent::createPresenter()
 {
   setPresenter(new DensificationPresenterImp(dynamic_cast<DensificationView *>(view()),
                                              dynamic_cast<DensificationModel *>(model())));
-  connect(dynamic_cast<DensificationPresenter *>(presenter()), &DensificationPresenter::densificationFinished, 
-          this, &DensificationComponent::densificationFinished);
+  
+  connect(dynamic_cast<DensificationPresenter *>(presenter()), 
+          &DensificationPresenter::densification_finished, 
+          this, &DensificationComponent::densification_finished);
 }
 
 void DensificationComponent::createCommand()

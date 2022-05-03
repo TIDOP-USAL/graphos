@@ -43,9 +43,13 @@ public:
   FeaturesViewerComponent(Application *application);
   ~FeaturesViewerComponent();
 
+private:
+
+  void init();
+
 public slots:
 
-  void openKeypointsViewer(const QString &file);
+  void openKeypointsViewer(size_t imageId);
 
 // ComponentBase
 

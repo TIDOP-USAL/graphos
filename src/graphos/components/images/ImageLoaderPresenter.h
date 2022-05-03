@@ -51,7 +51,7 @@ protected slots:
 signals:
 
   void loadingImages(bool);
-  void imageLoaded(QString);
+  void image_loaded(size_t);
 };
 
 } // namespace graphos

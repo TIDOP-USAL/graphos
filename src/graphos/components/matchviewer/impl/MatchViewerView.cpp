@@ -229,13 +229,14 @@ void MatchViewerViewImp::retranslate()
   mButtonBox->button(QDialogButtonBox::Help)->setText("Help");
 }
 
-void MatchViewerViewImp::setLeftImage(const QString &leftImage)
+void MatchViewerViewImp::setLeftImage(const QString &imageLeft)
 {
   QSignalBlocker blocker(mComboBoxLeftImage);
-  mComboBoxLeftImage->setCurrentText(leftImage);
+  QFileInfo file_info(imageLeft);
+  mComboBoxLeftImage->setCurrentText(file_info.baseName());
   mGraphicsViewImage->scene()->clearSelection();
-  QString image = mComboBoxLeftImage->currentData().toString();
-  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(imageLeft.toStdString());
   imageReader->open();
   if (imageReader->isOpen()) {
     cv::Mat bmp = imageReader->read();
@@ -244,13 +245,14 @@ void MatchViewerViewImp::setLeftImage(const QString &leftImage)
   }
 }
 
-void MatchViewerViewImp::setRightImage(const QString &rightImage)
+void MatchViewerViewImp::setRightImage(const QString &imageRight)
 {
   QSignalBlocker blocker(mComboBoxRightImage);
-  mComboBoxRightImage->setCurrentText(rightImage);
+  QFileInfo file_info(imageRight);
+  mComboBoxRightImage->setCurrentText(imageRight);
   mGraphicsViewPseudoimage->scene()->clearSelection();
-  QString image = mComboBoxRightImage->currentData().toString();
-  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(imageRight.toStdString());
   imageReader->open();
   if (imageReader->isOpen()) {
     cv::Mat bmp = imageReader->read();
@@ -259,23 +261,23 @@ void MatchViewerViewImp::setRightImage(const QString &rightImage)
   }
 }
 
-void MatchViewerViewImp::setLeftImageList(const std::vector<QString> &leftImageList)
+void MatchViewerViewImp::setLeftImageList(const std::vector<std::pair<size_t, QString>> &leftImageList)
 {
   QSignalBlocker blocker(mComboBoxLeftImage);
   mComboBoxLeftImage->clear();
   for (auto &image : leftImageList){
-    QFileInfo file_info(image);
-    mComboBoxLeftImage->addItem(file_info.baseName(), image);
+    QFileInfo file_info(image.second);
+    mComboBoxLeftImage->addItem(file_info.baseName(), image.first);
   }
 }
 
-void MatchViewerViewImp::setRightImageList(const std::vector<QString> &rightImageList)
+void MatchViewerViewImp::setRightImageList(const std::vector<std::pair<size_t, QString>> &rightImageList)
 {
   QSignalBlocker blocker(mComboBoxRightImage);
   mComboBoxRightImage->clear();
   for (auto &image : rightImageList){
-    QFileInfo file_info(image);
-    mComboBoxRightImage->addItem(file_info.baseName(), image);
+    QFileInfo file_info(image.second);
+    mComboBoxRightImage->addItem(file_info.baseName(), image.first);
   }
 }
 
@@ -618,13 +620,13 @@ void MatchViewerViewImp::setLineStyle(const QString &color, int width)
 
 void MatchViewerViewImp::onComboBoxLeftImageIndexChanged(int idx)
 {
-  emit leftImageChange(mComboBoxLeftImage->itemText(idx));
+  emit leftImageChange(mComboBoxLeftImage->itemData(idx).toULongLong());
 }
 
 void MatchViewerViewImp::onComboBoxRightImageIndexChanged(int idx)
 {
-  QString image_right(mComboBoxRightImage->itemText(idx));
-  QString image_left(mComboBoxLeftImage->currentText());
+  size_t image_right = mComboBoxRightImage->itemData(idx).toULongLong();
+  size_t image_left = mComboBoxLeftImage->currentData().toULongLong();
   emit rightImageChange(image_right);
   emit loadMatches(image_left, image_right);
 }

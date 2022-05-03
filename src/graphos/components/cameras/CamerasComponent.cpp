@@ -38,15 +38,20 @@ namespace graphos
 CamerasComponent::CamerasComponent(Application *application)
   : ComponentBase(application)
 {
-  this->setName("Cameras");
-  this->setMenu("tools");
-  QIcon icon;
-  icon.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-camera-outline-2.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(icon);
+  init();
+
 }
 
 CamerasComponent::~CamerasComponent()
 {
+}
+
+void CamerasComponent::init()
+{
+  this->setName("Cameras");
+  this->setMenu("tools");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-camera-outline-2.png"));
 }
 
 void CamerasComponent::onUpdateCameras()

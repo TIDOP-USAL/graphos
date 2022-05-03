@@ -58,16 +58,6 @@ bool OrientationModelImp::calibratedCamera() const
   return calibrated;
 }
 
-bool OrientationModelImp::refinePrincipalPoint() const
-{
-  return mProject->refinePrincipalPoint();
-}
-
-void OrientationModelImp::setRefinePrincipalPoint(bool refine)
-{
-  mProject->setRefinePrincipalPoint(refine);
-}
-
 void OrientationModelImp::setSparseModel(const QString &sparseModel)
 {
   mProject->setSparseModel(sparseModel);
@@ -78,19 +68,20 @@ void OrientationModelImp::setOffset(const QString &offset)
   mProject->setOffset(offset);
 }
 
-bool OrientationModelImp::isPhotoOriented(const QString &imgName) const
+bool OrientationModelImp::isPhotoOriented(size_t imageId) const
 {
-  return mProject->isPhotoOriented(imgName);
+  return mProject->isPhotoOriented(imageId);
 }
 
-CameraPose OrientationModelImp::photoOrientation(const QString &imgName) const
+CameraPose OrientationModelImp::photoOrientation(size_t imageId) const
 {
-  return mProject->photoOrientation(imgName);
+  return mProject->photoOrientation(imageId);
 }
 
-void OrientationModelImp::addPhotoOrientation(const QString &imgName, const CameraPose &orientation)
+void OrientationModelImp::addPhotoOrientation(size_t imageId, 
+                                              const CameraPose &orientation)
 {
-  mProject->addPhotoOrientation(imgName, orientation);
+  mProject->addPhotoOrientation(imageId, orientation);
 }
 
 QString OrientationModelImp::database() const
@@ -108,8 +99,8 @@ bool OrientationModelImp::gpsPositions() const
 {
   bool bGpsOrientation = false;
 
-  auto it = mProject->imageBegin();
-  CameraPose camera_pose = it->cameraPose();
+  auto it = mProject->images().begin();
+  CameraPose camera_pose = it->second.cameraPose();
   if (!camera_pose.isEmpty())
     bGpsOrientation = true;
 
@@ -120,9 +111,9 @@ bool OrientationModelImp::rtkOrientations() const
 {
   bool bRtkOrientations = false;
 
-  auto it = mProject->imageBegin();
-  CameraPose camera_pose = it->cameraPose();
-  if (!camera_pose.isEmpty()){
+  auto it = mProject->images().begin();
+  CameraPose camera_pose = it->second.cameraPose();
+  if (!camera_pose.isEmpty()) {
     tl::math::Quaternion<double> q = camera_pose.quaternion();
     if (q == tl::math::Quaternion<double>::zero())
       bRtkOrientations = false;
@@ -146,9 +137,9 @@ void OrientationModelImp::setReconstructionPath(const QString &reconstructionPat
 std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() const
 {
   std::map<QString, std::array<double, 3>> camera_positions;
-  for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++) {
-    QString path = it->path();
-    CameraPose camera_pose = it->cameraPose();
+  for (const auto &image : images()) {
+    QString path = image.second.path();
+    CameraPose camera_pose = image.second.cameraPose();
     if (!camera_pose.isEmpty()) {
       std::array<double, 3> positions = {
       camera_pose.position().x,
@@ -165,7 +156,7 @@ void OrientationModelImp::clearProject()
   mProject->clearReconstruction();
 }
 
-std::map<int, Camera> OrientationModelImp::cameras() const
+const std::map<int, Camera> &OrientationModelImp::cameras() const
 {
   return mProject->cameras();
 }
@@ -175,49 +166,9 @@ bool OrientationModelImp::updateCamera(int id, const Camera &camera)
   return mProject->updateCamera(id, camera);
 }
 
-OrientationModel::camera_iterator OrientationModelImp::cameraBegin()
-{
-  return mProject->cameraBegin();
-}
-
-OrientationModel::camera_const_iterator OrientationModelImp::cameraBegin() const
-{
-  return mProject->cameraBegin();
-}
-
-OrientationModel::camera_iterator OrientationModelImp::cameraEnd()
-{
-  return mProject->cameraEnd();
-}
-
-OrientationModel::camera_const_iterator OrientationModelImp::cameraEnd() const
-{
-  return mProject->cameraEnd();
-}
-
-std::vector<Image> OrientationModelImp::images() const
+const std::unordered_map<size_t, Image> &OrientationModelImp::images() const
 {
   return mProject->images();
-}
-
-OrientationModel::image_iterator OrientationModelImp::imageBegin()
-{
-  return mProject->imageBegin();
-}
-
-OrientationModel::image_const_iterator OrientationModelImp::imageBegin() const
-{
-  return mProject->imageBegin();
-}
-
-OrientationModel::image_iterator OrientationModelImp::imageEnd()
-{
-  return mProject->imageEnd();
-}
-
-OrientationModel::image_const_iterator OrientationModelImp::imageEnd() const
-{
-  return mProject->imageEnd();
 }
 
 } // namespace graphos

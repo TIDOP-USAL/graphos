@@ -278,7 +278,7 @@ void DensificationPresenterImp::onFinishDensification()
 
   if (QFileInfo(dense_path).exists()) {
     mModel->setDenseModel(dense_path);
-    emit densificationFinished();
+    emit densification_finished();
   } else {
     /// TODO: Devolver error
     msgError("Densification failed");

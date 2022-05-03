@@ -39,16 +39,20 @@ namespace graphos
 ImageLoaderComponent::ImageLoaderComponent(Application *application)
   : ProcessComponent(application)
 {
-  this->setName("Load Images");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
-  QIcon iconLoadImages;
-  iconLoadImages.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-add-folder.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(iconLoadImages);
+  init();
 }
 
 ImageLoaderComponent::~ImageLoaderComponent()
 {
+}
+
+void ImageLoaderComponent::init()
+{
+  this->setName("Load Images");
+  this->setMenu("workflow");
+  this->setToolbar("workflow");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-add-folder.png"));
 }
 
 void ImageLoaderComponent::createModel()
@@ -66,8 +70,8 @@ void ImageLoaderComponent::createPresenter()
   setPresenter(new ImageLoaderPresenterImp(dynamic_cast<ImageLoaderView *>(view()), 
                                            dynamic_cast<ImageLoaderModel *>(model())));
 
-  connect(dynamic_cast<ImageLoaderPresenter *>(presenter()), &ImageLoaderPresenter::imageLoaded, 
-          this, &ImageLoaderComponent::imageLoaded);
+  connect(dynamic_cast<ImageLoaderPresenter *>(presenter()), &ImageLoaderPresenter::image_loaded, 
+          this, &ImageLoaderComponent::image_loaded);
 }
 
 void ImageLoaderComponent::createCommand()

@@ -43,9 +43,13 @@ public:
   MatchViewerComponent(Application *application);
   ~MatchViewerComponent();
 
+private:
+
+  void init();
+
 public slots:
 
-  void openMatchesViewer(const QString &file);
+  void openMatchesViewer(size_t imageId);
 
 // ComponentBase
 

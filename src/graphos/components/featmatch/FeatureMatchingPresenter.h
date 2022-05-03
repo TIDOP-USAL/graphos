@@ -42,8 +42,8 @@ public:
 
 signals:
 
-  void matchingFinished();
-  void matchesDeleted();
+  void matching_finished();
+  void matches_deleted();
 
 public slots:
 

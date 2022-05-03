@@ -39,14 +39,20 @@ namespace graphos
 OrientationComponent::OrientationComponent(Application *application)
   : ProcessComponent(application)
 {
-  this->setName("Orientation");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-coordinate-system.png"));
+  init();
 }
 
 OrientationComponent::~OrientationComponent()
 {
+}
+
+void OrientationComponent::init()
+{
+  this->setName("Orientation");
+  this->setMenu("workflow");
+  this->setToolbar("workflow");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-coordinate-system.png"));
 }
 
 void OrientationComponent::createModel()
@@ -64,10 +70,14 @@ void OrientationComponent::createPresenter()
   setPresenter(new OrientationPresenterImp(dynamic_cast<OrientationView *>(view()), 
                                            dynamic_cast<OrientationModel *>(model())));
 
-  connect(dynamic_cast<OrientationPresenter *>(presenter()), &OrientationPresenter::orientationFinished, 
-          this, &OrientationComponent::orientationFinished);
-  connect(dynamic_cast<OrientationPresenter *>(presenter()), &OrientationPresenter::orientationDeleted, 
-          this, &OrientationComponent::orientationDeleted);
+  connect(dynamic_cast<OrientationPresenter *>(presenter()),
+          &OrientationPresenter::orientation_finished, 
+          this, 
+          &OrientationComponent::orientation_finished);
+  connect(dynamic_cast<OrientationPresenter *>(presenter()), 
+          &OrientationPresenter::orientation_deleted, 
+          this, 
+          &OrientationComponent::orientation_deleted);
 }
 
 void OrientationComponent::createCommand()

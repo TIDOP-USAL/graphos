@@ -100,25 +100,26 @@ ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
   ThumbnailsWidget::initSignalAndSlots();
 }
 
-void ThumbnailsWidget::setActiveImage(const QString &imageName)
+void ThumbnailsWidget::setActiveImage(size_t imageId)
 {
   QListWidgetItem *item = nullptr;
   for (int i = 0; i < mListWidget->count(); i++){
    item = mListWidget->item(i);
-   item->setSelected(item->text().compare(imageName) == 0);
+   size_t id = item->data(Qt::UserRole).toULongLong();
+   item->setSelected(id == imageId);
   }
 }
 
-void ThumbnailsWidget::setActiveImages(const QStringList &imageNames)
+void ThumbnailsWidget::setActiveImages(const std::vector<size_t> &imageIds)
 {
   const QSignalBlocker blocker(mListWidget);
   QListWidgetItem *item = nullptr;
   for (int i = 0; i < mListWidget->count(); i++){
     item = mListWidget->item(i);
     item->setSelected(false);
-    for (auto &imageName : imageNames){
-      if (item->text().compare(imageName) == 0){
-        item->setSelected(true);
+    for (auto id : imageIds){
+      if (item->data(Qt::UserRole).toULongLong() == id) {
+        item->setSelected(item->data(Qt::UserRole).toULongLong() == id);
         break;
       }
     }
@@ -127,7 +128,7 @@ void ThumbnailsWidget::setActiveImages(const QStringList &imageNames)
 
 /* public slots */
 
-void ThumbnailsWidget::addThumbnail(const QString &thumb)
+void ThumbnailsWidget::addImage(const QString &thumb, size_t imageId)
 {
 
   std::lock_guard<std::mutex> lck(sMutexThumbnail);
@@ -136,6 +137,7 @@ void ThumbnailsWidget::addThumbnail(const QString &thumb)
   QImage image;
 
   try {
+
     std::string image_file = thumb.toStdString();
 
     std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
@@ -162,6 +164,7 @@ void ThumbnailsWidget::addThumbnail(const QString &thumb)
       QFileInfo fileInfo(thumb);
       QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
       item->setToolTip(fileInfo.absoluteFilePath());
+      item->setData(Qt::UserRole, imageId);
       mListWidget->addItem(item);
 
     } else {
@@ -228,18 +231,20 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
   update();
 }
 
-void ThumbnailsWidget::deleteThumbnail(const QString &thumb)
+void ThumbnailsWidget::deleteImages(const std::vector<size_t> &imageIds)
 {
-  //mListWidget
   QListWidgetItem *item = nullptr;
 
-  for (int i = 0; i < mListWidget->count(); i++){
-   item = mListWidget->item(i);
-   if (item->text().compare(thumb) == 0) {
-     delete item;
-     item = nullptr;
-     break;
-   }
+  for (int i = 0; i < mListWidget->count(); i++) {
+    item = mListWidget->item(i);
+    for (auto imageId : imageIds) {
+      if (item && item->data(Qt::UserRole).toULongLong() == imageId) {
+        delete item;
+        item = nullptr;
+        i--;
+        break;
+      }
+    }
   }
 
   update();
@@ -247,7 +252,7 @@ void ThumbnailsWidget::deleteThumbnail(const QString &thumb)
 
 void ThumbnailsWidget::onThumbnailDoubleClicked(QListWidgetItem *item)
 {
-  emit openImage(item->text());
+  emit openImage(item->data(Qt::UserRole).toULongLong());
 }
 
 void ThumbnailsWidget::onSelectionChanged()
@@ -256,11 +261,11 @@ void ThumbnailsWidget::onSelectionChanged()
     QList<QListWidgetItem*> item = mListWidget->selectedItems();
     int size = item.size();
     if (size == 1) {
-      emit selectImage(item[0]->text());
+      emit selectImage(item[0]->data(Qt::UserRole).toULongLong());
     } else {
-      QStringList selected_images;
+      std::vector<size_t> selected_images;
       for (int i = 0; i < size; i++){
-        selected_images.push_back(item[i]->text());
+        selected_images.push_back(item[i]->data(Qt::UserRole).toULongLong());
       }
       emit selectImages(selected_images);
     }
@@ -315,11 +320,11 @@ void ThumbnailsWidget::onDetailsClicked()
 void ThumbnailsWidget::onDeleteImageClicked()
 {
   if (mListWidget->selectedItems().size() > 0){
-    QStringList selectImages;
+    std::vector<size_t> selectImages;
     for (const auto &item : mListWidget->selectedItems()){
-      selectImages.push_back(item->text());
+      selectImages.push_back(item->data(Qt::UserRole).toULongLong());
     }
-    emit deleteImages(selectImages);
+    emit delete_images(selectImages);
   }
   mThumbnaislSize = mListWidget->count();
 }

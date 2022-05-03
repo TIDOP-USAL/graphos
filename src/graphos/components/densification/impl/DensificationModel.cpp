@@ -31,9 +31,6 @@
 
 #include <QSettings>
 
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
-
 namespace graphos
 {
 

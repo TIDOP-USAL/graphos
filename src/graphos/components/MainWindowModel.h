@@ -39,12 +39,25 @@ class MainWindowModel
 
 public:
 
-  typedef std::vector<Image>::iterator image_iterator;
-  typedef std::vector<Image>::const_iterator image_const_iterator;
-
-public:
-
   explicit MainWindowModel(Project *project);
+
+  QString projectName() const;
+  QString projectPath() const;
+  bool checkUnsavedChanges() const;
+  bool checkOldVersion(const QString &file) const;
+  void oldVersionBackup(const QString &file) const;
+
+  const std::unordered_map<size_t, Image> &images() const;
+  const Image &image(size_t imageId) const;
+  void deleteImages(const std::vector<size_t> &imageIds);
+
+  const std::unordered_map<size_t, QString> &features() const;
+  std::vector<size_t> imagePairs(size_t imageId) const;
+
+  QString sparseModel() const;
+  bool isAbsoluteOrientation() const;
+
+  std::list<std::pair<QString, QString>> exif(const QString &image) const;
 
   /*!
    * \brief Devuelve la ruta por defecto donde se situan los proyectos
@@ -52,25 +65,29 @@ public:
    */
   //QString defaultPath() const;
 
-  std::list<std::pair<QString, QString>> exif(const QString &image) const;
+  bool isPhotoOriented(size_t imageId) const;
+  CameraPose cameraPose(size_t imageId) const;
 
-  bool isPhotoOriented(const QString &imgName) const;
-  CameraPose cameraPose(const QString &imgName) const;
+  QString denseModel() const;
 
-  Image findImageByName(const QString &imageName) const;
-  size_t imageID(const QString &imageName) const;
-  //bool removeImage(size_t id);
-  bool removeImage(const QString &imageName);
-  void removeImages(const QStringList &images);
-  image_iterator imageBegin();
-  image_const_iterator imageBegin() const;
-  image_iterator imageEnd();
-  image_const_iterator imageEnd() const;
+  //Image findImageByName(const QString &imageName) const;
+  //size_t imageID(const QString &imageName) const;
+  ////bool removeImage(size_t id);
+  //bool removeImage(const QString &imageName);
+  //void removeImages(const QStringList &images);
+  //image_iterator imageBegin();
+  //image_const_iterator imageBegin() const;
+  //image_iterator imageEnd();
+  //image_const_iterator imageEnd() const;
+
 
 signals:
 
 public slots:
 
+  void load(const QString &file);
+  void save();
+  void saveAs(const QString &file);
 
 // Model interface
 
@@ -84,8 +101,9 @@ public slots:
 
 protected:
 
-  QString mPrjDefaultPath;
+  //QString mPrjDefaultPath;
   Project *mProject;
+  bool bUnsavedChanges;
 };
 
 } // namespace graphos

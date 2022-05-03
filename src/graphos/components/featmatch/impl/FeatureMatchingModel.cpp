@@ -86,9 +86,9 @@ bool FeatureMatchingModelImp::spatialMatching() const
 {
   bool bSpatialMatching = false;
 
-  auto it = mProject->imageBegin();
-  if (it != mProject->imageEnd()){
-    CameraPose cameraPosition = it->cameraPose();
+  auto it = mProject->images().begin();
+  if (it != mProject->images().end()){
+    CameraPose cameraPosition = it->second.cameraPose();
     if (!cameraPosition.isEmpty())
       bSpatialMatching = true;
   }
@@ -98,24 +98,59 @@ bool FeatureMatchingModelImp::spatialMatching() const
 
 void FeatureMatchingModelImp::writeMatchPairs()
 {
+
   QString database_file = mProject->database();
   colmap::Database database(database_file.toStdString());
   std::vector<colmap::Image> db_images = database.ReadAllImages();
-  colmap::image_t image_id_l = 0;
-  colmap::image_t image_id_r = 0;
-  for (size_t i = 0; i < db_images.size(); i++){
-    image_id_l = db_images[i].ImageId();
-    for (size_t j = 0; j < i; j++){
-      image_id_r = db_images[j].ImageId();
+  colmap::image_t colmap_image_id_l = 0;
+  colmap::image_t colmap_image_id_r = 0;
 
-      colmap::FeatureMatches matches = database.ReadMatches(image_id_l, image_id_r);
-      if (matches.size() > 0){
-        QString path_left = QFileInfo(db_images[i].Name().c_str()).baseName();
-        QString path_right = QFileInfo(db_images[j].Name().c_str()).baseName();
-        mProject->addMatchesPair(path_left, path_right);
+  for (size_t i = 0; i < db_images.size(); i++) {
+
+    colmap_image_id_l = db_images[i].ImageId();
+
+    for (size_t j = 0; j < i; j++) {
+      colmap_image_id_r = db_images[j].ImageId();
+
+      colmap::FeatureMatches matches = database.ReadMatches(colmap_image_id_l, colmap_image_id_r);
+
+      if (matches.size() > 0) {
+        
+        tl::Path colmap_image1(db_images[i].Name());
+        tl::Path colmap_image2(db_images[j].Name());
+        
+        bool find_id_1 = false;
+        bool find_id_2 = false;
+        size_t image_id_1 = 0;
+        size_t image_id_2 = 0;
+
+        for (const auto &image_pair : mProject->images()) {
+          
+          tl::Path image(image_pair.second.path().toStdString());
+          
+          if (!find_id_1 && image.equivalent(colmap_image1)) {
+            find_id_1 = true;
+            image_id_1 = image_pair.first;
+          }
+
+          if (!find_id_2 && image.equivalent(colmap_image2)) {
+            find_id_2 = true;
+            image_id_2 = image_pair.first;
+          }
+
+          if (find_id_1 && find_id_2) {
+            mProject->addMatchesPair(image_id_1, image_id_2);
+          }
+        }
+
       }
+
     }
+
   }
+
+  database.Close();
+
 }
 
 bool FeatureMatchingModelImp::existsMatches() const

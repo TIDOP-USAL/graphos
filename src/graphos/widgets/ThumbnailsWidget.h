@@ -47,22 +47,22 @@ public:
   explicit ThumbnailsWidget(QWidget *parent = nullptr);
   virtual ~ThumbnailsWidget() override {}
 
-  void setActiveImage(const QString &imageName);
-  void setActiveImages(const QStringList &imageNames);
+  void setActiveImage(size_t imageId);
+  void setActiveImages(const std::vector<size_t> &imageIds);
 
 signals:
 
-  void openImage(QString);
-  void selectImage(QString);
-  void selectImages(QStringList);
-  void deleteImages(QStringList);
+  void openImage(size_t);
+  void selectImage(size_t);
+  void selectImages(std::vector<size_t>);
+  void delete_images(std::vector<size_t>);
   void imagesLoaded();
 
 public slots:
 
-  void addThumbnail(const QString &thumb);
+  void addImage(const QString &thumb, size_t imageId);
   void addThumbnails(const QStringList &thumb);
-  void deleteThumbnail(const QString &thumb);
+  void deleteImages(const std::vector<size_t> &imageIds);
 
 private slots:
 

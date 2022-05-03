@@ -173,7 +173,7 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
   }
 
   mModel->clearProject();
-  emit featuresDeleted();
+  emit features_deleted();
 
   QString currentKeypointDetector = mView->currentDetectorDescriptor();
   std::shared_ptr<FeatureExtractor> feature_extractor;
@@ -200,9 +200,7 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
 
   mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
 
-  std::vector<Image> images = mModel->images();
-  std::map<int, Camera> cameras = mModel->cameras();
-  QString database = mModel->database();
+  const std::unordered_map<size_t, Image> &images = mModel->images();
 
   int maxSize = -1;
   if (mView->fullImageSize() == false) {
@@ -210,14 +208,15 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
   }
 
   feat_extract_process = std::make_unique<FeatureExtractorProcess>(images,
-                                                                   cameras,
-                                                                   database,
+                                                                   mModel->cameras(),
+                                                                   mModel->database(),
                                                                    maxSize,
                                                                    mModel->useCuda(),
                                                                    feature_extractor);
 
-  connect(dynamic_cast<FeatureExtractorProcess *>(feat_extract_process.get()), SIGNAL(featuresExtracted(QString, QString)),
-          this, SLOT(onFeaturesExtracted(const QString &, const QString &)));
+  connect(dynamic_cast<FeatureExtractorProcess *>(feat_extract_process.get()),
+          &FeatureExtractorProcess::features_extracted,
+          this, &FeatureExtractorPresenterImp::onFeaturesExtracted);
 
   if (progressHandler()) {
     progressHandler()->setRange(0, images.size());
@@ -230,11 +229,11 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
   return feat_extract_process;
 }
 
-void FeatureExtractorPresenterImp::onFeaturesExtracted(const QString &imageName, 
+void FeatureExtractorPresenterImp::onFeaturesExtracted(size_t imageId, 
                                                        const QString &featuresFile)
 {
-  mModel->addFeatures(imageName, featuresFile);
-  emit featuresExtracted(imageName);
+  mModel->addFeatures(imageId, featuresFile);
+  emit features_extracted(imageId);
 }
 
 } // namespace graphos

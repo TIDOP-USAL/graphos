@@ -41,9 +41,13 @@ public:
   OpenProjectComponent(Application *application);
   ~OpenProjectComponent();
 
+private:
+
+  void init();
+
 signals:
 
-  void projectLoaded();
+  void project_loaded();
 
 // ComponentBase
 

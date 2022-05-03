@@ -43,6 +43,10 @@ public:
   CamerasComponent(Application *application);
   ~CamerasComponent();
 
+private:
+
+  void init();
+
 private slots:
 
   void onUpdateCameras();

@@ -39,14 +39,20 @@ namespace graphos
 FeatureMatchingComponent::FeatureMatchingComponent(Application *application)
   : ProcessComponent(application)
 {
-  this->setName("Feature Matching");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-match_view.png"));
+  init();
 }
 
 FeatureMatchingComponent::~FeatureMatchingComponent()
 {
+}
+
+void FeatureMatchingComponent::init()
+{
+  this->setName("Feature Matching");
+  this->setMenu("workflow");
+  this->setToolbar("workflow");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-match_view.png"));
 }
 
 void FeatureMatchingComponent::createModel()
@@ -64,10 +70,14 @@ void FeatureMatchingComponent::createPresenter()
   setPresenter(new FeatureMatchingPresenterImp(dynamic_cast<FeatureMatchingView *>(view()), 
                                                dynamic_cast<FeatureMatchingModel *>(model())));
 
-  connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), &FeatureMatchingPresenter::matchingFinished, 
-          this, &FeatureMatchingComponent::matchingFinished);
-  connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), &FeatureMatchingPresenter::matchesDeleted,
-          this, &FeatureMatchingComponent::matchesDeleted);
+  connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), 
+          &FeatureMatchingPresenter::matching_finished, 
+          this,
+          &FeatureMatchingComponent::matching_finished);
+  connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), 
+          &FeatureMatchingPresenter::matches_deleted,
+          this,
+          &FeatureMatchingComponent::matches_deleted);
 }
 
 void FeatureMatchingComponent::createCommand()

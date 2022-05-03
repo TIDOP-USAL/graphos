@@ -136,12 +136,12 @@ bool ImageLoaderCommand::run()
 
       for (auto &image : image_list) {
         Image img(image);
-        if (!project.existImage(img.name()))
+        if (!project.existImage(img.id()))
           images.push_back(img);
       }
 
-      for (auto &it = project.cameraBegin(); it != project.cameraEnd(); it++) {
-        cameras.push_back(it->second);
+      for (const auto &camera : project.cameras()) {
+        cameras.push_back(camera.second);
       }
 
       LoadImagesProcess image_loader_process(&images, &cameras, camera_types[mCameraId], project.crs());
@@ -151,12 +151,12 @@ bool ImageLoaderCommand::run()
                 Image image = images[imageId];
                 Camera camera = cameras[cameraId];
                 int id_camera = 0;
-                for (auto it = project.cameraBegin(); it != project.cameraEnd(); it++) {
-                  std::string camera_make = it->second.make();
-                  std::string camera_model = it->second.model();
+                for (const auto &_camera : project.cameras()) {
+                  std::string camera_make = _camera.second.make();
+                  std::string camera_model = _camera.second.model();
                   if (camera.make().compare(camera_make) == 0 &&
                       camera.model().compare(camera_model) == 0) {
-                    id_camera = it->first;
+                    id_camera = _camera.first;
                     break;
                   }
                 }

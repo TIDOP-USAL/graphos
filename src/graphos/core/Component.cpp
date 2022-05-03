@@ -38,7 +38,7 @@ ComponentBase::ComponentBase(Application *application)
     mPresenter(nullptr),
     mApplication(application)
 {
-  ComponentBase::init();
+  init();
 }
 
 ComponentBase::~ComponentBase()

@@ -34,6 +34,8 @@
 
 #include <QObject>
 
+#include <unordered_map>
+
 namespace graphos
 {
 	
@@ -47,7 +49,7 @@ class FeatureExtractorProcess
 
 public:
 
-  FeatureExtractorProcess(const std::vector<Image> &images,
+  FeatureExtractorProcess(const std::unordered_map<size_t, Image> &images,
                           const std::map<int, Camera> &cameras,
                           const QString &database,
                           int maxImageSize,
@@ -58,7 +60,7 @@ public:
 
 signals:
 
-  void featuresExtracted(QString, QString);
+  void features_extracted(qulonglong, QString);
 
 // tl::TaskBase interface
 
@@ -68,8 +70,8 @@ protected:
 
 protected:
 
-  std::vector<Image> mImages;
-  std::map<int, Camera> mCameras;
+  const std::unordered_map<size_t, Image> &mImages;
+  const std::map<int, Camera> &mCameras;
   QString mDatabase;
   int mMaxImageSize;
   bool bUseCuda;

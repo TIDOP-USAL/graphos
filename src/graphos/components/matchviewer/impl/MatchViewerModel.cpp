@@ -103,33 +103,30 @@ void MatchViewerModelImp::init()
 {
 }
 
-std::vector<QString> MatchViewerModelImp::images() const
+const std::unordered_map<size_t, Image> &MatchViewerModelImp::images() const
 {
-  std::vector<QString> images;
-  for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++){
-    images.push_back((*it).path());
-  }
-  return images;
+  return mProject->images();
 }
 
-std::vector<QString> MatchViewerModelImp::imagePairs(const QString &imageName) const
+Image MatchViewerModelImp::image(size_t imageId) const
 {
-  std::vector<QString> pair_names = mProject->matchesPairs(imageName);
-  std::vector<QString> image_pairs;
-  for (auto &image_name : pair_names){
-    image_pairs.push_back(mProject->findImageByName(image_name).path());
-  }
+  return mProject->findImageById(imageId);
+}
+
+std::vector<size_t> MatchViewerModelImp::imagePairs(size_t imageId) const
+{
+  std::vector<size_t> image_pairs = mProject->matchesPairs(imageId);
   return image_pairs;
 }
 
 std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> 
-MatchViewerModelImp::loadMatches(const QString &imgName1, 
-                                 const QString &imgName2) const
+MatchViewerModelImp::loadMatches(size_t imageId1,
+                                 size_t imageId2) const
 {
   std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> matches;
 
-  Image imageLeft = mProject->findImageByName(imgName1);
-  Image imageRight = mProject->findImageByName(imgName2);
+  Image imageLeft = mProject->findImageById(imageId1);
+  Image imageRight = mProject->findImageById(imageId2);
 
   QString database_path = mProject->database();
   if (!QFileInfo(database_path).exists()) throw std::runtime_error("Database not found");

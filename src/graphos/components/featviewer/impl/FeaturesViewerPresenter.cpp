@@ -73,10 +73,15 @@ void FeaturesViewerPresenterImp::open()
 
   mView->show();
 
-  std::vector<QString> images = mModel->images();
-  if (images.empty() == false) {
+  bool active_image = false;
+  std::vector<std::pair<size_t, QString>> images;
+  for (const auto &image : mModel->images()) {
+    images.emplace_back(image.first, image.second.path());
+  }
+
+  if (!images.empty()) {
     mView->setImageList(images);
-    setImageActive(QFileInfo(images[0]).baseName());
+    setImageActive(images[0].first);
   }
 }
 
@@ -91,21 +96,26 @@ void FeaturesViewerPresenterImp::init()
 
 void FeaturesViewerPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &FeaturesViewerView::imageChange, this, &FeaturesViewerPresenterImp::setImageActive);
-  connect(mView, &DialogView::help,               this, &FeaturesViewerPresenterImp::help);
+  connect(mView, &FeaturesViewerView::image_changed, 
+          this,  &FeaturesViewerPresenterImp::setImageActive);
+  connect(mView, &DialogView::help,               
+          this,  &FeaturesViewerPresenterImp::help);
 }
 
-void FeaturesViewerPresenterImp::setImageActive(const QString &image)
+void FeaturesViewerPresenterImp::setImageActive(size_t imageId)
 {
-  mView->setCurrentImage(image);
-  loadKeypoints(image);
+  auto image = mModel->image(imageId);
+  mView->setCurrentImage(image.path());
+  loadKeypoints(image.id());
 }
 
-void FeaturesViewerPresenterImp::loadKeypoints(const QString &image)
+void FeaturesViewerPresenterImp::loadKeypoints(size_t imageId)
 {
   try	{
-    std::vector<QPointF> keypoints = mModel->loadKeypoints(image);
+
+    std::vector<QPointF> keypoints = mModel->loadKeypoints(imageId);
     mView->setKeyPoints(keypoints);
+
   } catch (const std::exception &e) 	{
     msgError(e.what());
   }
