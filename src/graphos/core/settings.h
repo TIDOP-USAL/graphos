@@ -37,7 +37,7 @@ namespace graphos
 /*!
  * \brief Settings interface
  */
-class GRAPHOS_EXPORT Settings
+class Settings
 {
 
 public:
@@ -146,7 +146,7 @@ public:
 /*----------------------------------------------------------------*/
 
 
-class GRAPHOS_EXPORT SettingsController
+class SettingsController
 {
 
 public:
@@ -177,7 +177,7 @@ public:
 /*!
  * \brief The Settings class
  */
-class GRAPHOS_EXPORT SettingsImp
+class SettingsImp
   : public Settings
 {
 
@@ -271,7 +271,7 @@ protected:
 /*----------------------------------------------------------------*/
 
 
-class GRAPHOS_EXPORT SettingsControllerImp
+class SettingsControllerImp
   : public SettingsController
 {
 

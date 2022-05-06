@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graphos>
+    <GroundControlPoints>
+        <Crs>EPSG:25830</Crs>
+        <GroundControlPoint>
+            <Name>1</Name>
+            <x>357037.834</x>
+            <y>4500179.609</y>
+            <z>1068.39</z>
+            <error></error>
+            <ImagePoints>
+                <ImagePoint image_id="14279891027516076788">
+                    <x>2631.1</x>
+                    <y>1364.07</y>
+                </ImagePoint>
+                <ImagePoint image_id="2527135968377211874">
+                    <x>2854.28</x>
+                    <y>1926.99</y>
+                </ImagePoint>
+                <ImagePoint image_id="2472953318340794505">
+                    <x>2964.64</x>
+                    <y>2493.22</y>
+                </ImagePoint>
+                <ImagePoint image_id="7791349128404551079">
+                    <x>3290.86</x>
+                    <y>3073.65</y>
+                </ImagePoint>
+                <ImagePoint image_id="7863668844165026822">
+                    <x>3223.47</x>
+                    <y>729.574</y>
+                </ImagePoint>
+                <ImagePoint image_id="4601686596698981288">
+                    <x>3116.74</x>
+                    <y>1757.46</y>
+                </ImagePoint>
+                <ImagePoint image_id="8268175349278887733">
+                    <x>2614.21</x>
+                    <y>2412.77</y>
+                </ImagePoint>
+            </ImagePoints>
+        </GroundControlPoint>
+        <GroundControlPoint>
+            <Name>2</Name>
+            <x>356966.833</x>
+            <y>4500170.587</y>
+            <z>1068.24</z>
+            <error></error>
+            <ImagePoints>
+                <ImagePoint image_id="2527135968377211874">
+                    <x>2889.97</x>
+                    <y>99.1573</y>
+                </ImagePoint>
+                <ImagePoint image_id="2472953318340794505">
+                    <x>2936.38</x>
+                    <y>657.53</y>
+                </ImagePoint>
+                <ImagePoint image_id="7791349128404551079">
+                    <x>3266.25</x>
+                    <y>1233.87</y>
+                </ImagePoint>
+                <ImagePoint image_id="5792365498584529633">
+                    <x>3272.34</x>
+                    <y>1785.27</y>
+                </ImagePoint>
+                <ImagePoint image_id="16506143075884347867">
+                    <x>2166.2</x>
+                    <y>1023.97</y>
+                </ImagePoint>
+                <ImagePoint image_id="11204019758058020352">
+                    <x>2401.17</x>
+                    <y>1396.99</y>
+                </ImagePoint>
+                <ImagePoint image_id="7863668844165026822">
+                    <x>2087.34</x>
+                    <y>2112.81</y>
+                </ImagePoint>
+            </ImagePoints>
+        </GroundControlPoint>
+        <GroundControlPoint>
+            <Name>3</Name>
+            <x>356980.003</x>
+            <y>4500124.763</y>
+            <z>1068.36</z>
+            <error></error>
+            <ImagePoints>
+                <ImagePoint image_id="2527135968377211874">
+                    <x>1684.86</x>
+                    <y>251.097</y>
+                </ImagePoint>
+                <ImagePoint image_id="2472953318340794505">
+                    <x>1728.68</x>
+                    <y>840.862</y>
+                </ImagePoint>
+                <ImagePoint image_id="7791349128404551079">
+                    <x>2050.06</x>
+                    <y>1439.7</y>
+                </ImagePoint>
+                <ImagePoint image_id="5792365498584529633">
+                    <x>2064.41</x>
+                    <y>1969.65</y>
+                </ImagePoint>
+                <ImagePoint image_id="16506143075884347867">
+                    <x>3157.45</x>
+                    <y>1561</y>
+                </ImagePoint>
+                <ImagePoint image_id="11204019758058020352">
+                    <x>3428.42</x>
+                    <y>1931.14</y>
+                </ImagePoint>
+                <ImagePoint image_id="7863668844165026822">
+                    <x>3091.4</x>
+                    <y>2684.06</y>
+                </ImagePoint>
+            </ImagePoints>
+        </GroundControlPoint>
+        <GroundControlPoint>
+            <Name>4</Name>
+            <x>357063.790</x>
+            <y>4500108.690</y>
+            <z>1069.15</z>
+            <error></error>
+            <ImagePoints>
+                <ImagePoint image_id="14279891027516076788">
+                    <x>685.536</x>
+                    <y>1712.31</y>
+                </ImagePoint>
+                <ImagePoint image_id="2527135968377211874">
+                    <x>918.882</x>
+                    <y>2312.22</y>
+                </ImagePoint>
+                <ImagePoint image_id="2472953318340794505">
+                    <x>1026.06</x>
+                    <y>2972.75</y>
+                </ImagePoint>
+                <ImagePoint image_id="7863668844165026822">
+                    <x>4800.96</x>
+                    <y>1577.72</y>
+                </ImagePoint>
+                <ImagePoint image_id="4601686596698981288">
+                    <x>4831.45</x>
+                    <y>2521.58</y>
+                </ImagePoint>
+                <ImagePoint image_id="8268175349278887733">
+                    <x>4197.56</x>
+                    <y>3156.53</y>
+                </ImagePoint>
+            </ImagePoints>
+        </GroundControlPoint>
+        <GroundControlPoint>
+            <Name>5</Name>
+            <x>356942.251</x>
+            <y>4500107.722</y>
+            <z>1068.06</z>
+            <error></error>
+            <ImagePoints>
+                <ImagePoint image_id="7791349128404551079">
+                    <x>1726.76</x>
+                    <y>413.477</y>
+                </ImagePoint>
+                <ImagePoint image_id="5792365498584529633">
+                    <x>1753.48</x>
+                    <y>913.991</y>
+                </ImagePoint>
+                <ImagePoint image_id="16506143075884347867">
+                    <x>2842.62</x>
+                    <y>2489.76</y>
+                </ImagePoint>
+                <ImagePoint image_id="11204019758058020352">
+                    <x>3078.66</x>
+                    <y>2853.79</y>
+                </ImagePoint>
+            </ImagePoints>
+        </GroundControlPoint>
+        <GroundControlPoint>
+            <Name>6</Name>
+            <x>356962.577</x>
+            <y>4500218.838</y>
+            <z>1068.22</z>
+            <error></error>
+            <ImagePoints>
+                <ImagePoint image_id="2527135968377211874">
+                    <x>4117.58</x>
+                    <y>193.83</y>
+                </ImagePoint>
+                <ImagePoint image_id="2472953318340794505">
+                    <x>4136.08</x>
+                    <y>722.018</y>
+                </ImagePoint>
+                <ImagePoint image_id="7791349128404551079">
+                    <x>4485.94</x>
+                    <y>1277.76</y>
+                </ImagePoint>
+                <ImagePoint image_id="5792365498584529633">
+                    <x>4423.22</x>
+                    <y>1843.45</y>
+                </ImagePoint>
+                <ImagePoint image_id="7863668844165026822">
+                    <x>1158.06</x>
+                    <y>1299.43</y>
+                </ImagePoint>
+                <ImagePoint image_id="4601686596698981288">
+                    <x>1087.54</x>
+                    <y>2428.26</y>
+                </ImagePoint>
+                <ImagePoint image_id="8268175349278887733">
+                    <x>492.286</x>
+                    <y>3085.93</y>
+                </ImagePoint>
+            </ImagePoints>
+        </GroundControlPoint>
+    </GroundControlPoints>
+</Graphos>

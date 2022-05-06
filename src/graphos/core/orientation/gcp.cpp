@@ -49,12 +49,12 @@ void GroundControlPoint::setName(const std::string &name)
   mName = name;
 }
 
-tl::Point3D GroundControlPoint::point() const
+tl::Point3<double> GroundControlPoint::point() const
 {
   return mCoordinates;
 }
 
-void GroundControlPoint::setPoint(const tl::Point3D &point)
+void GroundControlPoint::setPoint(const tl::Point3<double> &point)
 {
   mCoordinates = point;
 }
@@ -89,21 +89,35 @@ void GroundControlPoint::setZ(double z)
   mCoordinates.z = z;
 }
 
-void GroundControlPoint::addImagePoint(const std::string &image, const tl::PointD &point)
+void GroundControlPoint::addImagePoint(size_t imageId, 
+                                       const tl::Point<double> &point)
 {
-  mPoints[image] = point;
+  mPoints[imageId] = point;
 }
 
-tl::PointD GroundControlPoint::imagePoint(const std::string &image)
+tl::PointD GroundControlPoint::imagePoint(size_t imageId) const
 {
-  return mPoints[image];
+  return mPoints.at(imageId);
 }
 
-bool GroundControlPoint::existImagePoint(const std::string &image)
+bool GroundControlPoint::existImagePoint(size_t imageId) const
 {
-  auto it = mPoints.find(image);
+  auto it = mPoints.find(imageId);
   
   return (it != mPoints.end());
+}
+
+void GroundControlPoint::removeImagePoint(size_t imageId)
+{
+  auto it = mPoints.find(imageId);
+  if (it != mPoints.end()) {
+    mPoints.erase(it);
+  }
+}
+
+const std::unordered_map<size_t, tl::Point<double>> &GroundControlPoint::imagePoints() const
+{
+  return mPoints;
 }
 
 
@@ -147,15 +161,21 @@ std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile)
 
                     while(stream.readNextStartElement()) {
 
-                      std::string image_id;
-                      tl::PointD point_2d;
-
                       if(stream.name() == "ImagePoint") {
 
+
+                        size_t image_id;
+                        tl::PointD point_2d;
+
+                        for (auto &attr : stream.attributes()) {
+                          if (attr.name().compare(QString("image_id")) == 0) {
+                            image_id = attr.value().toULongLong();
+                            break;
+                          }
+                        }
+
                         while(stream.readNextStartElement()) {
-                          if(stream.name() == "Image") {
-                            image_id = stream.readElementText().toStdString();
-                          } else if(stream.name() == "x") {
+                          if(stream.name() == "x") {
                             point_2d.x = stream.readElementText().toDouble();
                           } else if(stream.name() == "y") {
                             point_2d.y = stream.readElementText().toDouble();
@@ -163,10 +183,11 @@ std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile)
                             stream.skipCurrentElement();
                           }
                         }
+
+                        gcp.addImagePoint(image_id, point_2d);
+
                       } else
                         stream.skipCurrentElement();
-
-                      gcp.addImagePoint(image_id, point_2d);
 
                     }
 

@@ -42,7 +42,7 @@ namespace graphos
 class Calibration;
 class Camera;
 
-class GRAPHOS_EXPORT ReadCalibration
+class ReadCalibration
 {
 
 public:

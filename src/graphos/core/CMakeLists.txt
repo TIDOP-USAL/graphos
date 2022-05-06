@@ -44,11 +44,11 @@ set(GRAPHOS_CORE_SOURCES
     orientation/poses.cpp
     orientation/posesio.cpp
     orientation/gcp.cpp
-    densification/CmvsPmvs.cpp
-    densification/Smvs.cpp
-    densification/Mvs.cpp
-    densification/DenseExport.cpp
-    densification/densification.cpp
+    dense/CmvsPmvs.cpp
+    dense/Smvs.cpp
+    dense/Mvs.cpp
+    dense/DenseExport.cpp
+    dense/dense.cpp
     utils.cpp
     dtm/dtm.cpp
     dtm/invdist.cpp
@@ -90,11 +90,11 @@ set(GRAPHOS_CORE_HEADERS
     orientation/poses.h
     orientation/posesio.h
     orientation/gcp.h
-    densification/densification.h
-    densification/CmvsPmvs.h
-    densification/Smvs.h
-    densification/Mvs.h
-    densification/DenseExport.h
+    dense/dense.h
+    dense/CmvsPmvs.h
+    dense/Smvs.h
+    dense/Mvs.h
+    dense/DenseExport.h
     utils.h
     dtm/dtm.h
     dtm/invdist.h

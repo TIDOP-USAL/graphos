@@ -25,8 +25,8 @@
 
 #include "graphos/core/features/sift.h"
 #include "graphos/core/features/matching.h"
-#include "graphos/core/densification/Smvs.h"
-#include "graphos/core/densification/CmvsPmvs.h"
+#include "graphos/core/dense/Smvs.h"
+#include "graphos/core/dense/CmvsPmvs.h"
 //#include "graphos/core/utils.h"
 //#include "graphos/core/dtm/invdist.h"
 //#include "graphos/core/dtm/invdistnn.h"
@@ -155,27 +155,8 @@ bool ProjectImp::updateImage(size_t imageId, const Image &image)
   }
 }
 
-//bool ProjectImp::removeImage(const QString &imgPath)
-//{
-//  if (existImage(imgPath)){
-//    removeImage(imageId(imgPath));
-//    return true;
-//  } else {
-//    QByteArray ba = imgPath.toLocal8Bit();
-//    msgWarning("Image to be deleted does not exist in the project: %s", ba.data());
-//    return false;
-//  }
-//}
-
 void ProjectImp::removeImage(size_t imageId)
 {
-  //if (imgId != std::numeric_limits<size_t>::max() &&
-  //    imgId < mImages.size()){
-  //  mImages.erase(mImages.begin() + static_cast<long long>(imgId));
-  //  return true;
-  //} else {
-  //  return false;
-  //}
   auto it = mImages.find(imageId);
   if (it != mImages.end()) {
     mImages.erase(it);
@@ -183,18 +164,6 @@ void ProjectImp::removeImage(size_t imageId)
 
   TL_TODO("Borrar las features, matches, etc")
 }
-
-//Image ProjectImp::findImage(const QString &imgName) const
-//{
-//  TL_TODO("Esto deberia devolver un iterador o quitarse. Ademas esta repetida con findImageByName")
-//  for (auto &image : mImages) {
-//    if (image.name().compare(imgName) == 0) {
-//      return image;
-//    }
-//  }
-//  QByteArray ba = imgName.toLocal8Bit();
-//  throw TL_ERROR("Image not found: %s", ba.data());
-//}
 
 Image ProjectImp::findImageById(size_t id) const
 {
@@ -205,72 +174,16 @@ Image ProjectImp::findImageById(size_t id) const
   }
 }
 
-//Image ProjectImp::findImageByName(const QString &imgName) const
-//{
-//  Image image;
-//  for (auto &image : mImages) {
-//    if (image.name().compare(imgName) == 0) {
-//      return image;
-//    }
-//  }
-//  return image;
-//
-//  //QByteArray ba = imgName.toLocal8Bit();
-//  //throw TL_ERROR("Image not found: %s", ba.data());
-//}
-
 bool ProjectImp::existImage(size_t imageId) const
 {
   auto it = mImages.find(imageId);
   return (it != mImages.end());
-  //for (auto &image : mImages) {
-  //  if (image.second.name().compare(imgName) == 0) {
-  //    return true;
-  //  }
-  //}
-  //return false;
 }
 
 const std::unordered_map<size_t, Image> &ProjectImp::images() const
 {
   return mImages;
 }
-
-//size_t ProjectImp::imageId(const QString &imageName) const
-//{
-//  for (size_t i = 0; i < mImages.size(); i++){
-//    if (mImages[i].name().compare(imageName) == 0) {
-//      return i;
-//    }
-//  }
-//  std::string msg = std::string("Image not found: ").append(imageName.toStdString());
-//  throw std::runtime_error(msg.c_str());
-//}
-
-//std::vector<Image> ProjectImp::images() const
-//{
-//  return mImages;
-//}
-
-//Project::image_iterator ProjectImp::imageBegin()
-//{
-//  return mImages.begin();
-//}
-//
-//Project::image_const_iterator ProjectImp::imageBegin() const
-//{
-//  return mImages.cbegin();
-//}
-//
-//Project::image_iterator ProjectImp::imageEnd()
-//{
-//  return mImages.end();
-//}
-//
-//Project::image_const_iterator ProjectImp::imageEnd() const
-//{
-//  return mImages.cend();
-//}
 
 size_t ProjectImp::imagesCount() const
 {
@@ -884,6 +797,7 @@ Image ProjectImp::readImage(QXmlStreamReader &stream)
     }*/ else
       stream.skipCurrentElement();
   }
+
   return photo;
 }
 

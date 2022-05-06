@@ -40,7 +40,7 @@ class IncrementalMapperController;
 namespace graphos
 {
 
-class TL_EXPORT RelativeOrientationColmapProperties
+class RelativeOrientationColmapProperties
   : public RelativeOrientation
 {
 
@@ -76,7 +76,7 @@ private:
 /*----------------------------------------------------------------*/
 
 
-class TL_EXPORT RelativeOrientationColmapAlgorithm
+class RelativeOrientationColmapAlgorithm
   : public RelativeOrientationColmapProperties,
     public RelativeOrientationAlgorithm
 {
@@ -107,7 +107,7 @@ private:
 
 /*----------------------------------------------------------------*/
 
-class TL_EXPORT AbsoluteOrientationColmapProperties
+class AbsoluteOrientationColmapProperties
   : public AbsoluteOrientation
 {
 
@@ -172,7 +172,7 @@ private:
 
 /*----------------------------------------------------------------*/
 
-class TL_EXPORT AbsoluteOrientationColmapProperties2
+class AbsoluteOrientationColmapProperties2
   : public AbsoluteOrientation
 {
 

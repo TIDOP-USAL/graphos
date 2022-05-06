@@ -39,7 +39,7 @@ namespace graphos
 /*!
  * \brief Interface SIFT Widget
  */
-class GRAPHOS_EXPORT SiftWidget
+class SiftWidget
   : public GraphosWidgetView
 {
   Q_OBJECT
@@ -127,7 +127,7 @@ public slots:
 };
 
 
-class GRAPHOS_EXPORT SiftWidgetImp
+class SiftWidgetImp
   : public SiftWidget
 {
   Q_OBJECT

@@ -35,7 +35,7 @@ class QPushButton;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT NvmFormatWidget
+class NvmFormatWidget
   : public GraphosWidgetView
 {
 
@@ -58,7 +58,7 @@ public slots:
 
 };
 
-class GRAPHOS_EXPORT NvmFormatWidgetImp
+class NvmFormatWidgetImp
   : public NvmFormatWidget
 {
 

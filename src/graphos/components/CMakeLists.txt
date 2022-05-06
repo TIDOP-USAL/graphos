@@ -96,12 +96,12 @@ set(GRAPHOS_SOURCES
     orientation/impl/RelativeOrientationProcess.cpp
     orientation/impl/AbsoluteOrientationProcess.cpp
     orientation/impl/ImportOrientationProcess.cpp
-    densification/DensificationComponent.cpp
-    densification/impl/DensificationModel.cpp
-    densification/impl/DensificationView.cpp
-    densification/impl/DensificationPresenter.cpp
-    densification/impl/DensificationCommand.cpp
-    densification/impl/DensificationProcess.cpp
+    dense/DensificationComponent.cpp
+    dense/impl/DensificationModel.cpp
+    dense/impl/DensificationView.cpp
+    dense/impl/DensificationPresenter.cpp
+    dense/impl/DensificationCommand.cpp
+    dense/impl/DensificationProcess.cpp
     featviewer/FeaturesViewerComponent.cpp
     featviewer/impl/FeaturesViewerView.cpp
     featviewer/impl/FeaturesViewerModel.cpp
@@ -222,15 +222,15 @@ set(GRAPHOS_HEADERS
     orientation/impl/RelativeOrientationProcess.h
     orientation/impl/AbsoluteOrientationProcess.h
     orientation/impl/ImportOrientationProcess.h
-    densification/DensificationComponent.h
-    densification/DensificationModel.h
-    densification/DensificationView.h
-    densification/DensificationPresenter.h
-    densification/impl/DensificationModel.h
-    densification/impl/DensificationView.h
-    densification/impl/DensificationPresenter.h
-    densification/impl/DensificationCommand.h
-    densification/impl/DensificationProcess.h
+    dense/DensificationComponent.h
+    dense/DensificationModel.h
+    dense/DensificationView.h
+    dense/DensificationPresenter.h
+    dense/impl/DensificationModel.h
+    dense/impl/DensificationView.h
+    dense/impl/DensificationPresenter.h
+    dense/impl/DensificationCommand.h
+    dense/impl/DensificationProcess.h
     featviewer/FeaturesViewerComponent.h
     featviewer/FeaturesViewerView.h
     featviewer/FeaturesViewerModel.h

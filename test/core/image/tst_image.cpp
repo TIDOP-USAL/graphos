@@ -1,160 +1,139 @@
-#include <QtTest>
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
 
+#define BOOST_TEST_MODULE GRAPHOS Image test
+
+#include <boost/test/unit_test.hpp>
 #include "graphos/core/image.h"
 
 using namespace graphos;
 
-class TestImage
-  : public QObject
+BOOST_AUTO_TEST_SUITE(TestImageSuite)
+
+struct TestImage
 {
-  Q_OBJECT
 
-public:
+  TestImage() 
+    : mImageDefaultConstructor(new Image),
+      mImage(new Image("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png"))
+  {
 
-  TestImage();
-  ~TestImage();
+  }
 
-private slots:
+  ~TestImage()
+  {
+    if (mImageDefaultConstructor) {
+      delete mImageDefaultConstructor;
+    }
 
-  void initTestCase();
-  void cleanupTestCase();
-  void test_constructor();
-  void test_path_data();
-  void test_path();
-  void test_name_data();
-  void test_name();
-  void test_cameraId_data();
-  void test_cameraId();
+    if (mImage) {
+      delete mImage;
+    }
+  }
 
-protected:
+  void setup()
+  {
+    mImage->setCameraId(1);
+    CameraPose camera_pose;
+    camera_pose.setPosition(tl::Point3D(0.5, 2.3, 10.2));
+    mImage->setCameraPose(camera_pose);
+  }
 
+  void teardown()
+  {
+
+  }
+
+  Image *mImageDefaultConstructor;
   Image *mImage;
 };
 
 
-TestImage::TestImage()
-  : mImage(new Image)
+BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestImage)
 {
+  BOOST_CHECK_EQUAL("", mImageDefaultConstructor->path().toStdString());
+  BOOST_CHECK_EQUAL("", mImageDefaultConstructor->name().toStdString());
+  BOOST_CHECK_EQUAL(0, mImageDefaultConstructor->cameraId());
+  CameraPose camera_pose = mImageDefaultConstructor->cameraPose();
+  BOOST_CHECK_EQUAL(true, camera_pose.isEmpty());
 }
 
-TestImage::~TestImage()
+BOOST_FIXTURE_TEST_CASE(Constructor, TestImage)
 {
-  if (mImage){
-    delete mImage;
-  }
-}
-
-void TestImage::initTestCase()
-{
-  QCOMPARE(QString(), mImage->path());
-  QCOMPARE(QString(), mImage->name());
-  QCOMPARE(0, mImage->cameraId());
+  BOOST_CHECK_EQUAL("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png", mImage->path().toStdString());
+  BOOST_CHECK_EQUAL("img001.png", mImage->name().toStdString());
+  BOOST_CHECK_EQUAL(1, mImage->cameraId());
   CameraPose camera_pose = mImage->cameraPose();
-  QCOMPARE(true, camera_pose.isEmpty());
+  BOOST_CHECK_EQUAL(false, camera_pose.isEmpty());
+  BOOST_CHECK(tl::Point3D(0.5, 2.3, 10.2) == camera_pose.position());
 }
 
-void TestImage::cleanupTestCase()
+BOOST_FIXTURE_TEST_CASE(copy_constructor, TestImage)
 {
-
+  Image image(*mImage);
+  BOOST_CHECK_EQUAL("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png", image.path().toStdString());
+  BOOST_CHECK_EQUAL("img001.png", image.name().toStdString());
+  BOOST_CHECK_EQUAL(1, image.cameraId());
+  CameraPose camera_pose = image.cameraPose();
+  BOOST_CHECK(tl::Point3D(0.5, 2.3, 10.2) == camera_pose.position());
 }
 
-void TestImage::test_constructor()
+BOOST_FIXTURE_TEST_CASE(move_constructor, TestImage)
 {
-
-  mImage = new Image("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png");
-  QCOMPARE(QString("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png"), mImage->path());
-  QCOMPARE(QString("img001"), mImage->name());
-  QCOMPARE(0, mImage->cameraId());
-  CameraPose camera_pose = mImage->cameraPose();
-  QCOMPARE(true, camera_pose.isEmpty());
-  QCOMPARE(tl::Point3D(), camera_pose.position());
-
-  /// Copy constructor
-  Image image("C:/Users/User01/Documents/Graphos/Projects/images/img002.png");
+  Image image("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img002.png");
   image.setCameraId(1);
-  CameraPose camera_pose_2;
-  camera_pose_2.setPosition(tl::Point3D(0.5, 2.3, 10.2));
-  image.setCameraPose(camera_pose_2);
-  mImage = new Image(image);
-  QCOMPARE(QString("C:/Users/User01/Documents/Graphos/Projects/images/img002.png"), mImage->path());
-  QCOMPARE(QString("img002"), mImage->name());
-  QCOMPARE(1, mImage->cameraId());
-  camera_pose = mImage->cameraPose();
-  QCOMPARE(tl::Point3D(0.5, 2.3, 10.2), camera_pose.position());
+  CameraPose camera_pose;
+  camera_pose.setPosition(tl::Point3D(0.6, 2.4, 10.1));
+  image.setCameraPose(camera_pose);
 
-  /// Move constructor
-  mImage = new Image(std::move(image));
-  QCOMPARE(QString("C:/Users/User01/Documents/Graphos/Projects/images/img002.png"), mImage->path());
-  QCOMPARE(QString("img002"), mImage->name());
-  QCOMPARE(1, mImage->cameraId());
-  camera_pose = mImage->cameraPose();
-  QCOMPARE(tl::Point3D(0.5, 2.3, 10.2), camera_pose.position());
+  Image image_move(image);
+  BOOST_CHECK_EQUAL("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img002.png", image_move.path().toStdString());
+  BOOST_CHECK_EQUAL("img002.png", image_move.name().toStdString());
+  BOOST_CHECK_EQUAL(1, image_move.cameraId());
+  camera_pose = image_move.cameraPose();
+  BOOST_CHECK(tl::Point3D(0.6, 2.4, 10.1) == camera_pose.position());
 
 }
 
-void TestImage::test_path_data()
+BOOST_FIXTURE_TEST_CASE(path, TestImage)
 {
-  QTest::addColumn<QString>("value");
-  QTest::addColumn<QString>("result");
-
-  QTest::newRow("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png")
-             << "C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png"
-             << "C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png";
-  QTest::newRow("C:/Users/User01/Documents/Graphos/Projects/images/img001.png")
-             << "C:/Users/User01/Documents/Graphos/Projects/images/img001.png"
-             << "C:/Users/User01/Documents/Graphos/Projects/images/img001.png";
+  mImage->setPath("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png");
+  BOOST_CHECK_EQUAL("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png", mImage->path().toStdString());
 }
 
-void TestImage::test_path()
+BOOST_FIXTURE_TEST_CASE(name, TestImage)
 {
-  QFETCH(QString, value);
-  QFETCH(QString, result);
-
-  mImage->setPath(value);
-  QCOMPARE(result, mImage->path());
+  mImage->setPath("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png");
+  BOOST_CHECK_EQUAL("img001.png", mImage->name().toStdString());
 }
 
-void TestImage::test_name_data()
+BOOST_FIXTURE_TEST_CASE(cameraId, TestImage)
 {
-  QTest::addColumn<QString>("value");
-  QTest::addColumn<QString>("result");
+  mImage->setCameraId(1);
+  BOOST_CHECK_EQUAL(1, mImage->cameraId());
 
-  QTest::newRow("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png")
-             << "C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png"
-             << "img001";
-  QTest::newRow("C:/Users/User01/Documents/Graphos/Projects/images/img001.png")
-             << "C:/Users/User01/Documents/Graphos/Projects/images/img001.png"
-             << "img001";
+  mImage->setCameraId(2);
+  BOOST_CHECK_EQUAL(2, mImage->cameraId());
 }
 
-void TestImage::test_name()
-{
-  QFETCH(QString, value);
-  QFETCH(QString, result);
-
-  mImage->setPath(value);
-  QCOMPARE(result, mImage->name());
-}
-
-void TestImage::test_cameraId_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("1") << 1 << 1;
-  QTest::newRow("2") << 2 << 2;
-  QTest::newRow("3") << 3 << 3;
-}
-
-void TestImage::test_cameraId()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mImage->setCameraId(value);
-  QCOMPARE(result, mImage->cameraId());
-}
-
-QTEST_APPLESS_MAIN(TestImage)
-
-#include "tst_image.moc"
+BOOST_AUTO_TEST_SUITE_END()

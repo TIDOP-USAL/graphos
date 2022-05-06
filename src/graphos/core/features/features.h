@@ -37,12 +37,11 @@
 
 #include <tidop/core/flags.h>
 
-
 namespace graphos
 {
 
 
-class GRAPHOS_EXPORT Feature
+class Feature
 {
 
 public:
@@ -79,7 +78,7 @@ ALLOW_BITWISE_FLAG_OPERATIONS(Feature::Type)
 
 
 
-class GRAPHOS_EXPORT KeypointDetector
+class KeypointDetector
 {
 
 public:
@@ -106,7 +105,7 @@ public:
 
 
 
-class GRAPHOS_EXPORT DescriptorExtractor
+class DescriptorExtractor
 {
 
 public:
@@ -132,7 +131,7 @@ public:
 /*----------------------------------------------------------------*/
 
 
-class GRAPHOS_EXPORT FeatureExtractor
+class FeatureExtractor
 {
 
 public:
@@ -160,7 +159,7 @@ public:
 /*!
  * \brief The IAkaze class
  */
-class GRAPHOS_EXPORT Akaze
+class Akaze
   : public Feature
 {
 
@@ -261,7 +260,7 @@ public:
 
 
 
-class GRAPHOS_EXPORT Sift
+class Sift
   : public Feature
 {
 public:
@@ -345,7 +344,7 @@ public:
 
 
 
-class GRAPHOS_EXPORT FeatureMatching
+class FeatureMatching
 {
 public:
 

@@ -210,7 +210,7 @@ set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME     OFF)
  	
-find_package(Boost COMPONENTS filesystem system REQUIRED)
+find_package(Boost COMPONENTS filesystem system unit_test_framework REQUIRED)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     set(HAVE_BOOST YES)
@@ -360,13 +360,13 @@ if(Qt5_FOUND)
 
 
 	include_directories(${Qt5Core_INCLUDE_DIRS}
-                      ${Qt5OpenGL_INCLUDE_DIRS}
-                      ${Qt5Widgets_INCLUDE_DIRS}
-                      ${Qt5Help_INCLUDE_DIRS}
-                      ${Qt5Sql_INCLUDE_DIRS}
-                      ${Qt5Concurrent_INCLUDE_DIRS}
-                      ${Qt5LinguistTools_INCLUDE_DIRS}
-                      ${Qt5OpenGLExtensions_INCLUDE_DIRS})
+                        ${Qt5OpenGL_INCLUDE_DIRS}
+                        ${Qt5Widgets_INCLUDE_DIRS}
+                        ${Qt5Help_INCLUDE_DIRS}
+                        ${Qt5Sql_INCLUDE_DIRS}
+                        ${Qt5Concurrent_INCLUDE_DIRS}
+                        ${Qt5LinguistTools_INCLUDE_DIRS}
+                        ${Qt5OpenGLExtensions_INCLUDE_DIRS})
 	if(BUILD_TEST)
 		include_directories(${Qt5Test_INCLUDE_DIRS})
 	endif(BUILD_TEST)

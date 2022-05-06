@@ -34,7 +34,7 @@
 #include "graphos/components/featextract/FeatureExtractorComponent.h"
 #include "graphos/components/featmatch/FeatureMatchingComponent.h"
 #include "graphos/components/orientation/OrientationComponent.h"
-#include "graphos/components/densification/DensificationComponent.h"
+#include "graphos/components/dense/DensificationComponent.h"
 //#include "graphos/components/dtm/DTMComponent.h"
 //#include "graphos/components/orthophoto/OrthophotoComponent.h"
 //#include "graphos/components/georeference/GeoreferenceComponent.h"

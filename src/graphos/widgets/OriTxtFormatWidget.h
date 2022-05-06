@@ -36,7 +36,7 @@ class QComboBox;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT OriTxtFormatWidget
+class OriTxtFormatWidget
   : public GraphosWidgetView
 {
 
@@ -63,7 +63,7 @@ public slots:
 
 
 
-class GRAPHOS_EXPORT OriTxtFormatWidgetImp
+class OriTxtFormatWidgetImp
   : public OriTxtFormatWidget
 {
 

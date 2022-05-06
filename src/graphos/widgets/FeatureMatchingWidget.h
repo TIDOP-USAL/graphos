@@ -35,7 +35,7 @@ class QCheckBox;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT FeatureMatchingWidget
+class FeatureMatchingWidget
   : public GraphosWidgetView
 {
 
@@ -73,7 +73,7 @@ public slots:
 };
 
 
-class GRAPHOS_EXPORT FeatureMatchingWidgetImp
+class FeatureMatchingWidgetImp
   : public FeatureMatchingWidget
 {
 

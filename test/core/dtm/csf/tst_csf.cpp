@@ -1,189 +1,132 @@
-#include <QtTest>
-#include <QCoreApplication>
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
 
+#define BOOST_TEST_MODULE GRAPHOS CSF test
+
+#include <boost/test/unit_test.hpp>
 #include "graphos/core/dtm/Csf.h"
 
 using namespace graphos;
 
-class TestCSF
-  : public QObject
+BOOST_AUTO_TEST_SUITE(CSFTestSuite)
+
+struct TestCSF
 {
-  Q_OBJECT
+  TestCSF()
+    : mCsf(new Csf())
+  {
+  }
 
-public:
-
-  TestCSF();
-  ~TestCSF();
-
-private slots:
-
-  void initTestCase();
-  void cleanupTestCase();
-  void test_sloopSmooth_data();
-  void test_sloopSmooth();
-  void test_timeStep_data();
-  void test_timeStep();
-  void test_classThreshold_data();
-  void test_classThreshold();
-  void test_clothResolution_data();
-  void test_clothResolution();
-  void test_rigidness_data();
-  void test_rigidness();
-  void test_iterations_data();
-  void test_iterations();
-
-private:
+  ~TestCSF()
+  {
+    if (mCsf) {
+      delete mCsf;
+      mCsf = nullptr;
+    }
+  }
 
   Csf *mCsf;
 
 };
 
 
-TestCSF::TestCSF()
+
+
+
+BOOST_FIXTURE_TEST_CASE(default_constructor, TestCSF)
 {
-  mCsf = new Csf();
+  BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
+  BOOST_CHECK_EQUAL(0.65, mCsf->timeStep());
+  BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
+  BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
+  BOOST_CHECK_EQUAL(2, mCsf->rigidness());
+  BOOST_CHECK_EQUAL(500, mCsf->iterations());
 }
 
-TestCSF::~TestCSF()
-{
-  if (mCsf){
-    delete mCsf;
-    mCsf = nullptr;
-  }
-}
-
-
-void TestCSF::initTestCase()
-{
-  QCOMPARE(false, mCsf->sloopSmooth());
-  QCOMPARE(0.65, mCsf->timeStep());
-  QCOMPARE(0.5, mCsf->classThreshold());
-  QCOMPARE(2, mCsf->clothResolution());
-  QCOMPARE(2, mCsf->rigidness());
-  QCOMPARE(500, mCsf->iterations());
-}
-
-void TestCSF::cleanupTestCase()
+BOOST_FIXTURE_TEST_CASE(reset, TestCSF)
 {
   mCsf->reset();
 
-  QCOMPARE(false, mCsf->sloopSmooth());
-  QCOMPARE(0.65, mCsf->timeStep());
-  QCOMPARE(0.5, mCsf->classThreshold());
-  QCOMPARE(2, mCsf->clothResolution());
-  QCOMPARE(2, mCsf->rigidness());
-  QCOMPARE(500, mCsf->iterations());
+  BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
+  BOOST_CHECK_EQUAL(0.65, mCsf->timeStep());
+  BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
+  BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
+  BOOST_CHECK_EQUAL(2, mCsf->rigidness());
+  BOOST_CHECK_EQUAL(500, mCsf->iterations());
 }
 
-void TestCSF::test_sloopSmooth_data()
+BOOST_FIXTURE_TEST_CASE(sloop_smooth, TestCSF)
 {
-  QTest::addColumn<bool>("value");
-  QTest::addColumn<bool>("result");
+  mCsf->setSloopSmooth(true);
+  BOOST_CHECK_EQUAL(true, mCsf->sloopSmooth());
 
-  QTest::newRow("true") << true << true;
-  QTest::newRow("false") << false << false;
+  mCsf->setSloopSmooth(false);
+  BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
 }
 
-void TestCSF::test_sloopSmooth()
+BOOST_FIXTURE_TEST_CASE(time_step, TestCSF)
 {
-  QFETCH(bool, value);
-  QFETCH(bool, result);
+  mCsf->setTimeStep(.3);
+  BOOST_CHECK_EQUAL(.3, mCsf->timeStep());
 
-  mCsf->setSloopSmooth(value);
-  QCOMPARE(result, mCsf->sloopSmooth());
+  mCsf->setTimeStep(.5);
+  BOOST_CHECK_EQUAL(.5, mCsf->timeStep());
 }
 
-void TestCSF::test_timeStep_data()
+BOOST_FIXTURE_TEST_CASE(class_threshold, TestCSF)
 {
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
+  mCsf->setClassThreshold(1.0);
+  BOOST_CHECK_EQUAL(1.0, mCsf->classThreshold());
 
-  QTest::newRow(".3") << .3 << .3;
-  QTest::newRow(".4") << .4 << .4;
+  mCsf->setClassThreshold(0.5);
+  BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
 }
 
-void TestCSF::test_timeStep()
+BOOST_FIXTURE_TEST_CASE(cloth_resolution, TestCSF)
 {
-  QFETCH(double, value);
-  QFETCH(double, result);
+  mCsf->setClothResolution(1);
+  BOOST_CHECK_EQUAL(1, mCsf->clothResolution());
 
-  mCsf->setTimeStep(value);
-  QCOMPARE(result, mCsf->timeStep());
+  mCsf->setClothResolution(2);
+  BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
 }
 
-void TestCSF::test_classThreshold_data()
+BOOST_FIXTURE_TEST_CASE(rigidness, TestCSF)
 {
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
+  mCsf->setRigidness(1);
+  BOOST_CHECK_EQUAL(1, mCsf->rigidness());
 
-  QTest::newRow("1.0") << 1.0 << 1.0;
-  QTest::newRow("0.5") << 0.5 << 0.5;
-  QTest::newRow("2.0") << 2.0 << 2.0;
+  mCsf->setRigidness(2);
+  BOOST_CHECK_EQUAL(2, mCsf->rigidness());
 }
 
-void TestCSF::test_classThreshold()
+BOOST_FIXTURE_TEST_CASE(iterations, TestCSF)
 {
-  QFETCH(double, value);
-  QFETCH(double, result);
+  mCsf->setIterations(50);
+  BOOST_CHECK_EQUAL(50, mCsf->iterations());
 
-  mCsf->setClassThreshold(value);
-  QCOMPARE(result, mCsf->classThreshold());
+  mCsf->setIterations(100);
+  BOOST_CHECK_EQUAL(100, mCsf->iterations());
 }
 
-void TestCSF::test_clothResolution_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("1") << 1 << 1;
-  QTest::newRow("2") << 2 << 2;
-}
-
-void TestCSF::test_clothResolution()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mCsf->setClothResolution(value);
-  QCOMPARE(result, mCsf->clothResolution());
-}
-
-void TestCSF::test_rigidness_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("1") << 1 << 1;
-  QTest::newRow("2") << 2 << 2;
-}
-
-void TestCSF::test_rigidness()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mCsf->setRigidness(value);
-  QCOMPARE(result, mCsf->rigidness());
-}
-
-void TestCSF::test_iterations_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("50") << 50 << 50;
-  QTest::newRow("100") << 100 << 100;
-}
-
-void TestCSF::test_iterations()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mCsf->setIterations(value);
-  QCOMPARE(result, mCsf->iterations());
-}
-
-QTEST_APPLESS_MAIN(TestCSF)
-
-#include "tst_csf.moc"
+BOOST_AUTO_TEST_SUITE_END()

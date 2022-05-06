@@ -38,7 +38,7 @@ namespace graphos
 /*!
  * \brief FeaturesWriter class allows the writing of the detected features in different formats
  */
-class GRAPHOS_EXPORT FeaturesWriter
+class FeaturesWriter
 {
 
 public:
@@ -65,7 +65,7 @@ protected:
 /*!
  * \brief The FeaturesWriter class allows the reading of the different formats of features files
  */
-class GRAPHOS_EXPORT FeaturesReader
+class FeaturesReader
 {
 
 public:
@@ -94,7 +94,7 @@ protected:
 /*!
  * \brief Factory class to create different reading formats
  */
-class GRAPHOS_EXPORT FeaturesReaderFactory
+class FeaturesReaderFactory
 {
 
 private:
@@ -109,7 +109,7 @@ public:
 /*!
  * \brief Factory class to create different writing formats
  */
-class GRAPHOS_EXPORT FeaturesWriterFactory
+class FeaturesWriterFactory
 {
 public:
 
@@ -128,7 +128,7 @@ public:
 
 
 
-class GRAPHOS_EXPORT FeaturesIOHandler
+class FeaturesIOHandler
 {
 
 public:

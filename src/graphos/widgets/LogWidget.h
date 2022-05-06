@@ -40,7 +40,7 @@ class QGridLayout;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT LogWidget
+class LogWidget
   : public GraphosWidgetView,
     public tl::MessageManager::Listener
 {

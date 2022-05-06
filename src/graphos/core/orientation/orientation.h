@@ -33,7 +33,7 @@
 namespace graphos
 {
 
-class TL_EXPORT RelativeOrientation
+class RelativeOrientation
 {
 
 public:
@@ -65,7 +65,7 @@ ALLOW_BITWISE_FLAG_OPERATIONS(RelativeOrientation::Method)
 
 
 
-class TL_EXPORT RelativeOrientationAlgorithm
+class RelativeOrientationAlgorithm
 {
 
 public:
@@ -79,7 +79,7 @@ public:
 
 /*----------------------------------------------------------------*/
 
-class TL_EXPORT AbsoluteOrientation
+class AbsoluteOrientation
 {
 
 public:
@@ -108,7 +108,7 @@ ALLOW_BITWISE_FLAG_OPERATIONS(AbsoluteOrientation::Method)
 /*----------------------------------------------------------------*/
 
 
-class TL_EXPORT AbsoluteOrientationAlgorithm
+class AbsoluteOrientationAlgorithm
 {
 
 public:

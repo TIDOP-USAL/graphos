@@ -39,7 +39,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/features/features.h"
 #include "graphos/core/orientation/poses.h"
-#include "graphos/core/densification/densification.h"
+#include "graphos/core/dense/dense.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -395,7 +395,7 @@ public:
 //};
 
 
-class GRAPHOS_EXPORT ProjectImp
+class ProjectImp
   : public Project
 {
 

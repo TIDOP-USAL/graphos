@@ -37,7 +37,7 @@ template <typename T> class QFutureWatcher;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT ThumbnailsWidget
+class ThumbnailsWidget
   : public GraphosWidgetView
 {
   Q_OBJECT

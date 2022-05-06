@@ -50,20 +50,20 @@ namespace graphos
  * \param[in] image QImage
  * \return cv::Mat
  */
-GRAPHOS_EXPORT cv::Mat qImageToCvMat(const QImage &image);
+cv::Mat qImageToCvMat(const QImage &image);
 
 /*!
  * \brief Convert cv::Mat to QImage
  * \param[in] image cv::Mat
  * \return QImage
  */
-GRAPHOS_EXPORT QImage cvMatToQImage(const cv::Mat &image);
+QImage cvMatToQImage(const cv::Mat &image);
 
 
-GRAPHOS_EXPORT cv::Mat convertToGray(const cv::Mat &image);
+cv::Mat convertToGray(const cv::Mat &image);
 
-GRAPHOS_EXPORT QSize cvSizeToQSize(const cv::Size &size);
-GRAPHOS_EXPORT cv::Size qSizeToCvSize(const QSize &size);
+QSize cvSizeToQSize(const cv::Size &size);
+cv::Size qSizeToCvSize(const QSize &size);
 
 /*----------------------------------------------------------------*/
 
@@ -74,12 +74,12 @@ GRAPHOS_EXPORT cv::Size qSizeToCvSize(const QSize &size);
  * - El equipo cuente con una GPU compatible con cuda
  * \return True si se cumplen las dos opciones anteriores
  */
-GRAPHOS_EXPORT bool cudaEnabled();  ///TODO: mover a un fichero de utilidades
-GRAPHOS_EXPORT bool cudaEnabled(double minDriver, double minCapability);
+bool cudaEnabled();  ///TODO: mover a un fichero de utilidades
+bool cudaEnabled(double minDriver, double minCapability);
 
 
 TL_TODO("Solución un tanto provisional...")
-class GRAPHOS_EXPORT LogStreamBuf
+class LogStreamBuf
   : public std::streambuf
 {
 
@@ -99,7 +99,7 @@ protected:
 };
 
 
-class GRAPHOS_EXPORT LogStream
+class LogStream
   : public std::ostream
 {
 
@@ -119,7 +119,7 @@ public:
 
 };
 
-GRAPHOS_EXPORT void openPdf(const QString &pdf);
+void openPdf(const QString &pdf);
 
 tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const std::string &ref);
 
