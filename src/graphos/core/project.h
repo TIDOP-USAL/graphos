@@ -57,15 +57,6 @@ class Project
 
 public:
 
-  //typedef std::vector<Image>::iterator image_iterator;
-  //typedef std::vector<Image>::const_iterator image_const_iterator;
-  //typedef std::map<int, Camera>::iterator camera_iterator;
-  //typedef std::map<int, Camera>::const_iterator camera_const_iterator;
-  //typedef std::map<QString, QString>::iterator features_iterator;
-  //typedef std::map<QString, QString>::const_iterator features_const_iterator;
-
-public:
-
   Project() {}
   virtual ~Project() = default;
 
@@ -147,14 +138,8 @@ public:
    */
   virtual void addImage(const Image &img) = 0;
 
-  virtual bool updateImage(size_t imageId, const Image &image) = 0;
-
-  /*!
-   * \brief Elimina una imagen del proyecto
-   * \param[in] imgPath Ruta de la imagen que se quiere eliminar
-   */
-  //virtual bool removeImage(const QString &imgPath) = 0;
-
+  virtual bool updateImage(size_t imageId, 
+                           const Image &image) = 0;
   /*!
    * \brief Elimina una imagen del proyecto
    * \param[in] imgId Identificador de la imagen que se quiere eliminar
@@ -166,51 +151,11 @@ public:
    * \param[in] path Ruta de la imagen a buscar
    * \return Objeto Image correspondiente o puntero nulo si no se encuentra
    */
-  //virtual Image findImage(const QString &path) const = 0;
-
   virtual Image findImageById(size_t id) const = 0;
-  //virtual Image findImageByName(const QString &imgName) const = 0;
-
-  /*!
-   * \brief Busca una imagen en el proyecto
-   * \param[in] imgName Nombre de la imagen a buscar
-   * \return Objeto Identificador de la imagen o std::numeric_limits<size_t>().max() si no se encuentra.
-   */
-  //virtual size_t imageId(const QString &imgName) const = 0;
 
   virtual bool existImage(size_t imageId) const = 0;
 
-  //TODO: ¿Quitar los iteradores y simplificar?
-  //virtual std::vector<Image> images() const = 0;
   virtual const std::unordered_map<size_t, Image> &images() const = 0;
-
-  /// Iteradores para el acceso a las imágenes y las cámaras
-
-  /*!
-   * \brief Devuelve un iterador al inicio del listado de imágenes
-   * \return Iterador al primer elemento del listado de imágenes
-   */
-  //virtual image_iterator imageBegin() = 0;
-
-  /*!
-   * \brief Devuelve un iterador constante al inicio del listado de imágenes
-   * \return Iterador al primer elemento del listado de imágenes
-   */
-  //virtual image_const_iterator imageBegin() const = 0;
-
-  /*!
-   * \brief Devuelve un iterador al siguiente elemento después después de la última imagen
-   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-   * \return Iterador al siguiente elemento después de la última imagen
-   */
-  //virtual image_iterator imageEnd() = 0;
-
-  /*!
-   * \brief Devuelve un iterador constante al siguiente elemento después de la última imagen
-   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-   * \return Iterador constante al siguiente elemento después de la última imagen
-   */
-  //virtual image_const_iterator imageEnd() const = 0;
 
   /*!
    * \brief Número de imagenes cargadas en el proyecto
@@ -233,40 +178,11 @@ public:
   virtual Camera findCamera(const QString &make, const QString &model) const = 0;
 
   virtual Camera findCamera(int idCamera) const = 0;
-
   virtual int cameraId(const QString &make, const QString &model) const = 0;
-
   virtual bool existCamera(const QString &make, const QString &model) const = 0;
   virtual bool updateCamera(int idCamera, const Camera &camera) = 0;
   virtual bool removeCamera(int idCamera) = 0;
   virtual const std::map<int, Camera> &cameras() const = 0;
-
-//  /*!
-//   * \brief Devuelve un iterador al inicio del listado de cámaras
-//   * \return Iterador al primer elemento del listado de cámaras
-//   */
-//  virtual camera_iterator cameraBegin() = 0;
-//
-//  /*!
-//   * \brief Devuelve un iterador constante al inicio del listado de cámaras
-//   * \return Iterador al primer elemento del listado de cámaras
-//   */
-//  virtual camera_const_iterator cameraBegin() const = 0;
-//
-//  /*!
-//   * \brief Devuelve un iterador al siguiente elemento después después de la última cámara
-//   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-//   * \return Iterador al siguiente elemento después de la última cámara
-//   */
-//  virtual camera_iterator cameraEnd() = 0;
-//
-//  /*!
-//   * \brief Devuelve un iterador constante al siguiente elemento después de la última cámara
-//   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-//   * \return Iterador constante al siguiente elemento después de la última cámara
-//   */
-//  virtual camera_const_iterator cameraEnd() const = 0;
-
   virtual size_t camerasCount() const = 0;
 
   virtual std::shared_ptr<Feature> featureExtractor() const = 0;
@@ -278,11 +194,6 @@ public:
   virtual void removeFeatures(size_t imageId) = 0;
   virtual const std::unordered_map<size_t, QString> &features() const  = 0;
 
-  //virtual features_iterator featuresBegin() = 0;
-  //virtual features_const_iterator featuresBegin() const = 0;
-  //virtual features_iterator featuresEnd() = 0;
-  //virtual features_const_iterator featuresEnd() const = 0;
-  
   virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;
   virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
   
@@ -290,9 +201,6 @@ public:
   virtual const std::vector<size_t> matchesPairs(size_t imageLeftId) const = 0;
   virtual void removeMatchesPair() = 0;
   virtual void removeMatchesPair(size_t imageLeftId) = 0;
-  
-  //virtual bool refinePrincipalPoint() const = 0;
-  //virtual void setRefinePrincipalPoint(bool refine) = 0;
   
   virtual QString sparseModel() const = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
@@ -311,12 +219,6 @@ public:
   virtual QString denseModel() const = 0;
   virtual void setDenseModel(const QString &denseModel) = 0;
   virtual void clearDensification() = 0;
-  
-  //virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
-  //virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
-  //virtual QString dtmPath() const = 0;
-  //virtual void setDtmPath(const QString &dtmPath) = 0;
-  //virtual void clearDTM() = 0;
 
   /*!
    * \brief Limpia el proyecto

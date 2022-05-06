@@ -27,9 +27,6 @@
 #include "graphos/core/features/matching.h"
 #include "graphos/core/dense/Smvs.h"
 #include "graphos/core/dense/CmvsPmvs.h"
-//#include "graphos/core/utils.h"
-//#include "graphos/core/dtm/invdist.h"
-//#include "graphos/core/dtm/invdistnn.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/exception.h>
@@ -56,7 +53,6 @@ ProjectImp::ProjectImp()
     mVersion(GRAPHOS_PROJECT_FILE_VERSION),
     mDatabase(""),
     mCrs(""),
-    //bRefinePrincipalPoint(true),
     mReconstructionPath(""),
     mCameraCount(0)
 {
@@ -131,23 +127,17 @@ void ProjectImp::addImage(const Image &img)
   //size_t id = tl::Path::hash(img_path);
   auto it = mImages.find(img.id());
   if (it != mImages.end()){
-  //if (existImage(img.path())){
     QByteArray ba = img.path().toLocal8Bit();
     msgWarning("Image %s already in the project", ba.data());
   } else {
-    //mImages.push_back(img);
     mImages[img.id()] = img;
   }
-
-  //tl::Path img_path(img.path().toStdWString());
-  //mImages[tl::Path::hash(img_path)] = img;
 }
 
 bool ProjectImp::updateImage(size_t imageId, const Image &image)
 {
   auto it = mImages.find(imageId);
   if (it != mImages.end()) {
-  //if (imageId <= mImages.size()){
     mImages[imageId] = image;
     return true;
   } else {
@@ -272,26 +262,6 @@ int ProjectImp::cameraId(const QString &make, const QString &model) const
   return 0;
 }
 
-//Project::camera_iterator ProjectImp::cameraBegin()
-//{
-//  return mCameras.begin();
-//}
-//
-//Project::camera_const_iterator ProjectImp::cameraBegin() const
-//{
-//  return mCameras.cbegin();
-//}
-//
-//Project::camera_iterator ProjectImp::cameraEnd()
-//{
-//  return mCameras.end();
-//}
-//
-//Project::camera_const_iterator ProjectImp::cameraEnd() const
-//{
-//  return mCameras.cend();
-//}
-
 size_t ProjectImp::camerasCount() const
 {
   return mCameras.size();
@@ -328,9 +298,6 @@ void ProjectImp::removeFeatures(size_t imageId)
   auto it = mFeatures.find(imageId);
   if (it != mFeatures.end()){
     mFeatures.erase(it);
-  //  return true;
-  //} else {
-  //  return false;
   }
 }
 
@@ -338,26 +305,6 @@ const std::unordered_map<size_t, QString> &ProjectImp::features() const
 {
   return mFeatures;
 }
-
-//Project::features_iterator ProjectImp::featuresBegin()
-//{
-//  return mFeatures.begin();
-//}
-//
-//Project::features_const_iterator ProjectImp::featuresBegin() const
-//{
-//  return mFeatures.begin();
-//}
-//
-//Project::features_iterator ProjectImp::featuresEnd()
-//{
-//  return mFeatures.end();
-//}
-//
-//Project::features_const_iterator ProjectImp::featuresEnd() const
-//{
-//  return mFeatures.end();
-//}
 
 std::shared_ptr<FeatureMatching> ProjectImp::featureMatching() const
 {
@@ -412,16 +359,6 @@ void ProjectImp::removeMatchesPair(size_t imageLeftId)
     mImagesPairs.erase(it);
   }
 }
-
-//bool ProjectImp::refinePrincipalPoint() const
-//{
-//  return bRefinePrincipalPoint;
-//}
-//
-//void ProjectImp::setRefinePrincipalPoint(bool refine)
-//{
-//  bRefinePrincipalPoint = refine;
-//}
 
 QString ProjectImp::sparseModel() const
 {
@@ -503,31 +440,6 @@ void ProjectImp::clearDensification()
   mDenseModel.clear();
 }
 
-//std::shared_ptr<Dtm> ProjectImp::dtmMethod() const
-//{
-//  return mDtmMethod;
-//}
-//
-//void ProjectImp::setDtmMethod(const std::shared_ptr<Dtm> &dtm)
-//{
-//  mDtmMethod = dtm;
-//}
-//
-//QString ProjectImp::dtmPath() const
-//{
-//  return mDTM;
-//}
-//
-//void ProjectImp::setDtmPath(const QString &dtmPath)
-//{
-//  mDTM = dtmPath;
-//}
-//
-//void ProjectImp::clearDTM()
-//{
-//  mDTM.clear();
-//}
-
 void ProjectImp::clear()
 {
   mName = "";
@@ -544,7 +456,6 @@ void ProjectImp::clear()
   mFeatureMatching.reset();
   mImagesPairs.clear();
   mPhotoOrientation.clear();
-  //bRefinePrincipalPoint = true;
   mSparseModel = "";
   mOffset = "";
   mReconstructionPath = "";
@@ -552,7 +463,7 @@ void ProjectImp::clear()
   mDenseModel = "";
   //mDtmMethod.reset();
   //mDTM.clear();
-  //mCameraCount = 0;
+  mCameraCount = 0;
 }
 
 bool ProjectImp::load(const QString &file)
@@ -1021,7 +932,7 @@ void ProjectImp::readMatchingMethod(QXmlStreamReader &stream)
 
 void ProjectImp::readPairs(QXmlStreamReader &stream)
 {
-  size_t id_left_image;
+  size_t id_left_image = 0;
   for (auto &attr : stream.attributes()) {
     if (attr.name().compare(QString("image_id")) == 0) {
       id_left_image = attr.value().toULongLong();
@@ -1343,7 +1254,6 @@ void ProjectImp::writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Im
   stream.writeStartElement("Image");
   {
     stream.writeAttribute("id", QString::number(image.first));
-    //stream.writeTextElement("id", QString::number(image.first));
     stream.writeTextElement("File", image.second.path());
     stream.writeTextElement("CameraId", QString::number(image.second.cameraId()));
     writeCameraPosition(stream, image.second.cameraPose());
