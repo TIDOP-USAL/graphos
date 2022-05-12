@@ -33,6 +33,7 @@ namespace graphos
 {
 
 class Densifier;
+class Camera;
 
 class DensificationProcess
   : public QObject,
@@ -43,6 +44,7 @@ class DensificationProcess
 public:
 
   DensificationProcess(const std::shared_ptr<Densifier> &densifier,
+                       const std::map<int, Camera> &cameras,
                        const QString &reconstructionPath,
                        const QString &outputPath);
   ~DensificationProcess() override = default;
@@ -56,7 +58,7 @@ public:
 
 signals:
 
-  void densificationFinished();
+  //void densificationFinished();
 
 // tl::TaskBase interface
 
@@ -67,6 +69,7 @@ protected:
 private:
 
   std::shared_ptr<Densifier> mDensifier;
+  std::map<int, Camera> mCameras;
   QString mReconstructionPath;
   QString mOutputPat;
 };

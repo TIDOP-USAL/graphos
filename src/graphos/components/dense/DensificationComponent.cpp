@@ -70,9 +70,10 @@ void DensificationComponent::createPresenter()
   setPresenter(new DensificationPresenterImp(dynamic_cast<DensificationView *>(view()),
                                              dynamic_cast<DensificationModel *>(model())));
   
-  connect(dynamic_cast<DensificationPresenter *>(presenter()), 
-          &DensificationPresenter::densification_finished, 
-          this, &DensificationComponent::densification_finished);
+  //TL_TODO("Reemplazar señales por finished o mover a ComponentProcess")
+  //connect(dynamic_cast<DensificationPresenter *>(presenter()), 
+  //        &DensificationPresenter::densification_finished, 
+  //        this, &DensificationComponent::densification_finished);
 }
 
 void DensificationComponent::createCommand()

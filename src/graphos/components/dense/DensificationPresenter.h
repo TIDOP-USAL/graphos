@@ -43,7 +43,7 @@ public:
 
 signals:
 
-  void densification_finished();
+  //void densification_finished();
 
 public slots:
 

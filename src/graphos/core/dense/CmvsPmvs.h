@@ -28,6 +28,8 @@
 
 #include "graphos/core/dense/dense.h"
 
+#include <tidop/core/path.h>
+
 #include <QString>
 
 namespace graphos
@@ -122,9 +124,10 @@ public:
 
 // DensificationProcess interface
 
-  bool undistort(const QString &reconstructionPath,
+
+  void undistort(const QString &reconstructionPath,
                  const QString &outputPath) override;
-  bool densify(const QString &undistortPath) override;
+  void densify(const QString &undistortPath) override;
   void enableCuda(bool enable) override;
 
 // Densification interface
@@ -137,6 +140,7 @@ public:
 
 private:
 
+  void clearPreviousModel();
   void createDirectories();
   void createDirectory(const std::string &path);
   void writeBundleFile();
@@ -151,7 +155,7 @@ private:
 
   bool bOpenCvRead;
   bool bCuda;
-  std::string mOutputPath;
+  tl::Path mOutputPath;
   internal::Reconstruction *mReconstruction;
   ReadCalibration *mCalibrationReader;
 };

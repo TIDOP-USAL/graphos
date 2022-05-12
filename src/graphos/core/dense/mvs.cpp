@@ -92,12 +92,14 @@ private:
 constexpr auto mvsDefaultResolutionLevel = 1;
 constexpr auto mvsDefaultMinResolution = 640;
 constexpr auto mvsDefaultMaxResolution = 3200;
-constexpr auto mvsDefaultNumberViewsFuse = 5;
+constexpr auto mvsDefaultNumberViews = 5;
+constexpr auto mvsDefaultNumberViewsFuse = 3;
 
 MvsProperties::MvsProperties()
   : mResolutionLevel(mvsDefaultResolutionLevel),
     mMinResolution(mvsDefaultMinResolution),
     mMaxResolution(mvsDefaultMaxResolution),
+    mNumberViews(mvsDefaultNumberViews),
     mNumberViewsFuse(mvsDefaultNumberViewsFuse)
 {
 }
@@ -107,6 +109,7 @@ MvsProperties::MvsProperties(const MvsProperties &mvs)
     mResolutionLevel(mvs.mResolutionLevel),
     mMinResolution(mvs.mMinResolution),
     mMaxResolution(mvs.mMaxResolution),
+    mNumberViews(mvs.mNumberViews),
     mNumberViewsFuse(mvs.mNumberViewsFuse)
 {
 }
@@ -116,6 +119,7 @@ MvsProperties::MvsProperties(MvsProperties &&mvs) noexcept
     mResolutionLevel(mvs.mResolutionLevel),
     mMinResolution(mvs.mMinResolution),
     mMaxResolution(mvs.mMaxResolution),
+    mNumberViews(mvs.mNumberViews),
     mNumberViewsFuse(mvs.mNumberViewsFuse)
 {
 }
@@ -126,6 +130,7 @@ MvsProperties &MvsProperties::operator =(const MvsProperties &mvs)
     mResolutionLevel = mvs.mResolutionLevel;
     mMinResolution = mvs.mMinResolution;
     mMaxResolution = mvs.mMaxResolution;
+    mNumberViews = mvs.mNumberViews;
     mNumberViewsFuse = mvs.mNumberViewsFuse;
   }
 
@@ -138,6 +143,7 @@ MvsProperties &MvsProperties::operator =(MvsProperties &&mvs) noexcept
     mResolutionLevel = mvs.mResolutionLevel;
     mMinResolution = mvs.mMinResolution;
     mMaxResolution = mvs.mMaxResolution;
+    mNumberViews = mvs.mNumberViews;
     mNumberViewsFuse = mvs.mNumberViewsFuse;
   }
 
@@ -157,6 +163,11 @@ int MvsProperties::minResolution() const
 int MvsProperties::maxResolution() const
 {
   return mMaxResolution;
+}
+
+int MvsProperties::numberViews() const
+{
+  return mNumberViews;
 }
 
 int MvsProperties::numberViewsFuse() const
@@ -179,6 +190,11 @@ void MvsProperties::setMaxResolution(int maxResolution)
   mMaxResolution = maxResolution;
 }
 
+void MvsProperties::setNumberViews(int numberViews)
+{
+  mNumberViews = numberViews;
+}
+
 void MvsProperties::setNumberViewsFuse(int numberViewsFuse)
 {
   mNumberViewsFuse = numberViewsFuse;
@@ -189,6 +205,7 @@ void MvsProperties::reset()
   mResolutionLevel = mvsDefaultResolutionLevel;
   mMinResolution = mvsDefaultMinResolution;
   mMaxResolution = mvsDefaultMaxResolution;
+  mNumberViews = mvsDefaultNumberViews;
   mNumberViewsFuse = mvsDefaultNumberViewsFuse;
 }
 
@@ -217,6 +234,7 @@ MvsDensifier::MvsDensifier()
 MvsDensifier::MvsDensifier(int resolutionLevel,
                            int minResolution,
                            int maxResolution,
+                           int numberViews,
                            int numberViewsFuse,
                            bool cuda)
   : bOpenCvRead(true),
@@ -228,6 +246,7 @@ MvsDensifier::MvsDensifier(int resolutionLevel,
   MvsProperties::setResolutionLevel(resolutionLevel);
   MvsProperties::setMinResolution(minResolution);
   MvsProperties::setMaxResolution(maxResolution);
+  MvsProperties::setNumberViews(numberViews);
   MvsProperties::setNumberViewsFuse(numberViewsFuse);
 }
 
@@ -244,42 +263,50 @@ MvsDensifier::~MvsDensifier()
   }
 }
 
-bool MvsDensifier::undistort(const QString &reconstructionPath,
+void MvsDensifier::undistort(const QString &reconstructionPath,
                              const QString &outputPath)
 {
   mReconstruction = new internal::Reconstruction(reconstructionPath.toStdString());
   mCalibrationReader = new ReadCalibration();
   mCalibrationReader->open(reconstructionPath);
 
-  mOutputPath = outputPath.toStdString() + "/mvs";
+  mOutputPath = outputPath.toStdString();
+  mOutputPath.append("mvs");
 
+  this->clearPreviousModel();
   this->createDirectories();
   this->writeNVMFile();
   this->undistortImages();
   this->exportToMVS();
 
-  return false;
 }
 
-bool MvsDensifier::densify(const QString &undistortPath)
+void MvsDensifier::densify(const QString &undistortPath)
 {
-  tl::Path app_path = tl::App::instance().path();
-  std::string cmd_mvs("\"");
-  //cmd_mvs.append(app_path.parentPath().toString());
-  cmd_mvs.append("C:\\OpenMVS\\DensifyPointCloud\" -w \"");
-  cmd_mvs.append(mOutputPath);
-  cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 0");
-  cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
-  cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
-  cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
-  cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
+  try {
 
-  msgInfo("Process: %s", cmd_mvs.c_str());
-  tl::Process process(cmd_mvs);
-  process.run();
+    tl::Path app_path = tl::App::instance().path();
+    std::string cmd_mvs("\"");
+    //cmd_mvs.append(app_path.parentPath().toString());
+    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
+    cmd_mvs.append(mOutputPath.toString());
+    cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 0");
+    cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
+    cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
+    cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
+    cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
+    cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
+   
+    msgInfo("Process: %s", cmd_mvs.c_str());
+    tl::Process process(cmd_mvs);
 
-  
-  return false;
+    process.run();
+   
+    if (process.status() == tl::Process::Status::error) TL_THROW_EXCEPTION(cmd_mvs.c_str());
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
 }
 
 void MvsDensifier::enableCuda(bool enable)
@@ -293,28 +320,35 @@ void MvsDensifier::reset()
   bOpenCvRead = true;
 }
 
+void MvsDensifier::clearPreviousModel()
+{
+  mOutputPath.removeDirectory();
+}
+
 void MvsDensifier::createDirectories()
 {
-  createDirectory(mOutputPath);
-  createDirectory(std::string(mOutputPath).append("/undistort"));
-  createDirectory(std::string(mOutputPath).append("/models"));
+  mOutputPath.createDirectory();
+  createDirectory("undistort");
+  createDirectory("models");
   //createDirectory(std::string(mOutputPath).append("/temp"));
 }
 
-void MvsDensifier::createDirectory(const std::string &path)
+void MvsDensifier::createDirectory(const std::string &dir)
 {
-  tl::Path dir(path);
-  if (!dir.exists() && !dir.createDirectories()) {
-      std::string err = "The output directory cannot be created: ";
-      err.append(path);
-      throw std::runtime_error(err);
+  tl::Path path(mOutputPath);
+  path.append(dir);
+  if (!path.exists() && !path.createDirectories()) {
+    std::string err = "The output directory cannot be created: ";
+    err.append(path.toString());
+    throw std::runtime_error(err);
   }
 }
 
 void MvsDensifier::writeNVMFile()
 {
+  try {
 
-  if (mReconstruction) {
+    TL_ASSERT(mReconstruction, "There is not a valid reconstruction");
 
     colmap::Reconstruction &reconstruction = mReconstruction->colmap();
 
@@ -330,13 +364,15 @@ void MvsDensifier::writeNVMFile()
       int feature_count = reconstruction.NumPoints3D();
 
       stream << "NVM_V3 \n\n" << camera_count << "\n";
+      
+      stream << std::fixed << std::setprecision(12);
 
       const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
 
       for (auto &camera : reconstruction.Cameras()) {
 
         std::shared_ptr<Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
-        
+
         float focal_x{};
         float focal_y{};
         if (calibration->existParameter(Calibration::Parameters::focal)) {
@@ -346,7 +382,7 @@ void MvsDensifier::writeNVMFile()
           focal_x = static_cast<float>(calibration->parameter(Calibration::Parameters::focalx));
           focal_y = static_cast<float>(calibration->parameter(Calibration::Parameters::focaly));
         }
-        
+
         float ppx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
         float ppy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
 
@@ -358,17 +394,17 @@ void MvsDensifier::writeNVMFile()
         cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
         cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
         distCoeffs.at<float>(0) = calibration->existParameter(Calibration::Parameters::k1) ?
-                                  static_cast<float>(calibration->parameter(Calibration::Parameters::k1)) : 0.f;
+          static_cast<float>(calibration->parameter(Calibration::Parameters::k1)) : 0.f;
         distCoeffs.at<float>(1) = calibration->existParameter(Calibration::Parameters::k2) ?
-                                  static_cast<float>(calibration->parameter(Calibration::Parameters::k2)) : 0.f;
+          static_cast<float>(calibration->parameter(Calibration::Parameters::k2)) : 0.f;
         distCoeffs.at<float>(2) = calibration->existParameter(Calibration::Parameters::p1) ?
-                                  static_cast<float>(calibration->parameter(Calibration::Parameters::p1)) : 0.f;
+          static_cast<float>(calibration->parameter(Calibration::Parameters::p1)) : 0.f;
         distCoeffs.at<float>(3) = calibration->existParameter(Calibration::Parameters::p2) ?
-                                  static_cast<float>(calibration->parameter(Calibration::Parameters::p2)) : 0.f;
+          static_cast<float>(calibration->parameter(Calibration::Parameters::p2)) : 0.f;
         distCoeffs.at<float>(4) = calibration->existParameter(Calibration::Parameters::k3) ?
-                                  static_cast<float>(calibration->parameter(Calibration::Parameters::k3)) : 0.f;
+          static_cast<float>(calibration->parameter(Calibration::Parameters::k3)) : 0.f;
 
-        cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
+        cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr, true);
         float new_focal = (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.f;
 
         for (size_t i = 0; i < reg_image_ids.size(); ++i) {
@@ -389,7 +425,7 @@ void MvsDensifier::writeNVMFile()
             stream << projection_center(2) << " ";
             stream << 0 << " ";
             stream << 0 << std::endl;
-            
+
           }
         }
       }
@@ -399,11 +435,11 @@ void MvsDensifier::writeNVMFile()
       for (auto &points_3d : reconstruction.Points3D()) {
 
         stream << points_3d.second.X() << " "
-               << points_3d.second.Y() << " "
-               << points_3d.second.Z() << " "
-               << static_cast<int>(points_3d.second.Color(0)) << " "
-               << static_cast<int>(points_3d.second.Color(1)) << " "
-               << static_cast<int>(points_3d.second.Color(2)) << " ";
+          << points_3d.second.Y() << " "
+          << points_3d.second.Z() << " "
+          << static_cast<int>(points_3d.second.Color(0)) << " "
+          << static_cast<int>(points_3d.second.Color(1)) << " "
+          << static_cast<int>(points_3d.second.Color(2)) << " ";
 
 
 
@@ -418,16 +454,16 @@ void MvsDensifier::writeNVMFile()
 
         for (auto &map : track_ids_not_repeat) {
 
-          colmap::image_t image_id = map.first+1;
+          colmap::image_t image_id = map.first + 1;
           const colmap::Image &image = reconstruction.Image(image_id);
           const colmap::Camera &camera = reconstruction.Camera(image.CameraId());
 
           const colmap::Point2D &point2D = image.Point2D(map.second);
 
-          stream << " " << static_cast<int>(image_id) 
-                 << " " << map.second 
-                 << " " << point2D.X() 
-                 << " " << point2D.Y();
+          stream << " " << static_cast<int>(image_id - 1)
+            << " " << map.second
+            << " " << point2D.X()
+            << " " << point2D.Y();
         }
 
         stream << std::endl;
@@ -435,8 +471,10 @@ void MvsDensifier::writeNVMFile()
 
       stream.close();
     }
-  } else 
-    msgError("There is not a valid reconstruction");
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
+  }
 }
 
 void MvsDensifier::undistortImages()
@@ -472,8 +510,10 @@ void MvsDensifier::undistortImages()
     TL_TODO("undistortImage()")
 
     for (size_t i = 0; i < reg_image_ids.size(); ++i) {
+
       colmap::image_t image_id = reg_image_ids[i];
       colmap::Image &image = reconstruction.Image(image_id);
+
       if (image.CameraId() == camera.second.CameraId()) {
 
         std::string image_file = image.Name();
@@ -569,17 +609,26 @@ void MvsDensifier::exportToMVS()
   //                        -i "C:\Users\Tido\OneDrive - Universidad de Salamanca\Documents\graphos\Projects\ZufreFotogrametria\dense\mvs\model.nvm" 
   //                        -o "C:\Users\Tido\OneDrive - Universidad de Salamanca\Documents\graphos\Projects\ZufreFotogrametria\dense\mvs\model.nvs" -v 0
 
-  tl::Path app_path = tl::App::instance().path();
-  std::string cmd_mvs("\"");
-  //cmd_mvs.append(app_path.parentPath().toString());
-  //cmd_mvs.append("C:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
-  cmd_mvs.append("C:\\OpenMVS\\InterfaceCOLMAP.exe\" - w \"");
-  cmd_mvs.append(mOutputPath);
-  cmd_mvs.append("\" -i model.nvm -o model.mvs -v 0");
+  try {
 
-  msgInfo("Process: %s", cmd_mvs.c_str());
-  tl::Process process(cmd_mvs);
-  process.run();
+    tl::Path app_path = tl::App::instance().path();
+    std::string cmd_mvs("\"");
+    //cmd_mvs.append(app_path.parentPath().toString());
+    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
+    //cmd_mvs.append("C:\\OpenMVS\\InterfaceCOLMAP.exe\" - w \"");
+    cmd_mvs.append(mOutputPath.toString());
+    cmd_mvs.append("\" -i model.nvm -o model.mvs -v 0");
+
+    msgInfo("Process: %s", cmd_mvs.c_str());
+    tl::Process process(cmd_mvs);
+   
+    process.run();
+  
+    if (process.status() == tl::Process::Status::error) TL_THROW_EXCEPTION(cmd_mvs.c_str());
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
 }
 
 } // namespace graphos

@@ -283,7 +283,7 @@ void OrthoimageProcess::execute(tl::Progress *progressBar)
 
   TL_TODO("Producer-consumer...")
 
-  if (progressBar) progressBar->setMaximun(mImages.size());
+  if (progressBar) progressBar->setMaximum(mImages.size());
 
   for (const auto &image : mImages) {
 

@@ -472,7 +472,7 @@ void ImportOrientationProcess::execute(tl::Progress *progressBar)
 
       if(status() == tl::Task::Status::stopping) return;
 
-      TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation")
+      TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation");
 
       colmap::IncrementalMapper mapper(&database_cache);
       mapper.BeginReconstruction(&reconstruction);

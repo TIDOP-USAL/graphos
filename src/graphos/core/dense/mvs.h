@@ -28,6 +28,8 @@
 
 #include "graphos/core/dense/dense.h"
 
+#include <tidop/core/path.h>
+
 #include <QString>
 
 namespace graphos
@@ -61,11 +63,13 @@ public:
   int resolutionLevel() const override;
   int minResolution() const override;
   int maxResolution() const override;
+  int numberViews() const override;
   int numberViewsFuse() const override;
 
   void setResolutionLevel(int resolutionLevel) override;
   void setMinResolution(int minResolution) override;
   void setMaxResolution(int maxResolution) override;
+  void setNumberViews(int numberViews) override;
   void setNumberViewsFuse(int numberViewsFuse) override;
 
 // Densification interface
@@ -80,6 +84,7 @@ protected:
   int mResolutionLevel;
   int mMinResolution;
   int mMaxResolution;
+  int mNumberViews;
   int mNumberViewsFuse;
 
 };
@@ -99,6 +104,7 @@ public:
   MvsDensifier(int resolutionLevel,
                int minResolution,
                int maxResolution,
+               int numberViews,
                int numberViewsFuse,
                bool cuda = false);
   ~MvsDensifier() override;
@@ -110,9 +116,9 @@ public:
 
 // DensificationProcess interface
 
-  bool undistort(const QString &reconstructionPath,
+  void undistort(const QString &reconstructionPath,
                  const QString &outputPath) override;
-  bool densify(const QString &undistortPath) override;
+  void densify(const QString &undistortPath) override;
   void enableCuda(bool enable) override;
 
 // Densification interface
@@ -125,6 +131,7 @@ public:
 
 private:
 
+  void clearPreviousModel();
   void createDirectories();
   void createDirectory(const std::string &path);
   void writeNVMFile();
@@ -138,7 +145,7 @@ private:
 
   bool bOpenCvRead;
   bool bCuda;
-  std::string mOutputPath;
+  tl::Path mOutputPath;
   internal::Reconstruction *mReconstruction;
   ReadCalibration *mCalibrationReader;
 };

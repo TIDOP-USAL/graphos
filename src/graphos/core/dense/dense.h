@@ -76,12 +76,29 @@ public:
   Densifier() {}
   virtual ~Densifier() = default;
 
-  virtual bool undistort(const QString &reconstructionPath,
-                         const QString &outputPath);
-  virtual bool densify(const QString &undistortPath) = 0;
-
+  virtual void undistort(const QString &reconstructionPath,
+                         const QString &outputPath) = 0;
+  virtual void densify(const QString &undistortPath) = 0;
   virtual void enableCuda(bool enable) = 0;
+
 };
+
+
+///TODO: Crear clase DensifierBase
+
+//class DensifierBase
+//{
+//
+//public:
+//
+//  DensifierBase();
+//  ~DensifierBase();
+//
+//  void createDirectory(const std::string &path);
+//
+//private:
+//
+//};
 
 
 
@@ -161,11 +178,13 @@ public:
   virtual int resolutionLevel() const = 0;
   virtual int minResolution() const = 0;
   virtual int maxResolution() const = 0;
+  virtual int numberViews() const = 0;
   virtual int numberViewsFuse() const = 0;
 
   virtual void setResolutionLevel(int resolutionLevel) = 0;
   virtual void setMinResolution(int minResolution) = 0;
   virtual void setMaxResolution(int maxResolution) = 0;
+  virtual void setNumberViews(int numberViews) = 0;
   virtual void setNumberViewsFuse(int numberViewsFuse) = 0;
 };
 

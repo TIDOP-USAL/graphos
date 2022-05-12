@@ -44,11 +44,11 @@ set(GRAPHOS_CORE_SOURCES
     orientation/poses.cpp
     orientation/posesio.cpp
     orientation/gcp.cpp
+    dense/dense.cpp
     dense/CmvsPmvs.cpp
     dense/Smvs.cpp
     dense/Mvs.cpp
     dense/DenseExport.cpp
-    dense/dense.cpp
     utils.cpp
     dtm/dtm.cpp
     dtm/invdist.cpp

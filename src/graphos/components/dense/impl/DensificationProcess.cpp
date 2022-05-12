@@ -24,6 +24,7 @@
 #include "DensificationProcess.h"
 
 #include "graphos/core/dense/dense.h"
+#include "graphos/core/camera/Camera.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -32,10 +33,12 @@ namespace graphos
 {
 
 DensificationProcess::DensificationProcess(const std::shared_ptr<Densifier> &densifier,
+                                           const std::map<int, Camera> &cameras, 
                                            const QString &reconstructionPath,
                                            const QString &outputPath)
   : tl::TaskBase(),
     mDensifier(densifier),
+    mCameras(cameras),
     mReconstructionPath(reconstructionPath),
     mOutputPat(outputPath)
 {
@@ -57,11 +60,10 @@ void DensificationProcess::execute(tl::Progress *progressBar)
 
     chrono.stop();
 
-    emit densificationFinished();
-    if(progressBar) (*progressBar)();
+    if (progressBar) (*progressBar)();
 
   } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
+    TL_THROW_EXCEPTION_WITH_NESTED("Densification Process error");
   }
 }
 

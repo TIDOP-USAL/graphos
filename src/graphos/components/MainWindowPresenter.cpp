@@ -488,7 +488,7 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
   try {
 
     QFileInfo fileInfo(model3D);
-    TL_ASSERT(fileInfo.exists(), "File not found")
+    TL_ASSERT(fileInfo.exists(), "File not found");
 
     mTabHandler->setModel3D(model3D);
     

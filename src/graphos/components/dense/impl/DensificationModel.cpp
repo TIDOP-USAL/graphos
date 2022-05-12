@@ -86,6 +86,11 @@ bool DensificationModelImp::existDenseModel() const
   return !dense_model.isEmpty();
 }
 
+const std::map<int, Camera> &DensificationModelImp::cameras() const
+{
+  return mProject->cameras();
+}
+
 void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)
 {
   mProject->setDensification(densification);

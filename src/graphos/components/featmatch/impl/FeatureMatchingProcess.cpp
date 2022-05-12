@@ -80,7 +80,7 @@ void FeatureMatchingProcess::execute(tl::Progress *progressBar)
     siftMatchingOptions.min_num_inliers = 15;// 100;
 
     colmap::Database database(mDatabase.toStdString());
-    TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database")
+    TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
 
     if (bSpatialMatching) {
 

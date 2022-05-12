@@ -56,7 +56,6 @@ private:
 private slots:
 
   void onDensificationChanged(const QString &densification);
-  void onFinishDensification();
 
 // DensificationPresenter interface
 

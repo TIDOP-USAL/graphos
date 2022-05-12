@@ -52,7 +52,6 @@ DensificationPresenterImp::~DensificationPresenterImp()
   }
 }
 
-
 void DensificationPresenterImp::help()
 {
   if (mHelp){
@@ -163,6 +162,7 @@ void DensificationPresenterImp::setMvsProperties()
     mMVS->setResolutionLevel(mvs->resolutionLevel());
     mMVS->setMinResolution(mvs->minResolution());
     mMVS->setMaxResolution(mvs->maxResolution());
+    mMVS->setNumberViews(mvs->numberViews());
     mMVS->setNumberViewsFuse(mvs->numberViewsFuse());
   }
 }
@@ -183,11 +183,37 @@ void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
-
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Densification finished"));
+  QString dense_path = mModel->projectFolder();
+  dense_path.append("/dense");
+  QString densification_method = mView->currentDensificationMethod();
+  if (densification_method.compare("CMVS/PMVS") == 0) {
+    dense_path.append("/pmvs/models/option-all.ply");
+  } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
+    dense_path.append("/smvs/smvs-");
+    if (mSmvs->shadingBasedOptimization()) dense_path.append("S");
+    else dense_path.append("B");
+    dense_path.append(QString::number(mSmvs->inputImageScale())).append(".ply");
+  } else if (densification_method.compare("MVS") == 0) {
+    dense_path.append("/mvs/model_dense.ply");
+  } else {
+    return;
   }
+
+  if (QFileInfo(dense_path).exists()) {
+    mModel->setDenseModel(dense_path);
+
+    ProcessPresenter::onFinished(event);
+
+    if (progressHandler()) {
+      progressHandler()->setDescription(tr("Densification finished"));
+    }
+
+  } else {
+    /// TODO: Devolver error
+    progressHandler()->setDescription(tr("Densification error"));
+    msgError("Densification failed");
+  }
+
 }
 
 std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
@@ -227,7 +253,11 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                 mModel->useCuda());
 
   } else if(densification_method.compare("MVS") == 0) {
-    densifier = std::make_shared<MvsDensifier>();
+    densifier = std::make_shared<MvsDensifier>(mMVS->resolutionLevel(),
+                                               mMVS->minResolution(),
+                                               mMVS->maxResolution(),
+                                               mMVS->numberViews(),
+                                               mMVS->numberViewsFuse());
 
   } else {
     mView->hide();
@@ -240,11 +270,9 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
   QString mOutputPat = mModel->projectFolder() + "/dense";
 
   dense_process = std::make_unique<DensificationProcess>(densifier,
+                                                         mModel->cameras(),
                                                          mReconstructionPath,
                                                          mOutputPat);
-
-  connect(dynamic_cast<DensificationProcess *>(dense_process.get()), &DensificationProcess::densificationFinished,
-          this, &DensificationPresenterImp::onFinishDensification);
 
   if (progressHandler()){
     progressHandler()->setRange(0, 1);
@@ -255,34 +283,6 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
   mView->hide();
 
   return dense_process;
-}
-
-/// Redundante con DensificationPresenterImp::onFinished()
-void DensificationPresenterImp::onFinishDensification()
-{
-  QString dense_path = mModel->projectFolder();
-  dense_path.append("/dense");
-  QString densification_method = mView->currentDensificationMethod();
-  if (densification_method.compare("CMVS/PMVS") == 0) {
-    dense_path.append("/pmvs/models/option-all.ply");
-  } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
-    dense_path.append("/smvs-");
-    if (mSmvs->shadingBasedOptimization()) dense_path.append("S");
-    else dense_path.append("B");
-    dense_path.append(QString::number(mSmvs->inputImageScale())).append(".ply");
-  } else if(densification_method.compare("MVS") == 0) {
-    dense_path.append("/mvs/model_dense.ply");
-  } else {
-    return;
-  }
-
-  if (QFileInfo(dense_path).exists()) {
-    mModel->setDenseModel(dense_path);
-    emit densification_finished();
-  } else {
-    /// TODO: Devolver error
-    msgError("Densification failed");
-  }
 }
 
 } // End namespace graphos

@@ -73,7 +73,7 @@ protected:
 std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile);
 
 ///TODO: La escritura tendría que estar aqui
-
+void groundControlPointsWrite(const tl::Path &gcpFile, const std::vector<GroundControlPoint> &gcps);
 
 } // namespace graphos
 

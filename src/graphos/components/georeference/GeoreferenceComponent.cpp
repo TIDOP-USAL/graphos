@@ -66,8 +66,6 @@ void GeoreferenceComponent::createPresenter()
 {
   setPresenter(new GeoreferencePresenterImp(dynamic_cast<GeoreferenceView *>(view()), 
                                             dynamic_cast<GeoreferenceModel *>(model())));
-  connect(dynamic_cast<GeoreferencePresenterImp *>(presenter()), &GeoreferencePresenter::georeferenceFinished,
-          this, &GeoreferenceComponent::georeferenceFinished);
 }
 
 void GeoreferenceComponent::createCommand()

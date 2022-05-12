@@ -35,8 +35,8 @@
 #include "graphos/components/featmatch/FeatureMatchingComponent.h"
 #include "graphos/components/orientation/OrientationComponent.h"
 #include "graphos/components/dense/DensificationComponent.h"
-//#include "graphos/components/dtm/DTMComponent.h"
-//#include "graphos/components/orthophoto/OrthophotoComponent.h"
+#include "graphos/components/dtm/DTMComponent.h"
+#include "graphos/components/orthophoto/OrthophotoComponent.h"
 //#include "graphos/components/georeference/GeoreferenceComponent.h"
 #include "graphos/components/featviewer/FeaturesViewerComponent.h"
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
   OrientationComponent orientation_component(&app);
   DensificationComponent densification_component(&app);
   //GeoreferenceComponent georeference_component(&app);
-  //DTMComponent dtm_component(&app);
-  //OrthophotoComponent orthophoto_component(&app);
+  DTMComponent dtm_component(&app);
+  OrthophotoComponent orthophoto_component(&app);
   FeaturesViewerComponent features_viewer_component(&app);
   MatchViewerComponent match_viewer_component(&app);
   //SettingsComponent settings_component(&app);
@@ -111,8 +111,8 @@ int main(int argc, char *argv[])
     app.addComponent(&orientation_component);
     app.addComponent(&densification_component);
     //app.addComponent(&georeference_component);
-    //app.addComponent(&dtm_component);
-    //app.addComponent(&orthophoto_component);
+    app.addComponent(&dtm_component);
+    app.addComponent(&orthophoto_component);
     app.addComponent(&features_viewer_component);
     app.addComponent(&match_viewer_component);
     //app.addComponent(&settings_component);
@@ -169,11 +169,11 @@ int main(int argc, char *argv[])
     //componentsManager.registerComponent(&georeference_component,
     //                                    ComponentsManager::Flags::separator_before);
 
-    //componentsManager.registerComponent(&dtm_component,
-    //                                    ComponentsManager::Flags::separator_before);
+    componentsManager.registerComponent(&dtm_component,
+                                        ComponentsManager::Flags::separator_before);
 
-    //componentsManager.registerComponent(&orthophoto_component,
-    //                                    ComponentsManager::Flags::separator_before);
+    componentsManager.registerComponent(&orthophoto_component,
+                                        ComponentsManager::Flags::separator_before);
 
     componentsManager.registerComponent(&features_viewer_component,
                                         ComponentsManager::Flags::separator_before);
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
                      componentsManager.mainWindowPresenter(), SLOT(loadFeatures(size_t)));
     QObject::connect(&feature_extractor_component, SIGNAL(features_deleted()),
                      componentsManager.mainWindowPresenter(), SLOT(updateProject()));
-    QObject::connect(&feature_matching_component, SIGNAL(matching_finished()),
+    QObject::connect(&feature_matching_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(updateMatches()));
     QObject::connect(&feature_matching_component, SIGNAL(matches_deleted()),
                      componentsManager.mainWindowPresenter(), SLOT(updateProject()));
@@ -219,18 +219,18 @@ int main(int argc, char *argv[])
                      componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
     QObject::connect(&orientation_component, SIGNAL(orientation_deleted()),
                      componentsManager.mainWindowPresenter(), SLOT(updateProject()));
-    QObject::connect(&densification_component, SIGNAL(densification_finished()),
+    QObject::connect(&densification_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
-    /*QObject::connect(&dtm_component, SIGNAL(finished()),
+    QObject::connect(&dtm_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
     QObject::connect(&orthophoto_component, SIGNAL(finished()),
-                     componentsManager.mainWindowPresenter(), SLOT(loadOrtho()));*/
+                     componentsManager.mainWindowPresenter(), SLOT(loadOrtho()));
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openKeypointsViewer,
                      &features_viewer_component, &FeaturesViewerComponent::openKeypointsViewer);
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
-    /*QObject::connect(&georeference_component, SIGNAL(georeferenceFinished()),
-                     componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));*/
+    //QObject::connect(&georeference_component, SIGNAL(georeferenceFinished()),
+    //                 componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
 
     componentsManager.loadPlugins();
 

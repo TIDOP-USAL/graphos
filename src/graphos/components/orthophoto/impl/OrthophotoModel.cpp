@@ -269,13 +269,14 @@ std::vector<Image> OrthophotoModelImp::images() const
 
   //std::map<int, Camera> cameras = mProject->cameras();
 
-  for (auto image = mProject->imageBegin(); image != mProject->imageEnd(); image++) {
+  for (const auto &image : mProject->images()) {
 
     //Image photo(image->path());
-    Image photo(*image);
+    Image photo(image.second);
+    size_t image_id = image.first;
 
-    if (mProject->isPhotoOriented(image->name())) {
-      CameraPose photoOrientation = mProject->photoOrientation(image->name());
+    if (mProject->isPhotoOriented(image_id)) {
+      CameraPose photoOrientation = mProject->photoOrientation(image_id);
       auto rotation_matrix = photoOrientation.rotationMatrix();
       rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
       rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
@@ -288,12 +289,6 @@ std::vector<Image> OrthophotoModelImp::images() const
       photoOrientation.setPosition(photoOrientation.position() + offset);
 
       photo.setCameraPose(photoOrientation);
-
-      //int camera_id = image->cameraId();
-      //auto camera = cameras.find(camera_id);
-      //if (camera != cameras.end()) {
-      //  photo.setCamera(camera->second);
-      //} else continue;
 
       images.push_back(photo);
     }

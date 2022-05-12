@@ -26,10 +26,23 @@
 namespace graphos
 {
 
-bool Densifier::undistort(const QString &reconstructionPath, 
-                          const QString &outputPath)
-{
-  return false;
-}
+//DensifierBase::DensifierBase()
+//{
+//}
+//
+//DensifierBase::~DensifierBase()
+//{
+//}
+//
+//void DensifierBase::createDirectory(const std::string &path)
+//{
+//  tl::Path path(mOutputPath);
+//  path.append(dir);
+//  if (!path.exists() && !path.createDirectories()) {
+//    std::string err = "The output directory cannot be created: ";
+//    err.append(path.toString());
+//    throw std::runtime_error(err);
+//  }
+//}
 
 }

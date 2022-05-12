@@ -27,6 +27,9 @@
 #include "graphos/core/features/matching.h"
 #include "graphos/core/dense/Smvs.h"
 #include "graphos/core/dense/CmvsPmvs.h"
+#include "graphos/core/dense/mvs.h"
+#include "graphos/core/dtm/invdist.h"
+#include "graphos/core/dtm/invdistnn.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/exception.h>
@@ -440,6 +443,47 @@ void ProjectImp::clearDensification()
   mDenseModel.clear();
 }
 
+std::shared_ptr<Dtm> ProjectImp::dtmMethod() const
+{
+  return mDtmMethod;
+}
+
+void ProjectImp::setDtmMethod(const std::shared_ptr<Dtm> &dtm)
+{
+  mDtmMethod = dtm;
+}
+
+QString ProjectImp::dtmPath() const
+{
+  return mDTM;
+}
+
+void ProjectImp::setDtmPath(const QString &dtmPath)
+{
+  mDTM = dtmPath;
+}
+
+void ProjectImp::clearDTM()
+{
+  mDtmMethod.reset();
+  mDTM.clear();
+}
+
+QString ProjectImp::orthophotoPath() const
+{
+    return mOrthophoto;
+}
+
+void ProjectImp::setOrthophotoPath(const QString &orthophotoPath)
+{
+  mOrthophoto = orthophotoPath;
+}
+
+void ProjectImp::clearOrthophotoDTM()
+{
+  mOrthophoto.clear();
+}
+
 void ProjectImp::clear()
 {
   mName = "";
@@ -461,8 +505,9 @@ void ProjectImp::clear()
   mReconstructionPath = "";
   mDensification.reset();
   mDenseModel = "";
-  //mDtmMethod.reset();
-  //mDTM.clear();
+  mDtmMethod.reset();
+  mDTM.clear();
+  mOrthophoto.clear();
   mCameraCount = 0;
 }
 
@@ -520,7 +565,8 @@ bool ProjectImp::save(const QString &file)
         writeMatches(stream);
         writeOrientations(stream);
         writeDensification(stream);
-        //writeDtm(stream);
+        writeDtm(stream);
+        writeOrthophoto(stream);
       }
 
       stream.writeEndElement(); // Graphos
@@ -630,9 +676,11 @@ bool ProjectImp::read(QXmlStreamReader &stream)
           readOrientations(stream);
         } else if (stream.name() == "Densification") {
           readDensification(stream);
-        } /*else if (stream.name() == "Dtm") {
+        } else if (stream.name() == "Dtm") {
           readDtm(stream);
-        }*/ else
+        } else if (stream.name() == "Orthophoto") {
+          readOrthophoto(stream);
+        } else
           stream.skipCurrentElement();
         }
     } else {
@@ -1045,6 +1093,8 @@ void ProjectImp::readDensificationMethod(QXmlStreamReader &stream)
       this->readSmvs(stream);
     } else if (stream.name() == "CmvsPmvs"){
       this->readCmvsPmvs(stream);
+    } else if (stream.name() == "MVS") {
+      this->readMVS(stream);
     } else
       stream.skipCurrentElement();
   }
@@ -1094,78 +1144,105 @@ void ProjectImp::readCmvsPmvs(QXmlStreamReader &stream)
   this->setDensification(cmvsPmvs);
 }
 
-//void ProjectImp::readDtm(QXmlStreamReader &stream)
-//{
-//  while (stream.readNextStartElement()) {
-//    if (stream.name() == "Path") {
-//      this->readDtmPath(stream);
-//    } else if (stream.name() == "InterpolationMethod") {
-//      this->readDtmInterpolation(stream);
-//    } else
-//      stream.skipCurrentElement();
-//  }
-//}
-//
-//void ProjectImp::readDtmPath(QXmlStreamReader &stream)
-//{
-//  this->setDtmPath(stream.readElementText());
-//}
-//
-//void ProjectImp::readDtmInterpolation(QXmlStreamReader &stream)
-//{
-//  while (stream.readNextStartElement()) {
-//    if (stream.name() == "InvDist") {
-//      this->readInvDist(stream);
-//    } else if (stream.name() == "InvDistNN") {
-//      this->readInvDistNN(stream);
-//    } else
-//      stream.skipCurrentElement();
-//  }
-//}
-//
-//void ProjectImp::readInvDist(QXmlStreamReader &stream)
-//{
-//  std::shared_ptr<DtmInvDist> invdist = std::make_shared<DtmInvDistAlgorithm>();
-//  while (stream.readNextStartElement()) {
-//    if (stream.name() == "Power") {
-//      invdist->setPower(readDouble(stream));
-//    } else if (stream.name() == "Smoothing") {
-//      invdist->setSmoothing(readDouble(stream));
-//    } else if (stream.name() == "Radius1") {
-//      invdist->setRadius1(readDouble(stream));
-//    } else if (stream.name() == "Radius2") {
-//      invdist->setRadius2(readDouble(stream));
-//    } else if (stream.name() == "Angle") {
-//      invdist->setAngle(readDouble(stream));
-//    } else if (stream.name() == "MaxPoints") {
-//      invdist->setMaxPoints(readInt(stream));
-//    } else if (stream.name() == "MinPoints") {
-//      invdist->setMinPoints(readInt(stream));
-//    } else
-//      stream.skipCurrentElement();
-//  }
-//  this->setDtmMethod(invdist);
-//}
-//
-//void ProjectImp::readInvDistNN(QXmlStreamReader &stream)
-//{
-//  std::shared_ptr<DtmInvDistNN> invdistnn = std::make_shared<DtmInvDistNNAlgorithm>();
-//  while (stream.readNextStartElement()) {
-//    if (stream.name() == "Power") {
-//      invdistnn->setPower(readDouble(stream));
-//    } else if (stream.name() == "Smoothing") {
-//      invdistnn->setSmoothing(readDouble(stream));
-//    } else if (stream.name() == "Radius") {
-//      invdistnn->setRadius(readDouble(stream));
-//    } else if (stream.name() == "MaxPoints") {
-//      invdistnn->setMaxPoints(readInt(stream));
-//    } else if (stream.name() == "MinPoints") {
-//      invdistnn->setMinPoints(readInt(stream));
-//    } else
-//      stream.skipCurrentElement();
-//  }
-//  this->setDtmMethod(invdistnn);
-//}
+void ProjectImp::readMVS(QXmlStreamReader &stream)
+{
+  std::shared_ptr<Mvs> mvs = std::make_shared<MvsProperties>();
+
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "ResolutionLevel") {
+      mvs->setResolutionLevel(readInt(stream));
+    } else if (stream.name() == "MinResolution") {
+      mvs->setMinResolution(readInt(stream));
+    } else if (stream.name() == "MaxResolution") {
+      mvs->setMaxResolution(readDouble(stream));
+    } else if (stream.name() == "NumberViews") {
+      mvs->setNumberViews(readInt(stream));
+    } else if (stream.name() == "NumberViewsFuse") {
+      mvs->setNumberViewsFuse(readInt(stream));
+    } else
+      stream.skipCurrentElement();
+  }
+
+  this->setDensification(mvs);
+}
+
+void ProjectImp::readDtm(QXmlStreamReader &stream)
+{
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "Path") {
+      this->readDtmPath(stream);
+    } else if (stream.name() == "InterpolationMethod") {
+      this->readDtmInterpolation(stream);
+    } else
+      stream.skipCurrentElement();
+  }
+}
+
+void ProjectImp::readDtmPath(QXmlStreamReader &stream)
+{
+  this->setDtmPath(stream.readElementText());
+}
+
+void ProjectImp::readDtmInterpolation(QXmlStreamReader &stream)
+{
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "InvDist") {
+      this->readInvDist(stream);
+    } else if (stream.name() == "InvDistNN") {
+      this->readInvDistNN(stream);
+    } else
+      stream.skipCurrentElement();
+  }
+}
+
+void ProjectImp::readInvDist(QXmlStreamReader &stream)
+{
+  std::shared_ptr<DtmInvDist> invdist = std::make_shared<DtmInvDistAlgorithm>();
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "Power") {
+      invdist->setPower(readDouble(stream));
+    } else if (stream.name() == "Smoothing") {
+      invdist->setSmoothing(readDouble(stream));
+    } else if (stream.name() == "Radius1") {
+      invdist->setRadius1(readDouble(stream));
+    } else if (stream.name() == "Radius2") {
+      invdist->setRadius2(readDouble(stream));
+    } else if (stream.name() == "Angle") {
+      invdist->setAngle(readDouble(stream));
+    } else if (stream.name() == "MaxPoints") {
+      invdist->setMaxPoints(readInt(stream));
+    } else if (stream.name() == "MinPoints") {
+      invdist->setMinPoints(readInt(stream));
+    } else
+      stream.skipCurrentElement();
+  }
+  this->setDtmMethod(invdist);
+}
+
+void ProjectImp::readInvDistNN(QXmlStreamReader &stream)
+{
+  std::shared_ptr<DtmInvDistNN> invdistnn = std::make_shared<DtmInvDistNNAlgorithm>();
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "Power") {
+      invdistnn->setPower(readDouble(stream));
+    } else if (stream.name() == "Smoothing") {
+      invdistnn->setSmoothing(readDouble(stream));
+    } else if (stream.name() == "Radius") {
+      invdistnn->setRadius(readDouble(stream));
+    } else if (stream.name() == "MaxPoints") {
+      invdistnn->setMaxPoints(readInt(stream));
+    } else if (stream.name() == "MinPoints") {
+      invdistnn->setMinPoints(readInt(stream));
+    } else
+      stream.skipCurrentElement();
+  }
+  this->setDtmMethod(invdistnn);
+}
+
+void ProjectImp::readOrthophoto(QXmlStreamReader &stream)
+{
+  this->setOrthophotoPath(stream.readElementText());
+}
 
 void ProjectImp::writeVersion(QXmlStreamWriter &stream) const
 {
@@ -1496,67 +1573,86 @@ void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
       stream.writeTextElement("UseVisibilityInformation", cmvsPmvs->useVisibilityInformation() ? "true" : "false");
 
       stream.writeEndElement();
+    } else if (densificationMethod->method() == Densification::Method::mvs) {
+
+      stream.writeStartElement("MVS");
+
+      auto mvs = std::dynamic_pointer_cast<Mvs>(densificationMethod);
+      stream.writeTextElement("ResolutionLevel", QString::number(mvs->resolutionLevel()));
+      stream.writeTextElement("MinResolution", QString::number(mvs->minResolution()));
+      stream.writeTextElement("MaxResolution", QString::number(mvs->maxResolution()));
+      stream.writeTextElement("NumberViews", QString::number(mvs->numberViews()));
+      stream.writeTextElement("NumberViewsFuse", QString::number(mvs->numberViewsFuse()));
+
+      stream.writeEndElement();
     }
 
     stream.writeEndElement();
   }
 }
 
-//void ProjectImp::writeDtm(QXmlStreamWriter &stream) const
-//{
-//  stream.writeStartElement("Dtm");
-//  {
-//    this->writeDtmPath(stream);
-//    this->writeDtmInterpolation(stream);
-//  }
-//  stream.writeEndElement();
-//}
-//
-//void ProjectImp::writeDtmPath(QXmlStreamWriter &stream) const
-//{
-//  QString dense_model = this->dtmPath();
-//  if (!dense_model.isEmpty())
-//    stream.writeTextElement("Path", this->dtmPath());
-//}
-//
-//void ProjectImp::writeDtmInterpolation(QXmlStreamWriter &stream) const
-//{
-//  if (Dtm *interpolationMethod = this->dtmMethod().get()) {
-//
-//    stream.writeStartElement("InterpolationMethod");
-//
-//    if (interpolationMethod->interpolation() == Dtm::Interpolation::inv_dist) {
-//
-//      stream.writeStartElement("InvDist");
-//
-//      DtmInvDist *invdist = dynamic_cast<DtmInvDistAlgorithm *>(interpolationMethod);
-//      stream.writeTextElement("Power", QString::number(invdist->power()));
-//      stream.writeTextElement("Smoothing", QString::number(invdist->smoothing()));
-//      stream.writeTextElement("Radius1", QString::number(invdist->radius1()));
-//      stream.writeTextElement("Radius2", QString::number(invdist->radius2()));
-//      stream.writeTextElement("Angle", QString::number(invdist->angle()));
-//      stream.writeTextElement("MaxPoints", QString::number(invdist->maxPoints()));
-//      stream.writeTextElement("MinPoints", QString::number(invdist->minPoints()));
-//
-//      stream.writeEndElement();
-//
-//    } else if (interpolationMethod->interpolation() == Dtm::Interpolation::inv_distnn) {
-//
-//      stream.writeStartElement("InvDistNN");
-//
-//      DtmInvDistNN *invdistnn = dynamic_cast<DtmInvDistNNAlgorithm *>(interpolationMethod);
-//      stream.writeTextElement("Power", QString::number(invdistnn->power()));
-//      stream.writeTextElement("Smoothing", QString::number(invdistnn->smoothing()));
-//      stream.writeTextElement("Radius", QString::number(invdistnn->radius()));
-//      stream.writeTextElement("MaxPoints", QString::number(invdistnn->maxPoints()));
-//      stream.writeTextElement("MinPoints", QString::number(invdistnn->minPoints()));
-//
-//      stream.writeEndElement();
-//    }
-//
-//    stream.writeEndElement();
-//  }
-//}
+void ProjectImp::writeDtm(QXmlStreamWriter &stream) const
+{
+  stream.writeStartElement("Dtm");
+  {
+    this->writeDtmPath(stream);
+    this->writeDtmInterpolation(stream);
+  }
+  stream.writeEndElement();
+}
+
+void ProjectImp::writeDtmPath(QXmlStreamWriter &stream) const
+{
+  QString dense_model = this->dtmPath();
+  if (!dense_model.isEmpty())
+    stream.writeTextElement("Path", this->dtmPath());
+}
+
+void ProjectImp::writeDtmInterpolation(QXmlStreamWriter &stream) const
+{
+  if (Dtm *interpolationMethod = this->dtmMethod().get()) {
+
+    stream.writeStartElement("InterpolationMethod");
+
+    if (interpolationMethod->interpolation() == Dtm::Interpolation::inv_dist) {
+
+      stream.writeStartElement("InvDist");
+
+      DtmInvDist *invdist = dynamic_cast<DtmInvDistAlgorithm *>(interpolationMethod);
+      stream.writeTextElement("Power", QString::number(invdist->power()));
+      stream.writeTextElement("Smoothing", QString::number(invdist->smoothing()));
+      stream.writeTextElement("Radius1", QString::number(invdist->radius1()));
+      stream.writeTextElement("Radius2", QString::number(invdist->radius2()));
+      stream.writeTextElement("Angle", QString::number(invdist->angle()));
+      stream.writeTextElement("MaxPoints", QString::number(invdist->maxPoints()));
+      stream.writeTextElement("MinPoints", QString::number(invdist->minPoints()));
+
+      stream.writeEndElement();
+
+    } else if (interpolationMethod->interpolation() == Dtm::Interpolation::inv_distnn) {
+
+      stream.writeStartElement("InvDistNN");
+
+      DtmInvDistNN *invdistnn = dynamic_cast<DtmInvDistNNAlgorithm *>(interpolationMethod);
+      stream.writeTextElement("Power", QString::number(invdistnn->power()));
+      stream.writeTextElement("Smoothing", QString::number(invdistnn->smoothing()));
+      stream.writeTextElement("Radius", QString::number(invdistnn->radius()));
+      stream.writeTextElement("MaxPoints", QString::number(invdistnn->maxPoints()));
+      stream.writeTextElement("MinPoints", QString::number(invdistnn->minPoints()));
+
+      stream.writeEndElement();
+    }
+
+    stream.writeEndElement();
+  }
+}
+
+void ProjectImp::writeOrthophoto(QXmlStreamWriter &stream) const
+{
+  QString ortho_path = this->orthophotoPath();
+  if (!ortho_path.isEmpty())
+    stream.writeTextElement("Orthophoto", this->denseModel());
+}
 
 QSize ProjectImp::readSize(QXmlStreamReader &stream) const
 {

@@ -146,7 +146,7 @@ void ImportPoses::run()
 
   std::cout << std::endl;
 
-  TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation")
+  TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation");
 
   colmap::IncrementalMapper mapper(&database_cache);
   mapper.BeginReconstruction(&reconstruction);
@@ -805,7 +805,7 @@ bool OrientationCommand::run()
   try{
 
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 

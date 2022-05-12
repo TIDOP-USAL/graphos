@@ -116,6 +116,8 @@ void ProgressDialogImp::setFinished()
   ui->pushButtonCancel->setVisible(false);
   ui->pushButtonClose->setVisible(true);
   ui->pushButtonClose->setText(tr("Close"));
+
+  ui->progressBar->setValue(ui->progressBar->maximum());
   if (!this->isVisible() && !mAutoClose){
     this->show();
   } else if (mAutoClose) {

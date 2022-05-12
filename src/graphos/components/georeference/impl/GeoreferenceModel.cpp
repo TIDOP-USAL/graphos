@@ -31,6 +31,8 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+/// TODO: Reemplazar la lectura escritura por groundControlPointsRead y groundControlPointsWrite
+
 namespace graphos
 {
 
@@ -76,7 +78,8 @@ std::vector<GroundControlPoint> GeoreferenceModelImp::groundControlPoints() cons
     QList<QStandardItem *> items = mItemModelImagePoints->findItems(id, Qt::MatchExactly, 0);
     for (auto item : items) {
       int row = item->row();
-      QString image = mItemModelImagePoints->index(row, 1).data().toString();
+      //QString image = mItemModelImagePoints->index(row, 1).data().toString();
+      size_t image_id = mItemModelImagePoints->index(row, 1).data(Qt::UserRole + 1).toULongLong();
       double x = mItemModelImagePoints->index(row, 2).data().toDouble();
       double y = mItemModelImagePoints->index(row, 3).data().toDouble();
       ground_control_point.addImagePoint(image.toStdString(),tl::PointD(x, y));
@@ -151,14 +154,22 @@ void GeoreferenceModelImp::readImagePoints(QXmlStreamReader &stream, const QStri
 
 void GeoreferenceModelImp::readImagePoint(QXmlStreamReader &stream, const QString &gcp_id)
 {
-  QString image;
+  size_t image_id;
+  for (auto &attr : stream.attributes()) {
+    if (attr.name().compare(QString("image_id")) == 0) {
+      image_id = attr.value().toULongLong();
+      break;
+    }
+  }
+  
+  QString image = mProject->findImageById(image_id).name();
   QString x;
   QString y;
 
   while (stream.readNextStartElement()) {
-    if (stream.name() == "Image") {
+    /*if (stream.name() == "Image") {
       image = stream.readElementText();
-    } else if (stream.name() == "x") {
+    } else*/ if (stream.name() == "x") {
       x = stream.readElementText();
     } else if (stream.name() == "y") {
       y = stream.readElementText();
@@ -172,6 +183,7 @@ void GeoreferenceModelImp::readImagePoint(QXmlStreamReader &stream, const QStrin
   standardItem.append(new QStandardItem(image));
   standardItem.append(new QStandardItem(x));
   standardItem.append(new QStandardItem(y));
+  standardItem[1]->setData(image_id);
   mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
                                    standardItem);
 }
@@ -200,10 +212,11 @@ void GeoreferenceModelImp::writeGroundControlPoints(QXmlStreamWriter &stream)
       for (auto item : items) {
         stream.writeStartElement("ImagePoint");
         int row = item->row();
-        QString image = mItemModelImagePoints->index(row, 1).data().toString();
+        //QString image = mItemModelImagePoints->index(row, 1).data().toString();
+        size_t image_id = mItemModelImagePoints->index(row, 1).data(Qt::UserRole + 1).toULongLong();
         QString x = mItemModelImagePoints->index(row, 2).data().toString();
         QString y = mItemModelImagePoints->index(row, 3).data().toString();
-        stream.writeTextElement("Image", image);
+        stream.writeAttribute("image_id", QString::number(image_id));
         stream.writeTextElement("x", x);
         stream.writeTextElement("y", y);
         stream.writeEndElement();
@@ -268,13 +281,14 @@ QStandardItemModel *GeoreferenceModelImp::itemModelImagePoints()
   return mItemModelImagePoints;
 }
 
-std::vector<QString> GeoreferenceModelImp::images() const
+const std::unordered_map<size_t, Image> &GeoreferenceModelImp::images() const
 {
-  std::vector<QString> images;
-  for (auto it = mProject->imageBegin(); it != mProject->imageEnd(); it++){
-    images.push_back((*it).path());
-  }
-  return images;
+  return mProject->images();
+}
+
+Image GeoreferenceModelImp::image(size_t imageId) const
+{
+  return mProject->findImageById(imageId);
 }
 
 void GeoreferenceModelImp::addGroundControlPoint()
@@ -298,14 +312,16 @@ void GeoreferenceModelImp::removeGroundControlPoint(int index)
 }
 
 void GeoreferenceModelImp::addImagePoint(const QString &gcp, 
-                                         const QString &image, 
+                                         size_t imageId,
                                          const QPointF &point)
 {
-  this->removeImagePoint(gcp, image);
+  this->removeImagePoint(gcp, imageId);
+
+  Image image = mProject->findImageById(imageId);
 
   QList<QStandardItem *> standardItem;
   standardItem.append(new QStandardItem(gcp));
-  standardItem.append(new QStandardItem(image));
+  standardItem.append(new QStandardItem(image.name()));
   standardItem.append(new QStandardItem(QString::number(point.x())));
   standardItem.append(new QStandardItem(QString::number(point.y())));
   QStandardItem *item = standardItem.at(0);
@@ -321,9 +337,12 @@ void GeoreferenceModelImp::addImagePoint(const QString &gcp,
                                    standardItem);
 }
 
-void GeoreferenceModelImp::removeImagePoint(const QString &gcp, const QString &image)
+void GeoreferenceModelImp::removeImagePoint(const QString &gcp, 
+                                            size_t imageId)
 {
-  QList<QStandardItem *> items = mItemModelImagePoints->findItems(image, Qt::MatchExactly, 1);
+  Image image = mProject->findImageById(imageId);
+
+  QList<QStandardItem *> items = mItemModelImagePoints->findItems(image.name(), Qt::MatchExactly, 1);
   for (auto item : items) {
     int row = item->row();
     QString ground_control_point = mItemModelImagePoints->index(row, 0).data().toString();
@@ -334,11 +353,13 @@ void GeoreferenceModelImp::removeImagePoint(const QString &gcp, const QString &i
   }
 }
 
-std::list<std::pair<QString, QPointF>> GeoreferenceModelImp::points(const QString &image) const
+std::list<std::pair<QString, QPointF>> GeoreferenceModelImp::points(size_t imageId) const
 {
   std::list<std::pair<QString, QPointF>> image_points;
 
-  QList<QStandardItem *> items = mItemModelImagePoints->findItems(image, Qt::MatchExactly, 1);
+  Image image = mProject->findImageById(imageId);
+
+  QList<QStandardItem *> items = mItemModelImagePoints->findItems(image.name(), Qt::MatchExactly, 1);
   for (auto item : items) {
     int row = item->row();
     QString gcp = mItemModelImagePoints->index(row, 0).data().toString();
@@ -369,30 +390,10 @@ void GeoreferenceModelImp::setOffset(const QString &offset)
   mProject->setOffset(offset);
 }
 
-void GeoreferenceModelImp::addPhotoOrientation(const QString &imgName, 
+void GeoreferenceModelImp::addPhotoOrientation(size_t imageId,
                                                const CameraPose &orientation)
 {
-  mProject->addPhotoOrientation(imgName, orientation);
-}
-
-GeoreferenceModel::image_iterator GeoreferenceModelImp::imageBegin()
-{
-  return mProject->imageBegin();
-}
-
-GeoreferenceModel::image_const_iterator GeoreferenceModelImp::imageBegin() const
-{
-  return mProject->imageBegin();
-}
-
-GeoreferenceModel::image_iterator GeoreferenceModelImp::imageEnd()
-{
-  return mProject->imageEnd();
-}
-
-GeoreferenceModel::image_const_iterator GeoreferenceModelImp::imageEnd() const
-{
-  return mProject->imageEnd();
+  mProject->addPhotoOrientation(imageId, orientation);
 }
 
 void GeoreferenceModelImp::setCrs(const QString &crs)

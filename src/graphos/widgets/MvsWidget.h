@@ -50,6 +50,7 @@ public:
   int resolutionLevel() const;
   int minResolution() const;
   int maxResolution() const;
+  int numberViews() const;
   int numberViewsFuse() const;
   
 signals:
@@ -57,6 +58,7 @@ signals:
   void resolutionLevelChanged(int);
   void minResolutionChanged(int);
   void maxResolutionChanged(int);
+  void numberViewsChanged(int);
   void numberViewsFuseChanged(int);
   
 public slots:
@@ -64,6 +66,7 @@ public slots:
   void setResolutionLevel(int resolutionLevel);
   void setMinResolution(int minResolution);
   void setMaxResolution(int maxResolution);
+  void setNumberViews(int numberViews);
   void setNumberViewsFuse(int numberViewsFuse);
 
 // GraphosWidgetView interface
@@ -91,6 +94,8 @@ protected:
   QSpinBox *mSpinBoxMinResolution;
   QLabel *mLabelMaxResolution;
   QSpinBox *mSpinBoxMaxResolution;
+  QLabel *mLabelNumberViews;
+  QSpinBox *mSpinBoxNumberViews;
   QLabel *mLabelNumberViewsFuse;
   QSpinBox *mSpinBoxNumberViewsFuse;
 

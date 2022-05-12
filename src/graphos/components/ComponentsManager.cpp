@@ -337,6 +337,7 @@ ProgressHandler *ComponentsManager::progressHandler()
     connect(mProgressHandler, SIGNAL(finished()),                 statusBarProgress, SLOT(hide()));
 
   }
+
   return mProgressHandler;
 }
 
@@ -345,6 +346,7 @@ ProgressDialog *ComponentsManager::progressDialog()
   if (mProgressDialog == nullptr){
     mProgressDialog = new ProgressDialogImp;
   }
+
   return mProgressDialog;
 }
 

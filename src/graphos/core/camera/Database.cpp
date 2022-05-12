@@ -76,7 +76,7 @@ bool DatabaseCameras::existCameraMakeId(const QString &cameraMake) const
 
   try {
 
-    TL_ASSERT(isOpen(), "Database is not open")
+    TL_ASSERT(isOpen(), "Database is not open");
 
     QSqlQuery query;
     query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
@@ -104,8 +104,8 @@ bool DatabaseCameras::existCameraModel(int cameraMake,
 
   try {
 
-    TL_ASSERT(isOpen(), "Database is not open")
-    TL_ASSERT(cameraMake != -1, "Invalid Camera Make")
+    TL_ASSERT(isOpen(), "Database is not open");
+    TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
 
     QSqlQuery query;
     query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
@@ -132,7 +132,7 @@ int DatabaseCameras::cameraMakeId(const QString &cameraMake) const
 
   try {
 
-    TL_ASSERT(isOpen(), "Database is not open")
+    TL_ASSERT(isOpen(), "Database is not open");
 
     QSqlQuery query;
     query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
@@ -159,8 +159,8 @@ double DatabaseCameras::cameraSensorSize(int cameraMake, const QString &cameraMo
 
   try {
 
-    TL_ASSERT(isOpen(), "Database is not open")
-    TL_ASSERT(cameraMake != -1, "Invalid Camera Make")
+    TL_ASSERT(isOpen(), "Database is not open");
+    TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
 
     QSqlQuery query;
     query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");

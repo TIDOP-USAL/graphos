@@ -220,6 +220,16 @@ public:
   virtual void setDenseModel(const QString &denseModel) = 0;
   virtual void clearDensification() = 0;
 
+  virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
+  virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
+  virtual QString dtmPath() const = 0;
+  virtual void setDtmPath(const QString &dtmPath) = 0;
+  virtual void clearDTM() = 0;
+
+  virtual QString orthophotoPath() const = 0;
+  virtual void setOrthophotoPath(const QString &orthophotoPath) = 0;
+  virtual void clearOrthophotoDTM() = 0;
+
   /*!
    * \brief Limpia el proyecto
    */
@@ -324,19 +334,10 @@ public:
   void setCrs(const QString &crs) override;
   void addImage(const Image &img) override;
   bool updateImage(size_t imageId, const Image &image) override;
-  //bool removeImage(const QString &imgPath) override;
   void removeImage(size_t imageId) override;
-  //Image findImage(const QString &imgName) const override;
   Image findImageById(size_t id) const override;
-  //Image findImageByName(const QString &imgName) const override;
   bool existImage(size_t imageId) const override;
-  //size_t imageId(const QString &imageName) const override;
   const std::unordered_map<size_t, Image> &images() const override;
-  //std::vector<Image> images() const override;
-  //image_iterator imageBegin() override;
-  //image_const_iterator imageBegin() const override;
-  //image_iterator imageEnd() override;
-  //image_const_iterator imageEnd() const override;
   size_t imagesCount() const override;
 
   int addCamera(const Camera &camera) override;
@@ -347,10 +348,6 @@ public:
   bool existCamera(const QString &make, const QString &model) const override;
   bool updateCamera(int idCamera, const Camera &camera) override;
   bool removeCamera(int idCamera) override;
-  //camera_iterator cameraBegin() override;
-  //camera_const_iterator cameraBegin() const override;
-  //camera_iterator cameraEnd() override;
-  //camera_const_iterator cameraEnd() const override;
   size_t camerasCount() const override;
 
   std::shared_ptr<Feature> featureExtractor() const override;
@@ -361,11 +358,6 @@ public:
   void removeFeatures() override;
   void removeFeatures(size_t imageId) override;
   const std::unordered_map<size_t, QString> &features() const override;
-
-  //features_iterator featuresBegin() override;
-  //features_const_iterator featuresBegin() const override;
-  //features_iterator featuresEnd() override;
-  //features_const_iterator featuresEnd() const override;
   
   std::shared_ptr<FeatureMatching> featureMatching() const override;
   void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
@@ -374,9 +366,6 @@ public:
   const std::vector<size_t> matchesPairs(size_t imageLeftId) const override;
   void removeMatchesPair() override;
   void removeMatchesPair(size_t imageLeftId) override;
-  
-  //bool refinePrincipalPoint() const override;
-  //void setRefinePrincipalPoint(bool refine) override;
   
   QString sparseModel() const override;
   void setSparseModel(const QString & sparseModel) override;
@@ -396,11 +385,15 @@ public:
   void setDenseModel(const QString &denseModel) override;
   void clearDensification();
   
-  //std::shared_ptr<Dtm> dtmMethod() const override;
-  //void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
-  //QString dtmPath() const override;
-  //void setDtmPath(const QString &dtmPath) override;
-  //void clearDTM() override;
+  std::shared_ptr<Dtm> dtmMethod() const override;
+  void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
+  QString dtmPath() const override;
+  void setDtmPath(const QString &dtmPath) override;
+  void clearDTM() override;
+
+  QString orthophotoPath() const override;
+  void setOrthophotoPath(const QString &orthophotoPath) override;
+  void clearOrthophotoDTM() override;
 
   void clear() override;
 
@@ -439,11 +432,13 @@ protected:
   void readDensificationMethod(QXmlStreamReader &stream);
   void readSmvs(QXmlStreamReader &stream);
   void readCmvsPmvs(QXmlStreamReader &stream);
-  //void readDtm(QXmlStreamReader &stream);
-  //void readDtmPath(QXmlStreamReader &stream);
-  //void readDtmInterpolation(QXmlStreamReader &stream);
-  //void readInvDist(QXmlStreamReader &stream);
-  //void readInvDistNN(QXmlStreamReader &stream);
+  void readMVS(QXmlStreamReader &stream);
+  void readDtm(QXmlStreamReader &stream);
+  void readDtmPath(QXmlStreamReader &stream);
+  void readDtmInterpolation(QXmlStreamReader &stream);
+  void readInvDist(QXmlStreamReader &stream);
+  void readInvDistNN(QXmlStreamReader &stream);
+  void readOrthophoto(QXmlStreamReader &stream);
 
   void writeVersion(QXmlStreamWriter &stream) const;
   void writeGeneral(QXmlStreamWriter &stream) const;
@@ -459,7 +454,6 @@ protected:
   void writeFeatureExtractor(QXmlStreamWriter &stream) const;
   void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
   void writeFeatureFiles(QXmlStreamWriter &stream) const;
-  void writeFeatureFile(QXmlStreamWriter &stream) const;
   void writeMatches(QXmlStreamWriter &stream) const;
   void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
   void writePairs(QXmlStreamWriter &stream) const;
@@ -471,9 +465,10 @@ protected:
   void writeDensification(QXmlStreamWriter &stream) const;
   void writeDenseModel(QXmlStreamWriter &stream) const;
   void writeDensificationMethod(QXmlStreamWriter &stream) const;
-  //void writeDtm(QXmlStreamWriter &stream) const;
-  //void writeDtmPath(QXmlStreamWriter &stream) const;
-  //void writeDtmInterpolation(QXmlStreamWriter &stream) const;
+  void writeDtm(QXmlStreamWriter &stream) const;
+  void writeDtmPath(QXmlStreamWriter &stream) const;
+  void writeDtmInterpolation(QXmlStreamWriter &stream) const;
+  void writeOrthophoto(QXmlStreamWriter &stream) const;
 
   QSize readSize(QXmlStreamReader &stream) const;
   int readInt(QXmlStreamReader &stream) const;
@@ -489,7 +484,7 @@ protected:
   QString mVersion;
   QString mDatabase;
   QString mCrs;
-  //std::vector<Image> mImages;
+
   std::unordered_map<size_t, Image> mImages;
   std::map<int, Camera> mCameras;
   std::shared_ptr<Feature> mFeatureExtractor;
@@ -497,16 +492,17 @@ protected:
   std::shared_ptr<FeatureMatching> mFeatureMatching;
   std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
   std::unordered_map<size_t, CameraPose> mPhotoOrientation;
-  //bool bRefinePrincipalPoint;
+
   QString mSparseModel;
   QString mOffset;
   QString mReconstructionPath;
   std::shared_ptr<Densification> mDensification;
   QString mDenseModel;
-  //std::shared_ptr<Dtm> mDtmMethod;
-  //QString mDTM;
+  std::shared_ptr<Dtm> mDtmMethod;
+  QString mDTM;
   static std::mutex sMutex;
   int mCameraCount;
+  QString mOrthophoto;
 };
 
 } // end namespace graphos

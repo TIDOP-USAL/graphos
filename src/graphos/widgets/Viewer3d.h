@@ -34,17 +34,9 @@
 
 #include <tidop/core/defs.h>
 
-/* OpenSceneGraph */
-#ifdef HAVE_OPENSCENEGRAPH
-#include <osgViewer/GraphicsWindow>
-#include <osgViewer/Viewer>
-#endif // HAVE_OPENSCENEGRAPH
-
 /* CloudCompare */
-#ifdef HAVE_CLOUDCOMPARE
 #include "ccGLWindow.h"
 #include <ccCameraSensor.h>
-#endif // HAVE_CLOUDCOMPARE
 
 namespace graphos
 {
@@ -93,85 +85,7 @@ protected:
 };
 
 
-/* Visor basado en OpenSceneGraph */
-
-#ifdef HAVE_OPENSCENEGRAPH
-
-class OsgViewer3D
-  : public QOpenGLWidget,
-    public Viewer3D
-{
-
-  Q_OBJECT
-
-private:
-
-  osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> mGraphicsWindow;
-  osg::ref_ptr<osgViewer::Viewer> mViewer;
-  //std::shared_ptr<osgViewer::GraphicsWindowEmbedded> mGraphicsWindow;
-  //std::shared_ptr<osgViewer::Viewer> mViewer;
-  double mScaleX;
-  double mScaleY;
-
-public:
-
-  explicit OsgViewer3D(QWidget *parent = nullptr);
-  virtual ~OsgViewer3D();
-
-  void clear() override;
-  void createGroup(const QString &group, const QString &parent = QString()) override;
-  void deleteEntity(const QString &id) override;
-
-  void loadFromFile(const QString &file, const QString &parent = QString()) override;
-  void loadFromFiles(const QStringList &files, const QString &parent = QString()) override;
-
-  void setScale(double x, double y);
-  void addCamera(const QString &id, double x, double y, double z, const std::array<std::array<float, 3>, 3> &rot) override;
-
-public slots:
-
-  void deleteSelectEntity() override;
-
-  /* Vistas por defecto */
-  void setFrontView() override;
-  void setBottomView() override;
-  void setTopView() override;
-  void setBackView() override;
-  void setLeftView() override;
-  void setRightView() override;
-  void setIsoView1() override;
-  void setIsoView2() override;
-  void setGlobalZoom() override;
-
-  void setVisible(const QString &id, bool visible) override;
-
-protected:
-
-  virtual void paintGL() override;
-  virtual void resizeGL(int width, int height) override;
-  virtual void initializeGL() override;
-  virtual void mouseMoveEvent(QMouseEvent* event) override;
-  virtual void mousePressEvent(QMouseEvent* event) override;
-  virtual void mouseReleaseEvent(QMouseEvent* event) override;
-  virtual void wheelEvent(QWheelEvent* event) override;
-  virtual bool event(QEvent* event) override;
-
-private:
-
-  void init();
-
-  osgGA::EventQueue *getEventQueue() const;
-
-};
-
-#endif // HAVE_OPENSCENEGRAPH
-
-
-
 /* Visor basado en CloudCompare */
-
-#ifdef HAVE_CLOUDCOMPARE
-
 
 class CCViewer3D
   : public ccGLWindow,
@@ -255,70 +169,6 @@ private:
   ccHObject *findChild(const QString &name, ccHObject *parent = nullptr);
 };
 
-#endif // HAVE_CLOUDCOMPARE
-
-/* Visor basado en osgEarth */
-
-//class OsgEarthViewer3D : public QOpenGLWidget, public TViewer3D
-//{
-//
-//  Q_OBJECT
-//
-//private:
-//
-//  osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> mGraphicsWindow;
-//  osg::ref_ptr<osgViewer::Viewer> mViewer;
-//  //std::shared_ptr<osgViewer::GraphicsWindowEmbedded> mGraphicsWindow;
-//  //std::shared_ptr<osgViewer::Viewer> mViewer;
-//  double mScaleX;
-//  double mScaleY;
-//
-//public:
-//
-//  explicit OsgEarthViewer3D(QWidget *parent = nullptr);
-//  virtual ~OsgEarthViewer3D();
-//
-//  void clear() override;
-  //void deleteEntity(const QString &id) override;
-  //void deleteSelectEntity() override;
-//  void loadFromFile(const QString &file) override;
-//  void loadFromFiles(const QStringList &files) override;
-//
-//  void setScale(double x, double y);
-//
-//  public slots:
-//
-//  /* Vistas por defecto */
-//  void setFrontView() override;
-//  void setBottomView() override;
-//  void setTopView() override;
-//  void setBackView() override;
-//  void setLeftView() override;
-//  void setRightView() override;
-//  void setIsoView1() override;
-//  void setIsoView2() override;
-//  void setGlobalZoom() override;
-//
-//  void setVisible(const QString &id, bool visible) override;
-//
-//protected:
-//
-//  virtual void paintGL() override;
-//  virtual void resizeGL(int width, int height) override;
-//  virtual void initializeGL() override;
-//  virtual void mouseMoveEvent(QMouseEvent* event) override;
-//  virtual void mousePressEvent(QMouseEvent* event) override;
-//  virtual void mouseReleaseEvent(QMouseEvent* event) override;
-//  virtual void wheelEvent(QWheelEvent* event) override;
-//  virtual bool event(QEvent* event) override;
-//
-//private:
-//
-//  void init();
-//
-//  osgGA::EventQueue *getEventQueue() const;
-//
-//};
 
 }
 

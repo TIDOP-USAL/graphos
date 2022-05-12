@@ -216,4 +216,63 @@ std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile)
   return ground_control_points;
 }
 
+
+
+
+void writeGroundControlPoints(QXmlStreamWriter &stream,
+                              const std::vector<GroundControlPoint> &gcps)
+{
+  stream.writeStartElement("GroundControlPoints");
+  {
+    //stream.writeTextElement("Crs", mCrs);
+
+    for (int i = 0; i < gcps.size(); i++) {
+
+      auto gcp = gcps[i];
+
+      stream.writeStartElement("GroundControlPoint");
+      stream.writeTextElement("Name", QString::fromStdString(gcps[i].name()));
+      stream.writeTextElement("x", QString::number(gcp.point().x));
+      stream.writeTextElement("y", QString::number(gcp.point().y));
+      stream.writeTextElement("z", QString::number(gcp.point().z));
+      stream.writeTextElement("error", "");
+      stream.writeStartElement("ImagePoints");
+
+      for (const auto &item : gcp.imagePoints()) {
+        stream.writeStartElement("ImagePoint");
+        stream.writeAttribute("image_id", QString::number(item.first));
+        stream.writeTextElement("x", QString::number(item.second.x));
+        stream.writeTextElement("y", QString::number(item.second.y));
+        stream.writeEndElement();
+      }
+
+      stream.writeEndElement();
+      stream.writeEndElement();
+    }
+  }
+  stream.writeEndElement();
+}
+
+void groundControlPointsWrite(const tl::Path &gcpFile, 
+                              const std::vector<GroundControlPoint> &gcps)
+{
+  QString gcp_file = QString::fromStdString(gcpFile.toString());
+  QFile file(gcp_file);
+
+  if (file.open(QFile::WriteOnly)) {
+
+    QXmlStreamWriter stream(&file);
+    stream.setAutoFormatting(true);
+    stream.writeStartDocument();
+
+    stream.writeStartElement("Graphos");
+    writeGroundControlPoints(stream, gcps);
+    stream.writeEndElement();
+
+    file.close();
+  }
+
+}
+
+
 }

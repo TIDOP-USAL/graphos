@@ -28,6 +28,8 @@
 
 #include "graphos/core/dense/dense.h"
 
+#include <tidop/core/path.h>
+
 #include <QString>
 
 
@@ -115,9 +117,9 @@ public:
  
 public:
 
-  bool undistort(const QString &reconstructionPath,
+  void undistort(const QString &reconstructionPath,
                  const QString &outputPath) override;
-  bool densify(const QString &undistortPath) override;
+  void densify(const QString &undistortPath) override;
   void enableCuda(bool enable) override;
 
 // Densification interface
@@ -141,7 +143,7 @@ private:
 
   bool bOpenCvRead;
   bool bCuda;
-  std::string mOutputPath;
+  tl::Path mOutputPath;
   internal::Reconstruction *mReconstruction;
   ReadCalibration *mCalibrationReader;
 };
