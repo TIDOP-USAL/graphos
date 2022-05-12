@@ -28,7 +28,7 @@
 
 #include "graphos/components/createproject/CreateProjectComponent.h"
 #include "graphos/components/openproject/OpenProjectComponent.h"
-//#include "graphos/components/import/cameras/ImportCamerasComponent.h"
+#include "graphos/components/import/cameras/ImportCamerasComponent.h"
 #include "graphos/components/cameras/CamerasComponent.h"
 #include "graphos/components/images/ImageLoaderComponent.h"
 #include "graphos/components/featextract/FeatureExtractorComponent.h"
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
   CreateProjectComponent create_project_component(&app);
   OpenProjectComponent open_project_component(&app);
-  //ImportCamerasComponent import_cameras_component(&app);
+  ImportCamerasComponent import_cameras_component(&app);
   CamerasComponent cameras_component(&app);
   //ExportOrientationsComponent export_orientations_component(&app);
   //ExportPointCloudComponent export_point_cloud_component(&app);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
     app.addComponent(&create_project_component);
     app.addComponent(&open_project_component);
-    //app.addComponent(&import_cameras_component);
+    app.addComponent(&import_cameras_component);
     app.addComponent(&cameras_component);
     //app.addComponent(&export_orientations_component);
     //app.addComponent(&export_point_cloud_component);
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
     componentsManager.mainWindowView()->setOpenProjectAction(open_project_component.action());
 
-    //componentsManager.mainWindowView()->setImportCamerasAction(import_cameras_component.action());
+    componentsManager.mainWindowView()->setImportCamerasAction(import_cameras_component.action());
 
     componentsManager.mainWindowView()->setCamerasToolAction(cameras_component.action());
 

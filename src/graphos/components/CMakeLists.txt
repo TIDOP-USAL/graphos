@@ -131,10 +131,10 @@ set(GRAPHOS_SOURCES
     #export/densemodel/impl/ExportPointCloudModel.cpp
     #export/densemodel/impl/ExportPointCloudView.cpp
     #export/densemodel/impl/ExportPointCloudPresenter.cpp
-    #import/cameras/ImportCamerasComponent.cpp
-    #import/cameras/impl/ImportCamerasModel.cpp
-    #import/cameras/impl/ImportCamerasView.cpp
-    #import/cameras/impl/ImportCamerasPresenter.cpp
+    import/cameras/ImportCamerasComponent.cpp
+    import/cameras/impl/ImportCamerasModel.cpp
+    import/cameras/impl/ImportCamerasView.cpp
+    import/cameras/impl/ImportCamerasPresenter.cpp
     about/AboutComponent.cpp
     about/impl/AboutModel.cpp
     about/impl/AboutView.cpp
@@ -278,13 +278,13 @@ set(GRAPHOS_HEADERS
     #export/densemodel/impl/ExportPointCloudModel.h
     #export/densemodel/impl/ExportPointCloudView.h
     #export/densemodel/impl/ExportPointCloudPresenter.h
-    #import/cameras/ImportCamerasComponent.h
-    #import/cameras/ImportCamerasModel.h
-    #import/cameras/ImportCamerasView.h
-    #import/cameras/ImportCamerasPresenter.h
-    #import/cameras/impl/ImportCamerasModel.h
-    #import/cameras/impl/ImportCamerasView.h
-    #import/cameras/impl/ImportCamerasPresenter.h
+    import/cameras/ImportCamerasComponent.h
+    import/cameras/ImportCamerasModel.h
+    import/cameras/ImportCamerasView.h
+    import/cameras/ImportCamerasPresenter.h
+    import/cameras/impl/ImportCamerasModel.h
+    import/cameras/impl/ImportCamerasView.h
+    import/cameras/impl/ImportCamerasPresenter.h
     HelpDialog.h
     about/AboutComponent.h
     about/AboutModel.h

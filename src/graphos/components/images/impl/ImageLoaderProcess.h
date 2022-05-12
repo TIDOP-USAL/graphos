@@ -24,12 +24,12 @@
 #ifndef GRAPHOS_LOADER_IMAGES_PROCESS_H
 #define GRAPHOS_LOADER_IMAGES_PROCESS_H
 
-#include "graphos/core/image.h"
+#include <QObject>
 
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
-#include <QObject>
+#include "graphos/core/image.h"
 
 namespace tl
 {

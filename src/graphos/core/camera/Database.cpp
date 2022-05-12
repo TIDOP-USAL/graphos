@@ -44,10 +44,16 @@ DatabaseCameras::DatabaseCameras(QString database)
 
 DatabaseCameras::~DatabaseCameras()
 {
+  QString name = mDatabase->connectionName();
+
   if (mDatabase) {
     delete mDatabase;
     mDatabase = nullptr;
   }
+  
+  //QSqlDatabase db = QSqlDatabase::database();
+  //QString name = db.connectionName();
+  QSqlDatabase::removeDatabase(name);
 }
 
 void DatabaseCameras::open()
