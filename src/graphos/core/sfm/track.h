@@ -21,40 +21,70 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_CAMERA_POSES_IO_H
-#define GRAPHOS_CORE_CAMERA_POSES_IO_H
+#ifndef GRAPHOS_CORE_SFM_TRACK_H
+#define GRAPHOS_CORE_SFM_TRACK_H
 
 #include "graphos/graphos_global.h"
 
-#include <QString>
+#include <vector>
+#include <unordered_map>
 
-#include "graphos/core/orientation/poses.h"
-
-namespace colmap
-{
-class Reconstruction;
-}
+#include <tidop/geometry/entities/point.h>
 
 namespace graphos
 {
 
-class ReadCameraPoses
+
+/*!
+ * \brief Track
+ *
+ * [image_id_1 point_id_1 image_id_2 point_id_2 ...]
+ * 
+ */
+class Track
 {
 
 public:
 
-  ReadCameraPoses();
-  ~ReadCameraPoses();
+  Track();
+  ~Track();
 
-  void open(const QString &path);
-  CameraPose orientation(const QString &image) const;
+  size_t size() const;
 
-protected:
+  std::pair<size_t, size_t> at(size_t idx);
 
-  colmap::Reconstruction *mReconstruction;
+  void push_back(const std::pair<size_t, size_t> &pair);
+
+private:
+
+  std::vector<std::pair<size_t, size_t>> mPairs;
 
 };
 
+
+class GCPTrack
+{
+
+public:
+
+  GCPTrack();
+  ~GCPTrack();
+
+  size_t size() const;
+
+  tl::Point<double> point(size_t idx) const;
+  const std::unordered_map<size_t, tl::Point<double>> &points() const;
+
+  void addPoint(size_t imageId, const tl::Point<double> &point);
+  bool existPoint(size_t imageId) const;
+  void removePoint(size_t imageId);
+
+private:
+
+  std::unordered_map<size_t, tl::Point<double>> mImageIdPoint;
+};
+
+
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_CAMERA_POSES_IO_H
+#endif // GRAPHOS_CORE_SFM_TRACK_H

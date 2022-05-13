@@ -26,9 +26,9 @@
 
 #include "graphos/core/project.h"
 #include "graphos/core/camera/Colmap.h"
-#include "graphos/core/orientation/orientation.h"
-#include "graphos/core/orientation/orientationcolmap.h"
-#include "graphos/core/orientation/posesio.h"
+#include "graphos/core/sfm/orientation.h"
+#include "graphos/core/sfm/orientationcolmap.h"
+#include "graphos/core/sfm/posesio.h"
 #include "graphos/components/orientation/impl/RelativeOrientationProcess.h"
 #include "graphos/components/orientation/impl/AbsoluteOrientationProcess.h"
 #include "graphos/components/orientation/impl/ImportOrientationProcess.h"

@@ -23,8 +23,8 @@
 
 #include "ImportOrientationProcess.h"
 
-#include "graphos/core/orientation/orientationcolmap.h"
-#include "graphos/core/orientation/orientationexport.h"
+#include "graphos/core/sfm/orientationcolmap.h"
+#include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/camera/Colmap.h"
 
 #include <tidop/core/messages.h>

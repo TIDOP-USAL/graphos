@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_CORE_ORIENTATION_COLMAP_H
 #define GRAPHOS_CORE_ORIENTATION_COLMAP_H
 
-#include "graphos/core/orientation/orientation.h"
+#include "graphos/core/sfm/orientation.h"
 
 #include <memory>
 #include <map>

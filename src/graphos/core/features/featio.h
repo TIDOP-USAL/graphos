@@ -36,7 +36,7 @@ namespace graphos
 {
 
 /*!
- * \brief FeaturesWriter class allows the writing of the detected features in different formats
+ * \brief FeaturesWriter class allows writing different formats of features files
  */
 class FeaturesWriter
 {
@@ -63,7 +63,7 @@ protected:
 
 
 /*!
- * \brief The FeaturesWriter class allows the reading of the different formats of features files
+ * \brief The FeaturesWriter class allows reading different formats of features files
  */
 class FeaturesReader
 {

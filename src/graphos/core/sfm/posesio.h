@@ -21,60 +21,40 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_GROUND_CONTROL_POINT_H
-#define GRAPHOS_CORE_GROUND_CONTROL_POINT_H
-
+#ifndef GRAPHOS_CORE_CAMERA_POSES_IO_H
+#define GRAPHOS_CORE_CAMERA_POSES_IO_H
 
 #include "graphos/graphos_global.h"
 
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
+#include <QString>
 
-#include <unordered_map>
+#include "graphos/core/sfm/poses.h"
+
+namespace colmap
+{
+class Reconstruction;
+}
 
 namespace graphos
 {
-	
-class GroundControlPoint
+
+class ReadCameraPoses
 {
 
 public:
 
-  GroundControlPoint();
-  ~GroundControlPoint();
+  ReadCameraPoses();
+  ~ReadCameraPoses();
 
-  std::string name() const;
-  void setName(const std::string &name);
-  tl::Point3<double> point() const;
-  void setPoint(const tl::Point3<double> &point);
-  double x() const;
-  void setX(double x);
-  double y() const;
-  void setY(double y);
-  double z() const;
-  void setZ(double z);
-  void addImagePoint(size_t imageId, 
-                     const tl::Point<double> &point);
-  tl::Point<double> imagePoint(size_t imageId) const;
-  bool existImagePoint(size_t imageId) const;
-  void removeImagePoint(size_t imageId);
-  const std::unordered_map<size_t, tl::Point<double>> &imagePoints() const;
+  void open(const QString &path);
+  CameraPose orientation(const QString &image) const;
 
 protected:
 
-  std::string mName;
-  tl::Point3<double> mCoordinates;
-  std::unordered_map<size_t, tl::Point<double>> mPoints;
+  colmap::Reconstruction *mReconstruction;
+
 };
-
-
-///TODO: Crear una factoria de clases para lectura/escritura de 
-//       diferentes formatos de puntos de control
-std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile);
-
-///TODO: La escritura tendría que estar aqui
-void groundControlPointsWrite(const tl::Path &gcpFile, const std::vector<GroundControlPoint> &gcps);
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_GROUND_CONTROL_POINT_H
+#endif // GRAPHOS_CORE_CAMERA_POSES_IO_H

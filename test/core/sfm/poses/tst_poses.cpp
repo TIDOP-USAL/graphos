@@ -24,7 +24,7 @@
 #define BOOST_TEST_MODULE GRAPHOS CameraPose test
 
 #include <boost/test/unit_test.hpp>
-#include "graphos/core/orientation/poses.h"
+#include "graphos/core/sfm/poses.h"
 #include <tidop/math/algebra/rotation_matrix.h>
 #include <tidop/math/algebra/quaternion.h>
 #include <tidop/math/algebra/rotation_convert.h>

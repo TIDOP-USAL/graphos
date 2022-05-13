@@ -27,7 +27,6 @@
 #include "graphos/graphos_global.h"
 
 #include "graphos/components/orientation/OrientationPresenter.h"
-#include "graphos/core/orientation/gcp.h"
 
 namespace graphos
 {

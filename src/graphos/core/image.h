@@ -30,7 +30,7 @@
 
 #include <tidop/core/path.h>
 
-#include "graphos/core/orientation/poses.h"
+#include "graphos/core/sfm/poses.h"
 
 namespace graphos
 {

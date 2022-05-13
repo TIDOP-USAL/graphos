@@ -21,51 +21,66 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
-#define GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
+#ifndef GRAPHOS_CORE_GROUND_CONTROL_POINT_H
+#define GRAPHOS_CORE_GROUND_CONTROL_POINT_H
+
+#include "graphos/graphos_global.h"
 
 #include <unordered_map>
 
-#include "graphos/interfaces/mvp.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
+#include <tidop/core/path.h>
+#include <tidop/geometry/entities/point.h>
+
+#include "graphos/core/sfm/track.h"
 
 namespace graphos
 {
 
-class Camera;
 
-class OrientationModel
-  : public Model
+class GroundControlPoint
+  : public tl::Point3<double>
 {
 
 public:
 
-  OrientationModel(QObject *parent = nullptr) : Model(parent) {}
-  ~OrientationModel() override = default;
+  GroundControlPoint();
+  GroundControlPoint(const tl::Point3<double> &point3d);
+  ~GroundControlPoint();
 
-  virtual bool calibratedCamera() const = 0;
-  virtual void setSparseModel(const QString &sparseModel) = 0;
-  virtual void setOffset(const QString &offset) = 0;
-  virtual bool isPhotoOriented(size_t imageId) const = 0;
-  virtual CameraPose photoOrientation(size_t imageId) const = 0;
-  virtual void addPhotoOrientation(size_t imageId,
-                                   const CameraPose &orientation) = 0;
-  virtual QString database() const = 0;
-  virtual QString projectPath() const = 0;
-  virtual bool gpsPositions() const = 0;
-  virtual bool rtkOrientations() const = 0;
-  virtual QString reconstructionPath() const = 0;
-  virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
-  virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
-  virtual void clearProject() = 0;
+  std::string name() const;
+  void setName(const std::string &name);
+  //tl::Point3<double> point() const;
+  void setPoint(const tl::Point3<double> &point);
+  //double x() const;
+  //void setX(double x);
+  //double y() const;
+  //void setY(double y);
+  //double z() const;
+  //void setZ(double z);
+  void addPointToTrack(size_t imageId, const tl::Point<double> &point);
+  void setTrack(const GCPTrack &track);
+  //tl::Point<double> imagePoint(size_t imageId) const;
+  //bool existImagePoint(size_t imageId) const;
+  void removeTrackPoint(size_t imageId);
+  const GCPTrack &track() const;
 
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual bool updateCamera(int id, const Camera &camera) = 0;
-  
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
+protected:
+
+  std::string mName;
+  //tl::Point3<double> mCoordinates;
+  //std::unordered_map<size_t, tl::Point<double>> mPoints;
+  GCPTrack mTrack;
+
 };
+
+
+///TODO: Crear una factoria de clases para lectura/escritura de 
+//       diferentes formatos de puntos de control
+std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile);
+
+///TODO: La escritura tendría que estar aqui
+void groundControlPointsWrite(const tl::Path &gcpFile, const std::vector<GroundControlPoint> &gcps);
 
 } // namespace graphos
 
-#endif // GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
+#endif // GRAPHOS_CORE_GROUND_CONTROL_POINT_H

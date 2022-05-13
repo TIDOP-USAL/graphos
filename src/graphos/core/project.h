@@ -38,7 +38,7 @@
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/image.h"
 #include "graphos/core/features/features.h"
-#include "graphos/core/orientation/poses.h"
+#include "graphos/core/sfm/poses.h"
 #include "graphos/core/dense/dense.h"
 
 class QXmlStreamWriter;

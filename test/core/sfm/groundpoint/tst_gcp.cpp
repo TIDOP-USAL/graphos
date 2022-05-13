@@ -24,7 +24,7 @@
 #define BOOST_TEST_MODULE GRAPHOS Ground Control Point test
 
 #include <boost/test/unit_test.hpp>
-#include "graphos/core/orientation/gcp.h"
+#include "graphos/core/sfm/groundpoint.h"
 
 using namespace graphos;
 using namespace tl;
@@ -45,7 +45,7 @@ struct TestGroundControlPoint
   void setup()
   {
     tl::Path gcp_path(GRAPHOS_SOURCE_PATH);
-    gcp_path.append("test\\core\\orientation\\gcp\\georef.xml");
+    gcp_path.append("test\\core\\sfm\\gcp\\georef.xml");
     gcps = groundControlPointsRead(gcp_path);
   }
 
@@ -62,11 +62,16 @@ struct TestGroundControlPoint
 BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestGroundControlPoint)
 {
   BOOST_CHECK_EQUAL("", mGCP.name());
-  BOOST_CHECK(tl::Point3D() == mGCP.point());
-  BOOST_CHECK_EQUAL(0., mGCP.x());
-  BOOST_CHECK_EQUAL(0., mGCP.y());
-  BOOST_CHECK_EQUAL(0., mGCP.z());
-  BOOST_CHECK_EQUAL(false, mGCP.existImagePoint(0));
+  BOOST_CHECK(tl::Point3D() == mGCP);
+  BOOST_CHECK_EQUAL(0., mGCP.x);
+  BOOST_CHECK_EQUAL(0., mGCP.y);
+  BOOST_CHECK_EQUAL(0., mGCP.z);
+
+  GCPTrack track = mGCP.track();
+
+  BOOST_CHECK_EQUAL(false, track.existPoint(0));
+  BOOST_CHECK_EQUAL(0, track.size());
+
 }
 
 BOOST_FIXTURE_TEST_CASE(name, TestGroundControlPoint)
@@ -89,73 +94,49 @@ BOOST_FIXTURE_TEST_CASE(point, TestGroundControlPoint)
 {
   tl::Point3D point(357037.834, 4500179.609, 1068.39);
   mGCP.setPoint(point);
-  BOOST_CHECK(point == mGCP.point());
-  BOOST_CHECK_EQUAL(point.x, mGCP.x());
-  BOOST_CHECK_EQUAL(point.y, mGCP.y());
-  BOOST_CHECK_EQUAL(point.z, mGCP.z());
+  BOOST_CHECK(point == mGCP);
+  BOOST_CHECK_EQUAL(point.x, mGCP.x);
+  BOOST_CHECK_EQUAL(point.y, mGCP.y);
+  BOOST_CHECK_EQUAL(point.z, mGCP.z);
 
-  point = gcps.at(0).point();
+  point = gcps.at(0);
   BOOST_CHECK_EQUAL(357037.834, point.x);
   BOOST_CHECK_EQUAL(4500179.609, point.y);
   BOOST_CHECK_EQUAL(1068.39, point.z);
 
-  point = gcps.at(1).point();
+  point = gcps.at(1);
   BOOST_CHECK_EQUAL(356966.833, point.x);
   BOOST_CHECK_EQUAL(4500170.587, point.y);
   BOOST_CHECK_EQUAL(1068.24, point.z);
 }
 
-BOOST_FIXTURE_TEST_CASE(x, TestGroundControlPoint)
-{
-  mGCP.setX(357037.834);
-  BOOST_CHECK_EQUAL(357037.834, mGCP.x());
-  BOOST_CHECK_EQUAL(0., mGCP.y());
-  BOOST_CHECK_EQUAL(0., mGCP.z());
-}
-
-BOOST_FIXTURE_TEST_CASE(y, TestGroundControlPoint)
-{
-  mGCP.setY(4500179.609);
-  BOOST_CHECK_EQUAL(0., mGCP.x());
-  BOOST_CHECK_EQUAL(4500179.609, mGCP.y());
-  BOOST_CHECK_EQUAL(0., mGCP.z());
-}
-
-BOOST_FIXTURE_TEST_CASE(z, TestGroundControlPoint)
-{
-  mGCP.setZ(1068.39);
-  BOOST_CHECK_EQUAL(0., mGCP.x());
-  BOOST_CHECK_EQUAL(0., mGCP.y());
-  BOOST_CHECK_EQUAL(1068.39, mGCP.z());
-}
-
-BOOST_FIXTURE_TEST_CASE(add_image_point, TestGroundControlPoint)
+BOOST_FIXTURE_TEST_CASE(add_point_to_track, TestGroundControlPoint)
 {
   tl::Point<double> point(2631.1, 1364.07);
-  mGCP.addImagePoint(1, point);
-  tl::Point<double> point_2 = mGCP.imagePoint(1);
+  mGCP.addPointToTrack(1, point);
+  tl::Point<double> point_2 = mGCP.track().point(1);
   BOOST_CHECK_EQUAL(point.x, point_2.x);
   BOOST_CHECK_EQUAL(point.y, point_2.y);
 }
 
-BOOST_FIXTURE_TEST_CASE(exist_image_point, TestGroundControlPoint)
+BOOST_FIXTURE_TEST_CASE(exist_track_point, TestGroundControlPoint)
 {
-  mGCP.addImagePoint(1, tl::Point<double>(2631.1, 1364.07));
-  BOOST_CHECK_EQUAL(false, mGCP.existImagePoint(0));
-  BOOST_CHECK_EQUAL(true, mGCP.existImagePoint(1));
+  mGCP.addPointToTrack(1, tl::Point<double>(2631.1, 1364.07));
+  BOOST_CHECK_EQUAL(false, mGCP.track().existPoint(0));
+  BOOST_CHECK_EQUAL(true, mGCP.track().existPoint(1));
 }
 
-BOOST_FIXTURE_TEST_CASE(remove_image_point, TestGroundControlPoint)
+BOOST_FIXTURE_TEST_CASE(remove_track_point, TestGroundControlPoint)
 {
-  mGCP.addImagePoint(1, tl::Point<double>(2631.1, 1364.07));
-  BOOST_CHECK_EQUAL(true, mGCP.existImagePoint(1));
-  mGCP.removeImagePoint(1);
-  BOOST_CHECK_EQUAL(false, mGCP.existImagePoint(1));
+  mGCP.addPointToTrack(1, tl::Point<double>(2631.1, 1364.07));
+  BOOST_CHECK_EQUAL(true, mGCP.track().existPoint(1));
+  mGCP.removeTrackPoint(1);
+  BOOST_CHECK_EQUAL(false, mGCP.track().existPoint(1));
 }
 
 BOOST_FIXTURE_TEST_CASE(image_points, TestGroundControlPoint)
 {
-  const auto points = mGCP.imagePoints();
+  const auto points = mGCP.track();
   BOOST_CHECK_EQUAL(0, points.size());
 }
 

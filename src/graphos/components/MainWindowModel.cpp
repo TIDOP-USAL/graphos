@@ -24,7 +24,7 @@
 #include "MainWindowModel.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/orientation/orientationcolmap.h"
+#include "graphos/core/sfm/orientationcolmap.h"
 
 //#include <tidop/core/messages.h>
 #include <tidop/img/imgreader.h>

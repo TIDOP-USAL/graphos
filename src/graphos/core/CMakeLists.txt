@@ -39,11 +39,12 @@ set(GRAPHOS_CORE_SOURCES
     features/featio.cpp
     features/sift.cpp
     features/matching.cpp
-    orientation/orientationcolmap.cpp
-    orientation/orientationexport.cpp
-    orientation/poses.cpp
-    orientation/posesio.cpp
-    orientation/gcp.cpp
+    sfm/orientationcolmap.cpp
+    sfm/orientationexport.cpp
+    sfm/poses.cpp
+    sfm/posesio.cpp
+    sfm/groundpoint.cpp
+    sfm/track.cpp
     dense/dense.cpp
     dense/CmvsPmvs.cpp
     dense/Smvs.cpp
@@ -84,12 +85,13 @@ set(GRAPHOS_CORE_HEADERS
     features/featio.h
     features/sift.h
     features/matching.h
-    orientation/orientation.h
-    orientation/orientationcolmap.h
-    orientation/orientationexport.h
-    orientation/poses.h
-    orientation/posesio.h
-    orientation/gcp.h
+    sfm/orientation.h
+    sfm/orientationcolmap.h
+    sfm/orientationexport.h
+    sfm/poses.h
+    sfm/posesio.h
+    sfm/groundpoint.h
+    sfm/track.h
     dense/dense.h
     dense/CmvsPmvs.h
     dense/Smvs.h

@@ -24,8 +24,8 @@
 #include "OrientationPresenter.h"
 
 #include "graphos/core/process/Progress.h"
-#include "graphos/core/orientation/orientationcolmap.h"
-#include "graphos/core/orientation/posesio.h"
+#include "graphos/core/sfm/orientationcolmap.h"
+#include "graphos/core/sfm/posesio.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/components/orientation/OrientationModel.h"
 #include "graphos/components/orientation/OrientationView.h"

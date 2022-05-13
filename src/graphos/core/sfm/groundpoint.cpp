@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/orientation/gcp.h"
+#include "graphos/core/sfm/groundpoint.h"
 
 #include <QFile>
 #include <QXmlStreamReader>
@@ -30,9 +30,17 @@
 namespace graphos
 {
 
+
+
 GroundControlPoint::GroundControlPoint()
+  : tl::Point3<double>()
 {
 
+}
+
+GroundControlPoint::GroundControlPoint(const tl::Point3<double> &point3d)
+  : tl::Point3<double>(point3d)
+{
 }
 
 GroundControlPoint::~GroundControlPoint()
@@ -49,75 +57,84 @@ void GroundControlPoint::setName(const std::string &name)
   mName = name;
 }
 
-tl::Point3<double> GroundControlPoint::point() const
-{
-  return mCoordinates;
-}
+//tl::Point3<double> GroundControlPoint::point() const
+//{
+//  return mCoordinates;
+//}
 
 void GroundControlPoint::setPoint(const tl::Point3<double> &point)
 {
-  mCoordinates = point;
+  this->x = point.x;
+  this->y = point.y;
+  this->z = point.z;
 }
 
-double GroundControlPoint::x() const
+//double GroundControlPoint::x() const
+//{
+//  return mCoordinates.x;
+//}
+//
+//void GroundControlPoint::setX(double x)
+//{
+//  mCoordinates.x = x;
+//}
+//
+//double GroundControlPoint::y() const
+//{
+//  return mCoordinates.y;
+//}
+//
+//void GroundControlPoint::setY(double y)
+//{
+//  mCoordinates.y = y;
+//}
+//
+//double GroundControlPoint::z() const
+//{
+//  return mCoordinates.z;
+//}
+//
+//void GroundControlPoint::setZ(double z)
+//{
+//  mCoordinates.z = z;
+//}
+
+//void GroundControlPoint::addTrackPoint(size_t imageId, 
+//                                       const tl::Point<double> &point)
+//{
+//  mTrack.addPoint(imageId, point);
+//}
+//
+//tl::PointD GroundControlPoint::imagePoint(size_t imageId) const
+//{
+//  return mTrack.point(imageId);
+//}
+//
+//bool GroundControlPoint::existImagePoint(size_t imageId) const
+//{
+//  auto it = mPoints.find(imageId);
+//  
+//  return (it != mPoints.end());
+//}
+
+void GroundControlPoint::removeTrackPoint(size_t imageId)
 {
-  return mCoordinates.x;
+  mTrack.removePoint(imageId);
 }
 
-void GroundControlPoint::setX(double x)
+void GroundControlPoint::addPointToTrack(size_t imageId, const tl::Point<double> &point)
 {
-  mCoordinates.x = x;
+  mTrack.addPoint(imageId, point);
 }
 
-double GroundControlPoint::y() const
+void GroundControlPoint::setTrack(const GCPTrack &track)
 {
-  return mCoordinates.y;
+  mTrack = track;
 }
 
-void GroundControlPoint::setY(double y)
+const GCPTrack &GroundControlPoint::track() const
 {
-  mCoordinates.y = y;
-}
-
-double GroundControlPoint::z() const
-{
-  return mCoordinates.z;
-}
-
-void GroundControlPoint::setZ(double z)
-{
-  mCoordinates.z = z;
-}
-
-void GroundControlPoint::addImagePoint(size_t imageId, 
-                                       const tl::Point<double> &point)
-{
-  mPoints[imageId] = point;
-}
-
-tl::PointD GroundControlPoint::imagePoint(size_t imageId) const
-{
-  return mPoints.at(imageId);
-}
-
-bool GroundControlPoint::existImagePoint(size_t imageId) const
-{
-  auto it = mPoints.find(imageId);
-  
-  return (it != mPoints.end());
-}
-
-void GroundControlPoint::removeImagePoint(size_t imageId)
-{
-  auto it = mPoints.find(imageId);
-  if (it != mPoints.end()) {
-    mPoints.erase(it);
-  }
-}
-
-const std::unordered_map<size_t, tl::Point<double>> &GroundControlPoint::imagePoints() const
-{
-  return mPoints;
+  return mTrack;
 }
 
 
@@ -144,17 +161,17 @@ std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile)
               } else if(stream.name() == "GroundControlPoint") {
 
                 GroundControlPoint gcp;
-                tl::Point3D point;
+                GCPTrack track;
 
                 while(stream.readNextStartElement()) {
                   if(stream.name() == "Name") {
                     gcp.setName(stream.readElementText().toStdString());
                   } else if(stream.name() == "x") {
-                    point.x = stream.readElementText().toDouble();
+                    gcp.x = stream.readElementText().toDouble();
                   } else if(stream.name() == "y") {
-                    point.y = stream.readElementText().toDouble();
+                    gcp.y = stream.readElementText().toDouble();
                   } else if(stream.name() == "z") {
-                    point.z = stream.readElementText().toDouble();
+                    gcp.z = stream.readElementText().toDouble();
                   } else if(stream.name() == "error") {
                     QString error = stream.readElementText();
                   } else if(stream.name() == "ImagePoints") {
@@ -164,7 +181,7 @@ std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile)
                       if(stream.name() == "ImagePoint") {
 
 
-                        size_t image_id;
+                        size_t image_id = 0;
                         tl::PointD point_2d;
 
                         for (auto &attr : stream.attributes()) {
@@ -184,7 +201,7 @@ std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile)
                           }
                         }
 
-                        gcp.addImagePoint(image_id, point_2d);
+                        track.addPoint(image_id, point_2d);
 
                       } else
                         stream.skipCurrentElement();
@@ -196,7 +213,7 @@ std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile)
                   }
                 }
 
-                gcp.setPoint(point);
+                gcp.setTrack(track);
                 ground_control_points.push_back(gcp);
 
               } else
@@ -232,17 +249,18 @@ void writeGroundControlPoints(QXmlStreamWriter &stream,
 
       stream.writeStartElement("GroundControlPoint");
       stream.writeTextElement("Name", QString::fromStdString(gcps[i].name()));
-      stream.writeTextElement("x", QString::number(gcp.point().x));
-      stream.writeTextElement("y", QString::number(gcp.point().y));
-      stream.writeTextElement("z", QString::number(gcp.point().z));
+      stream.writeTextElement("x", QString::number(gcp.x));
+      stream.writeTextElement("y", QString::number(gcp.y));
+      stream.writeTextElement("z", QString::number(gcp.z));
       stream.writeTextElement("error", "");
       stream.writeStartElement("ImagePoints");
 
-      for (const auto &item : gcp.imagePoints()) {
+      for (const auto &point : gcp.track().points()) {
+
         stream.writeStartElement("ImagePoint");
-        stream.writeAttribute("image_id", QString::number(item.first));
-        stream.writeTextElement("x", QString::number(item.second.x));
-        stream.writeTextElement("y", QString::number(item.second.y));
+        stream.writeAttribute("image_id", QString::number(point.first));
+        stream.writeTextElement("x", QString::number(point.second.x));
+        stream.writeTextElement("y", QString::number(point.second.y));
         stream.writeEndElement();
       }
 

@@ -21,51 +21,74 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
-#define GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
-
-#include <unordered_map>
-
-#include "graphos/interfaces/mvp.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
+#include "graphos/core/sfm/track.h"
 
 namespace graphos
 {
 
-class Camera;
+Track::Track(){}
 
-class OrientationModel
-  : public Model
+Track::~Track(){}
+
+size_t Track::size() const
 {
+  return mPairs.size();
+}
 
-public:
+std::pair<size_t, size_t> Track::at(size_t idx)
+{
+  return mPairs.at(idx);
+}
 
-  OrientationModel(QObject *parent = nullptr) : Model(parent) {}
-  ~OrientationModel() override = default;
-
-  virtual bool calibratedCamera() const = 0;
-  virtual void setSparseModel(const QString &sparseModel) = 0;
-  virtual void setOffset(const QString &offset) = 0;
-  virtual bool isPhotoOriented(size_t imageId) const = 0;
-  virtual CameraPose photoOrientation(size_t imageId) const = 0;
-  virtual void addPhotoOrientation(size_t imageId,
-                                   const CameraPose &orientation) = 0;
-  virtual QString database() const = 0;
-  virtual QString projectPath() const = 0;
-  virtual bool gpsPositions() const = 0;
-  virtual bool rtkOrientations() const = 0;
-  virtual QString reconstructionPath() const = 0;
-  virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
-  virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
-  virtual void clearProject() = 0;
-
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual bool updateCamera(int id, const Camera &camera) = 0;
+void Track::push_back(const std::pair<size_t, size_t> &pair)
+{
+  mPairs.push_back(pair);
+}
   
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
-};
 
-} // namespace graphos
 
-#endif // GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
+
+GCPTrack::GCPTrack()
+{
+}
+
+GCPTrack::~GCPTrack()
+{
+}
+
+size_t GCPTrack::size() const
+{
+  return mImageIdPoint.size();
+}
+
+tl::Point<double> GCPTrack::point(size_t idx) const
+{
+  return mImageIdPoint.at(idx);
+}
+
+const std::unordered_map<size_t, tl::Point<double>> &GCPTrack::points() const
+{
+  return mImageIdPoint;
+}
+
+void GCPTrack::addPoint(size_t imageId, const tl::Point<double> &point)
+{
+  mImageIdPoint[imageId] = point ;
+}
+
+bool GCPTrack::existPoint(size_t imageId) const
+{ 
+  auto point = mImageIdPoint.find(imageId);
+  return (point != mImageIdPoint.end());
+}
+
+void GCPTrack::removePoint(size_t imageId)
+{
+  auto point = mImageIdPoint.find(imageId);
+  if(point != mImageIdPoint.end()) {
+    mImageIdPoint.erase(point);
+  }
+}
+
+
+}
