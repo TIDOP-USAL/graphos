@@ -116,7 +116,7 @@ void GeoreferenceViewImp::onGraphicsViewRemoveSelectItems()
     if (items[i] && items[i]->isSelected() == true) {
       QString gcp = items[i]->toolTip();
       mGraphicViewerWidget->scene()->removeItem(items[i]);
-      emit removeImagePoint(gcp, image);
+      emit remove_image_point(gcp, items[i]->data(Qt::UserRole).toULongLong());
   //    mTreeWidget->selectionModel()->clearSelection();
   //    for (int j = 0; j < mTreeWidget->topLevelItemCount(); j++){
   //      QTreeWidgetItem *item = mTreeWidget->topLevelItem(j);
@@ -168,8 +168,8 @@ void GeoreferenceViewImp::clickedPoint(const QPointF &point)
 
   if (index != -1) {
     QString groundControlPoint = mTableViewGroundControlPoints->model()->index(index, 0).data().toString();
-    QString image = mComboBoxImages->currentText();
-    emit addImagePoint(groundControlPoint, image, point);
+
+    emit add_image_point(groundControlPoint, mComboBoxImages->currentData().toULongLong(), point);
 
     QPen pen(QColor("#FF0000"), 1);
     pen.setCosmetic(true);
@@ -216,23 +216,24 @@ void GeoreferenceViewImp::clickedPoint(const QPointF &point)
 //  update();
 //}
 
-void GeoreferenceViewImp::setImageList(const std::vector<QString> &imageList)
+void GeoreferenceViewImp::setImageList(const std::vector<std::pair<size_t, QString>> &imageList)
 {
   QSignalBlocker blocker(mComboBoxImages);
   mComboBoxImages->clear();
   for (auto &image : imageList){
-    QFileInfo file_info(image);
-    mComboBoxImages->addItem(file_info.baseName(), image);
+    QFileInfo file_info(image.second);
+    mComboBoxImages->addItem(file_info.baseName(), image.first);
   }
 }
 
-void GeoreferenceViewImp::setCurrentImage(const QString &leftImage)
+void GeoreferenceViewImp::setCurrentImage(const QString &imagePath)
 {
   QSignalBlocker blocker(mComboBoxImages);
-  mComboBoxImages->setCurrentText(leftImage);
+  QFileInfo file_info(imagePath);
+  mComboBoxImages->setCurrentText(file_info.baseName());
   mGraphicViewerWidget->scene()->clearSelection();
-  QString image = mComboBoxImages->currentData().toString();
-  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(imagePath.toStdString());
   imageReader->open();
   if (imageReader->isOpen()) {
     cv::Mat bmp = imageReader->read();
@@ -420,7 +421,10 @@ void GeoreferenceViewImp::initUI()
 
 void GeoreferenceViewImp::initSignalAndSlots()
 {
-  connect(mComboBoxImages,   &QComboBox::currentTextChanged,      this,          &GeoreferenceView::imageChange);
+  connect(mComboBoxImages, QOverload<int>::of(&QComboBox::currentIndexChanged),
+          [&](int idx) {
+            emit image_changed(mComboBoxImages->itemData(idx).toULongLong());
+          });
   //connect(mTreeWidgetGroundControlPoints, &QTreeWidget::itemSelectionChanged, this, &GeoreferenceViewImp::onTreeWidgetItemSelectionChanged);
   connect(mGraphicViewerWidget, &GraphicViewer::selectionChanged, this,  &GeoreferenceViewImp::onGraphicsViewSelectionChanged);
   connect(mGraphicViewerWidget, &GraphicViewer::removeSelectItems, this,  &GeoreferenceViewImp::onGraphicsViewRemoveSelectItems);

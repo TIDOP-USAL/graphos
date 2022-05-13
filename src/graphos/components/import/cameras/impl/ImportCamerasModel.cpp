@@ -708,10 +708,13 @@ void ImportCamerasModelImp::importCameras()
         }
       }
 
-      for (auto image_it = mProject->imageBegin(); image_it != mProject->imageEnd(); image_it++){
-        QString base_name = QFileInfo(image).baseName();
+      for (const auto &pair_image : mProject->images()){
+        //QString base_name = QFileInfo(image).baseName();
+        tl::Path image_path(image.toStdWString());
+        tl::Path image_path2(pair_image.second.path().toStdWString());
 
-        if (image_it->name().compare(base_name) == 0){
+        if (image_path.equivalent(image_path2)) {
+        //if (image_it->name().compare(base_name) == 0){
 
           CameraPose camera_pose;
           camera_pose.setSource(mCsvFile);
@@ -758,9 +761,10 @@ void ImportCamerasModelImp::importCameras()
           quaternion.normalize();
           camera_pose.setQuaternion(quaternion);
 
-          image_it->setCameraPose(camera_pose);
-
-          msgInfo("Camera coordinates found for %s : [%lf,%lf,%lf]", base_name.toStdString().c_str(), x.toDouble(), y.toDouble(), z.toDouble());
+          Image image = pair_image.second;
+          image.setCameraPose(camera_pose);
+          mProject->updateImage(pair_image.first, image);
+          msgInfo("Camera coordinates found for %s : [%lf,%lf,%lf]", image.name().toStdString().c_str(), x.toDouble(), y.toDouble(), z.toDouble());
           break;
         }
       }
@@ -775,22 +779,43 @@ void ImportCamerasModelImp::importCameras()
 
   colmap::Database database(mProject->database().toStdString());
 
-  for (auto image_it = mProject->imageBegin(); image_it != mProject->imageEnd(); image_it++) {
+  for (const auto &pair_image : mProject->images()) {
 
-    std::string image_path = image_it->path().toStdString();
+    Image image = pair_image.second;
 
-    if (database.ExistsImageWithName(image_path)) {
+    tl::Path image_path(image.path().toStdString());
 
-      colmap::Image image_colmap = database.ReadImageWithName(image_path);
-      image_colmap.TvecPrior(0) = image_it->cameraPose().position().x;
-      image_colmap.TvecPrior(1) = image_it->cameraPose().position().y;
-      image_colmap.TvecPrior(2) = image_it->cameraPose().position().z;
-      image_colmap.QvecPrior(0) = image_it->cameraPose().quaternion().w;
-      image_colmap.QvecPrior(1) = image_it->cameraPose().quaternion().x;
-      image_colmap.QvecPrior(2) = image_it->cameraPose().quaternion().y;
-      image_colmap.QvecPrior(3) = image_it->cameraPose().quaternion().z;
-      database.UpdateImage(image_colmap);
+    for (auto image_colmap : database.ReadAllImages()){
+    
+      tl::Path image_path_colmap(image_colmap.Name());
+
+      if (image_path.equivalent(image_path_colmap)) {
+        //colmap::Image image_colmap = database.ReadImageWithName(image_path);
+        image_colmap.TvecPrior(0) = image.cameraPose().position().x;
+        image_colmap.TvecPrior(1) = image.cameraPose().position().y;
+        image_colmap.TvecPrior(2) = image.cameraPose().position().z;
+        image_colmap.QvecPrior(0) = image.cameraPose().quaternion().w;
+        image_colmap.QvecPrior(1) = image.cameraPose().quaternion().x;
+        image_colmap.QvecPrior(2) = image.cameraPose().quaternion().y;
+        image_colmap.QvecPrior(3) = image.cameraPose().quaternion().z;
+        database.UpdateImage(image_colmap);
+
+        break;
+      }
     }
+
+    //if (database.ExistsImageWithName(image_path)) {
+
+    //  colmap::Image image_colmap = database.ReadImageWithName(image_path);
+    //  image_colmap.TvecPrior(0) = image_it->cameraPose().position().x;
+    //  image_colmap.TvecPrior(1) = image_it->cameraPose().position().y;
+    //  image_colmap.TvecPrior(2) = image_it->cameraPose().position().z;
+    //  image_colmap.QvecPrior(0) = image_it->cameraPose().quaternion().w;
+    //  image_colmap.QvecPrior(1) = image_it->cameraPose().quaternion().x;
+    //  image_colmap.QvecPrior(2) = image_it->cameraPose().quaternion().y;
+    //  image_colmap.QvecPrior(3) = image_it->cameraPose().quaternion().z;
+    //  database.UpdateImage(image_colmap);
+    //}
   }
 
   /// 

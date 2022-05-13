@@ -64,7 +64,6 @@ void FeaturesViewerViewImp::initUI()
 {
   this->setObjectName(QString("FeaturesViewerView"));
 
-  //this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(994, 688);
 
   QGridLayout *gridLayout = new QGridLayout();
@@ -128,16 +127,29 @@ void FeaturesViewerViewImp::initUI()
 void FeaturesViewerViewImp::initSignalAndSlots()
 {
 
-  connect(mComboBoxImages,   &QComboBox::currentTextChanged,      this,          &FeaturesViewerView::imageChange);
-  connect(mTreeWidget,       &QTreeWidget::itemSelectionChanged,  this,          &FeaturesViewerViewImp::onTreeWidgetItemSelectionChanged);
-  connect(mGraphicView,      &GraphicViewer::selectionChanged,    this,          &FeaturesViewerViewImp::onGraphicsViewSelectionChanged);
+  connect(mComboBoxImages, QOverload<int>::of(&QComboBox::currentIndexChanged), 
+          [&](int idx) {
+            emit image_changed(mComboBoxImages->itemData(idx).toULongLong());
+          });
+
+  connect(mTreeWidget,   &QTreeWidget::itemSelectionChanged,  
+          this,          &FeaturesViewerViewImp::onTreeWidgetItemSelectionChanged);
+  connect(mGraphicView,  &GraphicViewer::selectionChanged,    
+          this,          &FeaturesViewerViewImp::onGraphicsViewSelectionChanged);
+
   connect(mActionZoomIn,     SIGNAL(triggered(bool)), mGraphicView, SLOT(zoomIn()));
   connect(mActionZoomOut,    SIGNAL(triggered(bool)), mGraphicView, SLOT(zoomOut()));
   connect(mActionZoomExtend, SIGNAL(triggered(bool)), mGraphicView, SLOT(zoomExtend()));
   connect(mActionZoom11,     SIGNAL(triggered(bool)), mGraphicView, SLOT(zoom11()));
 
-  connect(mButtonBox->button(QDialogButtonBox::Close),  &QAbstractButton::clicked, this, &QDialog::accept);
-  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked, this, &DialogView::help);
+  connect(mButtonBox->button(QDialogButtonBox::Close), 
+          &QAbstractButton::clicked, 
+          this,
+          &QDialog::accept);
+  connect(mButtonBox->button(QDialogButtonBox::Help),
+          &QAbstractButton::clicked, 
+          this, 
+          &DialogView::help);
 }
 
 void FeaturesViewerViewImp::clear()
@@ -227,23 +239,24 @@ void FeaturesViewerViewImp::onTreeWidgetItemSelectionChanged()
   update();
 }
 
-void FeaturesViewerViewImp::setImageList(const std::vector<QString> &imageList)
+void FeaturesViewerViewImp::setImageList(const std::vector<std::pair<size_t, QString>> &imageList)
 {
   QSignalBlocker blocker(mComboBoxImages);
   mComboBoxImages->clear();
-  for (auto &image : imageList){
-    QFileInfo file_info(image);
-    mComboBoxImages->addItem(file_info.baseName(), image);
+  for (auto &image : imageList) {
+    QFileInfo file_info(image.second);
+    mComboBoxImages->addItem(file_info.baseName(), image.first);
   }
 }
 
-void FeaturesViewerViewImp::setCurrentImage(const QString &leftImage)
+void FeaturesViewerViewImp::setCurrentImage(const QString &imagePath)
 {
   QSignalBlocker blocker(mComboBoxImages);
-  mComboBoxImages->setCurrentText(leftImage);
+  QFileInfo file_info(imagePath);
+  mComboBoxImages->setCurrentText(file_info.baseName());
   mGraphicView->scene()->clearSelection();
-  QString image = mComboBoxImages->currentData().toString();
-  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(imagePath.toStdString());
   imageReader->open();
   if (imageReader->isOpen()) {
     cv::Mat bmp = imageReader->read();
@@ -385,7 +398,7 @@ void FeaturesViewerViewImp::setMarkerStyle(const QString &color, int width, int 
 
   /// Para volver a cargar los puntos
   if (mComboBoxImages->currentText().isEmpty() == false)
-    emit imageChange(mComboBoxImages->currentText());
+    emit image_changed(mComboBoxImages->currentData().toULongLong());
 
 }
 

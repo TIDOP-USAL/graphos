@@ -79,7 +79,7 @@ bool CreateProjectCommand::run()
         file_name.append(".xml");
       }
       project_path = file_path.append(base_name);
-      file_path.append(file_name);
+      file_path.append("/").append(file_name);
 
     } else {
       
@@ -115,10 +115,10 @@ bool CreateProjectCommand::run()
     project.save(file_path);
 
     msgInfo("Project created");
-    msgInfo("Project name: %s", base_name.toStdString().c_str());
-    msgInfo("Project Description: %s", mProjectDescription.c_str());
+    msgInfo("- Name: %s", base_name.toStdString().c_str());
+    msgInfo("- Description: %s", mProjectDescription.c_str());
 
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
     r = true;
   }

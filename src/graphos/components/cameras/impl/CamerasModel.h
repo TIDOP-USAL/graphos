@@ -48,6 +48,7 @@ public:
 
 public:
 
+  const std::map<int, Camera> &cameras() const override;
   int addCamera(const Camera &camera) override;
   int cameraID(const Camera &camera) const override;
   int cameraID(const QString &make, 
@@ -61,26 +62,14 @@ public:
   bool removeCamera(const Camera &camera) override;
   QStringList imagesFromCamera(int id) const override;
 
-  camera_iterator begin() override;
-  camera_const_iterator begin() const override;
-  camera_iterator end() override;
-  camera_const_iterator end() const override;
-
   void save() override;
 
   bool modified() override;
-
-  //image_iterator imageBegin() override;
-  //image_const_iterator imageBegin() const override;
-  //image_iterator imageEnd() override;
-  //image_const_iterator imageEnd() const override;
 
 public slots:
 
   void updateCurrentCameraMake(const QString &make) override;
   void updateCurrentCameraModel(const QString &model) override;
-  //void updateCurrentCameraWidth(int width) override;
-  //void updateCurrentCameraHeight(int height) override;
   void updateCurrentCameraSensorSize(const QString &sensorSize) override;
   void updateCurrentCameraFocal(const QString &focal) override;
   void updateCurrentCameraType(const QString &type) override;
@@ -117,7 +106,8 @@ public slots:
 
 private:
 
-  void updateCalibrationParameter(Calibration::Parameters param, double value);
+  void updateCalibrationParameter(Calibration::Parameters param,
+                                  double value);
 
 protected:
 

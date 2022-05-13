@@ -61,10 +61,11 @@ public:
   QString viewerLineColor() const override;
   int viewerLineWidth() const override;
 
-  std::vector<QString> images() const override;
-  std::vector<QString> imagePairs(const QString &imageName) const override;
-  std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(const QString &imgName1,
-                                                                                const QString &imgName2) const override;
+  const std::unordered_map<size_t, Image> &images() const override;
+  Image image(size_t imageId) const override;
+  std::vector<size_t> imagePairs(size_t imageId) const override;
+  std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(size_t imageId1,
+                                                                                size_t imageId2) const override;
 
 // Model interface
 

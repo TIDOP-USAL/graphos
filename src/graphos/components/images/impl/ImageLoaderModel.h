@@ -49,30 +49,14 @@ public:
 
   QString projectCRS() const override;
   void setProjectCRS(const QString &crs) override;
-
-  void addImage(Image &image) override;
-  bool existImage(const QString &imgName) const;
-  size_t imageID(const QString &imageName) const override;
-  Image findImageByName(const QString &imageName) const override;
-  Image findImageById(size_t id) const override;
-  bool updateImage(size_t id, const Image &image) override;
-  bool removeImage(size_t id) override;
-  bool removeImage(const Image &image) override;
+  void addImage(const Image &image) override;
+  bool existImage(size_t imageId) const;
   QString imagesDirectory() const override;
-
-  image_iterator begin() override;
-  image_const_iterator begin() const override;
-  image_iterator end() override;
-  image_const_iterator end() const override;
-
+  const std::map<int, Camera> &cameras() const override;
   int addCamera(const Camera &camera) override;
   int cameraID(const Camera &camera) const override;
   int cameraID(const QString &make, 
                const QString &model) const override;
-  camera_iterator cameraBegin() override;
-  camera_const_iterator cameraBegin() const override;
-  camera_iterator cameraEnd() override;
-  camera_const_iterator cameraEnd() const override;
 
 // Model interface
 

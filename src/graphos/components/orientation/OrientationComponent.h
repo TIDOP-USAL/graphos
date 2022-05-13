@@ -43,10 +43,14 @@ public:
   OrientationComponent(Application *application);
   ~OrientationComponent();
 
+private:
+
+  void init();
+
 signals: 
 
-  void orientationFinished();
-  void orientationDeleted();
+  void orientation_finished();
+  void orientation_deleted();
 
 // ComponentBase
 

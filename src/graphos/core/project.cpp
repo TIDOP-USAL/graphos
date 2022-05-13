@@ -22,11 +22,12 @@
  ************************************************************************/
 
 #include "graphos/core/project.h"
+
 #include "graphos/core/features/sift.h"
 #include "graphos/core/features/matching.h"
-#include "graphos/core/densification/Smvs.h"
-#include "graphos/core/densification/CmvsPmvs.h"
-#include "graphos/core/utils.h"
+#include "graphos/core/dense/Smvs.h"
+#include "graphos/core/dense/CmvsPmvs.h"
+#include "graphos/core/dense/mvs.h"
 #include "graphos/core/dtm/invdist.h"
 #include "graphos/core/dtm/invdistnn.h"
 
@@ -37,6 +38,7 @@
 #include <QFileInfo>
 #include <QXmlStreamWriter>
 
+#include <fstream>
 
 #define GRAPHOS_PROJECT_FILE_VERSION "1.0"
 
@@ -54,7 +56,6 @@ ProjectImp::ProjectImp()
     mVersion(GRAPHOS_PROJECT_FILE_VERSION),
     mDatabase(""),
     mCrs(""),
-    bRefinePrincipalPoint(true),
     mReconstructionPath(""),
     mCameraCount(0)
 {
@@ -122,21 +123,24 @@ void ProjectImp::setCrs(const QString &crs)
   mCrs = crs;
 }
 
-
-
 void ProjectImp::addImage(const Image &img)
 {
-  if (existImage(img.path())){
+  TL_TODO("Comprobar el id por si se modifica a mano el xml")
+  //tl::Path img_path(img.path().toStdWString());
+  //size_t id = tl::Path::hash(img_path);
+  auto it = mImages.find(img.id());
+  if (it != mImages.end()){
     QByteArray ba = img.path().toLocal8Bit();
     msgWarning("Image %s already in the project", ba.data());
   } else {
-    mImages.push_back(img);
+    mImages[img.id()] = img;
   }
 }
 
 bool ProjectImp::updateImage(size_t imageId, const Image &image)
 {
-  if (imageId <= mImages.size()){
+  auto it = mImages.find(imageId);
+  if (it != mImages.end()) {
     mImages[imageId] = image;
     return true;
   } else {
@@ -144,104 +148,34 @@ bool ProjectImp::updateImage(size_t imageId, const Image &image)
   }
 }
 
-bool ProjectImp::removeImage(const QString &imgPath)
+void ProjectImp::removeImage(size_t imageId)
 {
-  if (existImage(imgPath)){
-    removeImage(imageId(imgPath));
-    return true;
-  } else {
-    QByteArray ba = imgPath.toLocal8Bit();
-    msgWarning("Image to be deleted does not exist in the project: %s", ba.data());
-    return false;
+  auto it = mImages.find(imageId);
+  if (it != mImages.end()) {
+    mImages.erase(it);
   }
-}
 
-bool ProjectImp::removeImage(size_t imgId)
-{
-  if (imgId != std::numeric_limits<size_t>::max() &&
-      imgId < mImages.size()){
-    mImages.erase(mImages.begin() + static_cast<long long>(imgId));
-    return true;
-  } else {
-    return false;
-  }
+  TL_TODO("Borrar las features, matches, etc")
 }
-
-//Image ProjectImp::findImage(const QString &imgName) const
-//{
-//  TL_TODO("Esto deberia devolver un iterador o quitarse. Ademas esta repetida con findImageByName")
-//  for (auto &image : mImages) {
-//    if (image.name().compare(imgName) == 0) {
-//      return image;
-//    }
-//  }
-//  QByteArray ba = imgName.toLocal8Bit();
-//  throw TL_ERROR("Image not found: %s", ba.data());
-//}
 
 Image ProjectImp::findImageById(size_t id) const
 {
-  return mImages[id];
-}
-
-Image ProjectImp::findImageByName(const QString &imgName) const
-{
-  Image image;
-  for (auto &image : mImages) {
-    if (image.name().compare(imgName) == 0) {
-      return image;
-    }
+  try {
+    return mImages.at(id);
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
   }
-  return image;
-
-  //QByteArray ba = imgName.toLocal8Bit();
-  //throw TL_ERROR("Image not found: %s", ba.data());
 }
 
-bool ProjectImp::existImage(const QString &imgName) const
+bool ProjectImp::existImage(size_t imageId) const
 {
-  for (auto &image : mImages) {
-    if (image.name().compare(imgName) == 0) {
-      return true;
-    }
-  }
-  return false;
+  auto it = mImages.find(imageId);
+  return (it != mImages.end());
 }
 
-size_t ProjectImp::imageId(const QString &imageName) const
-{
-  for (size_t i = 0; i < mImages.size(); i++){
-    if (mImages[i].name().compare(imageName) == 0) {
-      return i;
-    }
-  }
-  std::string msg = std::string("Image not found: ").append(imageName.toStdString());
-  throw std::runtime_error(msg.c_str());
-}
-
-std::vector<Image> ProjectImp::images() const
+const std::unordered_map<size_t, Image> &ProjectImp::images() const
 {
   return mImages;
-}
-
-Project::image_iterator ProjectImp::imageBegin()
-{
-  return mImages.begin();
-}
-
-Project::image_const_iterator ProjectImp::imageBegin() const
-{
-  return mImages.cbegin();
-}
-
-Project::image_iterator ProjectImp::imageEnd()
-{
-  return mImages.end();
-}
-
-Project::image_const_iterator ProjectImp::imageEnd() const
-{
-  return mImages.cend();
 }
 
 size_t ProjectImp::imagesCount() const
@@ -255,7 +189,7 @@ int ProjectImp::addCamera(const Camera &camera)
   return mCameraCount;
 }
 
-std::map<int, Camera> ProjectImp::cameras() const
+const std::map<int, Camera> &ProjectImp::cameras() const
 {
   return mCameras;
 }
@@ -276,7 +210,7 @@ Camera ProjectImp::findCamera(const QString &make, const QString &model) const
 
 Camera ProjectImp::findCamera(int idCamera) const
 {
-  camera_const_iterator it = mCameras.find(idCamera);
+  auto it = mCameras.find(idCamera);
   if (it != mCameras.end()){
     return mCameras.at(idCamera);
   } else {
@@ -331,26 +265,6 @@ int ProjectImp::cameraId(const QString &make, const QString &model) const
   return 0;
 }
 
-Project::camera_iterator ProjectImp::cameraBegin()
-{
-  return mCameras.begin();
-}
-
-Project::camera_const_iterator ProjectImp::cameraBegin() const
-{
-  return mCameras.cbegin();
-}
-
-Project::camera_iterator ProjectImp::cameraEnd()
-{
-  return mCameras.end();
-}
-
-Project::camera_const_iterator ProjectImp::cameraEnd() const
-{
-  return mCameras.cend();
-}
-
 size_t ProjectImp::camerasCount() const
 {
   return mCameras.size();
@@ -366,14 +280,14 @@ void ProjectImp::setFeatureExtractor(const std::shared_ptr<Feature> &featureExtr
   mFeatureExtractor = featureExtractor;
 }
 
-QString ProjectImp::features(const QString &imgName) const
+QString ProjectImp::features(size_t imageId) const
 {
-  return mFeatures.at(imgName);
+  return mFeatures.at(imageId);
 }
 
-void ProjectImp::addFeatures(const QString &imgName, const QString &featureFile)
+void ProjectImp::addFeatures(size_t imageId, const QString &featureFile)
 {
-  mFeatures[imgName] = featureFile;
+  mFeatures[imageId] = featureFile;
 }
 
 void ProjectImp::removeFeatures()
@@ -382,35 +296,17 @@ void ProjectImp::removeFeatures()
   this->removeMatchesPair();
 }
 
-bool ProjectImp::removeFeatures(const QString &imgName)
+void ProjectImp::removeFeatures(size_t imageId)
 {
-  auto it = mFeatures.find(imgName);
+  auto it = mFeatures.find(imageId);
   if (it != mFeatures.end()){
     mFeatures.erase(it);
-    return true;
-  } else {
-    return false;
   }
 }
 
-Project::features_iterator ProjectImp::featuresBegin()
+const std::unordered_map<size_t, QString> &ProjectImp::features() const
 {
-  return mFeatures.begin();
-}
-
-Project::features_const_iterator ProjectImp::featuresBegin() const
-{
-  return mFeatures.begin();
-}
-
-Project::features_iterator ProjectImp::featuresEnd()
-{
-  return mFeatures.end();
-}
-
-Project::features_const_iterator ProjectImp::featuresEnd() const
-{
-  return mFeatures.end();
+  return mFeatures;
 }
 
 std::shared_ptr<FeatureMatching> ProjectImp::featureMatching() const
@@ -423,31 +319,33 @@ void ProjectImp::setFeatureMatching(const std::shared_ptr<FeatureMatching> &feat
   mFeatureMatching = featureMatching;
 }
 
-void ProjectImp::addMatchesPair(const QString &imageLeft, const QString &imageRight)
+void ProjectImp::addMatchesPair(size_t imageLeftId, 
+                                size_t imageRightId)
 {
-  auto it = mImagesPairs.find(imageLeft);
+  auto it = mImagesPairs.find(imageLeftId);
   if (it != mImagesPairs.end()){
-    std::vector<QString> pairs = it->second;
-    for (auto &pair : pairs) {
-      if (pair.compare(imageRight) == 0){
+    for (auto &pair : it->second) {
+      if (pair == imageRightId){
         return;
       }
     }
   }
 
-  mImagesPairs[imageLeft].push_back(imageRight);
-  mImagesPairs[imageRight].push_back(imageLeft);
+  mImagesPairs[imageLeftId].push_back(imageRightId);
+  mImagesPairs[imageRightId].push_back(imageLeftId);
 }
 
-const std::vector<QString> ProjectImp::matchesPairs(const QString &imageLeft) const
+const std::vector<size_t> ProjectImp::matchesPairs(size_t imageId) const
 {
-  std::vector<QString> pairs;
+  std::vector<size_t> pairs;
+
   for (auto &matches : mImagesPairs){
-    if (imageLeft.compare(matches.first) == 0) {
+    if (imageId == matches.first) {
       pairs = matches.second;
       break;
     }
   }
+
   return pairs;
 }
 
@@ -457,22 +355,12 @@ void ProjectImp::removeMatchesPair()
   this->clearReconstruction();
 }
 
-void ProjectImp::removeMatchesPair(const QString &imageLeft)
+void ProjectImp::removeMatchesPair(size_t imageLeftId)
 {
-  auto it = mImagesPairs.find(imageLeft);
+  auto it = mImagesPairs.find(imageLeftId);
   if (it != mImagesPairs.end()){
     mImagesPairs.erase(it);
   }
-}
-
-bool ProjectImp::refinePrincipalPoint() const
-{
-  return bRefinePrincipalPoint;
-}
-
-void ProjectImp::setRefinePrincipalPoint(bool refine)
-{
-  bRefinePrincipalPoint = refine;
 }
 
 QString ProjectImp::sparseModel() const
@@ -505,19 +393,20 @@ void ProjectImp::setReconstructionPath(const QString &reconstructionPath)
   mReconstructionPath = reconstructionPath;
 }
 
-bool ProjectImp::isPhotoOriented(const QString &imgName) const
+bool ProjectImp::isPhotoOriented(size_t imageId) const
 {
-  return mPhotoOrientation.find(imgName) != mPhotoOrientation.end();
+  return mPhotoOrientation.find(imageId) != mPhotoOrientation.end();
 }
 
-CameraPose ProjectImp::photoOrientation(const QString &imgName) const
+CameraPose ProjectImp::photoOrientation(size_t imageId) const
 {
-  return mPhotoOrientation.at(imgName);
+  return mPhotoOrientation.at(imageId);
 }
 
-void ProjectImp::addPhotoOrientation(const QString &imgName, const CameraPose &photoOrientation)
+void ProjectImp::addPhotoOrientation(size_t imageId, 
+                                     const CameraPose &photoOrientation)
 {
-  mPhotoOrientation[imgName] = photoOrientation;
+  mPhotoOrientation[imageId] = photoOrientation;
 }
 
 void ProjectImp::clearReconstruction()
@@ -576,7 +465,23 @@ void ProjectImp::setDtmPath(const QString &dtmPath)
 
 void ProjectImp::clearDTM()
 {
+  mDtmMethod.reset();
   mDTM.clear();
+}
+
+QString ProjectImp::orthophotoPath() const
+{
+    return mOrthophoto;
+}
+
+void ProjectImp::setOrthophotoPath(const QString &orthophotoPath)
+{
+  mOrthophoto = orthophotoPath;
+}
+
+void ProjectImp::clearOrthophotoDTM()
+{
+  mOrthophoto.clear();
 }
 
 void ProjectImp::clear()
@@ -588,14 +493,13 @@ void ProjectImp::clear()
   mVersion = GRAPHOS_PROJECT_FILE_VERSION;
   mDatabase = "";
   mCrs = "";
-  mImages.resize(0);
+  mImages.clear();
   mCameras.clear();
   mFeatureExtractor.reset();
   mFeatures.clear();
   mFeatureMatching.reset();
   mImagesPairs.clear();
   mPhotoOrientation.clear();
-  bRefinePrincipalPoint = true;
   mSparseModel = "";
   mOffset = "";
   mReconstructionPath = "";
@@ -603,6 +507,7 @@ void ProjectImp::clear()
   mDenseModel = "";
   mDtmMethod.reset();
   mDTM.clear();
+  mOrthophoto.clear();
   mCameraCount = 0;
 }
 
@@ -661,6 +566,7 @@ bool ProjectImp::save(const QString &file)
         writeOrientations(stream);
         writeDensification(stream);
         writeDtm(stream);
+        writeOrthophoto(stream);
       }
 
       stream.writeEndElement(); // Graphos
@@ -772,6 +678,8 @@ bool ProjectImp::read(QXmlStreamReader &stream)
           readDensification(stream);
         } else if (stream.name() == "Dtm") {
           readDtm(stream);
+        } else if (stream.name() == "Orthophoto") {
+          readOrthophoto(stream);
         } else
           stream.skipCurrentElement();
         }
@@ -821,6 +729,15 @@ void ProjectImp::readImages(QXmlStreamReader &stream)
 Image ProjectImp::readImage(QXmlStreamReader &stream)
 {
   Image photo;
+
+  size_t id = 0;
+  for (auto &attr : stream.attributes()) {
+    if (attr.name().compare(QString("id")) == 0) {
+      id = attr.value().toULongLong();
+      break;
+    }
+  }
+
   while (stream.readNextStartElement()) {
     if (stream.name() == "File") {
       photo.setPath(stream.readElementText());
@@ -839,6 +756,7 @@ Image ProjectImp::readImage(QXmlStreamReader &stream)
     }*/ else
       stream.skipCurrentElement();
   }
+
   return photo;
 }
 
@@ -1016,16 +934,16 @@ void ProjectImp::readFeatureFiles(QXmlStreamReader &stream)
 
 void ProjectImp::readFeatureFile(QXmlStreamReader &stream)
 {
-  QString id;
+  size_t image_id = 0;
   for (auto &attr : stream.attributes()) {
-    if (attr.name().compare(QString("id")) == 0) {
-      id = attr.value().toString();
+    if (attr.name().compare(QString("image_id")) == 0) {
+      image_id = attr.value().toULongLong();
       break;
     }
   }
 
   QString file = stream.readElementText();
-  this->addFeatures(id, file);
+  this->addFeatures(image_id, file);
 }
 
 void ProjectImp::readMatches(QXmlStreamReader &stream)
@@ -1062,17 +980,17 @@ void ProjectImp::readMatchingMethod(QXmlStreamReader &stream)
 
 void ProjectImp::readPairs(QXmlStreamReader &stream)
 {
-  QString id_left_image;
+  size_t id_left_image = 0;
   for (auto &attr : stream.attributes()) {
-    if (attr.name().compare(QString("id")) == 0) {
-      id_left_image = attr.value().toString();
+    if (attr.name().compare(QString("image_id")) == 0) {
+      id_left_image = attr.value().toULongLong();
       break;
     }
   }
 
   while (stream.readNextStartElement()) {
     if (stream.name() == "Pair") {
-      this->addMatchesPair(id_left_image, stream.readElementText());
+      this->addMatchesPair(id_left_image, stream.readElementText().toULongLong());
     } else
       stream.skipCurrentElement();
   }
@@ -1111,10 +1029,10 @@ void ProjectImp::readOffset(QXmlStreamReader &stream)
 
 void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
 {
-  QString id_image;
+  size_t id_image;
   for (auto &attr : stream.attributes()) {
-    if (attr.name().compare(QString("id")) == 0) {
-      id_image = attr.value().toString();
+    if (attr.name().compare(QString("image_id")) == 0) {
+      id_image = attr.value().toULongLong();
       break;
     }
   }
@@ -1175,6 +1093,8 @@ void ProjectImp::readDensificationMethod(QXmlStreamReader &stream)
       this->readSmvs(stream);
     } else if (stream.name() == "CmvsPmvs"){
       this->readCmvsPmvs(stream);
+    } else if (stream.name() == "MVS") {
+      this->readMVS(stream);
     } else
       stream.skipCurrentElement();
   }
@@ -1222,6 +1142,28 @@ void ProjectImp::readCmvsPmvs(QXmlStreamReader &stream)
       stream.skipCurrentElement();
   }
   this->setDensification(cmvsPmvs);
+}
+
+void ProjectImp::readMVS(QXmlStreamReader &stream)
+{
+  std::shared_ptr<Mvs> mvs = std::make_shared<MvsProperties>();
+
+  while (stream.readNextStartElement()) {
+    if (stream.name() == "ResolutionLevel") {
+      mvs->setResolutionLevel(readInt(stream));
+    } else if (stream.name() == "MinResolution") {
+      mvs->setMinResolution(readInt(stream));
+    } else if (stream.name() == "MaxResolution") {
+      mvs->setMaxResolution(readDouble(stream));
+    } else if (stream.name() == "NumberViews") {
+      mvs->setNumberViews(readInt(stream));
+    } else if (stream.name() == "NumberViewsFuse") {
+      mvs->setNumberViewsFuse(readInt(stream));
+    } else
+      stream.skipCurrentElement();
+  }
+
+  this->setDensification(mvs);
 }
 
 void ProjectImp::readDtm(QXmlStreamReader &stream)
@@ -1297,6 +1239,11 @@ void ProjectImp::readInvDistNN(QXmlStreamReader &stream)
   this->setDtmMethod(invdistnn);
 }
 
+void ProjectImp::readOrthophoto(QXmlStreamReader &stream)
+{
+  this->setOrthophotoPath(stream.readElementText());
+}
+
 void ProjectImp::writeVersion(QXmlStreamWriter &stream) const
 {
   stream.writeAttribute("version", this->version());
@@ -1327,7 +1274,8 @@ void ProjectImp::writeCameras(QXmlStreamWriter &stream) const
 {
   stream.writeStartElement("Cameras");
   {
-    for (auto it = this->cameraBegin(); it != this->cameraEnd(); it++) {
+    const auto &cameras = this->cameras();
+    for (auto it = cameras.begin(); it != cameras.end(); it++) {
       this->writeCamera(stream, (*it).first, (*it).second);
     }
   }
@@ -1370,21 +1318,22 @@ void ProjectImp::writeImages(QXmlStreamWriter &stream) const
 {
   stream.writeStartElement("Images");
   {
-    for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
+    auto &images = this->images();
+    for (auto it = images.begin(); it != images.end(); it++){
       writeImage(stream, (*it));
     }
   }
   stream.writeEndElement();
 }
 
-void ProjectImp::writeImage(QXmlStreamWriter &stream, const Image &image) const
+void ProjectImp::writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const
 {
   stream.writeStartElement("Image");
   {
-    stream.writeTextElement("Name", image.name());
-    stream.writeTextElement("File", image.path());
-    stream.writeTextElement("CameraId", QString::number(image.cameraId()));
-    writeCameraPosition(stream, image.cameraPose());
+    stream.writeAttribute("id", QString::number(image.first));
+    stream.writeTextElement("File", image.second.path());
+    stream.writeTextElement("CameraId", QString::number(image.second.cameraId()));
+    writeCameraPosition(stream, image.second.cameraPose());
 //    stream.writeTextElement("LongitudeExif", QString::number(image.longitudeExif()));
 //    stream.writeTextElement("LatitudeExif", QString::number(image.latitudeExif()));
 //    stream.writeTextElement("AltitudeExif", QString::number(image.altitudeExif()));
@@ -1424,10 +1373,10 @@ void ProjectImp::writeFeatures(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeFeatureExtractor(QXmlStreamWriter &stream) const
 {
-  if (Feature *feature = this->featureExtractor().get()){
+  if (auto feature = this->featureExtractor()){
     stream.writeStartElement("FeatureExtractor");
     if (feature->type() == Feature::Type::sift){
-      this->writeSIFT(stream, dynamic_cast<Sift *>(feature));
+      this->writeSIFT(stream, dynamic_cast<Sift *>(feature.get()));
     }
     stream.writeEndElement();
   }
@@ -1451,11 +1400,12 @@ void ProjectImp::writeFeatureFiles(QXmlStreamWriter &stream) const
 {
   stream.writeStartElement("Files");
   {
-    for (auto it = this->featuresBegin(); it != this->featuresEnd(); it++){
+
+    for (const auto &features : mFeatures){
       stream.writeStartElement("FeatFile");
       {
-        stream.writeAttribute("id", it->first);
-        stream.writeCharacters(it->second);
+        stream.writeAttribute("image_id", QString::number(features.first));
+        stream.writeCharacters(features.second);
       }
       stream.writeEndElement(); // FeatFile
     }
@@ -1475,7 +1425,7 @@ void ProjectImp::writeMatches(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeFeatureMatchingMethod(QXmlStreamWriter &stream) const
 {
-  if (FeatureMatching *matchingMethod = this->featureMatching().get()){
+  if (auto matchingMethod = this->featureMatching()){
     stream.writeStartElement("FeatureMatchingMethod");
     {
       stream.writeTextElement("Distance", QString::number(matchingMethod->distance()));
@@ -1491,13 +1441,14 @@ void ProjectImp::writeFeatureMatchingMethod(QXmlStreamWriter &stream) const
 void ProjectImp::writePairs(QXmlStreamWriter &stream) const
 {
   if (!mImagesPairs.empty()){
-    for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
+    
+    for (auto it = this->images().begin(); it != this->images().end(); it++){
       stream.writeStartElement("Image");
       {
-        stream.writeAttribute("id", it->name());
-        std::vector<QString> pairs = this->matchesPairs(it->name());
+        stream.writeAttribute("image_id", QString::number(it->first));
+        std::vector<size_t> pairs = this->matchesPairs(it->first);
         for (size_t i = 0; i < pairs.size(); i++){
-          stream.writeTextElement("Pair", pairs.at(i));
+          stream.writeTextElement("Pair", QString::number(pairs.at(i)));
         }
       }
       stream.writeEndElement(); // Image
@@ -1541,12 +1492,12 @@ void ProjectImp::writeOffset(QXmlStreamWriter &stream) const
 void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
 {
   if (!mPhotoOrientation.empty()){
-    for (auto it = this->imageBegin(); it != this->imageEnd(); it++){
-      if (this->isPhotoOriented(it->name())){
-        CameraPose photoOrientation = this->photoOrientation(it->name());
+    for (const auto &image : this->images()){
+      if (this->isPhotoOriented(image.first)){
+        CameraPose photoOrientation = this->photoOrientation(image.first);
         stream.writeStartElement("Image");
         {
-          stream.writeAttribute("id", it->name());
+          stream.writeAttribute("image_id", QString::number(image.first));
           if (photoOrientation.position().x != 0. &&
               photoOrientation.position().y != 0. &&
               photoOrientation.position().z != 0.) {
@@ -1591,7 +1542,7 @@ void ProjectImp::writeDenseModel(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
 {
-  if (Densification *densificationMethod = this->densification().get()){
+  if (auto densificationMethod = this->densification()){
 
     stream.writeStartElement("DensificationMethod");
 
@@ -1599,7 +1550,7 @@ void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
 
       stream.writeStartElement("Smvs");
 
-      Smvs *smvs = dynamic_cast<Smvs *>(densificationMethod);
+      auto smvs = std::dynamic_pointer_cast<Smvs>(densificationMethod);
       stream.writeTextElement("InputImageScale", QString::number(smvs->inputImageScale()));
       stream.writeTextElement("OutputDepthScale", QString::number(smvs->outputDepthScale()));
       stream.writeTextElement("SemiGlobalMatching", smvs->semiGlobalMatching() ? "true" : "false");
@@ -1612,7 +1563,7 @@ void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
 
       stream.writeStartElement("CmvsPmvs");
 
-      CmvsPmvs *cmvsPmvs = dynamic_cast<CmvsPmvs *>(densificationMethod);
+      auto cmvsPmvs = std::dynamic_pointer_cast<CmvsPmvs>(densificationMethod);
       stream.writeTextElement("Level", QString::number(cmvsPmvs->level()));
       stream.writeTextElement("CellSize", QString::number(cmvsPmvs->cellSize()));
       stream.writeTextElement("Threshold", QString::number(cmvsPmvs->threshold()));
@@ -1620,6 +1571,18 @@ void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
       stream.writeTextElement("ImagesPerCluster", QString::number(cmvsPmvs->imagesPerCluster()));
       stream.writeTextElement("MinimunImageNumber", QString::number(cmvsPmvs->minimunImageNumber()));
       stream.writeTextElement("UseVisibilityInformation", cmvsPmvs->useVisibilityInformation() ? "true" : "false");
+
+      stream.writeEndElement();
+    } else if (densificationMethod->method() == Densification::Method::mvs) {
+
+      stream.writeStartElement("MVS");
+
+      auto mvs = std::dynamic_pointer_cast<Mvs>(densificationMethod);
+      stream.writeTextElement("ResolutionLevel", QString::number(mvs->resolutionLevel()));
+      stream.writeTextElement("MinResolution", QString::number(mvs->minResolution()));
+      stream.writeTextElement("MaxResolution", QString::number(mvs->maxResolution()));
+      stream.writeTextElement("NumberViews", QString::number(mvs->numberViews()));
+      stream.writeTextElement("NumberViewsFuse", QString::number(mvs->numberViewsFuse()));
 
       stream.writeEndElement();
     }
@@ -1682,6 +1645,13 @@ void ProjectImp::writeDtmInterpolation(QXmlStreamWriter &stream) const
 
     stream.writeEndElement();
   }
+}
+
+void ProjectImp::writeOrthophoto(QXmlStreamWriter &stream) const
+{
+  QString ortho_path = this->orthophotoPath();
+  if (!ortho_path.isEmpty())
+    stream.writeTextElement("Orthophoto", this->denseModel());
 }
 
 QSize ProjectImp::readSize(QXmlStreamReader &stream) const

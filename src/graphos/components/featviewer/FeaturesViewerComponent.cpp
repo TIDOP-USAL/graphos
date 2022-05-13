@@ -38,22 +38,26 @@ namespace graphos
 FeaturesViewerComponent::FeaturesViewerComponent(Application *application)
   : ComponentBase(application)
 {
-  this->setName("Features Viewer");
-  this->setMenu("tools");
-  this->setToolbar("tools");
-  QIcon iconFeaturesViewer;
-  iconFeaturesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_points_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(iconFeaturesViewer);
+  init();
 }
 
 FeaturesViewerComponent::~FeaturesViewerComponent()
 {
 }
 
-void FeaturesViewerComponent::openKeypointsViewer(const QString &file)
+void FeaturesViewerComponent::init()
+{
+  this->setName("Features Viewer");
+  this->setMenu("tools");
+  this->setToolbar("tools");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/view_points_24px.png"));
+}
+
+void FeaturesViewerComponent::openKeypointsViewer(size_t imageId)
 {
   action()->trigger();
-  dynamic_cast<FeaturesViewerPresenter *>(presenter())->setImageActive(file);
+  dynamic_cast<FeaturesViewerPresenter *>(presenter())->setImageActive(imageId);
 }
 
 void FeaturesViewerComponent::createModel()

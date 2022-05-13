@@ -61,10 +61,10 @@ public:
   std::shared_ptr<Feature> featureExtractor() const override;
   void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
   QString database() const override;
-  void addFeatures(const QString &imageName, const QString &featuresFile) override;
+  void addFeatures(size_t imageId, const QString &featuresFile) override;
   bool useCuda() const override;
-  std::vector<Image> images() const override;
-  std::map<int, Camera> cameras() const override;
+  const std::unordered_map<size_t, Image> &images() const override;
+  const std::map<int, Camera> &cameras() const override;
   void clearProject() override;
 
 protected:

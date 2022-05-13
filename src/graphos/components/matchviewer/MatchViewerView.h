@@ -44,27 +44,27 @@ public:
 
   /*!
    * \brief Set the left image
-   * \param[in] leftImage Left image
+   * \param[in] imageLeft Left image
    */
-  virtual void setLeftImage(const QString &leftImage) = 0;
+  virtual void setLeftImage(const QString &imageLeft) = 0;
 
   /*!
    * \brief Set the right image
-   * \param[in] rightImage Right image
+   * \param[in] imageRight Right image
    */
-  virtual void setRightImage(const QString &rightImage) = 0;
+  virtual void setRightImage(const QString &imageRight) = 0;
 
   /*!
    * \brief Set the list of images for image selector left
    * \param[in] leftImageList List of left images
    */
-  virtual void setLeftImageList(const std::vector<QString> &leftImageList) = 0;
+  virtual void setLeftImageList(const std::vector<std::pair<size_t, QString>> &leftImageList) = 0;
 
   /*!
    * \brief Set the list of images for image selector right
    * \param[in] rightImageList List of right images
    */
-  virtual void setRightImageList(const std::vector<QString> &rightImageList) = 0;
+  virtual void setRightImageList(const std::vector<std::pair<size_t, QString>> &rightImageList) = 0;
 
   virtual void setMatches(const std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> &matches) = 0;
 
@@ -75,9 +75,9 @@ public:
 
 signals:
 
-  void leftImageChange(QString);
-  void rightImageChange(QString);
-  void loadMatches(QString, QString);
+  void leftImageChange(size_t);
+  void rightImageChange(size_t);
+  void loadMatches(size_t, size_t);
 
 };
 

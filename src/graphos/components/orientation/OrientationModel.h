@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
 #define GRAPHOS_ORIENTATION_MODEL_INTERFACE_H
 
+#include <unordered_map>
+
 #include "graphos/interfaces/mvp.h"
 #include "graphos/core/image.h"
 #include "graphos/core/orientation/poses.h"
@@ -39,24 +41,15 @@ class OrientationModel
 
 public:
 
-  typedef std::map<int, Camera>::iterator camera_iterator;
-  typedef std::map<int, Camera>::const_iterator camera_const_iterator;
-  typedef std::vector<Image>::iterator image_iterator;
-  typedef std::vector<Image>::const_iterator image_const_iterator;
-
-public:
-
   OrientationModel(QObject *parent = nullptr) : Model(parent) {}
   ~OrientationModel() override = default;
 
   virtual bool calibratedCamera() const = 0;
-  virtual bool refinePrincipalPoint() const = 0;
-  virtual void setRefinePrincipalPoint(bool refine) = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
   virtual void setOffset(const QString &offset) = 0;
-  virtual bool isPhotoOriented(const QString &imgName) const = 0;
-  virtual CameraPose photoOrientation(const QString &imgName) const = 0;
-  virtual void addPhotoOrientation(const QString &imgName, 
+  virtual bool isPhotoOriented(size_t imageId) const = 0;
+  virtual CameraPose photoOrientation(size_t imageId) const = 0;
+  virtual void addPhotoOrientation(size_t imageId,
                                    const CameraPose &orientation) = 0;
   virtual QString database() const = 0;
   virtual QString projectPath() const = 0;
@@ -67,18 +60,10 @@ public:
   virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
   virtual void clearProject() = 0;
 
-  virtual std::map<int, Camera> cameras() const = 0;
+  virtual const std::map<int, Camera> &cameras() const = 0;
   virtual bool updateCamera(int id, const Camera &camera) = 0;
-  virtual camera_iterator cameraBegin() = 0;
-  virtual camera_const_iterator cameraBegin() const = 0;
-  virtual camera_iterator cameraEnd() = 0;
-  virtual camera_const_iterator cameraEnd() const = 0;
   
-  virtual std::vector<Image> images() const = 0;
-  virtual image_iterator imageBegin() = 0;
-  virtual image_const_iterator imageBegin() const = 0;
-  virtual image_iterator imageEnd() = 0;
-  virtual image_const_iterator imageEnd() const = 0;
+  virtual const std::unordered_map<size_t, Image> &images() const = 0;
 };
 
 } // namespace graphos

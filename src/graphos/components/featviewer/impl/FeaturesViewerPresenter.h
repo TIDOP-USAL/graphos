@@ -54,12 +54,11 @@ public:
 
 public slots:
 
-  void setImageActive(const QString &image) override;
-  //void openKeypointsFromImage(const QString &image) override;
+  void setImageActive(size_t imageId) override;
 
 protected slots:
 
-  void loadKeypoints(const QString &image) override;
+  void loadKeypoints(size_t imageId) override;
 
 // Presenter interface
 

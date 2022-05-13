@@ -61,16 +61,15 @@ OrientationPresenterImp::~OrientationPresenterImp()
 void OrientationPresenterImp::help()
 {
   if (mHelp){
-    mHelp->setPage("orientation.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
+mHelp->setPage("orientation.html");
+mHelp->setModal(true);
+mHelp->showMaximized();
   }
 }
 
 void OrientationPresenterImp::open()
 {
   TL_TODO("mSettingsModel->refinePrincipalPoint();")
-  //mView->setRefinePrincipalPoint(mModel->refinePrincipalPoint());
 
   mView->setCalibration(mModel->calibratedCamera());
   mView->enabledCalibration(mModel->calibratedCamera());
@@ -79,7 +78,7 @@ void OrientationPresenterImp::open()
     mView->setAbsoluteOrientation(true);
     mView->enabledPoses(true);
     mView->setPoses(true);
-  } else if(mModel->gpsPositions()){
+  } else if (mModel->gpsPositions()) {
     mView->enabledAbsoluteOrientation(true);
     mView->setAbsoluteOrientation(true);
     mView->enabledPoses(false);
@@ -90,7 +89,7 @@ void OrientationPresenterImp::open()
     mView->enabledPoses(false);
     mView->setPoses(false);
   }
-  /*mView->enabledAbsoluteOrientation(mModel->gpsPositions());*/
+
   mView->exec();
 }
 
@@ -105,14 +104,14 @@ void OrientationPresenterImp::init()
 
 void OrientationPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &OrientationView::run,   this, &OrientationPresenterImp::run);
-  connect(mView, &OrientationView::help,  this, &OrientationPresenterImp::help);
+  connect(mView, &OrientationView::run, this, &OrientationPresenterImp::run);
+  connect(mView, &OrientationView::help, this, &OrientationPresenterImp::help);
 }
 
 void OrientationPresenterImp::cancel()
 {
   ProcessPresenter::cancel();
-  
+
   msgWarning("Processing has been canceled by the user");
 }
 
@@ -136,32 +135,37 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 {
- 
+
   std::unique_ptr<tl::Task> orientation_process;
 
   QString reconstruction_path = mModel->reconstructionPath();
-  if (!reconstruction_path.isEmpty()){
+  if (!reconstruction_path.isEmpty()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),
                             tr("The previous results will be overwritten. Do you wish to continue?"),
-                            QMessageBox::Yes|QMessageBox::No).exec();
+                            QMessageBox::Yes | QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
       return orientation_process;
     }
   }
 
   mModel->clearProject();
-  emit orientationDeleted();
+  emit orientation_deleted();
 
   TL_TODO("Establecer propiedades")
 
-  bool fix_calibration = mView->fixCalibration();
+    bool fix_calibration = mView->fixCalibration();
   bool fix_poses = mView->fixPoses();
   QString database = mModel->database();
 
   if (mModel->rtkOrientations()) {
 
-    orientation_process = std::make_unique<ImportOrientationProcess>(mModel->images(),
+    std::vector<Image> images;
+    for(const auto &image : mModel->images()){
+      images.push_back(image.second);
+    }
+
+    orientation_process = std::make_unique<ImportOrientationProcess>(images,
                                                                      mModel->cameras(),
                                                                      mModel->projectPath(),
                                                                      mModel->database(),
@@ -176,30 +180,27 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
     orientation_process = std::make_unique<tl::TaskList>();
 
     QString ori_relative_path = mModel->projectPath() + "/ori/relative/";
-    //std::shared_ptr<RelativeOrientationAlgorithm> relativeOrientationAlgorithm = std::make_shared<RelativeOrientationColmapAlgorithm>(database,
-    //                                                                                                                                  ori_relative_path,
-    //                                                                                                                                  mView->fixCalibration());
 
     std::shared_ptr<RelativeOrientationProcess> relativeOrientationProcess(new RelativeOrientationProcess(database,
                                                                                                           ori_relative_path,
                                                                                                           mView->fixCalibration()));
 
-    connect(relativeOrientationProcess.get(), SIGNAL(orientationFinished()), this, SLOT(onRelativeOrientationFinished()));
+    connect(relativeOrientationProcess.get(), SIGNAL(orientation_finished()), this, SLOT(onRelativeOrientationFinished()));
 
     dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(relativeOrientationProcess);
 
     if (mView->absoluteOrientation()) {
       QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
       std::map<QString, std::array<double, 3>> camera_positions = mModel->cameraPositions();
-      /*std::shared_ptr<AbsoluteOrientationAlgorithm> absoluteOrientationAlgorithm;
-      absoluteOrientationAlgorithm = std::make_shared<AbsoluteOrientationColmapAlgorithm>(ori_relative_path,
-                                                                                          camera_positions,
-                                                                                          ori_absolute);*/
+ 
       std::shared_ptr<AbsoluteOrientationProcess> absoluteOrientationProcess(new AbsoluteOrientationProcess(ori_relative_path,
                                                                                                             camera_positions,
                                                                                                             ori_absolute));
 
-      connect(absoluteOrientationProcess.get(), SIGNAL(absoluteOrientationFinished()), this, SLOT(onAbsoluteOrientationFinished()));
+      connect(absoluteOrientationProcess.get(), 
+              SIGNAL(absoluteOrientationFinished()),
+              this, 
+              SLOT(onAbsoluteOrientationFinished()));
 
       dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(absoluteOrientationProcess);
     }
@@ -232,14 +233,13 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
     readPhotoOrientations.open(ori_relative_path);
     int oriented_images = 0;
 
-    for (auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++) {
-      QString image_oriented = image->path();
-      CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+    for (const auto &image : mModel->images()) {
+      QString image_oriented = QFileInfo(image.second.path()).fileName();
+      CameraPose photoOrientation = readPhotoOrientations.orientation(image_oriented);
       if (photoOrientation.position() != tl::Point3D()) {
-        mModel->addPhotoOrientation(image->name(), photoOrientation);
+        mModel->addPhotoOrientation(image.first, photoOrientation);
         oriented_images++;
       } else {
-        QString image_oriented = QFileInfo(image->path()).fileName();
         QByteArray ba = image_oriented.toLocal8Bit();
         const char *msg = ba.constData();
         msgWarning("Image %s not oriented", msg);
@@ -251,16 +251,16 @@ void OrientationPresenterImp::onRelativeOrientationFinished()
     ReadCalibration readCalibration;
     readCalibration.open(ori_relative_path);
     std::shared_ptr<Calibration> calibration;
-    for(auto camera_it = mModel->cameraBegin(); camera_it != mModel->cameraEnd(); camera_it++){
-      calibration = readCalibration.calibration(camera_it->first);
+    for(const auto &camera : mModel->cameras()){
+      calibration = readCalibration.calibration(camera.first);
       if (calibration){
-        Camera camera = camera_it->second;
-        camera.setCalibration(calibration);
-        mModel->updateCamera(camera_it->first, camera);
+        Camera _camera = camera.second;
+        _camera.setCalibration(calibration);
+        mModel->updateCamera(camera.first, _camera);
       }
     }
 
-    emit orientationFinished();
+    emit orientation_finished();
   }
 }
 
@@ -275,26 +275,26 @@ void OrientationPresenterImp::onAbsoluteOrientationFinished()
 
     ReadCameraPoses readPhotoOrientations;
     readPhotoOrientations.open(ori_absolute_path);
-    for(auto image = mModel->imageBegin(); image != mModel->imageEnd(); image++){
-      CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+    for (const auto &image : mModel->images()){
+      CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image.second.path()).fileName());
       if (photoOrientation.position() != tl::Point3D()) {
-        mModel->addPhotoOrientation(image->name(), photoOrientation);
+        mModel->addPhotoOrientation(image.first, photoOrientation);
       }
     }
 
     ReadCalibration readCalibration;
     readCalibration.open(ori_absolute_path);
     std::shared_ptr<Calibration> calibration;
-    for (auto camera_it = mModel->cameraBegin(); camera_it != mModel->cameraEnd(); camera_it++) {
-      calibration = readCalibration.calibration(camera_it->first);
+    for (const auto &camera : mModel->cameras()) {
+      calibration = readCalibration.calibration(camera.first);
       if (calibration) {
-        Camera camera = camera_it->second;
-        camera.setCalibration(calibration);
-        mModel->updateCamera(camera_it->first, camera);
+        Camera _camera = camera.second;
+        _camera.setCalibration(calibration);
+        mModel->updateCamera(camera.first, _camera);
       }
     }
 
-    emit orientationFinished();
+    emit orientation_finished();
 
   } else {
     msgError("Orientation failed");

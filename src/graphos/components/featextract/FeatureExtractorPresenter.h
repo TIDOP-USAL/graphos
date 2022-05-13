@@ -43,8 +43,8 @@ public:
 
 signals:
 
-  void featuresExtracted(QString);
-  void featuresDeleted();
+  void features_extracted(size_t);
+  void features_deleted();
 
 public slots:
 

@@ -43,6 +43,8 @@ MvsWidget::MvsWidget(QWidget *parent)
     mSpinBoxMinResolution(new QSpinBox(this)),
     mLabelMaxResolution(new QLabel(this)),
     mSpinBoxMaxResolution(new QSpinBox(this)),
+    mLabelNumberViews(new QLabel(this)),
+    mSpinBoxNumberViews(new QSpinBox(this)),
     mLabelNumberViewsFuse(new QLabel(this)),
     mSpinBoxNumberViewsFuse(new QSpinBox(this))
 {
@@ -70,6 +72,11 @@ int MvsWidget::maxResolution() const
   return mSpinBoxMaxResolution->value();
 }
 
+int MvsWidget::numberViews() const
+{
+    return mSpinBoxNumberViews->value();
+}
+
 int MvsWidget::numberViewsFuse() const
 {
   return mSpinBoxNumberViewsFuse->value();
@@ -93,6 +100,12 @@ void MvsWidget::setMaxResolution(int maxResolution)
   mSpinBoxMaxResolution->setValue(maxResolution);
 }
 
+void MvsWidget::setNumberViews(int numberViews)
+{
+  const QSignalBlocker blockerNumberViews(mSpinBoxNumberViews);
+  mSpinBoxNumberViews->setValue(numberViews);
+}
+
 void MvsWidget::setNumberViewsFuse(int numberViewsFuse)
 {
   const QSignalBlocker blockerNumberViewsFuse(mSpinBoxNumberViewsFuse);
@@ -110,6 +123,7 @@ void MvsWidget::retranslate()
   mLabelResolutionLevel->setText(QApplication::translate("MvsWidget", "Resolution Level:"));
   mLabelMinResolution->setText(QApplication::translate("MvsWidget", "Min Resolution:"));
   mLabelMaxResolution->setText(QApplication::translate("MvsWidget", "Max Resolution:"));
+  mLabelNumberViews->setText(QApplication::translate("MvsWidget", "Number Views:"));
   mLabelNumberViewsFuse->setText(QApplication::translate("MvsWidget", "Number Views Fuse:"));
 }
 
@@ -118,12 +132,14 @@ void MvsWidget::clear()
   const QSignalBlocker blockerBoxResolutionLevel(mSpinBoxResolutionLevel);
   const QSignalBlocker blockerMinResolution(mSpinBoxMinResolution);
   const QSignalBlocker blockerMaxResolution(mSpinBoxMaxResolution);
+  const QSignalBlocker blockerNumberViews(mSpinBoxNumberViews);
   const QSignalBlocker blockerNumberViewsFuse(mSpinBoxNumberViewsFuse);
 
   mSpinBoxResolutionLevel->setValue(1);
   mSpinBoxMinResolution->setValue(640);
   mSpinBoxMaxResolution->setValue(3200);
-  mSpinBoxNumberViewsFuse->setValue(5);
+  mSpinBoxNumberViews->setValue(5);
+  mSpinBoxNumberViewsFuse->setValue(3);
 }
 
 void MvsWidget::initUI()
@@ -151,9 +167,13 @@ void MvsWidget::initUI()
   mSpinBoxMaxResolution->setRange(1, 10000);
   propertiesLayout->addWidget(mSpinBoxMaxResolution, 2, 1);  
 
-  propertiesLayout->addWidget(mLabelNumberViewsFuse, 3, 0);
+  propertiesLayout->addWidget(mLabelNumberViews, 3, 0);
+  mSpinBoxNumberViews->setRange(1, 100);
+  propertiesLayout->addWidget(mSpinBoxNumberViews, 3, 1);
+
+  propertiesLayout->addWidget(mLabelNumberViewsFuse, 4, 0);
   mSpinBoxNumberViewsFuse->setRange(1, 100);
-  propertiesLayout->addWidget(mSpinBoxNumberViewsFuse, 3, 1); 
+  propertiesLayout->addWidget(mSpinBoxNumberViewsFuse, 4, 1); 
 
   MvsWidget::retranslate();
   MvsWidget::clear(); /// set default values
@@ -162,10 +182,11 @@ void MvsWidget::initUI()
 
 void MvsWidget::initSignalAndSlots()
 {
-  connect(mSpinBoxResolutionLevel,          QOverload<int>::of(&QSpinBox::valueChanged),          this, &MvsWidget::resolutionLevelChanged);
-  connect(mSpinBoxMinResolution,            QOverload<int>::of(&QSpinBox::valueChanged),          this, &MvsWidget::minResolutionChanged);
-  connect(mSpinBoxMaxResolution,            QOverload<int>::of(&QSpinBox::valueChanged),          this, &MvsWidget::maxResolutionChanged);
-  connect(mSpinBoxNumberViewsFuse,          QOverload<int>::of(&QSpinBox::valueChanged),          this, &MvsWidget::numberViewsFuseChanged);
+  connect(mSpinBoxResolutionLevel, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::resolutionLevelChanged);
+  connect(mSpinBoxMinResolution,   QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::minResolutionChanged);
+  connect(mSpinBoxMaxResolution,   QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::maxResolutionChanged);
+  connect(mSpinBoxNumberViewsFuse, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::numberViewsFuseChanged);
+  connect(mSpinBoxNumberViewsFuse, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::numberViewsFuseChanged);
 }
 
 

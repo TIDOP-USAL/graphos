@@ -44,7 +44,7 @@ namespace graphos
 /*!
  * \brief SIFT detector/descriptor properties class
  */
-class GRAPHOS_EXPORT SiftProperties
+class SiftProperties
   : public Sift
 {
 

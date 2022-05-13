@@ -76,9 +76,9 @@ QString FeatureExtractorModelImp::database() const
   return mProject->database();
 }
 
-void FeatureExtractorModelImp::addFeatures(const QString &imageName, const QString &featuresFile)
+void FeatureExtractorModelImp::addFeatures(size_t imageId, const QString &featuresFile)
 {
-  mProject->addFeatures(imageName, featuresFile);
+  mProject->addFeatures(imageId, featuresFile);
 }
 
 bool FeatureExtractorModelImp::useCuda() const
@@ -86,12 +86,12 @@ bool FeatureExtractorModelImp::useCuda() const
   return mSettings->value("UseCuda", true).toBool();
 }
 
-std::vector<Image> FeatureExtractorModelImp::images() const
+const std::unordered_map<size_t, Image> &FeatureExtractorModelImp::images() const
 {
   return mProject->images();
 }
 
-std::map<int, Camera> FeatureExtractorModelImp::cameras() const
+const std::map<int, Camera> &FeatureExtractorModelImp::cameras() const
 {
   return mProject->cameras();
 }

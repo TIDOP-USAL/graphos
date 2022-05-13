@@ -37,9 +37,6 @@ class Component;
 class MainWindowModel;
 class MainWindowView;
 class MainWindowPresenter;
-class ProjectModel;
-class FeaturesModel;
-class MatchesModel;
 class ProgressHandler;
 class ProgressDialog;
 class HelpDialog;
@@ -78,10 +75,6 @@ public:
                               Flags flags = Flags::none);
   void loadPlugins();
 
-  ProjectModel *projectModel();
-  FeaturesModel *featuresModel();
-  MatchesModel *matchesModel();
-
   HelpDialog *helpDialog();
 
   ProgressHandler *progressHandler();
@@ -98,10 +91,6 @@ protected:
   MainWindowView *mMainWindowView;
   MainWindowModel *mMainWindowModel;
   MainWindowPresenter *mMainWindowPresenter;
-
-  ProjectModel *mProjectModel;
-  FeaturesModel *mFeaturesModel;
-  MatchesModel *mMatchesModel;
 
   HelpDialog *mHelpDialog;
 

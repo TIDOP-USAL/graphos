@@ -54,7 +54,7 @@ signals:
   /*!
    * \brief Signal emitted when the project is created
    */
-  void projectCreate();
+  void project_created();
 
 protected slots:
 

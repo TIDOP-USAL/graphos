@@ -35,7 +35,7 @@ class QPushButton;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT MveFormatWidget
+class MveFormatWidget
   : public GraphosWidgetView
 {
 
@@ -60,7 +60,7 @@ public slots:
 
 
 
-class GRAPHOS_EXPORT MveFormatWidgetImp
+class MveFormatWidgetImp
   : public MveFormatWidget
 {
 

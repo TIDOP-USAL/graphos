@@ -85,7 +85,7 @@ public:
 
 signals:
 
-  void imageLoaded(QString);
+  void image_loaded(size_t);
 
 private:
 

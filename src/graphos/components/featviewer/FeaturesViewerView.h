@@ -45,13 +45,13 @@ public:
    * \brief Set the list of images
    * \param[in] imageList List of images
    */
-  virtual void setImageList(const std::vector<QString> &imageList) = 0;
+  virtual void setImageList(const std::vector<std::pair<size_t, QString>> &imageList) = 0;
 
   /*!
    * \brief setCurrentImage
    * \param leftImage
    */
-  virtual void setCurrentImage(const QString &leftImage) = 0;
+  virtual void setCurrentImage(const QString &imagePath) = 0;
 
   /*!
    * \brief setPoints
@@ -65,7 +65,7 @@ public:
 
 signals:
 
-  void imageChange(QString);
+  void image_changed(size_t);
 
 };
 

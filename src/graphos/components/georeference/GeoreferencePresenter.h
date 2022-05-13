@@ -42,11 +42,7 @@ public:
 
 public slots:
 
-  virtual void setImageActive(const QString &image) = 0;
-
-signals:
-
-  void georeferenceFinished();
+  virtual void setImageActive(size_t imageId) = 0;
 
 };
 

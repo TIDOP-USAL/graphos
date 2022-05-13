@@ -38,7 +38,7 @@ namespace graphos
 /*!
  * \brief Shading-Aware Multi-View Stereo Widget Interface
  */
-class GRAPHOS_EXPORT CmvsPmvsWidget
+class CmvsPmvsWidget
   : public GraphosWidgetView
 {
   Q_OBJECT
@@ -78,7 +78,7 @@ public slots:
 };
 
 
-class GRAPHOS_EXPORT CmvsPmvsWidgetImp
+class CmvsPmvsWidgetImp
   : public CmvsPmvsWidget
 {
   Q_OBJECT

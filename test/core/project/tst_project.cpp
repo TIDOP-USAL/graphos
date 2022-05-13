@@ -1,54 +1,66 @@
-#include <QtTest>
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
 
-#include "inspector/core/project.h"
+#define BOOST_TEST_MODULE GRAPHOS Project test
 
-using namespace inspector;
+#include <boost/test/unit_test.hpp>
+#include "graphos/core/project.h"
 
+using namespace graphos;
 
-class TestProject
-  : public QObject
+BOOST_AUTO_TEST_SUITE(TestProjectSuite)
+
+struct TestProject
 {
-  Q_OBJECT
 
-public:
+  TestProject()
+    : mProject(new ProjectImp),
+      mProjectXml(new ProjectImp)
+  {
 
-  TestProject();
-  ~TestProject();
+  }
 
-private slots:
+  ~TestProject()
+  {
+    if (mProject) {
+      delete mProject;
+      mProject = nullptr;
+    }
 
-  void initTestCase();
-  void cleanupTestCase();
-  void test_default_constructor();
-  void test_constructor();
-  void test_name_data();
-  void test_name();
-  void test_description_data();
-  void test_description();
-  void test_projectFolder_data();
-  void test_projectFolder();
-  void test_findImage();
-  void test_imageId_data();
-  void test_imageId();
-  void test_imageId_exception();
-  void test_imageIterator();
-  void test_addImage_deleteImage();
-  void test_addCamera();
-  void test_updateCamera();
-  void test_removeCamera();
-  void test_findCamera();
-  void test_findCamera_exception();
-  void test_findCameraId();
-  void test_existCamera();
-  void test_database_data();
-  void test_database();
-  void test_featureExtractor();
-  void test_features();
-  void test_matches();
-  void test_orientations();
-  void test_sparseModel();
-  void test_densification();
-  void test_denseModel();
+    if (mProjectXml) {
+      delete mProjectXml;
+      mProjectXml = nullptr;
+    }
+  }
+
+  void setup()
+  {
+    mProjectXml->load(QString(GRAPHOS_SOURCE_PATH).append("/test/data/project.xml"));
+  }
+  
+  void teardown()
+  {
+  }
 
 protected:
 
@@ -56,318 +68,228 @@ protected:
   Project *mProjectXml;
 };
 
-TestProject::TestProject()
-  : mProject(new ProjectImp),
-    mProjectXml(new ProjectImp)
+
+
+BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestProject)
 {
+  BOOST_CHECK_EQUAL("", mProject->name().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->description().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->projectFolder().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->projectPath().toStdString());
+  BOOST_CHECK_EQUAL("1.0", mProject->version().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->database().toStdString());
+  BOOST_CHECK_EQUAL(0, mProject->imagesCount());
+  const auto &images = mProject->images();
+  BOOST_CHECK_EQUAL(0, images.size());
+  const auto &cameras = mProject->cameras();
+  BOOST_CHECK_EQUAL(0, cameras.size());
+  BOOST_CHECK_EQUAL(0, mProject->camerasCount());
+  BOOST_CHECK_EQUAL("", mProject->crs().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->denseModel().toStdString());
+  auto densification = mProject->densification();
+  BOOST_CHECK(!densification);
+  auto featureExtractor = mProject->featureExtractor();
+  BOOST_CHECK(!featureExtractor);
+  auto featureMatching = mProject->featureMatching();
+  BOOST_CHECK(!featureMatching);
+  auto features = mProject->features();
+  BOOST_CHECK_EQUAL(0, features.size());
+  BOOST_CHECK_EQUAL("", mProject->offset().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->reconstructionPath().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->sparseModel().toStdString());
 
 }
 
-TestProject::~TestProject()
+BOOST_FIXTURE_TEST_CASE(clear, TestProject)
 {
-  if (mProject){
-    delete mProject;
-    mProject = nullptr;
-  }
+  mProject->clear();
 
-  if (mProjectXml){
-    delete mProjectXml;
-    mProjectXml = nullptr;
-  }
+  BOOST_CHECK_EQUAL("", mProject->name().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->description().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->projectFolder().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->projectPath().toStdString());
+  BOOST_CHECK_EQUAL("1.0", mProject->version().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->database().toStdString());
+  BOOST_CHECK_EQUAL(0, mProject->imagesCount());
+  const auto &images = mProject->images();
+  BOOST_CHECK_EQUAL(0, images.size());
+  const auto &cameras = mProject->cameras();
+  BOOST_CHECK_EQUAL(0, cameras.size());
+  BOOST_CHECK_EQUAL(0, mProject->camerasCount());
+  BOOST_CHECK_EQUAL("", mProject->crs().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->denseModel().toStdString());
+  auto densification = mProject->densification();
+  BOOST_CHECK(!densification);
+  auto featureExtractor = mProject->featureExtractor();
+  BOOST_CHECK(!featureExtractor);
+  auto featureMatching = mProject->featureMatching();
+  BOOST_CHECK(!featureMatching);
+  auto features = mProject->features();
+  BOOST_CHECK_EQUAL(0, features.size());
+  BOOST_CHECK_EQUAL("", mProject->offset().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->reconstructionPath().toStdString());
+  BOOST_CHECK_EQUAL("", mProject->sparseModel().toStdString());
 }
 
-void TestProject::initTestCase()
+BOOST_FIXTURE_TEST_CASE(name, TestProject)
 {
-  mProjectXml->load(QString(INSPECTOR_SOURCE_PATH).append("/test/data/project.xml"));
+  mProject->setName("Project1");
+  BOOST_CHECK_EQUAL("Project1", mProject->name().toStdString());
+  BOOST_CHECK_EQUAL("San Segundo", mProjectXml->name().toStdString());
 }
 
-void TestProject::cleanupTestCase()
+BOOST_FIXTURE_TEST_CASE(description, TestProject)
 {
-  mProjectXml->clear();
-
-  QCOMPARE(QString(), mProjectXml->name());
-  QCOMPARE(QString(), mProjectXml->description());
-  QCOMPARE(QString(), mProjectXml->projectFolder());
-  QCOMPARE(QString("1.0"), mProjectXml->version());
-  QCOMPARE(0, mProjectXml->imagesCount());
-  QCOMPARE("", mProjectXml->database());
+  mProject->setDescription("****");
+  BOOST_CHECK_EQUAL("****", mProject->description().toStdString());
+  BOOST_CHECK_EQUAL("Portada de San Segundo", mProjectXml->description().toStdString());
 }
 
-void TestProject::test_default_constructor()
+BOOST_FIXTURE_TEST_CASE(projectFolder, TestProject)
 {
-  ProjectImp project;
-  QCOMPARE(QString(), project.name());
-  QCOMPARE(QString(), project.description());
-  QCOMPARE(QString(), project.projectFolder());
-  QCOMPARE(QString("1.0"), project.version());
-  QCOMPARE(0, project.imagesCount());
-  QCOMPARE("", project.database());
+  mProject->setProjectFolder("C:/Users/temp");
+  BOOST_CHECK_EQUAL("C:/Users/temp", mProject->projectFolder().toStdString());
+  BOOST_CHECK_EQUAL("C:/Users/qwerty/Documents/graphos/Projects/San Segundo", mProjectXml->projectFolder().toStdString());
 }
 
-void TestProject::test_constructor()
+BOOST_FIXTURE_TEST_CASE(database, TestProject)
 {
-  QCOMPARE(QString("Proj02"), mProjectXml->name());
-  QCOMPARE(QString("Descripción del proyecto 2"), mProjectXml->description());
-  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj002"), mProjectXml->projectFolder());
-  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj002/images"), mProjectXml->imageDirectory());
-  QCOMPARE(QString("1.0"), mProjectXml->version());
-  QCOMPARE(4, mProjectXml->imagesCount());
-  QCOMPARE(QString("C:/Users/User01/Documents/inspector/Projects/prj002/database.db"), mProjectXml->database());
+  BOOST_CHECK_EQUAL("C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db", mProjectXml->database().toStdString());
 }
 
-void TestProject::test_name_data()
+BOOST_FIXTURE_TEST_CASE(crs, TestProject)
 {
-  QTest::addColumn<QString>("value");
-  QTest::addColumn<QString>("result");
-
-  QTest::newRow("Proj01") << "Proj01" << "Proj01";
-  QTest::newRow("Proj02") << "Proj02" << "Proj02";
-
+  BOOST_CHECK_EQUAL("", mProjectXml->crs().toStdString());
 }
 
-void TestProject::test_name()
+BOOST_FIXTURE_TEST_CASE(addImage, TestProject)
 {
-  QFETCH(QString, value);
-  QFETCH(QString, result);
-
-  mProject->setName(value);
-  QCOMPARE(result, mProject->name());
+  Image image("C:/Users/temp/images/image01.jpg");
+  mProject->addImage(image);
+  BOOST_CHECK_EQUAL(1, mProject->images().size());
 }
 
-void TestProject::test_description_data()
+BOOST_FIXTURE_TEST_CASE(removeImage, TestProject)
 {
-  QTest::addColumn<QString>("value");
-  QTest::addColumn<QString>("result");
-
-  QTest::newRow("Description1") << "Descripción del proyecto 1" << "Descripción del proyecto 1";
-  QTest::newRow("Description2") << "Descripción del proyecto 2" << "Descripción del proyecto 2";
+  Image image("C:/Users/temp/images/image01.jpg");
+  mProject->addImage(image);
+  BOOST_CHECK_EQUAL(1, mProject->images().size());
+  mProject->removeImage(image.id());
+  BOOST_CHECK_EQUAL(0, mProject->images().size());
 }
 
-void TestProject::test_description()
+BOOST_FIXTURE_TEST_CASE(existImage, TestProject)
 {
-  QFETCH(QString, value);
-  QFETCH(QString, result);
-
-  mProject->setDescription(value);
-  QCOMPARE(result, mProject->description());
+  BOOST_CHECK(mProjectXml->existImage(1904085996873346300));
+  BOOST_CHECK(!mProjectXml->existImage(1));
 }
 
-void TestProject::test_projectFolder_data()
+BOOST_FIXTURE_TEST_CASE(findImageById, TestProject)
 {
-  QTest::addColumn<QString>("value");
-  QTest::addColumn<QString>("result");
-
-  QTest::newRow("Folder_prj_01") << "C:\\Users\\User01\\Documents\\inspector\\Projects\\prj001" << "C:\\Users\\User01\\Documents\\inspector\\Projects\\prj001";
-  QTest::newRow("Folder_prj_02") << "C:/Users/User01/Documents/inspector/Projects/prj002" << "C:/Users/User01/Documents/inspector/Projects/prj002";
+  Image image = mProjectXml->findImageById(1904085996873346300);
+  BOOST_CHECK_EQUAL("IMG_7212.jpg", image.name().toStdString());
 }
 
-void TestProject::test_projectFolder()
+BOOST_FIXTURE_TEST_CASE(images, TestProject)
 {
-  QFETCH(QString, value);
-  QFETCH(QString, result);
-
-  mProject->setProjectFolder(value);
-  QCOMPARE(result, mProject->projectFolder());
+  BOOST_CHECK_EQUAL(4, mProjectXml->images().size());
 }
 
-void TestProject::test_findImage()
+BOOST_FIXTURE_TEST_CASE(imagesCount, TestProject)
 {
-  Image img = mProjectXml->findImage("IMG_7209");
-  QCOMPARE("IMG_7209", img.name());
-  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7209.jpg", img.path());
-
-  Image img2 = mProjectXml->findImage("IMG_7210");
-  QCOMPARE("IMG_7210", img2.name());
-  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7210.jpg", img2.path());
+  BOOST_CHECK_EQUAL(4, mProjectXml->imagesCount());
 }
 
-void TestProject::test_imageId_data()
+BOOST_FIXTURE_TEST_CASE(addCamera, TestProject)
 {
-  QTest::addColumn<QString>("value");
-  QTest::addColumn<size_t>("result");
-
-  QTest::newRow("IMG_7209") << "IMG_7209" << size_t{0};
-  QTest::newRow("IMG_7210") << "IMG_7210" << size_t{1};
-  QTest::newRow("IMG_7211") << "IMG_7211" << size_t{2};
-  QTest::newRow("IMG_7212") << "IMG_7212" << size_t{3};
-}
-
-void TestProject::test_imageId()
-{
-  QFETCH(QString, value);
-  QFETCH(size_t, result);
-
-  QCOMPARE(result, mProjectXml->imageId(value));
-}
-
-void TestProject::test_imageId_exception()
-{
-  try {
-    int id = mProjectXml->imageId("C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png");
-  } catch (std::exception &e) {
-    QCOMPARE("Image not found: C:/Users/User01/Documents/inspector/Projects/prj001/images/img003.png", e.what());
-  }
-}
-
-void TestProject::test_imageIterator()
-{
-  Image img;
-  int i = 0;
-  for (auto it = mProjectXml->imageBegin(); it != mProjectXml->imageEnd(); it++, i++){
-    img = (*it);
-    if (i == 0){
-      QCOMPARE("IMG_7209", img.name());
-      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7209.jpg", img.path());
-    } else if (i == 1) {
-      QCOMPARE("IMG_7210", img.name());
-      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7210.jpg", img.path());
-    } else if (i == 2) {
-      QCOMPARE("IMG_7211", img.name());
-      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7211.jpg", img.path());
-    } else if (i == 3) {
-      QCOMPARE("IMG_7212", img.name());
-      QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7212.jpg", img.path());
-    }
-  }
-}
-
-void TestProject::test_addImage_deleteImage()
-{
-  Image img("C:/Users/esteban/Documents/Inspector/Projects/SanSegundo/images/IMG_7213.png");
-
-  mProjectXml->addImage(img);
-
-  QCOMPARE(5, mProjectXml->imagesCount());
-
-  mProjectXml->removeImage("IMG_7213");
-  QCOMPARE(4, mProjectXml->imagesCount());
-}
-
-void TestProject::test_addCamera()
-{
+  BOOST_CHECK_EQUAL(0, mProject->camerasCount());
   Camera camera("SONY", "ILCE-6000");
   camera.setFocal(3552.23);
   camera.setWidth(5472);
   camera.setHeight(3648);
-  mProjectXml->addCamera(camera);
-  Camera camera2 = mProjectXml->findCamera("SONY", "ILCE-6000");
-  QCOMPARE(3552.23, camera2.focal());
-  QCOMPARE(5472, camera2.width());
-  QCOMPARE(3648, camera2.height());
+  mProject->addCamera(camera);
+  BOOST_CHECK_EQUAL(1, mProject->camerasCount());
 }
 
-void TestProject::test_updateCamera()
+BOOST_FIXTURE_TEST_CASE(removeCamera, TestProject)
 {
-
+  int id = mProject->cameraId("SONY", "ILCE-6000");
+  mProject->removeCamera(id);
+  BOOST_CHECK_EQUAL(0, mProject->camerasCount());
 }
 
-void TestProject::test_removeCamera()
-{
-  int id = mProjectXml->cameraId("SONY", "ILCE-6000");
-  mProjectXml->removeCamera(id);
-  QCOMPARE(false, mProjectXml->existCamera("SONY", "ILCE-6000"));
-}
-
-void TestProject::test_findCamera()
+BOOST_FIXTURE_TEST_CASE(findCamera, TestProject)
 {
   Camera camera = mProjectXml->findCamera("Unknown camera", "0");
-  QCOMPARE(5835.6, camera.focal());
-  QCOMPARE(4863, camera.width());
-  QCOMPARE(3221, camera.height());
-  QCOMPARE(1, camera.sensorSize());
+  BOOST_CHECK_EQUAL(5835.6, camera.focal());
+  BOOST_CHECK_EQUAL(4863, camera.width());
+  BOOST_CHECK_EQUAL(3221, camera.height());
+  BOOST_CHECK_EQUAL(1, camera.sensorSize());
 
   Camera camera2 = mProjectXml->findCamera(1);
-  QCOMPARE(5835.6, camera2.focal());
-  QCOMPARE(4863, camera2.width());
-  QCOMPARE(3221, camera2.height());
-  QCOMPARE(1, camera2.sensorSize());
+  BOOST_CHECK_EQUAL(5835.6, camera2.focal());
+  BOOST_CHECK_EQUAL(4863, camera2.width());
+  BOOST_CHECK_EQUAL(3221, camera2.height());
+  BOOST_CHECK_EQUAL(1, camera2.sensorSize());
 }
 
-void TestProject::test_findCamera_exception()
-{
-  try {
-    Camera camera_error = mProjectXml->findCamera("DJI", "FC6310");
-  } catch (std::exception &e) {
-    QString error = e.what();
-    QCOMPARE("Camera not found: DJI FC6310", error);
-  }
-}
-
-void TestProject::test_findCameraId()
+BOOST_FIXTURE_TEST_CASE(cameraId, TestProject)
 {
   int id = mProjectXml->cameraId("Unknown camera", "0");
-  QCOMPARE(1, id);
+  BOOST_CHECK_EQUAL(1, id);
 }
 
-void TestProject::test_existCamera()
+BOOST_FIXTURE_TEST_CASE(existCamera, TestProject)
 {
-  QCOMPARE(false, mProjectXml->existCamera("DJI", "FC6310"));
-  QCOMPARE(true, mProjectXml->existCamera("Unknown camera", "0"));
+  BOOST_CHECK(!mProjectXml->existCamera("DJI", "FC6310"));
+  BOOST_CHECK(mProjectXml->existCamera("Unknown camera", "0"));
 }
 
-void TestProject::test_database_data()
-{
-  QTest::addColumn<QString>("value");
-  QTest::addColumn<QString>("result");
-
-  QTest::newRow("database1") << "C:\\Users\\User01\\Documents\\inspector\\Projects\\prj001\\prj001.db" << "C:\\Users\\User01\\Documents\\inspector\\Projects\\prj001\\prj001.db";
-  QTest::newRow("database2") << "C:/Users/User01/Documents/inspector/Projects/prj001/database.db" << "C:/Users/User01/Documents/inspector/Projects/prj001/database.db";
-}
-
-void TestProject::test_database()
-{
-  QFETCH(QString, value);
-  QFETCH(QString, result);
-
-  mProject->setDatabase(value);
-  QCOMPARE(result, mProject->database());
-}
-
-void TestProject::test_featureExtractor()
+BOOST_FIXTURE_TEST_CASE(featureExtractor, TestProject)
 {
   std::shared_ptr<Feature> feature_extractor = mProjectXml->featureExtractor();
-  QCOMPARE(Feature::Type::sift, feature_extractor->type());
+  BOOST_CHECK(Feature::Type::sift == feature_extractor->type());
 }
 
-void TestProject::test_features()
+BOOST_FIXTURE_TEST_CASE(features, TestProject)
 {
-  QString features = mProjectXml->features("IMG_7209");
-  QCOMPARE("IMG_7209@C:/Users/User01/Documents/inspector/Projects/prj002/database.db", features);
+  QString features = mProjectXml->features(16355064570535277777);
+  BOOST_CHECK_EQUAL("IMG_7209@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db", features.toStdString());
 
-  features = mProjectXml->features("IMG_7210");
-  QCOMPARE("IMG_7210@C:/Users/User01/Documents/inspector/Projects/prj002/database.db", features);
+  features = mProjectXml->features(1904085996873346300);
+  BOOST_CHECK_EQUAL("IMG_7210@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db", features.toStdString());
 }
 
-void TestProject::test_matches()
+BOOST_FIXTURE_TEST_CASE(featureMatching, TestProject)
 {
   std::shared_ptr<FeatureMatching> feature_matching = mProjectXml->featureMatching();
-  QCOMPARE(true, feature_matching.get() != nullptr);
+  BOOST_CHECK(feature_matching);
 }
 
-void TestProject::test_orientations()
+BOOST_FIXTURE_TEST_CASE(photoOrientation, TestProject)
 {
-  PhotoOrientation ori = mProjectXml->photoOrientation("IMG_7209");
-  QCOMPARE(5.30029, ori.x);
+  CameraPose ori = mProjectXml->photoOrientation(16355064570535277777);
+  BOOST_CHECK_CLOSE(5.3242274858, ori.position().x, 0.01);
+  BOOST_CHECK_CLOSE(-0.1640853199, ori.position().y, 0.01);
+  BOOST_CHECK_CLOSE(-0.4738843519, ori.position().z, 0.01);
 }
 
-void TestProject::test_sparseModel()
+BOOST_FIXTURE_TEST_CASE(sparseModel, TestProject)
 {
   mProject->setSparseModel("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply");
-  QCOMPARE("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply", mProject->sparseModel());
+  BOOST_CHECK_EQUAL("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply", mProject->sparseModel().toStdString());
 }
 
-void TestProject::test_densification()
+BOOST_FIXTURE_TEST_CASE(densification, TestProject)
 {
   std::shared_ptr<Densification> dense = mProjectXml->densification();
-  QCOMPARE(Densification::Method::cmvs_pmvs, dense->method());
+  BOOST_CHECK(Densification::Method::cmvs_pmvs == dense->method());
 }
 
-void TestProject::test_denseModel()
+BOOST_FIXTURE_TEST_CASE(denseModel, TestProject)
 {
   mProject->setDenseModel("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply");
-  QCOMPARE("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply", mProject->denseModel());
+  BOOST_CHECK_EQUAL("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply", mProject->denseModel().toStdString());
 }
 
-QTEST_APPLESS_MAIN(TestProject)
-
-#include "tst_project.moc"
+BOOST_AUTO_TEST_SUITE_END()

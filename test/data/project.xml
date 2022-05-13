@@ -1,80 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Inspector version="1.0">
+<Graphos version="1.0">
     <General>
-        <Name>Proj02</Name>
-        <Path>C:/Users/User01/Documents/inspector/Projects/prj002</Path>
-        <Description>Descripción del proyecto 2</Description>
+        <Name>San Segundo</Name>
+        <Path>C:/Users/qwerty/Documents/graphos/Projects/San Segundo</Path>
+        <Description>Portada de San Segundo</Description>
     </General>
     <Cameras>
         <Camera id="1">
             <Make>Unknown camera</Make>
             <Model>0</Model>
-            <Type>Radial</Type>
+            <Type>OpenCV 1</Type>
             <Focal>5835.6</Focal>
             <Width>4863</Width>
             <Height>3221</Height>
             <SensorSize>1</SensorSize>
             <Calibration>
-                <f>3811.35</f>
-                <cx>2431.5</cx>
-                <cy>1610.5</cy>
-                <k1>-0.00485604</k1>
-                <k2>0.00062608</k2>
+                <fx>3859.3453965517</fx>
+                <fy>3862.6730228051</fy>
+                <cx>2374.7230913013</cx>
+                <cy>1596.5530498987</cy>
+                <k1>0.0004829397</k1>
+                <k2>-0.0003108023</k2>
+                <p1>0.0000801173</p1>
+                <p2>-0.0022438688</p2>
             </Calibration>
         </Camera>
     </Cameras>
     <Images>
-        <ImagesDirectory>C:/Users/User01/Documents/inspector/Projects/prj002/images</ImagesDirectory>
-        <Image>
-            <Name>IMG_7209</Name>
-            <File>C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7209.jpg</File>
+        <Image id="16355064570535277777">
+            <File>C:/datasets/San Segundo/IMG_7210.jpg</File>
             <CameraId>1</CameraId>
-            <LongitudeExif>0</LongitudeExif>
-            <LatitudeExif>0</LatitudeExif>
-            <AltitudeExif>0</AltitudeExif>
         </Image>
-        <Image>
-            <Name>IMG_7210</Name>
-            <File>C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7210.jpg</File>
+        <Image id="1904085996873346300">
+            <File>C:/datasets/San Segundo/IMG_7212.jpg</File>
             <CameraId>1</CameraId>
-            <LongitudeExif>0</LongitudeExif>
-            <LatitudeExif>0</LatitudeExif>
-            <AltitudeExif>0</AltitudeExif>
         </Image>
-        <Image>
-            <Name>IMG_7211</Name>
-            <File>C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7211.jpg</File>
+        <Image id="1071063806835606071">
+            <File>C:/datasets/San Segundo/IMG_7209.jpg</File>
             <CameraId>1</CameraId>
-            <LongitudeExif>0</LongitudeExif>
-            <LatitudeExif>0</LatitudeExif>
-            <AltitudeExif>0</AltitudeExif>
         </Image>
-        <Image>
-            <Name>IMG_7212</Name>
-            <File>C:/Users/User01/Documents/inspector/Projects/prj002/images/IMG_7212.jpg</File>
+        <Image id="14563086890421589370">
+            <File>C:/datasets/San Segundo/IMG_7211.jpg</File>
             <CameraId>1</CameraId>
-            <LongitudeExif>0</LongitudeExif>
-            <LatitudeExif>0</LatitudeExif>
-            <AltitudeExif>0</AltitudeExif>
         </Image>
     </Images>
-    <Database>C:/Users/User01/Documents/inspector/Projects/prj002/database.db</Database>
+    <Database>C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db</Database>
+    <ProjectCRS></ProjectCRS>
     <Features>
         <FeatureExtractor>
             <SIFT>
-                <FeaturesNumber>5000</FeaturesNumber>
+                <FeaturesNumber>10000</FeaturesNumber>
                 <OctaveLayers>3</OctaveLayers>
                 <ContrastThresholdAuto>true</ContrastThresholdAuto>
                 <ContrastThreshold>0.00666667</ContrastThreshold>
                 <EdgeThreshold>10</EdgeThreshold>
-                <Sigma>1.6</Sigma>
             </SIFT>
         </FeatureExtractor>
         <Files>
-            <FeatFile id="IMG_7209">IMG_7209@C:/Users/User01/Documents/inspector/Projects/prj002/database.db</FeatFile>
-            <FeatFile id="IMG_7210">IMG_7210@C:/Users/User01/Documents/inspector/Projects/prj002/database.db</FeatFile>
-            <FeatFile id="IMG_7211">IMG_7211@C:/Users/User01/Documents/inspector/Projects/prj002/database.db</FeatFile>
-            <FeatFile id="IMG_7212">IMG_7212@C:/Users/User01/Documents/inspector/Projects/prj002/database.db</FeatFile>
+            <FeatFile image_id="16355064570535277777">IMG_7209@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db</FeatFile>
+            <FeatFile image_id="1904085996873346300">IMG_7210@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db</FeatFile>
+            <FeatFile image_id="1071063806835606071">IMG_7211@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db</FeatFile>
+            <FeatFile image_id="14563086890421589370">IMG_7212@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db</FeatFile>
         </Files>
     </Features>
     <Matches>
@@ -85,56 +71,57 @@
             <Confidence>0.999</Confidence>
             <CrossCheck>true</CrossCheck>
         </FeatureMatchingMethod>
-        <Image id="IMG_7209">
-            <Pair>IMG_7210</Pair>
-            <Pair>IMG_7211</Pair>
-            <Pair>IMG_7212</Pair>
+        <Image image_id="16355064570535277777">
+            <Pair>1904085996873346300</Pair>
+            <Pair>1071063806835606071</Pair>
+            <Pair>14563086890421589370</Pair>
         </Image>
-        <Image id="IMG_7210">
-            <Pair>IMG_7209</Pair>
-            <Pair>IMG_7211</Pair>
-            <Pair>IMG_7212</Pair>
+        <Image image_id="1904085996873346300">
+            <Pair>16355064570535277777</Pair>
+            <Pair>1071063806835606071</Pair>
+            <Pair>14563086890421589370</Pair>
         </Image>
-        <Image id="IMG_7211">
-            <Pair>IMG_7209</Pair>
-            <Pair>IMG_7210</Pair>
-            <Pair>IMG_7212</Pair>
+        <Image image_id="1071063806835606071">
+            <Pair>16355064570535277777</Pair>
+            <Pair>1904085996873346300</Pair>
+            <Pair>14563086890421589370</Pair>
         </Image>
-        <Image id="IMG_7212">
-            <Pair>IMG_7209</Pair>
-            <Pair>IMG_7210</Pair>
-            <Pair>IMG_7211</Pair>
+        <Image image_id="14563086890421589370">
+            <Pair>16355064570535277777</Pair>
+            <Pair>1904085996873346300</Pair>
+            <Pair>1071063806835606071</Pair>
         </Image>
     </Matches>
     <Orientations>
-        <SparseModel>C:/Users/User01/Documents/inspector/Projects/prj002/sparse/0//sparse.ply</SparseModel>
-        <Image id="IMG_7209">
-            <X>5.30029</X>
-            <Y>-0.162356</Y>
-            <Z>-0.413137</Z>
-            <Rot>0.999996 6.14805e-05 -0.00284948 -6.12795e-05 1 7.06314e-05 0.00284948 -7.04564e-05 0.999996</Rot>
+        <ReconstructionPath>C:/Users/qwerty/Documents/graphos/Projects/San Segundo/ori/relative/</ReconstructionPath>
+        <SparseModel>C:/Users/qwerty/Documents/graphos/Projects/San Segundo/ori/relative/sparse.ply</SparseModel>
+        <Image image_id="16355064570535277777">
+            <X>5.3242274858</X>
+            <Y>-0.1640853199</Y>
+            <Z>-0.4738843519</Z>
+            <Rot>0.9809235615 0.0013948585 -0.1943888393 -0.0010017480 0.9999972498 0.0021205767 0.1943912626 -0.0018853950 0.9809222611</Rot>
         </Image>
-        <Image id="IMG_7210">
-            <X>5.40173</X>
-            <Y>-0.155222</Y>
-            <Z>-0.446858</Z>
-            <Rot>0.987211 0.00210523 -0.159403 -0.00230319 0.999997 -0.00105715 0.1594 0.00141077 0.987213</Rot>
+        <Image image_id="1904085996873346300">
+            <X>-4.5722374826</X>
+            <Y>0.5936767540</Y>
+            <Z>1.6193163927</Z>
+            <Rot>0.9855952167 -0.0150163127 -0.1684534923 0.0185537372 0.9996387592 0.0194450490 0.1681006471 -0.0222903891 0.9855177883</Rot>
         </Image>
-        <Image id="IMG_7211">
-            <X>-0.697958</X>
-            <Y>0.317578</Y>
-            <Z>0.859996</Z>
-            <Rot>0.993479 -0.000900676 -0.114012 0.00325084 0.999786 0.0204291 0.113969 -0.0206665 0.993269</Rot>
+        <Image image_id="1071063806835606071">
+            <X>5.2854029411</X>
+            <Y>-0.1620302713</Y>
+            <Z>-0.4892841856</Z>
+            <Rot>0.9992850143 -0.0007369252 -0.0378010214 0.0008706163 0.9999934245 0.0035203653 0.0377981786 -0.0035507585 0.9992790850</Rot>
         </Image>
-        <Image id="IMG_7212">
-            <X>-4.60233</X>
-            <Y>0.589439</Y>
-            <Z>1.2462</Z>
-            <Rot>0.991462 -0.0141086 -0.129627 0.0164493 0.99972 0.0170047 0.12935 -0.0189918 0.991417</Rot>
+        <Image image_id="14563086890421589370">
+            <X>-0.6809533178</X>
+            <Y>0.3224212264</Y>
+            <Z>1.0591648145</Z>
+            <Rot>0.9884904280 -0.0018538636 -0.1512720629 0.0054840786 0.9997068109 0.0235842565 0.1511839896 -0.0241423997 0.9882107801</Rot>
         </Image>
     </Orientations>
     <Densification>
-        <DenseModel>C:/Users/User01/Documents/inspector/Projects/prj002/dense/pmvs/models/option-all.ply</DenseModel>
+        <DenseModel>C:/Users/qwerty/Documents/graphos/Projects/San Segundo/dense/pmvs/models/option-all.ply</DenseModel>
         <DensificationMethod>
             <CmvsPmvs>
                 <Level>2</Level>
@@ -147,4 +134,4 @@
             </CmvsPmvs>
         </DensificationMethod>
     </Densification>
-</Inspector>
+</Graphos>

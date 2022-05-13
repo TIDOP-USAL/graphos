@@ -28,6 +28,7 @@
 
 #include <colmap/util/opengl_utils.h>
 #include <colmap/feature/utils.h>
+#include <colmap/feature/sift.h>
 
 #include <opencv2/imgcodecs.hpp>
 

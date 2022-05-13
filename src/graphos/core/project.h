@@ -30,6 +30,7 @@
 #include <vector>
 #include <mutex>
 #include <map>
+#include <unordered_map>
 
 #include <QString>
 #include <QSize>
@@ -38,7 +39,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/features/features.h"
 #include "graphos/core/orientation/poses.h"
-#include "graphos/core/densification/densification.h"
+#include "graphos/core/dense/dense.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -53,15 +54,6 @@ class Dtm;
  */
 class Project
 {
-
-public:
-
-  typedef std::vector<Image>::iterator image_iterator;
-  typedef std::vector<Image>::const_iterator image_const_iterator;
-  typedef std::map<int, Camera>::iterator camera_iterator;
-  typedef std::map<int, Camera>::const_iterator camera_const_iterator;
-  typedef std::map<QString, QString>::iterator features_iterator;
-  typedef std::map<QString, QString>::const_iterator features_const_iterator;
 
 public:
 
@@ -146,69 +138,24 @@ public:
    */
   virtual void addImage(const Image &img) = 0;
 
-  virtual bool updateImage(size_t imageId, const Image &image) = 0;
-
-  /*!
-   * \brief Elimina una imagen del proyecto
-   * \param[in] imgPath Ruta de la imagen que se quiere eliminar
-   */
-  virtual bool removeImage(const QString &imgPath) = 0;
-
+  virtual bool updateImage(size_t imageId, 
+                           const Image &image) = 0;
   /*!
    * \brief Elimina una imagen del proyecto
    * \param[in] imgId Identificador de la imagen que se quiere eliminar
    */
-  virtual bool removeImage(size_t imgId) = 0;
+  virtual void removeImage(size_t imgId) = 0;
 
   /*!
    * \brief Busca una imagen en el proyecto
    * \param[in] path Ruta de la imagen a buscar
    * \return Objeto Image correspondiente o puntero nulo si no se encuentra
    */
-  //virtual Image findImage(const QString &path) const = 0;
-
   virtual Image findImageById(size_t id) const = 0;
-  virtual Image findImageByName(const QString &imgName) const = 0;
 
-  /*!
-   * \brief Busca una imagen en el proyecto
-   * \param[in] imgName Nombre de la imagen a buscar
-   * \return Objeto Identificador de la imagen o std::numeric_limits<size_t>().max() si no se encuentra.
-   */
-  virtual size_t imageId(const QString &imgName) const = 0;
+  virtual bool existImage(size_t imageId) const = 0;
 
-  virtual bool existImage(const QString &imgName) const = 0;
-
-  //TODO: ¿Quitar los iteradores y simplificar?
-  virtual std::vector<Image> images() const = 0;
-
-  /// Iteradores para el acceso a las imágenes y las cámaras
-
-  /*!
-   * \brief Devuelve un iterador al inicio del listado de imágenes
-   * \return Iterador al primer elemento del listado de imágenes
-   */
-  virtual image_iterator imageBegin() = 0;
-
-  /*!
-   * \brief Devuelve un iterador constante al inicio del listado de imágenes
-   * \return Iterador al primer elemento del listado de imágenes
-   */
-  virtual image_const_iterator imageBegin() const = 0;
-
-  /*!
-   * \brief Devuelve un iterador al siguiente elemento después después de la última imagen
-   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-   * \return Iterador al siguiente elemento después de la última imagen
-   */
-  virtual image_iterator imageEnd() = 0;
-
-  /*!
-   * \brief Devuelve un iterador constante al siguiente elemento después de la última imagen
-   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-   * \return Iterador constante al siguiente elemento después de la última imagen
-   */
-  virtual image_const_iterator imageEnd() const = 0;
+  virtual const std::unordered_map<size_t, Image> &images() const = 0;
 
   /*!
    * \brief Número de imagenes cargadas en el proyecto
@@ -231,80 +178,44 @@ public:
   virtual Camera findCamera(const QString &make, const QString &model) const = 0;
 
   virtual Camera findCamera(int idCamera) const = 0;
-
   virtual int cameraId(const QString &make, const QString &model) const = 0;
-
   virtual bool existCamera(const QString &make, const QString &model) const = 0;
   virtual bool updateCamera(int idCamera, const Camera &camera) = 0;
   virtual bool removeCamera(int idCamera) = 0;
-  virtual std::map<int, Camera> cameras() const  = 0;
-
-  /*!
-   * \brief Devuelve un iterador al inicio del listado de cámaras
-   * \return Iterador al primer elemento del listado de cámaras
-   */
-  virtual camera_iterator cameraBegin() = 0;
-
-  /*!
-   * \brief Devuelve un iterador constante al inicio del listado de cámaras
-   * \return Iterador al primer elemento del listado de cámaras
-   */
-  virtual camera_const_iterator cameraBegin() const = 0;
-
-  /*!
-   * \brief Devuelve un iterador al siguiente elemento después después de la última cámara
-   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-   * \return Iterador al siguiente elemento después de la última cámara
-   */
-  virtual camera_iterator cameraEnd() = 0;
-
-  /*!
-   * \brief Devuelve un iterador constante al siguiente elemento después de la última cámara
-   * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-   * \return Iterador constante al siguiente elemento después de la última cámara
-   */
-  virtual camera_const_iterator cameraEnd() const = 0;
-
+  virtual const std::map<int, Camera> &cameras() const = 0;
   virtual size_t camerasCount() const = 0;
 
   virtual std::shared_ptr<Feature> featureExtractor() const = 0;
   virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
-
-  virtual QString features(const QString &imgName) const = 0;
-  virtual void addFeatures(const QString &imgName, const QString &featureFile) = 0;
+  
+  virtual QString features(size_t imageId) const = 0;
+  virtual void addFeatures(size_t imageId, const QString &featureFile) = 0;
   virtual void removeFeatures() = 0;
-  virtual bool removeFeatures(const QString &imgName) = 0;
-
-  virtual features_iterator featuresBegin() = 0;
-  virtual features_const_iterator featuresBegin() const = 0;
-  virtual features_iterator featuresEnd() = 0;
-  virtual features_const_iterator featuresEnd() const = 0;
+  virtual void removeFeatures(size_t imageId) = 0;
+  virtual const std::unordered_map<size_t, QString> &features() const  = 0;
 
   virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;
   virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
-
-  virtual void addMatchesPair(const QString &imageLeft, const QString &imageRight) = 0;
-  virtual const std::vector<QString> matchesPairs(const QString &imageLeft) const = 0;
+  
+  virtual void addMatchesPair(size_t imageLeftId, size_t imageRightId) = 0;
+  virtual const std::vector<size_t> matchesPairs(size_t imageLeftId) const = 0;
   virtual void removeMatchesPair() = 0;
-  virtual void removeMatchesPair(const QString &imageLeft) = 0;
-
-  virtual bool refinePrincipalPoint() const = 0;
-  virtual void setRefinePrincipalPoint(bool refine) = 0;
-
+  virtual void removeMatchesPair(size_t imageLeftId) = 0;
+  
   virtual QString sparseModel() const = 0;
   virtual void setSparseModel(const QString &sparseModel) = 0;
   virtual QString offset() const = 0;
   virtual void setOffset(const QString &offset) = 0;
   virtual QString reconstructionPath() const = 0;
   virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
-  virtual bool isPhotoOriented(const QString &imgName) const = 0;
-  virtual CameraPose photoOrientation(const QString &imgName) const = 0;
-  virtual void addPhotoOrientation(const QString &imgName, const CameraPose &photoOrientation) = 0;
+  virtual bool isPhotoOriented(size_t imageId) const = 0;
+  virtual CameraPose photoOrientation(size_t imageId) const = 0;
+  virtual void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) = 0;
   virtual void clearReconstruction() = 0;
-
+  
   virtual std::shared_ptr<Densification> densification() const = 0;
   virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
-
+  
   virtual QString denseModel() const = 0;
   virtual void setDenseModel(const QString &denseModel) = 0;
   virtual void clearDensification() = 0;
@@ -314,6 +225,10 @@ public:
   virtual QString dtmPath() const = 0;
   virtual void setDtmPath(const QString &dtmPath) = 0;
   virtual void clearDTM() = 0;
+
+  virtual QString orthophotoPath() const = 0;
+  virtual void setOrthophotoPath(const QString &orthophotoPath) = 0;
+  virtual void clearOrthophotoDTM() = 0;
 
   /*!
    * \brief Limpia el proyecto
@@ -392,7 +307,7 @@ public:
 //};
 
 
-class GRAPHOS_EXPORT ProjectImp
+class ProjectImp
   : public Project
 {
 
@@ -419,81 +334,66 @@ public:
   void setCrs(const QString &crs) override;
   void addImage(const Image &img) override;
   bool updateImage(size_t imageId, const Image &image) override;
-  bool removeImage(const QString &imgPath) override;
-  bool removeImage(size_t imgId) override;
-  //Image findImage(const QString &imgName) const override;
+  void removeImage(size_t imageId) override;
   Image findImageById(size_t id) const override;
-  Image findImageByName(const QString &imgName) const override;
-  bool existImage(const QString &imgName) const override;
-  size_t imageId(const QString &imageName) const override;
-  std::vector<Image> images() const override;
-  image_iterator imageBegin() override;
-  image_const_iterator imageBegin() const override;
-  image_iterator imageEnd() override;
-  image_const_iterator imageEnd() const override;
+  bool existImage(size_t imageId) const override;
+  const std::unordered_map<size_t, Image> &images() const override;
   size_t imagesCount() const override;
 
   int addCamera(const Camera &camera) override;
-  std::map<int, Camera> cameras() const override;
+  const std::map<int, Camera> &cameras() const override;
   Camera findCamera(const QString &make, const QString &model) const override;
   Camera findCamera(int idCamera) const override;
   int cameraId(const QString &make, const QString &model) const override;
   bool existCamera(const QString &make, const QString &model) const override;
   bool updateCamera(int idCamera, const Camera &camera) override;
   bool removeCamera(int idCamera) override;
-  camera_iterator cameraBegin() override;
-  camera_const_iterator cameraBegin() const override;
-  camera_iterator cameraEnd() override;
-  camera_const_iterator cameraEnd() const override;
   size_t camerasCount() const override;
 
   std::shared_ptr<Feature> featureExtractor() const override;
   void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
-
-  QString features(const QString &imgName) const override;
-  void addFeatures(const QString &imgName, const QString &featureFile) override;
+  
+  QString features(size_t imageId) const override;
+  void addFeatures(size_t imageId, const QString &featureFile) override;
   void removeFeatures() override;
-  bool removeFeatures(const QString &imgName) override;
-
-  features_iterator featuresBegin() override;
-  features_const_iterator featuresBegin() const override;
-  features_iterator featuresEnd() override;
-  features_const_iterator featuresEnd() const override;
-
+  void removeFeatures(size_t imageId) override;
+  const std::unordered_map<size_t, QString> &features() const override;
+  
   std::shared_ptr<FeatureMatching> featureMatching() const override;
   void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
-
-  void addMatchesPair(const QString &imageLeft, const QString &imageRight) override;
-  const std::vector<QString> matchesPairs(const QString &imageLeft) const override;
+  
+  void addMatchesPair(size_t imageLeftId, size_t imageRightId) override;
+  const std::vector<size_t> matchesPairs(size_t imageLeftId) const override;
   void removeMatchesPair() override;
-  void removeMatchesPair(const QString &imageLeft) override;
-
-  bool refinePrincipalPoint() const override;
-  void setRefinePrincipalPoint(bool refine) override;
-
+  void removeMatchesPair(size_t imageLeftId) override;
+  
   QString sparseModel() const override;
   void setSparseModel(const QString & sparseModel) override;
   QString offset() const override;
   void setOffset(const QString &offset) override;
   QString reconstructionPath() const override;
   void setReconstructionPath(const QString &reconstructionPath) override;
-  bool isPhotoOriented(const QString &imgName) const override;
-  CameraPose photoOrientation(const QString &imgName) const override;
-  void addPhotoOrientation(const QString &imgName, const CameraPose &photoOrientation) override;
+  bool isPhotoOriented(size_t imageId) const override;
+  CameraPose photoOrientation(size_t imageId) const override;
+  void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) override;
   void clearReconstruction() override;
-
+  
   std::shared_ptr<Densification> densification() const override;
   void setDensification(const std::shared_ptr<Densification> &densification) override;
-
+  
   QString denseModel() const override;
   void setDenseModel(const QString &denseModel) override;
   void clearDensification();
-
+  
   std::shared_ptr<Dtm> dtmMethod() const override;
   void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
   QString dtmPath() const override;
   void setDtmPath(const QString &dtmPath) override;
   void clearDTM() override;
+
+  QString orthophotoPath() const override;
+  void setOrthophotoPath(const QString &orthophotoPath) override;
+  void clearOrthophotoDTM() override;
 
   void clear() override;
 
@@ -532,11 +432,13 @@ protected:
   void readDensificationMethod(QXmlStreamReader &stream);
   void readSmvs(QXmlStreamReader &stream);
   void readCmvsPmvs(QXmlStreamReader &stream);
+  void readMVS(QXmlStreamReader &stream);
   void readDtm(QXmlStreamReader &stream);
   void readDtmPath(QXmlStreamReader &stream);
   void readDtmInterpolation(QXmlStreamReader &stream);
   void readInvDist(QXmlStreamReader &stream);
   void readInvDistNN(QXmlStreamReader &stream);
+  void readOrthophoto(QXmlStreamReader &stream);
 
   void writeVersion(QXmlStreamWriter &stream) const;
   void writeGeneral(QXmlStreamWriter &stream) const;
@@ -546,13 +448,12 @@ protected:
   void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
   void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
   void writeImages(QXmlStreamWriter &stream) const;
-  void writeImage(QXmlStreamWriter &stream, const Image &image) const;
+  void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;
   void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
   void writeFeatures(QXmlStreamWriter &stream) const;
   void writeFeatureExtractor(QXmlStreamWriter &stream) const;
   void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
   void writeFeatureFiles(QXmlStreamWriter &stream) const;
-  //void writeFeatureFile(QXmlStreamWriter &stream) const;
   void writeMatches(QXmlStreamWriter &stream) const;
   void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
   void writePairs(QXmlStreamWriter &stream) const;
@@ -567,6 +468,7 @@ protected:
   void writeDtm(QXmlStreamWriter &stream) const;
   void writeDtmPath(QXmlStreamWriter &stream) const;
   void writeDtmInterpolation(QXmlStreamWriter &stream) const;
+  void writeOrthophoto(QXmlStreamWriter &stream) const;
 
   QSize readSize(QXmlStreamReader &stream) const;
   int readInt(QXmlStreamReader &stream) const;
@@ -577,20 +479,20 @@ protected:
 
   QString mName;
   QString mDescription;
-  QString mPath;
   QString mProjectFolder;
   QString mProjectPath;
   QString mVersion;
   QString mDatabase;
   QString mCrs;
-  std::vector<Image> mImages;
+
+  std::unordered_map<size_t, Image> mImages;
   std::map<int, Camera> mCameras;
   std::shared_ptr<Feature> mFeatureExtractor;
-  std::map<QString, QString> mFeatures;
+  std::unordered_map<size_t, QString> mFeatures;
   std::shared_ptr<FeatureMatching> mFeatureMatching;
-  std::map<QString, std::vector<QString>> mImagesPairs;
-  std::map<QString, CameraPose> mPhotoOrientation;
-  bool bRefinePrincipalPoint;
+  std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
+  std::unordered_map<size_t, CameraPose> mPhotoOrientation;
+
   QString mSparseModel;
   QString mOffset;
   QString mReconstructionPath;
@@ -600,6 +502,7 @@ protected:
   QString mDTM;
   static std::mutex sMutex;
   int mCameraCount;
+  QString mOrthophoto;
 };
 
 } // end namespace graphos

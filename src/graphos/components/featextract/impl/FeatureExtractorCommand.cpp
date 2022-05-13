@@ -96,22 +96,18 @@ bool FeatureExtractorCommand::run()
 
   try {
 
-    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist")
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
+    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 
     ProjectImp project;
     project.load(project_file);
     QString database_path = project.database();
-    std::vector<Image> images = project.images();
-    std::map<int, Camera> cameras = project.cameras();
 
     TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
     QFile(database_path).remove();
     project.removeFeatures();
-
-    colmap::Database database(database_path.toStdString());
 
     std::shared_ptr<FeatureExtractor> feature_extractor;
 
@@ -128,16 +124,16 @@ bool FeatureExtractorCommand::run()
                                                                        mContrastThreshold);
     }
 
-    FeatureExtractorProcess Feature_extractor_process(images,
-                                                      cameras,
+    FeatureExtractorProcess Feature_extractor_process(project.images(),
+                                                      project.cameras(),
                                                       database_path,
                                                       mMaxImageSize,
                                                       !mDisableCuda,
                                                       feature_extractor);
 
-    connect(&Feature_extractor_process, &FeatureExtractorProcess::featuresExtracted, 
-            [&](const QString &imageName, const QString &featuresFile){
-              project.addFeatures(imageName, featuresFile);
+    connect(&Feature_extractor_process, &FeatureExtractorProcess::features_extracted, 
+            [&](size_t imageId, const QString &featuresFile){
+              project.addFeatures(imageId, featuresFile);
             });
 
     Feature_extractor_process.run();

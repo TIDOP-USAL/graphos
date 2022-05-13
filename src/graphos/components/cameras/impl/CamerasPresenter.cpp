@@ -41,8 +41,8 @@ CamerasPresenterImp::CamerasPresenterImp(CamerasView *view,
     mModel(model),
     mHelp(nullptr)
 {
-  this->init();
-  this->initSignalAndSlots();
+  CamerasPresenterImp::init();
+  CamerasPresenterImp::initSignalAndSlots();
 }
 
 void CamerasPresenterImp::help()
@@ -200,26 +200,33 @@ void CamerasPresenterImp::clear()
 
 void CamerasPresenterImp::loadCameras()
 {
-  for(auto it = mModel->begin(); it != mModel->end(); it++) {
-    int camera_id = it->first;
-    Camera camera = it->second;
+
+  bool first_camera_load = false;
+  for(const auto &map_camera : mModel->cameras()) {
+    
+    int camera_id = map_camera.first;
+    
+    if (!first_camera_load) {
+      first_camera_load = true;
+      activeCamera(camera_id);
+    }
+    
+    Camera camera = map_camera.second;
     QString camera_name = QString(camera.make().c_str()).append("-").append(camera.model().c_str());
     mView->addCamera(camera_id, camera_name);
   }
-
-  auto it = mModel->begin();
-  if (it != mModel->end())
-    activeCamera(it->first);
 }
 
 void CamerasPresenterImp::calibrationImport(const QString &file, 
                                             const QString &format)
 {
   try {
+
     mModel->calibrationImport(file, format);
     int camera_id = mModel->currentCameraID();
     if (camera_id != 0)
       activeCamera(camera_id);
+
   } catch (const std::exception &e) 	{
     msgError(e.what());
   }

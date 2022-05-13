@@ -40,7 +40,7 @@ class Reconstruction;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT DatabaseCameras
+class DatabaseCameras
 {
 
 public:

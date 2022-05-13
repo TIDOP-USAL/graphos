@@ -55,8 +55,8 @@ protected slots:
 
 // FeaturesViewerView interface
 
-  void setImageList(const std::vector<QString> &imageList) override;
-  void setCurrentImage(const QString &leftImage) override;
+  void setImageList(const std::vector<std::pair<size_t, QString>> &imageList) override;
+  void setCurrentImage(const QString &imagePath) override;
   void setKeyPoints(const std::vector<QPointF> &keyPoints) override;
   void setBGColor(const QString &bgColor) override;
   void setSelectedMarkerStyle(const QString &color, int width) override;

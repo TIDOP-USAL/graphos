@@ -49,8 +49,8 @@ public:
 public slots:
 
   virtual void setProjectPath(const QString &path) = 0;
-  virtual void setImageList(const std::vector<QString> &imageList)  = 0;
-  virtual void setCurrentImage(const QString &image)  = 0;
+  virtual void setImageList(const std::vector<std::pair<size_t, QString>> &imageList)  = 0;
+  virtual void setCurrentImage(const QString &imagePath)  = 0;
   virtual void setItemModelGroundControlPoints(QAbstractItemModel *model) = 0;
   virtual void setItemModelImagePoints(QAbstractItemModel *model) = 0;
   //virtual void setTableHeader(const QStringList &header) = 0;
@@ -64,13 +64,13 @@ private slots:
 
 signals:
 
-  void imageChange(QString);
+  void image_changed(size_t);
   void crsChange(QString);
   //void loadCSV(const QString &, const QString &);
   void addGroundControlPoint();
   void removeGroundControlPoint(int);
-  void addImagePoint(const QString &, const QString &, const QPointF &);
-  void removeImagePoint(const QString &, const QString &);
+  void add_image_point(const QString &, size_t, const QPointF &);
+  void remove_image_point(const QString &, size_t);
   void georeference();
 };
 

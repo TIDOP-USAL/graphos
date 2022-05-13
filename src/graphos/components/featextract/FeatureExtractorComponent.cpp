@@ -39,14 +39,20 @@ namespace graphos
 FeatureExtractorComponent::FeatureExtractorComponent(Application *application)
   : ProcessComponent(application)
 {
-  this->setName("Feature Extractor");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
-  action()->setIcon(QIcon(":/ico/24/img/material/24/features.png"));
+  init();
 }
 
 FeatureExtractorComponent::~FeatureExtractorComponent()
 {
+}
+
+void FeatureExtractorComponent::init()
+{
+  this->setName("Feature Extractor");
+  this->setMenu("workflow");
+  this->setToolbar("workflow");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/features.png"));
 }
 
 void FeatureExtractorComponent::createModel()
@@ -64,10 +70,10 @@ void FeatureExtractorComponent::createPresenter()
   setPresenter(new FeatureExtractorPresenterImp(dynamic_cast<FeatureExtractorView *>(view()),
                                                 dynamic_cast<FeatureExtractorModel *>(model())));
   
-  connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::featuresExtracted, 
-          this, &FeatureExtractorComponent::featuresExtracted);
-  connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::featuresDeleted, 
-          this, &FeatureExtractorComponent::featuresDeleted);
+  connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::features_extracted, 
+          this, &FeatureExtractorComponent::features_extracted);
+  connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::features_deleted, 
+          this, &FeatureExtractorComponent::features_deleted);
 }
 
 void FeatureExtractorComponent::createCommand()

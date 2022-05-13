@@ -41,9 +41,13 @@ public:
   GeoreferenceComponent(Application *application);
   ~GeoreferenceComponent();
 
-signals:
+private:
 
-  void georeferenceFinished();
+  void init();
+
+//signals:
+//
+//  void georeferenceFinished();
 
 // ComponentBase
 

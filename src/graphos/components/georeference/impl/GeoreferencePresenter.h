@@ -45,10 +45,6 @@ public:
                            GeoreferenceModel *model);
   ~GeoreferencePresenterImp() override;
 
-private slots:
-
-  void onGeoreferenceFinished();
-
 // ProcessPresenter interface
   
 protected:
@@ -65,7 +61,7 @@ public slots:
 
 public slots:
 
-  void setImageActive(const QString &image) override;
+  void setImageActive(size_t imageId) override;
 
 // Presenter interface
 

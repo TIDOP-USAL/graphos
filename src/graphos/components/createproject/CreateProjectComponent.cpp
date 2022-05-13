@@ -41,19 +41,25 @@ namespace graphos
 CreateProjectComponent::CreateProjectComponent(Application *application)
   : ComponentBase(application)
 {
+  init();
+}
+
+CreateProjectComponent::~CreateProjectComponent()
+{
+}
+
+void CreateProjectComponent::init()
+{
   this->setName("New Project");
   this->setMenu("file");
   this->setToolbar("file");
+
   QIcon iconNewProject;
   iconNewProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
   action()->setIcon(iconNewProject);
 #ifndef QT_NO_SHORTCUT
   action()->setShortcut(tr("Ctrl+N"));
 #endif // QT_NO_SHORTCUT
-}
-
-CreateProjectComponent::~CreateProjectComponent()
-{
 }
 
 void CreateProjectComponent::createModel()
@@ -71,7 +77,8 @@ void CreateProjectComponent::createPresenter()
   setPresenter(new CreateProjectPresenterImp(dynamic_cast<CreateProjectView *>(view()),
                                              dynamic_cast<CreateProjectModel *>(model()),
                                              app()->status()));
-  connect(dynamic_cast<CreateProjectPresenter *>(presenter()), &CreateProjectPresenter::projectCreate,
+
+  connect(dynamic_cast<CreateProjectPresenter *>(presenter()), &CreateProjectPresenter::project_created,
           this, &CreateProjectComponent::onProjectCreated);
 }
 
@@ -100,7 +107,7 @@ void CreateProjectComponent::onProjectCreated()
 
   app_status->activeFlag(AppStatus::Flag::project_exists, true);
   
-  emit projectCreated();
+  emit project_created();
 }
 
 

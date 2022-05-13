@@ -42,9 +42,13 @@ public:
   ImageLoaderComponent(Application *application);
   ~ImageLoaderComponent();
 
+private:
+
+  void init();
+
 signals:
 
-  void imageLoaded(QString);
+  void image_loaded(size_t);
 
 // ComponentBase
 

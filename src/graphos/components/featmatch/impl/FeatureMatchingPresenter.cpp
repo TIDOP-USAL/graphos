@@ -91,9 +91,12 @@ void FeatureMatchingPresenterImp::init()
 
 void FeatureMatchingPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &FeatureMatchingView::matchMethodChange,  this, &FeatureMatchingPresenterImp::setCurrentMatchMethod);
-  connect(mView, &FeatureMatchingView::run,                this, &FeatureMatchingPresenterImp::run);
-  connect(mView, &DialogView::help,                        this, &FeatureMatchingPresenterImp::help);
+  connect(mView, &FeatureMatchingView::matchMethodChange,  
+          this,  &FeatureMatchingPresenterImp::setCurrentMatchMethod);
+  connect(mView, &FeatureMatchingView::run,               
+          this,  &FeatureMatchingPresenterImp::run);
+  connect(mView, &DialogView::help,                     
+          this,  &FeatureMatchingPresenterImp::help);
 }
 
 void FeatureMatchingPresenterImp::setMatchingProperties()
@@ -125,7 +128,7 @@ void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
   }
 
   mModel->writeMatchPairs();
-  emit matchingFinished();
+  //emit matching_finished();
 }
 
 std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
@@ -144,7 +147,7 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
   }
 
   mModel->clearProject();
-  emit matchesDeleted();
+  emit matches_deleted();
 
   QString currentMatchMethod = mView->currentMatchMethod();
 

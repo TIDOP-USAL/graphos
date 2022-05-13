@@ -38,22 +38,26 @@ namespace graphos
 MatchViewerComponent::MatchViewerComponent(Application *application)
   : ComponentBase(application)
 {
-  this->setName("Match Viewer");
-  this->setMenu("tools");
-  this->setToolbar("tools");
-  QIcon iconMatchesViewer;
-  iconMatchesViewer.addFile(QStringLiteral(":/ico/24/img/material/24/view_match_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(iconMatchesViewer);
+  init();
 }
 
 MatchViewerComponent::~MatchViewerComponent()
 {
 }
 
-void MatchViewerComponent::openMatchesViewer(const QString &file)
+void MatchViewerComponent::init()
+{
+  this->setName("Match Viewer");
+  this->setMenu("tools");
+  this->setToolbar("tools");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/view_match_24px.png"));
+}
+
+void MatchViewerComponent::openMatchesViewer(size_t imageId)
 {
   action()->trigger();
-  dynamic_cast<MatchViewerPresenter *>(presenter())->setLeftImage(file);
+  dynamic_cast<MatchViewerPresenter *>(presenter())->setLeftImage(imageId);
 }
 
 void MatchViewerComponent::createModel()

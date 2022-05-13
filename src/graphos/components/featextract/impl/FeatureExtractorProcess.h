@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
 #define GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
 
+#include <unordered_map>
+
 #include <QObject>
 
 #include <tidop/core/task.h>
@@ -45,7 +47,7 @@ class FeatureExtractorProcess
 
 public:
 
-  FeatureExtractorProcess(const std::vector<Image> &images,
+  FeatureExtractorProcess(const std::unordered_map<size_t, Image> &images,
                           const std::map<int, Camera> &cameras,
                           const QString &database,
                           int maxImageSize,
@@ -56,7 +58,7 @@ public:
 
 signals:
 
-  void featuresExtracted(QString, QString);
+  void features_extracted(qulonglong, QString);
 
 // tl::TaskBase interface
 
@@ -66,13 +68,12 @@ protected:
 
 protected:
 
-  std::vector<Image> mImages;
-  std::map<int, Camera> mCameras;
+  const std::unordered_map<size_t, Image> &mImages;
+  const std::map<int, Camera> &mCameras;
   QString mDatabase;
   int mMaxImageSize;
   bool bUseCuda;
   std::shared_ptr<FeatureExtractor> mFeatureExtractor;
-
 };
 
 } // namespace graphos

@@ -47,11 +47,11 @@ ProcessPresenter::~ProcessPresenter()
 
 void ProcessPresenter::onError(tl::TaskErrorEvent *event)
 {
-
   if (mProgressHandler){
     mProgressHandler->finish();
     mProgressHandler->reset();
     mProgressHandler->setDescription(QString::fromStdString(event->errorMessage()));
+    mProgressHandler->setRange(0, 100);
 
     disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
   }

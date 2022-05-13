@@ -43,10 +43,14 @@ public:
   FeatureMatchingComponent(Application *application);
   ~FeatureMatchingComponent();
 
+private:
+
+  void init();
+
 signals:
 
-  void matchingFinished();
-  void matchesDeleted();
+  //void matching_finished();
+  void matches_deleted();
 
 // ComponentBase
 

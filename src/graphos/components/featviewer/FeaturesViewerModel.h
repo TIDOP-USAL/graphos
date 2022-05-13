@@ -24,7 +24,10 @@
 #ifndef GRAPHOS_FEATURES_VIEWER_MODEL_INTERFACE_H
 #define GRAPHOS_FEATURES_VIEWER_MODEL_INTERFACE_H
 
+#include <unordered_map>
+
 #include "graphos/interfaces/mvp.h"
+#include "graphos/core/image.h"
 
 namespace graphos
 {
@@ -40,8 +43,9 @@ public:
   FeaturesViewerModel(QObject *parent = nullptr) : Model(parent) {}
   ~FeaturesViewerModel() = default;
 
-  virtual std::vector<QString> images() const = 0;
-  virtual std::vector<QPointF> loadKeypoints(const QString &image) = 0;
+  virtual const std::unordered_map<size_t, Image> &images() const = 0;
+  virtual Image image(size_t imageId) const = 0;
+  virtual std::vector<QPointF> loadKeypoints(size_t imageId) = 0;
 
   virtual QString viewerBGColor() const = 0;
   virtual int viewerMarkerType() const = 0;

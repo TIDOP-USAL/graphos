@@ -33,8 +33,8 @@
 #include <tidop/img/imgwriter.h>
 #include <tidop/geospatial/crs.h>
 
-#include "graphos/core/densification/DenseExport.h"
-#include "graphos/core/densification/DenseExport.h"
+#include "graphos/core/dense/DenseExport.h"
+#include "graphos/core/dense/DenseExport.h"
 #include "graphos/core/dtm/csf.h"
 
 namespace graphos

@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
 #define GRAPHOS_FEATURE_EXTRACTOR_MODEL_INTERFACE_H
 
+#include <unordered_map>
+
 #include "graphos/interfaces/mvp.h"
 #include "graphos/core/image.h"
 
@@ -45,10 +47,10 @@ public:
   virtual std::shared_ptr<Feature> featureExtractor() const = 0;
   virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
   virtual QString database() const = 0;
-  virtual void addFeatures(const QString &imageName, const QString &featuresFile) = 0;
+  virtual void addFeatures(size_t imageId, const QString &featuresFile) = 0;
   virtual bool useCuda() const = 0;
-  virtual std::vector<Image> images() const = 0;
-  virtual std::map<int, Camera> cameras() const = 0;
+  virtual const std::unordered_map<size_t, Image> &images() const = 0;
+  virtual const std::map<int, Camera> &cameras() const = 0;
   virtual void clearProject() = 0;
 
 };

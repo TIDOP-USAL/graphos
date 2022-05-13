@@ -43,7 +43,7 @@ namespace internal
 class Csf;
 }
 
-class GRAPHOS_EXPORT Csf
+class Csf
 {
 
 public:

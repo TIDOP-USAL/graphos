@@ -53,7 +53,6 @@ public:
 
 protected:
 
-  virtual void init();
   virtual void createComponent();
   virtual void openComponent();
   virtual void createAction();
@@ -62,6 +61,10 @@ protected:
   virtual void createPresenter() = 0;
   virtual void createCommand() = 0;
   virtual void update() = 0;
+
+private:
+
+  void init();
 
 // Component
 

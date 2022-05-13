@@ -38,7 +38,7 @@ class Reconstruction;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT ReadCameraPoses
+class ReadCameraPoses
 {
 
 public:

@@ -29,9 +29,6 @@
 #include "graphos/components/MainWindowView.h"
 #include "graphos/components/MainWindowPresenter.h"
 #include "graphos/components/cameras/CamerasComponent.h"
-#include "graphos/components/ProjectModel.h"
-#include "graphos/components/FeaturesModel.h"
-#include "graphos/components/MatchesModel.h"
 #include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/utils/ProgressDialog.h"
@@ -54,9 +51,6 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mMainWindowView(nullptr),
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),
-    mProjectModel(nullptr),
-    mFeaturesModel(nullptr),
-    mMatchesModel(nullptr),
     mHelpDialog(nullptr),
     mProgressHandler(nullptr),
     mProgressDialog(nullptr)
@@ -81,21 +75,6 @@ ComponentsManager::~ComponentsManager()
   if (mMainWindowPresenter){
     delete mMainWindowPresenter;
     mMainWindowPresenter = nullptr;
-  }
-
-  if (mProjectModel){
-    delete mProjectModel;
-    mProjectModel = nullptr;
-  }
-
-  if (mFeaturesModel){
-    delete mFeaturesModel;
-    mFeaturesModel = nullptr;
-  }
-
-  if (mMatchesModel){
-    delete mMatchesModel;
-    mMatchesModel = nullptr;
   }
 
   if (mProgressHandler){
@@ -135,11 +114,7 @@ MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 {
   if (mMainWindowPresenter == nullptr){
     mMainWindowPresenter = new MainWindowPresenter(this->mainWindowView(),
-                                                   this->mainWindowModel(),
-                                                   this->projectModel(),
-                                                   //this->settingsModel(),
-                                                   this->featuresModel(),
-                                                   this->matchesModel());
+                                                   this->mainWindowModel());
 
   }
 
@@ -330,30 +305,6 @@ void ComponentsManager::loadPlugin(QObject *plugin)
   }
 }
 
-ProjectModel *ComponentsManager::projectModel()
-{
-  if (mProjectModel == nullptr){
-    mProjectModel = new ProjectModelImp(Application::instance().project());
-  }
-  return mProjectModel;
-}
-
-FeaturesModel *ComponentsManager::featuresModel()
-{
-  if (mFeaturesModel == nullptr){
-    mFeaturesModel = new FeaturesModelImp(Application::instance().project());
-  }
-  return mFeaturesModel;
-}
-
-MatchesModel *ComponentsManager::matchesModel()
-{
-  if (mMatchesModel == nullptr){
-    mMatchesModel = new MatchesModelImp(Application::instance().project());
-  }
-  return mMatchesModel;
-}
-
 HelpDialog *ComponentsManager::helpDialog()
 {
   if (mHelpDialog == nullptr) {
@@ -386,6 +337,7 @@ ProgressHandler *ComponentsManager::progressHandler()
     connect(mProgressHandler, SIGNAL(finished()),                 statusBarProgress, SLOT(hide()));
 
   }
+
   return mProgressHandler;
 }
 
@@ -394,6 +346,7 @@ ProgressDialog *ComponentsManager::progressDialog()
   if (mProgressDialog == nullptr){
     mProgressDialog = new ProgressDialogImp;
   }
+
   return mProgressDialog;
 }
 

@@ -43,10 +43,14 @@ public:
   FeatureExtractorComponent(Application *application);
   ~FeatureExtractorComponent();
 
+private:
+
+  void init();
+
 signals:
 
-  void featuresExtracted(QString);
-  void featuresDeleted();
+  void features_extracted(size_t);
+  void features_deleted();
 
 // ComponentBase
 

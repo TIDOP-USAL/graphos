@@ -70,7 +70,7 @@ void OpenProjectPresenterImp::setProjectFile(const QString &file)
     mModel->clear();
     mModel->loadProject(file);
 
-    emit projectLoaded();
+    emit project_loaded();
   }
 }
 

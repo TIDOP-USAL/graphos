@@ -32,7 +32,7 @@
 namespace graphos
 {
 
-class GRAPHOS_EXPORT FeatureMatchingProperties
+class FeatureMatchingProperties
   : public FeatureMatching
 {
 

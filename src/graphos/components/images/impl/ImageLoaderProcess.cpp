@@ -69,15 +69,21 @@ LoadImagesProcess::~LoadImagesProcess()
 bool LoadImagesProcess::existCamera(const QString &make, const QString &model) const
 {
   bool camera_exist = false;
-  
-  for (auto it = mCameras->begin(); it != mCameras->end(); it++) {
-    QString camera_make = it->make().c_str();
-    QString camera_model = it->model().c_str();
+
+  QString camera_make;
+  QString camera_model;
+
+  for (const auto &camera : *mCameras) {
+
+    camera_make.fromStdString(camera.make());
+    camera_model.fromStdString(camera.model());
+
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
       camera_exist = true;
       break;
     }
+
   }
 
   return camera_exist;
@@ -86,15 +92,23 @@ bool LoadImagesProcess::existCamera(const QString &make, const QString &model) c
 int LoadImagesProcess::findCamera(const QString &make, const QString &model) const
 {
   int camera_id = -1;
+
+  QString camera_make;
+  QString camera_model;
+
   for (size_t i = 0; i < mCameras->size(); i++){
-    QString camera_make = (*mCameras)[i].make().c_str();
-    QString camera_model = (*mCameras)[i].model().c_str();
+
+    camera_make.fromStdString((*mCameras)[i].make());
+    camera_model.fromStdString((*mCameras)[i].model());
+
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
       camera_id = i;
       break;
     }
+
   }
+
   return camera_id;
 }
 
@@ -377,6 +391,7 @@ double LoadImagesProcess::parseFocal(const std::string &focal, double def)
   double r_focal;
 
   try {
+
     std::string f = focal;
   
     size_t pos = f.find("(");

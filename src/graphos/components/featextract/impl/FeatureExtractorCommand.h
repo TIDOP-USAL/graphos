@@ -26,6 +26,8 @@
 
 #include "graphos/core/command.h"
 
+#include <unordered_map>
+
 #include <QObject>
 
 namespace graphos

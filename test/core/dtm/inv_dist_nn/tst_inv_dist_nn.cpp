@@ -1,193 +1,142 @@
-#include <QtTest>
-#include <QCoreApplication>
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
 
+#define BOOST_TEST_MODULE GRAPHOS invdistnn test
+
+#include <boost/test/unit_test.hpp>
 #include "graphos/core/dtm/invdistnn.h"
 
 using namespace graphos;
 
-class TestDtmInvDistNN
-  : public QObject
+BOOST_AUTO_TEST_SUITE(DtmInvDistNNTestSuite)
+
+struct TestDtmInvDistNN
 {
-  Q_OBJECT
 
-public:
+  TestDtmInvDistNN()
+    : mDtmInvDistNN(new DtmInvDistNNProperties())
+  {
+  }
 
-  TestDtmInvDistNN();
-  ~TestDtmInvDistNN();
+  ~TestDtmInvDistNN()
+  {
+    if (mDtmInvDistNN) {
+      delete mDtmInvDistNN;
+      mDtmInvDistNN = nullptr;
+    }
+  }
 
-private slots:
 
-  void initTestCase();
-  void cleanupTestCase();
-  void test_constructor();
-  void test_interpolation();
-  void test_name();
-  void test_power_data();
-  void test_power();
-  void test_smoothing_data();
-  void test_smoothing();
-  void test_radius_data();
-  void test_radius();
-  void test_maxPoints_data();
-  void test_maxPoints();
-  void test_minPoints_data();
-  void test_minPoints();
-
-private:
 
   DtmInvDistNN *mDtmInvDistNN;
 
 };
 
 
-TestDtmInvDistNN::TestDtmInvDistNN()
+
+BOOST_FIXTURE_TEST_CASE(default_constructor, TestDtmInvDistNN)
 {
-  mDtmInvDistNN = new DtmInvDistNNProperties();
+  BOOST_CHECK_EQUAL(2.0, mDtmInvDistNN->power());
+  BOOST_CHECK_EQUAL(0.0, mDtmInvDistNN->smoothing());
+  BOOST_CHECK_EQUAL(1.0, mDtmInvDistNN->radius());
+  BOOST_CHECK_EQUAL(12, mDtmInvDistNN->maxPoints());
+  BOOST_CHECK_EQUAL(0, mDtmInvDistNN->minPoints());
 }
 
-TestDtmInvDistNN::~TestDtmInvDistNN()
+BOOST_FIXTURE_TEST_CASE(constructor, TestDtmInvDistNN)
 {
-  if (mDtmInvDistNN){
-    delete mDtmInvDistNN;
-    mDtmInvDistNN = nullptr;
-  }
+  DtmInvDistNNAlgorithm dtmInvDistProperties(2.0, 0.1, 0.2, 100, 1);
+  BOOST_CHECK_EQUAL(2.0, dtmInvDistProperties.power());
+  BOOST_CHECK_EQUAL(0.1, dtmInvDistProperties.smoothing());
+  BOOST_CHECK_EQUAL(0.2, dtmInvDistProperties.radius());
+  BOOST_CHECK_EQUAL(100, dtmInvDistProperties.maxPoints());
+  BOOST_CHECK_EQUAL(1, dtmInvDistProperties.minPoints());
 }
 
-
-void TestDtmInvDistNN::initTestCase()
-{
-  QCOMPARE(2.0, mDtmInvDistNN->power());
-  QCOMPARE(0.0, mDtmInvDistNN->smoothing());
-  QCOMPARE(1.0, mDtmInvDistNN->radius());
-  QCOMPARE(12, mDtmInvDistNN->maxPoints());
-  QCOMPARE(0, mDtmInvDistNN->minPoints());
-}
-
-void TestDtmInvDistNN::cleanupTestCase()
+BOOST_FIXTURE_TEST_CASE(reset, TestDtmInvDistNN)
 {
   mDtmInvDistNN->reset();
 
-  QCOMPARE(2.0, mDtmInvDistNN->power());
-  QCOMPARE(0.0, mDtmInvDistNN->smoothing());
-  QCOMPARE(1.0, mDtmInvDistNN->radius());
-  QCOMPARE(12, mDtmInvDistNN->maxPoints());
-  QCOMPARE(0, mDtmInvDistNN->minPoints());
+  BOOST_CHECK_EQUAL(2.0, mDtmInvDistNN->power());
+  BOOST_CHECK_EQUAL(0.0, mDtmInvDistNN->smoothing());
+  BOOST_CHECK_EQUAL(1.0, mDtmInvDistNN->radius());
+  BOOST_CHECK_EQUAL(12, mDtmInvDistNN->maxPoints());
+  BOOST_CHECK_EQUAL(0, mDtmInvDistNN->minPoints());
 }
 
-void TestDtmInvDistNN::test_constructor()
+BOOST_FIXTURE_TEST_CASE(interpolation, TestDtmInvDistNN)
 {
-  DtmInvDistNNAlgorithm dtmInvDistProperties(2.0, 0.1, 0.2, 100, 1);
-  QCOMPARE(2.0, dtmInvDistProperties.power());
-  QCOMPARE(0.1, dtmInvDistProperties.smoothing());
-  QCOMPARE(0.2, dtmInvDistProperties.radius());
-  QCOMPARE(100, dtmInvDistProperties.maxPoints());
-  QCOMPARE(1, dtmInvDistProperties.minPoints());
+  BOOST_CHECK(Dtm::Interpolation::inv_distnn == mDtmInvDistNN->interpolation());
 }
 
-void TestDtmInvDistNN::test_interpolation()
+BOOST_FIXTURE_TEST_CASE(name, TestDtmInvDistNN)
 {
-  QCOMPARE(Dtm::Interpolation::inv_distnn, mDtmInvDistNN->interpolation());
+  BOOST_CHECK_EQUAL("INVDISTNN", mDtmInvDistNN->name());
 }
 
-void TestDtmInvDistNN::test_name()
+BOOST_FIXTURE_TEST_CASE(power, TestDtmInvDistNN)
 {
-  QCOMPARE("INVDISTNN", mDtmInvDistNN->name());
+  mDtmInvDistNN->setPower(3.);
+  BOOST_CHECK_EQUAL(3., mDtmInvDistNN->power());
+
+  mDtmInvDistNN->setPower(4.);
+  BOOST_CHECK_EQUAL(4., mDtmInvDistNN->power());
 }
 
-void TestDtmInvDistNN::test_power_data()
+BOOST_FIXTURE_TEST_CASE(smoothing, TestDtmInvDistNN)
 {
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
+  mDtmInvDistNN->setSmoothing(0.5);
+  BOOST_CHECK_EQUAL(0.5, mDtmInvDistNN->smoothing());
 
-  QTest::newRow("3") << 3. << 3.;
-  QTest::newRow("4") << 4. << 4.;
+  mDtmInvDistNN->setSmoothing(0.7);
+  BOOST_CHECK_EQUAL(0.7, mDtmInvDistNN->smoothing());
 }
 
-void TestDtmInvDistNN::test_power()
+BOOST_FIXTURE_TEST_CASE(radius, TestDtmInvDistNN)
 {
-  QFETCH(double, value);
-  QFETCH(double, result);
+  mDtmInvDistNN->setRadius(1.);
+  BOOST_CHECK_EQUAL(1., mDtmInvDistNN->radius());
 
-  mDtmInvDistNN->setPower(value);
-  QCOMPARE(result, mDtmInvDistNN->power());
+  mDtmInvDistNN->setRadius(2.);
+  BOOST_CHECK_EQUAL(2., mDtmInvDistNN->radius());
 }
 
-void TestDtmInvDistNN::test_smoothing_data()
+BOOST_FIXTURE_TEST_CASE(maxpoints, TestDtmInvDistNN)
 {
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
+  mDtmInvDistNN->setMaxPoints(5);
+  BOOST_CHECK_EQUAL(5, mDtmInvDistNN->maxPoints());
 
-  QTest::newRow("1.0") << 1.0 << 1.0;
-  QTest::newRow("0.5") << 0.5 << 0.5;
-  QTest::newRow("2.0") << 2.0 << 2.0;
+  mDtmInvDistNN->setMaxPoints(10);
+  BOOST_CHECK_EQUAL(10, mDtmInvDistNN->maxPoints());
 }
 
-void TestDtmInvDistNN::test_smoothing()
+BOOST_FIXTURE_TEST_CASE(minpoints, TestDtmInvDistNN)
 {
-  QFETCH(double, value);
-  QFETCH(double, result);
+  mDtmInvDistNN->setMinPoints(2);
+  BOOST_CHECK_EQUAL(2, mDtmInvDistNN->minPoints());
 
-  mDtmInvDistNN->setSmoothing(value);
-  QCOMPARE(result, mDtmInvDistNN->smoothing());
+  mDtmInvDistNN->setMinPoints(3);
+  BOOST_CHECK_EQUAL(3, mDtmInvDistNN->minPoints());
 }
 
-void TestDtmInvDistNN::test_radius_data()
-{
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
-
-  QTest::newRow("1.0") << 1.0 << 1.0;
-  QTest::newRow("0.5") << 0.5 << 0.5;
-  QTest::newRow("2.0") << 2.0 << 2.0;
-}
-
-void TestDtmInvDistNN::test_radius()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mDtmInvDistNN->setRadius(value);
-  QCOMPARE(result, mDtmInvDistNN->radius());
-}
-
-void TestDtmInvDistNN::test_maxPoints_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("5") << 5 << 5;
-  QTest::newRow("10") << 10 << 10;
-  QTest::newRow("20") << 20 << 20;
-}
-
-void TestDtmInvDistNN::test_maxPoints()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mDtmInvDistNN->setMaxPoints(value);
-  QCOMPARE(result, mDtmInvDistNN->maxPoints());
-}
-
-void TestDtmInvDistNN::test_minPoints_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("2") << 2 << 2;
-  QTest::newRow("3") << 3 << 3;
-  QTest::newRow("6") << 6 << 6;
-}
-
-void TestDtmInvDistNN::test_minPoints()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mDtmInvDistNN->setMinPoints(value);
-  QCOMPARE(result, mDtmInvDistNN->minPoints());
-}
-
-QTEST_APPLESS_MAIN(TestDtmInvDistNN)
-
-#include "tst_inv_dist_nn.moc"
+BOOST_AUTO_TEST_SUITE_END()

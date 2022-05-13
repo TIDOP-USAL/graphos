@@ -43,10 +43,10 @@ public:
 
   enum CameraType
   {
-    radial  = (0 << 0),
-    fisheye = (1 << 0),
-    pinhole = (1 << 1),
-    opencv  = (1 << 2)
+    radial  = (1 << 0),
+    fisheye = (1 << 1),
+    pinhole = (1 << 2),
+    opencv  = (1 << 3)
   };
 
   enum class Parameters
@@ -107,7 +107,8 @@ public:
                      static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1) |
                      static_cast<std::underlying_type<CameraModel>::type>(Parameters::k2),
     /*!< fx, fy, cx, cy, k1, k2, p1, p2 */
-    opencv = CameraType::opencv |
+    opencv = CameraType::radial | 
+             CameraType::opencv |
              static_cast<std::underlying_type<CameraModel>::type>(Parameters::focalx) |
              static_cast<std::underlying_type<CameraModel>::type>(Parameters::focaly) |
              static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
@@ -117,7 +118,8 @@ public:
              static_cast<std::underlying_type<CameraModel>::type>(Parameters::p1) |
              static_cast<std::underlying_type<CameraModel>::type>(Parameters::p2),
     /*!< fx, fy, cx, cy, k1, k2, k3, k4 */
-    opencv_fisheye = CameraType::opencv |
+    opencv_fisheye = CameraType::radial | 
+                     CameraType::opencv |
                      CameraType::fisheye |
                      static_cast<std::underlying_type<CameraModel>::type>(Parameters::focalx) |
                      static_cast<std::underlying_type<CameraModel>::type>(Parameters::focaly) |
@@ -128,7 +130,8 @@ public:
                      static_cast<std::underlying_type<CameraModel>::type>(Parameters::k3) |
                      static_cast<std::underlying_type<CameraModel>::type>(Parameters::k4),
     /*!< fx, fy, cx, cy, k1, k2, p1, p2, k3, k4, k5, k6 */
-    opencv_full = CameraType::opencv |
+    opencv_full = CameraType::radial | 
+                  CameraType::opencv |
                   static_cast<std::underlying_type<CameraModel>::type>(Parameters::focalx) |
                   static_cast<std::underlying_type<CameraModel>::type>(Parameters::focaly) |
                   static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |

@@ -43,7 +43,7 @@ namespace graphos
 {
 
 
-class GRAPHOS_EXPORT Dtm
+class Dtm
 {
 
 public:
@@ -64,7 +64,7 @@ public:
   virtual void reset() = 0;
 };
 
-class GRAPHOS_EXPORT DtmBase
+class DtmBase
   : public Dtm
 {
 
@@ -81,7 +81,7 @@ protected:
 
 };
 
-class GRAPHOS_EXPORT DtmAlgorithm
+class DtmAlgorithm
 {
 
 public:
@@ -102,7 +102,7 @@ public:
 
 
 
-class GRAPHOS_EXPORT DtmInvDist
+class DtmInvDist
   : public DtmBase
 {
 
@@ -131,7 +131,7 @@ public:
 };
 
 
-class GRAPHOS_EXPORT DtmInvDistNN
+class DtmInvDistNN
   : public DtmBase
 {
 

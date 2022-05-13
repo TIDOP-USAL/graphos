@@ -51,8 +51,9 @@ public:
 
 public:
 
-  std::vector<QString> images() const override;
-  std::vector<QPointF> loadKeypoints(const QString &imageName) override;
+  const std::unordered_map<size_t, Image> &images() const override;
+  Image image(size_t imageId) const;
+  std::vector<QPointF> loadKeypoints(size_t imageId) override;
 
   QString viewerBGColor() const override;
   int viewerMarkerType() const override;

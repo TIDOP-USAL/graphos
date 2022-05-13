@@ -88,6 +88,12 @@ public:
   QString name() const;
 
   /*!
+   * \brief Devuelve el identificador de la imagen
+   * \return
+   */
+  size_t id() const;
+
+  /*!
    * \brief Devuelve el identificador de la cámara
    * \return
    */
@@ -134,7 +140,8 @@ private:
 protected:
 
   QString mFilePath;
-  QString mName;
+  //QString mName;
+  size_t mId;
   int mCameraId;
   CameraPose mCameraPose;
 };

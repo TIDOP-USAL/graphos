@@ -1,89 +1,117 @@
-#include <QtTest>
-#include <QCoreApplication>
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
 
+#define BOOST_TEST_MODULE GRAPHOS Sift test
+
+#include <boost/test/unit_test.hpp>
 #include "graphos/core/features/sift.h"
 
 using namespace graphos;
 
-class TestSift
-  : public QObject
+BOOST_AUTO_TEST_SUITE(SiftTestSuite)
+
+struct SiftTest
 {
-  Q_OBJECT
 
-public:
+  SiftTest()
+    : mSift(new SiftProperties()),
+      mSiftCPUDetectorDescriptor(new SiftCPUDetectorDescriptor(6000, 4, 9.)),
+      mSiftCudaDetectorDescriptor(new SiftCudaDetectorDescriptor(10000, 8, 11., 0.8))
+  {
 
-  TestSift();
-  ~TestSift();
+  }
 
-private slots:
+  ~SiftTest()
+  {
+    if (mSift) {
+      delete mSift;
+      mSift = nullptr;
+    }
 
-  void initTestCase();
-  void cleanupTestCase();
-  void test_constructor();
-  void test_copy_constructor();
-  void test_type();
-  void test_name();
-  void test_featuresNumber_data();
-  void test_featuresNumber();
-  void test_octaveLayers_data();
-  void test_octaveLayers();
-  void test_contrastThresholdAuto();
-  void test_contrastThreshold_data();
-  void test_contrastThreshold();
-  void test_edgeThreshold_data();
-  void test_edgeThreshold();
+    if (mSiftCPUDetectorDescriptor) {
+      delete mSiftCPUDetectorDescriptor;
+      mSiftCPUDetectorDescriptor = nullptr;
+    }
 
-private:
+    if (mSiftCudaDetectorDescriptor) {
+      delete mSiftCudaDetectorDescriptor;
+      mSiftCudaDetectorDescriptor = nullptr;
+    }
+  }
+
+  virtual void setup()
+  {
+  }
+
+  virtual void teardown()
+  {
+
+  }
 
   Sift *mSift;
-  SiftDetectorDescriptor *mSiftDetectorDescriptor;
+  SiftCPUDetectorDescriptor *mSiftCPUDetectorDescriptor;
   SiftCudaDetectorDescriptor *mSiftCudaDetectorDescriptor;
 };
 
 
-TestSift::TestSift()
+BOOST_FIXTURE_TEST_CASE(ConstructorSiftProperties, SiftTest)
 {
-  mSift = new SiftProperties();
-  mSiftDetectorDescriptor = new SiftDetectorDescriptor(6000,
-                                                       4,
-                                                       9. );
-  mSiftCudaDetectorDescriptor = new SiftCudaDetectorDescriptor(10000,
-                                                               8,
-                                                               11.,
-                                                               0.8);
+  BOOST_CHECK_EQUAL(5000, mSift->featuresNumber());
+  BOOST_CHECK_EQUAL(3, mSift->octaveLayers());
+  BOOST_CHECK_EQUAL(true, mSift->constrastThresholdAuto());
+  BOOST_CHECK_EQUAL(0.02 / mSift->octaveLayers(), mSift->contrastThreshold());
+  BOOST_CHECK_EQUAL(10., mSift->edgeThreshold());
 }
 
-TestSift::~TestSift()
+BOOST_FIXTURE_TEST_CASE(ConstructorSiftCPU, SiftTest)
 {
-  if (mSift){
-    delete mSift;
-    mSift = nullptr;
-  }
+  BOOST_CHECK_EQUAL(6000, mSiftCPUDetectorDescriptor->featuresNumber());
+  BOOST_CHECK_EQUAL(4, mSiftCPUDetectorDescriptor->octaveLayers());
+  BOOST_CHECK_EQUAL(true, mSiftCPUDetectorDescriptor->constrastThresholdAuto());
+  BOOST_CHECK_EQUAL(0.02 / mSiftCPUDetectorDescriptor->octaveLayers(), mSiftCPUDetectorDescriptor->contrastThreshold());
+  BOOST_CHECK_EQUAL(9., mSiftCPUDetectorDescriptor->edgeThreshold());
 }
 
-
-void TestSift::initTestCase()
+BOOST_FIXTURE_TEST_CASE(ConstructorSiftCuda, SiftTest)
 {
-  QCOMPARE(5000, mSift->featuresNumber());
-  QCOMPARE(3, mSift->octaveLayers());
-  QCOMPARE(true, mSift->constrastThresholdAuto());
-  QCOMPARE(0.02/mSift->octaveLayers(), mSift->contrastThreshold());
-  QCOMPARE(10., mSift->edgeThreshold());
-  
-  QCOMPARE(6000, mSiftDetectorDescriptor->featuresNumber());
-  QCOMPARE(4, mSiftDetectorDescriptor->octaveLayers());
-  QCOMPARE(true, mSiftDetectorDescriptor->constrastThresholdAuto());
-  QCOMPARE(0.02/mSiftDetectorDescriptor->octaveLayers(), mSiftDetectorDescriptor->contrastThreshold());
-  QCOMPARE(9., mSiftDetectorDescriptor->edgeThreshold());
-  
-  QCOMPARE(10000, mSiftCudaDetectorDescriptor->featuresNumber());
-  QCOMPARE(8, mSiftCudaDetectorDescriptor->octaveLayers());
-  QCOMPARE(false, mSiftCudaDetectorDescriptor->constrastThresholdAuto());
-  QCOMPARE(0.8, mSiftCudaDetectorDescriptor->contrastThreshold());
-  QCOMPARE(11., mSiftCudaDetectorDescriptor->edgeThreshold());
+  BOOST_CHECK_EQUAL(10000, mSiftCudaDetectorDescriptor->featuresNumber());
+  BOOST_CHECK_EQUAL(8, mSiftCudaDetectorDescriptor->octaveLayers());
+  BOOST_CHECK_EQUAL(false, mSiftCudaDetectorDescriptor->constrastThresholdAuto());
+  BOOST_CHECK_EQUAL(0.8, mSiftCudaDetectorDescriptor->contrastThreshold());
+  BOOST_CHECK_EQUAL(11., mSiftCudaDetectorDescriptor->edgeThreshold());
 }
 
-void TestSift::cleanupTestCase()
+BOOST_FIXTURE_TEST_CASE(test_copy_constructor, SiftTest)
+{
+  SiftCudaDetectorDescriptor c(*mSiftCudaDetectorDescriptor);
+  BOOST_CHECK_EQUAL(10000, c.featuresNumber());
+  BOOST_CHECK_EQUAL(8, c.octaveLayers());
+  BOOST_CHECK_EQUAL(false, c.constrastThresholdAuto());
+  BOOST_CHECK_EQUAL(0.8, c.contrastThreshold());
+  BOOST_CHECK_EQUAL(11., c.edgeThreshold());
+}
+
+BOOST_FIXTURE_TEST_CASE(reset, SiftTest)
 {
   mSift->setFeaturesNumber(500);
   mSift->setOctaveLayers(4);
@@ -92,130 +120,74 @@ void TestSift::cleanupTestCase()
 
   mSift->reset();
 
-  QCOMPARE(5000, mSift->featuresNumber());
-  QCOMPARE(3, mSift->octaveLayers());
-  QCOMPARE(true, mSift->constrastThresholdAuto());
-  QCOMPARE(0.02 / mSift->octaveLayers(), mSift->contrastThreshold());
-  QCOMPARE(10., mSift->edgeThreshold());
+  BOOST_CHECK_EQUAL(5000, mSift->featuresNumber());
+  BOOST_CHECK_EQUAL(3, mSift->octaveLayers());
+  BOOST_CHECK_EQUAL(true, mSift->constrastThresholdAuto());
+  BOOST_CHECK_EQUAL(0.02 / mSift->octaveLayers(), mSift->contrastThreshold());
+  BOOST_CHECK_EQUAL(10., mSift->edgeThreshold());
 }
 
-void TestSift::test_constructor()
+
+BOOST_FIXTURE_TEST_CASE(type, SiftTest)
 {
-  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 20., 0.5);
-  QCOMPARE(500, siftDetectorDescriptor.featuresNumber());
-  QCOMPARE(4, siftDetectorDescriptor.octaveLayers());
-  QCOMPARE(0.5, siftDetectorDescriptor.contrastThreshold());
-  QCOMPARE(20., siftDetectorDescriptor.edgeThreshold());
+  BOOST_CHECK(Sift::Type::sift == mSift->type());
 }
 
-void TestSift::test_copy_constructor()
+BOOST_FIXTURE_TEST_CASE(name, SiftTest)
 {
-  SiftCudaDetectorDescriptor siftDetectorDescriptor(500, 4, 20., 0.5);
-  SiftCudaDetectorDescriptor c(siftDetectorDescriptor);
-  QCOMPARE(500, c.featuresNumber());
-  QCOMPARE(4, c.octaveLayers());
-  QCOMPARE(0.5, c.contrastThreshold());
-  QCOMPARE(20., c.edgeThreshold());
+  BOOST_CHECK_EQUAL("SIFT", mSift->name().toStdString());
 }
 
-void TestSift::test_type()
+BOOST_FIXTURE_TEST_CASE(features_number, SiftTest)
 {
-  QCOMPARE(Sift::Type::sift, mSift->type());
+  mSift->setFeaturesNumber(500);
+  BOOST_CHECK_EQUAL(500, mSift->featuresNumber());
+  mSift->setFeaturesNumber(10000);
+  BOOST_CHECK_EQUAL(10000, mSift->featuresNumber());
 }
 
-void TestSift::test_name()
+BOOST_FIXTURE_TEST_CASE(octave_layers, SiftTest)
 {
-  QCOMPARE("SIFT", mSift->name());
+  mSift->setOctaveLayers(0);
+  BOOST_CHECK_EQUAL(0, mSift->octaveLayers());
+  mSift->setOctaveLayers(1);
+  BOOST_CHECK_EQUAL(1, mSift->octaveLayers());
+  mSift->setOctaveLayers(2);
+  BOOST_CHECK_EQUAL(2, mSift->octaveLayers());
+  mSift->setOctaveLayers(4);
+  BOOST_CHECK_EQUAL(4, mSift->octaveLayers());
+  mSift->setOctaveLayers(7);
+  BOOST_CHECK_EQUAL(7, mSift->octaveLayers());
 }
 
-void TestSift::test_featuresNumber_data()
+BOOST_FIXTURE_TEST_CASE(contrast_threshold_auto, SiftTest)
 {
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
+  mSift->setContrastThresholdAuto(false);
+  BOOST_CHECK_EQUAL(false, mSift->constrastThresholdAuto());
 
-  QTest::newRow("500") << 500 << 500;
-  QTest::newRow("10000") << 10000 << 10000;
-}
-
-void TestSift::test_featuresNumber()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mSift->setFeaturesNumber(value);
-  QCOMPARE(result, mSift->featuresNumber());
-}
-
-void TestSift::test_octaveLayers_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("0") << 0 << 0;
-  QTest::newRow("1") << 1 << 1;
-  QTest::newRow("2") << 2 << 2;
-  QTest::newRow("4") << 4 << 4;
-  QTest::newRow("7") << 7 << 7;
-}
-
-void TestSift::test_octaveLayers()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mSift->setOctaveLayers(value);
-  QCOMPARE(result, mSift->octaveLayers());
-}
-
-void TestSift::test_contrastThresholdAuto()
-{
   mSift->setContrastThresholdAuto(true);
-  QCOMPARE(true, mSift->constrastThresholdAuto());
+  BOOST_CHECK_EQUAL(true, mSift->constrastThresholdAuto());
+}
 
+BOOST_FIXTURE_TEST_CASE(contrast_threshold, SiftTest)
+{
   mSift->setContrastThresholdAuto(false);
-  QCOMPARE(false, mSift->constrastThresholdAuto());
+
+  mSift->setContrastThreshold(0.04);
+  BOOST_CHECK_EQUAL(0.04, mSift->contrastThreshold());
+
+  mSift->setContrastThreshold(0.2);
+  BOOST_CHECK_EQUAL(0.2, mSift->contrastThreshold());
 }
 
-void TestSift::test_contrastThreshold_data()
+BOOST_FIXTURE_TEST_CASE(edge_threshold, SiftTest)
 {
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
+  mSift->setEdgeThreshold(10.);
+  BOOST_CHECK_EQUAL(10., mSift->edgeThreshold());
 
-  QTest::newRow("0.04") << 0.04 << 0.04;
-  QTest::newRow("0.1") << 0.1 << 0.1;
-  QTest::newRow("0.2") << 0.2 << 0.2;
-}
-
-void TestSift::test_contrastThreshold()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mSift->setContrastThresholdAuto(false);
-  mSift->setContrastThreshold(value);
-  QCOMPARE(result, mSift->contrastThreshold());
-}
-
-void TestSift::test_edgeThreshold_data()
-{
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
-
-  QTest::newRow("10.") << 10. << 10.;
-  QTest::newRow("1.") << 1. << 1.;
-  QTest::newRow("20.") << 20. << 20.;
-}
-
-void TestSift::test_edgeThreshold()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mSift->setEdgeThreshold(value);
-  QCOMPARE(result, mSift->edgeThreshold());
+  mSift->setEdgeThreshold(15.);
+  BOOST_CHECK_EQUAL(15., mSift->edgeThreshold());
 }
 
 
-QTEST_APPLESS_MAIN(TestSift)
-
-#include "tst_sift.moc"
+BOOST_AUTO_TEST_SUITE_END()

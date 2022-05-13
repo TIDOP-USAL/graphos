@@ -26,22 +26,170 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/orientation/orientationcolmap.h"
 
-#include <tidop/core/messages.h>
+//#include <tidop/core/messages.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
 
-#include <QStandardPaths>
-#include <QDir>
+//#include <QStandardPaths>
+//#include <QDir>
 
 namespace graphos
 {
 
 MainWindowModel::MainWindowModel(Project *project)
-  : mPrjDefaultPath(""),
-    mProject(project)
+  : /*mPrjDefaultPath(""),*/
+    mProject(project),
+    bUnsavedChanges(false)
 {
   this->init();
+}
+
+bool MainWindowModel::isPhotoOriented(size_t imageId) const
+{
+  return mProject->isPhotoOriented(imageId);
+}
+
+CameraPose MainWindowModel::cameraPose(size_t imageId) const
+{
+  return mProject->photoOrientation(imageId);
+}
+
+QString MainWindowModel::denseModel() const
+{
+  return mProject->denseModel();
+}
+
+//Image MainWindowModel::findImageByName(const QString &imageName) const
+//{
+//  return mProject->findImageByName(imageName);
+//}
+//
+//size_t MainWindowModel::imageID(const QString &imageName) const
+//{
+//  return mProject->imageId(imageName);
+//}
+//
+//bool MainWindowModel::removeImage(const QString &imageName)
+//{
+//  Image img = mProject->findImageByName(imageName);
+//  std::vector<std::string> _images;
+//  _images.push_back(img.path().toStdString());
+//  colmapRemoveOrientations(_images, mProject->reconstructionPath().toStdString());
+//  return mProject->removeImage(imageID(imageName));
+//}
+//
+//void MainWindowModel::removeImages(const QStringList &images)
+//{
+//  std::vector<std::string> _images(images.size());
+//  for (size_t i = 0; i < images.size(); i++) {
+//    _images[i] = mProject->findImageByName(images[i]).path().toStdString();
+//    mProject->removeImage(imageID(images[i]));
+//  }
+//  QString reconstruction_path = mProject->reconstructionPath();
+//  if (!reconstruction_path.isEmpty())
+//    colmapRemoveOrientations(_images, reconstruction_path.toStdString());
+//}
+//
+//MainWindowModel::image_iterator MainWindowModel::imageBegin()
+//{
+//  return mProject->imageBegin();
+//}
+//
+//MainWindowModel::image_const_iterator MainWindowModel::imageBegin() const
+//{
+//  return mProject->imageBegin();
+//}
+//
+//MainWindowModel::image_iterator MainWindowModel::imageEnd()
+//{
+//  return mProject->imageEnd();
+//}
+//
+//MainWindowModel::image_const_iterator MainWindowModel::imageEnd() const
+//{
+//  return mProject->imageEnd();
+//}
+
+
+QString MainWindowModel::projectName() const
+{
+  return mProject->name();
+}
+
+QString MainWindowModel::projectPath() const
+{
+  return mProject->projectPath();
+}
+
+bool MainWindowModel::checkUnsavedChanges() const
+{
+  return bUnsavedChanges;
+}
+
+bool MainWindowModel::checkOldVersion(const QString &file) const
+{
+  return mProject->checkOldVersion(file);
+}
+
+void MainWindowModel::oldVersionBackup(const QString &file) const
+{
+  mProject->oldVersionBak(file);
+}
+
+const std::unordered_map<size_t, Image> &MainWindowModel::images() const
+{
+  return mProject->images();
+}
+
+const Image &MainWindowModel::image(size_t imageId) const
+{
+  try {
+    return mProject->findImageById(imageId);
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+  }
+}
+
+void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
+{
+  try {
+
+    std::vector<std::string> images;
+
+    for (auto imageId : imageIds) {
+      images.push_back(mProject->findImageById(imageId).path().toStdString());
+      mProject->removeImage(imageId);
+    }
+
+  QString reconstruction_path = mProject->reconstructionPath();
+  if (!reconstruction_path.isEmpty())
+    colmapRemoveOrientations(images, reconstruction_path.toStdString());
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+  }
+}
+
+const std::unordered_map<size_t, QString> &MainWindowModel::features() const
+{
+  return mProject->features();
+}
+
+std::vector<size_t> MainWindowModel::imagePairs(size_t imageId) const
+{
+  std::vector<size_t> image_pairs = mProject->matchesPairs(imageId);
+  return image_pairs;
+}
+
+QString MainWindowModel::sparseModel() const
+{
+  return mProject->sparseModel();
+}
+
+bool MainWindowModel::isAbsoluteOrientation() const
+{
+  return !mProject->offset().isEmpty();
 }
 
 std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &image) const
@@ -700,81 +848,46 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
   return exif;
 }
 
-bool MainWindowModel::isPhotoOriented(const QString &imgName) const
+void MainWindowModel::load(const QString &file)
 {
-  return mProject->isPhotoOriented(imgName);
+  mProject->load(file);
+  bUnsavedChanges = false;
 }
 
-CameraPose MainWindowModel::cameraPose(const QString &imgName) const
+void MainWindowModel::save()
 {
-  return mProject->photoOrientation(imgName);
-}
+  try {
 
-Image MainWindowModel::findImageByName(const QString &imageName) const
-{
-  return mProject->findImageByName(imageName);
-}
+    saveAs(mProject->projectPath());
 
-size_t MainWindowModel::imageID(const QString &imageName) const
-{
-  return mProject->imageId(imageName);
-}
-
-bool MainWindowModel::removeImage(const QString &imageName)
-{
-  Image img = mProject->findImageByName(imageName);
-  std::vector<std::string> _images;
-  _images.push_back(img.path().toStdString());
-  colmapRemoveOrientations(_images, mProject->reconstructionPath().toStdString());
-  return mProject->removeImage(imageID(imageName));
-}
-
-void MainWindowModel::removeImages(const QStringList &images)
-{
-  std::vector<std::string> _images(images.size());
-  for (size_t i = 0; i < images.size(); i++) {
-    _images[i] = mProject->findImageByName(images[i]).path().toStdString();
-    mProject->removeImage(imageID(images[i]));
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
   }
-  QString reconstruction_path = mProject->reconstructionPath();
-  if (!reconstruction_path.isEmpty())
-    colmapRemoveOrientations(_images, reconstruction_path.toStdString());
 }
 
-MainWindowModel::image_iterator MainWindowModel::imageBegin()
+void MainWindowModel::saveAs(const QString &file)
 {
-  return mProject->imageBegin();
-}
+  mProject->save(file);
 
-MainWindowModel::image_const_iterator MainWindowModel::imageBegin() const
-{
-  return mProject->imageBegin();
-}
-
-MainWindowModel::image_iterator MainWindowModel::imageEnd()
-{
-  return mProject->imageEnd();
-}
-
-MainWindowModel::image_const_iterator MainWindowModel::imageEnd() const
-{
-  return mProject->imageEnd();
+  bUnsavedChanges = false;
 }
 
 void MainWindowModel::init()
 {
-//  mPrjDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-//  mPrjDefaultPath.append("/graphos/Projects");
+  //  mPrjDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+  //  mPrjDefaultPath.append("/graphos/Projects");
 
-//  QDir dir(mPrjDefaultPath);
-//  if (!dir.exists()) {
-//    dir.mkpath(".");
-//  }
+  //  QDir dir(mPrjDefaultPath);
+  //  if (!dir.exists()) {
+  //    dir.mkpath(".");
+  //  }
 }
 
 void MainWindowModel::clear()
 {
+  mProject->clear();
 }
+
 
 } // namespace graphos
 

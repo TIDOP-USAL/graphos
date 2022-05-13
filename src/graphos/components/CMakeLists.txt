@@ -48,7 +48,6 @@ project(graphos LANGUAGES CXX)
 set(GRAPHOS_SOURCES
     main.cpp
     ComponentsManager.cpp
-    ProjectModel.cpp
     MainWindowModel.cpp
     MainWindowPresenter.cpp
     MainWindowView.cpp
@@ -56,8 +55,6 @@ set(GRAPHOS_SOURCES
     settings/impl/SettingsModel.cpp
     settings/impl/SettingsView.cpp
     settings/impl/SettingsPresenter.cpp
-    FeaturesModel.cpp
-    MatchesModel.cpp
     createproject/CreateProjectComponent.cpp
     createproject/impl/CreateProjectModel.cpp
     createproject/impl/CreateProjectView.cpp
@@ -97,12 +94,12 @@ set(GRAPHOS_SOURCES
     orientation/impl/RelativeOrientationProcess.cpp
     orientation/impl/AbsoluteOrientationProcess.cpp
     orientation/impl/ImportOrientationProcess.cpp
-    densification/DensificationComponent.cpp
-    densification/impl/DensificationModel.cpp
-    densification/impl/DensificationView.cpp
-    densification/impl/DensificationPresenter.cpp
-    densification/impl/DensificationCommand.cpp
-    densification/impl/DensificationProcess.cpp
+    dense/DensificationComponent.cpp
+    dense/impl/DensificationModel.cpp
+    dense/impl/DensificationView.cpp
+    dense/impl/DensificationPresenter.cpp
+    dense/impl/DensificationCommand.cpp
+    dense/impl/DensificationProcess.cpp
     featviewer/FeaturesViewerComponent.cpp
     featviewer/impl/FeaturesViewerView.cpp
     featviewer/impl/FeaturesViewerModel.cpp
@@ -111,24 +108,12 @@ set(GRAPHOS_SOURCES
     matchviewer/impl/MatchViewerModel.cpp
     matchviewer/impl/MatchViewerView.cpp
     matchviewer/impl/MatchViewerPresenter.cpp
-    export/orientations/ExportOrientationsComponent.cpp
-    export/orientations/impl/ExportOrientationsModel.cpp
-    export/orientations/impl/ExportOrientationsView.cpp
-    export/orientations/impl/ExportOrientationsPresenter.cpp
-    export/densemodel/ExportPointCloudComponent.cpp
-    export/densemodel/impl/ExportPointCloudModel.cpp
-    export/densemodel/impl/ExportPointCloudView.cpp
-    export/densemodel/impl/ExportPointCloudPresenter.cpp
-    georeference/GeoreferenceComponent.cpp
-    georeference/impl/GeoreferenceModel.cpp
-    georeference/impl/GeoreferenceView.cpp
-    georeference/impl/GeoreferencePresenter.cpp
-    georeference/impl/GeoreferenceProcess.cpp
-    georeference/impl/GeoreferenceCommand.cpp
-    import/cameras/ImportCamerasComponent.cpp
-    import/cameras/impl/ImportCamerasModel.cpp
-    import/cameras/impl/ImportCamerasView.cpp
-    import/cameras/impl/ImportCamerasPresenter.cpp
+    #georeference/GeoreferenceComponent.cpp
+    #georeference/impl/GeoreferenceModel.cpp
+    #georeference/impl/GeoreferenceView.cpp
+    #georeference/impl/GeoreferencePresenter.cpp
+    #georeference/impl/GeoreferenceProcess.cpp
+    #georeference/impl/GeoreferenceCommand.cpp
     dtm/DTMComponent.cpp
     dtm/impl/DTMModel.cpp
     dtm/impl/DTMView.cpp
@@ -139,6 +124,18 @@ set(GRAPHOS_SOURCES
     orthophoto/impl/OrthophotoView.cpp
     orthophoto/impl/OrthophotoPresenter.cpp
     orthophoto/impl/OrthophotoProcess.cpp
+    #export/orientations/ExportOrientationsComponent.cpp
+    #export/orientations/impl/ExportOrientationsModel.cpp
+    #export/orientations/impl/ExportOrientationsView.cpp
+    #export/orientations/impl/ExportOrientationsPresenter.cpp
+    #export/densemodel/ExportPointCloudComponent.cpp
+    #export/densemodel/impl/ExportPointCloudModel.cpp
+    #export/densemodel/impl/ExportPointCloudView.cpp
+    #export/densemodel/impl/ExportPointCloudPresenter.cpp
+    import/cameras/ImportCamerasComponent.cpp
+    import/cameras/impl/ImportCamerasModel.cpp
+    import/cameras/impl/ImportCamerasView.cpp
+    import/cameras/impl/ImportCamerasPresenter.cpp
     about/AboutComponent.cpp
     about/impl/AboutModel.cpp
     about/impl/AboutView.cpp
@@ -151,7 +148,6 @@ set(GRAPHOS_SOURCES
 
 set(GRAPHOS_HEADERS
     ComponentsManager.h
-    ProjectModel.h
     MainWindowModel.h
     MainWindowPresenter.h
     MainWindowView.h
@@ -162,8 +158,6 @@ set(GRAPHOS_HEADERS
     settings/impl/SettingsModel.h
     settings/impl/SettingsView.h
     settings/impl/SettingsPresenter.h
-    FeaturesModel.h
-    MatchesModel.h
     createproject/CreateProjectComponent.h
     createproject/CreateProjectModel.h
     createproject/CreateProjectView.h
@@ -211,6 +205,7 @@ set(GRAPHOS_HEADERS
     images/impl/ImageLoaderModel.h
     images/impl/ImageLoaderPresenter.h
     images/impl/ImageLoaderView.h
+    images/impl/ImageLoaderCommand.h
     images/impl/ImageLoaderProcess.h
     orientation/OrientationComponent.h
     orientation/OrientationModel.h
@@ -223,15 +218,15 @@ set(GRAPHOS_HEADERS
     orientation/impl/RelativeOrientationProcess.h
     orientation/impl/AbsoluteOrientationProcess.h
     orientation/impl/ImportOrientationProcess.h
-    densification/DensificationComponent.h
-    densification/DensificationModel.h
-    densification/DensificationView.h
-    densification/DensificationPresenter.h
-    densification/impl/DensificationModel.h
-    densification/impl/DensificationView.h
-    densification/impl/DensificationPresenter.h
-    densification/impl/DensificationCommand.h
-    densification/impl/DensificationProcess.h
+    dense/DensificationComponent.h
+    dense/DensificationModel.h
+    dense/DensificationView.h
+    dense/DensificationPresenter.h
+    dense/impl/DensificationModel.h
+    dense/impl/DensificationView.h
+    dense/impl/DensificationPresenter.h
+    dense/impl/DensificationCommand.h
+    dense/impl/DensificationProcess.h
     featviewer/FeaturesViewerComponent.h
     featviewer/FeaturesViewerView.h
     featviewer/FeaturesViewerModel.h
@@ -246,36 +241,15 @@ set(GRAPHOS_HEADERS
     matchviewer/impl/MatchViewerModel.h
     matchviewer/impl/MatchViewerView.h
     matchviewer/impl/MatchViewerPresenter.h
-    export/orientations/ExportOrientationsComponent.h
-    export/orientations/ExportOrientationsModel.h
-    export/orientations/ExportOrientationsView.h
-    export/orientations/ExportOrientationsPresenter.h
-    export/orientations/impl/ExportOrientationsModel.h
-    export/orientations/impl/ExportOrientationsView.h
-    export/orientations/impl/ExportOrientationsPresenter.h
-    export/densemodel/ExportPointCloudComponent.h
-    export/densemodel/ExportPointCloudModel.h
-    export/densemodel/ExportPointCloudView.h
-    export/densemodel/ExportPointCloudPresenter.h
-    export/densemodel/impl/ExportPointCloudModel.h
-    export/densemodel/impl/ExportPointCloudView.h
-    export/densemodel/impl/ExportPointCloudPresenter.h
-    georeference/GeoreferenceComponent.h
-    georeference/GeoreferenceModel.h
-    georeference/GeoreferencePresenter.h
-    georeference/GeoreferenceView.h
-    georeference/impl/GeoreferenceModel.h
-    georeference/impl/GeoreferencePresenter.h
-    georeference/impl/GeoreferenceView.h
-    georeference/impl/GeoreferenceProcess.h
-    georeference/impl/GeoreferenceCommand.h
-    import/cameras/ImportCamerasComponent.h
-    import/cameras/ImportCamerasModel.h
-    import/cameras/ImportCamerasView.h
-    import/cameras/ImportCamerasPresenter.h
-    import/cameras/impl/ImportCamerasModel.h
-    import/cameras/impl/ImportCamerasView.h
-    import/cameras/impl/ImportCamerasPresenter.h
+    #georeference/GeoreferenceComponent.h
+    #georeference/GeoreferenceModel.h
+    #georeference/GeoreferencePresenter.h
+    #georeference/GeoreferenceView.h
+    #georeference/impl/GeoreferenceModel.h
+    #georeference/impl/GeoreferencePresenter.h
+    #georeference/impl/GeoreferenceView.h
+    #georeference/impl/GeoreferenceProcess.h
+    #georeference/impl/GeoreferenceCommand.h
     dtm/DTMComponent.h
     dtm/DTMModel.h
     dtm/DTMView.h
@@ -292,6 +266,27 @@ set(GRAPHOS_HEADERS
     orthophoto/impl/OrthophotoView.h
     orthophoto/impl/OrthophotoPresenter.h
     orthophoto/impl/OrthophotoProcess.h
+    #export/orientations/ExportOrientationsComponent.h
+    #export/orientations/ExportOrientationsModel.h
+    #export/orientations/ExportOrientationsView.h
+    #export/orientations/ExportOrientationsPresenter.h
+    #export/orientations/impl/ExportOrientationsModel.h
+    #export/orientations/impl/ExportOrientationsView.h
+    #export/orientations/impl/ExportOrientationsPresenter.h
+    #export/densemodel/ExportPointCloudComponent.h
+    #export/densemodel/ExportPointCloudModel.h
+    #export/densemodel/ExportPointCloudView.h
+    #export/densemodel/ExportPointCloudPresenter.h
+    #export/densemodel/impl/ExportPointCloudModel.h
+    #export/densemodel/impl/ExportPointCloudView.h
+    #export/densemodel/impl/ExportPointCloudPresenter.h
+    import/cameras/ImportCamerasComponent.h
+    import/cameras/ImportCamerasModel.h
+    import/cameras/ImportCamerasView.h
+    import/cameras/ImportCamerasPresenter.h
+    import/cameras/impl/ImportCamerasModel.h
+    import/cameras/impl/ImportCamerasView.h
+    import/cameras/impl/ImportCamerasPresenter.h
     HelpDialog.h
     about/AboutComponent.h
     about/AboutModel.h

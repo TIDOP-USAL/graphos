@@ -87,7 +87,7 @@ protected slots:
 
 signals:
 
-  void projectNameChange();
+  void project_name_changed();
 };
 
 } // namespace graphos

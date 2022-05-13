@@ -46,13 +46,12 @@ public:
 public:
 
   bool calibratedCamera() const override;
-  bool refinePrincipalPoint() const override;
-  void setRefinePrincipalPoint(bool refine) override;
   void setSparseModel(const QString &sparseModel) override;
   void setOffset(const QString &offset) override;
-  bool isPhotoOriented(const QString &imgName) const override;
-  CameraPose photoOrientation(const QString &imgName) const override;
-  void addPhotoOrientation(const QString &imgName, const CameraPose &orientation) override;
+  bool isPhotoOriented(size_t imageId) const override;
+  CameraPose photoOrientation(size_t imageId) const override;
+  void addPhotoOrientation(size_t imageId, 
+                            const CameraPose &orientation) override;
   QString database() const override;
   QString projectPath() const override;
   bool gpsPositions() const override;
@@ -62,18 +61,10 @@ public:
   std::map<QString, std::array<double, 3>> cameraPositions() const override;
   void clearProject() override;
 
-  std::map<int, Camera> cameras() const override;
+  const std::map<int, Camera> &cameras() const override;
   bool updateCamera(int id, const Camera &camera) override;
-  camera_iterator cameraBegin() override;
-  camera_const_iterator cameraBegin() const override;
-  camera_iterator cameraEnd() override;
-  camera_const_iterator cameraEnd() const override;
 
-  std::vector<Image> images() const override;
-  image_iterator imageBegin() override;
-  image_const_iterator imageBegin() const override;
-  image_iterator imageEnd() override;
-  image_const_iterator imageEnd() const override;
+  const std::unordered_map<size_t, Image> &images() const override;
 
 // Model interface
 

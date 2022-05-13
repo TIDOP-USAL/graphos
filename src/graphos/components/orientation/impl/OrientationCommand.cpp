@@ -146,7 +146,7 @@ void ImportPoses::run()
 
   std::cout << std::endl;
 
-  TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation")
+  TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation");
 
   colmap::IncrementalMapper mapper(&database_cache);
   mapper.BeginReconstruction(&reconstruction);
@@ -194,10 +194,8 @@ void ImportPoses::setFixPoses(bool fixPoses)
 void ImportPoses::computeOffset()
 {
   int i = 1;
-  for (auto it_image = mProject->imageBegin();
-    it_image != mProject->imageEnd();
-    it_image++) {
-    CameraPose camera_pose = it_image->cameraPose();
+  for (const auto &image : mProject->images()) {
+    CameraPose camera_pose = image.second.cameraPose();
     if (camera_pose.isEmpty()) continue;
     mOffset += (camera_pose.position() - mOffset) / i;
     i++;
@@ -223,16 +221,16 @@ void ImportPoses::writeImages(const tl::Path& tempPath)
 
   size_t id = 1;
 
-  for (auto it_image = mProject->imageBegin(); it_image != mProject->imageEnd(); it_image++) {
+  for (const auto &image : mProject->images()) {
 
-    CameraPose camera_pose = it_image->cameraPose();
+    CameraPose camera_pose = image.second.cameraPose();
     if (camera_pose.isEmpty()) {
       id++;
       continue; /// Se saltan las imagenes no orientadas
     }
 
     tl::math::Quaternion<double> quaternion = camera_pose.quaternion();
-    std::string file_name = it_image->path().toStdString();
+    std::string file_name = image.second.path().toStdString();
     tl::Point3D position = camera_pose.position();
 
     if (!isCoordinatesLocal()) {
@@ -283,14 +281,17 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
   ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
   ofs << "# Number of cameras: " << mProject->camerasCount() << "\n";
 
-  for (auto it_camera = mProject->cameraBegin(); it_camera != mProject->cameraEnd(); it_camera++) {
-    Camera camera = it_camera->second;
+  for (const auto &_camera : mProject->cameras()) {
+    
+    size_t camera_id = _camera.first;
+    Camera camera = _camera.second;
+    
     std::string camera_type = cameraToColmapType(camera).toStdString();
     std::shared_ptr<Calibration> calibration = camera.calibration();
 
     if (calibration) {
 
-      ofs << it_camera->first << " " << camera_type << " " << camera.width() << " " << camera.height() << " ";
+      ofs << camera_id << " " << camera_type << " " << camera.width() << " " << camera.height() << " ";
 
       if (camera_type == "SIMPLE_RADIAL" ||
         camera_type == "RADIAL" ||
@@ -391,7 +392,7 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
       double cx = camera.width() / 2.;
       double cy = camera.height() / 2.;
 
-      ofs << it_camera->first << " " << camera_type << " " << camera.width() << " " << camera.height() << " ";
+      ofs << camera_id << " " << camera_type << " " << camera.width() << " " << camera.height() << " ";
 
       if (camera_type == "SIMPLE_RADIAL" ||
         camera_type == "RADIAL" ||
@@ -580,9 +581,9 @@ bool ImportPoses::isCoordinatesLocal() const
 {
   bool local = true;
 
-  auto it_image = mProject->imageBegin();
-  if (it_image != mProject->imageEnd()) {
-    CameraPose camera_pose = it_image->cameraPose();
+  auto it_image = mProject->images().begin();
+  if (it_image != mProject->images().end()) {
+    CameraPose camera_pose = it_image->second.cameraPose();
     if (camera_pose.crs() != "") local = false;
   }
 
@@ -602,8 +603,8 @@ bool rtkOrientations(const ProjectImp &project)
 {
   bool bRtkOrientations = false;
 
-  auto it = project.imageBegin();
-  CameraPose camera_pose = it->cameraPose();
+  auto it = project.images().begin();
+  CameraPose camera_pose = it->second.cameraPose();
   if (!camera_pose.isEmpty()) {
     tl::math::Quaternion<double> q = camera_pose.quaternion();
     if (q == tl::math::Quaternion<double>::zero())
@@ -618,9 +619,12 @@ bool rtkOrientations(const ProjectImp &project)
 std::map<QString, std::array<double, 3>> cameraPositions(const ProjectImp &project)
 {
   std::map<QString, std::array<double, 3>> camera_positions;
-  for (auto it = project.imageBegin(); it != project.imageEnd(); it++) {
-    QString path = it->path();
-    CameraPose camera_pose = it->cameraPose();
+
+  for (const auto &image : project.images()) {
+
+    QString path = image.second.path();
+    CameraPose camera_pose = image.second.cameraPose();
+
     if (!camera_pose.isEmpty()) {
       std::array<double, 3> positions = {
       camera_pose.position().x,
@@ -628,7 +632,9 @@ std::map<QString, std::array<double, 3>> cameraPositions(const ProjectImp &proje
       camera_pose.position().z};
       camera_positions[path] = positions;
     }
+
   }
+
   return camera_positions;
 }
 
@@ -799,7 +805,7 @@ bool OrientationCommand::run()
   try{
 
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 
@@ -841,14 +847,13 @@ bool OrientationCommand::run()
         readPhotoOrientations.open(ori_relative_path);
         int oriented_images = 0;
 
-        for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-          QString image_oriented = image->path();
-          CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+        for (const auto &image : project.images()) {
+          QString image_oriented = QFileInfo(image.second.path()).fileName();
+          CameraPose photoOrientation = readPhotoOrientations.orientation(image_oriented);
           if (photoOrientation.position() != tl::Point3D()) {
-            project.addPhotoOrientation(image->name(), photoOrientation);
+            project.addPhotoOrientation(image.first, photoOrientation);
             oriented_images++;
           } else {
-            QString image_oriented = QFileInfo(image->path()).fileName();
             QByteArray ba = image_oriented.toLocal8Bit();
             const char *msg = ba.constData();
             msgWarning("Image %s not oriented", msg);
@@ -861,12 +866,13 @@ bool OrientationCommand::run()
         ReadCalibration readCalibration;
         readCalibration.open(ori_relative_path);
         std::shared_ptr<Calibration> calibration;
-        for (auto camera_it = project.cameraBegin(); camera_it != project.cameraEnd(); camera_it++) {
-          calibration = readCalibration.calibration(camera_it->first);
+
+        for (const auto &_camera : project.cameras()) {
+          calibration = readCalibration.calibration(_camera.first);
           if (calibration) {
-            Camera camera = camera_it->second;
+            Camera camera = _camera.second;
             camera.setCalibration(calibration);
-            project.updateCamera(camera_it->first, camera);
+            project.updateCamera(_camera.first, camera);
           }
         }
 
@@ -891,22 +897,25 @@ bool OrientationCommand::run()
 
           ReadCameraPoses readPhotoOrientations;
           readPhotoOrientations.open(ori_absolute);
-          for (auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-            CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
+          for (const auto &image : project.images()) {
+            CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image.second.path()).fileName());
             if (photoOrientation.position() != tl::Point3D()) {
-              project.addPhotoOrientation(image->name(), photoOrientation);
+              project.addPhotoOrientation(image.first, photoOrientation);
             }
           }
 
           ReadCalibration readCalibration;
           readCalibration.open(ori_absolute);
           std::shared_ptr<Calibration> calibration;
-          for (auto camera_it = project.cameraBegin(); camera_it != project.cameraEnd(); camera_it++) {
-            calibration = readCalibration.calibration(camera_it->first);
+
+          for (const auto &_camera : project.cameras()) {
+
+            calibration = readCalibration.calibration(_camera.first);
+
             if (calibration) {
-              Camera camera = camera_it->second;
+              Camera camera = _camera.second;
               camera.setCalibration(calibration);
-              project.updateCamera(camera_it->first, camera);
+              project.updateCamera(_camera.first, camera);
             }
           }
         }

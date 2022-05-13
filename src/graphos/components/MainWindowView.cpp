@@ -79,13 +79,10 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExit(new QAction(this)),
     mActionStartPage(new QAction(this)),
     mActionCameras(new QAction(this)),
-    //mActionSettings(new QAction(this)),
     mActionHelp(new QAction(this)),
-    //mActionAbout(new QAction(this)),
     mActionImportCameras(new QAction(this)),
     mActionExportTiePoints(new QAction(this)),
     mActionExportMatches(new QAction(this)),
-    //mActionExportOrientations(new QAction(this)),
     mActionExportPointCloud(new QAction(this)),
     mActionOrtho(new QAction(this)),
     mActionNotRecentProjects(new QAction(this)),
@@ -216,11 +213,10 @@ void MainWindowView::setFlag(MainWindowView::Flag flag, bool value)
   update();
 }
 
-void MainWindowView::addImage(const QString &image)
+void MainWindowView::addImage(const QString &image, size_t imageId)
 {
-  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
-    /* Fotogramas */
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
@@ -247,62 +243,63 @@ void MainWindowView::addImage(const QString &image)
     itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
     itemPhotogram->setToolTip(0, image);
     itemPhotogram->setData(0, Qt::UserRole, graphos::image);
+    itemPhotogram->setData(0, Qt::UserRole+1, imageId);
     itemImages->addChild(itemPhotogram);
     itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
 
     update();
   }
 
-  mThumbnailsWidget->addThumbnail(image);
+  mThumbnailsWidget->addImage(image, imageId);
 }
 
-void MainWindowView::addImages(const QStringList &images)
-{
-  if (images.empty() == false) {
-    for (auto &image : images) {
-      if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+//void MainWindowView::addImages(const QStringList &images)
+//{
+//  if (images.empty() == false) {
+//    for (auto &image : images) {
+//      if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+//
+//        /* Fotogramas */
+//
+//        QTreeWidgetItem *itemImages = nullptr;
+//        for (int i = 0; i < itemProject->childCount(); i++) {
+//          QTreeWidgetItem *temp = itemProject->child(i);
+//          //if (temp->text(0).compare(tr("Images")) == 0) {
+//          if (temp->data(0, Qt::UserRole) == graphos::images){
+//            itemImages = itemProject->child(i);
+//            break;
+//          }
+//        }
+//
+//        if (itemImages == nullptr) {
+//          itemImages = new QTreeWidgetItem();
+//          itemImages->setText(0, tr("Images"));
+//          itemImages->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
+//          itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
+//          itemImages->setData(0, Qt::UserRole, graphos::images);
+//          itemProject->addChild(itemImages);
+//          itemImages->setExpanded(true);
+//        }
+//
+//        /* Se añade el fotograma al árbol del proyecto */
+//        QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
+//        itemPhotogram->setText(0, QFileInfo(image).baseName());
+//        itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
+//        itemPhotogram->setToolTip(0, image);
+//        itemPhotogram->setData(0, Qt::UserRole, graphos::image);
+//        itemImages->addChild(itemPhotogram);
+//        itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
+//        
+//        update();
+//      }
+//    }
+//
+//    mThumbnailsWidget->addThumbnails(images);
+//
+//  }
+//}
 
-        /* Fotogramas */
-
-        QTreeWidgetItem *itemImages = nullptr;
-        for (int i = 0; i < itemProject->childCount(); i++) {
-          QTreeWidgetItem *temp = itemProject->child(i);
-          //if (temp->text(0).compare(tr("Images")) == 0) {
-          if (temp->data(0, Qt::UserRole) == graphos::images){
-            itemImages = itemProject->child(i);
-            break;
-          }
-        }
-
-        if (itemImages == nullptr) {
-          itemImages = new QTreeWidgetItem();
-          itemImages->setText(0, tr("Images"));
-          itemImages->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
-          itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
-          itemImages->setData(0, Qt::UserRole, graphos::images);
-          itemProject->addChild(itemImages);
-          itemImages->setExpanded(true);
-        }
-
-        /* Se añade el fotograma al árbol del proyecto */
-        QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
-        itemPhotogram->setText(0, QFileInfo(image).baseName());
-        itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
-        itemPhotogram->setToolTip(0, image);
-        itemPhotogram->setData(0, Qt::UserRole, graphos::image);
-        itemImages->addChild(itemPhotogram);
-        itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
-        
-        update();
-      }
-    }
-
-    mThumbnailsWidget->addThumbnails(images);
-
-  }
-}
-
-void MainWindowView::setActiveImage(const QString &image)
+void MainWindowView::setActiveImage(size_t imageId)
 {
   const QSignalBlocker blocker1(mTreeWidgetProject);
   const QSignalBlocker blocker2(mThumbnailsWidget);
@@ -323,16 +320,17 @@ void MainWindowView::setActiveImage(const QString &image)
       // Se busca la imagen en el árbol
       for (int i = 0; i < itemImages->childCount(); i++) {
         QTreeWidgetItem *temp = itemImages->child(i);
-        itemImages->child(i)->setSelected(temp->text(0).compare(image) == 0);
+        size_t id = temp->data(0, Qt::UserRole + 1).toULongLong();
+        itemImages->child(i)->setSelected(id == imageId);
       }
     }
   }
 
-  mThumbnailsWidget->setActiveImage(image);
+  mThumbnailsWidget->setActiveImage(imageId);
 
 }
 
-void MainWindowView::setActiveImages(const QStringList &images)
+void MainWindowView::setActiveImages(const std::vector<size_t> &imageIds)
 {
   const QSignalBlocker blocker1(mTreeWidgetProject);
   const QSignalBlocker blocker2(mThumbnailsWidget);
@@ -353,8 +351,8 @@ void MainWindowView::setActiveImages(const QStringList &images)
       for (int i = 0; i < itemImages->childCount(); i++) {
         QTreeWidgetItem *temp = itemImages->child(i);
         temp->setSelected(false);
-        for (auto &image : images){
-          if (temp->text(0).compare(image) == 0){
+        for (auto id : imageIds) {
+          if (temp->data(0, Qt::UserRole + 1).toULongLong() == id) {
             temp->setSelected(true);
             break;
           }
@@ -363,10 +361,10 @@ void MainWindowView::setActiveImages(const QStringList &images)
     }
   }
 
-  mThumbnailsWidget->setActiveImages(images);
+  mThumbnailsWidget->setActiveImages(imageIds);
 }
 
-void MainWindowView::addFeatures(const QString &features)
+void MainWindowView::addFeatures(size_t imageId)
 {
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
@@ -384,7 +382,7 @@ void MainWindowView::addFeatures(const QString &features)
       QTreeWidgetItem *itemImage = nullptr;
       for (int i = 0; i < itemImages->childCount(); i++) {
         QTreeWidgetItem *temp = itemImages->child(i);
-        if (temp->text(0).compare(features) == 0){
+        if (temp->data(0, Qt::UserRole+1).toULongLong() == imageId){
           itemImage = itemImages->child(i);
           break;
         }
@@ -395,7 +393,7 @@ void MainWindowView::addFeatures(const QString &features)
   }
 }
 
-void MainWindowView::deleteFeatures(const QString &features)
+void MainWindowView::deleteFeatures(size_t imageId)
 {
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
@@ -413,7 +411,7 @@ void MainWindowView::deleteFeatures(const QString &features)
       QTreeWidgetItem *itemImage = nullptr;
       for (int i = 0; i < itemImages->childCount(); i++) {
         QTreeWidgetItem *temp = itemImages->child(i);
-        if (temp->text(0).compare(features) == 0){
+        if (temp->data(0, Qt::UserRole + 1).toULongLong() == imageId){
           itemImage = itemImages->child(i);
           break;
         }
@@ -424,7 +422,7 @@ void MainWindowView::deleteFeatures(const QString &features)
   }
 }
 
-void MainWindowView::addMatches(const QString &left)
+void MainWindowView::addMatches(size_t imageId)
 {
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
@@ -443,7 +441,7 @@ void MainWindowView::addMatches(const QString &left)
       QTreeWidgetItem *itemImage = nullptr;
       for (int i = 0; i < itemImages->childCount(); i++) {
         QTreeWidgetItem *temp = itemImages->child(i);
-        if (temp->text(0).compare(left) == 0){
+        if (temp->data(0, Qt::UserRole + 1).toULongLong() == imageId){
           itemImage = itemImages->child(i);
           break;
         }
@@ -454,7 +452,7 @@ void MainWindowView::addMatches(const QString &left)
   }
 }
 
-void MainWindowView::deleteMatches(const QString &left)
+void MainWindowView::deleteMatches(size_t imageId)
 {
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
@@ -472,7 +470,7 @@ void MainWindowView::deleteMatches(const QString &left)
       QTreeWidgetItem *itemImage = nullptr;
       for (int i = 0; i < itemImages->childCount(); i++) {
         QTreeWidgetItem *temp = itemImages->child(i);
-        if (temp->text(0).compare(left) == 0){
+        if (temp->data(0, Qt::UserRole + 1).toULongLong() == imageId){
           itemImage = itemImages->child(i);
           break;
         }
@@ -745,7 +743,7 @@ void MainWindowView::deleteHistory()
   update();
 }
 
-void MainWindowView::deleteImage(const QString &file)
+void MainWindowView::deleteImages(const std::vector<size_t> &imageIds)
 {
   const QSignalBlocker blocker1(mTreeWidgetProject);
   const QSignalBlocker blocker2(mThumbnailsWidget);
@@ -767,20 +765,24 @@ void MainWindowView::deleteImage(const QString &file)
       QTreeWidgetItem *itemImage = nullptr;
       for (int i = 0; i < itemImages->childCount(); i++) {
         QTreeWidgetItem *temp = itemImages->child(i);
-        if (temp->text(0).compare(file) == 0) {
-          itemImage = itemImages->child(i);
-          delete itemImage;
-          itemImage = nullptr;
-          break;
+        for (auto imageId : imageIds) {
+          if (temp && temp->data(0, Qt::UserRole + 1).toULongLong() == imageId) {
+            itemImage = itemImages->child(i);
+            delete itemImage;
+            itemImage = nullptr;
+            i--;
+            break;
+          }
         }
-      }
+      }     
+
       itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
     }
 
     setFlag(MainWindowView::Flag::images_added, itemProject->childCount() > 0);
   }
 
-  mThumbnailsWidget->deleteThumbnail(file);
+  mThumbnailsWidget->deleteImages(imageIds);
 }
 
 void MainWindowView::changeEvent(QEvent *e)
@@ -818,11 +820,11 @@ void MainWindowView::onSelectionChanged()
     int size = item.size();
     if(size > 0){
       if (size == 1) {
-        emit selectImage(item[0]->text(0));
+        emit selectImage(item[0]->data(0, Qt::UserRole+1).toULongLong());
       } else {
-        QStringList selected_images;
+        std::vector<size_t> selected_images;
         for (int i = 0; i < size; i++){
-          selected_images.push_back(item[i]->text(0));
+          selected_images.push_back(item[i]->data(0, Qt::UserRole+1).toULongLong());
         }
         emit selectImages(selected_images);
       }
@@ -836,7 +838,7 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
     if (item->data(0, Qt::UserRole) == graphos::image ||
         item->data(0, Qt::UserRole) == graphos::image_features ||
         item->data(0, Qt::UserRole) == graphos::image_features_matches){
-     emit openImage(item->text(column));
+     emit openImage(item->data(column, Qt::UserRole+1).toULongLong());
    } else if (item->data(0, Qt::UserRole) == graphos::sparse_model) {
      emit openModel3D(item->toolTip(column), true);
    } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
@@ -888,13 +890,13 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
 
     if (QAction *selectedItem = mMenuTreeProjectImage->exec(globalPos)) {
       if (selectedItem->text() == tr("Open Image")) {
-        emit openImage(item->text(0));
+        emit openImage(item->data(0, Qt::UserRole+1).toULongLong());
       } else if (selectedItem->text() == tr("Delete Image")) {
-        emit deleteImages(QStringList(item->text(0)));
+        emit delete_images(std::vector<size_t>{item->data(0, Qt::UserRole+1).toULongLong()});
       } else if (selectedItem->text() == tr("View Keypoints")) {
-        emit openKeypointsViewer(item->text(0));
+        emit openKeypointsViewer(item->data(0, Qt::UserRole+1).toULongLong());
       } else if (selectedItem->text() == tr("View Matches")) {
-        emit openMatchesViewer(item->text(0));
+        emit openMatchesViewer(item->data(0, Qt::UserRole + 1).toULongLong());
       }
     }
   } else if (item->data(0, Qt::UserRole) == graphos::sparse_model){
@@ -1237,11 +1239,11 @@ void MainWindowView::initSignalAndSlots()
 
   /* Panel de vistas en miniatura */
 
-  connect(mThumbnailsWidget,  SIGNAL(openImage(QString)),        this, SIGNAL(openImage(QString)));
-  connect(mThumbnailsWidget,  SIGNAL(selectImage(QString)),      this, SIGNAL(selectImage(QString)));
-  connect(mThumbnailsWidget,  SIGNAL(selectImages(QStringList)), this, SIGNAL(selectImages(QStringList)));
-  connect(mThumbnailsWidget,  SIGNAL(deleteImages(QStringList)), this, SIGNAL(deleteImages(QStringList)));
-  connect(mThumbnailsWidget,  SIGNAL(imagesLoaded()),            this, SIGNAL(imagesLoaded()));
+  connect(mThumbnailsWidget, &ThumbnailsWidget::openImage,                this, &MainWindowView::openImage);
+  connect(mThumbnailsWidget,  SIGNAL(selectImage(size_t)),                this, SIGNAL(selectImage(size_t)));
+  connect(mThumbnailsWidget,  SIGNAL(selectImages(std::vector<size_t>)),  this, SIGNAL(selectImages(std::vector<size_t>)));
+  connect(mThumbnailsWidget,  SIGNAL(delete_images(std::vector<size_t>)), this, SIGNAL(delete_images(std::vector<size_t>)));
+  connect(mThumbnailsWidget,  SIGNAL(imagesLoaded()),                     this, SIGNAL(imagesLoaded()));
 
   connect(mTreeWidgetProject, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onTreeContextMenu(const QPoint &)));
   connect(mTreeWidgetProject, SIGNAL(itemSelectionChanged()),   this, SLOT(onSelectionChanged()));
@@ -1308,29 +1310,6 @@ QToolBar *MainWindowView::findToolbar(Toolbar toolbar)
 
 void MainWindowView::update()
 {
-  //bool bProjectExists = mFlags.isActive(Flag::project_exists);
-  //bool bProjectModified = mFlags.isActive(Flag::project_modified);
-  //bool bImageOpen = mFlags.isActive(Flag::image_open);
-  //bool bProcessing = mFlags.isActive(Flag::processing);
-  //bool bLoadingImages = mFlags.isActive(Flag::loading_images);
-  //bool bImagesLoaded = mFlags.isActive(Flag::images_added);
-  //bool bFeatureExtraction = mFlags.isActive(Flag::feature_extraction);
-  //bool bFeatureMatching = mFlags.isActive(Flag::feature_matching);
-  //bool bOriented = mFlags.isActive(Flag::oriented);
-  //bool bAbsoluteOriented = mFlags.isActive(Flag::absolute_oriented);
-  //bool bDenseModel = mFlags.isActive(Flag::dense_model);
-
-  //mMenuRecentProjects->setEnabled(!bProcessing);
-  //mActionNotRecentProjects->setVisible(mHistory.size() == 0);
-  //mActionClearHistory->setEnabled(mHistory.size() > 0);
-  ////mActionExportTiePoints->setEnabled(bProjectExists && bFeatureExtraction && !bProcessing);
-  ////mActionExportMatches->setEnabled(bProjectExists && bFeatureMatching && !bProcessing);
-  ////mActionExportOrientations->setEnabled(bProjectExists && bOriented && !bProcessing);
-  ////mActionExportPointCloud->setEnabled(bProjectExists && bDenseModel && !bProcessing);
-  //mActionSaveProject->setEnabled(bProjectExists && bProjectModified && !bProcessing);
-  //mActionSaveProjectAs->setEnabled(bProjectExists && !bProcessing);
-  //mActionCloseProject->setEnabled(bProjectExists && !bProcessing);
-  //mActionExit->setEnabled(!bProcessing);
 
   Application &app = Application::instance();
   AppStatus *app_status = app.status();

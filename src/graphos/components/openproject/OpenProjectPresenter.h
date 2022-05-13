@@ -56,7 +56,7 @@ signals:
   /*!
    * \brief Signal emitted when the project is loaded
    */
-  void projectLoaded();
+  void project_loaded();
 
 };
 

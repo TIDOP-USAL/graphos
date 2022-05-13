@@ -34,7 +34,7 @@ class QRadioButton;
 namespace graphos
 {
 
-class GRAPHOS_EXPORT PointCloudCSVFormatWidget
+class PointCloudCSVFormatWidget
   : public GraphosWidgetView
 {
 
@@ -57,7 +57,7 @@ public slots:
 
 };
 
-class GRAPHOS_EXPORT PointCloudCSVFormatWidgetImp
+class PointCloudCSVFormatWidgetImp
   : public PointCloudCSVFormatWidget
 {
 

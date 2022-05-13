@@ -34,10 +34,6 @@ namespace graphos
 class StartPageWidget;
 class MainWindowView;
 class MainWindowModel;
-class ProjectModel;
-class CamerasModel;
-class FeaturesModel;
-class MatchesModel;
 class HelpDialog;
 class TabHandler;
 
@@ -49,10 +45,7 @@ class MainWindowPresenter
 public:
 
   explicit MainWindowPresenter(MainWindowView *view,
-                               MainWindowModel *model,
-                               ProjectModel *projectModel,
-                               FeaturesModel *featuresModel,
-                               MatchesModel *matchesModel);
+                               MainWindowModel *model);
   ~MainWindowPresenter() override;
     
 
@@ -65,9 +58,6 @@ signals:
   void openGeoreferenceDialog();
   void openCamerasImportDialog();
   void openAboutDialog();
-  //void openSettingsDialog();
-  //void openViewSettingsDialog();
-  //void openToolSettingsDialog();
   void openDtmDialog();
 
 protected slots:
@@ -92,17 +82,17 @@ protected slots:
    */
   void loadProject();
   void updateProject();
-  void loadFeatures(const QString &featId);
-  void loadMatches();
+  void loadFeatures(size_t imageId);
+  void updateMatches();
   void loadOrientation();
   void loadDenseModel();
   void loadDTM();
   void loadOrtho();
 
-  void openImage(const QString &imageName);
-  void activeImage(const QString &imageName);
-  void activeImages(const QStringList &imageNames);
-  void deleteImages(const QStringList &imageNames);
+  void openImage(size_t imageId);
+  void activeImage(size_t imageId);
+  void activeImages(const std::vector<size_t> &imageIds);
+  void deleteImages(const std::vector<size_t> &imageIds);
   //void deleteImage(const QString &imageName);
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
@@ -113,12 +103,8 @@ protected slots:
   void deleteFeatures();
   void deleteMatches();
 
-  //void processFinished();
-  //void processRunning();
-  //void processFailed();
-
   void loadingImages(bool loading);
-  void loadImage(const QString &image);
+  void loadImage(size_t imageId);
   void onProjectModified();
 
 // Presenter interface
@@ -143,10 +129,6 @@ protected:
 
   MainWindowView *mView;
   MainWindowModel *mModel;
-  ProjectModel *mProjectModel;
-  FeaturesModel *mFeaturesModel;
-  MatchesModel *mMatchesModel;
-
   HelpDialog *mHelpDialog;
   TabHandler *mTabHandler;
   StartPageWidget *mStartPageWidget;

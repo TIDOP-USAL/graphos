@@ -59,9 +59,10 @@ std::atomic<bool> featextract_done(false);
 struct queue_data
 {
   cv::Mat mat;
-  colmap::image_t image_id;
+  colmap::image_t colmap_image_id;
   double scale;
-  QString image_name;
+  //QString image_name;
+  size_t image_id;
 };
 
 class ProducerImp
@@ -69,7 +70,7 @@ class ProducerImp
 
 public:
 
-  ProducerImp(const std::vector<Image> *images,
+  ProducerImp(const std::unordered_map<size_t, Image> *images,
               const std::map<int, Camera> *cameras,
               const colmap::Database *database,
               int maxImageSize,
@@ -88,14 +89,14 @@ public:
 
   void operator() (size_t, size_t)
   {
-    for (const auto &image : *mImages) {
+    for(const auto &image : *mImages) {
 
       if(mFeatureExtractorProcess->status() == tl::Task::Status::stopping) {
         featextract_done = true;
         return;
       }
 
-      producer(image);
+      producer(image.second);
     }
   }
 
@@ -110,12 +111,12 @@ private:
 
       std::string image_path = image.path().toStdString();
 
-      colmap::image_t image_id;
+      colmap::image_t colmap_image_id;
 
       featextract_mutex.lock();
       bool exist_image = mDatabase->ExistsImageWithName(image_path);
       featextract_mutex.unlock();
-      if (!exist_image) {
+      if(!exist_image) {
 
         colmap::Camera camera_colmap;
         colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
@@ -124,11 +125,11 @@ private:
         bool exists_camera = mDatabase->ExistsCamera(camera_id);
         featextract_mutex.unlock();
 
-        if (!exists_camera) {
+        if(!exists_camera) {
 
           Camera camera;
           auto it = mCameras->find(camera_id);
-          if (it != mCameras->end()) {
+          if(it != mCameras->end()) {
             camera = mCameras->at(camera_id);
           } else {
             throw std::runtime_error(std::string("Camera not found for image: ").append(image_path));
@@ -136,7 +137,7 @@ private:
 
           QString colmap_camera_type = cameraToColmapType(camera);
           int camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
-          if (camera_model_id == -1) throw std::runtime_error("Camera model unknow");
+          if(camera_model_id == -1) throw std::runtime_error("Camera model unknow");
 
           size_t width = static_cast<size_t>(camera.width());
           size_t height = static_cast<size_t>(camera.height());
@@ -178,7 +179,7 @@ private:
         image_colmap.SetCameraId(camera_id);
 
         featextract_mutex.lock();
-        image_id = mDatabase->WriteImage(image_colmap, false);
+        colmap_image_id = mDatabase->WriteImage(image_colmap, false);
         featextract_mutex.unlock();
 
       } else {
@@ -186,7 +187,7 @@ private:
         featextract_mutex.lock();
         colmap::Image image_colmap = mDatabase->ReadImageWithName(image_path);
         featextract_mutex.unlock();
-        image_id = image_colmap.ImageId();
+        colmap_image_id = image_colmap.ImageId();
       }
 
       /* Lectura de imagen */
@@ -198,16 +199,17 @@ private:
 
       queue_data data;
       data.mat = mat;
-      data.image_id = image_id;
+      data.colmap_image_id = colmap_image_id;
+      data.image_id = image.id();//image_id;
       data.scale = scale;
-      data.image_name = image.name();
+      //data.image_name = image.name();
 
       mBuffer->push(data);
 
       double time = chrono.stop();
       msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
 
-    } catch (std::exception& e) {
+    } catch(std::exception &e) {
       msgError(e.what());
       featextract_done = true;
     }
@@ -324,7 +326,7 @@ private:
 
 protected:
 
-  const std::vector<Image> *mImages;
+  const std::unordered_map<size_t, Image> *mImages;
   const std::map<int, Camera> *mCameras;
   const colmap::Database *mDatabase;
   int mMaxImageSize;
@@ -340,14 +342,16 @@ class ConsumerImp
 
 public:
 
-  ConsumerImp(FeatureExtractor *feat_extractor,
+  ConsumerImp(const std::unordered_map<size_t, Image> *images,
+              FeatureExtractor *feat_extractor,
               const std::string &databaseFile,
               colmap::Database *database,
               QueueMPMC<queue_data> *buffer,
               FeatureExtractorProcess *featureExtractorProcess,
               bool useGPU,
               tl::Progress *progressBar)
-    : mFeatExtractor(feat_extractor),
+    : mImages(images),
+      mFeatExtractor(feat_extractor),
       mDatabaseFile(databaseFile),
       mDatabase(database),
       mBuffer(buffer),
@@ -359,12 +363,12 @@ public:
 
   void operator() ()
   {
-    while (!featextract_done || mBuffer->size()) {
+    while(!featextract_done || mBuffer->size()) {
       if(mFeatureExtractorProcess->status() == tl::Task::Status::stopping) {
         featextract_done = true;
         return;
       }
-      
+
       consumer();
     }
 
@@ -389,17 +393,18 @@ private:
 
       featureExtraction(data.mat, featureKeypoints, featureDescriptors);
       resizeFeatures(featureKeypoints, data.scale);
-      writeFeatures(data.image_id, featureKeypoints, featureDescriptors);
+      writeFeatures(data.colmap_image_id, featureKeypoints, featureDescriptors);
 
 
       double time = chrono.stop();
       msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
 
       // añade features al proyecto
-      mFeatureExtractorProcess->featuresExtracted(data.image_name, data.image_name + "@" + mDatabaseFile.c_str());
+      QString image_name = mImages->at(data.image_id).name();
+      mFeatureExtractorProcess->features_extracted(data.image_id, image_name + "@" + mDatabaseFile.c_str());
       if(mProgressBar) (*mProgressBar)();
 
-    } catch (std::exception& e) {
+    } catch(std::exception &e) {
       msgError(e.what());
       featextract_done = true;
     }
@@ -435,10 +440,11 @@ private:
 
 private:
 
+  const std::unordered_map<size_t, Image> *mImages;
   FeatureExtractor *mFeatExtractor;
   std::string mDatabaseFile;
-  colmap::Database* mDatabase;
-  QueueMPMC<queue_data>* mBuffer;
+  colmap::Database *mDatabase;
+  QueueMPMC<queue_data> *mBuffer;
   FeatureExtractorProcess *mFeatureExtractorProcess;
   bool bUseGPU;
   tl::Progress *mProgressBar;
@@ -452,7 +458,7 @@ private:
 
 
 
-FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &images,
+FeatureExtractorProcess::FeatureExtractorProcess(const std::unordered_map<size_t, Image> &images,
                                                  const std::map<int, Camera> &cameras,
                                                  const QString &database,
                                                  int maxImageSize,
@@ -467,7 +473,6 @@ FeatureExtractorProcess::FeatureExtractorProcess(const std::vector<Image> &image
     mFeatureExtractor(featureExtractor)
 {
 }
-
 
 void FeatureExtractorProcess::execute(tl::Progress *progressBar)
 {
@@ -487,7 +492,8 @@ void FeatureExtractorProcess::execute(tl::Progress *progressBar)
                                    bUseCuda,
                                    &buffer,
                                    this);
-    internal::ConsumerImp consumer(mFeatureExtractor.get(),
+    internal::ConsumerImp consumer(&mImages,
+                                   mFeatureExtractor.get(),
                                    mDatabase.toStdString(),
                                    &database,
                                    &buffer,
@@ -530,7 +536,7 @@ void FeatureExtractorProcess::execute(tl::Progress *progressBar)
 
       chrono.stop();
     }
-    
+
   } catch(...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
   }

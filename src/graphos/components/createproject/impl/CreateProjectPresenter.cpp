@@ -74,7 +74,7 @@ void CreateProjectPresenterImp::saveProject()
   mModel->setDatabase(this->databasePath(prj_folder));
   mModel->saveAs(this->projectPath(prj_folder));
 
-  emit projectCreate();
+  emit project_created();
 
   mView->clear();
 }
@@ -160,7 +160,7 @@ void CreateProjectPresenterImp::init()
 
 void CreateProjectPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &CreateProjectView::projectNameChange, this, &CreateProjectPresenterImp::checkProjectName);
+  connect(mView, &CreateProjectView::project_name_changed, this, &CreateProjectPresenterImp::checkProjectName);
 
   connect(mView, &QDialog::accepted,                this, &CreateProjectPresenterImp::saveProject);
   connect(mView, &QDialog::rejected,                this, &CreateProjectPresenterImp::discartProject);

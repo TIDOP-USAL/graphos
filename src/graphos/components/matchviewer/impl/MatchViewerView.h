@@ -62,10 +62,10 @@ protected slots :
 
 public:
 
-  void setLeftImage(const QString &leftImage) override;
-  void setRightImage(const QString &rightImage) override;
-  void setLeftImageList(const std::vector<QString> &leftImageList) override;
-  void setRightImageList(const std::vector<QString> &rightImageList) override;
+  void setLeftImage(const QString &imageLeft) override;
+  void setRightImage(const QString &imageRight) override;
+  void setLeftImageList(const std::vector<std::pair<size_t, QString>> &leftImageList) override;
+  void setRightImageList(const std::vector<std::pair<size_t, QString>> &rightImageList) override;
   void setMatches(const std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> &matches) override;
   void setBGColor(const QString &bgColor) override;
   void setSelectedMarkerStyle(const QString &color, int width) override;

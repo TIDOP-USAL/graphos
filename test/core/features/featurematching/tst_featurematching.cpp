@@ -1,154 +1,112 @@
-#include <QtTest>
-#include <QCoreApplication>
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
 
+#define BOOST_TEST_MODULE GRAPHOS feature matching test
+
+#include <boost/test/unit_test.hpp>
 #include "graphos/core/features/matching.h"
 
 using namespace graphos;
 
-class TestFeatureMatchingProperties
-  : public QObject
+
+BOOST_AUTO_TEST_SUITE(FeatureMatchingTestSuite)
+
+
+struct TestFeatureMatchingProperties
 {
-  Q_OBJECT
 
-public:
+  TestFeatureMatchingProperties()
+    : mFeatureMatching(new FeatureMatchingProperties())
+  {
 
-  TestFeatureMatchingProperties();
-  ~TestFeatureMatchingProperties();
+  }
 
-private slots:
-
-  void initTestCase();
-  void cleanupTestCase();
-  void test_crossCheck();
-  void test_ratio_data();
-  void test_ratio();
-  void test_distance_data();
-  void test_distance();
-  void test_maxError_data();
-  void test_maxError();
-  void test_confidence_data();
-  void test_confidence();
-
-private:
+  ~TestFeatureMatchingProperties()
+  {
+    if (mFeatureMatching) {
+      delete mFeatureMatching;
+      mFeatureMatching = nullptr;
+    }
+  }
 
   FeatureMatching *mFeatureMatching;
 
 };
 
 
-TestFeatureMatchingProperties::TestFeatureMatchingProperties()
+
+BOOST_FIXTURE_TEST_CASE(default_constructor, TestFeatureMatchingProperties)
 {
-  mFeatureMatching = new FeatureMatchingProperties();
+  BOOST_CHECK_EQUAL(true, mFeatureMatching->crossCheck());
+  BOOST_CHECK_EQUAL(0.8, mFeatureMatching->ratio());
+  BOOST_CHECK_EQUAL(0.7, mFeatureMatching->distance());
+  BOOST_CHECK_EQUAL(4.0, mFeatureMatching->maxError());
+  BOOST_CHECK_EQUAL(0.999, mFeatureMatching->confidence());
 }
 
-TestFeatureMatchingProperties::~TestFeatureMatchingProperties()
-{
-  if (mFeatureMatching){
-    delete mFeatureMatching;
-    mFeatureMatching = nullptr;
-  }
-}
-
-
-void TestFeatureMatchingProperties::initTestCase()
-{
-  QCOMPARE(true, mFeatureMatching->crossCheck());
-  QCOMPARE(0.8, mFeatureMatching->ratio());
-  QCOMPARE(0.7, mFeatureMatching->distance());
-  QCOMPARE(4.0, mFeatureMatching->maxError());
-  QCOMPARE(0.999, mFeatureMatching->confidence());
-}
-
-void TestFeatureMatchingProperties::cleanupTestCase()
-{
-
-}
-
-void TestFeatureMatchingProperties::test_crossCheck()
+BOOST_FIXTURE_TEST_CASE(crossCheck, TestFeatureMatchingProperties)
 {
   mFeatureMatching->enableCrossCheck(false);
-  QCOMPARE(false, mFeatureMatching->crossCheck());
+  BOOST_CHECK_EQUAL(false, mFeatureMatching->crossCheck());
   mFeatureMatching->enableCrossCheck(true);
-  QCOMPARE(true, mFeatureMatching->crossCheck());
+  BOOST_CHECK_EQUAL(true, mFeatureMatching->crossCheck());
 }
 
-void TestFeatureMatchingProperties::test_ratio_data()
+BOOST_FIXTURE_TEST_CASE(ratio, TestFeatureMatchingProperties)
 {
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
+  mFeatureMatching->setRatio(0.7);
+  BOOST_CHECK_EQUAL(0.7, mFeatureMatching->ratio());
 
-  QTest::newRow("0.7") << 0.7 << 0.7;
-  QTest::newRow("0.8") << 0.8 << 0.8;
-  QTest::newRow("0.9") << 0.9 << 0.9;
+  mFeatureMatching->setRatio(0.8);
+  BOOST_CHECK_EQUAL(0.8, mFeatureMatching->ratio());
 }
 
-void TestFeatureMatchingProperties::test_ratio()
+BOOST_FIXTURE_TEST_CASE(distance, TestFeatureMatchingProperties)
 {
-  QFETCH(double, value);
-  QFETCH(double, result);
+  mFeatureMatching->setDistance(0.9);
+  BOOST_CHECK_EQUAL(0.9, mFeatureMatching->distance());
 
-  mFeatureMatching->setRatio(value);
-  QCOMPARE(result, mFeatureMatching->ratio());
+  mFeatureMatching->setDistance(1.5);
+  BOOST_CHECK_EQUAL(1.5, mFeatureMatching->distance());
 }
 
-void TestFeatureMatchingProperties::test_distance_data()
+BOOST_FIXTURE_TEST_CASE(max_error, TestFeatureMatchingProperties)
 {
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
+  mFeatureMatching->setMaxError(2.0);
+  BOOST_CHECK_EQUAL(2.0, mFeatureMatching->maxError());
 
-  QTest::newRow("0.9") << 0.9 << 0.9;
-  QTest::newRow("1.5") << 1.5 << 1.5;
-  QTest::newRow("0.7") << 0.7 << 0.7;
+  mFeatureMatching->setMaxError(3.0);
+  BOOST_CHECK_EQUAL(3.0, mFeatureMatching->maxError());
 }
 
-void TestFeatureMatchingProperties::test_distance()
+BOOST_FIXTURE_TEST_CASE(confidence, TestFeatureMatchingProperties)
 {
-  QFETCH(double, value);
-  QFETCH(double, result);
+  mFeatureMatching->setConfidence(0.9);
+  BOOST_CHECK_EQUAL(0.9, mFeatureMatching->confidence());
 
-  mFeatureMatching->setDistance(value);
-  QCOMPARE(result, mFeatureMatching->distance());
-}
-
-void TestFeatureMatchingProperties::test_maxError_data()
-{
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
-
-  QTest::newRow("2.0") << 2.0 << 2.0;
-  QTest::newRow("3.0") << 3.0 << 3.0;
-  QTest::newRow("4.0") << 4.0 << 4.0;
-}
-
-void TestFeatureMatchingProperties::test_maxError()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mFeatureMatching->setMaxError(value);
-  QCOMPARE(result, mFeatureMatching->maxError());
-}
-
-void TestFeatureMatchingProperties::test_confidence_data()
-{
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
-
-  QTest::newRow("0.9") << 0.9 << 0.9;
-  QTest::newRow("0.995") << 0.995 << 0.995;
-  QTest::newRow("0.999") << 0.999 << 0.999;
-}
-
-void TestFeatureMatchingProperties::test_confidence()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mFeatureMatching->setConfidence(value);
-  QCOMPARE(result, mFeatureMatching->confidence());
+  mFeatureMatching->setConfidence(0.995);
+  BOOST_CHECK_EQUAL(0.995, mFeatureMatching->confidence());
 }
 
 
-QTEST_APPLESS_MAIN(TestFeatureMatchingProperties)
-
-#include "tst_featurematching.moc"
+BOOST_AUTO_TEST_SUITE_END()
