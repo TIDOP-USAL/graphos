@@ -115,6 +115,8 @@ void FeatureMatchingComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFinished();
+
+  app_status->activeFlag(AppStatus::Flag::project_modified, true);
   app_status->activeFlag(AppStatus::Flag::feature_matching, true);
 }
 
@@ -126,6 +128,7 @@ void FeatureMatchingComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFailed();
+
   app_status->activeFlag(AppStatus::Flag::feature_matching, false);
 }
 

@@ -26,12 +26,22 @@
 
 #include "graphos/graphos_global.h"
 
-#include <tidop/core/flags.h>
+
+#include <map>
+#include <unordered_map>
+#include <memory>
 
 #include <QString>
 
+#include <tidop/core/flags.h>
+#include <tidop/core/path.h>
+
 namespace graphos
 {
+
+class Image;
+class Camera;
+class CameraPose;
 
 class Densification
 {
@@ -67,7 +77,6 @@ ALLOW_BITWISE_FLAG_OPERATIONS(Densification::Method)
 /*----------------------------------------------------------------*/
 
 
-
 class Densifier
 {
 
@@ -81,23 +90,36 @@ public:
   virtual void densify(const QString &undistortPath) = 0;
   virtual void enableCuda(bool enable) = 0;
 
+  //virtual void setCameras(const std::map<int, Camera> &cameras) = 0;
+  //virtual void setImages(const std::unordered_map<size_t, Image> &images) = 0;
 };
 
 
-///TODO: Crear clase DensifierBase
 
+
+//class Undistort;
+//
+//
 //class DensifierBase
+//  : public Densifier
 //{
 //
 //public:
 //
-//  DensifierBase();
+//  DensifierBase(const std::unordered_map<size_t, Image> &images, 
+//                const std::map<int, Camera> &cameras);
 //  ~DensifierBase();
 //
-//  void createDirectory(const std::string &path);
+//  void createDirectory(const std::string &dir);
+//
 //
 //private:
 //
+//  std::map<int, Camera> mCameras;
+//  std::unordered_map<size_t, Image> mImages;
+//  std::unordered_map<size_t, CameraPose> mPoses;
+//  std::map<int, Undistort> mUndistort;
+//  tl::Path mOutputPath;
 //};
 
 

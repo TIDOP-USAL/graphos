@@ -35,14 +35,33 @@ size_t Track::size() const
   return mPairs.size();
 }
 
-std::pair<size_t, size_t> Track::at(size_t idx)
+size_t Track::pointId(size_t idx)
 {
   return mPairs.at(idx);
 }
 
-void Track::push_back(const std::pair<size_t, size_t> &pair)
+const std::unordered_map<size_t, size_t> &Track::pairs() const
 {
-  mPairs.push_back(pair);
+  return mPairs;
+}
+
+void Track::addPair(size_t imageId, size_t pointId)
+{
+  mPairs[imageId] = pointId;
+}
+
+bool Track::existPair(size_t imageId) const
+{
+  auto point_id = mPairs.find(imageId);
+  return (point_id != mPairs.end());
+}
+
+void Track::removePair(size_t imageId)
+{
+  auto pair = mPairs.find(imageId);
+  if (pair != mPairs.end()) {
+    mPairs.erase(pair);
+  }
 }
   
 
@@ -73,7 +92,7 @@ const std::unordered_map<size_t, tl::Point<double>> &GCPTrack::points() const
 
 void GCPTrack::addPoint(size_t imageId, const tl::Point<double> &point)
 {
-  mImageIdPoint[imageId] = point ;
+  mImageIdPoint[imageId] = point;
 }
 
 bool GCPTrack::existPoint(size_t imageId) const

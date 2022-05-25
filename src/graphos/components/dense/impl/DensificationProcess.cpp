@@ -25,6 +25,7 @@
 
 #include "graphos/core/dense/dense.h"
 #include "graphos/core/camera/Camera.h"
+#include "graphos/core/image.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -33,11 +34,13 @@ namespace graphos
 {
 
 DensificationProcess::DensificationProcess(const std::shared_ptr<Densifier> &densifier,
-                                           const std::map<int, Camera> &cameras, 
+                                           const std::unordered_map<size_t, Image> &images, 
+                                           const std::map<int, Camera> &cameras,
                                            const QString &reconstructionPath,
                                            const QString &outputPath)
   : tl::TaskBase(),
     mDensifier(densifier),
+    mImages(images),
     mCameras(cameras),
     mReconstructionPath(reconstructionPath),
     mOutputPat(outputPath)

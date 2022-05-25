@@ -27,19 +27,18 @@
 #include <QObject>
 
 #include <tidop/core/task.h>
-#include <tidop/core/progress.h>
+//#include <tidop/core/progress.h>
 
 #include "graphos/core/image.h"
 
 namespace tl
 {
 class ImageReader;
-
+class Process;
 namespace geospatial
 {
 class Crs;
 }
-
 }
 
 namespace graphos

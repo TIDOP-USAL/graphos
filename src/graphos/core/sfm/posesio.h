@@ -26,7 +26,11 @@
 
 #include "graphos/graphos_global.h"
 
+#include <unordered_map>
+
 #include <QString>
+
+#include <tidop/core/path.h>
 
 #include "graphos/core/sfm/poses.h"
 
@@ -38,7 +42,8 @@ class Reconstruction;
 namespace graphos
 {
 
-class ReadCameraPoses
+
+class TL_DEPRECATED("CameraPosesReader", "2.0") ReadCameraPoses
 {
 
 public:
@@ -54,6 +59,88 @@ protected:
   colmap::Reconstruction *mReconstruction;
 
 };
+
+
+/* Camera Poses Reader */
+
+class CameraPosesReader
+{
+
+public:
+
+  CameraPosesReader();
+  virtual ~CameraPosesReader() = default;
+
+  virtual void read(const tl::Path &path) = 0;
+  virtual std::string format() const = 0;
+
+  std::unordered_map<size_t, CameraPose> cameraPoses() const;
+
+protected:
+
+  void addCameraPose(size_t imageId,
+                     const CameraPose &cameraPoses);
+
+private:
+
+  std::unordered_map<size_t, CameraPose> mCameraPoses;
+
+};
+
+
+class CameraPosesReaderFactory
+{
+
+private:
+
+  CameraPosesReaderFactory() = default;
+
+public:
+
+  static std::unique_ptr<CameraPosesReader> create(const std::string &format);
+
+};
+
+
+/* Camera Poses Writer */
+
+class CameraPosesWriter
+{
+
+public:
+
+  CameraPosesWriter();
+  virtual ~CameraPosesWriter() = default;
+
+  virtual void write(const tl::Path &path) = 0;
+  virtual std::string format() const = 0;
+
+  void setCameraPoses(const std::unordered_map<size_t, CameraPose> &cameraPoses);
+
+protected:
+
+  std::unordered_map<size_t, CameraPose> cameraPoses() const;
+
+private:
+
+  std::unordered_map<size_t, CameraPose> mCameraPoses;
+};
+
+
+class CameraPosesWriterFactory
+{
+
+private:
+
+  CameraPosesWriterFactory() = default;
+
+public:
+
+  static std::unique_ptr<CameraPosesWriter> create(const std::string &format);
+
+};
+
+
 
 } // namespace graphos
 

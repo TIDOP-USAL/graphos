@@ -63,6 +63,7 @@ public:
   QString reconstructionPath() const override;
   bool useCuda() const override;
   bool existDenseModel() const override;
+  const std::unordered_map<size_t, Image> &images() const override;
   const std::map<int, Camera> &cameras() const override;
 
 public slots:

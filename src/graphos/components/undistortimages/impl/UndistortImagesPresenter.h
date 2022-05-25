@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,47 +21,65 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
+#ifndef GRAPHOS_UNDISTORTIMAGES_PRESENTER_H
+#define GRAPHOS_UNDISTORTIMAGES_PRESENTER_H
 
-#include "graphos/graphos_global.h"
-
-#include <memory>
-
-#include <QString>
-
-
-namespace colmap
-{
-class Reconstruction;
-}
+#include "graphos/components/undistortimages/UndistortImagesPresenter.h"
 
 namespace graphos
 {
 
-class Calibration;
-class Camera;
+class HelpDialog;
 
-///TODO: borrar
-class ReadCalibration
+
+class UndistortImagesView;
+class UndistortImagesModel;
+
+class UndistortImagesPresenterImp
+  : public UndistortImagesPresenter
 {
+
+  Q_OBJECT
 
 public:
 
-  ReadCalibration();
-  ~ReadCalibration();
+  UndistortImagesPresenterImp(UndistortImagesView *view,
+                              UndistortImagesModel *model);
+  ~UndistortImagesPresenterImp() override;
 
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
+// Presenter interface
 
-protected:
+public slots:
 
-  colmap::Reconstruction *mReconstruction;
+  void help() override;
+  void open() override;
+  void setHelp(HelpDialog *help) override;
+
+private:
+
+  void init() override;
+  void initSignalAndSlots() override;
+
+// ProcessPresenter interface
+
+protected slots:
+
+  void onError(tl::TaskErrorEvent *event) override;
+  void onFinished(tl::TaskFinalizedEvent *event) override;
+  std::unique_ptr<tl::Task> createProcess() override;
+  
+public slots:
+
+  void cancel() override;
+
+private:
+
+  UndistortImagesView *mView;
+  UndistortImagesModel *mModel;
+  HelpDialog *mHelp;
 
 };
 
-QString cameraToColmapType(const Camera &camera);
-
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H
+#endif // GRAPHOS_UNDISTORTIMAGES_PRESENTER_H

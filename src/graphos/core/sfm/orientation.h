@@ -65,16 +65,16 @@ ALLOW_BITWISE_FLAG_OPERATIONS(RelativeOrientation::Method)
 
 
 
-class RelativeOrientationAlgorithm
-{
-
-public:
-
-  RelativeOrientationAlgorithm() {}
-  virtual ~RelativeOrientationAlgorithm() = default;
-
-  virtual void run() = 0;
-};
+//class RelativeOrientationAlgorithm
+//{
+//
+//public:
+//
+//  RelativeOrientationAlgorithm() {}
+//  virtual ~RelativeOrientationAlgorithm() = default;
+//
+//  virtual void run() = 0;
+//};
 
 
 /*----------------------------------------------------------------*/
@@ -108,16 +108,16 @@ ALLOW_BITWISE_FLAG_OPERATIONS(AbsoluteOrientation::Method)
 /*----------------------------------------------------------------*/
 
 
-class AbsoluteOrientationAlgorithm
-{
-
-public:
-
-  AbsoluteOrientationAlgorithm() {}
-  virtual ~AbsoluteOrientationAlgorithm() = default;
-
-  virtual void run() = 0;
-};
+//class AbsoluteOrientationAlgorithm
+//{
+//
+//public:
+//
+//  AbsoluteOrientationAlgorithm() {}
+//  virtual ~AbsoluteOrientationAlgorithm() = default;
+//
+//  virtual void run() = 0;
+//};
 
 } // namespace graphos
 

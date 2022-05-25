@@ -23,10 +23,21 @@
 
 #include "graphos/core/camera/Undistort.h"
 
+#include "graphos/core/image.h"
+
+#include <tidop/core/concurrency.h>
+#include <tidop/core/progress.h>
+#include <tidop/core/chrono.h>
+#include <tidop/img/imgreader.h>
+#include <tidop/img/imgwriter.h>
+
 #include <opencv2/calib3d.hpp>
 #ifdef HAVE_OPENCV_CUDAWARPING
 #include <opencv2/cudawarping.hpp>
 #endif
+
+#include <unordered_map>
+#include <memory>
 
 namespace graphos
 {
@@ -135,14 +146,33 @@ cv::Mat openCVDistortionCoefficients(const Calibration &calibration)
 }
 
 
+Undistort::Undistort()
+{
+}
 
-Undistort::Undistort(Camera camera)
-  : mCamera(std::move(camera))
+Undistort::Undistort(const Camera &camera)
+  : mCamera(camera)
 {
   init();
 }
 
-Camera Undistort::undistortCamera()
+Undistort::Undistort(const Undistort &undistort)
+  : mCamera(undistort.mCamera),
+    mCameraMatrix(undistort.mCameraMatrix),
+    mDistCoeffs(undistort.mDistCoeffs),
+    mOptimalNewCameraMatrix(undistort.mOptimalNewCameraMatrix),
+    mMap1(undistort.mMap1),
+    mMap2(undistort.mMap2)
+{
+}
+
+void Undistort::setCamera(const Camera &camera)
+{
+  mCamera = camera;
+  init();
+}
+
+Camera Undistort::undistortCamera() const
 {
   Camera undistort_camera = mCamera;
 
@@ -168,7 +198,7 @@ cv::Mat Undistort::undistortImage(const cv::Mat &image, bool cuda)
   try {
 
 #ifdef HAVE_OPENCV_CUDAWARPING
-    if(cuda) {
+    if (cuda) {
       cv::cuda::GpuMat gMap1(mMap1);
       cv::cuda::GpuMat gMap2(mMap2);
       cv::cuda::GpuMat gImgOut(image);
@@ -185,7 +215,7 @@ cv::Mat Undistort::undistortImage(const cv::Mat &image, bool cuda)
     }
 #endif
 
-  } catch(...) {
+  } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("");
   }
 
@@ -224,6 +254,362 @@ void Undistort::initUndistortMaps()
                 static_cast<int>(mCamera.height()));
   cv::initUndistortRectifyMap(mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix, size, CV_32FC1, mMap1, mMap2);
 }
+
+
+namespace internal
+{
+
+std::mutex undistort_images_mutex;
+std::atomic<bool> undistort_images_done(false);
+
+class UndistortQueueData
+{
+
+public:
+
+  UndistortQueueData()
+  {
+  }
+
+  UndistortQueueData(const cv::Mat &image,
+                     std::shared_ptr<Undistort> undistort,
+                     const tl::Path &undistortImage)
+    : mImage(image),
+      mUndistort(undistort),
+      mUndistortImage(undistortImage)
+  {
+
+  }
+
+  void setImage(const cv::Mat &image)
+  {
+    mImage = image;
+  }
+
+  cv::Mat image() const
+  { 
+    return mImage;
+  }
+
+  void setUndistort(std::shared_ptr<Undistort> undistort)
+  {
+    mUndistort = undistort;
+  }
+
+  std::shared_ptr<Undistort> undistort() const
+  {
+    return mUndistort;
+  }
+
+  void setUndistortImage(const tl::Path &undistortImage)
+  {
+    mUndistortImage = undistortImage;
+  }
+
+  tl::Path undistortImage() const
+  {
+    return mUndistortImage;
+  }
+
+private:
+
+  cv::Mat mImage;
+  std::shared_ptr<Undistort> mUndistort;
+  tl::Path mUndistortImage;
+};
+
+class UndistortProducerImp
+  : public tl::Producer<UndistortQueueData>
+{
+
+public:
+
+  UndistortProducerImp(tl::QueueMPMC<UndistortQueueData> *queue,
+                       const std::unordered_map<size_t, Image> *images,
+                       const std::map<int, Camera> *cameras,
+                       tl::Path undistortPath,
+                       tl::Task *parentTask = nullptr)
+    : tl::Producer<UndistortQueueData>(queue),
+      mImages(images),
+      mCameras(cameras),
+      mUndistortPath(undistortPath),
+      mParentTask(parentTask)
+  {
+  }
+
+  void operator() (size_t ini, size_t end) override
+  {
+    auto it_begin = mImages->begin();
+    std::advance(it_begin, ini);
+    auto it_end = mImages->begin();
+    std::advance(it_end, end);
+
+    while (it_begin != it_end){
+      if (mParentTask->status() == tl::Task::Status::stopping) {
+        undistort_images_done = true;
+        return;
+      }
+      
+      producer(it_begin->second);
+
+      ++it_begin;
+    }
+  }
+
+  void operator() () override
+  {
+    for (const auto &image : *mImages) {
+
+      if (mParentTask->status() == tl::Task::Status::stopping) {
+        undistort_images_done = true;
+        return;
+      }
+
+      producer(image.second);
+    }
+  }
+
+private:
+
+  void producer(const Image &image)
+  {
+    try {
+
+      tl::Chrono chrono;
+      chrono.run();
+
+      std::string image_path = image.path().toStdString();
+      size_t camera_id = image.cameraId();
+
+      auto undistort = mUndistort.find(image.cameraId());
+      if (undistort == mUndistort.end()) {
+
+        auto &camera = mCameras->find(image.cameraId());
+        if (camera != mCameras->end()) {
+          mUndistort[camera->first] = std::make_shared<Undistort>(camera->second);
+        } else {
+          return;
+        }
+
+      }
+
+
+      cv::Mat mat = readImage(image);
+
+      /* Write queue */
+
+      tl::Path undistort_image_path(mUndistortPath);
+      undistort_image_path.append(image.name().toStdString());
+      undistort_image_path.replaceExtension(".tif");
+
+      auto &kk = mUndistort.at(camera_id);
+
+      UndistortQueueData data(mat, mUndistort.at(camera_id), undistort_image_path);
+
+      queue()->push(data);
+
+      double time = chrono.stop();
+      msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
+
+    } catch (std::exception &e) {
+      msgError(e.what());
+      undistort_images_done = true;
+    }
+  }
+
+  cv::Mat readImage(const Image &image)
+  {
+    cv::Mat mat;
+
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.path().toStdString());
+    imageReader->open();
+    if (imageReader->isOpen()) {
+
+      mat = imageReader->read();
+
+      imageReader->close();
+    }
+
+    return mat;
+  }
+
+protected:
+
+  const std::unordered_map<size_t, Image> *mImages;
+  const std::map<int, Camera> *mCameras;
+  std::map<int, std::shared_ptr<Undistort>> mUndistort;
+  tl::Path mUndistortPath;
+  tl::Task *mParentTask;
+};
+
+
+
+class UndistortConsumerImp
+  : public tl::Consumer<UndistortQueueData>
+{
+
+public:
+
+  UndistortConsumerImp(tl::QueueMPMC<UndistortQueueData> *buffer,
+                       const std::unordered_map<size_t, Image> *images,
+                       bool useGPU,
+                       tl::Progress *progressBar,
+                       tl::Task *parentTask = nullptr)
+    : tl::Consumer<UndistortQueueData>(buffer),
+      mImages(images),
+      bUseGPU(useGPU),
+      mProgressBar(progressBar),
+      mParentTask(parentTask)
+  {
+  }
+
+  void operator() ()
+  {
+    while (!undistort_images_done || queue()->size()) {
+
+      if (mParentTask->status() == tl::Task::Status::stopping) {
+        undistort_images_done = true;
+        return;
+      }
+
+      consumer();
+    }
+
+  }
+
+private:
+
+  void consumer()
+  {
+    try {
+
+      tl::Chrono chrono;
+      chrono.run();
+
+      UndistortQueueData data;
+      queue()->pop(data);
+
+      cv::Mat undistort_image = data.undistort()->undistortImage(data.image(), bUseGPU);
+
+      std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(data.undistortImage());
+      image_writer->open();
+      if (image_writer->isOpen()) {
+        image_writer->create(undistort_image.rows, 
+                             undistort_image.cols,
+                             undistort_image.channels(),
+                             tl::openCVDataTypeToDataType(undistort_image.type()));
+        image_writer->write(undistort_image);
+
+        image_writer->close();
+      }
+
+      double time = chrono.stop();
+
+      msgInfo("Undistort image: %s [Time: %f seconds]", data.undistortImage().toString().c_str(), time);
+
+      if (mProgressBar) (*mProgressBar)();
+
+    } catch (std::exception &e) {
+      msgError(e.what());
+      undistort_images_done = true;
+    }
+  }
+
+private:
+
+  const std::unordered_map<size_t, Image> *mImages;
+  std::string mDatabaseFile;
+  bool bUseGPU;
+  tl::Progress *mProgressBar;
+  tl::Task *mParentTask;
+
+};
+
+}
+
+
+
+
+
+UndistortImages::UndistortImages(const std::unordered_map<size_t, Image> &images,
+                                 const std::map<int, Camera> &cameras,
+                                 const QString &outputPath,
+                                 bool cuda)
+  : tl::TaskBase(),
+    mImages(images),
+    mCameras(cameras),
+    mOutputPath(outputPath),
+    bUseCuda(cuda)
+{
+}
+
+UndistortImages::~UndistortImages()
+{
+}
+void UndistortImages::execute(tl::Progress *progressBar)
+{
+
+  try {
+
+    tl::Chrono chrono("Undistort Images finished");
+    chrono.run();
+
+    tl::Path undistort_path(mOutputPath.toStdWString());
+    undistort_path.createDirectories();
+
+    tl::QueueMPMC<internal::UndistortQueueData> queue(50);
+    internal::UndistortProducerImp producer(&queue,
+                                            &mImages,
+                                            &mCameras,
+                                            undistort_path,
+                                            this);
+    internal::UndistortConsumerImp consumer(&queue,
+                                            &mImages,
+                                            bUseCuda,
+                                            progressBar,
+                                            this);
+
+    size_t num_threads = 1;
+    std::vector<std::thread> producer_threads(num_threads);
+    std::vector<std::thread> consumer_threads(num_threads);
+
+    internal::undistort_images_done = false;
+
+    size_t size = mImages.size() / num_threads;
+    for (size_t i = 0; i < num_threads; ++i) {
+      size_t _ini = i * size;
+      size_t _end = _ini + size;
+      if (i == num_threads - 1) _end = mImages.size();
+
+      producer_threads[i] = std::move(std::thread(producer, _ini, _end));
+    }
+
+    for (size_t i = 0; i < num_threads; ++i) {
+      consumer_threads[i] = std::move(std::thread(consumer));
+    }
+
+    for (size_t i = 0; i < num_threads; ++i)
+      producer_threads[i].join();
+
+    internal::undistort_images_done = true;
+
+    for (size_t i = 0; i < num_threads; ++i)
+      consumer_threads[i].join();
+
+    if (status() == tl::Task::Status::stopping) {
+      chrono.reset();
+    } else {
+      chrono.stop();
+    }
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
+  }
+
+}
+
+
+
 
 
 } // namespace graphos

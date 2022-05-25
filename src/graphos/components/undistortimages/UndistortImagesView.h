@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,47 +21,39 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
 
-#include "graphos/graphos_global.h"
+#ifndef GRAPHOS_UNDISTORTIMAGES_VIEW_INTERFACE_H
+#define GRAPHOS_UNDISTORTIMAGES_VIEW_INTERFACE_H
 
-#include <memory>
-
-#include <QString>
-
-
-namespace colmap
-{
-class Reconstruction;
-}
+#include <QFileDialog>
 
 namespace graphos
 {
 
-class Calibration;
-class Camera;
-
-///TODO: borrar
-class ReadCalibration
+class UndistortImagesView
+  : public QFileDialog
 {
+
+  Q_OBJECT
 
 public:
 
-  ReadCalibration();
-  ~ReadCalibration();
+  UndistortImagesView(QWidget *parent) : QFileDialog(parent) {}
+  ~UndistortImagesView() override = default;
 
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
+  //virtual QString outputPath() const = 0;
 
-protected:
+public slots:
 
-  colmap::Reconstruction *mReconstruction;
+  virtual void setProjectDirectory(const QString &directory) = 0;
+
+//signals:
+//
+//  void outputPathChanged(QString);
 
 };
 
-QString cameraToColmapType(const Camera &camera);
-
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H
+
+#endif // GRAPHOS_UNDISTORTIMAGES_VIEW_INTERFACE_H

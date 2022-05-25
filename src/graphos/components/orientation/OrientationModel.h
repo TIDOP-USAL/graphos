@@ -57,7 +57,7 @@ public:
   virtual bool rtkOrientations() const = 0;
   virtual QString reconstructionPath() const = 0;
   virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
-  virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
+  //virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
   virtual void clearProject() = 0;
 
   virtual const std::map<int, Camera> &cameras() const = 0;

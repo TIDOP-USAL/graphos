@@ -24,6 +24,10 @@
 #ifndef GRAPHOS_CORE_CAMERA_UNDISTORT
 #define GRAPHOS_CORE_CAMERA_UNDISTORT
 
+#include <unordered_map>
+
+#include <QString>
+
 #include <opencv2/core/core.hpp>
 
 #include <tidop/core/task.h>
@@ -39,7 +43,11 @@ class Progress;
 namespace graphos
 {
 
+class Image;
+
+TL_DEPRECATED("Undistort","2.0")
 cv::Mat openCVCameraMatrix(const Calibration &calibration);
+TL_DEPRECATED("Undistort", "2.0")
 cv::Mat openCVDistortionCoefficients(const Calibration &calibration);
 //Camera undistortCamera(const Camera &camera);
 
@@ -48,11 +56,15 @@ class Undistort
 
 public:
 
-  Undistort(Camera camera);
+  Undistort();
+  Undistort(const Camera &camera);
+  Undistort(const Undistort &undistort);
   ~Undistort() = default;
 
-  Camera undistortCamera();
-  cv::Mat undistortImage(const cv::Mat &image, bool cuda = false);
+  void setCamera(const Camera &camera);
+  Camera undistortCamera() const;
+  cv::Mat undistortImage(const cv::Mat &image,
+                         bool cuda = false);
 
 private:
 
@@ -70,6 +82,33 @@ private:
   cv::Mat mOptimalNewCameraMatrix;
   cv::Mat mMap1;
   cv::Mat mMap2;
+};
+
+class UndistortImages
+  : public tl::TaskBase
+{
+
+public:
+
+  UndistortImages(const std::unordered_map<size_t, Image> &images,
+                  const std::map<int, Camera> &cameras,
+                  const QString &outputPath,
+                  bool cuda);
+  ~UndistortImages();
+
+// TaskBase
+  
+protected:
+  
+  void execute(tl::Progress *progressBar = nullptr) override;
+
+private:
+
+  const std::unordered_map<size_t, Image> &mImages;
+  const std::map<int, Camera> &mCameras;
+  QString mOutputPath;
+  bool bUseCuda;
+
 };
 
 

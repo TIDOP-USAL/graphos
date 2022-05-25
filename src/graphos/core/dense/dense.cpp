@@ -23,26 +23,40 @@
 
 #include "graphos/core/dense/dense.h"
 
+#include "graphos/core/camera/Camera.h"
+#include "graphos/core/camera/Undistort.h"
+#include "graphos/core/image.h"
+
+#include <tidop/core/path.h>
+
 namespace graphos
 {
 
-//DensifierBase::DensifierBase()
+//DensifierBase::DensifierBase(const std::unordered_map<size_t, Image> &images,
+//                             const std::map<int, Camera> &cameras)
+//  : mImages(images),
+//    mCameras(cameras)
 //{
+//
+//  for (const auto &camera : mCameras) {
+//    mUndistort[camera.first] = Undistort(camera.second);
+//  }
 //}
 //
 //DensifierBase::~DensifierBase()
 //{
 //}
 //
-//void DensifierBase::createDirectory(const std::string &path)
+//void DensifierBase::createDirectory(const std::string &dir)
 //{
-//  tl::Path path(mOutputPath);
-//  path.append(dir);
-//  if (!path.exists() && !path.createDirectories()) {
+//  tl::Path _path(mOutputPath);
+//  _path.append(dir);
+//  if (!_path.exists() && !_path.createDirectories()) {
 //    std::string err = "The output directory cannot be created: ";
-//    err.append(path.toString());
+//    err.append(_path.toString());
 //    throw std::runtime_error(err);
 //  }
 //}
+
 
 }

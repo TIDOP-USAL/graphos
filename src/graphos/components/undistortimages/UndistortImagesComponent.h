@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,47 +21,51 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
+#ifndef GRAPHOS_UNDISTORTIMAGES_COMPONENT_H
+#define GRAPHOS_UNDISTORTIMAGES_COMPONENT_H
 
-#include "graphos/graphos_global.h"
+#include "graphos/core/Component.h"
 
-#include <memory>
-
-#include <QString>
-
-
-namespace colmap
-{
-class Reconstruction;
-}
 
 namespace graphos
 {
 
-class Calibration;
-class Camera;
-
-///TODO: borrar
-class ReadCalibration
+class UndistortImagesComponent
+  : public ProcessComponent
 {
+
+  Q_OBJECT
 
 public:
 
-  ReadCalibration();
-  ~ReadCalibration();
+  UndistortImagesComponent(Application *application);
+  ~UndistortImagesComponent() override;
 
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
+private:
+
+  void init();
+
+// ComponentBase
 
 protected:
 
-  colmap::Reconstruction *mReconstruction;
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
+  void createCommand() override;
+  void update() override;
 
+// ProcessComponent
+
+protected slots:
+
+  void onRunning() override;
+  void onFinished() override;
+  void onFailed() override;
+  
 };
-
-QString cameraToColmapType(const Camera &camera);
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H
+
+#endif // GRAPHOS_UNDISTORTIMAGES_COMPONENT_H

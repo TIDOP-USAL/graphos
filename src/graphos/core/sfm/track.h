@@ -51,13 +51,16 @@ public:
 
   size_t size() const;
 
-  std::pair<size_t, size_t> at(size_t idx);
+  size_t pointId(size_t idx);
+  const std::unordered_map<size_t, size_t> &pairs() const;
 
-  void push_back(const std::pair<size_t, size_t> &pair);
+  void addPair(size_t imageId, size_t pointId);
+  bool existPair(size_t imageId) const;
+  void removePair(size_t imageId);
 
 private:
 
-  std::vector<std::pair<size_t, size_t>> mPairs;
+  std::unordered_map<size_t, size_t> mPairs;
 
 };
 

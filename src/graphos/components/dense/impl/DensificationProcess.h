@@ -29,10 +29,13 @@
 
 #include <QObject>
 
+#include <unordered_map>
+
 namespace graphos
 {
 
 class Densifier;
+class Image;
 class Camera;
 
 class DensificationProcess
@@ -44,6 +47,7 @@ class DensificationProcess
 public:
 
   DensificationProcess(const std::shared_ptr<Densifier> &densifier,
+                       const std::unordered_map<size_t, Image> &images,
                        const std::map<int, Camera> &cameras,
                        const QString &reconstructionPath,
                        const QString &outputPath);
@@ -69,6 +73,7 @@ protected:
 private:
 
   std::shared_ptr<Densifier> mDensifier;
+  std::unordered_map<size_t, Image> mImages;
   std::map<int, Camera> mCameras;
   QString mReconstructionPath;
   QString mOutputPat;

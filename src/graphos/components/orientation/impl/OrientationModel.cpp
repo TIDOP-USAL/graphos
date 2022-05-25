@@ -134,22 +134,24 @@ void OrientationModelImp::setReconstructionPath(const QString &reconstructionPat
   mProject->setReconstructionPath(reconstructionPath);
 }
 
-std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() const
-{
-  std::map<QString, std::array<double, 3>> camera_positions;
-  for (const auto &image : images()) {
-    QString path = image.second.path();
-    CameraPose camera_pose = image.second.cameraPose();
-    if (!camera_pose.isEmpty()) {
-      std::array<double, 3> positions = {
-      camera_pose.position().x,
-      camera_pose.position().y,
-      camera_pose.position().z};
-      camera_positions[path] = positions;
-    }
-  }
-  return camera_positions;
-}
+
+//std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() const
+//{
+//  TL_TODO("Borrar")
+//  std::map<QString, std::array<double, 3>> camera_positions;
+//  for (const auto &image : images()) {
+//    QString path = image.second.path();
+//    CameraPose camera_pose = image.second.cameraPose();
+//    if (!camera_pose.isEmpty()) {
+//      std::array<double, 3> positions = {
+//      camera_pose.position().x,
+//      camera_pose.position().y,
+//      camera_pose.position().z};
+//      camera_positions[path] = positions;
+//    }
+//  }
+//  return camera_positions;
+//}
 
 void OrientationModelImp::clearProject()
 {

@@ -24,7 +24,7 @@
 #include "AbsoluteOrientationProcess.h"
 
 //#include "graphos/core/orientation/orientationcolmap.h"
-#include "graphos/core/orientation/orientationexport.h"
+#include "graphos/core/sfm/orientationexport.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -61,7 +61,6 @@ AbsoluteOrientationProcess::~AbsoluteOrientationProcess()
 void AbsoluteOrientationProcess::stop()
 {
   TaskBase::stop();
-
 }
 
 void AbsoluteOrientationProcess::execute(tl::Progress *progressBar)

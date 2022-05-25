@@ -38,7 +38,7 @@ class ImageLoaderPresenter
 public:
 
   ImageLoaderPresenter(){}
-  virtual ~ImageLoaderPresenter() override = default;
+  ~ImageLoaderPresenter() override = default;
 
 public slots:
 

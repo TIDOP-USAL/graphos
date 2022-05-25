@@ -305,6 +305,7 @@ Calibration &Calibration::operator = (Calibration &&calibration) TL_NOEXCEPT
     mCameraModel = std::move(calibration.mCameraModel);
     mParameters = std::move(calibration.mParameters);
   }
+
   return *this;
 }
 
@@ -478,6 +479,94 @@ std::shared_ptr<Calibration> CalibrationFactory::create(Calibration::CameraModel
     break;
   }
   return calibration;
+}
+
+
+
+/* Calibration reader */
+
+CalibrationReader::CalibrationReader()
+{
+}
+
+std::unordered_map<size_t, std::shared_ptr<Calibration>> CalibrationReader::calibrations()
+{
+  return mCalibrations;
+}
+
+
+/* Calibration reader factory */
+
+std::unique_ptr<CalibrationReader> CalibrationReaderFactory::create(const std::string &format)
+{
+  return std::unique_ptr<CalibrationReader>();
+}
+
+
+/* Calibration writer */
+
+CalibrationWriter::CalibrationWriter()
+{
+}
+
+void CalibrationWriter::setCalibrations(const std::unordered_map<size_t, std::shared_ptr<Calibration>> &calibrations)
+{
+  mCalibrations = calibrations;
+}
+
+
+/* GraphosXMLCalibrationWriter */
+
+class GraphosXMLCalibrationWriter
+  : public CalibrationWriter
+{
+
+public:
+
+  GraphosXMLCalibrationWriter()
+  {
+  }
+
+  ~GraphosXMLCalibrationWriter()
+  {
+  }
+
+private:
+
+
+// CalibrationWriter
+
+  void write(const tl::Path &path) override
+  {
+  }
+
+  virtual std::string format() const override
+  {
+    return std::string("GRAPHOS_XML");
+  }
+
+};
+
+
+/* Camera Poses Writer Factory */
+
+std::unique_ptr<CalibrationWriter> CalibrationWriterFactory::create(const std::string &format)
+{
+  std::unique_ptr<CalibrationWriter> writer;
+
+  try {
+
+    if (format == "GRAPHOS_XML") {
+      writer = std::make_unique<GraphosXMLCalibrationWriter>();
+    } else {
+      TL_THROW_EXCEPTION("Invalid format: %s", format.c_str());
+    }
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
+
+  return writer;
 }
 
 } // namespace graphos

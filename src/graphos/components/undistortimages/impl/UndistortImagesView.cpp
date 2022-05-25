@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,47 +21,53 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
+#include "UndistortImagesView.h"
 
-#include "graphos/graphos_global.h"
+//#include <QApplication>
+//#include <QGridLayout>
+//#include <QDialogButtonBox>
+//#include <QPushButton>
+//#include <QLabel>
+//#include <QComboBox>
 
-#include <memory>
-
-#include <QString>
-
-
-namespace colmap
-{
-class Reconstruction;
-}
 
 namespace graphos
 {
 
-class Calibration;
-class Camera;
+UndistortImagesViewImp::UndistortImagesViewImp(QWidget *parent)
+  : UndistortImagesView(parent)
+{
+  this->init();
+}
 
-///TODO: borrar
-class ReadCalibration
+UndistortImagesViewImp::~UndistortImagesViewImp()
 {
 
-public:
+}
 
-  ReadCalibration();
-  ~ReadCalibration();
+void UndistortImagesViewImp::init()
+{
 
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
+  QFileDialog::setWindowTitle(tr("Undistort images output path"));
+  
+  QFileDialog::setFileMode(QFileDialog::Directory);
+  QFileDialog::setOption(ShowDirsOnly, true);
+  QFileDialog::setOption(DontResolveSymlinks, true);
 
-protected:
+}
 
-  colmap::Reconstruction *mReconstruction;
+//QString UndistortImagesViewImp::outputPath() const 
+//{
+//  return mComboBoxOutputPath->currentText();
+//}
 
-};
+void UndistortImagesViewImp::setProjectDirectory(const QString &directory)
+{
+  QFileDialog::setDirectory(directory);
+}
 
-QString cameraToColmapType(const Camera &camera);
+
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H
+
