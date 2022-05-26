@@ -148,6 +148,7 @@ private:
   tl::Path mOutputPath;
   internal::Reconstruction *mReconstruction;
   ReadCalibration *mCalibrationReader;
+  //std::map<int, std::shared_ptr<Undistort>> mUndistort;
 };
 
 

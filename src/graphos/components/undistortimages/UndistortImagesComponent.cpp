@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,12 +21,13 @@
  *                                                                      *
  ************************************************************************/
 
-#include "DensificationComponent.h"
 
-#include "graphos/components/dense/impl/DensificationModel.h"
-#include "graphos/components/dense/impl/DensificationView.h"
-#include "graphos/components/dense/impl/DensificationPresenter.h"
-#include "graphos/components/dense/impl/DensificationCommand.h"
+#include "UndistortImagesComponent.h"
+
+#include "graphos/components/undistortimages/impl/UndistortImagesModel.h"
+#include "graphos/components/undistortimages/impl/UndistortImagesView.h"
+#include "graphos/components/undistortimages/impl/UndistortImagesPresenter.h"
+#include "graphos/components/undistortimages/impl/UndistortImagesCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -36,74 +37,64 @@
 namespace graphos
 {
 
-DensificationComponent::DensificationComponent(Application *application)
+UndistortImagesComponent::UndistortImagesComponent(Application *application)
   : ProcessComponent(application)
 {
   init();
 }
 
-DensificationComponent::~DensificationComponent()
+UndistortImagesComponent::~UndistortImagesComponent()
 {
 }
 
-void DensificationComponent::init()
+void UndistortImagesComponent::init()
 {
-  this->setName("Densification");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+  this->setName(tr("Undistort Images"));
+  this->setMenu("tools");
+  //this->setToolbar("tools");
 
-  action()->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-panorama.png"));
 }
 
-void DensificationComponent::createModel()
+void UndistortImagesComponent::createModel()
 {
-  setModel(new DensificationModelImp(app()->project()));
+  setModel(new UndistortImagesModelImp(app()->project()));
 }
 
-void DensificationComponent::createView()
+void UndistortImagesComponent::createView()
 {
-  setView(new DensificationViewImp());
+  setView(new UndistortImagesViewImp());
 }
 
-void DensificationComponent::createPresenter()
+void UndistortImagesComponent::createPresenter()
 {
-  setPresenter(new DensificationPresenterImp(dynamic_cast<DensificationView *>(view()),
-                                             dynamic_cast<DensificationModel *>(model())));
-  
-  //TL_TODO("Reemplazar señales por finished o mover a ComponentProcess")
-  //connect(dynamic_cast<DensificationPresenter *>(presenter()), 
-  //        &DensificationPresenter::densification_finished, 
-  //        this, &DensificationComponent::densification_finished);
+  setPresenter(new UndistortImagesPresenterImp(dynamic_cast<UndistortImagesView *>(view()),
+                                               dynamic_cast<UndistortImagesModel *>(model())));
 }
 
-void DensificationComponent::createCommand()
+void UndistortImagesComponent::createCommand()
 {
-  setCommand(std::make_shared<DensificationCommand>());
+  setCommand(std::make_shared<UndistortImagesCommand>());
 }
 
-void DensificationComponent::update()
+void UndistortImagesComponent::update()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool dense_model_active = app_status->isActive(AppStatus::Flag::project_exists) && 
-                            !app_status->isActive(AppStatus::Flag::processing) &&
-                            app_status->isActive(AppStatus::Flag::oriented);
-
-  //if (!dense_model_active)
-  //  app_status->flagOff(AppStatus::Flag::dense_model);
-
-  action()->setEnabled(dense_model_active);
+  action()->setEnabled(app_status->isActive(AppStatus::Flag::project_exists) && 
+                       !app_status->isActive(AppStatus::Flag::processing) &&
+                       app_status->isActive(AppStatus::Flag::oriented));
 }
 
-void DensificationComponent::onRunning()
+void UndistortImagesComponent::onRunning()
 {
   ProcessComponent::onRunning();
 }
 
-void DensificationComponent::onFinished()
+void UndistortImagesComponent::onFinished()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
@@ -111,11 +102,10 @@ void DensificationComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFinished();
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::dense_model, true);
+  //app_status->activeFlag(AppStatus::Flag::..., true);
 }
 
-void DensificationComponent::onFailed()
+void UndistortImagesComponent::onFailed()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
@@ -123,7 +113,8 @@ void DensificationComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFailed();
-  app_status->activeFlag(AppStatus::Flag::dense_model, false);
+  //app_status->activeFlag(AppStatus::Flag::..., false);
 }
+
 
 } // namespace graphos

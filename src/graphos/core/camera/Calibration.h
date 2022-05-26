@@ -24,10 +24,11 @@
 #ifndef GRAPHOS_CORE_CAMERA_CALIBRATION_H
 #define GRAPHOS_CORE_CAMERA_CALIBRATION_H
 
-
+#include <unordered_map>
 #include <map>
 
 #include <tidop/core/flags.h>
+#include <tidop/core/path.h>
 #include <tidop/geometry/entities/point.h>
 #include <tidop/math/algebra/rotation_matrix.h>
 #include <tidop/math/algebra/quaternion.h>
@@ -249,6 +250,79 @@ public:
   static std::shared_ptr<Calibration> create(Calibration::CameraModel cameraModel);
 };
 
+
+
+/* Calibration reader */
+
+class CalibrationReader
+{
+
+public:
+
+  CalibrationReader();
+  ~CalibrationReader() = default;
+
+  virtual void read(const tl::Path &path) = 0;
+  virtual std::string format() const = 0;
+
+  std::unordered_map<size_t, std::shared_ptr<Calibration>> calibrations();
+
+private:
+
+  std::unordered_map<size_t, std::shared_ptr<Calibration>> mCalibrations;
+
+};
+
+
+class CalibrationReaderFactory
+{
+
+private:
+
+  CalibrationReaderFactory() = default;
+
+public:
+
+  static std::unique_ptr<CalibrationReader> create(const std::string &format);
+
+};
+
+
+
+/* Calibration writer */
+
+
+class CalibrationWriter
+{
+
+public:
+
+  CalibrationWriter();
+  ~CalibrationWriter() = default;
+
+  virtual void write(const tl::Path &path) = 0;
+  virtual std::string format() const = 0;
+
+  void setCalibrations(const std::unordered_map<size_t, std::shared_ptr<Calibration>> &calibrations);
+
+private:
+
+  std::unordered_map<size_t, std::shared_ptr<Calibration>> mCalibrations;
+
+};
+
+class CalibrationWriterFactory
+{
+
+private:
+
+  CalibrationWriterFactory() = default;
+
+public:
+
+  static std::unique_ptr<CalibrationWriter> create(const std::string &format);
+
+};
 
 } // namespace graphos
 

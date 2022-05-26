@@ -27,15 +27,18 @@
 #include "graphos/graphos_global.h"
 
 #include <unordered_map>
+#include <functional>
 
 #include <tidop/core/path.h>
 #include <tidop/geometry/entities/point.h>
+#include <tidop/graphic/color.h>
 
 #include "graphos/core/sfm/track.h"
 
 namespace graphos
 {
 
+/* Ground Control Points */
 
 class GroundControlPoint
   : public tl::Point3<double>
@@ -45,41 +48,223 @@ public:
 
   GroundControlPoint();
   GroundControlPoint(const tl::Point3<double> &point3d);
-  ~GroundControlPoint();
+  ~GroundControlPoint() override;
 
   std::string name() const;
   void setName(const std::string &name);
-  //tl::Point3<double> point() const;
   void setPoint(const tl::Point3<double> &point);
-  //double x() const;
-  //void setX(double x);
-  //double y() const;
-  //void setY(double y);
-  //double z() const;
-  //void setZ(double z);
   void addPointToTrack(size_t imageId, const tl::Point<double> &point);
   void setTrack(const GCPTrack &track);
-  //tl::Point<double> imagePoint(size_t imageId) const;
-  //bool existImagePoint(size_t imageId) const;
   void removeTrackPoint(size_t imageId);
   const GCPTrack &track() const;
 
-protected:
+private:
 
   std::string mName;
-  //tl::Point3<double> mCoordinates;
-  //std::unordered_map<size_t, tl::Point<double>> mPoints;
   GCPTrack mTrack;
 
 };
 
 
-///TODO: Crear una factoria de clases para lectura/escritura de 
-//       diferentes formatos de puntos de control
-std::vector<GroundControlPoint> groundControlPointsRead(const tl::Path &gcpFile);
+/* Ground Control Points Reader */
 
-///TODO: La escritura tendría que estar aqui
-void groundControlPointsWrite(const tl::Path &gcpFile, const std::vector<GroundControlPoint> &gcps);
+class GCPsReader
+{
+
+public:
+
+  GCPsReader();
+  virtual ~GCPsReader() = default;
+
+  virtual void read(const tl::Path &path) = 0;
+  virtual std::string format() const = 0;
+
+  std::vector<GroundControlPoint> gcps() const;
+  std::string epsgCode() const;
+
+protected:
+
+  void addGroundControlPoint(const GroundControlPoint &gcp);
+  void setEPSGCode(const std::string &epsgCode);
+
+private:
+
+  std::vector<GroundControlPoint> mGCPs;
+  std::string mEpsgCode;
+};
+
+
+class GCPsReaderFactory
+{
+
+private:
+
+  GCPsReaderFactory() = default;
+
+public:
+
+  static std::unique_ptr<GCPsReader> create(const std::string &format);
+
+};
+
+
+/* Ground Control Points Writer */
+
+class GCPsWriter
+{
+
+public:
+
+  GCPsWriter();
+  virtual ~GCPsWriter() = default;
+
+  virtual void write(const tl::Path &path) = 0;
+  virtual std::string format() const = 0;
+
+  void setGCPs(const std::vector<GroundControlPoint> &GCPs);
+  void setEPSGCode(const std::string &epsgCode);
+
+protected:
+
+  std::vector<GroundControlPoint> gcps() const;
+  std::string epsgCode() const;
+
+private:
+
+  std::vector<GroundControlPoint> mGCPs;
+  std::string mEpsgCode;
+};
+
+
+class GCPsWriterFactory
+{
+
+private:
+
+  GCPsWriterFactory() = default;
+
+public:
+
+  static std::unique_ptr<GCPsWriter> create(const std::string &format);
+
+};
+
+
+
+/* Ground Points */
+
+class GroundPoint
+  : public tl::Point3<double>
+{
+
+public:
+
+  GroundPoint();
+  GroundPoint(const tl::Point3<double> &point3d);
+  ~GroundPoint() override;
+
+  void setPoint(const tl::Point3<double> &point);
+  tl::graph::Color color() const;
+  void setColor(const tl::graph::Color &color);
+  void addPairToTrack(size_t imageId,
+                      size_t pointId);
+  void setTrack(const Track &track);
+  void removeTrackPair(size_t imageId);
+  const Track &track() const;
+
+private:
+
+  tl::graph::Color mColor;
+  Track mTrack;
+
+};
+
+
+/* Ground Points Reader */
+
+class GroundPointsReader
+{
+
+public:
+
+  GroundPointsReader();
+  virtual ~GroundPointsReader() = default;
+
+  virtual void read(const tl::Path &path) = 0;
+  virtual std::string format() const = 0;
+
+  std::vector<GroundPoint> points() const;
+  std::string epsgCode() const;
+
+protected:
+
+  void addGroundPoint(const GroundPoint &groundPoint);
+  void setGroundPoints(const std::vector<GroundPoint> &groundPoint);
+  void setEPSGCode(const std::string &epsgCode);
+
+private:
+
+  std::vector<GroundPoint> mGroundPoints;
+  std::string mEpsgCode;
+};
+
+
+class GroundPointsReaderFactory
+{
+
+private:
+
+  GroundPointsReaderFactory() = default;
+
+public:
+
+  static std::unique_ptr<GroundPointsReader> create(const std::string &format);
+
+};
+
+
+/* Ground Points Writer */
+
+class GroundPointsWriter
+{
+
+public:
+
+  GroundPointsWriter();
+  virtual ~GroundPointsWriter() = default;
+
+  virtual void write(const tl::Path &path) = 0;
+  virtual std::string format() const = 0;
+
+  void setGroundPoints(const std::vector<GroundPoint> &groundPoint);
+  void setEPSGCode(const std::string &epsgCode);
+
+protected:
+
+  std::vector<GroundPoint> groundPoints() const;
+  std::string epsgCode() const;
+
+private:
+
+  std::vector<GroundPoint> mGroundPoints;
+  std::string mEpsgCode;
+};
+
+
+class GroundPointsWriterFactory
+{
+
+private:
+
+  GroundPointsWriterFactory() = default;
+
+public:
+
+  static std::unique_ptr<GroundPointsWriter> create(const std::string &format);
+
+};
+
+
 
 } // namespace graphos
 

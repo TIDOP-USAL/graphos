@@ -114,6 +114,11 @@ set(GRAPHOS_SOURCES
     #georeference/impl/GeoreferencePresenter.cpp
     #georeference/impl/GeoreferenceProcess.cpp
     #georeference/impl/GeoreferenceCommand.cpp
+    undistortimages/UndistortImagesComponent.cpp
+    undistortimages/impl/UndistortImagesModel.cpp
+    undistortimages/impl/UndistortImagesView.cpp
+    undistortimages/impl/UndistortImagesPresenter.cpp
+    undistortimages/impl/UndistortImagesCommand.cpp
     dtm/DTMComponent.cpp
     dtm/impl/DTMModel.cpp
     dtm/impl/DTMView.cpp
@@ -250,6 +255,14 @@ set(GRAPHOS_HEADERS
     #georeference/impl/GeoreferenceView.h
     #georeference/impl/GeoreferenceProcess.h
     #georeference/impl/GeoreferenceCommand.h
+    undistortimages/UndistortImagesComponent.h
+    undistortimages/UndistortImagesModel.h
+    undistortimages/UndistortImagesView.h
+    undistortimages/UndistortImagesPresenter.h
+    undistortimages/impl/UndistortImagesModel.h
+    undistortimages/impl/UndistortImagesView.h
+    undistortimages/impl/UndistortImagesPresenter.h
+    undistortimages/impl/UndistortImagesCommand.h
     dtm/DTMComponent.h
     dtm/DTMModel.h
     dtm/DTMView.h

@@ -86,6 +86,11 @@ bool DensificationModelImp::existDenseModel() const
   return !dense_model.isEmpty();
 }
 
+const std::unordered_map<size_t, Image> &DensificationModelImp::images() const
+{
+  return mProject->images();
+}
+
 const std::map<int, Camera> &DensificationModelImp::cameras() const
 {
   return mProject->cameras();

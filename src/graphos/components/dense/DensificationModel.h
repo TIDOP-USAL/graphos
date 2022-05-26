@@ -26,9 +26,12 @@
 
 #include "graphos/interfaces/mvp.h"
 
+#include <unordered_map>
+
 namespace graphos
 {
 
+class Image;
 class Camera;
 class Densification;
 
@@ -48,6 +51,7 @@ public:
   virtual QString reconstructionPath() const = 0;
   virtual bool useCuda() const = 0;
   virtual bool existDenseModel() const = 0;
+  virtual const std::unordered_map<size_t, Image> &images() const = 0;
   virtual const std::map<int, Camera> &cameras() const = 0;
 
 public slots:

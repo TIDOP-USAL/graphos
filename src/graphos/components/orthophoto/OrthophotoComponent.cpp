@@ -93,6 +93,8 @@ void OrthophotoComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFinished();
+
+  app_status->activeFlag(AppStatus::Flag::project_modified, true);
   app_status->activeFlag(AppStatus::Flag::ortho, true);
 }
 
@@ -104,6 +106,7 @@ void OrthophotoComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFailed();
+
   app_status->activeFlag(AppStatus::Flag::ortho, false);
 }
 

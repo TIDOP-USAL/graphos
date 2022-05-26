@@ -28,17 +28,29 @@
 
 #include <memory>
 #include <map>
+#include <unordered_map>
 #include <vector>
+
+#include <tidop/core/task.h>
+
+namespace tl
+{
+class Progress;
+}
 
 namespace colmap
 {
 class ReconstructionManager;
 struct IncrementalMapperOptions;
 class IncrementalMapperController;
+class BundleAdjustmentController;
 }
 
 namespace graphos
 {
+
+class Image;
+class Camera;
 
 class RelativeOrientationColmapProperties
   : public RelativeOrientation
@@ -76,30 +88,41 @@ private:
 /*----------------------------------------------------------------*/
 
 
-class RelativeOrientationColmapAlgorithm
+class RelativeOrientationColmapTask
   : public RelativeOrientationColmapProperties,
-    public RelativeOrientationAlgorithm
+    public tl::TaskBase
 {
 
 public:
 
-  RelativeOrientationColmapAlgorithm(const QString &database,
-                                     const QString &outputPath,
-                                     bool fixCalibration);
-  ~RelativeOrientationColmapAlgorithm() override;
+  RelativeOrientationColmapTask(const QString &database,
+                                const QString &outputPath,
+                                const std::vector<Image> &images,
+                                const std::map<int, Camera> &cameras,
+                                bool fixCalibration);
+  ~RelativeOrientationColmapTask() override;
 
-// RelativeOrientationAlgorithm interface
+  std::map<int, Camera> cameras() const;
+
+// tl::TaskBase
 
 public:
 
-  void run() override;
+  void stop() override;
+
+protected:
+
+  void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
   QString mDatabase;
   QString mOutputPath;
+  std::vector<Image> mImages;
+  std::map<int, Camera> mCameras;
   colmap::IncrementalMapperOptions *mIncrementalMapper;
   colmap::IncrementalMapperController *mMapper;
+  colmap::BundleAdjustmentController *mBundleAdjustmentController;
   std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
 };
 
@@ -143,83 +166,34 @@ private:
 /*----------------------------------------------------------------*/
 
 
-class AbsoluteOrientationColmapAlgorithm
+class AbsoluteOrientationColmapTask
   : public AbsoluteOrientationColmapProperties,
-    public AbsoluteOrientationAlgorithm
+    public tl::TaskBase
 {
 
 public:
 
-  AbsoluteOrientationColmapAlgorithm(const QString &inputPath,
-                                     const std::map<QString, std::array<double, 3>>  &cameraPositions,
-                                     const QString &outputPath);
-  ~AbsoluteOrientationColmapAlgorithm() override;
+  AbsoluteOrientationColmapTask(const QString &path,
+                                const std::vector<Image> &images);
+  ~AbsoluteOrientationColmapTask() override;
 
-// AbsoluteOrientationAlgorithm interface
+  std::unordered_map<size_t, double> cameraPosesErrors() const;
+
+// tl::TaskBase interface
 
 public:
 
-  void run() override;
+  void stop() override;
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
 
 private:
 
   QString mInputPath;
-  std::map<QString, std::array<double, 3>> mCameraPositions;
-  QString mOutputPath;
-  
-};
-
-
-/*----------------------------------------------------------------*/
-
-class AbsoluteOrientationColmapProperties2
-  : public AbsoluteOrientation
-{
-
-public:
-
-  AbsoluteOrientationColmapProperties2();
-  ~AbsoluteOrientationColmapProperties2() override = default;
-
-// AbsoluteOrientation Interface
-
-public:
-
-  void reset() override;
-  QString name() const override;
-
-private:
-
-};
-
-
-/*----------------------------------------------------------------*/
-
-
-class AbsoluteOrientationColmapAlgorithm2
-  : public AbsoluteOrientationColmapProperties2,
-    public AbsoluteOrientationAlgorithm
-{
-
-public:
-
-  AbsoluteOrientationColmapAlgorithm2(const QString &inputPath,
-                                     const std::map<QString, std::array<double, 7>>  &cameraPositions,
-                                     const QString &outputPath);
-  ~AbsoluteOrientationColmapAlgorithm2() override;
-
-// AbsoluteOrientationAlgorithm interface
-
-public:
-
-  void run() override;
-
-private:
-
-  QString mInputPath;
-  std::map<QString, std::array<double, 7>> mCameraPositions;
-  QString mOutputPath;
-  
+  std::vector<Image> mImages;
+  std::unordered_map<size_t, double> mCameraPosesErrors;
 };
 
 
@@ -227,6 +201,8 @@ private:
 
 void colmapRemoveOrientations(const std::vector<std::string> &images, 
                               const std::string &reconstruction);
+
+
 
 
 } // namespace graphos

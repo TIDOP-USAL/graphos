@@ -631,4 +631,5 @@ void MvsDensifier::exportToMVS()
   }
 }
 
+
 } // namespace graphos

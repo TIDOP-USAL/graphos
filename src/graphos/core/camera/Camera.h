@@ -44,7 +44,8 @@ public:
    * \param[in] make Marca de la cámara
    * \param[in] model Modelo de la cámara
    */
-  Camera(const std::string &make, const std::string &model);
+  Camera(const std::string &make,
+         const std::string &model);
 
   /*!
    * \brief Constructor de copia Camera

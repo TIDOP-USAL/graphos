@@ -26,15 +26,6 @@
 
 #include "graphos/components/images/ImageLoaderView.h"
 
-class QGroupBox;
-class QLineEdit;
-class QLabel;
-class QListWidget;
-class QComboBox;
-class QSpinBox;
-class QSpinBox;
-class QDialogButtonBox;
-
 namespace graphos
 {
 

@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,47 +21,30 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
 
-#include "graphos/graphos_global.h"
+#ifndef GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H
+#define GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H
 
-#include <memory>
-
-#include <QString>
-
-
-namespace colmap
-{
-class Reconstruction;
-}
+#include "graphos/interfaces/mvp.h"
+#include "graphos/core/process/ProcessPresenter.h"
 
 namespace graphos
 {
 
-class Calibration;
-class Camera;
-
-///TODO: borrar
-class ReadCalibration
+class UndistortImagesPresenter
+  : public ProcessPresenter
 {
+
+  Q_OBJECT
 
 public:
 
-  ReadCalibration();
-  ~ReadCalibration();
-
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
-
-protected:
-
-  colmap::Reconstruction *mReconstruction;
+  UndistortImagesPresenter() : ProcessPresenter() {}
+  ~UndistortImagesPresenter() override = default;
 
 };
 
-QString cameraToColmapType(const Camera &camera);
-
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H
+
+#endif // GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H

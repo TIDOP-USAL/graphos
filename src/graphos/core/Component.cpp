@@ -253,7 +253,6 @@ void ProcessComponent::onRunning()
 void ProcessComponent::onFinished()
 {
   app()->status()->activeFlag(AppStatus::Flag::processing, false);
-  app()->status()->activeFlag(AppStatus::Flag::project_modified, true);
 
   emit finished();
 }

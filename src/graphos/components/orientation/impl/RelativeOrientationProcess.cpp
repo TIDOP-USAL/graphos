@@ -24,7 +24,7 @@
 #include "RelativeOrientationProcess.h"
 
 //#include "graphos/core/orientation/orientationcolmap.h"
-#include "graphos/core/orientation/orientationexport.h"
+#include "graphos/core/sfm/orientationexport.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>

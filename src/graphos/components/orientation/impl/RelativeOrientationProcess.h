@@ -28,7 +28,7 @@
 #include <tidop/core/progress.h>
 
 #include <QObject>
-
+#include <tidop/core/progress.h>
 namespace colmap
 {
 struct IncrementalMapperOptions;

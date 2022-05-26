@@ -26,6 +26,7 @@
 #include <colmap/base/reconstruction.h>
 
 #include <tidop/core/path.h>
+#include <tidop/math/algebra/quaternion.h>
 
 namespace graphos
 {
@@ -83,5 +84,232 @@ CameraPose ReadCameraPoses::orientation(const QString &imageName) const
 }
 
 
+/* Camera Poses Reader */
+
+CameraPosesReader::CameraPosesReader()
+{
+}
+
+std::unordered_map<size_t, CameraPose> CameraPosesReader::cameraPoses() const
+{
+  return mCameraPoses;
+}
+
+void CameraPosesReader::addCameraPose(size_t imageId, 
+                                      const CameraPose &cameraPoses)
+{
+  mCameraPoses[imageId] = cameraPoses;
+}
+
+
+/* Graphos format */
+
+class GraphosCameraPosesReader
+  : public CameraPosesReader
+{
+
+public:
+
+  GraphosCameraPosesReader()
+  {
+  }
+
+  ~GraphosCameraPosesReader()
+  {
+  }
+
+// CameraPosesReader
+
+public:
+
+  void read(const tl::Path &path) override
+  {
+    try {
+
+      FILE *file = std::fopen(path.toString().c_str(), "rb");
+
+      TL_ASSERT(file, "File not open");
+
+      uint64_t size = 0;
+
+      /// Header
+      {
+        std::array<char, 19> header_message;
+        std::fread(&header_message, sizeof(char), 19, file);
+        std::fread(&size, sizeof(uint64_t), 1, file);
+      }
+
+      for (size_t i = 0; i < size; i++) {
+
+        size_t image_id = 0;
+        std::fread(&image_id, sizeof(uint64_t), 1, file);
+
+        CameraPose camera_pose;
+
+        tl::Point3<double> coordinates;
+
+        std::fread(&coordinates.x, sizeof(double), 1, file);
+        std::fread(&coordinates.y, sizeof(double), 1, file);
+        std::fread(&coordinates.z, sizeof(double), 1, file);
+
+        camera_pose.setPosition(coordinates);
+
+        tl::math::Quaternion<double> quaternion;
+        std::fread(&quaternion.x, sizeof(double), 1, file);
+        std::fread(&quaternion.y, sizeof(double), 1, file);
+        std::fread(&quaternion.z, sizeof(double), 1, file);
+        std::fread(&quaternion.w, sizeof(double), 1, file);
+
+        camera_pose.setQuaternion(quaternion);
+
+        addCameraPose(image_id, camera_pose);
+
+      }
+
+      std::fclose(file);
+
+    } catch (...) {
+      TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
+  }
+
+  std::string format() const final override
+  {
+    return "GRAPHOS_BIN";
+  }
+};
+
+/* Camera Poses Reader Factory */
+
+std::unique_ptr<CameraPosesReader> CameraPosesReaderFactory::create(const std::string &format)
+{
+  std::unique_ptr<CameraPosesReader> reader;
+
+  try {
+
+    if (format == "GRAPHOS") {
+      reader = std::make_unique<GraphosCameraPosesReader>();
+    } else {
+      TL_THROW_EXCEPTION("Invalid format: %s", format.c_str());
+    }
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
+
+  return reader;
+}
+
+
+/* Camera Poses Writer */
+
+
+CameraPosesWriter::CameraPosesWriter()
+{
+}
+
+void CameraPosesWriter::setCameraPoses(const std::unordered_map<size_t, CameraPose> &cameraPoses)
+{
+  mCameraPoses = cameraPoses;
+}
+
+std::unordered_map<size_t, CameraPose> CameraPosesWriter::cameraPoses() const
+{
+  return mCameraPoses;
+}
+
+
+/* Camera Poses Writer Graphos */
+
+class GraphosCameraPosesWriter
+  : public CameraPosesWriter
+{
+
+public:
+
+  GraphosCameraPosesWriter()
+  {
+  }
+
+  ~GraphosCameraPosesWriter()
+  {
+  }
+
+// CameraPosesWriter
+
+public: 
+
+  void write(const tl::Path &path) override
+  {
+    try {
+
+      FILE *file = std::fopen(path.toString().c_str(), "wb");
+
+      TL_ASSERT(file, "File not open");
+
+      const auto &camera_poses = this->cameraPoses();
+
+      // Header
+      {
+        std::fwrite("GRAPHOS_POSES_V1.0", sizeof(char), 19, file);
+        uint64_t size = camera_poses.size();
+        std::fwrite(&size, sizeof(uint64_t), 1, file);
+      }
+      
+      for (const auto &camera_pose : camera_poses) {
+
+        size_t image_id = camera_pose.first;
+        std::fwrite(&image_id, sizeof(uint64_t), 1, file);
+
+        tl::Point3<double> coordinates = camera_pose.second.position();
+
+        std::fwrite(&coordinates.x, sizeof(double), 1, file);
+        std::fwrite(&coordinates.y, sizeof(double), 1, file);
+        std::fwrite(&coordinates.z, sizeof(double), 1, file);
+
+        tl::math::Quaternion<double> quaternion = camera_pose.second.quaternion();
+        std::fwrite(&quaternion.x, sizeof(double), 1, file);
+        std::fwrite(&quaternion.y, sizeof(double), 1, file);
+        std::fwrite(&quaternion.z, sizeof(double), 1, file);
+        std::fwrite(&quaternion.w, sizeof(double), 1, file);
+
+      }
+
+      std::fclose(file);
+
+    } catch (...) {
+      TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+    }
+  }
+
+  virtual std::string format() const final override
+  {
+    return std::string("GRAPHOS_BIN");
+  }
+
+};
+
+
+
+/* Camera Poses Writer Factory */
+
+std::unique_ptr<CameraPosesWriter> CameraPosesWriterFactory::create(const std::string &format)
+{
+  std::unique_ptr<CameraPosesWriter> writer;
+
+  try {
+
+    if (format == "GRAPHOS") {
+      writer = std::make_unique<GraphosCameraPosesWriter>();
+    } else {
+      TL_THROW_EXCEPTION("Invalid format: %s", format.c_str());
+    }
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
+
+  return writer;
+}
 
 } // namespace graphos

@@ -23,7 +23,7 @@
 
 #include "graphos/core/dense/Smvs.h"
 
-#include "graphos/core/orientation/orientationexport.h"
+#include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/utils.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/camera/Undistort.h"
@@ -472,7 +472,7 @@ void SmvsDensifier::undistortImages()
             }
 
             if (!bOpenCvRead) {
-              std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
+              std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
               imageReader->open();
               if (imageReader->isOpen()) {
                 img = imageReader->read();

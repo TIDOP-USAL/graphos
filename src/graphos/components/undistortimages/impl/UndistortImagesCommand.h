@@ -21,47 +21,45 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
+#ifndef GRAPHOS_UNDISTORT_IMAGES_COMMAND_H
+#define GRAPHOS_UNDISTORT_IMAGES_COMMAND_H
 
-#include "graphos/graphos_global.h"
+#include <QObject>
 
-#include <memory>
-
-#include <QString>
-
-
-namespace colmap
-{
-class Reconstruction;
-}
+#include "graphos/core/command.h"
+#include "graphos/core/project.h"
 
 namespace graphos
 {
-
-class Calibration;
-class Camera;
-
-///TODO: borrar
-class ReadCalibration
+	
+class UndistortImagesCommand
+  : public QObject, 
+    public Command
 {
+
+  Q_OBJECT
 
 public:
 
-  ReadCalibration();
-  ~ReadCalibration();
+  UndistortImagesCommand();
+  ~UndistortImagesCommand() override;
 
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
+private:
 
-protected:
 
-  colmap::Reconstruction *mReconstruction;
+// Command
+
+  bool run() override;
+
+private:
+
+  tl::Path mProjectFile;
+  tl::Path mUndistortPath;
+  bool mDisableCuda;
 
 };
 
-QString cameraToColmapType(const Camera &camera);
-
+	
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H
+#endif // GRAPHOS_UNDISTORT_IMAGES_COMMAND_H

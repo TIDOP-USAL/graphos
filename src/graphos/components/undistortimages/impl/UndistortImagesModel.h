@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -20,48 +20,63 @@
  * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
  *                                                                      *
  ************************************************************************/
+ 
+#ifndef GRAPHOS_UNDISTORTIMAGES_MODEL_H
+#define GRAPHOS_UNDISTORTIMAGES_MODEL_H
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
+#include "graphos/components/undistortimages/UndistortImagesModel.h"
 
-#include "graphos/graphos_global.h"
+class QSettings;
 
-#include <memory>
-
-#include <QString>
-
-
-namespace colmap
-{
-class Reconstruction;
-}
 
 namespace graphos
 {
 
-class Calibration;
-class Camera;
+class Project;
 
-///TODO: borrar
-class ReadCalibration
+class UndistortImagesModelImp
+  : public UndistortImagesModel
 {
+
+  Q_OBJECT
 
 public:
 
-  ReadCalibration();
-  ~ReadCalibration();
+  UndistortImagesModelImp(Project *project,
+                          QObject *parent = nullptr);
+  ~UndistortImagesModelImp() override;
 
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
+// UndistortImagesModel interface
+
+public:
+
+  const std::unordered_map<size_t, Image> &images() const override;
+  const std::map<int, Camera> &cameras() const override;
+  bool useCuda() const override;
+  QString projectFolder() const override;
+
+public slots:
+
+  void loadSettings() override;
+  void saveSettings() override;
+
+// Model interface
+
+private:
+
+  void init() override;
+
+public slots:
+
+  void clear() override;
 
 protected:
 
-  colmap::Reconstruction *mReconstruction;
-
+  Project *mProject;
+  QSettings *mSettings;
+  bool mReadSettings;
 };
-
-QString cameraToColmapType(const Camera &camera);
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H
+#endif // GRAPHOS_UNDISTORTIMAGES_MODEL_H

@@ -57,8 +57,9 @@ public:
   bool gpsPositions() const override;
   bool rtkOrientations() const override;
   QString reconstructionPath() const override;
+  TL_DEPRECATED("", "2.0")
   void setReconstructionPath(const QString &reconstructionPath) override;
-  std::map<QString, std::array<double, 3>> cameraPositions() const override;
+  //std::map<QString, std::array<double, 3>> cameraPositions() const override;
   void clearProject() override;
 
   const std::map<int, Camera> &cameras() const override;

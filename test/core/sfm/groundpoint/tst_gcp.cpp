@@ -45,8 +45,10 @@ struct TestGroundControlPoint
   void setup()
   {
     tl::Path gcp_path(GRAPHOS_SOURCE_PATH);
-    gcp_path.append("test\\core\\sfm\\gcp\\georef.xml");
-    gcps = groundControlPointsRead(gcp_path);
+    gcp_path.append("test\\core\\sfm\\groundpoint\\georef.xml");
+    auto reader = GCPsReaderFactory::create("GRAPHOS");
+    reader->read(gcp_path);
+    gcps = reader->gcps();
   }
 
   void teardown()

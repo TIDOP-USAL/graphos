@@ -70,10 +70,10 @@ void OrientationComponent::createPresenter()
   setPresenter(new OrientationPresenterImp(dynamic_cast<OrientationView *>(view()), 
                                            dynamic_cast<OrientationModel *>(model())));
 
-  connect(dynamic_cast<OrientationPresenter *>(presenter()),
-          &OrientationPresenter::orientation_finished, 
-          this, 
-          &OrientationComponent::orientation_finished);
+  //connect(dynamic_cast<OrientationPresenter *>(presenter()),
+  //        &OrientationPresenter::orientation_finished, 
+  //        this, 
+  //        &OrientationComponent::orientation_finished);
   connect(dynamic_cast<OrientationPresenter *>(presenter()), 
           &OrientationPresenter::orientation_deleted, 
           this, 
@@ -115,6 +115,8 @@ void OrientationComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFinished();
+
+  app_status->activeFlag(AppStatus::Flag::project_modified, true);
   app_status->activeFlag(AppStatus::Flag::oriented, true);
 }
 
@@ -126,6 +128,7 @@ void OrientationComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFailed();
+
   app_status->activeFlag(AppStatus::Flag::oriented, false);
 }
 

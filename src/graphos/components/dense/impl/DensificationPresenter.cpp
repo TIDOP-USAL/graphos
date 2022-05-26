@@ -270,6 +270,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
   QString mOutputPat = mModel->projectFolder() + "/dense";
 
   dense_process = std::make_unique<DensificationProcess>(densifier,
+                                                         mModel->images(),
                                                          mModel->cameras(),
                                                          mReconstructionPath,
                                                          mOutputPat);

@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,47 +21,45 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_COLMAP_CAMERA_H
-#define GRAPHOS_CORE_COLMAP_CAMERA_H
+#ifndef GRAPHOS_UNDISTORTIMAGES_MODEL_INTERFACE_H
+#define GRAPHOS_UNDISTORTIMAGES_MODEL_INTERFACE_H
 
-#include "graphos/graphos_global.h"
-
-#include <memory>
+#include <array>
+#include <unordered_map>
 
 #include <QString>
 
-
-namespace colmap
-{
-class Reconstruction;
-}
+#include "graphos/interfaces/mvp.h"
 
 namespace graphos
 {
 
-class Calibration;
 class Camera;
+class Image;
 
-///TODO: borrar
-class ReadCalibration
+class UndistortImagesModel
+  : public Model
 {
+
+  Q_OBJECT
 
 public:
 
-  ReadCalibration();
-  ~ReadCalibration();
+  UndistortImagesModel(QObject *parent = nullptr) : Model(parent) {}
+  ~UndistortImagesModel() override = default;
+  
+  virtual const std::unordered_map<size_t, Image> &images() const = 0;
+  virtual const std::map<int, Camera> &cameras() const = 0;
+  virtual bool useCuda() const = 0;
+  virtual QString projectFolder() const = 0;
 
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
+public slots:
 
-protected:
-
-  colmap::Reconstruction *mReconstruction;
-
+  virtual void loadSettings() = 0;
+  virtual void saveSettings() = 0;
 };
-
-QString cameraToColmapType(const Camera &camera);
 
 } // namespace graphos
 
-#endif // GRAPHOS_CORE_COLMAP_CAMERA_H
+
+#endif // GRAPHOS_UNDISTORTIMAGES_MODEL_INTERFACE_H

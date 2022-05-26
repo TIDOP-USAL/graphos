@@ -23,17 +23,17 @@
 
 #include "ImageLoaderView.h"
 
-#include <QApplication>
-#include <QComboBox>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QSpinBox>
-#include <QPushButton>
+//#include <QApplication>
+//#include <QComboBox>
+//#include <QDialog>
+//#include <QDialogButtonBox>
+//#include <QGridLayout>
+//#include <QGroupBox>
+//#include <QLabel>
+//#include <QLineEdit>
+//#include <QListWidget>
+//#include <QSpinBox>
+//#include <QPushButton>
 
 namespace graphos
 {

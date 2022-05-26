@@ -29,6 +29,7 @@
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
+#include <tidop/core/progress.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
@@ -350,7 +351,7 @@ int LoadImagesProcess::loadCamera(tl::ImageReader *imageReader)
   return camera_id;
 }
 
-void graphos::LoadImagesProcess::execute(tl::Progress *progressBar)
+void LoadImagesProcess::execute(tl::Progress *progressBar)
 {
   try {
 
