@@ -260,7 +260,7 @@ namespace internal
 {
 
 std::mutex undistort_images_mutex;
-std::atomic<bool> undistort_images_done(false);
+std::atomic<bool> data_load_done(false);
 
 class UndistortQueueData
 {
@@ -346,7 +346,7 @@ public:
 
     while (it_begin != it_end){
       if (mParentTask->status() == tl::Task::Status::stopping) {
-        undistort_images_done = true;
+        data_load_done = true;
         return;
       }
       
@@ -361,7 +361,7 @@ public:
     for (const auto &image : *mImages) {
 
       if (mParentTask->status() == tl::Task::Status::stopping) {
-        undistort_images_done = true;
+        data_load_done = true;
         return;
       }
 
@@ -413,7 +413,7 @@ private:
 
     } catch (std::exception &e) {
       msgError(e.what());
-      undistort_images_done = true;
+      data_load_done = true;
     }
   }
 
@@ -465,10 +465,23 @@ public:
 
   void operator() ()
   {
-    while (!undistort_images_done || queue()->size()) {
+    while (!data_load_done) {
+
+      while (queue()->size()) {
+
+        if (mParentTask->status() == tl::Task::Status::stopping) {
+          data_load_done = true;
+          return;
+        }
+
+        consumer();
+      }
+    }
+
+    while (queue()->size()) {
 
       if (mParentTask->status() == tl::Task::Status::stopping) {
-        undistort_images_done = true;
+        data_load_done = true;
         return;
       }
 
@@ -487,7 +500,7 @@ private:
       chrono.run();
 
       UndistortQueueData data;
-      queue()->pop(data);
+      if (!queue()->pop(data)) return;
 
       cv::Mat undistort_image = data.undistort()->undistortImage(data.image(), bUseGPU);
 
@@ -511,7 +524,7 @@ private:
 
     } catch (std::exception &e) {
       msgError(e.what());
-      undistort_images_done = true;
+      data_load_done = true;
     }
   }
 
@@ -569,11 +582,13 @@ void UndistortImages::execute(tl::Progress *progressBar)
                                             progressBar,
                                             this);
 
+    tl::optimalNumberOfThreads();
+
     size_t num_threads = 1;
     std::vector<std::thread> producer_threads(num_threads);
     std::vector<std::thread> consumer_threads(num_threads);
 
-    internal::undistort_images_done = false;
+    internal::data_load_done = false;
 
     size_t size = mImages.size() / num_threads;
     for (size_t i = 0; i < num_threads; ++i) {
@@ -584,17 +599,24 @@ void UndistortImages::execute(tl::Progress *progressBar)
       producer_threads[i] = std::move(std::thread(producer, _ini, _end));
     }
 
-    for (size_t i = 0; i < num_threads; ++i) {
-      consumer_threads[i] = std::move(std::thread(consumer));
+    for (auto &_thread : consumer_threads) {
+      _thread = std::move(std::thread(consumer));
     }
 
-    for (size_t i = 0; i < num_threads; ++i)
-      producer_threads[i].join();
+    for (auto &_thread : producer_threads) {
+      if (_thread.joinable()) {
+        _thread.join();
+      }
+    }
 
-    internal::undistort_images_done = true;
+    internal::data_load_done = true;
+    queue.stop();
 
-    for (size_t i = 0; i < num_threads; ++i)
-      consumer_threads[i].join();
+    for (auto &_thread : consumer_threads) {
+      if (_thread.joinable()) {
+        _thread.join();
+      }
+    }
 
     if (status() == tl::Task::Status::stopping) {
       chrono.reset();

@@ -48,7 +48,6 @@ public:
 
 private slots:
 
-  //void onRelativeOrientationFinished();
   void onAbsoluteOrientationFinished();
 
 // ProcessPresenter interface
