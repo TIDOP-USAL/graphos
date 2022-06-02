@@ -210,6 +210,7 @@ public:
   virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
   virtual bool isPhotoOriented(size_t imageId) const = 0;
   virtual CameraPose photoOrientation(size_t imageId) const = 0;
+  virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
   virtual void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) = 0;
   virtual void clearReconstruction() = 0;
   
@@ -375,6 +376,7 @@ public:
   void setReconstructionPath(const QString &reconstructionPath) override;
   bool isPhotoOriented(size_t imageId) const override;
   CameraPose photoOrientation(size_t imageId) const override;
+  const std::unordered_map<size_t, CameraPose> &poses() const override;
   void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) override;
   void clearReconstruction() override;
   

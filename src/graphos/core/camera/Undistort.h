@@ -61,6 +61,7 @@ public:
   Undistort(const Undistort &undistort);
   ~Undistort() = default;
 
+  Camera camera() const;
   void setCamera(const Camera &camera);
   Camera undistortCamera() const;
   cv::Mat undistortImage(const cv::Mat &image,
@@ -72,11 +73,13 @@ private:
   void initCameraMatrix();
   void initDistCoeffs();
   void initOptimalNewCameraMatrix();
+  void initUndistortCamera();
   void initUndistortMaps();
 
 private:
 
   Camera mCamera;
+  Camera mUndistortCamera;
   cv::Mat mCameraMatrix;
   cv::Mat mDistCoeffs;
   cv::Mat mOptimalNewCameraMatrix;

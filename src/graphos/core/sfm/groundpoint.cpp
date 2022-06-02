@@ -565,7 +565,7 @@ private:
 
   std::vector<graphos::GroundPoint> readGroundPoints(FILE *file, uint64_t &size)
   {
-    std::vector<graphos::GroundPoint> ground_points;
+    std::vector<graphos::GroundPoint> ground_points(size);
 
     try {
 
@@ -589,7 +589,7 @@ private:
         for (size_t i = 0; i < size; i++) {
 
           std::fread(&image_id, sizeof(uint64_t), 1, file);
-          std::fread(&size, sizeof(uint64_t), 1, file);
+          std::fread(&point_id, sizeof(uint64_t), 1, file);
 
           track.addPair(image_id, point_id);
 

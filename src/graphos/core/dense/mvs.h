@@ -32,6 +32,11 @@
 
 #include <QString>
 
+namespace tl
+{
+class Progress;
+}
+
 namespace graphos
 {
 
@@ -150,6 +155,82 @@ private:
   ReadCalibration *mCalibrationReader;
   //std::map<int, std::shared_ptr<Undistort>> mUndistort;
 };
+
+
+
+class MvsDensifier2
+  : public MvsProperties,
+    public DensifierBase
+{
+
+public:
+
+  MvsDensifier2(const std::unordered_map<size_t, Image> &images,
+                const std::map<int, Camera> &cameras,
+                const std::unordered_map<size_t, CameraPose> &poses,
+                const std::vector<GroundPoint> &groundPoints,
+                const QString &outputPath,
+                const QString &database,
+                bool cuda = false/*,
+                const QString &undistortPath = QString()*/);
+  ~MvsDensifier2() override;
+
+  MvsDensifier2(const MvsDensifier2 &MvsProcess) = delete;
+  MvsDensifier2(MvsDensifier2 &&MvsProcess) = delete;
+  MvsDensifier2 &operator =(const MvsDensifier2 &MvsProcess) = delete;
+  MvsDensifier2 &operator =(MvsDensifier2 &&MvsProcess) = delete;
+
+private: 
+
+  void clearPreviousModel();
+  void writeNVMFile();
+  void exportToMVS();
+  void densify();
+
+// TaskBase
+
+protected:
+  
+  void execute(tl::Progress *progressBar = nullptr) override;
+
+//  // DensificationProcess interface
+//
+//  void undistort(const QString &reconstructionPath,
+//                 const QString &outputPath) override;
+//  void densify(const QString &undistortPath) override;
+//  void enableCuda(bool enable) override;
+//
+//  // Densification interface
+//
+//public:
+//
+//  void reset() override;
+//
+//  // Member functions
+//
+//private:
+//
+//  void clearPreviousModel();
+//  void createDirectories();
+//  void createDirectory(const std::string &path);
+//  void writeNVMFile();
+//  void undistortImages();
+//  void undistortImage();
+//  void exportToMVS();
+//
+//  // Data members
+
+private:
+
+  QString mDatabase;
+//  bool bOpenCvRead;
+//  bool bCuda;
+//  tl::Path mOutputPath;
+//  internal::Reconstruction *mReconstruction;
+//  ReadCalibration *mCalibrationReader;
+//  //std::map<int, std::shared_ptr<Undistort>> mUndistort;
+};
+
 
 
 } // namespace graphos

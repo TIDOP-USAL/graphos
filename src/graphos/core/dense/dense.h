@@ -35,6 +35,9 @@
 
 #include <tidop/core/flags.h>
 #include <tidop/core/path.h>
+#include <tidop/core/task.h>
+
+#include "graphos/core/sfm/groundpoint.h"
 
 namespace graphos
 {
@@ -42,6 +45,7 @@ namespace graphos
 class Image;
 class Camera;
 class CameraPose;
+//class GroundPoint;
 
 class Densification
 {
@@ -95,32 +99,71 @@ public:
 };
 
 
-
-
-//class Undistort;
-//
-//
-//class DensifierBase
-//  : public Densifier
+//class Densifier2
 //{
 //
 //public:
 //
-//  DensifierBase(const std::unordered_map<size_t, Image> &images, 
-//                const std::map<int, Camera> &cameras);
-//  ~DensifierBase();
+//  Densifier2() {}
+//  virtual ~Densifier2() = default;
 //
-//  void createDirectory(const std::string &dir);
+//  //virtual void densify(const QString &undistortPath) = 0;
+//  virtual void enableCuda(bool enable) = 0;
 //
 //
-//private:
-//
-//  std::map<int, Camera> mCameras;
-//  std::unordered_map<size_t, Image> mImages;
-//  std::unordered_map<size_t, CameraPose> mPoses;
-//  std::map<int, Undistort> mUndistort;
-//  tl::Path mOutputPath;
+//  //virtual void setCameras(const std::map<int, Camera> &cameras) = 0;
+//  //virtual void setImages(const std::unordered_map<size_t, Image> &images) = 0;
 //};
+
+class Undistort;
+
+
+class DensifierBase
+  : public tl::TaskBase
+{
+
+public:
+
+  DensifierBase(const std::unordered_map<size_t, Image> &images, 
+                const std::map<int, Camera> &cameras,
+                const std::unordered_map<size_t, CameraPose> &poses,
+                const std::vector<GroundPoint> &groundPoints,
+                const QString &outputPath/*,
+                const QString &undistortPath = QString()*/);
+  ~DensifierBase();
+
+// Densifier
+
+public:
+
+  void enableCuda(bool enable);
+  QString denseModel() const;
+  //void setOutputPath(const QString &outputPath);
+  //void setUndistortPath(const QString &undistortPath);
+
+protected:
+
+  void undistort(const QString &dir);
+  tl::Path outputPath() const;
+  //tl::Path undistortPath() const;
+  const std::unordered_map<size_t, Image> &images() const;
+  const std::map<int, Camera> &cameras() const;
+  const std::unordered_map<size_t, CameraPose> &poses() const;
+  const std::vector<GroundPoint> &groundPoints() const;
+  void setDenseModel(const QString &denseModel);
+
+private:
+
+  std::unordered_map<size_t, Image> mImages;
+  std::map<int, Camera> mCameras;
+  std::unordered_map<size_t, CameraPose> mPoses;
+  std::vector<GroundPoint> mGroundPoints;
+  //std::map<int, Undistort> mUndistort;
+  tl::Path mOutputPath;
+  //tl::Path mUndistortPath;
+  bool mCuda;
+  QString mDenseModel;
+};
 
 
 
@@ -209,6 +252,7 @@ public:
   virtual void setNumberViews(int numberViews) = 0;
   virtual void setNumberViewsFuse(int numberViewsFuse) = 0;
 };
+
 
 } // namespace graphos
 

@@ -61,10 +61,13 @@ public:
   std::shared_ptr<Densification> densification() const override;
   QString projectFolder() const override;
   QString reconstructionPath() const override;
+  QString database() const override;
   bool useCuda() const override;
   bool existDenseModel() const override;
   const std::unordered_map<size_t, Image> &images() const override;
   const std::map<int, Camera> &cameras() const override;
+  const std::unordered_map<size_t, CameraPose> &poses() const override;
+  std::vector<GroundPoint> groundPoints() const override;
 
 public slots:
 

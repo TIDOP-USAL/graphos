@@ -34,6 +34,8 @@ namespace graphos
 class Image;
 class Camera;
 class Densification;
+class CameraPose;
+class GroundPoint;
 
 class DensificationModel
   : public Model
@@ -49,10 +51,13 @@ public:
   virtual std::shared_ptr<Densification> densification() const = 0;
   virtual QString projectFolder() const = 0;
   virtual QString reconstructionPath() const = 0;
+  virtual QString database() const = 0;
   virtual bool useCuda() const = 0;
   virtual bool existDenseModel() const = 0;
   virtual const std::unordered_map<size_t, Image> &images() const = 0;
   virtual const std::map<int, Camera> &cameras() const = 0;
+  virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
+  virtual std::vector<GroundPoint> groundPoints() const = 0;
 
 public slots:
 
