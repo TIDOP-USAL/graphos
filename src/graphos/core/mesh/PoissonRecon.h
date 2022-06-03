@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,78 +21,87 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APP_STATUS_H
-#define GRAPHOS_APP_STATUS_H
+#ifndef GRAPHOS_POISSONRECON_ALGORITHM_H
+#define GRAPHOS_POISSONRECON_ALGORITHM_H
 
 #include "graphos/graphos_global.h"
 
-#include <tidop/core/flags.h>
+#include "graphos/core/utils.h"
 
-#include <QObject>
+#include <tidop/core/task.h>
 
-#include <memory>
+#include <vector>
+#include <map>
+#include <string>
 
+namespace tl
+{
+  class Process;
+}
 
 namespace graphos
 {
 
-class AppStatus
-  : public QObject
-{
 
-  Q_OBJECT
+class PoissonReconParameters
+{ 
 
 public:
 
-  enum class Flag : uint32_t
-  {
-    none                  = (0 << 0),
-    project_exists        = (1 << 0),  // Existe un proyecto
-    project_modified      = (1 << 1),  // Se ha modificado el proyecto
-    images_added          = (1 << 2),  // Se han añadido fotogramas
-    image_open            = (1 << 3),  // Hay una imagen abierta
-    feature_extraction    = (1 << 4),
-    feature_matching      = (1 << 5),
-    oriented              = (1 << 6),
-    absolute_oriented     = (1 << 7),
-    dense_model           = (1 << 8),
-    dtm                   = (1 << 9),
-    ortho                 = (1 << 10),
-    mesh                  = (1 << 11),
-    processing            = (1 << 20),
-    loading_images        = (1 << 21),
-    command_mode          = (1 << 30)
-  };
+  PoissonReconParameters();
+  ~PoissonReconParameters();
 
-public:
+  virtual int depth() const;
+  virtual int solveDepth() const;
+  virtual QString boundaryType() const;
+  virtual int width() const;
+  virtual int fullDepth() const;
 
-  AppStatus();
-  ~AppStatus();
+  virtual void setDepth(int Depth);
+  virtual void setSolveDepth(int SolveDepth);
+  virtual void setBoundaryType(const QString &BoundaryType);
+  virtual void setWidth(int width);
+  virtual void setFullDepth(int FullDepth);
 
-  AppStatus(const AppStatus &) = delete;
-  AppStatus(AppStatus &&) = delete;
-  AppStatus operator=(const AppStatus &) = delete;
-  AppStatus operator=(AppStatus &&) = delete;
-
-  void activeFlag(Flag flag, bool active);
-  bool isActive(Flag flag) const;
-  void flagOn(Flag flag);
-  void flagOff(Flag flag);
-  void switchFlag(Flag flag);
   void clear();
-
-signals:
-
-  void update();
 
 private:
 
-  tl::EnumFlags<Flag> mFlags;
-  
+  int mDepth;
+  int mSolveDepth;
+  QString mBoundaryType;
+  int mWidth;
+  int mFullDepth;
+
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(AppStatus::Flag)
+
+
+class PoissonReconTask
+  : public tl::TaskBase,
+    public PoissonReconParameters
+{
+
+public:
+
+  PoissonReconTask(const QString &input,
+                   const QString &output);
+  ~PoissonReconTask();
+
+  // tl::TaskBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  QString mInput;
+  QString mOutput;
+};
+
+
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_APP_STATUS_H
+#endif // GRAPHOS_POISSONRECON_ALGORITHM_H

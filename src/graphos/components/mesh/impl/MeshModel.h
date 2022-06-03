@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -20,79 +20,62 @@
  * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
  *                                                                      *
  ************************************************************************/
+ 
+#ifndef GRAPHOS_MESH_MODEL_H
+#define GRAPHOS_MESH_MODEL_H
 
-#ifndef GRAPHOS_APP_STATUS_H
-#define GRAPHOS_APP_STATUS_H
+#include "graphos/components/mesh/MeshModel.h"
+#include "graphos/core/project.h"
 
-#include "graphos/graphos_global.h"
-
-#include <tidop/core/flags.h>
-
-#include <QObject>
-
-#include <memory>
+class QSettings;
 
 
 namespace graphos
 {
 
-class AppStatus
-  : public QObject
+class MeshModelImp
+  : public MeshModel
 {
 
   Q_OBJECT
 
 public:
 
-  enum class Flag : uint32_t
-  {
-    none                  = (0 << 0),
-    project_exists        = (1 << 0),  // Existe un proyecto
-    project_modified      = (1 << 1),  // Se ha modificado el proyecto
-    images_added          = (1 << 2),  // Se han añadido fotogramas
-    image_open            = (1 << 3),  // Hay una imagen abierta
-    feature_extraction    = (1 << 4),
-    feature_matching      = (1 << 5),
-    oriented              = (1 << 6),
-    absolute_oriented     = (1 << 7),
-    dense_model           = (1 << 8),
-    dtm                   = (1 << 9),
-    ortho                 = (1 << 10),
-    mesh                  = (1 << 11),
-    processing            = (1 << 20),
-    loading_images        = (1 << 21),
-    command_mode          = (1 << 30)
-  };
+  MeshModelImp(Project *project, QObject *parent = nullptr);
+  ~MeshModelImp() override;
+
+// MeshModel interface
 
 public:
 
-  AppStatus();
-  ~AppStatus();
+  PoissonReconParameters *parameters() const override;
+  QString denseModel() const override;
+  QString projectDir() const override;
+  void setMesh(const QString &mesh) override;
 
-  AppStatus(const AppStatus &) = delete;
-  AppStatus(AppStatus &&) = delete;
-  AppStatus operator=(const AppStatus &) = delete;
-  AppStatus operator=(AppStatus &&) = delete;
+public slots:
 
-  void activeFlag(Flag flag, bool active);
-  bool isActive(Flag flag) const;
-  void flagOn(Flag flag);
-  void flagOff(Flag flag);
-  void switchFlag(Flag flag);
-  void clear();
+  void loadSettings() override;
+  void saveSettings() override;
 
-signals:
-
-  void update();
+// Model interface
 
 private:
 
-  tl::EnumFlags<Flag> mFlags;
-  
+  void init() override;
+
+public slots:
+
+  void clear() override;
+
+protected:
+
+  Project *mProject;
+  QSettings *mSettings;
+  bool mReadSettings;
+  PoissonReconParameters *mParameters;
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(AppStatus::Flag)
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_APP_STATUS_H
+#endif // GRAPHOS_MESH_MODEL_H

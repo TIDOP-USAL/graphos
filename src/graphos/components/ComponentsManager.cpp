@@ -247,11 +247,11 @@ void ComponentsManager::registerMultiComponent(const QString &name,
 
 void ComponentsManager::loadPlugins()
 {
-#ifdef _DEBUG
-  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath());
-#else
+//#ifdef _DEBUG
+//  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath());
+//#else
   QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
-#endif // _DEBUG
+//#endif // _DEBUG
 
   msgInfo("Load Plugins from: %s", pluginsDir.path().toStdString().c_str());
 

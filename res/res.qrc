@@ -115,6 +115,7 @@
         <file>img/material/24/icons8_navigation_toolbar_top_24px_1.png</file>
         <file>img/material/24/icons8_lock_24px.png</file>
         <file>img/material/24/icons8_padlock_24px.png</file>
+        <file>img/material/24/icons8_mesh_24px.png</file>
     </qresource>
     <qresource prefix="/ico/48">
         <file>img/material/48/icons8-match_view.png</file>
@@ -223,6 +224,7 @@
         <file>img/material/48/icons8_Location_Pin_48px.png</file>
         <file>img/material/48/icons8_ruler_48px.png</file>
         <file>img/material/48/icons8_Location_info_48px.png</file>
+        <file>img/material/48/icons8_mesh_48px.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>img/graphos.png</file>

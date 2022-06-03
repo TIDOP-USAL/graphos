@@ -35,6 +35,7 @@
 #include "graphos/components/featmatch/FeatureMatchingComponent.h"
 #include "graphos/components/orientation/OrientationComponent.h"
 #include "graphos/components/dense/DensificationComponent.h"
+#include "graphos/components/mesh/MeshComponent.h"
 #include "graphos/components/undistortimages/UndistortImagesComponent.h"
 #include "graphos/components/dtm/DTMComponent.h"
 #include "graphos/components/orthophoto/OrthophotoComponent.h"
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
   FeatureMatchingComponent feature_matching_component(&app);
   OrientationComponent orientation_component(&app);
   DensificationComponent densification_component(&app);
+  MeshComponent mesh_component(&app);
   //GeoreferenceComponent georeference_component(&app);
   UndistortImagesComponent undistort_component(&app);
   DTMComponent dtm_component(&app);
@@ -112,6 +114,7 @@ int main(int argc, char *argv[])
     app.addComponent(&feature_matching_component);
     app.addComponent(&orientation_component);
     app.addComponent(&densification_component);
+    app.addComponent(&mesh_component);
     //app.addComponent(&georeference_component);
     app.addComponent(&undistort_component);
     app.addComponent(&dtm_component);
@@ -167,6 +170,9 @@ int main(int argc, char *argv[])
 
     componentsManager.registerComponent(&densification_component);
 
+    componentsManager.registerComponent(&mesh_component, 
+                                        ComponentsManager::Flags::separator_before);
+    
     /* Tools menu */
 
     componentsManager.registerComponent(&undistort_component,

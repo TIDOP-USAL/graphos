@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,78 +21,42 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APP_STATUS_H
-#define GRAPHOS_APP_STATUS_H
+#ifndef GRAPHOS_MESH_MODEL_INTERFACE_H
+#define GRAPHOS_MESH_MODEL_INTERFACE_H
 
-#include "graphos/graphos_global.h"
+#include <array>
 
-#include <tidop/core/flags.h>
-
-#include <QObject>
-
-#include <memory>
-
+#include "graphos/interfaces/mvp.h"
 
 namespace graphos
 {
 
-class AppStatus
-  : public QObject
+class PoissonReconParameters;
+
+class MeshModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  enum class Flag : uint32_t
-  {
-    none                  = (0 << 0),
-    project_exists        = (1 << 0),  // Existe un proyecto
-    project_modified      = (1 << 1),  // Se ha modificado el proyecto
-    images_added          = (1 << 2),  // Se han añadido fotogramas
-    image_open            = (1 << 3),  // Hay una imagen abierta
-    feature_extraction    = (1 << 4),
-    feature_matching      = (1 << 5),
-    oriented              = (1 << 6),
-    absolute_oriented     = (1 << 7),
-    dense_model           = (1 << 8),
-    dtm                   = (1 << 9),
-    ortho                 = (1 << 10),
-    mesh                  = (1 << 11),
-    processing            = (1 << 20),
-    loading_images        = (1 << 21),
-    command_mode          = (1 << 30)
-  };
-
-public:
-
-  AppStatus();
-  ~AppStatus();
-
-  AppStatus(const AppStatus &) = delete;
-  AppStatus(AppStatus &&) = delete;
-  AppStatus operator=(const AppStatus &) = delete;
-  AppStatus operator=(AppStatus &&) = delete;
-
-  void activeFlag(Flag flag, bool active);
-  bool isActive(Flag flag) const;
-  void flagOn(Flag flag);
-  void flagOff(Flag flag);
-  void switchFlag(Flag flag);
-  void clear();
-
-signals:
-
-  void update();
-
-private:
-
-  tl::EnumFlags<Flag> mFlags;
+  MeshModel(QObject *parent = nullptr) : Model(parent) {}
+  ~MeshModel() override = default;
   
+  virtual PoissonReconParameters *parameters() const = 0;
+
+  virtual QString denseModel() const = 0;
+  virtual QString projectDir() const = 0;
+  virtual void setMesh(const QString &mesh) = 0;
+
+public slots:
+
+  virtual void loadSettings() = 0;
+  virtual void saveSettings() = 0;
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(AppStatus::Flag)
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_APP_STATUS_H
+#endif // GRAPHOS_MESH_MODEL_INTERFACE_H

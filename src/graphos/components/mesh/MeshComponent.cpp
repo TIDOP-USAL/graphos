@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,12 +21,12 @@
  *                                                                      *
  ************************************************************************/
 
-#include "FeatureMatchingComponent.h"
 
-#include "graphos/components/featmatch/impl/FeatureMatchingModel.h"
-#include "graphos/components/featmatch/impl/FeatureMatchingView.h"
-#include "graphos/components/featmatch/impl/FeatureMatchingPresenter.h"
-#include "graphos/components/featmatch/impl/FeatureMatchingCommand.h"
+#include "MeshComponent.h"
+
+#include "graphos/components/mesh/impl/MeshModel.h"
+#include "graphos/components/mesh/impl/MeshView.h"
+#include "graphos/components/mesh/impl/MeshPresenter.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -36,74 +36,63 @@
 namespace graphos
 {
 
-FeatureMatchingComponent::FeatureMatchingComponent(Application *application)
+MeshComponent::MeshComponent(Application *application)
   : ProcessComponent(application)
 {
   init();
 }
 
-FeatureMatchingComponent::~FeatureMatchingComponent()
+MeshComponent::~MeshComponent()
 {
 }
 
-void FeatureMatchingComponent::init()
+void MeshComponent::init()
 {
-  this->setName("Feature Matching");
+  this->setName(tr("Mesh"));
   this->setMenu("workflow");
   this->setToolbar("workflow");
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-match_view.png"));
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8_mesh_24px.png"));
 }
 
-void FeatureMatchingComponent::createModel()
+void MeshComponent::createModel()
 {
-  setModel(new FeatureMatchingModelImp(app()->project()));
+  setModel(new MeshModelImp(app()->project()));
 }
 
-void FeatureMatchingComponent::createView()
+void MeshComponent::createView()
 {
-  setView(new FeatureMatchingViewImp());
+  setView(new MeshViewImp());
 }
 
-void FeatureMatchingComponent::createPresenter()
+void MeshComponent::createPresenter()
 {
-  setPresenter(new FeatureMatchingPresenterImp(dynamic_cast<FeatureMatchingView *>(view()), 
-                                               dynamic_cast<FeatureMatchingModel *>(model())));
-
-  connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), 
-          &FeatureMatchingPresenter::matches_deleted,
-          this,
-          &FeatureMatchingComponent::matches_deleted);
+  setPresenter(new MeshPresenterImp(dynamic_cast<MeshView *>(view()),
+                                               dynamic_cast<MeshModel *>(model())));
 }
 
-void FeatureMatchingComponent::createCommand()
+void MeshComponent::createCommand()
 {
-  setCommand(std::make_shared<FeatureMatchingCommand>());
 }
 
-void FeatureMatchingComponent::update()
+void MeshComponent::update()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool feature_matching_active = app_status->isActive(AppStatus::Flag::project_exists) &&
-                                 app_status->isActive(AppStatus::Flag::feature_extraction) && 
-                                 !app_status->isActive(AppStatus::Flag::processing);
-
-  //if (!feature_matching_active)
-  //  app_status->flagOff(AppStatus::Flag::feature_matching);
-
-  action()->setEnabled(feature_matching_active);
+  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
+  bool process_run = app_status->isActive(AppStatus::Flag::processing);
+  action()->setEnabled(bProjectExists && !process_run);
 }
 
-void FeatureMatchingComponent::onRunning()
+void MeshComponent::onRunning()
 {
   ProcessComponent::onRunning();
 }
 
-void FeatureMatchingComponent::onFinished()
+void MeshComponent::onFinished()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
@@ -111,12 +100,10 @@ void FeatureMatchingComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFinished();
-
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::feature_matching, true);
+  //app_status->activeFlag(AppStatus::Flag::..., true);
 }
 
-void FeatureMatchingComponent::onFailed()
+void MeshComponent::onFailed()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
@@ -124,8 +111,8 @@ void FeatureMatchingComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFailed();
-
-  app_status->activeFlag(AppStatus::Flag::feature_matching, false);
+  //app_status->activeFlag(AppStatus::Flag::..., false);
 }
+
 
 } // namespace graphos

@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,78 +21,30 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_APP_STATUS_H
-#define GRAPHOS_APP_STATUS_H
 
-#include "graphos/graphos_global.h"
+#ifndef GRAPHOS_MESH_PRESENTER_INTERFACE_H
+#define GRAPHOS_MESH_PRESENTER_INTERFACE_H
 
-#include <tidop/core/flags.h>
-
-#include <QObject>
-
-#include <memory>
-
+#include "graphos/interfaces/mvp.h"
+#include "graphos/core/process/ProcessPresenter.h"
 
 namespace graphos
 {
 
-class AppStatus
-  : public QObject
+class MeshPresenter
+  : public ProcessPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  enum class Flag : uint32_t
-  {
-    none                  = (0 << 0),
-    project_exists        = (1 << 0),  // Existe un proyecto
-    project_modified      = (1 << 1),  // Se ha modificado el proyecto
-    images_added          = (1 << 2),  // Se han añadido fotogramas
-    image_open            = (1 << 3),  // Hay una imagen abierta
-    feature_extraction    = (1 << 4),
-    feature_matching      = (1 << 5),
-    oriented              = (1 << 6),
-    absolute_oriented     = (1 << 7),
-    dense_model           = (1 << 8),
-    dtm                   = (1 << 9),
-    ortho                 = (1 << 10),
-    mesh                  = (1 << 11),
-    processing            = (1 << 20),
-    loading_images        = (1 << 21),
-    command_mode          = (1 << 30)
-  };
+  MeshPresenter() : ProcessPresenter() {}
+  ~MeshPresenter() override = default;
 
-public:
-
-  AppStatus();
-  ~AppStatus();
-
-  AppStatus(const AppStatus &) = delete;
-  AppStatus(AppStatus &&) = delete;
-  AppStatus operator=(const AppStatus &) = delete;
-  AppStatus operator=(AppStatus &&) = delete;
-
-  void activeFlag(Flag flag, bool active);
-  bool isActive(Flag flag) const;
-  void flagOn(Flag flag);
-  void flagOff(Flag flag);
-  void switchFlag(Flag flag);
-  void clear();
-
-signals:
-
-  void update();
-
-private:
-
-  tl::EnumFlags<Flag> mFlags;
-  
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(AppStatus::Flag)
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_APP_STATUS_H
+#endif // GRAPHOS_MESH_PRESENTER_INTERFACE_H

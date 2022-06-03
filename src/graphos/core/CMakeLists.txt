@@ -50,6 +50,7 @@ set(GRAPHOS_CORE_SOURCES
     dense/Smvs.cpp
     dense/Mvs.cpp
     dense/DenseExport.cpp
+    mesh/PoissonRecon.cpp
     utils.cpp
     dtm/dtm.cpp
     dtm/invdist.cpp
@@ -97,6 +98,7 @@ set(GRAPHOS_CORE_HEADERS
     dense/Smvs.h
     dense/Mvs.h
     dense/DenseExport.h
+    mesh/PoissonRecon.h
     utils.h
     dtm/dtm.h
     dtm/invdist.h

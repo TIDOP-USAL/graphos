@@ -100,6 +100,11 @@ set(GRAPHOS_SOURCES
     dense/impl/DensificationPresenter.cpp
     dense/impl/DensificationCommand.cpp
     dense/impl/DensificationProcess.cpp
+    mesh/MeshComponent.cpp
+    mesh/impl/MeshModel.cpp
+    mesh/impl/MeshView.cpp
+    mesh/impl/MeshPresenter.cpp
+    mesh/impl/MeshCommand.cpp
     featviewer/FeaturesViewerComponent.cpp
     featviewer/impl/FeaturesViewerView.cpp
     featviewer/impl/FeaturesViewerModel.cpp
@@ -232,6 +237,14 @@ set(GRAPHOS_HEADERS
     dense/impl/DensificationPresenter.h
     dense/impl/DensificationCommand.h
     dense/impl/DensificationProcess.h
+    mesh/MeshComponent.h
+    mesh/MeshModel.h
+    mesh/MeshView.h
+    mesh/MeshPresenter.h
+    mesh/impl/MeshModel.h
+    mesh/impl/MeshPresenter.h
+    mesh/impl/MeshView.h
+    mesh/impl/MeshCommand.h
     featviewer/FeaturesViewerComponent.h
     featviewer/FeaturesViewerView.h
     featviewer/FeaturesViewerModel.h
