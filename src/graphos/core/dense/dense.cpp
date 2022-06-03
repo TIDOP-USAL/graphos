@@ -29,33 +29,115 @@
 
 #include <tidop/core/path.h>
 
+
 namespace graphos
 {
 
-//DensifierBase::DensifierBase(const std::unordered_map<size_t, Image> &images,
-//                             const std::map<int, Camera> &cameras)
-//  : mImages(images),
-//    mCameras(cameras)
-//{
-//
-//  for (const auto &camera : mCameras) {
-//    mUndistort[camera.first] = Undistort(camera.second);
-//  }
-//}
-//
-//DensifierBase::~DensifierBase()
-//{
-//}
-//
-//void DensifierBase::createDirectory(const std::string &dir)
+DensifierBase::DensifierBase(const std::unordered_map<size_t, Image> &images,
+                             const std::map<int, Camera> &cameras,
+                             const std::unordered_map<size_t, CameraPose> &poses,
+                             const std::vector<GroundPoint> &groundPoints,
+                             const QString &outputPath/*,
+                             const QString &undistortPath*/)
+  : mImages(images),
+    mCameras(cameras),
+    mPoses(poses),
+    mGroundPoints(groundPoints),
+    mOutputPath(outputPath.toStdWString())/*,
+    mUndistortPath(undistortPath.toStdWString())*/,
+    mCuda(false)
+{
+
+}
+
+DensifierBase::~DensifierBase()
+{
+}
+
+//void DensifierBase::createDirectory(const QString &dir)
 //{
 //  tl::Path _path(mOutputPath);
-//  _path.append(dir);
+//  _path.append(dir.toStdWString());
 //  if (!_path.exists() && !_path.createDirectories()) {
 //    std::string err = "The output directory cannot be created: ";
 //    err.append(_path.toString());
 //    throw std::runtime_error(err);
 //  }
+//}
+
+void DensifierBase::enableCuda(bool enable)
+{
+  mCuda = enable;
+}
+
+QString DensifierBase::denseModel() const
+{
+  return mDenseModel;
+}
+
+//void DensifierBase::setOutputPath(const QString &outputPath)
+//{
+//  mOutputPath = outputPath.toStdWString();
+//}
+//
+//void DensifierBase::setUndistortPath(const QString &undistortPath)
+//{
+//  mUndistortPath = undistortPath.toStdWString();
+//}
+
+void DensifierBase::undistort(const QString &dir)
+{
+
+  /// TODO: Ver si ya están generadas las imágenes corregidas
+
+  try {
+
+    UndistortImages undistort(mImages,
+                              mCameras,
+                              dir,
+                              mCuda);
+    undistort.run();
+
+    //if (undistort.status() != tl::Task::Status::error) 
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
+}
+
+tl::Path DensifierBase::outputPath() const
+{
+  return mOutputPath;
+}
+
+const std::unordered_map<size_t, Image> &DensifierBase::images() const
+{
+  return mImages;
+}
+
+const std::map<int, Camera> &DensifierBase::cameras() const
+{
+  return mCameras;
+}
+
+const std::unordered_map<size_t, CameraPose> &DensifierBase::poses() const
+{
+  return mPoses;
+}
+
+const std::vector<GroundPoint> &DensifierBase::groundPoints() const
+{
+  return mGroundPoints;
+}
+
+void DensifierBase::setDenseModel(const QString &denseModel)
+{
+  mDenseModel = denseModel;
+}
+
+//tl::Path DensifierBase::undistortPath() const
+//{
+//  return tl::Path();
 //}
 
 

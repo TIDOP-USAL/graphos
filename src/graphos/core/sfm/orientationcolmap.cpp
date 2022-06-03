@@ -477,9 +477,6 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
     optionManager.bundle_adjustment->refine_principal_point = refinePrincipalPoint();
     optionManager.bundle_adjustment->refine_extra_params = refineExtraParams();
 
-
-    //for (size_t id = 0; id < mReconstructionManager->Size(); id++) {
-    //  colmap::Reconstruction& reconstruction = mReconstructionManager->Get(id);
     colmap::Reconstruction &reconstruction = mReconstructionManager->Get(0);
 
     mBundleAdjustmentController = new colmap::BundleAdjustmentController(optionManager, &reconstruction);
@@ -514,133 +511,6 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
         camera.second.setCalibration(calibration);
       }
     }
-
-    // Calibration
-    /*{
-
-      for (auto &camera : mCameras) {
-
-        colmap::image_t colmap_image_id = static_cast<colmap::image_t>(camera.first);
-        std::shared_ptr<Calibration> calibration;
-        if (reconstruction.ExistsCamera(colmap_image_id)) {
-
-          colmap::Camera &colmap_camera = reconstruction.Camera(colmap_image_id);
-          std::vector<double> params = colmap_camera.Params();
-
-          std::string model_name = colmap_camera.ModelName();
-
-          if (model_name.compare("SIMPLE_PINHOLE") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::simple_pinhole);
-            calibration->setParameter(Calibration::Parameters::focal, params[0]);
-            calibration->setParameter(Calibration::Parameters::cx, params[1]);
-            calibration->setParameter(Calibration::Parameters::cy, params[2]);
-
-          } else if (model_name.compare("PINHOLE") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::pinhole);
-            calibration->setParameter(Calibration::Parameters::focalx, params[0]);
-            calibration->setParameter(Calibration::Parameters::focaly, params[1]);
-            calibration->setParameter(Calibration::Parameters::cx, params[2]);
-            calibration->setParameter(Calibration::Parameters::cy, params[3]);
-
-          } else if (model_name.compare("SIMPLE_RADIAL") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::radial1);
-            calibration->setParameter(Calibration::Parameters::focal, params[0]);
-            calibration->setParameter(Calibration::Parameters::cx, params[1]);
-            calibration->setParameter(Calibration::Parameters::cy, params[2]);
-            calibration->setParameter(Calibration::Parameters::k1, params[3]);
-
-          } else if (model_name.compare("RADIAL") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::radial2);
-            calibration->setParameter(Calibration::Parameters::focal, params[0]);
-            calibration->setParameter(Calibration::Parameters::cx, params[1]);
-            calibration->setParameter(Calibration::Parameters::cy, params[2]);
-            calibration->setParameter(Calibration::Parameters::k1, params[3]);
-            calibration->setParameter(Calibration::Parameters::k2, params[4]);
-
-          } else if (model_name.compare("OPENCV") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::opencv);
-            calibration->setParameter(Calibration::Parameters::focalx, params[0]);
-            calibration->setParameter(Calibration::Parameters::focaly, params[1]);
-            calibration->setParameter(Calibration::Parameters::cx, params[2]);
-            calibration->setParameter(Calibration::Parameters::cy, params[3]);
-            calibration->setParameter(Calibration::Parameters::k1, params[4]);
-            calibration->setParameter(Calibration::Parameters::k2, params[5]);
-            calibration->setParameter(Calibration::Parameters::p1, params[6]);
-            calibration->setParameter(Calibration::Parameters::p2, params[7]);
-
-          } else if (model_name.compare("OPENCV_FISHEYE") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::opencv_fisheye);
-            calibration->setParameter(Calibration::Parameters::focalx, params[0]);
-            calibration->setParameter(Calibration::Parameters::focaly, params[1]);
-            calibration->setParameter(Calibration::Parameters::cx, params[2]);
-            calibration->setParameter(Calibration::Parameters::cy, params[3]);
-            calibration->setParameter(Calibration::Parameters::k1, params[4]);
-            calibration->setParameter(Calibration::Parameters::k2, params[5]);
-            calibration->setParameter(Calibration::Parameters::k3, params[6]);
-            calibration->setParameter(Calibration::Parameters::k4, params[7]);
-
-          } else if (model_name.compare("FULL_OPENCV") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::opencv_full);
-            calibration->setParameter(Calibration::Parameters::focalx, params[0]);
-            calibration->setParameter(Calibration::Parameters::focaly, params[1]);
-            calibration->setParameter(Calibration::Parameters::cx, params[2]);
-            calibration->setParameter(Calibration::Parameters::cy, params[3]);
-            calibration->setParameter(Calibration::Parameters::k1, params[4]);
-            calibration->setParameter(Calibration::Parameters::k2, params[5]);
-            calibration->setParameter(Calibration::Parameters::p1, params[6]);
-            calibration->setParameter(Calibration::Parameters::p2, params[7]);
-            calibration->setParameter(Calibration::Parameters::k3, params[8]);
-            calibration->setParameter(Calibration::Parameters::k4, params[9]);
-            calibration->setParameter(Calibration::Parameters::k5, params[10]);
-            calibration->setParameter(Calibration::Parameters::k6, params[11]);
-
-          } else if (model_name.compare("SIMPLE_RADIAL_FISHEYE") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::simple_radial_fisheye);
-            calibration->setParameter(Calibration::Parameters::focal, params[0]);
-            calibration->setParameter(Calibration::Parameters::cx, params[1]);
-            calibration->setParameter(Calibration::Parameters::cy, params[2]);
-            calibration->setParameter(Calibration::Parameters::k1, params[3]);
-
-          } else if (model_name.compare("RADIAL_FISHEYE") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::radial_fisheye);
-            calibration->setParameter(Calibration::Parameters::focal, params[0]);
-            calibration->setParameter(Calibration::Parameters::cx, params[1]);
-            calibration->setParameter(Calibration::Parameters::cy, params[2]);
-            calibration->setParameter(Calibration::Parameters::k1, params[3]);
-            calibration->setParameter(Calibration::Parameters::k2, params[4]);
-
-          } else if (model_name.compare("FULL_RADIAL") == 0) {
-
-            calibration = CalibrationFactory::create(Calibration::CameraModel::radial3);
-            calibration->setParameter(Calibration::Parameters::focal, params[0]);
-            calibration->setParameter(Calibration::Parameters::cx, params[1]);
-            calibration->setParameter(Calibration::Parameters::cy, params[2]);
-            calibration->setParameter(Calibration::Parameters::k1, params[3]);
-            calibration->setParameter(Calibration::Parameters::k2, params[4]);
-            calibration->setParameter(Calibration::Parameters::k3, params[5]);
-            calibration->setParameter(Calibration::Parameters::p1, params[6]);
-            calibration->setParameter(Calibration::Parameters::p2, params[7]);
-
-          } else {
-            TL_TODO("camara no soportada")
-          }
-
-        }
-
-        if (calibration) {
-          camera.second.setCalibration(calibration);
-        }
-      }
-    }*/
 
     OrientationExport orientationExport(&reconstruction);
 
@@ -861,6 +731,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
     tl::Path sparse_path(dir);
     sparse_path.append("sparse.ply");
     OrientationExport orientationExport(&reconstruction);
+    orientationExport.exportBinary(QString::fromStdString(sparse_path.toString()));
     orientationExport.exportPLY(QString::fromStdString(sparse_path.toString()));
 
     /// writeOffset

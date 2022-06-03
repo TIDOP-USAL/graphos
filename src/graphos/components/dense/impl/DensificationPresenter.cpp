@@ -17,6 +17,8 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
+#include <memory>
+
 
 namespace graphos
 {
@@ -183,36 +185,15 @@ void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  QString dense_path = mModel->projectFolder();
-  dense_path.append("/dense");
-  QString densification_method = mView->currentDensificationMethod();
-  if (densification_method.compare("CMVS/PMVS") == 0) {
-    dense_path.append("/pmvs/models/option-all.ply");
-  } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
-    dense_path.append("/smvs/smvs-");
-    if (mSmvs->shadingBasedOptimization()) dense_path.append("S");
-    else dense_path.append("B");
-    dense_path.append(QString::number(mSmvs->inputImageScale())).append(".ply");
-  } else if (densification_method.compare("MVS") == 0) {
-    dense_path.append("/mvs/model_dense.ply");
-  } else {
-    return;
+  ProcessPresenter::onFinished(event);
+
+  if (progressHandler()) {
+    progressHandler()->setDescription(tr("Densification finished"));
   }
 
-  if (QFileInfo(dense_path).exists()) {
-    mModel->setDenseModel(dense_path);
+  QString dense_path = dynamic_cast<DensifierBase const *>(event->task())->denseModel();
 
-    ProcessPresenter::onFinished(event);
-
-    if (progressHandler()) {
-      progressHandler()->setDescription(tr("Densification finished"));
-    }
-
-  } else {
-    /// TODO: Devolver error
-    progressHandler()->setDescription(tr("Densification error"));
-    msgError("Densification failed");
-  }
+  mModel->setDenseModel(dense_path);
 
 }
 
@@ -232,6 +213,9 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
   }
 
   QString densification_method = mView->currentDensificationMethod();
+
+  tl::Path dense_path(mModel->projectFolder().toStdWString());
+  dense_path.append("dense");
 
   std::shared_ptr<Densifier> densifier;
   if (densification_method.compare("CMVS/PMVS") == 0) {
@@ -253,11 +237,29 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                 mModel->useCuda());
 
   } else if(densification_method.compare("MVS") == 0) {
-    densifier = std::make_shared<MvsDensifier>(mMVS->resolutionLevel(),
-                                               mMVS->minResolution(),
-                                               mMVS->maxResolution(),
-                                               mMVS->numberViews(),
-                                               mMVS->numberViewsFuse());
+    //densifier = std::make_shared<MvsDensifier>(mMVS->resolutionLevel(),
+    //                                           mMVS->minResolution(),
+    //                                           mMVS->maxResolution(),
+    //                                           mMVS->numberViews(),
+    //                                           mMVS->numberViewsFuse());
+
+    dense_path.append("mvs");
+
+    auto mvs = std::make_unique<MvsDensifier2>(mModel->images(),
+                                               mModel->cameras(),
+                                               mModel->poses(),
+                                               mModel->groundPoints(),
+                                               QString::fromStdWString(dense_path.toWString()),
+                                               mModel->database(),
+                                               mModel->useCuda());
+
+    mvs->setMaxResolution(mMVS->maxResolution());
+    mvs->setMinResolution(mMVS->minResolution());
+    mvs->setNumberViews(mMVS->numberViews());
+    mvs->setNumberViewsFuse(mMVS->numberViewsFuse());
+    mvs->setResolutionLevel(mMVS->resolutionLevel());
+
+    dense_process = std::move(mvs);
 
   } else {
     mView->hide();
@@ -266,14 +268,14 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
   mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
 
-  QString mReconstructionPath = mModel->reconstructionPath();
-  QString mOutputPat = mModel->projectFolder() + "/dense";
+  //QString mReconstructionPath = mModel->reconstructionPath();
+  //QString mOutputPat = mModel->projectFolder() + "/dense";
 
-  dense_process = std::make_unique<DensificationProcess>(densifier,
-                                                         mModel->images(),
-                                                         mModel->cameras(),
-                                                         mReconstructionPath,
-                                                         mOutputPat);
+  //dense_process = std::make_unique<DensificationProcess>(densifier,
+  //                                                       mModel->images(),
+  //                                                       mModel->cameras(),
+  //                                                       mReconstructionPath,
+  //                                                       mOutputPat);
 
   if (progressHandler()){
     progressHandler()->setRange(0, 1);

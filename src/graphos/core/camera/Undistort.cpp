@@ -61,9 +61,9 @@ cv::Mat openCVCameraMatrix(const Calibration &calibration)
   std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
                                                             0.f, focal_y, ppy,
                                                             0.f, 0.f, 1.f};
-  cv::Mat cameraMatrix(3, 3, CV_32F, camera_matrix_data.data());
+  cv::Mat camera_matrix(3, 3, CV_32F, camera_matrix_data.data());
 
-  return cameraMatrix.clone();
+  return camera_matrix.clone();
 }
 
 cv::Mat openCVDistortionCoefficients(const Calibration &calibration)
@@ -166,6 +166,11 @@ Undistort::Undistort(const Undistort &undistort)
 {
 }
 
+Camera Undistort::camera() const
+{
+  return mCamera;
+}
+
 void Undistort::setCamera(const Camera &camera)
 {
   mCamera = camera;
@@ -174,21 +179,7 @@ void Undistort::setCamera(const Camera &camera)
 
 Camera Undistort::undistortCamera() const
 {
-  Camera undistort_camera = mCamera;
-
-  double fx = static_cast<double>(mOptimalNewCameraMatrix.at<float>(0, 0));
-  double fy = static_cast<double>(mOptimalNewCameraMatrix.at<float>(1, 1));
-  double focal = (fx + fy) / 2.;
-  undistort_camera.setFocal(focal);
-  std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(mCamera.calibration()->cameraModel());
-  undistort_calibration->setParameter(Calibration::Parameters::focal, focal);
-  undistort_calibration->setParameter(Calibration::Parameters::focalx, mOptimalNewCameraMatrix.at<float>(0, 0));
-  undistort_calibration->setParameter(Calibration::Parameters::focaly, mOptimalNewCameraMatrix.at<float>(1, 1));
-  undistort_calibration->setParameter(Calibration::Parameters::cx, mOptimalNewCameraMatrix.at<float>(0, 2));
-  undistort_calibration->setParameter(Calibration::Parameters::cy, mOptimalNewCameraMatrix.at<float>(1, 2));
-  undistort_camera.setCalibration(undistort_calibration);
-
-  return undistort_camera;
+  return mUndistortCamera;
 }
 
 cv::Mat Undistort::undistortImage(const cv::Mat &image, bool cuda)
@@ -227,6 +218,7 @@ void Undistort::init()
   initCameraMatrix();
   initDistCoeffs();
   initOptimalNewCameraMatrix();
+  initUndistortCamera();
   initUndistortMaps();
 }
 
@@ -245,14 +237,45 @@ void Undistort::initOptimalNewCameraMatrix()
   cv::Size size(static_cast<int>(mCamera.width()),
                 static_cast<int>(mCamera.height()));
 
-  mOptimalNewCameraMatrix = cv::getOptimalNewCameraMatrix(mCameraMatrix, mDistCoeffs, size, 1, size, nullptr);
+  bool b_fisheye = mCamera.calibration()->checkCameraType(Calibration::CameraType::fisheye);
+
+  if (!b_fisheye) {
+    mOptimalNewCameraMatrix = cv::getOptimalNewCameraMatrix(mCameraMatrix, mDistCoeffs, size, 1, size, nullptr);
+  } else {
+    cv::fisheye::estimateNewCameraMatrixForUndistortRectify(mCameraMatrix, mDistCoeffs, size, cv::Mat(), mOptimalNewCameraMatrix, 0.0, size);
+  }
+}
+
+void Undistort::initUndistortCamera()
+{
+  mUndistortCamera = mCamera;
+
+  double fx = static_cast<double>(mOptimalNewCameraMatrix.at<float>(0, 0));
+  double fy = static_cast<double>(mOptimalNewCameraMatrix.at<float>(1, 1));
+  double focal = (fx + fy) / 2.;
+  mUndistortCamera.setFocal(focal);
+  /// TODO: ¿cámara pinhole?
+  std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(mCamera.calibration()->cameraModel());
+  undistort_calibration->setParameter(Calibration::Parameters::focal, focal);
+  undistort_calibration->setParameter(Calibration::Parameters::focalx, mOptimalNewCameraMatrix.at<float>(0, 0));
+  undistort_calibration->setParameter(Calibration::Parameters::focaly, mOptimalNewCameraMatrix.at<float>(1, 1));
+  undistort_calibration->setParameter(Calibration::Parameters::cx, mOptimalNewCameraMatrix.at<float>(0, 2));
+  undistort_calibration->setParameter(Calibration::Parameters::cy, mOptimalNewCameraMatrix.at<float>(1, 2));
+  mUndistortCamera.setCalibration(undistort_calibration);
 }
 
 void Undistort::initUndistortMaps()
 {
   cv::Size size(static_cast<int>(mCamera.width()),
                 static_cast<int>(mCamera.height()));
-  cv::initUndistortRectifyMap(mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix, size, CV_32FC1, mMap1, mMap2);
+
+  bool b_fisheye = mCamera.calibration()->checkCameraType(Calibration::CameraType::fisheye);
+
+  if (!b_fisheye) {
+    cv::initUndistortRectifyMap(mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix, size, CV_32FC1, mMap1, mMap2);
+  } else {
+    cv::fisheye::initUndistortRectifyMap(mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix, size, CV_32FC1, mMap1, mMap2);
+  }
 }
 
 

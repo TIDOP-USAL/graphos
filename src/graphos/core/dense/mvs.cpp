@@ -26,6 +26,8 @@
 #include "graphos/core/camera/Calibration.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/camera/Undistort.h"
+#include "graphos/core/image.h"
+#include "graphos/core/sfm/groundpoint.h"
 
 // TIDOP LIB
 #include <tidop/core/messages.h>
@@ -33,10 +35,12 @@
 #include <tidop/core/path.h>
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
+#include <tidop/core/progress.h>
 
 // COLMAP
 #include <colmap/base/reconstruction.h>
 #include <colmap/base/undistortion.h>
+#include <colmap/base/database.h>
 
 // OPENCV
 #include <opencv2/core.hpp>
@@ -51,6 +55,8 @@
 
 #include <fstream>
 #include <iomanip>
+#include <chrono>
+#include <thread>
 
 namespace graphos
 {
@@ -631,5 +637,243 @@ void MvsDensifier::exportToMVS()
   }
 }
 
+
+MvsDensifier2::MvsDensifier2(const std::unordered_map<size_t, Image> &images,
+                             const std::map<int, Camera> &cameras,
+                             const std::unordered_map<size_t, CameraPose> &poses,
+                             const std::vector<GroundPoint> &groundPoints, 
+                             const QString &outputPath,
+                             const QString &database, 
+                             bool cuda/*,
+                             const QString &undistortPath*/)
+  : DensifierBase(images, cameras, poses, groundPoints, outputPath/*, undistortPath*/),
+    mDatabase(database)
+{
+  enableCuda(cuda);
+}
+
+MvsDensifier2::~MvsDensifier2()
+{
+}
+
+void MvsDensifier2::clearPreviousModel()
+{
+  outputPath().removeDirectory();
+}
+
+void MvsDensifier2::writeNVMFile()
+{
+  try {
+  
+    colmap::Database database;
+    database.Open(mDatabase.toStdString());
+    const auto &colmap_images = database.ReadAllImages();
+
+    std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
+
+    for (const auto &image : images()) {
+
+      tl::Path image_path(image.second.path().toStdString());
+
+      for (const auto &colmap_image : colmap_images) {
+        tl::Path colmap_image_path(colmap_image.Name());
+
+        if (image_path.equivalent(colmap_image_path)) {
+          graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+          break;
+        }
+      }
+
+    }
+
+
+    tl::Path nvm_path(outputPath());
+    nvm_path.append("model.nvm");
+
+    std::map<int, Undistort> undistort;
+
+    for (auto &camera : cameras()) {
+
+      undistort[camera.first] = Undistort(camera.second);
+    }
+
+    std::ofstream stream(nvm_path.toString(), std::ios::trunc);
+
+
+    if (stream.is_open()) {
+
+      int camera_count = poses().size();
+      int ground_points_count = groundPoints().size();
+
+      stream << "NVM_V3 \n\n" << camera_count << "\n";
+
+      stream << std::fixed << std::setprecision(12);
+
+      std::unordered_map<size_t, size_t> graphos_to_mvs_ids;
+
+      for (const auto &pose : poses()) {
+
+        size_t image_id = pose.first;
+        size_t mvs_id = graphos_to_mvs_ids.size();
+        graphos_to_mvs_ids[image_id] = mvs_id;
+
+        const auto &image = images().at(image_id);
+        size_t camera_id = image.cameraId();
+        float new_focal = undistort.at(camera_id).undistortCamera().focal();
+
+        auto projection_center = pose.second.position();
+        auto quaternion = pose.second.quaternion();
+
+        tl::Path undistort_image(image.path().toStdString());
+        undistort_image.replaceExtension(".tif");
+
+        stream << "undistort/" << undistort_image.fileName().toString() << " ";
+        stream << new_focal << " ";
+        stream << quaternion.w << " ";
+        stream << quaternion.x << " ";
+        stream << quaternion.y << " ";
+        stream << quaternion.z << " ";
+        stream << projection_center.x << " ";
+        stream << projection_center.y << " ";
+        stream << projection_center.z << " ";
+        stream << 0 << " ";
+        stream << 0 << std::endl;
+
+      }
+
+      stream << "\n" << ground_points_count << std::endl;
+
+      for (auto &points_3d : groundPoints()) {
+
+        stream << points_3d.x << " "
+               << points_3d.y << " "
+               << points_3d.z << " "
+               << points_3d.color().red() << " "
+               << points_3d.color().green() << " "
+               << points_3d.color().blue() << " ";
+
+
+
+        auto &track = points_3d.track();
+
+        stream << track.size();
+        
+        for (auto &map : track.pairs()) {
+
+          size_t image_id = map.first;
+          size_t point_id = map.second;
+
+          
+          auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
+
+          stream << " " << static_cast<int>(graphos_to_mvs_ids.at(image_id))
+                 << " " << point_id
+                 << " " << keypoints[point_id].x
+                 << " " << keypoints[point_id].y;
+        }
+
+        stream << std::endl;
+      }
+
+      stream.close();
+    }
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
+  }
+
+}
+
+void MvsDensifier2::exportToMVS()
+{
+  try {
+
+    tl::Path app_path = tl::App::instance().path();
+    std::string cmd_mvs("\"");
+    //cmd_mvs.append(app_path.parentPath().toString());
+    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
+    //cmd_mvs.append("C:\\OpenMVS\\InterfaceCOLMAP.exe\" - w \"");
+    cmd_mvs.append(outputPath().toString());
+    cmd_mvs.append("\" -i model.nvm -o model.mvs -v 0");
+
+    msgInfo("Process: %s", cmd_mvs.c_str());
+    tl::Process process(cmd_mvs);
+
+    process.run();
+
+    if (process.status() == tl::Process::Status::error) TL_THROW_EXCEPTION(cmd_mvs.c_str());
+
+    std::this_thread::sleep_for(std::chrono::nanoseconds(1000));
+
+    tl::Path model = outputPath();
+    model.append("model.mvs");
+
+    TL_ASSERT(model.exists(), "model.mvs not found");
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
+}
+
+void MvsDensifier2::densify()
+{
+  try {
+
+    tl::Path app_path = tl::App::instance().path();
+    std::string cmd_mvs("\"");
+    //cmd_mvs.append(app_path.parentPath().toString());
+    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
+    cmd_mvs.append(outputPath().toString());
+    cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 0");
+    cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
+    cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
+    cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
+    cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
+    cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
+
+    msgInfo("Process: %s", cmd_mvs.c_str());
+    tl::Process process(cmd_mvs);
+
+    process.run();
+
+    TL_ASSERT(process.status() == tl::Process::Status::finalized, "Densify Point Cloud error");
+
+    std::this_thread::sleep_for(std::chrono::nanoseconds(5000));
+
+    tl::Path dense_model = outputPath();
+    dense_model.append("model_dense.ply");
+    
+    TL_ASSERT(dense_model.exists(), "Densify Point Cloud error");
+
+    setDenseModel(QString::fromStdWString(dense_model.toWString()));
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
+}
+
+void MvsDensifier2::execute(tl::Progress *progressBar)
+{
+  try {
+
+    this->clearPreviousModel();
+
+    tl::Path undistort_path(outputPath());
+    undistort_path.append("undistort");
+    undistort_path.createDirectories();
+
+    tl::Path models_path(outputPath());
+    models_path.append("models");
+    models_path.createDirectory();
+
+    this->writeNVMFile();
+    this->undistort(QString::fromStdWString(undistort_path.toWString()));
+    this->exportToMVS();
+    this->densify();
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("MVS error");
+  }
+}
 
 } // namespace graphos

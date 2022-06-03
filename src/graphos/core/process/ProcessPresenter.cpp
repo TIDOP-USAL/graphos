@@ -116,6 +116,8 @@ void ProcessPresenter::run()
       mProgressHandler->init();
     }
 
+    emit running();
+
     mProcess->runAsync(mProgressHandler);
 
   } catch(const std::exception &e) {

@@ -403,6 +403,11 @@ CameraPose ProjectImp::photoOrientation(size_t imageId) const
   return mPhotoOrientation.at(imageId);
 }
 
+const std::unordered_map<size_t, CameraPose> &ProjectImp::poses() const
+{
+  return mPhotoOrientation;
+}
+
 void ProjectImp::addPhotoOrientation(size_t imageId, 
                                      const CameraPose &photoOrientation)
 {

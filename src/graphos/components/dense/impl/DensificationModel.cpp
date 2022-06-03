@@ -25,7 +25,7 @@
 
 #include "graphos/core/project.h"
 #include "graphos/core/dense/dense.h"
-
+#include "graphos/core/sfm/groundpoint.h"
 
 #include <tidop/core/console.h>
 
@@ -74,6 +74,11 @@ QString DensificationModelImp::reconstructionPath() const
   return mProject->reconstructionPath();
 }
 
+QString DensificationModelImp::database() const
+{
+  return mProject->database();
+}
+
 bool DensificationModelImp::useCuda() const
 {
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
@@ -94,6 +99,22 @@ const std::unordered_map<size_t, Image> &DensificationModelImp::images() const
 const std::map<int, Camera> &DensificationModelImp::cameras() const
 {
   return mProject->cameras();
+}
+
+const std::unordered_map<size_t, CameraPose> &DensificationModelImp::poses() const
+{
+  return mProject->poses();
+}
+
+std::vector<GroundPoint> DensificationModelImp::groundPoints() const
+{
+  tl::Path ground_points_path(mProject->reconstructionPath().toStdWString());
+  ground_points_path.append("ground_points.bin");
+
+  std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
+  reader->read(ground_points_path);
+  
+  return reader->points();
 }
 
 void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)
