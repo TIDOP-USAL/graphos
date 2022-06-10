@@ -80,6 +80,7 @@ bool UndistortImagesCommand::run()
     UndistortImages process(project.images(),
                             project.cameras(),
                             QString::fromStdWString(mUndistortPath.toWString()),
+                            UndistortImages::Format::tiff,
                             mDisableCuda);
 
     process.run(/*&progress_bar*/);

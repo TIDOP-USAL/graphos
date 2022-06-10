@@ -158,6 +158,7 @@ Undistort::Undistort(const Camera &camera)
 
 Undistort::Undistort(const Undistort &undistort)
   : mCamera(undistort.mCamera),
+    mUndistortCamera(undistort.mUndistortCamera),
     mCameraMatrix(undistort.mCameraMatrix),
     mDistCoeffs(undistort.mDistCoeffs),
     mOptimalNewCameraMatrix(undistort.mOptimalNewCameraMatrix),
@@ -211,6 +212,14 @@ cv::Mat Undistort::undistortImage(const cv::Mat &image, bool cuda)
   }
 
   return img_undistort;
+}
+
+tl::Point<float> Undistort::undistortPoint(const tl::Point<float> &point)
+{
+  std::vector<cv::Point2f> cv_point{cv::Point2f(point.x, point.y)};
+  std::vector<cv::Point2f> cv_point_out;
+  cv::undistortPoints(cv_point, cv_point_out, mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix);
+  return tl::Point<float>(cv_point_out[0].x, cv_point_out[0].y);
 }
 
 void Undistort::init()
@@ -350,12 +359,14 @@ public:
   UndistortProducerImp(tl::QueueMPMC<UndistortQueueData> *queue,
                        const std::unordered_map<size_t, Image> *images,
                        const std::map<int, Camera> *cameras,
-                       tl::Path undistortPath,
+                       const tl::Path &undistortPath,
+                       const std::string &extension,
                        tl::Task *parentTask = nullptr)
     : tl::Producer<UndistortQueueData>(queue),
       mImages(images),
       mCameras(cameras),
       mUndistortPath(undistortPath),
+      mExtension(extension),
       mParentTask(parentTask)
   {
   }
@@ -423,9 +434,7 @@ private:
 
       tl::Path undistort_image_path(mUndistortPath);
       undistort_image_path.append(image.name().toStdString());
-      undistort_image_path.replaceExtension(".tif");
-
-      auto &kk = mUndistort.at(camera_id);
+      undistort_image_path.replaceExtension(mExtension);
 
       UndistortQueueData data(mat, mUndistort.at(camera_id), undistort_image_path);
 
@@ -462,6 +471,7 @@ protected:
   const std::map<int, Camera> *mCameras;
   std::map<int, std::shared_ptr<Undistort>> mUndistort;
   tl::Path mUndistortPath;
+  std::string mExtension;
   tl::Task *mParentTask;
 };
 
@@ -570,11 +580,13 @@ private:
 UndistortImages::UndistortImages(const std::unordered_map<size_t, Image> &images,
                                  const std::map<int, Camera> &cameras,
                                  const QString &outputPath,
+                                 Format outputFormat,
                                  bool cuda)
   : tl::TaskBase(),
     mImages(images),
     mCameras(cameras),
     mOutputPath(outputPath),
+    mOutputFormat(outputFormat),
     bUseCuda(cuda)
 {
 }
@@ -590,6 +602,20 @@ void UndistortImages::execute(tl::Progress *progressBar)
     tl::Chrono chrono("Undistort Images finished");
     chrono.run();
 
+    std::string extension;
+    switch (mOutputFormat) {
+      case graphos::UndistortImages::Format::tiff:
+        extension = ".tif";
+        break;
+      case graphos::UndistortImages::Format::jpeg:
+        extension = ".jpg";
+        break;
+      case graphos::UndistortImages::Format::png:
+        extension = ".png";
+        break;
+    }
+
+
     tl::Path undistort_path(mOutputPath.toStdWString());
     undistort_path.createDirectories();
 
@@ -598,6 +624,7 @@ void UndistortImages::execute(tl::Progress *progressBar)
                                             &mImages,
                                             &mCameras,
                                             undistort_path,
+                                            extension,
                                             this);
     internal::UndistortConsumerImp consumer(&queue,
                                             &mImages,

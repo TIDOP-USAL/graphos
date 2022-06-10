@@ -217,41 +217,73 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
   tl::Path dense_path(mModel->projectFolder().toStdWString());
   dense_path.append("dense");
 
-  std::shared_ptr<Densifier> densifier;
+  //std::shared_ptr<Densifier> densifier;
   if (densification_method.compare("CMVS/PMVS") == 0) {
 
-    densifier = std::make_shared<CmvsPmvsDensifier>(mCmvsPmvs->useVisibilityInformation(),
-                                                    mCmvsPmvs->imagesPerCluster(),
-                                                    mCmvsPmvs->level(),
-                                                    mCmvsPmvs->cellSize(),
-                                                    mCmvsPmvs->threshold(),
-                                                    mCmvsPmvs->windowSize(),
-                                                    mCmvsPmvs->minimunImageNumber(),
+    //densifier = std::make_shared<CmvsPmvsDensifier>(mCmvsPmvs->useVisibilityInformation(),
+    //                                                mCmvsPmvs->imagesPerCluster(),
+    //                                                mCmvsPmvs->level(),
+    //                                                mCmvsPmvs->cellSize(),
+    //                                                mCmvsPmvs->threshold(),
+    //                                                mCmvsPmvs->windowSize(),
+    //                                                mCmvsPmvs->minimunImageNumber(),
+    //                                                mModel->useCuda());
+
+    dense_path.append("pmvs");
+
+    auto pmvs = std::make_unique<CmvsPmvsDensifier>(mModel->images(),
+                                                    mModel->cameras(),
+                                                    mModel->poses(),
+                                                    mModel->groundPoints(),
+                                                    QString::fromStdWString(dense_path.toWString()),
+                                                    mModel->database(), 
                                                     mModel->useCuda());
+
+    pmvs->setUseVisibilityInformation(mCmvsPmvs->useVisibilityInformation());
+    pmvs->setImagesPerCluster(mCmvsPmvs->imagesPerCluster());
+    pmvs->setLevel(mCmvsPmvs->level()); 
+    pmvs->setCellSize(mCmvsPmvs->cellSize());
+    pmvs->setThreshold(mCmvsPmvs->threshold());
+    pmvs->setWindowSize(mCmvsPmvs->windowSize());
+    pmvs->setMinimunImageNumber(mCmvsPmvs->minimunImageNumber());
+
+    dense_process = std::move(pmvs);
+
   } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
-    densifier = std::make_shared<SmvsDensifier>(mSmvs->inputImageScale(),
-                                                mSmvs->outputDepthScale(),
-                                                mSmvs->shadingBasedOptimization(),
-                                                mSmvs->semiGlobalMatching(),
-                                                mSmvs->surfaceSmoothingFactor(),
+    //densifier = std::make_shared<SmvsDensifier>(mSmvs->inputImageScale(),
+    //                                            mSmvs->outputDepthScale(),
+    //                                            mSmvs->shadingBasedOptimization(),
+    //                                            mSmvs->semiGlobalMatching(),
+    //                                            mSmvs->surfaceSmoothingFactor(),
+    //                                            mModel->useCuda());
+    dense_path.append("smvs");
+
+    auto smvs = std::make_unique<SmvsDensifier>(mModel->images(),
+                                                mModel->cameras(),
+                                                mModel->poses(),
+                                                mModel->groundPoints(),
+                                                QString::fromStdWString(dense_path.toWString()),
                                                 mModel->useCuda());
 
+    smvs->setInputImageScale(mSmvs->inputImageScale());
+    smvs->setOutputDepthScale(mSmvs->outputDepthScale());
+    smvs->setShadingBasedOptimization(mSmvs->shadingBasedOptimization());
+    smvs->setSemiGlobalMatching(mSmvs->semiGlobalMatching());
+    smvs->setSurfaceSmoothingFactor(mSmvs->surfaceSmoothingFactor());
+
+    dense_process = std::move(smvs);
+
   } else if(densification_method.compare("MVS") == 0) {
-    //densifier = std::make_shared<MvsDensifier>(mMVS->resolutionLevel(),
-    //                                           mMVS->minResolution(),
-    //                                           mMVS->maxResolution(),
-    //                                           mMVS->numberViews(),
-    //                                           mMVS->numberViewsFuse());
 
     dense_path.append("mvs");
 
-    auto mvs = std::make_unique<MvsDensifier2>(mModel->images(),
-                                               mModel->cameras(),
-                                               mModel->poses(),
-                                               mModel->groundPoints(),
-                                               QString::fromStdWString(dense_path.toWString()),
-                                               mModel->database(),
-                                               mModel->useCuda());
+    auto mvs = std::make_unique<MvsDensifier>(mModel->images(),
+                                              mModel->cameras(),
+                                              mModel->poses(),
+                                              mModel->groundPoints(),
+                                              QString::fromStdWString(dense_path.toWString()),
+                                              mModel->database(),
+                                              mModel->useCuda());
 
     mvs->setMaxResolution(mMVS->maxResolution());
     mvs->setMinResolution(mMVS->minResolution());
@@ -266,7 +298,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
     throw std::runtime_error("Densification Method not valid");
   }
 
-  mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
+  //mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
 
   //QString mReconstructionPath = mModel->reconstructionPath();
   //QString mOutputPat = mModel->projectFolder() + "/dense";

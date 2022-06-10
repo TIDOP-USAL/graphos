@@ -32,16 +32,10 @@
 
 #include <QString>
 
+#include <unordered_map>
 
 namespace graphos
 {
-
-class ReadCalibration;
-
-namespace internal
-{
-class Reconstruction;
-}
 
 class SmvsProperties
   : public Smvs
@@ -66,6 +60,7 @@ public:
   bool shadingBasedOptimization() const override;
   bool semiGlobalMatching() const override;
   double surfaceSmoothingFactor() const override;
+
   void setInputImageScale(int inputImageScale) override;
   void setOutputDepthScale(int outputDepthScale) override;
   void setShadingBasedOptimization(bool shadingBasedOptimization) override;
@@ -94,17 +89,16 @@ private:
 
 class SmvsDensifier
   : public SmvsProperties,
-    public Densifier
+    public DensifierBase
 {
 
 public:
 
-  SmvsDensifier();
-  SmvsDensifier(int inputImageScale,
-                int outputDepthScale,
-                bool shadingBasedOptimization,
-                bool semiGlobalMatching,
-                double surfaceSmoothingFactor,
+  SmvsDensifier(const std::unordered_map<size_t, Image> &images,
+                const std::map<int, Camera> &cameras,
+                const std::unordered_map<size_t, CameraPose> &poses,
+                const std::vector<GroundPoint> &groundPoints,
+                const QString &outputPath,
                 bool cuda = false);
   ~SmvsDensifier() override;
 
@@ -113,40 +107,24 @@ public:
   SmvsDensifier &operator =(const SmvsDensifier &smvs) = delete;
   SmvsDensifier &operator =(SmvsDensifier &&smvs) = delete;
 
-// DensificationProcess interface
- 
-public:
-
-  void undistort(const QString &reconstructionPath,
-                 const QString &outputPath) override;
-  void densify(const QString &undistortPath) override;
-  void enableCuda(bool enable) override;
-
-// Densification interface
-
-public:
-
-  void reset() override;
-
-// Member functions
-
 private:
 
-  void createDirectories();
-  void createDirectory(const std::string &path);
+  void clearPreviousModel();
   void writeMVEFile();
-  void undistortImages();
+  void densify();
 
-// Data members
+// TaskBase
+
+protected:
+
+  void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
-  bool bOpenCvRead;
-  bool bCuda;
-  tl::Path mOutputPath;
-  internal::Reconstruction *mReconstruction;
-  ReadCalibration *mCalibrationReader;
+  std::unordered_map<size_t, size_t> mGraphosToMveIds;
+
 };
+
 
 
 } // namespace graphos

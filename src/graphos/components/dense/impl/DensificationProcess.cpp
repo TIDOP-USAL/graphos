@@ -55,11 +55,11 @@ void DensificationProcess::execute(tl::Progress *progressBar)
     tl::Chrono chrono("Densification finished");
     chrono.run();
 
-    mDensifier->undistort(mReconstructionPath, mOutputPat);
+    //mDensifier->undistort(mReconstructionPath, mOutputPat);
 
     if(status() == tl::Task::Status::stopping) return;
 
-    mDensifier->densify(mOutputPat);
+    //mDensifier->densify(mOutputPat);
 
     chrono.stop();
 

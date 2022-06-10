@@ -110,6 +110,7 @@ std::unique_ptr<tl::Task> UndistortImagesPresenterImp::createProcess()
   std::unique_ptr<tl::Task> process = std::make_unique<UndistortImages>(mModel->images(),
                                                                         mModel->cameras(),
                                                                         mView->directory().absolutePath(),
+                                                                        UndistortImages::Format::tiff,
                                                                         mModel->useCuda());
   
   if (progressHandler()){

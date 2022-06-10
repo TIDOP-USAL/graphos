@@ -38,6 +38,7 @@
 #include <tidop/core/task.h>
 
 #include "graphos/core/sfm/groundpoint.h"
+#include "graphos/core/camera/Undistort.h"
 
 namespace graphos
 {
@@ -89,11 +90,11 @@ public:
   Densifier() {}
   virtual ~Densifier() = default;
 
-  virtual void undistort(const QString &reconstructionPath,
-                         const QString &outputPath) = 0;
-  virtual void densify(const QString &undistortPath) = 0;
+  //virtual void undistort(const QString &reconstructionPath,
+  //                       const QString &outputPath) = 0;
+  //virtual void densify(const QString &undistortPath) = 0;
   virtual void enableCuda(bool enable) = 0;
-
+  virtual QString denseModel() const = 0;
   //virtual void setCameras(const std::map<int, Camera> &cameras) = 0;
   //virtual void setImages(const std::unordered_map<size_t, Image> &images) = 0;
 };
@@ -115,11 +116,10 @@ public:
 //  //virtual void setImages(const std::unordered_map<size_t, Image> &images) = 0;
 //};
 
-class Undistort;
-
 
 class DensifierBase
-  : public tl::TaskBase
+  : public Densifier,
+    public tl::TaskBase
 {
 
 public:
@@ -136,10 +136,11 @@ public:
 
 public:
 
-  void enableCuda(bool enable);
-  QString denseModel() const;
+  void enableCuda(bool enable) override;
+  QString denseModel() const override;
   //void setOutputPath(const QString &outputPath);
   //void setUndistortPath(const QString &undistortPath);
+  void setUndistortImagesFormat(UndistortImages::Format format);
 
 protected:
 
@@ -163,6 +164,7 @@ private:
   //tl::Path mUndistortPath;
   bool mCuda;
   QString mDenseModel;
+  UndistortImages::Format mFormat;
 };
 
 

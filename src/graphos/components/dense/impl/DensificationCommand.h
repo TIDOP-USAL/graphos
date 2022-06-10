@@ -63,6 +63,11 @@ private:
   bool mSmvsShadingBasedOptimization;
   bool mSmvsSemiGlobalMatching;
   double mSmvsSurfaceSmoothingFactor;
+  int mMvsResolutionLevel;
+  int mMvsMinResolution;
+  int mMvsMaxResolution;
+  int mMvsNumberViews;
+  int mMvsNumberViewsFuse;
   bool mDisableCuda;
   Project *mProject;
 };

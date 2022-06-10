@@ -24,7 +24,6 @@
 #include "graphos/core/dense/dense.h"
 
 #include "graphos/core/camera/Camera.h"
-#include "graphos/core/camera/Undistort.h"
 #include "graphos/core/image.h"
 
 #include <tidop/core/path.h>
@@ -45,7 +44,8 @@ DensifierBase::DensifierBase(const std::unordered_map<size_t, Image> &images,
     mGroundPoints(groundPoints),
     mOutputPath(outputPath.toStdWString())/*,
     mUndistortPath(undistortPath.toStdWString())*/,
-    mCuda(false)
+    mCuda(false),
+    mFormat(UndistortImages::Format::tiff)
 {
 
 }
@@ -75,6 +75,11 @@ QString DensifierBase::denseModel() const
   return mDenseModel;
 }
 
+void DensifierBase::setUndistortImagesFormat(UndistortImages::Format format)
+{
+  mFormat = format;
+}
+
 //void DensifierBase::setOutputPath(const QString &outputPath)
 //{
 //  mOutputPath = outputPath.toStdWString();
@@ -95,6 +100,7 @@ void DensifierBase::undistort(const QString &dir)
     UndistortImages undistort(mImages,
                               mCameras,
                               dir,
+                              mFormat,
                               mCuda);
     undistort.run();
 

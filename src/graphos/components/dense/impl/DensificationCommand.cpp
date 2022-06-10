@@ -28,6 +28,7 @@
 #include "graphos/core/project.h"
 #include "graphos/core/dense/CmvsPmvs.h"
 #include "graphos/core/dense/Smvs.h"
+#include "graphos/core/dense/mvs.h"
 
 #include <tidop/core/chrono.h>
 
@@ -56,6 +57,11 @@ DensificationCommand::DensificationCommand()
     mSmvsShadingBasedOptimization(false),
     mSmvsSemiGlobalMatching(true),
     mSmvsSurfaceSmoothingFactor(1.0),
+    mMvsResolutionLevel(1),
+    mMvsMinResolution(640),
+    mMvsMaxResolution(3200),
+    mMvsNumberViews(5),
+    mMvsNumberViewsFuse(3),
     mDisableCuda(false),
     mProject(nullptr)
 {
@@ -75,6 +81,11 @@ DensificationCommand::DensificationCommand()
   this->push_back(CreateArgumentBooleanOptional("smvs:shading_optimization", std::string("Shading Based Optimization (default=").append(mSmvsShadingBasedOptimization ? "true)" : "false)"), &mSmvsShadingBasedOptimization));
   this->push_back(CreateArgumentBooleanOptional("smvs:sgm", std::string("Semi-global Matching (default=").append(mSmvsSemiGlobalMatching ? "true)" : "false)"), &mSmvsSemiGlobalMatching));
   this->push_back(CreateArgumentDoubleOptional("smvs:smooth_factor", std::string("Surface Smoothing Factor (default=").append(std::to_string(mSmvsSurfaceSmoothingFactor)).append(")"), &mSmvsSurfaceSmoothingFactor));
+  this->push_back(CreateArgumentIntegerOptional("mvs:resolution_level", std::string("Resolution Level (default=").append(std::to_string(mMvsResolutionLevel)).append(")"), &mMvsResolutionLevel));
+  this->push_back(CreateArgumentIntegerOptional("mvs:min_resolution", std::string("Min Resolution (default=").append(std::to_string(mMvsMinResolution)).append(")"), &mMvsMinResolution));
+  this->push_back(CreateArgumentIntegerOptional("mvs:max_resolution", std::string("Max Resolution (default=").append(std::to_string(mMvsMaxResolution)).append(")"), &mMvsMaxResolution));
+  this->push_back(CreateArgumentIntegerOptional("mvs:number_views", std::string("Number Views (default=").append(std::to_string(mMvsNumberViews)).append(")"), &mMvsNumberViews));
+  this->push_back(CreateArgumentIntegerOptional("mvs:number_views_fuse", std::string("Number Views Fuse (default=").append(std::to_string(mMvsNumberViewsFuse)).append(")"), &mMvsNumberViewsFuse));
 
 #ifdef HAVE_CUDA
   tl::MessageManager::instance().pause();
@@ -120,9 +131,21 @@ bool DensificationCommand::run()
     mProject = new ProjectImp;
     mProject->load(project_file);
     mProject->projectFolder();
-    QString output_path = mProject->projectFolder() + "/dense";
+
+    tl::Path dense_path(mProject->projectFolder().toStdWString());
+    dense_path.append("dense");
+
+    tl::Path ground_points_path(mProject->reconstructionPath().toStdWString());
+    ground_points_path.append("ground_points.bin");
+
+    std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
+    reader->read(ground_points_path);
+
+    std::vector<GroundPoint> ground_points = reader->points();
+
 
     std::shared_ptr<Densifier> densifier;
+
     if (mDensificationMethod == "PMVS") {
 
       msgInfo("PMVS Properties:");
@@ -135,14 +158,35 @@ bool DensificationCommand::run()
       msgInfo("- Minimun Image Number: %i", mPmvsMinimunImageNumber);
       msgInfo("- Image Original Depth: %s", mPmvsImageOriginalDepth ? "true" : "false");
 
-      densifier = std::make_shared<CmvsPmvsDensifier>(mPmvsUseVisibilityInformation,
-                                                      mPmvsImagesPerCluster,
-                                                      mPmvsLevel,
-                                                      mPmvsCellSize,
-                                                      mPmvsThreshold,
-                                                      mPmvsWindowSize,
-                                                      mPmvsMinimunImageNumber,
+      //densifier = std::make_shared<CmvsPmvsDensifier>(mPmvsUseVisibilityInformation,
+      //                                                mPmvsImagesPerCluster,
+      //                                                mPmvsLevel,
+      //                                                mPmvsCellSize,
+      //                                                mPmvsThreshold,
+      //                                                mPmvsWindowSize,
+      //                                                mPmvsMinimunImageNumber,
+      //                                                !mDisableCuda);
+
+      dense_path.append("pmvs");
+
+      auto pmvs = std::make_shared<CmvsPmvsDensifier>(mProject->images(),
+                                                      mProject->cameras(),
+                                                      mProject->poses(),
+                                                      ground_points,
+                                                      QString::fromStdWString(dense_path.toWString()),
+                                                      mProject->database(),
                                                       !mDisableCuda);
+
+      pmvs->setUseVisibilityInformation(mPmvsUseVisibilityInformation);
+      pmvs->setImagesPerCluster(mPmvsImagesPerCluster);
+      pmvs->setLevel(mPmvsLevel);
+      pmvs->setCellSize(mPmvsCellSize);
+      pmvs->setThreshold(mPmvsThreshold);
+      pmvs->setWindowSize(mPmvsWindowSize);
+      pmvs->setMinimunImageNumber(mPmvsMinimunImageNumber);
+
+      densifier = std::move(pmvs);
+
     } else if (mDensificationMethod == "SMVS") {
 
       msgInfo("SMVS Properties:");
@@ -152,41 +196,84 @@ bool DensificationCommand::run()
       msgInfo("- Semi-global Matching: %s", mSmvsSemiGlobalMatching ? "true" : "false");
       msgInfo("- Surface Smoothing Factor: %lf", mSmvsSurfaceSmoothingFactor);
 
-      densifier = std::make_shared<SmvsDensifier>(mSmvsInputImageScale,
-                                                  mSmvsOutputDepthScale,
-                                                  mSmvsShadingBasedOptimization,
-                                                  mSmvsSemiGlobalMatching,
-                                                  mSmvsSurfaceSmoothingFactor,
+      dense_path.append("smvs");
+
+      //densifier = std::make_shared<SmvsDensifier>(mSmvsInputImageScale,
+      //                                            mSmvsOutputDepthScale,
+      //                                            mSmvsShadingBasedOptimization,
+      //                                            mSmvsSemiGlobalMatching,
+      //                                            mSmvsSurfaceSmoothingFactor,
+      //                                            !mDisableCuda);
+      auto smvs = std::make_shared<SmvsDensifier>(mProject->images(),
+                                                  mProject->cameras(),
+                                                  mProject->poses(),
+                                                  ground_points,
+                                                  QString::fromStdWString(dense_path.toWString()),
                                                   !mDisableCuda);
+
+      smvs->setInputImageScale(mSmvsInputImageScale);
+      smvs->setOutputDepthScale(mSmvsOutputDepthScale);
+      smvs->setShadingBasedOptimization(mSmvsShadingBasedOptimization);
+      smvs->setSemiGlobalMatching(mSmvsSemiGlobalMatching);
+      smvs->setSurfaceSmoothingFactor(mSmvsSurfaceSmoothingFactor);
+
+      densifier = smvs;
+
+    } else if (mDensificationMethod == "MVS") {
     
+      msgInfo("MVS Properties:");
+      msgInfo("- Resolution Level: %i", mMvsResolutionLevel);
+      msgInfo("- Min Resolution: %i", mMvsMinResolution);
+      msgInfo("- Max Resolution: %i", mMvsMaxResolution);
+      msgInfo("- Number Views: %i", mMvsNumberViews);
+      msgInfo("- Number Views Fuse: %i", mMvsNumberViewsFuse);
+
+      dense_path.append("mvs");
+
+      auto mvs = std::make_shared<MvsDensifier>(mProject->images(),
+                                                mProject->cameras(),
+                                                mProject->poses(),
+                                                ground_points,
+                                                QString::fromStdWString(dense_path.toWString()),
+                                                mProject->database(),
+                                                !mDisableCuda);
+
+      mvs->setMaxResolution(mMvsMaxResolution);
+      mvs->setMinResolution(mMvsMinResolution);
+      mvs->setNumberViews(mMvsNumberViews);
+      mvs->setNumberViewsFuse(mMvsNumberViews);
+      mvs->setResolutionLevel(mMvsResolutionLevel);
+
+      densifier = mvs;
+
     } else {
       throw std::runtime_error("Densification Method not valid");
     }
 
     mProject->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
 
-    densifier->undistort(mProject->reconstructionPath(), output_path);
-    densifier->densify(output_path);
+    //densifier->undistort(mProject->reconstructionPath(), output_path);
+    //densifier->densify(output_path);
 
-    QString dense_model = output_path;
-    if (mDensificationMethod == "PMVS") {
-      dense_model.append("/pmvs/models/option-all.ply");
-    } else {
-      dense_model.append("/smvs-");
-      if (mSmvsShadingBasedOptimization) 
-        dense_model.append("S");
-      else 
-        dense_model.append("B");
-      dense_model.append(QString::number(mSmvsInputImageScale)).append(".ply");
-    }
+    //QString dense_model = output_path;
+    //if (mDensificationMethod == "PMVS") {
+    //  dense_model.append("/pmvs/models/option-all.ply");
+    //} else {
+    //  dense_model.append("/smvs-");
+    //  if (mSmvsShadingBasedOptimization) 
+    //    dense_model.append("S");
+    //  else 
+    //    dense_model.append("B");
+    //  dense_model.append(QString::number(mSmvsInputImageScale)).append(".ply");
+    //}
 
-    msgInfo("Dense model write at: %s", dense_model.toStdString().c_str());
+    //msgInfo("Dense model write at: %s", dense_model.toStdString().c_str());
 
-    if (QFileInfo(dense_model).exists()) {
-      mProject->setDenseModel(dense_model);
-    } else {
-      throw std::runtime_error("Densification failed");
-    }
+    //if (QFileInfo(dense_model).exists()) {
+      mProject->setDenseModel(densifier->denseModel());
+    //} else {
+    //  throw std::runtime_error("Densification failed");
+    //}
 
     mProject->save(project_file);
 

@@ -157,10 +157,10 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
     cmd.append("--in \"").append(mInput.toStdString());
     cmd.append("\" --out \"").append(mOutput.toStdString());
     cmd.append("\" --depth ").append(std::to_string(depth()));
-    cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
-    cmd.append(" --width ").append(std::to_string(width()));
+    //cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
+    //cmd.append(" --width ").append(std::to_string(width()));
     cmd.append(" --bType ").append(b_type);
-    cmd.append(" --density");
+    cmd.append(" --density --samplesPerNode 5");
     //[--samplesPerNode < minimum number of samples per node >= 1.500000]
     //[--pointWeight < interpolation weight >= 2.000e+00 * <b - spline degree>]
     msgInfo("Process: %s", cmd.c_str());

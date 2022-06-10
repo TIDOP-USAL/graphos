@@ -495,10 +495,10 @@ void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
     // Load Cameras
     if (loadCameras) {
       for (const auto &image : mModel->images()) {
+
         size_t image_id = image.first;
-        //QFileInfo(image->path()).fileName();
         QString name = image.second.name();
-        //QString file_name = QFileInfo(image->path()).fileName();
+
         if (mModel->isPhotoOriented(image_id)) {
 
           CameraPose photoOrientation = mModel->cameraPose(image_id);

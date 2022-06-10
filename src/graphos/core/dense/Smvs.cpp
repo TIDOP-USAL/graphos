@@ -23,10 +23,12 @@
 
 #include "graphos/core/dense/Smvs.h"
 
-#include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/utils.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/camera/Undistort.h"
+#include "graphos/core/image.h"
+#include "graphos/core/sfm/groundpoint.h"
+#include "graphos/core/sfm/orientationexport.h"
 
 // TIDOP LIB
 #include <tidop/core/messages.h>
@@ -34,66 +36,29 @@
 #include <tidop/core/path.h>
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
+#include <tidop/core/progress.h>
+#include <tidop/core/chrono.h>
 
 // COLMAP
-#include <colmap/base/reconstruction.h>
-
-// OPENCV
-#include <opencv2/core.hpp>
-#include <opencv2/calib3d.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/imgcodecs.hpp>
-#ifdef HAVE_CUDA
-#include <opencv2/cudaimgproc.hpp>
-#include <opencv2/cudawarping.hpp>
-#include <opencv2/cudaarithm.hpp>
-#endif // HAVE_CUDA
+#include <colmap/util/string.h>
 
 #include <iomanip>
 
 namespace graphos
 {
 
-namespace internal
-{
-
-class Reconstruction
-{
-public:
-
-  Reconstruction(const std::string &path)
-    : mReconstruction(new colmap::Reconstruction())
-  {
-    mReconstruction->ReadBinary(path);
-  }
-
-  ~Reconstruction()
-  {
-    if (mReconstruction) {
-      delete mReconstruction;
-      mReconstruction = nullptr;
-    }
-  }
-
-  colmap::Reconstruction &colmap()
-  {
-    return *mReconstruction;
-  }
-
-private:
-
-  colmap::Reconstruction *mReconstruction;
-};
-
-}
-
+constexpr auto SmvsDefaultInputImageScale = 1;
+constexpr auto SmvsDefaultOutputDepthScale = 2;
+constexpr auto SmvsDefaultShadingBasedOptimization = false;
+constexpr auto SmvsDefaultSemiGlobalMatching = false;
+constexpr auto SmvsDefaultSurfaceSmoothingFactor = 1.0;
 
 SmvsProperties::SmvsProperties()
-  : mInputImageScale(1),
-    mOutputDepthScale(2),
-    mShadingBasedOptimization(false),
-    mSemiGlobalMatching(true),
-    mSurfaceSmoothingFactor(1.0)
+  : mInputImageScale(SmvsDefaultInputImageScale),
+    mOutputDepthScale(SmvsDefaultOutputDepthScale),
+    mShadingBasedOptimization(SmvsDefaultShadingBasedOptimization),
+    mSemiGlobalMatching(SmvsDefaultSemiGlobalMatching),
+    mSurfaceSmoothingFactor(SmvsDefaultSurfaceSmoothingFactor)
 {
 }
 
@@ -192,11 +157,11 @@ void SmvsProperties::setSurfaceSmoothingFactor(double surfaceSmoothingFactor)
 
 void SmvsProperties::reset()
 {
-  mInputImageScale = 1;
-  mOutputDepthScale = 2;
-  mShadingBasedOptimization = false;
-  mSemiGlobalMatching = true;
-  mSurfaceSmoothingFactor = 1.0;
+  mInputImageScale = SmvsDefaultInputImageScale;
+  mOutputDepthScale = SmvsDefaultOutputDepthScale;
+  mShadingBasedOptimization = SmvsDefaultShadingBasedOptimization;
+  mSemiGlobalMatching = SmvsDefaultSemiGlobalMatching;
+  mSurfaceSmoothingFactor = SmvsDefaultSurfaceSmoothingFactor;
 }
 
 QString SmvsProperties::name() const
@@ -208,345 +173,146 @@ QString SmvsProperties::name() const
 /*----------------------------------------------------------------*/
 
 
-SmvsDensifier::SmvsDensifier()
-  : bOpenCvRead(true),
-    bCuda(false),
-    mOutputPath(""),
-    mReconstruction(nullptr),
-    mCalibrationReader(nullptr)
-{
-}
 
-SmvsDensifier::SmvsDensifier(int inputImageScale,
-                             int outputDepthScale,
-                             bool shadingBasedOptimization,
-                             bool semiGlobalMatching,
-                             double surfaceSmoothingFactor,
+SmvsDensifier::SmvsDensifier(const std::unordered_map<size_t, Image> &images, 
+                             const std::map<int, Camera> &cameras, 
+                             const std::unordered_map<size_t, CameraPose> &poses, 
+                             const std::vector<GroundPoint> &groundPoints, 
+                             const QString &outputPath,
                              bool cuda)
-  : bOpenCvRead(true),
-    bCuda(cuda),
-    mOutputPath(""),
-    mReconstruction(nullptr),
-    mCalibrationReader(nullptr)
+  : DensifierBase(images, cameras, poses, groundPoints, outputPath)
 {
-  SmvsDensifier::setInputImageScale(inputImageScale);
-  SmvsDensifier::setOutputDepthScale(outputDepthScale);
-  SmvsDensifier::setShadingBasedOptimization(shadingBasedOptimization);
-  SmvsDensifier::setSemiGlobalMatching(semiGlobalMatching);
-  SmvsDensifier::setSurfaceSmoothingFactor(surfaceSmoothingFactor);
+  enableCuda(cuda);
+  setUndistortImagesFormat(UndistortImages::Format::jpeg);
 }
 
 SmvsDensifier::~SmvsDensifier()
 {
-  if (mReconstruction) {
-    delete mReconstruction;
-    mReconstruction = nullptr;
-  }
-
-  if (mCalibrationReader) {
-    delete mCalibrationReader;
-    mCalibrationReader = nullptr;
-  }
 }
 
-void SmvsDensifier::reset()
+void SmvsDensifier::clearPreviousModel()
 {
-  SmvsProperties::reset();
-  bOpenCvRead = true;
-}
-
-void SmvsDensifier::undistort(const QString &reconstructionPath,
-                              const QString &outputPath)
-{
-  try {
-
-    mReconstruction = new internal::Reconstruction(reconstructionPath.toStdString());
-    TL_ASSERT(mReconstruction, "Reconstruction is null");
-
-    TL_TODO("Pasar la calibración directamente")
-    mCalibrationReader = new ReadCalibration();
-    mCalibrationReader->open(reconstructionPath);
-   
-    mOutputPath = outputPath.toStdString();
-    mOutputPath.append("smvs");
-   
-    this->createDirectories();
-    this->writeMVEFile();
-    this->undistortImages();
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
-}
-
-void SmvsDensifier::createDirectories()
-{
-  mOutputPath.createDirectory();
-}
-
-void SmvsDensifier::createDirectory(const std::string &dir)
-{
-  tl::Path path(mOutputPath);
-  path.append(dir);
-  if (!path.exists() && !path.createDirectories()) {
-    std::string err = "The output directory cannot be created: ";
-    err.append(path.toString());
-    throw std::runtime_error(err);
-  }
+  outputPath().removeDirectory();
 }
 
 void SmvsDensifier::writeMVEFile()
 {
-  try {
 
-    tl::Path mve_path(mOutputPath);
+  try {
+  
+    tl::Path mve_path(outputPath());
     mve_path.append("synth_0.out");
+  
+    std::map<int, Undistort> undistort;
+
+    for (auto &camera : cameras()) {
+      undistort[camera.first] = Undistort(camera.second);
+    }
 
     std::ofstream stream(mve_path.toString(), std::ios::trunc);
+
     if (stream.is_open()) {
 
-      colmap::Reconstruction &reconstruction = mReconstruction->colmap();
-
-      int camera_count = static_cast<int>(reconstruction.Images().size());
-      int feature_count = static_cast<int>(reconstruction.NumPoints3D());
+      int camera_count = poses().size();
+      int ground_points_count = groundPoints().size();
 
       stream << "drews 1.0\n";
-      stream << camera_count << " " << feature_count << "\n";
+      stream << camera_count << " " << ground_points_count << "\n";
       stream << std::fixed << std::setprecision(12);
 
-      const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
+      for (const auto &pose : poses()) {
 
-      for (auto &camera : reconstruction.Cameras()) {
+        size_t image_id = pose.first;
+        size_t mve_id = mGraphosToMveIds.size();
+        mGraphosToMveIds[image_id] = mve_id;
 
-        std::shared_ptr<Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
+        const auto &image = images().at(image_id);
+        size_t camera_id = image.cameraId();
+        auto &camera = cameras().at(camera_id);
 
-        cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
-        cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);
+        Camera undistort_camera = undistort.at(camera_id).undistortCamera();
+        float new_focal = undistort_camera.focal() / std::max(camera.width(), camera.height());
+        float new_ppx = undistort_camera.calibration()->parameter(Calibration::Parameters::cx) / camera.width();
+        float new_ppy = undistort_camera.calibration()->parameter(Calibration::Parameters::cy) / camera.height();
 
-        cv::Mat optCameraMat;
-        cv::Size imageSize(static_cast<int>(camera.second.Width()),
-                           static_cast<int>(camera.second.Height()));
-        bool b_fisheye = calibration->checkCameraType(Calibration::CameraType::fisheye);
+        auto projection_center = pose.second.position();
+        auto rotation_matrix = pose.second.rotationMatrix();
 
-        if (!b_fisheye) {
-          optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
-        } else {
-          cv::fisheye::estimateNewCameraMatrixForUndistortRectify(cameraMatrix, distCoeffs, imageSize, cv::Mat(), optCameraMat, 0.0, imageSize);
+        auto xyx = rotation_matrix * -projection_center.vector();
+
+        tl::Path ini_file = outputPath();
+        ini_file.append(colmap::StringPrintf("\\views\\view_%04d.mve", mve_id));
+        ini_file.createDirectories();
+
+        ini_file.append("meta.ini");
+        std::ofstream stream_ini(ini_file.toString(), std::ios::trunc);
+
+        if (stream_ini.is_open()) {
+
+          stream_ini << std::fixed << std::setprecision(12);
+
+          stream_ini << "# MVE view meta data is stored in INI-file syntax.\n";
+          stream_ini << "# This file is generated, formatting will get lost.\n\n";
+          stream_ini << "[camera]\n";
+          stream_ini << "focal_length = " << new_focal << "\n";
+          stream_ini << "pixel_aspect = " << 1. << "\n";
+          stream_ini << "principal_point = " << new_ppx << " " << new_ppy << "\n";
+          stream_ini << "rotation = " << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << " "
+                     << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << " "
+                     << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << "\n";
+          stream_ini << "translation = " << xyx[0] << " " << xyx[1] << " " << xyx[2] << "\n\n";
+          stream_ini << "[view]\n";
+          stream_ini << "id = " << mve_id << "\n";
+          stream_ini << "name = " << image.name().toStdString() << std::endl;
+
+          stream_ini.close();
         }
 
-        double new_focal = ((optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.f) / std::max(camera.second.Width(), camera.second.Height());
-        double new_ppx = optCameraMat.at<float>(0, 2) / camera.second.Width();
-        double new_ppy = optCameraMat.at<float>(1, 2) / camera.second.Height();
+        stream << new_focal << " " << "0" << " " << "0" << "\n";
+        stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << "\n";
+        stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << "\n";
+        stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << "\n";
+        stream << xyx[0] << " " << xyx[1] << " " << xyx[2] << std::endl;
 
-        //for (auto &image : reconstruction.Images()) {
-        for (size_t i = 0; i < reg_image_ids.size(); ++i) {
-
-          colmap::image_t image_id = reg_image_ids[i];
-          colmap::Image &image = reconstruction.Image(image_id);
-
-          if (image.CameraId() == camera.second.CameraId()) {
-
-            Eigen::Matrix3d rotation_matrix = image.RotationMatrix();
-            Eigen::Vector3d translation = image.Tvec();
-
-            tl::Path ini_file = mOutputPath.toString();
-            ini_file.append(colmap::StringPrintf("\\views\\view_%04d.mve", image.ImageId() - 1));
-            ini_file.createDirectories();
-            
-            ini_file.append("meta.ini");
-            std::ofstream stream_ini(ini_file.toString(), std::ios::trunc);
-
-            if (stream_ini.is_open()) {
-
-              stream_ini << std::fixed << std::setprecision(12);
-
-              stream_ini << "# MVE view meta data is stored in INI-file syntax.\n";
-              stream_ini << "# This file is generated, formatting will get lost.\n\n";
-              stream_ini << "[camera]\n";
-              stream_ini << "focal_length = " << new_focal << "\n";
-              stream_ini << "pixel_aspect = " << 1. << "\n";
-              stream_ini << "principal_point = " << new_ppx << " " << new_ppy << "\n";
-              stream_ini << "rotation = " << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << " "
-                                          << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << " "
-                                          << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << "\n";
-              stream_ini << "translation = " << translation[0] << " " << translation[1] << " " << translation[2] << "\n\n";
-              stream_ini << "[view]\n";
-              stream_ini << "id = " << image.ImageId() - 1 << "\n";
-              stream_ini << "name = " << image.Name().c_str() << std::endl;
-
-              stream_ini.close();
-            }
-
-            stream << new_focal << " " << "0" << " " << "0" << "\n";
-            stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << "\n";
-            stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << "\n";
-            stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << "\n";
-            stream << translation[0] << " " << translation[1] << " " << translation[2] << std::endl;
-
-          }
-        }
       }
 
-      for (auto &points_3d : reconstruction.Points3D()) {
+      for (auto &points_3d : groundPoints()) {
 
-        Eigen::Vector3ub color = points_3d.second.Color();
-        stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << "\n";
+        stream << points_3d.x << " "
+               << points_3d.y << " "
+               << points_3d.z << "\n";
 
-        stream << static_cast<int>(color[0]) << " " <<
-          static_cast<int>(color[1]) << " " <<
-          static_cast<int>(color[2]) << "\n";
+        stream << points_3d.color().red() << " "
+               << points_3d.color().green() << " "
+               << points_3d.color().blue() << "\n";
 
-        colmap::Track track = points_3d.second.Track();
+        auto &track = points_3d.track();
 
-        std::map<int, int> track_ids_not_repeat;
-        for (auto &element : track.Elements()) {
-          track_ids_not_repeat[element.image_id - 1] = element.point2D_idx;
+        stream << track.size();
+
+        for (auto &map : track.pairs()) {
+          stream << " " << mGraphosToMveIds.at(map.first) << " " << map.second << " 0";
         }
-
-        stream << track_ids_not_repeat.size();
-
-        for (auto &map : track_ids_not_repeat) {
-          stream << " " << map.first << " " << map.second << " 0";
-        }
-
 
         stream << std::endl;
+
       }
 
       stream.close();
 
     }
-  
+    
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("");
   }
 }
 
-void SmvsDensifier::undistortImages()
-{
-  try {
-
-    colmap::Reconstruction &reconstruction = mReconstruction->colmap();
-    const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
-
-    for (auto &camera : reconstruction.Cameras()) {
-
-      std::shared_ptr<Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
-
-      cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
-      cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);
-
-      cv::Mat map1;
-      cv::Mat map2;
-      cv::Mat optCameraMat;
-      cv::Size imageSize(static_cast<int>(camera.second.Width()),
-                         static_cast<int>(camera.second.Height()));
-      bool b_fisheye = calibration->checkCameraType(Calibration::CameraType::fisheye);
-
-      if (!b_fisheye) {
-        optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
-        cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
-      } else {
-        cv::fisheye::estimateNewCameraMatrixForUndistortRectify(cameraMatrix, distCoeffs, imageSize, cv::Mat(), optCameraMat, 0.0, imageSize);
-        cv::fisheye::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
-      }
-
-      try {
-
-        for (size_t i = 0; i < reg_image_ids.size(); ++i) {
-
-          colmap::image_t image_id = reg_image_ids[i];
-          colmap::Image &image = reconstruction.Image(image_id);
-
-          if (image.CameraId() == camera.second.CameraId()) {
-
-            std::string image_file = image.Name();
-
-            cv::Mat img;
-
-            if (bOpenCvRead) {
-              img = cv::imread(image_file.c_str(), cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-              if (img.empty()) {
-                bOpenCvRead = false;
-              }
-            }
-
-            if (!bOpenCvRead) {
-              std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
-              imageReader->open();
-              if (imageReader->isOpen()) {
-                img = imageReader->read();
-                if (imageReader->depth() != 8) {
-
-                  TL_TODO("Codigo duplicado en FeatureExtractorProcess")
-#ifdef HAVE_CUDA
-                  if (bCuda) {
-                    cv::cuda::GpuMat gImgIn(img);
-                    cv::cuda::GpuMat gImgOut;
-                    cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-                    gImgOut.download(img);
-                  } else {
-#endif
-                    cv::normalize(img, img, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_CUDA
-                  }
-#endif
-                }
-
-                imageReader->close();
-              }
-            }
-
-            if (img.channels() == 1) {
-              cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
-            }
-
-            cv::Mat img_undistort;
-#ifdef HAVE_CUDA
-            if (bCuda) {
-              cv::cuda::GpuMat gImgOut(img);
-              img.release();
-              cv::cuda::GpuMat gImgUndistort;
-
-              cv::cuda::Stream stream;
-              cv::cuda::GpuMat gMap1(map1);
-              cv::cuda::GpuMat gMap2(map2);
-              cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar(), stream);
-              gImgUndistort.download(img_undistort);
-            } else {
-#endif
-              cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
-              img.release();
-#ifdef HAVE_CUDA
-            }
-#endif
-            msgInfo("Undistort image: %s", image_file.c_str());
-
-            std::string image_file_undistort = mOutputPath.toString();
-            image_file_undistort.append(colmap::StringPrintf("\\views\\view_%04d.mve\\", image.ImageId() - 1));
-            image_file_undistort.append("undistorted.png");
-            cv::imwrite(image_file_undistort.c_str(), img_undistort);
-
-          }
-        }
-      } catch (const std::exception &e) {
-        msgError(e.what());
-      }
-
-    }
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
-
-}
-
-void SmvsDensifier::densify(const QString &undistortPath)
+void SmvsDensifier::densify()
 {
   try {
 
     tl::Path app_path = tl::App::instance().path();
-
+  
     std::string cmd("\"");
     cmd.append(app_path.parentPath().toString());
     cmd.append("\\smvsrecon_SSE41.exe\" ");
@@ -558,21 +324,90 @@ void SmvsDensifier::densify(const QString &undistortPath)
       cmd.append(" --no-sgm ");
     if (SmvsProperties::shadingBasedOptimization())
       cmd.append(" --shading ");
-    cmd.append("\"").append(undistortPath.toStdString()).append("\\smvs\"");
+    cmd.append("\"").append(outputPath().toString());
+
     tl::Process process(cmd);
-
+  
     process.run();
+  
+    TL_ASSERT(process.status() == tl::Process::Status::finalized, "Densify Point Cloud error");
 
-    if (process.status() == tl::Process::Status::error) TL_THROW_EXCEPTION(cmd.c_str());
+    std::string model_name("smvs-");
+    if (SmvsProperties::shadingBasedOptimization())
+      model_name.append("S");
+    else 
+      model_name.append("B");
+    model_name.append(std::to_string(SmvsProperties::inputImageScale())).append(".ply");
+
+    tl::Path dense_model = outputPath();
+    dense_model.append(model_name);
+
+    TL_ASSERT(dense_model.exists(), "Densify Point Cloud error");
+
+    setDenseModel(QString::fromStdWString(dense_model.toWString()));
 
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("");
   }
 }
 
-void SmvsDensifier::enableCuda(bool enable)
+void SmvsDensifier::execute(tl::Progress *progressBar)
 {
-  bCuda = enable;
+
+  try {
+
+    tl::Chrono chrono("Densification finished");
+    chrono.run();
+
+    this->clearPreviousModel();
+
+    outputPath().createDirectories();
+
+    tl::Path undistort_path(outputPath().parentPath());
+    undistort_path.append("undistort");
+    undistort_path.createDirectories();
+
+    this->writeMVEFile();
+
+    if (status() == tl::Task::Status::stopping) return;
+
+    this->undistort(QString::fromStdWString(undistort_path.toWString()));
+    
+    /// Copiar imagenes corregidas
+
+    {
+      
+
+      for (const auto &pose : poses()) {
+
+        size_t image_id = pose.first;
+        const auto &image = images().at(image_id);
+
+        tl::Path undistort_path = outputPath().parentPath();
+        undistort_path.append("undistort");
+        undistort_path.append(image.name().toStdWString());
+        undistort_path.replaceExtension(".jpg");
+
+        tl::Path undistort_smvs_path = outputPath().toString();
+        undistort_smvs_path.append(colmap::StringPrintf("\\views\\view_%04d.mve\\", mGraphosToMveIds.at(image_id)));
+        undistort_smvs_path.append("undistorted.jpg");
+
+        tl::Path::copy(undistort_path, undistort_smvs_path);
+      }
+    }
+
+    if (status() == tl::Task::Status::stopping) return;
+
+    this->densify();
+
+    chrono.stop();
+
+    if (progressBar) (*progressBar)();
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("MVS error");
+  }
+
 }
 
 } // namespace graphos

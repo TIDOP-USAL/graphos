@@ -66,6 +66,7 @@ public:
   Camera undistortCamera() const;
   cv::Mat undistortImage(const cv::Mat &image,
                          bool cuda = false);
+  tl::Point<float> undistortPoint(const tl::Point<float> &point);
 
 private:
 
@@ -93,10 +94,20 @@ class UndistortImages
 
 public:
 
+  enum class Format : uint8_t
+  {
+    tiff,
+    jpeg,
+    png
+  };
+
+public:
+
   UndistortImages(const std::unordered_map<size_t, Image> &images,
                   const std::map<int, Camera> &cameras,
                   const QString &outputPath,
-                  bool cuda);
+                  Format outputFormat,
+                  bool cuda = false);
   ~UndistortImages();
 
 // TaskBase
@@ -110,6 +121,7 @@ private:
   const std::unordered_map<size_t, Image> &mImages;
   const std::map<int, Camera> &mCameras;
   QString mOutputPath;
+  Format mOutputFormat;
   bool bUseCuda;
 
 };

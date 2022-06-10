@@ -84,7 +84,8 @@ void MeshComponent::update()
 
   bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
   bool process_run = app_status->isActive(AppStatus::Flag::processing);
-  action()->setEnabled(bProjectExists && !process_run);
+  bool bDenseModel = app_status->isActive(AppStatus::Flag::dense_model);
+  action()->setEnabled(bProjectExists && !process_run && bDenseModel);
 }
 
 void MeshComponent::onRunning()

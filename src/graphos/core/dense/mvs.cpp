@@ -36,22 +36,11 @@
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/core/progress.h>
+#include <tidop/math/algebra/rotation_convert.h>
+#include <tidop/core/chrono.h>
 
 // COLMAP
-#include <colmap/base/reconstruction.h>
-#include <colmap/base/undistortion.h>
 #include <colmap/base/database.h>
-
-// OPENCV
-#include <opencv2/core.hpp>
-#include <opencv2/calib3d.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/imgcodecs.hpp>
-#ifdef HAVE_CUDA
-#include <opencv2/cudaimgproc.hpp>
-#include <opencv2/cudawarping.hpp>
-#include <opencv2/cudaarithm.hpp>
-#endif // HAVE_CUDA
 
 #include <fstream>
 #include <iomanip>
@@ -60,40 +49,6 @@
 
 namespace graphos
 {
-
-namespace internal
-{
-
-class Reconstruction
-{
-
-public:
-
-  Reconstruction(const std::string &path)
-    : mReconstruction(new colmap::Reconstruction())
-  {
-    mReconstruction->ReadBinary(path);
-  }
-
-  ~Reconstruction()
-  {
-    if (mReconstruction) {
-      delete mReconstruction;
-      mReconstruction = nullptr;
-    }
-  }
-
-  colmap::Reconstruction &colmap()
-  {
-    return *mReconstruction;
-  }
-
-private:
-
-  colmap::Reconstruction *mReconstruction;
-};
-
-}
 
 constexpr auto mvsDefaultResolutionLevel = 1;
 constexpr auto mvsDefaultMinResolution = 640;
@@ -227,441 +182,179 @@ QString MvsProperties::name() const
 /*----------------------------------------------------------------*/
 
 
-MvsDensifier::MvsDensifier()
-  : bOpenCvRead(true),
-    bCuda(false),
-    mOutputPath(""),
-    mReconstruction(nullptr),
-    mCalibrationReader(nullptr)
-{
 
-}
-
-MvsDensifier::MvsDensifier(int resolutionLevel,
-                           int minResolution,
-                           int maxResolution,
-                           int numberViews,
-                           int numberViewsFuse,
+MvsDensifier::MvsDensifier(const std::unordered_map<size_t, Image> &images,
+                           const std::map<int, Camera> &cameras,
+                           const std::unordered_map<size_t, CameraPose> &poses,
+                           const std::vector<GroundPoint> &groundPoints, 
+                           const QString &outputPath,
+                           const QString &database, 
                            bool cuda)
-  : bOpenCvRead(true),
-    bCuda(cuda),
-    mOutputPath(""),
-    mReconstruction(nullptr),
-    mCalibrationReader(nullptr)
+  : DensifierBase(images, cameras, poses, groundPoints, outputPath),
+    mDatabase(database)
 {
-  MvsProperties::setResolutionLevel(resolutionLevel);
-  MvsProperties::setMinResolution(minResolution);
-  MvsProperties::setMaxResolution(maxResolution);
-  MvsProperties::setNumberViews(numberViews);
-  MvsProperties::setNumberViewsFuse(numberViewsFuse);
+  enableCuda(cuda);
+  setUndistortImagesFormat(UndistortImages::Format::tiff);
 }
 
 MvsDensifier::~MvsDensifier()
 {
-  if (mReconstruction) {
-    delete mReconstruction;
-    mReconstruction = nullptr;
-  }
-
-  if (mCalibrationReader) {
-    delete mCalibrationReader;
-    mCalibrationReader = nullptr;
-  }
-}
-
-void MvsDensifier::undistort(const QString &reconstructionPath,
-                             const QString &outputPath)
-{
-  mReconstruction = new internal::Reconstruction(reconstructionPath.toStdString());
-  mCalibrationReader = new ReadCalibration();
-  mCalibrationReader->open(reconstructionPath);
-
-  mOutputPath = outputPath.toStdString();
-  mOutputPath.append("mvs");
-
-  this->clearPreviousModel();
-  this->createDirectories();
-  this->writeNVMFile();
-  this->undistortImages();
-  this->exportToMVS();
-
-}
-
-void MvsDensifier::densify(const QString &undistortPath)
-{
-  try {
-
-    tl::Path app_path = tl::App::instance().path();
-    std::string cmd_mvs("\"");
-    //cmd_mvs.append(app_path.parentPath().toString());
-    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
-    cmd_mvs.append(mOutputPath.toString());
-    cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 0");
-    cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
-    cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
-    cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
-    cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
-    cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
-   
-    msgInfo("Process: %s", cmd_mvs.c_str());
-    tl::Process process(cmd_mvs);
-
-    process.run();
-   
-    if (process.status() == tl::Process::Status::error) TL_THROW_EXCEPTION(cmd_mvs.c_str());
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
-}
-
-void MvsDensifier::enableCuda(bool enable)
-{
-  bCuda = enable;
-}
-
-void MvsDensifier::reset()
-{
-  MvsProperties::reset();
-  bOpenCvRead = true;
 }
 
 void MvsDensifier::clearPreviousModel()
 {
-  mOutputPath.removeDirectory();
-}
-
-void MvsDensifier::createDirectories()
-{
-  mOutputPath.createDirectory();
-  createDirectory("undistort");
-  createDirectory("models");
-  //createDirectory(std::string(mOutputPath).append("/temp"));
-}
-
-void MvsDensifier::createDirectory(const std::string &dir)
-{
-  tl::Path path(mOutputPath);
-  path.append(dir);
-  if (!path.exists() && !path.createDirectories()) {
-    std::string err = "The output directory cannot be created: ";
-    err.append(path.toString());
-    throw std::runtime_error(err);
-  }
-}
-
-void MvsDensifier::writeNVMFile()
-{
-  try {
-
-    TL_ASSERT(mReconstruction, "There is not a valid reconstruction");
-
-    colmap::Reconstruction &reconstruction = mReconstruction->colmap();
-
-    tl::Path nvm_path(mOutputPath);
-    //nvm_path.append("models");
-    nvm_path.append("model.nvm");
-
-    std::ofstream stream(nvm_path.toString(), std::ios::trunc);
-
-    if (stream.is_open()) {
-
-      int camera_count = reconstruction.Images().size();
-      int feature_count = reconstruction.NumPoints3D();
-
-      stream << "NVM_V3 \n\n" << camera_count << "\n";
-      
-      stream << std::fixed << std::setprecision(12);
-
-      const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
-
-      for (auto &camera : reconstruction.Cameras()) {
-
-        std::shared_ptr<Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
-
-        float focal_x{};
-        float focal_y{};
-        if (calibration->existParameter(Calibration::Parameters::focal)) {
-          focal_x = static_cast<float>(calibration->parameter(Calibration::Parameters::focal));
-          focal_y = static_cast<float>(calibration->parameter(Calibration::Parameters::focal));
-        } else {
-          focal_x = static_cast<float>(calibration->parameter(Calibration::Parameters::focalx));
-          focal_y = static_cast<float>(calibration->parameter(Calibration::Parameters::focaly));
-        }
-
-        float ppx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
-        float ppy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
-
-        cv::Size imageSize(static_cast<int>(camera.second.Width()),
-                           static_cast<int>(camera.second.Height()));
-        std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
-                                                                  0.f, focal_y, ppy,
-                                                                  0.f, 0.f, 1.f};
-        cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
-        cv::Mat distCoeffs = cv::Mat::zeros(1, 5, CV_32F);
-        distCoeffs.at<float>(0) = calibration->existParameter(Calibration::Parameters::k1) ?
-          static_cast<float>(calibration->parameter(Calibration::Parameters::k1)) : 0.f;
-        distCoeffs.at<float>(1) = calibration->existParameter(Calibration::Parameters::k2) ?
-          static_cast<float>(calibration->parameter(Calibration::Parameters::k2)) : 0.f;
-        distCoeffs.at<float>(2) = calibration->existParameter(Calibration::Parameters::p1) ?
-          static_cast<float>(calibration->parameter(Calibration::Parameters::p1)) : 0.f;
-        distCoeffs.at<float>(3) = calibration->existParameter(Calibration::Parameters::p2) ?
-          static_cast<float>(calibration->parameter(Calibration::Parameters::p2)) : 0.f;
-        distCoeffs.at<float>(4) = calibration->existParameter(Calibration::Parameters::k3) ?
-          static_cast<float>(calibration->parameter(Calibration::Parameters::k3)) : 0.f;
-
-        cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr, true);
-        float new_focal = (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.f;
-
-        for (size_t i = 0; i < reg_image_ids.size(); ++i) {
-          colmap::image_t image_id = reg_image_ids[i];
-          colmap::Image &image = reconstruction.Image(image_id);
-          if (image.CameraId() == camera.second.CameraId()) {
-
-            Eigen::Vector3d projection_center = image.ProjectionCenter();
-
-            stream << "undistort/" << tl::Path(image.Name()).fileName() << " ";
-            stream << new_focal << " ";
-            stream << image.Qvec(0) << " ";
-            stream << image.Qvec(1) << " ";
-            stream << image.Qvec(2) << " ";
-            stream << image.Qvec(3) << " ";
-            stream << projection_center(0) << " ";
-            stream << projection_center(1) << " ";
-            stream << projection_center(2) << " ";
-            stream << 0 << " ";
-            stream << 0 << std::endl;
-
-          }
-        }
-      }
-
-      stream << "\n" << feature_count << std::endl;
-
-      for (auto &points_3d : reconstruction.Points3D()) {
-
-        stream << points_3d.second.X() << " "
-          << points_3d.second.Y() << " "
-          << points_3d.second.Z() << " "
-          << static_cast<int>(points_3d.second.Color(0)) << " "
-          << static_cast<int>(points_3d.second.Color(1)) << " "
-          << static_cast<int>(points_3d.second.Color(2)) << " ";
-
-
-
-        colmap::Track track = points_3d.second.Track();
-
-        std::map<int, int> track_ids_not_repeat;
-        for (auto &element : track.Elements()) {
-          track_ids_not_repeat[element.image_id - 1] = element.point2D_idx;
-        }
-
-        stream << track_ids_not_repeat.size();
-
-        for (auto &map : track_ids_not_repeat) {
-
-          colmap::image_t image_id = map.first + 1;
-          const colmap::Image &image = reconstruction.Image(image_id);
-          const colmap::Camera &camera = reconstruction.Camera(image.CameraId());
-
-          const colmap::Point2D &point2D = image.Point2D(map.second);
-
-          stream << " " << static_cast<int>(image_id - 1)
-            << " " << map.second
-            << " " << point2D.X()
-            << " " << point2D.Y();
-        }
-
-        stream << std::endl;
-      }
-
-      stream.close();
-    }
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
-  }
-}
-
-void MvsDensifier::undistortImages()
-{
-  colmap::Reconstruction &reconstruction = mReconstruction->colmap();
-  const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
-
-  tl::Path output_images_path(mOutputPath);
-  output_images_path.append("undistort");
-
-  for (auto &camera : reconstruction.Cameras()) {
-
-    std::shared_ptr<Calibration> calibration = mCalibrationReader->calibration(static_cast<int>(camera.first));
-    
-    cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
-    cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);
-
-    cv::Mat map1;
-    cv::Mat map2;
-    cv::Mat optCameraMat;
-    cv::Size imageSize(static_cast<int>(camera.second.Width()),
-                       static_cast<int>(camera.second.Height()));
-    bool b_fisheye = calibration->checkCameraType(Calibration::CameraType::fisheye);
-
-    if (!b_fisheye) {
-      optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, nullptr);
-      cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
-    } else {
-      cv::fisheye::estimateNewCameraMatrixForUndistortRectify(cameraMatrix, distCoeffs, imageSize, cv::Mat(), optCameraMat, 0.0, imageSize);
-      cv::fisheye::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), optCameraMat, imageSize, CV_32FC1, map1, map2);
-    }
-
-    TL_TODO("undistortImage()")
-
-    for (size_t i = 0; i < reg_image_ids.size(); ++i) {
-
-      colmap::image_t image_id = reg_image_ids[i];
-      colmap::Image &image = reconstruction.Image(image_id);
-
-      if (image.CameraId() == camera.second.CameraId()) {
-
-        std::string image_file = image.Name();
-
-        cv::Mat img;
-        cv::Mat img_original;
-
-        if (bOpenCvRead) {
-          img = cv::imread(image_file, cv::IMREAD_COLOR | cv::IMREAD_IGNORE_ORIENTATION);
-
-          if (img.empty()) {
-            bOpenCvRead = false;
-          }
-        }
-
-        if (!bOpenCvRead) {
-          std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
-          imageReader->open();
-          if (imageReader->isOpen()) {
-            img = imageReader->read();
-            if (imageReader->depth() != 8) {
-
-              TL_TODO("Codigo duplicado en FeatureExtractorProcess")
-
-#ifdef HAVE_CUDA
-                if (bCuda) {
-                  cv::cuda::GpuMat gImgIn(img);
-                  cv::cuda::GpuMat gImgOut;
-                  cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-                  gImgOut.download(img);
-                } else {
-#endif
-                  cv::normalize(img, img, 0., 255., cv::NORM_MINMAX, CV_8U);
-#ifdef HAVE_CUDA
-                }
-#endif
-            }
-
-            imageReader->close();
-          }
-        }
-
-        TL_TODO("Las im√°genes en escala de grises con canal alfa no estan comprobadas")
-          if (img.channels() == 1) {
-            cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
-          }
-
-        cv::Mat img_undistort;
-#ifdef HAVE_CUDA
-        if (bCuda) {
-          TL_TODO("comprobar versi√≥n driver cuda");
-          cv::cuda::GpuMat gImgOut(img);
-          img.release();
-          cv::cuda::GpuMat gImgUndistort;
-
-          cv::cuda::GpuMat gMap1(map1);
-          cv::cuda::GpuMat gMap2(map2);
-          cv::cuda::remap(gImgOut, gImgUndistort, gMap1, gMap2, cv::INTER_LINEAR, 0, cv::Scalar()/*, stream1*/);
-          gImgUndistort.download(img_undistort);
-
-        } else {
-#endif
-          cv::remap(img, img_undistort, map1, map2, cv::INTER_LINEAR);
-          img.release();
-
-#ifdef HAVE_CUDA
-        }
-#endif
-        tl::Path image_path(image_file);
-
-        msgInfo("Undistort image: %s", image_path.fileName().toString().c_str());
-
-        tl::Path undistort_image_path(output_images_path);
-        undistort_image_path.append(image_path.fileName());
-
-        cv::imwrite(undistort_image_path.toString(), img_undistort);
-
-
-      }
-    }
-
-  }
-}
-
-void MvsDensifier::undistortImage()
-{
-
-}
-
-void MvsDensifier::exportToMVS()
-{
-  // InterfaceVisualSFM.exe -w "C:\Users\Tido\OneDrive - Universidad de Salamanca\Documents\graphos\Projects\ZufreFotogrametria\dense\pmvs\visualize" 
-  //                        -i "C:\Users\Tido\OneDrive - Universidad de Salamanca\Documents\graphos\Projects\ZufreFotogrametria\dense\mvs\model.nvm" 
-  //                        -o "C:\Users\Tido\OneDrive - Universidad de Salamanca\Documents\graphos\Projects\ZufreFotogrametria\dense\mvs\model.nvs" -v 0
-
-  try {
-
-    tl::Path app_path = tl::App::instance().path();
-    std::string cmd_mvs("\"");
-    //cmd_mvs.append(app_path.parentPath().toString());
-    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
-    //cmd_mvs.append("C:\\OpenMVS\\InterfaceCOLMAP.exe\" - w \"");
-    cmd_mvs.append(mOutputPath.toString());
-    cmd_mvs.append("\" -i model.nvm -o model.mvs -v 0");
-
-    msgInfo("Process: %s", cmd_mvs.c_str());
-    tl::Process process(cmd_mvs);
-   
-    process.run();
-  
-    if (process.status() == tl::Process::Status::error) TL_THROW_EXCEPTION(cmd_mvs.c_str());
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
-}
-
-
-MvsDensifier2::MvsDensifier2(const std::unordered_map<size_t, Image> &images,
-                             const std::map<int, Camera> &cameras,
-                             const std::unordered_map<size_t, CameraPose> &poses,
-                             const std::vector<GroundPoint> &groundPoints, 
-                             const QString &outputPath,
-                             const QString &database, 
-                             bool cuda/*,
-                             const QString &undistortPath*/)
-  : DensifierBase(images, cameras, poses, groundPoints, outputPath/*, undistortPath*/),
-    mDatabase(database)
-{
-  enableCuda(cuda);
-}
-
-MvsDensifier2::~MvsDensifier2()
-{
-}
-
-void MvsDensifier2::clearPreviousModel()
-{
   outputPath().removeDirectory();
 }
 
-void MvsDensifier2::writeNVMFile()
+void MvsDensifier::exportToComap()
+{
+  //try {
+
+  //  colmap::Database database;
+  //  database.Open(mDatabase.toStdString());
+  //  const auto &colmap_images = database.ReadAllImages();
+
+  //  std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
+
+  //  for (const auto &image : images()) {
+
+  //    tl::Path image_path(image.second.path().toStdString());
+
+  //    for (const auto &colmap_image : colmap_images) {
+  //      tl::Path colmap_image_path(colmap_image.Name());
+
+  //      if (image_path.equivalent(colmap_image_path)) {
+  //        graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+  //        break;
+  //      }
+  //    }
+
+  //  }
+  //  std::map<int, Undistort> undistort_map;
+
+  //  for (auto &camera : cameras()) {
+  //    undistort_map[camera.first] = Undistort(camera.second);
+  //  }
+
+
+  //  tl::TemporalDir temp_dir;
+  //  tl::Path colmap_sparse_path = temp_dir.path();
+  //  colmap_sparse_path.append("temp");
+  //  colmap_sparse_path.append("sparse");
+  //  colmap_sparse_path.createDirectories();
+
+  //  TL_TODO("Extraer la exportaciÛn a colmap")
+  //  // cameras.txt
+  //  {
+  //    tl::Path colmap_cameras(colmap_sparse_path);
+  //    colmap_cameras.append("cameras.txt");
+
+  //    std::ofstream ofs;
+  //    ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
+
+  //    TL_ASSERT(ofs.is_open(), "Open fail: cameras.txt");
+  //    
+  //    ofs << "# Camera list with one line of data per camera: \n";
+  //    ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
+  //    ofs << "# Number of cameras: " << cameras().size() << "\n";
+
+  //    ofs << std::fixed << std::setprecision(12);
+
+  //    for (auto &undistort_pair : undistort_map) {
+  //      
+  //      size_t camera_id = undistort_pair.first;
+  //      Undistort undistort = undistort_pair.second;
+  //      Camera undistort_camera = undistort.undistortCamera();
+  //      auto calibration = undistort_camera.calibration();
+
+  //      TL_ASSERT(calibration, "Camera calibration not found");
+
+  //      /// La c·mara tiene que ser PINHOLE para InterfaceCOLMAP
+  //      ofs << camera_id << " PINHOLE " << undistort_camera.width() << " " << undistort_camera.height() << " ";
+
+  //      double focal_x = 0.0;
+  //      double focal_y = 0.0;
+
+  //      if (calibration->existParameter(Calibration::Parameters::focal)) {
+  //        focal_x = focal_y = calibration->parameter(Calibration::Parameters::focal);
+  //      } else {
+  //        focal_x = calibration->parameter(Calibration::Parameters::focalx);
+  //        focal_y = calibration->parameter(Calibration::Parameters::focaly);
+  //      }
+
+  //      ofs << focal_x << " " << focal_y << " ";
+
+  //      double cx = calibration->existParameter(Calibration::Parameters::cx) ?
+  //                  calibration->parameter(Calibration::Parameters::cx) :
+  //                   undistort_camera.width() / 2.;
+  //      double cy = calibration->existParameter(Calibration::Parameters::cy) ?
+  //                  calibration->parameter(Calibration::Parameters::cy) :
+  //                  undistort_camera.height() / 2.;
+
+  //      ofs << cx << " " << cy << std::endl;
+
+  //    }
+
+  //  }
+
+  //  // images.txt
+  //  {
+  //    tl::Path colmap_images(colmap_sparse_path);
+  //    colmap_images.append("images.txt");
+
+  //    std::ofstream ofs;
+  //    ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
+
+  //    TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
+
+  //    ofs << std::fixed << std::setprecision(12);
+
+  //    std::unordered_map<size_t, size_t> graphos_to_mvs_ids;
+
+  //    for (const auto &pose : poses()) {
+  //    
+  //      size_t image_id = pose.first;
+  //      auto &image_pose = pose.second;
+
+  //      size_t mvs_id = graphos_to_mvs_ids.size();
+  //      graphos_to_mvs_ids[image_id] = mvs_id;
+
+  //      const auto &image = images().at(image_id);
+
+  //      auto projection_center = image_pose.position();
+  //      auto rotation_matrix = image_pose.rotationMatrix();
+
+  //      tl::math::RotationMatrix<double> transform_to_colmap = tl::math::RotationMatrix<double>::identity();
+  //      transform_to_colmap.at(1, 1) = -1;
+  //      transform_to_colmap.at(2, 2) = -1;
+
+  //      tl::math::RotationMatrix<double> rotation = transform_to_colmap * rotation_matrix.transpose();
+
+  //      tl::math::Quaternion<double> quaternion;
+  //      tl::math::RotationConverter<double>::convert(rotation, quaternion);
+  //      quaternion.normalize();
+
+  //      auto xyx = rotation * -projection_center.vector();
+
+  //      ofs << mvs_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
+  //          << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image.name().toStdString() << std::endl;
+  //      ofs << std::endl;
+  //    }
+
+  //  }
+
+  //  // points3D.txt
+  //  {
+  //    tl::Path colmap_points_3d(colmap_sparse_path);
+  //    colmap_points_3d.append("points3D.txt");
+  //  }
+
+  //} catch (...) {
+  //  TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
+  //}
+}
+
+void MvsDensifier::writeNVMFile()
 {
   try {
   
@@ -693,12 +386,10 @@ void MvsDensifier2::writeNVMFile()
     std::map<int, Undistort> undistort;
 
     for (auto &camera : cameras()) {
-
       undistort[camera.first] = Undistort(camera.second);
     }
 
     std::ofstream stream(nvm_path.toString(), std::ios::trunc);
-
 
     if (stream.is_open()) {
 
@@ -706,6 +397,7 @@ void MvsDensifier2::writeNVMFile()
       int ground_points_count = groundPoints().size();
 
       stream << "NVM_V3 \n\n" << camera_count << "\n";
+      //stream << "NVM_V3_R9T \n\n" << camera_count << "\n";
 
       stream << std::fixed << std::setprecision(12);
 
@@ -723,6 +415,16 @@ void MvsDensifier2::writeNVMFile()
 
         auto projection_center = pose.second.position();
         auto quaternion = pose.second.quaternion();
+        //auto rotation_matrix = pose.second.rotationMatrix();
+        //auto transform_to_colmap = tl::math::RotationMatrix<double>::identity();
+        //transform_to_colmap.at(1, 1) = -1;
+        //transform_to_colmap.at(2, 2) = -1;
+
+        //tl::math::RotationMatrix<double> rotation = transform_to_colmap * pose.second.rotationMatrix();
+
+        //tl::math::Quaternion<double> quaternion;
+        //tl::math::RotationConverter<double>::convert(rotation, quaternion);
+        //quaternion.normalize();
 
         tl::Path undistort_image(image.path().toStdString());
         undistort_image.replaceExtension(".tif");
@@ -733,6 +435,15 @@ void MvsDensifier2::writeNVMFile()
         stream << quaternion.x << " ";
         stream << quaternion.y << " ";
         stream << quaternion.z << " ";
+        //stream << rotation_matrix[0][0] << " ";
+        //stream << rotation_matrix[0][1] << " ";
+        //stream << rotation_matrix[0][2] << " ";
+        //stream << rotation_matrix[1][0] << " ";
+        //stream << rotation_matrix[1][1] << " ";
+        //stream << rotation_matrix[1][2] << " ";
+        //stream << rotation_matrix[2][0] << " ";
+        //stream << rotation_matrix[2][1] << " ";
+        //stream << rotation_matrix[2][2] << " ";
         stream << projection_center.x << " ";
         stream << projection_center.y << " ";
         stream << projection_center.z << " ";
@@ -752,8 +463,6 @@ void MvsDensifier2::writeNVMFile()
                << points_3d.color().green() << " "
                << points_3d.color().blue() << " ";
 
-
-
         auto &track = points_3d.track();
 
         stream << track.size();
@@ -762,14 +471,16 @@ void MvsDensifier2::writeNVMFile()
 
           size_t image_id = map.first;
           size_t point_id = map.second;
-
           
           auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
+          auto _undistort = undistort.at(images().at(image_id).cameraId());
+
+          tl::Point<float> undistort_point = _undistort.undistortPoint(tl::Point<float>(keypoints[point_id].x, keypoints[point_id].y));
 
           stream << " " << static_cast<int>(graphos_to_mvs_ids.at(image_id))
                  << " " << point_id
-                 << " " << keypoints[point_id].x
-                 << " " << keypoints[point_id].y;
+                 << " " << undistort_point.x
+                 << " " << undistort_point.y;
         }
 
         stream << std::endl;
@@ -784,7 +495,7 @@ void MvsDensifier2::writeNVMFile()
 
 }
 
-void MvsDensifier2::exportToMVS()
+void MvsDensifier::exportToMVS()
 {
   try {
 
@@ -815,7 +526,7 @@ void MvsDensifier2::exportToMVS()
   }
 }
 
-void MvsDensifier2::densify()
+void MvsDensifier::densify()
 {
   try {
 
@@ -847,14 +558,19 @@ void MvsDensifier2::densify()
 
     setDenseModel(QString::fromStdWString(dense_model.toWString()));
 
+    msgInfo("Dense model write at: %s", dense_model.toString().c_str());
+
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("");
   }
 }
 
-void MvsDensifier2::execute(tl::Progress *progressBar)
+void MvsDensifier::execute(tl::Progress *progressBar)
 {
   try {
+
+    tl::Chrono chrono("Densification finished");
+    chrono.run();
 
     this->clearPreviousModel();
 
@@ -866,10 +582,23 @@ void MvsDensifier2::execute(tl::Progress *progressBar)
     models_path.append("models");
     models_path.createDirectory();
 
-    this->writeNVMFile();
+    /// Da problemas al escribir el fichero nvm e importarlo
+    /// Intentar exportar directamente. Por ahora exportar a Colmap  utilizar InterfaceColmap para convertirlo a OpenMVS
+    this->exportToComap();
+    this->writeNVMFile(); 
+    
+    if (status() == tl::Task::Status::stopping) return;
+
     this->undistort(QString::fromStdWString(undistort_path.toWString()));
+    
+    if (status() == tl::Task::Status::stopping) return;
+
     this->exportToMVS();
     this->densify();
+
+    chrono.stop();
+
+    if (progressBar) (*progressBar)();
 
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("MVS error");

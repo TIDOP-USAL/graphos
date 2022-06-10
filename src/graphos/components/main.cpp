@@ -44,7 +44,7 @@
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
 //#include "graphos/components/export/orientations/ExportOrientationsComponent.h"
 //#include "graphos/components/export/densemodel/ExportPointCloudComponent.h"
-//#include "graphos/components/settings/SettingsComponent.h"
+#include "graphos/components/settings/SettingsComponent.h"
 #include "graphos/components/about/AboutComponent.h"
 
 #include "graphos/core/Application.h"
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
   OrthophotoComponent orthophoto_component(&app);
   FeaturesViewerComponent features_viewer_component(&app);
   MatchViewerComponent match_viewer_component(&app);
-  //SettingsComponent settings_component(&app);
+  SettingsComponent settings_component(&app);
   AboutComponent about_component(&app);
   
 
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     app.addComponent(&orthophoto_component);
     app.addComponent(&features_viewer_component);
     app.addComponent(&match_viewer_component);
-    //app.addComponent(&settings_component);
+    app.addComponent(&settings_component);
     app.addComponent(&about_component);
 
     tl::CommandList::Status status = app.parse(argc, argv);
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     componentsManager.registerComponent(&match_viewer_component,
                                         ComponentsManager::Flags::separator_after);
 
-    //componentsManager.registerComponent(&settings_component);
+    componentsManager.registerComponent(&settings_component);
 
     /* Help menu */
 
