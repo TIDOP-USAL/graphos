@@ -105,7 +105,7 @@ void ProcessPresenter::run()
 
     mProcess = this->createProcess();
 
-    if(mProcess == nullptr) throw std::runtime_error("");
+    TL_ASSERT(mProcess, "Empty process");
 
     mProcess->subscribe(std::bind(&ProcessPresenter::onError, this, std::placeholders::_1));
     mProcess->subscribe(std::bind(&ProcessPresenter::onFinished, this, std::placeholders::_1));

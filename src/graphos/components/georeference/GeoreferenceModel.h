@@ -27,7 +27,7 @@
 #include <unordered_map>
 
 #include "graphos/interfaces/mvp.h"
-#include "graphos/core/orientation/poses.h"
+#include "graphos/core/sfm/poses.h"
 
 class QStandardItemModel;
 
@@ -36,6 +36,9 @@ namespace graphos
 
 class GroundControlPoint;
 class Image;
+class Camera;
+class CameraPose;
+class GroundPoint;
 
 class GeoreferenceModel
   : public Model
@@ -66,6 +69,10 @@ public:
   virtual void setOffset(const QString &offset) = 0;
   virtual void addPhotoOrientation(size_t imageId,
                                    const CameraPose &orientation) = 0;
+  virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
+  virtual const std::map<int, Camera> &cameras() const = 0;
+  virtual std::vector<GroundPoint> groundPoints() const = 0;
+  virtual QString database() const = 0;
 
 public slots:
 

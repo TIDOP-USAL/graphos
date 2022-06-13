@@ -75,9 +75,6 @@ public:
 
   std::vector<GroundPoint> groundPoints() const
   {
-    /// Muy Lento... 
-    /// Crear una tabla de equivalencias de id_image_colmap e id_image_graphos
-
     std::vector<GroundPoint> ground_points(mReconstruction->NumPoints3D());
 
     size_t i = 0;
@@ -629,6 +626,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
 
     /// TODO: Cambiar por un error si no existe el directorio
     tl::Path dir(mInputPath.toStdString());
+    TL_ASSERT(dir.exists() && dir.isDirectory(), "Invalid reconstruction");
     //if (!dir.exists() && !dir.createDirectories()) {
     //  throw std::runtime_error(std::string("Directory couldn't be created: ").append(mOutputPath.toStdString()));
     //}
@@ -688,8 +686,6 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
     if (!tl::Path(mInputPath.toStdString()).exists())
       throw std::runtime_error(std::string("Reconstruction not found in path: ").append(mInputPath.toStdString()));
 
-
-
     if (status() == tl::Task::Status::stopping) return;
 
     bool alignment_success;
@@ -731,7 +727,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
     tl::Path sparse_path(dir);
     sparse_path.append("sparse.ply");
     OrientationExport orientationExport(&reconstruction);
-    orientationExport.exportBinary(QString::fromStdString(sparse_path.toString()));
+    //orientationExport.exportBinary(QString::fromStdString(sparse_path.toString()));
     orientationExport.exportPLY(QString::fromStdString(sparse_path.toString()));
 
     /// writeOffset

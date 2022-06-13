@@ -1,3 +1,4 @@
+#include "GeoreferenceComponent.h"
 /************************************************************************
  *                                                                      *
  *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
@@ -39,16 +40,20 @@ namespace graphos
 GeoreferenceComponent::GeoreferenceComponent(Application *application)
   : ProcessComponent(application)
 {
-  this->setName("Georeference");
-  this->setMenu("tools");
-  this->setToolbar("tools");
-  QIcon iconGeoreference;
-  iconGeoreference.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-coordinate-system.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(iconGeoreference);
+  init();
 }
 
 GeoreferenceComponent::~GeoreferenceComponent()
 {
+}
+
+void GeoreferenceComponent::init()
+{
+  this->setName("Georeference");
+  this->setMenu("tools");
+  this->setToolbar("tools");
+
+  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-coordinate-system.png"));
 }
 
 void GeoreferenceComponent::createModel()

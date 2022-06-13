@@ -29,8 +29,8 @@
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/components/orientation/OrientationModel.h"
 #include "graphos/components/orientation/OrientationView.h"
-#include "graphos/components/orientation/impl/RelativeOrientationProcess.h"
-#include "graphos/components/orientation/impl/AbsoluteOrientationProcess.h"
+//#include "graphos/components/orientation/impl/RelativeOrientationProcess.h"
+//#include "graphos/components/orientation/impl/AbsoluteOrientationProcess.h"
 #include "graphos/components/orientation/impl/ImportOrientationProcess.h"
 #include "graphos/components/HelpDialog.h"
 
@@ -232,8 +232,8 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
     if (mView->absoluteOrientation()) {
       
       auto absolute_orientation_task = std::make_shared<AbsoluteOrientationColmapTask>(ori_relative_path,
-                                                                                       //camera_positions,
                                                                                        images);
+
       absolute_orientation_task->subscribe([&](tl::TaskFinalizedEvent *event) {
 
         tl::Path sfm_path = mModel->projectPath().toStdWString();

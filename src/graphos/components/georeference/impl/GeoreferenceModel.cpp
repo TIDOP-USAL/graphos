@@ -24,7 +24,7 @@
 #include "GeoreferenceModel.h"
 
 #include "graphos/core/project.h"
-#include "graphos/core/orientation/gcp.h"
+#include "graphos/core/sfm/groundpoint.h"
 
 #include <QStandardItemModel>
 #include <QFile>
@@ -71,9 +71,9 @@ std::vector<GroundControlPoint> GeoreferenceModelImp::groundControlPoints() cons
         
     GroundControlPoint ground_control_point;
     ground_control_point.setName(id.toStdString());
-    ground_control_point.setX(x);
-    ground_control_point.setY(y);
-    ground_control_point.setZ(z);
+    ground_control_point.x = x;
+    ground_control_point.y = y;
+    ground_control_point.z = z;
 
     QList<QStandardItem *> items = mItemModelImagePoints->findItems(id, Qt::MatchExactly, 0);
     for (auto item : items) {
@@ -82,7 +82,7 @@ std::vector<GroundControlPoint> GeoreferenceModelImp::groundControlPoints() cons
       size_t image_id = mItemModelImagePoints->index(row, 1).data(Qt::UserRole + 1).toULongLong();
       double x = mItemModelImagePoints->index(row, 2).data().toDouble();
       double y = mItemModelImagePoints->index(row, 3).data().toDouble();
-      ground_control_point.addImagePoint(image.toStdString(),tl::PointD(x, y));
+      ground_control_point.addPointToTrack(image_id, tl::Point<double>(x, y));
     }
 
     ground_control_points.push_back(ground_control_point);
@@ -91,102 +91,102 @@ std::vector<GroundControlPoint> GeoreferenceModelImp::groundControlPoints() cons
   return ground_control_points;
 }
 
-void GeoreferenceModelImp::readGroundControlPoints(QXmlStreamReader &stream)
-{
-  while (stream.readNextStartElement()) {
-    if (stream.name() == "Crs") {
-      mCrs = stream.readElementText();
-    } else if (stream.name() == "GroundControlPoint") {
-      readGroundControlPoint(stream);
-    } else
-      stream.skipCurrentElement();
-  }
-}
+//void GeoreferenceModelImp::readGroundControlPoints(QXmlStreamReader &stream)
+//{
+//  while (stream.readNextStartElement()) {
+//    if (stream.name() == "Crs") {
+//      mCrs = stream.readElementText();
+//    } else if (stream.name() == "GroundControlPoint") {
+//      readGroundControlPoint(stream);
+//    } else
+//      stream.skipCurrentElement();
+//  }
+//}
 
-void GeoreferenceModelImp::readGroundControlPoint(QXmlStreamReader &stream)
-{
-  QString gcp_id;
-  QString x;
-  QString y;
-  QString z;
-  QString error;
+//void GeoreferenceModelImp::readGroundControlPoint(QXmlStreamReader &stream)
+//{
+//  QString gcp_id;
+//  QString x;
+//  QString y;
+//  QString z;
+//  QString error;
+//
+//  while (stream.readNextStartElement()) {
+//    if (stream.name() == "Name") {
+//      gcp_id = stream.readElementText();
+//    } else if (stream.name() == "x") {
+//      x = stream.readElementText();
+//    } else if (stream.name() == "y") {
+//      y = stream.readElementText();
+//    } else if (stream.name() == "z") {
+//      z = stream.readElementText();
+//    } else if (stream.name() == "error") {
+//      error = stream.readElementText();
+//    } else if (stream.name() == "ImagePoints") {
+//      readImagePoints(stream, gcp_id);
+//    } else {
+//      stream.skipCurrentElement();
+//    }
+//  }
+//
+//  QList<QStandardItem *> standardItem;
+//  standardItem.append(new QStandardItem(gcp_id));
+//  standardItem.append(new QStandardItem(x));
+//  standardItem.append(new QStandardItem(y));
+//  standardItem.append(new QStandardItem(z));
+//  standardItem.append(new QStandardItem(error));
+//  QStandardItem *item = standardItem.at(4);
+//  item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+//
+//  mItemModelGroundControlPoints->insertRow(mItemModelGroundControlPoints->rowCount(),
+//                                           standardItem);
+//}
 
-  while (stream.readNextStartElement()) {
-    if (stream.name() == "Name") {
-      gcp_id = stream.readElementText();
-    } else if (stream.name() == "x") {
-      x = stream.readElementText();
-    } else if (stream.name() == "y") {
-      y = stream.readElementText();
-    } else if (stream.name() == "z") {
-      z = stream.readElementText();
-    } else if (stream.name() == "error") {
-      error = stream.readElementText();
-    } else if (stream.name() == "ImagePoints") {
-      readImagePoints(stream, gcp_id);
-    } else {
-      stream.skipCurrentElement();
-    }
-  }
+//void GeoreferenceModelImp::readImagePoints(QXmlStreamReader &stream, const QString &gcp_id)
+//{
+//  while (stream.readNextStartElement()) {
+//    if (stream.name() == "ImagePoint") {
+//      readImagePoint(stream, gcp_id);
+//    } else
+//      stream.skipCurrentElement();
+//  }
+//}
 
-  QList<QStandardItem *> standardItem;
-  standardItem.append(new QStandardItem(gcp_id));
-  standardItem.append(new QStandardItem(x));
-  standardItem.append(new QStandardItem(y));
-  standardItem.append(new QStandardItem(z));
-  standardItem.append(new QStandardItem(error));
-  QStandardItem *item = standardItem.at(4);
-  item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-
-  mItemModelGroundControlPoints->insertRow(mItemModelGroundControlPoints->rowCount(),
-                                           standardItem);
-}
-
-void GeoreferenceModelImp::readImagePoints(QXmlStreamReader &stream, const QString &gcp_id)
-{
-  while (stream.readNextStartElement()) {
-    if (stream.name() == "ImagePoint") {
-      readImagePoint(stream, gcp_id);
-    } else
-      stream.skipCurrentElement();
-  }
-}
-
-void GeoreferenceModelImp::readImagePoint(QXmlStreamReader &stream, const QString &gcp_id)
-{
-  size_t image_id;
-  for (auto &attr : stream.attributes()) {
-    if (attr.name().compare(QString("image_id")) == 0) {
-      image_id = attr.value().toULongLong();
-      break;
-    }
-  }
-  
-  QString image = mProject->findImageById(image_id).name();
-  QString x;
-  QString y;
-
-  while (stream.readNextStartElement()) {
-    /*if (stream.name() == "Image") {
-      image = stream.readElementText();
-    } else*/ if (stream.name() == "x") {
-      x = stream.readElementText();
-    } else if (stream.name() == "y") {
-      y = stream.readElementText();
-    } else {
-      stream.skipCurrentElement();
-    }
-  }
-
-  QList<QStandardItem *> standardItem;
-  standardItem.append(new QStandardItem(gcp_id));
-  standardItem.append(new QStandardItem(image));
-  standardItem.append(new QStandardItem(x));
-  standardItem.append(new QStandardItem(y));
-  standardItem[1]->setData(image_id);
-  mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
-                                   standardItem);
-}
+//void GeoreferenceModelImp::readImagePoint(QXmlStreamReader &stream, const QString &gcp_id)
+//{
+//  size_t image_id;
+//  for (auto &attr : stream.attributes()) {
+//    if (attr.name().compare(QString("image_id")) == 0) {
+//      image_id = attr.value().toULongLong();
+//      break;
+//    }
+//  }
+//  
+//  QString image = mProject->findImageById(image_id).name();
+//  QString x;
+//  QString y;
+//
+//  while (stream.readNextStartElement()) {
+//    /*if (stream.name() == "Image") {
+//      image = stream.readElementText();
+//    } else*/ if (stream.name() == "x") {
+//      x = stream.readElementText();
+//    } else if (stream.name() == "y") {
+//      y = stream.readElementText();
+//    } else {
+//      stream.skipCurrentElement();
+//    }
+//  }
+//
+//  QList<QStandardItem *> standardItem;
+//  standardItem.append(new QStandardItem(gcp_id));
+//  standardItem.append(new QStandardItem(image));
+//  standardItem.append(new QStandardItem(x));
+//  standardItem.append(new QStandardItem(y));
+//  standardItem[1]->setData(image_id);
+//  mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
+//                                   standardItem);
+//}
 
 void GeoreferenceModelImp::writeGroundControlPoints(QXmlStreamWriter &stream)
 {
@@ -242,28 +242,75 @@ void GeoreferenceModelImp::loadGroundControlPoints()
   mItemModelImagePoints->setHorizontalHeaderLabels(headerImagePoints);
 
   //QString gcp_file = mProject->reconstructionPath();
-  QString gcp_file = mProject->projectFolder() + "\\ori\\relative";
-  gcp_file.append("\\georef.xml");
-  QFile file(gcp_file);
-  if (file.open(QFile::ReadOnly)) {
-    QXmlStreamReader stream;
-    stream.setDevice(&file);
+  //QString gcp_file = mProject->projectFolder();
+  //gcp_file.append("\\georef.xml");
+  //QFile file(gcp_file);
+  //if (file.open(QFile::ReadOnly)) {
+  //  QXmlStreamReader stream;
+  //  stream.setDevice(&file);
 
-    if (stream.readNextStartElement()) {
-      if (stream.name() == "Graphos") {
-        while (stream.readNextStartElement()) {
-          if (stream.name() == "GroundControlPoints") {
-            this->readGroundControlPoints(stream);
-          } else
-            stream.skipCurrentElement();
-        }
-      } else {
-        stream.raiseError(QObject::tr("Incorrect project file"));
-      }
+  //  if (stream.readNextStartElement()) {
+  //    if (stream.name() == "Graphos") {
+  //      while (stream.readNextStartElement()) {
+  //        if (stream.name() == "GroundControlPoints") {
+  //          this->readGroundControlPoints(stream);
+  //        } else
+  //          stream.skipCurrentElement();
+  //      }
+  //    } else {
+  //      stream.raiseError(QObject::tr("Incorrect project file"));
+  //    }
 
-      file.close();
+  //    file.close();
+  //  }
+  //}
+
+  tl::Path gcp_file = mProject->projectFolder().toStdWString();
+  gcp_file.append("georef.xml");
+
+  auto reader = GCPsReaderFactory::create("GRAPHOS");
+  reader->read(gcp_file);
+  //reader->epsgCode();
+  auto gcps = reader->gcps();
+
+  for (auto &gcp : gcps) {
+
+    QString name = QString::fromStdString(gcp.name());
+    QList<QStandardItem *> standardItem;
+    standardItem.append(new QStandardItem(name));
+    standardItem.append(new QStandardItem(QString::number(gcp.x)));
+    standardItem.append(new QStandardItem(QString::number(gcp.y)));
+    standardItem.append(new QStandardItem(QString::number(gcp.z)));
+    standardItem.append(new QStandardItem(QString()));
+
+    for (auto &pair : gcp.track().points()){
+
+      size_t image_id = pair.first;
+      tl::Point<double> point = pair.second;
+
+      QString image = mProject->findImageById(image_id).name();
+      QString x = QString::number(point.x);
+      QString y = QString::number(point.y);
+
+
+      QList<QStandardItem *> standardItem;
+      standardItem.append(new QStandardItem(name));
+      standardItem.append(new QStandardItem(image));
+      standardItem.append(new QStandardItem(x));
+      standardItem.append(new QStandardItem(y));
+      standardItem[1]->setData(image_id);
+      mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
+                                       standardItem);
     }
+
+    QStandardItem *item = standardItem.at(4);
+    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+
+    mItemModelGroundControlPoints->insertRow(mItemModelGroundControlPoints->rowCount(),
+                                             standardItem);
+
   }
+
 }
 
 QString GeoreferenceModelImp::crs() const
@@ -360,6 +407,7 @@ std::list<std::pair<QString, QPointF>> GeoreferenceModelImp::points(size_t image
   Image image = mProject->findImageById(imageId);
 
   QList<QStandardItem *> items = mItemModelImagePoints->findItems(image.name(), Qt::MatchExactly, 1);
+  
   for (auto item : items) {
     int row = item->row();
     QString gcp = mItemModelImagePoints->index(row, 0).data().toString();
@@ -367,6 +415,7 @@ std::list<std::pair<QString, QPointF>> GeoreferenceModelImp::points(size_t image
                   mItemModelImagePoints->index(row, 3).data().toDouble());
     image_points.push_back(std::make_pair(gcp, point));
   }
+
   return image_points;
 }
 
@@ -394,6 +443,32 @@ void GeoreferenceModelImp::addPhotoOrientation(size_t imageId,
                                                const CameraPose &orientation)
 {
   mProject->addPhotoOrientation(imageId, orientation);
+}
+
+const std::unordered_map<size_t, CameraPose> &GeoreferenceModelImp::poses() const
+{
+  return mProject->poses();
+}
+
+const std::map<int, Camera> &GeoreferenceModelImp::cameras() const
+{
+  return mProject->cameras();
+}
+
+std::vector<GroundPoint> GeoreferenceModelImp::groundPoints() const
+{
+  tl::Path ground_points_path(mProject->reconstructionPath().toStdWString());
+  ground_points_path.append("ground_points.bin");
+
+  std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
+  reader->read(ground_points_path);
+
+  return reader->points();
+}
+
+QString GeoreferenceModelImp::database() const
+{
+  return mProject->database();
 }
 
 void GeoreferenceModelImp::setCrs(const QString &crs)

@@ -48,10 +48,10 @@ public:
 
 private:
 
-  void readGroundControlPoints(QXmlStreamReader &stream);
-  void readGroundControlPoint(QXmlStreamReader &stream);
-  void readImagePoints(QXmlStreamReader &stream, const QString &gcp_id);
-  void readImagePoint(QXmlStreamReader &stream, const QString &gcp_id);
+  //void readGroundControlPoints(QXmlStreamReader &stream);
+  //void readGroundControlPoint(QXmlStreamReader &stream);
+  //void readImagePoints(QXmlStreamReader &stream, const QString &gcp_id);
+  //void readImagePoint(QXmlStreamReader &stream, const QString &gcp_id);
   void writeGroundControlPoints(QXmlStreamWriter &stream);
 
 // GeoreferenceModel interface
@@ -78,6 +78,10 @@ public:
   void setOffset(const QString &offset) override;
   void addPhotoOrientation(size_t imageId,
                            const CameraPose &orientation) override;
+  const std::unordered_map<size_t, CameraPose> &poses() const override;
+  const std::map<int, Camera> &cameras() const override;
+  std::vector<GroundPoint> groundPoints() const override;
+  QString database() const override;
 
 public slots:
 

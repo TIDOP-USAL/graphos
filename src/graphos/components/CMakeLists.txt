@@ -91,8 +91,8 @@ set(GRAPHOS_SOURCES
     orientation/impl/OrientationView.cpp
     orientation/impl/OrientationPresenter.cpp
     orientation/impl/OrientationCommand.cpp
-    orientation/impl/RelativeOrientationProcess.cpp
-    orientation/impl/AbsoluteOrientationProcess.cpp
+    #orientation/impl/RelativeOrientationProcess.cpp
+    #orientation/impl/AbsoluteOrientationProcess.cpp
     orientation/impl/ImportOrientationProcess.cpp
     dense/DensificationComponent.cpp
     dense/impl/DensificationModel.cpp
@@ -113,12 +113,12 @@ set(GRAPHOS_SOURCES
     matchviewer/impl/MatchViewerModel.cpp
     matchviewer/impl/MatchViewerView.cpp
     matchviewer/impl/MatchViewerPresenter.cpp
-    #georeference/GeoreferenceComponent.cpp
-    #georeference/impl/GeoreferenceModel.cpp
-    #georeference/impl/GeoreferenceView.cpp
-    #georeference/impl/GeoreferencePresenter.cpp
-    #georeference/impl/GeoreferenceProcess.cpp
-    #georeference/impl/GeoreferenceCommand.cpp
+    georeference/GeoreferenceComponent.cpp
+    georeference/impl/GeoreferenceModel.cpp
+    georeference/impl/GeoreferenceView.cpp
+    georeference/impl/GeoreferencePresenter.cpp
+    georeference/impl/GeoreferenceProcess.cpp
+    georeference/impl/GeoreferenceCommand.cpp
     undistortimages/UndistortImagesComponent.cpp
     undistortimages/impl/UndistortImagesModel.cpp
     undistortimages/impl/UndistortImagesView.cpp
@@ -225,8 +225,8 @@ set(GRAPHOS_HEADERS
     orientation/impl/OrientationView.h
     orientation/impl/OrientationPresenter.h
     orientation/impl/OrientationCommand.h
-    orientation/impl/RelativeOrientationProcess.h
-    orientation/impl/AbsoluteOrientationProcess.h
+    #orientation/impl/RelativeOrientationProcess.h
+    #orientation/impl/AbsoluteOrientationProcess.h
     orientation/impl/ImportOrientationProcess.h
     dense/DensificationComponent.h
     dense/DensificationModel.h
@@ -259,15 +259,15 @@ set(GRAPHOS_HEADERS
     matchviewer/impl/MatchViewerModel.h
     matchviewer/impl/MatchViewerView.h
     matchviewer/impl/MatchViewerPresenter.h
-    #georeference/GeoreferenceComponent.h
-    #georeference/GeoreferenceModel.h
-    #georeference/GeoreferencePresenter.h
-    #georeference/GeoreferenceView.h
-    #georeference/impl/GeoreferenceModel.h
-    #georeference/impl/GeoreferencePresenter.h
-    #georeference/impl/GeoreferenceView.h
-    #georeference/impl/GeoreferenceProcess.h
-    #georeference/impl/GeoreferenceCommand.h
+    georeference/GeoreferenceComponent.h
+    georeference/GeoreferenceModel.h
+    georeference/GeoreferencePresenter.h
+    georeference/GeoreferenceView.h
+    georeference/impl/GeoreferenceModel.h
+    georeference/impl/GeoreferencePresenter.h
+    georeference/impl/GeoreferenceView.h
+    georeference/impl/GeoreferenceProcess.h
+    georeference/impl/GeoreferenceCommand.h
     undistortimages/UndistortImagesComponent.h
     undistortimages/UndistortImagesModel.h
     undistortimages/UndistortImagesView.h

@@ -45,10 +45,6 @@ private:
 
   void init();
 
-//signals:
-//
-//  void georeferenceFinished();
-
 // ComponentBase
 
 protected:

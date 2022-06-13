@@ -25,8 +25,8 @@
 #include "GeoreferenceCommand.h"
 
 #include "graphos/components/georeference/impl/GeoreferenceProcess.h"
-#include "graphos/core/orientation/gcp.h"
-#include "graphos/core/orientation/posesio.h"
+#include "graphos/core/sfm/groundpoint.h"
+#include "graphos/core/sfm/posesio.h"
 
 #include <tidop/core/messages.h>
 
@@ -60,9 +60,9 @@ bool GeoreferenceCommand::run()
 
   try {
 
-    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist")
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist")
-    TL_ASSERT(mGCP.isFile(), "GCP file doesn't exist")
+    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
+    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
+    TL_ASSERT(mGCP.isFile(), "GCP file doesn't exist");
 
     QString project_file = QString::fromStdWString(mProjectFile.toWString());
 
@@ -72,33 +72,38 @@ bool GeoreferenceCommand::run()
     QString ori_relative = project.projectFolder() + "/ori/relative/";
     QString ori_absolute = project.projectFolder() + "/ori/absolute/";
 
-    std::vector<GroundControlPoint> ground_control_points = groundControlPointsRead(mGCP);
+    auto reader = GCPsReaderFactory::create("GRAPHOS");
+    reader->read(mGCP);
+    std::vector<GroundControlPoint> ground_control_points = reader->gcps();
+    //std::vector<GroundControlPoint> ground_control_points = groundControlPointsRead(mGCP);
 
-    GeoreferenceProcess georeference_process(ori_relative,
-                                             ori_absolute,
-                                             ground_control_points);
+    //GeoreferenceProcess georeference_process(ori_relative,
+    //                                         ori_absolute,
+    //                                         ground_control_points);
 
-    georeference_process.run();
+    //georeference_process.run();
 
-    QString sparse_model = ori_absolute + "/sparse.ply";
+    //QString sparse_model = ori_absolute + "/sparse.ply";
 
-    if(QFileInfo::exists(sparse_model)) {
+    //if(QFileInfo::exists(sparse_model)) {
 
-      project.setReconstructionPath(ori_absolute);
-      project.setSparseModel(sparse_model);
-      project.setOffset(ori_absolute + "/offset.txt");
+    //  project.setReconstructionPath(ori_absolute);
+    //  project.setSparseModel(sparse_model);
+    //  project.setOffset(ori_absolute + "/offset.txt");
 
-      ReadCameraPoses readPhotoOrientations;
-      readPhotoOrientations.open(ori_absolute);
+    //  ReadCameraPoses readPhotoOrientations;
+    //  readPhotoOrientations.open(ori_absolute);
 
-      for(auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-        CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image->path()).fileName());
-        if(photoOrientation.position() != tl::Point3D()) {
-          project.addPhotoOrientation(image->name(), photoOrientation);
-        }
-      }
+    //  for (const auto &image : project.images()){
+    //    size_t image_id = image.first;
+    //  //for(auto image = project.imageBegin(); image != project.imageEnd(); image++) {
+    //    CameraPose photoOrientation = readPhotoOrientations.orientation(image.second.name());
+    //    if(photoOrientation.position() != tl::Point3D()) {
+    //      project.addPhotoOrientation(image_id, photoOrientation);
+    //    }
+    //  }
 
-    }
+    //}
 
     project.save(project_file);
 

@@ -29,8 +29,8 @@
 #include "graphos/core/sfm/orientation.h"
 #include "graphos/core/sfm/orientationcolmap.h"
 #include "graphos/core/sfm/posesio.h"
-#include "graphos/components/orientation/impl/RelativeOrientationProcess.h"
-#include "graphos/components/orientation/impl/AbsoluteOrientationProcess.h"
+//#include "graphos/components/orientation/impl/RelativeOrientationProcess.h"
+//#include "graphos/components/orientation/impl/AbsoluteOrientationProcess.h"
 #include "graphos/components/orientation/impl/ImportOrientationProcess.h"
 
 #include <tidop/core/messages.h>
@@ -814,6 +814,11 @@ bool OrientationCommand::run()
     project.clearReconstruction();
     QString database_path = project.database();
 
+    std::vector<Image> images;
+    for (const auto &image : project.images()) {
+      images.push_back(image.second);
+    }
+
     if (rtkOrientations(project)) {
 
       //orientation_process = std::make_unique<ImportOrientationProcess>(mModel->images(),
@@ -830,52 +835,50 @@ bool OrientationCommand::run()
 
       QString ori_relative_path = project.projectFolder() + "/ori/relative/";
 
-      RelativeOrientationProcess relativeOrientationProcess(database_path,
-                                                            ori_relative_path,
-                                                            mFixCalibration);
+      RelativeOrientationColmapTask relative_orientation_task(database_path,
+                                                              ori_relative_path,
+                                                              images,
+                                                              project.cameras(),
+                                                              mFixCalibration);
 
-      relativeOrientationProcess.run();
+      relative_orientation_task.run();
 
-      QString sparse_model = ori_relative_path + "sparse.ply";
+      auto cameras = relative_orientation_task.cameras();
 
-      if (QFileInfo(sparse_model).exists()) {
-        project.setReconstructionPath(ori_relative_path);
-        project.setSparseModel(sparse_model);
+      /// Se comprueba que se han generado todos los productos
+      tl::Path sfm_path = project.projectPath().toStdWString();
+      sfm_path.append("sfm");
+
+      tl::Path sparse_model_path = sfm_path;
+      sparse_model_path.append("sparse.ply");
+
+      tl::Path ground_points_path = sfm_path;
+      ground_points_path.append("ground_points.bin");
+
+      tl::Path poses_path = sfm_path;
+      poses_path.append("poses.bin");
+
+      if (sparse_model_path.exists() &&
+          ground_points_path.exists() &&
+          poses_path.exists()) {
+
+        project.setReconstructionPath(QString::fromStdWString(sfm_path.toWString()));
+        project.setSparseModel(QString::fromStdWString(sparse_model_path.toWString()));
         project.setOffset("");
 
-        ReadCameraPoses readPhotoOrientations;
-        readPhotoOrientations.open(ori_relative_path);
-        int oriented_images = 0;
+        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+        poses_reader->read(poses_path);
+        auto poses = poses_reader->cameraPoses();
 
-        for (const auto &image : project.images()) {
-          QString image_oriented = QFileInfo(image.second.path()).fileName();
-          CameraPose photoOrientation = readPhotoOrientations.orientation(image_oriented);
-          if (photoOrientation.position() != tl::Point3D()) {
-            project.addPhotoOrientation(image.first, photoOrientation);
-            oriented_images++;
-          } else {
-            QByteArray ba = image_oriented.toLocal8Bit();
-            const char *msg = ba.constData();
-            msgWarning("Image %s not oriented", msg);
-          }
-
+        for (const auto &camera_pose : poses) {
+          project.addPhotoOrientation(camera_pose.first, camera_pose.second);
         }
 
-        msgInfo("Oriented %i images", oriented_images);
+        msgInfo("Oriented %i images", poses.size());
 
-        ReadCalibration readCalibration;
-        readCalibration.open(ori_relative_path);
-        std::shared_ptr<Calibration> calibration;
-
-        for (const auto &_camera : project.cameras()) {
-          calibration = readCalibration.calibration(_camera.first);
-          if (calibration) {
-            Camera camera = _camera.second;
-            camera.setCalibration(calibration);
-            project.updateCamera(_camera.first, camera);
-          }
+        for (const auto &camera : cameras) {
+          project.updateCamera(camera.first, camera.second);
         }
-
       }
 
       if (mAbsoluteOrientation) {
@@ -883,40 +886,30 @@ bool OrientationCommand::run()
         QString ori_absolute = project.projectFolder() + "/ori/absolute/";
         std::map<QString, std::array<double, 3>> camera_positions = cameraPositions(project);
 
-        AbsoluteOrientationProcess absoluteOrientationProcess(ori_relative_path,
-                                                              camera_positions,
-                                                              ori_absolute);
-        absoluteOrientationProcess.run();
+        AbsoluteOrientationColmapTask absolute_orientation_task(ori_relative_path,
+                                                                images);
+        absolute_orientation_task.run();
 
-        QString sparse_model = ori_absolute + "/sparse.ply";
+        tl::Path sfm_path = project.projectPath().toStdWString();
+        sfm_path.append("sfm");
 
-        if (QFileInfo::exists(sparse_model)) {
-          project.setReconstructionPath(ori_absolute);
-          project.setSparseModel(ori_absolute + "/sparse.ply");
-          project.setOffset(ori_absolute + "/offset.txt");
+        tl::Path offset_path = sfm_path;
+        offset_path.append("offset.txt");
 
-          ReadCameraPoses readPhotoOrientations;
-          readPhotoOrientations.open(ori_absolute);
-          for (const auto &image : project.images()) {
-            CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image.second.path()).fileName());
-            if (photoOrientation.position() != tl::Point3D()) {
-              project.addPhotoOrientation(image.first, photoOrientation);
-            }
-          }
+        tl::Path poses_path = sfm_path;
+        poses_path.append("poses.bin");
 
-          ReadCalibration readCalibration;
-          readCalibration.open(ori_absolute);
-          std::shared_ptr<Calibration> calibration;
+        if (offset_path.exists()) {
+          project.setOffset(QString::fromStdWString(offset_path.toWString()));
+        }
 
-          for (const auto &_camera : project.cameras()) {
+        if (poses_path.exists()) {
+          auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+          poses_reader->read(poses_path);
+          auto poses = poses_reader->cameraPoses();
 
-            calibration = readCalibration.calibration(_camera.first);
-
-            if (calibration) {
-              Camera camera = _camera.second;
-              camera.setCalibration(calibration);
-              project.updateCamera(_camera.first, camera);
-            }
+          for (const auto &camera_pose : poses) {
+            project.addPhotoOrientation(camera_pose.first, camera_pose.second);
           }
         }
 

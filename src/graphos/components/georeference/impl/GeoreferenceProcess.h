@@ -24,25 +24,27 @@
 #ifndef GRAPHOS_GEOREFERENCE_PROCESS_H
 #define GRAPHOS_GEOREFERENCE_PROCESS_H
 
-#include "graphos/core/orientation/gcp.h"
+#include "graphos/core/sfm/groundpoint.h"
 
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
 #include <QObject>
 
-namespace colmap
-{
-class OptionManager;
-struct IncrementalMapperOptions;
-class ReconstructionManager;
-class IncrementalMapperController;
-}
+//namespace colmap
+//{
+//class OptionManager;
+//struct IncrementalMapperOptions;
+//class ReconstructionManager;
+//class IncrementalMapperController;
+//}
 
 namespace graphos
 {
 
-class AbsoluteOrientationAlgorithm;
+class Image;
+class CameraPose;
+class Camera;
 
 class GRAPHOS_EXPORT GeoreferenceProcess
   : public QObject,
@@ -52,9 +54,12 @@ class GRAPHOS_EXPORT GeoreferenceProcess
 
 public:
 
-  GeoreferenceProcess(const QString &inputPath,
-                      const QString &outputPath,
-                      const std::vector<GroundControlPoint> &groundControlPoints);
+  GeoreferenceProcess(const std::unordered_map<size_t, Image> &images,
+                      const std::map<int, Camera> &cameras,
+                      const std::unordered_map<size_t, CameraPose> &poses,
+                      const std::vector<GroundPoint> &groundPoints,
+                      const std::vector<GroundControlPoint> &groundControlPoints,
+                      const QString &database);
   ~GeoreferenceProcess() override;
 
 signals:
@@ -69,9 +74,14 @@ protected:
 
 private:
 
-  QString mInputPath;
-  QString mOutputPath;
+  //QString mInputPath;
+  //QString mOutputPath;
+  std::unordered_map<size_t, Image> mImages;
+  std::map<int, Camera> mCameras;
+  std::unordered_map<size_t, CameraPose> mPoses;
+  std::vector<GroundPoint> mGroundPoints;
   std::vector<GroundControlPoint> mGroundControlPoints;
+  QString mDatabase;
 };
 
 } // namespace graphos

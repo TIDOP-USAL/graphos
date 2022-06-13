@@ -39,7 +39,7 @@
 #include "graphos/components/undistortimages/UndistortImagesComponent.h"
 #include "graphos/components/dtm/DTMComponent.h"
 #include "graphos/components/orthophoto/OrthophotoComponent.h"
-//#include "graphos/components/georeference/GeoreferenceComponent.h"
+#include "graphos/components/georeference/GeoreferenceComponent.h"
 #include "graphos/components/featviewer/FeaturesViewerComponent.h"
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
 //#include "graphos/components/export/orientations/ExportOrientationsComponent.h"
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
   OrientationComponent orientation_component(&app);
   DensificationComponent densification_component(&app);
   MeshComponent mesh_component(&app);
-  //GeoreferenceComponent georeference_component(&app);
+  GeoreferenceComponent georeference_component(&app);
   UndistortImagesComponent undistort_component(&app);
   DTMComponent dtm_component(&app);
   OrthophotoComponent orthophoto_component(&app);
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     app.addComponent(&orientation_component);
     app.addComponent(&densification_component);
     app.addComponent(&mesh_component);
-    //app.addComponent(&georeference_component);
+    app.addComponent(&georeference_component);
     app.addComponent(&undistort_component);
     app.addComponent(&dtm_component);
     app.addComponent(&orthophoto_component);
@@ -178,8 +178,8 @@ int main(int argc, char *argv[])
     componentsManager.registerComponent(&undistort_component,
                                         ComponentsManager::Flags::separator_before);
 
-    //componentsManager.registerComponent(&georeference_component,
-    //                                    ComponentsManager::Flags::separator_before);
+    componentsManager.registerComponent(&georeference_component,
+                                        ComponentsManager::Flags::separator_before);
 
     componentsManager.registerComponent(&dtm_component,
                                         ComponentsManager::Flags::separator_before);
@@ -241,8 +241,8 @@ int main(int argc, char *argv[])
                      &features_viewer_component, &FeaturesViewerComponent::openKeypointsViewer);
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
-    //QObject::connect(&georeference_component, SIGNAL(georeferenceFinished()),
-    //                 componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
+    QObject::connect(&georeference_component, SIGNAL(finished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
 
     componentsManager.loadPlugins();
 
