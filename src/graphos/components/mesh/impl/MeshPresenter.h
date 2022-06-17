@@ -29,9 +29,6 @@
 namespace graphos
 {
 
-class HelpDialog;
-
-
 class MeshView;
 class MeshModel;
 
@@ -44,16 +41,14 @@ class MeshPresenterImp
 public:
 
   MeshPresenterImp(MeshView *view,
-                              MeshModel *model);
+                   MeshModel *model);
   ~MeshPresenterImp() override;
   
 // Presenter interface
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -76,7 +71,6 @@ private:
 
   MeshView *mView;
   MeshModel *mModel;
-  HelpDialog *mHelp;
 
 };
 

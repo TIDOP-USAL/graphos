@@ -256,7 +256,7 @@ void FeaturesViewerViewImp::setCurrentImage(const QString &imagePath)
   mComboBoxImages->setCurrentText(file_info.baseName());
   mGraphicView->scene()->clearSelection();
 
-  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(imagePath.toStdString());
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(imagePath.toStdString());
   imageReader->open();
   if (imageReader->isOpen()) {
     cv::Mat bmp = imageReader->read();

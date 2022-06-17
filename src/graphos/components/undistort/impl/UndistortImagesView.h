@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,70 +21,47 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MATCHES_MODEL_H
-#define GRAPHOS_MATCHES_MODEL_H
 
-#include "graphos/interfaces/mvp.h"
-#include "graphos/core/project.h"
+#ifndef GRAPHOS_UNDISTORTIMAGES_VIEW_H
+#define GRAPHOS_UNDISTORTIMAGES_VIEW_H
+
+#include "graphos/components/undistort/UndistortImagesView.h"
+
+//class QDialogButtonBox;
+//class QLabel;
+//class QComboBox;
+
 
 namespace graphos
 {
 
-class MatchesModel
-  : public Model
+class UndistortImagesViewImp
+  : public UndistortImagesView
 {
 
   Q_OBJECT
 
 public:
 
-  MatchesModel(QObject *parent = nullptr) : Model(parent) {}
-  ~MatchesModel() override = default;
+  UndistortImagesViewImp(QWidget *parent = nullptr);
+  ~UndistortImagesViewImp() override;
 
-  virtual void addMatchesPair(const QString &imageLeft, const QString &imageRight) = 0;
-  virtual const std::vector<QString> matchesPairs(const QString &imageLeft) const = 0;
-  virtual void removeMatchesPair() = 0;
-  virtual void removeMatchesPair(const QString &imageLeft) = 0;
-
-};
-
-
-class MatchesModelImp
-  : public MatchesModel
-{
-
-  Q_OBJECT
+// UndistortImagesView
 
 public:
 
-  MatchesModelImp(Project *project,
-                  QObject *parent = nullptr);
-  ~MatchesModelImp() override = default;
+  //QString outputPath() const override;
 
-// MatchesModel interface
-
-public:
-
-  void addMatchesPair(const QString &imageLeft, const QString &imageRight) override;
-  const std::vector<QString> matchesPairs(const QString &imageLeft) const override;
-  void removeMatchesPair() override;
-  void removeMatchesPair(const QString &imageLeft) override;
-
-// Model interface
+public slots:
+  
+  void setProjectDirectory(const QString &directory) override;
 
 private:
 
-  void init() override;
-
-public slots:
-
-  void clear() override;
-
-protected:
-
-  Project *mProject;
+  void init();
+  
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_MATCHES_MODEL_H
+#endif // GRAPHOS_UNDISTORTIMAGES_VIEW_H

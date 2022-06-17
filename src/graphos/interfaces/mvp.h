@@ -159,7 +159,7 @@ public slots:
  /*!
   * \brief Show help
   */
-  virtual void help() = 0;
+  //virtual void help() = 0;
 
  /*!
   * \brief Open
@@ -170,7 +170,7 @@ public slots:
    * \brief Set Help
    * \param[in] help
    */
-  virtual void setHelp(HelpDialog *help) = 0;
+  //virtual void setHelp(HelpDialog *help) = 0;
 
 private:
 
@@ -183,6 +183,12 @@ private:
    * \brief Signal and slots initialization
    */
   virtual void initSignalAndSlots() = 0;
+
+
+signals:
+
+  void help(QString);
+
 };
 
 

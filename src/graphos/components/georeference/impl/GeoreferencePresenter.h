@@ -67,9 +67,7 @@ public slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -80,7 +78,7 @@ private:
 
   GeoreferenceView *mView;
   GeoreferenceModel *mModel;
-  HelpDialog *mHelp;
+
 };
 
 } // namespace graphos

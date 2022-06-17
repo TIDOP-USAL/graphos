@@ -276,7 +276,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
           /// Aplicar un factor de escala para el calculo de la compensación de exposición
           for (size_t i = 0; i < n_orthos; i++) {
 
-            std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::createReader(orthos[i]);
+            std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(orthos[i]);
             image_reader->open();
             if (image_reader->isOpen()) {
               cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
@@ -315,7 +315,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
           umat_orthos.clear();
           mat_orthos.clear();
 
-          std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::createReader(ortho_to_compensate);
+          std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(ortho_to_compensate);
           image_reader->open();
           if (image_reader->isOpen()) {
             cv::Mat compensate_image = image_reader->read();
@@ -339,7 +339,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
             tl::Path orto_compensate(ortho_to_compensate);
             std::string name = orto_compensate.baseName().toString() + "_compensate.png";
             orto_compensate.replaceFileName(name);
-            std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::createWriter(orto_compensate.toString());
+            std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(orto_compensate.toString());
             image_writer->open();
             if (image_writer->isOpen()) {
               image_writer->create(image_reader->rows(), image_reader->cols(), image_reader->channels(), image_reader->dataType());
@@ -361,7 +361,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
             tl::Path orto_seam(ortho_to_compensate);
             name = orto_seam.baseName().toString() + "_seam.tif";
             orto_seam.replaceFileName(name);
-            image_writer = tl::ImageWriterFactory::createWriter(orto_seam.toString());
+            image_writer = tl::ImageWriterFactory::create(orto_seam.toString());
             image_writer->open();
             if (image_writer->isOpen()) {
               image_writer->create(image_reader->rows(), image_reader->cols(), 1, image_reader->dataType());
@@ -398,7 +398,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
 
   tl::Path ortho_final(ortho_path);
   ortho_final.append("ortho.tif");
-  std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::createWriter(ortho_final.toString());
+  std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(ortho_final.toString());
   image_writer->open();
   int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
   int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
@@ -438,8 +438,8 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
 
       for (size_t j = 0; j < compensated_orthos.size(); j++) {
         try {
-          std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::createReader(compensated_orthos[j]);
-          std::unique_ptr<tl::ImageReader> image_reader_seam = tl::ImageReaderFactory::createReader(ortho_seams[j]);
+          std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(compensated_orthos[j]);
+          std::unique_ptr<tl::ImageReader> image_reader_seam = tl::ImageReaderFactory::create(ortho_seams[j]);
           image_reader->open();
           image_reader_seam->open();
           if (!image_reader->isOpen()) {

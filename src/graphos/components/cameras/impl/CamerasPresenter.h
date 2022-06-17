@@ -32,7 +32,6 @@ namespace graphos
 class Camera;
 class CamerasView;
 class CamerasModel;
-class HelpDialog;
 
 class CamerasPresenterImp
   : public CamerasPresenter
@@ -60,9 +59,7 @@ private slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -84,7 +81,6 @@ private:
 
   CamerasView *mView;
   CamerasModel *mModel;
-  HelpDialog *mHelp;
 
 };
 

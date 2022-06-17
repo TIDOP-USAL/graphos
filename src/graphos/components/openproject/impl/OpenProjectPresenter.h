@@ -31,7 +31,6 @@ namespace graphos
 
 class OpenProjectView;
 class OpenProjectModel;
-class HelpDialog;
 class AppStatus;
 
 class OpenProjectPresenterImp
@@ -57,9 +56,7 @@ protected slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 

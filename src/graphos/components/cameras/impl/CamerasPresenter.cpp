@@ -25,7 +25,6 @@
 
 #include "graphos/components/cameras/CamerasModel.h"
 #include "graphos/components/cameras/CamerasView.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
@@ -38,20 +37,10 @@ CamerasPresenterImp::CamerasPresenterImp(CamerasView *view,
                                          CamerasModel *model)
   : CamerasPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   CamerasPresenterImp::init();
   CamerasPresenterImp::initSignalAndSlots();
-}
-
-void CamerasPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("cameras.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
 }
 
 void CamerasPresenterImp::open()
@@ -61,11 +50,6 @@ void CamerasPresenterImp::open()
   loadCameras();
 
   mView->exec();
-}
-
-void CamerasPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
 }
 
 void CamerasPresenterImp::init()
@@ -101,7 +85,9 @@ void CamerasPresenterImp::initSignalAndSlots()
 
   connect(mView, &QDialog::accepted, this, &CamerasPresenterImp::save);
   connect(mView, &QDialog::rejected, this, &CamerasPresenterImp::discart);
-  connect(mView, &DialogView::help, this, &CamerasPresenterImp::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("cameras.html");
+  });
 }
 
 void CamerasPresenterImp::activeCamera(int id)

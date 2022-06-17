@@ -27,7 +27,6 @@
 #include "graphos/core/features/sift.h"
 #include "graphos/components/featextract/FeatureExtractorView.h"
 #include "graphos/components/featextract/FeatureExtractorModel.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/widgets/SiftWidget.h"
 #include "graphos/core/camera/Camera.h"
@@ -48,7 +47,6 @@ FeatureExtractorPresenterImp::FeatureExtractorPresenterImp(FeatureExtractorView 
   : FeatureExtractorPresenter(),
     mView(view),
     mModel(model),
-    mHelp(nullptr),
     mSift(new SiftWidgetImp)
 {
   FeatureExtractorPresenterImp::init();
@@ -63,25 +61,11 @@ FeatureExtractorPresenterImp::~FeatureExtractorPresenterImp()
   }
 }
 
-void FeatureExtractorPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("feature_extraction.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
-}
-
 void FeatureExtractorPresenterImp::open()
 {
   this->setDetectorAndDescriptorProperties();
 
   mView->exec();
-}
-
-void FeatureExtractorPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
 }
 
 void FeatureExtractorPresenterImp::init()
@@ -96,8 +80,9 @@ void FeatureExtractorPresenterImp::initSignalAndSlots()
           this, &FeatureExtractorPresenterImp::setCurrentDetectorDescriptor);
   connect(mView, &FeatureExtractorView::run,
           this, &FeatureExtractorPresenterImp::run);
-  connect(mView, &DialogView::help,
-          this, &FeatureExtractorPresenterImp::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("feature_extraction.html");
+  });
 }
 
 void FeatureExtractorPresenterImp::cancel()

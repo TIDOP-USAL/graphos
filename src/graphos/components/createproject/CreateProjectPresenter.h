@@ -24,16 +24,10 @@
 #ifndef GRAPHOS_CREATE_PROJECT_PRESENTER_INTERFACE_H
 #define GRAPHOS_CREATE_PROJECT_PRESENTER_INTERFACE_H
 
-#include <memory>
-
-#include <QObject>
-
 #include "graphos/interfaces/mvp.h"
 
 namespace graphos
 {
-
-class HelpDialog;
 
 /*!
  * \brief CreateProjectPresenter interface

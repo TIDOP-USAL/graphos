@@ -30,9 +30,13 @@
 #include "graphos/core/dense/mvs.h"
 #include "graphos/core/dtm/invdist.h"
 #include "graphos/core/dtm/invdistnn.h"
+#include "graphos/core/camera/Colmap.h"
+#include "graphos/core/mesh/PoissonRecon.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/exception.h>
+
+#include <colmap/base/database.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -235,6 +239,14 @@ bool ProjectImp::updateCamera(int idCamera, const Camera &camera)
   auto it = mCameras.find(idCamera);
   if (it != mCameras.end()){
     it->second = camera;
+
+    colmap::camera_t camera_id = static_cast<colmap::camera_t>(idCamera);
+    colmap::Database database(database().toStdString());
+    colmap::Camera camera_colmap = database.ReadCamera(camera_id);
+    QString colmap_camera_type = cameraToColmapType(camera);
+    camera_colmap.SetModelIdFromName(colmap_camera_type.toStdString());
+    database.UpdateCamera(camera_colmap);
+
     return true;
   } else {
     return false;
@@ -448,6 +460,31 @@ void ProjectImp::clearDensification()
   mDenseModel.clear();
 }
 
+std::shared_ptr<PoissonReconParameters> ProjectImp::meshParameters() const
+{
+  return mMeshParameters;
+}
+
+void ProjectImp::setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters)
+{
+  mMeshParameters = meshParameters;
+}
+
+QString ProjectImp::meshPath() const
+{
+  return mMeshModel;
+}
+
+void ProjectImp::setMeshPath(const QString &meshPath)
+{
+  mMeshModel = meshPath;
+}
+
+void ProjectImp::clearMesh()
+{
+  mMeshModel.clear();
+}
+
 std::shared_ptr<Dtm> ProjectImp::dtmMethod() const
 {
   return mDtmMethod;
@@ -570,6 +607,7 @@ bool ProjectImp::save(const QString &file)
         writeMatches(stream);
         writeOrientations(stream);
         writeDensification(stream);
+        writeMesh(stream);
         writeDtm(stream);
         writeOrthophoto(stream);
       }
@@ -681,7 +719,9 @@ bool ProjectImp::read(QXmlStreamReader &stream)
           readOrientations(stream);
         } else if (stream.name() == "Densification") {
           readDensification(stream);
-        } else if (stream.name() == "Dtm") {
+        } else if(stream.name() == "Mesh") {
+          readMesh(stream);
+        } else if(stream.name() == "Dtm") {
           readDtm(stream);
         } else if (stream.name() == "Orthophoto") {
           readOrthophoto(stream);
@@ -1171,6 +1211,45 @@ void ProjectImp::readMVS(QXmlStreamReader &stream)
   this->setDensification(mvs);
 }
 
+void ProjectImp::readMesh(QXmlStreamReader &stream)
+{
+  while(stream.readNextStartElement()) {
+    if(stream.name() == "MeshModel") {
+      this->readMeshModel(stream);
+    } else if(stream.name() == "PoissonParameters") {
+      this->readMeshParameters(stream);
+    } else
+      stream.skipCurrentElement();
+  }
+}
+
+void ProjectImp::readMeshModel(QXmlStreamReader &stream)
+{
+  this->setMeshPath(stream.readElementText());
+}
+
+void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
+{
+  auto mesh = std::make_shared<PoissonReconParameters>();
+
+  while(stream.readNextStartElement()) {
+    if(stream.name() == "Depth") {
+      mesh->setDepth(readInt(stream));
+    } else if(stream.name() == "SolveDepth") {
+      mesh->setSolveDepth(readInt(stream));
+    } else if(stream.name() == "BoundaryType") {
+      mesh->setBoundaryType(stream.text().toString());
+    } else if(stream.name() == "Width") {
+      mesh->setWidth(readInt(stream));
+    } else if(stream.name() == "FullDepth") {
+      mesh->setFullDepth(readInt(stream));
+    } else
+      stream.skipCurrentElement();
+  }
+
+  setMeshParameters(mesh);
+}
+
 void ProjectImp::readDtm(QXmlStreamReader &stream)
 {
   while (stream.readNextStartElement()) {
@@ -1542,7 +1621,7 @@ void ProjectImp::writeDenseModel(QXmlStreamWriter &stream) const
 {
   QString dense_model = this->denseModel();
   if (!dense_model.isEmpty())
-    stream.writeTextElement("DenseModel", this->denseModel());
+    stream.writeTextElement("DenseModel", dense_model);
 }
 
 void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
@@ -1594,6 +1673,37 @@ void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
 
     stream.writeEndElement();
   }
+}
+
+void ProjectImp::writeMesh(QXmlStreamWriter &stream) const
+{
+  stream.writeStartElement("Mesh");
+  {
+    this->writeMeshModel(stream);
+    this->writeMeshParameters(stream);
+  }
+  stream.writeEndElement(); // Densification
+}
+
+void ProjectImp::writeMeshModel(QXmlStreamWriter &stream) const
+{
+  QString mesh_model = this->meshPath();
+  if(!mesh_model.isEmpty())
+    stream.writeTextElement("MeshModel", mesh_model);
+}
+
+void ProjectImp::writeMeshParameters(QXmlStreamWriter &stream) const
+{
+  stream.writeStartElement("PoissonParameters");
+
+  auto mesh = std::dynamic_pointer_cast<PoissonReconParameters>(meshParameters());
+  stream.writeTextElement("Depth", QString::number(mesh->depth()));
+  stream.writeTextElement("SolveDepth", QString::number(mesh->solveDepth()));
+  stream.writeTextElement("BoundaryType", mesh->boundaryType());
+  stream.writeTextElement("Width", QString::number(mesh->width()));
+  stream.writeTextElement("FullDepth", QString::number(mesh->fullDepth()));
+
+  stream.writeEndElement();
 }
 
 void ProjectImp::writeDtm(QXmlStreamWriter &stream) const

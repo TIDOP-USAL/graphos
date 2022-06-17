@@ -23,11 +23,11 @@
 
 #include "CamerasModel.h"
 
-#include "graphos/core/camera/Colmap.h"
+//#include "graphos/core/camera/Colmap.h"
 
 #include <tidop/core/messages.h>
 
-#include <colmap/base/database.h>
+//#include <colmap/base/database.h>
 
 #include <QXmlStreamReader>
 #include <QFile>
@@ -632,13 +632,6 @@ void CamerasModelImp::save()
 
     for (auto &camera : mCameraCache) {
       mProject->updateCamera(camera.first, camera.second);
-      
-      colmap::camera_t camera_id = static_cast<colmap::camera_t>(camera.first);
-      colmap::Database database(mProject->database().toStdString());
-      colmap::Camera camera_colmap = database.ReadCamera(camera_id);
-      QString colmap_camera_type = cameraToColmapType(camera.second);
-      camera_colmap.SetModelIdFromName(colmap_camera_type.toStdString());
-      database.UpdateCamera(camera_colmap);
     }
 
     bModifiedProject = false;

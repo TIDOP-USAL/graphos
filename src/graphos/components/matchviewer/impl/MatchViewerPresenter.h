@@ -36,7 +36,6 @@ namespace graphos
 class MatchViewerView;
 class MatchViewerModel;
 class SettingsModel;
-class HelpDialog;
 
 
 class MatchViewerPresenterImp
@@ -67,9 +66,7 @@ protected slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -78,16 +75,10 @@ private:
 
 public slots:
 
-// MatchViewerPresenter interface
-
-
-protected slots:
-
 private:
 
   MatchViewerView *mView;
   MatchViewerModel *mModel;
-  HelpDialog *mHelp;
 
 };
 

@@ -26,7 +26,7 @@
 
 #include "graphos/widgets/ThumbnailsWidget.h"
 #include "graphos/widgets/LogWidget.h"
-#include "graphos/components/utils/TabHandler.h"
+#include "graphos/gui/utils/TabHandler.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
@@ -1182,6 +1182,7 @@ void MainWindowView::initMenuWorkflow()
 
 void MainWindowView::initMenuTools()
 {
+  mActionCameras->setVisible(false);
   ui->menuTools->addAction(mActionCameras);
   ui->menuTools->addSeparator();
   //ui->menuTools->addAction(mActionSettings);

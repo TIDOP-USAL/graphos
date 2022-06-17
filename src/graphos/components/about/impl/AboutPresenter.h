@@ -31,7 +31,6 @@ namespace graphos
 {
 
 class AppStatus;
-class HelpDialog;
 
 class AboutView;
 class AboutModel;
@@ -52,9 +51,7 @@ public:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -66,7 +63,7 @@ private:
   AboutView *mView;
   AboutModel *mModel;
   AppStatus *mAppStatus;
-  HelpDialog *mHelp;
+
 };
 
 } // namespace graphos

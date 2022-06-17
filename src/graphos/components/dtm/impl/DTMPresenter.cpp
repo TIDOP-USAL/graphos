@@ -26,7 +26,6 @@
 #include "graphos/components/dtm/DTMView.h"
 #include "graphos/components/dtm/DTMModel.h"
 #include "graphos/components/dtm/impl/DTMProcess.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/widgets/DtmInvDistWidget.h"
 #include "graphos/widgets/DtmInvDistNNWidget.h"
@@ -47,7 +46,6 @@ DtmPresenterImp::DtmPresenterImp(DtmView *view,
   : DtmPresenter(),
     mView(view),
     mModel(model),
-    mHelp(nullptr),
     mDtmInvDistWidget(new DtmInvDistWidgetImp),
     mDtmInvDistNNWidget(new DtmInvDistNNWidgetImp)
 {
@@ -108,25 +106,11 @@ void DtmPresenterImp::setInvDistNNProperties()
   mDtmInvDistNNWidget->setMinPoints(invdistnn->minPoints());
 }
 
-void DtmPresenterImp::help()
-{
-  if (mHelp){
-    //mHelp->setPage("dtm.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
-}
-
 void DtmPresenterImp::open()
 {
   this->setDtmProperties();
 
   mView->exec();
-}
-
-void DtmPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
 }
 
 void DtmPresenterImp::init()
@@ -140,7 +124,9 @@ void DtmPresenterImp::initSignalAndSlots()
 {
   connect(mView, &DtmView::dtmMethodChange,  this, &DtmPresenterImp::setCurrentDtmMethod);
   connect(mView, &DtmView::run,   this, &DtmPresenterImp::run);
-  connect(mView, &DtmView::help,  this, &DtmPresenterImp::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("dtm.html");
+    });
 }
 
 void DtmPresenterImp::onError(tl::TaskErrorEvent *event)

@@ -25,13 +25,13 @@
 
 #include "graphos/core/Component.h"
 #include "graphos/core/AppStatus.h"
-#include "graphos/components/MainWindowModel.h"
-#include "graphos/components/MainWindowView.h"
-#include "graphos/components/MainWindowPresenter.h"
+#include "graphos/gui/MainWindowModel.h"
+#include "graphos/gui/MainWindowView.h"
+#include "graphos/gui/MainWindowPresenter.h"
 #include "graphos/components/cameras/CamerasComponent.h"
-#include "graphos/components/HelpDialog.h"
+#include "graphos/gui/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/components/utils/ProgressDialog.h"
+#include "graphos/gui/utils/ProgressDialog.h"
 #include "graphos/interfaces/Plugin.h"
 
 #include <tidop/core/console.h>

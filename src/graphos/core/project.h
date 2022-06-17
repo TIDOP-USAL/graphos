@@ -40,6 +40,7 @@
 #include "graphos/core/features/features.h"
 #include "graphos/core/sfm/poses.h"
 #include "graphos/core/dense/dense.h"
+#include "graphos/core/mesh/PoissonRecon.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -216,10 +217,15 @@ public:
   
   virtual std::shared_ptr<Densification> densification() const = 0;
   virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
-  
   virtual QString denseModel() const = 0;
   virtual void setDenseModel(const QString &denseModel) = 0;
   virtual void clearDensification() = 0;
+
+  virtual std::shared_ptr<PoissonReconParameters> meshParameters() const = 0;
+  virtual void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) = 0;
+  virtual QString meshPath() const = 0;
+  virtual void setMeshPath(const QString &meshPath) = 0;
+  virtual void clearMesh() = 0;
 
   virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
   virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
@@ -382,11 +388,16 @@ public:
   
   std::shared_ptr<Densification> densification() const override;
   void setDensification(const std::shared_ptr<Densification> &densification) override;
-  
   QString denseModel() const override;
   void setDenseModel(const QString &denseModel) override;
-  void clearDensification();
+  void clearDensification() override;
   
+  std::shared_ptr<PoissonReconParameters> meshParameters() const override;
+  void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) override;
+  QString meshPath() const override;
+  void setMeshPath(const QString &meshPath) override;
+  void clearMesh() override;
+
   std::shared_ptr<Dtm> dtmMethod() const override;
   void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
   QString dtmPath() const override;
@@ -435,6 +446,9 @@ protected:
   void readSmvs(QXmlStreamReader &stream);
   void readCmvsPmvs(QXmlStreamReader &stream);
   void readMVS(QXmlStreamReader &stream);
+  void readMesh(QXmlStreamReader &stream);
+  void readMeshModel(QXmlStreamReader &stream);
+  void readMeshParameters(QXmlStreamReader &stream);
   void readDtm(QXmlStreamReader &stream);
   void readDtmPath(QXmlStreamReader &stream);
   void readDtmInterpolation(QXmlStreamReader &stream);
@@ -467,6 +481,9 @@ protected:
   void writeDensification(QXmlStreamWriter &stream) const;
   void writeDenseModel(QXmlStreamWriter &stream) const;
   void writeDensificationMethod(QXmlStreamWriter &stream) const;
+  void writeMesh(QXmlStreamWriter &stream) const;
+  void writeMeshModel(QXmlStreamWriter &stream) const;
+  void writeMeshParameters(QXmlStreamWriter &stream) const;
   void writeDtm(QXmlStreamWriter &stream) const;
   void writeDtmPath(QXmlStreamWriter &stream) const;
   void writeDtmInterpolation(QXmlStreamWriter &stream) const;
@@ -500,6 +517,8 @@ protected:
   QString mReconstructionPath;
   std::shared_ptr<Densification> mDensification;
   QString mDenseModel;
+  std::shared_ptr<PoissonReconParameters> mMeshParameters;
+  QString mMeshModel;
   std::shared_ptr<Dtm> mDtmMethod;
   QString mDTM;
   static std::mutex sMutex;

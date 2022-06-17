@@ -25,7 +25,6 @@
 
 #include "graphos/components/about/AboutModel.h"
 #include "graphos/components/about/AboutView.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/core/AppStatus.h"
 
 #include <tidop/core/licence.h>
@@ -46,22 +45,9 @@ AboutPresenterImp::AboutPresenterImp(AboutView *view,
   init();
 }
 
-void AboutPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("menus.html#about");
-    mHelp->show();
-  }
-}
-
 void AboutPresenterImp::open()
 {
   mView->exec();
-}
-
-void AboutPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
 }
 
 void AboutPresenterImp::init()
@@ -88,7 +74,9 @@ void AboutPresenterImp::init()
 
 void AboutPresenterImp::initSignalAndSlots()
 {
-
+  connect(mView, &DialogView::help, [&]() {
+    emit help("menus.html#about");
+  });
 }
 
 } // namespace graphos

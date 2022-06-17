@@ -27,7 +27,6 @@
 
 #include "graphos/components/featviewer/FeaturesViewerModel.h"
 #include "graphos/components/featviewer/FeaturesViewerView.h"
-#include "graphos/components/HelpDialog.h"
 
 #include <QFileInfo>
 
@@ -38,8 +37,7 @@ FeaturesViewerPresenterImp::FeaturesViewerPresenterImp(FeaturesViewerView *view,
                                                        FeaturesViewerModel *model)
   : FeaturesViewerPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
@@ -48,15 +46,6 @@ FeaturesViewerPresenterImp::FeaturesViewerPresenterImp(FeaturesViewerView *view,
 FeaturesViewerPresenterImp::~FeaturesViewerPresenterImp()
 {
 
-}
-
-void FeaturesViewerPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("keypoints_viewer.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
 }
 
 void FeaturesViewerPresenterImp::open()
@@ -85,11 +74,6 @@ void FeaturesViewerPresenterImp::open()
   }
 }
 
-void FeaturesViewerPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
-
 void FeaturesViewerPresenterImp::init()
 {
 }
@@ -98,8 +82,9 @@ void FeaturesViewerPresenterImp::initSignalAndSlots()
 {
   connect(mView, &FeaturesViewerView::image_changed, 
           this,  &FeaturesViewerPresenterImp::setImageActive);
-  connect(mView, &DialogView::help,               
-          this,  &FeaturesViewerPresenterImp::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("keypoints_viewer.html");
+  });
 }
 
 void FeaturesViewerPresenterImp::setImageActive(size_t imageId)

@@ -21,47 +21,38 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H
+#define GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H
 
-#ifndef GRAPHOS_UNDISTORTIMAGES_VIEW_H
-#define GRAPHOS_UNDISTORTIMAGES_VIEW_H
+#include <array>
 
-#include "graphos/components/undistortimages/UndistortImagesView.h"
-
-//class QDialogButtonBox;
-//class QLabel;
-//class QComboBox;
-
+#include "graphos/interfaces/mvp.h"
 
 namespace graphos
 {
 
-class UndistortImagesViewImp
-  : public UndistortImagesView
+class LoadFromVideoParameters;
+
+class LoadFromVideoModel
+  : public Model
 {
 
   Q_OBJECT
 
 public:
 
-  UndistortImagesViewImp(QWidget *parent = nullptr);
-  ~UndistortImagesViewImp() override;
-
-// UndistortImagesView
-
-public:
-
-  //QString outputPath() const override;
+  LoadFromVideoModel(QObject *parent = nullptr) : Model(parent) {}
+  ~LoadFromVideoModel() override = default;
+  
+  virtual LoadFromVideoParameters *parameters() const = 0;
 
 public slots:
-  
-  void setProjectDirectory(const QString &directory) override;
 
-private:
-
-  void init();
-  
+  virtual void loadSettings() = 0;
+  virtual void saveSettings() = 0;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_UNDISTORTIMAGES_VIEW_H
+
+#endif // GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H

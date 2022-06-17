@@ -34,7 +34,6 @@ namespace graphos
 class StartPageWidget;
 class MainWindowView;
 class MainWindowModel;
-class HelpDialog;
 class TabHandler;
 
 class MainWindowPresenter
@@ -111,9 +110,7 @@ protected slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -129,7 +126,6 @@ protected:
 
   MainWindowView *mView;
   MainWindowModel *mModel;
-  HelpDialog *mHelpDialog;
   TabHandler *mTabHandler;
   StartPageWidget *mStartPageWidget;
   QString mProjectDefaultPath;

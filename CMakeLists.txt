@@ -90,16 +90,16 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
   elseif(MSVC_VERSION MATCHES "^193[0-9]$")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
-  else()
-    message(WARNING "TidopLib does not recognize MSVC_VERSION \"${MSVC_VERSION}\". Cannot set TL_RUNTIME")
   endif()
 
 endif()
 
 
 # Directorio con modulos extra de CMAKE
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 
+set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
 
 add_definitions(-DUNICODE)
 
@@ -121,37 +121,63 @@ endif (BUILD_SHARED_LIBS)
 
 
 
-# Compiler info
-
-message(STATUS "\nCompiler info:\n")
-if(CMAKE_CXX_COMPILER_LOADED)
-  message(STATUS "  C++ compiler:         ${CMAKE_CXX_COMPILER}")
-  message(STATUS "  C++ compiler ID:      ${CMAKE_CXX_COMPILER_ID}")
-  message(STATUS "  C++ compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
-  message(STATUS "  C++ estandar:         ${CMAKE_CXX_STANDARD}\n")
-endif()
-
-# Operating system info
-
-message(STATUS "\nOperating system info:\n")
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  message(STATUS "  Linux ${CMAKE_SYSTEM_VERSION}\n")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  message(STATUS "  macOS ${CMAKE_SYSTEM_VERSION}\n")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  message(STATUS "  Windows ${CMAKE_SYSTEM_VERSION}\n")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "AIX")
-  message(STATUS "  IBM AIX ${CMAKE_SYSTEM_VERSION}\n")
-else()
-  message(STATUS "  ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}\n")
-endif()
+include(CompilerInfo)
+include(OperatingSystemInfo)
 
 
 
+include(CMakeDependentOption)
 
-## CONFIGURACIÓN COMPONENTES GRAPHOS
+##########################################################################
+#  GRAPHOS Components                                                    #
+#------------------------------------------------------------------------#
+#                                                                        #
+# Activación/desactivación de los diferentes componentes de Graphos      #
+# Configuración de la librería                                           #
+#                                                                        #
+##########################################################################
 
-# Activación desactivación de los diferentes componentes de GRAPHOS
+
+unset(GRAPHOS_HAVE_ABOUT CACHE)
+unset(GRAPHOS_HAVE_CAMERAS CACHE)
+unset(GRAPHOS_HAVE_CREATE_PROJECT CACHE)
+unset(GRAPHOS_HAVE_DENSE CACHE)
+unset(GRAPHOS_HAVE_DTM CACHE)
+unset(GRAPHOS_HAVE_FEATEXTRACT CACHE)
+unset(GRAPHOS_HAVE_FEATMATCH CACHE)
+unset(GRAPHOS_HAVE_FEATVIEWER CACHE)
+unset(GRAPHOS_HAVE_GEOREFERENCE CACHE)
+unset(GRAPHOS_HAVE_IMAGE_LOAD CACHE)
+unset(GRAPHOS_HAVE_IMPORT_CAMERAS CACHE)
+unset(GRAPHOS_HAVE_MATCH_VIEWER CACHE)
+unset(GRAPHOS_HAVE_MESH CACHE)
+unset(GRAPHOS_HAVE_OPEN_PROJECT CACHE)
+unset(GRAPHOS_HAVE_ORIENTATION CACHE)
+unset(GRAPHOS_HAVE_ORTHOPHOTO CACHE)
+unset(GRAPHOS_HAVE_SETTINGS CACHE)
+unset(GRAPHOS_HAVE_UNDISTORT CACHE)
+
+
+option(BUILD_ABOUT_COMPONENT          "Build About Component"         ON)
+option(BUILD_CAMERAS_COMPONENT        "Build Cameras Component"       ON)
+option(BUILD_CREATE_PROJECT_COMPONENT "Build Create Project Component"  ON)
+option(BUILD_DENSE_COMPONENT "Build Dense Component"  ON)
+option(BUILD_DTM_COMPONENT "Build DTM/DSM Component"  ON)
+option(BUILD_FEATEXTRACT_COMPONENT "Build Feature Extractor Component"  ON)
+option(BUILD_FEATMATCH_COMPONENT "Build Feature Match Component"  ON)
+option(BUILD_FEATVIEWER_COMPONENT "Build Feature Viewer Component"  ON)
+option(BUILD_GEOREFERENCE_COMPONENT "Build Georeference Component"  ON)
+option(BUILD_IMAGE_LOAD_COMPONENT "Build Image Load Component"  ON)
+option(BUILD_IMPORT_CAMERAS_COMPONENT "Build Import Cameras Component"  ON)
+option(BUILD_MATCH_VIEWER_COMPONENT "Build Match Viewer Component"  ON)
+option(BUILD_MESH_COMPONENT "Build Mesh Component"  ON)
+option(BUILD_OPEN_PROJECT_COMPONENT "Build Open Project Component"  ON)
+option(BUILD_ORIENTATION_COMPONENT "Build Orientation Component"  ON)
+option(BUILD_ORTHOPHOTO_COMPONENT "Build Orthophoto Component"  ON)
+option(BUILD_SETTINGS_COMPONENT "Build Settings Component"  ON)
+option(BUILD_UNDISTORT_COMPONENT "Build Undistort Component"  ON)
+
+
 #OPTION (BUILD_GRAPHOS                 "GRAPHOS"                OFF)
 #OPTION (BUILD_GRAPHOS_MICROSERVICES   "GRAPHOS MICROSERVICES"  OFF)
 
@@ -409,9 +435,6 @@ endif(WITH_VLD)
 #endif (BUILD_GRAPHOS_MICROSERVICES)
 
 
-#set(TL_MESSAGE_HANDLER YES)
-#message(STATUS "[TidopLib] Message manager enabled")
-#configure_file("${PROJECT_SOURCE_DIR}/cmake/config_tl.h.in" "${PROJECT_BINARY_DIR}/config_tl.h")
 include_directories("${PROJECT_BINARY_DIR}")
 add_subdirectory(third_party)
 
@@ -425,10 +448,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 
-#cabeceras con la configuración
-
-configure_file("${PROJECT_SOURCE_DIR}/cmake/config_graphos.h.in" "${PROJECT_BINARY_DIR}/config_graphos.h")
-
 # include del directorio principal
 include_directories(${CMAKE_BUILD_DIR})
 
@@ -441,9 +460,12 @@ set(GRAPHOS_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/res/res.qrc)
 add_subdirectory(src)
 
 
-
 #directorio con la documentación
 #add_subdirectory(doc)
+
+#cabecera con la configuración
+
+configure_file("${PROJECT_SOURCE_DIR}/cmake/config_graphos.h.in" "${PROJECT_BINARY_DIR}/config_graphos.h")
 
 ##############################################################
 # Plugins                                                    #
@@ -466,7 +488,43 @@ endif(BUILD_TEST)
 
 
 
-# Install
+##########################################################################
+# Install                                                                #
+##########################################################################
 
-install(FILES ${PROJECT_BINARY_DIR}/config_tl.h DESTINATION include)
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+
+# Graphos configuration header
 install(FILES ${PROJECT_BINARY_DIR}/config_graphos.h DESTINATION include)
+
+
+set(GRAPHOS_CONFIG_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}")
+set(GRAPHOS_CONFIG_VERSION_CMAKE_PATH "${CMAKE_CURRENT_BINARY_DIR}/GraphosConfigVersion.cmake")
+set(GRAPHOS_CONFIG_CMAKE_PATH "${CMAKE_CURRENT_BINARY_DIR}/GraphosConfig.cmake")
+set(GRAPHOS_NAMESPACE "Graphos::")
+set(GRAPHOS_INSTALL_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
+
+
+# Write package version file
+write_basic_package_version_file(
+  ${GRAPHOS_CONFIG_VERSION_CMAKE_PATH}
+  VERSION ${GRAPHOS_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+    "cmake/GraphosConfig.cmake.in"
+    ${GRAPHOS_CONFIG_CMAKE_PATH}
+    INSTALL_DESTINATION "${GRAPHOS_CONFIG_CMAKE_INSTALL_DIR}"
+)
+
+install(
+    FILES "${GRAPHOS_CONFIG_CMAKE_PATH}" "${GRAPHOS_CONFIG_VERSION_CMAKE_PATH}"
+    DESTINATION "${GRAPHOS_CONFIG_CMAKE_INSTALL_DIR}")
+
+install(
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    NAMESPACE "${GRAPHOS_NAMESPACE}"
+    DESTINATION "${GRAPHOS_CONFIG_CMAKE_INSTALL_DIR}")

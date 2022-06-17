@@ -23,10 +23,9 @@
 
 #include "MainWindowPresenter.h"
 
-#include "graphos/components/MainWindowView.h"
-#include "graphos/components/MainWindowModel.h"
-#include "graphos/components/utils/TabHandler.h"
-#include "graphos/components/HelpDialog.h"
+#include "graphos/gui/MainWindowView.h"
+#include "graphos/gui/MainWindowModel.h"
+#include "graphos/gui/utils/TabHandler.h"
 #include "graphos/widgets/StartPageWidget.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
@@ -55,7 +54,6 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
   : Presenter(),
     mView(view),
     mModel(model),
-    mHelpDialog(nullptr),
     mTabHandler(nullptr),
     mStartPageWidget(nullptr)
 {
@@ -601,23 +599,9 @@ void MainWindowPresenter::onProjectModified()
   app.status()->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
-void MainWindowPresenter::help()
-{
-  if (mHelpDialog) {
-    mHelpDialog->navigateHome();
-    mHelpDialog->setModal(true);
-    mHelpDialog->showMaximized();
-  }
-}
-
 void MainWindowPresenter::open()
 {
   mView->showMaximized();
-}
-
-void MainWindowPresenter::setHelp(HelpDialog *help)
-{
-  mHelpDialog = help;
 }
 
 void MainWindowPresenter::init()
@@ -665,7 +649,11 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Menú Ayuda */
 
-  connect(mView, &MainWindowView::openHelpDialog,     this, &MainWindowPresenter::help);
+  //connect(mView, &MainWindowView::openHelpDialog,     this, &MainWindowPresenter::help);
+  connect(mView, &MainWindowView::openHelpDialog, [&]() {
+    emit help("");
+  });
+
   connect(mView, &MainWindowView::openAboutDialog,    this, &MainWindowPresenter::openAboutDialog);
 
   /* Panel de vistas en miniatura */

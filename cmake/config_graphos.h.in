@@ -1,7 +1,65 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
+
+
 #ifndef GRAPHOS_CONFIG_H
 #define GRAPHOS_CONFIG_H
 
-/* Cabecera para configuración de GRAPHOS */
+/* Graphos Configuration header */
+
+
+/* Graphos Version */
+
+#define GRAPHOS_VERSION_MAJOR @GRAPHOS_VERSION_MAJOR@
+#define GRAPHOS_VERSION_MINOR @GRAPHOS_VERSION_MINOR@
+
+
+/* Graphos Components */
+
+#cmakedefine GRAPHOS_HAVE_ABOUT
+#cmakedefine GRAPHOS_HAVE_CAMERAS
+#cmakedefine GRAPHOS_HAVE_CREATE_PROJECT
+#cmakedefine GRAPHOS_HAVE_DENSE
+#cmakedefine GRAPHOS_HAVE_DTM
+#cmakedefine GRAPHOS_HAVE_FEATEXTRACT
+#cmakedefine GRAPHOS_HAVE_FEATMATCH
+#cmakedefine GRAPHOS_HAVE_FEATVIEWER
+#cmakedefine GRAPHOS_HAVE_GEOREFERENCE
+#cmakedefine GRAPHOS_HAVE_IMAGE_LOAD
+#cmakedefine GRAPHOS_HAVE_IMPORT_CAMERAS
+#cmakedefine GRAPHOS_HAVE_MATCH_VIEWER
+#cmakedefine GRAPHOS_HAVE_MESH
+#cmakedefine GRAPHOS_HAVE_OPEN_PROJECT
+#cmakedefine GRAPHOS_HAVE_ORIENTATION
+#cmakedefine GRAPHOS_HAVE_ORTHOPHOTO
+#cmakedefine GRAPHOS_HAVE_SETTINGS
+#cmakedefine GRAPHOS_HAVE_UNDISTORT
+
+
+/* Graphos source path */
+
+#define GRAPHOS_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
+
 
 /* OpenCV */
 #cmakedefine HAVE_OPENCV
@@ -32,14 +90,5 @@
 
 /* Cuda */
 #cmakedefine HAVE_CUDA
-
-/* Graphos Version */
-
-#define GRAPHOS_VERSION_MAJOR @GRAPHOS_VERSION_MAJOR@
-#define GRAPHOS_VERSION_MINOR @GRAPHOS_VERSION_MINOR@
-
-/* Graphos source path */
-
-#define GRAPHOS_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
 
 #endif // GRAPHOS_CONFIG_H

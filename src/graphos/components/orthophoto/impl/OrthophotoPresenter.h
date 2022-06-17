@@ -29,9 +29,6 @@
 namespace graphos
 {
 
-class HelpDialog;
-
-
 class OrthophotoView;
 class OrthophotoModel;
 
@@ -55,9 +52,7 @@ private slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -80,7 +75,6 @@ private:
 
   OrthophotoView *mView;
   OrthophotoModel *mModel;
-  HelpDialog *mHelp;
 
 };
 

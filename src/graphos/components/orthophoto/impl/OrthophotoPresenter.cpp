@@ -29,7 +29,6 @@
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoProcess.h"
 #include "graphos/core/utils.h"
-#include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/defs.h>
 
@@ -43,8 +42,7 @@ OrthophotoPresenterImp::OrthophotoPresenterImp(OrthophotoView *view,
                                                OrthophotoModel *model)
   : OrthophotoPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
@@ -53,15 +51,6 @@ OrthophotoPresenterImp::OrthophotoPresenterImp(OrthophotoView *view,
 OrthophotoPresenterImp::~OrthophotoPresenterImp()
 {
 
-}
-
-void OrthophotoPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("orthophoto.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
 }
 
 void OrthophotoPresenterImp::open()
@@ -74,11 +63,6 @@ void OrthophotoPresenterImp::open()
   mView->exec();
 }
 
-void OrthophotoPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
-
 void OrthophotoPresenterImp::init()
 {
 
@@ -87,7 +71,9 @@ void OrthophotoPresenterImp::init()
 void OrthophotoPresenterImp::initSignalAndSlots()
 {
   connect(mView, &ProcessView::run,     this,   &ProcessPresenter::run);
-  connect(mView, &DialogView::help,     this,   &Presenter::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("orthophoto.html");
+});
 }
 
 void OrthophotoPresenterImp::onError(tl::TaskErrorEvent *event)

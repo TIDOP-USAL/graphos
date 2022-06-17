@@ -25,7 +25,6 @@
 
 #include "graphos/components/settings/SettingsModel.h"
 #include "graphos/components/settings/SettingsView.h"
-#include "graphos/components/HelpDialog.h"
 
 #include <QLocale>
 
@@ -37,32 +36,10 @@ SettingsPresenterImp::SettingsPresenterImp(SettingsView *view,
                                            SettingsModel *model)
   : SettingsPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
-}
-
-//void SettingsPresenterImp::openViewSettings()
-//{
-//  mView->setPage(1);
-//  this->open();
-//}
-//
-//void SettingsPresenterImp::openToolSettings()
-//{
-//  mView->setPage(2);
-//  this->open();
-//}
-
-void SettingsPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("settings.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
 }
 
 void SettingsPresenterImp::open()
@@ -94,11 +71,6 @@ void SettingsPresenterImp::open()
   mView->exec();
 }
 
-void SettingsPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
-
 void SettingsPresenterImp::init()
 {
 
@@ -114,7 +86,9 @@ void SettingsPresenterImp::initSignalAndSlots()
   connect(mView, SIGNAL(accepted()), this, SLOT(save()));
   connect(mView, SIGNAL(applyChanges()), this, SLOT(save()));
   connect(mView, SIGNAL(rejected()), this, SLOT(discart()));
-  connect(mView, SIGNAL(help()),     this, SLOT(help()));
+  connect(mView, &DialogView::help, [&]() {
+    emit help("settings.html");
+  });
 
   connect(mModel, SIGNAL(unsavedChanges(bool)), mView, SLOT(setUnsavedChanges(bool)));
 }

@@ -80,10 +80,6 @@ void OpenProjectPresenterImp::open()
   mView->exec();
 }
 
-void OpenProjectPresenterImp::setHelp(HelpDialog *help)
-{
-}
-
 void OpenProjectPresenterImp::init()
 {
 }
@@ -91,10 +87,6 @@ void OpenProjectPresenterImp::init()
 void OpenProjectPresenterImp::initSignalAndSlots()
 {
   connect(mView, &OpenProjectView::fileSelected, this, &OpenProjectPresenterImp::setProjectFile);
-}
-
-void OpenProjectPresenterImp::help()
-{
 }
 
 } // namespace graphos

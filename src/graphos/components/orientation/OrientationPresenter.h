@@ -42,7 +42,6 @@ public:
 
 signals:
 
-  //void orientation_finished();
   void orientation_deleted();
 };
 

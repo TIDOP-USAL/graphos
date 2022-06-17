@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,84 +21,71 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURES_MODEL_H
-#define GRAPHOS_FEATURES_MODEL_H
 
-#include "graphos/interfaces/mvp.h"
-#include "graphos/core/project.h"
+#ifndef GRAPHOS_LOADFROMVIDEO_VIEW_H
+#define GRAPHOS_LOADFROMVIDEO_VIEW_H
+
+#include "graphos/components/loadfromvideo/LoadFromVideoView.h"
+
+class QDialogButtonBox;
+class QLabel;
+class QComboBox;
+class QLabel;
+class QSpinBox;
+
 
 namespace graphos
 {
 
-class FeaturesModel
-  : public Model
+class LoadFromVideoViewImp
+  : public LoadFromVideoView
 {
 
   Q_OBJECT
 
 public:
 
-  typedef std::map<QString, QString>::iterator features_iterator;
-  typedef std::map<QString, QString>::const_iterator features_const_iterator;
+  LoadFromVideoViewImp(QWidget *parent = nullptr);
+  ~LoadFromVideoViewImp() override;
 
-
-public:
-
-  FeaturesModel(QObject *parent = nullptr) : Model(parent) {}
-  virtual ~FeaturesModel() override = default;
-
-  virtual QString features(const QString &imgName) const = 0;
-  virtual void addFeatures(const QString &imgName, const QString &featureFile) = 0;
-  virtual bool removeFeatures(const QString &imgName) const = 0;
-
-  virtual features_iterator begin() = 0;
-  virtual features_const_iterator begin() const = 0;
-  virtual features_iterator end() = 0;
-  virtual features_const_iterator end() const = 0;
-
-};
-
-
-class FeaturesModelImp
-  : public FeaturesModel
-{
-
-  Q_OBJECT
+// LoadFromVideoView
 
 public:
 
-  FeaturesModelImp(Project *project,
-                   QObject *parent = nullptr);
-  ~FeaturesModelImp() override = default;
+  QString Video() const override;
+  int SkipFrames() const override;
 
-// Model interface
+public slots:
+  
+  void setVideo(const QString &Video) override;
+  void setSkipFrames(int SkipFrames) override;
+
+// DialogView
 
 private:
 
-  void init() override;
+  void initUI();
+  void initSignalAndSlots();
 
 public slots:
 
-  void clear() override;
+  void clear();
 
-// FeaturesModel interface
+private slots:
 
-public:
-
-  QString features(const QString &imgName) const override;
-  void addFeatures(const QString &imgName, const QString &featureFile) override;
-  bool removeFeatures(const QString &imgName) const override;
-
-  features_iterator begin() override;
-  features_const_iterator begin() const override;
-  features_iterator end() override;
-  features_const_iterator end() const override;
+  void update();
+  void retranslate();
 
 protected:
 
-  Project *mProject;
+  QLabel *mLabelVideo;
+  QComboBox *mComboBoxVideo;
+  QLabel *mLabelSkipFrames;
+  QSpinBox *mSpinBoxSkipFrames;
+  QDialogButtonBox *mButtonBox;
+  
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_FEATURES_MODEL_H
+#endif // GRAPHOS_LOADFROMVIDEO_VIEW_H

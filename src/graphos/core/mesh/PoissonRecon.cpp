@@ -27,6 +27,8 @@
 #include <tidop/core/exception.h>
 #include <tidop/core/app.h>
 #include <tidop/core/path.h>
+#include <tidop/core/progress.h>
+
 
 namespace graphos
 {
@@ -169,8 +171,9 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 
     process.run();
 
-    if(process.status() == tl::Process::Status::error) TL_THROW_EXCEPTION(cmd.c_str());
+    TL_ASSERT(process.status() == tl::Process::Status::finalized, "Poisson Reconstruction error");
 
+    if(progressBar) (*progressBar)();
 
   } catch(...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Load images error");
