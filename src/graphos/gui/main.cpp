@@ -21,32 +21,69 @@
  *                                                                      *
  ************************************************************************/
 
+#include "graphos/graphos_global.h"
+
 #include "MainWindowView.h"
 #include "MainWindowModel.h"
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#ifdef GRAPHOS_HAVE_CREATE_PROJECT
 #include "graphos/components/createproject/CreateProjectComponent.h"
+#endif // GRAPHOS_HAVE_CREATE_PROJECT
+#ifdef GRAPHOS_HAVE_OPEN_PROJECT
 #include "graphos/components/openproject/OpenProjectComponent.h"
+#endif // GRAPHOS_HAVE_OPEN_PROJECT
+#ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
 #include "graphos/components/import/cameras/ImportCamerasComponent.h"
+#endif // GRAPHOS_HAVE_IMPORT_CAMERAS
+#ifdef GRAPHOS_HAVE_CAMERAS
 #include "graphos/components/cameras/CamerasComponent.h"
+#endif // GRAPHOS_HAVE_CAMERAS
+#ifdef GRAPHOS_HAVE_IMAGE_LOAD
 #include "graphos/components/images/ImageLoaderComponent.h"
+#endif // GRAPHOS_HAVE_IMAGE_LOAD
+#ifdef GRAPHOS_HAVE_FEATEXTRACT
 #include "graphos/components/featextract/FeatureExtractorComponent.h"
+#endif // GRAPHOS_HAVE_FEATEXTRACT
+#ifdef GRAPHOS_HAVE_FEATMATCH
 #include "graphos/components/featmatch/FeatureMatchingComponent.h"
+#endif // GRAPHOS_HAVE_FEATMATCH
+#ifdef GRAPHOS_HAVE_ORIENTATION
 #include "graphos/components/orientation/OrientationComponent.h"
+#endif // GRAPHOS_HAVE_ORIENTATION
+#ifdef GRAPHOS_HAVE_DENSE
 #include "graphos/components/dense/DensificationComponent.h"
+#endif // GRAPHOS_HAVE_DENSE
+#ifdef GRAPHOS_HAVE_MESH
 #include "graphos/components/mesh/MeshComponent.h"
-#include "graphos/components/undistortimages/UndistortImagesComponent.h"
+#endif // GRAPHOS_HAVE_MESH
+#ifdef GRAPHOS_HAVE_UNDISTORT
+#include "graphos/components/undistort/UndistortImagesComponent.h"
+#endif // GRAPHOS_HAVE_UNDISTORT
+#ifdef GRAPHOS_HAVE_DTM
 #include "graphos/components/dtm/DTMComponent.h"
+#endif // GRAPHOS_HAVE_DTM
+#ifdef GRAPHOS_HAVE_ORTHOPHOTO
 #include "graphos/components/orthophoto/OrthophotoComponent.h"
+#endif // GRAPHOS_HAVE_ORTHOPHOTO
+#ifdef GRAPHOS_HAVE_GEOREFERENCE
 #include "graphos/components/georeference/GeoreferenceComponent.h"
+#endif // GRAPHOS_HAVE_GEOREFERENCE
+#ifdef GRAPHOS_HAVE_FEATVIEWER
 #include "graphos/components/featviewer/FeaturesViewerComponent.h"
+#endif // GRAPHOS_HAVE_FEATVIEWER
+#ifdef GRAPHOS_HAVE_MATCH_VIEWER
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
+#endif // GRAPHOS_HAVE_MATCH_VIEWER
 //#include "graphos/components/export/orientations/ExportOrientationsComponent.h"
 //#include "graphos/components/export/densemodel/ExportPointCloudComponent.h"
+#ifdef GRAPHOS_HAVE_SETTINGS
 #include "graphos/components/settings/SettingsComponent.h"
+#endif // GRAPHOS_HAVE_SETTINGS
+#ifdef GRAPHOS_HAVE_ABOUT
 #include "graphos/components/about/AboutComponent.h"
-
+#endif // GRAPHOS_HAVE_ABOUT
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
@@ -72,27 +109,80 @@ int main(int argc, char *argv[])
   QApplication a(argc, argv);
   Application &app = Application::instance();
 
+#ifdef GRAPHOS_HAVE_CREATE_PROJECT
   CreateProjectComponent create_project_component(&app);
+#endif // GRAPHOS_HAVE_CREATE_PROJECT
+
+#ifdef GRAPHOS_HAVE_OPEN_PROJECT
   OpenProjectComponent open_project_component(&app);
+#endif // GRAPHOS_HAVE_OPEN_PROJECT
+
+#ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
   ImportCamerasComponent import_cameras_component(&app);
+#endif // GRAPHOS_HAVE_IMPORT_CAMERAS
+
+#ifdef GRAPHOS_HAVE_CAMERAS
   CamerasComponent cameras_component(&app);
+#endif // GRAPHOS_HAVE_CAMERAS
+
   //ExportOrientationsComponent export_orientations_component(&app);
   //ExportPointCloudComponent export_point_cloud_component(&app);
+
+#ifdef GRAPHOS_HAVE_IMAGE_LOAD
   ImageLoaderComponent image_loader_component(&app);
+#endif // GRAPHOS_HAVE_IMAGE_LOAD
+
+#ifdef GRAPHOS_HAVE_FEATEXTRACT
   FeatureExtractorComponent feature_extractor_component(&app);
+#endif // GRAPHOS_HAVE_FEATEXTRACT
+
+#ifdef GRAPHOS_HAVE_FEATMATCH
   FeatureMatchingComponent feature_matching_component(&app);
+#endif // GRAPHOS_HAVE_FEATMATCH
+
+#ifdef GRAPHOS_HAVE_ORIENTATION
   OrientationComponent orientation_component(&app);
+#endif // GRAPHOS_HAVE_ORIENTATION
+
+#ifdef GRAPHOS_HAVE_DENSE
   DensificationComponent densification_component(&app);
+#endif // GRAPHOS_HAVE_DENSE
+
+#ifdef GRAPHOS_HAVE_MESH
   MeshComponent mesh_component(&app);
+#endif // GRAPHOS_HAVE_MESH
+
+#ifdef GRAPHOS_HAVE_GEOREFERENCE
   GeoreferenceComponent georeference_component(&app);
+#endif // GRAPHOS_HAVE_GEOREFERENCE
+
+#ifdef GRAPHOS_HAVE_UNDISTORT
   UndistortImagesComponent undistort_component(&app);
+#endif // GRAPHOS_HAVE_UNDISTORT
+
+#ifdef GRAPHOS_HAVE_DTM
   DTMComponent dtm_component(&app);
+#endif // GRAPHOS_HAVE_DTM
+
+#ifdef GRAPHOS_HAVE_ORTHOPHOTO
   OrthophotoComponent orthophoto_component(&app);
+#endif
+
+#ifdef GRAPHOS_HAVE_FEATVIEWER
   FeaturesViewerComponent features_viewer_component(&app);
+#endif // GRAPHOS_HAVE_FEATVIEWER
+
+#ifdef GRAPHOS_HAVE_MATCH_VIEWER
   MatchViewerComponent match_viewer_component(&app);
+#endif // GRAPHOS_HAVE_MATCH_VIEWER
+
+#ifdef GRAPHOS_HAVE_SETTINGS
   SettingsComponent settings_component(&app);
+#endif // GRAPHOS_HAVE_SETTINGS
+
+#ifdef GRAPHOS_HAVE_ABOUT
   AboutComponent about_component(&app);
-  
+#endif // GRAPHOS_HAVE_ABOUT
 
   tl::Console &console = tl::Console::instance();
   console.setMessageLevel(tl::MessageLevel::msg_verbose);
@@ -103,26 +193,80 @@ int main(int argc, char *argv[])
 
   if (argc > 1) {
 
+#ifdef GRAPHOS_HAVE_CREATE_PROJECT
     app.addComponent(&create_project_component);
+#endif // GRAPHOS_HAVE_CREATE_PROJECT
+
+#ifdef GRAPHOS_HAVE_OPEN_PROJECT
     app.addComponent(&open_project_component);
+#endif // GRAPHOS_HAVE_OPEN_PROJECT
+
+#ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
     app.addComponent(&import_cameras_component);
+#endif // GRAPHOS_HAVE_IMPORT_CAMERAS
+
+#ifdef GRAPHOS_HAVE_CAMERAS
     app.addComponent(&cameras_component);
+#endif // GRAPHOS_HAVE_CAMERAS
+
     //app.addComponent(&export_orientations_component);
     //app.addComponent(&export_point_cloud_component);
-    app.addComponent(&image_loader_component);
+
+#ifdef GRAPHOS_HAVE_IMAGE_LOAD
+  app.addComponent(&image_loader_component);
+#endif // GRAPHOS_HAVE_IMAGE_LOAD
+
+#ifdef GRAPHOS_HAVE_FEATEXTRACT
     app.addComponent(&feature_extractor_component);
+#endif // GRAPHOS_HAVE_FEATEXTRACT
+
+#ifdef GRAPHOS_HAVE_FEATMATCH
     app.addComponent(&feature_matching_component);
+#endif // GRAPHOS_HAVE_FEATMATCH
+
+#ifdef GRAPHOS_HAVE_ORIENTATION
     app.addComponent(&orientation_component);
+#endif // GRAPHOS_HAVE_ORIENTATION
+
+#ifdef GRAPHOS_HAVE_DENSE
     app.addComponent(&densification_component);
+#endif // GRAPHOS_HAVE_DENSE
+
+#ifdef GRAPHOS_HAVE_MESH
     app.addComponent(&mesh_component);
+#endif // GRAPHOS_HAVE_MESH
+
+#ifdef GRAPHOS_HAVE_GEOREFERENCE
     app.addComponent(&georeference_component);
+#endif // GRAPHOS_HAVE_GEOREFERENCE
+
+#ifdef GRAPHOS_HAVE_UNDISTORT
     app.addComponent(&undistort_component);
+#endif // GRAPHOS_HAVE_UNDISTORT
+
+#ifdef GRAPHOS_HAVE_DTM
     app.addComponent(&dtm_component);
+#endif // GRAPHOS_HAVE_DTM
+
+#ifdef GRAPHOS_HAVE_ORTHOPHOTO
     app.addComponent(&orthophoto_component);
+#endif
+
+#ifdef GRAPHOS_HAVE_FEATVIEWER
     app.addComponent(&features_viewer_component);
+#endif // GRAPHOS_HAVE_FEATVIEWER
+
+#ifdef GRAPHOS_HAVE_MATCH_VIEWER
     app.addComponent(&match_viewer_component);
+#endif // GRAPHOS_HAVE_MATCH_VIEWER
+
+#ifdef GRAPHOS_HAVE_SETTINGS
     app.addComponent(&settings_component);
+#endif
+
+#ifdef GRAPHOS_HAVE_ABOUT
     app.addComponent(&about_component);
+#endif
 
     tl::CommandList::Status status = app.parse(argc, argv);
     if (status == tl::CommandList::Status::parse_success) {
@@ -145,13 +289,21 @@ int main(int argc, char *argv[])
 
     /* File menu */
 
+#ifdef GRAPHOS_HAVE_CREATE_PROJECT
     componentsManager.mainWindowView()->setCreateProjectAction(create_project_component.action());
+#endif
 
+#ifdef GRAPHOS_HAVE_OPEN_PROJECT
     componentsManager.mainWindowView()->setOpenProjectAction(open_project_component.action());
+#endif // GRAPHOS_HAVE_OPEN_PROJECT
 
+#ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
     componentsManager.mainWindowView()->setImportCamerasAction(import_cameras_component.action());
+#endif // GRAPHOS_HAVE_IMPORT_CAMERAS
 
+#ifdef GRAPHOS_HAVE_CAMERAS
     componentsManager.mainWindowView()->setCamerasToolAction(cameras_component.action());
+#endif
 
     //componentsManager.registerComponent(&export_orientations_component);
 
@@ -159,90 +311,153 @@ int main(int argc, char *argv[])
 
     /* Workflow menu */
 
+#ifdef GRAPHOS_HAVE_IMAGE_LOAD
     componentsManager.registerComponent(&image_loader_component,
                                         ComponentsManager::Flags::separator_after);
+#endif // GRAPHOS_HAVE_IMAGE_LOAD
 
+#ifdef GRAPHOS_HAVE_FEATEXTRACT
     componentsManager.registerComponent(&feature_extractor_component);
+#endif // GRAPHOS_HAVE_FEATEXTRACT
 
+#ifdef GRAPHOS_HAVE_FEATMATCH
     componentsManager.registerComponent(&feature_matching_component);
+#endif // GRAPHOS_HAVE_FEATMATCH
 
+
+#ifdef GRAPHOS_HAVE_ORIENTATION
     componentsManager.registerComponent(&orientation_component);
+#endif // GRAPHOS_HAVE_ORIENTATION
 
+#ifdef GRAPHOS_HAVE_DENSE
     componentsManager.registerComponent(&densification_component);
+#endif // GRAPHOS_HAVE_DENSE
 
-    componentsManager.registerComponent(&mesh_component, 
+#ifdef GRAPHOS_HAVE_MESH
+    componentsManager.registerComponent(&mesh_component,
                                         ComponentsManager::Flags::separator_before);
+#endif // GRAPHOS_HAVE_MESH
     
     /* Tools menu */
 
+#ifdef GRAPHOS_HAVE_UNDISTORT
     componentsManager.registerComponent(&undistort_component,
                                         ComponentsManager::Flags::separator_before);
+#endif // GRAPHOS_HAVE_UNDISTORT
 
+#ifdef GRAPHOS_HAVE_GEOREFERENCE
     componentsManager.registerComponent(&georeference_component,
                                         ComponentsManager::Flags::separator_before);
+#endif // GRAPHOS_HAVE_GEOREFERENCE
 
+#ifdef GRAPHOS_HAVE_DTM
     componentsManager.registerComponent(&dtm_component,
                                         ComponentsManager::Flags::separator_before);
+#endif // GRAPHOS_HAVE_DTM
 
+#ifdef GRAPHOS_HAVE_ORTHOPHOTO
     componentsManager.registerComponent(&orthophoto_component,
                                         ComponentsManager::Flags::separator_before);
+#endif // GRAPHOS_HAVE_ORTHOPHOTO
 
+#ifdef GRAPHOS_HAVE_FEATVIEWER
     componentsManager.registerComponent(&features_viewer_component,
                                         ComponentsManager::Flags::separator_before);
+#endif // GRAPHOS_HAVE_FEATVIEWER
 
+#ifdef GRAPHOS_HAVE_MATCH_VIEWER
     componentsManager.registerComponent(&match_viewer_component,
                                         ComponentsManager::Flags::separator_after);
+#endif // GRAPHOS_HAVE_MATCH_VIEWER
 
+#ifdef GRAPHOS_HAVE_SETTINGS
     componentsManager.registerComponent(&settings_component);
+#endif // GRAPHOS_HAVE_SETTINGS
 
     /* Help menu */
 
+#ifdef GRAPHOS_HAVE_ABOUT
     componentsManager.registerComponent(&about_component,
                                         ComponentsManager::Flags::separator_before);
-    /// 
+#endif // GRAPHOS_HAVE_ABOUT
 
+#ifdef GRAPHOS_HAVE_CREATE_PROJECT
     QObject::connect(&create_project_component, SIGNAL(project_created()),
                      componentsManager.mainWindowPresenter(), SLOT(loadProject()));
-
     QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openCreateProjectDialog,
                      create_project_component.action(), &QAction::trigger);
+#endif // GRAPHOS_HAVE_CREATE_PROJECT
 
+#ifdef GRAPHOS_HAVE_OPEN_PROJECT
     QObject::connect(&open_project_component, SIGNAL(project_loaded()),
                      componentsManager.mainWindowPresenter(), SLOT(loadProject()));
 
     QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openProjectDialog,
                      open_project_component.action(), &QAction::trigger);
+#endif // GRAPHOS_HAVE_OPEN_PROJECT
+
 
     QObject::connect(&app, SIGNAL(image_loaded(size_t)),
                      componentsManager.mainWindowPresenter(), SLOT(loadImage(size_t)));
 
     /////TODO: por ahora hasta que refactorice MainWindow
+#ifdef GRAPHOS_HAVE_IMAGE_LOAD
     QObject::connect(&image_loader_component, SIGNAL(image_loaded(size_t)),
                      componentsManager.mainWindowPresenter(), SLOT(loadImage(size_t)));
+#endif // GRAPHOS_HAVE_IMAGE_LOAD
+
+#ifdef GRAPHOS_HAVE_FEATEXTRACT
     QObject::connect(&feature_extractor_component, SIGNAL(features_extracted(size_t)),
                      componentsManager.mainWindowPresenter(), SLOT(loadFeatures(size_t)));
     QObject::connect(&feature_extractor_component, SIGNAL(features_deleted()),
                      componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#endif // GRAPHOS_HAVE_FEATEXTRACT
+
+#ifdef GRAPHOS_HAVE_FEATMATCH
     QObject::connect(&feature_matching_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(updateMatches()));
     QObject::connect(&feature_matching_component, SIGNAL(matches_deleted()),
                      componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#endif // GRAPHOS_HAVE_FEATMATCH
+
+#ifdef GRAPHOS_HAVE_ORIENTATION
     QObject::connect(&orientation_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
     QObject::connect(&orientation_component, SIGNAL(orientation_deleted()),
                      componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#endif // GRAPHOS_HAVE_ORIENTATION
+
+#ifdef GRAPHOS_HAVE_DENSE
     QObject::connect(&densification_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
+#endif // GRAPHOS_HAVE_DENSE
+
+#ifdef GRAPHOS_HAVE_DTM
     QObject::connect(&dtm_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
+#endif // GRAPHOS_HAVE_DTM
+
+#ifdef GRAPHOS_HAVE_ORTHOPHOTO
     QObject::connect(&orthophoto_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadOrtho()));
+#endif
+
+#ifdef GRAPHOS_HAVE_FEATVIEWER
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openKeypointsViewer,
                      &features_viewer_component, &FeaturesViewerComponent::openKeypointsViewer);
-    QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
-                     &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
+#endif // GRAPHOS_HAVE_FEATVIEWER
+
+
+#ifdef GRAPHOS_HAVE_GEOREFERENCE
     QObject::connect(&georeference_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
+#endif // GRAPHOS_HAVE_GEOREFERENCE
+
+    QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
+                     &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
+
+
+
 
     componentsManager.loadPlugins();
 

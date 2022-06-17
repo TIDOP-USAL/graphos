@@ -27,7 +27,6 @@
 
 #include "graphos/components/matchviewer/impl/MatchViewerModel.h"
 #include "graphos/components/matchviewer/impl/MatchViewerView.h"
-#include "graphos/components/HelpDialog.h"
 
 #include <QFileInfo>
 
@@ -38,8 +37,7 @@ MatchViewerPresenterImp::MatchViewerPresenterImp(MatchViewerView *view,
                                                  MatchViewerModel *model)
   : MatchViewerPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
@@ -84,15 +82,6 @@ void MatchViewerPresenterImp::loadMatches(size_t imageId1,
   }
 }
 
-void MatchViewerPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("matches_viewer.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
-}
-
 void MatchViewerPresenterImp::open()
 {
   mView->clear();
@@ -121,11 +110,6 @@ void MatchViewerPresenterImp::open()
 
 }
 
-void MatchViewerPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
-
 void MatchViewerPresenterImp::init()
 {
 }
@@ -136,7 +120,9 @@ void MatchViewerPresenterImp::initSignalAndSlots()
   connect(mView, &MatchViewerView::rightImageChange,        this, &MatchViewerPresenterImp::setRightImage);
   connect(mView, &MatchViewerView::loadMatches,             this, &MatchViewerPresenterImp::loadMatches);
 
-  connect(mView, &MatchViewerView::help,     this, &MatchViewerPresenterImp::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("matches_viewer.html");
+  });
 }
 
 } // namespace graphos

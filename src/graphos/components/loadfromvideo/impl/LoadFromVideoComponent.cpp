@@ -22,12 +22,11 @@
  ************************************************************************/
 
 
-#include "UndistortImagesComponent.h"
+#include "LoadFromVideoComponent.h"
 
-#include "graphos/components/undistortimages/impl/UndistortImagesModel.h"
-#include "graphos/components/undistortimages/impl/UndistortImagesView.h"
-#include "graphos/components/undistortimages/impl/UndistortImagesPresenter.h"
-#include "graphos/components/undistortimages/impl/UndistortImagesCommand.h"
+#include "graphos/components/loadfromvideo/impl/LoadFromVideoModel.h"
+#include "graphos/components/loadfromvideo/impl/LoadFromVideoView.h"
+#include "graphos/components/loadfromvideo/impl/LoadFromVideoPresenter.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -37,64 +36,63 @@
 namespace graphos
 {
 
-UndistortImagesComponent::UndistortImagesComponent(Application *application)
+LoadFromVideoComponent::LoadFromVideoComponent(Application *application)
   : ProcessComponent(application)
 {
   init();
 }
 
-UndistortImagesComponent::~UndistortImagesComponent()
+LoadFromVideoComponent::~LoadFromVideoComponent()
 {
 }
 
-void UndistortImagesComponent::init()
+void LoadFromVideoComponent::init()
 {
-  this->setName(tr("Undistort Images"));
-  this->setMenu("tools");
+  this->setName(tr("Load from Video"));
+  this->setMenu("workflow");
   //this->setToolbar("tools");
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-panorama.png"));
+  //action()->setIcon(QIcon(":/ico/24/img/material/24/icon.png"));
 }
 
-void UndistortImagesComponent::createModel()
+void LoadFromVideoComponent::createModel()
 {
-  setModel(new UndistortImagesModelImp(app()->project()));
+  setModel(new LoadFromVideoModelImp(app()->project()));
 }
 
-void UndistortImagesComponent::createView()
+void LoadFromVideoComponent::createView()
 {
-  setView(new UndistortImagesViewImp());
+  setView(new LoadFromVideoViewImp());
 }
 
-void UndistortImagesComponent::createPresenter()
+void LoadFromVideoComponent::createPresenter()
 {
-  setPresenter(new UndistortImagesPresenterImp(dynamic_cast<UndistortImagesView *>(view()),
-                                               dynamic_cast<UndistortImagesModel *>(model())));
+  setPresenter(new LoadFromVideoPresenterImp(dynamic_cast<LoadFromVideoView *>(view()),
+                                               dynamic_cast<LoadFromVideoModel *>(model())));
 }
 
-void UndistortImagesComponent::createCommand()
+void LoadFromVideoComponent::createCommand()
 {
-  setCommand(std::make_shared<UndistortImagesCommand>());
 }
 
-void UndistortImagesComponent::update()
+void LoadFromVideoComponent::update()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  action()->setEnabled(app_status->isActive(AppStatus::Flag::project_exists) && 
-                       !app_status->isActive(AppStatus::Flag::processing) &&
-                       app_status->isActive(AppStatus::Flag::oriented));
+  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
+  bool process_run = app_status->isActive(AppStatus::Flag::processing);
+  action()->setEnabled(bProjectExists && !process_run);
 }
 
-void UndistortImagesComponent::onRunning()
+void LoadFromVideoComponent::onRunning()
 {
   ProcessComponent::onRunning();
 }
 
-void UndistortImagesComponent::onFinished()
+void LoadFromVideoComponent::onFinished()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
@@ -105,7 +103,7 @@ void UndistortImagesComponent::onFinished()
   //app_status->activeFlag(AppStatus::Flag::..., true);
 }
 
-void UndistortImagesComponent::onFailed()
+void LoadFromVideoComponent::onFailed()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");

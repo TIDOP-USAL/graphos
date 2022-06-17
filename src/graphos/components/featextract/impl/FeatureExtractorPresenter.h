@@ -24,12 +24,6 @@
 #ifndef GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_H
 #define GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_H
 
-#include "graphos/graphos_global.h"
-
-#include <QObject>
-
-#include <opencv2/core.hpp>
-
 #include "graphos/components/featextract/FeatureExtractorPresenter.h"
 
 
@@ -39,7 +33,6 @@ namespace graphos
 class SiftWidget;
 class FeatureExtractorView;
 class FeatureExtractorModel;
-class HelpDialog;
 
 class FeatureExtractorPresenterImp
   : public FeatureExtractorPresenter
@@ -85,9 +78,7 @@ public slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -98,7 +89,6 @@ protected:
 
   FeatureExtractorView *mView;
   FeatureExtractorModel *mModel;
-  HelpDialog *mHelp;
   SiftWidget *mSift;
 
 };

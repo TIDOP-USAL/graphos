@@ -24,12 +24,6 @@
 #ifndef GRAPHOS_DTM_PRESENTER_H
 #define GRAPHOS_DTM_PRESENTER_H
 
-#include "graphos/graphos_global.h"
-
-#include <QObject>
-
-#include <opencv2/core.hpp>
-
 #include "graphos/components/dtm/DTMPresenter.h"
 
 
@@ -40,7 +34,6 @@ class DtmInvDistWidget;
 class DtmInvDistNNWidget;
 class DtmView;
 class DtmModel;
-class HelpDialog;
 
 
 class DtmPresenterImp
@@ -62,9 +55,7 @@ public:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -93,7 +84,6 @@ protected:
 
   DtmView *mView;
   DtmModel *mModel;
-  HelpDialog *mHelp;
   DtmInvDistWidget *mDtmInvDistWidget;
   DtmInvDistNNWidget *mDtmInvDistNNWidget;
 };

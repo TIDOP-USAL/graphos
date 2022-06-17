@@ -29,10 +29,7 @@
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/components/orientation/OrientationModel.h"
 #include "graphos/components/orientation/OrientationView.h"
-//#include "graphos/components/orientation/impl/RelativeOrientationProcess.h"
-//#include "graphos/components/orientation/impl/AbsoluteOrientationProcess.h"
 #include "graphos/components/orientation/impl/ImportOrientationProcess.h"
-#include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/task.h>
@@ -47,8 +44,7 @@ OrientationPresenterImp::OrientationPresenterImp(OrientationView *view,
                                                  OrientationModel *model)
   : OrientationPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
@@ -56,15 +52,6 @@ OrientationPresenterImp::OrientationPresenterImp(OrientationView *view,
 
 OrientationPresenterImp::~OrientationPresenterImp()
 {
-}
-
-void OrientationPresenterImp::help()
-{
-  if (mHelp) {
-    mHelp->setPage("orientation.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
 }
 
 void OrientationPresenterImp::open()
@@ -94,11 +81,6 @@ void OrientationPresenterImp::open()
   mView->exec();
 }
 
-void OrientationPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
-
 void OrientationPresenterImp::init()
 {
 }
@@ -106,7 +88,9 @@ void OrientationPresenterImp::init()
 void OrientationPresenterImp::initSignalAndSlots()
 {
   connect(mView, &OrientationView::run, this, &OrientationPresenterImp::run);
-  connect(mView, &OrientationView::help, this, &OrientationPresenterImp::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("orientation.html");
+  });
 }
 
 void OrientationPresenterImp::cancel()

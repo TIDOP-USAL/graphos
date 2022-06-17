@@ -26,7 +26,6 @@
 #include "graphos/components/georeference/impl/GeoreferenceModel.h"
 #include "graphos/components/georeference/impl/GeoreferenceView.h"
 #include "graphos/components/georeference/impl/GeoreferenceProcess.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/core/image.h"
@@ -44,8 +43,7 @@ namespace graphos
 GeoreferencePresenterImp::GeoreferencePresenterImp(GeoreferenceView *view,
                                                    GeoreferenceModel *model)
   : mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
@@ -121,16 +119,6 @@ void GeoreferencePresenterImp::cancel()
   msgWarning("Processing has been canceled by the user");
 }
 
-void GeoreferencePresenterImp::help()
-{
-  if (mHelp){
-    TL_TODO("Añadir ayuda")
-    mHelp->setPage("");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
-}
-
 void GeoreferencePresenterImp::open()
 {
   mView->clear();
@@ -152,11 +140,6 @@ void GeoreferencePresenterImp::open()
   
 }
 
-void GeoreferencePresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
-
 void GeoreferencePresenterImp::init()
 {
   mView->setItemModelGroundControlPoints(mModel->itemModelGroundControlPoints());
@@ -167,13 +150,16 @@ void GeoreferencePresenterImp::initSignalAndSlots()
 {
   connect(mView, &GeoreferenceView::image_changed, this, &GeoreferencePresenterImp::setImageActive);
   connect(mView, &GeoreferenceView::addGroundControlPoint, mModel, &GeoreferenceModel::addGroundControlPoint);
-  connect(mView, &GeoreferenceView::accepted,     mModel, &GeoreferenceModel::save);
-  connect(mView, &DialogView::help,                    this, &GeoreferencePresenterImp::help);
   connect(mView, &GeoreferenceView::removeGroundControlPoint, mModel, &GeoreferenceModel::removeGroundControlPoint);
   connect(mView, &GeoreferenceView::add_image_point, mModel, &GeoreferenceModel::addImagePoint);
   connect(mView, &GeoreferenceView::remove_image_point, mModel, &GeoreferenceModel::removeImagePoint);
   connect(mView, &GeoreferenceView::crsChange, mModel, &GeoreferenceModel::setCrs);
   connect(mView, &GeoreferenceView::georeference, this, &ProcessPresenter::run);
+  connect(mView, &GeoreferenceView::accepted, mModel, &GeoreferenceModel::save);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("cameras.html");
+  });
+
 }
 
 void GeoreferencePresenterImp::setImageActive(size_t imageId)

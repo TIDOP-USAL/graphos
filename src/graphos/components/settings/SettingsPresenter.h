@@ -41,11 +41,6 @@ public:
   SettingsPresenter() = default;
   virtual ~SettingsPresenter() override = default;
 
-//public slots:
-//
-//  virtual void openViewSettings() = 0;
-//  virtual void openToolSettings() = 0;
-
 private slots:
 
   virtual void setLanguage(const QString &language) = 0;

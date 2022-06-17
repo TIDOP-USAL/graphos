@@ -25,7 +25,6 @@
 #ifndef GRAPHOS_MESH_PRESENTER_INTERFACE_H
 #define GRAPHOS_MESH_PRESENTER_INTERFACE_H
 
-#include "graphos/interfaces/mvp.h"
 #include "graphos/core/process/ProcessPresenter.h"
 
 namespace graphos

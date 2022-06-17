@@ -30,6 +30,7 @@
 
 #include <QString>
 
+///TODO: Quitar la cabecera de aqui
 #include <colmap/feature/sift.h>
 
 namespace graphos

@@ -41,10 +41,6 @@ public:
   DensificationPresenter(){}
   ~DensificationPresenter() override = default;
 
-signals:
-
-  //void densification_finished();
-
 public slots:
 
   virtual void setCurrentDensifier(const QString &densifier) = 0;

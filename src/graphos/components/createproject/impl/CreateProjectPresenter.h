@@ -30,8 +30,6 @@ namespace graphos
 {
 
 class AppStatus;
-class HelpDialog;
-	
 class CreateProjectView;
 class CreateProjectModel;
 
@@ -66,9 +64,7 @@ protected slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -80,7 +76,6 @@ private:
   CreateProjectView *mView;
   CreateProjectModel *mModel;
   AppStatus *mAppStatus;
-  HelpDialog *mHelp;
   QString mProjectsDefaultPath;
   
 };

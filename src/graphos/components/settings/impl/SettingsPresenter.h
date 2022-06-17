@@ -24,17 +24,13 @@
 #ifndef GRAPHOS_SETTINGS_PRESENTER_H
 #define GRAPHOS_SETTINGS_PRESENTER_H
 
-#include "graphos/graphos_global.h"
-
 #include "graphos/components/settings/SettingsPresenter.h"
 
 namespace graphos
 {
 
-class HelpDialog;
 class SettingsView;
 class SettingsModel;
-
 
 class SettingsPresenterImp
   : public SettingsPresenter
@@ -52,9 +48,7 @@ public:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -62,11 +56,6 @@ private:
   void initSignalAndSlots() override;
 
 // SettingsPresenter interface
-
-//public slots:
-//
-//  void openViewSettings() override;
-//  void openToolSettings() override;
 
 private slots:
 
@@ -78,8 +67,8 @@ protected:
 
   SettingsView *mView;
   SettingsModel *mModel;
-  HelpDialog *mHelp;
   std::map<QString, QString> mLang;
+
 };
 
 

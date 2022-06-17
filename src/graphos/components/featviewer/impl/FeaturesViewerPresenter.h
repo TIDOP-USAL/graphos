@@ -24,10 +24,6 @@
 #ifndef GRAPHOS_FEATURES_VIEWER_PRESENTER_H
 #define GRAPHOS_FEATURES_VIEWER_PRESENTER_H
 
-#include <memory>
-
-#include <QObject>
-
 #include "graphos/components/featviewer/FeaturesViewerPresenter.h"
 
 namespace graphos
@@ -36,7 +32,6 @@ namespace graphos
 class FeaturesViewerView;
 class FeaturesViewerModel;
 class SettingsModel;
-class HelpDialog;
 
 class FeaturesViewerPresenterImp
   : public FeaturesViewerPresenter
@@ -64,9 +59,7 @@ protected slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -78,7 +71,6 @@ private:
   FeaturesViewerView *mView;
   FeaturesViewerModel *mModel;
   SettingsModel *mSettingsModel;
-  HelpDialog *mHelp;
 
 };
 

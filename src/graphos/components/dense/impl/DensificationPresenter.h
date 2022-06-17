@@ -34,7 +34,6 @@ class SmvsWidget;
 class MvsWidget;
 class DensificationView;
 class DensificationModel;
-class HelpDialog;
 
 class DensificationPresenterImp
   : public DensificationPresenter
@@ -79,9 +78,7 @@ public slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -95,7 +92,6 @@ private:
   CmvsPmvsWidget *mCmvsPmvs;
   SmvsWidget *mSmvs;
   MvsWidget *mMVS;
-  HelpDialog *mHelp;
 };
 
 } // End namespace graphos

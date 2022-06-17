@@ -20,63 +20,58 @@
  * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
  *                                                                      *
  ************************************************************************/
- 
-#ifndef GRAPHOS_UNDISTORTIMAGES_MODEL_H
-#define GRAPHOS_UNDISTORTIMAGES_MODEL_H
 
-#include "graphos/components/undistortimages/UndistortImagesModel.h"
+#ifndef GRAPHOS_LOADFROMVIDEO_COMPONENT_H
+#define GRAPHOS_LOADFROMVIDEO_COMPONENT_H
 
-class QSettings;
+#include "graphos/core/Component.h"
 
 
 namespace graphos
 {
 
-class Project;
+class LoadFromVideoProcess;
 
-class UndistortImagesModelImp
-  : public UndistortImagesModel
+class LoadFromVideoComponent
+  : public ProcessComponent
 {
 
   Q_OBJECT
 
 public:
 
-  UndistortImagesModelImp(Project *project,
-                          QObject *parent = nullptr);
-  ~UndistortImagesModelImp() override;
-
-// UndistortImagesModel interface
-
-public:
-
-  const std::unordered_map<size_t, Image> &images() const override;
-  const std::map<int, Camera> &cameras() const override;
-  bool useCuda() const override;
-  QString projectFolder() const override;
-
-public slots:
-
-  void loadSettings() override;
-  void saveSettings() override;
-
-// Model interface
+  LoadFromVideoComponent(Application *application);
+  ~LoadFromVideoComponent() override;
 
 private:
 
-  void init() override;
+  void init();
 
-public slots:
-
-  void clear() override;
+// ComponentBase
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
-  bool mReadSettings;
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
+  void createCommand() override;
+  void update() override;
+
+// ProcessComponent
+
+protected slots:
+
+  void onRunning() override;
+  void onFinished() override;
+  void onFailed() override;
+  
+private:
+
+  LoadFromVideoProcess *mProcess;
+
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_UNDISTORTIMAGES_MODEL_H
+
+#endif // GRAPHOS_LOADFROMVIDEO_COMPONENT_H

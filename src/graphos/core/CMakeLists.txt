@@ -119,6 +119,8 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             ${GRAPHOS_CORE_SOURCES}
             ${GRAPHOS_CORE_HEADERS})
             
+add_library(Graphos::Core ALIAS ${PROJECT_NAME})
+
 foreach(_source IN ITEMS ${GRAPHOS_CORE_SOURCES})
     get_filename_component(_source_path "${_source}" PATH)
     string(REPLACE "/" "\\" _group_path "${_source_path}")
@@ -134,7 +136,7 @@ endforeach()
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::tl_core
                       TidopLib::tl_geom
                       TidopLib::tl_geospatial
@@ -142,16 +144,24 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                       TidopLib::tl_math
                       TidopLib::tl_vect
                       TidopLib::tl_graphic
-                      CSF
+                      #CSF
                       glog::glog
                       Qt5::PrintSupport
                       Eigen3::Eigen
-                      Ceres::ceres)
+                      Ceres::ceres
+                      ${COLMAP_LIBRARIES}
+                      ${CUDA_LIBRARIES}
+                      ${FREEIMAGE_LIBRARIES}
+                      GLEW::glew
+                      ${PROJ4_LIBRARY})
 
 install(TARGETS ${PROJECT_NAME}
+        EXPORT "${TARGETS_EXPORT_NAME}"
         LIBRARY DESTINATION lib 
         ARCHIVE DESTINATION lib)
 
 install(DIRECTORY .
         DESTINATION include/graphos/core
         FILES_MATCHING PATTERN "*.h")
+
+set(GRAPHOS_LIBRARIES ${GRAPHOS_LIBRARIES} ${PROJECT_NAME})

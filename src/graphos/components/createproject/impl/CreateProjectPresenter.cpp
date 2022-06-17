@@ -25,7 +25,6 @@
 
 #include "graphos/components/createproject/CreateProjectModel.h"
 #include "graphos/components/createproject/CreateProjectView.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QStandardPaths>
@@ -43,19 +42,10 @@ CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
   : CreateProjectPresenter(),
     mView(view),
     mModel(model),
-    mAppStatus(status),
-    mHelp(nullptr)
+    mAppStatus(status)
 {
   CreateProjectPresenterImp::init();
   CreateProjectPresenterImp::initSignalAndSlots();
-}
-
-void CreateProjectPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("menus.html#new_project");
-    mHelp->show();
-  }
 }
 
 void CreateProjectPresenterImp::saveProject()
@@ -142,11 +132,6 @@ void CreateProjectPresenterImp::open()
   mView->exec();
 }
 
-void CreateProjectPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
-
 void CreateProjectPresenterImp::init()
 {
   mProjectsDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
@@ -162,9 +147,12 @@ void CreateProjectPresenterImp::initSignalAndSlots()
 {
   connect(mView, &CreateProjectView::project_name_changed, this, &CreateProjectPresenterImp::checkProjectName);
 
-  connect(mView, &QDialog::accepted,                this, &CreateProjectPresenterImp::saveProject);
-  connect(mView, &QDialog::rejected,                this, &CreateProjectPresenterImp::discartProject);
-  connect(mView, &DialogView::help,                 this, &CreateProjectPresenterImp::help);
+  connect(mView, &QDialog::accepted,  this, &CreateProjectPresenterImp::saveProject);
+  connect(mView, &QDialog::rejected,  this, &CreateProjectPresenterImp::discartProject);
+
+  connect(mView, &DialogView::help, [&]() {
+    emit help("menus.html#new_project");
+  });
 }
 
 } // namespace graphos

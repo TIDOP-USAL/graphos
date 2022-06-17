@@ -21,65 +21,82 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_UNDISTORTIMAGES_PRESENTER_H
-#define GRAPHOS_UNDISTORTIMAGES_PRESENTER_H
+#include "LoadFromVideoModel.h"
 
-#include "graphos/components/undistortimages/UndistortImagesPresenter.h"
+#include "graphos/core/LoadFromVideo.h"
+
+#include <QFile>
+#include <QTextStream>
+#include <QSettings>
 
 namespace graphos
 {
 
-class HelpDialog;
+LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project, QObject *parent)
+  : LoadFromVideoModel(parent),
+    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos")),
+    mParameters(new LoadFromVideoParameters),
+    mProject(project)
+{
+  this->init();
+}
 
+LoadFromVideoModelImp::~LoadFromVideoModelImp()
+{
+  if (mSettings){
+    delete mSettings;
+    mSettings = nullptr;
+  }
 
-class UndistortImagesView;
-class UndistortImagesModel;
+  if (mParameters) {
+    delete mParameters;
+    mParameters = nullptr;
+  }
+}
 
-class UndistortImagesPresenterImp
-  : public UndistortImagesPresenter
+void LoadFromVideoModelImp::loadSettings()
+{
+  if (mReadSettings) {
+	  
+	/* Read Settings here
+	
+	Example (replace PropertyName):
+	
+    mParameters->setPropertyName(mSettings->value("LOADFROMVIDEO/PropertyName", mParameters->propertyName()).toInt());
+  
+    */
+
+  }
+}
+
+void LoadFromVideoModelImp::saveSettings()
+{
+  if (mReadSettings) {
+	
+	/* Write Settings here
+	
+	Example:
+	
+    mSettings->setValue("LOADFROMVIDEO/PropertyName", mParameters->propertyName());
+  
+    */
+    
+  }
+}
+
+LoadFromVideoParameters *LoadFromVideoModelImp::parameters() const
+{
+  return mParameters;
+}
+
+void LoadFromVideoModelImp::init()
+{
+  mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
+}
+
+void LoadFromVideoModelImp::clear()
 {
 
-  Q_OBJECT
-
-public:
-
-  UndistortImagesPresenterImp(UndistortImagesView *view,
-                              UndistortImagesModel *model);
-  ~UndistortImagesPresenterImp() override;
-
-// Presenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-// ProcessPresenter interface
-
-protected slots:
-
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
-  
-public slots:
-
-  void cancel() override;
-
-private:
-
-  UndistortImagesView *mView;
-  UndistortImagesModel *mModel;
-  HelpDialog *mHelp;
-
-};
+}
 
 } // namespace graphos
-
-#endif // GRAPHOS_UNDISTORTIMAGES_PRESENTER_H

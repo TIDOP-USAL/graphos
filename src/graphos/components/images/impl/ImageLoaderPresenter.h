@@ -33,7 +33,6 @@ class Image;
 class Camera;
 class ImageLoaderView;
 class ImageLoaderModel;
-class HelpDialog;
 
 class ImageLoaderPresenterImp
   : public ImageLoaderPresenter
@@ -73,9 +72,7 @@ public slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -86,7 +83,6 @@ private:
 
   ImageLoaderView *mView;
   ImageLoaderModel *mModel;
-  HelpDialog *mHelp;
   QStringList mImageFiles;
   std::vector<Image> mImages;
   std::vector<Camera> mCameras;

@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,49 +21,43 @@
  *                                                                      *
  ************************************************************************/
 
-#include "MatchesModel.h"
 
-#include <tidop/core/messages.h>
+#ifndef GRAPHOS_LOADFROMVIDEO_VIEW_INTERFACE_H
+#define GRAPHOS_LOADFROMVIDEO_VIEW_INTERFACE_H
+
+
+#include "graphos/core/process/ProcessView.h"
 
 namespace graphos
 {
 
- MatchesModelImp::MatchesModelImp(Project *project,
-                                  QObject *parent)
-   : MatchesModel(parent),
-     mProject(project)
- {
-   init();
- }
-
-void MatchesModelImp::init()
+class LoadFromVideoView
+  : public ProcessView
 {
-}
 
-void MatchesModelImp::clear()
-{
-  mProject->removeMatchesPair();
-}
+  Q_OBJECT
 
-void MatchesModelImp::addMatchesPair(const QString &imageLeft,
-                                     const QString &imageRight)
-{
-  mProject->addMatchesPair(imageLeft, imageRight);
-}
+public:
 
-const std::vector<QString> MatchesModelImp::matchesPairs(const QString &imageLeft) const
-{
-  return mProject->matchesPairs(imageLeft);
-}
+  LoadFromVideoView(QWidget *parent) : ProcessView(parent) {}
+  ~LoadFromVideoView() override = default;
 
-void MatchesModelImp::removeMatchesPair()
-{
-  mProject->removeMatchesPair();
-}
+  virtual QString Video() const = 0;
+  virtual int SkipFrames() const = 0;
 
-void MatchesModelImp::removeMatchesPair(const QString &imageLeft)
-{
-  mProject->removeMatchesPair(imageLeft);
-}
+public slots:
+
+  virtual void setVideo(const QString &Video) = 0;
+  virtual void setSkipFrames(int SkipFrames) = 0;
+
+signals:
+
+  void VideoChanged(QString);
+  void SkipFramesChanged(int);
+
+};
 
 } // namespace graphos
+
+
+#endif // GRAPHOS_LOADFROMVIDEO_VIEW_INTERFACE_H

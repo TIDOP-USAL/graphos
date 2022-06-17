@@ -27,6 +27,7 @@
 #include "graphos/components/mesh/impl/MeshModel.h"
 #include "graphos/components/mesh/impl/MeshView.h"
 #include "graphos/components/mesh/impl/MeshPresenter.h"
+#include "graphos/components/mesh/impl/MeshCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -73,6 +74,7 @@ void MeshComponent::createPresenter()
 
 void MeshComponent::createCommand()
 {
+  setCommand(std::make_shared<MeshCommand>());
 }
 
 void MeshComponent::update()

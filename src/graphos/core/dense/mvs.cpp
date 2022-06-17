@@ -512,7 +512,7 @@ void MvsDensifier::exportToMVS()
 
     process.run();
 
-    if (process.status() == tl::Process::Status::error) TL_THROW_EXCEPTION(cmd_mvs.c_str());
+    TL_ASSERT(process.status() == tl::Process::Status::finalized, "MVS error");
 
     std::this_thread::sleep_for(std::chrono::nanoseconds(1000));
 

@@ -29,7 +29,6 @@
 #include "graphos/components/mesh/impl/MeshModel.h"
 #include "graphos/components/mesh/impl/MeshView.h"
 #include "graphos/core/utils.h"
-#include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/defs.h>
 
@@ -40,8 +39,7 @@ MeshPresenterImp::MeshPresenterImp(MeshView *view,
                                    MeshModel *model)
   : MeshPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
@@ -50,16 +48,6 @@ MeshPresenterImp::MeshPresenterImp(MeshView *view,
 MeshPresenterImp::~MeshPresenterImp()
 {
 
-}
-
-void MeshPresenterImp::help()
-{
-  //if (mHelp){
-  //  TL_TODO("Añadir ayuda")
-  //  mHelp->setPage("");
-  //  mHelp->setModal(true);
-  //  mHelp->showMaximized();
-  //}
 }
 
 void MeshPresenterImp::open()
@@ -76,11 +64,6 @@ void MeshPresenterImp::open()
   mView->exec();
 }
 
-void MeshPresenterImp::setHelp(HelpDialog *help)
-{
-  //mHelp = help;
-}
-
 void MeshPresenterImp::init()
 {
 
@@ -89,7 +72,9 @@ void MeshPresenterImp::init()
 void MeshPresenterImp::initSignalAndSlots()
 {
   connect(mView, &ProcessView::run,     this,   &ProcessPresenter::run);
-  connect(mView, &DialogView::help,     this,   &Presenter::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("cameras.html");
+  });
 }
 
 void MeshPresenterImp::onError(tl::TaskErrorEvent *event)

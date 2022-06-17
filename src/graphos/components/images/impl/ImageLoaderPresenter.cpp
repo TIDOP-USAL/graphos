@@ -26,7 +26,6 @@
 #include "graphos/components/images/ImageLoaderModel.h"
 #include "graphos/components/images/ImageLoaderView.h"
 #include "graphos/components/images/impl/ImageLoaderProcess.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
@@ -41,8 +40,7 @@ ImageLoaderPresenterImp::ImageLoaderPresenterImp(ImageLoaderView *view,
                                                  ImageLoaderModel *model)
   : ImageLoaderPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   ImageLoaderPresenterImp::init();
   ImageLoaderPresenterImp::initSignalAndSlots();
@@ -63,24 +61,10 @@ void ImageLoaderPresenterImp::initSignalAndSlots()
   connect(mView, &ImageLoaderView::filesSelected, this, &ImageLoaderPresenterImp::setImages);
 }
 
-void ImageLoaderPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("Images.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
-}
-
 void ImageLoaderPresenterImp::open()
 {
   mView->setImagesDirectory(mModel->imagesDirectory());
   mView->exec();
-}
-
-void ImageLoaderPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
 }
 
 void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)

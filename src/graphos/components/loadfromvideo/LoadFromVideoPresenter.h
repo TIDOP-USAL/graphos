@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,67 +21,30 @@
  *                                                                      *
  ************************************************************************/
 
-#include "FeaturesModel.h"
 
-#include <tidop/core/messages.h>
+#ifndef GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H
+#define GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H
 
+#include "graphos/interfaces/mvp.h"
+#include "graphos/core/process/ProcessPresenter.h"
 
 namespace graphos
 {
 
-FeaturesModelImp::FeaturesModelImp(Project *project,
-                                   QObject *parent)
-  : FeaturesModel(parent),
-    mProject(project)
+class LoadFromVideoPresenter
+  : public ProcessPresenter
 {
-  init();
-}
 
-void FeaturesModelImp::init()
-{
-}
+  Q_OBJECT
 
-void FeaturesModelImp::clear()
-{
-  for (auto it = begin(); it != end();){
-    removeFeatures(it->first);
-    it = begin();
-  }
-}
+public:
 
-QString FeaturesModelImp::features(const QString &imgName) const
-{
-  return mProject->features(imgName);
-}
+  LoadFromVideoPresenter() : ProcessPresenter() {}
+  ~LoadFromVideoPresenter() override = default;
 
-void FeaturesModelImp::addFeatures(const QString &imgName, const QString &featureFile)
-{
-  mProject->addFeatures(imgName, featureFile);
-}
-
-bool FeaturesModelImp::removeFeatures(const QString &imgName) const
-{
-  return mProject->removeFeatures(imgName);
-}
-
-FeaturesModel::features_iterator FeaturesModelImp::begin()
-{
-  return mProject->featuresBegin();
-}
-
-FeaturesModel::features_const_iterator FeaturesModelImp::begin() const
-{
-  return mProject->featuresBegin();
-}
-
-FeaturesModel::features_iterator FeaturesModelImp::end()
-{
-  return mProject->featuresEnd();
-}
-
-FeaturesModel::features_const_iterator FeaturesModelImp::end() const
-{
-  return mProject->featuresEnd();
-}
+};
 
 } // namespace graphos
+
+
+#endif // GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H

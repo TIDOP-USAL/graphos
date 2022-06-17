@@ -31,7 +31,6 @@ namespace graphos
 
 class ImportCamerasView;
 class ImportCamerasModel;
-class HelpDialog;
 
 class ImportCamerasPresenterImp
   : public ImportCamerasPresenter
@@ -53,15 +52,11 @@ private slots:
 
 private:
 
-  //bool checkCRS(const QString &crs);
-
 // Presenter interface
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -72,8 +67,6 @@ private:
 
   ImportCamerasView *mView;
   ImportCamerasModel *mModel;
-  HelpDialog *mHelp;
-//  QString mFile;
 
 };
 

@@ -24,8 +24,6 @@
 #ifndef GRAPHOS_ORIENTATION_PRESENTER_H
 #define GRAPHOS_ORIENTATION_PRESENTER_H
 
-#include "graphos/graphos_global.h"
-
 #include "graphos/components/orientation/OrientationPresenter.h"
 
 namespace graphos
@@ -33,7 +31,6 @@ namespace graphos
 
 class OrientationView;
 class OrientationModel;
-class HelpDialog;
 
 class OrientationPresenterImp
   : public OrientationPresenter
@@ -66,9 +63,7 @@ public slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -79,7 +74,6 @@ protected:
 
   OrientationView *mView;
   OrientationModel *mModel;
-  HelpDialog *mHelp;
 
 };
 

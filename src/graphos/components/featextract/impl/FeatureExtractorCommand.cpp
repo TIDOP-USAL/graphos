@@ -32,7 +32,7 @@
 
 #include <tidop/core/messages.h>
 
-#include <colmap/base/database.h>
+//#include <colmap/base/database.h>
 
 #include <QFileInfo>
 #include <QSqlQuery>

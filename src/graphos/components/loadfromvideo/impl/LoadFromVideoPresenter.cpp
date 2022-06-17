@@ -22,13 +22,14 @@
  ************************************************************************/
 
 
-#include "UndistortImagesPresenter.h"
+#include "LoadFromVideoPresenter.h"
 
-#include "graphos/core/utils.h"
+#include "graphos/process/loadfromvideo/LoadFromVideoProcess.h"
+#include "graphos/core/LoadFromVideo.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/core/camera/Undistort.h"
-#include "graphos/components/undistortimages/impl/UndistortImagesModel.h"
-#include "graphos/components/undistortimages/impl/UndistortImagesView.h"
+#include "graphos/components/loadfromvideo/impl/LoadFromVideoModel.h"
+#include "graphos/components/loadfromvideo/impl/LoadFromVideoView.h"
+#include "graphos/core/utils.h"
 #include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/defs.h>
@@ -36,9 +37,9 @@
 namespace graphos
 {
 
-UndistortImagesPresenterImp::UndistortImagesPresenterImp(UndistortImagesView *view,
-                                                         UndistortImagesModel *model)
-  : UndistortImagesPresenter(),
+LoadFromVideoPresenterImp::LoadFromVideoPresenterImp(LoadFromVideoView *view,
+                                                         LoadFromVideoModel *model)
+  : LoadFromVideoPresenter(),
     mView(view),
     mModel(model),
     mHelp(nullptr)
@@ -47,12 +48,12 @@ UndistortImagesPresenterImp::UndistortImagesPresenterImp(UndistortImagesView *vi
   this->initSignalAndSlots();
 }
 
-UndistortImagesPresenterImp::~UndistortImagesPresenterImp()
+LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp()
 {
 
 }
 
-void UndistortImagesPresenterImp::help()
+void LoadFromVideoPresenterImp::help()
 {
   //if (mHelp){
   //  TL_TODO("Añadir ayuda")
@@ -62,32 +63,33 @@ void UndistortImagesPresenterImp::help()
   //}
 }
 
-void UndistortImagesPresenterImp::open()
+void LoadFromVideoPresenterImp::open()
 {
   mModel->loadSettings();
+  LoadFromVideoParameters *parameters = mModel->parameters();
 
-  mView->setDirectory(mModel->projectFolder());
+  /* Configure View here */
   
-  mView->open();
+  mView->exec();
 }
 
-void UndistortImagesPresenterImp::setHelp(HelpDialog *help)
+void LoadFromVideoPresenterImp::setHelp(HelpDialog *help)
 {
   //mHelp = help;
 }
 
-void UndistortImagesPresenterImp::init()
+void LoadFromVideoPresenterImp::init()
 {
 
 }
 
-void UndistortImagesPresenterImp::initSignalAndSlots()
+void LoadFromVideoPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &UndistortImagesView::accepted, this, &UndistortImagesPresenterImp::run);
-  connect(mView, &UndistortImagesView::rejected, this, &UndistortImagesPresenterImp::cancel);
+  connect(mView, &ProcessView::run,     this,   &ProcessPresenter::run);
+  connect(mView, &DialogView::help,     this,   &Presenter::help);
 }
 
-void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent *event)
+void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
 {
   ProcessPresenter::onError(event);
 
@@ -96,7 +98,7 @@ void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent *event)
   }
 }
 
-void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void LoadFromVideoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
   ProcessPresenter::onFinished(event);
 
@@ -105,24 +107,26 @@ void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
   }
 }
 
-std::unique_ptr<tl::Task> UndistortImagesPresenterImp::createProcess()
+std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> process = std::make_unique<UndistortImages>(mModel->images(),
-                                                                        mModel->cameras(),
-                                                                        mView->directory().absolutePath(),
-                                                                        UndistortImages::Format::tiff,
-                                                                        mModel->useCuda());
+  std::unique_ptr<tl::Task> process;
+  
+  std::shared_ptr<LoadFromVideoAlgorithm> algorithm = std::make_shared<LoadFromVideoAlgorithm>();
+
+  process = std::make_unique<LoadFromVideoProcess>(algorithm);
   
   if (progressHandler()){
-    progressHandler()->setRange(0, mModel->images().size());
-    progressHandler()->setTitle("Computing UndistortImages...");
-    progressHandler()->setDescription("Computing UndistortImages...");
+    progressHandler()->setRange(0, 0);
+    progressHandler()->setTitle("Computing LoadFromVideo...");
+    progressHandler()->setDescription("Computing LoadFromVideo...");
   }
+  
+  mView->hide();
   
   return process;
 }
 
-void UndistortImagesPresenterImp::cancel()
+void LoadFromVideoPresenterImp::cancel()
 {
   ProcessPresenter::cancel();
 

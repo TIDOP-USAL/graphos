@@ -34,7 +34,6 @@ namespace graphos
 class FeatureMatchingWidget;
 class FeatureMatchingView;
 class FeatureMatchingModel;
-class HelpDialog;
 
 class FeatureMatchingPresenterImp
   : public FeatureMatchingPresenter
@@ -74,9 +73,7 @@ public slots:
 
 public slots:
 
-  void help() override;
   void open() override;
-  void setHelp(HelpDialog *help) override;
 
 private:
 
@@ -87,7 +84,6 @@ private:
 
   FeatureMatchingView *mView;
   FeatureMatchingModel *mModel;
-  HelpDialog *mHelp;
   FeatureMatchingWidget *mFeatureMatchingWidget;
 
 };

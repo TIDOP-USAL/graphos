@@ -101,6 +101,7 @@ QString MeshModelImp::projectDir() const
 
 void MeshModelImp::setMesh(const QString &mesh)
 {
+  mProject->setMeshPath(mesh);
 }
 
 void MeshModelImp::init()

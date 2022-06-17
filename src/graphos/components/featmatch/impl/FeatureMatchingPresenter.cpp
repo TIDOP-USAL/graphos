@@ -28,7 +28,6 @@
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
 #include "graphos/components/featmatch/impl/FeatureMatchingProcess.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
 #include <tidop/core/messages.h>
@@ -44,7 +43,6 @@ FeatureMatchingPresenterImp::FeatureMatchingPresenterImp(FeatureMatchingView *vi
   : FeatureMatchingPresenter(),
     mView(view),
     mModel(model),
-    mHelp(nullptr),
     mFeatureMatchingWidget(new FeatureMatchingWidgetImp)
 {
   this->init();
@@ -59,15 +57,6 @@ FeatureMatchingPresenterImp::~FeatureMatchingPresenterImp()
   }
 }
 
-void FeatureMatchingPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("feature_matching.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
-}
-
 void FeatureMatchingPresenterImp::open()
 {
   this->setMatchingProperties();
@@ -76,11 +65,6 @@ void FeatureMatchingPresenterImp::open()
   mView->enabledSpatialMatching(mModel->spatialMatching());
 
   mView->exec();
-}
-
-void FeatureMatchingPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
 }
 
 void FeatureMatchingPresenterImp::init()
@@ -95,8 +79,9 @@ void FeatureMatchingPresenterImp::initSignalAndSlots()
           this,  &FeatureMatchingPresenterImp::setCurrentMatchMethod);
   connect(mView, &FeatureMatchingView::run,               
           this,  &FeatureMatchingPresenterImp::run);
-  connect(mView, &DialogView::help,                     
-          this,  &FeatureMatchingPresenterImp::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("feature_matching.html");
+  });
 }
 
 void FeatureMatchingPresenterImp::setMatchingProperties()

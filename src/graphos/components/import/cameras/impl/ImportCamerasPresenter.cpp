@@ -25,7 +25,6 @@
 
 #include "graphos/components/import/cameras/impl/ImportCamerasModel.h"
 #include "graphos/components/import/cameras/impl/ImportCamerasView.h"
-#include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/defs.h>
 
@@ -37,8 +36,7 @@ namespace graphos
 ImportCamerasPresenterImp::ImportCamerasPresenterImp(ImportCamerasView *view,
                                                      ImportCamerasModel *model)
   : mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
@@ -72,16 +70,6 @@ void ImportCamerasPresenterImp::checkOutputCRS(const QString &crs)
   mModel->setOutputCRS(crs);
 }
 
-void ImportCamerasPresenterImp::help()
-{
-  if (mHelp){
-    TL_TODO("Añadir ayuda")
-    mHelp->setPage("");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
-}
-
 void ImportCamerasPresenterImp::open()
 {
   QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
@@ -99,11 +87,6 @@ void ImportCamerasPresenterImp::open()
   mView->exec();
 }
 
-void ImportCamerasPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
-}
-
 void ImportCamerasPresenterImp::init()
 {
   mView->setItemModel(mModel->itemModelCSV());
@@ -113,7 +96,6 @@ void ImportCamerasPresenterImp::init()
 void ImportCamerasPresenterImp::initSignalAndSlots()
 {
   connect(mView, &ImportCamerasView::previewCSV,                 this, &ImportCamerasPresenterImp::previewCSV);
-  connect(mView, &DialogView::help,                             this, &ImportCamerasPresenterImp::help);
   connect(mView, &ImportCamerasView::crsInputChanged,            this, &ImportCamerasPresenterImp::checkInputCRS);
   connect(mView, &ImportCamerasView::crsOutputChanged,           this, &ImportCamerasPresenterImp::checkOutputCRS);
 
@@ -140,8 +122,6 @@ void ImportCamerasPresenterImp::initSignalAndSlots()
   connect(mView, &ImportCamerasView::delimiterChanged,           this, &ImportCamerasPresenterImp::previewCSV);
   connect(mView, &ImportCamerasView::skipLines,                  this, &ImportCamerasPresenterImp::previewCSV);
 
-  connect(mView, &ImportCamerasView::accepted,     mModel, &ImportCamerasModel::importCameras);
-
   connect(mModel, &ImportCamerasModel::csvHeader,   mView, &ImportCamerasView::setTableHeader);
   connect(mModel, &ImportCamerasModel::imageColumn, mView, &ImportCamerasView::setImageColumn);
   connect(mModel, &ImportCamerasModel::xColumn,     mView, &ImportCamerasView::setXColumn);
@@ -160,6 +140,11 @@ void ImportCamerasPresenterImp::initSignalAndSlots()
   connect(mModel, &ImportCamerasModel::parseOk,     mView, &ImportCamerasView::setParseOk);
 
   connect(mView, &ImportCamerasView::accepted,     this, &ImportCamerasPresenter::importedCameras);
+
+  connect(mView, &ImportCamerasView::accepted, mModel, &ImportCamerasModel::importCameras);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("cameras.html");
+  });
 }
 
 } // namespace graphos

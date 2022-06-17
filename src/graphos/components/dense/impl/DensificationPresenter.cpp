@@ -7,7 +7,6 @@
 #include "graphos/core/dense/Smvs.h"
 #include "graphos/core/dense/mvs.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/components/HelpDialog.h"
 #include "graphos/widgets/CmvsPmvsWidget.h"
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/widgets/MvsWidget.h"
@@ -29,8 +28,7 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
     mModel(model),
     mCmvsPmvs(new CmvsPmvsWidgetImp),
     mSmvs(new SmvsWidgetImp),
-    mMVS(new MvsWidget),
-    mHelp(nullptr)
+    mMVS(new MvsWidget)
 {
   this->init();
   this->initSignalAndSlots();
@@ -54,15 +52,6 @@ DensificationPresenterImp::~DensificationPresenterImp()
   }
 }
 
-void DensificationPresenterImp::help()
-{
-  if (mHelp){
-    mHelp->setPage("dense_cloud.html");
-    mHelp->setModal(true);
-    mHelp->showMaximized();
-  }
-}
-
 void DensificationPresenterImp::open()
 {
   this->setCmvsPmvsProperties();
@@ -71,11 +60,6 @@ void DensificationPresenterImp::open()
   mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 
   mView->exec();
-}
-
-void DensificationPresenterImp::setHelp(HelpDialog *help)
-{
-  mHelp = help;
 }
 
 void DensificationPresenterImp::init()
@@ -91,7 +75,10 @@ void DensificationPresenterImp::initSignalAndSlots()
 {
   connect(mView, &DensificationView::densificationChanged, this, &DensificationPresenterImp::onDensificationChanged);
   connect(mView, &DensificationView::run,                  this, &DensificationPresenterImp::run);
-  connect(mView, &DialogView::help,                        this, &DensificationPresenterImp::help);
+
+  connect(mView, &DialogView::help, [&]() {
+    emit help("dense_cloud.html");
+  });
 }
 
 void DensificationPresenterImp::cancel()

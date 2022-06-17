@@ -120,9 +120,9 @@ void DtmProcess::execute(tl::Progress *progressBar)
 
       /// Fusionar mds...
       
-      std::unique_ptr<tl::ImageReader> image_reader_mds_ground = tl::ImageReaderFactory::createReader(mds_ground.toString());
-      std::unique_ptr<tl::ImageReader> image_reader_mds_out_ground = tl::ImageReaderFactory::createReader(mds_out_ground.toString());
-      std::unique_ptr<tl::ImageWriter> image_writer_mds_ground = tl::ImageWriterFactory::createWriter(mDtmFile.toStdString());
+      std::unique_ptr<tl::ImageReader> image_reader_mds_ground = tl::ImageReaderFactory::create(mds_ground.toString());
+      std::unique_ptr<tl::ImageReader> image_reader_mds_out_ground = tl::ImageReaderFactory::create(mds_out_ground.toString());
+      std::unique_ptr<tl::ImageWriter> image_writer_mds_ground = tl::ImageWriterFactory::create(mDtmFile.toStdString());
 
       image_reader_mds_ground->open();
       image_reader_mds_out_ground->open();

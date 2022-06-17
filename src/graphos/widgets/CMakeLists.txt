@@ -41,6 +41,8 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             Viewer3d.cpp
             Viewer3d.h)
 
+add_library(Graphos::Widgets ALIAS ${PROJECT_NAME})
+
 target_link_libraries(${PROJECT_NAME}
                       TidopLib::tl_core
                       TidopLib::tl_geom
@@ -53,9 +55,12 @@ target_link_libraries(${PROJECT_NAME}
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 
 install(TARGETS ${PROJECT_NAME} 
+        EXPORT "${TARGETS_EXPORT_NAME}"
         LIBRARY DESTINATION lib 
         ARCHIVE DESTINATION lib)
 
 install(DIRECTORY .
         DESTINATION include/graphos/widgets
         FILES_MATCHING PATTERN "*.h")
+
+set(GRAPHOS_LIBRARIES ${GRAPHOS_LIBRARIES} ${PROJECT_NAME})
