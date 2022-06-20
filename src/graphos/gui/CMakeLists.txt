@@ -197,8 +197,6 @@ if(WIN32)
     endif()
 
     install(TARGETS ${PROJECT_NAME}
-            RUNTIME DESTINATION "${PROJECT_BINARY_DIR}"
+            RUNTIME DESTINATION bin
             COMPONENT bin)
 endif()
-
-

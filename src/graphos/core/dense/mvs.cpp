@@ -65,6 +65,19 @@ MvsProperties::MvsProperties()
 {
 }
 
+MvsProperties::MvsProperties(int resolutionLevel,
+                             int minResolution,
+                             int maxResolution,
+                             int numberViews,
+                             int numberViewsFuse)
+  : mResolutionLevel(resolutionLevel),
+    mMinResolution(minResolution),
+    mMaxResolution(maxResolution),
+    mNumberViews(numberViews),
+    mNumberViewsFuse(numberViewsFuse)
+{
+}
+
 MvsProperties::MvsProperties(const MvsProperties &mvs)
   : Mvs(mvs),
     mResolutionLevel(mvs.mResolutionLevel),

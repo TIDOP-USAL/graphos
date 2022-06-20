@@ -68,6 +68,23 @@ CmvsPmvsProperties::CmvsPmvsProperties()
 {
 }
 
+CmvsPmvsProperties::CmvsPmvsProperties(bool useVisibilityInformation, 
+                                       int imagesPerCluster,
+                                       int level, 
+                                       int cellSize, 
+                                       double threshold,
+                                       int windowSize,
+                                       int minimunImageNumber)
+  : mUseVisibilityInformation(useVisibilityInformation),
+    mImagesPerCluster(imagesPerCluster),
+    mLevel(level),
+    mCellSize(cellSize),
+    mThreshold(threshold),
+    mWindowSize(windowSize),
+    mMinimunImageNumber(minimunImageNumber)
+{
+}
+
 CmvsPmvsProperties::CmvsPmvsProperties(const CmvsPmvsProperties &cmvsPmvs)
   : CmvsPmvs(cmvsPmvs),
     mUseVisibilityInformation(cmvsPmvs.mUseVisibilityInformation),

@@ -36,13 +36,13 @@ if(OpenMP_CXX_FOUND)
     #target_compile_options(CSF PRIVATE -Werror -Wall -Wextra)
 endif()
 
-#install(TARGETS ${PROJECT_NAME}
-#        EXPORT "${TARGETS_EXPORT_NAME}"
-#        LIBRARY DESTINATION lib 
-#        ARCHIVE DESTINATION lib)
-#
-#install(DIRECTORY .
-#        DESTINATION include/csf
-#        FILES_MATCHING PATTERN "*.h")
+install(TARGETS ${PROJECT_NAME}
+        EXPORT "${TARGETS_EXPORT_NAME}"
+        LIBRARY DESTINATION lib 
+        ARCHIVE DESTINATION lib)
+
+install(DIRECTORY .
+        DESTINATION include/csf
+        FILES_MATCHING PATTERN "*.h")
 
 set(CSF_LIBRARIES ${CSF_LIBRARIES} ${PROJECT_NAME})

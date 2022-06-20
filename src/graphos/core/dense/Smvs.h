@@ -44,6 +44,11 @@ class SmvsProperties
 public:
 
   SmvsProperties();
+  SmvsProperties(int inputImageScale,
+                 int outputDepthScale,
+                 bool shadingBasedOptimization,
+                 bool semiGlobalMatching,
+                 double surfaceSmoothingFactor);
   SmvsProperties(const SmvsProperties &smvs);
   SmvsProperties(SmvsProperties &&smvs) noexcept;
   ~SmvsProperties() override = default;

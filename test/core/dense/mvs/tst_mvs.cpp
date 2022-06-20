@@ -62,12 +62,12 @@ BOOST_FIXTURE_TEST_CASE(default_constructor, TestMvs)
 
 BOOST_FIXTURE_TEST_CASE(constructor, TestMvs)
 {
-  MvsDensifier densifierMVS(2, 500, 3000, 6, 4);
-  BOOST_CHECK_EQUAL(2, densifierMVS.resolutionLevel());
-  BOOST_CHECK_EQUAL(500, densifierMVS.minResolution());
-  BOOST_CHECK_EQUAL(3000, densifierMVS.maxResolution());
-  BOOST_CHECK_EQUAL(6, densifierMVS.numberViews());
-  BOOST_CHECK_EQUAL(4, densifierMVS.numberViewsFuse());
+  MvsProperties mvs(2, 500, 3000, 6, 4);
+  BOOST_CHECK_EQUAL(2, mvs.resolutionLevel());
+  BOOST_CHECK_EQUAL(500, mvs.minResolution());
+  BOOST_CHECK_EQUAL(3000, mvs.maxResolution());
+  BOOST_CHECK_EQUAL(6, mvs.numberViews());
+  BOOST_CHECK_EQUAL(4, mvs.numberViewsFuse());
 }
 
 BOOST_FIXTURE_TEST_CASE(reset, TestMvs)

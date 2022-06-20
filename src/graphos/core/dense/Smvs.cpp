@@ -62,6 +62,19 @@ SmvsProperties::SmvsProperties()
 {
 }
 
+SmvsProperties::SmvsProperties(int inputImageScale, 
+                               int outputDepthScale,
+                               bool shadingBasedOptimization,
+                               bool semiGlobalMatching, 
+                               double surfaceSmoothingFactor)
+  : mInputImageScale(inputImageScale),
+    mOutputDepthScale(outputDepthScale),
+    mShadingBasedOptimization(shadingBasedOptimization),
+    mSemiGlobalMatching(semiGlobalMatching),
+    mSurfaceSmoothingFactor(surfaceSmoothingFactor)
+{
+}
+
 SmvsProperties::SmvsProperties(const SmvsProperties &smvs)
   : Smvs(smvs),
     mInputImageScale(smvs.mInputImageScale),

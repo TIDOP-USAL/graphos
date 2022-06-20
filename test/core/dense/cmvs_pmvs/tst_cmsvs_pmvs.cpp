@@ -62,14 +62,14 @@ BOOST_FIXTURE_TEST_CASE(default_constructor, TestPmvs)
 
 BOOST_FIXTURE_TEST_CASE(constructor, TestPmvs)
 {
-  CmvsPmvsDensifier cmvsPmvsDensifier(true, 50, 2, 3, 0.5, 10, 2, true);
-  BOOST_CHECK_EQUAL(true, cmvsPmvsDensifier.useVisibilityInformation());
-  BOOST_CHECK_EQUAL(50, cmvsPmvsDensifier.imagesPerCluster());
-  BOOST_CHECK_EQUAL(2, cmvsPmvsDensifier.level());
-  BOOST_CHECK_EQUAL(3, cmvsPmvsDensifier.cellSize());
-  BOOST_CHECK_EQUAL(0.5, cmvsPmvsDensifier.threshold());
-  BOOST_CHECK_EQUAL(10, cmvsPmvsDensifier.windowSize());
-  BOOST_CHECK_EQUAL(2, cmvsPmvsDensifier.minimunImageNumber());
+  CmvsPmvsProperties cmvsPmvs(true, 50, 2, 3, 0.5, 10, 2);
+  BOOST_CHECK_EQUAL(true, cmvsPmvs.useVisibilityInformation());
+  BOOST_CHECK_EQUAL(50, cmvsPmvs.imagesPerCluster());
+  BOOST_CHECK_EQUAL(2, cmvsPmvs.level());
+  BOOST_CHECK_EQUAL(3, cmvsPmvs.cellSize());
+  BOOST_CHECK_EQUAL(0.5, cmvsPmvs.threshold());
+  BOOST_CHECK_EQUAL(10, cmvsPmvs.windowSize());
+  BOOST_CHECK_EQUAL(2, cmvsPmvs.minimunImageNumber());
 }
 
 BOOST_FIXTURE_TEST_CASE(reset, TestPmvs)

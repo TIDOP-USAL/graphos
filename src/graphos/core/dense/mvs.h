@@ -47,7 +47,12 @@ class MvsProperties
 
 public:
 
-  MvsProperties();
+  MvsProperties(); 
+  MvsProperties(int resolutionLevel,
+                int minResolution,
+                int maxResolution,
+                int numberViews,
+                int numberViewsFuse);
   MvsProperties(const MvsProperties &mvs);
   MvsProperties(MvsProperties &&mvs) noexcept;
   ~MvsProperties() override = default;

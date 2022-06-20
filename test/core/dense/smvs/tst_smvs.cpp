@@ -62,12 +62,12 @@ BOOST_FIXTURE_TEST_CASE(default_constructor, TestSmvs)
 
 BOOST_FIXTURE_TEST_CASE(constructor, TestSmvs)
 {
-  SmvsDensifier smvsDensifier(2, 3, true, false, 0.7);
-  BOOST_CHECK_EQUAL(2, smvsDensifier.inputImageScale());
-  BOOST_CHECK_EQUAL(3, smvsDensifier.outputDepthScale());
-  BOOST_CHECK_EQUAL(false, smvsDensifier.semiGlobalMatching());
-  BOOST_CHECK_EQUAL(0.7, smvsDensifier.surfaceSmoothingFactor());
-  BOOST_CHECK_EQUAL(true, smvsDensifier.shadingBasedOptimization());
+  SmvsProperties smvs(2, 3, true, false, 0.7);
+  BOOST_CHECK_EQUAL(2, smvs.inputImageScale());
+  BOOST_CHECK_EQUAL(3, smvs.outputDepthScale());
+  BOOST_CHECK_EQUAL(false, smvs.semiGlobalMatching());
+  BOOST_CHECK_EQUAL(0.7, smvs.surfaceSmoothingFactor());
+  BOOST_CHECK_EQUAL(true, smvs.shadingBasedOptimization());
 }
 
 BOOST_FIXTURE_TEST_CASE(reset, TestSmvs)

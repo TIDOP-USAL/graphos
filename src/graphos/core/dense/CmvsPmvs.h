@@ -44,6 +44,13 @@ class CmvsPmvsProperties
 public:
 
   CmvsPmvsProperties();
+  CmvsPmvsProperties(bool useVisibilityInformation,
+                     int imagesPerCluster,
+                     int level,
+                     int cellSize,
+                     double threshold,
+                     int windowSize,
+                     int minimunImageNumber);
   CmvsPmvsProperties(const CmvsPmvsProperties &cmvsPmvs);
   CmvsPmvsProperties(CmvsPmvsProperties &&cmvsPmvs) noexcept;
   ~CmvsPmvsProperties() override = default;
