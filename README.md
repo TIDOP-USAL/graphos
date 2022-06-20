@@ -1,2 +1,1 @@
-# inspector_image
-Inspector Image
+![GRAPHOS](res/img/graphos.png)
