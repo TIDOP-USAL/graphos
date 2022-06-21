@@ -43,14 +43,15 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
 
 add_library(Graphos::Widgets ALIAS ${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PRIVATE
                       TidopLib::tl_core
-                      TidopLib::tl_geom
-                      TidopLib::tl_geospatial
+                      #TidopLib::tl_geom
+                      #TidopLib::tl_geospatial
                       TidopLib::tl_img
-                      TidopLib::tl_math
-                      TidopLib::tl_vect
-                      TidopLib::tl_graphic)
+                      #TidopLib::tl_math
+                      #TidopLib::tl_vect
+                      #TidopLib::tl_graphic
+                      )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 

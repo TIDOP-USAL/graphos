@@ -225,7 +225,7 @@ message(STATUS "\nDependency loading:\n")
 ##########################################################################      
 
 find_package(TidopLib REQUIRED)
-include_directories(${TidopLib_INCLUDE_DIRS})
+#include_directories(${TidopLib_INCLUDE_DIRS})
 
 
 ##########################################################################
@@ -316,18 +316,18 @@ endif()
 # Colmap (OPTIONAL)                                                      #
 ##########################################################################  
 
-find_package(OpenMP)
-
-if(OPENMP_FOUND)
-    message(STATUS "Enabling OpenMP support")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    add_definitions("-DOPENMP_ENABLED")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-else()
-    message(STATUS "Disabling OpenMP support")
-endif()
+#find_package(OpenMP)
+#
+#if(OPENMP_FOUND)
+#    message(STATUS "Enabling OpenMP support")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#    add_definitions("-DOPENMP_ENABLED")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#else()
+#    message(STATUS "Disabling OpenMP support")
+#endif()
 
 
 if(MSVC)
@@ -528,3 +528,7 @@ install(
     EXPORT "${TARGETS_EXPORT_NAME}"
     NAMESPACE "${GRAPHOS_NAMESPACE}"
     DESTINATION "${GRAPHOS_CONFIG_CMAKE_INSTALL_DIR}")
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules"
+        DESTINATION "${GRAPHOS_CONFIG_CMAKE_INSTALL_DIR}"
+        FILES_MATCHING PATTERN "*.cmake")

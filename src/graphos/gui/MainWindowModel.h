@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_MAINWINDOW_MODEL_H
 #define GRAPHOS_MAINWINDOW_MODEL_H
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 #include "graphos/core/project.h"
 #include "graphos/core/image.h"
 #include "graphos/core/sfm/poses.h"

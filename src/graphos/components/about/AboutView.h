@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_ABOUT_VIEW_INTERFACE_H
 #define GRAPHOS_ABOUT_VIEW_INTERFACE_H
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {

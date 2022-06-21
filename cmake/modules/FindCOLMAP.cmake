@@ -1,13 +1,13 @@
 unset(COLMAP_FOUND)
 
-SET(COLMAP_DIR "" CACHE PATH "Root folder of Colmap")
+SET(COLMAP_ROOT "" CACHE PATH "Root folder of Colmap")
 
 
 list(APPEND COLMAP_CHECK_INCLUDE_DIRS
-     ${COLMAP_DIR}/include)
+     ${COLMAP_ROOT}/include)
      
 list(APPEND COLMAP_CHECK_LIBRARY_DIRS
-     ${COLMAP_DIR}/lib/colmap)
+     ${COLMAP_ROOT}/lib/colmap)
 	 
 include(FindPackageHandleStandardArgs)
 				
@@ -238,13 +238,25 @@ find_package(Boost REQUIRED
                system
                unit_test_framework)
 			   
-find_package(Eigen3 REQUIRED)
+find_package(EIGEN3 REQUIRED)
 
 find_package(FREEIMAGE REQUIRED)
     
 find_package(OpenGL REQUIRED)
 
 find_package(GLEW REQUIRED)
+
+find_package(OpenMP REQUIRED)
+if(OPENMP_FOUND)
+    message(STATUS "Enabling OpenMP support")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    add_definitions("-DOPENMP_ENABLED")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+else()
+    message(STATUS "Disabling OpenMP support")
+endif()
 
 #find_package(ZLIB REQUIRED)
 

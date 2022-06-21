@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_IMPORT_CAMERAS_PRESENTER_INTERFACE_H
 #define GRAPHOS_IMPORT_CAMERAS_PRESENTER_INTERFACE_H
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {

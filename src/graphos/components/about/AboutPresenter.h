@@ -26,7 +26,7 @@
 
 #include <QObject>
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {

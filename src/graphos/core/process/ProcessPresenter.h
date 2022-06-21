@@ -28,7 +28,7 @@
 
 #include <tidop/core/task.h>
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 namespace tl
 {

@@ -41,9 +41,6 @@
 namespace graphos
 {
 
-TL_TODO("Debido a que Qt no permite la herencia de mas de un QObject la "
-        "interfaz tiene que ser una clase simple. Problemas con las señales y slots...")
-
 /*!
  * \brief The IGraphicViewer class
  */

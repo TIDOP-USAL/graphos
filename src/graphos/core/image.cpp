@@ -79,7 +79,6 @@ void Image::setPath(const QString &file)
 
 QString Image::name() const
 {
-  TL_TODO("Quitar y reemplazar por el id")
   return QFileInfo(mFilePath).fileName();
 }
 

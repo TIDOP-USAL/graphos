@@ -25,7 +25,7 @@
 #define GRAPHOS_ABOUT_MODEL_INTERFACE_H
 
 #include <tidop/core/defs.h>
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 namespace tl
 {

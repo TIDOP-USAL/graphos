@@ -331,8 +331,10 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
     keyPoints.resize(max_features);
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float_resize(max_features, descriptors_float.cols());
     for (size_t i = 0; i < max_features; i++){
-      keyPoints[i] = colmap::FeatureKeypoint(keypoints_data[i].x, keypoints_data[i].y,
-                                             keypoints_data[i].s, keypoints_data[i].o);
+      keyPoints[i] = colmap::FeatureKeypoint(keypoints_data[i].x, 
+                                             keypoints_data[i].y,
+                                             keypoints_data[i].s, 
+                                             keypoints_data[i].o);
       /// Ver si se puede mejorar
       for (size_t j = 0; j < descriptors_float.cols(); j++) {
         descriptors_float_resize(i, j) = descriptors_float(i, j);

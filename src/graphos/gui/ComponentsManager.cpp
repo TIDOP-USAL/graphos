@@ -32,7 +32,7 @@
 #include "graphos/gui/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/gui/utils/ProgressDialog.h"
-#include "graphos/interfaces/Plugin.h"
+#include "graphos/core/Plugin.h"
 
 #include <tidop/core/console.h>
 

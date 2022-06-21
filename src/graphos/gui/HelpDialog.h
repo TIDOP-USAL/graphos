@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_HELP_DIALOG_H
 #define GRAPHOS_HELP_DIALOG_H
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 #include <QTextBrowser>
 

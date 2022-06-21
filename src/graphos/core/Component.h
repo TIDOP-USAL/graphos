@@ -25,8 +25,7 @@
 #ifndef GRAPHOS_COMPONENT_H
 #define GRAPHOS_COMPONENT_H
 
-#include "graphos/interfaces/Component.h"
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 #include "graphos/core/Application.h"
 
 #include <QString>
@@ -39,6 +38,34 @@ namespace graphos
 
 class ProgressHandler;
 class Command;
+
+class Component
+  : public QObject
+{
+
+  Q_OBJECT
+
+public:
+
+  Component() {}
+  virtual ~Component() = default;
+
+  virtual QString name() const = 0;
+  virtual QAction *action() const = 0;
+  virtual QString menu() const = 0;
+  virtual QString toolbar() const = 0;
+  virtual std::shared_ptr<Command> command() = 0;
+  virtual void setName(const QString &name) = 0;
+  virtual void setMenu(const QString &menu) = 0;
+  virtual void setToolbar(const QString &toolbar) = 0;
+
+  virtual void freeMemory() = 0;
+
+signals:
+
+  void created();
+};
+
 
 class ComponentBase
   : public Component

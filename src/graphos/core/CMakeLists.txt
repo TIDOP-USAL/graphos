@@ -68,8 +68,7 @@ set(GRAPHOS_CORE_SOURCES
     ortho/Orthomosaic.cpp)
 			
 set(GRAPHOS_CORE_HEADERS
-    ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/mvp.h
-    ${CMAKE_SOURCE_DIR}/src/graphos/interfaces/Component.h
+    mvp.h
     Application.h
     AppStatus.h
     Component.h
@@ -134,7 +133,9 @@ foreach(_source IN ITEMS ${GRAPHOS_CORE_HEADERS})
 endforeach()
 
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
+target_include_directories(${PROJECT_NAME} PUBLIC
+                           $<BUILD_INTERFACE:${GRAPHOS_SOURCE_DIR}/src>
+                           $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::tl_core
@@ -153,7 +154,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       ${CUDA_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
                       GLEW::glew
-                      ${PROJ4_LIBRARY})
+                      #${PROJ4_LIBRARY}
+                      )
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 
 install(TARGETS ${PROJECT_NAME}
         EXPORT "${TARGETS_EXPORT_NAME}"

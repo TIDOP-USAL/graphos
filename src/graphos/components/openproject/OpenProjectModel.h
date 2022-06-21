@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_OPEN_PROJECT_MODEL_INTERFACE_H
 #define GRAPHOS_OPEN_PROJECT_MODEL_INTERFACE_H
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {

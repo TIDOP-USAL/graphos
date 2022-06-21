@@ -27,7 +27,7 @@
 #include <QDialog>
 #include <QTextEdit>
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 namespace Ui
 {

@@ -26,7 +26,7 @@
 
 #include <unordered_map>
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 #include "graphos/core/image.h"
 #include "graphos/core/sfm/poses.h"
 
