@@ -197,7 +197,7 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
 
   std::list<std::pair<QString, QString>> exif;
   
-  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.toStdString());
   imageReader->open();
   if (imageReader->isOpen()) {
 

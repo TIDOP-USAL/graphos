@@ -33,9 +33,8 @@
 #include <opencv2/xfeatures2d.hpp>
 #endif // HAVE_OPENCV_XFEATURES2D
 
-#include "SiftGPU/SiftGPU.h"
-#include <colmap/feature/sift.h>
 
+class SiftGPU;
 
 namespace graphos
 {
@@ -116,8 +115,8 @@ private:
 public:
 
   void run(const cv::Mat &bitmap,
-           colmap::FeatureKeypoints &keyPoints,
-           colmap::FeatureDescriptors &descriptors) override;
+           std::vector<cv::KeyPoint> &keyPoints,
+           cv::Mat &descriptors) override;
 
 // Sift interface
 
@@ -141,7 +140,6 @@ protected:
 #elif defined OPENCV_ENABLE_NONFREE && defined HAVE_OPENCV_XFEATURES2D
   cv::Ptr<cv::xfeatures2d::SIFT> mSift;
 #endif // HAVE_OPENCV_XFEATURES2D
-  colmap::SiftExtractionOptions mSiftExtractionOptions;
   std::mutex mMutex;
 };
 
@@ -173,8 +171,8 @@ private:
 public:
 
   void run(const cv::Mat &bitmap,
-           colmap::FeatureKeypoints &keyPoints,
-           colmap::FeatureDescriptors &descriptors) override;
+           std::vector<cv::KeyPoint> &keyPoints,
+           cv::Mat &descriptors) override;
 
 // Sift interface
 
@@ -194,7 +192,6 @@ public:
 protected:
 
   std::unique_ptr<SiftGPU> mSiftGpu;
-  colmap::SiftExtractionOptions mSiftExtractionOptions;
   std::mutex mMutex;
 };
 

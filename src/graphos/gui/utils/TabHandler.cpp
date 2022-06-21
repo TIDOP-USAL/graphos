@@ -204,7 +204,7 @@ void TabHandler::setImage(const QString &image)
     
     TL_TODO("Qt no soporta todos los formatos y ademas algunos hay que adaptar las imagenes para su visualización")
 
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.toStdString());
     imageReader->open();
     if (imageReader->isOpen()) {
 

@@ -33,8 +33,6 @@
 
 #include <opencv2/features2d.hpp>
 
-#include <colmap/feature/sift.h>
-
 #include <tidop/core/flags.h>
 
 namespace graphos
@@ -77,60 +75,6 @@ ALLOW_BITWISE_FLAG_OPERATIONS(Feature::Type)
 /*----------------------------------------------------------------*/
 
 
-
-class KeypointDetector
-{
-
-public:
-
-  KeypointDetector() {}
-  virtual ~KeypointDetector() = default;
-
-  /*!
-   * \brief Detects keypoints in an image
-   * \param[in] img Image
-   * \param[out] keyPoints The detected keypoints
-   * \param[in] mask Optional mask
-   * \return true if error
-   */
-  virtual bool detect(const cv::Mat &img,
-                      std::vector<cv::KeyPoint> &keyPoints,
-                      cv::InputArray &mask = cv::noArray()) = 0;
-
-};
-
-
-
-/*----------------------------------------------------------------*/
-
-
-
-class DescriptorExtractor
-{
-
-public:
-
-  DescriptorExtractor() {}
-  virtual ~DescriptorExtractor() = default;
-
-  /*!
-   * \brief Extract descriptors
-   * \param[in] img Image
-   * \param[in] keyPoints KeyPoints
-   * \param[out] descriptors Computed descriptors
-   * \return true if error
-   */
-  virtual bool extract(const cv::Mat &img,
-                       std::vector<cv::KeyPoint> &keyPoints,
-                       cv::Mat &descriptors) = 0;
-
-};
-
-
-
-/*----------------------------------------------------------------*/
-
-
 class FeatureExtractor
 {
 
@@ -146,8 +90,8 @@ public:
    * \param[out] descriptors Computed descriptors
    */
   virtual void run(const cv::Mat &bitmap,
-                   colmap::FeatureKeypoints &keyPoints,
-                   colmap::FeatureDescriptors &descriptors) = 0;
+                   std::vector<cv::KeyPoint> &keyPoints,
+                   cv::Mat &descriptors) = 0;
 
 };
 

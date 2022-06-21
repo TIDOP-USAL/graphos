@@ -388,8 +388,8 @@ private:
 
       /* Feature extraction */
 
-      colmap::FeatureKeypoints featureKeypoints;
-      colmap::FeatureDescriptors featureDescriptors;
+      std::vector<cv::KeyPoint> featureKeypoints;
+      cv::Mat featureDescriptors;
 
       featureExtraction(data.mat, featureKeypoints, featureDescriptors);
       resizeFeatures(featureKeypoints, data.scale);
@@ -411,30 +411,50 @@ private:
   }
 
   void featureExtraction(const cv::Mat &mat,
-                         colmap::FeatureKeypoints &featureKeypoints,
-                         colmap::FeatureDescriptors &featureDescriptors)
+                         std::vector<cv::KeyPoint> &keyPoints,
+                         cv::Mat &descriptors)
   {
-    mFeatExtractor->run(mat, featureKeypoints, featureDescriptors);
+    mFeatExtractor->run(mat, keyPoints, descriptors);
   }
 
-  void resizeFeatures(colmap::FeatureKeypoints &featureKeypoints,
+  void resizeFeatures(std::vector<cv::KeyPoint> &keyPoints,
                       double scale)
   {
     if(scale > 1) {
-      for(auto &featureKeypoint : featureKeypoints) {
-        featureKeypoint.Rescale(scale, scale);
+      for(auto &keypoint : keyPoints) {
+        keypoint.pt *= scale;
+        keypoint.size *= static_cast<float>(scale);
       }
     }
   }
 
   void writeFeatures(const colmap::image_t &image_id,
-                     colmap::FeatureKeypoints &featureKeypoints,
-                     colmap::FeatureDescriptors &featureDescriptors)
+                     std::vector<cv::KeyPoint> &keyPoints,
+                     cv::Mat &descriptors)
   {
     std::lock_guard<std::mutex> lck(featextract_mutex);
 
-    mDatabase->WriteKeypoints(image_id, featureKeypoints);
-    mDatabase->WriteDescriptors(image_id, featureDescriptors);
+    size_t features_size = keyPoints.size();
+
+    colmap::FeatureKeypoints keypoints_colmap(features_size);
+    colmap::FeatureDescriptors descriptors_colmap(features_size,
+                                                  descriptors.cols);
+
+    for (size_t i = 0; i < features_size; i++) {
+
+      keypoints_colmap[i] = colmap::FeatureKeypoint(keyPoints[i].pt.x,
+                                                    keyPoints[i].pt.y,
+                                                    keyPoints[i].size, 
+                                                    keyPoints[i].angle);
+
+      for (size_t j = 0; j < descriptors.cols; j++) {
+        descriptors_colmap(i, j) = descriptors.at<float>(i, j);
+      }
+
+    }
+
+    mDatabase->WriteKeypoints(image_id, keypoints_colmap);
+    mDatabase->WriteDescriptors(image_id, descriptors_colmap);
 
   }
 

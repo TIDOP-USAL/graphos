@@ -1694,16 +1694,19 @@ void ProjectImp::writeMeshModel(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeMeshParameters(QXmlStreamWriter &stream) const
 {
-  stream.writeStartElement("PoissonParameters");
+  if(auto mesh = std::dynamic_pointer_cast<PoissonReconParameters>(meshParameters())) {
 
-  auto mesh = std::dynamic_pointer_cast<PoissonReconParameters>(meshParameters());
-  stream.writeTextElement("Depth", QString::number(mesh->depth()));
-  stream.writeTextElement("SolveDepth", QString::number(mesh->solveDepth()));
-  stream.writeTextElement("BoundaryType", mesh->boundaryType());
-  stream.writeTextElement("Width", QString::number(mesh->width()));
-  stream.writeTextElement("FullDepth", QString::number(mesh->fullDepth()));
+    stream.writeStartElement("PoissonParameters");
 
-  stream.writeEndElement();
+    stream.writeTextElement("Depth", QString::number(mesh->depth()));
+    stream.writeTextElement("SolveDepth", QString::number(mesh->solveDepth()));
+    stream.writeTextElement("BoundaryType", mesh->boundaryType());
+    stream.writeTextElement("Width", QString::number(mesh->width()));
+    stream.writeTextElement("FullDepth", QString::number(mesh->fullDepth()));
+
+    stream.writeEndElement();
+
+  }
 }
 
 void ProjectImp::writeDtm(QXmlStreamWriter &stream) const

@@ -29,6 +29,8 @@
 #include <colmap/util/opengl_utils.h>
 #include <colmap/feature/utils.h>
 #include <colmap/feature/sift.h>
+#include <colmap/feature/sift.h>
+#include "SiftGPU/SiftGPU.h"
 
 #include <opencv2/imgcodecs.hpp>
 
@@ -172,8 +174,8 @@ void SiftCPUDetectorDescriptor::update()
 }
 
 void SiftCPUDetectorDescriptor::run(const cv::Mat &bitmap,
-                                    colmap::FeatureKeypoints &keyPoints,
-                                    colmap::FeatureDescriptors &descriptors)
+                                    std::vector<cv::KeyPoint> &keyPoints,
+                                    cv::Mat &descriptors)
 {
   std::lock_guard<std::mutex> lck(mMutex);
 
@@ -198,30 +200,8 @@ void SiftCPUDetectorDescriptor::run(const cv::Mat &bitmap,
       throw TL_ERROR("OpenCV not built with extra modules. Sift Detector/Descriptor not supported");
 #endif // HAVE_OPENCV_XFEATURES2D
 
-    size_t max_features = std::min(static_cast<int>(opencv_key_points.size()), SiftProperties::featuresNumber());
-    keyPoints.resize(max_features);
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float_resize(max_features, 
-                                                                                                   opencv_descriptors.cols);
-    for (size_t i = 0; i < max_features; i++) {
-      keyPoints[i] = colmap::FeatureKeypoint(opencv_key_points[i].pt.x, 
-                                             opencv_key_points[i].pt.y,
-                                             opencv_key_points[i].size, 
-                                             opencv_key_points[i].angle);
-      /// Ver si se puede mejorar
-      for (size_t j = 0; j < opencv_descriptors.cols; j++) {
-        descriptors_float_resize(i, j) = opencv_descriptors.at<float>(i, j);
-      }
-    }
-
-    if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L2) {
-      descriptors_float_resize = colmap::L2NormalizeFeatureDescriptors(descriptors_float_resize);
-    } else if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT) {
-      descriptors_float_resize = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float_resize);
-    } else {
-      throw std::runtime_error("Description normalization type not supported");
-    }
-
-    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float_resize);
+    keyPoints = opencv_key_points;
+    descriptors = opencv_descriptors;
 
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("");
@@ -298,21 +278,24 @@ SiftCudaDetectorDescriptor::~SiftCudaDetectorDescriptor()
 
 void SiftCudaDetectorDescriptor::update()
 {
+  colmap::SiftExtractionOptions options;
+  options.max_num_features = SiftProperties::featuresNumber();
+  options.octave_resolution = SiftProperties::octaveLayers();
+  options.edge_threshold = SiftProperties::edgeThreshold();
+  options.peak_threshold = SiftProperties::contrastThreshold();
+  options.domain_size_pooling = false;
+  options.use_gpu = true;
+
   mSiftGpu.reset(new SiftGPU);
-  mSiftExtractionOptions.max_num_features = SiftProperties::featuresNumber();
-  mSiftExtractionOptions.octave_resolution = SiftProperties::octaveLayers();
-  mSiftExtractionOptions.edge_threshold = SiftProperties::edgeThreshold();
-  mSiftExtractionOptions.peak_threshold = SiftProperties::contrastThreshold();
-  mSiftExtractionOptions.domain_size_pooling = false;
-  mSiftExtractionOptions.use_gpu = true;
-  if (!CreateSiftGPUExtractor(mSiftExtractionOptions, mSiftGpu.get())) {
+
+  if (!CreateSiftGPUExtractor(options, mSiftGpu.get())) {
     return;
   }
 }
 
 void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
-                                     colmap::FeatureKeypoints &keyPoints,
-                                     colmap::FeatureDescriptors &descriptors)
+                                     std::vector<cv::KeyPoint> &keyPoints,
+                                     cv::Mat &descriptors)
 {
   std::lock_guard<std::mutex> lck(mMutex);
   update();
@@ -327,29 +310,18 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
     mSiftGpu->GetFeatureVector(keypoints_data.data(), descriptors_float.data());
 
     size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
-    //size_t max_features = feature_number;
     keyPoints.resize(max_features);
-    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float_resize(max_features, descriptors_float.cols());
+    descriptors = cv::Mat(max_features, descriptors_float.cols(), CV_32F);
     for (size_t i = 0; i < max_features; i++){
-      keyPoints[i] = colmap::FeatureKeypoint(keypoints_data[i].x, 
-                                             keypoints_data[i].y,
-                                             keypoints_data[i].s, 
-                                             keypoints_data[i].o);
+      keyPoints[i] = cv::KeyPoint(keypoints_data[i].x,
+                                  keypoints_data[i].y,
+                                  keypoints_data[i].s, 
+                                  keypoints_data[i].o);
       /// Ver si se puede mejorar
       for (size_t j = 0; j < descriptors_float.cols(); j++) {
-        descriptors_float_resize(i, j) = descriptors_float(i, j);
+        descriptors.at<float>(i, j) = descriptors_float(i, j);
       }
     }
-
-    if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L2){
-      descriptors_float_resize = colmap::L2NormalizeFeatureDescriptors(descriptors_float_resize);
-    } else if (mSiftExtractionOptions.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT){
-      descriptors_float_resize = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float_resize);
-    } else {
-      throw std::runtime_error("Description normalization type not supported");
-    }
-    
-    descriptors = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float_resize);
 
   } catch (std::exception &) {
     msgError("SIFT Detector exception");
