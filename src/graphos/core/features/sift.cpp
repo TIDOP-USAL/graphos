@@ -29,7 +29,6 @@
 #include <colmap/util/opengl_utils.h>
 #include <colmap/feature/utils.h>
 #include <colmap/feature/sift.h>
-#include <colmap/feature/sift.h>
 #include "SiftGPU/SiftGPU.h"
 
 #include <opencv2/imgcodecs.hpp>

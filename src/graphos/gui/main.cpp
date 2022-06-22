@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
     //app.addComponent(&export_point_cloud_component);
 
 #ifdef GRAPHOS_HAVE_IMAGE_LOAD
-  app.addComponent(&image_loader_component);
+    app.addComponent(&image_loader_component);
 #endif // GRAPHOS_HAVE_IMAGE_LOAD
 
 #ifdef GRAPHOS_HAVE_FEATEXTRACT
@@ -281,6 +281,7 @@ int main(int argc, char *argv[])
 //    ShowWindow(hwnd, 0);
 //#endif
 
+    //TODO: ¿Sigue siendo necesario?
     app.freeMemory();
 
     ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización

@@ -44,6 +44,8 @@
 
 #include <colmap/base/database.h>
 #include <colmap/base/camera_models.h>
+#include <colmap/feature/sift.h>
+#include <colmap/feature/utils.h>
 
 using namespace tl;
 
@@ -437,8 +439,8 @@ private:
     size_t features_size = keyPoints.size();
 
     colmap::FeatureKeypoints keypoints_colmap(features_size);
-    colmap::FeatureDescriptors descriptors_colmap(features_size,
-                                                  descriptors.cols);
+    colmap::FeatureDescriptors descriptors_colmap;// (features_size, descriptors.cols);
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float(features_size, descriptors.cols);
 
     for (size_t i = 0; i < features_size; i++) {
 
@@ -448,10 +450,21 @@ private:
                                                     keyPoints[i].angle);
 
       for (size_t j = 0; j < descriptors.cols; j++) {
-        descriptors_colmap(i, j) = descriptors.at<float>(i, j);
+        descriptors_float(i, j) = descriptors.at<float>(i, j);
       }
 
     }
+
+    colmap::SiftExtractionOptions options;
+    if (options.normalization == colmap::SiftExtractionOptions::Normalization::L2) {
+      descriptors_float = colmap::L2NormalizeFeatureDescriptors(descriptors_float);
+    } else if (options.normalization == colmap::SiftExtractionOptions::Normalization::L1_ROOT) {
+      descriptors_float = colmap::L1RootNormalizeFeatureDescriptors(descriptors_float);
+    } else {
+      throw std::runtime_error("Description normalization type not supported");
+    }
+
+    descriptors_colmap = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
 
     mDatabase->WriteKeypoints(image_id, keypoints_colmap);
     mDatabase->WriteDescriptors(image_id, descriptors_colmap);
