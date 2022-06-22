@@ -52,6 +52,8 @@ void DensificationComponent::init()
   this->setMenu("workflow");
   this->setToolbar("workflow");
 
+  createCommand();
+
   action()->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
 }
 
@@ -69,11 +71,6 @@ void DensificationComponent::createPresenter()
 {
   setPresenter(new DensificationPresenterImp(dynamic_cast<DensificationView *>(view()),
                                              dynamic_cast<DensificationModel *>(model())));
-  
-  //TL_TODO("Reemplazar señales por finished o mover a ComponentProcess")
-  //connect(dynamic_cast<DensificationPresenter *>(presenter()), 
-  //        &DensificationPresenter::densification_finished, 
-  //        this, &DensificationComponent::densification_finished);
 }
 
 void DensificationComponent::createCommand()

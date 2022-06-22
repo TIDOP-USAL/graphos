@@ -208,7 +208,10 @@ void ComponentBase::setPresenter(Presenter *presenter)
 
 void ComponentBase::setCommand(std::shared_ptr<Command> command)
 {
-  mCommand = command;
+  if (command) {
+    mCommand = command;
+    mApplication->addComponent(this);
+  }
 }
 
 Application *ComponentBase::app()

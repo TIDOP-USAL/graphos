@@ -52,6 +52,8 @@ void FeatureExtractorComponent::init()
   this->setMenu("workflow");
   this->setToolbar("workflow");
 
+  createCommand();
+
   action()->setIcon(QIcon(":/ico/24/img/material/24/features.png"));
 }
 

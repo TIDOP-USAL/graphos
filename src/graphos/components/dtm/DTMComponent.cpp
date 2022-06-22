@@ -38,12 +38,19 @@ namespace graphos
 DTMComponent::DTMComponent(Application *application)
   : ProcessComponent(application)
 {
-  this->setName("DTM/DSM");
-  this->setMenu("tools");
+  init();
 }
 
 DTMComponent::~DTMComponent()
 {
+}
+
+void DTMComponent::init()
+{
+  this->setName("DTM/DSM");
+  this->setMenu("tools");
+
+  createCommand();
 }
 
 void DTMComponent::createModel()

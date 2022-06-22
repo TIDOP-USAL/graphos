@@ -53,6 +53,8 @@ void MeshComponent::init()
   this->setMenu("workflow");
   this->setToolbar("workflow");
 
+  createCommand();
+
   action()->setIcon(QIcon(":/ico/24/img/material/24/icons8_mesh_24px.png"));
 }
 
@@ -103,7 +105,7 @@ void MeshComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFinished();
-  //app_status->activeFlag(AppStatus::Flag::..., true);
+  app_status->activeFlag(AppStatus::Flag::mesh, true);
 }
 
 void MeshComponent::onFailed()
@@ -114,7 +116,7 @@ void MeshComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFailed();
-  //app_status->activeFlag(AppStatus::Flag::..., false);
+  app_status->activeFlag(AppStatus::Flag::mesh, false);
 }
 
 

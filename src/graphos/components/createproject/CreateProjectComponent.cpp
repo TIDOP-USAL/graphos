@@ -54,6 +54,8 @@ void CreateProjectComponent::init()
   this->setMenu("file");
   this->setToolbar("file");
 
+  createCommand();
+
   QIcon iconNewProject;
   iconNewProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
   action()->setIcon(iconNewProject);

@@ -193,81 +193,6 @@ int main(int argc, char *argv[])
 
   if (argc > 1) {
 
-#ifdef GRAPHOS_HAVE_CREATE_PROJECT
-    app.addComponent(&create_project_component);
-#endif // GRAPHOS_HAVE_CREATE_PROJECT
-
-#ifdef GRAPHOS_HAVE_OPEN_PROJECT
-    app.addComponent(&open_project_component);
-#endif // GRAPHOS_HAVE_OPEN_PROJECT
-
-#ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
-    app.addComponent(&import_cameras_component);
-#endif // GRAPHOS_HAVE_IMPORT_CAMERAS
-
-#ifdef GRAPHOS_HAVE_CAMERAS
-    app.addComponent(&cameras_component);
-#endif // GRAPHOS_HAVE_CAMERAS
-
-    //app.addComponent(&export_orientations_component);
-    //app.addComponent(&export_point_cloud_component);
-
-#ifdef GRAPHOS_HAVE_IMAGE_LOAD
-    app.addComponent(&image_loader_component);
-#endif // GRAPHOS_HAVE_IMAGE_LOAD
-
-#ifdef GRAPHOS_HAVE_FEATEXTRACT
-    app.addComponent(&feature_extractor_component);
-#endif // GRAPHOS_HAVE_FEATEXTRACT
-
-#ifdef GRAPHOS_HAVE_FEATMATCH
-    app.addComponent(&feature_matching_component);
-#endif // GRAPHOS_HAVE_FEATMATCH
-
-#ifdef GRAPHOS_HAVE_ORIENTATION
-    app.addComponent(&orientation_component);
-#endif // GRAPHOS_HAVE_ORIENTATION
-
-#ifdef GRAPHOS_HAVE_DENSE
-    app.addComponent(&densification_component);
-#endif // GRAPHOS_HAVE_DENSE
-
-#ifdef GRAPHOS_HAVE_MESH
-    app.addComponent(&mesh_component);
-#endif // GRAPHOS_HAVE_MESH
-
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-    app.addComponent(&georeference_component);
-#endif // GRAPHOS_HAVE_GEOREFERENCE
-
-#ifdef GRAPHOS_HAVE_UNDISTORT
-    app.addComponent(&undistort_component);
-#endif // GRAPHOS_HAVE_UNDISTORT
-
-#ifdef GRAPHOS_HAVE_DTM
-    app.addComponent(&dtm_component);
-#endif // GRAPHOS_HAVE_DTM
-
-#ifdef GRAPHOS_HAVE_ORTHOPHOTO
-    app.addComponent(&orthophoto_component);
-#endif
-
-#ifdef GRAPHOS_HAVE_FEATVIEWER
-    app.addComponent(&features_viewer_component);
-#endif // GRAPHOS_HAVE_FEATVIEWER
-
-#ifdef GRAPHOS_HAVE_MATCH_VIEWER
-    app.addComponent(&match_viewer_component);
-#endif // GRAPHOS_HAVE_MATCH_VIEWER
-
-#ifdef GRAPHOS_HAVE_SETTINGS
-    app.addComponent(&settings_component);
-#endif
-
-#ifdef GRAPHOS_HAVE_ABOUT
-    app.addComponent(&about_component);
-#endif
-
     tl::CommandList::Status status = app.parse(argc, argv);
     if (status == tl::CommandList::Status::parse_success) {
 
@@ -276,12 +201,11 @@ int main(int argc, char *argv[])
     }
   } else {
     //    TL_TODO("Añadir como opción")
-//#if defined WIN32
-//    HWND hwnd = GetConsoleWindow();
-//    ShowWindow(hwnd, 0);
-//#endif
+#if defined WIN32
+    HWND hwnd = GetConsoleWindow();
+    ShowWindow(hwnd, 0);
+#endif
 
-    //TODO: ¿Sigue siendo necesario?
     app.freeMemory();
 
     ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
@@ -468,9 +392,9 @@ int main(int argc, char *argv[])
 
     r = a.exec();
 
-    //#if defined WIN32
-    //    ShowWindow(hwnd, 1);
-    //#endif
+    #if defined WIN32
+        ShowWindow(hwnd, 1);
+    #endif
   }
 
 #ifdef HAVE_VLD

@@ -106,9 +106,11 @@ Settings *Application::settings()
 
 void Application::addComponent(Component *component)
 {
-  mComponents.push_back(component);
-  if (std::shared_ptr<Command> command = component->command())
-    mCommandList->push_back(command);
+  if (component) {
+    mComponents.push_back(component);
+    if (std::shared_ptr<Command> command = component->command())
+      mCommandList->push_back(command);
+  }
 }
 
 tl::CommandList::Status Application::parse(int argc, char **argv)

@@ -53,6 +53,8 @@ void GeoreferenceComponent::init()
   this->setMenu("tools");
   this->setToolbar("tools");
 
+  createCommand();
+
   action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-coordinate-system.png"));
 }
 

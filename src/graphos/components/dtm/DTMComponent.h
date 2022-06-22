@@ -43,6 +43,10 @@ public:
   DTMComponent(Application *application);
   ~DTMComponent();
 
+private:
+
+  void init();
+
 signals:
 
 // ComponentBase
