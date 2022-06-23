@@ -91,11 +91,6 @@ protected:
   QComboBox *mComboBoxImages;
   GraphicViewer *mGraphicView;
   QTreeWidget *mTreeWidget;
-  QMenu *mContextMenuLeft;
-  QAction *mActionZoomIn;
-  QAction *mActionZoomOut;
-  QAction *mActionZoomExtend;
-  QAction *mActionZoom11;
   QString mMarkerColor;
   QString mSelectedMarkerColor;
   int mMarkerType;

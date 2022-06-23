@@ -122,27 +122,12 @@ QString MainWindowModel::projectPath() const
   return mProject->projectPath();
 }
 
-bool MainWindowModel::checkUnsavedChanges() const
-{
-  return bUnsavedChanges;
-}
-
-bool MainWindowModel::checkOldVersion(const QString &file) const
-{
-  return mProject->checkOldVersion(file);
-}
-
-void MainWindowModel::oldVersionBackup(const QString &file) const
-{
-  mProject->oldVersionBak(file);
-}
-
 const std::unordered_map<size_t, Image> &MainWindowModel::images() const
 {
   return mProject->images();
 }
 
-const Image &MainWindowModel::image(size_t imageId) const
+Image MainWindowModel::image(size_t imageId) const
 {
   try {
     return mProject->findImageById(imageId);
@@ -169,6 +154,42 @@ void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
   }
+}
+
+QImage MainWindowModel::readImage(size_t imageId)
+{
+  QImage image;
+
+  try {
+
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(this->image(imageId).path().toStdWString());
+    imageReader->open();
+    if (imageReader->isOpen()) {
+
+      /// Imagen georeferenciada.
+      /// TODO: mostrar coordenadas en la barra de estado
+      bool geo = imageReader->isGeoreferenced();
+
+      cv::Mat bmp;
+
+      tl::DataType data_type = imageReader->dataType();
+      if (data_type == tl::DataType::TL_32F ||
+          data_type == tl::DataType::TL_64F) {
+        /// TODO: Aplicar paleta, mapa de sombras, etc, al DTM
+      } else {
+        bmp = imageReader->read();
+      }
+
+      image = cvMatToQImage(bmp);
+
+      imageReader->close();
+    }
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+  }
+
+  return image;
 }
 
 const std::unordered_map<size_t, QString> &MainWindowModel::features() const
@@ -846,6 +867,21 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
   }
 
   return exif;
+}
+
+bool MainWindowModel::checkUnsavedChanges() const
+{
+  return bUnsavedChanges;
+}
+
+bool MainWindowModel::checkOldVersion(const QString &file) const
+{
+  return mProject->checkOldVersion(file);
+}
+
+void MainWindowModel::oldVersionBackup(const QString &file) const
+{
+  mProject->oldVersionBak(file);
 }
 
 void MainWindowModel::load(const QString &file)

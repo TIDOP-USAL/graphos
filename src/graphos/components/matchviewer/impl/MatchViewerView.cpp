@@ -123,45 +123,6 @@ void MatchViewerViewImp::initUI()
   QIcon iconZoom11;
   iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
 
-  QMenu *contextMenuLeft = new QMenu(mGraphicsViewImage);
-
-  mActionLeftZoomIn = new QAction(this);
-  mActionLeftZoomIn->setIcon(iconZoomIn);
-  contextMenuLeft->addAction(mActionLeftZoomIn);
-
-  mActionLeftZoomOut = new QAction(this);
-  mActionLeftZoomOut->setIcon(iconZoomOut);
-  contextMenuLeft->addAction(mActionLeftZoomOut);
-
-  mActionLeftZoomExtend = new QAction(this);
-  mActionLeftZoomExtend->setIcon(iconZoomExtend);
-  contextMenuLeft->addAction(mActionLeftZoomExtend);
-
-  mActionLeftZoom11 = new QAction(this);
-  mActionLeftZoom11->setIcon(iconZoom11);
-  contextMenuLeft->addAction(mActionLeftZoom11);
-
-  mGraphicsViewImage->setContextMenu(contextMenuLeft);
-
-  QMenu *contextMenuRight = new QMenu(mGraphicsViewPseudoimage);
-
-  mActionRightZoomIn = new QAction(this);
-  mActionRightZoomIn->setIcon(iconZoomIn);
-  contextMenuRight->addAction(mActionRightZoomIn);
-
-  mActionRightZoomOut = new QAction(this);
-  mActionRightZoomOut->setIcon(iconZoomOut);
-  contextMenuRight->addAction(mActionRightZoomOut);
-
-  mActionRightZoomExtend = new QAction(this);
-  mActionRightZoomExtend->setIcon(iconZoomExtend);
-  contextMenuRight->addAction(mActionRightZoomExtend);
-
-  mActionRightZoom11 = new QAction(this);
-  mActionRightZoom11->setIcon(iconZoom11);
-  contextMenuRight->addAction(mActionRightZoom11);
-
-  mGraphicsViewPseudoimage->setContextMenu(contextMenuRight);
 
   this->retranslate();
   this->update();
@@ -174,14 +135,6 @@ void MatchViewerViewImp::initSignalAndSlots()
   connect(mTreeWidgetMatches,     SIGNAL(itemSelectionChanged()),   this, SLOT(onTreeWidgetMatchesItemSelectionChanged()));
   connect(mGraphicsViewImage,      SIGNAL(selectionChanged()),       this, SLOT(onGraphicsViewLeftSelectionChanged()));
   connect(mGraphicsViewPseudoimage,     SIGNAL(selectionChanged()),       this, SLOT(onGraphicsViewRightSelectionChanged()));
-  connect(mActionLeftZoomIn,      SIGNAL(triggered(bool)), mGraphicsViewImage, SLOT(zoomIn()));
-  connect(mActionLeftZoomOut,     SIGNAL(triggered(bool)), mGraphicsViewImage, SLOT(zoomOut()));
-  connect(mActionLeftZoomExtend,  SIGNAL(triggered(bool)), mGraphicsViewImage, SLOT(zoomExtend()));
-  connect(mActionLeftZoom11,      SIGNAL(triggered(bool)), mGraphicsViewImage, SLOT(zoom11()));
-  connect(mActionRightZoomIn,     SIGNAL(triggered(bool)), mGraphicsViewPseudoimage, SLOT(zoomIn()));
-  connect(mActionRightZoomOut,    SIGNAL(triggered(bool)), mGraphicsViewPseudoimage, SLOT(zoomOut()));
-  connect(mActionRightZoomExtend, SIGNAL(triggered(bool)), mGraphicsViewPseudoimage, SLOT(zoomExtend()));
-  connect(mActionRightZoom11,     SIGNAL(triggered(bool)), mGraphicsViewPseudoimage, SLOT(zoom11()));
 
   connect(mButtonBox->button(QDialogButtonBox::Close),  SIGNAL(clicked(bool)), this, SLOT(accept()));
   connect(mButtonBox->button(QDialogButtonBox::Help),   SIGNAL(clicked(bool)), this, SIGNAL(help()));
@@ -217,14 +170,6 @@ void MatchViewerViewImp::retranslate()
   qTreeWidgetItem->setText(6, QApplication::translate("MatchViewerView", "Right Y"));
   qTreeWidgetItem->setText(7, QApplication::translate("MatchViewerView", "Distance"));
   mPushButtonDeleteMatch->setText(QApplication::translate("MatchViewerView", "Delete Match"));
-  mActionLeftZoomIn->setText(QApplication::translate("MatchViewerView", "Zoom In"));
-  mActionLeftZoomOut->setText(QApplication::translate("MatchViewerView", "Zoom Out"));
-  mActionLeftZoomExtend->setText(QApplication::translate("MatchViewerView", "Zoom Extend"));
-  mActionLeftZoom11->setText(QApplication::translate("MatchViewerView", "Zoom 1:1"));
-  mActionRightZoomIn->setText(QApplication::translate("MatchViewerView", "Zoom In"));
-  mActionRightZoomOut->setText(QApplication::translate("MatchViewerView", "Zoom Out"));
-  mActionRightZoomExtend->setText(QApplication::translate("MatchViewerView", "Zoom Extend"));
-  mActionRightZoom11->setText(QApplication::translate("MatchViewerView", "Zoom 1:1"));
   mButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
   mButtonBox->button(QDialogButtonBox::Help)->setText("Help");
 }

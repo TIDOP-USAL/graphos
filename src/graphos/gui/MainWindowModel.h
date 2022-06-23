@@ -29,6 +29,8 @@
 #include "graphos/core/image.h"
 #include "graphos/core/sfm/poses.h"
 
+#include <QImage>
+
 namespace graphos
 {
 
@@ -43,13 +45,11 @@ public:
 
   QString projectName() const;
   QString projectPath() const;
-  bool checkUnsavedChanges() const;
-  bool checkOldVersion(const QString &file) const;
-  void oldVersionBackup(const QString &file) const;
 
   const std::unordered_map<size_t, Image> &images() const;
-  const Image &image(size_t imageId) const;
+  Image image(size_t imageId) const;
   void deleteImages(const std::vector<size_t> &imageIds);
+  QImage readImage(size_t imageId);
 
   const std::unordered_map<size_t, QString> &features() const;
   std::vector<size_t> imagePairs(size_t imageId) const;
@@ -70,18 +70,9 @@ public:
 
   QString denseModel() const;
 
-  //Image findImageByName(const QString &imageName) const;
-  //size_t imageID(const QString &imageName) const;
-  ////bool removeImage(size_t id);
-  //bool removeImage(const QString &imageName);
-  //void removeImages(const QStringList &images);
-  //image_iterator imageBegin();
-  //image_const_iterator imageBegin() const;
-  //image_iterator imageEnd();
-  //image_const_iterator imageEnd() const;
-
-
-signals:
+  bool checkUnsavedChanges() const;
+  bool checkOldVersion(const QString &file) const;
+  void oldVersionBackup(const QString &file) const;
 
 public slots:
 
@@ -101,7 +92,6 @@ public slots:
 
 protected:
 
-  //QString mPrjDefaultPath;
   Project *mProject;
   bool bUnsavedChanges;
 };

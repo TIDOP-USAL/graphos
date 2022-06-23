@@ -61,6 +61,8 @@ public:
     mesh                  = (1 << 11),
     processing            = (1 << 20),
     loading_images        = (1 << 21),
+    tab_image_active      = (1 << 22),
+    tab_3d_model_active   = (1 << 23),
     command_mode          = (1 << 30)
   };
 

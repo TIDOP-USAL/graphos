@@ -21,72 +21,53 @@
  *                                                                      *
  ************************************************************************/
 
-#include "TabComponent.h"
+#ifndef GRAPHOS_IMAGE_CONTEXT_MENU_H
+#define GRAPHOS_IMAGE_CONTEXT_MENU_H
 
-#include "graphos/components/Tab/impl/TabModel.h"
-#include "graphos/components/Tab/impl/TabView.h"
-#include "graphos/components/Tab/impl/TabPresenter.h"
-#include "graphos/core/project.h"
-#include "graphos/core/AppStatus.h"
+#include "graphos/widgets/GraphosWidget.h"
 
-#include <QAction>
-#include <QString>
+class QAction;
 
 namespace graphos
 {
 
-
-
-TabComponent::TabComponent(Application *application)
-  : ComponentBase(application)
+class ImageContextMenu
+  : public GraphosContextMenu
 {
-  init();
-}
+  Q_OBJECT
 
-TabComponent::~TabComponent()
-{
-}
+public:
 
-void TabComponent::init()
-{
+  ImageContextMenu(QWidget *parent = nullptr);
+  ~ImageContextMenu() override = default;
 
-}
+signals:
 
-void TabComponent::createModel()
-{
-  setModel(new TabModelImp(app()->project()));
-}
+  void zoomIn();
+  void zoomOut();
+  void zoomExtend();
+  void zoom11();
 
-void TabComponent::createView()
-{
-  setView(new TabViewImp());
-}
+private:
 
-void TabComponent::createPresenter()
-{
-  setPresenter(new TabPresenterImp(dynamic_cast<TabView *>(view()),
-                                             dynamic_cast<TabModel *>(model()),
-                                             app()->status()));
+  void init();
+  void initSignalAndSlots();
 
-  //connect(dynamic_cast<TabPresenter *>(presenter()), &TabPresenter::project_created,
-  //        this, &TabComponent::onProjectCreated);
-}
+// GraphosContextMenu
 
-void TabComponent::createCommand()
-{
-}
+private slots:
 
-void TabComponent::update()
-{
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+  void retranslate() override;
 
-  //bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  //action()->setEnabled(!bProcessing);
-}
+private:
 
-
+  QAction *mActionZoomIn;
+  QAction *mActionZoomOut;
+  QAction *mActionZoomExtend;
+  QAction *mActionZoom11;
+  
+};
 
 } // namespace graphos
+
+#endif // GRAPHOS_IMAGE_CONTEXT_MENU_H

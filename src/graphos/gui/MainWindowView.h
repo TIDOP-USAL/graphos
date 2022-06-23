@@ -44,7 +44,7 @@ namespace graphos
 class ThumbnailsWidget;
 class LogWidget;
 class GraphicViewer;
-class TabHandler;
+class TabWidget;
 
 class MainWindowView
   : public QMainWindow
@@ -93,6 +93,7 @@ public:
 
   explicit MainWindowView(QWidget *parent = nullptr);
   ~MainWindowView() override;
+
 
   /// Configuración de acciones 
 
@@ -154,7 +155,7 @@ public:
    * \brief Tab handler
    * \return
    */
-  TabHandler *tabHandler();
+  TabWidget *tabWidget();
 
 public slots:
 
@@ -227,7 +228,7 @@ signals:
   void selectImages(std::vector<size_t>);
   void delete_images(std::vector<size_t>);
   void openImage(size_t);
-
+  void allTabsClosed();
   /// Sin refactorizar
   
   
@@ -238,7 +239,7 @@ signals:
   void selectImageFeatures(QString);
   void imagesLoaded();
 
-  void openModel3D(QString, bool);
+  void open3DModel(QString, bool);
 
   void openDtm();
   void openOrtho(QString);
@@ -264,7 +265,7 @@ private slots:
 private:
 
   void initUI();
-  void initTabHandler();
+  void initTabWidget();
   void initThumbnailsTool();
   void initConsole();
   void initActions();
@@ -311,25 +312,13 @@ protected:
   QAction *mActionExit;
   QAction *mActionStartPage;
   QAction *mActionLoadImages;
-  //QAction *mActionFeatureExtraction;
-  //QAction *mActionFeatureMatching;
-  //QAction *mActionOrientation;
-  //QAction *mActionDensification;
   QAction *mActionCameras;
-  //QAction *mActionGeoreference;
-  //QAction *mActionSettings;
   QAction *mActionHelp;
-  //QAction *mActionAbout;
   QAction *mActionImportCameras;
   QAction *mActionExportTiePoints;
   QAction *mActionExportMatches;
-  //QAction *mActionExportOrientations;
   QAction *mActionExportPointCloud;
-  //QAction *mActionFeaturesViewer;
-  //QAction *mActionMatchesViewer;
-  //QAction *mActionDtm;
   QAction *mActionOrtho;
-  //QAction *mActionPassPointsViewer;
   QAction *mActionNotRecentProjects;
   QAction *mActionClearHistory;  
   QMenu *mMenuRecentProjects;
@@ -353,6 +342,18 @@ protected:
   QMenu *mMenuTreeProjectImage;
   QMenu *mMenuTreeProjectModel3D;
 
+  QAction *mActionZoomIn;
+  QAction *mActionZoomOut;
+  QAction *mActionZoomExtend;
+  QAction *mActionZoom11;
+  QAction *mActionGlobalZoom;
+  QAction *mActionViewFront;
+  QAction *mActionViewTop;
+  QAction *mActionViewLeft;
+  QAction *mActionViewRight;
+  QAction *mActionViewBack;
+  QAction *mActionViewBottom;
+
   ThumbnailsWidget *mThumbnailsWidget;
   LogWidget *mLogWidget;
   QProgressBar *mProgressBar;
@@ -360,7 +361,7 @@ protected:
   tl::EnumFlags<Flag> mFlags;
   std::vector<QAction*> mHistory;
   QGridLayout *mLayoutCentral;
-  TabHandler *mTabHandler;
+  TabWidget *mTabWidget;
 
 private:
 

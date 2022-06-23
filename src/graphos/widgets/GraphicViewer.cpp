@@ -23,6 +23,8 @@
 
 #include "graphos/widgets/GraphicViewer.h"
 
+#include "graphos/widgets/ImageMenu.h"
+
 #include <QWheelEvent>
 #include <QMessageBox>
 #include <QGraphicsPixmapItem>
@@ -37,14 +39,12 @@ GraphicViewerImp::GraphicViewerImp(QWidget *parent)
   : GraphicViewer(parent),
     mScene(new QGraphicsScene()),
     mPixmapItem(nullptr),
-    mContextMenu(nullptr),
     mZoomFactor(DEFAULT_ZOOM_FACTOR),
-    mZoomCtrlFactor(DEFAULT_ZOOM_CTRL_FACTOR)
+    mZoomCtrlFactor(DEFAULT_ZOOM_CTRL_FACTOR),
+    mContextMenu(new ImageContextMenu(this))
 {
   init();
-
-  connect(mScene, SIGNAL(selectionChanged()), this, SIGNAL(selectionChanged()));
-
+  initSignalsAndSlots();
 }
 
 GraphicViewerImp::~GraphicViewerImp()
@@ -80,6 +80,19 @@ void GraphicViewerImp::init()
   // Add the default pixmap at startup
   mPixmapItem = mScene->addPixmap(mPixmap);
 
+  setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void GraphicViewerImp::initSignalsAndSlots()
+{
+  connect(mScene, SIGNAL(selectionChanged()), this, SIGNAL(selectionChanged()));
+
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
+
+  connect(mContextMenu, SIGNAL(zoomIn()), this, SLOT(zoomIn()));
+  connect(mContextMenu, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
+  connect(mContextMenu, &ImageContextMenu::zoomExtend, this, &GraphicViewerImp::zoomExtend);
+  connect(mContextMenu, &ImageContextMenu::zoom11, this, &GraphicViewerImp::zoom11);
 }
 
 void GraphicViewerImp::setImage(const QImage &image)
@@ -112,13 +125,6 @@ void GraphicViewerImp::setZoomFactor(const double factor)
 void GraphicViewerImp::setZoomCtrlFactor(const double factor)
 {
   mZoomCtrlFactor = factor;
-}
-
-void GraphicViewerImp::setContextMenu(QMenu *contextMenu)
-{
-  mContextMenu = contextMenu;
-  setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 }
 
 void GraphicViewerImp::drawOnImage(QPainter *painter, QSize imageSize)
@@ -281,10 +287,7 @@ void GraphicViewerImp::zoomOut(QPoint point)
 
 void GraphicViewerImp::showContextMenu(const QPoint &position)
 {
-  // Get the mouse position in the scene
   QPoint globalPos = mapToGlobal(position);
-
-  // Display the menu
   mContextMenu->exec(globalPos);
 }
 

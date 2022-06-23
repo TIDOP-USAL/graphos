@@ -106,14 +106,6 @@ protected:
   GraphicViewer *mGraphicsViewImage;
   QLabel *mLabelMatches;
   QPushButton *mPushButtonDeleteMatch;
-  QAction *mActionLeftZoomIn;
-  QAction *mActionLeftZoomOut;
-  QAction *mActionLeftZoomExtend;
-  QAction *mActionLeftZoom11;
-  QAction *mActionRightZoomIn;
-  QAction *mActionRightZoomOut;
-  QAction *mActionRightZoomExtend;
-  QAction *mActionRightZoom11;
   bool bUnsavedChanges;
   QString mMarkerColor;
   int mMarkerSize;

@@ -232,12 +232,12 @@ void TabHandler::setImage(const QString &image)
 
     mGraphicViewer->zoomExtend();
 
-    QMenu *contextMenu = new QMenu(graphicViewer);
-    contextMenu->addAction(mActionZoomIn);
-    contextMenu->addAction(mActionZoomOut);
-    contextMenu->addAction(mActionZoomExtend);
-    contextMenu->addAction(mActionZoom11);
-    mGraphicViewer->setContextMenu(contextMenu);
+    //QMenu *contextMenu = new QMenu(graphicViewer);
+    //contextMenu->addAction(mActionZoomIn);
+    //contextMenu->addAction(mActionZoomOut);
+    //contextMenu->addAction(mActionZoomExtend);
+    //contextMenu->addAction(mActionZoom11);
+    //mGraphicViewer->setContextMenu(contextMenu);
   }
 
   connect(mActionZoomIn,      SIGNAL(triggered(bool)), mGraphicViewer, SLOT(zoomIn()));
@@ -338,12 +338,12 @@ GraphicViewer *TabHandler::addGraphicViewer(const QString &name)
   if (id == -1 ) {
     GraphicViewer *graphicViewer = new GraphicViewerImp(this);
 
-    QMenu *contextMenu = new QMenu(graphicViewer);
-    contextMenu->addAction(mActionZoomIn);
-    contextMenu->addAction(mActionZoomOut);
-    contextMenu->addAction(mActionZoomExtend);
-    contextMenu->addAction(mActionZoom11);
-    graphicViewer->setContextMenu(contextMenu);
+    //QMenu *contextMenu = new QMenu(graphicViewer);
+    //contextMenu->addAction(mActionZoomIn);
+    //contextMenu->addAction(mActionZoomOut);
+    //contextMenu->addAction(mActionZoomExtend);
+    //contextMenu->addAction(mActionZoom11);
+    //graphicViewer->setContextMenu(contextMenu);
 
     id = this->addTab(graphicViewer, name);
     this->setTabToolTip(id, name);

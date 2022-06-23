@@ -37,15 +37,21 @@ namespace graphos
 AboutComponent::AboutComponent(Application *application)
   : ComponentBase(application)
 {
-  this->setName("About Graphos");
-  this->setMenu("help");
-  QIcon iconAbout;
-  iconAbout.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-about.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(iconAbout);
+  init();
 }
 
 AboutComponent::~AboutComponent()
 {
+}
+
+void AboutComponent::init()
+{
+  this->setName("About Graphos");
+  this->setMenu("help");
+
+  QIcon iconAbout;
+  iconAbout.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-about.png"), QSize(), QIcon::Normal, QIcon::Off);
+  action()->setIcon(iconAbout);
 }
 
 void AboutComponent::createModel()

@@ -21,57 +21,71 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TAB_PRESENTER_H
-#define GRAPHOS_TAB_PRESENTER_H
+#ifndef GRAPHOS_TAB_WIDGET_H
+#define GRAPHOS_TAB_WIDGET_H
 
-#include "graphos/components/tab/TabPresenter.h"
+#include <QTabWidget>
+
+class QMenu;
+class QAction;
 
 namespace graphos
 {
 
-class AppStatus;
-class TabView;
-class TabModel;
-
-class TabPresenterImp
-  : public TabPresenter
+class TabWidget
+  : public QTabWidget
 {
   Q_OBJECT
 
 public:
 
-  TabPresenterImp(TabView *view,
-                  TabModel *model,
-                  AppStatus *status);
-  ~TabPresenterImp() override = default;
+  explicit TabWidget(QWidget *parent = nullptr);
+  ~TabWidget() override = default;
 
-// TabPresenter interface
-
-public slots:
-
-  void openImage(size_t imageId) override;
-  void setImageActive(size_t imageId) override;
-
-// Presenter interface
+  int fileTab(const QString &file) const;
+  void clear();
 
 public slots:
 
-  void open() override;
+  void closeTab(int tabId);
+  void setCurrentTab(int tabId);
+
+protected slots:
+
+  void onTabChanged(int tabId);
+  void onTabWidgetContextMenu(const QPoint &position);
+
+signals:
+
+  void currentTabChanged(int);
+  void imageActive(bool);
+  void model3dActive(bool);
+  void allTabsClosed();
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
-
-private:
-
-  TabView *mView;
-  TabModel *mModel;
-  AppStatus *mAppStatus;
+  void initUI();
+  void initActions();
+  void initMenu();
+  void initSignalAndSlots();
+  void retranslate();
+  void update();
   
+// QWidget interface
+
+protected:
+
+  void changeEvent(QEvent *event) override;
+
+protected:
+
+  QMenu *mMenu;
+  QAction *mCloseTab;
+  QAction *mCloseAllTabs;
+  QAction *mCloseAllTabsButCurrentOne;
 };
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_TAB_PRESENTER_H
+#endif // GRAPHOS_TAB_WIDGET_H

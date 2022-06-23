@@ -30,12 +30,10 @@
 
 #include <QWidget>
 #include <QEvent>
+#include <QMenu>
 
 namespace graphos
 {
-
-class HelpDialog;
-
 
 class GraphosWidgetView
   : public QWidget
@@ -85,6 +83,38 @@ protected:
 
 };
 
+
+class GraphosContextMenu
+  : public QMenu
+{
+
+  Q_OBJECT
+
+public:
+
+  GraphosContextMenu(QWidget *parent)
+    : QMenu(parent)
+  {
+  }
+
+  virtual ~GraphosContextMenu() override {}
+
+private slots:
+
+  virtual void retranslate() = 0;
+
+// QWidget interface
+
+protected:
+
+  void changeEvent(QEvent *event) override
+  {
+    if (event->type() == QEvent::LanguageChange) {
+      this->retranslate();
+    }
+  }
+
+};
 
 } // namespace graphos
 

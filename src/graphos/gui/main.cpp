@@ -28,6 +28,9 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#include "graphos/core/Application.h"
+#include "graphos/core/AppStatus.h"
+
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
 #include "graphos/components/createproject/CreateProjectComponent.h"
 #endif // GRAPHOS_HAVE_CREATE_PROJECT
@@ -84,8 +87,8 @@
 #ifdef GRAPHOS_HAVE_ABOUT
 #include "graphos/components/about/AboutComponent.h"
 #endif // GRAPHOS_HAVE_ABOUT
-#include "graphos/core/Application.h"
-#include "graphos/core/AppStatus.h"
+//#include "graphos/components/tab/TabComponent.h"
+
 
 #include <tidop/core/console.h>
 
@@ -184,6 +187,8 @@ int main(int argc, char *argv[])
   AboutComponent about_component(&app);
 #endif // GRAPHOS_HAVE_ABOUT
 
+  //TabComponent tab_component(&app);
+
   tl::Console &console = tl::Console::instance();
   console.setMessageLevel(tl::MessageLevel::msg_verbose);
   console.setTitle("Graphos");
@@ -201,10 +206,10 @@ int main(int argc, char *argv[])
     }
   } else {
     //    TL_TODO("Añadir como opción")
-#if defined WIN32
-    HWND hwnd = GetConsoleWindow();
-    ShowWindow(hwnd, 0);
-#endif
+//#if defined WIN32
+//    HWND hwnd = GetConsoleWindow();
+//    ShowWindow(hwnd, 0);
+//#endif
 
     app.freeMemory();
 
@@ -229,6 +234,8 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_CAMERAS
     componentsManager.mainWindowView()->setCamerasToolAction(cameras_component.action());
 #endif
+
+    //componentsManager.mainWindowView()->setTabWidget(tab_component.widget());
 
     //componentsManager.registerComponent(&export_orientations_component);
 
@@ -382,7 +389,8 @@ int main(int argc, char *argv[])
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
 
 
-
+    //QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openImage,
+    //                 &tab_component, &TabComponent::openImage);
 
     componentsManager.loadPlugins();
 
@@ -392,9 +400,9 @@ int main(int argc, char *argv[])
 
     r = a.exec();
 
-    #if defined WIN32
-        ShowWindow(hwnd, 1);
-    #endif
+    //#if defined WIN32
+    //    ShowWindow(hwnd, 1);
+    //#endif
   }
 
 #ifdef HAVE_VLD

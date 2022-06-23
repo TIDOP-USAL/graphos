@@ -37,7 +37,6 @@ class QComboBox;
 class QHBoxLayout;
 class QGridLayout;
 class QSpacerItem;
-class QMenu;
 class QTableView;
 
 namespace graphos
@@ -129,11 +128,6 @@ protected:
   QComboBox *mComboBoxImages;
   QDialogButtonBox *mButtonBox;
   QString mProjectPath;
-  QMenu *mContextMenuLeft;
-  QAction *mActionZoomIn;
-  QAction *mActionZoomOut;
-  QAction *mActionZoomExtend;
-  QAction *mActionZoom11;
 
   bool bSelectedItem;
 };

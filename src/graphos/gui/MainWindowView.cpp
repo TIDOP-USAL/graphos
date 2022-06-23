@@ -26,7 +26,9 @@
 
 #include "graphos/widgets/ThumbnailsWidget.h"
 #include "graphos/widgets/LogWidget.h"
-#include "graphos/gui/utils/TabHandler.h"
+#include "graphos/widgets/TabWidget.h"
+#include "graphos/widgets/GraphicViewer.h"
+#include "graphos/widgets/Viewer3d.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
@@ -92,6 +94,17 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionViewKeypoints(new QAction(this)),
     mActionViewMatches(new QAction(this)),
     mActionOpenModel3D(new QAction(this)),
+    mActionZoomIn(new QAction(this)),
+    mActionZoomOut(new QAction(this)),
+    mActionZoomExtend(new QAction(this)),
+    mActionZoom11(new QAction(this)),
+    mActionGlobalZoom(new QAction(this)),
+    mActionViewFront(new QAction(this)),
+    mActionViewTop(new QAction(this)),
+    mActionViewLeft(new QAction(this)),
+    mActionViewRight(new QAction(this)),
+    mActionViewBack(new QAction(this)),
+    mActionViewBottom(new QAction(this)),
     ui(new Ui::MainWindowView)
 {
   ui->setupUi(this);
@@ -187,7 +200,7 @@ void MainWindowView::clear()
   ui->treeWidgetProperties->clear();
   mFlags.clear();
 
-  if (mTabHandler) mTabHandler->clear();
+  if (mTabWidget) mTabWidget->clear();
 
   update();
 }
@@ -703,9 +716,10 @@ QProgressBar *MainWindowView::progressBar()
   return mProgressBar;
 }
 
-TabHandler *MainWindowView::tabHandler()
+
+TabWidget *MainWindowView::tabWidget()
 {
-  return mTabHandler;
+  return mTabWidget;
 }
 
 void MainWindowView::updateHistory(const QStringList &history)
@@ -840,9 +854,9 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
         item->data(0, Qt::UserRole) == graphos::image_features_matches){
      emit openImage(item->data(column, Qt::UserRole+1).toULongLong());
    } else if (item->data(0, Qt::UserRole) == graphos::sparse_model) {
-     emit openModel3D(item->toolTip(column), true);
+     emit open3DModel(item->toolTip(column), true);
    } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
-     emit openModel3D(item->toolTip(column), false);
+     emit open3DModel(item->toolTip(column), false);
    } else if (item->data(0, Qt::UserRole) == graphos::dsm) {
      emit openDtm();
    } else if (item->data(0, Qt::UserRole) == graphos::ortho) {
@@ -902,13 +916,13 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
   } else if (item->data(0, Qt::UserRole) == graphos::sparse_model){
     if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
       if (selectedItem->text() == tr("Open Point Cloud")) {
-        emit openModel3D(item->toolTip(0), true);
+        emit open3DModel(item->toolTip(0), true);
       }
     }
   } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
     if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
       if (selectedItem->text() == tr("Open Point Cloud")) {
-        emit openModel3D(item->toolTip(0), false);
+        emit open3DModel(item->toolTip(0), false);
       }
     }
   }
@@ -922,7 +936,7 @@ void MainWindowView::initUI()
   mLayoutCentral->setSpacing(6);
   mLayoutCentral->setContentsMargins(0,0,0,0);
 
-  this->initTabHandler();
+  this->initTabWidget();
   this->initThumbnailsTool();
   this->initConsole();
 
@@ -940,10 +954,11 @@ void MainWindowView::initUI()
   this->update();
 }
 
-void MainWindowView::initTabHandler()
+
+void MainWindowView::initTabWidget()
 {
-  mTabHandler = new TabHandler(this->centralWidget());
-  mLayoutCentral->addWidget(mTabHandler);
+  mTabWidget = new TabWidget(this->centralWidget());
+  mLayoutCentral->addWidget(mTabWidget);
 }
 
 void MainWindowView::initThumbnailsTool()
@@ -1027,6 +1042,47 @@ void MainWindowView::initActions()
   mActionViewKeypoints->setIcon(QIcon(":/ico/24/img/material/24/view_points_24px.png"));
   mActionViewMatches->setIcon(QIcon(":/ico/24/img/material/24/view_match_24px.png"));
 
+  QIcon iconZoomIn;
+  iconZoomIn.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-in.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionZoomIn->setIcon(iconZoomIn);
+
+  QIcon iconZoomOut;
+  iconZoomOut.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-out.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionZoomOut->setIcon(iconZoomOut);
+
+  QIcon iconZoomExtend;
+  iconZoomExtend.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-magnifying-glass-with-expand-sign.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionZoomExtend->setIcon(iconZoomExtend);
+
+  QIcon iconZoom11;
+  iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionZoom11->setIcon(iconZoom11);
+
+  mActionGlobalZoom->setIcon(iconZoomExtend);
+
+  QIcon iconViewFront;
+  iconViewFront.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-front-view.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewFront->setIcon(iconViewFront);
+
+  QIcon iconViewTop;
+  iconViewTop.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-top-view.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewTop->setIcon(iconViewTop);
+
+  QIcon iconViewLeft;
+  iconViewLeft.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-cube.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewLeft->setIcon(iconViewLeft);
+
+  QIcon iconViewRight;
+  iconViewRight.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-view_right.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewRight->setIcon(iconViewRight);
+
+  QIcon iconViewBack;
+  iconViewBack.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-back-view.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewBack->setIcon(iconViewBack);
+
+  QIcon iconViewBottom;
+  iconViewBottom.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-bottom-view.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewBottom->setIcon(iconViewBottom);
 }
 
 void MainWindowView::initToolbars()
@@ -1060,10 +1116,10 @@ void MainWindowView::initToolbarView()
 {
   mToolBarView = new QToolBar(this);
   mToolBarView->setObjectName("ToolBarView");
-  mToolBarView->addAction(mTabHandler->actionZoomIn());
-  mToolBarView->addAction(mTabHandler->actionZoomOut());
-  mToolBarView->addAction(mTabHandler->actionZoom11());
-  mToolBarView->addAction(mTabHandler->actionZoomExtend());
+  mToolBarView->addAction(mActionZoomIn);
+  mToolBarView->addAction(mActionZoomOut);
+  mToolBarView->addAction(mActionZoomExtend);
+  mToolBarView->addAction(mActionZoom11);
   this->addToolBar(Qt::TopToolBarArea, mToolBarView);
 }
 
@@ -1071,14 +1127,14 @@ void MainWindowView::initToolbar3dModel()
 {
   mToolBar3dModel = new QToolBar(this);
   mToolBar3dModel->setObjectName("ToolBar3dModel");
-  mToolBar3dModel->addAction(mTabHandler->actionGlobalZoom());
+  mToolBar3dModel->addAction(mActionGlobalZoom);
   mToolBar3dModel->addSeparator();
-  mToolBar3dModel->addAction(mTabHandler->actionViewFront());
-  mToolBar3dModel->addAction(mTabHandler->actionViewBack());
-  mToolBar3dModel->addAction(mTabHandler->actionViewTop());
-  mToolBar3dModel->addAction(mTabHandler->actionViewBottom());
-  mToolBar3dModel->addAction(mTabHandler->actionViewLeft());
-  mToolBar3dModel->addAction(mTabHandler->actionViewRight());
+  mToolBar3dModel->addAction(mActionViewFront);
+  mToolBar3dModel->addAction(mActionViewBack);
+  mToolBar3dModel->addAction(mActionViewTop);
+  mToolBar3dModel->addAction(mActionViewBottom);
+  mToolBar3dModel->addAction(mActionViewLeft);
+  mToolBar3dModel->addAction(mActionViewRight);
   this->addToolBar(Qt::TopToolBarArea, mToolBar3dModel);
 }
 
@@ -1250,6 +1306,85 @@ void MainWindowView::initSignalAndSlots()
   connect(mTreeWidgetProject, SIGNAL(itemSelectionChanged()),   this, SLOT(onSelectionChanged()));
   connect(mTreeWidgetProject, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem *, int)));
 
+  connect(mTabWidget, &TabWidget::allTabsClosed, this, &MainWindowView::allTabsClosed);
+
+  connect(mActionZoomIn, &QAction::triggered, [&]() {
+    if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
+      graphic_viewer->zoomIn();
+    }
+  });
+
+  connect(mActionZoomOut, &QAction::triggered, [&]() {
+    if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
+      graphic_viewer->zoomOut();
+    }
+  });
+
+  connect(mActionZoomExtend, &QAction::triggered, [&]() {
+    if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
+      graphic_viewer->zoomExtend();
+    }
+  });
+
+  connect(mActionZoom11, &QAction::triggered, [&]() {
+    if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
+      graphic_viewer->zoom11();
+    }
+  });
+
+  connect(mActionGlobalZoom, &QAction::triggered, [&]() {
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      model3D->setGlobalZoom();
+    }
+  });
+
+  connect(mActionViewFront, &QAction::triggered, [&]() {
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      model3D->setFrontView();
+    }
+  });
+
+  connect(mActionViewBack, &QAction::triggered, [&]() {
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      model3D->setBackView();
+    }
+  });
+
+  connect(mActionViewTop, &QAction::triggered, [&]() {
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      model3D->setTopView();
+    }
+  });
+
+  connect(mActionViewBottom, &QAction::triggered, [&]() {
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      model3D->setBottomView();
+    }
+  });
+
+  connect(mActionViewLeft, &QAction::triggered, [&]() {
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      model3D->setLeftView();
+    }
+  });
+
+  connect(mActionViewRight, &QAction::triggered, [&]() {
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      model3D->setRightView();
+    }
+  });
+
+  connect(mTabWidget, &TabWidget::imageActive, [&](bool active) {
+    Application &app = Application::instance();
+    AppStatus *app_status = app.status();
+    app_status->activeFlag(AppStatus::Flag::tab_image_active, active);
+  });
+
+  connect(mTabWidget, &TabWidget::model3dActive, [&](bool active) {
+    Application &app = Application::instance();
+    AppStatus *app_status = app.status();
+    app_status->activeFlag(AppStatus::Flag::tab_3d_model_active, active);
+  });
 }
 
 QMenu *MainWindowView::findMenu(Menu menu)
@@ -1316,9 +1451,24 @@ void MainWindowView::update()
   AppStatus *app_status = app.status();
   bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
   bool project_modified = app_status->isActive(AppStatus::Flag::project_modified);
-  bool image_open = app_status->isActive(AppStatus::Flag::image_open);
+  //bool image_open = app_status->isActive(AppStatus::Flag::image_open);
   bool processing = app_status->isActive(AppStatus::Flag::processing);
-  
+  bool image_active = app_status->isActive(AppStatus::Flag::tab_image_active);
+  bool model_3d_active = app_status->isActive(AppStatus::Flag::tab_3d_model_active);
+
+  mActionZoomIn->setEnabled(image_active);
+  mActionZoomOut->setEnabled(image_active);
+  mActionZoomExtend->setEnabled(image_active);
+  mActionZoom11->setEnabled(image_active);
+
+  mActionGlobalZoom->setEnabled(model_3d_active);
+  mActionViewFront->setEnabled(model_3d_active);
+  mActionViewTop->setEnabled(model_3d_active);
+  mActionViewLeft->setEnabled(model_3d_active);
+  mActionViewRight->setEnabled(model_3d_active);
+  mActionViewBack->setEnabled(model_3d_active);
+  mActionViewBottom->setEnabled(model_3d_active);
+
   mMenuRecentProjects->setEnabled(!processing);
   mActionNotRecentProjects->setVisible(mHistory.size() == 0);
   mActionClearHistory->setEnabled(mHistory.size() > 0);
@@ -1353,6 +1503,18 @@ void MainWindowView::retranslate()
   mActionViewKeypoints->setText(QApplication::translate("MainWindowView", "View Keypoints", nullptr));
   mActionViewMatches->setText(QApplication::translate("MainWindowView", "View Matches", nullptr));
   mActionOpenModel3D->setText(QApplication::translate("MainWindowView", "Open Point Cloud", nullptr));
+  mActionZoomIn->setText(QApplication::translate("MainWindowView", "Zoom In"));
+  mActionZoomOut->setText(QApplication::translate("MainWindowView", "Zoom Out"));
+  mActionZoomExtend->setText(QApplication::translate("MainWindowView", "Zoom Extend"));
+  mActionZoom11->setText(QApplication::translate("MainWindowView", "Zoom 1:1"));
+  mActionGlobalZoom->setText(QApplication::translate("MainWindowView", "Global Zoom", nullptr));
+  mActionViewFront->setText(QApplication::translate("MainWindowView", "View Front", nullptr));
+  mActionViewTop->setText(QApplication::translate("MainWindowView", "View Top", nullptr));
+  mActionViewLeft->setText(QApplication::translate("MainWindowView", "View Left", nullptr));
+  mActionViewRight->setText(QApplication::translate("MainWindowView", "View Right", nullptr));
+  mActionViewBack->setText(QApplication::translate("MainWindowView", "View Back", nullptr));
+  mActionViewBottom->setText(QApplication::translate("MainWindowView", "View Bottom", nullptr));
+
 
   mToolBarFile->setWindowTitle(QCoreApplication::translate("MainWindowView", "File", nullptr));
   mToolBarWorkflow->setWindowTitle(QCoreApplication::translate("MainWindowView", "Workflow", nullptr));

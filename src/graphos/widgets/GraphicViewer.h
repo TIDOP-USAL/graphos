@@ -37,6 +37,8 @@
 namespace graphos
 {
 
+class ImageContextMenu;
+
 /*!
  * \brief The GraphicViewer class
  */
@@ -80,8 +82,6 @@ public:
    * \param factor zoom factor (>1)
    */
   virtual void setZoomCtrlFactor(const double factor) = 0;
-
-  virtual void setContextMenu(QMenu *contextMenu) = 0;
 
 public slots:
 
@@ -164,8 +164,6 @@ public:
    */
   virtual void setZoomCtrlFactor(const double factor) override;
 
-  void setContextMenu(QMenu *contextMenu) override;
-
 protected:
 
   virtual void drawOnImage(QPainter *painter, QSize imageSize);
@@ -228,6 +226,7 @@ protected slots:
 private:
 
   void init();
+  void initSignalsAndSlots();
 
 //signals:
 
@@ -249,8 +248,6 @@ protected:
    */
   QSize mImageSize;
 
-  QMenu *mContextMenu;
-
   /*!
    * \brief Factor de zoom
    */
@@ -264,6 +261,8 @@ protected:
   QPixmap mPixmap;
 
   QPoint mPointOld;
+
+  ImageContextMenu *mContextMenu;
 };
 
 

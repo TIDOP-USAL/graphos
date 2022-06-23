@@ -92,34 +92,6 @@ void FeaturesViewerViewImp::initUI()
   mButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
   mButtonBox->button(QDialogButtonBox::Help)->setText("Help");
 
-  mContextMenuLeft = new QMenu(mGraphicView);
-
-  mActionZoomIn = new QAction(this);
-  QIcon iconZoomIn;
-  iconZoomIn.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-in.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomIn->setIcon(iconZoomIn);
-  mContextMenuLeft->addAction(mActionZoomIn);
-
-  mActionZoomOut = new QAction(this);
-  QIcon iconZoomOut;
-  iconZoomOut.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-out.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomOut->setIcon(iconZoomOut);
-  mContextMenuLeft->addAction(mActionZoomOut);
-
-  mActionZoomExtend = new QAction(this);
-  QIcon iconZoomExtend;
-  iconZoomExtend.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-magnifying-glass-with-expand-sign.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomExtend->setIcon(iconZoomExtend);
-  mContextMenuLeft->addAction(mActionZoomExtend);
-
-  mActionZoom11 = new QAction(this);
-  QIcon iconZoom11;
-  iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoom11->setIcon(iconZoom11);
-  mContextMenuLeft->addAction(mActionZoom11);
-
-  mGraphicView->setContextMenu(mContextMenuLeft);
-
   this->retranslate();
   this->update();
 }
@@ -136,11 +108,6 @@ void FeaturesViewerViewImp::initSignalAndSlots()
           this,          &FeaturesViewerViewImp::onTreeWidgetItemSelectionChanged);
   connect(mGraphicView,  &GraphicViewer::selectionChanged,    
           this,          &FeaturesViewerViewImp::onGraphicsViewSelectionChanged);
-
-  connect(mActionZoomIn,     SIGNAL(triggered(bool)), mGraphicView, SLOT(zoomIn()));
-  connect(mActionZoomOut,    SIGNAL(triggered(bool)), mGraphicView, SLOT(zoomOut()));
-  connect(mActionZoomExtend, SIGNAL(triggered(bool)), mGraphicView, SLOT(zoomExtend()));
-  connect(mActionZoom11,     SIGNAL(triggered(bool)), mGraphicView, SLOT(zoom11()));
 
   connect(mButtonBox->button(QDialogButtonBox::Close), 
           &QAbstractButton::clicked, 
@@ -177,10 +144,6 @@ void FeaturesViewerViewImp::retranslate()
   qTreeWidgetItem->setText(2, QApplication::translate("FeaturesViewerView", "Y"));
 //  qTreeWidgetItem->setText(3, QApplication::translate("FeaturesViewerView", "Size"));
 //  qTreeWidgetItem->setText(4, QApplication::translate("FeaturesViewerView", "Angle"));
-  mActionZoomIn->setText(QApplication::translate("FeaturesViewerView", "Zoom In"));
-  mActionZoomOut->setText(QApplication::translate("FeaturesViewerView", "Zoom Out"));
-  mActionZoomExtend->setText(QApplication::translate("FeaturesViewerView", "Zoom Extend"));
-  mActionZoom11->setText(QApplication::translate("FeaturesViewerView", "Zoom 1:1"));
 }
 
 void FeaturesViewerViewImp::onGraphicsViewSelectionChanged()

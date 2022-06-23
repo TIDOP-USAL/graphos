@@ -34,7 +34,6 @@ namespace graphos
 class StartPageWidget;
 class MainWindowView;
 class MainWindowModel;
-class TabHandler;
 
 class MainWindowPresenter
   : public Presenter
@@ -95,7 +94,7 @@ protected slots:
   //void deleteImage(const QString &imageName);
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
-  void openModel3D(const QString &model3D, bool loadCameras);
+  void open3DModel(const QString &model3D, bool loadCameras);
 
   void openDtm();
 
@@ -126,7 +125,6 @@ protected:
 
   MainWindowView *mView;
   MainWindowModel *mModel;
-  TabHandler *mTabHandler;
   StartPageWidget *mStartPageWidget;
   QString mProjectDefaultPath;
 

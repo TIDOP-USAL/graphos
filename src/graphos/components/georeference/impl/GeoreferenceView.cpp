@@ -385,36 +385,6 @@ void GeoreferenceViewImp::initUI()
   mButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Help);
   gridLayout->addWidget(mButtonBox, 3, 0, 1, 5);
 
-
-  mContextMenuLeft = new QMenu(mGraphicViewerWidget);
-
-  mActionZoomIn = new QAction(this);
-  QIcon iconZoomIn;
-  iconZoomIn.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-in.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomIn->setIcon(iconZoomIn);
-  mContextMenuLeft->addAction(mActionZoomIn);
-
-  mActionZoomOut = new QAction(this);
-  QIcon iconZoomOut;
-  iconZoomOut.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-out.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomOut->setIcon(iconZoomOut);
-  mContextMenuLeft->addAction(mActionZoomOut);
-
-  mActionZoomExtend = new QAction(this);
-  QIcon iconZoomExtend;
-  iconZoomExtend.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-magnifying-glass-with-expand-sign.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomExtend->setIcon(iconZoomExtend);
-  mContextMenuLeft->addAction(mActionZoomExtend);
-
-  mActionZoom11 = new QAction(this);
-  QIcon iconZoom11;
-  iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoom11->setIcon(iconZoom11);
-  mContextMenuLeft->addAction(mActionZoom11);
-
-  mGraphicViewerWidget->setContextMenu(mContextMenuLeft);
-
-
   this->retranslate();
   this->update();
 }
@@ -428,10 +398,6 @@ void GeoreferenceViewImp::initSignalAndSlots()
   //connect(mTreeWidgetGroundControlPoints, &QTreeWidget::itemSelectionChanged, this, &GeoreferenceViewImp::onTreeWidgetItemSelectionChanged);
   connect(mGraphicViewerWidget, &GraphicViewer::selectionChanged, this,  &GeoreferenceViewImp::onGraphicsViewSelectionChanged);
   connect(mGraphicViewerWidget, &GraphicViewer::removeSelectItems, this,  &GeoreferenceViewImp::onGraphicsViewRemoveSelectItems);
-  connect(mActionZoomIn,     SIGNAL(triggered(bool)), mGraphicViewerWidget, SLOT(zoomIn()));
-  connect(mActionZoomOut,    SIGNAL(triggered(bool)), mGraphicViewerWidget, SLOT(zoomOut()));
-  connect(mActionZoomExtend, SIGNAL(triggered(bool)), mGraphicViewerWidget, SLOT(zoomExtend()));
-  connect(mActionZoom11,     SIGNAL(triggered(bool)), mGraphicViewerWidget, SLOT(zoom11()));
   connect(mPushButtonAddPoint,  &QAbstractButton::clicked, this, &GeoreferenceViewImp::addGroundControlPoint);
   connect(mPushButtonDeletePoint,  &QAbstractButton::clicked, this, &GeoreferenceViewImp::removeGroundControlPoints);
   connect(mPushButtonGeoreference,  &QAbstractButton::clicked, this, &GeoreferenceViewImp::georeference);
@@ -503,10 +469,6 @@ void GeoreferenceViewImp::retranslate()
   mPushButtonGeoreference->setText(QCoreApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
   mLabelImagePoints->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image Points:", nullptr));
   mLabelImage->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image:", nullptr));
-  mActionZoomIn->setText(QApplication::translate("FeaturesViewerView", "Zoom In"));
-  mActionZoomOut->setText(QApplication::translate("FeaturesViewerView", "Zoom Out"));
-  mActionZoomExtend->setText(QApplication::translate("FeaturesViewerView", "Zoom Extend"));
-  mActionZoom11->setText(QApplication::translate("FeaturesViewerView", "Zoom 1:1"));
   mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("GeoreferenceViewImp", "Cancel", nullptr));
   mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("GeoreferenceViewImp", "Save", nullptr));
   mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("GeoreferenceViewImp", "Help", nullptr));

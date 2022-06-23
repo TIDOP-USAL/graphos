@@ -41,6 +41,10 @@ public:
   AboutComponent(Application *application);
   ~AboutComponent();
 
+private:
+
+  void init();
+
 // ComponentBase
 
 protected:

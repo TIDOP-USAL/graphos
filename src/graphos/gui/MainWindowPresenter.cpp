@@ -23,13 +23,16 @@
 
 #include "MainWindowPresenter.h"
 
-#include "graphos/gui/MainWindowView.h"
-#include "graphos/gui/MainWindowModel.h"
-#include "graphos/gui/utils/TabHandler.h"
-#include "graphos/widgets/StartPageWidget.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/utils.h"
+#include "graphos/widgets/StartPageWidget.h"
+#include "graphos/widgets/TabWidget.h"
+#include "graphos/widgets/GraphicViewer.h"
+#include "graphos/widgets/Viewer3d.h"
+#include "graphos/gui/MainWindowView.h"
+#include "graphos/gui/MainWindowModel.h"
+#include "graphos/gui/utils/TabHandler.h"
 
 /* TidopLib */
 #include <tidop/core/messages.h>
@@ -54,7 +57,6 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
   : Presenter(),
     mView(view),
     mModel(model),
-    mTabHandler(nullptr),
     mStartPageWidget(nullptr)
 {
   this->init();
@@ -206,21 +208,28 @@ void MainWindowPresenter::openStartPage()
 {
   initStartPage();
 
-  const QSignalBlocker blocker(mTabHandler);
+  auto tab = mView->tabWidget();
+
+  const QSignalBlocker blocker(tab);
   int id = -1;
-  for (int i = 0; i < mTabHandler->count(); i++){
-    if (mTabHandler->tabText(i) == mStartPageWidget->windowTitle()){
+  for (int i = 0; i < tab->count(); i++){
+    if (tab->tabText(i) == mStartPageWidget->windowTitle()){
       id = -1;
-      mTabHandler->setCurrentIndex(id);
+      tab->setCurrentIndex(id);
       break;
     }
   }
 
   if (id == -1){
-    id = mTabHandler->addTab(mStartPageWidget, mStartPageWidget->windowTitle());
-    mTabHandler->setCurrentIndex(id);
-    mTabHandler->setTabToolTip(id, mStartPageWidget->windowTitle());
+    id = tab->addTab(mStartPageWidget, mStartPageWidget->windowTitle());
+    tab->setCurrentIndex(id);
+    tab->setTabToolTip(id, mStartPageWidget->windowTitle());
   }
+
+  AppStatus *status = Application::instance().status();
+  status->activeFlag(AppStatus::Flag::tab_image_active, false);
+  status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+
 }
 
 void MainWindowPresenter::loadProject()
@@ -411,12 +420,32 @@ void MainWindowPresenter::openImage(size_t imageId)
 {
   try {
 
-    const Image &image = mModel->image(imageId);
-    mTabHandler->setImage(image.path());
+    auto tab_widget = mView->tabWidget();
+    QString image = mModel->image(imageId).path();
+    
+    int tab_id = tab_widget->fileTab(image);
+
+    if (tab_id != -1) {
+      tab_widget->setCurrentIndex(tab_id);
+    } else {
+      GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+      graphic_viewer->setImage(mModel->readImage(imageId));
+      tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(image).fileName());
+      tab_widget->setCurrentIndex(tab_id);
+      tab_widget->setTabToolTip(tab_id, image);
+
+      graphic_viewer->zoomExtend();
+    }
+
+    AppStatus *status = Application::instance().status();
+    status->activeFlag(AppStatus::Flag::tab_image_active, true);
+    status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
 
   } catch (std::exception &e) {
     tl::printException(e);
   }
+
+
 }
 
 void MainWindowPresenter::activeImage(size_t imageId)
@@ -481,47 +510,69 @@ void MainWindowPresenter::openImageMatches(const QString &sessionName, const QSt
 
 }
 
-void MainWindowPresenter::openModel3D(const QString &model3D, bool loadCameras)
+void MainWindowPresenter::open3DModel(const QString &model3D, 
+                                      bool loadCameras)
 {
   try {
 
     QFileInfo fileInfo(model3D);
     TL_ASSERT(fileInfo.exists(), "File not found");
 
-    mTabHandler->setModel3D(model3D);
-    
-    // Load Cameras
-    if (loadCameras) {
-      for (const auto &image : mModel->images()) {
+    auto tab_widget = mView->tabWidget();
+    int tab_id = tab_widget->fileTab(model3D);
 
-        size_t image_id = image.first;
-        QString name = image.second.name();
+    if (tab_id != -1) {
+      tab_widget->setCurrentIndex(tab_id);
+    } else {
+      CCViewer3D *viewer3D = new CCViewer3D();
+      viewer3D->loadFromFile(model3D);
+      tab_id = tab_widget->addTab(dynamic_cast<QWidget *>(viewer3D), fileInfo.fileName());
+      tab_widget->setCurrentIndex(tab_id);
+      tab_widget->setTabToolTip(tab_id, model3D);
 
-        if (mModel->isPhotoOriented(image_id)) {
+      viewer3D->setGlobalZoom();
 
-          CameraPose photoOrientation = mModel->cameraPose(image_id);
+      //mTabHandler->setModel3D(model3D);
 
-          std::array<double, 3> position;
-          position[0] = photoOrientation.position().x;
-          position[1] = photoOrientation.position().y;
-          position[2] = photoOrientation.position().z;
+      // Load Cameras
+      if (loadCameras) {
+        TL_TODO("Reemplazar por poses() y quitar isPhotoOriented()")
+          for (const auto &image : mModel->images()) {
 
-          std::array<std::array<float, 3>, 3> cameraRotationMatrix;
-          cameraRotationMatrix[0][0] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 0));
-          cameraRotationMatrix[0][1] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 1));
-          cameraRotationMatrix[0][2] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 2));
-          cameraRotationMatrix[1][0] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 0));
-          cameraRotationMatrix[1][1] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 1));
-          cameraRotationMatrix[1][2] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 2));
-          cameraRotationMatrix[2][0] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 0));
-          cameraRotationMatrix[2][1] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 1));
-          cameraRotationMatrix[2][2] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 2));
+            size_t image_id = image.first;
+            QString name = image.second.name();
 
-          mTabHandler->addCamera(name, position, cameraRotationMatrix);
+            if (mModel->isPhotoOriented(image_id)) {
 
-        }
+              CameraPose photoOrientation = mModel->cameraPose(image_id);
+
+              std::array<double, 3> position;
+              position[0] = photoOrientation.position().x;
+              position[1] = photoOrientation.position().y;
+              position[2] = photoOrientation.position().z;
+
+              std::array<std::array<float, 3>, 3> cameraRotationMatrix;
+              cameraRotationMatrix[0][0] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 0));
+              cameraRotationMatrix[0][1] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 1));
+              cameraRotationMatrix[0][2] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 2));
+              cameraRotationMatrix[1][0] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 0));
+              cameraRotationMatrix[1][1] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 1));
+              cameraRotationMatrix[1][2] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 2));
+              cameraRotationMatrix[2][0] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 0));
+              cameraRotationMatrix[2][1] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 1));
+              cameraRotationMatrix[2][2] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 2));
+
+              //mTabHandler->addCamera(name, position, cameraRotationMatrix);
+              viewer3D->addCamera(name, position[0], position[1], position[2], cameraRotationMatrix);
+
+            }
+          }
       }
     }
+
+    AppStatus *status = Application::instance().status();
+    status->activeFlag(AppStatus::Flag::tab_image_active, false);
+    status->activeFlag(AppStatus::Flag::tab_3d_model_active, true);
 
   } catch (std::exception &e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
@@ -608,7 +659,6 @@ void MainWindowPresenter::init()
 {
   initDefaultPath();
 
-  mTabHandler = mView->tabHandler();
   openStartPage(); /// Show Start Page
 
   /* Projects history */
@@ -665,11 +715,17 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Visor de imagenes */
 
-  connect(mView, SIGNAL(openModel3D(QString, bool)),          this, SLOT(openModel3D(QString, bool)));
+  connect(mView, SIGNAL(open3DModel(QString, bool)),          this, SLOT(open3DModel(QString, bool)));
 
   /* Visor DTM/DSM */
 
   connect(mView, SIGNAL(openDtm()), this, SLOT(openDtm()));
+
+  connect(mView, &MainWindowView::allTabsClosed, []() { 
+    AppStatus *status = Application::instance().status();
+    status->activeFlag(AppStatus::Flag::tab_image_active, false);
+    status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+  });
 }
 
 void MainWindowPresenter::initDefaultPath()
