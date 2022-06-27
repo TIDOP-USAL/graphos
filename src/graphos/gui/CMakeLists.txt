@@ -53,7 +53,6 @@ set(GRAPHOS_SOURCES
     MainWindowView.cpp
     HelpDialog.cpp
     utils/ProgressDialog.cpp
-    utils/TabHandler.cpp
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
 )
 
@@ -64,7 +63,6 @@ set(GRAPHOS_HEADERS
     MainWindowView.h
     HelpDialog.h
     utils/ProgressDialog.h
-    utils/TabHandler.h
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
 )
 
@@ -116,7 +114,6 @@ foreach(_source IN ITEMS ${GRAPHOS_HEADERS})
     source_group("Header Files\\${_group_path}" FILES "${_source}")
 endforeach()
 
-# Lincado de librerias
 target_link_libraries(${PROJECT_NAME}
                       TidopLib::tl_core
                       TidopLib::tl_geom
@@ -171,12 +168,9 @@ target_link_libraries(${PROJECT_NAME}
                       ${Boost_CHRONO_LIBRARY}
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
                       ${Boost_REGEX_LIBRARY}
-                      ${CLOUDCOMPARE_LIBRARIES})
+                      ${CLOUDCOMPARE_LIBRARIES}
+                      $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)
 
-
-if(HAVE_VLD)
-target_link_libraries(${PROJECT_NAME} ${VLD_LIBRARY})
-endif()
 
 if(ENABLE_SOLUTION_FOLDERS)
   set_target_properties(${PROJECT_NAME}  PROPERTIES FOLDER "graphos")

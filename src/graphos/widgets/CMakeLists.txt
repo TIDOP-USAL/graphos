@@ -47,9 +47,13 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
 
 add_library(Graphos::Widgets ALIAS ${PROJECT_NAME})
 
+target_include_directories(${PROJECT_NAME} PUBLIC
+                           ${CLOUDCOMPARE_INCLUDE_DIR})
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
                       TidopLib::tl_core
-                      TidopLib::tl_img)
+                      TidopLib::tl_img
+                      ${CLOUDCOMPARE_LIBRARIES})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
 

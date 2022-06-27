@@ -39,6 +39,7 @@ namespace graphos
 
 std::unique_ptr<Application> Application::sApplication;
 std::mutex Application::sMutex;
+std::once_flag Application::sInitFlag;
 
 Application::Application()
   : mAppStatus(new AppStatus()),
@@ -168,12 +169,10 @@ void Application::clearHistory()
 
 Application &Application::instance()
 {
-  if (sApplication.get() == nullptr) {
-    std::lock_guard<std::mutex> lck(Application::sMutex);
-    if (sApplication.get() == nullptr) {
-      sApplication.reset(new Application());
-    }
-  }
+  std::call_once(sInitFlag, []() {
+    sApplication.reset(new Application());
+  });
+
   return *sApplication;
 }
 

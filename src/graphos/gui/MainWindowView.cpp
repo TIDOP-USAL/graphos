@@ -73,6 +73,7 @@ enum
 
 MainWindowView::MainWindowView(QWidget *parent)
   : QMainWindow(parent),
+    ui(new Ui::MainWindowView),
     mActionNewProject(new QAction(this)),
     mActionOpenProject(new QAction(this)),
     mActionSaveProject(new QAction(this)),
@@ -104,8 +105,7 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionViewLeft(new QAction(this)),
     mActionViewRight(new QAction(this)),
     mActionViewBack(new QAction(this)),
-    mActionViewBottom(new QAction(this)),
-    ui(new Ui::MainWindowView)
+    mActionViewBottom(new QAction(this))
 {
   ui->setupUi(this);
 
@@ -1276,23 +1276,15 @@ void MainWindowView::initSignalAndSlots()
   //connect(mActionExportOrientations,   &QAction::triggered, this,   &MainWindowView::openExportOrientations);
   connect(mActionExportPointCloud,     &QAction::triggered, this,   &MainWindowView::openExportPointCloud);
   connect(mActionCloseProject,         &QAction::triggered, this,   &MainWindowView::closeProject);
-  //connect(mActionExit,                 &QAction::triggered, this,   &MainWindowView::exit);
   connect(mActionExit, &QAction::triggered,                 this, &MainWindowView::close);
 
   /* Menú View */
 
   connect(mActionStartPage,          &QAction::triggered,   this,   &MainWindowView::openStartPage);
 
-  /* Menú Flujo de trabajo */
-
-  /* Menú herramientas */
-
-  //connect(mActionSettings,           SIGNAL(triggered(bool)),   this,   SIGNAL(openSettings()));
-
   /* Menú Ayuda */
 
   connect(mActionHelp,               SIGNAL(triggered(bool)),   this,   SIGNAL(openHelpDialog()));
-  //connect(mActionAbout,              SIGNAL(triggered(bool)),   this,   SIGNAL(openAboutDialog()));
 
   /* Panel de vistas en miniatura */
 
