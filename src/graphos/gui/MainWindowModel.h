@@ -58,15 +58,8 @@ public:
   bool isAbsoluteOrientation() const;
 
   std::list<std::pair<QString, QString>> exif(const QString &image) const;
-
-  /*!
-   * \brief Devuelve la ruta por defecto donde se situan los proyectos
-   * \return
-   */
-  //QString defaultPath() const;
-
-  bool isPhotoOriented(size_t imageId) const;
-  CameraPose cameraPose(size_t imageId) const;
+  
+  const std::unordered_map<size_t, CameraPose> &poses() const;
 
   QString denseModel() const;
 

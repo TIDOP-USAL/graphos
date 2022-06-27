@@ -72,7 +72,6 @@ void TabWidget::initMenu()
 
 void TabWidget::initSignalAndSlots()
 {
-  /// Mover a presentador
   connect(this, SIGNAL(tabCloseRequested(int)),                     this, SLOT(closeTab(int)));
   connect(this, SIGNAL(currentChanged(int)),                        this, SLOT(onTabChanged(int)));
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onTabWidgetContextMenu(const QPoint &)));
@@ -146,11 +145,9 @@ void TabWidget::onTabChanged(int tabId)
   if (graphicViewer) {
     emit imageActive(true);
     emit model3dActive(false);
-    //this->setImage(this->tabToolTip(tabId));
   } else if (viewer3D) {
     emit model3dActive(true);
     emit imageActive(false);
-    //this->setModel3D(this->tabToolTip(tabId));
   } else {
     emit imageActive(false);
     emit model3dActive(false);

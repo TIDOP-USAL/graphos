@@ -26,91 +26,20 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/sfm/orientationcolmap.h"
 
-//#include <tidop/core/messages.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
 
-//#include <QStandardPaths>
-//#include <QDir>
 
 namespace graphos
 {
 
 MainWindowModel::MainWindowModel(Project *project)
-  : /*mPrjDefaultPath(""),*/
-    mProject(project),
+  : mProject(project),
     bUnsavedChanges(false)
 {
   this->init();
 }
-
-bool MainWindowModel::isPhotoOriented(size_t imageId) const
-{
-  return mProject->isPhotoOriented(imageId);
-}
-
-CameraPose MainWindowModel::cameraPose(size_t imageId) const
-{
-  return mProject->photoOrientation(imageId);
-}
-
-QString MainWindowModel::denseModel() const
-{
-  return mProject->denseModel();
-}
-
-//Image MainWindowModel::findImageByName(const QString &imageName) const
-//{
-//  return mProject->findImageByName(imageName);
-//}
-//
-//size_t MainWindowModel::imageID(const QString &imageName) const
-//{
-//  return mProject->imageId(imageName);
-//}
-//
-//bool MainWindowModel::removeImage(const QString &imageName)
-//{
-//  Image img = mProject->findImageByName(imageName);
-//  std::vector<std::string> _images;
-//  _images.push_back(img.path().toStdString());
-//  colmapRemoveOrientations(_images, mProject->reconstructionPath().toStdString());
-//  return mProject->removeImage(imageID(imageName));
-//}
-//
-//void MainWindowModel::removeImages(const QStringList &images)
-//{
-//  std::vector<std::string> _images(images.size());
-//  for (size_t i = 0; i < images.size(); i++) {
-//    _images[i] = mProject->findImageByName(images[i]).path().toStdString();
-//    mProject->removeImage(imageID(images[i]));
-//  }
-//  QString reconstruction_path = mProject->reconstructionPath();
-//  if (!reconstruction_path.isEmpty())
-//    colmapRemoveOrientations(_images, reconstruction_path.toStdString());
-//}
-//
-//MainWindowModel::image_iterator MainWindowModel::imageBegin()
-//{
-//  return mProject->imageBegin();
-//}
-//
-//MainWindowModel::image_const_iterator MainWindowModel::imageBegin() const
-//{
-//  return mProject->imageBegin();
-//}
-//
-//MainWindowModel::image_iterator MainWindowModel::imageEnd()
-//{
-//  return mProject->imageEnd();
-//}
-//
-//MainWindowModel::image_const_iterator MainWindowModel::imageEnd() const
-//{
-//  return mProject->imageEnd();
-//}
-
 
 QString MainWindowModel::projectName() const
 {
@@ -867,6 +796,16 @@ std::list<std::pair<QString, QString> > MainWindowModel::exif(const QString &ima
   }
 
   return exif;
+}
+
+const std::unordered_map<size_t, CameraPose> &MainWindowModel::poses() const
+{
+  return mProject->poses();
+}
+
+QString MainWindowModel::denseModel() const
+{
+  return mProject->denseModel();
 }
 
 bool MainWindowModel::checkUnsavedChanges() const

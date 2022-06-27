@@ -532,41 +532,31 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
 
       viewer3D->setGlobalZoom();
 
-      //mTabHandler->setModel3D(model3D);
-
-      // Load Cameras
       if (loadCameras) {
-        TL_TODO("Reemplazar por poses() y quitar isPhotoOriented()")
-          for (const auto &image : mModel->images()) {
 
-            size_t image_id = image.first;
-            QString name = image.second.name();
+        for (const auto &pose : mModel->poses()) {
+          size_t image_id = pose.first;
+          CameraPose camera_pose = pose.second;
 
-            if (mModel->isPhotoOriented(image_id)) {
+          std::array<double, 3> position;
+          position[0] = camera_pose.position().x;
+          position[1] = camera_pose.position().y;
+          position[2] = camera_pose.position().z;
 
-              CameraPose photoOrientation = mModel->cameraPose(image_id);
+          std::array<std::array<float, 3>, 3> cameraRotationMatrix;
+          cameraRotationMatrix[0][0] = static_cast<float>(camera_pose.rotationMatrix().at(0, 0));
+          cameraRotationMatrix[0][1] = static_cast<float>(camera_pose.rotationMatrix().at(0, 1));
+          cameraRotationMatrix[0][2] = static_cast<float>(camera_pose.rotationMatrix().at(0, 2));
+          cameraRotationMatrix[1][0] = static_cast<float>(camera_pose.rotationMatrix().at(1, 0));
+          cameraRotationMatrix[1][1] = static_cast<float>(camera_pose.rotationMatrix().at(1, 1));
+          cameraRotationMatrix[1][2] = static_cast<float>(camera_pose.rotationMatrix().at(1, 2));
+          cameraRotationMatrix[2][0] = static_cast<float>(camera_pose.rotationMatrix().at(2, 0));
+          cameraRotationMatrix[2][1] = static_cast<float>(camera_pose.rotationMatrix().at(2, 1));
+          cameraRotationMatrix[2][2] = static_cast<float>(camera_pose.rotationMatrix().at(2, 2));
 
-              std::array<double, 3> position;
-              position[0] = photoOrientation.position().x;
-              position[1] = photoOrientation.position().y;
-              position[2] = photoOrientation.position().z;
+          viewer3D->addCamera(mModel->image(image_id).name(), position[0], position[1], position[2], cameraRotationMatrix);
+        }
 
-              std::array<std::array<float, 3>, 3> cameraRotationMatrix;
-              cameraRotationMatrix[0][0] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 0));
-              cameraRotationMatrix[0][1] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 1));
-              cameraRotationMatrix[0][2] = static_cast<float>(photoOrientation.rotationMatrix().at(0, 2));
-              cameraRotationMatrix[1][0] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 0));
-              cameraRotationMatrix[1][1] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 1));
-              cameraRotationMatrix[1][2] = static_cast<float>(photoOrientation.rotationMatrix().at(1, 2));
-              cameraRotationMatrix[2][0] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 0));
-              cameraRotationMatrix[2][1] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 1));
-              cameraRotationMatrix[2][2] = static_cast<float>(photoOrientation.rotationMatrix().at(2, 2));
-
-              //mTabHandler->addCamera(name, position, cameraRotationMatrix);
-              viewer3D->addCamera(name, position[0], position[1], position[2], cameraRotationMatrix);
-
-            }
-          }
       }
     }
 
@@ -600,27 +590,6 @@ void MainWindowPresenter::deleteMatches()
 //  TL_TODO("completar")
 //  mMatchesModel->clear();
 }
-
-//void MainWindowPresenter::processFinished()
-//{
-//  Application &app = Application::instance();
-//  AppStatus *app_status = app.status();
-//
-//  app_status->activeFlag(AppStatus::Flag::processing, false);
-//  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-//}
-//
-//void MainWindowPresenter::processRunning()
-//{
-//  //mView->setFlag(MainWindowView::Flag::processing, true);
-//
-//  Application &app = Application::instance();
-//  app.status()->activeFlag(AppStatus::Flag::processing, true);
-//}
-//
-//void MainWindowPresenter::processFailed()
-//{
-//}
 
 void MainWindowPresenter::loadingImages(bool loading)
 {
@@ -708,10 +677,10 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Panel de vistas en miniatura */
 
-  connect(mView, &MainWindowView::openImage,          this, &MainWindowPresenter::openImage);
-  connect(mView, SIGNAL(selectImage(size_t)),        this, SLOT(activeImage(size_t)));
+  connect(mView, &MainWindowView::openImage,                  this, &MainWindowPresenter::openImage);
+  connect(mView, SIGNAL(selectImage(size_t)),                 this, SLOT(activeImage(size_t)));
   connect(mView, SIGNAL(selectImages(std::vector<size_t>)),   this, SLOT(activeImages(std::vector<size_t>)));
-  connect(mView, SIGNAL(delete_images(std::vector<size_t>)),   this, SLOT(deleteImages(std::vector<size_t>)));
+  connect(mView, SIGNAL(delete_images(std::vector<size_t>)),  this, SLOT(deleteImages(std::vector<size_t>)));
 
   /* Visor de imagenes */
 
