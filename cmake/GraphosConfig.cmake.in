@@ -55,6 +55,9 @@ set(COLMAP_ROOT "" CACHE PATH "COLMAP root directory")
 get_filename_component(COLMAP_ROOT "@COLMAP_INCLUDE_DIR@" PATH)
 find_dependency(COLMAP REQUIRED)
 
+set(CLOUDCOMPARE_ROOT "@CLOUDCOMPARE_ROOT@" CACHE PATH "CLOUDCOMPARE root directory")
+find_dependency(CloudCompare REQUIRED)
+
 #if(MSVC)
 #  # Some fixes for the Glog library.
 #  add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")

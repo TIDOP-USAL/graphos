@@ -38,8 +38,53 @@
 #include "ccGLWindow.h"
 #include <ccCameraSensor.h>
 
+#include "graphos/widgets/GraphosWidget.h"
+
 namespace graphos
 {
+
+class Viewer3DContextMenu
+  : public GraphosContextMenu
+{
+  Q_OBJECT
+
+public:
+
+  Viewer3DContextMenu(QWidget *parent = nullptr);
+  ~Viewer3DContextMenu() override = default;
+
+signals:
+
+  void globalZoom();
+  void viewFront();
+  void viewTop(); 
+  void viewLeft();
+  void viewRight(); 
+  void viewBack();  
+  void viewBottom();
+
+private:
+
+  void init();
+  void initSignalAndSlots();
+
+  // GraphosContextMenu
+
+private slots:
+
+  void retranslate() override;
+
+private:
+
+  QAction *mActionGlobalZoom;
+  QAction *mActionViewFront;
+  QAction *mActionViewTop;
+  QAction *mActionViewLeft;
+  QAction *mActionViewRight;
+  QAction *mActionViewBack;
+  QAction *mActionViewBottom;
+
+};
 
 /*!
  * \brief The IGraphicViewer class
@@ -153,9 +198,13 @@ protected slots:
    */
   void selectEntity(ccHObject *entity);
 
+  void showContextMenu(const QPoint &position);
+  void mousePressEvent(QMouseEvent *event) override;
+
 private:
 
   void init();
+  void initSignalsAndSlots();
 
   void addToDB(ccHObject *entity);
   //void scaleAlreadyDisplayed(ccHObject *entity);
@@ -164,6 +213,11 @@ private:
    * \brief Función para buscar un objeto mediante su nombre
    */
   ccHObject *findChild(const QString &name, ccHObject *parent = nullptr);
+
+private:
+
+  Viewer3DContextMenu *mContextMenu;
+  QPoint mMousePress;
 };
 
 

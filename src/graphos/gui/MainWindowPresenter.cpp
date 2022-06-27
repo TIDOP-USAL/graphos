@@ -32,7 +32,6 @@
 #include "graphos/widgets/Viewer3d.h"
 #include "graphos/gui/MainWindowView.h"
 #include "graphos/gui/MainWindowModel.h"
-#include "graphos/gui/utils/TabHandler.h"
 
 /* TidopLib */
 #include <tidop/core/messages.h>
@@ -695,7 +694,7 @@ void MainWindowPresenter::initSignalAndSlots()
   /* Menú herramientas */
 
   //connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
-  connect(mView,   &MainWindowView::openDtmDialog,         this, &MainWindowPresenter::openDtmDialog);
+  //connect(mView,   &MainWindowView::openDtmDialog,         this, &MainWindowPresenter::openDtmDialog);
 
   /* Menú Ayuda */
 
@@ -704,7 +703,7 @@ void MainWindowPresenter::initSignalAndSlots()
     emit help("");
   });
 
-  connect(mView, &MainWindowView::openAboutDialog,    this, &MainWindowPresenter::openAboutDialog);
+  //connect(mView, &MainWindowView::openAboutDialog,    this, &MainWindowPresenter::openAboutDialog);
 
   /* Panel de vistas en miniatura */
 

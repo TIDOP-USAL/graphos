@@ -55,8 +55,8 @@ signals:
   void openExportPointCloudDialog();
   void openGeoreferenceDialog();
   void openCamerasImportDialog();
-  void openAboutDialog();
-  void openDtmDialog();
+  //void openAboutDialog();
+  //void openDtmDialog();
 
 protected slots:
 

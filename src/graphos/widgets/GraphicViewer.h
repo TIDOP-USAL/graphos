@@ -111,9 +111,9 @@ protected slots:
 
   /*!
    * \brief Mostrar el menú contextual (al hacer clic con el botón derecho)
-   * \param[in] pos Posición del mouse en el widget
+   * \param[in] position Posición del mouse en el widget
    */
-  virtual void showContextMenu(const QPoint &pos) = 0;
+  virtual void showContextMenu(const QPoint &position) = 0;
 
 signals:
 

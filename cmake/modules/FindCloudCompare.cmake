@@ -1,6 +1,6 @@
 unset(CLOUDCOMPARE_FOUND)
 
-SET(CLOUDCOMPARE_DIR "" CACHE PATH "Root folder of CloudCompare dependency")
+SET(CLOUDCOMPARE_ROOT "" CACHE PATH "Root folder of CloudCompare dependency")
 
 list(APPEND CLOUDCOMPARE_CHECK_INCLUDE_DIRS
   /opt/local/include
@@ -8,7 +8,7 @@ list(APPEND CLOUDCOMPARE_CHECK_INCLUDE_DIRS
   /usr/local/homebrew/include # Mac OS X
   /usr/local/include
   /usr/include
-  ${CLOUDCOMPARE_DIR}/include)
+  ${CLOUDCOMPARE_ROOT}/include)
   
 list(APPEND CLOUDCOMPARE_CHECK_LIBRARY_DIRS
   /opt/local/lib
@@ -16,7 +16,7 @@ list(APPEND CLOUDCOMPARE_CHECK_LIBRARY_DIRS
   /usr/local/homebrew/lib # Mac OS X
   /usr/local/lib
   /usr/lib
-  ${CLOUDCOMPARE_DIR}/lib)
+  ${CLOUDCOMPARE_ROOT}/lib)
   
 # Additional suffixes to try appending to each search path.
 list(APPEND CLOUDCOMPARE_CHECK_PATH_SUFFIXES

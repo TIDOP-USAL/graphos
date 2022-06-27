@@ -36,11 +36,93 @@
 /* Qt */
 #include <QMouseEvent>
 #include <QFileInfo>
+#include <QApplication>
 
 #include <array>
 
 namespace graphos
 {
+
+
+
+Viewer3DContextMenu::Viewer3DContextMenu(QWidget *parent)
+  : GraphosContextMenu(parent),
+    mActionGlobalZoom(new QAction(this)),
+    mActionViewFront(new QAction(this)),
+    mActionViewTop(new QAction(this)),
+    mActionViewLeft(new QAction(this)),
+    mActionViewRight(new QAction(this)),
+    mActionViewBack(new QAction(this)),
+    mActionViewBottom(new QAction(this))
+{
+  init();
+  initSignalAndSlots();
+}
+
+void Viewer3DContextMenu::init()
+{
+  QIcon iconZoomExtend;
+  iconZoomExtend.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-magnifying-glass-with-expand-sign.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionGlobalZoom->setIcon(iconZoomExtend);
+
+  QIcon iconViewFront;
+  iconViewFront.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-front-view.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewFront->setIcon(iconViewFront);
+
+  QIcon iconViewTop;
+  iconViewTop.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-top-view.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewTop->setIcon(iconViewTop);
+
+  QIcon iconViewLeft;
+  iconViewLeft.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-cube.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewLeft->setIcon(iconViewLeft);
+
+  QIcon iconViewRight;
+  iconViewRight.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-view_right.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewRight->setIcon(iconViewRight);
+
+  QIcon iconViewBack;
+  iconViewBack.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-back-view.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewBack->setIcon(iconViewBack);
+
+  QIcon iconViewBottom;
+  iconViewBottom.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-bottom-view.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionViewBottom->setIcon(iconViewBottom);
+
+  this->addAction(mActionGlobalZoom);
+  this->addSeparator();
+  this->addAction(mActionViewFront);
+  this->addAction(mActionViewTop);
+  this->addAction(mActionViewLeft);
+  this->addAction(mActionViewRight);
+  this->addAction(mActionViewBack);
+  this->addAction(mActionViewBottom);
+
+  retranslate();
+}
+
+void Viewer3DContextMenu::initSignalAndSlots()
+{
+  connect(mActionGlobalZoom, &QAction::triggered, this, &Viewer3DContextMenu::globalZoom);
+  connect(mActionViewFront,  &QAction::triggered, this, &Viewer3DContextMenu::viewFront);
+  connect(mActionViewTop,    &QAction::triggered, this, &Viewer3DContextMenu::viewTop);
+  connect(mActionViewLeft,   &QAction::triggered, this, &Viewer3DContextMenu::viewLeft);
+  connect(mActionViewRight,  &QAction::triggered, this, &Viewer3DContextMenu::viewRight);
+  connect(mActionViewBack,   &QAction::triggered, this, &Viewer3DContextMenu::viewBack);
+  connect(mActionViewBottom, &QAction::triggered, this, &Viewer3DContextMenu::viewBottom);
+}
+
+void Viewer3DContextMenu::retranslate()
+{
+  mActionGlobalZoom->setText(QApplication::translate("Viewer3DContextMenu", "Global Zoom", nullptr));
+  mActionViewFront->setText(QApplication::translate("Viewer3DContextMenu", "View Front", nullptr));
+  mActionViewTop->setText(QApplication::translate("Viewer3DContextMenu", "View Top", nullptr));
+  mActionViewLeft->setText(QApplication::translate("Viewer3DContextMenu", "View Left", nullptr));
+  mActionViewRight->setText(QApplication::translate("Viewer3DContextMenu", "View Right", nullptr));
+  mActionViewBack->setText(QApplication::translate("Viewer3DContextMenu", "View Back", nullptr));
+  mActionViewBottom->setText(QApplication::translate("Viewer3DContextMenu", "View Bottom", nullptr));
+}
+
 
 /* ----------------------------------------------------------------------------------------- */
 
@@ -48,13 +130,11 @@ CCViewer3D::CCViewer3D(QWidget *parent)
   : ccGLWindow(nullptr),
     mSelectedObject(nullptr),
     mScaleX(1),
-    mScaleY(1)
+    mScaleY(1),
+    mContextMenu(new Viewer3DContextMenu(this))
 {
   init();
-
-  connect(this,	SIGNAL(filesDropped(QStringList)),          this, SLOT(addToDB(QStringList)));
-  connect(this,	SIGNAL(entitySelectionChanged(ccHObject*)), this, SLOT(selectEntity(ccHObject*)));
-
+  initSignalsAndSlots();
 }
 
 CCViewer3D::~CCViewer3D()
@@ -428,6 +508,20 @@ ccHObject *CCViewer3D::findChild(const QString &name, ccHObject *parent)
   return nullptr;
 }
 
+void CCViewer3D::showContextMenu(const QPoint &position)
+{
+  QPoint globalPos = mapToGlobal(position);
+  if (mMousePress == position)
+    mContextMenu->exec(globalPos);
+}
+
+void CCViewer3D::mousePressEvent(QMouseEvent *event)
+{
+  ccGLWindow::mousePressEvent(event);
+
+  mMousePress = event->pos();
+}
+
 void CCViewer3D::setVisible(const QString &id, bool visible)
 {
   if (ccHObject *currentRoot = getSceneDB()) {
@@ -532,6 +626,25 @@ void CCViewer3D::init()
     currentRoot->showNormals(false);
     this->setSceneDB(currentRoot);
   }
+
+  setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void CCViewer3D::initSignalsAndSlots()
+{
+  //connect(this, SIGNAL(filesDropped(QStringList)), this, SLOT(addToDB(QStringList)));
+  connect(this, SIGNAL(entitySelectionChanged(ccHObject *)), this, SLOT(selectEntity(ccHObject *)));
+
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
+
+  connect(mContextMenu, &Viewer3DContextMenu::globalZoom, this, &CCViewer3D::setGlobalZoom);
+  connect(mContextMenu, &Viewer3DContextMenu::viewFront,  this, &CCViewer3D::setFrontView);
+  connect(mContextMenu, &Viewer3DContextMenu::viewTop,    this, &CCViewer3D::setTopView);
+  connect(mContextMenu, &Viewer3DContextMenu::viewLeft,   this, &CCViewer3D::setLeftView);
+  connect(mContextMenu, &Viewer3DContextMenu::viewRight,  this, &CCViewer3D::setRightView);
+  connect(mContextMenu, &Viewer3DContextMenu::viewBack,   this, &CCViewer3D::setBackView);
+  connect(mContextMenu, &Viewer3DContextMenu::viewBottom, this, &CCViewer3D::setBottomView);
+
 }
 
 void CCViewer3D::addToDB(ccHObject *entity)

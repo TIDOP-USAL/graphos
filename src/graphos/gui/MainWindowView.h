@@ -180,8 +180,6 @@ signals:
 
   /* Menu File */
 
-  //void openNew();
-  //void openProject();
   void openProjectFromHistory(QString);
   void clearHistory();
   void saveProject();
@@ -199,30 +197,17 @@ signals:
 
   void openStartPage();
 
-  /* Menú flujo de trabajo */
-
-  //void loadImages();
-  //void openFeatureExtraction();
-  //void openFeatureMatching();
-  //void openOrientation();
-  //void openDensification();
-
   /* Menú herramientas */
 
-  void openCamerasDialog();
-  //void openGeoreferenceDialog();
+  //void openCamerasDialog();
   void openKeypointsViewer(size_t);
-  //void openKeypointsViewerFromImage(QString);
   void openMatchesViewer(size_t);
-  //void openMatchesViewerFromImages(QString,QString);
-  //void openMultiviewMatchingAssessment();
-  //void openSettings();
-  void openDtmDialog();
+  //void openDtmDialog();
 
   /* Menú Ayuda */
 
   void openHelpDialog();
-  void openAboutDialog();
+  //void openAboutDialog();
   
   void selectImage(size_t);
   void selectImages(std::vector<size_t>);
@@ -301,8 +286,9 @@ public:
   void closeEvent(QCloseEvent *event) override;
 
 
-protected:
+private:
 
+  Ui::MainWindowView *ui;
   QTreeWidget *mTreeWidgetProject;
   QAction *mActionNewProject;
   QAction *mActionOpenProject;
@@ -362,10 +348,6 @@ protected:
   std::vector<QAction*> mHistory;
   QGridLayout *mLayoutCentral;
   TabWidget *mTabWidget;
-
-private:
-
-  Ui::MainWindowView *ui;
 
 };
 
