@@ -137,87 +137,88 @@ public:
 
       QString gcp_file = QString::fromStdWString(path.toWString());
       QFile file(gcp_file);
-      TL_ASSERT(file.open(QFile::ReadOnly), "Open error");
+      if (file.open(QFile::ReadOnly)) {
 
-      QXmlStreamReader stream;
-      stream.setDevice(&file);
+        QXmlStreamReader stream;
+        stream.setDevice(&file);
 
-      if (stream.readNextStartElement()) {
-        if (stream.name() == "Graphos") {
-          while (stream.readNextStartElement()) {
-            if (stream.name() == "GroundControlPoints") {
-              while (stream.readNextStartElement()) {
-                if (stream.name() == "Crs") {
-                  setEPSGCode(stream.readElementText().toStdString());
-                } else if (stream.name() == "GroundControlPoint") {
+        if (stream.readNextStartElement()) {
+          if (stream.name() == "Graphos") {
+            while (stream.readNextStartElement()) {
+              if (stream.name() == "GroundControlPoints") {
+                while (stream.readNextStartElement()) {
+                  if (stream.name() == "Crs") {
+                    setEPSGCode(stream.readElementText().toStdString());
+                  } else if (stream.name() == "GroundControlPoint") {
 
-                  GroundControlPoint gcp;
-                  GCPTrack track;
+                    GroundControlPoint gcp;
+                    GCPTrack track;
 
-                  while (stream.readNextStartElement()) {
-                    if (stream.name() == "Name") {
-                      gcp.setName(stream.readElementText().toStdString());
-                    } else if (stream.name() == "x") {
-                      gcp.x = stream.readElementText().toDouble();
-                    } else if (stream.name() == "y") {
-                      gcp.y = stream.readElementText().toDouble();
-                    } else if (stream.name() == "z") {
-                      gcp.z = stream.readElementText().toDouble();
-                    } else if (stream.name() == "error") {
-                      QString error = stream.readElementText();
-                    } else if (stream.name() == "ImagePoints") {
+                    while (stream.readNextStartElement()) {
+                      if (stream.name() == "Name") {
+                        gcp.setName(stream.readElementText().toStdString());
+                      } else if (stream.name() == "x") {
+                        gcp.x = stream.readElementText().toDouble();
+                      } else if (stream.name() == "y") {
+                        gcp.y = stream.readElementText().toDouble();
+                      } else if (stream.name() == "z") {
+                        gcp.z = stream.readElementText().toDouble();
+                      } else if (stream.name() == "error") {
+                        QString error = stream.readElementText();
+                      } else if (stream.name() == "ImagePoints") {
 
-                      while (stream.readNextStartElement()) {
+                        while (stream.readNextStartElement()) {
 
-                        if (stream.name() == "ImagePoint") {
+                          if (stream.name() == "ImagePoint") {
 
 
-                          size_t image_id = 0;
-                          tl::PointD point_2d;
+                            size_t image_id = 0;
+                            tl::PointD point_2d;
 
-                          for (auto &attr : stream.attributes()) {
-                            if (attr.name().compare(QString("image_id")) == 0) {
-                              image_id = attr.value().toULongLong();
-                              break;
+                            for (auto &attr : stream.attributes()) {
+                              if (attr.name().compare(QString("image_id")) == 0) {
+                                image_id = attr.value().toULongLong();
+                                break;
+                              }
                             }
-                          }
 
-                          while (stream.readNextStartElement()) {
-                            if (stream.name() == "x") {
-                              point_2d.x = stream.readElementText().toDouble();
-                            } else if (stream.name() == "y") {
-                              point_2d.y = stream.readElementText().toDouble();
-                            } else {
-                              stream.skipCurrentElement();
+                            while (stream.readNextStartElement()) {
+                              if (stream.name() == "x") {
+                                point_2d.x = stream.readElementText().toDouble();
+                              } else if (stream.name() == "y") {
+                                point_2d.y = stream.readElementText().toDouble();
+                              } else {
+                                stream.skipCurrentElement();
+                              }
                             }
-                          }
 
-                          track.addPoint(image_id, point_2d);
+                            track.addPoint(image_id, point_2d);
 
-                        } else
-                          stream.skipCurrentElement();
+                          } else
+                            stream.skipCurrentElement();
 
+                        }
+
+                      } else {
+                        stream.skipCurrentElement();
                       }
-
-                    } else {
-                      stream.skipCurrentElement();
                     }
-                  }
 
-                  gcp.setTrack(track);
-                  addGroundControlPoint(gcp);
+                    gcp.setTrack(track);
+                    addGroundControlPoint(gcp);
 
-                } else
-                  stream.skipCurrentElement();
-              }
-            } else
-              stream.skipCurrentElement();
+                  } else
+                    stream.skipCurrentElement();
+                }
+              } else
+                stream.skipCurrentElement();
+            }
+          } else {
+            stream.raiseError(QObject::tr("Incorrect project file"));
           }
-        } else {
-          stream.raiseError(QObject::tr("Incorrect project file"));
-        }
 
-        file.close();
+          file.close();
+        }
       }
 
     } catch (...) {

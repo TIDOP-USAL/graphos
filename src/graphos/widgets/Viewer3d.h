@@ -31,6 +31,7 @@
 /* Qt */
 #include <QObject>
 #include <QOpenGLWidget>
+#include <QVector3D>
 
 #include <tidop/core/defs.h>
 
@@ -39,6 +40,9 @@
 #include <ccCameraSensor.h>
 
 #include "graphos/widgets/GraphosWidget.h"
+
+class cc2DLabel;
+class cc2DViewportLabel;
 
 namespace graphos
 {
@@ -101,11 +105,14 @@ public:
   virtual ~Viewer3D() {}
 
   virtual void clear() = 0;
-  virtual void createGroup(const QString &group, const QString &parent = QString()) = 0;
+  virtual void createGroup(const QString &group,
+                           const QString &parent = QString()) = 0;
   virtual void deleteEntity(const QString &id) = 0;
   virtual void deleteSelectEntity() = 0;
-  virtual void loadFromFile(const QString &file, const QString &parent = QString()) = 0;
-  virtual void loadFromFiles(const QStringList &files, const QString &parent = QString()) = 0;
+  virtual void loadFromFile(const QString &file, 
+                            const QString &parent = QString()) = 0;
+  virtual void loadFromFiles(const QStringList &files, 
+                             const QString &parent = QString()) = 0;
 
   /* Vistas por defecto */
   virtual void setFrontView() = 0;
@@ -120,7 +127,11 @@ public:
 
   virtual void setVisible(const QString &id, bool visible) = 0;
   
-    virtual void addCamera(const QString &id, double x, double y, double z, const std::array<std::array<float,3>, 3> &rot) = 0;
+  virtual void addCamera(const QString &id, 
+                         double x, 
+                         double y,
+                         double z, 
+                         const std::array<std::array<float,3>, 3> &rot) = 0;
 
 protected:
 
@@ -136,38 +147,71 @@ class CCViewer3D
 
   Q_OBJECT
 
-private:
+public:
 
-  ccHObject *mSelectedObject;
-  double mScaleX;
-  double mScaleY;
-  std::map<QString, ccCameraSensor *> mCameras;
+  /*!
+   * \brief Picking mode
+   */
+  enum class PickingMode
+  {
+    point_info,
+    distance,
+    angle,
+    rect_zone,
+    point_list,
+    level_points
+  };
 
+  enum class Perspective
+  {
+    ortho_view,
+    centered_perspective,
+    view_perspective
+  };
+
+  enum class Rotation
+  {
+    always_show,
+    show_on_move,
+    hide
+  };
+  
 public:
 
   explicit CCViewer3D(QWidget *parent = nullptr);
   ~CCViewer3D() override;
 
   void clear() override;
-  void createGroup(const QString &group, const QString &parent = QString()) override;
+  void createGroup(const QString &group, 
+                   const QString &parent = QString()) override;
   void deleteEntity(const QString &id) override;
 
-  void loadFromFile(const QString &file, const QString &parent = QString()) override;
-  void loadFromFiles(const QStringList &files, const QString &parent = QString()) override;
+  void loadFromFile(const QString &file, 
+                    const QString &parent = QString()) override;
+  void loadFromFiles(const QStringList &files, 
+                     const QString &parent = QString()) override;
 
   void setScale(double x, double y);
 
-  void addCamera(const QString &id, double x, double y, double z, const std::array<std::array<float, 3>, 3> &rot) override;
+  void addCamera(const QString &id, 
+                 double x, 
+                 double y, 
+                 double z, 
+                 const std::array<std::array<float, 3>, 3> &rot) override;
 
-//signals:
-//
-//  void entitySelect(bool);
+  void activatePicker(PickingMode pickerMode);
+  void deactivatePicker();
+
+signals:
+
+  void mouseClicked(QVector3D);
 
 public slots:
 
   void deleteSelectEntity() override;
 
   /* Vistas por defecto */
+  
   void setFrontView() override;
   void setBottomView() override;
   void setTopView() override;
@@ -197,7 +241,11 @@ protected slots:
    * \brief selecciona una entidad
    */
   void selectEntity(ccHObject *entity);
-
+  void processPickedPoint(ccHObject *entity,
+                          unsigned pointIndex, 
+                          int x, 
+                          int y, 
+                          const CCVector3 &point);
   void showContextMenu(const QPoint &position);
   void mousePressEvent(QMouseEvent *event) override;
 
@@ -207,7 +255,6 @@ private:
   void initSignalsAndSlots();
 
   void addToDB(ccHObject *entity);
-  //void scaleAlreadyDisplayed(ccHObject *entity);
 
   /*!
    * \brief Función para buscar un objeto mediante su nombre
@@ -216,6 +263,14 @@ private:
 
 private:
 
+  ccHObject *mSelectedObject;
+  double mScaleX;
+  double mScaleY;
+  std::map<QString, ccCameraSensor *> mCameras;
+  ccHObject *mOrderedLabelsContainer;
+  PickingMode mPickingMode;
+  cc2DLabel *mLabel;
+  cc2DViewportLabel *mRect2DLabel;
   Viewer3DContextMenu *mContextMenu;
   QPoint mMousePress;
 };

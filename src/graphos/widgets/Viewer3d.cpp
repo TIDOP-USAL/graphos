@@ -32,6 +32,9 @@
 #include <ccGenericMesh.h>
 #include <ccHObjectCaster.h>
 #include <ccColorScalesManager.h>
+#include <ccCameraSensor.h>
+#include <cc2DLabel.h>
+#include <cc2DViewportLabel.h>
 
 /* Qt */
 #include <QMouseEvent>
@@ -126,11 +129,13 @@ void Viewer3DContextMenu::retranslate()
 
 /* ----------------------------------------------------------------------------------------- */
 
+
 CCViewer3D::CCViewer3D(QWidget *parent) 
   : ccGLWindow(nullptr),
     mSelectedObject(nullptr),
     mScaleX(1),
     mScaleY(1),
+    mOrderedLabelsContainer(nullptr),
     mContextMenu(new Viewer3DContextMenu(this))
 {
   init();
@@ -146,6 +151,16 @@ CCViewer3D::~CCViewer3D()
     this->setSceneDB(nullptr);
     delete currentRoot;
     currentRoot = nullptr;
+  }
+  
+    if (mLabel) {
+    delete mLabel;
+    mLabel = nullptr;
+  }
+
+  if (mRect2DLabel) {
+    delete mRect2DLabel;
+    mRect2DLabel = nullptr;
   }
 }
 
@@ -319,7 +334,11 @@ void CCViewer3D::setScale(double x, double y)
   this->resizeGL(this->width(), this->height());
 }
 
-void CCViewer3D::addCamera(const QString &id, double x, double y, double z, const std::array<std::array<float, 3>, 3> &rot)
+void CCViewer3D::addCamera(const QString &id, 
+                           double x,
+                           double y, 
+                           double z, 
+                           const std::array<std::array<float, 3>, 3> &rot)
 {
   ccCameraSensor *camera = new ccCameraSensor();
 
@@ -412,6 +431,45 @@ void CCViewer3D::addCamera(const QString &id, double x, double y, double z, cons
   }
 
   addToDB(camera);
+}
+
+void CCViewer3D::activatePicker(PickingMode pickerMode)
+{
+  deactivatePicker();
+
+  this->setPickingMode(ccGLWindow::POINT_PICKING);
+
+  mPickingMode = pickerMode;
+
+  this->addToOwnDB(mLabel);
+  this->addToOwnDB(mRect2DLabel);
+
+  if (pickerMode != PickingMode::point_list) {
+    mLabel->setVisible(true);
+    mLabel->setSelected(true);
+  }
+
+  mRect2DLabel->setVisible(false);
+  mRect2DLabel->setSelected(true);
+  this->redraw();
+
+  this->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA());
+  this->redraw(true);
+
+  connect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &)),
+          this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &)));
+}
+
+void CCViewer3D::deactivatePicker()
+{
+  disconnect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &)),
+             this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &)));
+
+  mLabel->clear();
+
+  this->removeFromOwnDB(mLabel);
+  this->removeFromOwnDB(mRect2DLabel);
+  this->redraw();
 }
 
 /* public slots */
@@ -613,6 +671,96 @@ void CCViewer3D::selectEntity(ccHObject *entity)
 
 /* private */
 
+void CCViewer3D::processPickedPoint(ccHObject *entity,
+                                    unsigned pointIndex, 
+                                    int x, 
+                                    int y, 
+                                    const CCVector3 &point)
+{
+  if (!entity || entity->isKindOf(CC_TYPES::POINT_CLOUD) == false)
+    return;
+
+  //emit mouseClicked(QVector3D(point[0], point[1], point[2]));
+
+
+
+  ccPointCloud *cloud = 0;
+  cloud = static_cast<ccPointCloud *>(entity);
+  if (!cloud) {
+    return;
+  }
+
+  CCVector3d P = cloud->toGlobal3d(*cloud->getPoint(pointIndex));
+
+  emit mouseClicked(QVector3D(P.x, P.y, P.z));
+
+
+  switch (mPickingMode) {
+    case PickingMode::point_info:
+      mLabel->clear();
+      break;
+    case PickingMode::distance:
+      if (mLabel->size() >= 2)
+        mLabel->clear();
+      break;
+    case PickingMode::angle:
+      if (mLabel->size() >= 3)
+        mLabel->clear();
+      break;
+    case PickingMode::rect_zone:
+      return; //we don't use this slot for 2D mode
+    case PickingMode::point_list:
+      cc2DLabel *newLabel = new cc2DLabel();
+      ccGenericGLDisplay *display = cloud->getDisplay();
+      newLabel->setDisplay(display);
+      newLabel->addPoint(cloud, pointIndex);
+      newLabel->setVisible(true);
+      newLabel->setDisplayedIn2D(false);
+      newLabel->setCollapsed(true);
+      newLabel->setName("label");
+
+      if (display) {
+        QSize size = display->getScreenSize();
+        newLabel->setPosition((float)(x + 20) / size.width(), (float)(y + 20) / size.height());
+      }
+
+      if (!mOrderedLabelsContainer) {
+        mOrderedLabelsContainer = new ccHObject();
+        cloud->addChild(mOrderedLabelsContainer, true);
+        this->addToOwnDB(mOrderedLabelsContainer); //***********************************
+      }
+
+      newLabel->setName("P" + QString::number(mOrderedLabelsContainer->getChildrenNumber() + 1));
+      assert(mOrderedLabelsContainer);
+      mOrderedLabelsContainer->addChild(newLabel, true);
+      this->addToOwnDB(newLabel); //***********************************
+      this->redraw();
+
+      return;
+  }
+
+  mLabel->addPoint(cloud, pointIndex);
+  mLabel->setVisible(true);
+  //ccGenericGLDisplay* display = cloud->getDisplay();
+  //mLabel->setDisplay(display);
+  //QSize size = display->getScreenSize();
+  //if (mLabel->size() == 1 && mGlWindow) {
+  //  //mLabel->setPosition((float)(x+20)/(float)associatedWin->width(),(float)(y+20)/(float)associatedWin->height());
+  //  mLabel->setPosition((float)(x + 20) / size.width(), (float)(y + 20) / size.height());
+  //}
+  mLabel->displayPointLegend(mLabel->size() == 3); //we need to display 'A', 'B' and 'C' for 3-points labels
+  if (mLabel->size() == 1) {
+    mLabel->setPosition(static_cast<float>(x + 20) / this->glWidth(), static_cast<float>(y + 20) / this->glHeight());
+  }
+  //output info to Console
+  //    QStringList body = mLabel->getLabelContent(ccGui::Parameters().displayedNumPrecision);
+  //    ccLog::Print(QString("[Picked] ")+mLabel->getName());
+  //    for (int i=0;i<body.size();++i)
+  //        ccLog::Print(QString("[Picked]\t- ")+body[i]);
+
+  this->redraw();
+}
+
 void CCViewer3D::init()
 {
   /* Inicialización de CloudCompare */
@@ -626,6 +774,17 @@ void CCViewer3D::init()
     currentRoot->showNormals(false);
     this->setSceneDB(currentRoot);
   }
+
+  this->setRectangularPickingAllowed(false);
+
+  //for points picking
+  mLabel = new cc2DLabel();
+  mLabel->setSelected(true);
+
+  //for 2D zone picking
+  mRect2DLabel = new cc2DViewportLabel();
+  mRect2DLabel->setVisible(false);	//=invalid
+  mRect2DLabel->setSelected(true);	//=closed
 
   setContextMenuPolicy(Qt::CustomContextMenu);
 }

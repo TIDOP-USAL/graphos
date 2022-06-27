@@ -105,7 +105,10 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionViewLeft(new QAction(this)),
     mActionViewRight(new QAction(this)),
     mActionViewBack(new QAction(this)),
-    mActionViewBottom(new QAction(this))
+    mActionViewBottom(new QAction(this)),
+    mActionPointMeasuse(new QAction(this)),
+    mActionDistanceMeasuse(new QAction(this)),
+    mActionAngleMeasure(new QAction(this))
 {
   ui->setupUi(this);
 
@@ -1083,6 +1086,21 @@ void MainWindowView::initActions()
   QIcon iconViewBottom;
   iconViewBottom.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-bottom-view.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionViewBottom->setIcon(iconViewBottom);
+
+  QIcon iconPointMeasuse;
+  iconPointMeasuse.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-cursor.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionPointMeasuse->setIcon(iconPointMeasuse);
+  mActionPointMeasuse->setCheckable(true);
+
+  QIcon iconDistanceMeasuse;
+  iconDistanceMeasuse.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_ruler_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionDistanceMeasuse->setIcon(iconDistanceMeasuse);
+  mActionDistanceMeasuse->setCheckable(true);
+
+  QIcon iconAngleMeasure;
+  iconAngleMeasure.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_measurement_tool_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionAngleMeasure->setIcon(iconAngleMeasure);
+  mActionAngleMeasure->setCheckable(true);
 }
 
 void MainWindowView::initToolbars()
@@ -1135,6 +1153,10 @@ void MainWindowView::initToolbar3dModel()
   mToolBar3dModel->addAction(mActionViewBottom);
   mToolBar3dModel->addAction(mActionViewLeft);
   mToolBar3dModel->addAction(mActionViewRight);
+  mToolBar3dModel->addSeparator();
+  mToolBar3dModel->addAction(mActionPointMeasuse);
+  mToolBar3dModel->addAction(mActionDistanceMeasuse);
+  mToolBar3dModel->addAction(mActionAngleMeasure);
   this->addToolBar(Qt::TopToolBarArea, mToolBar3dModel);
 }
 
@@ -1366,6 +1388,52 @@ void MainWindowView::initSignalAndSlots()
     }
   });
 
+  connect(mActionPointMeasuse, &QAction::toggled, [&](bool checked) {
+
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      const QSignalBlocker block_distance_measuse(mActionDistanceMeasuse);
+      const QSignalBlocker block_angle_measuse(mActionAngleMeasure);
+      mActionDistanceMeasuse->setChecked(false);
+      mActionAngleMeasure->setChecked(false);
+
+      if (checked)
+        model3D->activatePicker(CCViewer3D::PickingMode::point_info);
+      else
+        model3D->deactivatePicker();
+    }
+
+  });
+
+  connect(mActionDistanceMeasuse, &QAction::toggled, [&](bool checked) {
+
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      const QSignalBlocker block_point_measuse(mActionPointMeasuse);
+      const QSignalBlocker block_angle_measuse(mActionAngleMeasure);
+      mActionPointMeasuse->setChecked(false);
+      mActionAngleMeasure->setChecked(false);
+
+      if (checked)
+        model3D->activatePicker(CCViewer3D::PickingMode::distance);
+      else
+        model3D->deactivatePicker();
+    }
+  });
+
+  connect(mActionAngleMeasure, &QAction::toggled, [&](bool checked) {
+
+    if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
+      const QSignalBlocker block_point_measuse(mActionPointMeasuse);
+      const QSignalBlocker block_distance_measuse(mActionDistanceMeasuse);
+      mActionPointMeasuse->setChecked(false);
+      mActionDistanceMeasuse->setChecked(false);
+
+      if (checked)
+        model3D->activatePicker(CCViewer3D::PickingMode::angle);
+      else
+        model3D->deactivatePicker();
+    }
+  });
+
   connect(mTabWidget, &TabWidget::imageActive, [&](bool active) {
     Application &app = Application::instance();
     AppStatus *app_status = app.status();
@@ -1460,6 +1528,9 @@ void MainWindowView::update()
   mActionViewRight->setEnabled(model_3d_active);
   mActionViewBack->setEnabled(model_3d_active);
   mActionViewBottom->setEnabled(model_3d_active);
+  mActionPointMeasuse->setEnabled(model_3d_active);
+  mActionDistanceMeasuse->setEnabled(model_3d_active);
+  mActionAngleMeasure->setEnabled(model_3d_active);
 
   mMenuRecentProjects->setEnabled(!processing);
   mActionNotRecentProjects->setVisible(mHistory.size() == 0);
@@ -1506,6 +1577,9 @@ void MainWindowView::retranslate()
   mActionViewRight->setText(QApplication::translate("MainWindowView", "View Right", nullptr));
   mActionViewBack->setText(QApplication::translate("MainWindowView", "View Back", nullptr));
   mActionViewBottom->setText(QApplication::translate("MainWindowView", "View Bottom", nullptr));
+  mActionPointMeasuse->setText(QApplication::translate("MainWindowView", "Point Measure", nullptr));
+  mActionDistanceMeasuse->setText(QApplication::translate("MainWindowView", "Distance Measure", nullptr));
+  mActionAngleMeasure->setText(QApplication::translate("MainWindowView", "Angle Measure", nullptr));
 
 
   mToolBarFile->setWindowTitle(QCoreApplication::translate("MainWindowView", "File", nullptr));

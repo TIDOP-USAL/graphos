@@ -339,6 +339,9 @@ private:
   QAction *mActionViewRight;
   QAction *mActionViewBack;
   QAction *mActionViewBottom;
+  QAction *mActionPointMeasuse;
+  QAction *mActionDistanceMeasuse;
+  QAction *mActionAngleMeasure;
 
   ThumbnailsWidget *mThumbnailsWidget;
   LogWidget *mLogWidget;
