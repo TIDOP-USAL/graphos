@@ -37,6 +37,7 @@ class QTreeWidgetItem;
 class QComboBox;
 class QProgressBar;
 class QGridLayout;
+class QGraphicsPolygonItem;
 
 namespace graphos
 {
@@ -246,6 +247,8 @@ private slots:
   void onSelectionChanged();
   void onItemDoubleClicked(QTreeWidgetItem *item, int column);
   void onTreeContextMenu(const QPoint &point);
+  void drawMask(const QPointF &point);
+  void deleteMask();
 
 private:
 
@@ -258,6 +261,7 @@ private:
   void initToolbarFile();
   void initToolbarWorkflow();
   void initToolbarView();
+  void initToolbarMask();
   void initToolbar3dModel();
   void initToolbarTools();
   void initTreeWidget();
@@ -316,6 +320,7 @@ private:
   QToolBar *mToolBarWorkflow;
   QToolBar *mToolBarTools;
   QToolBar *mToolBarView;
+  QToolBar *mToolBarMask;
   QToolBar *mToolBar3dModel;
 
   ///TreeWidget
@@ -332,6 +337,9 @@ private:
   QAction *mActionZoomOut;
   QAction *mActionZoomExtend;
   QAction *mActionZoom11;
+  QAction *mActionDrawMask;
+  QAction *mActionDeleteMask;
+  QAction *mActionViewMask;
   QAction *mActionGlobalZoom;
   QAction *mActionViewFront;
   QAction *mActionViewTop;
@@ -352,6 +360,8 @@ private:
   QGridLayout *mLayoutCentral;
   TabWidget *mTabWidget;
 
+  QPolygonF mPolygon;
+  QGraphicsPolygonItem *mGraphicsPolygonItem;
 };
 
 ALLOW_BITWISE_FLAG_OPERATIONS(MainWindowView::Flag)

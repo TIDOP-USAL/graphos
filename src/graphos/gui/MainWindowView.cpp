@@ -99,6 +99,9 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionZoomOut(new QAction(this)),
     mActionZoomExtend(new QAction(this)),
     mActionZoom11(new QAction(this)),
+    mActionDrawMask(new QAction(this)),
+    mActionDeleteMask(new QAction(this)),
+    mActionViewMask(new QAction(this)),
     mActionGlobalZoom(new QAction(this)),
     mActionViewFront(new QAction(this)),
     mActionViewTop(new QAction(this)),
@@ -108,7 +111,8 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionViewBottom(new QAction(this)),
     mActionPointMeasuse(new QAction(this)),
     mActionDistanceMeasuse(new QAction(this)),
-    mActionAngleMeasure(new QAction(this))
+    mActionAngleMeasure(new QAction(this)),
+    mGraphicsPolygonItem(nullptr)
 {
   ui->setupUi(this);
 
@@ -931,6 +935,26 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
   }
 }
 
+void MainWindowView::drawMask(const QPointF &point)
+{
+  mPolygon << point;
+
+  mGraphicsPolygonItem->setPolygon(mPolygon);
+
+  //mMaskDraw = true;
+
+  update();
+}
+
+void MainWindowView::deleteMask()
+{
+  mPolygon.clear();
+  mGraphicsPolygonItem->setPolygon(mPolygon);
+
+  //mMaskDraw = false;
+  update();
+}
+
 void MainWindowView::initUI()
 {
   setWindowTitle(QString("Graphos"));
@@ -1061,6 +1085,15 @@ void MainWindowView::initActions()
   iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionZoom11->setIcon(iconZoom11);
 
+  QIcon iconDrawMask;
+  iconDrawMask.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-edit.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionDrawMask->setIcon(iconDrawMask);
+  mActionDrawMask->setCheckable(true);
+
+  QIcon iconDeleteMask;
+  iconDeleteMask.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-delete-forever.png"), QSize(), QIcon::Normal, QIcon::Off);
+  mActionDeleteMask->setIcon(iconDeleteMask);
+
   mActionGlobalZoom->setIcon(iconZoomExtend);
 
   QIcon iconViewFront;
@@ -1108,6 +1141,7 @@ void MainWindowView::initToolbars()
   this->initToolbarFile();
   this->initToolbarWorkflow();
   this->initToolbarView();
+  this->initToolbarMask();
   this->initToolbar3dModel();
   this->initToolbarTools();
 }
@@ -1139,6 +1173,16 @@ void MainWindowView::initToolbarView()
   mToolBarView->addAction(mActionZoomExtend);
   mToolBarView->addAction(mActionZoom11);
   this->addToolBar(Qt::TopToolBarArea, mToolBarView);
+}
+
+void MainWindowView::initToolbarMask()
+{
+  mToolBarMask = new QToolBar(this);
+  mToolBarMask->setObjectName("ToolBarMask");
+  mToolBarMask->addAction(mActionDrawMask);
+  mToolBarMask->addAction(mActionDeleteMask);
+  mToolBarMask->addAction(mActionViewMask);
+  this->addToolBar(Qt::TopToolBarArea, mToolBarMask);
 }
 
 void MainWindowView::initToolbar3dModel()
@@ -1249,6 +1293,7 @@ void MainWindowView::initMenuView()
   mMenuToolBar->addAction(mToolBarFile->toggleViewAction());
   mMenuToolBar->addAction(mToolBarWorkflow->toggleViewAction());
   mMenuToolBar->addAction(mToolBarView->toggleViewAction());
+  mMenuToolBar->addAction(mToolBarMask->toggleViewAction());
   mMenuToolBar->addAction(mToolBar3dModel->toggleViewAction());
   mMenuToolBar->addAction(mToolBarTools->toggleViewAction());
   ui->menuView->addMenu(mMenuToolBar);
@@ -1345,6 +1390,30 @@ void MainWindowView::initSignalAndSlots()
       graphic_viewer->zoom11();
     }
   });
+
+  connect(mActionDrawMask, &QAction::toggled, [&](bool active) {
+
+    if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
+
+      if (active) {
+
+        QBrush brush(Qt::red, Qt::DiagCrossPattern);
+        QPen pen(Qt::red);
+        mGraphicsPolygonItem = graphic_viewer->scene()->addPolygon(mPolygon, pen, brush);
+
+        connect(graphic_viewer, SIGNAL(mouseClicked(QPointF)), this, SLOT(drawMask(const QPointF &)));
+
+        deleteMask();
+
+      } else {
+
+        disconnect(graphic_viewer, SIGNAL(mouseClicked(QPointF)), this, SLOT(drawMask(const QPointF &)));
+
+      }
+    }
+  });
+
+  connect(mActionDeleteMask, &QAction::triggered, this, &MainWindowView::deleteMask);
 
   connect(mActionGlobalZoom, &QAction::triggered, [&]() {
     if (auto *model3D = dynamic_cast<CCViewer3D *>(mTabWidget->currentWidget())) {
@@ -1520,6 +1589,8 @@ void MainWindowView::update()
   mActionZoomOut->setEnabled(image_active);
   mActionZoomExtend->setEnabled(image_active);
   mActionZoom11->setEnabled(image_active);
+  mActionDrawMask->setEnabled(image_active);
+  mActionDeleteMask->setEnabled(image_active);
 
   mActionGlobalZoom->setEnabled(model_3d_active);
   mActionViewFront->setEnabled(model_3d_active);
@@ -1570,6 +1641,11 @@ void MainWindowView::retranslate()
   mActionZoomOut->setText(QApplication::translate("MainWindowView", "Zoom Out"));
   mActionZoomExtend->setText(QApplication::translate("MainWindowView", "Zoom Extend"));
   mActionZoom11->setText(QApplication::translate("MainWindowView", "Zoom 1:1"));
+
+  mActionDrawMask->setText(QApplication::translate("MainWindowView", "Draw Mask"));
+  mActionDeleteMask->setText(QApplication::translate("MainWindowView", "Delete Mask"));
+  mActionViewMask->setText(QApplication::translate("MainWindowView", "View Mask"));
+
   mActionGlobalZoom->setText(QApplication::translate("MainWindowView", "Global Zoom", nullptr));
   mActionViewFront->setText(QApplication::translate("MainWindowView", "View Front", nullptr));
   mActionViewTop->setText(QApplication::translate("MainWindowView", "View Top", nullptr));
