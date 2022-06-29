@@ -118,6 +118,9 @@
         <file>img/material/24/icons8_mesh_24px.png</file>
         <file>img/material/24/icons8_measurement_tool_24px.png</file>
         <file>img/material/24/icons8_ruler_24px.png</file>
+        <file>img/material/24/icons8_maximize_window_24px.png</file>
+        <file>img/material/24/icons8_minimize_window_24px.png</file>
+        <file>img/material/24/icons8_cancel_24px.png</file>
     </qresource>
     <qresource prefix="/ico/48">
         <file>img/material/48/icons8-match_view.png</file>

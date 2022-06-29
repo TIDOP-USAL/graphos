@@ -43,7 +43,11 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             ImageMenu.cpp
             ImageMenu.h
             TabWidget.cpp
-            TabWidget.h)
+            TabWidget.h
+            ProgressBarDialog.cpp
+            ProgressBarDialog.h
+            ProgressBarWidget.cpp
+            ProgressBarWidget.h)
 
 add_library(Graphos::Widgets ALIAS ${PROJECT_NAME})
 

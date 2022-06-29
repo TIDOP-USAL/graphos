@@ -35,7 +35,7 @@ class MainWindowView;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QComboBox;
-class QProgressBar;
+//class QProgressBar;
 class QGridLayout;
 
 namespace graphos
@@ -45,6 +45,7 @@ class ThumbnailsWidget;
 class LogWidget;
 class GraphicViewer;
 class TabWidget;
+class ProgressBarWidget;
 
 class MainWindowView
   : public QMainWindow
@@ -149,7 +150,7 @@ public:
    */
   void setProperties(const std::list<std::pair<QString, QString> > &properties);
 
-  QProgressBar *progressBar();
+  ProgressBarWidget *progressBar();
 
   /*!
    * \brief Tab handler
@@ -345,7 +346,7 @@ private:
 
   ThumbnailsWidget *mThumbnailsWidget;
   LogWidget *mLogWidget;
-  QProgressBar *mProgressBar;
+  ProgressBarWidget *mProgressBar;
 
   tl::EnumFlags<Flag> mFlags;
   std::vector<QAction*> mHistory;

@@ -29,6 +29,7 @@
 #include "graphos/widgets/TabWidget.h"
 #include "graphos/widgets/GraphicViewer.h"
 #include "graphos/widgets/Viewer3d.h"
+#include "graphos/widgets/ProgressBarWidget.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
@@ -714,7 +715,7 @@ void MainWindowView::setProperties(const std::list<std::pair<QString, QString>> 
   }
 }
 
-QProgressBar *MainWindowView::progressBar()
+ProgressBarWidget *MainWindowView::progressBar()
 {
   return mProgressBar;
 }
@@ -1280,9 +1281,9 @@ void MainWindowView::initMenuHelp()
 
 void MainWindowView::initProgressBar()
 {
-  mProgressBar = new QProgressBar(this);
+  mProgressBar = new ProgressBarWidget(this);
   mProgressBar->setVisible(false);
-  mProgressBar->setMaximumSize(150, 20);
+  mProgressBar->setMaximumSize(220, 20);
   ui->statusBar->addPermanentWidget(mProgressBar);
 }
 

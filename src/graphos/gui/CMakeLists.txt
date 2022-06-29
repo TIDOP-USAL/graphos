@@ -52,7 +52,7 @@ set(GRAPHOS_SOURCES
     MainWindowPresenter.cpp
     MainWindowView.cpp
     HelpDialog.cpp
-    utils/ProgressDialog.cpp
+    #utils/ProgressDialog.cpp
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
 )
 
@@ -62,7 +62,7 @@ set(GRAPHOS_HEADERS
     MainWindowPresenter.h
     MainWindowView.h
     HelpDialog.h
-    utils/ProgressDialog.h
+    #utils/ProgressDialog.h
     ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
 )
 
@@ -73,7 +73,7 @@ endif(MSVC)
 # forms
 set(GRAPHOS_FORMS
   MainWindowView.ui
-  utils/ProgressDialog.ui
+  #utils/ProgressDialog.ui
 )
 
 # Translation files

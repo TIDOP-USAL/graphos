@@ -31,7 +31,8 @@
 #include "graphos/components/cameras/CamerasComponent.h"
 #include "graphos/gui/HelpDialog.h"
 #include "graphos/core/process/Progress.h"
-#include "graphos/gui/utils/ProgressDialog.h"
+#include "graphos/widgets/ProgressBarDialog.h"
+#include "graphos/widgets/ProgressBarWidget.h"
 #include "graphos/core/Plugin.h"
 
 #include <tidop/core/console.h>
@@ -329,22 +330,22 @@ ProgressHandler *ComponentsManager::progressHandler()
     connect(mProgressHandler, SIGNAL(closeAuto(bool)),            this->progressDialog(), SLOT(setCloseAuto(bool)));
 
     connect(this->progressDialog(), SIGNAL(cancel()),             mProgressHandler, SIGNAL(cancel()));
-    QProgressBar *statusBarProgress = this->mainWindowView()->progressBar();
+    ProgressBarWidget *statusBarProgress = this->mainWindowView()->progressBar();
 
     connect(mProgressHandler, SIGNAL(rangeChange(int, int)),      statusBarProgress, SLOT(setRange(int, int)));
     connect(mProgressHandler, SIGNAL(valueChange(int)),           statusBarProgress, SLOT(setValue(int)));
     connect(mProgressHandler, SIGNAL(initialized()),              statusBarProgress, SLOT(show()));
     connect(mProgressHandler, SIGNAL(finished()),                 statusBarProgress, SLOT(hide()));
-
+    connect(statusBarProgress, SIGNAL(maximized()),               this->progressDialog(), SLOT(show()));
   }
 
   return mProgressHandler;
 }
 
-ProgressDialog *ComponentsManager::progressDialog()
+ProgressBarDialog *ComponentsManager::progressDialog()
 {
   if (mProgressDialog == nullptr){
-    mProgressDialog = new ProgressDialogImp;
+    mProgressDialog = new ProgressBarDialog;
   }
 
   return mProgressDialog;

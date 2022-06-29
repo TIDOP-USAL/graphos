@@ -21,85 +21,79 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_COMPONENTS_MANAGER_H
-#define GRAPHOS_COMPONENTS_MANAGER_H
+#ifndef GRAPHOS_PROGRESS_BAR_DIALOG_H
+#define GRAPHOS_PROGRESS_BAR_DIALOG_H
 
-#include <memory>
+#include "graphos/core/mvp.h"
 
-#include <QObject>
+class QLabel;
+class QPushButton;
+class QProgressBar;
 
-#include <tidop/core/flags.h>
 
 namespace graphos
 {
 
-class Component;
-class MainWindowModel;
-class MainWindowView;
-class MainWindowPresenter;
-class ProgressHandler;
-class ProgressBarDialog;
-class HelpDialog;
-
-class ComponentsManager
-  : public QObject
+class ProgressBarDialog
+  : public DialogView
 {
   Q_OBJECT
 
 public:
 
-  enum class Flags
-  {
-    none = (0 << 0), 
-    separator_before = (1 << 0),
-    separator_after = (1 << 1)
-  };
+  explicit ProgressBarDialog(QWidget *parent = nullptr);
+  ~ProgressBarDialog() override = default;
 
-public:
+public slots:
 
-  explicit ComponentsManager(QObject *parent = nullptr);
-  ~ComponentsManager();
+  void setRange(int min, int max);
+  void setValue(int value);
+  void setInitialized();
+  void setFinished();
+  void setTitle(QString title);
+  void setStatusText(QString text);
+  void setCloseAuto(bool active = false);
 
-  void openApp();
+protected slots:
 
-  MainWindowView *mainWindowView();
-  MainWindowModel *mainWindowModel();
-  MainWindowPresenter *mainWindowPresenter();
-
-  void registerComponent(Component *component,
-                         Flags flags = Flags::none);
-  void registerMultiComponent(const QString &name,
-                              const QString &menu,
-                              const QString &toolbar,
-                              const std::list<std::shared_ptr<Component> > &components,
-                              Flags flags = Flags::none);
-  void loadPlugins();
-
-  HelpDialog *helpDialog();
-
-  ProgressHandler *progressHandler();
-  ProgressBarDialog *progressDialog();
+  void onMinimized();
+  void onPushButtonCancelClicked();
 
 signals:
 
+  void cancel();
+
+// DialogView interface
+
 private:
+
+  void initUI() override;
+  void initSignalAndSlots() override;
+
+public slots:
+
+  void clear() override;
+
+private slots:
+
+  void update() override;
+  void retranslate() override;
+
+private:
+
+  //QGridLayout *mGridLayout;
+  //QSpacerItem *horizontalSpacer;
+  //QSpacerItem *verticalSpacer;
+  QLabel *mLabelStatus;
+  QProgressBar *mProgressBar;
+  QPushButton *mPushButtonCancel;
+  QPushButton *mPushButtonMinimize;
+  QPushButton *mPushButtonClose;
+  bool mAutoClose;
   
-  void loadPlugin(QObject *plugin);
-
-protected:
-
-  MainWindowView *mMainWindowView;
-  MainWindowModel *mMainWindowModel;
-  MainWindowPresenter *mMainWindowPresenter;
-
-  HelpDialog *mHelpDialog;
-
-  ProgressHandler *mProgressHandler;
-  ProgressBarDialog *mProgressDialog;
 };
-ALLOW_BITWISE_FLAG_OPERATIONS(ComponentsManager::Flags)
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_COMPONENTS_MANAGER_H
+#endif // GRAPHOS_PROGRESS_BAR_DIALOG_H
