@@ -117,12 +117,12 @@ void GraphicViewerImp::setImageFromRawData(const uchar *data, int width, int hei
   setImage(image);
 }
 
-void GraphicViewerImp::setZoomFactor(const double factor)
+void GraphicViewerImp::setZoomFactor(double factor)
 {
   mZoomFactor = factor;
 }
 
-void GraphicViewerImp::setZoomCtrlFactor(const double factor)
+void GraphicViewerImp::setZoomCtrlFactor(double factor)
 {
   mZoomCtrlFactor = factor;
 }

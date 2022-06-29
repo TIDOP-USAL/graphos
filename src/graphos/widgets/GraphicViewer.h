@@ -74,14 +74,14 @@ public:
    * \brief Establecer el factor de zoom cuando la tecla CTRL no se presiona
    * \param factor zoom factor (>1)
    */
-  virtual void setZoomFactor(const double factor) = 0;
+  virtual void setZoomFactor(double factor) = 0;
 
 
   /*!
    * \brief Establezca el factor de zoom cuando se presiona la tecla CTRL
    * \param factor zoom factor (>1)
    */
-  virtual void setZoomCtrlFactor(const double factor) = 0;
+  virtual void setZoomCtrlFactor(double factor) = 0;
 
 public slots:
 
@@ -155,14 +155,14 @@ public:
    * \brief Establecer el factor de zoom cuando la tecla CTRL no se presiona
    * \param factor zoom factor (>1)
    */
-  virtual void setZoomFactor(const double factor) override;
+  virtual void setZoomFactor(double factor) override;
 
 
   /*!
    * \brief Establezca el factor de zoom cuando se presiona la tecla CTRL
    * \param factor zoom factor (>1)
    */
-  virtual void setZoomCtrlFactor(const double factor) override;
+  virtual void setZoomCtrlFactor(double factor) override;
 
 protected:
 

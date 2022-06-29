@@ -41,8 +41,7 @@ if(BUILD_DENSE_COMPONENT)
         impl/DensificationModel.cpp
         impl/DensificationView.cpp
         impl/DensificationPresenter.cpp
-        impl/DensificationCommand.cpp
-        impl/DensificationProcess.cpp)
+        impl/DensificationCommand.cpp)
         
     set(DENSE_HEADERS
         DensificationComponent.h
@@ -52,8 +51,7 @@ if(BUILD_DENSE_COMPONENT)
         impl/DensificationModel.h
         impl/DensificationView.h
         impl/DensificationPresenter.h
-        impl/DensificationCommand.h
-        impl/DensificationProcess.h)
+        impl/DensificationCommand.h)
         
     add_library(${PROJECT_NAME} 
                 ${DENSE_SOURCES}

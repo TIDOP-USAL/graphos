@@ -2,7 +2,6 @@
 
 #include "graphos/components/dense/DensificationModel.h"
 #include "graphos/components/dense/DensificationView.h"
-#include "graphos/components/dense/impl/DensificationProcess.h"
 #include "graphos/core/dense/CmvsPmvs.h"
 #include "graphos/core/dense/Smvs.h"
 #include "graphos/core/dense/mvs.h"
@@ -204,17 +203,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
   tl::Path dense_path(mModel->projectFolder().toStdWString());
   dense_path.append("dense");
 
-  //std::shared_ptr<Densifier> densifier;
   if (densification_method.compare("CMVS/PMVS") == 0) {
-
-    //densifier = std::make_shared<CmvsPmvsDensifier>(mCmvsPmvs->useVisibilityInformation(),
-    //                                                mCmvsPmvs->imagesPerCluster(),
-    //                                                mCmvsPmvs->level(),
-    //                                                mCmvsPmvs->cellSize(),
-    //                                                mCmvsPmvs->threshold(),
-    //                                                mCmvsPmvs->windowSize(),
-    //                                                mCmvsPmvs->minimunImageNumber(),
-    //                                                mModel->useCuda());
 
     dense_path.append("pmvs");
 
@@ -237,12 +226,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
     dense_process = std::move(pmvs);
 
   } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
-    //densifier = std::make_shared<SmvsDensifier>(mSmvs->inputImageScale(),
-    //                                            mSmvs->outputDepthScale(),
-    //                                            mSmvs->shadingBasedOptimization(),
-    //                                            mSmvs->semiGlobalMatching(),
-    //                                            mSmvs->surfaceSmoothingFactor(),
-    //                                            mModel->useCuda());
+
     dense_path.append("smvs");
 
     auto smvs = std::make_unique<SmvsDensifier>(mModel->images(),
@@ -286,15 +270,6 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
   }
 
   //mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
-
-  //QString mReconstructionPath = mModel->reconstructionPath();
-  //QString mOutputPat = mModel->projectFolder() + "/dense";
-
-  //dense_process = std::make_unique<DensificationProcess>(densifier,
-  //                                                       mModel->images(),
-  //                                                       mModel->cameras(),
-  //                                                       mReconstructionPath,
-  //                                                       mOutputPat);
 
   if (progressHandler()){
     progressHandler()->setRange(0, 1);

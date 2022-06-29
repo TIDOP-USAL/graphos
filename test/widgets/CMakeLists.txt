@@ -18,9 +18,12 @@ MACRO(DEFINE_TEST_WIDGETS name srcs)
                           Qt5::Widgets
                           Qt5::Test
                           Qt5::Concurrent
+                          Qt5::OpenGL
+                          Qt5::OpenGLExtensions
                           ${OpenCV_LIBS}
                           ${CUDA_LIBRARIES}
-                          ${GDAL_LIBRARY})
+                          ${GDAL_LIBRARY}
+						  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
     target_link_libraries(${test_target} PRIVATE
                          ${Boost_FILESYSTEM_LIBRARY}
@@ -38,16 +41,16 @@ ENDMACRO()
 
 
 add_subdirectory(siftwidget)
-add_subdirectory(siftwidget_signals)
-add_subdirectory(thumbnailswidget)
-add_subdirectory(startpagewidget)
-add_subdirectory(featurematchingwidget)
-add_subdirectory(cmvs_pmvs_widget)
-add_subdirectory(smvs_widget)
-add_subdirectory(mve_format_widget)
-add_subdirectory(nvm_format_widget)
-add_subdirectory(ori_format_widget)
-add_subdirectory(pointcloud_csv_format_widget)
-add_subdirectory(bundler_format_widget)
-add_subdirectory(dtm_inv_dist_widget)
-add_subdirectory(dtm_inv_dist_nn_widget)
+#add_subdirectory(siftwidget_signals)
+#add_subdirectory(thumbnailswidget)
+#add_subdirectory(startpagewidget)
+#add_subdirectory(featurematchingwidget)
+#add_subdirectory(cmvs_pmvs_widget)
+#add_subdirectory(smvs_widget)
+#add_subdirectory(mve_format_widget)
+#add_subdirectory(nvm_format_widget)
+#add_subdirectory(ori_format_widget)
+#add_subdirectory(pointcloud_csv_format_widget)
+#add_subdirectory(bundler_format_widget)
+#add_subdirectory(dtm_inv_dist_widget)
+#add_subdirectory(dtm_inv_dist_nn_widget)

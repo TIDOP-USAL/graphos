@@ -571,7 +571,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
 void MainWindowPresenter::openDtm()
 {
   try {
-    //mTabHandler->setImage(mProjectModel->dtm());
+    //mTabHandler->setMapLayer(mProjectModel->dtm());
   } catch (std::exception &e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
   }

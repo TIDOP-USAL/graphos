@@ -3,5 +3,5 @@ add_subdirectory(core)
 
 if (BUILD_GRAPHOS)
 #add_subdirectory(ui)
-#add_subdirectory(widgets)
+add_subdirectory(widgets)
 endif (BUILD_GRAPHOS)

@@ -32,8 +32,6 @@
 
 #include <tidop/core/messages.h>
 
-//#include <colmap/base/database.h>
-
 #include <QFileInfo>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -124,19 +122,19 @@ bool FeatureExtractorCommand::run()
                                                                        mContrastThreshold);
     }
 
-    FeatureExtractorProcess Feature_extractor_process(project.images(),
+    FeatureExtractorProcess feature_extractor_process(project.images(),
                                                       project.cameras(),
                                                       database_path,
                                                       mMaxImageSize,
                                                       !mDisableCuda,
                                                       feature_extractor);
 
-    connect(&Feature_extractor_process, &FeatureExtractorProcess::features_extracted, 
+    connect(&feature_extractor_process, &FeatureExtractorProcess::features_extracted, 
             [&](size_t imageId, const QString &featuresFile){
               project.addFeatures(imageId, featuresFile);
             });
 
-    Feature_extractor_process.run();
+    feature_extractor_process.run();
 
     project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
     project.save(project_file);

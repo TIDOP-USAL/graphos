@@ -366,9 +366,8 @@ void LoadImagesProcess::execute(tl::Progress *progressBar)
 
     for(size_t i = 0; i < mImages->size(); i++) {
 
-      if(status() == tl::Task::Status::stopping) {
-        break;
-      }
+      if(status() == tl::Task::Status::stopping)  break;
+
       loadImage(i);
 
       if(progressBar) (*progressBar)();

@@ -121,12 +121,10 @@ void ProcessPresenter::run()
     mProcess->runAsync(mProgressHandler);
 
   } catch(const std::exception &e) {
-    /// Imprimir excepciones enlazadas
     msgError(e.what());
   }
 }
 
-// Añadir onCancel...
 void ProcessPresenter::cancel()
 {
   if(mProcess) {
@@ -135,8 +133,6 @@ void ProcessPresenter::cancel()
       mProgressHandler->setDescription(tr("Stopping process"));
     }
   }
-
-  //emit canceled();
 }
 
 void ProcessPresenter::init()

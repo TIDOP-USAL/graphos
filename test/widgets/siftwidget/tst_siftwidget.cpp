@@ -21,66 +21,116 @@
  *                                                                      *
  ************************************************************************/
 
-#include <QtTest>
-#include <QCoreApplication>
+#define BOOST_TEST_MODULE GRAPHOS SiftWidget test
 
+#include <boost/test/unit_test.hpp>
 #include "graphos/widgets/SiftWidget.h"
+
+#include <QApplication>
 
 using namespace graphos;
 
-class TestSiftWidget 
-  : public QObject
+BOOST_AUTO_TEST_SUITE(SiftWidgetTestSuite)
+
+struct SiftWidgetTest
 {
-  Q_OBJECT
 
-public:
+  SiftWidgetTest()
+  {
+    int argc = 0;
+    static QApplication a(argc, nullptr);
+  }
 
-  TestSiftWidget();
-  ~TestSiftWidget();
+  ~SiftWidgetTest()
+  {
+    if (mSiftWidget) {
+      delete mSiftWidget;
+      mSiftWidget = nullptr;
+    }
+  }
 
-private slots:
+  virtual void setup()
+  {
 
-  void initTestCase();
-  void cleanupTestCase();
-  void test_windowTitle();
-  void test_featuresNumber_data();
-  void test_featuresNumber();
-  void test_octaveLayers_data();
-  void test_octaveLayers();
-  void test_contrastThreshold_data();
-  void test_contrastThreshold();
-  void test_edgeThreshold_data();
-  void test_edgeThreshold();
+    mSiftWidget = new SiftWidgetImp();
+  }
 
-private:
+  virtual void teardown()
+  {
+
+  }
 
   SiftWidget *mSiftWidget;
-
 };
 
-TestSiftWidget::TestSiftWidget()
+
+BOOST_FIXTURE_TEST_CASE(ConstructorSiftWidget, SiftWidgetTest)
 {
-  mSiftWidget = new SiftWidgetImp();
+  BOOST_CHECK_EQUAL(5000, mSiftWidget->featuresNumber());
+  BOOST_CHECK_EQUAL(3, mSiftWidget->octaveLayers());
+  BOOST_CHECK_EQUAL(true, mSiftWidget->constrastThresholdAuto());
+  BOOST_CHECK_CLOSE(0.0067, mSiftWidget->contrastThreshold(), 0.1);
+  BOOST_CHECK_EQUAL(10., mSiftWidget->edgeThreshold());
 }
 
-TestSiftWidget::~TestSiftWidget()
+BOOST_FIXTURE_TEST_CASE(windowTitle, SiftWidgetTest)
 {
-  if (mSiftWidget){
-    delete mSiftWidget;
-    mSiftWidget = nullptr;
-  }
+  BOOST_CHECK("SIFT" == mSiftWidget->windowTitle());
 }
 
-void TestSiftWidget::initTestCase()
+BOOST_FIXTURE_TEST_CASE(features_number, SiftWidgetTest)
 {
-  /// Check default values
-  QCOMPARE(5000, mSiftWidget->featuresNumber());
-  QCOMPARE(3, mSiftWidget->octaveLayers());
-  QCOMPARE(0.0067, mSiftWidget->contrastThreshold());
-  QCOMPARE(10., mSiftWidget->edgeThreshold());
+  mSiftWidget->setFeaturesNumber(500);
+  BOOST_CHECK_EQUAL(500, mSiftWidget->featuresNumber());
+  mSiftWidget->setFeaturesNumber(10000);
+  BOOST_CHECK_EQUAL(10000, mSiftWidget->featuresNumber());
 }
 
-void TestSiftWidget::cleanupTestCase()
+BOOST_FIXTURE_TEST_CASE(octave_layers, SiftWidgetTest)
+{
+  mSiftWidget->setOctaveLayers(0);
+  BOOST_CHECK_EQUAL(0, mSiftWidget->octaveLayers());
+  mSiftWidget->setOctaveLayers(1);
+  BOOST_CHECK_EQUAL(1, mSiftWidget->octaveLayers());
+  mSiftWidget->setOctaveLayers(2);
+  BOOST_CHECK_EQUAL(2, mSiftWidget->octaveLayers());
+  mSiftWidget->setOctaveLayers(4);
+  BOOST_CHECK_EQUAL(4, mSiftWidget->octaveLayers());
+  mSiftWidget->setOctaveLayers(7);
+  BOOST_CHECK_EQUAL(7, mSiftWidget->octaveLayers());
+}
+
+BOOST_FIXTURE_TEST_CASE(contrast_threshold_auto, SiftWidgetTest)
+{
+  mSiftWidget->setContrastThresholdAuto(false);
+  BOOST_CHECK_EQUAL(false, mSiftWidget->constrastThresholdAuto());
+
+  mSiftWidget->setContrastThresholdAuto(true);
+  BOOST_CHECK_EQUAL(true, mSiftWidget->constrastThresholdAuto());
+}
+
+BOOST_FIXTURE_TEST_CASE(contrast_threshold, SiftWidgetTest)
+{
+  mSiftWidget->setContrastThresholdAuto(false);
+
+  mSiftWidget->setContrastThreshold(0.04);
+  BOOST_CHECK_EQUAL(0.04, mSiftWidget->contrastThreshold());
+
+  mSiftWidget->setContrastThreshold(0.2);
+  BOOST_CHECK_EQUAL(0.2, mSiftWidget->contrastThreshold());
+}
+
+BOOST_FIXTURE_TEST_CASE(edge_threshold, SiftWidgetTest)
+{
+  mSiftWidget->setEdgeThreshold(10.);
+  BOOST_CHECK_EQUAL(10., mSiftWidget->edgeThreshold());
+
+  mSiftWidget->setEdgeThreshold(15.);
+  BOOST_CHECK_EQUAL(15., mSiftWidget->edgeThreshold());
+}
+
+
+BOOST_FIXTURE_TEST_CASE(clear, SiftWidgetTest)
 {
   mSiftWidget->setFeaturesNumber(500);
   mSiftWidget->setOctaveLayers(4);
@@ -89,100 +139,10 @@ void TestSiftWidget::cleanupTestCase()
 
   mSiftWidget->clear();
 
-  QCOMPARE(5000, mSiftWidget->featuresNumber());
-  QCOMPARE(3, mSiftWidget->octaveLayers());
-  QCOMPARE(0.0067, mSiftWidget->contrastThreshold());
-  QCOMPARE(10., mSiftWidget->edgeThreshold());
+  BOOST_CHECK_EQUAL(5000, mSiftWidget->featuresNumber());
+  BOOST_CHECK_EQUAL(3, mSiftWidget->octaveLayers());
+  BOOST_CHECK_EQUAL(0.0067, mSiftWidget->contrastThreshold());
+  BOOST_CHECK_EQUAL(10., mSiftWidget->edgeThreshold());
 }
 
-void TestSiftWidget::test_windowTitle()
-{
-  QCOMPARE("SIFT", mSiftWidget->windowTitle());
-}
-
-void TestSiftWidget::test_featuresNumber_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("500") << 500 << 500;
-  QTest::newRow("10000") << 10000 << 10000;
-  QTest::newRow("Out of range value") << 50001 << 50000;
-}
-
-void TestSiftWidget::test_featuresNumber()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mSiftWidget->setFeaturesNumber(value);
-  QCOMPARE(result, mSiftWidget->featuresNumber());
-}
-
-void TestSiftWidget::test_octaveLayers_data()
-{
-  QTest::addColumn<int>("value");
-  QTest::addColumn<int>("result");
-
-  QTest::newRow("0") << 0 << 0;
-  QTest::newRow("1") << 1 << 1;
-  QTest::newRow("2") << 2 << 2;
-  QTest::newRow("4") << 4 << 4;
-  QTest::newRow("7") << 7 << 7;
-  QTest::newRow("Out of range value") << 11 << 10;
-}
-
-void TestSiftWidget::test_octaveLayers()
-{
-  QFETCH(int, value);
-  QFETCH(int, result);
-
-  mSiftWidget->setOctaveLayers(value);
-  QCOMPARE(result, mSiftWidget->octaveLayers());
-}
-
-void TestSiftWidget::test_contrastThreshold_data()
-{
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
-
-  QTest::newRow("0.04") << 0.04 << 0.04;
-  QTest::newRow("0.1") << 0.1 << 0.1;
-  QTest::newRow("0.2") << 0.2 << 0.2;
-  QTest::newRow("Out of range value") << 11.1 << 10.;
-}
-
-void TestSiftWidget::test_contrastThreshold()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mSiftWidget->setContrastThresholdAuto(false);
-  mSiftWidget->setContrastThreshold(value);
-  QCOMPARE(result, mSiftWidget->contrastThreshold());
-}
-
-void TestSiftWidget::test_edgeThreshold_data()
-{
-  QTest::addColumn<double>("value");
-  QTest::addColumn<double>("result");
-
-  QTest::newRow("10.") << 10. << 10.;
-  QTest::newRow("1.") << 1. << 1.;
-  QTest::newRow("20.") << 20. << 20.;
-  QTest::newRow("Out of range value") << 100.1 << 100.;
-}
-
-void TestSiftWidget::test_edgeThreshold()
-{
-  QFETCH(double, value);
-  QFETCH(double, result);
-
-  mSiftWidget->setEdgeThreshold(value);
-  QCOMPARE(result, mSiftWidget->edgeThreshold());
-}
-
-
-QTEST_MAIN(TestSiftWidget)
-
-#include "tst_siftwidget.moc"
+BOOST_AUTO_TEST_SUITE_END()
