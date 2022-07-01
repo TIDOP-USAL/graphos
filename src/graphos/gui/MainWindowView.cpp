@@ -267,7 +267,7 @@ void MainWindowView::addImage(const QString &image, size_t imageId)
     update();
   }
 
-  mThumbnailsWidget->addImage(image, imageId);
+  mThumbnailsWidget->addThumbnail(image, imageId);
 }
 
 //void MainWindowView::addImages(const QStringList &images)

@@ -33,6 +33,7 @@ class QListWidget;
 class QListWidgetItem;
 class QGridLayout;
 template <typename T> class QFutureWatcher;
+class QTimer;			 
 
 namespace graphos
 {
@@ -56,11 +57,11 @@ signals:
   void selectImage(size_t);
   void selectImages(std::vector<size_t>);
   void delete_images(std::vector<size_t>);
-  void imagesLoaded();
+  //void imagesLoaded();
 
 public slots:
 
-  void addImage(const QString &thumb, size_t imageId);
+  void addThumbnail(const QString &thumb, size_t imageId);
   void addThumbnails(const QStringList &thumb);
   void deleteImages(const std::vector<size_t> &imageIds);
 
@@ -68,14 +69,16 @@ private slots:
 
   void onThumbnailDoubleClicked(QListWidgetItem *item);
   void onSelectionChanged();
-
+  void loadVisibleImages();
   void onThumbnailClicked();
   void onThumbnailSmallClicked();
   void onDetailsClicked();
   void onDeleteImageClicked();
 
-  void showThumbnail(int id);
-  void finished();
+  //void showThumbnail(int id);
+  //void finished();
+
+  //void loadThumbnails();
 
 // GraphosWidgetView interface
 
@@ -98,6 +101,7 @@ private:
 protected:
 
   void changeEvent(QEvent *event) override;
+  void resizeEvent(QResizeEvent *event) override;
 
 protected:
 
@@ -108,9 +112,10 @@ protected:
   QAction *mThumbnailSmallAction;
   QAction *mDetailsAction;
   QAction *mDeleteImageAction;
-  QFutureWatcher<QImage> *mFutureWatcherThumbnail;
+  //QFutureWatcher<QImage> *mFutureWatcherThumbnail;
   int mThumbnaislSize;
   bool bLoadingImages;
+  QTimer *mTimer;	 
 };
 
 } // namespace graphos

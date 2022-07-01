@@ -26,10 +26,10 @@
 #include "graphos/core/process/Progress.h"
 #include "graphos/core/sfm/orientationcolmap.h"
 #include "graphos/core/sfm/posesio.h"
+#include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/components/orientation/OrientationModel.h"
 #include "graphos/components/orientation/OrientationView.h"
-#include "graphos/components/orientation/impl/ImportOrientationProcess.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/task.h>
@@ -144,19 +144,64 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
     images.push_back(image.second);
   }
 
+  tl::Path sfm_path = mModel->projectPath().toStdWString();
+  sfm_path.append("sfm");
+
   if (mModel->rtkOrientations()) {
 
+    orientation_process = std::make_unique<ImportPosesTask>(images,
+                                                            mModel->cameras(),
+                                                            sfm_path,
+                                                            mModel->database().toStdWString(),
+                                                            mView->fixCalibration(),
+                                                            mView->fixPoses());
 
+    orientation_process->subscribe([&](tl::TaskFinalizedEvent *event) {
 
-    orientation_process = std::make_unique<ImportOrientationProcess>(images,
-                                                                     mModel->cameras(),
-                                                                     mModel->projectPath(),
-                                                                     mModel->database(),
-                                                                     mView->fixCalibration(),
-                                                                     mView->fixPoses());
+      auto cameras = dynamic_cast<ImportPosesTask const *>(event->task())->cameras();
 
-    connect(dynamic_cast<ImportOrientationProcess *>(orientation_process.get()), &ImportOrientationProcess::importOrientationFinished,
-            this, &OrientationPresenterImp::onAbsoluteOrientationFinished);
+      tl::Path sfm_path = mModel->projectPath().toStdWString();
+      sfm_path.append("sfm");
+
+      tl::Path offset_path = sfm_path;
+      offset_path.append("offset.txt");
+
+      tl::Path poses_path = sfm_path;
+      poses_path.append("poses.bin");
+
+      tl::Path sparse_model_path = sfm_path;
+      sparse_model_path.append("sparse.ply");
+
+      tl::Path ground_points_path = sfm_path;
+      ground_points_path.append("ground_points.bin");
+
+      if (sparse_model_path.exists() &&
+          ground_points_path.exists() &&
+          poses_path.exists()) {
+
+        mModel->setReconstructionPath(QString::fromStdWString(sfm_path.toWString()));
+        mModel->setSparseModel(QString::fromStdWString(sparse_model_path.toWString()));
+        mModel->setOffset(QString::fromStdWString(offset_path.toWString()));
+      }
+
+      if (poses_path.exists()) {
+        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+        poses_reader->read(poses_path);
+        auto poses = poses_reader->cameraPoses();
+
+        for (const auto &camera_pose : poses) {
+          mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
+        }
+
+        msgInfo("Oriented %i images", poses.size());
+
+      }
+
+      for (const auto &camera : cameras) {
+        mModel->updateCamera(camera.first, camera.second);
+      }
+
+    });
 
   } else {
 

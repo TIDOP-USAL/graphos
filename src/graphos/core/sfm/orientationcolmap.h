@@ -32,6 +32,8 @@
 #include <vector>
 
 #include <tidop/core/task.h>
+#include <tidop/core/path.h>
+#include <tidop/geometry/entities/point.h>
 
 namespace tl
 {
@@ -194,6 +196,57 @@ private:
   QString mInputPath;
   std::vector<Image> mImages;
   std::unordered_map<size_t, double> mCameraPosesErrors;
+};
+
+
+/*----------------------------------------------------------------*/
+
+
+
+class ImportPosesTask
+  : public tl::TaskBase
+{
+
+public:
+
+  ImportPosesTask(const std::vector<Image> &images,
+                        const std::map<int, Camera> &cameras,
+                        const tl::Path &outputPath,
+                        const tl::Path &database,
+                        bool fixCalibration = false,
+                        bool fixPoses = true);
+  ~ImportPosesTask() override;
+
+  std::map<int, Camera> cameras() const;
+
+  void setFixCalibration(bool fixCalibration);
+  void setFixPoses(bool fixPoses);
+
+private:
+
+  void computeOffset();
+  void temporalReconstruction(const tl::Path &tempPath);
+  void writeImages(const tl::Path &tempPath);
+  void writeCameras(const tl::Path &tempPath);
+  void writePoints(const tl::Path &tempPath);
+  bool isCoordinatesLocal() const;
+
+// tl::TaskBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  std::vector<Image> mImages;
+  std::map<int, Camera> mCameras;
+  tl::Path mOutputPath;
+  tl::Path mDatabase;
+  bool mFixCalibration;
+  bool mFixPoses;
+  tl::Point3<double> mOffset;
+  std::unordered_map<size_t, int> mGraphosToColmapId;
 };
 
 

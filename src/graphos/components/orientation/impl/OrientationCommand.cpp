@@ -29,9 +29,6 @@
 #include "graphos/core/sfm/orientation.h"
 #include "graphos/core/sfm/orientationcolmap.h"
 #include "graphos/core/sfm/posesio.h"
-//#include "graphos/components/orientation/impl/RelativeOrientationProcess.h"
-//#include "graphos/components/orientation/impl/AbsoluteOrientationProcess.h"
-#include "graphos/components/orientation/impl/ImportOrientationProcess.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -116,12 +113,7 @@ void ImportPoses::run()
   colmap::Reconstruction reconstruction = importReconstruction(temp_path);
 
   tl::Path reconstruction_path(mProject->projectFolder().toStdWString());
-
-  if (isCoordinatesLocal()) {
-    reconstruction_path.append("ori").append("relative");
-  } else {
-    reconstruction_path.append("ori").append("absolute");
-  }
+  reconstruction_path.append("sfm");
   reconstruction_path.createDirectories();
 
   bool clear_points = false;
@@ -813,6 +805,8 @@ bool OrientationCommand::run()
     project.load(project_file);
     project.clearReconstruction();
     QString database_path = project.database();
+    tl::Path sfm_path = project.projectPath().toStdWString();
+    sfm_path.append("sfm");
 
     std::vector<Image> images;
     for (const auto &image : project.images()) {
@@ -821,22 +815,23 @@ bool OrientationCommand::run()
 
     if (rtkOrientations(project)) {
 
-      //orientation_process = std::make_unique<ImportOrientationProcess>(mModel->images(),
-      //                                                                 mModel->cameras(),
-      //                                                                 mModel->projectPath(),
-      //                                                                 mModel->database(),
-      //                                                                 mView->fixCalibration(),
-      //                                                                 mView->fixPoses());
+      ImportPosesTask import_orientation_task(images,
+                                                    project.cameras(),
+                                                    sfm_path,
+                                                    database_path.toStdWString(),
+                                                    mFixCalibration,
+                                                    mFixPoses);
 
-      //connect(dynamic_cast<ImportOrientationProcess *>(orientation_process.get()), &ImportOrientationProcess::importOrientationFinished,
-      //        this, &OrientationPresenterImp::onAbsoluteOrientationFinished);
+      import_orientation_task.run();
+
+      auto cameras = import_orientation_task.cameras();
 
     } else {
 
-      QString ori_relative_path = project.projectFolder() + "/ori/relative/";
+
 
       RelativeOrientationColmapTask relative_orientation_task(database_path,
-                                                              ori_relative_path,
+                                                              QString::fromStdWString(sfm_path.toWString()),
                                                               images,
                                                               project.cameras(),
                                                               mFixCalibration);
@@ -846,8 +841,7 @@ bool OrientationCommand::run()
       auto cameras = relative_orientation_task.cameras();
 
       /// Se comprueba que se han generado todos los productos
-      tl::Path sfm_path = project.projectPath().toStdWString();
-      sfm_path.append("sfm");
+
 
       tl::Path sparse_model_path = sfm_path;
       sparse_model_path.append("sparse.ply");
@@ -883,10 +877,9 @@ bool OrientationCommand::run()
 
       if (mAbsoluteOrientation) {
 
-        QString ori_absolute = project.projectFolder() + "/ori/absolute/";
         std::map<QString, std::array<double, 3>> camera_positions = cameraPositions(project);
 
-        AbsoluteOrientationColmapTask absolute_orientation_task(ori_relative_path,
+        AbsoluteOrientationColmapTask absolute_orientation_task(QString::fromStdWString(sfm_path.toWString()),
                                                                 images);
         absolute_orientation_task.run();
 

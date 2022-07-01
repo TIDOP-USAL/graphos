@@ -41,8 +41,7 @@ if(BUILD_ORIENTATION_COMPONENT)
         impl/OrientationModel.cpp
         impl/OrientationView.cpp
         impl/OrientationPresenter.cpp
-        impl/OrientationCommand.cpp
-        impl/ImportOrientationProcess.cpp)
+        impl/OrientationCommand.cpp)
         
     set(ORIENTATION_HEADERS
         OrientationComponent.h
@@ -52,8 +51,7 @@ if(BUILD_ORIENTATION_COMPONENT)
         impl/OrientationModel.h
         impl/OrientationView.h
         impl/OrientationPresenter.h
-        impl/OrientationCommand.h
-        impl/ImportOrientationProcess.h)
+        impl/OrientationCommand.h)
         
     add_library(${PROJECT_NAME} 
                 ${ORIENTATION_SOURCES}

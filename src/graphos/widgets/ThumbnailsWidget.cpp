@@ -39,36 +39,87 @@
 //#include <QImageReader>
 #include <QApplication>
 #include <QScrollBar>
+#include <QTimer>	 
 
 static std::mutex sMutexThumbnail;
 
-QImage makeThumbnail(const QString &thumb)
-{  
+//QImage makeThumbnail(const QString &thumb)
+//{  
+//  std::lock_guard<std::mutex> lck(sMutexThumbnail);
+//
+//  QImage image;
+//
+//  try {
+//
+//    std::string image_file = thumb.toStdString();
+//
+//    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
+//    imageReader->open();
+//    if (imageReader->isOpen()) {
+//      
+//      int w = imageReader->cols();
+//      int h = imageReader->rows();
+//      double scale = 1.;
+//      if (w > h) {
+//        scale =  200. / static_cast<double>(w);
+//      } else {
+//        scale = 200. / static_cast<double>(h);
+//      }
+//         
+//      cv::Mat bmp = imageReader->read(scale, scale);
+//
+//      image = graphos::cvMatToQImage(bmp);
+//
+//      imageReader->close();
+//
+//    } else {
+//      msgError("Error al abrir la imagen: %s", image_file.c_str());
+//    }
+//
+//  } catch (const std::exception &e) {
+//    msgError(e.what());
+//  } catch (...) {
+//    msgError("GDAL ERROR (%i): %s", CPLGetLastErrorNo(), CPLGetLastErrorMsg());
+//  }
+//
+//  return image;
+//}
+
+void makeThumbnail2(QListWidgetItem *item)
+{
   std::lock_guard<std::mutex> lck(sMutexThumbnail);
+
+  if (item == nullptr) return;
 
   QImage image;
 
   try {
+
+    const QString thumb = item->toolTip();
     std::string image_file = thumb.toStdString();
 
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
     imageReader->open();
     if (imageReader->isOpen()) {
-      
+
       int w = imageReader->cols();
       int h = imageReader->rows();
       double scale = 1.;
       if (w > h) {
-        scale =  200. / static_cast<double>(w);
+        scale = 200. / static_cast<double>(w);
       } else {
         scale = 200. / static_cast<double>(h);
       }
-         
+
       cv::Mat bmp = imageReader->read(scale, scale);
 
       image = graphos::cvMatToQImage(bmp);
 
       imageReader->close();
+
+      QPixmap pixmap = QPixmap::fromImage(image);
+      QIcon icon(pixmap);
+      item->setIcon(icon);
 
     } else {
       msgError("Error al abrir la imagen: %s", image_file.c_str());
@@ -80,7 +131,7 @@ QImage makeThumbnail(const QString &thumb)
     msgError("GDAL ERROR (%i): %s", CPLGetLastErrorNo(), CPLGetLastErrorMsg());
   }
 
-  return image;
+  //return image;
 }
 
 namespace graphos
@@ -98,6 +149,8 @@ ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
 {
   ThumbnailsWidget::initUI();
   ThumbnailsWidget::initSignalAndSlots();
+/*  mTimer = new QTimer(this);
+  connect(mTimer, &QTimer::timeout, this, &ThumbnailsWidget::loadThumbnails);				*/			
 }
 
 void ThumbnailsWidget::setActiveImage(size_t imageId)
@@ -128,7 +181,7 @@ void ThumbnailsWidget::setActiveImages(const std::vector<size_t> &imageIds)
 
 /* public slots */
 
-void ThumbnailsWidget::addImage(const QString &thumb, size_t imageId)
+void ThumbnailsWidget::addThumbnail(const QString &thumb, size_t imageId)
 {
 
   std::lock_guard<std::mutex> lck(sMutexThumbnail);
@@ -140,7 +193,7 @@ void ThumbnailsWidget::addImage(const QString &thumb, size_t imageId)
 
     std::string image_file = thumb.toStdString();
 
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
     imageReader->open();
     if (imageReader->isOpen()) {
       
@@ -153,19 +206,25 @@ void ThumbnailsWidget::addImage(const QString &thumb, size_t imageId)
         scale = 200. / static_cast<double>(h);
       }
          
-      cv::Mat bmp = imageReader->read(scale, scale);
+      //cv::Mat bmp = imageReader->read(scale, scale);
 
-      image = graphos::cvMatToQImage(bmp);
+      //image = graphos::cvMatToQImage(bmp);
 
       imageReader->close();
 
-      QPixmap pixmap = QPixmap::fromImage(image);
+      //QPixmap pixmap = QPixmap::fromImage(image);
+      QSize size(w, h);
+      size *= scale;
+      QPixmap pixmap(size.width(), size.height());
+      pixmap.fill(QColor(Qt::GlobalColor::lightGray));									  
       QIcon icon(pixmap);
       QFileInfo fileInfo(thumb);
       QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
       item->setToolTip(fileInfo.absoluteFilePath());
       item->setData(Qt::UserRole, imageId);
       mListWidget->addItem(item);
+
+      loadVisibleImages();
 
     } else {
       msgError("Error al abrir la imagen: %s", image_file.c_str());
@@ -191,7 +250,7 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
 
     try {
 
-      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(thumb.toStdString());
+      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(thumb.toStdString());
       imageReader->open();
       if (imageReader->isOpen()) {
       
@@ -224,10 +283,14 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
     }
   }
 
-  if (thumbs.empty() == false) {
-    QFuture<QImage> future = QtConcurrent::mapped(thumbs, makeThumbnail);
-    mFutureWatcherThumbnail->setFuture(future);
-  }
+  loadVisibleImages();
+
+  //if (thumbs.empty() == false) {
+  //  QFuture<QImage> future = QtConcurrent::mapped(thumbs, makeThumbnail);
+  //  mFutureWatcherThumbnail->setFuture(future);
+  //}
+  bLoadingImages = false;
+
   update();
 }
 
@@ -273,19 +336,54 @@ void ThumbnailsWidget::onSelectionChanged()
   update();
 }
 
+void ThumbnailsWidget::loadVisibleImages()
+{
+  //QModelIndex firstIndex = mListWidget->indexAt(QPoint(0, 0));
+  //QModelIndex lastIndex = mListWidget->indexAt(QPoint(0, 0));
+
+  QRect rect = mListWidget->viewport()->rect();
+  QRegion region = mListWidget->viewport()->visibleRegion();
+
+  //QPoint tl = rect.topLeft();
+  //QPoint bl = rect.bottomLeft() + QPoint(0, mListWidget->verticalScrollBar()->singleStep());
+  //msgInfo("Viewport: [%i, %i, %i, %i]", tl.x(), tl.y(), bl.x(), bl.y());
+
+  for (int i = 0; i < mListWidget->count(); i++) {
+    QModelIndex idx = mListWidget->model()->index(i, 0);
+    QRect idx_rect = mListWidget->visualRect(idx);
+    if (region.contains(idx_rect) || region.intersects(idx_rect)) {
+      auto item = mListWidget->item(i);
+      if (!item->data(Qt::UserRole + 1).toBool()) {
+        //QPixmap pixmap = QPixmap::fromImage(makeThumbnail(item->toolTip()));
+        //QIcon icon(pixmap);
+        //item->setIcon(icon);
+        item->setData(Qt::UserRole + 1, true);
+
+        std::thread t(makeThumbnail2, item);
+        t.detach();
+        //QFuture<QImage> future = QtConcurrent::mapped(item->toolTip(), makeThumbnail);
+        //mFutureWatcherThumbnail->setFuture(future);
+
+      }
+
+    }
+  }
+}
+
 void ThumbnailsWidget::onThumbnailClicked()
 {
   mIconSize  = QSize(200, 200);
   mListWidget->setIconSize(mIconSize);
   mListWidget->setViewMode(QListWidget::IconMode);
   mListWidget->setResizeMode(QListWidget::Adjust);
-  mListWidget->verticalScrollBar()->setSingleStep(175);
+  mListWidget->verticalScrollBar()->setSingleStep(175); 
   const QSignalBlocker block0(mThumbnailAction);
   const QSignalBlocker block1(mThumbnailSmallAction);
   const QSignalBlocker block2(mDetailsAction);
   mThumbnailAction->setChecked(true);
   mThumbnailSmallAction->setChecked(false);
   mDetailsAction->setChecked(false);
+  loadVisibleImages();
 }
 
 void ThumbnailsWidget::onThumbnailSmallClicked()
@@ -301,6 +399,7 @@ void ThumbnailsWidget::onThumbnailSmallClicked()
   mThumbnailAction->setChecked(false);
   mThumbnailSmallAction->setChecked(true);
   mDetailsAction->setChecked(false);
+  loadVisibleImages();
 }
 
 void ThumbnailsWidget::onDetailsClicked()
@@ -309,16 +408,20 @@ void ThumbnailsWidget::onDetailsClicked()
   mListWidget->setIconSize(mIconSize);
   mListWidget->setViewMode(QListWidget::ListMode);
   mListWidget->setResizeMode(QListWidget::Adjust);
+  mListWidget->verticalScrollBar()->setSingleStep(50);
   const QSignalBlocker block0(mThumbnailAction);
   const QSignalBlocker block1(mThumbnailSmallAction);
   const QSignalBlocker block2(mDetailsAction);
   mThumbnailAction->setChecked(false);
   mThumbnailSmallAction->setChecked(false);
   mDetailsAction->setChecked(true);
+  loadVisibleImages();
 }
 
 void ThumbnailsWidget::onDeleteImageClicked()
 {
+  std::lock_guard<std::mutex> lck(sMutexThumbnail);
+
   if (mListWidget->selectedItems().size() > 0){
     std::vector<size_t> selectImages;
     for (const auto &item : mListWidget->selectedItems()){
@@ -327,25 +430,86 @@ void ThumbnailsWidget::onDeleteImageClicked()
     emit delete_images(selectImages);
   }
   mThumbnaislSize = mListWidget->count();
+  loadVisibleImages();
 }
 
-void ThumbnailsWidget::showThumbnail(int id)
-{
-  if (QListWidgetItem *item = mListWidget->item(mThumbnaislSize + id)) {
-    QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
-    QIcon icon(pixmap);
-    item->setIcon(icon);
-  }
-}
+//void ThumbnailsWidget::showThumbnail(int id)
+//{
+//  if (QListWidgetItem *item = mListWidget->item(mThumbnaislSize + id)) {
+//    QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
+//    QIcon icon(pixmap);
+//    item->setIcon(icon);
+//  }
+//}
 
-void ThumbnailsWidget::finished()
-{
-  mThumbnaislSize = mListWidget->count();
-  bLoadingImages = false;
-  update();
+//void ThumbnailsWidget::finished()
+//{
+//  mThumbnaislSize = mListWidget->count();
+//  bLoadingImages = false;
+//  update();
+//
+//  emit imagesLoaded();
+//}
 
-  emit imagesLoaded();
-}
+//void ThumbnailsWidget::checkVisible()
+//{
+//  auto start = mListWidget->indexAt(QPoint()).row();
+//															 
+//							 
+//						   
+//  auto end = mListWidget->indexAt(mListWidget->viewport()->rect().bottomRight()).row();
+//
+//  if (end < 0)
+//    end = start;
+//																																			
+//		  
+//			
+//						   
+//   
+//
+//  auto model = mListWidget->model();
+//  for (size_t i = start; i < end + 1; i++) {
+//    auto index = model->index(i, 0);
+//    if (!index.data(Qt::UserRole + 2).toBool() && index.data(Qt::UserRole + 1).isValid()) {
+//																			
+//						   
+//							
+//      model->setData(index, true, Qt::UserRole + 2);
+//	   
+//    }
+//  }
+//}
+
+//void ThumbnailsWidget::loadThumbnails()
+//{
+//  msgWarning("imagenes visibles:");
+//  QModelIndex firstIndex = mListWidget->indexAt(QPoint(0, 0));
+//  QModelIndex lastIndex = mListWidget->indexAt(QPoint(0, 0));
+//  if (firstIndex.isValid()) {
+//    //myList << firstIndex;
+//  } while (mListWidget->viewport()->rect().contains(QPoint(0, 
+//                                                           mListWidget->visualRect(lastIndex).y() + 
+//                                                           mListWidget->visualRect(lastIndex).height() + 1))) {
+//    if (lastIndex.isValid()) {
+//      lastIndex = mListWidget->indexAt(QPoint(0, mListWidget->visualRect(lastIndex).y() + mListWidget->visualRect(lastIndex).height() + 1));
+//    } else
+//      break;
+//    //myList << firstIndex;
+//  }
+//
+//									
+//  for (size_t i = firstIndex.row(); i < lastIndex.row(); i++) {
+//    if (QListWidgetItem *item = mListWidget->item(i /*+ value*/)) {
+//      if (!item->data(Qt::UserRole+1).toBool()) {
+//        QPixmap pixmap = QPixmap::fromImage(makeThumbnail(item->toolTip()));
+//        msgWarning(item->toolTip().toStdString().c_str());
+//        QIcon icon(pixmap);
+//        item->setIcon(icon);
+//        item->setData(Qt::UserRole+1, true);
+//      }
+//    }
+//  }
+//}
 
 void ThumbnailsWidget::update()
 {
@@ -374,9 +538,9 @@ void ThumbnailsWidget::retranslate()
 
 void ThumbnailsWidget::clear()
 {
-  if (mFutureWatcherThumbnail->isRunning()) {
-    mFutureWatcherThumbnail->cancel();
-  }
+  //if (mFutureWatcherThumbnail->isRunning()) {
+  //  mFutureWatcherThumbnail->cancel();
+  //}
   mListWidget->clear();
   mThumbnaislSize = 0;
   bLoadingImages = false;
@@ -424,7 +588,7 @@ void ThumbnailsWidget::initUI()
   mGridLayout->addWidget(toolBar);
   mGridLayout->addWidget(mListWidget);
 
-  mFutureWatcherThumbnail = new QFutureWatcher<QImage>(this);
+  //mFutureWatcherThumbnail = new QFutureWatcher<QImage>(this);
 
   ThumbnailsWidget::retranslate();
   ThumbnailsWidget::clear(); /// set default values
@@ -438,8 +602,12 @@ void ThumbnailsWidget::initSignalAndSlots()
   connect(mThumbnailSmallAction,   &QAction::changed,                   this, &ThumbnailsWidget::onThumbnailSmallClicked);
   connect(mDetailsAction,          &QAction::changed,                   this, &ThumbnailsWidget::onDetailsClicked);
   connect(mDeleteImageAction,      &QAction::triggered,                 this, &ThumbnailsWidget::onDeleteImageClicked);
-  connect(mFutureWatcherThumbnail, &QFutureWatcherBase::resultReadyAt,  this, &ThumbnailsWidget::showThumbnail);
-  connect(mFutureWatcherThumbnail, &QFutureWatcherBase::finished,       this, &ThumbnailsWidget::finished);
+  //connect(mFutureWatcherThumbnail, &QFutureWatcherBase::resultReadyAt,  this, &ThumbnailsWidget::showThumbnail);
+  //connect(mFutureWatcherThumbnail, &QFutureWatcherBase::finished,       this, &ThumbnailsWidget::finished);
+
+  connect(mListWidget->verticalScrollBar(), &QScrollBar::valueChanged,  this, &ThumbnailsWidget::loadVisibleImages);
+
+  //connect(mListWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, &ThumbnailsWidget::checkVisible);
 }
 
 void ThumbnailsWidget::changeEvent(QEvent *event)
@@ -452,6 +620,11 @@ void ThumbnailsWidget::changeEvent(QEvent *event)
     default:
       break;
   }
+}
+
+void ThumbnailsWidget::resizeEvent(QResizeEvent *event)
+{
+  loadVisibleImages();
 }
 
 } // namespace graphos
