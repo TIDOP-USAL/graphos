@@ -199,6 +199,43 @@ private:
 
 /*----------------------------------------------------------------*/
 
+
+
+class ImportOrientationTask
+  : public tl::TaskBase
+{
+
+public:
+
+  ImportOrientationTask(const std::vector<Image> &images,
+                        const std::map<int, Camera> &cameras,
+                        const QString &outputPath,
+                        const QString &database,
+                        bool fixCalibration,
+                        bool fixPoses);
+  ~ImportOrientationTask() override;
+
+  std::map<int, Camera> cameras() const;
+
+// tl::TaskBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  std::vector<Image> mImages;
+  std::map<int, Camera> mCameras;
+  QString mOutputPath;
+  QString mDatabase;
+  bool mFixCalibration;
+  bool mFixPoses;
+};
+
+
+/*----------------------------------------------------------------*/
+
 void colmapRemoveOrientations(const std::vector<std::string> &images, 
                               const std::string &reconstruction);
 
