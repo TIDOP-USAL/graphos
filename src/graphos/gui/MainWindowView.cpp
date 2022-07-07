@@ -46,6 +46,8 @@
 #include <QLabel>
 #include <QToolBar>
 
+#include <unordered_map>
+
 namespace graphos
 {
 
@@ -89,8 +91,6 @@ MainWindowView::MainWindowView(QWidget *parent)
     mActionExportMatches(new QAction(this)),
     mActionExportPointCloud(new QAction(this)),
     mActionOrtho(new QAction(this)),
-    mActionNotRecentProjects(new QAction(this)),
-    mActionClearHistory(new QAction(this)),
     mActionOpenImage(new QAction(this)),
     mActionDeleteImage(new QAction(this)),
     mActionViewKeypoints(new QAction(this)),
@@ -127,46 +127,50 @@ MainWindowView::~MainWindowView()
   delete ui;
 }
 
-void MainWindowView::setCreateProjectAction(QAction *action)
-{
-  ui->menuFile->insertAction(mActionNewProject, action);
-  ui->menuFile->removeAction(mActionNewProject);
-  mToolBarFile->insertAction(mActionNewProject, action);
-  mToolBarFile->removeAction(mActionNewProject);
-}
-
-void MainWindowView::setOpenProjectAction(QAction *action)
-{
-  ui->menuFile->insertAction(mActionOpenProject, action);
-  ui->menuFile->removeAction(mActionOpenProject);
-  mToolBarFile->insertAction(mActionOpenProject, action);
-  mToolBarFile->removeAction(mActionOpenProject);
-}
-void MainWindowView::setImportCamerasAction(QAction *action)
-{
-  mMenuImport->insertAction(mActionImportCameras, action);
-  mMenuImport->removeAction(mActionImportCameras);
-}
-
-void MainWindowView::setCamerasToolAction(QAction* action)
-{
-  ui->menuTools->insertAction(mActionCameras, action);
-  ui->menuTools->removeAction(mActionCameras);
-  mToolBarTools->insertAction(mActionCameras, action);
-  mToolBarTools->removeAction(mActionCameras);
-}
-
-void MainWindowView::addActionToMenu(QAction *action, Menu menuName)
+void MainWindowView::addActionToMenu(QAction *action, 
+                                     Menu menuName)
 {
   if (QMenu *_menu = findMenu(menuName)) {
-    _menu->addAction(action);
+
+    QAction *prev_action = nullptr;
+    for(auto _action : _menu->actions()) {
+      if(_action->text() == action->text()) {
+        prev_action = _action;
+        break;
+      }
+    }
+
+    if(prev_action) {
+      _menu->insertAction(prev_action, action);
+      _menu->removeAction(prev_action);
+    } else {
+      _menu->addAction(action);
+    }
+    
   }
 }
 
 void MainWindowView::addMenuToMenu(QMenu *menu, Menu menuName)
 {
   if (QMenu *_menu = findMenu(menuName)) {
-    _menu->addMenu(menu);
+    
+    QMenu *sub_menu = nullptr;
+    for(auto _action : _menu->actions()) {
+      if(QMenu *_sub_menu = _action->menu()) {
+        if(_sub_menu->title() == menu->title()) {
+          sub_menu = _sub_menu;
+          break;
+        }
+      }
+    }
+
+    if(sub_menu) {
+      _menu->insertMenu(sub_menu->menuAction(), menu);
+      _menu->removeAction(sub_menu->menuAction());
+    } else {
+      _menu->addMenu(menu);
+    }
+    
   }
 }
 
@@ -174,15 +178,29 @@ void MainWindowView::addSeparatorToMenu(Menu menu)
 {
   if (QMenu *_menu = findMenu(menu)) {
     _menu->addSeparator();
-    //this->update();
   }
 }
 
-void MainWindowView::addActionToToolbar(QAction *action, Toolbar toolbar)
+void MainWindowView::addActionToToolbar(QAction *action, 
+                                        Toolbar toolbar)
 {
   if (QToolBar *_toolbar = findToolbar(toolbar)) {
-    _toolbar->addAction(action);
-    //this->update();
+
+    QAction *prev_action = nullptr;
+    for(auto _action : _toolbar->actions()) {
+      if(_action->text() == action->text()) {
+        prev_action = _action;
+        break;
+      }
+    }
+
+    if(prev_action) {
+      _toolbar->insertAction(prev_action, action);
+      _toolbar->removeAction(prev_action);
+    } else {
+      _toolbar->addAction(action);
+    }
+
   }
 }
 
@@ -190,7 +208,6 @@ void MainWindowView::addSeparatorToToolbar(Toolbar toolbar)
 {
   if (QToolBar *_toolbar = findToolbar(toolbar)) {
     _toolbar->addSeparator();
-    //this->update();
   }
 }
 
@@ -270,52 +287,6 @@ void MainWindowView::addImage(const QString &image, size_t imageId)
   mThumbnailsWidget->addThumbnail(image, imageId);
 }
 
-//void MainWindowView::addImages(const QStringList &images)
-//{
-//  if (images.empty() == false) {
-//    for (auto &image : images) {
-//      if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
-//
-//        /* Fotogramas */
-//
-//        QTreeWidgetItem *itemImages = nullptr;
-//        for (int i = 0; i < itemProject->childCount(); i++) {
-//          QTreeWidgetItem *temp = itemProject->child(i);
-//          //if (temp->text(0).compare(tr("Images")) == 0) {
-//          if (temp->data(0, Qt::UserRole) == graphos::images){
-//            itemImages = itemProject->child(i);
-//            break;
-//          }
-//        }
-//
-//        if (itemImages == nullptr) {
-//          itemImages = new QTreeWidgetItem();
-//          itemImages->setText(0, tr("Images"));
-//          itemImages->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
-//          itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
-//          itemImages->setData(0, Qt::UserRole, graphos::images);
-//          itemProject->addChild(itemImages);
-//          itemImages->setExpanded(true);
-//        }
-//
-//        /* Se añade el fotograma al árbol del proyecto */
-//        QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
-//        itemPhotogram->setText(0, QFileInfo(image).baseName());
-//        itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
-//        itemPhotogram->setToolTip(0, image);
-//        itemPhotogram->setData(0, Qt::UserRole, graphos::image);
-//        itemImages->addChild(itemPhotogram);
-//        itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
-//        
-//        update();
-//      }
-//    }
-//
-//    mThumbnailsWidget->addThumbnails(images);
-//
-//  }
-//}
-
 void MainWindowView::setActiveImage(size_t imageId)
 {
   const QSignalBlocker blocker1(mTreeWidgetProject);
@@ -326,7 +297,6 @@ void MainWindowView::setActiveImage(size_t imageId)
     QTreeWidgetItem *itemImages = nullptr;
     for (int i = 0; i < itemProject->childCount(); i++) {
       QTreeWidgetItem *temp = itemProject->child(i);
-      //if (temp->text(0).compare(tr("Images")) == 0) {
       if (temp->data(0, Qt::UserRole) == graphos::images){
         itemImages = itemProject->child(i);
         break;
@@ -702,17 +672,35 @@ void MainWindowView::setStatusBarMsg(const QString &msg)
   ui->statusBar->showMessage(msg, 2000);
 }
 
-void MainWindowView::setProperties(const std::list<std::pair<QString, QString>> &properties)
+void MainWindowView::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)
 {
   ui->treeWidgetProperties->clear();
   ui->treeWidgetProperties->setAlternatingRowColors(true);
+  ui->treeWidgetProperties->expandAll();
+  //for (auto it = properties.begin(); it != properties.end(); it++){
+  //  QTreeWidgetItem *item = new QTreeWidgetItem();
+  //  item->setText(0, it->first);
+  //  item->setText(1, it->second);
+  //  ui->treeWidgetProperties->addTopLevelItem(item);
+  //}
 
-  for (auto it = properties.begin(); it != properties.end(); it++){
+  for(auto &group : properties) {
+    
     QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, it->first);
-    item->setText(1, it->second);
+    item->setText(0, group.first);
+    
     ui->treeWidgetProperties->addTopLevelItem(item);
+
+    for(auto &property : group.second) {
+      QTreeWidgetItem *item_property = new QTreeWidgetItem();
+      item_property->setText(0, property.first);
+      item_property->setText(1, property.second);
+      item->addChild(item_property);
+    }
+
+    item->setExpanded(true);
   }
+
 }
 
 ProgressBarWidget *MainWindowView::progressBar()
@@ -724,41 +712,6 @@ ProgressBarWidget *MainWindowView::progressBar()
 TabWidget *MainWindowView::tabWidget()
 {
   return mTabWidget;
-}
-
-void MainWindowView::updateHistory(const QStringList &history)
-{
-  int n = history.size();
-  for (int r = 0; r < n; r++) {
-    QString prjFileName = tr("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
-    if (mHistory.size() == static_cast<size_t>(r)) {
-      // Se añade un nuevo elemento
-      QAction *action = new QAction(prjFileName, this);
-      action->setData(history[r]);
-      action->setToolTip(history[r]);
-      mHistory.push_back(action);
-      connect(mHistory[static_cast<size_t>(r)], SIGNAL(triggered()), this, SLOT(openFromHistory()));
-      mMenuRecentProjects->insertAction(mActionNotRecentProjects, mHistory[static_cast<size_t>(r)]);
-      mMenuRecentProjects->setToolTipsVisible(true);
-    } else {
-      mHistory[static_cast<size_t>(r)]->setText(prjFileName);
-      mHistory[static_cast<size_t>(r)]->setData(history[r]);
-      mHistory[static_cast<size_t>(r)]->setToolTip(history[r]);
-    }
-  }
-
-  update();
-}
-
-void MainWindowView::deleteHistory()
-{
-  while (mHistory.size() > 0) {
-    disconnect(mHistory[0], SIGNAL(triggered()), this, SLOT(openFromHistory()));
-    mMenuRecentProjects->removeAction(mHistory[0]);
-    mHistory.erase(mHistory.begin());
-  }
-
-  update();
 }
 
 void MainWindowView::deleteImages(const std::vector<size_t> &imageIds)
@@ -866,14 +819,6 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
    } else if (item->data(0, Qt::UserRole) == graphos::ortho) {
      emit openOrtho(item->toolTip(column));
    }
-
-   /*else if (item->data(0, Qt::UserRole) == graphos::ui::pair_right){
-     QString session = item->parent()->parent()->parent()->parent()->text(0);
-     emit openImageMatches(session, item->parent()->text(0), item->text(column));
-   } else if (item->data(0, Qt::UserRole) == graphos::ui::features_image){
-     QString session = item->parent()->parent()->parent()->text(0);
-     emit openKeypointsViewer(session, QFileInfo(item->text(column)).baseName());
-   }*/
   }
 }
 
@@ -888,7 +833,7 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
     return;
 
   if (item->data(0, Qt::UserRole) == graphos::project){
-    /*QAction *selectedItem = */mMenuTreeProjectImages->exec(globalPos);
+    mMenuTreeProjectImages->exec(globalPos);
   } else if (item->data(0, Qt::UserRole) == graphos::images){
 
   } else if (item->data(0, Qt::UserRole) == graphos::image ||
@@ -1016,23 +961,9 @@ void MainWindowView::initActions()
   iconStartPage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-home-page.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionStartPage->setIcon(iconStartPage);
 
-  //QIcon iconSettings;
-  //iconSettings.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionSettings->setIcon(iconSettings);
-
   QIcon iconHelp;
   iconHelp.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_help_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
   mActionHelp->setIcon(iconHelp);
-
-  //QIcon iconAbout;
-  //iconAbout.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_about_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //mActionAbout->setIcon(iconAbout);
-
-  mActionNotRecentProjects->setEnabled(false);
-
-  QIcon icon_delete_trash;
-  icon_delete_trash.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-delete-2.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionClearHistory->setIcon(icon_delete_trash);
 
   QIcon iconOpenImage;
   iconOpenImage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_image_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -1207,9 +1138,6 @@ void MainWindowView::initMenuFile()
   ui->menuFile->addAction(mActionNewProject);
   ui->menuFile->addAction(mActionOpenProject);
   mMenuRecentProjects = new QMenu(this);
-  mMenuRecentProjects->addAction(mActionNotRecentProjects);
-  mMenuRecentProjects->addSeparator();
-  mMenuRecentProjects->addAction(mActionClearHistory);
   ui->menuFile->addMenu(mMenuRecentProjects);
   ui->menuFile->addSeparator();
   ui->menuFile->addAction(mActionSaveProject);
@@ -1264,7 +1192,6 @@ void MainWindowView::initMenuTools()
   mActionCameras->setVisible(false);
   ui->menuTools->addAction(mActionCameras);
   ui->menuTools->addSeparator();
-  //ui->menuTools->addAction(mActionSettings);
 }
 
 void MainWindowView::initMenuPlugins()
@@ -1275,8 +1202,6 @@ void MainWindowView::initMenuPlugins()
 void MainWindowView::initMenuHelp()
 {
   ui->menuHelp->addAction(mActionHelp);
-  //ui->menuHelp->addSeparator();
-  //ui->menuHelp->addAction(mActionAbout);
 }
 
 void MainWindowView::initProgressBar()
@@ -1291,15 +1216,10 @@ void MainWindowView::initSignalAndSlots()
 {
   /* Menú Archivo */
 
-  connect(mActionClearHistory,         &QAction::triggered, this,   &MainWindowView::clearHistory);
-  connect(mActionSaveProject,          &QAction::triggered, this,   &MainWindowView::saveProject);
-  connect(mActionSaveProjectAs,        &QAction::triggered, this,   &MainWindowView::saveProjectAs);
-  connect(mActionExportTiePoints,      &QAction::triggered, this,   &MainWindowView::openExportFeatures);
-  connect(mActionExportMatches,        &QAction::triggered, this,   &MainWindowView::openExportMatches);
-  //connect(mActionExportOrientations,   &QAction::triggered, this,   &MainWindowView::openExportOrientations);
-  connect(mActionExportPointCloud,     &QAction::triggered, this,   &MainWindowView::openExportPointCloud);
-  connect(mActionCloseProject,         &QAction::triggered, this,   &MainWindowView::closeProject);
-  connect(mActionExit, &QAction::triggered,                 this, &MainWindowView::close);
+  connect(mActionExportTiePoints,      &QAction::triggered, this, &MainWindowView::openExportFeatures);
+  connect(mActionExportMatches,        &QAction::triggered, this, &MainWindowView::openExportMatches);
+  connect(mActionExportPointCloud,     &QAction::triggered, this, &MainWindowView::openExportPointCloud);
+  connect(mActionExit,                 &QAction::triggered, this, &MainWindowView::close);
 
   /* Menú View */
 
@@ -1315,7 +1235,7 @@ void MainWindowView::initSignalAndSlots()
   connect(mThumbnailsWidget,  SIGNAL(selectImage(size_t)),                this, SIGNAL(selectImage(size_t)));
   connect(mThumbnailsWidget,  SIGNAL(selectImages(std::vector<size_t>)),  this, SIGNAL(selectImages(std::vector<size_t>)));
   connect(mThumbnailsWidget,  SIGNAL(delete_images(std::vector<size_t>)), this, SIGNAL(delete_images(std::vector<size_t>)));
-  connect(mThumbnailsWidget,  SIGNAL(imagesLoaded()),                     this, SIGNAL(imagesLoaded()));
+  //connect(mThumbnailsWidget,  SIGNAL(imagesLoaded()),                     this, SIGNAL(imagesLoaded()));
 
   connect(mTreeWidgetProject, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onTreeContextMenu(const QPoint &)));
   connect(mTreeWidgetProject, SIGNAL(itemSelectionChanged()),   this, SLOT(onSelectionChanged()));
@@ -1455,6 +1375,9 @@ QMenu *MainWindowView::findMenu(Menu menu)
     case Menu::file:
       _menu = ui->menuFile;
       break;
+    case Menu::file_import:
+      _menu = mMenuImport;
+      break;
     case Menu::file_export:
       _menu = mMenuExport;
       break;
@@ -1512,7 +1435,6 @@ void MainWindowView::update()
   AppStatus *app_status = app.status();
   bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
   bool project_modified = app_status->isActive(AppStatus::Flag::project_modified);
-  //bool image_open = app_status->isActive(AppStatus::Flag::image_open);
   bool processing = app_status->isActive(AppStatus::Flag::processing);
   bool image_active = app_status->isActive(AppStatus::Flag::tab_image_active);
   bool model_3d_active = app_status->isActive(AppStatus::Flag::tab_3d_model_active);
@@ -1533,12 +1455,6 @@ void MainWindowView::update()
   mActionDistanceMeasuse->setEnabled(model_3d_active);
   mActionAngleMeasure->setEnabled(model_3d_active);
 
-  mMenuRecentProjects->setEnabled(!processing);
-  mActionNotRecentProjects->setVisible(mHistory.size() == 0);
-  mActionClearHistory->setEnabled(mHistory.size() > 0);
-  mActionSaveProject->setEnabled(project_exists && project_modified && !processing);
-  mActionSaveProjectAs->setEnabled(project_exists && !processing);
-  mActionCloseProject->setEnabled(project_exists && !processing);
   mActionExit->setEnabled(!processing);
 }
 
@@ -1551,17 +1467,12 @@ void MainWindowView::retranslate()
   mActionImportCameras->setText(QApplication::translate("MainWindowView", "Import Cameras", nullptr));
   mActionExportTiePoints->setText(QApplication::translate("MainWindowView", "Export tie points", nullptr));
   mActionExportMatches->setText(QApplication::translate("MainWindowView", "Export Matches", nullptr));
-  //mActionExportOrientations->setText(QApplication::translate("MainWindowView", "Export Orientations", nullptr));
   mActionExportPointCloud->setText(QApplication::translate("MainWindowView", "Export Point Cloud", nullptr));
   mActionCloseProject->setText(QApplication::translate("MainWindowView", "Close Project", nullptr));
   mActionExit->setText(QApplication::translate("MainWindowView", "Exit", nullptr));
   mActionStartPage->setText(QApplication::translate("MainWindowView", "Start Page", nullptr));
   mActionCameras->setText(QApplication::translate("MainWindowView", "Cameras", nullptr));
   mActionHelp->setText(QApplication::translate("MainWindowView", "Help", nullptr));
-  //mActionAbout->setText(QApplication::translate("MainWindowView", "About", nullptr));
-  //mActionSettings->setText(QApplication::translate("MainWindowView", "Settings", nullptr));
-  mActionNotRecentProjects->setText(QApplication::translate("MainWindowView", "Not recent projects", nullptr));
-  mActionClearHistory->setText(QApplication::translate("MainWindowView", "Clear History", nullptr));
   mActionOpenImage->setText(QApplication::translate("MainWindowView", "Open Image", nullptr));
   mActionDeleteImage->setText(QApplication::translate("MainWindowView", "Delete Image", nullptr));
   mActionViewKeypoints->setText(QApplication::translate("MainWindowView", "View Keypoints", nullptr));
@@ -1581,7 +1492,6 @@ void MainWindowView::retranslate()
   mActionPointMeasuse->setText(QApplication::translate("MainWindowView", "Point Measure", nullptr));
   mActionDistanceMeasuse->setText(QApplication::translate("MainWindowView", "Distance Measure", nullptr));
   mActionAngleMeasure->setText(QApplication::translate("MainWindowView", "Angle Measure", nullptr));
-
 
   mToolBarFile->setWindowTitle(QCoreApplication::translate("MainWindowView", "File", nullptr));
   mToolBarWorkflow->setWindowTitle(QCoreApplication::translate("MainWindowView", "Workflow", nullptr));

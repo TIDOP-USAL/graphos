@@ -32,6 +32,7 @@
 
 class QAction;
 class QDialog;
+class QMenu;
 
 namespace graphos
 {
@@ -172,6 +173,100 @@ private:
 
   ProgressHandler *mProgressHandler;
 };
+
+
+
+class MultiComponent
+  : public Component
+{
+
+  Q_OBJECT
+
+public:
+
+  MultiComponent() = default;
+  virtual ~MultiComponent() = default;
+
+  //virtual QString name() const = 0;
+  virtual QMenu *subMenu() const = 0;
+  //virtual QString menu() const = 0;
+  //virtual QString toolbar() const = 0;
+
+  //virtual void freeMemory() = 0;
+
+//signals:
+//
+//  void created();
+};
+
+
+class MultiComponentBase
+  : public MultiComponent
+{
+
+public:
+
+  MultiComponentBase(Application *application);
+  ~MultiComponentBase();
+
+protected:
+
+  //virtual void createComponent();
+  virtual void createModel() = 0;
+  virtual void createView() = 0;
+  virtual void createPresenter() = 0;
+  //virtual void createCommand() = 0;
+  virtual void update() = 0;
+
+private:
+
+  void init();
+
+// MultiComponent
+
+public:
+
+  QMenu *subMenu() const override;
+
+// Component
+
+public:
+
+  QString name() const override;
+  QAction *action() const override;
+  QString menu() const override;
+  QString toolbar() const override;
+  std::shared_ptr<Command> command() override;
+
+  void setName(const QString &name) override;
+  void setMenu(const QString &menu) override;
+  void setToolbar(const QString &toolbar) override;
+
+  void freeMemory() override;
+
+protected:
+
+  Model *model();
+  View *view();
+  Presenter *presenter();
+  void setModel(Model *model);
+  void setView(View *view);
+  void setPresenter(Presenter *presenter);
+  void setCommand(std::shared_ptr<Command> command);
+  Application *app();
+
+private:
+
+  QString mParentMenu;
+  QString mToolbar;
+  QString mName;
+  Model *mModel;
+  View *mView;
+  Presenter *mPresenter;
+  Application *mApplication;
+
+};
+
 
 } // namespace graphos
 

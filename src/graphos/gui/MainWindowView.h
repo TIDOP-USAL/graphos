@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_MAINWINDOW_VIEW_H
 #define GRAPHOS_MAINWINDOW_VIEW_H
 
+#include <unordered_map>
+
 #include <QMainWindow>
 
 #include <tidop/core/flags.h>
@@ -35,7 +37,6 @@ class MainWindowView;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QComboBox;
-//class QProgressBar;
 class QGridLayout;
 
 namespace graphos
@@ -57,6 +58,7 @@ public:
   enum class Menu
   {
     file,
+    file_import,
     file_export,
     view,
     workflow,
@@ -98,11 +100,6 @@ public:
 
   /// Configuración de acciones 
 
-  void setCreateProjectAction(QAction *action);
-  void setOpenProjectAction(QAction *action);
-  void setImportCamerasAction(QAction* action);
-  void setCamerasToolAction(QAction* action);
-
   void addActionToMenu(QAction *action, Menu menuName);
   void addMenuToMenu(QMenu *menu, Menu menuName);
   void addSeparatorToMenu(Menu menu);
@@ -127,8 +124,6 @@ public:
   void deleteMatches(size_t imageId);
 
   // Por refactorizar ....
-  //void addImages(const QStringList &images);
-  
   
   void setSparseModel(const QString &sparseModel);
   void deleteSparseModel();
@@ -148,7 +143,7 @@ public:
   /*!
    * \brief Establece las propiedades del elemento seleccionado en el árbol de proyecto
    */
-  void setProperties(const std::list<std::pair<QString, QString> > &properties);
+  void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties);
 
   ProgressBarWidget *progressBar();
 
@@ -159,17 +154,6 @@ public:
   TabWidget *tabWidget();
 
 public slots:
-
-  /*!
-   * \brief Actualiza el historial de proyectos recientes
-   * \param[in] history Listado con las rutas de los últimos proyectos
-   */
-  void updateHistory(const QStringList &history);
-
-  /*!
-   * \brief Borra el historial de proyectos recientes
-   */
-  void deleteHistory();
 
   /*!
    * \brief Elimina una imagen
@@ -183,14 +167,11 @@ signals:
 
   void openProjectFromHistory(QString);
   void clearHistory();
-  void saveProject();
-  void saveProjectAs();
   void openCamerasImport();
   void openExportFeatures();
   void openExportMatches();
   void openExportOrientations();
   void openExportPointCloud();
-  void closeProject();
   void exit();
 
 
@@ -200,15 +181,12 @@ signals:
 
   /* Menú herramientas */
 
-  //void openCamerasDialog();
   void openKeypointsViewer(size_t);
   void openMatchesViewer(size_t);
-  //void openDtmDialog();
 
   /* Menú Ayuda */
 
   void openHelpDialog();
-  //void openAboutDialog();
   
   void selectImage(size_t);
   void selectImages(std::vector<size_t>);
@@ -223,18 +201,10 @@ signals:
   void selectDetector(QString);
   void selectDescriptor(QString);
   void selectImageFeatures(QString);
-  void imagesLoaded();
 
   void open3DModel(QString, bool);
-
   void openDtm();
   void openOrtho(QString);
-
-  //void openImageMatches(QString, QString, QString);
-
-
-//  void openMatchesViewer(QString);
-//  void openMatchesViewer(QString, QString);
   void openMultiView(QString);
 
 protected:
@@ -306,8 +276,6 @@ private:
   QAction *mActionExportMatches;
   QAction *mActionExportPointCloud;
   QAction *mActionOrtho;
-  QAction *mActionNotRecentProjects;
-  QAction *mActionClearHistory;  
   QMenu *mMenuRecentProjects;
   QMenu *mMenuImport;
   QMenu *mMenuExport;

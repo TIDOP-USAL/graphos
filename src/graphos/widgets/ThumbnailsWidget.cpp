@@ -35,57 +35,17 @@
 #include <QtConcurrent/QtConcurrentMap>
 #include <QFutureWatcher>
 #include <QImage>
-#include <mutex>
-//#include <QImageReader>
 #include <QApplication>
 #include <QScrollBar>
 #include <QTimer>	 
 
+#include <mutex>
+
 static std::mutex sMutexThumbnail;
 
-//QImage makeThumbnail(const QString &thumb)
-//{  
-//  std::lock_guard<std::mutex> lck(sMutexThumbnail);
-//
-//  QImage image;
-//
-//  try {
-//
-//    std::string image_file = thumb.toStdString();
-//
-//    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image_file);
-//    imageReader->open();
-//    if (imageReader->isOpen()) {
-//      
-//      int w = imageReader->cols();
-//      int h = imageReader->rows();
-//      double scale = 1.;
-//      if (w > h) {
-//        scale =  200. / static_cast<double>(w);
-//      } else {
-//        scale = 200. / static_cast<double>(h);
-//      }
-//         
-//      cv::Mat bmp = imageReader->read(scale, scale);
-//
-//      image = graphos::cvMatToQImage(bmp);
-//
-//      imageReader->close();
-//
-//    } else {
-//      msgError("Error al abrir la imagen: %s", image_file.c_str());
-//    }
-//
-//  } catch (const std::exception &e) {
-//    msgError(e.what());
-//  } catch (...) {
-//    msgError("GDAL ERROR (%i): %s", CPLGetLastErrorNo(), CPLGetLastErrorMsg());
-//  }
-//
-//  return image;
-//}
 
-void makeThumbnail2(QListWidgetItem *item)
+
+void makeThumbnail(QListWidgetItem *item, QListWidget *listWidget)
 {
   std::lock_guard<std::mutex> lck(sMutexThumbnail);
 
@@ -121,6 +81,8 @@ void makeThumbnail2(QListWidgetItem *item)
       QIcon icon(pixmap);
       item->setIcon(icon);
 
+      listWidget->viewport()->update();
+
     } else {
       msgError("Error al abrir la imagen: %s", image_file.c_str());
     }
@@ -148,9 +110,7 @@ ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
     bLoadingImages(false)
 {
   ThumbnailsWidget::initUI();
-  ThumbnailsWidget::initSignalAndSlots();
-/*  mTimer = new QTimer(this);
-  connect(mTimer, &QTimer::timeout, this, &ThumbnailsWidget::loadThumbnails);				*/			
+  ThumbnailsWidget::initSignalAndSlots();	
 }
 
 void ThumbnailsWidget::setActiveImage(size_t imageId)
@@ -205,14 +165,9 @@ void ThumbnailsWidget::addThumbnail(const QString &thumb, size_t imageId)
       } else {
         scale = 200. / static_cast<double>(h);
       }
-         
-      //cv::Mat bmp = imageReader->read(scale, scale);
-
-      //image = graphos::cvMatToQImage(bmp);
 
       imageReader->close();
 
-      //QPixmap pixmap = QPixmap::fromImage(image);
       QSize size(w, h);
       size *= scale;
       QPixmap pixmap(size.width(), size.height());
@@ -285,10 +240,6 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
 
   loadVisibleImages();
 
-  //if (thumbs.empty() == false) {
-  //  QFuture<QImage> future = QtConcurrent::mapped(thumbs, makeThumbnail);
-  //  mFutureWatcherThumbnail->setFuture(future);
-  //}
   bLoadingImages = false;
 
   update();
@@ -338,15 +289,8 @@ void ThumbnailsWidget::onSelectionChanged()
 
 void ThumbnailsWidget::loadVisibleImages()
 {
-  //QModelIndex firstIndex = mListWidget->indexAt(QPoint(0, 0));
-  //QModelIndex lastIndex = mListWidget->indexAt(QPoint(0, 0));
-
   QRect rect = mListWidget->viewport()->rect();
   QRegion region = mListWidget->viewport()->visibleRegion();
-
-  //QPoint tl = rect.topLeft();
-  //QPoint bl = rect.bottomLeft() + QPoint(0, mListWidget->verticalScrollBar()->singleStep());
-  //msgInfo("Viewport: [%i, %i, %i, %i]", tl.x(), tl.y(), bl.x(), bl.y());
 
   for (int i = 0; i < mListWidget->count(); i++) {
     QModelIndex idx = mListWidget->model()->index(i, 0);
@@ -354,16 +298,11 @@ void ThumbnailsWidget::loadVisibleImages()
     if (region.contains(idx_rect) || region.intersects(idx_rect)) {
       auto item = mListWidget->item(i);
       if (!item->data(Qt::UserRole + 1).toBool()) {
-        //QPixmap pixmap = QPixmap::fromImage(makeThumbnail(item->toolTip()));
-        //QIcon icon(pixmap);
-        //item->setIcon(icon);
+
         item->setData(Qt::UserRole + 1, true);
 
-        std::thread t(makeThumbnail2, item);
+        std::thread t(makeThumbnail, item, mListWidget);
         t.detach();
-        //QFuture<QImage> future = QtConcurrent::mapped(item->toolTip(), makeThumbnail);
-        //mFutureWatcherThumbnail->setFuture(future);
-
       }
 
     }
@@ -433,84 +372,6 @@ void ThumbnailsWidget::onDeleteImageClicked()
   loadVisibleImages();
 }
 
-//void ThumbnailsWidget::showThumbnail(int id)
-//{
-//  if (QListWidgetItem *item = mListWidget->item(mThumbnaislSize + id)) {
-//    QPixmap pixmap = QPixmap::fromImage(mFutureWatcherThumbnail->resultAt(id));
-//    QIcon icon(pixmap);
-//    item->setIcon(icon);
-//  }
-//}
-
-//void ThumbnailsWidget::finished()
-//{
-//  mThumbnaislSize = mListWidget->count();
-//  bLoadingImages = false;
-//  update();
-//
-//  emit imagesLoaded();
-//}
-
-//void ThumbnailsWidget::checkVisible()
-//{
-//  auto start = mListWidget->indexAt(QPoint()).row();
-//															 
-//							 
-//						   
-//  auto end = mListWidget->indexAt(mListWidget->viewport()->rect().bottomRight()).row();
-//
-//  if (end < 0)
-//    end = start;
-//																																			
-//		  
-//			
-//						   
-//   
-//
-//  auto model = mListWidget->model();
-//  for (size_t i = start; i < end + 1; i++) {
-//    auto index = model->index(i, 0);
-//    if (!index.data(Qt::UserRole + 2).toBool() && index.data(Qt::UserRole + 1).isValid()) {
-//																			
-//						   
-//							
-//      model->setData(index, true, Qt::UserRole + 2);
-//	   
-//    }
-//  }
-//}
-
-//void ThumbnailsWidget::loadThumbnails()
-//{
-//  msgWarning("imagenes visibles:");
-//  QModelIndex firstIndex = mListWidget->indexAt(QPoint(0, 0));
-//  QModelIndex lastIndex = mListWidget->indexAt(QPoint(0, 0));
-//  if (firstIndex.isValid()) {
-//    //myList << firstIndex;
-//  } while (mListWidget->viewport()->rect().contains(QPoint(0, 
-//                                                           mListWidget->visualRect(lastIndex).y() + 
-//                                                           mListWidget->visualRect(lastIndex).height() + 1))) {
-//    if (lastIndex.isValid()) {
-//      lastIndex = mListWidget->indexAt(QPoint(0, mListWidget->visualRect(lastIndex).y() + mListWidget->visualRect(lastIndex).height() + 1));
-//    } else
-//      break;
-//    //myList << firstIndex;
-//  }
-//
-//									
-//  for (size_t i = firstIndex.row(); i < lastIndex.row(); i++) {
-//    if (QListWidgetItem *item = mListWidget->item(i /*+ value*/)) {
-//      if (!item->data(Qt::UserRole+1).toBool()) {
-//        QPixmap pixmap = QPixmap::fromImage(makeThumbnail(item->toolTip()));
-//        msgWarning(item->toolTip().toStdString().c_str());
-//        QIcon icon(pixmap);
-//        item->setIcon(icon);
-//        item->setData(Qt::UserRole+1, true);
-//      }
-//    }
-//  }
-//}
-
 void ThumbnailsWidget::update()
 {
   const QSignalBlocker block0(mThumbnailAction);
@@ -538,9 +399,6 @@ void ThumbnailsWidget::retranslate()
 
 void ThumbnailsWidget::clear()
 {
-  //if (mFutureWatcherThumbnail->isRunning()) {
-  //  mFutureWatcherThumbnail->cancel();
-  //}
   mListWidget->clear();
   mThumbnaislSize = 0;
   bLoadingImages = false;
@@ -588,8 +446,6 @@ void ThumbnailsWidget::initUI()
   mGridLayout->addWidget(toolBar);
   mGridLayout->addWidget(mListWidget);
 
-  //mFutureWatcherThumbnail = new QFutureWatcher<QImage>(this);
-
   ThumbnailsWidget::retranslate();
   ThumbnailsWidget::clear(); /// set default values
 }
@@ -602,12 +458,7 @@ void ThumbnailsWidget::initSignalAndSlots()
   connect(mThumbnailSmallAction,   &QAction::changed,                   this, &ThumbnailsWidget::onThumbnailSmallClicked);
   connect(mDetailsAction,          &QAction::changed,                   this, &ThumbnailsWidget::onDetailsClicked);
   connect(mDeleteImageAction,      &QAction::triggered,                 this, &ThumbnailsWidget::onDeleteImageClicked);
-  //connect(mFutureWatcherThumbnail, &QFutureWatcherBase::resultReadyAt,  this, &ThumbnailsWidget::showThumbnail);
-  //connect(mFutureWatcherThumbnail, &QFutureWatcherBase::finished,       this, &ThumbnailsWidget::finished);
-
   connect(mListWidget->verticalScrollBar(), &QScrollBar::valueChanged,  this, &ThumbnailsWidget::loadVisibleImages);
-
-  //connect(mListWidget->verticalScrollBar(), &QScrollBar::valueChanged, this, &ThumbnailsWidget::checkVisible);
 }
 
 void ThumbnailsWidget::changeEvent(QEvent *event)

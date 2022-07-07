@@ -27,6 +27,7 @@
 #include "graphos/core/command.h"
 
 #include <QAction>
+#include <QMenu>
 
 namespace graphos
 {
@@ -268,6 +269,150 @@ void ProcessComponent::onFailed()
 void ProcessComponent::onCanceled()
 {
   app()->status()->activeFlag(AppStatus::Flag::processing, false);
+}
+
+
+
+
+
+MultiComponentBase::MultiComponentBase(Application *application)
+  : mModel(nullptr),
+    mView(nullptr),
+    mPresenter(nullptr), 
+    mApplication(application)
+{
+  init();
+}
+
+MultiComponentBase::~MultiComponentBase()
+{
+  if(mPresenter) {
+    delete mPresenter;
+    mPresenter = nullptr;
+  }
+
+  if(mModel) {
+    delete mModel;
+    mModel = nullptr;
+  }
+
+  if(mView) {
+    delete mView;
+    mView = nullptr;
+  }
+}
+
+void MultiComponentBase::init()
+{
+  //connect(subMenu(), &QMenu::triggered,
+  //        this, &MultiComponentBase::createComponent);
+  connect(mApplication->status(), &AppStatus::update,
+          this, &MultiComponentBase::update);
+}
+
+QMenu *MultiComponentBase::subMenu() const
+{
+  return dynamic_cast<QMenu *>(mView);
+}
+
+//void MultiComponentBase::createComponent()
+//{
+//  this->createModel();
+//  this->createView();
+//  this->createPresenter();
+//
+//  emit created();
+//}
+
+QString MultiComponentBase::name() const
+{
+  return mName;
+}
+
+QAction *MultiComponentBase::action() const
+{
+  return nullptr;
+}
+
+QString MultiComponentBase::menu() const
+{
+  return mParentMenu;
+}
+
+QString MultiComponentBase::toolbar() const
+{
+  return mToolbar;
+}
+
+std::shared_ptr<Command> MultiComponentBase::command()
+{
+  //if(!mCommand) {
+  //  this->createCommand();
+  //}
+  //return mCommand;
+  return std::shared_ptr<Command>();
+}
+
+void MultiComponentBase::setName(const QString &name)
+{
+  mName = name;
+}
+
+void MultiComponentBase::setMenu(const QString &menu)
+{
+  mParentMenu = menu;
+}
+
+void MultiComponentBase::setToolbar(const QString &toolbar)
+{
+  mToolbar = toolbar;
+}
+
+void MultiComponentBase::freeMemory()
+{
+}
+
+Model *MultiComponentBase::model()
+{
+  return mModel;
+}
+
+View *MultiComponentBase::view()
+{
+  return mView;
+}
+
+Presenter *MultiComponentBase::presenter()
+{
+  return mPresenter;
+}
+
+void MultiComponentBase::setModel(Model *model)
+{
+  mModel = model;
+}
+
+void MultiComponentBase::setView(View *view)
+{
+  mView = view;
+}
+
+void MultiComponentBase::setPresenter(Presenter *presenter)
+{
+  mPresenter = presenter;
+}
+
+void MultiComponentBase::setCommand(std::shared_ptr<Command> command)
+{
+  //if(command) {
+  //  mCommand = command;
+  //  mApplication->addComponent(this);
+  //}
+}
+
+Application *MultiComponentBase::app()
+{
+  return mApplication;
 }
 
 } // namespace graphos

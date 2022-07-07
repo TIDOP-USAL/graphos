@@ -86,6 +86,7 @@ public:
 signals:
 
   void image_loaded(size_t);
+  void update_history();
 
 private:
 

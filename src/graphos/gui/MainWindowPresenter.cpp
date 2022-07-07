@@ -123,7 +123,6 @@ void MainWindowPresenter::deleteHistory()
 {
   Application::instance().clearHistory();
   mStartPageWidget->setHistory(QStringList());
-  mView->deleteHistory();
 }
 
 void MainWindowPresenter::saveProject()
@@ -138,47 +137,6 @@ void MainWindowPresenter::saveProject()
   } catch (std::exception &e) {
     tl::printException(e);
   }
-}
-
-void MainWindowPresenter::saveProjectAs()
-{
-  try {
-
-    QString file = QFileDialog::getSaveFileName(Q_NULLPTR,
-                                                tr("Save project as..."),
-                                                mProjectDefaultPath,
-                                                tr("Graphos Project (*.xml)"));
-    if (file.isEmpty() == false) {
-      mModel->saveAs(file);
-      Application &app = Application::instance();
-      app.status()->activeFlag(AppStatus::Flag::project_modified, false);
-    }
-
-  } catch (std::exception &e) {
-    tl::printException(e);
-  }
-}
-
-void MainWindowPresenter::closeProject()
-{
-  if(mModel->checkUnsavedChanges()){
-    int i_ret = QMessageBox(QMessageBox::Information,
-                            tr("Save Changes"),
-                            tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
-                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-    if (i_ret == QMessageBox::Yes) {
-      saveProject();
-    } else if (i_ret == QMessageBox::Cancel) {
-      return;
-    }
-  }
-
-  mModel->clear();
-/////TODO:  mModel->finishLog();
-  mView->clear();
-
-  Application &app = Application::instance();
-  app.status()->clear();
 }
 
 void MainWindowPresenter::exit()
@@ -243,7 +201,6 @@ void MainWindowPresenter::loadProject()
 
   /// Se añade al historial de proyectos recientes
   app.addToHistory(project_path);
-  mView->updateHistory(app.history());
   mStartPageWidget->setHistory(app.history());
 
   QString msg = tr("Load project: ").append(project_path);
@@ -256,24 +213,10 @@ void MainWindowPresenter::loadProject()
     mView->addImage(image.second.path(), image.second.id());
     app.status()->activeFlag(AppStatus::Flag::images_added, true);
   }
-  //QStringList images;
-  //for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
-  //  images.push_back((*it).path());
-  //}
-
-  //if (images.size() > 0){
-  //  mView->addImages(images);
-  //  Application &app = Application::instance();
-  //  app.status()->activeFlag(AppStatus::Flag::images_added, true);
-  //}
 
   for (const auto &feat : mModel->features()) {
     this->loadFeatures(feat.first);
   }
-
-  //for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
-  //  this->loadFeatures(it->first);
-  //}
 
   this->updateMatches();
   this->loadOrientation();
@@ -286,46 +229,12 @@ void MainWindowPresenter::updateProject()
 {
   Application &app = Application::instance();
   AppStatus *app_status = app.status();
-  //app_status->activeFlag(AppStatus::Flag::feature_extraction, false);
-  //app_status->activeFlag(AppStatus::Flag::feature_matching, false);
-  //app_status->activeFlag(AppStatus::Flag::oriented, false);
-  //app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
-  //app_status->activeFlag(AppStatus::Flag::dense_model, false);
-  //app_status->activeFlag(AppStatus::Flag::dtm, false);
-  //app_status->activeFlag(AppStatus::Flag::ortho, false);
 
   //this->loadOrtho();
   //this->loadDTM();
   this->loadDenseModel();
   this->loadOrientation();
   this->updateMatches();
-
-  //for (auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++) {
-  //  QString imageLeft = it->name();
-  //  bool del_features = true;
-  //  for (auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++) {
-  //    if (imageLeft.compare(it->first) == 0) {
-  //      this->loadFeatures(it->first);
-  //      del_features = false;
-  //      break;
-  //    }
-  //  }
-  //  if (del_features) mView->deleteFeatures(imageLeft);
-  //}
-
-  //for(auto it = mFeaturesModel->begin(); it != mFeaturesModel->end(); it++){
-
-  //}
-
-  ////for(auto it = mModel->imageBegin(); it != mModel->imageEnd(); it++){
-  ////  QString imageLeft = it->name();
-  ////  std::vector<QString> pairs = mMatchesModel->matchesPairs(imageLeft);
-  ////  for (auto &imageRight : pairs){
-  ////    mView->deleteMatches(imageLeft);
-  ////    AppStatus::instance().activeFlag(AppStatus::Flag::feature_matching, true);
-  ////  }
-  ////}
-
 }
 
 void MainWindowPresenter::loadFeatures(size_t imageId)
@@ -452,7 +361,7 @@ void MainWindowPresenter::activeImage(size_t imageId)
   try {
 
     const Image &image = mModel->image(imageId);
-    std::list<std::pair<QString, QString>> properties = mModel->exif(image.path());
+    auto properties = mModel->exif(image.path());
     mView->setProperties(properties);
     mView->setActiveImage(imageId);
 
@@ -488,21 +397,6 @@ void MainWindowPresenter::deleteImages(const std::vector<size_t> &imageIds)
     tl::printException(e);
   }
 }
-
-//void MainWindowPresenter::deleteImage(const QString &imageName)
-//{
-//  try {
-//    mFeaturesModel->removeFeatures(imageName);
-//    mMatchesModel->removeMatchesPair(imageName);
-//    /// TODO: Borrar los matches cuando este a la izquierda tambien
-//    //size_t image_id = mModel->imageID(imageName);
-//    //mModel->removeImage(image_id);
-//    mModel->removeImage(imageName);
-//    mView->deleteImage(imageName);
-//  } catch (std::exception &e) {
-//    msgError(e.what());
-//  }
-//}
 
 void MainWindowPresenter::openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2)
 {
@@ -631,7 +525,7 @@ void MainWindowPresenter::init()
 
   /* Projects history */
   Application &app = Application::instance();
-  mView->updateHistory(app.history());
+  //mView->updateHistory(app.history());
   mStartPageWidget->setHistory(app.history());
 
   bool bUseGPU = cudaEnabled(10.0, 3.0);
@@ -644,14 +538,9 @@ void MainWindowPresenter::initSignalAndSlots()
 
 /* Menú Archivo */
 
-  connect(mView, &MainWindowView::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);  ///TODO: falta test señal
-  connect(mView, &MainWindowView::clearHistory,           this, &MainWindowPresenter::deleteHistory);
   connect(mView, &MainWindowView::openCamerasImport,      this, &MainWindowPresenter::openCamerasImportDialog);
   connect(mView, &MainWindowView::openExportOrientations, this, &MainWindowPresenter::openExportOrientationsDialog);
   connect(mView, &MainWindowView::openExportPointCloud,   this, &MainWindowPresenter::openExportPointCloudDialog);
-  connect(mView, &MainWindowView::saveProject,            this, &MainWindowPresenter::saveProject);
-  connect(mView, &MainWindowView::saveProjectAs,          this, &MainWindowPresenter::saveProjectAs);
-  connect(mView, &MainWindowView::closeProject,           this, &MainWindowPresenter::closeProject);
   connect(mView, &MainWindowView::exit,                   this, &MainWindowPresenter::exit);
 
   /* Menú View */
@@ -662,12 +551,8 @@ void MainWindowPresenter::initSignalAndSlots()
 
   /* Menú herramientas */
 
-  //connect(mView,   &MainWindowView::openSettings,         this, &MainWindowPresenter::openSettingsDialog);
-  //connect(mView,   &MainWindowView::openDtmDialog,         this, &MainWindowPresenter::openDtmDialog);
-
   /* Menú Ayuda */
 
-  //connect(mView, &MainWindowView::openHelpDialog,     this, &MainWindowPresenter::help);
   connect(mView, &MainWindowView::openHelpDialog, [&]() {
     emit help("");
   });
@@ -715,7 +600,6 @@ void MainWindowPresenter::initStartPage()
 
     connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openCreateProjectDialog);
     connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProjectDialog);
-    //connect(mStartPageWidget,   &StartPageWidget::openSettings,           this, &MainWindowPresenter::openSettingsDialog);
     connect(mStartPageWidget,   &StartPageWidget::clearHistory,           this, &MainWindowPresenter::deleteHistory);
     connect(mStartPageWidget,   &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);
   }

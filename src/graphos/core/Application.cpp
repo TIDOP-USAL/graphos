@@ -160,11 +160,14 @@ void Application::addToHistory(const QString &project)
 
   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
   settings.setValue("HISTORY/RecentProjects", mHistory);
+
+  emit update_history();
 }
 
 void Application::clearHistory()
 {
   mHistory.clear();
+  emit update_history();
 }
 
 Application &Application::instance()

@@ -55,8 +55,6 @@ signals:
   void openExportPointCloudDialog();
   void openGeoreferenceDialog();
   void openCamerasImportDialog();
-  //void openAboutDialog();
-  //void openDtmDialog();
 
 protected slots:
 
@@ -65,8 +63,6 @@ protected slots:
   void openFromHistory(const QString &file);
   void deleteHistory();
   void saveProject();
-  void saveProjectAs();
-  void closeProject();
   void exit();
 
   /* Menú View */
@@ -91,7 +87,6 @@ protected slots:
   void activeImage(size_t imageId);
   void activeImages(const std::vector<size_t> &imageIds);
   void deleteImages(const std::vector<size_t> &imageIds);
-  //void deleteImage(const QString &imageName);
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
   void open3DModel(const QString &model3D, bool loadCameras);

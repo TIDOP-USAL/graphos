@@ -37,6 +37,18 @@
 #ifdef GRAPHOS_HAVE_OPEN_PROJECT
 #include "graphos/components/openproject/OpenProjectComponent.h"
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
+#ifdef GRAPHOS_HAVE_RECENT_PROJECTS
+#include "graphos/components/recentprojects/RecentProjectsComponent.h"
+#endif // GRAPHOS_HAVE_RECENT_PROJECTS
+#ifdef GRAPHOS_HAVE_SAVE_PROJECT
+#include "graphos/components/saveproject/SaveProjectComponent.h"
+#endif // GRAPHOS_HAVE_SAVE_PROJECT
+#ifdef GRAPHOS_HAVE_SAVE_PROJECT_AS
+#include "graphos/components/saveprojectas/SaveProjectAsComponent.h"
+#endif // GRAPHOS_HAVE_SAVE_PROJECT_AS
+#ifdef GRAPHOS_HAVE_CLOSE_PROJECT
+#include "graphos/components/closeproject/CloseProjectComponent.h"
+#endif // GRAPHOS_HAVE_CLOSE_PROJECT
 #ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
 #include "graphos/components/import/cameras/ImportCamerasComponent.h"
 #endif // GRAPHOS_HAVE_IMPORT_CAMERAS
@@ -119,6 +131,22 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_OPEN_PROJECT
   OpenProjectComponent open_project_component(&app);
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
+
+#ifdef GRAPHOS_HAVE_RECENT_PROJECTS
+  RecentProjectsComponent recent_projects_component(&app);
+#endif // GRAPHOS_HAVE_RECENT_PROJECTS
+
+#ifdef GRAPHOS_HAVE_SAVE_PROJECT
+  SaveProjectComponent save_project_component(&app);
+#endif // GRAPHOS_HAVE_SAVE_PROJECT
+
+#ifdef GRAPHOS_HAVE_SAVE_PROJECT_AS
+  SaveProjectAsComponent save_project_as_component(&app);
+#endif // GRAPHOS_HAVE_SAVE_PROJECT_AS
+
+#ifdef GRAPHOS_HAVE_CLOSE_PROJECT
+  CloseProjectComponent close_project_component(&app);
+#endif // GRAPHOS_HAVE_CLOSE_PROJECT
 
 #ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
   ImportCamerasComponent import_cameras_component(&app);
@@ -220,22 +248,36 @@ int main(int argc, char *argv[])
     /* File menu */
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
-    componentsManager.mainWindowView()->setCreateProjectAction(create_project_component.action());
+    componentsManager.registerComponent(&create_project_component);
 #endif
 
 #ifdef GRAPHOS_HAVE_OPEN_PROJECT
-    componentsManager.mainWindowView()->setOpenProjectAction(open_project_component.action());
+    componentsManager.registerComponent(&open_project_component);
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
 
+#ifdef GRAPHOS_HAVE_RECENT_PROJECTS
+    componentsManager.registerComponent(&recent_projects_component);
+#endif // GRAPHOS_HAVE_RECENT_PROJECTS
+
+#ifdef GRAPHOS_HAVE_SAVE_PROJECT
+    componentsManager.registerComponent(&save_project_component);
+#endif // GRAPHOS_HAVE_OPEN_PROJECT
+
+#ifdef GRAPHOS_HAVE_SAVE_PROJECT_AS
+    componentsManager.registerComponent(&save_project_as_component);
+#endif // GRAPHOS_HAVE_OPEN_PROJECT_AS
+
+#ifdef GRAPHOS_HAVE_CLOSE_PROJECT
+    componentsManager.registerComponent(&close_project_component);
+#endif // GRAPHOS_HAVE_CLOSE_PROJECT
+
 #ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
-    componentsManager.mainWindowView()->setImportCamerasAction(import_cameras_component.action());
+    componentsManager.registerComponent(&import_cameras_component);
 #endif // GRAPHOS_HAVE_IMPORT_CAMERAS
 
 #ifdef GRAPHOS_HAVE_CAMERAS
-    componentsManager.mainWindowView()->setCamerasToolAction(cameras_component.action());
+    componentsManager.registerComponent(&cameras_component);
 #endif
-
-    //componentsManager.mainWindowView()->setTabWidget(tab_component.widget());
 
     //componentsManager.registerComponent(&export_orientations_component);
 
@@ -328,11 +370,23 @@ int main(int argc, char *argv[])
                      open_project_component.action(), &QAction::trigger);
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
 
+#ifdef GRAPHOS_HAVE_RECENT_PROJECTS
+    QObject::connect(&recent_projects_component, SIGNAL(open_project(QString)),
+                     componentsManager.mainWindowPresenter(), SLOT(openFromHistory(QString)));
+#endif // GRAPHOS_HAVE_OPEN_PROJECT
 
     QObject::connect(&app, SIGNAL(image_loaded(size_t)),
                      componentsManager.mainWindowPresenter(), SLOT(loadImage(size_t)));
 
+
     /////TODO: por ahora hasta que refactorice MainWindow
+
+#ifdef GRAPHOS_HAVE_CLOSE_PROJECT
+    QObject::connect(&close_project_component, &CloseProjectComponent::projectClosed, [&]() {
+      componentsManager.mainWindowView()->clear();
+    });
+#endif // GRAPHOS_HAVE_CLOSE_PROJECT
+
 #ifdef GRAPHOS_HAVE_IMAGE_LOAD
     QObject::connect(&image_loader_component, SIGNAL(image_loaded(size_t)),
                      componentsManager.mainWindowPresenter(), SLOT(loadImage(size_t)));
@@ -388,9 +442,6 @@ int main(int argc, char *argv[])
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
 
-
-    //QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openImage,
-    //                 &tab_component, &TabComponent::openImage);
 
     componentsManager.loadPlugins();
 

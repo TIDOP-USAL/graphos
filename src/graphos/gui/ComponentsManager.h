@@ -68,6 +68,12 @@ public:
 
   void registerComponent(Component *component,
                          Flags flags = Flags::none);
+  //void insertComponentBegin(Component *component,
+  //                          Component *componentToInsert,
+  //                          Flags flags = Flags::none);
+  //void insertComponentBegin(const QString &menu,
+  //                          Component *component,
+  //                          Flags flags = Flags::none);
   void registerMultiComponent(const QString &name,
                               const QString &menu,
                               const QString &toolbar,

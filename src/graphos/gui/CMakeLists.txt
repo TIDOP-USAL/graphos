@@ -130,8 +130,8 @@ target_link_libraries(${PROJECT_NAME}
                       Qt5::PrintSupport
                       Qt5::OpenGL
                       Qt5::OpenGLExtensions
-                      $<$<BOOL:${GRAPHOS_HAVE_ABOUT}>:Graphos::Core>
-                      $<$<BOOL:${GRAPHOS_HAVE_ABOUT}>:Graphos::Widgets>
+                      Graphos::Core
+                      Graphos::Widgets
                       $<$<BOOL:${GRAPHOS_HAVE_ABOUT}>:Graphos::About>
                       $<$<BOOL:${GRAPHOS_HAVE_CAMERAS}>:Graphos::Cameras>
                       $<$<BOOL:${GRAPHOS_HAVE_CREATE_PROJECT}>:Graphos::CreateProject>
@@ -146,6 +146,10 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_MATCH_VIEWER}>:Graphos::MatchViewer>
                       $<$<BOOL:${GRAPHOS_HAVE_MESH}>:Graphos::Mesh>
                       $<$<BOOL:${GRAPHOS_HAVE_OPEN_PROJECT}>:Graphos::OpenProject>
+                      $<$<BOOL:${GRAPHOS_HAVE_RECENT_PROJECTS}>:Graphos::RecentProjects>
+                      $<$<BOOL:${GRAPHOS_HAVE_SAVE_PROJECT}>:Graphos::SaveProject>
+                      $<$<BOOL:${GRAPHOS_HAVE_SAVE_PROJECT_AS}>:Graphos::SaveProjectAs>
+                      $<$<BOOL:${GRAPHOS_HAVE_CLOSE_PROJECT}>:Graphos::CloseProject>
                       $<$<BOOL:${GRAPHOS_HAVE_ORIENTATION}>:Graphos::Orientation>
                       $<$<BOOL:${GRAPHOS_HAVE_UNDISTORT}>:Graphos::Undistort>
                       $<$<BOOL:${GRAPHOS_HAVE_ORTHOPHOTO}>:Graphos::Orthophoto>

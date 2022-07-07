@@ -129,13 +129,13 @@ void ComponentsManager::registerComponent(Component *component,
 
   if (component == nullptr) return;
 
-  QAction *action = component->action();
-
   QString menu = component->menu();
   MainWindowView::Menu app_menu;
   if (menu.compare("file") == 0) {
     app_menu = MainWindowView::Menu::file;
-  } else if (menu.compare("file_export") == 0) {
+  } else if(menu.compare("file_import") == 0) {
+    app_menu = MainWindowView::Menu::file_import;
+  } else if(menu.compare("file_export") == 0) {
     app_menu = MainWindowView::Menu::file_export;
   } else if (menu.compare("view") == 0) {
     app_menu = MainWindowView::Menu::view;
@@ -154,7 +154,18 @@ void ComponentsManager::registerComponent(Component *component,
   if (register_flags.isActive(Flags::separator_before)) {
     mMainWindowView->addSeparatorToMenu(app_menu);
   }
-  mMainWindowView->addActionToMenu(action, app_menu);
+
+  QAction *action = component->action();
+  if(action) {
+    mMainWindowView->addActionToMenu(action, app_menu);
+  } else {
+    if(auto multi_component = dynamic_cast<MultiComponent *>(component)) {
+      QMenu *menu = multi_component->subMenu();
+      mMainWindowView->addMenuToMenu(menu, app_menu);
+    }
+
+  }
+  
   if (register_flags.isActive(Flags::separator_after)) {
     mMainWindowView->addSeparatorToMenu(app_menu);
   }
@@ -190,6 +201,41 @@ void ComponentsManager::registerComponent(Component *component,
   }
 
 }
+
+//void ComponentsManager::insertComponentBegin(Component *component,
+//                                             Component *componentToInsert,
+//                                             Flags flags)
+//{
+//}
+//
+//void ComponentsManager::insertComponentBegin(const QString &menu,
+//                                             Component *component,
+//                                             Flags flags)
+//{
+//
+//  MainWindowView::Menu app_menu;
+//  if(menu.compare("file") == 0) {
+//    app_menu = MainWindowView::Menu::file;
+//  } else if(menu.compare("file_import") == 0) {
+//    app_menu = MainWindowView::Menu::file_import;
+//  } else if(menu.compare("file_export") == 0) {
+//    app_menu = MainWindowView::Menu::file_export;
+//  } else if(menu.compare("view") == 0) {
+//    app_menu = MainWindowView::Menu::view;
+//  } else if(menu.compare("workflow") == 0) {
+//    app_menu = MainWindowView::Menu::workflow;
+//  } else if(menu.compare("tools") == 0) {
+//    app_menu = MainWindowView::Menu::tools;
+//  } else if(menu.compare("plugins") == 0) {
+//    app_menu = MainWindowView::Menu::plugins;
+//  } else if(menu.compare("help") == 0) {
+//    app_menu = MainWindowView::Menu::help;
+//  } else {
+//    return;
+//  }
+//
+//
+//}
 
 void ComponentsManager::registerMultiComponent(const QString &name,
                                                const QString &menu,

@@ -57,7 +57,6 @@ signals:
   void selectImage(size_t);
   void selectImages(std::vector<size_t>);
   void delete_images(std::vector<size_t>);
-  //void imagesLoaded();
 
 public slots:
 
@@ -74,11 +73,6 @@ private slots:
   void onThumbnailSmallClicked();
   void onDetailsClicked();
   void onDeleteImageClicked();
-
-  //void showThumbnail(int id);
-  //void finished();
-
-  //void loadThumbnails();
 
 // GraphosWidgetView interface
 
@@ -112,7 +106,6 @@ protected:
   QAction *mThumbnailSmallAction;
   QAction *mDetailsAction;
   QAction *mDeleteImageAction;
-  //QFutureWatcher<QImage> *mFutureWatcherThumbnail;
   int mThumbnaislSize;
   bool bLoadingImages;
   QTimer *mTimer;	 

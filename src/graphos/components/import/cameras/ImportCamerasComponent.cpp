@@ -39,8 +39,8 @@ ImportCamerasComponent::ImportCamerasComponent(Application *application)
   : ComponentBase(application)
 {
   this->setName("Import Cameras");
-  this->setMenu("file");
-  this->setToolbar("file");
+  this->setMenu("file_import");
+  //this->setToolbar("file");
   //mAction->setIcon(QIcon(":/ico/24/img/material/24/features.png"));
 }
 
