@@ -59,9 +59,13 @@ ComponentBase::~ComponentBase()
     mModel = nullptr;
   }
 
-  if(mView) {
-    delete mView;
-    mView = nullptr;
+  if(mViewType == ViewType::dock_widget) {
+
+  } else {
+    if(mView) {
+      delete mView;
+      mView = nullptr;
+    }
   }
 
 }
@@ -197,6 +201,11 @@ Presenter *ComponentBase::presenter()
   return mPresenter;
 }
 
+ComponentBase::ViewType ComponentBase::viewType() const
+{
+  return mViewType;
+}
+
 void ComponentBase::setModel(Model *model)
 {
   mModel = model;
@@ -218,6 +227,11 @@ void ComponentBase::setCommand(std::shared_ptr<Command> command)
     mCommand = command;
     mApplication->addComponent(this);
   }
+}
+
+void ComponentBase::setViewType(ViewType viewType)
+{
+  mViewType = viewType;
 }
 
 Application *ComponentBase::app()

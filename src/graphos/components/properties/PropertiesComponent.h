@@ -41,11 +41,6 @@ public:
   PropertiesComponent(Application *application);
   ~PropertiesComponent();
 
-  void create()
-  {
-    this->createComponent();
-  }
-
 private:
 
   void init();

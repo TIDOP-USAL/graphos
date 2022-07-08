@@ -75,7 +75,7 @@ void PropertiesViewImp::update()
 
 void PropertiesViewImp::retranslate()
 {
-  setWindowTitle(QCoreApplication::translate("PropertiesView", "Properties", nullptr));
+  setWindowTitle(QCoreApplication::translate("PropertiesView", "Image Properties", nullptr));
   QTreeWidgetItem *header_item = mTreeWidgetProperties->headerItem();
   header_item->setText(0, QCoreApplication::translate("PropertiesView", "Name", nullptr));
   header_item->setText(1, QCoreApplication::translate("PropertiesView", "Value", nullptr));

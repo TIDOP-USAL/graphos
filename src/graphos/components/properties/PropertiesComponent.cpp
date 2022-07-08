@@ -61,6 +61,7 @@ void PropertiesComponent::createModel()
 void PropertiesComponent::createView()
 {
   setView(new PropertiesViewImp());
+  setViewType(ViewType::dock_widget);
 }
 
 void PropertiesComponent::createPresenter()

@@ -362,10 +362,9 @@ int main(int argc, char *argv[])
                                         ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_ABOUT
 
-    //auto properties_widget = dynamic_cast<QDockWidget *>(properties_component.widget());
-    //properties_component.create();
-    //componentsManager.mainWindowView()->addDockWidget(Qt::RightDockWidgetArea, dynamic_cast<QDockWidget *>(properties_component.widget()));
-
+    properties_component.createComponent();
+    auto properties_widget = dynamic_cast<QDockWidget *>(properties_component.widget());
+    componentsManager.mainWindowView()->addDockWidget(Qt::RightDockWidgetArea, properties_widget);
 
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
