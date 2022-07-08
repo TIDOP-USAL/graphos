@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_VIEW_GRAPHOS_H
-#define GRAPHOS_CREATE_PROJECT_VIEW_GRAPHOS_H
+#ifndef GRAPHOS_CREATE_PROJECT_VIEW_INTERFACE_H
+#define GRAPHOS_CREATE_PROJECT_VIEW_INTERFACE_H
 
 #include "graphos/core/mvp.h"
 
@@ -93,4 +93,4 @@ signals:
 } // namespace graphos
 
 
-#endif // GRAPHOS_CREATE_PROJECT_VIEW_GRAPHOS_H
+#endif // GRAPHOS_CREATE_PROJECT_VIEW_INTERFACE_H
