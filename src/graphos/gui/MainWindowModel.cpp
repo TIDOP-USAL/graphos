@@ -31,7 +31,7 @@
 #include <tidop/math/angles.h>
 
 
-std::string removeParentheses(const std::string &value)
+std::string remove_parentheses(const std::string &value)
 {
   size_t pos1 = value.find("(");
   size_t pos2 = value.find(")");
@@ -199,12 +199,12 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> MainWindowMo
 
     value = image_metadata->metadata("EXIF_FNumber", active);
     if(active) {
-      exif["Camera"].push_back(std::make_pair(QString("F Number"), QString::fromStdString("f/" + removeParentheses(value))));
+      exif["Camera"].push_back(std::make_pair(QString("F Number"), QString::fromStdString("f/" + remove_parentheses(value))));
     }
 
     value = image_metadata->metadata("EXIF_ExposureTime", active);
     if(active) {
-      exif["Camera"].push_back(std::make_pair(QString("Exposure time"), QString::fromStdString(removeParentheses(value))));
+      exif["Camera"].push_back(std::make_pair(QString("Exposure time"), QString::fromStdString(remove_parentheses(value))));
     }
     
     //value = image_metadata->metadata("EXIF_ISOSpeed", active);
@@ -219,24 +219,24 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> MainWindowMo
 
     value = image_metadata->metadata("EXIF_ExposureBiasValue", active);
     if(active) {
-      value = removeParentheses(value);
+      value = remove_parentheses(value);
       double exposure_bias = std::stod(value);
       exif["Camera"].push_back(std::make_pair(QString("Exposure bias"), QString::number(exposure_bias, 'f', 1) + " step"));
     }
 
     value = image_metadata->metadata("EXIF_FocalLength", active);
     if(active) {
-      exif["Camera"].push_back(std::make_pair(QString("Focal length"), QString::fromStdString(removeParentheses(value) + " mm")));
+      exif["Camera"].push_back(std::make_pair(QString("Focal length"), QString::fromStdString(remove_parentheses(value) + " mm")));
     }
 
     value = image_metadata->metadata("EXIF_ApertureValue", active);
     if(active) {
-      exif["Camera"].push_back(std::make_pair(QString("Aperture value"), QString::fromStdString(removeParentheses(value))));
+      exif["Camera"].push_back(std::make_pair(QString("Aperture value"), QString::fromStdString(remove_parentheses(value))));
     }
     
     value = image_metadata->metadata("EXIF_MaxApertureValue", active);
     if(active) {
-      exif["Camera"].push_back(std::make_pair(QString("Max aperture"), QString::fromStdString(removeParentheses(value))));
+      exif["Camera"].push_back(std::make_pair(QString("Max aperture"), QString::fromStdString(remove_parentheses(value))));
     }
     
     value = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", active);
@@ -296,8 +296,8 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> MainWindowMo
       std::string y_resolution = image_metadata->metadata("EXIF_YResolution", active2);
 
       if(active1 && active2) {
-        exif["Image"].push_back(std::make_pair(QString("Horizontal resolution"), QString::fromStdString(removeParentheses(x_resolution) + " " + resolution_unit)));
-        exif["Image"].push_back(std::make_pair(QString("Vertical resolution"), QString::fromStdString(removeParentheses(y_resolution) + " " + resolution_unit)));
+        exif["Image"].push_back(std::make_pair(QString("Horizontal resolution"), QString::fromStdString(remove_parentheses(x_resolution) + " " + resolution_unit)));
+        exif["Image"].push_back(std::make_pair(QString("Vertical resolution"), QString::fromStdString(remove_parentheses(y_resolution) + " " + resolution_unit)));
       }
 
     }
@@ -328,7 +328,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> MainWindowMo
 
     value = image_metadata->metadata("EXIF_CompressedBitsPerPixel", active);
     if(active) {
-      exif["Image"].push_back(std::make_pair(QString("Compressed bits per pixel"), QString::fromStdString(removeParentheses(value))));
+      exif["Image"].push_back(std::make_pair(QString("Compressed bits per pixel"), QString::fromStdString(remove_parentheses(value))));
     }
 
     //value = image_metadata->metadata("EXIF_Software", active);
@@ -645,7 +645,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> MainWindowMo
     
     value = image_metadata->metadata("EXIF_GPSAltitude", active);
     if(active) {
-      std::string altitude = removeParentheses(value);
+      std::string altitude = remove_parentheses(value);
       value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);
       if("0x00" == 0)
         altitude.append(" Above sea level");

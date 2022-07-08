@@ -21,78 +21,54 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_PROPERTIES_MODEL_H
+#define GRAPHOS_PROPERTIES_MODEL_H
 
-#ifndef GRAPHOS_CONFIG_H
-#define GRAPHOS_CONFIG_H
+#include "graphos/components/properties/PropertiesModel.h"
 
-/* Graphos Configuration header */
+namespace graphos
+{
 
-
-/* Graphos Version */
-
-#define GRAPHOS_VERSION_MAJOR @GRAPHOS_VERSION_MAJOR@
-#define GRAPHOS_VERSION_MINOR @GRAPHOS_VERSION_MINOR@
+class Project;
 
 
-/* Graphos Components */
+class PropertiesModelImp
+  : public PropertiesModel
+{
 
-#cmakedefine GRAPHOS_HAVE_ABOUT
-#cmakedefine GRAPHOS_HAVE_CAMERAS
-#cmakedefine GRAPHOS_HAVE_CREATE_PROJECT
-#cmakedefine GRAPHOS_HAVE_DENSE
-#cmakedefine GRAPHOS_HAVE_DTM
-#cmakedefine GRAPHOS_HAVE_FEATEXTRACT
-#cmakedefine GRAPHOS_HAVE_FEATMATCH
-#cmakedefine GRAPHOS_HAVE_FEATVIEWER
-#cmakedefine GRAPHOS_HAVE_GEOREFERENCE
-#cmakedefine GRAPHOS_HAVE_IMAGE_LOAD
-#cmakedefine GRAPHOS_HAVE_IMPORT_CAMERAS
-#cmakedefine GRAPHOS_HAVE_MATCH_VIEWER
-#cmakedefine GRAPHOS_HAVE_MESH
-#cmakedefine GRAPHOS_HAVE_OPEN_PROJECT
-#cmakedefine GRAPHOS_HAVE_RECENT_PROJECTS
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT_AS
-#cmakedefine GRAPHOS_HAVE_CLOSE_PROJECT
-#cmakedefine GRAPHOS_HAVE_ORIENTATION
-#cmakedefine GRAPHOS_HAVE_ORTHOPHOTO
-#cmakedefine GRAPHOS_HAVE_SETTINGS
-#cmakedefine GRAPHOS_HAVE_UNDISTORT
-#cmakedefine GRAPHOS_HAVE_PROPERTIES
+  Q_OBJECT
 
-/* Graphos source path */
+public:
 
-#define GRAPHOS_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
+  explicit PropertiesModelImp(Project *project,
+                              QObject *parent = nullptr);
+  ~PropertiesModelImp() override;
 
+signals:
 
-/* OpenCV */
-#cmakedefine HAVE_OPENCV
+// PropertiesModel interface
 
-/* Colmap */
-#cmakedefine HAVE_COLMAP
+public:
 
-/* GDAL */
-#cmakedefine HAVE_GDAL
+  std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(size_t imageId) const override;
+  
+// Model interface
 
-/* Eigen */
-#cmakedefine HAVE_EIGEN
+private:
 
-/* PCL */
-#cmakedefine HAVE_PCL
+  void init() override;
 
-/* Visual Leak Detector */
-#cmakedefine HAVE_VLD
+public slots:
 
-/* boost */
-#cmakedefine HAVE_BOOST
+  void clear() override;
 
-/* OpenSceneGraph */
-#cmakedefine HAVE_OPENSCENEGRAPH
+private:
 
-/* CloudCompare */
-#cmakedefine HAVE_CLOUDCOMPARE
+  Project *mProject;
 
-/* Cuda */
-#cmakedefine HAVE_CUDA
+};
 
-#endif // GRAPHOS_CONFIG_H
+} // namespace graphos
+
+#endif // GRAPHOS_PROPERTIES_MODEL_H
+

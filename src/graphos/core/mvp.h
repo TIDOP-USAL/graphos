@@ -30,6 +30,8 @@
 #include <QObject>
 #include <QDialog>
 #include <QEvent>
+#include <QDockWidget>
+
 
 namespace tl
 {
@@ -112,6 +114,53 @@ protected:
   void changeEvent(QEvent *event) override
   {
     if (event->type() == QEvent::LanguageChange){
+      retranslate();
+    }
+  }
+};
+
+
+
+class DockWidgetView
+  : public QDockWidget
+{
+  Q_OBJECT
+
+public:
+
+  DockWidgetView(QWidget *parent = nullptr)
+    : QDockWidget(parent)
+  {
+  }
+
+  virtual ~DockWidgetView() override = default;
+
+private:
+
+  virtual void initUI() = 0;
+  virtual void initSignalAndSlots() = 0;
+
+signals:
+
+  //void help();
+  void restore();
+
+public slots:
+
+  virtual void clear() = 0;
+
+private slots:
+
+  virtual void update() = 0;
+  virtual void retranslate() = 0;
+
+  // QWidget interface
+
+protected:
+
+  void changeEvent(QEvent *event) override
+  {
+    if(event->type() == QEvent::LanguageChange) {
       retranslate();
     }
   }

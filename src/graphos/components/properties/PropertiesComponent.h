@@ -21,78 +21,52 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_PROPERTIES_COMPONENT_H
+#define GRAPHOS_PROPERTIES_COMPONENT_H
 
-#ifndef GRAPHOS_CONFIG_H
-#define GRAPHOS_CONFIG_H
+#include "graphos/core/Component.h"
 
-/* Graphos Configuration header */
-
-
-/* Graphos Version */
-
-#define GRAPHOS_VERSION_MAJOR @GRAPHOS_VERSION_MAJOR@
-#define GRAPHOS_VERSION_MINOR @GRAPHOS_VERSION_MINOR@
+namespace graphos
+{
 
 
-/* Graphos Components */
+class PropertiesComponent
+  : public ComponentBase
+{
 
-#cmakedefine GRAPHOS_HAVE_ABOUT
-#cmakedefine GRAPHOS_HAVE_CAMERAS
-#cmakedefine GRAPHOS_HAVE_CREATE_PROJECT
-#cmakedefine GRAPHOS_HAVE_DENSE
-#cmakedefine GRAPHOS_HAVE_DTM
-#cmakedefine GRAPHOS_HAVE_FEATEXTRACT
-#cmakedefine GRAPHOS_HAVE_FEATMATCH
-#cmakedefine GRAPHOS_HAVE_FEATVIEWER
-#cmakedefine GRAPHOS_HAVE_GEOREFERENCE
-#cmakedefine GRAPHOS_HAVE_IMAGE_LOAD
-#cmakedefine GRAPHOS_HAVE_IMPORT_CAMERAS
-#cmakedefine GRAPHOS_HAVE_MATCH_VIEWER
-#cmakedefine GRAPHOS_HAVE_MESH
-#cmakedefine GRAPHOS_HAVE_OPEN_PROJECT
-#cmakedefine GRAPHOS_HAVE_RECENT_PROJECTS
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT_AS
-#cmakedefine GRAPHOS_HAVE_CLOSE_PROJECT
-#cmakedefine GRAPHOS_HAVE_ORIENTATION
-#cmakedefine GRAPHOS_HAVE_ORTHOPHOTO
-#cmakedefine GRAPHOS_HAVE_SETTINGS
-#cmakedefine GRAPHOS_HAVE_UNDISTORT
-#cmakedefine GRAPHOS_HAVE_PROPERTIES
+  Q_OBJECT
 
-/* Graphos source path */
+public:
 
-#define GRAPHOS_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
+  PropertiesComponent(Application *application);
+  ~PropertiesComponent();
+
+  void create()
+  {
+    this->createComponent();
+  }
+
+private:
+
+  void init();
+
+signals:
 
 
-/* OpenCV */
-#cmakedefine HAVE_OPENCV
+// ComponentBase
 
-/* Colmap */
-#cmakedefine HAVE_COLMAP
+protected:
 
-/* GDAL */
-#cmakedefine HAVE_GDAL
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
+  void createCommand() override;
+  void update() override;
 
-/* Eigen */
-#cmakedefine HAVE_EIGEN
+};
 
-/* PCL */
-#cmakedefine HAVE_PCL
 
-/* Visual Leak Detector */
-#cmakedefine HAVE_VLD
+} // namespace graphos
 
-/* boost */
-#cmakedefine HAVE_BOOST
 
-/* OpenSceneGraph */
-#cmakedefine HAVE_OPENSCENEGRAPH
-
-/* CloudCompare */
-#cmakedefine HAVE_CLOUDCOMPARE
-
-/* Cuda */
-#cmakedefine HAVE_CUDA
-
-#endif // GRAPHOS_CONFIG_H
+#endif // GRAPHOS_PROPERTIES_COMPONENT_H

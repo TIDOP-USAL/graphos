@@ -21,78 +21,55 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_PROPERTIES_PRESENTER_H
+#define GRAPHOS_PROPERTIES_PRESENTER_H
 
-#ifndef GRAPHOS_CONFIG_H
-#define GRAPHOS_CONFIG_H
+#include "graphos/components/properties/PropertiesPresenter.h"
 
-/* Graphos Configuration header */
+namespace graphos
+{
 
+class AppStatus;
+class PropertiesView;
+class PropertiesModel;
 
-/* Graphos Version */
+class PropertiesPresenterImp
+  : public PropertiesPresenter
+{
+  Q_OBJECT
 
-#define GRAPHOS_VERSION_MAJOR @GRAPHOS_VERSION_MAJOR@
-#define GRAPHOS_VERSION_MINOR @GRAPHOS_VERSION_MINOR@
+public:
 
+  PropertiesPresenterImp(PropertiesView *view,
+                         PropertiesModel *model,
+                         AppStatus *status);
+  ~PropertiesPresenterImp() override = default;
 
-/* Graphos Components */
+// PropertiesPresenter interface
 
-#cmakedefine GRAPHOS_HAVE_ABOUT
-#cmakedefine GRAPHOS_HAVE_CAMERAS
-#cmakedefine GRAPHOS_HAVE_CREATE_PROJECT
-#cmakedefine GRAPHOS_HAVE_DENSE
-#cmakedefine GRAPHOS_HAVE_DTM
-#cmakedefine GRAPHOS_HAVE_FEATEXTRACT
-#cmakedefine GRAPHOS_HAVE_FEATMATCH
-#cmakedefine GRAPHOS_HAVE_FEATVIEWER
-#cmakedefine GRAPHOS_HAVE_GEOREFERENCE
-#cmakedefine GRAPHOS_HAVE_IMAGE_LOAD
-#cmakedefine GRAPHOS_HAVE_IMPORT_CAMERAS
-#cmakedefine GRAPHOS_HAVE_MATCH_VIEWER
-#cmakedefine GRAPHOS_HAVE_MESH
-#cmakedefine GRAPHOS_HAVE_OPEN_PROJECT
-#cmakedefine GRAPHOS_HAVE_RECENT_PROJECTS
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT_AS
-#cmakedefine GRAPHOS_HAVE_CLOSE_PROJECT
-#cmakedefine GRAPHOS_HAVE_ORIENTATION
-#cmakedefine GRAPHOS_HAVE_ORTHOPHOTO
-#cmakedefine GRAPHOS_HAVE_SETTINGS
-#cmakedefine GRAPHOS_HAVE_UNDISTORT
-#cmakedefine GRAPHOS_HAVE_PROPERTIES
-
-/* Graphos source path */
-
-#define GRAPHOS_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
+protected slots:
 
 
-/* OpenCV */
-#cmakedefine HAVE_OPENCV
+// Presenter interface
 
-/* Colmap */
-#cmakedefine HAVE_COLMAP
+public slots:
 
-/* GDAL */
-#cmakedefine HAVE_GDAL
+  void open() override;
 
-/* Eigen */
-#cmakedefine HAVE_EIGEN
+private:
 
-/* PCL */
-#cmakedefine HAVE_PCL
+  void init() override;
+  void initSignalAndSlots() override;
 
-/* Visual Leak Detector */
-#cmakedefine HAVE_VLD
+private:
 
-/* boost */
-#cmakedefine HAVE_BOOST
+  PropertiesView *mView;
+  PropertiesModel *mModel;
+  AppStatus *mAppStatus;
+  
+};
 
-/* OpenSceneGraph */
-#cmakedefine HAVE_OPENSCENEGRAPH
+} // namespace graphos
 
-/* CloudCompare */
-#cmakedefine HAVE_CLOUDCOMPARE
 
-/* Cuda */
-#cmakedefine HAVE_CUDA
-
-#endif // GRAPHOS_CONFIG_H
+#endif // GRAPHOS_PROPERTIES_PRESENTER_H

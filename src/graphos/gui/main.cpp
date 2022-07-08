@@ -99,7 +99,10 @@
 #ifdef GRAPHOS_HAVE_ABOUT
 #include "graphos/components/about/AboutComponent.h"
 #endif // GRAPHOS_HAVE_ABOUT
-//#include "graphos/components/tab/TabComponent.h"
+#ifdef GRAPHOS_HAVE_PROPERTIES
+#include "graphos/components/properties/PropertiesComponent.h"
+#endif // GRAPHOS_HAVE_PROPERTIES
+
 
 
 #include <tidop/core/console.h>
@@ -214,6 +217,10 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_ABOUT
   AboutComponent about_component(&app);
 #endif // GRAPHOS_HAVE_ABOUT
+
+#ifdef GRAPHOS_HAVE_PROPERTIES
+  PropertiesComponent properties_component(&app);
+#endif // GRAPHOS_HAVE_PROPERTIES
 
   //TabComponent tab_component(&app);
 
@@ -354,6 +361,12 @@ int main(int argc, char *argv[])
     componentsManager.registerComponent(&about_component,
                                         ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_ABOUT
+
+    //auto properties_widget = dynamic_cast<QDockWidget *>(properties_component.widget());
+    //properties_component.create();
+    //componentsManager.mainWindowView()->addDockWidget(Qt::RightDockWidgetArea, dynamic_cast<QDockWidget *>(properties_component.widget()));
+
+
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
     QObject::connect(&create_project_component, SIGNAL(project_created()),

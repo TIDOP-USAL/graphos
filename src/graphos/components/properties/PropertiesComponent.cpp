@@ -21,78 +21,73 @@
  *                                                                      *
  ************************************************************************/
 
+#include "PropertiesComponent.h"
 
-#ifndef GRAPHOS_CONFIG_H
-#define GRAPHOS_CONFIG_H
+#include "graphos/components/properties/impl/PropertiesModel.h"
+#include "graphos/components/properties/impl/PropertiesView.h"
+#include "graphos/components/properties/impl/PropertiesPresenter.h"
+#include "graphos/core/project.h"
+#include "graphos/core/AppStatus.h"
 
-/* Graphos Configuration header */
+#include <QAction>
+#include <QString>
 
-
-/* Graphos Version */
-
-#define GRAPHOS_VERSION_MAJOR @GRAPHOS_VERSION_MAJOR@
-#define GRAPHOS_VERSION_MINOR @GRAPHOS_VERSION_MINOR@
-
-
-/* Graphos Components */
-
-#cmakedefine GRAPHOS_HAVE_ABOUT
-#cmakedefine GRAPHOS_HAVE_CAMERAS
-#cmakedefine GRAPHOS_HAVE_CREATE_PROJECT
-#cmakedefine GRAPHOS_HAVE_DENSE
-#cmakedefine GRAPHOS_HAVE_DTM
-#cmakedefine GRAPHOS_HAVE_FEATEXTRACT
-#cmakedefine GRAPHOS_HAVE_FEATMATCH
-#cmakedefine GRAPHOS_HAVE_FEATVIEWER
-#cmakedefine GRAPHOS_HAVE_GEOREFERENCE
-#cmakedefine GRAPHOS_HAVE_IMAGE_LOAD
-#cmakedefine GRAPHOS_HAVE_IMPORT_CAMERAS
-#cmakedefine GRAPHOS_HAVE_MATCH_VIEWER
-#cmakedefine GRAPHOS_HAVE_MESH
-#cmakedefine GRAPHOS_HAVE_OPEN_PROJECT
-#cmakedefine GRAPHOS_HAVE_RECENT_PROJECTS
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT_AS
-#cmakedefine GRAPHOS_HAVE_CLOSE_PROJECT
-#cmakedefine GRAPHOS_HAVE_ORIENTATION
-#cmakedefine GRAPHOS_HAVE_ORTHOPHOTO
-#cmakedefine GRAPHOS_HAVE_SETTINGS
-#cmakedefine GRAPHOS_HAVE_UNDISTORT
-#cmakedefine GRAPHOS_HAVE_PROPERTIES
-
-/* Graphos source path */
-
-#define GRAPHOS_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
+namespace graphos
+{
 
 
-/* OpenCV */
-#cmakedefine HAVE_OPENCV
+PropertiesComponent::PropertiesComponent(Application *application)
+  : ComponentBase(application)
+{
+  init();
+}
 
-/* Colmap */
-#cmakedefine HAVE_COLMAP
+PropertiesComponent::~PropertiesComponent()
+{
+}
 
-/* GDAL */
-#cmakedefine HAVE_GDAL
+void PropertiesComponent::init()
+{
+  this->setName("Properties");
 
-/* Eigen */
-#cmakedefine HAVE_EIGEN
+  //createCommand();
+}
 
-/* PCL */
-#cmakedefine HAVE_PCL
+void PropertiesComponent::createModel()
+{
+  setModel(new PropertiesModelImp(app()->project()));
+}
 
-/* Visual Leak Detector */
-#cmakedefine HAVE_VLD
+void PropertiesComponent::createView()
+{
+  setView(new PropertiesViewImp());
+}
 
-/* boost */
-#cmakedefine HAVE_BOOST
+void PropertiesComponent::createPresenter()
+{
+  setPresenter(new PropertiesPresenterImp(dynamic_cast<PropertiesView *>(view()),
+                                          dynamic_cast<PropertiesModel *>(model()),
+                                          app()->status()));
 
-/* OpenSceneGraph */
-#cmakedefine HAVE_OPENSCENEGRAPH
+  //connect(dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::project_created,
+  //        this, &PropertiesComponent::onProjectCreated);
+}
 
-/* CloudCompare */
-#cmakedefine HAVE_CLOUDCOMPARE
+void PropertiesComponent::createCommand()
+{
+}
 
-/* Cuda */
-#cmakedefine HAVE_CUDA
+void PropertiesComponent::update()
+{
+  Application *app = this->app();
+  TL_ASSERT(app != nullptr, "Application is null");
+  AppStatus *app_status = app->status();
+  TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-#endif // GRAPHOS_CONFIG_H
+  //bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
+  //action()->setEnabled(!bProcessing);
+}
+
+
+
+} // namespace graphos

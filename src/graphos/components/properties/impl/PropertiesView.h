@@ -21,78 +21,57 @@
  *                                                                      *
  ************************************************************************/
 
+#ifndef GRAPHOS_PROPERTIES_VIEW_H
+#define GRAPHOS_PROPERTIES_VIEW_H
 
-#ifndef GRAPHOS_CONFIG_H
-#define GRAPHOS_CONFIG_H
+#include "graphos/components/properties/PropertiesView.h"
 
-/* Graphos Configuration header */
+class QTreeWidget;
+
+namespace graphos
+{
+
+class PropertiesViewImp
+  : public PropertiesView
+{
+  Q_OBJECT
+
+public:
+
+  explicit PropertiesViewImp(QWidget *parent = nullptr);
+  ~PropertiesViewImp() override = default;
+
+// PropertiesView interface
+
+public:
+
+  void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) override;
+
+public:
+
+// DockWidgetView interface
+
+private:
+
+  void initUI() override;
+  void initSignalAndSlots() override;
+
+public slots:
+
+  void clear() override;
+
+private slots:
+
+  void update() override;
+  void retranslate() override;
+
+protected:
+
+  QTreeWidget *mTreeWidgetProperties;
+  
+};
+
+} // namespace graphos
 
 
-/* Graphos Version */
-
-#define GRAPHOS_VERSION_MAJOR @GRAPHOS_VERSION_MAJOR@
-#define GRAPHOS_VERSION_MINOR @GRAPHOS_VERSION_MINOR@
-
-
-/* Graphos Components */
-
-#cmakedefine GRAPHOS_HAVE_ABOUT
-#cmakedefine GRAPHOS_HAVE_CAMERAS
-#cmakedefine GRAPHOS_HAVE_CREATE_PROJECT
-#cmakedefine GRAPHOS_HAVE_DENSE
-#cmakedefine GRAPHOS_HAVE_DTM
-#cmakedefine GRAPHOS_HAVE_FEATEXTRACT
-#cmakedefine GRAPHOS_HAVE_FEATMATCH
-#cmakedefine GRAPHOS_HAVE_FEATVIEWER
-#cmakedefine GRAPHOS_HAVE_GEOREFERENCE
-#cmakedefine GRAPHOS_HAVE_IMAGE_LOAD
-#cmakedefine GRAPHOS_HAVE_IMPORT_CAMERAS
-#cmakedefine GRAPHOS_HAVE_MATCH_VIEWER
-#cmakedefine GRAPHOS_HAVE_MESH
-#cmakedefine GRAPHOS_HAVE_OPEN_PROJECT
-#cmakedefine GRAPHOS_HAVE_RECENT_PROJECTS
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT
-#cmakedefine GRAPHOS_HAVE_SAVE_PROJECT_AS
-#cmakedefine GRAPHOS_HAVE_CLOSE_PROJECT
-#cmakedefine GRAPHOS_HAVE_ORIENTATION
-#cmakedefine GRAPHOS_HAVE_ORTHOPHOTO
-#cmakedefine GRAPHOS_HAVE_SETTINGS
-#cmakedefine GRAPHOS_HAVE_UNDISTORT
-#cmakedefine GRAPHOS_HAVE_PROPERTIES
-
-/* Graphos source path */
-
-#define GRAPHOS_SOURCE_PATH "${CMAKE_SOURCE_DIR}"
-
-
-/* OpenCV */
-#cmakedefine HAVE_OPENCV
-
-/* Colmap */
-#cmakedefine HAVE_COLMAP
-
-/* GDAL */
-#cmakedefine HAVE_GDAL
-
-/* Eigen */
-#cmakedefine HAVE_EIGEN
-
-/* PCL */
-#cmakedefine HAVE_PCL
-
-/* Visual Leak Detector */
-#cmakedefine HAVE_VLD
-
-/* boost */
-#cmakedefine HAVE_BOOST
-
-/* OpenSceneGraph */
-#cmakedefine HAVE_OPENSCENEGRAPH
-
-/* CloudCompare */
-#cmakedefine HAVE_CLOUDCOMPARE
-
-/* Cuda */
-#cmakedefine HAVE_CUDA
-
-#endif // GRAPHOS_CONFIG_H
+#endif // GRAPHOS_PROPERTIES_VIEW_H

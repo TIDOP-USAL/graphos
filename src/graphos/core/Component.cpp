@@ -59,7 +59,7 @@ ComponentBase::~ComponentBase()
     mModel = nullptr;
   }
 
-  if (mView) {
+  if(mView) {
     delete mView;
     mView = nullptr;
   }
@@ -123,6 +123,11 @@ QString ComponentBase::menu() const
 QString ComponentBase::toolbar() const
 {
   return mToolbar;
+}
+
+QWidget *ComponentBase::widget() const
+{
+  return dynamic_cast<QWidget *>(mView);
 }
 
 std::shared_ptr<Command> ComponentBase::command()
@@ -342,6 +347,11 @@ QString MultiComponentBase::menu() const
 QString MultiComponentBase::toolbar() const
 {
   return mToolbar;
+}
+
+QWidget *MultiComponentBase::widget() const
+{
+  return dynamic_cast<QWidget *>(mView);
 }
 
 std::shared_ptr<Command> MultiComponentBase::command()
