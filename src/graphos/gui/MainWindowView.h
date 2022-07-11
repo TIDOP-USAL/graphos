@@ -210,6 +210,7 @@ signals:
 protected:
 
   void changeEvent(QEvent *e) override;
+  void readSettings();
 
 private slots:
 

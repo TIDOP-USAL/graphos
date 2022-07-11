@@ -899,6 +899,8 @@ void MainWindowView::initUI()
   tl::MessageManager &msg_h = tl::MessageManager::instance();
   msg_h.addListener(mLogWidget);
 
+  this->readSettings();
+
   this->retranslate();
   this->update();
 }
@@ -1523,6 +1525,13 @@ void MainWindowView::closeEvent(QCloseEvent *event)
   settings.setValue("geometry", saveGeometry());
   settings.setValue("windowState", saveState());
   QMainWindow::closeEvent(event);
+}
+
+void MainWindowView::readSettings()
+{
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  restoreGeometry(settings.value("geometry").toByteArray());
+  restoreState(settings.value("windowState").toByteArray());
 }
 
 } // namespace graphos
