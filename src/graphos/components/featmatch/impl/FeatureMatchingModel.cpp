@@ -39,8 +39,8 @@ FeatureMatchingModelImp::FeatureMatchingModelImp(Project *project,
     mProject(project),
     mSettings(new QSettings(QSettings::IniFormat, 
                             QSettings::UserScope, 
-                            "TIDOP", 
-                            "Graphos"))
+                            qApp->organizationName(), 
+                            qApp->applicationName()))
 {
   this->init();
 }

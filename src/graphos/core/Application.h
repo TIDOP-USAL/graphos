@@ -29,7 +29,7 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/console.h>
 
-#include <QObject>
+#include <QApplication>
 
 #include <memory>
 #include <mutex>
@@ -48,19 +48,21 @@ class Component;
 class Project;
 class Settings;
 
+
 class Application
-  : public QObject
+  : public QApplication
 {
 
   Q_OBJECT
 
-private:
-
-  Application();
+//private:
+//
+//  Application();
 
 public:
 
   static Application &instance();
+  Application(int argc, char **argv);
   ~Application();
 
   Application(const Application &) = delete;
@@ -90,6 +92,10 @@ signals:
 
 private:
 
+  tl::CommandList *commandList();
+
+private:
+
   static std::unique_ptr<Application> sApplication;
   static std::mutex sMutex;
   static std::once_flag sInitFlag;
@@ -98,7 +104,7 @@ private:
   Settings *mSettings;
   std::list<Component *> mComponents;
   tl::CommandList *mCommandList;
-  QStringList mHistory;
+  mutable QStringList mHistory;
 };
 
 } // namespace graphos

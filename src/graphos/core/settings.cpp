@@ -318,7 +318,7 @@ SettingsControllerImp::SettingsControllerImp()
   : SettingsController(),
     mSettingsController(nullptr)
 {
-  mSettingsController = new QSettings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  mSettingsController = new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
 }
 
 SettingsControllerImp::~SettingsControllerImp()

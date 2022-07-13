@@ -529,7 +529,7 @@ void MainWindowPresenter::init()
   mStartPageWidget->setHistory(app.history());
 
   bool bUseGPU = cudaEnabled(10.0, 3.0);
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
   settings.setValue("UseCuda", settings.value("UseCuda", bUseGPU).toBool());
 }
 

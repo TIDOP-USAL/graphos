@@ -514,9 +514,9 @@ void MvsDensifier::exportToMVS()
 
     tl::Path app_path = tl::App::instance().path();
     std::string cmd_mvs("\"");
-    //cmd_mvs.append(app_path.parentPath().toString());
-    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
-    //cmd_mvs.append("C:\\OpenMVS\\InterfaceCOLMAP.exe\" - w \"");
+    cmd_mvs.append(app_path.parentPath().toString());
+    //cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
+    cmd_mvs.append("\\InterfaceVisualSFM\" -w \"");
     cmd_mvs.append(outputPath().toString());
     cmd_mvs.append("\" -i model.nvm -o model.mvs -v 0");
 
@@ -545,8 +545,9 @@ void MvsDensifier::densify()
 
     tl::Path app_path = tl::App::instance().path();
     std::string cmd_mvs("\"");
-    //cmd_mvs.append(app_path.parentPath().toString());
-    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
+    cmd_mvs.append(app_path.parentPath().toString());
+    cmd_mvs.append("\\DensifyPointCloud\" -w \"");
+    //cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
     cmd_mvs.append(outputPath().toString());
     cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 0");
     cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));

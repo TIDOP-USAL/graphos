@@ -81,7 +81,7 @@ QString DensificationModelImp::database() const
 
 bool DensificationModelImp::useCuda() const
 {
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
   return settings.value("UseCuda", true).toBool();
 }
 

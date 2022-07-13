@@ -104,7 +104,6 @@
 
 #include <tidop/core/console.h>
 
-#include <QApplication>
 #include <QAction>
 
 #ifdef HAVE_VLD
@@ -120,9 +119,10 @@ using namespace graphos;
 
 int main(int argc, char *argv[])
 {
-
-  QApplication a(argc, argv);
-  Application &app = Application::instance();
+  Application app(argc, argv);
+  app.setApplicationName("GRAPHOS");
+  app.setApplicationVersion(GRAPHOS_VERSION);
+  app.setOrganizationName("TIDOP");
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
   CreateProjectComponent create_project_component(&app);
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 
   tl::Console &console = tl::Console::instance();
   console.setMessageLevel(tl::MessageLevel::msg_verbose);
-  console.setTitle("Graphos");
+  console.setTitle(app.applicationName().toStdString());
   app.messageManager()->addListener(&console);
 
   bool r = false;
@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
 
     componentsManager.mainWindowPresenter()->open();
 
-    r = a.exec();
+    r = app.exec();
 
     //#if defined WIN32
     //    ShowWindow(hwnd, 1);
