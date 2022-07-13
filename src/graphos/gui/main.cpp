@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
 {
   Application app(argc, argv);
   app.setApplicationName("GRAPHOS");
+  app.setApplicationDisplayName("GRAPHOS");
   app.setApplicationVersion(GRAPHOS_VERSION);
   app.setOrganizationName("TIDOP");
 

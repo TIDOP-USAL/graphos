@@ -27,10 +27,13 @@
 #include "graphos/components/createproject/CreateProjectView.h"
 #include "graphos/core/AppStatus.h"
 
+#include <tidop/core/path.h>
+
 #include <QStandardPaths>
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QApplication>
 
 namespace graphos
 {
@@ -134,13 +137,12 @@ void CreateProjectPresenterImp::open()
 
 void CreateProjectPresenterImp::init()
 {
-  mProjectsDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  mProjectsDefaultPath.append("/graphos/Projects");
+  tl::Path path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
+  path.append(qApp->applicationDisplayName().toStdWString());
+  path.append("Projects");
+  path.createDirectories();
 
-  QDir dir(mProjectsDefaultPath);
-  if (!dir.exists()) {
-    dir.mkpath(".");
-  }
+  mProjectsDefaultPath = QString::fromStdWString(path.toWString());
 }
 
 void CreateProjectPresenterImp::initSignalAndSlots()

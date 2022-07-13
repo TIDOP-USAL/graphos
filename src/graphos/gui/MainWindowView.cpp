@@ -213,7 +213,7 @@ void MainWindowView::addSeparatorToToolbar(Toolbar toolbar)
 
 void MainWindowView::clear()
 {
-  setWindowTitle(QString("Graphos"));
+  setWindowTitle(QString(""));
   const QSignalBlocker blockerTreeWidgetProject(mTreeWidgetProject);
   mTreeWidgetProject->clear();
   const QSignalBlocker blockerThumbnailsWidget(mThumbnailsWidget);
@@ -228,7 +228,7 @@ void MainWindowView::clear()
 
 void MainWindowView::setProjectTitle(const QString &title)
 {
-  this->setWindowTitle(QString("Graphos - ").append(title));
+  this->setWindowTitle(title);
 
   QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0);
   if (itemProject == nullptr) {
@@ -879,7 +879,7 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
 
 void MainWindowView::initUI()
 {
-  setWindowTitle(QString("Graphos"));
+  setWindowTitle(QString(""));
 
   mLayoutCentral = new QGridLayout(this->centralWidget());
   mLayoutCentral->setSpacing(6);
