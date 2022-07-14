@@ -21,74 +21,75 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MAINWINDOW_MODEL_H
-#define GRAPHOS_MAINWINDOW_MODEL_H
+#include "PropertiesComponent.h"
 
-#include "graphos/core/mvp.h"
+#include "graphos/components/properties/impl/PropertiesModel.h"
+#include "graphos/components/properties/impl/PropertiesView.h"
+#include "graphos/components/properties/impl/PropertiesPresenter.h"
 #include "graphos/core/project.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
+#include "graphos/core/AppStatus.h"
 
-#include <QImage>
+#include <QAction>
+#include <QString>
+#include <QMainWindow>
 
 namespace graphos
 {
 
-class MainWindowModel
-  : public Model
+
+PropertiesComponent::PropertiesComponent(Application *application)
+  : ComponentBase(application)
 {
-  Q_OBJECT
+  init();
+}
 
-public:
+PropertiesComponent::~PropertiesComponent()
+{
+}
 
-  explicit MainWindowModel(Project *project);
+void PropertiesComponent::init()
+{
+  this->setName("Properties");
 
-  QString projectName() const;
-  QString projectPath() const;
+  //createCommand();
+}
 
-  const std::unordered_map<size_t, Image> &images() const;
-  Image image(size_t imageId) const;
-  void deleteImages(const std::vector<size_t> &imageIds);
-  QImage readImage(size_t imageId);
+void PropertiesComponent::createModel()
+{
+  setModel(new PropertiesModelImp(app()->project()));
+}
 
-  const std::unordered_map<size_t, QString> &features() const;
-  std::vector<size_t> imagePairs(size_t imageId) const;
+void PropertiesComponent::createView()
+{
+  setView(new PropertiesViewImp(app()->mainWindow()));
+}
 
-  QString sparseModel() const;
-  bool isAbsoluteOrientation() const;
+void PropertiesComponent::createPresenter()
+{
+  setPresenter(new PropertiesPresenterImp(dynamic_cast<PropertiesView *>(view()),
+                                          dynamic_cast<PropertiesModel *>(model()),
+                                          app()->status()));
 
-  //std::list<std::pair<QString, QString>> exif(const QString &image) const;
-  //std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(const QString &image) const;
-  const std::unordered_map<size_t, CameraPose> &poses() const;
+  connect(this, &PropertiesComponent::selectImage,
+          dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
+}
 
-  QString denseModel() const;
+void PropertiesComponent::createCommand()
+{
+}
 
-  bool checkUnsavedChanges() const;
-  bool checkOldVersion(const QString &file) const;
-  void oldVersionBackup(const QString &file) const;
+void PropertiesComponent::update()
+{
+  Application *app = this->app();
+  TL_ASSERT(app != nullptr, "Application is null");
+  AppStatus *app_status = app->status();
+  TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-public slots:
+  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
+  if(!project_exists) dynamic_cast<PropertiesView *>(view())->clear();
+  //action()->setEnabled(!bProcessing);
+}
 
-  void load(const QString &file);
-  void save();
-  void saveAs(const QString &file);
 
-// Model interface
-
-private:
-
-  void init() override;
-
-public slots:
-
-  void clear() override;
-
-protected:
-
-  Project *mProject;
-  bool bUnsavedChanges;
-};
 
 } // namespace graphos
-
-#endif // GRAPHOS_MAINWINDOW_MODEL_H

@@ -55,6 +55,7 @@ public:
   virtual QAction *action() const = 0;
   virtual QString menu() const = 0;
   virtual QString toolbar() const = 0;
+  virtual QWidget *widget() const = 0;
   virtual std::shared_ptr<Command> command() = 0;
   virtual void setName(const QString &name) = 0;
   virtual void setMenu(const QString &menu) = 0;
@@ -79,9 +80,10 @@ public:
   ComponentBase(Application *application);
   ~ComponentBase();
 
+  virtual void createComponent();
+
 protected:
 
-  virtual void createComponent();
   virtual void openComponent();
   virtual void createAction();
   virtual void createModel() = 0;
@@ -102,6 +104,7 @@ public:
   QAction *action() const override;
   QString menu() const override;
   QString toolbar() const override;
+  QWidget *widget() const override;
   std::shared_ptr<Command> command() override;
 
   void setName(const QString &name) override;
@@ -132,6 +135,7 @@ private:
   Presenter *mPresenter;
   std::shared_ptr<Command> mCommand;
   Application *mApplication;
+  bool mDeleteView;
 };
 
 
@@ -187,16 +191,8 @@ public:
   MultiComponent() = default;
   virtual ~MultiComponent() = default;
 
-  //virtual QString name() const = 0;
   virtual QMenu *subMenu() const = 0;
-  //virtual QString menu() const = 0;
-  //virtual QString toolbar() const = 0;
 
-  //virtual void freeMemory() = 0;
-
-//signals:
-//
-//  void created();
 };
 
 
@@ -236,6 +232,7 @@ public:
   QAction *action() const override;
   QString menu() const override;
   QString toolbar() const override;
+  QWidget *widget() const override;
   std::shared_ptr<Command> command() override;
 
   void setName(const QString &name) override;

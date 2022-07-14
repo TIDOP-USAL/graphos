@@ -21,58 +21,37 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MAINWINDOW_MODEL_H
-#define GRAPHOS_MAINWINDOW_MODEL_H
+#ifndef GRAPHOS_PROPERTIES_MODEL_H
+#define GRAPHOS_PROPERTIES_MODEL_H
 
-#include "graphos/core/mvp.h"
-#include "graphos/core/project.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
-
-#include <QImage>
+#include "graphos/components/properties/PropertiesModel.h"
 
 namespace graphos
 {
 
-class MainWindowModel
-  : public Model
+class Project;
+
+
+class PropertiesModelImp
+  : public PropertiesModel
 {
+
   Q_OBJECT
 
 public:
 
-  explicit MainWindowModel(Project *project);
+  explicit PropertiesModelImp(Project *project,
+                              QObject *parent = nullptr);
+  ~PropertiesModelImp() override;
 
-  QString projectName() const;
-  QString projectPath() const;
+signals:
 
-  const std::unordered_map<size_t, Image> &images() const;
-  Image image(size_t imageId) const;
-  void deleteImages(const std::vector<size_t> &imageIds);
-  QImage readImage(size_t imageId);
+// PropertiesModel interface
 
-  const std::unordered_map<size_t, QString> &features() const;
-  std::vector<size_t> imagePairs(size_t imageId) const;
+public:
 
-  QString sparseModel() const;
-  bool isAbsoluteOrientation() const;
-
-  //std::list<std::pair<QString, QString>> exif(const QString &image) const;
-  //std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(const QString &image) const;
-  const std::unordered_map<size_t, CameraPose> &poses() const;
-
-  QString denseModel() const;
-
-  bool checkUnsavedChanges() const;
-  bool checkOldVersion(const QString &file) const;
-  void oldVersionBackup(const QString &file) const;
-
-public slots:
-
-  void load(const QString &file);
-  void save();
-  void saveAs(const QString &file);
-
+  std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(size_t imageId) const override;
+  
 // Model interface
 
 private:
@@ -83,12 +62,13 @@ public slots:
 
   void clear() override;
 
-protected:
+private:
 
   Project *mProject;
-  bool bUnsavedChanges;
+
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_MAINWINDOW_MODEL_H
+#endif // GRAPHOS_PROPERTIES_MODEL_H
+

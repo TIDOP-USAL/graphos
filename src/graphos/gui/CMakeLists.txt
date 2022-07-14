@@ -154,6 +154,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_UNDISTORT}>:Graphos::Undistort>
                       $<$<BOOL:${GRAPHOS_HAVE_ORTHOPHOTO}>:Graphos::Orthophoto>
                       $<$<BOOL:${GRAPHOS_HAVE_SETTINGS}>:Settings>
+                      $<$<BOOL:${GRAPHOS_HAVE_PROPERTIES}>:Properties>
                       CSF
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}

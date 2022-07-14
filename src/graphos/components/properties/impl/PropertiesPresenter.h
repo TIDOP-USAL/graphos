@@ -21,74 +21,59 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MAINWINDOW_MODEL_H
-#define GRAPHOS_MAINWINDOW_MODEL_H
+#ifndef GRAPHOS_PROPERTIES_PRESENTER_H
+#define GRAPHOS_PROPERTIES_PRESENTER_H
 
-#include "graphos/core/mvp.h"
-#include "graphos/core/project.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
-
-#include <QImage>
+#include "graphos/components/properties/PropertiesPresenter.h"
 
 namespace graphos
 {
 
-class MainWindowModel
-  : public Model
+class AppStatus;
+class PropertiesView;
+class PropertiesModel;
+
+class PropertiesPresenterImp
+  : public PropertiesPresenter
 {
   Q_OBJECT
 
 public:
 
-  explicit MainWindowModel(Project *project);
+  PropertiesPresenterImp(PropertiesView *view,
+                         PropertiesModel *model,
+                         AppStatus *status);
+  ~PropertiesPresenterImp() override = default;
 
-  QString projectName() const;
-  QString projectPath() const;
-
-  const std::unordered_map<size_t, Image> &images() const;
-  Image image(size_t imageId) const;
-  void deleteImages(const std::vector<size_t> &imageIds);
-  QImage readImage(size_t imageId);
-
-  const std::unordered_map<size_t, QString> &features() const;
-  std::vector<size_t> imagePairs(size_t imageId) const;
-
-  QString sparseModel() const;
-  bool isAbsoluteOrientation() const;
-
-  //std::list<std::pair<QString, QString>> exif(const QString &image) const;
-  //std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(const QString &image) const;
-  const std::unordered_map<size_t, CameraPose> &poses() const;
-
-  QString denseModel() const;
-
-  bool checkUnsavedChanges() const;
-  bool checkOldVersion(const QString &file) const;
-  void oldVersionBackup(const QString &file) const;
+// PropertiesPresenter interface
 
 public slots:
 
-  void load(const QString &file);
-  void save();
-  void saveAs(const QString &file);
+  void setImageActive(size_t imageId) override;
 
-// Model interface
+protected slots:
+
+
+// Presenter interface
+
+public slots:
+
+  void open() override;
 
 private:
 
   void init() override;
+  void initSignalAndSlots() override;
 
-public slots:
+private:
 
-  void clear() override;
-
-protected:
-
-  Project *mProject;
-  bool bUnsavedChanges;
+  PropertiesView *mView;
+  PropertiesModel *mModel;
+  AppStatus *mAppStatus;
+  
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_MAINWINDOW_MODEL_H
+
+#endif // GRAPHOS_PROPERTIES_PRESENTER_H

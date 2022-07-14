@@ -34,6 +34,8 @@
 #include <memory>
 #include <mutex>
 
+class QMainWindow;
+
 namespace tl
 {
 class CommandList;
@@ -70,10 +72,14 @@ public:
   Application operator=(const Application &) = delete;
   Application operator=(Application &&) = delete;
 
+  QString documentsLocation() const;
   AppStatus *status();
   tl::MessageManager *messageManager();
   Project *project();
   Settings *settings();
+
+  QMainWindow *mainWindow();
+  void setMainWindow(QMainWindow *mainWindow);
 
   void addComponent(Component *component);
   tl::CommandList::Status parse(int argc, char **argv);
@@ -102,6 +108,7 @@ private:
   AppStatus *mAppStatus;
   Project *mProject;
   Settings *mSettings;
+  QMainWindow *mMainWindow;
   std::list<Component *> mComponents;
   tl::CommandList *mCommandList;
   mutable QStringList mHistory;

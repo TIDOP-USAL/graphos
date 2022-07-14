@@ -30,6 +30,8 @@
 #include <QObject>
 #include <QDialog>
 #include <QEvent>
+#include <QDockWidget>
+
 
 namespace tl
 {

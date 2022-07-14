@@ -33,6 +33,8 @@
 #include <QAction>
 #include <QSettings>
 #include <QFileInfo>
+#include <QMainWindow>
+#include <QStandardPaths>
 
 namespace graphos
 {
@@ -74,6 +76,15 @@ Application::~Application()
   }
 }
 
+QString Application::documentsLocation() const
+{
+  tl::Path path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
+  path.append(qApp->applicationDisplayName().toStdWString());
+  path.append("Projects");
+
+  return QString::fromStdWString(path.toWString());
+}
+
 AppStatus *Application::status()
 {
   return mAppStatus;
@@ -92,6 +103,16 @@ Project *Application::project()
 Settings *Application::settings()
 {
   return mSettings;
+}
+
+QMainWindow *Application::mainWindow()
+{
+  return mMainWindow;
+}
+
+void Application::setMainWindow(QMainWindow *mainWindow)
+{
+  mMainWindow = mainWindow;
 }
 
 void Application::addComponent(Component *component)

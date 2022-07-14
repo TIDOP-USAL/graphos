@@ -106,6 +106,8 @@ public:
   void addActionToToolbar(QAction *action, Toolbar toolbar);
   void addSeparatorToToolbar(Toolbar toolbar);
 
+  void setPropertiesWidget(QWidget *widget);
+
   void clear();
 
   /*!
@@ -143,7 +145,7 @@ public:
   /*!
    * \brief Establece las propiedades del elemento seleccionado en el árbol de proyecto
    */
-  void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties);
+  //void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties);
 
   ProgressBarWidget *progressBar();
 

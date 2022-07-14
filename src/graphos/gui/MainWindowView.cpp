@@ -35,6 +35,7 @@
 
 #include <tidop/core/messages.h>
 
+#include <QHeaderView>
 #include <QTreeWidgetItem>
 #include <QFileInfo>
 #include <QSettings>
@@ -211,6 +212,11 @@ void MainWindowView::addSeparatorToToolbar(Toolbar toolbar)
   }
 }
 
+void MainWindowView::setPropertiesWidget(QWidget *widget)
+{
+  ui->dockWidgetProperties->setWidget(widget);
+}
+
 void MainWindowView::clear()
 {
   setWindowTitle(QString(""));
@@ -218,7 +224,7 @@ void MainWindowView::clear()
   mTreeWidgetProject->clear();
   const QSignalBlocker blockerThumbnailsWidget(mThumbnailsWidget);
   mThumbnailsWidget->clear();
-  ui->treeWidgetProperties->clear();
+  //ui->treeWidgetProperties->clear();
   mFlags.clear();
 
   if (mTabWidget) mTabWidget->clear();
@@ -672,36 +678,36 @@ void MainWindowView::setStatusBarMsg(const QString &msg)
   ui->statusBar->showMessage(msg, 2000);
 }
 
-void MainWindowView::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)
-{
-  ui->treeWidgetProperties->clear();
-  ui->treeWidgetProperties->setAlternatingRowColors(true);
-  ui->treeWidgetProperties->expandAll();
-  //for (auto it = properties.begin(); it != properties.end(); it++){
-  //  QTreeWidgetItem *item = new QTreeWidgetItem();
-  //  item->setText(0, it->first);
-  //  item->setText(1, it->second);
-  //  ui->treeWidgetProperties->addTopLevelItem(item);
-  //}
-
-  for(auto &group : properties) {
-    
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, group.first);
-    
-    ui->treeWidgetProperties->addTopLevelItem(item);
-
-    for(auto &property : group.second) {
-      QTreeWidgetItem *item_property = new QTreeWidgetItem();
-      item_property->setText(0, property.first);
-      item_property->setText(1, property.second);
-      item->addChild(item_property);
-    }
-
-    item->setExpanded(true);
-  }
-
-}
+//void MainWindowView::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)
+//{
+//  ui->treeWidgetProperties->clear();
+//  ui->treeWidgetProperties->setAlternatingRowColors(true);
+//  ui->treeWidgetProperties->expandAll();
+//  //for (auto it = properties.begin(); it != properties.end(); it++){
+//  //  QTreeWidgetItem *item = new QTreeWidgetItem();
+//  //  item->setText(0, it->first);
+//  //  item->setText(1, it->second);
+//  //  ui->treeWidgetProperties->addTopLevelItem(item);
+//  //}
+//
+//  for(auto &group : properties) {
+//    
+//    QTreeWidgetItem *item = new QTreeWidgetItem();
+//    item->setText(0, group.first);
+//    
+//    ui->treeWidgetProperties->addTopLevelItem(item);
+//
+//    for(auto &property : group.second) {
+//      QTreeWidgetItem *item_property = new QTreeWidgetItem();
+//      item_property->setText(0, property.first);
+//      item_property->setText(1, property.second);
+//      item->addChild(item_property);
+//    }
+//
+//    item->setExpanded(true);
+//  }
+//
+//}
 
 ProgressBarWidget *MainWindowView::progressBar()
 {

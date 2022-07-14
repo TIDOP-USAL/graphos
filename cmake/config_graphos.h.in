@@ -59,7 +59,7 @@
 #cmakedefine GRAPHOS_HAVE_ORTHOPHOTO
 #cmakedefine GRAPHOS_HAVE_SETTINGS
 #cmakedefine GRAPHOS_HAVE_UNDISTORT
-
+#cmakedefine GRAPHOS_HAVE_PROPERTIES
 
 /* Graphos source path */
 

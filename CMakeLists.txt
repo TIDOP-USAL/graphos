@@ -160,7 +160,7 @@ unset(GRAPHOS_HAVE_ORIENTATION CACHE)
 unset(GRAPHOS_HAVE_ORTHOPHOTO CACHE)
 unset(GRAPHOS_HAVE_SETTINGS CACHE)
 unset(GRAPHOS_HAVE_UNDISTORT CACHE)
-
+unset(GRAPHOS_HAVE_PROPERTIES CACHE)
 
 option(BUILD_ABOUT_COMPONENT          "Build About Component"         ON)
 option(BUILD_CAMERAS_COMPONENT        "Build Cameras Component"       ON)
@@ -184,7 +184,7 @@ option(BUILD_ORIENTATION_COMPONENT "Build Orientation Component"  ON)
 option(BUILD_ORTHOPHOTO_COMPONENT "Build Orthophoto Component"  ON)
 option(BUILD_SETTINGS_COMPONENT "Build Settings Component"  ON)
 option(BUILD_UNDISTORT_COMPONENT "Build Undistort Component"  ON)
-
+option(BUILD_PROPERTIES_COMPONENT "Build Properties Component"  ON)
 
 #OPTION (BUILD_GRAPHOS                 "GRAPHOS"                OFF)
 #OPTION (BUILD_GRAPHOS_MICROSERVICES   "GRAPHOS MICROSERVICES"  OFF)

@@ -21,74 +21,56 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MAINWINDOW_MODEL_H
-#define GRAPHOS_MAINWINDOW_MODEL_H
+#ifndef GRAPHOS_PROPERTIES_VIEW_H
+#define GRAPHOS_PROPERTIES_VIEW_H
 
-#include "graphos/core/mvp.h"
-#include "graphos/core/project.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
+#include "graphos/components/properties/PropertiesView.h"
 
-#include <QImage>
+class QTreeWidget;
 
 namespace graphos
 {
 
-class MainWindowModel
-  : public Model
+class PropertiesViewImp
+  : public PropertiesView
 {
   Q_OBJECT
 
 public:
 
-  explicit MainWindowModel(Project *project);
+  explicit PropertiesViewImp(QWidget *parent = nullptr);
+  ~PropertiesViewImp() override = default;
 
-  QString projectName() const;
-  QString projectPath() const;
+// PropertiesView interface
 
-  const std::unordered_map<size_t, Image> &images() const;
-  Image image(size_t imageId) const;
-  void deleteImages(const std::vector<size_t> &imageIds);
-  QImage readImage(size_t imageId);
+public:
 
-  const std::unordered_map<size_t, QString> &features() const;
-  std::vector<size_t> imagePairs(size_t imageId) const;
+  void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) override;
 
-  QString sparseModel() const;
-  bool isAbsoluteOrientation() const;
 
-  //std::list<std::pair<QString, QString>> exif(const QString &image) const;
-  //std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(const QString &image) const;
-  const std::unordered_map<size_t, CameraPose> &poses() const;
-
-  QString denseModel() const;
-
-  bool checkUnsavedChanges() const;
-  bool checkOldVersion(const QString &file) const;
-  void oldVersionBackup(const QString &file) const;
-
-public slots:
-
-  void load(const QString &file);
-  void save();
-  void saveAs(const QString &file);
-
-// Model interface
+// DialogView interface
 
 private:
 
-  void init() override;
+  void initUI() override;
+  void initSignalAndSlots() override;
 
 public slots:
 
   void clear() override;
 
+private slots:
+
+  void update() override;
+  void retranslate() override;
+
 protected:
 
-  Project *mProject;
-  bool bUnsavedChanges;
+  QTreeWidget *mTreeWidgetProperties;
+  
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_MAINWINDOW_MODEL_H
+
+#endif // GRAPHOS_PROPERTIES_VIEW_H

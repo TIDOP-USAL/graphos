@@ -28,6 +28,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QMainWindow>
 
 namespace graphos
 {
@@ -37,7 +38,8 @@ ComponentBase::ComponentBase(Application *application)
     mModel(nullptr),
     mView(nullptr),
     mPresenter(nullptr),
-    mApplication(application)
+    mApplication(application),
+    mDeleteView(true)
 {
   init();
 }
@@ -59,7 +61,7 @@ ComponentBase::~ComponentBase()
     mModel = nullptr;
   }
 
-  if (mView) {
+  if(mDeleteView && mView) {
     delete mView;
     mView = nullptr;
   }
@@ -123,6 +125,11 @@ QString ComponentBase::menu() const
 QString ComponentBase::toolbar() const
 {
   return mToolbar;
+}
+
+QWidget *ComponentBase::widget() const
+{
+  return dynamic_cast<QWidget *>(mView);
 }
 
 std::shared_ptr<Command> ComponentBase::command()
@@ -200,6 +207,9 @@ void ComponentBase::setModel(Model *model)
 void ComponentBase::setView(View *view)
 {
   mView = view;
+  if(mView->parent()) {
+    mDeleteView = false;
+  }
 }
 
 void ComponentBase::setPresenter(Presenter *presenter)
@@ -342,6 +352,11 @@ QString MultiComponentBase::menu() const
 QString MultiComponentBase::toolbar() const
 {
   return mToolbar;
+}
+
+QWidget *MultiComponentBase::widget() const
+{
+  return dynamic_cast<QWidget *>(mView);
 }
 
 std::shared_ptr<Command> MultiComponentBase::command()

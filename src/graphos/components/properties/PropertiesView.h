@@ -21,74 +21,36 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MAINWINDOW_MODEL_H
-#define GRAPHOS_MAINWINDOW_MODEL_H
+#ifndef GRAPHOS_PROPERTIES_VIEW_INTERFACE_H
+#define GRAPHOS_PROPERTIES_VIEW_INTERFACE_H
+
+#include <unordered_map>
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/project.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
 
-#include <QImage>
 
 namespace graphos
 {
 
-class MainWindowModel
-  : public Model
+/*!
+ * \brief Properties interface
+ */
+class PropertiesView
+  : public DialogView
 {
+
   Q_OBJECT
 
 public:
 
-  explicit MainWindowModel(Project *project);
+  PropertiesView(QWidget *parent) : DialogView(parent) {}
+  virtual ~PropertiesView() override = default;
 
-  QString projectName() const;
-  QString projectPath() const;
+  virtual void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) = 0;
 
-  const std::unordered_map<size_t, Image> &images() const;
-  Image image(size_t imageId) const;
-  void deleteImages(const std::vector<size_t> &imageIds);
-  QImage readImage(size_t imageId);
-
-  const std::unordered_map<size_t, QString> &features() const;
-  std::vector<size_t> imagePairs(size_t imageId) const;
-
-  QString sparseModel() const;
-  bool isAbsoluteOrientation() const;
-
-  //std::list<std::pair<QString, QString>> exif(const QString &image) const;
-  //std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(const QString &image) const;
-  const std::unordered_map<size_t, CameraPose> &poses() const;
-
-  QString denseModel() const;
-
-  bool checkUnsavedChanges() const;
-  bool checkOldVersion(const QString &file) const;
-  void oldVersionBackup(const QString &file) const;
-
-public slots:
-
-  void load(const QString &file);
-  void save();
-  void saveAs(const QString &file);
-
-// Model interface
-
-private:
-
-  void init() override;
-
-public slots:
-
-  void clear() override;
-
-protected:
-
-  Project *mProject;
-  bool bUnsavedChanges;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_MAINWINDOW_MODEL_H
+
+#endif // GRAPHOS_PROPERTIES_VIEW_INTERFACE_H

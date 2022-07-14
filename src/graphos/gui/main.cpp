@@ -99,7 +99,10 @@
 #ifdef GRAPHOS_HAVE_ABOUT
 #include "graphos/components/about/AboutComponent.h"
 #endif // GRAPHOS_HAVE_ABOUT
-//#include "graphos/components/tab/TabComponent.h"
+#ifdef GRAPHOS_HAVE_PROPERTIES
+#include "graphos/components/properties/PropertiesComponent.h"
+#endif // GRAPHOS_HAVE_PROPERTIES
+
 
 
 #include <tidop/core/console.h>
@@ -216,6 +219,10 @@ int main(int argc, char *argv[])
   AboutComponent about_component(&app);
 #endif // GRAPHOS_HAVE_ABOUT
 
+#ifdef GRAPHOS_HAVE_PROPERTIES
+  PropertiesComponent properties_component(&app);
+#endif // GRAPHOS_HAVE_PROPERTIES
+
   //TabComponent tab_component(&app);
 
   tl::Console &console = tl::Console::instance();
@@ -243,6 +250,8 @@ int main(int argc, char *argv[])
     app.freeMemory();
 
     ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
+
+    app.setMainWindow(componentsManager.mainWindowView());
 
     /// Load gui
 
@@ -356,6 +365,11 @@ int main(int argc, char *argv[])
                                         ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_ABOUT
 
+    properties_component.createComponent();
+    //auto properties_widget = dynamic_cast<QDockWidget *>(properties_component.widget());
+    //componentsManager.mainWindowView()->addDockWidget(Qt::RightDockWidgetArea, properties_widget);
+    componentsManager.mainWindowView()->setPropertiesWidget(properties_component.widget());
+
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
     QObject::connect(&create_project_component, SIGNAL(project_created()),
                      componentsManager.mainWindowPresenter(), SLOT(loadProject()));
@@ -443,6 +457,9 @@ int main(int argc, char *argv[])
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
 
+
+    QObject::connect(componentsManager.mainWindowView(), &MainWindowView::selectImage,
+                     &properties_component, &PropertiesComponent::selectImage);
 
     componentsManager.loadPlugins();
 

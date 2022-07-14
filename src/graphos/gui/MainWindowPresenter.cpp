@@ -360,9 +360,9 @@ void MainWindowPresenter::activeImage(size_t imageId)
 {
   try {
 
-    const Image &image = mModel->image(imageId);
-    auto properties = mModel->exif(image.path());
-    mView->setProperties(properties);
+    //const Image &image = mModel->image(imageId);
+    //auto properties = mModel->exif(image.path());
+    //mView->setProperties(properties);
     mView->setActiveImage(imageId);
 
   } catch (std::exception &e) {
@@ -519,8 +519,6 @@ void MainWindowPresenter::open()
 
 void MainWindowPresenter::init()
 {
-  initDefaultPath();
-
   openStartPage(); /// Show Start Page
 
   /* Projects history */
@@ -579,17 +577,6 @@ void MainWindowPresenter::initSignalAndSlots()
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
     status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
   });
-}
-
-void MainWindowPresenter::initDefaultPath()
-{
-  mProjectDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  mProjectDefaultPath.append("/graphos/Projects");
-
-  QDir dir(mProjectDefaultPath);
-  if (!dir.exists()) {
-    dir.mkpath(".");
-  }
 }
 
 void MainWindowPresenter::initStartPage()

@@ -21,74 +21,48 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_MAINWINDOW_MODEL_H
-#define GRAPHOS_MAINWINDOW_MODEL_H
+#ifndef GRAPHOS_PROPERTIES_COMPONENT_H
+#define GRAPHOS_PROPERTIES_COMPONENT_H
 
-#include "graphos/core/mvp.h"
-#include "graphos/core/project.h"
-#include "graphos/core/image.h"
-#include "graphos/core/sfm/poses.h"
-
-#include <QImage>
+#include "graphos/core/Component.h"
 
 namespace graphos
 {
 
-class MainWindowModel
-  : public Model
+
+class PropertiesComponent
+  : public ComponentBase
 {
+
   Q_OBJECT
 
 public:
 
-  explicit MainWindowModel(Project *project);
-
-  QString projectName() const;
-  QString projectPath() const;
-
-  const std::unordered_map<size_t, Image> &images() const;
-  Image image(size_t imageId) const;
-  void deleteImages(const std::vector<size_t> &imageIds);
-  QImage readImage(size_t imageId);
-
-  const std::unordered_map<size_t, QString> &features() const;
-  std::vector<size_t> imagePairs(size_t imageId) const;
-
-  QString sparseModel() const;
-  bool isAbsoluteOrientation() const;
-
-  //std::list<std::pair<QString, QString>> exif(const QString &image) const;
-  //std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(const QString &image) const;
-  const std::unordered_map<size_t, CameraPose> &poses() const;
-
-  QString denseModel() const;
-
-  bool checkUnsavedChanges() const;
-  bool checkOldVersion(const QString &file) const;
-  void oldVersionBackup(const QString &file) const;
-
-public slots:
-
-  void load(const QString &file);
-  void save();
-  void saveAs(const QString &file);
-
-// Model interface
+  PropertiesComponent(Application *application);
+  ~PropertiesComponent();
 
 private:
 
-  void init() override;
+  void init();
 
-public slots:
+signals:
 
-  void clear() override;
+  void selectImage(size_t);
+
+// ComponentBase
 
 protected:
 
-  Project *mProject;
-  bool bUnsavedChanges;
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
+  void createCommand() override;
+  void update() override;
+
 };
+
 
 } // namespace graphos
 
-#endif // GRAPHOS_MAINWINDOW_MODEL_H
+
+#endif // GRAPHOS_PROPERTIES_COMPONENT_H
