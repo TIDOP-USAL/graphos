@@ -28,6 +28,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QMainWindow>
 
 namespace graphos
 {
@@ -37,7 +38,8 @@ ComponentBase::ComponentBase(Application *application)
     mModel(nullptr),
     mView(nullptr),
     mPresenter(nullptr),
-    mApplication(application)
+    mApplication(application),
+    mDeleteView(true)
 {
   init();
 }
@@ -59,13 +61,9 @@ ComponentBase::~ComponentBase()
     mModel = nullptr;
   }
 
-  if(mViewType == ViewType::dock_widget) {
-
-  } else {
-    if(mView) {
-      delete mView;
-      mView = nullptr;
-    }
+  if(mDeleteView && mView) {
+    delete mView;
+    mView = nullptr;
   }
 
 }
@@ -201,11 +199,6 @@ Presenter *ComponentBase::presenter()
   return mPresenter;
 }
 
-ComponentBase::ViewType ComponentBase::viewType() const
-{
-  return mViewType;
-}
-
 void ComponentBase::setModel(Model *model)
 {
   mModel = model;
@@ -214,6 +207,9 @@ void ComponentBase::setModel(Model *model)
 void ComponentBase::setView(View *view)
 {
   mView = view;
+  if(mView->parent()) {
+    mDeleteView = false;
+  }
 }
 
 void ComponentBase::setPresenter(Presenter *presenter)
@@ -227,11 +223,6 @@ void ComponentBase::setCommand(std::shared_ptr<Command> command)
     mCommand = command;
     mApplication->addComponent(this);
   }
-}
-
-void ComponentBase::setViewType(ViewType viewType)
-{
-  mViewType = viewType;
 }
 
 Application *ComponentBase::app()

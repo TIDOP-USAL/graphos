@@ -35,6 +35,7 @@
 
 #include <tidop/core/messages.h>
 
+#include <QHeaderView>
 #include <QTreeWidgetItem>
 #include <QFileInfo>
 #include <QSettings>
@@ -211,14 +212,19 @@ void MainWindowView::addSeparatorToToolbar(Toolbar toolbar)
   }
 }
 
+void MainWindowView::setPropertiesWidget(QWidget *widget)
+{
+  ui->dockWidgetProperties->setWidget(widget);
+}
+
 void MainWindowView::clear()
 {
-  setWindowTitle(QString("Graphos"));
+  setWindowTitle(QString(""));
   const QSignalBlocker blockerTreeWidgetProject(mTreeWidgetProject);
   mTreeWidgetProject->clear();
   const QSignalBlocker blockerThumbnailsWidget(mThumbnailsWidget);
   mThumbnailsWidget->clear();
-  ui->treeWidgetProperties->clear();
+  //ui->treeWidgetProperties->clear();
   mFlags.clear();
 
   if (mTabWidget) mTabWidget->clear();
@@ -228,7 +234,7 @@ void MainWindowView::clear()
 
 void MainWindowView::setProjectTitle(const QString &title)
 {
-  this->setWindowTitle(QString("Graphos - ").append(title));
+  this->setWindowTitle(title);
 
   QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0);
   if (itemProject == nullptr) {
@@ -672,36 +678,36 @@ void MainWindowView::setStatusBarMsg(const QString &msg)
   ui->statusBar->showMessage(msg, 2000);
 }
 
-void MainWindowView::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)
-{
-  ui->treeWidgetProperties->clear();
-  ui->treeWidgetProperties->setAlternatingRowColors(true);
-  ui->treeWidgetProperties->expandAll();
-  //for (auto it = properties.begin(); it != properties.end(); it++){
-  //  QTreeWidgetItem *item = new QTreeWidgetItem();
-  //  item->setText(0, it->first);
-  //  item->setText(1, it->second);
-  //  ui->treeWidgetProperties->addTopLevelItem(item);
-  //}
-
-  for(auto &group : properties) {
-    
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, group.first);
-    
-    ui->treeWidgetProperties->addTopLevelItem(item);
-
-    for(auto &property : group.second) {
-      QTreeWidgetItem *item_property = new QTreeWidgetItem();
-      item_property->setText(0, property.first);
-      item_property->setText(1, property.second);
-      item->addChild(item_property);
-    }
-
-    item->setExpanded(true);
-  }
-
-}
+//void MainWindowView::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)
+//{
+//  ui->treeWidgetProperties->clear();
+//  ui->treeWidgetProperties->setAlternatingRowColors(true);
+//  ui->treeWidgetProperties->expandAll();
+//  //for (auto it = properties.begin(); it != properties.end(); it++){
+//  //  QTreeWidgetItem *item = new QTreeWidgetItem();
+//  //  item->setText(0, it->first);
+//  //  item->setText(1, it->second);
+//  //  ui->treeWidgetProperties->addTopLevelItem(item);
+//  //}
+//
+//  for(auto &group : properties) {
+//    
+//    QTreeWidgetItem *item = new QTreeWidgetItem();
+//    item->setText(0, group.first);
+//    
+//    ui->treeWidgetProperties->addTopLevelItem(item);
+//
+//    for(auto &property : group.second) {
+//      QTreeWidgetItem *item_property = new QTreeWidgetItem();
+//      item_property->setText(0, property.first);
+//      item_property->setText(1, property.second);
+//      item->addChild(item_property);
+//    }
+//
+//    item->setExpanded(true);
+//  }
+//
+//}
 
 ProgressBarWidget *MainWindowView::progressBar()
 {
@@ -879,7 +885,7 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
 
 void MainWindowView::initUI()
 {
-  setWindowTitle(QString("Graphos"));
+  setWindowTitle(QString(""));
 
   mLayoutCentral = new QGridLayout(this->centralWidget());
   mLayoutCentral->setSpacing(6);
@@ -898,6 +904,8 @@ void MainWindowView::initUI()
   // Configuración de mensajes
   tl::MessageManager &msg_h = tl::MessageManager::instance();
   msg_h.addListener(mLogWidget);
+
+  this->readSettings();
 
   this->retranslate();
   this->update();
@@ -1519,10 +1527,17 @@ void MainWindowView::closeEvent(QCloseEvent *event)
 {
   emit exit();
 
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
   settings.setValue("geometry", saveGeometry());
   settings.setValue("windowState", saveState());
   QMainWindow::closeEvent(event);
+}
+
+void MainWindowView::readSettings()
+{
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
+  restoreGeometry(settings.value("geometry").toByteArray());
+  restoreState(settings.value("windowState").toByteArray());
 }
 
 } // namespace graphos

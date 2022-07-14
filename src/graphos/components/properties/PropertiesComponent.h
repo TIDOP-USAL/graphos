@@ -47,6 +47,7 @@ private:
 
 signals:
 
+  void selectImage(size_t);
 
 // ComponentBase
 

@@ -86,14 +86,14 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
       bool active = false;
 
       //value = image_metadata->metadata("EXIF_Document_Name", active);
-      //if(active) {
-      //  exif["Image"][QString("Document Name")] = QString::fromStdString(value);
-      //}
-      //
-      //value = image_metadata->metadata("EXIF_ImageDescription", active);
-      //if(active) {
-      //  exif["Description"][QString("Image description")] = QString::fromStdString(value);
-      //}
+//if(active) {
+//  exif["Image"][QString("Document Name")] = QString::fromStdString(value);
+//}
+//
+//value = image_metadata->metadata("EXIF_ImageDescription", active);
+//if(active) {
+//  exif["Description"][QString("Image description")] = QString::fromStdString(value);
+//}
 
       value = image_metadata->metadata("EXIF_Make", active);
       if(active) {
@@ -125,11 +125,59 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
         exif["Camera"].push_back(std::make_pair(QString("ISO Speed"), QString::fromStdString("ISO-" + value)));
       }
 
+      value = image_metadata->metadata("EXIF_ExposureTime", active);
+      if(active) {
+        //exif["Camera"].push_back(std::make_pair(QString("Exposure time"), QString::fromStdString(removeParentheses(value))));
+        exif["Camera"].emplace_back(QString("Exposure time"), QString::fromStdString(removeParentheses(value)));
+      }
+
       value = image_metadata->metadata("EXIF_ExposureBiasValue", active);
       if(active) {
         value = removeParentheses(value);
         double exposure_bias = std::stod(value);
         exif["Camera"].push_back(std::make_pair(QString("Exposure bias"), QString::number(exposure_bias, 'f', 1) + " step"));
+      }
+
+      value = image_metadata->metadata("EXIF_ExposureMode", active);
+      if(active) {
+
+        QString exposure_mode = 0;
+        if(value == "0") {
+          exposure_mode = "Auto";
+        } else if(value == "1") {
+          exposure_mode = "Manual";
+        } else if(value == "2") {
+          exposure_mode = "Auto bracket";
+        }
+
+        if(exposure_mode != QString("0"))
+          exif["Camera"].push_back(std::make_pair(QString("Exposure mode"), exposure_mode));
+      }
+
+      value = image_metadata->metadata("EXIF_ExposureProgram", active);
+      if(active) {
+
+        QString exposure_program = 0;
+        if(value == "1") {
+          exposure_program = "Manual";
+        } else if(value == "2") {
+          exposure_program = "Program AE";
+        } else if(value == "3") {
+          exposure_program = "Aperture-priority AE";
+        } else if(value == "4") {
+          exposure_program = "Shutter speed priority AE";
+        } else if(value == "5") {
+          exposure_program = "Creative (Slow speed)";
+        } else if(value == "6") {
+          exposure_program = "Action (High speed)";
+        } else if(value == "7") {
+          exposure_program = "Portrait";
+        } else if(value == "8") {
+          exposure_program = "Landscape";
+        }
+
+        if(exposure_program != QString("0"))
+          exif["Camera"].push_back(std::make_pair(QString("Exposure program"), exposure_program));
       }
 
       value = image_metadata->metadata("EXIF_FocalLength", active);
@@ -152,24 +200,24 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
         exif["Camera"].push_back(std::make_pair(QString("Focal Length In 35 mm"), QString::fromStdString(value)));
       }
 
-      value = image_metadata->metadata("EXIF_LensSpecification", active);
-      if(active) {
-        exif["Camera"].push_back(std::make_pair(QString("Lens Specification"), QString::fromStdString(value)));
-      }
+      //value = image_metadata->metadata("EXIF_LensSpecification", active);
+      //if(active) {
+      //  exif["Camera"].push_back(std::make_pair(QString("Lens Specification"), QString::fromStdString(value)));
+      //}
 
       value = image_metadata->metadata("EXIF_LensMake", active);
       if(active) {
-        exif["Camera"].push_back(std::make_pair(QString("Lens Make"), QString::fromStdString(value)));
+        exif["Camera"].push_back(std::make_pair(QString("Lens make"), QString::fromStdString(value)));
       }
 
       value = image_metadata->metadata("EXIF_LensModel", active);
       if(active) {
-        exif["Camera"].push_back(std::make_pair(QString("Lens Model"), QString::fromStdString(value)));
+        exif["Camera"].push_back(std::make_pair(QString("Lens model"), QString::fromStdString(value)));
       }
 
       value = image_metadata->metadata("EXIF_LensSerialNumber", active);
       if(active) {
-        exif["Camera"].push_back(std::make_pair(QString("Lens Serial Number"), QString::fromStdString(value)));
+        exif["Camera"].push_back(std::make_pair(QString("Lens Serial number"), QString::fromStdString(value)));
       }
 
       // Image
@@ -286,10 +334,6 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
       //
       //
-      //value = image_metadata->metadata("EXIF_ExposureProgram", active);
-      //if(active) {
-      //  exif.push_back(std::make_pair(QString("Exposure Program"), QString::fromStdString(value)));
-      //}
       //
       //value = image_metadata->metadata("EXIF_SpectralSensitivity", active);
       //if(active) {
@@ -452,10 +496,6 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
       //  exif.push_back(std::make_pair(QString("Focal Plane Resolution Unit"), QString::fromStdString(value)));
       //}
       //
-      //value = image_metadata->metadata("EXIF_ExposureMode", active);
-      //if(active) {
-      //  exif.push_back(std::make_pair(QString("Exposure Mode"), QString::fromStdString(value)));
-      //}
       //
       //value = image_metadata->metadata("EXIF_WhiteBalance", active);
       //if(active) {
@@ -465,11 +505,6 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
       //value = image_metadata->metadata("DigitalZoomRatio", active);
       //if(active) {
       //  exif.push_back(std::make_pair(QString("Digital Zoom Ratio"), QString::fromStdString(value)));
-      //}
-      //
-      //value = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", active);
-      //if(active) {
-      //  exif.push_back(std::make_pair(QString("Focal Length In 35 mm Film"), QString::fromStdString(value)));
       //}
       //
       //value = image_metadata->metadata("EXIF_SceneCaptureType", active);

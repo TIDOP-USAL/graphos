@@ -47,6 +47,10 @@ public:
 
 // PropertiesPresenter interface
 
+public slots:
+
+  void setImageActive(size_t imageId) override;
+
 protected slots:
 
 

@@ -58,7 +58,7 @@ public:
   bool isAbsoluteOrientation() const;
 
   //std::list<std::pair<QString, QString>> exif(const QString &image) const;
-  std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(const QString &image) const;
+  //std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(const QString &image) const;
   const std::unordered_map<size_t, CameraPose> &poses() const;
 
   QString denseModel() const;

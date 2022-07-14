@@ -113,7 +113,6 @@ private:
 
 private:
 
-  void initDefaultPath();
   void initStartPage();
 
 protected:
@@ -121,7 +120,6 @@ protected:
   MainWindowView *mView;
   MainWindowModel *mModel;
   StartPageWidget *mStartPageWidget;
-  QString mProjectDefaultPath;
 
 };
 

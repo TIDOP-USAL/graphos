@@ -107,7 +107,6 @@
 
 #include <tidop/core/console.h>
 
-#include <QApplication>
 #include <QAction>
 
 #ifdef HAVE_VLD
@@ -123,9 +122,11 @@ using namespace graphos;
 
 int main(int argc, char *argv[])
 {
-
-  QApplication a(argc, argv);
-  Application &app = Application::instance();
+  Application app(argc, argv);
+  app.setApplicationName("GRAPHOS");
+  app.setApplicationDisplayName("GRAPHOS");
+  app.setApplicationVersion(GRAPHOS_VERSION);
+  app.setOrganizationName("TIDOP");
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
   CreateProjectComponent create_project_component(&app);
@@ -226,7 +227,7 @@ int main(int argc, char *argv[])
 
   tl::Console &console = tl::Console::instance();
   console.setMessageLevel(tl::MessageLevel::msg_verbose);
-  console.setTitle("Graphos");
+  console.setTitle(app.applicationName().toStdString());
   app.messageManager()->addListener(&console);
 
   bool r = false;
@@ -249,6 +250,8 @@ int main(int argc, char *argv[])
     app.freeMemory();
 
     ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
+
+    app.setMainWindow(componentsManager.mainWindowView());
 
     /// Load gui
 
@@ -363,9 +366,9 @@ int main(int argc, char *argv[])
 #endif // GRAPHOS_HAVE_ABOUT
 
     properties_component.createComponent();
-    auto properties_widget = dynamic_cast<QDockWidget *>(properties_component.widget());
-    componentsManager.mainWindowView()->addDockWidget(Qt::RightDockWidgetArea, properties_widget);
-
+    //auto properties_widget = dynamic_cast<QDockWidget *>(properties_component.widget());
+    //componentsManager.mainWindowView()->addDockWidget(Qt::RightDockWidgetArea, properties_widget);
+    componentsManager.mainWindowView()->setPropertiesWidget(properties_component.widget());
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
     QObject::connect(&create_project_component, SIGNAL(project_created()),
@@ -455,13 +458,16 @@ int main(int argc, char *argv[])
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
 
 
+    QObject::connect(componentsManager.mainWindowView(), &MainWindowView::selectImage,
+                     &properties_component, &PropertiesComponent::selectImage);
+
     componentsManager.loadPlugins();
 
     app.status()->activeFlag(AppStatus::Flag::none, true);
 
     componentsManager.mainWindowPresenter()->open();
 
-    r = a.exec();
+    r = app.exec();
 
     //#if defined WIN32
     //    ShowWindow(hwnd, 1);

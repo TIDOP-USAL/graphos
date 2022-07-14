@@ -33,6 +33,8 @@
 #include <QAction>
 #include <QSettings>
 #include <QFileInfo>
+#include <QMainWindow>
+#include <QStandardPaths>
 
 namespace graphos
 {
@@ -41,22 +43,13 @@ std::unique_ptr<Application> Application::sApplication;
 std::mutex Application::sMutex;
 std::once_flag Application::sInitFlag;
 
-Application::Application()
-  : mAppStatus(new AppStatus()),
+Application::Application(int argc, char **argv)
+  : QApplication(argc, argv),
+    mAppStatus(new AppStatus()),
     mProject(new ProjectImp),
     mSettings(new SettingsImp),
-    mCommandList(new tl::CommandList("Graphos", "Graphos commands"))
+    mCommandList(nullptr)
 {
-  mCommandList->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
-
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
-  QStringList history = settings.value("HISTORY/RecentProjects", mHistory).toStringList();
-  mHistory.clear();
-  for (auto &prj : history) {
-    if (QFileInfo(prj).exists()) {
-      mHistory.push_back(prj);
-    }
-  }
 }
 
 Application::~Application()
@@ -81,8 +74,15 @@ Application::~Application()
     delete mCommandList;
     mCommandList = nullptr;
   }
+}
 
-  //sApplication.release();
+QString Application::documentsLocation() const
+{
+  tl::Path path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
+  path.append(qApp->applicationDisplayName().toStdWString());
+  path.append("Projects");
+
+  return QString::fromStdWString(path.toWString());
 }
 
 AppStatus *Application::status()
@@ -105,18 +105,28 @@ Settings *Application::settings()
   return mSettings;
 }
 
+QMainWindow *Application::mainWindow()
+{
+  return mMainWindow;
+}
+
+void Application::setMainWindow(QMainWindow *mainWindow)
+{
+  mMainWindow = mainWindow;
+}
+
 void Application::addComponent(Component *component)
 {
   if (component) {
     mComponents.push_back(component);
     if (std::shared_ptr<Command> command = component->command())
-      mCommandList->push_back(command);
+      commandList()->push_back(command);
   }
 }
 
 tl::CommandList::Status Application::parse(int argc, char **argv)
 {
-  tl::CommandList::Status status = mCommandList->parse(argc, argv);
+  tl::CommandList::Status status = commandList()->parse(argc, argv);
 
   if (status == tl::CommandList::Status::parse_success)
     mAppStatus->activeFlag(AppStatus::Flag::command_mode, true);
@@ -129,7 +139,7 @@ bool Application::runCommand()
   bool err = false;
 
   for (auto component : mComponents) {
-    if (component->command() && component->command()->name() == mCommandList->commandName()) {
+    if (component->command() && component->command()->name() == commandList()->commandName()) {
       component->command()->run();
       break;
     }
@@ -147,6 +157,17 @@ void Application::freeMemory()
 
 QStringList Application::history() const
 {
+  if(mHistory.isEmpty()) {
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
+    QStringList history = settings.value("HISTORY/RecentProjects", mHistory).toStringList();
+
+    for(auto &prj : history) {
+      if(QFileInfo(prj).exists()) {
+        mHistory.push_back(prj);
+      }
+    }
+  }
+
   return mHistory;
 }
 
@@ -158,7 +179,7 @@ void Application::addToHistory(const QString &project)
   while (mHistory.size() > mSettings->historyMaxSize())
     mHistory.removeLast();
 
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
   settings.setValue("HISTORY/RecentProjects", mHistory);
 
   emit update_history();
@@ -171,12 +192,20 @@ void Application::clearHistory()
 }
 
 Application &Application::instance()
-{
-  std::call_once(sInitFlag, []() {
-    sApplication.reset(new Application());
-  });
+{ 
+  return *(static_cast<Application *>(QCoreApplication::instance()));
+}
 
-  return *sApplication;
+tl::CommandList *Application::commandList()
+{
+  if(mCommandList == nullptr) {
+    std::string command_name = applicationName().toStdString();
+    std::string command_description = command_name + " commands";
+    mCommandList = new tl::CommandList(command_name, command_description);
+    mCommandList->setVersion(applicationVersion().toStdString());
+  }
+
+  return mCommandList;
 }
 
 } // namespace graphos

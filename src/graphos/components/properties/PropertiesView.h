@@ -36,14 +36,14 @@ namespace graphos
  * \brief Properties interface
  */
 class PropertiesView
-  : public DockWidgetView
+  : public DialogView
 {
 
   Q_OBJECT
 
 public:
 
-  PropertiesView(QWidget *parent) : DockWidgetView(parent) {}
+  PropertiesView(QWidget *parent) : DialogView(parent) {}
   virtual ~PropertiesView() override = default;
 
   virtual void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) = 0;

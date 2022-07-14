@@ -47,9 +47,8 @@ public:
 
   void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) override;
 
-public:
 
-// DockWidgetView interface
+// DialogView interface
 
 private:
 

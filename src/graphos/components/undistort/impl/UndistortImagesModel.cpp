@@ -37,8 +37,8 @@ UndistortImagesModelImp::UndistortImagesModelImp(Project *project,
   : UndistortImagesModel(parent),
     mSettings(new QSettings(QSettings::IniFormat,
                             QSettings::UserScope, 
-                            "TIDOP", 
-                            "Graphos")),
+                            qApp->organizationName(), 
+                            qApp->applicationName())),
     mProject(project)
 {
   this->init();

@@ -34,7 +34,7 @@ namespace graphos
 
 MeshModelImp::MeshModelImp(Project *project, QObject *parent)
   : MeshModel(parent),
-    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos")),
+    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName())),
     mParameters(new PoissonReconParameters),
     mProject(project)
 {

@@ -41,7 +41,7 @@ namespace graphos
 
 OrthophotoModelImp::OrthophotoModelImp(Project *project, QObject *parent)
   : OrthophotoModel(parent),
-    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos")),
+    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName())),
     mParameters(new OrthophotoParameters),
     mProject(project)
 {

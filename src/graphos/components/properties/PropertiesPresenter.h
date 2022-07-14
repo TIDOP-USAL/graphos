@@ -46,9 +46,9 @@ public:
 signals:
 
 
-protected slots:
+public slots:
 
-
+  virtual void setImageActive(size_t imageId) = 0;
 
 };
 

@@ -360,9 +360,9 @@ void MainWindowPresenter::activeImage(size_t imageId)
 {
   try {
 
-    const Image &image = mModel->image(imageId);
-    auto properties = mModel->exif(image.path());
-    mView->setProperties(properties);
+    //const Image &image = mModel->image(imageId);
+    //auto properties = mModel->exif(image.path());
+    //mView->setProperties(properties);
     mView->setActiveImage(imageId);
 
   } catch (std::exception &e) {
@@ -519,8 +519,6 @@ void MainWindowPresenter::open()
 
 void MainWindowPresenter::init()
 {
-  initDefaultPath();
-
   openStartPage(); /// Show Start Page
 
   /* Projects history */
@@ -529,7 +527,7 @@ void MainWindowPresenter::init()
   mStartPageWidget->setHistory(app.history());
 
   bool bUseGPU = cudaEnabled(10.0, 3.0);
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos");
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
   settings.setValue("UseCuda", settings.value("UseCuda", bUseGPU).toBool());
 }
 
@@ -579,17 +577,6 @@ void MainWindowPresenter::initSignalAndSlots()
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
     status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
   });
-}
-
-void MainWindowPresenter::initDefaultPath()
-{
-  mProjectDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  mProjectDefaultPath.append("/graphos/Projects");
-
-  QDir dir(mProjectDefaultPath);
-  if (!dir.exists()) {
-    dir.mkpath(".");
-  }
 }
 
 void MainWindowPresenter::initStartPage()

@@ -40,20 +40,20 @@ PropertiesViewImp::PropertiesViewImp(QWidget *parent)
 void PropertiesViewImp::initUI()
 {
   this->setObjectName(QString::fromUtf8("PropertiesView"));
-  this->setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
-  QWidget *dockWidgetContentsProperties = new QWidget(this);
-  QGridLayout *layout  = new QGridLayout(dockWidgetContentsProperties);
+  //this->setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
+
+  QGridLayout *layout  = new QGridLayout();
+  this->setLayout(layout);
+
   layout->setSpacing(6);
   layout->setContentsMargins(11, 11, 11, 11);
   layout->setContentsMargins(0, 0, 0, 0);
   
-  mTreeWidgetProperties = new QTreeWidget(dockWidgetContentsProperties);
+  mTreeWidgetProperties = new QTreeWidget(this);
   QTreeWidgetItem *header_item = new QTreeWidgetItem();
   mTreeWidgetProperties->setHeaderItem(header_item);
 
   layout->addWidget(mTreeWidgetProperties, 0, 0, 1, 1);
-        
-  setWidget(dockWidgetContentsProperties);
 
   PropertiesViewImp::retranslate();
   PropertiesViewImp::update();
@@ -65,7 +65,7 @@ void PropertiesViewImp::initSignalAndSlots()
 
 void PropertiesViewImp::clear()
 {
-
+  mTreeWidgetProperties->clear();
 }
 
 void PropertiesViewImp::update()
@@ -83,7 +83,26 @@ void PropertiesViewImp::retranslate()
 
 void PropertiesViewImp::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)
 {
-  
+  mTreeWidgetProperties->clear();
+  mTreeWidgetProperties->setAlternatingRowColors(true);
+  mTreeWidgetProperties->expandAll();
+
+  for(auto &group : properties) {
+
+    QTreeWidgetItem *item = new QTreeWidgetItem();
+    item->setText(0, group.first);
+
+    mTreeWidgetProperties->addTopLevelItem(item);
+
+    for(auto &property : group.second) {
+      QTreeWidgetItem *item_property = new QTreeWidgetItem();
+      item_property->setText(0, property.first);
+      item_property->setText(1, property.second);
+      item->addChild(item_property);
+    }
+
+    item->setExpanded(true);
+  }
 }
 
 } // namespace graphos

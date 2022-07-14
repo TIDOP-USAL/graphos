@@ -31,6 +31,7 @@
 
 #include <QAction>
 #include <QString>
+#include <QMainWindow>
 
 namespace graphos
 {
@@ -60,8 +61,7 @@ void PropertiesComponent::createModel()
 
 void PropertiesComponent::createView()
 {
-  setView(new PropertiesViewImp());
-  setViewType(ViewType::dock_widget);
+  setView(new PropertiesViewImp(app()->mainWindow()));
 }
 
 void PropertiesComponent::createPresenter()
@@ -70,8 +70,8 @@ void PropertiesComponent::createPresenter()
                                           dynamic_cast<PropertiesModel *>(model()),
                                           app()->status()));
 
-  //connect(dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::project_created,
-  //        this, &PropertiesComponent::onProjectCreated);
+  connect(this, &PropertiesComponent::selectImage,
+          dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
 }
 
 void PropertiesComponent::createCommand()
@@ -85,7 +85,8 @@ void PropertiesComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  //bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
+  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
+  if(!project_exists) dynamic_cast<PropertiesView *>(view())->clear();
   //action()->setEnabled(!bProcessing);
 }
 

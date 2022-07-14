@@ -48,17 +48,6 @@ class Component
 
 public:
 
-  enum class ViewType : uint8_t
-  {
-    object,
-    widget,
-    dialog,
-    dock_widget,
-    menu
-  };
-
-public:
-
   Component() {}
   virtual ~Component() = default;
 
@@ -129,12 +118,10 @@ protected:
   Model *model();
   View *view();
   Presenter *presenter();
-  ViewType viewType() const;
   void setModel(Model *model);
   void setView(View *view);
   void setPresenter(Presenter *presenter);
   void setCommand(std::shared_ptr<Command> command);
-  void setViewType(ViewType viewType);
   Application *app();
 
 private:
@@ -148,8 +135,7 @@ private:
   Presenter *mPresenter;
   std::shared_ptr<Command> mCommand;
   Application *mApplication;
-  ViewType mViewType;
-
+  bool mDeleteView;
 };
 
 

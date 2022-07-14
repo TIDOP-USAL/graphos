@@ -25,9 +25,11 @@
 
 #include "graphos/components/createproject/CreateProjectModel.h"
 #include "graphos/components/createproject/CreateProjectView.h"
+#include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
-#include <QStandardPaths>
+#include <tidop/core/path.h>
+
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -133,9 +135,8 @@ void CreateProjectPresenterImp::open()
 }
 
 void CreateProjectPresenterImp::init()
-{
-  mProjectsDefaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  mProjectsDefaultPath.append("/graphos/Projects");
+{ 
+  mProjectsDefaultPath = dynamic_cast<Application *>(qApp)->documentsLocation();
 
   QDir dir(mProjectsDefaultPath);
   if (!dir.exists()) {

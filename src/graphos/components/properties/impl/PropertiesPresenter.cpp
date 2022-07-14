@@ -27,6 +27,8 @@
 #include "graphos/components/properties/PropertiesView.h"
 #include "graphos/core/AppStatus.h"
 
+#include <tidop/core/exception.h>
+
 #include <QStandardPaths>
 #include <QDir>
 #include <QFileDialog>
@@ -46,6 +48,18 @@ PropertiesPresenterImp::PropertiesPresenterImp(PropertiesView *view,
 {
   PropertiesPresenterImp::init();
   PropertiesPresenterImp::initSignalAndSlots();
+}
+
+void PropertiesPresenterImp::setImageActive(size_t imageId)
+{
+  try {
+
+    auto properties = mModel->exif(imageId);
+    mView->setProperties(properties);
+  
+  } catch(std::exception &e) {
+    tl::printException(e);
+  }
 }
 
 void PropertiesPresenterImp::open()

@@ -29,10 +29,12 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/console.h>
 
-#include <QObject>
+#include <QApplication>
 
 #include <memory>
 #include <mutex>
+
+class QMainWindow;
 
 namespace tl
 {
@@ -48,19 +50,21 @@ class Component;
 class Project;
 class Settings;
 
+
 class Application
-  : public QObject
+  : public QApplication
 {
 
   Q_OBJECT
 
-private:
-
-  Application();
+//private:
+//
+//  Application();
 
 public:
 
   static Application &instance();
+  Application(int argc, char **argv);
   ~Application();
 
   Application(const Application &) = delete;
@@ -68,10 +72,14 @@ public:
   Application operator=(const Application &) = delete;
   Application operator=(Application &&) = delete;
 
+  QString documentsLocation() const;
   AppStatus *status();
   tl::MessageManager *messageManager();
   Project *project();
   Settings *settings();
+
+  QMainWindow *mainWindow();
+  void setMainWindow(QMainWindow *mainWindow);
 
   void addComponent(Component *component);
   tl::CommandList::Status parse(int argc, char **argv);
@@ -90,15 +98,20 @@ signals:
 
 private:
 
+  tl::CommandList *commandList();
+
+private:
+
   static std::unique_ptr<Application> sApplication;
   static std::mutex sMutex;
   static std::once_flag sInitFlag;
   AppStatus *mAppStatus;
   Project *mProject;
   Settings *mSettings;
+  QMainWindow *mMainWindow;
   std::list<Component *> mComponents;
   tl::CommandList *mCommandList;
-  QStringList mHistory;
+  mutable QStringList mHistory;
 };
 
 } // namespace graphos
