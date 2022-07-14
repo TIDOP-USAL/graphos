@@ -35,3 +35,4 @@
 /res/help/es/graphos.qhc
 /res/help/es/.graphos
 build
+/src/graphos/gui/*.aps
