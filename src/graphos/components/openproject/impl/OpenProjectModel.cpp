@@ -24,6 +24,7 @@
 #include "OpenProjectModel.h"
 
 #include "graphos/core/project.h"
+#include "graphos/core/Application.h"
 
 #include <QStandardPaths>
 
@@ -44,9 +45,7 @@ OpenProjectModelImp::~OpenProjectModelImp()
 
 QString OpenProjectModelImp::graphosProjectsDirectory() const
 {
-  QString inspector_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  inspector_directory.append("/graphos/Projects");
-  return inspector_directory;
+  return Application::instance().documentsLocation();
 }
 
 void OpenProjectModelImp::saveProject()

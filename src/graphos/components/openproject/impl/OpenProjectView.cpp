@@ -23,6 +23,8 @@
  
  #include "OpenProjectView.h"
 
+#include "graphos/core/Application.h"
+
 namespace graphos
 {
 
@@ -34,8 +36,9 @@ OpenProjectViewImp::OpenProjectViewImp(QWidget *parent)
 
 void OpenProjectViewImp::init()
 {
-  QFileDialog::setWindowTitle(tr("Open Graphos Project"));
-  QFileDialog::setNameFilter(tr("Graphos Project (*.xml)"));
+  QString filter = Application::applicationDisplayName() + QString(" project (*.xml)");
+  QFileDialog::setWindowTitle(tr("Open project"));
+  QFileDialog::setNameFilter(filter);
   QFileDialog::setFileMode(QFileDialog::ExistingFile);
 }
 

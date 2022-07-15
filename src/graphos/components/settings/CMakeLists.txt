@@ -54,7 +54,9 @@ if(BUILD_SETTINGS_COMPONENT)
     add_library(${PROJECT_NAME} 
                 ${SETTINGS_SOURCES}
                 ${SETTINGS_HEADERS})
-    
+
+    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
     foreach(_source IN ITEMS ${SETTINGS_SOURCES})
         get_filename_component(_source_path "${_source}" PATH)
         string(REPLACE "/" "\\" _group_path "${_source_path}")
