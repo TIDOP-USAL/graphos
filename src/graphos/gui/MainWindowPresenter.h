@@ -46,6 +46,13 @@ public:
                                MainWindowModel *model);
   ~MainWindowPresenter() override;
     
+public slots:
+
+  void loadImage(size_t imageId);
+  void openImage(size_t imageId);
+  void activeImage(size_t imageId);
+  void activeImages(const std::vector<size_t> &imageIds);
+  void deleteImages(const std::vector<size_t> &imageIds);
 
 signals:
 
@@ -83,10 +90,6 @@ protected slots:
   void loadDTM();
   void loadOrtho();
 
-  void openImage(size_t imageId);
-  void activeImage(size_t imageId);
-  void activeImages(const std::vector<size_t> &imageIds);
-  void deleteImages(const std::vector<size_t> &imageIds);
   void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
   void open3DModel(const QString &model3D, bool loadCameras);
@@ -97,7 +100,6 @@ protected slots:
   void deleteMatches();
 
   void loadingImages(bool loading);
-  void loadImage(size_t imageId);
   void onProjectModified();
 
 // Presenter interface

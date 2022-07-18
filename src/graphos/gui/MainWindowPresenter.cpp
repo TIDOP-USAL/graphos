@@ -360,9 +360,6 @@ void MainWindowPresenter::activeImage(size_t imageId)
 {
   try {
 
-    //const Image &image = mModel->image(imageId);
-    //auto properties = mModel->exif(image.path());
-    //mView->setProperties(properties);
     mView->setActiveImage(imageId);
 
   } catch (std::exception &e) {
@@ -381,12 +378,6 @@ void MainWindowPresenter::deleteImages(const std::vector<size_t> &imageIds)
 
     mModel->deleteImages(imageIds);
     mView->deleteImages(imageIds);
-    //for (const auto &imageName : imageNames){
-    //  mFeaturesModel->removeFeatures(imageName);
-    //  mMatchesModel->removeMatchesPair(imageName);
-    //  mView->deleteImage(imageName);
-    //  msgInfo("Delete image %s", imageName.toStdString().c_str());
-    //}
     
     Application &app = Application::instance();
     AppStatus *app_status = app.status();
@@ -557,12 +548,10 @@ void MainWindowPresenter::initSignalAndSlots()
 
   //connect(mView, &MainWindowView::openAboutDialog,    this, &MainWindowPresenter::openAboutDialog);
 
-  /* Panel de vistas en miniatura */
-
-  connect(mView, &MainWindowView::openImage,                  this, &MainWindowPresenter::openImage);
-  connect(mView, SIGNAL(selectImage(size_t)),                 this, SLOT(activeImage(size_t)));
-  connect(mView, SIGNAL(selectImages(std::vector<size_t>)),   this, SLOT(activeImages(std::vector<size_t>)));
-  connect(mView, SIGNAL(delete_images(std::vector<size_t>)),  this, SLOT(deleteImages(std::vector<size_t>)));
+  connect(mView, &MainWindowView::open_image,    this, &MainWindowPresenter::openImage);
+  connect(mView, &MainWindowView::select_image,  this, &MainWindowPresenter::activeImage);
+  connect(mView, &MainWindowView::select_images, this, &MainWindowPresenter::activeImages);
+  connect(mView, &MainWindowView::delete_images, this, &MainWindowPresenter::deleteImages);
 
   /* Visor de imagenes */
 
@@ -572,7 +561,7 @@ void MainWindowPresenter::initSignalAndSlots()
 
   connect(mView, SIGNAL(openDtm()), this, SLOT(openDtm()));
 
-  connect(mView, &MainWindowView::allTabsClosed, []() { 
+  connect(mView, &MainWindowView::all_tabs_closed, []() { 
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
     status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);

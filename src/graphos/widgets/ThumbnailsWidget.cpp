@@ -139,6 +139,26 @@ void ThumbnailsWidget::setActiveImages(const std::vector<size_t> &imageIds)
   }
 }
 
+QAction *ThumbnailsWidget::thumbnailAction()
+{
+  return mThumbnailAction;
+}
+
+QAction *ThumbnailsWidget::thumbnailSmallAction()
+{
+  return mThumbnailSmallAction;
+}
+
+QAction *ThumbnailsWidget::detailsAction()
+{
+  return mDetailsAction;
+}
+
+QAction *ThumbnailsWidget::deleteImageAction()
+{
+  return mDeleteImageAction;
+}
+
 /* public slots */
 
 void ThumbnailsWidget::addThumbnail(const QString &thumb, size_t imageId)
@@ -266,7 +286,7 @@ void ThumbnailsWidget::deleteImages(const std::vector<size_t> &imageIds)
 
 void ThumbnailsWidget::onThumbnailDoubleClicked(QListWidgetItem *item)
 {
-  emit openImage(item->data(Qt::UserRole).toULongLong());
+  emit open_image(item->data(Qt::UserRole).toULongLong());
 }
 
 void ThumbnailsWidget::onSelectionChanged()
@@ -275,13 +295,13 @@ void ThumbnailsWidget::onSelectionChanged()
     QList<QListWidgetItem*> item = mListWidget->selectedItems();
     int size = item.size();
     if (size == 1) {
-      emit selectImage(item[0]->data(Qt::UserRole).toULongLong());
+      emit select_image(item[0]->data(Qt::UserRole).toULongLong());
     } else {
       std::vector<size_t> selected_images;
       for (int i = 0; i < size; i++){
         selected_images.push_back(item[i]->data(Qt::UserRole).toULongLong());
       }
-      emit selectImages(selected_images);
+      emit select_images(selected_images);
     }
   }
   update();

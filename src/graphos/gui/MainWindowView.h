@@ -76,22 +76,6 @@ public:
     tools
   };
 
-  enum class Flag
-  {
-    project_exists        = (1 << 0),  // Existe un proyecto
-    project_modified      = (1 << 1),  // Se ha modificado el proyecto
-    images_added          = (1 << 2),  // Se han añadido fotogramas
-    image_open            = (1 << 3),  // Hay una imagen abierta
-    feature_extraction    = (1 << 4),
-    feature_matching      = (1 << 5),
-    oriented              = (1 << 6),
-    absolute_oriented     = (1 << 7),
-    dense_model           = (1 << 8),
-    processing            = (1 << 20),
-    loading_images        = (1 << 21),
-    ground_truth          = (1 << 30),
-  };
-
 public:
 
   explicit MainWindowView(QWidget *parent = nullptr);
@@ -116,7 +100,6 @@ public:
    */
   void setProjectTitle(const QString &title);
 
-  void setFlag(Flag flag, bool value);
   void addImage(const QString &image, size_t imageId);
   void setActiveImage(size_t imageId);
   void setActiveImages(const std::vector<size_t> &imageIds);
@@ -141,11 +124,6 @@ public:
    * \param msg Mensaje
    */
   void setStatusBarMsg(const QString &msg);
-
-  /*!
-   * \brief Establece las propiedades del elemento seleccionado en el árbol de proyecto
-   */
-  //void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties);
 
   ProgressBarWidget *progressBar();
 
@@ -190,11 +168,12 @@ signals:
 
   void openHelpDialog();
   
-  void selectImage(size_t);
-  void selectImages(std::vector<size_t>);
+  void select_image(size_t);
+  void select_images(std::vector<size_t>);
   void delete_images(std::vector<size_t>);
-  void openImage(size_t);
-  void allTabsClosed();
+  void open_image(size_t);
+  void all_tabs_closed();
+
   /// Sin refactorizar
   
   
@@ -319,14 +298,11 @@ private:
   LogWidget *mLogWidget;
   ProgressBarWidget *mProgressBar;
 
-  tl::EnumFlags<Flag> mFlags;
   std::vector<QAction*> mHistory;
   QGridLayout *mLayoutCentral;
   TabWidget *mTabWidget;
 
 };
-
-ALLOW_BITWISE_FLAG_OPERATIONS(MainWindowView::Flag)
 
 } // namespace graphos
 

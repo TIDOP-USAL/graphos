@@ -47,6 +47,7 @@ public:
   virtual ~PropertiesView() override = default;
 
   virtual void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) = 0;
+  virtual void setAlternatingRowColors(bool active) = 0;
 
 };
 

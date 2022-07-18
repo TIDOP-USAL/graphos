@@ -51,11 +51,16 @@ public:
   void setActiveImage(size_t imageId);
   void setActiveImages(const std::vector<size_t> &imageIds);
 
+  QAction *thumbnailAction();
+  QAction *thumbnailSmallAction();
+  QAction *detailsAction();
+  QAction *deleteImageAction();
+
 signals:
 
-  void openImage(size_t);
-  void selectImage(size_t);
-  void selectImages(std::vector<size_t>);
+  void open_image(size_t);
+  void select_image(size_t);
+  void select_images(std::vector<size_t>);
   void delete_images(std::vector<size_t>);
 
 public slots:

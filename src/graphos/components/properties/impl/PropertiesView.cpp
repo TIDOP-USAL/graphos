@@ -84,7 +84,6 @@ void PropertiesViewImp::retranslate()
 void PropertiesViewImp::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)
 {
   mTreeWidgetProperties->clear();
-  mTreeWidgetProperties->setAlternatingRowColors(true);
   mTreeWidgetProperties->expandAll();
 
   for(auto &group : properties) {
@@ -103,6 +102,11 @@ void PropertiesViewImp::setProperties(const std::unordered_map<QString, std::lis
 
     item->setExpanded(true);
   }
+}
+
+void PropertiesViewImp::setAlternatingRowColors(bool active)
+{
+  mTreeWidgetProperties->setAlternatingRowColors(true);
 }
 
 } // namespace graphos

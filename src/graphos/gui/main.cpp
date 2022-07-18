@@ -366,6 +366,7 @@ int main(int argc, char *argv[])
 #endif // GRAPHOS_HAVE_ABOUT
 
     properties_component.createComponent();
+    properties_component.setAlternatingRowColors(true);
     componentsManager.mainWindowView()->setPropertiesWidget(properties_component.widget());
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
@@ -388,8 +389,9 @@ int main(int argc, char *argv[])
                      componentsManager.mainWindowPresenter(), SLOT(openFromHistory(QString)));
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
 
-    QObject::connect(&app, SIGNAL(image_loaded(size_t)),
-                     componentsManager.mainWindowPresenter(), SLOT(loadImage(size_t)));
+    // No se usa
+    //QObject::connect(&app, SIGNAL(image_loaded(size_t)),
+    //                 componentsManager.mainWindowPresenter(), SLOT(loadImage(size_t)));
 
 
     /////TODO: por ahora hasta que refactorice MainWindow
@@ -401,8 +403,8 @@ int main(int argc, char *argv[])
 #endif // GRAPHOS_HAVE_CLOSE_PROJECT
 
 #ifdef GRAPHOS_HAVE_IMAGE_LOAD
-    QObject::connect(&image_loader_component, SIGNAL(image_loaded(size_t)),
-                     componentsManager.mainWindowPresenter(), SLOT(loadImage(size_t)));
+    QObject::connect(&image_loader_component, &ImageLoaderComponent::image_loaded,
+                     componentsManager.mainWindowPresenter(), &MainWindowPresenter::loadImage);
 #endif // GRAPHOS_HAVE_IMAGE_LOAD
 
 #ifdef GRAPHOS_HAVE_FEATEXTRACT
@@ -456,7 +458,7 @@ int main(int argc, char *argv[])
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
 
 
-    QObject::connect(componentsManager.mainWindowView(), &MainWindowView::selectImage,
+    QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_image,
                      &properties_component, &PropertiesComponent::selectImage);
 
     componentsManager.loadPlugins();

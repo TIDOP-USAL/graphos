@@ -41,6 +41,9 @@ public:
   PropertiesComponent(Application *application);
   ~PropertiesComponent();
 
+  void setAlternatingRowColors(bool active);
+
+
 private:
 
   void init();

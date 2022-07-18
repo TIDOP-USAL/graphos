@@ -224,8 +224,6 @@ void MainWindowView::clear()
   mTreeWidgetProject->clear();
   const QSignalBlocker blockerThumbnailsWidget(mThumbnailsWidget);
   mThumbnailsWidget->clear();
-  //ui->treeWidgetProperties->clear();
-  mFlags.clear();
 
   if (mTabWidget) mTabWidget->clear();
 
@@ -245,12 +243,6 @@ void MainWindowView::setProjectTitle(const QString &title)
   }
 
   itemProject->setText(0, tr("Project: ").append(title));
-}
-
-void MainWindowView::setFlag(MainWindowView::Flag flag, bool value)
-{
-  mFlags.activeFlag(flag, value);
-  update();
 }
 
 void MainWindowView::addImage(const QString &image, size_t imageId)
@@ -756,7 +748,6 @@ void MainWindowView::deleteImages(const std::vector<size_t> &imageIds)
       itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
     }
 
-    setFlag(MainWindowView::Flag::images_added, itemProject->childCount() > 0);
   }
 
   mThumbnailsWidget->deleteImages(imageIds);
@@ -797,13 +788,13 @@ void MainWindowView::onSelectionChanged()
     int size = item.size();
     if(size > 0){
       if (size == 1) {
-        emit selectImage(item[0]->data(0, Qt::UserRole+1).toULongLong());
+        emit select_image(item[0]->data(0, Qt::UserRole+1).toULongLong());
       } else {
         std::vector<size_t> selected_images;
         for (int i = 0; i < size; i++){
           selected_images.push_back(item[i]->data(0, Qt::UserRole+1).toULongLong());
         }
-        emit selectImages(selected_images);
+        emit select_images(selected_images);
       }
     }
   }
@@ -815,7 +806,7 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
     if (item->data(0, Qt::UserRole) == graphos::image ||
         item->data(0, Qt::UserRole) == graphos::image_features ||
         item->data(0, Qt::UserRole) == graphos::image_features_matches){
-     emit openImage(item->data(column, Qt::UserRole+1).toULongLong());
+     emit open_image(item->data(column, Qt::UserRole+1).toULongLong());
    } else if (item->data(0, Qt::UserRole) == graphos::sparse_model) {
      emit open3DModel(item->toolTip(column), true);
    } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
@@ -859,7 +850,7 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
 
     if (QAction *selectedItem = mMenuTreeProjectImage->exec(globalPos)) {
       if (selectedItem->text() == tr("Open Image")) {
-        emit openImage(item->data(0, Qt::UserRole+1).toULongLong());
+        emit open_image(item->data(0, Qt::UserRole+1).toULongLong());
       } else if (selectedItem->text() == tr("Delete Image")) {
         emit delete_images(std::vector<size_t>{item->data(0, Qt::UserRole+1).toULongLong()});
       } else if (selectedItem->text() == tr("View Keypoints")) {
@@ -1237,19 +1228,23 @@ void MainWindowView::initSignalAndSlots()
 
   connect(mActionHelp,               SIGNAL(triggered(bool)),   this,   SIGNAL(openHelpDialog()));
 
-  /* Panel de vistas en miniatura */
 
-  connect(mThumbnailsWidget, &ThumbnailsWidget::openImage,                this, &MainWindowView::openImage);
-  connect(mThumbnailsWidget,  SIGNAL(selectImage(size_t)),                this, SIGNAL(selectImage(size_t)));
-  connect(mThumbnailsWidget,  SIGNAL(selectImages(std::vector<size_t>)),  this, SIGNAL(selectImages(std::vector<size_t>)));
-  connect(mThumbnailsWidget,  SIGNAL(delete_images(std::vector<size_t>)), this, SIGNAL(delete_images(std::vector<size_t>)));
-  //connect(mThumbnailsWidget,  SIGNAL(imagesLoaded()),                     this, SIGNAL(imagesLoaded()));
+  /* TreeWidgetProject */
 
-  connect(mTreeWidgetProject, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onTreeContextMenu(const QPoint &)));
-  connect(mTreeWidgetProject, SIGNAL(itemSelectionChanged()),   this, SLOT(onSelectionChanged()));
-  connect(mTreeWidgetProject, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem *, int)));
+  connect(mTreeWidgetProject, &QTreeWidget::itemSelectionChanged, this, &MainWindowView::onSelectionChanged);
+  connect(mTreeWidgetProject, &QTreeWidget::itemDoubleClicked, this, &MainWindowView::onItemDoubleClicked);
+  connect(mTreeWidgetProject, &QTreeWidget::customContextMenuRequested, this, &MainWindowView::onTreeContextMenu);
 
-  connect(mTabWidget, &TabWidget::allTabsClosed, this, &MainWindowView::allTabsClosed);
+
+  /* Thumbnails */
+
+  connect(mThumbnailsWidget, &ThumbnailsWidget::open_image, this, &MainWindowView::open_image);
+  connect(mThumbnailsWidget, &ThumbnailsWidget::select_image, this, &MainWindowView::select_image);
+  connect(mThumbnailsWidget, &ThumbnailsWidget::select_images, this, &MainWindowView::select_images);
+  connect(mThumbnailsWidget, &ThumbnailsWidget::delete_images, this, &MainWindowView::delete_images);
+
+
+  /* Zoom */
 
   connect(mActionZoomIn, &QAction::triggered, [&]() {
     if (auto *graphic_viewer = dynamic_cast<GraphicViewer *>(mTabWidget->currentWidget())) {
@@ -1362,6 +1357,10 @@ void MainWindowView::initSignalAndSlots()
         model3D->deactivatePicker();
     }
   });
+
+  /* TabWidget */
+
+  connect(mTabWidget, &TabWidget::all_tabs_closed, this, &MainWindowView::all_tabs_closed);
 
   connect(mTabWidget, &TabWidget::imageActive, [&](bool active) {
     Application &app = Application::instance();

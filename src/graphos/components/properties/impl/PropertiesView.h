@@ -46,7 +46,7 @@ public:
 public:
 
   void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) override;
-
+  void setAlternatingRowColors(bool active) override;
 
 // DialogView interface
 

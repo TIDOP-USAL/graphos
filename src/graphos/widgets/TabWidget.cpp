@@ -114,7 +114,7 @@ void TabWidget::closeTab(int tabId)
     }
 
     if (this->count() == 0)
-    emit allTabsClosed();
+    emit all_tabs_closed();
   }
 }
 

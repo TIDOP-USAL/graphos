@@ -60,7 +60,7 @@ signals:
   void currentTabChanged(int);
   void imageActive(bool);
   void model3dActive(bool);
-  void allTabsClosed();
+  void all_tabs_closed();
 
 private:
 

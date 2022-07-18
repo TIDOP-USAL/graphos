@@ -47,6 +47,12 @@ PropertiesComponent::~PropertiesComponent()
 {
 }
 
+void PropertiesComponent::setAlternatingRowColors(bool active)
+{
+  if (view())
+    dynamic_cast<PropertiesView *>(view())->setAlternatingRowColors(active);
+}
+
 void PropertiesComponent::init()
 {
   this->setName("Properties");
