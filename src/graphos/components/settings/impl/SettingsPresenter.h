@@ -32,6 +32,7 @@ namespace graphos
 class SettingsView;
 class SettingsModel;
 
+
 class SettingsPresenterImp
   : public SettingsPresenter
 {
@@ -57,9 +58,12 @@ private:
 
 // SettingsPresenter interface
 
-private slots:
+public slots:
 
   void setLanguage(const QString &language) override;
+
+  void setFeatureViewer(FeatureViewerSettingsWidget *widget) override;
+
   void save() override;
   void discart() override;
 

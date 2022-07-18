@@ -46,7 +46,7 @@ public:
   virtual int historyMaxSize() const = 0;
   virtual QString imageViewerBGColor() const = 0;
   virtual bool useCuda() const = 0;
-
+  
 public slots:
 
   virtual void setPage(int page) = 0;
@@ -57,6 +57,7 @@ public slots:
   virtual void setUseCuda(bool active) = 0;
   virtual void setCudaEnabled(bool enabled) = 0;
   virtual void setUnsavedChanges(bool unsaveChanges) = 0;
+  virtual void addWidget(QWidget *widget) = 0;
 
 signals:
 

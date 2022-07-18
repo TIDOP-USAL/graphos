@@ -574,10 +574,11 @@ void MainWindowPresenter::initStartPage()
   if (mStartPageWidget == nullptr){
     mStartPageWidget = new StartPageWidget(mView);
 
-    connect(mStartPageWidget,   &StartPageWidget::openNew,                this, &MainWindowPresenter::openCreateProjectDialog);
-    connect(mStartPageWidget,   &StartPageWidget::openProject,            this, &MainWindowPresenter::openProjectDialog);
-    connect(mStartPageWidget,   &StartPageWidget::clearHistory,           this, &MainWindowPresenter::deleteHistory);
-    connect(mStartPageWidget,   &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);
+    connect(mStartPageWidget, &StartPageWidget::openNew,                this, &MainWindowPresenter::openCreateProjectDialog);
+    connect(mStartPageWidget, &StartPageWidget::openProject,            this, &MainWindowPresenter::openProjectDialog);
+    connect(mStartPageWidget, &StartPageWidget::clearHistory,           this, &MainWindowPresenter::deleteHistory);
+    connect(mStartPageWidget, &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);
+    connect(mStartPageWidget, &StartPageWidget::openSettings,           this, &MainWindowPresenter::openSettings);
   }
 }
 

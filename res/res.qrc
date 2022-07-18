@@ -338,5 +338,9 @@
         <file>img/material/96/icons8-3d-object.png</file>
         <file>img/material/96/icons8-3d-model.png</file>
         <file>img/material/96/icons8-github-96.png</file>
+        <file>img/icons/keypoint.png</file>
+        <file>img/icons/keypoint_circle.png</file>
+        <file>img/icons/keypoint_cross.png</file>
+        <file>img/icons/keypoint_diag_cross.png</file>
     </qresource>
 </RCC>

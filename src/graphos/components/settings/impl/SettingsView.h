@@ -90,6 +90,7 @@ public slots:
   void setUseCuda(bool active) override;
   void setCudaEnabled(bool enabled) override;
   void setUnsavedChanges(bool unsaveChanges) override;
+  void addWidget(QWidget *widget) override;
 
 protected:
 

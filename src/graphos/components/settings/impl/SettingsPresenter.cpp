@@ -25,6 +25,7 @@
 
 #include "graphos/components/settings/SettingsModel.h"
 #include "graphos/components/settings/SettingsView.h"
+#include "graphos/widgets/settings/FeatViewerSettingsWidget.h"
 
 #include <QLocale>
 
@@ -69,6 +70,20 @@ void SettingsPresenterImp::open()
 //#endif //HAVE_CUDA
 
   mView->exec();
+}
+
+void SettingsPresenterImp::setFeatureViewer(FeatureViewerSettingsWidget *widget)
+{
+  mView->addWidget(widget);
+
+  connect(widget, &FeatureViewerSettingsWidget::backgroundColorChange, mModel, &SettingsModel::setKeypointsViewerBGColor);
+  connect(widget, &FeatureViewerSettingsWidget::markerTypeChange, mModel, &SettingsModel::setKeypointsViewerMarkerType);
+  connect(widget, &FeatureViewerSettingsWidget::markerSizeChange, mModel, &SettingsModel::setKeypointsViewerMarkerSize);
+  connect(widget, &FeatureViewerSettingsWidget::markerWidthChange, mModel, &SettingsModel::setKeypointsViewerMarkerWidth);
+  connect(widget, &FeatureViewerSettingsWidget::markerColorChange, mModel, &SettingsModel::setKeypointsViewerMarkerColor);
+  connect(widget, &FeatureViewerSettingsWidget::selectedMarkerWidthChange, mModel, &SettingsModel::setKeypointsViewerSelectMarkerWidth);
+  connect(widget, &FeatureViewerSettingsWidget::selectedMarkerColorChange, mModel, &SettingsModel::setKeypointsViewerSelectMarkerColor);
+
 }
 
 void SettingsPresenterImp::init()

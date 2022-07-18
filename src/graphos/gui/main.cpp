@@ -461,6 +461,11 @@ int main(int argc, char *argv[])
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_image,
                      &properties_component, &PropertiesComponent::selectImage);
 
+#ifdef GRAPHOS_HAVE_SETTINGS
+    QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openSettings,
+                     settings_component.action(), &QAction::trigger);
+#endif // GRAPHOS_HAVE_SETTINGS
+
     componentsManager.loadPlugins();
 
     app.status()->activeFlag(AppStatus::Flag::none, true);

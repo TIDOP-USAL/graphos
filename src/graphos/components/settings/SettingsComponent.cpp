@@ -28,6 +28,7 @@
 #include "graphos/components/settings/impl/SettingsPresenter.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
+#include "graphos/widgets/settings/FeatViewerSettingsWidget.h"
 
 #include <QAction>
 #include <QString>
@@ -63,6 +64,8 @@ void SettingsComponent::createPresenter()
 {
   setPresenter(new SettingsPresenterImp(dynamic_cast<SettingsView *>(view()),
                                         dynamic_cast<SettingsModel *>(model())));
+
+  dynamic_cast<SettingsPresenter *>(presenter())->setFeatureViewer(new FeatureViewerSettingsWidget());
 }
 
 void SettingsComponent::createCommand()

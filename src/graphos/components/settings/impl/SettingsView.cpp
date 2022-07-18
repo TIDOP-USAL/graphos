@@ -294,4 +294,10 @@ void SettingsViewImp::setUnsavedChanges(bool unsaveChanges)
   update();
 }
 
+void SettingsViewImp::addWidget(QWidget *widget)
+{
+  mListWidget->addItem(widget->windowTitle());
+  mStackedWidget->addWidget(widget);
+}
+
 } // namespace graphos

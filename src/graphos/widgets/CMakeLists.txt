@@ -47,7 +47,9 @@ add_library(${PROJECT_NAME} ${LIB_TYPE}
             ProgressBarDialog.cpp
             ProgressBarDialog.h
             ProgressBarWidget.cpp
-            ProgressBarWidget.h)
+            ProgressBarWidget.h
+            settings/FeatViewerSettingsWidget.cpp
+            settings/FeatViewerSettingsWidget.h)
 
 add_library(Graphos::Widgets ALIAS ${PROJECT_NAME})
 

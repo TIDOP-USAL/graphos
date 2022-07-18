@@ -140,6 +140,14 @@ public slots:
 
   virtual void setUseCuda(bool active) = 0;
 
+  virtual void setKeypointsViewerBGColor(const QString &color) = 0;
+  virtual void setKeypointsViewerMarkerType(int type) = 0;
+  virtual void setKeypointsViewerMarkerSize(int size) = 0;
+  virtual void setKeypointsViewerMarkerWidth(int width) = 0;
+  virtual void setKeypointsViewerMarkerColor(const QString &color) = 0;
+  virtual void setKeypointsViewerSelectMarkerWidth(int width) = 0;
+  virtual void setKeypointsViewerSelectMarkerColor(const QString &color) = 0;
+
 signals:
 
   void unsavedChanges(bool);

@@ -87,6 +87,14 @@ public slots:
   void setImageViewerBGcolor(const QString &bgColor) override;
   void setUseCuda(bool active) override;
 
+  void setKeypointsViewerBGColor(const QString &color) override;
+  void setKeypointsViewerMarkerType(int type) override;
+  void setKeypointsViewerMarkerSize(int size) override;
+  void setKeypointsViewerMarkerWidth(int width) override;
+  void setKeypointsViewerMarkerColor(const QString &color) override;
+  void setKeypointsViewerSelectMarkerWidth(int width) override;
+  void setKeypointsViewerSelectMarkerColor(const QString &color) override;
+
 // Model interface
 
 private:

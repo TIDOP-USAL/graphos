@@ -229,6 +229,48 @@ void SettingsModelImp::setUseCuda(bool active)
   emit unsavedChanges(true);
 }
 
+void SettingsModelImp::setKeypointsViewerBGColor(const QString &color)
+{
+  mSettings->setKeypointsViewerBGColor(color);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setKeypointsViewerMarkerType(int type)
+{
+  mSettings->setKeypointsViewerMarkerType(type);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setKeypointsViewerMarkerSize(int size)
+{
+  mSettings->setKeypointsViewerMarkerSize(size);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setKeypointsViewerMarkerWidth(int width)
+{
+  mSettings->setKeypointsViewerMarkerWidth(width);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setKeypointsViewerMarkerColor(const QString &color)
+{
+  mSettings->setKeypointsViewerMarkerColor(color);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setKeypointsViewerSelectMarkerWidth(int width)
+{
+  mSettings->setKeypointsViewerSelectMarkerWidth(width);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setKeypointsViewerSelectMarkerColor(const QString &color)
+{
+  mSettings->setKeypointsViewerSelectMarkerColor(color);
+  emit unsavedChanges(true);
+}
+
 void SettingsModelImp::init()
 {
   read();

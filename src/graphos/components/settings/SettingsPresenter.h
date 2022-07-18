@@ -29,6 +29,7 @@
 namespace graphos
 {
 
+class FeatureViewerSettingsWidget;
 
 class SettingsPresenter
   : public Presenter
@@ -41,9 +42,10 @@ public:
   SettingsPresenter() = default;
   virtual ~SettingsPresenter() override = default;
 
-private slots:
+public slots:
 
   virtual void setLanguage(const QString &language) = 0;
+  virtual void setFeatureViewer(FeatureViewerSettingsWidget *widget) = 0;
   virtual void save() = 0;
   virtual void discart() = 0;
 
