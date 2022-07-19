@@ -44,98 +44,98 @@ FeatureViewerSettingsWidget::FeatureViewerSettingsWidget(QWidget *parent)
   initSignalAndSlots();
 }
 
-QString FeatureViewerSettingsWidget::keypointsViewerBGColor() const
+QString FeatureViewerSettingsWidget::backgroundColor() const
 {
   return mLineEditKeypointViewerBGColor->text();
 }
 
-int FeatureViewerSettingsWidget::keypointsViewerMarkerType() const
+int FeatureViewerSettingsWidget::markerType() const
 {
   return mListWidgetKeypointsViewerMarkerType->currentRow();
 }
 
-int FeatureViewerSettingsWidget::keypointsViewerMarkerSize() const
+int FeatureViewerSettingsWidget::markerSize() const
 {
   return mSpinBoxKeypointViewerMarkerSize->value();
 }
 
-int FeatureViewerSettingsWidget::keypointsViewerMarkerWidth() const
+int FeatureViewerSettingsWidget::markerWidth() const
 {
   return mSpinBoxKeypointViewerMarkerWidth->value();
 }
 
-QString FeatureViewerSettingsWidget::keypointsViewerMarkerColor() const
+QString FeatureViewerSettingsWidget::markerColor() const
 {
   return mLineEditKeypointViewerMarkerColor->text();
 }
 
-int FeatureViewerSettingsWidget::selectKeypointsViewerMarkerWidth() const
+int FeatureViewerSettingsWidget::selectedMarkerWidth() const
 {
   return mSpinBoxSelectKeypointViewerMarkerWidth->value();
 }
 
-QString FeatureViewerSettingsWidget::selectKeypointsViewerMarkerColor() const
+QString FeatureViewerSettingsWidget::selectedMarkerColor() const
 {
   return mLineEditSelectKeypointViewerMarkerColor->text();
 }
 
-void FeatureViewerSettingsWidget::setKeypointsViewerBGColor(const QString &color)
+void FeatureViewerSettingsWidget::setBackgroundColor(const QString &color)
 {
   const QSignalBlocker blockerKeypointViewerBGColor(mLineEditKeypointViewerBGColor);
   mLineEditKeypointViewerBGColor->setText(color);
 }
 
-void FeatureViewerSettingsWidget::setKeypointsViewerMarkerType(int type)
+void FeatureViewerSettingsWidget::setMarkerType(int type)
 {
   const QSignalBlocker blockerKeypointsMarker(mListWidgetKeypointsViewerMarkerType);
   mListWidgetKeypointsViewerMarkerType->setCurrentRow(type);
 }
 
-void FeatureViewerSettingsWidget::setKeypointsViewerMarkerSize(int size)
+void FeatureViewerSettingsWidget::setMarkerSize(int size)
 {
   const QSignalBlocker blocker(mSpinBoxKeypointViewerMarkerSize);
   mSpinBoxKeypointViewerMarkerSize->setValue(size);
 }
 
-void FeatureViewerSettingsWidget::setKeypointsViewerMarkerWidth(int width)
+void FeatureViewerSettingsWidget::setMarkerWidth(int width)
 {
   const QSignalBlocker blockerKeypointViewerWidth(mSpinBoxKeypointViewerMarkerWidth);
   mSpinBoxKeypointViewerMarkerWidth->setValue(width);
 }
 
-void FeatureViewerSettingsWidget::setKeypointsViewerMarkerColor(const QString &color)
+void FeatureViewerSettingsWidget::setMarkerColor(const QString &color)
 {
   const QSignalBlocker blockerKeypointMarkerColor(mLineEditKeypointViewerMarkerColor);
   mLineEditKeypointViewerMarkerColor->setText(color);
 }
 
-void FeatureViewerSettingsWidget::setSelectKeypointsViewerMarkerWidth(int width)
+void FeatureViewerSettingsWidget::setSelectedMarkerWidth(int width)
 {
   const QSignalBlocker blockerSelectKeypointViewerWidth(mSpinBoxSelectKeypointViewerMarkerWidth);
   mSpinBoxSelectKeypointViewerMarkerWidth->setValue(width);
 }
 
-void FeatureViewerSettingsWidget::setSelectKeypointsViewerMarkerColor(const QString &color)
+void FeatureViewerSettingsWidget::setSelectedMarkerColor(const QString &color)
 {
   const QSignalBlocker blockerSelectKeypointViewerColor(mLineEditSelectKeypointViewerMarkerColor);
   mLineEditSelectKeypointViewerMarkerColor->setText(color);
 }
 
-void FeatureViewerSettingsWidget::onPushButtonKeypointViewerBGColorClicked()
+void FeatureViewerSettingsWidget::onPushButtonBackgroundColorClicked()
 {
   QColor color = QColorDialog::getColor(QColor(mLineEditKeypointViewerBGColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
   if (color.isValid())
     mLineEditKeypointViewerBGColor->setText(color.name());
 }
 
-void FeatureViewerSettingsWidget::onPushButtonKeypointViewerMarkerColorClicked()
+void FeatureViewerSettingsWidget::onPushButtonMarkerColorClicked()
 {
   QColor color = QColorDialog::getColor(QColor(mLineEditKeypointViewerMarkerColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
   if (color.isValid())
     mLineEditKeypointViewerMarkerColor->setText(color.name());
 }
 
-void FeatureViewerSettingsWidget::onPushButtonSelectKeypointViewerMarkerColorClicked()
+void FeatureViewerSettingsWidget::onPushButtonSelectedMarkerColorClicked()
 {
   QColor color = QColorDialog::getColor(QColor(mLineEditSelectKeypointViewerMarkerColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
   if (color.isValid())
@@ -259,14 +259,14 @@ void FeatureViewerSettingsWidget::initUI()
 void FeatureViewerSettingsWidget::initSignalAndSlots()
 {
   connect(mLineEditKeypointViewerBGColor, SIGNAL(textChanged(QString)), this,SIGNAL(backgroundColorChange(QString)));
-  connect(mPushButtonKeypointViewerBGColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonKeypointViewerBGColorClicked()));
+  connect(mPushButtonKeypointViewerBGColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonBackgroundColorClicked()));
   connect(mSpinBoxKeypointViewerMarkerSize, SIGNAL(valueChanged(int)), this, SIGNAL(markerSizeChange(int)));
   connect(mSpinBoxKeypointViewerMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(markerWidthChange(int)));
   connect(mLineEditKeypointViewerMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(markerColorChange(QString)));
-  connect(mPushButtonKeypointViewerMarkerColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonKeypointViewerMarkerColorClicked()));
+  connect(mPushButtonKeypointViewerMarkerColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonMarkerColorClicked()));
   connect(mSpinBoxSelectKeypointViewerMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(selectedMarkerWidthChange(int)));
   connect(mLineEditSelectKeypointViewerMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(selectedMarkerColorChange(QString)));
-  connect(mPushButtonSelectKeypointViewerMarkerColor, SIGNAL(clicked(bool)),                this,  SLOT(onPushButtonSelectKeypointViewerMarkerColorClicked()));
+  connect(mPushButtonSelectKeypointViewerMarkerColor, SIGNAL(clicked(bool)),                this,  SLOT(onPushButtonSelectedMarkerColorClicked()));
   connect(mListWidgetKeypointsViewerMarkerType, SIGNAL(currentRowChanged(int)), this, SIGNAL(markerTypeChange(int)));
   connect(mListWidgetKeypointsViewerMarkerType, SIGNAL(currentTextChanged(QString)), this, SLOT(update()));
 }

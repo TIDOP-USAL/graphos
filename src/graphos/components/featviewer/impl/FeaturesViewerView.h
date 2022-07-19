@@ -57,7 +57,7 @@ protected slots:
 
   void setImageList(const std::vector<std::pair<size_t, QString>> &imageList) override;
   void setCurrentImage(const QString &imagePath) override;
-  void setKeyPoints(const std::vector<QPointF> &keyPoints) override;
+  void setKeyPoints(const std::vector<std::tuple<QPointF, float, float>> &keyPoints) override;
   void setBGColor(const QString &bgColor) override;
   void setSelectedMarkerStyle(const QString &color, int width) override;
   void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) override;

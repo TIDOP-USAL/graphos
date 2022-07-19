@@ -49,10 +49,8 @@ public:
                      Qt::WindowFlags f = Qt::WindowFlags());
   ~MatchViewerViewImp() override;
 
-protected slots :
+protected slots:
 
-  void onComboBoxLeftImageIndexChanged(int idx);
-  void onComboBoxRightImageIndexChanged(int idx);
   void onTreeWidgetMatchesItemClicked(QTreeWidgetItem *item, int col);
   void onTreeWidgetMatchesItemSelectionChanged();
   void onGraphicsViewLeftSelectionChanged();
@@ -99,11 +97,11 @@ protected:
   QDialogButtonBox *mButtonBox;
   QTreeWidget *mTreeWidgetMatches;
   QLabel *mLabelLeftImage;
-  QLabel *mRightImage;
+  QLabel *mLabelRightImage;
   QComboBox  *mComboBoxLeftImage;
   QComboBox  *mComboBoxRightImage;
-  GraphicViewer *mGraphicsViewPseudoimage;
-  GraphicViewer *mGraphicsViewImage;
+  GraphicViewer *mGraphicsViewRightImage;
+  GraphicViewer *mGraphicsViewLeftImage;
   QLabel *mLabelMatches;
   QPushButton *mPushButtonDeleteMatch;
   bool bUnsavedChanges;

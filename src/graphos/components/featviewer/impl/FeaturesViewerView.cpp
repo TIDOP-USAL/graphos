@@ -81,16 +81,12 @@ void FeaturesViewerViewImp::initUI()
   mTreeWidget = new QTreeWidget(this);
   mTreeWidget->setAlternatingRowColors(true);
   mTreeWidget->setMaximumSize(QSize(16777215, 192));
-
   gridLayout->addWidget(mTreeWidget, 2, 0, 1, 2);
 
   mButtonBox = new QDialogButtonBox(this);
   mButtonBox->setOrientation(Qt::Horizontal);
   mButtonBox->setStandardButtons(QDialogButtonBox::Close|QDialogButtonBox::Help);
   gridLayout->addWidget(mButtonBox, 3, 0, 1, 2);
-
-  mButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
-  mButtonBox->button(QDialogButtonBox::Help)->setText("Help");
 
   this->retranslate();
   this->update();
@@ -112,7 +108,7 @@ void FeaturesViewerViewImp::initSignalAndSlots()
   connect(mButtonBox->button(QDialogButtonBox::Close), 
           &QAbstractButton::clicked, 
           this,
-          &QDialog::accept);
+          &QDialog::close);
   connect(mButtonBox->button(QDialogButtonBox::Help),
           &QAbstractButton::clicked, 
           this, 
@@ -142,8 +138,10 @@ void FeaturesViewerViewImp::retranslate()
   qTreeWidgetItem->setText(0, QApplication::translate("FeaturesViewerView", "ID"));
   qTreeWidgetItem->setText(1, QApplication::translate("FeaturesViewerView", "X"));
   qTreeWidgetItem->setText(2, QApplication::translate("FeaturesViewerView", "Y"));
-//  qTreeWidgetItem->setText(3, QApplication::translate("FeaturesViewerView", "Size"));
-//  qTreeWidgetItem->setText(4, QApplication::translate("FeaturesViewerView", "Angle"));
+  qTreeWidgetItem->setText(3, QApplication::translate("FeaturesViewerView", "Size"));
+  qTreeWidgetItem->setText(4, QApplication::translate("FeaturesViewerView", "Angle"));
+  mButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
+  mButtonBox->button(QDialogButtonBox::Help)->setText("Help");
 }
 
 void FeaturesViewerViewImp::onGraphicsViewSelectionChanged()
@@ -157,6 +155,7 @@ void FeaturesViewerViewImp::onGraphicsViewSelectionChanged()
     if (items[i] && items[i]->isSelected() == true) {
 
       mTreeWidget->selectionModel()->clearSelection();
+
       for (int j = 0; j < mTreeWidget->topLevelItemCount(); j++){
         QTreeWidgetItem *item = mTreeWidget->topLevelItem(j);
         if (item && item->text(0).compare(items[i]->toolTip()) == 0){
@@ -173,6 +172,10 @@ void FeaturesViewerViewImp::onGraphicsViewSelectionChanged()
   }
 
   if (bSelectedItem == false){
+    QList<QGraphicsItem *> items = mGraphicView->items();
+    for(int i = 0; i < items.size(); i++) {
+      items[i]->setSelected(false);
+    }
     mTreeWidget->selectionModel()->clearSelection();
   }
 
@@ -191,9 +194,9 @@ void FeaturesViewerViewImp::onTreeWidgetItemSelectionChanged()
     mGraphicView->zoom11();
     mGraphicView->centerOn(point);
     QPoint pt_scene = mGraphicView->mapFromScene(point);
-    QGraphicsItem *select_item_left = mGraphicView->itemAt(pt_scene);
-    if (select_item_left) {
-      select_item_left->setSelected(true);
+    QGraphicsItem *select_item = mGraphicView->itemAt(pt_scene);
+    if (select_item) {
+      select_item->setSelected(true);
     }
 
   } else {
@@ -229,27 +232,34 @@ void FeaturesViewerViewImp::setCurrentImage(const QString &imagePath)
   mGraphicView->zoomExtend();
 }
 
-void FeaturesViewerViewImp::setKeyPoints(const std::vector<QPointF> &keyPoints)
+void FeaturesViewerViewImp::setKeyPoints(const std::vector<std::tuple<QPointF, float, float>> &keyPoints)
 {
-  const QSignalBlocker blocker2(mTreeWidget);
+  const QSignalBlocker blocker(mTreeWidget);
+
   mTreeWidget->clear();
 
   for (auto &item : mGraphicView->scene()->items()) {
     if (mMarkerType == 0){
+      if(KeyPointGraphicsItem *keyPoint = dynamic_cast<KeyPointGraphicsItem *>(item)) {
+          mGraphicView->scene()->removeItem(item);
+          delete keyPoint;
+          keyPoint = nullptr;
+      }
+    } else if(mMarkerType == 1) {
       // Circle
-      if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
+      if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){  
         mGraphicView->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
-    } else if (mMarkerType == 1){
+    } else if (mMarkerType == 2){
       // Cross
       if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
         mGraphicView->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
-    } else if (mMarkerType == 2){
+    } else if (mMarkerType == 3){
       // Diagonal cross
       if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
         mGraphicView->scene()->removeItem(item);
@@ -273,16 +283,26 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<QPointF> &keyPoints)
   for (size_t i = 0; i < keyPoints.size(); i++){
     QTreeWidgetItem *treeWidgetItem = new QTreeWidgetItem();
     treeWidgetItem->setText(0, QString::number(i + 1));
-//    QPointF point;
-//    double size = 10;
-//    double angle = 0.;
-//    std::tie(point, size, angle) = keyPoints[i];
-    QPointF point = keyPoints[i];
+    QPointF point;
+    double size;
+    double angle;
+    std::tie(point, size, angle) = keyPoints[i];
+
+    //QPointF point = keyPoints[i];
     treeWidgetItem->setText(1, QString::number(point.x()));
     treeWidgetItem->setText(2, QString::number(point.y()));
+    treeWidgetItem->setText(3, QString::number(size));
+    treeWidgetItem->setText(4, QString::number(angle));
     mTreeWidget->addTopLevelItem(treeWidgetItem);
 
-    if (mMarkerType == 0){
+    if(mMarkerType == 0) {
+      KeyPointGraphicsItem *item = new KeyPointGraphicsItem(point, size, angle);
+      item->setPen(pen);
+      item->setSelectedPen(select_pen);
+      item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+      item->setToolTip(QString::number(static_cast<int>(i + 1)));
+      mGraphicView->scene()->addItem(item);
+    } else if (mMarkerType == 1){
       // Circle
       CircleGraphicItem *item = new CircleGraphicItem(point, mMarkerSize);
       item->setPen(pen);
@@ -290,7 +310,7 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<QPointF> &keyPoints)
       item->setFlag(QGraphicsItem::ItemIsSelectable, true);
       item->setToolTip(QString::number(static_cast<int>(i+1)));
       mGraphicView->scene()->addItem(item);
-    } else if (mMarkerType == 1){
+    } else if (mMarkerType == 2){
       // Cross
       CrossGraphicItem *item = new CrossGraphicItem(point, mMarkerSize);
       item->setPen(pen);
@@ -298,7 +318,7 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<QPointF> &keyPoints)
       item->setFlag(QGraphicsItem::ItemIsSelectable, true);
       item->setToolTip(QString::number(static_cast<int>(i+1)));
       mGraphicView->scene()->addItem(item);
-    } else if (mMarkerType == 2){
+    } else if (mMarkerType == 3){
       // Diagonal cross
       DiagonalCrossGraphicItem *item = new DiagonalCrossGraphicItem(point, mMarkerSize);
       item->setPen(pen);
@@ -327,21 +347,27 @@ void FeaturesViewerViewImp::setMarkerStyle(const QString &color, int width, int 
 {
   if (mMarkerType != type){  /// TODO: ¿Es necesario?
     for (auto &item : mGraphicView->scene()->items()) {
-      if (mMarkerType == 0){
+      if(mMarkerType == 0) {
+        if(KeyPointGraphicsItem *keyPoint = dynamic_cast<KeyPointGraphicsItem *>(item)) {
+          mGraphicView->scene()->removeItem(item);
+          delete keyPoint;
+          keyPoint = nullptr;
+        }
+      } else if (mMarkerType == 1){
         // Circle
         if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
           mGraphicView->scene()->removeItem(item);
           delete keyPoint;
           keyPoint = nullptr;
         }
-      } else if (mMarkerType == 1){
+      } else if (mMarkerType == 2){
         // Cross
         if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
           mGraphicView->scene()->removeItem(item);
           delete keyPoint;
           keyPoint = nullptr;
         }
-      } else if (mMarkerType == 2){
+      } else if (mMarkerType == 3){
         // Diagonal cross
         if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
           mGraphicView->scene()->removeItem(item);
@@ -368,21 +394,27 @@ void FeaturesViewerViewImp::setMarkerStyle(const QString &color, int width, int 
 void FeaturesViewerViewImp::closeEvent(QCloseEvent *event)
 {
   for (auto &item : mGraphicView->scene()->items()) {
-    if (mMarkerType == 0){
+    if(mMarkerType == 0) {
+      if(KeyPointGraphicsItem *keyPoint = dynamic_cast<KeyPointGraphicsItem *>(item)) {
+        mGraphicView->scene()->removeItem(item);
+        delete keyPoint;
+        keyPoint = nullptr;
+      }
+    } else if (mMarkerType == 1){
       // Circle
       if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)){
         mGraphicView->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
-    } else if (mMarkerType == 1){
+    } else if (mMarkerType == 2){
       // Cross
       if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)){
         mGraphicView->scene()->removeItem(item);
         delete keyPoint;
         keyPoint = nullptr;
       }
-    } else if (mMarkerType == 2){
+    } else if (mMarkerType == 3){
       // Diagonal cross
       if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)){
         mGraphicView->scene()->removeItem(item);
@@ -391,6 +423,8 @@ void FeaturesViewerViewImp::closeEvent(QCloseEvent *event)
       }
     }
   }
+
+  QDialog::closeEvent(event);
 }
 
 } // namespace graphos

@@ -46,39 +46,39 @@ public:
   MatchViewerSettingsWidget(QWidget *parent = nullptr);
   virtual ~MatchViewerSettingsWidget() = default;
   
-  QString matchesViewerBGColor() const;
-  int matchesViewerMarkerType() const;
-  int matchesViewerMarkerSize() const;
-  int matchesViewerMarkerWidth() const;
-  QString matchesViewerMarkerColor() const;
-  int selectMatchesViewerMarkerWidth() const;
-  QString selectMatchesViewerMarkerColor() const;
-  QString matchesViewerLineColor() const;
-  int matchesViewerLineWidth() const;
+  QString backgroundColor() const;
+  int markerType() const;
+  int markerSize() const;
+  int markerWidth() const;
+  QString markerColor() const;
+  int selectedMarkerWidth() const;
+  QString selectedMarkerColor() const;
+  QString lineColor() const;
+  int lineWidth() const;
   
 public slots:
   
-  void setMatchesViewerBGColor(const QString &color);
-  void setMatchesViewerMarkerType(int type);
-  void setMatchesViewerMarkerSize(int size);
-  void setMatchesViewerMarkerWidth(int width);
-  void setMatchesViewerMarkerColor(const QString &color);
-  void setSelectMatchesViewerMarkerWidth(int width);
-  void setSelectMatchesViewerMarkerColor(const QString &color);
-  void setMatchesViewerLineColor(const QString &color);
-  void setMatchesViewerLineWidth(int width);
+  void setBackgroundColor(const QString &color);
+  void setMarkerType(int type);
+  void setMarkerSize(int size);
+  void setMarkerWidth(int width);
+  void setMarkerColor(const QString &color);
+  void setSelectedMarkerWidth(int width);
+  void setSelectedMarkerColor(const QString &color);
+  void setLineColor(const QString &color);
+  void setLineWidth(int width);
   
 signals:
   
-  void matchesViewerBGColorChange(const QString &);
-  void matchesViewerMarkerTypeChange(int);
-  void matchesViewerMarkerSizeChange(int);
-  void matchesViewerMarkerWidthChange(int);
-  void matchesViewerMarkerColorChange(const QString &);
-  void matchesViewerLineWidthChange(int);
-  void matchesViewerLineColorChange(const QString &);
-  void selectMatchesViewerMarkerWidthChange(int);
-  void selectMatchesViewerMarkerColorChange(const QString &);
+  void backgroundColorChange(const QString &);
+  void markerTypeChange(int);
+  void markerSizeChange(int);
+  void markerWidthChange(int);
+  void markerColorChange(const QString &);
+  void lineWidthChange(int);
+  void lineColorChange(const QString &);
+  void selectedMarkerWidthChange(int);
+  void selectedMarkerColorChange(const QString &);
 
 public slots:
 

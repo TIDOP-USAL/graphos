@@ -45,7 +45,7 @@ public:
 
   virtual const std::unordered_map<size_t, Image> &images() const = 0;
   virtual Image image(size_t imageId) const = 0;
-  virtual std::vector<QPointF> loadKeypoints(size_t imageId) = 0;
+  virtual std::vector<std::tuple<QPointF, float, float>> loadKeypoints(size_t imageId) = 0;
 
   virtual QString viewerBGColor() const = 0;
   virtual int viewerMarkerType() const = 0;

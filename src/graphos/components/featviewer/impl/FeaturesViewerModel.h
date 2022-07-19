@@ -53,7 +53,7 @@ public:
 
   const std::unordered_map<size_t, Image> &images() const override;
   Image image(size_t imageId) const;
-  std::vector<QPointF> loadKeypoints(size_t imageId) override;
+  std::vector<std::tuple<QPointF, float, float>> loadKeypoints(size_t imageId) override;
 
   QString viewerBGColor() const override;
   int viewerMarkerType() const override;

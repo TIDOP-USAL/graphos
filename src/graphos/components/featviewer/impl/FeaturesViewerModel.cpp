@@ -49,7 +49,10 @@ FeaturesViewerModelImp::FeaturesViewerModelImp(Project *project,
 
 FeaturesViewerModelImp::~FeaturesViewerModelImp()
 {
-
+  if(mSettings) {
+    delete mSettings;
+    mSettings = nullptr;
+  }
 }
 
 void FeaturesViewerModelImp::init()
@@ -71,9 +74,9 @@ Image FeaturesViewerModelImp::image(size_t imageId) const
   return mProject->findImageById(imageId);
 }
 
-std::vector<QPointF> FeaturesViewerModelImp::loadKeypoints(size_t imageId)
+std::vector<std::tuple<QPointF, float, float>> FeaturesViewerModelImp::loadKeypoints(size_t imageId)
 {
-  std::vector<QPointF> keyPoints;
+  std::vector<std::tuple<QPointF, float, float>> keyPoints;
 
   try {
 
@@ -96,12 +99,19 @@ std::vector<QPointF> FeaturesViewerModelImp::loadKeypoints(size_t imageId)
     colmap::image_t image_id = image_colmap.ImageId();
 
     if (image_id > 0) {
+
       colmap::FeatureKeypoints colmap_feature_keypoints = database.ReadKeypoints(image_id);
       size_t size = colmap_feature_keypoints.size();
       keyPoints.resize(size);
+
       for (size_t i = 0; i < size; i++){
-        keyPoints[i].setX(static_cast<qreal>(colmap_feature_keypoints[i].x));
-        keyPoints[i].setY(static_cast<qreal>(colmap_feature_keypoints[i].y));
+
+        QPointF keypoint(static_cast<qreal>(colmap_feature_keypoints[i].x),
+                         static_cast<qreal>(colmap_feature_keypoints[i].y));
+
+        keyPoints[i] = std::make_tuple(keypoint,
+                                       colmap_feature_keypoints[i].ComputeScale(),
+                                       colmap_feature_keypoints[i].ComputeOrientation());
       }
     }
   } catch (std::exception &e) {

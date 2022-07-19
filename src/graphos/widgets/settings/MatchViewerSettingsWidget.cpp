@@ -44,100 +44,100 @@ MatchViewerSettingsWidget::MatchViewerSettingsWidget(QWidget *parent)
   initSignalAndSlots();
 }
 
-QString MatchViewerSettingsWidget::matchesViewerBGColor() const
+QString MatchViewerSettingsWidget::backgroundColor() const
 {
   return mLineEditMatchesViewerBGColor->text();
 }
 
-int MatchViewerSettingsWidget::matchesViewerMarkerType() const
+int MatchViewerSettingsWidget::markerType() const
 {
   return mListWidgetMatchesViewerMarkerType->currentRow();
 }
 
-int MatchViewerSettingsWidget::matchesViewerMarkerSize() const
+int MatchViewerSettingsWidget::markerSize() const
 {
   return mSpinBoxMatchesViewerMarkerSize->value();
 }
 
-int MatchViewerSettingsWidget::matchesViewerMarkerWidth() const
+int MatchViewerSettingsWidget::markerWidth() const
 {
   return mSpinBoxMatchesViewerMarkerWidth->value();
 }
 
-QString MatchViewerSettingsWidget::matchesViewerMarkerColor() const
+QString MatchViewerSettingsWidget::markerColor() const
 {
   return mLineEditMatchesViewerMarkerColor->text();
 }
 
-int MatchViewerSettingsWidget::selectMatchesViewerMarkerWidth() const
+int MatchViewerSettingsWidget::selectedMarkerWidth() const
 {
   return mSpinBoxSelectMatchesViewerMarkerWidth->value();
 }
 
-QString MatchViewerSettingsWidget::selectMatchesViewerMarkerColor() const
+QString MatchViewerSettingsWidget::selectedMarkerColor() const
 {
   return mLineEditSelectMatchesViewerMarkerColor->text();
 }
 
-QString MatchViewerSettingsWidget::matchesViewerLineColor() const
+QString MatchViewerSettingsWidget::lineColor() const
 {
   return mLineEditMatchesViewerLineColor->text();
 }
 
-int MatchViewerSettingsWidget::matchesViewerLineWidth() const
+int MatchViewerSettingsWidget::lineWidth() const
 {
   return mSpinBoxMatchesViewerLineWidth->value();
 }
 
-void MatchViewerSettingsWidget::setMatchesViewerBGColor(const QString &color)
+void MatchViewerSettingsWidget::setBackgroundColor(const QString &color)
 {
   const QSignalBlocker blockerMatchesViewerBGColo(mLineEditMatchesViewerBGColor);
   mLineEditMatchesViewerBGColor->setText(color);
 }
 
-void MatchViewerSettingsWidget::setMatchesViewerMarkerType(int type)
+void MatchViewerSettingsWidget::setMarkerType(int type)
 {
   const QSignalBlocker blockerMatchesMarker(mListWidgetMatchesViewerMarkerType);
   mListWidgetMatchesViewerMarkerType->setCurrentRow(type);
 }
 
-void MatchViewerSettingsWidget::setMatchesViewerMarkerSize(int size)
+void MatchViewerSettingsWidget::setMarkerSize(int size)
 {
   const QSignalBlocker blocker(mSpinBoxMatchesViewerMarkerSize);
   mSpinBoxMatchesViewerMarkerSize->setValue(size);
 }
 
-void MatchViewerSettingsWidget::setMatchesViewerMarkerWidth(int width)
+void MatchViewerSettingsWidget::setMarkerWidth(int width)
 {
   const QSignalBlocker blockerMatchesViewerMarkerWidth(mSpinBoxMatchesViewerMarkerWidth);
   mSpinBoxMatchesViewerMarkerWidth->setValue(width);
 }
 
-void MatchViewerSettingsWidget::setMatchesViewerMarkerColor(const QString &color)
+void MatchViewerSettingsWidget::setMarkerColor(const QString &color)
 {
   const QSignalBlocker blockerMatchesMarkerColor(mLineEditMatchesViewerMarkerColor);
   mLineEditMatchesViewerMarkerColor->setText(color);
 }
 
-void MatchViewerSettingsWidget::setSelectMatchesViewerMarkerWidth(int width)
+void MatchViewerSettingsWidget::setSelectedMarkerWidth(int width)
 {
   const QSignalBlocker blockerMatchesSelectMarkerColor(mSpinBoxSelectMatchesViewerMarkerWidth);
   mSpinBoxSelectMatchesViewerMarkerWidth->setValue(width);
 }
 
-void MatchViewerSettingsWidget::setSelectMatchesViewerMarkerColor(const QString &color)
+void MatchViewerSettingsWidget::setSelectedMarkerColor(const QString &color)
 {
   const QSignalBlocker blockerSelectMatchesMarkerColor(mLineEditSelectMatchesViewerMarkerColor);
   mLineEditSelectMatchesViewerMarkerColor->setText(color);
 }
 
-void MatchViewerSettingsWidget::setMatchesViewerLineColor(const QString &color)
+void MatchViewerSettingsWidget::setLineColor(const QString &color)
 {
   const QSignalBlocker blockerMatchesViewerLineColor(mLineEditMatchesViewerLineColor);
   mLineEditMatchesViewerLineColor->setText(color);
 }
 
-void MatchViewerSettingsWidget::setMatchesViewerLineWidth(int width)
+void MatchViewerSettingsWidget::setLineWidth(int width)
 {
   const QSignalBlocker blocker(mSpinBoxMatchesViewerLineWidth);
   mSpinBoxMatchesViewerLineWidth->setValue(width);
@@ -307,18 +307,18 @@ void MatchViewerSettingsWidget::initUI()
 
 void MatchViewerSettingsWidget::initSignalAndSlots()
 {
-  connect(mLineEditMatchesViewerBGColor, SIGNAL(textChanged(QString)), this, SIGNAL(matchesViewerBGColorChange(QString)));
+  connect(mLineEditMatchesViewerBGColor, SIGNAL(textChanged(QString)), this, SIGNAL(backgroundColorChange(QString)));
   connect(mPushButtonMatchesViewerBGColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonMatchViewerBGColorClicked()));
-  connect(mSpinBoxMatchesViewerMarkerSize, SIGNAL(valueChanged(int)), this, SIGNAL(matchesViewerMarkerSizeChange(int)));
-  connect(mSpinBoxMatchesViewerLineWidth, SIGNAL(valueChanged(int)), this, SIGNAL(matchesViewerLineWidthChange(int)));
-  connect(mSpinBoxMatchesViewerMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(matchesViewerMarkerWidthChange(int)));
-  connect(mLineEditMatchesViewerMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(matchesViewerMarkerColorChange(QString)));
+  connect(mSpinBoxMatchesViewerMarkerSize, SIGNAL(valueChanged(int)), this, SIGNAL(markerSizeChange(int)));
+  connect(mSpinBoxMatchesViewerLineWidth, SIGNAL(valueChanged(int)), this, SIGNAL(lineWidthChange(int)));
+  connect(mSpinBoxMatchesViewerMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(markerWidthChange(int)));
+  connect(mLineEditMatchesViewerMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(markerColorChange(QString)));
   connect(mPushButtonMatchesViewerMarkerColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonMatchViewerMarkerColorClicked()));
-  connect(mLineEditMatchesViewerLineColor, SIGNAL(textChanged(QString)), this, SIGNAL(matchesViewerLineColorChange(QString)));
+  connect(mLineEditMatchesViewerLineColor, SIGNAL(textChanged(QString)), this, SIGNAL(lineColorChange(QString)));
   connect(mPushButtonMatchesViewerLineColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonMatchViewerLineColorClicked()));
-  connect(mListWidgetMatchesViewerMarkerType, SIGNAL(currentRowChanged(int)), this, SIGNAL(matchesViewerMarkerTypeChange(int)));
-  connect(mSpinBoxSelectMatchesViewerMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(selectMatchesViewerMarkerWidthChange(int)));
-  connect(mLineEditSelectMatchesViewerMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(selectMatchesViewerMarkerColorChange(QString)));
+  connect(mListWidgetMatchesViewerMarkerType, SIGNAL(currentRowChanged(int)), this, SIGNAL(markerTypeChange(int)));
+  connect(mSpinBoxSelectMatchesViewerMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(selectedMarkerWidthChange(int)));
+  connect(mLineEditSelectMatchesViewerMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(selectedMarkerColorChange(QString)));
   connect(mPushButtonSelectMatchesViewerMarkerColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonSelectMatchViewerMarkerColorClicked()));
 
 }

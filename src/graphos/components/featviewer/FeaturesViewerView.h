@@ -57,7 +57,7 @@ public:
    * \brief setPoints
    * \param[in] keyPoints Keypoints
    */
-  virtual void setKeyPoints(const std::vector<QPointF> &keyPoints) = 0;
+  virtual void setKeyPoints(const std::vector<std::tuple<QPointF, float, float>> &keyPoints) = 0;
 
   virtual void setBGColor(const QString &bgColor) = 0;
   virtual void setSelectedMarkerStyle(const QString &color, int width) = 0;

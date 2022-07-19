@@ -46,35 +46,23 @@ SettingsPresenterImp::SettingsPresenterImp(SettingsView *view,
 
 void SettingsPresenterImp::open()
 {
-  QStringList languages = mModel->languages();
-  QStringList langs;
-  mLang.clear();
 
-  for (int i = 0; i < languages.size(); ++i) {
-    QString lang_code = languages[i];
-    lang_code.truncate(lang_code.lastIndexOf('.'));
-    lang_code.remove(0, lang_code.indexOf('_') + 1);
-    QString lang_name = QLocale::languageToString(QLocale(lang_code).language());
-    langs.push_back(lang_name);
-    mLang[lang_name] = lang_code;
-  }
-
-  mView->setLanguages(langs);
+  setLanguageSettings();
 
   mView->setHistoryMaxSize(mModel->historyMaxSize());
   mView->setUseCuda(mModel->useCuda() && mModel->checkDevice());
   mView->setCudaEnabled(mModel->checkDevice());
-//#ifdef HAVE_CUDA
-//  mView->setCudaEnabled(true);
-//#else
-//  mView->setCudaEnabled(false);
-//#endif //HAVE_CUDA
+
+  setKeypointsViewerSettings();
+  setMatchesViewerSettings();
 
   mView->exec();
 }
 
 void SettingsPresenterImp::setFeatureViewer(FeatureViewerSettingsWidget *widget)
 {
+  mFeatureViewerSettingsWidget = widget;
+
   mView->addWidget(widget);
 
   connect(widget, &FeatureViewerSettingsWidget::backgroundColorChange, mModel, &SettingsModel::setKeypointsViewerBGColor);
@@ -89,17 +77,65 @@ void SettingsPresenterImp::setFeatureViewer(FeatureViewerSettingsWidget *widget)
 
 void SettingsPresenterImp::setMatchesViewer(MatchViewerSettingsWidget *widget)
 {
+  mMatchViewerSettingsWidget = widget;
+
   mView->addWidget(widget);
 
-  connect(widget, &MatchViewerSettingsWidget::matchesViewerBGColorChange, mModel, &SettingsModel::setMatchesViewerBGColor);
-  connect(widget, &MatchViewerSettingsWidget::matchesViewerMarkerTypeChange, mModel, &SettingsModel::setMatchesViewerMarkerType);
-  connect(widget, &MatchViewerSettingsWidget::matchesViewerMarkerSizeChange, mModel, &SettingsModel::setMatchesViewerMarkerSize);
-  connect(widget, &MatchViewerSettingsWidget::matchesViewerMarkerWidthChange, mModel, &SettingsModel::setMatchesViewerMarkerWidth);
-  connect(widget, &MatchViewerSettingsWidget::matchesViewerMarkerColorChange, mModel, &SettingsModel::setMatchesViewerMarkerColor);
-  connect(widget, &MatchViewerSettingsWidget::selectMatchesViewerMarkerWidthChange, mModel, &SettingsModel::setMatchesViewerSelectMarkerWidth);
-  connect(widget, &MatchViewerSettingsWidget::selectMatchesViewerMarkerColorChange, mModel, &SettingsModel::setMatchesViewerSelectMarkerColor);
-  connect(widget, &MatchViewerSettingsWidget::matchesViewerLineWidthChange, mModel, &SettingsModel::setMatchesViewerLineWidth);
-  connect(widget, &MatchViewerSettingsWidget::matchesViewerLineColorChange, mModel, &SettingsModel::setMatchesViewerLineColor);
+  connect(widget, &MatchViewerSettingsWidget::backgroundColorChange, mModel, &SettingsModel::setMatchesViewerBGColor);
+  connect(widget, &MatchViewerSettingsWidget::markerTypeChange, mModel, &SettingsModel::setMatchesViewerMarkerType);
+  connect(widget, &MatchViewerSettingsWidget::markerSizeChange, mModel, &SettingsModel::setMatchesViewerMarkerSize);
+  connect(widget, &MatchViewerSettingsWidget::markerWidthChange, mModel, &SettingsModel::setMatchesViewerMarkerWidth);
+  connect(widget, &MatchViewerSettingsWidget::markerColorChange, mModel, &SettingsModel::setMatchesViewerMarkerColor);
+  connect(widget, &MatchViewerSettingsWidget::selectedMarkerWidthChange, mModel, &SettingsModel::setMatchesViewerSelectMarkerWidth);
+  connect(widget, &MatchViewerSettingsWidget::selectedMarkerColorChange, mModel, &SettingsModel::setMatchesViewerSelectMarkerColor);
+  connect(widget, &MatchViewerSettingsWidget::lineWidthChange, mModel, &SettingsModel::setMatchesViewerLineWidth);
+  connect(widget, &MatchViewerSettingsWidget::lineColorChange, mModel, &SettingsModel::setMatchesViewerLineColor);
+}
+
+void SettingsPresenterImp::setLanguageSettings()
+{
+  QStringList languages = mModel->languages();
+  QStringList langs;
+  mLang.clear();
+
+  for(int i = 0; i < languages.size(); ++i) {
+    QString lang_code = languages[i];
+    lang_code.truncate(lang_code.lastIndexOf('.'));
+    lang_code.remove(0, lang_code.indexOf('_') + 1);
+    QString lang_name = QLocale::languageToString(QLocale(lang_code).language());
+    langs.push_back(lang_name);
+    mLang[lang_name] = lang_code;
+  }
+
+  mView->setLanguages(langs);
+}
+
+void SettingsPresenterImp::setKeypointsViewerSettings()
+{
+  if(mFeatureViewerSettingsWidget) {
+    mFeatureViewerSettingsWidget->setBackgroundColor(mModel->keypointsViewerBGColor());
+    mFeatureViewerSettingsWidget->setMarkerType(mModel->keypointsViewerMarkerType());
+    mFeatureViewerSettingsWidget->setMarkerSize(mModel->keypointsViewerMarkerSize());
+    mFeatureViewerSettingsWidget->setMarkerWidth(mModel->keypointsViewerMarkerWidth());
+    mFeatureViewerSettingsWidget->setMarkerColor(mModel->keypointsViewerMarkerColor());
+    mFeatureViewerSettingsWidget->setSelectedMarkerColor(mModel->keypointsViewerSelectMarkerColor());
+    mFeatureViewerSettingsWidget->setSelectedMarkerWidth(mModel->keypointsViewerSelectMarkerWidth());
+  }
+}
+
+void SettingsPresenterImp::setMatchesViewerSettings()
+{
+  if(mMatchViewerSettingsWidget) {
+    mMatchViewerSettingsWidget->setBackgroundColor(mModel->matchesViewerBGColor());
+    mMatchViewerSettingsWidget->setMarkerType(mModel->matchesViewerMarkerType());
+    mMatchViewerSettingsWidget->setMarkerSize(mModel->matchesViewerMarkerSize());
+    mMatchViewerSettingsWidget->setMarkerWidth(mModel->matchesViewerMarkerWidth());
+    mMatchViewerSettingsWidget->setMarkerColor(mModel->matchesViewerMarkerColor());
+    mMatchViewerSettingsWidget->setSelectedMarkerWidth(mModel->matchesViewerSelectMarkerWidth());
+    mMatchViewerSettingsWidget->setSelectedMarkerColor(mModel->matchesViewerSelectMarkerColor());
+    mMatchViewerSettingsWidget->setLineColor(mModel->matchesViewerLineColor());
+    mMatchViewerSettingsWidget->setLineWidth(mModel->matchesViewerLineWidth());
+  }
 }
 
 void SettingsPresenterImp::init()

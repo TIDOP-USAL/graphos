@@ -41,7 +41,7 @@ SettingsImp::SettingsImp()
     mHistoyMaxSize(20),
     mImageViewerBGcolor("#dcdcdc"),
     mKeypointViewerBGColor("#dcdcdc"),
-    mKeypointsViewerMarkerType(0),
+    mKeypointsViewerMarkerType(2),
     mKeypointViewerMarkerSize(20),
     mKeypointViewerMarkerWidth(2),
     mKeypointViewerMarkerColor("#00aa00"),

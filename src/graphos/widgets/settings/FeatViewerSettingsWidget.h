@@ -46,23 +46,23 @@ public:
   FeatureViewerSettingsWidget(QWidget *parent = nullptr);
   virtual ~FeatureViewerSettingsWidget() = default;
   
-  QString keypointsViewerBGColor() const;
-  int keypointsViewerMarkerType() const;
-  int keypointsViewerMarkerSize() const;
-  int keypointsViewerMarkerWidth() const;
-  QString keypointsViewerMarkerColor() const;
-  int selectKeypointsViewerMarkerWidth() const;
-  QString selectKeypointsViewerMarkerColor() const;
+  QString backgroundColor() const;
+  int markerType() const;
+  int markerSize() const;
+  int markerWidth() const;
+  QString markerColor() const;
+  int selectedMarkerWidth() const;
+  QString selectedMarkerColor() const;
   
 public slots:
 
-  void setKeypointsViewerBGColor(const QString &color);
-  void setKeypointsViewerMarkerType(int type);
-  void setKeypointsViewerMarkerSize(int size);
-  void setKeypointsViewerMarkerWidth(int width);
-  void setKeypointsViewerMarkerColor(const QString &color);
-  void setSelectKeypointsViewerMarkerWidth(int width);
-  void setSelectKeypointsViewerMarkerColor(const QString &color);
+  void setBackgroundColor(const QString &color);
+  void setMarkerType(int type);
+  void setMarkerSize(int size);
+  void setMarkerWidth(int width);
+  void setMarkerColor(const QString &color);
+  void setSelectedMarkerWidth(int width);
+  void setSelectedMarkerColor(const QString &color);
 
 signals:
   
@@ -78,9 +78,9 @@ public slots:
 
 protected slots:
 
-  void onPushButtonKeypointViewerBGColorClicked();
-  void onPushButtonKeypointViewerMarkerColorClicked();
-  void onPushButtonSelectKeypointViewerMarkerColorClicked();
+  void onPushButtonBackgroundColorClicked();
+  void onPushButtonMarkerColorClicked();
+  void onPushButtonSelectedMarkerColorClicked();
   
 // GraphosWidgetView interface
 

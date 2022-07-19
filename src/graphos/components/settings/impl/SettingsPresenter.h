@@ -45,6 +45,12 @@ public:
                        SettingsModel *model);
   ~SettingsPresenterImp() override = default;
 
+private:
+
+  void setLanguageSettings();
+  void setKeypointsViewerSettings();
+  void setMatchesViewerSettings();
+
 // Presenter interface
 
 public slots:
@@ -72,7 +78,8 @@ protected:
   SettingsView *mView;
   SettingsModel *mModel;
   std::map<QString, QString> mLang;
-
+  FeatureViewerSettingsWidget *mFeatureViewerSettingsWidget;
+  MatchViewerSettingsWidget *mMatchViewerSettingsWidget;
 };
 
 

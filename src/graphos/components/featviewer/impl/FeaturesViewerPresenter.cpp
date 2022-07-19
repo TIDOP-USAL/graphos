@@ -98,7 +98,7 @@ void FeaturesViewerPresenterImp::loadKeypoints(size_t imageId)
 {
   try	{
 
-    std::vector<QPointF> keypoints = mModel->loadKeypoints(imageId);
+    auto keypoints = mModel->loadKeypoints(imageId);
     mView->setKeyPoints(keypoints);
 
   } catch (const std::exception &e) 	{
