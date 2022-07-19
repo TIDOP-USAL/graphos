@@ -30,6 +30,7 @@ namespace graphos
 {
 
 class FeatureViewerSettingsWidget;
+class MatchViewerSettingsWidget;
 
 class SettingsPresenter
   : public Presenter
@@ -46,6 +47,7 @@ public slots:
 
   virtual void setLanguage(const QString &language) = 0;
   virtual void setFeatureViewer(FeatureViewerSettingsWidget *widget) = 0;
+  virtual void setMatchesViewer(MatchViewerSettingsWidget *widget)  = 0;
   virtual void save() = 0;
   virtual void discart() = 0;
 

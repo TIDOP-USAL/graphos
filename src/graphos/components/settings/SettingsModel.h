@@ -148,6 +148,17 @@ public slots:
   virtual void setKeypointsViewerSelectMarkerWidth(int width) = 0;
   virtual void setKeypointsViewerSelectMarkerColor(const QString &color) = 0;
 
+
+  virtual void setMatchesViewerBGColor(const QString &color) = 0;
+  virtual void setMatchesViewerMarkerType(int type) = 0;
+  virtual void setMatchesViewerMarkerSize(int size) = 0;
+  virtual void setMatchesViewerMarkerWidth(int width) = 0;
+  virtual void setMatchesViewerMarkerColor(const QString &color) = 0;
+  virtual void setMatchesViewerSelectMarkerWidth(int width) = 0;
+  virtual void setMatchesViewerSelectMarkerColor(const QString &color) = 0;
+  virtual void setMatchesViewerLineColor(const QString &color) = 0;
+  virtual void setMatchesViewerLineWidth(int width) = 0;
+
 signals:
 
   void unsavedChanges(bool);

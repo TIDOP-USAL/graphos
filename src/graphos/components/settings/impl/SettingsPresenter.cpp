@@ -26,6 +26,7 @@
 #include "graphos/components/settings/SettingsModel.h"
 #include "graphos/components/settings/SettingsView.h"
 #include "graphos/widgets/settings/FeatViewerSettingsWidget.h"
+#include "graphos/widgets/settings/MatchViewerSettingsWidget.h"
 
 #include <QLocale>
 
@@ -84,6 +85,21 @@ void SettingsPresenterImp::setFeatureViewer(FeatureViewerSettingsWidget *widget)
   connect(widget, &FeatureViewerSettingsWidget::selectedMarkerWidthChange, mModel, &SettingsModel::setKeypointsViewerSelectMarkerWidth);
   connect(widget, &FeatureViewerSettingsWidget::selectedMarkerColorChange, mModel, &SettingsModel::setKeypointsViewerSelectMarkerColor);
 
+}
+
+void SettingsPresenterImp::setMatchesViewer(MatchViewerSettingsWidget *widget)
+{
+  mView->addWidget(widget);
+
+  connect(widget, &MatchViewerSettingsWidget::matchesViewerBGColorChange, mModel, &SettingsModel::setMatchesViewerBGColor);
+  connect(widget, &MatchViewerSettingsWidget::matchesViewerMarkerTypeChange, mModel, &SettingsModel::setMatchesViewerMarkerType);
+  connect(widget, &MatchViewerSettingsWidget::matchesViewerMarkerSizeChange, mModel, &SettingsModel::setMatchesViewerMarkerSize);
+  connect(widget, &MatchViewerSettingsWidget::matchesViewerMarkerWidthChange, mModel, &SettingsModel::setMatchesViewerMarkerWidth);
+  connect(widget, &MatchViewerSettingsWidget::matchesViewerMarkerColorChange, mModel, &SettingsModel::setMatchesViewerMarkerColor);
+  connect(widget, &MatchViewerSettingsWidget::selectMatchesViewerMarkerWidthChange, mModel, &SettingsModel::setMatchesViewerSelectMarkerWidth);
+  connect(widget, &MatchViewerSettingsWidget::selectMatchesViewerMarkerColorChange, mModel, &SettingsModel::setMatchesViewerSelectMarkerColor);
+  connect(widget, &MatchViewerSettingsWidget::matchesViewerLineWidthChange, mModel, &SettingsModel::setMatchesViewerLineWidth);
+  connect(widget, &MatchViewerSettingsWidget::matchesViewerLineColorChange, mModel, &SettingsModel::setMatchesViewerLineColor);
 }
 
 void SettingsPresenterImp::init()

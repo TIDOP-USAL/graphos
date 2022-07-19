@@ -54,6 +54,16 @@ public:
   int selectKeypointsViewerMarkerWidth() const;
   QString selectKeypointsViewerMarkerColor() const;
   
+public slots:
+
+  void setKeypointsViewerBGColor(const QString &color);
+  void setKeypointsViewerMarkerType(int type);
+  void setKeypointsViewerMarkerSize(int size);
+  void setKeypointsViewerMarkerWidth(int width);
+  void setKeypointsViewerMarkerColor(const QString &color);
+  void setSelectKeypointsViewerMarkerWidth(int width);
+  void setSelectKeypointsViewerMarkerColor(const QString &color);
+
 signals:
   
   void backgroundColorChange(QString);

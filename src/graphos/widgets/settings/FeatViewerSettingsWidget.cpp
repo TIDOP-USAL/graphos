@@ -79,6 +79,48 @@ QString FeatureViewerSettingsWidget::selectKeypointsViewerMarkerColor() const
   return mLineEditSelectKeypointViewerMarkerColor->text();
 }
 
+void FeatureViewerSettingsWidget::setKeypointsViewerBGColor(const QString &color)
+{
+  const QSignalBlocker blockerKeypointViewerBGColor(mLineEditKeypointViewerBGColor);
+  mLineEditKeypointViewerBGColor->setText(color);
+}
+
+void FeatureViewerSettingsWidget::setKeypointsViewerMarkerType(int type)
+{
+  const QSignalBlocker blockerKeypointsMarker(mListWidgetKeypointsViewerMarkerType);
+  mListWidgetKeypointsViewerMarkerType->setCurrentRow(type);
+}
+
+void FeatureViewerSettingsWidget::setKeypointsViewerMarkerSize(int size)
+{
+  const QSignalBlocker blocker(mSpinBoxKeypointViewerMarkerSize);
+  mSpinBoxKeypointViewerMarkerSize->setValue(size);
+}
+
+void FeatureViewerSettingsWidget::setKeypointsViewerMarkerWidth(int width)
+{
+  const QSignalBlocker blockerKeypointViewerWidth(mSpinBoxKeypointViewerMarkerWidth);
+  mSpinBoxKeypointViewerMarkerWidth->setValue(width);
+}
+
+void FeatureViewerSettingsWidget::setKeypointsViewerMarkerColor(const QString &color)
+{
+  const QSignalBlocker blockerKeypointMarkerColor(mLineEditKeypointViewerMarkerColor);
+  mLineEditKeypointViewerMarkerColor->setText(color);
+}
+
+void FeatureViewerSettingsWidget::setSelectKeypointsViewerMarkerWidth(int width)
+{
+  const QSignalBlocker blockerSelectKeypointViewerWidth(mSpinBoxSelectKeypointViewerMarkerWidth);
+  mSpinBoxSelectKeypointViewerMarkerWidth->setValue(width);
+}
+
+void FeatureViewerSettingsWidget::setSelectKeypointsViewerMarkerColor(const QString &color)
+{
+  const QSignalBlocker blockerSelectKeypointViewerColor(mLineEditSelectKeypointViewerMarkerColor);
+  mLineEditSelectKeypointViewerMarkerColor->setText(color);
+}
+
 void FeatureViewerSettingsWidget::onPushButtonKeypointViewerBGColorClicked()
 {
   QColor color = QColorDialog::getColor(QColor(mLineEditKeypointViewerBGColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
@@ -107,7 +149,7 @@ void FeatureViewerSettingsWidget::update()
 
 void FeatureViewerSettingsWidget::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("SettingsView", "Feature viewer", nullptr));
+  this->setWindowTitle(QApplication::translate("FeatureViewerSettingsWidget", "Feature viewer", nullptr));
 }
 
 void FeatureViewerSettingsWidget::clear()

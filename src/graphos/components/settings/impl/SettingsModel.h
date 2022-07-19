@@ -95,6 +95,16 @@ public slots:
   void setKeypointsViewerSelectMarkerWidth(int width) override;
   void setKeypointsViewerSelectMarkerColor(const QString &color) override;
 
+  void setMatchesViewerBGColor(const QString &color) override;
+  void setMatchesViewerMarkerType(int type) override;
+  void setMatchesViewerMarkerSize(int size) override;
+  void setMatchesViewerMarkerWidth(int width) override;
+  void setMatchesViewerMarkerColor(const QString &color) override;
+  void setMatchesViewerSelectMarkerWidth(int width) override;
+  void setMatchesViewerSelectMarkerColor(const QString &color) override;
+  void setMatchesViewerLineColor(const QString &color) override;
+  void setMatchesViewerLineWidth(int width) override;
+
 // Model interface
 
 private:

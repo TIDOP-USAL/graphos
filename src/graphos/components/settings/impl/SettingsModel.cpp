@@ -271,6 +271,61 @@ void SettingsModelImp::setKeypointsViewerSelectMarkerColor(const QString &color)
   emit unsavedChanges(true);
 }
 
+void SettingsModelImp::setMatchesViewerBGColor(const QString &color)
+{
+  mSettings->setMatchesViewerBGColor(color);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setMatchesViewerMarkerType(int type)
+{
+  mSettings->setMatchesViewerMarkerType(type);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setMatchesViewerMarkerSize(int size)
+{
+  mSettings->setMatchesViewerMarkerSize(size);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setMatchesViewerMarkerWidth(int width)
+{
+  mSettings->setMatchesViewerMarkerWidth(width);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setMatchesViewerMarkerColor(const QString &color)
+{
+  mSettings->setMatchesViewerMarkerColor(color);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setMatchesViewerSelectMarkerWidth(int width)
+{
+  mSettings->setMatchesViewerSelectMarkerWidth(width);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setMatchesViewerSelectMarkerColor(const QString &color)
+{
+  mSettings->setMatchesViewerSelectMarkerColor(color);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setMatchesViewerLineColor(const QString &color)
+{
+  mSettings->setMatchesViewerLineColor(color);
+  emit unsavedChanges(true);
+}
+
+void SettingsModelImp::setMatchesViewerLineWidth(int width)
+{
+  mSettings->setMatchesViewerLineWidth(width);
+  emit unsavedChanges(true);
+}
+
+
 void SettingsModelImp::init()
 {
   read();

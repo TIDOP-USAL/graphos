@@ -63,7 +63,7 @@ public slots:
   void setLanguage(const QString &language) override;
 
   void setFeatureViewer(FeatureViewerSettingsWidget *widget) override;
-
+  void setMatchesViewer(MatchViewerSettingsWidget *widget) override;
   void save() override;
   void discart() override;
 
