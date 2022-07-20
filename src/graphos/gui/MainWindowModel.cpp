@@ -27,21 +27,29 @@
 #include "graphos/core/sfm/orientationcolmap.h"
 
 #include <tidop/img/imgreader.h>
-//#include <tidop/img/metadata.h>
-//#include <tidop/math/angles.h>
 
-
-
-
+#include <QSettings>
 
 namespace graphos
 {
 
 MainWindowModel::MainWindowModel(Project *project)
   : mProject(project),
-    bUnsavedChanges(false)
+    mSettings(new QSettings(QSettings::IniFormat,
+              QSettings::UserScope,
+              qApp->organizationName(),
+              qApp->applicationName())),
+  bUnsavedChanges(false)
 {
   this->init();
+}
+
+MainWindowModel::~MainWindowModel()
+{
+  if(mSettings) {
+    delete mSettings;
+    mSettings = nullptr;
+  }
 }
 
 QString MainWindowModel::projectName() const
@@ -153,6 +161,11 @@ const std::unordered_map<size_t, CameraPose> &MainWindowModel::poses() const
 QString MainWindowModel::denseModel() const
 {
   return mProject->denseModel();
+}
+
+QString MainWindowModel::graphicViewerBackgroundColor() const
+{
+  return mSettings->value("ImageViewer/BackgroundColor", "#dcdcdc").toString();
 }
 
 bool MainWindowModel::checkUnsavedChanges() const

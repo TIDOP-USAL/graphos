@@ -54,27 +54,27 @@ MatchViewerModelImp::~MatchViewerModelImp()
   }
 }
 
-QString MatchViewerModelImp::viewerBGColor() const
+QString MatchViewerModelImp::backgroundColor() const
 {
-  return mSettings->value("MatchesViewer/BGColor", "#dcdcdc").toString();
+  return mSettings->value("MatchesViewer/BackgroundColor", "#dcdcdc").toString();
 }
 
-int MatchViewerModelImp::viewerMarkerType() const
+int MatchViewerModelImp::markerType() const
 {
   return mSettings->value("MatchesViewer/MarkerType", 1).toInt();
 }
 
-int MatchViewerModelImp::viewerMarkerSize() const
+int MatchViewerModelImp::markerSize() const
 {
   return mSettings->value("MatchesViewer/MarkerSize", 20).toInt();
 }
 
-int MatchViewerModelImp::viewerMarkerWidth() const
+int MatchViewerModelImp::markerWidth() const
 {
   return mSettings->value("MatchesViewer/MarkerWidth", 2).toInt();
 }
 
-QString MatchViewerModelImp::viewerMarkerColor() const
+QString MatchViewerModelImp::markerColor() const
 {
   return mSettings->value("MatchesViewer/MarkerColor", "#00aa00").toString();
 }
@@ -84,17 +84,17 @@ int MatchViewerModelImp::viewerSelectMarkerWidth() const
   return mSettings->value("MatchesViewer/SelectMarkerWidth", 2).toInt();
 }
 
-QString MatchViewerModelImp::viewerSelectMarkerColor() const
+QString MatchViewerModelImp::selectedMarkerColor() const
 {
   return mSettings->value("MatchesViewer/SelectMarkerColor", "#e5097e").toString();
 }
 
-QString MatchViewerModelImp::viewerLineColor() const
+QString MatchViewerModelImp::lineColor() const
 {
   return mSettings->value("MatchesViewer/LineColor", "#0000ff").toString();
 }
 
-int MatchViewerModelImp::viewerLineWidth() const
+int MatchViewerModelImp::lineWidth() const
 {
   return mSettings->value("MatchesViewer/LineWidth", 2).toInt();
 }

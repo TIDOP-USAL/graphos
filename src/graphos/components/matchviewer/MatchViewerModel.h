@@ -44,15 +44,15 @@ public:
   MatchViewerModel(QObject *parent = nullptr) : Model(parent) {}
   virtual ~MatchViewerModel() = default;
 
-  virtual QString viewerBGColor() const = 0;
-  virtual int viewerMarkerType() const = 0;
-  virtual int viewerMarkerSize() const = 0;
-  virtual int viewerMarkerWidth() const = 0;
-  virtual QString viewerMarkerColor() const = 0;
+  virtual QString backgroundColor() const = 0;
+  virtual int markerType() const = 0;
+  virtual int markerSize() const = 0;
+  virtual int markerWidth() const = 0;
+  virtual QString markerColor() const = 0;
   virtual int viewerSelectMarkerWidth() const = 0;
-  virtual QString viewerSelectMarkerColor() const = 0;
-  virtual QString viewerLineColor() const = 0;
-  virtual int viewerLineWidth() const = 0;
+  virtual QString selectedMarkerColor() const = 0;
+  virtual QString lineColor() const = 0;
+  virtual int lineWidth() const = 0;
 
   virtual const std::unordered_map<size_t, Image> &images() const = 0;
   virtual Image image(size_t imageId) const = 0;

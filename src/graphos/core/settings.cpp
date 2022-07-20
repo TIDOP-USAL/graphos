@@ -344,10 +344,10 @@ void SettingsControllerImp::read(Settings &settings)
   //  }
   //}
 
-  settings.setImageViewerBGcolor(mSettingsController->value("ImageViewer/BGColor", settings.imageViewerBGcolor()).toString());
+  settings.setImageViewerBGcolor(mSettingsController->value("ImageViewer/BackgroundColor", settings.imageViewerBGcolor()).toString());
 
   /* Keypoints Viewer */
-  settings.setKeypointsViewerBGColor(mSettingsController->value("KeypointsViewer/BGColor", settings.keypointsViewerBGColor()).toString());
+  settings.setKeypointsViewerBGColor(mSettingsController->value("KeypointsViewer/BackgroundColor", settings.keypointsViewerBGColor()).toString());
   settings.setKeypointsViewerMarkerType(mSettingsController->value("KeypointsViewer/Type",  settings.keypointsViewerMarkerType()).toInt());
   settings.setKeypointsViewerMarkerSize(mSettingsController->value("KeypointsViewer/MarkerSize", settings.keypointsViewerMarkerSize()).toInt());
   settings.setKeypointsViewerMarkerWidth(mSettingsController->value("KeypointsViewer/MarkerWidth", settings.keypointsViewerMarkerWidth()).toInt());
@@ -356,7 +356,7 @@ void SettingsControllerImp::read(Settings &settings)
   settings.setKeypointsViewerSelectMarkerColor(mSettingsController->value("KeypointsViewer/SelectMarkerColor", settings.keypointsViewerSelectMarkerColor()).toString());
 
   /* Matches Viewer */
-  settings.setMatchesViewerBGColor(mSettingsController->value("MatchesViewer/BGColor", settings.matchesViewerBGColor()).toString());
+  settings.setMatchesViewerBGColor(mSettingsController->value("MatchesViewer/BackgroundColor", settings.matchesViewerBGColor()).toString());
   settings.setMatchesViewerMarkerType(mSettingsController->value("MatchesViewer/MarkerType",  settings.matchesViewerMarkerType()).toInt());
   settings.setMatchesViewerMarkerSize(mSettingsController->value("MatchesViewer/MarkerSize", settings.matchesViewerMarkerSize()).toInt());
   settings.setMatchesViewerMarkerWidth(mSettingsController->value("MatchesViewer/MarkerWidth", settings.matchesViewerMarkerWidth()).toInt());
@@ -380,10 +380,10 @@ void SettingsControllerImp::write(const Settings &settings)
   mSettingsController->setValue("HISTORY/MaxSize", settings.historyMaxSize());
   //mSettingsController->setValue("HISTORY/RecentProjects", settings.history());
 
-  mSettingsController->setValue("ImageViewer/BGColor", settings.imageViewerBGcolor());
+  mSettingsController->setValue("ImageViewer/BackgroundColor", settings.imageViewerBGcolor());
 
   /* Keypoints Viewer */
-  mSettingsController->setValue("KeypointsViewer/BGColor", settings.keypointsViewerBGColor());
+  mSettingsController->setValue("KeypointsViewer/BackgroundColor", settings.keypointsViewerBGColor());
   mSettingsController->setValue("KeypointsViewer/Type",  settings.keypointsViewerMarkerType());
   mSettingsController->setValue("KeypointsViewer/MarkerSize", settings.keypointsViewerMarkerSize());
   mSettingsController->setValue("KeypointsViewer/MarkerWidth", settings.keypointsViewerMarkerWidth());
@@ -392,7 +392,7 @@ void SettingsControllerImp::write(const Settings &settings)
   mSettingsController->setValue("KeypointsViewer/SelectMarkerColor", settings.keypointsViewerSelectMarkerColor());
 
   /* Matches Viewer */
-  mSettingsController->setValue("MatchesViewer/BGColor", settings.matchesViewerBGColor());
+  mSettingsController->setValue("MatchesViewer/BackgroundColor", settings.matchesViewerBGColor());
   mSettingsController->setValue("MatchesViewer/MarkerType", settings.matchesViewerMarkerType());
   mSettingsController->setValue("MatchesViewer/MarkerSize", settings.matchesViewerMarkerSize());
   mSettingsController->setValue("MatchesViewer/MarkerWidth", settings.matchesViewerMarkerWidth());

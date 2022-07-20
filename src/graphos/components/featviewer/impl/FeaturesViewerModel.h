@@ -55,13 +55,13 @@ public:
   Image image(size_t imageId) const;
   std::vector<std::tuple<QPointF, float, float>> loadKeypoints(size_t imageId) override;
 
-  QString viewerBGColor() const override;
-  int viewerMarkerType() const override;
-  int viewerMarkerSize() const override;
-  int viewerMarkerWidth() const override;
-  QString viewerMarkerColor() const override;
-  int viewerSelectMarkerWidth() const override;
-  QString viewerSelectMarkerColor() const override;
+  QString backgroundColor() const override;
+  int markerType() const override;
+  int markerSize() const override;
+  int markerWidth() const override;
+  QString markerColor() const override;
+  int selectedMarkerWidth() const override;
+  QString selectedMarkerColor() const override;
 
 // Model interface
 

@@ -59,7 +59,7 @@ public:
    */
   virtual void setKeyPoints(const std::vector<std::tuple<QPointF, float, float>> &keyPoints) = 0;
 
-  virtual void setBGColor(const QString &bgColor) = 0;
+  virtual void setBackgroundColor(const QString &bgColor) = 0;
   virtual void setSelectedMarkerStyle(const QString &color, int width) = 0;
   virtual void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) = 0;
 

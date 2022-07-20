@@ -121,37 +121,37 @@ std::vector<std::tuple<QPointF, float, float>> FeaturesViewerModelImp::loadKeypo
   return keyPoints;
 }
 
-QString FeaturesViewerModelImp::viewerBGColor() const
+QString FeaturesViewerModelImp::backgroundColor() const
 {
-  return mSettings->value("KeypointsViewer/BGColor", "#dcdcdc").toString();
+  return mSettings->value("KeypointsViewer/BackgroundColor", "#dcdcdc").toString();
 }
 
-int FeaturesViewerModelImp::viewerMarkerType() const
+int FeaturesViewerModelImp::markerType() const
 {
   return mSettings->value("KeypointsViewer/Type", 1).toInt();
 }
 
-int FeaturesViewerModelImp::viewerMarkerSize() const
+int FeaturesViewerModelImp::markerSize() const
 {
   return mSettings->value("KeypointsViewer/MarkerSize", 20).toInt();
 }
 
-int FeaturesViewerModelImp::viewerMarkerWidth() const
+int FeaturesViewerModelImp::markerWidth() const
 {
   return mSettings->value("KeypointsViewer/MarkerWidth", 2).toInt();
 }
 
-QString FeaturesViewerModelImp::viewerMarkerColor() const
+QString FeaturesViewerModelImp::markerColor() const
 {
   return mSettings->value("KeypointsViewer/MarkerColor", "#00aa00").toString();
 }
 
-int FeaturesViewerModelImp::viewerSelectMarkerWidth() const
+int FeaturesViewerModelImp::selectedMarkerWidth() const
 {
   return mSettings->value("KeypointsViewer/SelectMarkerWidth", 2).toInt();
 }
 
-QString FeaturesViewerModelImp::viewerSelectMarkerColor() const
+QString FeaturesViewerModelImp::selectedMarkerColor() const
 {
   return mSettings->value("KeypointsViewer/SelectMarkerColor","#e5097e").toString();
 }

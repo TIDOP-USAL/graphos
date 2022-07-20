@@ -86,15 +86,15 @@ void MatchViewerPresenterImp::open()
 {
   mView->clear();
 
-  mView->setBGColor(mModel->viewerBGColor());
-  mView->setSelectedMarkerStyle(mModel->viewerSelectMarkerColor(),
+  mView->setBackgroundColor(mModel->backgroundColor());
+  mView->setSelectedMarkerStyle(mModel->selectedMarkerColor(),
                                 mModel->viewerSelectMarkerWidth());
-  mView->setMarkerStyle(mModel->viewerMarkerColor(),
-                        mModel->viewerMarkerWidth(),
-                        mModel->viewerMarkerType(),
-                        mModel->viewerMarkerSize());
-  mView->setLineStyle(mModel->viewerLineColor(),
-                      mModel->viewerLineWidth());
+  mView->setMarkerStyle(mModel->markerColor(),
+                        mModel->markerWidth(),
+                        mModel->markerType(),
+                        mModel->markerSize());
+  mView->setLineStyle(mModel->lineColor(),
+                      mModel->lineWidth());
 
   mView->show();
 

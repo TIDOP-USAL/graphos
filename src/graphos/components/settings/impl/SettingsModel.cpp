@@ -58,9 +58,9 @@ QStringList SettingsModelImp::languages() const
   QString langPath = QApplication::applicationDirPath();
   langPath.append("/translations");
 
-  QStringList lang_list = QDir(langPath).entryList(QStringList("photomatch_*.qm"));
+  QStringList lang_list = QDir(langPath).entryList(QStringList("graphos_*.qm"));
   if (lang_list.size() == 0)
-    lang_list.push_back("photomatch_en.qm");
+    lang_list.push_back("graphos_en.qm");
   return lang_list;
 }
 

@@ -373,7 +373,7 @@ void MatchViewerViewImp::setMatches(const std::vector<std::tuple<size_t, size_t,
   }
 }
 
-void MatchViewerViewImp::setBGColor(const QString &bgColor)
+void MatchViewerViewImp::setBackgroundColor(const QString &bgColor)
 {
   mGraphicsViewLeftImage->setBackgroundBrush(QBrush(QColor(bgColor)));
   mGraphicsViewRightImage->setBackgroundBrush(QBrush(QColor(bgColor)));

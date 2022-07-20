@@ -52,13 +52,13 @@ void FeaturesViewerPresenterImp::open()
 {
   mView->clear();
 
-  mView->setBGColor(mModel->viewerBGColor());
-  mView->setSelectedMarkerStyle(mModel->viewerSelectMarkerColor(),
-                                mModel->viewerSelectMarkerWidth());
-  mView->setMarkerStyle(mModel->viewerMarkerColor(),
-                        mModel->viewerMarkerWidth(),
-                        mModel->viewerMarkerType(),
-                        mModel->viewerMarkerSize());
+  mView->setBackgroundColor(mModel->backgroundColor());
+  mView->setSelectedMarkerStyle(mModel->selectedMarkerColor(),
+                                mModel->selectedMarkerWidth());
+  mView->setMarkerStyle(mModel->markerColor(),
+                        mModel->markerWidth(),
+                        mModel->markerType(),
+                        mModel->markerSize());
 
   mView->show();
 

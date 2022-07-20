@@ -51,15 +51,15 @@ public:
 
 public:
 
-  QString viewerBGColor() const override;
-  int viewerMarkerType() const override;
-  int viewerMarkerSize() const override;
-  int viewerMarkerWidth() const override;
-  QString viewerMarkerColor() const override;
+  QString backgroundColor() const override;
+  int markerType() const override;
+  int markerSize() const override;
+  int markerWidth() const override;
+  QString markerColor() const override;
   int viewerSelectMarkerWidth() const override;
-  QString viewerSelectMarkerColor() const override;
-  QString viewerLineColor() const override;
-  int viewerLineWidth() const override;
+  QString selectedMarkerColor() const override;
+  QString lineColor() const override;
+  int lineWidth() const override;
 
   const std::unordered_map<size_t, Image> &images() const override;
   Image image(size_t imageId) const override;

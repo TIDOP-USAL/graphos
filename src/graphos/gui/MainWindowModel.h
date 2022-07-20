@@ -31,6 +31,8 @@
 
 #include <QImage>
 
+class QSettings;
+
 namespace graphos
 {
 
@@ -42,6 +44,7 @@ class MainWindowModel
 public:
 
   explicit MainWindowModel(Project *project);
+  ~MainWindowModel();
 
   QString projectName() const;
   QString projectPath() const;
@@ -60,6 +63,8 @@ public:
   const std::unordered_map<size_t, CameraPose> &poses() const;
 
   QString denseModel() const;
+
+  QString graphicViewerBackgroundColor() const;
 
   bool checkUnsavedChanges() const;
   bool checkOldVersion(const QString &file) const;
@@ -84,6 +89,7 @@ public slots:
 protected:
 
   Project *mProject;
+  QSettings *mSettings;
   bool bUnsavedChanges;
 };
 

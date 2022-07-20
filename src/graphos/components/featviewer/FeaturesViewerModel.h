@@ -47,14 +47,13 @@ public:
   virtual Image image(size_t imageId) const = 0;
   virtual std::vector<std::tuple<QPointF, float, float>> loadKeypoints(size_t imageId) = 0;
 
-  virtual QString viewerBGColor() const = 0;
-  virtual int viewerMarkerType() const = 0;
-  virtual int viewerMarkerSize() const = 0;
-  virtual int viewerMarkerWidth() const = 0;
-  virtual QString viewerMarkerColor() const = 0;
-  virtual int viewerSelectMarkerWidth() const = 0;
-  virtual QString viewerSelectMarkerColor() const = 0;
-
+  virtual QString backgroundColor() const = 0;
+  virtual int markerType() const = 0;
+  virtual int markerSize() const = 0;
+  virtual int markerWidth() const = 0;
+  virtual QString markerColor() const = 0;
+  virtual int selectedMarkerWidth() const = 0;
+  virtual QString selectedMarkerColor() const = 0;
 
 };
 

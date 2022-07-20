@@ -332,7 +332,7 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<std::tuple<QPointF, f
 
 }
 
-void FeaturesViewerViewImp::setBGColor(const QString &bgColor)
+void FeaturesViewerViewImp::setBackgroundColor(const QString &bgColor)
 {
   mGraphicView->setBackgroundBrush(QBrush(QColor(bgColor)));
 }

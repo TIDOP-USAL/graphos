@@ -337,6 +337,7 @@ void MainWindowPresenter::openImage(size_t imageId)
       tab_widget->setCurrentIndex(tab_id);
     } else {
       GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+      graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
       graphic_viewer->setImage(mModel->readImage(imageId));
       tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(image).fileName());
       tab_widget->setCurrentIndex(tab_id);
