@@ -50,9 +50,8 @@ void CloseProjectComponent::init()
 {
   this->setName("Close Project");
   this->setMenu("file");
-  //this->setToolbar("file");
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-close-button.png"));
+  action()->setIcon(QIcon::fromTheme("close-project"));
 #ifndef QT_NO_SHORTCUT
   action()->setShortcut(tr("Ctrl+O"));
 #endif // QT_NO_SHORTCUT

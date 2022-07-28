@@ -52,7 +52,7 @@ void OpenProjectComponent::init()
   this->setMenu("file");
   this->setToolbar("file");
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-open.png"));
+  action()->setIcon(QIcon::fromTheme("open-project"));
 #ifndef QT_NO_SHORTCUT
   action()->setShortcut(tr("Ctrl+O"));
 #endif // QT_NO_SHORTCUT

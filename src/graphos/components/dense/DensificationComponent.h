@@ -47,10 +47,6 @@ private:
 
   void init();
 
-signals:
-
-  void densification_finished();
-
 // ComponentBase
 
 protected:

@@ -58,8 +58,8 @@ SettingsViewImp::SettingsViewImp(QWidget *parent)
     mButtonBox(new QDialogButtonBox(this)),
     bUnsaveChanges(false)
 {
-  this->initUI();
-  this->initSignalAndSlots();
+  SettingsViewImp::initUI();
+  SettingsViewImp::initSignalAndSlots();
 }
 
 SettingsViewImp::~SettingsViewImp()
@@ -76,16 +76,13 @@ void SettingsViewImp::onPushButtonImageViewerBGColorClicked()
 
 void SettingsViewImp::initUI()
 {
-  if (this->objectName().isEmpty())
-    this->setObjectName(QString("SettingsView"));
-
-  this->resize(750, 450);
-
-  this->setWindowIcon(QIcon(":/ico/img/InspectorIcon.ico"));
+  setObjectName(QString("SettingsView"));
+  //setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
+  resize(750, 450);
 
 
   QGridLayout *layout = new QGridLayout();
-  this->setLayout(layout);
+  setLayout(layout);
 
   mListWidget->setMaximumSize(QSize(250, 16777215));
   mListWidget->addItem(tr("General"));
@@ -184,17 +181,25 @@ void SettingsViewImp::initUI()
 
 void SettingsViewImp::initSignalAndSlots()
 {
-  connect(mListWidget, SIGNAL(currentRowChanged(int)), mStackedWidget, SLOT(setCurrentIndex(int)));
-  connect(mLanguages,       SIGNAL(currentTextChanged(QString)),  this, SIGNAL(languageChange(QString)));
-  connect(mHistoryMaxSize,  SIGNAL(valueChanged(int)),            this, SIGNAL(historyMaxSizeChange(int)));
-  connect(mLineEditImageViewerBGcolor,    SIGNAL(textChanged(QString)), this, SIGNAL(imageViewerBGColorChange(QString)));
-  connect(mPushButtonImageViewerBGcolor,  SIGNAL(clicked(bool)),        this, SLOT(onPushButtonImageViewerBGColorClicked()));
-  connect(mCheckBoxUseCuda,  SIGNAL(clicked(bool)),                this, SIGNAL(useCudaChange(bool)));
+  connect(mListWidget, &QListWidget::currentRowChanged, 
+          mStackedWidget, &QStackedWidget::setCurrentIndex);
+  connect(mLanguages, &QComboBox::currentTextChanged,
+          this, &SettingsViewImp::languageChange);
+  connect(mHistoryMaxSize, QOverload<int>::of(&QSpinBox::valueChanged),  
+          this, &SettingsViewImp::historyMaxSizeChange);
+  connect(mLineEditImageViewerBGcolor, &QLineEdit::textChanged, 
+          this, &SettingsViewImp::imageViewerBGColorChange);
+  connect(mPushButtonImageViewerBGcolor, &QAbstractButton::clicked,
+          this, &SettingsViewImp::onPushButtonImageViewerBGColorClicked);
+  connect(mCheckBoxUseCuda, &QAbstractButton::clicked,
+          this, &SettingsViewImp::useCudaChange);
 
-  connect(mButtonBox,                                    SIGNAL(accepted()),      this, SLOT(accept()));
-  connect(mButtonBox,                                    SIGNAL(rejected()),      this, SLOT(reject()));
-  connect(mButtonBox->button(QDialogButtonBox::Apply),   SIGNAL(clicked(bool)),   this, SIGNAL(applyChanges()));
-  connect(mButtonBox->button(QDialogButtonBox::Help),    SIGNAL(clicked(bool)),   this, SIGNAL(help()));
+  connect(mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+  connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+  connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,    
+          this, &SettingsView::applyChanges);
+  connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked,  
+          this, &DialogView::help);
 }
 
 void SettingsViewImp::clear()
@@ -215,7 +220,7 @@ void SettingsViewImp::update()
 
 void SettingsViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("SettingsView", "Settings", nullptr));
+  setWindowTitle(QApplication::translate("SettingsView", "Settings", nullptr));
   mLabelHistoryMaxSize->setText(QApplication::translate("SettingsView", "History Max Size", nullptr));
   mLabelLanguages->setText(QApplication::translate("SettingsView", "Language", nullptr));
   mLabelUseCuda->setText(QApplication::translate("SettingsView", "Use Cuda", nullptr));

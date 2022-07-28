@@ -50,9 +50,9 @@ void LoadFromVideoComponent::init()
 {
   this->setName(tr("Load from Video"));
   this->setMenu("workflow");
-  //this->setToolbar("tools");
+  this->setToolbar("workflow");
 
-  //action()->setIcon(QIcon(":/ico/24/img/material/24/icon.png"));
+  action()->setIcon(QIcon::fromTheme("video-folder"));
 }
 
 void LoadFromVideoComponent::createModel()
@@ -68,7 +68,10 @@ void LoadFromVideoComponent::createView()
 void LoadFromVideoComponent::createPresenter()
 {
   setPresenter(new LoadFromVideoPresenterImp(dynamic_cast<LoadFromVideoView *>(view()),
-                                               dynamic_cast<LoadFromVideoModel *>(model())));
+                                             dynamic_cast<LoadFromVideoModel *>(model())));
+
+  connect(dynamic_cast<LoadFromVideoPresenter *>(presenter()), &LoadFromVideoPresenter::frame_loaded,
+          this, &LoadFromVideoComponent::frame_loaded);
 }
 
 void LoadFromVideoComponent::createCommand()
@@ -82,9 +85,10 @@ void LoadFromVideoComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool process_run = app_status->isActive(AppStatus::Flag::processing);
-  action()->setEnabled(bProjectExists && !process_run);
+  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
+  bool processing = app_status->isActive(AppStatus::Flag::processing);
+  bool loading_images = app_status->isActive(AppStatus::Flag::loading_images);
+  action()->setEnabled(project_exists && !loading_images && !processing);
 }
 
 void LoadFromVideoComponent::onRunning()
@@ -100,7 +104,8 @@ void LoadFromVideoComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFinished();
-  //app_status->activeFlag(AppStatus::Flag::..., true);
+  
+  app_status->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void LoadFromVideoComponent::onFailed()
@@ -111,7 +116,6 @@ void LoadFromVideoComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   ProcessComponent::onFailed();
-  //app_status->activeFlag(AppStatus::Flag::..., false);
 }
 
 

@@ -27,7 +27,7 @@
 #include "graphos/components/loadfromvideo/LoadFromVideoModel.h"
 #include "graphos/core/project.h"
 
-class QSettings;
+//class QSettings;
 
 
 namespace graphos
@@ -48,12 +48,12 @@ public:
 
 public:
 
-  LoadFromVideoParameters *parameters() const override;
+  //LoadFromVideoParameters *parameters() const override;
 
 public slots:
 
-  void loadSettings() override;
-  void saveSettings() override;
+  //void loadSettings() override;
+  //void saveSettings() override;
 
 // Model interface
 
@@ -68,9 +68,9 @@ public slots:
 protected:
 
   Project *mProject;
-  QSettings *mSettings;
-  bool mReadSettings;
-  LoadFromVideoParameters *mParameters;
+  //QSettings *mSettings;
+  //bool mReadSettings;
+  //LoadFromVideoParameters *mParameters;
 };
 
 } // namespace graphos

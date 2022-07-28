@@ -47,11 +47,11 @@ MatchViewerComponent::~MatchViewerComponent()
 
 void MatchViewerComponent::init()
 {
-  this->setName("Match Viewer");
-  this->setMenu("tools");
-  this->setToolbar("tools");
+  setName("Match Viewer");
+  setMenu("tools");
+  setToolbar("tools");
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/view_match_24px.png"));
+  action()->setIcon(QIcon::fromTheme("matches-viewer"));
 }
 
 void MatchViewerComponent::openMatchesViewer(size_t imageId)

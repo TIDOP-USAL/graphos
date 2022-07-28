@@ -47,11 +47,11 @@ FeaturesViewerComponent::~FeaturesViewerComponent()
 
 void FeaturesViewerComponent::init()
 {
-  this->setName("Features Viewer");
-  this->setMenu("tools");
-  this->setToolbar("tools");
+  setName("Features Viewer");
+  setMenu("tools");
+  setToolbar("tools");
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/view_points_24px.png"));
+  action()->setIcon(QIcon::fromTheme("features-viewer"));
 }
 
 void FeaturesViewerComponent::openKeypointsViewer(size_t imageId)

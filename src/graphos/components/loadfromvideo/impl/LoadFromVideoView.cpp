@@ -28,10 +28,10 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QLabel>
-#include <QComboBox>
+#include <QLineEdit>
 #include <QLabel>
 #include <QSpinBox>
-
+#include <QFileDialog>
 
 namespace graphos
 {
@@ -58,18 +58,22 @@ void LoadFromVideoViewImp::initUI()
 
   mLabelVideo = new QLabel(this);
   gridLayout->addWidget(mLabelVideo, 0, 0, 1, 1);
-  mComboBoxVideo = new QComboBox(this);
-  gridLayout->addWidget(mComboBoxVideo, 0, 1, 1, 1);
+  mLineEditVideo = new QLineEdit(this);
+  gridLayout->addWidget(mLineEditVideo, 0, 1, 1, 1);
+  mPushButtonVideo = new QPushButton(this);
+  mPushButtonVideo->setMaximumSize(31, 28);
+  mPushButtonVideo->setText("...");
+  gridLayout->addWidget(mLineEditVideo, 0, 2, 1, 1);
+
   mLabelSkipFrames = new QLabel(this);
   gridLayout->addWidget(mLabelSkipFrames, 1, 0, 1, 1);
   mSpinBoxSkipFrames = new QSpinBox(this);
   gridLayout->addWidget(mSpinBoxSkipFrames, 1, 1, 1, 1);
 
-
   mButtonBox = new QDialogButtonBox(this);
   mButtonBox->setOrientation(Qt::Orientation::Horizontal);
   mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 7, 0, 1, 2);
+  gridLayout->addWidget(mButtonBox, 2, 0, 1, 2);
 
   this->retranslate();
   this->clear();
@@ -78,7 +82,20 @@ void LoadFromVideoViewImp::initUI()
 
 void LoadFromVideoViewImp::initSignalAndSlots()
 {
-  connect(mSpinBoxSkipFrames, QOverload<int>::of(&QSpinBox::valueChanged), this, &LoadFromVideoView::SkipFramesChanged);
+  connect(mLineEditVideo, &QLineEdit::textChanged, this, &LoadFromVideoViewImp::update);
+  connect(mPushButtonVideo, &QAbstractButton::clicked, [&]() {
+
+    QString file = QFileDialog::getOpenFileName(nullptr, tr("Open video"),
+                                                QDir::homePath(),
+                                                tr("Video file (*.*)"));
+
+    if(!file.isEmpty()) {
+      mLineEditVideo->setText(file);
+    }
+  });
+
+  connect(mSpinBoxSkipFrames, QOverload<int>::of(&QSpinBox::valueChanged), 
+          this, &LoadFromVideoView::skip_frames_changed);
 
   connect(mButtonBox,                                    &QDialogButtonBox::rejected, this, &QDialog::reject);
   connect(mButtonBox->button(QDialogButtonBox::Apply),   &QAbstractButton::clicked,   this, &LoadFromVideoView::run);
@@ -92,7 +109,6 @@ void LoadFromVideoViewImp::retranslate()
   mLabelVideo->setText(QApplication::translate("VideoView", "Video:"));
   mLabelSkipFrames->setText(QApplication::translate("SkipFramesView", "Skip Frames:"));
 
-  
   mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("LoadFromVideoView", "Cancel"));
   mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("LoadFromVideoView", "Run"));
   mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("LoadFromVideoView", "Help"));
@@ -107,12 +123,12 @@ void LoadFromVideoViewImp::update()
 {
 }
 
-QString LoadFromVideoViewImp::Video() const 
+QString LoadFromVideoViewImp::video() const 
 {
-  return mComboBoxVideo->currentText();
+  return mLineEditVideo->text();
 }
 
-int LoadFromVideoViewImp::SkipFrames() const 
+int LoadFromVideoViewImp::skipFrames() const 
 {
   return mSpinBoxSkipFrames->value();
 }
@@ -120,8 +136,8 @@ int LoadFromVideoViewImp::SkipFrames() const
 
 void LoadFromVideoViewImp::setVideo(const QString &Video) 
 {
-  const QSignalBlocker blocker(mComboBoxVideo);
-  mComboBoxVideo->setCurrentText(Video);
+  const QSignalBlocker blocker(mLineEditVideo);
+  mLineEditVideo->setText(Video);
 }
 
 void LoadFromVideoViewImp::setSkipFrames(int SkipFrames) 
@@ -133,5 +149,4 @@ void LoadFromVideoViewImp::setSkipFrames(int SkipFrames)
 
 
 } // namespace graphos
-
 

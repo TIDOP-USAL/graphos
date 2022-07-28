@@ -24,13 +24,11 @@
 
 #include "LoadFromVideoPresenter.h"
 
-#include "graphos/process/loadfromvideo/LoadFromVideoProcess.h"
-#include "graphos/core/LoadFromVideo.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoModel.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoView.h"
+//#include "graphos/components/loadfromvideo/impl/LoadFromVideoProcess.h"
 #include "graphos/core/utils.h"
-#include "graphos/components/HelpDialog.h"
 
 #include <tidop/core/defs.h>
 
@@ -38,7 +36,7 @@ namespace graphos
 {
 
 LoadFromVideoPresenterImp::LoadFromVideoPresenterImp(LoadFromVideoView *view,
-                                                         LoadFromVideoModel *model)
+                                                     LoadFromVideoModel *model)
   : LoadFromVideoPresenter(),
     mView(view),
     mModel(model),
@@ -53,29 +51,39 @@ LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp()
 
 }
 
-void LoadFromVideoPresenterImp::help()
+void LoadFromVideoPresenterImp::setImages(const QStringList &files)
 {
-  //if (mHelp){
-  //  TL_TODO("Añadir ayuda")
-  //  mHelp->setPage("");
-  //  mHelp->setModal(true);
-  //  mHelp->showMaximized();
+  //mImageFiles = files;
+}
+
+void LoadFromVideoPresenterImp::addImage(int imageId, int cameraId)
+{
+  //Image image = mImages[imageId];
+  //Camera camera = mCameras[cameraId];
+  //int camera_id = mModel->cameraID(camera);
+  //if(camera_id == 0)
+  //  camera_id = mModel->addCamera(camera);
+
+  //image.setCameraId(camera_id);
+  //mModel->addImage(image);
+
+  //QString crs_proj = mModel->projectCRS();
+  //QString crs_image = image.cameraPose().crs();
+  //if(crs_proj.isEmpty() && !crs_image.isEmpty()) {
+  //  mModel->setProjectCRS(crs_image);
   //}
+
+  //emit frame_loaded(image.id());
 }
 
 void LoadFromVideoPresenterImp::open()
 {
-  mModel->loadSettings();
-  LoadFromVideoParameters *parameters = mModel->parameters();
+  //mModel->loadSettings();
+  //LoadFromVideoParameters *parameters = mModel->parameters();
 
   /* Configure View here */
   
   mView->exec();
-}
-
-void LoadFromVideoPresenterImp::setHelp(HelpDialog *help)
-{
-  //mHelp = help;
 }
 
 void LoadFromVideoPresenterImp::init()
@@ -86,7 +94,9 @@ void LoadFromVideoPresenterImp::init()
 void LoadFromVideoPresenterImp::initSignalAndSlots()
 {
   connect(mView, &ProcessView::run,     this,   &ProcessPresenter::run);
-  connect(mView, &DialogView::help,     this,   &Presenter::help);
+  connect(mView, &DialogView::help, [&]() {
+    emit help("video.html");
+  });
 }
 
 void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
@@ -111,18 +121,18 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
 {
   std::unique_ptr<tl::Task> process;
   
-  std::shared_ptr<LoadFromVideoAlgorithm> algorithm = std::make_shared<LoadFromVideoAlgorithm>();
+  //std::shared_ptr<LoadFromVideoAlgorithm> algorithm = std::make_shared<LoadFromVideoAlgorithm>();
 
-  process = std::make_unique<LoadFromVideoProcess>(algorithm);
-  
-  if (progressHandler()){
-    progressHandler()->setRange(0, 0);
-    progressHandler()->setTitle("Computing LoadFromVideo...");
-    progressHandler()->setDescription("Computing LoadFromVideo...");
-  }
-  
-  mView->hide();
-  
+  //process = std::make_unique<LoadFromVideoProcess>(algorithm);
+  //
+  //if (progressHandler()){
+  //  progressHandler()->setRange(0, 0);
+  //  progressHandler()->setTitle("Computing LoadFromVideo...");
+  //  progressHandler()->setDescription("Computing LoadFromVideo...");
+  //}
+  //
+  //mView->hide();
+  //
   return process;
 }
 

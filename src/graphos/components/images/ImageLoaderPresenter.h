@@ -50,7 +50,7 @@ protected slots:
 
 signals:
 
-  void loadingImages(bool);
+  //void loading_images(bool);
   void image_loaded(size_t);
 };
 

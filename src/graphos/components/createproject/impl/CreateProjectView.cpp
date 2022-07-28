@@ -57,12 +57,12 @@ CreateProjectViewImp::CreateProjectViewImp(QWidget *parent)
 
 void CreateProjectViewImp::initUI()
 {
-  this->setObjectName(QString("CreateProjectView"));
-  this->setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
-  this->resize(450,300);
+  setObjectName(QString("CreateProjectView"));
+  //setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
+  resize(450,300);
 
   QGridLayout *layout = new QGridLayout();
-  this->setLayout(layout);
+  setLayout(layout);
 
   layout->addWidget(mLabelProjectName, 0, 0);
   layout->addWidget(mLineEditProjectName, 0, 1, 1, 2);

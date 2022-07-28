@@ -29,9 +29,9 @@
 
 class QDialogButtonBox;
 class QLabel;
-class QComboBox;
-class QLabel;
+class QLineEdit;
 class QSpinBox;
+class QPushButton;
 
 
 namespace graphos
@@ -52,13 +52,13 @@ public:
 
 public:
 
-  QString Video() const override;
-  int SkipFrames() const override;
+  QString video() const override;
+  int skipFrames() const override;
 
 public slots:
   
-  void setVideo(const QString &Video) override;
-  void setSkipFrames(int SkipFrames) override;
+  void setVideo(const QString &video) override;
+  void setSkipFrames(int skipFrames) override;
 
 // DialogView
 
@@ -79,7 +79,8 @@ private slots:
 protected:
 
   QLabel *mLabelVideo;
-  QComboBox *mComboBoxVideo;
+  QLineEdit *mLineEditVideo;
+  QPushButton *mPushButtonVideo;
   QLabel *mLabelSkipFrames;
   QSpinBox *mSpinBoxSkipFrames;
   QDialogButtonBox *mButtonBox;

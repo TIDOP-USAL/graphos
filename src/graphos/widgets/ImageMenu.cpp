@@ -42,21 +42,10 @@ ImageContextMenu::ImageContextMenu(QWidget *parent)
 
 void ImageContextMenu::init()
 {
-  QIcon iconZoomIn;
-  iconZoomIn.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-in.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomIn->setIcon(iconZoomIn);
-
-  QIcon iconZoomOut;
-  iconZoomOut.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-out.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomOut->setIcon(iconZoomOut);
-
-  QIcon iconZoomExtend;
-  iconZoomExtend.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-magnifying-glass-with-expand-sign.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomExtend->setIcon(iconZoomExtend);
-
-  QIcon iconZoom11;
-  iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoom11->setIcon(iconZoom11);
+  mActionZoomIn->setIcon(QIcon::fromTheme("zoom-in"));
+  mActionZoomOut->setIcon(QIcon::fromTheme("zoom-out"));
+  mActionZoomExtend->setIcon(QIcon::fromTheme("zoom-extend"));
+  mActionZoom11->setIcon(QIcon::fromTheme("zoom-to-actual-size"));
 
   this->addAction(mActionZoomIn);
   this->addAction(mActionZoomOut);

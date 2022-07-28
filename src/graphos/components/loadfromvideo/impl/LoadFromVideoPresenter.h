@@ -44,21 +44,19 @@ class LoadFromVideoPresenterImp
 public:
 
   LoadFromVideoPresenterImp(LoadFromVideoView *view,
-                              LoadFromVideoModel *model);
+                            LoadFromVideoModel *model);
   ~LoadFromVideoPresenterImp() override;
   
-// Presenter interface
+// ImageLoaderPresenter interface
 
 public slots:
 
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
+  void setImages(const QStringList &files) override;
 
-private:
+protected slots:
 
-  void init() override;
-  void initSignalAndSlots() override;
+  void addImage(int imageId, int cameraId) override;
+
 
 // ProcessPresenter interface
 
@@ -71,6 +69,17 @@ protected slots:
 public slots:
 
   void cancel() override;
+
+// Presenter interface
+
+public slots:
+
+  void open() override;
+
+private:
+
+  void init() override;
+  void initSignalAndSlots() override;
 
 private:
 

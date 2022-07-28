@@ -54,7 +54,7 @@ void DensificationComponent::init()
 
   createCommand();
 
-  action()->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
+  action()->setIcon(QIcon::fromTheme("dense"));
 }
 
 void DensificationComponent::createModel()
@@ -88,9 +88,6 @@ void DensificationComponent::update()
   bool dense_model_active = app_status->isActive(AppStatus::Flag::project_exists) && 
                             !app_status->isActive(AppStatus::Flag::processing) &&
                             app_status->isActive(AppStatus::Flag::oriented);
-
-  //if (!dense_model_active)
-  //  app_status->flagOff(AppStatus::Flag::dense_model);
 
   action()->setEnabled(dense_model_active);
 }

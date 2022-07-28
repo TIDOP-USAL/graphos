@@ -25,7 +25,7 @@
 #ifndef GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H
 #define GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 #include "graphos/core/process/ProcessPresenter.h"
 
 namespace graphos
@@ -42,6 +42,17 @@ public:
   LoadFromVideoPresenter() : ProcessPresenter() {}
   ~LoadFromVideoPresenter() override = default;
 
+public slots:
+
+  virtual void setImages(const QStringList &files) = 0;
+
+protected slots:
+
+  virtual void addImage(int imageId, int cameraId) = 0;
+
+signals:
+
+  void frame_loaded(size_t);
 };
 
 } // namespace graphos

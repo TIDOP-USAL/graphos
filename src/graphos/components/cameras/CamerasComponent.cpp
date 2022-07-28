@@ -50,8 +50,9 @@ void CamerasComponent::init()
 {
   this->setName("Cameras");
   this->setMenu("tools");
+  this->setToolbar("tools");
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-camera-outline-2.png"));
+  action()->setIcon(QIcon::fromTheme("cameras"));
 }
 
 void CamerasComponent::onUpdateCameras()

@@ -181,6 +181,7 @@ void MainWindowPresenter::openStartPage()
     id = tab->addTab(mStartPageWidget, mStartPageWidget->windowTitle());
     tab->setCurrentIndex(id);
     tab->setTabToolTip(id, mStartPageWidget->windowTitle());
+    tab->setTabIcon(id, QIcon::fromTheme("start-page"));
   }
 
   AppStatus *status = Application::instance().status();
@@ -342,6 +343,7 @@ void MainWindowPresenter::openImage(size_t imageId)
       tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(image).fileName());
       tab_widget->setCurrentIndex(tab_id);
       tab_widget->setTabToolTip(tab_id, image);
+      tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
 
       graphic_viewer->zoomExtend();
     }

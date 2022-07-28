@@ -49,13 +49,13 @@ UndistortImagesComponent::~UndistortImagesComponent()
 
 void UndistortImagesComponent::init()
 {
-  this->setName(tr("Undistort Images"));
-  this->setMenu("tools");
-  //this->setToolbar("tools");
+  setName(tr("Undistort Images"));
+  setMenu("tools");
+  //setToolbar("tools");
 
   createCommand();
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-panorama.png"));
+  action()->setIcon(QIcon::fromTheme("undistort"));
 }
 
 void UndistortImagesComponent::createModel()

@@ -54,7 +54,7 @@ void OrientationComponent::init()
 
   createCommand();
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-coordinate-system.png"));
+  action()->setIcon(QIcon::fromTheme("orientation"));
 }
 
 void OrientationComponent::createModel()
@@ -72,10 +72,6 @@ void OrientationComponent::createPresenter()
   setPresenter(new OrientationPresenterImp(dynamic_cast<OrientationView *>(view()), 
                                            dynamic_cast<OrientationModel *>(model())));
 
-  //connect(dynamic_cast<OrientationPresenter *>(presenter()),
-  //        &OrientationPresenter::orientation_finished, 
-  //        this, 
-  //        &OrientationComponent::orientation_finished);
   connect(dynamic_cast<OrientationPresenter *>(presenter()), 
           &OrientationPresenter::orientation_deleted, 
           this, 
@@ -97,9 +93,6 @@ void OrientationComponent::update()
   bool oriented_active = app_status->isActive(AppStatus::Flag::project_exists) &&
                          app_status->isActive(AppStatus::Flag::feature_matching) &&
                          !app_status->isActive(AppStatus::Flag::processing);
-  
-  //if (!oriented_active) 
-  //  app_status->flagOff(AppStatus::Flag::oriented);
   
   action()->setEnabled(oriented_active);
 }

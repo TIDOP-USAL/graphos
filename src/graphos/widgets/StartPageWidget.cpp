@@ -89,17 +89,13 @@ void StartPageWidget::initUI()
   verticalLayout->setContentsMargins(11, 11, 11, 11);
   verticalLayout->setContentsMargins(9, 9, 9, 9);
   mCommandLinkButtonNewProject = new QCommandLinkButton(layoutWidgetButtons);
-  QIcon icon;
-  icon.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mCommandLinkButtonNewProject->setIcon(icon);
+  mCommandLinkButtonNewProject->setIcon(QIcon::fromTheme("new-project"));
   mCommandLinkButtonNewProject->setIconSize(QSize(48, 48));
 
   verticalLayout->addWidget(mCommandLinkButtonNewProject);
 
   mCommandLinkButtonOpenProject = new QCommandLinkButton(layoutWidgetButtons);
-  QIcon icon1;
-  icon1.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-open.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mCommandLinkButtonOpenProject->setIcon(icon1);
+  mCommandLinkButtonOpenProject->setIcon(QIcon::fromTheme("open-project"));
   mCommandLinkButtonOpenProject->setIconSize(QSize(48, 48));
 
   verticalLayout->addWidget(mCommandLinkButtonOpenProject);
@@ -111,8 +107,7 @@ void StartPageWidget::initUI()
   verticalLayout->addWidget(line);
 
   mCommandLinkButtonSettings = new QCommandLinkButton(layoutWidgetButtons);
-  QIcon icon2;
-  icon2.addFile(QStringLiteral(":/ico/48/img/material/48/icons8-settings.png"), QSize(), QIcon::Normal, QIcon::Off);
+  QIcon icon2 = QIcon::fromTheme("settings");
   mCommandLinkButtonSettings->setIcon(icon2);
   mCommandLinkButtonSettings->setIconSize(QSize(48, 48));
 
@@ -151,9 +146,7 @@ void StartPageWidget::initUI()
   verticalLayout2->addWidget(mListWidgetRecentProjects);
 
   mCommandLinkButtonClearHistory = new QCommandLinkButton(layoutWidget2);
-  QIcon icon4;
-  icon4.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-delete-2.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mCommandLinkButtonClearHistory->setIcon(icon4);
+  mCommandLinkButtonClearHistory->setIcon(QIcon::fromTheme("delete-history"));
   mCommandLinkButtonClearHistory->setIconSize(QSize(24, 24));
 
   verticalLayout2->addWidget(mCommandLinkButtonClearHistory);

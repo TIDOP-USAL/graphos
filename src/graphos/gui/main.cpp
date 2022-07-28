@@ -102,7 +102,9 @@
 #ifdef GRAPHOS_HAVE_PROPERTIES
 #include "graphos/components/properties/PropertiesComponent.h"
 #endif // GRAPHOS_HAVE_PROPERTIES
-
+#ifdef GRAPHOS_HAVE_VIDEO_LOAD
+#include "graphos/components/loadfromvideo/LoadFromVideoComponent.h"
+#endif // GRAPHOS_HAVE_VIDEO_LOAD
 
 
 #include <tidop/core/console.h>
@@ -127,6 +129,8 @@ int main(int argc, char *argv[])
   app.setApplicationDisplayName("GRAPHOS");
   app.setApplicationVersion(GRAPHOS_VERSION);
   app.setOrganizationName("TIDOP");
+
+  QIcon::setThemeName("Material");
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
   CreateProjectComponent create_project_component(&app);
@@ -166,6 +170,10 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_IMAGE_LOAD
   ImageLoaderComponent image_loader_component(&app);
 #endif // GRAPHOS_HAVE_IMAGE_LOAD
+
+#ifdef GRAPHOS_HAVE_VIDEO_LOAD
+  LoadFromVideoComponent load_video_component(&app);
+#endif // GRAPHOS_HAVE_VIDEO_LOAD
 
 #ifdef GRAPHOS_HAVE_FEATEXTRACT
   FeatureExtractorComponent feature_extractor_component(&app);
@@ -296,12 +304,15 @@ int main(int argc, char *argv[])
     /* Workflow menu */
 
 #ifdef GRAPHOS_HAVE_IMAGE_LOAD
-    componentsManager.registerComponent(&image_loader_component,
-                                        ComponentsManager::Flags::separator_after);
+    componentsManager.registerComponent(&image_loader_component);
 #endif // GRAPHOS_HAVE_IMAGE_LOAD
 
+#ifdef GRAPHOS_HAVE_VIDEO_LOAD
+    componentsManager.registerComponent(&load_video_component);
+#endif // GRAPHOS_HAVE_VIDEO_LOAD
+
 #ifdef GRAPHOS_HAVE_FEATEXTRACT
-    componentsManager.registerComponent(&feature_extractor_component);
+    componentsManager.registerComponent(&feature_extractor_component, ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_FEATEXTRACT
 
 #ifdef GRAPHOS_HAVE_FEATMATCH

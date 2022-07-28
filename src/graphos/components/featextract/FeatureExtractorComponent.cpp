@@ -54,7 +54,7 @@ void FeatureExtractorComponent::init()
 
   createCommand();
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/features.png"));
+  action()->setIcon(QIcon::fromTheme("features"));
 }
 
 void FeatureExtractorComponent::createModel()

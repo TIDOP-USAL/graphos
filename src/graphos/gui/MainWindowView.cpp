@@ -214,6 +214,7 @@ void MainWindowView::addSeparatorToToolbar(Toolbar toolbar)
 
 void MainWindowView::setPropertiesWidget(QWidget *widget)
 {
+  ui->dockWidgetProperties->toggleViewAction()->setIcon(QIcon::fromTheme("properties"));
   ui->dockWidgetProperties->setWidget(widget);
 }
 
@@ -262,7 +263,7 @@ void MainWindowView::addImage(const QString &image, size_t imageId)
     if (itemImages == nullptr) {
       itemImages = new QTreeWidgetItem();
       itemImages->setText(0, tr("Images"));
-      itemImages->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-pictures-folder.png"));
+      itemImages->setIcon(0, QIcon::fromTheme("pictures-folder"));
       itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
       itemImages->setData(0, Qt::UserRole, graphos::images);
       itemProject->addChild(itemImages);
@@ -272,7 +273,7 @@ void MainWindowView::addImage(const QString &image, size_t imageId)
     /* Se añade el fotograma al árbol del proyecto */
     QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
     itemPhotogram->setText(0, QFileInfo(image).baseName());
-    itemPhotogram->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
+    itemPhotogram->setIcon(0, QIcon::fromTheme("image-file"));
     itemPhotogram->setToolTip(0, image);
     itemPhotogram->setData(0, Qt::UserRole, graphos::image);
     itemPhotogram->setData(0, Qt::UserRole+1, imageId);
@@ -634,7 +635,7 @@ void MainWindowView::setDSM(const QString &dsm)
     }
 
     itemDSM->setText(0, "DTM/DSM");
-    itemDSM->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-image-file.png"));
+    itemDSM->setIcon(0, QIcon::fromTheme("image-file"));
     itemDSM->setToolTip(0, dsm);
     itemDSM->setData(0, Qt::UserRole, graphos::dsm);
   }
@@ -911,6 +912,8 @@ void MainWindowView::initTabWidget()
 
 void MainWindowView::initThumbnailsTool()
 {
+  ui->dockWidgetThumb->toggleViewAction()->setIcon(QIcon::fromTheme("medium-icons"));
+
   QGridLayout *gridLayoutThumb = new QGridLayout(ui->dockWidgetThumbContents);
   gridLayoutThumb->setSpacing(6);
   gridLayoutThumb->setContentsMargins(11, 11, 11, 11);
@@ -921,6 +924,8 @@ void MainWindowView::initThumbnailsTool()
 
 void MainWindowView::initConsole()
 {
+  ui->dockWidgetConsole->toggleViewAction()->setIcon(QIcon::fromTheme("console"));
+
   QGridLayout *gridLayoutConsole = new QGridLayout(ui->dockWidgetContentsConsole);
   gridLayoutConsole->setSpacing(6);
   gridLayoutConsole->setContentsMargins(11, 11, 11, 11);
@@ -931,106 +936,52 @@ void MainWindowView::initConsole()
 
 void MainWindowView::initActions()
 {
-  QIcon iconNewProject;
-  iconNewProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionNewProject->setIcon(iconNewProject);
+  /* File menu actions */
 
-  QIcon iconOpenProject;
-  iconOpenProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-open.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionOpenProject->setIcon(iconOpenProject);
+  mActionNewProject->setIcon(QIcon::fromTheme("new-project"));
+  mActionOpenProject->setIcon(QIcon::fromTheme("open-project"));
+  mActionSaveProject->setIcon(QIcon::fromTheme("save"));
+  mActionSaveProjectAs->setIcon(QIcon::fromTheme("save-as"));
+  mActionCloseProject->setIcon(QIcon::fromTheme("close-project"));
+  mActionExit->setIcon(QIcon::fromTheme("exit"));
 
-  QIcon iconSaveProject;
-  iconSaveProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-save.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionSaveProject->setIcon(iconSaveProject);
+  /* View menu actions */
 
-  QIcon iconSaveProjectAs;
-  iconSaveProjectAs.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-save-as.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionSaveProjectAs->setIcon(iconSaveProjectAs);
+  mActionStartPage->setIcon(QIcon::fromTheme("start-page"));
 
-  QIcon icon4;
-  icon4.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-close-button.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionCloseProject->setIcon(icon4);
+  /* Help menu actions */
 
-  mActionExit->setObjectName(QStringLiteral("actionExit"));
-  QIcon iconExit;
-  iconExit.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-switch-power-off.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionExit->setIcon(iconExit);
+  mActionHelp->setIcon(QIcon::fromTheme("help"));
 
-  QIcon iconStartPage;
-  iconStartPage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-home-page.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionStartPage->setIcon(iconStartPage);
+  /* Project tree context menu actions */
 
-  QIcon iconHelp;
-  iconHelp.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_help_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionHelp->setIcon(iconHelp);
-
-  QIcon iconOpenImage;
-  iconOpenImage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_image_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionOpenImage->setIcon(iconOpenImage);
-
-  QIcon iconRemoveImage;
-  iconRemoveImage.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_remove_image_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionDeleteImage->setIcon(iconRemoveImage);
-
+  mActionOpenImage->setIcon(QIcon::fromTheme("open-image"));
+  mActionDeleteImage->setIcon(QIcon::fromTheme("remove-image"));
   mActionOpenModel3D->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
   mActionViewKeypoints->setIcon(QIcon(":/ico/24/img/material/24/view_points_24px.png"));
   mActionViewMatches->setIcon(QIcon(":/ico/24/img/material/24/view_match_24px.png"));
 
-  QIcon iconZoomIn;
-  iconZoomIn.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-in.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomIn->setIcon(iconZoomIn);
+  /* Image viewer actions */
 
-  QIcon iconZoomOut;
-  iconZoomOut.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-out.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomOut->setIcon(iconZoomOut);
+  mActionZoomIn->setIcon(QIcon::fromTheme("zoom-in"));
+  mActionZoomOut->setIcon(QIcon::fromTheme("zoom-out"));
+  mActionZoomExtend->setIcon(QIcon::fromTheme("zoom-extend"));
+  mActionZoom11->setIcon(QIcon::fromTheme("zoom-to-actual-size"));
 
-  QIcon iconZoomExtend;
-  iconZoomExtend.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-magnifying-glass-with-expand-sign.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoomExtend->setIcon(iconZoomExtend);
+  /* 3D viewer actions */
 
-  QIcon iconZoom11;
-  iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionZoom11->setIcon(iconZoom11);
-
-  mActionGlobalZoom->setIcon(iconZoomExtend);
-
-  QIcon iconViewFront;
-  iconViewFront.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-front-view.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewFront->setIcon(iconViewFront);
-
-  QIcon iconViewTop;
-  iconViewTop.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-top-view.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewTop->setIcon(iconViewTop);
-
-  QIcon iconViewLeft;
-  iconViewLeft.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-cube.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewLeft->setIcon(iconViewLeft);
-
-  QIcon iconViewRight;
-  iconViewRight.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-view_right.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewRight->setIcon(iconViewRight);
-
-  QIcon iconViewBack;
-  iconViewBack.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-back-view.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewBack->setIcon(iconViewBack);
-
-  QIcon iconViewBottom;
-  iconViewBottom.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-bottom-view.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewBottom->setIcon(iconViewBottom);
-
-  QIcon iconPointMeasuse;
-  iconPointMeasuse.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-cursor.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionPointMeasuse->setIcon(iconPointMeasuse);
+  mActionGlobalZoom->setIcon(QIcon::fromTheme("zoom-extend"));
+  mActionViewFront->setIcon(QIcon::fromTheme("front-view"));
+  mActionViewTop->setIcon(QIcon::fromTheme("top-view"));
+  mActionViewLeft->setIcon(QIcon::fromTheme("left-view"));
+  mActionViewRight->setIcon(QIcon::fromTheme("right-view"));
+  mActionViewBack->setIcon(QIcon::fromTheme("back-view"));
+  mActionViewBottom->setIcon(QIcon::fromTheme("bottom-view"));
+  mActionPointMeasuse->setIcon(QIcon::fromTheme("point_measuse"));
   mActionPointMeasuse->setCheckable(true);
-
-  QIcon iconDistanceMeasuse;
-  iconDistanceMeasuse.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_ruler_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionDistanceMeasuse->setIcon(iconDistanceMeasuse);
+  mActionDistanceMeasuse->setIcon(QIcon::fromTheme("distance"));
   mActionDistanceMeasuse->setCheckable(true);
-
-  QIcon iconAngleMeasure;
-  iconAngleMeasure.addFile(QStringLiteral(":/ico/24/img/material/24/icons8_measurement_tool_24px.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionAngleMeasure->setIcon(iconAngleMeasure);
+  mActionAngleMeasure->setIcon(QIcon::fromTheme("angle_measure"));
   mActionAngleMeasure->setCheckable(true);
 }
 
@@ -1101,6 +1052,8 @@ void MainWindowView::initToolbarTools()
 
 void MainWindowView::initTreeWidget()
 {
+  ui->dockWidgetProject->toggleViewAction()->setIcon(QIcon::fromTheme("project-tree"));
+  
   mTreeWidgetProject = new QTreeWidget(ui->dockWidgetContentsProject);
   mTreeWidgetProject->setContextMenuPolicy(Qt::CustomContextMenu);
   mTreeWidgetProject->header()->close();
@@ -1109,6 +1062,8 @@ void MainWindowView::initTreeWidget()
   mTreeWidgetProject->header()->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
   mTreeWidgetProject->header()->setStretchLastSection(false);
   ui->gridLayout->addWidget(mTreeWidgetProject, 0, 0, 1, 1);
+
+  /* Context menu*/
 
   mMenuTreeProjectImages = new QMenu(this);
   mMenuTreeProjectImage = new QMenu(this);
@@ -1143,10 +1098,12 @@ void MainWindowView::initMenuFile()
   ui->menuFile->addAction(mActionSaveProjectAs);
   ui->menuFile->addSeparator();
   mMenuImport = new QMenu(this);
+  mMenuImport->setIcon(QIcon::fromTheme("import"));
   mMenuImport->addAction(mActionImportCameras);
   ui->menuFile->addMenu(mMenuImport);
   ui->menuFile->addSeparator();
   mMenuExport = new QMenu(this);
+  mMenuExport->setIcon(QIcon::fromTheme("export"));
   //mMenuExport->addAction(mActionExportTiePoints);
   //mMenuExport->addAction(mActionExportMatches);
   //mMenuExport->addAction(mActionExportOrientations);
@@ -1163,7 +1120,7 @@ void MainWindowView::initMenuView()
   ui->menuView->addAction(mActionStartPage);
   ui->menuView->addSeparator();
   mMenuPanels = new QMenu(this);
-  mMenuPanels->setIcon(QIcon(":/ico/24/img/material/24/icons8_navigation_toolbar_left_24px_1.png"));
+  mMenuPanels->setIcon(QIcon::fromTheme("dock-panel"));
   mMenuPanels->addAction(ui->dockWidgetProject->toggleViewAction());
   mMenuPanels->addAction(ui->dockWidgetProperties->toggleViewAction());
   mMenuPanels->addAction(ui->dockWidgetConsole->toggleViewAction());
@@ -1173,7 +1130,7 @@ void MainWindowView::initMenuView()
   ui->menuView->addSeparator();
 
   mMenuToolBar = new QMenu(this);
-  mMenuToolBar->setIcon(QIcon(":/ico/24/img/material/24/icons8_navigation_toolbar_top_24px_1.png"));
+  mMenuToolBar->setIcon(QIcon::fromTheme("toolbar"));
   mMenuToolBar->addAction(mToolBarFile->toggleViewAction());
   mMenuToolBar->addAction(mToolBarWorkflow->toggleViewAction());
   mMenuToolBar->addAction(mToolBarView->toggleViewAction());
@@ -1213,18 +1170,18 @@ void MainWindowView::initProgressBar()
 
 void MainWindowView::initSignalAndSlots()
 {
-  /* Menú Archivo */
+  /* File menu */
 
   connect(mActionExportTiePoints,      &QAction::triggered, this, &MainWindowView::openExportFeatures);
   connect(mActionExportMatches,        &QAction::triggered, this, &MainWindowView::openExportMatches);
   connect(mActionExportPointCloud,     &QAction::triggered, this, &MainWindowView::openExportPointCloud);
   connect(mActionExit,                 &QAction::triggered, this, &MainWindowView::close);
 
-  /* Menú View */
+  /* View menu */
 
   connect(mActionStartPage,          &QAction::triggered,   this,   &MainWindowView::openStartPage);
 
-  /* Menú Ayuda */
+  /* Help menu */
 
   connect(mActionHelp,               SIGNAL(triggered(bool)),   this,   SIGNAL(openHelpDialog()));
 
@@ -1490,15 +1447,17 @@ void MainWindowView::retranslate()
   mActionZoomExtend->setText(QApplication::translate("MainWindowView", "Zoom Extend"));
   mActionZoom11->setText(QApplication::translate("MainWindowView", "Zoom 1:1"));
   mActionGlobalZoom->setText(QApplication::translate("MainWindowView", "Global Zoom", nullptr));
-  mActionViewFront->setText(QApplication::translate("MainWindowView", "View Front", nullptr));
-  mActionViewTop->setText(QApplication::translate("MainWindowView", "View Top", nullptr));
-  mActionViewLeft->setText(QApplication::translate("MainWindowView", "View Left", nullptr));
-  mActionViewRight->setText(QApplication::translate("MainWindowView", "View Right", nullptr));
-  mActionViewBack->setText(QApplication::translate("MainWindowView", "View Back", nullptr));
-  mActionViewBottom->setText(QApplication::translate("MainWindowView", "View Bottom", nullptr));
+  mActionViewFront->setText(QApplication::translate("MainWindowView", "Front View", nullptr));
+  mActionViewTop->setText(QApplication::translate("MainWindowView", "Top View", nullptr));
+  mActionViewLeft->setText(QApplication::translate("MainWindowView", "Left View", nullptr));
+  mActionViewRight->setText(QApplication::translate("MainWindowView", "Right View", nullptr));
+  mActionViewBack->setText(QApplication::translate("MainWindowView", "Back View", nullptr));
+  mActionViewBottom->setText(QApplication::translate("MainWindowView", "Bottom View", nullptr));
   mActionPointMeasuse->setText(QApplication::translate("MainWindowView", "Point Measure", nullptr));
   mActionDistanceMeasuse->setText(QApplication::translate("MainWindowView", "Distance Measure", nullptr));
   mActionAngleMeasure->setText(QApplication::translate("MainWindowView", "Angle Measure", nullptr));
+
+  /* Toolbars */
 
   mToolBarFile->setWindowTitle(QCoreApplication::translate("MainWindowView", "File", nullptr));
   mToolBarWorkflow->setWindowTitle(QCoreApplication::translate("MainWindowView", "Workflow", nullptr));

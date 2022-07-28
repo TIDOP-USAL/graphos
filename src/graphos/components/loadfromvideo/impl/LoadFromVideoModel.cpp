@@ -23,7 +23,7 @@
 
 #include "LoadFromVideoModel.h"
 
-#include "graphos/core/LoadFromVideo.h"
+//#include "graphos/core/LoadFromVideo.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -32,10 +32,11 @@
 namespace graphos
 {
 
-LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project, QObject *parent)
+LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project, 
+                                             QObject *parent)
   : LoadFromVideoModel(parent),
-    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos")),
-    mParameters(new LoadFromVideoParameters),
+    //mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos")),
+    //mParameters(new LoadFromVideoParameters),
     mProject(project)
 {
   this->init();
@@ -43,55 +44,55 @@ LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project, QObject *parent)
 
 LoadFromVideoModelImp::~LoadFromVideoModelImp()
 {
-  if (mSettings){
-    delete mSettings;
-    mSettings = nullptr;
-  }
+  //if (mSettings){
+  //  delete mSettings;
+  //  mSettings = nullptr;
+  //}
 
-  if (mParameters) {
-    delete mParameters;
-    mParameters = nullptr;
-  }
+  //if (mParameters) {
+  //  delete mParameters;
+  //  mParameters = nullptr;
+  //}
 }
 
-void LoadFromVideoModelImp::loadSettings()
-{
-  if (mReadSettings) {
-	  
-	/* Read Settings here
-	
-	Example (replace PropertyName):
-	
-    mParameters->setPropertyName(mSettings->value("LOADFROMVIDEO/PropertyName", mParameters->propertyName()).toInt());
-  
-    */
+//void LoadFromVideoModelImp::loadSettings()
+//{
+//  if (mReadSettings) {
+//	  
+//	/* Read Settings here
+//	
+//	Example (replace PropertyName):
+//	
+//    mParameters->setPropertyName(mSettings->value("LOADFROMVIDEO/PropertyName", mParameters->propertyName()).toInt());
+//  
+//    */
+//
+//  }
+//}
 
-  }
-}
+//void LoadFromVideoModelImp::saveSettings()
+//{
+//  if (mReadSettings) {
+//	
+//	/* Write Settings here
+//	
+//	Example:
+//	
+//    mSettings->setValue("LOADFROMVIDEO/PropertyName", mParameters->propertyName());
+//  
+//    */
+//    
+//  }
+//}
 
-void LoadFromVideoModelImp::saveSettings()
-{
-  if (mReadSettings) {
-	
-	/* Write Settings here
-	
-	Example:
-	
-    mSettings->setValue("LOADFROMVIDEO/PropertyName", mParameters->propertyName());
-  
-    */
-    
-  }
-}
-
-LoadFromVideoParameters *LoadFromVideoModelImp::parameters() const
-{
-  return mParameters;
-}
+//LoadFromVideoParameters *LoadFromVideoModelImp::parameters() const
+//{
+//  return mParameters;
+//}
 
 void LoadFromVideoModelImp::init()
 {
-  mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
+  //mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
 }
 
 void LoadFromVideoModelImp::clear()

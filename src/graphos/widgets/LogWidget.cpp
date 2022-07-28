@@ -155,19 +155,19 @@ void LogWidget::initUI()
 {
   QToolBar *toolBar = new QToolBar(this);
 
-  mMsgErrorAction = new QAction(QIcon(":/ico/48/img/material/48/icons8-delete.png"), tr("Show errors"), this);
+  mMsgErrorAction = new QAction(QIcon::fromTheme("show-errors"), tr("Show errors"), this);
   mMsgErrorAction->setStatusTip(tr("Show errors"));
   mMsgErrorAction->setCheckable(true);
   mMsgErrorAction->setChecked(true);
   toolBar->addAction(mMsgErrorAction);
 
-  mMsgWarningAction = new QAction(QIcon(":/ico/48/img/material/48/icons8-error.png"), tr("Show warnings"), this);
+  mMsgWarningAction = new QAction(QIcon::fromTheme("show-warnings"), tr("Show warnings"), this);
   mMsgWarningAction->setStatusTip(tr("Show warnings"));
   mMsgWarningAction->setCheckable(true);
   mMsgWarningAction->setChecked(true);
   toolBar->addAction(mMsgWarningAction);
 
-  mMsgInfoAction = new QAction(QIcon(":/ico/48/img/material/48/icons8-attention-sign.png"), tr("Show messages"), this);
+  mMsgInfoAction = new QAction(QIcon::fromTheme("show-info"), tr("Show messages"), this);
   mMsgInfoAction->setStatusTip(tr("Show messages"));
   mMsgInfoAction->setCheckable(true);
   mMsgInfoAction->setChecked(true);
@@ -175,7 +175,7 @@ void LogWidget::initUI()
 
   toolBar->addSeparator();
 
-  mClearAction = new QAction(QIcon(":/ico/48/img/material/48/icons8-trash-can.png"), tr("Clean log"), this);
+  mClearAction = new QAction(QIcon::fromTheme("clean-console"), tr("Clean log"), this);
   mClearAction->setStatusTip(tr("Clean log"));
   toolBar->addAction(mClearAction);
 

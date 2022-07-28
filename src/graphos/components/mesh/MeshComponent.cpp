@@ -55,7 +55,7 @@ void MeshComponent::init()
 
   createCommand();
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8_mesh_24px.png"));
+  action()->setIcon(QIcon::fromTheme("mesh"));
 }
 
 void MeshComponent::createModel()

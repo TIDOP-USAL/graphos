@@ -54,7 +54,7 @@ void FeatureMatchingComponent::init()
 
   createCommand();
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-match_view.png"));
+  action()->setIcon(QIcon::fromTheme("matching"));
 }
 
 void FeatureMatchingComponent::createModel()

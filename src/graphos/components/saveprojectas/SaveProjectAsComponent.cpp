@@ -52,7 +52,7 @@ void SaveProjectAsComponent::init()
   this->setMenu("file");
   this->setToolbar("file");
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-save-as.png"));
+  action()->setIcon(QIcon::fromTheme("save-as"));
 #ifndef QT_NO_SHORTCUT
   action()->setShortcut(tr("Ctrl+Shift+S"));
 #endif // QT_NO_SHORTCUT

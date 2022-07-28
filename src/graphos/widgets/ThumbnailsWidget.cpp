@@ -139,25 +139,25 @@ void ThumbnailsWidget::setActiveImages(const std::vector<size_t> &imageIds)
   }
 }
 
-QAction *ThumbnailsWidget::thumbnailAction()
-{
-  return mThumbnailAction;
-}
-
-QAction *ThumbnailsWidget::thumbnailSmallAction()
-{
-  return mThumbnailSmallAction;
-}
-
-QAction *ThumbnailsWidget::detailsAction()
-{
-  return mDetailsAction;
-}
-
-QAction *ThumbnailsWidget::deleteImageAction()
-{
-  return mDeleteImageAction;
-}
+//QAction *ThumbnailsWidget::thumbnailAction()
+//{
+//  return mThumbnailAction;
+//}
+//
+//QAction *ThumbnailsWidget::thumbnailSmallAction()
+//{
+//  return mThumbnailSmallAction;
+//}
+//
+//QAction *ThumbnailsWidget::detailsAction()
+//{
+//  return mDetailsAction;
+//}
+//
+//QAction *ThumbnailsWidget::deleteImageAction()
+//{
+//  return mDeleteImageAction;
+//}
 
 /* public slots */
 
@@ -436,26 +436,26 @@ void ThumbnailsWidget::initUI()
 
   mThumbnailAction = new QAction(this);
 
-  mThumbnailAction->setIcon(QIcon(":/ico/48/img/material/48/icons8-medium-icons.png"));
+  mThumbnailAction->setIcon(QIcon::fromTheme("medium-icons"));
   mThumbnailAction->setCheckable(true);
   toolBar->addAction(mThumbnailAction);
 
   mThumbnailSmallAction = new QAction(this);
-  mThumbnailSmallAction->setIcon(QIcon(":/ico/48/img/material/48/icons8-small-icons.png"));
+  mThumbnailSmallAction->setIcon(QIcon::fromTheme("small-icons"));
   mThumbnailSmallAction->setCheckable(true);
   toolBar->addAction(mThumbnailSmallAction);
 
   toolBar->addSeparator();
 
   mDetailsAction = new QAction(this);
-  mDetailsAction->setIcon(QIcon(":/ico/48/img/material/48/icons8-details.png"));
+  mDetailsAction->setIcon(QIcon::fromTheme("details"));
   mDetailsAction->setCheckable(true);
   toolBar->addAction(mDetailsAction);
 
   toolBar->addSeparator();
 
   mDeleteImageAction = new QAction(this);
-  mDeleteImageAction->setIcon(QIcon(":/ico/48/img/material/48/icons8-close-button.png"));
+  mDeleteImageAction->setIcon(QIcon::fromTheme("remove-image"));
   toolBar->addAction(mDeleteImageAction);
 
   onThumbnailClicked();

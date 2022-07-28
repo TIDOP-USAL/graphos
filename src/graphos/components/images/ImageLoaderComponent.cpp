@@ -54,7 +54,7 @@ void ImageLoaderComponent::init()
 
   createCommand();
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-add-folder.png"));
+  action()->setIcon(QIcon::fromTheme("pictures-folder"));
 }
 
 void ImageLoaderComponent::createModel()
@@ -88,10 +88,10 @@ void ImageLoaderComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  bool bLoadingImages = app_status->isActive(AppStatus::Flag::loading_images);
-  action()->setEnabled(bProjectExists && !bLoadingImages && !bProcessing);
+  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
+  bool processing = app_status->isActive(AppStatus::Flag::processing);
+  bool loading_images = app_status->isActive(AppStatus::Flag::loading_images);
+  action()->setEnabled(project_exists && !loading_images && !processing);
 }
 
 void ImageLoaderComponent::onRunning()

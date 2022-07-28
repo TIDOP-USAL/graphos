@@ -42,18 +42,18 @@ public:
   LoadFromVideoView(QWidget *parent) : ProcessView(parent) {}
   ~LoadFromVideoView() override = default;
 
-  virtual QString Video() const = 0;
-  virtual int SkipFrames() const = 0;
+  virtual QString video() const = 0;
+  virtual int skipFrames() const = 0;
 
 public slots:
 
-  virtual void setVideo(const QString &Video) = 0;
-  virtual void setSkipFrames(int SkipFrames) = 0;
+  virtual void setVideo(const QString &video) = 0;
+  virtual void setSkipFrames(int skipFrames) = 0;
 
 signals:
 
-  void VideoChanged(QString);
-  void SkipFramesChanged(int);
+  void video_changed(QString);
+  void skip_frames_changed(int);
 
 };
 

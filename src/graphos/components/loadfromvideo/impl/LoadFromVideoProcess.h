@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,57 +21,75 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADFROMVIDEO_COMPONENT_H
-#define GRAPHOS_LOADFROMVIDEO_COMPONENT_H
+#ifndef GRAPHOS_LOADFROMVIDEO_PROCESS_H
+#define GRAPHOS_LOADFROMVIDEO_PROCESS_H
 
-#include "graphos/core/Component.h"
+#include <QObject>
 
+#include <tidop/core/task.h>
+
+#include "graphos/core/image.h"
+
+namespace tl
+{
+class ImageReader;
+class Process;
+namespace geospatial
+{
+class Crs;
+}
+}
 
 namespace graphos
 {
 
-class LoadFromVideoProcess;
 
-class LoadFromVideoComponent
-  : public ProcessComponent
+class Camera;
+
+class LoadVideoProcess
+  : public QObject,
+    public tl::TaskBase
 {
 
   Q_OBJECT
 
 public:
 
-  LoadFromVideoComponent(Application *application);
-  ~LoadFromVideoComponent() override;
+  LoadVideoProcess(std::vector<Image> *images,
+                   std::vector<Camera> *cameras,
+                   const std::string &cameraType,
+                   const QString &epsg = QString());
+  ~LoadVideoProcess() override;
+
+signals:
+
+  void image_added(int, int);
 
 private:
 
-  void init();
+  //bool existCamera(const QString &make, const QString &model) const;
+  //int findCamera(const QString &make, const QString &model) const;
+  //void loadImage(size_t imageId);
+  //int loadCamera(tl::ImageReader *imageReader);
+  //double parseFocal(const std::string &focal, double def);
 
-// ComponentBase
+// tl::TaskBase interface
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+  void execute(tl::Progress *progressBar) override;
 
-// ProcessComponent
+protected:
 
-protected slots:
-
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
-  
-private:
-
-  LoadFromVideoProcess *mProcess;
-
+  std::vector<Image> *mImages;
+  std::vector<Camera> *mCameras;
+  QString mEPSG;
+  std::shared_ptr<tl::geospatial::Crs> mCrsIn;
+  std::shared_ptr<tl::geospatial::Crs> mCrsOut;
+  QString mDatabaseCamerasPath;
+  std::string mCameraType;
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_LOADFROMVIDEO_COMPONENT_H
+#endif // GRAPHOS_LOADFROMVIDEO_PROCESS_H

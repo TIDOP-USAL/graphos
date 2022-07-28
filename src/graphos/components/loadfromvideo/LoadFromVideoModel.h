@@ -26,12 +26,12 @@
 
 #include <array>
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {
 
-class LoadFromVideoParameters;
+//class LoadFromVideoParameters;
 
 class LoadFromVideoModel
   : public Model
@@ -44,12 +44,12 @@ public:
   LoadFromVideoModel(QObject *parent = nullptr) : Model(parent) {}
   ~LoadFromVideoModel() override = default;
   
-  virtual LoadFromVideoParameters *parameters() const = 0;
+  //virtual LoadFromVideoParameters *parameters() const = 0;
 
 public slots:
 
-  virtual void loadSettings() = 0;
-  virtual void saveSettings() = 0;
+  //virtual void loadSettings() = 0;
+  //virtual void saveSettings() = 0;
 };
 
 } // namespace graphos

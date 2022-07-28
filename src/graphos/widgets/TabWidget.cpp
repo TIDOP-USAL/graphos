@@ -171,13 +171,11 @@ void TabWidget::onTabWidgetContextMenu(const QPoint &position)
     if (action->text() == tr("Close")) {
       closeTab(tabIndex);
     } else if (action->text() == tr("Close all tabs")) {
-      const QSignalBlocker blocker(this);
       int n = this->count();
       for (int i = 0; i < n; i++) {
         closeTab(0);
       }
     } else if (action->text() == tr("Close all tabs but current one")) {
-      const QSignalBlocker blocker(this);
       int n = this->count();
       int tabToCloseId = 0;
       QString tabText = this->tabBar()->tabText(tabIndex);

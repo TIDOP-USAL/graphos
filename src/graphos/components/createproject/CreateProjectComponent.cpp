@@ -56,9 +56,7 @@ void CreateProjectComponent::init()
 
   createCommand();
 
-  QIcon iconNewProject;
-  iconNewProject.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-empty-document.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(iconNewProject);
+  action()->setIcon(QIcon::fromTheme("new-project"));
 #ifndef QT_NO_SHORTCUT
   action()->setShortcut(tr("Ctrl+N"));
 #endif // QT_NO_SHORTCUT

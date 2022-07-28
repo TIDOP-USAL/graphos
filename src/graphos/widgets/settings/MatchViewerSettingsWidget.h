@@ -31,6 +31,7 @@ class QLabel;
 class QSpinBox;
 class QPushButton;
 class QListWidget;
+class QGroupBox;
 
 namespace graphos
 {
@@ -84,9 +85,9 @@ public slots:
 
 protected slots:
 
-  void onPushButtonMatchViewerBGColorClicked();
-  void onPushButtonMatchViewerMarkerColorClicked();
-  void onPushButtonSelectMatchViewerMarkerColorClicked();
+  void onPushButtonBackgroundColorClicked();
+  void onPushButtonMarkerColorClicked();
+  void onPushButtonSelectMarkerColorClicked();
   void onPushButtonMatchViewerLineColorClicked();
 
 // GraphosWidgetView interface
@@ -107,20 +108,35 @@ private:
 
 protected:
 
-  QLineEdit *mLineEditMatchesViewerBGColor;
-  QPushButton *mPushButtonMatchesViewerBGColor;
-  QLineEdit *mLineEditMatchesViewerMarkerColor;
-  QPushButton *mPushButtonMatchesViewerMarkerColor;
-  QSpinBox *mSpinBoxMatchesViewerMarkerSize;
-  QSpinBox *mSpinBoxMatchesViewerMarkerWidth;
-  QListWidget *mListWidgetMatchesViewerMarkerType;
-  QLineEdit *mLineEditMatchesViewerLineColor;
-  QPushButton *mPushButtonMatchesViewerLineColor;
-  QSpinBox *mSpinBoxMatchesViewerLineWidth;
-  QSpinBox *mSpinBoxSelectMatchesViewerMarkerWidth;
-  QLineEdit *mLineEditSelectMatchesViewerMarkerColor;
-  QPushButton *mPushButtonSelectMatchesViewerMarkerColor;
+  QLabel *mLabelBackgroundColor;
+  QLineEdit *mLineEditBackgroundColor;
+  QPushButton *mPushButtonBackgroundColor;
+
+  QGroupBox *mGroupBoxMVMarker;
+  QLabel *mLabelMarkerType;
+  QListWidget *mListWidgetMarkerType;
+  QLabel *mLabelMarkerSize;
+  QSpinBox *mSpinBoxMarkerSize;
+  QLabel *mLabelMarkerWidth;
+  QSpinBox *mSpinBoxMarkerWidth;
+  QLabel *mLabelMarkerColor;
+  QLineEdit *mLineEditMarkerColor;
+  QPushButton *mPushButtonMarkerColor;
+
+  QGroupBox *mGroupBoxSelectMatches;
+  QLabel *mLabelSelectMarkerWidth;
+  QSpinBox *mSpinBoxSelectMarkerWidth;
+  QLabel *mLabelSelectMarkerColor;
+  QLineEdit *mLineEditSelectMarkerColor;
+  QPushButton *mPushButtonSelectMarkerColor;
   
+  QGroupBox *mGroupBoxLine;
+  QLabel *mLabelLineWidth;
+  QSpinBox *mSpinBoxLineWidth;
+  QLabel *mLabelLineColor;
+  QLineEdit *mLineEditLineColor;
+  QPushButton *mPushButtonLineColor;
+
 };
 
 

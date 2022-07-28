@@ -1,0 +1,14 @@
+[Icon Theme]
+Name=Material
+Comment=Icons8 Material Theme
+Inherits=default
+Directories=24,48,96
+ 
+[24]
+Size=24
+ 
+[48]
+Size=48
+ 
+[96]
+Size=96

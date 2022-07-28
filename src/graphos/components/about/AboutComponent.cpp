@@ -46,12 +46,10 @@ AboutComponent::~AboutComponent()
 
 void AboutComponent::init()
 {
-  this->setName("About Graphos");
-  this->setMenu("help");
+  setName("About Graphos");
+  setMenu("help");
 
-  QIcon iconAbout;
-  iconAbout.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-about.png"), QSize(), QIcon::Normal, QIcon::Off);
-  action()->setIcon(iconAbout);
+  action()->setIcon(QIcon::fromTheme("about"));
 }
 
 void AboutComponent::createModel()

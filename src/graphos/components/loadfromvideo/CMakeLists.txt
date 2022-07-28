@@ -22,29 +22,41 @@
 ##########################################################################
 
 
-if(BUILD_VIDEO_LOAD)
+if(BUILD_VIDEO_LOAD_COMPONENT)
 
-    project(video_load)
+    project(VideoLoad)
+
+    # Find includes in corresponding build directories
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    # Instruct CMake to run moc automatically when needed
+    set(CMAKE_AUTOMOC ON)
+    # Create code from a list of Qt designer ui files
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTORCC ON)
 
     set(VIDEO_LOAD_SOURCES
-        impl/LoadFromVideoComponent.cpp
+        LoadFromVideoComponent.cpp
         impl/LoadFromVideoModel.cpp
         impl/LoadFromVideoPresenter.cpp
-        impl/LoadFromVideoView.cpp)
+        impl/LoadFromVideoView.cpp
+        impl/LoadFromVideoProcess.cpp)
                 
     set(VIDEO_LOAD_HEADERS
+        LoadFromVideoComponent.h
         LoadFromVideoModel.h
         LoadFromVideoPresenter.h
         LoadFromVideoView.h
-        impl/LoadFromVideoComponent.h
         impl/LoadFromVideoModel.h
         impl/LoadFromVideoPresenter.h
-        impl/LoadFromVideoView.h)
+        impl/LoadFromVideoView.h
+        impl/LoadFromVideoProcess.h)
                 
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${VIDEO_LOAD_SOURCES}
                 ${VIDEO_LOAD_HEADERS})
     
+    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
     foreach(_source IN ITEMS ${VIDEO_LOAD_SOURCES})
         get_filename_component(_source_path "${_source}" PATH)
         string(REPLACE "/" "\\" _group_path "${_source_path}")
@@ -57,49 +69,33 @@ if(BUILD_VIDEO_LOAD)
         source_group("Header Files\\${_group_path}" FILES "${_source}")
     endforeach()
     
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+                          Qt5::Core
+                          Qt5::Widgets
+                          graphos_core
+                          Eigen3::Eigen
+                          glog::glog)
     
-    #target_include_directories(${PROJECT_NAME} PUBLIC
-    #                           $<BUILD_INTERFACE:${TidopLib_SOURCE_DIR}/src>
-    #                           $<INSTALL_INTERFACE:include>)
-    #target_include_directories(${PROJECT_NAME} PRIVATE ${GDAL_INCLUDE_DIR})
-    #
-    #target_link_libraries(${PROJECT_NAME} PUBLIC
-    #                      ${Boost_FILESYSTEM_LIBRARY} 
-    #                      ${Boost_SYSTEM_LIBRARY}
-    #                      $<$<BOOL:${TL_HAVE_OPENMP}>:OpenMP::OpenMP_CXX>
-    #                      $<$<BOOL:${TL_HAVE_GDAL}>:${GDAL_LIBRARY}>)
+    set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
     
-    set_property(TARGET ${PROJECT_NAME}
-                 PROPERTY FOLDER "modules")
-    
-        install(TARGETS ${PROJECT_NAME}
-                EXPORT "${TARGETS_EXPORT_NAME}"
-                LIBRARY DESTINATION ${TL_INSTALL_BINARIES_PREFIX}/lib 
-                ARCHIVE DESTINATION ${TL_INSTALL_BINARIES_PREFIX}/lib)
+    install(TARGETS ${PROJECT_NAME}
+            EXPORT "${TARGETS_EXPORT_NAME}"
+            LIBRARY DESTINATION lib 
+            ARCHIVE DESTINATION lib)
     
     
     
     install(DIRECTORY .
             DESTINATION include/graphos/components/video_load
-            FILES_MATCHING PATTERN "*.h")
+            FILES_MATCHING PATTERN "*.h"
+            PATTERN "impl" EXCLUDE)
     
-    
-    set(Graphos_LIBRARIES ${Graphos_LIBRARIES} ${PROJECT_NAME})
-    
-    set(TL_HAVE_CORE YES CACHE INTERNAL "")
+    set(GRAPHOS_HAVE_VIDEO_LOAD YES CACHE INTERNAL "")
+
     message(STATUS "  Graphos::video_load enabled")
     
 else()
 
     message(STATUS "  Graphos::video_load disabled")
-    #message(STATUS "  TidopLib::tl_math disabled         [Module dependent on tl_core that is deactivated]")
-    #message(STATUS "  TidopLib::tl_geom disabled         [Module dependent on tl_core that is deactivated]")
-    #message(STATUS "  TidopLib::tl_img disabled          [Module dependent on tl_core that is deactivated]")
-    #message(STATUS "  TidopLib::tl_imgprocess disabled   [Module dependent on tl_core that is deactivated]")
-    #message(STATUS "  TidopLib::tl_graphic disabled      [Module dependent on tl_core that is deactivated]")
-    #message(STATUS "  TidopLib::tl_featmatch disabled    [Module dependent on tl_core that is deactivated]")
-    #message(STATUS "  TidopLib::tl_vect disabled         [Module dependent on tl_core that is deactivated]")
-    #message(STATUS "  TidopLib::tl_geospatial disabled   [Module dependent on tl_core that is deactivated]")
-    #message(STATUS "  TidopLib::tl_experimental disabled [Module dependent on tl_core that is deactivated]")
-  
-endif(BUILD_VIDEO_LOAD)
+
+endif(BUILD_VIDEO_LOAD_COMPONENT)

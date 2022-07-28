@@ -51,10 +51,10 @@ public:
   void setActiveImage(size_t imageId);
   void setActiveImages(const std::vector<size_t> &imageIds);
 
-  QAction *thumbnailAction();
-  QAction *thumbnailSmallAction();
-  QAction *detailsAction();
-  QAction *deleteImageAction();
+  //QAction *thumbnailAction();
+  //QAction *thumbnailSmallAction();
+  //QAction *detailsAction();
+  //QAction *deleteImageAction();
 
 signals:
 
