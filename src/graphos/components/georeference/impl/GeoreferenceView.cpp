@@ -319,7 +319,6 @@ void GeoreferenceViewImp::removeGroundControlPoints()
 void GeoreferenceViewImp::initUI()
 {
   this->setObjectName(QStringLiteral("ExportOrientationsView"));
-  this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(400, 200);
 
   QGridLayout *gridLayout = new QGridLayout();

@@ -502,7 +502,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
     }
 
     itemSparseModel->setText(0, "Sparse Model");
-    itemSparseModel->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
+    itemSparseModel->setIcon(0, QIcon::fromTheme("dense"));
     itemSparseModel->setToolTip(0, sparseModel);
     itemSparseModel->setData(0, Qt::UserRole, graphos::sparse_model);
   }
@@ -576,7 +576,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
     }
 
     itemDenseModel->setText(0, "Dense Model");
-    itemDenseModel->setIcon(0, QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
+    itemDenseModel->setIcon(0, QIcon::fromTheme("dense"));
     itemDenseModel->setToolTip(0, denseModel);
     itemDenseModel->setData(0, Qt::UserRole, graphos::dense_model);
   }
@@ -957,9 +957,9 @@ void MainWindowView::initActions()
 
   mActionOpenImage->setIcon(QIcon::fromTheme("open-image"));
   mActionDeleteImage->setIcon(QIcon::fromTheme("remove-image"));
-  mActionOpenModel3D->setIcon(QIcon(":/ico/48/img/material/48/icons8-3d-model.png"));
-  mActionViewKeypoints->setIcon(QIcon(":/ico/24/img/material/24/view_points_24px.png"));
-  mActionViewMatches->setIcon(QIcon(":/ico/24/img/material/24/view_match_24px.png"));
+  mActionOpenModel3D->setIcon(QIcon::fromTheme("dense"));
+  mActionViewKeypoints->setIcon(QIcon::fromTheme("features-viewer"));
+  mActionViewMatches->setIcon(QIcon::fromTheme("matches-viewer"));
 
   /* Image viewer actions */
 

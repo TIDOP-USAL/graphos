@@ -1,236 +1,4 @@
 <RCC>
-    <qresource prefix="/ico/24">
-        <file>img/material/24/icons8-match_view.png</file>
-        <file>img/material/24/icons8-keypoints.png</file>
-        <file>img/material/24/icons8-bottom-view.png</file>
-        <file>img/material/24/icons8-back-view.png</file>
-        <file>img/material/24/icons8-attention-sign.png</file>
-        <file>img/material/24/icons8-error.png</file>
-        <file>img/material/24/icons8-save.png</file>
-        <file>img/material/24/icons8-save-as.png</file>
-        <file>img/material/24/icons8-settings.png</file>
-        <file>img/material/24/icons8-cursor.png</file>
-        <file>img/material/24/icons8-pdf.png</file>
-        <file>img/material/24/icons8-add-image.png</file>
-        <file>img/material/24/icons8-tif.png</file>
-        <file>img/material/24/icons8-small-icons.png</file>
-        <file>img/material/24/icons8-settings-button.png</file>
-        <file>img/material/24/icons8-png.png</file>
-        <file>img/material/24/icons8-parte-posterior-de-slr.png</file>
-        <file>img/material/24/icons8-panorama.png</file>
-        <file>img/material/24/icons8-longitud-focal.png</file>
-        <file>img/material/24/icons8-kmz.png</file>
-        <file>img/material/24/icons8-kml.png</file>
-        <file>img/material/24/icons8-jpg.png</file>
-        <file>img/material/24/icons8-import.png</file>
-        <file>img/material/24/icons8-gpx.png</file>
-        <file>img/material/24/icons8-gif.png</file>
-        <file>img/material/24/icons8-ftp.png</file>
-        <file>img/material/24/icons8-export.png</file>
-        <file>img/material/24/icons8-csv.png</file>
-        <file>img/material/24/icons8-cr2.png</file>
-        <file>img/material/24/icons8-close-program.png</file>
-        <file>img/material/24/icons8-asc.png</file>
-        <file>img/material/24/icons8-zoom-out.png</file>
-        <file>img/material/24/icons8-zoom-in.png</file>
-        <file>img/material/24/icons8-upload-symbol.png</file>
-        <file>img/material/24/icons8-ubuntu-linux-distribution.png</file>
-        <file>img/material/24/icons8-trash-can.png</file>
-        <file>img/material/24/icons8-thumbnails.png</file>
-        <file>img/material/24/icons8-switch-power-off.png</file>
-        <file>img/material/24/icons8-small-lens.png</file>
-        <file>img/material/24/icons8-simple-arrow.png</file>
-        <file>img/material/24/icons8-raw.png</file>
-        <file>img/material/24/icons8-pictures-folder.png</file>
-        <file>img/material/24/icons8-orthogonal-view.png</file>
-        <file>img/material/24/icons8-one-to-one.png</file>
-        <file>img/material/24/icons8-new-document.png</file>
-        <file>img/material/24/icons8-medium-icons.png</file>
-        <file>img/material/24/icons8-magnifying-glass-with-expand-sign.png</file>
-        <file>img/material/24/icons8-mac-app.png</file>
-        <file>img/material/24/icons8-list.png</file>
-        <file>img/material/24/icons8-line-graphic.png</file>
-        <file>img/material/24/icons8-lens.png</file>
-        <file>img/material/24/icons8-installing-updates.png</file>
-        <file>img/material/24/icons8-image-file.png</file>
-        <file>img/material/24/icons8-home-page.png</file>
-        <file>img/material/24/icons8-help.png</file>
-        <file>img/material/24/icons8-graph.png</file>
-        <file>img/material/24/icons8-front-view.png</file>
-        <file>img/material/24/icons8-folder.png</file>
-        <file>img/material/24/icons8-filter.png</file>
-        <file>img/material/24/icons8-exposure.png</file>
-        <file>img/material/24/icons8-expand-arrows.png</file>
-        <file>img/material/24/icons8-empty-document.png</file>
-        <file>img/material/24/icons8-edit.png</file>
-        <file>img/material/24/icons8-dslr-camera.png</file>
-        <file>img/material/24/icons8-download-from-the-cloud.png</file>
-        <file>img/material/24/icons8-download-from-ftp.png</file>
-        <file>img/material/24/icons8-documents-folder.png</file>
-        <file>img/material/24/icons8-document.png</file>
-        <file>img/material/24/icons8-details.png</file>
-        <file>img/material/24/icons8-delete-forever.png</file>
-        <file>img/material/24/icons8-delete-button.png</file>
-        <file>img/material/24/icons8-delete-2.png</file>
-        <file>img/material/24/icons8-delete.png</file>
-        <file>img/material/24/icons8-debian-linux-distribution.png</file>
-        <file>img/material/24/icons8-database-symbol.png</file>
-        <file>img/material/24/icons8-create.png</file>
-        <file>img/material/24/icons8-coordinate-system.png</file>
-        <file>img/material/24/icons8-contrast.png</file>
-        <file>img/material/24/icons8-console-user-interface.png</file>
-        <file>img/material/24/icons8-compact-camera.png</file>
-        <file>img/material/24/icons8-cloud-computing.png</file>
-        <file>img/material/24/icons8-close-button.png</file>
-        <file>img/material/24/icons8-close-all-tabs.png</file>
-        <file>img/material/24/icons8-circled-arrow-right.png</file>
-        <file>img/material/24/icons8-camera-with-a-magnifying-glass.png</file>
-        <file>img/material/24/icons8-camera-outline-2.png</file>
-        <file>img/material/24/icons8-camera-outline.png</file>
-        <file>img/material/24/icons8-camera.png</file>
-        <file>img/material/24/icons8-brightness.png</file>
-        <file>img/material/24/icons8-automatic-contrast.png</file>
-        <file>img/material/24/icons8-app-windows.png</file>
-        <file>img/material/24/icons8-add-row.png</file>
-        <file>img/material/24/icons8-add-list.png</file>
-        <file>img/material/24/icons8-add-graph-report.png</file>
-        <file>img/material/24/icons8-add-folder.png</file>
-        <file>img/material/24/icons8-add-file.png</file>
-        <file>img/material/24/icons8-add-column.png</file>
-        <file>img/material/24/icons8-add-camera.png</file>
-        <file>img/material/24/icons8-about.png</file>
-        <file>img/material/24/icons8-3d-object.png</file>
-        <file>img/material/24/icons8-3d-model.png</file>
-        <file>img/material/24/icons8-top-view.png</file>
-        <file>img/material/24/icons8-open.png</file>
-        <file>img/material/24/icons8-cube.png</file>
-        <file>img/material/24/icons8-view_right.png</file>
-        <file>img/material/24/icons8-github-24.png</file>
-        <file>img/material/24/features.png</file>
-        <file>img/material/24/icons8_image_24px.png</file>
-        <file>img/material/24/icons8_remove_image_24px.png</file>
-        <file>img/material/24/view_match_24px.png</file>
-        <file>img/material/24/view_points_24px.png</file>
-        <file>img/material/24/icons8_navigation_toolbar_left_24px_1.png</file>
-        <file>img/material/24/icons8_navigation_toolbar_top_24px_1.png</file>
-        <file>img/material/24/icons8_lock_24px.png</file>
-        <file>img/material/24/icons8_padlock_24px.png</file>
-        <file>img/material/24/icons8_mesh_24px.png</file>
-        <file>img/material/24/icons8_measurement_tool_24px.png</file>
-        <file>img/material/24/icons8_ruler_24px.png</file>
-        <file>img/material/24/icons8_maximize_window_24px.png</file>
-        <file>img/material/24/icons8_minimize_window_24px.png</file>
-        <file>img/material/24/icons8_cancel_24px.png</file>
-    </qresource>
-    <qresource prefix="/ico/48">
-        <file>img/material/48/icons8-match_view.png</file>
-        <file>img/material/48/icons8-open.png</file>
-        <file>img/material/48/icons8-keypoints.png</file>
-        <file>img/material/48/icons8-attention-sign.png</file>
-        <file>img/material/48/icons8-error.png</file>
-        <file>img/material/48/icons8-save.png</file>
-        <file>img/material/48/icons8-save-as.png</file>
-        <file>img/material/48/icons8-settings.png</file>
-        <file>img/material/48/icons8-cursor.png</file>
-        <file>img/material/48/icons8-add-image.png</file>
-        <file>img/material/48/icons8-tif.png</file>
-        <file>img/material/48/icons8-small-icons.png</file>
-        <file>img/material/48/icons8-settings-button.png</file>
-        <file>img/material/48/icons8-png.png</file>
-        <file>img/material/48/icons8-pdf.png</file>
-        <file>img/material/48/icons8-parte-posterior-de-slr.png</file>
-        <file>img/material/48/icons8-panorama.png</file>
-        <file>img/material/48/icons8-longitud-focal.png</file>
-        <file>img/material/48/icons8-kmz.png</file>
-        <file>img/material/48/icons8-kml.png</file>
-        <file>img/material/48/icons8-jpg.png</file>
-        <file>img/material/48/icons8-import.png</file>
-        <file>img/material/48/icons8-gpx.png</file>
-        <file>img/material/48/icons8-gif.png</file>
-        <file>img/material/48/icons8-ftp.png</file>
-        <file>img/material/48/icons8-export.png</file>
-        <file>img/material/48/icons8-csv.png</file>
-        <file>img/material/48/icons8-cr2.png</file>
-        <file>img/material/48/icons8-close-program.png</file>
-        <file>img/material/48/icons8-asc.png</file>
-        <file>img/material/48/icons8-zoom-out.png</file>
-        <file>img/material/48/icons8-zoom-in.png</file>
-        <file>img/material/48/icons8-upload-symbol.png</file>
-        <file>img/material/48/icons8-ubuntu-linux-distribution.png</file>
-        <file>img/material/48/icons8-trash-can.png</file>
-        <file>img/material/48/icons8-thumbnails.png</file>
-        <file>img/material/48/icons8-switch-power-off.png</file>
-        <file>img/material/48/icons8-small-lens.png</file>
-        <file>img/material/48/icons8-simple-arrow.png</file>
-        <file>img/material/48/icons8-raw.png</file>
-        <file>img/material/48/icons8-pictures-folder.png</file>
-        <file>img/material/48/icons8-orthogonal-view.png</file>
-        <file>img/material/48/icons8-one-to-one.png</file>
-        <file>img/material/48/icons8-new-document.png</file>
-        <file>img/material/48/icons8-medium-icons.png</file>
-        <file>img/material/48/icons8-magnifying-glass-with-expand-sign.png</file>
-        <file>img/material/48/icons8-mac-app.png</file>
-        <file>img/material/48/icons8-list.png</file>
-        <file>img/material/48/icons8-line-graphic.png</file>
-        <file>img/material/48/icons8-lens.png</file>
-        <file>img/material/48/icons8-installing-updates.png</file>
-        <file>img/material/48/icons8-image-file.png</file>
-        <file>img/material/48/icons8-home-page.png</file>
-        <file>img/material/48/icons8-help.png</file>
-        <file>img/material/48/icons8-graph.png</file>
-        <file>img/material/48/icons8-front-view.png</file>
-        <file>img/material/48/icons8-folder.png</file>
-        <file>img/material/48/icons8-filter.png</file>
-        <file>img/material/48/icons8-exposure.png</file>
-        <file>img/material/48/icons8-expand-arrows.png</file>
-        <file>img/material/48/icons8-empty-document.png</file>
-        <file>img/material/48/icons8-edit.png</file>
-        <file>img/material/48/icons8-dslr-camera.png</file>
-        <file>img/material/48/icons8-download-from-the-cloud.png</file>
-        <file>img/material/48/icons8-download-from-ftp.png</file>
-        <file>img/material/48/icons8-documents-folder.png</file>
-        <file>img/material/48/icons8-document.png</file>
-        <file>img/material/48/icons8-details.png</file>
-        <file>img/material/48/icons8-delete-forever.png</file>
-        <file>img/material/48/icons8-delete-button.png</file>
-        <file>img/material/48/icons8-delete-2.png</file>
-        <file>img/material/48/icons8-delete.png</file>
-        <file>img/material/48/icons8-debian-linux-distribution.png</file>
-        <file>img/material/48/icons8-database-symbol.png</file>
-        <file>img/material/48/icons8-create.png</file>
-        <file>img/material/48/icons8-coordinate-system.png</file>
-        <file>img/material/48/icons8-contrast.png</file>
-        <file>img/material/48/icons8-console-user-interface.png</file>
-        <file>img/material/48/icons8-compact-camera.png</file>
-        <file>img/material/48/icons8-cloud-computing.png</file>
-        <file>img/material/48/icons8-close-button.png</file>
-        <file>img/material/48/icons8-close-all-tabs.png</file>
-        <file>img/material/48/icons8-circled-arrow-right.png</file>
-        <file>img/material/48/icons8-camera-with-a-magnifying-glass.png</file>
-        <file>img/material/48/icons8-camera-outline-2.png</file>
-        <file>img/material/48/icons8-camera-outline.png</file>
-        <file>img/material/48/icons8-camera.png</file>
-        <file>img/material/48/icons8-brightness.png</file>
-        <file>img/material/48/icons8-automatic-contrast.png</file>
-        <file>img/material/48/icons8-app-windows.png</file>
-        <file>img/material/48/icons8-add-row.png</file>
-        <file>img/material/48/icons8-add-list.png</file>
-        <file>img/material/48/icons8-add-graph-report.png</file>
-        <file>img/material/48/icons8-add-folder.png</file>
-        <file>img/material/48/icons8-add-file.png</file>
-        <file>img/material/48/icons8-add-column.png</file>
-        <file>img/material/48/icons8-add-camera.png</file>
-        <file>img/material/48/icons8-about.png</file>
-        <file>img/material/48/icons8-3d-object.png</file>
-        <file>img/material/48/icons8-3d-model.png</file>
-        <file>img/material/48/icons8-github-48.png</file>
-        <file>img/material/48/icons8_remove_image_48px.png</file>
-        <file>img/material/48/icons8_calendar_1_48px.png</file>
-        <file>img/material/48/icons8_Location_Pin_48px.png</file>
-        <file>img/material/48/icons8_ruler_48px.png</file>
-        <file>img/material/48/icons8_Location_info_48px.png</file>
-        <file>img/material/48/icons8_mesh_48px.png</file>
-    </qresource>
     <qresource prefix="/images">
         <file>img/graphos.png</file>
         <file>img/Tido.png</file>
@@ -240,104 +8,6 @@
         <file>img/GraphosIcon.ico</file>
     </qresource>
     <qresource prefix="/ico/96">
-        <file>img/material/96/icons8-tif.png</file>
-        <file>img/material/96/icons8-small-icons.png</file>
-        <file>img/material/96/icons8-settings-button.png</file>
-        <file>img/material/96/icons8-settings.png</file>
-        <file>img/material/96/icons8-save-as.png</file>
-        <file>img/material/96/icons8-save.png</file>
-        <file>img/material/96/icons8-png.png</file>
-        <file>img/material/96/icons8-pdf.png</file>
-        <file>img/material/96/icons8-parte-posterior-de-slr.png</file>
-        <file>img/material/96/icons8-panorama.png</file>
-        <file>img/material/96/icons8-longitud-focal.png</file>
-        <file>img/material/96/icons8-kmz.png</file>
-        <file>img/material/96/icons8-kml.png</file>
-        <file>img/material/96/icons8-jpg.png</file>
-        <file>img/material/96/icons8-import.png</file>
-        <file>img/material/96/icons8-gpx.png</file>
-        <file>img/material/96/icons8-gif.png</file>
-        <file>img/material/96/icons8-ftp.png</file>
-        <file>img/material/96/icons8-export.png</file>
-        <file>img/material/96/icons8-error.png</file>
-        <file>img/material/96/icons8-cursor.png</file>
-        <file>img/material/96/icons8-csv.png</file>
-        <file>img/material/96/icons8-cr2.png</file>
-        <file>img/material/96/icons8-close-program.png</file>
-        <file>img/material/96/icons8-attention-sign.png</file>
-        <file>img/material/96/icons8-asc.png</file>
-        <file>img/material/96/icons8-add-image.png</file>
-        <file>img/material/96/icons8-zoom-out.png</file>
-        <file>img/material/96/icons8-zoom-in.png</file>
-        <file>img/material/96/icons8-upload-symbol.png</file>
-        <file>img/material/96/icons8-ubuntu-linux-distribution.png</file>
-        <file>img/material/96/icons8-trash-can.png</file>
-        <file>img/material/96/icons8-thumbnails.png</file>
-        <file>img/material/96/icons8-switch-power-off.png</file>
-        <file>img/material/96/icons8-small-lens.png</file>
-        <file>img/material/96/icons8-simple-arrow.png</file>
-        <file>img/material/96/icons8-raw.png</file>
-        <file>img/material/96/icons8-pictures-folder.png</file>
-        <file>img/material/96/icons8-orthogonal-view.png</file>
-        <file>img/material/96/icons8-one-to-one.png</file>
-        <file>img/material/96/icons8-new-document.png</file>
-        <file>img/material/96/icons8-medium-icons.png</file>
-        <file>img/material/96/icons8-magnifying-glass-with-expand-sign.png</file>
-        <file>img/material/96/icons8-mac-app.png</file>
-        <file>img/material/96/icons8-list.png</file>
-        <file>img/material/96/icons8-line-graphic.png</file>
-        <file>img/material/96/icons8-lens.png</file>
-        <file>img/material/96/icons8-installing-updates.png</file>
-        <file>img/material/96/icons8-image-file.png</file>
-        <file>img/material/96/icons8-home-page.png</file>
-        <file>img/material/96/icons8-help.png</file>
-        <file>img/material/96/icons8-graph.png</file>
-        <file>img/material/96/icons8-front-view.png</file>
-        <file>img/material/96/icons8-folder.png</file>
-        <file>img/material/96/icons8-filter.png</file>
-        <file>img/material/96/icons8-exposure.png</file>
-        <file>img/material/96/icons8-expand-arrows.png</file>
-        <file>img/material/96/icons8-empty-document.png</file>
-        <file>img/material/96/icons8-edit.png</file>
-        <file>img/material/96/icons8-dslr-camera.png</file>
-        <file>img/material/96/icons8-download-from-the-cloud.png</file>
-        <file>img/material/96/icons8-download-from-ftp.png</file>
-        <file>img/material/96/icons8-documents-folder.png</file>
-        <file>img/material/96/icons8-document.png</file>
-        <file>img/material/96/icons8-details.png</file>
-        <file>img/material/96/icons8-delete-forever.png</file>
-        <file>img/material/96/icons8-delete-button.png</file>
-        <file>img/material/96/icons8-delete-2.png</file>
-        <file>img/material/96/icons8-delete.png</file>
-        <file>img/material/96/icons8-debian-linux-distribution.png</file>
-        <file>img/material/96/icons8-database-symbol.png</file>
-        <file>img/material/96/icons8-create.png</file>
-        <file>img/material/96/icons8-coordinate-system.png</file>
-        <file>img/material/96/icons8-contrast.png</file>
-        <file>img/material/96/icons8-console-user-interface.png</file>
-        <file>img/material/96/icons8-compact-camera.png</file>
-        <file>img/material/96/icons8-cloud-computing.png</file>
-        <file>img/material/96/icons8-close-button.png</file>
-        <file>img/material/96/icons8-close-all-tabs.png</file>
-        <file>img/material/96/icons8-circled-arrow-right.png</file>
-        <file>img/material/96/icons8-camera-with-a-magnifying-glass.png</file>
-        <file>img/material/96/icons8-camera-outline-2.png</file>
-        <file>img/material/96/icons8-camera-outline.png</file>
-        <file>img/material/96/icons8-camera.png</file>
-        <file>img/material/96/icons8-brightness.png</file>
-        <file>img/material/96/icons8-automatic-contrast.png</file>
-        <file>img/material/96/icons8-app-windows.png</file>
-        <file>img/material/96/icons8-add-row.png</file>
-        <file>img/material/96/icons8-add-list.png</file>
-        <file>img/material/96/icons8-add-graph-report.png</file>
-        <file>img/material/96/icons8-add-folder.png</file>
-        <file>img/material/96/icons8-add-file.png</file>
-        <file>img/material/96/icons8-add-column.png</file>
-        <file>img/material/96/icons8-add-camera.png</file>
-        <file>img/material/96/icons8-about.png</file>
-        <file>img/material/96/icons8-3d-object.png</file>
-        <file>img/material/96/icons8-3d-model.png</file>
-        <file>img/material/96/icons8-github-96.png</file>
         <file>img/icons/keypoint.png</file>
         <file>img/icons/keypoint_circle.png</file>
         <file>img/icons/keypoint_cross.png</file>
@@ -351,6 +21,9 @@
         <file alias="24/open-project.png">icons/Material/24/open-project.png</file>
         <file alias="48/open-project.png">icons/Material/48/open-project.png</file>
         <file alias="96/open-project.png">icons/Material/96/open-project.png</file>
+        <file alias="24/folder.png">icons/Material/24/open-project.png</file>
+        <file alias="48/folder.png">icons/Material/48/open-project.png</file>
+        <file alias="96/folder.png">icons/Material/96/open-project.png</file>
         <file alias="24/import.png">icons/Material/24/import.png</file>
         <file alias="48/import.png">icons/Material/48/import.png</file>
         <file alias="96/import.png">icons/Material/96/import.png</file>
@@ -390,9 +63,6 @@
         <file alias="24/image-file.png">icons/Material/24/image-file.png</file>
         <file alias="48/image-file.png">icons/Material/48/image-file.png</file>
         <file alias="96/image-file.png">icons/Material/96/image-file.png</file>
-        <file alias="24/add-images.png">icons/Material/24/add-images.png</file>
-        <file alias="48/add-images.png">icons/Material/48/add-images.png</file>
-        <file alias="96/add-images.png">icons/Material/96/add-images.png</file>
         <file alias="24/about.png">icons/Material/24/about.png</file>
         <file alias="48/about.png">icons/Material/48/about.png</file>
         <file alias="96/about.png">icons/Material/96/about.png</file>
@@ -435,6 +105,9 @@
         <file alias="24/start-page.png">icons/Material/24/start-page.png</file>
         <file alias="48/start-page.png">icons/Material/48/start-page.png</file>
         <file alias="96/start-page.png">icons/Material/96/start-page.png</file>
+        <file alias="24/home.png">icons/Material/24/start-page.png</file>
+        <file alias="48/home.png">icons/Material/48/start-page.png</file>
+        <file alias="96/home.png">icons/Material/96/start-page.png</file>
         <file alias="24/help.png">icons/Material/24/help.png</file>
         <file alias="48/help.png">icons/Material/48/help.png</file>
         <file alias="96/help.png">icons/Material/96/help.png</file>
@@ -507,5 +180,17 @@
         <file alias="24/video-folder.png">icons/Material/24/video-folder.png</file>
         <file alias="48/video-folder.png">icons/Material/48/video-folder.png</file>
         <file alias="96/video-folder.png">icons/Material/96/video-folder.png</file>
+        <file alias="24/cancel.png">icons/Material/24/cancel.png</file>
+        <file alias="48/cancel.png">icons/Material/48/cancel.png</file>
+        <file alias="96/cancel.png">icons/Material/96/cancel.png</file>
+        <file alias="24/minimize-window.png">icons/Material/24/minimize-window.png</file>
+        <file alias="48/minimize-window.png">icons/Material/48/minimize-window.png</file>
+        <file alias="96/minimize-window.png">icons/Material/96/minimize-window.png</file>
+        <file alias="24/back-button.png">icons/Material/24/back-button.png</file>
+        <file alias="48/back-button.png">icons/Material/48/back-button.png</file>
+        <file alias="96/back-button.png">icons/Material/96/back-button.png</file>
+        <file alias="24/forward-button.png">icons/Material/24/forward-button.png</file>
+        <file alias="48/forward-button.png">icons/Material/48/forward-button.png</file>
+        <file alias="96/forward-button.png">icons/Material/96/forward-button.png</file>
     </qresource>
 </RCC>

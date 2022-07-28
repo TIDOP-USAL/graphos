@@ -183,11 +183,11 @@ void CamerasViewImp::initUI()
   QToolBar *toolBar = new QToolBar(this);
 
   mActionImportCalibration = new QAction(this);
-  mActionImportCalibration->setIcon(QIcon(":/ico/24/img/material/24/icons8-folder.png"));
+  mActionImportCalibration->setIcon(QIcon::fromTheme("folder"));
   toolBar->addAction(mActionImportCalibration);
 
   mActionExportCalibration = new QAction(this);
-  mActionExportCalibration->setIcon(QIcon(":/ico/24/img/material/24/icons8-save.png"));
+  mActionExportCalibration->setIcon(QIcon::fromTheme("save"));
   toolBar->addAction(mActionExportCalibration);
 
   //toolBar->addSeparator();

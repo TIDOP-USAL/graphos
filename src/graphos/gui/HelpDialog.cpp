@@ -194,20 +194,20 @@ void HelpDialog::init()
 
   QToolBar *toolBar = new QToolBar(this);
 
-  QAction* navigateHomeAction = new QAction(QIcon(":/ico/48/img/material/48/icons8-home-page.png"), tr("Home"), this);
-  navigateHomeAction->setStatusTip(tr("Home"));
-  connect(navigateHomeAction, SIGNAL(triggered()), this, SLOT(navigateHome()));
-  toolBar->addAction(navigateHomeAction);
+  mNavigateHomeAction = new QAction(this);
+  mNavigateHomeAction->setIcon(QIcon::fromTheme("home"));
+  connect(mNavigateHomeAction, SIGNAL(triggered()), this, SLOT(navigateHome()));
+  toolBar->addAction(mNavigateHomeAction);
 
   toolBar->addSeparator();
 
-  QAction* navigateBackwardAction = new QAction(QIcon(":/ico/48/img/material/48/icons8-simple-arrow.png"), tr("Back"), this);
-  navigateBackwardAction->setStatusTip(tr("Back"));
-  connect(navigateBackwardAction, SIGNAL(triggered()), this, SLOT(navigateBackward()));
-  toolBar->addAction(navigateBackwardAction);
+  mNavigateBackwardAction = new QAction(this);
+  mNavigateBackwardAction->setIcon(QIcon::fromTheme("back-button"));
+  connect(mNavigateBackwardAction, SIGNAL(triggered()), this, SLOT(navigateBackward()));
+  toolBar->addAction(mNavigateBackwardAction);
 
-  mNavigateForwardAction = new QAction(QIcon(":/ico/48/img/material/48/icons8-circled-arrow-right.png"), tr("Forward"), this);
-  mNavigateForwardAction->setStatusTip(tr("Forward"));
+  mNavigateForwardAction = new QAction(this);
+  mNavigateForwardAction->setIcon(QIcon::fromTheme("forward-button"));
   connect(mNavigateForwardAction, SIGNAL(triggered()), this, SLOT(navigateForward()));
   toolBar->addAction(mNavigateForwardAction);
 
@@ -231,11 +231,19 @@ void HelpDialog::init()
   mSearchResultsWidget->setOpenLinks(false);
   mSearchResultsWidget->setOpenExternalLinks(false);
 
+  retranslate();
+
   navigateHome();
 }
 
 void HelpDialog::retranslate()
 {
+  mNavigateHomeAction->setText(QApplication::translate("HelpDialog", "Home"));
+  mNavigateHomeAction->setStatusTip(QApplication::translate("HelpDialog", "Home"));
+  mNavigateBackwardAction->setText(QApplication::translate("HelpDialog", "Back"));
+  mNavigateBackwardAction->setStatusTip(QApplication::translate("HelpDialog", "Back"));
+  mNavigateForwardAction->setText(QApplication::translate("HelpDialog", "Forward"));
+  mNavigateForwardAction->setStatusTip(QApplication::translate("HelpDialog", "Forward"));
 }
 
 } // namespace graphos

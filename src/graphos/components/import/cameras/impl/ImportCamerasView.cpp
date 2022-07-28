@@ -82,7 +82,6 @@ QString ImportCamerasViewImp::delimiter() const
 void ImportCamerasViewImp::initUI()
 {
   this->setObjectName(QStringLiteral("ExportOrientationsView"));
-  this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(1000, 800);
   this->setMaximumWidth(1200);
 

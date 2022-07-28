@@ -51,7 +51,6 @@ void DensificationViewImp::initUI()
 {
   this->setObjectName(QString("DensificationView"));
   this->resize(443, 248);
-  this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
 
   mGridLayout = new QGridLayout(this);
 

@@ -76,9 +76,8 @@ void ProgressBarWidget::initUI()
   layout->addWidget(mProgressBar, 0, 0);
   mProgressBar->setValue(0);
 
-  mActionCancel->setIcon(QIcon(":/ico/24/img/material/24/icons8_cancel_24px.png"));
-
-  mActionMaximize->setIcon(QIcon(":/ico/24/img/material/24/icons8_minimize_window_24px.png"));
+  mActionCancel->setIcon(QIcon::fromTheme("cancel"));
+  mActionMaximize->setIcon(QIcon::fromTheme("minimize-window"));
  
   QToolBar *toolBar = new QToolBar(this);
   toolBar->addAction(mActionCancel);

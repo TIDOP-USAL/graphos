@@ -102,6 +102,9 @@ private:
   QHelpEngine *mHelpEngine;
   HelpBrowser *mHelpBrowser;
   QTextBrowser *mSearchResultsWidget;
+
+  QAction *mNavigateHomeAction;
+  QAction *mNavigateBackwardAction;
   QAction *mNavigateForwardAction;
 };
 

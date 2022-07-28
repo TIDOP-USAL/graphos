@@ -43,9 +43,7 @@ void RecentProjectsViewImp::init()
 {
   mActionNotRecentProjects->setEnabled(false);
    
-  QIcon icon_delete_trash;
-  icon_delete_trash.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-delete-2.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionClearHistory->setIcon(icon_delete_trash);
+  mActionClearHistory->setIcon(QIcon::fromTheme("delete-history"));
   
   this->addAction(mActionNotRecentProjects);
   this->addSeparator();

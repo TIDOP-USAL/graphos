@@ -48,8 +48,7 @@ void ProgressBarDialog::initUI()
   sizePolicy.setVerticalStretch(0);
   sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
   this->setSizePolicy(sizePolicy);
-  
-  //this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
+ 
   
   QGridLayout *gridLayout = new QGridLayout(this);
   QSpacerItem *horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);

@@ -112,16 +112,6 @@ void MatchViewerViewImp::initUI()
   mButtonBox->setStandardButtons(QDialogButtonBox::Close|QDialogButtonBox::Help);
   gridLayout->addWidget(mButtonBox, 5, 0, 1, 2);
 
-  //QIcon iconZoomIn;
-  //iconZoomIn.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-in.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //QIcon iconZoomOut;
-  //iconZoomOut.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-zoom-out.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //QIcon iconZoomExtend;
-  //iconZoomExtend.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-magnifying-glass-with-expand-sign.png"), QSize(), QIcon::Normal, QIcon::Off);
-  //QIcon iconZoom11;
-  //iconZoom11.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-one-to-one.png"), QSize(), QIcon::Normal, QIcon::Off);
-
-
   this->retranslate();
   this->update();
 }

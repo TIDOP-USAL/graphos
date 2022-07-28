@@ -61,7 +61,6 @@ DtmViewImp::~DtmViewImp()
 void DtmViewImp::initUI()
 {
   this->setObjectName(QString("DtmView"));
-  //this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(380, 350);
 
   QGridLayout *gridLayout = new QGridLayout();

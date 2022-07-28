@@ -77,7 +77,6 @@ void SettingsViewImp::onPushButtonImageViewerBGColorClicked()
 void SettingsViewImp::initUI()
 {
   setObjectName(QString("SettingsView"));
-  //setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
   resize(750, 450);
 
 

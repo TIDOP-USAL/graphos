@@ -55,7 +55,7 @@ void GeoreferenceComponent::init()
 
   createCommand();
 
-  action()->setIcon(QIcon(":/ico/24/img/material/24/icons8-coordinate-system.png"));
+  action()->setIcon(QIcon::fromTheme("orientation"));
 }
 
 void GeoreferenceComponent::createModel()

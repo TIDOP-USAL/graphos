@@ -40,7 +40,6 @@ PropertiesViewImp::PropertiesViewImp(QWidget *parent)
 void PropertiesViewImp::initUI()
 {
   this->setObjectName(QString::fromUtf8("PropertiesView"));
-  //this->setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
 
   QGridLayout *layout  = new QGridLayout();
   this->setLayout(layout);

@@ -77,7 +77,7 @@ void AboutViewImp::addLicence(const QString &product,
 void AboutViewImp::initUI()
 {
   this->setObjectName(QString::fromUtf8("AboutView"));
-  this->setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
+  //this->setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
   this->resize(692, 540);
 
   QGridLayout *layout = new QGridLayout();
