@@ -46,129 +46,138 @@ FeatureViewerSettingsWidget::FeatureViewerSettingsWidget(QWidget *parent)
 
 QString FeatureViewerSettingsWidget::backgroundColor() const
 {
-  return mLineEditKeypointViewerBGColor->text();
+  return mLineEditBackgroundColor->text();
 }
 
 int FeatureViewerSettingsWidget::markerType() const
 {
-  return mListWidgetKeypointsViewerMarkerType->currentRow();
+  return mListWidgetMarkerType->currentRow();
 }
 
 int FeatureViewerSettingsWidget::markerSize() const
 {
-  return mSpinBoxKeypointViewerMarkerSize->value();
+  return mSpinBoxMarkerSize->value();
 }
 
 int FeatureViewerSettingsWidget::markerWidth() const
 {
-  return mSpinBoxKeypointViewerMarkerWidth->value();
+  return mSpinBoxMarkerWidth->value();
 }
 
 QString FeatureViewerSettingsWidget::markerColor() const
 {
-  return mLineEditKeypointViewerMarkerColor->text();
+  return mLineEditMarkerColor->text();
 }
 
 int FeatureViewerSettingsWidget::selectedMarkerWidth() const
 {
-  return mSpinBoxSelectKeypointViewerMarkerWidth->value();
+  return mSpinBoxSelectMarkerWidth->value();
 }
 
 QString FeatureViewerSettingsWidget::selectedMarkerColor() const
 {
-  return mLineEditSelectKeypointViewerMarkerColor->text();
+  return mLineEditSelectMarkerColor->text();
 }
 
 void FeatureViewerSettingsWidget::setBackgroundColor(const QString &color)
 {
-  const QSignalBlocker blockerKeypointViewerBGColor(mLineEditKeypointViewerBGColor);
-  mLineEditKeypointViewerBGColor->setText(color);
+  const QSignalBlocker blockerKeypointViewerBGColor(mLineEditBackgroundColor);
+  mLineEditBackgroundColor->setText(color);
 }
 
 void FeatureViewerSettingsWidget::setMarkerType(int type)
 {
-  const QSignalBlocker blockerKeypointsMarker(mListWidgetKeypointsViewerMarkerType);
-  mListWidgetKeypointsViewerMarkerType->setCurrentRow(type);
+  const QSignalBlocker blockerKeypointsMarker(mListWidgetMarkerType);
+  mListWidgetMarkerType->setCurrentRow(type);
 }
 
 void FeatureViewerSettingsWidget::setMarkerSize(int size)
 {
-  const QSignalBlocker blocker(mSpinBoxKeypointViewerMarkerSize);
-  mSpinBoxKeypointViewerMarkerSize->setValue(size);
+  const QSignalBlocker blocker(mSpinBoxMarkerSize);
+  mSpinBoxMarkerSize->setValue(size);
 }
 
 void FeatureViewerSettingsWidget::setMarkerWidth(int width)
 {
-  const QSignalBlocker blockerKeypointViewerWidth(mSpinBoxKeypointViewerMarkerWidth);
-  mSpinBoxKeypointViewerMarkerWidth->setValue(width);
+  const QSignalBlocker blockerKeypointViewerWidth(mSpinBoxMarkerWidth);
+  mSpinBoxMarkerWidth->setValue(width);
 }
 
 void FeatureViewerSettingsWidget::setMarkerColor(const QString &color)
 {
-  const QSignalBlocker blockerKeypointMarkerColor(mLineEditKeypointViewerMarkerColor);
-  mLineEditKeypointViewerMarkerColor->setText(color);
+  const QSignalBlocker blockerKeypointMarkerColor(mLineEditMarkerColor);
+  mLineEditMarkerColor->setText(color);
 }
 
 void FeatureViewerSettingsWidget::setSelectedMarkerWidth(int width)
 {
-  const QSignalBlocker blockerSelectKeypointViewerWidth(mSpinBoxSelectKeypointViewerMarkerWidth);
-  mSpinBoxSelectKeypointViewerMarkerWidth->setValue(width);
+  const QSignalBlocker blockerSelectKeypointViewerWidth(mSpinBoxSelectMarkerWidth);
+  mSpinBoxSelectMarkerWidth->setValue(width);
 }
 
 void FeatureViewerSettingsWidget::setSelectedMarkerColor(const QString &color)
 {
-  const QSignalBlocker blockerSelectKeypointViewerColor(mLineEditSelectKeypointViewerMarkerColor);
-  mLineEditSelectKeypointViewerMarkerColor->setText(color);
+  const QSignalBlocker blockerSelectKeypointViewerColor(mLineEditSelectMarkerColor);
+  mLineEditSelectMarkerColor->setText(color);
 }
 
 void FeatureViewerSettingsWidget::onPushButtonBackgroundColorClicked()
 {
-  QColor color = QColorDialog::getColor(QColor(mLineEditKeypointViewerBGColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
+  QColor color = QColorDialog::getColor(QColor(mLineEditBackgroundColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
   if (color.isValid())
-    mLineEditKeypointViewerBGColor->setText(color.name());
+    mLineEditBackgroundColor->setText(color.name());
 }
 
 void FeatureViewerSettingsWidget::onPushButtonMarkerColorClicked()
 {
-  QColor color = QColorDialog::getColor(QColor(mLineEditKeypointViewerMarkerColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
+  QColor color = QColorDialog::getColor(QColor(mLineEditMarkerColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
   if (color.isValid())
-    mLineEditKeypointViewerMarkerColor->setText(color.name());
+    mLineEditMarkerColor->setText(color.name());
 }
 
 void FeatureViewerSettingsWidget::onPushButtonSelectedMarkerColorClicked()
 {
-  QColor color = QColorDialog::getColor(QColor(mLineEditSelectKeypointViewerMarkerColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
+  QColor color = QColorDialog::getColor(QColor(mLineEditSelectMarkerColor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
   if (color.isValid())
-    mLineEditSelectKeypointViewerMarkerColor->setText(color.name());
+    mLineEditSelectMarkerColor->setText(color.name());
 }
 
 void FeatureViewerSettingsWidget::update()
 {
-  mSpinBoxKeypointViewerMarkerSize->setDisabled(mListWidgetKeypointsViewerMarkerType->currentRow() == 0);
+  mSpinBoxMarkerSize->setDisabled(mListWidgetMarkerType->currentRow() == 0);
 }
 
 void FeatureViewerSettingsWidget::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("FeatureViewerSettingsWidget", "Feature viewer", nullptr));
+  setWindowTitle(QApplication::translate("FeatureViewerSettingsWidget", "Feature viewer", nullptr));
+  mLabelBackgroundColor->setText(QApplication::translate("FeatureViewerSettingsWidget", "Background Color:", nullptr));
+  mGroupBoxMVMarker->setTitle(QApplication::translate("FeatureViewerSettingsWidget", "Marker", nullptr));
+  mLabelMarkerSize->setText(QApplication::translate("FeatureViewerSettingsWidget", "Size:", nullptr));
+  mLabelMarkerWidth->setText(QApplication::translate("FeatureViewerSettingsWidget", "Width:", nullptr));
+  mLabelMarkerColor->setText(QApplication::translate("FeatureViewerSettingsWidget", "Color:", nullptr));
+  mGroupBoxSelectMarker->setTitle(QApplication::translate("FeatureViewerSettingsWidget", "Selected marker"));
+  mLabelSelectMarkerWidth->setText(QApplication::translate("MatchViewerSettingsWidget", "Width:", nullptr));
+  mLabelSelectMarkerColor->setText(QApplication::translate("MatchViewerSettingsWidget", "Color:", nullptr));
+
 }
 
 void FeatureViewerSettingsWidget::clear()
 {
-  const QSignalBlocker blockerKeypointViewerBGColor(mLineEditKeypointViewerBGColor);
-  const QSignalBlocker blockerKeypointsMarker(mListWidgetKeypointsViewerMarkerType);
-  const QSignalBlocker blockerKeypointMarkerSize(mSpinBoxKeypointViewerMarkerSize);
-  const QSignalBlocker blockerKeypointViewerWidth(mSpinBoxKeypointViewerMarkerWidth);
-  const QSignalBlocker blockerKeypointMarkerColor(mLineEditKeypointViewerMarkerColor);
-  const QSignalBlocker blockerSelectKeypointViewerWidth(mSpinBoxSelectKeypointViewerMarkerWidth);
-  const QSignalBlocker blockerSelectKeypointViewerColor(mLineEditSelectKeypointViewerMarkerColor);
+  const QSignalBlocker blockerKeypointViewerBGColor(mLineEditBackgroundColor);
+  const QSignalBlocker blockerKeypointsMarker(mListWidgetMarkerType);
+  const QSignalBlocker blockerKeypointMarkerSize(mSpinBoxMarkerSize);
+  const QSignalBlocker blockerKeypointViewerWidth(mSpinBoxMarkerWidth);
+  const QSignalBlocker blockerKeypointMarkerColor(mLineEditMarkerColor);
+  const QSignalBlocker blockerSelectKeypointViewerWidth(mSpinBoxSelectMarkerWidth);
+  const QSignalBlocker blockerSelectKeypointViewerColor(mLineEditSelectMarkerColor);
   
-  mLineEditKeypointViewerBGColor->setText("#dcdcdc");
-  mListWidgetKeypointsViewerMarkerType->setCurrentRow(0);
-  mSpinBoxKeypointViewerMarkerSize->setValue(20);
-  mSpinBoxKeypointViewerMarkerWidth->setValue(2);
-  mLineEditKeypointViewerMarkerColor->setText("#00aa00");
-  mSpinBoxSelectKeypointViewerMarkerWidth->setValue(2);
-  mLineEditSelectKeypointViewerMarkerColor->setText("#e5097e");
+  mLineEditBackgroundColor->setText("#dcdcdc");
+  mListWidgetMarkerType->setCurrentRow(0);
+  mSpinBoxMarkerSize->setValue(20);
+  mSpinBoxMarkerWidth->setValue(2);
+  mLineEditMarkerColor->setText("#00aa00");
+  mSpinBoxSelectMarkerWidth->setValue(2);
+  mLineEditSelectMarkerColor->setText("#e5097e");
 }
 
 void FeatureViewerSettingsWidget::initUI()
@@ -184,67 +193,80 @@ void FeatureViewerSettingsWidget::initUI()
 
   QGridLayout *gridLayoutContentsFeaturesViewer = new QGridLayout(scrollAreaWidgetContentsViewerKeypoints);
 
-  //QGroupBox *groupBoxKPVGeneral = new QGroupBox(tr("General"), this);
-  //gridLayoutContentsFeaturesViewer->addWidget(groupBoxKPVGeneral);
-  //QGridLayout *layoutKPVGeneral = new QGridLayout();
-  //groupBoxKPVGeneral->setLayout(layoutKPVGeneral);
-  gridLayoutContentsFeaturesViewer->addWidget(new QLabel(tr("Background Color:")), 0, 0, 1, 1);
-  mLineEditKeypointViewerBGColor = new QLineEdit(this);
-  mLineEditKeypointViewerBGColor->setText("#dcdcdc");
-  gridLayoutContentsFeaturesViewer->addWidget(mLineEditKeypointViewerBGColor, 0, 1, 1, 1);
-  mPushButtonKeypointViewerBGColor = new QPushButton(tr("..."), this);
-  mPushButtonKeypointViewerBGColor->setMaximumSize(QSize(23, 23));
-  gridLayoutContentsFeaturesViewer->addWidget(mPushButtonKeypointViewerBGColor, 0, 2, 1, 1);
+  mLabelBackgroundColor = new QLabel(this);
+  gridLayoutContentsFeaturesViewer->addWidget(mLabelBackgroundColor, 0, 0, 1, 1);
+  mLineEditBackgroundColor = new QLineEdit(this);
+  mLineEditBackgroundColor->setText("#dcdcdc");
+  gridLayoutContentsFeaturesViewer->addWidget(mLineEditBackgroundColor, 0, 1, 1, 1);
+  mPushButtonBackgroundColor = new QPushButton(tr("..."), this);
+  mPushButtonBackgroundColor->setMaximumSize(QSize(23, 23));
+  gridLayoutContentsFeaturesViewer->addWidget(mPushButtonBackgroundColor, 0, 2, 1, 1);
 
-  QGroupBox *groupBoxKPVMarker = new QGroupBox(tr("Marker"), this);
-  gridLayoutContentsFeaturesViewer->addWidget(groupBoxKPVMarker, 1, 0, 1, 3);
+  /* Marker */
+
+  mGroupBoxMVMarker = new QGroupBox(tr("Marker"), this);
+  gridLayoutContentsFeaturesViewer->addWidget(mGroupBoxMVMarker, 1, 0, 1, 3);
   QGridLayout *layoutKPVMarker = new QGridLayout();
-  groupBoxKPVMarker->setLayout(layoutKPVMarker);
-  layoutKPVMarker->addWidget(new QLabel(tr("Type:")), 0, 0, 1, 1);
-  mListWidgetKeypointsViewerMarkerType = new QListWidget(this);
-  mListWidgetKeypointsViewerMarkerType->setIconSize(QSize(30, 30));
-  mListWidgetKeypointsViewerMarkerType->setViewMode(QListWidget::ListMode);
-  mListWidgetKeypointsViewerMarkerType->setResizeMode(QListWidget::Fixed);
-  mListWidgetKeypointsViewerMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint.png"), "Scale/Distance", mListWidgetKeypointsViewerMarkerType));
-  mListWidgetKeypointsViewerMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_circle.png"), "Circle", mListWidgetKeypointsViewerMarkerType));
-  mListWidgetKeypointsViewerMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_cross.png"), "Cross", mListWidgetKeypointsViewerMarkerType));
-  mListWidgetKeypointsViewerMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_diag_cross.png"), "Diagonal cross", mListWidgetKeypointsViewerMarkerType));
-  mListWidgetKeypointsViewerMarkerType->setCurrentRow(0);
-  layoutKPVMarker->addWidget(mListWidgetKeypointsViewerMarkerType, 0, 1, 1, 2);
-  layoutKPVMarker->addWidget(new QLabel(tr("Size:")), 1, 0, 1, 1);
-  mSpinBoxKeypointViewerMarkerSize = new QSpinBox(this);
-  mSpinBoxKeypointViewerMarkerSize->setRange(0, 100);
-  mSpinBoxKeypointViewerMarkerSize->setValue(20);
-  layoutKPVMarker->addWidget(mSpinBoxKeypointViewerMarkerSize, 1, 1, 1, 2);
-  layoutKPVMarker->addWidget(new QLabel(tr("Width:")), 2, 0, 1, 1);
-  mSpinBoxKeypointViewerMarkerWidth = new QSpinBox(this);
-  mSpinBoxKeypointViewerMarkerWidth->setRange(0, 50);
-  mSpinBoxKeypointViewerMarkerWidth->setValue(2);
-  layoutKPVMarker->addWidget(mSpinBoxKeypointViewerMarkerWidth, 2, 1, 1, 2);
-  layoutKPVMarker->addWidget(new QLabel(tr("Color:")), 3, 0, 1, 1);
-  mLineEditKeypointViewerMarkerColor = new QLineEdit(this);
-  mLineEditKeypointViewerMarkerColor->setText("#e5097e");
-  layoutKPVMarker->addWidget(mLineEditKeypointViewerMarkerColor, 3, 1, 1, 1);
-  mPushButtonKeypointViewerMarkerColor = new QPushButton(tr("..."), this);
-  mPushButtonKeypointViewerMarkerColor->setMaximumSize(QSize(23, 23));
-  layoutKPVMarker->addWidget(mPushButtonKeypointViewerMarkerColor, 3, 2, 1, 1);
+  mGroupBoxMVMarker->setLayout(layoutKPVMarker);
 
-  QGroupBox *groupBoxKPVSelectMarker = new QGroupBox(tr("Selected marker"), this);
-  gridLayoutContentsFeaturesViewer->addWidget(groupBoxKPVSelectMarker, 2, 0, 1, 3);
+  mLabelMarkerType = new QLabel(this);
+  layoutKPVMarker->addWidget(mLabelMarkerType, 0, 0, 1, 1);
+  mListWidgetMarkerType = new QListWidget(this);
+  mListWidgetMarkerType->setIconSize(QSize(30, 30));
+  mListWidgetMarkerType->setViewMode(QListWidget::ListMode);
+  mListWidgetMarkerType->setResizeMode(QListWidget::Fixed);
+  mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint.png"), "Scale/Distance", mListWidgetMarkerType));
+  mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_circle.png"), "Circle", mListWidgetMarkerType));
+  mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_cross.png"), "Cross", mListWidgetMarkerType));
+  mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_diag_cross.png"), "Diagonal cross", mListWidgetMarkerType));
+  mListWidgetMarkerType->setCurrentRow(0);
+  layoutKPVMarker->addWidget(mListWidgetMarkerType, 0, 1, 1, 2);
+
+  mLabelMarkerSize = new QLabel(this);
+  layoutKPVMarker->addWidget(mLabelMarkerSize, 1, 0, 1, 2);
+  mSpinBoxMarkerSize = new QSpinBox(this);
+  mSpinBoxMarkerSize->setRange(0, 100);
+  mSpinBoxMarkerSize->setValue(20);
+  layoutKPVMarker->addWidget(mSpinBoxMarkerSize, 1, 1, 1, 2);
+
+  mLabelMarkerWidth = new QLabel(this);
+  layoutKPVMarker->addWidget(mLabelMarkerWidth, 2, 0, 1, 1);
+  mSpinBoxMarkerWidth = new QSpinBox(this);
+  mSpinBoxMarkerWidth->setRange(0, 50);
+  mSpinBoxMarkerWidth->setValue(2);
+  layoutKPVMarker->addWidget(mSpinBoxMarkerWidth, 2, 1, 1, 2);
+
+  mLabelMarkerColor = new QLabel(this);
+  layoutKPVMarker->addWidget(mLabelMarkerColor, 3, 0, 1, 1);
+  mLineEditMarkerColor = new QLineEdit(this);
+  mLineEditMarkerColor->setText("#e5097e");
+  layoutKPVMarker->addWidget(mLineEditMarkerColor, 3, 1, 1, 1);
+  mPushButtonMarkerColor = new QPushButton(tr("..."), this);
+  mPushButtonMarkerColor->setMaximumSize(QSize(23, 23));
+  layoutKPVMarker->addWidget(mPushButtonMarkerColor, 3, 2, 1, 1);
+
+  /* Select marker */
+
+  mGroupBoxSelectMarker = new QGroupBox(this);
+  gridLayoutContentsFeaturesViewer->addWidget(mGroupBoxSelectMarker, 2, 0, 1, 3);
   QGridLayout *layoutKPVSelectMarker = new QGridLayout();
-  groupBoxKPVSelectMarker->setLayout(layoutKPVSelectMarker);
-  layoutKPVSelectMarker->addWidget(new QLabel(tr("Width:")), 0, 0, 1, 1);
-  mSpinBoxSelectKeypointViewerMarkerWidth = new QSpinBox(this);
-  mSpinBoxSelectKeypointViewerMarkerWidth->setRange(0, 50);
-  mSpinBoxSelectKeypointViewerMarkerWidth->setValue(2);
-  layoutKPVSelectMarker->addWidget(mSpinBoxSelectKeypointViewerMarkerWidth, 0, 1, 1, 2);
-  layoutKPVSelectMarker->addWidget(new QLabel(tr("Color:")), 1, 0, 1, 1);
-  mLineEditSelectKeypointViewerMarkerColor = new QLineEdit(this);
-  mLineEditSelectKeypointViewerMarkerColor->setText("#ff0000");
-  layoutKPVSelectMarker->addWidget(mLineEditSelectKeypointViewerMarkerColor, 1, 1, 1, 1);
-  mPushButtonSelectKeypointViewerMarkerColor = new QPushButton(tr("..."), this);
-  mPushButtonSelectKeypointViewerMarkerColor->setMaximumSize(QSize(23, 23));
-  layoutKPVSelectMarker->addWidget(mPushButtonSelectKeypointViewerMarkerColor, 1, 2, 1, 1);
+  mGroupBoxSelectMarker->setLayout(layoutKPVSelectMarker);
+
+  mLabelSelectMarkerWidth = new QLabel(this);
+  layoutKPVSelectMarker->addWidget(mLabelSelectMarkerWidth, 0, 0, 1, 1);
+  mSpinBoxSelectMarkerWidth = new QSpinBox(this);
+  mSpinBoxSelectMarkerWidth->setRange(0, 50);
+  mSpinBoxSelectMarkerWidth->setValue(2);
+  layoutKPVSelectMarker->addWidget(mSpinBoxSelectMarkerWidth, 0, 1, 1, 2);
+
+  mLabelSelectMarkerColor = new QLabel(this);
+  layoutKPVSelectMarker->addWidget(mLabelSelectMarkerColor, 1, 0, 1, 1);
+  mLineEditSelectMarkerColor = new QLineEdit(this);
+  mLineEditSelectMarkerColor->setText("#ff0000");
+  layoutKPVSelectMarker->addWidget(mLineEditSelectMarkerColor, 1, 1, 1, 1);
+  mPushButtonSelectMarkerColor = new QPushButton(tr("..."), this);
+  mPushButtonSelectMarkerColor->setMaximumSize(QSize(23, 23));
+  layoutKPVSelectMarker->addWidget(mPushButtonSelectMarkerColor, 1, 2, 1, 1);
 
   gridLayoutContentsFeaturesViewer->addItem(new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding), 3, 1, 1, 1);
 
@@ -258,17 +280,17 @@ void FeatureViewerSettingsWidget::initUI()
 
 void FeatureViewerSettingsWidget::initSignalAndSlots()
 {
-  connect(mLineEditKeypointViewerBGColor, SIGNAL(textChanged(QString)), this,SIGNAL(backgroundColorChange(QString)));
-  connect(mPushButtonKeypointViewerBGColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonBackgroundColorClicked()));
-  connect(mSpinBoxKeypointViewerMarkerSize, SIGNAL(valueChanged(int)), this, SIGNAL(markerSizeChange(int)));
-  connect(mSpinBoxKeypointViewerMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(markerWidthChange(int)));
-  connect(mLineEditKeypointViewerMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(markerColorChange(QString)));
-  connect(mPushButtonKeypointViewerMarkerColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonMarkerColorClicked()));
-  connect(mSpinBoxSelectKeypointViewerMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(selectedMarkerWidthChange(int)));
-  connect(mLineEditSelectKeypointViewerMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(selectedMarkerColorChange(QString)));
-  connect(mPushButtonSelectKeypointViewerMarkerColor, SIGNAL(clicked(bool)),                this,  SLOT(onPushButtonSelectedMarkerColorClicked()));
-  connect(mListWidgetKeypointsViewerMarkerType, SIGNAL(currentRowChanged(int)), this, SIGNAL(markerTypeChange(int)));
-  connect(mListWidgetKeypointsViewerMarkerType, SIGNAL(currentTextChanged(QString)), this, SLOT(update()));
+  connect(mLineEditBackgroundColor, SIGNAL(textChanged(QString)), this,SIGNAL(backgroundColorChange(QString)));
+  connect(mPushButtonBackgroundColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonBackgroundColorClicked()));
+  connect(mSpinBoxMarkerSize, SIGNAL(valueChanged(int)), this, SIGNAL(markerSizeChange(int)));
+  connect(mSpinBoxMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(markerWidthChange(int)));
+  connect(mLineEditMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(markerColorChange(QString)));
+  connect(mPushButtonMarkerColor, SIGNAL(clicked(bool)), this, SLOT(onPushButtonMarkerColorClicked()));
+  connect(mSpinBoxSelectMarkerWidth, SIGNAL(valueChanged(int)), this, SIGNAL(selectedMarkerWidthChange(int)));
+  connect(mLineEditSelectMarkerColor, SIGNAL(textChanged(QString)), this, SIGNAL(selectedMarkerColorChange(QString)));
+  connect(mPushButtonSelectMarkerColor, SIGNAL(clicked(bool)),                this,  SLOT(onPushButtonSelectedMarkerColorClicked()));
+  connect(mListWidgetMarkerType, SIGNAL(currentRowChanged(int)), this, SIGNAL(markerTypeChange(int)));
+  connect(mListWidgetMarkerType, SIGNAL(currentTextChanged(QString)), this, SLOT(update()));
 }
 
 

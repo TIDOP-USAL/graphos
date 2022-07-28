@@ -237,7 +237,7 @@ void MatchViewerSettingsWidget::initUI()
   /* Marker */
 
   mGroupBoxMVMarker = new QGroupBox(this);
-  gridLayoutContentsMatchesViewer->addWidget(mGroupBoxMVMarker);
+  gridLayoutContentsMatchesViewer->addWidget(mGroupBoxMVMarker, 1, 0, 1, 3);
   QGridLayout *layoutMVMarker = new QGridLayout();
   mGroupBoxMVMarker->setLayout(layoutMVMarker);
 
@@ -251,21 +251,21 @@ void MatchViewerSettingsWidget::initUI()
   mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_cross.png"), "Cross", mListWidgetMarkerType));
   mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_diag_cross.png"), "Diagonal cross", mListWidgetMarkerType));
   mListWidgetMarkerType->setCurrentRow(0);
-  layoutMVMarker->addWidget(mListWidgetMarkerType, 0, 1, 1, 1);
+  layoutMVMarker->addWidget(mListWidgetMarkerType, 0, 1, 1, 2);
 
   mLabelMarkerSize = new QLabel(this);
-  layoutMVMarker->addWidget(mLabelMarkerSize, 1, 0, 1, 1);
+  layoutMVMarker->addWidget(mLabelMarkerSize, 1, 0, 1, 2);
   mSpinBoxMarkerSize = new QSpinBox(this);
   mSpinBoxMarkerSize->setRange(0, 100);
   mSpinBoxMarkerSize->setValue(20);
-  layoutMVMarker->addWidget(mSpinBoxMarkerSize, 1, 1, 1, 1);
+  layoutMVMarker->addWidget(mSpinBoxMarkerSize, 1, 1, 1, 2);
 
   mLabelMarkerWidth = new QLabel(this);
   layoutMVMarker->addWidget(mLabelMarkerWidth, 2, 0, 1, 1);
   mSpinBoxMarkerWidth = new QSpinBox(this);
   mSpinBoxMarkerWidth->setRange(0, 50);
   mSpinBoxMarkerWidth->setValue(2);
-  layoutMVMarker->addWidget(mSpinBoxMarkerWidth, 2, 1, 1, 1);
+  layoutMVMarker->addWidget(mSpinBoxMarkerWidth, 2, 1, 1, 2);
 
   mLabelMarkerColor = new QLabel(this);
   layoutMVMarker->addWidget(mLabelMarkerColor, 3, 0, 1, 1);
@@ -279,7 +279,7 @@ void MatchViewerSettingsWidget::initUI()
   /* Select matches */
 
   mGroupBoxSelectMatches = new QGroupBox(this);
-  gridLayoutContentsMatchesViewer->addWidget(mGroupBoxSelectMatches);
+  gridLayoutContentsMatchesViewer->addWidget(mGroupBoxSelectMatches, 2, 0, 1, 3);
   QGridLayout *layoutMVSelectMarker = new QGridLayout();
   mGroupBoxSelectMatches->setLayout(layoutMVSelectMarker);
 
@@ -288,7 +288,7 @@ void MatchViewerSettingsWidget::initUI()
   mSpinBoxSelectMarkerWidth = new QSpinBox(this);
   mSpinBoxSelectMarkerWidth->setRange(0, 50);
   mSpinBoxSelectMarkerWidth->setValue(2);
-  layoutMVSelectMarker->addWidget(mSpinBoxSelectMarkerWidth, 0, 1, 1, 1);
+  layoutMVSelectMarker->addWidget(mSpinBoxSelectMarkerWidth, 0, 1, 1, 2);
 
   mLabelSelectMarkerColor = new QLabel(this);
   layoutMVSelectMarker->addWidget(mLabelSelectMarkerColor, 1, 0, 1, 1);
@@ -302,7 +302,7 @@ void MatchViewerSettingsWidget::initUI()
   /* Line */
 
   mGroupBoxLine = new QGroupBox(this);
-  gridLayoutContentsMatchesViewer->addWidget(mGroupBoxLine);
+  gridLayoutContentsMatchesViewer->addWidget(mGroupBoxLine, 3, 0, 1, 3);
   QGridLayout *layoutMVLine = new QGridLayout();
   mGroupBoxLine->setLayout(layoutMVLine);
 
@@ -311,7 +311,7 @@ void MatchViewerSettingsWidget::initUI()
   mSpinBoxLineWidth = new QSpinBox(this);
   mSpinBoxLineWidth->setRange(0, 50);
   mSpinBoxLineWidth->setValue(2);
-  layoutMVLine->addWidget(mSpinBoxLineWidth, 0, 1, 1, 1);
+  layoutMVLine->addWidget(mSpinBoxLineWidth, 0, 1, 1, 2);
 
   mLabelLineColor = new QLabel(this);
   layoutMVLine->addWidget(mLabelLineColor, 1, 0, 1, 1);
@@ -322,7 +322,7 @@ void MatchViewerSettingsWidget::initUI()
   mPushButtonLineColor->setMaximumSize(QSize(23, 23));
   layoutMVLine->addWidget(mPushButtonLineColor, 1, 2, 1, 1);
 
-  gridLayoutContentsMatchesViewer->addItem(new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding), 4, 1, 1, 1);
+  gridLayoutContentsMatchesViewer->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding), 4, 1, 1, 1);
 
   scrollMatchesViewer->setWidget(scrollAreaWidgetContentsViewerMatches);
   layout->addWidget(scrollMatchesViewer);

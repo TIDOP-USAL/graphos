@@ -31,6 +31,7 @@ class QLabel;
 class QSpinBox;
 class QPushButton;
 class QListWidget;
+class QGroupBox;
 
 namespace graphos
 {
@@ -100,16 +101,28 @@ private:
 
 protected:
 
-  QLineEdit *mLineEditKeypointViewerBGColor;
-  QPushButton *mPushButtonKeypointViewerBGColor;
-  QSpinBox *mSpinBoxKeypointViewerMarkerSize;
-  QSpinBox *mSpinBoxKeypointViewerMarkerWidth;
-  QLineEdit *mLineEditKeypointViewerMarkerColor;
-  QPushButton *mPushButtonKeypointViewerMarkerColor;
-  QSpinBox *mSpinBoxSelectKeypointViewerMarkerWidth;
-  QLineEdit *mLineEditSelectKeypointViewerMarkerColor;
-  QPushButton *mPushButtonSelectKeypointViewerMarkerColor;
-  QListWidget *mListWidgetKeypointsViewerMarkerType;
+  QLabel *mLabelBackgroundColor;
+  QLineEdit *mLineEditBackgroundColor;
+  QPushButton *mPushButtonBackgroundColor;
+
+  QGroupBox *mGroupBoxMVMarker;
+  QLabel *mLabelMarkerType;
+  QListWidget *mListWidgetMarkerType;
+  QLabel *mLabelMarkerSize;
+  QSpinBox *mSpinBoxMarkerSize;
+  QLabel *mLabelMarkerWidth;
+  QSpinBox *mSpinBoxMarkerWidth;
+  QLabel *mLabelMarkerColor;
+  QLineEdit *mLineEditMarkerColor;
+  QPushButton *mPushButtonMarkerColor;
+
+  QGroupBox *mGroupBoxSelectMarker;
+  QLabel *mLabelSelectMarkerWidth;
+  QSpinBox *mSpinBoxSelectMarkerWidth;
+  QLabel *mLabelSelectMarkerColor;
+  QLineEdit *mLineEditSelectMarkerColor;
+  QPushButton *mPushButtonSelectMarkerColor;
+
   
 };
 
