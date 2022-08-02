@@ -27,10 +27,13 @@
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoModel.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoView.h"
-//#include "graphos/components/loadfromvideo/impl/LoadFromVideoProcess.h"
+#include "graphos/components/loadfromvideo/impl/LoadFromVideoProcess.h"
 #include "graphos/core/utils.h"
 
 #include <tidop/core/defs.h>
+
+//#include <QMediaMetaData>
+//#include <QMediaPlayer>
 
 namespace graphos
 {
@@ -51,21 +54,21 @@ LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp()
 
 }
 
-void LoadFromVideoPresenterImp::setImages(const QStringList &files)
-{
-  //mImageFiles = files;
-}
+//void LoadFromVideoPresenterImp::setImages(const QStringList &files)
+//{
+//  //mImageFiles = files;
+//}
 
-void LoadFromVideoPresenterImp::addImage(int imageId, int cameraId)
+void LoadFromVideoPresenterImp::addImage(QString imagePath, int cameraId)
 {
-  //Image image = mImages[imageId];
-  //Camera camera = mCameras[cameraId];
-  //int camera_id = mModel->cameraID(camera);
-  //if(camera_id == 0)
-  //  camera_id = mModel->addCamera(camera);
+  Image image(imagePath);
+  Camera camera = mCameras[cameraId];
+  int camera_id = mModel->cameraID(camera);
+  if(camera_id == 0)
+    camera_id = mModel->addCamera(camera);
 
-  //image.setCameraId(camera_id);
-  //mModel->addImage(image);
+  image.setCameraId(camera_id);
+  mModel->addImage(image);
 
   //QString crs_proj = mModel->projectCRS();
   //QString crs_image = image.cameraPose().crs();
@@ -73,7 +76,7 @@ void LoadFromVideoPresenterImp::addImage(int imageId, int cameraId)
   //  mModel->setProjectCRS(crs_image);
   //}
 
-  //emit frame_loaded(image.id());
+  emit frame_loaded(image.id());
 }
 
 void LoadFromVideoPresenterImp::open()
@@ -93,10 +96,14 @@ void LoadFromVideoPresenterImp::init()
 
 void LoadFromVideoPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &ProcessView::run,     this,   &ProcessPresenter::run);
+  connect(mView, &ProcessView::run, this, &ProcessPresenter::run);
   connect(mView, &DialogView::help, [&]() {
-    emit help("video.html");
-  });
+            emit help("video.html");
+          });
+
+  //connect(mView, &LoadFromVideoView::video_changed, [&](QString video) {
+  //  //QMediaPlayer 
+  //        });
 }
 
 void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
@@ -121,18 +128,37 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
 {
   std::unique_ptr<tl::Task> process;
   
-  //std::shared_ptr<LoadFromVideoAlgorithm> algorithm = std::make_shared<LoadFromVideoAlgorithm>();
+  QString images_path = mModel->imagesPath();
+  //std::shared_ptr<ImportVideoFramesAlgorithm> algorithm = std::make_shared<ImportVideoFramesAlgorithm>();
+  //algorithm->setVideo(mView->video().toStdWString());
+  //algorithm->setImagesPath(images_path.toStdWString());
+  //algorithm->setSkipFrames(mView->skipFrames());
 
-  //process = std::make_unique<LoadFromVideoProcess>(algorithm);
-  //
-  //if (progressHandler()){
-  //  progressHandler()->setRange(0, 0);
-  //  progressHandler()->setTitle("Computing LoadFromVideo...");
-  //  progressHandler()->setDescription("Computing LoadFromVideo...");
-  //}
-  //
-  //mView->hide();
-  //
+  mCameras.clear();
+  for (const auto &camera : mModel->cameras()) {
+    mCameras.push_back(camera.second);
+  }
+
+  process = std::make_unique<LoadFromVideoTask>(mView->video(),
+                                                mView->skipFrames(),
+                                                mView->videoIni(),
+                                                mView->videoEnd(),
+                                                images_path,
+                                                &mCameras, 
+                                                "OpenCV 1");
+
+  connect(dynamic_cast<LoadFromVideoTask *>(process.get()),
+          &LoadFromVideoTask::image_added,
+          this, &LoadFromVideoPresenterImp::addImage);
+
+  if (progressHandler()){
+    progressHandler()->setRange(0, 0);
+    progressHandler()->setTitle("Computing LoadFromVideo...");
+    progressHandler()->setDescription("Computing LoadFromVideo...");
+  }
+  
+  mView->hide();
+
   return process;
 }
 

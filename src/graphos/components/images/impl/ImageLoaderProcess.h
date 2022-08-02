@@ -27,7 +27,6 @@
 #include <QObject>
 
 #include <tidop/core/task.h>
-//#include <tidop/core/progress.h>
 
 #include "graphos/core/image.h"
 

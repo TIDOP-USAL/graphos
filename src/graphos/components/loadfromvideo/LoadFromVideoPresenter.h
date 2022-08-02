@@ -44,11 +44,11 @@ public:
 
 public slots:
 
-  virtual void setImages(const QStringList &files) = 0;
+  //virtual void setImages(const QStringList &files) = 0;
 
 protected slots:
 
-  virtual void addImage(int imageId, int cameraId) = 0;
+  virtual void addImage(QString image, int cameraId) = 0;
 
 signals:
 

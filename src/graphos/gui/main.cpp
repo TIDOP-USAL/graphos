@@ -124,6 +124,7 @@ using namespace graphos;
 
 int main(int argc, char *argv[])
 {
+
   Application app(argc, argv);
   app.setApplicationName("GRAPHOS");
   app.setApplicationDisplayName("GRAPHOS");
@@ -417,6 +418,10 @@ int main(int argc, char *argv[])
     QObject::connect(&image_loader_component, &ImageLoaderComponent::image_loaded,
                      componentsManager.mainWindowPresenter(), &MainWindowPresenter::loadImage);
 #endif // GRAPHOS_HAVE_IMAGE_LOAD
+#ifdef GRAPHOS_HAVE_VIDEO_LOAD  
+    QObject::connect(&load_video_component, &LoadFromVideoComponent::frame_loaded,
+                     componentsManager.mainWindowPresenter(), &MainWindowPresenter::loadImage);
+#endif // GRAPHOS_HAVE_VIDEO_LOAD
 
 #ifdef GRAPHOS_HAVE_FEATEXTRACT
     QObject::connect(&feature_extractor_component, SIGNAL(features_extracted(size_t)),

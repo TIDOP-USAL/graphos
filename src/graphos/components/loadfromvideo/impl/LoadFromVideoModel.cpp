@@ -55,6 +55,48 @@ LoadFromVideoModelImp::~LoadFromVideoModelImp()
   //}
 }
 
+QString LoadFromVideoModelImp::imagesPath() const
+{
+  return QString(mProject->projectFolder()).append("/images");
+}
+
+void LoadFromVideoModelImp::addImage(const Image &image)
+{
+  mProject->addImage(image);
+}
+
+const std::map<int, Camera> &LoadFromVideoModelImp::cameras() const
+{
+  return mProject->cameras();
+}
+
+int LoadFromVideoModelImp::addCamera(const Camera &camera)
+{
+  return mProject->addCamera(camera);
+}
+
+int LoadFromVideoModelImp::cameraID(const Camera &camera) const
+{
+  return cameraID(camera.make().c_str(), camera.model().c_str());
+}
+
+int LoadFromVideoModelImp::cameraID(const QString &make,
+                                    const QString &model) const
+{
+  int id_camera = 0;
+  for (const auto &camera : mProject->cameras()) {
+
+    QString camera_make = camera.second.make().c_str();
+    QString camera_model = camera.second.model().c_str();
+    if (make.compare(camera_make) == 0 &&
+        model.compare(camera_model) == 0) {
+      id_camera = camera.first;
+      break;
+    }
+  }
+  return id_camera;
+}
+
 //void LoadFromVideoModelImp::loadSettings()
 //{
 //  if (mReadSettings) {

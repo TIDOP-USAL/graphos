@@ -155,7 +155,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_ORTHOPHOTO}>:Graphos::Orthophoto>
                       $<$<BOOL:${GRAPHOS_HAVE_SETTINGS}>:Graphos::Settings>
                       $<$<BOOL:${GRAPHOS_HAVE_PROPERTIES}>:Graphos::Properties>
-                      $<$<BOOL:${GRAPHOS_HAVE_PROPERTIES}>:Graphos::VideoLoad>
+                      $<$<BOOL:${GRAPHOS_HAVE_VIDEO_LOAD}>:Graphos::VideoLoad>
                       CSF
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}

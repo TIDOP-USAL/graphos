@@ -24,6 +24,7 @@
 #include "ThumbnailsWidget.h"
 
 #include "graphos/core/utils.h"
+#include "graphos/core/Application.h"
 
 #include <tidop/core/utils.h>
 #include <tidop/img/imgreader.h>
@@ -138,26 +139,6 @@ void ThumbnailsWidget::setActiveImages(const std::vector<size_t> &imageIds)
     }
   }
 }
-
-//QAction *ThumbnailsWidget::thumbnailAction()
-//{
-//  return mThumbnailAction;
-//}
-//
-//QAction *ThumbnailsWidget::thumbnailSmallAction()
-//{
-//  return mThumbnailSmallAction;
-//}
-//
-//QAction *ThumbnailsWidget::detailsAction()
-//{
-//  return mDetailsAction;
-//}
-//
-//QAction *ThumbnailsWidget::deleteImageAction()
-//{
-//  return mDeleteImageAction;
-//}
 
 /* public slots */
 
@@ -309,6 +290,10 @@ void ThumbnailsWidget::onSelectionChanged()
 
 void ThumbnailsWidget::loadVisibleImages()
 {
+  Application &app = Application::instance();
+  AppStatus *app_status = app.status();
+  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+
   QRect rect = mListWidget->viewport()->rect();
   QRegion region = mListWidget->viewport()->visibleRegion();
 

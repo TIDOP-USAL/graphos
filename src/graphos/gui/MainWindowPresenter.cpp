@@ -147,6 +147,16 @@ void MainWindowPresenter::exit()
   Application &app = Application::instance();
   AppStatus *app_status = app.status();
 
+  if (app_status && app_status->isActive(AppStatus::Flag::processing)) {
+    int i_ret = QMessageBox(QMessageBox::Warning,
+                            tr("Warning"),
+                            tr("Stop the current process before closing the program."),
+                            QMessageBox::Yes).exec();
+    if (i_ret == QMessageBox::Yes) {
+      return;
+    }
+  }
+
   if(app_status && app_status->isActive(AppStatus::Flag::project_modified)){
     int i_ret = QMessageBox(QMessageBox::Information,
                             tr("Save Changes"),

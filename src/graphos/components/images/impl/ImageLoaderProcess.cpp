@@ -337,7 +337,6 @@ int LoadImagesProcess::loadCamera(tl::ImageReader *imageReader)
   }
 
   if (focal < 0.) {
-
     focal = 0.;
   }
 

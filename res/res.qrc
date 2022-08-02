@@ -192,5 +192,14 @@
         <file alias="24/forward-button.png">icons/Material/24/forward-button.png</file>
         <file alias="48/forward-button.png">icons/Material/48/forward-button.png</file>
         <file alias="96/forward-button.png">icons/Material/96/forward-button.png</file>
+        <file alias="24/play.png">icons/Material/24/play.png</file>
+        <file alias="48/play.png">icons/Material/48/play.png</file>
+        <file alias="96/play.png">icons/Material/96/play.png</file>
+        <file alias="24/stop.png">icons/Material/24/stop.png</file>
+        <file alias="48/stop.png">icons/Material/48/stop.png</file>
+        <file alias="96/stop.png">icons/Material/96/stop.png</file>
+        <file alias="24/pause.png">icons/Material/24/pause.png</file>
+        <file alias="48/pause.png">icons/Material/48/pause.png</file>
+        <file alias="96/pause.png">icons/Material/96/pause.png</file>
     </qresource>
 </RCC>

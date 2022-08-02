@@ -30,7 +30,7 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
 #include <tidop/core/progress.h>
-#include <tidop/img/imgreader.h>
+#include <tidop/img/imgwriter.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
 #include <tidop/geospatial/crstransf.h>
@@ -41,339 +41,265 @@
 #include <QSqlError>
 #include <QCoreApplication>
 
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+
+constexpr auto DefaultImportVideoFramesSkipFrames = 20;
+
+class ImportVideoFramesAlgorithm
+{
+
+public:
+
+  ImportVideoFramesAlgorithm();
+  /*
+  ImportVideoFramesAlgorithm(int [propiety],
+                        ...);
+  */
+  ~ImportVideoFramesAlgorithm();
+
+  bool open();
+  cv::Mat read();
+
+  tl::Path video() const;
+  void setVideo(const tl::Path &video);
+
+  double framesPerSecond() const;
+  int width() const;
+  int height() const;
+  int framePosition() const;
+  int skipFrames() const;
+  void setSkipFrames(int skipFrames);
+  void startAt(int frame);
+  void finishAt(int frame);
+
+  void clear();
+
+private:
+
+  tl::Path mVideo;
+
+  cv::VideoCapture mVideoCapture;
+  double mFramesPerSecond;
+  int mCodec;
+  int mWidth{0};
+  int mHeight{0};
+  int mSkipFrames;
+  int mStartAt{0};
+  int mFinishAt{-1};
+};
+
+
+
+
+
+/* ImportVideoFramesAlgorithm */
+
+ImportVideoFramesAlgorithm::ImportVideoFramesAlgorithm()
+  : mSkipFrames(DefaultImportVideoFramesSkipFrames)
+{
+}
+
+ImportVideoFramesAlgorithm::~ImportVideoFramesAlgorithm()
+{
+}
+
+int ImportVideoFramesAlgorithm::skipFrames() const 
+{
+  return mSkipFrames;
+}
+
+void ImportVideoFramesAlgorithm::setSkipFrames(int skipFrames) 
+{
+  mSkipFrames = skipFrames;
+}
+
+void ImportVideoFramesAlgorithm::startAt(int frame)
+{
+  mStartAt = frame;
+}
+
+void ImportVideoFramesAlgorithm::finishAt(int frame)
+{
+  mFinishAt = frame;
+}
+
+void ImportVideoFramesAlgorithm::clear()
+{
+  mSkipFrames = DefaultImportVideoFramesSkipFrames;
+}
+
+bool ImportVideoFramesAlgorithm::open()
+{
+
+  if (!mVideoCapture.open(mVideo.toString())) {
+    return false;
+  } else {
+
+    mWidth = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_WIDTH));
+    mHeight = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
+    msgInfo("Video size: %ix%i", mWidth, mHeight);
+
+    mFramesPerSecond = mVideoCapture.get(cv::CAP_PROP_FPS);
+    msgInfo("Framerate: %f", mFramesPerSecond);
+
+    mCodec = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FOURCC));
+    char c[] = {(char)(mCodec & 0XFF) , (char)((mCodec & 0XFF00) >> 8),(char)((mCodec & 0XFF0000) >> 16),(char)((mCodec & 0XFF000000) >> 24), 0};
+    msgInfo("Video codec: %f", c);
+    
+    mVideoCapture.set(cv::CAP_PROP_POS_FRAMES, mStartAt - 1);
+
+    int frames = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_COUNT));
+    if (mFinishAt == -1 || mFinishAt > frames) {
+      mFinishAt = frames;
+    }
+
+    return true;
+  }
+}
+
+cv::Mat ImportVideoFramesAlgorithm::read()
+{
+
+  cv::Mat frame;
+
+  try {
+
+    double posframe;
+    //bool bret = false;
+    
+    int current_frame = mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
+
+    if (current_frame < mFinishAt && mVideoCapture.read(frame)) {
+      
+      posframe = mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
+      int next_frame = posframe - 1 + skipFrames();
+      mVideoCapture.set(cv::CAP_PROP_POS_FRAMES, next_frame);
+    }
+
+  } catch (std::exception &e) {
+    msgError("Error de lectura: %s", e.what());
+  }
+
+  return frame;
+}
+
+tl::Path ImportVideoFramesAlgorithm::video() const
+{
+  return mVideo;
+}
+
+void ImportVideoFramesAlgorithm::setVideo(const tl::Path &video)
+{
+  mVideo = video;
+}
+
+double ImportVideoFramesAlgorithm::framesPerSecond() const
+{
+  return mFramesPerSecond;
+}
+
+int ImportVideoFramesAlgorithm::width() const
+{
+  return mWidth;
+}
+
+int ImportVideoFramesAlgorithm::height() const
+{
+  return mHeight;
+}
+
+int ImportVideoFramesAlgorithm::framePosition() const
+{
+  return mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
+}
+
+
+
 namespace graphos
 {
 
-  LoadVideoProcess::LoadVideoProcess(std::vector<Image> *images,
+LoadFromVideoTask::LoadFromVideoTask(const QString &video, 
+                                     int skip,
+                                     int videoIni,
+                                     int videoEnd,
+                                     const QString &imagesPath,
                                      std::vector<Camera> *cameras,
-                                     const std::string &cameraType,
-                                     const QString &epsg)
-  : tl::TaskBase(), 
-    mImages(images),
+                                     const std::string &cameraType)
+  : tl::TaskBase(),
+    mVideo(video),
+    mSkipFrames(skip),
+    mVideoIni(videoIni),
+    mVideoEnd(videoEnd),
+    mImagesPath(imagesPath),
     mCameras(cameras),
-    mCameraType(cameraType),
-    mEPSG(epsg)
+    mCameraType(cameraType)
 {
-#ifdef _DEBUG
-  mDatabaseCamerasPath = QString(GRAPHOS_SOURCE_PATH).append("/res");
-#else
-  mDatabaseCamerasPath = qApp->applicationDirPath();
-#endif
-  mDatabaseCamerasPath.append("/cameras.db");
 }
 
-  LoadVideoProcess::~LoadVideoProcess()
+LoadFromVideoTask::~LoadFromVideoTask()
 {
 
 }
 
-//bool LoadImagesProcess::existCamera(const QString &make, const QString &model) const
-//{
-//  bool camera_exist = false;
-//
-//  QString camera_make;
-//  QString camera_model;
-//
-//  for (const auto &camera : *mCameras) {
-//
-//    camera_make.fromStdString(camera.make());
-//    camera_model.fromStdString(camera.model());
-//
-//    if (make.compare(camera_make) == 0 &&
-//        model.compare(camera_model) == 0){
-//      camera_exist = true;
-//      break;
-//    }
-//
-//  }
-//
-//  return camera_exist;
-//}
-
-//int LoadImagesProcess::findCamera(const QString &make, const QString &model) const
-//{
-//  int camera_id = -1;
-//
-//  QString camera_make;
-//  QString camera_model;
-//
-//  for (size_t i = 0; i < mCameras->size(); i++){
-//
-//    camera_make.fromStdString((*mCameras)[i].make());
-//    camera_model.fromStdString((*mCameras)[i].model());
-//
-//    if (make.compare(camera_make) == 0 &&
-//        model.compare(camera_model) == 0){
-//      camera_id = i;
-//      break;
-//    }
-//
-//  }
-//
-//  return camera_id;
-//}
-
-//void LoadImagesProcess::loadImage(size_t imageId)
-//{
-//  try {
-//
-//    QString image = (*mImages)[imageId].path();
-//
-//    msgInfo("Load image: %s", image.toStdString().c_str());
-//
-//    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
-//    imageReader->open();
-//    if (!imageReader->isOpen()) throw std::runtime_error("  Failed to read image file");
-//
-//    int id_camera = 0;
-//    int width = imageReader->cols();
-//    int height = imageReader->rows();
-//    int camera_id = -1;
-//
-//    tl::MessageManager::pause();
-//    std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
-//    bool bActiveCameraName = false;
-//    bool bActiveCameraModel = false;
-//    std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
-//    std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
-//    tl::MessageManager::resume();
-//
-//    msgInfo(" - Camera: %s %s", camera_make.c_str(), camera_model.c_str());
-//
-//    if (existCamera(camera_make.c_str(), camera_model.c_str())) {
-//
-//      camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
-//
-//    } else {
-//
-//      camera_id = loadCamera(imageReader.get());
-//
-//    }
-//
-//    tl::MessageManager::pause();
-//
-//    tl::math::Degrees<double> latitude_degrees{};
-//    tl::math::Degrees<double> longitude_degrees{};
-//    double altitude{};
-//
-//    bool latitude_active = false;
-//
-//    std::string latitude = image_metadata->metadata("EXIF_GPSLatitude", latitude_active);
-//    if (latitude_active) {
-//      std::string latitude_ref = image_metadata->metadata("EXIF_GPSLatitudeRef", latitude_active);
-//      latitude_degrees = formatDegreesFromExif(latitude, latitude_ref);
-//    }
-//
-//    bool longitude_active = false;
-//
-//    std::string longitude = image_metadata->metadata("EXIF_GPSLongitude", longitude_active);
-//    if (longitude_active) {
-//      std::string longitude_ref = image_metadata->metadata("EXIF_GPSLongitudeRef", longitude_active);
-//      longitude_degrees = formatDegreesFromExif(longitude, longitude_ref);
-//    }
-//
-//    bool altitude_active = false;
-//
-//    std::string gps_altitude = image_metadata->metadata("EXIF_GPSAltitude", altitude_active);
-//
-//    if (altitude_active) {
-//
-//      size_t pos1 = gps_altitude.find("(");
-//      size_t pos2 = gps_altitude.find(")");
-//
-//      if (pos1 != std::string::npos && pos2 != std::string::npos) {
-//        altitude = std::stod(gps_altitude.substr(pos1 + 1, pos2 - pos1 + 1));
-//      }
-//
-//    }
-//
-//    if (latitude_active && longitude_active && altitude_active) {
-//
-//      std::string epsg_out;
-//      if (!mCrsOut) {
-//        int zone = tl::geospatial::utmZoneFromLongitude(longitude_degrees.value());
-//        epsg_out = "EPSG:326"; 
-//        epsg_out.append(std::to_string(zone));
-//        mCrsOut = std::make_shared<tl::geospatial::Crs>(epsg_out);
-//      } else {
-//        epsg_out = mEPSG.toStdString();
-//      }
-//
-//      bool bTrfCrs = mCrsIn->isValid() && mCrsOut->isValid();
-//      tl::geospatial::CrsTransform crs_trf(mCrsIn, mCrsOut);
-//      tl::Point3D pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
-//      tl::Point3D pt_out = crs_trf.transform(pt_in);
-//
-//      CameraPose camera_pose;
-//      camera_pose.setPosition(pt_out);
-//      camera_pose.setCrs(epsg_out.c_str());
-//      camera_pose.setSource("EXIF");
-//      (*mImages)[imageId].setCameraPose(camera_pose);
-//    }
-//
-//    tl::MessageManager::resume();
-//
-//    emit imageAdded(imageId, camera_id);
-//
-//  } catch (std::exception &e) {
-//    msgError(e.what());
-//  }
-//}
-
-//int LoadImagesProcess::loadCamera(tl::ImageReader *imageReader)
-//{
-//
-//  int width = imageReader->cols();
-//  int height = imageReader->rows();
-//
-//  tl::MessageManager::pause();
-//  std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
-//  bool bActiveCameraName = false;
-//  bool bActiveCameraModel = false;
-//  std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
-//  std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
-//  tl::MessageManager::resume();
-//
-//  if (!bActiveCameraName && !bActiveCameraModel) {
-//    Camera camera2;
-//    int counter = 0;
-//    for (auto it = mCameras->begin(); it != mCameras->end(); it++) {
-//      camera2 = *it;
-//      if (camera2.make().compare("Unknown camera") == 0) {
-//        if (camera2.width() == width && camera2.height() == height) {
-//          return counter;
-//        }
-//        counter++;
-//      }
-//    }
-//    
-//    camera_make = "Unknown camera";
-//    camera_model = std::to_string(counter);
-//  }
-//
-//  Camera camera(camera_make, camera_model);
-//  camera.setWidth(width);
-//  camera.setHeight(height);
-//  camera.setType(mCameraType);
-//  /// Extract sensor size
-//  double sensor_width_mm = -1.;
-//  DatabaseCameras databaseCameras(mDatabaseCamerasPath);
-//  databaseCameras.open();
-//
-//  if (databaseCameras.isOpen()) {
-//
-//    if (databaseCameras.existCameraMakeId(camera_make.c_str())) {
-//      int camera_make_id = databaseCameras.cameraMakeId(camera_make.c_str());
-//
-//      if (databaseCameras.existCameraModel(camera_make_id, camera_model.c_str())) {
-//        sensor_width_mm = databaseCameras.cameraSensorSize(camera_make_id, camera_model.c_str());
-//      }
-//    }
-//
-//    databaseCameras.close();
-//  }
-//
-//  /// Extract focal
-//
-//  double focal = -1.;
-//
-//  if (bActiveCameraName && bActiveCameraModel) {
-//    bool bActive = false;
-//    int max_size = std::max(width, height);
-//
-//    std::string focal_length_in_35_mm_film = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", bActive);
-//
-//    if (bActive) {
-//
-//      double focal_35mm = parseFocal(focal_length_in_35_mm_film, focal);
-//      focal = focal_35mm / 35.0 * max_size;
-//
-//    }
-//
-//    if (!bActive || focal < 0.) {
-//
-//      std::string focal_length = image_metadata->metadata("EXIF_FocalLength", bActive);
-//      if (bActive ) {
-//
-//        double focal_mm = parseFocal(focal_length, focal);
-//        
-//        if (sensor_width_mm > 0.) {
-//          
-//          focal = focal_mm / sensor_width_mm * max_size;
-//
-//        } else {
-//
-//          std::string exif_pixel_x_dimension = image_metadata->metadata("EXIF_PixelXDimension", bActive);
-//          if (bActive) {
-//            
-//            double pixel_x_dimension = std::stod(exif_pixel_x_dimension);
-//            
-//            double focal_plane_x_resolution = 0.;
-//            std::string exif_focal_plane_x_resolution = image_metadata->metadata("EXIF_FocalPlaneXResolution", bActive);
-//            if (bActive) {
-//              size_t pos1 = exif_focal_plane_x_resolution.find("(");
-//              size_t pos2 = exif_focal_plane_x_resolution.find(")");
-//              if (pos1 != std::string::npos && pos2 != std::string::npos) {
-//                focal_plane_x_resolution = std::stod(exif_focal_plane_x_resolution.substr(pos1 + 1, pos2 - pos1 + 1));
-//              }
-//            }
-//            
-//            std::string exif_focal_plane_resolution_unit = image_metadata->metadata("EXIF_FocalPlaneResolutionUnit", bActive);
-//            if (bActive) {
-//              
-//              if (exif_focal_plane_resolution_unit == "2") { // 2 = Inch.
-//                sensor_width_mm = pixel_x_dimension * 25.4 / focal_plane_x_resolution;
-//                focal = focal_mm / sensor_width_mm * max_size;
-//              } else if (exif_focal_plane_resolution_unit == "3") { //3 = Centimeter
-//                sensor_width_mm = pixel_x_dimension * 10 / focal_plane_x_resolution;
-//                focal_length = focal_mm / sensor_width_mm * max_size;
-//              }
-//            }
-//          }
-//        }
-//
-//      }
-//    }
-//  }
-//
-//  if (focal < 0.) {
-//
-//    focal = 0.;
-//  }
-//
-//  camera.setFocal(focal);
-//  if (sensor_width_mm > 0.) 
-//    camera.setSensorSize(sensor_width_mm);
-//
-//  int camera_id = mCameras->size();
-//  mCameras->push_back(camera);
-//
-//  return camera_id;
-//}
-
-void LoadVideoProcess::execute(tl::Progress *progressBar)
+void LoadFromVideoTask::execute(tl::Progress *progressBar)
 {
   try {
 
     tl::Chrono chrono("Images loaded");
     chrono.run();
 
-    mCrsIn = std::make_shared<tl::geospatial::Crs>("EPSG:4326");
-    std::shared_ptr<tl::geospatial::Crs> crs_out;
-    if(!mEPSG.isEmpty()) {
-      mCrsOut = std::make_shared<tl::geospatial::Crs>(mEPSG.toStdString());
+    ImportVideoFramesAlgorithm import_video_algorithm;
+    import_video_algorithm.setVideo(mVideo.toStdString());
+    import_video_algorithm.setSkipFrames(mSkipFrames);
+    import_video_algorithm.startAt(mVideoIni);
+    import_video_algorithm.finishAt(mVideoEnd);
+
+    if (!import_video_algorithm.open()) throw std::runtime_error("Open video error");
+	
+    int width = import_video_algorithm.width();
+    int height = import_video_algorithm.height();
+  
+    Camera camera("Unknown camera", "");
+    camera.setWidth(width);
+    camera.setHeight(height);
+    camera.setFocal(1.2 * std::max(width, height));
+    int camera_id = mCameras->size();
+    mCameras->push_back(camera);
+
+    std::shared_ptr<tl::ImageMetadata> image_metadata = tl::ImageMetadataFactory::create("JPEG");
+    image_metadata->setMetadata("EXIF_PixelXDimension", std::to_string(width));
+    image_metadata->setMetadata("EXIF_PixelYDimension", std::to_string(height));
+
+	  int delay = static_cast<int>(1000. / import_video_algorithm.framesPerSecond());
+    char c;
+    cv::Mat frame;
+    while (!(frame = import_video_algorithm.read()).empty()) {
+
+      if (status() == tl::Task::Status::stopping)  break;
+
+      int pos = import_video_algorithm.framePosition();
+      tl::Path path(mImagesPath.toStdWString());
+      path.createDirectories();
+      path.append(std::string("frame").append(std::to_string(pos)).append(".jpg"));
+      Image image(QString::fromStdWString(path.toWString()));
+      //mImages.push_back(image);
+      auto image_writer = tl::ImageWriterFactory::create(path);
+      image_writer->open();
+      TL_ASSERT(image_writer->isOpen(), "Can't create image");
+      image_writer->setImageMetadata(image_metadata);
+      image_writer->create(height, width, frame.channels(), tl::DataType::TL_8U);
+      image_writer->write(frame);
+      image_writer->close();
+      //cv::imwrite(path.toString(), frame);
+      
+      emit image_added(image.path(), camera_id);
+
+      //if (progressBar) (*progressBar)();
     }
-
-    for(size_t i = 0; i < mImages->size(); i++) {
-
-      if(status() == tl::Task::Status::stopping)  break;
-
-      //loadImage(i);
-
-      if(progressBar) (*progressBar)();
-
-    }
-
+	
+	
     if(status() == tl::Task::Status::stopping) {
       chrono.reset();
     } else {
@@ -385,33 +311,5 @@ void LoadVideoProcess::execute(tl::Progress *progressBar)
   }
 
 }
-
-//double LoadImagesProcess::parseFocal(const std::string &focal, double def)
-//{
-//  double r_focal;
-//
-//  try {
-//
-//    std::string f = focal;
-//  
-//    size_t pos = f.find("(");
-//    if (pos != std::string::npos) {
-//      f.erase(pos, 1);
-//    }
-//
-//    pos = f.find(")");
-//    if (pos != std::string::npos) {
-//      f.erase(pos, 1);
-//    }
-//
-//    std::string::size_type sz;
-//    r_focal = std::stod(f, &sz);
-//
-//  } catch (...) {
-//    r_focal = def;
-//  }
-//
-//  return r_focal;
-//}
 
 } // graphos
