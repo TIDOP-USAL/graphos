@@ -38,7 +38,7 @@ namespace graphos
 {
 
 MeshComponent::MeshComponent(Application *application)
-  : ProcessComponent(application)
+  : TaskComponent(application)
 {
   init();
 }
@@ -94,7 +94,7 @@ void MeshComponent::update()
 
 void MeshComponent::onRunning()
 {
-  ProcessComponent::onRunning();
+  TaskComponent::onRunning();
 }
 
 void MeshComponent::onFinished()
@@ -104,7 +104,7 @@ void MeshComponent::onFinished()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFinished();
+  TaskComponent::onFinished();
   app_status->activeFlag(AppStatus::Flag::mesh, true);
 }
 
@@ -115,7 +115,7 @@ void MeshComponent::onFailed()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFailed();
+  TaskComponent::onFailed();
   app_status->activeFlag(AppStatus::Flag::mesh, false);
 }
 

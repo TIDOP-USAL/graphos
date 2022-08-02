@@ -28,7 +28,7 @@
 #include "graphos/core/features/featio.h"
 #include "graphos/core/features/sift.h"
 #include "graphos/core/project.h"
-#include "graphos/components/featextract/impl/FeatureExtractorProcess.h"
+#include "graphos/components/featextract/impl/FeatureExtractorTask.h"
 
 #include <tidop/core/messages.h>
 
@@ -122,14 +122,14 @@ bool FeatureExtractorCommand::run()
                                                                        mContrastThreshold);
     }
 
-    FeatureExtractorProcess feature_extractor_process(project.images(),
+    FeatureExtractorTask feature_extractor_process(project.images(),
                                                       project.cameras(),
                                                       database_path,
                                                       mMaxImageSize,
                                                       !mDisableCuda,
                                                       feature_extractor);
 
-    connect(&feature_extractor_process, &FeatureExtractorProcess::features_extracted, 
+    connect(&feature_extractor_process, &FeatureExtractorTask::features_extracted, 
             [&](size_t imageId, const QString &featuresFile){
               project.addFeatures(imageId, featuresFile);
             });

@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "FeatureMatchingProcess.h"
+#include "FeatureMatchingTask.h"
 
 #include "graphos/core/features/matching.h"
 
@@ -37,10 +37,10 @@
 namespace graphos
 {
 
-FeatureMatchingProcess::FeatureMatchingProcess(QString database,
-                                               bool cuda,
-                                               bool spatialMatching,
-                                               const std::shared_ptr<FeatureMatching> &featureMatching)
+FeatureMatchingTask::FeatureMatchingTask(QString database,
+                                         bool cuda,
+                                         bool spatialMatching,
+                                         const std::shared_ptr<FeatureMatching> &featureMatching)
   : tl::TaskBase(),
     mFeatureMatcher(nullptr),
     mDatabase(database),
@@ -50,7 +50,7 @@ FeatureMatchingProcess::FeatureMatchingProcess(QString database,
 {
 }
 
-FeatureMatchingProcess::~FeatureMatchingProcess()
+FeatureMatchingTask::~FeatureMatchingTask()
 {
   if (mFeatureMatcher){
     delete mFeatureMatcher;
@@ -58,7 +58,7 @@ FeatureMatchingProcess::~FeatureMatchingProcess()
   }
 }
 
-void FeatureMatchingProcess::execute(tl::Progress *progressBar)
+void FeatureMatchingTask::execute(tl::Progress *progressBar)
 {
   try {
 
@@ -126,43 +126,43 @@ void FeatureMatchingProcess::execute(tl::Progress *progressBar)
   }
 }
 
-void FeatureMatchingProcess::stop()
+void FeatureMatchingTask::stop()
 {
   TaskBase::stop();
   mFeatureMatcher->Stop();
 }
 
-QString FeatureMatchingProcess::database() const
+QString FeatureMatchingTask::database() const
 {
   return mDatabase;
 }
 
-void FeatureMatchingProcess::setDatabase(const QString &database)
+void FeatureMatchingTask::setDatabase(const QString &database)
 {
   mDatabase = database;
 }
 
-bool FeatureMatchingProcess::useGPU() const
+bool FeatureMatchingTask::useGPU() const
 {
   return bUseCuda;
 }
 
-void FeatureMatchingProcess::setUseGPU(bool useGPU)
+void FeatureMatchingTask::setUseGPU(bool useGPU)
 {
   bUseCuda = useGPU;
 }
 
-void FeatureMatchingProcess::setSpatialMatching(bool spatialMatching)
+void FeatureMatchingTask::setSpatialMatching(bool spatialMatching)
 {
   bSpatialMatching = spatialMatching;
 }
 
-std::shared_ptr<FeatureMatching> FeatureMatchingProcess::featureMatching() const
+std::shared_ptr<FeatureMatching> FeatureMatchingTask::featureMatching() const
 {
   return mFeatureMatching;
 }
 
-void FeatureMatchingProcess::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
+void FeatureMatchingTask::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
 {
   mFeatureMatching = featureMatching;
 }

@@ -170,7 +170,7 @@ void ComponentsManager::registerComponent(Component *component,
     mMainWindowView->addSeparatorToMenu(app_menu);
   }
 
-  if (ProcessComponent *process_component = dynamic_cast<ProcessComponent *>(component)) {
+  if (TaskComponent *process_component = dynamic_cast<TaskComponent *>(component)) {
     process_component->setProgressHandler(this->progressHandler());
   }
   
@@ -269,7 +269,7 @@ void ComponentsManager::registerMultiComponent(const QString &name,
 
   for (auto component : components) {
     _menu->addAction(component->action());
-    if (ProcessComponent *process_component = dynamic_cast<ProcessComponent *>(component.get())) {
+    if (TaskComponent *process_component = dynamic_cast<TaskComponent *>(component.get())) {
       process_component->setProgressHandler(this->progressHandler());
     }
   }

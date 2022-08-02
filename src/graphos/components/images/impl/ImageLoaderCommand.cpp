@@ -24,7 +24,7 @@
 
 #include "ImageLoaderCommand.h"
 
-#include "graphos/components/images/impl/ImageLoaderProcess.h"
+#include "graphos/components/images/impl/ImageLoaderTask.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -159,9 +159,9 @@ bool ImageLoaderCommand::run()
         cameras.push_back(camera.second);
       }
 
-      LoadImagesProcess image_loader_process(&images, &cameras, camera_types[mCameraId], project.crs());
+      LoadImagesTask image_loader_process(&images, &cameras, camera_types[mCameraId], project.crs());
       
-      connect(&image_loader_process, &LoadImagesProcess::imageAdded,
+      connect(&image_loader_process, &LoadImagesTask::imageAdded,
               [&](int imageId, int cameraId) {
                 Image image = images[imageId];
                 Camera camera = cameras[cameraId];

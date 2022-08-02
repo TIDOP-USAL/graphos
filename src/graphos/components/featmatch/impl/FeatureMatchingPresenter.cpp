@@ -26,7 +26,7 @@
 #include "graphos/core/features/matching.h"
 #include "graphos/components/featmatch/FeatureMatchingView.h"
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
-#include "graphos/components/featmatch/impl/FeatureMatchingProcess.h"
+#include "graphos/components/featmatch/impl/FeatureMatchingTask.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
@@ -150,10 +150,10 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 
   mModel->setFeatureMatching(featureMatching);
   
-  featmatching_process = std::make_unique<FeatureMatchingProcess>(mModel->database(),
-                                                                  mModel->useCuda(),
-                                                                  mView->spatialMatching(),
-                                                                  featureMatching);
+  featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
+                                                               mModel->useCuda(),
+                                                               mView->spatialMatching(),
+                                                               featureMatching);
 
   if (progressHandler()){
     progressHandler()->setRange(0, 1);

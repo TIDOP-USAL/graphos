@@ -21,28 +21,31 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_PROCESS_H
-#define GRAPHOS_FEATURE_MATCHING_PROCESS_H
+#ifndef GRAPHOS_LOADFROMVIDEO_PROCESS_H
+#define GRAPHOS_LOADFROMVIDEO_PROCESS_H
 
 #include <QObject>
 
 #include <tidop/core/task.h>
-#include <tidop/core/progress.h>
 
-namespace colmap
+#include "graphos/core/image.h"
+
+namespace tl
 {
-struct ExhaustiveMatchingOptions;
-struct SiftMatchingOptions;
-class ExhaustiveFeatureMatcher;
-class Thread;
+class ImageReader;
+class Process;
+namespace geospatial
+{
+class Crs;
+}
 }
 
 namespace graphos
 {
 
-class FeatureMatching;
+class Camera;
 
-class FeatureMatchingProcess
+class LoadFromVideoTask
   : public QObject,
     public tl::TaskBase
 {
@@ -51,45 +54,36 @@ class FeatureMatchingProcess
 
 public:
 
-  FeatureMatchingProcess(QString database,
-                         bool cuda,
-                         bool spatialMatching,
-                         const std::shared_ptr<FeatureMatching> &featureMatching);
-  ~FeatureMatchingProcess() override;
+  LoadFromVideoTask(const QString &video, 
+                    int skip,
+                    int videoIni,
+                    int videoEnd,
+                    const QString &imagesPath,
+                    std::vector<Camera> *cameras,
+                    const std::string &cameraType);
+  ~LoadFromVideoTask() override;
 
-public:
+signals:
 
-  std::shared_ptr<FeatureMatching> featureMatching() const;
-  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
-
-  QString database() const;
-  void setDatabase(const QString &database);
-
-  bool useGPU() const;
-  void setUseGPU(bool useGPU);
-
-  void setSpatialMatching(bool spatialMatching);
+  void image_added(QString, int);
 
 // tl::TaskBase interface
-
-public:
-  
-  void stop() override;
 
 protected:
 
   void execute(tl::Progress *progressBar) override;
 
-private:
+protected:
 
-  colmap::Thread *mFeatureMatcher;
-  QString mDatabase;
-  bool bUseCuda;
-  bool bSpatialMatching;
-  std::shared_ptr<FeatureMatching> mFeatureMatching;
-
+  QString mVideo;
+  int mSkipFrames;
+  int mVideoIni;
+  int mVideoEnd;
+  QString mImagesPath;
+  std::vector<Camera> *mCameras;
+  std::string mCameraType;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_FEATURE_MATCHING_PROCESS_H
+#endif // GRAPHOS_LOADFROMVIDEO_PROCESS_H

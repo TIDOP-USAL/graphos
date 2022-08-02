@@ -30,10 +30,10 @@
 namespace graphos
 {
 
-class FeatureExtractorProcess;
+class FeatureExtractorTask;
 
 class FeatureExtractorComponent
-  : public ProcessComponent
+  : public TaskComponent
 {
 
   Q_OBJECT
@@ -62,7 +62,7 @@ protected:
   void createCommand() override;
   void update() override;
 
-// ProcessComponent
+// TaskComponent
 
 protected slots:
 
@@ -72,7 +72,7 @@ protected slots:
 
 protected:
 
-  FeatureExtractorProcess *mProcess;
+  FeatureExtractorTask *mProcess;
 
 };
 

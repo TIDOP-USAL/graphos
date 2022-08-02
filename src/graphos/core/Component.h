@@ -40,6 +40,10 @@ namespace graphos
 class ProgressHandler;
 class Command;
 
+
+/*!
+ * \brief Component interface
+ */
 class Component
   : public QObject
 {
@@ -51,24 +55,73 @@ public:
   Component() {}
   virtual ~Component() = default;
 
+  /*!
+   * \brief Component name
+   */
   virtual QString name() const = 0;
+
+  /*!
+   * \brief Component action.
+   * Action that opens the tool.
+   */
   virtual QAction *action() const = 0;
+
+  /*!
+   * \brief Menu where the tool is loaded.
+   */
   virtual QString menu() const = 0;
+
+  /*!
+   * \brief Toolbar where the tool is loaded.
+   */
   virtual QString toolbar() const = 0;
+
+  /*!
+   * \brief Widget associated to the component.
+   */
   virtual QWidget *widget() const = 0;
+
+  /*!
+   * \brief Component associated command.
+   */
   virtual std::shared_ptr<Command> command() = 0;
+
+  /*!
+   * \brief Set the component name
+   * \param[in] name Component name
+   */
   virtual void setName(const QString &name) = 0;
+
+  /*!
+   * \brief Set the component menu
+   * \param[in] menu Component menu
+   */
   virtual void setMenu(const QString &menu) = 0;
+
+  /*!
+   * \brief Set the component toolbar
+   * \param[in] toolbar Component toolbar
+   */
   virtual void setToolbar(const QString &toolbar) = 0;
 
+  /*!
+   * \brief Free memory
+   * Release the component
+   */
   virtual void freeMemory() = 0;
 
 signals:
 
+  /*!
+   * \brief Signal emitted when the component is created
+   */
   void created();
 };
 
 
+/*!
+ * \brief Component base class
+ */
 class ComponentBase
   : public Component
 {
@@ -80,6 +133,9 @@ public:
   ComponentBase(Application *application);
   ~ComponentBase();
 
+  /*!
+   * \brief Create component
+   */
   virtual void createComponent();
 
 protected:
@@ -139,8 +195,10 @@ private:
 };
 
 
-
-class ProcessComponent
+/*!
+ * \brief Component that executes a task
+ */
+class TaskComponent
   : public ComponentBase
 {
 
@@ -148,11 +206,15 @@ class ProcessComponent
 
 public:
 
-  ProcessComponent(Application *application);
-  ~ProcessComponent() override = default;
+  TaskComponent(Application *application);
+  ~TaskComponent() override = default;
 
 public slots:
 
+  /*!
+   * \brief Set the progress handler
+   * \param[in] progressHandler Progress handler
+   */
   virtual void setProgressHandler(ProgressHandler *progressHandler);
 
 private slots:

@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "FeatureExtractorProcess.h"
+#include "FeatureExtractorTask.h"
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
@@ -78,14 +78,14 @@ public:
               int maxImageSize,
               bool useGPU,
               QueueMPMC<queue_data> *buffer,
-              FeatureExtractorProcess *featureExtractorProcess)
+              FeatureExtractorTask *featureExtractorTask)
     : mImages(images),
       mCameras(cameras),
       mDatabase(database),
       mMaxImageSize(maxImageSize),
       bUseGPU(useGPU),
       mBuffer(buffer),
-      mFeatureExtractorProcess(featureExtractorProcess)
+      mFeatureExtractorTask(featureExtractorTask)
   {
   }
 
@@ -93,7 +93,7 @@ public:
   {
     for(const auto &image : *mImages) {
 
-      if(mFeatureExtractorProcess->status() == tl::Task::Status::stopping) {
+      if(mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
         featextract_done = true;
         return;
       }
@@ -334,7 +334,7 @@ protected:
   int mMaxImageSize;
   bool bUseGPU;
   QueueMPMC<queue_data> *mBuffer;
-  FeatureExtractorProcess *mFeatureExtractorProcess;
+  FeatureExtractorTask *mFeatureExtractorTask;
 };
 
 
@@ -349,7 +349,7 @@ public:
               const std::string &databaseFile,
               colmap::Database *database,
               QueueMPMC<queue_data> *buffer,
-              FeatureExtractorProcess *featureExtractorProcess,
+              FeatureExtractorTask *featureExtractorTask,
               bool useGPU,
               tl::Progress *progressBar)
     : mImages(images),
@@ -357,7 +357,7 @@ public:
       mDatabaseFile(databaseFile),
       mDatabase(database),
       mBuffer(buffer),
-      mFeatureExtractorProcess(featureExtractorProcess),
+      mFeatureExtractorTask(featureExtractorTask),
       bUseGPU(useGPU),
       mProgressBar(progressBar)
   {
@@ -366,7 +366,7 @@ public:
   void operator() ()
   {
     while(!featextract_done || mBuffer->size()) {
-      if(mFeatureExtractorProcess->status() == tl::Task::Status::stopping) {
+      if(mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
         featextract_done = true;
         return;
       }
@@ -403,7 +403,7 @@ private:
 
       // añade features al proyecto
       QString image_name = mImages->at(data.image_id).name();
-      mFeatureExtractorProcess->features_extracted(data.image_id, image_name + "@" + mDatabaseFile.c_str());
+      mFeatureExtractorTask->features_extracted(data.image_id, image_name + "@" + mDatabaseFile.c_str());
       if(mProgressBar) (*mProgressBar)();
 
     } catch(std::exception &e) {
@@ -478,7 +478,7 @@ private:
   std::string mDatabaseFile;
   colmap::Database *mDatabase;
   QueueMPMC<queue_data> *mBuffer;
-  FeatureExtractorProcess *mFeatureExtractorProcess;
+  FeatureExtractorTask *mFeatureExtractorTask;
   bool bUseGPU;
   tl::Progress *mProgressBar;
 };
@@ -491,12 +491,12 @@ private:
 
 
 
-FeatureExtractorProcess::FeatureExtractorProcess(const std::unordered_map<size_t, Image> &images,
-                                                 const std::map<int, Camera> &cameras,
-                                                 const QString &database,
-                                                 int maxImageSize,
-                                                 bool cuda,
-                                                 const std::shared_ptr<FeatureExtractor> &featureExtractor)
+FeatureExtractorTask::FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
+                                           const std::map<int, Camera> &cameras,
+                                           const QString &database,
+                                           int maxImageSize,
+                                           bool cuda,
+                                           const std::shared_ptr<FeatureExtractor> &featureExtractor)
   : tl::TaskBase(),
     mImages(images),
     mCameras(cameras),
@@ -507,7 +507,7 @@ FeatureExtractorProcess::FeatureExtractorProcess(const std::unordered_map<size_t
 {
 }
 
-void FeatureExtractorProcess::execute(tl::Progress *progressBar)
+void FeatureExtractorTask::execute(tl::Progress *progressBar)
 {
 
   try {

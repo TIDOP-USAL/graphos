@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADFROMVIDEO_PROCESS_H
-#define GRAPHOS_LOADFROMVIDEO_PROCESS_H
+#ifndef GRAPHOS_LOADER_IMAGES_TASK_H
+#define GRAPHOS_LOADER_IMAGES_TASK_H
 
 #include <QObject>
 
@@ -43,9 +43,10 @@ class Crs;
 namespace graphos
 {
 
+
 class Camera;
 
-class LoadFromVideoTask
+class LoadImagesTask
   : public QObject,
     public tl::TaskBase
 {
@@ -54,18 +55,23 @@ class LoadFromVideoTask
 
 public:
 
-  LoadFromVideoTask(const QString &video, 
-                    int skip,
-                    int videoIni,
-                    int videoEnd,
-                    const QString &imagesPath,
-                    std::vector<Camera> *cameras,
-                    const std::string &cameraType);
-  ~LoadFromVideoTask() override;
+  LoadImagesTask(std::vector<Image> *images,
+                 std::vector<Camera> *cameras,
+                 const std::string &cameraType,
+                 const QString &epsg = QString());
+  ~LoadImagesTask() override;
 
 signals:
 
-  void image_added(QString, int);
+  void imageAdded(int, int);
+
+private:
+
+  bool existCamera(const QString &make, const QString &model) const;
+  int findCamera(const QString &make, const QString &model) const;
+  void loadImage(size_t imageId);
+  int loadCamera(tl::ImageReader *imageReader);
+  double parseFocal(const std::string &focal, double def);
 
 // tl::TaskBase interface
 
@@ -75,16 +81,15 @@ protected:
 
 protected:
 
-  QString mVideo;
-  int mSkipFrames;
-  int mVideoIni;
-  int mVideoEnd;
-  QString mImagesPath;
-  //std::vector<Image> mImages;
+  std::vector<Image> *mImages;
   std::vector<Camera> *mCameras;
+  QString mEPSG;
+  std::shared_ptr<tl::geospatial::Crs> mCrsIn;
+  std::shared_ptr<tl::geospatial::Crs> mCrsOut;
+  QString mDatabaseCamerasPath;
   std::string mCameraType;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_LOADFROMVIDEO_PROCESS_H
+#endif // GRAPHOS_LOADER_IMAGES_TASK_H

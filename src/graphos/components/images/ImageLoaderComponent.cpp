@@ -37,7 +37,7 @@ namespace graphos
 {
 
 ImageLoaderComponent::ImageLoaderComponent(Application *application)
-  : ProcessComponent(application)
+  : TaskComponent(application)
 {
   init();
 }
@@ -96,7 +96,7 @@ void ImageLoaderComponent::update()
 
 void ImageLoaderComponent::onRunning()
 {
-  ProcessComponent::onRunning();
+  TaskComponent::onRunning();
 }
 
 void ImageLoaderComponent::onFinished()
@@ -106,7 +106,7 @@ void ImageLoaderComponent::onFinished()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFinished();
+  TaskComponent::onFinished();
 
   app_status->activeFlag(AppStatus::Flag::project_modified, true);
   app_status->activeFlag(AppStatus::Flag::loading_images, false);
@@ -119,7 +119,7 @@ void ImageLoaderComponent::onFailed()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFailed();
+  TaskComponent::onFailed();
 
   app_status->activeFlag(AppStatus::Flag::loading_images, false);
 }

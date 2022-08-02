@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ImageLoaderProcess.h"
+#include "ImageLoaderTask.h"
 
 #include "graphos/core/utils.h"
 #include "graphos/core/camera/Camera.h"
@@ -44,10 +44,10 @@
 namespace graphos
 {
 
-LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images, 
-                                     std::vector<Camera> *cameras,
-                                     const std::string &cameraType,
-                                     const QString &epsg)
+LoadImagesTask::LoadImagesTask(std::vector<Image> *images,
+                               std::vector<Camera> *cameras,
+                               const std::string &cameraType,
+                               const QString &epsg)
   : tl::TaskBase(), 
     mImages(images),
     mCameras(cameras),
@@ -62,12 +62,12 @@ LoadImagesProcess::LoadImagesProcess(std::vector<Image> *images,
   mDatabaseCamerasPath.append("/cameras.db");
 }
 
-LoadImagesProcess::~LoadImagesProcess()
+LoadImagesTask::~LoadImagesTask()
 {
 
 }
 
-bool LoadImagesProcess::existCamera(const QString &make, const QString &model) const
+bool LoadImagesTask::existCamera(const QString &make, const QString &model) const
 {
   bool camera_exist = false;
 
@@ -90,7 +90,7 @@ bool LoadImagesProcess::existCamera(const QString &make, const QString &model) c
   return camera_exist;
 }
 
-int LoadImagesProcess::findCamera(const QString &make, const QString &model) const
+int LoadImagesTask::findCamera(const QString &make, const QString &model) const
 {
   int camera_id = -1;
 
@@ -113,7 +113,7 @@ int LoadImagesProcess::findCamera(const QString &make, const QString &model) con
   return camera_id;
 }
 
-void LoadImagesProcess::loadImage(size_t imageId)
+void LoadImagesTask::loadImage(size_t imageId)
 {
   try {
 
@@ -220,7 +220,7 @@ void LoadImagesProcess::loadImage(size_t imageId)
   }
 }
 
-int LoadImagesProcess::loadCamera(tl::ImageReader *imageReader)
+int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 {
 
   int width = imageReader->cols();
@@ -350,7 +350,7 @@ int LoadImagesProcess::loadCamera(tl::ImageReader *imageReader)
   return camera_id;
 }
 
-void LoadImagesProcess::execute(tl::Progress *progressBar)
+void LoadImagesTask::execute(tl::Progress *progressBar)
 {
   try {
 
@@ -385,7 +385,7 @@ void LoadImagesProcess::execute(tl::Progress *progressBar)
 
 }
 
-double LoadImagesProcess::parseFocal(const std::string &focal, double def)
+double LoadImagesTask::parseFocal(const std::string &focal, double def)
 {
   double r_focal;
 

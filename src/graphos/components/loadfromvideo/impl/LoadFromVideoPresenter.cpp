@@ -27,7 +27,7 @@
 #include "graphos/core/process/Progress.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoModel.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoView.h"
-#include "graphos/components/loadfromvideo/impl/LoadFromVideoProcess.h"
+#include "graphos/components/loadfromvideo/impl/LoadFromVideoTask.h"
 #include "graphos/core/utils.h"
 
 #include <tidop/core/defs.h>
@@ -139,10 +139,15 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
     mCameras.push_back(camera.second);
   }
 
+  int skip_frames = mView->skipFrames();
+  int begin = mView->videoIni();
+  int end = mView->videoEnd();
+  
+
   process = std::make_unique<LoadFromVideoTask>(mView->video(),
-                                                mView->skipFrames(),
-                                                mView->videoIni(),
-                                                mView->videoEnd(),
+                                                skip_frames,
+                                                begin,
+                                                end,
                                                 images_path,
                                                 &mCameras, 
                                                 "OpenCV 1");
@@ -152,7 +157,7 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
           this, &LoadFromVideoPresenterImp::addImage);
 
   if (progressHandler()){
-    progressHandler()->setRange(0, 0);
+    progressHandler()->setRange(0, (end - begin) / skip_frames);
     progressHandler()->setTitle("Computing LoadFromVideo...");
     progressHandler()->setDescription("Computing LoadFromVideo...");
   }

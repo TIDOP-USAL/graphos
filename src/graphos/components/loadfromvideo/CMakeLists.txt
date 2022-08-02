@@ -39,7 +39,7 @@ if(BUILD_VIDEO_LOAD_COMPONENT)
         impl/LoadFromVideoModel.cpp
         impl/LoadFromVideoPresenter.cpp
         impl/LoadFromVideoView.cpp
-        impl/LoadFromVideoProcess.cpp)
+        impl/LoadFromVideoTask.cpp)
                 
     set(VIDEO_LOAD_HEADERS
         LoadFromVideoComponent.h
@@ -49,7 +49,7 @@ if(BUILD_VIDEO_LOAD_COMPONENT)
         impl/LoadFromVideoModel.h
         impl/LoadFromVideoPresenter.h
         impl/LoadFromVideoView.h
-        impl/LoadFromVideoProcess.h)
+        impl/LoadFromVideoTask.h)
                 
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${VIDEO_LOAD_SOURCES}

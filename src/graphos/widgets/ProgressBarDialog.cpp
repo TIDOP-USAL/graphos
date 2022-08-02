@@ -33,7 +33,8 @@ namespace graphos
 {
 	
 ProgressBarDialog::ProgressBarDialog(QWidget *parent)
-  : DialogView(parent, Qt::WindowStaysOnTopHint)
+  : DialogView(parent, Qt::WindowStaysOnTopHint),
+    mAutoClose(false)
 {
   ProgressBarDialog::initUI();
   ProgressBarDialog::initSignalAndSlots();

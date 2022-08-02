@@ -33,7 +33,7 @@ namespace graphos
 class MeshProcess;
 
 class MeshComponent
-  : public ProcessComponent
+  : public TaskComponent
 {
 
   Q_OBJECT
@@ -57,7 +57,7 @@ protected:
   void createCommand() override;
   void update() override;
 
-// ProcessComponent
+// TaskComponent
 
 protected slots:
 

@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "LoadFromVideoProcess.h"
+#include "LoadFromVideoTask.h"
 
 #include "graphos/core/utils.h"
 #include "graphos/core/camera/Camera.h"
@@ -53,10 +53,6 @@ class ImportVideoFramesAlgorithm
 public:
 
   ImportVideoFramesAlgorithm();
-  /*
-  ImportVideoFramesAlgorithm(int [propiety],
-                        ...);
-  */
   ~ImportVideoFramesAlgorithm();
 
   bool open();
@@ -167,7 +163,6 @@ cv::Mat ImportVideoFramesAlgorithm::read()
   try {
 
     double posframe;
-    //bool bret = false;
     
     int current_frame = mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
 
@@ -284,7 +279,6 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
       path.createDirectories();
       path.append(std::string("frame").append(std::to_string(pos)).append(".jpg"));
       Image image(QString::fromStdWString(path.toWString()));
-      //mImages.push_back(image);
       auto image_writer = tl::ImageWriterFactory::create(path);
       image_writer->open();
       TL_ASSERT(image_writer->isOpen(), "Can't create image");
@@ -292,11 +286,10 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
       image_writer->create(height, width, frame.channels(), tl::DataType::TL_8U);
       image_writer->write(frame);
       image_writer->close();
-      //cv::imwrite(path.toString(), frame);
       
       emit image_added(image.path(), camera_id);
 
-      //if (progressBar) (*progressBar)();
+      if (progressBar) (*progressBar)();
     }
 	
 	

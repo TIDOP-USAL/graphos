@@ -21,24 +21,28 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
-#define GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
-
-#include <unordered_map>
+#ifndef GRAPHOS_FEATURE_MATCHING_TASK_H
+#define GRAPHOS_FEATURE_MATCHING_TASK_H
 
 #include <QObject>
 
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 
-#include "graphos/core/features/features.h"
-#include "graphos/core/image.h"
-#include "graphos/core/camera/Camera.h"
+namespace colmap
+{
+struct ExhaustiveMatchingOptions;
+struct SiftMatchingOptions;
+class ExhaustiveFeatureMatcher;
+class Thread;
+}
 
 namespace graphos
 {
 
-class FeatureExtractorProcess
+class FeatureMatching;
+
+class FeatureMatchingTask
   : public QObject,
     public tl::TaskBase
 {
@@ -47,35 +51,45 @@ class FeatureExtractorProcess
 
 public:
 
-  FeatureExtractorProcess(const std::unordered_map<size_t, Image> &images,
-                          const std::map<int, Camera> &cameras,
-                          const QString &database,
-                          int maxImageSize,
-                          bool cuda,
-                          const std::shared_ptr<FeatureExtractor> &featureExtractor);
+  FeatureMatchingTask(QString database,
+                      bool cuda,
+                      bool spatialMatching,
+                      const std::shared_ptr<FeatureMatching> &featureMatching);
+  ~FeatureMatchingTask() override;
 
-  ~FeatureExtractorProcess() override = default;
+public:
 
-signals:
+  std::shared_ptr<FeatureMatching> featureMatching() const;
+  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
 
-  void features_extracted(qulonglong, QString);
+  QString database() const;
+  void setDatabase(const QString &database);
+
+  bool useGPU() const;
+  void setUseGPU(bool useGPU);
+
+  void setSpatialMatching(bool spatialMatching);
 
 // tl::TaskBase interface
+
+public:
+  
+  void stop() override;
 
 protected:
 
   void execute(tl::Progress *progressBar) override;
 
-protected:
+private:
 
-  const std::unordered_map<size_t, Image> &mImages;
-  const std::map<int, Camera> &mCameras;
+  colmap::Thread *mFeatureMatcher;
   QString mDatabase;
-  int mMaxImageSize;
   bool bUseCuda;
-  std::shared_ptr<FeatureExtractor> mFeatureExtractor;
+  bool bSpatialMatching;
+  std::shared_ptr<FeatureMatching> mFeatureMatching;
+
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_FEATURE_EXTRACTOR_PROCESS_H
+#endif // GRAPHOS_FEATURE_MATCHING_TASK_H

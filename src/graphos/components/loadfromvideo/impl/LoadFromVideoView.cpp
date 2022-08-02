@@ -251,6 +251,8 @@ void LoadFromVideoViewImp::update()
   mSpinBoxVideoEnd->setEnabled(video_opened);
   mPushButtonVideoIni->setEnabled(video_opened);
   mPushButtonVideoEnd->setEnabled(video_opened);
+
+  mButtonBox->button(QDialogButtonBox::Apply)->setEnabled(video_opened);
 }
 
 QString LoadFromVideoViewImp::video() const 

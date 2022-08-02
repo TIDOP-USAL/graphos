@@ -42,7 +42,7 @@ if(BUILD_IMAGE_LOAD_COMPONENT)
         impl/ImageLoaderPresenter.cpp
         impl/ImageLoaderView.cpp
         impl/ImageLoaderCommand.cpp
-        impl/ImageLoaderProcess.cpp)
+        impl/ImageLoaderTask.cpp)
         
     set(IMAGE_LOAD_HEADERS
         ImageLoaderComponent.h
@@ -53,7 +53,7 @@ if(BUILD_IMAGE_LOAD_COMPONENT)
         impl/ImageLoaderPresenter.h
         impl/ImageLoaderView.h
         impl/ImageLoaderCommand.h
-        impl/ImageLoaderProcess.h)
+        impl/ImageLoaderTask.h)
         
     add_library(${PROJECT_NAME} 
                 ${IMAGE_LOAD_SOURCES}

@@ -26,7 +26,7 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/features/matching.h"
 #include "graphos/core/project.h"
-#include "graphos/components/featmatch/impl/FeatureMatchingProcess.h"
+#include "graphos/components/featmatch/impl/FeatureMatchingTask.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -129,7 +129,7 @@ bool FeatureMatchingCommand::run()
       }
     }
 
-    FeatureMatchingProcess featmatching_process(project.database(),
+    FeatureMatchingTask featmatching_process(project.database(),
                                                 !mDisableCuda,
                                                 spatial_matching,
                                                 feature_matching_properties);

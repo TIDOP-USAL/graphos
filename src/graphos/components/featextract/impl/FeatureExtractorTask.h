@@ -21,32 +21,24 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_LOADER_IMAGES_PROCESS_H
-#define GRAPHOS_LOADER_IMAGES_PROCESS_H
+#ifndef GRAPHOS_FEATURE_EXTRACTOR_TASK_H
+#define GRAPHOS_FEATURE_EXTRACTOR_TASK_H
+
+#include <unordered_map>
 
 #include <QObject>
 
 #include <tidop/core/task.h>
+#include <tidop/core/progress.h>
 
+#include "graphos/core/features/features.h"
 #include "graphos/core/image.h"
-
-namespace tl
-{
-class ImageReader;
-class Process;
-namespace geospatial
-{
-class Crs;
-}
-}
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-
-class Camera;
-
-class LoadImagesProcess
+class FeatureExtractorTask
   : public QObject,
     public tl::TaskBase
 {
@@ -55,23 +47,18 @@ class LoadImagesProcess
 
 public:
 
-  LoadImagesProcess(std::vector<Image> *images, 
-                    std::vector<Camera> *cameras,
-                    const std::string &cameraType,
-                    const QString &epsg = QString());
-  ~LoadImagesProcess() override;
+  FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
+                       const std::map<int, Camera> &cameras,
+                       const QString &database,
+                       int maxImageSize,
+                       bool cuda,
+                       const std::shared_ptr<FeatureExtractor> &featureExtractor);
+
+  ~FeatureExtractorTask() override = default;
 
 signals:
 
-  void imageAdded(int, int);
-
-private:
-
-  bool existCamera(const QString &make, const QString &model) const;
-  int findCamera(const QString &make, const QString &model) const;
-  void loadImage(size_t imageId);
-  int loadCamera(tl::ImageReader *imageReader);
-  double parseFocal(const std::string &focal, double def);
+  void features_extracted(qulonglong, QString);
 
 // tl::TaskBase interface
 
@@ -81,15 +68,14 @@ protected:
 
 protected:
 
-  std::vector<Image> *mImages;
-  std::vector<Camera> *mCameras;
-  QString mEPSG;
-  std::shared_ptr<tl::geospatial::Crs> mCrsIn;
-  std::shared_ptr<tl::geospatial::Crs> mCrsOut;
-  QString mDatabaseCamerasPath;
-  std::string mCameraType;
+  const std::unordered_map<size_t, Image> &mImages;
+  const std::map<int, Camera> &mCameras;
+  QString mDatabase;
+  int mMaxImageSize;
+  bool bUseCuda;
+  std::shared_ptr<FeatureExtractor> mFeatureExtractor;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_LOADER_IMAGES_PROCESS_H
+#endif // GRAPHOS_FEATURE_EXTRACTOR_TASK_H

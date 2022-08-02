@@ -37,7 +37,7 @@ namespace graphos
 {
 
 FeatureMatchingComponent::FeatureMatchingComponent(Application *application)
-  : ProcessComponent(application)
+  : TaskComponent(application)
 {
   init();
 }
@@ -102,7 +102,7 @@ void FeatureMatchingComponent::update()
 
 void FeatureMatchingComponent::onRunning()
 {
-  ProcessComponent::onRunning();
+  TaskComponent::onRunning();
 }
 
 void FeatureMatchingComponent::onFinished()
@@ -112,7 +112,7 @@ void FeatureMatchingComponent::onFinished()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFinished();
+  TaskComponent::onFinished();
 
   app_status->activeFlag(AppStatus::Flag::project_modified, true);
   app_status->activeFlag(AppStatus::Flag::feature_matching, true);
@@ -125,7 +125,7 @@ void FeatureMatchingComponent::onFailed()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFailed();
+  TaskComponent::onFailed();
 
   app_status->activeFlag(AppStatus::Flag::feature_matching, false);
 }

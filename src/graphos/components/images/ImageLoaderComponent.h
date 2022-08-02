@@ -29,10 +29,10 @@
 namespace graphos
 {
 
-class LoadImagesProcess;
+class LoadImagesTask;
 
 class ImageLoaderComponent
-  : public ProcessComponent
+  : public TaskComponent
 {
 
   Q_OBJECT
@@ -60,7 +60,7 @@ protected:
   void createCommand() override;
   void update() override;
 
-// ProcessComponent
+// TaskComponent
 
 protected slots:
 
@@ -70,7 +70,7 @@ protected slots:
 
 protected:
 
-  LoadImagesProcess *mProcess;
+  LoadImagesTask *mProcess;
 
 };
 
