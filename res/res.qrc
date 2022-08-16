@@ -105,9 +105,6 @@
         <file alias="24/start-page.png">icons/Material/24/start-page.png</file>
         <file alias="48/start-page.png">icons/Material/48/start-page.png</file>
         <file alias="96/start-page.png">icons/Material/96/start-page.png</file>
-        <file alias="24/home.png">icons/Material/24/start-page.png</file>
-        <file alias="48/home.png">icons/Material/48/start-page.png</file>
-        <file alias="96/home.png">icons/Material/96/start-page.png</file>
         <file alias="24/help.png">icons/Material/24/help.png</file>
         <file alias="48/help.png">icons/Material/48/help.png</file>
         <file alias="96/help.png">icons/Material/96/help.png</file>
@@ -186,7 +183,10 @@
         <file alias="24/minimize-window.png">icons/Material/24/minimize-window.png</file>
         <file alias="48/minimize-window.png">icons/Material/48/minimize-window.png</file>
         <file alias="96/minimize-window.png">icons/Material/96/minimize-window.png</file>
-        <file alias="24/back-button.png">icons/Material/24/back-button.png</file>
+        <file alias="24/home.png">icons/Material/24/start-page.png</file>
+        <file alias="48/home.png">icons/Material/48/start-page.png</file>
+        <file alias="96/home.png">icons/Material/96/start-page.png</file>
+	    <file alias="24/back-button.png">icons/Material/24/back-button.png</file>
         <file alias="48/back-button.png">icons/Material/48/back-button.png</file>
         <file alias="96/back-button.png">icons/Material/96/back-button.png</file>
         <file alias="24/forward-button.png">icons/Material/24/forward-button.png</file>

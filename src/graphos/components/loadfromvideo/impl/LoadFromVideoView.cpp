@@ -73,7 +73,12 @@ void LoadFromVideoViewImp::initUI()
   mActionStopVideo = new QAction(this);
   mActionStopVideo->setIcon(QIcon::fromTheme("stop"));
   toolBar->addAction(mActionStopVideo);
-  gridLayout->addWidget(toolBar, 0, 0, 1, 2);
+  gridLayout->setMargin(0);
+  gridLayout->addWidget(toolBar, 0, 1);
+
+  QGridLayout *gridLayout2 = new QGridLayout();
+  gridLayout2->setContentsMargins(11, 0, 11, 11); 
+  gridLayout->addLayout(gridLayout2, 1, 1);
 
   //mLabelVideo = new QLabel(this);
   //gridLayout->addWidget(mLabelVideo, 0, 0, 1, 1);
@@ -87,35 +92,35 @@ void LoadFromVideoViewImp::initUI()
   mLabelVideoViewer = new QLabel(this);
   mLabelVideoViewer->setMinimumHeight(400);
   mLabelVideoViewer->setStyleSheet("background-color: #FF000000");
-  gridLayout->addWidget(mLabelVideoViewer, 1, 0, 1, 3);
-
+  gridLayout2->addWidget(mLabelVideoViewer, 0, 0, 1, 3);
+  
   mSliderVideo = new QSlider(Qt::Orientation::Horizontal, this);
-  gridLayout->addWidget(mSliderVideo, 2, 0, 1, 3);
+  gridLayout2->addWidget(mSliderVideo, 1, 0, 1, 3);
 
   mLabelSkipFrames = new QLabel(this);
-  gridLayout->addWidget(mLabelSkipFrames, 3, 0, 1, 1);
+  gridLayout2->addWidget(mLabelSkipFrames, 2, 0, 1, 1);
   mSpinBoxSkipFrames = new QSpinBox(this);
   mSpinBoxSkipFrames->setValue(20);
-  gridLayout->addWidget(mSpinBoxSkipFrames, 3, 1, 1, 2);
+  gridLayout2->addWidget(mSpinBoxSkipFrames, 2, 1, 1, 2);
 
   mLabelVideoIni = new QLabel(this);
-  gridLayout->addWidget(mLabelVideoIni, 4, 0, 1, 1);
+  gridLayout2->addWidget(mLabelVideoIni, 3, 0, 1, 1);
   mSpinBoxVideoIni = new QSpinBox(this);
-  gridLayout->addWidget(mSpinBoxVideoIni, 4, 1, 1, 1);
+  gridLayout2->addWidget(mSpinBoxVideoIni, 3, 1, 1, 1);
   mPushButtonVideoIni = new QPushButton(this);
-  gridLayout->addWidget(mPushButtonVideoIni, 4, 2, 1, 1);
+  gridLayout2->addWidget(mPushButtonVideoIni, 3, 2, 1, 1);
 
   mLabelVideoEnd = new QLabel(this);
-  gridLayout->addWidget(mLabelVideoEnd, 5, 0, 1, 1);
+  gridLayout2->addWidget(mLabelVideoEnd, 4, 0, 1, 1);
   mSpinBoxVideoEnd = new QSpinBox(this);
-  gridLayout->addWidget(mSpinBoxVideoEnd, 5, 1, 1, 1);
+  gridLayout2->addWidget(mSpinBoxVideoEnd, 4, 1, 1, 1);
   mPushButtonVideoEnd = new QPushButton(this);
-  gridLayout->addWidget(mPushButtonVideoEnd, 5, 2, 1, 1);
+  gridLayout2->addWidget(mPushButtonVideoEnd, 4, 2, 1, 1);
 
   mButtonBox = new QDialogButtonBox(this);
   mButtonBox->setOrientation(Qt::Orientation::Horizontal);
   mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 6, 0, 1, 3);
+  gridLayout2->addWidget(mButtonBox, 5, 0, 1, 3);
 
   this->retranslate();
   this->clear();
@@ -251,6 +256,7 @@ void LoadFromVideoViewImp::update()
   mSpinBoxVideoEnd->setEnabled(video_opened);
   mPushButtonVideoIni->setEnabled(video_opened);
   mPushButtonVideoEnd->setEnabled(video_opened);
+  mSliderVideo->setEnabled(video_opened);
 
   mButtonBox->button(QDialogButtonBox::Apply)->setEnabled(video_opened);
 }

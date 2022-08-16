@@ -202,7 +202,7 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
 {  
   bLoadingImages = true;
 
-  for (auto thumb : thumbs) {
+  for (auto &thumb : thumbs) {
 
     try {
 

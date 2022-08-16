@@ -120,7 +120,7 @@ public:
 
 private: 
 
-  void clearPreviousModel();
+  void clearTemporalFiles();
   void exportToComap();
   void writeNVMFile();
   void exportToMVS();

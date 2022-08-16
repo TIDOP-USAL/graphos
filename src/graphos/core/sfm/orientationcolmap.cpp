@@ -98,16 +98,6 @@ public:
 
       for (auto &pair : track.Elements()) {
 
-        //colmap::Image colmap_image = mReconstruction->Image(pair.image_id);
-        //tl::Path colmap_image_path(colmap_image.Name());
-        //for (const auto &image : mImages) {
-        //  tl::Path image_path(image.path().toStdString());
-        //  if (image_path.equivalent(colmap_image_path)) {
-        //    ground_point.addPairToTrack(image.id(), pair.point2D_idx);
-        //    break;
-        //  }
-        //}
-
         ground_point.addPairToTrack(mImageIds.at(pair.image_id), pair.point2D_idx);
 
       }
@@ -131,34 +121,24 @@ public:
       colmap::Image colmap_image = pair.second;
       tl::Path colmap_image_path(colmap_image.Name());
 
-      //for (const auto &image : mImages) {
+      const Eigen::Matrix<double, 3, 4> inv_proj_matrix = colmap_image.InverseProjectionMatrix();
+      const Eigen::Vector3d pc = inv_proj_matrix.rightCols<1>();
+      photoOrientation.setPosition(tl::Point3D(pc(0), pc(1), pc(2)));
 
-        //tl::Path image_path(image.path().toStdString());
+      Eigen::Matrix3d rot = colmap_image.RotationMatrix();
+      tl::math::RotationMatrix<double> rotation_matrix;
+      rotation_matrix.at(0, 0) = rot(0, 0);
+      rotation_matrix.at(0, 1) = rot(0, 1);
+      rotation_matrix.at(0, 2) = rot(0, 2);
+      rotation_matrix.at(1, 0) = rot(1, 0);
+      rotation_matrix.at(1, 1) = rot(1, 1);
+      rotation_matrix.at(1, 2) = rot(1, 2);
+      rotation_matrix.at(2, 0) = rot(2, 0);
+      rotation_matrix.at(2, 1) = rot(2, 1);
+      rotation_matrix.at(2, 2) = rot(2, 2);
+      photoOrientation.setRotationMatrix(rotation_matrix);
 
-        //if (image_path.equivalent(colmap_image_path)) {
-
-          const Eigen::Matrix<double, 3, 4> inv_proj_matrix = colmap_image.InverseProjectionMatrix();
-          const Eigen::Vector3d pc = inv_proj_matrix.rightCols<1>();
-          photoOrientation.setPosition(tl::Point3D(pc(0), pc(1), pc(2)));
-
-          Eigen::Matrix3d rot = colmap_image.RotationMatrix();
-          tl::math::RotationMatrix<double> rotation_matrix;
-          rotation_matrix.at(0, 0) = rot(0, 0);
-          rotation_matrix.at(0, 1) = rot(0, 1);
-          rotation_matrix.at(0, 2) = rot(0, 2);
-          rotation_matrix.at(1, 0) = rot(1, 0);
-          rotation_matrix.at(1, 1) = rot(1, 1);
-          rotation_matrix.at(1, 2) = rot(1, 2);
-          rotation_matrix.at(2, 0) = rot(2, 0);
-          rotation_matrix.at(2, 1) = rot(2, 1);
-          rotation_matrix.at(2, 2) = rot(2, 2);
-          photoOrientation.setRotationMatrix(rotation_matrix);
-
-          //camera_poses[image.id()] = photoOrientation;
-          camera_poses[mImageIds.at(pair.first)] = photoOrientation;
-        //  break;
-        //}
-      //}
+      camera_poses[mImageIds.at(pair.first)] = photoOrientation;
 
     }
 
@@ -516,6 +496,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
     QString path = QString::fromStdString(sparse_path);
     orientationExport.exportBinary(path); // TODO: Por ahora lo guardo y lo borro al finalizar
+    //orientationExport.exportText(path);
     orientationExport.exportPLY(path + "/sparse.ply");
 
 
