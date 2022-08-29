@@ -26,6 +26,8 @@
 
 #include <array>
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 #include "graphos/core/camera/Camera.h"
 
@@ -45,7 +47,7 @@ public:
   LoadFromVideoModel(QObject *parent = nullptr) : Model(parent) {}
   ~LoadFromVideoModel() override = default;
   
-  virtual QString imagesPath() const = 0;
+  virtual tl::Path imagesPath() const = 0;
   virtual void addImage(const Image &image) = 0;
   virtual const std::map<int, Camera> &cameras() const = 0;
   virtual int addCamera(const Camera &camera) = 0;

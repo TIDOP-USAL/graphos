@@ -55,17 +55,17 @@ BOOST_FIXTURE_TEST_CASE(default_constructor, TestSmvs)
 {
   BOOST_CHECK_EQUAL(1, mSmvs->inputImageScale());
   BOOST_CHECK_EQUAL(2, mSmvs->outputDepthScale());
-  BOOST_CHECK_EQUAL(true, mSmvs->semiGlobalMatching());
+  BOOST_CHECK_EQUAL(false, mSmvs->semiGlobalMatching());
   BOOST_CHECK_EQUAL(1., mSmvs->surfaceSmoothingFactor());
   BOOST_CHECK_EQUAL(false, mSmvs->shadingBasedOptimization());
 }
 
 BOOST_FIXTURE_TEST_CASE(constructor, TestSmvs)
 {
-  SmvsProperties smvs(2, 3, true, false, 0.7);
+  SmvsProperties smvs(2, 3, true, true, 0.7);
   BOOST_CHECK_EQUAL(2, smvs.inputImageScale());
   BOOST_CHECK_EQUAL(3, smvs.outputDepthScale());
-  BOOST_CHECK_EQUAL(false, smvs.semiGlobalMatching());
+  BOOST_CHECK_EQUAL(true, smvs.semiGlobalMatching());
   BOOST_CHECK_EQUAL(0.7, smvs.surfaceSmoothingFactor());
   BOOST_CHECK_EQUAL(true, smvs.shadingBasedOptimization());
 }
@@ -76,7 +76,7 @@ BOOST_FIXTURE_TEST_CASE(reset, TestSmvs)
 
   BOOST_CHECK_EQUAL(1, mSmvs->inputImageScale());
   BOOST_CHECK_EQUAL(2, mSmvs->outputDepthScale());
-  BOOST_CHECK_EQUAL(true, mSmvs->semiGlobalMatching());
+  BOOST_CHECK_EQUAL(false, mSmvs->semiGlobalMatching());
   BOOST_CHECK_EQUAL(1., mSmvs->surfaceSmoothingFactor());
   BOOST_CHECK_EQUAL(false, mSmvs->shadingBasedOptimization());
 }

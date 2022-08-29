@@ -47,9 +47,9 @@ class GRAPHOS_EXPORT DtmProcess
 public:
 
   DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
-             const QString &pointCloud,
+             const tl::Path &pointCloud,
              const tl::Point3<double> &offset,
-             const QString &dtmFile,
+             const tl::Path &dtmFile,
              double gsd,
              bool dsm,
              const QString &crs);
@@ -64,9 +64,9 @@ protected:
 private:
 
   std::shared_ptr<DtmAlgorithm> mDtmAlgorithm;
-  QString mPointCloud;
+  tl::Path mPointCloud;
   tl::Point3<double> mOffset;
-  QString mDtmFile;
+  tl::Path mDtmFile;
   double mGSD;
   bool mDSM;
   QString mCrs;

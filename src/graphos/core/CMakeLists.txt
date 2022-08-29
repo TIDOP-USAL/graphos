@@ -38,6 +38,7 @@ set(GRAPHOS_CORE_SOURCES
     process/Progress.cpp
     features/featio.cpp
     features/sift.cpp
+    features/featextract.cpp
     features/matching.cpp
     sfm/orientationcolmap.cpp
     sfm/orientationexport.cpp
@@ -84,6 +85,7 @@ set(GRAPHOS_CORE_HEADERS
     features/features.h
     features/featio.h
     features/sift.h
+    features/featextract.h
     features/matching.h
     sfm/orientation.h
     sfm/orientationcolmap.h
@@ -155,6 +157,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       ${FREEIMAGE_LIBRARIES}
                       GLEW::glew
                       #${PROJ4_LIBRARY}
+                      ${Boost_FILESYSTEM_LIBRARY}
+                      ${Boost_SYSTEM_LIBRARY}
+                      ${Boost_THREAD_LIBRARY}
+                      ${Boost_DATE_TIME_LIBRARY}
+                      ${Boost_CHRONO_LIBRARY}
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      ${Boost_REGEX_LIBRARY}
                       )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")

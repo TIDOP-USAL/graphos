@@ -27,9 +27,6 @@
 #include "graphos/components/loadfromvideo/LoadFromVideoModel.h"
 #include "graphos/core/project.h"
 
-//class QSettings;
-
-
 namespace graphos
 {
 
@@ -48,7 +45,7 @@ public:
 
 public:
 
-  QString imagesPath() const override;
+  tl::Path imagesPath() const override;
   void addImage(const Image &image) override;
   const std::map<int, Camera> &cameras() const override;
   int addCamera(const Camera &camera) override;

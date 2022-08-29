@@ -146,8 +146,8 @@ void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     progressHandler()->setDescription(tr("DTM finished"));
   }
 
-  QString dtm_file = mModel->projectPath();
-  dtm_file.append("\\dtm\\dtm.tif");
+  tl::Path dtm_file = mModel->projectPath();
+  dtm_file.append("dtm").append("dtm.tif");
   mModel->setDtmPath(dtm_file);
 }
 
@@ -185,8 +185,8 @@ std::unique_ptr<tl::Task> DtmPresenterImp::createProcess()
     progressHandler()->setDescription("DTM generation...");
   }
 
-  QString dtm_file = mModel->projectPath();
-  dtm_file.append("\\dtm\\dtm.tif");
+  tl::Path dtm_file = mModel->projectPath();
+  dtm_file.append("dtm").append("dtm.tif");
 
   dtm_process = std::make_unique<DtmProcess>(dtm_algorithm,
                                              mModel->denseModel(),

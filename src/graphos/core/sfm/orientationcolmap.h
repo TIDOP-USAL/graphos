@@ -97,8 +97,8 @@ class RelativeOrientationColmapTask
 
 public:
 
-  RelativeOrientationColmapTask(const QString &database,
-                                const QString &outputPath,
+  RelativeOrientationColmapTask(const tl::Path &database,
+                                const tl::Path &outputPath,
                                 const std::vector<Image> &images,
                                 const std::map<int, Camera> &cameras,
                                 bool fixCalibration);
@@ -118,8 +118,8 @@ protected:
 
 private:
 
-  QString mDatabase;
-  QString mOutputPath;
+  tl::Path mDatabase;
+  tl::Path mOutputPath;
   std::vector<Image> mImages;
   std::map<int, Camera> mCameras;
   colmap::IncrementalMapperOptions *mIncrementalMapper;
@@ -175,7 +175,7 @@ class AbsoluteOrientationColmapTask
 
 public:
 
-  AbsoluteOrientationColmapTask(const QString &path,
+  AbsoluteOrientationColmapTask(const tl::Path &path,
                                 const std::vector<Image> &images);
   ~AbsoluteOrientationColmapTask() override;
 
@@ -193,7 +193,7 @@ protected:
 
 private:
 
-  QString mInputPath;
+  tl::Path mInputPath;
   std::vector<Image> mImages;
   std::unordered_map<size_t, double> mCameraPosesErrors;
 };
@@ -210,11 +210,11 @@ class ImportPosesTask
 public:
 
   ImportPosesTask(const std::vector<Image> &images,
-                        const std::map<int, Camera> &cameras,
-                        const tl::Path &outputPath,
-                        const tl::Path &database,
-                        bool fixCalibration = false,
-                        bool fixPoses = true);
+                  const std::map<int, Camera> &cameras,
+                  const tl::Path &outputPath,
+                  const tl::Path &database,
+                  bool fixCalibration = false,
+                  bool fixPoses = true);
   ~ImportPosesTask() override;
 
   std::map<int, Camera> cameras() const;

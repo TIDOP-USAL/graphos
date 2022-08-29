@@ -52,8 +52,8 @@ public:
 
   std::vector<Image> images() const override;
   std::map<int, Camera> cameras() const override;
-  QString orthoPath() const override;
-  QString dtmPath() const override;
+  tl::Path orthoPath() const override;
+  tl::Path dtmPath() const override;
   QString epsCode() const override;
   void clearProject() override;
   bool useCuda() const override;

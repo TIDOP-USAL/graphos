@@ -90,10 +90,8 @@ bool ImageLoaderCommand::run()
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
     TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
-    QString project_file = QString::fromStdWString(mProjectFile.toWString());
-
     ProjectImp project;
-    project.load(project_file);
+    project.load(mProjectFile);
 
     std::vector<QString> image_list;
     image_list.reserve(1000);
@@ -193,7 +191,7 @@ bool ImageLoaderCommand::run()
 
     }
 
-    project.save(project_file);
+    project.save(mProjectFile);
 
   } catch (const std::exception &e) {
 

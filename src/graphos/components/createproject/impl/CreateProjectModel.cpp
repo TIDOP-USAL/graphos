@@ -53,12 +53,12 @@ QString CreateProjectModelImp::projectDescription() const
   return mProject->description();
 }
 
-QString CreateProjectModelImp::projectFolder() const
+tl::Path CreateProjectModelImp::projectFolder() const
 {
   return mProject->projectFolder();
 }
 
-QString CreateProjectModelImp::projectPath() const
+tl::Path CreateProjectModelImp::projectPath() const
 {
   return mPrjFile;
 }
@@ -73,17 +73,17 @@ void CreateProjectModelImp::setProjectDescription(const QString &description)
   mProject->setDescription(description);
 }
 
-void CreateProjectModelImp::setProjectFolder(const QString &dir)
+void CreateProjectModelImp::setProjectFolder(const tl::Path &folder)
 {
-  mProject->setProjectFolder(dir);
+  mProject->setProjectFolder(folder);
 }
 
-void CreateProjectModelImp::setDatabase(const QString &database)
+void CreateProjectModelImp::setDatabase(const tl::Path &database)
 {
   mProject->setDatabase(database);
 }
 
-void CreateProjectModelImp::saveAs(const QString &file)
+void CreateProjectModelImp::saveAs(const tl::Path &file)
 {
   mPrjFile = file;
   mProject->save(file);
@@ -97,7 +97,7 @@ void CreateProjectModelImp::init()
 void CreateProjectModelImp::clear()
 {
   mProject->clear();
-  mPrjFile = "";
+  mPrjFile.clear();
 }
 
 } // namespace graphos

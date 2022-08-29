@@ -93,12 +93,12 @@ public:
 
 public:
 
-  bool run(const std::string &pointCloud,
-           const std::string &dtmFile,
+  bool run(const tl::Path &pointCloud,
+           const tl::Path &dtmFile,
            const tl::Size<int> &size) override;
 
-  bool run(const std::string &pointCloud,
-           const std::string &dtmFile,
+  bool run(const tl::Path &pointCloud,
+           const tl::Path &dtmFile,
            const tl::BoundingBox<tl::Point3<double>> &bbox,
            double gsd) override;
 

@@ -215,11 +215,11 @@ int ImportVideoFramesAlgorithm::framePosition() const
 namespace graphos
 {
 
-LoadFromVideoTask::LoadFromVideoTask(const QString &video, 
+LoadFromVideoTask::LoadFromVideoTask(const tl::Path &video, 
                                      int skip,
                                      int videoIni,
                                      int videoEnd,
-                                     const QString &imagesPath,
+                                     const tl::Path &imagesPath,
                                      std::vector<Camera> *cameras,
                                      const std::string &cameraType)
   : tl::TaskBase(),
@@ -246,7 +246,7 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
     chrono.run();
 
     ImportVideoFramesAlgorithm import_video_algorithm;
-    import_video_algorithm.setVideo(mVideo.toStdString());
+    import_video_algorithm.setVideo(mVideo);
     import_video_algorithm.setSkipFrames(mSkipFrames);
     import_video_algorithm.startAt(mVideoIni);
     import_video_algorithm.finishAt(mVideoEnd);
@@ -275,7 +275,7 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
       if (status() == tl::Task::Status::stopping)  break;
 
       int pos = import_video_algorithm.framePosition();
-      tl::Path path(mImagesPath.toStdWString());
+      tl::Path path(mImagesPath);
       path.createDirectories();
       path.append(std::string("frame").append(std::to_string(pos)).append(".jpg"));
       Image image(QString::fromStdWString(path.toWString()));

@@ -28,16 +28,9 @@
 
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
+#include <tidop/core/path.h>
 
 #include <QObject>
-
-//namespace colmap
-//{
-//class OptionManager;
-//struct IncrementalMapperOptions;
-//class ReconstructionManager;
-//class IncrementalMapperController;
-//}
 
 namespace graphos
 {
@@ -59,7 +52,7 @@ public:
                       const std::unordered_map<size_t, CameraPose> &poses,
                       const std::vector<GroundPoint> &groundPoints,
                       const std::vector<GroundControlPoint> &groundControlPoints,
-                      const QString &database);
+                      const tl::Path &database);
   ~GeoreferenceProcess() override;
 
 signals:
@@ -74,14 +67,12 @@ protected:
 
 private:
 
-  //QString mInputPath;
-  //QString mOutputPath;
   std::unordered_map<size_t, Image> mImages;
   std::map<int, Camera> mCameras;
   std::unordered_map<size_t, CameraPose> mPoses;
   std::vector<GroundPoint> mGroundPoints;
   std::vector<GroundControlPoint> mGroundControlPoints;
-  QString mDatabase;
+  tl::Path mDatabase;
 };
 
 } // namespace graphos

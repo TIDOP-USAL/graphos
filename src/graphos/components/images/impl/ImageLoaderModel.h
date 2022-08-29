@@ -51,7 +51,7 @@ public:
   void setProjectCRS(const QString &crs) override;
   void addImage(const Image &image) override;
   bool existImage(size_t imageId) const;
-  QString imagesDirectory() const override;
+  tl::Path imagesDirectory() const override;
   const std::map<int, Camera> &cameras() const override;
   int addCamera(const Camera &camera) override;
   int cameraID(const Camera &camera) const override;

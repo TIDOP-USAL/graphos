@@ -331,8 +331,8 @@ QString RelativeOrientationColmapProperties::name() const
 
 
 
-RelativeOrientationColmapTask::RelativeOrientationColmapTask(const QString &database,
-                                                             const QString &outputPath,
+RelativeOrientationColmapTask::RelativeOrientationColmapTask(const tl::Path &database,
+                                                             const tl::Path &outputPath,
                                                              const std::vector<Image> &images, 
                                                              const std::map<int, Camera> &cameras,
                                                              bool fixCalibration)
@@ -396,11 +396,8 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
     mReconstructionManager->Clear();
 
-    std::string sparse_path = mOutputPath.toStdString();
-
-    tl::Path dir(sparse_path);
-    if (!dir.exists() && !dir.createDirectories()) {
-      throw std::runtime_error(std::string("Directory couldn't be created: ").append(sparse_path));
+    if (mOutputPath.createDirectories()) {
+      throw std::runtime_error(std::string("Directory couldn't be created: ").append(mOutputPath.toString()));
     }
 
     if (mMapper) {
@@ -414,7 +411,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
     mMapper = new colmap::IncrementalMapperController(mIncrementalMapper,
                                                       "",
-                                                      mDatabase.toStdString(),
+                                                      mDatabase.toString(),
                                                       mReconstructionManager.get());
 
     size_t prev_num_reconstructions = 0;
@@ -425,7 +422,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
           // If the number of reconstructions has not changed, the last model
           // was discarded for some reason.
           if (mReconstructionManager->Size() > prev_num_reconstructions) {
-            const std::string reconstruction_path = sparse_path;
+            const std::string reconstruction_path = mOutputPath.toString();
             const auto &reconstruction = mReconstructionManager->Get(prev_num_reconstructions);
             //colmap::CreateDirIfNotExists(reconstruction_path);
             //reconstruction.Write(reconstruction_path);
@@ -471,7 +468,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
     std::vector<GroundPoint> ground_points = convert.groundPoints();
     auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
     gp_writer->setGroundPoints(ground_points);
-    tl::Path ground_points_path(sparse_path);
+    tl::Path ground_points_path(mOutputPath);
     ground_points_path.append("ground_points.bin");
     gp_writer->write(ground_points_path);
 
@@ -479,7 +476,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
     auto camera_poses = convert.cameraPoses();
     auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
     poses_writer->setCameraPoses(camera_poses);
-    tl::Path poses_path(sparse_path);
+    tl::Path poses_path(mOutputPath);
     poses_path.append("poses.bin");
     poses_writer->write(poses_path);
 
@@ -494,11 +491,11 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
     OrientationExport orientationExport(&reconstruction);
 
-    QString path = QString::fromStdString(sparse_path);
-    orientationExport.exportBinary(path); // TODO: Por ahora lo guardo y lo borro al finalizar
+    orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
     //orientationExport.exportText(path);
-    orientationExport.exportPLY(path + "/sparse.ply");
-
+    tl::Path sparse_file = mOutputPath;
+    sparse_file.append("sparse.ply");
+    orientationExport.exportPLY(QString::fromStdWString(sparse_file.toWString()));
 
     if (status() == tl::Task::Status::stopping) return;
 
@@ -573,7 +570,7 @@ QString AbsoluteOrientationColmapProperties::name() const
 
 
 
-AbsoluteOrientationColmapTask::AbsoluteOrientationColmapTask(const QString &inputPath,
+AbsoluteOrientationColmapTask::AbsoluteOrientationColmapTask(const tl::Path &inputPath,
                                                              const std::vector<Image> &images)
   : mInputPath(inputPath),
     mImages(images)
@@ -598,8 +595,6 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
 {
   try {
 
-    //msgInfo("Starting Absolute Orientation");
-
     tl::Chrono chrono("Absolute Orientation finished");
     chrono.run();
 
@@ -608,19 +603,14 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
     ransac_options.max_error = robustAlignmentMaxError();
     int min_common_images = minCommonImages();
 
-    /// TODO: Cambiar por un error si no existe el directorio
-    tl::Path dir(mInputPath.toStdString());
-    TL_ASSERT(dir.exists() && dir.isDirectory(), "Invalid reconstruction");
-    //if (!dir.exists() && !dir.createDirectories()) {
-    //  throw std::runtime_error(std::string("Directory couldn't be created: ").append(mOutputPath.toStdString()));
-    //}
+    TL_ASSERT(mInputPath.exists() && mInputPath.isDirectory(), "Invalid reconstruction");
 
     if (robust_alignment && ransac_options.max_error <= 0) {
       throw std::runtime_error("ERROR: You must provide a maximum alignment error > 0");
     }
 
     colmap::Reconstruction reconstruction;
-    reconstruction.Read(mInputPath.toStdString());
+    reconstruction.Read(mInputPath.toString());
 
     std::vector<std::string> ref_image_names;
     std::vector<Eigen::Vector3d> ref_locations;
@@ -660,15 +650,15 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
 
     if (status() == tl::Task::Status::stopping) return;
 
-    tl::Path offset_path = dir;
+    tl::Path offset_path = mInputPath;
     offset_path.append("offset.txt");
 
     for (auto &pos : ref_locations) {
       pos -= offset;
     }
 
-    if (!tl::Path(mInputPath.toStdString()).exists())
-      throw std::runtime_error(std::string("Reconstruction not found in path: ").append(mInputPath.toStdString()));
+    if (!tl::Path(mInputPath.toString()).exists())
+      throw std::runtime_error(std::string("Reconstruction not found in path: ").append(mInputPath.toString()));
 
     if (status() == tl::Task::Status::stopping) return;
 
@@ -691,7 +681,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
     std::vector<GroundPoint> ground_points = convert.groundPoints();
     auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
     gp_writer->setGroundPoints(ground_points);
-    tl::Path ground_points_path(dir);
+    tl::Path ground_points_path(mInputPath);
     ground_points_path.append("ground_points.bin");
     gp_writer->write(ground_points_path);
 
@@ -700,7 +690,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
     auto camera_poses = convert.cameraPoses();
     auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
     poses_writer->setCameraPoses(camera_poses);
-    tl::Path poses_path(dir);
+    tl::Path poses_path(mInputPath);
     poses_path.append("poses.bin");
     poses_writer->write(poses_path);
 
@@ -708,7 +698,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
 
     /// Write Sparse Cloud
 
-    tl::Path sparse_path(dir);
+    tl::Path sparse_path(mInputPath);
     sparse_path.append("sparse.ply");
     OrientationExport orientationExport(&reconstruction);
     //orientationExport.exportBinary(QString::fromStdString(sparse_path.toString()));

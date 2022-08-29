@@ -47,7 +47,7 @@ public:
   ~MainWindowModel();
 
   QString projectName() const;
-  QString projectPath() const;
+  tl::Path projectPath() const;
 
   const std::unordered_map<size_t, Image> &images() const;
   Image image(size_t imageId) const;
@@ -57,24 +57,24 @@ public:
   const std::unordered_map<size_t, QString> &features() const;
   std::vector<size_t> imagePairs(size_t imageId) const;
 
-  QString sparseModel() const;
+  tl::Path sparseModel() const;
   bool isAbsoluteOrientation() const;
 
   const std::unordered_map<size_t, CameraPose> &poses() const;
 
-  QString denseModel() const;
+  tl::Path denseModel() const;
 
   QString graphicViewerBackgroundColor() const;
 
   bool checkUnsavedChanges() const;
-  bool checkOldVersion(const QString &file) const;
-  void oldVersionBackup(const QString &file) const;
+  bool checkOldVersion(const tl::Path &file) const;
+  void oldVersionBackup(const tl::Path &file) const;
 
 public slots:
 
-  void load(const QString &file);
+  void load(const tl::Path &file);
   void save();
-  void saveAs(const QString &file);
+  void saveAs(const tl::Path &file);
 
 // Model interface
 

@@ -64,13 +64,14 @@ bool GeoreferenceCommand::run()
     TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
     TL_ASSERT(mGCP.isFile(), "GCP file doesn't exist");
 
-    QString project_file = QString::fromStdWString(mProjectFile.toWString());
-
     ProjectImp project;
-    project.load(project_file);
+    project.load(mProjectFile);
 
-    QString ori_relative = project.projectFolder() + "/ori/relative/";
-    QString ori_absolute = project.projectFolder() + "/ori/absolute/";
+    tl::Path ori_relative = project.projectFolder();
+    ori_relative.append("ori").append("relative");
+    tl::Path ori_absolute = project.projectFolder();
+    ori_absolute.append("ori");
+    ori_absolute.append("absolute");
 
     auto reader = GCPsReaderFactory::create("GRAPHOS");
     reader->read(mGCP);
@@ -105,7 +106,7 @@ bool GeoreferenceCommand::run()
 
     //}
 
-    project.save(project_file);
+    project.save(mProjectFile);
 
   } catch (const std::exception& e) {
 

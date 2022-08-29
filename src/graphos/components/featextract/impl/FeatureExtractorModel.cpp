@@ -71,7 +71,7 @@ void FeatureExtractorModelImp::setFeatureExtractor(const std::shared_ptr<Feature
   mProject->setFeatureExtractor(featureExtractor);
 }
 
-QString FeatureExtractorModelImp::database() const
+tl::Path FeatureExtractorModelImp::database() const
 {
   return mProject->database();
 }
@@ -98,8 +98,7 @@ const std::map<int, Camera> &FeatureExtractorModelImp::cameras() const
 
 void FeatureExtractorModelImp::clearProject()
 {
-  TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
-  QFile(this->database()).remove();
+  tl::Path::removeFile(database());
   mProject->removeFeatures();
 }
 

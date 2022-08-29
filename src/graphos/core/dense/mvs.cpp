@@ -200,8 +200,8 @@ MvsDensifier::MvsDensifier(const std::unordered_map<size_t, Image> &images,
                            const std::map<int, Camera> &cameras,
                            const std::unordered_map<size_t, CameraPose> &poses,
                            const std::vector<GroundPoint> &groundPoints, 
-                           const QString &outputPath,
-                           const QString &database, 
+                           const tl::Path &outputPath,
+                           const tl::Path &database,
                            bool cuda)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
     mDatabase(database)
@@ -224,7 +224,7 @@ void MvsDensifier::exportToComap()
   try {
 
     colmap::Database database;
-    database.Open(mDatabase.toStdString());
+    database.Open(mDatabase.toString());
     const auto &colmap_images = database.ReadAllImages();
 
     std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -430,7 +430,7 @@ void MvsDensifier::writeNVMFile()
   try {
   
     colmap::Database database;
-    database.Open(mDatabase.toStdString());
+    database.Open(mDatabase.toString());
     const auto &colmap_images = database.ReadAllImages();
 
     std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -637,7 +637,7 @@ void MvsDensifier::densify()
     path.append(dense_model.fileName());
     tl::Path::copy(dense_model, path);
 
-    setDenseModel(QString::fromStdWString(path.toWString()));
+    setDenseModel(path);
 
     msgInfo("Dense model write at: %s", path.toString().c_str());
 

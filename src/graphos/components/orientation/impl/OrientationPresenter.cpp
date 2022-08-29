@@ -123,8 +123,8 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 
   std::unique_ptr<tl::Task> orientation_process;
 
-  QString reconstruction_path = mModel->reconstructionPath();
-  if (!reconstruction_path.isEmpty()) {
+  tl::Path reconstruction_path = mModel->reconstructionPath();
+  if (!reconstruction_path.empty()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),
                             tr("The previous results will be overwritten. Do you wish to continue?"),
@@ -144,7 +144,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
     images.push_back(image.second);
   }
 
-  tl::Path sfm_path = mModel->projectPath().toStdWString();
+  tl::Path sfm_path = mModel->projectFolder();
   sfm_path.append("sfm");
 
   if (mModel->rtkOrientations()) {
@@ -152,16 +152,13 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
     orientation_process = std::make_unique<ImportPosesTask>(images,
                                                             mModel->cameras(),
                                                             sfm_path,
-                                                            mModel->database().toStdWString(),
+                                                            mModel->database(),
                                                             mView->fixCalibration(),
                                                             mView->fixPoses());
 
     orientation_process->subscribe([&](tl::TaskFinalizedEvent *event) {
 
       auto cameras = dynamic_cast<ImportPosesTask const *>(event->task())->cameras();
-
-      tl::Path sfm_path = mModel->projectPath().toStdWString();
-      sfm_path.append("sfm");
 
       tl::Path offset_path = sfm_path;
       offset_path.append("offset.txt");
@@ -179,9 +176,9 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
           ground_points_path.exists() &&
           poses_path.exists()) {
 
-        mModel->setReconstructionPath(QString::fromStdWString(sfm_path.toWString()));
-        mModel->setSparseModel(QString::fromStdWString(sparse_model_path.toWString()));
-        mModel->setOffset(QString::fromStdWString(offset_path.toWString()));
+        mModel->setReconstructionPath(sfm_path);
+        mModel->setSparseModel(sparse_model_path);
+        mModel->setOffset(offset_path);
       }
 
       if (poses_path.exists()) {
@@ -206,52 +203,55 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
   } else {
 
     orientation_process = std::make_unique<tl::TaskList>();
-
-    QString ori_relative_path = mModel->projectPath() + "/sfm/";
     
     auto relative_orientation_task = std::make_shared<RelativeOrientationColmapTask>(mModel->database(),
-                                                                                     ori_relative_path,
+                                                                                     sfm_path,
                                                                                      images,
                                                                                      mModel->cameras(),
                                                                                      mView->fixCalibration());
 
     relative_orientation_task->subscribe([&](tl::TaskFinalizedEvent *event) {
 
-      auto cameras = dynamic_cast<RelativeOrientationColmapTask const*>(event->task())->cameras();
-      /// Se comprueba que se han generado todos los productos
-      tl::Path sfm_path = mModel->projectPath().toStdWString();// +"/sfm";
-      sfm_path.append("sfm");
+      try {
 
-      tl::Path sparse_model_path = sfm_path;
-      sparse_model_path.append("sparse.ply");
+        auto cameras = dynamic_cast<RelativeOrientationColmapTask const *>(event->task())->cameras();
 
-      tl::Path ground_points_path = sfm_path;
-      ground_points_path.append("ground_points.bin");
+        /// Se comprueba que se han generado todos los productos
 
-      tl::Path poses_path = sfm_path;
-      poses_path.append("poses.bin");
+        tl::Path sparse_model_path = sfm_path;
+        sparse_model_path.append("sparse.ply");
 
-      if (sparse_model_path.exists() && 
-          ground_points_path.exists() &&
-          poses_path.exists()) {
+        tl::Path ground_points_path = sfm_path;
+        ground_points_path.append("ground_points.bin");
 
-        mModel->setReconstructionPath(QString::fromStdWString(sfm_path.toWString()));
-        mModel->setSparseModel(QString::fromStdWString(sparse_model_path.toWString()));
-        mModel->setOffset("");
+        tl::Path poses_path = sfm_path;
+        poses_path.append("poses.bin");
 
-        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-        poses_reader->read(poses_path);
-        auto poses = poses_reader->cameraPoses();
+        if (sparse_model_path.exists() &&
+            ground_points_path.exists() &&
+            poses_path.exists()) {
 
-        for (const auto &camera_pose : poses) {
-          mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
+          mModel->setReconstructionPath(sfm_path);
+          mModel->setSparseModel(sparse_model_path);
+          mModel->setOffset(tl::Path(""));
+
+          auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+          poses_reader->read(poses_path);
+          auto poses = poses_reader->cameraPoses();
+
+          for (const auto &camera_pose : poses) {
+            mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
+          }
+
+          msgInfo("Oriented %i images", poses.size());
+
+          for (const auto &camera : cameras) {
+            mModel->updateCamera(camera.first, camera.second);
+          }
         }
 
-        msgInfo("Oriented %i images", poses.size());
-
-        for (const auto &camera : cameras) {
-          mModel->updateCamera(camera.first, camera.second);
-        }
+      } catch (const std::exception &e) {
+        tl::printException(e);
       }
 
     });
@@ -260,20 +260,18 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 
     if (mView->absoluteOrientation()) {
       
-      auto absolute_orientation_task = std::make_shared<AbsoluteOrientationColmapTask>(ori_relative_path,
+      auto absolute_orientation_task = std::make_shared<AbsoluteOrientationColmapTask>(sfm_path,
                                                                                        images);
 
       absolute_orientation_task->subscribe([&](tl::TaskFinalizedEvent *event) {
 
-        tl::Path sfm_path = mModel->projectPath().toStdWString();
-        sfm_path.append("sfm");
         tl::Path offset_path = sfm_path;
         offset_path.append("offset.txt");
         tl::Path poses_path = sfm_path;
         poses_path.append("poses.bin");
 
         if (offset_path.exists()) {
-          mModel->setOffset(QString::fromStdWString(offset_path.toWString()));
+          mModel->setOffset(offset_path);
         }
 
         if (poses_path.exists()) {

@@ -29,6 +29,7 @@
 #include "graphos/core/utils.h"
 
 #include <tidop/core/task.h>
+#include <tidop/core/path.h>
 
 #include <vector>
 #include <map>
@@ -83,8 +84,8 @@ class PoissonReconTask
 
 public:
 
-  PoissonReconTask(const QString &input,
-                   const QString &output);
+  PoissonReconTask(const tl::Path &input,
+                   const tl::Path &output);
   ~PoissonReconTask();
 
   // tl::TaskBase interface
@@ -95,8 +96,8 @@ protected:
 
 private:
 
-  QString mInput;
-  QString mOutput;
+  tl::Path mInput;
+  tl::Path mOutput;
 };
 
 

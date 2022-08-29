@@ -55,7 +55,7 @@ struct TestProject
 
   void setup()
   {
-    mProjectXml->load(QString(GRAPHOS_SOURCE_PATH).append("/test/data/project.xml"));
+    mProjectXml->load(tl::Path(GRAPHOS_SOURCE_PATH).append("test/data/project.xml"));
   }
   
   void teardown()
@@ -74,10 +74,10 @@ BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestProject)
 {
   BOOST_CHECK_EQUAL("", mProject->name().toStdString());
   BOOST_CHECK_EQUAL("", mProject->description().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->projectFolder().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->projectPath().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectFolder());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectPath());
   BOOST_CHECK_EQUAL("1.0", mProject->version().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->database().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->database());
   BOOST_CHECK_EQUAL(0, mProject->imagesCount());
   const auto &images = mProject->images();
   BOOST_CHECK_EQUAL(0, images.size());
@@ -85,7 +85,7 @@ BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestProject)
   BOOST_CHECK_EQUAL(0, cameras.size());
   BOOST_CHECK_EQUAL(0, mProject->camerasCount());
   BOOST_CHECK_EQUAL("", mProject->crs().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->denseModel().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->denseModel());
   auto densification = mProject->densification();
   BOOST_CHECK(!densification);
   auto featureExtractor = mProject->featureExtractor();
@@ -94,9 +94,9 @@ BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestProject)
   BOOST_CHECK(!featureMatching);
   auto features = mProject->features();
   BOOST_CHECK_EQUAL(0, features.size());
-  BOOST_CHECK_EQUAL("", mProject->offset().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->reconstructionPath().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->sparseModel().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->offset());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->reconstructionPath());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->sparseModel());
 
 }
 
@@ -106,10 +106,10 @@ BOOST_FIXTURE_TEST_CASE(clear, TestProject)
 
   BOOST_CHECK_EQUAL("", mProject->name().toStdString());
   BOOST_CHECK_EQUAL("", mProject->description().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->projectFolder().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->projectPath().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectFolder());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectPath());
   BOOST_CHECK_EQUAL("1.0", mProject->version().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->database().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->database());
   BOOST_CHECK_EQUAL(0, mProject->imagesCount());
   const auto &images = mProject->images();
   BOOST_CHECK_EQUAL(0, images.size());
@@ -117,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE(clear, TestProject)
   BOOST_CHECK_EQUAL(0, cameras.size());
   BOOST_CHECK_EQUAL(0, mProject->camerasCount());
   BOOST_CHECK_EQUAL("", mProject->crs().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->denseModel().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->denseModel());
   auto densification = mProject->densification();
   BOOST_CHECK(!densification);
   auto featureExtractor = mProject->featureExtractor();
@@ -126,9 +126,9 @@ BOOST_FIXTURE_TEST_CASE(clear, TestProject)
   BOOST_CHECK(!featureMatching);
   auto features = mProject->features();
   BOOST_CHECK_EQUAL(0, features.size());
-  BOOST_CHECK_EQUAL("", mProject->offset().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->reconstructionPath().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->sparseModel().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->offset());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->reconstructionPath());
+  BOOST_CHECK_EQUAL(tl::Path(""), mProject->sparseModel());
 }
 
 BOOST_FIXTURE_TEST_CASE(name, TestProject)
@@ -147,14 +147,14 @@ BOOST_FIXTURE_TEST_CASE(description, TestProject)
 
 BOOST_FIXTURE_TEST_CASE(projectFolder, TestProject)
 {
-  mProject->setProjectFolder("C:/Users/temp");
-  BOOST_CHECK_EQUAL("C:/Users/temp", mProject->projectFolder().toStdString());
-  BOOST_CHECK_EQUAL("C:/Users/qwerty/Documents/graphos/Projects/San Segundo", mProjectXml->projectFolder().toStdString());
+  mProject->setProjectFolder(tl::Path("C:/Users/temp"));
+  BOOST_CHECK_EQUAL(tl::Path("C:/Users/temp"), mProject->projectFolder());
+  BOOST_CHECK_EQUAL(tl::Path("C:/Users/qwerty/Documents/graphos/Projects/San Segundo"), mProjectXml->projectFolder());
 }
 
 BOOST_FIXTURE_TEST_CASE(database, TestProject)
 {
-  BOOST_CHECK_EQUAL("C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db", mProjectXml->database().toStdString());
+  BOOST_CHECK_EQUAL(tl::Path("C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db"), mProjectXml->database());
 }
 
 BOOST_FIXTURE_TEST_CASE(crs, TestProject)
@@ -276,8 +276,9 @@ BOOST_FIXTURE_TEST_CASE(photoOrientation, TestProject)
 
 BOOST_FIXTURE_TEST_CASE(sparseModel, TestProject)
 {
-  mProject->setSparseModel("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply");
-  BOOST_CHECK_EQUAL("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply", mProject->sparseModel().toStdString());
+  tl::Path sparse_model("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply");
+  mProject->setSparseModel(sparse_model);
+  BOOST_CHECK_EQUAL(sparse_model, mProject->sparseModel());
 }
 
 BOOST_FIXTURE_TEST_CASE(densification, TestProject)
@@ -288,8 +289,9 @@ BOOST_FIXTURE_TEST_CASE(densification, TestProject)
 
 BOOST_FIXTURE_TEST_CASE(denseModel, TestProject)
 {
-  mProject->setDenseModel("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply");
-  BOOST_CHECK_EQUAL("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply", mProject->denseModel().toStdString());
+  tl::Path dense_model("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply");
+  mProject->setDenseModel(dense_model);
+  BOOST_CHECK_EQUAL(dense_model, mProject->denseModel());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

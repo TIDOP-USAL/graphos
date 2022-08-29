@@ -41,12 +41,8 @@ class OrthophotoPresenterImp
 public:
 
   OrthophotoPresenterImp(OrthophotoView *view,
-                              OrthophotoModel *model);
+                         OrthophotoModel *model);
   ~OrthophotoPresenterImp() override;
-
-private slots:
-
-  void onOrthophotoFinished();
   
 // Presenter interface
 

@@ -90,13 +90,13 @@ void MainWindowPresenter::openFromHistory(const QString &file)
 
       mModel->clear();
 
-      if (mModel->checkOldVersion(file)) {
+      if (mModel->checkOldVersion(file.toStdWString())) {
         int i_ret = QMessageBox(QMessageBox::Information,
                                 tr("It is loading an old project"),
                                 tr("If you accept, a copy of the old project will be created"),
                                 QMessageBox::Yes | QMessageBox::No).exec();
         if (i_ret == QMessageBox::Yes) {
-          mModel->oldVersionBackup(file);
+          mModel->oldVersionBackup(file.toStdWString());
           Application &app = Application::instance();
           app.status()->activeFlag(AppStatus::Flag::project_modified, true);
         } else if (i_ret == QMessageBox::Cancel) {
@@ -105,7 +105,7 @@ void MainWindowPresenter::openFromHistory(const QString &file)
 
       }
 
-      mModel->load(file);
+      mModel->load(file.toStdWString());
       loadProject();
 
     } else {
@@ -208,7 +208,7 @@ void MainWindowPresenter::loadProject()
   Application &app = Application::instance();
   app.status()->activeFlag(AppStatus::Flag::project_exists, true);
 
-  QString project_path = mModel->projectPath();
+  QString project_path = QString::fromStdWString(mModel->projectPath().toWString());
 
   /// Se añade al historial de proyectos recientes
   app.addToHistory(project_path);
@@ -280,7 +280,7 @@ void MainWindowPresenter::loadOrientation()
   Application &app = Application::instance();
   AppStatus *app_status = app.status();
 
-  QString sparse_model = mModel->sparseModel();
+  QString sparse_model = QString::fromStdWString(mModel->sparseModel().toWString());
 
   if (!sparse_model.isEmpty()){
     mView->setSparseModel(sparse_model);
@@ -299,7 +299,7 @@ void MainWindowPresenter::loadDenseModel()
 {
   Application &app = Application::instance();
 
-  QString dense_model = mModel->denseModel();
+  QString dense_model = QString::fromStdWString(mModel->denseModel().toWString());
 
   if (!dense_model.isEmpty()) {
     mView->setDenseModel(dense_model);

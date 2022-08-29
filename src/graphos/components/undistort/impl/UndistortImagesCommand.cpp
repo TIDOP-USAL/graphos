@@ -69,13 +69,8 @@ bool UndistortImagesCommand::run()
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
     TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
-    QString project_file = QString::fromStdWString(mProjectFile.toWString());
-
     ProjectImp project;
-    project.load(project_file);
-
-    
-    //tl::ProgressBarColor progress_bar(0, project.images().size());
+    project.load(mProjectFile);
 
     UndistortImages process(project.images(),
                             project.cameras(),

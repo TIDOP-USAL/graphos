@@ -63,18 +63,18 @@ std::shared_ptr<Densification> DensificationModelImp::densification() const
   return mProject->densification();
 }
 
-QString DensificationModelImp::projectFolder() const
+tl::Path DensificationModelImp::projectFolder() const
 {
   return mProject->projectFolder();
 }
 
 
-QString DensificationModelImp::reconstructionPath() const
+tl::Path DensificationModelImp::reconstructionPath() const
 {
   return mProject->reconstructionPath();
 }
 
-QString DensificationModelImp::database() const
+tl::Path DensificationModelImp::database() const
 {
   return mProject->database();
 }
@@ -87,8 +87,8 @@ bool DensificationModelImp::useCuda() const
 
 bool DensificationModelImp::existDenseModel() const
 {
-  QString dense_model = mProject->denseModel();
-  return !dense_model.isEmpty();
+  tl::Path dense_model = mProject->denseModel();
+  return !dense_model.empty();
 }
 
 const std::unordered_map<size_t, Image> &DensificationModelImp::images() const
@@ -108,13 +108,22 @@ const std::unordered_map<size_t, CameraPose> &DensificationModelImp::poses() con
 
 std::vector<GroundPoint> DensificationModelImp::groundPoints() const
 {
-  tl::Path ground_points_path(mProject->reconstructionPath().toStdWString());
-  ground_points_path.append("ground_points.bin");
+  std::vector<GroundPoint> ground_points;
 
-  std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
-  reader->read(ground_points_path);
+  try {
+
+    tl::Path ground_points_path(mProject->reconstructionPath().toWString());
+    ground_points_path.append("ground_points.bin");
+
+    std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
+    reader->read(ground_points_path);
+    ground_points = reader->points();
+
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("");
+  }
   
-  return reader->points();
+  return ground_points;
 }
 
 void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)
@@ -122,7 +131,7 @@ void DensificationModelImp::setDensification(const std::shared_ptr<Densification
   mProject->setDensification(densification);
 }
 
-void DensificationModelImp::setDenseModel(const QString &denseModel)
+void DensificationModelImp::setDenseModel(const tl::Path &denseModel)
 {
   mProject->setDenseModel(denseModel);
 }

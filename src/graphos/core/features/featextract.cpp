@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "FeatureExtractorTask.h"
+#include "featextract.h"
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
@@ -91,9 +91,9 @@ public:
 
   void operator() (size_t, size_t)
   {
-    for(const auto &image : *mImages) {
+    for (const auto &image : *mImages) {
 
-      if(mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
+      if (mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
         featextract_done = true;
         return;
       }
@@ -118,7 +118,7 @@ private:
       featextract_mutex.lock();
       bool exist_image = mDatabase->ExistsImageWithName(image_path);
       featextract_mutex.unlock();
-      if(!exist_image) {
+      if (!exist_image) {
 
         colmap::Camera camera_colmap;
         colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
@@ -127,11 +127,11 @@ private:
         bool exists_camera = mDatabase->ExistsCamera(camera_id);
         featextract_mutex.unlock();
 
-        if(!exists_camera) {
+        if (!exists_camera) {
 
           Camera camera;
           auto it = mCameras->find(camera_id);
-          if(it != mCameras->end()) {
+          if (it != mCameras->end()) {
             camera = mCameras->at(camera_id);
           } else {
             throw std::runtime_error(std::string("Camera not found for image: ").append(image_path));
@@ -139,14 +139,14 @@ private:
 
           QString colmap_camera_type = cameraToColmapType(camera);
           int camera_model_id = colmap::CameraModelNameToId(colmap_camera_type.toStdString());
-          if(camera_model_id == -1) throw std::runtime_error("Camera model unknow");
+          if (camera_model_id == -1) throw std::runtime_error("Camera model unknow");
 
           size_t width = static_cast<size_t>(camera.width());
           size_t height = static_cast<size_t>(camera.height());
 
           double focal_lenght = camera.focal();
 
-          if(focal_lenght > 0.) {
+          if (focal_lenght > 0.) {
             camera_colmap.SetPriorFocalLength(true);
           } else {
             focal_lenght = 1.2 * std::max(width, height);
@@ -162,14 +162,14 @@ private:
         image_colmap.SetName(image_path);
 
         tl::Point3D position = image.cameraPose().position();
-        if(position != tl::Point3D()) {
+        if (position != tl::Point3D()) {
           image_colmap.TvecPrior(0) = image.cameraPose().position().x;
           image_colmap.TvecPrior(1) = image.cameraPose().position().y;
           image_colmap.TvecPrior(2) = image.cameraPose().position().z;
         }
 
         tl::math::Quaternion<double> q = image.cameraPose().quaternion();
-        if(q != tl::math::Quaternion<double>::zero()) {
+        if (q != tl::math::Quaternion<double>::zero()) {
           image_colmap.QvecPrior(0) = q.w;
           image_colmap.QvecPrior(1) = q.x;
           image_colmap.QvecPrior(2) = q.y;
@@ -211,7 +211,7 @@ private:
       double time = chrono.stop();
       msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
 
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
       msgError(e.what());
       featextract_done = true;
     }
@@ -221,7 +221,7 @@ private:
   {
     cv::Mat mat;
 
-    if(featextract_opencv_read) {
+    if (featextract_opencv_read) {
 
       mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH);
 
@@ -230,14 +230,14 @@ private:
       //cv::decolor(mat, mat, color_boost);
       //color_boost.release();
 
-      if(mat.empty()) {
+      if (mat.empty()) {
         featextract_opencv_read = false;
       } else {
 
         cv::Size size(mat.cols, mat.rows);
         double max_dimension = std::max(size.width, size.height);
 
-        if(mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+        if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
 
           scale = max_dimension / mMaxImageSize;
           size.width /= scale;
@@ -248,14 +248,14 @@ private:
       }
     }
 
-    if(!featextract_opencv_read) {
+    if (!featextract_opencv_read) {
       std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
       imageReader->open();
-      if(imageReader->isOpen()) {
+      if (imageReader->isOpen()) {
 
         double max_dimension = std::max(imageReader->cols(), imageReader->rows());
 
-        if(mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
+        if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
           scale = mMaxImageSize / max_dimension;
           mat = imageReader->read(scale, scale);
           scale = 1. / scale;
@@ -263,7 +263,7 @@ private:
           mat = imageReader->read();
         }
 
-        if(mat.channels() >= 3) {
+        if (mat.channels() >= 3) {
           convertRgbToGray(mat);
         }
 
@@ -294,9 +294,9 @@ private:
 
   void normalizeImage(cv::Mat &mat)
   {
-    if(mat.depth() != CV_8U) {
+    if (mat.depth() != CV_8U) {
 #ifdef HAVE_CUDA
-      if(bUseGPU) {
+      if (bUseGPU) {
         cv::cuda::GpuMat gImgIn(mat);
         cv::cuda::GpuMat gImgOut;
         cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
@@ -313,7 +313,7 @@ private:
   void resizeImage(cv::Mat &mat, const cv::Size &size)
   {
 #ifdef HAVE_CUDA
-    if(bUseGPU) {
+    if (bUseGPU) {
       cv::cuda::GpuMat gImgIn(mat);
       cv::cuda::GpuMat gImgResize;
       cv::cuda::resize(gImgIn, gImgResize, size);
@@ -353,20 +353,20 @@ public:
               bool useGPU,
               tl::Progress *progressBar)
     : mImages(images),
-      mFeatExtractor(feat_extractor),
-      mDatabaseFile(databaseFile),
-      mDatabase(database),
-      mBuffer(buffer),
-      mFeatureExtractorTask(featureExtractorTask),
-      bUseGPU(useGPU),
-      mProgressBar(progressBar)
+    mFeatExtractor(feat_extractor),
+    mDatabaseFile(databaseFile),
+    mDatabase(database),
+    mBuffer(buffer),
+    mFeatureExtractorTask(featureExtractorTask),
+    bUseGPU(useGPU),
+    mProgressBar(progressBar)
   {
   }
 
   void operator() ()
   {
-    while(!featextract_done || mBuffer->size()) {
-      if(mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
+    while (!featextract_done || mBuffer->size()) {
+      if (mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
         featextract_done = true;
         return;
       }
@@ -404,9 +404,9 @@ private:
       // añade features al proyecto
       QString image_name = mImages->at(data.image_id).name();
       mFeatureExtractorTask->features_extracted(data.image_id, image_name + "@" + mDatabaseFile.c_str());
-      if(mProgressBar) (*mProgressBar)();
+      if (mProgressBar) (*mProgressBar)();
 
-    } catch(std::exception &e) {
+    } catch (std::exception &e) {
       msgError(e.what());
       featextract_done = true;
     }
@@ -422,8 +422,8 @@ private:
   void resizeFeatures(std::vector<cv::KeyPoint> &keyPoints,
                       double scale)
   {
-    if(scale > 1) {
-      for(auto &keypoint : keyPoints) {
+    if (scale > 1) {
+      for (auto &keypoint : keyPoints) {
         keypoint.pt *= scale;
         keypoint.size *= static_cast<float>(scale);
       }
@@ -446,7 +446,7 @@ private:
 
       keypoints_colmap[i] = colmap::FeatureKeypoint(keyPoints[i].pt.x,
                                                     keyPoints[i].pt.y,
-                                                    keyPoints[i].size, 
+                                                    keyPoints[i].size,
                                                     keyPoints[i].angle);
 
       for (size_t j = 0; j < descriptors.cols; j++) {
@@ -493,7 +493,7 @@ private:
 
 FeatureExtractorTask::FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
                                            const std::map<int, Camera> &cameras,
-                                           const QString &database,
+                                           const tl::Path &database,
                                            int maxImageSize,
                                            bool cuda,
                                            const std::shared_ptr<FeatureExtractor> &featureExtractor)
@@ -515,7 +515,7 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
     tl::Chrono chrono("Feature extraction finished ");
     chrono.run();
 
-    colmap::Database database(mDatabase.toStdString());
+    colmap::Database database(mDatabase.toString());
 
     QueueMPMC<internal::queue_data> buffer(50);
     internal::ProducerImp producer(&mImages,
@@ -527,7 +527,7 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
                                    this);
     internal::ConsumerImp consumer(&mImages,
                                    mFeatureExtractor.get(),
-                                   mDatabase.toStdString(),
+                                   mDatabase.toString(),
                                    &database,
                                    &buffer,
                                    this,
@@ -541,27 +541,27 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
     internal::featextract_done = false;
 
     size_t size = mImages.size() / num_threads;
-    for(size_t i = 0; i < num_threads; ++i) {
+    for (size_t i = 0; i < num_threads; ++i) {
       size_t _ini = i * size;
       size_t _end = _ini + size;
-      if(i == num_threads - 1) _end = mImages.size();
+      if (i == num_threads - 1) _end = mImages.size();
 
       producer_threads[i] = std::move(std::thread(producer, _ini, _end));
     }
 
-    for(size_t i = 0; i < num_threads; ++i) {
+    for (size_t i = 0; i < num_threads; ++i) {
       consumer_threads[i] = std::move(std::thread(consumer));
     }
 
-    for(size_t i = 0; i < num_threads; ++i)
+    for (size_t i = 0; i < num_threads; ++i)
       producer_threads[i].join();
 
     internal::featextract_done = true;
 
-    for(size_t i = 0; i < num_threads; ++i)
+    for (size_t i = 0; i < num_threads; ++i)
       consumer_threads[i].join();
 
-    if(status() == tl::Task::Status::stopping) {
+    if (status() == tl::Task::Status::stopping) {
       chrono.reset();
     } else {
       size_t keypoints = database.NumKeypoints();
@@ -570,7 +570,7 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
       chrono.stop();
     }
 
-  } catch(...) {
+  } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
   }
 

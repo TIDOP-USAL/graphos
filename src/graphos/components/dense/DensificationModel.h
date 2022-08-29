@@ -26,6 +26,8 @@
 
 #include "graphos/core/mvp.h"
 
+#include <tidop/core/path.h>
+
 #include <unordered_map>
 
 namespace graphos
@@ -49,9 +51,9 @@ public:
   ~DensificationModel() override = default;
 
   virtual std::shared_ptr<Densification> densification() const = 0;
-  virtual QString projectFolder() const = 0;
-  virtual QString reconstructionPath() const = 0;
-  virtual QString database() const = 0;
+  virtual tl::Path projectFolder() const = 0;
+  virtual tl::Path reconstructionPath() const = 0;
+  virtual tl::Path database() const = 0;
   virtual bool useCuda() const = 0;
   virtual bool existDenseModel() const = 0;
   virtual const std::unordered_map<size_t, Image> &images() const = 0;
@@ -62,7 +64,7 @@ public:
 public slots:
 
   virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
-  virtual void setDenseModel(const QString &denseModel) = 0;
+  virtual void setDenseModel(const tl::Path &denseModel) = 0;
 };
 
 } // End namespace graphos

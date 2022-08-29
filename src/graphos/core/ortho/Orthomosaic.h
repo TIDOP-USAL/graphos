@@ -26,11 +26,13 @@
 
 #include "graphos/graphos_global.h"
 
-#include "graphos/core/utils.h"
-
 #include <vector>
 #include <map>
 #include <string>
+
+#include <tidop/core/path.h>
+
+#include "graphos/core/utils.h"
 
 namespace graphos
 {
@@ -71,8 +73,8 @@ public:
   OrthophotoAlgorithm(double resolution,
                       const std::vector<Image> &images,
                       const std::map<int, Camera> &cameras,
-                      const QString &orthoPath,
-                      const QString &mdt,
+                      const tl::Path &orthoPath,
+                      const tl::Path &mdt,
                       const QString &epsg,
                       bool cuda = false);
   ~OrthophotoAlgorithm();
@@ -82,8 +84,8 @@ public:
   void run();
 
   void setPhotos(const std::vector<Image> &images);
-  void setOrthoPath(const QString &orthoPath);
-  void setMdt(const QString &mdt);
+  void setOrthoPath(const tl::Path&orthoPath);
+  void setMdt(const tl::Path &mdt);
   void setCrs(const QString &epsg);
   void setCuda(bool active);
 
@@ -91,8 +93,8 @@ private:
 
   std::vector<Image> mPhotos;
   std::map<int, Camera> mCameras;
-  QString mOrthoPath;
-  QString mMdt;
+  tl::Path mOrthoPath;
+  tl::Path mMdt;
   QString mEpsg;
   bool bCuda;
 };

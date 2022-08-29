@@ -26,7 +26,7 @@
 #include "graphos/core/features/matching.h"
 #include "graphos/components/featmatch/FeatureMatchingView.h"
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
-#include "graphos/components/featmatch/impl/FeatureMatchingTask.h"
+//#include "graphos/components/featmatch/impl/FeatureMatchingTask.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
@@ -150,12 +150,26 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 
   mModel->setFeatureMatching(featureMatching);
   
-  featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
-                                                               mModel->useCuda(),
-                                                               mView->spatialMatching(),
-                                                               featureMatching);
+  //featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
+  //                                                             mModel->useCuda(),
+  //                                                             mView->spatialMatching(),
+  //                                                             featureMatching);
+  if (mView->spatialMatching()) {
+    featmatching_process = std::make_unique<SpatialMatchingTask>(mModel->database(),
+                                                                 mModel->useCuda(),
+                                                                 featureMatching);
+  } else {
+    featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
+                                                                 mModel->useCuda(),
+                                                                 featureMatching);
+  }
 
   if (progressHandler()){
+    //size_t size = mModel->imagesCount();
+    //size_t max = size;
+    //if (!mView->spatialMatching()) {
+    //  max = (size * (size - 1)) / 2;
+    //}
     progressHandler()->setRange(0, 1);
     progressHandler()->setTitle("Computing Matches...");
     progressHandler()->setDescription("Computing Matches...");

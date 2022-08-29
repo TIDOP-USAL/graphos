@@ -195,8 +195,8 @@ DtmInvDistAlgorithm::~DtmInvDistAlgorithm()
 
 }
 
-bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
-                              const std::string &dtmFile,
+bool DtmInvDistAlgorithm::run(const tl::Path &pointCloud,
+                              const tl::Path &dtmFile,
                               const tl::Size<int> &size)
 {
 
@@ -231,7 +231,7 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
   cmd.append(" -outsize ").append(std::to_string(size.width)).append(" ").append(std::to_string(size.height));
   cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
   cmd.append(gdal_vrt_file.toString()).append("\" \"");
-  cmd.append(dtmFile).append("\" ");
+  cmd.append(dtmFile.toString()).append("\" ");
   cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS");
 
   Process process(cmd);
@@ -240,8 +240,8 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
   return false;
 }
 
-bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
-                              const std::string &dtmFile,
+bool DtmInvDistAlgorithm::run(const tl::Path &pointCloud,
+                              const tl::Path &dtmFile,
                               const tl::BoundingBox<tl::Point3<double>> &bbox,
                               double gsd)
 {
@@ -281,7 +281,7 @@ bool DtmInvDistAlgorithm::run(const std::string &pointCloud,
   cmd.append(" -outsize ").append(std::to_string(size.width)).append(" ").append(std::to_string(size.height));
   cmd.append(" -of GTiff -ot Float32 -l ").append(layer_name).append(" \"");
   cmd.append(gdal_vrt_file.toString()).append("\" \"");
-  cmd.append(dtmFile).append("\" ");
+  cmd.append(dtmFile.toString()).append("\" ");
   cmd.append(" --config GDAL_NUM_THREADS ALL_CPUS");
 
   Process process(cmd);

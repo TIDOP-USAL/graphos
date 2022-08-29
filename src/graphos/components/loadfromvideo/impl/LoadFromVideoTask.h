@@ -27,6 +27,7 @@
 #include <QObject>
 
 #include <tidop/core/task.h>
+#include <tidop/core/path.h>
 
 #include "graphos/core/image.h"
 
@@ -54,11 +55,11 @@ class LoadFromVideoTask
 
 public:
 
-  LoadFromVideoTask(const QString &video, 
+  LoadFromVideoTask(const tl::Path &video, 
                     int skip,
                     int videoIni,
                     int videoEnd,
-                    const QString &imagesPath,
+                    const tl::Path &imagesPath,
                     std::vector<Camera> *cameras,
                     const std::string &cameraType);
   ~LoadFromVideoTask() override;
@@ -75,11 +76,11 @@ protected:
 
 protected:
 
-  QString mVideo;
+  tl::Path mVideo;
   int mSkipFrames;
   int mVideoIni;
   int mVideoEnd;
-  QString mImagesPath;
+  tl::Path mImagesPath;
   std::vector<Camera> *mCameras;
   std::string mCameraType;
 };

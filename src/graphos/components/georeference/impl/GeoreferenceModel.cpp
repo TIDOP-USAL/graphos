@@ -265,7 +265,7 @@ void GeoreferenceModelImp::loadGroundControlPoints()
   //  }
   //}
 
-  tl::Path gcp_file = mProject->projectFolder().toStdWString();
+  tl::Path gcp_file = mProject->projectFolder();
   gcp_file.append("georef.xml");
 
   auto reader = GCPsReaderFactory::create("GRAPHOS");
@@ -419,22 +419,22 @@ std::list<std::pair<QString, QPointF>> GeoreferenceModelImp::points(size_t image
   return image_points;
 }
 
-QString GeoreferenceModelImp::projectPath() const
+tl::Path GeoreferenceModelImp::projectPath() const
 {
   return mProject->projectFolder();
 }
 
-void GeoreferenceModelImp::setReconstructionPath(const QString &reconstructionPath)
+void GeoreferenceModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
 {
   mProject->setReconstructionPath(reconstructionPath);
 }
 
-void GeoreferenceModelImp::setSparseModel(const QString &sparseModel)
+void GeoreferenceModelImp::setSparseModel(const tl::Path &sparseModel)
 {
   mProject->setSparseModel(sparseModel);
 }
 
-void GeoreferenceModelImp::setOffset(const QString &offset)
+void GeoreferenceModelImp::setOffset(const tl::Path &offset)
 {
   mProject->setOffset(offset);
 }
@@ -457,7 +457,7 @@ const std::map<int, Camera> &GeoreferenceModelImp::cameras() const
 
 std::vector<GroundPoint> GeoreferenceModelImp::groundPoints() const
 {
-  tl::Path ground_points_path(mProject->reconstructionPath().toStdWString());
+  tl::Path ground_points_path(mProject->reconstructionPath());
   ground_points_path.append("ground_points.bin");
 
   std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
@@ -466,7 +466,7 @@ std::vector<GroundPoint> GeoreferenceModelImp::groundPoints() const
   return reader->points();
 }
 
-QString GeoreferenceModelImp::database() const
+tl::Path GeoreferenceModelImp::database() const
 {
   return mProject->database();
 }
@@ -478,10 +478,10 @@ void GeoreferenceModelImp::setCrs(const QString &crs)
 
 void GeoreferenceModelImp::save()
 {
-  //QString gcp_file = mProject->reconstructionPath();
-  QString gcp_file = mProject->projectFolder() + "\\ori\\relative";
-  gcp_file.append("\\georef.xml");
-  QFile file(gcp_file);
+  tl::Path gcp_file = mProject->projectFolder();
+  gcp_file.append("ori").append("relative").append("georef.xml");
+  
+  QFile file(QString::fromStdWString(gcp_file.toWString()));
 
   if (file.open(QFile::WriteOnly)) {
 

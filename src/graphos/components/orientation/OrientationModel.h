@@ -26,6 +26,8 @@
 
 #include <unordered_map>
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 #include "graphos/core/image.h"
 #include "graphos/core/sfm/poses.h"
@@ -45,24 +47,21 @@ public:
   ~OrientationModel() override = default;
 
   virtual bool calibratedCamera() const = 0;
-  virtual void setSparseModel(const QString &sparseModel) = 0;
-  virtual void setOffset(const QString &offset) = 0;
+  virtual void setSparseModel(const tl::Path &sparseModel) = 0;
+  virtual void setOffset(const tl::Path &offset) = 0;
   virtual bool isPhotoOriented(size_t imageId) const = 0;
   virtual CameraPose photoOrientation(size_t imageId) const = 0;
   virtual void addPhotoOrientation(size_t imageId,
                                    const CameraPose &orientation) = 0;
-  virtual QString database() const = 0;
-  virtual QString projectPath() const = 0;
+  virtual tl::Path database() const = 0;
+  virtual tl::Path projectFolder() const = 0;
   virtual bool gpsPositions() const = 0;
   virtual bool rtkOrientations() const = 0;
-  virtual QString reconstructionPath() const = 0;
-  virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
-  //virtual std::map<QString, std::array<double, 3>> cameraPositions() const = 0;
+  virtual tl::Path reconstructionPath() const = 0;
+  virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
   virtual void clearProject() = 0;
-
   virtual const std::map<int, Camera> &cameras() const = 0;
   virtual bool updateCamera(int id, const Camera &camera) = 0;
-  
   virtual const std::unordered_map<size_t, Image> &images() const = 0;
 };
 

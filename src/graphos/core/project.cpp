@@ -86,17 +86,17 @@ void ProjectImp::setDescription(const QString &description)
   mDescription = description;
 }
 
-QString ProjectImp::projectFolder() const
+tl::Path ProjectImp::projectFolder() const
 {
   return mProjectFolder;
 }
 
-void ProjectImp::setProjectFolder(const QString &dir)
+void ProjectImp::setProjectFolder(const tl::Path &folder)
 {
-  mProjectFolder = dir;
+  mProjectFolder = folder;
 }
 
-QString ProjectImp::projectPath() const
+tl::Path ProjectImp::projectPath() const
 {
   return mProjectPath;
 }
@@ -107,12 +107,12 @@ QString ProjectImp::version() const
   return mVersion;
 }
 
-QString ProjectImp::database() const
+tl::Path ProjectImp::database() const
 {
   return mDatabase;
 }
 
-void ProjectImp::setDatabase(const QString &database)
+void ProjectImp::setDatabase(const tl::Path &database)
 {
   mDatabase = database;
 }
@@ -241,7 +241,7 @@ bool ProjectImp::updateCamera(int idCamera, const Camera &camera)
     it->second = camera;
 
     colmap::camera_t camera_id = static_cast<colmap::camera_t>(idCamera);
-    colmap::Database database(database().toStdString());
+    colmap::Database database(database().toString());
     colmap::Camera camera_colmap = database.ReadCamera(camera_id);
     QString colmap_camera_type = cameraToColmapType(camera);
     camera_colmap.SetModelIdFromName(colmap_camera_type.toStdString());
@@ -375,32 +375,32 @@ void ProjectImp::removeMatchesPair(size_t imageLeftId)
   }
 }
 
-QString ProjectImp::sparseModel() const
+tl::Path ProjectImp::sparseModel() const
 {
   return mSparseModel;
 }
 
-void ProjectImp::setSparseModel(const QString &sparseModel)
+void ProjectImp::setSparseModel(const tl::Path &sparseModel)
 {
   mSparseModel = sparseModel;
 }
 
-QString ProjectImp::offset() const
+tl::Path ProjectImp::offset() const
 {
   return mOffset;
 }
 
-void ProjectImp::setOffset(const QString &offset)
+void ProjectImp::setOffset(const tl::Path &offset)
 {
   mOffset = offset;
 }
 
-QString ProjectImp::reconstructionPath() const
+tl::Path ProjectImp::reconstructionPath() const
 {
   return mReconstructionPath;
 }
 
-void ProjectImp::setReconstructionPath(const QString &reconstructionPath)
+void ProjectImp::setReconstructionPath(const tl::Path &reconstructionPath)
 {
   mReconstructionPath = reconstructionPath;
 }
@@ -445,12 +445,12 @@ void ProjectImp::setDensification(const std::shared_ptr<Densification> &densific
   mDensification = densification;
 }
 
-void ProjectImp::setDenseModel(const QString &denseModel)
+void ProjectImp::setDenseModel(const tl::Path &denseModel)
 {
   mDenseModel = denseModel;
 }
 
-QString ProjectImp::denseModel() const
+tl::Path ProjectImp::denseModel() const
 {
   return mDenseModel;
 }
@@ -470,12 +470,12 @@ void ProjectImp::setMeshParameters(const std::shared_ptr<PoissonReconParameters>
   mMeshParameters = meshParameters;
 }
 
-QString ProjectImp::meshPath() const
+tl::Path ProjectImp::meshPath() const
 {
   return mMeshModel;
 }
 
-void ProjectImp::setMeshPath(const QString &meshPath)
+void ProjectImp::setMeshPath(const tl::Path &meshPath)
 {
   mMeshModel = meshPath;
 }
@@ -495,12 +495,12 @@ void ProjectImp::setDtmMethod(const std::shared_ptr<Dtm> &dtm)
   mDtmMethod = dtm;
 }
 
-QString ProjectImp::dtmPath() const
+tl::Path ProjectImp::dtmPath() const
 {
   return mDTM;
 }
 
-void ProjectImp::setDtmPath(const QString &dtmPath)
+void ProjectImp::setDtmPath(const tl::Path &dtmPath)
 {
   mDTM = dtmPath;
 }
@@ -511,12 +511,12 @@ void ProjectImp::clearDTM()
   mDTM.clear();
 }
 
-QString ProjectImp::orthophotoPath() const
+tl::Path ProjectImp::orthophotoPath() const
 {
-    return mOrthophoto;
+  return mOrthophoto;
 }
 
-void ProjectImp::setOrthophotoPath(const QString &orthophotoPath)
+void ProjectImp::setOrthophotoPath(const tl::Path &orthophotoPath)
 {
   mOrthophoto = orthophotoPath;
 }
@@ -530,10 +530,10 @@ void ProjectImp::clear()
 {
   mName = "";
   mDescription = "";
-  mProjectFolder = "";
-  mProjectPath = "";
+  mProjectFolder.clear();
+  mProjectPath.clear();
   mVersion = GRAPHOS_PROJECT_FILE_VERSION;
-  mDatabase = "";
+  mDatabase.clear();
   mCrs = "";
   mImages.clear();
   mCameras.clear();
@@ -542,23 +542,23 @@ void ProjectImp::clear()
   mFeatureMatching.reset();
   mImagesPairs.clear();
   mPhotoOrientation.clear();
-  mSparseModel = "";
-  mOffset = "";
-  mReconstructionPath = "";
+  mSparseModel.clear();
+  mOffset.clear();
+  mReconstructionPath.clear();
   mDensification.reset();
-  mDenseModel = "";
+  mDenseModel.clear();
   mDtmMethod.reset();
   mDTM.clear();
   mOrthophoto.clear();
   mCameraCount = 0;
 }
 
-bool ProjectImp::load(const QString &file)
+bool ProjectImp::load(const tl::Path &file)
 {
   std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
 
   bool err = false;
-  QFile input(file);
+  QFile input(QString::fromStdWString(file.toWString()));
   mProjectPath = file;
 
   if(input.open(QIODevice::ReadOnly)) {
@@ -572,24 +572,24 @@ bool ProjectImp::load(const QString &file)
   return err;
 }
 
-bool ProjectImp::save(const QString &file)
+bool ProjectImp::save(const tl::Path &file)
 {
   bool err = false;
   std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
 
   mProjectPath = file;
 
-  QFileInfo file_info(file);
-  QString tmpfile = file_info.path().append("/").append(file_info.baseName()).append(".bak");
-  std::ifstream  src(file.toStdString().c_str(), std::ios::binary);
-  std::ofstream  dst(tmpfile.toStdString().c_str(), std::ios::binary);
+  tl::Path tmp_file = file;
+  tmp_file.replaceExtension(".bak");
+  std::ifstream  src(file.toString(), std::ios::binary);
+  std::ofstream  dst(tmp_file.toString(), std::ios::binary);
   dst << src.rdbuf();
   src.close();
   dst.close();
 
   try {
 
-    QFile output(file);
+    QFile output(QString::fromStdWString(file.toWString()));
     if (output.open(QFile::WriteOnly)){
       QXmlStreamWriter stream(&output);
       stream.setAutoFormatting(true);
@@ -623,8 +623,8 @@ bool ProjectImp::save(const QString &file)
   } catch (std::exception &e) {
     msgError(e.what());
 
-    std::ifstream  src(tmpfile.toStdString().c_str(), std::ios::binary);
-    std::ofstream  dst(file.toStdString().c_str(), std::ios::binary);
+    std::ifstream  src(tmp_file.toString(), std::ios::binary);
+    std::ofstream  dst(file.toString(), std::ios::binary);
     dst << src.rdbuf();
     src.close();
     dst.close();
@@ -632,16 +632,18 @@ bool ProjectImp::save(const QString &file)
     err = true;
   }
 
-  std::remove(tmpfile.toStdString().c_str());
+  tl::Path::removeFile(tmp_file);
 
   return err;
 }
 
-bool ProjectImp::checkOldVersion(const QString &file) const
+bool ProjectImp::checkOldVersion(const tl::Path &file) const
 {
   std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
   bool bUpdateVersion = false;
-  QFile input(file);
+
+  QFile input(QString::fromStdWString(file.toWString()));
+
   if (input.open(QIODevice::ReadOnly)) {
     QXmlStreamReader stream;
     stream.setDevice(&input);
@@ -663,14 +665,16 @@ bool ProjectImp::checkOldVersion(const QString &file) const
         stream.raiseError(QObject::tr("Incorrect file"));
     }
   }
+
   return bUpdateVersion;
 }
 
-void ProjectImp::oldVersionBak(const QString &file) const
+void ProjectImp::oldVersionBak(const tl::Path &file) const
 {
   // Versión antigua
   QString version = "0";
-  QFile input(file);
+  QFile input(QString::fromStdWString(file.toWString()));
+
   if (input.open(QIODevice::ReadOnly)) {
     QXmlStreamReader stream;
     stream.setDevice(&input);
@@ -687,10 +691,12 @@ void ProjectImp::oldVersionBak(const QString &file) const
     }
   }
 
-  QFileInfo file_info(file);
-  QString tmpfile = file_info.path().append(file_info.baseName()).append("_v").append(version).append(".bak");
-  std::ifstream  src(file.toStdString().c_str(), std::ios::binary);
-  std::ofstream  dst(tmpfile.toStdString().c_str(), std::ios::binary);
+  tl::Path tmp_file = file;
+  std::string bak_file = file.baseName().toString();
+  bak_file.append("_v").append(version.toStdString()).append(".bak");
+  tmp_file.replaceFileName(bak_file);
+  std::ifstream  src(file.toString(), std::ios::binary);
+  std::ofstream  dst(tmp_file.toString(), std::ios::binary);
   dst << src.rdbuf();
   src.close();
   dst.close();
@@ -743,7 +749,7 @@ void ProjectImp::readGeneral(QXmlStreamReader &stream)
     if (stream.name() == "Name") {
       this->setName(stream.readElementText());
     } else if (stream.name() == "Path") {
-      this->setProjectFolder(stream.readElementText());
+      this->setProjectFolder(stream.readElementText().toStdWString());
     } else if (stream.name() == "Description") {
       this->setDescription(stream.readElementText());
     } else
@@ -753,7 +759,7 @@ void ProjectImp::readGeneral(QXmlStreamReader &stream)
 
 void ProjectImp::readDatabase(QXmlStreamReader &stream)
 {
-  this->setDatabase(stream.readElementText());
+  this->setDatabase(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::readCrs(QXmlStreamReader &stream)
@@ -1059,17 +1065,17 @@ void ProjectImp::readOrientations(QXmlStreamReader &stream)
 
 void ProjectImp::readReconstructionPath(QXmlStreamReader &stream)
 {
-  this->setReconstructionPath(stream.readElementText());
+  this->setReconstructionPath(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::readOrientationSparseModel(QXmlStreamReader &stream)
 {
-  this->setSparseModel(stream.readElementText());
+  this->setSparseModel(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::readOffset(QXmlStreamReader &stream)
 {
-  this->setOffset(stream.readElementText());
+  this->setOffset(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
@@ -1128,7 +1134,7 @@ void ProjectImp::readDensification(QXmlStreamReader &stream)
 
 void ProjectImp::readDenseModel(QXmlStreamReader &stream)
 {
-  this->setDenseModel(stream.readElementText());
+  this->setDenseModel(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::readDensificationMethod(QXmlStreamReader &stream)
@@ -1225,7 +1231,7 @@ void ProjectImp::readMesh(QXmlStreamReader &stream)
 
 void ProjectImp::readMeshModel(QXmlStreamReader &stream)
 {
-  this->setMeshPath(stream.readElementText());
+  this->setMeshPath(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
@@ -1264,7 +1270,7 @@ void ProjectImp::readDtm(QXmlStreamReader &stream)
 
 void ProjectImp::readDtmPath(QXmlStreamReader &stream)
 {
-  this->setDtmPath(stream.readElementText());
+  this->setDtmPath(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::readDtmInterpolation(QXmlStreamReader &stream)
@@ -1325,7 +1331,7 @@ void ProjectImp::readInvDistNN(QXmlStreamReader &stream)
 
 void ProjectImp::readOrthophoto(QXmlStreamReader &stream)
 {
-  this->setOrthophotoPath(stream.readElementText());
+  this->setOrthophotoPath(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::writeVersion(QXmlStreamWriter &stream) const
@@ -1338,7 +1344,7 @@ void ProjectImp::writeGeneral(QXmlStreamWriter &stream) const
   stream.writeStartElement("General");
   {
     stream.writeTextElement("Name", this->name());
-    stream.writeTextElement("Path", this->projectFolder());
+    stream.writeTextElement("Path", QString::fromStdWString(this->projectFolder().toWString()));
     stream.writeTextElement("Description", this->description());
   }
   stream.writeEndElement();
@@ -1346,7 +1352,7 @@ void ProjectImp::writeGeneral(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeDatabase(QXmlStreamWriter &stream) const
 {
-  stream.writeTextElement("Database", this->database());
+  stream.writeTextElement("Database", QString::fromStdWString(this->database().toWString()));
 }
 
 void ProjectImp::writeCrs(QXmlStreamWriter &stream) const
@@ -1554,21 +1560,21 @@ void ProjectImp::writeOrientations(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeReconstructionPath(QXmlStreamWriter &stream) const
 {
-  QString reconstruction_path = this->reconstructionPath();
-  if (!reconstruction_path.isEmpty())
-    stream.writeTextElement("ReconstructionPath", reconstruction_path);
+  tl::Path reconstruction_path = reconstructionPath();
+  if (!reconstruction_path.empty())
+    stream.writeTextElement("ReconstructionPath", QString::fromStdWString(reconstruction_path.toWString()));
 }
 
 void ProjectImp::writeOrientationSparseModel(QXmlStreamWriter &stream) const
 {
-  QString sparse_model = this->sparseModel();
+  QString sparse_model = QString::fromStdWString(sparseModel().toWString());
   if (!sparse_model.isEmpty())
     stream.writeTextElement("SparseModel", sparse_model);
 }
 
 void ProjectImp::writeOffset(QXmlStreamWriter &stream) const
 {
-  QString offset = this->offset();
+  QString offset = QString::fromStdWString(this->offset().toWString());
   if (!offset.isEmpty())
     stream.writeTextElement("Offset", offset);
 }
@@ -1619,9 +1625,9 @@ void ProjectImp::writeDensification(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeDenseModel(QXmlStreamWriter &stream) const
 {
-  QString dense_model = this->denseModel();
-  if (!dense_model.isEmpty())
-    stream.writeTextElement("DenseModel", dense_model);
+  tl::Path dense_model = denseModel();
+  if (!dense_model.empty())
+    stream.writeTextElement("DenseModel", QString::fromStdWString(dense_model.toWString()));
 }
 
 void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
@@ -1687,7 +1693,7 @@ void ProjectImp::writeMesh(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeMeshModel(QXmlStreamWriter &stream) const
 {
-  QString mesh_model = this->meshPath();
+  QString mesh_model = QString::fromStdWString(meshPath().toWString());
   if(!mesh_model.isEmpty())
     stream.writeTextElement("MeshModel", mesh_model);
 }
@@ -1721,9 +1727,9 @@ void ProjectImp::writeDtm(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeDtmPath(QXmlStreamWriter &stream) const
 {
-  QString dense_model = this->dtmPath();
-  if (!dense_model.isEmpty())
-    stream.writeTextElement("Path", this->dtmPath());
+  tl::Path dtm_model = dtmPath();
+  if (!dtm_model.empty())
+    stream.writeTextElement("Path", QString::fromStdWString(dtm_model.toWString()));
 }
 
 void ProjectImp::writeDtmInterpolation(QXmlStreamWriter &stream) const
@@ -1767,9 +1773,9 @@ void ProjectImp::writeDtmInterpolation(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeOrthophoto(QXmlStreamWriter &stream) const
 {
-  QString ortho_path = this->orthophotoPath();
+  QString ortho_path = QString::fromStdWString(orthophotoPath().toWString());
   if (!ortho_path.isEmpty())
-    stream.writeTextElement("Orthophoto", this->denseModel());
+    stream.writeTextElement("Orthophoto", ortho_path);
 }
 
 QSize ProjectImp::readSize(QXmlStreamReader &stream) const

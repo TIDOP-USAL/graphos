@@ -68,7 +68,7 @@ void OpenProjectPresenterImp::setProjectFile(const QString &file)
     }
 
     mModel->clear();
-    mModel->loadProject(file);
+    mModel->loadProject(file.toStdWString());
 
     emit project_loaded();
   }
@@ -76,7 +76,7 @@ void OpenProjectPresenterImp::setProjectFile(const QString &file)
 
 void OpenProjectPresenterImp::open()
 {
-  mView->setGraphosProjectsPath(mModel->graphosProjectsDirectory());
+  mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
   mView->exec();
 }
 

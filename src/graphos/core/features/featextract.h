@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_EXTRACTOR_TASK_H
-#define GRAPHOS_FEATURE_EXTRACTOR_TASK_H
+#ifndef GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H
+#define GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H
 
 #include <unordered_map>
 
@@ -30,6 +30,7 @@
 
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
+#include <tidop/core/path.h>
 
 #include "graphos/core/features/features.h"
 #include "graphos/core/image.h"
@@ -49,7 +50,7 @@ public:
 
   FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
                        const std::map<int, Camera> &cameras,
-                       const QString &database,
+                       const tl::Path &database,
                        int maxImageSize,
                        bool cuda,
                        const std::shared_ptr<FeatureExtractor> &featureExtractor);
@@ -60,7 +61,7 @@ signals:
 
   void features_extracted(qulonglong, QString);
 
-// tl::TaskBase interface
+  // tl::TaskBase interface
 
 protected:
 
@@ -70,7 +71,7 @@ protected:
 
   const std::unordered_map<size_t, Image> &mImages;
   const std::map<int, Camera> &mCameras;
-  QString mDatabase;
+  tl::Path mDatabase;
   int mMaxImageSize;
   bool bUseCuda;
   std::shared_ptr<FeatureExtractor> mFeatureExtractor;
@@ -78,4 +79,4 @@ protected:
 
 } // namespace graphos
 
-#endif // GRAPHOS_FEATURE_EXTRACTOR_TASK_H
+#endif // GRAPHOS_CORE_FEATURE_EXTRACTOR_TASK_H

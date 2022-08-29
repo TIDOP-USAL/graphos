@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_OPEN_PROJECT_MODEL_INTERFACE_H
 #define GRAPHOS_OPEN_PROJECT_MODEL_INTERFACE_H
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 
 namespace graphos
@@ -46,7 +48,7 @@ public:
   /*!
    * \brief Returns Graphos projects path
    */
-  virtual QString graphosProjectsDirectory() const = 0;
+  virtual tl::Path graphosProjectsDirectory() const = 0;
 
 public slots:
 
@@ -58,7 +60,7 @@ public slots:
   /*!
    * \brief Load Graphos projects
    */
-  virtual void loadProject(const QString &projectPath) = 0;
+  virtual void loadProject(const tl::Path &projectPath) = 0;
 
 };
 

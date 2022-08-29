@@ -32,9 +32,6 @@
 
 #include <tidop/core/defs.h>
 
-//#include <QMediaMetaData>
-//#include <QMediaPlayer>
-
 namespace graphos
 {
 
@@ -53,11 +50,6 @@ LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp()
 {
 
 }
-
-//void LoadFromVideoPresenterImp::setImages(const QStringList &files)
-//{
-//  //mImageFiles = files;
-//}
 
 void LoadFromVideoPresenterImp::addImage(QString imagePath, int cameraId)
 {
@@ -128,7 +120,7 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
 {
   std::unique_ptr<tl::Task> process;
   
-  QString images_path = mModel->imagesPath();
+  tl::Path images_path = mModel->imagesPath();
   //std::shared_ptr<ImportVideoFramesAlgorithm> algorithm = std::make_shared<ImportVideoFramesAlgorithm>();
   //algorithm->setVideo(mView->video().toStdWString());
   //algorithm->setImagesPath(images_path.toStdWString());
@@ -144,7 +136,7 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
   int end = mView->videoEnd();
   
 
-  process = std::make_unique<LoadFromVideoTask>(mView->video(),
+  process = std::make_unique<LoadFromVideoTask>(mView->video().toStdWString(),
                                                 skip_frames,
                                                 begin,
                                                 end,
@@ -157,7 +149,7 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
           this, &LoadFromVideoPresenterImp::addImage);
 
   if (progressHandler()){
-    progressHandler()->setRange(0, (end - begin) / skip_frames);
+    progressHandler()->setRange(0, (static_cast<size_t>(end) - begin) / skip_frames);
     progressHandler()->setTitle("Computing LoadFromVideo...");
     progressHandler()->setDescription("Computing LoadFromVideo...");
   }

@@ -108,8 +108,8 @@ public:
                const std::map<int, Camera> &cameras,
                const std::unordered_map<size_t, CameraPose> &poses,
                const std::vector<GroundPoint> &groundPoints,
-               const QString &outputPath,
-               const QString &database,
+               const tl::Path &outputPath,
+               const tl::Path &database,
                bool cuda = false);
   ~MvsDensifier() override;
 
@@ -134,7 +134,7 @@ protected:
 
 private:
 
-  QString mDatabase;
+  tl::Path mDatabase;
 
 };
 

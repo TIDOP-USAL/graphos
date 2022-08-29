@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_SAVE_PROJECT_AS_MODEL_INTERFACE_H
 #define GRAPHOS_SAVE_PROJECT_AS_MODEL_INTERFACE_H
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 
 namespace graphos
@@ -45,8 +47,8 @@ public:
 
 public slots:
 
-  virtual void save(const QString &file) = 0;
-  virtual QString graphosProjectsDirectory() const = 0;
+  virtual void save(const tl::Path &file) = 0;
+  virtual tl::Path graphosProjectsDirectory() const = 0;
   
 };
 

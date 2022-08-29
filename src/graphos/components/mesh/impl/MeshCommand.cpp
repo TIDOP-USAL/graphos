@@ -87,17 +87,15 @@ bool MeshCommand::run()
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
     TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
-    QString project_file = QString::fromStdWString(mProjectFile.toWString());
-
     ProjectImp project;
-    project.load(project_file);
+    project.load(mProjectFile);
 
-    QString point_cloud = project.denseModel();
-    QString mesh = project.projectFolder();
-    mesh.append("\\dense\\mesh.pr.ply");
+    tl::Path point_cloud_path = project.denseModel();
+    tl::Path mesh_path = project.projectFolder();
+    mesh_path.append("dense").append("mesh.pr.ply");
 
-    auto process = std::make_shared<PoissonReconTask>(point_cloud,
-                                                      mesh);
+    auto process = std::make_shared<PoissonReconTask>(point_cloud_path,
+                                                      mesh_path);
     process->setBoundaryType(QString::fromStdString(mBoundaryTypes[mBoundaryTypeIndex]));
     process->setDepth(mDepth);
     process->setFullDepth(mFullDepth);
@@ -105,8 +103,8 @@ bool MeshCommand::run()
     process->setWidth(mWidth);
 
     project.setMeshParameters(process);
-    project.setMeshPath(mesh);
-    project.save(project_file);
+    project.setMeshPath(mesh_path);
+    project.save(mProjectFile);
     
     chrono.stop();
     

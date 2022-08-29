@@ -777,7 +777,7 @@ void ImportCamerasModelImp::importCameras()
 
   /// TODO: Esto no debería estar aqui
 
-  colmap::Database database(mProject->database().toStdString());
+  colmap::Database database(mProject->database().toString());
 
   for (const auto &pair_image : mProject->images()) {
 

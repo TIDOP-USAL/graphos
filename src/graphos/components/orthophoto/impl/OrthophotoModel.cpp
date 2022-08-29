@@ -259,7 +259,7 @@ std::vector<Image> OrthophotoModelImp::images() const
   tl::Point3D offset;
 
   std::ifstream ifs;
-  ifs.open(mProject->offset().toStdString(), std::ifstream::in);
+  ifs.open(mProject->offset().toString(), std::ifstream::in);
   if (ifs.is_open()) {
 
     ifs >> offset.x >> offset.y >> offset.z;
@@ -267,11 +267,8 @@ std::vector<Image> OrthophotoModelImp::images() const
     ifs.close();
   }
 
-  //std::map<int, Camera> cameras = mProject->cameras();
-
   for (const auto &image : mProject->images()) {
 
-    //Image photo(image->path());
     Image photo(image.second);
     size_t image_id = image.first;
 
@@ -303,12 +300,14 @@ std::map<int, Camera> OrthophotoModelImp::cameras() const
   return mProject->cameras();
 }
 
-QString OrthophotoModelImp::orthoPath() const
+tl::Path OrthophotoModelImp::orthoPath() const
 {
-  return mProject->projectFolder() + "/ortho";
+  tl::Path ortho_path = mProject->projectFolder();
+  ortho_path.append("ortho");
+  return ortho_path;
 }
 
-QString OrthophotoModelImp::dtmPath() const
+tl::Path OrthophotoModelImp::dtmPath() const
 {
   return mProject->dtmPath();
 }

@@ -232,8 +232,8 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(const std::unordered_map<size_t, Image> &im
                                      const std::map<int, Camera> &cameras,
                                      const std::unordered_map<size_t, CameraPose> &poses,
                                      const std::vector<GroundPoint> &groundPoints,
-                                     const QString &outputPath,
-                                     const QString &database,
+                                     const tl::Path &outputPath,
+                                     const tl::Path &database,
                                      bool cuda)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
     mDatabase(database)
@@ -256,7 +256,7 @@ void CmvsPmvsDensifier::writeBundleFile()
   try {
 
     colmap::Database database;
-    database.Open(mDatabase.toStdString());
+    database.Open(mDatabase.toString());
     const auto &colmap_images = database.ReadAllImages();
 
     std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -422,7 +422,7 @@ void CmvsPmvsDensifier::writeVisibility()
     ///////////////////////////////////////////////////////////////////////////////
     /// TODO: Repetido
     colmap::Database database;
-    database.Open(mDatabase.toStdString());
+    database.Open(mDatabase.toString());
     const auto &colmap_images = database.ReadAllImages();
 
     std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
@@ -568,7 +568,7 @@ void CmvsPmvsDensifier::densify()
 
     TL_ASSERT(dense_model.exists(), "Densify Point Cloud error");
 
-    setDenseModel(QString::fromStdWString(dense_model.toWString()));
+    setDenseModel(dense_model);
 
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("");

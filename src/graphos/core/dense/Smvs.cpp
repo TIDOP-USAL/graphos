@@ -191,7 +191,7 @@ SmvsDensifier::SmvsDensifier(const std::unordered_map<size_t, Image> &images,
                              const std::map<int, Camera> &cameras, 
                              const std::unordered_map<size_t, CameraPose> &poses, 
                              const std::vector<GroundPoint> &groundPoints, 
-                             const QString &outputPath,
+                             const tl::Path &outputPath,
                              bool cuda)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath)
 {
@@ -357,7 +357,7 @@ void SmvsDensifier::densify()
 
     TL_ASSERT(dense_model.exists(), "Densify Point Cloud error");
 
-    setDenseModel(QString::fromStdWString(dense_model.toWString()));
+    setDenseModel(dense_model);
 
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("");

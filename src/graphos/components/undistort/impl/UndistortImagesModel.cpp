@@ -67,7 +67,7 @@ bool UndistortImagesModelImp::useCuda() const
   return mSettings->value("UseCuda", true).toBool();
 }
 
-QString UndistortImagesModelImp::projectFolder() const
+tl::Path UndistortImagesModelImp::projectFolder() const
 {
   return mProject->projectFolder();
 }

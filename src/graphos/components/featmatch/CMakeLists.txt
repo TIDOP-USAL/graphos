@@ -42,7 +42,8 @@ if(BUILD_FEATMATCH_COMPONENT)
         impl/FeatureMatchingView.cpp
         impl/FeatureMatchingPresenter.cpp
         impl/FeatureMatchingCommand.cpp
-        impl/FeatureMatchingTask.cpp)
+        #impl/FeatureMatchingTask.cpp
+        )
         
     set(FEATMATCH_HEADERS
         FeatureMatchingComponent.h
@@ -53,7 +54,8 @@ if(BUILD_FEATMATCH_COMPONENT)
         impl/FeatureMatchingView.h
         impl/FeatureMatchingPresenter.h
         impl/FeatureMatchingCommand.h
-        impl/FeatureMatchingTask.h)
+        #impl/FeatureMatchingTask.h
+        )
         
     add_library(${PROJECT_NAME} 
                 ${FEATMATCH_SOURCES}

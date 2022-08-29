@@ -63,7 +63,7 @@ void ImageLoaderPresenterImp::initSignalAndSlots()
 
 void ImageLoaderPresenterImp::open()
 {
-  mView->setImagesDirectory(mModel->imagesDirectory());
+  mView->setImagesDirectory(QString::fromStdWString(mModel->imagesDirectory().toWString()));
   mView->exec();
 }
 

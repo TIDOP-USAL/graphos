@@ -177,10 +177,9 @@ void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     progressHandler()->setDescription(tr("Densification finished"));
   }
 
-  QString dense_path = dynamic_cast<DensifierBase const *>(event->task())->denseModel();
+  tl::Path dense_path = dynamic_cast<DensifierBase const *>(event->task())->denseModel();
 
   mModel->setDenseModel(dense_path);
-
 }
 
 std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
@@ -200,7 +199,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
   QString densification_method = mView->currentDensificationMethod();
 
-  tl::Path dense_path(mModel->projectFolder().toStdWString());
+  tl::Path dense_path(mModel->projectFolder());
   dense_path.append("dense");
 
   if (densification_method.compare("CMVS/PMVS") == 0) {
@@ -211,8 +210,8 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                     mModel->cameras(),
                                                     mModel->poses(),
                                                     mModel->groundPoints(),
-                                                    QString::fromStdWString(dense_path.toWString()),
-                                                    mModel->database(), 
+                                                    dense_path,
+                                                    mModel->database(),
                                                     mModel->useCuda());
 
     pmvs->setUseVisibilityInformation(mCmvsPmvs->useVisibilityInformation());
@@ -233,7 +232,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                 mModel->cameras(),
                                                 mModel->poses(),
                                                 mModel->groundPoints(),
-                                                QString::fromStdWString(dense_path.toWString()),
+                                                dense_path,
                                                 mModel->useCuda());
 
     smvs->setInputImageScale(mSmvs->inputImageScale());
@@ -252,7 +251,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                               mModel->cameras(),
                                               mModel->poses(),
                                               mModel->groundPoints(),
-                                              QString::fromStdWString(dense_path.toWString()),
+                                              dense_path,
                                               mModel->database(),
                                               mModel->useCuda());
 

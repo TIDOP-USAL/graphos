@@ -25,6 +25,7 @@
 #define GRAPHOS_CORE_DENSE_EXPORT_H
 
 #include <tidop/core/flags.h>
+#include <tidop/core/path.h>
 #include <tidop/geometry/entities/point.h>
 #include <tidop/geometry/entities/bbox.h>
 
@@ -45,7 +46,7 @@ public:
 
 public:
 
-  DenseExport(const std::string &denseModel);
+  DenseExport(const tl::Path &denseModel);
 
   void setOffset(const tl::Point3<double> &point);
   void exportToCSV(const std::string &csv,
@@ -54,7 +55,7 @@ public:
 
 protected:
 
-  std::string mDenseModel;
+  tl::Path mDenseModel;
   tl::Point3<double> mOffset;
 };
 

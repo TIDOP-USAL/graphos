@@ -25,12 +25,13 @@
 
 #include "graphos/core/features/features.h"
 #include "graphos/core/features/sift.h"
+#include "graphos/core/features/featextract.h"
 #include "graphos/components/featextract/FeatureExtractorView.h"
 #include "graphos/components/featextract/FeatureExtractorModel.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/widgets/SiftWidget.h"
 #include "graphos/core/camera/Camera.h"
-#include "graphos/components/featextract/impl/FeatureExtractorTask.h"
+//#include "graphos/components/featextract/impl/FeatureExtractorTask.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/task.h>
@@ -193,11 +194,11 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
   }
 
   feat_extract_process = std::make_unique<FeatureExtractorTask>(images,
-                                                                   mModel->cameras(),
-                                                                   mModel->database(),
-                                                                   maxSize,
-                                                                   mModel->useCuda(),
-                                                                   feature_extractor);
+                                                                mModel->cameras(),
+                                                                mModel->database(),
+                                                                maxSize,
+                                                                mModel->useCuda(),
+                                                                feature_extractor);
 
   connect(dynamic_cast<FeatureExtractorTask *>(feat_extract_process.get()),
           &FeatureExtractorTask::features_extracted,

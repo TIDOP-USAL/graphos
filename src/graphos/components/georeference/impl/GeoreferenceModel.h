@@ -72,16 +72,16 @@ public:
   void removeImagePoint(const QString &gcp, size_t imageId) override;
   std::list<std::pair<QString, QPointF>> points(size_t imageId) const override;
   std::vector<GroundControlPoint> groundControlPoints() const override;
-  QString projectPath() const override;
-  void setReconstructionPath(const QString &reconstructionPath) override;
-  void setSparseModel(const QString &sparseModel) override;
-  void setOffset(const QString &offset) override;
+  tl::Path projectPath() const override;
+  void setReconstructionPath(const tl::Path &reconstructionPath) override;
+  void setSparseModel(const tl::Path &sparseModel) override;
+  void setOffset(const tl::Path &offset) override;
   void addPhotoOrientation(size_t imageId,
                            const CameraPose &orientation) override;
   const std::unordered_map<size_t, CameraPose> &poses() const override;
   const std::map<int, Camera> &cameras() const override;
   std::vector<GroundPoint> groundPoints() const override;
-  QString database() const override;
+  tl::Path database() const override;
 
 public slots:
 

@@ -59,14 +59,16 @@ bool ImageLoaderModelImp::existImage(size_t imageId) const
   return mProject->existImage(imageId);
 }
 
-QString ImageLoaderModelImp::imagesDirectory() const
+tl::Path ImageLoaderModelImp::imagesDirectory() const
 {
-  QString image_directory = mProject->projectFolder();
-  tl::Path path(mProject->projectFolder().toStdString());
+  tl::Path image_directory = mProject->projectFolder();
+
+  tl::Path path(mProject->projectFolder());
   path.append("images");
   if (path.exists()) {
-    image_directory = path.toString().c_str();
+    image_directory = path;
   }
+
   return image_directory;
 }
 

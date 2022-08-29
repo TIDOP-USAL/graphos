@@ -42,15 +42,15 @@ SaveProjectAsModelImp::~SaveProjectAsModelImp()
 {
 }
 
-void SaveProjectAsModelImp::save(const QString &file)
+void SaveProjectAsModelImp::save(const tl::Path &file)
 {
   mProject->save(file);
 }
 
-QString SaveProjectAsModelImp::graphosProjectsDirectory() const
+tl::Path SaveProjectAsModelImp::graphosProjectsDirectory() const
 {
-  QString inspector_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  inspector_directory.append("/graphos/Projects");
+  tl::Path inspector_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
+  inspector_directory.append("graphos").append("Projects");
   return inspector_directory;
 }
 

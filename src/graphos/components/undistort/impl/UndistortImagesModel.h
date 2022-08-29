@@ -53,7 +53,7 @@ public:
   const std::unordered_map<size_t, Image> &images() const override;
   const std::map<int, Camera> &cameras() const override;
   bool useCuda() const override;
-  QString projectFolder() const override;
+  tl::Path projectFolder() const override;
 
 public slots:
 

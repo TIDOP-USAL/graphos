@@ -47,8 +47,8 @@ public:
 
 public slots:
 
-  void save(const QString &file) override;
-  QString graphosProjectsDirectory() const override;
+  void save(const tl::Path &file) override;
+  tl::Path graphosProjectsDirectory() const override;
 
 // Model interface
 

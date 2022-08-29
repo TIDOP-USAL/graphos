@@ -167,13 +167,13 @@ target_link_libraries(${PROJECT_NAME}
                       ${OPENGL_glu_LIBRARY}
                       ${GDAL_LIBRARY} 
                       ${PROJ4_LIBRARY}
-                      ${Boost_FILESYSTEM_LIBRARY}
-                      ${Boost_SYSTEM_LIBRARY}
-                      ${Boost_THREAD_LIBRARY}
-                      ${Boost_DATE_TIME_LIBRARY}
-                      ${Boost_CHRONO_LIBRARY}
-                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                      ${Boost_REGEX_LIBRARY}
+                      #${Boost_FILESYSTEM_LIBRARY}
+                      #${Boost_SYSTEM_LIBRARY}
+                      #${Boost_THREAD_LIBRARY}
+                      #${Boost_DATE_TIME_LIBRARY}
+                      #${Boost_CHRONO_LIBRARY}
+                      #${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      #${Boost_REGEX_LIBRARY}
                       ${CLOUDCOMPARE_LIBRARIES}
                       $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)
 

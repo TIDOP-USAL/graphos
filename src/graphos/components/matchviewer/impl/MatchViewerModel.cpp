@@ -128,13 +128,16 @@ MatchViewerModelImp::loadMatches(size_t imageId1,
   Image imageLeft = mProject->findImageById(imageId1);
   Image imageRight = mProject->findImageById(imageId2);
 
-  QString database_path = mProject->database();
-  if (!QFileInfo(database_path).exists()) throw std::runtime_error("Database not found");
+  tl::Path database_path = mProject->database();
 
-  colmap::Database database(database_path.toStdString());
+  TL_ASSERT(database_path.exists(), "Database not found");
+
+  colmap::Database database(database_path.toString());
   
-  if (!database.ExistsImageWithName(imageLeft.path().toStdString())) throw std::runtime_error(std::string("Image not found in database: ").append(imageLeft.name().toStdString()));
-  if (!database.ExistsImageWithName(imageRight.path().toStdString())) throw std::runtime_error(std::string("Image not found in database: ").append(imageRight.name().toStdString()));
+  if (!database.ExistsImageWithName(imageLeft.path().toStdString())) 
+    throw std::runtime_error(std::string("Image not found in database: ").append(imageLeft.name().toStdString()));
+  if (!database.ExistsImageWithName(imageRight.path().toStdString())) 
+    throw std::runtime_error(std::string("Image not found in database: ").append(imageRight.name().toStdString()));
 
   colmap::Image image_left_colmap = database.ReadImageWithName(imageLeft.path().toStdString());
   colmap::image_t image_left_id = image_left_colmap.ImageId();

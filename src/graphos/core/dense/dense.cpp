@@ -36,14 +36,12 @@ DensifierBase::DensifierBase(const std::unordered_map<size_t, Image> &images,
                              const std::map<int, Camera> &cameras,
                              const std::unordered_map<size_t, CameraPose> &poses,
                              const std::vector<GroundPoint> &groundPoints,
-                             const QString &outputPath/*,
-                             const QString &undistortPath*/)
+                             const tl::Path &outputPath)
   : mImages(images),
     mCameras(cameras),
     mPoses(poses),
     mGroundPoints(groundPoints),
-    mOutputPath(outputPath.toStdWString())/*,
-    mUndistortPath(undistortPath.toStdWString())*/,
+    mOutputPath(outputPath),
     mCuda(false),
     mFormat(UndistortImages::Format::tiff)
 {
@@ -54,23 +52,12 @@ DensifierBase::~DensifierBase()
 {
 }
 
-//void DensifierBase::createDirectory(const QString &dir)
-//{
-//  tl::Path _path(mOutputPath);
-//  _path.append(dir.toStdWString());
-//  if (!_path.exists() && !_path.createDirectories()) {
-//    std::string err = "The output directory cannot be created: ";
-//    err.append(_path.toString());
-//    throw std::runtime_error(err);
-//  }
-//}
-
 void DensifierBase::enableCuda(bool enable)
 {
   mCuda = enable;
 }
 
-QString DensifierBase::denseModel() const
+tl::Path DensifierBase::denseModel() const
 {
   return mDenseModel;
 }
@@ -80,20 +67,8 @@ void DensifierBase::setUndistortImagesFormat(UndistortImages::Format format)
   mFormat = format;
 }
 
-//void DensifierBase::setOutputPath(const QString &outputPath)
-//{
-//  mOutputPath = outputPath.toStdWString();
-//}
-//
-//void DensifierBase::setUndistortPath(const QString &undistortPath)
-//{
-//  mUndistortPath = undistortPath.toStdWString();
-//}
-
 void DensifierBase::undistort(const QString &dir)
 {
-
-  /// TODO: Ver si ya están generadas las imágenes corregidas
 
   try {
 
@@ -103,8 +78,6 @@ void DensifierBase::undistort(const QString &dir)
                               mFormat,
                               mCuda);
     undistort.run();
-
-    //if (undistort.status() != tl::Task::Status::error) 
 
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("");
@@ -136,15 +109,10 @@ const std::vector<GroundPoint> &DensifierBase::groundPoints() const
   return mGroundPoints;
 }
 
-void DensifierBase::setDenseModel(const QString &denseModel)
+void DensifierBase::setDenseModel(const tl::Path &denseModel)
 {
   mDenseModel = denseModel;
 }
-
-//tl::Path DensifierBase::undistortPath() const
-//{
-//  return tl::Path();
-//}
 
 
 }

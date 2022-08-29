@@ -57,7 +57,7 @@ QString MainWindowModel::projectName() const
   return mProject->name();
 }
 
-QString MainWindowModel::projectPath() const
+tl::Path MainWindowModel::projectPath() const
 {
   return mProject->projectPath();
 }
@@ -87,9 +87,9 @@ void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
       mProject->removeImage(imageId);
     }
 
-  QString reconstruction_path = mProject->reconstructionPath();
-  if (!reconstruction_path.isEmpty())
-    colmapRemoveOrientations(images, reconstruction_path.toStdString());
+  std::string reconstruction_path = mProject->reconstructionPath().toString();
+  if (!reconstruction_path.empty())
+    colmapRemoveOrientations(images, reconstruction_path);
 
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
@@ -143,14 +143,14 @@ std::vector<size_t> MainWindowModel::imagePairs(size_t imageId) const
   return image_pairs;
 }
 
-QString MainWindowModel::sparseModel() const
+tl::Path MainWindowModel::sparseModel() const
 {
   return mProject->sparseModel();
 }
 
 bool MainWindowModel::isAbsoluteOrientation() const
 {
-  return !mProject->offset().isEmpty();
+  return !mProject->offset().empty();
 }
 
 const std::unordered_map<size_t, CameraPose> &MainWindowModel::poses() const
@@ -158,7 +158,7 @@ const std::unordered_map<size_t, CameraPose> &MainWindowModel::poses() const
   return mProject->poses();
 }
 
-QString MainWindowModel::denseModel() const
+tl::Path MainWindowModel::denseModel() const
 {
   return mProject->denseModel();
 }
@@ -173,17 +173,17 @@ bool MainWindowModel::checkUnsavedChanges() const
   return bUnsavedChanges;
 }
 
-bool MainWindowModel::checkOldVersion(const QString &file) const
+bool MainWindowModel::checkOldVersion(const tl::Path &file) const
 {
   return mProject->checkOldVersion(file);
 }
 
-void MainWindowModel::oldVersionBackup(const QString &file) const
+void MainWindowModel::oldVersionBackup(const tl::Path &file) const
 {
   mProject->oldVersionBak(file);
 }
 
-void MainWindowModel::load(const QString &file)
+void MainWindowModel::load(const tl::Path &file)
 {
   mProject->load(file);
   bUnsavedChanges = false;
@@ -200,7 +200,7 @@ void MainWindowModel::save()
   }
 }
 
-void MainWindowModel::saveAs(const QString &file)
+void MainWindowModel::saveAs(const tl::Path &file)
 {
   mProject->save(file);
 

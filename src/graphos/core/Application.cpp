@@ -76,13 +76,14 @@ Application::~Application()
   }
 }
 
-QString Application::documentsLocation() const
+tl::Path Application::documentsLocation() const
 {
   tl::Path path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
   path.append(qApp->applicationDisplayName().toStdWString());
   path.append("Projects");
+  path.normalize();
 
-  return QString::fromStdWString(path.toWString());
+  return path;
 }
 
 AppStatus *Application::status()

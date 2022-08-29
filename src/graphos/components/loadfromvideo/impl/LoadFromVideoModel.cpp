@@ -23,8 +23,6 @@
 
 #include "LoadFromVideoModel.h"
 
-//#include "graphos/core/LoadFromVideo.h"
-
 #include <QFile>
 #include <QTextStream>
 #include <QSettings>
@@ -35,8 +33,6 @@ namespace graphos
 LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project, 
                                              QObject *parent)
   : LoadFromVideoModel(parent),
-    //mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos")),
-    //mParameters(new LoadFromVideoParameters),
     mProject(project)
 {
   this->init();
@@ -44,20 +40,11 @@ LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project,
 
 LoadFromVideoModelImp::~LoadFromVideoModelImp()
 {
-  //if (mSettings){
-  //  delete mSettings;
-  //  mSettings = nullptr;
-  //}
-
-  //if (mParameters) {
-  //  delete mParameters;
-  //  mParameters = nullptr;
-  //}
 }
 
-QString LoadFromVideoModelImp::imagesPath() const
+tl::Path LoadFromVideoModelImp::imagesPath() const
 {
-  return QString(mProject->projectFolder()).append("/images");
+  return tl::Path(mProject->projectFolder()).append("images");
 }
 
 void LoadFromVideoModelImp::addImage(const Image &image)
@@ -97,44 +84,8 @@ int LoadFromVideoModelImp::cameraID(const QString &make,
   return id_camera;
 }
 
-//void LoadFromVideoModelImp::loadSettings()
-//{
-//  if (mReadSettings) {
-//	  
-//	/* Read Settings here
-//	
-//	Example (replace PropertyName):
-//	
-//    mParameters->setPropertyName(mSettings->value("LOADFROMVIDEO/PropertyName", mParameters->propertyName()).toInt());
-//  
-//    */
-//
-//  }
-//}
-
-//void LoadFromVideoModelImp::saveSettings()
-//{
-//  if (mReadSettings) {
-//	
-//	/* Write Settings here
-//	
-//	Example:
-//	
-//    mSettings->setValue("LOADFROMVIDEO/PropertyName", mParameters->propertyName());
-//  
-//    */
-//    
-//  }
-//}
-
-//LoadFromVideoParameters *LoadFromVideoModelImp::parameters() const
-//{
-//  return mParameters;
-//}
-
 void LoadFromVideoModelImp::init()
 {
-  //mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
 }
 
 void LoadFromVideoModelImp::clear()
