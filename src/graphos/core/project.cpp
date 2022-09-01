@@ -395,6 +395,16 @@ void ProjectImp::setOffset(const tl::Path &offset)
   mOffset = offset;
 }
 
+tl::Path ProjectImp::groundPoints() const
+{
+  return mGroundPoints;
+}
+
+void ProjectImp::setGroundPoints(const tl::Path &groundPoints)
+{
+  mGroundPoints = groundPoints;
+}
+
 tl::Path ProjectImp::reconstructionPath() const
 {
   return mReconstructionPath;
@@ -544,8 +554,10 @@ void ProjectImp::clear()
   mPhotoOrientation.clear();
   mSparseModel.clear();
   mOffset.clear();
+  mGroundPoints.clear();
   mReconstructionPath.clear();
   mDensification.reset();
+  mMeshModel.clear();
   mDenseModel.clear();
   mDtmMethod.reset();
   mDTM.clear();
@@ -1056,6 +1068,8 @@ void ProjectImp::readOrientations(QXmlStreamReader &stream)
       this->readOrientationSparseModel(stream);
     } else if (stream.name() == "Offset") {
       this->readOffset(stream);
+    } else if (stream.name() == "GroundPoints") {
+      this->readGroundPoints(stream);
     } else if (stream.name() == "Image"){
       this->readPhotoOrientations(stream);
     } else
@@ -1076,6 +1090,11 @@ void ProjectImp::readOrientationSparseModel(QXmlStreamReader &stream)
 void ProjectImp::readOffset(QXmlStreamReader &stream)
 {
   this->setOffset(stream.readElementText().toStdWString());
+}
+
+void ProjectImp::readGroundPoints(QXmlStreamReader &stream)
+{
+  this->setGroundPoints(stream.readElementText().toStdWString());
 }
 
 void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
@@ -1553,6 +1572,7 @@ void ProjectImp::writeOrientations(QXmlStreamWriter &stream) const
     this->writeReconstructionPath(stream);
     this->writeOrientationSparseModel(stream);
     this->writeOffset(stream);
+    this->writeGroundPoints(stream);
     this->writePhotoOrientations(stream);
   }
   stream.writeEndElement(); // Orientations
@@ -1577,6 +1597,13 @@ void ProjectImp::writeOffset(QXmlStreamWriter &stream) const
   QString offset = QString::fromStdWString(this->offset().toWString());
   if (!offset.isEmpty())
     stream.writeTextElement("Offset", offset);
+}
+
+void ProjectImp::writeGroundPoints(QXmlStreamWriter &stream) const
+{
+  QString ground_points = QString::fromStdWString(this->groundPoints().toWString());
+  if (!ground_points.isEmpty())
+    stream.writeTextElement("GroundPoints", ground_points);
 }
 
 void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const

@@ -574,14 +574,12 @@ void MvsDensifier::exportToMVS()
 
     tl::Path app_path = tl::App::instance().path();
     std::string cmd_mvs("\"");
-    //cmd_mvs.append(app_path.parentPath().toString());
-    //cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceVisualSFM\" -w \"");
-    //cmd_mvs.append("\\InterfaceVisualSFM\" -w \"");
-    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceCOLMAP\" -w \"");
-    cmd_mvs.append(outputPath().toString());
-    //cmd_mvs.append("\" -i model.nvm -o model.mvs -v 0");
-    cmd_mvs.append("\\temp\" -i export -o model.mvs");
-
+    cmd_mvs.append(app_path.parentPath().toString());
+    cmd_mvs.append("\\OpenMVS\\InterfaceCOLMAP\"");
+    //cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceCOLMAP\" -w \"");
+    //cmd_mvs.append(" -w \"").append(outputPath().toString()).append("\\temp\"");
+    cmd_mvs.append(" -i \"").append(outputPath().toString()).append("\\temp\\export\"");
+    cmd_mvs.append(" -o \"").append(outputPath().toString()).append("\\temp\\model.mvs\"");
     msgInfo("Process: %s", cmd_mvs.c_str());
     tl::Process process(cmd_mvs);
 
@@ -607,9 +605,9 @@ void MvsDensifier::densify()
 
     tl::Path app_path = tl::App::instance().path();
     std::string cmd_mvs("\"");
-    //cmd_mvs.append(app_path.parentPath().toString());
-    //cmd_mvs.append("\\DensifyPointCloud\" -w \"");
-    cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
+    cmd_mvs.append(app_path.parentPath().toString());
+    cmd_mvs.append("\\OpenMVS\\DensifyPointCloud\" -w \"");
+    //cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
     cmd_mvs.append(outputPath().toString());
     cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 0");
     cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
@@ -617,6 +615,7 @@ void MvsDensifier::densify()
     cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
     cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
     cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
+    cmd_mvs.append(" --cuda-device -2"); // No funciona con CUDA...
 
     msgInfo("Process: %s", cmd_mvs.c_str());
     tl::Process process(cmd_mvs);
@@ -635,6 +634,9 @@ void MvsDensifier::densify()
     
     auto path = outputPath();
     path.append(dense_model.fileName());
+
+    if (path.exists()) tl::Path::removeFile(path);
+
     tl::Path::copy(dense_model, path);
 
     setDenseModel(path);
@@ -684,7 +686,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
     if (progressBar) (*progressBar)();
 
   } catch (...) {
-    this->clearTemporalFiles();
+    //this->clearTemporalFiles();
     TL_THROW_EXCEPTION_WITH_NESTED("MVS error");
   }
 

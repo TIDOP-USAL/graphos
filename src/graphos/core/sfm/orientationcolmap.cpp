@@ -396,7 +396,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
     mReconstructionManager->Clear();
 
-    if (mOutputPath.createDirectories()) {
+    if (!mOutputPath.exists() && !mOutputPath.createDirectories()) {
       throw std::runtime_error(std::string("Directory couldn't be created: ").append(mOutputPath.toString()));
     }
 
@@ -935,11 +935,9 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
       options.AddDefaultOption("clear_points", &clear_points, "Whether to clear all existing points and observations");
       options.AddMapperOptions();
 
-      if (!mOutputPath.exists()) {
-        throw std::runtime_error(std::string("ERROR: 'reconstruction_path' is not a directory"));
-      }
+      TL_ASSERT(mOutputPath.exists(), "ERROR: 'reconstruction_path' is not a directory");
 
-      auto mapper_options = options.mapper;
+      auto &mapper_options = options.mapper;
 
       msgInfo("Loading model");
 

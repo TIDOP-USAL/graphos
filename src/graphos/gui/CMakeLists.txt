@@ -87,7 +87,7 @@ qt5_add_translation(GRAPHOS_QM_FILES ${GRAPHOS_TS_FILES})
 
 QT5_ADD_RESOURCES(UI_GRAPHOS_RES 
                   ${GRAPHOS_RESOURCES} 
-                  ${CMAKE_SOURCE_DIR}/res/icones.qrc)
+                  #[[${CMAKE_SOURCE_DIR}/res/icones.qrc]])
 
 add_executable(${PROJECT_NAME}
 #add_executable(${PROJECT_NAME} WIN32

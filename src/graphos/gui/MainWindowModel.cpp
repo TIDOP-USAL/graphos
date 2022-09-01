@@ -163,6 +163,11 @@ tl::Path MainWindowModel::denseModel() const
   return mProject->denseModel();
 }
 
+tl::Path MainWindowModel::mesh() const
+{
+  return mProject->meshPath();
+}
+
 QString MainWindowModel::graphicViewerBackgroundColor() const
 {
   return mSettings->value("ImageViewer/BackgroundColor", "#dcdcdc").toString();

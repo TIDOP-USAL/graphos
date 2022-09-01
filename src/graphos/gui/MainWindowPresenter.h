@@ -88,6 +88,7 @@ protected slots:
   void updateMatches();
   void loadOrientation();
   void loadDenseModel();
+  void loadMesh();
   void loadDTM();
   void loadOrtho();
 

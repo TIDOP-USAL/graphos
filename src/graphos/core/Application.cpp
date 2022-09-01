@@ -189,6 +189,8 @@ void Application::addToHistory(const QString &project)
 void Application::clearHistory()
 {
   mHistory.clear();
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
+  settings.setValue("HISTORY/RecentProjects", mHistory);
   emit update_history();
 }
 

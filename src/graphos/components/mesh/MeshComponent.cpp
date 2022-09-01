@@ -105,6 +105,7 @@ void MeshComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   TaskComponent::onFinished();
+  app_status->activeFlag(AppStatus::Flag::project_modified, true);
   app_status->activeFlag(AppStatus::Flag::mesh, true);
 }
 

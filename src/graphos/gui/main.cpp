@@ -116,9 +116,9 @@
 #include "vld.h"
 #endif
 
-//#if defined WIN32
-//#include <Windows.h>
-//#endif
+#if defined WIN32
+#include <Windows.h>
+#endif
 
 using namespace graphos;
 
@@ -251,10 +251,10 @@ int main(int argc, char *argv[])
     }
   } else {
     //    TL_TODO("Añadir como opción")
-//#if defined WIN32
-//    HWND hwnd = GetConsoleWindow();
-//    ShowWindow(hwnd, 0);
-//#endif
+#if defined WIN32
+    HWND hwnd = GetConsoleWindow();
+    ShowWindow(hwnd, 0);
+#endif
 
     app.freeMemory();
 
@@ -449,6 +449,11 @@ int main(int argc, char *argv[])
                      componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
 #endif // GRAPHOS_HAVE_DENSE
 
+#ifdef GRAPHOS_HAVE_MESH
+    QObject::connect(&mesh_component, SIGNAL(finished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadMesh()));
+#endif // GRAPHOS_HAVE_MESH
+
 #ifdef GRAPHOS_HAVE_DTM
     QObject::connect(&dtm_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
@@ -490,9 +495,9 @@ int main(int argc, char *argv[])
 
     r = app.exec();
 
-    //#if defined WIN32
-    //    ShowWindow(hwnd, 1);
-    //#endif
+    #if defined WIN32
+        ShowWindow(hwnd, 1);
+    #endif
   }
 
 #ifdef HAVE_VLD

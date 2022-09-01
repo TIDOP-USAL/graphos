@@ -266,7 +266,7 @@ void GeoreferenceModelImp::loadGroundControlPoints()
   //}
 
   tl::Path gcp_file = mProject->projectFolder();
-  gcp_file.append("georef.xml");
+  gcp_file.append("sfm").append("georef.xml");
 
   auto reader = GCPsReaderFactory::create("GRAPHOS");
   reader->read(gcp_file);
@@ -278,9 +278,9 @@ void GeoreferenceModelImp::loadGroundControlPoints()
     QString name = QString::fromStdString(gcp.name());
     QList<QStandardItem *> standardItem;
     standardItem.append(new QStandardItem(name));
-    standardItem.append(new QStandardItem(QString::number(gcp.x)));
-    standardItem.append(new QStandardItem(QString::number(gcp.y)));
-    standardItem.append(new QStandardItem(QString::number(gcp.z)));
+    standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 3)));
+    standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 3)));
+    standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 3)));
     standardItem.append(new QStandardItem(QString()));
 
     for (auto &pair : gcp.track().points()){
@@ -479,7 +479,7 @@ void GeoreferenceModelImp::setCrs(const QString &crs)
 void GeoreferenceModelImp::save()
 {
   tl::Path gcp_file = mProject->projectFolder();
-  gcp_file.append("ori").append("relative").append("georef.xml");
+  gcp_file.append("sfm").append("georef.xml");
   
   QFile file(QString::fromStdWString(gcp_file.toWString()));
 

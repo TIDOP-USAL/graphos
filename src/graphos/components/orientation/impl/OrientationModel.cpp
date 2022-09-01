@@ -68,6 +68,11 @@ void OrientationModelImp::setOffset(const tl::Path &offset)
   mProject->setOffset(offset);
 }
 
+void OrientationModelImp::setGroundPoints(const tl::Path &groundPoints)
+{
+  mProject->setGroundPoints(groundPoints);
+}
+
 bool OrientationModelImp::isPhotoOriented(size_t imageId) const
 {
   return mProject->isPhotoOriented(imageId);

@@ -232,6 +232,7 @@ void MainWindowPresenter::loadProject()
   this->updateMatches();
   this->loadOrientation();
   this->loadDenseModel();
+  this->loadMesh();
   //this->loadDTM();
   //this->loadOrtho();
 }
@@ -243,6 +244,7 @@ void MainWindowPresenter::updateProject()
 
   //this->loadOrtho();
   //this->loadDTM();
+  this->loadMesh();
   this->loadDenseModel();
   this->loadOrientation();
   this->updateMatches();
@@ -308,6 +310,22 @@ void MainWindowPresenter::loadDenseModel()
   } else {
     mView->deleteDenseModel();
     app.status()->activeFlag(AppStatus::Flag::dense_model, false);
+  }
+}
+
+void MainWindowPresenter::loadMesh()
+{
+  Application &app = Application::instance();
+
+  QString mesh = QString::fromStdWString(mModel->mesh().toWString());
+
+  if (!mesh.isEmpty()) {
+    mView->setMesh(mesh);
+
+    app.status()->activeFlag(AppStatus::Flag::mesh, true);
+  } else {
+    mView->deleteMesh();
+    app.status()->activeFlag(AppStatus::Flag::mesh, false);
   }
 }
 
@@ -561,12 +579,14 @@ void MainWindowPresenter::initSignalAndSlots()
 
   //connect(mView, &MainWindowView::openAboutDialog,    this, &MainWindowPresenter::openAboutDialog);
 
+  /* Visor de imagenes */
+
   connect(mView, &MainWindowView::open_image,    this, &MainWindowPresenter::openImage);
   connect(mView, &MainWindowView::select_image,  this, &MainWindowPresenter::activeImage);
   connect(mView, &MainWindowView::select_images, this, &MainWindowPresenter::activeImages);
   connect(mView, &MainWindowView::delete_images, this, &MainWindowPresenter::deleteImages);
 
-  /* Visor de imagenes */
+
 
   connect(mView, SIGNAL(open3DModel(QString, bool)),          this, SLOT(open3DModel(QString, bool)));
 
@@ -578,6 +598,10 @@ void MainWindowPresenter::initSignalAndSlots()
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
     status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+  });
+
+  connect(&Application::instance(), &Application::update_history, [&]() {
+    mStartPageWidget->setHistory(Application::instance().history());
   });
 }
 

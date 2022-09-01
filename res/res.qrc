@@ -13,7 +13,7 @@
         <file>img/icons/keypoint_cross.png</file>
         <file>img/icons/keypoint_diag_cross.png</file>
     </qresource>
-    <qresource prefix="icons/Material">
+    <qresource prefix="/icons/Material">
         <file alias="index.theme">icons/Material/index.theme</file>
         <file alias="24/new-project.png">icons/Material/24/new-project.png</file>
         <file alias="48/new-project.png">icons/Material/48/new-project.png</file>
@@ -186,7 +186,7 @@
         <file alias="24/home.png">icons/Material/24/start-page.png</file>
         <file alias="48/home.png">icons/Material/48/start-page.png</file>
         <file alias="96/home.png">icons/Material/96/start-page.png</file>
-	    <file alias="24/back-button.png">icons/Material/24/back-button.png</file>
+        <file alias="24/back-button.png">icons/Material/24/back-button.png</file>
         <file alias="48/back-button.png">icons/Material/48/back-button.png</file>
         <file alias="96/back-button.png">icons/Material/96/back-button.png</file>
         <file alias="24/forward-button.png">icons/Material/24/forward-button.png</file>
@@ -201,5 +201,9 @@
         <file alias="24/pause.png">icons/Material/24/pause.png</file>
         <file alias="48/pause.png">icons/Material/48/pause.png</file>
         <file alias="96/pause.png">icons/Material/96/pause.png</file>
+    </qresource>
+    <qresource prefix="/CC">
+        <file alias="images/ccMinus.png">icons/cc/ccMinus.png</file>
+        <file alias="images/ccPlus.png">icons/cc/ccPlus.png</file>
     </qresource>
 </RCC>

@@ -63,6 +63,7 @@ public:
   const std::unordered_map<size_t, CameraPose> &poses() const;
 
   tl::Path denseModel() const;
+  tl::Path mesh() const;
 
   QString graphicViewerBackgroundColor() const;
 

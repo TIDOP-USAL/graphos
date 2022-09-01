@@ -207,6 +207,8 @@ public:
   virtual void setSparseModel(const tl::Path &sparseModel) = 0;
   virtual tl::Path offset() const = 0;
   virtual void setOffset(const tl::Path &offset) = 0;
+  virtual tl::Path groundPoints() const = 0;
+  virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
   virtual tl::Path reconstructionPath() const = 0;
   virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
   virtual bool isPhotoOriented(size_t imageId) const = 0;
@@ -335,6 +337,8 @@ public:
   void setSparseModel(const tl::Path & sparseModel) override;
   tl::Path offset() const override;
   void setOffset(const tl::Path &offset) override;
+  tl::Path groundPoints() const override;
+  void setGroundPoints(const tl::Path &groundPoints) override;
   tl::Path reconstructionPath() const override;
   void setReconstructionPath(const tl::Path &reconstructionPath) override;
   bool isPhotoOriented(size_t imageId) const override;
@@ -396,6 +400,7 @@ protected:
   void readReconstructionPath(QXmlStreamReader &stream);
   void readOrientationSparseModel(QXmlStreamReader &stream);
   void readOffset(QXmlStreamReader &stream);
+  void readGroundPoints(QXmlStreamReader &stream);
   void readPhotoOrientations(QXmlStreamReader &stream);
   void readDensification(QXmlStreamReader &stream);
   void readDenseModel(QXmlStreamReader &stream);
@@ -434,6 +439,7 @@ protected:
   void writeReconstructionPath(QXmlStreamWriter &stream) const;
   void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
   void writeOffset(QXmlStreamWriter &stream) const;
+  void writeGroundPoints(QXmlStreamWriter &stream) const;
   void writePhotoOrientations(QXmlStreamWriter &stream) const;
   void writeDensification(QXmlStreamWriter &stream) const;
   void writeDenseModel(QXmlStreamWriter &stream) const;
@@ -471,6 +477,7 @@ protected:
 
   tl::Path mSparseModel;
   tl::Path mOffset;
+  tl::Path mGroundPoints;
   tl::Path mReconstructionPath;
   std::shared_ptr<Densification> mDensification;
   tl::Path mDenseModel;

@@ -114,6 +114,8 @@ public:
   void deleteSparseModel();
   void setDenseModel(const QString &sparseModel);
   void deleteDenseModel();
+  void setMesh(const QString &mesh);
+  void deleteMesh();
   void setDSM(const QString &dsm);
   void deleteDsm();
   void setOrtho(const QString &ortho);

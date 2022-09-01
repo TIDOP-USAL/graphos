@@ -160,6 +160,9 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 
       auto cameras = dynamic_cast<ImportPosesTask const *>(event->task())->cameras();
 
+      tl::Path sfm_path = mModel->projectFolder();
+      sfm_path.append("sfm");
+
       tl::Path offset_path = sfm_path;
       offset_path.append("offset.txt");
 
@@ -172,27 +175,24 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
       tl::Path ground_points_path = sfm_path;
       ground_points_path.append("ground_points.bin");
 
-      if (sparse_model_path.exists() &&
-          ground_points_path.exists() &&
-          poses_path.exists()) {
+      TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
+      TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
+      TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
 
-        mModel->setReconstructionPath(sfm_path);
-        mModel->setSparseModel(sparse_model_path);
-        mModel->setOffset(offset_path);
+      mModel->setReconstructionPath(sfm_path);
+      mModel->setSparseModel(sparse_model_path);
+      mModel->setOffset(offset_path);
+      mModel->setGroundPoints(ground_points_path);
+
+      auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+      poses_reader->read(poses_path);
+      auto poses = poses_reader->cameraPoses();
+
+      for (const auto &camera_pose : poses) {
+        mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
       }
 
-      if (poses_path.exists()) {
-        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-        poses_reader->read(poses_path);
-        auto poses = poses_reader->cameraPoses();
-
-        for (const auto &camera_pose : poses) {
-          mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
-        }
-
-        msgInfo("Oriented %i images", poses.size());
-
-      }
+      msgInfo("Oriented %i images", poses.size());
 
       for (const auto &camera : cameras) {
         mModel->updateCamera(camera.first, camera.second);
@@ -217,6 +217,8 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
         auto cameras = dynamic_cast<RelativeOrientationColmapTask const *>(event->task())->cameras();
 
         /// Se comprueba que se han generado todos los productos
+        tl::Path sfm_path = mModel->projectFolder();
+        sfm_path.append("sfm");
 
         tl::Path sparse_model_path = sfm_path;
         sparse_model_path.append("sparse.ply");
@@ -227,27 +229,27 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
         tl::Path poses_path = sfm_path;
         poses_path.append("poses.bin");
 
-        if (sparse_model_path.exists() &&
-            ground_points_path.exists() &&
-            poses_path.exists()) {
+        TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
+        TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
+        TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
 
-          mModel->setReconstructionPath(sfm_path);
-          mModel->setSparseModel(sparse_model_path);
-          mModel->setOffset(tl::Path(""));
+        mModel->setReconstructionPath(sfm_path);
+        mModel->setSparseModel(sparse_model_path);
+        mModel->setOffset(tl::Path(""));
+        mModel->setGroundPoints(ground_points_path);
 
-          auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-          poses_reader->read(poses_path);
-          auto poses = poses_reader->cameraPoses();
+        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+        poses_reader->read(poses_path);
+        auto poses = poses_reader->cameraPoses();
 
-          for (const auto &camera_pose : poses) {
-            mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
-          }
+        for (const auto &camera_pose : poses) {
+          mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
+        }
 
-          msgInfo("Oriented %i images", poses.size());
+        msgInfo("Oriented %i images", poses.size());
 
-          for (const auto &camera : cameras) {
-            mModel->updateCamera(camera.first, camera.second);
-          }
+        for (const auto &camera : cameras) {
+          mModel->updateCamera(camera.first, camera.second);
         }
 
       } catch (const std::exception &e) {
@@ -264,6 +266,9 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
                                                                                        images);
 
       absolute_orientation_task->subscribe([&](tl::TaskFinalizedEvent *event) {
+
+        tl::Path sfm_path = mModel->projectFolder();
+        sfm_path.append("sfm");
 
         tl::Path offset_path = sfm_path;
         offset_path.append("offset.txt");
@@ -301,41 +306,5 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
   return orientation_process;
 }
 
-void OrientationPresenterImp::onAbsoluteOrientationFinished()
-{
-  //QString ori_absolute_path = mModel->projectPath() + "/ori/absolute/";
-  //QString sparse_model = ori_absolute_path + "/sparse.ply";
-  //if (QFileInfo::exists(sparse_model)){
-  //  mModel->setReconstructionPath(ori_absolute_path);
-  //  mModel->setSparseModel(ori_absolute_path + "/sparse.ply");
-  //  mModel->setOffset(ori_absolute_path + "/offset.txt");
-
-  //  ReadCameraPoses readPhotoOrientations;
-  //  readPhotoOrientations.open(ori_absolute_path);
-  //  for (const auto &image : mModel->images()){
-  //    CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image.second.path()).fileName());
-  //    if (photoOrientation.position() != tl::Point3D()) {
-  //      mModel->addPhotoOrientation(image.first, photoOrientation);
-  //    }
-  //  }
-
-  //  ReadCalibration readCalibration;
-  //  readCalibration.open(ori_absolute_path);
-  //  std::shared_ptr<Calibration> calibration;
-  //  for (const auto &camera : mModel->cameras()) {
-  //    calibration = readCalibration.calibration(camera.first);
-  //    if (calibration) {
-  //      Camera _camera = camera.second;
-  //      _camera.setCalibration(calibration);
-  //      mModel->updateCamera(camera.first, _camera);
-  //    }
-  //  }
-
-  //  //emit orientation_finished();
-
-  //} else {
-  //  msgError("Orientation failed");
-  //}
-}
 
 } // namespace graphos

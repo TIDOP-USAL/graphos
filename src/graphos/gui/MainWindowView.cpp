@@ -71,6 +71,7 @@ enum
   pair_right,
   sparse_model,
   dense_model,
+  mesh,
   dsm,
   ortho
 };
@@ -616,6 +617,81 @@ void MainWindowView::deleteDenseModel()
   }
 }
 
+void MainWindowView::setMesh(const QString &mesh)
+{
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem *itemModels = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("3D Models")) == 0) {
+        itemModels = itemProject->child(i);
+        break;
+      }
+    }
+
+    if (itemModels == nullptr) {
+      itemModels = new QTreeWidgetItem();
+      itemModels->setText(0, tr("3D Models"));
+      itemProject->addChild(itemModels);
+      itemModels->setExpanded(true);
+    }
+
+    QTreeWidgetItem *itemDenseModel = nullptr;
+    for (int i = 0; i < itemModels->childCount(); i++) {
+      QTreeWidgetItem *temp = itemModels->child(i);
+      if (temp->text(0).compare(tr("Mesh")) == 0) {
+        itemDenseModel = temp;
+        break;
+      }
+    }
+
+    if (itemDenseModel == nullptr) {
+      itemDenseModel = new QTreeWidgetItem();
+      itemModels->addChild(itemDenseModel);
+    }
+
+    itemDenseModel->setText(0, "Mesh");
+    itemDenseModel->setIcon(0, QIcon::fromTheme("mesh"));
+    itemDenseModel->setToolTip(0, mesh);
+    itemDenseModel->setData(0, Qt::UserRole, graphos::mesh);
+  }
+}
+
+void MainWindowView::deleteMesh()
+{
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem *itemModels = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->text(0).compare(tr("3D Models")) == 0) {
+        itemModels = itemProject->child(i);
+        break;
+      }
+    }
+
+    if (itemModels == nullptr) {
+      itemModels = new QTreeWidgetItem();
+      itemModels->setText(0, tr("3D Models"));
+      itemProject->addChild(itemModels);
+      itemModels->setExpanded(true);
+    }
+
+    QTreeWidgetItem *itemDenseModel = nullptr;
+    for (int i = 0; i < itemModels->childCount(); i++) {
+      QTreeWidgetItem *temp = itemModels->child(i);
+      if (temp->text(0).compare(tr("Mesh")) == 0) {
+        itemDenseModel = temp;
+        delete itemDenseModel;
+        itemDenseModel = nullptr;
+        break;
+      }
+    }
+
+  }
+}
+
 void MainWindowView::setDSM(const QString &dsm)
 {
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
@@ -812,6 +888,8 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
      emit open3DModel(item->toolTip(column), true);
    } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
      emit open3DModel(item->toolTip(column), false);
+   } else if (item->data(0, Qt::UserRole) == graphos::mesh) {
+     emit open3DModel(item->toolTip(column), false);
    } else if (item->data(0, Qt::UserRole) == graphos::dsm) {
      emit openDtm();
    } else if (item->data(0, Qt::UserRole) == graphos::ortho) {
@@ -872,7 +950,13 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
         emit open3DModel(item->toolTip(0), false);
       }
     }
-  }
+  } /*else if (item->data(0, Qt::UserRole) == graphos::mesh) {
+    if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
+      if (selectedItem->text() == tr("Open Point Cloud")) {
+        emit open3DModel(item->toolTip(0), false);
+      }
+    }
+  }*/
 }
 
 void MainWindowView::initUI()

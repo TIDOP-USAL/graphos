@@ -112,11 +112,8 @@ std::vector<GroundPoint> DensificationModelImp::groundPoints() const
 
   try {
 
-    tl::Path ground_points_path(mProject->reconstructionPath().toWString());
-    ground_points_path.append("ground_points.bin");
-
     std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
-    reader->read(ground_points_path);
+    reader->read(mProject->groundPoints());
     ground_points = reader->points();
 
   } catch (...) {

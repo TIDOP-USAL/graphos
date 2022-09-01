@@ -93,6 +93,11 @@ void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Process finished"));
   }
+
+  tl::Path mesh = mModel->projectDir();
+  mesh.append("dense").append("mesh.pr.ply");
+
+  mModel->setMesh(mesh);
 }
 
 std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
