@@ -26,12 +26,15 @@
 
 #include <array>
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-//class LoadFromVideoParameters;
+class Image;
 
 class LoadFromVideoModel
   : public Model
@@ -44,12 +47,14 @@ public:
   LoadFromVideoModel(QObject *parent = nullptr) : Model(parent) {}
   ~LoadFromVideoModel() override = default;
   
-  //virtual LoadFromVideoParameters *parameters() const = 0;
+  virtual tl::Path imagesPath() const = 0;
+  virtual void addImage(const Image &image) = 0;
+  virtual const std::map<int, Camera> &cameras() const = 0;
+  virtual int addCamera(const Camera &camera) = 0;
+  virtual int cameraID(const Camera &camera) const = 0;
+  virtual int cameraID(const QString &make,
+                       const QString &model) const = 0;
 
-public slots:
-
-  //virtual void loadSettings() = 0;
-  //virtual void saveSettings() = 0;
 };
 
 } // namespace graphos

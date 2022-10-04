@@ -52,14 +52,14 @@ SaveProjectAsPresenterImp::~SaveProjectAsPresenterImp()
 
 void SaveProjectAsPresenterImp::open()
 {
-  mView->setGraphosProjectsPath(mModel->graphosProjectsDirectory());
+  mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
   mView->exec();
 }
 
 void SaveProjectAsPresenterImp::save(const QString &file)
 {
   if (file.isEmpty() == false) {
-    mModel->save(file);
+    mModel->save(file.toStdWString());
     Application &app = Application::instance();
     app.status()->activeFlag(AppStatus::Flag::project_modified, false);
   }

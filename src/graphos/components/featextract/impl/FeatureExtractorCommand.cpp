@@ -27,8 +27,9 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/features/featio.h"
 #include "graphos/core/features/sift.h"
+#include "graphos/core/features/featextract.h"
 #include "graphos/core/project.h"
-#include "graphos/components/featextract/impl/FeatureExtractorProcess.h"
+//#include "graphos/components/featextract/impl/FeatureExtractorTask.h"
 
 #include <tidop/core/messages.h>
 
@@ -97,14 +98,11 @@ bool FeatureExtractorCommand::run()
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
     TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
-    QString project_file = QString::fromStdWString(mProjectFile.toWString());
-
     ProjectImp project;
-    project.load(project_file);
-    QString database_path = project.database();
+    project.load(mProjectFile);
+    tl::Path database_path = project.database();
 
-    TL_TODO("Colmap no permite borrar la tabla de keypoints ni sobreescribirla asi que por ahora borro la base de datos completa")
-    QFile(database_path).remove();
+    tl::Path::removeFile(database_path);
     project.removeFeatures();
 
     std::shared_ptr<FeatureExtractor> feature_extractor;
@@ -122,14 +120,14 @@ bool FeatureExtractorCommand::run()
                                                                        mContrastThreshold);
     }
 
-    FeatureExtractorProcess feature_extractor_process(project.images(),
-                                                      project.cameras(),
-                                                      database_path,
-                                                      mMaxImageSize,
-                                                      !mDisableCuda,
-                                                      feature_extractor);
+    FeatureExtractorTask feature_extractor_process(project.images(),
+                                                   project.cameras(),
+                                                   database_path,
+                                                   mMaxImageSize,
+                                                   !mDisableCuda,
+                                                   feature_extractor);
 
-    connect(&feature_extractor_process, &FeatureExtractorProcess::features_extracted, 
+    connect(&feature_extractor_process, &FeatureExtractorTask::features_extracted, 
             [&](size_t imageId, const QString &featuresFile){
               project.addFeatures(imageId, featuresFile);
             });
@@ -137,7 +135,7 @@ bool FeatureExtractorCommand::run()
     feature_extractor_process.run();
 
     project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
-    project.save(project_file);
+    project.save(mProjectFile);
 
   } catch (const std::exception &e) {
 

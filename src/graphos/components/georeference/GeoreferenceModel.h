@@ -26,6 +26,8 @@
 
 #include <unordered_map>
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 #include "graphos/core/sfm/poses.h"
 
@@ -63,16 +65,16 @@ public:
   virtual void removeImagePoint(const QString &gcp, size_t imageId) = 0;
   virtual std::list<std::pair<QString, QPointF>> points(size_t imageId) const = 0;
   virtual std::vector<GroundControlPoint> groundControlPoints() const = 0;
-  virtual QString projectPath() const = 0;
-  virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
-  virtual void setSparseModel(const QString &sparseModel) = 0;
-  virtual void setOffset(const QString &offset) = 0;
+  virtual tl::Path projectPath() const = 0;
+  virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
+  virtual void setSparseModel(const tl::Path &sparseModel) = 0;
+  virtual void setOffset(const tl::Path &offset) = 0;
   virtual void addPhotoOrientation(size_t imageId,
                                    const CameraPose &orientation) = 0;
   virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
   virtual const std::map<int, Camera> &cameras() const = 0;
   virtual std::vector<GroundPoint> groundPoints() const = 0;
-  virtual QString database() const = 0;
+  virtual tl::Path database() const = 0;
 
 public slots:
 

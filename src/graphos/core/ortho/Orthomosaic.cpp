@@ -565,8 +565,8 @@ OrthophotoAlgorithm::OrthophotoAlgorithm()
 OrthophotoAlgorithm::OrthophotoAlgorithm(double resolution,
                                          const std::vector<Image> &images,
                                          const std::map<int, Camera> &cameras,
-                                         const QString &orthoPath,
-                                         const QString &mdt,
+                                         const tl::Path &orthoPath,
+                                         const tl::Path &mdt,
                                          const QString &epsg,
                                          bool cuda)
   : mPhotos(images),
@@ -586,16 +586,15 @@ OrthophotoAlgorithm::~OrthophotoAlgorithm()
 void OrthophotoAlgorithm::run()
 {
 
-  tl::Path ortho_path(mOrthoPath.toStdWString());
-  tl::Path footprint_file(ortho_path);
+  tl::Path footprint_file(mOrthoPath);
   footprint_file.append("footprint.shp");
   tl::Path graph_orthos = tl::Path(footprint_file).replaceBaseName("graph_orthos");
   tl::geospatial::Crs crs(mEpsg.toStdString());
 
   OrthoimageProcess ortho_process(mPhotos,
                                   mCameras,
-                                  mMdt.toStdString(), 
-                                  ortho_path, 
+                                  mMdt, 
+                                  mOrthoPath,
                                   graph_orthos, 
                                   crs, 
                                   footprint_file, 
@@ -611,7 +610,7 @@ void OrthophotoAlgorithm::run()
   optimal_footprint_path.replaceBaseName(name);
   findOptimalFootprint(graph_orthos, grid, optimal_footprint_path, crs);
 
-  orthoMosaic(optimal_footprint_path, ortho_path, OrthophotoParameters::resolution(), crs, grid);
+  orthoMosaic(optimal_footprint_path, mOrthoPath, OrthophotoParameters::resolution(), crs, grid);
 
 }
 
@@ -620,12 +619,12 @@ void OrthophotoAlgorithm::setPhotos(const std::vector<Image> &images)
   mPhotos = images;
 }
 
-void OrthophotoAlgorithm::setOrthoPath(const QString &orthoPath)
+void OrthophotoAlgorithm::setOrthoPath(const tl::Path &orthoPath)
 {
   mOrthoPath = orthoPath;
 }
 
-void OrthophotoAlgorithm::setMdt(const QString &mdt)
+void OrthophotoAlgorithm::setMdt(const tl::Path &mdt)
 {
   mMdt = mdt;
 }

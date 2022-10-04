@@ -54,7 +54,7 @@ void UndistortImagesPresenterImp::open()
 {
   mModel->loadSettings();
 
-  mView->setDirectory(mModel->projectFolder());
+  mView->setDirectory(QString::fromStdWString(mModel->projectFolder().toWString()));
   
   mView->open();
 }

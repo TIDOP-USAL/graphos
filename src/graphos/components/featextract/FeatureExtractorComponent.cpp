@@ -37,7 +37,7 @@ namespace graphos
 {
 
 FeatureExtractorComponent::FeatureExtractorComponent(Application *application)
-  : ProcessComponent(application)
+  : TaskComponent(application)
 {
   init();
 }
@@ -102,7 +102,7 @@ void FeatureExtractorComponent::update()
 
 void FeatureExtractorComponent::onRunning()
 {
-  ProcessComponent::onRunning();
+  TaskComponent::onRunning();
 }
 
 void FeatureExtractorComponent::onFinished()
@@ -112,7 +112,7 @@ void FeatureExtractorComponent::onFinished()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFinished();
+  TaskComponent::onFinished();
 
   app_status->activeFlag(AppStatus::Flag::project_modified, true);
   app_status->activeFlag(AppStatus::Flag::feature_extraction, true);
@@ -125,7 +125,7 @@ void FeatureExtractorComponent::onFailed()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFailed();
+  TaskComponent::onFailed();
   app_status->activeFlag(AppStatus::Flag::feature_extraction, false);
 }
 

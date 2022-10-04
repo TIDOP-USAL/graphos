@@ -33,7 +33,7 @@ namespace graphos
 class OrthophotoProcess;
 
 class OrthophotoComponent
-  : public ProcessComponent
+  : public TaskComponent
 {
 
   Q_OBJECT
@@ -53,7 +53,7 @@ protected:
   void createCommand() override;
   void update() override;
 
-// ProcessComponent
+// TaskComponent
 
 protected slots:
 

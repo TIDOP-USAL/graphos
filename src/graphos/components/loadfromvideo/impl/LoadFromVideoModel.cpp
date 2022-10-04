@@ -23,8 +23,6 @@
 
 #include "LoadFromVideoModel.h"
 
-//#include "graphos/core/LoadFromVideo.h"
-
 #include <QFile>
 #include <QTextStream>
 #include <QSettings>
@@ -35,8 +33,6 @@ namespace graphos
 LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project, 
                                              QObject *parent)
   : LoadFromVideoModel(parent),
-    //mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, "TIDOP", "Graphos")),
-    //mParameters(new LoadFromVideoParameters),
     mProject(project)
 {
   this->init();
@@ -44,55 +40,52 @@ LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project,
 
 LoadFromVideoModelImp::~LoadFromVideoModelImp()
 {
-  //if (mSettings){
-  //  delete mSettings;
-  //  mSettings = nullptr;
-  //}
-
-  //if (mParameters) {
-  //  delete mParameters;
-  //  mParameters = nullptr;
-  //}
 }
 
-//void LoadFromVideoModelImp::loadSettings()
-//{
-//  if (mReadSettings) {
-//	  
-//	/* Read Settings here
-//	
-//	Example (replace PropertyName):
-//	
-//    mParameters->setPropertyName(mSettings->value("LOADFROMVIDEO/PropertyName", mParameters->propertyName()).toInt());
-//  
-//    */
-//
-//  }
-//}
+tl::Path LoadFromVideoModelImp::imagesPath() const
+{
+  return tl::Path(mProject->projectFolder()).append("images");
+}
 
-//void LoadFromVideoModelImp::saveSettings()
-//{
-//  if (mReadSettings) {
-//	
-//	/* Write Settings here
-//	
-//	Example:
-//	
-//    mSettings->setValue("LOADFROMVIDEO/PropertyName", mParameters->propertyName());
-//  
-//    */
-//    
-//  }
-//}
+void LoadFromVideoModelImp::addImage(const Image &image)
+{
+  mProject->addImage(image);
+}
 
-//LoadFromVideoParameters *LoadFromVideoModelImp::parameters() const
-//{
-//  return mParameters;
-//}
+const std::map<int, Camera> &LoadFromVideoModelImp::cameras() const
+{
+  return mProject->cameras();
+}
+
+int LoadFromVideoModelImp::addCamera(const Camera &camera)
+{
+  return mProject->addCamera(camera);
+}
+
+int LoadFromVideoModelImp::cameraID(const Camera &camera) const
+{
+  return cameraID(camera.make().c_str(), camera.model().c_str());
+}
+
+int LoadFromVideoModelImp::cameraID(const QString &make,
+                                    const QString &model) const
+{
+  int id_camera = 0;
+  for (const auto &camera : mProject->cameras()) {
+
+    QString camera_make = camera.second.make().c_str();
+    QString camera_model = camera.second.model().c_str();
+    if (make.compare(camera_make) == 0 &&
+        model.compare(camera_model) == 0) {
+      id_camera = camera.first;
+      break;
+    }
+  }
+  return id_camera;
+}
 
 void LoadFromVideoModelImp::init()
 {
-  //mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
 }
 
 void LoadFromVideoModelImp::clear()

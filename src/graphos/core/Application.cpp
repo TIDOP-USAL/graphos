@@ -76,13 +76,14 @@ Application::~Application()
   }
 }
 
-QString Application::documentsLocation() const
+tl::Path Application::documentsLocation() const
 {
   tl::Path path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
   path.append(qApp->applicationDisplayName().toStdWString());
   path.append("Projects");
+  path.normalize();
 
-  return QString::fromStdWString(path.toWString());
+  return path;
 }
 
 AppStatus *Application::status()
@@ -188,6 +189,8 @@ void Application::addToHistory(const QString &project)
 void Application::clearHistory()
 {
   mHistory.clear();
+  QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
+  settings.setValue("HISTORY/RecentProjects", mHistory);
   emit update_history();
 }
 

@@ -26,6 +26,8 @@
 
 #include "graphos/core/mvp.h"
 
+#include <tidop/core/path.h>
+
 namespace graphos
 {
 
@@ -59,13 +61,13 @@ public:
    * \brief Returns project directory
    * \return Project directory
    */
-  virtual QString projectFolder() const = 0;
+  virtual tl::Path projectFolder() const = 0;
 
   /*!
    * \brief Returns project file path
    * \return Project directory
    */
-  virtual QString projectPath() const = 0;
+  virtual tl::Path projectPath() const = 0;
 
 public slots:
 
@@ -83,21 +85,21 @@ public slots:
 
   /*!
    * \brief Set project directory
-   * \param[in] path Project Directory
+   * \param[in] folder Project Directory
    */
-  virtual void setProjectFolder(const QString &dir) = 0;
+  virtual void setProjectFolder(const tl::Path &folder) = 0;
 
   /*!
    * \brief Set project database
    * \param[in] path Database path
    */
-  virtual void setDatabase(const QString &database) = 0;
+  virtual void setDatabase(const tl::Path &database) = 0;
 
   /*!
    * \brief Save a project as ...
    * \param[in] file Project file
    */
-  virtual void saveAs(const QString &file) = 0;
+  virtual void saveAs(const tl::Path &file) = 0;
 
 };
 

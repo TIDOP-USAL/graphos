@@ -26,8 +26,19 @@
 
 #include "graphos/graphos_global.h"
 
+#include <QObject>
+
+#include <tidop/core/task.h>
+#include <tidop/core/progress.h>
+#include <tidop/core/path.h>
+
 #include "graphos/core/features/features.h"
 
+
+namespace colmap
+{
+class Thread;
+}
 
 namespace graphos
 {
@@ -64,6 +75,99 @@ private:
   double mDistance;
   double mMaxError;
   double mConfidence;
+
+};
+
+
+
+
+class FeatureMatchingTask
+  : public QObject,
+    public tl::TaskBase
+{
+
+  Q_OBJECT
+
+public:
+
+  FeatureMatchingTask(const tl::Path &database,
+                      bool cuda,
+                      const std::shared_ptr<FeatureMatching> &featureMatching);
+  ~FeatureMatchingTask() override;
+
+public:
+
+  std::shared_ptr<FeatureMatching> featureMatching() const;
+  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
+
+  tl::Path database() const;
+  void setDatabase(const tl::Path &database);
+
+  bool useGPU() const;
+  void setUseGPU(bool useGPU);
+
+// tl::TaskBase interface
+
+public:
+
+  void stop() override;
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  colmap::Thread *mFeatureMatcher;
+  tl::Path mDatabase;
+  bool bUseCuda;
+  std::shared_ptr<FeatureMatching> mFeatureMatching;
+
+};
+
+
+
+class SpatialMatchingTask
+  : public QObject,
+    public tl::TaskBase
+{
+
+  Q_OBJECT
+
+public:
+
+  SpatialMatchingTask(const tl::Path &database,
+                      bool cuda,
+                      const std::shared_ptr<FeatureMatching> &featureMatching);
+  ~SpatialMatchingTask() override;
+
+public:
+
+  std::shared_ptr<FeatureMatching> featureMatching() const;
+  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
+
+  tl::Path database() const;
+  void setDatabase(const tl::Path &database);
+
+  bool useGPU() const;
+  void setUseGPU(bool useGPU);
+
+// tl::TaskBase interface
+
+public:
+
+  void stop() override;
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+private:
+
+  colmap::Thread *mFeatureMatcher;
+  tl::Path mDatabase;
+  bool bUseCuda;
+  std::shared_ptr<FeatureMatching> mFeatureMatching;
 
 };
 

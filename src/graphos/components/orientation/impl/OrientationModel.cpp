@@ -58,14 +58,19 @@ bool OrientationModelImp::calibratedCamera() const
   return calibrated;
 }
 
-void OrientationModelImp::setSparseModel(const QString &sparseModel)
+void OrientationModelImp::setSparseModel(const tl::Path &sparseModel)
 {
   mProject->setSparseModel(sparseModel);
 }
 
-void OrientationModelImp::setOffset(const QString &offset)
+void OrientationModelImp::setOffset(const tl::Path &offset)
 {
   mProject->setOffset(offset);
+}
+
+void OrientationModelImp::setGroundPoints(const tl::Path &groundPoints)
+{
+  mProject->setGroundPoints(groundPoints);
 }
 
 bool OrientationModelImp::isPhotoOriented(size_t imageId) const
@@ -84,13 +89,13 @@ void OrientationModelImp::addPhotoOrientation(size_t imageId,
   mProject->addPhotoOrientation(imageId, orientation);
 }
 
-QString OrientationModelImp::database() const
+tl::Path OrientationModelImp::database() const
 {
   return mProject->database();
 }
 
 
-QString OrientationModelImp::projectPath() const
+tl::Path OrientationModelImp::projectFolder() const
 {
   return mProject->projectFolder();
 }
@@ -124,34 +129,15 @@ bool OrientationModelImp::rtkOrientations() const
   return bRtkOrientations;
 }
 
-QString OrientationModelImp::reconstructionPath() const
+tl::Path OrientationModelImp::reconstructionPath() const
 {
   return mProject->reconstructionPath();
 }
 
-void OrientationModelImp::setReconstructionPath(const QString &reconstructionPath)
+void OrientationModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
 {
   mProject->setReconstructionPath(reconstructionPath);
 }
-
-
-//std::map<QString, std::array<double, 3>> OrientationModelImp::cameraPositions() const
-//{
-//  TL_TODO("Borrar")
-//  std::map<QString, std::array<double, 3>> camera_positions;
-//  for (const auto &image : images()) {
-//    QString path = image.second.path();
-//    CameraPose camera_pose = image.second.cameraPose();
-//    if (!camera_pose.isEmpty()) {
-//      std::array<double, 3> positions = {
-//      camera_pose.position().x,
-//      camera_pose.position().y,
-//      camera_pose.position().z};
-//      camera_positions[path] = positions;
-//    }
-//  }
-//  return camera_positions;
-//}
 
 void OrientationModelImp::clearProject()
 {

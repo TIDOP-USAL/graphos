@@ -64,33 +64,13 @@ Viewer3DContextMenu::Viewer3DContextMenu(QWidget *parent)
 
 void Viewer3DContextMenu::init()
 {
-  QIcon iconZoomExtend;
-  iconZoomExtend.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-magnifying-glass-with-expand-sign.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionGlobalZoom->setIcon(iconZoomExtend);
-
-  QIcon iconViewFront;
-  iconViewFront.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-front-view.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewFront->setIcon(iconViewFront);
-
-  QIcon iconViewTop;
-  iconViewTop.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-top-view.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewTop->setIcon(iconViewTop);
-
-  QIcon iconViewLeft;
-  iconViewLeft.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-cube.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewLeft->setIcon(iconViewLeft);
-
-  QIcon iconViewRight;
-  iconViewRight.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-view_right.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewRight->setIcon(iconViewRight);
-
-  QIcon iconViewBack;
-  iconViewBack.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-back-view.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewBack->setIcon(iconViewBack);
-
-  QIcon iconViewBottom;
-  iconViewBottom.addFile(QStringLiteral(":/ico/24/img/material/24/icons8-bottom-view.png"), QSize(), QIcon::Normal, QIcon::Off);
-  mActionViewBottom->setIcon(iconViewBottom);
+  mActionGlobalZoom->setIcon(QIcon::fromTheme("zoom-extend"));
+  mActionViewFront->setIcon(QIcon::fromTheme("front-view"));
+  mActionViewTop->setIcon(QIcon::fromTheme("top-view"));
+  mActionViewLeft->setIcon(QIcon::fromTheme("left-view"));
+  mActionViewRight->setIcon(QIcon::fromTheme("right-view"));
+  mActionViewBack->setIcon(QIcon::fromTheme("back-view"));
+  mActionViewBottom->setIcon(QIcon::fromTheme("bottom-view"));
 
   this->addAction(mActionGlobalZoom);
   this->addSeparator();

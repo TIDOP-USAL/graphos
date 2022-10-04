@@ -49,9 +49,9 @@ public:
 public:
 
   PoissonReconParameters *parameters() const override;
-  QString denseModel() const override;
-  QString projectDir() const override;
-  void setMesh(const QString &mesh) override;
+  tl::Path denseModel() const override;
+  tl::Path projectDir() const override;
+  void setMesh(const tl::Path &mesh) override;
 
 public slots:
 

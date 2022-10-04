@@ -33,6 +33,10 @@
 namespace graphos
 {
 
+
+/* Component base class */
+
+
 ComponentBase::ComponentBase(Application *application)
   : mAction(nullptr),
     mModel(nullptr),
@@ -231,52 +235,56 @@ Application *ComponentBase::app()
 }
 
 
-ProcessComponent::ProcessComponent(Application *application)
+
+
+/* Task Component */
+
+TaskComponent::TaskComponent(Application *application)
   : ComponentBase(application),
     mProgressHandler(nullptr)
 {
   connect(this, &Component::created, 
-          this, &ProcessComponent::onComponentCreated);
+          this, &TaskComponent::onComponentCreated);
 }
 
-void ProcessComponent::setProgressHandler(ProgressHandler *progressHandler)
+void TaskComponent::setProgressHandler(ProgressHandler *progressHandler)
 {
   mProgressHandler = progressHandler;
 }
 
-void ProcessComponent::onComponentCreated()
+void TaskComponent::onComponentCreated()
 {
   Presenter *presenter = this->presenter();
   connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::running,
-          this, &ProcessComponent::onRunning);
+          this, &TaskComponent::onRunning);
   connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::finished,
-          this, &ProcessComponent::onFinished);
+          this, &TaskComponent::onFinished);
   connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::failed,
-          this, &ProcessComponent::onFailed);
+          this, &TaskComponent::onFailed);
   connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::canceled,
-          this, &ProcessComponent::onCanceled);
+          this, &TaskComponent::onCanceled);
 
   dynamic_cast<ProcessPresenter *>(presenter)->setProgressHandler(mProgressHandler);
 }
 
-void ProcessComponent::onRunning()
+void TaskComponent::onRunning()
 {
   app()->status()->activeFlag(AppStatus::Flag::processing, true);
 }
 
-void ProcessComponent::onFinished()
+void TaskComponent::onFinished()
 {
   app()->status()->activeFlag(AppStatus::Flag::processing, false);
 
   emit finished();
 }
 
-void ProcessComponent::onFailed()
+void TaskComponent::onFailed()
 {
   app()->status()->activeFlag(AppStatus::Flag::processing, false);
 }
 
-void ProcessComponent::onCanceled()
+void TaskComponent::onCanceled()
 {
   app()->status()->activeFlag(AppStatus::Flag::processing, false);
 }
@@ -284,6 +292,7 @@ void ProcessComponent::onCanceled()
 
 
 
+/* Multi-component base class */
 
 MultiComponentBase::MultiComponentBase(Application *application)
   : mModel(nullptr),

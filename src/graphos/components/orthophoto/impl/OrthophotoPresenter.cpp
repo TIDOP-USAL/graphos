@@ -98,8 +98,8 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
 {
   std::unique_ptr<tl::Task> ortho_process;
 
-  QString ortho_path = mModel->orthoPath();
-  if (!ortho_path.isEmpty()) {
+  tl::Path ortho_path = mModel->orthoPath();
+  if (!ortho_path.empty()) {
     int i_ret = QMessageBox(QMessageBox::Warning,
                             tr("Previous results"),
                             tr("The previous results will be overwritten. Do you wish to continue?"),
@@ -110,8 +110,6 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
   }
 
   mModel->clearProject();
-
-  //mMultiProcess->clearProcessList();
   
   OrthophotoParameters *parameters = mModel->parameters();
   parameters->setResolution(mView->resolution());
@@ -125,10 +123,6 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
                                                                                          mModel->useCuda());
 
   ortho_process = std::make_unique<OrthophotoProcess>(algorithm);
-  
-  connect(dynamic_cast<OrthophotoProcess *>(ortho_process.get()), SIGNAL(finished()), this, SLOT(onOrthophotoFinished()));
-  
-  //mMultiProcess->appendProcess(process);
   
   if (progressHandler()){
     progressHandler()->setRange(0, 0);
@@ -148,9 +142,5 @@ void OrthophotoPresenterImp::cancel()
   msgWarning("Processing has been canceled by the user");
 }
 
-void OrthophotoPresenterImp::onOrthophotoFinished()
-{
-
-}
 
 } // namespace graphos

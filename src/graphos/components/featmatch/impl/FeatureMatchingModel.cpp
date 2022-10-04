@@ -72,7 +72,7 @@ void FeatureMatchingModelImp::setFeatureMatching(const std::shared_ptr<FeatureMa
   mProject->setFeatureMatching(featureMatching);
 }
 
-QString FeatureMatchingModelImp::database() const
+tl::Path FeatureMatchingModelImp::database() const
 {
   return mProject->database();
 }
@@ -99,8 +99,7 @@ bool FeatureMatchingModelImp::spatialMatching() const
 void FeatureMatchingModelImp::writeMatchPairs()
 {
 
-  QString database_file = mProject->database();
-  colmap::Database database(database_file.toStdString());
+  colmap::Database database(mProject->database().toString());
   std::vector<colmap::Image> db_images = database.ReadAllImages();
   colmap::image_t colmap_image_id_l = 0;
   colmap::image_t colmap_image_id_r = 0;
@@ -155,20 +154,23 @@ void FeatureMatchingModelImp::writeMatchPairs()
 
 bool FeatureMatchingModelImp::existsMatches() const
 {
-  QString database_file = mProject->database();
-  colmap::Database database(database_file.toStdString());
+  colmap::Database database(mProject->database().toString());
   size_t num_matches = database.NumMatches();
   return num_matches > 0;
 }
 
 void FeatureMatchingModelImp::clearProject()
 {
-  QString database_file = mProject->database();
-  colmap::Database database(database_file.toStdString());
+  colmap::Database database(mProject->database().toString());
   database.ClearMatches();
   database.ClearTwoViewGeometries();
   database.Close();
   mProject->removeMatchesPair();
+}
+
+bool FeatureMatchingModelImp::imagesCount() const
+{
+  return mProject->imagesCount();
 }
 
 } // End namespace graphos

@@ -30,10 +30,10 @@
 namespace graphos
 {
 
-class FeatureMatchingProcess;
+class FeatureMatchingTask;
 
 class FeatureMatchingComponent
-  : public ProcessComponent
+  : public TaskComponent
 {
 
   Q_OBJECT
@@ -62,7 +62,7 @@ protected:
   void createCommand() override;
   void update() override;
 
-// ProcessComponent
+// TaskComponent
 
 protected slots:
 
@@ -72,7 +72,7 @@ protected slots:
 
 protected:
 
-  FeatureMatchingProcess *mProcess;
+  FeatureMatchingTask *mProcess;
 
 };
 

@@ -43,10 +43,6 @@ public:
                           OrientationModel *model);
   ~OrientationPresenterImp() override;
 
-private slots:
-
-  void onAbsoluteOrientationFinished();
-
 // ProcessPresenter interface
   
 protected:

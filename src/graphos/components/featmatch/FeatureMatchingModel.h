@@ -26,6 +26,8 @@
 
 #include "graphos/core/mvp.h"
 
+#include <tidop/core/path.h>
+
 namespace graphos
 {
 	
@@ -44,11 +46,12 @@ public:
 
   virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;
   virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
-  virtual QString database() const = 0;
+  virtual tl::Path database() const = 0;
   virtual bool useCuda() const = 0;
   virtual bool spatialMatching() const = 0;
   virtual void writeMatchPairs() = 0;
   virtual bool existsMatches() const = 0;
+  virtual bool imagesCount() const = 0;
   virtual void clearProject() = 0;
 };
 

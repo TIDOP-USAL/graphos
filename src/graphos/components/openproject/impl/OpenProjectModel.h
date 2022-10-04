@@ -47,12 +47,12 @@ public:
 
 public:
 
-  QString graphosProjectsDirectory() const override;
+  tl::Path graphosProjectsDirectory() const override;
 
 public slots:
 
   void saveProject() override;
-  void loadProject(const QString &projectPath) override;
+  void loadProject(const tl::Path &projectPath) override;
 
 // Model interface
 

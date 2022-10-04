@@ -90,13 +90,13 @@ void MainWindowPresenter::openFromHistory(const QString &file)
 
       mModel->clear();
 
-      if (mModel->checkOldVersion(file)) {
+      if (mModel->checkOldVersion(file.toStdWString())) {
         int i_ret = QMessageBox(QMessageBox::Information,
                                 tr("It is loading an old project"),
                                 tr("If you accept, a copy of the old project will be created"),
                                 QMessageBox::Yes | QMessageBox::No).exec();
         if (i_ret == QMessageBox::Yes) {
-          mModel->oldVersionBackup(file);
+          mModel->oldVersionBackup(file.toStdWString());
           Application &app = Application::instance();
           app.status()->activeFlag(AppStatus::Flag::project_modified, true);
         } else if (i_ret == QMessageBox::Cancel) {
@@ -105,7 +105,7 @@ void MainWindowPresenter::openFromHistory(const QString &file)
 
       }
 
-      mModel->load(file);
+      mModel->load(file.toStdWString());
       loadProject();
 
     } else {
@@ -146,6 +146,16 @@ void MainWindowPresenter::exit()
   
   Application &app = Application::instance();
   AppStatus *app_status = app.status();
+
+  if (app_status && app_status->isActive(AppStatus::Flag::processing)) {
+    int i_ret = QMessageBox(QMessageBox::Warning,
+                            tr("Warning"),
+                            tr("Stop the current process before closing the program."),
+                            QMessageBox::Yes).exec();
+    if (i_ret == QMessageBox::Yes) {
+      return;
+    }
+  }
 
   if(app_status && app_status->isActive(AppStatus::Flag::project_modified)){
     int i_ret = QMessageBox(QMessageBox::Information,
@@ -198,7 +208,7 @@ void MainWindowPresenter::loadProject()
   Application &app = Application::instance();
   app.status()->activeFlag(AppStatus::Flag::project_exists, true);
 
-  QString project_path = mModel->projectPath();
+  QString project_path = QString::fromStdWString(mModel->projectPath().toWString());
 
   /// Se añade al historial de proyectos recientes
   app.addToHistory(project_path);
@@ -222,6 +232,7 @@ void MainWindowPresenter::loadProject()
   this->updateMatches();
   this->loadOrientation();
   this->loadDenseModel();
+  this->loadMesh();
   //this->loadDTM();
   //this->loadOrtho();
 }
@@ -233,6 +244,7 @@ void MainWindowPresenter::updateProject()
 
   //this->loadOrtho();
   //this->loadDTM();
+  this->loadMesh();
   this->loadDenseModel();
   this->loadOrientation();
   this->updateMatches();
@@ -270,7 +282,7 @@ void MainWindowPresenter::loadOrientation()
   Application &app = Application::instance();
   AppStatus *app_status = app.status();
 
-  QString sparse_model = mModel->sparseModel();
+  QString sparse_model = QString::fromStdWString(mModel->sparseModel().toWString());
 
   if (!sparse_model.isEmpty()){
     mView->setSparseModel(sparse_model);
@@ -289,7 +301,7 @@ void MainWindowPresenter::loadDenseModel()
 {
   Application &app = Application::instance();
 
-  QString dense_model = mModel->denseModel();
+  QString dense_model = QString::fromStdWString(mModel->denseModel().toWString());
 
   if (!dense_model.isEmpty()) {
     mView->setDenseModel(dense_model);
@@ -298,6 +310,22 @@ void MainWindowPresenter::loadDenseModel()
   } else {
     mView->deleteDenseModel();
     app.status()->activeFlag(AppStatus::Flag::dense_model, false);
+  }
+}
+
+void MainWindowPresenter::loadMesh()
+{
+  Application &app = Application::instance();
+
+  QString mesh = QString::fromStdWString(mModel->mesh().toWString());
+
+  if (!mesh.isEmpty()) {
+    mView->setMesh(mesh);
+
+    app.status()->activeFlag(AppStatus::Flag::mesh, true);
+  } else {
+    mView->deleteMesh();
+    app.status()->activeFlag(AppStatus::Flag::mesh, false);
   }
 }
 
@@ -551,12 +579,14 @@ void MainWindowPresenter::initSignalAndSlots()
 
   //connect(mView, &MainWindowView::openAboutDialog,    this, &MainWindowPresenter::openAboutDialog);
 
+  /* Visor de imagenes */
+
   connect(mView, &MainWindowView::open_image,    this, &MainWindowPresenter::openImage);
   connect(mView, &MainWindowView::select_image,  this, &MainWindowPresenter::activeImage);
   connect(mView, &MainWindowView::select_images, this, &MainWindowPresenter::activeImages);
   connect(mView, &MainWindowView::delete_images, this, &MainWindowPresenter::deleteImages);
 
-  /* Visor de imagenes */
+
 
   connect(mView, SIGNAL(open3DModel(QString, bool)),          this, SLOT(open3DModel(QString, bool)));
 
@@ -568,6 +598,10 @@ void MainWindowPresenter::initSignalAndSlots()
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
     status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+  });
+
+  connect(&Application::instance(), &Application::update_history, [&]() {
+    mStartPageWidget->setHistory(Application::instance().history());
   });
 }
 

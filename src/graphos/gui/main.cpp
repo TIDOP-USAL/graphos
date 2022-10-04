@@ -116,14 +116,15 @@
 #include "vld.h"
 #endif
 
-//#if defined WIN32
-//#include <Windows.h>
-//#endif
+#if defined WIN32
+#include <Windows.h>
+#endif
 
 using namespace graphos;
 
 int main(int argc, char *argv[])
 {
+
   Application app(argc, argv);
   app.setApplicationName("GRAPHOS");
   app.setApplicationDisplayName("GRAPHOS");
@@ -250,10 +251,10 @@ int main(int argc, char *argv[])
     }
   } else {
     //    TL_TODO("Añadir como opción")
-//#if defined WIN32
-//    HWND hwnd = GetConsoleWindow();
-//    ShowWindow(hwnd, 0);
-//#endif
+#if defined WIN32
+    HWND hwnd = GetConsoleWindow();
+    ShowWindow(hwnd, 0);
+#endif
 
     app.freeMemory();
 
@@ -417,6 +418,10 @@ int main(int argc, char *argv[])
     QObject::connect(&image_loader_component, &ImageLoaderComponent::image_loaded,
                      componentsManager.mainWindowPresenter(), &MainWindowPresenter::loadImage);
 #endif // GRAPHOS_HAVE_IMAGE_LOAD
+#ifdef GRAPHOS_HAVE_VIDEO_LOAD  
+    QObject::connect(&load_video_component, &LoadFromVideoComponent::frame_loaded,
+                     componentsManager.mainWindowPresenter(), &MainWindowPresenter::loadImage);
+#endif // GRAPHOS_HAVE_VIDEO_LOAD
 
 #ifdef GRAPHOS_HAVE_FEATEXTRACT
     QObject::connect(&feature_extractor_component, SIGNAL(features_extracted(size_t)),
@@ -443,6 +448,11 @@ int main(int argc, char *argv[])
     QObject::connect(&densification_component, SIGNAL(finished()),
                      componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
 #endif // GRAPHOS_HAVE_DENSE
+
+#ifdef GRAPHOS_HAVE_MESH
+    QObject::connect(&mesh_component, SIGNAL(finished()),
+                     componentsManager.mainWindowPresenter(), SLOT(loadMesh()));
+#endif // GRAPHOS_HAVE_MESH
 
 #ifdef GRAPHOS_HAVE_DTM
     QObject::connect(&dtm_component, SIGNAL(finished()),
@@ -485,9 +495,9 @@ int main(int argc, char *argv[])
 
     r = app.exec();
 
-    //#if defined WIN32
-    //    ShowWindow(hwnd, 1);
-    //#endif
+    #if defined WIN32
+        ShowWindow(hwnd, 1);
+    #endif
   }
 
 #ifdef HAVE_VLD

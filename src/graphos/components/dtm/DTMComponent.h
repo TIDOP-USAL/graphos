@@ -33,7 +33,7 @@ namespace graphos
 class DtmProcess;
 
 class DTMComponent
-  : public ProcessComponent
+  : public TaskComponent
 {
 
   Q_OBJECT
@@ -59,7 +59,7 @@ protected:
   void createCommand() override;
   void update() override;
 
-// ProcessComponent
+// TaskComponent
 
 protected slots:
 

@@ -29,6 +29,8 @@
 
 #include <QString>
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 
 namespace graphos
@@ -51,7 +53,7 @@ public:
   virtual const std::unordered_map<size_t, Image> &images() const = 0;
   virtual const std::map<int, Camera> &cameras() const = 0;
   virtual bool useCuda() const = 0;
-  virtual QString projectFolder() const = 0;
+  virtual tl::Path projectFolder() const = 0;
 
 public slots:
 

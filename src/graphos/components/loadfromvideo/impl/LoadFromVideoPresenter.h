@@ -29,11 +29,9 @@
 namespace graphos
 {
 
-class HelpDialog;
-
-
 class LoadFromVideoView;
 class LoadFromVideoModel;
+class Camera;
 
 class LoadFromVideoPresenterImp
   : public LoadFromVideoPresenter
@@ -51,11 +49,11 @@ public:
 
 public slots:
 
-  void setImages(const QStringList &files) override;
+  //void setImages(const QStringList &files) override;
 
 protected slots:
 
-  void addImage(int imageId, int cameraId) override;
+  void addImage(QString imagePath, int cameraId) override;
 
 
 // ProcessPresenter interface
@@ -86,7 +84,7 @@ private:
   LoadFromVideoView *mView;
   LoadFromVideoModel *mModel;
   HelpDialog *mHelp;
-
+  std::vector<Camera> mCameras;
 };
 
 } // namespace graphos

@@ -56,9 +56,9 @@ bool CreateProjectCommand::run()
 {
   bool r = false;
 
-  QString file_path;
+  tl::Path file_path;
   QString base_name;
-  QString project_path;
+  tl::Path project_path;
 
   try {
 
@@ -66,8 +66,8 @@ bool CreateProjectCommand::run()
     
     if (file_info.isRelative()) {
 
-      file_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-      file_path.append("/graphos/Projects/");
+      file_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
+      file_path.append("graphos").append("Projects");
 
       QString extension = file_info.suffix();
       QString file_name;
@@ -78,32 +78,41 @@ bool CreateProjectCommand::run()
         file_name = base_name = file_info.baseName();
         file_name.append(".xml");
       }
-      project_path = file_path.append(base_name);
-      file_path.append("/").append(file_name);
+      project_path = file_path.append(base_name.toStdWString());
+      file_path.append(file_name.toStdWString());
 
     } else {
       
       base_name = file_info.baseName();
-      file_path = mProjectName.c_str();
-      project_path = file_info.path();
+      file_path = mProjectName;
+      project_path = file_info.path().toStdWString();
 
     }
 
-    QString database_path = project_path;
-    database_path.append("/").append(base_name).append(".db");
+    tl::Path database_path = file_path;// project_path;
+    database_path.replaceExtension(".db");
+    //database_path.append("/").append(base_name).append(".db");
 
-    std::string s_path = project_path.toStdString();
-    QDir dir(project_path);
-    if (dir.exists()) {
+    //std::string s_path = project_path.toString();
+    //QDir dir(project_path);
+    //if (dir.exists()) {
+    //  if (mForceOverwrite) {
+    //    dir.removeRecursively();
+    //  } else {
+    //    throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
+    //  }
+    //}
+    
+    if (project_path.exists()) {
       if (mForceOverwrite) {
-        dir.removeRecursively();
+        tl::Path::removeDirectory(project_path);
       } else {
         throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
       }
     }
 
-    if (dir.mkpath(".") == false) {
-      throw std::runtime_error("Project directory cannot be created: " + s_path);
+    if (!project_path.createDirectories()) {
+      throw std::runtime_error("Project directory cannot be created: " + project_path.toString());
     }
 
     ProjectImp project;

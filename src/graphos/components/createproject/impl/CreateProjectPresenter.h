@@ -26,6 +26,8 @@
 
 #include "graphos/components/createproject/CreateProjectPresenter.h"
 
+#include <tidop/core/path.h>
+
 namespace graphos
 {
 
@@ -47,10 +49,10 @@ public:
 
 private:
 
-  QString projectFolder() const;
-  void createProjectFolderIfNoExist(const QString &projectFolder);
-  QString databasePath(const QString &projectFolder) const;
-  QString projectPath(const QString &projectFolder) const;
+  tl::Path projectFolder() const;
+  //void createProjectFolderIfNoExist(const QString &projectFolder);
+  tl::Path databasePath(const tl::Path &projectFolder) const;
+  tl::Path projectPath(const tl::Path &projectFolder) const;
 
 // CreateProjectPresenter interface
 
@@ -76,7 +78,7 @@ private:
   CreateProjectView *mView;
   CreateProjectModel *mModel;
   AppStatus *mAppStatus;
-  QString mProjectsDefaultPath;
+  tl::Path mProjectsDefaultPath;
   
 };
 

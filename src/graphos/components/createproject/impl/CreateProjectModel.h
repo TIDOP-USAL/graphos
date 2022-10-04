@@ -52,16 +52,16 @@ public:
 
   QString projectName() const override;
   QString projectDescription() const override;
-  QString projectFolder() const override;
-  QString projectPath() const override;
+  tl::Path projectFolder() const override;
+  tl::Path projectPath() const override;
 
 public slots:
 
   void setProjectName(const QString &name) override;
   void setProjectDescription(const QString &projectDescription) override;
-  void setProjectFolder(const QString &dir) override;
-  void setDatabase(const QString &database) override;
-  void saveAs(const QString &file) override;
+  void setProjectFolder(const tl::Path &folder) override;
+  void setDatabase(const tl::Path &database) override;
+  void saveAs(const tl::Path &file) override;
 
 // Model interface
 
@@ -76,7 +76,7 @@ public slots:
 private:
 
   Project *mProject;
-  QString mPrjFile;
+  tl::Path mPrjFile;
 
 
 };

@@ -43,7 +43,7 @@ OpenProjectModelImp::~OpenProjectModelImp()
 {
 }
 
-QString OpenProjectModelImp::graphosProjectsDirectory() const
+tl::Path OpenProjectModelImp::graphosProjectsDirectory() const
 {
   return Application::instance().documentsLocation();
 }
@@ -53,7 +53,7 @@ void OpenProjectModelImp::saveProject()
   mProject->save(mProject->projectPath());
 }
 
-void OpenProjectModelImp::loadProject(const QString &projectPath)
+void OpenProjectModelImp::loadProject(const tl::Path &projectPath)
 {
   mProject->load(projectPath);
 }

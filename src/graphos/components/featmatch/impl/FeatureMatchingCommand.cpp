@@ -26,7 +26,7 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/features/matching.h"
 #include "graphos/core/project.h"
-#include "graphos/components/featmatch/impl/FeatureMatchingProcess.h"
+//#include "graphos/components/featmatch/impl/FeatureMatchingTask.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -97,13 +97,12 @@ bool FeatureMatchingCommand::run()
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
     TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
-    QString project_file = QString::fromStdWString(mProjectFile.toWString());
     ProjectImp project;
-    project.load(project_file);
-    QString database_file = project.database();
+    project.load(mProjectFile);
+    tl::Path database_file = project.database();
 
     {
-      colmap::Database database(database_file.toStdString());
+      colmap::Database database(database_file.toString());
       database.ClearMatches();
       database.ClearTwoViewGeometries();
       database.Close();
@@ -129,38 +128,21 @@ bool FeatureMatchingCommand::run()
       }
     }
 
-    FeatureMatchingProcess featmatching_process(project.database(),
-                                                !mDisableCuda,
-                                                spatial_matching,
-                                                feature_matching_properties);
-
-    featmatching_process.run();
-
-    //{
-    //  colmap::Database database(database_file.toStdString());
-    //  std::vector<colmap::Image> db_images = database.ReadAllImages();
-    //  colmap::image_t image_id_l = 0;
-    //  colmap::image_t image_id_r = 0;
-    //  for (size_t i = 0; i < db_images.size(); i++) {
-    //    image_id_l = db_images[i].ImageId();
-    //    for (size_t j = 0; j < i; j++) {
-    //      image_id_r = db_images[j].ImageId();
-
-    //      colmap::FeatureMatches matches = database.ReadMatches(image_id_l, image_id_r);
-    //      if (matches.size() > 0) {
-    //        QString path_left = QFileInfo(QString::fromStdString(db_images[i].Name())).baseName();
-    //        QString path_right = QFileInfo(QString::fromStdString(db_images[j].Name())).baseName();
-    //        project.addMatchesPair(path_left, path_right);
-    //      }
-    //    }
-    //  }
-    //  database.Close();
-    //}
-    
+    if (spatial_matching) {
+      SpatialMatchingTask featmatching_process(project.database(),
+                                               !mDisableCuda,
+                                               feature_matching_properties);
+      featmatching_process.run();
+    } else {
+      FeatureMatchingTask featmatching_process(project.database(),
+                                               !mDisableCuda,
+                                               feature_matching_properties);
+      featmatching_process.run();
+    }
 
     project.setFeatureMatching(feature_matching_properties);
     writeMatchPairs(&project);
-    project.save(project_file);
+    project.save(mProjectFile);
 
   } catch (const std::exception &e) {
 
@@ -174,8 +156,8 @@ bool FeatureMatchingCommand::run()
 
 void FeatureMatchingCommand::writeMatchPairs(Project *project)
 {
-  QString database_file = project->database();
-  colmap::Database database(database_file.toStdString());
+  tl::Path database_file = project->database();
+  colmap::Database database(database_file.toString());
   std::vector<colmap::Image> db_images = database.ReadAllImages();
   colmap::image_t colmap_image_id_l = 0;
   colmap::image_t colmap_image_id_r = 0;

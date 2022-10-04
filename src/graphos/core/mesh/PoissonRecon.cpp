@@ -121,8 +121,8 @@ void PoissonReconParameters::clear()
 /* PoissonReconTask */
 
 
-PoissonReconTask::PoissonReconTask(const QString &input,
-                                   const QString &output)
+PoissonReconTask::PoissonReconTask(const tl::Path &input,
+                                   const tl::Path &output)
   : tl::TaskBase(),
     PoissonReconParameters(),
     mInput(input),
@@ -156,8 +156,8 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
     std::string cmd("\"");
     cmd.append(app_path.parentPath().toString());
     cmd.append("\\PoissonRecon.exe\" ");
-    cmd.append("--in \"").append(mInput.toStdString());
-    cmd.append("\" --out \"").append(mOutput.toStdString());
+    cmd.append("--in \"").append(mInput.toString());
+    cmd.append("\" --out \"").append(mOutput.toString());
     cmd.append("\" --depth ").append(std::to_string(depth()));
     //cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
     //cmd.append(" --width ").append(std::to_string(width()));

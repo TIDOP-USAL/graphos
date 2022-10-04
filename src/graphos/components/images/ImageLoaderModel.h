@@ -24,6 +24,8 @@
 #ifndef GRAPHOS_LOADER_MODEL_INTERFACE_H
 #define GRAPHOS_LOADER_MODEL_INTERFACE_H
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 #include "graphos/core/camera/Camera.h"
 
@@ -47,7 +49,7 @@ public:
   virtual void setProjectCRS(const QString &crs) = 0;
   virtual void addImage(const Image &image) = 0;
   virtual bool existImage(size_t imageId) const = 0;
-  virtual QString imagesDirectory() const = 0;
+  virtual tl::Path imagesDirectory() const = 0;
   virtual const std::map<int, Camera> &cameras() const = 0;
   virtual int addCamera(const Camera &camera) = 0;
   virtual int cameraID(const Camera &camera) const = 0;

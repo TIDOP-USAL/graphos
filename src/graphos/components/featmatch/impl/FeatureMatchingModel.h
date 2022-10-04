@@ -50,12 +50,13 @@ public:
 
   std::shared_ptr<FeatureMatching> featureMatching() const override;
   void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
-  QString database() const override;
+  tl::Path database() const override;
   bool useCuda() const override;
   bool spatialMatching() const override;
   void writeMatchPairs() override;
   bool existsMatches() const override;
   void clearProject() override;
+  bool imagesCount() const override;
 
 // Model interface
 

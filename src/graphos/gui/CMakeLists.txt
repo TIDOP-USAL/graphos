@@ -87,7 +87,7 @@ qt5_add_translation(GRAPHOS_QM_FILES ${GRAPHOS_TS_FILES})
 
 QT5_ADD_RESOURCES(UI_GRAPHOS_RES 
                   ${GRAPHOS_RESOURCES} 
-                  ${CMAKE_SOURCE_DIR}/res/icones.qrc)
+                  #[[${CMAKE_SOURCE_DIR}/res/icones.qrc]])
 
 add_executable(${PROJECT_NAME}
 #add_executable(${PROJECT_NAME} WIN32
@@ -155,7 +155,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_ORTHOPHOTO}>:Graphos::Orthophoto>
                       $<$<BOOL:${GRAPHOS_HAVE_SETTINGS}>:Graphos::Settings>
                       $<$<BOOL:${GRAPHOS_HAVE_PROPERTIES}>:Graphos::Properties>
-                      $<$<BOOL:${GRAPHOS_HAVE_PROPERTIES}>:Graphos::VideoLoad>
+                      $<$<BOOL:${GRAPHOS_HAVE_VIDEO_LOAD}>:Graphos::VideoLoad>
                       CSF
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}
@@ -167,13 +167,13 @@ target_link_libraries(${PROJECT_NAME}
                       ${OPENGL_glu_LIBRARY}
                       ${GDAL_LIBRARY} 
                       ${PROJ4_LIBRARY}
-                      ${Boost_FILESYSTEM_LIBRARY}
-                      ${Boost_SYSTEM_LIBRARY}
-                      ${Boost_THREAD_LIBRARY}
-                      ${Boost_DATE_TIME_LIBRARY}
-                      ${Boost_CHRONO_LIBRARY}
-                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                      ${Boost_REGEX_LIBRARY}
+                      #${Boost_FILESYSTEM_LIBRARY}
+                      #${Boost_SYSTEM_LIBRARY}
+                      #${Boost_THREAD_LIBRARY}
+                      #${Boost_DATE_TIME_LIBRARY}
+                      #${Boost_CHRONO_LIBRARY}
+                      #${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      #${Boost_REGEX_LIBRARY}
                       ${CLOUDCOMPARE_LIBRARIES}
                       $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)
 

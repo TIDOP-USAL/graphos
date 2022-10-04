@@ -93,15 +93,20 @@ void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Process finished"));
   }
+
+  tl::Path mesh = mModel->projectDir();
+  mesh.append("dense").append("mesh.pr.ply");
+
+  mModel->setMesh(mesh);
 }
 
 std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
 {
   std::unique_ptr<tl::Task> process;
 
-  QString point_cloud = mModel->denseModel();
-  QString mesh = mModel->projectDir();
-  mesh.append("\\dense\\mesh.pr.ply");
+  tl::Path point_cloud = mModel->denseModel();
+  tl::Path mesh = mModel->projectDir();
+  mesh.append("dense").append("mesh.pr.ply");
 
   auto parameters = mModel->parameters();
   parameters->setBoundaryType(mView->boundaryType());

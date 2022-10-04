@@ -25,7 +25,7 @@
 
 #include "graphos/components/images/ImageLoaderModel.h"
 #include "graphos/components/images/ImageLoaderView.h"
-#include "graphos/components/images/impl/ImageLoaderProcess.h"
+#include "graphos/components/images/impl/ImageLoaderTask.h"
 #include "graphos/core/process/Progress.h"
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
@@ -63,7 +63,7 @@ void ImageLoaderPresenterImp::initSignalAndSlots()
 
 void ImageLoaderPresenterImp::open()
 {
-  mView->setImagesDirectory(mModel->imagesDirectory());
+  mView->setImagesDirectory(QString::fromStdWString(mModel->imagesDirectory().toWString()));
   mView->exec();
 }
 
@@ -123,10 +123,10 @@ std::unique_ptr<tl::Task> ImageLoaderPresenterImp::createProcess()
     mCameras.push_back(camera.second);
   }
 
-  image_loader_process = std::make_unique<LoadImagesProcess>(&mImages, &mCameras, "OpenCV 1", mModel->projectCRS());
+  image_loader_process = std::make_unique<LoadImagesTask>(&mImages, &mCameras, "OpenCV 1", mModel->projectCRS());
 
-  connect(dynamic_cast<LoadImagesProcess *>(image_loader_process.get()),
-          &LoadImagesProcess::imageAdded, 
+  connect(dynamic_cast<LoadImagesTask *>(image_loader_process.get()),
+          &LoadImagesTask::imageAdded, 
           this, &ImageLoaderPresenterImp::addImage);
 
   if (progressHandler()) {

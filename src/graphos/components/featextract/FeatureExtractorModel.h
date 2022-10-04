@@ -26,6 +26,8 @@
 
 #include <unordered_map>
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 #include "graphos/core/image.h"
 
@@ -46,7 +48,7 @@ public:
 
   virtual std::shared_ptr<Feature> featureExtractor() const = 0;
   virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
-  virtual QString database() const = 0;
+  virtual tl::Path database() const = 0;
   virtual void addFeatures(size_t imageId, const QString &featuresFile) = 0;
   virtual bool useCuda() const = 0;
   virtual const std::unordered_map<size_t, Image> &images() const = 0;

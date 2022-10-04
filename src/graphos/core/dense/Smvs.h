@@ -103,7 +103,7 @@ public:
                 const std::map<int, Camera> &cameras,
                 const std::unordered_map<size_t, CameraPose> &poses,
                 const std::vector<GroundPoint> &groundPoints,
-                const QString &outputPath,
+                const tl::Path &outputPath,
                 bool cuda = false);
   ~SmvsDensifier() override;
 

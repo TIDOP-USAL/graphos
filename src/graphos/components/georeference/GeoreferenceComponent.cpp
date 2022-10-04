@@ -38,7 +38,7 @@ namespace graphos
 {
 
 GeoreferenceComponent::GeoreferenceComponent(Application *application)
-  : ProcessComponent(application)
+  : TaskComponent(application)
 {
   init();
 }
@@ -95,7 +95,7 @@ void GeoreferenceComponent::update()
 
 void GeoreferenceComponent::onRunning()
 {
-  ProcessComponent::onRunning();
+  TaskComponent::onRunning();
 }
 
 void GeoreferenceComponent::onFinished()
@@ -105,7 +105,7 @@ void GeoreferenceComponent::onFinished()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFinished();
+  TaskComponent::onFinished();
   app_status->activeFlag(AppStatus::Flag::absolute_oriented, true);
 }
 
@@ -116,7 +116,7 @@ void GeoreferenceComponent::onFailed()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFailed();
+  TaskComponent::onFailed();
   app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
 }
 

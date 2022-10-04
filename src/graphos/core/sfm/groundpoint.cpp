@@ -504,6 +504,8 @@ public:
   {
     try {
 
+      TL_ASSERT(path.exists(), "File not exists");
+
       FILE *file = std::fopen(path.toString().c_str(), "rb");
 
       TL_ASSERT(file, "File not open");

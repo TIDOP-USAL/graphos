@@ -28,6 +28,7 @@
 
 #include <tidop/core/messages.h>
 #include <tidop/core/console.h>
+#include <tidop/core/path.h>
 
 #include <QApplication>
 
@@ -72,7 +73,7 @@ public:
   Application operator=(const Application &) = delete;
   Application operator=(Application &&) = delete;
 
-  QString documentsLocation() const;
+  tl::Path documentsLocation() const;
   AppStatus *status();
   tl::MessageManager *messageManager();
   Project *project();

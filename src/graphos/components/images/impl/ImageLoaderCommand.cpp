@@ -24,7 +24,7 @@
 
 #include "ImageLoaderCommand.h"
 
-#include "graphos/components/images/impl/ImageLoaderProcess.h"
+#include "graphos/components/images/impl/ImageLoaderTask.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -90,10 +90,8 @@ bool ImageLoaderCommand::run()
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
     TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
-    QString project_file = QString::fromStdWString(mProjectFile.toWString());
-
     ProjectImp project;
-    project.load(project_file);
+    project.load(mProjectFile);
 
     std::vector<QString> image_list;
     image_list.reserve(1000);
@@ -159,9 +157,9 @@ bool ImageLoaderCommand::run()
         cameras.push_back(camera.second);
       }
 
-      LoadImagesProcess image_loader_process(&images, &cameras, camera_types[mCameraId], project.crs());
+      LoadImagesTask image_loader_process(&images, &cameras, camera_types[mCameraId], project.crs());
       
-      connect(&image_loader_process, &LoadImagesProcess::imageAdded,
+      connect(&image_loader_process, &LoadImagesTask::imageAdded,
               [&](int imageId, int cameraId) {
                 Image image = images[imageId];
                 Camera camera = cameras[cameraId];
@@ -193,7 +191,7 @@ bool ImageLoaderCommand::run()
 
     }
 
-    project.save(project_file);
+    project.save(mProjectFile);
 
   } catch (const std::exception &e) {
 

@@ -89,17 +89,17 @@ PoissonReconParameters *MeshModelImp::parameters() const
   return mParameters;
 }
 
-QString MeshModelImp::denseModel() const
+tl::Path MeshModelImp::denseModel() const
 {
   return mProject->denseModel();
 }
 
-QString MeshModelImp::projectDir() const
+tl::Path MeshModelImp::projectDir() const
 {
   return mProject->projectFolder();
 }
 
-void MeshModelImp::setMesh(const QString &mesh)
+void MeshModelImp::setMesh(const tl::Path &mesh)
 {
   mProject->setMeshPath(mesh);
 }

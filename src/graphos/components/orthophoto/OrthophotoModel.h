@@ -26,6 +26,8 @@
 
 #include <array>
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 
 namespace graphos
@@ -50,8 +52,8 @@ public:
  
   virtual std::vector<Image> images() const = 0;
   virtual std::map<int, Camera> cameras() const = 0;
-  virtual QString orthoPath() const = 0;
-  virtual QString dtmPath() const = 0;
+  virtual tl::Path orthoPath() const = 0;
+  virtual tl::Path dtmPath() const = 0;
   virtual QString epsCode() const = 0;
   virtual void clearProject() = 0;
   virtual bool useCuda() const = 0;

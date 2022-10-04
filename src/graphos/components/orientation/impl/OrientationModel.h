@@ -46,25 +46,23 @@ public:
 public:
 
   bool calibratedCamera() const override;
-  void setSparseModel(const QString &sparseModel) override;
-  void setOffset(const QString &offset) override;
+  void setSparseModel(const tl::Path &sparseModel) override;
+  void setOffset(const tl::Path &offset) override;
+  void setGroundPoints(const tl::Path &offset) override;
   bool isPhotoOriented(size_t imageId) const override;
   CameraPose photoOrientation(size_t imageId) const override;
   void addPhotoOrientation(size_t imageId, 
-                            const CameraPose &orientation) override;
-  QString database() const override;
-  QString projectPath() const override;
+                           const CameraPose &orientation) override;
+  tl::Path database() const override;
+  tl::Path projectFolder() const override;
   bool gpsPositions() const override;
   bool rtkOrientations() const override;
-  QString reconstructionPath() const override;
+  tl::Path reconstructionPath() const override;
   TL_DEPRECATED("", "2.0")
-  void setReconstructionPath(const QString &reconstructionPath) override;
-  //std::map<QString, std::array<double, 3>> cameraPositions() const override;
+  void setReconstructionPath(const tl::Path &reconstructionPath) override;
   void clearProject() override;
-
   const std::map<int, Camera> &cameras() const override;
   bool updateCamera(int id, const Camera &camera) override;
-
   const std::unordered_map<size_t, Image> &images() const override;
 
 // Model interface

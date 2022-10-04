@@ -51,7 +51,7 @@ namespace graphos
 class Dtm;
 
 /*!
- * \brief Interfaz Project
+ * \brief Interface Project
  */
 class Project
 {
@@ -89,19 +89,19 @@ public:
    * \brief Devuelve el directorio del proyecto
    * \return Directorio del proyecto
    */
-  virtual QString projectFolder() const = 0;
+  virtual tl::Path projectFolder() const = 0;
 
   /*!
    * \brief Establece el directorio del proyecto
    * \param[in] path Directorio del proyecto
    */
-  virtual void setProjectFolder(const QString &dir) = 0;
+  virtual void setProjectFolder(const tl::Path &folder) = 0;
 
   /*!
    * \brief Devuelve el ruta del proyecto
    * \return Ruta del proyecto
    */
-  virtual QString projectPath() const = 0;
+  virtual tl::Path projectPath() const = 0;
 
   /*!
    * \brief Versión del fichero de proyecto
@@ -115,13 +115,13 @@ public:
    * Base de datos de Colmap
    * \return Ruta de la base de datos
    */
-  virtual QString database() const = 0;
+  virtual tl::Path database() const = 0;
 
   /*!
    * \brief Establece la base de datos
    * \param[in] database Base de datos
    */
-  virtual void setDatabase(const QString &database) = 0;
+  virtual void setDatabase(const tl::Path &database) = 0;
 
   /*!
    * \brief Sistema de referencia (código EPSG)
@@ -203,12 +203,14 @@ public:
   virtual void removeMatchesPair() = 0;
   virtual void removeMatchesPair(size_t imageLeftId) = 0;
   
-  virtual QString sparseModel() const = 0;
-  virtual void setSparseModel(const QString &sparseModel) = 0;
-  virtual QString offset() const = 0;
-  virtual void setOffset(const QString &offset) = 0;
-  virtual QString reconstructionPath() const = 0;
-  virtual void setReconstructionPath(const QString &reconstructionPath) = 0;
+  virtual tl::Path sparseModel() const = 0;
+  virtual void setSparseModel(const tl::Path &sparseModel) = 0;
+  virtual tl::Path offset() const = 0;
+  virtual void setOffset(const tl::Path &offset) = 0;
+  virtual tl::Path groundPoints() const = 0;
+  virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
+  virtual tl::Path reconstructionPath() const = 0;
+  virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
   virtual bool isPhotoOriented(size_t imageId) const = 0;
   virtual CameraPose photoOrientation(size_t imageId) const = 0;
   virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
@@ -217,24 +219,24 @@ public:
   
   virtual std::shared_ptr<Densification> densification() const = 0;
   virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
-  virtual QString denseModel() const = 0;
-  virtual void setDenseModel(const QString &denseModel) = 0;
+  virtual tl::Path denseModel() const = 0;
+  virtual void setDenseModel(const tl::Path &denseModel) = 0;
   virtual void clearDensification() = 0;
 
   virtual std::shared_ptr<PoissonReconParameters> meshParameters() const = 0;
   virtual void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) = 0;
-  virtual QString meshPath() const = 0;
-  virtual void setMeshPath(const QString &meshPath) = 0;
+  virtual tl::Path meshPath() const = 0;
+  virtual void setMeshPath(const tl::Path &meshPath) = 0;
   virtual void clearMesh() = 0;
 
   virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
   virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
-  virtual QString dtmPath() const = 0;
-  virtual void setDtmPath(const QString &dtmPath) = 0;
+  virtual tl::Path dtmPath() const = 0;
+  virtual void setDtmPath(const tl::Path &dtmPath) = 0;
   virtual void clearDTM() = 0;
 
-  virtual QString orthophotoPath() const = 0;
-  virtual void setOrthophotoPath(const QString &orthophotoPath) = 0;
+  virtual tl::Path orthophotoPath() const = 0;
+  virtual void setOrthophotoPath(const tl::Path &orthophotoPath) = 0;
   virtual void clearOrthophotoDTM() = 0;
 
   /*!
@@ -247,71 +249,28 @@ public:
    * \param[in] file Ruta del fichero de proyecto
    * \return
    */
-  virtual bool load(const QString &file) = 0;
+  virtual bool load(const tl::Path &file) = 0;
 
   /*!
    * \brief Guarda el proyecto
    * \param file
    * \return
    */
-  virtual bool save(const QString &file) = 0;
+  virtual bool save(const tl::Path &file) = 0;
 
   /*!
    * \brief checkOldVersion
    * \param file
    * \return
    */
-  virtual bool checkOldVersion(const QString &file) const = 0;
+  virtual bool checkOldVersion(const tl::Path &file) const = 0;
 
   /*!
    * \brief Crea una copia de un proyecto antiguo con el mismo nombre y un sufijo con la versión
    * \param[in] file
    */
-  virtual void oldVersionBak(const QString &file) const = 0;
+  virtual void oldVersionBak(const tl::Path &file) const = 0;
 };
-
-
-///*!
-// * \brief Interfaz para las operaciones de lectura y escritura del proyecto
-// */
-//class GRAPHOS_EXPORT ProjectController
-//{
-
-//public:
-
-//  ProjectController() {}
-//  virtual ~ProjectController() = default;
-
-//  /*!
-//   * \brief read
-//   * \param[in] file Ruta del fichero de proyecto
-//   * \param[out] prj
-//   * \return
-//   */
-//  virtual bool read(const QString &file, Project &prj) = 0;
-
-//  /*!
-//   * \brief write
-//   * \param prj
-//   * \param file
-//   * \return
-//   */
-//  virtual bool write(const QString &file, const Project &prj) const = 0;
-
-//  /*!
-//   * \brief checkOldVersion
-//   * \param file
-//   * \return
-//   */
-//  virtual bool checkOldVersion(const QString &file) const = 0;
-
-//  /*!
-//   * \brief Crea una copia de un proyecto antiguo con el mismo nombre y un sufijo con la versión
-//   * \param[in] file
-//   */
-//  virtual void oldVersionBak(const QString &file) const = 0;
-
-//};
 
 
 class ProjectImp
@@ -331,12 +290,12 @@ public:
   void setName(const QString &name) override;
   QString description() const override;
   void setDescription(const QString &description) override;
-  QString projectFolder() const override;
-  void setProjectFolder(const QString &dir) override;
-  QString projectPath() const override;
+  tl::Path projectFolder() const override;
+  void setProjectFolder(const tl::Path &folder) override;
+  tl::Path projectPath() const override;
   QString version() const override;
-  QString database() const override;
-  void setDatabase(const QString &database) override;
+  tl::Path database() const override;
+  void setDatabase(const tl::Path &database) override;
   QString crs() const override;
   void setCrs(const QString &crs) override;
   void addImage(const Image &img) override;
@@ -374,12 +333,14 @@ public:
   void removeMatchesPair() override;
   void removeMatchesPair(size_t imageLeftId) override;
   
-  QString sparseModel() const override;
-  void setSparseModel(const QString & sparseModel) override;
-  QString offset() const override;
-  void setOffset(const QString &offset) override;
-  QString reconstructionPath() const override;
-  void setReconstructionPath(const QString &reconstructionPath) override;
+  tl::Path sparseModel() const override;
+  void setSparseModel(const tl::Path & sparseModel) override;
+  tl::Path offset() const override;
+  void setOffset(const tl::Path &offset) override;
+  tl::Path groundPoints() const override;
+  void setGroundPoints(const tl::Path &groundPoints) override;
+  tl::Path reconstructionPath() const override;
+  void setReconstructionPath(const tl::Path &reconstructionPath) override;
   bool isPhotoOriented(size_t imageId) const override;
   CameraPose photoOrientation(size_t imageId) const override;
   const std::unordered_map<size_t, CameraPose> &poses() const override;
@@ -388,32 +349,32 @@ public:
   
   std::shared_ptr<Densification> densification() const override;
   void setDensification(const std::shared_ptr<Densification> &densification) override;
-  QString denseModel() const override;
-  void setDenseModel(const QString &denseModel) override;
+  tl::Path denseModel() const override;
+  void setDenseModel(const tl::Path &denseModel) override;
   void clearDensification() override;
   
   std::shared_ptr<PoissonReconParameters> meshParameters() const override;
   void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) override;
-  QString meshPath() const override;
-  void setMeshPath(const QString &meshPath) override;
+  tl::Path meshPath() const override;
+  void setMeshPath(const tl::Path &meshPath) override;
   void clearMesh() override;
 
   std::shared_ptr<Dtm> dtmMethod() const override;
   void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
-  QString dtmPath() const override;
-  void setDtmPath(const QString &dtmPath) override;
+  tl::Path dtmPath() const override;
+  void setDtmPath(const tl::Path &dtmPath) override;
   void clearDTM() override;
 
-  QString orthophotoPath() const override;
-  void setOrthophotoPath(const QString &orthophotoPath) override;
+  tl::Path orthophotoPath() const override;
+  void setOrthophotoPath(const tl::Path &orthophotoPath) override;
   void clearOrthophotoDTM() override;
 
   void clear() override;
 
-  bool load(const QString &file) override;
-  bool save(const QString &file) override;
-  bool checkOldVersion(const QString &file) const override;
-  void oldVersionBak(const QString &file) const override;
+  bool load(const tl::Path &file) override;
+  bool save(const tl::Path &file) override;
+  bool checkOldVersion(const tl::Path &file) const override;
+  void oldVersionBak(const tl::Path &file) const override;
 
 protected:
 
@@ -439,6 +400,7 @@ protected:
   void readReconstructionPath(QXmlStreamReader &stream);
   void readOrientationSparseModel(QXmlStreamReader &stream);
   void readOffset(QXmlStreamReader &stream);
+  void readGroundPoints(QXmlStreamReader &stream);
   void readPhotoOrientations(QXmlStreamReader &stream);
   void readDensification(QXmlStreamReader &stream);
   void readDenseModel(QXmlStreamReader &stream);
@@ -477,6 +439,7 @@ protected:
   void writeReconstructionPath(QXmlStreamWriter &stream) const;
   void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
   void writeOffset(QXmlStreamWriter &stream) const;
+  void writeGroundPoints(QXmlStreamWriter &stream) const;
   void writePhotoOrientations(QXmlStreamWriter &stream) const;
   void writeDensification(QXmlStreamWriter &stream) const;
   void writeDenseModel(QXmlStreamWriter &stream) const;
@@ -498,10 +461,10 @@ protected:
 
   QString mName;
   QString mDescription;
-  QString mProjectFolder;
-  QString mProjectPath;
+  tl::Path mProjectFolder;
+  tl::Path mProjectPath;
   QString mVersion;
-  QString mDatabase;
+  tl::Path mDatabase;
   QString mCrs;
 
   std::unordered_map<size_t, Image> mImages;
@@ -512,18 +475,19 @@ protected:
   std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
   std::unordered_map<size_t, CameraPose> mPhotoOrientation;
 
-  QString mSparseModel;
-  QString mOffset;
-  QString mReconstructionPath;
+  tl::Path mSparseModel;
+  tl::Path mOffset;
+  tl::Path mGroundPoints;
+  tl::Path mReconstructionPath;
   std::shared_ptr<Densification> mDensification;
-  QString mDenseModel;
+  tl::Path mDenseModel;
   std::shared_ptr<PoissonReconParameters> mMeshParameters;
-  QString mMeshModel;
+  tl::Path mMeshModel;
   std::shared_ptr<Dtm> mDtmMethod;
-  QString mDTM;
+  tl::Path mDTM;
   static std::mutex sMutex;
   int mCameraCount;
-  QString mOrthophoto;
+  tl::Path mOrthophoto;
 };
 
 } // end namespace graphos

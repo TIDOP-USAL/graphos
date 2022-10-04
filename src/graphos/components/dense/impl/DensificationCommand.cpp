@@ -126,15 +126,13 @@ bool DensificationCommand::run()
     TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
     TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
-    QString project_file = QString::fromStdWString(mProjectFile.toWString());
-
     mProject = new ProjectImp;
-    mProject->load(project_file);
+    mProject->load(mProjectFile);
 
-    tl::Path dense_path(mProject->projectFolder().toStdWString());
+    tl::Path dense_path(mProject->projectFolder());
     dense_path.append("dense");
 
-    tl::Path ground_points_path(mProject->reconstructionPath().toStdWString());
+    tl::Path ground_points_path(mProject->reconstructionPath());
     ground_points_path.append("ground_points.bin");
 
     std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
@@ -163,7 +161,7 @@ bool DensificationCommand::run()
                                                       mProject->cameras(),
                                                       mProject->poses(),
                                                       ground_points,
-                                                      QString::fromStdWString(dense_path.toWString()),
+                                                      dense_path,
                                                       mProject->database(),
                                                       !mDisableCuda);
 
@@ -192,7 +190,7 @@ bool DensificationCommand::run()
                                                   mProject->cameras(),
                                                   mProject->poses(),
                                                   ground_points,
-                                                  QString::fromStdWString(dense_path.toWString()),
+                                                  dense_path,
                                                   !mDisableCuda);
 
       smvs->setInputImageScale(mSmvsInputImageScale);
@@ -218,7 +216,7 @@ bool DensificationCommand::run()
                                                 mProject->cameras(),
                                                 mProject->poses(),
                                                 ground_points,
-                                                QString::fromStdWString(dense_path.toWString()),
+                                                dense_path,
                                                 mProject->database(),
                                                 !mDisableCuda);
 
@@ -236,7 +234,7 @@ bool DensificationCommand::run()
 
     mProject->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
     mProject->setDenseModel(densifier->denseModel());
-    mProject->save(project_file);
+    mProject->save(mProjectFile);
 
     chrono.stop();
 

@@ -42,13 +42,11 @@
 #include <QFileInfo>
 
 #include <iomanip>
-//#include <boost/filesystem.hpp>
-//namespace fs = boost::filesystem;
 
 namespace graphos
 {
 
-void exportToColmap(const QString &databasePath,
+void exportToColmap(const tl::Path &databasePath,
                     const std::unordered_map<size_t, Image> &images,
                     const std::map<int, Camera> &cameras,
                     const std::unordered_map<size_t, CameraPose> &poses,
@@ -59,7 +57,7 @@ void exportToColmap(const QString &databasePath,
   try {
 
     colmap::Database database;
-    database.Open(databasePath.toStdString());
+    database.Open(databasePath.toString());
 
     //colmap::DatabaseCache database_cache;
     //database_cache.Load(database, 15, false, std::unordered_set<std::string>{});
@@ -477,7 +475,7 @@ GeoreferenceProcess::GeoreferenceProcess(const std::unordered_map<size_t, Image>
                                          const std::unordered_map<size_t, CameraPose> &poses,
                                          const std::vector<GroundPoint> &groundPoints,
                                          const std::vector<GroundControlPoint> &groundControlPoints,
-                                         const QString &database)
+                                         const tl::Path &database)
   : tl::TaskBase(),
     mImages(images),
     mCameras(cameras),
@@ -528,7 +526,7 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
 
 
     colmap::Database database;
-    database.Open(mDatabase.toStdString());
+    database.Open(mDatabase.toString());
 
     const auto &colmap_images = database.ReadAllImages();
 
@@ -612,7 +610,7 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
       }
 
       //std::string path = mOutputPath.toStdString();
-      tl::Path offset_path(mDatabase.toStdString());
+      tl::Path offset_path(mDatabase);
       offset_path.replaceFileName("offset.txt");
       //if (!fs::exists(dir)) {
       //  if (!fs::create_directories(dir)) {

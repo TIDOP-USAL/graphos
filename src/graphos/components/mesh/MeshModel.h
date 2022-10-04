@@ -26,6 +26,8 @@
 
 #include <array>
 
+#include <tidop/core/path.h>
+
 #include "graphos/core/mvp.h"
 
 namespace graphos
@@ -46,9 +48,9 @@ public:
   
   virtual PoissonReconParameters *parameters() const = 0;
 
-  virtual QString denseModel() const = 0;
-  virtual QString projectDir() const = 0;
-  virtual void setMesh(const QString &mesh) = 0;
+  virtual tl::Path denseModel() const = 0;
+  virtual tl::Path projectDir() const = 0;
+  virtual void setMesh(const tl::Path &mesh) = 0;
 
 public slots:
 

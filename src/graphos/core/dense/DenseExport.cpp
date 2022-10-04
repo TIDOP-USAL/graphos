@@ -31,7 +31,7 @@
 namespace graphos
 {
 
-DenseExport::DenseExport(const std::string &denseModel)
+DenseExport::DenseExport(const tl::Path &denseModel)
   : mDenseModel(denseModel),
     mOffset()
 {
@@ -47,7 +47,6 @@ void DenseExport::exportToCSV(const std::string &csv,
                               const tl::EnumFlags<DenseExport::Fields> &flag,
                               tl::BoundingBox<tl::Point3<double>> *bbox)
 {
-  //std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel.toStdString());
 
   std::ofstream stream(csv, std::ios::trunc);
 
@@ -65,9 +64,7 @@ void DenseExport::exportToCSV(const std::string &csv,
     }
     stream << std::endl;
 
-    std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel);
-
-    //tl::BoundingBox<tl::Point3<double>> bounding_box;
+    std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel.toString());
 
     for (size_t i = 0; i < points.size(); i++){
 

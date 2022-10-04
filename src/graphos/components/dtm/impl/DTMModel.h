@@ -22,14 +22,14 @@ public:
 // DtmModel interface
 
   std::array<double, 3> offset() const override;
-  QString projectPath() const override;
-  QString denseModel() const override;
+  tl::Path projectPath() const override;
+  tl::Path denseModel() const override;
   QString crs() const override;
 
   std::shared_ptr<Dtm> dtmMethod() const override;
   void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
-  QString dtmPath() const override;
-  void setDtmPath(const QString &dtmPath) override;
+  tl::Path dtmPath() const override;
+  void setDtmPath(const tl::Path &dtmPath) override;
 
 // Model interface
 

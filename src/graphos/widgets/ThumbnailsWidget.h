@@ -49,11 +49,6 @@ public:
   void setActiveImage(size_t imageId);
   void setActiveImages(const std::vector<size_t> &imageIds);
 
-  //QAction *thumbnailAction();
-  //QAction *thumbnailSmallAction();
-  //QAction *detailsAction();
-  //QAction *deleteImageAction();
-
 signals:
 
   void open_image(size_t);

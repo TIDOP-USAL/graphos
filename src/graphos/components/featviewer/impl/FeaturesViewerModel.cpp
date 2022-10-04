@@ -82,10 +82,11 @@ std::vector<std::tuple<QPointF, float, float>> FeaturesViewerModelImp::loadKeypo
 
     Image image = mProject->findImageById(imageId);
 
-    QString database_path = mProject->database();
-    if (!QFileInfo(database_path).exists()) throw std::runtime_error("Database not found");
-  
-    colmap::Database database(database_path.toStdString());
+    tl::Path database_path = mProject->database();
+
+    TL_ASSERT(database_path.exists(), "Database not found");
+
+    colmap::Database database(database_path.toString());
   
     auto _images = database.ReadAllImages();
     for (const auto &image : _images) {
@@ -111,7 +112,7 @@ std::vector<std::tuple<QPointF, float, float>> FeaturesViewerModelImp::loadKeypo
 
         keyPoints[i] = std::make_tuple(keypoint,
                                        colmap_feature_keypoints[i].ComputeScale(),
-                                       colmap_feature_keypoints[i].ComputeOrientation());
+                                       colmap_feature_keypoints[i].ComputeOrientation() * tl::math::consts::rad_to_deg<float>);
       }
     }
   } catch (std::exception &e) {

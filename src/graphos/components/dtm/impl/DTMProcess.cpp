@@ -41,9 +41,9 @@ namespace graphos
 {
 
 DtmProcess::DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
-                       const QString &pointCloud,
+                       const tl::Path &pointCloud,
                        const tl::Point3<double> &offset,
-                       const QString &dtmFile,
+                       const tl::Path &dtmFile,
                        double gsd,
                        bool dsm,
                        const QString &crs)
@@ -66,8 +66,8 @@ void DtmProcess::execute(tl::Progress *progressBar)
     tl::Chrono chrono("DTM finished");
     chrono.run();
 
-    tl::Path dtm_path(mDtmFile.toStdString());
-    tl::Path dtm_folder = dtm_path.parentPath();
+    //tl::Path dtm_path(mDtmFile.toStdString());
+    tl::Path dtm_folder = mDtmFile.parentPath();
     dtm_folder.createDirectories();
 
     //tl::TemporalDir temporal_dir;
@@ -83,7 +83,7 @@ void DtmProcess::execute(tl::Progress *progressBar)
 
       Csf csf;
       csf.setSloopSmooth(true);
-      csf.filter(mPointCloud.toStdString(), ground_path.toString(), out_ground_path.toString());
+      csf.filter(mPointCloud.toString(), ground_path.toString(), out_ground_path.toString());
 
       /// Refactorizar
 
@@ -122,7 +122,7 @@ void DtmProcess::execute(tl::Progress *progressBar)
       
       std::unique_ptr<tl::ImageReader> image_reader_mds_ground = tl::ImageReaderFactory::create(mds_ground.toString());
       std::unique_ptr<tl::ImageReader> image_reader_mds_out_ground = tl::ImageReaderFactory::create(mds_out_ground.toString());
-      std::unique_ptr<tl::ImageWriter> image_writer_mds_ground = tl::ImageWriterFactory::create(mDtmFile.toStdString());
+      std::unique_ptr<tl::ImageWriter> image_writer_mds_ground = tl::ImageWriterFactory::create(mDtmFile);
 
       image_reader_mds_ground->open();
       image_reader_mds_out_ground->open();
@@ -169,13 +169,13 @@ void DtmProcess::execute(tl::Progress *progressBar)
 
       tl::BoundingBox<tl::Point3<double>> bbox;
 
-      DenseExport denseExport(mPointCloud.toStdString());
+      DenseExport denseExport(mPointCloud);
       denseExport.setOffset(mOffset);
       denseExport.exportToCSV(csv_path.toString(), DenseExport::Fields::xyz, &bbox);
 
-      tl::Size<int> size(bbox.width() / mGSD, bbox.height() / mGSD);
+      tl::Size<int> size(static_cast<int>(bbox.width() / mGSD), static_cast<int>(bbox.height() / mGSD));
 
-      mDtmAlgorithm->run(csv_path.toString(), mDtmFile.toStdString(), size);
+      mDtmAlgorithm->run(csv_path.toString(), mDtmFile, size);
 
     }
     

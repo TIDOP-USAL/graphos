@@ -90,31 +90,11 @@ public:
   Densifier() {}
   virtual ~Densifier() = default;
 
-  //virtual void undistort(const QString &reconstructionPath,
-  //                       const QString &outputPath) = 0;
-  //virtual void densify(const QString &undistortPath) = 0;
   virtual void enableCuda(bool enable) = 0;
-  virtual QString denseModel() const = 0;
-  //virtual void setCameras(const std::map<int, Camera> &cameras) = 0;
-  //virtual void setImages(const std::unordered_map<size_t, Image> &images) = 0;
+  virtual tl::Path denseModel() const = 0;
+
 };
 
-
-//class Densifier2
-//{
-//
-//public:
-//
-//  Densifier2() {}
-//  virtual ~Densifier2() = default;
-//
-//  //virtual void densify(const QString &undistortPath) = 0;
-//  virtual void enableCuda(bool enable) = 0;
-//
-//
-//  //virtual void setCameras(const std::map<int, Camera> &cameras) = 0;
-//  //virtual void setImages(const std::unordered_map<size_t, Image> &images) = 0;
-//};
 
 
 class DensifierBase
@@ -128,8 +108,7 @@ public:
                 const std::map<int, Camera> &cameras,
                 const std::unordered_map<size_t, CameraPose> &poses,
                 const std::vector<GroundPoint> &groundPoints,
-                const QString &outputPath/*,
-                const QString &undistortPath = QString()*/);
+                const tl::Path &outputPath);
   ~DensifierBase();
 
 // Densifier
@@ -137,21 +116,18 @@ public:
 public:
 
   void enableCuda(bool enable) override;
-  QString denseModel() const override;
-  //void setOutputPath(const QString &outputPath);
-  //void setUndistortPath(const QString &undistortPath);
+  tl::Path denseModel() const override;
   void setUndistortImagesFormat(UndistortImages::Format format);
 
 protected:
 
   void undistort(const QString &dir);
   tl::Path outputPath() const;
-  //tl::Path undistortPath() const;
   const std::unordered_map<size_t, Image> &images() const;
   const std::map<int, Camera> &cameras() const;
   const std::unordered_map<size_t, CameraPose> &poses() const;
   const std::vector<GroundPoint> &groundPoints() const;
-  void setDenseModel(const QString &denseModel);
+  void setDenseModel(const tl::Path &denseModel);
 
 private:
 
@@ -159,11 +135,9 @@ private:
   std::map<int, Camera> mCameras;
   std::unordered_map<size_t, CameraPose> mPoses;
   std::vector<GroundPoint> mGroundPoints;
-  //std::map<int, Undistort> mUndistort;
   tl::Path mOutputPath;
-  //tl::Path mUndistortPath;
   bool mCuda;
-  QString mDenseModel;
+  tl::Path mDenseModel;
   UndistortImages::Format mFormat;
 };
 

@@ -27,9 +27,6 @@
 #include "graphos/components/loadfromvideo/LoadFromVideoModel.h"
 #include "graphos/core/project.h"
 
-//class QSettings;
-
-
 namespace graphos
 {
 
@@ -48,6 +45,13 @@ public:
 
 public:
 
+  tl::Path imagesPath() const override;
+  void addImage(const Image &image) override;
+  const std::map<int, Camera> &cameras() const override;
+  int addCamera(const Camera &camera) override;
+  int cameraID(const Camera &camera) const override;
+  int cameraID(const QString &make,
+               const QString &model) const override;
   //LoadFromVideoParameters *parameters() const override;
 
 public slots:

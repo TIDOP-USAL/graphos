@@ -40,12 +40,12 @@ DtmModelImp::DtmModelImp(Project *project,
   this->init();
 }
 
-QString DtmModelImp::projectPath() const
+tl::Path DtmModelImp::projectPath() const
 {
   return mProject->projectFolder();
 }
 
-QString DtmModelImp::denseModel() const
+tl::Path DtmModelImp::denseModel() const
 {
   return mProject->denseModel();
 }
@@ -65,25 +65,26 @@ void DtmModelImp::setDtmMethod(const std::shared_ptr<Dtm> &dtm)
   mProject->setDtmMethod(dtm);
 }
 
-QString DtmModelImp::dtmPath() const
+tl::Path DtmModelImp::dtmPath() const
 {
   return mProject->dtmPath();
 }
 
-void DtmModelImp::setDtmPath(const QString &dtmPath)
+void DtmModelImp::setDtmPath(const tl::Path &dtmPath)
 {
   mProject->setDtmPath(dtmPath);
 }
 
 std::array<double, 3> DtmModelImp::offset() const
 {
-  std::array<double, 3> offset;
+  std::array<double, 3> offset{};
   offset.fill(0.);
 
   try {
-    QString path = mProject->reconstructionPath();
-    path.append("/offset.txt");
-    QFile file(path);
+
+    tl::Path path = mProject->reconstructionPath();
+    path.append("offset.txt");
+    QFile file(QString::fromStdWString(path.toWString()));
     if (file.open(QFile::ReadOnly | QFile::Text)){
       QTextStream stream(&file);
       QString line = stream.readLine();
@@ -94,7 +95,7 @@ std::array<double, 3> DtmModelImp::offset() const
       file.close();
     }
   } catch (...) {
-
+    TL_THROW_EXCEPTION_WITH_NESTED("");
   }
 
   return offset;

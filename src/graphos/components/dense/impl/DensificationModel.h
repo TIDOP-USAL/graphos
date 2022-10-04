@@ -59,9 +59,9 @@ public slots:
 public:
 
   std::shared_ptr<Densification> densification() const override;
-  QString projectFolder() const override;
-  QString reconstructionPath() const override;
-  QString database() const override;
+  tl::Path projectFolder() const override;
+  tl::Path reconstructionPath() const override;
+  tl::Path database() const override;
   bool useCuda() const override;
   bool existDenseModel() const override;
   const std::unordered_map<size_t, Image> &images() const override;
@@ -72,7 +72,7 @@ public:
 public slots:
 
   void setDensification(const std::shared_ptr<Densification> &densification) override;
-  void setDenseModel(const QString &denseModel) override;
+  void setDenseModel(const tl::Path &denseModel) override;
 
 protected:
 

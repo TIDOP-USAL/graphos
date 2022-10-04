@@ -58,46 +58,41 @@ void CreateProjectPresenterImp::saveProject()
   /// https://www.boost.org/doc/libs/1_43_0/libs/filesystem/doc/portability_guide.htm
 
 
-  QString prj_folder = this->projectFolder();
-  this->createProjectFolderIfNoExist(prj_folder);
+  tl::Path project_folder = this->projectFolder();
+  project_folder.createDirectories();
   mModel->setProjectName(mView->projectName());
-  mModel->setProjectFolder(prj_folder);
+  mModel->setProjectFolder(project_folder);
   mModel->setProjectDescription(mView->projectDescription());
-  mModel->setDatabase(this->databasePath(prj_folder));
-  mModel->saveAs(this->projectPath(prj_folder));
+  mModel->setDatabase(databasePath(project_folder));
+  mModel->saveAs(projectPath(project_folder));
 
   emit project_created();
 
   mView->clear();
 }
 
-void CreateProjectPresenterImp::createProjectFolderIfNoExist(const QString &projectFolder)
+tl::Path CreateProjectPresenterImp::projectFolder() const
 {
-  QDir dir(projectFolder);
-  if (!dir.exists()) {
-    dir.mkpath(".");
-  }
-}
-
-QString CreateProjectPresenterImp::projectFolder() const
-{
-  QString prj_path = mView->projectPath();
+  tl::Path project_folder = mView->projectPath().toStdWString();
   if (mView->createProjectFolderEnable())
-    prj_path.append("/").append(mView->projectName());
-  return prj_path;
+    project_folder.append(mView->projectName().toStdWString());
+  project_folder.normalize();
+  return project_folder;
 }
 
-QString CreateProjectPresenterImp::projectPath(const QString &projectFolder) const
+tl::Path CreateProjectPresenterImp::projectPath(const tl::Path &projectFolder) const
 {
-  QString prj_path = projectFolder;
-  prj_path.append("/").append(mView->projectName()).append(".xml");
-  return prj_path;
+  tl::Path project_path = projectFolder;
+  project_path.append(mView->projectName().append(".xml").toStdWString());
+  project_path.normalize();
+  return project_path;
 }
 
-QString CreateProjectPresenterImp::databasePath(const QString &projectFolder) const
+tl::Path CreateProjectPresenterImp::databasePath(const tl::Path &projectFolder) const
 {
-  QString database_path = projectFolder;
-  database_path.append("/").append(mView->projectName()).append(".db");
+  tl::Path database_path = projectFolder;
+  database_path.append(mView->projectName().append(".db").toStdWString());
+  database_path.normalize();
   return database_path;
 }
 
@@ -108,8 +103,8 @@ void CreateProjectPresenterImp::discartProject()
 
 void CreateProjectPresenterImp::checkProjectName() const
 {
-  QString project_path = this->projectPath(this->projectFolder());
-  mView->setExistingProject(QFileInfo::exists(project_path));
+  tl::Path project_path = this->projectPath(this->projectFolder());
+  mView->setExistingProject(project_path.exists());
 }
 
 void CreateProjectPresenterImp::open()
@@ -129,7 +124,7 @@ void CreateProjectPresenterImp::open()
 
   mModel->clear();
 
-  mView->setProjectPath(mProjectsDefaultPath);
+  mView->setProjectPath(QString::fromStdWString(mProjectsDefaultPath.toWString()));
 
   mView->exec();
 }
@@ -137,11 +132,7 @@ void CreateProjectPresenterImp::open()
 void CreateProjectPresenterImp::init()
 { 
   mProjectsDefaultPath = dynamic_cast<Application *>(qApp)->documentsLocation();
-
-  QDir dir(mProjectsDefaultPath);
-  if (!dir.exists()) {
-    dir.mkpath(".");
-  }
+  mProjectsDefaultPath.createDirectories();
 }
 
 void CreateProjectPresenterImp::initSignalAndSlots()

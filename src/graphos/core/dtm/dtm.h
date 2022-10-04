@@ -31,6 +31,7 @@
 
 #include <tidop/core/defs.h>
 #include <tidop/core/flags.h>
+#include <tidop/core/path.h>
 #include <tidop/geometry/entities/bbox.h>
 
 namespace tl
@@ -89,12 +90,12 @@ public:
   DtmAlgorithm() {}
   virtual ~DtmAlgorithm() = default;
 
-  virtual bool run(const std::string &pointCloud,
-                   const std::string &dtmFile,
+  virtual bool run(const tl::Path &pointCloud,
+                   const tl::Path &dtmFile,
                    const tl::Size<int> &size) = 0;
 
-  virtual bool run(const std::string &pointCloud,
-                   const std::string &dtmFile,
+  virtual bool run(const tl::Path &pointCloud,
+                   const tl::Path &dtmFile,
                    const tl::BoundingBox<tl::Point3<double>> &bbox,
                    double gsd) = 0;
 

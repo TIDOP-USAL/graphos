@@ -37,7 +37,7 @@ namespace graphos
 {
 
 LoadFromVideoComponent::LoadFromVideoComponent(Application *application)
-  : ProcessComponent(application)
+  : TaskComponent(application)
 {
   init();
 }
@@ -93,7 +93,7 @@ void LoadFromVideoComponent::update()
 
 void LoadFromVideoComponent::onRunning()
 {
-  ProcessComponent::onRunning();
+  TaskComponent::onRunning();
 }
 
 void LoadFromVideoComponent::onFinished()
@@ -103,7 +103,7 @@ void LoadFromVideoComponent::onFinished()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFinished();
+  TaskComponent::onFinished();
   
   app_status->activeFlag(AppStatus::Flag::project_modified, true);
 }
@@ -115,7 +115,7 @@ void LoadFromVideoComponent::onFailed()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  ProcessComponent::onFailed();
+  TaskComponent::onFailed();
 }
 
 
