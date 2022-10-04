@@ -44,7 +44,6 @@ if(BUILD_FEATMATCH_COMPONENT)
                              impl/FeatureMatchingView.cpp
                              impl/FeatureMatchingPresenter.cpp
                              impl/FeatureMatchingCommand.cpp
-                             impl/FeatureMatchingProcess.cpp
                          HEADER_FILES
                              FeatureMatchingComponent.h
                              FeatureMatchingModel.h
@@ -53,8 +52,7 @@ if(BUILD_FEATMATCH_COMPONENT)
                              impl/FeatureMatchingModel.h
                              impl/FeatureMatchingView.h
                              impl/FeatureMatchingPresenter.h
-                             impl/FeatureMatchingCommand.h
-                             impl/FeatureMatchingProcess.h)
+                             impl/FeatureMatchingCommand.h)
             
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}

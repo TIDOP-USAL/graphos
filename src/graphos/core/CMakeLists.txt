@@ -40,6 +40,7 @@ add_files_to_project(${PROJECT_NAME}
                          process/ProcessPresenter.cpp         
                          process/ProcessView.cpp
                          process/Progress.cpp
+                         features/featextract.cpp
                          features/featio.cpp
                          features/sift.cpp
                          features/matching.cpp
@@ -83,6 +84,7 @@ add_files_to_project(${PROJECT_NAME}
                          process/ProcessPresenter.h            
                          process/ProcessView.h
                          process/Progress.h
+                         features/featextract.h
                          features/features.h
                          features/featio.h
                          features/sift.h

@@ -36,9 +36,9 @@ add_executable(${test_target}
                )
 
 target_link_libraries(${test_target} PRIVATE
-                      graphos_core
-                      TidopLib::tl_core
-                      TidopLib::tl_img
+                      Graphos::Core
+                      TidopLib::Core
+                      TidopLib::Geospatial
                       Qt5::Core
                       Qt5::Test
                       Qt5::Sql
@@ -51,7 +51,8 @@ target_link_libraries(${test_target} PRIVATE
                       ${OPENGL_gl_LIBRARY}
                       ${OPENGL_glu_LIBRARY}
                       ${GDAL_LIBRARY}
-                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}

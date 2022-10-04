@@ -44,7 +44,6 @@ if(BUILD_FEATEXTRACT_COMPONENT)
                              impl/FeatureExtractorModel.cpp
                              impl/FeatureExtractorPresenter.cpp
                              impl/FeatureExtractorCommand.cpp
-                             impl/FeatureExtractorProcess.cpp
                          HEADER_FILES
                              FeatureExtractorComponent.h
                              FeatureExtractorView.h
@@ -53,8 +52,7 @@ if(BUILD_FEATEXTRACT_COMPONENT)
                              impl/FeatureExtractorView.h
                              impl/FeatureExtractorModel.h
                              impl/FeatureExtractorPresenter.h
-                             impl/FeatureExtractorCommand.h
-                             impl/FeatureExtractorProcess.h)
+                             impl/FeatureExtractorCommand.h)
             
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}

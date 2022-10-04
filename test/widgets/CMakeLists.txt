@@ -9,11 +9,11 @@ MACRO(DEFINE_TEST_WIDGETS name srcs)
     add_executable(${test_target} ${srcs})
 
     target_link_libraries(${test_target} PRIVATE
-                          graphos_core
-                          graphos_widgets
-                          TidopLib::tl_core
-                          TidopLib::tl_img
-                          TidopLib::tl_geospatial
+                          Graphos::Core
+                          Graphos::Widgets
+                          TidopLib::Core
+                          TidopLib::Img
+                          TidopLib::Geospatial
                           Qt5::Core
                           Qt5::Widgets
                           Qt5::Test
@@ -23,7 +23,8 @@ MACRO(DEFINE_TEST_WIDGETS name srcs)
                           ${OpenCV_LIBS}
                           ${CUDA_LIBRARIES}
                           ${GDAL_LIBRARY}
-						  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+						  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+						  ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
     target_link_libraries(${test_target} PRIVATE
                          ${Boost_FILESYSTEM_LIBRARY}

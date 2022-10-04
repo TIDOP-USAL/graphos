@@ -31,9 +31,9 @@ set(test_target "${test_name}")
 add_executable(${test_target} ${test_filename})
 
 target_link_libraries(${test_target} PRIVATE
-                      graphos_core
-                      TidopLib::tl_core
-                      TidopLib::tl_geospatial
+                      Graphos::Core
+                      TidopLib::Core
+                      TidopLib::Geospatial
                       Qt5::Core
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 

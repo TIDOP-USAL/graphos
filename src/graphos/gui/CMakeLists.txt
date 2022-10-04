@@ -172,7 +172,7 @@ target_link_libraries(${PROJECT_NAME}
                       #${Boost_THREAD_LIBRARY}
                       #${Boost_DATE_TIME_LIBRARY}
                       #${Boost_CHRONO_LIBRARY}
-                      #${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
                       #${Boost_REGEX_LIBRARY}
                       ${CLOUDCOMPARE_LIBRARIES}
                       $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)

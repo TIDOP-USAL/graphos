@@ -31,8 +31,8 @@ set(test_target "${test_name}")
 add_executable(${test_target} ${test_filename})
 
 target_link_libraries(${test_target} PRIVATE
-                      graphos_core
-                      TidopLib::tl_core
+                      Graphos::Core
+                      TidopLib::Core
                       Qt5::Core
                       Qt5::Test
                       ${COLMAP_LIBRARIES}

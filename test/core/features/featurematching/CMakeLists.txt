@@ -31,14 +31,15 @@ set(test_target "${test_name}")
 add_executable(${test_target} ${test_filename})
 
 target_link_libraries(${test_target} PRIVATE
-                      graphos_core
-                      TidopLib::tl_core
+                      Graphos::Core
+                      TidopLib::Core
                       Qt5::Core
                       Qt5::Test
                       ${COLMAP_LIBRARIES}
                       ${OpenCV_LIBS}
                       ${CERES_LIBRARIES}
-                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}
