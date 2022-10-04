@@ -21,77 +21,67 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_SAVE_PROJECT_COMPONENT)
 
-  project(SaveProject LANGUAGES CXX)
+    project(SaveProject LANGUAGES CXX)
+    
+    
+    # Find includes in corresponding build directories
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    # Instruct CMake to run moc automatically when needed
+    set(CMAKE_AUTOMOC ON)
+    # Create code from a list of Qt designer ui files
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTORCC ON)
   
   
-  # Find includes in corresponding build directories
-  set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  # Instruct CMake to run moc automatically when needed
-  set(CMAKE_AUTOMOC ON)
-  # Create code from a list of Qt designer ui files
-  set(CMAKE_AUTOUIC ON)
-  set(CMAKE_AUTORCC ON)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             SaveProjectComponent.cpp
+                             impl/SaveProjectModel.cpp
+                             impl/SaveProjectView.cpp
+                             impl/SaveProjectPresenter.cpp
+                         HEADER_FILES
+                             SaveProjectComponent.h
+                             SaveProjectModel.h
+                             SaveProjectView.h
+                             SaveProjectPresenter.h
+                             impl/SaveProjectModel.h
+                             impl/SaveProjectView.h
+                             impl/SaveProjectPresenter.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
   
-  
-  set(SAVE_PROJECT_SOURCES
-      SaveProjectComponent.cpp
-      impl/SaveProjectModel.cpp
-      impl/SaveProjectView.cpp
-      impl/SaveProjectPresenter.cpp)
-      
-  set(SAVE_PROJECT_HEADERS
-      SaveProjectComponent.h
-      SaveProjectModel.h
-      SaveProjectView.h
-      SaveProjectPresenter.h
-      impl/SaveProjectModel.h
-      impl/SaveProjectView.h
-      impl/SaveProjectPresenter.h)
-      
-  add_library(${PROJECT_NAME} 
-              ${SAVE_PROJECT_SOURCES}
-              ${SAVE_PROJECT_HEADERS})
-  
-  add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-  foreach(_source IN ITEMS ${SAVE_PROJECT_SOURCES})
-      get_filename_component(_source_path "${_source}" PATH)
-      string(REPLACE "/" "\\" _group_path "${_source_path}")
-      source_group("Source Files\\${_group_path}" FILES "${_source}")
-  endforeach()
-  
-  foreach(_source IN ITEMS ${SAVE_PROJECT_HEADERS})
-      get_filename_component(_source_path "${_source}" PATH)
-      string(REPLACE "/" "\\" _group_path "${_source_path}")
-      source_group("Header Files\\${_group_path}" FILES "${_source}")
-  endforeach()
-  
-  target_link_libraries(${PROJECT_NAME} PRIVATE 
-                        Qt5::Core
-                        Qt5::Widgets
-                        graphos_core
-                        Eigen3::Eigen
-                        glog::glog)
-  
-  set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
-  
-  install(TARGETS ${PROJECT_NAME}
-          EXPORT "${TARGETS_EXPORT_NAME}"
-          LIBRARY DESTINATION lib 
-          ARCHIVE DESTINATION lib)
-                      
-  install(DIRECTORY .
-          DESTINATION include/graphos/components/saveproject
-          FILES_MATCHING PATTERN "*.h"
-            PATTERN "impl" EXCLUDE)
-      
-      
-  set(GRAPHOS_HAVE_SAVE_PROJECT YES CACHE INTERNAL "")
-  
-  message(STATUS "  Graphos::SaveProject enabled")
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+                          Qt5::Core
+                          Qt5::Widgets
+                          Graphos::Core
+                          Eigen3::Eigen
+                          glog::glog)
+    
+    set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
+    
+    install(TARGETS ${PROJECT_NAME}
+            EXPORT "${TARGETS_EXPORT_NAME}"
+            LIBRARY DESTINATION lib 
+            ARCHIVE DESTINATION lib)
+                        
+    install(DIRECTORY .
+            DESTINATION include/graphos/components/saveproject
+            FILES_MATCHING PATTERN "*.h"
+              PATTERN "impl" EXCLUDE)
+        
+        
+    set(GRAPHOS_HAVE_SAVE_PROJECT YES CACHE INTERNAL "")
+    
+    message(STATUS "  Graphos::SaveProject enabled")
   
 else()
 

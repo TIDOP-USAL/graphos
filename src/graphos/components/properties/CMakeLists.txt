@@ -21,6 +21,7 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_PROPERTIES_COMPONENT)
 
@@ -36,43 +37,32 @@ if(BUILD_PROPERTIES_COMPONENT)
     set(CMAKE_AUTORCC ON)
     
     
-    set(PROPERTIES_SOURCES
-        PropertiesComponent.cpp
-        impl/PropertiesModel.cpp
-        impl/PropertiesView.cpp
-        impl/PropertiesPresenter.cpp)
-        
-    set(PROPERTIES_HEADERS
-        PropertiesComponent.h
-        PropertiesModel.h
-        PropertiesView.h
-        PropertiesPresenter.h
-        impl/PropertiesModel.h
-        impl/PropertiesView.h
-        impl/PropertiesPresenter.h)
-        
-    add_library(${PROJECT_NAME} 
-                ${PROPERTIES_SOURCES}
-                ${PROPERTIES_HEADERS})
-
-    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-    foreach(_source IN ITEMS ${CREATE_PROJECT_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${CREATE_PROJECT_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             PropertiesComponent.cpp
+                             impl/PropertiesModel.cpp
+                             impl/PropertiesView.cpp
+                             impl/PropertiesPresenter.cpp
+                         HEADER_FILES
+                             PropertiesComponent.h
+                             PropertiesModel.h
+                             PropertiesView.h
+                             PropertiesPresenter.h
+                             impl/PropertiesModel.h
+                             impl/PropertiesView.h
+                             impl/PropertiesPresenter.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core
+                          Graphos::Core
                           Eigen3::Eigen
                           glog::glog)
     

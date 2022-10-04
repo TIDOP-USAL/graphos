@@ -21,11 +21,13 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_CAMERAS_COMPONENT)
 
     project(Cameras LANGUAGES CXX)
     
+
     # Find includes in corresponding build directories
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
     # Instruct CMake to run moc automatically when needed
@@ -35,43 +37,32 @@ if(BUILD_CAMERAS_COMPONENT)
     set(CMAKE_AUTORCC ON)
     
     
-    set(CAMERAS_SOURCES
-        CamerasComponent.cpp
-        impl/CamerasModel.cpp
-        impl/CamerasView.cpp
-        impl/CamerasPresenter.cpp)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             CamerasComponent.cpp
+                             impl/CamerasModel.cpp
+                             impl/CamerasView.cpp
+                             impl/CamerasPresenter.cpp
+                         HEADER_FILES
+                             CamerasComponent.h
+                             CamerasModel.h
+                             CamerasView.h
+                             CamerasPresenter.h
+                             impl/CamerasModel.h
+                             impl/CamerasView.h
+                             impl/CamerasPresenter.h)
         
-    set(CAMERAS_HEADERS
-        CamerasComponent.h
-        CamerasModel.h
-        CamerasView.h
-        CamerasPresenter.h
-        impl/CamerasModel.h
-        impl/CamerasView.h
-        impl/CamerasPresenter.h)
-        
-    add_library(${PROJECT_NAME} 
-                ${CAMERAS_SOURCES}
-                ${CAMERAS_HEADERS})
-
-    add_library(Graphos::Cameras ALIAS ${PROJECT_NAME})
-
-    foreach(_source IN ITEMS ${CAMERAS_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${CAMERAS_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core
+                          Graphos::Core
                           Eigen3::Eigen
                           glog::glog)
     

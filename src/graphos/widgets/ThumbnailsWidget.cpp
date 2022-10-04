@@ -33,11 +33,10 @@
 #include <QGridLayout>
 #include <QToolBar>
 #include <QtConcurrent/QtConcurrentMap>
-#include <QFutureWatcher>
+//#include <QFutureWatcher>
 #include <QImage>
 #include <QApplication>
 #include <QScrollBar>
-#include <QTimer>	 
 
 #include <mutex>
 
@@ -254,7 +253,7 @@ void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
         msgError("Error al abrir la imagen: %s", thumb.toStdString().c_str());
       }
     } catch (std::exception &e) {
-      std::cout << e.what();
+      tl::printException(e);
     }
   }
 

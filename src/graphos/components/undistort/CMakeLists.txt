@@ -21,6 +21,7 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_UNDISTORT_COMPONENT)
 
@@ -35,47 +36,36 @@ if(BUILD_UNDISTORT_COMPONENT)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
     
-    
-    set(UNDISTORT_SOURCES
-        UndistortImagesComponent.cpp
-        impl/UndistortImagesModel.cpp
-        impl/UndistortImagesView.cpp
-        impl/UndistortImagesPresenter.cpp
-        impl/UndistortImagesCommand.cpp)
-        
-    set(UNDISTORT_HEADERS
-        UndistortImagesComponent.h
-        UndistortImagesModel.h
-        UndistortImagesView.h
-        UndistortImagesPresenter.h
-        impl/UndistortImagesModel.h
-        impl/UndistortImagesView.h
-        impl/UndistortImagesPresenter.h
-        impl/UndistortImagesCommand.h)
-        
-    add_library(${PROJECT_NAME} 
-                ${UNDISTORT_SOURCES}
-                ${UNDISTORT_HEADERS})
+
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             UndistortImagesComponent.cpp
+                             impl/UndistortImagesModel.cpp
+                             impl/UndistortImagesView.cpp
+                             impl/UndistortImagesPresenter.cpp
+                             impl/UndistortImagesCommand.cpp
+                         HEADER_FILES
+                             UndistortImagesComponent.h
+                             UndistortImagesModel.h
+                             UndistortImagesView.h
+                             UndistortImagesPresenter.h
+                             impl/UndistortImagesModel.h
+                             impl/UndistortImagesView.h
+                             impl/UndistortImagesPresenter.h
+                             impl/UndistortImagesCommand.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
                 
-    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-    
-    foreach(_source IN ITEMS ${UNDISTORT_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${UNDISTORT_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core
-                          graphos_widgets
+                          Graphos::Core
+                          Graphos::Widgets
                           Eigen3::Eigen
                           glog::glog
                           Ceres::ceres)

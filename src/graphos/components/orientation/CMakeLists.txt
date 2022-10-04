@@ -21,6 +21,7 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_ORIENTATION_COMPONENT)
 
@@ -34,47 +35,36 @@ if(BUILD_ORIENTATION_COMPONENT)
     # Create code from a list of Qt designer ui files
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
-    
-    
-    set(ORIENTATION_SOURCES
-        OrientationComponent.cpp
-        impl/OrientationModel.cpp
-        impl/OrientationView.cpp
-        impl/OrientationPresenter.cpp
-        impl/OrientationCommand.cpp)
+   
         
-    set(ORIENTATION_HEADERS
-        OrientationComponent.h
-        OrientationModel.h
-        OrientationView.h
-        OrientationPresenter.h
-        impl/OrientationModel.h
-        impl/OrientationView.h
-        impl/OrientationPresenter.h
-        impl/OrientationCommand.h)
-        
-    add_library(${PROJECT_NAME} 
-                ${ORIENTATION_SOURCES}
-                ${ORIENTATION_HEADERS})
-
-    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-    foreach(_source IN ITEMS ${ORIENTATION_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${ORIENTATION_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             OrientationComponent.cpp
+                             impl/OrientationModel.cpp
+                             impl/OrientationView.cpp
+                             impl/OrientationPresenter.cpp
+                             impl/OrientationCommand.cpp
+                         HEADER_FILES
+                             OrientationComponent.h
+                             OrientationModel.h
+                             OrientationView.h
+                             OrientationPresenter.h
+                             impl/OrientationModel.h
+                             impl/OrientationView.h
+                             impl/OrientationPresenter.h
+                             impl/OrientationCommand.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core
+                          Graphos::Core
                           Eigen3::Eigen
                           glog::glog
                           Ceres::ceres)

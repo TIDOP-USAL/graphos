@@ -21,6 +21,7 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_ABOUT_COMPONENT)
 
@@ -36,38 +37,27 @@ if(BUILD_ABOUT_COMPONENT)
     set(CMAKE_AUTORCC ON)
     
     
-    set(ABOUT_SOURCES
-        AboutComponent.cpp
-        impl/AboutModel.cpp
-        impl/AboutView.cpp
-        impl/AboutPresenter.cpp)
-        
-    set(ABOUT_HEADERS
-        AboutComponent.h
-        AboutModel.h
-        AboutView.h
-        AboutPresenter.h
-        impl/AboutModel.h
-        impl/AboutView.h
-        impl/AboutPresenter.h)
-        
-    add_library(${PROJECT_NAME}  ${LIB_TYPE} 
-                ${ABOUT_SOURCES}
-                ${ABOUT_HEADERS})
-    
-    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-    foreach(_source IN ITEMS ${ABOUT_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${ABOUT_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             AboutComponent.cpp
+                             impl/AboutModel.cpp
+                             impl/AboutView.cpp
+                             impl/AboutPresenter.cpp
+                         HEADER_FILES
+                             AboutComponent.h
+                             AboutModel.h
+                             AboutView.h
+                             AboutPresenter.h
+                             impl/AboutModel.h
+                             impl/AboutView.h
+                             impl/AboutPresenter.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
 
@@ -75,7 +65,7 @@ if(BUILD_ABOUT_COMPONENT)
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core)
+                          Graphos::Core)
     
     install(TARGETS ${PROJECT_NAME}
             EXPORT "${TARGETS_EXPORT_NAME}"

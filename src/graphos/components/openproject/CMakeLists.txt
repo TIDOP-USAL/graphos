@@ -21,77 +21,67 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_OPEN_PROJECT_COMPONENT)
 
-  project(OpenProject LANGUAGES CXX)
+    project(OpenProject LANGUAGES CXX)
+    
+    
+    # Find includes in corresponding build directories
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    # Instruct CMake to run moc automatically when needed
+    set(CMAKE_AUTOMOC ON)
+    # Create code from a list of Qt designer ui files
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTORCC ON)
   
   
-  # Find includes in corresponding build directories
-  set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  # Instruct CMake to run moc automatically when needed
-  set(CMAKE_AUTOMOC ON)
-  # Create code from a list of Qt designer ui files
-  set(CMAKE_AUTOUIC ON)
-  set(CMAKE_AUTORCC ON)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             OpenProjectComponent.cpp
+                             impl/OpenProjectModel.cpp
+                             impl/OpenProjectView.cpp
+                             impl/OpenProjectPresenter.cpp
+                         HEADER_FILES
+                             OpenProjectComponent.h
+                             OpenProjectModel.h
+                             OpenProjectView.h
+                             OpenProjectPresenter.h
+                             impl/OpenProjectModel.h
+                             impl/OpenProjectView.h
+                             impl/OpenProjectPresenter.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
   
-  
-  set(OPEN_PROJECT_SOURCES
-      OpenProjectComponent.cpp
-      impl/OpenProjectModel.cpp
-      impl/OpenProjectView.cpp
-      impl/OpenProjectPresenter.cpp)
-      
-  set(OPEN_PROJECT_HEADERS
-      OpenProjectComponent.h
-      OpenProjectModel.h
-      OpenProjectView.h
-      OpenProjectPresenter.h
-      impl/OpenProjectModel.h
-      impl/OpenProjectView.h
-      impl/OpenProjectPresenter.h)
-      
-  add_library(${PROJECT_NAME} 
-              ${OPEN_PROJECT_SOURCES}
-              ${OPEN_PROJECT_HEADERS})
-  
-  add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-  foreach(_source IN ITEMS ${OPEN_PROJECT_SOURCES})
-      get_filename_component(_source_path "${_source}" PATH)
-      string(REPLACE "/" "\\" _group_path "${_source_path}")
-      source_group("Source Files\\${_group_path}" FILES "${_source}")
-  endforeach()
-  
-  foreach(_source IN ITEMS ${OPEN_PROJECT_HEADERS})
-      get_filename_component(_source_path "${_source}" PATH)
-      string(REPLACE "/" "\\" _group_path "${_source_path}")
-      source_group("Header Files\\${_group_path}" FILES "${_source}")
-  endforeach()
-  
-  target_link_libraries(${PROJECT_NAME} PRIVATE 
-                        Qt5::Core
-                        Qt5::Widgets
-                        graphos_core
-                        Eigen3::Eigen
-                        glog::glog)
-  
-  set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
-  
-  install(TARGETS ${PROJECT_NAME}
-          EXPORT "${TARGETS_EXPORT_NAME}"
-          LIBRARY DESTINATION lib 
-          ARCHIVE DESTINATION lib)
-                      
-  install(DIRECTORY .
-          DESTINATION include/graphos/components/openproject
-          FILES_MATCHING PATTERN "*.h"
-            PATTERN "impl" EXCLUDE)
-      
-      
-  set(GRAPHOS_HAVE_OPEN_PROJECT YES CACHE INTERNAL "")
-  
-  message(STATUS "  Graphos::OpenProject enabled")
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+                          Qt5::Core
+                          Qt5::Widgets
+                          Graphos::Core
+                          Eigen3::Eigen
+                          glog::glog)
+    
+    set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
+    
+    install(TARGETS ${PROJECT_NAME}
+            EXPORT "${TARGETS_EXPORT_NAME}"
+            LIBRARY DESTINATION lib 
+            ARCHIVE DESTINATION lib)
+                        
+    install(DIRECTORY .
+            DESTINATION include/graphos/components/openproject
+            FILES_MATCHING PATTERN "*.h"
+              PATTERN "impl" EXCLUDE)
+        
+        
+    set(GRAPHOS_HAVE_OPEN_PROJECT YES CACHE INTERNAL "")
+    
+    message(STATUS "  Graphos::OpenProject enabled")
   
 else()
 

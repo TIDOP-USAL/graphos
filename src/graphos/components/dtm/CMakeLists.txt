@@ -21,6 +21,7 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_DTM_COMPONENT)
 
@@ -35,47 +36,36 @@ if(BUILD_DTM_COMPONENT)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
     
-    
-    set(DTM_SOURCES
-        DTMComponent.cpp
-        impl/DTMModel.cpp
-        impl/DTMView.cpp
-        impl/DTMPresenter.cpp
-        impl/DTMProcess.cpp)
         
-    set(DTM_HEADERS
-        DTMComponent.h
-        DTMModel.h
-        DTMView.h
-        DTMPresenter.h
-        impl/DTMModel.h
-        impl/DTMView.h
-        impl/DTMPresenter.h
-        impl/DTMProcess.h)
-        
-    add_library(${PROJECT_NAME} 
-                ${DTM_SOURCES}
-                ${DTM_HEADERS})
-
-    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-    foreach(_source IN ITEMS ${DTM_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${DTM_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             DTMComponent.cpp
+                             impl/DTMModel.cpp
+                             impl/DTMView.cpp
+                             impl/DTMPresenter.cpp
+                             impl/DTMProcess.cpp
+                         HEADER_FILES
+                             DTMComponent.h
+                             DTMModel.h
+                             DTMView.h
+                             DTMPresenter.h
+                             impl/DTMModel.h
+                             impl/DTMView.h
+                             impl/DTMPresenter.h
+                             impl/DTMProcess.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core
-                          graphos_widgets
+                          Graphos::Core
+                          Graphos::Widgets
                           Eigen3::Eigen
                           glog::glog)
     

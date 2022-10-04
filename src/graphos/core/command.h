@@ -25,8 +25,6 @@
 #ifndef GRAPHOS_COMMAND_H
 #define GRAPHOS_COMMAND_H
 
-#include "graphos/core/process/Task.h"
-
 #include <tidop/core/console.h>
 
 

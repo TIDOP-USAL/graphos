@@ -35,6 +35,11 @@ project(GRAPHOS
         LANGUAGES CXX)
 
 
+message(STATUS "\n${PROJECT_NAME} ${GRAPHOS_VERSION}")
+message(STATUS ${GRAPHOS_DESCRIPTION})
+message(STATUS ${GRAPHOS_HOMEPAGE_URL})
+
+
 # Configuration 
 
 set(CMAKE_CXX_STANDARD 14)
@@ -48,35 +53,18 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 set(CMAKE_CONFIGURATION_TYPES Release;Debug)
 
 
+#if (UNIX)
+#
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+#  
+#endif()
+
+# Compile options 
+
 if(MSVC)
-
-  # Nivel de warning
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
-
-  #/EH (Modelo de control de excepciones)
-  #/EHsc captura solo las excepciones de C++ e indica al compilador que suponga que las funciones declaradas como extern "C" jamás inicien una excepción de C++.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
-
-  # Las llamadas a los métodos potencialmente no seguros en la biblioteca estandar de C++ dan lugar
-  # a una advertencia del compilador (nivel 3) C4996.
-  # Para deshabilitar esta advertencia se debe definir la macro _SCL_SECURE_NO_WARNINGS
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE")
-
-endif()
-
-
-if (UNIX)
-
-#  include(CheckCXXCompilerFlag)
-#  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-#  if(COMPILER_SUPPORTS_CXX11)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-#  else()
-#     message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-#  endif()
-
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-  
+    add_compile_options("/W3" "/EHsc" "-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE")
+else()
+    add_compile_options("-Wall" "-Wextra" "-Werror")
 endif()
 
 
@@ -188,9 +176,6 @@ option(BUILD_UNDISTORT_COMPONENT "Build Undistort Component"  ON)
 option(BUILD_PROPERTIES_COMPONENT "Build Properties Component"  ON)
 option(BUILD_VIDEO_LOAD_COMPONENT "Build Video load Component"  ON)
 
-#OPTION (BUILD_GRAPHOS                 "GRAPHOS"                OFF)
-#OPTION (BUILD_GRAPHOS_MICROSERVICES   "GRAPHOS MICROSERVICES"  OFF)
-
 # Activación desactivación de otros componentes 
 OPTION (BUILD_TEST                 "Include test"          OFF)
 OPTION (BUILD_PLUGINS              "Build Plugins"         ON )
@@ -234,8 +219,7 @@ message(STATUS "\nDependency loading:\n")
 # TidopLib (REQUIRED)                                                    #
 ##########################################################################      
 
-find_package(TidopLib REQUIRED)
-#include_directories(${TidopLib_INCLUDE_DIRS})
+find_package(TidopLib 2.1 REQUIRED)
 
 
 ##########################################################################
@@ -326,31 +310,12 @@ endif()
 # Colmap (OPTIONAL)                                                      #
 ##########################################################################  
 
-#find_package(OpenMP)
-#
-#if(OPENMP_FOUND)
-#    message(STATUS "Enabling OpenMP support")
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-#    add_definitions("-DOPENMP_ENABLED")
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-#else()
-#    message(STATUS "Disabling OpenMP support")
-#endif()
-
-
 if(MSVC)
   # Some fixes for the Glog library.
   add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
   add_definitions("-DGL_GLEXT_PROTOTYPES")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
 endif()
 
-# find_package(Glog REQUIRED)
-# include_directories(${Glog_INCLUDE_DIRS})
-# find_package(gflags REQUIRED)
-# include_directories(${gflags_INCLUDE_DIRS})
 
 
 #  QT 
@@ -435,14 +400,6 @@ if(WITH_VLD)
 
 endif(WITH_VLD)
 
-#if(BUILD_GRAPHOS_MICROSERVICES)
-#
-#    find_package(cpprestsdk REQUIRED)
-#	
-#	find_package(CURL REQUIRED) 
-#    include_directories(${CURL_INCLUDE_DIRS})
-#
-#endif (BUILD_GRAPHOS_MICROSERVICES)
 
 
 include_directories("${PROJECT_BINARY_DIR}")
@@ -458,6 +415,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 
+message(STATUS "\nGRAPHOS modules:\n")
+
 # include del directorio principal
 include_directories(${CMAKE_BUILD_DIR})
 
@@ -472,6 +431,9 @@ add_subdirectory(src)
 
 #directorio con la documentación
 #add_subdirectory(doc)
+
+message("\n")
+
 
 #cabecera con la configuración
 

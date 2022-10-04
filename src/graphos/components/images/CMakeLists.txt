@@ -21,6 +21,7 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_IMAGE_LOAD_COMPONENT)
 
@@ -36,47 +37,36 @@ if(BUILD_IMAGE_LOAD_COMPONENT)
     set(CMAKE_AUTORCC ON)
     
     
-    set(IMAGE_LOAD_SOURCES
-        ImageLoaderComponent.cpp
-        impl/ImageLoaderModel.cpp
-        impl/ImageLoaderPresenter.cpp
-        impl/ImageLoaderView.cpp
-        impl/ImageLoaderCommand.cpp
-        impl/ImageLoaderProcess.cpp)
-        
-    set(IMAGE_LOAD_HEADERS
-        ImageLoaderComponent.h
-        ImageLoaderModel.h
-        ImageLoaderPresenter.h
-        ImageLoaderView.h
-        impl/ImageLoaderModel.h
-        impl/ImageLoaderPresenter.h
-        impl/ImageLoaderView.h
-        impl/ImageLoaderCommand.h
-        impl/ImageLoaderProcess.h)
-        
-    add_library(${PROJECT_NAME} 
-                ${IMAGE_LOAD_SOURCES}
-                ${IMAGE_LOAD_HEADERS})
-
-    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-    foreach(_source IN ITEMS ${IMAGE_LOAD_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${IMAGE_LOAD_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             ImageLoaderComponent.cpp
+                             impl/ImageLoaderModel.cpp
+                             impl/ImageLoaderPresenter.cpp
+                             impl/ImageLoaderView.cpp
+                             impl/ImageLoaderCommand.cpp
+                             impl/ImageLoaderProcess.cpp
+                         HEADER_FILES
+                             ImageLoaderComponent.h
+                             ImageLoaderModel.h
+                             ImageLoaderPresenter.h
+                             ImageLoaderView.h
+                             impl/ImageLoaderModel.h
+                             impl/ImageLoaderPresenter.h
+                             impl/ImageLoaderView.h
+                             impl/ImageLoaderCommand.h
+                             impl/ImageLoaderProcess.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core
+                          Graphos::Core
                           Eigen3::Eigen
                           glog::glog)
     

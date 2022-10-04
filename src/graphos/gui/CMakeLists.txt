@@ -23,7 +23,7 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_SOURCE_DIR}/third_party)
+#include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
 #--------------------------------------------------------------------------------------------#
 # Configuración para Qt                                                                      #
@@ -115,13 +115,13 @@ foreach(_source IN ITEMS ${GRAPHOS_HEADERS})
 endforeach()
 
 target_link_libraries(${PROJECT_NAME}
-                      TidopLib::tl_core
-                      TidopLib::tl_geom
-                      TidopLib::tl_geospatial
-                      TidopLib::tl_img
-                      TidopLib::tl_math
-                      TidopLib::tl_vect
-                      TidopLib::tl_graphic
+                      TidopLib::Core
+                      TidopLib::Geom
+                      TidopLib::Geospatial
+                      TidopLib::Img
+                      TidopLib::Math
+                      TidopLib::Vect
+                      TidopLib::Graphic
                       Qt5::Core
                       Qt5::Widgets
                       Qt5::Help

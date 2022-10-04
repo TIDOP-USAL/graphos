@@ -21,6 +21,8 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
+
 
 if(BUILD_MATCH_VIEWER_COMPONENT)
 
@@ -36,43 +38,32 @@ if(BUILD_MATCH_VIEWER_COMPONENT)
     set(CMAKE_AUTORCC ON)
     
     
-    set(MATCH_VIEWER_SOURCES
-        MatchViewerComponent.cpp
-        impl/MatchViewerModel.cpp
-        impl/MatchViewerView.cpp
-        impl/MatchViewerPresenter.cpp)
-        
-    set(MATCH_VIEWER_HEADERS
-        MatchViewerComponent.h
-        MatchViewerModel.h
-        MatchViewerView.h
-        MatchViewerPresenter.h
-        impl/MatchViewerModel.h
-        impl/MatchViewerView.h
-        impl/MatchViewerPresenter.h)
-        
-    add_library(${PROJECT_NAME} 
-                ${MATCH_VIEWER_SOURCES}
-                ${MATCH_VIEWER_HEADERS})
-
-    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-    foreach(_source IN ITEMS ${MATCH_VIEWER_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${MATCH_VIEWER_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             MatchViewerComponent.cpp
+                             impl/MatchViewerModel.cpp
+                             impl/MatchViewerView.cpp
+                             impl/MatchViewerPresenter.cpp
+                         HEADER_FILES
+                             MatchViewerComponent.h
+                             MatchViewerModel.h
+                             MatchViewerView.h
+                             MatchViewerPresenter.h
+                             impl/MatchViewerModel.h
+                             impl/MatchViewerView.h
+                             impl/MatchViewerPresenter.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core
+                          Graphos::Core
                           Eigen3::Eigen
                           glog::glog)
     

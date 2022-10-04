@@ -24,16 +24,14 @@
 #ifndef GRAPHOS_THUMBNAILS_WIDGET_H
 #define GRAPHOS_THUMBNAILS_WIDGET_H
 
+#include <QImage>
 
 #include "graphos/widgets/GraphosWidget.h"
-
-#include <QImage>
 
 class QListWidget;
 class QListWidgetItem;
 class QGridLayout;
-template <typename T> class QFutureWatcher;
-class QTimer;			 
+//template <typename T> class QFutureWatcher;	 
 
 namespace graphos
 {
@@ -113,7 +111,6 @@ protected:
   QAction *mDeleteImageAction;
   int mThumbnaislSize;
   bool bLoadingImages;
-  QTimer *mTimer;	 
 };
 
 } // namespace graphos

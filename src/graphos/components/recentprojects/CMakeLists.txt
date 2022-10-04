@@ -21,77 +21,67 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_RECENT_PROJECTS_COMPONENT)
 
-  project(RecentProjects LANGUAGES CXX)
+    project(RecentProjects LANGUAGES CXX)
+    
+    
+    # Find includes in corresponding build directories
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    # Instruct CMake to run moc automatically when needed
+    set(CMAKE_AUTOMOC ON)
+    # Create code from a list of Qt designer ui files
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTORCC ON)
   
   
-  # Find includes in corresponding build directories
-  set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  # Instruct CMake to run moc automatically when needed
-  set(CMAKE_AUTOMOC ON)
-  # Create code from a list of Qt designer ui files
-  set(CMAKE_AUTOUIC ON)
-  set(CMAKE_AUTORCC ON)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             RecentProjectsComponent.cpp
+                             impl/RecentProjectsModel.cpp
+                             impl/RecentProjectsView.cpp
+                             impl/RecentProjectsPresenter.cpp
+                         HEADER_FILES
+                             RecentProjectsComponent.h
+                             RecentProjectsModel.h
+                             RecentProjectsView.h
+                             RecentProjectsPresenter.h
+                             impl/RecentProjectsModel.h
+                             impl/RecentProjectsView.h
+                             impl/RecentProjectsPresenter.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
   
-  
-  set(RECENT_PROJECTS_SOURCES
-      RecentProjectsComponent.cpp
-      impl/RecentProjectsModel.cpp
-      impl/RecentProjectsView.cpp
-      impl/RecentProjectsPresenter.cpp)
-      
-  set(RECENT_PROJECTS_HEADERS
-      RecentProjectsComponent.h
-      RecentProjectsModel.h
-      RecentProjectsView.h
-      RecentProjectsPresenter.h
-      impl/RecentProjectsModel.h
-      impl/RecentProjectsView.h
-      impl/RecentProjectsPresenter.h)
-      
-  add_library(${PROJECT_NAME} 
-              ${RECENT_PROJECTS_SOURCES}
-              ${RECENT_PROJECTS_HEADERS})
-  
-  add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-  foreach(_source IN ITEMS ${RECENT_PROJECTS_SOURCES})
-      get_filename_component(_source_path "${_source}" PATH)
-      string(REPLACE "/" "\\" _group_path "${_source_path}")
-      source_group("Source Files\\${_group_path}" FILES "${_source}")
-  endforeach()
-  
-  foreach(_source IN ITEMS ${RECENT_PROJECTS_HEADERS})
-      get_filename_component(_source_path "${_source}" PATH)
-      string(REPLACE "/" "\\" _group_path "${_source_path}")
-      source_group("Header Files\\${_group_path}" FILES "${_source}")
-  endforeach()
-  
-  target_link_libraries(${PROJECT_NAME} PRIVATE 
-                        Qt5::Core
-                        Qt5::Widgets
-                        graphos_core
-                        Eigen3::Eigen
-                        glog::glog)
-  
-  set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
-  
-  install(TARGETS ${PROJECT_NAME}
-          EXPORT "${TARGETS_EXPORT_NAME}"
-          LIBRARY DESTINATION lib 
-          ARCHIVE DESTINATION lib)
-                      
-  install(DIRECTORY .
-          DESTINATION include/graphos/components/recentprojects
-          FILES_MATCHING PATTERN "*.h"
-            PATTERN "impl" EXCLUDE)
-      
-      
-  set(GRAPHOS_HAVE_RECENT_PROJECTS YES CACHE INTERNAL "")
-  
-  message(STATUS "  Graphos::RecentProjects enabled")
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+                          Qt5::Core
+                          Qt5::Widgets
+                          Graphos::Core
+                          Eigen3::Eigen
+                          glog::glog)
+    
+    set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
+    
+    install(TARGETS ${PROJECT_NAME}
+            EXPORT "${TARGETS_EXPORT_NAME}"
+            LIBRARY DESTINATION lib 
+            ARCHIVE DESTINATION lib)
+                        
+    install(DIRECTORY .
+            DESTINATION include/graphos/components/recentprojects
+            FILES_MATCHING PATTERN "*.h"
+              PATTERN "impl" EXCLUDE)
+        
+        
+    set(GRAPHOS_HAVE_RECENT_PROJECTS YES CACHE INTERNAL "")
+    
+    message(STATUS "  Graphos::RecentProjects enabled")
   
 else()
 

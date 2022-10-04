@@ -1,69 +1,105 @@
+##########################################################################
+#                                                                        #
+# Copyright 2016 by Tidop Research Group <daguilera@usal.es>             #
+#                                                                        #
+# This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.       #
+#                                                                        #
+# GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can   #
+# redistribute it and/or modify it under the terms of the GNU General    #
+# Public License as published by the Free Software Foundation, either    #
+# version 3 of the License, or (at your option) any later version.       #
+#                                                                        #
+# GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the       #
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even    #
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR    #
+# PURPOSE.  See the GNU General Public License for more details.         #
+#                                                                        #
+# You should have received a copy of the GNU General Public License      #
+# along with Graphos.  If not, see <http://www.gnu.org/licenses/>.       #
+#                                                                        #
+# https://spdx.org/licenses/GPL-3.0-or-later.html                        #
+#                                                                        #
+##########################################################################
+
+include(TidopUtils)
+
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
-project(graphos_widgets LANGUAGES CXX)
+
+project(Widgets LANGUAGES CXX)
+
+add_files_to_project(${PROJECT_NAME}
+                     SOURCE_FILES
+                         SiftWidget.cpp
+                         ThumbnailsWidget.cpp
+                         LogWidget.cpp
+                         StartPageWidget.cpp
+                         FeatureMatchingWidget.cpp
+                         SmvsWidget.cpp
+                         CmvsPmvsWidget.cpp
+                         MvsWidget.cpp
+                         NvmFormatWidget.cpp
+                         BundlerFormatWidget.cpp
+                         MveFormatWidget.cpp
+                         PointCloudCSVFormatWidget.cpp
+                         DtmInvDistWidget.cpp
+                         DtmInvDistNNWidget.cpp
+                         OriTxtFormatWidget.cpp
+                         GraphicItem.cpp
+                         GraphicViewer.cpp
+                         Viewer3d.cpp
+                         ImageMenu.cpp
+                         TabWidget.cpp
+                         ProgressBarDialog.cpp
+                         ProgressBarWidget.cpp
+                         settings/FeatViewerSettingsWidget.cpp
+                         settings/MatchViewerSettingsWidget.cpp
+                     HEADER_FILES
+                         GraphosWidget.h
+                         SiftWidget.h
+                         ThumbnailsWidget.h
+                         LogWidget.h
+                         StartPageWidget.h
+                         FeatureMatchingWidget.h
+                         SmvsWidget.h
+                         CmvsPmvsWidget.h
+                         MvsWidget.h
+                         NvmFormatWidget.h
+                         BundlerFormatWidget.h
+                         MveFormatWidget.h
+                         PointCloudCSVFormatWidget.h
+                         DtmInvDistWidget.h
+                         DtmInvDistNNWidget.h
+                         OriTxtFormatWidget.h
+                         GraphicItem.h
+                         GraphicViewer.h
+                         Viewer3d.h
+                         ImageMenu.h
+                         TabWidget.h
+                         ProgressBarDialog.h
+                         ProgressBarWidget.h
+                         settings/FeatViewerSettingsWidget.h
+                         settings/MatchViewerSettingsWidget.h)
+                       
 
 add_library(${PROJECT_NAME} ${LIB_TYPE}
-            GraphosWidget.h
-            SiftWidget.cpp
-            SiftWidget.h
-            ThumbnailsWidget.cpp
-            ThumbnailsWidget.h
-            LogWidget.cpp
-            LogWidget.h
-            StartPageWidget.cpp
-            StartPageWidget.h
-            FeatureMatchingWidget.cpp
-            FeatureMatchingWidget.h
-            SmvsWidget.cpp
-            SmvsWidget.h
-            CmvsPmvsWidget.cpp
-            CmvsPmvsWidget.h
-            MvsWidget.cpp
-            MvsWidget.h
-            NvmFormatWidget.cpp
-            NvmFormatWidget.h
-            BundlerFormatWidget.cpp
-            BundlerFormatWidget.h
-            MveFormatWidget.cpp
-            MveFormatWidget.h
-            PointCloudCSVFormatWidget.cpp
-            PointCloudCSVFormatWidget.h
-            DtmInvDistWidget.cpp
-            DtmInvDistWidget.h
-            DtmInvDistNNWidget.cpp
-            DtmInvDistNNWidget.h
-            OriTxtFormatWidget.cpp
-            OriTxtFormatWidget.h
-            GraphicItem.cpp
-            GraphicItem.h
-            GraphicViewer.cpp
-            GraphicViewer.h
-            Viewer3d.cpp
-            Viewer3d.h
-            ImageMenu.cpp
-            ImageMenu.h
-            TabWidget.cpp
-            TabWidget.h
-            ProgressBarDialog.cpp
-            ProgressBarDialog.h
-            ProgressBarWidget.cpp
-            ProgressBarWidget.h
-            settings/FeatViewerSettingsWidget.cpp
-            settings/FeatViewerSettingsWidget.h
-            settings/MatchViewerSettingsWidget.cpp
-            settings/MatchViewerSettingsWidget.h)
+            ${PROJECT_SOURCE_FILES}
+            ${PROJECT_HEADER_FILES})
 
-add_library(Graphos::Widgets ALIAS ${PROJECT_NAME})
+add_library(Graphos::${PROJECT_NAME} 
+            ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${CLOUDCOMPARE_INCLUDE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
-                      TidopLib::tl_core
-                      TidopLib::tl_img
+target_link_libraries(${PROJECT_NAME} PUBLIC
+                      TidopLib::Core
+                      TidopLib::Img
                       ${CLOUDCOMPARE_LIBRARIES})
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
+set_target_properties(${PROJECT_NAME} PROPERTIES 
+                      FOLDER "lib"
+                      OUTPUT_NAME "graphos_widgets")
 
 install(TARGETS ${PROJECT_NAME} 
         EXPORT "${TARGETS_EXPORT_NAME}"

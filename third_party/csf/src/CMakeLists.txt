@@ -3,13 +3,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 project(CSF LANGUAGES CXX)
 
-#set (package_name "CSF")
-
-#set(LIBRARY_OUTPUT_PATH ../lib)
-
 find_package(OpenMP)
 
-add_library(CSF STATIC
+add_library(${PROJECT_NAME} STATIC
             c2cdist.cpp
             c2cdist.h
             Cloth.cpp
@@ -29,10 +25,10 @@ add_library(CSF STATIC
             XYZReader.h
 )
 
-set_property(TARGET CSF PROPERTY FOLDER "third_party")
+set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "third_party")
 
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(CSF PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
     #target_compile_options(CSF PRIVATE -Werror -Wall -Wextra)
 endif()
 

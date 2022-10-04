@@ -21,6 +21,7 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_CLOSE_PROJECT_COMPONENT)
 
@@ -36,43 +37,32 @@ if(BUILD_CLOSE_PROJECT_COMPONENT)
   set(CMAKE_AUTORCC ON)
   
   
-  set(CLOSE_PROJECT_SOURCES
-      CloseProjectComponent.cpp
-      impl/CloseProjectModel.cpp
-      impl/CloseProjectView.cpp
-      impl/CloseProjectPresenter.cpp)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             CloseProjectComponent.cpp
+                             impl/CloseProjectModel.cpp
+                             impl/CloseProjectView.cpp
+                             impl/CloseProjectPresenter.cpp
+                         HEADER_FILES
+                             CloseProjectComponent.h
+                             CloseProjectModel.h
+                             CloseProjectView.h
+                             CloseProjectPresenter.h
+                             impl/CloseProjectModel.h
+                             impl/CloseProjectView.h
+                             impl/CloseProjectPresenter.h)
       
-  set(CLOSE_PROJECT_HEADERS
-      CloseProjectComponent.h
-      CloseProjectModel.h
-      CloseProjectView.h
-      CloseProjectPresenter.h
-      impl/CloseProjectModel.h
-      impl/CloseProjectView.h
-      impl/CloseProjectPresenter.h)
-      
-  add_library(${PROJECT_NAME} 
-              ${CLOSE_PROJECT_SOURCES}
-              ${CLOSE_PROJECT_HEADERS})
-  
-  add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-  foreach(_source IN ITEMS ${CLOSE_PROJECT_SOURCES})
-      get_filename_component(_source_path "${_source}" PATH)
-      string(REPLACE "/" "\\" _group_path "${_source_path}")
-      source_group("Source Files\\${_group_path}" FILES "${_source}")
-  endforeach()
-  
-  foreach(_source IN ITEMS ${CLOSE_PROJECT_HEADERS})
-      get_filename_component(_source_path "${_source}" PATH)
-      string(REPLACE "/" "\\" _group_path "${_source_path}")
-      source_group("Header Files\\${_group_path}" FILES "${_source}")
-  endforeach()
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
   
   target_link_libraries(${PROJECT_NAME} PRIVATE 
                         Qt5::Core
                         Qt5::Widgets
-                        graphos_core
+                        Graphos::Core
                         Eigen3::Eigen
                         glog::glog)
   

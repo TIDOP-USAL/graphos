@@ -159,20 +159,9 @@ public:
 public slots:
 
  /*!
-  * \brief Show help
-  */
-  //virtual void help() = 0;
-
- /*!
   * \brief Open
   */
   virtual void open() = 0;
-
-  /*!
-   * \brief Set Help
-   * \param[in] help
-   */
-  //virtual void setHelp(HelpDialog *help) = 0;
 
 private:
 

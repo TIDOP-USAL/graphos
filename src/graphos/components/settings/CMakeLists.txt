@@ -21,6 +21,7 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
 
 if(BUILD_SETTINGS_COMPONENT)
 
@@ -35,44 +36,33 @@ if(BUILD_SETTINGS_COMPONENT)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
     
-    
-    set(SETTINGS_SOURCES
-        SettingsComponent.cpp
-        impl/SettingsModel.cpp
-        impl/SettingsView.cpp
-        impl/SettingsPresenter.cpp)
-        
-    set(SETTINGS_HEADERS
-        SettingsComponent.h
-        SettingsModel.h
-        SettingsView.h
-        SettingsPresenter.h
-        impl/SettingsModel.h
-        impl/SettingsView.h
-        impl/SettingsPresenter.h)
-        
-    add_library(${PROJECT_NAME} 
-                ${SETTINGS_SOURCES}
-                ${SETTINGS_HEADERS})
 
-    add_library(Graphos::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-    foreach(_source IN ITEMS ${SETTINGS_SOURCES})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Source Files\\${_group_path}" FILES "${_source}")
-    endforeach()
-    
-    foreach(_source IN ITEMS ${SETTINGS_HEADERS})
-        get_filename_component(_source_path "${_source}" PATH)
-        string(REPLACE "/" "\\" _group_path "${_source_path}")
-        source_group("Header Files\\${_group_path}" FILES "${_source}")
-    endforeach()
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             SettingsComponent.cpp
+                             impl/SettingsModel.cpp
+                             impl/SettingsView.cpp
+                             impl/SettingsPresenter.cpp
+                         HEADER_FILES
+                             SettingsComponent.h
+                             SettingsModel.h
+                             SettingsView.h
+                             SettingsPresenter.h
+                             impl/SettingsModel.h
+                             impl/SettingsView.h
+                             impl/SettingsPresenter.h)
+            
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
+                
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
                           Qt5::Widgets
-                          graphos_core
+                          Graphos::Core
                           Eigen3::Eigen
                           glog::glog)
     

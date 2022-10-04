@@ -21,116 +21,108 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
+
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
-project(graphos_core LANGUAGES CXX)
 
-set(GRAPHOS_CORE_SOURCES
-    Application.cpp
-    AppStatus.cpp
-    Component.cpp
-    project.cpp
-    settings.cpp
-    image.cpp
-    Pdf.cpp
-    process/ProcessPresenter.cpp         
-    process/ProcessView.cpp
-    process/Progress.cpp
-    features/featio.cpp
-    features/sift.cpp
-    features/matching.cpp
-    sfm/orientationcolmap.cpp
-    sfm/orientationexport.cpp
-    sfm/poses.cpp
-    sfm/posesio.cpp
-    sfm/groundpoint.cpp
-    sfm/track.cpp
-    dense/dense.cpp
-    dense/CmvsPmvs.cpp
-    dense/Smvs.cpp
-    dense/Mvs.cpp
-    dense/DenseExport.cpp
-    mesh/PoissonRecon.cpp
-    utils.cpp
-    dtm/dtm.cpp
-    dtm/invdist.cpp
-    dtm/invdistnn.cpp
-    dtm/csf.cpp
-    camera/Calibration.cpp
-    camera/Camera.cpp
-    camera/Colmap.cpp
-    camera/Database.cpp
-    camera/Undistort.cpp
-    ortho/Orthorectification.cpp
-    ortho/ZBuffer.cpp
-    ortho/Footprint.cpp
-    ortho/Orthoimage.cpp
-    ortho/Orthomosaic.cpp)
-			
-set(GRAPHOS_CORE_HEADERS
-    mvp.h
-    Application.h
-    AppStatus.h
-    Component.h
-    command.h
-    project.h
-    settings.h
-    image.h
-    Pdf.h
-    process/ProcessPresenter.h            
-    process/ProcessView.h
-    process/Progress.h
-    process/Task.h
-    features/features.h
-    features/featio.h
-    features/sift.h
-    features/matching.h
-    sfm/orientation.h
-    sfm/orientationcolmap.h
-    sfm/orientationexport.h
-    sfm/poses.h
-    sfm/posesio.h
-    sfm/groundpoint.h
-    sfm/track.h
-    dense/dense.h
-    dense/CmvsPmvs.h
-    dense/Smvs.h
-    dense/Mvs.h
-    dense/DenseExport.h
-    mesh/PoissonRecon.h
-    utils.h
-    dtm/dtm.h
-    dtm/invdist.h
-    dtm/invdistnn.h
-    dtm/csf.h
-    camera/Calibration.h
-    camera/Camera.h
-    camera/Colmap.h
-    camera/Database.h
-    camera/Undistort.h
-    ortho/Orthorectification.h
-    ortho/ZBuffer.h
-    ortho/Footprint.h
-    ortho/Orthoimage.h
-    ortho/Orthomosaic.h)
+project(Core LANGUAGES CXX)
+
+add_files_to_project(${PROJECT_NAME}
+                     SOURCE_FILES
+                         Application.cpp
+                         AppStatus.cpp
+                         Component.cpp
+                         project.cpp
+                         settings.cpp
+                         image.cpp
+                         Pdf.cpp
+                         process/ProcessPresenter.cpp         
+                         process/ProcessView.cpp
+                         process/Progress.cpp
+                         features/featio.cpp
+                         features/sift.cpp
+                         features/matching.cpp
+                         sfm/orientationcolmap.cpp
+                         sfm/orientationexport.cpp
+                         sfm/poses.cpp
+                         sfm/posesio.cpp
+                         sfm/groundpoint.cpp
+                         sfm/track.cpp
+                         dense/dense.cpp
+                         dense/CmvsPmvs.cpp
+                         dense/Smvs.cpp
+                         dense/Mvs.cpp
+                         dense/DenseExport.cpp
+                         mesh/PoissonRecon.cpp
+                         utils.cpp
+                         dtm/dtm.cpp
+                         dtm/invdist.cpp
+                         dtm/invdistnn.cpp
+                         dtm/csf.cpp
+                         camera/Calibration.cpp
+                         camera/Camera.cpp
+                         camera/Colmap.cpp
+                         camera/Database.cpp
+                         camera/Undistort.cpp
+                         ortho/Orthorectification.cpp
+                         ortho/ZBuffer.cpp
+                         ortho/Footprint.cpp
+                         ortho/Orthoimage.cpp
+                         ortho/Orthomosaic.cpp
+                     HEADER_FILES
+                         mvp.h
+                         Application.h
+                         AppStatus.h
+                         Component.h
+                         command.h
+                         project.h
+                         settings.h
+                         image.h
+                         Pdf.h
+                         process/ProcessPresenter.h            
+                         process/ProcessView.h
+                         process/Progress.h
+                         features/features.h
+                         features/featio.h
+                         features/sift.h
+                         features/matching.h
+                         sfm/orientation.h
+                         sfm/orientationcolmap.h
+                         sfm/orientationexport.h
+                         sfm/poses.h
+                         sfm/posesio.h
+                         sfm/groundpoint.h
+                         sfm/track.h
+                         dense/dense.h
+                         dense/CmvsPmvs.h
+                         dense/Smvs.h
+                         dense/Mvs.h
+                         dense/DenseExport.h
+                         mesh/PoissonRecon.h
+                         utils.h
+                         dtm/dtm.h
+                         dtm/invdist.h
+                         dtm/invdistnn.h
+                         dtm/csf.h
+                         camera/Calibration.h
+                         camera/Camera.h
+                         camera/Colmap.h
+                         camera/Database.h
+                         camera/Undistort.h
+                         ortho/Orthorectification.h
+                         ortho/ZBuffer.h
+                         ortho/Footprint.h
+                         ortho/Orthoimage.h
+                         ortho/Orthomosaic.h)
+
 	
 add_library(${PROJECT_NAME} ${LIB_TYPE}
-            ${GRAPHOS_CORE_SOURCES}
-            ${GRAPHOS_CORE_HEADERS})
+            ${PROJECT_SOURCE_FILES}
+            ${PROJECT_HEADER_FILES})
             
-add_library(Graphos::Core ALIAS ${PROJECT_NAME})
-
-foreach(_source IN ITEMS ${GRAPHOS_CORE_SOURCES})
-    get_filename_component(_source_path "${_source}" PATH)
-    string(REPLACE "/" "\\" _group_path "${_source_path}")
-    source_group("Source Files\\${_group_path}" FILES "${_source}")
-endforeach()
-
-foreach(_source IN ITEMS ${GRAPHOS_CORE_HEADERS})
-    get_filename_component(_source_path "${_source}" PATH)
-    string(REPLACE "/" "\\" _group_path "${_source_path}")
-    source_group("Header Files\\${_group_path}" FILES "${_source}")
-endforeach()
+add_library(Graphos::${PROJECT_NAME} 
+            ALIAS ${PROJECT_NAME})
 
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -138,13 +130,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                            $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
-                      TidopLib::tl_core
-                      TidopLib::tl_geom
-                      TidopLib::tl_geospatial
-                      TidopLib::tl_img
-                      TidopLib::tl_math
-                      TidopLib::tl_vect
-                      TidopLib::tl_graphic
+                      TidopLib::Core
+                      TidopLib::Geom
+                      TidopLib::Geospatial
+                      TidopLib::Img
+                      TidopLib::Math
+                      TidopLib::Vect
+                      TidopLib::Graphic
                       CSF
                       glog::glog
                       Qt5::PrintSupport
@@ -153,11 +145,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
-                      GLEW::glew
-                      #${PROJ4_LIBRARY}
-                      )
+                      GLEW::glew)
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "lib")
+
+set_target_properties(${PROJECT_NAME} PROPERTIES 
+                      FOLDER "lib"
+                      OUTPUT_NAME "graphos_core")
 
 install(TARGETS ${PROJECT_NAME}
         EXPORT "${TARGETS_EXPORT_NAME}"
