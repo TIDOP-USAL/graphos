@@ -105,6 +105,7 @@ void CreateProjectComponent::onProjectCreated()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
+  app_status->clear();
   app_status->activeFlag(AppStatus::Flag::project_exists, true);
   
   emit project_created();

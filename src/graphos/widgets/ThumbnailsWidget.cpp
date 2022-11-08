@@ -34,7 +34,6 @@
 #include <QGridLayout>
 #include <QToolBar>
 #include <QtConcurrent/QtConcurrentMap>
-//#include <QFutureWatcher>
 #include <QImage>
 #include <QApplication>
 #include <QScrollBar>

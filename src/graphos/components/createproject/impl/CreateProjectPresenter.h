@@ -50,7 +50,6 @@ public:
 private:
 
   tl::Path projectFolder() const;
-  //void createProjectFolderIfNoExist(const QString &projectFolder);
   tl::Path databasePath(const tl::Path &projectFolder) const;
   tl::Path projectPath(const tl::Path &projectFolder) const;
 

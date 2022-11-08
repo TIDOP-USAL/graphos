@@ -27,6 +27,7 @@
 #include <QGridLayout>
 #include <QListWidgetItem>
 #include <QAbstractItemModel>
+#include <QApplication>
 
 using namespace tl;
 
@@ -141,7 +142,14 @@ void LogWidget::update()
 
 void LogWidget::retranslate()
 {
-
+  mMsgErrorAction->setText(QApplication::translate("LogWidget", "Show errors"));
+  mMsgErrorAction->setStatusTip(QApplication::translate("LogWidget", "Show errors"));
+  mMsgWarningAction->setText(QApplication::translate("LogWidget", "Show warnings"));
+  mMsgWarningAction->setStatusTip(QApplication::translate("LogWidget", "Show warnings"));
+  mMsgInfoAction->setText(QApplication::translate("LogWidget", "Show messages"));
+  mMsgInfoAction->setStatusTip(QApplication::translate("LogWidget", "Show messages"));
+  mClearAction->setText(QApplication::translate("LogWidget", "Clean log"));
+  mClearAction->setStatusTip(QApplication::translate("LogWidget", "Clean log"));
 }
 
 void LogWidget::clear()
@@ -155,27 +163,28 @@ void LogWidget::initUI()
 {
   QToolBar *toolBar = new QToolBar(this);
 
-  mMsgErrorAction = new QAction(QIcon::fromTheme("show-errors"), tr("Show errors"), this);
-  mMsgErrorAction->setStatusTip(tr("Show errors"));
+  mMsgErrorAction = new QAction(this);
+  mMsgErrorAction->setIcon(QIcon::fromTheme("show-errors"));
   mMsgErrorAction->setCheckable(true);
   mMsgErrorAction->setChecked(true);
   toolBar->addAction(mMsgErrorAction);
 
-  mMsgWarningAction = new QAction(QIcon::fromTheme("show-warnings"), tr("Show warnings"), this);
-  mMsgWarningAction->setStatusTip(tr("Show warnings"));
+  mMsgWarningAction = new QAction(this);
+  mMsgWarningAction->setIcon(QIcon::fromTheme("show-warnings"));
   mMsgWarningAction->setCheckable(true);
   mMsgWarningAction->setChecked(true);
   toolBar->addAction(mMsgWarningAction);
 
-  mMsgInfoAction = new QAction(QIcon::fromTheme("show-info"), tr("Show messages"), this);
-  mMsgInfoAction->setStatusTip(tr("Show messages"));
+  mMsgInfoAction = new QAction(this);
+  mMsgInfoAction->setIcon(QIcon::fromTheme("show-info"));
   mMsgInfoAction->setCheckable(true);
   mMsgInfoAction->setChecked(true);
   toolBar->addAction(mMsgInfoAction);
 
   toolBar->addSeparator();
 
-  mClearAction = new QAction(QIcon::fromTheme("clean-console"), tr("Clean log"), this);
+  mClearAction = new QAction(this);
+  mClearAction->setIcon(QIcon::fromTheme("clean-console"));
   mClearAction->setStatusTip(tr("Clean log"));
   toolBar->addAction(mClearAction);
 

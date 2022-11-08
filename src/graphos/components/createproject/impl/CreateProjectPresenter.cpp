@@ -28,9 +28,6 @@
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
-#include <tidop/core/path.h>
-
-#include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 

@@ -87,9 +87,9 @@ void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
       mProject->removeImage(imageId);
     }
 
-  std::string reconstruction_path = mProject->reconstructionPath().toString();
-  if (!reconstruction_path.empty())
-    colmapRemoveOrientations(images, reconstruction_path);
+    std::string reconstruction_path = mProject->reconstructionPath().toString();
+    if (!reconstruction_path.empty())
+      colmapRemoveOrientations(images, reconstruction_path);
 
   } catch (...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");

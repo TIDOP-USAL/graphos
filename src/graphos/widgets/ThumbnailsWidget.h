@@ -31,7 +31,6 @@
 class QListWidget;
 class QListWidgetItem;
 class QGridLayout;
-//template <typename T> class QFutureWatcher;	 
 
 namespace graphos
 {
