@@ -88,8 +88,6 @@ void makeThumbnail(QListWidgetItem *item, QListWidget *listWidget)
 
   } catch (const std::exception &e) {
     msgError(e.what());
-  } catch (...) {
-    msgError("GDAL ERROR (%i): %s", CPLGetLastErrorNo(), CPLGetLastErrorMsg());
   }
 
   //return image;
@@ -186,8 +184,6 @@ void ThumbnailsWidget::addThumbnail(const QString &thumb, size_t imageId)
 
   } catch (const std::exception &e) {
     msgError(e.what());
-  } catch (...) {
-    msgError("GDAL ERROR (%i): %s", CPLGetLastErrorNo(), CPLGetLastErrorMsg());
   }
 
   mThumbnaislSize = mListWidget->count();

@@ -81,9 +81,6 @@ private slots:
 
 private:
 
-  //QGridLayout *mGridLayout;
-  //QSpacerItem *horizontalSpacer;
-  //QSpacerItem *verticalSpacer;
   QLabel *mLabelStatus;
   QProgressBar *mProgressBar;
   QPushButton *mPushButtonCancel;

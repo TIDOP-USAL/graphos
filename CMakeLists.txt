@@ -62,7 +62,7 @@ set(CMAKE_CONFIGURATION_TYPES Release;Debug)
 # Compile options 
 
 if(MSVC)
-    add_compile_options("/W3" "/EHsc" "-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE")
+    add_compile_options("/W3" "/EHsc" "-D_SCL_SECURE_NO_WARNINGS" "-D_CRT_SECURE_NO_DEPRECATE")
 else()
     add_compile_options("-Wall" "-Wextra" "-Werror")
 endif()
