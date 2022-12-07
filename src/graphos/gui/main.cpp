@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
                                         ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_ABOUT
 
-    properties_component.createComponent();
+    properties_component.open();
     properties_component.setAlternatingRowColors(true);
     componentsManager.mainWindowView()->setPropertiesWidget(properties_component.widget());
 

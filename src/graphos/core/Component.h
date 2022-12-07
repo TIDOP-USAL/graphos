@@ -136,11 +136,15 @@ public:
   /*!
    * \brief Create component
    */
-  virtual void createComponent();
+  virtual void create();
+
+  /*!
+   * \brief Open the component
+   */
+  virtual void open();
 
 protected:
 
-  virtual void openComponent();
   virtual void createAction();
   virtual void createModel() = 0;
   virtual void createView() = 0;
@@ -269,11 +273,9 @@ public:
 
 protected:
 
-  //virtual void createComponent();
   virtual void createModel() = 0;
   virtual void createView() = 0;
   virtual void createPresenter() = 0;
-  //virtual void createCommand() = 0;
   virtual void update() = 0;
 
 private:
