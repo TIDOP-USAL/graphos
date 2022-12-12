@@ -67,7 +67,8 @@ class DialogView
 
 public:
 
-  DialogView(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags())
+  DialogView(QWidget *parent = nullptr, 
+             Qt::WindowFlags f = Qt::WindowFlags())
     : QDialog(parent, f)
   {
     Qt::WindowFlags helpFlag = Qt::WindowContextHelpButtonHint;

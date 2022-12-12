@@ -44,7 +44,6 @@ FeatureMatchingProperties::FeatureMatchingProperties()
     mMaxError(4.0),
     mConfidence(0.999)
 {
-
 }
 
 FeatureMatchingProperties::FeatureMatchingProperties(const FeatureMatchingProperties &featureMatching)
@@ -55,7 +54,6 @@ FeatureMatchingProperties::FeatureMatchingProperties(const FeatureMatchingProper
     mMaxError(featureMatching.mMaxError),
     mConfidence(featureMatching.mConfidence)
 {
-
 }
 
 bool FeatureMatchingProperties::crossCheck() const

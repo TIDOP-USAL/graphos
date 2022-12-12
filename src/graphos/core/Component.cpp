@@ -78,31 +78,27 @@ void ComponentBase::init()
   ComponentBase::createAction();
 
   connect(mAction, &QAction::triggered,
-          this, &ComponentBase::createComponent);
+          this, &ComponentBase::open);
   connect(mApplication->status(), &AppStatus::update,
           this, &ComponentBase::update);
 
 }
 
-void ComponentBase::createComponent()
+void ComponentBase::create()
 {
-  disconnect(mAction, &QAction::triggered,
-             this, &ComponentBase::createComponent);
+  if(!mPresenter) {
+    createModel();
+    createView();
+    createPresenter();
 
-  this->createModel();
-  this->createView();
-  this->createPresenter();
-
-  emit created();
-
-  connect(mAction, &QAction::triggered,
-          this, &ComponentBase::openComponent);
-
-  openComponent();
+    emit created();
+  }
 }
 
-void ComponentBase::openComponent()
+void ComponentBase::open()
 {
+  create();
+
   mPresenter->open();
 }
 
@@ -139,7 +135,7 @@ QWidget *ComponentBase::widget() const
 std::shared_ptr<Command> ComponentBase::command()
 {
   if (!mCommand) {
-    this->createCommand();
+    createCommand();
   }
   return mCommand;
 }
@@ -164,12 +160,6 @@ void ComponentBase::freeMemory()
 {
 
   if (mPresenter) {
-
-    disconnect(mAction, &QAction::triggered,
-               this, &ComponentBase::openComponent);
-    connect(mAction, &QAction::triggered,
-            this, &ComponentBase::createComponent);
-
     delete mPresenter;
     mPresenter = nullptr;
   }
@@ -323,8 +313,6 @@ MultiComponentBase::~MultiComponentBase()
 
 void MultiComponentBase::init()
 {
-  //connect(subMenu(), &QMenu::triggered,
-  //        this, &MultiComponentBase::createComponent);
   connect(mApplication->status(), &AppStatus::update,
           this, &MultiComponentBase::update);
 }
@@ -333,15 +321,6 @@ QMenu *MultiComponentBase::subMenu() const
 {
   return dynamic_cast<QMenu *>(mView);
 }
-
-//void MultiComponentBase::createComponent()
-//{
-//  this->createModel();
-//  this->createView();
-//  this->createPresenter();
-//
-//  emit created();
-//}
 
 QString MultiComponentBase::name() const
 {
