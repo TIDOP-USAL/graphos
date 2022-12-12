@@ -265,6 +265,14 @@ void CCViewer3D::loadFromFile(const QString &file, const QString &parent)
     return; ///TODO: Devolver error
   }
 
+  // Disable normals
+  ccHObject::Container clouds;
+  group->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+  for (auto cloud : clouds) {
+    if (cloud)
+      static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
+  }
+
   group->setDisplay_recursive(this);
 
   size_t childCount = group->getChildrenNumber();
@@ -297,6 +305,15 @@ void CCViewer3D::loadFromFiles(const QStringList &files, const QString &parent)
     CC_FILE_ERROR result = CC_FERR_NO_ERROR;
     if (ccHObject *newEntities = FileIOFilter::LoadFromFile(files[i], parameters, result)) {
       newEntities->setName(files[i]);
+
+      // Disable normals
+      ccHObject::Container clouds;
+      newEntities->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+      for (auto cloud : clouds) {
+        if (cloud)
+          static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
+      }
+
       addToDB(newEntities);
     }
     		
@@ -369,7 +386,7 @@ void CCViewer3D::addCamera(const QString &id,
                    static_cast<PointCoordinateType>(camera_center.z));
   cc_rot.setTranslation(center);
 
-	camera->setRigidTransformation(cc_rot);
+  camera->setRigidTransformation(cc_rot);
 
   TL_TODO("Esto se tiene que rellenar con la calibración de la cámara")
   /*** Intrinsic parameters ***/
@@ -790,32 +807,15 @@ void CCViewer3D::addToDB(ccHObject *entity)
 {
   assert(entity && this);
 
-  ///TODO: Esto probablemente deberia estar en otra parte
-  ccHObject* currentRoot = this->getSceneDB();
-  //if (currentRoot == nullptr) {
-  //  currentRoot = new ccHObject("root");
-  //  this->setSceneDB(currentRoot);
-  //}
-
-  
-
-  if (currentRoot) {
+  if (ccHObject* currentRoot = this->getSceneDB()) {
     //already a pure 'root'
     if (currentRoot->isA(CC_TYPES::HIERARCHY_OBJECT)) {
       currentRoot->addChild(entity);
       this->setSceneDB(currentRoot);
       entity->setDisplay_recursive(this);
-    } /*else {
-      ccHObject* root = new ccHObject("root");
-      root->addChild(currentRoot);
-      root->addChild(entity);
-      this->setSceneDB(root);
-    }*/
-  } /*else {
-    this->setSceneDB(entity);
-  }*/
+    }
+  }
 
-  //checkForLoadedEntities();
 }
 
 //void CCViewer3D::scaleAlreadyDisplayed(ccHObject *entity)
