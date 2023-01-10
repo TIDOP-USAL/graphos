@@ -210,7 +210,7 @@ TL_EXPORT bool cudaEnabled(double minDriver, double minCapability)
         bUseGPU = true;
         break;
       } else {
-        msgError("%s: %s", cudaGetErrorName(err_cuda), cudaGetErrorString(err_cuda));
+        msgError("[%s] %s", cudaGetErrorName(err_cuda), cudaGetErrorString(err_cuda));
       }
     }
 
@@ -254,7 +254,7 @@ TL_EXPORT bool cudaEnabled(double minDriver, double minCapability)
     }
 
   } else {
-    msgError("%s: %s", cudaGetErrorName(err_cuda), cudaGetErrorString(err_cuda));
+    msgError("[%s] %s", cudaGetErrorName(err_cuda), cudaGetErrorString(err_cuda));
   }
 
 #else

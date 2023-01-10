@@ -76,11 +76,21 @@ public:
   AppStatus operator=(const AppStatus &) = delete;
   AppStatus operator=(AppStatus &&) = delete;
 
+  /* Graphos Flags */
+
   void activeFlag(Flag flag, bool active);
   bool isActive(Flag flag) const;
   void flagOn(Flag flag);
   void flagOff(Flag flag);
   void switchFlag(Flag flag);
+
+  /* User flags */
+  
+  bool isActive(uint32_t flag) const;
+  void flagOn(uint32_t flag);
+  void flagOff(uint32_t flag);
+  void switchFlag(uint32_t flag);
+
   void clear();
 
 signals:
@@ -90,6 +100,7 @@ signals:
 private:
 
   tl::EnumFlags<Flag> mFlags;
+  tl::Flags<uint32_t> mUserFlags;
   
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(AppStatus::Flag)

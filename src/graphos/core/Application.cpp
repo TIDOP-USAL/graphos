@@ -46,8 +46,9 @@ std::once_flag Application::sInitFlag;
 Application::Application(int argc, char **argv)
   : QApplication(argc, argv),
     mAppStatus(new AppStatus()),
-    mProject(new ProjectImp),
+    mProject(nullptr),
     mSettings(new SettingsImp),
+    mMainWindow(nullptr),
     mCommandList(nullptr)
 {
 }
@@ -57,11 +58,6 @@ Application::~Application()
   if (mAppStatus != nullptr) {
     delete mAppStatus;
     mAppStatus = nullptr;
-  }
-
-  if (mProject) {
-    delete mProject;
-    mProject = nullptr;
   }
 
   if (mSettings) {
@@ -96,9 +92,19 @@ tl::MessageManager *Application::messageManager()
   return &tl::MessageManager::instance();
 }
 
-Project *Application::project()
+Project *const Application::project()
 {
   return mProject;
+}
+
+const Project *const Application::project() const
+{
+  return mProject;
+}
+
+void Application::setProject(Project *project)
+{
+  mProject = project;
 }
 
 Settings *Application::settings()

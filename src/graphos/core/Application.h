@@ -76,7 +76,11 @@ public:
   tl::Path documentsLocation() const;
   AppStatus *status();
   tl::MessageManager *messageManager();
-  Project *project();
+
+  Project *const project();
+  const Project *const project() const;
+  void setProject(Project *project);
+
   Settings *settings();
 
   QMainWindow *mainWindow();

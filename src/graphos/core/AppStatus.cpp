@@ -70,9 +70,37 @@ void AppStatus::switchFlag(Flag flag)
   emit update();
 }
 
+bool AppStatus::isActive(uint32_t flag) const
+{
+  return mUserFlags.isActive(flag);
+}
+
+void AppStatus::flagOn(uint32_t flag)
+{
+  if (!mUserFlags.isActive(flag)) {
+    mUserFlags.flagOn(flag);
+    emit update();
+  }
+}
+
+void AppStatus::flagOff(uint32_t flag)
+{
+  if (mUserFlags.isActive(flag)) {
+    mUserFlags.flagOff(flag);
+    emit update();
+  }
+}
+
+void AppStatus::switchFlag(uint32_t flag)
+{
+  mUserFlags.switchFlag(flag);
+  emit update();
+}
+
 void AppStatus::clear()
 {
   mFlags.clear();
+  mUserFlags.clear();
   emit update();
 }
 

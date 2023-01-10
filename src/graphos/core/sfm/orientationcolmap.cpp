@@ -491,8 +491,8 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
     OrientationExport orientationExport(&reconstruction);
 
-    orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
-    //orientationExport.exportText(path);
+    //orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
+    //orientationExport.exportText(QString::fromStdWString(mOutputPath.toWString()));
     tl::Path sparse_file = mOutputPath;
     sparse_file.append("sparse.ply");
     orientationExport.exportPLY(QString::fromStdWString(sparse_file.toWString()));
@@ -702,6 +702,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
     sparse_path.append("sparse.ply");
     OrientationExport orientationExport(&reconstruction);
     //orientationExport.exportBinary(QString::fromStdString(sparse_path.toString()));
+    //orientationExport.exportText(QString::fromStdString(sparse_path.toString()));
     orientationExport.exportPLY(QString::fromStdString(sparse_path.toString()));
 
     /// writeOffset
@@ -1121,6 +1122,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
       tl::Path sparse_path(mOutputPath);
       sparse_path.append("sparse.ply");
       OrientationExport orientationExport(&reconstruction);
+      //orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
+      //orientationExport.exportText(QString::fromStdWString(mOutputPath.toWString()));
       orientationExport.exportPLY(QString::fromStdString(sparse_path.toString()));
 
       /// writeOffset

@@ -572,6 +572,7 @@ bool ProjectImp::load(const tl::Path &file)
   bool err = false;
   QFile input(QString::fromStdWString(file.toWString()));
   mProjectPath = file;
+  mProjectPath.normalize();
 
   if(input.open(QIODevice::ReadOnly)) {
     QXmlStreamReader stream;

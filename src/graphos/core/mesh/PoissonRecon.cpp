@@ -141,37 +141,57 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 
   try {
 
-    std::string b_type;
-
-    if(boundaryType() == "free") {
-      b_type = "1";
-    } else if(boundaryType() == "Dirichlet") {
-      b_type = "2";
-    } else {
-      b_type = "3";
-    }
-
     tl::Path app_path = tl::App::instance().path();
 
-    std::string cmd("\"");
-    cmd.append(app_path.parentPath().toString());
-    cmd.append("\\PoissonRecon.exe\" ");
-    cmd.append("--in \"").append(mInput.toString());
-    cmd.append("\" --out \"").append(mOutput.toString());
-    cmd.append("\" --depth ").append(std::to_string(depth()));
-    //cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
-    //cmd.append(" --width ").append(std::to_string(width()));
-    cmd.append(" --bType ").append(b_type);
-    cmd.append(" --density --samplesPerNode 5");
-    //[--samplesPerNode < minimum number of samples per node >= 1.500000]
-    //[--pointWeight < interpolation weight >= 2.000e+00 * <b - spline degree>]
-    msgInfo("Process: %s", cmd.c_str());
+    // Poisson Reconstruction
+    {
 
-    tl::Process process(cmd);
+      std::string b_type;
 
-    process.run();
+      if (boundaryType() == "free") {
+        b_type = "1";
+      } else if (boundaryType() == "Dirichlet") {
+        b_type = "2";
+      } else {
+        b_type = "3";
+      }
 
-    TL_ASSERT(process.status() == tl::Process::Status::finalized, "Poisson Reconstruction error");
+      std::string cmd("\"");
+      cmd.append(app_path.parentPath().toString());
+      cmd.append("\\PoissonRecon.exe\" ");
+      cmd.append("--in \"").append(mInput.toString());
+      cmd.append("\" --out \"").append(mOutput.toString());
+      cmd.append("\" --depth ").append(std::to_string(depth()));
+      //cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
+      //cmd.append(" --width ").append(std::to_string(width()));
+      cmd.append(" --bType ").append(b_type);
+      cmd.append(" --density --samplesPerNode 5");
+      //[--samplesPerNode < minimum number of samples per node >= 1.500000]
+      //[--pointWeight < interpolation weight >= 2.000e+00 * <b - spline degree>]
+      msgInfo("Process: %s", cmd.c_str());
+
+      tl::Process process(cmd);
+
+      process.run();
+
+      TL_ASSERT(process.status() == tl::Process::Status::finalized, "Poisson Reconstruction error");
+    }
+
+    {
+      std::string cmd("\"");
+      cmd.append(app_path.parentPath().toString());
+      cmd.append("\\SurfaceTrimmer.exe\" ");
+      cmd.append("--in \"").append(mOutput.toString());
+      cmd.append("\" --out \"").append(mOutput.toString());
+      cmd.append("\" --trim 7");
+
+      tl::Process process(cmd);
+
+      process.run();
+
+      TL_ASSERT(process.status() == tl::Process::Status::finalized, "Surface Trimmer error");
+
+    }
 
     if(progressBar) (*progressBar)();
 

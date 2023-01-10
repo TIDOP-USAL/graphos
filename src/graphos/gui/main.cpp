@@ -28,6 +28,7 @@
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
 
+#include "graphos/core/project.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
@@ -125,11 +126,14 @@ using namespace graphos;
 int main(int argc, char *argv[])
 {
 
+  ProjectImp project;
+
   Application app(argc, argv);
   app.setApplicationName("GRAPHOS");
   app.setApplicationDisplayName("GRAPHOS");
   app.setApplicationVersion(GRAPHOS_VERSION);
   app.setOrganizationName("TIDOP");
+  app.setProject(&project);
 
   QIcon::setThemeName("Material");
 
