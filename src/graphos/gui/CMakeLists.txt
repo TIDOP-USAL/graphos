@@ -21,6 +21,8 @@
 #                                                                        #
 ##########################################################################
 
+include(TidopUtils)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 #include_directories(${CMAKE_SOURCE_DIR}/third_party)
@@ -41,40 +43,39 @@ set(CMAKE_AUTORCC ON)
 # Ejecutable graphos                                                                         #
 #--------------------------------------------------------------------------------------------#
 
-#TODO: Subir un nivel y cargar los componentes automaticamente de la carpeta components
 
 project(graphos LANGUAGES CXX)
 
-set(GRAPHOS_SOURCES
-    main.cpp
-    ComponentsManager.cpp
-    MainWindowModel.cpp
-    MainWindowPresenter.cpp
-    MainWindowView.cpp
-    HelpDialog.cpp
-    #utils/ProgressDialog.cpp
-    ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
-)
+add_files_to_project(${PROJECT_NAME}
+                     SOURCE_FILES
+                         main.cpp
+                         ComponentsManager.cpp
+                         MainWindowModel.cpp
+                         MainWindowPresenter.cpp
+                         MainWindowView.cpp
+                         HelpDialog.cpp
+                         ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
+                     HEADER_FILES
+                         ComponentsManager.h
+                         MainWindowModel.h
+                         MainWindowPresenter.h
+                         MainWindowView.h
+                         HelpDialog.h
+                         ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
+                     RESOURCE_FILES
+                         ${GRAPHOS_RESOURCES}
+                     FORM_FILES
+                         MainWindowView.ui)
 
-set(GRAPHOS_HEADERS
-    ComponentsManager.h
-    MainWindowModel.h
-    MainWindowPresenter.h
-    MainWindowView.h
-    HelpDialog.h
-    #utils/ProgressDialog.h
-    ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
-)
 
 if(MSVC)
-    list(APPEND GRAPHOS_SOURCES resource.h graphos.rc)
+add_files_to_project(${PROJECT_NAME}
+                     RESOURCE_FILES
+                         graphos.rc
+                     HEADER_FILES
+                         resource.h)
 endif(MSVC)
 
-# forms
-set(GRAPHOS_FORMS
-  MainWindowView.ui
-  #utils/ProgressDialog.ui
-)
 
 # Translation files
 ### TODO: Por si se quiere añadir soporte para varios idiomas
@@ -85,34 +86,16 @@ SET(GRAPHOS_TS_FILES
 
 qt5_add_translation(GRAPHOS_QM_FILES ${GRAPHOS_TS_FILES})
 
-QT5_ADD_RESOURCES(UI_GRAPHOS_RES 
-                  ${GRAPHOS_RESOURCES} 
-                  #[[${CMAKE_SOURCE_DIR}/res/icones.qrc]])
+#QT5_ADD_RESOURCES(UI_GRAPHOS_RES 
+#                  ${GRAPHOS_RESOURCES} 
+#                  #[[${CMAKE_SOURCE_DIR}/res/icones.qrc]])
 
 add_executable(${PROJECT_NAME}
 #add_executable(${PROJECT_NAME} WIN32
-               ${GRAPHOS_SOURCES}
-               ${GRAPHOS_HEADERS}
-               ${GRAPHOS_FORMS}
-               ${UI_GRAPHOS_RES}
-               #${GRAPHOS_TS_FILES}
-)
-
-source_group("Form Files"  FILES ${GRAPHOS_FORMS})
-source_group("Resource Files"  FILES ${GRAPHOS_RESOURCES} ${UI_GRAPHOS_RES})
-#source_group("Translation Files"  FILES ${GRAPHOS_TS_FILES})
-
-foreach(_source IN ITEMS ${GRAPHOS_SOURCES})
-    get_filename_component(_source_path "${_source}" PATH)
-    string(REPLACE "/" "\\" _group_path "${_source_path}")
-    source_group("Source Files\\${_group_path}" FILES "${_source}")
-endforeach()
-
-foreach(_source IN ITEMS ${GRAPHOS_HEADERS})
-    get_filename_component(_source_path "${_source}" PATH)
-    string(REPLACE "/" "\\" _group_path "${_source_path}")
-    source_group("Header Files\\${_group_path}" FILES "${_source}")
-endforeach()
+               ${PROJECT_SOURCE_FILES}
+               ${PROJECT_HEADER_FILES}
+               ${PROJECT_FORM_FILES}
+               ${PROJECT_RESOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME}
                       TidopLib::Core

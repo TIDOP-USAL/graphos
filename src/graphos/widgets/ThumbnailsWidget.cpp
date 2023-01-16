@@ -409,7 +409,7 @@ void ThumbnailsWidget::clear()
 
 void ThumbnailsWidget::initUI()
 {
-  this->setWindowTitle("Thumbnails");
+  setWindowTitle("Thumbnails");
 
   QToolBar *toolBar = new QToolBar(this);
 
