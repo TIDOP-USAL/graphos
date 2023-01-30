@@ -21,34 +21,59 @@
  *                                                                      *
  ************************************************************************/
 
+#define BOOST_TEST_MODULE GRAPHOS create project presenter test
 
-#include "ProjectFake.h"
+#include <boost/test/unit_test.hpp>
 
-#include <QFile>
-#include <QFileInfo>
-#include <QXmlStreamWriter>
+#include "graphos/components/createproject/impl/CreateProjectPresenter.h"
+#include "graphos/components/createproject/impl/CreateProjectModel.h"
+#include "graphos/components/createproject/impl/CreateProjectView.h"
+#include "graphos/core/Application.h"
+#include "graphos/core/project.h"
+#include "../test/fake/ProjectFake.h"
 
-namespace graphos
+using namespace graphos;
+
+BOOST_AUTO_TEST_SUITE(TestCreateProjectViewSuite)
+
+
+
+class TestCreateProjectPresenter
+  //: public QObject
 {
+  //Q_OBJECT
 
-ProjectFake::ProjectFake()
-{
-  mProjectFileText = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                     "<Graphos version=\"1.0\">"
-                     "    <General>"
-                     "        <Name>prj001</Name>"
-                     "        <Path>C:/Users/User01/Documents/graphos/Projects/prj001</Path>"
-                     "        <Description>Project 1</Description>"
-                     "    </General>"
-                     "</Graphos>";
-}
+public:
 
-bool ProjectFake::load(const tl::Path &file)
-{
-  QXmlStreamReader stream;
-  stream.addData(mProjectFileText);
+  TestCreateProjectPresenter()
+    : project(new ProjectFake),
+      createProjectModel(new CreateProjectModelImp(project)),
+      createProjectViewImp(new CreateProjectViewImp()),
+      createProjectPresenter(nullptr)
+  {
 
-  return this->read(stream);
-}
+  }
 
-} // end namespace graphos
+  ~TestCreateProjectPresenter(){}
+
+  void setup() 
+  {
+    AppStatus *status = Application::instance().status();
+    createProjectPresenter = new CreateProjectPresenterImp(createProjectViewImp, 
+                                                           createProjectModel,
+                                                           status);
+  }
+
+  void teardown() {}
+
+private:
+
+  Project *project;
+  CreateProjectModel *createProjectModel;
+  CreateProjectView *createProjectViewImp;
+  CreateProjectPresenter *createProjectPresenter;
+};
+
+
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -103,7 +103,7 @@ void ProcessPresenter::run()
     delete p;
     p = nullptr;
 
-    mProcess = this->createProcess();
+    mProcess = createProcess();
 
     TL_ASSERT(mProcess, "Empty process");
 

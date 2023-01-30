@@ -72,14 +72,14 @@ void Viewer3DContextMenu::init()
   mActionViewBack->setIcon(QIcon::fromTheme("back-view"));
   mActionViewBottom->setIcon(QIcon::fromTheme("bottom-view"));
 
-  this->addAction(mActionGlobalZoom);
-  this->addSeparator();
-  this->addAction(mActionViewFront);
-  this->addAction(mActionViewTop);
-  this->addAction(mActionViewLeft);
-  this->addAction(mActionViewRight);
-  this->addAction(mActionViewBack);
-  this->addAction(mActionViewBottom);
+  addAction(mActionGlobalZoom);
+  addSeparator();
+  addAction(mActionViewFront);
+  addAction(mActionViewTop);
+  addAction(mActionViewLeft);
+  addAction(mActionViewRight);
+  addAction(mActionViewBack);
+  addAction(mActionViewBottom);
 
   retranslate();
 }
@@ -269,8 +269,12 @@ void CCViewer3D::loadFromFile(const QString &file, const QString &parent)
   ccHObject::Container clouds;
   group->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
   for (auto cloud : clouds) {
-    if (cloud)
+    if (cloud) {
       static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
+      static_cast<ccGenericPointCloud *>(cloud)->showColors(true);
+      static_cast<ccGenericPointCloud *>(cloud)->showSF(false);
+    }
+
   }
 
   group->setDisplay_recursive(this);
@@ -310,8 +314,12 @@ void CCViewer3D::loadFromFiles(const QStringList &files, const QString &parent)
       ccHObject::Container clouds;
       newEntities->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
       for (auto cloud : clouds) {
-        if (cloud)
+        if (cloud) {
           static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
+          static_cast<ccGenericPointCloud *>(cloud)->showColors(true);
+          static_cast<ccGenericPointCloud *>(cloud)->showSF(false);
+        }
+
       }
 
       addToDB(newEntities);
@@ -602,6 +610,28 @@ void CCViewer3D::setVisible(const QString &id, bool visible)
     //}
 
     redraw();
+  }
+}
+
+void CCViewer3D::showClassification(bool show)
+{
+  if (ccHObject *currentRoot = getSceneDB()) {
+
+    //currentRoot->showColors(!show);
+    //currentRoot->showSF(show);
+
+    ccHObject::Container clouds;
+    currentRoot->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+    for (auto cloud : clouds) {
+      if (cloud) {
+        static_cast<ccGenericPointCloud *>(cloud)->showColors(!show);
+        static_cast<ccGenericPointCloud *>(cloud)->showSF(show);
+      }
+
+    }
+
+    redraw();
+
   }
 }
 

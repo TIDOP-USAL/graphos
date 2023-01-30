@@ -86,7 +86,11 @@ if(BUILD_FEATEXTRACT_COMPONENT)
     set(GRAPHOS_HAVE_FEATEXTRACT YES CACHE INTERNAL "")
 
     message(STATUS "  Graphos::FeatExtract enabled")
-
+	
+    if(BUILD_TEST)
+        add_subdirectory(test)
+    endif(BUILD_TEST)
+	
 else()
 
     message(STATUS "  Graphos::FeatExtract disabled")

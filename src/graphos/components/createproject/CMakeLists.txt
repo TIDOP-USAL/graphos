@@ -83,6 +83,10 @@ if(BUILD_CREATE_PROJECT_COMPONENT)
     
     message(STATUS "  Graphos::CreateProject enabled")
 
+    if(BUILD_TEST)
+        add_subdirectory(test)
+    endif(BUILD_TEST)
+	
 else()
 
     message(STATUS "  Graphos::CreateProject disabled")

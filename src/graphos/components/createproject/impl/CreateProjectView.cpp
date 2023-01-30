@@ -181,7 +181,8 @@ void CreateProjectViewImp::setExistingProject(bool prjExist)
     palette.setColor(QPalette::Text, Qt::black);
   }
   mLineEditProjectName->setPalette(palette);
-  this->update();
+  
+  update();
 }
 
 void CreateProjectViewImp::onClickButtonSelectPath()

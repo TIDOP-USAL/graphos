@@ -126,7 +126,8 @@ public:
   virtual void setGlobalZoom() = 0;
 
   virtual void setVisible(const QString &id, bool visible) = 0;
-  
+  virtual void showClassification(bool show) = 0;
+
   virtual void addCamera(const QString &id, 
                          double x, 
                          double y,
@@ -223,6 +224,7 @@ public slots:
   void setGlobalZoom() override;
 
   void setVisible(const QString &id, bool visible) override;
+  void showClassification(bool show = true) override;
 
 protected:
 

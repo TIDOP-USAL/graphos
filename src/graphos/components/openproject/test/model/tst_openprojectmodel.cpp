@@ -21,34 +21,55 @@
  *                                                                      *
  ************************************************************************/
 
+#define BOOST_TEST_MODULE GRAPHOS open project model test
 
-#include "ProjectFake.h"
+#include <boost/test/unit_test.hpp>
 
-#include <QFile>
-#include <QFileInfo>
-#include <QXmlStreamWriter>
+#include "graphos/components/openproject/impl/OpenProjectModel.h"
+#include "graphos/core/project.h"
+#include "../test/fake/ProjectFake.h"
 
-namespace graphos
+#include <QStandardPaths>
+#include <QApplication>
+
+using namespace graphos;
+
+BOOST_AUTO_TEST_SUITE(TestOpenProjectModelSuite)
+
+//QApplication app(boost::unit_test::framework::master_test_suite().argc,
+//                 boost::unit_test::framework::master_test_suite().argv);
+
+
+struct TestOpenProjectModel
 {
 
-ProjectFake::ProjectFake()
+  TestOpenProjectModel()
+    : project(new ProjectFake),
+      mProjectModel(new OpenProjectModelImp(project))
+  {}
+
+  ~TestOpenProjectModel(){}
+
+  void setup() 
+  {
+    qApp->setApplicationName("GRAPHOS");
+  }
+
+  void teardown() {}
+
+  Project *project;
+  OpenProjectModel *mProjectModel;
+};
+
+
+BOOST_FIXTURE_TEST_CASE(init, TestOpenProjectModel)
 {
-  mProjectFileText = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                     "<Graphos version=\"1.0\">"
-                     "    <General>"
-                     "        <Name>prj001</Name>"
-                     "        <Path>C:/Users/User01/Documents/graphos/Projects/prj001</Path>"
-                     "        <Description>Project 1</Description>"
-                     "    </General>"
-                     "</Graphos>";
+  QString graphos_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+  graphos_directory.append("/GRAPHOS/Projects");
+
+  BOOST_CHECK(mProjectModel->graphosProjectsDirectory().equivalent(graphos_directory.toStdString()));
+  //BOOST_CHECK_EQUAL(graphos_directory.toStdString(), mProjectModel->graphosProjectsDirectory().toString());
 }
 
-bool ProjectFake::load(const tl::Path &file)
-{
-  QXmlStreamReader stream;
-  stream.addData(mProjectFileText);
 
-  return this->read(stream);
-}
-
-} // end namespace graphos
+BOOST_AUTO_TEST_SUITE_END()

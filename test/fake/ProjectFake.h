@@ -20,7 +20,7 @@ public:
 
 public:
 
-  bool load(const QString &file) override;
+  bool load(const tl::Path &file) override;
 
 protected:
 
