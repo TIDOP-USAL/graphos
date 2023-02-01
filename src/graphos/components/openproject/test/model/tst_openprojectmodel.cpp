@@ -36,8 +36,6 @@ using namespace graphos;
 
 BOOST_AUTO_TEST_SUITE(TestOpenProjectModelSuite)
 
-//QApplication app(boost::unit_test::framework::master_test_suite().argc,
-//                 boost::unit_test::framework::master_test_suite().argv);
 
 
 struct TestOpenProjectModel

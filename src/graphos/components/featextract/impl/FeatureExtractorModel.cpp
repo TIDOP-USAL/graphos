@@ -40,7 +40,7 @@ FeatureExtractorModelImp::FeatureExtractorModelImp(Project *project,
                             qApp->organizationName(), 
                             qApp->applicationName()))
 {
-  this->init();
+  init();
 }
 
 FeatureExtractorModelImp::~FeatureExtractorModelImp()
