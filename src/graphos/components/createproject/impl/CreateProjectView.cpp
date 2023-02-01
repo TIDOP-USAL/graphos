@@ -51,14 +51,13 @@ CreateProjectViewImp::CreateProjectViewImp(QWidget *parent)
     mButtonBox(new QDialogButtonBox(this)),
     bPrjExist(false)
 {
-  CreateProjectViewImp::initUI();
-  CreateProjectViewImp::initSignalAndSlots();
+  initUI();
+  initSignalAndSlots();
 }
 
 void CreateProjectViewImp::initUI()
 {
   setObjectName(QString("CreateProjectView"));
-  //setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
   resize(450,300);
 
   QGridLayout *layout = new QGridLayout();
@@ -88,8 +87,8 @@ void CreateProjectViewImp::initUI()
   mButtonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
   layout->addWidget(mButtonBox, 7, 0, 1, 3);
 
-  CreateProjectViewImp::retranslate();
-  CreateProjectViewImp::update();
+  retranslate();
+  update();
 }
 
 void CreateProjectViewImp::initSignalAndSlots()
@@ -134,7 +133,7 @@ void CreateProjectViewImp::update()
 
 void CreateProjectViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("CreateProjectView", "New Project", nullptr));
+  setWindowTitle(QApplication::translate("CreateProjectView", "New Project", nullptr));
   mLabelProjectName->setText(QApplication::translate("CreateProjectView", "Project Name", nullptr));
   mLabelProjectPath->setText(QApplication::translate("CreateProjectView", "Project Path", nullptr));
   mLabelProjectFile->setText(QApplication::translate("CreateProjectView", "Project File", nullptr));
@@ -188,9 +187,10 @@ void CreateProjectViewImp::setExistingProject(bool prjExist)
 void CreateProjectViewImp::onClickButtonSelectPath()
 {
   QString pathName = QFileDialog::getExistingDirectory(this,
-    tr("Project path"),
-    mLineEditProjectPath->text(),
-    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                       tr("Project path"),
+                                                       mLineEditProjectPath->text(),
+                                                       QFileDialog::ShowDirsOnly | 
+                                                       QFileDialog::DontResolveSymlinks);
 
   if (!pathName.isEmpty()) {
     mLineEditProjectPath->setText(pathName);

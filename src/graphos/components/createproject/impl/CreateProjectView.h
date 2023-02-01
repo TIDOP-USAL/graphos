@@ -36,7 +36,7 @@ class QLabel;
 namespace graphos
 {
 
-class CreateProjectViewImp
+class CreateProjectViewImp final
   : public CreateProjectView
 {
   Q_OBJECT
@@ -45,6 +45,21 @@ public:
 
   explicit CreateProjectViewImp(QWidget *parent = nullptr);
   ~CreateProjectViewImp() override = default;
+
+protected slots:
+
+  void onClickButtonSelectPath();
+
+// CreateProjectView interface
+
+public:
+
+  QString projectName() const override;
+  QString projectPath() const override;
+  void setProjectPath(const QString &path) override;
+  QString projectDescription() const override;
+  bool createProjectFolderEnable() const override;
+  void setExistingProject(bool prjExist) override;
 
 // DialogView interface
 
@@ -61,21 +76,6 @@ private slots:
 
   void update() override;
   void retranslate() override;
-
-// CreateProjectView interface
-
-public:
-
-  QString projectName() const override;
-  QString projectPath() const override;
-  void setProjectPath(const QString &path) override;
-  QString projectDescription() const override;
-  bool createProjectFolderEnable() const override;
-  void setExistingProject(bool prjExist) override;
-
-protected slots:
-
-  void onClickButtonSelectPath() override;
 
 protected:
 

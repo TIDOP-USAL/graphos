@@ -32,7 +32,7 @@ namespace graphos
 class Project;
 
 
-class CreateProjectModelImp
+class CreateProjectModelImp final
   : public CreateProjectModel
 {
 

@@ -31,7 +31,7 @@ namespace graphos
 
 class Project;
 
-class OpenProjectModelImp
+class OpenProjectModelImp final
   : public OpenProjectModel
 {
 

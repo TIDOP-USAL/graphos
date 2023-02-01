@@ -35,7 +35,7 @@ class AppStatus;
 class CreateProjectView;
 class CreateProjectModel;
 
-class CreateProjectPresenterImp
+class CreateProjectPresenterImp final
   : public CreateProjectPresenter
 {
   Q_OBJECT

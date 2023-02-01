@@ -52,6 +52,14 @@ set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 set(CMAKE_CONFIGURATION_TYPES Release;Debug)
 
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed
+set(CMAKE_AUTOMOC ON)
+# Create code from a list of Qt designer ui files
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
 
 #if (UNIX)
 #
@@ -404,15 +412,6 @@ endif(WITH_VLD)
 
 include_directories("${PROJECT_BINARY_DIR}")
 add_subdirectory(third_party)
-
-
-# Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed
-set(CMAKE_AUTOMOC ON)
-# Create code from a list of Qt designer ui files
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 
 
 message(STATUS "\nGRAPHOS modules:\n")

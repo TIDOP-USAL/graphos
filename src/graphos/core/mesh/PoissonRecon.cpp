@@ -193,7 +193,7 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 
     }
 
-    if(progressBar) (*progressBar)();
+    if (progressBar) (*progressBar)();
 
   } catch(...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Load images error");

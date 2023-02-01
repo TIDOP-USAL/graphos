@@ -89,19 +89,8 @@ bool CreateProjectCommand::run()
 
     }
 
-    tl::Path database_path = file_path;// project_path;
+    tl::Path database_path = file_path;
     database_path.replaceExtension(".db");
-    //database_path.append("/").append(base_name).append(".db");
-
-    //std::string s_path = project_path.toString();
-    //QDir dir(project_path);
-    //if (dir.exists()) {
-    //  if (mForceOverwrite) {
-    //    dir.removeRecursively();
-    //  } else {
-    //    throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
-    //  }
-    //}
     
     if (project_path.exists()) {
       if (mForceOverwrite) {
@@ -128,7 +117,7 @@ bool CreateProjectCommand::run()
     msgInfo("- Description: %s", mProjectDescription.c_str());
 
   } catch (const std::exception &e) {
-    tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
+    tl::printException(e);
     r = true;
   }
 

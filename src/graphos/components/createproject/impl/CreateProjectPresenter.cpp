@@ -43,8 +43,8 @@ CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
     mModel(model),
     mAppStatus(status)
 {
-  CreateProjectPresenterImp::init();
-  CreateProjectPresenterImp::initSignalAndSlots();
+  init();
+  initSignalAndSlots();
 }
 
 void CreateProjectPresenterImp::saveProject()
@@ -74,6 +74,7 @@ tl::Path CreateProjectPresenterImp::projectFolder() const
   if (mView->createProjectFolderEnable())
     project_folder.append(mView->projectName().toStdWString());
   project_folder.normalize();
+
   return project_folder;
 }
 
@@ -82,6 +83,7 @@ tl::Path CreateProjectPresenterImp::projectPath(const tl::Path &projectFolder) c
   tl::Path project_path = projectFolder;
   project_path.append(mView->projectName().append(".xml").toStdWString());
   project_path.normalize();
+
   return project_path;
 }
 
@@ -90,6 +92,7 @@ tl::Path CreateProjectPresenterImp::databasePath(const tl::Path &projectFolder) 
   tl::Path database_path = projectFolder;
   database_path.append(mView->projectName().append(".db").toStdWString());
   database_path.normalize();
+
   return database_path;
 }
 
@@ -100,7 +103,7 @@ void CreateProjectPresenterImp::discartProject()
 
 void CreateProjectPresenterImp::checkProjectName() const
 {
-  tl::Path project_path = this->projectPath(this->projectFolder());
+  tl::Path project_path = projectPath(this->projectFolder());
   mView->setExistingProject(project_path.exists());
 }
 
@@ -134,10 +137,14 @@ void CreateProjectPresenterImp::init()
 
 void CreateProjectPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &CreateProjectView::project_name_changed, this, &CreateProjectPresenterImp::checkProjectName);
+  connect(mView, &CreateProjectView::project_name_changed, 
+          this, &CreateProjectPresenterImp::checkProjectName);
 
-  connect(mView, &QDialog::accepted,  this, &CreateProjectPresenterImp::saveProject);
-  connect(mView, &QDialog::rejected,  this, &CreateProjectPresenterImp::discartProject);
+  connect(mView, &QDialog::accepted, 
+          this, &CreateProjectPresenterImp::saveProject);
+
+  connect(mView, &QDialog::rejected, 
+          this, &CreateProjectPresenterImp::discartProject);
 
   connect(mView, &DialogView::help, [&]() {
     emit help("menus.html#new_project");
