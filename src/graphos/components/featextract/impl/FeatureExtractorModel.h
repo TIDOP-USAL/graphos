@@ -34,7 +34,7 @@ namespace graphos
 class Project;
 class Feature;
 
-class FeatureExtractorModelImp
+class FeatureExtractorModelImp final
   : public FeatureExtractorModel
 {
 
