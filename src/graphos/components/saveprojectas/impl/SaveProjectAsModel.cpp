@@ -24,6 +24,7 @@
 #include "SaveProjectAsModel.h"
 
 #include "graphos/core/project.h"
+#include "graphos/core/Application.h"
 
 #include <QStandardPaths>
 
@@ -49,9 +50,9 @@ void SaveProjectAsModelImp::save(const tl::Path &file)
 
 tl::Path SaveProjectAsModelImp::graphosProjectsDirectory() const
 {
-  tl::Path inspector_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
-  inspector_directory.append("graphos").append("Projects");
-  return inspector_directory;
+  //tl::Path project_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
+  //project_directory.append("graphos").append("Projects");
+  return dynamic_cast<Application *>(qApp)->documentsLocation();
 }
 
 void SaveProjectAsModelImp::init()

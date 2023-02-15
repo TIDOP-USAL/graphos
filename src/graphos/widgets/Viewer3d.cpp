@@ -25,6 +25,7 @@
 
 /* TidopLib */
 #include <tidop/core/messages.h>
+#include <tidop/math/math.h>
 
 /* CloudCompare*/
 #include <FileIOFilter.h>
@@ -401,8 +402,8 @@ void CCViewer3D::addCamera(const QString &id,
   {
   	ccCameraSensor::IntrinsicParameters iParams;
   
-  	iParams.vertFocal_pix = static_cast<float>(3859.63);
-  	iParams.vFOV_rad = static_cast<float>(45 * CC_DEG_TO_RAD);
+  	iParams.vertFocal_pix = 3859.63f;
+  	iParams.vFOV_rad = 45.f * tl::math::consts::deg_to_rad<float>;
   	iParams.arrayWidth = 4863;
   	iParams.arrayHeight = 3221;
   	iParams.pixelSize_mm[0] = static_cast<float>(1 / 4863);
@@ -410,8 +411,8 @@ void CCViewer3D::addCamera(const QString &id,
     iParams.zNear_mm = 0.f;
     iParams.zFar_mm = 100.f;
   	iParams.skew = 0.f;
-  	iParams.principal_point[0] = static_cast<float>(2412.5);
-  	iParams.principal_point[1] = static_cast<float>(1595.53);
+  	iParams.principal_point[0] = 2412.5f;
+  	iParams.principal_point[1] = 1595.53f;
   
     camera->setIntrinsicParameters(iParams);
   }
@@ -458,7 +459,12 @@ void CCViewer3D::activatePicker(PickingMode pickerMode)
   mRect2DLabel->setSelected(true);
   this->redraw();
 
+#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 12 || CLOUDCOMPARE_VERSION_MAJOR > 2
+  this->setInteractionMode(ccGLWindow::MODE_TRANSFORM_CAMERA);
+#else
   this->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA());
+#endif
+
   this->redraw(true);
 
   connect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &)),
@@ -475,6 +481,12 @@ void CCViewer3D::deactivatePicker()
   this->removeFromOwnDB(mLabel);
   this->removeFromOwnDB(mRect2DLabel);
   this->redraw();
+}
+
+ccHObject *CCViewer3D::object()
+{
+  if (ccHObject *currentRoot = getSceneDB()) return currentRoot;
+  else return nullptr;
 }
 
 /* public slots */
@@ -740,7 +752,11 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
       cc2DLabel *newLabel = new cc2DLabel();
       ccGenericGLDisplay *display = cloud->getDisplay();
       newLabel->setDisplay(display);
+#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
+      newLabel->addPickedPoint(cloud, pointIndex);
+#else
       newLabel->addPoint(cloud, pointIndex);
+#endif
       newLabel->setVisible(true);
       newLabel->setDisplayedIn2D(false);
       newLabel->setCollapsed(true);
@@ -766,7 +782,11 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
       return;
   }
 
+#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
+  mLabel->addPickedPoint(cloud, pointIndex);
+#else
   mLabel->addPoint(cloud, pointIndex);
+#endif
   mLabel->setVisible(true);
   //ccGenericGLDisplay* display = cloud->getDisplay();
   //mLabel->setDisplay(display);

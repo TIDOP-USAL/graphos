@@ -203,6 +203,8 @@ public:
   void activatePicker(PickingMode pickerMode);
   void deactivatePicker();
 
+  ccHObject *object();
+
 signals:
 
   void mouseClicked(QVector3D);
