@@ -25,8 +25,10 @@
 
 #include <tidop/math/math.h>
 
+TL_SUPPRESS_WARNINGS
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

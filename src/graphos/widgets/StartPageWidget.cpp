@@ -23,12 +23,14 @@
 
 #include "StartPageWidget.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QGridLayout>
 #include <QLabel>
 #include <QApplication>
 #include <QSplitter>
 #include <QCommandLinkButton>
 #include <QListWidget>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

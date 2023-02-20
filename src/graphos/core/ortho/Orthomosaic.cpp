@@ -284,8 +284,8 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
               double scale = image_reader->georeference().scaleX();
 
               /// Esquinas
-              corners[i].x = (windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale;
-              corners[i].y = (window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale;
+              corners[i].x = tl::roundToInteger((windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale);
+              corners[i].y = tl::roundToInteger((window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale);
 
               /// La mascara debería leerse si se creó en la generación del MDS.
               ortho_masks[i].create(image.size(), CV_8U);
@@ -479,7 +479,10 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
             compensate_image.convertTo(compensate_image_16s, CV_16S);
             compensate_image.release();
 
-            cv::Rect rect = cv::Rect(affine.tx, affine.ty, compensate_image_16s.cols, compensate_image_16s.rows);
+            cv::Rect rect = cv::Rect(tl::roundToInteger(affine.tx),
+                                     tl::roundToInteger(affine.ty),
+                                     compensate_image_16s.cols,
+                                     compensate_image_16s.rows);
             blender->feed(compensate_image_16s, seam_image, rect.tl());
           }
         } catch (...) {

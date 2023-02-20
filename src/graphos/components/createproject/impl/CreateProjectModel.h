@@ -32,7 +32,7 @@ namespace graphos
 class Project;
 
 
-class CreateProjectModelImp
+class CreateProjectModelImp final
   : public CreateProjectModel
 {
 
@@ -77,7 +77,6 @@ private:
 
   Project *mProject;
   tl::Path mPrjFile;
-
 
 };
 

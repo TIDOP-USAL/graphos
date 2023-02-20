@@ -23,6 +23,7 @@
 
 #include "CreateProjectView.h"
 
+/* Qt */
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QCheckBox>
@@ -51,14 +52,13 @@ CreateProjectViewImp::CreateProjectViewImp(QWidget *parent)
     mButtonBox(new QDialogButtonBox(this)),
     bPrjExist(false)
 {
-  CreateProjectViewImp::initUI();
-  CreateProjectViewImp::initSignalAndSlots();
+  initUI();
+  initSignalAndSlots();
 }
 
 void CreateProjectViewImp::initUI()
 {
   setObjectName(QString("CreateProjectView"));
-  //setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
   resize(450,300);
 
   QGridLayout *layout = new QGridLayout();
@@ -88,8 +88,8 @@ void CreateProjectViewImp::initUI()
   mButtonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
   layout->addWidget(mButtonBox, 7, 0, 1, 3);
 
-  CreateProjectViewImp::retranslate();
-  CreateProjectViewImp::update();
+  retranslate();
+  update();
 }
 
 void CreateProjectViewImp::initSignalAndSlots()

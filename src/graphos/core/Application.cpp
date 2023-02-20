@@ -180,8 +180,11 @@ QStringList Application::history() const
 
 void Application::addToHistory(const QString &project)
 {
-  mHistory.removeAll(project);
-  mHistory.prepend(project);
+  tl::Path path(project.toStdString());
+  path.normalize();
+  QString normalize_path = QString::fromStdString(path.toString());
+  mHistory.removeAll(normalize_path);
+  mHistory.prepend(normalize_path);
 
   while (mHistory.size() > mSettings->historyMaxSize())
     mHistory.removeLast();

@@ -23,11 +23,13 @@
 
 #include "ProgressBarDialog.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QPushButton>
 #include <QProgressBar>
 #include <QGridLayout>
 #include <QLabel>
 #include <QApplication>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

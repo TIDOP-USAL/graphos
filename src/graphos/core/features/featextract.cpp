@@ -240,8 +240,8 @@ private:
         if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
 
           scale = max_dimension / mMaxImageSize;
-          size.width /= scale;
-          size.height /= scale;
+          size.width = tl::roundToInteger(size.width / scale);
+          size.height = tl::roundToInteger(size.width / scale);
 
           resizeImage(mat, size);
         }
@@ -450,7 +450,7 @@ private:
                                                     keyPoints[i].angle);
 
       for (size_t j = 0; j < descriptors.cols; j++) {
-        descriptors_float(i, j) = descriptors.at<float>(i, j);
+        descriptors_float(i, j) = descriptors.at<float>(static_cast<int>(i), static_cast<int>(j));
       }
 
     }

@@ -25,12 +25,13 @@
 
 #include "graphos/widgets/ImageMenu.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QWheelEvent>
 #include <QMessageBox>
 #include <QGraphicsPixmapItem>
-
 #include <QApplication>
 #include <QMenu>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

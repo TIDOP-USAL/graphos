@@ -225,7 +225,8 @@ bool DtmInvDistNNAlgorithm::run(const tl::Path &pointCloud,
 
   tl::Path app_path = tl::App::instance().path();
 
-  tl::Size<int> size(bbox.width() / gsd, bbox.height() / gsd);
+  tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd), 
+                     tl::roundToInteger(bbox.height() / gsd));
 
   std::string cmd("\"");
   cmd.append(app_path.parentPath().toString());

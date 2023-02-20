@@ -71,7 +71,7 @@ cv::Mat openCVDistortionCoefficients(const Calibration &calibration)
   Calibration::CameraModel camera_model = calibration.cameraModel();
   bool b_fisheye = calibration.checkCameraType(Calibration::CameraType::fisheye);
 
-  size_t distCoeffs_size = 4;
+  int distCoeffs_size = 4;
 
   switch (camera_model) {
     case Calibration::CameraModel::radial1:
@@ -413,12 +413,12 @@ private:
       chrono.run();
 
       std::string image_path = image.path().toStdString();
-      size_t camera_id = image.cameraId();
+      int camera_id = image.cameraId();
 
-      auto undistort = mUndistort.find(image.cameraId());
+      auto undistort = mUndistort.find(camera_id);
       if (undistort == mUndistort.end()) {
 
-        auto &camera = mCameras->find(image.cameraId());
+        auto &camera = mCameras->find(camera_id);
         if (camera != mCameras->end()) {
           mUndistort[camera->first] = std::make_shared<Undistort>(camera->second);
         } else {

@@ -23,11 +23,13 @@
 
 #include "LogWidget.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QToolBar>
 #include <QGridLayout>
 #include <QListWidgetItem>
 #include <QAbstractItemModel>
 #include <QApplication>
+TL_DEFAULT_WARNINGS
 
 using namespace tl;
 

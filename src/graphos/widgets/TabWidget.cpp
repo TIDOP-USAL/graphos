@@ -27,10 +27,12 @@
 #include "graphos/widgets/GraphicViewer.h"
 #include "graphos/widgets/Viewer3d.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QMenu>
 #include <QAction>
 #include <QApplication>
 #include <QTabBar>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

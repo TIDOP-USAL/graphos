@@ -28,9 +28,11 @@
 
 #include <memory>
 
+TL_SUPPRESS_WARNINGS
 #include <QWidget>
 #include <QEvent>
 #include <QMenu>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

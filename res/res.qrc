@@ -201,6 +201,9 @@
         <file alias="24/pause.png">icons/Material/24/pause.png</file>
         <file alias="48/pause.png">icons/Material/48/pause.png</file>
         <file alias="96/pause.png">icons/Material/96/pause.png</file>
+        <file alias="24/folder_3d.png">icons/Material/24/folder_3d.png</file>
+        <file alias="48/folder_3d.png">icons/Material/48/folder_3d.png</file>
+        <file alias="96/folder_3d.png">icons/Material/96/folder_3d.png</file>
     </qresource>
     <qresource prefix="/CC">
         <file alias="images/ccMinus.png">icons/cc/ccMinus.png</file>

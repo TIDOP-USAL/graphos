@@ -30,6 +30,7 @@
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
+/* Qt */
 #include <QAction>
 #include <QString>
 
@@ -50,9 +51,9 @@ CreateProjectComponent::~CreateProjectComponent()
 
 void CreateProjectComponent::init()
 {
-  this->setName("New Project");
-  this->setMenu("file");
-  this->setToolbar("file");
+  setName("New Project");
+  setMenu("file");
+  setToolbar("file");
 
   createCommand();
 

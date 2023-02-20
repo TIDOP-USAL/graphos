@@ -484,6 +484,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
     if (itemModels == nullptr) {
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
+      itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
     }
@@ -522,12 +523,12 @@ void MainWindowView::deleteSparseModel()
       }
     }
 
-    if (itemModels == nullptr) {
+    if (itemModels == nullptr) return;/*{
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
-    }
+    }*/
 
     QTreeWidgetItem *itemSparseModel = nullptr;
     for (int i = 0; i < itemModels->childCount(); i++) {
@@ -558,6 +559,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
     if (itemModels == nullptr) {
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
+      itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
     }
@@ -596,12 +598,12 @@ void MainWindowView::deleteDenseModel()
       }
     }
 
-    if (itemModels == nullptr) {
+    if (itemModels == nullptr) return;/*{
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
-    }
+    }*/
 
     QTreeWidgetItem *itemDenseModel = nullptr;
     for (int i = 0; i < itemModels->childCount(); i++) {
@@ -633,6 +635,7 @@ void MainWindowView::setMesh(const QString &mesh)
     if (itemModels == nullptr) {
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
+      itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
     }
@@ -671,12 +674,12 @@ void MainWindowView::deleteMesh()
       }
     }
 
-    if (itemModels == nullptr) {
+    if (itemModels == nullptr) return;/*{
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
-    }
+    }*/
 
     QTreeWidgetItem *itemDenseModel = nullptr;
     for (int i = 0; i < itemModels->childCount(); i++) {

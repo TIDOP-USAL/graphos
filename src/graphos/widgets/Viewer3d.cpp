@@ -27,6 +27,8 @@
 #include <tidop/core/messages.h>
 #include <tidop/math/math.h>
 
+TL_SUPPRESS_WARNINGS
+
 /* CloudCompare*/
 #include <FileIOFilter.h>
 #include <ccPointCloud.h>
@@ -42,11 +44,12 @@
 #include <QFileInfo>
 #include <QApplication>
 
+TL_DEFAULT_WARNINGS
+
 #include <array>
 
 namespace graphos
 {
-
 
 
 Viewer3DContextMenu::Viewer3DContextMenu(QWidget *parent)
@@ -117,7 +120,9 @@ CCViewer3D::CCViewer3D(QWidget *parent)
     mScaleX(1),
     mScaleY(1),
     mOrderedLabelsContainer(nullptr),
-    mContextMenu(new Viewer3DContextMenu(this))
+    mContextMenu(new Viewer3DContextMenu(this)),
+    mShowClassification(false),
+    mRGBAColors(nullptr)
 {
   init();
   initSignalsAndSlots();
@@ -627,6 +632,8 @@ void CCViewer3D::setVisible(const QString &id, bool visible)
 
 void CCViewer3D::showClassification(bool show)
 {
+  mShowClassification = show;
+
   if (ccHObject *currentRoot = getSceneDB()) {
 
     //currentRoot->showColors(!show);
@@ -634,15 +641,113 @@ void CCViewer3D::showClassification(bool show)
 
     ccHObject::Container clouds;
     currentRoot->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-    for (auto cloud : clouds) {
-      if (cloud) {
-        static_cast<ccGenericPointCloud *>(cloud)->showColors(!show);
-        static_cast<ccGenericPointCloud *>(cloud)->showSF(show);
+
+    /// Sólo se permite una nube de puntos en el visor
+    if (clouds.size() != 1) return;
+
+    if (auto cloud = static_cast<ccPointCloud *>(clouds.at(0))) {
+      
+      if (show) {
+
+        cloud->setColor(ccColor::black);
+
+        for (const auto &reg : *mColorTable) {
+
+          ScalarType code = static_cast<ScalarType>(reg.first);
+          tl::graph::Color color = reg.second.second;
+
+          ccColor::Rgba ccColor(color.red(), color.green(), color.blue(), color.opacity());
+
+          if (CCCoreLib::ScalarField *sf = cloud->getScalarField(0)) {
+
+            int counter = 0;
+            for (auto it = sf->begin(); it != sf->end(); ++it, ++counter) {
+              if ((*it) == code) {
+                cloud->setPointColor(counter, ccColor);
+              }
+            }
+
+          }
+
+        }
+
+      } else {
+
+        if (mRGBAColors) {
+          /// Parece que se cambia en la nube de puntos pero no se visualiza.
+          //if (auto rgba = cloud->rgbaColors()) {
+          //  // restore original colors
+          //  mRGBAColors->copy(*rgba);
+          //}
+          int counter = 0;
+          for (const auto &color : *mRGBAColors) {
+
+            ccColor::Rgba color_reg(color);
+
+            for (const auto &reg : *mColorTable) {
+              ScalarType code = static_cast<ScalarType>(reg.first);
+              
+              if (CCCoreLib::ScalarField *sf = cloud->getScalarField(0)) {
+                if (sf->at(counter) == code) {
+                  color_reg.a = reg.second.second.opacity();
+                  break;
+                }
+              }
+            }
+
+            cloud->setPointColor(counter++, color_reg);
+          }
+          
+        } else {
+          cloud->unallocateColors();
+        }
+
+      }
+
+      cloud->redrawDisplay();
+
+    }
+  }
+  
+}
+
+void CCViewer3D::setColorTable(std::shared_ptr<ColorTable> colorTable)
+{
+  mColorTable = colorTable;
+
+  connect(mColorTable.get(), &ColorTable::change, [&]() {
+            showClassification(mShowClassification);
+          });
+
+  if (ccHObject *currentRoot = getSceneDB()) {
+
+    ccHObject::Container clouds;
+    currentRoot->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+
+    /// Sólo se permite una nube de puntos en el visor
+    if (clouds.size() != 1) return;
+
+    if (auto cloud = static_cast<ccPointCloud *>(clouds.at(0))) {
+
+      if (cloud->hasColors()) {
+
+        if (mRGBAColors == nullptr) {
+          mRGBAColors = cloud->rgbaColors()->clone();
+        }
+
+        if (!mRGBAColors) {
+          msgError("Not enough memory to backup previous colors");
+        }
+
+      } else {
+
+        // check memory for rgb colors
+        if (!cloud->resizeTheRGBTable()) {
+          msgError("Not enough memory to show colors");
+        }
       }
 
     }
-
-    redraw();
 
   }
 }

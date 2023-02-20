@@ -23,6 +23,7 @@
 
 #include "MatchViewerSettingsWidget.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QGridLayout>
@@ -33,6 +34,7 @@
 #include <QColorDialog>
 #include <QScrollArea>
 #include <QPushButton>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

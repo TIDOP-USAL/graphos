@@ -1225,7 +1225,7 @@ void ProjectImp::readMVS(QXmlStreamReader &stream)
     } else if (stream.name() == "MinResolution") {
       mvs->setMinResolution(readInt(stream));
     } else if (stream.name() == "MaxResolution") {
-      mvs->setMaxResolution(readDouble(stream));
+      mvs->setMaxResolution(readInt(stream));
     } else if (stream.name() == "NumberViews") {
       mvs->setNumberViews(readInt(stream));
     } else if (stream.name() == "NumberViewsFuse") {

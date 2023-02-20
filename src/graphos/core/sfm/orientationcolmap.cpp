@@ -491,7 +491,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
     OrientationExport orientationExport(&reconstruction);
 
-    //orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
+    orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
     //orientationExport.exportText(QString::fromStdWString(mOutputPath.toWString()));
     tl::Path sparse_file = mOutputPath;
     sparse_file.append("sparse.ply");

@@ -23,8 +23,10 @@
 
 #include "ImageMenu.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QAction>
 #include <QApplication>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

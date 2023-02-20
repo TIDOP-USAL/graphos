@@ -28,6 +28,7 @@
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
+/* Qt */
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -43,8 +44,8 @@ CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
     mModel(model),
     mAppStatus(status)
 {
-  CreateProjectPresenterImp::init();
-  CreateProjectPresenterImp::initSignalAndSlots();
+  init();
+  initSignalAndSlots();
 }
 
 void CreateProjectPresenterImp::saveProject()
@@ -134,7 +135,8 @@ void CreateProjectPresenterImp::init()
 
 void CreateProjectPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &CreateProjectView::project_name_changed, this, &CreateProjectPresenterImp::checkProjectName);
+  connect(mView, &CreateProjectView::project_name_changed, 
+          this,  &CreateProjectPresenterImp::checkProjectName);
 
   connect(mView, &QDialog::accepted,  this, &CreateProjectPresenterImp::saveProject);
   connect(mView, &QDialog::rejected,  this, &CreateProjectPresenterImp::discartProject);

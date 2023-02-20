@@ -116,6 +116,23 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Orientation finished"));
   }
+
+  if (mView->absoluteOrientation()) {
+
+    tl::Path path = mModel->projectFolder();
+    path.append("sfm");
+
+    path.append("cameras.bin");
+    tl::Path::removeFile(path);
+
+    path.replaceBaseName("images");
+    tl::Path::removeFile(path);
+
+    path.replaceBaseName("points3D");
+    tl::Path::removeFile(path);
+
+  }
+
 }
 
 std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()

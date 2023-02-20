@@ -23,6 +23,7 @@
 
 #include "SiftWidget.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QGridLayout>
@@ -30,6 +31,7 @@
 #include <QGroupBox>
 #include <QApplication>
 #include <QCheckBox>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

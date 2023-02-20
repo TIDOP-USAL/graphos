@@ -1145,12 +1145,13 @@ void Pdf::setMargins(int left,
                      int bottom)
 {
   if (!bIniDraw) {
-    QPagedPaintDevice::Margins margins;
-    margins.left = left;
-    margins.right = right;
-    margins.top = top;
-    margins.bottom = bottom;
-    pPdfWriter->setMargins(margins);
+    //QPagedPaintDevice::Margins margins;
+    //margins.left = left;
+    //margins.right = right;
+    //margins.top = top;
+    //margins.bottom = bottom;
+    //pPdfWriter->setMargins(margins);
+    pPdfWriter->setPageMargins(QMarginsF(left, top, right, bottom), QPageLayout::Millimeter);
   }
 
 }
@@ -1165,74 +1166,97 @@ void Pdf::setPageSize(Pdf::PageSize pageSize)
   if (!bIniDraw) {
     mPageSize = pageSize;
 
-    QPdfWriter::PageSize qPageSize;
+    //QPdfWriter::PageSize qPageSize;
+    QPageSize::PageSizeId page_size_id;
 
     switch (pageSize) {
     case Pdf::PageSize::A0:
-      qPageSize = QPdfWriter::PageSize::A0;
+      //qPageSize = QPdfWriter::PageSize::A0;
+      page_size_id = QPageSize::PageSizeId::A0;
       break;
     case Pdf::PageSize::A1:
-      qPageSize = QPdfWriter::PageSize::A1;
+      //qPageSize = QPdfWriter::PageSize::A1;
+      page_size_id = QPageSize::PageSizeId::A1;
       break;
     case Pdf::PageSize::A2:
-      qPageSize = QPdfWriter::PageSize::A2;
+      //qPageSize = QPdfWriter::PageSize::A2;
+      page_size_id = QPageSize::PageSizeId::A2;
       break;
     case Pdf::PageSize::A3:
-      qPageSize = QPdfWriter::PageSize::A3;
+      //qPageSize = QPdfWriter::PageSize::A3;
+      page_size_id = QPageSize::PageSizeId::A3;
       break;
     case Pdf::PageSize::A4:
-      qPageSize = QPdfWriter::PageSize::A4;
+      //qPageSize = QPdfWriter::PageSize::A4;
+      page_size_id = QPageSize::PageSizeId::A4;
       break;
     case Pdf::PageSize::A5:
-      qPageSize = QPdfWriter::PageSize::A5;
+      //qPageSize = QPdfWriter::PageSize::A5;
+      page_size_id = QPageSize::PageSizeId::A5;
       break;
     case Pdf::PageSize::A6:
-      qPageSize = QPdfWriter::PageSize::A6;
+      //qPageSize = QPdfWriter::PageSize::A6;
+      page_size_id = QPageSize::PageSizeId::A6;
       break;
     case Pdf::PageSize::A7:
-      qPageSize = QPdfWriter::PageSize::A7;
+      //qPageSize = QPdfWriter::PageSize::A7;
+      page_size_id = QPageSize::PageSizeId::A7;
       break;
     case Pdf::PageSize::A8:
-      qPageSize = QPdfWriter::PageSize::A8;
+      //qPageSize = QPdfWriter::PageSize::A8;
+      page_size_id = QPageSize::PageSizeId::A8;
       break;
     case Pdf::PageSize::A9:
-      qPageSize = QPdfWriter::PageSize::A9;
+      //qPageSize = QPdfWriter::PageSize::A9;
+      page_size_id = QPageSize::PageSizeId::A9;
       break;
     case Pdf::PageSize::A10:
-      qPageSize = QPdfWriter::PageSize::A10;
+      //qPageSize = QPdfWriter::PageSize::A10;
+      page_size_id = QPageSize::PageSizeId::A10;
       break;
     case Pdf::PageSize::B0:
-      qPageSize = QPdfWriter::PageSize::B0;
+      //qPageSize = QPdfWriter::PageSize::B0;
+      page_size_id = QPageSize::PageSizeId::B0;
       break;
     case Pdf::PageSize::B1:
-      qPageSize = QPdfWriter::PageSize::B1;
+      //qPageSize = QPdfWriter::PageSize::B1;
+      page_size_id = QPageSize::PageSizeId::B1;
       break;
     case Pdf::PageSize::B2:
-      qPageSize = QPdfWriter::PageSize::B2;
+      //qPageSize = QPdfWriter::PageSize::B2;
+      page_size_id = QPageSize::PageSizeId::B2;
       break;
     case Pdf::PageSize::B3:
-      qPageSize = QPdfWriter::PageSize::B3;
+      //qPageSize = QPdfWriter::PageSize::B3;
+      page_size_id = QPageSize::PageSizeId::B3;
       break;
     case Pdf::PageSize::B4:
-      qPageSize = QPdfWriter::PageSize::B4;
+      //qPageSize = QPdfWriter::PageSize::B4;
+      page_size_id = QPageSize::PageSizeId::B4;
       break;
     case Pdf::PageSize::B5:
-      qPageSize = QPdfWriter::PageSize::B5;
+      //qPageSize = QPdfWriter::PageSize::B5;
+      page_size_id = QPageSize::PageSizeId::B5;
       break;
     case Pdf::PageSize::B6:
-      qPageSize = QPdfWriter::PageSize::B6;
+      //qPageSize = QPdfWriter::PageSize::B6;
+      page_size_id = QPageSize::PageSizeId::B6;
       break;
     case Pdf::PageSize::B7:
-      qPageSize = QPdfWriter::PageSize::B7;
+      //qPageSize = QPdfWriter::PageSize::B7;
+      page_size_id = QPageSize::PageSizeId::B7;
       break;
     case Pdf::PageSize::B8:
-      qPageSize = QPdfWriter::PageSize::B8;
+      //qPageSize = QPdfWriter::PageSize::B8;
+      page_size_id = QPageSize::PageSizeId::B8;
       break;
     case Pdf::PageSize::B9:
-      qPageSize = QPdfWriter::PageSize::B9;
+      //qPageSize = QPdfWriter::PageSize::B9;
+      page_size_id = QPageSize::PageSizeId::B9;
       break;
     case Pdf::PageSize::B10:
-      qPageSize = QPdfWriter::PageSize::B10;
+      //qPageSize = QPdfWriter::PageSize::B10;
+      page_size_id = QPageSize::PageSizeId::B10;
       break;
       //case Pdf::PageSize::C0:
       //  break;
@@ -1257,20 +1281,25 @@ void Pdf::setPageSize(Pdf::PageSize pageSize)
       //case Pdf::PageSize::C10:
       //  break;
     case Pdf::PageSize::letter:
-      qPageSize = QPdfWriter::PageSize::Letter;
+      //qPageSize = QPdfWriter::PageSize::Letter;
+      page_size_id = QPageSize::PageSizeId::Letter;
       break;
     case Pdf::PageSize::legal:
-      qPageSize = QPdfWriter::PageSize::Legal;
+      //qPageSize = QPdfWriter::PageSize::Legal;
+      page_size_id = QPageSize::PageSizeId::Legal;
       break;
     case Pdf::PageSize::executive:
-      qPageSize = QPdfWriter::PageSize::Executive;
+      //qPageSize = QPdfWriter::PageSize::Executive;
+      page_size_id = QPageSize::PageSizeId::Executive;
       break;
     default:
-      qPageSize = QPdfWriter::PageSize::A4;
+      //qPageSize = QPdfWriter::PageSize::A4;
+      page_size_id = QPageSize::PageSizeId::A4;
       break;
     }
 
-    pPdfWriter->setPageSize(qPageSize);
+    //pPdfWriter->setPageSize(qPageSize);
+    pPdfWriter->setPageSize(QPageSize());
     update();
   }
 }
@@ -1401,7 +1430,7 @@ QString Pdf::replace(const QString &input) const
   while (ini!=std::string::npos)
   {
     end = output.find("#", ini+1);
-    int size = end-ini+1;
+    size_t size = end-ini+1;
     std::string tagString = output.substr(ini+1,end-(ini+1));
     std::string replaceText = "";
     std::map<std::string, std::string>::const_iterator it = mTagValues.find(tagString);

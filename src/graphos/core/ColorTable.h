@@ -21,108 +21,64 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_APPLICATION_H
-#define GRAPHOS_CORE_APPLICATION_H
+#ifndef GRAPHOS_CORE_COLOR_TABLE_H
+#define GRAPHOS_CORE_COLOR_TABLE_H
 
 #include "graphos/graphos_global.h"
 
-#include <memory>
-#include <mutex>
+#include <map>
 
 /* Qt */
-#include <QApplication>
+#include <QObject>
 
 /* TidopLib */
-#include <tidop/core/messages.h>
-#include <tidop/core/console.h>
-#include <tidop/core/path.h>
-
-
-class QMainWindow;
-
-namespace tl
-{
-class CommandList;
-}
-
+#include <tidop/graphic/color.h>
 
 namespace graphos
 {
 
-class AppStatus;
-class Component;
-class Project;
-class Settings;
-
-
-class Application
-  : public QApplication
+class ColorTable
+  : public QObject
 {
 
   Q_OBJECT
 
-//private:
-//
-//  Application();
+public:
+
+  using iterator = std::map<int, std::pair<std::string, tl::graph::Color>>::iterator;
+  using const_iterator = std::map<int, std::pair<std::string, tl::graph::Color>>::const_iterator;
 
 public:
 
-  static Application &instance();
-  Application(int argc, char **argv);
-  ~Application();
+  ColorTable(std::string name);
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+  std::string name() const;
+  void add(int code,
+           const std::string &name,
+           const tl::graph::Color &color);
 
-  tl::Path documentsLocation() const;
-  AppStatus *status();
-  tl::MessageManager *messageManager();
+  tl::graph::Color color(int code) const;
+  void setVisible(int code, bool visible);
+  bool isVisible(int code) const;
+  //std::string name(int code) const;
+  size_t size() const;
 
-  Project *const project();
-  const Project *const project() const;
-  void setProject(Project *project);
-
-  Settings *settings();
-
-  QMainWindow *mainWindow();
-  void setMainWindow(QMainWindow *mainWindow);
-
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
-
-  void freeMemory();
-
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
+  iterator begin();
+  const_iterator begin() const;
+  iterator end();
+  const_iterator end() const;
 
 signals:
 
-  void image_loaded(size_t);
-  void update_history();
+  void change();
 
 private:
 
-  tl::CommandList *commandList();
-
-private:
-
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  static std::once_flag sInitFlag;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  QMainWindow *mMainWindow;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  mutable QStringList mHistory;
+  std::string mName;
+  std::map<int, std::pair<std::string, tl::graph::Color>> mColors;
 };
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_CORE_APPLICATION_H
+#endif // GRAPHOS_CORE_COLOR_TABLE_H

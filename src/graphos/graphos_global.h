@@ -1,9 +1,12 @@
 #ifndef GRAPHOS_GLOBAL_H
 #define GRAPHOS_GLOBAL_H
 
-#include <QtCore/qglobal.h>
-
 #include "config_graphos.h"
+#include <tidop/core/defs.h>
+
+TL_SUPPRESS_WARNINGS
+#include <QtCore/qglobal.h>
+TL_DEFAULT_WARNINGS
 
 #if defined(GRAPHOS_EXPORTS)
 #  define GRAPHOS_EXPORT Q_DECL_EXPORT

@@ -35,7 +35,7 @@ CreateProjectModelImp::CreateProjectModelImp(Project *project,
     mProject(project),
     mPrjFile("")
 {
-  CreateProjectModelImp::init();
+  init();
 }
 
 CreateProjectModelImp::~CreateProjectModelImp()

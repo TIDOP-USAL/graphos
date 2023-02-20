@@ -310,15 +310,15 @@ void SiftCudaDetectorDescriptor::run(const cv::Mat &bitmap,
 
     size_t max_features = std::min(feature_number, SiftProperties::featuresNumber());
     keyPoints.resize(max_features);
-    descriptors = cv::Mat(max_features, descriptors_float.cols(), CV_32F);
+    descriptors = cv::Mat(static_cast<int>(max_features), static_cast<int>(descriptors_float.cols()), CV_32F);
     for (size_t i = 0; i < max_features; i++){
       keyPoints[i] = cv::KeyPoint(keypoints_data[i].x,
                                   keypoints_data[i].y,
                                   keypoints_data[i].s, 
                                   keypoints_data[i].o);
       /// Ver si se puede mejorar
-      for (size_t j = 0; j < descriptors_float.cols(); j++) {
-        descriptors.at<float>(i, j) = descriptors_float(i, j);
+      for (size_t j = 0; j < static_cast<size_t>(descriptors_float.cols()); j++) {
+        descriptors.at<float>(static_cast<int>(i), static_cast<int>(j)) = descriptors_float(i, j);
       }
     }
 

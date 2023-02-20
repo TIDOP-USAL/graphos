@@ -134,7 +134,8 @@ void ZBuffer::run()
 
             std::vector<cv::Point2f> points_image;
             std::vector<cv::Point2f> points_ortho;
-            points_ortho.emplace_back(window_ortho_in.center().x - window_ortho_in.pt1.x, window_ortho_in.center().y - window_ortho_in.pt1.y);
+            points_ortho.emplace_back(static_cast<float>(window_ortho_in.center().x - window_ortho_in.pt1.x),
+                                      static_cast<float>(window_ortho_in.center().y - window_ortho_in.pt1.y));
 
             cv::perspectiveTransform(points_ortho, points_image, h.inv());
 

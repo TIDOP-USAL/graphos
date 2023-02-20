@@ -164,9 +164,9 @@ void OrientationExport::exportPLY(const QString &path) const
       if (point.second.Error() < 2 &&
           point.second.Track().Length() >= 3) {
         PointPly ply_point;
-        ply_point.x = point.second.X();
-        ply_point.y = point.second.Y();
-        ply_point.z = point.second.Z();
+        ply_point.x = static_cast<float>(point.second.X());
+        ply_point.y = static_cast<float>(point.second.Y());
+        ply_point.z = static_cast<float>(point.second.Z());
         ply_point.r = point.second.Color(0);
         ply_point.g = point.second.Color(1);
         ply_point.b = point.second.Color(2);
@@ -548,7 +548,7 @@ void OrientationExport::exportMVE(const QString &path) const
 
       for (auto &camera : mReconstruction->Cameras()) {
 
-        double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
+        double sensor_width_px = static_cast<double>(std::max(camera.second.Width(), camera.second.Height()));
         double focal = camera.second.FocalLength() / sensor_width_px;
         double ppx = camera.second.PrincipalPointX() / sensor_width_px;
         double ppy = camera.second.PrincipalPointY() / sensor_width_px;
@@ -601,35 +601,11 @@ void OrientationExport::exportMVE(const QString &path) const
               stream_ini.close();
             }
 
-            ///TODO: ver porque pone 0 en la distorsión...
-            /// Utiliza las imagenes corregidas... Volver a poner a 0....
-            
-            TL_TODO("El formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo!!! Aqui supongo que habría que hacerlo igual")
-            //stream << focal << " " << "0" << " " << "0" << endl;  // Write '0' distortion values for pre-corrected images
             stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
             stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
             stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << std::endl;
             stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << std::endl;
             stream << translation[0] << " " << translation[1] << " " << translation[2] << std::endl;
-
-            ///TODO: Se carga la imagen y se corrige de distorsión.
-            //remap(left, left, map1, map2, INTER_LINEAR);
-
-            //for (auto &points_3d : mReconstruction->Points3D()) {
-
-            //  Eigen::Vector3ub color = points_3d.second.Color();
-            //  stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << endl;
-            //  // ¿??? stream << 250 << " " << 100 << " " << 150 << endl;  // Write arbitrary RGB color, see above note
-            //  stream << color[0] << " " << color[1] << " " << color[2] << endl;
-
-            //  colmap::Track track = points_3d.second.Track();
-            //  stream << track.Length();
-
-            //  for (auto &element : track.Elements()) {
-            //    stream << " " << element.image_id << " " << element.point2D_idx << " 0";
-            //  }
-            //  stream << endl;
-            //}
 
           }
         }
@@ -758,15 +734,15 @@ void OrientationExport::exportBundler(const QString &oriFile) const
     std::ofstream stream(oriFile.toStdString(), std::ios::trunc);
     if (stream.is_open()) {
 
-      int camera_count = mReconstruction->Images().size();
-      int feature_count = mReconstruction->NumPoints3D();
+      size_t camera_count = mReconstruction->Images().size();
+      size_t feature_count = mReconstruction->NumPoints3D();
 
       stream << "# Bundle file v0.3" << std::endl;
       stream << camera_count << " " << feature_count << std::endl;
 
       for (auto &camera : mReconstruction->Cameras()) {
 
-        double sensor_width_px = std::max(camera.second.Width(), camera.second.Height());
+        double sensor_width_px = static_cast<double>(std::max(camera.second.Width(), camera.second.Height()));
         double focal = camera.second.FocalLength() / sensor_width_px;
         int model_id = camera.second.ModelId();
         std::vector<double> params = camera.second.Params();
@@ -779,7 +755,6 @@ void OrientationExport::exportBundler(const QString &oriFile) const
 
             Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
             Eigen::Vector3d translation = image.second.Tvec();
-            TL_TODO("El formato bundler r10, r11, r12, r20, r21, r22, T1 y T2 se invierte el signo!!! Aqui supongo que habría que hacerlo igual")
             stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
             stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
             stream << -rotation_matrix(1, 0) << " " << -rotation_matrix(1, 1) << " " << -rotation_matrix(1, 2) << std::endl;

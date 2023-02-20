@@ -21,67 +21,80 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CREATE_PROJECT_PRESENTER_H
-#define GRAPHOS_CREATE_PROJECT_PRESENTER_H
+#include "graphos/core/ColorTable.h"
 
-#include "graphos/components/createproject/CreateProjectPresenter.h"
-
-#include <tidop/core/path.h>
+/* TidopLib */
+#include <tidop/math/math.h>
 
 namespace graphos
 {
 
-class AppStatus;
-class CreateProjectView;
-class CreateProjectModel;
 
-class CreateProjectPresenterImp final
-  : public CreateProjectPresenter
+ColorTable::ColorTable(std::string name)
+  : mName(std::move(name))
 {
-  Q_OBJECT
 
-public:
+}
 
-  CreateProjectPresenterImp(CreateProjectView *view,
-                            CreateProjectModel *model,
-                            AppStatus *status);
-  ~CreateProjectPresenterImp() override = default;
+std::string ColorTable::name() const
+{
+  return mName;
+}
 
-private:
+void ColorTable::add(int code,
+                     const std::string &name,
+                     const tl::graph::Color &color)
+{
+  mColors[code] = std::make_pair(name, color);
+}
 
-  tl::Path projectFolder() const;
-  tl::Path databasePath(const tl::Path &projectFolder) const;
-  tl::Path projectPath(const tl::Path &projectFolder) const;
+tl::graph::Color ColorTable::color(int code) const
+{
+  return mColors.at(code).second;
+}
 
-// CreateProjectPresenter interface
+void ColorTable::setVisible(int code, bool visible)
+{
+  mColors.at(code).second.setOpacity(visible ? 
+                                     static_cast<uint8_t>(255) : 
+                                     tl::math::consts::zero<uint8_t>);
 
-protected slots:
+  emit change();
+}
 
-  void saveProject() override;
-  void discartProject() override;
-  void checkProjectName() const override;
+bool ColorTable::isVisible(int code) const
+{
+  return mColors.at(code).second.opacity() == static_cast<uint8_t>(255);
+}
 
-// Presenter interface
+//std::string ColorTable::name(int code) const
+//{
+//  return mColors.at(code).first;
+//}
 
-public slots:
+size_t ColorTable::size() const
+{
+  return mColors.size();
+}
 
-  void open() override;
+ColorTable::iterator ColorTable::begin()
+{
+  return mColors.begin();
+}
 
-private:
+ColorTable::const_iterator ColorTable::begin() const
+{
+  return mColors.begin();
+}
 
-  void init() override;
-  void initSignalAndSlots() override;
+ColorTable::iterator ColorTable::end()
+{
+  return mColors.end();
+}
 
-private:
-
-  CreateProjectView *mView;
-  CreateProjectModel *mModel;
-  AppStatus *mAppStatus;
-  tl::Path mProjectsDefaultPath;
-  
-};
+ColorTable::const_iterator ColorTable::end() const
+{
+  return mColors.end();
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_CREATE_PROJECT_PRESENTER_H

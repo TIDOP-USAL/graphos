@@ -29,6 +29,7 @@
 #include <tidop/core/utils.h>
 #include <tidop/img/imgreader.h>
 
+TL_SUPPRESS_WARNINGS
 #include <QFileInfo>
 #include <QListWidget>
 #include <QGridLayout>
@@ -37,6 +38,7 @@
 #include <QImage>
 #include <QApplication>
 #include <QScrollBar>
+TL_DEFAULT_WARNINGS
 
 #include <mutex>
 

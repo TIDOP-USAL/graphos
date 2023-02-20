@@ -23,6 +23,7 @@
 
 #include "SmvsWidget.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QGridLayout>
@@ -30,6 +31,7 @@
 #include <QLabel>
 #include <QGroupBox>
 #include <QApplication>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {
