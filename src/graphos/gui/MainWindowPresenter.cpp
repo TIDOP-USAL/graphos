@@ -38,6 +38,7 @@
 #include <tidop/core/exception.h>
 
 /* Qt */
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDesktopServices>
@@ -46,6 +47,7 @@
 #include <QSqlError>
 #include <QApplication>
 #include <QSettings>
+
 
 namespace graphos
 {
@@ -145,30 +147,33 @@ void MainWindowPresenter::exit()
   /// - Comprobar que no haya ningún proceso corriendo
   
   Application &app = Application::instance();
-  AppStatus *app_status = app.status();
 
-  if (app_status && app_status->isActive(AppStatus::Flag::processing)) {
-    int i_ret = QMessageBox(QMessageBox::Warning,
-                            tr("Warning"),
-                            tr("Stop the current process before closing the program."),
-                            QMessageBox::Yes).exec();
-    if (i_ret == QMessageBox::Yes) {
-      return;
+  if (AppStatus *app_status = app.status()) {
+
+    while (app_status->isActive(AppStatus::Flag::loading_thumbs));
+
+    if (app_status->isActive(AppStatus::Flag::processing)) {
+      int i_ret = QMessageBox(QMessageBox::Warning,
+                              tr("Warning"),
+                              tr("Stop the current process before closing the program."),
+                              QMessageBox::Yes).exec();
+      if (i_ret == QMessageBox::Yes) {
+        return;
+      }
+    }
+
+    if (app_status->isActive(AppStatus::Flag::project_modified)) {
+      int i_ret = QMessageBox(QMessageBox::Information,
+                              tr("Save Changes"),
+                              tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
+                              QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+      if (i_ret == QMessageBox::Yes) {
+        saveProject();
+      } else if (i_ret == QMessageBox::Cancel) {
+        return;
+      }
     }
   }
-
-  if(app_status && app_status->isActive(AppStatus::Flag::project_modified)){
-    int i_ret = QMessageBox(QMessageBox::Information,
-                            tr("Save Changes"),
-                            tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
-                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-    if (i_ret == QMessageBox::Yes) {
-      saveProject();
-    } else if (i_ret == QMessageBox::Cancel) {
-      return;
-    }
-  }
-
 }
 
 void MainWindowPresenter::openStartPage()

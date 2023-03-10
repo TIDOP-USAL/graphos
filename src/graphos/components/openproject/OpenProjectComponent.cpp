@@ -48,9 +48,9 @@ OpenProjectComponent::~OpenProjectComponent()
 
 void OpenProjectComponent::init()
 {
-  this->setName("Open Project");
-  this->setMenu("file");
-  this->setToolbar("file");
+  setName("Open Project");
+  setMenu("file");
+  setToolbar("file");
 
   action()->setIcon(QIcon::fromTheme("open-project"));
 #ifndef QT_NO_SHORTCUT

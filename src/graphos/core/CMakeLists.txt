@@ -38,6 +38,7 @@ add_files_to_project(${PROJECT_NAME}
                          image.cpp
                          Pdf.cpp
                          ColorTable.cpp
+                         Ply.cpp
                          process/ProcessPresenter.cpp         
                          process/ProcessView.cpp
                          process/Progress.cpp
@@ -83,6 +84,7 @@ add_files_to_project(${PROJECT_NAME}
                          image.h
                          Pdf.h
                          ColorTable.h
+                         Ply.h
                          process/ProcessPresenter.h            
                          process/ProcessView.h
                          process/Progress.h

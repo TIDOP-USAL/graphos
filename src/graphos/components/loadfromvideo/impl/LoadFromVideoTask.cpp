@@ -164,12 +164,12 @@ cv::Mat ImportVideoFramesAlgorithm::read()
 
     double posframe;
     
-    int current_frame = mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
+    int current_frame = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_POS_FRAMES));
 
     if (current_frame < mFinishAt && mVideoCapture.read(frame)) {
       
       posframe = mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
-      int next_frame = posframe - 1 + skipFrames();
+      int next_frame = static_cast<int>(posframe) - 1 + skipFrames();
       mVideoCapture.set(cv::CAP_PROP_POS_FRAMES, next_frame);
     }
 
@@ -207,7 +207,7 @@ int ImportVideoFramesAlgorithm::height() const
 
 int ImportVideoFramesAlgorithm::framePosition() const
 {
-  return mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
+  return static_cast<int>(mVideoCapture.get(cv::CAP_PROP_POS_FRAMES));
 }
 
 
@@ -260,7 +260,7 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
     camera.setWidth(width);
     camera.setHeight(height);
     camera.setFocal(1.2 * std::max(width, height));
-    int camera_id = mCameras->size();
+    int camera_id = static_cast<int>(mCameras->size());
     mCameras->push_back(camera);
 
     std::shared_ptr<tl::ImageMetadata> image_metadata = tl::ImageMetadataFactory::create("JPEG");
@@ -268,7 +268,7 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
     image_metadata->setMetadata("EXIF_PixelYDimension", std::to_string(height));
 
 	  int delay = static_cast<int>(1000. / import_video_algorithm.framesPerSecond());
-    char c;
+    //char c;
     cv::Mat frame;
     while (!(frame = import_video_algorithm.read()).empty()) {
 

@@ -42,8 +42,8 @@ OpenProjectPresenterImp::OpenProjectPresenterImp(OpenProjectView *view,
     mModel(model),
     mAppStatus(status)
 {
-  this->init();
-  this->initSignalAndSlots();
+  init();
+  initSignalAndSlots();
 }
 
 OpenProjectPresenterImp::~OpenProjectPresenterImp()

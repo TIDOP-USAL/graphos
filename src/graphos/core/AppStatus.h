@@ -63,6 +63,7 @@ public:
     loading_images        = (1 << 21),
     tab_image_active      = (1 << 22),
     tab_3d_model_active   = (1 << 23),
+    loading_thumbs        = (1 << 24),
     command_mode          = (1 << 30)
   };
 

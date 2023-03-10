@@ -25,8 +25,10 @@
 
 #include "graphos/core/utils.h"
 #include "graphos/core/Application.h"
+#include "graphos/core/AppStatus.h"
 
 #include <tidop/core/utils.h>
+#include <tidop/core/progress.h>
 #include <tidop/img/imgreader.h>
 
 TL_SUPPRESS_WARNINGS
@@ -43,12 +45,14 @@ TL_DEFAULT_WARNINGS
 #include <mutex>
 
 static std::mutex sMutexThumbnail;
-
-
+//static int counter = 0;
+//std::atomic<int> counter = 0;
 
 void makeThumbnail(QListWidgetItem *item, QListWidget *listWidget)
 {
   std::lock_guard<std::mutex> lck(sMutexThumbnail);
+
+  msgWarning("makeThumbnail");
 
   if (item == nullptr) return;
 
@@ -92,11 +96,75 @@ void makeThumbnail(QListWidgetItem *item, QListWidget *listWidget)
     msgError(e.what());
   }
 
+  msgWarning("makeThumbnail End"); 
+  //counter--;
   //return image;
 }
 
 namespace graphos
 {
+
+
+LoadThumbnailTask::LoadThumbnailTask(QListWidgetItem *item, 
+                                     QListWidget *listWidget)
+  : mItem(item),
+    mListWidget(listWidget)
+{
+}
+
+LoadThumbnailTask::~LoadThumbnailTask()
+{
+}
+
+
+void LoadThumbnailTask::execute(tl::Progress *progressBar)
+{
+  if (mItem == nullptr) return;
+
+  QImage image;
+
+  try {
+
+    const QString thumb = mItem->toolTip();
+    std::string image_file = thumb.toStdString();
+
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
+    imageReader->open();
+    if (imageReader->isOpen()) {
+
+      int w = imageReader->cols();
+      int h = imageReader->rows();
+      double scale = 1.;
+      if (w > h) {
+        scale = 200. / static_cast<double>(w);
+      } else {
+        scale = 200. / static_cast<double>(h);
+      }
+
+      cv::Mat bmp = imageReader->read(scale, scale);
+
+      image = graphos::cvMatToQImage(bmp);
+
+      imageReader->close();
+
+      QPixmap pixmap = QPixmap::fromImage(image);
+      QIcon icon(pixmap);
+      mItem->setIcon(icon);
+
+      mListWidget->viewport()->update();
+
+    } else {
+      msgError("Error al abrir la imagen: %s", image_file.c_str());
+    }
+
+  } catch (const std::exception &e) {
+    msgError(e.what());
+  }
+}
+
+
+
+
 
 ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
   : GraphosWidgetView(parent),
@@ -106,10 +174,23 @@ ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
     mDetailsAction(nullptr),
     mDeleteImageAction(nullptr),
     mThumbnaislSize(0),
-    bLoadingImages(false)
+    bLoadingImages(false),
+    mThumbLoad(new tl::TaskQueue)
 {
-  ThumbnailsWidget::initUI();
-  ThumbnailsWidget::initSignalAndSlots();	
+  initUI();
+  initSignalAndSlots();	
+}
+
+ThumbnailsWidget::~ThumbnailsWidget() 
+{
+  if (mThumbLoad) {
+
+    // Para evitar una excepción al cerrar la aplicación si se esta ejecutando
+    while (!mThumbLoad->empty());
+
+    delete mThumbLoad;
+    mThumbLoad = nullptr;
+  }
 }
 
 void ThumbnailsWidget::setActiveImage(size_t imageId)
@@ -290,9 +371,13 @@ void ThumbnailsWidget::loadVisibleImages()
   AppStatus *app_status = app.status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
+  if (mListWidget->count() == 0) return;
+
+  //app_status->flagOn(AppStatus::Flag::loading_thumbs);
+
   QRect rect = mListWidget->viewport()->rect();
   QRegion region = mListWidget->viewport()->visibleRegion();
-
+  
   for (int i = 0; i < mListWidget->count(); i++) {
     QModelIndex idx = mListWidget->model()->index(i, 0);
     QRect idx_rect = mListWidget->visualRect(idx);
@@ -302,12 +387,21 @@ void ThumbnailsWidget::loadVisibleImages()
 
         item->setData(Qt::UserRole + 1, true);
 
-        std::thread t(makeThumbnail, item, mListWidget);
-        t.detach();
+        //std::lock_guard<std::mutex> lck(sMutexThumbnail);
+        //counter++;
+        //std::thread t(makeThumbnail, item, mListWidget);
+        //t.detach();
+
+        mThumbLoad->push(std::make_shared<LoadThumbnailTask>(item, mListWidget));
+
       }
 
     }
   }
+  
+  mThumbLoad->runAsync();
+
+  //app_status->flagOff(AppStatus::Flag::loading_thumbs);
 }
 
 void ThumbnailsWidget::onThumbnailClicked()

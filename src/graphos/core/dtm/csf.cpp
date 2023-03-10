@@ -27,10 +27,12 @@
 
 TL_SUPPRESS_WARNINGS
 #include <colmap/util/ply.h>
-#include <FileIOFilter.h>
-#include <ccPointCloud.h>
+//#include <FileIOFilter.h>
+//#include <ccPointCloud.h>
 #include "csf/src/CSF.h"
 TL_DEFAULT_WARNINGS
+
+#include "graphos/core/Ply.h"
 
 namespace graphos
 {
@@ -221,42 +223,24 @@ void Csf::filter(const std::string &pointCloud,
 
     /// TODO: Error al leer algunos ficheros ply
     /// Crear clase para lectura y escritura de ficheros PLY y no depender de terceros
-    //std::vector<colmap::PlyPoint> points = colmap::ReadPly(pointCloud);
+    std::vector<colmap::PlyPoint> points; //= colmap::ReadPly(pointCloud);
 
+    Ply ply_data(pointCloud);
 
-    FileIOFilter::LoadParameters parameters;
-    parameters.alwaysDisplayLoadDialog = false;
-    //parameters.parentWidget = this;
-    CC_FILE_ERROR error = CC_FERR_NO_ERROR;
-    ccHObject *cc_object = FileIOFilter::LoadFromFile(QString::fromStdString(pointCloud),
-                                                        parameters,
-                                                        error,
-                                                        "PLY mesh (*.ply)");
-    TL_ASSERT(error == CC_FERR_NO_ERROR, "Load file error");
-
-    ccHObject::Container clouds;
-    cc_object->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-
-    if (clouds.size() != 1) return;
-
-    auto cloud = static_cast<ccPointCloud *>(clouds.at(0));
-    if (cloud == nullptr) return;
-
-
-    
     csf::PointCloud csf_points;
-    //csf_points.resize(points.size());
-    csf_points.resize(cloud->size());
+    csf_points.resize(ply_data.size());
 
-    for (size_t i = 0; i < cloud->size(); i++) {
-      auto point = cloud->getPoint(i);
-      //csf_points[i].x = static_cast<double>(points[i].x);
-      //csf_points[i].y = static_cast<double>(-points[i].z);
-      //csf_points[i].z = static_cast<double>(points[i].y);
-      csf_points[i].x = static_cast<double>(point->x);
-      csf_points[i].y = static_cast<double>(point->y);
-      csf_points[i].z = static_cast<double>(point->z);
+    for (size_t i = 0; i < ply_data.size(); i++) {
+      csf_points[i].x = ply_data.point(i).x;
+      csf_points[i].y = ply_data.point(i).y;
+      csf_points[i].z = ply_data.point(i).z;
     }
+
+    //for (size_t i = 0; i < points.size(); i++) {
+    //  csf_points[i].x = static_cast<double>(points[i].x);
+    //  csf_points[i].y = static_cast<double>(-points[i].z);
+    //  csf_points[i].z = static_cast<double>(points[i].y);
+    //}
 
     mCSF->setPointCloud(csf_points);
 
@@ -270,22 +254,25 @@ void Csf::filter(const std::string &pointCloud,
     points_ground.reserve(ground_idx.size());
     points_off_ground.reserve(off_ground_idx.size());
 
+    colmap::PlyPoint colmap_point;
     for (const auto &idx : ground_idx) {
-      colmap::PlyPoint point_colmap;
-      point_colmap.x = csf_points[idx].x;
-      point_colmap.y = csf_points[idx].y;
-      point_colmap.z = csf_points[idx].z;
-      //points_ground.push_back(points[idx]);
-      points_ground.push_back(point_colmap);
+
+      tl::Point3<double> pt = ply_data.point(idx);
+      colmap_point.x = pt.x;
+      colmap_point.y = pt.y;
+      colmap_point.z = pt.z;
+
+      points_ground.push_back(colmap_point);
     }
 
     for (const auto &idx : off_ground_idx) {
-      //points_off_ground.push_back(points[idx]);
-      colmap::PlyPoint point_colmap;
-      point_colmap.x = csf_points[idx].x;
-      point_colmap.y = csf_points[idx].y;
-      point_colmap.z = csf_points[idx].z;
-      points_off_ground.push_back(point_colmap);
+
+      tl::Point3<double> pt = ply_data.point(idx);
+      colmap_point.x = pt.x;
+      colmap_point.y = pt.y;
+      colmap_point.z = pt.z;
+
+      points_off_ground.push_back(colmap_point);
     }
 
     colmap::WriteBinaryPlyPoints(ground, points_ground);

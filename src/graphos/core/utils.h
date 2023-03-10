@@ -78,7 +78,6 @@ bool cudaEnabled();  ///TODO: mover a un fichero de utilidades
 bool cudaEnabled(double minDriver, double minCapability);
 
 
-TL_TODO("Solución un tanto provisional...")
 class LogStreamBuf
   : public std::streambuf
 {

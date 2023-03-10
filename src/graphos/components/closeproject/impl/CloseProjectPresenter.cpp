@@ -42,8 +42,8 @@ CloseProjectPresenterImp::CloseProjectPresenterImp(CloseProjectView *view,
     mModel(model),
     mAppStatus(status)
 {
-  this->init();
-  this->initSignalAndSlots();
+  init();
+  initSignalAndSlots();
 }
 
 CloseProjectPresenterImp::~CloseProjectPresenterImp()

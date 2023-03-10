@@ -37,11 +37,14 @@
 #include <tidop/graphic/color.h>
 
 /* CloudCompare */
+TL_SUPPRESS_WARNINGS
 #include "ccGLWindow.h"
 #include <ccCameraSensor.h>
+TL_DEFAULT_WARNINGS
 
 #include "graphos/core/ColorTable.h"
 #include "graphos/widgets/GraphosWidget.h"
+
 
 class cc2DLabel;
 class cc2DViewportLabel;

@@ -104,7 +104,7 @@ int LoadImagesTask::findCamera(const QString &make, const QString &model) const
 
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
-      camera_id = i;
+      camera_id = static_cast<int>(i);
       break;
     }
 
@@ -213,7 +213,7 @@ void LoadImagesTask::loadImage(size_t imageId)
 
     tl::MessageManager::resume();
 
-    emit imageAdded(imageId, camera_id);
+    emit imageAdded(static_cast<int>(imageId), camera_id);
 
   } catch (std::exception &e) {
     msgError(e.what());
@@ -326,7 +326,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
                 focal = focal_mm / sensor_width_mm * max_size;
               } else if (exif_focal_plane_resolution_unit == "3") { //3 = Centimeter
                 sensor_width_mm = pixel_x_dimension * 10 / focal_plane_x_resolution;
-                focal_length = focal_mm / sensor_width_mm * max_size;
+                focal = focal_mm / sensor_width_mm * max_size;
               }
             }
           }
@@ -344,7 +344,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
   if (sensor_width_mm > 0.) 
     camera.setSensorSize(sensor_width_mm);
 
-  int camera_id = mCameras->size();
+  int camera_id = static_cast<int>(mCameras->size());
   mCameras->push_back(camera);
 
   return camera_id;

@@ -171,15 +171,17 @@ void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
+
+  tl::Path dense_path = dynamic_cast<DensifierBase const *>(event->task())->denseModel();
+
+  mModel->setDenseModel(dense_path);
+
   ProcessPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Densification finished"));
   }
 
-  tl::Path dense_path = dynamic_cast<DensifierBase const *>(event->task())->denseModel();
-
-  mModel->setDenseModel(dense_path);
 }
 
 std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()

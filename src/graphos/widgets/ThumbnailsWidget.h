@@ -26,7 +26,10 @@
 
 #include <QImage>
 
+#include <tidop/core/task.h>
+
 #include "graphos/widgets/GraphosWidget.h"
+
 
 class QListWidget;
 class QListWidgetItem;
@@ -34,6 +37,37 @@ class QGridLayout;
 
 namespace graphos
 {
+
+
+class LoadThumbnailTask
+  : public QObject,
+    public tl::TaskBase
+{
+
+  Q_OBJECT
+
+public:
+
+  LoadThumbnailTask(QListWidgetItem *item, 
+                    QListWidget *listWidget);
+  ~LoadThumbnailTask() override;
+
+signals:
+
+private:
+
+// tl::TaskBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+protected:
+
+  QListWidgetItem *mItem;
+  QListWidget *mListWidget;
+};
+
 
 class ThumbnailsWidget
   : public GraphosWidgetView
@@ -43,7 +77,7 @@ class ThumbnailsWidget
 public:
 
   explicit ThumbnailsWidget(QWidget *parent = nullptr);
-  virtual ~ThumbnailsWidget() override {}
+  ~ThumbnailsWidget() override;
 
   void setActiveImage(size_t imageId);
   void setActiveImages(const std::vector<size_t> &imageIds);
@@ -105,6 +139,7 @@ protected:
   QAction *mDeleteImageAction;
   int mThumbnaislSize;
   bool bLoadingImages;
+  tl::TaskQueue *mThumbLoad;
 };
 
 } // namespace graphos
