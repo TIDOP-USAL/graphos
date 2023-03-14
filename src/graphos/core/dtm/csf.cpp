@@ -26,13 +26,10 @@
 #include <tidop/core/exception.h>
 
 TL_SUPPRESS_WARNINGS
-#include <colmap/util/ply.h>
-//#include <FileIOFilter.h>
-//#include <ccPointCloud.h>
 #include "csf/src/CSF.h"
 TL_DEFAULT_WARNINGS
 
-#include "graphos/core/Ply.h"
+#include "graphos/core/ply.h"
 
 namespace graphos
 {
@@ -221,26 +218,17 @@ void Csf::filter(const std::string &pointCloud,
 {
   try {
 
-    /// TODO: Error al leer algunos ficheros ply
-    /// Crear clase para lectura y escritura de ficheros PLY y no depender de terceros
-    std::vector<colmap::PlyPoint> points; //= colmap::ReadPly(pointCloud);
-
-    Ply ply_data(pointCloud);
+    Ply ply(pointCloud, Ply::OpenMode::in | Ply::OpenMode::binary);
+    size_t size = ply.size();
 
     csf::PointCloud csf_points;
-    csf_points.resize(ply_data.size());
+    csf_points.resize(size);
 
-    for (size_t i = 0; i < ply_data.size(); i++) {
-      csf_points[i].x = ply_data.point(i).x;
-      csf_points[i].y = ply_data.point(i).y;
-      csf_points[i].z = ply_data.point(i).z;
+    for (size_t i = 0; i < size; i++) {
+      csf_points[i].x = ply.point<double>(i).x;
+      csf_points[i].y = -ply.point<double>(i).z;
+      csf_points[i].z = ply.point<double>(i).y;
     }
-
-    //for (size_t i = 0; i < points.size(); i++) {
-    //  csf_points[i].x = static_cast<double>(points[i].x);
-    //  csf_points[i].y = static_cast<double>(-points[i].z);
-    //  csf_points[i].z = static_cast<double>(points[i].y);
-    //}
 
     mCSF->setPointCloud(csf_points);
 
@@ -249,34 +237,23 @@ void Csf::filter(const std::string &pointCloud,
     mCSF->filter(ground_idx, off_ground_idx);
 
     /// Guardar nubes de puntos segmentadas
-    std::vector<colmap::PlyPoint> points_ground;
-    std::vector<colmap::PlyPoint> points_off_ground;
+    Ply points_ground(ground, Ply::OpenMode::out | Ply::OpenMode::binary);
     points_ground.reserve(ground_idx.size());
+    Ply points_off_ground(outGround, Ply::OpenMode::out | Ply::OpenMode::binary);
     points_off_ground.reserve(off_ground_idx.size());
 
-    colmap::PlyPoint colmap_point;
     for (const auto &idx : ground_idx) {
-
-      tl::Point3<double> pt = ply_data.point(idx);
-      colmap_point.x = pt.x;
-      colmap_point.y = pt.y;
-      colmap_point.z = pt.z;
-
-      points_ground.push_back(colmap_point);
+      points_ground.addPoint<float>(ply.point<float>(idx));
     }
 
     for (const auto &idx : off_ground_idx) {
-
-      tl::Point3<double> pt = ply_data.point(idx);
-      colmap_point.x = pt.x;
-      colmap_point.y = pt.y;
-      colmap_point.z = pt.z;
-
-      points_off_ground.push_back(colmap_point);
+      points_off_ground.addPoint<float>(ply.point<float>(idx));
     }
 
-    colmap::WriteBinaryPlyPoints(ground, points_ground);
-    colmap::WriteBinaryPlyPoints(outGround, points_off_ground);
+    points_ground.save();
+    points_ground.close();
+    points_off_ground.save();
+    points_off_ground.close();
 
   } catch (const std::bad_alloc &) {
     //m_app->dispToConsole("Not enough memory!", ccMainAppInterface::ERR_CONSOLE_MESSAGE);
