@@ -80,16 +80,16 @@ public:
   /* Graphos Flags */
 
   void activeFlag(Flag flag, bool active);
-  bool isActive(Flag flag) const;
-  void flagOn(Flag flag);
-  void flagOff(Flag flag);
+  bool isEnabled(Flag flag) const;
+  void enable(Flag flag);
+  void disable(Flag flag);
   void switchFlag(Flag flag);
 
   /* User flags */
   
-  bool isActive(uint32_t flag) const;
-  void flagOn(uint32_t flag);
-  void flagOff(uint32_t flag);
+  bool isEnabled(uint32_t flag) const;
+  void enable(uint32_t flag);
+  void disable(uint32_t flag);
   void switchFlag(uint32_t flag);
 
   void clear();

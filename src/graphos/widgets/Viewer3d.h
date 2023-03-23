@@ -45,11 +45,10 @@ TL_DEFAULT_WARNINGS
 #include "graphos/core/ColorTable.h"
 #include "graphos/widgets/GraphosWidget.h"
 
-
 class cc2DLabel;
 class cc2DViewportLabel;
 class RGBAColorsTableType;
-
+class ccGlFilter;
 namespace graphos
 {
 
@@ -73,6 +72,7 @@ signals:
   void viewRight(); 
   void viewBack();  
   void viewBottom();
+  void filterEDL(bool);
 
 private:
 
@@ -94,6 +94,7 @@ private:
   QAction *mActionViewRight;
   QAction *mActionViewBack;
   QAction *mActionViewBottom;
+  QAction *mActionEDLFilter;
 
 };
 
@@ -235,6 +236,12 @@ public slots:
   void setVisible(const QString &id, bool visible) override;
   void showClassification(bool show = true) override;
   void setColorTable(std::shared_ptr<ColorTable> colorTable);
+  void enableEDL();
+  void disableEDL();
+  
+public:
+
+  bool isEDL() const { return edl; }
 
 protected:
 
@@ -288,6 +295,8 @@ private:
   RGBAColorsTableType *mRGBAColors;
   std::shared_ptr<ColorTable> mColorTable;
   bool mShowClassification;
+  bool edl;
+  ccGlFilter *filter;
 };
 
 

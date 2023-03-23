@@ -139,11 +139,6 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
     tl::Chrono chrono("Feature Matching finished");
     chrono.run();
 
-    if (mFeatureMatcher) {
-      delete mFeatureMatcher;
-      mFeatureMatcher = nullptr;
-    }
-
     colmap::SiftMatchingOptions siftMatchingOptions;
     siftMatchingOptions.max_error = mFeatureMatching->maxError();
     siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
@@ -176,7 +171,19 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
 
     if (progressBar) (*progressBar)();
 
+    /// Se destruye para desbloquear la base de datos
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
+    }
+
   } catch (...) {
+
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
+    }
+
     TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
   }
 }
@@ -247,11 +254,6 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
     tl::Chrono chrono("Feature Matching finished");
     chrono.run();
 
-    if (mFeatureMatcher) {
-      delete mFeatureMatcher;
-      mFeatureMatcher = nullptr;
-    }
-
     colmap::SiftMatchingOptions siftMatchingOptions;
     siftMatchingOptions.max_error = mFeatureMatching->maxError();
     siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
@@ -290,7 +292,19 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
 
     if (progressBar) (*progressBar)();
 
+    /// Se destruye para desbloquear la base de datos
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
+    }
+
   } catch (...) {
+        
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
+    }
+
     TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
   }
 }
@@ -298,7 +312,8 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
 void SpatialMatchingTask::stop()
 {
   TaskBase::stop();
-  mFeatureMatcher->Stop();
+  if (mFeatureMatcher)
+    mFeatureMatcher->Stop();
 }
 
 tl::Path SpatialMatchingTask::database() const

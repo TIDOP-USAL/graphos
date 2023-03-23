@@ -90,9 +90,9 @@ void FeatureExtractorComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool feature_extraction_active = app_status->isActive(AppStatus::Flag::project_exists) && 
-                                   app_status->isActive(AppStatus::Flag::images_added) &&
-                                  !app_status->isActive(AppStatus::Flag::processing);
+  bool feature_extraction_active = app_status->isEnabled(AppStatus::Flag::project_exists) && 
+                                   app_status->isEnabled(AppStatus::Flag::images_added) &&
+                                  !app_status->isEnabled(AppStatus::Flag::processing);
   
   //if (!feature_extraction_active) 
   //  app_status->flagOff(AppStatus::Flag::feature_extraction);

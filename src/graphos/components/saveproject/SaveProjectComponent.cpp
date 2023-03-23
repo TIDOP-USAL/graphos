@@ -86,9 +86,9 @@ void SaveProjectComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  bool bLoadingImages = app_status->isActive(AppStatus::Flag::loading_images);
-  bool project_modified = app_status->isActive(AppStatus::Flag::project_modified);
+  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
+  bool bLoadingImages = app_status->isEnabled(AppStatus::Flag::loading_images);
+  bool project_modified = app_status->isEnabled(AppStatus::Flag::project_modified);
   action()->setEnabled(!bLoadingImages && !bProcessing && project_modified);
 }
 

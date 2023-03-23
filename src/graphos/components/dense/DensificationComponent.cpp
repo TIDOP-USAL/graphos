@@ -85,9 +85,9 @@ void DensificationComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool dense_model_active = app_status->isActive(AppStatus::Flag::project_exists) && 
-                            !app_status->isActive(AppStatus::Flag::processing) &&
-                            app_status->isActive(AppStatus::Flag::oriented);
+  bool dense_model_active = app_status->isEnabled(AppStatus::Flag::project_exists) && 
+                            !app_status->isEnabled(AppStatus::Flag::processing) &&
+                            app_status->isEnabled(AppStatus::Flag::oriented);
 
   action()->setEnabled(dense_model_active);
 }

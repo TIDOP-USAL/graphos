@@ -78,7 +78,7 @@ void MainWindowPresenter::openFromHistory(const QString &file)
       Application &app = Application::instance();
       AppStatus *app_status = app.status();
 
-      if (app_status && app_status->isActive(AppStatus::Flag::project_modified)) {
+      if (app_status && app_status->isEnabled(AppStatus::Flag::project_modified)) {
         int i_ret = QMessageBox(QMessageBox::Information,
                                 tr("Save Changes"),
                                 tr("There are unsaved changes. Do you want to save them?"),
@@ -150,9 +150,9 @@ void MainWindowPresenter::exit()
 
   if (AppStatus *app_status = app.status()) {
 
-    while (app_status->isActive(AppStatus::Flag::loading_thumbs));
+    while (app_status->isEnabled(AppStatus::Flag::loading_thumbs));
 
-    if (app_status->isActive(AppStatus::Flag::processing)) {
+    if (app_status->isEnabled(AppStatus::Flag::processing)) {
       int i_ret = QMessageBox(QMessageBox::Warning,
                               tr("Warning"),
                               tr("Stop the current process before closing the program."),
@@ -162,7 +162,7 @@ void MainWindowPresenter::exit()
       }
     }
 
-    if (app_status->isActive(AppStatus::Flag::project_modified)) {
+    if (app_status->isEnabled(AppStatus::Flag::project_modified)) {
       int i_ret = QMessageBox(QMessageBox::Information,
                               tr("Save Changes"),
                               tr("There are unsaved changes. Do you want to save the changes before closing the project?"),

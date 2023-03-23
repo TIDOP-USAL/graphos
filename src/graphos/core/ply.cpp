@@ -123,16 +123,16 @@ void Ply::open(const std::string &file,
   bool file_exists = tl::Path::exists(file);
 
   std::ios_base::openmode open_mode = 0;
-  if (flags.isActive(OpenMode::in)) open_mode += std::ios_base::in;
-  if (flags.isActive(OpenMode::out)) open_mode += std::ios_base::out;
-  if (flags.isActive(OpenMode::binary) || file_exists) open_mode += std::ios_base::binary;
+  if (flags.isEnabled(OpenMode::in)) open_mode += std::ios_base::in;
+  if (flags.isEnabled(OpenMode::out)) open_mode += std::ios_base::out;
+  if (flags.isEnabled(OpenMode::binary) || file_exists) open_mode += std::ios_base::binary;
   
-  mIsBinary = flags.isActive(OpenMode::binary);
+  mIsBinary = flags.isEnabled(OpenMode::binary);
   if (mIsBinary) mIsLittleEndian = true;
 
   stream = new std::fstream(file, open_mode);
 
-  if (file_exists && flags.isActive(OpenMode::in)) {
+  if (file_exists && flags.isEnabled(OpenMode::in)) {
     readHeader();
     readBody();
   }

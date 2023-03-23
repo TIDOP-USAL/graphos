@@ -23,6 +23,11 @@
 
 #include "Viewer3d.h"
 
+//#include "graphos/widgets/plugins/ccPluginInterface.h"
+//#include "graphos/widgets/plugins/core/qEDL/include/qEDL.h"
+//#include "graphos/widgets/plugins/core/qEDL/include/ccEDLFilter.h"
+#include "EDLfilter/ccEDLFilter.h"
+
 /* TidopLib */
 #include <tidop/core/messages.h>
 #include <tidop/math/math.h>
@@ -43,6 +48,7 @@ TL_SUPPRESS_WARNINGS
 #include <QMouseEvent>
 #include <QFileInfo>
 #include <QApplication>
+#include <QDir>
 
 TL_DEFAULT_WARNINGS
 
@@ -60,7 +66,8 @@ Viewer3DContextMenu::Viewer3DContextMenu(QWidget *parent)
     mActionViewLeft(new QAction(this)),
     mActionViewRight(new QAction(this)),
     mActionViewBack(new QAction(this)),
-    mActionViewBottom(new QAction(this))
+    mActionViewBottom(new QAction(this)),
+    mActionEDLFilter(new QAction(this))
 {
   init();
   initSignalAndSlots();
@@ -76,6 +83,8 @@ void Viewer3DContextMenu::init()
   mActionViewBack->setIcon(QIcon::fromTheme("back-view"));
   mActionViewBottom->setIcon(QIcon::fromTheme("bottom-view"));
 
+  mActionEDLFilter->setCheckable(true);
+
   addAction(mActionGlobalZoom);
   addSeparator();
   addAction(mActionViewFront);
@@ -84,6 +93,8 @@ void Viewer3DContextMenu::init()
   addAction(mActionViewRight);
   addAction(mActionViewBack);
   addAction(mActionViewBottom);
+  addSeparator();
+  addAction(mActionEDLFilter);
 
   retranslate();
 }
@@ -97,6 +108,7 @@ void Viewer3DContextMenu::initSignalAndSlots()
   connect(mActionViewRight,  &QAction::triggered, this, &Viewer3DContextMenu::viewRight);
   connect(mActionViewBack,   &QAction::triggered, this, &Viewer3DContextMenu::viewBack);
   connect(mActionViewBottom, &QAction::triggered, this, &Viewer3DContextMenu::viewBottom);
+  connect(mActionEDLFilter,  &QAction::toggled,   this, &Viewer3DContextMenu::filterEDL);
 }
 
 void Viewer3DContextMenu::retranslate()
@@ -108,6 +120,7 @@ void Viewer3DContextMenu::retranslate()
   mActionViewRight->setText(QApplication::translate("Viewer3DContextMenu", "View Right", nullptr));
   mActionViewBack->setText(QApplication::translate("Viewer3DContextMenu", "View Back", nullptr));
   mActionViewBottom->setText(QApplication::translate("Viewer3DContextMenu", "View Bottom", nullptr));
+  mActionEDLFilter->setText(QApplication::translate("Viewer3DContextMenu", "EDL Filter", nullptr));
 }
 
 
@@ -122,7 +135,9 @@ CCViewer3D::CCViewer3D(QWidget *parent)
     mOrderedLabelsContainer(nullptr),
     mContextMenu(new Viewer3DContextMenu(this)),
     mShowClassification(false),
-    mRGBAColors(nullptr)
+    mRGBAColors(nullptr),
+	  edl(false),
+    filter(nullptr)
 {
   init();
   initSignalsAndSlots();
@@ -148,6 +163,11 @@ CCViewer3D::~CCViewer3D()
     delete mRect2DLabel;
     mRect2DLabel = nullptr;
   }
+
+  //if (filter) {
+  //  delete filter;
+  //  filter = nullptr;
+  //}
 }
 
 void CCViewer3D::clear()
@@ -955,6 +975,10 @@ void CCViewer3D::initSignalsAndSlots()
   connect(mContextMenu, &Viewer3DContextMenu::viewRight,  this, &CCViewer3D::setRightView);
   connect(mContextMenu, &Viewer3DContextMenu::viewBack,   this, &CCViewer3D::setBackView);
   connect(mContextMenu, &Viewer3DContextMenu::viewBottom, this, &CCViewer3D::setBottomView);
+  connect(mContextMenu, &Viewer3DContextMenu::filterEDL, [&](bool active) {
+            if (active) enableEDL();
+            else disableEDL();
+          });
 
 }
 
@@ -997,5 +1021,30 @@ void CCViewer3D::addToDB(ccHObject *entity)
 //    }
 //  }
 //}
+
+void CCViewer3D::enableEDL() 
+{
+	//qEDL* edl = new qEDL(this);
+  filter = new ccEDLFilter;//edl->getFilter();
+	QString error;
+  
+	filter->init(this->width(), this->height(), qApp->applicationDirPath() + "/shaders", error);
+	setGlFilter(filter);
+  this->edl = true;
+}
+
+void CCViewer3D::disableEDL() 
+{
+  setGlFilter(nullptr);
+
+  //if (filter) {
+  ////  delete filter;
+  //  filter = nullptr;
+  //}
+
+	redraw();
+  edl = false;
+}
+
 
 } // End graphos namespace

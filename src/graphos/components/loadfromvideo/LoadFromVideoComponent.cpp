@@ -85,9 +85,9 @@ void LoadFromVideoComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool processing = app_status->isActive(AppStatus::Flag::processing);
-  bool loading_images = app_status->isActive(AppStatus::Flag::loading_images);
+  bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+  bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+  bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
   action()->setEnabled(project_exists && !loading_images && !processing);
 }
 

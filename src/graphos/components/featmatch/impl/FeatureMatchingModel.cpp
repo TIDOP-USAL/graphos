@@ -157,6 +157,7 @@ bool FeatureMatchingModelImp::existsMatches() const
   colmap::Database database(mProject->database().toString());
   size_t num_matches = database.NumMatches();
   return num_matches > 0;
+  database.Close();
 }
 
 void FeatureMatchingModelImp::clearProject()

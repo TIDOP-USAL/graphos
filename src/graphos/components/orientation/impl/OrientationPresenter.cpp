@@ -211,6 +211,12 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 
       msgInfo("Oriented %i images", poses.size());
 
+      double oriented_percent = (static_cast<double>(mModel->images().size()) / static_cast<double>(poses.size())) * 100.;
+      if (oriented_percent < 0.9){
+        // Menos del 90% de imagenes orientadas
+        msgWarning("%i of images oriented. Increase image size and number of points in Feature detector.", tl::roundToInteger(oriented_percent));
+      }
+
       for (const auto &camera : cameras) {
         mModel->updateCamera(camera.first, camera.second);
       }

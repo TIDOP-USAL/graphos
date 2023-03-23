@@ -911,6 +911,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
         }
 
       }
+
+      database.Close();
     }
 
 
@@ -964,6 +966,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
           reconstruction.DeleteAllPoints2DAndPoints3D();
           reconstruction.TranscribeImageIdsToDatabase(database);
         }
+
+        database.Close();
 
         std::cout << std::endl;
         timer.stop();

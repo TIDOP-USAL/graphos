@@ -86,9 +86,9 @@ void UndistortImagesComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  action()->setEnabled(app_status->isActive(AppStatus::Flag::project_exists) && 
-                       !app_status->isActive(AppStatus::Flag::processing) &&
-                       app_status->isActive(AppStatus::Flag::oriented));
+  action()->setEnabled(app_status->isEnabled(AppStatus::Flag::project_exists) && 
+                       !app_status->isEnabled(AppStatus::Flag::processing) &&
+                       app_status->isEnabled(AppStatus::Flag::oriented));
 }
 
 void UndistortImagesComponent::onRunning()

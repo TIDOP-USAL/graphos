@@ -88,7 +88,7 @@ void FeaturesViewerComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bFeatureExtraction = app_status->isActive(AppStatus::Flag::feature_extraction);
+  bool bFeatureExtraction = app_status->isEnabled(AppStatus::Flag::feature_extraction);
   action()->setEnabled(bFeatureExtraction);
 }
 

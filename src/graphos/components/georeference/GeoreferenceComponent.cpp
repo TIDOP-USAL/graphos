@@ -87,9 +87,9 @@ void GeoreferenceComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  bool bOriented = app_status->isActive(AppStatus::Flag::oriented);
+  bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
+  bool bOriented = app_status->isEnabled(AppStatus::Flag::oriented);
   action()->setEnabled(bProjectExists && bOriented && !bProcessing);
 }
 

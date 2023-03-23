@@ -55,11 +55,11 @@ void DenseExport::exportToCSV(const std::string &csv,
     tl::Point3<double> point;
 
     stream << "X;Y;Z";
-    if (flag.isActive(Fields::rgb)){
+    if (flag.isEnabled(Fields::rgb)){
       stream << ";R;G;B";
     }
 
-    if (flag.isActive(Fields::normals)) {
+    if (flag.isEnabled(Fields::normals)) {
       stream << ";Nx;Ny;Nz";
     }
     stream << std::endl;
@@ -88,14 +88,14 @@ void DenseExport::exportToCSV(const std::string &csv,
              << point.y << ";"
              << point.z;
 
-      if (flag.isActive(Fields::rgb)){
+      if (flag.isEnabled(Fields::rgb)){
         stream << ";" <<
                   static_cast<int>(points[i].r) << ";" <<
                   static_cast<int>(points[i].g) << ";" <<
                   static_cast<int>(points[i].b);
       }
 
-      if (flag.isActive(Fields::normals)) {
+      if (flag.isEnabled(Fields::normals)) {
         stream << ";" <<
                   points[i].nx << ";" <<
                   points[i].ny << ";" <<
