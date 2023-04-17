@@ -48,7 +48,7 @@ std::vector<tl::WindowD> findGrid(const tl::Path &footprint_file)
 
   tl::WindowD window_all;
 
-  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::createReader(footprint_file);
+  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
   vectorReader->open();
   if (vectorReader->isOpen()) {
     if (vectorReader->layersCount() >= 1) {
@@ -137,7 +137,7 @@ void findOptimalFootprint(const tl::Path &footprint_file,
 {
   std::map<std::string, std::shared_ptr<tl::graph::GPolygon>> clean_footprint;
 
-  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::createReader(footprint_file);
+  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
   vectorReader->open();
   if (vectorReader->isOpen()) {
 
@@ -164,7 +164,7 @@ void findOptimalFootprint(const tl::Path &footprint_file,
 
     msgInfo("Optimal footprint. %i retained images", clean_footprint.size());
 
-    std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::createWriter(optimal_footprint_path.toString());
+    std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::create(optimal_footprint_path.toString());
     vector_writer->open();
     if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
     vector_writer->create();
@@ -216,7 +216,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
   cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
 
   std::unique_ptr<tl::VectorReader> vectorReader;
-  vectorReader = tl::VectorReaderFactory::createReader(optimal_footprint_path.toString());
+  vectorReader = tl::VectorReaderFactory::create(optimal_footprint_path.toString());
   vectorReader->open();
 
   if (vectorReader->isOpen()) {

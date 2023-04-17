@@ -201,7 +201,7 @@ void MainWindowPresenter::openStartPage()
 
   AppStatus *status = Application::instance().status();
   status->activeFlag(AppStatus::Flag::tab_image_active, false);
-  status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+  status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
 
 }
 
@@ -326,7 +326,6 @@ void MainWindowPresenter::loadMesh()
 
   if (!mesh.isEmpty()) {
     mView->setMesh(mesh);
-
     app.status()->activeFlag(AppStatus::Flag::mesh, true);
   } else {
     mView->deleteMesh();
@@ -383,7 +382,7 @@ void MainWindowPresenter::openImage(size_t imageId)
 
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, true);
-    status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+    status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
 
   } catch (std::exception &e) {
     tl::printException(e);
@@ -482,7 +481,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
 
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
-    status->activeFlag(AppStatus::Flag::tab_3d_model_active, true);
+    status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, true);
 
   } catch (std::exception &e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
@@ -602,7 +601,7 @@ void MainWindowPresenter::initSignalAndSlots()
   connect(mView, &MainWindowView::all_tabs_closed, []() { 
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
-    status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+    status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
   });
 
   connect(&Application::instance(), &Application::update_history, [&]() {

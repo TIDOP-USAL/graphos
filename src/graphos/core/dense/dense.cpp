@@ -72,6 +72,8 @@ void DensifierBase::undistort(const QString &dir)
 
   try {
 
+    //TODO: Se están corrigiendo de distorsión todas las imágenes.
+    //      Habría que ver si están orientadas
     UndistortImages undistort(mImages,
                               mCameras,
                               dir,

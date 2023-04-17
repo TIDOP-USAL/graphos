@@ -43,7 +43,7 @@ Orthoimage::Orthoimage(const tl::Path &image,
                        const tl::Rect<int> &rectOrtho,
                        const tl::Affine<tl::PointD> &georeference,
                        bool cuda)
-  : mImageReader(tl::ImageReaderFactory::createReader(image)),
+  : mImageReader(tl::ImageReaderFactory::create(image)),
     mOrthorectification(orthorectification),
     mCrs(crs),
     mRectOrtho(rectOrtho),
@@ -240,10 +240,10 @@ OrthoimageProcess::OrthoimageProcess(const std::vector<Image> &images,
   graphOrthos.parentPath().createDirectories();
   footprint.parentPath().createDirectories();
 
-  mFootprintWriter = tl::VectorWriterFactory::createWriter(footprint);
+  mFootprintWriter = tl::VectorWriterFactory::create(footprint);
   mFootprintWriter->open();
 
-  mGraphOrthosWriter = tl::VectorWriterFactory::createWriter(graphOrthos);
+  mGraphOrthosWriter = tl::VectorWriterFactory::create(graphOrthos);
   mGraphOrthosWriter->open();
 }
 

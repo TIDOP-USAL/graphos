@@ -1415,7 +1415,7 @@ void MainWindowView::initSignalAndSlots()
   connect(mTabWidget, &TabWidget::model3dActive, [&](bool active) {
     Application &app = Application::instance();
     AppStatus *app_status = app.status();
-    app_status->activeFlag(AppStatus::Flag::tab_3d_model_active, active);
+    app_status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, active);
   });
 }
 
@@ -1488,7 +1488,7 @@ void MainWindowView::update()
   bool project_modified = app_status->isEnabled(AppStatus::Flag::project_modified);
   bool processing = app_status->isEnabled(AppStatus::Flag::processing);
   bool image_active = app_status->isEnabled(AppStatus::Flag::tab_image_active);
-  bool model_3d_active = app_status->isEnabled(AppStatus::Flag::tab_3d_model_active);
+  bool model_3d_active = app_status->isEnabled(AppStatus::Flag::tab_3d_viewer_active);
 
   mActionZoomIn->setEnabled(image_active);
   mActionZoomOut->setEnabled(image_active);

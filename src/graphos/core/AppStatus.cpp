@@ -70,6 +70,12 @@ void AppStatus::switchFlag(Flag flag)
   emit update();
 }
 
+void AppStatus::activeFlag(uint32_t flag, bool active)
+{
+  mUserFlags.activeFlag(flag, active);
+  emit update();
+}
+
 bool AppStatus::isEnabled(uint32_t flag) const
 {
   return mUserFlags.isEnabled(flag);

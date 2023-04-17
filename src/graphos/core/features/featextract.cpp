@@ -249,7 +249,7 @@ private:
     }
 
     if (!featextract_opencv_read) {
-      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.path().toStdString());
+      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.path().toStdString());
       imageReader->open();
       if (imageReader->isOpen()) {
 
