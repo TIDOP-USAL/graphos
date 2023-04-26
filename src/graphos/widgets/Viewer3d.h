@@ -264,7 +264,8 @@ protected slots:
                           unsigned pointIndex, 
                           int x, 
                           int y, 
-                          const CCVector3 &point);
+                          const CCVector3 &point,
+                          const CCVector3d& uvw);
   void showContextMenu(const QPoint &position);
   void mousePressEvent(QMouseEvent *event) override;
 

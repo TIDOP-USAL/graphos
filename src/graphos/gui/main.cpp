@@ -255,10 +255,10 @@ int main(int argc, char *argv[])
     }
   } else {
     //    TL_TODO("Añadir como opción")
-#if defined WIN32
-    HWND hwnd = GetConsoleWindow();
-    ShowWindow(hwnd, 0);
-#endif
+//#if defined WIN32
+//    HWND hwnd = GetConsoleWindow();
+//    ShowWindow(hwnd, 0);
+//#endif
 
     app.freeMemory();
 
@@ -499,9 +499,9 @@ int main(int argc, char *argv[])
 
     r = app.exec();
 
-#if defined WIN32
-    ShowWindow(hwnd, 1);
-#endif
+//#if defined WIN32
+//    ShowWindow(hwnd, 1);
+//#endif
   }
 
 #ifdef HAVE_VLD

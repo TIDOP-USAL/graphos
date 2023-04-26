@@ -468,8 +468,8 @@ void CamerasModelImp::calibrationExport(const QString &file,
       QString model_id = camera.type().c_str();
       if (model_id.compare("Pinhole 1") == 0 ||
           model_id.compare("Radial 1") == 0 ||
-          model_id.compare("Radial 2") == 0 ||
-          model_id.compare("Radial 3") == 0) {
+          model_id.compare("Radial 2") == 0 /*||
+          model_id.compare("Radial 3") == 0*/) {
 
         size_t sensor_width_px = std::max(camera.width(), camera.height());
         size_t sensor_width_mm = static_cast<size_t>(camera.sensorSize());
@@ -506,7 +506,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
       if (model_id.compare("Pinhole 1") == 0 ||
           model_id.compare("Radial 1") == 0 ||
           model_id.compare("Radial 2") == 0 ||
-          model_id.compare("Radial 3") == 0 ||
+          /*model_id.compare("Radial 3") == 0 ||*/
           model_id.compare("OpenCV 1") == 0 ||
           model_id.compare("OpenCV 2") == 0) {
 
@@ -544,7 +544,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
       if (model_id.compare("Pinhole 1") == 0 ||
           model_id.compare("Radial 1") == 0 ||
           model_id.compare("Radial 2") == 0 ||
-          model_id.compare("Radial 3") == 0 ||
+          /*model_id.compare("Radial 3") == 0 ||*/
           model_id.compare("OpenCV 1") == 0 || 
           model_id.compare("OpenCV 2") == 0) {
 

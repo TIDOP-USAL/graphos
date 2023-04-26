@@ -461,7 +461,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
           position[0] = camera_pose.position().x;
           position[1] = camera_pose.position().y;
           position[2] = camera_pose.position().z;
-
+          
           std::array<std::array<float, 3>, 3> cameraRotationMatrix;
           cameraRotationMatrix[0][0] = static_cast<float>(camera_pose.rotationMatrix().at(0, 0));
           cameraRotationMatrix[0][1] = static_cast<float>(camera_pose.rotationMatrix().at(0, 1));
@@ -472,7 +472,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
           cameraRotationMatrix[2][0] = static_cast<float>(camera_pose.rotationMatrix().at(2, 0));
           cameraRotationMatrix[2][1] = static_cast<float>(camera_pose.rotationMatrix().at(2, 1));
           cameraRotationMatrix[2][2] = static_cast<float>(camera_pose.rotationMatrix().at(2, 2));
-
+          
           viewer3D->addCamera(mModel->image(image_id).name(), position[0], position[1], position[2], cameraRotationMatrix);
         }
 

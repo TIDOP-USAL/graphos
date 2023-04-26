@@ -492,14 +492,18 @@ void CCViewer3D::activatePicker(PickingMode pickerMode)
 
   this->redraw(true);
 
-  connect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &)),
-          this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &)));
+  //connect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)),
+  //        this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)));
+  connect(this, &CCViewer3D::itemPicked,
+          this, &CCViewer3D::processPickedPoint);
 }
 
 void CCViewer3D::deactivatePicker()
 {
-  disconnect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &)),
-             this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &)));
+  //disconnect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)),
+  //           this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)));
+  disconnect(this, &CCViewer3D::itemPicked,
+             this, &CCViewer3D::processPickedPoint);
 
   mLabel->clear();
 
@@ -839,14 +843,11 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
                                     unsigned pointIndex, 
                                     int x, 
                                     int y, 
-                                    const CCVector3 &point)
+                                    const CCVector3 &point,
+                                    const CCVector3d& uvw)
 {
-  if (!entity || entity->isKindOf(CC_TYPES::POINT_CLOUD) == false)
+  if (!entity || !entity->isKindOf(CC_TYPES::POINT_CLOUD))
     return;
-
-  //emit mouseClicked(QVector3D(point[0], point[1], point[2]));
-
-
 
   ccPointCloud *cloud = 0;
   cloud = static_cast<ccPointCloud *>(entity);

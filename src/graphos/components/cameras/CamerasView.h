@@ -42,7 +42,7 @@ public:
   {
     radial_1,
     radial_2,
-    radial_3,
+    /*radial_3,*/
     pinhole_1,
     pinhole_2,
     opencv_1,
