@@ -612,7 +612,10 @@ void MvsDensifier::densify()
     cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
     cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
     cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
-    cmd_mvs.append(" --cuda-device -2"); // No funciona con CUDA...
+    if (isCudaEnabled())
+      cmd_mvs.append(" --cuda-device -1");
+    else 
+      cmd_mvs.append(" --cuda-device -2");
 
     msgInfo("Process: %s", cmd_mvs.c_str());
     tl::Process process(cmd_mvs);

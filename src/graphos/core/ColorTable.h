@@ -62,6 +62,7 @@ public:
   bool isVisible(int code) const;
   //std::string name(int code) const;
   size_t size() const;
+  bool empty() const;
 
   iterator begin();
   const_iterator begin() const;

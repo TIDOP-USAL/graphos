@@ -658,6 +658,8 @@ void CCViewer3D::showClassification(bool show)
 {
   mShowClassification = show;
 
+  if (mColorTable == nullptr) return;
+
   if (ccHObject *currentRoot = getSceneDB()) {
 
     //currentRoot->showColors(!show);

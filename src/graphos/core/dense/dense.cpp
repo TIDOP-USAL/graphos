@@ -57,6 +57,11 @@ void DensifierBase::enableCuda(bool enable)
   mCuda = enable;
 }
 
+bool DensifierBase::isCudaEnabled() const
+{
+  return mCuda;
+}
+
 tl::Path DensifierBase::denseModel() const
 {
   return mDenseModel;

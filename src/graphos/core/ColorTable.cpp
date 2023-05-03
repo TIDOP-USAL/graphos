@@ -77,6 +77,11 @@ size_t ColorTable::size() const
   return mColors.size();
 }
 
+bool ColorTable::empty() const
+{
+  return mColors.empty();
+}
+
 ColorTable::iterator ColorTable::begin()
 {
   return mColors.begin();
