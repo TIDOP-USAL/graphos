@@ -241,7 +241,7 @@ private:
 
           scale = max_dimension / mMaxImageSize;
           size.width = tl::roundToInteger(size.width / scale);
-          size.height = tl::roundToInteger(size.width / scale);
+          size.height = tl::roundToInteger(size.height / scale);
 
           resizeImage(mat, size);
         }
