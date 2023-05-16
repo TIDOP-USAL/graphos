@@ -36,6 +36,7 @@
 /* TidopLib */
 #include <tidop/core/messages.h>
 #include <tidop/core/exception.h>
+#include <tidop/core/log.h>
 
 /* Qt */
 
@@ -150,8 +151,6 @@ void MainWindowPresenter::exit()
 
   if (AppStatus *app_status = app.status()) {
 
-    while (app_status->isEnabled(AppStatus::Flag::loading_thumbs));
-
     if (app_status->isEnabled(AppStatus::Flag::processing)) {
       int i_ret = QMessageBox(QMessageBox::Warning,
                               tr("Warning"),
@@ -207,6 +206,12 @@ void MainWindowPresenter::openStartPage()
 
 void MainWindowPresenter::loadProject()
 {
+  tl::Log &log = tl::Log::instance();
+  tl::Path log_path = mModel->projectPath();
+  log_path.replaceExtension(".log");
+  log.setLogFile(log_path.toString());
+  log.resumeListener();
+
   mView->clear();
 
   mView->setProjectTitle(mModel->projectName());
@@ -225,9 +230,14 @@ void MainWindowPresenter::loadProject()
   const char *cfile = ba.data();
   msgInfo("Load project: %s", cfile);
 
-  for (const auto &image : mModel->images()) {
-    mView->addImage(image.second.path(), image.second.id());
-    app.status()->activeFlag(AppStatus::Flag::images_added, true);
+  {
+    const auto &images = mModel->images();
+
+    if (!images.empty()) {
+      mView->addImages(images, mModel->cameras());
+      app.status()->activeFlag(AppStatus::Flag::images_added, true);
+    }
+
   }
 
   for (const auto &feat : mModel->features()) {
@@ -259,7 +269,8 @@ void MainWindowPresenter::loadFeatures(size_t imageId)
 {
   mView->addFeatures(imageId);
   Application &app = Application::instance();
-  app.status()->activeFlag(AppStatus::Flag::feature_extraction, true);
+  if (!app.status()->isEnabled(AppStatus::Flag::feature_extraction))
+    app.status()->activeFlag(AppStatus::Flag::feature_extraction, true);
 }
 
 void MainWindowPresenter::updateMatches()
@@ -522,7 +533,8 @@ void MainWindowPresenter::loadImage(size_t imageId)
   try {
 
     const Image &image = mModel->image(imageId);
-    mView->addImage(image.path(), image.id());
+    mView->addImage(image, mModel->camera(image.cameraId()));
+    //mView->addImage(image.path(), image.id());
 
     Application &app = Application::instance();
     app.status()->activeFlag(AppStatus::Flag::images_added, true);

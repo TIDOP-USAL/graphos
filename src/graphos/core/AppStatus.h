@@ -66,7 +66,7 @@ public:
     //sparse_model_open     = (1 << 24),
     //dense_model_open      = (1 << 25),
     //mesh_model_open       = (1 << 26),
-    loading_thumbs        = (1 << 27),
+    //loading_thumbs        = (1 << 27),
     command_mode          = (1 << 30)
   };
 

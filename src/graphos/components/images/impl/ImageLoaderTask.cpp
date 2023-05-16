@@ -76,8 +76,8 @@ bool LoadImagesTask::existCamera(const QString &make, const QString &model) cons
 
   for (const auto &camera : *mCameras) {
 
-    camera_make.fromStdString(camera.make());
-    camera_model.fromStdString(camera.model());
+    camera_make = QString::fromStdString(camera.make());
+    camera_model = QString::fromStdString(camera.model());
 
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
@@ -99,8 +99,8 @@ int LoadImagesTask::findCamera(const QString &make, const QString &model) const
 
   for (size_t i = 0; i < mCameras->size(); i++){
 
-    camera_make.fromStdString((*mCameras)[i].make());
-    camera_model.fromStdString((*mCameras)[i].model());
+    camera_make = QString::fromStdString((*mCameras)[i].make());
+    camera_model = QString::fromStdString((*mCameras)[i].model());
 
     if (make.compare(camera_make) == 0 &&
         model.compare(camera_model) == 0){
@@ -119,7 +119,7 @@ void LoadImagesTask::loadImage(size_t imageId)
 
     QString image = (*mImages)[imageId].path();
 
-    msgInfo("Load image: %s", image.toStdString().c_str());
+    //msgInfo("Load image: %s", image.toStdString().c_str());
 
     std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
     imageReader->open();
@@ -138,7 +138,7 @@ void LoadImagesTask::loadImage(size_t imageId)
     std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
     tl::MessageManager::resume();
 
-    msgInfo(" - Camera: %s %s", camera_make.c_str(), camera_model.c_str());
+    //msgInfo(" - Camera: %s %s", camera_make.c_str(), camera_model.c_str());
 
     if (existCamera(camera_make.c_str(), camera_model.c_str())) {
 
@@ -235,6 +235,7 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
   tl::MessageManager::resume();
 
   if (!bActiveCameraName && !bActiveCameraModel) {
+
     Camera camera2;
     int counter = 0;
     for (auto it = mCameras->begin(); it != mCameras->end(); it++) {
@@ -250,6 +251,8 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
     camera_make = "Unknown camera";
     camera_model = std::to_string(counter);
   }
+
+  msgInfo("New camera detected: %s %s", camera_make.c_str(), camera_model.c_str());
 
   Camera camera(camera_make, camera_model);
   camera.setWidth(width);

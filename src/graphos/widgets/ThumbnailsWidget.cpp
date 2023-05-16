@@ -45,61 +45,6 @@ TL_DEFAULT_WARNINGS
 #include <mutex>
 
 static std::mutex sMutexThumbnail;
-//static int counter = 0;
-//std::atomic<int> counter = 0;
-
-void makeThumbnail(QListWidgetItem *item, QListWidget *listWidget)
-{
-  std::lock_guard<std::mutex> lck(sMutexThumbnail);
-
-  msgWarning("makeThumbnail");
-
-  if (item == nullptr) return;
-
-  QImage image;
-
-  try {
-
-    const QString thumb = item->toolTip();
-    std::string image_file = thumb.toStdString();
-
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
-    imageReader->open();
-    if (imageReader->isOpen()) {
-
-      int w = imageReader->cols();
-      int h = imageReader->rows();
-      double scale = 1.;
-      if (w > h) {
-        scale = 200. / static_cast<double>(w);
-      } else {
-        scale = 200. / static_cast<double>(h);
-      }
-
-      cv::Mat bmp = imageReader->read(scale, scale);
-
-      image = graphos::cvMatToQImage(bmp);
-
-      imageReader->close();
-
-      QPixmap pixmap = QPixmap::fromImage(image);
-      QIcon icon(pixmap);
-      item->setIcon(icon);
-
-      listWidget->viewport()->update();
-
-    } else {
-      msgError("Error al abrir la imagen: %s", image_file.c_str());
-    }
-
-  } catch (const std::exception &e) {
-    msgError(e.what());
-  }
-
-  msgWarning("makeThumbnail End"); 
-  //counter--;
-  //return image;
-}
 
 namespace graphos
 {
@@ -175,7 +120,8 @@ ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
     mDeleteImageAction(nullptr),
     mThumbnaislSize(0),
     bLoadingImages(false),
-    mThumbLoad(new tl::TaskQueue)
+    mThumbLoad(new tl::TaskQueue),
+    mLoadImages(true)
 {
   initUI();
   initSignalAndSlots();	
@@ -221,49 +167,35 @@ void ThumbnailsWidget::setActiveImages(const std::vector<size_t> &imageIds)
 
 /* public slots */
 
-void ThumbnailsWidget::addThumbnail(const QString &thumb, size_t imageId)
+void ThumbnailsWidget::addThumbnail(const Image &image, const QSize &imageSize)
 {
-
   std::lock_guard<std::mutex> lck(sMutexThumbnail);
 
   bLoadingImages = true;
-  QImage image;
 
   try {
 
-    std::string image_file = thumb.toStdString();
-
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
-    imageReader->open();
-    if (imageReader->isOpen()) {
-      
-      int w = imageReader->cols();
-      int h = imageReader->rows();
-      double scale = 1.;
-      if (w > h) {
-        scale =  200. / static_cast<double>(w);
-      } else {
-        scale = 200. / static_cast<double>(h);
-      }
-
-      imageReader->close();
-
-      QSize size(w, h);
-      size *= scale;
-      QPixmap pixmap(size.width(), size.height());
-      pixmap.fill(QColor(Qt::GlobalColor::lightGray));									  
-      QIcon icon(pixmap);
-      QFileInfo fileInfo(thumb);
-      QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
-      item->setToolTip(fileInfo.absoluteFilePath());
-      item->setData(Qt::UserRole, imageId);
-      mListWidget->addItem(item);
-
-      loadVisibleImages();
-
+    QSize size = imageSize;
+    int w = size.width();
+    int h = size.height();
+    double scale = 1.;
+    if (size.width() > size.height()) {
+      scale = 200. / static_cast<double>(size.width());
     } else {
-      msgError("Error al abrir la imagen: %s", image_file.c_str());
+      scale = 200. / static_cast<double>(size.height());
     }
+
+    size *= scale;
+    QPixmap pixmap(size.width(), size.height());
+    pixmap.fill(QColor(Qt::GlobalColor::lightGray));
+    QIcon icon(pixmap);
+    QListWidgetItem *item = new QListWidgetItem(icon, image.name());
+    item->setToolTip(image.path());
+    item->setData(Qt::UserRole, image.id());
+    mListWidget->addItem(item);
+
+    if (mLoadImages)
+      loadVisibleImages();
 
   } catch (const std::exception &e) {
     msgError(e.what());
@@ -272,54 +204,6 @@ void ThumbnailsWidget::addThumbnail(const QString &thumb, size_t imageId)
   mThumbnaislSize = mListWidget->count();
   bLoadingImages = false;
     
-  update();
-}
-
-void ThumbnailsWidget::addThumbnails(const QStringList &thumbs)
-{  
-  bLoadingImages = true;
-
-  for (auto &thumb : thumbs) {
-
-    try {
-
-      std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(thumb.toStdString());
-      imageReader->open();
-      if (imageReader->isOpen()) {
-      
-        int w = imageReader->cols();
-        int h = imageReader->rows();
-        QSize size(w, h);
-        double scale = 1.;
-        if (w > h) {
-          scale = static_cast<double>(w) / 200.;
-        } else {
-          scale = static_cast<double>(h) / 200.;
-        }
-        size /= scale;
-
-        imageReader->close();
-
-        QFileInfo fileInfo(thumb);
-        QPixmap pixmap(size.width(), size.height());
-        pixmap.fill(QColor(Qt::GlobalColor::lightGray));
-        QIcon icon(pixmap);
-        QListWidgetItem *item = new QListWidgetItem(icon, fileInfo.baseName());
-        item->setToolTip(fileInfo.absoluteFilePath());
-        mListWidget->addItem(item);
-
-      } else {
-        msgError("Error al abrir la imagen: %s", thumb.toStdString().c_str());
-      }
-    } catch (std::exception &e) {
-      tl::printException(e);
-    }
-  }
-
-  loadVisibleImages();
-
-  bLoadingImages = false;
-
   update();
 }
 
@@ -367,17 +251,13 @@ void ThumbnailsWidget::onSelectionChanged()
 
 void ThumbnailsWidget::loadVisibleImages()
 {
-  Application &app = Application::instance();
-  AppStatus *app_status = app.status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
-
   if (mListWidget->count() == 0) return;
-
-  //app_status->flagOn(AppStatus::Flag::loading_thumbs);
 
   QRect rect = mListWidget->viewport()->rect();
   QRegion region = mListWidget->viewport()->visibleRegion();
   
+  mLoadImages = false;
+
   for (int i = 0; i < mListWidget->count(); i++) {
     QModelIndex idx = mListWidget->model()->index(i, 0);
     QRect idx_rect = mListWidget->visualRect(idx);
@@ -385,12 +265,9 @@ void ThumbnailsWidget::loadVisibleImages()
       auto item = mListWidget->item(i);
       if (!item->data(Qt::UserRole + 1).toBool()) {
 
-        item->setData(Qt::UserRole + 1, true);
+        mLoadImages = true;
 
-        //std::lock_guard<std::mutex> lck(sMutexThumbnail);
-        //counter++;
-        //std::thread t(makeThumbnail, item, mListWidget);
-        //t.detach();
+        item->setData(Qt::UserRole + 1, true);
 
         mThumbLoad->push(std::make_shared<LoadThumbnailTask>(item, mListWidget));
 
@@ -400,8 +277,6 @@ void ThumbnailsWidget::loadVisibleImages()
   }
   
   mThumbLoad->runAsync();
-
-  //app_status->flagOff(AppStatus::Flag::loading_thumbs);
 }
 
 void ThumbnailsWidget::onThumbnailClicked()
@@ -497,8 +372,9 @@ void ThumbnailsWidget::clear()
   mListWidget->clear();
   mThumbnaislSize = 0;
   bLoadingImages = false;
+  mLoadImages = true;
 
-  ThumbnailsWidget::update();
+  update();
 }
 
 /* Private */

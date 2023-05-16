@@ -108,8 +108,8 @@ private:
   {
     try {
 
-      tl::Chrono chrono;
-      chrono.run();
+      //tl::Chrono chrono;
+      //chrono.run();
 
       std::string image_path = image.path().toStdString();
 
@@ -208,8 +208,8 @@ private:
 
       mBuffer->push(data);
 
-      double time = chrono.stop();
-      msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
+      //double time = chrono.stop();
+      //msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
 
     } catch (std::exception &e) {
       msgError(e.what());
@@ -382,8 +382,8 @@ private:
   {
     try {
 
-      tl::Chrono chrono;
-      chrono.run();
+      //tl::Chrono chrono;
+      //chrono.run();
 
       queue_data data;
       mBuffer->pop(data);
@@ -398,8 +398,8 @@ private:
       writeFeatures(data.colmap_image_id, featureKeypoints, featureDescriptors);
 
 
-      double time = chrono.stop();
-      msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
+      //double time = chrono.stop();
+      //msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
 
       // añade features al proyecto
       QString image_name = mImages->at(data.image_id).name();
@@ -511,6 +511,8 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
 {
 
   try {
+
+    msgInfo("Feature extraction running");
 
     tl::Chrono chrono("Feature extraction finished ");
     chrono.run();

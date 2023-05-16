@@ -109,6 +109,7 @@
 
 
 #include <tidop/core/console.h>
+#include <tidop/core/log.h>
 
 #include <QAction>
 
@@ -242,6 +243,12 @@ int main(int argc, char *argv[])
   console.setMessageLevel(tl::MessageLevel::msg_verbose);
   console.setTitle(app.applicationName().toStdString());
   app.messageManager()->addListener(&console);
+
+  // Log file
+  tl::Log &log = tl::Log::instance();
+  log.setMessageLevel(tl::MessageLevel::msg_verbose);
+  app.messageManager()->addListener(&log);
+  log.pauseListener();
 
   bool r = false;
 

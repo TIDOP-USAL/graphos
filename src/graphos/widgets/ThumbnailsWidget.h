@@ -24,12 +24,14 @@
 #ifndef GRAPHOS_THUMBNAILS_WIDGET_H
 #define GRAPHOS_THUMBNAILS_WIDGET_H
 
+#include <unordered_map>
+
 #include <QImage>
 
 #include <tidop/core/task.h>
 
 #include "graphos/widgets/GraphosWidget.h"
-
+#include "graphos/core/image.h"
 
 class QListWidget;
 class QListWidgetItem;
@@ -91,8 +93,7 @@ signals:
 
 public slots:
 
-  void addThumbnail(const QString &thumb, size_t imageId);
-  void addThumbnails(const QStringList &thumb);
+  void addThumbnail(const Image &image, const QSize &imageSize);
   void deleteImages(const std::vector<size_t> &imageIds);
 
 private slots:
@@ -140,6 +141,7 @@ protected:
   int mThumbnaislSize;
   bool bLoadingImages;
   tl::TaskQueue *mThumbLoad;
+  bool mLoadImages;
 };
 
 } // namespace graphos

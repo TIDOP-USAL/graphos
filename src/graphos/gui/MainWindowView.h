@@ -30,6 +30,9 @@
 
 #include <tidop/core/flags.h>
 
+#include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
+
 namespace Ui {
 class MainWindowView;
 }
@@ -100,7 +103,9 @@ public:
    */
   void setProjectTitle(const QString &title);
 
-  void addImage(const QString &image, size_t imageId);
+  void addImage(const Image &image, const Camera &camera);
+  void addImages(const std::unordered_map<size_t, Image> &images, 
+                 const std::map<int, Camera> &cameras);
   void setActiveImage(size_t imageId);
   void setActiveImages(const std::vector<size_t> &imageIds);
   void addFeatures(size_t imageId);
