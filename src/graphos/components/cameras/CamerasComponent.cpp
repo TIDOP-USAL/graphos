@@ -94,8 +94,8 @@ void CamerasComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool bImagesLoaded = app_status->isActive(AppStatus::Flag::images_added);
+  bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+  bool bImagesLoaded = app_status->isEnabled(AppStatus::Flag::images_added);
   action()->setEnabled(bProjectExists && bImagesLoaded);
 }
 

@@ -24,9 +24,14 @@
 #ifndef GRAPHOS_THUMBNAILS_WIDGET_H
 #define GRAPHOS_THUMBNAILS_WIDGET_H
 
+#include <unordered_map>
+
 #include <QImage>
 
+#include <tidop/core/task.h>
+
 #include "graphos/widgets/GraphosWidget.h"
+#include "graphos/core/image.h"
 
 class QListWidget;
 class QListWidgetItem;
@@ -34,6 +39,37 @@ class QGridLayout;
 
 namespace graphos
 {
+
+
+class LoadThumbnailTask
+  : public QObject,
+    public tl::TaskBase
+{
+
+  Q_OBJECT
+
+public:
+
+  LoadThumbnailTask(QListWidgetItem *item, 
+                    QListWidget *listWidget);
+  ~LoadThumbnailTask() override;
+
+signals:
+
+private:
+
+// tl::TaskBase interface
+
+protected:
+
+  void execute(tl::Progress *progressBar) override;
+
+protected:
+
+  QListWidgetItem *mItem;
+  QListWidget *mListWidget;
+};
+
 
 class ThumbnailsWidget
   : public GraphosWidgetView
@@ -43,7 +79,7 @@ class ThumbnailsWidget
 public:
 
   explicit ThumbnailsWidget(QWidget *parent = nullptr);
-  virtual ~ThumbnailsWidget() override {}
+  ~ThumbnailsWidget() override;
 
   void setActiveImage(size_t imageId);
   void setActiveImages(const std::vector<size_t> &imageIds);
@@ -57,8 +93,7 @@ signals:
 
 public slots:
 
-  void addThumbnail(const QString &thumb, size_t imageId);
-  void addThumbnails(const QStringList &thumb);
+  void addThumbnail(const Image &image, const QSize &imageSize);
   void deleteImages(const std::vector<size_t> &imageIds);
 
 private slots:
@@ -105,6 +140,8 @@ protected:
   QAction *mDeleteImageAction;
   int mThumbnaislSize;
   bool bLoadingImages;
+  tl::TaskQueue *mThumbLoad;
+  bool mLoadImages;
 };
 
 } // namespace graphos

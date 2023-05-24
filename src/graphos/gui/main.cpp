@@ -109,6 +109,7 @@
 
 
 #include <tidop/core/console.h>
+#include <tidop/core/log.h>
 
 #include <QAction>
 
@@ -243,6 +244,12 @@ int main(int argc, char *argv[])
   console.setTitle(app.applicationName().toStdString());
   app.messageManager()->addListener(&console);
 
+  // Log file
+  tl::Log &log = tl::Log::instance();
+  log.setMessageLevel(tl::MessageLevel::msg_verbose);
+  app.messageManager()->addListener(&log);
+  log.pauseListener();
+
   bool r = false;
 
   if (argc > 1) {
@@ -255,10 +262,10 @@ int main(int argc, char *argv[])
     }
   } else {
     //    TL_TODO("Añadir como opción")
-#if defined WIN32
-    HWND hwnd = GetConsoleWindow();
-    ShowWindow(hwnd, 0);
-#endif
+//#if defined WIN32
+//    HWND hwnd = GetConsoleWindow();
+//    ShowWindow(hwnd, 0);
+//#endif
 
     app.freeMemory();
 
@@ -499,9 +506,9 @@ int main(int argc, char *argv[])
 
     r = app.exec();
 
-    #if defined WIN32
-        ShowWindow(hwnd, 1);
-    #endif
+//#if defined WIN32
+//    ShowWindow(hwnd, 1);
+//#endif
   }
 
 #ifdef HAVE_VLD
@@ -512,4 +519,5 @@ int main(int argc, char *argv[])
 #endif
 
   return r;
+
 }

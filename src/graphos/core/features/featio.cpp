@@ -135,7 +135,7 @@ void FeaturesReaderColmap::open()
     mImageId = mDatabase->ReadImageWithName(string_list[1].toStdString());
     mDatabase->Open(string_list[0].toStdString());
     bOpen = true;
-  } catch (std::exception &e){
+  } catch (...){
     /// No hay ningun método para ver si se ha abierto correctamente la base de datos
     /// Capturo si hay una excepción y pongo a falso bOpen
     bOpen = false;
@@ -220,7 +220,7 @@ void FeaturesWriterColmap::open()
     mImageId = mDatabase->ReadImageWithName(string_list[1].toStdString());
     mDatabase->Open(string_list[0].toStdString());
     bOpen = true;
-  } catch (std::exception &e){
+  } catch (...){
     /// No hay ningun método para ver si se ha abierto correctamente la base de datos
     /// Capturo si hay una excepción y pongo a falso bOpen
     bOpen = false;

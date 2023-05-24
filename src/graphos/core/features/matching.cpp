@@ -27,12 +27,14 @@
 #include <tidop/core/exception.h>
 #include <tidop/core/chrono.h>
 
+TL_SUPPRESS_WARNINGS
 #include <colmap/util/option_manager.h>
 #include <colmap/util/misc.h>
 #include <colmap/feature/sift.h>
 #include <colmap/feature/matching.h>
 #include <colmap/base/gps.h>
 #include <FLANN/flann.h>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {
@@ -137,11 +139,6 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
     tl::Chrono chrono("Feature Matching finished");
     chrono.run();
 
-    if (mFeatureMatcher) {
-      delete mFeatureMatcher;
-      mFeatureMatcher = nullptr;
-    }
-
     colmap::SiftMatchingOptions siftMatchingOptions;
     siftMatchingOptions.max_error = mFeatureMatching->maxError();
     siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
@@ -162,7 +159,7 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
     mFeatureMatcher->Start();
     mFeatureMatcher->Wait();
 
-    int num_matches = database.NumMatches();
+    size_t num_matches = database.NumMatches();
     database.Close();
 
     if (status() == tl::Task::Status::stopping) {
@@ -174,7 +171,19 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
 
     if (progressBar) (*progressBar)();
 
+    /// Se destruye para desbloquear la base de datos
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
+    }
+
   } catch (...) {
+
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
+    }
+
     TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
   }
 }
@@ -245,11 +254,6 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
     tl::Chrono chrono("Feature Matching finished");
     chrono.run();
 
-    if (mFeatureMatcher) {
-      delete mFeatureMatcher;
-      mFeatureMatcher = nullptr;
-    }
-
     colmap::SiftMatchingOptions siftMatchingOptions;
     siftMatchingOptions.max_error = mFeatureMatching->maxError();
     siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
@@ -276,7 +280,7 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
     mFeatureMatcher->Start();
     mFeatureMatcher->Wait();
 
-    int num_matches = database.NumMatches();
+    size_t num_matches = database.NumMatches();
     database.Close();
 
     if (status() == tl::Task::Status::stopping) {
@@ -288,7 +292,19 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
 
     if (progressBar) (*progressBar)();
 
+    /// Se destruye para desbloquear la base de datos
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
+    }
+
   } catch (...) {
+        
+    if (mFeatureMatcher) {
+      delete mFeatureMatcher;
+      mFeatureMatcher = nullptr;
+    }
+
     TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
   }
 }
@@ -296,7 +312,8 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
 void SpatialMatchingTask::stop()
 {
   TaskBase::stop();
-  mFeatureMatcher->Stop();
+  if (mFeatureMatcher)
+    mFeatureMatcher->Stop();
 }
 
 tl::Path SpatialMatchingTask::database() const

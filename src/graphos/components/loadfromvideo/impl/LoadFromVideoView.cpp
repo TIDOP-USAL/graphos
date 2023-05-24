@@ -249,8 +249,8 @@ void LoadFromVideoViewImp::update()
 {
   bool video_opened = capture.isOpened();
   mActionPlayVideo->setEnabled(video_opened);
-  mActionPlayVideo->setVisible(!mFlags.isActive(Flag::video_run));
-  mActionPauseVideo->setVisible(mFlags.isActive(Flag::video_run));
+  mActionPlayVideo->setVisible(!mFlags.isEnabled(Flag::video_run));
+  mActionPauseVideo->setVisible(mFlags.isEnabled(Flag::video_run));
   mActionStopVideo->setEnabled(video_opened);
   mSpinBoxVideoIni->setEnabled(video_opened);
   mSpinBoxVideoEnd->setEnabled(video_opened);

@@ -28,7 +28,7 @@
 #include <tidop/core/app.h>
 #include <tidop/core/path.h>
 #include <tidop/core/progress.h>
-
+#include <tidop/core/chrono.h>
 
 namespace graphos
 {
@@ -141,6 +141,9 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 
   try {
 
+    tl::Chrono chrono("Poisson reconstruction finished");
+    chrono.run();
+
     tl::Path app_path = tl::App::instance().path();
 
     // Poisson Reconstruction
@@ -162,11 +165,12 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
       cmd.append("--in \"").append(mInput.toString());
       cmd.append("\" --out \"").append(mOutput.toString());
       cmd.append("\" --depth ").append(std::to_string(depth()));
-      //cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
-      //cmd.append(" --width ").append(std::to_string(width()));
+      cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
+      cmd.append(" --width ").append(std::to_string(width()));
       cmd.append(" --bType ").append(b_type);
-      cmd.append(" --density --samplesPerNode 5");
-      //[--samplesPerNode < minimum number of samples per node >= 1.500000]
+      cmd.append(" --density ");
+      cmd.append(" --samplesPerNode 5");
+      //cmd.append(" --samplesPerNode < minimum number of samples per node >= 1.500000]
       //[--pointWeight < interpolation weight >= 2.000e+00 * <b - spline degree>]
       msgInfo("Process: %s", cmd.c_str());
 
@@ -177,6 +181,7 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
       TL_ASSERT(process.status() == tl::Process::Status::finalized, "Poisson Reconstruction error");
     }
 
+    // Surface Trimmer
     {
       std::string cmd("\"");
       cmd.append(app_path.parentPath().toString());
@@ -193,7 +198,9 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 
     }
 
-    if (progressBar) (*progressBar)();
+    chrono.stop();
+
+    if(progressBar) (*progressBar)();
 
   } catch(...) {
     TL_THROW_EXCEPTION_WITH_NESTED("Load images error");

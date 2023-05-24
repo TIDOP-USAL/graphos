@@ -57,7 +57,7 @@ void MeshPresenterImp::open()
 
   mView->setBoundaryType(parameters->boundaryType());
   mView->setDepth(parameters->depth());
-  mView->setFullDepth(parameters->fullDepth());
+  //mView->setFullDepth(parameters->fullDepth());
   mView->setSolveDepth(parameters->solveDepth());
   mView->setWidth(parameters->width());
   
@@ -111,7 +111,7 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
   auto parameters = mModel->parameters();
   parameters->setBoundaryType(mView->boundaryType());
   parameters->setDepth(mView->depth());
-  parameters->setFullDepth(mView->fullDepth());
+  //parameters->setFullDepth(mView->fullDepth());
   parameters->setSolveDepth(mView->solveDepth());
   parameters->setWidth(mView->width());
 
@@ -121,7 +121,7 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
   auto task_parameters = dynamic_cast<PoissonReconParameters *>(process.get());
   task_parameters->setBoundaryType(parameters->boundaryType());
   task_parameters->setDepth(parameters->depth());
-  task_parameters->setFullDepth(parameters->fullDepth());
+  //task_parameters->setFullDepth(parameters->fullDepth());
   task_parameters->setSolveDepth(parameters->solveDepth());
   task_parameters->setWidth(parameters->width());
 

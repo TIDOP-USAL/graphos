@@ -48,7 +48,7 @@ std::vector<tl::WindowD> findGrid(const tl::Path &footprint_file)
 
   tl::WindowD window_all;
 
-  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::createReader(footprint_file);
+  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
   vectorReader->open();
   if (vectorReader->isOpen()) {
     if (vectorReader->layersCount() >= 1) {
@@ -137,7 +137,7 @@ void findOptimalFootprint(const tl::Path &footprint_file,
 {
   std::map<std::string, std::shared_ptr<tl::graph::GPolygon>> clean_footprint;
 
-  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::createReader(footprint_file);
+  std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
   vectorReader->open();
   if (vectorReader->isOpen()) {
 
@@ -164,7 +164,7 @@ void findOptimalFootprint(const tl::Path &footprint_file,
 
     msgInfo("Optimal footprint. %i retained images", clean_footprint.size());
 
-    std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::createWriter(optimal_footprint_path.toString());
+    std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::create(optimal_footprint_path.toString());
     vector_writer->open();
     if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
     vector_writer->create();
@@ -216,7 +216,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
   cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
 
   std::unique_ptr<tl::VectorReader> vectorReader;
-  vectorReader = tl::VectorReaderFactory::createReader(optimal_footprint_path.toString());
+  vectorReader = tl::VectorReaderFactory::create(optimal_footprint_path.toString());
   vectorReader->open();
 
   if (vectorReader->isOpen()) {
@@ -284,8 +284,8 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
               double scale = image_reader->georeference().scaleX();
 
               /// Esquinas
-              corners[i].x = (windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale;
-              corners[i].y = (window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale;
+              corners[i].x = tl::roundToInteger((windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale);
+              corners[i].y = tl::roundToInteger((window_all.pt2.y - windows[i].pt2.y) * exposure_compensator_factor / scale);
 
               /// La mascara debería leerse si se creó en la generación del MDS.
               ortho_masks[i].create(image.size(), CV_8U);
@@ -479,7 +479,10 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
             compensate_image.convertTo(compensate_image_16s, CV_16S);
             compensate_image.release();
 
-            cv::Rect rect = cv::Rect(affine.tx, affine.ty, compensate_image_16s.cols, compensate_image_16s.rows);
+            cv::Rect rect = cv::Rect(tl::roundToInteger(affine.tx),
+                                     tl::roundToInteger(affine.ty),
+                                     compensate_image_16s.cols,
+                                     compensate_image_16s.rows);
             blender->feed(compensate_image_16s, seam_image, rect.tl());
           }
         } catch (...) {

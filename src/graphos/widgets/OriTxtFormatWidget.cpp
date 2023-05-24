@@ -23,6 +23,7 @@
 
 #include "OriTxtFormatWidget.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -32,6 +33,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QComboBox>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

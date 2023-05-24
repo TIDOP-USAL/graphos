@@ -151,7 +151,7 @@ void ComponentsManager::registerComponent(Component *component,
     return;
   }
 
-  if (register_flags.isActive(Flags::separator_before)) {
+  if (register_flags.isEnabled(Flags::separator_before)) {
     mMainWindowView->addSeparatorToMenu(app_menu);
   }
 
@@ -166,7 +166,7 @@ void ComponentsManager::registerComponent(Component *component,
 
   }
   
-  if (register_flags.isActive(Flags::separator_after)) {
+  if (register_flags.isEnabled(Flags::separator_after)) {
     mMainWindowView->addSeparatorToMenu(app_menu);
   }
 
@@ -189,13 +189,13 @@ void ComponentsManager::registerComponent(Component *component,
       app_toolbar = MainWindowView::Toolbar::tools;
     }
 
-    if (register_flags.isActive(Flags::separator_before)) {
+    if (register_flags.isEnabled(Flags::separator_before)) {
       mMainWindowView->addSeparatorToToolbar(app_toolbar);
     }
 
     mMainWindowView->addActionToToolbar(action, app_toolbar);
 
-    if (register_flags.isActive(Flags::separator_after)) {
+    if (register_flags.isEnabled(Flags::separator_after)) {
       mMainWindowView->addSeparatorToToolbar(app_toolbar);
     }
   }

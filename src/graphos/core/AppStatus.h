@@ -44,7 +44,7 @@ class AppStatus
 
 public:
 
-  enum class Flag : uint32_t
+  enum class Flag : uint64_t
   {
     none                  = (0 << 0),
     project_exists        = (1 << 0),  // Existe un proyecto
@@ -62,7 +62,11 @@ public:
     processing            = (1 << 20),
     loading_images        = (1 << 21),
     tab_image_active      = (1 << 22),
-    tab_3d_model_active   = (1 << 23),
+    tab_3d_viewer_active  = (1 << 23),
+    //sparse_model_open     = (1 << 24),
+    //dense_model_open      = (1 << 25),
+    //mesh_model_open       = (1 << 26),
+    //loading_thumbs        = (1 << 27),
     command_mode          = (1 << 30)
   };
 
@@ -79,16 +83,17 @@ public:
   /* Graphos Flags */
 
   void activeFlag(Flag flag, bool active);
-  bool isActive(Flag flag) const;
-  void flagOn(Flag flag);
-  void flagOff(Flag flag);
+  bool isEnabled(Flag flag) const;
+  void enable(Flag flag);
+  void disable(Flag flag);
   void switchFlag(Flag flag);
 
   /* User flags */
   
-  bool isActive(uint32_t flag) const;
-  void flagOn(uint32_t flag);
-  void flagOff(uint32_t flag);
+  void activeFlag(uint32_t flag, bool active);
+  bool isEnabled(uint32_t flag) const;
+  void enable(uint32_t flag);
+  void disable(uint32_t flag);
   void switchFlag(uint32_t flag);
 
   void clear();

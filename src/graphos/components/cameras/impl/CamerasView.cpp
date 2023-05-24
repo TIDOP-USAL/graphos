@@ -161,7 +161,7 @@ void CamerasViewImp::initUI()
   mComboBoxType = new QComboBox(mGroupBoxCamera);
   mComboBoxType->addItem(QString());
   mComboBoxType->addItem(QString());
-  mComboBoxType->addItem(QString());
+  //mComboBoxType->addItem(QString());
   mComboBoxType->addItem(QString());
   mComboBoxType->addItem(QString());
   mComboBoxType->addItem(QString());
@@ -497,7 +497,7 @@ void CamerasViewImp::retranslate()
   mLabelFocal->setText(QApplication::translate("CamerasView", "Focal", nullptr));
   mComboBoxType->setItemText(radial_1, QApplication::translate("CamerasView", "Radial 1", nullptr));
   mComboBoxType->setItemText(radial_2, QApplication::translate("CamerasView", "Radial 2", nullptr));
-  mComboBoxType->setItemText(radial_3, QApplication::translate("CamerasView", "Radial 3", nullptr));
+  //mComboBoxType->setItemText(radial_3, QApplication::translate("CamerasView", "Radial 3", nullptr));
   mComboBoxType->setItemText(pinhole_1, QApplication::translate("CamerasView", "Pinhole 1", nullptr));
   mComboBoxType->setItemText(pinhole_2, QApplication::translate("CamerasView", "Pinhole 2", nullptr));
   mComboBoxType->setItemText(opencv_1, QApplication::translate("CamerasView", "OpenCV 1", nullptr));
@@ -675,7 +675,7 @@ bool CamerasViewImp::isPrincipalPointEnable() const
   int camera_index = mComboBoxType->currentIndex();
   return camera_index == radial_1 ||
          camera_index == radial_2 ||
-         camera_index == radial_3 ||
+         //camera_index == radial_3 ||
          camera_index == pinhole_1 ||
          camera_index == pinhole_2 ||
          camera_index == opencv_1 ||
@@ -690,7 +690,7 @@ bool CamerasViewImp::isFocalEnable() const
   int camera_index = mComboBoxType->currentIndex();
   return camera_index == radial_1 ||
          camera_index == radial_2 ||
-         camera_index == radial_3 ||
+         //camera_index == radial_3 ||
          camera_index == pinhole_1 ||
          camera_index == radial_fisheye_1 ||
          camera_index == radial_fisheye_2;
@@ -710,7 +710,7 @@ bool CamerasViewImp::isK1Enable() const
   int camera_index = mComboBoxType->currentIndex();
   return camera_index == radial_1 ||
          camera_index == radial_2 ||
-         camera_index == radial_3 ||
+         //camera_index == radial_3 ||
          camera_index == opencv_1 ||
          camera_index == opencv_2 ||
          camera_index == opencv_fisheye ||
@@ -722,7 +722,7 @@ bool CamerasViewImp::isK2Enable() const
 {
   int camera_index = mComboBoxType->currentIndex();
   return camera_index == radial_2 ||
-         camera_index == radial_3 ||
+         /*camera_index == radial_3 ||*/
          camera_index == opencv_1 ||
          camera_index == opencv_2 ||
          camera_index == opencv_fisheye ||
@@ -732,7 +732,7 @@ bool CamerasViewImp::isK2Enable() const
 bool CamerasViewImp::isK3Enable() const
 {
   int camera_index = mComboBoxType->currentIndex();
-  return camera_index == radial_3 ||
+  return /*camera_index == radial_3 ||*/
          camera_index == opencv_2 ||
          camera_index == opencv_fisheye;
 }
@@ -759,7 +759,7 @@ bool CamerasViewImp::isK6Enable() const
 bool CamerasViewImp::isP1Enable() const
 {
   int camera_index = mComboBoxType->currentIndex();
-  return camera_index == radial_3 ||
+  return /*camera_index == radial_3 ||*/
          camera_index == opencv_1 ||
          camera_index == opencv_2;
 }
@@ -767,7 +767,7 @@ bool CamerasViewImp::isP1Enable() const
 bool CamerasViewImp::isP2Enable() const
 {
   int camera_index = mComboBoxType->currentIndex();
-  return camera_index == radial_3 ||
+  return /*camera_index == radial_3 ||*/
          camera_index == opencv_1 ||
          camera_index == opencv_2;
 }
@@ -778,7 +778,7 @@ bool CamerasViewImp::isFocalVisible() const
   return camera_index == pinhole_1 || 
          camera_index == radial_1 || 
          camera_index == radial_2 ||
-         camera_index == radial_3 ||
+         /*camera_index == radial_3 ||*/
          camera_index == radial_fisheye_1 ||
          camera_index == radial_fisheye_2;
 }

@@ -91,8 +91,10 @@ void PropertiesComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
-  if(!project_exists) dynamic_cast<PropertiesView *>(view())->clear();
+  bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+  if (!project_exists) {
+    if (auto _view = dynamic_cast<PropertiesView *>(view())) _view->clear();
+  }
   //action()->setEnabled(!bProcessing);
 }
 

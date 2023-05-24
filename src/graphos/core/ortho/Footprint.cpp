@@ -44,7 +44,7 @@ Footprint::Footprint(const std::vector<Image> &images,
 {
   footprint.parentPath().createDirectories();
 
-  mFootprintWriter = tl::VectorWriterFactory::createWriter(footprint);
+  mFootprintWriter = tl::VectorWriterFactory::create(footprint);
   mFootprintWriter->open();
 }
 

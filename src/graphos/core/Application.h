@@ -26,14 +26,17 @@
 
 #include "graphos/graphos_global.h"
 
+#include <memory>
+#include <mutex>
+
+/* Qt */
+#include <QApplication>
+
+/* TidopLib */
 #include <tidop/core/messages.h>
 #include <tidop/core/console.h>
 #include <tidop/core/path.h>
 
-#include <QApplication>
-
-#include <memory>
-#include <mutex>
 
 class QMainWindow;
 

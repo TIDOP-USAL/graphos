@@ -37,29 +37,29 @@ AppStatus::~AppStatus()
 
 void AppStatus::activeFlag(Flag flag, bool active)
 {
-  if (mFlags.isActive(flag) != active) {
+  if (mFlags.isEnabled(flag) != active) {
     mFlags.activeFlag(flag, active);
     emit update();
   }
 }
 
-bool AppStatus::isActive(Flag flag) const
+bool AppStatus::isEnabled(Flag flag) const
 {
-  return mFlags.isActive(flag);
+  return mFlags.isEnabled(flag);
 }
 
-void AppStatus::flagOn(Flag flag)
+void AppStatus::enable(Flag flag)
 {
-  if (!mFlags.isActive(flag)) {
-    mFlags.flagOn(flag);
+  if (!mFlags.isEnabled(flag)) {
+    mFlags.enable(flag);
     emit update();
   }
 }
 
-void AppStatus::flagOff(Flag flag)
+void AppStatus::disable(Flag flag)
 {
-  if (mFlags.isActive(flag)) {
-    mFlags.flagOff(flag);
+  if (mFlags.isEnabled(flag)) {
+    mFlags.disable(flag);
     emit update();
   }
 }
@@ -70,23 +70,29 @@ void AppStatus::switchFlag(Flag flag)
   emit update();
 }
 
-bool AppStatus::isActive(uint32_t flag) const
+void AppStatus::activeFlag(uint32_t flag, bool active)
 {
-  return mUserFlags.isActive(flag);
+  mUserFlags.activeFlag(flag, active);
+  emit update();
 }
 
-void AppStatus::flagOn(uint32_t flag)
+bool AppStatus::isEnabled(uint32_t flag) const
 {
-  if (!mUserFlags.isActive(flag)) {
-    mUserFlags.flagOn(flag);
+  return mUserFlags.isEnabled(flag);
+}
+
+void AppStatus::enable(uint32_t flag)
+{
+  if (!mUserFlags.isEnabled(flag)) {
+    mUserFlags.enable(flag);
     emit update();
   }
 }
 
-void AppStatus::flagOff(uint32_t flag)
+void AppStatus::disable(uint32_t flag)
 {
-  if (mUserFlags.isActive(flag)) {
-    mUserFlags.flagOff(flag);
+  if (mUserFlags.isEnabled(flag)) {
+    mUserFlags.disable(flag);
     emit update();
   }
 }

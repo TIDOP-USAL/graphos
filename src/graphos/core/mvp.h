@@ -25,13 +25,16 @@
 #ifndef GRAPHOS_MVP_H
 #define GRAPHOS_MVP_H
 
+#include "graphos/graphos_global.h"
+
 #include <memory>
 
+TL_SUPPRESS_WARNINGS
 #include <QObject>
 #include <QDialog>
 #include <QEvent>
 #include <QDockWidget>
-
+TL_DEFAULT_WARNINGS
 
 namespace tl
 {

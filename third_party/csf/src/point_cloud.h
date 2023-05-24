@@ -39,16 +39,18 @@
 namespace csf {
 
 struct Point {
-    union {
-        struct {
-            double x;
-			double y;
-			double z;
-        };
-		double u[3];
+  union
+  {
+    struct
+    {
+      double x;
+      double y;
+      double z;
     };
+    double u[3];
+  };
 
-    Point() : x(0), y(0), z(0) {}
+  Point() : x(0), y(0), z(0) {}
 };
 
 class PointCloud : public std::vector<Point>{

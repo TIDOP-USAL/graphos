@@ -276,7 +276,7 @@ void MvsDensifier::exportToComap()
 
       for (auto &undistort_pair : undistort_map) {
         
-        size_t camera_id = undistort_pair.first;
+        int camera_id = undistort_pair.first;
         Undistort undistort = undistort_pair.second;
         Camera undistort_camera = undistort.undistortCamera();
         auto calibration = undistort_camera.calibration();
@@ -464,10 +464,7 @@ void MvsDensifier::writeNVMFile()
 
     if (stream.is_open()) {
 
-      int camera_count = poses().size();
-      int ground_points_count = groundPoints().size();
-
-      stream << "NVM_V3 \n\n" << camera_count << "\n";
+      stream << "NVM_V3 \n\n" << poses().size() << "\n";
       //stream << "NVM_V3_R9T \n\n" << camera_count << "\n";
 
       stream << std::fixed << std::setprecision(12);
@@ -481,8 +478,8 @@ void MvsDensifier::writeNVMFile()
         graphos_to_mvs_ids[image_id] = mvs_id;
 
         const auto &image = images().at(image_id);
-        size_t camera_id = image.cameraId();
-        float new_focal = undistort.at(camera_id).undistortCamera().focal();
+        int camera_id = image.cameraId();
+        double new_focal = undistort.at(camera_id).undistortCamera().focal();
 
         auto projection_center = pose.second.position();
         auto quaternion = pose.second.quaternion();
@@ -525,7 +522,7 @@ void MvsDensifier::writeNVMFile()
 
       }
 
-      stream << "\n" << ground_points_count << std::endl;
+      stream << "\n" << groundPoints().size() << std::endl;
 
       for (auto &points_3d : groundPoints()) {
 
@@ -615,7 +612,10 @@ void MvsDensifier::densify()
     cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
     cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
     cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
-    cmd_mvs.append(" --cuda-device -2"); // No funciona con CUDA...
+    if (isCudaEnabled())
+      cmd_mvs.append(" --cuda-device -1");
+    else 
+      cmd_mvs.append(" --cuda-device -2");
 
     msgInfo("Process: %s", cmd_mvs.c_str());
     tl::Process process(cmd_mvs);

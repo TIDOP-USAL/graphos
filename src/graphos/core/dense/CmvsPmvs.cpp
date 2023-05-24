@@ -293,8 +293,8 @@ void CmvsPmvsDensifier::writeBundleFile()
 
     if (stream.is_open() && stream_image_list.is_open()) {
 
-      int camera_count = poses().size();
-      int ground_points_count = groundPoints().size();
+      size_t camera_count = poses().size();
+      size_t ground_points_count = groundPoints().size();
 
       stream << "# Bundle file v0.3\n";
       stream << camera_count << " " << ground_points_count << "\n";
@@ -306,11 +306,11 @@ void CmvsPmvsDensifier::writeBundleFile()
         mGraphosToBundlerIds[image_id] = bundler_image_id;
 
         const auto &image = images().at(image_id);
-        size_t camera_id = image.cameraId();
+        int camera_id = image.cameraId();
         auto &camera = cameras().at(camera_id);
 
         Camera undistort_camera = undistort.at(camera_id).undistortCamera();
-        float new_focal = undistort_camera.focal();
+        double new_focal = undistort_camera.focal();
 
         auto projection_center = pose.second.position();
         auto rotation_matrix = pose.second.rotationMatrix();
@@ -389,8 +389,8 @@ void CmvsPmvsDensifier::writeBundleFile()
           auto _undistort = undistort.at(images().at(image_id).cameraId());
 
           Camera undistort_camera = _undistort.undistortCamera();
-          float ppx = undistort_camera.calibration()->parameter(Calibration::Parameters::cx);
-          float ppy = undistort_camera.calibration()->parameter(Calibration::Parameters::cy);
+          float ppx = static_cast<float>(undistort_camera.calibration()->parameter(Calibration::Parameters::cx));
+          float ppy = static_cast<float>(undistort_camera.calibration()->parameter(Calibration::Parameters::cy));
 
           tl::Point<float> undistort_point = _undistort.undistortPoint(tl::Point<float>(keypoints[point_id].x, keypoints[point_id].y));
           stream << " " << static_cast<int>(mGraphosToBundlerIds.at(image_id)) 
@@ -453,7 +453,7 @@ void CmvsPmvsDensifier::writeVisibility()
       stream << "VISDATA" << std::endl;
       stream << poses().size() << std::endl;
 
-      int max_size = poses().size() - 1;
+      size_t max_size = poses().size() - 1;
 
       for (const auto &pose : poses()) {
 

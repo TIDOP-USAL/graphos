@@ -151,7 +151,7 @@ std::shared_ptr<Calibration> ReadCalibration::calibration(int cameraId) const
       calibration->setParameter(Calibration::Parameters::k1, params[3]);
       calibration->setParameter(Calibration::Parameters::k2, params[4]);
 
-    } else if (model_name.compare("FULL_RADIAL") == 0){
+    } /*else if (model_name.compare("FULL_RADIAL") == 0){
 
       calibration = CalibrationFactory::create(Calibration::CameraModel::radial3);
       calibration->setParameter(Calibration::Parameters::focal, params[0]);
@@ -163,7 +163,7 @@ std::shared_ptr<Calibration> ReadCalibration::calibration(int cameraId) const
       calibration->setParameter(Calibration::Parameters::p1, params[6]);
       calibration->setParameter(Calibration::Parameters::p2, params[7]);
 
-    } else {
+    }*/ else {
       TL_TODO("camara no soportada")
       return nullptr;
     }
@@ -198,9 +198,9 @@ QString cameraToColmapType(const Camera &camera)
     colmap_camera = "SIMPLE_RADIAL_FISHEYE";
   } else if (graphos_camera.compare("Radial Fisheye 2") == 0){
     colmap_camera = "RADIAL_FISHEYE";
-  } else if (graphos_camera.compare("Radial 3") == 0){
+  } /*else if (graphos_camera.compare("Radial 3") == 0){
     colmap_camera = "FULL_RADIAL";
-  }
+  }*/
 
   return colmap_camera;
 }

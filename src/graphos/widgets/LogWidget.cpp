@@ -23,11 +23,13 @@
 
 #include "LogWidget.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QToolBar>
 #include <QGridLayout>
 #include <QListWidgetItem>
 #include <QAbstractItemModel>
 #include <QApplication>
+TL_DEFAULT_WARNINGS
 
 using namespace tl;
 
@@ -57,9 +59,9 @@ void LogWidget::filter(tl::MessageLevel level)
 {
   sFilterLevel = level;
  
-  mMsgErrorAction->setChecked(sFilterLevel.isActive(MessageLevel::msg_error));
-  mMsgWarningAction->setChecked(sFilterLevel.isActive(MessageLevel::msg_warning));
-  mMsgInfoAction->setChecked(sFilterLevel.isActive(MessageLevel::msg_info));
+  mMsgErrorAction->setChecked(sFilterLevel.isEnabled(MessageLevel::msg_error));
+  mMsgWarningAction->setChecked(sFilterLevel.isEnabled(MessageLevel::msg_warning));
+  mMsgInfoAction->setChecked(sFilterLevel.isEnabled(MessageLevel::msg_info));
 
   refresh();
 }
@@ -85,7 +87,7 @@ void LogWidget::print(const std::string &msg, const std::string &date, MessageLe
 
   mListWidget->insertItem(mListWidget->count(), qListWidgetItem);
 
-  if (!sFilterLevel.isActive(level)) {
+  if (!sFilterLevel.isEnabled(level)) {
     mListWidget->setRowHidden(mListWidget->count() - 1, true);
   }
 }
@@ -97,7 +99,7 @@ void LogWidget::refresh()
   for (int i = 0; i < mListWidget->count(); i++) {
     QListWidgetItem *qListWidgetItem = mListWidget->item(i);
     level = static_cast<tl::MessageLevel>(qListWidgetItem->data(Qt::UserRole).toInt());
-    mListWidget->setRowHidden(i, !sFilterLevel.isActive(level));
+    mListWidget->setRowHidden(i, !sFilterLevel.isEnabled(level));
   }
 }
 
@@ -208,28 +210,28 @@ void LogWidget::initSignalAndSlots()
 
 void LogWidget::onMsgDebug(const std::string &msg, const std::string &date)
 {
-  if (sLevel.isActive(MessageLevel::msg_debug)) {
+  if (sLevel.isEnabled(MessageLevel::msg_debug)) {
     print(msg, date, MessageLevel::msg_debug);
   }
 }
 
 void LogWidget::onMsgInfo(const std::string &msg, const std::string &date)
 {
-  if (sLevel.isActive(MessageLevel::msg_info)) {
+  if (sLevel.isEnabled(MessageLevel::msg_info)) {
     print(msg, date, MessageLevel::msg_info);
   }
 }
 
 void LogWidget::onMsgWarning(const std::string &msg, const std::string &date)
 {
-  if (sLevel.isActive(MessageLevel::msg_warning)) {
+  if (sLevel.isEnabled(MessageLevel::msg_warning)) {
     print(msg, date, MessageLevel::msg_warning);
   }
 }
 
 void LogWidget::onMsgError(const std::string &msg, const std::string &date)
 {
-  if (sLevel.isActive(MessageLevel::msg_error)) {
+  if (sLevel.isEnabled(MessageLevel::msg_error)) {
     print(msg, date, MessageLevel::msg_error);
   }
 }

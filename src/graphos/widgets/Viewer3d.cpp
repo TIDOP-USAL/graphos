@@ -23,8 +23,16 @@
 
 #include "Viewer3d.h"
 
+//#include "graphos/widgets/plugins/ccPluginInterface.h"
+//#include "graphos/widgets/plugins/core/qEDL/include/qEDL.h"
+//#include "graphos/widgets/plugins/core/qEDL/include/ccEDLFilter.h"
+#include "EDLfilter/ccEDLFilter.h"
+
 /* TidopLib */
 #include <tidop/core/messages.h>
+#include <tidop/math/math.h>
+
+TL_SUPPRESS_WARNINGS
 
 /* CloudCompare*/
 #include <FileIOFilter.h>
@@ -40,12 +48,14 @@
 #include <QMouseEvent>
 #include <QFileInfo>
 #include <QApplication>
+#include <QDir>
+
+TL_DEFAULT_WARNINGS
 
 #include <array>
 
 namespace graphos
 {
-
 
 
 Viewer3DContextMenu::Viewer3DContextMenu(QWidget *parent)
@@ -56,7 +66,8 @@ Viewer3DContextMenu::Viewer3DContextMenu(QWidget *parent)
     mActionViewLeft(new QAction(this)),
     mActionViewRight(new QAction(this)),
     mActionViewBack(new QAction(this)),
-    mActionViewBottom(new QAction(this))
+    mActionViewBottom(new QAction(this)),
+    mActionEDLFilter(new QAction(this))
 {
   init();
   initSignalAndSlots();
@@ -72,6 +83,8 @@ void Viewer3DContextMenu::init()
   mActionViewBack->setIcon(QIcon::fromTheme("back-view"));
   mActionViewBottom->setIcon(QIcon::fromTheme("bottom-view"));
 
+  mActionEDLFilter->setCheckable(true);
+
   addAction(mActionGlobalZoom);
   addSeparator();
   addAction(mActionViewFront);
@@ -80,6 +93,8 @@ void Viewer3DContextMenu::init()
   addAction(mActionViewRight);
   addAction(mActionViewBack);
   addAction(mActionViewBottom);
+  addSeparator();
+  addAction(mActionEDLFilter);
 
   retranslate();
 }
@@ -93,6 +108,7 @@ void Viewer3DContextMenu::initSignalAndSlots()
   connect(mActionViewRight,  &QAction::triggered, this, &Viewer3DContextMenu::viewRight);
   connect(mActionViewBack,   &QAction::triggered, this, &Viewer3DContextMenu::viewBack);
   connect(mActionViewBottom, &QAction::triggered, this, &Viewer3DContextMenu::viewBottom);
+  connect(mActionEDLFilter,  &QAction::toggled,   this, &Viewer3DContextMenu::filterEDL);
 }
 
 void Viewer3DContextMenu::retranslate()
@@ -104,6 +120,7 @@ void Viewer3DContextMenu::retranslate()
   mActionViewRight->setText(QApplication::translate("Viewer3DContextMenu", "View Right", nullptr));
   mActionViewBack->setText(QApplication::translate("Viewer3DContextMenu", "View Back", nullptr));
   mActionViewBottom->setText(QApplication::translate("Viewer3DContextMenu", "View Bottom", nullptr));
+  mActionEDLFilter->setText(QApplication::translate("Viewer3DContextMenu", "EDL Filter", nullptr));
 }
 
 
@@ -116,7 +133,11 @@ CCViewer3D::CCViewer3D(QWidget *parent)
     mScaleX(1),
     mScaleY(1),
     mOrderedLabelsContainer(nullptr),
-    mContextMenu(new Viewer3DContextMenu(this))
+    mContextMenu(new Viewer3DContextMenu(this)),
+    mShowClassification(false),
+    mRGBAColors(nullptr),
+	  edl(false),
+    filter(nullptr)
 {
   init();
   initSignalsAndSlots();
@@ -142,6 +163,11 @@ CCViewer3D::~CCViewer3D()
     delete mRect2DLabel;
     mRect2DLabel = nullptr;
   }
+
+  //if (filter) {
+  //  delete filter;
+  //  filter = nullptr;
+  //}
 }
 
 void CCViewer3D::clear()
@@ -401,8 +427,8 @@ void CCViewer3D::addCamera(const QString &id,
   {
   	ccCameraSensor::IntrinsicParameters iParams;
   
-  	iParams.vertFocal_pix = static_cast<float>(3859.63);
-  	iParams.vFOV_rad = static_cast<float>(45 * CC_DEG_TO_RAD);
+  	iParams.vertFocal_pix = 3859.63f;
+  	iParams.vFOV_rad = 45.f * tl::math::consts::deg_to_rad<float>;
   	iParams.arrayWidth = 4863;
   	iParams.arrayHeight = 3221;
   	iParams.pixelSize_mm[0] = static_cast<float>(1 / 4863);
@@ -410,8 +436,8 @@ void CCViewer3D::addCamera(const QString &id,
     iParams.zNear_mm = 0.f;
     iParams.zFar_mm = 100.f;
   	iParams.skew = 0.f;
-  	iParams.principal_point[0] = static_cast<float>(2412.5);
-  	iParams.principal_point[1] = static_cast<float>(1595.53);
+  	iParams.principal_point[0] = 2412.5f;
+  	iParams.principal_point[1] = 1595.53f;
   
     camera->setIntrinsicParameters(iParams);
   }
@@ -458,23 +484,38 @@ void CCViewer3D::activatePicker(PickingMode pickerMode)
   mRect2DLabel->setSelected(true);
   this->redraw();
 
+#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 12 || CLOUDCOMPARE_VERSION_MAJOR > 2
+  this->setInteractionMode(ccGLWindow::MODE_TRANSFORM_CAMERA);
+#else
   this->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA());
+#endif
+
   this->redraw(true);
 
-  connect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &)),
-          this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &)));
+  //connect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)),
+  //        this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)));
+  connect(this, &CCViewer3D::itemPicked,
+          this, &CCViewer3D::processPickedPoint);
 }
 
 void CCViewer3D::deactivatePicker()
 {
-  disconnect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &)),
-             this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &)));
+  //disconnect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)),
+  //           this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)));
+  disconnect(this, &CCViewer3D::itemPicked,
+             this, &CCViewer3D::processPickedPoint);
 
   mLabel->clear();
 
   this->removeFromOwnDB(mLabel);
   this->removeFromOwnDB(mRect2DLabel);
   this->redraw();
+}
+
+ccHObject *CCViewer3D::object()
+{
+  if (ccHObject *currentRoot = getSceneDB()) return currentRoot;
+  else return nullptr;
 }
 
 /* public slots */
@@ -615,6 +656,10 @@ void CCViewer3D::setVisible(const QString &id, bool visible)
 
 void CCViewer3D::showClassification(bool show)
 {
+  mShowClassification = show;
+
+  if (mColorTable == nullptr) return;
+
   if (ccHObject *currentRoot = getSceneDB()) {
 
     //currentRoot->showColors(!show);
@@ -622,15 +667,113 @@ void CCViewer3D::showClassification(bool show)
 
     ccHObject::Container clouds;
     currentRoot->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-    for (auto cloud : clouds) {
-      if (cloud) {
-        static_cast<ccGenericPointCloud *>(cloud)->showColors(!show);
-        static_cast<ccGenericPointCloud *>(cloud)->showSF(show);
+
+    /// Sólo se permite una nube de puntos en el visor
+    if (clouds.size() != 1) return;
+
+    if (auto cloud = static_cast<ccPointCloud *>(clouds.at(0))) {
+      
+      if (show) {
+
+        cloud->setColor(ccColor::black);
+
+        for (const auto &reg : *mColorTable) {
+
+          ScalarType code = static_cast<ScalarType>(reg.first);
+          tl::graph::Color color = reg.second.second;
+
+          ccColor::Rgba ccColor(color.red(), color.green(), color.blue(), color.opacity());
+
+          if (CCCoreLib::ScalarField *sf = cloud->getScalarField(0)) {
+
+            int counter = 0;
+            for (auto it = sf->begin(); it != sf->end(); ++it, ++counter) {
+              if ((*it) == code) {
+                cloud->setPointColor(counter, ccColor);
+              }
+            }
+
+          }
+
+        }
+
+      } else {
+
+        if (mRGBAColors) {
+          /// Parece que se cambia en la nube de puntos pero no se visualiza.
+          //if (auto rgba = cloud->rgbaColors()) {
+          //  // restore original colors
+          //  mRGBAColors->copy(*rgba);
+          //}
+          int counter = 0;
+          for (const auto &color : *mRGBAColors) {
+
+            ccColor::Rgba color_reg(color);
+
+            for (const auto &reg : *mColorTable) {
+              ScalarType code = static_cast<ScalarType>(reg.first);
+              
+              if (CCCoreLib::ScalarField *sf = cloud->getScalarField(0)) {
+                if (sf->at(counter) == code) {
+                  color_reg.a = reg.second.second.opacity();
+                  break;
+                }
+              }
+            }
+
+            cloud->setPointColor(counter++, color_reg);
+          }
+          
+        } else {
+          cloud->unallocateColors();
+        }
+
+      }
+
+      cloud->redrawDisplay();
+
+    }
+  }
+  
+}
+
+void CCViewer3D::setColorTable(std::shared_ptr<ColorTable> colorTable)
+{
+  mColorTable = colorTable;
+
+  connect(mColorTable.get(), &ColorTable::change, [&]() {
+            showClassification(mShowClassification);
+          });
+
+  if (ccHObject *currentRoot = getSceneDB()) {
+
+    ccHObject::Container clouds;
+    currentRoot->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+
+    /// Sólo se permite una nube de puntos en el visor
+    if (clouds.size() != 1) return;
+
+    if (auto cloud = static_cast<ccPointCloud *>(clouds.at(0))) {
+
+      if (cloud->hasColors()) {
+
+        if (mRGBAColors == nullptr) {
+          mRGBAColors = cloud->rgbaColors()->clone();
+        }
+
+        if (!mRGBAColors) {
+          msgError("Not enough memory to backup previous colors");
+        }
+
+      } else {
+
+        // check memory for rgb colors
+        if (!cloud->resizeTheRGBTable()) {
+          msgError("Not enough memory to show colors");
+        }
       }
 
     }
-
-    redraw();
 
   }
 }
@@ -702,14 +845,11 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
                                     unsigned pointIndex, 
                                     int x, 
                                     int y, 
-                                    const CCVector3 &point)
+                                    const CCVector3 &point,
+                                    const CCVector3d& uvw)
 {
-  if (!entity || entity->isKindOf(CC_TYPES::POINT_CLOUD) == false)
+  if (!entity || !entity->isKindOf(CC_TYPES::POINT_CLOUD))
     return;
-
-  //emit mouseClicked(QVector3D(point[0], point[1], point[2]));
-
-
 
   ccPointCloud *cloud = 0;
   cloud = static_cast<ccPointCloud *>(entity);
@@ -740,7 +880,11 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
       cc2DLabel *newLabel = new cc2DLabel();
       ccGenericGLDisplay *display = cloud->getDisplay();
       newLabel->setDisplay(display);
+#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
+      newLabel->addPickedPoint(cloud, pointIndex);
+#else
       newLabel->addPoint(cloud, pointIndex);
+#endif
       newLabel->setVisible(true);
       newLabel->setDisplayedIn2D(false);
       newLabel->setCollapsed(true);
@@ -766,7 +910,11 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
       return;
   }
 
+#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
+  mLabel->addPickedPoint(cloud, pointIndex);
+#else
   mLabel->addPoint(cloud, pointIndex);
+#endif
   mLabel->setVisible(true);
   //ccGenericGLDisplay* display = cloud->getDisplay();
   //mLabel->setDisplay(display);
@@ -830,6 +978,10 @@ void CCViewer3D::initSignalsAndSlots()
   connect(mContextMenu, &Viewer3DContextMenu::viewRight,  this, &CCViewer3D::setRightView);
   connect(mContextMenu, &Viewer3DContextMenu::viewBack,   this, &CCViewer3D::setBackView);
   connect(mContextMenu, &Viewer3DContextMenu::viewBottom, this, &CCViewer3D::setBottomView);
+  connect(mContextMenu, &Viewer3DContextMenu::filterEDL, [&](bool active) {
+            if (active) enableEDL();
+            else disableEDL();
+          });
 
 }
 
@@ -872,5 +1024,30 @@ void CCViewer3D::addToDB(ccHObject *entity)
 //    }
 //  }
 //}
+
+void CCViewer3D::enableEDL() 
+{
+	//qEDL* edl = new qEDL(this);
+  filter = new ccEDLFilter;//edl->getFilter();
+	QString error;
+  
+	filter->init(this->width(), this->height(), qApp->applicationDirPath() + "/shaders", error);
+	setGlFilter(filter);
+  this->edl = true;
+}
+
+void CCViewer3D::disableEDL() 
+{
+  setGlFilter(nullptr);
+
+  //if (filter) {
+  ////  delete filter;
+  //  filter = nullptr;
+  //}
+
+	redraw();
+  edl = false;
+}
+
 
 } // End graphos namespace

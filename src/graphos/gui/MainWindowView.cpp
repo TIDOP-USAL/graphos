@@ -247,7 +247,7 @@ void MainWindowView::setProjectTitle(const QString &title)
   itemProject->setText(0, tr("Project: ").append(title));
 }
 
-void MainWindowView::addImage(const QString &image, size_t imageId)
+void MainWindowView::addImage(const Image &image, const Camera &camera)
 {
 
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
@@ -273,18 +273,68 @@ void MainWindowView::addImage(const QString &image, size_t imageId)
 
     /* Se añade el fotograma al árbol del proyecto */
     QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
-    itemPhotogram->setText(0, QFileInfo(image).baseName());
+    itemPhotogram->setText(0, image.name());
     itemPhotogram->setIcon(0, QIcon::fromTheme("image-file"));
-    itemPhotogram->setToolTip(0, image);
+    itemPhotogram->setToolTip(0, image.path());
     itemPhotogram->setData(0, Qt::UserRole, graphos::image);
-    itemPhotogram->setData(0, Qt::UserRole+1, imageId);
+    itemPhotogram->setData(0, Qt::UserRole+1, image.id());
     itemImages->addChild(itemPhotogram);
     itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
 
     update();
   }
 
-  mThumbnailsWidget->addThumbnail(image, imageId);
+  mThumbnailsWidget->addThumbnail(image, QSize(camera.width(), camera.height()));
+}
+
+void MainWindowView::addImages(const std::unordered_map<size_t, Image> &images, 
+                               const std::map<int, Camera> &cameras)
+{
+
+  if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+    QTreeWidgetItem *itemImages = nullptr;
+    for (int i = 0; i < itemProject->childCount(); i++) {
+      QTreeWidgetItem *temp = itemProject->child(i);
+      if (temp->data(0, Qt::UserRole) == graphos::images){
+        itemImages = itemProject->child(i);
+        break;
+      }
+    }
+
+    if (itemImages == nullptr) {
+      itemImages = new QTreeWidgetItem();
+      itemImages->setText(0, tr("Images"));
+      itemImages->setIcon(0, QIcon::fromTheme("pictures-folder"));
+      itemImages->setFlags(itemImages->flags() | Qt::ItemIsTristate);
+      itemImages->setData(0, Qt::UserRole, graphos::images);
+      itemProject->addChild(itemImages);
+      itemImages->setExpanded(true);
+    }
+
+    for (const auto &image : images) {
+
+      size_t image_id = image.first;
+      image.second.name();
+
+      /* Se añade el fotograma al árbol del proyecto */
+      QTreeWidgetItem *itemPhotogram = new QTreeWidgetItem();
+      itemPhotogram->setText(0, image.second.name());
+      itemPhotogram->setIcon(0, QIcon::fromTheme("image-file"));
+      itemPhotogram->setToolTip(0, image.second.path());
+      itemPhotogram->setData(0, Qt::UserRole, graphos::image);
+      itemPhotogram->setData(0, Qt::UserRole + 1, image_id);
+      itemImages->addChild(itemPhotogram);
+
+      const auto &camera = cameras.find(image.second.cameraId());
+      mThumbnailsWidget->addThumbnail(image.second, QSize(camera->second.width(), camera->second.height()));
+    }
+
+    itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
+
+    update();
+  }
+
 }
 
 void MainWindowView::setActiveImage(size_t imageId)
@@ -484,6 +534,7 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
     if (itemModels == nullptr) {
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
+      itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
     }
@@ -522,12 +573,12 @@ void MainWindowView::deleteSparseModel()
       }
     }
 
-    if (itemModels == nullptr) {
+    if (itemModels == nullptr) return;/*{
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
-    }
+    }*/
 
     QTreeWidgetItem *itemSparseModel = nullptr;
     for (int i = 0; i < itemModels->childCount(); i++) {
@@ -558,6 +609,7 @@ void MainWindowView::setDenseModel(const QString &denseModel)
     if (itemModels == nullptr) {
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
+      itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
     }
@@ -596,12 +648,12 @@ void MainWindowView::deleteDenseModel()
       }
     }
 
-    if (itemModels == nullptr) {
+    if (itemModels == nullptr) return;/*{
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
-    }
+    }*/
 
     QTreeWidgetItem *itemDenseModel = nullptr;
     for (int i = 0; i < itemModels->childCount(); i++) {
@@ -633,6 +685,7 @@ void MainWindowView::setMesh(const QString &mesh)
     if (itemModels == nullptr) {
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
+      itemModels->setIcon(0, QIcon::fromTheme("folder_3d"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
     }
@@ -671,12 +724,12 @@ void MainWindowView::deleteMesh()
       }
     }
 
-    if (itemModels == nullptr) {
+    if (itemModels == nullptr) return;/*{
       itemModels = new QTreeWidgetItem();
       itemModels->setText(0, tr("3D Models"));
       itemProject->addChild(itemModels);
       itemModels->setExpanded(true);
-    }
+    }*/
 
     QTreeWidgetItem *itemDenseModel = nullptr;
     for (int i = 0; i < itemModels->childCount(); i++) {
@@ -1412,7 +1465,7 @@ void MainWindowView::initSignalAndSlots()
   connect(mTabWidget, &TabWidget::model3dActive, [&](bool active) {
     Application &app = Application::instance();
     AppStatus *app_status = app.status();
-    app_status->activeFlag(AppStatus::Flag::tab_3d_model_active, active);
+    app_status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, active);
   });
 }
 
@@ -1481,11 +1534,11 @@ void MainWindowView::update()
 
   Application &app = Application::instance();
   AppStatus *app_status = app.status();
-  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool project_modified = app_status->isActive(AppStatus::Flag::project_modified);
-  bool processing = app_status->isActive(AppStatus::Flag::processing);
-  bool image_active = app_status->isActive(AppStatus::Flag::tab_image_active);
-  bool model_3d_active = app_status->isActive(AppStatus::Flag::tab_3d_model_active);
+  bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+  bool project_modified = app_status->isEnabled(AppStatus::Flag::project_modified);
+  bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+  bool image_active = app_status->isEnabled(AppStatus::Flag::tab_image_active);
+  bool model_3d_active = app_status->isEnabled(AppStatus::Flag::tab_3d_viewer_active);
 
   mActionZoomIn->setEnabled(image_active);
   mActionZoomOut->setEnabled(image_active);

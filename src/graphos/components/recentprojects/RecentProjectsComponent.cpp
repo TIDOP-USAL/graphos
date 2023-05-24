@@ -89,8 +89,8 @@ void RecentProjectsComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  bool bLoadingImages = app_status->isActive(AppStatus::Flag::loading_images);
+  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
+  bool bLoadingImages = app_status->isEnabled(AppStatus::Flag::loading_images);
   //action()->setEnabled(!bLoadingImages && !bProcessing);
 }
 

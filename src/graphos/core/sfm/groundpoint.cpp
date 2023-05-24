@@ -686,7 +686,7 @@ public:
       uint32_t epsg = 0;
       std::string epsg_code = this->epsgCode();
       if (!epsg_code.empty()) {
-        auto split_string = tl::split(epsg_code, ":");
+        auto split_string = tl::split<std::string>(epsg_code, ':');
         if (split_string.size() == 2) {
           epsg = std::stoi(split_string[1]);
         }

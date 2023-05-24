@@ -27,6 +27,7 @@
 #include "graphos/core/mvp.h"
 #include "graphos/core/project.h"
 #include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 #include "graphos/core/sfm/poses.h"
 
 #include <QImage>
@@ -51,6 +52,8 @@ public:
 
   const std::unordered_map<size_t, Image> &images() const;
   Image image(size_t imageId) const;
+  const std::map<int, Camera> &cameras() const;
+  Camera camera(int id) const;
   void deleteImages(const std::vector<size_t> &imageIds);
   QImage readImage(size_t imageId);
 

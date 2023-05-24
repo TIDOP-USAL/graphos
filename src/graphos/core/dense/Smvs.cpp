@@ -226,11 +226,8 @@ void SmvsDensifier::writeMVEFile()
 
     if (stream.is_open()) {
 
-      int camera_count = poses().size();
-      int ground_points_count = groundPoints().size();
-
       stream << "drews 1.0\n";
-      stream << camera_count << " " << ground_points_count << "\n";
+      stream << poses().size() << " " << groundPoints().size() << "\n";
       stream << std::fixed << std::setprecision(12);
 
       for (const auto &pose : poses()) {
@@ -240,13 +237,13 @@ void SmvsDensifier::writeMVEFile()
         mGraphosToMveIds[image_id] = mve_id;
 
         const auto &image = images().at(image_id);
-        size_t camera_id = image.cameraId();
+        int camera_id = image.cameraId();
         auto &camera = cameras().at(camera_id);
 
         Camera undistort_camera = undistort.at(camera_id).undistortCamera();
-        float new_focal = undistort_camera.focal() / std::max(camera.width(), camera.height());
-        float new_ppx = undistort_camera.calibration()->parameter(Calibration::Parameters::cx) / camera.width();
-        float new_ppy = undistort_camera.calibration()->parameter(Calibration::Parameters::cy) / camera.height();
+        double new_focal = undistort_camera.focal() / std::max(camera.width(), camera.height());
+        double new_ppx = undistort_camera.calibration()->parameter(Calibration::Parameters::cx) / camera.width();
+        double new_ppy = undistort_camera.calibration()->parameter(Calibration::Parameters::cy) / camera.height();
 
         auto projection_center = pose.second.position();
         auto rotation_matrix = pose.second.rotationMatrix();

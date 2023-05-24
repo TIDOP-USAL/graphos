@@ -78,7 +78,6 @@ private:
   Project *mProject;
   tl::Path mPrjFile;
 
-
 };
 
 } // namespace graphos

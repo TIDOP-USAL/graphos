@@ -116,6 +116,23 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Orientation finished"));
   }
+
+  if (mView->absoluteOrientation()) {
+
+    tl::Path path = mModel->projectFolder();
+    path.append("sfm");
+
+    path.append("cameras.bin");
+    tl::Path::removeFile(path);
+
+    path.replaceBaseName("images");
+    tl::Path::removeFile(path);
+
+    path.replaceBaseName("points3D");
+    tl::Path::removeFile(path);
+
+  }
+
 }
 
 std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
@@ -248,6 +265,12 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 
         msgInfo("Oriented %i images", poses.size());
 
+        double oriented_percent = (static_cast<double>(poses.size()) / static_cast<double>(mModel->images().size())) * 100.;
+        if (oriented_percent < 90.){
+          // Menos del 90% de imagenes orientadas
+          msgWarning("%i percent of images oriented. Increase image size and number of points in Feature detector.", tl::roundToInteger(oriented_percent));
+        }
+        
         for (const auto &camera : cameras) {
           mModel->updateCamera(camera.first, camera.second);
         }

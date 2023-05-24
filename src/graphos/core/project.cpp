@@ -246,6 +246,7 @@ bool ProjectImp::updateCamera(int idCamera, const Camera &camera)
     QString colmap_camera_type = cameraToColmapType(camera);
     camera_colmap.SetModelIdFromName(colmap_camera_type.toStdString());
     database.UpdateCamera(camera_colmap);
+    database.Close();
 
     return true;
   } else {
@@ -1225,7 +1226,7 @@ void ProjectImp::readMVS(QXmlStreamReader &stream)
     } else if (stream.name() == "MinResolution") {
       mvs->setMinResolution(readInt(stream));
     } else if (stream.name() == "MaxResolution") {
-      mvs->setMaxResolution(readDouble(stream));
+      mvs->setMaxResolution(readInt(stream));
     } else if (stream.name() == "NumberViews") {
       mvs->setNumberViews(readInt(stream));
     } else if (stream.name() == "NumberViewsFuse") {

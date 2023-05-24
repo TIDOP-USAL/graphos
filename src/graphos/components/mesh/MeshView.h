@@ -46,7 +46,7 @@ public:
   virtual int solveDepth() const = 0;
   virtual QString boundaryType() const = 0;
   virtual int width() const = 0;
-  virtual int fullDepth() const = 0;
+  //virtual int fullDepth() const = 0;
 
 public slots:
 
@@ -54,7 +54,7 @@ public slots:
   virtual void setSolveDepth(int SolveDepth) = 0;
   virtual void setBoundaryType(const QString &BoundaryType) = 0;
   virtual void setWidth(int width) = 0;
-  virtual void setFullDepth(int FullDepth) = 0;
+  //virtual void setFullDepth(int FullDepth) = 0;
 
 signals:
 
@@ -62,7 +62,7 @@ signals:
   void solveDepthChanged(int);
   void boundaryTypeChanged(QString);
   void widthChanged(int);
-  void fullDepthChanged(int);
+  //void fullDepthChanged(int);
 
 };
 

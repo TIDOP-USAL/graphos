@@ -28,6 +28,7 @@
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
+/* Qt */
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -109,7 +110,7 @@ void CreateProjectPresenterImp::checkProjectName() const
 
 void CreateProjectPresenterImp::open()
 {
-  if (mAppStatus->isActive(AppStatus::Flag::project_modified)) {
+  if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
     int i_ret = QMessageBox(QMessageBox::Information,
                             tr("Save Changes"),
                             tr("There are unsaved changes. Do you want to save them?"),

@@ -90,9 +90,9 @@ void CloseProjectComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool processing = app_status->isActive(AppStatus::Flag::processing);
-  bool loading_images = app_status->isActive(AppStatus::Flag::loading_images);
-  bool project_exists = app_status->isActive(AppStatus::Flag::project_exists);
+  bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+  bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
+  bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
   action()->setEnabled(!loading_images && !processing && project_exists);
 }
 

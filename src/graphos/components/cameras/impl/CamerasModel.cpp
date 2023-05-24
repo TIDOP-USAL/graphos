@@ -194,7 +194,7 @@ void CamerasModelImp::updateCurrentCameraType(const QString &type)
       }
     }
 
-  } catch (std::exception &e) {
+  } catch (...) {
 
   }
 }
@@ -377,7 +377,7 @@ void CamerasModelImp::calibrationImport(const QString &file,
                   } else if (stream.name() == "data") {
 
                     QString text = stream.readElementText();
-                    QStringList list = text.trimmed().split(" ", QString::SkipEmptyParts);
+                    QStringList list = text.trimmed().split(" ", Qt::SkipEmptyParts);
 
                     std::shared_ptr<Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
                     if (!calibration) {
@@ -405,7 +405,7 @@ void CamerasModelImp::calibrationImport(const QString &file,
 
 
                     QString text = stream.readElementText();
-                    QStringList list = text.trimmed().split(" ", QString::SkipEmptyParts);
+                    QStringList list = text.trimmed().split(" ", Qt::SkipEmptyParts);
 
                     std::shared_ptr<Calibration> calibration = mCameraCache[mActiveCameraId].calibration();
                     calibration->setParameter(Calibration::Parameters::k1, list[0].toDouble());
@@ -468,11 +468,11 @@ void CamerasModelImp::calibrationExport(const QString &file,
       QString model_id = camera.type().c_str();
       if (model_id.compare("Pinhole 1") == 0 ||
           model_id.compare("Radial 1") == 0 ||
-          model_id.compare("Radial 2") == 0 ||
-          model_id.compare("Radial 3") == 0) {
+          model_id.compare("Radial 2") == 0 /*||
+          model_id.compare("Radial 3") == 0*/) {
 
         size_t sensor_width_px = std::max(camera.width(), camera.height());
-        size_t sensor_width_mm = camera.sensorSize();
+        size_t sensor_width_mm = static_cast<size_t>(camera.sensorSize());
         double scale = sensor_width_mm == 1 ? 1. : static_cast<double>(sensor_width_mm) / static_cast<double>(sensor_width_px);
         double w = camera.width() * scale;
         double h = camera.height() * scale;
@@ -506,7 +506,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
       if (model_id.compare("Pinhole 1") == 0 ||
           model_id.compare("Radial 1") == 0 ||
           model_id.compare("Radial 2") == 0 ||
-          model_id.compare("Radial 3") == 0 ||
+          /*model_id.compare("Radial 3") == 0 ||*/
           model_id.compare("OpenCV 1") == 0 ||
           model_id.compare("OpenCV 2") == 0) {
 
@@ -544,7 +544,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
       if (model_id.compare("Pinhole 1") == 0 ||
           model_id.compare("Radial 1") == 0 ||
           model_id.compare("Radial 2") == 0 ||
-          model_id.compare("Radial 3") == 0 ||
+          /*model_id.compare("Radial 3") == 0 ||*/
           model_id.compare("OpenCV 1") == 0 || 
           model_id.compare("OpenCV 2") == 0) {
 

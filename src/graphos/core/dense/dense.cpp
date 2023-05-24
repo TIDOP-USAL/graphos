@@ -57,6 +57,11 @@ void DensifierBase::enableCuda(bool enable)
   mCuda = enable;
 }
 
+bool DensifierBase::isCudaEnabled() const
+{
+  return mCuda;
+}
+
 tl::Path DensifierBase::denseModel() const
 {
   return mDenseModel;
@@ -72,6 +77,8 @@ void DensifierBase::undistort(const QString &dir)
 
   try {
 
+    //TODO: Se están corrigiendo de distorsión todas las imágenes.
+    //      Habría que ver si están orientadas
     UndistortImages undistort(mImages,
                               mCameras,
                               dir,

@@ -91,6 +91,7 @@ public:
   virtual ~Densifier() = default;
 
   virtual void enableCuda(bool enable) = 0;
+  virtual bool isCudaEnabled() const = 0;
   virtual tl::Path denseModel() const = 0;
 
 };
@@ -116,6 +117,7 @@ public:
 public:
 
   void enableCuda(bool enable) override;
+  virtual bool isCudaEnabled() const override;
   tl::Path denseModel() const override;
   void setUndistortImagesFormat(UndistortImages::Format format);
 

@@ -36,8 +36,10 @@
 /* TidopLib */
 #include <tidop/core/messages.h>
 #include <tidop/core/exception.h>
+#include <tidop/core/log.h>
 
 /* Qt */
+
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDesktopServices>
@@ -46,6 +48,7 @@
 #include <QSqlError>
 #include <QApplication>
 #include <QSettings>
+
 
 namespace graphos
 {
@@ -76,7 +79,7 @@ void MainWindowPresenter::openFromHistory(const QString &file)
       Application &app = Application::instance();
       AppStatus *app_status = app.status();
 
-      if (app_status && app_status->isActive(AppStatus::Flag::project_modified)) {
+      if (app_status && app_status->isEnabled(AppStatus::Flag::project_modified)) {
         int i_ret = QMessageBox(QMessageBox::Information,
                                 tr("Save Changes"),
                                 tr("There are unsaved changes. Do you want to save them?"),
@@ -145,30 +148,31 @@ void MainWindowPresenter::exit()
   /// - Comprobar que no haya ningún proceso corriendo
   
   Application &app = Application::instance();
-  AppStatus *app_status = app.status();
 
-  if (app_status && app_status->isActive(AppStatus::Flag::processing)) {
-    int i_ret = QMessageBox(QMessageBox::Warning,
-                            tr("Warning"),
-                            tr("Stop the current process before closing the program."),
-                            QMessageBox::Yes).exec();
-    if (i_ret == QMessageBox::Yes) {
-      return;
+  if (AppStatus *app_status = app.status()) {
+
+    if (app_status->isEnabled(AppStatus::Flag::processing)) {
+      int i_ret = QMessageBox(QMessageBox::Warning,
+                              tr("Warning"),
+                              tr("Stop the current process before closing the program."),
+                              QMessageBox::Yes).exec();
+      if (i_ret == QMessageBox::Yes) {
+        return;
+      }
+    }
+
+    if (app_status->isEnabled(AppStatus::Flag::project_modified)) {
+      int i_ret = QMessageBox(QMessageBox::Information,
+                              tr("Save Changes"),
+                              tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
+                              QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+      if (i_ret == QMessageBox::Yes) {
+        saveProject();
+      } else if (i_ret == QMessageBox::Cancel) {
+        return;
+      }
     }
   }
-
-  if(app_status && app_status->isActive(AppStatus::Flag::project_modified)){
-    int i_ret = QMessageBox(QMessageBox::Information,
-                            tr("Save Changes"),
-                            tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
-                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-    if (i_ret == QMessageBox::Yes) {
-      saveProject();
-    } else if (i_ret == QMessageBox::Cancel) {
-      return;
-    }
-  }
-
 }
 
 void MainWindowPresenter::openStartPage()
@@ -196,12 +200,18 @@ void MainWindowPresenter::openStartPage()
 
   AppStatus *status = Application::instance().status();
   status->activeFlag(AppStatus::Flag::tab_image_active, false);
-  status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+  status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
 
 }
 
 void MainWindowPresenter::loadProject()
 {
+  tl::Log &log = tl::Log::instance();
+  tl::Path log_path = mModel->projectPath();
+  log_path.replaceExtension(".log");
+  log.setLogFile(log_path.toString());
+  log.resumeListener();
+
   mView->clear();
 
   mView->setProjectTitle(mModel->projectName());
@@ -220,9 +230,14 @@ void MainWindowPresenter::loadProject()
   const char *cfile = ba.data();
   msgInfo("Load project: %s", cfile);
 
-  for (const auto &image : mModel->images()) {
-    mView->addImage(image.second.path(), image.second.id());
-    app.status()->activeFlag(AppStatus::Flag::images_added, true);
+  {
+    const auto &images = mModel->images();
+
+    if (!images.empty()) {
+      mView->addImages(images, mModel->cameras());
+      app.status()->activeFlag(AppStatus::Flag::images_added, true);
+    }
+
   }
 
   for (const auto &feat : mModel->features()) {
@@ -254,7 +269,8 @@ void MainWindowPresenter::loadFeatures(size_t imageId)
 {
   mView->addFeatures(imageId);
   Application &app = Application::instance();
-  app.status()->activeFlag(AppStatus::Flag::feature_extraction, true);
+  if (!app.status()->isEnabled(AppStatus::Flag::feature_extraction))
+    app.status()->activeFlag(AppStatus::Flag::feature_extraction, true);
 }
 
 void MainWindowPresenter::updateMatches()
@@ -321,7 +337,6 @@ void MainWindowPresenter::loadMesh()
 
   if (!mesh.isEmpty()) {
     mView->setMesh(mesh);
-
     app.status()->activeFlag(AppStatus::Flag::mesh, true);
   } else {
     mView->deleteMesh();
@@ -378,7 +393,7 @@ void MainWindowPresenter::openImage(size_t imageId)
 
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, true);
-    status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+    status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
 
   } catch (std::exception &e) {
     tl::printException(e);
@@ -457,7 +472,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
           position[0] = camera_pose.position().x;
           position[1] = camera_pose.position().y;
           position[2] = camera_pose.position().z;
-
+          
           std::array<std::array<float, 3>, 3> cameraRotationMatrix;
           cameraRotationMatrix[0][0] = static_cast<float>(camera_pose.rotationMatrix().at(0, 0));
           cameraRotationMatrix[0][1] = static_cast<float>(camera_pose.rotationMatrix().at(0, 1));
@@ -468,7 +483,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
           cameraRotationMatrix[2][0] = static_cast<float>(camera_pose.rotationMatrix().at(2, 0));
           cameraRotationMatrix[2][1] = static_cast<float>(camera_pose.rotationMatrix().at(2, 1));
           cameraRotationMatrix[2][2] = static_cast<float>(camera_pose.rotationMatrix().at(2, 2));
-
+          
           viewer3D->addCamera(mModel->image(image_id).name(), position[0], position[1], position[2], cameraRotationMatrix);
         }
 
@@ -477,7 +492,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
 
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
-    status->activeFlag(AppStatus::Flag::tab_3d_model_active, true);
+    status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, true);
 
   } catch (std::exception &e) {
     tl::MessageManager::release(e.what(), tl::MessageLevel::msg_error);
@@ -518,7 +533,8 @@ void MainWindowPresenter::loadImage(size_t imageId)
   try {
 
     const Image &image = mModel->image(imageId);
-    mView->addImage(image.path(), image.id());
+    mView->addImage(image, mModel->camera(image.cameraId()));
+    //mView->addImage(image.path(), image.id());
 
     Application &app = Application::instance();
     app.status()->activeFlag(AppStatus::Flag::images_added, true);
@@ -597,7 +613,7 @@ void MainWindowPresenter::initSignalAndSlots()
   connect(mView, &MainWindowView::all_tabs_closed, []() { 
     AppStatus *status = Application::instance().status();
     status->activeFlag(AppStatus::Flag::tab_image_active, false);
-    status->activeFlag(AppStatus::Flag::tab_3d_model_active, false);
+    status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
   });
 
   connect(&Application::instance(), &Application::update_history, [&]() {

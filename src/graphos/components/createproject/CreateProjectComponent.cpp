@@ -30,6 +30,7 @@
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
+/* Qt */
 #include <QAction>
 #include <QString>
 
@@ -94,7 +95,7 @@ void CreateProjectComponent::update()
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
+  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
   action()->setEnabled(!bProcessing);
 }
 

@@ -23,12 +23,14 @@
 
 #include "DtmInvDistNNWidget.h"
 
+TL_SUPPRESS_WARNINGS
 #include <QGroupBox>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QLabel>
 #include <QApplication>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

@@ -34,18 +34,24 @@
 #include <QVector3D>
 
 #include <tidop/core/defs.h>
+#include <tidop/graphic/color.h>
 
 /* CloudCompare */
+TL_SUPPRESS_WARNINGS
 #include "ccGLWindow.h"
 #include <ccCameraSensor.h>
+TL_DEFAULT_WARNINGS
 
+#include "graphos/core/ColorTable.h"
 #include "graphos/widgets/GraphosWidget.h"
 
 class cc2DLabel;
 class cc2DViewportLabel;
-
+class RGBAColorsTableType;
+class ccGlFilter;
 namespace graphos
 {
+
 
 class Viewer3DContextMenu
   : public GraphosContextMenu
@@ -66,6 +72,7 @@ signals:
   void viewRight(); 
   void viewBack();  
   void viewBottom();
+  void filterEDL(bool);
 
 private:
 
@@ -87,6 +94,7 @@ private:
   QAction *mActionViewRight;
   QAction *mActionViewBack;
   QAction *mActionViewBottom;
+  QAction *mActionEDLFilter;
 
 };
 
@@ -203,6 +211,8 @@ public:
   void activatePicker(PickingMode pickerMode);
   void deactivatePicker();
 
+  ccHObject *object();
+
 signals:
 
   void mouseClicked(QVector3D);
@@ -225,6 +235,13 @@ public slots:
 
   void setVisible(const QString &id, bool visible) override;
   void showClassification(bool show = true) override;
+  void setColorTable(std::shared_ptr<ColorTable> colorTable);
+  void enableEDL();
+  void disableEDL();
+  
+public:
+
+  bool isEDL() const { return edl; }
 
 protected:
 
@@ -247,7 +264,8 @@ protected slots:
                           unsigned pointIndex, 
                           int x, 
                           int y, 
-                          const CCVector3 &point);
+                          const CCVector3 &point,
+                          const CCVector3d& uvw);
   void showContextMenu(const QPoint &position);
   void mousePressEvent(QMouseEvent *event) override;
 
@@ -275,6 +293,11 @@ private:
   cc2DViewportLabel *mRect2DLabel;
   Viewer3DContextMenu *mContextMenu;
   QPoint mMousePress;
+  RGBAColorsTableType *mRGBAColors;
+  std::shared_ptr<ColorTable> mColorTable;
+  bool mShowClassification;
+  bool edl;
+  ccGlFilter *filter;
 };
 
 

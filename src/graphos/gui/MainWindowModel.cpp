@@ -76,6 +76,20 @@ Image MainWindowModel::image(size_t imageId) const
   }
 }
 
+const std::map<int, Camera> &MainWindowModel::cameras() const
+{
+  return mProject->cameras();
+}
+
+Camera MainWindowModel::camera(int id) const
+{
+  try {
+    return mProject->findCamera(id);
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+  }
+}
+
 void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
 {
   try {

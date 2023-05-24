@@ -24,7 +24,7 @@
 include(TidopUtils)
 
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
-
+include_directories(${CMAKE_SOURCE_DIR}/third_party/EDLfilter)
 
 project(Widgets LANGUAGES CXX)
 
@@ -54,6 +54,7 @@ add_files_to_project(${PROJECT_NAME}
                          ProgressBarWidget.cpp
                          settings/FeatViewerSettingsWidget.cpp
                          settings/MatchViewerSettingsWidget.cpp
+                         ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.cpp
                      HEADER_FILES
                          GraphosWidget.h
                          SiftWidget.h
@@ -79,8 +80,18 @@ add_files_to_project(${PROJECT_NAME}
                          ProgressBarDialog.h
                          ProgressBarWidget.h
                          settings/FeatViewerSettingsWidget.h
-                         settings/MatchViewerSettingsWidget.h)
-                       
+                         settings/MatchViewerSettingsWidget.h
+                         ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/ccEDLFilter.h)
+
+
+# EDL Shaders
+set(SHADER_EDL ${CMAKE_SOURCE_DIR}/third_party/EDLfilter/shaders/EDL)
+
+file(GLOB shaderFiles ${SHADER_EDL}/*.frag ${SHADER_EDL}/*.vert)
+foreach(filename ${shaderFiles} )
+    file(COPY ${filename} DESTINATION ${CMAKE_BINARY_DIR}/bin/Release/shaders/EDL)
+    file(COPY ${filename} DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug/shaders/EDL)
+endforeach()
 
 add_library(${PROJECT_NAME} ${LIB_TYPE}
             ${PROJECT_SOURCE_FILES}

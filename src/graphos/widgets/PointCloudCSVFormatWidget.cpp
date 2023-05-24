@@ -23,7 +23,7 @@
 
 #include "PointCloudCSVFormatWidget.h"
 
-
+TL_SUPPRESS_WARNINGS
 #include <QGridLayout>
 #include <QLabel>
 #include <QRadioButton>
@@ -32,6 +32,7 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QStandardPaths>
+TL_DEFAULT_WARNINGS
 
 namespace graphos
 {

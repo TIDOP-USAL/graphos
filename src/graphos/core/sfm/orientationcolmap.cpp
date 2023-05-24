@@ -491,7 +491,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
     OrientationExport orientationExport(&reconstruction);
 
-    //orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
+    orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
     //orientationExport.exportText(QString::fromStdWString(mOutputPath.toWString()));
     tl::Path sparse_file = mOutputPath;
     sparse_file.append("sparse.ply");
@@ -911,6 +911,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
         }
 
       }
+
+      database.Close();
     }
 
 
@@ -964,6 +966,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
           reconstruction.DeleteAllPoints2DAndPoints3D();
           reconstruction.TranscribeImageIdsToDatabase(database);
         }
+
+        database.Close();
 
         std::cout << std::endl;
         timer.stop();

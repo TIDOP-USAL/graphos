@@ -214,8 +214,8 @@ Calibration::Calibration(CameraModel cameraModel)
   : mCameraModel(cameraModel)
 {
 
-  if (mCameraModel.isActive(convertFlags(Parameters::focalx)) &&
-      mCameraModel.isActive(convertFlags(Parameters::focaly))){
+  if (mCameraModel.isEnabled(convertFlags(Parameters::focalx)) &&
+      mCameraModel.isEnabled(convertFlags(Parameters::focaly))){
     mParameters[Parameters::focalx] = 0.;
     mParameters[Parameters::focaly] = 0.;
   } else {
@@ -225,35 +225,35 @@ Calibration::Calibration(CameraModel cameraModel)
   mParameters[Parameters::cx] = 0.;
   mParameters[Parameters::cy] = 0.;
 
-  if (mCameraModel.isActive(convertFlags(Parameters::k1))) {
+  if (mCameraModel.isEnabled(convertFlags(Parameters::k1))) {
     mParameters[Parameters::k1] = 0.;
   }
 
-  if (mCameraModel.isActive(convertFlags(Parameters::k2))) {
+  if (mCameraModel.isEnabled(convertFlags(Parameters::k2))) {
     mParameters[Parameters::k2] = 0.;
   }
 
-  if (mCameraModel.isActive(convertFlags(Parameters::k3))) {
+  if (mCameraModel.isEnabled(convertFlags(Parameters::k3))) {
     mParameters[Parameters::k3] = 0.;
   }
 
-  if (mCameraModel.isActive(convertFlags(Parameters::k4))) {
+  if (mCameraModel.isEnabled(convertFlags(Parameters::k4))) {
     mParameters[Parameters::k4] = 0.;
   }
 
-  if (mCameraModel.isActive(convertFlags(Parameters::k5))) {
+  if (mCameraModel.isEnabled(convertFlags(Parameters::k5))) {
     mParameters[Parameters::k5] = 0.;
   }
 
-  if (mCameraModel.isActive(convertFlags(Parameters::k6))) {
+  if (mCameraModel.isEnabled(convertFlags(Parameters::k6))) {
     mParameters[Parameters::k6] = 0.;
   }
 
-  if (mCameraModel.isActive(convertFlags(Parameters::p1))) {
+  if (mCameraModel.isEnabled(convertFlags(Parameters::p1))) {
     mParameters[Parameters::p1] = 0.;
   }
 
-  if (mCameraModel.isActive(convertFlags(Parameters::p2))) {
+  if (mCameraModel.isEnabled(convertFlags(Parameters::p2))) {
     mParameters[Parameters::p2] = 0.;
   }
 }
@@ -395,7 +395,7 @@ void Calibration::setParameter(Calibration::Parameters parameter, double value)
 
 bool Calibration::checkCameraType(CameraType camera_type) const
 {
-  return mCameraModel.isActive(convertFlags(camera_type));
+  return mCameraModel.isEnabled(convertFlags(camera_type));
 }
 
 

@@ -23,9 +23,13 @@
 
 #include "graphos/core/dtm/csf.h"
 
-#include <colmap/util/ply.h>
+#include <tidop/core/exception.h>
 
+TL_SUPPRESS_WARNINGS
 #include "csf/src/CSF.h"
+TL_DEFAULT_WARNINGS
+
+#include "graphos/core/ply.h"
 
 namespace graphos
 {
@@ -214,15 +218,16 @@ void Csf::filter(const std::string &pointCloud,
 {
   try {
 
-    std::vector<colmap::PlyPoint> points = colmap::ReadPly(pointCloud);
+    Ply ply(pointCloud, Ply::OpenMode::in | Ply::OpenMode::binary);
+    size_t size = ply.size();
 
     csf::PointCloud csf_points;
-    csf_points.resize(points.size());
+    csf_points.resize(size);
 
-    for (size_t i = 0; i < points.size(); i++) {
-      csf_points[i].x = static_cast<double>(points[i].x);
-      csf_points[i].y = static_cast<double>(-points[i].z);
-      csf_points[i].z = static_cast<double>(points[i].y);
+    for (size_t i = 0; i < size; i++) {
+      csf_points[i].x = ply.point<double>(i).x;
+      csf_points[i].y = -ply.point<double>(i).z;
+      csf_points[i].z = ply.point<double>(i).y;
     }
 
     mCSF->setPointCloud(csf_points);
@@ -232,21 +237,23 @@ void Csf::filter(const std::string &pointCloud,
     mCSF->filter(ground_idx, off_ground_idx);
 
     /// Guardar nubes de puntos segmentadas
-    std::vector<colmap::PlyPoint> points_ground;
-    std::vector<colmap::PlyPoint> points_off_ground;
+    Ply points_ground(ground, Ply::OpenMode::out | Ply::OpenMode::binary);
     points_ground.reserve(ground_idx.size());
+    Ply points_off_ground(outGround, Ply::OpenMode::out | Ply::OpenMode::binary);
     points_off_ground.reserve(off_ground_idx.size());
 
     for (const auto &idx : ground_idx) {
-      points_ground.push_back(points[idx]);
+      points_ground.addPoint<float>(ply.point<float>(idx));
     }
 
     for (const auto &idx : off_ground_idx) {
-      points_off_ground.push_back(points[idx]);
+      points_off_ground.addPoint<float>(ply.point<float>(idx));
     }
 
-    colmap::WriteBinaryPlyPoints(ground, points_ground);
-    colmap::WriteBinaryPlyPoints(outGround, points_off_ground);
+    points_ground.save();
+    points_ground.close();
+    points_off_ground.save();
+    points_off_ground.close();
 
   } catch (const std::bad_alloc &) {
     //m_app->dispToConsole("Not enough memory!", ccMainAppInterface::ERR_CONSOLE_MESSAGE);

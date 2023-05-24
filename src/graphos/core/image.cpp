@@ -131,8 +131,6 @@ Image &Image::operator =(Image &&image) noexcept
 
 void Image::update()
 {
-  //QFileInfo file_info(mFilePath);
-  //mName = file_info.baseName();
   tl::Path img_path(mFilePath.toStdWString());
   mId = tl::Path::hash(img_path);
 }

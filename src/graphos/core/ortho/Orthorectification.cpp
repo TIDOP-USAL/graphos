@@ -36,7 +36,7 @@ namespace graphos
 Orthorectification::Orthorectification(const tl::Path &dtm, 
                                        const Camera &camera,
                                        const CameraPose &cameraPose)
-  : mDtmReader(tl::ImageReaderFactory::createReader(dtm)),
+  : mDtmReader(tl::ImageReaderFactory::create(dtm)),
     mCamera(camera),
     mCameraPose(cameraPose),
     mIniZ(0.),

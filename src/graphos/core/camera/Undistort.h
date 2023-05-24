@@ -45,7 +45,7 @@ namespace graphos
 
 class Image;
 
-TL_DEPRECATED("Undistort","2.0")
+TL_DEPRECATED("Undistort", "2.0")
 cv::Mat openCVCameraMatrix(const Calibration &calibration);
 TL_DEPRECATED("Undistort", "2.0")
 cv::Mat openCVDistortionCoefficients(const Calibration &calibration);
