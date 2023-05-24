@@ -83,6 +83,11 @@ if(BUILD_CAMERAS_COMPONENT)
     
     message(STATUS "  Graphos::Cameras enabled")
    
+   
+    if(BUILD_TEST)
+        add_subdirectory(test)
+    endif(BUILD_TEST)  
+    
 else()
 
     message(STATUS "  Graphos::Cameras disabled")

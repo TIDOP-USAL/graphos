@@ -33,7 +33,7 @@ class OpenProjectView;
 class OpenProjectModel;
 class AppStatus;
 
-class OpenProjectPresenterImp
+class OpenProjectPresenterImp final
   : public OpenProjectPresenter
 {
 

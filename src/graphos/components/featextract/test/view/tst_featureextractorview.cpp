@@ -30,6 +30,7 @@
 #include "graphos/components/featextract/impl/FeatureExtractorView.h"
 #include "graphos/widgets/SiftWidget.h"
 
+
 using namespace graphos;
 
 BOOST_AUTO_TEST_SUITE(TestFeatureExtractorViewSuite)
@@ -65,9 +66,6 @@ BOOST_FIXTURE_TEST_CASE(default_constructor, TestFeatureExtractorView)
   BOOST_CHECK_EQUAL("", currentDetectorDescriptor().toStdString());
   BOOST_CHECK_EQUAL(3000, maxImageSize());
   BOOST_CHECK_EQUAL(false, fullImageSize());
-
-  addDetectorDescriptor(mSift);
-  setCurrentDetectorDescriptor(mSift->windowTitle());
 }
 
 BOOST_FIXTURE_TEST_CASE(_clear, TestFeatureExtractorView)

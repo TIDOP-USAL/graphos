@@ -21,9 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-#define BOOST_TEST_MODULE GRAPHOS feature natching view test
+#define BOOST_TEST_MODULE GRAPHOS feature matching view test
 
 #include <boost/test/unit_test.hpp>
+
 #include <QtTest>
 #include <QCoreApplication>
 
@@ -36,9 +37,9 @@ using namespace graphos;
 
 BOOST_AUTO_TEST_SUITE(TestFeatureMatchingViewSuite)
 
+
 QApplication app(boost::unit_test::framework::master_test_suite().argc,
                  boost::unit_test::framework::master_test_suite().argv);
-
 
 class TestFeatureMatchingView
   : public FeatureMatchingViewImp
@@ -46,14 +47,16 @@ class TestFeatureMatchingView
 
 public:
 
-  TestFeatureMatchingView()
+  TestFeatureMatchingView() 
     : FeatureMatchingViewImp(),
     mFeatureMatchingWidget(new FeatureMatchingWidgetImp)
   {
+    //QApplication::setActiveWindow(this);
   }
+
   ~TestFeatureMatchingView()
   {
-    if (mFeatureMatchingWidget) {
+    if(mFeatureMatchingWidget) {
       delete mFeatureMatchingWidget;
       mFeatureMatchingWidget = nullptr;
     }
@@ -68,27 +71,34 @@ public:
 
 BOOST_FIXTURE_TEST_CASE(default_constructor, TestFeatureMatchingView)
 {
-  BOOST_CHECK_EQUAL("", currentMatchMethod().toStdString());
-
-  //addMatchMethod(mFeatureMatchingWidget);
-  //setCurrentMatchMethod(mFeatureMatchingWidget->windowTitle());
+  BOOST_CHECK_EQUAL("", this->currentMatchMethod().toStdString());
+  BOOST_CHECK_EQUAL(false, spatialMatching());
 }
 
 BOOST_FIXTURE_TEST_CASE(_clear, TestFeatureMatchingView)
 {
-  clear();
-
-
 }
 
 BOOST_FIXTURE_TEST_CASE(window_title, TestFeatureMatchingView)
 {
-  BOOST_CHECK_EQUAL("Feature Matching", windowTitle().toStdString());
+  BOOST_CHECK_EQUAL("Feature Matching", this->windowTitle().toStdString());
 }
 
-BOOST_FIXTURE_TEST_CASE(current_match_method, TestFeatureMatchingView)
+BOOST_FIXTURE_TEST_CASE(spatial_matching, TestFeatureMatchingView)
 {
+  setSpatialMatching(true);
+  BOOST_CHECK_EQUAL(true, spatialMatching());
+
+  setSpatialMatching(false);
+  BOOST_CHECK_EQUAL(false, spatialMatching());
+}
+
+BOOST_FIXTURE_TEST_CASE(current_matching_method, TestFeatureMatchingView)
+{
+  addMatchMethod(mFeatureMatchingWidget);
+  setCurrentMatchMethod(mFeatureMatchingWidget->windowTitle());
   BOOST_CHECK_EQUAL("Feature Matching Colmap", this->currentMatchMethod().toStdString());
 }
+
 
  BOOST_AUTO_TEST_SUITE_END()

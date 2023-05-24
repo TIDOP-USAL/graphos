@@ -134,7 +134,7 @@ void CreateProjectViewImp::update()
 
 void CreateProjectViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("CreateProjectView", "New Project", nullptr));
+  setWindowTitle(QApplication::translate("CreateProjectView", "New Project", nullptr));
   mLabelProjectName->setText(QApplication::translate("CreateProjectView", "Project Name", nullptr));
   mLabelProjectPath->setText(QApplication::translate("CreateProjectView", "Project Path", nullptr));
   mLabelProjectFile->setText(QApplication::translate("CreateProjectView", "Project File", nullptr));
@@ -188,9 +188,10 @@ void CreateProjectViewImp::setExistingProject(bool prjExist)
 void CreateProjectViewImp::onClickButtonSelectPath()
 {
   QString pathName = QFileDialog::getExistingDirectory(this,
-    tr("Project path"),
-    mLineEditProjectPath->text(),
-    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                       tr("Project path"),
+                                                       mLineEditProjectPath->text(),
+                                                       QFileDialog::ShowDirsOnly | 
+                                                       QFileDialog::DontResolveSymlinks);
 
   if (!pathName.isEmpty()) {
     mLineEditProjectPath->setText(pathName);

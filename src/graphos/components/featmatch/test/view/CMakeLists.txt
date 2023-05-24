@@ -32,13 +32,13 @@ add_executable(${test_target}
                ${test_filename})
 
 target_link_libraries(${test_target} PRIVATE
-                      Qt5::Core 
-                      Qt5::Widgets 
+                      Qt5::Core
+                      Qt5::Widgets
                       Qt5::Test
-                      Qt5::Concurrent
+                      Qt5::OpenGLExtensions
                       Graphos::Core
+                      Graphos::FeatMatch
                       Graphos::Widgets
-					  Graphos::FeatMatch
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 set_target_properties(${test_target} PROPERTIES

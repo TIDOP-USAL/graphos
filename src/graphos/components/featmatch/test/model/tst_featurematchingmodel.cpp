@@ -25,13 +25,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-
 #include "graphos/components/featmatch/impl/FeatureMatchingModel.h"
 #include "graphos/core/project.h"
 #include "graphos/core/features/matching.h"
 #include "../test/fake/ProjectFake.h"
 
-
+using namespace graphos;
 using namespace graphos;
 
 BOOST_AUTO_TEST_SUITE(TestFeatureMatchingModelSuite)
@@ -42,12 +41,11 @@ struct TestFeatureMatchingModel
 
   TestFeatureMatchingModel()
     : project(new ProjectFake),
-    mFeatureMatchingModel(new FeatureMatchingModelImp(project))
+      mFeatureMatchingModel(new FeatureMatchingModelImp(project))
   {
   }
 
-  ~TestFeatureMatchingModel()
-  { }
+  ~TestFeatureMatchingModel(){}
 
   void setup() {}
   void teardown() {}
@@ -56,8 +54,6 @@ struct TestFeatureMatchingModel
   FeatureMatchingModel *mFeatureMatchingModel;
 };
 
-
-
 BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestFeatureMatchingModel)
 {
   BOOST_CHECK_EQUAL(nullptr, mFeatureMatchingModel->featureMatching());
@@ -65,7 +61,8 @@ BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestFeatureMatchingModel)
   BOOST_CHECK_EQUAL(false, mFeatureMatchingModel->spatialMatching());
 }
 
-BOOST_FIXTURE_TEST_CASE(featureMatching, TestFeatureMatchingModel)
+BOOST_FIXTURE_TEST_CASE(feature_matching, TestFeatureMatchingModel)
+
 {
   {
     std::shared_ptr<FeatureMatching> match_properties = std::make_shared<FeatureMatchingProperties>();
@@ -77,15 +74,15 @@ BOOST_FIXTURE_TEST_CASE(featureMatching, TestFeatureMatchingModel)
   BOOST_CHECK_EQUAL(0.8, std::dynamic_pointer_cast<FeatureMatchingProperties>(match_properties)->ratio());
 }
 
-
 BOOST_FIXTURE_TEST_CASE(database, TestFeatureMatchingModel)
 {
-  tl::Path database("C:/Users/User01/Documents/Graphos/Projects/database.db");
-  project->setDatabase(database);
-  BOOST_CHECK_EQUAL(database, mFeatureMatchingModel->database());
+  tl::Path database_path("C:\\Users\\User01\\Documents\\Graphos\\Projects\\proj01\\database.db");
+
+  project->setDatabase(database_path);
+  BOOST_CHECK_EQUAL(database_path, mFeatureMatchingModel->database());
 }
 
-BOOST_FIXTURE_TEST_CASE(spatialMatching, TestFeatureMatchingModel)
+BOOST_FIXTURE_TEST_CASE(spatial_matching, TestFeatureMatchingModel)
 {
 
   Image image1("C:/Users/User01/Documents/Graphos/Projects/images/img001.png");
@@ -101,5 +98,6 @@ BOOST_FIXTURE_TEST_CASE(spatialMatching, TestFeatureMatchingModel)
   BOOST_CHECK_EQUAL(true, mFeatureMatchingModel->spatialMatching());
 
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()

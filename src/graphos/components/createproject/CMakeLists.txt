@@ -27,15 +27,6 @@ if(BUILD_CREATE_PROJECT_COMPONENT)
 
     project(CreateProject LANGUAGES CXX)
     
-    
-    # Find includes in corresponding build directories
-    set(CMAKE_INCLUDE_CURRENT_DIR ON)
-    # Instruct CMake to run moc automatically when needed
-    set(CMAKE_AUTOMOC ON)
-    # Create code from a list of Qt designer ui files
-    set(CMAKE_AUTOUIC ON)
-    set(CMAKE_AUTORCC ON)
-    
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              CreateProjectComponent.cpp

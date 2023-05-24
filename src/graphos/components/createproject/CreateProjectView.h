@@ -81,10 +81,6 @@ public:
    */
   virtual void setExistingProject(bool prjExist) = 0;
 
-protected slots:
-
-  virtual void onClickButtonSelectPath() = 0;
-
 signals:
 
   void project_name_changed();

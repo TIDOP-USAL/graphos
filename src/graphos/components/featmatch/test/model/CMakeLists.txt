@@ -21,16 +21,14 @@
 #                                                                        #
 ##########################################################################
 
-set(test_filename tst_featurematchingmodel.cpp)
-get_filename_component(test_name ${test_filename} NAME_WE)
-
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
+set(test_filename tst_featurematchingmodel.cpp)
+get_filename_component(test_name ${test_filename} NAME_WE)
 set(test_target "${test_name}")
 
 add_executable(${test_target}
                ${test_filename}
-               ${CMAKE_SOURCE_DIR}
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
                ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h)
 
@@ -41,7 +39,8 @@ target_link_libraries(${test_target} PRIVATE
                       Graphos::Core
                       Graphos::FeatMatch
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-					  
+
+
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}
                       PROJECT_LABEL ${test_target})
