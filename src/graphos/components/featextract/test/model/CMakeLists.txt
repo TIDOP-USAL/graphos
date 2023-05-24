@@ -21,11 +21,10 @@
 #                                                                        #
 ##########################################################################
 
-set(test_filename tst_featureextractormodel.cpp)
-get_filename_component(test_name ${test_filename} NAME_WE)
-
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
+set(test_filename tst_featureextractormodel.cpp)
+get_filename_component(test_name ${test_filename} NAME_WE)
 set(test_target "${test_name}")
 
 add_executable(${test_target}
@@ -37,7 +36,7 @@ target_link_libraries(${test_target} PRIVATE
                       Qt5::Core 
                       Qt5::Widgets 
                       Graphos::Core
-					  Graphos::FeatExtract
+                      Graphos::FeatExtract
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 					  
 set_target_properties(${test_target} PROPERTIES

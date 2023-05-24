@@ -21,89 +21,84 @@
  *                                                                      *
  ************************************************************************/
 
-#define BOOST_TEST_MODULE GRAPHOS feature extractor view test
+#define BOOST_TEST_MODULE GRAPHOS feature matching view test
 
 #include <boost/test/unit_test.hpp>
+
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "graphos/components/featextract/impl/FeatureExtractorView.h"
-#include "graphos/widgets/SiftWidget.h"
+#include "graphos/components/featmatch/impl/FeatureMatchingView.h"
+#include "graphos/widgets/FeatureMatchingWidget.h"
 
 
 using namespace graphos;
 
-BOOST_AUTO_TEST_SUITE(TestFeatureExtractorViewSuite)
+
+BOOST_AUTO_TEST_SUITE(TestFeatureMatchingViewSuite)
+
 
 QApplication app(boost::unit_test::framework::master_test_suite().argc,
                  boost::unit_test::framework::master_test_suite().argv);
 
-class TestFeatureExtractorView
-  : public FeatureExtractorViewImp
+class TestFeatureMatchingView
+  : public FeatureMatchingViewImp
 {
 
 public:
 
-  TestFeatureExtractorView()
-    : FeatureExtractorViewImp(),
-      mSift(new SiftWidgetImp){}
-  ~TestFeatureExtractorView() 
+  TestFeatureMatchingView() 
+    : FeatureMatchingViewImp(),
+    mFeatureMatchingWidget(new FeatureMatchingWidgetImp)
   {
-    if (mSift) {
-      delete mSift;
-      mSift = nullptr;
+    //QApplication::setActiveWindow(this);
+  }
+
+  ~TestFeatureMatchingView()
+  {
+    if(mFeatureMatchingWidget) {
+      delete mFeatureMatchingWidget;
+      mFeatureMatchingWidget = nullptr;
     }
   }
 
   void setup() {}
   void teardown() {}
 
-  SiftWidget *mSift;
+  FeatureMatchingWidget *mFeatureMatchingWidget;
 };
 
-BOOST_FIXTURE_TEST_CASE(default_constructor, TestFeatureExtractorView)
+
+BOOST_FIXTURE_TEST_CASE(default_constructor, TestFeatureMatchingView)
 {
-  BOOST_CHECK_EQUAL("", currentDetectorDescriptor().toStdString());
-  BOOST_CHECK_EQUAL(3000, maxImageSize());
-  BOOST_CHECK_EQUAL(false, fullImageSize());
+  BOOST_CHECK_EQUAL("", this->currentMatchMethod().toStdString());
+  BOOST_CHECK_EQUAL(false, spatialMatching());
 }
 
-BOOST_FIXTURE_TEST_CASE(_clear, TestFeatureExtractorView)
+BOOST_FIXTURE_TEST_CASE(_clear, TestFeatureMatchingView)
 {
-  clear();
-
-  BOOST_CHECK_EQUAL(3000, maxImageSize());
-  BOOST_CHECK_EQUAL(false, fullImageSize());
 }
 
-BOOST_FIXTURE_TEST_CASE(window_title, TestFeatureExtractorView)
+BOOST_FIXTURE_TEST_CASE(window_title, TestFeatureMatchingView)
 {
-  BOOST_CHECK_EQUAL("Feature Detector/Descriptor", this->windowTitle().toStdString());
+  BOOST_CHECK_EQUAL("Feature Matching", this->windowTitle().toStdString());
 }
 
-BOOST_FIXTURE_TEST_CASE(current_detector_descriptor, TestFeatureExtractorView)
+BOOST_FIXTURE_TEST_CASE(spatial_matching, TestFeatureMatchingView)
 {
-  addDetectorDescriptor(mSift);
-  setCurrentDetectorDescriptor(mSift->windowTitle());
-  BOOST_CHECK_EQUAL("SIFT", this->currentDetectorDescriptor().toStdString());
+  setSpatialMatching(true);
+  BOOST_CHECK_EQUAL(true, spatialMatching());
+
+  setSpatialMatching(false);
+  BOOST_CHECK_EQUAL(false, spatialMatching());
 }
 
-BOOST_FIXTURE_TEST_CASE(max_image_size, TestFeatureExtractorView)
+BOOST_FIXTURE_TEST_CASE(current_matching_method, TestFeatureMatchingView)
 {
-  setMaxImageSize(2500);
-  BOOST_CHECK_EQUAL(2500, this->maxImageSize());
-
-  setMaxImageSize(3500);
-  BOOST_CHECK_EQUAL(3500, this->maxImageSize());
+  addMatchMethod(mFeatureMatchingWidget);
+  setCurrentMatchMethod(mFeatureMatchingWidget->windowTitle());
+  BOOST_CHECK_EQUAL("Feature Matching Colmap", this->currentMatchMethod().toStdString());
 }
 
-BOOST_FIXTURE_TEST_CASE(full_image_size, TestFeatureExtractorView)
-{
-  this->setFullImageSize(true);
-  BOOST_CHECK_EQUAL(true, this->fullImageSize());
 
-  this->setFullImageSize(false);
-  BOOST_CHECK_EQUAL(false, this->fullImageSize());
-}
-
-BOOST_AUTO_TEST_SUITE_END()
+ BOOST_AUTO_TEST_SUITE_END()

@@ -23,27 +23,28 @@
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(test_filename tst_featureextractorview.cpp)
+set(test_filename tst_featurematchingmodel.cpp)
 get_filename_component(test_name ${test_filename} NAME_WE)
 set(test_target "${test_name}")
 
 add_executable(${test_target}
-               ${test_filename})
+               ${test_filename}
+               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
+               ${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h)
 
 target_link_libraries(${test_target} PRIVATE
-                      Qt5::Core
-                      Qt5::Widgets
+                      Qt5::Core 
+                      Qt5::Widgets 
                       Qt5::Test
-                      Qt5::OpenGLExtensions
                       Graphos::Core
-                      Graphos::FeatExtract
-                      Graphos::Widgets
+                      Graphos::FeatMatch
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}
-                      PROJECT_LABEL ${test_name})
+                      PROJECT_LABEL ${test_target})
 
-set_target_properties(${test_name} PROPERTIES FOLDER "test/components/featureextractor/view")
+set_target_properties(${test_target} PROPERTIES FOLDER "test/components/featurematching/model")
 
-add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)
+add_test(NAME ${test_target} COMMAND $<TARGET_FILE:${test_target}>)

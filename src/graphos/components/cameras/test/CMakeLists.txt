@@ -21,29 +21,6 @@
 #                                                                        #
 ##########################################################################
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
 
-set(test_filename tst_featureextractorview.cpp)
-get_filename_component(test_name ${test_filename} NAME_WE)
-set(test_target "${test_name}")
-
-add_executable(${test_target}
-               ${test_filename})
-
-target_link_libraries(${test_target} PRIVATE
-                      Qt5::Core
-                      Qt5::Widgets
-                      Qt5::Test
-                      Qt5::OpenGLExtensions
-                      Graphos::Core
-                      Graphos::FeatExtract
-                      Graphos::Widgets
-                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-
-set_target_properties(${test_target} PROPERTIES
-                      OUTPUT_NAME ${test_target}
-                      PROJECT_LABEL ${test_name})
-
-set_target_properties(${test_name} PROPERTIES FOLDER "test/components/featureextractor/view")
-
-add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)
+add_subdirectory(model)
+add_subdirectory(view)

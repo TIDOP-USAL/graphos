@@ -85,6 +85,10 @@ if(BUILD_FEATMATCH_COMPONENT)
     
     message(STATUS "  Graphos::FeatMatch enabled")
     
+   
+    if(BUILD_TEST)
+        add_subdirectory(test)
+    endif(BUILD_TEST)
 else()
 
     message(STATUS "  Graphos::FeatMatch disabled")

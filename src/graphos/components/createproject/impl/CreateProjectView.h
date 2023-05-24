@@ -36,7 +36,7 @@ class QLabel;
 namespace graphos
 {
 
-class CreateProjectViewImp final
+class CreateProjectViewImp /*final*/
   : public CreateProjectView
 {
   Q_OBJECT

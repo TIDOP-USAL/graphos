@@ -147,7 +147,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
-                      GLEW::glew)
+                      GLEW::glew
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 
 set_target_properties(${PROJECT_NAME} PROPERTIES 
