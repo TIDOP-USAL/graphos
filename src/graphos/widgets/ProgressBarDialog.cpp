@@ -77,6 +77,7 @@ void ProgressBarDialog::initUI()
   gridLayout->addWidget(mProgressBar, 1, 0, 1, 4);
 
   mPushButtonMinimize = new QPushButton(this);
+  mPushButtonMinimize->setFocus();
   gridLayout->addWidget(mPushButtonMinimize, 3, 1, 1, 1);
 
   mPushButtonClose = new QPushButton(this);

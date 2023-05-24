@@ -162,7 +162,7 @@ target_link_libraries(${PROJECT_NAME}
 
 
 if(ENABLE_SOLUTION_FOLDERS)
-  set_target_properties(${PROJECT_NAME}  PROPERTIES FOLDER "graphos")
+    set_target_properties(${PROJECT_NAME}  PROPERTIES FOLDER "graphos")
 endif()
 
 set_target_properties(${PROJECT_NAME}

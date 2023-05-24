@@ -219,7 +219,7 @@ void MvsDensifier::clearTemporalFiles()
   outputPath().append("temp").removeDirectory();
 }
 
-void MvsDensifier::exportToComap()
+void MvsDensifier::exportToColmap()
 {
   try {
 
@@ -228,6 +228,7 @@ void MvsDensifier::exportToComap()
     const auto &colmap_images = database.ReadAllImages();
 
     std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
+    std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
 
     for (const auto &image : images()) {
 
@@ -238,11 +239,14 @@ void MvsDensifier::exportToComap()
 
         if (image_path.equivalent(colmap_image_path)) {
           graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+          keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
           break;
         }
       }
 
     }
+    database.Close();
+
     std::map<int, Undistort> undistort_map;
 
     for (auto &camera : cameras()) {
@@ -323,7 +327,7 @@ void MvsDensifier::exportToComap()
 
       ofs << std::fixed << std::setprecision(12);
 
-      std::unordered_map<size_t, size_t> graphos_to_mvs_ids;
+      //std::unordered_map<size_t, size_t> graphos_to_mvs_ids;
 
       for (const auto &pose : poses()) {
       
@@ -352,7 +356,9 @@ void MvsDensifier::exportToComap()
         tl::Path image_path = image.path().toStdString();
         image_path.replaceExtension(".tif");
 
-        ofs << graphos_to_colmap_image_ids[image_id] << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
+        auto colmap_image_id = graphos_to_colmap_image_ids[image_id];
+
+        ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
             << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image_path.fileName().toString() << std::endl;
         //ofs << std::endl;
 
@@ -367,9 +373,8 @@ void MvsDensifier::exportToComap()
               if (map.first == image_id) {
 
                 size_t point_id = map.second;
-                auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
-
-                ofs << keypoints[point_id].x << " " << keypoints[point_id].y << " " << i + 1 << " ";
+                //auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
+                ofs << keypoints[colmap_image_id][point_id].x << " " << keypoints[colmap_image_id][point_id].y << " " << i + 1 << " ";
 
               }
 
@@ -434,6 +439,7 @@ void MvsDensifier::writeNVMFile()
     const auto &colmap_images = database.ReadAllImages();
 
     std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
+    std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
 
     for (const auto &image : images()) {
 
@@ -444,12 +450,14 @@ void MvsDensifier::writeNVMFile()
 
         if (image_path.equivalent(colmap_image_path)) {
           graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+          keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
           break;
         }
       }
 
     }
 
+    database.Close();
 
     tl::Path nvm_path(outputPath());
     nvm_path.append("model.nvm");
@@ -542,10 +550,11 @@ void MvsDensifier::writeNVMFile()
           size_t image_id = map.first;
           size_t point_id = map.second;
           
-          auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
-          auto _undistort = undistort.at(images().at(image_id).cameraId());
+          //auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
+          auto &keypoint = keypoints[graphos_to_colmap_image_ids.at(image_id)][point_id];
+          auto &_undistort = undistort.at(images().at(image_id).cameraId());
 
-          tl::Point<float> undistort_point = _undistort.undistortPoint(tl::Point<float>(keypoints[point_id].x, keypoints[point_id].y));
+          tl::Point<float> undistort_point = _undistort.undistortPoint(tl::Point<float>(keypoint.x, keypoint.y));
 
           stream << " " << static_cast<int>(/*graphos_to_colmap_image_ids.at(image_id) - 1*/graphos_to_mvs_ids.at(image_id))
                  << " " << point_id
@@ -667,7 +676,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 
     /// Da problemas al escribir el fichero nvm e importarlo
     /// Intentar exportar directamente. Por ahora exportar a Colmap  utilizar InterfaceColmap para convertirlo a OpenMVS
-    this->exportToComap();
+    this->exportToColmap();
     //this->writeNVMFile(); 
     
     if (status() == tl::Task::Status::stopping) return;

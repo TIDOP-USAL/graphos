@@ -140,14 +140,9 @@ void LoadImagesTask::loadImage(size_t imageId)
 
     //msgInfo(" - Camera: %s %s", camera_make.c_str(), camera_model.c_str());
 
-    if (existCamera(camera_make.c_str(), camera_model.c_str())) {
-
-      camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
-
-    } else {
-
+    camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
+    if (camera_id == -1){
       camera_id = loadCamera(imageReader.get());
-
     }
 
     tl::MessageManager::pause();

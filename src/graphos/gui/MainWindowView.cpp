@@ -249,7 +249,6 @@ void MainWindowView::setProjectTitle(const QString &title)
 
 void MainWindowView::addImage(const Image &image, const Camera &camera)
 {
-
   if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
 
     QTreeWidgetItem *itemImages = nullptr;

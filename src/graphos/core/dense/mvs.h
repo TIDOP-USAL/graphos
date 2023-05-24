@@ -121,7 +121,7 @@ public:
 private: 
 
   void clearTemporalFiles();
-  void exportToComap();
+  void exportToColmap();
   void writeNVMFile();
   void exportToMVS();
   void densify();
