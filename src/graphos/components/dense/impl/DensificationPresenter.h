@@ -62,7 +62,7 @@ public slots:
 
   void setCurrentDensifier(const QString &densifier) override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
   
 protected:
 

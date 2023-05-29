@@ -43,7 +43,7 @@ if(BUILD_GEOREFERENCE_COMPONENT)
                              impl/GeoreferenceModel.cpp
                              impl/GeoreferenceView.cpp
                              impl/GeoreferencePresenter.cpp
-                             impl/GeoreferenceProcess.cpp
+                             impl/GeoreferenceTask.cpp
                              impl/GeoreferenceCommand.cpp
                          HEADER_FILES
                              GeoreferenceComponent.h
@@ -53,7 +53,7 @@ if(BUILD_GEOREFERENCE_COMPONENT)
                              impl/GeoreferenceModel.h
                              impl/GeoreferencePresenter.h
                              impl/GeoreferenceView.h
-                             impl/GeoreferenceProcess.h
+                             impl/GeoreferenceTask.h
                              impl/GeoreferenceCommand.h)
             
     add_library(${PROJECT_NAME} ${LIB_TYPE}

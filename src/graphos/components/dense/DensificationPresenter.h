@@ -24,13 +24,13 @@
 #ifndef GRAPHOS_DENSE_PRESENTER_INTERFACE_H
 #define GRAPHOS_DENSE_PRESENTER_INTERFACE_H
 
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
 class DensificationPresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 
 {
 

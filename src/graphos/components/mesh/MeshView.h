@@ -26,20 +26,20 @@
 #define GRAPHOS_MESH_VIEW_INTERFACE_H
 
 
-#include "graphos/core/process/ProcessView.h"
+#include "graphos/core/task/TaskView.h"
 
 namespace graphos
 {
 
 class MeshView
-  : public ProcessView
+  : public TaskView
 {
 
   Q_OBJECT
 
 public:
 
-  MeshView(QWidget *parent) : ProcessView(parent) {}
+  MeshView(QWidget *parent) : TaskView(parent) {}
   ~MeshView() override = default;
 
   virtual int depth() const = 0;

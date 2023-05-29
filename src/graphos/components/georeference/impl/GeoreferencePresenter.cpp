@@ -25,8 +25,8 @@
 
 #include "graphos/components/georeference/impl/GeoreferenceModel.h"
 #include "graphos/components/georeference/impl/GeoreferenceView.h"
-#include "graphos/components/georeference/impl/GeoreferenceProcess.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/components/georeference/impl/GeoreferenceTask.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/core/image.h"
 
@@ -55,7 +55,7 @@ GeoreferencePresenterImp::~GeoreferencePresenterImp()
 
 void GeoreferencePresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Georeference process error"));
@@ -82,7 +82,7 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
   //}
 
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Georeference finished"));
@@ -114,7 +114,7 @@ std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
 
 void GeoreferencePresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
   
   msgWarning("Processing has been canceled by the user");
 }
@@ -154,7 +154,7 @@ void GeoreferencePresenterImp::initSignalAndSlots()
   connect(mView, &GeoreferenceView::add_image_point, mModel, &GeoreferenceModel::addImagePoint);
   connect(mView, &GeoreferenceView::remove_image_point, mModel, &GeoreferenceModel::removeImagePoint);
   connect(mView, &GeoreferenceView::crsChange, mModel, &GeoreferenceModel::setCrs);
-  connect(mView, &GeoreferenceView::georeference, this, &ProcessPresenter::run);
+  connect(mView, &GeoreferenceView::georeference, this, &TaskPresenter::run);
   connect(mView, &GeoreferenceView::accepted, mModel, &GeoreferenceModel::save);
   connect(mView, &DialogView::help, [&]() {
     emit help("cameras.html");

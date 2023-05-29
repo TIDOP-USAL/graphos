@@ -43,7 +43,7 @@ public:
                           OrientationModel *model);
   ~OrientationPresenterImp() override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
   
 protected:
 

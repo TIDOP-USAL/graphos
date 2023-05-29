@@ -24,13 +24,13 @@
 #ifndef GRAPHOS_ORIENTATION_PRESENTER_INTERFACE_H
 #define GRAPHOS_ORIENTATION_PRESENTER_INTERFACE_H
 
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
 class OrientationPresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 {
 
   Q_OBJECT

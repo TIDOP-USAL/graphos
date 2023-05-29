@@ -43,7 +43,7 @@ if(BUILD_DTM_COMPONENT)
                              impl/DTMModel.cpp
                              impl/DTMView.cpp
                              impl/DTMPresenter.cpp
-                             impl/DTMProcess.cpp
+                             impl/DTMTask.cpp
                          HEADER_FILES
                              DTMComponent.h
                              DTMModel.h
@@ -52,7 +52,7 @@ if(BUILD_DTM_COMPONENT)
                              impl/DTMModel.h
                              impl/DTMView.h
                              impl/DTMPresenter.h
-                             impl/DTMProcess.h)
+                             impl/DTMTask.h)
             
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}

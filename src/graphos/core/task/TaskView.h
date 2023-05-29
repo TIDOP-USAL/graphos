@@ -21,81 +21,36 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/process/Progress.h"
+#ifndef GRAPHOS_TASK_VIEW_H
+#define GRAPHOS_TASK_VIEW_H
+
+#include "graphos/core/mvp.h"
+
 
 namespace graphos
 {
 
-ProgressHandler::ProgressHandler(QObject *parent)
-  : QObject(parent),
-    tl::ProgressBase()
-{
-}
 
-ProgressHandler::ProgressHandler(size_t min, 
-                                 size_t max, 
-                                 QObject *parent)
-  : QObject(parent),
-    tl::ProgressBase(min, max)
-{
-}
-
-ProgressHandler::~ProgressHandler()
+class TaskView
+  : public DialogView
 {
 
-}
+  Q_OBJECT
 
-void ProgressHandler::init()
-{
-  emit valueChange(0);
-  emit initialized();
-}
+public:
 
-void ProgressHandler::finish()
-{
-  emit finished();
-}
+  TaskView(QWidget *parent = nullptr,
+              Qt::WindowFlags f = Qt::WindowFlags());
+  ~TaskView();
 
-void ProgressHandler::setTitle(const QString &title)
-{
-  emit titleChange(title);
-}
+signals:
 
-void ProgressHandler::setDescription(const QString &description)
-{
-  emit descriptionChange(description);
-}
+  void run();
 
-void ProgressHandler::setCloseAuto(bool active)
-{
-  emit closeAuto(active);
-}
+};
 
-void ProgressHandler::setRange(size_t min, size_t max)
-{
-  ProgressBase::setRange(min, max);
-  emit valueChange(0);
-  if (min == 0 && max == 1)
-    emit rangeChange(0, 0);
-  else 
-    emit rangeChange(0, 100);
-  //emit initialized();
-}
-
-void ProgressHandler::updateProgress()
-{
-  emit valueChange(percent());
-}
-
-void ProgressHandler::terminate()
-{
-  if(minimum() == 0 && maximum() == 1) {
-    emit rangeChange(0, 100);
-    emit valueChange(100);
-  }
-  emit finished();
-}
 
 } // namespace graphos
 
 
+#endif // GRAPHOS_TASK_VIEW_H

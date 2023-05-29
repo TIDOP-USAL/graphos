@@ -24,14 +24,14 @@
 #ifndef GRAPHOS_DTM_PRESENTER_INTERFACE_H
 #define GRAPHOS_DTM_PRESENTER_INTERFACE_H
 
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 
 namespace graphos
 {
 
 class DtmPresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 {
 
   Q_OBJECT

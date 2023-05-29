@@ -24,13 +24,13 @@
 #ifndef GRAPHOS_GEOREFERENCE_PRESENTER_INTERFACE_H
 #define GRAPHOS_GEOREFERENCE_PRESENTER_INTERFACE_H
 
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
 class GeoreferencePresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 {
 
   Q_OBJECT

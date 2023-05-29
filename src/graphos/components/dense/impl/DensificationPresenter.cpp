@@ -5,7 +5,7 @@
 #include "graphos/core/dense/CmvsPmvs.h"
 #include "graphos/core/dense/Smvs.h"
 #include "graphos/core/dense/mvs.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/widgets/CmvsPmvsWidget.h"
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/widgets/MvsWidget.h"
@@ -82,7 +82,7 @@ void DensificationPresenterImp::initSignalAndSlots()
 
 void DensificationPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }
@@ -162,7 +162,7 @@ void DensificationPresenterImp::onDensificationChanged(const QString &densificat
 
 void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Densification error"));
@@ -176,7 +176,7 @@ void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
   mModel->setDenseModel(dense_path);
 
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Densification finished"));

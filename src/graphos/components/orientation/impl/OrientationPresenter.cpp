@@ -23,7 +23,7 @@
 
 #include "OrientationPresenter.h"
 
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/core/sfm/orientationcolmap.h"
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/core/camera/Camera.h"
@@ -95,14 +95,14 @@ void OrientationPresenterImp::initSignalAndSlots()
 
 void OrientationPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }
 
 void OrientationPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Orientation process error"));
@@ -111,7 +111,7 @@ void OrientationPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Orientation finished"));

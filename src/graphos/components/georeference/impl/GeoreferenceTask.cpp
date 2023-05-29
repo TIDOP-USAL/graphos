@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "GeoreferenceProcess.h"
+#include "GeoreferenceTask.h"
 
 #include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/image.h"

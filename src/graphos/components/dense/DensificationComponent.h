@@ -65,10 +65,6 @@ protected slots:
   void onFinished() override;
   void onFailed() override;
 
-protected:
-
-  DensificationProcess *mProcess;
-
 };
 
 } // namespace graphos

@@ -25,20 +25,20 @@
 #ifndef GRAPHOS_MESH_PRESENTER_INTERFACE_H
 #define GRAPHOS_MESH_PRESENTER_INTERFACE_H
 
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
 class MeshPresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  MeshPresenter() : ProcessPresenter() {}
+  MeshPresenter() : TaskPresenter() {}
   ~MeshPresenter() override = default;
 
 };

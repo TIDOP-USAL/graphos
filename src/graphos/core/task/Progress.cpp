@@ -21,78 +21,81 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROCESS_PRESENTER_H
-#define GRAPHOS_PROCESS_PRESENTER_H
-
-#include <QObject>
-
-#include <tidop/core/task.h>
-
-#include "graphos/core/mvp.h"
-
-namespace tl
-{
-class TaskErrorEvent;
-class TaskFinalizedEvent;
-}
-
+#include "graphos/core/task/Progress.h"
 
 namespace graphos
 {
 
-class ProgressHandler;
+ProgressHandler::ProgressHandler(QObject *parent)
+  : QObject(parent),
+    tl::ProgressBase()
+{
+}
 
-class ProcessPresenter
-  : public Presenter
+ProgressHandler::ProgressHandler(size_t min, 
+                                 size_t max, 
+                                 QObject *parent)
+  : QObject(parent),
+    tl::ProgressBase(min, max)
+{
+}
+
+ProgressHandler::~ProgressHandler()
 {
 
-  Q_OBJECT
+}
 
-public:
+void ProgressHandler::init()
+{
+  emit valueChange(0);
+  emit initialized();
+}
 
-  ProcessPresenter();
-  ~ProcessPresenter() override;
+void ProgressHandler::finish()
+{
+  emit finished();
+}
 
-protected:
+void ProgressHandler::setTitle(const QString &title)
+{
+  emit titleChange(title);
+}
 
-  virtual void onError(tl::TaskErrorEvent *event);
-  virtual void onFinished(tl::TaskFinalizedEvent *event);
-  virtual void onStopped(tl::TaskStoppedEvent *event);
+void ProgressHandler::setDescription(const QString &description)
+{
+  emit descriptionChange(description);
+}
 
-  ProgressHandler *progressHandler();
+void ProgressHandler::setCloseAuto(bool active)
+{
+  emit closeAuto(active);
+}
 
-  /*!
-   * \brief Create task
-   * return Task
-   */
-  virtual std::unique_ptr<tl::Task> createProcess() = 0;
+void ProgressHandler::setRange(size_t min, size_t max)
+{
+  ProgressBase::setRange(min, max);
+  emit valueChange(0);
+  if (min == 0 && max == 1)
+    emit rangeChange(0, 0);
+  else 
+    emit rangeChange(0, 100);
+  //emit initialized();
+}
 
-public slots:
+void ProgressHandler::updateProgress()
+{
+  emit valueChange(percent());
+}
 
-  virtual void setProgressHandler(ProgressHandler *progressHandler);
-  virtual void run();
-  virtual void cancel();
-
-signals:
-
-  void running();
-  void finished();
-  void failed();
-  void canceled();
-
-private:
-
-  void init() override;
-  void initSignalAndSlots() override;
-
-private:
-
-  std::unique_ptr<tl::Task> mProcess;
-  ProgressHandler *mProgressHandler;
-};
-
+void ProgressHandler::terminate()
+{
+  if(minimum() == 0 && maximum() == 1) {
+    emit rangeChange(0, 100);
+    emit valueChange(100);
+  }
+  emit finished();
+}
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_PROCESS_PRESENTER_H

@@ -67,10 +67,6 @@ protected slots:
   void onFinished() override;
   void onFailed() override;
 
-protected:
-
-  DtmProcess *mProcess;
-
 };
 
 

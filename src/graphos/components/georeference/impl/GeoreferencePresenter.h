@@ -45,7 +45,7 @@ public:
                            GeoreferenceModel *model);
   ~GeoreferencePresenterImp() override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
   
 protected:
 

@@ -25,7 +25,7 @@
 #include "MeshPresenter.h"
 
 #include "graphos/core/mesh/PoissonRecon.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/components/mesh/impl/MeshModel.h"
 #include "graphos/components/mesh/impl/MeshView.h"
 #include "graphos/core/utils.h"
@@ -71,7 +71,7 @@ void MeshPresenterImp::init()
 
 void MeshPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &ProcessView::run,     this,   &ProcessPresenter::run);
+  connect(mView, &TaskView::run,     this,   &TaskPresenter::run);
   connect(mView, &DialogView::help, [&]() {
     emit help("cameras.html");
   });
@@ -79,7 +79,7 @@ void MeshPresenterImp::initSignalAndSlots()
 
 void MeshPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Process error"));
@@ -88,7 +88,7 @@ void MeshPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Process finished"));
@@ -138,7 +138,7 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
 
 void MeshPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }

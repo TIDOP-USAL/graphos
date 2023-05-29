@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/process/ProcessPresenter.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/core/task/Progress.h"
 
 #include <tidop/core/progress.h>
 
@@ -32,20 +32,20 @@
 namespace graphos
 {
 	
-ProcessPresenter::ProcessPresenter()
+TaskPresenter::TaskPresenter()
   : Presenter(),
     mProcess(nullptr),
     mProgressHandler(nullptr)
 {
-  ProcessPresenter::init();
-  ProcessPresenter::initSignalAndSlots();
+  TaskPresenter::init();
+  TaskPresenter::initSignalAndSlots();
 }
 
-ProcessPresenter::~ProcessPresenter()
+TaskPresenter::~TaskPresenter()
 {
 }
 
-void ProcessPresenter::onError(tl::TaskErrorEvent *event)
+void TaskPresenter::onError(tl::TaskErrorEvent *event)
 {
   if (mProgressHandler){
     mProgressHandler->finish();
@@ -59,7 +59,7 @@ void ProcessPresenter::onError(tl::TaskErrorEvent *event)
   emit failed();
 }
 
-void ProcessPresenter::onFinished(tl::TaskFinalizedEvent *event)
+void TaskPresenter::onFinished(tl::TaskFinalizedEvent *event)
 {
   if (mProgressHandler){
     mProgressHandler->finish();
@@ -72,7 +72,7 @@ void ProcessPresenter::onFinished(tl::TaskFinalizedEvent *event)
   emit finished();
 }
 
-void ProcessPresenter::onStopped(tl::TaskStoppedEvent *event)
+void TaskPresenter::onStopped(tl::TaskStoppedEvent *event)
 {
   if(mProgressHandler) {
     mProgressHandler->finish();
@@ -85,17 +85,17 @@ void ProcessPresenter::onStopped(tl::TaskStoppedEvent *event)
   emit canceled();
 }
 
-ProgressHandler *ProcessPresenter::progressHandler()
+ProgressHandler *TaskPresenter::progressHandler()
 {
   return mProgressHandler;
 }
 
-void ProcessPresenter::setProgressHandler(ProgressHandler *progressHandler)
+void TaskPresenter::setProgressHandler(ProgressHandler *progressHandler)
 {
   mProgressHandler = progressHandler;
 }
 
-void ProcessPresenter::run()
+void TaskPresenter::run()
 {
   try {
 
@@ -107,9 +107,9 @@ void ProcessPresenter::run()
 
     TL_ASSERT(mProcess, "Empty process");
 
-    mProcess->subscribe(std::bind(&ProcessPresenter::onError, this, std::placeholders::_1));
-    mProcess->subscribe(std::bind(&ProcessPresenter::onFinished, this, std::placeholders::_1));
-    mProcess->subscribe(std::bind(&ProcessPresenter::onStopped, this, std::placeholders::_1));
+    mProcess->subscribe(std::bind(&TaskPresenter::onError, this, std::placeholders::_1));
+    mProcess->subscribe(std::bind(&TaskPresenter::onFinished, this, std::placeholders::_1));
+    mProcess->subscribe(std::bind(&TaskPresenter::onStopped, this, std::placeholders::_1));
 
     if(mProgressHandler) {
       connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
@@ -125,7 +125,7 @@ void ProcessPresenter::run()
   }
 }
 
-void ProcessPresenter::cancel()
+void TaskPresenter::cancel()
 {
   if(mProcess) {
     mProcess->stop();
@@ -135,11 +135,11 @@ void ProcessPresenter::cancel()
   }
 }
 
-void ProcessPresenter::init()
+void TaskPresenter::init()
 {
 }
 
-void ProcessPresenter::initSignalAndSlots()
+void TaskPresenter::initSignalAndSlots()
 {
 }
 

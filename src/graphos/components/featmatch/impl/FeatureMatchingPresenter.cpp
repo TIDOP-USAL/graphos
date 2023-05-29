@@ -26,8 +26,7 @@
 #include "graphos/core/features/matching.h"
 #include "graphos/components/featmatch/FeatureMatchingView.h"
 #include "graphos/components/featmatch/FeatureMatchingModel.h"
-//#include "graphos/components/featmatch/impl/FeatureMatchingTask.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
 #include <tidop/core/messages.h>
@@ -97,7 +96,7 @@ void FeatureMatchingPresenterImp::setMatchingProperties()
 
 void FeatureMatchingPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()){
     progressHandler()->setDescription(tr("Feature Matching error"));
@@ -106,7 +105,7 @@ void FeatureMatchingPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Feature detection and description finished"));
@@ -182,7 +181,7 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 
 void FeatureMatchingPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }

@@ -61,7 +61,7 @@ public slots:
 
   void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
   
 protected:
 

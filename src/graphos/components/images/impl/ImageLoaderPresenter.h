@@ -56,7 +56,7 @@ protected slots:
 
   void addImage(int imageId, int cameraId) override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
   
 private:
 

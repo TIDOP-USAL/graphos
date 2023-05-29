@@ -56,7 +56,7 @@ protected slots:
   void addImage(QString imagePath, int cameraId) override;
 
 
-// ProcessPresenter interface
+// TaskPresenter interface
 
 protected slots:
 

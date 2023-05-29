@@ -69,10 +69,6 @@ protected slots:
   void onFinished() override;
   void onFailed() override;
   
-private:
-
-  LoadFromVideoProcess *mProcess;
-
 };
 
 } // namespace graphos

@@ -62,7 +62,7 @@ private:
   void init() override;
   void initSignalAndSlots() override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
 
 protected:
 

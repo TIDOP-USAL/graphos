@@ -68,10 +68,6 @@ protected slots:
   void onFinished() override;
   void onFailed() override;
 
-protected:
-
-  LoadImagesTask *mProcess;
-
 };
 
 } // namespace graphos

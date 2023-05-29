@@ -26,7 +26,7 @@
 #include "graphos/components/images/ImageLoaderModel.h"
 #include "graphos/components/images/ImageLoaderView.h"
 #include "graphos/components/images/impl/ImageLoaderTask.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
@@ -89,7 +89,7 @@ void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
 
 void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if(progressHandler()) {
     progressHandler()->setDescription(tr("Load images error"));
@@ -98,7 +98,7 @@ void ImageLoaderPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Images loaded"));
@@ -145,7 +145,7 @@ void ImageLoaderPresenterImp::setImages(const QStringList &files)
 
 void ImageLoaderPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }
