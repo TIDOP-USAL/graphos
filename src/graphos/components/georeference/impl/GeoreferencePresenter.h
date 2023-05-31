@@ -31,7 +31,6 @@ namespace graphos
 
 class GeoreferenceView;
 class GeoreferenceModel;
-class HelpDialog;
 
 class GeoreferencePresenterImp
   : public GeoreferencePresenter

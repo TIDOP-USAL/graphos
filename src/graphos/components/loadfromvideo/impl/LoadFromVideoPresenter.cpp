@@ -39,8 +39,7 @@ LoadFromVideoPresenterImp::LoadFromVideoPresenterImp(LoadFromVideoView *view,
                                                      LoadFromVideoModel *model)
   : LoadFromVideoPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();

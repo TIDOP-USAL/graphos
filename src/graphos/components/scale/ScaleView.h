@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,76 +21,41 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TAB_WIDGET_H
-#define GRAPHOS_TAB_WIDGET_H
 
-#include <QTabWidget>
+#ifndef GRAPHOS_SCALE_VIEW_INTERFACE_H
+#define GRAPHOS_SCALE_VIEW_INTERFACE_H
 
-class QMenu;
-class QAction;
 
+#include "graphos/core/task/TaskView.h"
 
 namespace graphos
 {
 
-class Viewer3D;
-
-
-class TabWidget
-  : public QTabWidget
+class ScaleView
+  : public TaskView
 {
+
   Q_OBJECT
 
 public:
 
-  explicit TabWidget(QWidget *parent = nullptr);
-  ~TabWidget() override = default;
+  ScaleView(QWidget *parent) : TaskView(parent) {}
+  ~ScaleView() override = default;
 
-  int fileTab(const QString &file) const;
-  void clear();
+  virtual double distance() const = 0;
+  virtual double distanceReal() const = 0;
 
 public slots:
 
-  void closeTab(int tabId);
-  void setCurrentTab(int tabId);
-
-protected slots:
-
-  void onTabChanged(int tabId);
-  void onTabWidgetContextMenu(const QPoint &position);
+  virtual void setDistance(double distance) = 0;
 
 signals:
 
-  void currentTabChanged(int);
-  void imageActive(bool);
-  void model3dActive(bool);
-  void model3dChange(Viewer3D *);
-  void all_tabs_closed();
-
-private:
-
-  void initUI();
-  void initActions();
-  void initMenu();
-  void initSignalAndSlots();
-  void retranslate();
-  void update();
-  
-// QWidget interface
-
-protected:
-
-  void changeEvent(QEvent *event) override;
-
-protected:
-
-  QMenu *mMenu;
-  QAction *mCloseTab;
-  QAction *mCloseAllTabs;
-  QAction *mCloseAllTabsButCurrentOne;
+  void distanceChanged(double);
+  void enableMeasure(bool);
 };
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_TAB_WIDGET_H
+#endif // GRAPHOS_SCALE_VIEW_INTERFACE_H

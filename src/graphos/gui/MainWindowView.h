@@ -140,6 +140,8 @@ public:
    */
   TabWidget *tabWidget();
 
+  //QAction *actionDistanceMeasuse();
+
 public slots:
 
   /*!

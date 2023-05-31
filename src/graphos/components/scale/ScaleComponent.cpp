@@ -22,12 +22,11 @@
  ************************************************************************/
 
 
-#include "MeshComponent.h"
+#include "ScaleComponent.h"
 
-#include "graphos/components/mesh/impl/MeshModel.h"
-#include "graphos/components/mesh/impl/MeshView.h"
-#include "graphos/components/mesh/impl/MeshPresenter.h"
-#include "graphos/components/mesh/impl/MeshCommand.h"
+#include "graphos/components/scale/impl/ScaleModel.h"
+#include "graphos/components/scale/impl/ScaleView.h"
+#include "graphos/components/scale/impl/ScalePresenter.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -37,67 +36,65 @@
 namespace graphos
 {
 
-MeshComponent::MeshComponent(Application *application)
+ScaleComponent::ScaleComponent(Application *application)
   : TaskComponent(application)
 {
   init();
 }
 
-MeshComponent::~MeshComponent()
+ScaleComponent::~ScaleComponent()
 {
 }
 
-void MeshComponent::init()
+void ScaleComponent::init()
 {
-  this->setName(tr("Mesh"));
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+  setName(tr("Scale"));
+  setMenu("tools");
+  this->setToolbar("tools");
 
-  createCommand();
+  createCommand(); 
 
-  action()->setIcon(QIcon::fromTheme("mesh"));
+  //action()->setIcon(QIcon::fromTheme(""));
 }
 
-void MeshComponent::createModel()
+void ScaleComponent::createModel()
 {
-  setModel(new MeshModelImp(app()->project()));
+  setModel(new ScaleModelImp(app()->project()));
 }
 
-void MeshComponent::createView()
+void ScaleComponent::createView()
 {
-  setView(new MeshViewImp());
+  setView(new ScaleViewImp());
 }
 
-void MeshComponent::createPresenter()
+void ScaleComponent::createPresenter()
 {
-  setPresenter(new MeshPresenterImp(dynamic_cast<MeshView *>(view()),
-                                    dynamic_cast<MeshModel *>(model())));
+  setPresenter(new ScalePresenterImp(dynamic_cast<ScaleView *>(view()),
+                                     dynamic_cast<ScaleModel *>(model())));
 }
 
-void MeshComponent::createCommand()
+void ScaleComponent::createCommand()
 {
-  setCommand(std::make_shared<MeshCommand>());
 }
 
-void MeshComponent::update()
+void ScaleComponent::update()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
   AppStatus *app_status = app->status();
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  bool process_run = app_status->isEnabled(AppStatus::Flag::processing);
-  bool bDenseModel = app_status->isEnabled(AppStatus::Flag::dense_model);
-  action()->setEnabled(bProjectExists && !process_run && bDenseModel);
+  action()->setEnabled( app_status->isEnabled(AppStatus::Flag::project_exists) && 
+                       !app_status->isEnabled(AppStatus::Flag::processing) && 
+                        app_status->isEnabled(AppStatus::Flag::tab_3d_viewer_active));
 }
 
-void MeshComponent::onRunning()
+void ScaleComponent::onRunning()
 {
   TaskComponent::onRunning();
 }
 
-void MeshComponent::onFinished()
+void ScaleComponent::onFinished()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
@@ -105,11 +102,13 @@ void MeshComponent::onFinished()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   TaskComponent::onFinished();
+  
+  // Uncomment if task modifies the project
   app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::mesh, true);
+  //app_status->activeFlag(AppStatus::Flag::..., true);
 }
 
-void MeshComponent::onFailed()
+void ScaleComponent::onFailed()
 {
   Application *app = this->app();
   TL_ASSERT(app != nullptr, "Application is null");
@@ -117,7 +116,9 @@ void MeshComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   TaskComponent::onFailed();
-  app_status->activeFlag(AppStatus::Flag::mesh, false);
+
+  // Deactivate other flags
+  //app_status->activeFlag(AppStatus::Flag::..., false);
 }
 
 

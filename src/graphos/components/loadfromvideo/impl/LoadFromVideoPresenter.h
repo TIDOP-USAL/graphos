@@ -83,7 +83,6 @@ private:
 
   LoadFromVideoView *mView;
   LoadFromVideoModel *mModel;
-  HelpDialog *mHelp;
   std::vector<Camera> mCameras;
 };
 

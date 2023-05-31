@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,76 +21,68 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TAB_WIDGET_H
-#define GRAPHOS_TAB_WIDGET_H
+#include "ScaleTask.h"
 
-#include <QTabWidget>
+#include <tidop/core/messages.h>
+#include <tidop/core/exception.h>
 
-class QMenu;
-class QAction;
+#include <CCGeom.h>
+#include <ccPointCloud.h>
+#include <ccGenericMesh.h>
+#include <ccHObjectCaster.h>
 
 
 namespace graphos
 {
 
-class Viewer3D;
-
-
-class TabWidget
-  : public QTabWidget
+ScaleTask::ScaleTask(double scale, ccHObject *model/*, const QVector3D &offset*/)
+  : tl::TaskBase(),
+    mScale(scale),
+    mModel(model)/*,
+    mOffset(offset)*/
 {
-  Q_OBJECT
 
-public:
+}
 
-  explicit TabWidget(QWidget *parent = nullptr);
-  ~TabWidget() override = default;
+ScaleTask::~ScaleTask()
+{
 
-  int fileTab(const QString &file) const;
-  void clear();
+}
 
-public slots:
+void ScaleTask::setScale(double scale)
+{
+  mScale = scale;
+}
 
-  void closeTab(int tabId);
-  void setCurrentTab(int tabId);
+void ScaleTask::execute(tl::Progress *progressBar)
+{
 
-protected slots:
+  try {
+    
+    bool lockedVertices;
+	  //try to get the underlying cloud (or the vertices set for a mesh)
+    ccGenericPointCloud* cloud = ccHObjectCaster::ToGenericPointCloud(mModel, &lockedVertices);
 
-  void onTabChanged(int tabId);
-  void onTabWidgetContextMenu(const QPoint &position);
+    // Se mantiene la nube de puntos centrada
+    CCVector3 C(0, 0, 0);
+    if (1/*keepInPlace*/)
+      C = mModel->getOwnBB().getCenter();
 
-signals:
+    //ccHObjectContext objContext = removeObjectTemporarilyFromDBTree(mModel, cloud);
 
-  void currentTabChanged(int);
-  void imageActive(bool);
-  void model3dActive(bool);
-  void model3dChange(Viewer3D *);
-  void all_tabs_closed();
+    cloud->scale(static_cast<PointCoordinateType>(mScale),
+                 static_cast<PointCoordinateType>(mScale),
+                 static_cast<PointCoordinateType>(mScale),
+                 C);
+    
+    //putObjectBackIntoDBTree(cloud, objContext);
+	  cloud->prepareDisplayForRefresh_recursive();
+    mModel->prepareDisplayForRefresh_recursive();
 
-private:
+  } catch (...) {
+    TL_THROW_EXCEPTION_WITH_NESTED("error");
+  }
 
-  void initUI();
-  void initActions();
-  void initMenu();
-  void initSignalAndSlots();
-  void retranslate();
-  void update();
-  
-// QWidget interface
-
-protected:
-
-  void changeEvent(QEvent *event) override;
-
-protected:
-
-  QMenu *mMenu;
-  QAction *mCloseTab;
-  QAction *mCloseAllTabs;
-  QAction *mCloseAllTabsButCurrentOne;
-};
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_TAB_WIDGET_H

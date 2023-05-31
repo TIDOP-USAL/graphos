@@ -24,7 +24,7 @@
 
 #include "GeoreferenceCommand.h"
 
-#include "graphos/components/georeference/impl/GeoreferenceProcess.h"
+#include "graphos/components/georeference/impl/GeoreferenceTask.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/sfm/posesio.h"
 

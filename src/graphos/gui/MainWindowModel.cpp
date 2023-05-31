@@ -221,6 +221,11 @@ void MainWindowModel::save()
 
 void MainWindowModel::saveAs(const tl::Path &file)
 {
+  // Se comprueba si se ha escalado o transformado los modelos con el escalado, transformación o georeferencia.
+  // Se tiene que escribir algun flag para comprobarlo o directamente una matriz de transformación que se tendrá
+  // que aplicar a los modelos sparse, dense, mesh y a los ficheros poses.bin y ground_points.bin
+
+
   mProject->save(file);
 
   bUnsavedChanges = false;

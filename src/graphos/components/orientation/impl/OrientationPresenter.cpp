@@ -205,6 +205,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
       poses_reader->read(poses_path);
       auto poses = poses_reader->cameraPoses();
 
+      //TODO: Ahora es redundante tenerlo en estos dos ficheros...
       for (const auto &camera_pose : poses) {
         mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
       }

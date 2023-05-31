@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,76 +21,56 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TAB_WIDGET_H
-#define GRAPHOS_TAB_WIDGET_H
+#ifndef GRAPHOS_SCALE_TASK_H
+#define GRAPHOS_SCALE_TASK_H
 
-#include <QTabWidget>
+#include <vector>
+#include <map>
 
-class QMenu;
-class QAction;
+#include <QString>
+#include <QVector3D>
 
+#include <tidop/core/task.h>
+
+class ccHObject;
+
+
+namespace tl
+{
+class Task;
+}
 
 namespace graphos
 {
+	
+class ScaleAlgorithm;
 
-class Viewer3D;
-
-
-class TabWidget
-  : public QTabWidget
+class ScaleTask
+  : public tl::TaskBase
 {
-  Q_OBJECT
 
 public:
 
-  explicit TabWidget(QWidget *parent = nullptr);
-  ~TabWidget() override = default;
+  ScaleTask(double scale, ccHObject *model/*, const QVector3D &offset*/);
+  ~ScaleTask();
 
-  int fileTab(const QString &file) const;
-  void clear();
+public:
 
-public slots:
+  void setScale(double);
 
-  void closeTab(int tabId);
-  void setCurrentTab(int tabId);
+// tl::TaskBase interface
 
-protected slots:
+protected:
 
-  void onTabChanged(int tabId);
-  void onTabWidgetContextMenu(const QPoint &position);
-
-signals:
-
-  void currentTabChanged(int);
-  void imageActive(bool);
-  void model3dActive(bool);
-  void model3dChange(Viewer3D *);
-  void all_tabs_closed();
-
+  void execute(tl::Progress *progressBar) override;
+  
 private:
 
-  void initUI();
-  void initActions();
-  void initMenu();
-  void initSignalAndSlots();
-  void retranslate();
-  void update();
-  
-// QWidget interface
-
-protected:
-
-  void changeEvent(QEvent *event) override;
-
-protected:
-
-  QMenu *mMenu;
-  QAction *mCloseTab;
-  QAction *mCloseAllTabs;
-  QAction *mCloseAllTabsButCurrentOne;
+  double mScale;
+  ccHObject *mModel;
+  //QVector3D mOffset;
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_TAB_WIDGET_H
+#endif // GRAPHOS_SCALE_TASK_H

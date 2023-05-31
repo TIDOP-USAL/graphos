@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,76 +21,30 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TAB_WIDGET_H
-#define GRAPHOS_TAB_WIDGET_H
 
-#include <QTabWidget>
+#ifndef GRAPHOS_SCALE_PRESENTER_INTERFACE_H
+#define GRAPHOS_SCALE_PRESENTER_INTERFACE_H
 
-class QMenu;
-class QAction;
-
+#include "graphos/core/mvp.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
-class Viewer3D;
-
-
-class TabWidget
-  : public QTabWidget
+class ScalePresenter
+  : public TaskPresenter
 {
+
   Q_OBJECT
 
 public:
 
-  explicit TabWidget(QWidget *parent = nullptr);
-  ~TabWidget() override = default;
+  ScalePresenter() : TaskPresenter() {}
+  ~ScalePresenter() override = default;
 
-  int fileTab(const QString &file) const;
-  void clear();
-
-public slots:
-
-  void closeTab(int tabId);
-  void setCurrentTab(int tabId);
-
-protected slots:
-
-  void onTabChanged(int tabId);
-  void onTabWidgetContextMenu(const QPoint &position);
-
-signals:
-
-  void currentTabChanged(int);
-  void imageActive(bool);
-  void model3dActive(bool);
-  void model3dChange(Viewer3D *);
-  void all_tabs_closed();
-
-private:
-
-  void initUI();
-  void initActions();
-  void initMenu();
-  void initSignalAndSlots();
-  void retranslate();
-  void update();
-  
-// QWidget interface
-
-protected:
-
-  void changeEvent(QEvent *event) override;
-
-protected:
-
-  QMenu *mMenu;
-  QAction *mCloseTab;
-  QAction *mCloseAllTabs;
-  QAction *mCloseAllTabsButCurrentOne;
 };
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_TAB_WIDGET_H
+#endif // GRAPHOS_SCALE_PRESENTER_INTERFACE_H

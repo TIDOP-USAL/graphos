@@ -49,7 +49,8 @@ Application::Application(int argc, char **argv)
     mProject(nullptr),
     mSettings(new SettingsImp),
     mMainWindow(nullptr),
-    mCommandList(nullptr)
+    mCommandList(nullptr),
+    mViewer3D(nullptr)
 {
 }
 
@@ -112,7 +113,7 @@ Settings *Application::settings()
   return mSettings;
 }
 
-QMainWindow *Application::mainWindow()
+QMainWindow *Application::mainWindow() const
 {
   return mMainWindow;
 }
@@ -120,6 +121,16 @@ QMainWindow *Application::mainWindow()
 void Application::setMainWindow(QMainWindow *mainWindow)
 {
   mMainWindow = mainWindow;
+}
+
+Viewer3D *Application::viewer3D() const
+{
+  return mViewer3D;
+}
+
+void Application::setViewer3D(Viewer3D *viewer3D)
+{
+  mViewer3D = viewer3D;
 }
 
 void Application::addComponent(Component *component)

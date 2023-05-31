@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,76 +21,71 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TAB_WIDGET_H
-#define GRAPHOS_TAB_WIDGET_H
 
-#include <QTabWidget>
+#ifndef GRAPHOS_SCALE_VIEW_H
+#define GRAPHOS_SCALE_VIEW_H
 
-class QMenu;
-class QAction;
+#include "graphos/components/scale/ScaleView.h"
+
+class QDialogButtonBox;
+class QLabel;
+class QDoubleSpinBox;
+class QPushButton;
 
 
 namespace graphos
 {
 
-class Viewer3D;
-
-
-class TabWidget
-  : public QTabWidget
+class ScaleViewImp
+  : public ScaleView
 {
+
   Q_OBJECT
 
 public:
 
-  explicit TabWidget(QWidget *parent = nullptr);
-  ~TabWidget() override = default;
+  ScaleViewImp(QWidget *parent = nullptr);
+  ~ScaleViewImp() override;
 
-  int fileTab(const QString &file) const;
-  void clear();
+// ScaleView
+
+public:
+
+  double distance() const override;
+  double distanceReal() const override;
 
 public slots:
+  
+  void setDistance(double distance) override;
 
-  void closeTab(int tabId);
-  void setCurrentTab(int tabId);
-
-protected slots:
-
-  void onTabChanged(int tabId);
-  void onTabWidgetContextMenu(const QPoint &position);
-
-signals:
-
-  void currentTabChanged(int);
-  void imageActive(bool);
-  void model3dActive(bool);
-  void model3dChange(Viewer3D *);
-  void all_tabs_closed();
+// DialogView
 
 private:
 
   void initUI();
-  void initActions();
-  void initMenu();
   void initSignalAndSlots();
-  void retranslate();
+
+public slots:
+
+  void clear();
+
+private slots:
+
   void update();
-  
-// QWidget interface
+  void retranslate();
 
 protected:
 
-  void changeEvent(QEvent *event) override;
+  QLabel *mLabelDistance;
+  QDoubleSpinBox *mDoubleSpinBoxDistance;
+  QPushButton *mPushButtonDistance;
+  QLabel *mLabelDistanceReal;
+  QDoubleSpinBox *mDoubleSpinBoxDistanceReal;
 
-protected:
+  QDialogButtonBox *mButtonBox;
 
-  QMenu *mMenu;
-  QAction *mCloseTab;
-  QAction *mCloseAllTabs;
-  QAction *mCloseAllTabsButCurrentOne;
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_TAB_WIDGET_H
+#endif // GRAPHOS_SCALE_VIEW_H

@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,76 +21,53 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_TAB_WIDGET_H
-#define GRAPHOS_TAB_WIDGET_H
+#ifndef GRAPHOS_SCALE_COMPONENT_H
+#define GRAPHOS_SCALE_COMPONENT_H
 
-#include <QTabWidget>
-
-class QMenu;
-class QAction;
+#include "graphos/core/Component.h"
 
 
 namespace graphos
 {
 
-class Viewer3D;
+class ScaleProcess;
 
-
-class TabWidget
-  : public QTabWidget
+class ScaleComponent
+  : public TaskComponent
 {
+
   Q_OBJECT
 
 public:
 
-  explicit TabWidget(QWidget *parent = nullptr);
-  ~TabWidget() override = default;
-
-  int fileTab(const QString &file) const;
-  void clear();
-
-public slots:
-
-  void closeTab(int tabId);
-  void setCurrentTab(int tabId);
-
-protected slots:
-
-  void onTabChanged(int tabId);
-  void onTabWidgetContextMenu(const QPoint &position);
-
-signals:
-
-  void currentTabChanged(int);
-  void imageActive(bool);
-  void model3dActive(bool);
-  void model3dChange(Viewer3D *);
-  void all_tabs_closed();
+  ScaleComponent(Application *application);
+  ~ScaleComponent() override;
 
 private:
 
-  void initUI();
-  void initActions();
-  void initMenu();
-  void initSignalAndSlots();
-  void retranslate();
-  void update();
-  
-// QWidget interface
+  void init();
+
+// ComponentBase
 
 protected:
 
-  void changeEvent(QEvent *event) override;
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
+  void createCommand() override;
+  void update() override;
 
-protected:
+// TaskComponent
 
-  QMenu *mMenu;
-  QAction *mCloseTab;
-  QAction *mCloseAllTabs;
-  QAction *mCloseAllTabsButCurrentOne;
+protected slots:
+
+  void onRunning() override;
+  void onFinished() override;
+  void onFailed() override;
+
 };
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_TAB_WIDGET_H
+#endif // GRAPHOS_SCALE_COMPONENT_H
