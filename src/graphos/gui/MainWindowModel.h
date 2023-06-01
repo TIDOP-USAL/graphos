@@ -70,15 +70,15 @@ public:
 
   QString graphicViewerBackgroundColor() const;
 
-  bool checkUnsavedChanges() const;
+  //bool checkUnsavedChanges() const;
   bool checkOldVersion(const tl::Path &file) const;
   void oldVersionBackup(const tl::Path &file) const;
 
 public slots:
 
   void load(const tl::Path &file);
-  void save();
-  void saveAs(const tl::Path &file);
+  //void save();
+  //void saveAs(const tl::Path &file);
 
 // Model interface
 
@@ -94,7 +94,7 @@ protected:
 
   Project *mProject;
   QSettings *mSettings;
-  bool bUnsavedChanges;
+  //bool bUnsavedChanges;
 };
 
 } // namespace graphos

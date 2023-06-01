@@ -76,6 +76,8 @@ protected:
   PlyProperty(std::string name,
               Type type);
 
+  // No tiene constructor de copia ni de movimiento ....
+
 public:
 
   virtual void setValue(const std::string &value) = 0;
@@ -241,8 +243,8 @@ public:
   enum class OpenMode : uint8_t
   {
     in = 1 << 0,
-    out = 1 << 1,
-    binary = 1 << 2
+    out = 1 << 1/*,
+    binary = 1 << 2*/
   };
 
 public:
@@ -252,7 +254,7 @@ public:
   ~Ply();
 
   void open(const std::string &file, OpenMode mode);
-  void save();
+  void save(bool binary = true);
   void close();
 
   void resize(size_t size);
@@ -300,6 +302,7 @@ private:
 
 private:
 
+  std::string _file;
   std::fstream *stream;
   tl::EnumFlags<OpenMode> flags;
   bool mIsBinary;
@@ -308,11 +311,13 @@ private:
   bool mHasNormals;
   bool mHasScalarFields;
   size_t mSize;
+  size_t mFaceSize;
   size_t mReserveSize;
   std::map<std::string, std::vector<std::shared_ptr<PlyProperty>>> mProperties;
   std::vector<std::string> mPropertiesNames;
   std::vector<PlyProperty::Type> mPropertiesTypes;
   std::map<std::string, PlyProperty::Type> mStringTypes;
+  std::vector<tl::Point3<int>> mFaces;
 
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(Ply::OpenMode)
@@ -428,12 +433,13 @@ void Ply::setProperty(size_t index, const std::string &name, T value)
 {
   auto type = PlyTraits<T>::property_type; 
 
-  if (mProperties[name].empty()) {
-    mPropertiesNames.push_back(name);
-    mPropertiesTypes.push_back(type);
-  }
-
-  mProperties[name].at(index) = PlyProperty::create(name, value);
+  TL_ASSERT(!mProperties[name].empty(), "Property not found");
+  //if (mProperties[name].empty()) {
+  //  mPropertiesNames.push_back(name);
+  //  mPropertiesTypes.push_back(type);
+  //}
+  std::dynamic_pointer_cast<PlyPropertyImp<T>>(mProperties[name].at(index))->setValue(value);
+  //mProperties[name].at(index) = PlyProperty::create(name, value);
 }
 
 } // end namespace graphos

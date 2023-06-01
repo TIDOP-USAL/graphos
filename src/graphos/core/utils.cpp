@@ -23,8 +23,10 @@
 
 #include "graphos/core/utils.h"
 #include "graphos/core/Pdf.h"
+#include "graphos/core/ply.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
 
 #ifdef HAVE_CUDA
 #include <cuda_runtime.h>
@@ -369,5 +371,42 @@ tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, co
 
   return angle;
 }
+
+
+
+
+void transformModel(const tl::math::Matrix<double> &transform, const std::string &model)
+{
+
+  tl::Chrono chrono("Lectura Ply");
+  chrono.run();
+  Ply ply(model, Ply::OpenMode::in | Ply::OpenMode::out);
+  chrono.stop();
+
+  tl::math::Matrix<double> points(4, ply.size());
+  for (size_t i = 0; i < ply.size(); i++) {
+    auto point = ply.point<float>(i);
+    points[0][i] = point.x;
+    points[1][i] = point.y;
+    points[2][i] = point.z;
+    points[3][i] = 1;
+  }
+
+  auto points_out = transform * points;
+
+  for (size_t i = 0; i < ply.size(); i++) {
+    ply.setProperty<float>(i, "x", static_cast<float>(points_out[0][i]));
+    ply.setProperty<float>(i, "y", static_cast<float>(points_out[1][i]));
+    ply.setProperty<float>(i, "z", static_cast<float>(points_out[2][i]));
+  }
+
+  chrono.reset();
+  chrono.setMessage("Escritura ply");
+  chrono.run();
+  ply.save();
+  chrono.stop();
+}
+
+
 
 } // end namespace graphos

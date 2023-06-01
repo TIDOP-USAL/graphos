@@ -218,7 +218,7 @@ void Csf::filter(const std::string &pointCloud,
 {
   try {
 
-    Ply ply(pointCloud, Ply::OpenMode::in | Ply::OpenMode::binary);
+    Ply ply(pointCloud, Ply::OpenMode::in /*| Ply::OpenMode::binary*/);
     size_t size = ply.size();
 
     csf::PointCloud csf_points;
@@ -237,9 +237,9 @@ void Csf::filter(const std::string &pointCloud,
     mCSF->filter(ground_idx, off_ground_idx);
 
     /// Guardar nubes de puntos segmentadas
-    Ply points_ground(ground, Ply::OpenMode::out | Ply::OpenMode::binary);
+    Ply points_ground(ground, Ply::OpenMode::out /*| Ply::OpenMode::binary*/);
     points_ground.reserve(ground_idx.size());
-    Ply points_off_ground(outGround, Ply::OpenMode::out | Ply::OpenMode::binary);
+    Ply points_off_ground(outGround, Ply::OpenMode::out /*| Ply::OpenMode::binary*/);
     points_off_ground.reserve(off_ground_idx.size());
 
     for (const auto &idx : ground_idx) {

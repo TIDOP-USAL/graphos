@@ -31,6 +31,7 @@
 #include <QVector3D>
 
 #include <tidop/core/task.h>
+#include <tidop/math/algebra/matrix.h>
 
 class ccHObject;
 
@@ -57,6 +58,7 @@ public:
 public:
 
   void setScale(double);
+  tl::math::Matrix<double, 4, 4> transform() const;
 
 // tl::TaskBase interface
 
@@ -69,6 +71,7 @@ private:
   double mScale;
   ccHObject *mModel;
   //QVector3D mOffset;
+  tl::math::Matrix<double, 4, 4> mTransform;
 };
 
 } // namespace graphos

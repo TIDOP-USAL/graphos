@@ -63,6 +63,8 @@ signals:
   void openGeoreferenceDialog();
   void openCamerasImportDialog();
   void openSettings();
+  void save();
+  //void saveAs(QString);
 
 protected slots:
 
@@ -70,7 +72,7 @@ protected slots:
 
   void openFromHistory(const QString &file);
   void deleteHistory();
-  void saveProject();
+  //void saveProject();
   void exit();
 
   /* Menú View */

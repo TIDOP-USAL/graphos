@@ -28,6 +28,8 @@
 
 #include <QVector3D>
 
+#include <tidop/math/algebra/matrix.h>
+
 #include "graphos/core/mvp.h"
 
 namespace graphos
@@ -45,6 +47,7 @@ public:
   ~ScaleModel() override = default;
 
   //virtual QVector3D offset() const = 0;
+  virtual void setTransform(const tl::math::Matrix<double, 4, 4> &trasnform) = 0;
 
 public slots:
 

@@ -299,6 +299,10 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_SAVE_PROJECT
     componentsManager.registerComponent(&save_project_component);
+
+    QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::save,
+                     save_project_component.action(), &QAction::trigger);
+
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
 
 #ifdef GRAPHOS_HAVE_SAVE_PROJECT_AS

@@ -61,7 +61,8 @@ ProjectImp::ProjectImp()
     mDatabase(""),
     mCrs(""),
     mReconstructionPath(""),
-    mCameraCount(0)
+    mCameraCount(0),
+    mTransform(tl::math::Matrix<double, 4, 4>::identity())
 {
   mImages.reserve(1000);
 }
@@ -564,6 +565,7 @@ void ProjectImp::clear()
   mDTM.clear();
   mOrthophoto.clear();
   mCameraCount = 0;
+  mTransform = tl::math::Matrix<double, 4, 4>::identity();
 }
 
 bool ProjectImp::load(const tl::Path &file)
@@ -714,6 +716,16 @@ void ProjectImp::oldVersionBak(const tl::Path &file) const
   dst << src.rdbuf();
   src.close();
   dst.close();
+}
+
+tl::math::Matrix<double, 4, 4> ProjectImp::transform() const
+{
+  return mTransform;
+}
+
+void ProjectImp::setTransform(const tl::math::Matrix<double, 4, 4> &transform)
+{
+  mTransform = transform;
 }
 
 bool ProjectImp::read(QXmlStreamReader &stream)

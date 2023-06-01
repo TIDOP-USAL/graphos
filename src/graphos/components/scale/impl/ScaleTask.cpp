@@ -38,7 +38,8 @@ namespace graphos
 ScaleTask::ScaleTask(double scale, ccHObject *model/*, const QVector3D &offset*/)
   : tl::TaskBase(),
     mScale(scale),
-    mModel(model)/*,
+    mModel(model),
+    mTransform(tl::math::Matrix<double, 4, 4>::identity())/*,
     mOffset(offset)*/
 {
 
@@ -54,6 +55,11 @@ void ScaleTask::setScale(double scale)
   mScale = scale;
 }
 
+tl::math::Matrix<double, 4, 4> ScaleTask::transform() const
+{
+  return mTransform;
+}
+
 void ScaleTask::execute(tl::Progress *progressBar)
 {
 
@@ -64,17 +70,23 @@ void ScaleTask::execute(tl::Progress *progressBar)
     ccGenericPointCloud* cloud = ccHObjectCaster::ToGenericPointCloud(mModel, &lockedVertices);
 
     // Se mantiene la nube de puntos centrada
-    CCVector3 C(0, 0, 0);
-    if (1/*keepInPlace*/)
-      C = mModel->getOwnBB().getCenter();
+    CCVector3 center = mModel->getOwnBB().getCenter();
 
     //ccHObjectContext objContext = removeObjectTemporarilyFromDBTree(mModel, cloud);
 
     cloud->scale(static_cast<PointCoordinateType>(mScale),
                  static_cast<PointCoordinateType>(mScale),
                  static_cast<PointCoordinateType>(mScale),
-                 C);
+                 center);
     
+    
+    mTransform[0][0] = mScale;
+    mTransform[1][1] = mScale;
+    mTransform[2][2] = mScale;
+    mTransform[0][3] = -mScale * static_cast<double>(center.x) + static_cast<double>(center.x);
+    mTransform[1][3] = -mScale * static_cast<double>(center.y) + static_cast<double>(center.y);
+    mTransform[2][3] = -mScale * static_cast<double>(center.z) + static_cast<double>(center.z);
+
     //putObjectBackIntoDBTree(cloud, objContext);
 	  cloud->prepareDisplayForRefresh_recursive();
     mModel->prepareDisplayForRefresh_recursive();

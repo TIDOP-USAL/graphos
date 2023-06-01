@@ -44,6 +44,27 @@ SaveProjectModelImp::~SaveProjectModelImp()
 
 void SaveProjectModelImp::save()
 {
+  // Se comprueba si se ha escalado o transformado los modelos con el escalado, transformación o georeferencia.
+  // Se tiene que escribir algun flag para comprobarlo o directamente una matriz de transformación que se tendrá
+  // que aplicar a los modelos sparse, dense, mesh y a los ficheros poses.bin y ground_points.bin
+  try {
+
+    auto transform = mProject->transform();
+    if (transform != tl::math::Matrix<double, 4, 4>::identity()) {
+
+      auto sparse = mProject->sparseModel();
+      if (sparse.exists()) transformModel(transform, sparse.toString());
+      auto dense = mProject->denseModel();
+      if (dense.exists()) transformModel(transform, dense.toString());
+      //auto mesh = mProject->meshPath();
+      //if (mesh.exists()) transformModel(transform, mesh.toString());
+
+    }
+
+  } catch (std::exception &e) {
+    tl::printException(e);
+  }
+
   mProject->save(mProject->projectPath());
 }
 

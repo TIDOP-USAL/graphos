@@ -153,7 +153,20 @@ std::unique_ptr<tl::Task> ScalePresenterImp::createProcess()
 
   double scale = mView->distanceReal() / mView->distance();
 
-  process = std::make_unique<ScaleTask>(scale, model/*, offset*/);
+  process = std::make_unique<ScaleTask>(scale, model);
+
+  process->subscribe([&](tl::TaskFinalizedEvent *event) {
+
+      try {
+
+        auto transform = dynamic_cast<ScaleTask const *>(event->task())->transform();
+        mModel->setTransform(transform);
+
+      } catch (const std::exception &e) {
+        tl::printException(e);
+      }
+
+    });
 
   if (progressHandler()){
     progressHandler()->setRange(0, 0);

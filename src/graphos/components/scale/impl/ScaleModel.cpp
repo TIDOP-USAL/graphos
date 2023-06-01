@@ -64,6 +64,11 @@ void ScaleModelImp::loadSettings()
   }
 }
 
+void ScaleModelImp::setTransform(const tl::math::Matrix<double, 4, 4> &transform)
+{
+  mProject->setTransform(transform);
+}
+
 void ScaleModelImp::saveSettings()
 {
   if (mReadSettings) {

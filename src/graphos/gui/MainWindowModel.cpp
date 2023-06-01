@@ -25,6 +25,7 @@
 
 #include "graphos/core/utils.h"
 #include "graphos/core/sfm/orientationcolmap.h"
+#include "graphos/core/ply.h"
 
 #include <tidop/img/imgreader.h>
 
@@ -33,13 +34,16 @@
 namespace graphos
 {
 
+
+
+
 MainWindowModel::MainWindowModel(Project *project)
   : mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
               QSettings::UserScope,
               qApp->organizationName(),
-              qApp->applicationName())),
-  bUnsavedChanges(false)
+              qApp->applicationName()))/*,
+  bUnsavedChanges(false)*/
 {
   this->init();
 }
@@ -187,10 +191,10 @@ QString MainWindowModel::graphicViewerBackgroundColor() const
   return mSettings->value("ImageViewer/BackgroundColor", "#dcdcdc").toString();
 }
 
-bool MainWindowModel::checkUnsavedChanges() const
-{
-  return bUnsavedChanges;
-}
+//bool MainWindowModel::checkUnsavedChanges() const
+//{
+//  return bUnsavedChanges;
+//}
 
 bool MainWindowModel::checkOldVersion(const tl::Path &file) const
 {
@@ -205,31 +209,27 @@ void MainWindowModel::oldVersionBackup(const tl::Path &file) const
 void MainWindowModel::load(const tl::Path &file)
 {
   mProject->load(file);
-  bUnsavedChanges = false;
+  //bUnsavedChanges = false;
 }
 
-void MainWindowModel::save()
-{
-  try {
+//void MainWindowModel::save()
+//{
+//  try {
+//
+//    saveAs(mProject->projectPath());
+//
+//  } catch (...) {
+//    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+//  }
+//}
 
-    saveAs(mProject->projectPath());
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
-  }
-}
-
-void MainWindowModel::saveAs(const tl::Path &file)
-{
-  // Se comprueba si se ha escalado o transformado los modelos con el escalado, transformación o georeferencia.
-  // Se tiene que escribir algun flag para comprobarlo o directamente una matriz de transformación que se tendrá
-  // que aplicar a los modelos sparse, dense, mesh y a los ficheros poses.bin y ground_points.bin
-
-
-  mProject->save(file);
-
-  bUnsavedChanges = false;
-}
+//void MainWindowModel::saveAs(const tl::Path &file)
+//{
+//
+//  mProject->save(file);
+//
+//  bUnsavedChanges = false;
+//}
 
 void MainWindowModel::init()
 {
