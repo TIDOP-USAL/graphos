@@ -145,9 +145,7 @@ std::unique_ptr<tl::Task> ScalePresenterImp::createProcess()
       /// Sólo se permite una nube de puntos en el visor
       TL_ASSERT(clouds.size() == 1, "Error");
 
-      //if (auto cloud = static_cast<ccPointCloud *>(clouds.at(0))) {
-        model = clouds.at(0);
-      //}
+      model = clouds.at(0);
     }
   }
 

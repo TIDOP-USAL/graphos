@@ -132,7 +132,8 @@ void MeshViewImp::retranslate()
 
 void MeshViewImp::clear()
 {
-  mSpinBoxDepth->setMinimum(8);
+  mSpinBoxDepth->setMinimum(11);
+  mSpinBoxSolveDepth->setMinimum(10);
 }
 
 void MeshViewImp::update()

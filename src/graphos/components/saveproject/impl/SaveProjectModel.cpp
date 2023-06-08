@@ -24,6 +24,8 @@
 #include "SaveProjectModel.h"
 
 #include "graphos/core/project.h"
+#include "graphos/core/sfm/posesio.h"
+#include "graphos/core/sfm/groundpoint.h"
 
 #include <QStandardPaths>
 
@@ -44,21 +46,68 @@ SaveProjectModelImp::~SaveProjectModelImp()
 
 void SaveProjectModelImp::save()
 {
-  // Se comprueba si se ha escalado o transformado los modelos con el escalado, transformación o georeferencia.
-  // Se tiene que escribir algun flag para comprobarlo o directamente una matriz de transformación que se tendrá
-  // que aplicar a los modelos sparse, dense, mesh y a los ficheros poses.bin y ground_points.bin
+
   try {
 
     auto transform = mProject->transform();
     if (transform != tl::math::Matrix<double, 4, 4>::identity()) {
 
+      // Transforma los modelos
+
       auto sparse = mProject->sparseModel();
       if (sparse.exists()) transformModel(transform, sparse.toString());
       auto dense = mProject->denseModel();
       if (dense.exists()) transformModel(transform, dense.toString());
-      //auto mesh = mProject->meshPath();
-      //if (mesh.exists()) transformModel(transform, mesh.toString());
+      auto mesh = mProject->meshPath();
+      if (mesh.exists()) transformModel(transform, mesh.toString());
 
+      tl::Path sfm_path = mProject->reconstructionPath();
+
+      // Transforma las camaras
+      {
+        
+        tl::Path poses_path = sfm_path;
+        poses_path.append("poses.bin");
+
+        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+        poses_reader->read(poses_path);
+        auto poses = poses_reader->cameraPoses();
+
+        tl::Point3<double> point;
+        for (auto &camera_pose : poses) {
+
+
+          point.x = transform[0][0] * camera_pose.second.position().x + transform[0][3];
+          point.y = transform[1][1] * camera_pose.second.position().y + transform[1][3];
+          point.z = transform[2][2] * camera_pose.second.position().z + transform[2][3];
+
+          camera_pose.second.setPosition(point);
+
+          mProject->addPhotoOrientation(camera_pose.first, camera_pose.second);
+        }
+
+        auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
+        poses_writer->setCameraPoses(poses);
+        poses_writer->write(poses_path);
+      }
+
+      tl::Path ground_points_path = sfm_path;
+      ground_points_path.append("ground_points.bin");
+      auto gp_reader = GroundPointsReaderFactory::create("GRAPHOS");
+      gp_reader->read(ground_points_path);
+      auto ground_points = gp_reader->points();
+
+      for (auto &point : ground_points) {
+        point.x = transform[0][0] * point.x + transform[0][3];
+        point.y = transform[1][1] * point.y + transform[1][3];
+        point.z = transform[2][2] * point.z + transform[2][3];
+      }
+
+      auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
+      gp_writer->setGroundPoints(ground_points);
+      gp_writer->write(ground_points_path);
+
+      mProject->setTransform(tl::math::Matrix<double, 4, 4>::identity());
     }
 
   } catch (std::exception &e) {

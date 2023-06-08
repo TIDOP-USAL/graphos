@@ -52,7 +52,7 @@ class ScaleTask
 
 public:
 
-  ScaleTask(double scale, ccHObject *model/*, const QVector3D &offset*/);
+  ScaleTask(double scale, ccHObject *model);
   ~ScaleTask();
 
 public:
@@ -70,7 +70,6 @@ private:
 
   double mScale;
   ccHObject *mModel;
-  //QVector3D mOffset;
   tl::math::Matrix<double, 4, 4> mTransform;
 };
 

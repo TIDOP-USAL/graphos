@@ -94,28 +94,4 @@ void ScaleModelImp::clear()
 
 }
 
-//QVector3D ScaleModelImp::offset() const
-//{
-//  QVector3D offset(0,0,0);
-//
-//  try {
-//
-//    tl::Path path = mProject->offset();
-//    QFile file(QString::fromStdWString(path.toWString()));
-//    if (file.open(QFile::ReadOnly | QFile::Text)){
-//      QTextStream stream(&file);
-//      QString line = stream.readLine();
-//      QStringList reg = line.split(" ");
-//      offset[0] = reg[0].toDouble();
-//      offset[1] = reg[1].toDouble();
-//      offset[2] = reg[2].toDouble();
-//      file.close();
-//    }
-//  } catch (...) {
-//    TL_THROW_EXCEPTION_WITH_NESTED("");
-//  }
-//
-//  return offset;
-//}
-
 } // namespace graphos

@@ -50,7 +50,7 @@ void ScaleComponent::init()
 {
   setName(tr("Scale"));
   setMenu("tools");
-  this->setToolbar("tools");
+  //setToolbar("tools");
 
   createCommand(); 
 
@@ -103,9 +103,7 @@ void ScaleComponent::onFinished()
 
   TaskComponent::onFinished();
   
-  // Uncomment if task modifies the project
   app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  //app_status->activeFlag(AppStatus::Flag::..., true);
 }
 
 void ScaleComponent::onFailed()
@@ -116,9 +114,6 @@ void ScaleComponent::onFailed()
   TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
   TaskComponent::onFailed();
-
-  // Deactivate other flags
-  //app_status->activeFlag(AppStatus::Flag::..., false);
 }
 
 

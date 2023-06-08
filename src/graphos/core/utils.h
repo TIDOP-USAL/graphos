@@ -129,7 +129,6 @@ tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, co
 void transformModel(const tl::math::Matrix<double> &transform, const std::string &model);
 
 
-
 } // end namespace graphos
 
 #endif // GRAPHOS_CORE_UTILS_H

@@ -77,7 +77,7 @@ if(BUILD_SCALE_COMPONENT)
             ARCHIVE DESTINATION lib)
                     
     install(DIRECTORY .
-            DESTINATION include/graphos/components/{componentName}
+            DESTINATION include/graphos/components/scale
             FILES_MATCHING PATTERN "*.h"
             PATTERN "impl" EXCLUDE)
 		

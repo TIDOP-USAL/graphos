@@ -35,12 +35,11 @@
 namespace graphos
 {
 
-ScaleTask::ScaleTask(double scale, ccHObject *model/*, const QVector3D &offset*/)
+ScaleTask::ScaleTask(double scale, ccHObject *model)
   : tl::TaskBase(),
     mScale(scale),
     mModel(model),
-    mTransform(tl::math::Matrix<double, 4, 4>::identity())/*,
-    mOffset(offset)*/
+    mTransform(tl::math::Matrix<double, 4, 4>::identity())
 {
 
 }
@@ -66,13 +65,9 @@ void ScaleTask::execute(tl::Progress *progressBar)
   try {
     
     bool lockedVertices;
-	  //try to get the underlying cloud (or the vertices set for a mesh)
     ccGenericPointCloud* cloud = ccHObjectCaster::ToGenericPointCloud(mModel, &lockedVertices);
 
-    // Se mantiene la nube de puntos centrada
-    CCVector3 center = mModel->getOwnBB().getCenter();
-
-    //ccHObjectContext objContext = removeObjectTemporarilyFromDBTree(mModel, cloud);
+    CCVector3 center(0,0,0);
 
     cloud->scale(static_cast<PointCoordinateType>(mScale),
                  static_cast<PointCoordinateType>(mScale),
@@ -87,7 +82,6 @@ void ScaleTask::execute(tl::Progress *progressBar)
     mTransform[1][3] = -mScale * static_cast<double>(center.y) + static_cast<double>(center.y);
     mTransform[2][3] = -mScale * static_cast<double>(center.z) + static_cast<double>(center.z);
 
-    //putObjectBackIntoDBTree(cloud, objContext);
 	  cloud->prepareDisplayForRefresh_recursive();
     mModel->prepareDisplayForRefresh_recursive();
 

@@ -472,7 +472,7 @@ void ImportCamerasViewImp::update()
 //  bSave = checkX && checkY && checkZ;
 //  mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(bSave);
 
-  mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(bParseOk && 
+  mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(/*bParseOk && */
                                                        ((bValidCrsIn && bValidCrsOut) || 
                                                         (mLineEditCrsInput->text().isEmpty() && mLineEditCrsOutput->text().isEmpty())));
 }

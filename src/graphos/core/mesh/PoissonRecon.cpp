@@ -37,7 +37,7 @@ namespace graphos
   /// valores por defecto
 
   constexpr auto DefaultPoissonReconDepth = 11;
-  constexpr auto DefaultPoissonReconSolveDepth = 0;
+  constexpr auto DefaultPoissonReconSolveDepth = 10;
   constexpr auto DefaultPoissonReconBoundaryType = "Neumann";
   constexpr auto DefaultPoissonReconWidth = 0;
   constexpr auto DefaultPoissonReconFullDepth = 5;
