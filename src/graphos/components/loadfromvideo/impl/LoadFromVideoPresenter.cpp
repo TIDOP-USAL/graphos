@@ -89,7 +89,7 @@ void LoadFromVideoPresenterImp::initSignalAndSlots()
 {
   connect(mView, &TaskView::run, this, &TaskPresenter::run);
   connect(mView, &DialogView::help, [&]() {
-            emit help("video.html");
+            emit help("load_from_video.html");
           });
 
   //connect(mView, &LoadFromVideoView::video_changed, [&](QString video) {

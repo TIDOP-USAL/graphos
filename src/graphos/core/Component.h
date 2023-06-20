@@ -116,6 +116,7 @@ signals:
    * \brief Signal emitted when the component is created
    */
   void created();
+  void help(QString);
 };
 
 

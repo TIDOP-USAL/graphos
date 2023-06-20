@@ -73,7 +73,7 @@ void MeshPresenterImp::initSignalAndSlots()
 {
   connect(mView, &TaskView::run,     this,   &TaskPresenter::run);
   connect(mView, &DialogView::help, [&]() {
-    emit help("cameras.html");
+    emit help("mesh.html");
   });
 }
 

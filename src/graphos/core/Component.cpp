@@ -209,6 +209,9 @@ void ComponentBase::setView(View *view)
 void ComponentBase::setPresenter(Presenter *presenter)
 {
   mPresenter = presenter;
+
+  connect(mPresenter, &Presenter::help,
+          this, &ComponentBase::help);
 }
 
 void ComponentBase::setCommand(std::shared_ptr<Command> command)
