@@ -76,7 +76,7 @@ void DensificationPresenterImp::initSignalAndSlots()
   connect(mView, &DensificationView::run,                  this, &DensificationPresenterImp::run);
 
   connect(mView, &DialogView::help, [&]() {
-    emit help("dense_cloud.html");
+    emit help("densification.html");
   });
 }
 
