@@ -29,6 +29,10 @@
 namespace graphos
 {
 
+class CmvsPmvsWidget;
+class SmvsWidget;
+class MvsWidget;
+
 class DensificationPresenter
   : public TaskPresenter
 
@@ -40,6 +44,10 @@ public:
 
   DensificationPresenter(){}
   ~DensificationPresenter() override = default;
+
+  virtual void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) = 0;
+  virtual void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) = 0;
+  virtual void setMvsWidget(std::shared_ptr<MvsWidget> mvs) = 0;
 
 public slots:
 

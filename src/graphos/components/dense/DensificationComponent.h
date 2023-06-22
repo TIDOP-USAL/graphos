@@ -24,8 +24,11 @@
 #ifndef GRAPHOS_DENSIFICATION_COMPONENT_H
 #define GRAPHOS_DENSIFICATION_COMPONENT_H
 
-#include "graphos/core/Component.h"
+/* TidopLib */
+#include <tidop/core/flags.h>
 
+/* GRAPHOS */
+#include "graphos/core/Component.h"
 
 namespace graphos
 {
@@ -40,8 +43,21 @@ class DensificationComponent
 
 public:
 
+    enum class Method
+    {
+        mvs =  (1 << 0),
+        pmvs = (1 << 1),
+        smvs = (1 << 2)
+    };
+
+public:
+
   DensificationComponent(Application *application);
   ~DensificationComponent();
+
+  void enableMethod(Method method);
+  void disableMethod(Method method);
+  bool isEnabled(Method method) const;
 
 private:
 
@@ -65,7 +81,12 @@ protected slots:
   void onFinished() override;
   void onFailed() override;
 
+private:
+
+  tl::EnumFlags<Method> mMethod;
+
 };
+ALLOW_BITWISE_FLAG_OPERATIONS(DensificationComponent::Method)
 
 } // namespace graphos
 

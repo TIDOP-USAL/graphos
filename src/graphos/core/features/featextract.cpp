@@ -283,12 +283,17 @@ private:
   void convertRgbToGray(cv::Mat &mat)
   {
 #ifdef HAVE_CUDA
-    cv::cuda::GpuMat gImgIn(mat);
-    cv::cuda::GpuMat gImgGray;
-    cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
-    gImgGray.download(mat);
-#else
-    cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+    if (bUseGPU) {
+      cv::cuda::GpuMat gImgIn(mat);
+      cv::cuda::GpuMat gImgGray;
+      cv::cuda::cvtColor(gImgIn, gImgGray, cv::COLOR_BGR2GRAY);
+      gImgGray.download(mat);
+    } else {
+#endif
+
+      cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+#ifdef HAVE_CUDA
+    }
 #endif
   }
 
@@ -353,13 +358,13 @@ public:
               bool useGPU,
               tl::Progress *progressBar)
     : mImages(images),
-    mFeatExtractor(feat_extractor),
-    mDatabaseFile(databaseFile),
-    mDatabase(database),
-    mBuffer(buffer),
-    mFeatureExtractorTask(featureExtractorTask),
-    bUseGPU(useGPU),
-    mProgressBar(progressBar)
+      mFeatExtractor(feat_extractor),
+      mDatabaseFile(databaseFile),
+      mDatabase(database),
+      mBuffer(buffer),
+      mFeatureExtractorTask(featureExtractorTask),
+      bUseGPU(useGPU),
+      mProgressBar(progressBar)
   {
   }
 

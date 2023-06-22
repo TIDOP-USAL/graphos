@@ -35,20 +35,20 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
 
 DensificationPresenterImp::~DensificationPresenterImp()
 {
-  if (mCmvsPmvs){
-    delete mCmvsPmvs;
-    mCmvsPmvs = nullptr;
-  }
+  //if (mCmvsPmvs){
+  //  delete mCmvsPmvs;
+  //  mCmvsPmvs = nullptr;
+  //}
 
-  if (mSmvs){
-    delete mSmvs;
-    mSmvs = nullptr;
-  }
+  //if (mSmvs){
+  //  delete mSmvs;
+  //  mSmvs = nullptr;
+  //}
 
-  if(mMVS) {
-    delete mMVS;
-    mMVS = nullptr;
-  }
+  //if(mMVS) {
+  //  delete mMVS;
+  //  mMVS = nullptr;
+  //}
 }
 
 void DensificationPresenterImp::open()
@@ -63,11 +63,11 @@ void DensificationPresenterImp::open()
 
 void DensificationPresenterImp::init()
 {
-  mView->addDensification(mMVS);
-  mView->addDensification(mCmvsPmvs);
-  mView->addDensification(mSmvs);
+  //mView->addDensification(mMVS);
+  //mView->addDensification(mCmvsPmvs);
+  //mView->addDensification(mSmvs);
 
-  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+  //mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 }
 
 void DensificationPresenterImp::initSignalAndSlots()
@@ -153,6 +153,30 @@ void DensificationPresenterImp::setMvsProperties()
     mMVS->setNumberViews(mvs->numberViews());
     mMVS->setNumberViewsFuse(mvs->numberViewsFuse());
   }
+}
+
+void DensificationPresenterImp::setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs)
+{
+  mCmvsPmvs = cmvsPmvs;
+  
+  mView->addDensification(mCmvsPmvs.get());
+  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+}
+
+void DensificationPresenterImp::setSmvsWidget(std::shared_ptr<SmvsWidget> smvs)
+{
+  mSmvs = smvs;
+
+  mView->addDensification(mSmvs.get());
+  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+}
+
+void DensificationPresenterImp::setMvsWidget(std::shared_ptr<MvsWidget> mvs)
+{
+  mMVS = mvs;
+
+  mView->addDensification(mMVS.get());
+  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 }
 
 void DensificationPresenterImp::onDensificationChanged(const QString &densification)

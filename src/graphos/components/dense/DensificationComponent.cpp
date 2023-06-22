@@ -27,6 +27,9 @@
 #include "graphos/components/dense/impl/DensificationView.h"
 #include "graphos/components/dense/impl/DensificationPresenter.h"
 #include "graphos/components/dense/impl/DensificationCommand.h"
+#include "graphos/widgets/CmvsPmvsWidget.h"
+#include "graphos/widgets/SmvsWidget.h"
+#include "graphos/widgets/MvsWidget.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -46,11 +49,46 @@ DensificationComponent::~DensificationComponent()
 {
 }
 
+void DensificationComponent::enableMethod(Method method)
+{
+  if (method == Method::mvs && mMethod.isDisabled(method)) {
+    mMethod.enable(method);
+    dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(std::make_unique<MvsWidget>());
+  } else if (method == Method::pmvs && mMethod.isDisabled(method)) {
+    mMethod.enable(method);
+    dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidgetImp>());
+  } else if (method == Method::smvs && mMethod.isDisabled(method)){
+    mMethod.enable(method);
+    dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidgetImp>());
+  }
+}
+
+void DensificationComponent::disableMethod(Method method)
+{
+  if (method == Method::mvs && mMethod.isEnabled(method)) {
+    mMethod.disable(method);
+    dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(nullptr);
+  } else if (method == Method::pmvs && mMethod.isEnabled(method)) {
+    mMethod.disable(method);
+    dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(nullptr);
+  } else if (method == Method::smvs && mMethod.isEnabled(method)) {
+    mMethod.disable(method);
+    dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(nullptr);
+  }
+}
+
+bool DensificationComponent::isEnabled(Method method) const
+{
+  return mMethod.isEnabled(method);
+}
+
 void DensificationComponent::init()
 {
   this->setName("Densification");
   this->setMenu("workflow");
   this->setToolbar("workflow");
+
+  mMethod.enable(Method::mvs);
 
   createCommand();
 
@@ -71,6 +109,13 @@ void DensificationComponent::createPresenter()
 {
   setPresenter(new DensificationPresenterImp(dynamic_cast<DensificationView *>(view()),
                                              dynamic_cast<DensificationModel *>(model())));
+  if (mMethod.isEnabled(Method::mvs))
+    dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(std::make_unique<MvsWidget>());
+  if (mMethod.isEnabled(Method::pmvs))
+    dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidgetImp>());
+  if (mMethod.isEnabled(Method::smvs))
+    dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidgetImp>());
+
 }
 
 void DensificationComponent::createCommand()
