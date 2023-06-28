@@ -23,8 +23,16 @@
 
 #include "graphos/core/utils.h"
 #include "graphos/core/Pdf.h"
+#include "graphos/core/ply.h"
 
 #include <tidop/core/messages.h>
+#include <tidop/core/chrono.h>
+
+#include <FileIOFilter.h>
+#include <ccPointCloud.h>
+#include <ccGenericMesh.h>
+#include <PlyFilter.h>
+#include <ccHObjectCaster.h>
 
 #ifdef HAVE_CUDA
 #include <cuda_runtime.h>
@@ -369,5 +377,52 @@ tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, co
 
   return angle;
 }
+
+
+
+
+void transformModel(const tl::math::Matrix<double> &transform, const std::string &model)
+{
+  CC_FILE_ERROR result = CC_FERR_NO_ERROR;
+  ccHObject group;
+
+  try {
+      
+    PlyFilter filter;
+    FileIOFilter::LoadParameters parameters;
+    parameters.alwaysDisplayLoadDialog = false;
+	  parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
+	  parameters.parentWidget = nullptr;
+    result = filter.loadFile(QString::fromStdString(model),
+                              group,
+                              parameters);
+    ccHObject::Container clouds;
+    group.filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+    
+    TL_ASSERT(clouds.size() == 1, "Error");
+
+    ccHObject *model_3d = clouds.at(0);
+
+    bool lockedVertices;
+    ccGenericPointCloud* cloud = ccHObjectCaster::ToGenericPointCloud(model_3d, &lockedVertices);
+
+    cloud->scale(static_cast<PointCoordinateType>(transform[0][0]),
+                 static_cast<PointCoordinateType>(transform[1][1]),
+                 static_cast<PointCoordinateType>(transform[2][2]),
+                 CCVector3(transform[0][3], transform[1][3], transform[2][3]));
+
+    FileIOFilter::SaveParameters save_parameters;
+    save_parameters.alwaysDisplaySaveDialog = false;
+    save_parameters.parentWidget = nullptr;
+    result = filter.saveToFile(group.getChild(0), QString::fromStdString(model), save_parameters);
+    if (result != CC_FERR_NO_ERROR)
+      msgInfo("Save Ply error");
+
+  } catch (...) {
+    msgWarning("[I/O] CC has caught an unhandled exception while loading file '%s'", model.c_str());
+    return; ///TODO: Devolver error
+  }
+}
+
 
 } // end namespace graphos

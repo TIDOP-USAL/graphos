@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,81 +21,53 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/process/Progress.h"
+#ifndef GRAPHOS_SCALE_COMPONENT_H
+#define GRAPHOS_SCALE_COMPONENT_H
+
+#include "graphos/core/Component.h"
+
 
 namespace graphos
 {
 
-ProgressHandler::ProgressHandler(QObject *parent)
-  : QObject(parent),
-    tl::ProgressBase()
-{
-}
+class ScaleProcess;
 
-ProgressHandler::ProgressHandler(size_t min, 
-                                 size_t max, 
-                                 QObject *parent)
-  : QObject(parent),
-    tl::ProgressBase(min, max)
-{
-}
-
-ProgressHandler::~ProgressHandler()
+class ScaleComponent
+  : public TaskComponent
 {
 
-}
+  Q_OBJECT
 
-void ProgressHandler::init()
-{
-  emit valueChange(0);
-  emit initialized();
-}
+public:
 
-void ProgressHandler::finish()
-{
-  emit finished();
-}
+  ScaleComponent(Application *application);
+  ~ScaleComponent() override;
 
-void ProgressHandler::setTitle(const QString &title)
-{
-  emit titleChange(title);
-}
+private:
 
-void ProgressHandler::setDescription(const QString &description)
-{
-  emit descriptionChange(description);
-}
+  void init();
 
-void ProgressHandler::setCloseAuto(bool active)
-{
-  emit closeAuto(active);
-}
+// ComponentBase
 
-void ProgressHandler::setRange(size_t min, size_t max)
-{
-  ProgressBase::setRange(min, max);
-  emit valueChange(0);
-  if (min == 0 && max == 1)
-    emit rangeChange(0, 0);
-  else 
-    emit rangeChange(0, 100);
-  //emit initialized();
-}
+protected:
 
-void ProgressHandler::updateProgress()
-{
-  emit valueChange(percent());
-}
+  void createModel() override;
+  void createView() override;
+  void createPresenter() override;
+  void createCommand() override;
+  void update() override;
 
-void ProgressHandler::terminate()
-{
-  if(minimum() == 0 && maximum() == 1) {
-    emit rangeChange(0, 100);
-    emit valueChange(100);
-  }
-  emit finished();
-}
+// TaskComponent
+
+protected slots:
+
+  void onRunning() override;
+  void onFinished() override;
+  void onFailed() override;
+
+};
 
 } // namespace graphos
 
 
+#endif // GRAPHOS_SCALE_COMPONENT_H

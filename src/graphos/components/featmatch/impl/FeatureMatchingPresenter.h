@@ -57,7 +57,7 @@ public slots:
 
   void setCurrentMatchMethod(const QString &matchMethod) override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
   
 protected:
 

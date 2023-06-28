@@ -70,10 +70,6 @@ protected slots:
   void onFinished() override;
   void onFailed() override;
 
-protected:
-
-  FeatureMatchingTask *mProcess;
-
 };
 
 } // namespace graphos

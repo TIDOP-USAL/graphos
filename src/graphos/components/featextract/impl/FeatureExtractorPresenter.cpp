@@ -28,7 +28,7 @@
 #include "graphos/core/features/featextract.h"
 #include "graphos/components/featextract/FeatureExtractorView.h"
 #include "graphos/components/featextract/FeatureExtractorModel.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/widgets/SiftWidget.h"
 #include "graphos/core/camera/Camera.h"
 //#include "graphos/components/featextract/impl/FeatureExtractorTask.h"
@@ -88,7 +88,7 @@ void FeatureExtractorPresenterImp::initSignalAndSlots()
 
 void FeatureExtractorPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }
@@ -127,7 +127,7 @@ void FeatureExtractorPresenterImp::setSiftProperties()
 
 void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Feature detection and description error"));
@@ -136,7 +136,7 @@ void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Feature detection and description finished"));

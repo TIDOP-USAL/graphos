@@ -5,7 +5,7 @@
 #include "graphos/core/dense/CmvsPmvs.h"
 #include "graphos/core/dense/Smvs.h"
 #include "graphos/core/dense/mvs.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/widgets/CmvsPmvsWidget.h"
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/widgets/MvsWidget.h"
@@ -35,20 +35,20 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
 
 DensificationPresenterImp::~DensificationPresenterImp()
 {
-  if (mCmvsPmvs){
-    delete mCmvsPmvs;
-    mCmvsPmvs = nullptr;
-  }
+  //if (mCmvsPmvs){
+  //  delete mCmvsPmvs;
+  //  mCmvsPmvs = nullptr;
+  //}
 
-  if (mSmvs){
-    delete mSmvs;
-    mSmvs = nullptr;
-  }
+  //if (mSmvs){
+  //  delete mSmvs;
+  //  mSmvs = nullptr;
+  //}
 
-  if(mMVS) {
-    delete mMVS;
-    mMVS = nullptr;
-  }
+  //if(mMVS) {
+  //  delete mMVS;
+  //  mMVS = nullptr;
+  //}
 }
 
 void DensificationPresenterImp::open()
@@ -63,11 +63,11 @@ void DensificationPresenterImp::open()
 
 void DensificationPresenterImp::init()
 {
-  mView->addDensification(mMVS);
-  mView->addDensification(mCmvsPmvs);
-  mView->addDensification(mSmvs);
+  //mView->addDensification(mMVS);
+  //mView->addDensification(mCmvsPmvs);
+  //mView->addDensification(mSmvs);
 
-  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+  //mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 }
 
 void DensificationPresenterImp::initSignalAndSlots()
@@ -76,13 +76,13 @@ void DensificationPresenterImp::initSignalAndSlots()
   connect(mView, &DensificationView::run,                  this, &DensificationPresenterImp::run);
 
   connect(mView, &DialogView::help, [&]() {
-    emit help("dense_cloud.html");
+    emit help("densification.html");
   });
 }
 
 void DensificationPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }
@@ -155,6 +155,30 @@ void DensificationPresenterImp::setMvsProperties()
   }
 }
 
+void DensificationPresenterImp::setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs)
+{
+  mCmvsPmvs = cmvsPmvs;
+  
+  mView->addDensification(mCmvsPmvs.get());
+  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+}
+
+void DensificationPresenterImp::setSmvsWidget(std::shared_ptr<SmvsWidget> smvs)
+{
+  mSmvs = smvs;
+
+  mView->addDensification(mSmvs.get());
+  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+}
+
+void DensificationPresenterImp::setMvsWidget(std::shared_ptr<MvsWidget> mvs)
+{
+  mMVS = mvs;
+
+  mView->addDensification(mMVS.get());
+  mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+}
+
 void DensificationPresenterImp::onDensificationChanged(const QString &densification)
 {
   mView->setCurrentDensificationMethod(densification);
@@ -162,7 +186,7 @@ void DensificationPresenterImp::onDensificationChanged(const QString &densificat
 
 void DensificationPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Densification error"));
@@ -176,7 +200,7 @@ void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
   mModel->setDenseModel(dense_path);
 
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Densification finished"));

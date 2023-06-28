@@ -31,7 +31,6 @@ namespace graphos
 
 class GeoreferenceView;
 class GeoreferenceModel;
-class HelpDialog;
 
 class GeoreferencePresenterImp
   : public GeoreferencePresenter
@@ -45,7 +44,7 @@ public:
                            GeoreferenceModel *model);
   ~GeoreferencePresenterImp() override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
   
 protected:
 

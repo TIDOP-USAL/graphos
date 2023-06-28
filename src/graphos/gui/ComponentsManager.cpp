@@ -30,7 +30,7 @@
 #include "graphos/gui/MainWindowPresenter.h"
 #include "graphos/components/cameras/CamerasComponent.h"
 #include "graphos/gui/HelpDialog.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/widgets/ProgressBarDialog.h"
 #include "graphos/widgets/ProgressBarWidget.h"
 #include "graphos/core/Plugin.h"

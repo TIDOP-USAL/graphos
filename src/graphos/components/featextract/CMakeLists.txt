@@ -80,7 +80,8 @@ if(BUILD_FEATEXTRACT_COMPONENT)
     install(DIRECTORY .
             DESTINATION include/graphos/components/featextract
             FILES_MATCHING PATTERN "*.h"
-            PATTERN "impl" EXCLUDE)
+            PATTERN "impl" EXCLUDE
+            PATTERN "test" EXCLUDE)
         
         
     set(GRAPHOS_HAVE_FEATEXTRACT YES CACHE INTERNAL "")

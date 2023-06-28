@@ -24,13 +24,13 @@
 #ifndef GRAPHOS_FEATURE_MATCHING_PRESENTER_INTERFACE_H
 #define GRAPHOS_FEATURE_MATCHING_PRESENTER_INTERFACE_H
 
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
 class FeatureMatchingPresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 {
 
   Q_OBJECT

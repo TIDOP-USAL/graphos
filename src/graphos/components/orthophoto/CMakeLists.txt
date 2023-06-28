@@ -43,7 +43,7 @@ if(BUILD_ORTHOPHOTO_COMPONENT)
                              impl/OrthophotoModel.cpp
                              impl/OrthophotoView.cpp
                              impl/OrthophotoPresenter.cpp
-                             impl/OrthophotoProcess.cpp
+                             impl/OrthophotoTask.cpp
                          HEADER_FILES
                              OrthophotoComponent.h
                              OrthophotoModel.h
@@ -52,7 +52,7 @@ if(BUILD_ORTHOPHOTO_COMPONENT)
                              impl/OrthophotoModel.h
                              impl/OrthophotoView.h
                              impl/OrthophotoPresenter.h
-                             impl/OrthophotoProcess.h)
+                             impl/OrthophotoTask.h)
             
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}

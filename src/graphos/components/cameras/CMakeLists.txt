@@ -76,7 +76,8 @@ if(BUILD_CAMERAS_COMPONENT)
     install(DIRECTORY .
             DESTINATION include/graphos/components/cameras
             FILES_MATCHING PATTERN "*.h"
-            PATTERN "impl" EXCLUDE)
+            PATTERN "impl" EXCLUDE
+            PATTERN "test" EXCLUDE)
         
         
     set(GRAPHOS_HAVE_CAMERAS YES CACHE INTERNAL "")

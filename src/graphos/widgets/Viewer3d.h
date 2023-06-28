@@ -43,12 +43,15 @@ TL_SUPPRESS_WARNINGS
 TL_DEFAULT_WARNINGS
 
 #include "graphos/core/ColorTable.h"
+#include "graphos/core/Application.h"
 #include "graphos/widgets/GraphosWidget.h"
 
 class cc2DLabel;
 class cc2DViewportLabel;
 class RGBAColorsTableType;
 class ccGlFilter;
+
+
 namespace graphos
 {
 
@@ -95,54 +98,6 @@ private:
   QAction *mActionViewBack;
   QAction *mActionViewBottom;
   QAction *mActionEDLFilter;
-
-};
-
-/*!
- * \brief The IGraphicViewer class
- */
-class Viewer3D
-{
-
-public:
-
-  /*!
-   * \brief TViewer3D
-   */
-  Viewer3D() {}
-  virtual ~Viewer3D() {}
-
-  virtual void clear() = 0;
-  virtual void createGroup(const QString &group,
-                           const QString &parent = QString()) = 0;
-  virtual void deleteEntity(const QString &id) = 0;
-  virtual void deleteSelectEntity() = 0;
-  virtual void loadFromFile(const QString &file, 
-                            const QString &parent = QString()) = 0;
-  virtual void loadFromFiles(const QStringList &files, 
-                             const QString &parent = QString()) = 0;
-
-  /* Vistas por defecto */
-  virtual void setFrontView() = 0;
-  virtual void setBottomView() = 0;
-  virtual void setTopView() = 0;
-  virtual void setBackView() = 0;
-  virtual void setLeftView() = 0;
-  virtual void setRightView() = 0;
-  virtual void setIsoView1() = 0;
-  virtual void setIsoView2() = 0;
-  virtual void setGlobalZoom() = 0;
-
-  virtual void setVisible(const QString &id, bool visible) = 0;
-  virtual void showClassification(bool show) = 0;
-
-  virtual void addCamera(const QString &id, 
-                         double x, 
-                         double y,
-                         double z, 
-                         const std::array<std::array<float,3>, 3> &rot) = 0;
-
-protected:
 
 };
 
@@ -235,13 +190,13 @@ public slots:
 
   void setVisible(const QString &id, bool visible) override;
   void showClassification(bool show = true) override;
-  void setColorTable(std::shared_ptr<ColorTable> colorTable);
-  void enableEDL();
-  void disableEDL();
+  void setColorTable(std::shared_ptr<ColorTable> colorTable) override;
+  void enableEDL() override;
+  void disableEDL() override;
   
 public:
 
-  bool isEDL() const { return edl; }
+  bool isEDL() const override { return edl; }
 
 protected:
 

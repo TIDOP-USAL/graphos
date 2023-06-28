@@ -24,7 +24,7 @@
 
 #include "LoadFromVideoPresenter.h"
 
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoModel.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoView.h"
 #include "graphos/components/loadfromvideo/impl/LoadFromVideoTask.h"
@@ -39,8 +39,7 @@ LoadFromVideoPresenterImp::LoadFromVideoPresenterImp(LoadFromVideoView *view,
                                                      LoadFromVideoModel *model)
   : LoadFromVideoPresenter(),
     mView(view),
-    mModel(model),
-    mHelp(nullptr)
+    mModel(model)
 {
   this->init();
   this->initSignalAndSlots();
@@ -88,9 +87,9 @@ void LoadFromVideoPresenterImp::init()
 
 void LoadFromVideoPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &ProcessView::run, this, &ProcessPresenter::run);
+  connect(mView, &TaskView::run, this, &TaskPresenter::run);
   connect(mView, &DialogView::help, [&]() {
-            emit help("video.html");
+            emit help("load_from_video.html");
           });
 
   //connect(mView, &LoadFromVideoView::video_changed, [&](QString video) {
@@ -100,7 +99,7 @@ void LoadFromVideoPresenterImp::initSignalAndSlots()
 
 void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Process error"));
@@ -109,7 +108,7 @@ void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void LoadFromVideoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Process finished"));
@@ -161,7 +160,7 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
 
 void LoadFromVideoPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }

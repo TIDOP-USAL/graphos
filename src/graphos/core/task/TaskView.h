@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROCESS_VIEW_H
-#define GRAPHOS_PROCESS_VIEW_H
+#ifndef GRAPHOS_TASK_VIEW_H
+#define GRAPHOS_TASK_VIEW_H
 
 #include "graphos/core/mvp.h"
 
@@ -31,7 +31,7 @@ namespace graphos
 {
 
 
-class ProcessView
+class TaskView
   : public DialogView
 {
 
@@ -39,9 +39,9 @@ class ProcessView
 
 public:
 
-  ProcessView(QWidget *parent = nullptr,
+  TaskView(QWidget *parent = nullptr,
               Qt::WindowFlags f = Qt::WindowFlags());
-  ~ProcessView();
+  ~TaskView();
 
 signals:
 
@@ -53,4 +53,4 @@ signals:
 } // namespace graphos
 
 
-#endif // GRAPHOS_PROCESS_VIEW_H
+#endif // GRAPHOS_TASK_VIEW_H

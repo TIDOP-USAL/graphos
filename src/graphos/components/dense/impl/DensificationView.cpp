@@ -91,7 +91,8 @@ void DensificationViewImp::clear()
 
 void DensificationViewImp::update()
 {
-
+  mComboBoxDensification->setVisible(mComboBoxDensification->count() > 1);
+  mLabelDensification->setVisible(mComboBoxDensification->count() > 1);
 }
 
 void DensificationViewImp::retranslate()
@@ -113,6 +114,8 @@ void DensificationViewImp::addDensification(QWidget *densification)
   mComboBoxDensification->addItem(densification->windowTitle());
   mGridLayoutDensification->addWidget(densification, 1, 0, 1, 2);
   densification->setVisible(false);
+
+  update();
 }
 
 void DensificationViewImp::setCurrentDensificationMethod(const QString &densificationMethod)

@@ -29,9 +29,6 @@
 namespace graphos
 {
 
-class CmvsPmvsWidget;
-class SmvsWidget;
-class MvsWidget;
 class DensificationView;
 class DensificationModel;
 
@@ -58,11 +55,17 @@ private slots:
 
 // DensificationPresenter interface
 
+public:
+
+  void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) override;
+  void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) override;
+  void setMvsWidget(std::shared_ptr<MvsWidget> mvs) override;
+
 public slots:
 
   void setCurrentDensifier(const QString &densifier) override;
 
-// ProcessPresenter interface
+// TaskPresenter interface
   
 protected:
 
@@ -89,9 +92,9 @@ private:
 
   DensificationView *mView;
   DensificationModel *mModel;
-  CmvsPmvsWidget *mCmvsPmvs;
-  SmvsWidget *mSmvs;
-  MvsWidget *mMVS;
+  std::shared_ptr<CmvsPmvsWidget> mCmvsPmvs;
+  std::shared_ptr<SmvsWidget> mSmvs;
+  std::shared_ptr<MvsWidget> mMVS;
 };
 
 } // End namespace graphos

@@ -39,9 +39,9 @@ add_files_to_project(${PROJECT_NAME}
                          Pdf.cpp
                          ColorTable.cpp
                          ply.cpp
-                         process/ProcessPresenter.cpp         
-                         process/ProcessView.cpp
-                         process/Progress.cpp
+                         task/TaskPresenter.cpp         
+                         task/TaskView.cpp
+                         task/Progress.cpp
                          features/featextract.cpp
                          features/featio.cpp
                          features/sift.cpp
@@ -85,9 +85,9 @@ add_files_to_project(${PROJECT_NAME}
                          Pdf.h
                          ColorTable.h
                          ply.h
-                         process/ProcessPresenter.h            
-                         process/ProcessView.h
-                         process/Progress.h
+                         task/TaskPresenter.h            
+                         task/TaskView.h
+                         task/Progress.h
                          features/featextract.h
                          features/features.h
                          features/featio.h

@@ -44,8 +44,6 @@ class Command;
 namespace graphos
 {
 
-class HelpDialog;
-
 using View = QObject;
 
 class CommandView

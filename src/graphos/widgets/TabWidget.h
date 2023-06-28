@@ -29,8 +29,12 @@
 class QMenu;
 class QAction;
 
+
 namespace graphos
 {
+
+class Viewer3D;
+
 
 class TabWidget
   : public QTabWidget
@@ -60,6 +64,7 @@ signals:
   void currentTabChanged(int);
   void imageActive(bool);
   void model3dActive(bool);
+  void model3dChange(Viewer3D *);
   void all_tabs_closed();
 
 private:

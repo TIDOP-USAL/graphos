@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,19 +21,41 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/process/ProcessView.h"
+#ifndef GRAPHOS_SCALE_MODEL_INTERFACE_H
+#define GRAPHOS_SCALE_MODEL_INTERFACE_H
+
+#include <array>
+
+#include <QVector3D>
+
+#include <tidop/math/algebra/matrix.h>
+
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {
-	
-ProcessView::ProcessView(QWidget *parent,
-                         Qt::WindowFlags f)
-  : DialogView(parent, f)
-{
-}
 
-ProcessView::~ProcessView()
+class ScaleModel
+  : public Model
 {
-}
+
+  Q_OBJECT
+
+public:
+
+  ScaleModel(QObject *parent = nullptr) : Model(parent) {}
+  ~ScaleModel() override = default;
+
+  //virtual QVector3D offset() const = 0;
+  virtual void setTransform(const tl::math::Matrix<double, 4, 4> &trasnform) = 0;
+
+public slots:
+
+  virtual void loadSettings() = 0;
+  virtual void saveSettings() = 0;
+};
 
 } // namespace graphos
+
+
+#endif // GRAPHOS_SCALE_MODEL_INTERFACE_H

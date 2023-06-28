@@ -23,7 +23,7 @@
 
 #include "graphos/core/Component.h"
 #include "graphos/core/AppStatus.h"
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 #include "graphos/core/command.h"
 
 #include <QAction>
@@ -209,6 +209,9 @@ void ComponentBase::setView(View *view)
 void ComponentBase::setPresenter(Presenter *presenter)
 {
   mPresenter = presenter;
+
+  connect(mPresenter, &Presenter::help,
+          this, &ComponentBase::help);
 }
 
 void ComponentBase::setCommand(std::shared_ptr<Command> command)
@@ -245,16 +248,16 @@ void TaskComponent::setProgressHandler(ProgressHandler *progressHandler)
 void TaskComponent::onComponentCreated()
 {
   Presenter *presenter = this->presenter();
-  connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::running,
+  connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::running,
           this, &TaskComponent::onRunning);
-  connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::finished,
+  connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::finished,
           this, &TaskComponent::onFinished);
-  connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::failed,
+  connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::failed,
           this, &TaskComponent::onFailed);
-  connect(dynamic_cast<ProcessPresenter *>(presenter), &ProcessPresenter::canceled,
+  connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::canceled,
           this, &TaskComponent::onCanceled);
 
-  dynamic_cast<ProcessPresenter *>(presenter)->setProgressHandler(mProgressHandler);
+  dynamic_cast<TaskPresenter *>(presenter)->setProgressHandler(mProgressHandler);
 }
 
 void TaskComponent::onRunning()

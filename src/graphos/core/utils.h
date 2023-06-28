@@ -29,6 +29,7 @@
 
 #include <tidop/core/defs.h>
 #include <tidop/math/angles.h>
+#include <tidop/math/algebra/matrix.h>
 
 #include <opencv2/photo.hpp>
 
@@ -121,6 +122,11 @@ public:
 void openPdf(const QString &pdf);
 
 tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const std::string &ref);
+
+
+
+
+void transformModel(const tl::math::Matrix<double> &transform, const std::string &model);
 
 
 } // end namespace graphos

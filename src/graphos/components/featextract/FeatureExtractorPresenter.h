@@ -24,14 +24,14 @@
 #ifndef GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_INTERFACE_H
 #define GRAPHOS_FEATURE_EXTRACTOR_PRESENTER_INTERFACE_H
 
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 
 namespace graphos
 {
 
 class FeatureExtractorPresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 {
 
   Q_OBJECT

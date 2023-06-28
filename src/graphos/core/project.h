@@ -239,6 +239,9 @@ public:
   virtual void setOrthophotoPath(const tl::Path &orthophotoPath) = 0;
   virtual void clearOrthophotoDTM() = 0;
 
+  virtual tl::math::Matrix<double, 4, 4> transform() const = 0;
+  virtual void setTransform(const tl::math::Matrix<double, 4, 4> &transform) = 0;
+
   /*!
    * \brief Limpia el proyecto
    */
@@ -376,6 +379,9 @@ public:
   bool checkOldVersion(const tl::Path &file) const override;
   void oldVersionBak(const tl::Path &file) const override;
 
+  tl::math::Matrix<double, 4, 4> transform() const override;
+  void setTransform(const tl::math::Matrix<double, 4, 4> &transform) override;
+
 protected:
 
   bool read(QXmlStreamReader &stream);
@@ -488,6 +494,7 @@ protected:
   static std::mutex sMutex;
   int mCameraCount;
   tl::Path mOrthophoto;
+  tl::math::Matrix<double, 4, 4> mTransform;
 };
 
 } // end namespace graphos

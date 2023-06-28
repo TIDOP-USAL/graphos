@@ -85,7 +85,8 @@ void MainWindowPresenter::openFromHistory(const QString &file)
                                 tr("There are unsaved changes. Do you want to save them?"),
                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
         if (i_ret == QMessageBox::Yes) {
-          saveProject();
+          //saveProject();
+          emit save();
         } else if (i_ret == QMessageBox::Cancel) {
           return;
         }
@@ -128,19 +129,19 @@ void MainWindowPresenter::deleteHistory()
   mStartPageWidget->setHistory(QStringList());
 }
 
-void MainWindowPresenter::saveProject()
-{
-  try {
-    
-    mModel->save();
-    
-    Application &app = Application::instance();
-    app.status()->activeFlag(AppStatus::Flag::project_modified, false);
- 
-  } catch (std::exception &e) {
-    tl::printException(e);
-  }
-}
+//void MainWindowPresenter::saveProject()
+//{
+//  try {
+//    
+//    mModel->save();
+//    
+//    Application &app = Application::instance();
+//    app.status()->activeFlag(AppStatus::Flag::project_modified, false);
+// 
+//  } catch (std::exception &e) {
+//    tl::printException(e);
+//  }
+//}
 
 void MainWindowPresenter::exit()
 {
@@ -167,7 +168,8 @@ void MainWindowPresenter::exit()
                               tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
                               QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
       if (i_ret == QMessageBox::Yes) {
-        saveProject();
+        //saveProject();
+        emit save();
       } else if (i_ret == QMessageBox::Cancel) {
         return;
       }

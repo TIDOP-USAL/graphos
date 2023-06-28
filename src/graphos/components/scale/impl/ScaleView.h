@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,78 +21,71 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROCESS_PRESENTER_H
-#define GRAPHOS_PROCESS_PRESENTER_H
 
-#include <QObject>
+#ifndef GRAPHOS_SCALE_VIEW_H
+#define GRAPHOS_SCALE_VIEW_H
 
-#include <tidop/core/task.h>
+#include "graphos/components/scale/ScaleView.h"
 
-#include "graphos/core/mvp.h"
-
-namespace tl
-{
-class TaskErrorEvent;
-class TaskFinalizedEvent;
-}
+class QDialogButtonBox;
+class QLabel;
+class QDoubleSpinBox;
+class QPushButton;
 
 
 namespace graphos
 {
 
-class ProgressHandler;
-
-class ProcessPresenter
-  : public Presenter
+class ScaleViewImp
+  : public ScaleView
 {
 
   Q_OBJECT
 
 public:
 
-  ProcessPresenter();
-  ~ProcessPresenter() override;
+  ScaleViewImp(QWidget *parent = nullptr);
+  ~ScaleViewImp() override;
 
-protected:
+// ScaleView
 
-  virtual void onError(tl::TaskErrorEvent *event);
-  virtual void onFinished(tl::TaskFinalizedEvent *event);
-  virtual void onStopped(tl::TaskStoppedEvent *event);
+public:
 
-  ProgressHandler *progressHandler();
+  double distance() const override;
+  double distanceReal() const override;
 
-  /*!
-   * \brief Create task
-   * return Task
-   */
-  virtual std::unique_ptr<tl::Task> createProcess() = 0;
+public slots:
+  
+  void setDistance(double distance) override;
+
+// DialogView
+
+private:
+
+  void initUI();
+  void initSignalAndSlots();
 
 public slots:
 
-  virtual void setProgressHandler(ProgressHandler *progressHandler);
-  virtual void run();
-  virtual void cancel();
+  void clear();
 
-signals:
+private slots:
 
-  void running();
-  void finished();
-  void failed();
-  void canceled();
+  void update();
+  void retranslate();
 
-private:
+protected:
 
-  void init() override;
-  void initSignalAndSlots() override;
+  QLabel *mLabelDistance;
+  QDoubleSpinBox *mDoubleSpinBoxDistance;
+  QPushButton *mPushButtonDistance;
+  QLabel *mLabelDistanceReal;
+  QDoubleSpinBox *mDoubleSpinBoxDistanceReal;
 
-private:
+  QDialogButtonBox *mButtonBox;
 
-  std::unique_ptr<tl::Task> mProcess;
-  ProgressHandler *mProgressHandler;
 };
-
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_PROCESS_PRESENTER_H
+#endif // GRAPHOS_SCALE_VIEW_H

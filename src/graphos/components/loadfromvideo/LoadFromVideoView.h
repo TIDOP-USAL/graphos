@@ -26,20 +26,20 @@
 #define GRAPHOS_LOADFROMVIDEO_VIEW_INTERFACE_H
 
 
-#include "graphos/core/process/ProcessView.h"
+#include "graphos/core/task/TaskView.h"
 
 namespace graphos
 {
 
 class LoadFromVideoView
-  : public ProcessView
+  : public TaskView
 {
 
   Q_OBJECT
 
 public:
 
-  LoadFromVideoView(QWidget *parent) : ProcessView(parent) {}
+  LoadFromVideoView(QWidget *parent) : TaskView(parent) {}
   ~LoadFromVideoView() override = default;
 
   virtual QString video() const = 0;

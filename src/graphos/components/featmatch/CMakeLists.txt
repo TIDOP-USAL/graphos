@@ -78,7 +78,8 @@ if(BUILD_FEATMATCH_COMPONENT)
     install(DIRECTORY .
             DESTINATION include/graphos/components/featmatch
             FILES_MATCHING PATTERN "*.h"
-            PATTERN "impl" EXCLUDE)
+            PATTERN "impl" EXCLUDE
+            PATTERN "test" EXCLUDE)
         
 
     set(GRAPHOS_HAVE_FEATMATCH YES CACHE INTERNAL "")

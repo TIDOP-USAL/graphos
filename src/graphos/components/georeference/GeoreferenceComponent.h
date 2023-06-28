@@ -63,9 +63,6 @@ protected slots:
   void onFinished() override;
   void onFailed() override;
 
-protected:
-
-
 };
 
 } // namespace graphos

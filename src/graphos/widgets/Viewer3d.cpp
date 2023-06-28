@@ -492,16 +492,12 @@ void CCViewer3D::activatePicker(PickingMode pickerMode)
 
   this->redraw(true);
 
-  //connect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)),
-  //        this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)));
   connect(this, &CCViewer3D::itemPicked,
           this, &CCViewer3D::processPickedPoint);
 }
 
 void CCViewer3D::deactivatePicker()
 {
-  //disconnect(this, SIGNAL(itemPicked(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)),
-  //           this, SLOT(processPickedPoint(ccHObject *, unsigned, int, int, const CCVector3 &, const CCVector3 &)));
   disconnect(this, &CCViewer3D::itemPicked,
              this, &CCViewer3D::processPickedPoint);
 
@@ -848,90 +844,53 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
                                     const CCVector3 &point,
                                     const CCVector3d& uvw)
 {
-  if (!entity || !entity->isKindOf(CC_TYPES::POINT_CLOUD))
+  if (!entity)
     return;
 
-  ccPointCloud *cloud = 0;
-  cloud = static_cast<ccPointCloud *>(entity);
-  if (!cloud) {
-    return;
+  switch (mPickingMode) {
+  case PickingMode::point_info:
+    mLabel->clear();
+    break;
+  case PickingMode::distance:
+    if (mLabel->size() >= 2)
+      mLabel->clear();
+    break;
+  case PickingMode::angle:
+    if (mLabel->size() >= 3)
+      mLabel->clear();
+    break;
+  case PickingMode::rect_zone:
+    return; //we don't use this slot for 2D mode
   }
 
-  CCVector3d P = cloud->toGlobal3d(*cloud->getPoint(pointIndex));
+  CCVector3d P;
+
+  if (entity->isKindOf(CC_TYPES::POINT_CLOUD)) {
+    ccPointCloud *cloud = static_cast<ccPointCloud *>(entity);
+    if (!cloud) {
+      return;
+    }
+    P = cloud->toGlobal3d(*cloud->getPoint(pointIndex));
+#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
+    mLabel->addPickedPoint(cloud, pointIndex);
+#else
+    mLabel->addPoint(cloud, pointIndex);
+#endif
+  } else if (entity->isKindOf(CC_TYPES::MESH)) {
+
+    mLabel->addPickedPoint(static_cast<ccGenericMesh*>(entity), pointIndex, CCVector2d(uvw.x, uvw.y));
+  } else {
+
+    return;
+  }
 
   emit mouseClicked(QVector3D(P.x, P.y, P.z));
 
-
-  switch (mPickingMode) {
-    case PickingMode::point_info:
-      mLabel->clear();
-      break;
-    case PickingMode::distance:
-      if (mLabel->size() >= 2)
-        mLabel->clear();
-      break;
-    case PickingMode::angle:
-      if (mLabel->size() >= 3)
-        mLabel->clear();
-      break;
-    case PickingMode::rect_zone:
-      return; //we don't use this slot for 2D mode
-    case PickingMode::point_list:
-      cc2DLabel *newLabel = new cc2DLabel();
-      ccGenericGLDisplay *display = cloud->getDisplay();
-      newLabel->setDisplay(display);
-#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
-      newLabel->addPickedPoint(cloud, pointIndex);
-#else
-      newLabel->addPoint(cloud, pointIndex);
-#endif
-      newLabel->setVisible(true);
-      newLabel->setDisplayedIn2D(false);
-      newLabel->setCollapsed(true);
-      newLabel->setName("label");
-
-      if (display) {
-        QSize size = display->getScreenSize();
-        newLabel->setPosition((float)(x + 20) / size.width(), (float)(y + 20) / size.height());
-      }
-
-      if (!mOrderedLabelsContainer) {
-        mOrderedLabelsContainer = new ccHObject();
-        cloud->addChild(mOrderedLabelsContainer, true);
-        this->addToOwnDB(mOrderedLabelsContainer); //***********************************
-      }
-
-      newLabel->setName("P" + QString::number(mOrderedLabelsContainer->getChildrenNumber() + 1));
-      assert(mOrderedLabelsContainer);
-      mOrderedLabelsContainer->addChild(newLabel, true);
-      this->addToOwnDB(newLabel); //***********************************
-      this->redraw();
-
-      return;
-  }
-
-#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
-  mLabel->addPickedPoint(cloud, pointIndex);
-#else
-  mLabel->addPoint(cloud, pointIndex);
-#endif
   mLabel->setVisible(true);
-  //ccGenericGLDisplay* display = cloud->getDisplay();
-  //mLabel->setDisplay(display);
-  //QSize size = display->getScreenSize();
-  //if (mLabel->size() == 1 && mGlWindow) {
-  //  //mLabel->setPosition((float)(x+20)/(float)associatedWin->width(),(float)(y+20)/(float)associatedWin->height());
-  //  mLabel->setPosition((float)(x + 20) / size.width(), (float)(y + 20) / size.height());
-  //}
   mLabel->displayPointLegend(mLabel->size() == 3); //we need to display 'A', 'B' and 'C' for 3-points labels
   if (mLabel->size() == 1) {
     mLabel->setPosition(static_cast<float>(x + 20) / this->glWidth(), static_cast<float>(y + 20) / this->glHeight());
   }
-  //output info to Console
-  //    QStringList body = mLabel->getLabelContent(ccGui::Parameters().displayedNumPrecision);
-  //    ccLog::Print(QString("[Picked] ")+mLabel->getName());
-  //    for (int i=0;i<body.size();++i)
-  //        ccLog::Print(QString("[Picked]\t- ")+body[i]);
 
   this->redraw();
 }
@@ -1027,8 +986,7 @@ void CCViewer3D::addToDB(ccHObject *entity)
 
 void CCViewer3D::enableEDL() 
 {
-	//qEDL* edl = new qEDL(this);
-  filter = new ccEDLFilter;//edl->getFilter();
+  filter = new ccEDLFilter;
 	QString error;
   
 	filter->init(this->width(), this->height(), qApp->applicationDirPath() + "/shaders", error);
@@ -1039,11 +997,6 @@ void CCViewer3D::enableEDL()
 void CCViewer3D::disableEDL() 
 {
   setGlFilter(nullptr);
-
-  //if (filter) {
-  ////  delete filter;
-  //  filter = nullptr;
-  //}
 
 	redraw();
   edl = false;

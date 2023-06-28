@@ -56,7 +56,7 @@ protected slots:
   void addImage(QString imagePath, int cameraId) override;
 
 
-// ProcessPresenter interface
+// TaskPresenter interface
 
 protected slots:
 
@@ -83,7 +83,6 @@ private:
 
   LoadFromVideoView *mView;
   LoadFromVideoModel *mModel;
-  HelpDialog *mHelp;
   std::vector<Camera> mCameras;
 };
 

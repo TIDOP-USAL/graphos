@@ -25,8 +25,8 @@
 
 #include "graphos/components/dtm/DTMView.h"
 #include "graphos/components/dtm/DTMModel.h"
-#include "graphos/components/dtm/impl/DTMProcess.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/components/dtm/impl/DTMTask.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/widgets/DtmInvDistWidget.h"
 #include "graphos/widgets/DtmInvDistNNWidget.h"
 #include "graphos/core/dtm/invdist.h"
@@ -131,7 +131,7 @@ void DtmPresenterImp::initSignalAndSlots()
 
 void DtmPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("DTM error"));
@@ -140,7 +140,7 @@ void DtmPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("DTM finished"));
@@ -213,7 +213,7 @@ void DtmPresenterImp::setCurrentDtmMethod(const QString &method)
 
 void DtmPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }

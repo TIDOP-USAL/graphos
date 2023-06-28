@@ -25,7 +25,7 @@
 #include "UndistortImagesPresenter.h"
 
 #include "graphos/core/utils.h"
-#include "graphos/core/process/Progress.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/components/undistort/impl/UndistortImagesModel.h"
 #include "graphos/components/undistort/impl/UndistortImagesView.h"
@@ -72,7 +72,7 @@ void UndistortImagesPresenterImp::initSignalAndSlots()
 
 void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  ProcessPresenter::onError(event);
+  TaskPresenter::onError(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Process error"));
@@ -81,7 +81,7 @@ void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent *event)
 
 void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  ProcessPresenter::onFinished(event);
+  TaskPresenter::onFinished(event);
 
   if (progressHandler()) {
     progressHandler()->setDescription(tr("Process finished"));
@@ -107,7 +107,7 @@ std::unique_ptr<tl::Task> UndistortImagesPresenterImp::createProcess()
 
 void UndistortImagesPresenterImp::cancel()
 {
-  ProcessPresenter::cancel();
+  TaskPresenter::cancel();
 
   msgWarning("Processing has been canceled by the user");
 }

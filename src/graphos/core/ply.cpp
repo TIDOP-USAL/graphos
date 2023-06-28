@@ -94,7 +94,8 @@ Ply::Ply()
 
 Ply::Ply(const std::string &file,
          OpenMode mode)
-  : stream(nullptr),
+  : _file(file),
+    stream(nullptr),
     mIsBinary(false),
     mIsLittleEndian(false),
     mHasColors(false),
@@ -102,7 +103,7 @@ Ply::Ply(const std::string &file,
     mHasScalarFields(false)
 {
   init();
-  open(file, mode);
+  open(_file, mode);
 }
 
 Ply::~Ply()
@@ -118,31 +119,56 @@ Ply::~Ply()
 void Ply::open(const std::string &file,
                OpenMode mode)
 {
+  _file = file;
+
   flags = mode;
 
-  bool file_exists = tl::Path::exists(file);
+  TL_ASSERT(tl::Path::exists(file), "File does not exist");
 
   std::ios_base::openmode open_mode = 0;
-  if (flags.isEnabled(OpenMode::in)) open_mode += std::ios_base::in;
-  if (flags.isEnabled(OpenMode::out)) open_mode += std::ios_base::out;
-  if (flags.isEnabled(OpenMode::binary) || file_exists) open_mode += std::ios_base::binary;
-  
-  mIsBinary = flags.isEnabled(OpenMode::binary);
-  if (mIsBinary) mIsLittleEndian = true;
 
-  stream = new std::fstream(file, open_mode);
+  if (flags.isEnabled(OpenMode::in)) {
 
-  if (file_exists && flags.isEnabled(OpenMode::in)) {
+    open_mode += std::ios_base::in;
+    stream = new std::fstream(_file, open_mode | std::ios_base::binary);
+
     readHeader();
     readBody();
-  }
+
+    stream->close();
+  } 
+  
+  //if (flags.isEnabled(OpenMode::out)) {
+
+  //  open_mode += std::ios_base::out;
+  //  //if (flags.isEnabled(OpenMode::binary)) open_mode += std::ios_base::binary;
+  //  
+  //  mIsBinary = flags.isEnabled(OpenMode::binary);
+  //  if (mIsBinary) mIsLittleEndian = true;
+
+  //  stream = new std::fstream(file, open_mode);
+  //}
 
 }
 
-void Ply::save()
+void Ply::save(bool binary)
 {
+  mIsBinary = binary;
+  std::ios_base::openmode open_mode = std::ios_base::out;
+
+  stream = new std::fstream(_file, open_mode | std::ios_base::trunc);
+
   writeHeader();
+
+  if (mIsBinary) {
+    stream->close();
+    //stream = new std::fstream(_file, open_mode | std::ios_base::app | std::ios_base::binary);
+    stream->open(_file, open_mode | std::ios_base::app | std::ios_base::binary);
+  }
+
   writeBody();
+
+  stream->close();
 }
 
 void Ply::close()
@@ -192,6 +218,9 @@ void Ply::readHeader()
 
   std::getline(*stream, line);
 
+  line.erase(std::remove(line.begin(), line.end(), '\r' ), line.end());
+  line.erase(std::remove(line.begin(), line.end(), '\n' ), line.end());
+
   TL_ASSERT(line == "ply", "Invalid Ply file");
 
   std::string name;
@@ -203,6 +232,9 @@ void Ply::readHeader()
   int color_dimension{};
 
   while (std::getline(*stream, line)) {
+
+    line.erase(std::remove(line.begin(), line.end(), '\r' ), line.end());
+    line.erase(std::remove(line.begin(), line.end(), '\n' ), line.end());
 
     if (line == "end_header") break;
 
@@ -227,7 +259,9 @@ void Ply::readHeader()
 
       if (type == "vertex") {
         mSize = tl::convertStringTo<size_t>(value);
-      } else {
+      } /*else if (type == "vertex") {
+        mFaceSize = tl::convertStringTo<size_t>(value);
+      }*/ else {
         msgError("Error reading Ply: Only vertex elements supported");
       }
 

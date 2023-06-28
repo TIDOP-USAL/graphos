@@ -26,20 +26,20 @@
 #define GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H
 
 #include "graphos/core/mvp.h"
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
 class UndistortImagesPresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  UndistortImagesPresenter() : ProcessPresenter() {}
+  UndistortImagesPresenter() : TaskPresenter() {}
   ~UndistortImagesPresenter() override = default;
 
 };

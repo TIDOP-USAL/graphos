@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_RECENT_PROJECTS_PRESENTER_INTERFACE_H
 #define GRAPHOS_RECENT_PROJECTS_PRESENTER_INTERFACE_H
 
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {

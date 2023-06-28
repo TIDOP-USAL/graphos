@@ -841,6 +841,11 @@ TabWidget *MainWindowView::tabWidget()
   return mTabWidget;
 }
 
+//QAction *MainWindowView::actionDistanceMeasuse()
+//{
+//  return mActionDistanceMeasuse;
+//}
+
 void MainWindowView::deleteImages(const std::vector<size_t> &imageIds)
 {
   const QSignalBlocker blocker1(mTreeWidgetProject);

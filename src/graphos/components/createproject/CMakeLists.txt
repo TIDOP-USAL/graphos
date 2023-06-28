@@ -68,7 +68,8 @@ if(BUILD_CREATE_PROJECT_COMPONENT)
     install(DIRECTORY .
             DESTINATION include/graphos/components/createproject
             FILES_MATCHING PATTERN "*.h"
-            PATTERN "impl" EXCLUDE)
+            PATTERN "impl" EXCLUDE
+            PATTERN "test" EXCLUDE)
         
     set(GRAPHOS_HAVE_CREATE_PROJECT YES CACHE INTERNAL "")
     

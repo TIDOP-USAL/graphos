@@ -124,6 +124,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_FEATMATCH}>:Graphos::FeatMatch>
                       $<$<BOOL:${GRAPHOS_HAVE_FEATVIEWER}>:Graphos::FeatViewer>
                       $<$<BOOL:${GRAPHOS_HAVE_GEOREFERENCE}>:Graphos::Georeference>
+                      $<$<BOOL:${GRAPHOS_HAVE_SCALE}>:Graphos::Scale>
                       $<$<BOOL:${GRAPHOS_HAVE_IMAGE_LOAD}>:Graphos::ImageLoad>
                       $<$<BOOL:${GRAPHOS_HAVE_IMPORT_CAMERAS}>:Graphos::ImportCameras>
                       $<$<BOOL:${GRAPHOS_HAVE_MATCH_VIEWER}>:Graphos::MatchViewer>

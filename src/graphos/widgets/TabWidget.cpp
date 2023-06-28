@@ -147,12 +147,15 @@ void TabWidget::onTabChanged(int tabId)
   if (graphicViewer) {
     emit imageActive(true);
     emit model3dActive(false);
+    emit model3dChange(nullptr);
   } else if (viewer3D) {
     emit model3dActive(true);
     emit imageActive(false);
+    emit model3dChange(viewer3D);
   } else {
     emit imageActive(false);
     emit model3dActive(false);
+    emit model3dChange(nullptr);
   }
 
   update();

@@ -71,7 +71,7 @@ void MeshComponent::createView()
 void MeshComponent::createPresenter()
 {
   setPresenter(new MeshPresenterImp(dynamic_cast<MeshView *>(view()),
-                                               dynamic_cast<MeshModel *>(model())));
+                                    dynamic_cast<MeshModel *>(model())));
 }
 
 void MeshComponent::createCommand()

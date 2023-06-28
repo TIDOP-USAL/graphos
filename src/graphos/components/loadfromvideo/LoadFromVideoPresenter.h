@@ -25,21 +25,20 @@
 #ifndef GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H
 #define GRAPHOS_LOADFROMVIDEO_PRESENTER_INTERFACE_H
 
-#include "graphos/core/mvp.h"
-#include "graphos/core/process/ProcessPresenter.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
 
 class LoadFromVideoPresenter
-  : public ProcessPresenter
+  : public TaskPresenter
 {
 
   Q_OBJECT
 
 public:
 
-  LoadFromVideoPresenter() : ProcessPresenter() {}
+  LoadFromVideoPresenter() : TaskPresenter() {}
   ~LoadFromVideoPresenter() override = default;
 
 public slots:

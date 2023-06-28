@@ -31,6 +31,7 @@
 #include "graphos/core/project.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
+#include "graphos/widgets/TabWidget.h"
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
 #include "graphos/components/createproject/CreateProjectComponent.h"
@@ -86,6 +87,9 @@
 #ifdef GRAPHOS_HAVE_GEOREFERENCE
 #include "graphos/components/georeference/GeoreferenceComponent.h"
 #endif // GRAPHOS_HAVE_GEOREFERENCE
+#ifdef GRAPHOS_HAVE_SCALE
+#include "graphos/components/scale/ScaleComponent.h"
+#endif // GRAPHOS_HAVE_SCALE
 #ifdef GRAPHOS_HAVE_FEATVIEWER
 #include "graphos/components/featviewer/FeaturesViewerComponent.h"
 #endif // GRAPHOS_HAVE_FEATVIEWER
@@ -205,6 +209,10 @@ int main(int argc, char *argv[])
   GeoreferenceComponent georeference_component(&app);
 #endif // GRAPHOS_HAVE_GEOREFERENCE
 
+#ifdef GRAPHOS_HAVE_SCALE
+  ScaleComponent scale_component(&app);
+#endif // GRAPHOS_HAVE_SCALE
+
 #ifdef GRAPHOS_HAVE_UNDISTORT
   UndistortImagesComponent undistort_component(&app);
 #endif // GRAPHOS_HAVE_UNDISTORT
@@ -291,6 +299,10 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_SAVE_PROJECT
     componentsManager.registerComponent(&save_project_component);
+
+    QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::save,
+                     save_project_component.action(), &QAction::trigger);
+
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
 
 #ifdef GRAPHOS_HAVE_SAVE_PROJECT_AS
@@ -357,6 +369,10 @@ int main(int argc, char *argv[])
                                         ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_GEOREFERENCE
 
+#ifdef GRAPHOS_HAVE_SCALE
+    componentsManager.registerComponent(&scale_component);
+#endif // GRAPHOS_HAVE_SCALE
+
 #ifdef GRAPHOS_HAVE_DTM
     componentsManager.registerComponent(&dtm_component,
                                         ComponentsManager::Flags::separator_before);
@@ -391,6 +407,10 @@ int main(int argc, char *argv[])
     properties_component.open();
     properties_component.setAlternatingRowColors(true);
     componentsManager.mainWindowView()->setPropertiesWidget(properties_component.widget());
+
+    QObject::connect(componentsManager.mainWindowView()->tabWidget(),
+                     &TabWidget::model3dChange,
+                     &app, &Application::setViewer3D);
 
 #ifdef GRAPHOS_HAVE_CREATE_PROJECT
     QObject::connect(&create_project_component, SIGNAL(project_created()),
