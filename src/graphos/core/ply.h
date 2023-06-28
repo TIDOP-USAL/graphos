@@ -361,15 +361,14 @@ void Ply::addNormals(const tl::Point3<T> &normals)
 template<typename T>
 T Ply::property(size_t index, const std::string &propertyName) const
 {
-  auto type = property(index, propertyName)->type();
+  auto _property = property(index, propertyName);
+  auto type = _property->type();
 
   if (PlyTraits<T>::property_type < type) {
     msgWarning("Conversión de %s a %s. Posible perdida de datos", 
                findStringType(PlyTraits<T>::property_type).c_str(), 
                findStringType(type).c_str());
   }
-
-  auto _property = property(index, propertyName);
 
   T value{};
 
