@@ -72,8 +72,8 @@ public slots:
 
 protected:
 
-  Project *mProject;
   QSettings *mSettings;
+  Project *mProject;
   bool mReadSettings;
 };
 

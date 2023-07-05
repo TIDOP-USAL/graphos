@@ -61,6 +61,8 @@ void TaskPresenter::onError(tl::TaskErrorEvent *event)
 
 void TaskPresenter::onFinished(tl::TaskFinalizedEvent *event)
 {
+  tl::unusedParameter(event);
+
   if (mProgressHandler){
     mProgressHandler->finish();
     mProgressHandler->reset();
@@ -74,6 +76,8 @@ void TaskPresenter::onFinished(tl::TaskFinalizedEvent *event)
 
 void TaskPresenter::onStopped(tl::TaskStoppedEvent *event)
 {
+  tl::unusedParameter(event);
+  
   if(mProgressHandler) {
     mProgressHandler->finish();
     mProgressHandler->reset();

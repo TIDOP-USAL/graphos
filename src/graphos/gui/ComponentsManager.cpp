@@ -294,23 +294,29 @@ void ComponentsManager::registerMultiComponent(const QString &name,
 
 void ComponentsManager::loadPlugins()
 {
+  try{
+
+
 //#ifdef _DEBUG
 //  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath());
 //#else
   QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
 //#endif // _DEBUG
 
-  msgInfo("Load Plugins from: %s", pluginsDir.path().toStdString().c_str());
+    msgInfo("Load Plugins from: %s", pluginsDir.path().toStdString().c_str());
 
-  const auto entryList = pluginsDir.entryList(QDir::Files);
-  for (const QString &plugin : entryList) {
-
-    QPluginLoader loader(pluginsDir.absoluteFilePath(plugin));
-    if (loader.load()) {
-      loadPlugin(loader.instance());
-    } else {
-      msgWarning(loader.errorString().toStdString().c_str());
+    const auto entryList = pluginsDir.entryList(QDir::Files);
+    for (const QString &plugin : entryList) {
+  
+      QPluginLoader loader(pluginsDir.absoluteFilePath(plugin));
+      if (loader.load()) {
+        loadPlugin(loader.instance());
+      } else {
+        msgWarning(loader.errorString().toStdString().c_str());
+      }
     }
+  } catch (std::exception &e){
+    tl::printException(e);
   }
 }
 

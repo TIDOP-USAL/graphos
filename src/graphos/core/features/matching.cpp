@@ -33,7 +33,7 @@ TL_SUPPRESS_WARNINGS
 #include <colmap/feature/sift.h>
 #include <colmap/feature/matching.h>
 #include <colmap/base/gps.h>
-#include <FLANN/flann.h>
+#include <flann/flann.h>
 TL_DEFAULT_WARNINGS
 
 namespace graphos

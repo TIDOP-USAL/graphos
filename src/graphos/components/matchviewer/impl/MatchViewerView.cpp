@@ -225,7 +225,7 @@ void MatchViewerViewImp::setLeftImageList(const std::vector<std::pair<size_t, QS
   mComboBoxLeftImage->clear();
   for (auto &image : leftImageList){
     QFileInfo file_info(image.second);
-    mComboBoxLeftImage->addItem(file_info.baseName(), image.first);
+    mComboBoxLeftImage->addItem(file_info.baseName(), static_cast<qulonglong>(image.first));
   }
 }
 
@@ -235,7 +235,7 @@ void MatchViewerViewImp::setRightImageList(const std::vector<std::pair<size_t, Q
   mComboBoxRightImage->clear();
   for (auto &image : rightImageList){
     QFileInfo file_info(image.second);
-    mComboBoxRightImage->addItem(file_info.baseName(), image.first);
+    mComboBoxRightImage->addItem(file_info.baseName(), static_cast<qulonglong>(image.first));
   }
 }
 
@@ -576,6 +576,8 @@ void MatchViewerViewImp::setLineStyle(const QString &color, int width)
 
 void MatchViewerViewImp::onTreeWidgetMatchesItemClicked(QTreeWidgetItem *item, int col)
 {
+  tl::unusedParameter(col);
+  
   QPointF query_point(item->text(1).toDouble(), item->text(2).toDouble());
   QPointF train_point(item->text(3).toDouble(), item->text(4).toDouble());
 

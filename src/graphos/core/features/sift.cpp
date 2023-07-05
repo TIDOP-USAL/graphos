@@ -33,7 +33,7 @@
 
 #include <opencv2/imgcodecs.hpp>
 
-#include <gl/GL.h>
+#include <GL/gl.h>
 
 namespace graphos
 {

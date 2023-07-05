@@ -133,8 +133,8 @@ public:
   AppStatus *status();
   tl::MessageManager *messageManager();
 
-  Project *const project();
-  const Project *const project() const;
+  Project *project();
+  const Project *project() const;
   void setProject(Project *project);
 
   Settings *settings();

@@ -101,7 +101,7 @@ bool ImageLoaderCommand::run()
     if (!mImageList.empty() && mImageList.exists()) {
 
       std::ifstream ifs;
-      ifs.open(mImageList.toWString(), std::ifstream::in);
+      ifs.open(mImageList.toString(), std::ifstream::in);
       if (ifs.is_open()) {
 
         std::string line;
@@ -115,7 +115,7 @@ bool ImageLoaderCommand::run()
     }
 
     if (mDelete) {
-      ///// TODO: Borrar las imágenes
+      ///// TODO: Borrar las imï¿½genes
       ////std::vector<std::string> _images(image_list.size());
       //for(size_t i = 0; i < image_list.size(); i++) {
       //  //_images[i] = project.findImageByName(image_list[i]).path().toStdString();

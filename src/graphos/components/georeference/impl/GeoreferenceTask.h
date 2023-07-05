@@ -26,6 +26,8 @@
 
 #include "graphos/core/sfm/groundpoint.h"
 
+#include "graphos/core/image.h"
+
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 #include <tidop/core/path.h>
@@ -35,7 +37,6 @@
 namespace graphos
 {
 
-class Image;
 class CameraPose;
 class Camera;
 

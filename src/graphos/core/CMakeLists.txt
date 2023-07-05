@@ -55,7 +55,7 @@ add_files_to_project(${PROJECT_NAME}
                          dense/dense.cpp
                          dense/CmvsPmvs.cpp
                          dense/Smvs.cpp
-                         dense/Mvs.cpp
+                         dense/mvs.cpp
                          dense/DenseExport.cpp
                          mesh/PoissonRecon.cpp
                          utils.cpp
@@ -103,7 +103,7 @@ add_files_to_project(${PROJECT_NAME}
                          dense/dense.h
                          dense/CmvsPmvs.h
                          dense/Smvs.h
-                         dense/Mvs.h
+                         dense/mvs.h
                          dense/DenseExport.h
                          mesh/PoissonRecon.h
                          utils.h
@@ -146,6 +146,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       CSF
                       glog::glog
                       Qt5::PrintSupport
+                      Qt5::Sql
                       Eigen3::Eigen
                       Ceres::ceres
                       ${COLMAP_LIBRARIES}

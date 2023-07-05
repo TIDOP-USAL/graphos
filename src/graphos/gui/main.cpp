@@ -131,13 +131,13 @@ using namespace graphos;
 int main(int argc, char *argv[])
 {
 
-  ProjectImp project;
-
   Application app(argc, argv);
   app.setApplicationName("GRAPHOS");
   app.setApplicationDisplayName("GRAPHOS");
   app.setApplicationVersion(GRAPHOS_VERSION);
-  app.setOrganizationName("TIDOP");
+  app.setOrganizationName("TIDOP");  
+  
+  ProjectImp project;
   app.setProject(&project);
 
   QIcon::setThemeName("Material");
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 
     }
   } else {
-    //    TL_TODO("Añadir como opción")
+    //    TL_TODO("Aï¿½adir como opciï¿½n")
 //#if defined WIN32
 //    HWND hwnd = GetConsoleWindow();
 //    ShowWindow(hwnd, 0);
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
 
     app.freeMemory();
 
-    ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
+    ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicializaciï¿½n
 
     app.setMainWindow(componentsManager.mainWindowView());
 
@@ -518,7 +518,7 @@ int main(int argc, char *argv[])
                      settings_component.action(), &QAction::trigger);
 #endif // GRAPHOS_HAVE_SETTINGS
 
-    componentsManager.loadPlugins();
+    //componentsManager.loadPlugins();
 
     app.status()->activeFlag(AppStatus::Flag::none, true);
 

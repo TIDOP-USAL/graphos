@@ -211,7 +211,7 @@ void FeaturesViewerViewImp::setImageList(const std::vector<std::pair<size_t, QSt
   mComboBoxImages->clear();
   for (auto &image : imageList) {
     QFileInfo file_info(image.second);
-    mComboBoxImages->addItem(file_info.baseName(), image.first);
+    mComboBoxImages->addItem(file_info.baseName(), static_cast<qulonglong>(image.first));
   }
 }
 

@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "DtmTask.h"
+#include "DTMTask.h"
 
 #include <tidop/core/messages.h>
 #include <tidop/core/chrono.h>
@@ -61,6 +61,8 @@ DtmProcess::DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
 
 void DtmProcess::execute(tl::Progress *progressBar)
 {
+  tl::unusedParameter(progressBar);
+  
   try {
 
     tl::Chrono chrono("DTM finished");

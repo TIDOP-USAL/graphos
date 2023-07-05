@@ -242,7 +242,7 @@ bool ProjectImp::updateCamera(int idCamera, const Camera &camera)
     it->second = camera;
 
     colmap::camera_t camera_id = static_cast<colmap::camera_t>(idCamera);
-    colmap::Database database(database().toString());
+    colmap::Database database(this->database().toString());
     colmap::Camera camera_colmap = database.ReadCamera(camera_id);
     QString colmap_camera_type = cameraToColmapType(camera);
     camera_colmap.SetModelIdFromName(colmap_camera_type.toStdString());

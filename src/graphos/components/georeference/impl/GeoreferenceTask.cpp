@@ -24,7 +24,6 @@
 #include "GeoreferenceTask.h"
 
 #include "graphos/core/sfm/orientationexport.h"
-#include "graphos/core/image.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
@@ -99,7 +98,7 @@ void exportToColmap(const tl::Path &databasePath,
     colmap_sparse_path.append("sparse");
     colmap_sparse_path.createDirectories();
 
-    TL_TODO("Extraer la exportación a colmap")
+    TL_TODO("Extraer la exportaciï¿½n a colmap")
       // cameras.txt
     {
       tl::Path colmap_cameras(colmap_sparse_path);

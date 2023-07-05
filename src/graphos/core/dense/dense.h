@@ -39,14 +39,13 @@
 
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/camera/Undistort.h"
+#include "graphos/core/image.h"
 
 namespace graphos
 {
 
-class Image;
 class Camera;
 class CameraPose;
-//class GroundPoint;
 
 class Densification
 {

@@ -410,6 +410,7 @@ void MultiComponentBase::setPresenter(Presenter *presenter)
 
 void MultiComponentBase::setCommand(std::shared_ptr<Command> command)
 {
+  tl::unusedParameter(command);
   //if(command) {
   //  mCommand = command;
   //  mApplication->addComponent(this);

@@ -420,7 +420,7 @@ void CamerasViewImp::update()
 {
   bool selected_camera = !mListWidgetCameras->selectedItems().empty();
   //bool fix_calibration = mActionFixCalibration->isChecked();
-  int camera_index = mComboBoxType->currentIndex();
+  //int camera_index = mComboBoxType->currentIndex();
   bool cx_enable = isPrincipalPointEnable();
   bool cy_enable = isPrincipalPointEnable();
   bool f_enable = isFocalEnable();

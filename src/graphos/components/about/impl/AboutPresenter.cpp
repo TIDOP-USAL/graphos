@@ -25,7 +25,6 @@
 
 #include "graphos/components/about/AboutModel.h"
 #include "graphos/components/about/AboutView.h"
-#include "graphos/core/AppStatus.h"
 
 #include <tidop/core/licence.h>
 
@@ -36,8 +35,7 @@ namespace graphos
 {
 
 AboutPresenterImp::AboutPresenterImp(AboutView *view,
-                                     AboutModel *model,
-                                     AppStatus *status)
+                                     AboutModel *model)
   : AboutPresenter(),
     mView(view),
     mModel(model)

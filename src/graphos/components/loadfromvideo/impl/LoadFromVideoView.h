@@ -30,7 +30,7 @@
 #include <tidop/core/flags.h>
 
 /* Prueba carga de video */
-#include <opencv2\opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include <QTimer>
 /* Prueba carga de video */
 

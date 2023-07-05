@@ -105,7 +105,7 @@ void PropertiesViewImp::setProperties(const std::unordered_map<QString, std::lis
 
 void PropertiesViewImp::setAlternatingRowColors(bool active)
 {
-  mTreeWidgetProperties->setAlternatingRowColors(true);
+  mTreeWidgetProperties->setAlternatingRowColors(active);
 }
 
 } // namespace graphos

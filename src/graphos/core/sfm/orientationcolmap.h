@@ -124,8 +124,9 @@ private:
   std::map<int, Camera> mCameras;
   colmap::IncrementalMapperOptions *mIncrementalMapper;
   colmap::IncrementalMapperController *mMapper;
-  colmap::BundleAdjustmentController *mBundleAdjustmentController;
   std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
+  colmap::BundleAdjustmentController *mBundleAdjustmentController;
+  
 };
 
 

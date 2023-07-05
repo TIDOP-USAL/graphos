@@ -143,11 +143,11 @@ void GeoreferenceViewImp::selectionChanged(const QItemSelection &selected,
   /// Por ahora...
   this->setEnableImagePointsAddOrEdit(modelIndexList.size() == 1);
 
-  for (auto modelIndex : modelIndexList) {
-    // Se obtiene el identificador de la fila seleccionada y se filtran los puntos imagen.
-    int index = modelIndex.row();
-    //mTableViewGroundControlPoints->
-  }
+  // for (auto modelIndex : modelIndexList) {
+  //   // Se obtiene el identificador de la fila seleccionada y se filtran los puntos imagen.
+  //   int index = modelIndex.row();
+  //   //mTableViewGroundControlPoints->
+  // }
 
   this->update();
 }
@@ -222,7 +222,7 @@ void GeoreferenceViewImp::setImageList(const std::vector<std::pair<size_t, QStri
   mComboBoxImages->clear();
   for (auto &image : imageList){
     QFileInfo file_info(image.second);
-    mComboBoxImages->addItem(file_info.baseName(), image.first);
+    mComboBoxImages->addItem(file_info.baseName(), static_cast<qulonglong>(image.first));
   }
 }
 
