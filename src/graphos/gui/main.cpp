@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 
     }
   } else {
-    //    TL_TODO("A�adir como opci�n")
+    //    TL_TODO("Añadir como opción")
 //#if defined WIN32
 //    HWND hwnd = GetConsoleWindow();
 //    ShowWindow(hwnd, 0);
@@ -506,9 +506,10 @@ int main(int argc, char *argv[])
                      componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
 #endif // GRAPHOS_HAVE_GEOREFERENCE
 
+#ifdef GRAPHOS_HAVE_MATCH_VIEWER
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
-
+#endif // GRAPHOS_HAVE_MATCH_VIEWER
 
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_image,
                      &properties_component, &PropertiesComponent::selectImage);
