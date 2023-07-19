@@ -43,7 +43,7 @@ std::unique_ptr<Application> Application::sApplication;
 std::mutex Application::sMutex;
 std::once_flag Application::sInitFlag;
 
-Application::Application(int argc, char **argv)
+Application::Application(int &argc, char **argv)
   : QApplication(argc, argv),
     mAppStatus(new AppStatus()),
     mProject(nullptr),

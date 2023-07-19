@@ -121,7 +121,7 @@ class Application
 public:
 
   static Application &instance();
-  Application(int argc, char **argv);
+  Application(int &argc, char **argv);
   ~Application();
 
   Application(const Application &) = delete;
