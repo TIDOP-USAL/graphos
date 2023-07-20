@@ -70,8 +70,8 @@ ImageLoaderCommand::ImageLoaderCommand()
   this->push_back(CreateArgumentBooleanOptional("delete", 'd', "Delete an image in project", &mDelete));
   this->push_back(CreateArgumentListStringOptional("camera", 'c', "Camera type", mCameraTypes, &mCameraId));
 
-  this->addExample("image_manager --p 253/253.xml -i image001.jpg");
-  this->addExample("image_manager --p 253/253.xml -i image001.jpg -d");
+  this->addExample("image_manager -p 253/253.xml -i image001.jpg");
+  this->addExample("image_manager -p 253/253.xml -i image001.jpg -d");
 }
 
 ImageLoaderCommand::~ImageLoaderCommand()

@@ -81,10 +81,10 @@ void MeshViewImp::initUI()
   mComboBoxBoundaryType->addItem("Neumann");
   gridLayout->addWidget(mComboBoxBoundaryType, 2, 1, 1, 1);
 
-  mLabelWidth = new QLabel(this);
-  gridLayout->addWidget(mLabelWidth, 3, 0, 1, 1);
-  mSpinBoxWidth = new QSpinBox(this);
-  gridLayout->addWidget(mSpinBoxWidth, 3, 1, 1, 1);
+  //mLabelWidth = new QLabel(this);
+  //gridLayout->addWidget(mLabelWidth, 3, 0, 1, 1);
+  //mSpinBoxWidth = new QSpinBox(this);
+  //gridLayout->addWidget(mSpinBoxWidth, 3, 1, 1, 1);
 
   //mLabelFullDepth = new QLabel(this);
   //gridLayout->addWidget(mLabelFullDepth, 4, 0, 1, 1);
@@ -106,7 +106,7 @@ void MeshViewImp::initSignalAndSlots()
 {
   connect(mSpinBoxDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::depthChanged);
   connect(mSpinBoxSolveDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::solveDepthChanged);
-  connect(mSpinBoxWidth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::widthChanged);
+  //connect(mSpinBoxWidth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::widthChanged);
   //connect(mSpinBoxFullDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::fullDepthChanged);
 
   connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -121,7 +121,7 @@ void MeshViewImp::retranslate()
   mLabelDepth->setText(QApplication::translate("DepthView", "Maximum reconstruction depth:"));
   mLabelSolveDepth->setText(QApplication::translate("SolveDepthView", "Maximum solution depth:"));
   mLabelBoundaryType->setText(QApplication::translate("BoundaryTypeView", "Boundary Type:"));
-  mLabelWidth->setText(QApplication::translate("WidthView", "Grid width:"));
+  //mLabelWidth->setText(QApplication::translate("WidthView", "Grid width:"));
   //mLabelFullDepth->setText(QApplication::translate("FullDepthView", "Full Depth:"));
 
   
@@ -155,10 +155,10 @@ QString MeshViewImp::boundaryType() const
   return mComboBoxBoundaryType->currentText();
 }
 
-int MeshViewImp::width() const 
-{
-  return mSpinBoxWidth->value();
-}
+//int MeshViewImp::width() const 
+//{
+//  return mSpinBoxWidth->value();
+//}
 
 //int MeshViewImp::fullDepth() const 
 //{
@@ -183,11 +183,11 @@ void MeshViewImp::setBoundaryType(const QString &BoundaryType)
   mComboBoxBoundaryType->setCurrentText(BoundaryType);
 }
 
-void MeshViewImp::setWidth(int width) 
-{
-  const QSignalBlocker blocker(mSpinBoxWidth);
-  mSpinBoxWidth->setValue(width);
-}
+//void MeshViewImp::setWidth(int width) 
+//{
+//  const QSignalBlocker blocker(mSpinBoxWidth);
+//  mSpinBoxWidth->setValue(width);
+//}
 
 //void MeshViewImp::setFullDepth(int FullDepth) 
 //{

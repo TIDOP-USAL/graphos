@@ -59,7 +59,7 @@ void MeshPresenterImp::open()
   mView->setDepth(parameters->depth());
   //mView->setFullDepth(parameters->fullDepth());
   mView->setSolveDepth(parameters->solveDepth());
-  mView->setWidth(parameters->width());
+  //mView->setWidth(parameters->width());
   
   mView->exec();
 }
@@ -113,7 +113,7 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
   parameters->setDepth(mView->depth());
   //parameters->setFullDepth(mView->fullDepth());
   parameters->setSolveDepth(mView->solveDepth());
-  parameters->setWidth(mView->width());
+  //parameters->setWidth(mView->width());
 
   process = std::make_unique<PoissonReconTask>(point_cloud,
                                                mesh);

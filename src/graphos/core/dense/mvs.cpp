@@ -625,6 +625,7 @@ void MvsDensifier::densify()
       cmd_mvs.append(" --cuda-device -1");
     else 
       cmd_mvs.append(" --cuda-device -2");
+    //cmd_mvs.append(" --filter-point-cloud 1");
 
     msgInfo("Process: %s", cmd_mvs.c_str());
     tl::Process process(cmd_mvs);
@@ -670,10 +671,6 @@ void MvsDensifier::execute(tl::Progress *progressBar)
     undistort_path.append("temp").append("export").append("images");
     undistort_path.createDirectories();
 
-    //tl::Path models_path(outputPath());
-    //models_path.append("models");
-    //models_path.createDirectory();
-
     /// Da problemas al escribir el fichero nvm e importarlo
     /// Intentar exportar directamente. Por ahora exportar a Colmap  utilizar InterfaceColmap para convertirlo a OpenMVS
     this->exportToColmap();
@@ -687,6 +684,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 
     this->exportToMVS();
     this->densify();
+    this->autoSegmentation();
 
     this->clearTemporalFiles();
 

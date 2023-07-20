@@ -61,7 +61,7 @@ public:
   int depth() const override;
   int solveDepth() const override;
   QString boundaryType() const override;
-  int width() const override;
+  //int width() const override;
   //int fullDepth() const override;
 
 public slots:
@@ -69,7 +69,7 @@ public slots:
   void setDepth(int Depth) override;
   void setSolveDepth(int SolveDepth) override;
   void setBoundaryType(const QString &BoundaryType) override;
-  void setWidth(int width) override;
+  //void setWidth(int width) override;
   //void setFullDepth(int FullDepth) override;
 
 // DialogView
@@ -96,8 +96,8 @@ protected:
   QSpinBox *mSpinBoxSolveDepth;
   QLabel *mLabelBoundaryType;
   QComboBox *mComboBoxBoundaryType;
-  QLabel *mLabelWidth;
-  QSpinBox *mSpinBoxWidth;
+  //QLabel *mLabelWidth;
+  //QSpinBox *mSpinBoxWidth;
   //QLabel *mLabelFullDepth;
   //QSpinBox *mSpinBoxFullDepth;
   QDialogButtonBox *mButtonBox;

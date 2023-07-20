@@ -130,6 +130,7 @@ protected:
   const std::unordered_map<size_t, CameraPose> &poses() const;
   const std::vector<GroundPoint> &groundPoints() const;
   void setDenseModel(const tl::Path &denseModel);
+  void autoSegmentation();
 
 private:
 

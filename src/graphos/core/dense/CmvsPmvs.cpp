@@ -643,6 +643,7 @@ void CmvsPmvsDensifier::execute(tl::Progress *progressBar)
     if (status() == tl::Task::Status::stopping) return;
 
     this->densify();
+    this->autoSegmentation();
 
     chrono.stop();
 

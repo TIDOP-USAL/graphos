@@ -461,8 +461,28 @@ private:
 
       imageReader->close();
     }
+       
+    normalizeImage(mat);
 
     return mat;
+  }
+
+  void normalizeImage(cv::Mat &mat)
+  {
+    if (mat.depth() != CV_8U) {
+#ifdef HAVE_CUDA
+      if (bUseGPU) {
+        cv::cuda::GpuMat gImgIn(mat);
+        cv::cuda::GpuMat gImgOut;
+        cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+        gImgOut.download(mat);
+      } else {
+#endif
+        cv::normalize(mat, mat, 0., 255., cv::NORM_MINMAX, CV_8U);
+#ifdef HAVE_CUDA
+      }
+#endif
+    }
   }
 
 protected:
