@@ -276,7 +276,7 @@ void MainWindowView::addImage(const Image &image, const Camera &camera)
     itemPhotogram->setIcon(0, QIcon::fromTheme("image-file"));
     itemPhotogram->setToolTip(0, image.path());
     itemPhotogram->setData(0, Qt::UserRole, graphos::image);
-    itemPhotogram->setData(0, Qt::UserRole+1, image.id());
+    itemPhotogram->setData(0, Qt::UserRole+1, static_cast<qulonglong>(image.id()));
     itemImages->addChild(itemPhotogram);
     itemImages->setText(0, tr("Images").append(" [").append(QString::number(itemImages->childCount())).append("]"));
 
@@ -322,7 +322,7 @@ void MainWindowView::addImages(const std::unordered_map<size_t, Image> &images,
       itemPhotogram->setIcon(0, QIcon::fromTheme("image-file"));
       itemPhotogram->setToolTip(0, image.second.path());
       itemPhotogram->setData(0, Qt::UserRole, graphos::image);
-      itemPhotogram->setData(0, Qt::UserRole + 1, image_id);
+      itemPhotogram->setData(0, Qt::UserRole + 1, static_cast<qulonglong>(image_id));
       itemImages->addChild(itemPhotogram);
 
       const auto &camera = cameras.find(image.second.cameraId());

@@ -30,6 +30,8 @@
 #include <QPdfWriter>
 #include <QPainter>
 
+#include <math.h> 
+
 namespace graphos
 {
 
@@ -61,11 +63,7 @@ PdfStyle::PdfStyle(const PdfStyle &pdfStyle)
 
 }
 
-PdfStyle::~PdfStyle()
-{
-}
-
-const QBrush PdfStyle::brush() const 
+const QBrush PdfStyle::brush() const
 { 
   return mBrush; 
 }
@@ -158,7 +156,7 @@ QPen TablePdf::borderTable(Border border) const
 const TablePdf::Cell *TablePdf::cell(int r, int c) const
 {
   if (r < mRows && c < mCols) {
-    if (c < mValues[r].size())
+    if (static_cast<size_t>(c) < mValues[r].size())
       return &mValues[r][c];
   } 
   return nullptr;
@@ -182,7 +180,7 @@ PdfStyle TablePdf::styleTable() const
 QString TablePdf::value(int r, int c) const
 {
   if (r < mRows && c < mCols) {
-    if (c < mValues[r].size())
+    if (static_cast<size_t>(c) < mValues[r].size())
       return mValues[r][c].text();
   }
   return NULL;
@@ -409,10 +407,10 @@ void TablePdf::setValue(int r,
 
 void TablePdf::updateTable()
 {
-  if (mValues.size() != mRows)
+  if (mValues.size() != static_cast<size_t>(mRows))
     mValues.resize(mRows);
 
-  if (mValues[0].size() != mCols) {
+  if (mValues[0].size() != static_cast<size_t>(mCols)) {
     for (int r = 0; r < mRows; r++) {
       mValues[r].resize(mCols, TablePdf::Cell(this));
     }
@@ -424,8 +422,7 @@ TablePdf::Cell::Cell(TablePdf *parent)
   : mParent(parent),
     mText(""), 
     mColspan(1),
-    mRowspan(1),
-    mSpanRef(0)
+    mRowspan(1)
 {
   // Valores por defecto
   if (mParent) {
@@ -435,6 +432,7 @@ TablePdf::Cell::Cell(TablePdf *parent)
   }
   setBorder(Border::all, QPen());
   setSpacing(Border::all, 15);
+  mSpanRef = nullptr;
 }
 
 TablePdf::Cell::Cell(QString value,
@@ -711,7 +709,7 @@ QRect Pdf::drawImage(const QImage &image, const QString &caption, int options)
     if (caption.isEmpty() == false) {
       PdfStyle style(QFont("Helvetica", 6, QFont::StyleItalic));
       QFontMetrics fontMetrics(style.font(), pPainter->device());
-      QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), caption);
+      QRect checkRect = fontMetrics.boundingRect(QRect(mX, mY, mWidth, mHeight), style.options(), caption);
       captionHeight = checkRect.height();
       height += checkRect.height() * 2;
     }
@@ -748,7 +746,7 @@ QRect Pdf::drawImage(const QImage &image, const QString &caption, int options)
       PdfStyle style(QFont("Helvetica", 6, QFont::Normal, true));
       pPainter->setFont(style.font());
       QRect usedRect;
-      pPainter->drawText(QRect::QRect(x, mY + captionHeight / 2, mWidth, mHeight), style.options(), legend, &usedRect);
+      pPainter->drawText(QRect(x, mY + captionHeight / 2, mWidth, mHeight), style.options(), legend, &usedRect);
       pPainter->setFont(mCurrentStyle.font());
     }
 
@@ -767,7 +765,7 @@ void Pdf::drawList(const QString &text)
     QRect usedRect;
 
     QFontMetrics fontMetrics(mCurrentStyle.font(), pPainter->device());
-    QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), mCurrentStyle.options(), text);
+    QRect checkRect = fontMetrics.boundingRect(QRect(mX, mY, mWidth, mHeight), mCurrentStyle.options(), text);
 
     if (checkRect.height() > mHeight)
       newPage();
@@ -782,7 +780,7 @@ void Pdf::drawList(const QString &text)
 
     pPainter->drawPoint(QPoint(mX + 100, mY + height / 2));
 
-    pPainter->drawText(QRect::QRect(mX+200, mY, mWidth, mHeight), Qt::TextWordWrap | Qt::AlignJustify, text, &usedRect);
+    pPainter->drawText(QRect(mX+200, mY, mWidth, mHeight), Qt::TextWordWrap | Qt::AlignJustify, text, &usedRect);
     mY += usedRect.height() + mSpace;
     mHeight -= (usedRect.height() + mSpace);
   }
@@ -797,8 +795,8 @@ QRect Pdf::drawTable(const TablePdf &table,
     //TODO: calcular tamaño y ver si hay que cambiar de pÃ¡gina
     int rows = table.rows();
     int cols = table.cols();
-    std::vector<int> maxHeight(rows, -std::numeric_limits<double>().max());
-    std::vector<int> maxWidth(cols, -std::numeric_limits<double>().max());
+    std::vector<int> maxHeight(rows, -std::numeric_limits<int>().max());
+    std::vector<int> maxWidth(cols, -std::numeric_limits<int>().max());
 
     for (int r = 0; r < rows; r++) {
 
@@ -809,7 +807,7 @@ QRect Pdf::drawTable(const TablePdf &table,
 
         QString value = cell->text();
         if (value.isEmpty() == false) {
-          QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), value);
+          QRect checkRect = fontMetrics.boundingRect(QRect(mX, mY, mWidth, mHeight), style.options(), value);
 
           if (cell->colspan() <= 1) {
             int space_w = cell->spacing(TablePdf::Border::left) + cell->spacing(TablePdf::Border::right);
@@ -831,7 +829,7 @@ QRect Pdf::drawTable(const TablePdf &table,
         if (cell->colspan() > 1) {
           QString value = cell->text();
           if (value.isEmpty() == false) {
-            QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), value);
+            QRect checkRect = fontMetrics.boundingRect(QRect(mX, mY, mWidth, mHeight), style.options(), value);
             int w = 0;
             for (int i = 0; i < cell->colspan(); i++) {
               w += maxWidth[c + i];
@@ -866,7 +864,7 @@ QRect Pdf::drawTable(const TablePdf &table,
     if (caption.isEmpty() == false) {
       PdfStyle style(QFont("Helvetica", 6, QFont::StyleItalic));
       QFontMetrics fontMetrics(style.font(), pPainter->device());
-      QRect checkRect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), caption);
+      QRect checkRect = fontMetrics.boundingRect(QRect(mX, mY, mWidth, mHeight), style.options(), caption);
       captionHeight = checkRect.height();
       total_height += checkRect.height() * 2;
     }
@@ -975,7 +973,7 @@ QRect Pdf::drawTable(const TablePdf &table,
       PdfStyle style(QFont("Helvetica", 6, QFont::Normal, true));
       pPainter->setFont(style.font());
       QRect usedRect;
-      pPainter->drawText(QRect::QRect(x, mY + captionHeight / 2, mWidth, mHeight), style.options(), legend, &usedRect);
+      pPainter->drawText(QRect(x, mY + captionHeight / 2, mWidth, mHeight), style.options(), legend, &usedRect);
       pPainter->setFont(mCurrentStyle.font());
 
       mY += usedRect.height();
@@ -991,7 +989,7 @@ QRect Pdf::drawTable(const TablePdf &table,
   return rect;
 }
 
-void Pdf::drawLine(const QPoint &pt1, const QPoint &pt2, PdfStyle &style)
+void Pdf::drawLine(const QPoint &pt1, const QPoint &pt2, const PdfStyle &style)
 {
   pPainter->setBrush(style.brush());
   pPainter->setPen(style.pen());
@@ -1167,7 +1165,7 @@ void Pdf::setPageSize(Pdf::PageSize pageSize)
     mPageSize = pageSize;
 
     //QPdfWriter::PageSize qPageSize;
-    QPageSize::PageSizeId page_size_id;
+    QPageSize::PageSizeId page_size_id = QPageSize::PageSizeId::A4;
 
     switch (pageSize) {
     case Pdf::PageSize::A0:
@@ -1355,7 +1353,7 @@ void Pdf::drawTextBlock(const QString &text,
     pPainter->setFont(style.font());
 
     QFontMetrics fontMetrics(style.font(), pPainter->device());
-    QRect rect = fontMetrics.boundingRect(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), text);
+    QRect rect = fontMetrics.boundingRect(QRect(mX, mY, mWidth, mHeight), style.options(), text);
 
     if (rect.height() > mHeight)
       newPage();
@@ -1367,7 +1365,7 @@ void Pdf::drawTextBlock(const QString &text,
     pPainter->drawRect(rect);
 
     pPainter->setPen(style.pen());
-    pPainter->drawText(QRect::QRect(mX, mY, mWidth, mHeight), style.options(), text, &rect);
+    pPainter->drawText(QRect(mX, mY, mWidth, mHeight), style.options(), text, &rect);
     //QFontMetrics fontMetrics(style.font());
     //int w = fontMetrics.width(text);
     

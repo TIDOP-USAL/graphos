@@ -33,7 +33,7 @@
 #include <tidop/math/algebra/euler_angles.h>
 #include <tidop/math/algebra/quaternion.h>
 
-///TODO: Esto no debería estar aqui
+///TODO: Esto no deberï¿½a estar aqui
 #include <colmap/base/database.h>
 ///
 
@@ -106,7 +106,7 @@ void ImportCamerasModelImp::previewImportCameras()
 
     if (mIniLine) {
 
-      for (size_t i = 0; i < mIniLine; i++)
+      for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
         stream.readLine();
     }
 
@@ -246,7 +246,7 @@ void ImportCamerasModelImp::previewImportCamerasFormated()
     QTextStream stream(&file);
 
     if (mIniLine) {
-      for (size_t i = 0; i < mIniLine; i++)
+      for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
         stream.readLine();
     }
 
@@ -567,7 +567,7 @@ void ImportCamerasModelImp::importCameras()
     QTextStream stream(&file);
 
     if (mIniLine) {
-      for (size_t i = 0; i < mIniLine; i++)
+      for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
         stream.readLine();
     }
 
@@ -775,7 +775,7 @@ void ImportCamerasModelImp::importCameras()
   }
 
 
-  /// TODO: Esto no debería estar aqui
+  /// TODO: Esto no deberï¿½a estar aqui
 
   colmap::Database database(mProject->database().toString());
 

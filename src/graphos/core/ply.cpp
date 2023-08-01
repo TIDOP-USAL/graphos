@@ -79,6 +79,7 @@ std::shared_ptr<PlyProperty> PlyProperty::create(const std::string &name, Type t
 }
 
 
+
 Ply::Ply()
   : stream(nullptr),
     mIsBinary(false),
@@ -125,12 +126,9 @@ void Ply::open(const std::string &file,
 
   TL_ASSERT(tl::Path::exists(file), "File does not exist");
 
-  std::ios_base::openmode open_mode = 0;
-
   if (flags.isEnabled(OpenMode::in)) {
 
-    open_mode += std::ios_base::in;
-    stream = new std::fstream(_file, open_mode | std::ios_base::binary);
+    stream = new std::fstream(_file, std::ios_base::in | std::ios_base::binary);
 
     readHeader();
     readBody();

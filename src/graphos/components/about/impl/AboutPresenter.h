@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class AppStatus;
-
 class AboutView;
 class AboutModel;
   
@@ -43,8 +41,7 @@ class AboutPresenterImp
 public:
 
   AboutPresenterImp(AboutView *view, 
-                    AboutModel *model,
-                    AppStatus *status);
+                    AboutModel *model);
   ~AboutPresenterImp() override = default;
   
 // Presenter interface
@@ -62,7 +59,6 @@ private:
 
   AboutView *mView;
   AboutModel *mModel;
-  AppStatus *mAppStatus;
 
 };
 

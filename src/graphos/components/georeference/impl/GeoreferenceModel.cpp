@@ -298,7 +298,7 @@ void GeoreferenceModelImp::loadGroundControlPoints()
       standardItem.append(new QStandardItem(image));
       standardItem.append(new QStandardItem(x));
       standardItem.append(new QStandardItem(y));
-      standardItem[1]->setData(image_id);
+      standardItem[1]->setData(static_cast<qulonglong>(image_id));
       mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
                                        standardItem);
     }

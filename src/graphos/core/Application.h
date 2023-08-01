@@ -121,7 +121,7 @@ class Application
 public:
 
   static Application &instance();
-  Application(int argc, char **argv);
+  Application(int &argc, char **argv);
   ~Application();
 
   Application(const Application &) = delete;
@@ -133,8 +133,8 @@ public:
   AppStatus *status();
   tl::MessageManager *messageManager();
 
-  Project *const project();
-  const Project *const project() const;
+  Project *project();
+  const Project *project() const;
   void setProject(Project *project);
 
   Settings *settings();

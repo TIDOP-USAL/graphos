@@ -929,12 +929,15 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
       mOutputPath.createDirectories();
 
       bool clear_points = false;
+      
+      std::string input_path = temp_path.toString();
+      std::string reconstruction_path = mOutputPath.toString();
 
       colmap::OptionManager options;
       options.AddDatabaseOptions();
       options.AddImageOptions();
-      options.AddRequiredOption("input_path", &temp_path.toString());
-      options.AddRequiredOption("reconstruction_path", &mOutputPath.toString());
+      options.AddRequiredOption("input_path", &input_path);
+      options.AddRequiredOption("reconstruction_path", &reconstruction_path);
       options.AddDefaultOption("clear_points", &clear_points, "Whether to clear all existing points and observations");
       options.AddMapperOptions();
 

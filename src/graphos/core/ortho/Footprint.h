@@ -39,31 +39,31 @@ namespace graphos
  * \brief Footprint
  */
 class Footprint
-	: public tl::TaskBase
+  : public tl::TaskBase
 {
 
 public:
 
-	Footprint(const std::vector<Image> &images,
-						const std::map<int, Camera> &cameras,
-		        const tl::Path &dtm,
-		        const tl::geospatial::Crs &crs,
-		        const tl::Path &footprint);
-	~Footprint();
+  Footprint(const std::vector<Image> &images,
+            const std::map<int, Camera> &cameras,
+            const tl::Path &dtm,
+            const tl::geospatial::Crs &crs,
+            const tl::Path &footprint);
+  ~Footprint();
 	
 // Heredado vía TaskBase
 
 private:
 
-	void execute(tl::Progress *progressBar = nullptr) override;
+  void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
-	std::vector<Image> mImages;
-	std::map<int, Camera> mCameras;
-	tl::Path mDtm;
-	tl::geospatial::Crs mCrs;
-	std::unique_ptr<tl::VectorWriter> mFootprintWriter;
+  std::vector<Image> mImages;
+  std::map<int, Camera> mCameras;
+  tl::Path mDtm;
+  tl::geospatial::Crs mCrs;
+  std::unique_ptr<tl::VectorWriter> mFootprintWriter;
 };
 
 

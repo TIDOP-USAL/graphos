@@ -43,7 +43,7 @@ std::unique_ptr<Application> Application::sApplication;
 std::mutex Application::sMutex;
 std::once_flag Application::sInitFlag;
 
-Application::Application(int argc, char **argv)
+Application::Application(int &argc, char **argv)
   : QApplication(argc, argv),
     mAppStatus(new AppStatus()),
     mProject(nullptr),
@@ -93,12 +93,12 @@ tl::MessageManager *Application::messageManager()
   return &tl::MessageManager::instance();
 }
 
-Project *const Application::project()
+Project *Application::project()
 {
   return mProject;
 }
 
-const Project *const Application::project() const
+const Project *Application::project() const
 {
   return mProject;
 }

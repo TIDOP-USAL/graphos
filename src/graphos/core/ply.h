@@ -92,12 +92,12 @@ public:
                                              Type type);
   template<typename T>
   static std::shared_ptr<PlyProperty> create(const std::string &name,
-                                             T value)
-  {
-    auto ply_property = std::make_shared<PlyPropertyImp<T>>(name, PlyTraits<T>::property_type);
-    ply_property->setValue(value);
-    return ply_property;
-  }
+                                             T value);
+  // {
+  //   auto ply_property = std::make_shared<PlyPropertyImp<T>>(name, PlyTraits<T>::property_type);
+  //   ply_property->setValue(value);
+  //   return ply_property;
+  // }
 
 private:
 
@@ -323,6 +323,25 @@ private:
 ALLOW_BITWISE_FLAG_OPERATIONS(Ply::OpenMode)
 
 
+
+
+
+
+template<typename T>
+std::shared_ptr<PlyProperty> PlyProperty::create(const std::string &name,
+                                                 T value)
+{
+  //auto ply_property = std::make_shared<PlyPropertyImp<T>>(name, PlyTraits<T>::property_type);
+  //ply_property->setValue(value);
+  //return ply_property;
+  return nullptr;
+}
+
+
+
+
+
+
 template<typename T>
 inline tl::Point3<T> Ply::point(size_t index) const
 { 
@@ -369,7 +388,7 @@ T Ply::property(size_t index, const std::string &propertyName) const
   auto type = property(index, propertyName)->type();
 
   if (PlyTraits<T>::property_type < type) {
-    msgWarning("Conversión de %s a %s. Posible perdida de datos", 
+    msgWarning("Conversiï¿½n de %s a %s. Posible perdida de datos", 
                findStringType(PlyTraits<T>::property_type).c_str(), 
                findStringType(type).c_str());
   }

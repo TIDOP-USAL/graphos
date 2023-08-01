@@ -131,7 +131,7 @@ ThumbnailsWidget::~ThumbnailsWidget()
 {
   if (mThumbLoad) {
 
-    // Para evitar una excepción al cerrar la aplicación si se esta ejecutando
+    // Para evitar una excepciï¿½n al cerrar la aplicaciï¿½n si se esta ejecutando
     while (!mThumbLoad->empty());
 
     delete mThumbLoad;
@@ -191,7 +191,7 @@ void ThumbnailsWidget::addThumbnail(const Image &image, const QSize &imageSize)
     QIcon icon(pixmap);
     QListWidgetItem *item = new QListWidgetItem(icon, image.name());
     item->setToolTip(image.path());
-    item->setData(Qt::UserRole, image.id());
+    item->setData(Qt::UserRole, static_cast<qulonglong>(image.id()));
     mListWidget->addItem(item);
 
     if (mLoadImages)

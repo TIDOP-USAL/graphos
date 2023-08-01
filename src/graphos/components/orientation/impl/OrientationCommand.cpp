@@ -118,11 +118,13 @@ void ImportPoses::run()
 
   bool clear_points = false;
 
+  std::string input_path = temp_path.toString();
+  std::string recon_path = reconstruction_path.toString();
   colmap::OptionManager options;
   options.AddDatabaseOptions();
   options.AddImageOptions();
-  options.AddRequiredOption("input_path", &temp_path.toString());
-  options.AddRequiredOption("reconstruction_path", &reconstruction_path.toString());
+  options.AddRequiredOption("input_path", &input_path);
+  options.AddRequiredOption("reconstruction_path", &recon_path);
   options.AddDefaultOption(
     "clear_points", &clear_points,
     "Whether to clear all existing points and observations");

@@ -484,11 +484,11 @@ void CCViewer3D::activatePicker(PickingMode pickerMode)
   mRect2DLabel->setSelected(true);
   this->redraw();
 
-#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 12 || CLOUDCOMPARE_VERSION_MAJOR > 2
+// #if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 12 || CLOUDCOMPARE_VERSION_MAJOR > 2
   this->setInteractionMode(ccGLWindow::MODE_TRANSFORM_CAMERA);
-#else
-  this->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA());
-#endif
+// #else
+//   this->setInteractionMode(ccGLWindow::TRANSFORM_CAMERA());
+// #endif
 
   this->redraw(true);
 
@@ -871,11 +871,11 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
       return;
     }
     P = cloud->toGlobal3d(*cloud->getPoint(pointIndex));
-#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
+//#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
     mLabel->addPickedPoint(cloud, pointIndex);
-#else
-    mLabel->addPoint(cloud, pointIndex);
-#endif
+// #else
+//     mLabel->addPoint(cloud, pointIndex);
+// #endif
   } else if (entity->isKindOf(CC_TYPES::MESH)) {
 
     mLabel->addPickedPoint(static_cast<ccGenericMesh*>(entity), pointIndex, CCVector2d(uvw.x, uvw.y));

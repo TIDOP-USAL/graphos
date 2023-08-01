@@ -109,7 +109,7 @@ std::unique_ptr<tl::Task> ImageLoaderPresenterImp::createProcess()
 {
   std::unique_ptr<tl::Task> image_loader_process;
 
-  if (mImageFiles.empty()) return false;
+  if (mImageFiles.empty()) return image_loader_process;
 
   mImages.clear();
   for (auto &image : mImageFiles) {

@@ -65,8 +65,7 @@ void AboutComponent::createView()
 void AboutComponent::createPresenter()
 {
   setPresenter(new AboutPresenterImp(dynamic_cast<AboutView *>(view()), 
-                                     dynamic_cast<AboutModel *>(model()), 
-                                     app()->status()));
+                                     dynamic_cast<AboutModel *>(model())));
 }
 
 void AboutComponent::createCommand()

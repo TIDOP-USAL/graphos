@@ -23,8 +23,6 @@
 
 #include "graphos/core/camera/Undistort.h"
 
-#include "graphos/core/image.h"
-
 #include <tidop/core/concurrency.h>
 #include <tidop/core/progress.h>
 #include <tidop/core/chrono.h>
@@ -263,7 +261,7 @@ void Undistort::initUndistortCamera()
   double fy = static_cast<double>(mOptimalNewCameraMatrix.at<float>(1, 1));
   double focal = (fx + fy) / 2.;
   mUndistortCamera.setFocal(focal);
-  /// TODO: ¿cámara pinhole?
+  /// TODO: ï¿½cï¿½mara pinhole?
   std::shared_ptr<Calibration> undistort_calibration = CalibrationFactory::create(mCamera.calibration()->cameraModel());
   undistort_calibration->setParameter(Calibration::Parameters::focal, focal);
   undistort_calibration->setParameter(Calibration::Parameters::focalx, mOptimalNewCameraMatrix.at<float>(0, 0));
@@ -418,7 +416,7 @@ private:
       auto undistort = mUndistort.find(camera_id);
       if (undistort == mUndistort.end()) {
 
-        auto &camera = mCameras->find(camera_id);
+        const auto &camera = mCameras->find(camera_id);
         if (camera != mCameras->end()) {
           mUndistort[camera->first] = std::make_shared<Undistort>(camera->second);
         } else {

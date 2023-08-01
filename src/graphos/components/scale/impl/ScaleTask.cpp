@@ -31,7 +31,6 @@
 #include <ccGenericMesh.h>
 #include <ccHObjectCaster.h>
 
-
 namespace graphos
 {
 
@@ -61,6 +60,7 @@ tl::math::Matrix<double, 4, 4> ScaleTask::transform() const
 
 void ScaleTask::execute(tl::Progress *progressBar)
 {
+  tl::unusedParameter(progressBar);
 
   try {
     

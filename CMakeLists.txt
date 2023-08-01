@@ -72,7 +72,8 @@ set(CMAKE_AUTORCC ON)
 if(MSVC)
     add_compile_options("/W3" "/EHsc" "-D_SCL_SECURE_NO_WARNINGS" "-D_CRT_SECURE_NO_DEPRECATE")
 else()
-    add_compile_options("-Wall" "-Wextra" "-Werror")
+    #add_compile_options("-Wall" "-Wextra" "-Werror")
+    add_compile_options("-Wall" "-Wextra")
 endif()
 
 
@@ -326,6 +327,8 @@ if(MSVC)
   add_definitions("-DGL_GLEXT_PROTOTYPES")
 endif()
 
+
+find_package(GLEW REQUIRED)
 
 
 #  QT 

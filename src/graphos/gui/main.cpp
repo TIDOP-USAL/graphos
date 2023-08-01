@@ -131,13 +131,13 @@ using namespace graphos;
 int main(int argc, char *argv[])
 {
 
-  ProjectImp project;
-
   Application app(argc, argv);
   app.setApplicationName("GRAPHOS");
   app.setApplicationDisplayName("GRAPHOS");
   app.setApplicationVersion(GRAPHOS_VERSION);
-  app.setOrganizationName("TIDOP");
+  app.setOrganizationName("TIDOP");  
+  
+  ProjectImp project;
   app.setProject(&project);
 
   QIcon::setThemeName("Material");
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 
     }
   } else {
-    //    TL_TODO("Añadir como opción")
+    //    TL_TODO("AÃ±adir como opciÃ³n")
 #if defined WIN32
     HWND hwnd = GetConsoleWindow();
     ShowWindow(hwnd, 0);
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
 
     app.freeMemory();
 
-    ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicialización
+    ComponentsManager componentsManager; /// Sacar project de ComponentsManager para retrasar su inicializaciï¿½n
 
     app.setMainWindow(componentsManager.mainWindowView());
 
@@ -506,9 +506,10 @@ int main(int argc, char *argv[])
                      componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
 #endif // GRAPHOS_HAVE_GEOREFERENCE
 
+#ifdef GRAPHOS_HAVE_MATCH_VIEWER
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                      &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
-
+#endif // GRAPHOS_HAVE_MATCH_VIEWER
 
     QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_image,
                      &properties_component, &PropertiesComponent::selectImage);
@@ -518,7 +519,7 @@ int main(int argc, char *argv[])
                      settings_component.action(), &QAction::trigger);
 #endif // GRAPHOS_HAVE_SETTINGS
 
-    componentsManager.loadPlugins();
+    //componentsManager.loadPlugins();
 
     app.status()->activeFlag(AppStatus::Flag::none, true);
 

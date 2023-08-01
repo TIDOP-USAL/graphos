@@ -71,7 +71,9 @@ public:
   /*!
    * \brief Destructora
    */
-  ~PdfStyle();
+  ~PdfStyle() = default;
+
+  PdfStyle &operator = (const PdfStyle &pdfStyle) = default;
 
   const QBrush brush() const;
   const QFont font() const;
@@ -162,7 +164,13 @@ class TablePdf
   public:
 
     //TODO: incluir un espaciado del texto al borde
+  private:
 
+    /*!
+     * \brief Puntero a la tabla a la que pertenece
+     */
+    TablePdf *mParent;
+    
   protected:
 
     /*!
@@ -200,12 +208,6 @@ class TablePdf
      */
     std::map<Border, int> mSpacing;
 
-  private:
-
-    /*!
-     * \brief Puntero a la tabla a la que pertenece
-     */
-    TablePdf *mParent;
 
   };
 
@@ -695,7 +697,7 @@ public:
   //void drawNumberedList(const char *text);
   QRect drawTable(const TablePdf &table,
                   const QString &caption = "");
-  void drawLine(const QPoint &pt1, const QPoint &pt2, PdfStyle &style = PdfStyle());
+  void drawLine(const QPoint &pt1, const QPoint &pt2, const PdfStyle &style);
 
   void endDraw();
   void initDraw();

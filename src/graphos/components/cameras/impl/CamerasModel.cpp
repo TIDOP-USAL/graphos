@@ -175,7 +175,7 @@ void CamerasModelImp::updateCurrentCameraType(const QString &type)
              param++) {
 
           Calibration::Parameters param_name = param->first;
-          double param_value = param->second;
+          //double param_value = param->second;
 
           if (param_name == Calibration::Parameters::focal && !calibration_old->existParameter(param_name)) {
             double focal = calibration_old->parameter(Calibration::Parameters::focalx) + calibration_old->parameter(Calibration::Parameters::focaly) / 2.;
@@ -280,8 +280,8 @@ void CamerasModelImp::calibrationImport(const QString &file,
         std::string line;
         while (std::getline(ifs, line)) {
         
-          /// Hay que ver como es el formato si no se conoce la cámara
-          /// ¿en lugar de mm se pone px?
+          /// Hay que ver como es el formato si no se conoce la cï¿½mara
+          /// ï¿½en lugar de mm se pone px?
         }
 
         ifs.close();
@@ -309,7 +309,7 @@ void CamerasModelImp::calibrationImport(const QString &file,
 
               if (stream.name() == "projection") {
                 stream.readElementText();
-                TL_TODO("Comprobar tipo de cámara")
+                TL_TODO("Comprobar tipo de cï¿½mara")
               } else if (stream.name() == "width") {
                 mCameraCache[mActiveCameraId].setWidth(stream.readElementText().toInt());
               } else if (stream.name() == "height") {
@@ -445,7 +445,7 @@ void CamerasModelImp::calibrationImport(const QString &file,
 void CamerasModelImp::calibrationExport(const QString &file,
                                         const QString &format)
 {
-  TL_TODO("Extraer a clases para la importación exportación")
+  TL_TODO("Extraer a clases para la importaciï¿½n exportaciï¿½n")
 
   QFileInfo file_info(file);
   QDir parent_path(file_info.absolutePath());
@@ -480,7 +480,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
         std::shared_ptr<Calibration> calibration = camera.calibration();
         double focal = calibration->parameter(Calibration::Parameters::focal) * scale;
 
-        ///TODO: ¿El 0 se refiere a un identificador de cámara??
+        ///TODO: ï¿½El 0 se refiere a un identificador de cï¿½mara??
         stream << "Pix4D camera calibration file 0\n";
         stream << "#Focal Length mm assuming a sensor width of " << w << "x" << h << "mm\n";
         stream << "F " << focal << "\n";
@@ -495,7 +495,7 @@ void CamerasModelImp::calibrationExport(const QString &file,
         stream << "T1 " << (calibration->existParameter(Calibration::Parameters::p1) ? calibration->parameter(Calibration::Parameters::p1) : 0.0) << "\n";
         stream << "T2 " << (calibration->existParameter(Calibration::Parameters::p2) ? calibration->parameter(Calibration::Parameters::p2) : 0.0) << "\n" << std::endl;
       } else {
-        ///TODO: Cámara no soportada. ¿devolver error, escribir mensaje de error, ...?
+        ///TODO: Cï¿½mara no soportada. ï¿½devolver error, escribir mensaje de error, ...?
       }
 
     } else if (format.compare("Agisoft") == 0) {

@@ -54,7 +54,7 @@ namespace graphos
 
 namespace internal
 {
-std::atomic<bool> featextract_opencv_read = true;
+std::atomic<bool> featextract_opencv_read(true);
 std::mutex featextract_mutex;
 std::atomic<bool> featextract_done(false);
 
@@ -406,7 +406,7 @@ private:
       //double time = chrono.stop();
       //msgInfo("%i features extracted [Time: %f seconds]", featureKeypoints.size(), time);
 
-      // añade features al proyecto
+      // aï¿½ade features al proyecto
       QString image_name = mImages->at(data.image_id).name();
       mFeatureExtractorTask->features_extracted(data.image_id, image_name + "@" + mDatabaseFile.c_str());
       if (mProgressBar) (*mProgressBar)();
@@ -454,7 +454,7 @@ private:
                                                     keyPoints[i].size,
                                                     keyPoints[i].angle);
 
-      for (size_t j = 0; j < descriptors.cols; j++) {
+      for (size_t j = 0; j < static_cast<size_t>(descriptors.cols); j++) {
         descriptors_float(i, j) = descriptors.at<float>(static_cast<int>(i), static_cast<int>(j));
       }
 

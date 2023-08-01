@@ -34,6 +34,7 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Calibration.h"
+#include "graphos/core/image.h"
 
 namespace tl
 {
@@ -43,7 +44,6 @@ class Progress;
 namespace graphos
 {
 
-class Image;
 
 TL_DEPRECATED("Undistort", "2.0")
 cv::Mat openCVCameraMatrix(const Calibration &calibration);
