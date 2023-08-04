@@ -26,44 +26,44 @@
 namespace graphos
 {
 
-Track::Track(){}
+Track::Track() {}
 
-Track::~Track(){}
+Track::~Track() {}
 
 size_t Track::size() const
 {
-  return mPairs.size();
+    return mPairs.size();
 }
 
 size_t Track::pointId(size_t idx)
 {
-  return mPairs.at(idx);
+    return mPairs.at(idx);
 }
 
 const std::unordered_map<size_t, size_t> &Track::pairs() const
 {
-  return mPairs;
+    return mPairs;
 }
 
 void Track::addPair(size_t imageId, size_t pointId)
 {
-  mPairs[imageId] = pointId;
+    mPairs[imageId] = pointId;
 }
 
 bool Track::existPair(size_t imageId) const
 {
-  auto point_id = mPairs.find(imageId);
-  return (point_id != mPairs.end());
+    auto point_id = mPairs.find(imageId);
+    return (point_id != mPairs.end());
 }
 
 void Track::removePair(size_t imageId)
 {
-  auto pair = mPairs.find(imageId);
-  if (pair != mPairs.end()) {
-    mPairs.erase(pair);
-  }
+    auto pair = mPairs.find(imageId);
+    if (pair != mPairs.end()) {
+        mPairs.erase(pair);
+    }
 }
-  
+
 
 
 
@@ -77,36 +77,36 @@ GCPTrack::~GCPTrack()
 
 size_t GCPTrack::size() const
 {
-  return mImageIdPoint.size();
+    return mImageIdPoint.size();
 }
 
 tl::Point<double> GCPTrack::point(size_t idx) const
 {
-  return mImageIdPoint.at(idx);
+    return mImageIdPoint.at(idx);
 }
 
 const std::unordered_map<size_t, tl::Point<double>> &GCPTrack::points() const
 {
-  return mImageIdPoint;
+    return mImageIdPoint;
 }
 
 void GCPTrack::addPoint(size_t imageId, const tl::Point<double> &point)
 {
-  mImageIdPoint[imageId] = point;
+    mImageIdPoint[imageId] = point;
 }
 
 bool GCPTrack::existPoint(size_t imageId) const
-{ 
-  auto point = mImageIdPoint.find(imageId);
-  return (point != mImageIdPoint.end());
+{
+    auto point = mImageIdPoint.find(imageId);
+    return (point != mImageIdPoint.end());
 }
 
 void GCPTrack::removePoint(size_t imageId)
 {
-  auto point = mImageIdPoint.find(imageId);
-  if(point != mImageIdPoint.end()) {
-    mImageIdPoint.erase(point);
-  }
+    auto point = mImageIdPoint.find(imageId);
+    if (point != mImageIdPoint.end()) {
+        mImageIdPoint.erase(point);
+    }
 }
 
 

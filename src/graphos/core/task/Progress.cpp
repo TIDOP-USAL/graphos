@@ -32,8 +32,8 @@ ProgressHandler::ProgressHandler(QObject *parent)
 {
 }
 
-ProgressHandler::ProgressHandler(size_t min, 
-                                 size_t max, 
+ProgressHandler::ProgressHandler(size_t min,
+                                 size_t max,
                                  QObject *parent)
   : QObject(parent),
     tl::ProgressBase(min, max)
@@ -47,53 +47,53 @@ ProgressHandler::~ProgressHandler()
 
 void ProgressHandler::init()
 {
-  emit valueChange(0);
-  emit initialized();
+    emit valueChange(0);
+    emit initialized();
 }
 
 void ProgressHandler::finish()
 {
-  emit finished();
+    emit finished();
 }
 
 void ProgressHandler::setTitle(const QString &title)
 {
-  emit titleChange(title);
+    emit titleChange(title);
 }
 
 void ProgressHandler::setDescription(const QString &description)
 {
-  emit descriptionChange(description);
+    emit descriptionChange(description);
 }
 
 void ProgressHandler::setCloseAuto(bool active)
 {
-  emit closeAuto(active);
+    emit closeAuto(active);
 }
 
 void ProgressHandler::setRange(size_t min, size_t max)
 {
-  ProgressBase::setRange(min, max);
-  emit valueChange(0);
-  if (min == 0 && max == 1)
-    emit rangeChange(0, 0);
-  else 
-    emit rangeChange(0, 100);
-  //emit initialized();
+    ProgressBase::setRange(min, max);
+    emit valueChange(0);
+    if (min == 0 && max == 1)
+        emit rangeChange(0, 0);
+    else
+        emit rangeChange(0, 100);
+    //emit initialized();
 }
 
 void ProgressHandler::updateProgress()
 {
-  emit valueChange(percent());
+    emit valueChange(percent());
 }
 
 void ProgressHandler::terminate()
 {
-  if(minimum() == 0 && maximum() == 1) {
-    emit rangeChange(0, 100);
-    emit valueChange(100);
-  }
-  emit finished();
+    if (minimum() == 0 && maximum() == 1) {
+        emit rangeChange(0, 100);
+        emit valueChange(100);
+    }
+    emit finished();
 }
 
 } // namespace graphos

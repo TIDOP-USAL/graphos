@@ -52,25 +52,25 @@ class Orthoimage
 public:
 
 	Orthoimage(const tl::Path &image,
-						 Orthorectification *orthorectification,
-		         const tl::geospatial::Crs &crs,
-		         const tl::Rect<int> &rectOrtho,
-		         const tl::Affine<tl::PointD> &georeference,
-						 bool cuda = false);
+			   Orthorectification *orthorectification,
+			   const tl::Crs &crs,
+			   const tl::Rect<int> &rectOrtho,
+			   const tl::Affine<tl::Point<double>> &georeference,
+			   bool cuda = false);
 	~Orthoimage();
 
-	void run(const tl::Path &ortho, 
-					 const cv::Mat &visibilityMap = cv::Mat());
+	void run(const tl::Path &ortho,
+			 const cv::Mat &visibilityMap = cv::Mat());
 
 private:
 
 	std::unique_ptr<tl::ImageReader> mImageReader;
 	Orthorectification *mOrthorectification;
-	tl::geospatial::Crs mCrs;
+	tl::Crs mCrs;
 	tl::Rect<int> mRectOrtho;
-	tl::Affine<tl::PointD> mGeoreference;
+	tl::Affine<tl::Point<double>> mGeoreference;
 	std::unique_ptr<tl::ImageWriter> mOrthophotoWriter;
-	tl::Window<tl::PointD> mWindowOrthoTerrain;
+	tl::Window<tl::Point<double>> mWindowOrthoTerrain;
 	bool bCuda;
 };
 
@@ -86,24 +86,24 @@ class OrthoimageProcess
 public:
 
 	/*!
-	 * \brief  
+	 * \brief
 	 */
 	OrthoimageProcess(const std::vector<Image> &images,
-										const std::map<int, Camera> &cameras,
-		                const tl::Path &dtm,
-		                const tl::Path &orthoPath,
-		                const tl::Path &graphOrthos,
-		                const tl::geospatial::Crs &crs,
-		                const tl::Path &footprint = tl::Path(),
-	                 	double scale = -1,
-		                double crop = 1,
-										bool bCuda = false);
+					  const std::map<int, Camera> &cameras,
+					  const tl::Path &dtm,
+					  const tl::Path &orthoPath,
+					  const tl::Path &graphOrthos,
+					  const tl::Crs &crs,
+					  const tl::Path &footprint = tl::Path(),
+					  double scale = -1,
+					  double crop = 1,
+					  bool bCuda = false);
 	~OrthoimageProcess();
 
 private:
 
 	cv::Mat visibilityMap(const Orthorectification &orthorectification,
-		                    const ZBuffer &zBuffer) const;
+						  const ZBuffer &zBuffer) const;
 
 // Heredado vía TaskBase
 
@@ -117,10 +117,10 @@ private:
 	std::map<int, Camera> mCameras;
 	tl::Path mDtm;
 	tl::Path mOrthoPath;
-	tl::geospatial::Crs mCrs;
+	tl::Crs mCrs;
 	std::unique_ptr<tl::VectorWriter> mFootprintWriter;
 	std::unique_ptr<tl::VectorWriter> mGraphOrthosWriter;
-	double mScale; 
+	double mScale;
 	double mCrop;
 	bool bCuda;
 };

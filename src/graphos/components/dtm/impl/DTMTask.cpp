@@ -144,7 +144,7 @@ void DtmProcess::execute(tl::Progress *progressBar)
 
         image_writer_mds_ground->open();
         if (image_writer_mds_ground->isOpen()) {
-          tl::Affine<tl::PointD> georeference = image_reader_mds_ground->georeference();
+          tl::Affine<tl::Point<double>> georeference = image_reader_mds_ground->georeference();
           image_writer_mds_ground->create(image_reader_mds_ground->rows(), 
                                           image_reader_mds_ground->cols(), 
                                           image_reader_mds_ground->channels(), 

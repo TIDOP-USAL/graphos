@@ -176,7 +176,7 @@ endif()
     add_compile_definitions(CC_USE_AS_DLL)
     add_compile_definitions(QCC_DB_USE_AS_DLL)
     add_compile_definitions(QCC_IO_USE_AS_DLL)
-	  add_compile_definitions(CC_CORE_LIB_USES_FLOAT)
+    add_compile_definitions(CC_CORE_LIB_USES_FLOAT)
 	
 else()
     if(CLOUDCOMPARE_FIND_REQUIRED)

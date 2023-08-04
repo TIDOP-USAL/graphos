@@ -49,68 +49,68 @@ class Orthorectification
 
 public:
 
-	Orthorectification(const tl::Path &dtm,
-										 const Camera &camera,
-										 const CameraPose &cameraPose);
-	
-	~Orthorectification()
-	{
+    Orthorectification(const tl::Path &dtm,
+                       const Camera &camera,
+                       const CameraPose &cameraPose);
 
-	}
+    ~Orthorectification()
+    {
 
-	tl::PointI terrainToImage(const tl::Point3D &terrainPoint) const;
-	tl::PointI terrainToPhotocoordinates(const tl::Point3D &terrainPoint) const;
-	tl::Point3D imageToTerrain(const tl::PointI &imagePoint) const;
-	tl::Point3D photocoordinatesToTerrain(const tl::PointI &photocoordinates) const;
-	tl::PointI imageToPhotocoordinates(const tl::PointI &imagePoint) const;
-	tl::PointI photocoordinatesToImage(const tl::PointI &photocoordinates) const;
-	tl::Point3D dtmToTerrain(const tl::PointI &imagePoint) const;
-	tl::PointI terrainToDTM(const tl::Point3D &terrainPoint) const;
-	double z(const tl::PointD &terrainPoint) const;
+    }
 
-	tl::Rect<int> rectImage() const;
-	tl::Rect<int> rectDtm() const;
-	tl::graph::GPolygon footprint() const;
+    tl::Point<int> terrainToImage(const tl::Point3<double> &terrainPoint) const;
+    tl::Point<int> terrainToPhotocoordinates(const tl::Point3<double> &terrainPoint) const;
+    tl::Point3<double> imageToTerrain(const tl::Point<int> &imagePoint) const;
+    tl::Point3<double> photocoordinatesToTerrain(const tl::Point<int> &photocoordinates) const;
+    tl::Point<int> imageToPhotocoordinates(const tl::Point<int> &imagePoint) const;
+    tl::Point<int> photocoordinatesToImage(const tl::Point<int> &photocoordinates) const;
+    tl::Point3<double> dtmToTerrain(const tl::Point<int> &imagePoint) const;
+    tl::Point<int> terrainToDTM(const tl::Point3<double> &terrainPoint) const;
+    double z(const tl::Point<double> &terrainPoint) const;
 
-	CameraPose orientation() const;
-	Camera camera() const;
-	Camera undistortCamera() const;
+    tl::Rect<int> rectImage() const;
+    tl::Rect<int> rectDtm() const;
+    tl::GPolygon footprint() const;
 
-	bool hasNodataValue() const;
-	double nodataValue() const;
+    CameraPose orientation() const;
+    Camera camera() const;
+    Camera undistortCamera() const;
 
-	cv::Mat undistort(const cv::Mat &image);
+    bool hasNodataValue() const;
+    double nodataValue() const;
 
-	bool isValid() const;
+    cv::Mat undistort(const cv::Mat &image);
 
-	void setCuda(bool active);
+    bool isValid() const;
 
-private:
-
-	void init();
-	void initUndistortCamera();
-
-	float focal() const;
-	tl::PointF principalPoint() const;
-	cv::Mat distCoeffs() const;
+    void setCuda(bool active);
 
 private:
 
-	Camera mCamera;
-	Camera mUndistortCamera;
-	CameraPose mCameraPose;
-	std::unique_ptr<tl::ImageReader> mDtmReader;
-	cv::Mat mDtm;
-	tl::Window<tl::PointD> mWindowDtmTerrainExtension;
-	tl::Affine<tl::PointI> mAffineImageToPhotocoordinates;
-	tl::Affine<tl::PointD> mAffineDtmImageToTerrain;
-	std::unique_ptr<tl::geospatial::DifferentialRectification> mDifferentialRectification;
-	double mIniZ;
-	tl::Rect<int> mRectImage;
-	tl::Rect<int> mRectDtm;
-	tl::graph::GPolygon mFootprint;
-	double mNoDataValue;
-	bool bCuda;
+    void init();
+    void initUndistortCamera();
+
+    float focal() const;
+    tl::Point<float> principalPoint() const;
+    cv::Mat distCoeffs() const;
+
+private:
+
+    Camera mCamera;
+    Camera mUndistortCamera;
+    CameraPose mCameraPose;
+    std::unique_ptr<tl::ImageReader> mDtmReader;
+    cv::Mat mDtm;
+    tl::Window<tl::Point<double>> mWindowDtmTerrainExtension;
+    tl::Affine<tl::Point<int>> mAffineImageToPhotocoordinates;
+    tl::Affine<tl::Point<double>> mAffineDtmImageToTerrain;
+    std::unique_ptr<tl::DifferentialRectification> mDifferentialRectification;
+    double mIniZ;
+    tl::Rect<int> mRectImage;
+    tl::Rect<int> mRectDtm;
+    tl::GPolygon mFootprint;
+    double mNoDataValue;
+    bool bCuda;
 };
 
 

@@ -27,7 +27,7 @@
 #include <tidop/core/exception.h>
 #include <tidop/core/chrono.h>
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <colmap/util/option_manager.h>
 #include <colmap/util/misc.h>
 #include <colmap/feature/sift.h>
@@ -60,52 +60,52 @@ FeatureMatchingProperties::FeatureMatchingProperties(const FeatureMatchingProper
 
 bool FeatureMatchingProperties::crossCheck() const
 {
-  return mCrossCheck;
+    return mCrossCheck;
 }
 
 void FeatureMatchingProperties::enableCrossCheck(bool enable)
 {
-  mCrossCheck = enable;
+    mCrossCheck = enable;
 }
 
 double FeatureMatchingProperties::ratio() const
 {
-  return mRatio;
+    return mRatio;
 }
 
 void FeatureMatchingProperties::setRatio(double ratio)
 {
-  mRatio = ratio;
+    mRatio = ratio;
 }
 
 double FeatureMatchingProperties::distance() const
 {
-  return mDistance;
+    return mDistance;
 }
 
 void FeatureMatchingProperties::setDistance(double distance)
 {
-  mDistance = distance;
+    mDistance = distance;
 }
 
 double FeatureMatchingProperties::maxError() const
 {
-  return mMaxError;
+    return mMaxError;
 }
 
 void FeatureMatchingProperties::setMaxError(double error)
 {
-  mMaxError = error;
+    mMaxError = error;
 }
 
 double FeatureMatchingProperties::confidence() const
 {
-  return mConfidence;
+    return mConfidence;
 }
 
 void FeatureMatchingProperties::setConfidence(double error)
 {
-  mConfidence = error;
+    mConfidence = error;
 }
 
 
@@ -126,102 +126,102 @@ FeatureMatchingTask::FeatureMatchingTask(const tl::Path &database,
 
 FeatureMatchingTask::~FeatureMatchingTask()
 {
-  if (mFeatureMatcher) {
-    delete mFeatureMatcher;
-    mFeatureMatcher = nullptr;
-  }
+    if (mFeatureMatcher) {
+        delete mFeatureMatcher;
+        mFeatureMatcher = nullptr;
+    }
 }
 
 void FeatureMatchingTask::execute(tl::Progress *progressBar)
 {
-  try {
+    try {
 
-    tl::Chrono chrono("Feature Matching finished");
-    chrono.run();
+        tl::Chrono chrono("Feature Matching finished");
+        chrono.run();
 
-    colmap::SiftMatchingOptions siftMatchingOptions;
-    siftMatchingOptions.max_error = mFeatureMatching->maxError();
-    siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
-    siftMatchingOptions.max_ratio = mFeatureMatching->ratio();
-    siftMatchingOptions.max_distance = mFeatureMatching->distance();
-    siftMatchingOptions.confidence = mFeatureMatching->confidence();
-    siftMatchingOptions.use_gpu = bUseCuda;
-    siftMatchingOptions.min_num_inliers = 15;// 100;
+        colmap::SiftMatchingOptions siftMatchingOptions;
+        siftMatchingOptions.max_error = mFeatureMatching->maxError();
+        siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
+        siftMatchingOptions.max_ratio = mFeatureMatching->ratio();
+        siftMatchingOptions.max_distance = mFeatureMatching->distance();
+        siftMatchingOptions.confidence = mFeatureMatching->confidence();
+        siftMatchingOptions.use_gpu = bUseCuda;
+        siftMatchingOptions.min_num_inliers = 15;// 100;
 
-    colmap::Database database(mDatabase.toString());
-    TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
+        colmap::Database database(mDatabase.toString());
+        TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
 
-    colmap::ExhaustiveMatchingOptions exhaustiveMatchingOptions;
-    mFeatureMatcher = new colmap::ExhaustiveFeatureMatcher(exhaustiveMatchingOptions,
-                                                             siftMatchingOptions,
-                                                             mDatabase.toString());
+        colmap::ExhaustiveMatchingOptions exhaustiveMatchingOptions;
+        mFeatureMatcher = new colmap::ExhaustiveFeatureMatcher(exhaustiveMatchingOptions,
+                                                               siftMatchingOptions,
+                                                               mDatabase.toString());
 
-    mFeatureMatcher->Start();
-    mFeatureMatcher->Wait();
+        mFeatureMatcher->Start();
+        mFeatureMatcher->Wait();
 
-    size_t num_matches = database.NumMatches();
-    database.Close();
+        size_t num_matches = database.NumMatches();
+        database.Close();
 
-    if (status() == tl::Task::Status::stopping) {
-      chrono.reset();
-    } else {
-      TL_ASSERT(num_matches > 0, "Matching points not detected");
-      chrono.stop();
+        if (status() == tl::Task::Status::stopping) {
+            chrono.reset();
+        } else {
+            TL_ASSERT(num_matches > 0, "Matching points not detected");
+            chrono.stop();
+        }
+
+        if (progressBar) (*progressBar)();
+
+        /// Se destruye para desbloquear la base de datos
+        if (mFeatureMatcher) {
+            delete mFeatureMatcher;
+            mFeatureMatcher = nullptr;
+        }
+
+    } catch (...) {
+
+        if (mFeatureMatcher) {
+            delete mFeatureMatcher;
+            mFeatureMatcher = nullptr;
+        }
+
+        TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
     }
-
-    if (progressBar) (*progressBar)();
-
-    /// Se destruye para desbloquear la base de datos
-    if (mFeatureMatcher) {
-      delete mFeatureMatcher;
-      mFeatureMatcher = nullptr;
-    }
-
-  } catch (...) {
-
-    if (mFeatureMatcher) {
-      delete mFeatureMatcher;
-      mFeatureMatcher = nullptr;
-    }
-
-    TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
-  }
 }
 
 void FeatureMatchingTask::stop()
 {
-  TaskBase::stop();
-  mFeatureMatcher->Stop();
+    TaskBase::stop();
+    mFeatureMatcher->Stop();
 }
 
 tl::Path FeatureMatchingTask::database() const
 {
-  return mDatabase;
+    return mDatabase;
 }
 
 void FeatureMatchingTask::setDatabase(const tl::Path &database)
 {
-  mDatabase = database;
+    mDatabase = database;
 }
 
 bool FeatureMatchingTask::useGPU() const
 {
-  return bUseCuda;
+    return bUseCuda;
 }
 
 void FeatureMatchingTask::setUseGPU(bool useGPU)
 {
-  bUseCuda = useGPU;
+    bUseCuda = useGPU;
 }
 
 std::shared_ptr<FeatureMatching> FeatureMatchingTask::featureMatching() const
 {
-  return mFeatureMatching;
+    return mFeatureMatching;
 }
 
 void FeatureMatchingTask::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
 {
-  mFeatureMatching = featureMatching;
+    mFeatureMatching = featureMatching;
 }
 
 
@@ -241,109 +241,110 @@ SpatialMatchingTask::SpatialMatchingTask(const tl::Path &database,
 
 SpatialMatchingTask::~SpatialMatchingTask()
 {
-  if (mFeatureMatcher) {
-    delete mFeatureMatcher;
-    mFeatureMatcher = nullptr;
-  }
+    if (mFeatureMatcher) {
+        delete mFeatureMatcher;
+        mFeatureMatcher = nullptr;
+    }
 }
 
 void SpatialMatchingTask::execute(tl::Progress *progressBar)
 {
-  try {
+    try {
 
-    tl::Chrono chrono("Feature Matching finished");
-    chrono.run();
+        tl::Chrono chrono("Feature Matching finished");
+        chrono.run();
 
-    colmap::SiftMatchingOptions siftMatchingOptions;
-    siftMatchingOptions.max_error = mFeatureMatching->maxError();
-    siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
-    siftMatchingOptions.max_ratio = mFeatureMatching->ratio();
-    siftMatchingOptions.max_distance = mFeatureMatching->distance();
-    siftMatchingOptions.confidence = mFeatureMatching->confidence();
-    siftMatchingOptions.use_gpu = bUseCuda;
-    siftMatchingOptions.min_num_inliers = 15;// 100;
+        colmap::SiftMatchingOptions siftMatchingOptions;
+        siftMatchingOptions.max_error = mFeatureMatching->maxError();
+        siftMatchingOptions.cross_check = mFeatureMatching->crossCheck();
+        siftMatchingOptions.max_ratio = mFeatureMatching->ratio();
+        siftMatchingOptions.max_distance = mFeatureMatching->distance();
+        siftMatchingOptions.confidence = mFeatureMatching->confidence();
+        siftMatchingOptions.use_gpu = bUseCuda;
+        siftMatchingOptions.min_num_inliers = 15;// 100;
 
-    colmap::Database database(mDatabase.toString());
-    TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
+        colmap::Database database(mDatabase.toString());
+        TL_ASSERT(database.NumKeypoints() > 0, "Keypoints not found in the database");
 
-    colmap::SpatialMatchingOptions spatialMatchingOptions;
-    spatialMatchingOptions.max_num_neighbors = 100;// 500;
-    //spatialMatchingOptions.max_distance = 250;
-    spatialMatchingOptions.ignore_z = true;
-    spatialMatchingOptions.is_gps = false; /// TODO: Comprobar el tipo de sistema de coordenadas
+        colmap::SpatialMatchingOptions spatialMatchingOptions;
+        spatialMatchingOptions.max_num_neighbors = 100;// 500;
+        //spatialMatchingOptions.max_distance = 250;
+        spatialMatchingOptions.ignore_z = true;
+        spatialMatchingOptions.is_gps = false; /// TODO: Comprobar el tipo de sistema de coordenadas
 
-    mFeatureMatcher = new colmap::SpatialFeatureMatcher(spatialMatchingOptions,
-                                                        siftMatchingOptions,
-                                                        mDatabase.toString());
+        mFeatureMatcher = new colmap::SpatialFeatureMatcher(spatialMatchingOptions,
+                                                            siftMatchingOptions,
+                                                            mDatabase.toString());
 
 
-    mFeatureMatcher->Start();
-    mFeatureMatcher->Wait();
+        mFeatureMatcher->Start();
+        mFeatureMatcher->Wait();
 
-    size_t num_matches = database.NumMatches();
-    database.Close();
+        size_t num_matches = database.NumMatches();
+        database.Close();
 
-    if (status() == tl::Task::Status::stopping) {
-      chrono.reset();
-    } else {
-      TL_ASSERT(num_matches > 0, "Matching points not detected");
-      chrono.stop();
+        if (status() == tl::Task::Status::stopping) {
+            chrono.reset();
+        } else {
+            TL_ASSERT(num_matches > 0, "Matching points not detected");
+            chrono.stop();
+        }
+
+        if (progressBar) (*progressBar)();
+
+        /// Se destruye para desbloquear la base de datos
+        if (mFeatureMatcher) {
+            delete mFeatureMatcher;
+            mFeatureMatcher = nullptr;
+        }
+
+    } catch (...) {
+
+        if (mFeatureMatcher) {
+            delete mFeatureMatcher;
+            mFeatureMatcher = nullptr;
+        }
+
+        TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
     }
-
-    if (progressBar) (*progressBar)();
-
-    /// Se destruye para desbloquear la base de datos
-    if (mFeatureMatcher) {
-      delete mFeatureMatcher;
-      mFeatureMatcher = nullptr;
-    }
-
-  } catch (...) {
-        
-    if (mFeatureMatcher) {
-      delete mFeatureMatcher;
-      mFeatureMatcher = nullptr;
-    }
-
-    TL_THROW_EXCEPTION_WITH_NESTED("Feature Matching error");
-  }
 }
 
 void SpatialMatchingTask::stop()
 {
-  TaskBase::stop();
-  if (mFeatureMatcher)
-    mFeatureMatcher->Stop();
+    TaskBase::stop();
+    if (mFeatureMatcher)
+        mFeatureMatcher->Stop();
 }
 
 tl::Path SpatialMatchingTask::database() const
 {
-  return mDatabase;
+    return mDatabase;
 }
 
 void SpatialMatchingTask::setDatabase(const tl::Path &database)
 {
-  mDatabase = database;
+    mDatabase = database;
 }
 
 bool SpatialMatchingTask::useGPU() const
 {
-  return bUseCuda;
+    return bUseCuda;
 }
 
 void SpatialMatchingTask::setUseGPU(bool useGPU)
 {
-  bUseCuda = useGPU;
+    bUseCuda = useGPU;
 }
 
 std::shared_ptr<FeatureMatching> SpatialMatchingTask::featureMatching() const
 {
-  return mFeatureMatching;
+    return mFeatureMatching;
 }
 
 void SpatialMatchingTask::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
 {
-  mFeatureMatching = featureMatching;
+    mFeatureMatching = featureMatching;
 }
+
 } // namespace graphos
 

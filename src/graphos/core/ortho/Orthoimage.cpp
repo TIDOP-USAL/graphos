@@ -39,9 +39,9 @@ namespace graphos
 
 Orthoimage::Orthoimage(const tl::Path &image,
                        Orthorectification *orthorectification,
-                       const tl::geospatial::Crs &crs,
+                       const tl::Crs &crs,
                        const tl::Rect<int> &rectOrtho,
-                       const tl::Affine<tl::PointD> &georeference,
+                       const tl::Affine<tl::Point<double>> &georeference,
                        bool cuda)
   : mImageReader(tl::ImageReaderFactory::create(image)),
     mOrthorectification(orthorectification),
@@ -58,155 +58,155 @@ Orthoimage::~Orthoimage()
 
 void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 {
-  TL_TODO("Comprobar que visibilityMap tenga el tamaño adecuado")
+    TL_TODO("Comprobar que visibilityMap tenga el tamaño adecuado")
 
-  try {
+        try {
 
-    tl::Rect<int> rect_image = mOrthorectification->rectImage();
-    tl::Rect<int> rect_dtm = mOrthorectification->rectDtm();
+        tl::Rect<int> rect_image = mOrthorectification->rectImage();
+        tl::Rect<int> rect_dtm = mOrthorectification->rectDtm();
 
-    //// Carga de la imagen
+        //// Carga de la imagen
 
-    mImageReader->open();
-    if (!mImageReader->isOpen()) throw std::runtime_error("Image open error");
-    cv::Mat image = mImageReader->read();
-    int depth = mImageReader->depth();
+        mImageReader->open();
+        if (!mImageReader->isOpen()) throw std::runtime_error("Image open error");
+        cv::Mat image = mImageReader->read();
+        int depth = mImageReader->depth();
 
-    if (depth != 8) {
+        if (depth != 8) {
 #ifdef HAVE_OPENCV_CUDAARITHM
-      if (bCuda) {
-        cv::cuda::GpuMat gImgIn(image);
-        cv::cuda::GpuMat gImgOut;
-        cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
-        gImgOut.download(image);
-      } else {
+            if (bCuda) {
+                cv::cuda::GpuMat gImgIn(image);
+                cv::cuda::GpuMat gImgOut;
+                cv::cuda::normalize(gImgIn, gImgOut, 0., 255., cv::NORM_MINMAX, CV_8U);
+                gImgOut.download(image);
+            } else {
 #endif
 
-        cv::normalize(image, image, 0., 255., cv::NORM_MINMAX, CV_8U);
+                cv::normalize(image, image, 0., 255., cv::NORM_MINMAX, CV_8U);
 
 #ifdef HAVE_OPENCV_CUDAARITHM
-      }
+            }
 #endif
 
-      depth = 8;
-    }
-
-    /// Undistort
-
-    cv::Mat undistort_image = mOrthorectification->undistort(image);
-    image.release();
-    /// georeferencia orto
-
-    mOrthophotoWriter = tl::ImageWriterFactory::createWriter(ortho);
-    mOrthophotoWriter->open();
-    if (!mOrthophotoWriter->isOpen()) throw std::runtime_error("Image open error");
-    int channels_ortho = mImageReader->channels();
-    tl::DataType data_type_ortho = tl::DataType::TL_8U;// mImageReader->dataType();
-    mOrthophotoWriter->create(mRectOrtho.height, mRectOrtho.width, channels_ortho, data_type_ortho);
-    cv::Mat mat_ortho(mRectOrtho.height, mRectOrtho.width, CV_MAKETYPE(dataTypeToOpenCVDataType(data_type_ortho), channels_ortho));
-    mat_ortho = cv::Scalar(0, 0, 0);
-
-    std::vector<tl::Point3D> dtm_grid_terrain_points(4);
-    std::vector<tl::PointD> ortho_image_coordinates(4);
-    std::vector<tl::PointD> photo_photocoordinates(4);
-    std::vector<tl::PointD> photo_image_coordinates(4);
-
-    for (int r = rect_dtm.y; r < rect_dtm.y + rect_dtm.height - 1; r++) {
-      for (int c = rect_dtm.x; c < rect_dtm.x + rect_dtm.width - 1; c++) {
-
-        if (!visibilityMap.empty() && visibilityMap.at<uchar>(r - rect_dtm.y, c - rect_dtm.x) == 0) continue;
-
-        dtm_grid_terrain_points[0] = mOrthorectification->dtmToTerrain(tl::PointI(c, r));
-        dtm_grid_terrain_points[1] = mOrthorectification->dtmToTerrain(tl::PointI(c + 1, r));
-        dtm_grid_terrain_points[2] = mOrthorectification->dtmToTerrain(tl::PointI(c + 1, r + 1));
-        dtm_grid_terrain_points[3] = mOrthorectification->dtmToTerrain(tl::PointI(c, r + 1));
-
-        if (mOrthorectification->hasNodataValue()) {
-          double nodata_value = mOrthorectification->nodataValue();
-          if (dtm_grid_terrain_points[0].z == nodata_value ||
-              dtm_grid_terrain_points[1].z == nodata_value ||
-              dtm_grid_terrain_points[2].z == nodata_value ||
-              dtm_grid_terrain_points[3].z == nodata_value) {
-            continue;
-          }
+            depth = 8;
         }
 
-        ortho_image_coordinates[0] = mGeoreference.transform(dtm_grid_terrain_points[0], tl::Transform::Order::inverse);
-        ortho_image_coordinates[1] = mGeoreference.transform(dtm_grid_terrain_points[1], tl::Transform::Order::inverse);
-        ortho_image_coordinates[2] = mGeoreference.transform(dtm_grid_terrain_points[2], tl::Transform::Order::inverse);
-        ortho_image_coordinates[3] = mGeoreference.transform(dtm_grid_terrain_points[3], tl::Transform::Order::inverse);
+        /// Undistort
 
-        photo_photocoordinates[0] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[0]);
-        photo_photocoordinates[1] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[1]);
-        photo_photocoordinates[2] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[2]);
-        photo_photocoordinates[3] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[3]);
+        cv::Mat undistort_image = mOrthorectification->undistort(image);
+        image.release();
+        /// georeferencia orto
 
-        photo_image_coordinates[0] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[0]);
-        photo_image_coordinates[1] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[1]);
-        photo_image_coordinates[2] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[2]);
-        photo_image_coordinates[3] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[3]);
+        mOrthophotoWriter = tl::ImageWriterFactory::createWriter(ortho);
+        mOrthophotoWriter->open();
+        if (!mOrthophotoWriter->isOpen()) throw std::runtime_error("Image open error");
+        int channels_ortho = mImageReader->channels();
+        tl::DataType data_type_ortho = tl::DataType::TL_8U;// mImageReader->dataType();
+        mOrthophotoWriter->create(mRectOrtho.height, mRectOrtho.width, channels_ortho, data_type_ortho);
+        cv::Mat mat_ortho(mRectOrtho.height, mRectOrtho.width, CV_MAKETYPE(dataTypeToOpenCVDataType(data_type_ortho), channels_ortho));
+        mat_ortho = cv::Scalar(0, 0, 0);
 
-        if (rect_image.contains(photo_image_coordinates[0]) &&
-            rect_image.contains(photo_image_coordinates[1]) &&
-            rect_image.contains(photo_image_coordinates[2]) &&
-            rect_image.contains(photo_image_coordinates[3]) &&
-            mRectOrtho.contains(ortho_image_coordinates[0]) &&
-            mRectOrtho.contains(ortho_image_coordinates[1]) &&
-            mRectOrtho.contains(ortho_image_coordinates[2]) &&
-            mRectOrtho.contains(ortho_image_coordinates[3])) {
+        std::vector<tl::Point3<double>> dtm_grid_terrain_points(4);
+        std::vector<tl::Point<double>> ortho_image_coordinates(4);
+        std::vector<tl::Point<double>> photo_photocoordinates(4);
+        std::vector<tl::Point<double>> photo_image_coordinates(4);
 
-          tl::WindowI window_ortho_in = boundingWindow(ortho_image_coordinates.begin(), ortho_image_coordinates.end());
-          if (!window_ortho_in.isValid()) continue;
-          cv::Mat out = cv::Mat::zeros(cv::Size(window_ortho_in.width(), window_ortho_in.height()), undistort_image.type());
+        for (int r = rect_dtm.y; r < rect_dtm.y + rect_dtm.height - 1; r++) {
+            for (int c = rect_dtm.x; c < rect_dtm.x + rect_dtm.width - 1; c++) {
 
-          tl::WindowI window_image_in = boundingWindow(photo_image_coordinates.begin(), photo_image_coordinates.end());
-          if (!window_image_in.isValid()) continue;
+                if (!visibilityMap.empty() && visibilityMap.at<uchar>(r - rect_dtm.y, c - rect_dtm.x) == 0) continue;
+
+                dtm_grid_terrain_points[0] = mOrthorectification->dtmToTerrain(tl::Point<int>(c, r));
+                dtm_grid_terrain_points[1] = mOrthorectification->dtmToTerrain(tl::Point<int>(c + 1, r));
+                dtm_grid_terrain_points[2] = mOrthorectification->dtmToTerrain(tl::Point<int>(c + 1, r + 1));
+                dtm_grid_terrain_points[3] = mOrthorectification->dtmToTerrain(tl::Point<int>(c, r + 1));
+
+                if (mOrthorectification->hasNodataValue()) {
+                    double nodata_value = mOrthorectification->nodataValue();
+                    if (dtm_grid_terrain_points[0].z == nodata_value ||
+                        dtm_grid_terrain_points[1].z == nodata_value ||
+                        dtm_grid_terrain_points[2].z == nodata_value ||
+                        dtm_grid_terrain_points[3].z == nodata_value) {
+                        continue;
+                    }
+                }
+
+                ortho_image_coordinates[0] = mGeoreference.transform(dtm_grid_terrain_points[0], tl::Transform::Order::inverse);
+                ortho_image_coordinates[1] = mGeoreference.transform(dtm_grid_terrain_points[1], tl::Transform::Order::inverse);
+                ortho_image_coordinates[2] = mGeoreference.transform(dtm_grid_terrain_points[2], tl::Transform::Order::inverse);
+                ortho_image_coordinates[3] = mGeoreference.transform(dtm_grid_terrain_points[3], tl::Transform::Order::inverse);
+
+                photo_photocoordinates[0] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[0]);
+                photo_photocoordinates[1] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[1]);
+                photo_photocoordinates[2] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[2]);
+                photo_photocoordinates[3] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[3]);
+
+                photo_image_coordinates[0] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[0]);
+                photo_image_coordinates[1] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[1]);
+                photo_image_coordinates[2] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[2]);
+                photo_image_coordinates[3] = mOrthorectification->photocoordinatesToImage(photo_photocoordinates[3]);
+
+                if (rect_image.contains(photo_image_coordinates[0]) &&
+                    rect_image.contains(photo_image_coordinates[1]) &&
+                    rect_image.contains(photo_image_coordinates[2]) &&
+                    rect_image.contains(photo_image_coordinates[3]) &&
+                    mRectOrtho.contains(ortho_image_coordinates[0]) &&
+                    mRectOrtho.contains(ortho_image_coordinates[1]) &&
+                    mRectOrtho.contains(ortho_image_coordinates[2]) &&
+                    mRectOrtho.contains(ortho_image_coordinates[3])) {
+
+                    tl::WindowI window_ortho_in = boundingWindow(ortho_image_coordinates.begin(), ortho_image_coordinates.end());
+                    if (!window_ortho_in.isValid()) continue;
+                    cv::Mat out = cv::Mat::zeros(cv::Size(window_ortho_in.width(), window_ortho_in.height()), undistort_image.type());
+
+                    tl::WindowI window_image_in = boundingWindow(photo_image_coordinates.begin(), photo_image_coordinates.end());
+                    if (!window_image_in.isValid()) continue;
 
 
-          /// Estoy expandiendo despues de comprobar si se sale de los limites de la imagen... Solucionar cuando refactorice
-          /// Habría que calcular la intersección de window_aux con la ventana imagen total.
-          tl::WindowI window_aux = tl::expandWindow(window_image_in, 1);
-          if (rect_image.contains(window_aux.pt1) &&
-            rect_image.contains(window_aux.pt2)) {
-            window_image_in = window_aux;
-          }
-          cv::Mat in(window_image_in.height(), window_image_in.width(), undistort_image.type());
+                    /// Estoy expandiendo despues de comprobar si se sale de los limites de la imagen... Solucionar cuando refactorice
+                    /// Habría que calcular la intersección de window_aux con la ventana imagen total.
+                    tl::WindowI window_aux = tl::expandWindow(window_image_in, 1);
+                    if (rect_image.contains(window_aux.pt1) &&
+                        rect_image.contains(window_aux.pt2)) {
+                        window_image_in = window_aux;
+                    }
+                    cv::Mat in(window_image_in.height(), window_image_in.width(), undistort_image.type());
 
-          cv::Point2f cv_photo_image_coordinates[4];
-          cv::Point2f cv_ortho_image_coordinates[4];
-          for (int i = 0; i < 4; i++) {
-            cv_photo_image_coordinates[i] = cv::Point2f(static_cast<float>(photo_image_coordinates[i].x - window_image_in.pt1.x),
-              static_cast<float>(photo_image_coordinates[i].y - window_image_in.pt1.y));
-            cv_ortho_image_coordinates[i] = cv::Point2f(static_cast<float>(ortho_image_coordinates[i].x - window_ortho_in.pt1.x),
-              static_cast<float>(ortho_image_coordinates[i].y - window_ortho_in.pt1.y));
-          }
-          cv::Mat h = cv::getPerspectiveTransform(cv_ortho_image_coordinates, cv_photo_image_coordinates);
+                    cv::Point2f cv_photo_image_coordinates[4];
+                    cv::Point2f cv_ortho_image_coordinates[4];
+                    for (int i = 0; i < 4; i++) {
+                        cv_photo_image_coordinates[i] = cv::Point2f(static_cast<float>(photo_image_coordinates[i].x - window_image_in.pt1.x),
+                                                                    static_cast<float>(photo_image_coordinates[i].y - window_image_in.pt1.y));
+                        cv_ortho_image_coordinates[i] = cv::Point2f(static_cast<float>(ortho_image_coordinates[i].x - window_ortho_in.pt1.x),
+                                                                    static_cast<float>(ortho_image_coordinates[i].y - window_ortho_in.pt1.y));
+                    }
+                    cv::Mat h = cv::getPerspectiveTransform(cv_ortho_image_coordinates, cv_photo_image_coordinates);
 
-          undistort_image.colRange(window_image_in.pt1.x, window_image_in.pt2.x)
-                         .rowRange(window_image_in.pt1.y, window_image_in.pt2.y).copyTo(in);
+                    undistort_image.colRange(window_image_in.pt1.x, window_image_in.pt2.x)
+                        .rowRange(window_image_in.pt1.y, window_image_in.pt2.y).copyTo(in);
 
-          cv::warpPerspective(in, out, h, cv::Size(window_ortho_in.width(), window_ortho_in.height()), cv::INTER_NEAREST | cv::WARP_INVERSE_MAP, cv::BORDER_TRANSPARENT);
+                    cv::warpPerspective(in, out, h, cv::Size(window_ortho_in.width(), window_ortho_in.height()), cv::INTER_NEAREST | cv::WARP_INVERSE_MAP, cv::BORDER_TRANSPARENT);
 
-          out.copyTo(mat_ortho.colRange(window_ortho_in.pt1.x, window_ortho_in.pt2.x)
-            .rowRange(window_ortho_in.pt1.y, window_ortho_in.pt2.y));
+                    out.copyTo(mat_ortho.colRange(window_ortho_in.pt1.x, window_ortho_in.pt2.x)
+                               .rowRange(window_ortho_in.pt1.y, window_ortho_in.pt2.y));
+                }
+            }
         }
-      }
+
+        mOrthophotoWriter->setCRS(mCrs.toWktFormat());
+        mOrthophotoWriter->setGeoreference(mGeoreference);
+        mOrthophotoWriter->write(mat_ortho);
+        mOrthophotoWriter->close();
+
+    } catch (std::exception &e) {
+        if (mOrthophotoWriter) mOrthophotoWriter->close();
+        tl::Message::error("Orthorectified image fail: {}", ortho.fileName().toString());
+        tl::printException(e);
+    } catch (...) {
+        if (mOrthophotoWriter) mOrthophotoWriter->close();
+        tl::Message::error("Orthorectified image fail: %s", ortho.fileName().toString());
+        tl::Message::error("Unhandled exception");
     }
-
-    mOrthophotoWriter->setCRS(mCrs.toWktFormat());
-    mOrthophotoWriter->setGeoreference(mGeoreference);
-    mOrthophotoWriter->write(mat_ortho);
-    mOrthophotoWriter->close();
-
-  } catch (std::exception &e) {
-    if (mOrthophotoWriter) mOrthophotoWriter->close();
-    msgError("Orthorectified image fail: %s", ortho.fileName().toString().c_str());
-    msgError(e.what());
-  } catch (...) {
-    if (mOrthophotoWriter) mOrthophotoWriter->close();
-    msgError("Orthorectified image fail: %s", ortho.fileName().toString().c_str());
-    msgError("Unhandled exception");
-  }
 }
 
 
@@ -222,7 +222,7 @@ OrthoimageProcess::OrthoimageProcess(const std::vector<Image> &images,
                                      const tl::Path &dtm,
                                      const tl::Path &orthoPath,
                                      const tl::Path &graphOrthos,
-                                     const tl::geospatial::Crs &crs,
+                                     const tl::Crs &crs,
                                      const tl::Path &footprint,
                                      double scale,
                                      double crop,
@@ -236,15 +236,15 @@ OrthoimageProcess::OrthoimageProcess(const std::vector<Image> &images,
     mCrop(crop),
     bCuda(cuda)
 {
-  mOrthoPath.createDirectories();
-  graphOrthos.parentPath().createDirectories();
-  footprint.parentPath().createDirectories();
+    mOrthoPath.createDirectories();
+    graphOrthos.parentPath().createDirectories();
+    footprint.parentPath().createDirectories();
 
-  mFootprintWriter = tl::VectorWriterFactory::create(footprint);
-  mFootprintWriter->open();
+    mFootprintWriter = tl::VectorWriterFactory::create(footprint);
+    mFootprintWriter->open();
 
-  mGraphOrthosWriter = tl::VectorWriterFactory::create(graphOrthos);
-  mGraphOrthosWriter->open();
+    mGraphOrthosWriter = tl::VectorWriterFactory::create(graphOrthos);
+    mGraphOrthosWriter->open();
 }
 
 OrthoimageProcess::~OrthoimageProcess()
@@ -254,158 +254,158 @@ OrthoimageProcess::~OrthoimageProcess()
 void OrthoimageProcess::execute(tl::Progress *progressBar)
 {
 
-  if (!mFootprintWriter->isOpen()) throw std::runtime_error("Footprint open error");
-  if (!mGraphOrthosWriter) throw std::runtime_error("Graph Orthos open error");
+    if (!mFootprintWriter->isOpen()) throw std::runtime_error("Footprint open error");
+    if (!mGraphOrthosWriter) throw std::runtime_error("Graph Orthos open error");
 
-  std::shared_ptr<tl::TableField> field(new tl::TableField("image",
-                                                           tl::TableField::Type::STRING,
-                                                           254));
+    std::shared_ptr<tl::TableField> field(new tl::TableField("image",
+                                          tl::TableField::Type::STRING,
+                                          254));
 
-  mFootprintWriter->create();
-  mFootprintWriter->setCRS(mCrs.toWktFormat());
+    mFootprintWriter->create();
+    mFootprintWriter->setCRS(mCrs.toWktFormat());
 
-  tl::graph::GLayer layer;
-  layer.setName("footprint");
-  layer.addDataField(field);
+    tl::GLayer layer;
+    layer.setName("footprint");
+    layer.addDataField(field);
 
-  std::shared_ptr<tl::TableField> field_ortho(new tl::TableField("orthoimage",
-                                                                 tl::TableField::Type::STRING,
-                                                                 254));
+    std::shared_ptr<tl::TableField> field_ortho(new tl::TableField("orthoimage",
+                                                tl::TableField::Type::STRING,
+                                                254));
 
-  mGraphOrthosWriter->create();
-  mGraphOrthosWriter->setCRS(mCrs.toWktFormat());
+    mGraphOrthosWriter->create();
+    mGraphOrthosWriter->setCRS(mCrs.toWktFormat());
 
-  tl::graph::GLayer layer_ortho_graph;
-  layer_ortho_graph.setName("ortho_graph");
-  layer_ortho_graph.addDataField(field_ortho);
+    tl::GLayer layer_ortho_graph;
+    layer_ortho_graph.setName("ortho_graph");
+    layer_ortho_graph.addDataField(field_ortho);
 
-  tl::Path ortho_file;
+    tl::Path ortho_file;
 
-  TL_TODO("Producer-consumer...")
+    TL_TODO("Producer-consumer...")
 
-  if (progressBar) progressBar->setMaximum(mImages.size());
+        if (progressBar) progressBar->setMaximum(mImages.size());
 
-  for (const auto &image : mImages) {
+    for (const auto &image : mImages) {
 
-    try 	{
+        try {
 
-      tl::Path file(image.path().toStdWString());
-      tl::Path file_name = file.fileName();
+            tl::Path file(image.path().toStdWString());
+            tl::Path file_name = file.fileName();
 
-      if (!file.exists()) {
-        msgWarning("Image not found: %s", file_name.toString().c_str());
-        continue;
-      }
+            if (!file.exists()) {
+                 tl::Message::warning("Image not found: {}", file_name.toString());
+                continue;
+            }
 
-      ortho_file = mOrthoPath;
-      ortho_file.append(file_name).replaceExtension(".png");
-      
-      Orthorectification orthorectification(mDtm, mCameras[image.cameraId()], image.cameraPose());
-      orthorectification.setCuda(bCuda);
-      if (!orthorectification.isValid()) continue;
+            ortho_file = mOrthoPath;
+            ortho_file.append(file_name).replaceExtension(".png");
 
-      std::shared_ptr<tl::graph::GPolygon> entity = std::make_shared<tl::graph::GPolygon>(orthorectification.footprint());
+            Orthorectification orthorectification(mDtm, mCameras[image.cameraId()], image.cameraPose());
+            orthorectification.setCuda(bCuda);
+            if (!orthorectification.isValid()) continue;
 
-      double scale = mScale;
-      if (mScale == -1) {
-        /// Calculo de transformación afin entre coordenadas terreno e imagen para la orto para determinar una escala optima
-        std::vector<tl::PointD> t_coor;
-        t_coor.push_back(entity->at(0));
-        t_coor.push_back(entity->at(1));
-        t_coor.push_back(entity->at(2));
-        t_coor.push_back(entity->at(3));
+            std::shared_ptr<tl::GPolygon> entity = std::make_shared<tl::GPolygon>(orthorectification.footprint());
 
-        tl::Rect<int> rect_image = orthorectification.rectImage();
-        std::vector<tl::PointD> i_coor;
-        i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topLeft()));
-        i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topRight()));
-        i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomRight()));
-        i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomLeft()));
+            double scale = mScale;
+            if (mScale == -1) {
+                /// Calculo de transformación afin entre coordenadas terreno e imagen para la orto para determinar una escala optima
+                std::vector<tl::Point<double>> t_coor;
+                t_coor.push_back(entity->at(0));
+                t_coor.push_back(entity->at(1));
+                t_coor.push_back(entity->at(2));
+                t_coor.push_back(entity->at(3));
 
-        tl::Affine<tl::PointD> affine_terrain_image;
-        affine_terrain_image.compute(i_coor, t_coor);
-        scale = (affine_terrain_image.scaleY() + affine_terrain_image.scaleX()) / 2.;
-      }
+                tl::Rect<int> rect_image = orthorectification.rectImage();
+                std::vector<tl::Point<double>> i_coor;
+                i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topLeft()));
+                i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.topRight()));
+                i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomRight()));
+                i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomLeft()));
 
-      // Se reserva tamaño para la orto
-      tl::Window<tl::PointD> window_ortho_terrain = orthorectification.footprint().window();
-      window_ortho_terrain = expandWindow(window_ortho_terrain,
-                                          window_ortho_terrain.width() * (mCrop - 1.) / 2.,
-                                          window_ortho_terrain.height() * (mCrop - 1.) / 2.);
-      int rows_ortho = static_cast<int>(std::round(window_ortho_terrain.height() / scale));
-      int cols_ortho = static_cast<int>(std::round(window_ortho_terrain.width() / scale));
-      tl::Rect<int> rect_ortho = tl::Rect<int>(0, 0, cols_ortho, rows_ortho);
+                tl::Affine<tl::Point<double>> affine_terrain_image;
+                affine_terrain_image.compute(i_coor, t_coor);
+                scale = (affine_terrain_image.scaleY() + affine_terrain_image.scaleX()) / 2.;
+            }
 
-      tl::Affine<tl::PointD> affine_ortho(window_ortho_terrain.pt1.x,
-                                  window_ortho_terrain.pt2.y,
-                                  scale, -scale, 0.0);
+            // Se reserva tamaño para la orto
+            tl::Window<tl::Point<double>> window_ortho_terrain = orthorectification.footprint().window();
+            window_ortho_terrain = expandWindow(window_ortho_terrain,
+                                                window_ortho_terrain.width() * (mCrop - 1.) / 2.,
+                                                window_ortho_terrain.height() * (mCrop - 1.) / 2.);
+            int rows_ortho = static_cast<int>(std::round(window_ortho_terrain.height() / scale));
+            int cols_ortho = static_cast<int>(std::round(window_ortho_terrain.width() / scale));
+            tl::Rect<int> rect_ortho = tl::Rect<int>(0, 0, cols_ortho, rows_ortho);
 
-      /// Grafico ortofotos
-      {
-        tl::Rect<double> rect(window_ortho_terrain.pt1, window_ortho_terrain.pt2);
-        rect.normalized();
-        std::shared_ptr<tl::graph::GPolygon> entity_ortho = std::make_shared<tl::graph::GPolygon>();
-        entity_ortho->push_back(rect.topLeft());
-        entity_ortho->push_back(rect.topRight());
-        entity_ortho->push_back(rect.bottomRight());
-        entity_ortho->push_back(rect.bottomLeft());
-        std::shared_ptr<tl::TableRegister> data_ortho(new tl::TableRegister(layer_ortho_graph.tableFields()));
-        data_ortho->setValue(0, ortho_file.toString());
-        entity_ortho->setData(data_ortho);
-        layer_ortho_graph.push_back(entity_ortho);
-      }
+            tl::Affine<tl::Point<double>> affine_ortho(window_ortho_terrain.pt1.x,
+                                                window_ortho_terrain.pt2.y,
+                                                scale, -scale, 0.0);
+
+            /// Grafico ortofotos
+            {
+                tl::Rect<double> rect(window_ortho_terrain.pt1, window_ortho_terrain.pt2);
+                rect.normalized();
+                std::shared_ptr<tl::GPolygon> entity_ortho = std::make_shared<tl::GPolygon>();
+                entity_ortho->push_back(rect.topLeft());
+                entity_ortho->push_back(rect.topRight());
+                entity_ortho->push_back(rect.bottomRight());
+                entity_ortho->push_back(rect.bottomLeft());
+                std::shared_ptr<tl::TableRegister> data_ortho(new tl::TableRegister(layer_ortho_graph.tableFields()));
+                data_ortho->setValue(0, ortho_file.toString());
+                entity_ortho->setData(data_ortho);
+                layer_ortho_graph.push_back(entity_ortho);
+            }
 
 
-      ZBuffer zBuffer(&orthorectification, rect_ortho, affine_ortho);
-      zBuffer.run();
+            ZBuffer zBuffer(&orthorectification, rect_ortho, affine_ortho);
+            zBuffer.run();
 
-      cv::Mat visibility_map = visibilityMap(orthorectification, zBuffer);
-      
-      Orthoimage orthoimage(file, &orthorectification, mCrs, rect_ortho, affine_ortho, bCuda);
-      orthoimage.run(ortho_file, visibility_map);
+            cv::Mat visibility_map = visibilityMap(orthorectification, zBuffer);
 
-      std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(layer.tableFields()/*fields*/));
-      data->setValue(0, ortho_file.toString());
-      entity->setData(data);
-      layer.push_back(entity);
+            Orthoimage orthoimage(file, &orthorectification, mCrs, rect_ortho, affine_ortho, bCuda);
+            orthoimage.run(ortho_file, visibility_map);
 
-      msgInfo("Write orthoimage: %s", ortho_file.fileName().toString().c_str());
+            std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(layer.tableFields()/*fields*/));
+            data->setValue(0, ortho_file.toString());
+            entity->setData(data);
+            layer.push_back(entity);
 
-    } catch (const std::exception &e) {
-      msgError("", e.what());
-      msgError("Write orthoimage error: %s", ortho_file.fileName().toString().c_str());
+            tl::Message::info("Write orthoimage: {}", ortho_file.fileName().toString());
+
+        } catch (const std::exception &e) {
+            tl::printException(e);
+            tl::Message::error("Write orthoimage error: {}", ortho_file.fileName().toString());
+        }
+
+        if (progressBar) (*progressBar)();
     }
 
-    if (progressBar) (*progressBar)();
-  }
-  
-  mFootprintWriter->write(layer);
-  mFootprintWriter->close();
+    mFootprintWriter->write(layer);
+    mFootprintWriter->close();
 
-  mGraphOrthosWriter->write(layer_ortho_graph);
-  mGraphOrthosWriter->close();
+    mGraphOrthosWriter->write(layer_ortho_graph);
+    mGraphOrthosWriter->close();
 }
 
-cv::Mat OrthoimageProcess::visibilityMap(const Orthorectification &orthorectification, 
+cv::Mat OrthoimageProcess::visibilityMap(const Orthorectification &orthorectification,
                                          const ZBuffer &zBuffer) const
 {
-  cv::Mat z_buffer_x = zBuffer.mapX();
-  cv::Mat z_buffer_y = zBuffer.mapY();
+    cv::Mat z_buffer_x = zBuffer.mapX();
+    cv::Mat z_buffer_y = zBuffer.mapY();
 
-  tl::Rect<int> rect_dtm = orthorectification.rectDtm();
-  cv::Mat visibility_map = cv::Mat::zeros(rect_dtm.height, rect_dtm.width, CV_8U);
+    tl::Rect<int> rect_dtm = orthorectification.rectDtm();
+    cv::Mat visibility_map = cv::Mat::zeros(rect_dtm.height, rect_dtm.width, CV_8U);
 
-  for (int r = 0; r < z_buffer_y.rows; r++) {
-    for (int c = 0; c < z_buffer_y.cols; c++) {
-      int row = z_buffer_y.at<int>(r, c);
-      int col = z_buffer_x.at<int>(r, c);
-      if (row != -1 && col != -1) {
-        visibility_map.at<uchar>(row, col) = 255;
-      }
+    for (int r = 0; r < z_buffer_y.rows; r++) {
+        for (int c = 0; c < z_buffer_y.cols; c++) {
+            int row = z_buffer_y.at<int>(r, c);
+            int col = z_buffer_x.at<int>(r, c);
+            if (row != -1 && col != -1) {
+                visibility_map.at<uchar>(row, col) = 255;
+            }
+        }
     }
-  }
 
-  return std::move(visibility_map);
+    return std::move(visibility_map);
 }
 
 

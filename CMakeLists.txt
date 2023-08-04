@@ -42,7 +42,7 @@ message(STATUS ${GRAPHOS_HOMEPAGE_URL})
 
 # Configuration 
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -230,7 +230,7 @@ message(STATUS "\nDependency loading:\n")
 # TidopLib (REQUIRED)                                                    #
 ##########################################################################      
 
-find_package(TidopLib 2.1 REQUIRED)
+find_package(TidopLib 3.0 REQUIRED)
 
 
 ##########################################################################

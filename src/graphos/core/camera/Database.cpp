@@ -24,7 +24,6 @@
 #include "graphos/core/camera/Database.h"
 
 #include <tidop/core/exception.h>
-#include <tidop/core/messages.h>
 
 #include <QSqlDatabase>
 #include <QFileInfo>
@@ -32,163 +31,165 @@
 #include <QSqlError>
 #include <QVariant>
 
+using namespace tl;
+
 namespace graphos
 {
 
 
 DatabaseCameras::DatabaseCameras(QString database)
-  : mDatabase(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE")))
+    : mDatabase(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE")))
 {
-  mDatabase->setDatabaseName(std::move(database));
+    mDatabase->setDatabaseName(std::move(database));
 }
 
 DatabaseCameras::~DatabaseCameras()
 {
-  QString name = mDatabase->connectionName();
+    QString name = mDatabase->connectionName();
 
-  if (mDatabase) {
-    delete mDatabase;
-    mDatabase = nullptr;
-  }
-  
-  //QSqlDatabase db = QSqlDatabase::database();
-  //QString name = db.connectionName();
-  QSqlDatabase::removeDatabase(name);
+    if (mDatabase) {
+        delete mDatabase;
+        mDatabase = nullptr;
+    }
+
+    //QSqlDatabase db = QSqlDatabase::database();
+    //QString name = db.connectionName();
+    QSqlDatabase::removeDatabase(name);
 }
 
 void DatabaseCameras::open()
 {
-  bool db_open = false;
-  if (QFileInfo(mDatabase->databaseName()).exists()) {
-    db_open = mDatabase->open();
-  } else {
-    msgError("The camera database does not exist");
-  }
+    bool db_open = false;
+    if (QFileInfo(mDatabase->databaseName()).exists()) {
+        db_open = mDatabase->open();
+    } else {
+        Message::error("The camera database does not exist");
+    }
 }
 
 bool DatabaseCameras::isOpen() const
 {
-  return mDatabase->isOpen();
+    return mDatabase->isOpen();
 }
 
 void DatabaseCameras::close()
 {
-  mDatabase->close();
+    mDatabase->close();
 }
 
 bool DatabaseCameras::existCameraMakeId(const QString &cameraMake) const
 {
-  bool exist_camera = false;
+    bool exist_camera = false;
 
-  try {
+    try {
 
-    TL_ASSERT(isOpen(), "Database is not open");
+        TL_ASSERT(isOpen(), "Database is not open");
 
-    QSqlQuery query;
-    query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
-    query.bindValue(":camera_make", cameraMake);
-    if (query.exec()) {
-      while (query.next()) {
-        exist_camera = true;
-      }
-    } else {
-      QSqlError err = query.lastError();
-      throw err.text().toStdString();
+        QSqlQuery query;
+        query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
+        query.bindValue(":camera_make", cameraMake);
+        if (query.exec()) {
+            while (query.next()) {
+                exist_camera = true;
+            }
+        } else {
+            QSqlError err = query.lastError();
+            throw err.text().toStdString();
+        }
+
+    } catch (...) {
+        exist_camera = false;
     }
 
-  } catch (...) {
-    exist_camera = false;
-  }
-
-  return exist_camera;
+    return exist_camera;
 }
 
-bool DatabaseCameras::existCameraModel(int cameraMake, 
+bool DatabaseCameras::existCameraModel(int cameraMake,
                                        const QString &cameraModel) const
 {
-  bool exist_camera_model = false;
+    bool exist_camera_model = false;
 
-  try {
+    try {
 
-    TL_ASSERT(isOpen(), "Database is not open");
-    TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
+        TL_ASSERT(isOpen(), "Database is not open");
+        TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
 
-    QSqlQuery query;
-    query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
-    query.bindValue(":camera_model", cameraModel);
-    query.bindValue(":id_camera", cameraMake);
-    if (query.exec()) {
-      while (query.next()) {
-        exist_camera_model = true;
-        break;
-      }
+        QSqlQuery query;
+        query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
+        query.bindValue(":camera_model", cameraModel);
+        query.bindValue(":id_camera", cameraMake);
+        if (query.exec()) {
+            while (query.next()) {
+                exist_camera_model = true;
+                break;
+            }
 
+        }
+
+    } catch (...) {
+        exist_camera_model = false;
     }
 
-  } catch (...) {
-    exist_camera_model = false;
-  }
-
-  return exist_camera_model;
+    return exist_camera_model;
 }
 
 int DatabaseCameras::cameraMakeId(const QString &cameraMake) const
 {
-  int id_camera = -1;
+    int id_camera = -1;
 
-  try {
+    try {
 
-    TL_ASSERT(isOpen(), "Database is not open");
+        TL_ASSERT(isOpen(), "Database is not open");
 
-    QSqlQuery query;
-    query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
-    query.bindValue(":camera_make", cameraMake);
-    if (query.exec()) {
-      while (query.next()) {
-        id_camera = query.value(0).toInt();
-      }
-    } else {
-      QSqlError err = query.lastError();
-      throw err.text().toStdString();
+        QSqlQuery query;
+        query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
+        query.bindValue(":camera_make", cameraMake);
+        if (query.exec()) {
+            while (query.next()) {
+                id_camera = query.value(0).toInt();
+            }
+        } else {
+            QSqlError err = query.lastError();
+            throw err.text().toStdString();
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
     }
 
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
-
-  return id_camera;
+    return id_camera;
 }
 
 double DatabaseCameras::cameraSensorSize(int cameraMake, const QString &cameraModel) const
 {
-  double sensor_width_mm = -1;
+    double sensor_width_mm = -1;
 
-  try {
+    try {
 
-    TL_ASSERT(isOpen(), "Database is not open");
-    TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
+        TL_ASSERT(isOpen(), "Database is not open");
+        TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
 
-    QSqlQuery query;
-    query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
-    query.bindValue(":camera_model", cameraModel);
-    query.bindValue(":id_camera", cameraMake);
-    if (query.exec()) {
-      while (query.next()) {
-        sensor_width_mm = query.value(0).toDouble();
-      }
+        QSqlQuery query;
+        query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
+        query.bindValue(":camera_model", cameraModel);
+        query.bindValue(":id_camera", cameraMake);
+        if (query.exec()) {
+            while (query.next()) {
+                sensor_width_mm = query.value(0).toDouble();
+            }
 
-      TL_ASSERT(sensor_width_mm > 0., "Camera model not found in database");
+            TL_ASSERT(sensor_width_mm > 0., "Camera model not found in database");
 
-    } else {
-      QSqlError err = query.lastError();
-      throw err.text().toStdString();
+        } else {
+            QSqlError err = query.lastError();
+            throw err.text().toStdString();
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
     }
 
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
-
-  return sensor_width_mm;
+    return sensor_width_mm;
 }
 
 } // namespace graphos

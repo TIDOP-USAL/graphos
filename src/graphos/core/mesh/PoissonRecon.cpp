@@ -23,7 +23,6 @@
 
 #include "PoissonRecon.h"
 
-#include <tidop/core/messages.h>
 #include <tidop/core/exception.h>
 #include <tidop/core/app.h>
 #include <tidop/core/path.h>
@@ -34,13 +33,13 @@ namespace graphos
 {
 
 
-  /// valores por defecto
+/// valores por defecto
 
-  constexpr auto DefaultPoissonReconDepth = 11;
-  constexpr auto DefaultPoissonReconSolveDepth = 10;
-  constexpr auto DefaultPoissonReconBoundaryType = "Neumann";
-  constexpr auto DefaultPoissonReconWidth = 0;
-  constexpr auto DefaultPoissonReconFullDepth = 5;
+constexpr auto DefaultPoissonReconDepth = 11;
+constexpr auto DefaultPoissonReconSolveDepth = 10;
+constexpr auto DefaultPoissonReconBoundaryType = "Neumann";
+constexpr auto DefaultPoissonReconWidth = 0;
+constexpr auto DefaultPoissonReconFullDepth = 5;
 
 
 /* PoissonReconParameters */
@@ -60,61 +59,61 @@ PoissonReconParameters::~PoissonReconParameters()
 
 int PoissonReconParameters::depth() const
 {
-  return mDepth;
+    return mDepth;
 }
 
 int PoissonReconParameters::solveDepth() const
 {
-  return mSolveDepth;
+    return mSolveDepth;
 }
 
 QString PoissonReconParameters::boundaryType() const
 {
-  return mBoundaryType;
+    return mBoundaryType;
 }
 
 int PoissonReconParameters::width() const
 {
-  return mWidth;
+    return mWidth;
 }
 
 int PoissonReconParameters::fullDepth() const
 {
-  return mFullDepth;
+    return mFullDepth;
 }
 
-void PoissonReconParameters::setDepth(int Depth) 
+void PoissonReconParameters::setDepth(int Depth)
 {
-  mDepth = Depth;
+    mDepth = Depth;
 }
 
-void PoissonReconParameters::setSolveDepth(int SolveDepth) 
+void PoissonReconParameters::setSolveDepth(int SolveDepth)
 {
-  mSolveDepth = SolveDepth;
+    mSolveDepth = SolveDepth;
 }
 
-void PoissonReconParameters::setBoundaryType(const QString &BoundaryType) 
+void PoissonReconParameters::setBoundaryType(const QString &BoundaryType)
 {
-  mBoundaryType = BoundaryType;
+    mBoundaryType = BoundaryType;
 }
 
-void PoissonReconParameters::setWidth(int width) 
+void PoissonReconParameters::setWidth(int width)
 {
-  mWidth = width;
+    mWidth = width;
 }
 
-void PoissonReconParameters::setFullDepth(int FullDepth) 
+void PoissonReconParameters::setFullDepth(int FullDepth)
 {
-  mFullDepth = FullDepth;
+    mFullDepth = FullDepth;
 }
 
 void PoissonReconParameters::clear()
 {
-  mDepth = DefaultPoissonReconDepth;
-  mSolveDepth = DefaultPoissonReconSolveDepth;
-  mBoundaryType = DefaultPoissonReconBoundaryType;
-  mWidth = DefaultPoissonReconWidth;
-  mFullDepth = DefaultPoissonReconFullDepth;
+    mDepth = DefaultPoissonReconDepth;
+    mSolveDepth = DefaultPoissonReconSolveDepth;
+    mBoundaryType = DefaultPoissonReconBoundaryType;
+    mWidth = DefaultPoissonReconWidth;
+    mFullDepth = DefaultPoissonReconFullDepth;
 }
 
 
@@ -139,72 +138,72 @@ PoissonReconTask::~PoissonReconTask()
 void PoissonReconTask::execute(tl::Progress *progressBar)
 {
 
-  try {
+    try {
 
-    tl::Chrono chrono("Poisson reconstruction finished");
-    chrono.run();
+        tl::Chrono chrono("Poisson reconstruction finished");
+        chrono.run();
 
-    tl::Path app_path = tl::App::instance().path();
+        tl::Path app_path = tl::App::instance().path();
 
-    // Poisson Reconstruction
-    {
+        // Poisson Reconstruction
+        {
 
-      std::string b_type;
+            std::string b_type;
 
-      if (boundaryType() == "free") {
-        b_type = "1";
-      } else if (boundaryType() == "Dirichlet") {
-        b_type = "2";
-      } else {
-        b_type = "3";
-      }
+            if (boundaryType() == "free") {
+                b_type = "1";
+            } else if (boundaryType() == "Dirichlet") {
+                b_type = "2";
+            } else {
+                b_type = "3";
+            }
 
-      std::string cmd("\"");
-      cmd.append(app_path.parentPath().toString());
-      cmd.append("\\PoissonRecon.exe\" ");
-      cmd.append("--in \"").append(mInput.toString());
-      cmd.append("\" --out \"").append(mOutput.toString());
-      cmd.append("\" --depth ").append(std::to_string(depth()));
-      cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
-      //cmd.append(" --width ").append(std::to_string(width()));
-      cmd.append(" --bType ").append(b_type);
-      cmd.append(" --density ");
-      cmd.append(" --samplesPerNode 5");
-      //cmd.append(" --samplesPerNode < minimum number of samples per node >= 1.500000]
-      //[--pointWeight < interpolation weight >= 2.000e+00 * <b - spline degree>]
-      msgInfo("Process: %s", cmd.c_str());
+            std::string cmd("\"");
+            cmd.append(app_path.parentPath().toString());
+            cmd.append("\\PoissonRecon.exe\" ");
+            cmd.append("--in \"").append(mInput.toString());
+            cmd.append("\" --out \"").append(mOutput.toString());
+            cmd.append("\" --depth ").append(std::to_string(depth()));
+            cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
+            //cmd.append(" --width ").append(std::to_string(width()));
+            cmd.append(" --bType ").append(b_type);
+            cmd.append(" --density ");
+            cmd.append(" --samplesPerNode 5");
+            //cmd.append(" --samplesPerNode < minimum number of samples per node >= 1.500000]
+            //[--pointWeight < interpolation weight >= 2.000e+00 * <b - spline degree>]
+            tl::Message::info("Process: {}", cmd);
 
-      tl::Process process(cmd);
+            tl::Process process(cmd);
 
-      process.run();
+            process.run();
 
-      TL_ASSERT(process.status() == tl::Process::Status::finalized, "Poisson Reconstruction error");
+            TL_ASSERT(process.status() == tl::Process::Status::finalized, "Poisson Reconstruction error");
+        }
+
+        // Surface Trimmer
+        {
+            std::string cmd("\"");
+            cmd.append(app_path.parentPath().toString());
+            cmd.append("\\SurfaceTrimmer.exe\" ");
+            cmd.append("--in \"").append(mOutput.toString());
+            cmd.append("\" --out \"").append(mOutput.toString());
+            cmd.append("\" --trim 7");
+
+            tl::Process process(cmd);
+
+            process.run();
+
+            TL_ASSERT(process.status() == tl::Process::Status::finalized, "Surface Trimmer error");
+
+        }
+
+        chrono.stop();
+
+        if (progressBar) (*progressBar)();
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Load images error");
     }
-
-    // Surface Trimmer
-    {
-      std::string cmd("\"");
-      cmd.append(app_path.parentPath().toString());
-      cmd.append("\\SurfaceTrimmer.exe\" ");
-      cmd.append("--in \"").append(mOutput.toString());
-      cmd.append("\" --out \"").append(mOutput.toString());
-      cmd.append("\" --trim 7");
-
-      tl::Process process(cmd);
-
-      process.run();
-
-      TL_ASSERT(process.status() == tl::Process::Status::finalized, "Surface Trimmer error");
-
-    }
-
-    chrono.stop();
-
-    if(progressBar) (*progressBar)();
-
-  } catch(...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Load images error");
-  }
 
 }
 

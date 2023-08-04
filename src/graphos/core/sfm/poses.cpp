@@ -26,53 +26,56 @@
 #include <tidop/core/path.h>
 #include <tidop/math/algebra/rotation_convert.h>
 
+using namespace tl;
+
 namespace graphos
 {
 
 
 CameraPose::CameraPose()
-  : mPosition(),
-    mRotation(nullptr),
-    mCrs(""),
-    mSource("")
-{}
-
-CameraPose::CameraPose(double x, double y, double z,
-                       const tl::math::RotationMatrix<double> &rotationMatrix)
-  : mPosition(x, y, z),
-    mRotation(new tl::math::RotationMatrix<double>(rotationMatrix)),
-    mCrs(""),
-    mSource("")
+    : mPosition(),
+      mRotation(nullptr),
+      mCrs(""),
+      mSource("")
 {
-
-}
-
-CameraPose::CameraPose(const tl::Point3D &center,
-                       const tl::math::RotationMatrix<double> &rotationMatrix)
-  : mPosition(center),
-    mRotation(new tl::math::RotationMatrix<double>(rotationMatrix)),
-    mCrs(""),
-    mSource("")
-{
-
 }
 
 CameraPose::CameraPose(double x, double y, double z,
-                       const tl::math::Quaternion<double> &quaternion)
-  : mPosition(x, y, z),
-    mRotation(new tl::math::Quaternion<double>(quaternion)),
-    mCrs(""),
-    mSource("")
+                       const RotationMatrix<double> &rotationMatrix)
+    : mPosition(x, y, z),
+      mRotation(new RotationMatrix<double>(rotationMatrix)),
+      mCrs(""),
+      mSource("")
 {
 
 }
 
-CameraPose::CameraPose(const tl::Point3D &center,
-                       const tl::math::Quaternion<double> &quaternion)
-  : mPosition(center),
-    mRotation(new tl::math::Quaternion<double>(quaternion)),
-    mCrs(""),
-    mSource("")
+CameraPose::CameraPose(const Point3<double> &center,
+                       const RotationMatrix<double> &rotationMatrix)
+    : mPosition(center),
+      mRotation(new RotationMatrix<double>(rotationMatrix)),
+      mCrs(""),
+      mSource("")
+{
+
+}
+
+CameraPose::CameraPose(double x, double y, double z,
+                       const Quaternion<double> &quaternion)
+    : mPosition(x, y, z),
+      mRotation(new Quaternion<double>(quaternion)),
+      mCrs(""),
+      mSource("")
+{
+
+}
+
+CameraPose::CameraPose(const Point3<double> &center,
+                       const Quaternion<double> &quaternion)
+    : mPosition(center),
+      mRotation(new Quaternion<double>(quaternion)),
+      mCrs(""),
+      mSource("")
 {
 
 }
@@ -81,83 +84,83 @@ CameraPose::~CameraPose()
 {
 }
 
-tl::Point3D CameraPose::position() const
+Point3<double> CameraPose::position() const
 {
-  return mPosition;
+    return mPosition;
 }
 
-void CameraPose::setPosition(const tl::Point3D &position)
+void CameraPose::setPosition(const Point3<double> &position)
 {
-  mPosition = position;
+    mPosition = position;
 }
 
-tl::math::Quaterniond CameraPose::quaternion() const
+Quaterniond CameraPose::quaternion() const
 {
-  tl::math::Quaterniond quaternion = tl::math::Quaterniond::zero();
+    Quaterniond quaternion = Quaterniond::zero();
 
-  if (mRotation) {
+    if (mRotation) {
 
-    tl::math::Rotation::Type type = mRotation->rotationType();
-    if (type == tl::math::Rotation::Type::quaternion) {
-      quaternion = *dynamic_cast<tl::math::Quaterniond *>(mRotation.get());
-    } else if (type == tl::math::Rotation::Type::rotation_matrix) {
-      tl::math::RotationConverter<double>::convert(*dynamic_cast<tl::math::RotationMatrix<double> *>(mRotation.get()), quaternion);
+        Orientation::Type type = mRotation->type();
+        if (type == Orientation::Type::quaternion) {
+            quaternion = *dynamic_cast<Quaterniond *>(mRotation.get());
+        } else if (type == Orientation::Type::rotation_matrix) {
+            RotationConverter<double>::convert(*dynamic_cast<RotationMatrix<double> *>(mRotation.get()), quaternion);
+        }
+
     }
 
-  }
-
-  return quaternion;
+    return quaternion;
 }
 
-void CameraPose::setQuaternion(const tl::math::Quaterniond &quaternion)
+void CameraPose::setQuaternion(const Quaterniond &quaternion)
 {
-  mRotation = std::make_shared<tl::math::Quaternion<double>>(quaternion);
+    mRotation = std::make_shared<Quaternion<double>>(quaternion);
 }
 
-tl::math::RotationMatrix<double> CameraPose::rotationMatrix() const
+RotationMatrix<double> CameraPose::rotationMatrix() const
 {
-  tl::math::RotationMatrix<double> rotation_matrix = tl::math::RotationMatrix<double>::zero();
+    RotationMatrix<double> rotation_matrix = RotationMatrix<double>::zero();
 
-  if (mRotation) {
-    tl::math::Rotation::Type type = mRotation->rotationType();
-    if (type == tl::math::Rotation::Type::quaternion) {
-      tl::math::RotationConverter<double>::convert(*dynamic_cast<tl::math::Quaternion<double> *>(mRotation.get()), rotation_matrix);
-    } else if (type == tl::math::Rotation::Type::rotation_matrix) {
-      rotation_matrix = *dynamic_cast<tl::math::RotationMatrix<double> *>(mRotation.get());
+    if (mRotation) {
+        Orientation::Type type = mRotation->type();
+        if (type == Orientation::Type::quaternion) {
+            RotationConverter<double>::convert(*dynamic_cast<Quaternion<double> *>(mRotation.get()), rotation_matrix);
+        } else if (type == Orientation::Type::rotation_matrix) {
+            rotation_matrix = *dynamic_cast<RotationMatrix<double> *>(mRotation.get());
+        }
     }
-  }
 
-  return rotation_matrix;
+    return rotation_matrix;
 }
 
-void CameraPose::setRotationMatrix(const tl::math::RotationMatrix<double> &rotationMatrix)
+void CameraPose::setRotationMatrix(const RotationMatrix<double> &rotationMatrix)
 {
-  mRotation = std::make_shared<tl::math::RotationMatrix<double>>(rotationMatrix);
+    mRotation = std::make_shared<RotationMatrix<double>>(rotationMatrix);
 }
 
 QString CameraPose::crs() const
 {
-  return mCrs;
+    return mCrs;
 }
 
 void CameraPose::setCrs(const QString &crs)
 {
-  mCrs = crs;
+    mCrs = crs;
 }
 
 QString CameraPose::source() const
 {
-  return mSource;
+    return mSource;
 }
 
 void CameraPose::setSource(const QString &source)
 {
-  mSource = source;
+    mSource = source;
 }
 
 bool CameraPose::isEmpty() const
 {
-  return mPosition == tl::Point3D();
+    return mPosition == Point3<double>();
 }
 
 } // namespace graphos

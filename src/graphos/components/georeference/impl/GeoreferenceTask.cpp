@@ -551,7 +551,7 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
 
       GroundControlPoint ground_control_point = mGroundControlPoints[i];
 
-      std::vector<colmap::TriangulationEstimator::PointData> points_data;
+      std::vector<colmap::TriangulationEstimator::Point<double>ata> points_data;
       std::vector<colmap::TriangulationEstimator::PoseData> poses_data;
 
       for (auto &camera : reconstruction.Cameras()) {
@@ -566,7 +566,7 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
             if (track.existPoint(colmap_to_graphos_image_ids[image.second.ImageId()])) {
               tl::Point<double> point = track.point(colmap_to_graphos_image_ids[image.second.ImageId()]);
 
-              colmap::TriangulationEstimator::PointData point_data;
+              colmap::TriangulationEstimator::Point<double>ata point_data;
               point_data.point = Eigen::Vector2d(point.x, point.y);
               point_data.point_normalized = camera.second.ImageToWorld(point_data.point);
               points_data.push_back(point_data);

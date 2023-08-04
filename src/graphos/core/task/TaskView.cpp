@@ -25,7 +25,7 @@
 
 namespace graphos
 {
-	
+
 TaskView::TaskView(QWidget *parent,
                    Qt::WindowFlags f)
   : DialogView(parent, f)

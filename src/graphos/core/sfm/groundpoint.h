@@ -41,27 +41,27 @@ namespace graphos
 /* Ground Control Points */
 
 class GroundControlPoint
-  : public tl::Point3<double>
+    : public tl::Point3<double>
 {
 
 public:
 
-  GroundControlPoint();
-  GroundControlPoint(const tl::Point3<double> &point3d);
-  ~GroundControlPoint() override;
+    GroundControlPoint();
+    GroundControlPoint(const tl::Point3<double> &point3d);
+    ~GroundControlPoint() override;
 
-  std::string name() const;
-  void setName(const std::string &name);
-  void setPoint(const tl::Point3<double> &point);
-  void addPointToTrack(size_t imageId, const tl::Point<double> &point);
-  void setTrack(const GCPTrack &track);
-  void removeTrackPoint(size_t imageId);
-  const GCPTrack &track() const;
+    std::string name() const;
+    void setName(const std::string &name);
+    void setPoint(const tl::Point3<double> &point);
+    void addPointToTrack(size_t imageId, const tl::Point<double> &point);
+    void setTrack(const GCPTrack &track);
+    void removeTrackPoint(size_t imageId);
+    const GCPTrack &track() const;
 
 private:
 
-  std::string mName;
-  GCPTrack mTrack;
+    std::string mName;
+    GCPTrack mTrack;
 
 };
 
@@ -73,24 +73,24 @@ class GCPsReader
 
 public:
 
-  GCPsReader();
-  virtual ~GCPsReader() = default;
+    GCPsReader();
+    virtual ~GCPsReader() = default;
 
-  virtual void read(const tl::Path &path) = 0;
-  virtual std::string format() const = 0;
+    virtual void read(const tl::Path &path) = 0;
+    virtual std::string format() const = 0;
 
-  std::vector<GroundControlPoint> gcps() const;
-  std::string epsgCode() const;
+    std::vector<GroundControlPoint> gcps() const;
+    std::string epsgCode() const;
 
 protected:
 
-  void addGroundControlPoint(const GroundControlPoint &gcp);
-  void setEPSGCode(const std::string &epsgCode);
+    void addGroundControlPoint(const GroundControlPoint &gcp);
+    void setEPSGCode(const std::string &epsgCode);
 
 private:
 
-  std::vector<GroundControlPoint> mGCPs;
-  std::string mEpsgCode;
+    std::vector<GroundControlPoint> mGCPs;
+    std::string mEpsgCode;
 };
 
 
@@ -99,11 +99,11 @@ class GCPsReaderFactory
 
 private:
 
-  GCPsReaderFactory() = default;
+    GCPsReaderFactory() = default;
 
 public:
 
-  static std::unique_ptr<GCPsReader> create(const std::string &format);
+    static std::unique_ptr<GCPsReader> create(const std::string &format);
 
 };
 
@@ -115,24 +115,24 @@ class GCPsWriter
 
 public:
 
-  GCPsWriter();
-  virtual ~GCPsWriter() = default;
+    GCPsWriter();
+    virtual ~GCPsWriter() = default;
 
-  virtual void write(const tl::Path &path) = 0;
-  virtual std::string format() const = 0;
+    virtual void write(const tl::Path &path) = 0;
+    virtual std::string format() const = 0;
 
-  void setGCPs(const std::vector<GroundControlPoint> &GCPs);
-  void setEPSGCode(const std::string &epsgCode);
+    void setGCPs(const std::vector<GroundControlPoint> &GCPs);
+    void setEPSGCode(const std::string &epsgCode);
 
 protected:
 
-  std::vector<GroundControlPoint> gcps() const;
-  std::string epsgCode() const;
+    std::vector<GroundControlPoint> gcps() const;
+    std::string epsgCode() const;
 
 private:
 
-  std::vector<GroundControlPoint> mGCPs;
-  std::string mEpsgCode;
+    std::vector<GroundControlPoint> mGCPs;
+    std::string mEpsgCode;
 };
 
 
@@ -141,11 +141,11 @@ class GCPsWriterFactory
 
 private:
 
-  GCPsWriterFactory() = default;
+    GCPsWriterFactory() = default;
 
 public:
 
-  static std::unique_ptr<GCPsWriter> create(const std::string &format);
+    static std::unique_ptr<GCPsWriter> create(const std::string &format);
 
 };
 
@@ -154,28 +154,28 @@ public:
 /* Ground Points */
 
 class GroundPoint
-  : public tl::Point3<double>
+    : public tl::Point3<double>
 {
 
 public:
 
-  GroundPoint();
-  GroundPoint(const tl::Point3<double> &point3d);
-  ~GroundPoint() override;
+    GroundPoint();
+    GroundPoint(const tl::Point3<double> &point3d);
+    ~GroundPoint() override;
 
-  void setPoint(const tl::Point3<double> &point);
-  tl::graph::Color color() const;
-  void setColor(const tl::graph::Color &color);
-  void addPairToTrack(size_t imageId,
-                      size_t pointId);
-  void setTrack(const Track &track);
-  void removeTrackPair(size_t imageId);
-  const Track &track() const;
+    void setPoint(const tl::Point3<double> &point);
+    tl::Color color() const;
+    void setColor(const tl::Color &color);
+    void addPairToTrack(size_t imageId,
+                        size_t pointId);
+    void setTrack(const Track &track);
+    void removeTrackPair(size_t imageId);
+    const Track &track() const;
 
 private:
 
-  tl::graph::Color mColor;
-  Track mTrack;
+    tl::Color mColor;
+    Track mTrack;
 
 };
 
@@ -187,25 +187,25 @@ class GroundPointsReader
 
 public:
 
-  GroundPointsReader();
-  virtual ~GroundPointsReader() = default;
+    GroundPointsReader();
+    virtual ~GroundPointsReader() = default;
 
-  virtual void read(const tl::Path &path) = 0;
-  virtual std::string format() const = 0;
+    virtual void read(const tl::Path &path) = 0;
+    virtual std::string format() const = 0;
 
-  std::vector<GroundPoint> points() const;
-  std::string epsgCode() const;
+    std::vector<GroundPoint> points() const;
+    std::string epsgCode() const;
 
 protected:
 
-  void addGroundPoint(const GroundPoint &groundPoint);
-  void setGroundPoints(const std::vector<GroundPoint> &groundPoint);
-  void setEPSGCode(const std::string &epsgCode);
+    void addGroundPoint(const GroundPoint &groundPoint);
+    void setGroundPoints(const std::vector<GroundPoint> &groundPoint);
+    void setEPSGCode(const std::string &epsgCode);
 
 private:
 
-  std::vector<GroundPoint> mGroundPoints;
-  std::string mEpsgCode;
+    std::vector<GroundPoint> mGroundPoints;
+    std::string mEpsgCode;
 };
 
 
@@ -214,11 +214,11 @@ class GroundPointsReaderFactory
 
 private:
 
-  GroundPointsReaderFactory() = default;
+    GroundPointsReaderFactory() = default;
 
 public:
 
-  static std::unique_ptr<GroundPointsReader> create(const std::string &format);
+    static std::unique_ptr<GroundPointsReader> create(const std::string &format);
 
 };
 
@@ -230,24 +230,24 @@ class GroundPointsWriter
 
 public:
 
-  GroundPointsWriter();
-  virtual ~GroundPointsWriter() = default;
+    GroundPointsWriter();
+    virtual ~GroundPointsWriter() = default;
 
-  virtual void write(const tl::Path &path) = 0;
-  virtual std::string format() const = 0;
+    virtual void write(const tl::Path &path) = 0;
+    virtual std::string format() const = 0;
 
-  void setGroundPoints(const std::vector<GroundPoint> &groundPoint);
-  void setEPSGCode(const std::string &epsgCode);
+    void setGroundPoints(const std::vector<GroundPoint> &groundPoint);
+    void setEPSGCode(const std::string &epsgCode);
 
 protected:
 
-  std::vector<GroundPoint> groundPoints() const;
-  std::string epsgCode() const;
+    std::vector<GroundPoint> groundPoints() const;
+    std::string epsgCode() const;
 
 private:
 
-  std::vector<GroundPoint> mGroundPoints;
-  std::string mEpsgCode;
+    std::vector<GroundPoint> mGroundPoints;
+    std::string mEpsgCode;
 };
 
 
@@ -256,11 +256,11 @@ class GroundPointsWriterFactory
 
 private:
 
-  GroundPointsWriterFactory() = default;
+    GroundPointsWriterFactory() = default;
 
 public:
 
-  static std::unique_ptr<GroundPointsWriter> create(const std::string &format);
+    static std::unique_ptr<GroundPointsWriter> create(const std::string &format);
 
 };
 

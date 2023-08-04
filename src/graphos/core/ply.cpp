@@ -36,46 +36,46 @@ PlyProperty::PlyProperty(std::string name, Type type)
 
 PlyProperty::Type PlyProperty::type() const
 {
-  return mType;
+    return mType;
 }
 
 std::shared_ptr<PlyProperty> PlyProperty::create(const std::string &name, Type type)
 {
-  std::shared_ptr<PlyProperty> ply_property;
+    std::shared_ptr<PlyProperty> ply_property;
 
-  switch (type) {
-  case graphos::PlyProperty::ply_unknown:
-    //TODO: Devolver excepción
-    break;
-  case graphos::PlyProperty::ply_char:
-    ply_property = std::make_shared<PlyPropertyImp<int8_t>>(name, type);
-    break;
-  case graphos::PlyProperty::ply_uchar:
-    ply_property = std::make_shared<PlyPropertyImp<uint8_t>>(name, type);
-    break;
-  case graphos::PlyProperty::ply_short:
-    ply_property = std::make_shared<PlyPropertyImp<int16_t>>(name, type);
-    break;
-  case graphos::PlyProperty::ply_ushort:
-    ply_property = std::make_shared<PlyPropertyImp<uint16_t>>(name, type);
-    break;
-  case graphos::PlyProperty::ply_int:
-    ply_property = std::make_shared<PlyPropertyImp<int32_t>>(name, type);
-    break;
-  case graphos::PlyProperty::ply_uint:
-    ply_property = std::make_shared<PlyPropertyImp<uint32_t>>(name, type);
-    break;
-  case graphos::PlyProperty::ply_float:
-    ply_property = std::make_shared<PlyPropertyImp<float>>(name, type);
-    break;
-  case graphos::PlyProperty::ply_double:
-    ply_property = std::make_shared<PlyPropertyImp<double>>(name, type);
-    break;
-  default:
-    break;
-  }
+    switch (type) {
+    case graphos::PlyProperty::ply_unknown:
+        //TODO: Devolver excepción
+        break;
+    case graphos::PlyProperty::ply_char:
+        ply_property = std::make_shared<PlyPropertyImp<int8_t>>(name, type);
+        break;
+    case graphos::PlyProperty::ply_uchar:
+        ply_property = std::make_shared<PlyPropertyImp<uint8_t>>(name, type);
+        break;
+    case graphos::PlyProperty::ply_short:
+        ply_property = std::make_shared<PlyPropertyImp<int16_t>>(name, type);
+        break;
+    case graphos::PlyProperty::ply_ushort:
+        ply_property = std::make_shared<PlyPropertyImp<uint16_t>>(name, type);
+        break;
+    case graphos::PlyProperty::ply_int:
+        ply_property = std::make_shared<PlyPropertyImp<int32_t>>(name, type);
+        break;
+    case graphos::PlyProperty::ply_uint:
+        ply_property = std::make_shared<PlyPropertyImp<uint32_t>>(name, type);
+        break;
+    case graphos::PlyProperty::ply_float:
+        ply_property = std::make_shared<PlyPropertyImp<float>>(name, type);
+        break;
+    case graphos::PlyProperty::ply_double:
+        ply_property = std::make_shared<PlyPropertyImp<double>>(name, type);
+        break;
+    default:
+        break;
+    }
 
-  return ply_property;
+    return ply_property;
 }
 
 
@@ -90,7 +90,7 @@ Ply::Ply()
     mSize(0),
     mReserveSize(0)
 {
-  init();
+    init();
 }
 
 Ply::Ply(const std::string &file,
@@ -103,16 +103,16 @@ Ply::Ply(const std::string &file,
     mHasNormals(false),
     mHasScalarFields(false)
 {
-  init();
-  open(_file, mode);
+    init();
+    open(_file, mode);
 }
 
 Ply::~Ply()
 {
-  if (stream) {
-    delete stream;
-    stream = nullptr;
-  }
+    if (stream) {
+        delete stream;
+        stream = nullptr;
+    }
 }
 
 
@@ -120,371 +120,369 @@ Ply::~Ply()
 void Ply::open(const std::string &file,
                OpenMode mode)
 {
-  _file = file;
+    _file = file;
 
-  flags = mode;
+    flags = mode;
 
-  TL_ASSERT(tl::Path::exists(file), "File does not exist");
+    TL_ASSERT(tl::Path::exists(file), "File does not exist");
 
-  if (flags.isEnabled(OpenMode::in)) {
+    if (flags.isEnabled(OpenMode::in)) {
 
-    stream = new std::fstream(_file, std::ios_base::in | std::ios_base::binary);
+        stream = new std::fstream(_file, std::ios_base::in | std::ios_base::binary);
 
-    readHeader();
-    readBody();
+        readHeader();
+        readBody();
 
-    stream->close();
-  } 
-  
-  //if (flags.isEnabled(OpenMode::out)) {
+        stream->close();
+    }
 
-  //  open_mode += std::ios_base::out;
-  //  //if (flags.isEnabled(OpenMode::binary)) open_mode += std::ios_base::binary;
-  //  
-  //  mIsBinary = flags.isEnabled(OpenMode::binary);
-  //  if (mIsBinary) mIsLittleEndian = true;
+    //if (flags.isEnabled(OpenMode::out)) {
 
-  //  stream = new std::fstream(file, open_mode);
-  //}
+    //  open_mode += std::ios_base::out;
+    //  //if (flags.isEnabled(OpenMode::binary)) open_mode += std::ios_base::binary;
+    //  
+    //  mIsBinary = flags.isEnabled(OpenMode::binary);
+    //  if (mIsBinary) mIsLittleEndian = true;
+
+    //  stream = new std::fstream(file, open_mode);
+    //}
 
 }
 
 void Ply::save(bool binary)
 {
-  mIsBinary = binary;
-  std::ios_base::openmode open_mode = std::ios_base::out;
+    mIsBinary = binary;
+    std::ios_base::openmode open_mode = std::ios_base::out;
 
-  stream = new std::fstream(_file, open_mode | std::ios_base::trunc);
+    stream = new std::fstream(_file, open_mode | std::ios_base::trunc);
 
-  writeHeader();
+    writeHeader();
 
-  if (mIsBinary) {
+    if (mIsBinary) {
+        stream->close();
+        //stream = new std::fstream(_file, open_mode | std::ios_base::app | std::ios_base::binary);
+        stream->open(_file, open_mode | std::ios_base::app | std::ios_base::binary);
+    }
+
+    writeBody();
+
     stream->close();
-    //stream = new std::fstream(_file, open_mode | std::ios_base::app | std::ios_base::binary);
-    stream->open(_file, open_mode | std::ios_base::app | std::ios_base::binary);
-  }
-
-  writeBody();
-
-  stream->close();
 }
 
 void Ply::close()
 {
-  if (stream->is_open())  
-    stream->close();
+    if (stream && stream->is_open())
+        stream->close();
 }
 
 void Ply::resize(size_t size)
 {
-  mSize = size;
-  for (auto property_name : mPropertiesNames)
-    mProperties[property_name].resize(size);
+    mSize = size;
+    for (auto property_name : mPropertiesNames)
+        mProperties[property_name].resize(size);
 }
 
 void Ply::reserve(size_t size)
 {
-  mReserveSize = size;
-  for (auto property_name : mPropertiesNames)
-    mProperties[property_name].reserve(size);
+    mReserveSize = size;
+    for (auto property_name : mPropertiesNames)
+        mProperties[property_name].reserve(size);
 }
 
 void Ply::init()
 {
-  mStringTypes["unknown"] = PlyProperty::Type::ply_unknown;
-  mStringTypes["int8"] = PlyProperty::Type::ply_int8;
-  mStringTypes["uint8"] = PlyProperty::Type::ply_uint8;
-  mStringTypes["int16"] = PlyProperty::Type::ply_int16;
-  mStringTypes["uint16"] = PlyProperty::Type::ply_uint16;
-  mStringTypes["int32"] = PlyProperty::Type::ply_int32;
-  mStringTypes["uint32"] = PlyProperty::Type::ply_uin32;
-  mStringTypes["float32"] = PlyProperty::Type::ply_float32;
-  mStringTypes["float64"] = PlyProperty::Type::ply_float64;
-  mStringTypes["char"] = PlyProperty::Type::ply_char;
-  mStringTypes["uchar"] = PlyProperty::Type::ply_uchar;
-  mStringTypes["short"] = PlyProperty::Type::ply_short;
-  mStringTypes["ushort"] = PlyProperty::Type::ply_ushort;
-  mStringTypes["int"] = PlyProperty::Type::ply_int;
-  mStringTypes["uint"] = PlyProperty::Type::ply_uint;
-  mStringTypes["float"] = PlyProperty::Type::ply_float;
-  mStringTypes["double"] = PlyProperty::Type::ply_double;
+    mStringTypes["unknown"] = PlyProperty::Type::ply_unknown;
+    mStringTypes["int8"] = PlyProperty::Type::ply_int8;
+    mStringTypes["uint8"] = PlyProperty::Type::ply_uint8;
+    mStringTypes["int16"] = PlyProperty::Type::ply_int16;
+    mStringTypes["uint16"] = PlyProperty::Type::ply_uint16;
+    mStringTypes["int32"] = PlyProperty::Type::ply_int32;
+    mStringTypes["uint32"] = PlyProperty::Type::ply_uin32;
+    mStringTypes["float32"] = PlyProperty::Type::ply_float32;
+    mStringTypes["float64"] = PlyProperty::Type::ply_float64;
+    mStringTypes["char"] = PlyProperty::Type::ply_char;
+    mStringTypes["uchar"] = PlyProperty::Type::ply_uchar;
+    mStringTypes["short"] = PlyProperty::Type::ply_short;
+    mStringTypes["ushort"] = PlyProperty::Type::ply_ushort;
+    mStringTypes["int"] = PlyProperty::Type::ply_int;
+    mStringTypes["uint"] = PlyProperty::Type::ply_uint;
+    mStringTypes["float"] = PlyProperty::Type::ply_float;
+    mStringTypes["double"] = PlyProperty::Type::ply_double;
 }
 
 void Ply::readHeader()
 {
-  std::string line;
+    std::string line;
 
-  std::getline(*stream, line);
+    std::getline(*stream, line);
 
-  line.erase(std::remove(line.begin(), line.end(), '\r' ), line.end());
-  line.erase(std::remove(line.begin(), line.end(), '\n' ), line.end());
+    line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+    line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
 
-  TL_ASSERT(line == "ply", "Invalid Ply file");
+    TL_ASSERT(line == "ply", "Invalid Ply file");
 
-  std::string name;
-  std::string type;
-  std::string value;
+    std::string name;
+    std::string type;
+    std::string value;
 
-  int coordinates_dimension{};
-  int normals_dimension{};
-  int color_dimension{};
+    int coordinates_dimension{};
+    int normals_dimension{};
+    int color_dimension{};
 
-  while (std::getline(*stream, line)) {
+    while (std::getline(*stream, line)) {
 
-    line.erase(std::remove(line.begin(), line.end(), '\r' ), line.end());
-    line.erase(std::remove(line.begin(), line.end(), '\n' ), line.end());
+        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+        line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
 
-    if (line == "end_header") break;
+        if (line == "end_header") break;
 
-    std::istringstream isstream(line);
-    isstream >> name >> type >> value;
+        std::istringstream isstream(line);
+        isstream >> name >> type >> value;
 
-    if (name == "format") {
+        if (name == "format") {
 
-      if (type == "binary_little_endian") {
-        mIsBinary = true;
-        mIsLittleEndian = true;
-      } else if (type == "binary_big_endian") {
-        mIsBinary = true;
-        mIsLittleEndian = false;
-      } else if (type == "ascii") {
-        mIsBinary = false;
-      } else {
-        /// TODO: devolver error
-      }
+            if (type == "binary_little_endian") {
+                mIsBinary = true;
+                mIsLittleEndian = true;
+            } else if (type == "binary_big_endian") {
+                mIsBinary = true;
+                mIsLittleEndian = false;
+            } else if (type == "ascii") {
+                mIsBinary = false;
+            } else {
+                /// TODO: devolver error
+            }
 
-    } else if (name == "element") {
+        } else if (name == "element") {
 
-      if (type == "vertex") {
-        mSize = tl::convertStringTo<size_t>(value);
-      } /*else if (type == "vertex") {
-        mFaceSize = tl::convertStringTo<size_t>(value);
-      }*/ else {
-        msgError("Error reading Ply: Only vertex elements supported");
-      }
+            if (type == "vertex") {
+                mSize = tl::convertStringTo<size_t>(value);
+            } /*else if (type == "vertex") {
+              mFaceSize = tl::convertStringTo<size_t>(value);
+            }*/ else {
+                tl::Message::error("Error reading Ply: Only vertex elements supported");
+            }
 
-    } else if (name == "property") {
+        } else if (name == "property") {
 
-      mProperties[value].reserve(mSize);
-      mPropertiesNames.push_back(value);
-      mPropertiesTypes.push_back(findType(type));
+            mProperties[value].reserve(mSize);
+            mPropertiesNames.push_back(value);
+            mPropertiesTypes.push_back(findType(type));
 
-      if (value == "x" || value == "y" ||  value == "z") {
+            if (value == "x" || value == "y" || value == "z") {
 
-        coordinates_dimension++;
+                coordinates_dimension++;
 
-      } else if (value == "red" || value == "green" || value == "blue") {
+            } else if (value == "red" || value == "green" || value == "blue") {
 
-        color_dimension++;
+                color_dimension++;
 
-      } else if (value == "nx" || value == "ny" || value == "nz") {
+            } else if (value == "nx" || value == "ny" || value == "nz") {
 
-        normals_dimension++;
+                normals_dimension++;
 
-      } else {
+            } else {
 
-        mHasScalarFields = true;
+                mHasScalarFields = true;
 
-      }
+            }
 
-    } else {
-      // Comment
+        } else {
+            // Comment
+        }
     }
-  }
 
-  TL_ASSERT(coordinates_dimension == 3, "Invalid Ply file");
-  mHasColors = color_dimension == 3;
-  mHasNormals = normals_dimension == 3;
+    TL_ASSERT(coordinates_dimension == 3, "Invalid Ply file");
+    mHasColors = color_dimension == 3;
+    mHasNormals = normals_dimension == 3;
 }
 
 size_t Ply::size() const
 {
-  return mSize;
+    return mSize;
 }
 
 void Ply::readBody()
 {
-  if (mIsBinary) {
-    readBinaryBody();
-  } else {
-    readTextBody();
-  }
+    if (mIsBinary) {
+        readBinaryBody();
+    } else {
+        readTextBody();
+    }
 }
 
 void Ply::readTextBody()
 {
-  std::string line;
+    std::string line;
 
-  size_t counter{};
+    size_t counter{};
 
-  while (std::getline(*stream, line)) {
+    while (std::getline(*stream, line)) {
 
-    while (line.empty()) {
-      std::getline(*stream, line);
+        while (line.empty()) {
+            std::getline(*stream, line);
+        }
+
+        std::stringstream line_stream(line);
+
+        std::string item;
+        std::vector<std::string> items;
+        size_t property_index = 0;
+
+        while (!line_stream.eof()) {
+
+            std::getline(line_stream, item, ' ');
+            std::string property_name = mPropertiesNames[property_index++];
+            PlyProperty::Type property_type = mPropertiesTypes[property_index++];
+            auto property = PlyProperty::create(property_name, property_type);
+            property->setValue(item);
+            mProperties[property_name].push_back(property);
+
+        }
+
+        counter++;
     }
-
-    std::stringstream line_stream(line);
-
-    std::string item;
-    std::vector<std::string> items;
-    size_t property_index = 0;
-
-    while (!line_stream.eof()) {
-
-      std::getline(line_stream, item, ' ');
-      std::string property_name = mPropertiesNames[property_index++];
-      PlyProperty::Type property_type = mPropertiesTypes[property_index++];
-      auto property = PlyProperty::create(property_name, property_type);
-      property->setValue(item);
-      mProperties[property_name].push_back(property);
-
-    }
-
-    counter++;
-  }
 }
 
 void Ply::readBinaryBody()
 {
-  for (size_t i = 0; i < mSize; ++i) {
-    for (size_t j = 0; j < mPropertiesNames.size(); j++) {
+    for (size_t i = 0; i < mSize; ++i) {
+        for (size_t j = 0; j < mPropertiesNames.size(); j++) {
 
-      std::string property_name = mPropertiesNames[j];
-      PlyProperty::Type property_type = mPropertiesTypes[j];
-      auto property = PlyProperty::create(property_name, property_type);
-      property->read(stream);
-      mProperties[property_name].push_back(property);
+            std::string property_name = mPropertiesNames[j];
+            PlyProperty::Type property_type = mPropertiesTypes[j];
+            auto property = PlyProperty::create(property_name, property_type);
+            property->read(stream);
+            mProperties[property_name].push_back(property);
 
+        }
     }
-  }
 }
 
 void Ply::writeHeader()
 {
-  TL_ASSERT(stream->is_open(), "File not open");
+    TL_ASSERT(stream->is_open(), "File not open");
 
-  std::string endianness;
-  if (mIsBinary && mIsLittleEndian)
-    endianness = "binary_little_endian";
-  else if (mIsBinary && !mIsLittleEndian)
-    endianness = "binary_big_endian";
-  else
-    endianness = "ascii";
+    std::string endianness;
+    if (mIsBinary && mIsLittleEndian)
+        endianness = "binary_little_endian";
+    else if (mIsBinary && !mIsLittleEndian)
+        endianness = "binary_big_endian";
+    else
+        endianness = "ascii";
 
-  *stream << "ply\n"
-          << "format " << endianness << " 1.0\n"
-          << "element vertex " << mSize << std::endl;
+    *stream << "ply\n"
+        << "format " << endianness << " 1.0\n"
+        << "element vertex " << mSize << std::endl;
 
-  *stream << "comment Created by GRAPHOS" << std::endl; 
+    *stream << "comment Created by GRAPHOS" << std::endl;
 
-  for (size_t i = 0; i < mPropertiesNames.size(); i++) {
-    std::string property_name = mPropertiesNames[i];
-    std::string property_type = findStringType(mPropertiesTypes[i]);
-    *stream << "property " << property_type << " " << property_name << "\n";
-  }
+    for (size_t i = 0; i < mPropertiesNames.size(); i++) {
+        std::string property_name = mPropertiesNames[i];
+        std::string property_type = findStringType(mPropertiesTypes[i]);
+        *stream << "property " << property_type << " " << property_name << "\n";
+    }
 
-  *stream << "end_header" << std::endl;
+    *stream << "end_header" << std::endl;
 }
 
 void Ply::writeBody()
 {
-  if (mIsBinary) {
-    writeBinaryBody();
-  } else {
-    writeTextBody();
-  }
+    if (mIsBinary) {
+        writeBinaryBody();
+    } else {
+        writeTextBody();
+    }
 }
 
 void Ply::writeTextBody()
 {
-  for (size_t i = 0; i < mSize; ++i) {
-    
-    for (auto &name : mPropertiesNames) {
-      auto &property = mProperties.at(name).at(i);
-      property->write(stream);
-      *stream << " ";
+    for (size_t i = 0; i < mSize; ++i) {
+
+        for (auto &name : mPropertiesNames) {
+            auto &property = mProperties.at(name).at(i);
+            property->write(stream);
+            *stream << " ";
+        }
+
+        *stream << "\n";
     }
-          
-    *stream << "\n";
-  }
-      
-  *stream << std::endl;
+
+    *stream << std::endl;
 }
 
 void Ply::writeBinaryBody()
 {
-  for (size_t i = 0; i < mSize; ++i) {
-    for (auto &name : mPropertiesNames) {
-      auto &property = mProperties.at(name).at(i);
-      property->write(stream, mIsLittleEndian);
+    for (size_t i = 0; i < mSize; ++i) {
+        for (auto &name : mPropertiesNames) {
+            auto &property = mProperties.at(name).at(i);
+            property->write(stream, mIsLittleEndian);
+        }
     }
-  }
 }
 
 PlyProperty::Type Ply::findType(const std::string &sType) const
 {
-  PlyProperty::Type type = PlyProperty::Type::ply_unknown;
+    PlyProperty::Type type = PlyProperty::Type::ply_unknown;
 
-  auto string_type = mStringTypes.find(sType);
-  if (string_type != mStringTypes.end()) {
-    type = string_type->second;
-  }
+    auto string_type = mStringTypes.find(sType);
+    if (string_type != mStringTypes.end()) {
+        type = string_type->second;
+    }
 
-  return type;
+    return type;
 }
 
 std::string Ply::findStringType(PlyProperty::Type type) const
 {
-  std::string string_type = "unknown";
+    std::string string_type = "unknown";
 
-  for (auto &_type : mStringTypes) {
-    if (_type.second == type) {
-      string_type = _type.first;
-      break;
+    for (auto &_type : mStringTypes) {
+        if (_type.second == type) {
+            string_type = _type.first;
+            break;
+        }
     }
-  }
 
-  return string_type;
+    return string_type;
 }
 
 
 
 bool Ply::hasColors() const
 {
-  return mHasColors;
+    return mHasColors;
 }
 
 bool Ply::hasNormals() const
 {
-  return mHasNormals;
+    return mHasNormals;
 }
 
 bool Ply::hasScalarFields() const
 {
-  return false;
+    return false;
 }
 
-tl::graph::Color Ply::color(size_t index) const
+tl::Color Ply::color(size_t index) const
 {
-  return tl::graph::ColorRGB(property<int>(index, "red"),
-                             property<int>(index, "green"), 
-                             property<int>(index, "blue"));
+    return tl::ColorRGB(property<int>(index, "red"),
+                        property<int>(index, "green"),
+                        property<int>(index, "blue"));
 }
 
-void Ply::addColor(const tl::graph::Color &color)
+void Ply::addColor(const tl::Color &color)
 {
-  mHasColors = true;
-  addProperty("red", color.red());
-  addProperty("green", color.green());
-  addProperty("blue", color.blue());
+    mHasColors = true;
+    addProperty("red", color.red());
+    addProperty("green", color.green());
+    addProperty("blue", color.blue());
 }
 
 std::shared_ptr<PlyProperty> Ply::property(size_t index,
                                            const std::string &propertyName) const
 {
-  return mProperties.at(propertyName).at(index);
+    return mProperties.at(propertyName).at(index);
 }
-
-
 
 } // end namespace graphos

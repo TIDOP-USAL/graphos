@@ -38,23 +38,23 @@ class RelativeOrientation
 
 public:
 
-  enum class Method
-  {
-    colmap
-  };
+    enum class Method
+    {
+        colmap
+    };
 
 public:
 
-  RelativeOrientation(){}
-  virtual ~RelativeOrientation() = default;
+    RelativeOrientation() {}
+    virtual ~RelativeOrientation() = default;
 
-  virtual void reset() = 0;
-  virtual QString name() const = 0;
-  Method method() const { return mOrientationMethod.flags(); }
+    virtual void reset() = 0;
+    virtual QString name() const = 0;
+    Method method() const { return mOrientationMethod.flags(); }
 
 protected:
 
-  tl::EnumFlags<Method> mOrientationMethod;
+    tl::EnumFlags<Method> mOrientationMethod;
 
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(RelativeOrientation::Method)
@@ -84,23 +84,23 @@ class AbsoluteOrientation
 
 public:
 
-  enum class Method
-  {
-    colmap
-  };
+    enum class Method
+    {
+        colmap
+    };
 
 public:
 
-  AbsoluteOrientation(){}
-  virtual ~AbsoluteOrientation() = default;
+    AbsoluteOrientation() {}
+    virtual ~AbsoluteOrientation() = default;
 
-  virtual void reset() = 0;
-  virtual QString name() const = 0;
-  Method method() const { return mOrientationMethod.flags(); }
+    virtual void reset() = 0;
+    virtual QString name() const = 0;
+    Method method() const { return mOrientationMethod.flags(); }
 
 protected:
 
-  tl::EnumFlags<Method> mOrientationMethod;
+    tl::EnumFlags<Method> mOrientationMethod;
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(AbsoluteOrientation::Method)
 

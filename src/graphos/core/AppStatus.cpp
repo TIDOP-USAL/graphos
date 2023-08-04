@@ -37,77 +37,77 @@ AppStatus::~AppStatus()
 
 void AppStatus::activeFlag(Flag flag, bool active)
 {
-  if (mFlags.isEnabled(flag) != active) {
-    mFlags.activeFlag(flag, active);
-    emit update();
-  }
+    if (mFlags.isEnabled(flag) != active) {
+        mFlags.activeFlag(flag, active);
+        emit update();
+    }
 }
 
 bool AppStatus::isEnabled(Flag flag) const
 {
-  return mFlags.isEnabled(flag);
+    return mFlags.isEnabled(flag);
 }
 
 void AppStatus::enable(Flag flag)
 {
-  if (!mFlags.isEnabled(flag)) {
-    mFlags.enable(flag);
-    emit update();
-  }
+    if (!mFlags.isEnabled(flag)) {
+        mFlags.enable(flag);
+        emit update();
+    }
 }
 
 void AppStatus::disable(Flag flag)
 {
-  if (mFlags.isEnabled(flag)) {
-    mFlags.disable(flag);
-    emit update();
-  }
+    if (mFlags.isEnabled(flag)) {
+        mFlags.disable(flag);
+        emit update();
+    }
 }
 
 void AppStatus::switchFlag(Flag flag)
 {
-  mFlags.switchFlag(flag);
-  emit update();
+    mFlags.switchFlag(flag);
+    emit update();
 }
 
 void AppStatus::activeFlag(uint32_t flag, bool active)
 {
-  mUserFlags.activeFlag(flag, active);
-  emit update();
+    mUserFlags.activeFlag(flag, active);
+    emit update();
 }
 
 bool AppStatus::isEnabled(uint32_t flag) const
 {
-  return mUserFlags.isEnabled(flag);
+    return mUserFlags.isEnabled(flag);
 }
 
 void AppStatus::enable(uint32_t flag)
 {
-  if (!mUserFlags.isEnabled(flag)) {
-    mUserFlags.enable(flag);
-    emit update();
-  }
+    if (!mUserFlags.isEnabled(flag)) {
+        mUserFlags.enable(flag);
+        emit update();
+    }
 }
 
 void AppStatus::disable(uint32_t flag)
 {
-  if (mUserFlags.isEnabled(flag)) {
-    mUserFlags.disable(flag);
-    emit update();
-  }
+    if (mUserFlags.isEnabled(flag)) {
+        mUserFlags.disable(flag);
+        emit update();
+    }
 }
 
 void AppStatus::switchFlag(uint32_t flag)
 {
-  mUserFlags.switchFlag(flag);
-  emit update();
+    mUserFlags.switchFlag(flag);
+    emit update();
 }
 
 void AppStatus::clear()
 {
-  mFlags.clear();
-  mUserFlags.clear();
-  emit update();
+    mFlags.clear();
+    mUserFlags.clear();
+    emit update();
 }
 
 } // namespace graphos

@@ -46,49 +46,49 @@ class TaskPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  TaskPresenter();
-  ~TaskPresenter() override;
+    TaskPresenter();
+    ~TaskPresenter() override;
 
 protected:
 
-  virtual void onError(tl::TaskErrorEvent *event);
-  virtual void onFinished(tl::TaskFinalizedEvent *event);
-  virtual void onStopped(tl::TaskStoppedEvent *event);
+    virtual void onError(tl::TaskErrorEvent *event);
+    virtual void onFinished(tl::TaskFinalizedEvent *event);
+    virtual void onStopped(tl::TaskStoppedEvent *event);
 
-  ProgressHandler *progressHandler();
+    ProgressHandler *progressHandler();
 
-  /*!
-   * \brief Create task
-   * return Task
-   */
-  virtual std::unique_ptr<tl::Task> createProcess() = 0;
+    /*!
+     * \brief Create task
+     * return Task
+     */
+    virtual std::unique_ptr<tl::Task> createProcess() = 0;
 
 public slots:
 
-  virtual void setProgressHandler(ProgressHandler *progressHandler);
-  virtual void run();
-  virtual void cancel();
+    virtual void setProgressHandler(ProgressHandler *progressHandler);
+    virtual void run();
+    virtual void cancel();
 
 signals:
 
-  void running();
-  void finished();
-  void failed();
-  void canceled();
+    void running();
+    void finished();
+    void failed();
+    void canceled();
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  std::unique_ptr<tl::Task> mProcess;
-  ProgressHandler *mProgressHandler;
+    std::unique_ptr<tl::Task> mProcess;
+    ProgressHandler *mProgressHandler;
 };
 
 

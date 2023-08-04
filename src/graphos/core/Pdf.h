@@ -46,70 +46,70 @@ class PdfStyle
 
 public:
 
-  /*!
-   * \brief Constructor por defecto
-   */
-  PdfStyle();
+    /*!
+     * \brief Constructor por defecto
+     */
+    PdfStyle();
 
-  /*!
-   * \brief Constructor
-   * \param[in] font Fuente
-   * \param[in] brush Pincel
-   * \param[in] pen Pluma
-   * \param[in] options Opciones
-   */
-  PdfStyle(const QFont &font, 
-           const QBrush &brush = QBrush(), 
-           const QPen &pen = QPen(), 
-           int options = 0);
+    /*!
+     * \brief Constructor
+     * \param[in] font Fuente
+     * \param[in] brush Pincel
+     * \param[in] pen Pluma
+     * \param[in] options Opciones
+     */
+    PdfStyle(const QFont &font,
+             const QBrush &brush = QBrush(),
+             const QPen &pen = QPen(),
+             int options = 0);
 
-  /*!
-   * \brief Constructor de copia
-   */
-  PdfStyle(const PdfStyle &pdfStyle);
+    /*!
+     * \brief Constructor de copia
+     */
+    PdfStyle(const PdfStyle &pdfStyle);
 
-  /*!
-   * \brief Destructora
-   */
-  ~PdfStyle() = default;
+    /*!
+     * \brief Destructora
+     */
+    ~PdfStyle() = default;
 
-  PdfStyle &operator = (const PdfStyle &pdfStyle) = default;
+    PdfStyle &operator = (const PdfStyle &pdfStyle) = default;
 
-  const QBrush brush() const;
-  const QFont font() const;
-  int options() const;
-  const QPen pen() const;
+    const QBrush brush() const;
+    const QFont font() const;
+    int options() const;
+    const QPen pen() const;
 
-  void setBrush(const QBrush &brush);
-  void setFont(const QFont &font);
-  void setFont(const QString &family, 
-               int pointSize, 
-               int weight, 
-               bool italic);
-  void setOptions(int options);
-  void setPen(const QPen &pen);
+    void setBrush(const QBrush &brush);
+    void setFont(const QFont &font);
+    void setFont(const QString &family,
+                 int pointSize,
+                 int weight,
+                 bool italic);
+    void setOptions(int options);
+    void setPen(const QPen &pen);
 
 protected:
 
-  /*!
-   * \brief Fuente
-   */
-  QFont mFont;
+    /*!
+     * \brief Fuente
+     */
+    QFont mFont;
 
-  /*!
-   * \brief Pincel
-   */
-  QBrush mBrush;
+    /*!
+     * \brief Pincel
+     */
+    QBrush mBrush;
 
-  /*!
-   * \brief Pluma
-   */
-  QPen mPen;
+    /*!
+     * \brief Pluma
+     */
+    QPen mPen;
 
-  /*!
-   * \brief Opciones
-   */
-  int mOptions;
+    /*!
+     * \brief Opciones
+     */
+    int mOptions;
 
 };
 
@@ -117,386 +117,386 @@ protected:
 class TablePdf
 {
 
-  public:
-    
+public:
+
     enum class Border
     {
-      none   = 1 << 0,
-      left   = 1 << 1,
-      right  = 1 << 2,
-      top    = 1 << 3,
-      botton = 1 << 4,
-      all    = left | right | top | botton
+        none = 1 << 0,
+        left = 1 << 1,
+        right = 1 << 2,
+        top = 1 << 3,
+        botton = 1 << 4,
+        all = left | right | top | botton
     };
 
-  class Cell
-  {
+    class Cell
+    {
 
-  public:
+    public:
 
-    Cell(TablePdf *parent = nullptr);
-    Cell(QString value, 
-         int colspan = 1, 
-         int rowspan = 1);
-    Cell(const Cell &cell);
-    //Cell(const Cell &cell) = delete;
-    //Cell(Cell &&cell) = delete;
-
-
-    QPen border(Border border) const;
-    int colspan() const;
-    int rowspan() const;
-    int spacing(Border border) const;
-    PdfStyle style() const;
-    QString text() const;
-
-    bool isSpan() const;
-
-    void setBorder(Border border, const QPen &pen);
-    void setColspan(int colspan);
-    void setRowspan(int rowspan);
-    void setSpacing(Border border, int spacing);
-    void setSpan(int r, int c);
-    void setSpanRef(Cell &ref);
-    void setStyle(const PdfStyle &style);
-    void setText(const QString &text);
-
-  public:
-
-    //TODO: incluir un espaciado del texto al borde
-  private:
-
-    /*!
-     * \brief Puntero a la tabla a la que pertenece
-     */
-    TablePdf *mParent;
-    
-  protected:
-
-    /*!
-     * \brief Texto de la celda
-     */
-    QString mText;
-
-    /*!
-     * \brief Número de celdas que se combinan en horizontal
-     */
-    int mColspan;
-
-    /*!
-     * \brief Número de celdas que se combinan en vertical
-     */
-    int mRowspan;
-
-    /*!
-     * \brief Estilo
-     */
-    PdfStyle mStyle;
-
-    /*!
-     * \brief Pluma de borde
-     */
-    std::map<Border, QPen> mBorder;
-
-    /*!
-     * \brief Referencia a la celda a la que esta unida
-     */
-    Cell *mSpanRef;
-
-    /*!
-     * \brief Espaciado de borde
-     */
-    std::map<Border, int> mSpacing;
+        Cell(TablePdf *parent = nullptr);
+        Cell(QString value,
+             int colspan = 1,
+             int rowspan = 1);
+        Cell(const Cell &cell);
+        //Cell(const Cell &cell) = delete;
+        //Cell(Cell &&cell) = delete;
 
 
-  };
+        QPen border(Border border) const;
+        int colspan() const;
+        int rowspan() const;
+        int spacing(Border border) const;
+        PdfStyle style() const;
+        QString text() const;
+
+        bool isSpan() const;
+
+        void setBorder(Border border, const QPen &pen);
+        void setColspan(int colspan);
+        void setRowspan(int rowspan);
+        void setSpacing(Border border, int spacing);
+        void setSpan(int r, int c);
+        void setSpanRef(Cell &ref);
+        void setStyle(const PdfStyle &style);
+        void setText(const QString &text);
+
+    public:
+
+        //TODO: incluir un espaciado del texto al borde
+    private:
+
+        /*!
+         * \brief Puntero a la tabla a la que pertenece
+         */
+        TablePdf *mParent;
+
+    protected:
+
+        /*!
+         * \brief Texto de la celda
+         */
+        QString mText;
+
+        /*!
+         * \brief Número de celdas que se combinan en horizontal
+         */
+        int mColspan;
+
+        /*!
+         * \brief Número de celdas que se combinan en vertical
+         */
+        int mRowspan;
+
+        /*!
+         * \brief Estilo
+         */
+        PdfStyle mStyle;
+
+        /*!
+         * \brief Pluma de borde
+         */
+        std::map<Border, QPen> mBorder;
+
+        /*!
+         * \brief Referencia a la celda a la que esta unida
+         */
+        Cell *mSpanRef;
+
+        /*!
+         * \brief Espaciado de borde
+         */
+        std::map<Border, int> mSpacing;
+
+
+    };
 
 protected:
 
-  /*!
-   * \brief Número de columnas
-   */
-  int mCols;
+    /*!
+     * \brief Número de columnas
+     */
+    int mCols;
 
-  /*!
-   * \brief Número de filas
-   */
-  int mRows;
+    /*!
+     * \brief Número de filas
+     */
+    int mRows;
 
-  /*!
-   * \brief Celdas de la tabla
-   */
-  std::vector<std::vector<Cell>> mValues;
+    /*!
+     * \brief Celdas de la tabla
+     */
+    std::vector<std::vector<Cell>> mValues;
 
-  /*!
-   * \brief Estilo de la tabla 
-   */
-  PdfStyle mStyleTable;
+    /*!
+     * \brief Estilo de la tabla
+     */
+    PdfStyle mStyleTable;
 
-  /*!
-   * \brief Bordes de la tabla 
-   */
-  std::map<Border, QPen> mBorders;
+    /*!
+     * \brief Bordes de la tabla
+     */
+    std::map<Border, QPen> mBorders;
 
 public:
 
-  /*!
-   * \brief Constructor por defecto
-   */
-  TablePdf();
+    /*!
+     * \brief Constructor por defecto
+     */
+    TablePdf();
 
-  /*!
-   * \brief Constructor
-   * \param[in] cols Número de columnas
-   * \param[in] rows Número de filas
-   */
-  TablePdf(int cols, int rows);
+    /*!
+     * \brief Constructor
+     * \param[in] cols Número de columnas
+     * \param[in] rows Número de filas
+     */
+    TablePdf(int cols, int rows);
 
-  /*!
-   * \brief Constructor de copia
-   * \param[in] TablePdf Objeto TablePdf que se copia
-   */
-  TablePdf(const TablePdf &table);
+    /*!
+     * \brief Constructor de copia
+     * \param[in] TablePdf Objeto TablePdf que se copia
+     */
+    TablePdf(const TablePdf &table);
 
-  /*!
-   * \brief Destructor
-   */
-  ~TablePdf();
+    /*!
+     * \brief Destructor
+     */
+    ~TablePdf();
 
-  /*!
-   * \brief Dibuja la tabla
-   */
-  //void draw(QPainter *painter, int x, int y);
+    /*!
+     * \brief Dibuja la tabla
+     */
+     //void draw(QPainter *painter, int x, int y);
 
-  /*!
-   * \brief Devuelve la pluma del borde indicado
-   * \param[in] border Borde
-   * \return Pluma del borde indicado
-   * \see Border
-   */
-  QPen borderTable(Border border) const;
+     /*!
+      * \brief Devuelve la pluma del borde indicado
+      * \param[in] border Borde
+      * \return Pluma del borde indicado
+      * \see Border
+      */
+    QPen borderTable(Border border) const;
 
-  /*!
-   * \brief Devuelve la celda en la posición r, c
-   * \param[in] r Fila
-   * \param[in] c Columna
-   * \return Celda
-   * \see Cell
-   */
-  const Cell *cell(int r, int c) const;
+    /*!
+     * \brief Devuelve la celda en la posición r, c
+     * \param[in] r Fila
+     * \param[in] c Columna
+     * \return Celda
+     * \see Cell
+     */
+    const Cell *cell(int r, int c) const;
 
-  /*!
-   * \brief Devuelve el número de columnas de la tabla
-   * \return Número de columnas
-   */
-  int cols() const;
+    /*!
+     * \brief Devuelve el número de columnas de la tabla
+     * \return Número de columnas
+     */
+    int cols() const;
 
-  /*!
-   * \brief Devuelve el número de filas de la tabla
-   * \return Número de filas
-   */
-  int rows() const;
+    /*!
+     * \brief Devuelve el número de filas de la tabla
+     * \return Número de filas
+     */
+    int rows() const;
 
-  /*!
-   * \brief Devuelve el estilo de la tabla
-   * \return Estilo de la tabla
-   */
-  PdfStyle styleTable() const;
+    /*!
+     * \brief Devuelve el estilo de la tabla
+     * \return Estilo de la tabla
+     */
+    PdfStyle styleTable() const;
 
-  /*!
-   * \brief Devuelve el valor de una celda
-   * \param[in] r Fila
-   * \param[in] c Columna
-   * \return Valor de la celda
-   */
-  QString value(int r, int c) const;
+    /*!
+     * \brief Devuelve el valor de una celda
+     * \param[in] r Fila
+     * \param[in] c Columna
+     * \return Valor de la celda
+     */
+    QString value(int r, int c) const;
 
-  /*!
-   * \brief Establece el borde de una celda
-   * \param[in] r Fila
-   * \param[in] c Columna
-   * \param[in] border Borde que se modifica
-   * \param[in] pen Pluma
-   * \see Border
-   */
-  void setBorderCell(int r, 
-                     int c, 
-                     Border border,
-                     const QPen &pen);
- 
-  /*!
-   * \brief Establece el borde de una columna
-   * \param[in] c Columna
-   * \param[in] border Borde que se modifica
-   * \param[in] pen Pluma
-   * \see Border
-   */
-  void setBorderCol(int c,
-                    Border border, 
-                    const QPen &pen);
+    /*!
+     * \brief Establece el borde de una celda
+     * \param[in] r Fila
+     * \param[in] c Columna
+     * \param[in] border Borde que se modifica
+     * \param[in] pen Pluma
+     * \see Border
+     */
+    void setBorderCell(int r,
+                       int c,
+                       Border border,
+                       const QPen &pen);
 
-  /*!
-   * \brief Establece el borde en un rango de celdas
-   * \param[in] r1 Fila inicial
-   * \param[in] c1 Columna inicial
-   * \param[in] r2 Fila final
-   * \param[in] c2 Columna final
-   * \param[in] border Borde que se modifica
-   * \param[in] pen Pluma
-   * \see Border
-   */
-  void setBorderRange(int r1, 
-                      int c1,
-                      int r2,
-                      int c2, 
+    /*!
+     * \brief Establece el borde de una columna
+     * \param[in] c Columna
+     * \param[in] border Borde que se modifica
+     * \param[in] pen Pluma
+     * \see Border
+     */
+    void setBorderCol(int c,
                       Border border,
                       const QPen &pen);
-  
-  /*!
-   * \brief Establece el borde de una fila
-   * \param[in] r Fila
-   * \param[in] border Borde que se modifica
-   * \param[in] pen Pluma
-   * \see Border
-   */
-  void setBorderRow(int r, 
-                    Border border, 
-                    const QPen &pen);
 
-  /*!
-   * \brief Establece el borde de la tabla
-   * \param[in] border Borde que se modifica
-   * \param[in] pen Pluma
-   * \see Border
-   */
-  void setBorderTable(Border border,
+    /*!
+     * \brief Establece el borde en un rango de celdas
+     * \param[in] r1 Fila inicial
+     * \param[in] c1 Columna inicial
+     * \param[in] r2 Fila final
+     * \param[in] c2 Columna final
+     * \param[in] border Borde que se modifica
+     * \param[in] pen Pluma
+     * \see Border
+     */
+    void setBorderRange(int r1,
+                        int c1,
+                        int r2,
+                        int c2,
+                        Border border,
+                        const QPen &pen);
+
+    /*!
+     * \brief Establece el borde de una fila
+     * \param[in] r Fila
+     * \param[in] border Borde que se modifica
+     * \param[in] pen Pluma
+     * \see Border
+     */
+    void setBorderRow(int r,
+                      Border border,
                       const QPen &pen);
 
-  /*!
-   * \brief Establece el número de columnas
-   * \param[in] cols Número de columnas
-   */
-  void setCols(int cols);
+    /*!
+     * \brief Establece el borde de la tabla
+     * \param[in] border Borde que se modifica
+     * \param[in] pen Pluma
+     * \see Border
+     */
+    void setBorderTable(Border border,
+                        const QPen &pen);
 
-  /*!
-   * \brief Establece el número de columnas
-   * \param[in] rows Número de filas
-   */
-  void setRows(int rows);
- 
-  /*!
-   * \brief Establece el espaciado de borde de una columna
-   * \param[in] c Columna
-   * \param[in] border Borde que se modifica
-   * \param[in] int Espaciado
-   * \see Border
-   */
-  void setSpacingCol(int c, 
-                     Border border, 
-                     int spacing);
+    /*!
+     * \brief Establece el número de columnas
+     * \param[in] cols Número de columnas
+     */
+    void setCols(int cols);
 
-  /*!
-   * \brief Establece el espaciado de borde de una fila
-   * \param[in] r Fila
-   * \param[in] border Borde que se modifica
-   * \param[in] int Espaciado
-   * \see Border
-   */
-  void setSpacingRow(int r, 
-                     Border border, 
-                     int spacing);
+    /*!
+     * \brief Establece el número de columnas
+     * \param[in] rows Número de filas
+     */
+    void setRows(int rows);
 
-  /*!
-   * \brief Establece el espaciado de borde de las celdas de una tabla
-   * \param[in] r Fila
-   * \param[in] border Borde que se modifica
-   * \param[in] int Espaciado
-   * \see Border
-   */
-  void setSpacingTable(Border border, 
+    /*!
+     * \brief Establece el espaciado de borde de una columna
+     * \param[in] c Columna
+     * \param[in] border Borde que se modifica
+     * \param[in] int Espaciado
+     * \see Border
+     */
+    void setSpacingCol(int c,
+                       Border border,
                        int spacing);
 
-  /*!
-   * \brief Aplica un estilo a una celda
-   * \param[in] r Fila
-   * \param[in] c Columna
-   * \param[in] style Estilo
-   */
-  void setStyleCell(int r,
-                    int c, 
-                    const PdfStyle &style);
+    /*!
+     * \brief Establece el espaciado de borde de una fila
+     * \param[in] r Fila
+     * \param[in] border Borde que se modifica
+     * \param[in] int Espaciado
+     * \see Border
+     */
+    void setSpacingRow(int r,
+                       Border border,
+                       int spacing);
 
-  /*!
-   * \brief Aplica un estilo a una columna
-   * \param[in] c Columna
-   * \param[in] style Estilo
-   */
-  void setStyleCol(int c, 
-                   const PdfStyle &style);
+    /*!
+     * \brief Establece el espaciado de borde de las celdas de una tabla
+     * \param[in] r Fila
+     * \param[in] border Borde que se modifica
+     * \param[in] int Espaciado
+     * \see Border
+     */
+    void setSpacingTable(Border border,
+                         int spacing);
 
-  /*!
-   * \brief Aplica un estilo a un rango de celdas
-   * \param[in] r1 Fila inicial
-   * \param[in] c1 Columna inicial
-   * \param[in] r2 Fila final
-   * \param[in] c2 Columna final
-   * \param[in] style Estilo
-   */
-  void setStyleRange(int r1, 
-                     int c1, 
-                     int r2, 
-                     int c2, 
+    /*!
+     * \brief Aplica un estilo a una celda
+     * \param[in] r Fila
+     * \param[in] c Columna
+     * \param[in] style Estilo
+     */
+    void setStyleCell(int r,
+                      int c,
+                      const PdfStyle &style);
+
+    /*!
+     * \brief Aplica un estilo a una columna
+     * \param[in] c Columna
+     * \param[in] style Estilo
+     */
+    void setStyleCol(int c,
                      const PdfStyle &style);
 
-  /*!
-   * \brief Aplica un estilo a una fila
-   * \param[in] r Fila
-   * \param[in] style Estilo
-   */
-  void setStyleRow(int r, const PdfStyle &style);
-  
-  /*!
-   * \brief Aplica un estilo a una tabla
-   * \param[in] style Estilo
-   */  
-  void setStyleTable(const PdfStyle &style);
+    /*!
+     * \brief Aplica un estilo a un rango de celdas
+     * \param[in] r1 Fila inicial
+     * \param[in] c1 Columna inicial
+     * \param[in] r2 Fila final
+     * \param[in] c2 Columna final
+     * \param[in] style Estilo
+     */
+    void setStyleRange(int r1,
+                       int c1,
+                       int r2,
+                       int c2,
+                       const PdfStyle &style);
 
-  /*!
-   * \brief Establece el valor de una celda
-   * \param[in] r Fila
-   * \param[in] c Columna
-   * \param[in] value Valor de la celda
-   * \param[in] colspan Expansión de columnas
-   * \param[in] rowspan Expansión de filas
-   */
-  void setValue(int r, 
-                int c, 
-                const QString &value, 
-                int colspan = 1, 
-                int rowspan = 1);
+    /*!
+     * \brief Aplica un estilo a una fila
+     * \param[in] r Fila
+     * \param[in] style Estilo
+     */
+    void setStyleRow(int r, const PdfStyle &style);
 
-  /*!
-   * \brief Establece el valor de una celda
-   * \param[in] r Fila
-   * \param[in] c Columna
-   * \param[in] value Valor de la celda
-   * \param[in] style Estilo de la celda
-   * \param[in] colspan Expansión de columnas
-   * \param[in] rowspan Expansión de filas
-   */
-  void setValue(int r, 
-                int c, 
-                const QString &value, 
-                const PdfStyle *style, 
-                int colspan = 1, 
-                int rowspan = 1);
+    /*!
+     * \brief Aplica un estilo a una tabla
+     * \param[in] style Estilo
+     */
+    void setStyleTable(const PdfStyle &style);
+
+    /*!
+     * \brief Establece el valor de una celda
+     * \param[in] r Fila
+     * \param[in] c Columna
+     * \param[in] value Valor de la celda
+     * \param[in] colspan Expansión de columnas
+     * \param[in] rowspan Expansión de filas
+     */
+    void setValue(int r,
+                  int c,
+                  const QString &value,
+                  int colspan = 1,
+                  int rowspan = 1);
+
+    /*!
+     * \brief Establece el valor de una celda
+     * \param[in] r Fila
+     * \param[in] c Columna
+     * \param[in] value Valor de la celda
+     * \param[in] style Estilo de la celda
+     * \param[in] colspan Expansión de columnas
+     * \param[in] rowspan Expansión de filas
+     */
+    void setValue(int r,
+                  int c,
+                  const QString &value,
+                  const PdfStyle *style,
+                  int colspan = 1,
+                  int rowspan = 1);
 
 private:
 
-  /*!
-   * \brief Actualiza la tabla ajustando el tamaño al númer de filas y columnas
-   */
-  void updateTable();
+    /*!
+     * \brief Actualiza la tabla ajustando el tamaño al númer de filas y columnas
+     */
+    void updateTable();
 
 };
 
@@ -504,79 +504,79 @@ class PdfHeader
 {
 
 public:
-  
-  PdfHeader()
-    : bImage(false),
-      bText(false)
-  {
-  }
 
-  ~PdfHeader()
-  {
-  }
+    PdfHeader()
+        : bImage(false),
+        bText(false)
+    {
+    }
 
-  void addImage(const QImage &image, const QRect &rect)
-  {
-    bImage = true;
-    mImage = image;
-    mImageRect = rect;
-  }
-  void addText(const QString &text, const QRect &rect)
-  {
-    bText = true;
-    mText = text;
-    mTextRect = rect;
-  }
+    ~PdfHeader()
+    {
+    }
 
-  bool hasImage() const
-  {
-    return bImage;
-  }
+    void addImage(const QImage &image, const QRect &rect)
+    {
+        bImage = true;
+        mImage = image;
+        mImageRect = rect;
+    }
+    void addText(const QString &text, const QRect &rect)
+    {
+        bText = true;
+        mText = text;
+        mTextRect = rect;
+    }
 
-  bool hasText() const
-  {
-    return bText;
-  }
+    bool hasImage() const
+    {
+        return bImage;
+    }
 
-  QImage image() const
-  {
-    return mImage;
-  }
+    bool hasText() const
+    {
+        return bText;
+    }
 
-  QRect imageRect() const
-  {
-    return mImageRect;
-  }
+    QImage image() const
+    {
+        return mImage;
+    }
 
-  QString text() const
-  {
-    return mText;
-  }
+    QRect imageRect() const
+    {
+        return mImageRect;
+    }
 
-  QRect textRect() const
-  {
-    return mTextRect;
-  }
+    QString text() const
+    {
+        return mText;
+    }
 
-  PdfStyle style() const
-  {
-    return mStyle;
-  }
+    QRect textRect() const
+    {
+        return mTextRect;
+    }
 
-  void setStyle(const PdfStyle &style)
-  {
-    mStyle = style;
-  }
+    PdfStyle style() const
+    {
+        return mStyle;
+    }
+
+    void setStyle(const PdfStyle &style)
+    {
+        mStyle = style;
+    }
 
 private:
 
-  bool bImage;
-  bool bText;
-  QImage mImage;
-  QRect mImageRect;
-  QString mText;
-  QRect mTextRect;
-  PdfStyle mStyle;
+    bool bImage;
+    bool bText;
+    QImage mImage;
+    QRect mImageRect;
+    QString mText;
+    QRect mTextRect;
+    PdfStyle mStyle;
 };
 
 
@@ -590,329 +590,330 @@ class Pdf
 {
 public:
 
-  enum class Style
-  {
-    default_text,
-    title,
-    heading1,
-    heading2,
-    heading3,
-    textbody
-  };
+    enum class Style
+    {
+        default_text,
+        title,
+        heading1,
+        heading2,
+        heading3,
+        textbody
+    };
 
-  enum class PageSize
-  {
-    // ISO - DIN serie A
-    A0,
-    A1,	
-    A2,	
-    A3,	
-    A4,	
-    A5,	
-    A6,
-    A7,	
-    A8,
-    A9,
-    A10,
+    enum class PageSize
+    {
+        // ISO - DIN serie A
+        A0,
+        A1,
+        A2,
+        A3,
+        A4,
+        A5,
+        A6,
+        A7,
+        A8,
+        A9,
+        A10,
 
-    // ISO - DIN serie B
-    B0,	
-    B1,	
-    B2,	
-    B3,	
-    B4,	
-    B5,	
-    B6,	
-    B7,	
-    B8,	
-    B9,	
-    B10,
+        // ISO - DIN serie B
+        B0,
+        B1,
+        B2,
+        B3,
+        B4,
+        B5,
+        B6,
+        B7,
+        B8,
+        B9,
+        B10,
 
-    //ISO - DIN serie C
-    C0,	
-    C1,	
-    C2,
-    C3,	
-    C4,	
-    C5,	
-    C6,	
-    C7,
-    C8,	
-    C9,	
-    C10,
+        //ISO - DIN serie C
+        C0,
+        C1,
+        C2,
+        C3,
+        C4,
+        C5,
+        C6,
+        C7,
+        C8,
+        C9,
+        C10,
 
-    // North America
-    letter,
-    legal,
-    executive
+        // North America
+        letter,
+        legal,
+        executive
 
-  };
+    };
 
-  enum class PageOrientation
-  {
-    portrait,
-    landscape
-  };
+    enum class PageOrientation
+    {
+        portrait,
+        landscape
+    };
 
 public:
 
-  Pdf(const QString &file);
-  ~Pdf();
+    Pdf(const QString &file);
+    ~Pdf();
 
-  //void print(const std::string &fileName, const std::string &tmpl, const std::map<std::string, std::string> &tag_values);
-  void show();
+    //void print(const std::string &fileName, const std::string &tmpl, const std::map<std::string, std::string> &tag_values);
+    void show();
 
-  // TODO: Por ahora solo texto. Se deberia devolver un Rect para la
-  // cabecera y el pie de página que permitan una configuración mas avanzada
-  /*!
-   * \brief Encabezado de página
-   * \param[in] text Texto plano o plantilla definida con campos como el titulo del documento, autor, etc. 
-   * \param[in] PdfStyle Estilo de texto
-   */
-  void addHeader(const QString &text);
-  void addHeader(std::function<void(QRect *)> f);
-  void addHeader(const PdfHeader &header);
+    // TODO: Por ahora solo texto. Se deberia devolver un Rect para la
+    // cabecera y el pie de página que permitan una configuración mas avanzada
+    /*!
+     * \brief Encabezado de página
+     * \param[in] text Texto plano o plantilla definida con campos como el titulo del documento, autor, etc.
+     * \param[in] PdfStyle Estilo de texto
+     */
+    void addHeader(const QString &text);
+    void addHeader(std::function<void(QRect *)> f);
+    void addHeader(const PdfHeader &header);
 
-  /*!
-   * \brief Pie de página
-   * \param[in] text Texto plano o plantilla definida con campos como el número de página. 
-   * \param[in] PdfStyle Estilo de texto
-   */
-  void addFooter(const QString &text);
+    /*!
+     * \brief Pie de página
+     * \param[in] text Texto plano o plantilla definida con campos como el número de página.
+     * \param[in] PdfStyle Estilo de texto
+     */
+    void addFooter(const QString &text);
 
-  void drawTitle(const QString &text);
-  void drawHeading1(const QString &text);
-  void drawHeading2(const QString &text);
-  void drawHeading3(const QString &text);
-  void drawText(const QString &text);
-  //void drawText(Style style, const char *text, ...);
-  void drawTextBody(const QString &text);
-  QRect drawImage(const QString &img,
-                  const QString &caption = "", 
-                  int options = Qt::AlignCenter);
-  QRect drawImage(const QImage &image,
-                  const QString &caption = "",
-                  int options = Qt::AlignCenter);
-  void drawList(const QString &text);
-  //void drawNumberedList(const char *text);
-  QRect drawTable(const TablePdf &table,
-                  const QString &caption = "");
-  void drawLine(const QPoint &pt1, const QPoint &pt2, const PdfStyle &style);
+    void drawTitle(const QString &text);
+    void drawHeading1(const QString &text);
+    void drawHeading2(const QString &text);
+    void drawHeading3(const QString &text);
+    void drawText(const QString &text);
+    //void drawText(Style style, const char *text, ...);
+    void drawTextBody(const QString &text);
+    QRect drawImage(const QString &img,
+                    const QString &caption = "",
+                    int options = Qt::AlignCenter);
+    QRect drawImage(const QImage &image,
+                    const QString &caption = "",
+                    int options = Qt::AlignCenter);
+    void drawList(const QString &text);
+    //void drawNumberedList(const char *text);
+    QRect drawTable(const TablePdf &table,
+                    const QString &caption = "");
+    void drawLine(const QPoint &pt1, const QPoint &pt2, const PdfStyle &style);
 
-  void endDraw();
-  void initDraw();
-  void newLine();
-  void newPage();
+    void endDraw();
+    void initDraw();
+    void newLine();
+    void newPage();
 
-  /*!
-   * \brief Establece el programa creador del documento pdf
-   * \param[in] creator 
-   */
-  void setCreator(const QString &creator);
+    /*!
+     * \brief Establece el programa creador del documento pdf
+     * \param[in] creator
+     */
+    void setCreator(const QString &creator);
 
-  /*!
-   * \brief Establece la fuente actual
-   * \param[in] family 
-   */
-  void setFont(const QString &family,
-               int pointSize = -1, 
-               int weight = -1, 
-               bool italic = false);
- 
-  /*!
-   * \brief Establece la fuente por defecto
-   */
-  void setFontDefault();
+    /*!
+     * \brief Establece la fuente actual
+     * \param[in] family
+     */
+    void setFont(const QString &family,
+                 int pointSize = -1,
+                 int weight = -1,
+                 bool italic = false);
 
-  /*!
-   * \brief Establece los margenes de página
-   * \param[in] left Margen izquierdo
-   * \param[in] right Margen derecho
-   * \param[in] top Margen superior
-   * \param[in] bottom Margen inferior
-   */
-  void setMargins(int left, 
-                  int right, 
-                  int top, 
-                  int bottom);
+    /*!
+     * \brief Establece la fuente por defecto
+     */
+    void setFontDefault();
 
-  /*!
-   * \brief Establece el tamaño de página
-   * \param[in] pageSize Id tamaño de pagina (QPdfWriter::PageSize)
-   */
-  void setPageSize(PageSize pageSize);
+    /*!
+     * \brief Establece los margenes de página
+     * \param[in] left Margen izquierdo
+     * \param[in] right Margen derecho
+     * \param[in] top Margen superior
+     * \param[in] bottom Margen inferior
+     */
+    void setMargins(int left,
+                    int right,
+                    int top,
+                    int bottom);
 
-  void setPageOrientation(PageOrientation pageOrientation);
+    /*!
+     * \brief Establece el tamaño de página
+     * \param[in] pageSize Id tamaño de pagina (QPdfWriter::PageSize)
+     */
+    void setPageSize(PageSize pageSize);
 
-  /*!
-   * \brief Establece el titulo del documento pdf
-   * \param[in] title Titulo del pdf
-   */
-  void setTitle(const QString &title);
+    void setPageOrientation(PageOrientation pageOrientation);
 
-  PdfStyle currentStyle() const;
+    /*!
+     * \brief Establece el titulo del documento pdf
+     * \param[in] title Titulo del pdf
+     */
+    void setTitle(const QString &title);
 
-  PdfStyle titleStyle() const;
-  void setTitleStyle(const PdfStyle &titleStyle);
+    PdfStyle currentStyle() const;
 
-  PdfStyle heading1Style() const;
-  void setHeading1Style(const PdfStyle &heading1Style);
+    PdfStyle titleStyle() const;
+    void setTitleStyle(const PdfStyle &titleStyle);
 
-  PdfStyle heading2Style() const;
-  void setHeading2Style(const PdfStyle &heading2Style);
+    PdfStyle heading1Style() const;
+    void setHeading1Style(const PdfStyle &heading1Style);
 
-  PdfStyle heading3Style() const;
-  void setHeading3Style(const PdfStyle &heading3Style);
+    PdfStyle heading2Style() const;
+    void setHeading2Style(const PdfStyle &heading2Style);
 
-  PdfStyle textBodyStyle() const;
-  void setTextBodyStyle(const PdfStyle &textBodyStyle);
+    PdfStyle heading3Style() const;
+    void setHeading3Style(const PdfStyle &heading3Style);
 
-  QRect rectBody() const;
-  QPoint currentPosition() const;
-  void setPaintRect(const QRect &rect);
+    PdfStyle textBodyStyle() const;
+    void setTextBodyStyle(const PdfStyle &textBodyStyle);
 
-  QRect rectHeader() const
-  {
-    return mRectHeader;
-  }
+    QRect rectBody() const;
+    QPoint currentPosition() const;
+    void setPaintRect(const QRect &rect);
+
+    QRect rectHeader() const
+    {
+        return mRectHeader;
+    }
+
 private:
 
-  void update();
-  void drawTextBlock(const QString &text,
-                     const PdfStyle &style);
-  void drawHeader();
-  void drawFooter();
-  QString replace(const QString &input) const;
-  void setPageNumber(int n);
+    void update();
+    void drawTextBlock(const QString &text,
+                       const PdfStyle &style);
+    void drawHeader();
+    void drawFooter();
+    QString replace(const QString &input) const;
+    void setPageNumber(int n);
 
 protected:
 
-  /*!
-   * \brief Fichero pdf
-   */
-  QString mFile;
+    /*!
+     * \brief Fichero pdf
+     */
+    QString mFile;
 
-  /*!
-   * \brief Clase de Qt para generar archivos pdf
-   */
-  QPdfWriter *pPdfWriter;
+    /*!
+     * \brief Clase de Qt para generar archivos pdf
+     */
+    QPdfWriter *pPdfWriter;
 
-  QPainter *pPainter;
+    QPainter *pPainter;
 
-  //QFont *mDefFont;
-  //QFont *mCurrentFont; //TODO: Sustituir por un estilo
+    //QFont *mDefFont;
+    //QFont *mCurrentFont; //TODO: Sustituir por un estilo
 
-  /*!
-   * \brief Estilo de texto por defecto
-   */
-  PdfStyle mDefStyle;
+    /*!
+     * \brief Estilo de texto por defecto
+     */
+    PdfStyle mDefStyle;
 
-  /*!
-   * \brief Estilo actual
-   */
-  PdfStyle mCurrentStyle;
+    /*!
+     * \brief Estilo actual
+     */
+    PdfStyle mCurrentStyle;
 
-  /*!
-   * \brief Estilo de titulo
-   */
-  PdfStyle mTitleStyle;
+    /*!
+     * \brief Estilo de titulo
+     */
+    PdfStyle mTitleStyle;
 
-  /*!
-   * \brief Estilo de encabezado 1
-   */
-  PdfStyle mHeading1Style;
+    /*!
+     * \brief Estilo de encabezado 1
+     */
+    PdfStyle mHeading1Style;
 
-  /*!
-   * \brief Estilo de encabezado 2
-   */
-  PdfStyle mHeading2Style;
+    /*!
+     * \brief Estilo de encabezado 2
+     */
+    PdfStyle mHeading2Style;
 
-  /*!
-   * \brief Estilo de encabezado 3
-   */
-  PdfStyle mHeading3Style;
+    /*!
+     * \brief Estilo de encabezado 3
+     */
+    PdfStyle mHeading3Style;
 
-  /*!
-   * \brief Estilo de cuerpo de texto
-   */
-  PdfStyle mTextBodyStyle;
+    /*!
+     * \brief Estilo de cuerpo de texto
+     */
+    PdfStyle mTextBodyStyle;
 
-  //TODO: Estilos definidos por el usuario
-  std::map<QString, PdfStyle> mUserStyles;
+    //TODO: Estilos definidos por el usuario
+    std::map<QString, PdfStyle> mUserStyles;
 
-  /*!
-   * \brief espaciado de lineas
-   */
-  int mSpace;
+    /*!
+     * \brief espaciado de lineas
+     */
+    int mSpace;
 
-  PageSize mPageSize;
-  PageOrientation mPageOrientation;
+    PageSize mPageSize;
+    PageOrientation mPageOrientation;
 
-  /*!
-   * \brief Una vez que se empieza a dibujar no se pueden modificar las opciones de página.
-   */
-  bool bIniDraw;
+    /*!
+     * \brief Una vez que se empieza a dibujar no se pueden modificar las opciones de página.
+     */
+    bool bIniDraw;
 
-  /*!
-   * \brief Cabecera activada
-   */
-  bool bHeader;
+    /*!
+     * \brief Cabecera activada
+     */
+    bool bHeader;
 
-  /*!
-   * \brief Pie de página activado
-   */
-  bool bFooter;
+    /*!
+     * \brief Pie de página activado
+     */
+    bool bFooter;
 
-  /*!
-   * \brief Texto del encabezado de página
-   */
-  QString mHeaderText;
-  PdfHeader mHeader;
+    /*!
+     * \brief Texto del encabezado de página
+     */
+    QString mHeaderText;
+    PdfHeader mHeader;
 
-  std::function<void(QRect *)> mHeaderFunction;
+    std::function<void(QRect *)> mHeaderFunction;
 
-  /*!
-   * \brief Texto del pie de página
-   */
-  QString mFooterText;
+    /*!
+     * \brief Texto del pie de página
+     */
+    QString mFooterText;
 
-  /*!
-   * \brief Estilo del encabezado de página
-   */
-  PdfStyle mHeaderStyle;
+    /*!
+     * \brief Estilo del encabezado de página
+     */
+    PdfStyle mHeaderStyle;
 
-  /*!
-   * \brief Estilo del pie de página
-   */
-  PdfStyle mFooterStyle;
+    /*!
+     * \brief Estilo del pie de página
+     */
+    PdfStyle mFooterStyle;
 
-  QRect mRectHeader;
-  QRect mRectBody;
-  QRect mRectFooter;
+    QRect mRectHeader;
+    QRect mRectBody;
+    QRect mRectFooter;
 
-  int mImgCaption;
-  int mTableCaption;
+    int mImgCaption;
+    int mTableCaption;
 
 private:
 
-  /*!
-   * \brief Posición x actual
-   * Esta variable se va modificando según nos desplazamos por el texto
-   */
-  int mX;
+    /*!
+     * \brief Posición x actual
+     * Esta variable se va modificando según nos desplazamos por el texto
+     */
+    int mX;
 
-  /*!
-   * \brief Posición y actual
-   * Esta variable se va modificando según nos desplazamos por el texto
-   */
-  int mY;
+    /*!
+     * \brief Posición y actual
+     * Esta variable se va modificando según nos desplazamos por el texto
+     */
+    int mY;
 
-  int mWidth;
-  int mHeight;
+    int mWidth;
+    int mHeight;
 
-  // valores para las templates
-  std::map<std::string, std::string> mTagValues;
-  int mPageNumber;
+    // valores para las templates
+    std::map<std::string, std::string> mTagValues;
+    int mPageNumber;
 
 
 };

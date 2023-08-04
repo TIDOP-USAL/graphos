@@ -676,7 +676,7 @@ void CCViewer3D::showClassification(bool show)
         for (const auto &reg : *mColorTable) {
 
           ScalarType code = static_cast<ScalarType>(reg.first);
-          tl::graph::Color color = reg.second.second;
+          tl::Color color = reg.second.second;
 
           ccColor::Rgba ccColor(color.red(), color.green(), color.blue(), color.opacity());
 

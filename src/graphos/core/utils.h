@@ -121,12 +121,12 @@ public:
 
 void openPdf(const QString &pdf);
 
-tl::math::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const std::string &ref);
+tl::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const std::string &ref);
 
 
 
 
-void transformModel(const tl::math::Matrix<double> &transform, const std::string &model);
+void transformModel(const tl::Matrix<double> &transform, const std::string &model);
 
 
 } // end namespace graphos

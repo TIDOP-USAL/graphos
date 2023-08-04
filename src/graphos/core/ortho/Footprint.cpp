@@ -33,19 +33,19 @@ namespace graphos
 {
 
 Footprint::Footprint(const std::vector<Image> &images,
-                     const std::map<int,Camera> &cameras,
+                     const std::map<int, Camera> &cameras,
                      const tl::Path &dtm,
-                     const tl::geospatial::Crs &crs,
+                     const tl::Crs &crs,
                      const tl::Path &footprint)
   : mImages(images),
     mCameras(cameras),
     mDtm(dtm),
     mCrs(crs)
 {
-  footprint.parentPath().createDirectories();
+    footprint.parentPath().createDirectories();
 
-  mFootprintWriter = tl::VectorWriterFactory::create(footprint);
-  mFootprintWriter->open();
+    mFootprintWriter = tl::VectorWriterFactory::create(footprint);
+    mFootprintWriter->open();
 }
 
 Footprint::~Footprint()
@@ -54,35 +54,35 @@ Footprint::~Footprint()
 
 void Footprint::execute(tl::Progress *progressBar)
 {
-  try {
+    try {
 
-    if (!mFootprintWriter->isOpen()) throw std::runtime_error("Vector open error");
+        if (!mFootprintWriter->isOpen()) throw std::runtime_error("Vector open error");
 
-    mFootprintWriter->create();
-    mFootprintWriter->setCRS(mCrs.toWktFormat());
+        mFootprintWriter->create();
+        mFootprintWriter->setCRS(mCrs.toWktFormat());
 
-    std::shared_ptr<tl::TableField> field = std::make_shared<tl::TableField>("image", tl::TableField::Type::STRING, 254);
-    tl::graph::GLayer layer;
-    layer.setName("footprint");
-    layer.addDataField(field);
+        std::shared_ptr<tl::TableField> field = std::make_shared<tl::TableField>("image", tl::TableField::Type::STRING, 254);
+        tl::GLayer layer;
+        layer.setName("footprint");
+        layer.addDataField(field);
 
-    for (const auto &image : mImages) {
+        for (const auto &image : mImages) {
 
-      Orthorectification orthorectification(mDtm, mCameras[image.cameraId()], image.cameraPose());
-      std::shared_ptr<tl::graph::GPolygon> entity = std::make_shared<tl::graph::GPolygon>(orthorectification.footprint());
-      std::shared_ptr<tl::TableRegister> data = std::make_shared <tl::TableRegister>(layer.tableFields());
-      data->setValue(0, image.name().toStdString());
-      entity->setData(data);
-      layer.push_back(entity);
+            Orthorectification orthorectification(mDtm, mCameras[image.cameraId()], image.cameraPose());
+            std::shared_ptr<tl::GPolygon> entity = std::make_shared<tl::GPolygon>(orthorectification.footprint());
+            std::shared_ptr<tl::TableRegister> data = std::make_shared <tl::TableRegister>(layer.tableFields());
+            data->setValue(0, image.name().toStdString());
+            entity->setData(data);
+            layer.push_back(entity);
 
+        }
+
+        mFootprintWriter->write(layer);
+        mFootprintWriter->close();
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
     }
-
-    mFootprintWriter->write(layer);
-    mFootprintWriter->close();
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
 
 }
 

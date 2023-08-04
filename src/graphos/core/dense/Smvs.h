@@ -37,55 +37,56 @@
 namespace graphos
 {
 
+
 class SmvsProperties
   : public Smvs
 {
 
 public:
 
-  SmvsProperties();
-  SmvsProperties(int inputImageScale,
-                 int outputDepthScale,
-                 bool shadingBasedOptimization,
-                 bool semiGlobalMatching,
-                 double surfaceSmoothingFactor);
-  SmvsProperties(const SmvsProperties &smvs);
-  SmvsProperties(SmvsProperties &&smvs) noexcept;
-  ~SmvsProperties() override = default;
+    SmvsProperties();
+    SmvsProperties(int inputImageScale,
+                   int outputDepthScale,
+                   bool shadingBasedOptimization,
+                   bool semiGlobalMatching,
+                   double surfaceSmoothingFactor);
+    SmvsProperties(const SmvsProperties &smvs);
+    SmvsProperties(SmvsProperties &&smvs) noexcept;
+    ~SmvsProperties() override = default;
 
-  SmvsProperties &operator =(const SmvsProperties &smvs);
-  SmvsProperties &operator =(SmvsProperties &&smvs) noexcept;
+    SmvsProperties &operator =(const SmvsProperties &smvs);
+    SmvsProperties &operator =(SmvsProperties &&smvs) noexcept;
 
 // Smvs interface
 
 public:
 
-  int inputImageScale() const override;
-  int outputDepthScale() const override;
-  bool shadingBasedOptimization() const override;
-  bool semiGlobalMatching() const override;
-  double surfaceSmoothingFactor() const override;
+    int inputImageScale() const override;
+    int outputDepthScale() const override;
+    bool shadingBasedOptimization() const override;
+    bool semiGlobalMatching() const override;
+    double surfaceSmoothingFactor() const override;
 
-  void setInputImageScale(int inputImageScale) override;
-  void setOutputDepthScale(int outputDepthScale) override;
-  void setShadingBasedOptimization(bool shadingBasedOptimization) override;
-  void setSemiGlobalMatching(bool semiGlobalMatching) override;
-  void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) override;
+    void setInputImageScale(int inputImageScale) override;
+    void setOutputDepthScale(int outputDepthScale) override;
+    void setShadingBasedOptimization(bool shadingBasedOptimization) override;
+    void setSemiGlobalMatching(bool semiGlobalMatching) override;
+    void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) override;
 
 // Densification interface
 
 public:
 
-  void reset() override;
-  QString name() const final;
+    void reset() override;
+    QString name() const final;
 
 private:
 
-  int mInputImageScale;
-  int mOutputDepthScale;
-  bool mShadingBasedOptimization;
-  bool mSemiGlobalMatching;
-  double mSurfaceSmoothingFactor;
+    int mInputImageScale;
+    int mOutputDepthScale;
+    bool mShadingBasedOptimization;
+    bool mSemiGlobalMatching;
+    double mSurfaceSmoothingFactor;
 };
 
 
@@ -99,34 +100,34 @@ class SmvsDensifier
 
 public:
 
-  SmvsDensifier(const std::unordered_map<size_t, Image> &images,
-                const std::map<int, Camera> &cameras,
-                const std::unordered_map<size_t, CameraPose> &poses,
-                const std::vector<GroundPoint> &groundPoints,
-                const tl::Path &outputPath,
-                bool cuda = false);
-  ~SmvsDensifier() override;
+    SmvsDensifier(const std::unordered_map<size_t, Image> &images,
+                  const std::map<int, Camera> &cameras,
+                  const std::unordered_map<size_t, CameraPose> &poses,
+                  const std::vector<GroundPoint> &groundPoints,
+                  const tl::Path &outputPath,
+                  bool cuda = false);
+    ~SmvsDensifier() override;
 
-  SmvsDensifier(const SmvsDensifier &smvs) = delete;
-  SmvsDensifier(SmvsDensifier &&smvs) = delete;
-  SmvsDensifier &operator =(const SmvsDensifier &smvs) = delete;
-  SmvsDensifier &operator =(SmvsDensifier &&smvs) = delete;
+    SmvsDensifier(const SmvsDensifier &smvs) = delete;
+    SmvsDensifier(SmvsDensifier &&smvs) = delete;
+    SmvsDensifier &operator =(const SmvsDensifier &smvs) = delete;
+    SmvsDensifier &operator =(SmvsDensifier &&smvs) = delete;
 
 private:
 
-  void clearPreviousModel();
-  void writeMVEFile();
-  void densify();
+    void clearPreviousModel();
+    void writeMVEFile();
+    void densify();
 
 // TaskBase
 
 protected:
 
-  void execute(tl::Progress *progressBar = nullptr) override;
+    void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
-  std::unordered_map<size_t, size_t> mGraphosToMveIds;
+    std::unordered_map<size_t, size_t> mGraphosToMveIds;
 
 };
 

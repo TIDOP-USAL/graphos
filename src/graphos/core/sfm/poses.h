@@ -38,76 +38,76 @@ class CameraPose
 
 public:
 
-  CameraPose();
-  CameraPose(double x, double y, double z,
-             const tl::math::RotationMatrix<double> &rotationMatrix);
-  CameraPose(const tl::Point3D &center,
-             const tl::math::RotationMatrix<double> &rotationMatrix);
-  CameraPose(double x, double y, double z,
-             const tl::math::Quaternion<double> &quaternion);
-  CameraPose(const tl::Point3D &center,
-             const tl::math::Quaternion<double> &quaternion);
-  ~CameraPose();
+    CameraPose();
+    CameraPose(double x, double y, double z,
+               const tl::RotationMatrix<double> &rotationMatrix);
+    CameraPose(const tl::Point3<double> &center,
+               const tl::RotationMatrix<double> &rotationMatrix);
+    CameraPose(double x, double y, double z,
+               const tl::Quaternion<double> &quaternion);
+    CameraPose(const tl::Point3<double> &center,
+               const tl::Quaternion<double> &quaternion);
+    ~CameraPose();
 
-  tl::Point3D position() const;
-  void setPosition(const tl::Point3D &position);
-  
-  /*!
-   * \brief Rotación como cuaterniones
-   * \return
-   */
-  tl::math::Quaterniond quaternion() const;
+    tl::Point3<double> position() const;
+    void setPosition(const tl::Point3<double> &position);
 
-  /*!
-   * \brief Establece la orientación de la cámaras como cuaterniones
-   * \param[in] quaternion Orientación de la cámara
-   */
-  void setQuaternion(const tl::math::Quaterniond &quaternion);
+    /*!
+     * \brief Rotación como cuaterniones
+     * \return
+     */
+    tl::Quaterniond quaternion() const;
 
-  /*!
-   * \brief Rotación como matriz de rotación
-   * \return
-   */
-  tl::math::RotationMatrix<double> rotationMatrix() const;
+    /*!
+     * \brief Establece la orientación de la cámaras como cuaterniones
+     * \param[in] quaternion Orientación de la cámara
+     */
+    void setQuaternion(const tl::Quaterniond &quaternion);
 
-  /*!
-   * \brief Establece la orientación de la cámaras como matriz de rotación
-   * \param[in] rotationMatrix Orientación de la cámara
-   */
-  void setRotationMatrix(const tl::math::RotationMatrix<double> &rotationMatrix);
-  
-  /*!
-   * \brief Sistema de referencia como código EPSG
-   * \return
-   */
-  QString crs() const;
+    /*!
+     * \brief Rotación como matriz de rotación
+     * \return
+     */
+    tl::RotationMatrix<double> rotationMatrix() const;
 
-  /*!
-   * \brief Establece el sistema de referencia como código EPSG
-   * \param[in] crs Código EPSG
-   */
-  void setCrs(const QString &crs);
+    /*!
+     * \brief Establece la orientación de la cámaras como matriz de rotación
+     * \param[in] rotationMatrix Orientación de la cámara
+     */
+    void setRotationMatrix(const tl::RotationMatrix<double> &rotationMatrix);
 
-  /*!
-   * \brief Fichero fuente con las posiciones/orientaciones o EXIF
-   * \return
-   */
-  QString source() const;
+    /*!
+     * \brief Sistema de referencia como código EPSG
+     * \return
+     */
+    QString crs() const;
 
-  /*!
-   * \brief Establece el fichero fuente con las posiciones/orientaciones o EXIF
-   * \param[in] source
-   */
-  void setSource(const QString &source);
+    /*!
+     * \brief Establece el sistema de referencia como código EPSG
+     * \param[in] crs Código EPSG
+     */
+    void setCrs(const QString &crs);
 
-  bool isEmpty() const;
-  
+    /*!
+     * \brief Fichero fuente con las posiciones/orientaciones o EXIF
+     * \return
+     */
+    QString source() const;
+
+    /*!
+     * \brief Establece el fichero fuente con las posiciones/orientaciones o EXIF
+     * \param[in] source
+     */
+    void setSource(const QString &source);
+
+    bool isEmpty() const;
+
 private:
 
-  tl::Point3D mPosition;
-  std::shared_ptr<tl::math::Rotation> mRotation;
-  QString mCrs;
-  QString mSource;
+    tl::Point3<double> mPosition;
+    std::shared_ptr<tl::Orientation> mRotation;
+    QString mCrs;
+    QString mSource;
 };
 
 

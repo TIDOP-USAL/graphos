@@ -44,7 +44,7 @@ Image::Image(const QString &file)
     mCameraId(0),
     mCameraPose()
 {
-  update();
+    update();
 }
 
 Image::Image(const Image &image)
@@ -68,71 +68,71 @@ Image::Image(Image &&image) noexcept
 
 QString Image::path() const
 {
-  return mFilePath;
+    return mFilePath;
 }
 
 void Image::setPath(const QString &file)
 {
-  mFilePath = file;
-  update();
+    mFilePath = file;
+    update();
 }
 
 QString Image::name() const
 {
-  return QFileInfo(mFilePath).fileName();
+    return QFileInfo(mFilePath).fileName();
 }
 
 size_t Image::id() const
 {
-  return mId;
+    return mId;
 }
 
 int Image::cameraId() const
 {
-  return mCameraId;
+    return mCameraId;
 }
 
 void Image::setCameraId(int cameraId)
 {
-  mCameraId = cameraId;
+    mCameraId = cameraId;
 }
 
 CameraPose Image::cameraPose() const
 {
-  return mCameraPose;
+    return mCameraPose;
 }
 
 void Image::setCameraPose(const CameraPose &cameraPose)
 {
-  mCameraPose = cameraPose;
+    mCameraPose = cameraPose;
 }
 
 Image &Image::operator =(const Image &image)
 {
-  if (this != &image){
-    this->mFilePath = image.mFilePath;
-    this->mId = image.mId;
-    this->mCameraId = image.mCameraId;
-    this->mCameraPose = image.mCameraPose;
-  }
-  return *this;
+    if (this != &image) {
+        this->mFilePath = image.mFilePath;
+        this->mId = image.mId;
+        this->mCameraId = image.mCameraId;
+        this->mCameraPose = image.mCameraPose;
+    }
+    return *this;
 }
 
 Image &Image::operator =(Image &&image) noexcept
 {
-  if (this != &image){
-    this->mFilePath = std::move(image.mFilePath);
-    this->mId = std::exchange(image.mId, 0);
-    this->mCameraId = std::exchange(image.mCameraId, 0);
-    this->mCameraPose = std::move(image.mCameraPose);
-  }
-  return *this;
+    if (this != &image) {
+        this->mFilePath = std::move(image.mFilePath);
+        this->mId = std::exchange(image.mId, 0);
+        this->mCameraId = std::exchange(image.mCameraId, 0);
+        this->mCameraPose = std::move(image.mCameraPose);
+    }
+    return *this;
 }
 
 void Image::update()
 {
-  tl::Path img_path(mFilePath.toStdWString());
-  mId = tl::Path::hash(img_path);
+    tl::Path img_path(mFilePath.toStdWString());
+    mId = tl::Path::hash(img_path);
 }
 
 

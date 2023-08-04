@@ -60,34 +60,34 @@ class RelativeOrientationColmapProperties
 
 public:
 
-  RelativeOrientationColmapProperties();
-  ~RelativeOrientationColmapProperties() override = default;
+    RelativeOrientationColmapProperties();
+    ~RelativeOrientationColmapProperties() override = default;
 
-  virtual bool refineFocalLength() const;
-  virtual void setRefineFocalLength(bool refineFocalLength);
+    virtual bool refineFocalLength() const;
+    virtual void setRefineFocalLength(bool refineFocalLength);
 
-  virtual bool refinePrincipalPoint() const;
-  virtual void setRefinePrincipalPoint(bool refinePrincipalPoint);
+    virtual bool refinePrincipalPoint() const;
+    virtual void setRefinePrincipalPoint(bool refinePrincipalPoint);
 
-  virtual bool refineExtraParams() const;
-  virtual void setRefineExtraParams(bool refineExtraParams);
+    virtual bool refineExtraParams() const;
+    virtual void setRefineExtraParams(bool refineExtraParams);
 
 // RelativeOrientation interface
 
 public:
 
-  void reset() override;
-  QString name() const override;
+    void reset() override;
+    QString name() const override;
 
 private:
 
-  bool mRefineFocalLength;
-  bool mRefinePrincipalPoint;
-  bool mRefineExtraParams;
+    bool mRefineFocalLength;
+    bool mRefinePrincipalPoint;
+    bool mRefineExtraParams;
 };
 
 
-/*----------------------------------------------------------------*/
+
 
 
 class RelativeOrientationColmapTask
@@ -97,41 +97,41 @@ class RelativeOrientationColmapTask
 
 public:
 
-  RelativeOrientationColmapTask(const tl::Path &database,
-                                const tl::Path &outputPath,
-                                const std::vector<Image> &images,
-                                const std::map<int, Camera> &cameras,
-                                bool fixCalibration);
-  ~RelativeOrientationColmapTask() override;
+    RelativeOrientationColmapTask(const tl::Path &database,
+                                  const tl::Path &outputPath,
+                                  const std::vector<Image> &images,
+                                  const std::map<int, Camera> &cameras,
+                                  bool fixCalibration);
+    ~RelativeOrientationColmapTask() override;
 
-  std::map<int, Camera> cameras() const;
+    std::map<int, Camera> cameras() const;
 
 // tl::TaskBase
 
 public:
 
-  void stop() override;
+    void stop() override;
 
 protected:
 
-  void execute(tl::Progress *progressBar = nullptr) override;
+    void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
-  tl::Path mDatabase;
-  tl::Path mOutputPath;
-  std::vector<Image> mImages;
-  std::map<int, Camera> mCameras;
-  colmap::IncrementalMapperOptions *mIncrementalMapper;
-  colmap::IncrementalMapperController *mMapper;
-  std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
-  colmap::BundleAdjustmentController *mBundleAdjustmentController;
-  
+    tl::Path mDatabase;
+    tl::Path mOutputPath;
+    std::vector<Image> mImages;
+    std::map<int, Camera> mCameras;
+    colmap::IncrementalMapperOptions *mIncrementalMapper;
+    colmap::IncrementalMapperController *mMapper;
+    std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
+    colmap::BundleAdjustmentController *mBundleAdjustmentController;
+
 };
 
 
 
-/*----------------------------------------------------------------*/
+
 
 class AbsoluteOrientationColmapProperties
   : public AbsoluteOrientation
@@ -139,34 +139,34 @@ class AbsoluteOrientationColmapProperties
 
 public:
 
-  AbsoluteOrientationColmapProperties();
-  ~AbsoluteOrientationColmapProperties() override = default;
+    AbsoluteOrientationColmapProperties();
+    ~AbsoluteOrientationColmapProperties() override = default;
 
-  virtual int minCommonImages() const;
-  virtual void setMinCommonImages(int minCommonImages);
+    virtual int minCommonImages() const;
+    virtual void setMinCommonImages(int minCommonImages);
 
-  virtual bool robustAlignment() const;
-  virtual void setRobustAlignment(bool robustAlignment);
+    virtual bool robustAlignment() const;
+    virtual void setRobustAlignment(bool robustAlignment);
 
-  virtual double robustAlignmentMaxError() const;
-  virtual void setRobustAlignmentMaxError(double robustAlignmentMaxError);
+    virtual double robustAlignmentMaxError() const;
+    virtual void setRobustAlignmentMaxError(double robustAlignmentMaxError);
 
 // AbsoluteOrientation Interface
 
 public:
 
-  void reset() override;
-  QString name() const override;
+    void reset() override;
+    QString name() const override;
 
 private:
 
-  int mMinCommonImages;
-  bool mRobustAlignment;
-  double mRobustAlignmentMaxError;
+    int mMinCommonImages;
+    bool mRobustAlignment;
+    double mRobustAlignmentMaxError;
 };
 
 
-/*----------------------------------------------------------------*/
+
 
 
 class AbsoluteOrientationColmapTask
@@ -176,84 +176,83 @@ class AbsoluteOrientationColmapTask
 
 public:
 
-  AbsoluteOrientationColmapTask(const tl::Path &path,
-                                const std::vector<Image> &images);
-  ~AbsoluteOrientationColmapTask() override;
+    AbsoluteOrientationColmapTask(const tl::Path &path,
+                                  const std::vector<Image> &images);
+    ~AbsoluteOrientationColmapTask() override;
 
-  std::unordered_map<size_t, double> cameraPosesErrors() const;
+    std::unordered_map<size_t, double> cameraPosesErrors() const;
 
 // tl::TaskBase interface
 
 public:
 
-  void stop() override;
+    void stop() override;
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-  tl::Path mInputPath;
-  std::vector<Image> mImages;
-  std::unordered_map<size_t, double> mCameraPosesErrors;
+    tl::Path mInputPath;
+    std::vector<Image> mImages;
+    std::unordered_map<size_t, double> mCameraPosesErrors;
 };
 
 
-/*----------------------------------------------------------------*/
 
 
 
 class ImportPosesTask
-  : public tl::TaskBase
+    : public tl::TaskBase
 {
 
 public:
 
-  ImportPosesTask(const std::vector<Image> &images,
-                  const std::map<int, Camera> &cameras,
-                  const tl::Path &outputPath,
-                  const tl::Path &database,
-                  bool fixCalibration = false,
-                  bool fixPoses = true);
-  ~ImportPosesTask() override;
+    ImportPosesTask(const std::vector<Image> &images,
+                    const std::map<int, Camera> &cameras,
+                    const tl::Path &outputPath,
+                    const tl::Path &database,
+                    bool fixCalibration = false,
+                    bool fixPoses = true);
+    ~ImportPosesTask() override;
 
-  std::map<int, Camera> cameras() const;
+    std::map<int, Camera> cameras() const;
 
-  void setFixCalibration(bool fixCalibration);
-  void setFixPoses(bool fixPoses);
+    void setFixCalibration(bool fixCalibration);
+    void setFixPoses(bool fixPoses);
 
 private:
 
-  void computeOffset();
-  void temporalReconstruction(const tl::Path &tempPath);
-  void writeImages(const tl::Path &tempPath);
-  void writeCameras(const tl::Path &tempPath);
-  void writePoints(const tl::Path &tempPath);
-  bool isCoordinatesLocal() const;
+    void computeOffset();
+    void temporalReconstruction(const tl::Path &tempPath);
+    void writeImages(const tl::Path &tempPath);
+    void writeCameras(const tl::Path &tempPath);
+    void writePoints(const tl::Path &tempPath);
+    bool isCoordinatesLocal() const;
 
 // tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-  std::vector<Image> mImages;
-  std::map<int, Camera> mCameras;
-  tl::Path mOutputPath;
-  tl::Path mDatabase;
-  bool mFixCalibration;
-  bool mFixPoses;
-  tl::Point3<double> mOffset;
-  std::unordered_map<size_t, int> mGraphosToColmapId;
+    std::vector<Image> mImages;
+    std::map<int, Camera> mCameras;
+    tl::Path mOutputPath;
+    tl::Path mDatabase;
+    bool mFixCalibration;
+    bool mFixPoses;
+    tl::Point3<double> mOffset;
+    std::unordered_map<size_t, int> mGraphosToColmapId;
 };
 
 
 /*----------------------------------------------------------------*/
 
-void colmapRemoveOrientations(const std::vector<std::string> &images, 
+void colmapRemoveOrientations(const std::vector<std::string> &images,
                               const std::string &reconstruction);
 
 

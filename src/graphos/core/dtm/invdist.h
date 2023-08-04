@@ -35,45 +35,45 @@ class DtmInvDistProperties
 
 public:
 
-  DtmInvDistProperties();
-  ~DtmInvDistProperties();
+    DtmInvDistProperties();
+    ~DtmInvDistProperties();
 
 // DtmInvDist interface
 
 public:
 
-  double power() const override;
-  double smoothing() const override;
-  double radius1() const override;
-  double radius2() const override;
-  double angle() const override;
-  int maxPoints() const override;
-  int minPoints() const override;
+    double power() const override;
+    double smoothing() const override;
+    double radius1() const override;
+    double radius2() const override;
+    double angle() const override;
+    int maxPoints() const override;
+    int minPoints() const override;
 
-  void setPower(double power) override;
-  void setSmoothing(double smoothing) override;
-  void setRadius1(double radius1) override;
-  void setRadius2(double radius2) override;
-  void setAngle(double angle) override;
-  void setMaxPoints(int maxPoints) override;
-  void setMinPoints(int minPoints) override;
+    void setPower(double power) override;
+    void setSmoothing(double smoothing) override;
+    void setRadius1(double radius1) override;
+    void setRadius2(double radius2) override;
+    void setAngle(double angle) override;
+    void setMaxPoints(int maxPoints) override;
+    void setMinPoints(int minPoints) override;
 
 // Dtm interface
 
 public:
 
-  std::string name() const override final;
-  void reset() override;
+    std::string name() const override final;
+    void reset() override;
 
 protected:
 
-  double mPower;
-  double mSmoothing;
-  double mRadius1;
-  double mRadius2;
-  double mAngle;
-  int mMaxPoints;
-  int mMinPoints;
+    double mPower;
+    double mSmoothing;
+    double mRadius1;
+    double mRadius2;
+    double mAngle;
+    int mMaxPoints;
+    int mMinPoints;
 
 };
 
@@ -87,28 +87,28 @@ class DtmInvDistAlgorithm
 
 public:
 
-  DtmInvDistAlgorithm();
-  DtmInvDistAlgorithm(double power,
-                      double smoothing,
-                      double radius1,
-                      double radius2,
-                      double angle,
-                      int maxPoints,
-                      int minPoints);
-  ~DtmInvDistAlgorithm();
+    DtmInvDistAlgorithm();
+    DtmInvDistAlgorithm(double power,
+                        double smoothing,
+                        double radius1,
+                        double radius2,
+                        double angle,
+                        int maxPoints,
+                        int minPoints);
+    ~DtmInvDistAlgorithm();
 
 // DtmAlgorithm interface
 
 public:
 
-  bool run(const tl::Path &pointCloud,
-           const tl::Path &dtmFile,
-           const tl::Size<int> &size) override;
+    bool run(const tl::Path &pointCloud,
+             const tl::Path &dtmFile,
+             const tl::Size<int> &size) override;
 
-  bool run(const tl::Path &pointCloud,
-           const tl::Path &dtmFile,
-           const tl::BoundingBox<tl::Point3<double>> &bbox,
-           double gsd) override;
+    bool run(const tl::Path &pointCloud,
+             const tl::Path &dtmFile,
+             const tl::BoundingBox<tl::Point3<double>> &bbox,
+             double gsd) override;
 };
 
 

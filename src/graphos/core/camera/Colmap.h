@@ -48,15 +48,15 @@ class ReadCalibration
 
 public:
 
-  ReadCalibration();
-  ~ReadCalibration();
+    ReadCalibration();
+    ~ReadCalibration();
 
-  void open(const QString &path);
-  std::shared_ptr<Calibration> calibration(int cameraId) const;
+    void open(const QString &path);
+    std::shared_ptr<Calibration> calibration(int cameraId) const;
 
 protected:
 
-  colmap::Reconstruction *mReconstruction;
+    colmap::Reconstruction *mReconstruction;
 
 };
 

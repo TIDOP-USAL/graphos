@@ -40,8 +40,8 @@ DtmBase::~DtmBase()
 
 Dtm::Interpolation DtmBase::interpolation() const
 {
-  return mInterpolation;
+    return mInterpolation;
 }
 
-	
+
 } // namespace graphos

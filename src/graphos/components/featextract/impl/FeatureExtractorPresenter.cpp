@@ -161,10 +161,10 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
   mModel->clearProject();
   emit features_deleted();
 
-  QString currentKeypointDetector = mView->currentDetectorDescriptor();
+  QString currentKeyPoint<double>etector = mView->currentDetectorDescriptor();
   std::shared_ptr<FeatureExtractor> feature_extractor;
 
-  if (currentKeypointDetector.compare("SIFT") == 0) {
+  if (currentKeyPoint<double>etector.compare("SIFT") == 0) {
     if (mModel->useCuda()) {
       feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
                                                                        mSift->octaveLayers(),

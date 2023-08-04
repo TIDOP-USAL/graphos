@@ -52,26 +52,26 @@ class Densification
 
 public:
 
-  enum class Method
-  {
-    cmvs_pmvs,
-    smvs,
-    mvs
-  };
+    enum class Method
+    {
+        cmvs_pmvs,
+        smvs,
+        mvs
+    };
 
 public:
 
-  Densification(Method method) : mDensificationMethod(method) {}
-  virtual ~Densification() = default;
+    Densification(Method method) : mDensificationMethod(method) {}
+    virtual ~Densification() = default;
 
 
-  virtual void reset() = 0;
-  virtual QString name() const = 0;
-  Method method() const { return mDensificationMethod.flags(); }
+    virtual void reset() = 0;
+    virtual QString name() const = 0;
+    Method method() const { return mDensificationMethod.flags(); }
 
 protected:
 
-  tl::EnumFlags<Method> mDensificationMethod;
+    tl::EnumFlags<Method> mDensificationMethod;
 
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(Densification::Method)
@@ -86,12 +86,12 @@ class Densifier
 
 public:
 
-  Densifier() {}
-  virtual ~Densifier() = default;
+    Densifier() {}
+    virtual ~Densifier() = default;
 
-  virtual void enableCuda(bool enable) = 0;
-  virtual bool isCudaEnabled() const = 0;
-  virtual tl::Path denseModel() const = 0;
+    virtual void enableCuda(bool enable) = 0;
+    virtual bool isCudaEnabled() const = 0;
+    virtual tl::Path denseModel() const = 0;
 
 };
 
@@ -104,43 +104,43 @@ class DensifierBase
 
 public:
 
-  DensifierBase(const std::unordered_map<size_t, Image> &images, 
-                const std::map<int, Camera> &cameras,
-                const std::unordered_map<size_t, CameraPose> &poses,
-                const std::vector<GroundPoint> &groundPoints,
-                const tl::Path &outputPath);
-  ~DensifierBase();
+    DensifierBase(const std::unordered_map<size_t, Image> &images,
+                  const std::map<int, Camera> &cameras,
+                  const std::unordered_map<size_t, CameraPose> &poses,
+                  const std::vector<GroundPoint> &groundPoints,
+                  const tl::Path &outputPath);
+    ~DensifierBase();
 
-// Densifier
+    // Densifier
 
 public:
 
-  void enableCuda(bool enable) override;
-  virtual bool isCudaEnabled() const override;
-  tl::Path denseModel() const override;
-  void setUndistortImagesFormat(UndistortImages::Format format);
+    void enableCuda(bool enable) override;
+    virtual bool isCudaEnabled() const override;
+    tl::Path denseModel() const override;
+    void setUndistortImagesFormat(UndistortImages::Format format);
 
 protected:
 
-  void undistort(const QString &dir);
-  tl::Path outputPath() const;
-  const std::unordered_map<size_t, Image> &images() const;
-  const std::map<int, Camera> &cameras() const;
-  const std::unordered_map<size_t, CameraPose> &poses() const;
-  const std::vector<GroundPoint> &groundPoints() const;
-  void setDenseModel(const tl::Path &denseModel);
-  void autoSegmentation();
+    void undistort(const QString &dir);
+    tl::Path outputPath() const;
+    const std::unordered_map<size_t, Image> &images() const;
+    const std::map<int, Camera> &cameras() const;
+    const std::unordered_map<size_t, CameraPose> &poses() const;
+    const std::vector<GroundPoint> &groundPoints() const;
+    void setDenseModel(const tl::Path &denseModel);
+    void autoSegmentation();
 
 private:
 
-  std::unordered_map<size_t, Image> mImages;
-  std::map<int, Camera> mCameras;
-  std::unordered_map<size_t, CameraPose> mPoses;
-  std::vector<GroundPoint> mGroundPoints;
-  tl::Path mOutputPath;
-  bool mCuda;
-  tl::Path mDenseModel;
-  UndistortImages::Format mFormat;
+    std::unordered_map<size_t, Image> mImages;
+    std::map<int, Camera> mCameras;
+    std::unordered_map<size_t, CameraPose> mPoses;
+    std::vector<GroundPoint> mGroundPoints;
+    tl::Path mOutputPath;
+    bool mCuda;
+    tl::Path mDenseModel;
+    UndistortImages::Format mFormat;
 };
 
 
@@ -155,24 +155,24 @@ class CmvsPmvs
 
 public:
 
-  CmvsPmvs() : Densification(Densification::Method::cmvs_pmvs) {}
-  ~CmvsPmvs() override = default;
-  
-  virtual bool useVisibilityInformation() const = 0;
-  virtual int imagesPerCluster() const  = 0;
-  virtual int level() const = 0;
-  virtual int cellSize() const = 0;
-  virtual double threshold() const = 0;
-  virtual int windowSize() const = 0;
-  virtual int minimunImageNumber() const = 0;
+    CmvsPmvs() : Densification(Densification::Method::cmvs_pmvs) {}
+    ~CmvsPmvs() override = default;
 
-  virtual void setUseVisibilityInformation(bool useVisibilityInformation) = 0;
-  virtual void setImagesPerCluster(int imagesPerCluster)  = 0;
-  virtual void setLevel(int level) = 0;
-  virtual void setCellSize(int cellSize) = 0;
-  virtual void setThreshold(double threshold) = 0;
-  virtual void setWindowSize(int windowSize) = 0;
-  virtual void setMinimunImageNumber(int minimunImageNumber) = 0;
+    virtual bool useVisibilityInformation() const = 0;
+    virtual int imagesPerCluster() const = 0;
+    virtual int level() const = 0;
+    virtual int cellSize() const = 0;
+    virtual double threshold() const = 0;
+    virtual int windowSize() const = 0;
+    virtual int minimunImageNumber() const = 0;
+
+    virtual void setUseVisibilityInformation(bool useVisibilityInformation) = 0;
+    virtual void setImagesPerCluster(int imagesPerCluster) = 0;
+    virtual void setLevel(int level) = 0;
+    virtual void setCellSize(int cellSize) = 0;
+    virtual void setThreshold(double threshold) = 0;
+    virtual void setWindowSize(int windowSize) = 0;
+    virtual void setMinimunImageNumber(int minimunImageNumber) = 0;
 };
 
 
@@ -186,20 +186,20 @@ class Smvs
 
 public:
 
-  Smvs() : Densification(Densification::Method::smvs) {}
-  ~Smvs() override = default;
-    
-  virtual int inputImageScale() const = 0;
-  virtual int outputDepthScale() const  = 0;
-  virtual bool shadingBasedOptimization() const = 0;
-  virtual bool semiGlobalMatching() const = 0;
-  virtual double surfaceSmoothingFactor() const = 0;
+    Smvs() : Densification(Densification::Method::smvs) {}
+    ~Smvs() override = default;
 
-  virtual void setInputImageScale(int inputImageScale) = 0;
-  virtual void setOutputDepthScale(int outputDepthScale)  = 0;
-  virtual void setShadingBasedOptimization(bool shadingBasedOptimization) = 0;
-  virtual void setSemiGlobalMatching(bool semiGlobalMatching) = 0;
-  virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) = 0;
+    virtual int inputImageScale() const = 0;
+    virtual int outputDepthScale() const = 0;
+    virtual bool shadingBasedOptimization() const = 0;
+    virtual bool semiGlobalMatching() const = 0;
+    virtual double surfaceSmoothingFactor() const = 0;
+
+    virtual void setInputImageScale(int inputImageScale) = 0;
+    virtual void setOutputDepthScale(int outputDepthScale) = 0;
+    virtual void setShadingBasedOptimization(bool shadingBasedOptimization) = 0;
+    virtual void setSemiGlobalMatching(bool semiGlobalMatching) = 0;
+    virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) = 0;
 
 };
 
@@ -213,22 +213,22 @@ class Mvs
 
 public:
 
-  Mvs() : Densification(Densification::Method::mvs)
-  {
-  }
-  ~Mvs() override = default;
+    Mvs() : Densification(Densification::Method::mvs)
+    {
+    }
+    ~Mvs() override = default;
 
-  virtual int resolutionLevel() const = 0;
-  virtual int minResolution() const = 0;
-  virtual int maxResolution() const = 0;
-  virtual int numberViews() const = 0;
-  virtual int numberViewsFuse() const = 0;
+    virtual int resolutionLevel() const = 0;
+    virtual int minResolution() const = 0;
+    virtual int maxResolution() const = 0;
+    virtual int numberViews() const = 0;
+    virtual int numberViewsFuse() const = 0;
 
-  virtual void setResolutionLevel(int resolutionLevel) = 0;
-  virtual void setMinResolution(int minResolution) = 0;
-  virtual void setMaxResolution(int maxResolution) = 0;
-  virtual void setNumberViews(int numberViews) = 0;
-  virtual void setNumberViewsFuse(int numberViewsFuse) = 0;
+    virtual void setResolutionLevel(int resolutionLevel) = 0;
+    virtual void setMinResolution(int minResolution) = 0;
+    virtual void setMaxResolution(int maxResolution) = 0;
+    virtual void setNumberViews(int numberViews) = 0;
+    virtual void setNumberViewsFuse(int numberViewsFuse) = 0;
 };
 
 
