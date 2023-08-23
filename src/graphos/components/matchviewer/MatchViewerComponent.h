@@ -36,30 +36,30 @@ class MatchViewerComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MatchViewerComponent(Application *application);
-  ~MatchViewerComponent();
+    MatchViewerComponent(Application *application);
+    ~MatchViewerComponent();
 
 private:
 
-  void init();
+    void init();
 
 public slots:
 
-  void openMatchesViewer(size_t imageId);
+    void openMatchesViewer(size_t imageId);
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

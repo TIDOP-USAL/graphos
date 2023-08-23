@@ -39,15 +39,15 @@ class PropertiesView
   : public DialogView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  PropertiesView(QWidget *parent) : DialogView(parent) {}
-  virtual ~PropertiesView() override = default;
+    PropertiesView(QWidget *parent) : DialogView(parent) {}
+    virtual ~PropertiesView() override = default;
 
-  virtual void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) = 0;
-  virtual void setAlternatingRowColors(bool active) = 0;
+    virtual void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) = 0;
+    virtual void setAlternatingRowColors(bool active) = 0;
 
 };
 

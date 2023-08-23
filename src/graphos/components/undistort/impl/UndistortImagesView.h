@@ -39,27 +39,23 @@ class UndistortImagesViewImp
   : public UndistortImagesView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  UndistortImagesViewImp(QWidget *parent = nullptr);
-  ~UndistortImagesViewImp() override;
+    UndistortImagesViewImp(QWidget *parent = nullptr);
+    ~UndistortImagesViewImp() override;
 
 // UndistortImagesView
 
-public:
-
-  //QString outputPath() const override;
-
 public slots:
-  
-  void setProjectDirectory(const QString &directory) override;
+
+    void setProjectDirectory(const QString &directory) override;
 
 private:
 
-  void init();
-  
+    void init();
+
 };
 
 } // namespace graphos

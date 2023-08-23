@@ -36,89 +36,89 @@ namespace graphos
 class SettingsModelImp
   : public SettingsModel
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SettingsModelImp(Settings *settings,
-                   /*SettingsController *settingsRW,*/
-                   QObject *parent = nullptr);
-  ~SettingsModelImp() override;
+    SettingsModelImp(Settings *settings,
+                     /*SettingsController *settingsRW,*/
+                     QObject *parent = nullptr);
+    ~SettingsModelImp() override;
 
 // SettingsModel interface
 
 public:
 
-  QStringList languages() const override;
-  QString language() const override;
-  //QStringList history() const override;
-  int historyMaxSize() const override;
-  QString imageViewerBGcolor() const override;
+    QStringList languages() const override;
+    QString language() const override;
+    //QStringList history() const override;
+    int historyMaxSize() const override;
+    QString imageViewerBGcolor() const override;
 
-  QString keypointsViewerBGColor() const override;
-  int keypointsViewerMarkerType() const override;
-  int keypointsViewerMarkerSize() const override;
-  int keypointsViewerMarkerWidth() const override;
-  QString keypointsViewerMarkerColor() const override;
-  int keypointsViewerSelectMarkerWidth() const override;
-  QString keypointsViewerSelectMarkerColor() const override;
+    QString keypointsViewerBGColor() const override;
+    int keypointsViewerMarkerType() const override;
+    int keypointsViewerMarkerSize() const override;
+    int keypointsViewerMarkerWidth() const override;
+    QString keypointsViewerMarkerColor() const override;
+    int keypointsViewerSelectMarkerWidth() const override;
+    QString keypointsViewerSelectMarkerColor() const override;
 
-  QString matchesViewerBGColor() const override;
-  int matchesViewerMarkerType() const override;
-  int matchesViewerMarkerSize() const override;
-  int matchesViewerMarkerWidth() const override;
-  QString matchesViewerMarkerColor() const override;
-  int matchesViewerSelectMarkerWidth() const override;
-  QString matchesViewerSelectMarkerColor() const override;
-  QString matchesViewerLineColor() const override;
-  int matchesViewerLineWidth() const override;
+    QString matchesViewerBGColor() const override;
+    int matchesViewerMarkerType() const override;
+    int matchesViewerMarkerSize() const override;
+    int matchesViewerMarkerWidth() const override;
+    QString matchesViewerMarkerColor() const override;
+    int matchesViewerSelectMarkerWidth() const override;
+    QString matchesViewerSelectMarkerColor() const override;
+    QString matchesViewerLineColor() const override;
+    int matchesViewerLineWidth() const override;
 
-  bool useCuda() const override;
-  bool checkDevice() const override;
-  void read() override;
-  void write() override;
+    bool useCuda() const override;
+    bool checkDevice() const override;
+    void read() override;
+    void write() override;
 
 public slots:
 
-  void setLanguage(const QString &language) override;
-  //void addToHistory(const QString &project) override;
-  //void clearHistory() override;
-  void setHistoryMaxSize(int maxSize) override;
-  void setImageViewerBGcolor(const QString &bgColor) override;
-  void setUseCuda(bool active) override;
+    void setLanguage(const QString &language) override;
+    //void addToHistory(const QString &project) override;
+    //void clearHistory() override;
+    void setHistoryMaxSize(int maxSize) override;
+    void setImageViewerBGcolor(const QString &bgColor) override;
+    void setUseCuda(bool active) override;
 
-  void setKeypointsViewerBGColor(const QString &color) override;
-  void setKeypointsViewerMarkerType(int type) override;
-  void setKeypointsViewerMarkerSize(int size) override;
-  void setKeypointsViewerMarkerWidth(int width) override;
-  void setKeypointsViewerMarkerColor(const QString &color) override;
-  void setKeypointsViewerSelectMarkerWidth(int width) override;
-  void setKeypointsViewerSelectMarkerColor(const QString &color) override;
+    void setKeypointsViewerBGColor(const QString &color) override;
+    void setKeypointsViewerMarkerType(int type) override;
+    void setKeypointsViewerMarkerSize(int size) override;
+    void setKeypointsViewerMarkerWidth(int width) override;
+    void setKeypointsViewerMarkerColor(const QString &color) override;
+    void setKeypointsViewerSelectMarkerWidth(int width) override;
+    void setKeypointsViewerSelectMarkerColor(const QString &color) override;
 
-  void setMatchesViewerBGColor(const QString &color) override;
-  void setMatchesViewerMarkerType(int type) override;
-  void setMatchesViewerMarkerSize(int size) override;
-  void setMatchesViewerMarkerWidth(int width) override;
-  void setMatchesViewerMarkerColor(const QString &color) override;
-  void setMatchesViewerSelectMarkerWidth(int width) override;
-  void setMatchesViewerSelectMarkerColor(const QString &color) override;
-  void setMatchesViewerLineColor(const QString &color) override;
-  void setMatchesViewerLineWidth(int width) override;
+    void setMatchesViewerBGColor(const QString &color) override;
+    void setMatchesViewerMarkerType(int type) override;
+    void setMatchesViewerMarkerSize(int size) override;
+    void setMatchesViewerMarkerWidth(int width) override;
+    void setMatchesViewerMarkerColor(const QString &color) override;
+    void setMatchesViewerSelectMarkerWidth(int width) override;
+    void setMatchesViewerSelectMarkerColor(const QString &color) override;
+    void setMatchesViewerLineColor(const QString &color) override;
+    void setMatchesViewerLineWidth(int width) override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Settings *mSettings;
-  SettingsController *mSettingsController;
+    Settings *mSettings;
+    SettingsController *mSettingsController;
 
 };
 

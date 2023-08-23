@@ -34,30 +34,30 @@ class OpenProjectComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OpenProjectComponent(Application *application);
-  ~OpenProjectComponent();
+    OpenProjectComponent(Application *application);
+    ~OpenProjectComponent();
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
-  void project_loaded();
+    void project_loaded();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

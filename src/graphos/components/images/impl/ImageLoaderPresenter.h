@@ -38,54 +38,54 @@ class ImageLoaderPresenterImp
   : public ImageLoaderPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImageLoaderPresenterImp(ImageLoaderView *view,
-                          ImageLoaderModel *model);
-  ~ImageLoaderPresenterImp() override;
+    ImageLoaderPresenterImp(ImageLoaderView *view,
+                            ImageLoaderModel *model);
+    ~ImageLoaderPresenterImp() override;
 
 // ImageLoaderPresenter interface
 
 public slots:
 
-  void setImages(const QStringList &files) override;
+    void setImages(const QStringList &files) override;
 
 protected slots:
 
-  void addImage(int imageId, int cameraId) override;
+    void addImage(int imageId, int cameraId) override;
 
 // TaskPresenter interface
-  
+
 private:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task> createProcess() override;
 
 public slots:
- 
-  void cancel() override;
+
+    void cancel() override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  ImageLoaderView *mView;
-  ImageLoaderModel *mModel;
-  QStringList mImageFiles;
-  std::vector<Image> mImages;
-  std::vector<Camera> mCameras;
+    ImageLoaderView *mView;
+    ImageLoaderModel *mModel;
+    QStringList mImageFiles;
+    std::vector<Image> mImages;
+    std::vector<Camera> mCameras;
 };
 
 } // namespace graphos

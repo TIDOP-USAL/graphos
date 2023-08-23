@@ -40,7 +40,7 @@ namespace graphos
 UndistortImagesComponent::UndistortImagesComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 UndistortImagesComponent::~UndistortImagesComponent()
@@ -49,73 +49,70 @@ UndistortImagesComponent::~UndistortImagesComponent()
 
 void UndistortImagesComponent::init()
 {
-  setName(tr("Undistort Images"));
-  setMenu("tools");
-  //setToolbar("tools");
+    setName(tr("Undistort Images"));
+    setMenu("tools");
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("undistort"));
+    action()->setIcon(QIcon::fromTheme("undistort"));
 }
 
 void UndistortImagesComponent::createModel()
 {
-  setModel(new UndistortImagesModelImp(app()->project()));
+    setModel(new UndistortImagesModelImp(app()->project()));
 }
 
 void UndistortImagesComponent::createView()
 {
-  setView(new UndistortImagesViewImp());
+    setView(new UndistortImagesViewImp());
 }
 
 void UndistortImagesComponent::createPresenter()
 {
-  setPresenter(new UndistortImagesPresenterImp(dynamic_cast<UndistortImagesView *>(view()),
-                                               dynamic_cast<UndistortImagesModel *>(model())));
+    setPresenter(new UndistortImagesPresenterImp(dynamic_cast<UndistortImagesView *>(view()),
+                 dynamic_cast<UndistortImagesModel *>(model())));
 }
 
 void UndistortImagesComponent::createCommand()
 {
-  setCommand(std::make_shared<UndistortImagesCommand>());
+    setCommand(std::make_shared<UndistortImagesCommand>());
 }
 
 void UndistortImagesComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  action()->setEnabled(app_status->isEnabled(AppStatus::Flag::project_exists) && 
-                       !app_status->isEnabled(AppStatus::Flag::processing) &&
-                       app_status->isEnabled(AppStatus::Flag::oriented));
+    action()->setEnabled(app_status->isEnabled(AppStatus::Flag::project_exists) &&
+                         !app_status->isEnabled(AppStatus::Flag::processing) &&
+                         app_status->isEnabled(AppStatus::Flag::oriented));
 }
 
 void UndistortImagesComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void UndistortImagesComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
-  //app_status->activeFlag(AppStatus::Flag::..., true);
+    TaskComponent::onFinished();
 }
 
 void UndistortImagesComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
-  //app_status->activeFlag(AppStatus::Flag::..., false);
+    TaskComponent::onFailed();
 }
 
 

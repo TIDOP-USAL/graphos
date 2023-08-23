@@ -36,37 +36,37 @@ class CreateProjectComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CreateProjectComponent(Application *application);
-  ~CreateProjectComponent();
+    CreateProjectComponent(Application *application);
+    ~CreateProjectComponent();
 
 private:
 
-  void init();
+    void init();
 
 private slots:
 
-  void onProjectCreated();
+    void onProjectCreated();
 
 signals:
 
-  /*!
-   * \brief Signal emitted when a new project is created
-   */
-  void project_created();
+    /*!
+     * \brief Signal emitted when a new project is created
+     */
+    void project_created();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

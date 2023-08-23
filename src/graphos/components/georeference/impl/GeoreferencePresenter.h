@@ -36,47 +36,47 @@ class GeoreferencePresenterImp
   : public GeoreferencePresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  GeoreferencePresenterImp(GeoreferenceView *view,
-                           GeoreferenceModel *model);
-  ~GeoreferencePresenterImp() override;
+    GeoreferencePresenterImp(GeoreferenceView *view,
+                             GeoreferenceModel *model);
+    ~GeoreferencePresenterImp() override;
 
 // TaskPresenter interface
-  
+
 protected:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task> createProcess() override;
 
 public slots:
 
-  void cancel() override;
+    void cancel() override;
 
 // GeoreferencePresenter interface
 
 public slots:
 
-  void setImageActive(size_t imageId) override;
+    void setImageActive(size_t imageId) override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  GeoreferenceView *mView;
-  GeoreferenceModel *mModel;
+    GeoreferenceView *mView;
+    GeoreferenceModel *mModel;
 
 };
 

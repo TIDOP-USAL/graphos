@@ -40,7 +40,7 @@ namespace graphos
 GeoreferenceComponent::GeoreferenceComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 GeoreferenceComponent::~GeoreferenceComponent()
@@ -49,75 +49,75 @@ GeoreferenceComponent::~GeoreferenceComponent()
 
 void GeoreferenceComponent::init()
 {
-  this->setName("Georeference");
-  this->setMenu("tools");
-  this->setToolbar("tools");
+    this->setName("Georeference");
+    this->setMenu("tools");
+    this->setToolbar("tools");
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("orientation"));
+    action()->setIcon(QIcon::fromTheme("orientation"));
 }
 
 void GeoreferenceComponent::createModel()
 {
-  setModel(new GeoreferenceModelImp(app()->project()));
+    setModel(new GeoreferenceModelImp(app()->project()));
 }
 
 void GeoreferenceComponent::createView()
 {
-  Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-  setView(new GeoreferenceViewImp(nullptr, f));
+    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+    setView(new GeoreferenceViewImp(nullptr, f));
 }
 
 void GeoreferenceComponent::createPresenter()
 {
-  setPresenter(new GeoreferencePresenterImp(dynamic_cast<GeoreferenceView *>(view()), 
-                                            dynamic_cast<GeoreferenceModel *>(model())));
+    setPresenter(new GeoreferencePresenterImp(dynamic_cast<GeoreferenceView *>(view()),
+                 dynamic_cast<GeoreferenceModel *>(model())));
 }
 
 void GeoreferenceComponent::createCommand()
 {
-  setCommand(std::make_shared<GeoreferenceCommand>());
+    setCommand(std::make_shared<GeoreferenceCommand>());
 }
 
 void GeoreferenceComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-  bool bOriented = app_status->isEnabled(AppStatus::Flag::oriented);
-  action()->setEnabled(bProjectExists && bOriented && !bProcessing);
+    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool bOriented = app_status->isEnabled(AppStatus::Flag::oriented);
+    action()->setEnabled(bProjectExists && bOriented && !bProcessing);
 }
 
 void GeoreferenceComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void GeoreferenceComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
-  app_status->activeFlag(AppStatus::Flag::absolute_oriented, true);
+    TaskComponent::onFinished();
+    app_status->activeFlag(AppStatus::Flag::absolute_oriented, true);
 }
 
 void GeoreferenceComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
-  app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
+    TaskComponent::onFailed();
+    app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
 }
 
 } // namespace graphos

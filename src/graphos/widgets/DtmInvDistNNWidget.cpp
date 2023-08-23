@@ -23,7 +23,7 @@
 
 #include "DtmInvDistNNWidget.h"
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QGroupBox>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
@@ -37,7 +37,7 @@ namespace graphos
 
 
 DtmInvDistNNWidget::DtmInvDistNNWidget(QWidget *parent)
-  : GraphosWidgetView(parent)
+    : GraphosWidgetView(parent)
 {
 }
 
@@ -45,7 +45,7 @@ DtmInvDistNNWidget::DtmInvDistNNWidget(QWidget *parent)
 
 
 DtmInvDistNNWidgetImp::DtmInvDistNNWidgetImp(QWidget *parent)
-  : DtmInvDistNNWidget(parent),
+    : DtmInvDistNNWidget(parent),
     mGroupBox(new QGroupBox(this)),
     mLabelPower(new QLabel(this)),
     mDoubleSpinBoxPower(new QDoubleSpinBox(this)),
@@ -58,8 +58,8 @@ DtmInvDistNNWidgetImp::DtmInvDistNNWidgetImp(QWidget *parent)
     mLabelMinPoints(new QLabel(this)),
     mSpinBoxMinPoints(new QSpinBox(this))
 {
-  DtmInvDistNNWidgetImp::initUI();
-  DtmInvDistNNWidgetImp::initSignalAndSlots();
+    DtmInvDistNNWidgetImp::initUI();
+    DtmInvDistNNWidgetImp::initSignalAndSlots();
 }
 
 DtmInvDistNNWidgetImp::~DtmInvDistNNWidgetImp()
@@ -69,65 +69,65 @@ DtmInvDistNNWidgetImp::~DtmInvDistNNWidgetImp()
 
 void DtmInvDistNNWidgetImp::initUI()
 {
-  this->setObjectName(QStringLiteral("DtmInvDistNN"));
-  this->setWindowTitle("Inverse distance to a power with nearest neighbor searching");
+    this->setObjectName(QStringLiteral("DtmInvDistNN"));
+    this->setWindowTitle("Inverse distance to a power with nearest neighbor searching");
 
-  QGridLayout *layout = new QGridLayout();
-  layout->setContentsMargins(0,0,0,0);
-  this->setLayout(layout);
+    QGridLayout *layout = new QGridLayout();
+    layout->setContentsMargins(0, 0, 0, 0);
+    this->setLayout(layout);
 
-  layout->addWidget(mGroupBox);
+    layout->addWidget(mGroupBox);
 
-  QGridLayout *propertiesLayout = new QGridLayout();
-  mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *propertiesLayout = new QGridLayout();
+    mGroupBox->setLayout(propertiesLayout);
 
-  propertiesLayout->addWidget(mLabelPower, 0, 0);
-  mDoubleSpinBoxPower->setSingleStep(1.);
-  propertiesLayout->addWidget(mDoubleSpinBoxPower, 0, 1);
+    propertiesLayout->addWidget(mLabelPower, 0, 0);
+    mDoubleSpinBoxPower->setSingleStep(1.);
+    propertiesLayout->addWidget(mDoubleSpinBoxPower, 0, 1);
 
-  propertiesLayout->addWidget(mLabelSmoothing, 1, 0);
-  mDoubleSpinBoxSmoothing->setDecimals(3);
-  mDoubleSpinBoxSmoothing->setSingleStep(0.01);
-  propertiesLayout->addWidget(mDoubleSpinBoxSmoothing, 1, 1);
-  
-  propertiesLayout->addWidget(mLabelRadius, 2, 0);
-  mDoubleSpinBoxRadius->setDecimals(3);
-  mDoubleSpinBoxRadius->setSingleStep(0.01);
-  propertiesLayout->addWidget(mDoubleSpinBoxRadius, 2, 1);
+    propertiesLayout->addWidget(mLabelSmoothing, 1, 0);
+    mDoubleSpinBoxSmoothing->setDecimals(3);
+    mDoubleSpinBoxSmoothing->setSingleStep(0.01);
+    propertiesLayout->addWidget(mDoubleSpinBoxSmoothing, 1, 1);
 
-  propertiesLayout->addWidget(mLabelMaxPoints, 3, 0);
-  propertiesLayout->addWidget(mSpinBoxMaxPoints, 3, 1);
+    propertiesLayout->addWidget(mLabelRadius, 2, 0);
+    mDoubleSpinBoxRadius->setDecimals(3);
+    mDoubleSpinBoxRadius->setSingleStep(0.01);
+    propertiesLayout->addWidget(mDoubleSpinBoxRadius, 2, 1);
 
-  propertiesLayout->addWidget(mLabelMinPoints, 4, 0);
-  propertiesLayout->addWidget(mSpinBoxMinPoints, 4, 1);
+    propertiesLayout->addWidget(mLabelMaxPoints, 3, 0);
+    propertiesLayout->addWidget(mSpinBoxMaxPoints, 3, 1);
 
-  DtmInvDistNNWidgetImp::retranslate();
-  DtmInvDistNNWidgetImp::clear(); /// set default values
-  DtmInvDistNNWidgetImp::update();
+    propertiesLayout->addWidget(mLabelMinPoints, 4, 0);
+    propertiesLayout->addWidget(mSpinBoxMinPoints, 4, 1);
+
+    DtmInvDistNNWidgetImp::retranslate();
+    DtmInvDistNNWidgetImp::clear(); /// set default values
+    DtmInvDistNNWidgetImp::update();
 }
 
 void DtmInvDistNNWidgetImp::initSignalAndSlots()
 {
-  connect(mDoubleSpinBoxPower,      SIGNAL(valueChanged(double)), this, SIGNAL(powerChange(double)));
-  connect(mDoubleSpinBoxSmoothing,  SIGNAL(valueChanged(double)), this, SIGNAL(smoothingChange(double)));
-  connect(mDoubleSpinBoxRadius,     SIGNAL(valueChanged(double)), this, SIGNAL(radiusChange(double)));
-  connect(mSpinBoxMaxPoints,        SIGNAL(valueChanged(int)),    this, SIGNAL(maxPointsChange(int)));
-  connect(mSpinBoxMinPoints,        SIGNAL(valueChanged(int)),    this, SIGNAL(minPointsChange(int)));
+    connect(mDoubleSpinBoxPower, SIGNAL(valueChanged(double)), this, SIGNAL(powerChange(double)));
+    connect(mDoubleSpinBoxSmoothing, SIGNAL(valueChanged(double)), this, SIGNAL(smoothingChange(double)));
+    connect(mDoubleSpinBoxRadius, SIGNAL(valueChanged(double)), this, SIGNAL(radiusChange(double)));
+    connect(mSpinBoxMaxPoints, SIGNAL(valueChanged(int)), this, SIGNAL(maxPointsChange(int)));
+    connect(mSpinBoxMinPoints, SIGNAL(valueChanged(int)), this, SIGNAL(minPointsChange(int)));
 }
 
 void DtmInvDistNNWidgetImp::clear()
 {
-  const QSignalBlocker signalBlockerPower(mDoubleSpinBoxPower);
-  const QSignalBlocker signalBlockerSmoothing(mDoubleSpinBoxSmoothing);
-  const QSignalBlocker signalBlockerRadius(mDoubleSpinBoxRadius);
-  const QSignalBlocker signalBlockerMaxPoints(mSpinBoxMaxPoints);
-  const QSignalBlocker signalBlockerMinPoints(mSpinBoxMinPoints);
+    const QSignalBlocker signalBlockerPower(mDoubleSpinBoxPower);
+    const QSignalBlocker signalBlockerSmoothing(mDoubleSpinBoxSmoothing);
+    const QSignalBlocker signalBlockerRadius(mDoubleSpinBoxRadius);
+    const QSignalBlocker signalBlockerMaxPoints(mSpinBoxMaxPoints);
+    const QSignalBlocker signalBlockerMinPoints(mSpinBoxMinPoints);
 
-  mDoubleSpinBoxPower->setValue(2.0);
-  mDoubleSpinBoxSmoothing->setValue(0.0);
-  mDoubleSpinBoxRadius->setValue(1.0);
-  mSpinBoxMaxPoints->setValue(0);
-  mSpinBoxMinPoints->setValue(0);
+    mDoubleSpinBoxPower->setValue(2.0);
+    mDoubleSpinBoxSmoothing->setValue(0.0);
+    mDoubleSpinBoxRadius->setValue(1.0);
+    mSpinBoxMaxPoints->setValue(0);
+    mSpinBoxMinPoints->setValue(0);
 
 }
 
@@ -138,67 +138,67 @@ void DtmInvDistNNWidgetImp::update()
 
 void DtmInvDistNNWidgetImp::retranslate()
 {
-  mGroupBox->setTitle(QApplication::translate("DtmInvDistNNWidget", "Inverse distance to a power with nearest neighbor searching", nullptr));
-  mLabelPower->setText(QApplication::translate("DtmInvDistNNWidget", "Power:"));
-  mLabelSmoothing->setText(QApplication::translate("DtmInvDistNNWidget", "Smoothing:"));
-  mLabelRadius->setText(QApplication::translate("DtmInvDistNNWidget", "Radius:"));
-  mLabelMaxPoints->setText(QApplication::translate("DtmInvDistNNWidget", "Maximum Points:"));
-  mLabelMinPoints->setText(QApplication::translate("DtmInvDistNNWidget", "Minimun Points:"));
+    mGroupBox->setTitle(QApplication::translate("DtmInvDistNNWidget", "Inverse distance to a power with nearest neighbor searching", nullptr));
+    mLabelPower->setText(QApplication::translate("DtmInvDistNNWidget", "Power:"));
+    mLabelSmoothing->setText(QApplication::translate("DtmInvDistNNWidget", "Smoothing:"));
+    mLabelRadius->setText(QApplication::translate("DtmInvDistNNWidget", "Radius:"));
+    mLabelMaxPoints->setText(QApplication::translate("DtmInvDistNNWidget", "Maximum Points:"));
+    mLabelMinPoints->setText(QApplication::translate("DtmInvDistNNWidget", "Minimun Points:"));
 }
 
 double DtmInvDistNNWidgetImp::power() const
 {
-  return mDoubleSpinBoxPower->value();
+    return mDoubleSpinBoxPower->value();
 }
 
 double DtmInvDistNNWidgetImp::smoothing() const
 {
-  return mDoubleSpinBoxSmoothing->value();
+    return mDoubleSpinBoxSmoothing->value();
 }
 
 double DtmInvDistNNWidgetImp::radius() const
 {
-  return mDoubleSpinBoxRadius->value();
+    return mDoubleSpinBoxRadius->value();
 }
 
 int DtmInvDistNNWidgetImp::maxPoints() const
 {
-  return mSpinBoxMaxPoints->value();
+    return mSpinBoxMaxPoints->value();
 }
 
 int DtmInvDistNNWidgetImp::minPoints() const
 {
-  return mSpinBoxMinPoints->value();
+    return mSpinBoxMinPoints->value();
 }
 
 void DtmInvDistNNWidgetImp::setPower(double power)
 {
-  const QSignalBlocker signalBlocker(mDoubleSpinBoxPower);
-  mDoubleSpinBoxPower->setValue(power);
+    const QSignalBlocker signalBlocker(mDoubleSpinBoxPower);
+    mDoubleSpinBoxPower->setValue(power);
 }
 
 void DtmInvDistNNWidgetImp::setSmoothing(double smoothing)
 {
-  const QSignalBlocker signalBlocker(mDoubleSpinBoxSmoothing);
-  mDoubleSpinBoxSmoothing->setValue(smoothing);
+    const QSignalBlocker signalBlocker(mDoubleSpinBoxSmoothing);
+    mDoubleSpinBoxSmoothing->setValue(smoothing);
 }
 
 void DtmInvDistNNWidgetImp::setRadius(double radius)
 {
-  const QSignalBlocker signalBlocker(mDoubleSpinBoxRadius);
-  mDoubleSpinBoxRadius->setValue(radius);
+    const QSignalBlocker signalBlocker(mDoubleSpinBoxRadius);
+    mDoubleSpinBoxRadius->setValue(radius);
 }
 
 void DtmInvDistNNWidgetImp::setMaxPoints(int maxPoints)
 {
-  const QSignalBlocker signalBlocker(mSpinBoxMaxPoints);
-  mSpinBoxMaxPoints->setValue(maxPoints);
+    const QSignalBlocker signalBlocker(mSpinBoxMaxPoints);
+    mSpinBoxMaxPoints->setValue(maxPoints);
 }
 
 void DtmInvDistNNWidgetImp::setMinPoints(int minPoints)
 {
-  const QSignalBlocker signalBlocker(mSpinBoxMinPoints);
-  mSpinBoxMinPoints->setValue(minPoints);
+    const QSignalBlocker signalBlocker(mSpinBoxMinPoints);
+    mSpinBoxMinPoints->setValue(minPoints);
 }
 
 

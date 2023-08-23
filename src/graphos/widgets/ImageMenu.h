@@ -34,38 +34,38 @@ namespace graphos
 class ImageContextMenu
   : public GraphosContextMenu
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImageContextMenu(QWidget *parent = nullptr);
-  ~ImageContextMenu() override = default;
+    ImageContextMenu(QWidget *parent = nullptr);
+    ~ImageContextMenu() override = default;
 
 signals:
 
-  void zoomIn();
-  void zoomOut();
-  void zoomExtend();
-  void zoom11();
+    void zoomIn();
+    void zoomOut();
+    void zoomExtend();
+    void zoom11();
 
 private:
 
-  void init();
-  void initSignalAndSlots();
+    void init();
+    void initSignalAndSlots();
 
 // GraphosContextMenu
 
 private slots:
 
-  void retranslate() override;
+    void retranslate() override;
 
 private:
 
-  QAction *mActionZoomIn;
-  QAction *mActionZoomOut;
-  QAction *mActionZoomExtend;
-  QAction *mActionZoom11;
-  
+    QAction *mActionZoomIn;
+    QAction *mActionZoomOut;
+    QAction *mActionZoomExtend;
+    QAction *mActionZoom11;
+
 };
 
 } // namespace graphos

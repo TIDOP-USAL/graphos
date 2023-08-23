@@ -35,38 +35,38 @@ class ImageLoaderComponent
   : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImageLoaderComponent(Application *application);
-  ~ImageLoaderComponent();
+    ImageLoaderComponent(Application *application);
+    ~ImageLoaderComponent();
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
-  void image_loaded(size_t);
+    void image_loaded(size_t);
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 // TaskComponent
 
 protected slots:
 
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 
 };
 

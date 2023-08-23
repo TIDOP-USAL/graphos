@@ -34,33 +34,33 @@ class PropertiesComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  PropertiesComponent(Application *application);
-  ~PropertiesComponent();
+    PropertiesComponent(Application *application);
+    ~PropertiesComponent();
 
-  void setAlternatingRowColors(bool active);
+    void setAlternatingRowColors(bool active);
 
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
-  void selectImage(size_t);
+    void selectImage(size_t);
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

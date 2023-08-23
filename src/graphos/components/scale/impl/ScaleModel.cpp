@@ -33,60 +33,60 @@ namespace graphos
 ScaleModelImp::ScaleModelImp(Project *project, QObject *parent)
   : ScaleModel(parent),
     mSettings(new QSettings(QSettings::IniFormat,
-                            QSettings::UserScope, 
-                            qApp->organizationName(), 
-                            qApp->applicationName())),
+              QSettings::UserScope,
+              qApp->organizationName(),
+              qApp->applicationName())),
     mProject(project)
 {
-  this->init();
+    this->init();
 }
 
 ScaleModelImp::~ScaleModelImp()
 {
-  if (mSettings){
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if (mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 }
 
 void ScaleModelImp::loadSettings()
 {
-  if (mReadSettings) {
-	  
-	/* Read Settings here
-	
-	Example (replace PropertyName):
-	
-    mParameters->setPropertyName(mSettings->value("SCALE/PropertyName", mParameters->propertyName()).toInt());
-  
-    */
+    if (mReadSettings) {
 
-  }
+        /* Read Settings here
+
+        Example (replace PropertyName):
+
+        mParameters->setPropertyName(mSettings->value("SCALE/PropertyName", mParameters->propertyName()).toInt());
+
+        */
+
+    }
 }
 
-void ScaleModelImp::setTransform(const tl::math::Matrix<double, 4, 4> &transform)
+void ScaleModelImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
 {
-  mProject->setTransform(transform);
+    mProject->setTransform(transform);
 }
 
 void ScaleModelImp::saveSettings()
 {
-  if (mReadSettings) {
-	
-	/* Write Settings here
-	
-	Example:
-	
-    mSettings->setValue("SCALE/PropertyName", mParameters->propertyName());
-  
-    */
-    
-  }
+    if (mReadSettings) {
+
+        /* Write Settings here
+
+        Example:
+
+        mSettings->setValue("SCALE/PropertyName", mParameters->propertyName());
+
+        */
+
+    }
 }
 
 void ScaleModelImp::init()
 {
-  mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
+    mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
 }
 
 void ScaleModelImp::clear()

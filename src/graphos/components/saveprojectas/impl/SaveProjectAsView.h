@@ -33,20 +33,20 @@ class SaveProjectAsViewImp
   : public SaveProjectAsView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit SaveProjectAsViewImp(QWidget *parent = nullptr);
-  ~SaveProjectAsViewImp() override = default;
+    explicit SaveProjectAsViewImp(QWidget *parent = nullptr);
+    ~SaveProjectAsViewImp() override = default;
 
 // SaveProjectView interface
- 
- void setGraphosProjectsPath(const QString &directory) override;
+
+    void setGraphosProjectsPath(const QString &directory) override;
 
 private:
 
-  void init();
+    void init();
 
 };
 

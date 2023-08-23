@@ -25,7 +25,7 @@
 
 #include "graphos/core/utils.h"
 
-#include "tidop/core/messages.h"
+#include "tidop/core/msg/message.h"
 
 #include <QDir>
 #include <QSettings>
@@ -42,31 +42,31 @@ SettingsModelImp::SettingsModelImp(Settings *settings,
     mSettings(settings),
     mSettingsController(new SettingsControllerImp)
 {
-  init();
+    init();
 }
 
 SettingsModelImp::~SettingsModelImp()
 {
-  if (mSettingsController) {
-    delete mSettingsController;
-    mSettingsController = nullptr;
-  }
+    if (mSettingsController) {
+        delete mSettingsController;
+        mSettingsController = nullptr;
+    }
 }
 
 QStringList SettingsModelImp::languages() const
 {
-  QString langPath = QApplication::applicationDirPath();
-  langPath.append("/translations");
+    QString langPath = QApplication::applicationDirPath();
+    langPath.append("/translations");
 
-  QStringList lang_list = QDir(langPath).entryList(QStringList("graphos_*.qm"));
-  if (lang_list.size() == 0)
-    lang_list.push_back("graphos_en.qm");
-  return lang_list;
+    QStringList lang_list = QDir(langPath).entryList(QStringList("graphos_*.qm"));
+    if (lang_list.size() == 0)
+        lang_list.push_back("graphos_en.qm");
+    return lang_list;
 }
 
 QString SettingsModelImp::language() const
 {
-  return mSettings->language();
+    return mSettings->language();
 }
 
 //QStringList SettingsModelImp::history() const
@@ -76,127 +76,127 @@ QString SettingsModelImp::language() const
 
 int SettingsModelImp::historyMaxSize() const
 {
-  return mSettings->historyMaxSize();
+    return mSettings->historyMaxSize();
 }
 
 QString SettingsModelImp::imageViewerBGcolor() const
 {
-  return mSettings->imageViewerBGcolor();
+    return mSettings->imageViewerBGcolor();
 }
 
 QString SettingsModelImp::keypointsViewerBGColor() const
 {
-  return mSettings->keypointsViewerBGColor();
+    return mSettings->keypointsViewerBGColor();
 }
 
 int SettingsModelImp::keypointsViewerMarkerType() const
 {
-  return mSettings->keypointsViewerMarkerType();
+    return mSettings->keypointsViewerMarkerType();
 }
 
 int SettingsModelImp::keypointsViewerMarkerSize() const
 {
-  return mSettings->keypointsViewerMarkerSize();
+    return mSettings->keypointsViewerMarkerSize();
 }
 
 int SettingsModelImp::keypointsViewerMarkerWidth() const
 {
-  return mSettings->keypointsViewerMarkerWidth();
+    return mSettings->keypointsViewerMarkerWidth();
 }
 
 QString SettingsModelImp::keypointsViewerMarkerColor() const
 {
-  return mSettings->keypointsViewerMarkerColor();
+    return mSettings->keypointsViewerMarkerColor();
 }
 
 int SettingsModelImp::keypointsViewerSelectMarkerWidth() const
 {
-  return mSettings->keypointsViewerSelectMarkerWidth();
+    return mSettings->keypointsViewerSelectMarkerWidth();
 }
 
 QString SettingsModelImp::keypointsViewerSelectMarkerColor() const
 {
-  return mSettings->keypointsViewerSelectMarkerColor();
+    return mSettings->keypointsViewerSelectMarkerColor();
 }
 
 QString SettingsModelImp::matchesViewerBGColor() const
 {
-  return mSettings->matchesViewerBGColor();
+    return mSettings->matchesViewerBGColor();
 }
 
 int SettingsModelImp::matchesViewerMarkerType() const
 {
-  return mSettings->matchesViewerMarkerType();
+    return mSettings->matchesViewerMarkerType();
 }
 
 int SettingsModelImp::matchesViewerMarkerSize() const
 {
-  return mSettings->matchesViewerMarkerSize();
+    return mSettings->matchesViewerMarkerSize();
 }
 
 int SettingsModelImp::matchesViewerMarkerWidth() const
 {
-  return mSettings->matchesViewerMarkerWidth();
+    return mSettings->matchesViewerMarkerWidth();
 }
 
 QString SettingsModelImp::matchesViewerMarkerColor() const
 {
-  return mSettings->matchesViewerMarkerColor();
+    return mSettings->matchesViewerMarkerColor();
 }
 
 int SettingsModelImp::matchesViewerSelectMarkerWidth() const
 {
-  return mSettings->matchesViewerSelectMarkerWidth();
+    return mSettings->matchesViewerSelectMarkerWidth();
 }
 
 QString SettingsModelImp::matchesViewerSelectMarkerColor() const
 {
-  return mSettings->matchesViewerSelectMarkerColor();
+    return mSettings->matchesViewerSelectMarkerColor();
 }
 
 QString SettingsModelImp::matchesViewerLineColor() const
 {
-  return mSettings->matchesViewerLineColor();
+    return mSettings->matchesViewerLineColor();
 }
 
 int SettingsModelImp::matchesViewerLineWidth() const
 {
-  return mSettings->matchesViewerLineWidth();
+    return mSettings->matchesViewerLineWidth();
 }
 
 bool SettingsModelImp::useCuda() const
 {
-  return mSettings->useCuda();
+    return mSettings->useCuda();
 }
 
 bool SettingsModelImp::checkDevice() const
 {
-  bool bUseGPU = false;
+    bool bUseGPU = false;
 
 #ifdef HAVE_CUDA
-  tl::MessageManager::instance().pause();
-  bUseGPU = cudaEnabled(10.0, 3.0);
-  tl::MessageManager::instance().resume();
+    tl::Message::instance().pauseMessages();
+    bUseGPU = cudaEnabled(10.0, 3.0);
+    tl::Message::instance().resumeMessages();
 #endif //HAVE_CUDA
 
-  return bUseGPU;
+    return bUseGPU;
 }
 
 void SettingsModelImp::read()
 {
-  mSettingsController->read(*mSettings);
+    mSettingsController->read(*mSettings);
 }
 
 void SettingsModelImp::write()
 {
-  mSettingsController->write(*mSettings);
-  emit unsavedChanges(false);
+    mSettingsController->write(*mSettings);
+    emit unsavedChanges(false);
 }
 
 void SettingsModelImp::setLanguage(const QString &language)
 {
-  mSettings->setLanguage(language);
-  emit unsavedChanges(true);
+    mSettings->setLanguage(language);
+    emit unsavedChanges(true);
 }
 
 //void SettingsModelImp::addToHistory(const QString &project)
@@ -213,128 +213,128 @@ void SettingsModelImp::setLanguage(const QString &language)
 
 void SettingsModelImp::setHistoryMaxSize(int maxSize)
 {
-  mSettings->setHistoryMaxSize(maxSize);
-  emit unsavedChanges(true);
+    mSettings->setHistoryMaxSize(maxSize);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setImageViewerBGcolor(const QString &bgColor)
 {
-  mSettings->setImageViewerBGcolor(bgColor);
-  emit unsavedChanges(true);
+    mSettings->setImageViewerBGcolor(bgColor);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setUseCuda(bool active)
 {
-  mSettings->setUseCuda(active);
-  emit unsavedChanges(true);
+    mSettings->setUseCuda(active);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setKeypointsViewerBGColor(const QString &color)
 {
-  mSettings->setKeypointsViewerBGColor(color);
-  emit unsavedChanges(true);
+    mSettings->setKeypointsViewerBGColor(color);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setKeypointsViewerMarkerType(int type)
 {
-  mSettings->setKeypointsViewerMarkerType(type);
-  emit unsavedChanges(true);
+    mSettings->setKeypointsViewerMarkerType(type);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setKeypointsViewerMarkerSize(int size)
 {
-  mSettings->setKeypointsViewerMarkerSize(size);
-  emit unsavedChanges(true);
+    mSettings->setKeypointsViewerMarkerSize(size);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setKeypointsViewerMarkerWidth(int width)
 {
-  mSettings->setKeypointsViewerMarkerWidth(width);
-  emit unsavedChanges(true);
+    mSettings->setKeypointsViewerMarkerWidth(width);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setKeypointsViewerMarkerColor(const QString &color)
 {
-  mSettings->setKeypointsViewerMarkerColor(color);
-  emit unsavedChanges(true);
+    mSettings->setKeypointsViewerMarkerColor(color);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setKeypointsViewerSelectMarkerWidth(int width)
 {
-  mSettings->setKeypointsViewerSelectMarkerWidth(width);
-  emit unsavedChanges(true);
+    mSettings->setKeypointsViewerSelectMarkerWidth(width);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setKeypointsViewerSelectMarkerColor(const QString &color)
 {
-  mSettings->setKeypointsViewerSelectMarkerColor(color);
-  emit unsavedChanges(true);
+    mSettings->setKeypointsViewerSelectMarkerColor(color);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerBGColor(const QString &color)
 {
-  mSettings->setMatchesViewerBGColor(color);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerBGColor(color);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerMarkerType(int type)
 {
-  mSettings->setMatchesViewerMarkerType(type);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerMarkerType(type);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerMarkerSize(int size)
 {
-  mSettings->setMatchesViewerMarkerSize(size);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerMarkerSize(size);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerMarkerWidth(int width)
 {
-  mSettings->setMatchesViewerMarkerWidth(width);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerMarkerWidth(width);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerMarkerColor(const QString &color)
 {
-  mSettings->setMatchesViewerMarkerColor(color);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerMarkerColor(color);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerSelectMarkerWidth(int width)
 {
-  mSettings->setMatchesViewerSelectMarkerWidth(width);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerSelectMarkerWidth(width);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerSelectMarkerColor(const QString &color)
 {
-  mSettings->setMatchesViewerSelectMarkerColor(color);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerSelectMarkerColor(color);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerLineColor(const QString &color)
 {
-  mSettings->setMatchesViewerLineColor(color);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerLineColor(color);
+    emit unsavedChanges(true);
 }
 
 void SettingsModelImp::setMatchesViewerLineWidth(int width)
 {
-  mSettings->setMatchesViewerLineWidth(width);
-  emit unsavedChanges(true);
+    mSettings->setMatchesViewerLineWidth(width);
+    emit unsavedChanges(true);
 }
 
 
 void SettingsModelImp::init()
 {
-  read();
+    read();
 }
 
 void SettingsModelImp::clear()
 {
-  mSettings->reset();
-  emit unsavedChanges(false);
+    mSettings->reset();
+    emit unsavedChanges(false);
 }
 
 } // namespace graphos

@@ -33,7 +33,7 @@
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/mesh/PoissonRecon.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
 
 #include <colmap/base/database.h>

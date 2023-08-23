@@ -37,7 +37,7 @@ SaveProjectModelImp::SaveProjectModelImp(Project *project,
   : SaveProjectModel(parent),
     mProject(project)
 {
-  SaveProjectModelImp::init();
+    SaveProjectModelImp::init();
 }
 
 SaveProjectModelImp::~SaveProjectModelImp()
@@ -47,74 +47,74 @@ SaveProjectModelImp::~SaveProjectModelImp()
 void SaveProjectModelImp::save()
 {
 
-  try {
+    try {
 
-    auto transform = mProject->transform();
-    if (transform != tl::math::Matrix<double, 4, 4>::identity()) {
+        auto transform = mProject->transform();
+        if (transform != tl::Matrix<double, 4, 4>::identity()) {
 
-      // Transforma los modelos
+            // Transforma los modelos
 
-      auto sparse = mProject->sparseModel();
-      if (sparse.exists()) transformModel(transform, sparse.toString());
-      auto dense = mProject->denseModel();
-      if (dense.exists()) transformModel(transform, dense.toString());
-      auto mesh = mProject->meshPath();
-      if (mesh.exists()) transformModel(transform, mesh.toString());
+            auto sparse = mProject->sparseModel();
+            if (sparse.exists()) transformModel(transform, sparse.toString());
+            auto dense = mProject->denseModel();
+            if (dense.exists()) transformModel(transform, dense.toString());
+            auto mesh = mProject->meshPath();
+            if (mesh.exists()) transformModel(transform, mesh.toString());
 
-      tl::Path sfm_path = mProject->reconstructionPath();
+            tl::Path sfm_path = mProject->reconstructionPath();
 
-      // Transforma las camaras
-      {
-        
-        tl::Path poses_path = sfm_path;
-        poses_path.append("poses.bin");
+            // Transforma las camaras
+            {
 
-        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-        poses_reader->read(poses_path);
-        auto poses = poses_reader->cameraPoses();
+                tl::Path poses_path = sfm_path;
+                poses_path.append("poses.bin");
 
-        tl::Point3<double> point;
-        for (auto &camera_pose : poses) {
+                auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+                poses_reader->read(poses_path);
+                auto poses = poses_reader->cameraPoses();
+
+                tl::Point3<double> point;
+                for (auto &camera_pose : poses) {
 
 
-          point.x = transform[0][0] * camera_pose.second.position().x + transform[0][3];
-          point.y = transform[1][1] * camera_pose.second.position().y + transform[1][3];
-          point.z = transform[2][2] * camera_pose.second.position().z + transform[2][3];
+                    point.x = transform[0][0] * camera_pose.second.position().x + transform[0][3];
+                    point.y = transform[1][1] * camera_pose.second.position().y + transform[1][3];
+                    point.z = transform[2][2] * camera_pose.second.position().z + transform[2][3];
 
-          camera_pose.second.setPosition(point);
+                    camera_pose.second.setPosition(point);
 
-          mProject->addPhotoOrientation(camera_pose.first, camera_pose.second);
+                    mProject->addPhotoOrientation(camera_pose.first, camera_pose.second);
+                }
+
+                auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
+                poses_writer->setCameraPoses(poses);
+                poses_writer->write(poses_path);
+            }
+
+            tl::Path ground_points_path = sfm_path;
+            ground_points_path.append("ground_points.bin");
+            auto gp_reader = GroundPointsReaderFactory::create("GRAPHOS");
+            gp_reader->read(ground_points_path);
+            auto ground_points = gp_reader->points();
+
+            for (auto &point : ground_points) {
+                point.x = transform[0][0] * point.x + transform[0][3];
+                point.y = transform[1][1] * point.y + transform[1][3];
+                point.z = transform[2][2] * point.z + transform[2][3];
+            }
+
+            auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
+            gp_writer->setGroundPoints(ground_points);
+            gp_writer->write(ground_points_path);
+
+            mProject->setTransform(tl::Matrix<double, 4, 4>::identity());
         }
 
-        auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
-        poses_writer->setCameraPoses(poses);
-        poses_writer->write(poses_path);
-      }
-
-      tl::Path ground_points_path = sfm_path;
-      ground_points_path.append("ground_points.bin");
-      auto gp_reader = GroundPointsReaderFactory::create("GRAPHOS");
-      gp_reader->read(ground_points_path);
-      auto ground_points = gp_reader->points();
-
-      for (auto &point : ground_points) {
-        point.x = transform[0][0] * point.x + transform[0][3];
-        point.y = transform[1][1] * point.y + transform[1][3];
-        point.z = transform[2][2] * point.z + transform[2][3];
-      }
-
-      auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
-      gp_writer->setGroundPoints(ground_points);
-      gp_writer->write(ground_points_path);
-
-      mProject->setTransform(tl::math::Matrix<double, 4, 4>::identity());
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
 
-  } catch (std::exception &e) {
-    tl::printException(e);
-  }
-
-  mProject->save(mProject->projectPath());
+    mProject->save(mProject->projectPath());
 }
 
 void SaveProjectModelImp::init()
@@ -123,7 +123,7 @@ void SaveProjectModelImp::init()
 
 void SaveProjectModelImp::clear()
 {
-  mProject->clear();
+    mProject->clear();
 }
 
 } // namespace graphos

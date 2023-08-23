@@ -24,7 +24,7 @@
 #include "graphos/core/dtm/invdistnn.h"
 
 // TIDOP LIB
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
 #include <tidop/core/app.h>

@@ -36,6 +36,7 @@
 #include "graphos/core/Plugin.h"
 
 #include <tidop/core/console.h>
+#include <tidop/core/msg/message.h>
 
 #include <QProgressBar>
 #include <QAction>
@@ -48,7 +49,7 @@ namespace graphos
 {
 
 ComponentsManager::ComponentsManager(QObject *parent)
-  : QObject(parent),
+    : QObject(parent),
     mMainWindowView(nullptr),
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),
@@ -56,149 +57,149 @@ ComponentsManager::ComponentsManager(QObject *parent)
     mProgressHandler(nullptr),
     mProgressDialog(nullptr)
 {
-  this->mainWindowPresenter(); /// Esto ya no hace falta llamarlo aqui
-  
-  
+    this->mainWindowPresenter(); /// Esto ya no hace falta llamarlo aqui
+
+
 }
 
 ComponentsManager::~ComponentsManager()
 {
-  if (mMainWindowView) {
-    delete mMainWindowView;
-    mMainWindowView = nullptr;
-  }
-  
-  if (mMainWindowModel) {
-    delete mMainWindowModel;
-    mMainWindowModel = nullptr;
-  }
+    if (mMainWindowView) {
+        delete mMainWindowView;
+        mMainWindowView = nullptr;
+    }
 
-  if (mMainWindowPresenter){
-    delete mMainWindowPresenter;
-    mMainWindowPresenter = nullptr;
-  }
+    if (mMainWindowModel) {
+        delete mMainWindowModel;
+        mMainWindowModel = nullptr;
+    }
 
-  if (mProgressHandler){
-    delete mProgressHandler;
-    mProgressHandler = nullptr;
-  }
+    if (mMainWindowPresenter) {
+        delete mMainWindowPresenter;
+        mMainWindowPresenter = nullptr;
+    }
 
-  if (mProgressDialog){
-    delete mProgressDialog;
-    mProgressDialog = nullptr;
-  }
+    if (mProgressHandler) {
+        delete mProgressHandler;
+        mProgressHandler = nullptr;
+    }
+
+    if (mProgressDialog) {
+        delete mProgressDialog;
+        mProgressDialog = nullptr;
+    }
 
 }
 
 void ComponentsManager::openApp()
 {
-  this->mainWindowView()->showMaximized();
+    this->mainWindowView()->showMaximized();
 }
 
 MainWindowView *ComponentsManager::mainWindowView()
 {
-  if (mMainWindowView == nullptr){
-    mMainWindowView = new MainWindowView;
-  }
-  return mMainWindowView;
+    if (mMainWindowView == nullptr) {
+        mMainWindowView = new MainWindowView;
+    }
+    return mMainWindowView;
 }
 
 MainWindowModel *ComponentsManager::mainWindowModel()
 {
-  if (mMainWindowModel == nullptr){
-    mMainWindowModel = new MainWindowModel(Application::instance().project());
-  }
-  return mMainWindowModel;
+    if (mMainWindowModel == nullptr) {
+        mMainWindowModel = new MainWindowModel(Application::instance().project());
+    }
+    return mMainWindowModel;
 }
 
 MainWindowPresenter *ComponentsManager::mainWindowPresenter()
 {
-  if (mMainWindowPresenter == nullptr){
-    mMainWindowPresenter = new MainWindowPresenter(this->mainWindowView(),
-                                                   this->mainWindowModel());
+    if (mMainWindowPresenter == nullptr) {
+        mMainWindowPresenter = new MainWindowPresenter(this->mainWindowView(),
+                                                       this->mainWindowModel());
 
-  }
-
-  return mMainWindowPresenter;
-}
-
-void ComponentsManager::registerComponent(Component *component, 
-                                          Flags flags)
-{
-  tl::EnumFlags<Flags> register_flags(flags);
-
-  if (component == nullptr) return;
-
-  QString menu = component->menu();
-  MainWindowView::Menu app_menu;
-  if (menu.compare("file") == 0) {
-    app_menu = MainWindowView::Menu::file;
-  } else if(menu.compare("file_import") == 0) {
-    app_menu = MainWindowView::Menu::file_import;
-  } else if(menu.compare("file_export") == 0) {
-    app_menu = MainWindowView::Menu::file_export;
-  } else if (menu.compare("view") == 0) {
-    app_menu = MainWindowView::Menu::view;
-  } else if (menu.compare("workflow") == 0) {
-    app_menu = MainWindowView::Menu::workflow;
-  } else if (menu.compare("tools") == 0) {
-    app_menu = MainWindowView::Menu::tools;
-  } else if (menu.compare("plugins") == 0) {
-    app_menu = MainWindowView::Menu::plugins;
-  } else if (menu.compare("help") == 0) {
-    app_menu = MainWindowView::Menu::help;
-  } else {
-    return;
-  }
-
-  if (register_flags.isEnabled(Flags::separator_before)) {
-    mMainWindowView->addSeparatorToMenu(app_menu);
-  }
-
-  QAction *action = component->action();
-  if(action) {
-    mMainWindowView->addActionToMenu(action, app_menu);
-  } else {
-    if(auto multi_component = dynamic_cast<MultiComponent *>(component)) {
-      QMenu *menu = multi_component->subMenu();
-      mMainWindowView->addMenuToMenu(menu, app_menu);
     }
 
-  }
-  
-  if (register_flags.isEnabled(Flags::separator_after)) {
-    mMainWindowView->addSeparatorToMenu(app_menu);
-  }
+    return mMainWindowPresenter;
+}
 
-  if (TaskComponent *process_component = dynamic_cast<TaskComponent *>(component)) {
-    process_component->setProgressHandler(this->progressHandler());
-  }
-  
-  QString toolbar = component->toolbar();
-  if (!toolbar.isEmpty()) {
-    MainWindowView::Toolbar app_toolbar;
-    if (toolbar.compare("file") == 0) {
-      app_toolbar = MainWindowView::Toolbar::file;
-    } else if (toolbar.compare("view") == 0) {
-      app_toolbar = MainWindowView::Toolbar::view;
-    } else if (toolbar.compare("workflow") == 0) {
-      app_toolbar = MainWindowView::Toolbar::workflow;
-    } else if (toolbar.compare("model3d") == 0) {
-      app_toolbar = MainWindowView::Toolbar::model3d;
-    } else if (toolbar.compare("tools") == 0) {
-      app_toolbar = MainWindowView::Toolbar::tools;
+void ComponentsManager::registerComponent(Component *component,
+                                          Flags flags)
+{
+    tl::EnumFlags<Flags> register_flags(flags);
+
+    if (component == nullptr) return;
+
+    QString menu = component->menu();
+    MainWindowView::Menu app_menu;
+    if (menu.compare("file") == 0) {
+        app_menu = MainWindowView::Menu::file;
+    } else if (menu.compare("file_import") == 0) {
+        app_menu = MainWindowView::Menu::file_import;
+    } else if (menu.compare("file_export") == 0) {
+        app_menu = MainWindowView::Menu::file_export;
+    } else if (menu.compare("view") == 0) {
+        app_menu = MainWindowView::Menu::view;
+    } else if (menu.compare("workflow") == 0) {
+        app_menu = MainWindowView::Menu::workflow;
+    } else if (menu.compare("tools") == 0) {
+        app_menu = MainWindowView::Menu::tools;
+    } else if (menu.compare("plugins") == 0) {
+        app_menu = MainWindowView::Menu::plugins;
+    } else if (menu.compare("help") == 0) {
+        app_menu = MainWindowView::Menu::help;
+    } else {
+        return;
     }
 
     if (register_flags.isEnabled(Flags::separator_before)) {
-      mMainWindowView->addSeparatorToToolbar(app_toolbar);
+        mMainWindowView->addSeparatorToMenu(app_menu);
     }
 
-    mMainWindowView->addActionToToolbar(action, app_toolbar);
+    QAction *action = component->action();
+    if (action) {
+        mMainWindowView->addActionToMenu(action, app_menu);
+    } else {
+        if (auto multi_component = dynamic_cast<MultiComponent *>(component)) {
+            QMenu *menu = multi_component->subMenu();
+            mMainWindowView->addMenuToMenu(menu, app_menu);
+        }
+
+    }
 
     if (register_flags.isEnabled(Flags::separator_after)) {
-      mMainWindowView->addSeparatorToToolbar(app_toolbar);
+        mMainWindowView->addSeparatorToMenu(app_menu);
     }
-  }
+
+    if (TaskComponent *process_component = dynamic_cast<TaskComponent *>(component)) {
+        process_component->setProgressHandler(this->progressHandler());
+    }
+
+    QString toolbar = component->toolbar();
+    if (!toolbar.isEmpty()) {
+        MainWindowView::Toolbar app_toolbar;
+        if (toolbar.compare("file") == 0) {
+            app_toolbar = MainWindowView::Toolbar::file;
+        } else if (toolbar.compare("view") == 0) {
+            app_toolbar = MainWindowView::Toolbar::view;
+        } else if (toolbar.compare("workflow") == 0) {
+            app_toolbar = MainWindowView::Toolbar::workflow;
+        } else if (toolbar.compare("model3d") == 0) {
+            app_toolbar = MainWindowView::Toolbar::model3d;
+        } else if (toolbar.compare("tools") == 0) {
+            app_toolbar = MainWindowView::Toolbar::tools;
+        }
+
+        if (register_flags.isEnabled(Flags::separator_before)) {
+            mMainWindowView->addSeparatorToToolbar(app_toolbar);
+        }
+
+        mMainWindowView->addActionToToolbar(action, app_toolbar);
+
+        if (register_flags.isEnabled(Flags::separator_after)) {
+            mMainWindowView->addSeparatorToToolbar(app_toolbar);
+        }
+    }
 
 }
 
@@ -244,163 +245,163 @@ void ComponentsManager::registerMultiComponent(const QString &name,
                                                Flags)
 {
 
-  if (components.empty()) return;
+    if (components.empty()) return;
 
-  QMenu *_menu = new QMenu(name, this->mainWindowView());
+    QMenu *_menu = new QMenu(name, this->mainWindowView());
 
-  MainWindowView::Menu app_menu;
-  if (menu.compare("file") == 0) {
-    app_menu = MainWindowView::Menu::file;
-  } else if (menu.compare("file_export") == 0) {
-    app_menu = MainWindowView::Menu::file_export;
-  } else if (menu.compare("view") == 0) {
-    app_menu = MainWindowView::Menu::view;
-  } else if (menu.compare("workflow") == 0) {
-    app_menu = MainWindowView::Menu::workflow;
-  } else if (menu.compare("tools") == 0) {
-    app_menu = MainWindowView::Menu::tools;
-  } else if (menu.compare("plugins") == 0) {
-    app_menu = MainWindowView::Menu::plugins;
-  } else if (menu.compare("help") == 0) {
-    app_menu = MainWindowView::Menu::help;
-  } else {
-    return;
-  }
-
-  for (auto component : components) {
-    _menu->addAction(component->action());
-    if (TaskComponent *process_component = dynamic_cast<TaskComponent *>(component.get())) {
-      process_component->setProgressHandler(this->progressHandler());
+    MainWindowView::Menu app_menu;
+    if (menu.compare("file") == 0) {
+        app_menu = MainWindowView::Menu::file;
+    } else if (menu.compare("file_export") == 0) {
+        app_menu = MainWindowView::Menu::file_export;
+    } else if (menu.compare("view") == 0) {
+        app_menu = MainWindowView::Menu::view;
+    } else if (menu.compare("workflow") == 0) {
+        app_menu = MainWindowView::Menu::workflow;
+    } else if (menu.compare("tools") == 0) {
+        app_menu = MainWindowView::Menu::tools;
+    } else if (menu.compare("plugins") == 0) {
+        app_menu = MainWindowView::Menu::plugins;
+    } else if (menu.compare("help") == 0) {
+        app_menu = MainWindowView::Menu::help;
+    } else {
+        return;
     }
-  }
 
-  mMainWindowView->addMenuToMenu(_menu, app_menu);
+    for (auto component : components) {
+        _menu->addAction(component->action());
+        if (TaskComponent *process_component = dynamic_cast<TaskComponent *>(component.get())) {
+            process_component->setProgressHandler(this->progressHandler());
+        }
+    }
+
+    mMainWindowView->addMenuToMenu(_menu, app_menu);
 
 
-  MainWindowView::Toolbar app_toolbar;
-  if (toolbar.compare("file") == 0) {
-    app_toolbar = MainWindowView::Toolbar::file;
-  } else if (toolbar.compare("view") == 0) {
-    app_toolbar = MainWindowView::Toolbar::view;
-  } else if (toolbar.compare("workflow") == 0) {
-    app_toolbar = MainWindowView::Toolbar::workflow;
-  } else if (toolbar.compare("model3d") == 0) {
-    app_toolbar = MainWindowView::Toolbar::model3d;
-  } else if (toolbar.compare("tools") == 0) {
-    app_toolbar = MainWindowView::Toolbar::tools;
-  } else return;
+    MainWindowView::Toolbar app_toolbar;
+    if (toolbar.compare("file") == 0) {
+        app_toolbar = MainWindowView::Toolbar::file;
+    } else if (toolbar.compare("view") == 0) {
+        app_toolbar = MainWindowView::Toolbar::view;
+    } else if (toolbar.compare("workflow") == 0) {
+        app_toolbar = MainWindowView::Toolbar::workflow;
+    } else if (toolbar.compare("model3d") == 0) {
+        app_toolbar = MainWindowView::Toolbar::model3d;
+    } else if (toolbar.compare("tools") == 0) {
+        app_toolbar = MainWindowView::Toolbar::tools;
+    } else return;
 
 }
 
 void ComponentsManager::loadPlugins()
 {
-  try{
+    try {
 
 
-//#ifdef _DEBUG
-//  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath());
-//#else
-  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
-//#endif // _DEBUG
+        //#ifdef _DEBUG
+        //  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath());
+        //#else
+        QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
+        //#endif // _DEBUG
 
-    msgInfo("Load Plugins from: %s", pluginsDir.path().toStdString().c_str());
+        tl::Message::info("Load Plugins from: {}", pluginsDir.path().toStdString());
 
-    const auto entryList = pluginsDir.entryList(QDir::Files);
-    for (const QString &plugin : entryList) {
-  
-      QPluginLoader loader(pluginsDir.absoluteFilePath(plugin));
-      if (loader.load()) {
-        loadPlugin(loader.instance());
-      } else {
-        msgWarning(loader.errorString().toStdString().c_str());
-      }
+        const auto entryList = pluginsDir.entryList(QDir::Files);
+        for (const QString &plugin : entryList) {
+
+            QPluginLoader loader(pluginsDir.absoluteFilePath(plugin));
+            if (loader.load()) {
+                loadPlugin(loader.instance());
+            } else {
+                tl::Message::warning(loader.errorString().toStdString());
+            }
+        }
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
-  } catch (std::exception &e){
-    tl::printException(e);
-  }
 }
 
 void ComponentsManager::loadPlugin(QObject *plugin)
 {
-  try {
+    try {
 
-    if (plugin) {
+        if (plugin) {
 
-      if (auto plugin_component = qobject_cast<GraphosPluginComponent *>(plugin)) {
-        QString name = plugin_component->name();
-        QString description = plugin_component->description();
-        plugin_component->setApp(&Application::instance());
-        msgInfo("Plugin loaded: ");
-        msgInfo(" - Name: %s", name.toStdString().c_str());
-        msgInfo(" - Description: %s", description.toStdString().c_str());
-        registerComponent(plugin_component->component());
-      //} else if (auto plugin_multi_component = qobject_cast<CVStudioPluginMultiComponent *>(plugin)) {
-      //  QString name = plugin_multi_component->name();
-      //  QString description = plugin_multi_component->description();
-      //  plugin_multi_component->setApp(&Application::instance());
-      //  //registerComponent(plugin_component->component());
-      } else if (auto plugin_multi_component = qobject_cast<GraphosPluginMultiComponent *>(plugin)) {
-        QString name = plugin_multi_component->name();
-        QString description = plugin_multi_component->description();
-        msgInfo("Plugin loaded: ");
-        msgInfo(" - Name: %s", name.toStdString().c_str());
-        msgInfo(" - Description: %s", description.toStdString().c_str());
-        plugin_multi_component->setApp(&Application::instance());
-        QString menu = plugin_multi_component->menu();
-        QString toolbar = plugin_multi_component->toolbar();
-        registerMultiComponent(name, menu, toolbar, plugin_multi_component->components());
-      }
+            if (auto plugin_component = qobject_cast<GraphosPluginComponent *>(plugin)) {
+                QString name = plugin_component->name();
+                QString description = plugin_component->description();
+                plugin_component->setApp(&Application::instance());
+                tl::Message::info("Plugin loaded: ");
+                tl::Message::info(" - Name: {}", name.toStdString());
+                tl::Message::info(" - Description: {}", description.toStdString());
+                registerComponent(plugin_component->component());
+                //} else if (auto plugin_multi_component = qobject_cast<CVStudioPluginMultiComponent *>(plugin)) {
+                //  QString name = plugin_multi_component->name();
+                //  QString description = plugin_multi_component->description();
+                //  plugin_multi_component->setApp(&Application::instance());
+                //  //registerComponent(plugin_component->component());
+            } else if (auto plugin_multi_component = qobject_cast<GraphosPluginMultiComponent *>(plugin)) {
+                QString name = plugin_multi_component->name();
+                QString description = plugin_multi_component->description();
+                tl::Message::info("Plugin loaded: ");
+                tl::Message::info(" - Name: {}", name.toStdString());
+                tl::Message::info(" - Description: {}", description.toStdString());
+                plugin_multi_component->setApp(&Application::instance());
+                QString menu = plugin_multi_component->menu();
+                QString toolbar = plugin_multi_component->toolbar();
+                registerMultiComponent(name, menu, toolbar, plugin_multi_component->components());
+            }
 
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Could not load plugin");
     }
-
-  } catch (const std::exception &e) {
-    msgError("Could not load plugin: %s", e.what());
-  }
 }
 
 HelpDialog *ComponentsManager::helpDialog()
 {
-  if (mHelpDialog == nullptr) {
-    mHelpDialog = new HelpDialog(this->mainWindowView());
-    mHelpDialog->setModal(true);
-  }
-  return mHelpDialog;
+    if (mHelpDialog == nullptr) {
+        mHelpDialog = new HelpDialog(this->mainWindowView());
+        mHelpDialog->setModal(true);
+    }
+    return mHelpDialog;
 }
 
 ProgressHandler *ComponentsManager::progressHandler()
 {
-  if (mProgressHandler == nullptr){
+    if (mProgressHandler == nullptr) {
 
-    mProgressHandler = new ProgressHandler;
+        mProgressHandler = new ProgressHandler;
 
-    connect(mProgressHandler, SIGNAL(rangeChange(int, int)),      this->progressDialog(), SLOT(setRange(int, int)));
-    connect(mProgressHandler, SIGNAL(valueChange(int)),           this->progressDialog(), SLOT(setValue(int)));
-    connect(mProgressHandler, SIGNAL(initialized()),              this->progressDialog(), SLOT(setInitialized()));
-    connect(mProgressHandler, SIGNAL(finished()),                 this->progressDialog(), SLOT(setFinished()));
-    connect(mProgressHandler, SIGNAL(titleChange(QString)),       this->progressDialog(), SLOT(setWindowTitle(QString)));
-    connect(mProgressHandler, SIGNAL(descriptionChange(QString)), this->progressDialog(), SLOT(setStatusText(QString)));
-    connect(mProgressHandler, SIGNAL(closeAuto(bool)),            this->progressDialog(), SLOT(setCloseAuto(bool)));
+        connect(mProgressHandler, SIGNAL(rangeChange(int, int)), this->progressDialog(), SLOT(setRange(int, int)));
+        connect(mProgressHandler, SIGNAL(valueChange(int)), this->progressDialog(), SLOT(setValue(int)));
+        connect(mProgressHandler, SIGNAL(initialized()), this->progressDialog(), SLOT(setInitialized()));
+        connect(mProgressHandler, SIGNAL(finished()), this->progressDialog(), SLOT(setFinished()));
+        connect(mProgressHandler, SIGNAL(titleChange(QString)), this->progressDialog(), SLOT(setWindowTitle(QString)));
+        connect(mProgressHandler, SIGNAL(descriptionChange(QString)), this->progressDialog(), SLOT(setStatusText(QString)));
+        connect(mProgressHandler, SIGNAL(closeAuto(bool)), this->progressDialog(), SLOT(setCloseAuto(bool)));
 
-    connect(this->progressDialog(), SIGNAL(cancel()),             mProgressHandler, SIGNAL(cancel()));
-    ProgressBarWidget *statusBarProgress = this->mainWindowView()->progressBar();
+        connect(this->progressDialog(), SIGNAL(cancel()), mProgressHandler, SIGNAL(cancel()));
+        ProgressBarWidget *statusBarProgress = this->mainWindowView()->progressBar();
 
-    connect(mProgressHandler, SIGNAL(rangeChange(int, int)),      statusBarProgress, SLOT(setRange(int, int)));
-    connect(mProgressHandler, SIGNAL(valueChange(int)),           statusBarProgress, SLOT(setValue(int)));
-    connect(mProgressHandler, SIGNAL(initialized()),              statusBarProgress, SLOT(show()));
-    connect(mProgressHandler, SIGNAL(finished()),                 statusBarProgress, SLOT(hide()));
-    connect(statusBarProgress, SIGNAL(maximized()),               this->progressDialog(), SLOT(show()));
-  }
+        connect(mProgressHandler, SIGNAL(rangeChange(int, int)), statusBarProgress, SLOT(setRange(int, int)));
+        connect(mProgressHandler, SIGNAL(valueChange(int)), statusBarProgress, SLOT(setValue(int)));
+        connect(mProgressHandler, SIGNAL(initialized()), statusBarProgress, SLOT(show()));
+        connect(mProgressHandler, SIGNAL(finished()), statusBarProgress, SLOT(hide()));
+        connect(statusBarProgress, SIGNAL(maximized()), this->progressDialog(), SLOT(show()));
+    }
 
-  return mProgressHandler;
+    return mProgressHandler;
 }
 
 ProgressBarDialog *ComponentsManager::progressDialog()
 {
-  if (mProgressDialog == nullptr){
-    mProgressDialog = new ProgressBarDialog;
-  }
+    if (mProgressDialog == nullptr) {
+        mProgressDialog = new ProgressBarDialog;
+    }
 
-  return mProgressDialog;
+    return mProgressDialog;
 }
 
 } // namespace graphos

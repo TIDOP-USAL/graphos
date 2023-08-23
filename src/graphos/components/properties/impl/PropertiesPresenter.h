@@ -36,41 +36,38 @@ class PropertiesModel;
 class PropertiesPresenterImp
   : public PropertiesPresenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  PropertiesPresenterImp(PropertiesView *view,
-                         PropertiesModel *model,
-                         AppStatus *status);
-  ~PropertiesPresenterImp() override = default;
+    PropertiesPresenterImp(PropertiesView *view,
+                           PropertiesModel *model,
+                           AppStatus *status);
+    ~PropertiesPresenterImp() override = default;
 
 // PropertiesPresenter interface
 
 public slots:
 
-  void setImageActive(size_t imageId) override;
-
-protected slots:
-
+    void setImageActive(size_t imageId) override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  PropertiesView *mView;
-  PropertiesModel *mModel;
-  AppStatus *mAppStatus;
-  
+    PropertiesView *mView;
+    PropertiesModel *mModel;
+    AppStatus *mAppStatus;
+
 };
 
 } // namespace graphos

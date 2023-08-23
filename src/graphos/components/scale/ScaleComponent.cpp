@@ -39,7 +39,7 @@ namespace graphos
 ScaleComponent::ScaleComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 ScaleComponent::~ScaleComponent()
@@ -48,29 +48,26 @@ ScaleComponent::~ScaleComponent()
 
 void ScaleComponent::init()
 {
-  setName(tr("Scale"));
-  setMenu("tools");
-  //setToolbar("tools");
+    setName(tr("Scale"));
+    setMenu("tools");
 
-  createCommand(); 
-
-  //action()->setIcon(QIcon::fromTheme(""));
+    createCommand();
 }
 
 void ScaleComponent::createModel()
 {
-  setModel(new ScaleModelImp(app()->project()));
+    setModel(new ScaleModelImp(app()->project()));
 }
 
 void ScaleComponent::createView()
 {
-  setView(new ScaleViewImp());
+    setView(new ScaleViewImp());
 }
 
 void ScaleComponent::createPresenter()
 {
-  setPresenter(new ScalePresenterImp(dynamic_cast<ScaleView *>(view()),
-                                     dynamic_cast<ScaleModel *>(model())));
+    setPresenter(new ScalePresenterImp(dynamic_cast<ScaleView *>(view()),
+                 dynamic_cast<ScaleModel *>(model())));
 }
 
 void ScaleComponent::createCommand()
@@ -79,41 +76,41 @@ void ScaleComponent::createCommand()
 
 void ScaleComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  action()->setEnabled( app_status->isEnabled(AppStatus::Flag::project_exists) && 
-                       !app_status->isEnabled(AppStatus::Flag::processing) && 
-                        app_status->isEnabled(AppStatus::Flag::tab_3d_viewer_active));
+    action()->setEnabled(app_status->isEnabled(AppStatus::Flag::project_exists) &&
+                         !app_status->isEnabled(AppStatus::Flag::processing) &&
+                         app_status->isEnabled(AppStatus::Flag::tab_3d_viewer_active));
 }
 
 void ScaleComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void ScaleComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
-  
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    TaskComponent::onFinished();
+
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void ScaleComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
+    TaskComponent::onFailed();
 }
 
 

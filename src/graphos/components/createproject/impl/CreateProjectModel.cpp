@@ -35,7 +35,7 @@ CreateProjectModelImp::CreateProjectModelImp(Project *project,
     mProject(project),
     mPrjFile("")
 {
-  init();
+    init();
 }
 
 CreateProjectModelImp::~CreateProjectModelImp()
@@ -45,48 +45,48 @@ CreateProjectModelImp::~CreateProjectModelImp()
 
 QString CreateProjectModelImp::projectName() const
 {
-  return mProject->name();
+    return mProject->name();
 }
 
 QString CreateProjectModelImp::projectDescription() const
 {
-  return mProject->description();
+    return mProject->description();
 }
 
 tl::Path CreateProjectModelImp::projectFolder() const
 {
-  return mProject->projectFolder();
+    return mProject->projectFolder();
 }
 
 tl::Path CreateProjectModelImp::projectPath() const
 {
-  return mPrjFile;
+    return mPrjFile;
 }
 
 void CreateProjectModelImp::setProjectName(const QString &name)
 {
-  mProject->setName(name);
+    mProject->setName(name);
 }
 
 void CreateProjectModelImp::setProjectDescription(const QString &description)
 {
-  mProject->setDescription(description);
+    mProject->setDescription(description);
 }
 
 void CreateProjectModelImp::setProjectFolder(const tl::Path &folder)
 {
-  mProject->setProjectFolder(folder);
+    mProject->setProjectFolder(folder);
 }
 
 void CreateProjectModelImp::setDatabase(const tl::Path &database)
 {
-  mProject->setDatabase(database);
+    mProject->setDatabase(database);
 }
 
 void CreateProjectModelImp::saveAs(const tl::Path &file)
 {
-  mPrjFile = file;
-  mProject->save(file);
+    mPrjFile = file;
+    mProject->save(file);
 }
 
 void CreateProjectModelImp::init()
@@ -96,8 +96,8 @@ void CreateProjectModelImp::init()
 
 void CreateProjectModelImp::clear()
 {
-  mProject->clear();
-  mPrjFile.clear();
+    mProject->clear();
+    mPrjFile.clear();
 }
 
 } // namespace graphos

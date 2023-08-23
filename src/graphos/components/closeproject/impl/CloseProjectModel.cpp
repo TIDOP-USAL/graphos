@@ -35,7 +35,7 @@ CloseProjectModelImp::CloseProjectModelImp(Project *project,
   : CloseProjectModel(parent),
     mProject(project)
 {
-  CloseProjectModelImp::init();
+    CloseProjectModelImp::init();
 }
 
 CloseProjectModelImp::~CloseProjectModelImp()
@@ -44,7 +44,7 @@ CloseProjectModelImp::~CloseProjectModelImp()
 
 void CloseProjectModelImp::saveProject()
 {
-  mProject->save(mProject->projectPath());
+    mProject->save(mProject->projectPath());
 }
 
 void CloseProjectModelImp::init()
@@ -53,7 +53,7 @@ void CloseProjectModelImp::init()
 
 void CloseProjectModelImp::clear()
 {
-  mProject->clear();
+    mProject->clear();
 }
 
 } // namespace graphos

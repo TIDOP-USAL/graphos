@@ -37,14 +37,14 @@ namespace graphos
 class SaveProjectAsView
   : public QFileDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectAsView(QWidget *parent) : QFileDialog(parent) {}
-  ~SaveProjectAsView() override = default;
+    SaveProjectAsView(QWidget *parent) : QFileDialog(parent) {}
+    ~SaveProjectAsView() override = default;
 
-  virtual void setGraphosProjectsPath(const QString &directory) = 0;
+    virtual void setGraphosProjectsPath(const QString &directory) = 0;
 
 };
 

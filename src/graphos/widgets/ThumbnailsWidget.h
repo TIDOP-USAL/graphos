@@ -46,102 +46,102 @@ class LoadThumbnailTask
     public tl::TaskBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  LoadThumbnailTask(QListWidgetItem *item, 
-                    QListWidget *listWidget);
-  ~LoadThumbnailTask() override;
+    LoadThumbnailTask(QListWidgetItem *item,
+                      QListWidget *listWidget);
+    ~LoadThumbnailTask() override;
 
 signals:
 
 private:
 
-// tl::TaskBase interface
+    // tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 protected:
 
-  QListWidgetItem *mItem;
-  QListWidget *mListWidget;
+    QListWidgetItem *mItem;
+    QListWidget *mListWidget;
 };
 
 
 class ThumbnailsWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit ThumbnailsWidget(QWidget *parent = nullptr);
-  ~ThumbnailsWidget() override;
+    explicit ThumbnailsWidget(QWidget *parent = nullptr);
+    ~ThumbnailsWidget() override;
 
-  void setActiveImage(size_t imageId);
-  void setActiveImages(const std::vector<size_t> &imageIds);
+    void setActiveImage(size_t imageId);
+    void setActiveImages(const std::vector<size_t> &imageIds);
 
 signals:
 
-  void open_image(size_t);
-  void select_image(size_t);
-  void select_images(std::vector<size_t>);
-  void delete_images(std::vector<size_t>);
+    void open_image(size_t);
+    void select_image(size_t);
+    void select_images(std::vector<size_t>);
+    void delete_images(std::vector<size_t>);
 
 public slots:
 
-  void addThumbnail(const Image &image, const QSize &imageSize);
-  void deleteImages(const std::vector<size_t> &imageIds);
+    void addThumbnail(const Image &image, const QSize &imageSize);
+    void deleteImages(const std::vector<size_t> &imageIds);
 
 private slots:
 
-  void onThumbnailDoubleClicked(QListWidgetItem *item);
-  void onSelectionChanged();
-  void loadVisibleImages();
-  void onThumbnailClicked();
-  void onThumbnailSmallClicked();
-  void onDetailsClicked();
-  void onDeleteImageClicked();
+    void onThumbnailDoubleClicked(QListWidgetItem *item);
+    void onSelectionChanged();
+    void loadVisibleImages();
+    void onThumbnailClicked();
+    void onThumbnailSmallClicked();
+    void onDetailsClicked();
+    void onDeleteImageClicked();
 
 // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  virtual void initUI() override;
-  void initSignalAndSlots() override;
+    virtual void initUI() override;
+    void initSignalAndSlots() override;
 
 // QWidget interface
 
 protected:
 
-  void changeEvent(QEvent *event) override;
-  void resizeEvent(QResizeEvent *event) override;
+    void changeEvent(QEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 protected:
 
-  QListWidget *mListWidget;
-  QGridLayout *mGridLayout;
-  QSize mIconSize;
-  QAction *mThumbnailAction;
-  QAction *mThumbnailSmallAction;
-  QAction *mDetailsAction;
-  QAction *mDeleteImageAction;
-  int mThumbnaislSize;
-  bool bLoadingImages;
-  tl::TaskQueue *mThumbLoad;
-  bool mLoadImages;
+    QListWidget *mListWidget;
+    QGridLayout *mGridLayout;
+    QSize mIconSize;
+    QAction *mThumbnailAction;
+    QAction *mThumbnailSmallAction;
+    QAction *mDetailsAction;
+    QAction *mDeleteImageAction;
+    int mThumbnaislSize;
+    bool bLoadingImages;
+    tl::TaskQueue *mThumbLoad;
+    bool mLoadImages;
 };
 
 } // namespace graphos

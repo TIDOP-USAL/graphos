@@ -47,8 +47,8 @@ ScalePresenterImp::ScalePresenterImp(ScaleView *view,
     mModel(model),
     mPoints(0)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 ScalePresenterImp::~ScalePresenterImp()
@@ -58,42 +58,42 @@ ScalePresenterImp::~ScalePresenterImp()
 
 void ScalePresenterImp::meassure(bool active)
 {
-  if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
+    if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
 
-    if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
-      const QSignalBlocker blocker2(ccviewer);
-      if (active){
-        connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
-        ccviewer->activatePicker(CCViewer3D::PickingMode::distance);
-      } else {
-        disconnect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
-        ccviewer->deactivatePicker();
-      }
+        if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
+            const QSignalBlocker blocker2(ccviewer);
+            if (active) {
+                connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
+                ccviewer->activatePicker(CCViewer3D::PickingMode::distance);
+            } else {
+                disconnect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
+                ccviewer->deactivatePicker();
+            }
+        }
+
     }
-
-  }
 }
 
 void ScalePresenterImp::pointClicked(const QVector3D &point)
 {
-  if (mPoints.empty()) {
-    mPoints.push_back(point);
-  } else {
-    mPoints.push_back(point);
-    double distante = mPoints.at(0).distanceToPoint(mPoints.at(1));
-    mView->setDistance(distante);
-    mPoints.resize(0);
-  }
+    if (mPoints.empty()) {
+        mPoints.push_back(point);
+    } else {
+        mPoints.push_back(point);
+        double distante = mPoints.at(0).distanceToPoint(mPoints.at(1));
+        mView->setDistance(distante);
+        mPoints.resize(0);
+    }
 }
 
 void ScalePresenterImp::open()
 {
-  mModel->loadSettings();
-  mPoints.resize(0);
+    mModel->loadSettings();
+    mPoints.resize(0);
 
-  /* Configure View here */
-  
-  mView->show();
+    /* Configure View here */
+
+    mView->show();
 }
 
 void ScalePresenterImp::init()
@@ -103,87 +103,87 @@ void ScalePresenterImp::init()
 
 void ScalePresenterImp::initSignalAndSlots()
 {
-  connect(mView, &TaskView::run,     this,   &TaskPresenter::run);
-  connect(mView, &ScaleView::enableMeasure, this, &ScalePresenterImp::meassure);
-  connect(mView, &DialogView::help, [&]() {
-            emit help("Scale.html");
-  });
+    connect(mView, &TaskView::run, this, &TaskPresenter::run);
+    connect(mView, &ScaleView::enableMeasure, this, &ScalePresenterImp::meassure);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("Scale.html");
+            });
 }
 
 void ScalePresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  TaskPresenter::onError(event);
+    TaskPresenter::onError(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Process error"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Process error"));
+    }
 }
 
 void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  TaskPresenter::onFinished(event);
+    TaskPresenter::onFinished(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Process finished"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Process finished"));
+    }
 }
 
 std::unique_ptr<tl::Task> ScalePresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> process;
-  
-  ccHObject *model = nullptr;
+    std::unique_ptr<tl::Task> process;
 
-  if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
+    ccHObject *model = nullptr;
 
-    if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
-      ccHObject *root = ccviewer->object();
-      ccHObject::Container clouds;
-      // Nubes de puntos o malla
-      root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+    if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
 
-      /// Sólo se permite una nube de puntos en el visor
-      TL_ASSERT(clouds.size() == 1, "Error");
+        if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
+            ccHObject *root = ccviewer->object();
+            ccHObject::Container clouds;
+            // Nubes de puntos o malla
+            root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
 
-      model = clouds.at(0);
+            /// Sólo se permite una nube de puntos en el visor
+            TL_ASSERT(clouds.size() == 1, "Error");
+
+            model = clouds.at(0);
+        }
     }
-  }
 
-  double scale = mView->distanceReal() / mView->distance();
+    double scale = mView->distanceReal() / mView->distance();
 
-  process = std::make_unique<ScaleTask>(scale, model);
+    process = std::make_unique<ScaleTask>(scale, model);
 
-  process->subscribe([&](tl::TaskFinalizedEvent *event) {
+    process->subscribe([&](tl::TaskFinalizedEvent *event) {
 
-      try {
+        try {
 
-        auto transform = dynamic_cast<ScaleTask const *>(event->task())->transform();
-        mModel->setTransform(transform);
+            auto transform = dynamic_cast<ScaleTask const *>(event->task())->transform();
+            mModel->setTransform(transform);
 
-      } catch (const std::exception &e) {
-        tl::printException(e);
-      }
+        } catch (const std::exception &e) {
+            tl::printException(e);
+        }
 
-    });
+                       });
 
-  if (progressHandler()){
-    progressHandler()->setRange(0, 0);
-    progressHandler()->setTitle("Computing Scale...");
-    progressHandler()->setDescription("Computing Scale...");
-  }
-  
-  meassure(false);
+    if (progressHandler()) {
+        progressHandler()->setRange(0, 0);
+        progressHandler()->setTitle("Computing Scale...");
+        progressHandler()->setDescription("Computing Scale...");
+    }
 
-  mView->hide();
-  
-  return process;
+    meassure(false);
+
+    mView->hide();
+
+    return process;
 }
 
 void ScalePresenterImp::cancel()
 {
-  TaskPresenter::cancel();
+    TaskPresenter::cancel();
 
-  msgWarning("Processing has been canceled by the user");
+    tl::Message::warning("Processing has been canceled by the user");
 }
 
 } // namespace graphos

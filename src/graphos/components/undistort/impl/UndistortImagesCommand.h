@@ -31,35 +31,32 @@
 
 namespace graphos
 {
-	
+
 class UndistortImagesCommand
-  : public QObject, 
+  : public QObject,
     public Command
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  UndistortImagesCommand();
-  ~UndistortImagesCommand() override;
-
-private:
-
+    UndistortImagesCommand();
+    ~UndistortImagesCommand() override;
 
 // Command
 
-  bool run() override;
+private:
+
+    bool run() override;
 
 private:
 
-  tl::Path mProjectFile;
-  tl::Path mUndistortPath;
-  bool mDisableCuda;
+    bool mDisableCuda;
 
 };
 
-	
+
 } // namespace graphos
 
 #endif // GRAPHOS_UNDISTORT_IMAGES_COMMAND_H

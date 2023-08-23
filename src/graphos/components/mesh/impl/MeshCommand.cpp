@@ -34,86 +34,80 @@ namespace graphos
 {
 
 MeshCommand::MeshCommand()
-  : Command("mesh", "Poisson reconstruction mesh"),
-    mProjectFile("")
+  : Command("mesh", "Poisson reconstruction mesh")
 {
-  initDefaultParameters();
+    PoissonReconParameters parameters;
 
-  this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
-  this->push_back(CreateArgumentIntegerOptional("depth", std::string("Maximum reconstruction depth (default=").append(std::to_string(mDepth)).append(")"), &mDepth));
-  this->push_back(CreateArgumentIntegerOptional("solve_depth", std::string("Maximum solution depth (default=").append(std::to_string(mSolveDepth)).append(")"), &mSolveDepth));
-  this->push_back(CreateArgumentListStringOptional("boundary_type", std::string("Boundary type (default=").append(mBoundaryTypes[mBoundaryTypeIndex]).append(")"), mBoundaryTypes, &mBoundaryTypeIndex));
-  this->push_back(CreateArgumentIntegerOptional("grid_width", std::string("Grid width (default=").append(std::to_string(mWidth)).append(")"), &mWidth));
-  this->push_back(CreateArgumentIntegerOptional("full_depth", std::string("Full depth (default=").append(std::to_string(mFullDepth)).append(")"), &mFullDepth));
+    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<int>("depth", "Maximum reconstruction depth", parameters.depth());
+    this->addArgument<int>("solve_depth", "Maximum solution depth", parameters.solveDepth());
+    auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", parameters.boundaryType().toStdString());
+    std::vector<std::string> boundary_types{"free", "Dirichlet", "Neumann"};
+    arg_boundary_type->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(boundary_types));
+    this->addArgument(arg_boundary_type);
+    this->addArgument<int>("grid_width", "Grid width", parameters.width());
+    this->addArgument<int>("full_depth", "Full depth", parameters.fullDepth());
+    
+    this->addExample("mesh --p 253/253.xml --method PMVS");
 
-  this->addExample("mesh --p 253/253.xml --method PMVS");
-
-  this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
+    this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
 MeshCommand::~MeshCommand()
 {
 }
 
-void MeshCommand::initDefaultParameters()
-{
-  PoissonReconParameters parameters;
-  mDepth = parameters.depth();
-  mSolveDepth = parameters.solveDepth();
-  mBoundaryTypes = {"free", "Dirichlet", "Neumann"};
-  std::string default_boudary_type = parameters.boundaryType().toStdString();
-  for(size_t i = 0; i < mBoundaryTypes.size(); i++) {
-    if(mBoundaryTypes[i] == default_boudary_type) {
-      mBoundaryTypeIndex = i;
-    }
-  }
-  mWidth = parameters.width();
-  mFullDepth = parameters.fullDepth();
-}
-
 bool MeshCommand::run()
 {
 
-  bool r = false;
+    bool r = false;
 
-  QString file_path;
-  QString project_path;
+    QString file_path;
+    QString project_path;
 
-  try {
+    try {
 
-    tl::Chrono chrono("Poisson Reconstruction finished");
-    chrono.run();
+        tl::Chrono chrono("Poisson Reconstruction finished");
+        chrono.run();
 
-    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
+        tl::Path prj_path = this->value<std::string>("prj");
+        int depth = this->value<int>("depth");
+        int solve_depth = this->value<int>("solve_depth");
+        std::string boundary_type = this->value<std::string>("boundary_type");
+        int grid_width = this->value<int>("grid_width");
+        int full_depth = this->value<int>("full_depth");
 
-    ProjectImp project;
-    project.load(mProjectFile);
+        TL_ASSERT(prj_path.exists(), "Project doesn't exist");
+        TL_ASSERT(prj_path.isFile(), "Project file doesn't exist");
 
-    tl::Path point_cloud_path = project.denseModel();
-    tl::Path mesh_path = project.projectFolder();
-    mesh_path.append("dense").append("mesh.pr.ply");
+        ProjectImp project;
+        project.load(prj_path);
 
-    auto process = std::make_shared<PoissonReconTask>(point_cloud_path,
-                                                      mesh_path);
-    process->setBoundaryType(QString::fromStdString(mBoundaryTypes[mBoundaryTypeIndex]));
-    process->setDepth(mDepth);
-    process->setFullDepth(mFullDepth);
-    process->setSolveDepth(mSolveDepth);
-    process->setWidth(mWidth);
+        tl::Path point_cloud_path = project.denseModel();
+        tl::Path mesh_path = project.projectFolder();
+        mesh_path.append("dense").append("mesh.pr.ply");
 
-    project.setMeshParameters(process);
-    project.setMeshPath(mesh_path);
-    project.save(mProjectFile);
-    
-    chrono.stop();
-    
-  } catch(const std::exception &e) {
-    
-    printException(e);
-    
-    r = true;
-  }
+        auto process = std::make_shared<PoissonReconTask>(point_cloud_path,
+                                                          mesh_path);
+        process->setBoundaryType(QString::fromStdString(boundary_type));
+        process->setDepth(depth);
+        process->setFullDepth(full_depth);
+        process->setSolveDepth(solve_depth);
+        process->setWidth(grid_width);
+
+        project.setMeshParameters(process);
+        project.setMeshPath(mesh_path);
+        project.save(prj_path);
+
+        chrono.stop();
+
+    } catch (const std::exception &e) {
+
+        printException(e);
+
+        r = true;
+    }
+
     return false;
 }
 

@@ -36,30 +36,30 @@ class FeaturesViewerComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeaturesViewerComponent(Application *application);
-  ~FeaturesViewerComponent();
+    FeaturesViewerComponent(Application *application);
+    ~FeaturesViewerComponent();
 
 private:
 
-  void init();
+    void init();
 
 public slots:
 
-  void openKeypointsViewer(size_t imageId);
+    void openKeypointsViewer(size_t imageId);
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

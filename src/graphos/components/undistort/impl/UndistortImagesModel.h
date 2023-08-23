@@ -38,43 +38,43 @@ class UndistortImagesModelImp
   : public UndistortImagesModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  UndistortImagesModelImp(Project *project,
-                          QObject *parent = nullptr);
-  ~UndistortImagesModelImp() override;
+    UndistortImagesModelImp(Project *project,
+                            QObject *parent = nullptr);
+    ~UndistortImagesModelImp() override;
 
 // UndistortImagesModel interface
 
 public:
 
-  const std::unordered_map<size_t, Image> &images() const override;
-  const std::map<int, Camera> &cameras() const override;
-  bool useCuda() const override;
-  tl::Path projectFolder() const override;
+    const std::unordered_map<size_t, Image> &images() const override;
+    const std::map<int, Camera> &cameras() const override;
+    bool useCuda() const override;
+    tl::Path projectFolder() const override;
 
 public slots:
 
-  void loadSettings() override;
-  void saveSettings() override;
+    void loadSettings() override;
+    void saveSettings() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  QSettings *mSettings;
-  Project *mProject;
-  bool mReadSettings;
+    QSettings *mSettings;
+    Project *mProject;
+    bool mReadSettings;
 };
 
 } // namespace graphos

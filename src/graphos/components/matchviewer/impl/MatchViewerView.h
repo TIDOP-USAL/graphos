@@ -41,78 +41,78 @@ class MatchViewerViewImp
   : public MatchViewerView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MatchViewerViewImp(QWidget *parent = nullptr,
-                     Qt::WindowFlags f = Qt::WindowFlags());
-  ~MatchViewerViewImp() override;
+    MatchViewerViewImp(QWidget *parent = nullptr,
+                       Qt::WindowFlags f = Qt::WindowFlags());
+    ~MatchViewerViewImp() override;
 
 protected slots:
 
-  void onTreeWidgetMatchesItemClicked(QTreeWidgetItem *item, int col);
-  void onTreeWidgetMatchesItemSelectionChanged();
-  void onGraphicsViewLeftSelectionChanged();
-  void onGraphicsViewRightSelectionChanged();
+    void onTreeWidgetMatchesItemClicked(QTreeWidgetItem *item, int col);
+    void onTreeWidgetMatchesItemSelectionChanged();
+    void onGraphicsViewLeftSelectionChanged();
+    void onGraphicsViewRightSelectionChanged();
 
 // MatchViewerView interface
 
 public:
 
-  void setLeftImage(const QString &imageLeft) override;
-  void setRightImage(const QString &imageRight) override;
-  void setLeftImageList(const std::vector<std::pair<size_t, QString>> &leftImageList) override;
-  void setRightImageList(const std::vector<std::pair<size_t, QString>> &rightImageList) override;
-  void setMatches(const std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> &matches) override;
-  void setBackgroundColor(const QString &bgColor) override;
-  void setSelectedMarkerStyle(const QString &color, int width) override;
-  void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) override;
-  void setLineStyle(const QString &color, int width) override;
+    void setLeftImage(const QString &imageLeft) override;
+    void setRightImage(const QString &imageRight) override;
+    void setLeftImageList(const std::vector<std::pair<size_t, QString>> &leftImageList) override;
+    void setRightImageList(const std::vector<std::pair<size_t, QString>> &rightImageList) override;
+    void setMatches(const std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> &matches) override;
+    void setBackgroundColor(const QString &bgColor) override;
+    void setSelectedMarkerStyle(const QString &color, int width) override;
+    void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) override;
+    void setLineStyle(const QString &color, int width) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 // QWidget interface
 
 protected:
 
-  void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 protected:
 
-  QDialogButtonBox *mButtonBox;
-  QTreeWidget *mTreeWidgetMatches;
-  QLabel *mLabelLeftImage;
-  QLabel *mLabelRightImage;
-  QComboBox  *mComboBoxLeftImage;
-  QComboBox  *mComboBoxRightImage;
-  GraphicViewer *mGraphicsViewRightImage;
-  GraphicViewer *mGraphicsViewLeftImage;
-  QLabel *mLabelMatches;
-  QPushButton *mPushButtonDeleteMatch;
-  bool bUnsavedChanges;
-  QString mMarkerColor;
-  int mMarkerSize;
-  int mMarkerWidth;
-  int mMarkerType;
-  QString mLineColor;
-  int mLineWidth;
-  QString mSelectedMarkerColor;
-  int mSelectedMarkerWidth;
+    QDialogButtonBox *mButtonBox;
+    QTreeWidget *mTreeWidgetMatches;
+    QLabel *mLabelLeftImage;
+    QLabel *mLabelRightImage;
+    QComboBox *mComboBoxLeftImage;
+    QComboBox *mComboBoxRightImage;
+    GraphicViewer *mGraphicsViewRightImage;
+    GraphicViewer *mGraphicsViewLeftImage;
+    QLabel *mLabelMatches;
+    QPushButton *mPushButtonDeleteMatch;
+    bool bUnsavedChanges;
+    QString mMarkerColor;
+    int mMarkerSize;
+    int mMarkerWidth;
+    int mMarkerType;
+    QString mLineColor;
+    int mLineWidth;
+    QString mSelectedMarkerColor;
+    int mSelectedMarkerWidth;
 };
 
 } // namespace graphos

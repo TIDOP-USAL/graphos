@@ -38,94 +38,94 @@ class MainWindowModel;
 class MainWindowPresenter
   : public Presenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit MainWindowPresenter(MainWindowView *view,
-                               MainWindowModel *model);
-  ~MainWindowPresenter() override;
-    
+    explicit MainWindowPresenter(MainWindowView *view,
+                                 MainWindowModel *model);
+    ~MainWindowPresenter() override;
+
 public slots:
 
-  void loadImage(size_t imageId);
-  void openImage(size_t imageId);
-  void activeImage(size_t imageId);
-  void activeImages(const std::vector<size_t> &imageIds);
-  void deleteImages(const std::vector<size_t> &imageIds);
+    void loadImage(size_t imageId);
+    void openImage(size_t imageId);
+    void activeImage(size_t imageId);
+    void activeImages(const std::vector<size_t> &imageIds);
+    void deleteImages(const std::vector<size_t> &imageIds);
 
 signals:
 
-  void openCreateProjectDialog();
-  void openProjectDialog();
-  void openExportOrientationsDialog();
-  void openExportPointCloudDialog();
-  void openGeoreferenceDialog();
-  void openCamerasImportDialog();
-  void openSettings();
-  void save();
-  //void saveAs(QString);
+    void openCreateProjectDialog();
+    void openProjectDialog();
+    void openExportOrientationsDialog();
+    void openExportPointCloudDialog();
+    void openGeoreferenceDialog();
+    void openCamerasImportDialog();
+    void openSettings();
+    void save();
+    //void saveAs(QString);
 
 protected slots:
 
-  /* Menú Archivo */
+    /* Menú Archivo */
 
-  void openFromHistory(const QString &file);
-  void deleteHistory();
-  //void saveProject();
-  void exit();
+    void openFromHistory(const QString &file);
+    void deleteHistory();
+    //void saveProject();
+    void exit();
 
-  /* Menú View */
+    /* Menú View */
 
-  void openStartPage();
+    void openStartPage();
 
-  /* Menú Ayuda */
+    /* Menú Ayuda */
 
-  /*!
-   * \brief Carga del proyecto
-   */
-  void loadProject();
-  void updateProject();
-  void loadFeatures(size_t imageId);
-  void updateMatches();
-  void loadOrientation();
-  void loadDenseModel();
-  void loadMesh();
-  void loadDTM();
-  void loadOrtho();
+    /*!
+     * \brief Carga del proyecto
+     */
+    void loadProject();
+    void updateProject();
+    void loadFeatures(size_t imageId);
+    void updateMatches();
+    void loadOrientation();
+    void loadDenseModel();
+    void loadMesh();
+    void loadDTM();
+    void loadOrtho();
 
-  void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
+    void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
-  void open3DModel(const QString &model3D, bool loadCameras);
+    void open3DModel(const QString &model3D, bool loadCameras);
 
-  void openDtm();
+    void openDtm();
 
-  void deleteFeatures();
-  void deleteMatches();
+    void deleteFeatures();
+    void deleteMatches();
 
-  void loadingImages(bool loading);
-  void onProjectModified();
+    void loadingImages(bool loading);
+    void onProjectModified();
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  void initStartPage();
+    void initStartPage();
 
 protected:
 
-  MainWindowView *mView;
-  MainWindowModel *mModel;
-  StartPageWidget *mStartPageWidget;
+    MainWindowView *mView;
+    MainWindowModel *mModel;
+    StartPageWidget *mStartPageWidget;
 
 };
 

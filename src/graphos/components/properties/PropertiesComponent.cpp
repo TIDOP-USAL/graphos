@@ -40,7 +40,7 @@ namespace graphos
 PropertiesComponent::PropertiesComponent(Application *application)
   : ComponentBase(application)
 {
-  init();
+    init();
 }
 
 PropertiesComponent::~PropertiesComponent()
@@ -49,35 +49,33 @@ PropertiesComponent::~PropertiesComponent()
 
 void PropertiesComponent::setAlternatingRowColors(bool active)
 {
-  if (view())
-    dynamic_cast<PropertiesView *>(view())->setAlternatingRowColors(active);
+    if (view())
+        dynamic_cast<PropertiesView *>(view())->setAlternatingRowColors(active);
 }
 
 void PropertiesComponent::init()
 {
-  this->setName("Properties");
-
-  //createCommand();
+    this->setName("Properties");
 }
 
 void PropertiesComponent::createModel()
 {
-  setModel(new PropertiesModelImp(app()->project()));
+    setModel(new PropertiesModelImp(app()->project()));
 }
 
 void PropertiesComponent::createView()
 {
-  setView(new PropertiesViewImp(app()->mainWindow()));
+    setView(new PropertiesViewImp(app()->mainWindow()));
 }
 
 void PropertiesComponent::createPresenter()
 {
-  setPresenter(new PropertiesPresenterImp(dynamic_cast<PropertiesView *>(view()),
-                                          dynamic_cast<PropertiesModel *>(model()),
-                                          app()->status()));
+    setPresenter(new PropertiesPresenterImp(dynamic_cast<PropertiesView *>(view()),
+                 dynamic_cast<PropertiesModel *>(model()),
+                 app()->status()));
 
-  connect(this, &PropertiesComponent::selectImage,
-          dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
+    connect(this, &PropertiesComponent::selectImage,
+            dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
 }
 
 void PropertiesComponent::createCommand()
@@ -86,18 +84,15 @@ void PropertiesComponent::createCommand()
 
 void PropertiesComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  if (!project_exists) {
-    if (auto _view = dynamic_cast<PropertiesView *>(view())) _view->clear();
-  }
-  //action()->setEnabled(!bProcessing);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    if (!project_exists) {
+        if (auto _view = dynamic_cast<PropertiesView *>(view())) _view->clear();
+    }
 }
-
-
 
 } // namespace graphos

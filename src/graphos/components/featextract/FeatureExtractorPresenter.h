@@ -34,21 +34,21 @@ class FeatureExtractorPresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureExtractorPresenter() {}
-  ~FeatureExtractorPresenter() override = default;
+    FeatureExtractorPresenter() {}
+    ~FeatureExtractorPresenter() override = default;
 
 signals:
 
-  void features_extracted(size_t);
-  void features_deleted();
+    void features_extracted(size_t);
+    void features_deleted();
 
 public slots:
 
-  virtual void setCurrentDetectorDescriptor(const QString &detectorDescriptor) = 0;
+    virtual void setCurrentDetectorDescriptor(const QString &detectorDescriptor) = 0;
 };
 
 } // namespace graphos

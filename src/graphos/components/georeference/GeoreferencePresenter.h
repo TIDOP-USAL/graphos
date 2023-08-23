@@ -33,16 +33,16 @@ class GeoreferencePresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  GeoreferencePresenter(){}
-  ~GeoreferencePresenter() override = default;
+    GeoreferencePresenter() {}
+    ~GeoreferencePresenter() override = default;
 
 public slots:
 
-  virtual void setImageActive(size_t imageId) = 0;
+    virtual void setImageActive(size_t imageId) = 0;
 
 };
 

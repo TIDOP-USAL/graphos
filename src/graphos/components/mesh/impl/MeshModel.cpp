@@ -38,75 +38,75 @@ MeshModelImp::MeshModelImp(Project *project, QObject *parent)
     mParameters(new PoissonReconParameters),
     mProject(project)
 {
-  this->init();
+    this->init();
 }
 
 MeshModelImp::~MeshModelImp()
 {
-  if (mSettings){
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if (mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 
-  if (mParameters) {
-    delete mParameters;
-    mParameters = nullptr;
-  }
+    if (mParameters) {
+        delete mParameters;
+        mParameters = nullptr;
+    }
 }
 
 void MeshModelImp::loadSettings()
 {
-  if (mReadSettings) {
-	  
-	/* Read Settings here
-	
-	Example (replace PropertyName):
-	
-    mParameters->setPropertyName(mSettings->value("MESH/PropertyName", mParameters->propertyName()).toInt());
-  
-    */
+    if (mReadSettings) {
 
-  }
+        /* Read Settings here
+
+        Example (replace PropertyName):
+
+        mParameters->setPropertyName(mSettings->value("MESH/PropertyName", mParameters->propertyName()).toInt());
+
+        */
+
+    }
 }
 
 void MeshModelImp::saveSettings()
 {
-  if (mReadSettings) {
-	
-	/* Write Settings here
-	
-	Example:
-	
-    mSettings->setValue("MESH/PropertyName", mParameters->propertyName());
-  
-    */
-    
-  }
+    if (mReadSettings) {
+
+        /* Write Settings here
+
+        Example:
+
+        mSettings->setValue("MESH/PropertyName", mParameters->propertyName());
+
+        */
+
+    }
 }
 
 PoissonReconParameters *MeshModelImp::parameters() const
 {
-  return mParameters;
+    return mParameters;
 }
 
 tl::Path MeshModelImp::denseModel() const
 {
-  return mProject->denseModel();
+    return mProject->denseModel();
 }
 
 tl::Path MeshModelImp::projectDir() const
 {
-  return mProject->projectFolder();
+    return mProject->projectFolder();
 }
 
 void MeshModelImp::setMesh(const tl::Path &mesh)
 {
-  mProject->setMeshPath(mesh);
+    mProject->setMeshPath(mesh);
 }
 
 void MeshModelImp::init()
 {
-  mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
+    mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
 }
 
 void MeshModelImp::clear()

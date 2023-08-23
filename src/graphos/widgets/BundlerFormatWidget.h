@@ -36,77 +36,77 @@ namespace graphos
 {
 
 class BundlerFormatWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  BundlerFormatWidget(QWidget *parent = nullptr);
-  ~BundlerFormatWidget() override = default;
+    BundlerFormatWidget(QWidget *parent = nullptr);
+    ~BundlerFormatWidget() override = default;
 
-  virtual QString file() const = 0;
+    virtual QString file() const = 0;
 
 signals:
 
-  void fileChanged(QString);
+    void fileChanged(QString);
 
 public slots:
 
-  virtual void setFile(const QString &file) = 0;
+    virtual void setFile(const QString &file) = 0;
 
 };
 
 class BundlerFormatWidgetImp
-  : public BundlerFormatWidget
+    : public BundlerFormatWidget
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  BundlerFormatWidgetImp(QWidget *parent = nullptr);
-  ~BundlerFormatWidgetImp() override = default;
+    BundlerFormatWidgetImp(QWidget *parent = nullptr);
+    ~BundlerFormatWidgetImp() override = default;
 
 protected slots:
 
-  void onPushButtonSelectPath();
+    void onPushButtonSelectPath();
 
 // BundlerFormatWidget interface
 
-  QString file() const override;
+    QString file() const override;
 
 signals:
 
-  void fileChanged(const QString &);
+    void fileChanged(const QString &);
 
 public slots:
 
-  void setFile(const QString &file) override;
+    void setFile(const QString &file) override;
 
 // GraphosWidgetView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QGroupBox *mGroupBox;
-  QLabel *mLabelFile;
-  QLineEdit *mLineEditFile;
-  QPushButton *mPushButtonSelectPath;
+    QGroupBox *mGroupBox;
+    QLabel *mLabelFile;
+    QLineEdit *mLineEditFile;
+    QPushButton *mPushButtonSelectPath;
 
 };
 

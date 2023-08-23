@@ -36,30 +36,30 @@ class CamerasComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CamerasComponent(Application *application);
-  ~CamerasComponent();
+    CamerasComponent(Application *application);
+    ~CamerasComponent();
 
 private:
 
-  void init();
+    void init();
 
 private slots:
 
-  void onUpdateCameras();
+    void onUpdateCameras();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

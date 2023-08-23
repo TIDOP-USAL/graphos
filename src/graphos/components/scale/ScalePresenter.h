@@ -35,12 +35,12 @@ class ScalePresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ScalePresenter() : TaskPresenter() {}
-  ~ScalePresenter() override = default;
+    ScalePresenter() : TaskPresenter() {}
+    ~ScalePresenter() override = default;
 
 };
 

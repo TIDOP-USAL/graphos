@@ -33,16 +33,16 @@ class ImportCamerasPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImportCamerasPresenter(){}
-  ~ImportCamerasPresenter() override = default;
+    ImportCamerasPresenter() {}
+    ~ImportCamerasPresenter() override = default;
 
 signals:
 
-  void importedCameras();
+    void importedCameras();
 
 };
 

@@ -23,7 +23,7 @@
 
 #include "graphos/core/features/matching.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
 #include <tidop/core/chrono.h>
 

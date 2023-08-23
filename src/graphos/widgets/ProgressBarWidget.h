@@ -36,50 +36,50 @@ namespace graphos
 
 
 class ProgressBarWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ProgressBarWidget(QWidget *parent = nullptr);
-  ~ProgressBarWidget() override;
+    ProgressBarWidget(QWidget *parent = nullptr);
+    ~ProgressBarWidget() override;
 
 public slots:
 
-  void setRange(int min, int max);
-  void setValue(int value);
+    void setRange(int min, int max);
+    void setValue(int value);
 
 protected slots:
 
-  void onPushButtonCancelClicked();
+    void onPushButtonCancelClicked();
 
 signals:
 
-  void cancel();
-  void maximized();
+    void cancel();
+    void maximized();
 
 // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 protected:
 
-  QProgressBar *mProgressBar;
-  QAction *mActionCancel;
-  QAction *mActionMaximize;
+    QProgressBar *mProgressBar;
+    QAction *mActionCancel;
+    QAction *mActionMaximize;
 };
 
 } // namespace graphos

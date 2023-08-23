@@ -28,7 +28,7 @@
 
 #include <memory>
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QWidget>
 #include <QEvent>
 #include <QMenu>

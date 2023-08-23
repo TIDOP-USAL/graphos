@@ -38,8 +38,8 @@ namespace graphos
 DensificationViewImp::DensificationViewImp(QWidget *parent)
   : DensificationView(parent)
 {
-  this->initUI();
-  this->initSignalAndSlots();
+    this->initUI();
+    this->initSignalAndSlots();
 }
 
 DensificationViewImp::~DensificationViewImp()
@@ -49,39 +49,39 @@ DensificationViewImp::~DensificationViewImp()
 
 void DensificationViewImp::initUI()
 {
-  this->setObjectName(QString("DensificationView"));
-  this->resize(443, 248);
+    this->setObjectName(QString("DensificationView"));
+    this->resize(443, 248);
 
-  mGridLayout = new QGridLayout(this);
+    mGridLayout = new QGridLayout(this);
 
-  mLabelDensification = new QLabel(this);
-  mGridLayout->addWidget(mLabelDensification, 0, 0, 1, 1);
+    mLabelDensification = new QLabel(this);
+    mGridLayout->addWidget(mLabelDensification, 0, 0, 1, 1);
 
-  mComboBoxDensification = new QComboBox(this);
-  mGridLayout->addWidget(mComboBoxDensification, 0, 1, 1, 1);
+    mComboBoxDensification = new QComboBox(this);
+    mGridLayout->addWidget(mComboBoxDensification, 0, 1, 1, 1);
 
-  QWidget *widgetDensification = new QWidget();
-  mGridLayoutDensification = new QGridLayout(widgetDensification);
-  mGridLayoutDensification->setContentsMargins(0, 0, 0, 0);
-  mGridLayout->addWidget(widgetDensification, 1, 0, 1, 2);
+    QWidget *widgetDensification = new QWidget();
+    mGridLayoutDensification = new QGridLayout(widgetDensification);
+    mGridLayoutDensification->setContentsMargins(0, 0, 0, 0);
+    mGridLayout->addWidget(widgetDensification, 1, 0, 1, 2);
 
-  mButtonBox = new QDialogButtonBox(this);
-  mButtonBox->setOrientation(Qt::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  mGridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
+    mButtonBox = new QDialogButtonBox(this);
+    mButtonBox->setOrientation(Qt::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
+    mGridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
 
-  this->retranslate();
-  this->clear();
-  this->update();
+    this->retranslate();
+    this->clear();
+    this->update();
 }
 
 void DensificationViewImp::initSignalAndSlots()
 {
-  connect(mComboBoxDensification,  &QComboBox::currentTextChanged, this, &DensificationView::densificationChanged);
+    connect(mComboBoxDensification, &QComboBox::currentTextChanged, this, &DensificationView::densificationChanged);
 
-  connect(mButtonBox,                                    &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Apply),   &QAbstractButton::clicked,   this, &DensificationView::run);
-  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked,   this, &DialogView::help);
+    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &DensificationView::run);
+    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void DensificationViewImp::clear()
@@ -91,47 +91,47 @@ void DensificationViewImp::clear()
 
 void DensificationViewImp::update()
 {
-  mComboBoxDensification->setVisible(mComboBoxDensification->count() > 1);
-  mLabelDensification->setVisible(mComboBoxDensification->count() > 1);
+    mComboBoxDensification->setVisible(mComboBoxDensification->count() > 1);
+    mLabelDensification->setVisible(mComboBoxDensification->count() > 1);
 }
 
 void DensificationViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("DensificationView", "Densification", nullptr));
-  mLabelDensification->setText(QApplication::translate("DensificationView", "Method:", nullptr));
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureExtractorView", "Cancel"));
-  mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureExtractorView", "Run"));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureExtractorView", "Help"));
+    this->setWindowTitle(QApplication::translate("DensificationView", "Densification", nullptr));
+    mLabelDensification->setText(QApplication::translate("DensificationView", "Method:", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureExtractorView", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureExtractorView", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureExtractorView", "Help"));
 }
 
 QString DensificationViewImp::currentDensificationMethod() const
 {
-  return mComboBoxDensification->currentText();
+    return mComboBoxDensification->currentText();
 }
 
 void DensificationViewImp::addDensification(QWidget *densification)
 {
-  mComboBoxDensification->addItem(densification->windowTitle());
-  mGridLayoutDensification->addWidget(densification, 1, 0, 1, 2);
-  densification->setVisible(false);
+    mComboBoxDensification->addItem(densification->windowTitle());
+    mGridLayoutDensification->addWidget(densification, 1, 0, 1, 2);
+    densification->setVisible(false);
 
-  update();
+    update();
 }
 
 void DensificationViewImp::setCurrentDensificationMethod(const QString &densificationMethod)
 {
-  const QSignalBlocker blocker(mComboBoxDensification);
-  mComboBoxDensification->setCurrentText(densificationMethod);
+    const QSignalBlocker blocker(mComboBoxDensification);
+    mComboBoxDensification->setCurrentText(densificationMethod);
 
-  for (int idx = 0; idx < mGridLayoutDensification->count(); idx++){
-    QLayoutItem *item = mGridLayoutDensification->itemAt(idx);
-    if(dynamic_cast<QWidgetItem *>(item)){
-      if (item->widget()->windowTitle().compare(densificationMethod) == 0)
-        item->widget()->setVisible(true);
-      else
-        item->widget()->setVisible(false);
+    for (int idx = 0; idx < mGridLayoutDensification->count(); idx++) {
+        QLayoutItem *item = mGridLayoutDensification->itemAt(idx);
+        if (dynamic_cast<QWidgetItem *>(item)) {
+            if (item->widget()->windowTitle().compare(densificationMethod) == 0)
+                item->widget()->setVisible(true);
+            else
+                item->widget()->setVisible(false);
+        }
     }
-  }
 }
 
 } // End namespace graphos

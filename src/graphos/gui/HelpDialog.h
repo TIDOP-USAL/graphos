@@ -36,15 +36,15 @@ class HelpBrowser
 
 public:
 
-  HelpBrowser(QHelpEngine *helpEngine,
-              QWidget *parent = nullptr);
+    HelpBrowser(QHelpEngine *helpEngine,
+                QWidget *parent = nullptr);
 
-  QVariant loadResource (int type, const QUrl &name);
+    QVariant loadResource(int type, const QUrl &name);
 
 
 private:
 
-  QHelpEngine *mHelpEngine;
+    QHelpEngine *mHelpEngine;
 };
 
 
@@ -52,60 +52,60 @@ private:
 
 namespace graphos
 {
-	
+
 class HelpDialog
   : public QDialog
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  HelpDialog(QWidget *parent = nullptr);
-  ~HelpDialog() override;
+    HelpDialog(QWidget *parent = nullptr);
+    ~HelpDialog() override;
 
 public slots:
 
- /*!
-  * \brief Pagina inicial
-  */
- void navigateHome();
+    /*!
+     * \brief Pagina inicial
+     */
+    void navigateHome();
 
-  /*!
-   * \brief Establece la página de ayuda
-   * \param[in] page Página de ayuda
-   */
-  void setPage(const QString &page);
+    /*!
+     * \brief Establece la página de ayuda
+     * \param[in] page Página de ayuda
+     */
+    void setPage(const QString &page);
 
 private slots:
 
 
-  void navigateBackward();
-  void navigateForward();
-  void setContentSource(const QModelIndex &index);
-  void setIndexSource(const QModelIndex &index);
-  void searchInvoked();
-  void searchFinished(int hits);
+    void navigateBackward();
+    void navigateForward();
+    void setContentSource(const QModelIndex &index);
+    void setIndexSource(const QModelIndex &index);
+    void searchInvoked();
+    void searchFinished(int hits);
 
 // DialogView interface
 
 private:
 
-  void init();
+    void init();
 
 private slots:
 
-  void retranslate();
+    void retranslate();
 
 private:
 
-  QHelpEngine *mHelpEngine;
-  HelpBrowser *mHelpBrowser;
-  QTextBrowser *mSearchResultsWidget;
+    QHelpEngine *mHelpEngine;
+    HelpBrowser *mHelpBrowser;
+    QTextBrowser *mSearchResultsWidget;
 
-  QAction *mNavigateHomeAction;
-  QAction *mNavigateBackwardAction;
-  QAction *mNavigateForwardAction;
+    QAction *mNavigateHomeAction;
+    QAction *mNavigateBackwardAction;
+    QAction *mNavigateForwardAction;
 };
 
 } // namespace graphos

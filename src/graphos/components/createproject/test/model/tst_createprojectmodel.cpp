@@ -38,23 +38,31 @@ BOOST_AUTO_TEST_SUITE(TestCreateProjectModelSuite)
 struct TestCreateProjectModel
 {
 
-  TestCreateProjectModel()
-    : project(new ProjectFake),
-      projectModel(new CreateProjectModelImp(project))
-  {
+    TestCreateProjectModel()
+        : project(new ProjectFake),
+        projectModel(new CreateProjectModelImp(project))
+    {
 
-  }
+    }
 
-  ~TestCreateProjectModel()
-  {
+    ~TestCreateProjectModel()
+    {
+        if (project) {
+            delete project;
+            project = nullptr;
+        }
 
-  }
+        if (projectModel) {
+            delete projectModel;
+            projectModel = nullptr;
+        }
+    }
 
-  void setup() {}
-  void teardown() {}
+    void setup() {}
+    void teardown() {}
 
-  Project *project;
-  CreateProjectModel *projectModel;
+    Project *project;
+    CreateProjectModel *projectModel;
 };
 
 BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestCreateProjectModel)

@@ -35,29 +35,29 @@ class LoadFromVideoView
   : public TaskView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  LoadFromVideoView(QWidget *parent) : TaskView(parent) {}
-  ~LoadFromVideoView() override = default;
+    LoadFromVideoView(QWidget *parent) : TaskView(parent) {}
+    ~LoadFromVideoView() override = default;
 
-  virtual QString video() const = 0;
-  virtual int skipFrames() const = 0;
-  virtual int videoIni() const = 0;
-  virtual int videoEnd() const = 0;
+    virtual QString video() const = 0;
+    virtual int skipFrames() const = 0;
+    virtual int videoIni() const = 0;
+    virtual int videoEnd() const = 0;
 
 public slots:
 
-  //virtual void setVideo(const QString &video) = 0;
-  virtual void setSkipFrames(int skipFrames) = 0;
+    //virtual void setVideo(const QString &video) = 0;
+    virtual void setSkipFrames(int skipFrames) = 0;
 
 signals:
 
-  //void video_changed(QString);
-  void skip_frames_changed(int);
-  void start_video_changed(int);
-  void end_video_changed(int);
+    //void video_changed(QString);
+    void skip_frames_changed(int);
+    void start_video_changed(int);
+    void end_video_changed(int);
 };
 
 } // namespace graphos

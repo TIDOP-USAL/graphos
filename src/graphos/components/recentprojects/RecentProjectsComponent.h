@@ -34,29 +34,29 @@ class RecentProjectsComponent
   : public MultiComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  RecentProjectsComponent(Application *application);
-  ~RecentProjectsComponent();
+    RecentProjectsComponent(Application *application);
+    ~RecentProjectsComponent();
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
-  void open_project(QString);
+    void open_project(QString);
 
-// MultiComponentBase
+    // MultiComponentBase
 
 protected:
- 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void update() override;
+
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void update() override;
 
 };
 

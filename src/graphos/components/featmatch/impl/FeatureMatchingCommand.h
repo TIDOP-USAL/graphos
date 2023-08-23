@@ -28,7 +28,7 @@
 
 namespace graphos
 {
-	
+
 class Project;
 
 class FeatureMatchingCommand
@@ -37,32 +37,25 @@ class FeatureMatchingCommand
 
 public:
 
-  FeatureMatchingCommand();
-  ~FeatureMatchingCommand() override;
+    FeatureMatchingCommand();
+    ~FeatureMatchingCommand() override;
 
 private:
 
-  void writeMatchPairs(Project *project);
+    void writeMatchPairs(Project *project);
 
 // Command
 
 public:
 
-  bool run() override;
+    bool run() override;
 
 private:
 
-  tl::Path mProjectFile;
-  bool mCrossCheck;
-  double mRatio;
-  double mDistance;
-  double mMaxError;
-  double mConfidence;
-  bool mDisableCuda;
-  bool mForceExhaustiveMatching;
+    bool mDisableCuda;
 };
 
-	
+
 } // namespace graphos
 
 #endif // GRAPHOS_FEATURE_MATCHING_COMMAND_H

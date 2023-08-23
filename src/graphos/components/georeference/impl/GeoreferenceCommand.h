@@ -30,31 +30,26 @@
 
 namespace graphos
 {
-	
+
 class GeoreferenceCommand
   : public Command
 {
 
 public:
 
-  GeoreferenceCommand();
+    GeoreferenceCommand();
 
-  ~GeoreferenceCommand() override;
-
-private:
-
+    ~GeoreferenceCommand() override;
 
 // Command
 
-  bool run() override;
-
 private:
 
-  tl::Path mProjectFile;
-  tl::Path mGCP;
+    bool run() override;
+
 };
 
-	
+
 } // namespace graphos
 
 #endif // GRAPHOS_GEOREFERENCE_COMMAND_H

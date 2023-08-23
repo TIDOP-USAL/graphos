@@ -37,7 +37,7 @@
 #include <tidop/graphic/color.h>
 
 /* CloudCompare */
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include "ccGLWindow.h"
 #include <ccCameraSensor.h>
 TL_DEFAULT_WARNINGS
@@ -57,47 +57,47 @@ namespace graphos
 
 
 class Viewer3DContextMenu
-  : public GraphosContextMenu
+    : public GraphosContextMenu
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  Viewer3DContextMenu(QWidget *parent = nullptr);
-  ~Viewer3DContextMenu() override = default;
+    Viewer3DContextMenu(QWidget *parent = nullptr);
+    ~Viewer3DContextMenu() override = default;
 
 signals:
 
-  void globalZoom();
-  void viewFront();
-  void viewTop(); 
-  void viewLeft();
-  void viewRight(); 
-  void viewBack();  
-  void viewBottom();
-  void filterEDL(bool);
+    void globalZoom();
+    void viewFront();
+    void viewTop();
+    void viewLeft();
+    void viewRight();
+    void viewBack();
+    void viewBottom();
+    void filterEDL(bool);
 
 private:
 
-  void init();
-  void initSignalAndSlots();
+    void init();
+    void initSignalAndSlots();
 
-  // GraphosContextMenu
+    // GraphosContextMenu
 
 private slots:
 
-  void retranslate() override;
+    void retranslate() override;
 
 private:
 
-  QAction *mActionGlobalZoom;
-  QAction *mActionViewFront;
-  QAction *mActionViewTop;
-  QAction *mActionViewLeft;
-  QAction *mActionViewRight;
-  QAction *mActionViewBack;
-  QAction *mActionViewBottom;
-  QAction *mActionEDLFilter;
+    QAction *mActionGlobalZoom;
+    QAction *mActionViewFront;
+    QAction *mActionViewTop;
+    QAction *mActionViewLeft;
+    QAction *mActionViewRight;
+    QAction *mActionViewBack;
+    QAction *mActionViewBottom;
+    QAction *mActionEDLFilter;
 
 };
 
@@ -109,150 +109,150 @@ class CCViewer3D
     public Viewer3D
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  /*!
-   * \brief Picking mode
-   */
-  enum class PickingMode
-  {
-    point_info,
-    distance,
-    angle,
-    rect_zone,
-    point_list,
-    level_points
-  };
+    /*!
+     * \brief Picking mode
+     */
+    enum class PickingMode
+    {
+        point_info,
+        distance,
+        angle,
+        rect_zone,
+        point_list,
+        level_points
+    };
 
-  enum class Perspective
-  {
-    ortho_view,
-    centered_perspective,
-    view_perspective
-  };
+    enum class Perspective
+    {
+        ortho_view,
+        centered_perspective,
+        view_perspective
+    };
 
-  enum class Rotation
-  {
-    always_show,
-    show_on_move,
-    hide
-  };
-  
+    enum class Rotation
+    {
+        always_show,
+        show_on_move,
+        hide
+    };
+
 public:
 
-  explicit CCViewer3D(QWidget *parent = nullptr);
-  ~CCViewer3D() override;
+    explicit CCViewer3D(QWidget *parent = nullptr);
+    ~CCViewer3D() override;
 
-  void clear() override;
-  void createGroup(const QString &group, 
-                   const QString &parent = QString()) override;
-  void deleteEntity(const QString &id) override;
-
-  void loadFromFile(const QString &file, 
-                    const QString &parent = QString()) override;
-  void loadFromFiles(const QStringList &files, 
+    void clear() override;
+    void createGroup(const QString &group,
                      const QString &parent = QString()) override;
+    void deleteEntity(const QString &id) override;
 
-  void setScale(double x, double y);
+    void loadFromFile(const QString &file,
+                      const QString &parent = QString()) override;
+    void loadFromFiles(const QStringList &files,
+                       const QString &parent = QString()) override;
 
-  void addCamera(const QString &id, 
-                 double x, 
-                 double y, 
-                 double z, 
-                 const std::array<std::array<float, 3>, 3> &rot) override;
+    void setScale(double x, double y);
 
-  void activatePicker(PickingMode pickerMode);
-  void deactivatePicker();
+    void addCamera(const QString &id,
+                   double x,
+                   double y,
+                   double z,
+                   const std::array<std::array<float, 3>, 3> &rot) override;
 
-  ccHObject *object();
+    void activatePicker(PickingMode pickerMode);
+    void deactivatePicker();
+
+    ccHObject *object();
 
 signals:
 
-  void mouseClicked(QVector3D);
+    void mouseClicked(QVector3D);
 
 public slots:
 
-  void deleteSelectEntity() override;
+    void deleteSelectEntity() override;
 
-  /* Vistas por defecto */
-  
-  void setFrontView() override;
-  void setBottomView() override;
-  void setTopView() override;
-  void setBackView() override;
-  void setLeftView() override;
-  void setRightView() override;
-  void setIsoView1() override;
-  void setIsoView2() override;
-  void setGlobalZoom() override;
+    /* Vistas por defecto */
 
-  void setVisible(const QString &id, bool visible) override;
-  void showClassification(bool show = true) override;
-  void setColorTable(std::shared_ptr<ColorTable> colorTable) override;
-  void enableEDL() override;
-  void disableEDL() override;
-  
+    void setFrontView() override;
+    void setBottomView() override;
+    void setTopView() override;
+    void setBackView() override;
+    void setLeftView() override;
+    void setRightView() override;
+    void setIsoView1() override;
+    void setIsoView2() override;
+    void setGlobalZoom() override;
+
+    void setVisible(const QString &id, bool visible) override;
+    void showClassification(bool show = true) override;
+    void setColorTable(std::shared_ptr<ColorTable> colorTable) override;
+    void enableEDL() override;
+    void disableEDL() override;
+
 public:
 
-  bool isEDL() const override { return edl; }
+    bool isEDL() const override { return edl; }
 
 protected:
 
-  //virtual void paintGL() override;
-  //virtual void resizeGL(int width, int height) override;
-  //virtual void initializeGL() override;
-  //virtual void mouseMoveEvent(QMouseEvent* event) override;
-  //virtual void mousePressEvent(QMouseEvent* event) override;
-  //virtual void mouseReleaseEvent(QMouseEvent* event) override;
-  //virtual void wheelEvent(QWheelEvent* event) override;
-  //virtual bool event(QEvent* event) override;
+    //virtual void paintGL() override;
+    //virtual void resizeGL(int width, int height) override;
+    //virtual void initializeGL() override;
+    //virtual void mouseMoveEvent(QMouseEvent* event) override;
+    //virtual void mousePressEvent(QMouseEvent* event) override;
+    //virtual void mouseReleaseEvent(QMouseEvent* event) override;
+    //virtual void wheelEvent(QWheelEvent* event) override;
+    //virtual bool event(QEvent* event) override;
 
 protected slots:
 
-  /*!
-   * \brief selecciona una entidad
-   */
-  void selectEntity(ccHObject *entity);
-  void processPickedPoint(ccHObject *entity,
-                          unsigned pointIndex, 
-                          int x, 
-                          int y, 
-                          const CCVector3 &point,
-                          const CCVector3d& uvw);
-  void showContextMenu(const QPoint &position);
-  void mousePressEvent(QMouseEvent *event) override;
+    /*!
+     * \brief selecciona una entidad
+     */
+    void selectEntity(ccHObject *entity);
+    void processPickedPoint(ccHObject *entity,
+                            unsigned pointIndex,
+                            int x,
+                            int y,
+                            const CCVector3 &point,
+                            const CCVector3d &uvw);
+    void showContextMenu(const QPoint &position);
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
 
-  void init();
-  void initSignalsAndSlots();
+    void init();
+    void initSignalsAndSlots();
 
-  void addToDB(ccHObject *entity);
+    void addToDB(ccHObject *entity);
 
-  /*!
-   * \brief Función para buscar un objeto mediante su nombre
-   */
-  ccHObject *findChild(const QString &name, ccHObject *parent = nullptr);
+    /*!
+     * \brief Función para buscar un objeto mediante su nombre
+     */
+    ccHObject *findChild(const QString &name, ccHObject *parent = nullptr);
 
 private:
 
-  ccHObject *mSelectedObject;
-  double mScaleX;
-  double mScaleY;
-  std::map<QString, ccCameraSensor *> mCameras;
-  ccHObject *mOrderedLabelsContainer;
-  PickingMode mPickingMode;
-  cc2DLabel *mLabel;
-  cc2DViewportLabel *mRect2DLabel;
-  Viewer3DContextMenu *mContextMenu;
-  QPoint mMousePress;
-  RGBAColorsTableType *mRGBAColors;
-  std::shared_ptr<ColorTable> mColorTable;
-  bool mShowClassification;
-  bool edl;
-  ccGlFilter *filter;
+    ccHObject *mSelectedObject;
+    double mScaleX;
+    double mScaleY;
+    std::map<QString, ccCameraSensor *> mCameras;
+    ccHObject *mOrderedLabelsContainer;
+    PickingMode mPickingMode;
+    cc2DLabel *mLabel;
+    cc2DViewportLabel *mRect2DLabel;
+    Viewer3DContextMenu *mContextMenu;
+    QPoint mMousePress;
+    RGBAColorsTableType *mRGBAColors;
+    std::shared_ptr<ColorTable> mColorTable;
+    bool mShowClassification;
+    bool edl;
+    ccGlFilter *filter;
 };
 
 

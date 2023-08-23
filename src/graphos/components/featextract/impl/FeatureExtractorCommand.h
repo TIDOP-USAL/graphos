@@ -30,6 +30,8 @@
 
 #include <QObject>
 
+#include "graphos/core/features/sift.h"
+
 namespace graphos
 {
 
@@ -38,33 +40,32 @@ class FeatureExtractorCommand
     public Command
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureExtractorCommand();
-  ~FeatureExtractorCommand() override;
-
-private:
-
+    FeatureExtractorCommand();
+    ~FeatureExtractorCommand() override;
 
 // Command
 
-  bool run() override;
+private:
+
+    bool run() override;
 
 private:
 
-  tl::Path mProjectFile;
-  int mMaxImageSize;
-  int mMaxFeaturesNumber;
-  int mOctaveResolution;
-  double mContrastThreshold;
-  double mEdgeThreshold;
-  bool mDisableCuda;
-
+    tl::Path mProjectFile;
+    //int mMaxImageSize;
+    //int mMaxFeaturesNumber;
+    //int mOctaveResolution;
+    //double mContrastThreshold;
+    //double mEdgeThreshold;
+    bool mDisableCuda;
+    //SiftProperties siftProperties;
 };
 
-	
+
 } // namespace graphos
 
 #endif // GRAPHOS_FEATURE_EXTRACTOR_COMMAND_H

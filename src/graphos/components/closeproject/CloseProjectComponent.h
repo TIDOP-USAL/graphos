@@ -34,30 +34,30 @@ class CloseProjectComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CloseProjectComponent(Application *application);
-  ~CloseProjectComponent();
+    CloseProjectComponent(Application *application);
+    ~CloseProjectComponent();
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
-  void projectClosed();
+    void projectClosed();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

@@ -39,58 +39,58 @@ namespace graphos
 class CreateProjectViewImp /*final*/
   : public CreateProjectView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit CreateProjectViewImp(QWidget *parent = nullptr);
-  ~CreateProjectViewImp() override = default;
+    explicit CreateProjectViewImp(QWidget *parent = nullptr);
+    ~CreateProjectViewImp() override = default;
 
 protected slots:
 
-  void onClickButtonSelectPath();
+    void onClickButtonSelectPath();
 
 // CreateProjectView interface
 
 public:
 
-  QString projectName() const override;
-  QString projectPath() const override;
-  void setProjectPath(const QString &path) override;
-  QString projectDescription() const override;
-  bool createProjectFolderEnable() const override;
-  void setExistingProject(bool prjExist) override;
+    QString projectName() const override;
+    QString projectPath() const override;
+    void setProjectPath(const QString &path) override;
+    QString projectDescription() const override;
+    bool createProjectFolderEnable() const override;
+    void setExistingProject(bool prjExist) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QLabel *mLabelProjectName;
-  QLineEdit *mLineEditProjectName;
-  QLabel *mLabelProjectPath;
-  QLineEdit *mLineEditProjectPath;
-  QLabel *mLabelProjectFile;
-  QLineEdit *mLineEditProjectFile;
-  QLabel *mLabelDescription;
-  QTextEdit *mTextEditDescription;
-  QCheckBox *mCheckBoxProjectFolder;
-  QPushButton *mPushButtonProjectPath;
-  QDialogButtonBox *mButtonBox;
-  bool bPrjExist;
+    QLabel *mLabelProjectName;
+    QLineEdit *mLineEditProjectName;
+    QLabel *mLabelProjectPath;
+    QLineEdit *mLineEditProjectPath;
+    QLabel *mLabelProjectFile;
+    QLineEdit *mLineEditProjectFile;
+    QLabel *mLabelDescription;
+    QTextEdit *mTextEditDescription;
+    QCheckBox *mCheckBoxProjectFolder;
+    QPushButton *mPushButtonProjectPath;
+    QDialogButtonBox *mButtonBox;
+    bool bPrjExist;
 };
 
 } // namespace graphos

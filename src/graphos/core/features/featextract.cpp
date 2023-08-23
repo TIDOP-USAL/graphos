@@ -26,7 +26,7 @@
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
 #include <tidop/core/chrono.h>
 #include <tidop/core/concurrency.h>

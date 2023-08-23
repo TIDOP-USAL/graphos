@@ -39,7 +39,7 @@ namespace graphos
 CloseProjectComponent::CloseProjectComponent(Application *application)
   : ComponentBase(application)
 {
-  init();
+    init();
 }
 
 CloseProjectComponent::~CloseProjectComponent()
@@ -48,35 +48,35 @@ CloseProjectComponent::~CloseProjectComponent()
 
 void CloseProjectComponent::init()
 {
-  this->setName("Close Project");
-  this->setMenu("file");
+    this->setName("Close Project");
+    this->setMenu("file");
 
-  action()->setIcon(QIcon::fromTheme("close-project"));
+    action()->setIcon(QIcon::fromTheme("close-project"));
 #ifndef QT_NO_SHORTCUT
-  action()->setShortcut(tr("Ctrl+O"));
+    action()->setShortcut(tr("Ctrl+O"));
 #endif // QT_NO_SHORTCUT
 }
 
 void CloseProjectComponent::createModel()
 {
-  setModel(new CloseProjectModelImp(app()->project()));
+    setModel(new CloseProjectModelImp(app()->project()));
 }
 
 void CloseProjectComponent::createView()
 {
-  setView(new CloseProjectViewImp());
+    setView(new CloseProjectViewImp());
 }
 
 void CloseProjectComponent::createPresenter()
 {
-  setPresenter(new CloseProjectPresenterImp(dynamic_cast<CloseProjectView *>(view()),
-                                            dynamic_cast<CloseProjectModel *>(model()),
-                                            app()->status()));
+    setPresenter(new CloseProjectPresenterImp(dynamic_cast<CloseProjectView *>(view()),
+                 dynamic_cast<CloseProjectModel *>(model()),
+                 app()->status()));
 
-  connect(dynamic_cast<CloseProjectPresenter *>(presenter()),
-          &CloseProjectPresenter::projectClosed,
-          this,
-          &CloseProjectComponent::projectClosed);
+    connect(dynamic_cast<CloseProjectPresenter *>(presenter()),
+            &CloseProjectPresenter::projectClosed,
+            this,
+            &CloseProjectComponent::projectClosed);
 }
 
 void CloseProjectComponent::createCommand()
@@ -85,15 +85,15 @@ void CloseProjectComponent::createCommand()
 
 void CloseProjectComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool processing = app_status->isEnabled(AppStatus::Flag::processing);
-  bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
-  bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  action()->setEnabled(!loading_images && !processing && project_exists);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    action()->setEnabled(!loading_images && !processing && project_exists);
 }
 
 } // namespace graphos

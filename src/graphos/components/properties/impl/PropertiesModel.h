@@ -36,13 +36,13 @@ class PropertiesModelImp
   : public PropertiesModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit PropertiesModelImp(Project *project,
-                              QObject *parent = nullptr);
-  ~PropertiesModelImp() override;
+    explicit PropertiesModelImp(Project *project,
+                                QObject *parent = nullptr);
+    ~PropertiesModelImp() override;
 
 signals:
 
@@ -50,21 +50,21 @@ signals:
 
 public:
 
-  std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(size_t imageId) const override;
-  
+    std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(size_t imageId) const override;
+
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  Project *mProject;
+    Project *mProject;
 
 };
 

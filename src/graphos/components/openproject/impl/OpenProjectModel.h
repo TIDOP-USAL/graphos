@@ -35,38 +35,38 @@ class OpenProjectModelImp final
   : public OpenProjectModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OpenProjectModelImp(Project *project,
-											QObject *parent = nullptr);
-  ~OpenProjectModelImp();
+    OpenProjectModelImp(Project *project,
+                        QObject *parent = nullptr);
+    ~OpenProjectModelImp();
 
 // OpenProjectModel interface
 
 public:
 
-  tl::Path graphosProjectsDirectory() const override;
+    tl::Path graphosProjectsDirectory() const override;
 
 public slots:
 
-  void saveProject() override;
-  void loadProject(const tl::Path &projectPath) override;
+    void saveProject() override;
+    void loadProject(const tl::Path &projectPath) override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
+    Project *mProject;
 
 };
 

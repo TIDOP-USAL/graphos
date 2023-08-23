@@ -29,37 +29,24 @@
 namespace graphos
 {
 
-  class Project;
+class Project;
 
-  class MeshCommand
-    : public Command
-  {
+class MeshCommand
+  : public Command
+{
 
-  public:
+public:
 
     MeshCommand();
     ~MeshCommand() override;
 
-  private:
+private:
 
-    void initDefaultParameters();
-
-  private:
-
-    // Command
+// Command
 
     bool run() override;
 
-  private:
-
-    tl::Path mProjectFile;
-    int mDepth;
-    int mSolveDepth;
-    std::vector<std::string> mBoundaryTypes;
-    size_t mBoundaryTypeIndex;
-    int mWidth;
-    int mFullDepth;
-  };
+};
 
 
 } // namespace graphos

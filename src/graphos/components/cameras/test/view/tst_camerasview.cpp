@@ -1,7 +1,7 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "inspector/ui/cameras/CamerasView.h"
+#include "graphos/components/cameras/CamerasView.h"
 
 #include <QLineEdit>
 #include <QCheckBox>
@@ -12,8 +12,7 @@
 #include <QSpinBox>
 #include <QComboBox>
 
-using namespace inspector;
-using namespace ui;
+using namespace graphos;
 
 class TestCamerasView 
   : public CamerasViewImp

@@ -39,23 +39,23 @@ class MeshModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MeshModel(QObject *parent = nullptr) : Model(parent) {}
-  ~MeshModel() override = default;
-  
-  virtual PoissonReconParameters *parameters() const = 0;
+    MeshModel(QObject *parent = nullptr) : Model(parent) {}
+    ~MeshModel() override = default;
 
-  virtual tl::Path denseModel() const = 0;
-  virtual tl::Path projectDir() const = 0;
-  virtual void setMesh(const tl::Path &mesh) = 0;
+    virtual PoissonReconParameters *parameters() const = 0;
+
+    virtual tl::Path denseModel() const = 0;
+    virtual tl::Path projectDir() const = 0;
+    virtual void setMesh(const tl::Path &mesh) = 0;
 
 public slots:
 
-  virtual void loadSettings() = 0;
-  virtual void saveSettings() = 0;
+    virtual void loadSettings() = 0;
+    virtual void saveSettings() = 0;
 };
 
 } // namespace graphos

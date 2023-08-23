@@ -36,19 +36,19 @@ class SaveProjectModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectModel(QObject *parent = nullptr) : Model(parent) {}
-  ~SaveProjectModel() override = default;
+    SaveProjectModel(QObject *parent = nullptr) : Model(parent) {}
+    ~SaveProjectModel() override = default;
 
 public slots:
 
-  /*!
-   * \brief Save Graphos project
-   */
-  virtual void save() = 0;
+    /*!
+     * \brief Save Graphos project
+     */
+    virtual void save() = 0;
 
 };
 

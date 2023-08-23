@@ -38,7 +38,7 @@ namespace graphos
 MatchViewerComponent::MatchViewerComponent(Application *application)
   : ComponentBase(application)
 {
-  init();
+    init();
 }
 
 MatchViewerComponent::~MatchViewerComponent()
@@ -47,34 +47,34 @@ MatchViewerComponent::~MatchViewerComponent()
 
 void MatchViewerComponent::init()
 {
-  setName("Match Viewer");
-  setMenu("tools");
-  setToolbar("tools");
+    setName("Match Viewer");
+    setMenu("tools");
+    setToolbar("tools");
 
-  action()->setIcon(QIcon::fromTheme("matches-viewer"));
+    action()->setIcon(QIcon::fromTheme("matches-viewer"));
 }
 
 void MatchViewerComponent::openMatchesViewer(size_t imageId)
 {
-  action()->trigger();
-  dynamic_cast<MatchViewerPresenter *>(presenter())->setLeftImage(imageId);
+    action()->trigger();
+    dynamic_cast<MatchViewerPresenter *>(presenter())->setLeftImage(imageId);
 }
 
 void MatchViewerComponent::createModel()
 {
-  setModel(new MatchViewerModelImp(app()->project()));
+    setModel(new MatchViewerModelImp(app()->project()));
 }
 
 void MatchViewerComponent::createView()
 {
-  Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-  setView(new MatchViewerViewImp(nullptr, f));
+    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+    setView(new MatchViewerViewImp(nullptr, f));
 }
 
 void MatchViewerComponent::createPresenter()
 {
-  setPresenter(new MatchViewerPresenterImp(dynamic_cast<MatchViewerView *>(view()), 
-                                           dynamic_cast<MatchViewerModel *>(model())));
+    setPresenter(new MatchViewerPresenterImp(dynamic_cast<MatchViewerView *>(view()),
+                 dynamic_cast<MatchViewerModel *>(model())));
 }
 
 void MatchViewerComponent::createCommand()
@@ -83,13 +83,13 @@ void MatchViewerComponent::createCommand()
 
 void MatchViewerComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bFeatureMatching = app_status->isEnabled(AppStatus::Flag::feature_matching);
-  action()->setEnabled(bFeatureMatching);
+    bool bFeatureMatching = app_status->isEnabled(AppStatus::Flag::feature_matching);
+    action()->setEnabled(bFeatureMatching);
 }
 
 } // namespace graphos

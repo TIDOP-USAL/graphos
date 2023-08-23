@@ -37,49 +37,49 @@ class SettingsPresenterImp
   : public SettingsPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SettingsPresenterImp(SettingsView *view,
-                       SettingsModel *model);
-  ~SettingsPresenterImp() override = default;
+    SettingsPresenterImp(SettingsView *view,
+                         SettingsModel *model);
+    ~SettingsPresenterImp() override = default;
 
 private:
 
-  void setLanguageSettings();
-  void setKeypointsViewerSettings();
-  void setMatchesViewerSettings();
+    void setLanguageSettings();
+    void setKeypointsViewerSettings();
+    void setMatchesViewerSettings();
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 // SettingsPresenter interface
 
 public slots:
 
-  void setLanguage(const QString &language) override;
+    void setLanguage(const QString &language) override;
 
-  void setFeatureViewer(FeatureViewerSettingsWidget *widget) override;
-  void setMatchesViewer(MatchViewerSettingsWidget *widget) override;
-  void save() override;
-  void discart() override;
+    void setFeatureViewer(FeatureViewerSettingsWidget *widget) override;
+    void setMatchesViewer(MatchViewerSettingsWidget *widget) override;
+    void save() override;
+    void discart() override;
 
 protected:
 
-  SettingsView *mView;
-  SettingsModel *mModel;
-  std::map<QString, QString> mLang;
-  FeatureViewerSettingsWidget *mFeatureViewerSettingsWidget;
-  MatchViewerSettingsWidget *mMatchViewerSettingsWidget;
+    SettingsView *mView;
+    SettingsModel *mModel;
+    std::map<QString, QString> mLang;
+    FeatureViewerSettingsWidget *mFeatureViewerSettingsWidget;
+    MatchViewerSettingsWidget *mMatchViewerSettingsWidget;
 };
 
 

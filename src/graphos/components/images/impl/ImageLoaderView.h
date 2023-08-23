@@ -33,18 +33,18 @@ class ImageLoaderViewImp
   : public ImageLoaderView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit ImageLoaderViewImp(QWidget *parent = nullptr);
-  ~ImageLoaderViewImp() override = default;
+    explicit ImageLoaderViewImp(QWidget *parent = nullptr);
+    ~ImageLoaderViewImp() override = default;
 
-  void setImagesDirectory(const QString &directory) override;
+    void setImagesDirectory(const QString &directory) override;
 
 private:
 
-  void init();
+    void init();
 };
 
 } // namespace graphos

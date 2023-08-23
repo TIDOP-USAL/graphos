@@ -23,7 +23,7 @@
 
 #include "StartPageWidget.h"
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QGridLayout>
 #include <QLabel>
 #include <QApplication>

@@ -29,7 +29,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Colmap.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/path.h>
 #include <tidop/core/chrono.h>
 #include <tidop/core/progress.h>

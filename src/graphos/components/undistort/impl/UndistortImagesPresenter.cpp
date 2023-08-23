@@ -41,8 +41,8 @@ UndistortImagesPresenterImp::UndistortImagesPresenterImp(UndistortImagesView *vi
     mView(view),
     mModel(model)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 UndistortImagesPresenterImp::~UndistortImagesPresenterImp()
@@ -52,11 +52,11 @@ UndistortImagesPresenterImp::~UndistortImagesPresenterImp()
 
 void UndistortImagesPresenterImp::open()
 {
-  mModel->loadSettings();
+    mModel->loadSettings();
 
-  mView->setDirectory(QString::fromStdWString(mModel->projectFolder().toWString()));
-  
-  mView->open();
+    mView->setDirectory(QString::fromStdWString(mModel->projectFolder().toWString()));
+
+    mView->open();
 }
 
 void UndistortImagesPresenterImp::init()
@@ -66,50 +66,50 @@ void UndistortImagesPresenterImp::init()
 
 void UndistortImagesPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &UndistortImagesView::accepted, this, &UndistortImagesPresenterImp::run);
-  connect(mView, &UndistortImagesView::rejected, this, &UndistortImagesPresenterImp::cancel);
+    connect(mView, &UndistortImagesView::accepted, this, &UndistortImagesPresenterImp::run);
+    connect(mView, &UndistortImagesView::rejected, this, &UndistortImagesPresenterImp::cancel);
 }
 
 void UndistortImagesPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  TaskPresenter::onError(event);
+    TaskPresenter::onError(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Process error"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Process error"));
+    }
 }
 
 void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  TaskPresenter::onFinished(event);
+    TaskPresenter::onFinished(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Process finished"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Process finished"));
+    }
 }
 
 std::unique_ptr<tl::Task> UndistortImagesPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> process = std::make_unique<UndistortImages>(mModel->images(),
-                                                                        mModel->cameras(),
-                                                                        mView->directory().absolutePath(),
-                                                                        UndistortImages::Format::tiff,
-                                                                        mModel->useCuda());
-  
-  if (progressHandler()){
-    progressHandler()->setRange(0, mModel->images().size());
-    progressHandler()->setTitle("Computing UndistortImages...");
-    progressHandler()->setDescription("Computing UndistortImages...");
-  }
-  
-  return process;
+    std::unique_ptr<tl::Task> process = std::make_unique<UndistortImages>(mModel->images(),
+                                                                          mModel->cameras(),
+                                                                          mView->directory().absolutePath(),
+                                                                          UndistortImages::Format::tiff,
+                                                                          mModel->useCuda());
+
+    if (progressHandler()) {
+        progressHandler()->setRange(0, mModel->images().size());
+        progressHandler()->setTitle("Computing UndistortImages...");
+        progressHandler()->setDescription("Computing UndistortImages...");
+    }
+
+    return process;
 }
 
 void UndistortImagesPresenterImp::cancel()
 {
-  TaskPresenter::cancel();
+    TaskPresenter::cancel();
 
-  msgWarning("Processing has been canceled by the user");
+    tl::Message::warning("Processing has been canceled by the user");
 }
 
 } // namespace graphos

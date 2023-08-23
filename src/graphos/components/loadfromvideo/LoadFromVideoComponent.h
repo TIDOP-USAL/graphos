@@ -36,39 +36,39 @@ class LoadFromVideoComponent
   : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  LoadFromVideoComponent(Application *application);
-  ~LoadFromVideoComponent() override;
+    LoadFromVideoComponent(Application *application);
+    ~LoadFromVideoComponent() override;
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
-  void frame_loaded(size_t);
+    void frame_loaded(size_t);
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 // TaskComponent
 
 protected slots:
 
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
-  
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
+
 };
 
 } // namespace graphos

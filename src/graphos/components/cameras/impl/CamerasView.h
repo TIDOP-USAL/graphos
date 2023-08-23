@@ -42,85 +42,85 @@ class CamerasViewImp
   : public CamerasView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit CamerasViewImp(QWidget *parent = nullptr);
-  ~CamerasViewImp() override = default;
+    explicit CamerasViewImp(QWidget *parent = nullptr);
+    ~CamerasViewImp() override = default;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 // CamerasView interface
 
 public:
 
-  int activeCamera() const override;
-  void setActiveCamera(int id) override;
-  void enableCameraEdition(bool enable) override;
-  void addCamera(int cameraId, const QString &cameraName) override;
-  void setMake(const QString &make) override;
-  void setModel(const QString &model) override;
-  void setWidth(int width) override;
-  void setHeight(int height) override;
-  void setSensorSize(const QString &sensorSize) override;
-  void setFocal(const QString &focal) override;
-  void setType(const QString &type) override;
-  void setImages(const QStringList &images) override;
-  void setCalibCx(double cx) override;
-  void setCalibCy(double cy) override;
-  void setCalibF(double f) override;
-  void setCalibFx(double fx) override;
-  void setCalibFy(double fy) override;
-  void setCalibK1(double k1) override;
-  void setCalibK2(double k2) override;
-  void setCalibK3(double k3) override;
-  void setCalibK4(double k4) override;
-  void setCalibK5(double k5) override;
-  void setCalibK6(double k6) override;
-  void setCalibP1(double p1) override;
-  void setCalibP2(double p2) override;
+    int activeCamera() const override;
+    void setActiveCamera(int id) override;
+    void enableCameraEdition(bool enable) override;
+    void addCamera(int cameraId, const QString &cameraName) override;
+    void setMake(const QString &make) override;
+    void setModel(const QString &model) override;
+    void setWidth(int width) override;
+    void setHeight(int height) override;
+    void setSensorSize(const QString &sensorSize) override;
+    void setFocal(const QString &focal) override;
+    void setType(const QString &type) override;
+    void setImages(const QStringList &images) override;
+    void setCalibCx(double cx) override;
+    void setCalibCy(double cy) override;
+    void setCalibF(double f) override;
+    void setCalibFx(double fx) override;
+    void setCalibFy(double fy) override;
+    void setCalibK1(double k1) override;
+    void setCalibK2(double k2) override;
+    void setCalibK3(double k3) override;
+    void setCalibK4(double k4) override;
+    void setCalibK5(double k5) override;
+    void setCalibK6(double k6) override;
+    void setCalibP1(double p1) override;
+    void setCalibP2(double p2) override;
 
 protected slots:
 
-  void onSelectionChanged() override;
+    void onSelectionChanged() override;
 
 //  CamerasViewImp
 
 private:
 
-  bool isPrincipalPointEnable() const;
-  bool isFocalEnable() const;
-  bool isFocalXYEnable() const;
-  bool isK1Enable() const;
-  bool isK2Enable() const;
-  bool isK3Enable() const;
-  bool isK4Enable() const;
-  bool isK5Enable() const;
-  bool isK6Enable() const;
-  bool isP1Enable() const;
-  bool isP2Enable() const;
-  bool isFocalVisible() const;
-  bool isFocalXYVisible() const;
+    bool isPrincipalPointEnable() const;
+    bool isFocalEnable() const;
+    bool isFocalXYEnable() const;
+    bool isK1Enable() const;
+    bool isK2Enable() const;
+    bool isK3Enable() const;
+    bool isK4Enable() const;
+    bool isK5Enable() const;
+    bool isK6Enable() const;
+    bool isP1Enable() const;
+    bool isP2Enable() const;
+    bool isFocalVisible() const;
+    bool isFocalXYVisible() const;
 
 private slots:
 
-  void onCalibrationImport();
-  void onCalibrationExport();
+    void onCalibrationImport();
+    void onCalibrationExport();
 
 protected:
 

@@ -36,12 +36,12 @@ class SaveProjectPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectPresenter(){}
-  virtual ~SaveProjectPresenter() override = default;
+    SaveProjectPresenter() {}
+    virtual ~SaveProjectPresenter() override = default;
 
 };
 

@@ -43,22 +43,22 @@ class UndistortImagesModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  UndistortImagesModel(QObject *parent = nullptr) : Model(parent) {}
-  ~UndistortImagesModel() override = default;
-  
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual bool useCuda() const = 0;
-  virtual tl::Path projectFolder() const = 0;
+    UndistortImagesModel(QObject *parent = nullptr) : Model(parent) {}
+    ~UndistortImagesModel() override = default;
+
+    virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual bool useCuda() const = 0;
+    virtual tl::Path projectFolder() const = 0;
 
 public slots:
 
-  virtual void loadSettings() = 0;
-  virtual void saveSettings() = 0;
+    virtual void loadSettings() = 0;
+    virtual void saveSettings() = 0;
 };
 
 } // namespace graphos

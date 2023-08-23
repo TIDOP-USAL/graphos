@@ -23,7 +23,7 @@
 
 #include "graphos/core/features/sift.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
 
 #include <colmap/util/opengl_utils.h>

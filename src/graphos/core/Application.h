@@ -33,7 +33,7 @@
 #include <QApplication>
 
 /* TidopLib */
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/console.h>
 #include <tidop/core/path.h>
 

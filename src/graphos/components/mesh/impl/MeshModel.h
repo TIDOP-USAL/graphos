@@ -37,43 +37,43 @@ class MeshModelImp
   : public MeshModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MeshModelImp(Project *project, QObject *parent = nullptr);
-  ~MeshModelImp() override;
+    MeshModelImp(Project *project, QObject *parent = nullptr);
+    ~MeshModelImp() override;
 
 // MeshModel interface
 
 public:
 
-  PoissonReconParameters *parameters() const override;
-  tl::Path denseModel() const override;
-  tl::Path projectDir() const override;
-  void setMesh(const tl::Path &mesh) override;
+    PoissonReconParameters *parameters() const override;
+    tl::Path denseModel() const override;
+    tl::Path projectDir() const override;
+    void setMesh(const tl::Path &mesh) override;
 
 public slots:
 
-  void loadSettings() override;
-  void saveSettings() override;
+    void loadSettings() override;
+    void saveSettings() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
-  bool mReadSettings;
-  PoissonReconParameters *mParameters;
+    Project *mProject;
+    QSettings *mSettings;
+    bool mReadSettings;
+    PoissonReconParameters *mParameters;
 };
 
 } // namespace graphos

@@ -47,61 +47,61 @@ class MeshViewImp
   : public MeshView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MeshViewImp(QWidget *parent = nullptr);
-  ~MeshViewImp() override;
+    MeshViewImp(QWidget *parent = nullptr);
+    ~MeshViewImp() override;
 
 // MeshView
 
 public:
 
-  int depth() const override;
-  int solveDepth() const override;
-  QString boundaryType() const override;
-  //int width() const override;
-  //int fullDepth() const override;
+    int depth() const override;
+    int solveDepth() const override;
+    QString boundaryType() const override;
+    //int width() const override;
+    //int fullDepth() const override;
 
 public slots:
-  
-  void setDepth(int Depth) override;
-  void setSolveDepth(int SolveDepth) override;
-  void setBoundaryType(const QString &BoundaryType) override;
-  //void setWidth(int width) override;
-  //void setFullDepth(int FullDepth) override;
+
+    void setDepth(int Depth) override;
+    void setSolveDepth(int SolveDepth) override;
+    void setBoundaryType(const QString &BoundaryType) override;
+    //void setWidth(int width) override;
+    //void setFullDepth(int FullDepth) override;
 
 // DialogView
 
 private:
 
-  void initUI();
-  void initSignalAndSlots();
+    void initUI();
+    void initSignalAndSlots();
 
 public slots:
 
-  void clear();
+    void clear();
 
 private slots:
 
-  void update();
-  void retranslate();
+    void update();
+    void retranslate();
 
 protected:
 
-  QLabel *mLabelDepth;
-  QSpinBox *mSpinBoxDepth;
-  QLabel *mLabelSolveDepth;
-  QSpinBox *mSpinBoxSolveDepth;
-  QLabel *mLabelBoundaryType;
-  QComboBox *mComboBoxBoundaryType;
-  //QLabel *mLabelWidth;
-  //QSpinBox *mSpinBoxWidth;
-  //QLabel *mLabelFullDepth;
-  //QSpinBox *mSpinBoxFullDepth;
-  QDialogButtonBox *mButtonBox;
-  
+    QLabel *mLabelDepth;
+    QSpinBox *mSpinBoxDepth;
+    QLabel *mLabelSolveDepth;
+    QSpinBox *mSpinBoxSolveDepth;
+    QLabel *mLabelBoundaryType;
+    QComboBox *mComboBoxBoundaryType;
+    //QLabel *mLabelWidth;
+    //QSpinBox *mSpinBoxWidth;
+    //QLabel *mLabelFullDepth;
+    //QSpinBox *mSpinBoxFullDepth;
+    QDialogButtonBox *mButtonBox;
+
 };
 
 } // namespace graphos

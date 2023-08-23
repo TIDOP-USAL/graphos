@@ -29,7 +29,7 @@
 #include "graphos/core/task/Progress.h"
 #include "graphos/widgets/FeatureMatchingWidget.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/task.h>
 
 #include <QMessageBox>
@@ -44,151 +44,151 @@ FeatureMatchingPresenterImp::FeatureMatchingPresenterImp(FeatureMatchingView *vi
     mModel(model),
     mFeatureMatchingWidget(new FeatureMatchingWidgetImp)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 FeatureMatchingPresenterImp::~FeatureMatchingPresenterImp()
 {
-  if (mFeatureMatchingWidget){
-    delete mFeatureMatchingWidget;
-    mFeatureMatchingWidget = nullptr;
-  }
+    if (mFeatureMatchingWidget) {
+        delete mFeatureMatchingWidget;
+        mFeatureMatchingWidget = nullptr;
+    }
 }
 
 void FeatureMatchingPresenterImp::open()
 {
-  this->setMatchingProperties();
+    this->setMatchingProperties();
 
-  mView->setSpatialMatching(mModel->spatialMatching());
-  mView->enabledSpatialMatching(mModel->spatialMatching());
+    mView->setSpatialMatching(mModel->spatialMatching());
+    mView->enabledSpatialMatching(mModel->spatialMatching());
 
-  mView->exec();
+    mView->exec();
 }
 
 void FeatureMatchingPresenterImp::init()
 {
-  mView->addMatchMethod(mFeatureMatchingWidget);
-  mView->setCurrentMatchMethod(mFeatureMatchingWidget->windowTitle());
+    mView->addMatchMethod(mFeatureMatchingWidget);
+    mView->setCurrentMatchMethod(mFeatureMatchingWidget->windowTitle());
 }
 
 void FeatureMatchingPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &FeatureMatchingView::matchMethodChange,  
-          this,  &FeatureMatchingPresenterImp::setCurrentMatchMethod);
-  connect(mView, &FeatureMatchingView::run,               
-          this,  &FeatureMatchingPresenterImp::run);
-  connect(mView, &DialogView::help, [&]() {
-    emit help("feature_matching.html");
-  });
+    connect(mView, &FeatureMatchingView::matchMethodChange,
+            this, &FeatureMatchingPresenterImp::setCurrentMatchMethod);
+    connect(mView, &FeatureMatchingView::run,
+            this, &FeatureMatchingPresenterImp::run);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("feature_matching.html");
+            });
 }
 
 void FeatureMatchingPresenterImp::setMatchingProperties()
 {
-  if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()) {
-    mFeatureMatchingWidget->setConfidence(feature_matcher->confidence());
-    mFeatureMatchingWidget->enableCrossCheck(feature_matcher->crossCheck());
-    mFeatureMatchingWidget->setDistance(feature_matcher->distance());
-    mFeatureMatchingWidget->setMaxError(feature_matcher->maxError());
-    mFeatureMatchingWidget->setRatio(feature_matcher->ratio());
-  }
+    if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()) {
+        mFeatureMatchingWidget->setConfidence(feature_matcher->confidence());
+        mFeatureMatchingWidget->enableCrossCheck(feature_matcher->crossCheck());
+        mFeatureMatchingWidget->setDistance(feature_matcher->distance());
+        mFeatureMatchingWidget->setMaxError(feature_matcher->maxError());
+        mFeatureMatchingWidget->setRatio(feature_matcher->ratio());
+    }
 }
 
 void FeatureMatchingPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  TaskPresenter::onError(event);
+    TaskPresenter::onError(event);
 
-  if (progressHandler()){
-    progressHandler()->setDescription(tr("Feature Matching error"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Feature Matching error"));
+    }
 }
 
 void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  TaskPresenter::onFinished(event);
+    TaskPresenter::onFinished(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Feature detection and description finished"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Feature detection and description finished"));
+    }
 
-  mModel->writeMatchPairs();
-  //emit matching_finished();
+    mModel->writeMatchPairs();
+    //emit matching_finished();
 }
 
 std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> featmatching_process;
+    std::unique_ptr<tl::Task> featmatching_process;
 
-  if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()){
-    int i_ret = QMessageBox(QMessageBox::Warning,
-                            tr("Previous results"),
-                            tr("The previous results will be overwritten. Do you wish to continue?"),
-                            QMessageBox::Yes|QMessageBox::No).exec();
-    if (i_ret == QMessageBox::No) {
-      msgWarning("Process canceled by user");
-      return featmatching_process;
+    if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()) {
+        int i_ret = QMessageBox(QMessageBox::Warning,
+                                tr("Previous results"),
+                                tr("The previous results will be overwritten. Do you wish to continue?"),
+                                QMessageBox::Yes | QMessageBox::No).exec();
+        if (i_ret == QMessageBox::No) {
+            tl::Message::warning("Process canceled by user");
+            return featmatching_process;
+        }
     }
-  }
 
-  mModel->clearProject();
-  emit matches_deleted();
+    mModel->clearProject();
+    emit matches_deleted();
 
-  QString currentMatchMethod = mView->currentMatchMethod();
+    QString currentMatchMethod = mView->currentMatchMethod();
 
-  std::shared_ptr<FeatureMatching> featureMatching;
-  if (currentMatchMethod.compare("Feature Matching Colmap") == 0){
-    featureMatching = std::make_shared<FeatureMatchingProperties>();
-    featureMatching->setRatio(mFeatureMatchingWidget->ratio());
-    featureMatching->setDistance(mFeatureMatchingWidget->distance());
-    featureMatching->setMaxError(mFeatureMatchingWidget->maxError());
-    featureMatching->setConfidence(mFeatureMatchingWidget->confidence());
-    featureMatching->enableCrossCheck(mFeatureMatchingWidget->crossCheck());
-  } else {
-    throw std::runtime_error("Invalid Feature Matching method");
-  }
+    std::shared_ptr<FeatureMatching> featureMatching;
+    if (currentMatchMethod.compare("Feature Matching Colmap") == 0) {
+        featureMatching = std::make_shared<FeatureMatchingProperties>();
+        featureMatching->setRatio(mFeatureMatchingWidget->ratio());
+        featureMatching->setDistance(mFeatureMatchingWidget->distance());
+        featureMatching->setMaxError(mFeatureMatchingWidget->maxError());
+        featureMatching->setConfidence(mFeatureMatchingWidget->confidence());
+        featureMatching->enableCrossCheck(mFeatureMatchingWidget->crossCheck());
+    } else {
+        throw std::runtime_error("Invalid Feature Matching method");
+    }
 
-  mModel->setFeatureMatching(featureMatching);
-  
-  //featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
-  //                                                             mModel->useCuda(),
-  //                                                             mView->spatialMatching(),
-  //                                                             featureMatching);
-  if (mView->spatialMatching()) {
-    featmatching_process = std::make_unique<SpatialMatchingTask>(mModel->database(),
-                                                                 mModel->useCuda(),
-                                                                 featureMatching);
-  } else {
-    featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
-                                                                 mModel->useCuda(),
-                                                                 featureMatching);
-  }
+    mModel->setFeatureMatching(featureMatching);
 
-  if (progressHandler()){
-    //size_t size = mModel->imagesCount();
-    //size_t max = size;
-    //if (!mView->spatialMatching()) {
-    //  max = (size * (size - 1)) / 2;
-    //}
-    progressHandler()->setRange(0, 1);
-    progressHandler()->setTitle("Computing Matches...");
-    progressHandler()->setDescription("Computing Matches...");
-  }
+    //featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
+    //                                                             mModel->useCuda(),
+    //                                                             mView->spatialMatching(),
+    //                                                             featureMatching);
+    if (mView->spatialMatching()) {
+        featmatching_process = std::make_unique<SpatialMatchingTask>(mModel->database(),
+                                                                     mModel->useCuda(),
+                                                                     featureMatching);
+    } else {
+        featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
+                                                                     mModel->useCuda(),
+                                                                     featureMatching);
+    }
 
-  mView->hide();
+    if (progressHandler()) {
+        //size_t size = mModel->imagesCount();
+        //size_t max = size;
+        //if (!mView->spatialMatching()) {
+        //  max = (size * (size - 1)) / 2;
+        //}
+        progressHandler()->setRange(0, 1);
+        progressHandler()->setTitle("Computing Matches...");
+        progressHandler()->setDescription("Computing Matches...");
+    }
 
-  return featmatching_process;
+    mView->hide();
+
+    return featmatching_process;
 }
 
 void FeatureMatchingPresenterImp::cancel()
 {
-  TaskPresenter::cancel();
+    TaskPresenter::cancel();
 
-  msgWarning("Processing has been canceled by the user");
+    tl::Message::warning("Processing has been canceled by the user");
 }
 
 void FeatureMatchingPresenterImp::setCurrentMatchMethod(const QString &matchMethod)
 {
-  mView->setCurrentMatchMethod(matchMethod);
+    mView->setCurrentMatchMethod(matchMethod);
 }
 
 } // End namespace graphos

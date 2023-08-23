@@ -35,33 +35,33 @@ class CloseProjectModelImp
   : public CloseProjectModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CloseProjectModelImp(Project *project,
-                       QObject *parent = nullptr);
-  ~CloseProjectModelImp();
+    CloseProjectModelImp(Project *project,
+                         QObject *parent = nullptr);
+    ~CloseProjectModelImp();
 
 // CloseProjectModel interface
 
 public slots:
 
-  void saveProject() override;
+    void saveProject() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
+    Project *mProject;
 
 };
 

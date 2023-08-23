@@ -26,7 +26,7 @@
 
 #include "graphos/components/images/impl/ImageLoaderTask.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
@@ -46,32 +46,28 @@ namespace graphos
 {
 
 ImageLoaderCommand::ImageLoaderCommand()
-  : Command("image_manager", "Image manager"),
-    mProjectFile(""),
-    mImage(""),
-    mImageList(""),
-    mDelete(false),
-    mCameraId(4)
+  : Command("image_manager", "Image manager")
 {
-  mCameraTypes.push_back("Pinhole_1");
-  mCameraTypes.push_back("Pinhole_2");
-  mCameraTypes.push_back("Radial_1");
-  mCameraTypes.push_back("Radial_2");
-  mCameraTypes.push_back("OpenCV_1");
-  mCameraTypes.push_back("OpenCV_Fisheye");
-  mCameraTypes.push_back("OpenCV_2");
-  mCameraTypes.push_back("Radial_Fisheye_1");
-  mCameraTypes.push_back("Radial_Fisheye_2");
-  mCameraTypes.push_back("Radial_3");
+    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<std::string>("image", 'i', "Image added or removed (with option [--delete|-d]) from project.", "");
+    this->addArgument<std::string>("image_list", 'l', "List of images added or removed (with option [--delete|-d]) from project.", "");
+    this->addArgument<bool>("delete", 'd', "Delete an image in project", false);
+    auto arg_camera = tl::Argument::make<std::string>("camera", 'c', "Camera type", "OpenCV 1");
+    std::vector<std::string> camera_types{"Pinhole 1",
+                                          "Pinhole 2",
+                                          "Radial 1",
+                                          "Radial 2",
+                                          "OpenCV 1",
+                                          "OpenCV Fisheye",
+                                          "OpenCV 2",
+                                          "Radial Fisheye 1",
+                                          "Radial Fisheye 2",
+                                          "Radial 3"};
+    arg_camera->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(camera_types));
+    this->addArgument(arg_camera);
 
-  this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
-  this->push_back(CreateArgumentPathOptional("image", 'i', "Image added or removed (with option [--delete|-d]) from project.", &mImage));
-  this->push_back(CreateArgumentPathOptional("image_list", 'l', "List of images added or removed (with option [--delete|-d]) from project.", &mImageList));
-  this->push_back(CreateArgumentBooleanOptional("delete", 'd', "Delete an image in project", &mDelete));
-  this->push_back(CreateArgumentListStringOptional("camera", 'c', "Camera type", mCameraTypes, &mCameraId));
-
-  this->addExample("image_manager -p 253/253.xml -i image001.jpg");
-  this->addExample("image_manager -p 253/253.xml -i image001.jpg -d");
+    this->addExample("image_manager -p 253/253.xml -i image001.jpg");
+    this->addExample("image_manager -p 253/253.xml -i image001.jpg -d");
 }
 
 ImageLoaderCommand::~ImageLoaderCommand()
@@ -80,127 +76,122 @@ ImageLoaderCommand::~ImageLoaderCommand()
 
 bool ImageLoaderCommand::run()
 {
-  bool r = false;
+    bool r = false;
 
-  QString file_path;
-  QString project_path;
+    QString file_path;
+    QString project_path;
 
-  try {
+    try {
 
-    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
+        tl::Path prj_path = this->value<std::string>("prj");
+        tl::Path image_path = this->value<std::string>("image");
+        tl::Path image_list_path = this->value<std::string>("image_list");
+        bool delete_image = this->value<bool>("delete");
+        std::string camera_type = this->value<std::string>("camera");
 
-    ProjectImp project;
-    project.load(mProjectFile);
+        TL_ASSERT(prj_path.exists(), "Project doesn't exist");
+        TL_ASSERT(prj_path.isFile(), "Project file doesn't exist");
 
-    std::vector<QString> image_list;
-    image_list.reserve(1000);
+        ProjectImp project;
+        project.load(prj_path);
 
-    if (!mImage.empty()) image_list.push_back(QString::fromStdWString(mImage.toWString()));
+        std::vector<QString> image_list;
+        image_list.reserve(1000);
 
-    if (!mImageList.empty() && mImageList.exists()) {
+        if (!image_path.empty()) image_list.push_back(QString::fromStdWString(image_path.toWString()));
 
-      std::ifstream ifs;
-      ifs.open(mImageList.toString(), std::ifstream::in);
-      if (ifs.is_open()) {
+        if (!image_list_path.empty() && image_list_path.exists()) {
 
-        std::string line;
-        while (std::getline(ifs, line)) {
-          image_list.push_back(QString::fromStdString(line));
+            std::ifstream ifs;
+            ifs.open(image_list_path.toString(), std::ifstream::in);
+            if (ifs.is_open()) {
+
+                std::string line;
+                while (std::getline(ifs, line)) {
+                    image_list.push_back(QString::fromStdString(line));
+                }
+
+                ifs.close();
+            }
+
         }
 
-        ifs.close();
-      }
+        if (delete_image) {
+            ///// TODO: Borrar las im�genes
+            ////std::vector<std::string> _images(image_list.size());
+            //for(size_t i = 0; i < image_list.size(); i++) {
+            //  //_images[i] = project.findImageByName(image_list[i]).path().toStdString();
+            //  project.removeImage(project.imageId(image_list[i]));
+            //}
+            //QString reconstruction_path = mProject->reconstructionPath();
+            //if(!reconstruction_path.isEmpty())
+            //  colmapRemoveOrientations(_images, reconstruction_path.toStdString());
 
+            //for(const auto &imageName : imageNames) {
+            //  mFeaturesModel->removeFeatures(imageName);
+            //  mMatchesModel->removeMatchesPair(imageName);
+            //  mView->deleteImage(imageName);
+            //  msgInfo("Delete image %s", imageName.toStdString().c_str());
+            //}
+        } else {
+
+            std::vector<Image> images;
+            std::vector<Camera> cameras;
+
+            for (auto &image : image_list) {
+                Image img(image);
+                if (!project.existImage(img.id()))
+                    images.push_back(img);
+            }
+
+            for (const auto &camera : project.cameras()) {
+                cameras.push_back(camera.second);
+            }
+
+            LoadImagesTask image_loader_process(&images, &cameras, camera_type, project.crs());
+
+            connect(&image_loader_process, &LoadImagesTask::imageAdded,
+                    [&](int imageId, int cameraId) {
+                        Image image = images[imageId];
+                        Camera camera = cameras[cameraId];
+                        int id_camera = 0;
+                        for (const auto &_camera : project.cameras()) {
+                            std::string camera_make = _camera.second.make();
+                            std::string camera_model = _camera.second.model();
+                            if (camera.make().compare(camera_make) == 0 &&
+                                camera.model().compare(camera_model) == 0) {
+                                id_camera = _camera.first;
+                                break;
+                            }
+                        }
+                        if (id_camera == 0)
+                            id_camera = project.addCamera(camera);
+
+                        image.setCameraId(id_camera);
+                        project.addImage(image);
+
+                        QString crs_proj = project.crs();
+                        QString crs_image = image.cameraPose().crs();
+                        if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
+                            project.setCrs(crs_image);
+                        }
+
+                    });
+
+            image_loader_process.run();
+
+        }
+
+        project.save(prj_path);
+
+    } catch (const std::exception &e) {
+
+        tl::printException(e);
+
+        r = true;
     }
 
-    if (mDelete) {
-      ///// TODO: Borrar las im�genes
-      ////std::vector<std::string> _images(image_list.size());
-      //for(size_t i = 0; i < image_list.size(); i++) {
-      //  //_images[i] = project.findImageByName(image_list[i]).path().toStdString();
-      //  project.removeImage(project.imageId(image_list[i]));
-      //}
-      //QString reconstruction_path = mProject->reconstructionPath();
-      //if(!reconstruction_path.isEmpty())
-      //  colmapRemoveOrientations(_images, reconstruction_path.toStdString());
-
-      //for(const auto &imageName : imageNames) {
-      //  mFeaturesModel->removeFeatures(imageName);
-      //  mMatchesModel->removeMatchesPair(imageName);
-      //  mView->deleteImage(imageName);
-      //  msgInfo("Delete image %s", imageName.toStdString().c_str());
-      //}
-    } else {
-
-      std::vector<Image> images;
-      std::vector<Camera> cameras;
-
-      std::vector<std::string> camera_types{"Pinhole 1",
-                                            "Pinhole 2",
-                                            "Radial 1",
-                                            "Radial 2",
-                                            "OpenCV 1",
-                                            "OpenCV Fisheye",
-                                            "OpenCV 2",
-                                            "Radial Fisheye 1",
-                                            "Radial Fisheye 2",
-                                            "Radial 3"};
-
-      for (auto &image : image_list) {
-        Image img(image);
-        if (!project.existImage(img.id()))
-          images.push_back(img);
-      }
-
-      for (const auto &camera : project.cameras()) {
-        cameras.push_back(camera.second);
-      }
-
-      LoadImagesTask image_loader_process(&images, &cameras, camera_types[mCameraId], project.crs());
-      
-      connect(&image_loader_process, &LoadImagesTask::imageAdded,
-              [&](int imageId, int cameraId) {
-                Image image = images[imageId];
-                Camera camera = cameras[cameraId];
-                int id_camera = 0;
-                for (const auto &_camera : project.cameras()) {
-                  std::string camera_make = _camera.second.make();
-                  std::string camera_model = _camera.second.model();
-                  if (camera.make().compare(camera_make) == 0 &&
-                      camera.model().compare(camera_model) == 0) {
-                    id_camera = _camera.first;
-                    break;
-                  }
-                }
-                if (id_camera == 0)
-                  id_camera = project.addCamera(camera);
-
-                image.setCameraId(id_camera);
-                project.addImage(image);
-
-                QString crs_proj = project.crs();
-                QString crs_image = image.cameraPose().crs();
-                if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
-                  project.setCrs(crs_image);
-                }
-
-              });
-      
-      image_loader_process.run();
-
-    }
-
-    project.save(mProjectFile);
-
-  } catch (const std::exception &e) {
-
-    tl::printException(e);
-
-    r = true;
-  }
-
-  return r;
+    return r;
 }
 
 } // namespace graphos

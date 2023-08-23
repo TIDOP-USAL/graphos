@@ -28,7 +28,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 namespace graphos
 {
@@ -39,17 +39,17 @@ CamerasPresenterImp::CamerasPresenterImp(CamerasView *view,
     mView(view),
     mModel(model)
 {
-  CamerasPresenterImp::init();
-  CamerasPresenterImp::initSignalAndSlots();
+    CamerasPresenterImp::init();
+    CamerasPresenterImp::initSignalAndSlots();
 }
 
 void CamerasPresenterImp::open()
 {
-  mView->clear();
+    mView->clear();
 
-  loadCameras();
+    loadCameras();
 
-  mView->exec();
+    mView->exec();
 }
 
 void CamerasPresenterImp::init()
@@ -58,164 +58,164 @@ void CamerasPresenterImp::init()
 
 void CamerasPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &CamerasView::cameraChange, this, &CamerasPresenterImp::activeCamera);
-  connect(mView, &CamerasView::calibrationImport, this, &CamerasPresenterImp::calibrationImport);
-  connect(mView, &CamerasView::calibrationExport, mModel, &CamerasModel::calibrationExport);
-  //connect(mView, &CamerasView::fixCalibration, this, &CamerasPresenterImp::fixCalibration);
+    connect(mView, &CamerasView::cameraChange, this, &CamerasPresenterImp::activeCamera);
+    connect(mView, &CamerasView::calibrationImport, this, &CamerasPresenterImp::calibrationImport);
+    connect(mView, &CamerasView::calibrationExport, mModel, &CamerasModel::calibrationExport);
+    //connect(mView, &CamerasView::fixCalibration, this, &CamerasPresenterImp::fixCalibration);
 
-  connect(mView, &CamerasView::typeChange, mModel, &CamerasModel::updateCurrentCameraType);
-  connect(mView, &CamerasView::makeChanged, mModel, &CamerasModel::updateCurrentCameraMake);
-  connect(mView, &CamerasView::modelChanged, mModel, &CamerasModel::updateCurrentCameraModel);
-  connect(mView, &CamerasView::sensorSizeChange, mModel, &CamerasModel::updateCurrentCameraSensorSize);
-  connect(mView, &CamerasView::focalChange, mModel, &CamerasModel::updateCurrentCameraFocal);
+    connect(mView, &CamerasView::typeChange, mModel, &CamerasModel::updateCurrentCameraType);
+    connect(mView, &CamerasView::makeChanged, mModel, &CamerasModel::updateCurrentCameraMake);
+    connect(mView, &CamerasView::modelChanged, mModel, &CamerasModel::updateCurrentCameraModel);
+    connect(mView, &CamerasView::sensorSizeChange, mModel, &CamerasModel::updateCurrentCameraSensorSize);
+    connect(mView, &CamerasView::focalChange, mModel, &CamerasModel::updateCurrentCameraFocal);
 
-  connect(mView, &CamerasView::calibCxChange, mModel, &CamerasModel::updateCurrentCameraCalibCx);
-  connect(mView, &CamerasView::calibCyChange, mModel, &CamerasModel::updateCurrentCameraCalibCy);
-  connect(mView, &CamerasView::calibFChange, mModel,  &CamerasModel::updateCurrentCameraCalibF);
-  connect(mView, &CamerasView::calibFxChange, mModel, &CamerasModel::updateCurrentCameraCalibFx);
-  connect(mView, &CamerasView::calibFyChange, mModel, &CamerasModel::updateCurrentCameraCalibFy);
-  connect(mView, &CamerasView::calibK1Change, mModel, &CamerasModel::updateCurrentCameraCalibK1);
-  connect(mView, &CamerasView::calibK2Change, mModel, &CamerasModel::updateCurrentCameraCalibK2);
-  connect(mView, &CamerasView::calibK3Change, mModel, &CamerasModel::updateCurrentCameraCalibK3);
-  connect(mView, &CamerasView::calibK4Change, mModel, &CamerasModel::updateCurrentCameraCalibK4);
-  connect(mView, &CamerasView::calibK5Change, mModel, &CamerasModel::updateCurrentCameraCalibK5);
-  connect(mView, &CamerasView::calibK6Change, mModel, &CamerasModel::updateCurrentCameraCalibK6);
-  connect(mView, &CamerasView::calibP1Change, mModel, &CamerasModel::updateCurrentCameraCalibP1);
-  connect(mView, &CamerasView::calibP2Change, mModel, &CamerasModel::updateCurrentCameraCalibP2);
+    connect(mView, &CamerasView::calibCxChange, mModel, &CamerasModel::updateCurrentCameraCalibCx);
+    connect(mView, &CamerasView::calibCyChange, mModel, &CamerasModel::updateCurrentCameraCalibCy);
+    connect(mView, &CamerasView::calibFChange, mModel, &CamerasModel::updateCurrentCameraCalibF);
+    connect(mView, &CamerasView::calibFxChange, mModel, &CamerasModel::updateCurrentCameraCalibFx);
+    connect(mView, &CamerasView::calibFyChange, mModel, &CamerasModel::updateCurrentCameraCalibFy);
+    connect(mView, &CamerasView::calibK1Change, mModel, &CamerasModel::updateCurrentCameraCalibK1);
+    connect(mView, &CamerasView::calibK2Change, mModel, &CamerasModel::updateCurrentCameraCalibK2);
+    connect(mView, &CamerasView::calibK3Change, mModel, &CamerasModel::updateCurrentCameraCalibK3);
+    connect(mView, &CamerasView::calibK4Change, mModel, &CamerasModel::updateCurrentCameraCalibK4);
+    connect(mView, &CamerasView::calibK5Change, mModel, &CamerasModel::updateCurrentCameraCalibK5);
+    connect(mView, &CamerasView::calibK6Change, mModel, &CamerasModel::updateCurrentCameraCalibK6);
+    connect(mView, &CamerasView::calibP1Change, mModel, &CamerasModel::updateCurrentCameraCalibP1);
+    connect(mView, &CamerasView::calibP2Change, mModel, &CamerasModel::updateCurrentCameraCalibP2);
 
-  connect(mView, &QDialog::accepted, this, &CamerasPresenterImp::save);
-  connect(mView, &QDialog::rejected, this, &CamerasPresenterImp::discart);
-  connect(mView, &DialogView::help, [&]() {
-    emit help("cameras.html");
-  });
+    connect(mView, &QDialog::accepted, this, &CamerasPresenterImp::save);
+    connect(mView, &QDialog::rejected, this, &CamerasPresenterImp::discart);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("cameras.html");
+            });
 }
 
 void CamerasPresenterImp::activeCamera(int id)
 {
-  try {
+    try {
 
-    mView->setActiveCamera(id);
+        mView->setActiveCamera(id);
 
-    Camera camera = mModel->camera(id);
+        Camera camera = mModel->camera(id);
 
-    mView->setMake(camera.make().c_str());
-    mView->setModel(camera.model().c_str());
-    mView->setFocal(QString::number(camera.focal()));
-    mView->setWidth(camera.width());
-    mView->setHeight(camera.height());
-    mView->setType(camera.type().c_str());
-    mView->setSensorSize(QString::number(camera.sensorSize()));
-    
-    std::shared_ptr<Calibration> calibration = camera.calibration();
-    if (calibration) {
-      for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-        Calibration::Parameters parameter = param->first;
-        double value = param->second;
-        switch (parameter) {
-          case Calibration::Parameters::focal:
-            mView->setCalibF(value);
-            break;
-          case Calibration::Parameters::focalx:
-            mView->setCalibFx(value);
-            break;
-          case Calibration::Parameters::focaly:
-            mView->setCalibFy(value);
-            break;
-          case Calibration::Parameters::cx:
-            mView->setCalibCx(value);
-            break;
-          case Calibration::Parameters::cy:
-            mView->setCalibCy(value);
-            break;
-          case Calibration::Parameters::k1:
-            mView->setCalibK1(value);
-            break;
-          case Calibration::Parameters::k2:
-            mView->setCalibK2(value);
-            break;
-          case Calibration::Parameters::k3:
-            mView->setCalibK3(value);
-            break;
-          case Calibration::Parameters::k4:
-            mView->setCalibK4(value);
-            break;
-          case Calibration::Parameters::k5:
-            mView->setCalibK5(value);
-            break;
-          case Calibration::Parameters::k6:
-            mView->setCalibK6(value);
-            break;
-          case Calibration::Parameters::p1:
-            mView->setCalibP1(value);
-            break;
-          case Calibration::Parameters::p2:
-            mView->setCalibP2(value);
-            break;
-          default:
-            break;
+        mView->setMake(camera.make().c_str());
+        mView->setModel(camera.model().c_str());
+        mView->setFocal(QString::number(camera.focal()));
+        mView->setWidth(camera.width());
+        mView->setHeight(camera.height());
+        mView->setType(camera.type().c_str());
+        mView->setSensorSize(QString::number(camera.sensorSize()));
+
+        std::shared_ptr<Calibration> calibration = camera.calibration();
+        if (calibration) {
+            for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
+                Calibration::Parameters parameter = param->first;
+                double value = param->second;
+                switch (parameter) {
+                case Calibration::Parameters::focal:
+                    mView->setCalibF(value);
+                    break;
+                case Calibration::Parameters::focalx:
+                    mView->setCalibFx(value);
+                    break;
+                case Calibration::Parameters::focaly:
+                    mView->setCalibFy(value);
+                    break;
+                case Calibration::Parameters::cx:
+                    mView->setCalibCx(value);
+                    break;
+                case Calibration::Parameters::cy:
+                    mView->setCalibCy(value);
+                    break;
+                case Calibration::Parameters::k1:
+                    mView->setCalibK1(value);
+                    break;
+                case Calibration::Parameters::k2:
+                    mView->setCalibK2(value);
+                    break;
+                case Calibration::Parameters::k3:
+                    mView->setCalibK3(value);
+                    break;
+                case Calibration::Parameters::k4:
+                    mView->setCalibK4(value);
+                    break;
+                case Calibration::Parameters::k5:
+                    mView->setCalibK5(value);
+                    break;
+                case Calibration::Parameters::k6:
+                    mView->setCalibK6(value);
+                    break;
+                case Calibration::Parameters::p1:
+                    mView->setCalibP1(value);
+                    break;
+                case Calibration::Parameters::p2:
+                    mView->setCalibP2(value);
+                    break;
+                default:
+                    break;
+                }
+            }
         }
-      }
+
+        mView->setImages(mModel->imagesFromCamera(id));
+
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
-
-    mView->setImages(mModel->imagesFromCamera(id));
-
-  } catch (std::exception &e) {
-    msgError(e.what());
-  }
 }
 
 void CamerasPresenterImp::save()
 {
-  if(mModel->modified()) {
-    mModel->save();
-    clear();
-    emit updateCameras();
-  }
+    if (mModel->modified()) {
+        mModel->save();
+        clear();
+        emit updateCameras();
+    }
 }
 
 void CamerasPresenterImp::discart()
 {
-  clear();
+    clear();
 }
 
 void CamerasPresenterImp::clear()
 {
-  mView->clear();
-  mModel->clear();
+    mView->clear();
+    mModel->clear();
 }
 
 void CamerasPresenterImp::loadCameras()
 {
 
-  bool first_camera_load = false;
-  for(const auto &map_camera : mModel->cameras()) {
-    
-    int camera_id = map_camera.first;
-    
-    if (!first_camera_load) {
-      first_camera_load = true;
-      activeCamera(camera_id);
+    bool first_camera_load = false;
+    for (const auto &map_camera : mModel->cameras()) {
+
+        int camera_id = map_camera.first;
+
+        if (!first_camera_load) {
+            first_camera_load = true;
+            activeCamera(camera_id);
+        }
+
+        Camera camera = map_camera.second;
+        QString camera_name = QString(camera.make().c_str()).append("-").append(camera.model().c_str());
+        mView->addCamera(camera_id, camera_name);
     }
-    
-    Camera camera = map_camera.second;
-    QString camera_name = QString(camera.make().c_str()).append("-").append(camera.model().c_str());
-    mView->addCamera(camera_id, camera_name);
-  }
 }
 
-void CamerasPresenterImp::calibrationImport(const QString &file, 
+void CamerasPresenterImp::calibrationImport(const QString &file,
                                             const QString &format)
 {
-  try {
+    try {
 
-    mModel->calibrationImport(file, format);
-    int camera_id = mModel->currentCameraID();
-    if (camera_id != 0)
-      activeCamera(camera_id);
+        mModel->calibrationImport(file, format);
+        int camera_id = mModel->currentCameraID();
+        if (camera_id != 0)
+            activeCamera(camera_id);
 
-  } catch (const std::exception &e) 	{
-    msgError(e.what());
-  }
+    } catch (const std::exception &e) {
+        tl::printException(e);
+    }
 }
 
 } // namespace graphos

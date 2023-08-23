@@ -38,7 +38,7 @@ namespace graphos
 DTMComponent::DTMComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 DTMComponent::~DTMComponent()
@@ -47,26 +47,26 @@ DTMComponent::~DTMComponent()
 
 void DTMComponent::init()
 {
-  this->setName("DTM/DSM");
-  this->setMenu("tools");
+    this->setName("DTM/DSM");
+    this->setMenu("tools");
 
-  createCommand();
+    createCommand();
 }
 
 void DTMComponent::createModel()
 {
-  setModel(new DtmModelImp(app()->project()));
+    setModel(new DtmModelImp(app()->project()));
 }
 
 void DTMComponent::createView()
 {
-  setView(new DtmViewImp());
+    setView(new DtmViewImp());
 }
 
 void DTMComponent::createPresenter()
 {
-  setPresenter(new DtmPresenterImp(dynamic_cast<DtmView *>(view()), 
-                                   dynamic_cast<DtmModel *>(model())));
+    setPresenter(new DtmPresenterImp(dynamic_cast<DtmView *>(view()),
+                 dynamic_cast<DtmModel *>(model())));
 }
 
 void DTMComponent::createCommand()
@@ -75,45 +75,45 @@ void DTMComponent::createCommand()
 
 void DTMComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-  bool bAbsoluteOriented = app_status->isEnabled(AppStatus::Flag::absolute_oriented);
-  bool bDenseModel = app_status->isEnabled(AppStatus::Flag::dense_model);
-  action()->setEnabled(bProjectExists && bAbsoluteOriented && bDenseModel && !bProcessing);
+    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool bAbsoluteOriented = app_status->isEnabled(AppStatus::Flag::absolute_oriented);
+    bool bDenseModel = app_status->isEnabled(AppStatus::Flag::dense_model);
+    action()->setEnabled(bProjectExists && bAbsoluteOriented && bDenseModel && !bProcessing);
 }
 
 void DTMComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void DTMComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
+    TaskComponent::onFinished();
 
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::dtm, true);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::dtm, true);
 }
 
 void DTMComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
-  app_status->activeFlag(AppStatus::Flag::dtm, false);
+    TaskComponent::onFailed();
+    app_status->activeFlag(AppStatus::Flag::dtm, false);
 }
 
 } // namespace graphos

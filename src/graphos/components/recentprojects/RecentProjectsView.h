@@ -37,19 +37,19 @@ namespace graphos
 class RecentProjectsView
   : public QMenu
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  RecentProjectsView(QWidget *parent) : QMenu(parent) {}
-  ~RecentProjectsView() override = default;
+    RecentProjectsView(QWidget *parent) : QMenu(parent) {}
+    ~RecentProjectsView() override = default;
 
-  virtual void setHistory(const QStringList &history) = 0;
+    virtual void setHistory(const QStringList &history) = 0;
 
 signals:
 
-  void clearHistory();
-  void openProject(QString);
+    void clearHistory();
+    void openProject(QString);
 
 };
 

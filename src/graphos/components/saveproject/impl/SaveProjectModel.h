@@ -32,36 +32,36 @@ namespace graphos
 class Project;
 
 class SaveProjectModelImp
-  : public SaveProjectModel
+    : public SaveProjectModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectModelImp(Project *project,
-											QObject *parent = nullptr);
-  ~SaveProjectModelImp();
+    SaveProjectModelImp(Project *project,
+                        QObject *parent = nullptr);
+    ~SaveProjectModelImp();
 
 // SaveProjectModel interface
 
 public slots:
 
-  void save() override;
+    void save() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
+    Project *mProject;
 
 };
 

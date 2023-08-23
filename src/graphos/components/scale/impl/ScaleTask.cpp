@@ -23,7 +23,7 @@
 
 #include "ScaleTask.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
 
 #include <CCGeom.h>
@@ -38,7 +38,7 @@ ScaleTask::ScaleTask(double scale, ccHObject *model)
   : tl::TaskBase(),
     mScale(scale),
     mModel(model),
-    mTransform(tl::math::Matrix<double, 4, 4>::identity())
+    mTransform(tl::Matrix<double, 4, 4>::identity())
 {
 
 }
@@ -50,44 +50,44 @@ ScaleTask::~ScaleTask()
 
 void ScaleTask::setScale(double scale)
 {
-  mScale = scale;
+    mScale = scale;
 }
 
-tl::math::Matrix<double, 4, 4> ScaleTask::transform() const
+tl::Matrix<double, 4, 4> ScaleTask::transform() const
 {
-  return mTransform;
+    return mTransform;
 }
 
 void ScaleTask::execute(tl::Progress *progressBar)
 {
-  tl::unusedParameter(progressBar);
+    tl::unusedParameter(progressBar);
 
-  try {
-    
-    bool lockedVertices;
-    ccGenericPointCloud* cloud = ccHObjectCaster::ToGenericPointCloud(mModel, &lockedVertices);
+    try {
 
-    CCVector3 center(0,0,0);
+        bool lockedVertices;
+        ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(mModel, &lockedVertices);
 
-    cloud->scale(static_cast<PointCoordinateType>(mScale),
-                 static_cast<PointCoordinateType>(mScale),
-                 static_cast<PointCoordinateType>(mScale),
-                 center);
-    
-    
-    mTransform[0][0] = mScale;
-    mTransform[1][1] = mScale;
-    mTransform[2][2] = mScale;
-    mTransform[0][3] = -mScale * static_cast<double>(center.x) + static_cast<double>(center.x);
-    mTransform[1][3] = -mScale * static_cast<double>(center.y) + static_cast<double>(center.y);
-    mTransform[2][3] = -mScale * static_cast<double>(center.z) + static_cast<double>(center.z);
+        CCVector3 center(0, 0, 0);
 
-	  cloud->prepareDisplayForRefresh_recursive();
-    mModel->prepareDisplayForRefresh_recursive();
+        cloud->scale(static_cast<PointCoordinateType>(mScale),
+                     static_cast<PointCoordinateType>(mScale),
+                     static_cast<PointCoordinateType>(mScale),
+                     center);
 
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("error");
-  }
+
+        mTransform[0][0] = mScale;
+        mTransform[1][1] = mScale;
+        mTransform[2][2] = mScale;
+        mTransform[0][3] = -mScale * static_cast<double>(center.x) + static_cast<double>(center.x);
+        mTransform[1][3] = -mScale * static_cast<double>(center.y) + static_cast<double>(center.y);
+        mTransform[2][3] = -mScale * static_cast<double>(center.z) + static_cast<double>(center.z);
+
+        cloud->prepareDisplayForRefresh_recursive();
+        mModel->prepareDisplayForRefresh_recursive();
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("error");
+    }
 
 }
 

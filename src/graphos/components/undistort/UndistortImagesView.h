@@ -34,22 +34,16 @@ class UndistortImagesView
   : public QFileDialog
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  UndistortImagesView(QWidget *parent) : QFileDialog(parent) {}
-  ~UndistortImagesView() override = default;
-
-  //virtual QString outputPath() const = 0;
+    UndistortImagesView(QWidget *parent) : QFileDialog(parent) {}
+    ~UndistortImagesView() override = default;
 
 public slots:
 
-  virtual void setProjectDirectory(const QString &directory) = 0;
-
-//signals:
-//
-//  void outputPathChanged(QString);
+    virtual void setProjectDirectory(const QString &directory) = 0;
 
 };
 

@@ -39,7 +39,7 @@ namespace graphos
 ImageLoaderComponent::ImageLoaderComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 ImageLoaderComponent::~ImageLoaderComponent()
@@ -48,80 +48,80 @@ ImageLoaderComponent::~ImageLoaderComponent()
 
 void ImageLoaderComponent::init()
 {
-  this->setName("Load Images");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+    this->setName("Load Images");
+    this->setMenu("workflow");
+    this->setToolbar("workflow");
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("pictures-folder"));
+    action()->setIcon(QIcon::fromTheme("pictures-folder"));
 }
 
 void ImageLoaderComponent::createModel()
 {
-  setModel(new ImageLoaderModelImp(app()->project()));
+    setModel(new ImageLoaderModelImp(app()->project()));
 }
 
 void ImageLoaderComponent::createView()
 {
-  setView(new ImageLoaderViewImp());
+    setView(new ImageLoaderViewImp());
 }
 
 void ImageLoaderComponent::createPresenter()
 {
-  setPresenter(new ImageLoaderPresenterImp(dynamic_cast<ImageLoaderView *>(view()), 
-                                           dynamic_cast<ImageLoaderModel *>(model())));
+    setPresenter(new ImageLoaderPresenterImp(dynamic_cast<ImageLoaderView *>(view()),
+                 dynamic_cast<ImageLoaderModel *>(model())));
 
-  connect(dynamic_cast<ImageLoaderPresenter *>(presenter()), &ImageLoaderPresenter::image_loaded, 
-          this, &ImageLoaderComponent::image_loaded);
+    connect(dynamic_cast<ImageLoaderPresenter *>(presenter()), &ImageLoaderPresenter::image_loaded,
+            this, &ImageLoaderComponent::image_loaded);
 }
 
 void ImageLoaderComponent::createCommand()
 {
-  setCommand(std::make_shared<ImageLoaderCommand>());
+    setCommand(std::make_shared<ImageLoaderCommand>());
 }
 
 void ImageLoaderComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  bool processing = app_status->isEnabled(AppStatus::Flag::processing);
-  bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
-  action()->setEnabled(project_exists && !loading_images && !processing);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
+    action()->setEnabled(project_exists && !loading_images && !processing);
 }
 
 void ImageLoaderComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void ImageLoaderComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
+    TaskComponent::onFinished();
 
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::loading_images, false);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::loading_images, false);
 }
 
 void ImageLoaderComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
+    TaskComponent::onFailed();
 
-  app_status->activeFlag(AppStatus::Flag::loading_images, false);
+    app_status->activeFlag(AppStatus::Flag::loading_images, false);
 }
 
 } // namespace graphos

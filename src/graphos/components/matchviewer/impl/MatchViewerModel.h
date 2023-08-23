@@ -39,48 +39,48 @@ class MatchViewerModelImp
   : public MatchViewerModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MatchViewerModelImp(Project *project,
-                      QObject *parent = nullptr);
-  ~MatchViewerModelImp() override;
+    MatchViewerModelImp(Project *project,
+                        QObject *parent = nullptr);
+    ~MatchViewerModelImp() override;
 
 // MatchViewerModel interface
 
 public:
 
-  QString backgroundColor() const override;
-  int markerType() const override;
-  int markerSize() const override;
-  int markerWidth() const override;
-  QString markerColor() const override;
-  int viewerSelectMarkerWidth() const override;
-  QString selectedMarkerColor() const override;
-  QString lineColor() const override;
-  int lineWidth() const override;
+    QString backgroundColor() const override;
+    int markerType() const override;
+    int markerSize() const override;
+    int markerWidth() const override;
+    QString markerColor() const override;
+    int viewerSelectMarkerWidth() const override;
+    QString selectedMarkerColor() const override;
+    QString lineColor() const override;
+    int lineWidth() const override;
 
-  const std::unordered_map<size_t, Image> &images() const override;
-  Image image(size_t imageId) const override;
-  std::vector<size_t> imagePairs(size_t imageId) const override;
-  std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(size_t imageId1,
-                                                                                size_t imageId2) const override;
+    const std::unordered_map<size_t, Image> &images() const override;
+    Image image(size_t imageId) const override;
+    std::vector<size_t> imagePairs(size_t imageId) const override;
+    std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(size_t imageId1,
+                                                                                  size_t imageId2) const override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
+    Project *mProject;
+    QSettings *mSettings;
 };
 
 } // namespace graphos

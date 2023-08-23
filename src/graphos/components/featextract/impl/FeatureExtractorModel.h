@@ -35,42 +35,42 @@ class Project;
 class Feature;
 
 class FeatureExtractorModelImp final
-  : public FeatureExtractorModel
+    : public FeatureExtractorModel
 {
 
 public:
 
-  FeatureExtractorModelImp(Project *project,
-                           QObject *parent = nullptr);
-  ~FeatureExtractorModelImp() override;
+    FeatureExtractorModelImp(Project *project,
+                             QObject *parent = nullptr);
+    ~FeatureExtractorModelImp() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 // FeatureExtractorModel interface
 
 public:
 
-  std::shared_ptr<Feature> featureExtractor() const override;
-  void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
-  tl::Path database() const override;
-  void addFeatures(size_t imageId, const QString &featuresFile) override;
-  bool useCuda() const override;
-  const std::unordered_map<size_t, Image> &images() const override;
-  const std::map<int, Camera> &cameras() const override;
-  void clearProject() override;
+    std::shared_ptr<Feature> featureExtractor() const override;
+    void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
+    tl::Path database() const override;
+    void addFeatures(size_t imageId, const QString &featuresFile) override;
+    bool useCuda() const override;
+    const std::unordered_map<size_t, Image> &images() const override;
+    const std::map<int, Camera> &cameras() const override;
+    void clearProject() override;
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
+    Project *mProject;
+    QSettings *mSettings;
 };
 
 } // namespace graphos

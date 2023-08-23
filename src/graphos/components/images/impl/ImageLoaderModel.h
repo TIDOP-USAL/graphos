@@ -35,42 +35,42 @@ class ImageLoaderModelImp
   : public ImageLoaderModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImageLoaderModelImp(Project *project,
-                      QObject *parent = nullptr);
-  ~ImageLoaderModelImp() override = default;
+    ImageLoaderModelImp(Project *project,
+                        QObject *parent = nullptr);
+    ~ImageLoaderModelImp() override = default;
 
 // ImagesModel interface
 
 public:
 
-  QString projectCRS() const override;
-  void setProjectCRS(const QString &crs) override;
-  void addImage(const Image &image) override;
-  bool existImage(size_t imageId) const;
-  tl::Path imagesDirectory() const override;
-  const std::map<int, Camera> &cameras() const override;
-  int addCamera(const Camera &camera) override;
-  int cameraID(const Camera &camera) const override;
-  int cameraID(const QString &make, 
-               const QString &model) const override;
+    QString projectCRS() const override;
+    void setProjectCRS(const QString &crs) override;
+    void addImage(const Image &image) override;
+    bool existImage(size_t imageId) const;
+    tl::Path imagesDirectory() const override;
+    const std::map<int, Camera> &cameras() const override;
+    int addCamera(const Camera &camera) override;
+    int cameraID(const Camera &camera) const override;
+    int cameraID(const QString &make,
+                 const QString &model) const override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
+    Project *mProject;
 };
 
 } // namespace graphos

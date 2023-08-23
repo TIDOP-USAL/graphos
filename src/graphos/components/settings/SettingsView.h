@@ -33,39 +33,39 @@ namespace graphos
 class SettingsView
   : public DialogView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SettingsView(QWidget *parent) : DialogView(parent) {}
-  virtual ~SettingsView() override = default;
+    SettingsView(QWidget *parent) : DialogView(parent) {}
+    virtual ~SettingsView() override = default;
 
 public:
 
-  virtual QString activeLanguage() const = 0;
-  virtual int historyMaxSize() const = 0;
-  virtual QString imageViewerBGColor() const = 0;
-  virtual bool useCuda() const = 0;
-  
+    virtual QString activeLanguage() const = 0;
+    virtual int historyMaxSize() const = 0;
+    virtual QString imageViewerBGColor() const = 0;
+    virtual bool useCuda() const = 0;
+
 public slots:
 
-  virtual void setPage(int page) = 0;
-  virtual void setLanguages(const QStringList &languages) = 0;
-  virtual void setActiveLanguage(const QString &language) = 0;
-  virtual void setHistoryMaxSize(int size) = 0;
-  virtual void setImageViewerBGcolor(const QString &color) = 0;
-  virtual void setUseCuda(bool active) = 0;
-  virtual void setCudaEnabled(bool enabled) = 0;
-  virtual void setUnsavedChanges(bool unsaveChanges) = 0;
-  virtual void addWidget(QWidget *widget) = 0;
+    virtual void setPage(int page) = 0;
+    virtual void setLanguages(const QStringList &languages) = 0;
+    virtual void setActiveLanguage(const QString &language) = 0;
+    virtual void setHistoryMaxSize(int size) = 0;
+    virtual void setImageViewerBGcolor(const QString &color) = 0;
+    virtual void setUseCuda(bool active) = 0;
+    virtual void setCudaEnabled(bool enabled) = 0;
+    virtual void setUnsavedChanges(bool unsaveChanges) = 0;
+    virtual void addWidget(QWidget *widget) = 0;
 
 signals:
 
-  void languageChange(QString);
-  void historyMaxSizeChange(int);
-  void imageViewerBGColorChange(QString);
-  void useCudaChange(bool);
-  void applyChanges();
+    void languageChange(QString);
+    void historyMaxSizeChange(int);
+    void imageViewerBGColorChange(QString);
+    void useCudaChange(bool);
+    void applyChanges();
 
 };
 

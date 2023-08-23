@@ -28,7 +28,7 @@
 #include <colmap/util/misc.h>
 #include <colmap/base/camera_database.h>
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/math/algebra/rotation_matrix.h>
 
 #include <QDir>

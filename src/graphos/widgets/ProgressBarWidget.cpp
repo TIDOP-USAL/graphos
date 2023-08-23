@@ -23,7 +23,7 @@
 
 #include "ProgressBarWidget.h"
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QProgressBar>
 #include <QAction>
 #include <QGridLayout>
@@ -38,11 +38,11 @@ namespace graphos
 ProgressBarWidget::ProgressBarWidget(QWidget *parent)
   : GraphosWidgetView(parent),
     mProgressBar(new QProgressBar(this)),
-  	mActionCancel(new QAction(this)),
-	  mActionMaximize(new QAction(this))
+    mActionCancel(new QAction(this)),
+    mActionMaximize(new QAction(this))
 {
-  ProgressBarWidget::initUI();
-  ProgressBarWidget::initSignalAndSlots();
+    ProgressBarWidget::initUI();
+    ProgressBarWidget::initSignalAndSlots();
 }
 
 ProgressBarWidget::~ProgressBarWidget()
@@ -52,51 +52,51 @@ ProgressBarWidget::~ProgressBarWidget()
 
 void ProgressBarWidget::setRange(int min, int max)
 {
-  mProgressBar->setRange(min, max);
+    mProgressBar->setRange(min, max);
 }
 
 void ProgressBarWidget::setValue(int value)
 {
-  mProgressBar->setValue(value);
+    mProgressBar->setValue(value);
 }
 
 void ProgressBarWidget::onPushButtonCancelClicked()
 {
-  mActionCancel->setEnabled(false);
-  emit cancel();
+    mActionCancel->setEnabled(false);
+    emit cancel();
 }
 
 void ProgressBarWidget::initUI()
 {
-  this->setObjectName(QStringLiteral("ProgressBarWidget"));
+    this->setObjectName(QStringLiteral("ProgressBarWidget"));
 
-  QGridLayout *layout = new QGridLayout();
-  layout->setContentsMargins(0,0,0,0);
-  layout->setMargin(0);
-  this->setLayout(layout);
+    QGridLayout *layout = new QGridLayout();
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setMargin(0);
+    this->setLayout(layout);
 
-  layout->addWidget(mProgressBar, 0, 0);
-  mProgressBar->setValue(0);
+    layout->addWidget(mProgressBar, 0, 0);
+    mProgressBar->setValue(0);
 
-  mActionCancel->setIcon(QIcon::fromTheme("cancel"));
-  mActionMaximize->setIcon(QIcon::fromTheme("minimize-window"));
- 
-  QToolBar *toolBar = new QToolBar(this);
-  toolBar->addAction(mActionCancel);
-  toolBar->addAction(mActionMaximize);
-  //toolBar->setFixedHeight(20);
-  toolBar->setIconSize(QSize(20, 20));
-  layout->addWidget(toolBar, 0, 1);
+    mActionCancel->setIcon(QIcon::fromTheme("cancel"));
+    mActionMaximize->setIcon(QIcon::fromTheme("minimize-window"));
 
-  ProgressBarWidget::retranslate();
-  ProgressBarWidget::clear();
-  ProgressBarWidget::update();
+    QToolBar *toolBar = new QToolBar(this);
+    toolBar->addAction(mActionCancel);
+    toolBar->addAction(mActionMaximize);
+    //toolBar->setFixedHeight(20);
+    toolBar->setIconSize(QSize(20, 20));
+    layout->addWidget(toolBar, 0, 1);
+
+    ProgressBarWidget::retranslate();
+    ProgressBarWidget::clear();
+    ProgressBarWidget::update();
 }
 
 void ProgressBarWidget::initSignalAndSlots()
 {
-  connect(mActionCancel,   &QAction::triggered, this, &ProgressBarWidget::onPushButtonCancelClicked);
-  connect(mActionMaximize, &QAction::triggered, this, &ProgressBarWidget::maximized);
+    connect(mActionCancel, &QAction::triggered, this, &ProgressBarWidget::onPushButtonCancelClicked);
+    connect(mActionMaximize, &QAction::triggered, this, &ProgressBarWidget::maximized);
 }
 
 void ProgressBarWidget::clear()
@@ -109,10 +109,9 @@ void ProgressBarWidget::update()
 
 void ProgressBarWidget::retranslate()
 {
-  mActionCancel->setText(QApplication::translate("ProgressBarWidget", "Cancel Process"));
-  mActionMaximize->setText(QApplication::translate("ProgressBarWidget", "Maximize"));
+    mActionCancel->setText(QApplication::translate("ProgressBarWidget", "Cancel Process"));
+    mActionMaximize->setText(QApplication::translate("ProgressBarWidget", "Maximize"));
 }
-
 
 
 } // namespace photomatch

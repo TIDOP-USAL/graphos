@@ -39,53 +39,53 @@ class DtmModel;
 class DtmPresenterImp
   : public DtmPresenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DtmPresenterImp(DtmView *view,
-                  DtmModel *model);
-  ~DtmPresenterImp() override;
+    DtmPresenterImp(DtmView *view,
+                    DtmModel *model);
+    ~DtmPresenterImp() override;
 
-  void setDtmProperties();
-  void setInvDistProperties();
-  void setInvDistNNProperties();
+    void setDtmProperties();
+    void setInvDistProperties();
+    void setInvDistNNProperties();
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 // TaskPresenter interface
 
 protected:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task> createProcess() override;
 
 public slots:
 
-  void cancel() override;
+    void cancel() override;
 
 // DtmPresenter interface
 
 public slots:
 
-  void setCurrentDtmMethod(const QString &method) override;
+    void setCurrentDtmMethod(const QString &method) override;
 
 protected:
 
-  DtmView *mView;
-  DtmModel *mModel;
-  DtmInvDistWidget *mDtmInvDistWidget;
-  DtmInvDistNNWidget *mDtmInvDistNNWidget;
+    DtmView *mView;
+    DtmModel *mModel;
+    DtmInvDistWidget *mDtmInvDistWidget;
+    DtmInvDistNNWidget *mDtmInvDistNNWidget;
 };
 
 } // namespace graphos

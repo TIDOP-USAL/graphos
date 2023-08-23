@@ -34,27 +34,27 @@ class Licence;
 
 namespace graphos
 {
-  
+
 class AboutModel
   : public Model
 {
 
-  Q_OBJECT
-
-public:
-  
-  using const_iterator = std::list<tl::Licence>::const_iterator;
+    Q_OBJECT
 
 public:
 
-  AboutModel(QObject *parent = nullptr) : Model(parent) {}
-  ~AboutModel() override = default;
+    using const_iterator = std::list<tl::Licence>::const_iterator;
 
-  virtual const tl::Licence &graphosLicence() const = 0;
-  virtual QString readLicence(const QString &licence) = 0;
+public:
 
-  virtual const_iterator begin() const = 0 ;
-  virtual const_iterator end() const = 0 ;
+    AboutModel(QObject *parent = nullptr) : Model(parent) {}
+    ~AboutModel() override = default;
+
+    virtual const tl::Licence &graphosLicence() const = 0;
+    virtual QString readLicence(const QString &licence) = 0;
+
+    virtual const_iterator begin() const = 0;
+    virtual const_iterator end() const = 0;
 
 };
 

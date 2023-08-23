@@ -23,7 +23,7 @@
 
 #include "ImageMenu.h"
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QAction>
 #include <QApplication>
 TL_DEFAULT_WARNINGS
@@ -38,39 +38,39 @@ ImageContextMenu::ImageContextMenu(QWidget *parent)
     mActionZoomExtend(new QAction(this)),
     mActionZoom11(new QAction(this))
 {
-  init();
-  initSignalAndSlots();
+    init();
+    initSignalAndSlots();
 }
 
 void ImageContextMenu::init()
 {
-  mActionZoomIn->setIcon(QIcon::fromTheme("zoom-in"));
-  mActionZoomOut->setIcon(QIcon::fromTheme("zoom-out"));
-  mActionZoomExtend->setIcon(QIcon::fromTheme("zoom-extend"));
-  mActionZoom11->setIcon(QIcon::fromTheme("zoom-to-actual-size"));
+    mActionZoomIn->setIcon(QIcon::fromTheme("zoom-in"));
+    mActionZoomOut->setIcon(QIcon::fromTheme("zoom-out"));
+    mActionZoomExtend->setIcon(QIcon::fromTheme("zoom-extend"));
+    mActionZoom11->setIcon(QIcon::fromTheme("zoom-to-actual-size"));
 
-  this->addAction(mActionZoomIn);
-  this->addAction(mActionZoomOut);
-  this->addAction(mActionZoomExtend);
-  this->addAction(mActionZoom11);
+    this->addAction(mActionZoomIn);
+    this->addAction(mActionZoomOut);
+    this->addAction(mActionZoomExtend);
+    this->addAction(mActionZoom11);
 
-  retranslate();
+    retranslate();
 }
 
 void ImageContextMenu::initSignalAndSlots()
 {
-  connect(mActionZoomIn,      &QAction::triggered, this, &ImageContextMenu::zoomIn);
-  connect(mActionZoomOut,     &QAction::triggered, this, &ImageContextMenu::zoomOut);
-  connect(mActionZoomExtend,  &QAction::triggered, this, &ImageContextMenu::zoomExtend);
-  connect(mActionZoom11,      &QAction::triggered, this, &ImageContextMenu::zoom11);
+    connect(mActionZoomIn, &QAction::triggered, this, &ImageContextMenu::zoomIn);
+    connect(mActionZoomOut, &QAction::triggered, this, &ImageContextMenu::zoomOut);
+    connect(mActionZoomExtend, &QAction::triggered, this, &ImageContextMenu::zoomExtend);
+    connect(mActionZoom11, &QAction::triggered, this, &ImageContextMenu::zoom11);
 }
 
 void ImageContextMenu::retranslate()
 {
-  mActionZoomIn->setText(QApplication::translate("ImageContextMenu", "Zoom In"));
-  mActionZoomOut->setText(QApplication::translate("ImageContextMenu", "Zoom Out"));
-  mActionZoomExtend->setText(QApplication::translate("ImageContextMenu", "Zoom Extend"));
-  mActionZoom11->setText(QApplication::translate("ImageContextMenu", "Zoom 1:1"));
+    mActionZoomIn->setText(QApplication::translate("ImageContextMenu", "Zoom In"));
+    mActionZoomOut->setText(QApplication::translate("ImageContextMenu", "Zoom Out"));
+    mActionZoomExtend->setText(QApplication::translate("ImageContextMenu", "Zoom Extend"));
+    mActionZoom11->setText(QApplication::translate("ImageContextMenu", "Zoom 1:1"));
 }
 
 

@@ -36,19 +36,19 @@ class PropertiesPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  PropertiesPresenter(){}
-  virtual ~PropertiesPresenter() override = default;
+    PropertiesPresenter() {}
+    virtual ~PropertiesPresenter() override = default;
 
 signals:
 
 
 public slots:
 
-  virtual void setImageActive(size_t imageId) = 0;
+    virtual void setImageActive(size_t imageId) = 0;
 
 };
 

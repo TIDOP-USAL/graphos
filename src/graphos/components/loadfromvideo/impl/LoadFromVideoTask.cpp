@@ -27,7 +27,7 @@
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Database.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
 #include <tidop/core/progress.h>
 #include <tidop/img/imgwriter.h>
@@ -135,14 +135,14 @@ bool ImportVideoFramesAlgorithm::open()
 
     mWidth = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_WIDTH));
     mHeight = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
-    msgInfo("Video size: %ix%i", mWidth, mHeight);
+    tl::Message::info("Video size: {}x{}", mWidth, mHeight);
 
     mFramesPerSecond = mVideoCapture.get(cv::CAP_PROP_FPS);
-    msgInfo("Framerate: %f", mFramesPerSecond);
+    tl::Message::info("Framerate: {}", mFramesPerSecond);
 
     mCodec = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FOURCC));
     char c[] = {(char)(mCodec & 0XFF) , (char)((mCodec & 0XFF00) >> 8),(char)((mCodec & 0XFF0000) >> 16),(char)((mCodec & 0XFF000000) >> 24), 0};
-    msgInfo("Video codec: %f", c);
+    tl::Message::info("Video codec: {}", c);
     
     mVideoCapture.set(cv::CAP_PROP_POS_FRAMES, mStartAt - 1);
 
@@ -174,7 +174,7 @@ cv::Mat ImportVideoFramesAlgorithm::read()
     }
 
   } catch (std::exception &e) {
-    msgError("Error de lectura: %s", e.what());
+    tl::printException(e);
   }
 
   return frame;
@@ -215,14 +215,14 @@ int ImportVideoFramesAlgorithm::framePosition() const
 namespace graphos
 {
 
-LoadFromVideoTask::LoadFromVideoTask(const tl::Path &video, 
+LoadFromVideoTask::LoadFromVideoTask(const tl::Path &video,
                                      int skip,
                                      int videoIni,
                                      int videoEnd,
                                      const tl::Path &imagesPath,
                                      std::vector<Camera> *cameras,
                                      const std::string &cameraType)
-  : tl::TaskBase(),
+    : tl::TaskBase(),
     mVideo(video),
     mSkipFrames(skip),
     mVideoIni(videoIni),
@@ -240,68 +240,68 @@ LoadFromVideoTask::~LoadFromVideoTask()
 
 void LoadFromVideoTask::execute(tl::Progress *progressBar)
 {
-  try {
+    try {
 
-    tl::Chrono chrono("Images loaded");
-    chrono.run();
+        tl::Chrono chrono("Images loaded");
+        chrono.run();
 
-    ImportVideoFramesAlgorithm import_video_algorithm;
-    import_video_algorithm.setVideo(mVideo);
-    import_video_algorithm.setSkipFrames(mSkipFrames);
-    import_video_algorithm.startAt(mVideoIni);
-    import_video_algorithm.finishAt(mVideoEnd);
+        ImportVideoFramesAlgorithm import_video_algorithm;
+        import_video_algorithm.setVideo(mVideo);
+        import_video_algorithm.setSkipFrames(mSkipFrames);
+        import_video_algorithm.startAt(mVideoIni);
+        import_video_algorithm.finishAt(mVideoEnd);
 
-    if (!import_video_algorithm.open()) throw std::runtime_error("Open video error");
-	
-    int width = import_video_algorithm.width();
-    int height = import_video_algorithm.height();
-  
-    Camera camera("Unknown camera", "");
-    camera.setWidth(width);
-    camera.setHeight(height);
-    camera.setFocal(1.2 * std::max(width, height));
-    int camera_id = static_cast<int>(mCameras->size());
-    mCameras->push_back(camera);
+        if (!import_video_algorithm.open()) throw std::runtime_error("Open video error");
 
-    std::shared_ptr<tl::ImageMetadata> image_metadata = tl::ImageMetadataFactory::create("JPEG");
-    image_metadata->setMetadata("EXIF_PixelXDimension", std::to_string(width));
-    image_metadata->setMetadata("EXIF_PixelYDimension", std::to_string(height));
+        int width = import_video_algorithm.width();
+        int height = import_video_algorithm.height();
 
-	  int delay = static_cast<int>(1000. / import_video_algorithm.framesPerSecond());
-    //char c;
-    cv::Mat frame;
-    while (!(frame = import_video_algorithm.read()).empty()) {
+        Camera camera("Unknown camera", "");
+        camera.setWidth(width);
+        camera.setHeight(height);
+        camera.setFocal(1.2 * std::max(width, height));
+        int camera_id = static_cast<int>(mCameras->size());
+        mCameras->push_back(camera);
 
-      if (status() == tl::Task::Status::stopping)  break;
+        std::shared_ptr<tl::ImageMetadata> image_metadata = tl::ImageMetadataFactory::create("JPEG");
+        image_metadata->setMetadata("EXIF_PixelXDimension", std::to_string(width));
+        image_metadata->setMetadata("EXIF_PixelYDimension", std::to_string(height));
 
-      int pos = import_video_algorithm.framePosition();
-      tl::Path path(mImagesPath);
-      path.createDirectories();
-      path.append(std::string("frame").append(std::to_string(pos)).append(".jpg"));
-      Image image(QString::fromStdWString(path.toWString()));
-      auto image_writer = tl::ImageWriterFactory::create(path);
-      image_writer->open();
-      TL_ASSERT(image_writer->isOpen(), "Can't create image");
-      image_writer->setImageMetadata(image_metadata);
-      image_writer->create(height, width, frame.channels(), tl::DataType::TL_8U);
-      image_writer->write(frame);
-      image_writer->close();
-      
-      emit image_added(image.path(), camera_id);
+        int delay = static_cast<int>(1000. / import_video_algorithm.framesPerSecond());
+        //char c;
+        cv::Mat frame;
+        while (!(frame = import_video_algorithm.read()).empty()) {
 
-      if (progressBar) (*progressBar)();
+            if (status() == tl::Task::Status::stopping)  break;
+
+            int pos = import_video_algorithm.framePosition();
+            tl::Path path(mImagesPath);
+            path.createDirectories();
+            path.append(std::string("frame").append(std::to_string(pos)).append(".jpg"));
+            Image image(QString::fromStdWString(path.toWString()));
+            auto image_writer = tl::ImageWriterFactory::create(path);
+            image_writer->open();
+            TL_ASSERT(image_writer->isOpen(), "Can't create image");
+            image_writer->setImageMetadata(image_metadata);
+            image_writer->create(height, width, frame.channels(), tl::DataType::TL_8U);
+            image_writer->write(frame);
+            image_writer->close();
+
+            emit image_added(image.path(), camera_id);
+
+            if (progressBar) (*progressBar)();
+        }
+
+
+        if (status() == tl::Task::Status::stopping) {
+            chrono.reset();
+        } else {
+            chrono.stop();
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Load images error");
     }
-	
-	
-    if(status() == tl::Task::Status::stopping) {
-      chrono.reset();
-    } else {
-      chrono.stop();
-    }
-
-  } catch(...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Load images error");
-  }
 
 }
 

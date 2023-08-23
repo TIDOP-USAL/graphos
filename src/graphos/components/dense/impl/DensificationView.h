@@ -37,47 +37,47 @@ namespace graphos
 class DensificationViewImp
   : public DensificationView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit DensificationViewImp(QWidget *parent = nullptr);
-  ~DensificationViewImp() override;
+    explicit DensificationViewImp(QWidget *parent = nullptr);
+    ~DensificationViewImp() override;
 
 // DensificationView interface
 
 public:
 
-  QString currentDensificationMethod() const override;
+    QString currentDensificationMethod() const override;
 
 public slots:
 
-  void addDensification(QWidget *densification) override;
-  void setCurrentDensificationMethod(const QString &densificationMethod) override;
+    void addDensification(QWidget *densification) override;
+    void setCurrentDensificationMethod(const QString &densificationMethod) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 private:
 
-  QGridLayout *mGridLayout;
-  QGridLayout *mGridLayoutDensification;
-  QLabel *mLabelDensification;
-  QComboBox *mComboBoxDensification;
-  QDialogButtonBox *mButtonBox;
+    QGridLayout *mGridLayout;
+    QGridLayout *mGridLayoutDensification;
+    QLabel *mLabelDensification;
+    QComboBox *mComboBoxDensification;
+    QDialogButtonBox *mButtonBox;
 
 };
 

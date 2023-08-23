@@ -28,30 +28,25 @@
 
 namespace graphos
 {
-	
+
 class CreateProjectCommand
   : public Command
 {
 
 public:
 
-  CreateProjectCommand();
-  ~CreateProjectCommand() override;
+    CreateProjectCommand();
+    ~CreateProjectCommand() override;
 
 private:
 
 // Command interface
 
-  bool run() override;
+    bool run() override;
 
-private:
-
-  std::string mProjectName;
-  std::string mProjectDescription;
-  bool mForceOverwrite;
 };
 
-	
+
 } // namespace graphos
 
 #endif // GRAPHOS_CREATE_PROJECT_COMMAND_H

@@ -36,41 +36,41 @@ class UndistortImagesPresenterImp
   : public UndistortImagesPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  UndistortImagesPresenterImp(UndistortImagesView *view,
-                              UndistortImagesModel *model);
-  ~UndistortImagesPresenterImp() override;
+    UndistortImagesPresenterImp(UndistortImagesView *view,
+                                UndistortImagesModel *model);
+    ~UndistortImagesPresenterImp() override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 // TaskPresenter interface
 
 protected slots:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
-  
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task> createProcess() override;
+
 public slots:
 
-  void cancel() override;
+    void cancel() override;
 
 private:
 
-  UndistortImagesView *mView;
-  UndistortImagesModel *mModel;
+    UndistortImagesView *mView;
+    UndistortImagesModel *mModel;
 
 };
 

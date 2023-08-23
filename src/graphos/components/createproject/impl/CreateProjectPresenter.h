@@ -38,47 +38,47 @@ class CreateProjectModel;
 class CreateProjectPresenterImp final
   : public CreateProjectPresenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CreateProjectPresenterImp(CreateProjectView *view,
-                            CreateProjectModel *model,
-                            AppStatus *status);
-  ~CreateProjectPresenterImp() override = default;
+    CreateProjectPresenterImp(CreateProjectView *view,
+                              CreateProjectModel *model,
+                              AppStatus *status);
+    ~CreateProjectPresenterImp() override = default;
 
 private:
 
-  tl::Path projectFolder() const;
-  tl::Path databasePath(const tl::Path &projectFolder) const;
-  tl::Path projectPath(const tl::Path &projectFolder) const;
+    tl::Path projectFolder() const;
+    tl::Path databasePath(const tl::Path &projectFolder) const;
+    tl::Path projectPath(const tl::Path &projectFolder) const;
 
 // CreateProjectPresenter interface
 
 protected slots:
 
-  void saveProject() override;
-  void discartProject() override;
-  void checkProjectName() const override;
+    void saveProject() override;
+    void discartProject() override;
+    void checkProjectName() const override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  CreateProjectView *mView;
-  CreateProjectModel *mModel;
-  AppStatus *mAppStatus;
-  tl::Path mProjectsDefaultPath;
-  
+    CreateProjectView *mView;
+    CreateProjectModel *mModel;
+    AppStatus *mAppStatus;
+    tl::Path mProjectsDefaultPath;
+
 };
 
 } // namespace graphos

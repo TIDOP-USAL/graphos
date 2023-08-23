@@ -25,7 +25,7 @@
 
 #include <tidop/math/math.h>
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 TL_DEFAULT_WARNINGS
@@ -39,9 +39,9 @@ CircleGraphicItem::CircleGraphicItem(QGraphicsItem *parent)
     mPen(),
     mSize(10.)
 {
-  mSelectedPen.setColor(QColor(QString("#FF0000")));
-  mSelectedPen.setWidth(2);
-  mSelectedPen.setCosmetic(true);
+    mSelectedPen.setColor(QColor(QString("#FF0000")));
+    mSelectedPen.setWidth(2);
+    mSelectedPen.setCosmetic(true);
 }
 
 CircleGraphicItem::CircleGraphicItem(const QPointF &center, double size, QGraphicsItem *parent)
@@ -50,9 +50,9 @@ CircleGraphicItem::CircleGraphicItem(const QPointF &center, double size, QGraphi
     mPen(),
     mSize(size)
 {
-  mSelectedPen.setColor(QColor(QString("#FF0000")));
-  mSelectedPen.setWidth(2);
-  mSelectedPen.setCosmetic(true);
+    mSelectedPen.setColor(QColor(QString("#FF0000")));
+    mSelectedPen.setWidth(2);
+    mSelectedPen.setCosmetic(true);
 }
 
 CircleGraphicItem::~CircleGraphicItem()
@@ -62,57 +62,57 @@ CircleGraphicItem::~CircleGraphicItem()
 
 QPen CircleGraphicItem::pen() const
 {
-  return mPen;
+    return mPen;
 }
 
 void CircleGraphicItem::setPen(const QPen &pen)
 {
-  mPen = pen;
+    mPen = pen;
 }
 
 double CircleGraphicItem::size()
 {
-  return mSize;
+    return mSize;
 }
 
 void CircleGraphicItem::setSize(double size)
 {
-  mSize = size;
+    mSize = size;
 }
 
 QPen CircleGraphicItem::selectedPen() const
 {
-  return mSelectedPen;
+    return mSelectedPen;
 }
 
 void CircleGraphicItem::setSelectedPen(const QPen &pen)
 {
-  mSelectedPen = pen;
+    mSelectedPen = pen;
 }
 
 QRectF CircleGraphicItem::boundingRect() const
 {
-  double r = mSize / 2.;
-  return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
+    double r = mSize / 2.;
+    return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
 }
 
 QPainterPath CircleGraphicItem::shape() const
 {
-  QPainterPath path;
-  double r = mSize / 2.;
-  path.addRect(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
-  return path;
+    QPainterPath path;
+    double r = mSize / 2.;
+    path.addRect(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
+    return path;
 }
 
 void CircleGraphicItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-  if (this->isSelected()) {
-    painter->setPen(mSelectedPen);
-  } else {
-    painter->setPen(mPen);
-  }
-  double halfSize = mSize / 2.;
-  painter->drawEllipse(mCenter, halfSize, halfSize);
+    if (this->isSelected())
+        painter->setPen(mSelectedPen);
+    else
+        painter->setPen(mPen);
+
+    double halfSize = mSize / 2.;
+    painter->drawEllipse(mCenter, halfSize, halfSize);
 }
 
 
@@ -124,9 +124,9 @@ CrossGraphicItem::CrossGraphicItem(QGraphicsItem *parent)
     mPen(),
     mSize(10.)
 {
-  mSelectedPen.setColor(QColor(QString("#FF0000")));
-  mSelectedPen.setWidth(2);
-  mSelectedPen.setCosmetic(true);
+    mSelectedPen.setColor(QColor(QString("#FF0000")));
+    mSelectedPen.setWidth(2);
+    mSelectedPen.setCosmetic(true);
 }
 
 
@@ -136,9 +136,9 @@ CrossGraphicItem::CrossGraphicItem(const QPointF &center, double size, QGraphics
     mPen(),
     mSize(size)
 {
-  mSelectedPen.setColor(QColor(QString("#FF0000")));
-  mSelectedPen.setWidth(2);
-  mSelectedPen.setCosmetic(true);
+    mSelectedPen.setColor(QColor(QString("#FF0000")));
+    mSelectedPen.setWidth(2);
+    mSelectedPen.setCosmetic(true);
 }
 
 CrossGraphicItem::~CrossGraphicItem()
@@ -148,60 +148,60 @@ CrossGraphicItem::~CrossGraphicItem()
 
 QPen CrossGraphicItem::pen() const
 {
-  return mPen;
+    return mPen;
 }
 
 void CrossGraphicItem::setPen(const QPen &pen)
 {
-  mPen = pen;
+    mPen = pen;
 }
 
 double CrossGraphicItem::size()
 {
-  return mSize;
+    return mSize;
 }
 
 void CrossGraphicItem::setSize(double size)
 {
-  mSize = size;
+    mSize = size;
 }
 
 QPen CrossGraphicItem::selectedPen() const
 {
-  return mSelectedPen;
+    return mSelectedPen;
 }
 
 void CrossGraphicItem::setSelectedPen(const QPen &pen)
 {
-  mSelectedPen = pen;
+    mSelectedPen = pen;
 }
 
 QRectF CrossGraphicItem::boundingRect() const
 {
-  double r = mSize / 2.;
-  return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
+    double r = mSize / 2.;
+    return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
 }
 
 QPainterPath CrossGraphicItem::shape() const
 {
-  QPainterPath path;
-  double r = mSize / 2.;
-  path.addRect(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
-  return path;
+    QPainterPath path;
+    double r = mSize / 2.;
+    path.addRect(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
+    return path;
 }
 
 void CrossGraphicItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-  if (this->isSelected()) {
-    painter->setPen(mSelectedPen);
-  } else {
-    painter->setPen(mPen);
-  }
-  double halfSize = mSize / 2.;
-  double x = mCenter.x();
-  double y = mCenter.y();
-  painter->drawLine(QPointF(x - halfSize, y), QPointF(x + halfSize, y));
-  painter->drawLine(QPointF(x, y - halfSize), QPointF(x, y + halfSize));
+    if (this->isSelected())
+        painter->setPen(mSelectedPen);
+    else
+        painter->setPen(mPen);
+
+    double halfSize = mSize / 2.;
+    double x = mCenter.x();
+    double y = mCenter.y();
+    painter->drawLine(QPointF(x - halfSize, y), QPointF(x + halfSize, y));
+    painter->drawLine(QPointF(x, y - halfSize), QPointF(x, y + halfSize));
 }
 
 
@@ -215,9 +215,9 @@ KeyPointGraphicsItem::KeyPointGraphicsItem(QGraphicsItem *parent)
     mSize(10.),
     mAngle(0.)
 {
-  mSelectedPen.setColor(QColor(QString("#FF0000")));
-  mSelectedPen.setWidth(2);
-  mSelectedPen.setCosmetic(true);
+    mSelectedPen.setColor(QColor(QString("#FF0000")));
+    mSelectedPen.setWidth(2);
+    mSelectedPen.setCosmetic(true);
 }
 
 KeyPointGraphicsItem::KeyPointGraphicsItem(QPointF center, double size, double angle, QGraphicsItem *parent)
@@ -227,9 +227,9 @@ KeyPointGraphicsItem::KeyPointGraphicsItem(QPointF center, double size, double a
     mSize(size),
     mAngle(angle)
 {
-  mSelectedPen.setColor(QColor(QString("#FF0000")));
-  mSelectedPen.setWidth(2);
-  mSelectedPen.setCosmetic(true);
+    mSelectedPen.setColor(QColor(QString("#FF0000")));
+    mSelectedPen.setWidth(2);
+    mSelectedPen.setCosmetic(true);
 }
 
 KeyPointGraphicsItem::~KeyPointGraphicsItem()
@@ -239,69 +239,69 @@ KeyPointGraphicsItem::~KeyPointGraphicsItem()
 
 QPen KeyPointGraphicsItem::pen() const
 {
-  return mPen;
+    return mPen;
 }
 
 void KeyPointGraphicsItem::setPen(const QPen &pen)
 {
-  mPen = pen;
+    mPen = pen;
 }
 
 double KeyPointGraphicsItem::size()
 {
-  return mSize;
+    return mSize;
 }
 
 void KeyPointGraphicsItem::setSize(double size)
 {
-  mSize = size;
+    mSize = size;
 }
 
 double KeyPointGraphicsItem::angle()
 {
-  return mAngle;
+    return mAngle;
 }
 
 void KeyPointGraphicsItem::setAngle(double angle)
 {
-  mAngle = angle;
+    mAngle = angle;
 }
 
 QPen KeyPointGraphicsItem::selectedPen() const
 {
-  return mSelectedPen;
+    return mSelectedPen;
 }
 
 void KeyPointGraphicsItem::setSelectedPen(const QPen &pen)
 {
-  mSelectedPen = pen;
+    mSelectedPen = pen;
 }
 
 QRectF KeyPointGraphicsItem::boundingRect() const
 {
-  double r = mSize / 2.;
-  return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
+    double r = mSize / 2.;
+    return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
 }
 
 QPainterPath KeyPointGraphicsItem::shape() const
 {
-  QPainterPath path;
-  double r = 5/*mSize*/ / 2.;
-  path.addRect(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
-  return path;
+    QPainterPath path;
+    double r = 5/*mSize*/ / 2.;
+    path.addRect(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
+    return path;
 }
 
 void KeyPointGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-  if (this->isSelected()) {
-    painter->setPen(mSelectedPen);
-  } else {
-    painter->setPen(mPen);
-  }
-  double r = mSize / 2.;
-  painter->drawEllipse(mCenter, r, r);
-  QPointF pt2(mCenter.x() + r * cos(mAngle * tl::math::consts::deg_to_rad<float>), mCenter.y() + r * sin(mAngle * tl::math::consts::deg_to_rad<float>));
-  painter->drawLine(mCenter, pt2);
+    if (this->isSelected())
+        painter->setPen(mSelectedPen);
+    else
+        painter->setPen(mPen);
+
+    double r = mSize / 2.;
+    painter->drawEllipse(mCenter, r, r);
+    QPointF pt2(mCenter.x() + r * cos(mAngle * tl::consts::deg_to_rad<float>), mCenter.y() + r * sin(mAngle * tl::consts::deg_to_rad<float>));
+    painter->drawLine(mCenter, pt2);
 }
 
 
@@ -313,9 +313,9 @@ DiagonalCrossGraphicItem::DiagonalCrossGraphicItem(QGraphicsItem *parent)
     mPen(),
     mSize(10.)
 {
-  mSelectedPen.setColor(QColor(QString("#FF0000")));
-  mSelectedPen.setWidth(2);
-  mSelectedPen.setCosmetic(true);
+    mSelectedPen.setColor(QColor(QString("#FF0000")));
+    mSelectedPen.setWidth(2);
+    mSelectedPen.setCosmetic(true);
 }
 
 
@@ -326,9 +326,9 @@ DiagonalCrossGraphicItem::DiagonalCrossGraphicItem(const QPointF &center, double
     mSize(size),
     mSelectedPen(QColor(QString("#FF0000")))
 {
-  mSelectedPen.setColor(QColor(QString("#FF0000")));
-  mSelectedPen.setWidth(2);
-  mSelectedPen.setCosmetic(true);
+    mSelectedPen.setColor(QColor(QString("#FF0000")));
+    mSelectedPen.setWidth(2);
+    mSelectedPen.setCosmetic(true);
 }
 
 DiagonalCrossGraphicItem::~DiagonalCrossGraphicItem()
@@ -338,60 +338,58 @@ DiagonalCrossGraphicItem::~DiagonalCrossGraphicItem()
 
 QPen DiagonalCrossGraphicItem::pen() const
 {
-  return mPen;
+    return mPen;
 }
 
 void DiagonalCrossGraphicItem::setPen(const QPen &pen)
 {
-  mPen = pen;
+    mPen = pen;
 }
 
 double DiagonalCrossGraphicItem::size()
 {
-  return mSize;
+    return mSize;
 }
 
 void DiagonalCrossGraphicItem::setSize(double size)
 {
-  mSize = size;
+    mSize = size;
 }
 
 QPen DiagonalCrossGraphicItem::selectedPen() const
 {
-  return mSelectedPen;
+    return mSelectedPen;
 }
 
 void DiagonalCrossGraphicItem::setSelectedPen(const QPen &pen)
 {
-  mSelectedPen = pen;
+    mSelectedPen = pen;
 }
 
 QRectF DiagonalCrossGraphicItem::boundingRect() const
 {
-  double r = mSize / 2.;
-  return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
+    double r = mSize / 2.;
+    return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
 }
 
 QPainterPath DiagonalCrossGraphicItem::shape() const
 {
-  QPainterPath path;
-  double r = mSize / 2.;
-  path.addRect(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
-  return path;
+    QPainterPath path;
+    double r = mSize / 2.;
+    path.addRect(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
+    return path;
 }
 
 void DiagonalCrossGraphicItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-  if (this->isSelected()) {
-    painter->setPen(mSelectedPen);
-  } else {
-    painter->setPen(mPen);
-  }
-  double halfSize = mSize / 2.;
-  double x = mCenter.x();
-  double y = mCenter.y();
-  painter->drawLine(QPointF(x - halfSize, y - halfSize), QPointF(x + halfSize, y + halfSize));
-  painter->drawLine(QPointF(x - halfSize, y + halfSize), QPointF(x + halfSize, y - halfSize));
+    if (this->isSelected()) painter->setPen(mSelectedPen);
+    else painter->setPen(mPen);
+
+    double halfSize = mSize / 2.;
+    double x = mCenter.x();
+    double y = mCenter.y();
+    painter->drawLine(QPointF(x - halfSize, y - halfSize), QPointF(x + halfSize, y + halfSize));
+    painter->drawLine(QPointF(x - halfSize, y + halfSize), QPointF(x + halfSize, y - halfSize));
 }
 
 

@@ -42,8 +42,8 @@ RecentProjectsPresenterImp::RecentProjectsPresenterImp(RecentProjectsView *view,
     mModel(model),
     mAppStatus(status)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 RecentProjectsPresenterImp::~RecentProjectsPresenterImp()
@@ -52,7 +52,7 @@ RecentProjectsPresenterImp::~RecentProjectsPresenterImp()
 
 void RecentProjectsPresenterImp::clearHistory()
 {
-  mModel->clear();
+    mModel->clear();
 }
 
 void RecentProjectsPresenterImp::open()
@@ -62,17 +62,17 @@ void RecentProjectsPresenterImp::open()
 
 void RecentProjectsPresenterImp::init()
 {
-  mView->setHistory(mModel->history());
+    mView->setHistory(mModel->history());
 }
 
 void RecentProjectsPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &RecentProjectsView::clearHistory, this, &RecentProjectsPresenterImp::clearHistory);
-  connect(&Application::instance(), &Application::update_history, [&]() {
-    mView->setHistory(mModel->history());
-  });
+    connect(mView, &RecentProjectsView::clearHistory, this, &RecentProjectsPresenterImp::clearHistory);
+    connect(&Application::instance(), &Application::update_history, [&]() {
+        mView->setHistory(mModel->history());
+    });
 
-  connect(mView, &RecentProjectsView::openProject, this, &RecentProjectsPresenter::open_project);
+    connect(mView, &RecentProjectsView::openProject, this, &RecentProjectsPresenter::open_project);
 }
 
 } // namespace graphos

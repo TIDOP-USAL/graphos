@@ -31,9 +31,8 @@
 #include "graphos/core/task/Progress.h"
 #include "graphos/widgets/SiftWidget.h"
 #include "graphos/core/camera/Camera.h"
-//#include "graphos/components/featextract/impl/FeatureExtractorTask.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/task.h>
 
 #include <QDir>
@@ -90,7 +89,7 @@ void FeatureExtractorPresenterImp::cancel()
 {
   TaskPresenter::cancel();
 
-  msgWarning("Processing has been canceled by the user");
+  tl::Message::warning("Processing has been canceled by the user");
 }
 
 void FeatureExtractorPresenterImp::setCurrentDetectorDescriptor(const QString &detectorDescriptor)
@@ -153,7 +152,7 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
                             tr("The previous results will be overwritten. Do you wish to continue?"),
                             QMessageBox::Yes | QMessageBox::No).exec();
     if (i_ret == QMessageBox::No) {
-      msgWarning("Process canceled by user");
+      tl::Message::warning("Process canceled by user");
       return feat_extract_process;
     }
   }
@@ -161,10 +160,10 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
   mModel->clearProject();
   emit features_deleted();
 
-  QString currentKeyPoint<double>etector = mView->currentDetectorDescriptor();
+  QString currentKeyPointDetector = mView->currentDetectorDescriptor();
   std::shared_ptr<FeatureExtractor> feature_extractor;
 
-  if (currentKeyPoint<double>etector.compare("SIFT") == 0) {
+  if (currentKeyPointDetector.compare("SIFT") == 0) {
     if (mModel->useCuda()) {
       feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
                                                                        mSift->octaveLayers(),

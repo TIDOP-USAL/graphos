@@ -43,17 +43,17 @@ class FeatureExtractorModel
 
 public:
 
-  FeatureExtractorModel(QObject *parent = nullptr) : Model(parent) {}
-  ~FeatureExtractorModel() override = default;
+    FeatureExtractorModel(QObject *parent = nullptr) : Model(parent) {}
+    ~FeatureExtractorModel() override = default;
 
-  virtual std::shared_ptr<Feature> featureExtractor() const = 0;
-  virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
-  virtual tl::Path database() const = 0;
-  virtual void addFeatures(size_t imageId, const QString &featuresFile) = 0;
-  virtual bool useCuda() const = 0;
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual void clearProject() = 0;
+    virtual std::shared_ptr<Feature> featureExtractor() const = 0;
+    virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
+    virtual tl::Path database() const = 0;
+    virtual void addFeatures(size_t imageId, const QString &featuresFile) = 0;
+    virtual bool useCuda() const = 0;
+    virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual void clearProject() = 0;
 
 };
 

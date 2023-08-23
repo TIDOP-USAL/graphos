@@ -39,7 +39,7 @@ namespace graphos
 SaveProjectComponent::SaveProjectComponent(Application *application)
   : ComponentBase(application)
 {
-  init();
+    init();
 }
 
 SaveProjectComponent::~SaveProjectComponent()
@@ -48,31 +48,31 @@ SaveProjectComponent::~SaveProjectComponent()
 
 void SaveProjectComponent::init()
 {
-  this->setName("Save Project");
-  this->setMenu("file");
-  this->setToolbar("file");
+    this->setName("Save Project");
+    this->setMenu("file");
+    this->setToolbar("file");
 
-  action()->setIcon(QIcon::fromTheme("save"));
+    action()->setIcon(QIcon::fromTheme("save"));
 #ifndef QT_NO_SHORTCUT
-  action()->setShortcut(tr("Ctrl+S"));
+    action()->setShortcut(tr("Ctrl+S"));
 #endif // QT_NO_SHORTCUT
 }
 
 void SaveProjectComponent::createModel()
 {
-  setModel(new SaveProjectModelImp(app()->project()));
+    setModel(new SaveProjectModelImp(app()->project()));
 }
 
 void SaveProjectComponent::createView()
 {
-  setView(new SaveProjectViewImp());
+    setView(new SaveProjectViewImp());
 }
 
 void SaveProjectComponent::createPresenter()
 {
-  setPresenter(new SaveProjectPresenterImp(dynamic_cast<SaveProjectView *>(view()),
-                                           dynamic_cast<SaveProjectModel *>(model()),
-                                           app()->status()));
+    setPresenter(new SaveProjectPresenterImp(dynamic_cast<SaveProjectView *>(view()),
+                 dynamic_cast<SaveProjectModel *>(model()),
+                 app()->status()));
 }
 
 void SaveProjectComponent::createCommand()
@@ -81,15 +81,15 @@ void SaveProjectComponent::createCommand()
 
 void SaveProjectComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-  bool bLoadingImages = app_status->isEnabled(AppStatus::Flag::loading_images);
-  bool project_modified = app_status->isEnabled(AppStatus::Flag::project_modified);
-  action()->setEnabled(!bLoadingImages && !bProcessing && project_modified);
+    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool bLoadingImages = app_status->isEnabled(AppStatus::Flag::loading_images);
+    bool project_modified = app_status->isEnabled(AppStatus::Flag::project_modified);
+    action()->setEnabled(!bLoadingImages && !bProcessing && project_modified);
 }
 
 } // namespace graphos

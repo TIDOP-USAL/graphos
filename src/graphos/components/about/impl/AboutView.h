@@ -42,50 +42,50 @@ namespace graphos
 class AboutViewImp
   : public AboutView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit AboutViewImp(QWidget *parent = nullptr);
-  ~AboutViewImp() override;
+    explicit AboutViewImp(QWidget *parent = nullptr);
+    ~AboutViewImp() override;
 
 // AboutView
 
 public:
 
-  void setGraphosVersion(const QString &version) override;
-  void setGraphosLicence(const QString &licence) override;
-  void addLicence(const QString &product, const QString &licence) override;
+    void setGraphosVersion(const QString &version) override;
+    void setGraphosLicence(const QString &licence) override;
+    void addLicence(const QString &product, const QString &licence) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 private:
 
-  QLabel *mLabelGraphosLogo;
-  QTabWidget *mTabWidget;
-  QWidget *mTabGraphosLicence;
-  QGridLayout *gridLayout_4;
-  QTextEdit *mTextEditGraphosLicence;
-  QWidget *mTabThirdPartyLiceses;
-  QGridLayout *gridLayout_3;
-  QListWidget *mListWidgetThirdPartyLiceses;
-  QStackedWidget *mStackedWidgetThirdPartyLicenses;
-  QLabel *mLabelGraphosVersion;
-  QDialogButtonBox *mButtonBox;
+    QLabel *mLabelGraphosLogo;
+    QTabWidget *mTabWidget;
+    QWidget *mTabGraphosLicence;
+    QGridLayout *gridLayout_4;
+    QTextEdit *mTextEditGraphosLicence;
+    QWidget *mTabThirdPartyLiceses;
+    QGridLayout *gridLayout_3;
+    QListWidget *mListWidgetThirdPartyLiceses;
+    QStackedWidget *mStackedWidgetThirdPartyLicenses;
+    QLabel *mLabelGraphosVersion;
+    QDialogButtonBox *mButtonBox;
 };
 
 } // namespace graphos

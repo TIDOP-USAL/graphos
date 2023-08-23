@@ -44,64 +44,64 @@ class HelpDialog;
 class ComponentsManager
   : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  enum class Flags
-  {
-    none = (0 << 0), 
-    separator_before = (1 << 0),
-    separator_after = (1 << 1)
-  };
+    enum class Flags
+    {
+        none = (0 << 0),
+        separator_before = (1 << 0),
+        separator_after = (1 << 1)
+    };
 
 public:
 
-  explicit ComponentsManager(QObject *parent = nullptr);
-  ~ComponentsManager();
+    explicit ComponentsManager(QObject *parent = nullptr);
+    ~ComponentsManager();
 
-  void openApp();
+    void openApp();
 
-  MainWindowView *mainWindowView();
-  MainWindowModel *mainWindowModel();
-  MainWindowPresenter *mainWindowPresenter();
+    MainWindowView *mainWindowView();
+    MainWindowModel *mainWindowModel();
+    MainWindowPresenter *mainWindowPresenter();
 
-  void registerComponent(Component *component,
-                         Flags flags = Flags::none);
-  //void insertComponentBegin(Component *component,
-  //                          Component *componentToInsert,
-  //                          Flags flags = Flags::none);
-  //void insertComponentBegin(const QString &menu,
-  //                          Component *component,
-  //                          Flags flags = Flags::none);
-  void registerMultiComponent(const QString &name,
-                              const QString &menu,
-                              const QString &toolbar,
-                              const std::list<std::shared_ptr<Component> > &components,
-                              Flags flags = Flags::none);
-  void loadPlugins();
+    void registerComponent(Component *component,
+                           Flags flags = Flags::none);
+    //void insertComponentBegin(Component *component,
+    //                          Component *componentToInsert,
+    //                          Flags flags = Flags::none);
+    //void insertComponentBegin(const QString &menu,
+    //                          Component *component,
+    //                          Flags flags = Flags::none);
+    void registerMultiComponent(const QString &name,
+                                const QString &menu,
+                                const QString &toolbar,
+                                const std::list<std::shared_ptr<Component> > &components,
+                                Flags flags = Flags::none);
+    void loadPlugins();
 
-  HelpDialog *helpDialog();
+    HelpDialog *helpDialog();
 
-  ProgressHandler *progressHandler();
-  ProgressBarDialog *progressDialog();
+    ProgressHandler *progressHandler();
+    ProgressBarDialog *progressDialog();
 
 signals:
 
 private:
-  
-  void loadPlugin(QObject *plugin);
+
+    void loadPlugin(QObject *plugin);
 
 protected:
 
-  MainWindowView *mMainWindowView;
-  MainWindowModel *mMainWindowModel;
-  MainWindowPresenter *mMainWindowPresenter;
+    MainWindowView *mMainWindowView;
+    MainWindowModel *mMainWindowModel;
+    MainWindowPresenter *mMainWindowPresenter;
 
-  HelpDialog *mHelpDialog;
+    HelpDialog *mHelpDialog;
 
-  ProgressHandler *mProgressHandler;
-  ProgressBarDialog *mProgressDialog;
+    ProgressHandler *mProgressHandler;
+    ProgressBarDialog *mProgressDialog;
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(ComponentsManager::Flags)
 

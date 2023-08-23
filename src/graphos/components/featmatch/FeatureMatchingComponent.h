@@ -36,39 +36,38 @@ class FeatureMatchingComponent
   : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureMatchingComponent(Application *application);
-  ~FeatureMatchingComponent();
+    FeatureMatchingComponent(Application *application);
+    ~FeatureMatchingComponent();
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
-  //void matching_finished();
-  void matches_deleted();
+    void matches_deleted();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 // TaskComponent
 
 protected slots:
 
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 
 };
 

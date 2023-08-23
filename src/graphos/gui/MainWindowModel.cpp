@@ -38,157 +38,157 @@ namespace graphos
 
 
 MainWindowModel::MainWindowModel(Project *project)
-  : mProject(project),
+    : mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
               QSettings::UserScope,
               qApp->organizationName(),
               qApp->applicationName()))/*,
   bUnsavedChanges(false)*/
 {
-  this->init();
+    this->init();
 }
 
 MainWindowModel::~MainWindowModel()
 {
-  if(mSettings) {
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if (mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 }
 
 QString MainWindowModel::projectName() const
 {
-  return mProject->name();
+    return mProject->name();
 }
 
 tl::Path MainWindowModel::projectPath() const
 {
-  return mProject->projectPath();
+    return mProject->projectPath();
 }
 
 const std::unordered_map<size_t, Image> &MainWindowModel::images() const
 {
-  return mProject->images();
+    return mProject->images();
 }
 
 Image MainWindowModel::image(size_t imageId) const
 {
-  try {
-    return mProject->findImageById(imageId);
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
-  }
+    try {
+        return mProject->findImageById(imageId);
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+    }
 }
 
 const std::map<int, Camera> &MainWindowModel::cameras() const
 {
-  return mProject->cameras();
+    return mProject->cameras();
 }
 
 Camera MainWindowModel::camera(int id) const
 {
-  try {
-    return mProject->findCamera(id);
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
-  }
+    try {
+        return mProject->findCamera(id);
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+    }
 }
 
 void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
 {
-  try {
+    try {
 
-    std::vector<std::string> images;
+        std::vector<std::string> images;
 
-    for (auto imageId : imageIds) {
-      images.push_back(mProject->findImageById(imageId).path().toStdString());
-      mProject->removeImage(imageId);
+        for (auto imageId : imageIds) {
+            images.push_back(mProject->findImageById(imageId).path().toStdString());
+            mProject->removeImage(imageId);
+        }
+
+        std::string reconstruction_path = mProject->reconstructionPath().toString();
+        if (!reconstruction_path.empty())
+            colmapRemoveOrientations(images, reconstruction_path);
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
     }
-
-    std::string reconstruction_path = mProject->reconstructionPath().toString();
-    if (!reconstruction_path.empty())
-      colmapRemoveOrientations(images, reconstruction_path);
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
-  }
 }
 
 QImage MainWindowModel::readImage(size_t imageId)
 {
-  QImage image;
+    QImage image;
 
-  try {
+    try {
 
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(this->image(imageId).path().toStdWString());
-    imageReader->open();
-    if (imageReader->isOpen()) {
+        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(this->image(imageId).path().toStdWString());
+        imageReader->open();
+        if (imageReader->isOpen()) {
 
-      /// Imagen georeferenciada.
-      /// TODO: mostrar coordenadas en la barra de estado
-      bool geo = imageReader->isGeoreferenced();
+            /// Imagen georeferenciada.
+            /// TODO: mostrar coordenadas en la barra de estado
+            bool geo = imageReader->isGeoreferenced();
 
-      cv::Mat bmp;
+            cv::Mat bmp;
 
-      tl::DataType data_type = imageReader->dataType();
-      if (data_type == tl::DataType::TL_32F ||
-          data_type == tl::DataType::TL_64F) {
-        /// TODO: Aplicar paleta, mapa de sombras, etc, al DTM
-      } else {
-        bmp = imageReader->read();
-      }
+            tl::DataType data_type = imageReader->dataType();
+            if (data_type == tl::DataType::TL_32F ||
+                data_type == tl::DataType::TL_64F) {
+                /// TODO: Aplicar paleta, mapa de sombras, etc, al DTM
+            } else {
+                bmp = imageReader->read();
+            }
 
-      image = cvMatToQImage(bmp);
+            image = cvMatToQImage(bmp);
 
-      imageReader->close();
+            imageReader->close();
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
     }
 
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
-  }
-
-  return image;
+    return image;
 }
 
 const std::unordered_map<size_t, QString> &MainWindowModel::features() const
 {
-  return mProject->features();
+    return mProject->features();
 }
 
 std::vector<size_t> MainWindowModel::imagePairs(size_t imageId) const
 {
-  std::vector<size_t> image_pairs = mProject->matchesPairs(imageId);
-  return image_pairs;
+    std::vector<size_t> image_pairs = mProject->matchesPairs(imageId);
+    return image_pairs;
 }
 
 tl::Path MainWindowModel::sparseModel() const
 {
-  return mProject->sparseModel();
+    return mProject->sparseModel();
 }
 
 bool MainWindowModel::isAbsoluteOrientation() const
 {
-  return !mProject->offset().empty();
+    return !mProject->offset().empty();
 }
 
 const std::unordered_map<size_t, CameraPose> &MainWindowModel::poses() const
 {
-  return mProject->poses();
+    return mProject->poses();
 }
 
 tl::Path MainWindowModel::denseModel() const
 {
-  return mProject->denseModel();
+    return mProject->denseModel();
 }
 
 tl::Path MainWindowModel::mesh() const
 {
-  return mProject->meshPath();
+    return mProject->meshPath();
 }
 
 QString MainWindowModel::graphicViewerBackgroundColor() const
 {
-  return mSettings->value("ImageViewer/BackgroundColor", "#dcdcdc").toString();
+    return mSettings->value("ImageViewer/BackgroundColor", "#dcdcdc").toString();
 }
 
 //bool MainWindowModel::checkUnsavedChanges() const
@@ -198,18 +198,18 @@ QString MainWindowModel::graphicViewerBackgroundColor() const
 
 bool MainWindowModel::checkOldVersion(const tl::Path &file) const
 {
-  return mProject->checkOldVersion(file);
+    return mProject->checkOldVersion(file);
 }
 
 void MainWindowModel::oldVersionBackup(const tl::Path &file) const
 {
-  mProject->oldVersionBak(file);
+    mProject->oldVersionBak(file);
 }
 
 void MainWindowModel::load(const tl::Path &file)
 {
-  mProject->load(file);
-  //bUnsavedChanges = false;
+    mProject->load(file);
+    //bUnsavedChanges = false;
 }
 
 //void MainWindowModel::save()
@@ -238,7 +238,7 @@ void MainWindowModel::init()
 
 void MainWindowModel::clear()
 {
-  mProject->clear();
+    mProject->clear();
 }
 
 

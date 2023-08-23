@@ -36,17 +36,17 @@ class SaveProjectAsPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectAsPresenter(){}
-  virtual ~SaveProjectAsPresenter() override = default;
+    SaveProjectAsPresenter() {}
+    virtual ~SaveProjectAsPresenter() override = default;
 
 public slots:
 
-  virtual void save(const QString &file) = 0;
-  
+    virtual void save(const QString &file) = 0;
+
 };
 
 } // namespace graphos

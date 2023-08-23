@@ -34,34 +34,34 @@ class GeoreferenceComponent
   : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  GeoreferenceComponent(Application *application);
-  ~GeoreferenceComponent();
+    GeoreferenceComponent(Application *application);
+    ~GeoreferenceComponent();
 
 private:
 
-  void init();
+    void init();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
-  // TaskComponent
+// TaskComponent
 
 protected slots:
 
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 
 };
 

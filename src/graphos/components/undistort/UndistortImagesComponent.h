@@ -34,35 +34,35 @@ class UndistortImagesComponent
   : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  UndistortImagesComponent(Application *application);
-  ~UndistortImagesComponent() override;
+    UndistortImagesComponent(Application *application);
+    ~UndistortImagesComponent() override;
 
 private:
 
-  void init();
+    void init();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 // TaskComponent
 
 protected slots:
 
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
-  
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
+
 };
 
 } // namespace graphos

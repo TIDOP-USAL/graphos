@@ -29,7 +29,7 @@ namespace graphos
 CloseProjectViewImp::CloseProjectViewImp(QWidget *parent)
   : CloseProjectView(parent)
 {
-  this->init();
+    this->init();
 }
 
 void CloseProjectViewImp::init()

@@ -34,16 +34,16 @@ class ImportCamerasComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImportCamerasComponent(Application *application);
-  ~ImportCamerasComponent();
+    ImportCamerasComponent(Application *application);
+    ~ImportCamerasComponent();
 
 private slots:
 
-  void onImportedCameras();
+    void onImportedCameras();
 
 signals:
 
@@ -52,11 +52,11 @@ signals:
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

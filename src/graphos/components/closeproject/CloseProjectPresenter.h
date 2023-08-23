@@ -36,16 +36,16 @@ class CloseProjectPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CloseProjectPresenter(){}
-  virtual ~CloseProjectPresenter() override = default;
+    CloseProjectPresenter() {}
+    virtual ~CloseProjectPresenter() override = default;
 
 signals:
 
-  void projectClosed();
+    void projectClosed();
 
 };
 

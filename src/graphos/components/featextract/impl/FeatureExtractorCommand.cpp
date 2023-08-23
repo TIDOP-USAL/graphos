@@ -26,12 +26,11 @@
 
 #include "graphos/core/utils.h"
 #include "graphos/core/features/featio.h"
-#include "graphos/core/features/sift.h"
 #include "graphos/core/features/featextract.h"
 #include "graphos/core/project.h"
-//#include "graphos/components/featextract/impl/FeatureExtractorTask.h"
 
-#include <tidop/core/messages.h>
+
+#include <tidop/core/msg/message.h>
 
 #include <QFileInfo>
 #include <QSqlQuery>
@@ -50,36 +49,31 @@ namespace graphos
 FeatureExtractorCommand::FeatureExtractorCommand()
   : Command("featextract", "Feature extraction (SIFT)"),
     mProjectFile(""),
-    mMaxImageSize(3200),
     mDisableCuda(false)
 {
-  SiftProperties siftProperties;
-  mMaxFeaturesNumber = siftProperties.featuresNumber();
-  mOctaveResolution = siftProperties.octaveLayers();
-  mContrastThreshold = siftProperties.contrastThreshold();
-  mEdgeThreshold = siftProperties.edgeThreshold();
+    SiftProperties siftProperties;
+    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<int>("max_image_size", 's', "Maximum image size", 3200);
+    this->addArgument<int>("max_features_number", "Maximum number of features to detect", siftProperties.featuresNumber());
+    this->addArgument<int>("octave_resolution", "SIFT: Number of layers in each octave", siftProperties.octaveLayers());
+    this->addArgument<double>("contrast_threshold", "SIFT: Contrast Threshold", siftProperties.contrastThreshold());
+    this->addArgument<double>("edge_threshold", "SIFT: Threshold used to filter out edge-like features", siftProperties.edgeThreshold());
 
-  this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
-  this->push_back(CreateArgumentIntegerOptional("max_image_size", 's', std::string("Maximum image size (default = ").append(std::to_string(mMaxImageSize)).append(")"), &mMaxImageSize));
-  this->push_back(CreateArgumentIntegerOptional("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(mMaxFeaturesNumber)).append(")"), &mMaxFeaturesNumber));
-  this->push_back(CreateArgumentIntegerOptional("SIFT:octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(mOctaveResolution)).append(")"), &mOctaveResolution));
-  this->push_back(CreateArgumentDoubleOptional("SIFT:contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(mContrastThreshold)).append(")"), &mContrastThreshold));
-  this->push_back(CreateArgumentDoubleOptional("SIFT:edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(mEdgeThreshold)).append(")"), &mEdgeThreshold));
-  
+
 #ifdef HAVE_CUDA
-  tl::MessageManager::instance().pause();
-  bool cuda_enabled = cudaEnabled(10.0, 3.0);
-  tl::MessageManager::instance().resume();
-  if(cuda_enabled)
-    this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
-  else mDisableCuda = true;
+    tl::Message::instance().pauseMessages();
+    bool cuda_enabled = cudaEnabled(10.0, 3.0);
+    tl::Message::instance().resumeMessages();
+    if (cuda_enabled)
+        this->addArgument<bool>("disable_cuda", "If true disable CUDA", mDisableCuda);
+    else mDisableCuda = true;
 #else
-  mDisableCuda = true;
+    mDisableCuda = true;
 #endif //HAVE_CUDA
 
-  this->addExample("featextract --p 253/253.xml");
+    this->addExample("featextract --p 253/253.xml");
 
-  this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
+    this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
 FeatureExtractorCommand::~FeatureExtractorCommand()
@@ -88,63 +82,72 @@ FeatureExtractorCommand::~FeatureExtractorCommand()
 
 bool FeatureExtractorCommand::run()
 {
-  bool r = false;
+    bool r = false;
 
-  QString file_path;
-  QString project_path;
+    QString file_path;
+    QString project_path;
 
-  try {
+    try {
 
-    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
+        tl::Path projectFile = this->value<std::string>("prj");
+        int max_image_size = this->value<int>("max_image_size");
+        int max_features_number = this->value<int>("max_features_number");
+        int octave_resolution = this->value<int>("octave_resolution");
+        int contrast_threshold = this->value<double>("contrast_threshold");
+        int edge_threshold = this->value<double>("edge_threshold");
+        if (!mDisableCuda)
+            mDisableCuda = this->value<bool>("disable_cuda");
 
-    ProjectImp project;
-    project.load(mProjectFile);
-    tl::Path database_path = project.database();
+        TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
+        TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
 
-    tl::Path::removeFile(database_path);
-    project.removeFeatures();
+        ProjectImp project;
+        project.load(mProjectFile);
+        tl::Path database_path = project.database();
 
-    std::shared_ptr<FeatureExtractor> feature_extractor;
+        tl::Path::removeFile(database_path);
+        project.removeFeatures();
 
-    if(mDisableCuda) {
-      feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(mMaxFeaturesNumber,
-                                                                      mOctaveResolution,
-                                                                      mEdgeThreshold,
-                                                                      mContrastThreshold);
-      
-    } else {
-      feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mMaxFeaturesNumber,
-                                                                       mOctaveResolution,
-                                                                       mEdgeThreshold,
-                                                                       mContrastThreshold);
+        std::shared_ptr<FeatureExtractor> feature_extractor;
+
+        if (mDisableCuda) {
+            feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(max_features_number,
+                                                                            octave_resolution,
+                                                                            edge_threshold,
+                                                                            contrast_threshold);
+
+        } else {
+            feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(max_features_number,
+                                                                             octave_resolution,
+                                                                             edge_threshold,
+                                                                             contrast_threshold);
+        }
+
+        FeatureExtractorTask feature_extractor_process(project.images(),
+                                                       project.cameras(),
+                                                       database_path,
+                                                       max_image_size,
+                                                       !mDisableCuda,
+                                                       feature_extractor);
+
+        connect(&feature_extractor_process, &FeatureExtractorTask::features_extracted,
+                [&](size_t imageId, const QString &featuresFile) {
+                    project.addFeatures(imageId, featuresFile);
+                });
+
+        feature_extractor_process.run();
+
+        project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
+        project.save(mProjectFile);
+
+    } catch (const std::exception &e) {
+
+        printException(e);
+
+        r = true;
     }
 
-    FeatureExtractorTask feature_extractor_process(project.images(),
-                                                   project.cameras(),
-                                                   database_path,
-                                                   mMaxImageSize,
-                                                   !mDisableCuda,
-                                                   feature_extractor);
-
-    connect(&feature_extractor_process, &FeatureExtractorTask::features_extracted, 
-            [&](size_t imageId, const QString &featuresFile){
-              project.addFeatures(imageId, featuresFile);
-            });
-
-    feature_extractor_process.run();
-
-    project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
-    project.save(mProjectFile);
-
-  } catch (const std::exception &e) {
-
-    printException(e);
-    
-    r = true;
-  }
-
-  return r;
+    return r;
 }
 
 } // namespace graphos

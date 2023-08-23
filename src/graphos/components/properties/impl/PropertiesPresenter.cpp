@@ -37,7 +37,7 @@
 namespace graphos
 {
 
-	
+
 PropertiesPresenterImp::PropertiesPresenterImp(PropertiesView *view,
                                                PropertiesModel *model,
                                                AppStatus *status)
@@ -46,20 +46,20 @@ PropertiesPresenterImp::PropertiesPresenterImp(PropertiesView *view,
     mModel(model),
     mAppStatus(status)
 {
-  PropertiesPresenterImp::init();
-  PropertiesPresenterImp::initSignalAndSlots();
+    PropertiesPresenterImp::init();
+    PropertiesPresenterImp::initSignalAndSlots();
 }
 
 void PropertiesPresenterImp::setImageActive(size_t imageId)
 {
-  try {
+    try {
 
-    auto properties = mModel->exif(imageId);
-    mView->setProperties(properties);
-  
-  } catch(std::exception &e) {
-    tl::printException(e);
-  }
+        auto properties = mModel->exif(imageId);
+        mView->setProperties(properties);
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
 }
 
 void PropertiesPresenterImp::open()

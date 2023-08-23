@@ -38,7 +38,7 @@ namespace graphos
 FeaturesViewerComponent::FeaturesViewerComponent(Application *application)
   : ComponentBase(application)
 {
-  init();
+    init();
 }
 
 FeaturesViewerComponent::~FeaturesViewerComponent()
@@ -47,34 +47,34 @@ FeaturesViewerComponent::~FeaturesViewerComponent()
 
 void FeaturesViewerComponent::init()
 {
-  setName("Features Viewer");
-  setMenu("tools");
-  setToolbar("tools");
+    setName("Features Viewer");
+    setMenu("tools");
+    setToolbar("tools");
 
-  action()->setIcon(QIcon::fromTheme("features-viewer"));
+    action()->setIcon(QIcon::fromTheme("features-viewer"));
 }
 
 void FeaturesViewerComponent::openKeypointsViewer(size_t imageId)
 {
-  action()->trigger();
-  dynamic_cast<FeaturesViewerPresenter *>(presenter())->setImageActive(imageId);
+    action()->trigger();
+    dynamic_cast<FeaturesViewerPresenter *>(presenter())->setImageActive(imageId);
 }
 
 void FeaturesViewerComponent::createModel()
 {
-  setModel(new FeaturesViewerModelImp(app()->project()));
+    setModel(new FeaturesViewerModelImp(app()->project()));
 }
 
 void FeaturesViewerComponent::createView()
 {
-  Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-  setView(new FeaturesViewerViewImp(nullptr, f));
+    Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+    setView(new FeaturesViewerViewImp(nullptr, f));
 }
 
 void FeaturesViewerComponent::createPresenter()
 {
-  setPresenter(new FeaturesViewerPresenterImp(dynamic_cast<FeaturesViewerView *>(view()), 
-                                              dynamic_cast<FeaturesViewerModel *>(model())));
+    setPresenter(new FeaturesViewerPresenterImp(dynamic_cast<FeaturesViewerView *>(view()),
+                 dynamic_cast<FeaturesViewerModel *>(model())));
 }
 
 void FeaturesViewerComponent::createCommand()
@@ -83,13 +83,13 @@ void FeaturesViewerComponent::createCommand()
 
 void FeaturesViewerComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bFeatureExtraction = app_status->isEnabled(AppStatus::Flag::feature_extraction);
-  action()->setEnabled(bFeatureExtraction);
+    bool bFeatureExtraction = app_status->isEnabled(AppStatus::Flag::feature_extraction);
+    action()->setEnabled(bFeatureExtraction);
 }
 
 } // namespace graphos

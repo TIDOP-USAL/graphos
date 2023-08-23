@@ -36,20 +36,20 @@ class SettingsPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SettingsPresenter() = default;
-  virtual ~SettingsPresenter() override = default;
+    SettingsPresenter() = default;
+    virtual ~SettingsPresenter() override = default;
 
 public slots:
 
-  virtual void setLanguage(const QString &language) = 0;
-  virtual void setFeatureViewer(FeatureViewerSettingsWidget *widget) = 0;
-  virtual void setMatchesViewer(MatchViewerSettingsWidget *widget)  = 0;
-  virtual void save() = 0;
-  virtual void discart() = 0;
+    virtual void setLanguage(const QString &language) = 0;
+    virtual void setFeatureViewer(FeatureViewerSettingsWidget *widget) = 0;
+    virtual void setMatchesViewer(MatchViewerSettingsWidget *widget) = 0;
+    virtual void save() = 0;
+    virtual void discart() = 0;
 
 };
 

@@ -33,7 +33,7 @@
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 #include <QHeaderView>
 #include <QTreeWidgetItem>
@@ -1035,8 +1035,8 @@ void MainWindowView::initUI()
   this->initProgressBar();
 
   // Configuración de mensajes
-  tl::MessageManager &msg_h = tl::MessageManager::instance();
-  msg_h.addListener(mLogWidget);
+  auto &msg_h = tl::Message::instance();
+  msg_h.addMessageHandler(mLogWidget);
 
   this->readSettings();
 

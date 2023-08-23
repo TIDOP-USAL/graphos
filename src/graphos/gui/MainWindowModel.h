@@ -40,61 +40,61 @@ namespace graphos
 class MainWindowModel
   : public Model
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit MainWindowModel(Project *project);
-  ~MainWindowModel();
+    explicit MainWindowModel(Project *project);
+    ~MainWindowModel();
 
-  QString projectName() const;
-  tl::Path projectPath() const;
+    QString projectName() const;
+    tl::Path projectPath() const;
 
-  const std::unordered_map<size_t, Image> &images() const;
-  Image image(size_t imageId) const;
-  const std::map<int, Camera> &cameras() const;
-  Camera camera(int id) const;
-  void deleteImages(const std::vector<size_t> &imageIds);
-  QImage readImage(size_t imageId);
+    const std::unordered_map<size_t, Image> &images() const;
+    Image image(size_t imageId) const;
+    const std::map<int, Camera> &cameras() const;
+    Camera camera(int id) const;
+    void deleteImages(const std::vector<size_t> &imageIds);
+    QImage readImage(size_t imageId);
 
-  const std::unordered_map<size_t, QString> &features() const;
-  std::vector<size_t> imagePairs(size_t imageId) const;
+    const std::unordered_map<size_t, QString> &features() const;
+    std::vector<size_t> imagePairs(size_t imageId) const;
 
-  tl::Path sparseModel() const;
-  bool isAbsoluteOrientation() const;
+    tl::Path sparseModel() const;
+    bool isAbsoluteOrientation() const;
 
-  const std::unordered_map<size_t, CameraPose> &poses() const;
+    const std::unordered_map<size_t, CameraPose> &poses() const;
 
-  tl::Path denseModel() const;
-  tl::Path mesh() const;
+    tl::Path denseModel() const;
+    tl::Path mesh() const;
 
-  QString graphicViewerBackgroundColor() const;
+    QString graphicViewerBackgroundColor() const;
 
-  //bool checkUnsavedChanges() const;
-  bool checkOldVersion(const tl::Path &file) const;
-  void oldVersionBackup(const tl::Path &file) const;
+    //bool checkUnsavedChanges() const;
+    bool checkOldVersion(const tl::Path &file) const;
+    void oldVersionBackup(const tl::Path &file) const;
 
 public slots:
 
-  void load(const tl::Path &file);
-  //void save();
-  //void saveAs(const tl::Path &file);
+    void load(const tl::Path &file);
+    //void save();
+    //void saveAs(const tl::Path &file);
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
-  //bool bUnsavedChanges;
+    Project *mProject;
+    QSettings *mSettings;
+    //bool bUnsavedChanges;
 };
 
 } // namespace graphos

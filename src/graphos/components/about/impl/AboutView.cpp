@@ -37,11 +37,11 @@
 namespace graphos
 {
 
-AboutViewImp::AboutViewImp(QWidget *parent) 
+AboutViewImp::AboutViewImp(QWidget *parent)
   : AboutView(parent)
 {
-  AboutViewImp::initUI();
-  AboutViewImp::initSignalAndSlots();
+    AboutViewImp::initUI();
+    AboutViewImp::initSignalAndSlots();
 }
 
 AboutViewImp::~AboutViewImp()
@@ -50,98 +50,97 @@ AboutViewImp::~AboutViewImp()
 
 void AboutViewImp::setGraphosVersion(const QString &version)
 {
-  mLabelGraphosVersion->setText(mLabelGraphosVersion->text() + " " + version);
+    mLabelGraphosVersion->setText(mLabelGraphosVersion->text() + " " + version);
 }
 
 void AboutViewImp::setGraphosLicence(const QString &licence)
 {
-  mTextEditGraphosLicence->setPlainText(licence);
+    mTextEditGraphosLicence->setPlainText(licence);
 }
 
-void AboutViewImp::addLicence(const QString &product, 
+void AboutViewImp::addLicence(const QString &product,
                               const QString &licence)
 {
-  QListWidgetItem *item = new QListWidgetItem(mListWidgetThirdPartyLiceses);
-  item->setText(product);
+    QListWidgetItem *item = new QListWidgetItem(mListWidgetThirdPartyLiceses);
+    item->setText(product);
 
-  QWidget *page = new QWidget(this);
-  QGridLayout *gridLayout = new QGridLayout(page);
-  gridLayout->setContentsMargins(0, 0, 0, 0);
-  QPlainTextEdit *plainText = new QPlainTextEdit(page);
-  plainText->setPlainText(licence);
-  gridLayout->addWidget(plainText, 0, 0, 1, 1);
+    QWidget *page = new QWidget(this);
+    QGridLayout *gridLayout = new QGridLayout(page);
+    gridLayout->setContentsMargins(0, 0, 0, 0);
+    QPlainTextEdit *plainText = new QPlainTextEdit(page);
+    plainText->setPlainText(licence);
+    gridLayout->addWidget(plainText, 0, 0, 1, 1);
 
-  mStackedWidgetThirdPartyLicenses->addWidget(page);
+    mStackedWidgetThirdPartyLicenses->addWidget(page);
 }
 
 void AboutViewImp::initUI()
 {
-  this->setObjectName(QString::fromUtf8("AboutView"));
-  //this->setWindowIcon(QIcon(":/ico/img/GraphosIcon.ico"));
-  this->resize(692, 540);
+    this->setObjectName(QString::fromUtf8("AboutView"));
+    this->resize(692, 540);
 
-  QGridLayout *layout = new QGridLayout();
-  this->setLayout(layout);
+    QGridLayout *layout = new QGridLayout();
+    this->setLayout(layout);
 
-  mLabelGraphosLogo = new QLabel(this);
-  mLabelGraphosLogo->setPixmap(QPixmap(QString::fromUtf8(":/images/img/graphos.png")));
-  layout->addWidget(mLabelGraphosLogo, 0, 0, 1, 2);
+    mLabelGraphosLogo = new QLabel(this);
+    mLabelGraphosLogo->setPixmap(QPixmap(QString::fromUtf8(":/images/img/graphos.png")));
+    layout->addWidget(mLabelGraphosLogo, 0, 0, 1, 2);
 
-  mTabWidget = new QTabWidget(this);
+    mTabWidget = new QTabWidget(this);
 
-  mTabGraphosLicence = new QWidget();
-  mTabGraphosLicence->setObjectName(QString::fromUtf8("tab"));
-  gridLayout_4 = new QGridLayout(mTabGraphosLicence);
-  gridLayout_4->setSpacing(0);
-  gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
-  gridLayout_4->setContentsMargins(9, 3, 9, 3);
+    mTabGraphosLicence = new QWidget();
+    mTabGraphosLicence->setObjectName(QString::fromUtf8("tab"));
+    gridLayout_4 = new QGridLayout(mTabGraphosLicence);
+    gridLayout_4->setSpacing(0);
+    gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
+    gridLayout_4->setContentsMargins(9, 3, 9, 3);
 
-  mTextEditGraphosLicence = new QTextEdit(mTabGraphosLicence);
-  gridLayout_4->addWidget(mTextEditGraphosLicence, 1, 0, 1, 1);
+    mTextEditGraphosLicence = new QTextEdit(mTabGraphosLicence);
+    gridLayout_4->addWidget(mTextEditGraphosLicence, 1, 0, 1, 1);
 
-  mTabWidget->addTab(mTabGraphosLicence, QString());
+    mTabWidget->addTab(mTabGraphosLicence, QString());
 
 
-  mTabThirdPartyLiceses = new QWidget();
+    mTabThirdPartyLiceses = new QWidget();
 
-  gridLayout_3 = new QGridLayout(mTabThirdPartyLiceses);
-  mListWidgetThirdPartyLiceses = new QListWidget(mTabThirdPartyLiceses);
-  mListWidgetThirdPartyLiceses->setMaximumSize(QSize(16777215, 120));
-  mListWidgetThirdPartyLiceses->setSortingEnabled(false);
+    gridLayout_3 = new QGridLayout(mTabThirdPartyLiceses);
+    mListWidgetThirdPartyLiceses = new QListWidget(mTabThirdPartyLiceses);
+    mListWidgetThirdPartyLiceses->setMaximumSize(QSize(16777215, 120));
+    mListWidgetThirdPartyLiceses->setSortingEnabled(false);
 
-  gridLayout_3->addWidget(mListWidgetThirdPartyLiceses, 0, 0, 1, 1);
+    gridLayout_3->addWidget(mListWidgetThirdPartyLiceses, 0, 0, 1, 1);
 
-  mStackedWidgetThirdPartyLicenses = new QStackedWidget(mTabThirdPartyLiceses);
+    mStackedWidgetThirdPartyLicenses = new QStackedWidget(mTabThirdPartyLiceses);
 
-  gridLayout_3->addWidget(mStackedWidgetThirdPartyLicenses, 1, 0, 1, 1);
+    gridLayout_3->addWidget(mStackedWidgetThirdPartyLicenses, 1, 0, 1, 1);
 
-  mTabWidget->addTab(mTabThirdPartyLiceses, QString());
+    mTabWidget->addTab(mTabThirdPartyLiceses, QString());
 
-  layout->addWidget(mTabWidget, 3, 0, 1, 3);
+    layout->addWidget(mTabWidget, 3, 0, 1, 3);
 
-  mLabelGraphosVersion = new QLabel(this);
-  mLabelGraphosVersion->setObjectName(QString::fromUtf8("label_2"));
+    mLabelGraphosVersion = new QLabel(this);
+    mLabelGraphosVersion->setObjectName(QString::fromUtf8("label_2"));
 
-  layout->addWidget(mLabelGraphosVersion, 1, 0, 1, 3);
+    layout->addWidget(mLabelGraphosVersion, 1, 0, 1, 3);
 
-  mButtonBox = new QDialogButtonBox(this);
-  mButtonBox->setObjectName(QString::fromUtf8("buttonBox"));
-  mButtonBox->setOrientation(Qt::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Ok);
+    mButtonBox = new QDialogButtonBox(this);
+    mButtonBox->setObjectName(QString::fromUtf8("buttonBox"));
+    mButtonBox->setOrientation(Qt::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Ok);
 
-  layout->addWidget(mButtonBox, 4, 0, 1, 3);
+    layout->addWidget(mButtonBox, 4, 0, 1, 3);
 
-  mTabWidget->setCurrentIndex(0);
-  mStackedWidgetThirdPartyLicenses->setCurrentIndex(0);
+    mTabWidget->setCurrentIndex(0);
+    mStackedWidgetThirdPartyLicenses->setCurrentIndex(0);
 
-  this->retranslate();
+    this->retranslate();
 }
 
 void AboutViewImp::initSignalAndSlots()
 {
-  connect(mListWidgetThirdPartyLiceses, &QListWidget::currentRowChanged,
-          mStackedWidgetThirdPartyLicenses, &QStackedWidget::setCurrentIndex);
-  connect(mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::close);
+    connect(mListWidgetThirdPartyLiceses, &QListWidget::currentRowChanged,
+            mStackedWidgetThirdPartyLicenses, &QStackedWidget::setCurrentIndex);
+    connect(mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::close);
 }
 
 void AboutViewImp::clear()
@@ -156,11 +155,11 @@ void AboutViewImp::update()
 
 void AboutViewImp::retranslate()
 {
-  this->setWindowTitle(QCoreApplication::translate("AboutView", "About Graphos", nullptr));
-  mTabWidget->setTabText(mTabWidget->indexOf(mTabGraphosLicence), QCoreApplication::translate("AboutView", "Licence", nullptr));
-  mTabWidget->setTabText(mTabWidget->indexOf(mTabThirdPartyLiceses), QCoreApplication::translate("AboutView", "Third Party Licences", nullptr));
-  mLabelGraphosVersion->setText(QCoreApplication::translate("AboutView", "Version:", nullptr));
-} 
+    this->setWindowTitle(QCoreApplication::translate("AboutView", "About Graphos", nullptr));
+    mTabWidget->setTabText(mTabWidget->indexOf(mTabGraphosLicence), QCoreApplication::translate("AboutView", "Licence", nullptr));
+    mTabWidget->setTabText(mTabWidget->indexOf(mTabThirdPartyLiceses), QCoreApplication::translate("AboutView", "Third Party Licences", nullptr));
+    mLabelGraphosVersion->setText(QCoreApplication::translate("AboutView", "Version:", nullptr));
+}
 
 
 } // namespace graphos

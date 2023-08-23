@@ -32,20 +32,17 @@
 
 namespace graphos
 {
-  
+
 CreateProjectCommand::CreateProjectCommand()
-  : Command("createproj", "Create Graphos project"),
-    mProjectName(""),
-    mProjectDescription(""),
-    mForceOverwrite(false)
+  : Command("createproj", "Create Graphos project")
 {
-  this->push_back(CreateArgumentStringRequired("name", 'n', "Project name or project file (.xml)", &mProjectName));
-  this->push_back(CreateArgumentStringOptional("description", 'd', "Project description", &mProjectDescription));
-  this->push_back(CreateArgumentBooleanOptional("overwrite", 'o', "Force project overwrite (default = false)", &mForceOverwrite));
+    this->addArgument<std::string>("name", 'n', "Project name or project file (.xml)");
+    this->addArgument<std::string>("description", 'd', "Project description", "");
+    this->addArgument<bool>("overwrite", 'o', "Force project overwrite (default = false)", false);
 
-  this->addExample("createproj --name inspector ");
+    this->addExample("createproj --name inspector ");
 
-  this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
+    this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
 CreateProjectCommand::~CreateProjectCommand()
@@ -54,74 +51,78 @@ CreateProjectCommand::~CreateProjectCommand()
 
 bool CreateProjectCommand::run()
 {
-  bool r = false;
+    bool r = false;
 
-  tl::Path file_path;
-  QString base_name;
-  tl::Path project_path;
+    tl::Path file_path;
+    QString base_name;
+    tl::Path project_path;
 
-  try {
+    try {
 
-    QFileInfo file_info(mProjectName.c_str());
-    
-    if (file_info.isRelative()) {
+        std::string projectName = this->value<std::string>("name");
+        std::string projectDescription = this->value<std::string>("description");
+        bool forceOverwrite = this->value<bool>("overwrite");
 
-      file_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
-      file_path.append("graphos").append("Projects");
+        QFileInfo file_info(projectName.c_str());
 
-      QString extension = file_info.suffix();
-      QString file_name;
-      if (extension.compare(".xml", Qt::CaseInsensitive) == 0) {
-        base_name = file_info.baseName();
-        file_name = file_info.fileName();
-      } else {
-        file_name = base_name = file_info.baseName();
-        file_name.append(".xml");
-      }
-      project_path = file_path.append(base_name.toStdWString());
-      file_path.append(file_name.toStdWString());
+        if (file_info.isRelative()) {
 
-    } else {
-      
-      base_name = file_info.baseName();
-      file_path = mProjectName;
-      project_path = file_info.path().toStdWString();
+            file_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
+            file_path.append("graphos").append("Projects");
 
+            QString extension = file_info.suffix();
+            QString file_name;
+            if (extension.compare(".xml", Qt::CaseInsensitive) == 0) {
+                base_name = file_info.baseName();
+                file_name = file_info.fileName();
+            } else {
+                file_name = base_name = file_info.baseName();
+                file_name.append(".xml");
+            }
+            project_path = file_path.append(base_name.toStdWString());
+            file_path.append(file_name.toStdWString());
+
+        } else {
+
+            base_name = file_info.baseName();
+            file_path = projectName;
+            project_path = file_info.path().toStdWString();
+
+        }
+
+        tl::Path database_path = file_path;
+        database_path.replaceExtension(".db");
+
+        if (project_path.exists()) {
+            if (forceOverwrite) {
+                tl::Path::removeDirectory(project_path);
+            } else {
+                throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
+            }
+        }
+
+        if (!project_path.createDirectories()) {
+            throw std::runtime_error("Project directory cannot be created: " + project_path.toString());
+        }
+
+        ProjectImp project;
+
+        project.setName(base_name);
+        project.setProjectFolder(project_path);
+        project.setDescription(projectDescription.c_str());
+        project.setDatabase(database_path);
+        project.save(file_path);
+
+        tl::Message::info("Project created");
+        tl::Message::info("- Name: {}", base_name.toStdString());
+        tl::Message::info("- Description: {}", projectDescription);
+
+    } catch (const std::exception &e) {
+        tl::printException(e);
+        r = true;
     }
 
-    tl::Path database_path = file_path;
-    database_path.replaceExtension(".db");
-    
-    if (project_path.exists()) {
-      if (mForceOverwrite) {
-        tl::Path::removeDirectory(project_path);
-      } else {
-        throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
-      }
-    }
-
-    if (!project_path.createDirectories()) {
-      throw std::runtime_error("Project directory cannot be created: " + project_path.toString());
-    }
-
-    ProjectImp project;
-
-    project.setName(base_name);
-    project.setProjectFolder(project_path);
-    project.setDescription(mProjectDescription.c_str());
-    project.setDatabase(database_path);
-    project.save(file_path);
-
-    msgInfo("Project created");
-    msgInfo("- Name: %s", base_name.toStdString().c_str());
-    msgInfo("- Description: %s", mProjectDescription.c_str());
-
-  } catch (const std::exception &e) {
-    tl::printException(e);
-    r = true;
-  }
-
-  return r;
+    return r;
 }
 
 } // namespace graphos

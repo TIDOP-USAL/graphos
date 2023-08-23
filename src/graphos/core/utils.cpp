@@ -25,7 +25,7 @@
 #include "graphos/core/Pdf.h"
 #include "graphos/core/ply.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
 
 #include <FileIOFilter.h>
