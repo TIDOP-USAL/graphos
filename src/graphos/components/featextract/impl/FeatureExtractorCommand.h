@@ -55,14 +55,7 @@ private:
 
 private:
 
-    tl::Path mProjectFile;
-    //int mMaxImageSize;
-    //int mMaxFeaturesNumber;
-    //int mOctaveResolution;
-    //double mContrastThreshold;
-    //double mEdgeThreshold;
     bool mDisableCuda;
-    //SiftProperties siftProperties;
 };
 
 

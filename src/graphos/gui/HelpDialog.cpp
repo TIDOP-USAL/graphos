@@ -66,7 +66,7 @@ namespace graphos
 {
 
 HelpDialog::HelpDialog(QWidget *parent)
-    : QDialog(parent, Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint)
+  : QDialog(parent, Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint)
 {
     init();
 

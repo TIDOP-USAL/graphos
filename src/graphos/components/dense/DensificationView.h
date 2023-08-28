@@ -38,25 +38,25 @@ class DensificationView
   : public DialogView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 
 public:
 
-  DensificationView(QWidget *parent) : DialogView(parent) {}
-  virtual ~DensificationView() {}
+    DensificationView(QWidget *parent) : DialogView(parent) {}
+    virtual ~DensificationView() {}
 
-  virtual QString currentDensificationMethod() const = 0;
+    virtual QString currentDensificationMethod() const = 0;
 
 signals:
 
-  void densificationChanged(QString);
-  void run();
+    void densificationChanged(QString);
+    void run();
 
 public slots:
 
-  virtual void addDensification(QWidget *densification) = 0;
-  virtual void setCurrentDensificationMethod(const QString &densificationMethod) = 0;
+    virtual void addDensification(QWidget *densification) = 0;
+    virtual void setCurrentDensificationMethod(const QString &densificationMethod) = 0;
 
 };
 

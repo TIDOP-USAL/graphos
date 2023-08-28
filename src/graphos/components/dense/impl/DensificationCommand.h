@@ -48,26 +48,6 @@ private:
 
 private:
 
-	//tl::Path mProjectFile;
-	//std::string mDensificationMethod;
-	//bool mPmvsUseVisibilityInformation;
-	//int mPmvsImagesPerCluster;
-	//int mPmvsLevel;
-	//int mPmvsCellSize;
-	//double mPmvsThreshold;
-	//int mPmvsWindowSize;
-	//int mPmvsMinimunImageNumber;
-	//bool mPmvsImageOriginalDepth;
-	//int mSmvsInputImageScale;
-	//int mSmvsOutputDepthScale;
-	//bool mSmvsShadingBasedOptimization;
-	//bool mSmvsSemiGlobalMatching;
-	//double mSmvsSurfaceSmoothingFactor;
-	//int mMvsResolutionLevel;
-	//int mMvsMinResolution;
-	//int mMvsMaxResolution;
-	//int mMvsNumberViews;
-	//int mMvsNumberViewsFuse;
 	bool mDisableCuda;
     Project *mProject;
 };

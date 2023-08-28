@@ -38,20 +38,20 @@ class DensificationPresenter
 
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DensificationPresenter(){}
-  ~DensificationPresenter() override = default;
+    DensificationPresenter() {}
+    ~DensificationPresenter() override = default;
 
-  virtual void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) = 0;
-  virtual void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) = 0;
-  virtual void setMvsWidget(std::shared_ptr<MvsWidget> mvs) = 0;
+    virtual void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) = 0;
+    virtual void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) = 0;
+    virtual void setMvsWidget(std::shared_ptr<MvsWidget> mvs) = 0;
 
 public slots:
 
-  virtual void setCurrentDensifier(const QString &densifier) = 0;
+    virtual void setCurrentDensifier(const QString &densifier) = 0;
 
 };
 

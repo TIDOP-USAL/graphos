@@ -23,7 +23,7 @@ namespace graphos
 
 DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
                                                      DensificationModel *model)
-    : mView(view),
+  : mView(view),
     mModel(model),
     mCmvsPmvs(new CmvsPmvsWidgetImp),
     mSmvs(new SmvsWidgetImp),
@@ -35,20 +35,6 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
 
 DensificationPresenterImp::~DensificationPresenterImp()
 {
-    //if (mCmvsPmvs){
-    //  delete mCmvsPmvs;
-    //  mCmvsPmvs = nullptr;
-    //}
-
-    //if (mSmvs){
-    //  delete mSmvs;
-    //  mSmvs = nullptr;
-    //}
-
-    //if(mMVS) {
-    //  delete mMVS;
-    //  mMVS = nullptr;
-    //}
 }
 
 void DensificationPresenterImp::open()
@@ -63,11 +49,7 @@ void DensificationPresenterImp::open()
 
 void DensificationPresenterImp::init()
 {
-    //mView->addDensification(mMVS);
-    //mView->addDensification(mCmvsPmvs);
-    //mView->addDensification(mSmvs);
 
-    //mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
 }
 
 void DensificationPresenterImp::initSignalAndSlots()
@@ -248,6 +230,15 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         pmvs->setWindowSize(mCmvsPmvs->windowSize());
         pmvs->setMinimunImageNumber(mCmvsPmvs->minimunImageNumber());
 
+        auto properties = std::make_shared<CmvsPmvsProperties>(mCmvsPmvs->useVisibilityInformation(),
+                                                               mCmvsPmvs->imagesPerCluster(),
+                                                               mCmvsPmvs->level(),
+                                                               mCmvsPmvs->cellSize(),
+                                                               mCmvsPmvs->threshold(),
+                                                               mCmvsPmvs->windowSize(),
+                                                               mCmvsPmvs->minimunImageNumber());
+        mModel->setDensification(properties);
+
         dense_process = std::move(pmvs);
 
     } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
@@ -266,6 +257,13 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         smvs->setShadingBasedOptimization(mSmvs->shadingBasedOptimization());
         smvs->setSemiGlobalMatching(mSmvs->semiGlobalMatching());
         smvs->setSurfaceSmoothingFactor(mSmvs->surfaceSmoothingFactor());
+        
+        auto properties = std::make_shared<SmvsProperties>(mSmvs->inputImageScale(),
+                                                           mSmvs->outputDepthScale(),
+                                                           mSmvs->shadingBasedOptimization(),
+                                                           mSmvs->semiGlobalMatching(),
+                                                           mSmvs->surfaceSmoothingFactor());
+        mModel->setDensification(properties);
 
         dense_process = std::move(smvs);
 
@@ -287,14 +285,19 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         mvs->setNumberViewsFuse(mMVS->numberViewsFuse());
         mvs->setResolutionLevel(mMVS->resolutionLevel());
 
+        auto properties = std::make_shared<MvsProperties>(mMVS->resolutionLevel(),
+                                                          mMVS->minResolution(),
+                                                          mMVS->maxResolution(),
+                                                          mMVS->numberViews(),
+                                                          mMVS->numberViewsFuse());
+        mModel->setDensification(properties);
+
         dense_process = std::move(mvs);
 
     } else {
         mView->hide();
         throw std::runtime_error("Densification Method not valid");
     }
-
-    //mModel->setDensification(std::dynamic_pointer_cast<Densification>(densifier));
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);

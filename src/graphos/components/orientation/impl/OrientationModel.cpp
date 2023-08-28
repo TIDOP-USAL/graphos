@@ -35,7 +35,7 @@ OrientationModelImp::OrientationModelImp(Project *project,
   : OrientationModel(parent),
     mProject(project)
 {
-  this->init();
+    this->init();
 }
 
 
@@ -45,118 +45,118 @@ void OrientationModelImp::init()
 
 void OrientationModelImp::clear()
 {
-  
+
 }
 
 bool OrientationModelImp::calibratedCamera() const
 {
-  TL_TODO("Deberia contemplarse cámaras calibradas y sin calibrar")
-  bool calibrated = false;
-  for (const auto &camera : mProject->cameras()) {
-    if (camera.second.calibration()) calibrated = true;
-  }
-  return calibrated;
+    TL_TODO("Deberia contemplarse cámaras calibradas y sin calibrar")
+    bool calibrated = false;
+    for (const auto &camera : mProject->cameras()) {
+        if (camera.second.calibration()) calibrated = true;
+    }
+    return calibrated;
 }
 
 void OrientationModelImp::setSparseModel(const tl::Path &sparseModel)
 {
-  mProject->setSparseModel(sparseModel);
+    mProject->setSparseModel(sparseModel);
 }
 
 void OrientationModelImp::setOffset(const tl::Path &offset)
 {
-  mProject->setOffset(offset);
+    mProject->setOffset(offset);
 }
 
 void OrientationModelImp::setGroundPoints(const tl::Path &groundPoints)
 {
-  mProject->setGroundPoints(groundPoints);
+    mProject->setGroundPoints(groundPoints);
 }
 
 bool OrientationModelImp::isPhotoOriented(size_t imageId) const
 {
-  return mProject->isPhotoOriented(imageId);
+    return mProject->isPhotoOriented(imageId);
 }
 
 CameraPose OrientationModelImp::photoOrientation(size_t imageId) const
 {
-  return mProject->photoOrientation(imageId);
+    return mProject->photoOrientation(imageId);
 }
 
-void OrientationModelImp::addPhotoOrientation(size_t imageId, 
+void OrientationModelImp::addPhotoOrientation(size_t imageId,
                                               const CameraPose &orientation)
 {
-  mProject->addPhotoOrientation(imageId, orientation);
+    mProject->addPhotoOrientation(imageId, orientation);
 }
 
 tl::Path OrientationModelImp::database() const
 {
-  return mProject->database();
+    return mProject->database();
 }
 
 
 tl::Path OrientationModelImp::projectFolder() const
 {
-  return mProject->projectFolder();
+    return mProject->projectFolder();
 }
 
 bool OrientationModelImp::gpsPositions() const
 {
-  bool bGpsOrientation = false;
+    bool bGpsOrientation = false;
 
-  auto it = mProject->images().begin();
-  CameraPose camera_pose = it->second.cameraPose();
-  if (!camera_pose.isEmpty())
-    bGpsOrientation = true;
+    auto it = mProject->images().begin();
+    CameraPose camera_pose = it->second.cameraPose();
+    if (!camera_pose.isEmpty())
+        bGpsOrientation = true;
 
-  return bGpsOrientation;
+    return bGpsOrientation;
 }
 
 bool OrientationModelImp::rtkOrientations() const
 {
-  bool bRtkOrientations = false;
+    bool bRtkOrientations = false;
 
-  auto it = mProject->images().begin();
-  CameraPose camera_pose = it->second.cameraPose();
-  if (!camera_pose.isEmpty()) {
-    tl::math::Quaternion<double> q = camera_pose.quaternion();
-    if (q == tl::math::Quaternion<double>::zero())
-      bRtkOrientations = false;
-    else 
-      bRtkOrientations = true;
-  }
+    auto it = mProject->images().begin();
+    CameraPose camera_pose = it->second.cameraPose();
+    if (!camera_pose.isEmpty()) {
+        tl::Quaternion<double> q = camera_pose.quaternion();
+        if (q == tl::Quaternion<double>::zero())
+            bRtkOrientations = false;
+        else
+            bRtkOrientations = true;
+    }
 
-  return bRtkOrientations;
+    return bRtkOrientations;
 }
 
 tl::Path OrientationModelImp::reconstructionPath() const
 {
-  return mProject->reconstructionPath();
+    return mProject->reconstructionPath();
 }
 
 void OrientationModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
 {
-  mProject->setReconstructionPath(reconstructionPath);
+    mProject->setReconstructionPath(reconstructionPath);
 }
 
 void OrientationModelImp::clearProject()
 {
-  mProject->clearReconstruction();
+    mProject->clearReconstruction();
 }
 
 const std::map<int, Camera> &OrientationModelImp::cameras() const
 {
-  return mProject->cameras();
+    return mProject->cameras();
 }
 
 bool OrientationModelImp::updateCamera(int id, const Camera &camera)
 {
-  return mProject->updateCamera(id, camera);
+    return mProject->updateCamera(id, camera);
 }
 
 const std::unordered_map<size_t, Image> &OrientationModelImp::images() const
 {
-  return mProject->images();
+    return mProject->images();
 }
 
 } // namespace graphos

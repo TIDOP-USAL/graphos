@@ -1,8 +1,34 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
+
+#define BOOST_TEST_MODULE GRAPHOS cameras view test
+
+#include <boost/test/unit_test.hpp>
+
+#include "graphos/components/cameras/impl/CamerasView.h"
+
 #include <QtTest>
-#include <QCoreApplication>
-
-#include "graphos/components/cameras/CamerasView.h"
-
+#include <QApplication>
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QPushButton>
@@ -14,632 +40,536 @@
 
 using namespace graphos;
 
-class TestCamerasView 
-  : public CamerasViewImp
+BOOST_AUTO_TEST_SUITE(TestCamerasViewSuite)
+
+QApplication app(boost::unit_test::framework::master_test_suite().argc,
+                 boost::unit_test::framework::master_test_suite().argv);
+
+class TestCamerasView
+    : public CamerasViewImp
 {
-  Q_OBJECT
 
 public:
 
-  TestCamerasView();
-  ~TestCamerasView();
+    TestCamerasView() : CamerasViewImp() {}
+    ~TestCamerasView() {}
 
-private slots:
+    void setup() {}
+    void teardown() {}
 
-  void test_constructor();
-  void test_activeCamera();
-  void test_addCamera();
-  void test_enableCameraEdition();
-  void test_setMake();
-  void test_setModel();
-  void test_setWidth();
-  void test_setHeight();
-  void test_setSensorSize();
-  void test_setFocal();
-  void test_setType();
-  void test_setImages();
-  void test_setCalibCx();
-  void test_setCalibCy();
-  void test_setCalibF();
-  void test_setCalibFx();
-  void test_setCalibFy();
-  void test_setCalibK1();
-  void test_setCalibK2();
-  void test_setCalibK3();
-  void test_setCalibK4();
-  void test_setCalibK5();
-  void test_setCalibK6();
-  void test_setCalibP1();
-  void test_setCalibP2();
-
-  void test_cameraChange();
-  void test_makeChange();
-  void test_modelChange();
-//  void test_widthChange();
-//  void test_heightChange();
-  void test_sensorSizeChange();
-  void test_focalChange();
-  void test_typeChange();
-
-  void test_calibCxChange();
-  void test_calibCyChange();
-  void test_calibFChange();
-  void test_calibFxChange();
-  void test_calibFyChange();
-  void test_calibK1Change();
-  void test_calibK2Change();
-  void test_calibK3Change();
-  void test_calibK4Change();
-  void test_calibK5Change();
-  void test_calibK6Change();
-  void test_calibP1Change();
-  void test_calibP2Change();
-  void test_dialogButtonBox();
-  
 };
 
-TestCamerasView::TestCamerasView()
-  : CamerasViewImp()
-{
-  QApplication::setActiveWindow(this);
 
-}
 
-TestCamerasView::~TestCamerasView()
-{
-}
-
-void TestCamerasView::test_constructor()
-{
-}
-
-void TestCamerasView::test_activeCamera()
+BOOST_FIXTURE_TEST_CASE(add_camera, TestCamerasView)
 {
 
-}
+    this->addCamera(2, "Make-Model");
 
-void TestCamerasView::test_addCamera()
-{
-  this->addCamera(2, "Make-Model");
-
-  QListWidgetItem *item = nullptr;
-  for (int i = 0; i < mListWidgetCameras->count(); i++){
-    if (mListWidgetCameras->item(i)->data(Qt::UserRole).toInt() == 2){
-      item = mListWidgetCameras->item(i);
+    QListWidgetItem *item = nullptr;
+    for (int i = 0; i < mListWidgetCameras->count(); i++) {
+        if (mListWidgetCameras->item(i)->data(Qt::UserRole).toInt() == 2) {
+            item = mListWidgetCameras->item(i);
+        }
     }
-  }
 
-  QCOMPARE("Make-Model", item->text());
-  QCOMPARE(2, item->data(Qt::UserRole).toInt());
+    BOOST_CHECK_EQUAL("Make-Model", item->text().toStdString());
+    BOOST_CHECK_EQUAL(2, item->data(Qt::UserRole).toInt());
 }
 
-void TestCamerasView::test_enableCameraEdition()
+BOOST_FIXTURE_TEST_CASE(enable_camera_edition, TestCamerasView)
 {
-  this->enableCameraEdition(true);
+    this->enableCameraEdition(true);
 
-  QCOMPARE(true, this->mLineEditMake->isEnabled());
-  QCOMPARE(true, this->mLineEditModel->isEnabled());
-  QCOMPARE(true, this->mLineEditSensorSize->isEnabled());
-  QCOMPARE(true, this->mLineEditFocal->isEnabled());
+    BOOST_CHECK_EQUAL(true, this->mLineEditMake->isEnabled());
+    BOOST_CHECK_EQUAL(true, this->mLineEditModel->isEnabled());
+    BOOST_CHECK_EQUAL(true, this->mLineEditSensorSize->isEnabled());
+    BOOST_CHECK_EQUAL(true, this->mLineEditFocal->isEnabled());
 }
 
-void TestCamerasView::test_setMake()
+BOOST_FIXTURE_TEST_CASE(set_make, TestCamerasView)
 {
   this->setMake("DJI");
-  QCOMPARE("DJI", this->mLineEditMake->text());
+  BOOST_CHECK_EQUAL("DJI", this->mLineEditMake->text().toStdString());
 }
 
-void TestCamerasView::test_setModel()
+BOOST_FIXTURE_TEST_CASE(test_setModel, TestCamerasView)
 {
   this->setModel("FC6310");
-  QCOMPARE("FC6310", this->mLineEditModel->text());
+  BOOST_CHECK_EQUAL("FC6310", this->mLineEditModel->text().toStdString());
 }
 
-void TestCamerasView::test_setWidth()
+BOOST_FIXTURE_TEST_CASE(test_setWidth, TestCamerasView)
 {
   this->setWidth(5472);
-  QCOMPARE(5472, this->mSpinBoxWidth->value());
+  BOOST_CHECK_EQUAL(5472, this->mSpinBoxWidth->value());
 }
 
-void TestCamerasView::test_setHeight()
+BOOST_FIXTURE_TEST_CASE(test_setHeight, TestCamerasView)
 {
   this->setHeight(3648);
-  QCOMPARE(3648, this->mSpinBoxHeight->value());
+  BOOST_CHECK_EQUAL(3648, this->mSpinBoxHeight->value());
 }
 
-void TestCamerasView::test_setSensorSize()
+BOOST_FIXTURE_TEST_CASE(test_setSensorSize, TestCamerasView)
 {
   this->setSensorSize("12.8333");
-  QCOMPARE("12.8333", this->mLineEditSensorSize->text());
+  BOOST_CHECK_EQUAL("12.8333", this->mLineEditSensorSize->text().toStdString());
 }
 
-void TestCamerasView::test_setFocal()
+BOOST_FIXTURE_TEST_CASE(test_setFocal, TestCamerasView)
 {
   this->setFocal("3552.23");
-  QCOMPARE("3552.23", this->mLineEditFocal->text());
+  BOOST_CHECK_EQUAL("3552.23", this->mLineEditFocal->text().toStdString());
 }
 
-void TestCamerasView::test_setType()
+BOOST_FIXTURE_TEST_CASE(test_setType, TestCamerasView)
 {
-  this->setType("Simple Radial");
-  QCOMPARE("Simple Radial", this->mComboBoxType->currentText());
+  this->setType("Radial 2");
+  BOOST_CHECK_EQUAL("Radial 2", this->mComboBoxType->currentText().toStdString());
 }
 
-void TestCamerasView::test_setImages()
+BOOST_FIXTURE_TEST_CASE(test_setImages, TestCamerasView)
 {
   QStringList images;
   images.push_back("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png");
   images.push_back("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png");
   this->setImages(images);
 
-  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", this->mListWidgetImages->item(0)->text());
-  QCOMPARE("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", this->mListWidgetImages->item(1)->text());
+  BOOST_CHECK_EQUAL("C:/Users/User01/Documents/inspector/Projects/prj001/images/img001.png", this->mListWidgetImages->item(0)->text().toStdString());
+  BOOST_CHECK_EQUAL("C:/Users/User01/Documents/inspector/Projects/prj001/images/img002.png", this->mListWidgetImages->item(1)->text().toStdString());
 }
 
-void TestCamerasView::test_setCalibCx()
+BOOST_FIXTURE_TEST_CASE(test_setCalibCx, TestCamerasView)
 {
-  this->setCalibCx("0.6");
-  QCOMPARE("0.6", this->mLineEditCx->text());
+  this->setCalibCx(0.6);
+  BOOST_CHECK_EQUAL(0.6, this->mDoubleSpinBoxCx->value());
 }
 
-void TestCamerasView::test_setCalibCy()
+BOOST_FIXTURE_TEST_CASE(test_setCalibCy, TestCamerasView)
 {
-  this->setCalibCy("0.5");
-  QCOMPARE("0.5", this->mLineEditCy->text());
+  this->setCalibCy(0.5);
+  BOOST_CHECK_EQUAL(0.5, this->mDoubleSpinBoxCy->value());
 }
 
-void TestCamerasView::test_setCalibF()
+BOOST_FIXTURE_TEST_CASE(test_setCalibF, TestCamerasView)
 {
-  this->setCalibF("4000");
-  QCOMPARE("4000", this->mLineEditF->text());
+  this->setCalibF(4000);
+  BOOST_CHECK_EQUAL(4000, this->mDoubleSpinBoxF->value());
 }
 
-void TestCamerasView::test_setCalibFx()
+BOOST_FIXTURE_TEST_CASE(test_setCalibFx, TestCamerasView)
 {
-  this->setCalibFx("4000");
-  QCOMPARE("4000", this->mLineEditFx->text());
+  this->setCalibFx(4000);
+  BOOST_CHECK_EQUAL(4000, this->mDoubleSpinBoxFx->value());
 }
 
-void TestCamerasView::test_setCalibFy()
+BOOST_FIXTURE_TEST_CASE(test_setCalibFy, TestCamerasView)
 {
-  this->setCalibFy("4000");
-  QCOMPARE("4000", this->mLineEditFy->text());
+  this->setCalibFy(4000);
+  BOOST_CHECK_EQUAL(4000, this->mDoubleSpinBoxFy->value());
 }
 
-void TestCamerasView::test_setCalibK1()
+BOOST_FIXTURE_TEST_CASE(test_setCalibK1, TestCamerasView)
 {
-  this->setCalibK1("0.005");
-  QCOMPARE("0.005", this->mLineEditK1->text());
+  this->setCalibK1(0.005);
+  BOOST_CHECK_EQUAL(0.005, this->mDoubleSpinBoxK1->value());
 }
 
-void TestCamerasView::test_setCalibK2()
+BOOST_FIXTURE_TEST_CASE(test_setCalibK2, TestCamerasView)
 {
-  this->setCalibK2("0.001");
-  QCOMPARE("0.001", this->mLineEditK2->text());
+  this->setCalibK2(0.001);
+  BOOST_CHECK_EQUAL(0.001, this->mDoubleSpinBoxK2->value());
 }
 
-void TestCamerasView::test_setCalibK3()
+BOOST_FIXTURE_TEST_CASE(test_setCalibK3, TestCamerasView)
 {
-  this->setCalibK3("0.0001");
-  QCOMPARE("0.0001", this->mLineEditK3->text());
+  this->setCalibK3(0.0001);
+  BOOST_CHECK_EQUAL(0.0001, this->mDoubleSpinBoxK3->value());
 }
 
-void TestCamerasView::test_setCalibK4()
+BOOST_FIXTURE_TEST_CASE(test_setCalibK4, TestCamerasView)
 {
-  this->setCalibK4("0.0001");
-  QCOMPARE("0.0001", this->mLineEditK4->text());
+  this->setCalibK4(0.0001);
+  BOOST_CHECK_EQUAL(0.0001, this->mDoubleSpinBoxK4->value());
 }
 
-void TestCamerasView::test_setCalibK5()
+BOOST_FIXTURE_TEST_CASE(test_setCalibK5, TestCamerasView)
 {
-  this->setCalibK5("0.0001");
-  QCOMPARE("0.0001", this->mLineEditK5->text());
+  this->setCalibK5(0.0001);
+  BOOST_CHECK_EQUAL(0.0001, this->mDoubleSpinBoxK5->value());
 }
 
-void TestCamerasView::test_setCalibK6()
+BOOST_FIXTURE_TEST_CASE(test_setCalibK6, TestCamerasView)
 {
-  this->setCalibK6("0.0001");
-  QCOMPARE("0.0001", this->mLineEditK6->text());
+  this->setCalibK6(0.0001);
+  BOOST_CHECK_EQUAL(0.0001, this->mDoubleSpinBoxK6->value());
 }
 
-void TestCamerasView::test_setCalibP1()
+BOOST_FIXTURE_TEST_CASE(test_setCalibP1, TestCamerasView)
 {
-  this->setCalibP1("0.01");
-  QCOMPARE("0.01", this->mLineEditP1->text());
+  this->setCalibP1(0.01);
+  BOOST_CHECK_EQUAL(0.01, this->mDoubleSpinBoxP1->value());
 }
 
-void TestCamerasView::test_setCalibP2()
+BOOST_FIXTURE_TEST_CASE(test_setCalibP2, TestCamerasView)
 {
-  this->setCalibP2("0.001");
-  QCOMPARE("0.001", this->mLineEditP2->text());
+  this->setCalibP2(0.001);
+  BOOST_CHECK_EQUAL(0.001, this->mDoubleSpinBoxP2->value());
 }
 
-void TestCamerasView::test_cameraChange()
+BOOST_FIXTURE_TEST_CASE(test_cameraChange, TestCamerasView)
 {
   QSignalSpy spy_cameraChange(this, &TestCamerasView::cameraChange);
 
 }
 
-void TestCamerasView::test_makeChange()
-{
-  QSignalSpy spy_makeChange(this, &TestCamerasView::makeChanged);
-
-  this->mLineEditMake->clear();
-  QTest::keyClicks(this->mLineEditMake, "Canon");
-
-  QCOMPARE(spy_makeChange.count(), 5);
-
-  QList<QVariant> args = spy_makeChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "Canon");
-
-  spy_makeChange.clear();
-
-  this->setMake("Olympus");
-  QCOMPARE(spy_makeChange.count(), 0);
-}
-
-void TestCamerasView::test_modelChange()
-{
-  QSignalSpy spy_modelChange(this, &TestCamerasView::modelChanged);
-
-  this->mLineEditModel->clear();
-  QTest::keyClicks(this->mLineEditModel, "ILCE-6000");
-
-  QCOMPARE(spy_modelChange.count(), 9);
-
-  QList<QVariant> args = spy_modelChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "ILCE-6000");
-
-  spy_modelChange.clear();
-
-  this->setModel("FC6310");
-  QCOMPARE(spy_modelChange.count(), 0);
-}
-
-//void TestCamerasView::test_widthChange()
+//BOOST_FIXTURE_TEST_CASE(test_makeChange, TestCamerasView)
 //{
-//  QSKIP("revisar");
-//  QSignalSpy spy_widthChange(this, &TestCamerasView::widthChanged);
-
-//  this->mSpinBoxWidth->setValue(4000);
-
-//  QCOMPARE(spy_widthChange.count(), 1);
-
-//  QList<QVariant> args = spy_widthChange.takeFirst();
-//  QCOMPARE(args.at(0).toInt(), 4000);
-
-//  this->setWidth(4500);
-//  QCOMPARE(spy_widthChange.count(), 0);
+//  QSignalSpy spy_makeChange(this, &TestCamerasView::makeChanged);
+//
+//  this->mLineEditMake->clear();
+//  QTest::keyClicks(this->mLineEditMake, "Canon");
+//
+//  BOOST_CHECK_EQUAL(spy_makeChange.count(), 5);
+//
+//  QList<QVariant> args = spy_makeChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "Canon");
+//
+//  spy_makeChange.clear();
+//
+//  this->setMake("Olympus");
+//  BOOST_CHECK_EQUAL(spy_makeChange.count(), 0);
 //}
 
-//void TestCamerasView::test_heightChange()
+//BOOST_FIXTURE_TEST_CASE(test_modelChange, TestCamerasView)
 //{
-//QSKIP("revisar");
-//  QSignalSpy spy_heightChange(this, &CamerasView::heightChange);
-
-//  this->mSpinBoxHeight->setValue(3500);
-
-//  QCOMPARE(spy_heightChange.count(), 1);
-
-//  QList<QVariant> args = spy_heightChange.takeFirst();
-//  QCOMPARE(args.at(0).toInt(), 3500);
-
-//  this->setHeight(4000);
-//  QCOMPARE(spy_heightChange.count(), 0);
+//  QSignalSpy spy_modelChange(this, &TestCamerasView::modelChanged);
+//
+//  this->mLineEditModel->clear();
+//  QTest::keyClicks(this->mLineEditModel, "ILCE-6000");
+//
+//  BOOST_CHECK_EQUAL(spy_modelChange.count(), 9);
+//
+//  QList<QVariant> args = spy_modelChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "ILCE-6000");
+//
+//  spy_modelChange.clear();
+//
+//  this->setModel("FC6310");
+//  BOOST_CHECK_EQUAL(spy_modelChange.count(), 0);
 //}
 
-void TestCamerasView::test_sensorSizeChange()
-{
-  QSignalSpy spy_sensorSizeChange(this, &TestCamerasView::sensorSizeChange);
-
-  this->mLineEditSensorSize->clear();
-  QTest::keyClicks(this->mLineEditSensorSize, "12.8333");
-
-  QCOMPARE(spy_sensorSizeChange.count(), 7);
-
-  QList<QVariant> args = spy_sensorSizeChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "12.8333");
-
-  spy_sensorSizeChange.clear();
-
-  this->setSensorSize("1.");
-  QCOMPARE(spy_sensorSizeChange.count(), 0);
-}
-
-void TestCamerasView::test_focalChange()
-{
-  QSignalSpy spy_focalChange(this, &TestCamerasView::focalChange);
-
-  this->mLineEditFocal->clear();
-  QTest::keyClicks(this->mLineEditFocal, "4500");
-
-  QCOMPARE(spy_focalChange.count(), 4);
-
-  QList<QVariant> args = spy_focalChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "4500");
-
-  spy_focalChange.clear();
-
-  this->setFocal("1.");
-  QCOMPARE(spy_focalChange.count(), 0);
-}
-
-void TestCamerasView::test_typeChange()
-{
-  QSignalSpy spy_typeChange(this, &TestCamerasView::typeChange);
-
-  this->mComboBoxType->setCurrentText("Full Radial");
-
-  QCOMPARE(spy_typeChange.count(), 1);
-
-  QList<QVariant> args = spy_typeChange.takeFirst();
-  QCOMPARE(args.at(0).toString(), "Full Radial");
-
-  this->setType("Simple Radial");
-  QCOMPARE(spy_typeChange.count(), 0);
-}
-
-void TestCamerasView::test_calibCxChange()
-{
-  QSignalSpy spy_calibCxChange(this, &TestCamerasView::calibCxChange);
-
-  this->mLineEditCx->clear();
-  QTest::keyClicks(this->mLineEditCx, "2250");
-
-  QCOMPARE(spy_calibCxChange.count(), 4);
-
-  QList<QVariant> args = spy_calibCxChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "2250");
-
-  spy_calibCxChange.clear();
-
-  this->setCalibCx("1.");
-  QCOMPARE(spy_calibCxChange.count(), 0);
-}
-
-void TestCamerasView::test_calibCyChange()
-{
-  QSignalSpy spy_calibCyChange(this, &TestCamerasView::calibCyChange);
-
-  this->mLineEditCy->clear();
-  QTest::keyClicks(this->mLineEditCy, "1800");
-
-  QCOMPARE(spy_calibCyChange.count(), 4);
-
-  QList<QVariant> args = spy_calibCyChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "1800");
-
-  spy_calibCyChange.clear();
-
-  this->setCalibCy("1.");
-  QCOMPARE(spy_calibCyChange.count(), 0);
-}
-
-void TestCamerasView::test_calibFChange()
-{
-  QSignalSpy spy_calibFChange(this, &TestCamerasView::calibFChange);
-
-  this->mLineEditF->clear();
-  QTest::keyClicks(this->mLineEditF, "2000");
-
-  QCOMPARE(spy_calibFChange.count(), 4);
-
-  QList<QVariant> args = spy_calibFChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "2000");
-
-  spy_calibFChange.clear();
-
-  this->setCalibF("1.");
-  QCOMPARE(spy_calibFChange.count(), 0);
-}
-
-void TestCamerasView::test_calibFxChange()
-{
-  QSignalSpy spy_calibFxChange(this, &TestCamerasView::calibFxChange);
-
-  this->mLineEditFx->clear();
-  QTest::keyClicks(this->mLineEditFx, "2000");
-
-  QCOMPARE(spy_calibFxChange.count(), 4);
-
-  QList<QVariant> args = spy_calibFxChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "2000");
-
-  spy_calibFxChange.clear();
-
-  this->setCalibFx("1.");
-  QCOMPARE(spy_calibFxChange.count(), 0);
-}
-
-void TestCamerasView::test_calibFyChange()
-{
-  QSignalSpy spy_calibFyChange(this, &TestCamerasView::calibFyChange);
-
-  this->mLineEditFy->clear();
-  QTest::keyClicks(this->mLineEditFy, "2000");
-
-  QCOMPARE(spy_calibFyChange.count(), 4);
-
-  QList<QVariant> args = spy_calibFyChange.takeLast();
-  QCOMPARE(args.at(0).toString(), "2000");
-
-  spy_calibFyChange.clear();
-
-  this->setCalibFy("1.");
-  QCOMPARE(spy_calibFyChange.count(), 0);
-}
-
-
-void TestCamerasView::test_calibK1Change()
-{
-  QSignalSpy spy_calibK1Change(this, &TestCamerasView::calibK1Change);
-
-  this->mLineEditK1->clear();
-  QTest::keyClicks(this->mLineEditK1, "0.1");
-
-  QCOMPARE(spy_calibK1Change.count(), 3);
-
-  QList<QVariant> args = spy_calibK1Change.takeLast();
-  QCOMPARE(args.at(0).toString(), "0.1");
-
-  spy_calibK1Change.clear();
-
-  this->setCalibK1("0.5");
-  QCOMPARE(spy_calibK1Change.count(), 0);
-}
-
-void TestCamerasView::test_calibK2Change()
-{
-  QSignalSpy spy_calibK2Change(this, &TestCamerasView::calibK2Change);
-
-  this->mLineEditK2->setEnabled(true);
-  this->mLineEditK2->clear();
-  QTest::keyClicks(this->mLineEditK2, "0.01");
-
-  QCOMPARE(spy_calibK2Change.count(), 4);
-
-  QList<QVariant> args = spy_calibK2Change.takeLast();
-  QCOMPARE(args.at(0).toString(), "0.01");
-
-  spy_calibK2Change.clear();
-
-  this->setCalibK2("0.05");
-  QCOMPARE(spy_calibK2Change.count(), 0);
-}
-
-void TestCamerasView::test_calibK3Change()
-{
-  QSignalSpy spy_calibK3Change(this, &TestCamerasView::calibK3Change);
-
-  this->mLineEditK3->setEnabled(true);
-  this->mLineEditK3->clear();
-  QTest::keyClicks(this->mLineEditK3, "0.001");
-
-  QCOMPARE(spy_calibK3Change.count(), 5);
-
-  QList<QVariant> args = spy_calibK3Change.takeLast();
-  QCOMPARE(args.at(0).toString(), "0.001");
-
-  spy_calibK3Change.clear();
-
-  this->setCalibK3("0.05");
-  QCOMPARE(spy_calibK3Change.count(), 0);
-}
-
-void TestCamerasView::test_calibK4Change()
-{
-  QSignalSpy spy_calibK4Change(this, &TestCamerasView::calibK4Change);
-
-  this->mLineEditK4->setEnabled(true);
-  this->mLineEditK4->clear();
-  QTest::keyClicks(this->mLineEditK4, "0.001");
-
-  QCOMPARE(spy_calibK4Change.count(), 5);
-
-  QList<QVariant> args = spy_calibK4Change.takeLast();
-  QCOMPARE(args.at(0).toString(), "0.001");
-
-  spy_calibK4Change.clear();
-
-  this->setCalibK4("0.005");
-  QCOMPARE(spy_calibK4Change.count(), 0);
-}
-
-void TestCamerasView::test_calibK5Change()
-{
-  QSignalSpy spy_calibK5Change(this, &TestCamerasView::calibK5Change);
-
-  this->mLineEditK5->setEnabled(true);
-  this->mLineEditK5->clear();
-  QTest::keyClicks(this->mLineEditK5, "0.0001");
-
-  QCOMPARE(spy_calibK5Change.count(), 6);
-
-  QList<QVariant> args = spy_calibK5Change.takeLast();
-  QCOMPARE(args.at(0).toString(), "0.0001");
-
-  spy_calibK5Change.clear();
-
-  this->setCalibK5("0.005");
-  QCOMPARE(spy_calibK5Change.count(), 0);
-}
-
-void TestCamerasView::test_calibK6Change()
-{
-  QSignalSpy spy_calibK6Change(this, &TestCamerasView::calibK6Change);
-
-  this->mLineEditK6->setEnabled(true);
-  this->mLineEditK6->clear();
-  QTest::keyClicks(this->mLineEditK6, "0.0001");
-
-  QCOMPARE(spy_calibK6Change.count(), 6);
-
-  QList<QVariant> args = spy_calibK6Change.takeLast();
-  QCOMPARE(args.at(0).toString(), "0.0001");
-
-  spy_calibK6Change.clear();
-
-  this->setCalibK6("0.0005");
-  QCOMPARE(spy_calibK6Change.count(), 0);
-}
-
-void TestCamerasView::test_calibP1Change()
-{
-  QSignalSpy spy_calibP1Change(this, &TestCamerasView::calibP1Change);
-
-  this->mLineEditP1->setEnabled(true);
-  this->mLineEditP1->clear();
-  QTest::keyClicks(this->mLineEditP1, "0.01");
-
-  QCOMPARE(spy_calibP1Change.count(), 4);
-
-  QList<QVariant> args = spy_calibP1Change.takeLast();
-  QCOMPARE(args.at(0).toString(), "0.01");
-
-  spy_calibP1Change.clear();
-
-  this->setCalibP1("0.5");
-  QCOMPARE(spy_calibP1Change.count(), 0);
-}
-
-void TestCamerasView::test_calibP2Change()
-{
-  QSignalSpy spy_calibP2Change(this, &TestCamerasView::calibP2Change);
-
-  this->mLineEditP2->setEnabled(true);
-  this->mLineEditP2->clear();
-  QTest::keyClicks(this->mLineEditP2, "0.001");
-
-  QCOMPARE(spy_calibP2Change.count(), 5);
-
-  QList<QVariant> args = spy_calibP2Change.takeLast();
-  QCOMPARE(args.at(0).toString(), "0.001");
-
-  spy_calibP2Change.clear();
-
-  this->setCalibP2("0.05");
-  QCOMPARE(spy_calibP2Change.count(), 0);
-}
-
-void TestCamerasView::test_dialogButtonBox()
-{
-
-//  QSignalSpy spy_rejected(this, &TestCamerasView::rejected);
-//  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Cancel), Qt::LeftButton);
-//  QCOMPARE(spy_rejected.count(), 1);
-
-//  mButtonBox->button(QDialogButtonBox::Save)->setEnabled(true);
-//  QSignalSpy spy_accepted(this, &TestCamerasView::accepted);
-//  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Save), Qt::LeftButton);
-//  QCOMPARE(spy_accepted.count(), 1);
-
-//  QSignalSpy spy_help(this, &TestCamerasView::help);
-//  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Help), Qt::LeftButton);
-//  QCOMPARE(spy_help.count(), 1);
-}
-
-
-
-QTEST_MAIN(TestCamerasView)
-
-#include "tst_camerasview.moc"
+//BOOST_FIXTURE_TEST_CASE(test_sensorSizeChange, TestCamerasView)
+//{
+//  QSignalSpy spy_sensorSizeChange(this, &TestCamerasView::sensorSizeChange);
+//
+//  this->mLineEditSensorSize->clear();
+//  QTest::keyClicks(this->mLineEditSensorSize, "12.8333");
+//
+//  BOOST_CHECK_EQUAL(spy_sensorSizeChange.count(), 7);
+//
+//  QList<QVariant> args = spy_sensorSizeChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "12.8333");
+//
+//  spy_sensorSizeChange.clear();
+//
+//  this->setSensorSize("1.");
+//  BOOST_CHECK_EQUAL(spy_sensorSizeChange.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_focalChange, TestCamerasView)
+//{
+//  QSignalSpy spy_focalChange(this, &TestCamerasView::focalChange);
+//
+//  this->mLineEditFocal->clear();
+//  QTest::keyClicks(this->mLineEditFocal, "4500");
+//
+//  BOOST_CHECK_EQUAL(spy_focalChange.count(), 4);
+//
+//  QList<QVariant> args = spy_focalChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "4500");
+//
+//  spy_focalChange.clear();
+//
+//  this->setFocal("1.");
+//  BOOST_CHECK_EQUAL(spy_focalChange.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_typeChange, TestCamerasView)
+//{
+//  QSignalSpy spy_typeChange(this, &TestCamerasView::typeChange);
+//
+//  this->mComboBoxType->setCurrentText("Full Radial");
+//
+//  BOOST_CHECK_EQUAL(spy_typeChange.count(), 1);
+//
+//  QList<QVariant> args = spy_typeChange.takeFirst();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "Full Radial");
+//
+//  this->setType("Simple Radial");
+//  BOOST_CHECK_EQUAL(spy_typeChange.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibCxChange, TestCamerasView)
+//{
+//  QSignalSpy spy_calibCxChange(this, &TestCamerasView::calibCxChange);
+//
+//  this->mDoubleSpinBoxCx->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxCx, "2250");
+//
+//  BOOST_CHECK_EQUAL(spy_calibCxChange.count(), 4);
+//
+//  QList<QVariant> args = spy_calibCxChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "2250");
+//
+//  spy_calibCxChange.clear();
+//
+//  this->setCalibCx(1.);
+//  BOOST_CHECK_EQUAL(spy_calibCxChange.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibCyChange, TestCamerasView)
+//{
+//  QSignalSpy spy_calibCyChange(this, &TestCamerasView::calibCyChange);
+//
+//  this->mDoubleSpinBoxCy->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxCy, "1800");
+//
+//  BOOST_CHECK_EQUAL(spy_calibCyChange.count(), 4);
+//
+//  QList<QVariant> args = spy_calibCyChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "1800");
+//
+//  spy_calibCyChange.clear();
+//
+//  this->setCalibCy(1.);
+//  BOOST_CHECK_EQUAL(spy_calibCyChange.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibFChange, TestCamerasView)
+//{
+//  QSignalSpy spy_calibFChange(this, &TestCamerasView::calibFChange);
+//
+//  this->mDoubleSpinBoxF->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxF, "2000");
+//
+//  BOOST_CHECK_EQUAL(spy_calibFChange.count(), 4);
+//
+//  QList<QVariant> args = spy_calibFChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "2000");
+//
+//  spy_calibFChange.clear();
+//
+//  this->setCalibF(1.);
+//  BOOST_CHECK_EQUAL(spy_calibFChange.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibFxChange, TestCamerasView)
+//{
+//  QSignalSpy spy_calibFxChange(this, &TestCamerasView::calibFxChange);
+//
+//  this->mDoubleSpinBoxFx->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxFx, "2000");
+//
+//  BOOST_CHECK_EQUAL(spy_calibFxChange.count(), 4);
+//
+//  QList<QVariant> args = spy_calibFxChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "2000");
+//
+//  spy_calibFxChange.clear();
+//
+//  this->setCalibFx(1.);
+//  BOOST_CHECK_EQUAL(spy_calibFxChange.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibFyChange, TestCamerasView)
+//{
+//  QSignalSpy spy_calibFyChange(this, &TestCamerasView::calibFyChange);
+//
+//  this->mDoubleSpinBoxFy->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxFy, "2000");
+//
+//  BOOST_CHECK_EQUAL(spy_calibFyChange.count(), 4);
+//
+//  QList<QVariant> args = spy_calibFyChange.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "2000");
+//
+//  spy_calibFyChange.clear();
+//
+//  this->setCalibFy(1.);
+//  BOOST_CHECK_EQUAL(spy_calibFyChange.count(), 0);
+//}
+//
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibK1Change, TestCamerasView)
+//{
+//  QSignalSpy spy_calibK1Change(this, &TestCamerasView::calibK1Change);
+//
+//  this->mDoubleSpinBoxK1->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxK1, "0.1");
+//
+//  BOOST_CHECK_EQUAL(spy_calibK1Change.count(), 3);
+//
+//  QList<QVariant> args = spy_calibK1Change.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "0.1");
+//
+//  spy_calibK1Change.clear();
+//
+//  this->setCalibK1(0.5);
+//  BOOST_CHECK_EQUAL(spy_calibK1Change.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibK2Change, TestCamerasView)
+//{
+//  QSignalSpy spy_calibK2Change(this, &TestCamerasView::calibK2Change);
+//
+//  this->mDoubleSpinBoxK2->setEnabled(true);
+//  this->mDoubleSpinBoxK2->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxK2, "0.01");
+//
+//  BOOST_CHECK_EQUAL(spy_calibK2Change.count(), 4);
+//
+//  QList<QVariant> args = spy_calibK2Change.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "0.01");
+//
+//  spy_calibK2Change.clear();
+//
+//  this->setCalibK2(0.05);
+//  BOOST_CHECK_EQUAL(spy_calibK2Change.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibK3Change, TestCamerasView)
+//{
+//  QSignalSpy spy_calibK3Change(this, &TestCamerasView::calibK3Change);
+//
+//  this->mDoubleSpinBoxK3->setEnabled(true);
+//  this->mDoubleSpinBoxK3->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxK3, "0.001");
+//
+//  BOOST_CHECK_EQUAL(spy_calibK3Change.count(), 5);
+//
+//  QList<QVariant> args = spy_calibK3Change.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "0.001");
+//
+//  spy_calibK3Change.clear();
+//
+//  this->setCalibK3(0.05);
+//  BOOST_CHECK_EQUAL(spy_calibK3Change.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibK4Change, TestCamerasView)
+//{
+//  QSignalSpy spy_calibK4Change(this, &TestCamerasView::calibK4Change);
+//
+//  this->mDoubleSpinBoxK4->setEnabled(true);
+//  this->mDoubleSpinBoxK4->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxK4, "0.001");
+//
+//  BOOST_CHECK_EQUAL(spy_calibK4Change.count(), 5);
+//
+//  QList<QVariant> args = spy_calibK4Change.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "0.001");
+//
+//  spy_calibK4Change.clear();
+//
+//  this->setCalibK4(0.005);
+//  BOOST_CHECK_EQUAL(spy_calibK4Change.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibK5Change, TestCamerasView)
+//{
+//  QSignalSpy spy_calibK5Change(this, &TestCamerasView::calibK5Change);
+//
+//  this->mDoubleSpinBoxK5->setEnabled(true);
+//  this->mDoubleSpinBoxK5->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxK5, "0.0001");
+//
+//  BOOST_CHECK_EQUAL(spy_calibK5Change.count(), 6);
+//
+//  QList<QVariant> args = spy_calibK5Change.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "0.0001");
+//
+//  spy_calibK5Change.clear();
+//
+//  this->setCalibK5(0.005);
+//  BOOST_CHECK_EQUAL(spy_calibK5Change.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibK6Change, TestCamerasView)
+//{
+//  QSignalSpy spy_calibK6Change(this, &TestCamerasView::calibK6Change);
+//
+//  this->mDoubleSpinBoxK6->setEnabled(true);
+//  this->mDoubleSpinBoxK6->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxK6, "0.0001");
+//
+//  BOOST_CHECK_EQUAL(spy_calibK6Change.count(), 6);
+//
+//  QList<QVariant> args = spy_calibK6Change.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "0.0001");
+//
+//  spy_calibK6Change.clear();
+//
+//  this->setCalibK6(0.0005);
+//  BOOST_CHECK_EQUAL(spy_calibK6Change.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibP1Change, TestCamerasView)
+//{
+//  QSignalSpy spy_calibP1Change(this, &TestCamerasView::calibP1Change);
+//
+//  this->mDoubleSpinBoxP1->setEnabled(true);
+//  this->mDoubleSpinBoxP1->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxP1, "0.01");
+//
+//  BOOST_CHECK_EQUAL(spy_calibP1Change.count(), 4);
+//
+//  QList<QVariant> args = spy_calibP1Change.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "0.01");
+//
+//  spy_calibP1Change.clear();
+//
+//  this->setCalibP1(0.5);
+//  BOOST_CHECK_EQUAL(spy_calibP1Change.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_calibP2Change, TestCamerasView)
+//{
+//  QSignalSpy spy_calibP2Change(this, &TestCamerasView::calibP2Change);
+//
+//  this->mDoubleSpinBoxP2->setEnabled(true);
+//  this->mDoubleSpinBoxP2->clear();
+//  QTest::keyClicks(this->mDoubleSpinBoxP2, "0.001");
+//
+//  BOOST_CHECK_EQUAL(spy_calibP2Change.count(), 5);
+//
+//  QList<QVariant> args = spy_calibP2Change.takeLast();
+//  BOOST_CHECK_EQUAL(args.at(0).toString().toStdString(), "0.001");
+//
+//  spy_calibP2Change.clear();
+//
+//  this->setCalibP2(0.05);
+//  BOOST_CHECK_EQUAL(spy_calibP2Change.count(), 0);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(test_dialogButtonBox, TestCamerasView)
+//{
+//
+////  QSignalSpy spy_rejected(this, &TestCamerasView::rejected);
+////  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Cancel), Qt::LeftButton);
+////  BOOST_CHECK_EQUAL(spy_rejected.count(), 1);
+//
+////  mButtonBox->button(QDialogButtonBox::Save)->setEnabled(true);
+////  QSignalSpy spy_accepted(this, &TestCamerasView::accepted);
+////  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Save), Qt::LeftButton);
+////  BOOST_CHECK_EQUAL(spy_accepted.count(), 1);
+//
+////  QSignalSpy spy_help(this, &TestCamerasView::help);
+////  QTest::mouseClick(mButtonBox->button(QDialogButtonBox::Help), Qt::LeftButton);
+////  BOOST_CHECK_EQUAL(spy_help.count(), 1);
+//}
+
+
+
+BOOST_AUTO_TEST_SUITE_END()

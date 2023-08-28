@@ -43,28 +43,28 @@ class DensificationModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DensificationModel(QObject *parent = nullptr) : Model(parent) {}
-  ~DensificationModel() override = default;
+    DensificationModel(QObject *parent = nullptr) : Model(parent) {}
+    ~DensificationModel() override = default;
 
-  virtual std::shared_ptr<Densification> densification() const = 0;
-  virtual tl::Path projectFolder() const = 0;
-  virtual tl::Path reconstructionPath() const = 0;
-  virtual tl::Path database() const = 0;
-  virtual bool useCuda() const = 0;
-  virtual bool existDenseModel() const = 0;
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
-  virtual std::vector<GroundPoint> groundPoints() const = 0;
+    virtual std::shared_ptr<Densification> densification() const = 0;
+    virtual tl::Path projectFolder() const = 0;
+    virtual tl::Path reconstructionPath() const = 0;
+    virtual tl::Path database() const = 0;
+    virtual bool useCuda() const = 0;
+    virtual bool existDenseModel() const = 0;
+    virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
+    virtual std::vector<GroundPoint> groundPoints() const = 0;
 
 public slots:
 
-  virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
-  virtual void setDenseModel(const tl::Path &denseModel) = 0;
+    virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
+    virtual void setDenseModel(const tl::Path &denseModel) = 0;
 };
 
 } // End namespace graphos

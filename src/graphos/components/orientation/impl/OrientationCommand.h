@@ -35,24 +35,18 @@ class OrientationCommand
 
 public:
 
-  OrientationCommand();
-  ~OrientationCommand() override;
+    OrientationCommand();
+    ~OrientationCommand() override;
 
 private:
 
-// Command
+    // Command
 
-  bool run() override;
+    bool run() override;
 
-private:
-
-  tl::Path mProjectFile;
-  bool mFixCalibration;
-  bool mFixPoses;
-  bool mAbsoluteOrientation;
 };
 
-	
+
 } // namespace graphos
 
 #endif // GRAPHOS_ORIENTATION_COMMAND_H

@@ -48,16 +48,15 @@ namespace graphos
 
 FeatureExtractorCommand::FeatureExtractorCommand()
   : Command("featextract", "Feature extraction (SIFT)"),
-    mProjectFile(""),
     mDisableCuda(false)
 {
     SiftProperties siftProperties;
     this->addArgument<std::string>("prj", 'p', "Project file");
-    this->addArgument<int>("max_image_size", 's', "Maximum image size", 3200);
-    this->addArgument<int>("max_features_number", "Maximum number of features to detect", siftProperties.featuresNumber());
-    this->addArgument<int>("octave_resolution", "SIFT: Number of layers in each octave", siftProperties.octaveLayers());
-    this->addArgument<double>("contrast_threshold", "SIFT: Contrast Threshold", siftProperties.contrastThreshold());
-    this->addArgument<double>("edge_threshold", "SIFT: Threshold used to filter out edge-like features", siftProperties.edgeThreshold());
+    this->addArgument<int>("max_image_size", 's', "Maximum image size (default = 3200)", 3200);
+    this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(siftProperties.featuresNumber())).append(")"), siftProperties.featuresNumber());
+    this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(siftProperties.octaveLayers())).append(")"), siftProperties.octaveLayers());
+    this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(siftProperties.contrastThreshold())).append(")"), siftProperties.contrastThreshold());
+    this->addArgument<double>("edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(siftProperties.edgeThreshold())).append(")"), siftProperties.edgeThreshold());  
 
 
 #ifdef HAVE_CUDA
@@ -65,13 +64,13 @@ FeatureExtractorCommand::FeatureExtractorCommand()
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
     tl::Message::instance().resumeMessages();
     if (cuda_enabled)
-        this->addArgument<bool>("disable_cuda", "If true disable CUDA", mDisableCuda);
+        this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
     else mDisableCuda = true;
 #else
     mDisableCuda = true;
 #endif //HAVE_CUDA
 
-    this->addExample("featextract --p 253/253.xml");
+    this->addExample("featextract -p 253/253.xml");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
@@ -98,11 +97,11 @@ bool FeatureExtractorCommand::run()
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
-        TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
-        TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
+        TL_ASSERT(projectFile.exists(), "Project doesn't exist");
+        TL_ASSERT(projectFile.isFile(), "Project file doesn't exist");
 
         ProjectImp project;
-        project.load(mProjectFile);
+        project.load(projectFile);
         tl::Path database_path = project.database();
 
         tl::Path::removeFile(database_path);
@@ -138,7 +137,7 @@ bool FeatureExtractorCommand::run()
         feature_extractor_process.run();
 
         project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
-        project.save(mProjectFile);
+        project.save(projectFile);
 
     } catch (const std::exception &e) {
 

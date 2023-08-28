@@ -45,12 +45,18 @@ FeatureMatchingCommand::FeatureMatchingCommand()
     mDisableCuda(false)
 {
     FeatureMatchingProperties featureMatchingProperties;
+    auto ratio = featureMatchingProperties.ratio();
+	auto distance = featureMatchingProperties.distance();
+	auto max_error = featureMatchingProperties.maxError();
+	auto confidence = featureMatchingProperties.confidence();
+	auto cross_check = featureMatchingProperties.crossCheck();
+
     this->addArgument<std::string>("prj", 'p', "Project file");
-    this->addArgument<double>("ratio", 'r', "Ratio", featureMatchingProperties.ratio());
-    this->addArgument<double>("distance", 'd', "Distance", featureMatchingProperties.distance());
-    this->addArgument<double>("max_error", 'e', "Maximun error", featureMatchingProperties.maxError());
+    this->addArgument<double>("ratio", 'r', std::string("Ratio (default = ").append(std::to_string(ratio)).append(")"), ratio);
+    this->addArgument<double>("distance", 'd', std::string("Distance (default = ").append(std::to_string(distance)).append(")"), distance);
+    this->addArgument<double>("max_error", 'e', std::string("Maximun error (default = ").append(std::to_string(max_error)).append(")"), max_error);
     this->addArgument<double>("confidence", 'c', "Confidence", featureMatchingProperties.confidence());
-    this->addArgument<bool>("cross_check", 'x', "If true, cross checking is enabled", featureMatchingProperties.crossCheck());
+    this->addArgument<bool>("cross_check", 'x', std::string("If true, cross checking is enabled (default = ").append(cross_check ? "true)" : "false)"), cross_check);
     this->addArgument<bool>("exhaustive_matching", "Force exhaustive matching (default = false)", false);
 
 #ifdef HAVE_CUDA
@@ -58,13 +64,13 @@ FeatureMatchingCommand::FeatureMatchingCommand()
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
     tl::Message::instance().resumeMessages();
     if (cuda_enabled)
-        this->addArgument<bool>("disable_cuda", "If true disable CUDA", mDisableCuda);
+        this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
     else mDisableCuda = true;
 #else
     mDisableCuda = true;
 #endif //HAVE_CUDA
 
-    this->addExample("featmatch --p 253/253.xml");
+    this->addExample("featmatch -p 253/253.xml");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
@@ -88,8 +94,8 @@ bool FeatureMatchingCommand::run()
         double distance = this->value<double>("distance");
         double max_error = this->value<double>("max_error");
         double confidence = this->value<double>("confidence");
-        double cross_check = this->value<bool>("cross_check");
-        double exhaustive_matching = this->value<bool>("exhaustive_matching");
+        bool cross_check = this->value<bool>("cross_check");
+        bool exhaustive_matching = this->value<bool>("exhaustive_matching");
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 

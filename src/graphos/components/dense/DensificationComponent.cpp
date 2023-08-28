@@ -40,9 +40,9 @@ namespace graphos
 {
 
 DensificationComponent::DensificationComponent(Application *application)
-  : TaskComponent(application)
+    : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 DensificationComponent::~DensificationComponent()
@@ -51,118 +51,118 @@ DensificationComponent::~DensificationComponent()
 
 void DensificationComponent::enableMethod(Method method)
 {
-  if (method == Method::mvs && mMethod.isDisabled(method)) {
-    mMethod.enable(method);
-    dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(std::make_unique<MvsWidget>());
-  } else if (method == Method::pmvs && mMethod.isDisabled(method)) {
-    mMethod.enable(method);
-    dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidgetImp>());
-  } else if (method == Method::smvs && mMethod.isDisabled(method)){
-    mMethod.enable(method);
-    dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidgetImp>());
-  }
+    if (method == Method::mvs && mMethod.isDisabled(method)) {
+        mMethod.enable(method);
+        dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(std::make_unique<MvsWidget>());
+    } else if (method == Method::pmvs && mMethod.isDisabled(method)) {
+        mMethod.enable(method);
+        dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidgetImp>());
+    } else if (method == Method::smvs && mMethod.isDisabled(method)) {
+        mMethod.enable(method);
+        dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidgetImp>());
+    }
 }
 
 void DensificationComponent::disableMethod(Method method)
 {
-  if (method == Method::mvs && mMethod.isEnabled(method)) {
-    mMethod.disable(method);
-    dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(nullptr);
-  } else if (method == Method::pmvs && mMethod.isEnabled(method)) {
-    mMethod.disable(method);
-    dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(nullptr);
-  } else if (method == Method::smvs && mMethod.isEnabled(method)) {
-    mMethod.disable(method);
-    dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(nullptr);
-  }
+    if (method == Method::mvs && mMethod.isEnabled(method)) {
+        mMethod.disable(method);
+        dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(nullptr);
+    } else if (method == Method::pmvs && mMethod.isEnabled(method)) {
+        mMethod.disable(method);
+        dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(nullptr);
+    } else if (method == Method::smvs && mMethod.isEnabled(method)) {
+        mMethod.disable(method);
+        dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(nullptr);
+    }
 }
 
 bool DensificationComponent::isEnabled(Method method) const
 {
-  return mMethod.isEnabled(method);
+    return mMethod.isEnabled(method);
 }
 
 void DensificationComponent::init()
 {
-  this->setName("Densification");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+    this->setName("Densification");
+    this->setMenu("workflow");
+    this->setToolbar("workflow");
 
-  mMethod.enable(Method::mvs);
+    mMethod.enable(Method::mvs);
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("dense"));
+    action()->setIcon(QIcon::fromTheme("dense"));
 }
 
 void DensificationComponent::createModel()
 {
-  setModel(new DensificationModelImp(app()->project()));
+    setModel(new DensificationModelImp(app()->project()));
 }
 
 void DensificationComponent::createView()
 {
-  setView(new DensificationViewImp());
+    setView(new DensificationViewImp());
 }
 
 void DensificationComponent::createPresenter()
 {
-  setPresenter(new DensificationPresenterImp(dynamic_cast<DensificationView *>(view()),
-                                             dynamic_cast<DensificationModel *>(model())));
-  if (mMethod.isEnabled(Method::mvs))
-    dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(std::make_unique<MvsWidget>());
-  if (mMethod.isEnabled(Method::pmvs))
-    dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidgetImp>());
-  if (mMethod.isEnabled(Method::smvs))
-    dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidgetImp>());
+    setPresenter(new DensificationPresenterImp(dynamic_cast<DensificationView *>(view()),
+                 dynamic_cast<DensificationModel *>(model())));
+    if (mMethod.isEnabled(Method::mvs))
+        dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(std::make_unique<MvsWidget>());
+    if (mMethod.isEnabled(Method::pmvs))
+        dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidgetImp>());
+    if (mMethod.isEnabled(Method::smvs))
+        dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidgetImp>());
 
 }
 
 void DensificationComponent::createCommand()
 {
-  setCommand(std::make_shared<DensificationCommand>());
+    setCommand(std::make_shared<DensificationCommand>());
 }
 
 void DensificationComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool dense_model_active = app_status->isEnabled(AppStatus::Flag::project_exists) && 
-                            !app_status->isEnabled(AppStatus::Flag::processing) &&
-                            app_status->isEnabled(AppStatus::Flag::oriented);
+    bool dense_model_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
+                             !app_status->isEnabled(AppStatus::Flag::processing) &&
+                              app_status->isEnabled(AppStatus::Flag::oriented);
 
-  action()->setEnabled(dense_model_active);
+    action()->setEnabled(dense_model_active);
 }
 
 void DensificationComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void DensificationComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::dense_model, true);
+    TaskComponent::onFinished();
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::dense_model, true);
 }
 
 void DensificationComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
-  app_status->activeFlag(AppStatus::Flag::dense_model, false);
+    TaskComponent::onFailed();
+    app_status->activeFlag(AppStatus::Flag::dense_model, false);
 }
 
 } // namespace graphos

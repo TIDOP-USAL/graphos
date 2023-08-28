@@ -35,66 +35,66 @@ class DensificationModel;
 class DensificationPresenterImp
   : public DensificationPresenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DensificationPresenterImp(DensificationView *view,
-                            DensificationModel *model);
-  ~DensificationPresenterImp() override;
+    DensificationPresenterImp(DensificationView *view,
+                              DensificationModel *model);
+    ~DensificationPresenterImp() override;
 
 private:
 
-  void setCmvsPmvsProperties();
-  void setSmvsProperties();
-  void setMvsProperties();
+    void setCmvsPmvsProperties();
+    void setSmvsProperties();
+    void setMvsProperties();
 
 private slots:
 
-  void onDensificationChanged(const QString &densification);
+    void onDensificationChanged(const QString &densification);
 
 // DensificationPresenter interface
 
 public:
 
-  void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) override;
-  void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) override;
-  void setMvsWidget(std::shared_ptr<MvsWidget> mvs) override;
+    void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) override;
+    void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) override;
+    void setMvsWidget(std::shared_ptr<MvsWidget> mvs) override;
 
 public slots:
 
-  void setCurrentDensifier(const QString &densifier) override;
+    void setCurrentDensifier(const QString &densifier) override;
 
 // TaskPresenter interface
-  
+
 protected:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task> createProcess() override;
 
 public slots:
 
-  void cancel() override;
+    void cancel() override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  DensificationView *mView;
-  DensificationModel *mModel;
-  std::shared_ptr<CmvsPmvsWidget> mCmvsPmvs;
-  std::shared_ptr<SmvsWidget> mSmvs;
-  std::shared_ptr<MvsWidget> mMVS;
+    DensificationView *mView;
+    DensificationModel *mModel;
+    std::shared_ptr<CmvsPmvsWidget> mCmvsPmvs;
+    std::shared_ptr<SmvsWidget> mSmvs;
+    std::shared_ptr<MvsWidget> mMVS;
 };
 
 } // End namespace graphos

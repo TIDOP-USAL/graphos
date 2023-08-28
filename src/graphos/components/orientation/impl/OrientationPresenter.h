@@ -35,41 +35,41 @@ class OrientationModel;
 class OrientationPresenterImp
   : public OrientationPresenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OrientationPresenterImp(OrientationView *view,
-                          OrientationModel *model);
-  ~OrientationPresenterImp() override;
+    OrientationPresenterImp(OrientationView *view,
+                            OrientationModel *model);
+    ~OrientationPresenterImp() override;
 
 // TaskPresenter interface
-  
+
 protected:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task> createProcess() override;
 
 public slots:
 
-  void cancel() override;
+    void cancel() override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 protected:
 
-  OrientationView *mView;
-  OrientationModel *mModel;
+    OrientationView *mView;
+    OrientationModel *mModel;
 
 };
 

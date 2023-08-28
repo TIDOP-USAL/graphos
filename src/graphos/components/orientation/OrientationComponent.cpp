@@ -39,7 +39,7 @@ namespace graphos
 OrientationComponent::OrientationComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 OrientationComponent::~OrientationComponent()
@@ -48,83 +48,83 @@ OrientationComponent::~OrientationComponent()
 
 void OrientationComponent::init()
 {
-  this->setName("Orientation");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+    this->setName("Orientation");
+    this->setMenu("workflow");
+    this->setToolbar("workflow");
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("orientation"));
+    action()->setIcon(QIcon::fromTheme("orientation"));
 }
 
 void OrientationComponent::createModel()
 {
-  setModel(new OrientationModelImp(app()->project()));
+    setModel(new OrientationModelImp(app()->project()));
 }
 
 void OrientationComponent::createView()
 {
-  setView(new OrientationViewImp());
+    setView(new OrientationViewImp());
 }
 
 void OrientationComponent::createPresenter()
 {
-  setPresenter(new OrientationPresenterImp(dynamic_cast<OrientationView *>(view()), 
-                                           dynamic_cast<OrientationModel *>(model())));
+    setPresenter(new OrientationPresenterImp(dynamic_cast<OrientationView *>(view()),
+                 dynamic_cast<OrientationModel *>(model())));
 
-  connect(dynamic_cast<OrientationPresenter *>(presenter()), 
-          &OrientationPresenter::orientation_deleted, 
-          this, 
-          &OrientationComponent::orientation_deleted);
+    connect(dynamic_cast<OrientationPresenter *>(presenter()),
+            &OrientationPresenter::orientation_deleted,
+            this,
+            &OrientationComponent::orientation_deleted);
 }
 
 void OrientationComponent::createCommand()
 {
-  setCommand(std::make_shared<OrientationCommand>());
+    setCommand(std::make_shared<OrientationCommand>());
 }
 
 void OrientationComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool oriented_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
-                         app_status->isEnabled(AppStatus::Flag::feature_matching) &&
-                         !app_status->isEnabled(AppStatus::Flag::processing);
-  
-  action()->setEnabled(oriented_active);
+    bool oriented_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
+                           app_status->isEnabled(AppStatus::Flag::feature_matching) &&
+                          !app_status->isEnabled(AppStatus::Flag::processing);
+
+    action()->setEnabled(oriented_active);
 }
 
 void OrientationComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void OrientationComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
+    TaskComponent::onFinished();
 
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::oriented, true);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::oriented, true);
 }
 
 void OrientationComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
+    TaskComponent::onFailed();
 
-  app_status->activeFlag(AppStatus::Flag::oriented, false);
+    app_status->activeFlag(AppStatus::Flag::oriented, false);
 }
 
 } // namespace graphos

@@ -48,7 +48,7 @@ MeshCommand::MeshCommand()
     this->addArgument<int>("grid_width", "Grid width", parameters.width());
     this->addArgument<int>("full_depth", "Full depth", parameters.fullDepth());
     
-    this->addExample("mesh --p 253/253.xml --method PMVS");
+    this->addExample("mesh -p 253/253.xml --method PMVS");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
@@ -67,8 +67,8 @@ bool MeshCommand::run()
 
     try {
 
-        tl::Chrono chrono("Poisson Reconstruction finished");
-        chrono.run();
+        //tl::Chrono chrono("Poisson Reconstruction finished");
+        //chrono.run();
 
         tl::Path prj_path = this->value<std::string>("prj");
         int depth = this->value<int>("depth");
@@ -95,11 +95,13 @@ bool MeshCommand::run()
         process->setSolveDepth(solve_depth);
         process->setWidth(grid_width);
 
+        process->run();
+
         project.setMeshParameters(process);
         project.setMeshPath(mesh_path);
         project.save(prj_path);
 
-        chrono.stop();
+        //chrono.stop();
 
     } catch (const std::exception &e) {
 
