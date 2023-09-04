@@ -62,7 +62,7 @@ OriTxtFormatWidgetImp::OriTxtFormatWidgetImp(QWidget *parent)
 
 void OriTxtFormatWidgetImp::initUI()
 {
-    this->setWindowTitle("Ori Format");
+    this->setWindowTitle("TXT");
     this->setObjectName("OriTxtFormatWidget");
 
     QGridLayout *layout = new QGridLayout();

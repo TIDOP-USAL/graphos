@@ -21,37 +21,66 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_ORIENTATIONS_VIEW_INTERFACE_H
-#define GRAPHOS_EXPORT_ORIENTATIONS_VIEW_INTERFACE_H
+#ifndef GRAPHOS_EXPORT_CAMERAS_VIEW_H
+#define GRAPHOS_EXPORT_CAMERAS_VIEW_H
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/components/export/cameras/ExportCamerasView.h"
+
+class QLabel;
+class QComboBox;
+class QDialogButtonBox;
+class QGridLayout;
 
 namespace graphos
 {
 
-class ExportOrientationsView
-  : public DialogView
+class ExportCamerasViewImp
+  : public ExportCamerasView
 {
 
   Q_OBJECT
 
 public:
 
-  ExportOrientationsView(QWidget *parent) : DialogView(parent) {}
-  ~ExportOrientationsView() override = default;
+  ExportCamerasViewImp(QWidget *parent = nullptr);
+  ~ExportCamerasViewImp() override;
 
-  virtual void addFormatWidget(QWidget *formatWidget) = 0;
-  virtual QString format() const = 0;
+// ExportCamerasView interface
+
+public:
+
+  void addFormatWidget(QWidget *formatWidget) override;
+  QString format() const override;
 
 public slots:
 
-  virtual void setCurrentFormat(const QString &format) = 0;
+  void setCurrentFormat(const QString &format) override;
 
-signals:
+// DialogView interface
 
-  void formatChange(const QString &);
+private:
+
+  void initUI() override;
+  void initSignalAndSlots() override;
+
+public slots:
+
+  void clear() override;
+
+private slots:
+
+  void update() override;
+  void retranslate() override;
+
+protected:
+
+  QLabel *mLabelFormat;
+  QComboBox *mComboBoxFormat;
+  QGridLayout *mGridLayoutFormat;
+  QDialogButtonBox *mButtonBox;
+
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_ORIENTATIONS_VIEW_INTERFACE_H
+#endif // GRAPHOS_EXPORT_ORIENTATIONS_VIEW_H

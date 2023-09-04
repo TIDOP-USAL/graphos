@@ -35,7 +35,7 @@ namespace graphos
 
 ImportCamerasPresenterImp::ImportCamerasPresenterImp(ImportCamerasView *view,
                                                      ImportCamerasModel *model)
-    : mView(view),
+  : mView(view),
     mModel(model)
 {
     this->init();

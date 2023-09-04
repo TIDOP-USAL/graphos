@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ExportOrientationsView.h"
+#include "ExportCamerasView.h"
 
 #include <QFileDialog>
 #include <QIcon>
@@ -37,21 +37,21 @@
 namespace graphos
 {
 
-ExportOrientationsViewImp::ExportOrientationsViewImp(QWidget *parent)
-  : ExportOrientationsView(parent)
+ExportCamerasViewImp::ExportCamerasViewImp(QWidget *parent)
+  : ExportCamerasView(parent)
 {
   this->initUI();
   this->initSignalAndSlots();
 }
 
-ExportOrientationsViewImp::~ExportOrientationsViewImp()
+ExportCamerasViewImp::~ExportCamerasViewImp()
 {
 
 }
 
-void ExportOrientationsViewImp::initUI()
+void ExportCamerasViewImp::initUI()
 {
-  this->setObjectName(QStringLiteral("ExportOrientationsView"));
+  this->setObjectName(QStringLiteral("ExportCamerasView"));
   this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
   this->resize(400, 200);
 
@@ -79,36 +79,36 @@ void ExportOrientationsViewImp::initUI()
   this->update();
 }
 
-void ExportOrientationsViewImp::initSignalAndSlots()
+void ExportCamerasViewImp::initSignalAndSlots()
 {
-  connect(mComboBoxFormat,         &QComboBox::currentTextChanged,     this, &ExportOrientationsView::formatChange);
+  connect(mComboBoxFormat,         &QComboBox::currentTextChanged,     this, &ExportCamerasView::formatChange);
 
   connect(mButtonBox,                                   &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Ok),     &QAbstractButton::clicked,   this, &QDialog::accept);
+  connect(mButtonBox->button(QDialogButtonBox::Ok),     &QAbstractButton::clicked,   this, &ExportCamerasView::run);
   connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked,   this, &DialogView::help);
 }
 
-void ExportOrientationsViewImp::clear()
+void ExportCamerasViewImp::clear()
 {
   const QSignalBlocker blockerComboBoxFormat(mComboBoxFormat);
   mComboBoxFormat->clear();
   update();
 }
 
-void ExportOrientationsViewImp::update()
+void ExportCamerasViewImp::update()
 {
 }
 
-void ExportOrientationsViewImp::retranslate()
+void ExportCamerasViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("ExportOrientationsView", "Export Cameras", nullptr));
-  mLabelFormat->setText(QApplication::translate("ExportOrientationsView", "Format:", nullptr));
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportOrientationsView", "Cancel", nullptr));
-  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportOrientationsView", "Save", nullptr));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportOrientationsView", "Help", nullptr));
+  this->setWindowTitle(QApplication::translate("ExportCamerasView", "Export Cameras", nullptr));
+  mLabelFormat->setText(QApplication::translate("ExportCamerasView", "Format:", nullptr));
+  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportCamerasView", "Cancel", nullptr));
+  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportCamerasView", "Save", nullptr));
+  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportCamerasView", "Help", nullptr));
 }
 
-void ExportOrientationsViewImp::addFormatWidget(QWidget *formatWidget)
+void ExportCamerasViewImp::addFormatWidget(QWidget *formatWidget)
 {
   mComboBoxFormat->addItem(formatWidget->windowTitle());
   mGridLayoutFormat->addWidget(formatWidget, 0, 0, 1, 2);
@@ -117,12 +117,12 @@ void ExportOrientationsViewImp::addFormatWidget(QWidget *formatWidget)
   this->update();
 }
 
-QString ExportOrientationsViewImp::format() const
+QString ExportCamerasViewImp::format() const
 {
   return mComboBoxFormat->currentText();
 }
 
-void ExportOrientationsViewImp::setCurrentFormat(const QString &format)
+void ExportCamerasViewImp::setCurrentFormat(const QString &format)
 {
   const QSignalBlocker blockerComboBoxFormat(mComboBoxFormat);
   mComboBoxFormat->setCurrentText(format);

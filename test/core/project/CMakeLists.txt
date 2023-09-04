@@ -30,10 +30,7 @@ get_filename_component(test_name ${test_filename} NAME_WE)
 set(test_target "${test_name}")
 
 add_executable(${test_target}
-               ${test_filename}
-               #${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.cpp
-               #${CMAKE_SOURCE_DIR}/test/fake/ProjectFake.h
-               )
+               ${test_filename})
 
 target_link_libraries(${test_target} PRIVATE
                       Graphos::Core
@@ -52,7 +49,8 @@ target_link_libraries(${test_target} PRIVATE
                       ${OPENGL_glu_LIBRARY}
                       ${GDAL_LIBRARY}
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-                      ${Boost_PROGRAM_OPTIONS_LIBRARY})
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      ${CLOUDCOMPARE_LIBRARIES})
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}

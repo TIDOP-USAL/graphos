@@ -38,7 +38,7 @@ namespace graphos
 
 
 MainWindowModel::MainWindowModel(Project *project)
-    : mProject(project),
+  : mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
               QSettings::UserScope,
               qApp->organizationName(),

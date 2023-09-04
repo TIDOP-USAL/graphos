@@ -38,6 +38,7 @@ target_link_libraries(${test_target} PRIVATE
                       Qt5::Widgets
 					  Graphos::Core
 					  Graphos::CreateProject
+                      ${CLOUDCOMPARE_LIBRARIES}
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 		  

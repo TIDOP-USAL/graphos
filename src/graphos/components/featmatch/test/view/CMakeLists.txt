@@ -39,6 +39,7 @@ target_link_libraries(${test_target} PRIVATE
                       Graphos::Core
                       Graphos::FeatMatch
                       Graphos::Widgets
+                      ${CLOUDCOMPARE_LIBRARIES}
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 set_target_properties(${test_target} PROPERTIES

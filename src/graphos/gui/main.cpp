@@ -96,7 +96,9 @@
 #ifdef GRAPHOS_HAVE_MATCH_VIEWER
 #include "graphos/components/matchviewer/MatchViewerComponent.h"
 #endif // GRAPHOS_HAVE_MATCH_VIEWER
-//#include "graphos/components/export/orientations/ExportOrientationsComponent.h"
+#ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
+#include "graphos/components/export/cameras/ExportCamerasComponent.h"
+#endif // GRAPHOS_HAVE_EXPORT_CAMERAS
 //#include "graphos/components/export/densemodel/ExportPointCloudComponent.h"
 #ifdef GRAPHOS_HAVE_SETTINGS
 #include "graphos/components/settings/SettingsComponent.h"
@@ -175,7 +177,9 @@ int main(int argc, char *argv[])
     CamerasComponent cameras_component(&app);
 #endif // GRAPHOS_HAVE_CAMERAS
 
-    //ExportOrientationsComponent export_orientations_component(&app);
+#ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
+    ExportCamerasComponent export_cameras_component(&app);
+#endif // GRAPHOS_HAVE_EXPORT_CAMERAS
     //ExportPointCloudComponent export_point_cloud_component(&app);
 
 #ifdef GRAPHOS_HAVE_IMAGE_LOAD
@@ -257,7 +261,6 @@ int main(int argc, char *argv[])
     tl::Log &log = tl::Log::instance();
     log.setMessageLevel(tl::MessageLevel::all);
     tl::Message::instance().addMessageHandler(&log);
-    //log.pauseListener();
 
     bool r = false;
 
@@ -271,10 +274,10 @@ int main(int argc, char *argv[])
         }
     } else {
         //    TL_TODO("Añadir como opción")
-//#if defined WIN32
-//        HWND hwnd = GetConsoleWindow();
-//        ShowWindow(hwnd, 0);
-//#endif
+#if defined WIN32
+        HWND hwnd = GetConsoleWindow();
+        ShowWindow(hwnd, 0);
+#endif
 
         app.freeMemory();
 
@@ -322,8 +325,9 @@ int main(int argc, char *argv[])
         componentsManager.registerComponent(&cameras_component);
 #endif
 
-        //componentsManager.registerComponent(&export_orientations_component);
-
+#ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
+        componentsManager.registerComponent(&export_cameras_component);
+#endif
         //componentsManager.registerComponent(&export_point_cloud_component);
 
         /* Workflow menu */
@@ -528,9 +532,9 @@ int main(int argc, char *argv[])
 
         r = app.exec();
 
-//#if defined WIN32
-//        ShowWindow(hwnd, 1);
-//#endif
+#if defined WIN32
+        ShowWindow(hwnd, 1);
+#endif
     }
 
 #ifdef HAVE_VLD

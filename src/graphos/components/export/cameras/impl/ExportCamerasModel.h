@@ -21,32 +21,52 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_ORIENTATIONS_MODEL_INTERFACE_H
-#define GRAPHOS_EXPORT_ORIENTATIONS_MODEL_INTERFACE_H
+#ifndef GRAPHOS_EXPORT_CAMERAS_MODEL_H
+#define GRAPHOS_EXPORT_CAMERAS_MODEL_H
 
-#include "graphos/interfaces/mvp.h"
-
-#include <tidop/geometry/entities/point.h>
+#include "graphos/components/export/cameras/ExportCamerasModel.h"
 
 namespace graphos
 {
 
-class ExportOrientationsModel
-  : public Model
-{
+class Project;
 
-  Q_OBJECT
+class ExportCamerasModelImp
+    : public ExportCamerasModel
+{
 
 public:
 
-  ExportOrientationsModel(QObject *parent = nullptr) : Model(parent) {}
-  ~ExportOrientationsModel() override = default;
+    ExportCamerasModelImp(Project *project,
+                               QObject *parent = nullptr);
+    ~ExportCamerasModelImp() override = default;
 
-  virtual QString reconstruction() const = 0;
-  virtual tl::Point3D offset() const = 0;
+// ExportCamerasModel interface
+
+public:
+    
+    const std::unordered_map<size_t, Image> &images() const override;
+    const std::unordered_map<size_t, CameraPose> &poses() const override;
+
+    //QString reconstruction() const override;
+    //tl::Point3<double> offset() const override;
+
+// Model interface
+
+private:
+
+    void init() override;
+
+public slots:
+
+    void clear() override;
+
+protected:
+
+    Project *mProject;
 
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_ORIENTATIONS_MODEL_INTERFACE_H
+#endif // GRAPHOS_EXPORT_ORIENTATIONS_MODEL_H

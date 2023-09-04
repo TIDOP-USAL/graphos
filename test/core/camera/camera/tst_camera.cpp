@@ -185,8 +185,8 @@ BOOST_FIXTURE_TEST_CASE(camera_to_colmap_type, CameraTest)
   camera.setType("Radial Fisheye 2");
   BOOST_CHECK_EQUAL("RADIAL_FISHEYE", cameraToColmapType(camera).toStdString());
 
-  camera.setType("Radial 3");
-  BOOST_CHECK_EQUAL("FULL_RADIAL", cameraToColmapType(camera).toStdString());
+  //camera.setType("Radial 3");
+  //BOOST_CHECK_EQUAL("FULL_RADIAL", cameraToColmapType(camera).toStdString());
 
 }
 

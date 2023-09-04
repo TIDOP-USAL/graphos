@@ -56,7 +56,7 @@ namespace graphos
 
 MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
                                          MainWindowModel *model)
-    : Presenter(),
+  : Presenter(),
     mView(view),
     mModel(model),
     mStartPageWidget(nullptr)

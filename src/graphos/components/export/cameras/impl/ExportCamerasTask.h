@@ -21,63 +21,58 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_ORIENTATIONS_PRESENTER_H
-#define GRAPHOS_EXPORT_ORIENTATIONS_PRESENTER_H
+#ifndef GRAPHOS_EXPORT_CAMERAS_TASK_H
+#define GRAPHOS_EXPORT_CAMERAS_TASK_H
 
-#include "graphos/components/export/orientations/ExportOrientationsPresenter.h"
+#include <unordered_map>
+
+#include <QObject>
+
+#include <tidop/core/task.h>
+
+#include "graphos/core/image.h"
 
 namespace graphos
 {
 
-class NvmFormatWidget;
-class BundlerFormatWidget;
-class MveFormatWidget;
-class OriTxtFormatWidget;
-class ExportOrientationsView;
-class ExportOrientationsModel;
-class HelpDialog;
+class Camera;
 
-class ExportOrientationsPresenterImp
-  : public ExportOrientationsPresenter
+class ExportCamerasTask
+  : public QObject,
+    public tl::TaskBase
 {
+
+    Q_OBJECT
 
 public:
 
-  ExportOrientationsPresenterImp(ExportOrientationsView *view,
-                                 ExportOrientationsModel *model);
-  ~ExportOrientationsPresenterImp() override;
+    ExportCamerasTask(const QString &file,
+                      const std::unordered_map<size_t, Image> &images,
+                      const std::unordered_map<size_t, CameraPose> &poses,
+                      const QString &format);
+    ~ExportCamerasTask() override;
 
-// ExportOrientationsPresenter interface
-
-public slots:
-
-  void save() override;
-  void setCurrentFormat(const QString &format) override;
-
-// Presenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
+    void setQuaternionRotation(bool quaternions);
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void textExport();
 
-private:
+// tl::TaskBase interface
 
-  ExportOrientationsView *mView;
-  ExportOrientationsModel *mModel;
-  NvmFormatWidget *mNvmFormatWidget;
-  BundlerFormatWidget *mBundlerFormatWidget;
-  MveFormatWidget *mMveFormatWidget;
-  OriTxtFormatWidget *mOriTxtFormatWidget;
-  HelpDialog *mHelp;
+protected:
+
+    void execute(tl::Progress *progressBar) override;
+
+protected:
+
+    QString mFile;
+    std::unordered_map<size_t, Image> mImages;
+    std::unordered_map<size_t, CameraPose> mPoses;
+    QString mFormat;
+    bool mQuaternions;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_ORIENTATIONS_PRESENTER_H
+#endif // GRAPHOS_EXPORT_CAMERAS_TASK_H

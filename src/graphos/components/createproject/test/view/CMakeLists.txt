@@ -36,6 +36,7 @@ target_link_libraries(${test_target} PRIVATE
                       Qt5::Test
 					  Graphos::Core
 					  Graphos::CreateProject
+                      ${CLOUDCOMPARE_LIBRARIES}
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 set_target_properties(${test_target} PROPERTIES

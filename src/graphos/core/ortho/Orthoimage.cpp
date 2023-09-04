@@ -204,7 +204,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         tl::printException(e);
     } catch (...) {
         if (mOrthophotoWriter) mOrthophotoWriter->close();
-        tl::Message::error("Orthorectified image fail: %s", ortho.fileName().toString());
+        tl::Message::error("Orthorectified image fail: {}", ortho.fileName().toString());
         tl::Message::error("Unhandled exception");
     }
 }

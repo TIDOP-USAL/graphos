@@ -21,47 +21,71 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_FEATURE_MATCHING_VIEW_INTERFACE_H
-#define GRAPHOS_FEATURE_MATCHING_VIEW_INTERFACE_H
+#ifndef GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
+#define GRAPHOS_EXPORT_CAMERAS_PRESENTER_H
 
-#include "graphos/core/mvp.h"
-
-class QGridLayout;
-class QLabel;
-class QComboBox;
-class QDialogButtonBox;
+#include "graphos/components/export/cameras/ExportCamerasPresenter.h"
 
 namespace graphos
 {
 
-class FeatureMatchingView
-  : public DialogView
-{
+class NvmFormatWidget;
+class BundlerFormatWidget;
+class MveFormatWidget;
+class OriTxtFormatWidget;
+class ExportCamerasView;
+class ExportCamerasModel;
 
-    Q_OBJECT
+class ExportCamerasPresenterImp
+  : public ExportCamerasPresenter
+{
 
 public:
 
-    FeatureMatchingView(QWidget *parent) : DialogView(parent) {}
-    ~FeatureMatchingView() override = default;
+    ExportCamerasPresenterImp(ExportCamerasView *view,
+                              ExportCamerasModel *model);
+    ~ExportCamerasPresenterImp() override;
 
-    virtual void addMatchMethod(QWidget *matchMethod) = 0;
-    virtual QString currentMatchMethod() const = 0;
-    virtual bool spatialMatching() const = 0;
-
-signals:
-
-    void matchMethodChange(QString);
-    void run();
-    void spatialMatchingChange(bool);
+// ExportCamerasPresenter interface
 
 public slots:
 
-    virtual void setCurrentMatchMethod(const QString &matchMethodName) = 0;
-    virtual void setSpatialMatching(bool active) = 0;
-    virtual void enabledSpatialMatching(bool enabled) = 0;
+    //void save() override;
+    void setCurrentFormat(const QString &format) override;
+
+// TaskPresenter interface
+
+protected:
+
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task>  createProcess() override;
+
+public slots:
+
+    void cancel() override;
+
+// Presenter interface
+
+public slots:
+
+    void open() override;
+
+private:
+
+    void init() override;
+    void initSignalAndSlots() override;
+
+private:
+
+    ExportCamerasView *mView;
+    ExportCamerasModel *mModel;
+    //NvmFormatWidget *mNvmFormatWidget;
+    //BundlerFormatWidget *mBundlerFormatWidget;
+    //MveFormatWidget *mMveFormatWidget;
+    OriTxtFormatWidget *mOriTxtFormatWidget;
 };
 
-} // End namespace graphos
+} // namespace graphos
 
-#endif // GRAPHOS_FEATURE_MATCHING_VIEW_INTERFACE_H
+#endif // GRAPHOS_EXPORT_CAMERAS_PRESENTER_H

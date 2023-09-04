@@ -31,7 +31,6 @@
 #include "../test/fake/ProjectFake.h"
 
 using namespace graphos;
-using namespace graphos;
 
 BOOST_AUTO_TEST_SUITE(TestFeatureMatchingModelSuite)
 
@@ -86,10 +85,10 @@ BOOST_FIXTURE_TEST_CASE(spatial_matching, TestFeatureMatchingModel)
 {
 
   Image image1("C:/Users/User01/Documents/Graphos/Projects/images/img001.png");
-  CameraPose camera_pose1(5.,5.,5., tl::math::Quaternion<double>::identity());
+  CameraPose camera_pose1(5.,5.,5., tl::Quaternion<double>::identity());
   image1.setCameraPose(camera_pose1);
   Image image2("C:/Users/User01/Documents/Graphos/Projects/images/img002.png");
-  CameraPose camera_pose2(10.,12.,5., tl::math::Quaternion<double>::identity());
+  CameraPose camera_pose2(10.,12.,5., tl::Quaternion<double>::identity());
   image2.setCameraPose(camera_pose2);
 
   project->addImage(image1);
