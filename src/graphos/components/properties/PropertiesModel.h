@@ -38,14 +38,14 @@ class PropertiesModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  PropertiesModel(QObject *parent = nullptr) : Model(parent) {}
-  ~PropertiesModel() override = default;
+    PropertiesModel(QObject *parent = nullptr) : Model(parent) {}
+    ~PropertiesModel() override = default;
 
-  virtual std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(size_t imageId) const = 0;
+    virtual std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(size_t imageId) const = 0;
 
 };
 

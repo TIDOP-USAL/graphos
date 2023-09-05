@@ -41,8 +41,8 @@ LoadFromVideoPresenterImp::LoadFromVideoPresenterImp(LoadFromVideoView *view,
     mView(view),
     mModel(model)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp()
@@ -52,32 +52,32 @@ LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp()
 
 void LoadFromVideoPresenterImp::addImage(QString imagePath, int cameraId)
 {
-  Image image(imagePath);
-  Camera camera = mCameras[cameraId];
-  int camera_id = mModel->cameraID(camera);
-  if(camera_id == 0)
-    camera_id = mModel->addCamera(camera);
+    Image image(imagePath);
+    Camera camera = mCameras[cameraId];
+    int camera_id = mModel->cameraID(camera);
+    if (camera_id == 0)
+        camera_id = mModel->addCamera(camera);
 
-  image.setCameraId(camera_id);
-  mModel->addImage(image);
+    image.setCameraId(camera_id);
+    mModel->addImage(image);
 
-  //QString crs_proj = mModel->projectCRS();
-  //QString crs_image = image.cameraPose().crs();
-  //if(crs_proj.isEmpty() && !crs_image.isEmpty()) {
-  //  mModel->setProjectCRS(crs_image);
-  //}
+    //QString crs_proj = mModel->projectCRS();
+    //QString crs_image = image.cameraPose().crs();
+    //if(crs_proj.isEmpty() && !crs_image.isEmpty()) {
+    //  mModel->setProjectCRS(crs_image);
+    //}
 
-  emit frame_loaded(image.id());
+    emit frame_loaded(image.id());
 }
 
 void LoadFromVideoPresenterImp::open()
 {
-  //mModel->loadSettings();
-  //LoadFromVideoParameters *parameters = mModel->parameters();
+    //mModel->loadSettings();
+    //LoadFromVideoParameters *parameters = mModel->parameters();
 
-  /* Configure View here */
-  
-  mView->exec();
+    /* Configure View here */
+
+    mView->exec();
 }
 
 void LoadFromVideoPresenterImp::init()
@@ -87,82 +87,82 @@ void LoadFromVideoPresenterImp::init()
 
 void LoadFromVideoPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &TaskView::run, this, &TaskPresenter::run);
-  connect(mView, &DialogView::help, [&]() {
-            emit help("load_from_video.html");
-          });
+    connect(mView, &TaskView::run, this, &TaskPresenter::run);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("load_from_video.html");
+            });
 
-  //connect(mView, &LoadFromVideoView::video_changed, [&](QString video) {
-  //  //QMediaPlayer 
-  //        });
+    //connect(mView, &LoadFromVideoView::video_changed, [&](QString video) {
+    //  //QMediaPlayer 
+    //        });
 }
 
 void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  TaskPresenter::onError(event);
+    TaskPresenter::onError(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Process error"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Process error"));
+    }
 }
 
 void LoadFromVideoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  TaskPresenter::onFinished(event);
+    TaskPresenter::onFinished(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Process finished"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Process finished"));
+    }
 }
 
 std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> process;
-  
-  tl::Path images_path = mModel->imagesPath();
-  //std::shared_ptr<ImportVideoFramesAlgorithm> algorithm = std::make_shared<ImportVideoFramesAlgorithm>();
-  //algorithm->setVideo(mView->video().toStdWString());
-  //algorithm->setImagesPath(images_path.toStdWString());
-  //algorithm->setSkipFrames(mView->skipFrames());
+    std::unique_ptr<tl::Task> process;
 
-  mCameras.clear();
-  for (const auto &camera : mModel->cameras()) {
-    mCameras.push_back(camera.second);
-  }
+    tl::Path images_path = mModel->imagesPath();
+    //std::shared_ptr<ImportVideoFramesAlgorithm> algorithm = std::make_shared<ImportVideoFramesAlgorithm>();
+    //algorithm->setVideo(mView->video().toStdWString());
+    //algorithm->setImagesPath(images_path.toStdWString());
+    //algorithm->setSkipFrames(mView->skipFrames());
 
-  int skip_frames = mView->skipFrames();
-  int begin = mView->videoIni();
-  int end = mView->videoEnd();
-  
+    mCameras.clear();
+    for (const auto &camera : mModel->cameras()) {
+        mCameras.push_back(camera.second);
+    }
 
-  process = std::make_unique<LoadFromVideoTask>(mView->video().toStdWString(),
-                                                skip_frames,
-                                                begin,
-                                                end,
-                                                images_path,
-                                                &mCameras, 
-                                                "OpenCV 1");
+    int skip_frames = mView->skipFrames();
+    int begin = mView->videoIni();
+    int end = mView->videoEnd();
 
-  connect(dynamic_cast<LoadFromVideoTask *>(process.get()),
-          &LoadFromVideoTask::image_added,
-          this, &LoadFromVideoPresenterImp::addImage);
 
-  if (progressHandler()){
-    progressHandler()->setRange(0, (static_cast<size_t>(end) - begin) / skip_frames);
-    progressHandler()->setTitle("Computing LoadFromVideo...");
-    progressHandler()->setDescription("Computing LoadFromVideo...");
-  }
-  
-  mView->hide();
+    process = std::make_unique<LoadFromVideoTask>(mView->video().toStdWString(),
+                                                  skip_frames,
+                                                  begin,
+                                                  end,
+                                                  images_path,
+                                                  &mCameras,
+                                                  "OpenCV 1");
 
-  return process;
+    connect(dynamic_cast<LoadFromVideoTask *>(process.get()),
+            &LoadFromVideoTask::image_added,
+            this, &LoadFromVideoPresenterImp::addImage);
+
+    if (progressHandler()) {
+        progressHandler()->setRange(0, (static_cast<size_t>(end) - begin) / skip_frames);
+        progressHandler()->setTitle("Computing LoadFromVideo...");
+        progressHandler()->setDescription("Computing LoadFromVideo...");
+    }
+
+    mView->hide();
+
+    return process;
 }
 
 void LoadFromVideoPresenterImp::cancel()
 {
-  TaskPresenter::cancel();
+    TaskPresenter::cancel();
 
-  msgWarning("Processing has been canceled by the user");
+    tl::Message::warning("Processing has been canceled by the user");
 }
 
 } // namespace graphos

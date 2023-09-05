@@ -36,19 +36,19 @@ class CloseProjectModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CloseProjectModel(QObject *parent = nullptr) : Model(parent) {}
-  ~CloseProjectModel() override = default;
+    CloseProjectModel(QObject *parent = nullptr) : Model(parent) {}
+    ~CloseProjectModel() override = default;
 
 public slots:
 
-  /*!
-   * \brief Save Graphos project
-   */
-  virtual void saveProject() = 0;
+    /*!
+     * \brief Save Graphos project
+     */
+    virtual void saveProject() = 0;
 
 };
 

@@ -43,7 +43,7 @@ std::unique_ptr<Application> Application::sApplication;
 std::mutex Application::sMutex;
 std::once_flag Application::sInitFlag;
 
-Application::Application(int argc, char **argv)
+Application::Application(int &argc, char **argv)
   : QApplication(argc, argv),
     mAppStatus(new AppStatus()),
     mProject(nullptr),
@@ -56,179 +56,179 @@ Application::Application(int argc, char **argv)
 
 Application::~Application()
 {
-  if (mAppStatus != nullptr) {
-    delete mAppStatus;
-    mAppStatus = nullptr;
-  }
+    if (mAppStatus != nullptr) {
+        delete mAppStatus;
+        mAppStatus = nullptr;
+    }
 
-  if (mSettings) {
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if (mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 
-  if (mCommandList) {
-    mCommandList->clear();
-    delete mCommandList;
-    mCommandList = nullptr;
-  }
+    if (mCommandList) {
+        mCommandList->clear();
+        delete mCommandList;
+        mCommandList = nullptr;
+    }
 }
 
 tl::Path Application::documentsLocation() const
 {
-  tl::Path path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
-  path.append(qApp->applicationDisplayName().toStdWString());
-  path.append("Projects");
-  path.normalize();
+    tl::Path path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
+    path.append(qApp->applicationDisplayName().toStdWString());
+    path.append("Projects");
+    path.normalize();
 
-  return path;
+    return path;
 }
 
 AppStatus *Application::status()
 {
-  return mAppStatus;
+    return mAppStatus;
 }
 
-tl::MessageManager *Application::messageManager()
+//tl::MessageManager *Application::messageManager()
+//{
+//  return &tl::MessageManager::instance();
+//}
+
+Project *Application::project()
 {
-  return &tl::MessageManager::instance();
+    return mProject;
 }
 
-Project *const Application::project()
+const Project *Application::project() const
 {
-  return mProject;
-}
-
-const Project *const Application::project() const
-{
-  return mProject;
+    return mProject;
 }
 
 void Application::setProject(Project *project)
 {
-  mProject = project;
+    mProject = project;
 }
 
 Settings *Application::settings()
 {
-  return mSettings;
+    return mSettings;
 }
 
 QMainWindow *Application::mainWindow() const
 {
-  return mMainWindow;
+    return mMainWindow;
 }
 
 void Application::setMainWindow(QMainWindow *mainWindow)
 {
-  mMainWindow = mainWindow;
+    mMainWindow = mainWindow;
 }
 
 Viewer3D *Application::viewer3D() const
 {
-  return mViewer3D;
+    return mViewer3D;
 }
 
 void Application::setViewer3D(Viewer3D *viewer3D)
 {
-  mViewer3D = viewer3D;
+    mViewer3D = viewer3D;
 }
 
 void Application::addComponent(Component *component)
 {
-  if (component) {
-    mComponents.push_back(component);
-    if (std::shared_ptr<Command> command = component->command())
-      commandList()->push_back(command);
-  }
+    if (component) {
+        mComponents.push_back(component);
+        if (std::shared_ptr<Command> command = component->command())
+            commandList()->push_back(command);
+    }
 }
 
 tl::CommandList::Status Application::parse(int argc, char **argv)
 {
-  tl::CommandList::Status status = commandList()->parse(argc, argv);
+    tl::CommandList::Status status = commandList()->parse(argc, argv);
 
-  if (status == tl::CommandList::Status::parse_success)
-    mAppStatus->activeFlag(AppStatus::Flag::command_mode, true);
+    if (status == tl::CommandList::Status::parse_success)
+        mAppStatus->activeFlag(AppStatus::Flag::command_mode, true);
 
-  return status;
+    return status;
 }
 
 bool Application::runCommand()
 {
-  bool err = false;
+    bool err = false;
 
-  for (auto component : mComponents) {
-    if (component->command() && component->command()->name() == commandList()->commandName()) {
-      component->command()->run();
-      break;
+    for (auto component : mComponents) {
+        if (component->command() && component->command()->name() == commandList()->commandName()) {
+            component->command()->run();
+            break;
+        }
     }
-  }
 
-  return err;
+    return err;
 }
 
 void Application::freeMemory()
 {
-  for (auto component : mComponents) {
-    component->freeMemory();
-  }
+    for (auto component : mComponents) {
+        component->freeMemory();
+    }
 }
 
 QStringList Application::history() const
 {
-  if(mHistory.isEmpty()) {
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
-    QStringList history = settings.value("HISTORY/RecentProjects", mHistory).toStringList();
+    if (mHistory.isEmpty()) {
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
+        QStringList history = settings.value("HISTORY/RecentProjects", mHistory).toStringList();
 
-    for(auto &prj : history) {
-      if(QFileInfo(prj).exists()) {
-        mHistory.push_back(prj);
-      }
+        for (auto &prj : history) {
+            if (QFileInfo(prj).exists()) {
+                mHistory.push_back(prj);
+            }
+        }
     }
-  }
 
-  return mHistory;
+    return mHistory;
 }
 
 void Application::addToHistory(const QString &project)
 {
-  tl::Path path(project.toStdString());
-  path.normalize();
-  QString normalize_path = QString::fromStdString(path.toString());
-  mHistory.removeAll(normalize_path);
-  mHistory.prepend(normalize_path);
+    tl::Path path(project.toStdString());
+    path.normalize();
+    QString normalize_path = QString::fromStdString(path.toString());
+    mHistory.removeAll(normalize_path);
+    mHistory.prepend(normalize_path);
 
-  while (mHistory.size() > mSettings->historyMaxSize())
-    mHistory.removeLast();
+    while (mHistory.size() > mSettings->historyMaxSize())
+        mHistory.removeLast();
 
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
-  settings.setValue("HISTORY/RecentProjects", mHistory);
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
+    settings.setValue("HISTORY/RecentProjects", mHistory);
 
-  emit update_history();
+    emit update_history();
 }
 
 void Application::clearHistory()
 {
-  mHistory.clear();
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
-  settings.setValue("HISTORY/RecentProjects", mHistory);
-  emit update_history();
+    mHistory.clear();
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
+    settings.setValue("HISTORY/RecentProjects", mHistory);
+    emit update_history();
 }
 
 Application &Application::instance()
-{ 
-  return *(static_cast<Application *>(QCoreApplication::instance()));
+{
+    return *(static_cast<Application *>(QCoreApplication::instance()));
 }
 
 tl::CommandList *Application::commandList()
 {
-  if(mCommandList == nullptr) {
-    std::string command_name = applicationName().toStdString();
-    std::string command_description = command_name + " commands";
-    mCommandList = new tl::CommandList(command_name, command_description);
-    mCommandList->setVersion(applicationVersion().toStdString());
-  }
+    if (mCommandList == nullptr) {
+        std::string command_name = applicationName().toStdString();
+        std::string command_description = command_name + " commands";
+        mCommandList = new tl::CommandList(command_name, command_description);
+        mCommandList->setVersion(applicationVersion().toStdString());
+    }
 
-  return mCommandList;
+    return mCommandList;
 }
 
 } // namespace graphos

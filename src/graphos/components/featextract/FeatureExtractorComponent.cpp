@@ -39,7 +39,7 @@ namespace graphos
 FeatureExtractorComponent::FeatureExtractorComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 FeatureExtractorComponent::~FeatureExtractorComponent()
@@ -48,85 +48,85 @@ FeatureExtractorComponent::~FeatureExtractorComponent()
 
 void FeatureExtractorComponent::init()
 {
-  this->setName("Feature Extractor");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+    this->setName("Feature Extractor");
+    this->setMenu("workflow");
+    this->setToolbar("workflow");
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("features"));
+    action()->setIcon(QIcon::fromTheme("features"));
 }
 
 void FeatureExtractorComponent::createModel()
 {
-  setModel(new FeatureExtractorModelImp(app()->project()));
+    setModel(new FeatureExtractorModelImp(app()->project()));
 }
 
 void FeatureExtractorComponent::createView()
 {
-  setView(new FeatureExtractorViewImp());
+    setView(new FeatureExtractorViewImp());
 }
 
 void FeatureExtractorComponent::createPresenter()
 {
-  setPresenter(new FeatureExtractorPresenterImp(dynamic_cast<FeatureExtractorView *>(view()),
-                                                dynamic_cast<FeatureExtractorModel *>(model())));
-  
-  connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::features_extracted, 
-          this, &FeatureExtractorComponent::features_extracted);
-  connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::features_deleted, 
-          this, &FeatureExtractorComponent::features_deleted);
+    setPresenter(new FeatureExtractorPresenterImp(dynamic_cast<FeatureExtractorView *>(view()),
+                 dynamic_cast<FeatureExtractorModel *>(model())));
+
+    connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::features_extracted,
+            this, &FeatureExtractorComponent::features_extracted);
+    connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::features_deleted,
+            this, &FeatureExtractorComponent::features_deleted);
 }
 
 void FeatureExtractorComponent::createCommand()
 {
-  setCommand(std::make_shared<FeatureExtractorCommand>());
+    setCommand(std::make_shared<FeatureExtractorCommand>());
 }
 
 void FeatureExtractorComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool feature_extraction_active = app_status->isEnabled(AppStatus::Flag::project_exists) && 
-                                   app_status->isEnabled(AppStatus::Flag::images_added) &&
-                                  !app_status->isEnabled(AppStatus::Flag::processing);
-  
-  //if (!feature_extraction_active) 
-  //  app_status->flagOff(AppStatus::Flag::feature_extraction);
-  
-  action()->setEnabled(feature_extraction_active);
+    bool feature_extraction_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
+        app_status->isEnabled(AppStatus::Flag::images_added) &&
+        !app_status->isEnabled(AppStatus::Flag::processing);
+
+    //if (!feature_extraction_active) 
+    //  app_status->flagOff(AppStatus::Flag::feature_extraction);
+
+    action()->setEnabled(feature_extraction_active);
 }
 
 void FeatureExtractorComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void FeatureExtractorComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
+    TaskComponent::onFinished();
 
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::feature_extraction, true);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::feature_extraction, true);
 }
 
 void FeatureExtractorComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
-  app_status->activeFlag(AppStatus::Flag::feature_extraction, false);
+    TaskComponent::onFailed();
+    app_status->activeFlag(AppStatus::Flag::feature_extraction, false);
 }
 
 } // namespace graphos

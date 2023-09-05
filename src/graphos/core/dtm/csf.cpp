@@ -25,7 +25,7 @@
 
 #include <tidop/core/exception.h>
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include "csf/src/CSF.h"
 TL_DEFAULT_WARNINGS
 
@@ -42,97 +42,97 @@ class Csf
 {
 public:
 
-  Csf()
-  {
-    setDefaultConfig();
-  }
+    Csf()
+    {
+        setDefaultConfig();
+    }
 
-  ~Csf()
-  {
-  }
+    ~Csf()
+    {
+    }
 
-  bool sloopSmooth() const
-  {
-    return this->params.bSloopSmooth;
-  }
+    bool sloopSmooth() const
+    {
+        return this->params.bSloopSmooth;
+    }
 
-  void setSloopSmooth(bool sloopSmooth)
-  {
-    this->params.bSloopSmooth = sloopSmooth;
-  }
+    void setSloopSmooth(bool sloopSmooth)
+    {
+        this->params.bSloopSmooth = sloopSmooth;
+    }
 
-  double timeStep() const
-  {
-    return this->params.time_step;
-  }
+    double timeStep() const
+    {
+        return this->params.time_step;
+    }
 
-  void setTimeStep(double timeStep)
-  {
-    this->params.time_step = timeStep;
-  }
+    void setTimeStep(double timeStep)
+    {
+        this->params.time_step = timeStep;
+    }
 
-  double classThreshold() const
-  {
-    return this->params.class_threshold;
-  }
+    double classThreshold() const
+    {
+        return this->params.class_threshold;
+    }
 
-  void setClassThreshold(double classThreshold)
-  {
-    this->params.class_threshold = classThreshold;
-  }
+    void setClassThreshold(double classThreshold)
+    {
+        this->params.class_threshold = classThreshold;
+    }
 
-  double clothResolution() const
-  {
-    return this->params.cloth_resolution;
-  }
+    double clothResolution() const
+    {
+        return this->params.cloth_resolution;
+    }
 
-  void setClothResolution(double clothResolution)
-  {
-    this->params.cloth_resolution = clothResolution;
-  }
+    void setClothResolution(double clothResolution)
+    {
+        this->params.cloth_resolution = clothResolution;
+    }
 
-  int rigidness() const
-  {
-    return this->params.rigidness;
-  }
+    int rigidness() const
+    {
+        return this->params.rigidness;
+    }
 
-  void setRigidness(int rigidness)
-  {
-    this->params.rigidness = rigidness;
-  }
+    void setRigidness(int rigidness)
+    {
+        this->params.rigidness = rigidness;
+    }
 
-  int iterations() const
-  {
-    return this->params.interations;
-  }
+    int iterations() const
+    {
+        return this->params.interations;
+    }
 
-  void setIterations(int iterations)
-  {
-    this->params.interations = iterations;
-  }
+    void setIterations(int iterations)
+    {
+        this->params.interations = iterations;
+    }
 
-  void setPointCloud(csf::PointCloud &pointCloud)
-  {
-    csf::PointCloud &ref_point_cloud = this->getPointCloud();
-    ref_point_cloud = pointCloud;
-  }
+    void setPointCloud(csf::PointCloud &pointCloud)
+    {
+        csf::PointCloud &ref_point_cloud = this->getPointCloud();
+        ref_point_cloud = pointCloud;
+    }
 
-  void filter(std::vector<int> &groundIdx,
-              std::vector<int> &offGroundIdx)
-  {
-    this->do_filtering(groundIdx, offGroundIdx);
-  }
+    void filter(std::vector<int> &groundIdx,
+                std::vector<int> &offGroundIdx)
+    {
+        this->do_filtering(groundIdx, offGroundIdx);
+    }
 
-  void setDefaultConfig()
-  {
-    //this->params.k_nearest_points = 1; //CloudCompare
-    this->params.bSloopSmooth = false;
-    this->params.time_step = 0.65;
-    this->params.class_threshold = 0.5;
-    this->params.cloth_resolution = 2;
-    this->params.rigidness = 2;
-    this->params.interations = 500;
-  }
+    void setDefaultConfig()
+    {
+        //this->params.k_nearest_points = 1; //CloudCompare
+        this->params.bSloopSmooth = false;
+        this->params.time_step = 0.65;
+        this->params.class_threshold = 0.5;
+        this->params.cloth_resolution = 2;
+        this->params.rigidness = 2;
+        this->params.interations = 500;
+    }
 
 };
 
@@ -142,7 +142,7 @@ public:
 
 
 Csf::Csf()
-   : mCSF(new internal::Csf())
+  : mCSF(new internal::Csf())
 {
 
 }
@@ -154,115 +154,115 @@ Csf::~Csf()
 
 bool Csf::sloopSmooth() const
 {
-  return mCSF->sloopSmooth();
+    return mCSF->sloopSmooth();
 }
 
 void Csf::setSloopSmooth(bool sloopSmooth)
 {
-  mCSF->setSloopSmooth(sloopSmooth);
+    mCSF->setSloopSmooth(sloopSmooth);
 }
 
 double Csf::timeStep() const
 {
-  return mCSF->timeStep();
+    return mCSF->timeStep();
 }
 
 void Csf::setTimeStep(double timeStep)
 {
-  mCSF->setTimeStep(timeStep);
+    mCSF->setTimeStep(timeStep);
 }
 
 double Csf::classThreshold() const
 {
-  return mCSF->classThreshold();
+    return mCSF->classThreshold();
 }
 
 void Csf::setClassThreshold(double classThreshold)
 {
-  mCSF->setClassThreshold(classThreshold);
+    mCSF->setClassThreshold(classThreshold);
 }
 
 double Csf::clothResolution() const
 {
-  return mCSF->clothResolution();
+    return mCSF->clothResolution();
 }
 
 void Csf::setClothResolution(double clothResolution)
 {
-  mCSF->setClothResolution(clothResolution);
+    mCSF->setClothResolution(clothResolution);
 }
 
 int Csf::rigidness() const
 {
-  return mCSF->rigidness();
+    return mCSF->rigidness();
 }
 
 void Csf::setRigidness(int rigidness)
 {
-  mCSF->setRigidness(rigidness);
+    mCSF->setRigidness(rigidness);
 }
 
 int Csf::iterations() const
 {
-  return mCSF->iterations();
+    return mCSF->iterations();
 }
 
 void Csf::setIterations(int iterations)
 {
-  mCSF->setIterations(iterations);
+    mCSF->setIterations(iterations);
 }
 
 void Csf::filter(const std::string &pointCloud,
                  const std::string &ground,
                  const std::string &outGround)
 {
-  try {
+    try {
 
-    Ply ply(pointCloud, Ply::OpenMode::in /*| Ply::OpenMode::binary*/);
-    size_t size = ply.size();
+        Ply ply(pointCloud, Ply::OpenMode::in /*| Ply::OpenMode::binary*/);
+        size_t size = ply.size();
 
-    csf::PointCloud csf_points;
-    csf_points.resize(size);
+        csf::PointCloud csf_points;
+        csf_points.resize(size);
 
-    for (size_t i = 0; i < size; i++) {
-      csf_points[i].x = ply.point<double>(i).x;
-      csf_points[i].y = -ply.point<double>(i).z;
-      csf_points[i].z = ply.point<double>(i).y;
+        for (size_t i = 0; i < size; i++) {
+            csf_points[i].x = ply.point<double>(i).x;
+            csf_points[i].y = -ply.point<double>(i).z;
+            csf_points[i].z = ply.point<double>(i).y;
+        }
+
+        mCSF->setPointCloud(csf_points);
+
+        std::vector<int> ground_idx;
+        std::vector<int> off_ground_idx;
+        mCSF->filter(ground_idx, off_ground_idx);
+
+        /// Guardar nubes de puntos segmentadas
+        Ply points_ground(ground, Ply::OpenMode::out /*| Ply::OpenMode::binary*/);
+        points_ground.reserve(ground_idx.size());
+        Ply points_off_ground(outGround, Ply::OpenMode::out /*| Ply::OpenMode::binary*/);
+        points_off_ground.reserve(off_ground_idx.size());
+
+        for (const auto &idx : ground_idx) {
+            points_ground.addPoint<float>(ply.point<float>(idx));
+        }
+
+        for (const auto &idx : off_ground_idx) {
+            points_off_ground.addPoint<float>(ply.point<float>(idx));
+        }
+
+        points_ground.save();
+        points_ground.close();
+        points_off_ground.save();
+        points_off_ground.close();
+
+    } catch (const std::bad_alloc &) {
+        //m_app->dispToConsole("Not enough memory!", ccMainAppInterface::ERR_CONSOLE_MESSAGE);
     }
-
-    mCSF->setPointCloud(csf_points);
-
-    std::vector<int> ground_idx;
-    std::vector<int> off_ground_idx;
-    mCSF->filter(ground_idx, off_ground_idx);
-
-    /// Guardar nubes de puntos segmentadas
-    Ply points_ground(ground, Ply::OpenMode::out /*| Ply::OpenMode::binary*/);
-    points_ground.reserve(ground_idx.size());
-    Ply points_off_ground(outGround, Ply::OpenMode::out /*| Ply::OpenMode::binary*/);
-    points_off_ground.reserve(off_ground_idx.size());
-
-    for (const auto &idx : ground_idx) {
-      points_ground.addPoint<float>(ply.point<float>(idx));
-    }
-
-    for (const auto &idx : off_ground_idx) {
-      points_off_ground.addPoint<float>(ply.point<float>(idx));
-    }
-
-    points_ground.save();
-    points_ground.close();
-    points_off_ground.save();
-    points_off_ground.close();
-
-  } catch (const std::bad_alloc &) {
-    //m_app->dispToConsole("Not enough memory!", ccMainAppInterface::ERR_CONSOLE_MESSAGE);
-  }
 }
 
 void Csf::reset()
 {
-  mCSF->setDefaultConfig();
+    mCSF->setDefaultConfig();
 }
 
 } // namespace graphos

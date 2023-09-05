@@ -38,28 +38,28 @@ class FeatureMatchingView
   : public DialogView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureMatchingView(QWidget *parent) : DialogView(parent) {}
-  ~FeatureMatchingView() override = default;
+    FeatureMatchingView(QWidget *parent) : DialogView(parent) {}
+    ~FeatureMatchingView() override = default;
 
-  virtual void addMatchMethod(QWidget *matchMethod) = 0;
-  virtual QString currentMatchMethod() const = 0;
-  virtual bool spatialMatching() const = 0;
+    virtual void addMatchMethod(QWidget *matchMethod) = 0;
+    virtual QString currentMatchMethod() const = 0;
+    virtual bool spatialMatching() const = 0;
 
 signals:
 
-  void matchMethodChange(QString);
-  void run();
-  void spatialMatchingChange(bool);
+    void matchMethodChange(QString);
+    void run();
+    void spatialMatchingChange(bool);
 
 public slots:
 
-  virtual void setCurrentMatchMethod(const QString &matchMethodName) = 0;
-  virtual void setSpatialMatching(bool active) = 0;
-  virtual void enabledSpatialMatching(bool enabled) = 0;
+    virtual void setCurrentMatchMethod(const QString &matchMethodName) = 0;
+    virtual void setSpatialMatching(bool active) = 0;
+    virtual void enabledSpatialMatching(bool enabled) = 0;
 };
 
 } // End namespace graphos

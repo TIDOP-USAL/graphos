@@ -36,47 +36,47 @@ class Project;
 class DensificationModelImp
   : public DensificationModel
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DensificationModelImp(Project *project,
-                        QObject *parent = nullptr);
-  ~DensificationModelImp() override;
+    DensificationModelImp(Project *project,
+                          QObject *parent = nullptr);
+    ~DensificationModelImp() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 // DensificationModel interface
 
 public:
 
-  std::shared_ptr<Densification> densification() const override;
-  tl::Path projectFolder() const override;
-  tl::Path reconstructionPath() const override;
-  tl::Path database() const override;
-  bool useCuda() const override;
-  bool existDenseModel() const override;
-  const std::unordered_map<size_t, Image> &images() const override;
-  const std::map<int, Camera> &cameras() const override;
-  const std::unordered_map<size_t, CameraPose> &poses() const override;
-  std::vector<GroundPoint> groundPoints() const override;
+    std::shared_ptr<Densification> densification() const override;
+    tl::Path projectFolder() const override;
+    tl::Path reconstructionPath() const override;
+    tl::Path database() const override;
+    bool useCuda() const override;
+    bool existDenseModel() const override;
+    const std::unordered_map<size_t, Image> &images() const override;
+    const std::map<int, Camera> &cameras() const override;
+    const std::unordered_map<size_t, CameraPose> &poses() const override;
+    std::vector<GroundPoint> groundPoints() const override;
 
 public slots:
 
-  void setDensification(const std::shared_ptr<Densification> &densification) override;
-  void setDenseModel(const tl::Path &denseModel) override;
+    void setDensification(const std::shared_ptr<Densification> &densification) override;
+    void setDenseModel(const tl::Path &denseModel) override;
 
 protected:
 
-  Project *mProject;
+    Project *mProject;
 
 };
 

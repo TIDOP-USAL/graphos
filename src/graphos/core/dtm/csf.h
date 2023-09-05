@@ -48,31 +48,31 @@ class Csf
 
 public:
 
-  Csf();
-  ~Csf();
+    Csf();
+    ~Csf();
 
-  bool sloopSmooth() const;
-  void setSloopSmooth(bool sloopSmooth);
-  double timeStep() const;
-  void setTimeStep(double timeStep);
-  double classThreshold() const;
-  void setClassThreshold(double classThreshold);
-  double clothResolution() const;
-  void setClothResolution(double clothResolution);
-  int rigidness() const;
-  void setRigidness(int rigidness);
-  int iterations() const;
-  void setIterations(int iterations);
+    bool sloopSmooth() const;
+    void setSloopSmooth(bool sloopSmooth);
+    double timeStep() const;
+    void setTimeStep(double timeStep);
+    double classThreshold() const;
+    void setClassThreshold(double classThreshold);
+    double clothResolution() const;
+    void setClothResolution(double clothResolution);
+    int rigidness() const;
+    void setRigidness(int rigidness);
+    int iterations() const;
+    void setIterations(int iterations);
 
-  void filter(const std::string &pointCloud, 
-              const std::string &ground, 
-              const std::string &outGround);
+    void filter(const std::string &pointCloud,
+                const std::string &ground,
+                const std::string &outGround);
 
-  void reset();
+    void reset();
 
 private:
 
-  std::unique_ptr<internal::Csf> mCSF;
+    std::unique_ptr<internal::Csf> mCSF;
 };
 
 

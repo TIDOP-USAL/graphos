@@ -39,109 +39,109 @@ namespace graphos
  * \brief Shading-Aware Multi-View Stereo Widget Interface
  */
 class CmvsPmvsWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CmvsPmvsWidget(QWidget *parent = nullptr) : GraphosWidgetView(parent){}
-  virtual ~CmvsPmvsWidget() = default;
+    CmvsPmvsWidget(QWidget *parent = nullptr) : GraphosWidgetView(parent) {}
+    virtual ~CmvsPmvsWidget() = default;
 
-  virtual bool useVisibilityInformation() const = 0;
-  virtual int imagesPerCluster() const  = 0;
-  virtual int level() const = 0;
-  virtual int cellSize() const = 0;
-  virtual double threshold() const = 0;
-  virtual int windowSize() const = 0;
-  virtual int minimunImageNumber() const = 0;
-  
+    virtual bool useVisibilityInformation() const = 0;
+    virtual int imagesPerCluster() const = 0;
+    virtual int level() const = 0;
+    virtual int cellSize() const = 0;
+    virtual double threshold() const = 0;
+    virtual int windowSize() const = 0;
+    virtual int minimunImageNumber() const = 0;
+
 signals:
 
-  void useVisibilityInformationChanged(bool);
-  void imagesPerClusterChanged(int);
-  void levelChanged(int);
-  void cellSizeChanged(int);
-  void thresholdChanged(double);
-  void windowSizeChanged(int);
-  void minimunImageNumberChanged(int);
-  
+    void useVisibilityInformationChanged(bool);
+    void imagesPerClusterChanged(int);
+    void levelChanged(int);
+    void cellSizeChanged(int);
+    void thresholdChanged(double);
+    void windowSizeChanged(int);
+    void minimunImageNumberChanged(int);
+
 public slots:
 
-  virtual void setUseVisibilityInformation(bool useVisibilityInformation) = 0;
-  virtual void setImagesPerCluster(int imagesPerCluster)  = 0;
-  virtual void setLevel(int level) = 0;
-  virtual void setCellSize(int cellSize) = 0;
-  virtual void setThreshold(double threshold) = 0;
-  virtual void setWindowSize(int windowSize) = 0;
-  virtual void setMinimunImageNumber(int minimunImageNumber) = 0;
+    virtual void setUseVisibilityInformation(bool useVisibilityInformation) = 0;
+    virtual void setImagesPerCluster(int imagesPerCluster) = 0;
+    virtual void setLevel(int level) = 0;
+    virtual void setCellSize(int cellSize) = 0;
+    virtual void setThreshold(double threshold) = 0;
+    virtual void setWindowSize(int windowSize) = 0;
+    virtual void setMinimunImageNumber(int minimunImageNumber) = 0;
 };
 
 
 class CmvsPmvsWidgetImp
-  : public CmvsPmvsWidget
+    : public CmvsPmvsWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CmvsPmvsWidgetImp(QWidget *parent = nullptr);
-  ~CmvsPmvsWidgetImp() override;
+    CmvsPmvsWidgetImp(QWidget *parent = nullptr);
+    ~CmvsPmvsWidgetImp() override;
 
 // CmvsPmvsWidget interface
 
 public:
 
-  bool useVisibilityInformation() const override;
-  int imagesPerCluster() const  override;
-  int level() const override;
-  int cellSize() const override;
-  double threshold() const override;
-  int windowSize() const override;
-  int minimunImageNumber() const override;
-  
+    bool useVisibilityInformation() const override;
+    int imagesPerCluster() const  override;
+    int level() const override;
+    int cellSize() const override;
+    double threshold() const override;
+    int windowSize() const override;
+    int minimunImageNumber() const override;
+
 public slots:
 
-  void setUseVisibilityInformation(bool useVisibilityInformation) override;
-  void setImagesPerCluster(int imagesPerCluster) override;
-  void setLevel(int level) override;
-  void setCellSize(int cellSize) override;
-  void setThreshold(double threshold) override;
-  void setWindowSize(int windowSize) override;
-  void setMinimunImageNumber(int minimunImageNumber) override;
-  
+    void setUseVisibilityInformation(bool useVisibilityInformation) override;
+    void setImagesPerCluster(int imagesPerCluster) override;
+    void setLevel(int level) override;
+    void setCellSize(int cellSize) override;
+    void setThreshold(double threshold) override;
+    void setWindowSize(int windowSize) override;
+    void setMinimunImageNumber(int minimunImageNumber) override;
+
 // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 protected:
-  
-  QGroupBox *mGroupBox;
-  QCheckBox *mCheckBoxUseVisibilityInformation;
-  QLabel *mLabelImagesPerCluster;
-  QSpinBox *mSpinBoxImagesPerCluster;
-  QLabel *mLabelLevel;
-  QSpinBox *mSpinBoxLevel;
-  QLabel *mLabelCellSize;
-  QSpinBox *mSpinBoxCellSize;
-  QLabel *mLabelThreshold;
-  QDoubleSpinBox *mDoubleSpinBoxThreshold;
-  QLabel *mLabelWindowSize;
-  QSpinBox *mSpinBoxWindowSize;
-  QLabel *mLabelMinimunImageNumber;
-  QSpinBox *mSpinBoxMinimunImageNumber;
+
+    QGroupBox *mGroupBox;
+    QCheckBox *mCheckBoxUseVisibilityInformation;
+    QLabel *mLabelImagesPerCluster;
+    QSpinBox *mSpinBoxImagesPerCluster;
+    QLabel *mLabelLevel;
+    QSpinBox *mSpinBoxLevel;
+    QLabel *mLabelCellSize;
+    QSpinBox *mSpinBoxCellSize;
+    QLabel *mLabelThreshold;
+    QDoubleSpinBox *mDoubleSpinBoxThreshold;
+    QLabel *mLabelWindowSize;
+    QSpinBox *mSpinBoxWindowSize;
+    QLabel *mLabelMinimunImageNumber;
+    QSpinBox *mSpinBoxMinimunImageNumber;
 
 };
 

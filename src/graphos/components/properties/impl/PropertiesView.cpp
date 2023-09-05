@@ -29,33 +29,33 @@
 
 namespace graphos
 {
-	
+
 PropertiesViewImp::PropertiesViewImp(QWidget *parent)
   : PropertiesView(parent)
 {
-  PropertiesViewImp::initUI();
-  PropertiesViewImp::initSignalAndSlots();
+    PropertiesViewImp::initUI();
+    PropertiesViewImp::initSignalAndSlots();
 }
 
 void PropertiesViewImp::initUI()
 {
-  this->setObjectName(QString::fromUtf8("PropertiesView"));
+    this->setObjectName(QString::fromUtf8("PropertiesView"));
 
-  QGridLayout *layout  = new QGridLayout();
-  this->setLayout(layout);
+    QGridLayout *layout = new QGridLayout();
+    this->setLayout(layout);
 
-  layout->setSpacing(6);
-  layout->setContentsMargins(11, 11, 11, 11);
-  layout->setContentsMargins(0, 0, 0, 0);
-  
-  mTreeWidgetProperties = new QTreeWidget(this);
-  QTreeWidgetItem *header_item = new QTreeWidgetItem();
-  mTreeWidgetProperties->setHeaderItem(header_item);
+    layout->setSpacing(6);
+    layout->setContentsMargins(11, 11, 11, 11);
+    layout->setContentsMargins(0, 0, 0, 0);
 
-  layout->addWidget(mTreeWidgetProperties, 0, 0, 1, 1);
+    mTreeWidgetProperties = new QTreeWidget(this);
+    QTreeWidgetItem *header_item = new QTreeWidgetItem();
+    mTreeWidgetProperties->setHeaderItem(header_item);
 
-  PropertiesViewImp::retranslate();
-  PropertiesViewImp::update();
+    layout->addWidget(mTreeWidgetProperties, 0, 0, 1, 1);
+
+    PropertiesViewImp::retranslate();
+    PropertiesViewImp::update();
 }
 
 void PropertiesViewImp::initSignalAndSlots()
@@ -64,7 +64,7 @@ void PropertiesViewImp::initSignalAndSlots()
 
 void PropertiesViewImp::clear()
 {
-  mTreeWidgetProperties->clear();
+    mTreeWidgetProperties->clear();
 }
 
 void PropertiesViewImp::update()
@@ -74,38 +74,38 @@ void PropertiesViewImp::update()
 
 void PropertiesViewImp::retranslate()
 {
-  setWindowTitle(QCoreApplication::translate("PropertiesView", "Image Properties", nullptr));
-  QTreeWidgetItem *header_item = mTreeWidgetProperties->headerItem();
-  header_item->setText(0, QCoreApplication::translate("PropertiesView", "Name", nullptr));
-  header_item->setText(1, QCoreApplication::translate("PropertiesView", "Value", nullptr));
+    setWindowTitle(QCoreApplication::translate("PropertiesView", "Image Properties", nullptr));
+    QTreeWidgetItem *header_item = mTreeWidgetProperties->headerItem();
+    header_item->setText(0, QCoreApplication::translate("PropertiesView", "Name", nullptr));
+    header_item->setText(1, QCoreApplication::translate("PropertiesView", "Value", nullptr));
 }
 
 void PropertiesViewImp::setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties)
 {
-  mTreeWidgetProperties->clear();
-  mTreeWidgetProperties->expandAll();
+    mTreeWidgetProperties->clear();
+    mTreeWidgetProperties->expandAll();
 
-  for(auto &group : properties) {
+    for (auto &group : properties) {
 
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, group.first);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, group.first);
 
-    mTreeWidgetProperties->addTopLevelItem(item);
+        mTreeWidgetProperties->addTopLevelItem(item);
 
-    for(auto &property : group.second) {
-      QTreeWidgetItem *item_property = new QTreeWidgetItem();
-      item_property->setText(0, property.first);
-      item_property->setText(1, property.second);
-      item->addChild(item_property);
+        for (auto &property : group.second) {
+            QTreeWidgetItem *item_property = new QTreeWidgetItem();
+            item_property->setText(0, property.first);
+            item_property->setText(1, property.second);
+            item->addChild(item_property);
+        }
+
+        item->setExpanded(true);
     }
-
-    item->setExpanded(true);
-  }
 }
 
 void PropertiesViewImp::setAlternatingRowColors(bool active)
 {
-  mTreeWidgetProperties->setAlternatingRowColors(true);
+    mTreeWidgetProperties->setAlternatingRowColors(active);
 }
 
 } // namespace graphos

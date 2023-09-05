@@ -21,31 +21,51 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_ORIENTATIONS_PRESENTER_INTERFACE_H
-#define GRAPHOS_EXPORT_ORIENTATIONS_PRESENTER_INTERFACE_H
+#ifndef GRAPHOS_EXPORT_CAMERAS_COMPONENT_H
+#define GRAPHOS_EXPORT_CAMERAS_COMPONENT_H
 
-#include "graphos/interfaces/mvp.h"
+#include "graphos/core/Component.h"
+
 
 namespace graphos
 {
 
-class ExportOrientationsPresenter
-  : public Presenter
+class ExportCamerasComponent
+  : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ExportOrientationsPresenter(){}
-  ~ExportOrientationsPresenter() override = default;
+    ExportCamerasComponent(Application *application);
+    ~ExportCamerasComponent();
 
-public slots:
+private:
 
-  virtual void save() = 0;
-  virtual void setCurrentFormat(const QString &format) = 0;
+    void init();
+
+
+// ComponentBase
+
+protected:
+
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
+
+// TaskComponent
+
+protected slots:
+
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_ORIENTATIONS_PRESENTER_INTERFACE_H
+
+#endif // GRAPHOS_EXPORT_CAMERAS_COMPONENT_H

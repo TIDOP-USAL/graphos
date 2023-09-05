@@ -40,12 +40,12 @@ class FeatureExtractorViewImp
   : public FeatureExtractorView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureExtractorViewImp(QWidget *parent = nullptr);
-  ~FeatureExtractorViewImp() override;
+    FeatureExtractorViewImp(QWidget *parent = nullptr);
+    ~FeatureExtractorViewImp() override;
 
 protected slots:
 
@@ -55,42 +55,42 @@ protected slots:
 
 public:
 
-  void addDetectorDescriptor(QWidget *detectorDescriptor) override;
-  QString currentDetectorDescriptor() const override;
-  int maxImageSize() const override;
-  bool fullImageSize() const override;
+    void addDetectorDescriptor(QWidget *detectorDescriptor) override;
+    QString currentDetectorDescriptor() const override;
+    int maxImageSize() const override;
+    bool fullImageSize() const override;
 
 public slots:
 
-  void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
-  void setMaxImageSize(int imageSize) override;
-  void setFullImageSize(bool fullImageSize) override;
+    void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
+    void setMaxImageSize(int imageSize) override;
+    void setFullImageSize(bool fullImageSize) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QGridLayout *mGridLayoutDetectorDescriptor;
-  QCheckBox *mCheckBoxFullImage;
-  QLabel *mLabelMaxImageSize;
-  QSpinBox *mSpinBoxMaxImageSize;
-  QLabel *mLabelDetectorDescriptor;
-  QComboBox *mComboBoxDetectorDescriptor;
-  QDialogButtonBox *mButtonBox;
+    QGridLayout *mGridLayoutDetectorDescriptor;
+    QCheckBox *mCheckBoxFullImage;
+    QLabel *mLabelMaxImageSize;
+    QSpinBox *mSpinBoxMaxImageSize;
+    QLabel *mLabelDetectorDescriptor;
+    QComboBox *mComboBoxDetectorDescriptor;
+    QDialogButtonBox *mButtonBox;
 };
 
 } // namespace graphos

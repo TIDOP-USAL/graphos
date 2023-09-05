@@ -33,107 +33,107 @@ BOOST_AUTO_TEST_SUITE(MvsTestSuite)
 struct TestMvs
 {
 
-  TestMvs()
-    : mMVS(new MvsProperties())
-  {
-  }
-
-  ~TestMvs()
-  {
-    if (mMVS) {
-      delete mMVS;
-      mMVS = nullptr;
+    TestMvs()
+      : mMVS(new MvsProperties())
+    {
     }
-  }
 
-  Mvs *mMVS;
+    ~TestMvs()
+    {
+        if (mMVS) {
+            delete mMVS;
+            mMVS = nullptr;
+        }
+    }
+
+    Mvs *mMVS;
 
 };
 
 
 BOOST_FIXTURE_TEST_CASE(default_constructor, TestMvs)
 {
-  BOOST_CHECK_EQUAL(1, mMVS->resolutionLevel());
-  BOOST_CHECK_EQUAL(640, mMVS->minResolution());
-  BOOST_CHECK_EQUAL(3200, mMVS->maxResolution());
-  BOOST_CHECK_EQUAL(5, mMVS->numberViews());
-  BOOST_CHECK_EQUAL(3, mMVS->numberViewsFuse());
+    BOOST_CHECK_EQUAL(1, mMVS->resolutionLevel());
+    BOOST_CHECK_EQUAL(640, mMVS->minResolution());
+    BOOST_CHECK_EQUAL(3200, mMVS->maxResolution());
+    BOOST_CHECK_EQUAL(5, mMVS->numberViews());
+    BOOST_CHECK_EQUAL(3, mMVS->numberViewsFuse());
 }
 
 BOOST_FIXTURE_TEST_CASE(constructor, TestMvs)
 {
-  MvsProperties mvs(2, 500, 3000, 6, 4);
-  BOOST_CHECK_EQUAL(2, mvs.resolutionLevel());
-  BOOST_CHECK_EQUAL(500, mvs.minResolution());
-  BOOST_CHECK_EQUAL(3000, mvs.maxResolution());
-  BOOST_CHECK_EQUAL(6, mvs.numberViews());
-  BOOST_CHECK_EQUAL(4, mvs.numberViewsFuse());
+    MvsProperties mvs(2, 500, 3000, 6, 4);
+    BOOST_CHECK_EQUAL(2, mvs.resolutionLevel());
+    BOOST_CHECK_EQUAL(500, mvs.minResolution());
+    BOOST_CHECK_EQUAL(3000, mvs.maxResolution());
+    BOOST_CHECK_EQUAL(6, mvs.numberViews());
+    BOOST_CHECK_EQUAL(4, mvs.numberViewsFuse());
 }
 
 BOOST_FIXTURE_TEST_CASE(reset, TestMvs)
 {
-  mMVS->reset();
-
-  BOOST_CHECK_EQUAL(1, mMVS->resolutionLevel());
-  BOOST_CHECK_EQUAL(640, mMVS->minResolution());
-  BOOST_CHECK_EQUAL(3200, mMVS->maxResolution());
-  BOOST_CHECK_EQUAL(5, mMVS->numberViews());
-  BOOST_CHECK_EQUAL(3, mMVS->numberViewsFuse());
+    mMVS->reset();
+    
+    BOOST_CHECK_EQUAL(1, mMVS->resolutionLevel());
+    BOOST_CHECK_EQUAL(640, mMVS->minResolution());
+    BOOST_CHECK_EQUAL(3200, mMVS->maxResolution());
+    BOOST_CHECK_EQUAL(5, mMVS->numberViews());
+    BOOST_CHECK_EQUAL(3, mMVS->numberViewsFuse());
 }
 
 BOOST_FIXTURE_TEST_CASE(type, TestMvs)
 {
-  BOOST_CHECK(Densification::Method::mvs == mMVS->method());
+    BOOST_CHECK(Densification::Method::mvs == mMVS->method());
 }
 
 BOOST_FIXTURE_TEST_CASE(name, TestMvs)
 {
-  BOOST_CHECK_EQUAL("MVS", mMVS->name().toStdString());
+    BOOST_CHECK_EQUAL("MVS", mMVS->name().toStdString());
 }
 
 BOOST_FIXTURE_TEST_CASE(resolution_level, TestMvs)
 {
-  mMVS->setResolutionLevel(2);
-  BOOST_CHECK_EQUAL(2, mMVS->resolutionLevel());
-
-  mMVS->setResolutionLevel(3);
-  BOOST_CHECK_EQUAL(3, mMVS->resolutionLevel());
+    mMVS->setResolutionLevel(2);
+    BOOST_CHECK_EQUAL(2, mMVS->resolutionLevel());
+    
+    mMVS->setResolutionLevel(3);
+    BOOST_CHECK_EQUAL(3, mMVS->resolutionLevel());
 }
 
 BOOST_FIXTURE_TEST_CASE(min_resolution, TestMvs)
 {
-  mMVS->setMinResolution(650);
-  BOOST_CHECK_EQUAL(650, mMVS->minResolution());
-
-  mMVS->setMinResolution(750);
-  BOOST_CHECK_EQUAL(750, mMVS->minResolution());
+    mMVS->setMinResolution(650);
+    BOOST_CHECK_EQUAL(650, mMVS->minResolution());
+    
+    mMVS->setMinResolution(750);
+    BOOST_CHECK_EQUAL(750, mMVS->minResolution());
 }
 
 BOOST_FIXTURE_TEST_CASE(max_resolution, TestMvs)
 {
-  mMVS->setMaxResolution(2500);
-  BOOST_CHECK_EQUAL(2500, mMVS->maxResolution());
-
-  mMVS->setMaxResolution(3000);
-  BOOST_CHECK_EQUAL(3000, mMVS->maxResolution());
+    mMVS->setMaxResolution(2500);
+    BOOST_CHECK_EQUAL(2500, mMVS->maxResolution());
+    
+    mMVS->setMaxResolution(3000);
+    BOOST_CHECK_EQUAL(3000, mMVS->maxResolution());
 }
 
 BOOST_FIXTURE_TEST_CASE(number_views, TestMvs)
 {
-  mMVS->setNumberViews(4);
-  BOOST_CHECK_EQUAL(4, mMVS->numberViews());
+    mMVS->setNumberViews(4);
+    BOOST_CHECK_EQUAL(4, mMVS->numberViews());
 
-  mMVS->setNumberViews(6);
-  BOOST_CHECK_EQUAL(6, mMVS->numberViews());
+    mMVS->setNumberViews(6);
+    BOOST_CHECK_EQUAL(6, mMVS->numberViews());
 }
 
 BOOST_FIXTURE_TEST_CASE(number_views_fuse, TestMvs)
 {
-  mMVS->setNumberViewsFuse(2);
-  BOOST_CHECK_EQUAL(2, mMVS->numberViewsFuse());
+    mMVS->setNumberViewsFuse(2);
+    BOOST_CHECK_EQUAL(2, mMVS->numberViewsFuse());
 
-  mMVS->setNumberViewsFuse(3);
-  BOOST_CHECK_EQUAL(3, mMVS->numberViewsFuse());
+    mMVS->setNumberViewsFuse(3);
+    BOOST_CHECK_EQUAL(3, mMVS->numberViewsFuse());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

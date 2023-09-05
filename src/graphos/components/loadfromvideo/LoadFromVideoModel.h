@@ -40,20 +40,20 @@ class LoadFromVideoModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  LoadFromVideoModel(QObject *parent = nullptr) : Model(parent) {}
-  ~LoadFromVideoModel() override = default;
-  
-  virtual tl::Path imagesPath() const = 0;
-  virtual void addImage(const Image &image) = 0;
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual int addCamera(const Camera &camera) = 0;
-  virtual int cameraID(const Camera &camera) const = 0;
-  virtual int cameraID(const QString &make,
-                       const QString &model) const = 0;
+    LoadFromVideoModel(QObject *parent = nullptr) : Model(parent) {}
+    ~LoadFromVideoModel() override = default;
+
+    virtual tl::Path imagesPath() const = 0;
+    virtual void addImage(const Image &image) = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual int addCamera(const Camera &camera) = 0;
+    virtual int cameraID(const Camera &camera) const = 0;
+    virtual int cameraID(const QString &make,
+                         const QString &model) const = 0;
 
 };
 

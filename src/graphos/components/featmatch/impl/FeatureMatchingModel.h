@@ -40,38 +40,38 @@ class FeatureMatchingModelImp
 
 public:
 
-  FeatureMatchingModelImp(Project *project,
-                          QObject *parent = nullptr);
-  ~FeatureMatchingModelImp() override;
+    FeatureMatchingModelImp(Project *project,
+                            QObject *parent = nullptr);
+    ~FeatureMatchingModelImp() override;
 
 // FeatureMatchingModel interface
 
 public:
 
-  std::shared_ptr<FeatureMatching> featureMatching() const override;
-  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
-  tl::Path database() const override;
-  bool useCuda() const override;
-  bool spatialMatching() const override;
-  void writeMatchPairs() override;
-  bool existsMatches() const override;
-  void clearProject() override;
-  bool imagesCount() const override;
+    std::shared_ptr<FeatureMatching> featureMatching() const override;
+    void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
+    tl::Path database() const override;
+    bool useCuda() const override;
+    bool spatialMatching() const override;
+    void writeMatchPairs() override;
+    bool existsMatches() const override;
+    void clearProject() override;
+    bool imagesCount() const override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
+    Project *mProject;
+    QSettings *mSettings;
 };
 
 } // End namespace graphos

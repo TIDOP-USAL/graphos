@@ -158,7 +158,7 @@ void SettingsViewImp::initUI()
   scrollAreaToolsGeneral->setWidgetResizable(true);
   scrollAreaToolsGeneral->setFrameShape(QFrame::Shape::NoFrame);
   QWidget *scrollAreaWidgetContentsToolsGeneral = new QWidget(this);
-  QGridLayout *gridLayoutContentsToolsGeneral = new QGridLayout(scrollAreaWidgetContentsToolsGeneral);
+  //QGridLayout *gridLayoutContentsToolsGeneral = new QGridLayout(scrollAreaWidgetContentsToolsGeneral);
   scrollAreaToolsGeneral->setWidget(scrollAreaWidgetContentsToolsGeneral);
   gridLayoutTabToolsGeneral->addWidget(scrollAreaToolsGeneral, 0, 0, 1, 1);
   mTabWidgetTools->addTab(tabToolsGeneral, QString(tr("General")));

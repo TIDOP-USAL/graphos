@@ -26,6 +26,8 @@
 
 #include "graphos/core/sfm/groundpoint.h"
 
+#include "graphos/core/image.h"
+
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 #include <tidop/core/path.h>
@@ -35,7 +37,6 @@
 namespace graphos
 {
 
-class Image;
 class CameraPose;
 class Camera;
 
@@ -43,36 +44,36 @@ class GRAPHOS_EXPORT GeoreferenceProcess
   : public QObject,
     public tl::TaskBase
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  GeoreferenceProcess(const std::unordered_map<size_t, Image> &images,
-                      const std::map<int, Camera> &cameras,
-                      const std::unordered_map<size_t, CameraPose> &poses,
-                      const std::vector<GroundPoint> &groundPoints,
-                      const std::vector<GroundControlPoint> &groundControlPoints,
-                      const tl::Path &database);
-  ~GeoreferenceProcess() override;
+    GeoreferenceProcess(const std::unordered_map<size_t, Image> &images,
+                        const std::map<int, Camera> &cameras,
+                        const std::unordered_map<size_t, CameraPose> &poses,
+                        const std::vector<GroundPoint> &groundPoints,
+                        const std::vector<GroundControlPoint> &groundControlPoints,
+                        const tl::Path &database);
+    ~GeoreferenceProcess() override;
 
 signals:
 
-  void georeferenceFinished();
+    void georeferenceFinished();
 
 // tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-  std::unordered_map<size_t, Image> mImages;
-  std::map<int, Camera> mCameras;
-  std::unordered_map<size_t, CameraPose> mPoses;
-  std::vector<GroundPoint> mGroundPoints;
-  std::vector<GroundControlPoint> mGroundControlPoints;
-  tl::Path mDatabase;
+    std::unordered_map<size_t, Image> mImages;
+    std::map<int, Camera> mCameras;
+    std::unordered_map<size_t, CameraPose> mPoses;
+    std::vector<GroundPoint> mGroundPoints;
+    std::vector<GroundControlPoint> mGroundControlPoints;
+    tl::Path mDatabase;
 };
 
 } // namespace graphos

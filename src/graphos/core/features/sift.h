@@ -44,47 +44,47 @@ namespace graphos
  * \brief SIFT detector/descriptor properties class
  */
 class SiftProperties
-  : public Sift
+    : public Sift
 {
 
 public:
 
-  SiftProperties();
-  SiftProperties(const SiftProperties &siftProperties);
-  ~SiftProperties() override = default;
+    SiftProperties();
+    SiftProperties(const SiftProperties &siftProperties);
+    ~SiftProperties() override = default;
 
-// Sift interface
-
-public:
-
-  int featuresNumber() const override;
-  int octaveLayers() const override;
-  bool constrastThresholdAuto() const override;
-  double contrastThreshold() const override;
-  double edgeThreshold() const override;
-
-  void setFeaturesNumber(int featuresNumber) override;
-  void setOctaveLayers(int octaveLayers) override;
-  void setContrastThresholdAuto(bool active) override;
-  void setContrastThreshold(double contrastThreshold) override;
-  void setEdgeThreshold(double edgeThreshold) override;
-
-
-// Feature interface
+    // Sift interface
 
 public:
 
-  void reset() override;
-  QString name() const final;
+    int featuresNumber() const override;
+    int octaveLayers() const override;
+    bool constrastThresholdAuto() const override;
+    double contrastThreshold() const override;
+    double edgeThreshold() const override;
+
+    void setFeaturesNumber(int featuresNumber) override;
+    void setOctaveLayers(int octaveLayers) override;
+    void setContrastThresholdAuto(bool active) override;
+    void setContrastThreshold(double contrastThreshold) override;
+    void setEdgeThreshold(double edgeThreshold) override;
+
+
+    // Feature interface
+
+public:
+
+    void reset() override;
+    QString name() const final;
 
 private:
 
-  int mFeaturesNumber;
-  int mOctaveLayers;
-  bool mContrastThresholdAuto;
-  double mContrastThreshold;
-  double mEdgeThreshold;
-  //double mSigma;
+    int mFeaturesNumber;
+    int mOctaveLayers;
+    bool mContrastThresholdAuto;
+    double mContrastThreshold;
+    double mEdgeThreshold;
+    //double mSigma;
 };
 
 
@@ -92,55 +92,55 @@ private:
 
 
 class SiftCPUDetectorDescriptor
-  : public SiftProperties,
+    : public SiftProperties,
     public FeatureExtractor
 {
 
 public:
 
-  SiftCPUDetectorDescriptor();
-  SiftCPUDetectorDescriptor(const SiftCPUDetectorDescriptor &siftDetectorDescriptor);
-  SiftCPUDetectorDescriptor(int featuresNumber,
-                            int octaveLayers,
-                            double edgeThreshold,
-                            double contrastThreshold = 0.);
-  ~SiftCPUDetectorDescriptor() override;
+    SiftCPUDetectorDescriptor();
+    SiftCPUDetectorDescriptor(const SiftCPUDetectorDescriptor &siftDetectorDescriptor);
+    SiftCPUDetectorDescriptor(int featuresNumber,
+                              int octaveLayers,
+                              double edgeThreshold,
+                              double contrastThreshold = 0.);
+    ~SiftCPUDetectorDescriptor() override;
 
 private:
 
-  void update();
+    void update();
 
-// FeatureExtractor interface
-
-public:
-
-  void run(const cv::Mat &bitmap,
-           std::vector<cv::KeyPoint> &keyPoints,
-           cv::Mat &descriptors) override;
-
-// Sift interface
+    // FeatureExtractor interface
 
 public:
 
-  void setFeaturesNumber(int featuresNumber) override;
-  void setOctaveLayers(int octaveLayers) override;
-  void setContrastThreshold(double contrastThreshold) override;
-  void setEdgeThreshold(double edgeThreshold) override;
+    void run(const cv::Mat &bitmap,
+             std::vector<cv::KeyPoint> &keyPoints,
+             cv::Mat &descriptors) override;
 
-  // Feature interface
+    // Sift interface
 
 public:
 
-  void reset() override;
+    void setFeaturesNumber(int featuresNumber) override;
+    void setOctaveLayers(int octaveLayers) override;
+    void setContrastThreshold(double contrastThreshold) override;
+    void setEdgeThreshold(double edgeThreshold) override;
+
+    // Feature interface
+
+public:
+
+    void reset() override;
 
 protected:
 
 #if (CV_VERSION_MAJOR > 4 || (CV_VERSION_MAJOR == 4 && CV_VERSION_MINOR >= 4))
-  cv::Ptr <cv::SIFT>  mSift;
+    cv::Ptr <cv::SIFT>  mSift;
 #elif defined OPENCV_ENABLE_NONFREE && defined HAVE_OPENCV_XFEATURES2D
-  cv::Ptr<cv::xfeatures2d::SIFT> mSift;
+    cv::Ptr<cv::xfeatures2d::SIFT> mSift;
 #endif // HAVE_OPENCV_XFEATURES2D
-  std::mutex mMutex;
+    std::mutex mMutex;
 };
 
 
@@ -148,51 +148,51 @@ protected:
 
 
 class SiftCudaDetectorDescriptor
-  : public SiftProperties,
+    : public SiftProperties,
     public FeatureExtractor
 {
 
 public:
 
-  SiftCudaDetectorDescriptor();
-  SiftCudaDetectorDescriptor(const SiftCudaDetectorDescriptor &siftDetectorDescriptor);
-  SiftCudaDetectorDescriptor(int featuresNumber,
-                             int octaveLayers,
-                             double edgeThreshold,
-                             double contrastThreshold = 0.);
-  ~SiftCudaDetectorDescriptor() override;
+    SiftCudaDetectorDescriptor();
+    SiftCudaDetectorDescriptor(const SiftCudaDetectorDescriptor &siftDetectorDescriptor);
+    SiftCudaDetectorDescriptor(int featuresNumber,
+                               int octaveLayers,
+                               double edgeThreshold,
+                               double contrastThreshold = 0.);
+    ~SiftCudaDetectorDescriptor() override;
 
 private:
 
-  void update();
+    void update();
 
-// FeatureExtractor interface
-
-public:
-
-  void run(const cv::Mat &bitmap,
-           std::vector<cv::KeyPoint> &keyPoints,
-           cv::Mat &descriptors) override;
-
-// Sift interface
+    // FeatureExtractor interface
 
 public:
 
-  void setFeaturesNumber(int featuresNumber) override;
-  void setOctaveLayers(int octaveLayers) override;
-  void setContrastThreshold(double contrastThreshold) override;
-  void setEdgeThreshold(double edgeThreshold) override;
+    void run(const cv::Mat &bitmap,
+             std::vector<cv::KeyPoint> &keyPoints,
+             cv::Mat &descriptors) override;
 
-// Feature interface
+    // Sift interface
 
 public:
 
-  void reset() override;
+    void setFeaturesNumber(int featuresNumber) override;
+    void setOctaveLayers(int octaveLayers) override;
+    void setContrastThreshold(double contrastThreshold) override;
+    void setEdgeThreshold(double edgeThreshold) override;
+
+    // Feature interface
+
+public:
+
+    void reset() override;
 
 protected:
 
-  std::unique_ptr<SiftGPU> mSiftGpu;
-  std::mutex mMutex;
+    std::unique_ptr<SiftGPU> mSiftGpu;
+    std::mutex mMutex;
 };
 
 

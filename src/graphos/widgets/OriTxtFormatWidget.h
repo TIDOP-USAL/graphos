@@ -40,25 +40,25 @@ class OriTxtFormatWidget
   : public GraphosWidgetView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OriTxtFormatWidget(QWidget *parent = nullptr);
-  ~OriTxtFormatWidget() override = default;
+    OriTxtFormatWidget(QWidget *parent = nullptr);
+    ~OriTxtFormatWidget() override = default;
 
-  virtual QString file() const = 0;
-  virtual QString rotation() const = 0;
+    virtual QString file() const = 0;
+    virtual QString rotation() const = 0;
 
 signals:
 
-  void fileChanged(QString);
-  void rotationChanged(QString);
+    void fileChanged(QString);
+    void rotationChanged(QString);
 
 public slots:
 
-  virtual void setFile(const QString &file) = 0;
-  virtual void setRotation(const QString &rotation) = 0;
+    virtual void setFile(const QString &file) = 0;
+    virtual void setRotation(const QString &rotation) = 0;
 };
 
 
@@ -67,51 +67,51 @@ class OriTxtFormatWidgetImp
   : public OriTxtFormatWidget
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OriTxtFormatWidgetImp(QWidget *parent = nullptr);
-  ~OriTxtFormatWidgetImp() override = default;
+    OriTxtFormatWidgetImp(QWidget *parent = nullptr);
+    ~OriTxtFormatWidgetImp() override = default;
 
 protected slots:
 
-  void onPushButtonSelectPath();
+    void onPushButtonSelectPath();
 
 // OriTxtFormatWidget interface
 
-  QString file() const override;
-  QString rotation() const override;
+    QString file() const override;
+    QString rotation() const override;
 
 public slots:
 
-  void setFile(const QString &file) override;
-  void setRotation(const QString &rotation) override;
+    void setFile(const QString &file) override;
+    void setRotation(const QString &rotation) override;
 
 // GraphosWidgetView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QGroupBox *mGroupBox;
-  QLabel *mLabelRotation;
-  QComboBox *mComboBoxRotation;
-  QLabel *mLabelFile;
-  QLineEdit *mLineEditFile;
-  QPushButton *mPushButtonSelectPath;
+    QGroupBox *mGroupBox;
+    QLabel *mLabelRotation;
+    QComboBox *mComboBoxRotation;
+    QLabel *mLabelFile;
+    QLineEdit *mLineEditFile;
+    QPushButton *mPushButtonSelectPath;
 };
 
 } // namespace graphos

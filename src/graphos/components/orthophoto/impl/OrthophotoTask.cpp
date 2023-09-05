@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "OrthophotoProcess.h"
+#include "OrthophotoTask.h"
 #include "graphos/core/ortho/Orthomosaic.h"
 
 #include <tidop/core/messages.h>
@@ -29,28 +29,28 @@
 namespace graphos
 {
 
-OrthophotoProcess::OrthophotoProcess(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm)
+OrthophotoTask::OrthophotoTask(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm)
   : tl::TaskBase(),
     mOrthophotoAlgorithm(orthophotoAlgorithm)
 {
 
 }
 
-OrthophotoProcess::~OrthophotoProcess()
+OrthophotoTask::~OrthophotoTask()
 {
 
 }
 
-void OrthophotoProcess::execute(tl::Progress *progressBar)
+void OrthophotoTask::execute(tl::Progress *progressBar)
 {
-	
-  try {
-    
-  	mOrthophotoAlgorithm->run();
 
-  } catch(...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Orthophoto process error");
-  }
+    try {
+
+        mOrthophotoAlgorithm->run();
+
+    } catch(...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Orthophoto process error");
+    }
 
 }
 

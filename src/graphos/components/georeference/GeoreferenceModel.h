@@ -46,40 +46,40 @@ class GeoreferenceModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  GeoreferenceModel(QObject *parent = nullptr) : Model(parent) {}
-  ~GeoreferenceModel() override = default;
+    GeoreferenceModel(QObject *parent = nullptr) : Model(parent) {}
+    ~GeoreferenceModel() override = default;
 
-  virtual void loadGroundControlPoints() = 0;
-  virtual QString crs() const = 0;
-  virtual QStandardItemModel *itemModelGroundControlPoints() = 0;
-  virtual QStandardItemModel *itemModelImagePoints() = 0;
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
-  virtual Image image(size_t imageId) const = 0;
-  virtual void addGroundControlPoint() = 0;
-  virtual void removeGroundControlPoint(int index) = 0;
-  virtual void addImagePoint(const QString &gcp, size_t imageId, const QPointF &point) = 0;
-  virtual void removeImagePoint(const QString &gcp, size_t imageId) = 0;
-  virtual std::list<std::pair<QString, QPointF>> points(size_t imageId) const = 0;
-  virtual std::vector<GroundControlPoint> groundControlPoints() const = 0;
-  virtual tl::Path projectPath() const = 0;
-  virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
-  virtual void setSparseModel(const tl::Path &sparseModel) = 0;
-  virtual void setOffset(const tl::Path &offset) = 0;
-  virtual void addPhotoOrientation(size_t imageId,
-                                   const CameraPose &orientation) = 0;
-  virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual std::vector<GroundPoint> groundPoints() const = 0;
-  virtual tl::Path database() const = 0;
+    virtual void loadGroundControlPoints() = 0;
+    virtual QString crs() const = 0;
+    virtual QStandardItemModel *itemModelGroundControlPoints() = 0;
+    virtual QStandardItemModel *itemModelImagePoints() = 0;
+    virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual Image image(size_t imageId) const = 0;
+    virtual void addGroundControlPoint() = 0;
+    virtual void removeGroundControlPoint(int index) = 0;
+    virtual void addImagePoint(const QString &gcp, size_t imageId, const QPointF &point) = 0;
+    virtual void removeImagePoint(const QString &gcp, size_t imageId) = 0;
+    virtual std::list<std::pair<QString, QPointF>> points(size_t imageId) const = 0;
+    virtual std::vector<GroundControlPoint> groundControlPoints() const = 0;
+    virtual tl::Path projectPath() const = 0;
+    virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
+    virtual void setSparseModel(const tl::Path &sparseModel) = 0;
+    virtual void setOffset(const tl::Path &offset) = 0;
+    virtual void addPhotoOrientation(size_t imageId,
+                                     const CameraPose &orientation) = 0;
+    virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual std::vector<GroundPoint> groundPoints() const = 0;
+    virtual tl::Path database() const = 0;
 
 public slots:
 
-  virtual void save() = 0;
-  virtual void setCrs(const QString &crs) = 0;
+    virtual void save() = 0;
+    virtual void setCrs(const QString &crs) = 0;
 };
 
 } // namespace graphos

@@ -27,7 +27,7 @@
 #include "graphos/widgets/GraphicViewer.h"
 #include "graphos/widgets/Viewer3d.h"
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QMenu>
 #include <QAction>
 #include <QApplication>
@@ -36,57 +36,57 @@ TL_DEFAULT_WARNINGS
 
 namespace graphos
 {
-	
+
 TabWidget::TabWidget(QWidget *parent)
   : QTabWidget(parent)
 {
-  initUI();
-  initSignalAndSlots();
+    initUI();
+    initSignalAndSlots();
 }
 
 void TabWidget::initUI()
 {
-  this->setObjectName(QString("TabWidget"));
-  this->setContextMenuPolicy(Qt::CustomContextMenu);
-  this->setTabsClosable(true);
+    this->setObjectName(QString("TabWidget"));
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    this->setTabsClosable(true);
 
-  this->initActions();
-  this->initMenu();
+    this->initActions();
+    this->initMenu();
 
-  this->retranslate();
-  this->update();
+    this->retranslate();
+    this->update();
 }
 
 void TabWidget::initActions()
 {
-  mCloseTab = new QAction(this);
-  mCloseAllTabs = new QAction(this);
-  mCloseAllTabsButCurrentOne = new QAction(this);
+    mCloseTab = new QAction(this);
+    mCloseAllTabs = new QAction(this);
+    mCloseAllTabsButCurrentOne = new QAction(this);
 }
 
 void TabWidget::initMenu()
 {
-  mMenu = new QMenu(this);
-  mMenu->addAction(mCloseTab);
-  mMenu->addAction(mCloseAllTabs);
-  mMenu->addAction(mCloseAllTabsButCurrentOne);
+    mMenu = new QMenu(this);
+    mMenu->addAction(mCloseTab);
+    mMenu->addAction(mCloseAllTabs);
+    mMenu->addAction(mCloseAllTabsButCurrentOne);
 }
 
 void TabWidget::initSignalAndSlots()
 {
-  connect(this, SIGNAL(tabCloseRequested(int)),                     this, SLOT(closeTab(int)));
-  connect(this, SIGNAL(currentChanged(int)),                        this, SLOT(onTabChanged(int)));
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onTabWidgetContextMenu(const QPoint &)));
+    connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(onTabChanged(int)));
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onTabWidgetContextMenu(const QPoint &)));
 }
 
 void TabWidget::clear()
 {
-  int n = this->count();
-  for (int i = 0; i < n; i++) {
-    closeTab(0);
-  }
+    int n = this->count();
+    for (int i = 0; i < n; i++) {
+        closeTab(0);
+    }
 
-  update();
+    update();
 }
 
 void TabWidget::update()
@@ -96,28 +96,28 @@ void TabWidget::update()
 
 void TabWidget::retranslate()
 {
-  mCloseTab->setText(QApplication::translate("TabWidget", "Close"));
-  mCloseAllTabs->setText(QApplication::translate("TabWidget", "Close all tabs"));
-  mCloseAllTabsButCurrentOne->setText(QApplication::translate("TabWidget", "Close all tabs but current one"));
+    mCloseTab->setText(QApplication::translate("TabWidget", "Close"));
+    mCloseAllTabs->setText(QApplication::translate("TabWidget", "Close all tabs"));
+    mCloseAllTabsButCurrentOne->setText(QApplication::translate("TabWidget", "Close all tabs but current one"));
 }
 
 void TabWidget::closeTab(int tabId)
 {
-  if (tabId != -1) {
-    GraphicViewer *graphicViewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
-    Viewer3D *viewer3D = dynamic_cast<Viewer3D *>(this->widget(tabId));
-    this->removeTab(tabId);
-    if (graphicViewer) {
-      delete graphicViewer;
-      graphicViewer = nullptr;
-    } else if (viewer3D) {
-      delete viewer3D;
-      viewer3D = nullptr;
-    }
+    if (tabId != -1) {
+        GraphicViewer *graphicViewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
+        Viewer3D *viewer3D = dynamic_cast<Viewer3D *>(this->widget(tabId));
+        this->removeTab(tabId);
+        if (graphicViewer) {
+            delete graphicViewer;
+            graphicViewer = nullptr;
+        } else if (viewer3D) {
+            delete viewer3D;
+            viewer3D = nullptr;
+        }
 
-    if (this->count() == 0)
-    emit all_tabs_closed();
-  }
+        if (this->count() == 0)
+            emit all_tabs_closed();
+    }
 }
 
 void TabWidget::setCurrentTab(int tabId)
@@ -126,80 +126,80 @@ void TabWidget::setCurrentTab(int tabId)
 
 int TabWidget::fileTab(const QString &file) const
 {
-  int id = -1;
+    int id = -1;
 
-  for (int i = 0; i < this->count(); i++) {
+    for (int i = 0; i < this->count(); i++) {
 
-    if (this->tabToolTip(i) == file) {
-      id = i;
-      break;
+        if (this->tabToolTip(i) == file) {
+            id = i;
+            break;
+        }
     }
-  }
 
-  return id;
+    return id;
 }
 
 void TabWidget::onTabChanged(int tabId)
 {
-  GraphicViewer *graphicViewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
-  Viewer3D *viewer3D = dynamic_cast<Viewer3D *>(this->widget(tabId));
+    GraphicViewer *graphicViewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
+    Viewer3D *viewer3D = dynamic_cast<Viewer3D *>(this->widget(tabId));
 
-  if (graphicViewer) {
-    emit imageActive(true);
-    emit model3dActive(false);
-    emit model3dChange(nullptr);
-  } else if (viewer3D) {
-    emit model3dActive(true);
-    emit imageActive(false);
-    emit model3dChange(viewer3D);
-  } else {
-    emit imageActive(false);
-    emit model3dActive(false);
-    emit model3dChange(nullptr);
-  }
+    if (graphicViewer) {
+        emit imageActive(true);
+        emit model3dActive(false);
+        emit model3dChange(nullptr);
+    } else if (viewer3D) {
+        emit model3dActive(true);
+        emit imageActive(false);
+        emit model3dChange(viewer3D);
+    } else {
+        emit imageActive(false);
+        emit model3dActive(false);
+        emit model3dChange(nullptr);
+    }
 
-  update();
+    update();
 }
 
 void TabWidget::onTabWidgetContextMenu(const QPoint &position)
 {
-  if (position.isNull()) return;
+    if (position.isNull()) return;
 
-  if (this->tabBar() == nullptr) return;
+    if (this->tabBar() == nullptr) return;
 
-  int tabIndex = this->tabBar()->tabAt(position);
+    int tabIndex = this->tabBar()->tabAt(position);
 
-  if (tabIndex == -1) return;
+    if (tabIndex == -1) return;
 
-  QPoint globalPos = mapToGlobal(position);
-  if (QAction *action = mMenu->exec(globalPos)) {
-    if (action->text() == tr("Close")) {
-      closeTab(tabIndex);
-    } else if (action->text() == tr("Close all tabs")) {
-      int n = this->count();
-      for (int i = 0; i < n; i++) {
-        closeTab(0);
-      }
-    } else if (action->text() == tr("Close all tabs but current one")) {
-      int n = this->count();
-      int tabToCloseId = 0;
-      QString tabText = this->tabBar()->tabText(tabIndex);
-      for (int i = 0; i < n; i++) {
-        if (this->tabBar()->tabText(tabToCloseId).compare(tabText) == 0) {
-          tabToCloseId = 1;
-        } else {
-          closeTab(tabToCloseId);
+    QPoint globalPos = mapToGlobal(position);
+    if (QAction *action = mMenu->exec(globalPos)) {
+        if (action->text() == tr("Close")) {
+            closeTab(tabIndex);
+        } else if (action->text() == tr("Close all tabs")) {
+            int n = this->count();
+            for (int i = 0; i < n; i++) {
+                closeTab(0);
+            }
+        } else if (action->text() == tr("Close all tabs but current one")) {
+            int n = this->count();
+            int tabToCloseId = 0;
+            QString tabText = this->tabBar()->tabText(tabIndex);
+            for (int i = 0; i < n; i++) {
+                if (this->tabBar()->tabText(tabToCloseId).compare(tabText) == 0) {
+                    tabToCloseId = 1;
+                } else {
+                    closeTab(tabToCloseId);
+                }
+            }
         }
-      }
     }
-  }
 }
 
 void TabWidget::changeEvent(QEvent *event)
 {
-  if (event->type() == QEvent::LanguageChange) {
-    this->retranslate();
-  }
+    if (event->type() == QEvent::LanguageChange) {
+        this->retranslate();
+    }
 }
 
 

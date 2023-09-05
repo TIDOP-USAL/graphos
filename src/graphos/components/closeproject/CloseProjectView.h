@@ -37,12 +37,12 @@ namespace graphos
 class CloseProjectView
   : public QFileDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CloseProjectView(QWidget *parent) : QFileDialog(parent) {}
-  ~CloseProjectView() override = default;
+    CloseProjectView(QWidget *parent) : QFileDialog(parent) {}
+    ~CloseProjectView() override = default;
 
 };
 

@@ -28,16 +28,16 @@ namespace graphos
 {
 
 Camera::Camera()
-  : mMake(""),
-    mModel(""),
-    mType("OpenCV 1"),
-    mFocal(1.),
-    mWidth(0),
-    mHeight(0),
-    mSensorSize(1.),
-    mCalibration(nullptr)
+    : mMake(""),
+      mModel(""),
+      mType("OpenCV 1"),
+      mFocal(1.),
+      mWidth(0),
+      mHeight(0),
+      mSensorSize(1.),
+      mCalibration(nullptr)
 {
-  init();
+    init();
 }
 
 Camera::Camera(const std::string &make, const std::string &model)
@@ -50,79 +50,79 @@ Camera::Camera(const std::string &make, const std::string &model)
       mSensorSize(1.),
       mCalibration(nullptr)
 {
-  init();
+    init();
 }
 
 Camera::Camera(const Camera &camera)
-  : mMake(camera.mMake),
-    mModel(camera.mModel),
-    mType(camera.mType),
-    mFocal(camera.mFocal),
-    mWidth(camera.mWidth),
-    mHeight(camera.mHeight),
-    mSensorSize(camera.mSensorSize),
-    mCalibration(camera.mCalibration)
+    : mMake(camera.mMake),
+      mModel(camera.mModel),
+      mType(camera.mType),
+      mFocal(camera.mFocal),
+      mWidth(camera.mWidth),
+      mHeight(camera.mHeight),
+      mSensorSize(camera.mSensorSize),
+      mCalibration(camera.mCalibration)
 {
 }
 
 std::string Camera::make() const
 {
-  return mMake;
+    return mMake;
 }
 
 void Camera::setMake(const std::string &make)
 {
-  mMake = make;
+    mMake = make;
 }
 
 std::string Camera::model() const
 {
-  return mModel;
+    return mModel;
 }
 
 void Camera::setModel(const std::string &model)
 {
-  mModel = model;
+    mModel = model;
 }
 
 std::string Camera::type() const
 {
-  return mType;
+    return mType;
 }
 
 void Camera::setType(const std::string &type)
 {
-  mType = type;
+    mType = type;
 }
 
 double Camera::focal() const
 {
-  return mFocal;
+    return mFocal;
 }
 
 void Camera::setFocal(double focal)
 {
-  mFocal = focal;
+    mFocal = focal;
 }
 
 int Camera::width() const
 {
-  return mWidth;
+    return mWidth;
 }
 
 void Camera::setWidth(int width)
 {
-  mWidth = width;
+    mWidth = width;
 }
 
 int Camera::height() const
 {
-  return mHeight;
+    return mHeight;
 }
 
 void Camera::setHeight(int height)
 {
-  mHeight = height;
+    mHeight = height;
 }
 
 double Camera::sensorSize() const
@@ -132,32 +132,32 @@ double Camera::sensorSize() const
 
 void Camera::setSensorSize(double sensorSize)
 {
-  mSensorSize = sensorSize;
+    mSensorSize = sensorSize;
 }
 
 std::shared_ptr<Calibration> Camera::calibration() const
 {
-  return mCalibration;
+    return mCalibration;
 }
 
 void Camera::setCalibration(std::shared_ptr<Calibration> &calibration)
 {
-  mCalibration = calibration;
+    mCalibration = calibration;
 }
 
 Camera &Camera::operator =(const Camera &camera)
 {
-  if (this != &camera){
-    this->mMake = camera.mMake;
-    this->mModel = camera.mModel;
-    this->mType = camera.mType;
-    this->mFocal = camera.mFocal;
-    this->mWidth = camera.mWidth;
-    this->mHeight = camera.mHeight;
-    this->mSensorSize = camera.mSensorSize;
-    this->mCalibration = camera.mCalibration;
-  }
-  return *this;
+    if (this != &camera) {
+        this->mMake = camera.mMake;
+        this->mModel = camera.mModel;
+        this->mType = camera.mType;
+        this->mFocal = camera.mFocal;
+        this->mWidth = camera.mWidth;
+        this->mHeight = camera.mHeight;
+        this->mSensorSize = camera.mSensorSize;
+        this->mCalibration = camera.mCalibration;
+    }
+    return *this;
 }
 
 void Camera::init()

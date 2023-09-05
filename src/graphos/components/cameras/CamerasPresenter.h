@@ -33,25 +33,25 @@ class CamerasPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CamerasPresenter(){}
-  virtual ~CamerasPresenter() override = default;
+    CamerasPresenter() {}
+    virtual ~CamerasPresenter() override = default;
 
 public slots:
 
-  virtual void activeCamera(int id) = 0;
+    virtual void activeCamera(int id) = 0;
 
 protected slots:
 
-  virtual void save() = 0;
-  virtual void discart() = 0;
+    virtual void save() = 0;
+    virtual void discart() = 0;
 
 signals:
 
-  void updateCameras();
+    void updateCameras();
 
 };
 

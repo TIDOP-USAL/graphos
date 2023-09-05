@@ -40,7 +40,7 @@ DensificationModelImp::DensificationModelImp(Project *project,
   : DensificationModel(parent),
     mProject(project)
 {
-  init();
+    init();
 }
 
 DensificationModelImp::~DensificationModelImp()
@@ -54,83 +54,83 @@ void DensificationModelImp::init()
 
 void DensificationModelImp::clear()
 {
-  mProject->clearDensification();
+    mProject->clearDensification();
 }
 
 std::shared_ptr<Densification> DensificationModelImp::densification() const
 {
-  ///TODO: Densificación guardada en proyecto y si no de configuración
-  return mProject->densification();
+    ///TODO: Densificación guardada en proyecto y si no de configuración
+    return mProject->densification();
 }
 
 tl::Path DensificationModelImp::projectFolder() const
 {
-  return mProject->projectFolder();
+    return mProject->projectFolder();
 }
 
 
 tl::Path DensificationModelImp::reconstructionPath() const
 {
-  return mProject->reconstructionPath();
+    return mProject->reconstructionPath();
 }
 
 tl::Path DensificationModelImp::database() const
 {
-  return mProject->database();
+    return mProject->database();
 }
 
 bool DensificationModelImp::useCuda() const
 {
-  QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
-  return settings.value("UseCuda", true).toBool();
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
+    return settings.value("UseCuda", true).toBool();
 }
 
 bool DensificationModelImp::existDenseModel() const
 {
-  tl::Path dense_model = mProject->denseModel();
-  return !dense_model.empty();
+    tl::Path dense_model = mProject->denseModel();
+    return !dense_model.empty();
 }
 
 const std::unordered_map<size_t, Image> &DensificationModelImp::images() const
 {
-  return mProject->images();
+    return mProject->images();
 }
 
 const std::map<int, Camera> &DensificationModelImp::cameras() const
 {
-  return mProject->cameras();
+    return mProject->cameras();
 }
 
 const std::unordered_map<size_t, CameraPose> &DensificationModelImp::poses() const
 {
-  return mProject->poses();
+    return mProject->poses();
 }
 
 std::vector<GroundPoint> DensificationModelImp::groundPoints() const
 {
-  std::vector<GroundPoint> ground_points;
+    std::vector<GroundPoint> ground_points;
 
-  try {
+    try {
 
-    std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
-    reader->read(mProject->groundPoints());
-    ground_points = reader->points();
+        std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
+        reader->read(mProject->groundPoints());
+        ground_points = reader->points();
 
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
-  
-  return ground_points;
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
+
+    return ground_points;
 }
 
 void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)
 {
-  mProject->setDensification(densification);
+    mProject->setDensification(densification);
 }
 
 void DensificationModelImp::setDenseModel(const tl::Path &denseModel)
 {
-  mProject->setDenseModel(denseModel);
+    mProject->setDenseModel(denseModel);
 }
 
 

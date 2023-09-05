@@ -37,37 +37,37 @@ class SaveProjectAsPresenterImp
   : public SaveProjectAsPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectAsPresenterImp(SaveProjectAsView *view,
-                            SaveProjectAsModel *model,
-                            AppStatus *status);
-  ~SaveProjectAsPresenterImp() override;
+    SaveProjectAsPresenterImp(SaveProjectAsView *view,
+                              SaveProjectAsModel *model,
+                              AppStatus *status);
+    ~SaveProjectAsPresenterImp() override;
 
 // SaveProjectAsPresenter interface
 
 public slots:
 
-  void save(const QString &file) override;
+    void save(const QString &file) override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  SaveProjectAsView *mView;
-  SaveProjectAsModel *mModel;
-  AppStatus *mAppStatus;
+    SaveProjectAsView *mView;
+    SaveProjectAsModel *mModel;
+    AppStatus *mAppStatus;
 };
 
 } // namespace graphos

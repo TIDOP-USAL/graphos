@@ -41,8 +41,8 @@ MeshPresenterImp::MeshPresenterImp(MeshView *view,
     mView(view),
     mModel(model)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 MeshPresenterImp::~MeshPresenterImp()
@@ -52,16 +52,16 @@ MeshPresenterImp::~MeshPresenterImp()
 
 void MeshPresenterImp::open()
 {
-  mModel->loadSettings();
-  PoissonReconParameters *parameters = mModel->parameters();
+    mModel->loadSettings();
+    PoissonReconParameters *parameters = mModel->parameters();
 
-  mView->setBoundaryType(parameters->boundaryType());
-  mView->setDepth(parameters->depth());
-  //mView->setFullDepth(parameters->fullDepth());
-  mView->setSolveDepth(parameters->solveDepth());
-  mView->setWidth(parameters->width());
-  
-  mView->exec();
+    mView->setBoundaryType(parameters->boundaryType());
+    mView->setDepth(parameters->depth());
+    //mView->setFullDepth(parameters->fullDepth());
+    mView->setSolveDepth(parameters->solveDepth());
+    //mView->setWidth(parameters->width());
+
+    mView->exec();
 }
 
 void MeshPresenterImp::init()
@@ -71,76 +71,76 @@ void MeshPresenterImp::init()
 
 void MeshPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &TaskView::run,     this,   &TaskPresenter::run);
-  connect(mView, &DialogView::help, [&]() {
-    emit help("mesh.html");
-  });
+    connect(mView, &TaskView::run, this, &TaskPresenter::run);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("mesh.html");
+            });
 }
 
 void MeshPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  TaskPresenter::onError(event);
+    TaskPresenter::onError(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Process error"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Process error"));
+    }
 }
 
 void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  TaskPresenter::onFinished(event);
+    TaskPresenter::onFinished(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Process finished"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Process finished"));
+    }
 
-  tl::Path mesh = mModel->projectDir();
-  mesh.append("dense").append("mesh.pr.ply");
+    tl::Path mesh = mModel->projectDir();
+    mesh.append("dense").append("mesh.pr.ply");
 
-  mModel->setMesh(mesh);
+    mModel->setMesh(mesh);
 }
 
 std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> process;
+    std::unique_ptr<tl::Task> process;
 
-  tl::Path point_cloud = mModel->denseModel();
-  tl::Path mesh = mModel->projectDir();
-  mesh.append("dense").append("mesh.pr.ply");
+    tl::Path point_cloud = mModel->denseModel();
+    tl::Path mesh = mModel->projectDir();
+    mesh.append("dense").append("mesh.pr.ply");
 
-  auto parameters = mModel->parameters();
-  parameters->setBoundaryType(mView->boundaryType());
-  parameters->setDepth(mView->depth());
-  //parameters->setFullDepth(mView->fullDepth());
-  parameters->setSolveDepth(mView->solveDepth());
-  parameters->setWidth(mView->width());
+    auto parameters = mModel->parameters();
+    parameters->setBoundaryType(mView->boundaryType());
+    parameters->setDepth(mView->depth());
+    //parameters->setFullDepth(mView->fullDepth());
+    parameters->setSolveDepth(mView->solveDepth());
+    //parameters->setWidth(mView->width());
 
-  process = std::make_unique<PoissonReconTask>(point_cloud,
-                                               mesh);
+    process = std::make_unique<PoissonReconTask>(point_cloud,
+                                                 mesh);
 
-  auto task_parameters = dynamic_cast<PoissonReconParameters *>(process.get());
-  task_parameters->setBoundaryType(parameters->boundaryType());
-  task_parameters->setDepth(parameters->depth());
-  //task_parameters->setFullDepth(parameters->fullDepth());
-  task_parameters->setSolveDepth(parameters->solveDepth());
-  task_parameters->setWidth(parameters->width());
+    auto task_parameters = dynamic_cast<PoissonReconParameters *>(process.get());
+    task_parameters->setBoundaryType(parameters->boundaryType());
+    task_parameters->setDepth(parameters->depth());
+    //task_parameters->setFullDepth(parameters->fullDepth());
+    task_parameters->setSolveDepth(parameters->solveDepth());
+    task_parameters->setWidth(parameters->width());
 
-  if(progressHandler()) {
-    progressHandler()->setRange(0, 1);
-    progressHandler()->setTitle("Computing PoissonRecon...");
-    progressHandler()->setDescription("Computing PoissonRecon...");
-  }
+    if (progressHandler()) {
+        progressHandler()->setRange(0, 1);
+        progressHandler()->setTitle("Computing PoissonRecon...");
+        progressHandler()->setDescription("Computing PoissonRecon...");
+    }
 
-  mView->hide();
-  
-  return process;
+    mView->hide();
+
+    return process;
 }
 
 void MeshPresenterImp::cancel()
 {
-  TaskPresenter::cancel();
+    TaskPresenter::cancel();
 
-  msgWarning("Processing has been canceled by the user");
+    tl::Message::warning("Processing has been canceled by the user");
 }
 
 } // namespace graphos

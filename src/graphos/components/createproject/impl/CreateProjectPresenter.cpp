@@ -35,7 +35,7 @@
 namespace graphos
 {
 
-	
+
 CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
                                                      CreateProjectModel *model,
                                                      AppStatus *status)
@@ -44,112 +44,112 @@ CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
     mModel(model),
     mAppStatus(status)
 {
-  init();
-  initSignalAndSlots();
+    init();
+    initSignalAndSlots();
 }
 
 void CreateProjectPresenterImp::saveProject()
 {
-  ///TODO: Hay que comprobar que el nombre y la ruta sean correctos.
-  /// sin que incluyan caracteres no permitidos
-  ///   QRegExp re("(^(PRN|AUX|NUL|CON|COM[1-9]|LPT[1-9]|(\\.+)$)(\\..*)?$)|(([\\x00-\\x1f\\\\?*:\";|/<>])+)|(([\\. ]+)");
-  /// https://www.boost.org/doc/libs/1_43_0/libs/filesystem/doc/portability_guide.htm
+    ///TODO: Hay que comprobar que el nombre y la ruta sean correctos.
+    /// sin que incluyan caracteres no permitidos
+    ///   QRegExp re("(^(PRN|AUX|NUL|CON|COM[1-9]|LPT[1-9]|(\\.+)$)(\\..*)?$)|(([\\x00-\\x1f\\\\?*:\";|/<>])+)|(([\\. ]+)");
+    /// https://www.boost.org/doc/libs/1_43_0/libs/filesystem/doc/portability_guide.htm
 
 
-  tl::Path project_folder = this->projectFolder();
-  project_folder.createDirectories();
-  mModel->setProjectName(mView->projectName());
-  mModel->setProjectFolder(project_folder);
-  mModel->setProjectDescription(mView->projectDescription());
-  mModel->setDatabase(databasePath(project_folder));
-  mModel->saveAs(projectPath(project_folder));
+    tl::Path project_folder = this->projectFolder();
+    project_folder.createDirectories();
+    mModel->setProjectName(mView->projectName());
+    mModel->setProjectFolder(project_folder);
+    mModel->setProjectDescription(mView->projectDescription());
+    mModel->setDatabase(databasePath(project_folder));
+    mModel->saveAs(projectPath(project_folder));
 
-  emit project_created();
+    emit project_created();
 
-  mView->clear();
+    mView->clear();
 }
 
 tl::Path CreateProjectPresenterImp::projectFolder() const
 {
-  tl::Path project_folder = mView->projectPath().toStdWString();
-  if (mView->createProjectFolderEnable())
-    project_folder.append(mView->projectName().toStdWString());
-  project_folder.normalize();
+    tl::Path project_folder = mView->projectPath().toStdWString();
+    if (mView->createProjectFolderEnable())
+        project_folder.append(mView->projectName().toStdWString());
+    project_folder.normalize();
 
-  return project_folder;
+    return project_folder;
 }
 
 tl::Path CreateProjectPresenterImp::projectPath(const tl::Path &projectFolder) const
 {
-  tl::Path project_path = projectFolder;
-  project_path.append(mView->projectName().append(".xml").toStdWString());
-  project_path.normalize();
+    tl::Path project_path = projectFolder;
+    project_path.append(mView->projectName().append(".xml").toStdWString());
+    project_path.normalize();
 
-  return project_path;
+    return project_path;
 }
 
 tl::Path CreateProjectPresenterImp::databasePath(const tl::Path &projectFolder) const
 {
-  tl::Path database_path = projectFolder;
-  database_path.append(mView->projectName().append(".db").toStdWString());
-  database_path.normalize();
+    tl::Path database_path = projectFolder;
+    database_path.append(mView->projectName().append(".db").toStdWString());
+    database_path.normalize();
 
-  return database_path;
+    return database_path;
 }
 
 void CreateProjectPresenterImp::discartProject()
 {
-  mView->clear();
+    mView->clear();
 }
 
 void CreateProjectPresenterImp::checkProjectName() const
 {
-  tl::Path project_path = projectPath(this->projectFolder());
-  mView->setExistingProject(project_path.exists());
+    tl::Path project_path = projectPath(this->projectFolder());
+    mView->setExistingProject(project_path.exists());
 }
 
 void CreateProjectPresenterImp::open()
 {
-  if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
-    int i_ret = QMessageBox(QMessageBox::Information,
-                            tr("Save Changes"),
-                            tr("There are unsaved changes. Do you want to save them?"),
-                            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
-    if (i_ret == QMessageBox::Yes) {
-      saveProject();
-      mAppStatus->clear();
-    } else if (i_ret == QMessageBox::Cancel) {
-      return;
+    if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
+        int i_ret = QMessageBox(QMessageBox::Information,
+                                tr("Save Changes"),
+                                tr("There are unsaved changes. Do you want to save them?"),
+                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+        if (i_ret == QMessageBox::Yes) {
+            saveProject();
+            mAppStatus->clear();
+        } else if (i_ret == QMessageBox::Cancel) {
+            return;
+        }
     }
-  }
 
-  mModel->clear();
+    mModel->clear();
 
-  mView->setProjectPath(QString::fromStdWString(mProjectsDefaultPath.toWString()));
+    mView->setProjectPath(QString::fromStdWString(mProjectsDefaultPath.toWString()));
 
-  mView->exec();
+    mView->exec();
 }
 
 void CreateProjectPresenterImp::init()
-{ 
-  mProjectsDefaultPath = dynamic_cast<Application *>(qApp)->documentsLocation();
-  mProjectsDefaultPath.createDirectories();
+{
+    mProjectsDefaultPath = dynamic_cast<Application *>(qApp)->documentsLocation();
+    mProjectsDefaultPath.createDirectories();
 }
 
 void CreateProjectPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &CreateProjectView::project_name_changed, 
-          this, &CreateProjectPresenterImp::checkProjectName);
+    connect(mView, &CreateProjectView::project_name_changed,
+            this, &CreateProjectPresenterImp::checkProjectName);
 
-  connect(mView, &QDialog::accepted, 
-          this, &CreateProjectPresenterImp::saveProject);
+    connect(mView, &QDialog::accepted,
+            this, &CreateProjectPresenterImp::saveProject);
 
-  connect(mView, &QDialog::rejected, 
-          this, &CreateProjectPresenterImp::discartProject);
+    connect(mView, &QDialog::rejected,
+            this, &CreateProjectPresenterImp::discartProject);
 
-  connect(mView, &DialogView::help, [&]() {
-    emit help("menus.html#new_project");
-  });
+    connect(mView, &DialogView::help, [&]() {
+        emit help("menus.html#new_project");
+    });
 }
 
 } // namespace graphos

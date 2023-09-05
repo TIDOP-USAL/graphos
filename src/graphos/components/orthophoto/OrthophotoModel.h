@@ -41,27 +41,27 @@ class OrthophotoModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OrthophotoModel(QObject *parent = nullptr) : Model(parent) {}
-  ~OrthophotoModel() override = default;
-  
-  virtual OrthophotoParameters *parameters() const = 0;
- 
-  virtual std::vector<Image> images() const = 0;
-  virtual std::map<int, Camera> cameras() const = 0;
-  virtual tl::Path orthoPath() const = 0;
-  virtual tl::Path dtmPath() const = 0;
-  virtual QString epsCode() const = 0;
-  virtual void clearProject() = 0;
-  virtual bool useCuda() const = 0;
+    OrthophotoModel(QObject *parent = nullptr) : Model(parent){}
+    ~OrthophotoModel() override = default;
+
+    virtual OrthophotoParameters *parameters() const = 0;
+
+    virtual std::vector<Image> images() const = 0;
+    virtual std::map<int, Camera> cameras() const = 0;
+    virtual tl::Path orthoPath() const = 0;
+    virtual tl::Path dtmPath() const = 0;
+    virtual QString epsCode() const = 0;
+    virtual void clearProject() = 0;
+    virtual bool useCuda() const = 0;
 
 public slots:
 
-  virtual void loadSettings() = 0;
-  virtual void saveSettings() = 0;
+    virtual void loadSettings() = 0;
+    virtual void saveSettings() = 0;
 };
 
 } // namespace graphos

@@ -39,20 +39,19 @@ class ScaleModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ScaleModel(QObject *parent = nullptr) : Model(parent) {}
-  ~ScaleModel() override = default;
+    ScaleModel(QObject *parent = nullptr) : Model(parent) {}
+    ~ScaleModel() override = default;
 
-  //virtual QVector3D offset() const = 0;
-  virtual void setTransform(const tl::math::Matrix<double, 4, 4> &trasnform) = 0;
+    virtual void setTransform(const tl::Matrix<double, 4, 4> &trasnform) = 0;
 
 public slots:
 
-  virtual void loadSettings() = 0;
-  virtual void saveSettings() = 0;
+    virtual void loadSettings() = 0;
+    virtual void saveSettings() = 0;
 };
 
 } // namespace graphos

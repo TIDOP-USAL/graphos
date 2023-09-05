@@ -32,16 +32,16 @@ namespace graphos
 class AboutView
   : public DialogView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit AboutView(QWidget *parent) : DialogView(parent) {}
-  ~AboutView() override = default;
+    explicit AboutView(QWidget *parent) : DialogView(parent) {}
+    ~AboutView() override = default;
 
-  virtual void setGraphosVersion(const QString &version) = 0;
-  virtual void setGraphosLicence(const QString &licence) = 0;
-  virtual void addLicence(const QString &product, const QString &licence) = 0;
+    virtual void setGraphosVersion(const QString &version) = 0;
+    virtual void setGraphosLicence(const QString &licence) = 0;
+    virtual void addLicence(const QString &product, const QString &licence) = 0;
 };
 
 } // namespace graphos

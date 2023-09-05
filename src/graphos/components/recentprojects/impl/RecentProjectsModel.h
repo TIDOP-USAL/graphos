@@ -35,32 +35,32 @@ class RecentProjectsModelImp
   : public RecentProjectsModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  RecentProjectsModelImp(QObject *parent = nullptr);
-  ~RecentProjectsModelImp();
+    RecentProjectsModelImp(QObject *parent = nullptr);
+    ~RecentProjectsModelImp();
 
 // RecentProjectsModel interface
 
 public:
 
-  QStringList history() const override;
+    QStringList history() const override;
 
 public slots:
 
-  void addToHistory(const QString &project) override;
+    void addToHistory(const QString &project) override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 };
 

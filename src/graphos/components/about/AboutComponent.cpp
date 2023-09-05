@@ -37,7 +37,7 @@ namespace graphos
 AboutComponent::AboutComponent(Application *application)
   : ComponentBase(application)
 {
-  init();
+    init();
 }
 
 AboutComponent::~AboutComponent()
@@ -46,27 +46,26 @@ AboutComponent::~AboutComponent()
 
 void AboutComponent::init()
 {
-  setName("About Graphos");
-  setMenu("help");
+    setName("About Graphos");
+    setMenu("help");
 
-  action()->setIcon(QIcon::fromTheme("about"));
+    action()->setIcon(QIcon::fromTheme("about"));
 }
 
 void AboutComponent::createModel()
 {
-  setModel(new AboutModelImp());
+    setModel(new AboutModelImp());
 }
 
 void AboutComponent::createView()
 {
-  setView(new AboutViewImp());
+    setView(new AboutViewImp());
 }
 
 void AboutComponent::createPresenter()
 {
-  setPresenter(new AboutPresenterImp(dynamic_cast<AboutView *>(view()), 
-                                     dynamic_cast<AboutModel *>(model()), 
-                                     app()->status()));
+    setPresenter(new AboutPresenterImp(dynamic_cast<AboutView *>(view()),
+                 dynamic_cast<AboutModel *>(model())));
 }
 
 void AboutComponent::createCommand()

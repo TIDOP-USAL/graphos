@@ -35,10 +35,6 @@ namespace tl
 {
 class ImageReader;
 class Process;
-namespace geospatial
-{
-class Crs;
-}
 }
 
 namespace graphos
@@ -51,38 +47,38 @@ class LoadFromVideoTask
     public tl::TaskBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  LoadFromVideoTask(const tl::Path &video, 
-                    int skip,
-                    int videoIni,
-                    int videoEnd,
-                    const tl::Path &imagesPath,
-                    std::vector<Camera> *cameras,
-                    const std::string &cameraType);
-  ~LoadFromVideoTask() override;
+    LoadFromVideoTask(const tl::Path &video,
+                      int skip,
+                      int videoIni,
+                      int videoEnd,
+                      const tl::Path &imagesPath,
+                      std::vector<Camera> *cameras,
+                      const std::string &cameraType);
+    ~LoadFromVideoTask() override;
 
 signals:
 
-  void image_added(QString, int);
+    void image_added(QString, int);
 
 // tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 protected:
 
-  tl::Path mVideo;
-  int mSkipFrames;
-  int mVideoIni;
-  int mVideoEnd;
-  tl::Path mImagesPath;
-  std::vector<Camera> *mCameras;
-  std::string mCameraType;
+    tl::Path mVideo;
+    int mSkipFrames;
+    int mVideoIni;
+    int mVideoEnd;
+    tl::Path mImagesPath;
+    std::vector<Camera> *mCameras;
+    std::string mCameraType;
 };
 
 } // namespace graphos

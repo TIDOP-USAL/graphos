@@ -58,443 +58,443 @@ class Project
 
 public:
 
-  Project() {}
-  virtual ~Project() = default;
+    Project() {}
+    virtual ~Project() = default;
 
-  /*!
-   * \brief Devuelve el nombre del proyecto
-   * \return Nombre del proyecto
-   */
-  virtual QString name() const = 0;
+    /*!
+     * \brief Devuelve el nombre del proyecto
+     * \return Nombre del proyecto
+     */
+    virtual QString name() const = 0;
 
-  /*!
-   * \brief Establece el nombre del proyecto
-   * \param[in] name Nombre del proyecto
-   */
-  virtual void setName(const QString &name) = 0;
+    /*!
+     * \brief Establece el nombre del proyecto
+     * \param[in] name Nombre del proyecto
+     */
+    virtual void setName(const QString &name) = 0;
 
-  /*!
-   * \brief Devuelve la descripción del proyecto
-   * \return Descripción del proyecto
-   */
-  virtual QString description() const = 0;
+    /*!
+     * \brief Devuelve la descripción del proyecto
+     * \return Descripción del proyecto
+     */
+    virtual QString description() const = 0;
 
-  /*!
-   * \brief Establece la descripción del proyecto
-   * \param[in] description Descripción del proyecto
-   */
-  virtual void setDescription(const QString &description) = 0;
+    /*!
+     * \brief Establece la descripción del proyecto
+     * \param[in] description Descripción del proyecto
+     */
+    virtual void setDescription(const QString &description) = 0;
 
-  /*!
-   * \brief Devuelve el directorio del proyecto
-   * \return Directorio del proyecto
-   */
-  virtual tl::Path projectFolder() const = 0;
+    /*!
+     * \brief Devuelve el directorio del proyecto
+     * \return Directorio del proyecto
+     */
+    virtual tl::Path projectFolder() const = 0;
 
-  /*!
-   * \brief Establece el directorio del proyecto
-   * \param[in] path Directorio del proyecto
-   */
-  virtual void setProjectFolder(const tl::Path &folder) = 0;
+    /*!
+     * \brief Establece el directorio del proyecto
+     * \param[in] path Directorio del proyecto
+     */
+    virtual void setProjectFolder(const tl::Path &folder) = 0;
 
-  /*!
-   * \brief Devuelve el ruta del proyecto
-   * \return Ruta del proyecto
-   */
-  virtual tl::Path projectPath() const = 0;
+    /*!
+     * \brief Devuelve el ruta del proyecto
+     * \return Ruta del proyecto
+     */
+    virtual tl::Path projectPath() const = 0;
 
-  /*!
-   * \brief Versión del fichero de proyecto
-   * La versión del fichero de proyecto se utiliza para actualizar proyectos antiguos
-   * \return Versión del fichero de proyecto
-   */
-  virtual QString version() const = 0;
+    /*!
+     * \brief Versión del fichero de proyecto
+     * La versión del fichero de proyecto se utiliza para actualizar proyectos antiguos
+     * \return Versión del fichero de proyecto
+     */
+    virtual QString version() const = 0;
 
-  /*!
-   * \brief Base de datos
-   * Base de datos de Colmap
-   * \return Ruta de la base de datos
-   */
-  virtual tl::Path database() const = 0;
+    /*!
+     * \brief Base de datos
+     * Base de datos de Colmap
+     * \return Ruta de la base de datos
+     */
+    virtual tl::Path database() const = 0;
 
-  /*!
-   * \brief Establece la base de datos
-   * \param[in] database Base de datos
-   */
-  virtual void setDatabase(const tl::Path &database) = 0;
+    /*!
+     * \brief Establece la base de datos
+     * \param[in] database Base de datos
+     */
+    virtual void setDatabase(const tl::Path &database) = 0;
 
-  /*!
-   * \brief Sistema de referencia (código EPSG)
-   */
-  virtual QString crs() const = 0;
+    /*!
+     * \brief Sistema de referencia (código EPSG)
+     */
+    virtual QString crs() const = 0;
 
-  /*!
-   * \brief Establece el sistema de referencia (código EPSG)
-   */
-  virtual void setCrs(const QString &crs) = 0;
+    /*!
+     * \brief Establece el sistema de referencia (código EPSG)
+     */
+    virtual void setCrs(const QString &crs) = 0;
 
-  /*!
-   * \brief Añade una imagen al proyecto
-   * \param[in] img Imagen
-   */
-  virtual void addImage(const Image &img) = 0;
+    /*!
+     * \brief Añade una imagen al proyecto
+     * \param[in] img Imagen
+     */
+    virtual void addImage(const Image &img) = 0;
 
-  virtual bool updateImage(size_t imageId, 
-                           const Image &image) = 0;
-  /*!
-   * \brief Elimina una imagen del proyecto
-   * \param[in] imgId Identificador de la imagen que se quiere eliminar
-   */
-  virtual void removeImage(size_t imgId) = 0;
+    virtual bool updateImage(size_t imageId,
+                             const Image &image) = 0;
+    /*!
+     * \brief Elimina una imagen del proyecto
+     * \param[in] imgId Identificador de la imagen que se quiere eliminar
+     */
+    virtual void removeImage(size_t imgId) = 0;
 
-  /*!
-   * \brief Busca una imagen en el proyecto
-   * \param[in] path Ruta de la imagen a buscar
-   * \return Objeto Image correspondiente o puntero nulo si no se encuentra
-   */
-  virtual Image findImageById(size_t id) const = 0;
+    /*!
+     * \brief Busca una imagen en el proyecto
+     * \param[in] path Ruta de la imagen a buscar
+     * \return Objeto Image correspondiente o puntero nulo si no se encuentra
+     */
+    virtual Image findImageById(size_t id) const = 0;
 
-  virtual bool existImage(size_t imageId) const = 0;
+    virtual bool existImage(size_t imageId) const = 0;
 
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual const std::unordered_map<size_t, Image> &images() const = 0;
 
-  /*!
-   * \brief Número de imagenes cargadas en el proyecto
-   * \return
-   */
-  virtual size_t imagesCount() const = 0;
+    /*!
+     * \brief Número de imagenes cargadas en el proyecto
+     * \return
+     */
+    virtual size_t imagesCount() const = 0;
 
-  /*!
-   * \brief Añade una cámara al proyecto
-   * \param[in] camera Cámara
-   */
-  virtual int addCamera(const Camera &camera) = 0;
+    /*!
+     * \brief Añade una cámara al proyecto
+     * \param[in] camera Cámara
+     */
+    virtual int addCamera(const Camera &camera) = 0;
 
-  /*!
-   * \brief Busca una cámara en el proyecto
-   * \param[in] make Marca de la cámara
-   * \param[in] model Modelo de la cámara
-   * \return Objeto Camera correspondiente o puntero nulo si no se encuentra
-   */
-  virtual Camera findCamera(const QString &make, const QString &model) const = 0;
+    /*!
+     * \brief Busca una cámara en el proyecto
+     * \param[in] make Marca de la cámara
+     * \param[in] model Modelo de la cámara
+     * \return Objeto Camera correspondiente o puntero nulo si no se encuentra
+     */
+    virtual Camera findCamera(const QString &make, const QString &model) const = 0;
 
-  virtual Camera findCamera(int idCamera) const = 0;
-  virtual int cameraId(const QString &make, const QString &model) const = 0;
-  virtual bool existCamera(const QString &make, const QString &model) const = 0;
-  virtual bool updateCamera(int idCamera, const Camera &camera) = 0;
-  virtual bool removeCamera(int idCamera) = 0;
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual size_t camerasCount() const = 0;
+    virtual Camera findCamera(int idCamera) const = 0;
+    virtual int cameraId(const QString &make, const QString &model) const = 0;
+    virtual bool existCamera(const QString &make, const QString &model) const = 0;
+    virtual bool updateCamera(int idCamera, const Camera &camera) = 0;
+    virtual bool removeCamera(int idCamera) = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual size_t camerasCount() const = 0;
 
-  virtual std::shared_ptr<Feature> featureExtractor() const = 0;
-  virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
-  
-  virtual QString features(size_t imageId) const = 0;
-  virtual void addFeatures(size_t imageId, const QString &featureFile) = 0;
-  virtual void removeFeatures() = 0;
-  virtual void removeFeatures(size_t imageId) = 0;
-  virtual const std::unordered_map<size_t, QString> &features() const  = 0;
+    virtual std::shared_ptr<Feature> featureExtractor() const = 0;
+    virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
 
-  virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;
-  virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
-  
-  virtual void addMatchesPair(size_t imageLeftId, size_t imageRightId) = 0;
-  virtual const std::vector<size_t> matchesPairs(size_t imageLeftId) const = 0;
-  virtual void removeMatchesPair() = 0;
-  virtual void removeMatchesPair(size_t imageLeftId) = 0;
-  
-  virtual tl::Path sparseModel() const = 0;
-  virtual void setSparseModel(const tl::Path &sparseModel) = 0;
-  virtual tl::Path offset() const = 0;
-  virtual void setOffset(const tl::Path &offset) = 0;
-  virtual tl::Path groundPoints() const = 0;
-  virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
-  virtual tl::Path reconstructionPath() const = 0;
-  virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
-  virtual bool isPhotoOriented(size_t imageId) const = 0;
-  virtual CameraPose photoOrientation(size_t imageId) const = 0;
-  virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
-  virtual void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) = 0;
-  virtual void clearReconstruction() = 0;
-  
-  virtual std::shared_ptr<Densification> densification() const = 0;
-  virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
-  virtual tl::Path denseModel() const = 0;
-  virtual void setDenseModel(const tl::Path &denseModel) = 0;
-  virtual void clearDensification() = 0;
+    virtual QString features(size_t imageId) const = 0;
+    virtual void addFeatures(size_t imageId, const QString &featureFile) = 0;
+    virtual void removeFeatures() = 0;
+    virtual void removeFeatures(size_t imageId) = 0;
+    virtual const std::unordered_map<size_t, QString> &features() const = 0;
 
-  virtual std::shared_ptr<PoissonReconParameters> meshParameters() const = 0;
-  virtual void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) = 0;
-  virtual tl::Path meshPath() const = 0;
-  virtual void setMeshPath(const tl::Path &meshPath) = 0;
-  virtual void clearMesh() = 0;
+    virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;
+    virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
 
-  virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
-  virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
-  virtual tl::Path dtmPath() const = 0;
-  virtual void setDtmPath(const tl::Path &dtmPath) = 0;
-  virtual void clearDTM() = 0;
+    virtual void addMatchesPair(size_t imageLeftId, size_t imageRightId) = 0;
+    virtual const std::vector<size_t> matchesPairs(size_t imageLeftId) const = 0;
+    virtual void removeMatchesPair() = 0;
+    virtual void removeMatchesPair(size_t imageLeftId) = 0;
 
-  virtual tl::Path orthophotoPath() const = 0;
-  virtual void setOrthophotoPath(const tl::Path &orthophotoPath) = 0;
-  virtual void clearOrthophotoDTM() = 0;
+    virtual tl::Path sparseModel() const = 0;
+    virtual void setSparseModel(const tl::Path &sparseModel) = 0;
+    virtual tl::Path offset() const = 0;
+    virtual void setOffset(const tl::Path &offset) = 0;
+    virtual tl::Path groundPoints() const = 0;
+    virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
+    virtual tl::Path reconstructionPath() const = 0;
+    virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
+    virtual bool isPhotoOriented(size_t imageId) const = 0;
+    virtual CameraPose photoOrientation(size_t imageId) const = 0;
+    virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
+    virtual void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) = 0;
+    virtual void clearReconstruction() = 0;
 
-  virtual tl::math::Matrix<double, 4, 4> transform() const = 0;
-  virtual void setTransform(const tl::math::Matrix<double, 4, 4> &transform) = 0;
+    virtual std::shared_ptr<Densification> densification() const = 0;
+    virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
+    virtual tl::Path denseModel() const = 0;
+    virtual void setDenseModel(const tl::Path &denseModel) = 0;
+    virtual void clearDensification() = 0;
 
-  /*!
-   * \brief Limpia el proyecto
-   */
-  virtual void clear() = 0;
+    virtual std::shared_ptr<PoissonReconParameters> meshParameters() const = 0;
+    virtual void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) = 0;
+    virtual tl::Path meshPath() const = 0;
+    virtual void setMeshPath(const tl::Path &meshPath) = 0;
+    virtual void clearMesh() = 0;
 
-  /*!
-   * \brief Carga el proyecto
-   * \param[in] file Ruta del fichero de proyecto
-   * \return
-   */
-  virtual bool load(const tl::Path &file) = 0;
+    virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
+    virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
+    virtual tl::Path dtmPath() const = 0;
+    virtual void setDtmPath(const tl::Path &dtmPath) = 0;
+    virtual void clearDTM() = 0;
 
-  /*!
-   * \brief Guarda el proyecto
-   * \param file
-   * \return
-   */
-  virtual bool save(const tl::Path &file) = 0;
+    virtual tl::Path orthophotoPath() const = 0;
+    virtual void setOrthophotoPath(const tl::Path &orthophotoPath) = 0;
+    virtual void clearOrthophotoDTM() = 0;
 
-  /*!
-   * \brief checkOldVersion
-   * \param file
-   * \return
-   */
-  virtual bool checkOldVersion(const tl::Path &file) const = 0;
+    virtual tl::Matrix<double, 4, 4> transform() const = 0;
+    virtual void setTransform(const tl::Matrix<double, 4, 4> &transform) = 0;
 
-  /*!
-   * \brief Crea una copia de un proyecto antiguo con el mismo nombre y un sufijo con la versión
-   * \param[in] file
-   */
-  virtual void oldVersionBak(const tl::Path &file) const = 0;
+    /*!
+     * \brief Limpia el proyecto
+     */
+    virtual void clear() = 0;
+
+    /*!
+     * \brief Carga el proyecto
+     * \param[in] file Ruta del fichero de proyecto
+     * \return
+     */
+    virtual bool load(const tl::Path &file) = 0;
+
+    /*!
+     * \brief Guarda el proyecto
+     * \param file
+     * \return
+     */
+    virtual bool save(const tl::Path &file) = 0;
+
+    /*!
+     * \brief checkOldVersion
+     * \param file
+     * \return
+     */
+    virtual bool checkOldVersion(const tl::Path &file) const = 0;
+
+    /*!
+     * \brief Crea una copia de un proyecto antiguo con el mismo nombre y un sufijo con la versión
+     * \param[in] file
+     */
+    virtual void oldVersionBak(const tl::Path &file) const = 0;
 };
 
 
 class ProjectImp
-  : public Project
+    : public Project
 {
 
 public:
 
-  ProjectImp();
-  ~ProjectImp() override = default;
+    ProjectImp();
+    ~ProjectImp() override = default;
 
-// Project interface
+    // Project interface
 
 public:
 
-  QString name() const override;
-  void setName(const QString &name) override;
-  QString description() const override;
-  void setDescription(const QString &description) override;
-  tl::Path projectFolder() const override;
-  void setProjectFolder(const tl::Path &folder) override;
-  tl::Path projectPath() const override;
-  QString version() const override;
-  tl::Path database() const override;
-  void setDatabase(const tl::Path &database) override;
-  QString crs() const override;
-  void setCrs(const QString &crs) override;
-  void addImage(const Image &img) override;
-  bool updateImage(size_t imageId, const Image &image) override;
-  void removeImage(size_t imageId) override;
-  Image findImageById(size_t id) const override;
-  bool existImage(size_t imageId) const override;
-  const std::unordered_map<size_t, Image> &images() const override;
-  size_t imagesCount() const override;
+    QString name() const override;
+    void setName(const QString &name) override;
+    QString description() const override;
+    void setDescription(const QString &description) override;
+    tl::Path projectFolder() const override;
+    void setProjectFolder(const tl::Path &folder) override;
+    tl::Path projectPath() const override;
+    QString version() const override;
+    tl::Path database() const override;
+    void setDatabase(const tl::Path &database) override;
+    QString crs() const override;
+    void setCrs(const QString &crs) override;
+    void addImage(const Image &img) override;
+    bool updateImage(size_t imageId, const Image &image) override;
+    void removeImage(size_t imageId) override;
+    Image findImageById(size_t id) const override;
+    bool existImage(size_t imageId) const override;
+    const std::unordered_map<size_t, Image> &images() const override;
+    size_t imagesCount() const override;
 
-  int addCamera(const Camera &camera) override;
-  const std::map<int, Camera> &cameras() const override;
-  Camera findCamera(const QString &make, const QString &model) const override;
-  Camera findCamera(int idCamera) const override;
-  int cameraId(const QString &make, const QString &model) const override;
-  bool existCamera(const QString &make, const QString &model) const override;
-  bool updateCamera(int idCamera, const Camera &camera) override;
-  bool removeCamera(int idCamera) override;
-  size_t camerasCount() const override;
+    int addCamera(const Camera &camera) override;
+    const std::map<int, Camera> &cameras() const override;
+    Camera findCamera(const QString &make, const QString &model) const override;
+    Camera findCamera(int idCamera) const override;
+    int cameraId(const QString &make, const QString &model) const override;
+    bool existCamera(const QString &make, const QString &model) const override;
+    bool updateCamera(int idCamera, const Camera &camera) override;
+    bool removeCamera(int idCamera) override;
+    size_t camerasCount() const override;
 
-  std::shared_ptr<Feature> featureExtractor() const override;
-  void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
-  
-  QString features(size_t imageId) const override;
-  void addFeatures(size_t imageId, const QString &featureFile) override;
-  void removeFeatures() override;
-  void removeFeatures(size_t imageId) override;
-  const std::unordered_map<size_t, QString> &features() const override;
-  
-  std::shared_ptr<FeatureMatching> featureMatching() const override;
-  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
-  
-  void addMatchesPair(size_t imageLeftId, size_t imageRightId) override;
-  const std::vector<size_t> matchesPairs(size_t imageLeftId) const override;
-  void removeMatchesPair() override;
-  void removeMatchesPair(size_t imageLeftId) override;
-  
-  tl::Path sparseModel() const override;
-  void setSparseModel(const tl::Path & sparseModel) override;
-  tl::Path offset() const override;
-  void setOffset(const tl::Path &offset) override;
-  tl::Path groundPoints() const override;
-  void setGroundPoints(const tl::Path &groundPoints) override;
-  tl::Path reconstructionPath() const override;
-  void setReconstructionPath(const tl::Path &reconstructionPath) override;
-  bool isPhotoOriented(size_t imageId) const override;
-  CameraPose photoOrientation(size_t imageId) const override;
-  const std::unordered_map<size_t, CameraPose> &poses() const override;
-  void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) override;
-  void clearReconstruction() override;
-  
-  std::shared_ptr<Densification> densification() const override;
-  void setDensification(const std::shared_ptr<Densification> &densification) override;
-  tl::Path denseModel() const override;
-  void setDenseModel(const tl::Path &denseModel) override;
-  void clearDensification() override;
-  
-  std::shared_ptr<PoissonReconParameters> meshParameters() const override;
-  void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) override;
-  tl::Path meshPath() const override;
-  void setMeshPath(const tl::Path &meshPath) override;
-  void clearMesh() override;
+    std::shared_ptr<Feature> featureExtractor() const override;
+    void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
 
-  std::shared_ptr<Dtm> dtmMethod() const override;
-  void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
-  tl::Path dtmPath() const override;
-  void setDtmPath(const tl::Path &dtmPath) override;
-  void clearDTM() override;
+    QString features(size_t imageId) const override;
+    void addFeatures(size_t imageId, const QString &featureFile) override;
+    void removeFeatures() override;
+    void removeFeatures(size_t imageId) override;
+    const std::unordered_map<size_t, QString> &features() const override;
 
-  tl::Path orthophotoPath() const override;
-  void setOrthophotoPath(const tl::Path &orthophotoPath) override;
-  void clearOrthophotoDTM() override;
+    std::shared_ptr<FeatureMatching> featureMatching() const override;
+    void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
 
-  void clear() override;
+    void addMatchesPair(size_t imageLeftId, size_t imageRightId) override;
+    const std::vector<size_t> matchesPairs(size_t imageLeftId) const override;
+    void removeMatchesPair() override;
+    void removeMatchesPair(size_t imageLeftId) override;
 
-  bool load(const tl::Path &file) override;
-  bool save(const tl::Path &file) override;
-  bool checkOldVersion(const tl::Path &file) const override;
-  void oldVersionBak(const tl::Path &file) const override;
+    tl::Path sparseModel() const override;
+    void setSparseModel(const tl::Path &sparseModel) override;
+    tl::Path offset() const override;
+    void setOffset(const tl::Path &offset) override;
+    tl::Path groundPoints() const override;
+    void setGroundPoints(const tl::Path &groundPoints) override;
+    tl::Path reconstructionPath() const override;
+    void setReconstructionPath(const tl::Path &reconstructionPath) override;
+    bool isPhotoOriented(size_t imageId) const override;
+    CameraPose photoOrientation(size_t imageId) const override;
+    const std::unordered_map<size_t, CameraPose> &poses() const override;
+    void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) override;
+    void clearReconstruction() override;
 
-  tl::math::Matrix<double, 4, 4> transform() const override;
-  void setTransform(const tl::math::Matrix<double, 4, 4> &transform) override;
+    std::shared_ptr<Densification> densification() const override;
+    void setDensification(const std::shared_ptr<Densification> &densification) override;
+    tl::Path denseModel() const override;
+    void setDenseModel(const tl::Path &denseModel) override;
+    void clearDensification() override;
 
-protected:
+    std::shared_ptr<PoissonReconParameters> meshParameters() const override;
+    void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) override;
+    tl::Path meshPath() const override;
+    void setMeshPath(const tl::Path &meshPath) override;
+    void clearMesh() override;
 
-  bool read(QXmlStreamReader &stream);
-  void readGeneral(QXmlStreamReader &stream);
-  void readDatabase(QXmlStreamReader &stream);
-  void readCrs(QXmlStreamReader &stream);
-  void readImages(QXmlStreamReader &stream);
-  Image readImage(QXmlStreamReader &stream);
-  CameraPose readCameraPosition(QXmlStreamReader &stream);
-  void readCameras(QXmlStreamReader &stream);
-  Camera readCamera(QXmlStreamReader &stream);
-  void readCalibration(QXmlStreamReader &stream, Camera &camera);
-  void readFeatures(QXmlStreamReader &stream);
-  void readFeatureExtractor(QXmlStreamReader &stream);
-  void readSIFT(QXmlStreamReader &stream);
-  void readFeatureFiles(QXmlStreamReader &stream);
-  void readFeatureFile(QXmlStreamReader &stream);
-  void readMatches(QXmlStreamReader &stream);
-  void readMatchingMethod(QXmlStreamReader &stream);
-  void readPairs(QXmlStreamReader &stream);
-  void readOrientations(QXmlStreamReader &stream);
-  void readReconstructionPath(QXmlStreamReader &stream);
-  void readOrientationSparseModel(QXmlStreamReader &stream);
-  void readOffset(QXmlStreamReader &stream);
-  void readGroundPoints(QXmlStreamReader &stream);
-  void readPhotoOrientations(QXmlStreamReader &stream);
-  void readDensification(QXmlStreamReader &stream);
-  void readDenseModel(QXmlStreamReader &stream);
-  void readDensificationMethod(QXmlStreamReader &stream);
-  void readSmvs(QXmlStreamReader &stream);
-  void readCmvsPmvs(QXmlStreamReader &stream);
-  void readMVS(QXmlStreamReader &stream);
-  void readMesh(QXmlStreamReader &stream);
-  void readMeshModel(QXmlStreamReader &stream);
-  void readMeshParameters(QXmlStreamReader &stream);
-  void readDtm(QXmlStreamReader &stream);
-  void readDtmPath(QXmlStreamReader &stream);
-  void readDtmInterpolation(QXmlStreamReader &stream);
-  void readInvDist(QXmlStreamReader &stream);
-  void readInvDistNN(QXmlStreamReader &stream);
-  void readOrthophoto(QXmlStreamReader &stream);
+    std::shared_ptr<Dtm> dtmMethod() const override;
+    void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
+    tl::Path dtmPath() const override;
+    void setDtmPath(const tl::Path &dtmPath) override;
+    void clearDTM() override;
 
-  void writeVersion(QXmlStreamWriter &stream) const;
-  void writeGeneral(QXmlStreamWriter &stream) const;
-  void writeDatabase(QXmlStreamWriter &stream) const;
-  void writeCrs(QXmlStreamWriter &stream) const;
-  void writeCameras(QXmlStreamWriter &stream) const;
-  void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
-  void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
-  void writeImages(QXmlStreamWriter &stream) const;
-  void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;
-  void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
-  void writeFeatures(QXmlStreamWriter &stream) const;
-  void writeFeatureExtractor(QXmlStreamWriter &stream) const;
-  void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
-  void writeFeatureFiles(QXmlStreamWriter &stream) const;
-  void writeMatches(QXmlStreamWriter &stream) const;
-  void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
-  void writePairs(QXmlStreamWriter &stream) const;
-  void writeOrientations(QXmlStreamWriter &stream) const;
-  void writeReconstructionPath(QXmlStreamWriter &stream) const;
-  void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
-  void writeOffset(QXmlStreamWriter &stream) const;
-  void writeGroundPoints(QXmlStreamWriter &stream) const;
-  void writePhotoOrientations(QXmlStreamWriter &stream) const;
-  void writeDensification(QXmlStreamWriter &stream) const;
-  void writeDenseModel(QXmlStreamWriter &stream) const;
-  void writeDensificationMethod(QXmlStreamWriter &stream) const;
-  void writeMesh(QXmlStreamWriter &stream) const;
-  void writeMeshModel(QXmlStreamWriter &stream) const;
-  void writeMeshParameters(QXmlStreamWriter &stream) const;
-  void writeDtm(QXmlStreamWriter &stream) const;
-  void writeDtmPath(QXmlStreamWriter &stream) const;
-  void writeDtmInterpolation(QXmlStreamWriter &stream) const;
-  void writeOrthophoto(QXmlStreamWriter &stream) const;
+    tl::Path orthophotoPath() const override;
+    void setOrthophotoPath(const tl::Path &orthophotoPath) override;
+    void clearOrthophotoDTM() override;
 
-  QSize readSize(QXmlStreamReader &stream) const;
-  int readInt(QXmlStreamReader &stream) const;
-  double readDouble(QXmlStreamReader &stream) const;
-  bool readBoolean(QXmlStreamReader &stream) const;
+    void clear() override;
+
+    bool load(const tl::Path &file) override;
+    bool save(const tl::Path &file) override;
+    bool checkOldVersion(const tl::Path &file) const override;
+    void oldVersionBak(const tl::Path &file) const override;
+
+    tl::Matrix<double, 4, 4> transform() const override;
+    void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
 
 protected:
 
-  QString mName;
-  QString mDescription;
-  tl::Path mProjectFolder;
-  tl::Path mProjectPath;
-  QString mVersion;
-  tl::Path mDatabase;
-  QString mCrs;
+    bool read(QXmlStreamReader &stream);
+    void readGeneral(QXmlStreamReader &stream);
+    void readDatabase(QXmlStreamReader &stream);
+    void readCrs(QXmlStreamReader &stream);
+    void readImages(QXmlStreamReader &stream);
+    Image readImage(QXmlStreamReader &stream);
+    CameraPose readCameraPosition(QXmlStreamReader &stream);
+    void readCameras(QXmlStreamReader &stream);
+    Camera readCamera(QXmlStreamReader &stream);
+    void readCalibration(QXmlStreamReader &stream, Camera &camera);
+    void readFeatures(QXmlStreamReader &stream);
+    void readFeatureExtractor(QXmlStreamReader &stream);
+    void readSIFT(QXmlStreamReader &stream);
+    void readFeatureFiles(QXmlStreamReader &stream);
+    void readFeatureFile(QXmlStreamReader &stream);
+    void readMatches(QXmlStreamReader &stream);
+    void readMatchingMethod(QXmlStreamReader &stream);
+    void readPairs(QXmlStreamReader &stream);
+    void readOrientations(QXmlStreamReader &stream);
+    void readReconstructionPath(QXmlStreamReader &stream);
+    void readOrientationSparseModel(QXmlStreamReader &stream);
+    void readOffset(QXmlStreamReader &stream);
+    void readGroundPoints(QXmlStreamReader &stream);
+    void readPhotoOrientations(QXmlStreamReader &stream);
+    void readDensification(QXmlStreamReader &stream);
+    void readDenseModel(QXmlStreamReader &stream);
+    void readDensificationMethod(QXmlStreamReader &stream);
+    void readSmvs(QXmlStreamReader &stream);
+    void readCmvsPmvs(QXmlStreamReader &stream);
+    void readMVS(QXmlStreamReader &stream);
+    void readMesh(QXmlStreamReader &stream);
+    void readMeshModel(QXmlStreamReader &stream);
+    void readMeshParameters(QXmlStreamReader &stream);
+    void readDtm(QXmlStreamReader &stream);
+    void readDtmPath(QXmlStreamReader &stream);
+    void readDtmInterpolation(QXmlStreamReader &stream);
+    void readInvDist(QXmlStreamReader &stream);
+    void readInvDistNN(QXmlStreamReader &stream);
+    void readOrthophoto(QXmlStreamReader &stream);
 
-  std::unordered_map<size_t, Image> mImages;
-  std::map<int, Camera> mCameras;
-  std::shared_ptr<Feature> mFeatureExtractor;
-  std::unordered_map<size_t, QString> mFeatures;
-  std::shared_ptr<FeatureMatching> mFeatureMatching;
-  std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
-  std::unordered_map<size_t, CameraPose> mPhotoOrientation;
+    void writeVersion(QXmlStreamWriter &stream) const;
+    void writeGeneral(QXmlStreamWriter &stream) const;
+    void writeDatabase(QXmlStreamWriter &stream) const;
+    void writeCrs(QXmlStreamWriter &stream) const;
+    void writeCameras(QXmlStreamWriter &stream) const;
+    void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
+    void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
+    void writeImages(QXmlStreamWriter &stream) const;
+    void writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Image> &image) const;
+    void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
+    void writeFeatures(QXmlStreamWriter &stream) const;
+    void writeFeatureExtractor(QXmlStreamWriter &stream) const;
+    void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
+    void writeFeatureFiles(QXmlStreamWriter &stream) const;
+    void writeMatches(QXmlStreamWriter &stream) const;
+    void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
+    void writePairs(QXmlStreamWriter &stream) const;
+    void writeOrientations(QXmlStreamWriter &stream) const;
+    void writeReconstructionPath(QXmlStreamWriter &stream) const;
+    void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
+    void writeOffset(QXmlStreamWriter &stream) const;
+    void writeGroundPoints(QXmlStreamWriter &stream) const;
+    void writePhotoOrientations(QXmlStreamWriter &stream) const;
+    void writeDensification(QXmlStreamWriter &stream) const;
+    void writeDenseModel(QXmlStreamWriter &stream) const;
+    void writeDensificationMethod(QXmlStreamWriter &stream) const;
+    void writeMesh(QXmlStreamWriter &stream) const;
+    void writeMeshModel(QXmlStreamWriter &stream) const;
+    void writeMeshParameters(QXmlStreamWriter &stream) const;
+    void writeDtm(QXmlStreamWriter &stream) const;
+    void writeDtmPath(QXmlStreamWriter &stream) const;
+    void writeDtmInterpolation(QXmlStreamWriter &stream) const;
+    void writeOrthophoto(QXmlStreamWriter &stream) const;
 
-  tl::Path mSparseModel;
-  tl::Path mOffset;
-  tl::Path mGroundPoints;
-  tl::Path mReconstructionPath;
-  std::shared_ptr<Densification> mDensification;
-  tl::Path mDenseModel;
-  std::shared_ptr<PoissonReconParameters> mMeshParameters;
-  tl::Path mMeshModel;
-  std::shared_ptr<Dtm> mDtmMethod;
-  tl::Path mDTM;
-  static std::mutex sMutex;
-  int mCameraCount;
-  tl::Path mOrthophoto;
-  tl::math::Matrix<double, 4, 4> mTransform;
+    QSize readSize(QXmlStreamReader &stream) const;
+    int readInt(QXmlStreamReader &stream) const;
+    double readDouble(QXmlStreamReader &stream) const;
+    bool readBoolean(QXmlStreamReader &stream) const;
+
+protected:
+
+    QString mName;
+    QString mDescription;
+    tl::Path mProjectFolder;
+    tl::Path mProjectPath;
+    QString mVersion;
+    tl::Path mDatabase;
+    QString mCrs;
+
+    std::unordered_map<size_t, Image> mImages;
+    std::map<int, Camera> mCameras;
+    std::shared_ptr<Feature> mFeatureExtractor;
+    std::unordered_map<size_t, QString> mFeatures;
+    std::shared_ptr<FeatureMatching> mFeatureMatching;
+    std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
+    std::unordered_map<size_t, CameraPose> mPhotoOrientation;
+
+    tl::Path mSparseModel;
+    tl::Path mOffset;
+    tl::Path mGroundPoints;
+    tl::Path mReconstructionPath;
+    std::shared_ptr<Densification> mDensification;
+    tl::Path mDenseModel;
+    std::shared_ptr<PoissonReconParameters> mMeshParameters;
+    tl::Path mMeshModel;
+    std::shared_ptr<Dtm> mDtmMethod;
+    tl::Path mDTM;
+    static std::mutex sMutex;
+    int mCameraCount;
+    tl::Path mOrthophoto;
+    tl::Matrix<double, 4, 4> mTransform;
 };
 
 } // end namespace graphos

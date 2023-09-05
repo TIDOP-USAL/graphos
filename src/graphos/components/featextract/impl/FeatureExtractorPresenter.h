@@ -37,59 +37,59 @@ class FeatureExtractorModel;
 class FeatureExtractorPresenterImp
   : public FeatureExtractorPresenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureExtractorPresenterImp(FeatureExtractorView *view,
-                               FeatureExtractorModel *model);
-  ~FeatureExtractorPresenterImp() override;
+    FeatureExtractorPresenterImp(FeatureExtractorView *view,
+                                 FeatureExtractorModel *model);
+    ~FeatureExtractorPresenterImp() override;
 
 private:
 
-  void setDetectorAndDescriptorProperties();
-  void setSiftProperties();
+    void setDetectorAndDescriptorProperties();
+    void setSiftProperties();
 
 private slots:
 
-  void onFeaturesExtracted(size_t imageId,
-                           const QString &featuresFile);
+    void onFeaturesExtracted(size_t imageId,
+                             const QString &featuresFile);
 
 // FeatureExtractorPresenter interface
 
 public slots:
 
-  void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
+    void setCurrentDetectorDescriptor(const QString &detectorDescriptor) override;
 
 // TaskPresenter interface
-  
+
 protected:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
 
-  std::unique_ptr<tl::Task> createProcess() override;
+    std::unique_ptr<tl::Task> createProcess() override;
 
 public slots:
 
-  void cancel() override;
+    void cancel() override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 protected:
 
-  FeatureExtractorView *mView;
-  FeatureExtractorModel *mModel;
-  SiftWidget *mSift;
+    FeatureExtractorView *mView;
+    FeatureExtractorModel *mModel;
+    SiftWidget *mSift;
 
 };
 

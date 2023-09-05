@@ -36,39 +36,39 @@ class FeatureExtractorComponent
   : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureExtractorComponent(Application *application);
-  ~FeatureExtractorComponent();
+    FeatureExtractorComponent(Application *application);
+    ~FeatureExtractorComponent();
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
-  void features_extracted(size_t);
-  void features_deleted();
+    void features_extracted(size_t);
+    void features_deleted();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 // TaskComponent
 
 protected slots:
 
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 
 };
 

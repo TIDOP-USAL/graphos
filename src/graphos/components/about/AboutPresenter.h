@@ -32,17 +32,17 @@ namespace graphos
 {
 
 class HelpDialog;
-  
+
 class AboutPresenter
   : public Presenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  AboutPresenter() = default;
-  ~AboutPresenter() override = default;
-  
+    AboutPresenter() = default;
+    ~AboutPresenter() override = default;
+
 };
 
 } // namespace graphos

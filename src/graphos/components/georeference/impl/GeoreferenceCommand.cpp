@@ -28,23 +28,21 @@
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/sfm/posesio.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 #include <QFileInfo>
 
 namespace graphos
 {
-  
+
 
 GeoreferenceCommand::GeoreferenceCommand()
-  : Command("georef", "Georeference"),
-    mProjectFile(""),
-    mGCP("")
+  : Command("georef", "Georeference")
 {
-  this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
-  this->push_back(CreateArgumentPathOptional("cp", "Ground Control Points", &mGCP));
+    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<std::string>("cp", "Ground Control Points");
 
-  this->addExample("georef --p 253/253.xml --cp 253/georef.xml");
+    this->addExample("georef --p 253/253.xml --cp 253/georef.xml");
 }
 
 GeoreferenceCommand::~GeoreferenceCommand()
@@ -53,69 +51,69 @@ GeoreferenceCommand::~GeoreferenceCommand()
 
 bool GeoreferenceCommand::run()
 {
-  bool r = false;
+    bool r = false;
 
-  QString file_path;
-  QString project_path;
+    try {
 
-  try {
+        tl::Path prj = this->value<std::string>("prj");
+        tl::Path gcp = this->value<std::string>("cp");
 
-    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
-    TL_ASSERT(mGCP.isFile(), "GCP file doesn't exist");
+        TL_ASSERT(prj.exists(), "Project doesn't exist");
+        TL_ASSERT(prj.isFile(), "Project file doesn't exist");
+        TL_ASSERT(gcp.isFile(), "GCP file doesn't exist");
 
-    ProjectImp project;
-    project.load(mProjectFile);
+        ProjectImp project;
+        project.load(prj);
 
-    tl::Path ori_relative = project.projectFolder();
-    ori_relative.append("ori").append("relative");
-    tl::Path ori_absolute = project.projectFolder();
-    ori_absolute.append("ori");
-    ori_absolute.append("absolute");
+        tl::Path ori_relative = project.projectFolder();
+        ori_relative.append("ori").append("relative");
+        tl::Path ori_absolute = project.projectFolder();
+        ori_absolute.append("ori");
+        ori_absolute.append("absolute");
 
-    auto reader = GCPsReaderFactory::create("GRAPHOS");
-    reader->read(mGCP);
-    std::vector<GroundControlPoint> ground_control_points = reader->gcps();
-    //std::vector<GroundControlPoint> ground_control_points = groundControlPointsRead(mGCP);
+        auto reader = GCPsReaderFactory::create("GRAPHOS");
+        reader->read(gcp);
+        std::vector<GroundControlPoint> ground_control_points = reader->gcps();
+        //std::vector<GroundControlPoint> ground_control_points = groundControlPointsRead(mGCP);
 
-    //GeoreferenceProcess georeference_process(ori_relative,
-    //                                         ori_absolute,
-    //                                         ground_control_points);
+        //GeoreferenceProcess georeference_process(ori_relative,
+        //                                         ori_absolute,
+        //                                         ground_control_points);
 
-    //georeference_process.run();
+        //georeference_process.run();
 
-    //QString sparse_model = ori_absolute + "/sparse.ply";
+        //QString sparse_model = ori_absolute + "/sparse.ply";
 
-    //if(QFileInfo::exists(sparse_model)) {
+        //if(QFileInfo::exists(sparse_model)) {
 
-    //  project.setReconstructionPath(ori_absolute);
-    //  project.setSparseModel(sparse_model);
-    //  project.setOffset(ori_absolute + "/offset.txt");
+        //  project.setReconstructionPath(ori_absolute);
+        //  project.setSparseModel(sparse_model);
+        //  project.setOffset(ori_absolute + "/offset.txt");
 
-    //  ReadCameraPoses readPhotoOrientations;
-    //  readPhotoOrientations.open(ori_absolute);
+        //  ReadCameraPoses readPhotoOrientations;
+        //  readPhotoOrientations.open(ori_absolute);
 
-    //  for (const auto &image : project.images()){
-    //    size_t image_id = image.first;
-    //  //for(auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-    //    CameraPose photoOrientation = readPhotoOrientations.orientation(image.second.name());
-    //    if(photoOrientation.position() != tl::Point3D()) {
-    //      project.addPhotoOrientation(image_id, photoOrientation);
-    //    }
-    //  }
+        //  for (const auto &image : project.images()){
+        //    size_t image_id = image.first;
+        //  //for(auto image = project.imageBegin(); image != project.imageEnd(); image++) {
+        //    CameraPose photoOrientation = readPhotoOrientations.orientation(image.second.name());
+        //    if(photoOrientation.position() != tl::Point3D()) {
+        //      project.addPhotoOrientation(image_id, photoOrientation);
+        //    }
+        //  }
 
-    //}
+        //}
 
-    project.save(mProjectFile);
+        project.save(gcp);
 
-  } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
 
-    tl::printException(e);
+        tl::printException(e);
 
-    r = true;
-  }
+        r = true;
+    }
 
-  return r;
+    return r;
 }
 
 } // namespace graphos

@@ -30,23 +30,23 @@ namespace graphos
 {
 
 class FeatureMatchingPresenter
-  : public TaskPresenter
+    : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureMatchingPresenter(){}
-  ~FeatureMatchingPresenter() override = default;
+    FeatureMatchingPresenter() {}
+    ~FeatureMatchingPresenter() override = default;
 
 signals:
 
-  void matches_deleted();
+    void matches_deleted();
 
 public slots:
 
-  virtual void setCurrentMatchMethod(const QString &matchMethod) = 0;
+    virtual void setCurrentMatchMethod(const QString &matchMethod) = 0;
 
 };
 

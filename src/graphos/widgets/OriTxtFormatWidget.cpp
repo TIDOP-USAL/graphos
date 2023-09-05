@@ -23,7 +23,7 @@
 
 #include "OriTxtFormatWidget.h"
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -56,54 +56,54 @@ OriTxtFormatWidgetImp::OriTxtFormatWidgetImp(QWidget *parent)
     mLineEditFile(new QLineEdit(this)),
     mPushButtonSelectPath(new QPushButton(this))
 {
-  OriTxtFormatWidgetImp::initUI();
-  OriTxtFormatWidgetImp::initSignalAndSlots();
+    OriTxtFormatWidgetImp::initUI();
+    OriTxtFormatWidgetImp::initSignalAndSlots();
 }
 
 void OriTxtFormatWidgetImp::initUI()
 {
-  this->setWindowTitle("Ori Format");
-  this->setObjectName("OriTxtFormatWidget");
+    this->setWindowTitle("TXT");
+    this->setObjectName("OriTxtFormatWidget");
 
-  QGridLayout *layout = new QGridLayout();
-  layout->setContentsMargins(0,0,0,0);
-  this->setLayout(layout);
+    QGridLayout *layout = new QGridLayout();
+    layout->setContentsMargins(0, 0, 0, 0);
+    this->setLayout(layout);
 
-  layout->addWidget(mGroupBox);
+    layout->addWidget(mGroupBox);
 
-  QGridLayout *propertiesLayout = new QGridLayout();
-  mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *propertiesLayout = new QGridLayout();
+    mGroupBox->setLayout(propertiesLayout);
 
-  propertiesLayout->addWidget(mLabelRotation, 0, 0, 1, 1);
-  mComboBoxRotation->addItem("Omega Phi Kappa");
-  mComboBoxRotation->addItem("Quaternions");
-  propertiesLayout->addWidget(mComboBoxRotation, 0, 1, 1, 1);
+    propertiesLayout->addWidget(mLabelRotation, 0, 0, 1, 1);
+    mComboBoxRotation->addItem("Omega Phi Kappa");
+    mComboBoxRotation->addItem("Quaternions");
+    propertiesLayout->addWidget(mComboBoxRotation, 0, 1, 1, 1);
 
-  propertiesLayout->addWidget(mLabelFile, 1, 0, 1, 1);
-  propertiesLayout->addWidget(mLineEditFile, 1, 1, 1, 1);
-  mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
-  mPushButtonSelectPath->setText("...");
-  propertiesLayout->addWidget(mPushButtonSelectPath, 1, 2, 1, 1);
+    propertiesLayout->addWidget(mLabelFile, 1, 0, 1, 1);
+    propertiesLayout->addWidget(mLineEditFile, 1, 1, 1, 1);
+    mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
+    mPushButtonSelectPath->setText("...");
+    propertiesLayout->addWidget(mPushButtonSelectPath, 1, 2, 1, 1);
 
-  OriTxtFormatWidgetImp::retranslate();
-  OriTxtFormatWidgetImp::clear(); /// set default values
-  OriTxtFormatWidgetImp::update();
+    OriTxtFormatWidgetImp::retranslate();
+    OriTxtFormatWidgetImp::clear(); /// set default values
+    OriTxtFormatWidgetImp::update();
 }
 
 void OriTxtFormatWidgetImp::initSignalAndSlots()
 {
-  connect(mComboBoxRotation,     &QComboBox::currentTextChanged,   this, &OriTxtFormatWidgetImp::rotationChanged);
-  connect(mLineEditFile,         &QLineEdit::textChanged,   this, &OriTxtFormatWidgetImp::fileChanged);
-  connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &OriTxtFormatWidgetImp::onPushButtonSelectPath);
+    connect(mComboBoxRotation, &QComboBox::currentTextChanged, this, &OriTxtFormatWidgetImp::rotationChanged);
+    connect(mLineEditFile, &QLineEdit::textChanged, this, &OriTxtFormatWidgetImp::fileChanged);
+    connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &OriTxtFormatWidgetImp::onPushButtonSelectPath);
 }
 
 void OriTxtFormatWidgetImp::clear()
 {
-  const QSignalBlocker blocker(mLineEditFile);
-  const QSignalBlocker blocker2(mComboBoxRotation);
-  
-  mComboBoxRotation->setCurrentText("Omega Phi Kappa");
-  mLineEditFile->clear();
+    const QSignalBlocker blocker(mLineEditFile);
+    const QSignalBlocker blocker2(mComboBoxRotation);
+
+    mComboBoxRotation->setCurrentText("Omega Phi Kappa");
+    mLineEditFile->clear();
 }
 
 void OriTxtFormatWidgetImp::update()
@@ -112,43 +112,43 @@ void OriTxtFormatWidgetImp::update()
 
 void OriTxtFormatWidgetImp::retranslate()
 {
-  mLabelFile->setText(QApplication::translate("OriTxtFormatWidget", "File", nullptr));
+    mLabelFile->setText(QApplication::translate("OriTxtFormatWidget", "File", nullptr));
 }
 
 void OriTxtFormatWidgetImp::setFile(const QString &file)
 {
-  const QSignalBlocker blocker(mLineEditFile);
-  mLineEditFile->setText(file);
+    const QSignalBlocker blocker(mLineEditFile);
+    mLineEditFile->setText(file);
 }
 
 QString OriTxtFormatWidgetImp::file() const
 {
-  return mLineEditFile->text();
+    return mLineEditFile->text();
 }
 
 QString OriTxtFormatWidgetImp::rotation() const
 {
-  return mComboBoxRotation->currentText();
+    return mComboBoxRotation->currentText();
 }
 
 void OriTxtFormatWidgetImp::setRotation(const QString &rotation)
 {
-  const QSignalBlocker blocker(mComboBoxRotation);
-  mComboBoxRotation->setCurrentText(rotation);
+    const QSignalBlocker blocker(mComboBoxRotation);
+    mComboBoxRotation->setCurrentText(rotation);
 }
 
 void OriTxtFormatWidgetImp::onPushButtonSelectPath()
 {
-  QString pathName = QFileDialog::getSaveFileName(nullptr,
-      tr("Txt file"),
-      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-      tr("Orientation plain text (*.txt)"));
+    QString pathName = QFileDialog::getSaveFileName(nullptr,
+                                                    tr("Txt file"),
+                                                    QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+                                                    tr("Orientation plain text (*.txt)"));
 
-  if (!pathName.isEmpty()) {
-    mLineEditFile->setText(pathName);
-  }
+    if (!pathName.isEmpty()) {
+        mLineEditFile->setText(pathName);
+    }
 
-  update();
+    update();
 }
 
 

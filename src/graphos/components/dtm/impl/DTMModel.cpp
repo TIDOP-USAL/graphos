@@ -31,74 +31,74 @@
 
 namespace graphos
 {
-	
+
 DtmModelImp::DtmModelImp(Project *project,
                          QObject *parent)
-  : DtmModel(parent),
+    : DtmModel(parent),
     mProject(project)
 {
-  this->init();
+    this->init();
 }
 
 tl::Path DtmModelImp::projectPath() const
 {
-  return mProject->projectFolder();
+    return mProject->projectFolder();
 }
 
 tl::Path DtmModelImp::denseModel() const
 {
-  return mProject->denseModel();
+    return mProject->denseModel();
 }
 
 QString DtmModelImp::crs() const
 {
-  return mProject->crs();
+    return mProject->crs();
 }
 
 std::shared_ptr<Dtm> DtmModelImp::dtmMethod() const
 {
-  return mProject->dtmMethod();
+    return mProject->dtmMethod();
 }
 
 void DtmModelImp::setDtmMethod(const std::shared_ptr<Dtm> &dtm)
 {
-  mProject->setDtmMethod(dtm);
+    mProject->setDtmMethod(dtm);
 }
 
 tl::Path DtmModelImp::dtmPath() const
 {
-  return mProject->dtmPath();
+    return mProject->dtmPath();
 }
 
 void DtmModelImp::setDtmPath(const tl::Path &dtmPath)
 {
-  mProject->setDtmPath(dtmPath);
+    mProject->setDtmPath(dtmPath);
 }
 
 std::array<double, 3> DtmModelImp::offset() const
 {
-  std::array<double, 3> offset{};
-  offset.fill(0.);
+    std::array<double, 3> offset{};
+    offset.fill(0.);
 
-  try {
+    try {
 
-    tl::Path path = mProject->reconstructionPath();
-    path.append("offset.txt");
-    QFile file(QString::fromStdWString(path.toWString()));
-    if (file.open(QFile::ReadOnly | QFile::Text)){
-      QTextStream stream(&file);
-      QString line = stream.readLine();
-      QStringList reg = line.split(" ");
-      offset[0] = reg[0].toDouble();
-      offset[1] = reg[1].toDouble();
-      offset[2] = reg[2].toDouble();
-      file.close();
+        tl::Path path = mProject->reconstructionPath();
+        path.append("offset.txt");
+        QFile file(QString::fromStdWString(path.toWString()));
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
+            QTextStream stream(&file);
+            QString line = stream.readLine();
+            QStringList reg = line.split(" ");
+            offset[0] = reg[0].toDouble();
+            offset[1] = reg[1].toDouble();
+            offset[2] = reg[2].toDouble();
+            file.close();
+        }
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
     }
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
 
-  return offset;
+    return offset;
 }
 
 void DtmModelImp::init()

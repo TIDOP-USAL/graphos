@@ -30,12 +30,12 @@
 namespace graphos
 {
 
-LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project, 
+LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project,
                                              QObject *parent)
   : LoadFromVideoModel(parent),
     mProject(project)
 {
-  this->init();
+    this->init();
 }
 
 LoadFromVideoModelImp::~LoadFromVideoModelImp()
@@ -44,44 +44,44 @@ LoadFromVideoModelImp::~LoadFromVideoModelImp()
 
 tl::Path LoadFromVideoModelImp::imagesPath() const
 {
-  return tl::Path(mProject->projectFolder()).append("images");
+    return tl::Path(mProject->projectFolder()).append("images");
 }
 
 void LoadFromVideoModelImp::addImage(const Image &image)
 {
-  mProject->addImage(image);
+    mProject->addImage(image);
 }
 
 const std::map<int, Camera> &LoadFromVideoModelImp::cameras() const
 {
-  return mProject->cameras();
+    return mProject->cameras();
 }
 
 int LoadFromVideoModelImp::addCamera(const Camera &camera)
 {
-  return mProject->addCamera(camera);
+    return mProject->addCamera(camera);
 }
 
 int LoadFromVideoModelImp::cameraID(const Camera &camera) const
 {
-  return cameraID(camera.make().c_str(), camera.model().c_str());
+    return cameraID(camera.make().c_str(), camera.model().c_str());
 }
 
 int LoadFromVideoModelImp::cameraID(const QString &make,
                                     const QString &model) const
 {
-  int id_camera = 0;
-  for (const auto &camera : mProject->cameras()) {
+    int id_camera = 0;
+    for (const auto &camera : mProject->cameras()) {
 
-    QString camera_make = camera.second.make().c_str();
-    QString camera_model = camera.second.model().c_str();
-    if (make.compare(camera_make) == 0 &&
-        model.compare(camera_model) == 0) {
-      id_camera = camera.first;
-      break;
+        QString camera_make = camera.second.make().c_str();
+        QString camera_model = camera.second.model().c_str();
+        if (make.compare(camera_make) == 0 &&
+            model.compare(camera_model) == 0) {
+            id_camera = camera.first;
+            break;
+        }
     }
-  }
-  return id_camera;
+    return id_camera;
 }
 
 void LoadFromVideoModelImp::init()

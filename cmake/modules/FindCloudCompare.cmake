@@ -1,7 +1,7 @@
 unset(CLOUDCOMPARE_FOUND)
 
 SET(CLOUDCOMPARE_ROOT "" CACHE PATH "Root folder of CloudCompare dependency")
-SET(CLOUDCOMPARE_VERSION "" CACHE PATH "CloudCompare version")
+#SET(CLOUDCOMPARE_VERSION "" CACHE PATH "CloudCompare version")
 
 list(APPEND CLOUDCOMPARE_CHECK_INCLUDE_DIRS
   /opt/local/include
@@ -17,7 +17,8 @@ list(APPEND CLOUDCOMPARE_CHECK_LIBRARY_DIRS
   /usr/local/homebrew/lib # Mac OS X
   /usr/local/lib
   /usr/lib
-  ${CLOUDCOMPARE_ROOT}/lib)
+  ${CLOUDCOMPARE_ROOT}/lib
+  ${CLOUDCOMPARE_ROOT}/lib/cloudcompare)
   
 # Additional suffixes to try appending to each search path.
 list(APPEND CLOUDCOMPARE_CHECK_PATH_SUFFIXES
@@ -34,7 +35,7 @@ find_path(CLOUDCOMPARE_INCLUDE_DIR
 # CLOUDCOMPARE_CORE
 
 find_library(CLOUDCOMPARE_CORE_LIBRARY
-  NAMES CC_CORE_LIB CCCoreLib
+  NAMES CC_CORE_LIB CCCoreLib 
   PATHS ${CLOUDCOMPARE_CHECK_LIBRARY_DIRS}
 )
 
@@ -108,7 +109,7 @@ find_library(CLOUDCOMPARE_FBO_LIBRARY_DEBUG
 find_package_handle_standard_args(CloudCompare
     FOUND_VAR CLOUDCOMPARE_FOUND
     REQUIRED_VARS
-	   CLOUDCOMPARE_VERSION
+       #CLOUDCOMPARE_VERSION
        CLOUDCOMPARE_INCLUDE_DIR
        CLOUDCOMPARE_CORE_LIBRARY
        CLOUDCOMPARE_CORE_LIBRARY_DEBUG
@@ -123,11 +124,12 @@ find_package_handle_standard_args(CloudCompare
   
 if(CLOUDCOMPARE_FOUND)
 
-    string(REPLACE "." ";" VERSION_LIST ${CLOUDCOMPARE_VERSION})
-    list(GET VERSION_LIST 0 CLOUDCOMPARE_VERSION_MAJOR)
-    list(GET VERSION_LIST 1 CLOUDCOMPARE_VERSION_MINOR)
-    list(GET VERSION_LIST 2 CLOUDCOMPARE_VERSION_PATCH)
+    #string(REPLACE "." ";" VERSION_LIST ${CLOUDCOMPARE_VERSION})
+    #list(GET VERSION_LIST 0 CLOUDCOMPARE_VERSION_MAJOR)
+    #list(GET VERSION_LIST 1 CLOUDCOMPARE_VERSION_MINOR)
+    #list(GET VERSION_LIST 2 CLOUDCOMPARE_VERSION_PATCH)
 
+if(MSVC)
     set(CLOUDCOMPARE_LIBRARIES
       debug 
         ${CLOUDCOMPARE_CORE_LIBRARY_DEBUG}
@@ -149,11 +151,19 @@ if(CLOUDCOMPARE_FOUND)
         ${CLOUDCOMPARE_FBO_LIBRARY_DEBUG}
       optimized
         ${CLOUDCOMPARE_FBO_LIBRARY})
-		
+else()
+    set(CLOUDCOMPARE_LIBRARIES
+        ${CLOUDCOMPARE_CORE_LIBRARY}
+        ${CLOUDCOMPARE_DB_LIBRARY}
+        ${CLOUDCOMPARE_GL_LIBRARY}
+        ${CLOUDCOMPARE_IO_LIBRARY}
+        ${CLOUDCOMPARE_FBO_LIBRARY})
+endif()
+	
     set(CLOUDCOMPARE_FOUND TRUE)
     message(STATUS "\n")
     message(STATUS "Found CloudCompare")
-	message(STATUS "  Version: CLOUDCOMPARE_VERSION")
+    #message(STATUS "  Version: CLOUDCOMPARE_VERSION")
     message(STATUS "  Include: ${CLOUDCOMPARE_INCLUDE_DIR}")
     message(STATUS "  Library: ${CLOUDCOMPARE_CORE_LIBRARY}")
     message(STATUS "  Library: ${CLOUDCOMPARE_DB_LIBRARY}")
@@ -161,14 +171,12 @@ if(CLOUDCOMPARE_FOUND)
     message(STATUS "  Library: ${CLOUDCOMPARE_IO_LIBRARY}")
     message(STATUS "  Library: ${CLOUDCOMPARE_FBO_LIBRARY}")
 
-    #TODO: Revisar esto
-    if(MSVC)
-      add_compile_definitions(CC_VIEWER)
-      add_compile_definitions(CC_USE_AS_DLL)
-      add_compile_definitions(QCC_DB_USE_AS_DLL)
-      add_compile_definitions(QCC_IO_USE_AS_DLL)
-	  add_compile_definitions(CC_CORE_LIB_USES_FLOAT)
-    endif(MSVC)
+
+    add_compile_definitions(CC_VIEWER)
+    add_compile_definitions(CC_USE_AS_DLL)
+    add_compile_definitions(QCC_DB_USE_AS_DLL)
+    add_compile_definitions(QCC_IO_USE_AS_DLL)
+    add_compile_definitions(CC_CORE_LIB_USES_FLOAT)
 	
 else()
     if(CLOUDCOMPARE_FIND_REQUIRED)

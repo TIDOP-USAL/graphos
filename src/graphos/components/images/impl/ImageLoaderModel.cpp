@@ -25,7 +25,7 @@
 
 #include "graphos/core/project.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/path.h>
 
 namespace graphos
@@ -36,72 +36,72 @@ ImageLoaderModelImp::ImageLoaderModelImp(Project *project,
   : ImageLoaderModel(parent),
     mProject(project)
 {
-  init();
+    init();
 }
 
 QString ImageLoaderModelImp::projectCRS() const
 {
-  return mProject->crs();
+    return mProject->crs();
 }
 
 void ImageLoaderModelImp::setProjectCRS(const QString &crs)
 {
-  mProject->setCrs(crs);
+    mProject->setCrs(crs);
 }
 
 void ImageLoaderModelImp::addImage(const Image &image)
 {
-  mProject->addImage(image);
+    mProject->addImage(image);
 }
 
 bool ImageLoaderModelImp::existImage(size_t imageId) const
 {
-  return mProject->existImage(imageId);
+    return mProject->existImage(imageId);
 }
 
 tl::Path ImageLoaderModelImp::imagesDirectory() const
 {
-  tl::Path image_directory = mProject->projectFolder();
+    tl::Path image_directory = mProject->projectFolder();
 
-  tl::Path path(mProject->projectFolder());
-  path.append("images");
-  if (path.exists()) {
-    image_directory = path;
-  }
+    tl::Path path(mProject->projectFolder());
+    path.append("images");
+    if (path.exists()) {
+        image_directory = path;
+    }
 
-  return image_directory;
+    return image_directory;
 }
 
 const std::map<int, Camera> &ImageLoaderModelImp::cameras() const
 {
-  return mProject->cameras();
+    return mProject->cameras();
 }
 
 int ImageLoaderModelImp::addCamera(const Camera &camera)
 {
-  return mProject->addCamera(camera);
+    return mProject->addCamera(camera);
 }
 
 int ImageLoaderModelImp::cameraID(const Camera &camera) const
 {
-  return cameraID(camera.make().c_str(), camera.model().c_str());
+    return cameraID(camera.make().c_str(), camera.model().c_str());
 }
 
-int ImageLoaderModelImp::cameraID(const QString &make, 
+int ImageLoaderModelImp::cameraID(const QString &make,
                                   const QString &model) const
 {
-  int id_camera = 0;
-  for (const auto &camera : mProject->cameras()) {
+    int id_camera = 0;
+    for (const auto &camera : mProject->cameras()) {
 
-    QString camera_make = camera.second.make().c_str();
-    QString camera_model = camera.second.model().c_str();
-    if (make.compare(camera_make) == 0 &&
-        model.compare(camera_model) == 0){
-      id_camera = camera.first;
-      break;
+        QString camera_make = camera.second.make().c_str();
+        QString camera_model = camera.second.model().c_str();
+        if (make.compare(camera_make) == 0 &&
+            model.compare(camera_model) == 0) {
+            id_camera = camera.first;
+            break;
+        }
     }
-  }
-  return id_camera;
+    return id_camera;
 }
 
 void ImageLoaderModelImp::init()

@@ -49,32 +49,32 @@ class FeatureMatchingProperties
 
 public:
 
-  FeatureMatchingProperties();
-  FeatureMatchingProperties(const FeatureMatchingProperties &featureMatching);
-  ~FeatureMatchingProperties() override = default;
+    FeatureMatchingProperties();
+    FeatureMatchingProperties(const FeatureMatchingProperties &featureMatching);
+    ~FeatureMatchingProperties() override = default;
 
 // FeatureMatching interface
 
 public:
 
-  bool crossCheck() const override;
-  void enableCrossCheck(bool enable) override;
-  double ratio() const override;
-  void setRatio(double ratio) override;
-  double distance() const override;
-  void setDistance(double distance) override;
-  double maxError() const override;
-  void setMaxError(double error) override;
-  double confidence() const override;
-  void setConfidence(double error) override;
+    bool crossCheck() const override;
+    void enableCrossCheck(bool enable) override;
+    double ratio() const override;
+    void setRatio(double ratio) override;
+    double distance() const override;
+    void setDistance(double distance) override;
+    double maxError() const override;
+    void setMaxError(double error) override;
+    double confidence() const override;
+    void setConfidence(double error) override;
 
 private:
 
-  bool mCrossCheck;
-  double mRatio;
-  double mDistance;
-  double mMaxError;
-  double mConfidence;
+    bool mCrossCheck;
+    double mRatio;
+    double mDistance;
+    double mMaxError;
+    double mConfidence;
 
 };
 
@@ -86,42 +86,42 @@ class FeatureMatchingTask
     public tl::TaskBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureMatchingTask(const tl::Path &database,
-                      bool cuda,
-                      const std::shared_ptr<FeatureMatching> &featureMatching);
-  ~FeatureMatchingTask() override;
+    FeatureMatchingTask(const tl::Path &database,
+                        bool cuda,
+                        const std::shared_ptr<FeatureMatching> &featureMatching);
+    ~FeatureMatchingTask() override;
 
 public:
 
-  std::shared_ptr<FeatureMatching> featureMatching() const;
-  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
+    std::shared_ptr<FeatureMatching> featureMatching() const;
+    void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
 
-  tl::Path database() const;
-  void setDatabase(const tl::Path &database);
+    tl::Path database() const;
+    void setDatabase(const tl::Path &database);
 
-  bool useGPU() const;
-  void setUseGPU(bool useGPU);
+    bool useGPU() const;
+    void setUseGPU(bool useGPU);
 
 // tl::TaskBase interface
 
 public:
 
-  void stop() override;
+    void stop() override;
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-  colmap::Thread *mFeatureMatcher;
-  tl::Path mDatabase;
-  bool bUseCuda;
-  std::shared_ptr<FeatureMatching> mFeatureMatching;
+    colmap::Thread *mFeatureMatcher;
+    tl::Path mDatabase;
+    bool bUseCuda;
+    std::shared_ptr<FeatureMatching> mFeatureMatching;
 
 };
 
@@ -132,42 +132,42 @@ class SpatialMatchingTask
     public tl::TaskBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SpatialMatchingTask(const tl::Path &database,
-                      bool cuda,
-                      const std::shared_ptr<FeatureMatching> &featureMatching);
-  ~SpatialMatchingTask() override;
+    SpatialMatchingTask(const tl::Path &database,
+                        bool cuda,
+                        const std::shared_ptr<FeatureMatching> &featureMatching);
+    ~SpatialMatchingTask() override;
 
 public:
 
-  std::shared_ptr<FeatureMatching> featureMatching() const;
-  void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
+    std::shared_ptr<FeatureMatching> featureMatching() const;
+    void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
 
-  tl::Path database() const;
-  void setDatabase(const tl::Path &database);
+    tl::Path database() const;
+    void setDatabase(const tl::Path &database);
 
-  bool useGPU() const;
-  void setUseGPU(bool useGPU);
+    bool useGPU() const;
+    void setUseGPU(bool useGPU);
 
 // tl::TaskBase interface
 
 public:
 
-  void stop() override;
+    void stop() override;
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-  colmap::Thread *mFeatureMatcher;
-  tl::Path mDatabase;
-  bool bUseCuda;
-  std::shared_ptr<FeatureMatching> mFeatureMatching;
+    colmap::Thread *mFeatureMatcher;
+    tl::Path mDatabase;
+    bool bUseCuda;
+    std::shared_ptr<FeatureMatching> mFeatureMatching;
 
 };
 

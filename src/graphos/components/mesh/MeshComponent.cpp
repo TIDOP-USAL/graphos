@@ -40,7 +40,7 @@ namespace graphos
 MeshComponent::MeshComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 MeshComponent::~MeshComponent()
@@ -49,75 +49,75 @@ MeshComponent::~MeshComponent()
 
 void MeshComponent::init()
 {
-  this->setName(tr("Mesh"));
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+    this->setName(tr("Mesh"));
+    this->setMenu("workflow");
+    this->setToolbar("workflow");
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("mesh"));
+    action()->setIcon(QIcon::fromTheme("mesh"));
 }
 
 void MeshComponent::createModel()
 {
-  setModel(new MeshModelImp(app()->project()));
+    setModel(new MeshModelImp(app()->project()));
 }
 
 void MeshComponent::createView()
 {
-  setView(new MeshViewImp());
+    setView(new MeshViewImp());
 }
 
 void MeshComponent::createPresenter()
 {
-  setPresenter(new MeshPresenterImp(dynamic_cast<MeshView *>(view()),
-                                    dynamic_cast<MeshModel *>(model())));
+    setPresenter(new MeshPresenterImp(dynamic_cast<MeshView *>(view()),
+                 dynamic_cast<MeshModel *>(model())));
 }
 
 void MeshComponent::createCommand()
 {
-  setCommand(std::make_shared<MeshCommand>());
+    setCommand(std::make_shared<MeshCommand>());
 }
 
 void MeshComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  bool process_run = app_status->isEnabled(AppStatus::Flag::processing);
-  bool bDenseModel = app_status->isEnabled(AppStatus::Flag::dense_model);
-  action()->setEnabled(bProjectExists && !process_run && bDenseModel);
+    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool process_run = app_status->isEnabled(AppStatus::Flag::processing);
+    bool bDenseModel = app_status->isEnabled(AppStatus::Flag::dense_model);
+    action()->setEnabled(bProjectExists && !process_run && bDenseModel);
 }
 
 void MeshComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void MeshComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::mesh, true);
+    TaskComponent::onFinished();
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::mesh, true);
 }
 
 void MeshComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
-  app_status->activeFlag(AppStatus::Flag::mesh, false);
+    TaskComponent::onFailed();
+    app_status->activeFlag(AppStatus::Flag::mesh, false);
 }
 
 

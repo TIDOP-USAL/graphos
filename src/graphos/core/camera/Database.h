@@ -45,24 +45,24 @@ class DatabaseCameras
 
 public:
 
-  DatabaseCameras(QString database);
-  ~DatabaseCameras();
+    DatabaseCameras(QString database);
+    ~DatabaseCameras();
 
-  void open();
-  bool isOpen() const;
-  void close();
+    void open();
+    bool isOpen() const;
+    void close();
 
-  bool existCameraMakeId(const QString &cameraMake) const;
-  bool existCameraModel(int cameraMake,
-                        const QString &cameraModel) const;
-
-  int cameraMakeId(const QString &cameraMake) const;
-  double cameraSensorSize(int cameraMake,
+    bool existCameraMakeId(const QString &cameraMake) const;
+    bool existCameraModel(int cameraMake,
                           const QString &cameraModel) const;
+
+    int cameraMakeId(const QString &cameraMake) const;
+    double cameraSensorSize(int cameraMake,
+                            const QString &cameraModel) const;
 
 private:
 
-  QSqlDatabase *mDatabase;
+    QSqlDatabase *mDatabase;
 };
 
 

@@ -29,7 +29,7 @@
 
 #include <memory>
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QObject>
 #include <QDialog>
 #include <QEvent>
@@ -52,11 +52,13 @@ class CommandView
 
 public:
 
-  CommandView(QObject *parent = nullptr)
-    : View(parent) { }
-  virtual ~CommandView() override = default;
+    CommandView(QObject *parent = nullptr)
+      : View(parent)
+    {
+    }
+    virtual ~CommandView() override = default;
 
-  virtual std::shared_ptr<tl::Command> command() = 0;
+    virtual std::shared_ptr<tl::Command> command() = 0;
 
 };
 
@@ -64,61 +66,61 @@ public:
 class DialogView
   : public QDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DialogView(QWidget *parent = nullptr, 
-             Qt::WindowFlags f = Qt::WindowFlags())
-    : QDialog(parent, f)
-  {
-    Qt::WindowFlags helpFlag = Qt::WindowContextHelpButtonHint;
-    Qt::WindowFlags flags = windowFlags();
-    flags = flags & (~helpFlag);
-    QWidget::setWindowFlags(flags);
-  }
+    DialogView(QWidget *parent = nullptr,
+               Qt::WindowFlags f = Qt::WindowFlags())
+      : QDialog(parent, f)
+    {
+        Qt::WindowFlags helpFlag = Qt::WindowContextHelpButtonHint;
+        Qt::WindowFlags flags = windowFlags();
+        flags = flags & (~helpFlag);
+        QWidget::setWindowFlags(flags);
+    }
 
-  virtual ~DialogView() override = default;
+    virtual ~DialogView() override = default;
 
 private:
 
-  /*!
-   * \brief Dialog initialization UI
-   */
-  virtual void initUI() = 0;
+    /*!
+     * \brief Dialog initialization UI
+     */
+    virtual void initUI() = 0;
 
-  /*!
-   * \brief Signal and slots initialization
-   */
-  virtual void initSignalAndSlots() = 0;
+    /*!
+     * \brief Signal and slots initialization
+     */
+    virtual void initSignalAndSlots() = 0;
 
 signals:
 
-  void help();
-  void restore();
+    void help();
+    void restore();
 
 public slots:
 
-  /*!
-   * \brief Clear dialog
-   */
-  virtual void clear() = 0;
+    /*!
+     * \brief Clear dialog
+     */
+    virtual void clear() = 0;
 
 private slots:
 
-  virtual void update() = 0;
-  virtual void retranslate() = 0;
+    virtual void update() = 0;
+    virtual void retranslate() = 0;
 
 // QWidget interface
 
 protected:
 
-  void changeEvent(QEvent *event) override
-  {
-    if (event->type() == QEvent::LanguageChange){
-      retranslate();
+    void changeEvent(QEvent *event) override
+    {
+        if (event->type() == QEvent::LanguageChange) {
+            retranslate();
+        }
     }
-  }
 };
 
 
@@ -127,23 +129,23 @@ class Model
   : public QObject
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  Model(QObject *parent = nullptr) : QObject(parent){}
-  virtual ~Model() = default;
+    Model(QObject *parent = nullptr) : QObject(parent) {}
+    virtual ~Model() = default;
 
 private:
 
-  /*!
-   * \brief Class Initialization
-   */
-  virtual void init() = 0;
+    /*!
+     * \brief Class Initialization
+     */
+    virtual void init() = 0;
 
 public slots:
 
-  virtual void clear() = 0;
+    virtual void clear() = 0;
 
 };
 
@@ -151,36 +153,36 @@ public slots:
 class Presenter
   : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  Presenter() : QObject(){}
-  virtual ~Presenter() = default;
+    Presenter() : QObject() {}
+    virtual ~Presenter() = default;
 
 public slots:
 
- /*!
-  * \brief Open
-  */
-  virtual void open() = 0;
+    /*!
+     * \brief Open
+     */
+    virtual void open() = 0;
 
 private:
 
-  /*!
-   * \brief Class Initialization
-   */
-  virtual void init() = 0;
+    /*!
+     * \brief Class Initialization
+     */
+    virtual void init() = 0;
 
-  /*!
-   * \brief Signal and slots initialization
-   */
-  virtual void initSignalAndSlots() = 0;
+    /*!
+     * \brief Signal and slots initialization
+     */
+    virtual void initSignalAndSlots() = 0;
 
 
 signals:
 
-  void help(QString);
+    void help(QString);
 
 };
 

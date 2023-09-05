@@ -44,19 +44,19 @@ class FeaturesWriter
 
 public:
 
-  FeaturesWriter(const QString &fileName);
-  virtual ~FeaturesWriter() = default;
+    FeaturesWriter(const QString &fileName);
+    virtual ~FeaturesWriter() = default;
 
-  virtual bool write() = 0;
+    virtual bool write() = 0;
 
-  void setKeyPoints(const colmap::FeatureKeypoints &keyPoints);
-  void setDescriptors(const colmap::FeatureDescriptors &descriptors);
+    void setKeyPoints(const colmap::FeatureKeypoints &keyPoints);
+    void setDescriptors(const colmap::FeatureDescriptors &descriptors);
 
 protected:
 
-  QString mFileName;
-  colmap::FeatureKeypoints mKeyPoints;
-  colmap::FeatureDescriptors mDescriptors;
+    QString mFileName;
+    colmap::FeatureKeypoints mKeyPoints;
+    colmap::FeatureDescriptors mDescriptors;
 };
 
 
@@ -71,19 +71,19 @@ class FeaturesReader
 
 public:
 
-  FeaturesReader(const QString &fileName);
-  virtual ~FeaturesReader() = default;
+    FeaturesReader(const QString &fileName);
+    virtual ~FeaturesReader() = default;
 
-  virtual bool read() = 0;
+    virtual bool read() = 0;
 
-  colmap::FeatureKeypoints keyPoints() const;
-  colmap::FeatureDescriptors descriptors() const;
+    colmap::FeatureKeypoints keyPoints() const;
+    colmap::FeatureDescriptors descriptors() const;
 
 protected:
 
-  QString mFileName;
-  colmap::FeatureKeypoints mKeyPoints;
-  colmap::FeatureDescriptors mDescriptors;
+    QString mFileName;
+    colmap::FeatureKeypoints mKeyPoints;
+    colmap::FeatureDescriptors mDescriptors;
 };
 
 
@@ -100,11 +100,11 @@ class FeaturesReaderFactory
 
 private:
 
-  FeaturesReaderFactory() {}
+    FeaturesReaderFactory() {}
 
 public:
 
-  static std::unique_ptr<FeaturesReader> createReader(const QString &fileName);
+    static std::unique_ptr<FeaturesReader> createReader(const QString &fileName);
 };
 
 /*!
@@ -116,11 +116,11 @@ public:
 
 private:
 
-  FeaturesWriterFactory() {}
+    FeaturesWriterFactory() {}
 
 public:
 
-  static std::unique_ptr<FeaturesWriter> createWriter(const QString &fileName);
+    static std::unique_ptr<FeaturesWriter> createWriter(const QString &fileName);
 };
 
 
@@ -134,16 +134,16 @@ class FeaturesIOHandler
 
 public:
 
-  FeaturesIOHandler();
-  virtual ~FeaturesIOHandler() = default;
+    FeaturesIOHandler();
+    virtual ~FeaturesIOHandler() = default;
 
-  bool read(const QString &file);
-  bool write(const QString &file);
+    bool read(const QString &file);
+    bool write(const QString &file);
 
 protected:
 
-  std::unique_ptr<FeaturesReader> mReader;
-  std::unique_ptr<FeaturesWriter> mWriter;
+    std::unique_ptr<FeaturesReader> mReader;
+    std::unique_ptr<FeaturesWriter> mWriter;
 };
 
 

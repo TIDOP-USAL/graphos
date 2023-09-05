@@ -34,14 +34,14 @@ namespace graphos
 class ImageLoaderView
   : public QFileDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImageLoaderView(QWidget *parent) : QFileDialog(parent) {}
-  ~ImageLoaderView() override = default;
+    ImageLoaderView(QWidget *parent) : QFileDialog(parent) {}
+    ~ImageLoaderView() override = default;
 
-  virtual void setImagesDirectory(const QString &directory) = 0;
+    virtual void setImagesDirectory(const QString &directory) = 0;
 
 };
 

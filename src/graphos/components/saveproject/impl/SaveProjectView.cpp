@@ -29,7 +29,7 @@ namespace graphos
 SaveProjectViewImp::SaveProjectViewImp(QWidget *parent)
   : SaveProjectView(parent)
 {
-  this->init();
+    this->init();
 }
 
 void SaveProjectViewImp::init()

@@ -36,85 +36,83 @@ class CamerasModelImp
   : public CamerasModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CamerasModelImp(Project *project,
-                  QObject *parent = nullptr);
-  ~CamerasModelImp() override = default;
+    CamerasModelImp(Project *project,
+                    QObject *parent = nullptr);
+    ~CamerasModelImp() override = default;
 
 // CamerasModel interface
 
 public:
 
-  const std::map<int, Camera> &cameras() const override;
-  int addCamera(const Camera &camera) override;
-  int cameraID(const Camera &camera) const override;
-  int cameraID(const QString &make, 
-               const QString &model) const override;
-  Camera camera(int id) const override;
-  Camera camera(const QString &make,
-                    const QString &model) const override;
-  int currentCameraID() const override;
-  bool updateCamera(int id, const Camera &camera) override;
-  bool removeCamera(int id) override;
-  bool removeCamera(const Camera &camera) override;
-  QStringList imagesFromCamera(int id) const override;
+    const std::map<int, Camera> &cameras() const override;
+    int addCamera(const Camera &camera) override;
+    int cameraID(const Camera &camera) const override;
+    int cameraID(const QString &make,
+                 const QString &model) const override;
+    Camera camera(int id) const override;
+    Camera camera(const QString &make,
+                  const QString &model) const override;
+    int currentCameraID() const override;
+    bool updateCamera(int id, const Camera &camera) override;
+    bool removeCamera(int id) override;
+    bool removeCamera(const Camera &camera) override;
+    QStringList imagesFromCamera(int id) const override;
 
-  void save() override;
+    void save() override;
 
-  bool modified() override;
+    bool modified() override;
 
 public slots:
 
-  void updateCurrentCameraMake(const QString &make) override;
-  void updateCurrentCameraModel(const QString &model) override;
-  void updateCurrentCameraSensorSize(const QString &sensorSize) override;
-  void updateCurrentCameraFocal(const QString &focal) override;
-  void updateCurrentCameraType(const QString &type) override;
-  void updateCurrentCameraCalibCx(double cx) override;
-  void updateCurrentCameraCalibCy(double cy) override;
-  void updateCurrentCameraCalibF(double f) override;
-  void updateCurrentCameraCalibFx(double fx) override;
-  void updateCurrentCameraCalibFy(double fy) override;
-  void updateCurrentCameraCalibK1(double k1) override;
-  void updateCurrentCameraCalibK2(double k2) override;
-  void updateCurrentCameraCalibK3(double k3) override;
-  void updateCurrentCameraCalibK4(double k4) override;
-  void updateCurrentCameraCalibK5(double k5) override;
-  void updateCurrentCameraCalibK6(double k6) override;
-  void updateCurrentCameraCalibP1(double p1) override;
-  void updateCurrentCameraCalibP2(double p2) override;
+    void updateCurrentCameraMake(const QString &make) override;
+    void updateCurrentCameraModel(const QString &model) override;
+    void updateCurrentCameraSensorSize(const QString &sensorSize) override;
+    void updateCurrentCameraFocal(const QString &focal) override;
+    void updateCurrentCameraType(const QString &type) override;
+    void updateCurrentCameraCalibCx(double cx) override;
+    void updateCurrentCameraCalibCy(double cy) override;
+    void updateCurrentCameraCalibF(double f) override;
+    void updateCurrentCameraCalibFx(double fx) override;
+    void updateCurrentCameraCalibFy(double fy) override;
+    void updateCurrentCameraCalibK1(double k1) override;
+    void updateCurrentCameraCalibK2(double k2) override;
+    void updateCurrentCameraCalibK3(double k3) override;
+    void updateCurrentCameraCalibK4(double k4) override;
+    void updateCurrentCameraCalibK5(double k5) override;
+    void updateCurrentCameraCalibK6(double k6) override;
+    void updateCurrentCameraCalibP1(double p1) override;
+    void updateCurrentCameraCalibP2(double p2) override;
 
-  void calibrationImport(const QString &file,
-                         const QString &format) override;
-  void calibrationExport(const QString &file,
-                         const QString &format) override;
+    void calibrationImport(const QString &file,
+                           const QString &format) override;
+    void calibrationExport(const QString &file,
+                           const QString &format) override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
-
-//
+    void clear() override;
 
 private:
 
-  void updateCalibrationParameter(Calibration::Parameters param,
-                                  double value);
+    void updateCalibrationParameter(Calibration::Parameters param,
+                                    double value);
 
 protected:
 
-  Project *mProject;
-  bool bModifiedProject;
-  mutable int mActiveCameraId;
-  mutable std::map<int, Camera> mCameraCache;
+    Project *mProject;
+    bool bModifiedProject;
+    mutable int mActiveCameraId;
+    mutable std::map<int, Camera> mCameraCache;
 };
 
 } // namespace graphos

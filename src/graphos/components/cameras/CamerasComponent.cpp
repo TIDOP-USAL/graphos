@@ -38,8 +38,7 @@ namespace graphos
 CamerasComponent::CamerasComponent(Application *application)
   : ComponentBase(application)
 {
-  init();
-
+    init();
 }
 
 CamerasComponent::~CamerasComponent()
@@ -48,39 +47,39 @@ CamerasComponent::~CamerasComponent()
 
 void CamerasComponent::init()
 {
-  this->setName("Cameras");
-  this->setMenu("tools");
-  this->setToolbar("tools");
+    this->setName("Cameras");
+    this->setMenu("tools");
+    this->setToolbar("tools");
 
-  action()->setIcon(QIcon::fromTheme("cameras"));
+    action()->setIcon(QIcon::fromTheme("cameras"));
 }
 
 void CamerasComponent::onUpdateCameras()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void CamerasComponent::createModel()
 {
-  setModel(new CamerasModelImp(app()->project()));
+    setModel(new CamerasModelImp(app()->project()));
 }
 
 void CamerasComponent::createView()
 {
-  setView(new CamerasViewImp());
+    setView(new CamerasViewImp());
 }
 
 void CamerasComponent::createPresenter()
 {
-  setPresenter(new CamerasPresenterImp(dynamic_cast<CamerasView *>(view()), 
-                                       dynamic_cast<CamerasModel *>(model())));
-  connect(dynamic_cast<CamerasPresenter *>(presenter()), &CamerasPresenter::updateCameras,
-          this, &CamerasComponent::onUpdateCameras); 
+    setPresenter(new CamerasPresenterImp(dynamic_cast<CamerasView *>(view()),
+                 dynamic_cast<CamerasModel *>(model())));
+    connect(dynamic_cast<CamerasPresenter *>(presenter()), &CamerasPresenter::updateCameras,
+            this, &CamerasComponent::onUpdateCameras);
 }
 
 void CamerasComponent::createCommand()
@@ -89,14 +88,14 @@ void CamerasComponent::createCommand()
 
 void CamerasComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  bool bImagesLoaded = app_status->isEnabled(AppStatus::Flag::images_added);
-  action()->setEnabled(bProjectExists && bImagesLoaded);
+    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool bImagesLoaded = app_status->isEnabled(AppStatus::Flag::images_added);
+    action()->setEnabled(bProjectExists && bImagesLoaded);
 }
 
 } // namespace graphos

@@ -23,7 +23,7 @@
 
 #include "FeaturesViewerPresenter.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 #include "graphos/components/featviewer/FeaturesViewerModel.h"
 #include "graphos/components/featviewer/FeaturesViewerView.h"
@@ -39,8 +39,8 @@ FeaturesViewerPresenterImp::FeaturesViewerPresenterImp(FeaturesViewerView *view,
     mView(view),
     mModel(model)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 FeaturesViewerPresenterImp::~FeaturesViewerPresenterImp()
@@ -50,28 +50,28 @@ FeaturesViewerPresenterImp::~FeaturesViewerPresenterImp()
 
 void FeaturesViewerPresenterImp::open()
 {
-  mView->clear();
+    mView->clear();
 
-  mView->setBackgroundColor(mModel->backgroundColor());
-  mView->setSelectedMarkerStyle(mModel->selectedMarkerColor(),
-                                mModel->selectedMarkerWidth());
-  mView->setMarkerStyle(mModel->markerColor(),
-                        mModel->markerWidth(),
-                        mModel->markerType(),
-                        mModel->markerSize());
+    mView->setBackgroundColor(mModel->backgroundColor());
+    mView->setSelectedMarkerStyle(mModel->selectedMarkerColor(),
+                                  mModel->selectedMarkerWidth());
+    mView->setMarkerStyle(mModel->markerColor(),
+                          mModel->markerWidth(),
+                          mModel->markerType(),
+                          mModel->markerSize());
 
-  mView->show();
+    mView->show();
 
-  bool active_image = false;
-  std::vector<std::pair<size_t, QString>> images;
-  for (const auto &image : mModel->images()) {
-    images.emplace_back(image.first, image.second.path());
-  }
+    bool active_image = false;
+    std::vector<std::pair<size_t, QString>> images;
+    for (const auto &image : mModel->images()) {
+        images.emplace_back(image.first, image.second.path());
+    }
 
-  if (!images.empty()) {
-    mView->setImageList(images);
-    setImageActive(images[0].first);
-  }
+    if (!images.empty()) {
+        mView->setImageList(images);
+        setImageActive(images[0].first);
+    }
 }
 
 void FeaturesViewerPresenterImp::init()
@@ -80,30 +80,30 @@ void FeaturesViewerPresenterImp::init()
 
 void FeaturesViewerPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &FeaturesViewerView::image_changed, 
-          this,  &FeaturesViewerPresenterImp::setImageActive);
-  connect(mView, &DialogView::help, [&]() {
-    emit help("keypoints_viewer.html");
-  });
+    connect(mView, &FeaturesViewerView::image_changed,
+            this, &FeaturesViewerPresenterImp::setImageActive);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("keypoints_viewer.html");
+    });
 }
 
 void FeaturesViewerPresenterImp::setImageActive(size_t imageId)
 {
-  auto image = mModel->image(imageId);
-  mView->setCurrentImage(image.path());
-  loadKeypoints(image.id());
+    auto image = mModel->image(imageId);
+    mView->setCurrentImage(image.path());
+    loadKeypoints(image.id());
 }
 
 void FeaturesViewerPresenterImp::loadKeypoints(size_t imageId)
 {
-  try	{
+    try {
 
-    auto keypoints = mModel->loadKeypoints(imageId);
-    mView->setKeyPoints(keypoints);
+        auto keypoints = mModel->loadKeypoints(imageId);
+        mView->setKeyPoints(keypoints);
 
-  } catch (const std::exception &e) 	{
-    msgError(e.what());
-  }
+    } catch (const std::exception &e) {
+        tl::printException(e);
+    }
 }
 
 } // namespace graphos

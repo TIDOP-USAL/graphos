@@ -33,37 +33,28 @@
 
 namespace graphos
 {
-	
+
 class ImageLoaderCommand
-  : public QObject, 
+  : public QObject,
     public Command
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImageLoaderCommand();
-  ~ImageLoaderCommand() override;
-
-private:
-
+    ImageLoaderCommand();
+    ~ImageLoaderCommand() override;
 
 // Command
 
-  bool run() override;
-
 private:
 
-  tl::Path mProjectFile;
-  tl::Path mImage;
-  tl::Path mImageList;
-  bool mDelete;
-  std::vector<std::string> mCameraTypes;
-  size_t mCameraId;
+    bool run() override;
+
 };
 
-	
+
 } // namespace graphos
 
 #endif // GRAPHOS_IMAGE_LOADER_COMMAND_H

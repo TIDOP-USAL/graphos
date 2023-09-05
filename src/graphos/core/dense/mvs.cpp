@@ -29,8 +29,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/sfm/groundpoint.h"
 
-// TIDOP LIB
-#include <tidop/core/messages.h>
+/* TidopLib */
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
 #include <tidop/core/app.h>
@@ -39,7 +38,7 @@
 #include <tidop/math/algebra/rotation_convert.h>
 #include <tidop/core/chrono.h>
 
-// COLMAP
+/* Colmap */
 #include <colmap/base/database.h>
 
 #include <fstream>
@@ -100,93 +99,93 @@ MvsProperties::MvsProperties(MvsProperties &&mvs) noexcept
 
 MvsProperties &MvsProperties::operator =(const MvsProperties &mvs)
 {
-  if (this != &mvs) {
-    mResolutionLevel = mvs.mResolutionLevel;
-    mMinResolution = mvs.mMinResolution;
-    mMaxResolution = mvs.mMaxResolution;
-    mNumberViews = mvs.mNumberViews;
-    mNumberViewsFuse = mvs.mNumberViewsFuse;
-  }
+    if (this != &mvs) {
+        mResolutionLevel = mvs.mResolutionLevel;
+        mMinResolution = mvs.mMinResolution;
+        mMaxResolution = mvs.mMaxResolution;
+        mNumberViews = mvs.mNumberViews;
+        mNumberViewsFuse = mvs.mNumberViewsFuse;
+    }
 
-  return *this;
+    return *this;
 }
 
 MvsProperties &MvsProperties::operator =(MvsProperties &&mvs) noexcept
 {
-  if (this != &mvs) {
-    mResolutionLevel = mvs.mResolutionLevel;
-    mMinResolution = mvs.mMinResolution;
-    mMaxResolution = mvs.mMaxResolution;
-    mNumberViews = mvs.mNumberViews;
-    mNumberViewsFuse = mvs.mNumberViewsFuse;
-  }
+    if (this != &mvs) {
+        mResolutionLevel = mvs.mResolutionLevel;
+        mMinResolution = mvs.mMinResolution;
+        mMaxResolution = mvs.mMaxResolution;
+        mNumberViews = mvs.mNumberViews;
+        mNumberViewsFuse = mvs.mNumberViewsFuse;
+    }
 
-  return *this;
+    return *this;
 }
 
 int MvsProperties::resolutionLevel() const
 {
-  return mResolutionLevel;
+    return mResolutionLevel;
 }
 
 int MvsProperties::minResolution() const
 {
-  return mMinResolution;
+    return mMinResolution;
 }
 
 int MvsProperties::maxResolution() const
 {
-  return mMaxResolution;
+    return mMaxResolution;
 }
 
 int MvsProperties::numberViews() const
 {
-  return mNumberViews;
+    return mNumberViews;
 }
 
 int MvsProperties::numberViewsFuse() const
 {
-  return mNumberViewsFuse;
+    return mNumberViewsFuse;
 }
 
 void MvsProperties::setResolutionLevel(int resolutionLevel)
 {
-  mResolutionLevel = resolutionLevel;
+    mResolutionLevel = resolutionLevel;
 }
 
 void MvsProperties::setMinResolution(int minResolution)
 {
-  mMinResolution = minResolution;
+    mMinResolution = minResolution;
 }
 
 void MvsProperties::setMaxResolution(int maxResolution)
 {
-  mMaxResolution = maxResolution;
+    mMaxResolution = maxResolution;
 }
 
 void MvsProperties::setNumberViews(int numberViews)
 {
-  mNumberViews = numberViews;
+    mNumberViews = numberViews;
 }
 
 void MvsProperties::setNumberViewsFuse(int numberViewsFuse)
 {
-  mNumberViewsFuse = numberViewsFuse;
+    mNumberViewsFuse = numberViewsFuse;
 }
 
 void MvsProperties::reset()
 {
-  mResolutionLevel = mvsDefaultResolutionLevel;
-  mMinResolution = mvsDefaultMinResolution;
-  mMaxResolution = mvsDefaultMaxResolution;
-  mNumberViews = mvsDefaultNumberViews;
-  mNumberViewsFuse = mvsDefaultNumberViewsFuse;
+    mResolutionLevel = mvsDefaultResolutionLevel;
+    mMinResolution = mvsDefaultMinResolution;
+    mMaxResolution = mvsDefaultMaxResolution;
+    mNumberViews = mvsDefaultNumberViews;
+    mNumberViewsFuse = mvsDefaultNumberViewsFuse;
 }
 
 
 QString MvsProperties::name() const
 {
-  return QString("MVS");
+    return QString("MVS");
 }
 
 
@@ -199,15 +198,15 @@ QString MvsProperties::name() const
 MvsDensifier::MvsDensifier(const std::unordered_map<size_t, Image> &images,
                            const std::map<int, Camera> &cameras,
                            const std::unordered_map<size_t, CameraPose> &poses,
-                           const std::vector<GroundPoint> &groundPoints, 
+                           const std::vector<GroundPoint> &groundPoints,
                            const tl::Path &outputPath,
                            const tl::Path &database,
                            bool cuda)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
     mDatabase(database)
 {
-  enableCuda(cuda);
-  setUndistortImagesFormat(UndistortImages::Format::tiff);
+    enableCuda(cuda);
+    setUndistortImagesFormat(UndistortImages::Format::tiff);
 }
 
 MvsDensifier::~MvsDensifier()
@@ -216,490 +215,450 @@ MvsDensifier::~MvsDensifier()
 
 void MvsDensifier::clearTemporalFiles()
 {
-  outputPath().append("temp").removeDirectory();
+    outputPath().append("temp").removeDirectory();
 }
 
 void MvsDensifier::exportToColmap()
 {
-  try {
+    try {
 
-    colmap::Database database;
-    database.Open(mDatabase.toString());
-    const auto &colmap_images = database.ReadAllImages();
+        colmap::Database database;
+        database.Open(mDatabase.toString());
+        const auto &colmap_images = database.ReadAllImages();
 
-    std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
-    std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
+        std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
+        std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
 
-    for (const auto &image : images()) {
+        for (const auto &image : images()) {
 
-      tl::Path image_path(image.second.path().toStdString());
+            tl::Path image_path(image.second.path().toStdString());
 
-      for (const auto &colmap_image : colmap_images) {
-        tl::Path colmap_image_path(colmap_image.Name());
+            for (const auto &colmap_image : colmap_images) {
+                tl::Path colmap_image_path(colmap_image.Name());
 
-        if (image_path.equivalent(colmap_image_path)) {
-          graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
-          keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
-          break;
+                if (image_path.equivalent(colmap_image_path)) {
+                    graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+                    keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
+                    break;
+                }
+            }
+
         }
-      }
+        database.Close();
 
-    }
-    database.Close();
+        std::map<int, Undistort> undistort_map;
 
-    std::map<int, Undistort> undistort_map;
-
-    for (auto &camera : cameras()) {
-      undistort_map[camera.first] = Undistort(camera.second);
-    }
-
-
-    //tl::TemporalDir temp_dir;
-    tl::Path colmap_sparse_path = outputPath();//temp_dir.path();
-    colmap_sparse_path.append("temp");
-    colmap_sparse_path.append("export");
-    colmap_sparse_path.append("sparse");
-    colmap_sparse_path.createDirectories();
-
-  //  TL_TODO("Extraer la exportación a colmap")
-    // cameras.txt
-    {
-      tl::Path colmap_cameras(colmap_sparse_path);
-      colmap_cameras.append("cameras.txt");
-
-      std::ofstream ofs;
-      ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
-
-      TL_ASSERT(ofs.is_open(), "Open fail: cameras.txt");
-      
-      ofs << "# Camera list with one line of data per camera: \n";
-      ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
-      ofs << "# Number of cameras: " << cameras().size() << "\n";
-
-      ofs << std::fixed << std::setprecision(12);
-
-      for (auto &undistort_pair : undistort_map) {
-        
-        int camera_id = undistort_pair.first;
-        Undistort undistort = undistort_pair.second;
-        Camera undistort_camera = undistort.undistortCamera();
-        auto calibration = undistort_camera.calibration();
-
-        TL_ASSERT(calibration, "Camera calibration not found");
-
-        /// La cámara tiene que ser PINHOLE para InterfaceCOLMAP
-        ofs << camera_id << " PINHOLE " << undistort_camera.width() << " " << undistort_camera.height() << " ";
-
-        double focal_x = 0.0;
-        double focal_y = 0.0;
-
-        if (calibration->existParameter(Calibration::Parameters::focal)) {
-          focal_x = focal_y = calibration->parameter(Calibration::Parameters::focal);
-        } else {
-          focal_x = calibration->parameter(Calibration::Parameters::focalx);
-          focal_y = calibration->parameter(Calibration::Parameters::focaly);
+        for (auto &camera : cameras()) {
+            undistort_map[camera.first] = Undistort(camera.second);
         }
 
-        ofs << focal_x << " " << focal_y << " ";
+        tl::Path colmap_sparse_path = outputPath();
+        colmap_sparse_path.append("temp");
+        colmap_sparse_path.append("export");
+        colmap_sparse_path.append("sparse");
+        colmap_sparse_path.createDirectories();
 
-        double cx = calibration->existParameter(Calibration::Parameters::cx) ?
-                    calibration->parameter(Calibration::Parameters::cx) :
-                     undistort_camera.width() / 2.;
-        double cy = calibration->existParameter(Calibration::Parameters::cy) ?
-                    calibration->parameter(Calibration::Parameters::cy) :
-                    undistort_camera.height() / 2.;
+        //  TL_TODO("Extraer la exportación a colmap")
+        // cameras.txt
+        {
+            tl::Path colmap_cameras(colmap_sparse_path);
+            colmap_cameras.append("cameras.txt");
 
-        ofs << cx << " " << cy << std::endl;
+            std::ofstream ofs;
+            ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
 
-      }
+            TL_ASSERT(ofs.is_open(), "Open fail: cameras.txt");
 
-    }
+            ofs << "# Camera list with one line of data per camera: \n";
+            ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
+            ofs << "# Number of cameras: " << cameras().size() << "\n";
 
-    // images.txt
-    {
-      tl::Path colmap_images(colmap_sparse_path);
-      colmap_images.append("images.txt");
+            ofs << std::fixed << std::setprecision(12);
 
-      std::ofstream ofs;
-      ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
+            for (auto &undistort_pair : undistort_map) {
 
-      TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
+                int camera_id = undistort_pair.first;
+                Undistort undistort = undistort_pair.second;
+                Camera undistort_camera = undistort.undistortCamera();
+                auto calibration = undistort_camera.calibration();
 
-      ofs << std::fixed << std::setprecision(12);
+                TL_ASSERT(calibration, "Camera calibration not found");
 
-      //std::unordered_map<size_t, size_t> graphos_to_mvs_ids;
+                /// La cámara tiene que ser PINHOLE para InterfaceCOLMAP
+                ofs << camera_id << " PINHOLE " << undistort_camera.width() << " " << undistort_camera.height() << " ";
 
-      for (const auto &pose : poses()) {
-      
-        size_t image_id = pose.first;
-        auto &image_pose = pose.second;
+                double focal_x = 0.0;
+                double focal_y = 0.0;
 
-        //size_t mvs_id = graphos_to_mvs_ids.size();
-        //graphos_to_mvs_ids[image_id] = mvs_id;
+                if (calibration->existParameter(Calibration::Parameters::focal)) {
+                    focal_x = focal_y = calibration->parameter(Calibration::Parameters::focal);
+                } else {
+                    focal_x = calibration->parameter(Calibration::Parameters::focalx);
+                    focal_y = calibration->parameter(Calibration::Parameters::focaly);
+                }
 
-        const auto &image = images().at(image_id);
+                ofs << focal_x << " " << focal_y << " ";
 
-        auto projection_center = image_pose.position();
-        auto rotation_matrix = image_pose.rotationMatrix();
+                double cx = calibration->existParameter(Calibration::Parameters::cx) ?
+                            calibration->parameter(Calibration::Parameters::cx) :
+                            undistort_camera.width() / 2.;
+                double cy = calibration->existParameter(Calibration::Parameters::cy) ?
+                            calibration->parameter(Calibration::Parameters::cy) :
+                            undistort_camera.height() / 2.;
 
-        tl::math::RotationMatrix<double> transform_to_colmap = tl::math::RotationMatrix<double>::identity();
-        transform_to_colmap.at(1, 1) = -1;
-        transform_to_colmap.at(2, 2) = -1;
-
-        //tl::math::RotationMatrix<double> rotation = transform_to_colmap * rotation_matrix.transpose();
-
-        tl::math::Quaternion<double> quaternion = pose.second.quaternion();;
-        //tl::math::RotationConverter<double>::convert(rotation, quaternion);
-        //quaternion.normalize();
-
-        auto xyx = rotation_matrix * -projection_center.vector();
-        tl::Path image_path = image.path().toStdString();
-        image_path.replaceExtension(".tif");
-
-        auto colmap_image_id = graphos_to_colmap_image_ids[image_id];
-
-        ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
-            << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image_path.fileName().toString() << std::endl;
-        //ofs << std::endl;
-
-        for (size_t i = 0; i < groundPoints().size(); i++) {
-
-          auto &track = groundPoints()[i].track();
-
-          if (track.existPair(image_id)) {
-
-            for (auto &map : track.pairs()) {
-
-              if (map.first == image_id) {
-
-                size_t point_id = map.second;
-                //auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
-                ofs << keypoints[colmap_image_id][point_id].x << " " << keypoints[colmap_image_id][point_id].y << " " << i + 1 << " ";
-
-              }
+                ofs << cx << " " << cy << std::endl;
 
             }
-          }
+
         }
 
-        ofs << std::endl;
+        // images.txt
+        {
+            tl::Path colmap_images(colmap_sparse_path);
+            colmap_images.append("images.txt");
 
-      }
+            std::ofstream ofs;
+            ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
 
-    }
+            TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
 
-    // points3D.txt
-    {
-      tl::Path colmap_points_3d(colmap_sparse_path);
-      colmap_points_3d.append("points3D.txt");
+            ofs << std::fixed << std::setprecision(12);
 
-      std::ofstream ofs;
-      ofs.open(colmap_points_3d.toString(), std::ofstream::out | std::ofstream::trunc);
+            for (const auto &pose : poses()) {
 
-      TL_ASSERT(ofs.is_open(), "Open fail: points3D.txt");
+                size_t image_id = pose.first;
+                auto &image_pose = pose.second;
 
-      ofs << std::fixed << std::setprecision(12);
+                const auto &image = images().at(image_id);
 
-      ///#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX) 
-      size_t point_id = 0;
-      for (auto &points_3d : groundPoints()) {
+                auto projection_center = image_pose.position();
+                auto rotation_matrix = image_pose.rotationMatrix();
 
-        ofs << ++point_id << " "
-          << points_3d.x << " "
-          << points_3d.y << " "
-          << points_3d.z << " "
-          << points_3d.color().red() << " "
-          << points_3d.color().green() << " "
-          << points_3d.color().blue() << " 0";
+                tl::RotationMatrix<double> transform_to_colmap = tl::RotationMatrix<double>::identity();
+                transform_to_colmap.at(1, 1) = -1;
+                transform_to_colmap.at(2, 2) = -1;
 
-        auto &track = points_3d.track();
+                tl::Quaternion<double> quaternion = pose.second.quaternion();;
 
-        for (auto &map : track.pairs()) {
-          ofs << " " << graphos_to_colmap_image_ids.at(map.first) << " " << map.second;
+                auto xyx = rotation_matrix * -projection_center.vector();
+                tl::Path image_path = image.path().toStdString();
+                image_path.replaceExtension(".tif");
+
+                auto colmap_image_id = graphos_to_colmap_image_ids[image_id];
+
+                ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
+                    << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image_path.fileName().toString() << std::endl;
+
+                for (size_t i = 0; i < groundPoints().size(); i++) {
+
+                    auto &track = groundPoints()[i].track();
+
+                    if (track.existPair(image_id)) {
+
+                        for (auto &map : track.pairs()) {
+
+                            if (map.first == image_id) {
+
+                                size_t point_id = map.second;
+                                ofs << keypoints[colmap_image_id][point_id].x << " " << keypoints[colmap_image_id][point_id].y << " " << i + 1 << " ";
+
+                            }
+
+                        }
+                    }
+                }
+
+                ofs << std::endl;
+
+            }
+
         }
 
-        ofs << std::endl;
+        // points3D.txt
+        {
+            tl::Path colmap_points_3d(colmap_sparse_path);
+            colmap_points_3d.append("points3D.txt");
 
-      }
+            std::ofstream ofs;
+            ofs.open(colmap_points_3d.toString(), std::ofstream::out | std::ofstream::trunc);
 
-      ofs.close();
+            TL_ASSERT(ofs.is_open(), "Open fail: points3D.txt");
+
+            ofs << std::fixed << std::setprecision(12);
+
+            ///#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX) 
+            size_t point_id = 0;
+            for (auto &points_3d : groundPoints()) {
+
+                ofs << ++point_id << " "
+                    << points_3d.x << " "
+                    << points_3d.y << " "
+                    << points_3d.z << " "
+                    << points_3d.color().red() << " "
+                    << points_3d.color().green() << " "
+                    << points_3d.color().blue() << " 0";
+
+                auto &track = points_3d.track();
+
+                for (auto &map : track.pairs()) {
+                    ofs << " " << graphos_to_colmap_image_ids.at(map.first) << " " << map.second;
+                }
+
+                ofs << std::endl;
+
+            }
+
+            ofs.close();
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
     }
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
-  }
 }
 
 void MvsDensifier::writeNVMFile()
 {
-  try {
-  
-    colmap::Database database;
-    database.Open(mDatabase.toString());
-    const auto &colmap_images = database.ReadAllImages();
+    try {
 
-    std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
-    std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
+        colmap::Database database;
+        database.Open(mDatabase.toString());
+        const auto &colmap_images = database.ReadAllImages();
 
-    for (const auto &image : images()) {
+        std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
+        std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
 
-      tl::Path image_path(image.second.path().toStdString());
+        for (const auto &image : images()) {
 
-      for (const auto &colmap_image : colmap_images) {
-        tl::Path colmap_image_path(colmap_image.Name());
+            tl::Path image_path(image.second.path().toStdString());
 
-        if (image_path.equivalent(colmap_image_path)) {
-          graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
-          keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
-          break;
-        }
-      }
+            for (const auto &colmap_image : colmap_images) {
+                tl::Path colmap_image_path(colmap_image.Name());
 
-    }
+                if (image_path.equivalent(colmap_image_path)) {
+                    graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+                    keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
+                    break;
+                }
+            }
 
-    database.Close();
-
-    tl::Path nvm_path(outputPath());
-    nvm_path.append("model.nvm");
-
-    std::map<int, Undistort> undistort;
-
-    for (auto &camera : cameras()) {
-      undistort[camera.first] = Undistort(camera.second);
-    }
-
-    std::ofstream stream(nvm_path.toString(), std::ios::trunc);
-
-    if (stream.is_open()) {
-
-      stream << "NVM_V3 \n\n" << poses().size() << "\n";
-      //stream << "NVM_V3_R9T \n\n" << camera_count << "\n";
-
-      stream << std::fixed << std::setprecision(12);
-
-      std::unordered_map<size_t, size_t> graphos_to_mvs_ids;
-
-      for (const auto &pose : poses()) {
-
-        size_t image_id = pose.first;
-        size_t mvs_id = graphos_to_mvs_ids.size();
-        graphos_to_mvs_ids[image_id] = mvs_id;
-
-        const auto &image = images().at(image_id);
-        int camera_id = image.cameraId();
-        double new_focal = undistort.at(camera_id).undistortCamera().focal();
-
-        auto projection_center = pose.second.position();
-        auto quaternion = pose.second.quaternion();
-        auto rotation_matrix = pose.second.rotationMatrix();
-        //auto transform_to_colmap = tl::math::RotationMatrix<double>::identity();
-        //transform_to_colmap.at(1, 1) = -1;
-        //transform_to_colmap.at(2, 2) = -1;
-
-        //tl::math::RotationMatrix<double> rotation = transform_to_colmap * pose.second.rotationMatrix();
-
-        auto xyx = rotation_matrix * -projection_center.vector();
-
-        //tl::math::Quaternion<double> quaternion;
-        //tl::math::RotationConverter<double>::convert(rotation, quaternion);
-        //quaternion.normalize();
-
-        tl::Path undistort_image(image.path().toStdString());
-        undistort_image.replaceExtension(".tif");
-
-        stream << "undistort/" << undistort_image.fileName().toString() << " ";
-        stream << new_focal << " ";
-        stream << quaternion.w << " ";
-        stream << quaternion.x << " ";
-        stream << quaternion.y << " ";
-        stream << quaternion.z << " ";
-        //stream << rotation_matrix[0][0] << " ";
-        //stream << rotation_matrix[0][1] << " ";
-        //stream << rotation_matrix[0][2] << " ";
-        //stream << rotation_matrix[1][0] << " ";
-        //stream << rotation_matrix[1][1] << " ";
-        //stream << rotation_matrix[1][2] << " ";
-        //stream << rotation_matrix[2][0] << " ";
-        //stream << rotation_matrix[2][1] << " ";
-        //stream << rotation_matrix[2][2] << " ";
-        stream << xyx[0] /*projection_center.x*/ << " ";
-        stream << xyx[1] /*projection_center.y*/ << " ";
-        stream << xyx[2] /*projection_center.z*/ << " ";
-        stream << 0 << " ";
-        stream << 0 << std::endl;
-
-      }
-
-      stream << "\n" << groundPoints().size() << std::endl;
-
-      for (auto &points_3d : groundPoints()) {
-
-        stream << points_3d.x << " "
-               << points_3d.y << " "
-               << points_3d.z << " "
-               << points_3d.color().red() << " "
-               << points_3d.color().green() << " "
-               << points_3d.color().blue() << " ";
-
-        auto &track = points_3d.track();
-
-        stream << track.size();
-        
-        for (auto &map : track.pairs()) {
-
-          size_t image_id = map.first;
-          size_t point_id = map.second;
-          
-          //auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
-          auto &keypoint = keypoints[graphos_to_colmap_image_ids.at(image_id)][point_id];
-          auto &_undistort = undistort.at(images().at(image_id).cameraId());
-
-          tl::Point<float> undistort_point = _undistort.undistortPoint(tl::Point<float>(keypoint.x, keypoint.y));
-
-          stream << " " << static_cast<int>(/*graphos_to_colmap_image_ids.at(image_id) - 1*/graphos_to_mvs_ids.at(image_id))
-                 << " " << point_id
-                 << " " << undistort_point.x
-                 << " " << undistort_point.y;
         }
 
-        stream << std::endl;
-      }
+        database.Close();
 
-      stream.close();
+        tl::Path nvm_path(outputPath());
+        nvm_path.append("model.nvm");
+
+        std::map<int, Undistort> undistort;
+
+        for (auto &camera : cameras()) {
+            undistort[camera.first] = Undistort(camera.second);
+        }
+
+        std::ofstream stream(nvm_path.toString(), std::ios::trunc);
+
+        if (stream.is_open()) {
+
+            stream << "NVM_V3 \n\n" << poses().size() << "\n";
+            stream << std::fixed << std::setprecision(12);
+
+            std::unordered_map<size_t, size_t> graphos_to_mvs_ids;
+
+            for (const auto &pose : poses()) {
+
+                size_t image_id = pose.first;
+                size_t mvs_id = graphos_to_mvs_ids.size();
+                graphos_to_mvs_ids[image_id] = mvs_id;
+
+                const auto &image = images().at(image_id);
+                int camera_id = image.cameraId();
+                double new_focal = undistort.at(camera_id).undistortCamera().focal();
+
+                auto projection_center = pose.second.position();
+                auto quaternion = pose.second.quaternion();
+                auto rotation_matrix = pose.second.rotationMatrix();
+                auto xyx = rotation_matrix * -projection_center.vector();
+
+                tl::Path undistort_image(image.path().toStdString());
+                undistort_image.replaceExtension(".tif");
+
+                stream << "undistort/" << undistort_image.fileName().toString() << " ";
+                stream << new_focal << " ";
+                stream << quaternion.w << " ";
+                stream << quaternion.x << " ";
+                stream << quaternion.y << " ";
+                stream << quaternion.z << " ";
+                stream << xyx[0] << " ";
+                stream << xyx[1] << " ";
+                stream << xyx[2] << " ";
+                stream << 0 << " ";
+                stream << 0 << std::endl;
+
+            }
+
+            stream << "\n" << groundPoints().size() << std::endl;
+
+            for (auto &points_3d : groundPoints()) {
+
+                stream << points_3d.x << " "
+                       << points_3d.y << " "
+                       << points_3d.z << " "
+                       << points_3d.color().red() << " "
+                       << points_3d.color().green() << " "
+                       << points_3d.color().blue() << " ";
+
+                auto &track = points_3d.track();
+
+                stream << track.size();
+
+                for (auto &map : track.pairs()) {
+
+                    size_t image_id = map.first;
+                    size_t point_id = map.second;
+
+                    auto &keypoint = keypoints[graphos_to_colmap_image_ids.at(image_id)][point_id];
+                    auto &_undistort = undistort.at(images().at(image_id).cameraId());
+
+                    tl::Point<float> undistort_point = _undistort.undistortPoint(tl::Point<float>(keypoint.x, keypoint.y));
+
+                    stream << " " << static_cast<int>(graphos_to_mvs_ids.at(image_id))
+                           << " " << point_id
+                           << " " << undistort_point.x
+                           << " " << undistort_point.y;
+                }
+
+                stream << std::endl;
+            }
+
+            stream.close();
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
     }
-
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
-  }
 
 }
 
 void MvsDensifier::exportToMVS()
 {
-  try {
+    try {
 
-    tl::Path app_path = tl::App::instance().path();
-    std::string cmd_mvs("\"");
-    cmd_mvs.append(app_path.parentPath().toString());
-    cmd_mvs.append("\\OpenMVS\\InterfaceCOLMAP\"");
-    //cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\InterfaceCOLMAP\" -w \"");
-    //cmd_mvs.append(" -w \"").append(outputPath().toString()).append("\\temp\"");
-    cmd_mvs.append(" -i \"").append(outputPath().toString()).append("\\temp\\export\"");
-    cmd_mvs.append(" -o \"").append(outputPath().toString()).append("\\temp\\model.mvs\"");
-    msgInfo("Process: %s", cmd_mvs.c_str());
-    tl::Process process(cmd_mvs);
+        tl::Path app_path = tl::App::instance().path();
+        std::string cmd_mvs("\"");
+        cmd_mvs.append(app_path.parentPath().toString());
+        cmd_mvs.append("\\OpenMVS\\InterfaceCOLMAP\"");
+        cmd_mvs.append(" -i \"").append(outputPath().toString()).append("\\temp\\export\"");
+        cmd_mvs.append(" -o \"").append(outputPath().toString()).append("\\temp\\model.mvs\"");
+        tl::Message::info("Process: {}", cmd_mvs);
+        tl::Process process(cmd_mvs);
 
-    process.run();
+        process.run();
 
-    TL_ASSERT(process.status() == tl::Process::Status::finalized, "MVS error");
+        TL_ASSERT(process.status() == tl::Process::Status::finalized, "MVS error");
 
-    std::this_thread::sleep_for(std::chrono::nanoseconds(1000));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(1000));
 
-    tl::Path model = outputPath();
-    model.append("temp").append("model.mvs");
+        tl::Path model = outputPath();
+        model.append("temp").append("model.mvs");
 
-    TL_ASSERT(model.exists(), "model.mvs not found");
+        TL_ASSERT(model.exists(), "model.mvs not found");
 
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
 }
 
 void MvsDensifier::densify()
 {
-  try {
+    try {
 
-    tl::Path app_path = tl::App::instance().path();
-    std::string cmd_mvs("\"");
-    cmd_mvs.append(app_path.parentPath().toString());
-    cmd_mvs.append("\\OpenMVS\\DensifyPointCloud\" -w \"");
-    //cmd_mvs.append("E:\\ODM\\SuperBuild\\install\\bin\\DensifyPointCloud\" -w \"");
-    cmd_mvs.append(outputPath().toString());
-    cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 0");
-    cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
-    cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
-    cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
-    cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
-    cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
-    if (isCudaEnabled())
-      cmd_mvs.append(" --cuda-device -1");
-    else 
-      cmd_mvs.append(" --cuda-device -2");
+        tl::Path app_path = tl::App::instance().path();
+        std::string cmd_mvs("\"");
+        cmd_mvs.append(app_path.parentPath().toString());
+        cmd_mvs.append("\\OpenMVS\\DensifyPointCloud\" -w \"");
+        cmd_mvs.append(outputPath().toString());
+        cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 0");
+        cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
+        cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
+        cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
+        cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
+        cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
+        if (isCudaEnabled())
+            cmd_mvs.append(" --cuda-device -1");
+        else
+            cmd_mvs.append(" --cuda-device -2");
+        //cmd_mvs.append(" --filter-point-cloud 1");
 
-    msgInfo("Process: %s", cmd_mvs.c_str());
-    tl::Process process(cmd_mvs);
+        tl::Message::info("Process: {}", cmd_mvs);
+        tl::Process process(cmd_mvs);
 
-    process.run();
+        process.run();
 
-    TL_ASSERT(process.status() == tl::Process::Status::finalized, "Densify Point Cloud error");
+        TL_ASSERT(process.status() == tl::Process::Status::finalized, "Densify Point Cloud error");
 
-    std::this_thread::sleep_for(std::chrono::nanoseconds(5000));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(5000));
 
-    tl::Path dense_model = outputPath();
-    dense_model.append("temp");
-    dense_model.append("model_dense.ply");
+        tl::Path dense_model = outputPath();
+        dense_model.append("temp");
+        dense_model.append("model_dense.ply");
 
-    TL_ASSERT(dense_model.exists(), "Densify Point Cloud error");
-    
-    auto path = outputPath();
-    path.append(dense_model.fileName());
+        TL_ASSERT(dense_model.exists(), "Densify Point Cloud error");
 
-    if (path.exists()) tl::Path::removeFile(path);
+        auto path = outputPath();
+        path.append(dense_model.fileName());
 
-    tl::Path::copy(dense_model, path);
+        if (path.exists()) tl::Path::removeFile(path);
 
-    setDenseModel(path);
+        tl::Path::copy(dense_model, path);
 
-    msgInfo("Dense model write at: %s", path.toString().c_str());
+        setDenseModel(path);
 
-  } catch (...) {
-    TL_THROW_EXCEPTION_WITH_NESTED("");
-  }
+        tl::Message::info("Dense model write at: {}", path.toString());
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
 }
 
 void MvsDensifier::execute(tl::Progress *progressBar)
 {
-  try {
+    try {
 
-    tl::Chrono chrono("Densification finished");
-    chrono.run();
+        tl::Chrono chrono("Densification finished");
+        chrono.run();
 
-    //this->clearPreviousModel();
+        //this->clearPreviousModel();
 
-    tl::Path undistort_path(outputPath());
-    undistort_path.append("temp").append("export").append("images");
-    undistort_path.createDirectories();
+        tl::Path undistort_path(outputPath());
+        undistort_path.append("temp").append("export").append("images");
+        undistort_path.createDirectories();
 
-    //tl::Path models_path(outputPath());
-    //models_path.append("models");
-    //models_path.createDirectory();
+        /// Da problemas al escribir el fichero nvm e importarlo
+        /// Intentar exportar directamente. Por ahora exportar a Colmap  utilizar InterfaceColmap para convertirlo a OpenMVS
+        this->exportToColmap();
+        //this->writeNVMFile(); 
 
-    /// Da problemas al escribir el fichero nvm e importarlo
-    /// Intentar exportar directamente. Por ahora exportar a Colmap  utilizar InterfaceColmap para convertirlo a OpenMVS
-    this->exportToColmap();
-    //this->writeNVMFile(); 
-    
-    if (status() == tl::Task::Status::stopping) return;
+        if (status() == tl::Task::Status::stopping) return;
 
-    this->undistort(QString::fromStdWString(undistort_path.toWString()));
-    
-    if (status() == tl::Task::Status::stopping) return;
+        this->undistort(QString::fromStdWString(undistort_path.toWString()));
 
-    this->exportToMVS();
-    this->densify();
+        if (status() == tl::Task::Status::stopping) return;
 
-    this->clearTemporalFiles();
+        this->exportToMVS();
+        this->densify();
+        this->autoSegmentation();
 
-    chrono.stop();
+        this->clearTemporalFiles();
 
-    if (progressBar) (*progressBar)();
+        chrono.stop();
 
-  } catch (...) {
-    //this->clearTemporalFiles();
-    TL_THROW_EXCEPTION_WITH_NESTED("MVS error");
-  }
+        if (progressBar) (*progressBar)();
 
-  
+    } catch (...) {
+        //this->clearTemporalFiles();
+        TL_THROW_EXCEPTION_WITH_NESTED("MVS error");
+    }
+
+
 }
 
 } // namespace graphos

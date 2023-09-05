@@ -39,75 +39,73 @@ namespace graphos
 OrthophotoComponent::OrthophotoComponent(Application *application)
   : TaskComponent(application)
 {
-  this->setName(tr("Orthophoto"));
-  this->setMenu("tools");
+    this->setName(tr("Orthophoto"));
+    this->setMenu("tools");
 }
 
 OrthophotoComponent::~OrthophotoComponent()
-{
-}
+{}
 
 void OrthophotoComponent::createModel()
 {
-  setModel(new OrthophotoModelImp(app()->project()));
+    setModel(new OrthophotoModelImp(app()->project()));
 }
 
 void OrthophotoComponent::createView()
 {
-  setView(new OrthophotoViewImp());
+    setView(new OrthophotoViewImp());
 }
 
 void OrthophotoComponent::createPresenter()
 {
-  setPresenter(new OrthophotoPresenterImp(dynamic_cast<OrthophotoView *>(view()),
-                                          dynamic_cast<OrthophotoModel *>(model())));
+    setPresenter(new OrthophotoPresenterImp(dynamic_cast<OrthophotoView *>(view()),
+                                            dynamic_cast<OrthophotoModel *>(model())));
 }
 
 void OrthophotoComponent::createCommand()
-{
-}
+{}
 
 void OrthophotoComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool dtm = app_status->isActive(AppStatus::Flag::dtm);
-  bool process_run = app_status->isActive(AppStatus::Flag::processing);
-  action()->setEnabled(bProjectExists && dtm&& !process_run);
+    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool dtm = app_status->isEnabled(AppStatus::Flag::dtm);
+    bool process_run = app_status->isEnabled(AppStatus::Flag::processing);
+    action()->setEnabled(bProjectExists && dtm && !process_run);
 }
 
 void OrthophotoComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void OrthophotoComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
+    TaskComponent::onFinished();
 
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::ortho, true);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::ortho, true);
 }
 
 void OrthophotoComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
+    TaskComponent::onFailed();
 
-  app_status->activeFlag(AppStatus::Flag::ortho, false);
+    app_status->activeFlag(AppStatus::Flag::ortho, false);
 }
 
 

@@ -37,14 +37,15 @@ class Command
 
 public:
 
-  Command(std::string name,
-          std::string description) 
-    : tl::Command(std::move(name), 
-                  std::move(description))
-  {}
-  virtual ~Command() = default;
+    Command(std::string name,
+            std::string description)
+      : tl::Command(std::move(name),
+                    std::move(description))
+    {
+    }
+    virtual ~Command() = default;
 
-  virtual bool run() = 0;
+    virtual bool run() = 0;
 
 };
 

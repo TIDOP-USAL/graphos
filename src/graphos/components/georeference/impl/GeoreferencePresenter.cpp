@@ -31,7 +31,7 @@
 #include "graphos/core/image.h"
 
 #include <tidop/core/defs.h>
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 #include <QFileInfo>
 #include <QAbstractItemModel>
@@ -45,8 +45,8 @@ GeoreferencePresenterImp::GeoreferencePresenterImp(GeoreferenceView *view,
   : mView(view),
     mModel(model)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 GeoreferencePresenterImp::~GeoreferencePresenterImp()
@@ -55,119 +55,119 @@ GeoreferencePresenterImp::~GeoreferencePresenterImp()
 
 void GeoreferencePresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  TaskPresenter::onError(event);
+    TaskPresenter::onError(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Georeference process error"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Georeference process error"));
+    }
 }
 
 void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  //QString ori_absolute_path = mModel->projectPath() + "/ori/absolute/";
-  //QString sparse_model = ori_absolute_path + "/sparse.ply";
-  //if (QFileInfo::exists(sparse_model)) {
-  //  mModel->setReconstructionPath(ori_absolute_path);
-  //  mModel->setSparseModel(sparse_model);
-  //  mModel->setOffset(ori_absolute_path + "/offset.txt");
+    //QString ori_absolute_path = mModel->projectPath() + "/ori/absolute/";
+    //QString sparse_model = ori_absolute_path + "/sparse.ply";
+    //if (QFileInfo::exists(sparse_model)) {
+    //  mModel->setReconstructionPath(ori_absolute_path);
+    //  mModel->setSparseModel(sparse_model);
+    //  mModel->setOffset(ori_absolute_path + "/offset.txt");
 
-  //  ReadCameraPoses readPhotoOrientations;
-  //  readPhotoOrientations.open(ori_absolute_path);
-  //  for (const auto &image : mModel->images()) {
-  //    CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image.second.path()).fileName());
-  //    if (photoOrientation.position() != tl::Point3D()) {
-  //      mModel->addPhotoOrientation(image.first, photoOrientation);
-  //    }
-  //  }
+    //  ReadCameraPoses readPhotoOrientations;
+    //  readPhotoOrientations.open(ori_absolute_path);
+    //  for (const auto &image : mModel->images()) {
+    //    CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image.second.path()).fileName());
+    //    if (photoOrientation.position() != tl::Point3D()) {
+    //      mModel->addPhotoOrientation(image.first, photoOrientation);
+    //    }
+    //  }
 
-  //}
+    //}
 
-  TaskPresenter::onFinished(event);
+    TaskPresenter::onFinished(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Georeference finished"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Georeference finished"));
+    }
 }
 
 std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> georeference_process;
+    std::unique_ptr<tl::Task> georeference_process;
 
-  //QString ori_relative = mModel->projectPath() + "/ori/relative/";
-  //QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
+    //QString ori_relative = mModel->projectPath() + "/ori/relative/";
+    //QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
 
-  georeference_process = std::make_unique<GeoreferenceProcess>(mModel->images(),
-                                                               mModel->cameras(),
-                                                               mModel->poses(),
-                                                               mModel->groundPoints(),
-                                                               mModel->groundControlPoints(), 
-                                                               mModel->database());
+    georeference_process = std::make_unique<GeoreferenceProcess>(mModel->images(),
+                                                                 mModel->cameras(),
+                                                                 mModel->poses(),
+                                                                 mModel->groundPoints(),
+                                                                 mModel->groundControlPoints(),
+                                                                 mModel->database());
 
-  if (progressHandler()){
-    progressHandler()->setRange(0, 0);
-    progressHandler()->setTitle("Computing Georeference...");
-    progressHandler()->setDescription("Computing Georeference...");
-  }
+    if (progressHandler()) {
+        progressHandler()->setRange(0, 0);
+        progressHandler()->setTitle("Computing Georeference...");
+        progressHandler()->setDescription("Computing Georeference...");
+    }
 
-  return georeference_process;
+    return georeference_process;
 }
 
 void GeoreferencePresenterImp::cancel()
 {
-  TaskPresenter::cancel();
-  
-  msgWarning("Processing has been canceled by the user");
+    TaskPresenter::cancel();
+
+   tl::Message::warning("Processing has been canceled by the user");
 }
 
 void GeoreferencePresenterImp::open()
 {
-  mView->clear();
-  
-  mModel->loadGroundControlPoints();
-  mView->setCrs(mModel->crs());
-  mView->showMaximized();
-  
-  bool active_image = false;
-  std::vector<std::pair<size_t, QString>> images;
-  for (const auto &image : mModel->images()) {
-    images.emplace_back(image.first, image.second.path());
-  }
+    mView->clear();
 
-  if (!images.empty()) {
-    mView->setImageList(images);
-    setImageActive(images[0].first);
-  }
-  
+    mModel->loadGroundControlPoints();
+    mView->setCrs(mModel->crs());
+    mView->showMaximized();
+
+    bool active_image = false;
+    std::vector<std::pair<size_t, QString>> images;
+    for (const auto &image : mModel->images()) {
+        images.emplace_back(image.first, image.second.path());
+    }
+
+    if (!images.empty()) {
+        mView->setImageList(images);
+        setImageActive(images[0].first);
+    }
+
 }
 
 void GeoreferencePresenterImp::init()
 {
-  mView->setItemModelGroundControlPoints(mModel->itemModelGroundControlPoints());
-  mView->setItemModelImagePoints(mModel->itemModelImagePoints());
+    mView->setItemModelGroundControlPoints(mModel->itemModelGroundControlPoints());
+    mView->setItemModelImagePoints(mModel->itemModelImagePoints());
 }
 
 void GeoreferencePresenterImp::initSignalAndSlots()
 {
-  connect(mView, &GeoreferenceView::image_changed, this, &GeoreferencePresenterImp::setImageActive);
-  connect(mView, &GeoreferenceView::addGroundControlPoint, mModel, &GeoreferenceModel::addGroundControlPoint);
-  connect(mView, &GeoreferenceView::removeGroundControlPoint, mModel, &GeoreferenceModel::removeGroundControlPoint);
-  connect(mView, &GeoreferenceView::add_image_point, mModel, &GeoreferenceModel::addImagePoint);
-  connect(mView, &GeoreferenceView::remove_image_point, mModel, &GeoreferenceModel::removeImagePoint);
-  connect(mView, &GeoreferenceView::crsChange, mModel, &GeoreferenceModel::setCrs);
-  connect(mView, &GeoreferenceView::georeference, this, &TaskPresenter::run);
-  connect(mView, &GeoreferenceView::accepted, mModel, &GeoreferenceModel::save);
-  connect(mView, &DialogView::help, [&]() {
-    emit help("cameras.html");
-  });
+    connect(mView, &GeoreferenceView::image_changed, this, &GeoreferencePresenterImp::setImageActive);
+    connect(mView, &GeoreferenceView::addGroundControlPoint, mModel, &GeoreferenceModel::addGroundControlPoint);
+    connect(mView, &GeoreferenceView::removeGroundControlPoint, mModel, &GeoreferenceModel::removeGroundControlPoint);
+    connect(mView, &GeoreferenceView::add_image_point, mModel, &GeoreferenceModel::addImagePoint);
+    connect(mView, &GeoreferenceView::remove_image_point, mModel, &GeoreferenceModel::removeImagePoint);
+    connect(mView, &GeoreferenceView::crsChange, mModel, &GeoreferenceModel::setCrs);
+    connect(mView, &GeoreferenceView::georeference, this, &TaskPresenter::run);
+    connect(mView, &GeoreferenceView::accepted, mModel, &GeoreferenceModel::save);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("cameras.html");
+    });
 
 }
 
 void GeoreferencePresenterImp::setImageActive(size_t imageId)
 {
-  auto image = mModel->image(imageId);
-  mView->setCurrentImage(image.path());
-  std::list<std::pair<QString, QPointF>> points = mModel->points(imageId);
-  mView->setPoints(points);
+    auto image = mModel->image(imageId);
+    mView->setCurrentImage(image.path());
+    std::list<std::pair<QString, QPointF>> points = mModel->points(imageId);
+    mView->setPoints(points);
 }
 
 } // namespace graphos

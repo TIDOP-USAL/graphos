@@ -25,7 +25,7 @@
 
 #include "graphos/core/project.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 #include <colmap/base/database.h>
 
@@ -37,22 +37,22 @@ namespace graphos
 
 FeaturesViewerModelImp::FeaturesViewerModelImp(Project *project,
                                                QObject *parent)
-  : FeaturesViewerModel(parent),
+    : FeaturesViewerModel(parent),
     mProject(project),
-    mSettings(new QSettings(QSettings::IniFormat, 
-                            QSettings::UserScope, 
-                            qApp->organizationName(), 
-                            qApp->applicationName()))
+    mSettings(new QSettings(QSettings::IniFormat,
+              QSettings::UserScope,
+              qApp->organizationName(),
+              qApp->applicationName()))
 {
-  this->init();
+    this->init();
 }
 
 FeaturesViewerModelImp::~FeaturesViewerModelImp()
 {
-  if(mSettings) {
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if (mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 }
 
 void FeaturesViewerModelImp::init()
@@ -66,95 +66,95 @@ void FeaturesViewerModelImp::clear()
 
 const std::unordered_map<size_t, Image> &FeaturesViewerModelImp::images() const
 {
-  return mProject->images();
+    return mProject->images();
 }
 
 Image FeaturesViewerModelImp::image(size_t imageId) const
 {
-  return mProject->findImageById(imageId);
+    return mProject->findImageById(imageId);
 }
 
 std::vector<std::tuple<QPointF, float, float>> FeaturesViewerModelImp::loadKeypoints(size_t imageId)
 {
-  std::vector<std::tuple<QPointF, float, float>> keyPoints;
+    std::vector<std::tuple<QPointF, float, float>> keyPoints;
 
-  try {
+    try {
 
-    Image image = mProject->findImageById(imageId);
+        Image image = mProject->findImageById(imageId);
 
-    tl::Path database_path = mProject->database();
+        tl::Path database_path = mProject->database();
 
-    TL_ASSERT(database_path.exists(), "Database not found");
+        TL_ASSERT(database_path.exists(), "Database not found");
 
-    colmap::Database database(database_path.toString());
-  
-    auto _images = database.ReadAllImages();
-    for (const auto &image : _images) {
-      std::string name = image.Name();
+        colmap::Database database(database_path.toString());
+
+        auto _images = database.ReadAllImages();
+        for (const auto &image : _images) {
+            std::string name = image.Name();
+        }
+
+        if (!database.ExistsImageWithName(image.path().toStdString()))
+            throw std::runtime_error(std::string("Image not found in database: ").append(image.path().toStdString()));
+
+        colmap::Image image_colmap = database.ReadImageWithName(image.path().toStdString());
+        colmap::image_t image_id = image_colmap.ImageId();
+
+        if (image_id > 0) {
+
+            colmap::FeatureKeypoints colmap_feature_keypoints = database.ReadKeypoints(image_id);
+            size_t size = colmap_feature_keypoints.size();
+            keyPoints.resize(size);
+
+            for (size_t i = 0; i < size; i++) {
+
+                QPointF keypoint(static_cast<qreal>(colmap_feature_keypoints[i].x),
+                                 static_cast<qreal>(colmap_feature_keypoints[i].y));
+
+                keyPoints[i] = std::make_tuple(keypoint,
+                                               colmap_feature_keypoints[i].ComputeScale(),
+                                               colmap_feature_keypoints[i].ComputeOrientation() * tl::consts::rad_to_deg<float>);
+            }
+        }
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
 
-    if (!database.ExistsImageWithName(image.path().toStdString()))
-      throw std::runtime_error(std::string("Image not found in database: ").append(image.path().toStdString()));
-  
-    colmap::Image image_colmap = database.ReadImageWithName(image.path().toStdString());
-    colmap::image_t image_id = image_colmap.ImageId();
-
-    if (image_id > 0) {
-
-      colmap::FeatureKeypoints colmap_feature_keypoints = database.ReadKeypoints(image_id);
-      size_t size = colmap_feature_keypoints.size();
-      keyPoints.resize(size);
-
-      for (size_t i = 0; i < size; i++){
-
-        QPointF keypoint(static_cast<qreal>(colmap_feature_keypoints[i].x),
-                         static_cast<qreal>(colmap_feature_keypoints[i].y));
-
-        keyPoints[i] = std::make_tuple(keypoint,
-                                       colmap_feature_keypoints[i].ComputeScale(),
-                                       colmap_feature_keypoints[i].ComputeOrientation() * tl::math::consts::rad_to_deg<float>);
-      }
-    }
-  } catch (std::exception &e) {
-    msgError(e.what());
-  }
-
-  return keyPoints;
+    return keyPoints;
 }
 
 QString FeaturesViewerModelImp::backgroundColor() const
 {
-  return mSettings->value("KeypointsViewer/BackgroundColor", "#dcdcdc").toString();
+    return mSettings->value("KeypointsViewer/BackgroundColor", "#dcdcdc").toString();
 }
 
 int FeaturesViewerModelImp::markerType() const
 {
-  return mSettings->value("KeypointsViewer/Type", 1).toInt();
+    return mSettings->value("KeypointsViewer/Type", 1).toInt();
 }
 
 int FeaturesViewerModelImp::markerSize() const
 {
-  return mSettings->value("KeypointsViewer/MarkerSize", 20).toInt();
+    return mSettings->value("KeypointsViewer/MarkerSize", 20).toInt();
 }
 
 int FeaturesViewerModelImp::markerWidth() const
 {
-  return mSettings->value("KeypointsViewer/MarkerWidth", 2).toInt();
+    return mSettings->value("KeypointsViewer/MarkerWidth", 2).toInt();
 }
 
 QString FeaturesViewerModelImp::markerColor() const
 {
-  return mSettings->value("KeypointsViewer/MarkerColor", "#00aa00").toString();
+    return mSettings->value("KeypointsViewer/MarkerColor", "#00aa00").toString();
 }
 
 int FeaturesViewerModelImp::selectedMarkerWidth() const
 {
-  return mSettings->value("KeypointsViewer/SelectMarkerWidth", 2).toInt();
+    return mSettings->value("KeypointsViewer/SelectMarkerWidth", 2).toInt();
 }
 
 QString FeaturesViewerModelImp::selectedMarkerColor() const
 {
-  return mSettings->value("KeypointsViewer/SelectMarkerColor","#e5097e").toString();
+    return mSettings->value("KeypointsViewer/SelectMarkerColor", "#e5097e").toString();
 }
 
 } // namespace graphos

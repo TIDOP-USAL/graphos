@@ -36,13 +36,13 @@ class CreateProjectModelImp final
   : public CreateProjectModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit CreateProjectModelImp(Project *project,
-                                 QObject *parent = nullptr);
-  ~CreateProjectModelImp() override;
+    explicit CreateProjectModelImp(Project *project,
+                                   QObject *parent = nullptr);
+    ~CreateProjectModelImp() override;
 
 signals:
 
@@ -50,33 +50,33 @@ signals:
 
 public:
 
-  QString projectName() const override;
-  QString projectDescription() const override;
-  tl::Path projectFolder() const override;
-  tl::Path projectPath() const override;
+    QString projectName() const override;
+    QString projectDescription() const override;
+    tl::Path projectFolder() const override;
+    tl::Path projectPath() const override;
 
 public slots:
 
-  void setProjectName(const QString &name) override;
-  void setProjectDescription(const QString &projectDescription) override;
-  void setProjectFolder(const tl::Path &folder) override;
-  void setDatabase(const tl::Path &database) override;
-  void saveAs(const tl::Path &file) override;
+    void setProjectName(const QString &name) override;
+    void setProjectDescription(const QString &projectDescription) override;
+    void setProjectFolder(const tl::Path &folder) override;
+    void setDatabase(const tl::Path &database) override;
+    void saveAs(const tl::Path &file) override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  Project *mProject;
-  tl::Path mPrjFile;
+    Project *mProject;
+    tl::Path mPrjFile;
 
 };
 

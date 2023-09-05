@@ -31,9 +31,9 @@ namespace graphos
 {
 
 RecentProjectsModelImp::RecentProjectsModelImp(QObject *parent)
-  : RecentProjectsModel(parent)
+    : RecentProjectsModel(parent)
 {
-  RecentProjectsModelImp::init();
+    RecentProjectsModelImp::init();
 }
 
 RecentProjectsModelImp::~RecentProjectsModelImp()
@@ -42,12 +42,12 @@ RecentProjectsModelImp::~RecentProjectsModelImp()
 
 QStringList RecentProjectsModelImp::history() const
 {
-  return Application::instance().history();
+    return Application::instance().history();
 }
 
 void RecentProjectsModelImp::addToHistory(const QString &project)
 {
-  Application::instance().addToHistory(project);
+    Application::instance().addToHistory(project);
 }
 
 void RecentProjectsModelImp::init()
@@ -56,7 +56,7 @@ void RecentProjectsModelImp::init()
 
 void RecentProjectsModelImp::clear()
 {
-  Application::instance().clearHistory();
+    Application::instance().clearHistory();
 }
 
 } // namespace graphos

@@ -33,16 +33,16 @@ class CloseProjectViewImp
   : public CloseProjectView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit CloseProjectViewImp(QWidget *parent = nullptr);
-  ~CloseProjectViewImp() override = default;
+    explicit CloseProjectViewImp(QWidget *parent = nullptr);
+    ~CloseProjectViewImp() override = default;
 
 private:
 
-  void init();
+    void init();
 
 };
 

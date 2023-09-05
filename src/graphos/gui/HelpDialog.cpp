@@ -25,7 +25,8 @@
 
 #include "config_graphos.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
+#include <tidop/core/exception.h>
 
 #include <QHelpEngine>
 #include <QHelpContentWidget>
@@ -67,20 +68,20 @@ namespace graphos
 HelpDialog::HelpDialog(QWidget *parent)
   : QDialog(parent, Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint)
 {
-  init();
+    init();
 
-  retranslate();
+    retranslate();
 
-  connect(mHelpBrowser, SIGNAL(forwardAvailable(bool)),  mNavigateForwardAction,  SLOT(setEnabled(bool)));
-  connect(mHelpBrowser, SIGNAL(backwardAvailable(bool)), mNavigateForwardAction, SLOT(setEnabled(bool)));
+    connect(mHelpBrowser, SIGNAL(forwardAvailable(bool)), mNavigateForwardAction, SLOT(setEnabled(bool)));
+    connect(mHelpBrowser, SIGNAL(backwardAvailable(bool)), mNavigateForwardAction, SLOT(setEnabled(bool)));
 
-  connect(mHelpEngine->indexWidget(),   SIGNAL(linkActivated(const QUrl&, const QString&)), mHelpBrowser, SLOT(setSource(const QUrl &)));
-  connect(mHelpEngine->contentWidget(), SIGNAL(clicked(const QModelIndex &)),               this,         SLOT(setContentSource(const QModelIndex &)));
+    connect(mHelpEngine->indexWidget(), SIGNAL(linkActivated(const QUrl &, const QString &)), mHelpBrowser, SLOT(setSource(const QUrl &)));
+    connect(mHelpEngine->contentWidget(), SIGNAL(clicked(const QModelIndex &)), this, SLOT(setContentSource(const QModelIndex &)));
 
-  connect(mHelpEngine->searchEngine()->queryWidget(), SIGNAL(search()),               this, SLOT(searchInvoked()));
-  connect(mHelpEngine->searchEngine(),                SIGNAL(searchingFinished(int)), this, SLOT(searchFinished(int)));
+    connect(mHelpEngine->searchEngine()->queryWidget(), SIGNAL(search()), this, SLOT(searchInvoked()));
+    connect(mHelpEngine->searchEngine(), SIGNAL(searchingFinished(int)), this, SLOT(searchFinished(int)));
 
-  connect(mSearchResultsWidget, SIGNAL(anchorClicked(const QUrl&)), mHelpBrowser, SLOT(setSource(const QUrl&)));
+    connect(mSearchResultsWidget, SIGNAL(anchorClicked(const QUrl &)), mHelpBrowser, SLOT(setSource(const QUrl &)));
 }
 
 HelpDialog::~HelpDialog()
@@ -89,161 +90,160 @@ HelpDialog::~HelpDialog()
 
 void HelpDialog::setPage(const QString &page)
 {
-  try {
-    QUrl url(QString(GRAPHOS_HELP_URL_BASE).append(page));
-    QModelIndex indexOfPage = mHelpEngine->contentWidget()->indexOf(page);
-    mHelpEngine->contentWidget()->setCurrentIndex(indexOfPage);
-    mHelpBrowser->setSource(url);
-  } catch (const std::exception &e) {
-    msgError(e.what());
-    this->navigateHome();
-  }
+    try {
+        QUrl url(QString(GRAPHOS_HELP_URL_BASE).append(page));
+        QModelIndex indexOfPage = mHelpEngine->contentWidget()->indexOf(page);
+        mHelpEngine->contentWidget()->setCurrentIndex(indexOfPage);
+        mHelpBrowser->setSource(url);
+    } catch (const std::exception &e) {
+        tl::printException(e);
+        this->navigateHome();
+    }
 }
 
 void HelpDialog::setContentSource(const QModelIndex &index)
 {
-  QHelpContentItem *item = mHelpEngine->contentModel()->contentItemAt(index);
-  if (item) {
-    mHelpBrowser->setSource(item->url());
-  }
+    QHelpContentItem *item = mHelpEngine->contentModel()->contentItemAt(index);
+    if (item) {
+        mHelpBrowser->setSource(item->url());
+    }
 }
 
 void HelpDialog::setIndexSource(const QModelIndex &index)
 {
-  QVariant v = mHelpEngine->indexModel()->data(index, Qt::DisplayRole);
-  QMap<QString,QUrl> item = mHelpEngine->indexModel()->linksForKeyword(v.toString());
-  mHelpBrowser->setSource(item.constBegin().value());
+    QVariant v = mHelpEngine->indexModel()->data(index, Qt::DisplayRole);
+    QMap<QString, QUrl> item = mHelpEngine->indexModel()->linksForKeyword(v.toString());
+    mHelpBrowser->setSource(item.constBegin().value());
 }
 
 void HelpDialog::searchInvoked()
 {
-  mHelpEngine->searchEngine()->search(mHelpEngine->searchEngine()->queryWidget()->query());
+    mHelpEngine->searchEngine()->search(mHelpEngine->searchEngine()->queryWidget()->query());
 }
 
 void HelpDialog::searchFinished(int hits)
 {
-  QList<QPair<QString, QString> > hitList = mHelpEngine->searchEngine()->hits(0, hits - 1);
-  QString html = "<html><body>";
-  for(int i = 0; i < hitList.size(); i++)
-  {
-    QString url = hitList[i].first;
-    QString title = hitList[i].second;
-    html += "<a href=\"" + url + "\">" + title + "</a><br>";
-  }
-  html += "</body></html>";
-  mSearchResultsWidget->setHtml(html);
+    QList<QPair<QString, QString> > hitList = mHelpEngine->searchEngine()->hits(0, hits - 1);
+    QString html = "<html><body>";
+    for (int i = 0; i < hitList.size(); i++) {
+        QString url = hitList[i].first;
+        QString title = hitList[i].second;
+        html += "<a href=\"" + url + "\">" + title + "</a><br>";
+    }
+    html += "</body></html>";
+    mSearchResultsWidget->setHtml(html);
 }
 
 void HelpDialog::navigateHome()
 {
-  mHelpEngine->contentWidget()->setCurrentIndex(mHelpEngine->contentWidget()->indexOf(HOME_PAGE));
-  mHelpBrowser->setSource(HOME_PAGE);
+    mHelpEngine->contentWidget()->setCurrentIndex(mHelpEngine->contentWidget()->indexOf(HOME_PAGE));
+    mHelpBrowser->setSource(HOME_PAGE);
 }
 
 void HelpDialog::navigateForward()
 {
-  mHelpBrowser->forward();
+    mHelpBrowser->forward();
 }
 
 void HelpDialog::navigateBackward()
 {
-  mHelpBrowser->backward();
+    mHelpBrowser->backward();
 }
 
 void HelpDialog::init()
 {
 
 #ifdef _DEBUG
-  mHelpEngine = new QHelpEngine(QString(GRAPHOS_SOURCE_PATH).append("/res/help/es/graphos.qhc"), this);
+    mHelpEngine = new QHelpEngine(QString(GRAPHOS_SOURCE_PATH).append("/res/help/es/graphos.qhc"), this);
 #else
-  QString path = QApplication::applicationDirPath();
-  path.append("/help/es/graphos.qhc");
-  mHelpEngine = new QHelpEngine(path, this);
+    QString path = QApplication::applicationDirPath();
+    path.append("/help/es/graphos.qhc");
+    mHelpEngine = new QHelpEngine(path, this);
 #endif
 
-  mHelpBrowser = new HelpBrowser(mHelpEngine, this);
-  mHelpBrowser->setMinimumSize(600, 450);
+    mHelpBrowser = new HelpBrowser(mHelpEngine, this);
+    mHelpBrowser->setMinimumSize(600, 450);
 
-  if (!mHelpEngine->setupData()) {
-    std::string err = mHelpEngine->error().toStdString();
-    msgError(err.c_str());
-  }
+    if (!mHelpEngine->setupData()) {
+        std::string err = mHelpEngine->error().toStdString();
+        tl::Message::error(err);
+    }
 
-  QHelpContentWidget* contentWidget = mHelpEngine->contentWidget();
-  contentWidget->setFrameStyle(QFrame::NoFrame);
+    QHelpContentWidget *contentWidget = mHelpEngine->contentWidget();
+    contentWidget->setFrameStyle(QFrame::NoFrame);
 
-  QHelpIndexWidget* indexWidget = mHelpEngine->indexWidget();
-  indexWidget->setFrameStyle(QFrame::NoFrame);
+    QHelpIndexWidget *indexWidget = mHelpEngine->indexWidget();
+    indexWidget->setFrameStyle(QFrame::NoFrame);
 
-  QTabWidget* tabWidget = new QTabWidget(this);
-  tabWidget->addTab(contentWidget, tr("Contents"));
-  tabWidget->addTab(indexWidget, tr("Index"));
-  tabWidget->setMaximumWidth(300);
-  tabWidget->setMinimumWidth(200);
+    QTabWidget *tabWidget = new QTabWidget(this);
+    tabWidget->addTab(contentWidget, tr("Contents"));
+    tabWidget->addTab(indexWidget, tr("Index"));
+    tabWidget->setMaximumWidth(300);
+    tabWidget->setMinimumWidth(200);
 
-  QWidget *searchTabWidget = new QWidget(this);
-  QVBoxLayout* searchTabLayout = new QVBoxLayout(this);
-  searchTabLayout->addWidget(mHelpEngine->searchEngine()->queryWidget());
-  searchTabLayout->addWidget(new QLabel(tr("Search results: "), this));
-  mSearchResultsWidget = new QTextBrowser(this);
-  searchTabLayout->addWidget(mSearchResultsWidget);
-  searchTabWidget->setLayout(searchTabLayout);
+    QWidget *searchTabWidget = new QWidget(this);
+    QVBoxLayout *searchTabLayout = new QVBoxLayout(this);
+    searchTabLayout->addWidget(mHelpEngine->searchEngine()->queryWidget());
+    searchTabLayout->addWidget(new QLabel(tr("Search results: "), this));
+    mSearchResultsWidget = new QTextBrowser(this);
+    searchTabLayout->addWidget(mSearchResultsWidget);
+    searchTabWidget->setLayout(searchTabLayout);
 
-  tabWidget->addTab(searchTabWidget, tr("Search"));
-  tabWidget->setContentsMargins(0, 0, 0, 0);
+    tabWidget->addTab(searchTabWidget, tr("Search"));
+    tabWidget->setContentsMargins(0, 0, 0, 0);
 
-  QToolBar *toolBar = new QToolBar(this);
+    QToolBar *toolBar = new QToolBar(this);
 
-  mNavigateHomeAction = new QAction(this);
-  mNavigateHomeAction->setIcon(QIcon::fromTheme("home"));
-  connect(mNavigateHomeAction, SIGNAL(triggered()), this, SLOT(navigateHome()));
-  toolBar->addAction(mNavigateHomeAction);
+    mNavigateHomeAction = new QAction(this);
+    mNavigateHomeAction->setIcon(QIcon::fromTheme("home"));
+    connect(mNavigateHomeAction, SIGNAL(triggered()), this, SLOT(navigateHome()));
+    toolBar->addAction(mNavigateHomeAction);
 
-  toolBar->addSeparator();
+    toolBar->addSeparator();
 
-  mNavigateBackwardAction = new QAction(this);
-  mNavigateBackwardAction->setIcon(QIcon::fromTheme("back-button"));
-  connect(mNavigateBackwardAction, SIGNAL(triggered()), this, SLOT(navigateBackward()));
-  toolBar->addAction(mNavigateBackwardAction);
+    mNavigateBackwardAction = new QAction(this);
+    mNavigateBackwardAction->setIcon(QIcon::fromTheme("back-button"));
+    connect(mNavigateBackwardAction, SIGNAL(triggered()), this, SLOT(navigateBackward()));
+    toolBar->addAction(mNavigateBackwardAction);
 
-  mNavigateForwardAction = new QAction(this);
-  mNavigateForwardAction->setIcon(QIcon::fromTheme("forward-button"));
-  connect(mNavigateForwardAction, SIGNAL(triggered()), this, SLOT(navigateForward()));
-  toolBar->addAction(mNavigateForwardAction);
+    mNavigateForwardAction = new QAction(this);
+    mNavigateForwardAction->setIcon(QIcon::fromTheme("forward-button"));
+    connect(mNavigateForwardAction, SIGNAL(triggered()), this, SLOT(navigateForward()));
+    toolBar->addAction(mNavigateForwardAction);
 
-  QWidget* helpWidget = new QWidget(this);
+    QWidget *helpWidget = new QWidget(this);
 
-  QHBoxLayout *vBoxLayout = new QHBoxLayout(this);
-  vBoxLayout->addWidget(tabWidget);
-  vBoxLayout->addWidget(mHelpBrowser);
-  vBoxLayout->setContentsMargins(0, 0, 0, 0);
-  helpWidget->setLayout(vBoxLayout);
+    QHBoxLayout *vBoxLayout = new QHBoxLayout(this);
+    vBoxLayout->addWidget(tabWidget);
+    vBoxLayout->addWidget(mHelpBrowser);
+    vBoxLayout->setContentsMargins(0, 0, 0, 0);
+    helpWidget->setLayout(vBoxLayout);
 
-  QGridLayout *gridLayout = new QGridLayout(this);
-  gridLayout->setContentsMargins(0, 0, 0, 0);
-  gridLayout->addWidget(toolBar);
-  gridLayout->addWidget(helpWidget);
+    QGridLayout *gridLayout = new QGridLayout(this);
+    gridLayout->setContentsMargins(0, 0, 0, 0);
+    gridLayout->addWidget(toolBar);
+    gridLayout->addWidget(helpWidget);
 
-  setLayout(gridLayout);
+    setLayout(gridLayout);
 
-  mHelpEngine->searchEngine()->reindexDocumentation();
+    mHelpEngine->searchEngine()->reindexDocumentation();
 
-  mSearchResultsWidget->setOpenLinks(false);
-  mSearchResultsWidget->setOpenExternalLinks(false);
+    mSearchResultsWidget->setOpenLinks(false);
+    mSearchResultsWidget->setOpenExternalLinks(false);
 
-  retranslate();
+    retranslate();
 
-  navigateHome();
+    navigateHome();
 }
 
 void HelpDialog::retranslate()
 {
-  mNavigateHomeAction->setText(QApplication::translate("HelpDialog", "Home"));
-  mNavigateHomeAction->setStatusTip(QApplication::translate("HelpDialog", "Home"));
-  mNavigateBackwardAction->setText(QApplication::translate("HelpDialog", "Back"));
-  mNavigateBackwardAction->setStatusTip(QApplication::translate("HelpDialog", "Back"));
-  mNavigateForwardAction->setText(QApplication::translate("HelpDialog", "Forward"));
-  mNavigateForwardAction->setStatusTip(QApplication::translate("HelpDialog", "Forward"));
+    mNavigateHomeAction->setText(QApplication::translate("HelpDialog", "Home"));
+    mNavigateHomeAction->setStatusTip(QApplication::translate("HelpDialog", "Home"));
+    mNavigateBackwardAction->setText(QApplication::translate("HelpDialog", "Back"));
+    mNavigateBackwardAction->setStatusTip(QApplication::translate("HelpDialog", "Back"));
+    mNavigateForwardAction->setText(QApplication::translate("HelpDialog", "Forward"));
+    mNavigateForwardAction->setStatusTip(QApplication::translate("HelpDialog", "Forward"));
 }
 
 } // namespace graphos

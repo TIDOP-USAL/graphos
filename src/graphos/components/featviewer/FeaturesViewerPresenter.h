@@ -33,20 +33,20 @@ class FeaturesViewerPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeaturesViewerPresenter() {}
-  ~FeaturesViewerPresenter() {}
+    FeaturesViewerPresenter() {}
+    ~FeaturesViewerPresenter() {}
 
 public slots:
 
-  virtual void setImageActive(size_t imageId) = 0;
+    virtual void setImageActive(size_t imageId) = 0;
 
 protected slots:
 
-  virtual void loadKeypoints(size_t imageId) = 0;
+    virtual void loadKeypoints(size_t imageId) = 0;
 
 };
 

@@ -34,26 +34,26 @@ class SaveProjectComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectComponent(Application *application);
-  ~SaveProjectComponent();
+    SaveProjectComponent(Application *application);
+    ~SaveProjectComponent();
 
 private:
 
-  void init();
+    void init();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

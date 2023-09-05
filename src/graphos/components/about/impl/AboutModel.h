@@ -33,40 +33,40 @@ class AppLicence;
 
 namespace graphos
 {
-  
+
 class AboutModelImp
   : public AboutModel
 {
 
-  Q_OBJECT
-  
+    Q_OBJECT
+
 public:
 
-  AboutModelImp(QObject *parent = nullptr);
-  ~AboutModelImp() override;
+    AboutModelImp(QObject *parent = nullptr);
+    ~AboutModelImp() override;
 
 // AboutModel interface
- 
+
 public:
 
-  const tl::Licence &graphosLicence() const override;
-  QString readLicence(const QString &licence) override;
-  const_iterator begin() const override;
-  const_iterator end() const override;
+    const tl::Licence &graphosLicence() const override;
+    QString readLicence(const QString &licence) override;
+    const_iterator begin() const override;
+    const_iterator end() const override;
 
 // Model interface
 
 private:
 
-  void init() override;
-  
+    void init() override;
+
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  tl::AppLicence *mAppLicence;
+    tl::AppLicence *mAppLicence;
 };
 
 } // namespace graphos

@@ -34,24 +34,24 @@ class LoadFromVideoPresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  LoadFromVideoPresenter() : TaskPresenter() {}
-  ~LoadFromVideoPresenter() override = default;
+    LoadFromVideoPresenter() : TaskPresenter() {}
+    ~LoadFromVideoPresenter() override = default;
 
 public slots:
 
-  //virtual void setImages(const QStringList &files) = 0;
+    //virtual void setImages(const QStringList &files) = 0;
 
 protected slots:
 
-  virtual void addImage(QString image, int cameraId) = 0;
+    virtual void addImage(QString image, int cameraId) = 0;
 
 signals:
 
-  void frame_loaded(size_t);
+    void frame_loaded(size_t);
 };
 
 } // namespace graphos

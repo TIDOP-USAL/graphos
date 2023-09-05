@@ -34,35 +34,35 @@ class OrientationView
   : public DialogView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OrientationView(QWidget *parent = nullptr) : DialogView(parent) {}
-  ~OrientationView() override = default;
+    OrientationView(QWidget *parent = nullptr) : DialogView(parent) {}
+    ~OrientationView() override = default;
 
-  virtual bool fixCalibration() const = 0;
-  virtual bool isEnabledCalibration() const = 0;
-  virtual bool absoluteOrientation() const = 0;
-  virtual bool isEnabledAbsoluteOrientation() const = 0;
-  virtual bool fixPoses() const = 0;
-  virtual bool isEnabledPoses() const = 0;
+    virtual bool fixCalibration() const = 0;
+    virtual bool isEnabledCalibration() const = 0;
+    virtual bool absoluteOrientation() const = 0;
+    virtual bool isEnabledAbsoluteOrientation() const = 0;
+    virtual bool fixPoses() const = 0;
+    virtual bool isEnabledPoses() const = 0;
 
 public slots:
 
-  virtual void setCalibration(bool active) = 0;
-  virtual void enabledCalibration(bool enabled) = 0;
-  virtual void setAbsoluteOrientation(bool active) = 0;
-  virtual void enabledAbsoluteOrientation(bool enabled) = 0;
-  virtual void setPoses(bool active) = 0;
-  virtual void enabledPoses(bool enabled) = 0;
+    virtual void setCalibration(bool active) = 0;
+    virtual void enabledCalibration(bool enabled) = 0;
+    virtual void setAbsoluteOrientation(bool active) = 0;
+    virtual void enabledAbsoluteOrientation(bool enabled) = 0;
+    virtual void setPoses(bool active) = 0;
+    virtual void enabledPoses(bool enabled) = 0;
 
 signals:
 
-  void run();
-  void calibrationChange(bool);
-  void absoluteOrientationChange(bool);
-  void posesChange(bool);
+    void run();
+    void calibrationChange(bool);
+    void absoluteOrientationChange(bool);
+    void posesChange(bool);
 };
 
 } // namespace graphos

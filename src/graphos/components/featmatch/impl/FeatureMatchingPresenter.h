@@ -39,52 +39,52 @@ class FeatureMatchingPresenterImp
   : public FeatureMatchingPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureMatchingPresenterImp(FeatureMatchingView *view,
-                              FeatureMatchingModel *model);
-  ~FeatureMatchingPresenterImp() override;
+    FeatureMatchingPresenterImp(FeatureMatchingView *view,
+                                FeatureMatchingModel *model);
+    ~FeatureMatchingPresenterImp() override;
 
 private:
 
-  void setMatchingProperties();
+    void setMatchingProperties();
 
 // FeatureMatchingPresenter interface
 
 public slots:
 
-  void setCurrentMatchMethod(const QString &matchMethod) override;
+    void setCurrentMatchMethod(const QString &matchMethod) override;
 
 // TaskPresenter interface
-  
+
 protected:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task>  createProcess() override;
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task>  createProcess() override;
 
 public slots:
 
-  void cancel() override;
+    void cancel() override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  FeatureMatchingView *mView;
-  FeatureMatchingModel *mModel;
-  FeatureMatchingWidget *mFeatureMatchingWidget;
+    FeatureMatchingView *mView;
+    FeatureMatchingModel *mModel;
+    FeatureMatchingWidget *mFeatureMatchingWidget;
 
 };
 

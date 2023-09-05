@@ -23,7 +23,7 @@
 
 #include "MveFormatWidget.h"
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -43,8 +43,6 @@ MveFormatWidget::MveFormatWidget(QWidget *parent)
 {
 }
 
-
-
 MveFormatWidgetImp::MveFormatWidgetImp(QWidget *parent)
   : MveFormatWidget(parent),
     mGroupBox(new QGroupBox(this)),
@@ -52,46 +50,46 @@ MveFormatWidgetImp::MveFormatWidgetImp(QWidget *parent)
     mLineEditFile(new QLineEdit(this)),
     mPushButtonSelectPath(new QPushButton(this))
 {
-  MveFormatWidgetImp::initUI();
-  MveFormatWidgetImp::initSignalAndSlots();
+    MveFormatWidgetImp::initUI();
+    MveFormatWidgetImp::initSignalAndSlots();
 }
 
 void MveFormatWidgetImp::initUI()
 {
-  this->setWindowTitle("MVE");
-  this->setObjectName("MveOrientationFormatWidget");
+    this->setWindowTitle("MVE");
+    this->setObjectName("MveOrientationFormatWidget");
 
-  QGridLayout *layout = new QGridLayout();
-  layout->setContentsMargins(0,0,0,0);
-  this->setLayout(layout);
+    QGridLayout *layout = new QGridLayout();
+    layout->setContentsMargins(0, 0, 0, 0);
+    this->setLayout(layout);
 
-  layout->addWidget(mGroupBox);
+    layout->addWidget(mGroupBox);
 
-  QGridLayout *propertiesLayout = new QGridLayout();
-  mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *propertiesLayout = new QGridLayout();
+    mGroupBox->setLayout(propertiesLayout);
 
-  propertiesLayout->addWidget(mLabelFile, 0, 0, 1, 1);
-  propertiesLayout->addWidget(mLineEditFile, 0, 1, 1, 1);
-  mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
-  mPushButtonSelectPath->setText("...");
-  propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
+    propertiesLayout->addWidget(mLabelFile, 0, 0, 1, 1);
+    propertiesLayout->addWidget(mLineEditFile, 0, 1, 1, 1);
+    mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
+    mPushButtonSelectPath->setText("...");
+    propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
 
-  MveFormatWidgetImp::retranslate();
-  MveFormatWidgetImp::clear(); /// set default values
-  MveFormatWidgetImp::update();
+    MveFormatWidgetImp::retranslate();
+    MveFormatWidgetImp::clear(); /// set default values
+    MveFormatWidgetImp::update();
 }
 
 void MveFormatWidgetImp::initSignalAndSlots()
 {
-  connect(mLineEditFile,         &QLineEdit::textChanged,   this, &MveFormatWidgetImp::fileChanged);
-  connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &MveFormatWidgetImp::onPushButtonSelectPath);
+    connect(mLineEditFile, &QLineEdit::textChanged, this, &MveFormatWidgetImp::fileChanged);
+    connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &MveFormatWidgetImp::onPushButtonSelectPath);
 }
 
 void MveFormatWidgetImp::clear()
 {
-  const QSignalBlocker blocker(mLineEditFile);
+    const QSignalBlocker blocker(mLineEditFile);
 
-  mLineEditFile->clear();
+    mLineEditFile->clear();
 }
 
 void MveFormatWidgetImp::update()
@@ -100,32 +98,32 @@ void MveFormatWidgetImp::update()
 
 void MveFormatWidgetImp::retranslate()
 {
-  mLabelFile->setText(QApplication::translate("MveOrientationFormatWidget", "MVE export path", nullptr));
+    mLabelFile->setText(QApplication::translate("MveOrientationFormatWidget", "MVE export path", nullptr));
 }
 
 void MveFormatWidgetImp::setFile(const QString &file)
 {
-  const QSignalBlocker blocker(mLineEditFile);
-  mLineEditFile->setText(file);
+    const QSignalBlocker blocker(mLineEditFile);
+    mLineEditFile->setText(file);
 }
 
 QString MveFormatWidgetImp::file() const
 {
-  return mLineEditFile->text();
+    return mLineEditFile->text();
 }
 
 void MveFormatWidgetImp::onPushButtonSelectPath()
 {
-   QString pathName = QFileDialog::getExistingDirectory(this,
-    tr("Export directory"),
-    "",
-    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString pathName = QFileDialog::getExistingDirectory(this,
+                                                         tr("Export directory"),
+                                                         "",
+                                                         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-  if (!pathName.isEmpty()) {
-    mLineEditFile->setText(pathName);
-  }
+    if (!pathName.isEmpty()) {
+        mLineEditFile->setText(pathName);
+    }
 
-  update();
+    update();
 }
 
 

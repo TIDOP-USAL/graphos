@@ -38,18 +38,18 @@ class SaveProjectAsModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectAsModel(QObject *parent = nullptr) : Model(parent) {}
-  ~SaveProjectAsModel() override = default;
+    SaveProjectAsModel(QObject *parent = nullptr) : Model(parent) {}
+    ~SaveProjectAsModel() override = default;
 
 public slots:
 
-  virtual void save(const tl::Path &file) = 0;
-  virtual tl::Path graphosProjectsDirectory() const = 0;
-  
+    virtual void save(const tl::Path &file) = 0;
+    virtual tl::Path graphosProjectsDirectory() const = 0;
+
 };
 
 } // namespace graphos

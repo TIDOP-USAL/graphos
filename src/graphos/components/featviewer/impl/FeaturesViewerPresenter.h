@@ -37,40 +37,40 @@ class FeaturesViewerPresenterImp
   : public FeaturesViewerPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeaturesViewerPresenterImp(FeaturesViewerView *view,
-                             FeaturesViewerModel *model);
-  ~FeaturesViewerPresenterImp() override;
+    FeaturesViewerPresenterImp(FeaturesViewerView *view,
+                               FeaturesViewerModel *model);
+    ~FeaturesViewerPresenterImp() override;
 
 // FeaturesViewerPresenter interface
 
 public slots:
 
-  void setImageActive(size_t imageId) override;
+    void setImageActive(size_t imageId) override;
 
 protected slots:
 
-  void loadKeypoints(size_t imageId) override;
+    void loadKeypoints(size_t imageId) override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  FeaturesViewerView *mView;
-  FeaturesViewerModel *mModel;
-  SettingsModel *mSettingsModel;
+    FeaturesViewerView *mView;
+    FeaturesViewerModel *mModel;
+    SettingsModel *mSettingsModel;
 
 };
 

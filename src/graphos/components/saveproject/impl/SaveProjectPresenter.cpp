@@ -42,8 +42,8 @@ SaveProjectPresenterImp::SaveProjectPresenterImp(SaveProjectView *view,
     mModel(model),
     mAppStatus(status)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 SaveProjectPresenterImp::~SaveProjectPresenterImp()
@@ -52,9 +52,9 @@ SaveProjectPresenterImp::~SaveProjectPresenterImp()
 
 void SaveProjectPresenterImp::open()
 {
-  mModel->save();
+    mModel->save();
 
-  mAppStatus->activeFlag(AppStatus::Flag::project_modified, false);
+    mAppStatus->activeFlag(AppStatus::Flag::project_modified, false);
 }
 
 void SaveProjectPresenterImp::init()

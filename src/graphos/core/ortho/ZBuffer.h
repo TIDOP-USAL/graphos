@@ -40,28 +40,28 @@ class ZBuffer
 {
 public:
 
-  ZBuffer(Orthorectification *orthorectification,
-          const tl::Rect<int> &rectOrtho,
-          const tl::Affine<tl::PointD> &georeference);
-  ~ZBuffer();
+    ZBuffer(Orthorectification *orthorectification,
+            const tl::Rect<int> &rectOrtho,
+            const tl::Affine<tl::Point<double>> &georeference);
+    ~ZBuffer();
 
-  void run();
+    void run();
 
-  cv::Mat distances() const;
-  cv::Mat mapX() const;
-  cv::Mat mapY() const;
+    cv::Mat distances() const;
+    cv::Mat mapX() const;
+    cv::Mat mapY() const;
 
-  void clear();
+    void clear();
 
 private:
 
-  Orthorectification *mOrthorectification;
-  tl::Rect<int> mRectOrtho;
-  tl::Affine<tl::PointD> mGeoreference;
-  tl::Window<tl::PointD> mWindowOrthoTerrain;
-  cv::Mat mDistances;
-  cv::Mat mY;
-  cv::Mat mX;
+    Orthorectification *mOrthorectification;
+    tl::Rect<int> mRectOrtho;
+    tl::Affine<tl::Point<double>> mGeoreference;
+    tl::Window<tl::Point<double>> mWindowOrthoTerrain;
+    cv::Mat mDistances;
+    cv::Mat mY;
+    cv::Mat mX;
 
 };
 

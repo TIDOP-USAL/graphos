@@ -23,7 +23,7 @@
 
 #include "NvmFormatWidget.h"
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -44,46 +44,46 @@ NvmFormatWidgetImp::NvmFormatWidgetImp(QWidget *parent)
     mLineEditFile(new QLineEdit(this)),
     mPushButtonSelectPath(new QPushButton(this))
 {
-  NvmFormatWidgetImp::initUI();
-  NvmFormatWidgetImp::initSignalAndSlots();
+    NvmFormatWidgetImp::initUI();
+    NvmFormatWidgetImp::initSignalAndSlots();
 }
 
 void NvmFormatWidgetImp::initUI()
 {
-  this->setWindowTitle("NVM");
-  this->setObjectName("NvmOrientationFormatWidget");
+    this->setWindowTitle("NVM");
+    this->setObjectName("NvmOrientationFormatWidget");
 
-  QGridLayout *layout = new QGridLayout();
-  layout->setContentsMargins(0,0,0,0);
-  this->setLayout(layout);
+    QGridLayout *layout = new QGridLayout();
+    layout->setContentsMargins(0, 0, 0, 0);
+    this->setLayout(layout);
 
-  layout->addWidget(mGroupBox);
+    layout->addWidget(mGroupBox);
 
-  QGridLayout *propertiesLayout = new QGridLayout();
-  mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *propertiesLayout = new QGridLayout();
+    mGroupBox->setLayout(propertiesLayout);
 
-  propertiesLayout->addWidget(mLabelFile, 0, 0, 1, 1);
-  propertiesLayout->addWidget(mLineEditFile, 0, 1, 1, 1);
-  mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
-  mPushButtonSelectPath->setText("...");
-  propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
+    propertiesLayout->addWidget(mLabelFile, 0, 0, 1, 1);
+    propertiesLayout->addWidget(mLineEditFile, 0, 1, 1, 1);
+    mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
+    mPushButtonSelectPath->setText("...");
+    propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
 
-  NvmFormatWidgetImp::retranslate();
-  NvmFormatWidgetImp::clear(); /// set default values
-  NvmFormatWidgetImp::update();
+    NvmFormatWidgetImp::retranslate();
+    NvmFormatWidgetImp::clear(); /// set default values
+    NvmFormatWidgetImp::update();
 }
 
 void NvmFormatWidgetImp::initSignalAndSlots()
 {
-  connect(mLineEditFile,         &QLineEdit::textChanged,   this, &NvmFormatWidgetImp::fileChanged);
-  connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &NvmFormatWidgetImp::onPushButtonSelectPath);
+    connect(mLineEditFile, &QLineEdit::textChanged, this, &NvmFormatWidgetImp::fileChanged);
+    connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &NvmFormatWidgetImp::onPushButtonSelectPath);
 }
 
 void NvmFormatWidgetImp::clear()
 {
-  const QSignalBlocker blocker(mLineEditFile);
+    const QSignalBlocker blocker(mLineEditFile);
 
-  mLineEditFile->clear();
+    mLineEditFile->clear();
 }
 
 void NvmFormatWidgetImp::update()
@@ -92,32 +92,32 @@ void NvmFormatWidgetImp::update()
 
 void NvmFormatWidgetImp::retranslate()
 {
-  mLabelFile->setText(QApplication::translate("NvmOrientationFormatWidget", "NVM  export path", nullptr));
+    mLabelFile->setText(QApplication::translate("NvmOrientationFormatWidget", "NVM  export path", nullptr));
 }
 
 void NvmFormatWidgetImp::setFile(const QString &file)
 {
-  const QSignalBlocker blocker(mLineEditFile);
-  mLineEditFile->setText(file);
+    const QSignalBlocker blocker(mLineEditFile);
+    mLineEditFile->setText(file);
 }
 
 QString NvmFormatWidgetImp::file() const
 {
-  return mLineEditFile->text();
+    return mLineEditFile->text();
 }
 
 void NvmFormatWidgetImp::onPushButtonSelectPath()
 {
-  QString pathName = QFileDialog::getExistingDirectory(this,
-    tr("Export directory"),
-    "",
-    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString pathName = QFileDialog::getExistingDirectory(this,
+                                                         tr("Export directory"),
+                                                         "",
+                                                         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-  if (!pathName.isEmpty()) {
-    mLineEditFile->setText(pathName);
-  }
+    if (!pathName.isEmpty()) {
+        mLineEditFile->setText(pathName);
+    }
 
-  update();
+    update();
 }
 
 } // namespace graphos

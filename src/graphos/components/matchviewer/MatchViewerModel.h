@@ -37,28 +37,28 @@ class MatchViewerModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MatchViewerModel(QObject *parent = nullptr) : Model(parent) {}
-  virtual ~MatchViewerModel() = default;
+    MatchViewerModel(QObject *parent = nullptr) : Model(parent) {}
+    virtual ~MatchViewerModel() = default;
 
-  virtual QString backgroundColor() const = 0;
-  virtual int markerType() const = 0;
-  virtual int markerSize() const = 0;
-  virtual int markerWidth() const = 0;
-  virtual QString markerColor() const = 0;
-  virtual int viewerSelectMarkerWidth() const = 0;
-  virtual QString selectedMarkerColor() const = 0;
-  virtual QString lineColor() const = 0;
-  virtual int lineWidth() const = 0;
+    virtual QString backgroundColor() const = 0;
+    virtual int markerType() const = 0;
+    virtual int markerSize() const = 0;
+    virtual int markerWidth() const = 0;
+    virtual QString markerColor() const = 0;
+    virtual int viewerSelectMarkerWidth() const = 0;
+    virtual QString selectedMarkerColor() const = 0;
+    virtual QString lineColor() const = 0;
+    virtual int lineWidth() const = 0;
 
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
-  virtual Image image(size_t imageId) const = 0;
-  virtual std::vector<size_t> imagePairs(size_t imageId) const = 0;
-  virtual std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(size_t imageId1,
-                                                                                        size_t imageId2) const = 0;
+    virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual Image image(size_t imageId) const = 0;
+    virtual std::vector<size_t> imagePairs(size_t imageId) const = 0;
+    virtual std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(size_t imageId1,
+                                                                                          size_t imageId2) const = 0;
 
 public slots:
 

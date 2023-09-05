@@ -36,41 +36,41 @@ class OrthophotoPresenterImp
   : public OrthophotoPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OrthophotoPresenterImp(OrthophotoView *view,
-                         OrthophotoModel *model);
-  ~OrthophotoPresenterImp() override;
-  
+    OrthophotoPresenterImp(OrthophotoView *view,
+                           OrthophotoModel *model);
+    ~OrthophotoPresenterImp() override;
+
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 // ProcessPresenter interface
 
 protected:
 
-  void onError(tl::TaskErrorEvent *event) override;
-  void onFinished(tl::TaskFinalizedEvent *event) override;
-  std::unique_ptr<tl::Task> createProcess() override;
-  
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    std::unique_ptr<tl::Task> createProcess() override;
+
 public slots:
 
-  void cancel() override;
+    void cancel() override;
 
 private:
 
-  OrthophotoView *mView;
-  OrthophotoModel *mModel;
+    OrthophotoView *mView;
+    OrthophotoModel *mModel;
 
 };
 

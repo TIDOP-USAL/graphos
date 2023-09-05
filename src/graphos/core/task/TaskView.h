@@ -35,17 +35,17 @@ class TaskView
   : public DialogView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  TaskView(QWidget *parent = nullptr,
-              Qt::WindowFlags f = Qt::WindowFlags());
-  ~TaskView();
+    TaskView(QWidget *parent = nullptr,
+             Qt::WindowFlags f = Qt::WindowFlags());
+    ~TaskView();
 
 signals:
 
-  void run();
+    void run();
 
 };
 

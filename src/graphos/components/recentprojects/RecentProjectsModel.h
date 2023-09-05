@@ -36,21 +36,21 @@ class RecentProjectsModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  RecentProjectsModel(QObject *parent = nullptr) : Model(parent) {}
-  ~RecentProjectsModel() override = default;
+    RecentProjectsModel(QObject *parent = nullptr) : Model(parent) {}
+    ~RecentProjectsModel() override = default;
 
-  /*!
-   * \brief Return history
-   */
-  virtual QStringList history() const = 0;
+    /*!
+     * \brief Return history
+     */
+    virtual QStringList history() const = 0;
 
 public slots:
 
-  virtual void addToHistory(const QString &project) = 0;
+    virtual void addToHistory(const QString &project) = 0;
 
 };
 

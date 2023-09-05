@@ -41,21 +41,21 @@ class Image;
 class Camera;
 
 class OrthophotoParameters
-{ 
+{
 
 public:
 
-  OrthophotoParameters();
-  ~OrthophotoParameters();
+    OrthophotoParameters();
+    ~OrthophotoParameters();
 
-  virtual double resolution() const;
-  virtual void setResolution(double resolution);
+    virtual double resolution() const;
+    virtual void setResolution(double resolution);
 
-  void clear();
+    void clear();
 
 private:
 
-  double mResolution;
+    double mResolution;
 
 };
 
@@ -64,39 +64,39 @@ private:
 
 
 class OrthophotoAlgorithm
-  : public OrthophotoParameters
+    : public OrthophotoParameters
 {
 
 public:
 
-  OrthophotoAlgorithm();
-  OrthophotoAlgorithm(double resolution,
-                      const std::vector<Image> &images,
-                      const std::map<int, Camera> &cameras,
-                      const tl::Path &orthoPath,
-                      const tl::Path &mdt,
-                      const QString &epsg,
-                      bool cuda = false);
-  ~OrthophotoAlgorithm();
+    OrthophotoAlgorithm();
+    OrthophotoAlgorithm(double resolution,
+                        const std::vector<Image> &images,
+                        const std::map<int, Camera> &cameras,
+                        const tl::Path &orthoPath,
+                        const tl::Path &mdt,
+                        const QString &epsg,
+                        bool cuda = false);
+    ~OrthophotoAlgorithm();
 
 public:
 
-  void run();
+    void run();
 
-  void setPhotos(const std::vector<Image> &images);
-  void setOrthoPath(const tl::Path&orthoPath);
-  void setMdt(const tl::Path &mdt);
-  void setCrs(const QString &epsg);
-  void setCuda(bool active);
+    void setPhotos(const std::vector<Image> &images);
+    void setOrthoPath(const tl::Path &orthoPath);
+    void setMdt(const tl::Path &mdt);
+    void setCrs(const QString &epsg);
+    void setCuda(bool active);
 
 private:
 
-  std::vector<Image> mPhotos;
-  std::map<int, Camera> mCameras;
-  tl::Path mOrthoPath;
-  tl::Path mMdt;
-  QString mEpsg;
-  bool bCuda;
+    std::vector<Image> mPhotos;
+    std::map<int, Camera> mCameras;
+    tl::Path mOrthoPath;
+    tl::Path mMdt;
+    QString mEpsg;
+    bool bCuda;
 };
 
 

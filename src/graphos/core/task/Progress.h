@@ -36,51 +36,51 @@ class ProgressHandler
   : public QObject,
     public tl::ProgressBase
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ProgressHandler(QObject *parent = nullptr);
-  ProgressHandler(size_t min, size_t max, QObject *parent = nullptr);
-  ~ProgressHandler() override;
+    ProgressHandler(QObject *parent = nullptr);
+    ProgressHandler(size_t min, size_t max, QObject *parent = nullptr);
+    ~ProgressHandler() override;
 
 public:
 
-  //int min() const;
-  //int max() const;
-  //int value() const;
+    //int min() const;
+    //int max() const;
+    //int value() const;
 
 signals:
 
-  void rangeChange(int, int);
-  void valueChange(int);
-  void initialized();
-  void finished();
-  void titleChange(QString);
-  void descriptionChange(QString);
-  void cancel();
-  void closeAuto(bool);
+    void rangeChange(int, int);
+    void valueChange(int);
+    void initialized();
+    void finished();
+    void titleChange(QString);
+    void descriptionChange(QString);
+    void cancel();
+    void closeAuto(bool);
 
 public slots:
 
-  //void setValue(int value);
-  //void next();
-  void init();
-  void finish();
-  void setTitle(const QString &title);
-  void setDescription(const QString &description);
-  void setCloseAuto(bool active);
+    //void setValue(int value);
+    //void next();
+    void init();
+    void finish();
+    void setTitle(const QString &title);
+    void setDescription(const QString &description);
+    void setCloseAuto(bool active);
 
 // ProgressBase interface
 
 public:
 
-  void setRange(size_t min, size_t max) override;
+    void setRange(size_t min, size_t max) override;
 
 protected:
 
-  void updateProgress() override;
-  void terminate() override;
+    void updateProgress() override;
+    void terminate() override;
 
 };
 

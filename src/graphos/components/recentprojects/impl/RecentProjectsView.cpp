@@ -35,86 +35,86 @@ RecentProjectsViewImp::RecentProjectsViewImp(QWidget *parent)
     mActionNotRecentProjects(new QAction(this)),
     mActionClearHistory(new QAction(this))
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 void RecentProjectsViewImp::init()
 {
-  mActionNotRecentProjects->setEnabled(false);
-   
-  mActionClearHistory->setIcon(QIcon::fromTheme("delete-history"));
-  
-  this->addAction(mActionNotRecentProjects);
-  this->addSeparator();
-  this->addAction(mActionClearHistory);
+    mActionNotRecentProjects->setEnabled(false);
 
-  retranslate();
+    mActionClearHistory->setIcon(QIcon::fromTheme("delete-history"));
+
+    this->addAction(mActionNotRecentProjects);
+    this->addSeparator();
+    this->addAction(mActionClearHistory);
+
+    retranslate();
 }
 
 void RecentProjectsViewImp::initSignalAndSlots()
 {
-  connect(mActionClearHistory, &QAction::triggered, this, &RecentProjectsViewImp::clearHistory);
+    connect(mActionClearHistory, &QAction::triggered, this, &RecentProjectsViewImp::clearHistory);
 }
 
 void RecentProjectsViewImp::update()
 {
-  mActionNotRecentProjects->setVisible(mHistory.size() == 0);
-  mActionClearHistory->setEnabled(mHistory.size() > 0);
+    mActionNotRecentProjects->setVisible(mHistory.size() == 0);
+    mActionClearHistory->setEnabled(mHistory.size() > 0);
 }
-  
+
 void RecentProjectsViewImp::retranslate()
 {
-  this->setTitle(QApplication::translate("RecentProjectsView", "Recent Projects", nullptr));
-  mActionNotRecentProjects->setText(QApplication::translate("RecentProjectsView", "Not recent projects", nullptr));
-  mActionClearHistory->setText(QApplication::translate("RecentProjectsView", "Clear History", nullptr));
+    this->setTitle(QApplication::translate("RecentProjectsView", "Recent Projects", nullptr));
+    mActionNotRecentProjects->setText(QApplication::translate("RecentProjectsView", "Not recent projects", nullptr));
+    mActionClearHistory->setText(QApplication::translate("RecentProjectsView", "Clear History", nullptr));
 }
 
 void RecentProjectsViewImp::openFromHistory()
 {
-  QAction *action = qobject_cast<QAction *>(sender());
-  if(action)
-    emit openProject(action->data().toString());
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+        emit openProject(action->data().toString());
 }
 
 void RecentProjectsViewImp::setHistory(const QStringList &history)
 {
-  int n = history.size();
-  
-  if(n == 0) {
-    while(mHistory.size() > 0) {
-      disconnect(mHistory[0], SIGNAL(triggered()), this, SLOT(openFromHistory()));
-      this->removeAction(mHistory[0]);
-      mHistory.erase(mHistory.begin());
+    int n = history.size();
+
+    if (n == 0) {
+        while (mHistory.size() > 0) {
+            disconnect(mHistory[0], SIGNAL(triggered()), this, SLOT(openFromHistory()));
+            this->removeAction(mHistory[0]);
+            mHistory.erase(mHistory.begin());
+        }
     }
-  }
 
-  for(int r = 0; r < n; r++) {
+    for (int r = 0; r < n; r++) {
 
-    QString prjFileName = tr("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
+        QString prjFileName = tr("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
 
-    if(mHistory.size() == static_cast<size_t>(r)) {
+        if (mHistory.size() == static_cast<size_t>(r)) {
 
-      // Se añade un nuevo elemento
-      QAction *action = new QAction(prjFileName, this);
-      action->setData(history[r]);
-      action->setToolTip(history[r]);
-      mHistory.push_back(action);
-      connect(mHistory[static_cast<size_t>(r)], SIGNAL(triggered()), this, SLOT(openFromHistory()));
+            // Se añade un nuevo elemento
+            QAction *action = new QAction(prjFileName, this);
+            action->setData(history[r]);
+            action->setToolTip(history[r]);
+            mHistory.push_back(action);
+            connect(mHistory[static_cast<size_t>(r)], SIGNAL(triggered()), this, SLOT(openFromHistory()));
 
-      this->insertAction(mActionNotRecentProjects, mHistory[static_cast<size_t>(r)]);
-      this->setToolTipsVisible(true);
+            this->insertAction(mActionNotRecentProjects, mHistory[static_cast<size_t>(r)]);
+            this->setToolTipsVisible(true);
 
-    } else {
+        } else {
 
-      mHistory[static_cast<size_t>(r)]->setText(prjFileName);
-      mHistory[static_cast<size_t>(r)]->setData(history[r]);
-      mHistory[static_cast<size_t>(r)]->setToolTip(history[r]);
+            mHistory[static_cast<size_t>(r)]->setText(prjFileName);
+            mHistory[static_cast<size_t>(r)]->setData(history[r]);
+            mHistory[static_cast<size_t>(r)]->setToolTip(history[r]);
 
+        }
     }
-  }
 
-  update();
+    update();
 }
 
 } // namespace graphos

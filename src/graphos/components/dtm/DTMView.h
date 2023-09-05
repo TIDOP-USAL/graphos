@@ -34,29 +34,29 @@ class DtmView
   : public DialogView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DtmView(QWidget *parent = nullptr) : DialogView(parent) {}
-  ~DtmView() override = default;
- 
-  virtual double gsd() const = 0;
+    DtmView(QWidget *parent = nullptr) : DialogView(parent) {}
+    ~DtmView() override = default;
 
-  virtual void addDtmMethod(QWidget *method) = 0;
-  virtual QString currentDtmMethod() const = 0;
-  virtual bool isDSM() const = 0;
+    virtual double gsd() const = 0;
+
+    virtual void addDtmMethod(QWidget *method) = 0;
+    virtual QString currentDtmMethod() const = 0;
+    virtual bool isDSM() const = 0;
 
 signals:
 
-  void dtmMethodChange(QString);
-  void run();
+    void dtmMethodChange(QString);
+    void run();
 
 public slots:
 
-  virtual void setGSD(double gsd) = 0;
-  virtual void setCurrentDtmMethod(const QString &method) = 0;
-  virtual void setDSM(bool active) = 0;
+    virtual void setGSD(double gsd) = 0;
+    virtual void setCurrentDtmMethod(const QString &method) = 0;
+    virtual void setDSM(bool active) = 0;
 };
 
 } // namespace graphos

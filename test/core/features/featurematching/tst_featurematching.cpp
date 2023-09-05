@@ -35,21 +35,21 @@ BOOST_AUTO_TEST_SUITE(FeatureMatchingTestSuite)
 struct TestFeatureMatchingProperties
 {
 
-  TestFeatureMatchingProperties()
-    : mFeatureMatching(new FeatureMatchingProperties())
-  {
+    TestFeatureMatchingProperties()
+        : mFeatureMatching(new FeatureMatchingProperties())
+    {
 
-  }
-
-  ~TestFeatureMatchingProperties()
-  {
-    if (mFeatureMatching) {
-      delete mFeatureMatching;
-      mFeatureMatching = nullptr;
     }
-  }
 
-  FeatureMatching *mFeatureMatching;
+    ~TestFeatureMatchingProperties()
+    {
+        if (mFeatureMatching) {
+            delete mFeatureMatching;
+            mFeatureMatching = nullptr;
+        }
+    }
+
+    FeatureMatching *mFeatureMatching;
 
 };
 
@@ -57,55 +57,55 @@ struct TestFeatureMatchingProperties
 
 BOOST_FIXTURE_TEST_CASE(default_constructor, TestFeatureMatchingProperties)
 {
-  BOOST_CHECK_EQUAL(true, mFeatureMatching->crossCheck());
-  BOOST_CHECK_EQUAL(0.8, mFeatureMatching->ratio());
-  BOOST_CHECK_EQUAL(0.7, mFeatureMatching->distance());
-  BOOST_CHECK_EQUAL(4.0, mFeatureMatching->maxError());
-  BOOST_CHECK_EQUAL(0.999, mFeatureMatching->confidence());
+    BOOST_CHECK_EQUAL(true, mFeatureMatching->crossCheck());
+    BOOST_CHECK_EQUAL(0.8, mFeatureMatching->ratio());
+    BOOST_CHECK_EQUAL(0.7, mFeatureMatching->distance());
+    BOOST_CHECK_EQUAL(4.0, mFeatureMatching->maxError());
+    BOOST_CHECK_EQUAL(0.999, mFeatureMatching->confidence());
 }
 
 BOOST_FIXTURE_TEST_CASE(crossCheck, TestFeatureMatchingProperties)
 {
-  mFeatureMatching->enableCrossCheck(false);
-  BOOST_CHECK_EQUAL(false, mFeatureMatching->crossCheck());
-  mFeatureMatching->enableCrossCheck(true);
-  BOOST_CHECK_EQUAL(true, mFeatureMatching->crossCheck());
+    mFeatureMatching->enableCrossCheck(false);
+    BOOST_CHECK_EQUAL(false, mFeatureMatching->crossCheck());
+    mFeatureMatching->enableCrossCheck(true);
+    BOOST_CHECK_EQUAL(true, mFeatureMatching->crossCheck());
 }
 
 BOOST_FIXTURE_TEST_CASE(ratio, TestFeatureMatchingProperties)
 {
-  mFeatureMatching->setRatio(0.7);
-  BOOST_CHECK_EQUAL(0.7, mFeatureMatching->ratio());
+    mFeatureMatching->setRatio(0.7);
+    BOOST_CHECK_EQUAL(0.7, mFeatureMatching->ratio());
 
-  mFeatureMatching->setRatio(0.8);
-  BOOST_CHECK_EQUAL(0.8, mFeatureMatching->ratio());
+    mFeatureMatching->setRatio(0.8);
+    BOOST_CHECK_EQUAL(0.8, mFeatureMatching->ratio());
 }
 
 BOOST_FIXTURE_TEST_CASE(distance, TestFeatureMatchingProperties)
 {
-  mFeatureMatching->setDistance(0.9);
-  BOOST_CHECK_EQUAL(0.9, mFeatureMatching->distance());
+    mFeatureMatching->setDistance(0.9);
+    BOOST_CHECK_EQUAL(0.9, mFeatureMatching->distance());
 
-  mFeatureMatching->setDistance(1.5);
-  BOOST_CHECK_EQUAL(1.5, mFeatureMatching->distance());
+    mFeatureMatching->setDistance(1.5);
+    BOOST_CHECK_EQUAL(1.5, mFeatureMatching->distance());
 }
 
 BOOST_FIXTURE_TEST_CASE(max_error, TestFeatureMatchingProperties)
 {
-  mFeatureMatching->setMaxError(2.0);
-  BOOST_CHECK_EQUAL(2.0, mFeatureMatching->maxError());
+    mFeatureMatching->setMaxError(2.0);
+    BOOST_CHECK_EQUAL(2.0, mFeatureMatching->maxError());
 
-  mFeatureMatching->setMaxError(3.0);
-  BOOST_CHECK_EQUAL(3.0, mFeatureMatching->maxError());
+    mFeatureMatching->setMaxError(3.0);
+    BOOST_CHECK_EQUAL(3.0, mFeatureMatching->maxError());
 }
 
 BOOST_FIXTURE_TEST_CASE(confidence, TestFeatureMatchingProperties)
 {
-  mFeatureMatching->setConfidence(0.9);
-  BOOST_CHECK_EQUAL(0.9, mFeatureMatching->confidence());
+    mFeatureMatching->setConfidence(0.9);
+    BOOST_CHECK_EQUAL(0.9, mFeatureMatching->confidence());
 
-  mFeatureMatching->setConfidence(0.995);
-  BOOST_CHECK_EQUAL(0.995, mFeatureMatching->confidence());
+    mFeatureMatching->setConfidence(0.995);
+    BOOST_CHECK_EQUAL(0.995, mFeatureMatching->confidence());
 }
 
 

@@ -35,46 +35,46 @@ class RecentProjectsViewImp
   : public RecentProjectsView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit RecentProjectsViewImp(QWidget *parent = nullptr);
-  ~RecentProjectsViewImp() override = default;
-  
+    explicit RecentProjectsViewImp(QWidget *parent = nullptr);
+    ~RecentProjectsViewImp() override = default;
+
 private:
 
-  void init();
-  void initSignalAndSlots();
+    void init();
+    void initSignalAndSlots();
 
 private slots:
 
-  void update();
-  void retranslate();
-  void openFromHistory();
+    void update();
+    void retranslate();
+    void openFromHistory();
 
 // RecentProjectsView interface
 
 public:
 
-  void setHistory(const QStringList &history) override;
+    void setHistory(const QStringList &history) override;
 
 // QWidget interface
 
 protected:
 
-  void changeEvent(QEvent *event) override
-  {
-    if(event->type() == QEvent::LanguageChange) {
-      retranslate();
+    void changeEvent(QEvent *event) override
+    {
+        if (event->type() == QEvent::LanguageChange) {
+            retranslate();
+        }
     }
-  }
 
 private:
 
-  QAction *mActionNotRecentProjects;
-  QAction *mActionClearHistory;
-  std::vector<QAction *> mHistory;
+    QAction *mActionNotRecentProjects;
+    QAction *mActionClearHistory;
+    std::vector<QAction *> mHistory;
 };
 
 } // namespace graphos

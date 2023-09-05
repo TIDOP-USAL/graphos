@@ -41,44 +41,44 @@ class SettingsModel;
 class MatchViewerPresenterImp
   : public MatchViewerPresenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MatchViewerPresenterImp(MatchViewerView *view,
-                          MatchViewerModel *model);
+    MatchViewerPresenterImp(MatchViewerView *view,
+                            MatchViewerModel *model);
 
-  ~MatchViewerPresenterImp() override;
+    ~MatchViewerPresenterImp() override;
 
 // MatchViewerPresenter interface
 
 public slots:
 
-  void setLeftImage(size_t imageId) override;
-  void setRightImage(size_t imageId) override;
+    void setLeftImage(size_t imageId) override;
+    void setRightImage(size_t imageId) override;
 
 protected slots:
 
-  void loadMatches(size_t imageId1,
-                   size_t imageId2) override;
+    void loadMatches(size_t imageId1,
+                     size_t imageId2) override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
 private:
 
-  MatchViewerView *mView;
-  MatchViewerModel *mModel;
+    MatchViewerView *mView;
+    MatchViewerModel *mModel;
 
 };
 

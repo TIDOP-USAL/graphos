@@ -34,10 +34,7 @@ namespace tl
 {
 class ImageReader;
 class Process;
-namespace geospatial
-{
 class Crs;
-}
 }
 
 namespace graphos
@@ -51,43 +48,43 @@ class LoadImagesTask
     public tl::TaskBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  LoadImagesTask(std::vector<Image> *images,
-                 std::vector<Camera> *cameras,
-                 const std::string &cameraType,
-                 const QString &epsg = QString());
-  ~LoadImagesTask() override;
+    LoadImagesTask(std::vector<Image> *images,
+                   std::vector<Camera> *cameras,
+                   const std::string &cameraType,
+                   const QString &epsg = QString());
+    ~LoadImagesTask() override;
 
 signals:
 
-  void imageAdded(int, int);
+    void imageAdded(int, int);
 
 private:
 
-  bool existCamera(const QString &make, const QString &model) const;
-  int findCamera(const QString &make, const QString &model) const;
-  void loadImage(size_t imageId);
-  int loadCamera(tl::ImageReader *imageReader);
-  double parseFocal(const std::string &focal, double def);
+    bool existCamera(const QString &make, const QString &model) const;
+    int findCamera(const QString &make, const QString &model) const;
+    void loadImage(size_t imageId);
+    int loadCamera(tl::ImageReader *imageReader);
+    double parseFocal(const std::string &focal, double def);
 
 // tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 protected:
 
-  std::vector<Image> *mImages;
-  std::vector<Camera> *mCameras;
-  QString mEPSG;
-  std::shared_ptr<tl::geospatial::Crs> mCrsIn;
-  std::shared_ptr<tl::geospatial::Crs> mCrsOut;
-  QString mDatabaseCamerasPath;
-  std::string mCameraType;
+    std::vector<Image> *mImages;
+    std::vector<Camera> *mCameras;
+    QString mEPSG;
+    std::shared_ptr<tl::Crs> mCrsIn;
+    std::shared_ptr<tl::Crs> mCrsOut;
+    QString mDatabaseCamerasPath;
+    std::string mCameraType;
 };
 
 } // namespace graphos

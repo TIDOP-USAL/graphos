@@ -35,24 +35,24 @@ class ScaleView
   : public TaskView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ScaleView(QWidget *parent) : TaskView(parent) {}
-  ~ScaleView() override = default;
+    ScaleView(QWidget *parent) : TaskView(parent) {}
+    ~ScaleView() override = default;
 
-  virtual double distance() const = 0;
-  virtual double distanceReal() const = 0;
+    virtual double distance() const = 0;
+    virtual double distanceReal() const = 0;
 
 public slots:
 
-  virtual void setDistance(double distance) = 0;
+    virtual void setDistance(double distance) = 0;
 
 signals:
 
-  void distanceChanged(double);
-  void enableMeasure(bool);
+    void distanceChanged(double);
+    void enableMeasure(bool);
 };
 
 } // namespace graphos

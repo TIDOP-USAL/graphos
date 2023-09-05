@@ -40,73 +40,73 @@ class AppStatus
   : public QObject
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  enum class Flag : uint64_t
-  {
-    none                  = (0 << 0),
-    project_exists        = (1 << 0),  // Existe un proyecto
-    project_modified      = (1 << 1),  // Se ha modificado el proyecto
-    images_added          = (1 << 2),  // Se han añadido fotogramas
-    image_open            = (1 << 3),  // Hay una imagen abierta
-    feature_extraction    = (1 << 4),
-    feature_matching      = (1 << 5),
-    oriented              = (1 << 6),
-    absolute_oriented     = (1 << 7),
-    dense_model           = (1 << 8),
-    dtm                   = (1 << 9),
-    ortho                 = (1 << 10),
-    mesh                  = (1 << 11),
-    processing            = (1 << 20),
-    loading_images        = (1 << 21),
-    tab_image_active      = (1 << 22),
-    tab_3d_viewer_active  = (1 << 23),
-    //sparse_model_open     = (1 << 24),
-    //dense_model_open      = (1 << 25),
-    //mesh_model_open       = (1 << 26),
-    //loading_thumbs        = (1 << 27),
-    command_mode          = (1 << 30)
-  };
+    enum class Flag : uint64_t
+    {
+        none = (0 << 0),
+        project_exists = (1 << 0),  // Existe un proyecto
+        project_modified = (1 << 1),  // Se ha modificado el proyecto
+        images_added = (1 << 2),  // Se han añadido fotogramas
+        image_open = (1 << 3),  // Hay una imagen abierta
+        feature_extraction = (1 << 4),
+        feature_matching = (1 << 5),
+        oriented = (1 << 6),
+        absolute_oriented = (1 << 7),
+        dense_model = (1 << 8),
+        dtm = (1 << 9),
+        ortho = (1 << 10),
+        mesh = (1 << 11),
+        processing = (1 << 20),
+        loading_images = (1 << 21),
+        tab_image_active = (1 << 22),
+        tab_3d_viewer_active = (1 << 23),
+        //sparse_model_open     = (1 << 24),
+        //dense_model_open      = (1 << 25),
+        //mesh_model_open       = (1 << 26),
+        //loading_thumbs        = (1 << 27),
+        command_mode = (1 << 30)
+    };
 
 public:
 
-  AppStatus();
-  ~AppStatus();
+    AppStatus();
+    ~AppStatus();
 
-  AppStatus(const AppStatus &) = delete;
-  AppStatus(AppStatus &&) = delete;
-  AppStatus operator=(const AppStatus &) = delete;
-  AppStatus operator=(AppStatus &&) = delete;
+    AppStatus(const AppStatus &) = delete;
+    AppStatus(AppStatus &&) = delete;
+    AppStatus operator=(const AppStatus &) = delete;
+    AppStatus operator=(AppStatus &&) = delete;
 
-  /* Graphos Flags */
+    /* Graphos Flags */
 
-  void activeFlag(Flag flag, bool active);
-  bool isEnabled(Flag flag) const;
-  void enable(Flag flag);
-  void disable(Flag flag);
-  void switchFlag(Flag flag);
+    void activeFlag(Flag flag, bool active);
+    bool isEnabled(Flag flag) const;
+    void enable(Flag flag);
+    void disable(Flag flag);
+    void switchFlag(Flag flag);
 
-  /* User flags */
-  
-  void activeFlag(uint32_t flag, bool active);
-  bool isEnabled(uint32_t flag) const;
-  void enable(uint32_t flag);
-  void disable(uint32_t flag);
-  void switchFlag(uint32_t flag);
+    /* User flags */
 
-  void clear();
+    void activeFlag(uint32_t flag, bool active);
+    bool isEnabled(uint32_t flag) const;
+    void enable(uint32_t flag);
+    void disable(uint32_t flag);
+    void switchFlag(uint32_t flag);
+
+    void clear();
 
 signals:
 
-  void update();
+    void update();
 
 private:
 
-  tl::EnumFlags<Flag> mFlags;
-  tl::Flags<uint32_t> mUserFlags;
-  
+    tl::EnumFlags<Flag> mFlags;
+    tl::Flags<uint32_t> mUserFlags;
+
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(AppStatus::Flag)
 

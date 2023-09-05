@@ -4,7 +4,7 @@
 #include "config_graphos.h"
 #include <tidop/core/defs.h>
 
-TL_SUPPRESS_WARNINGS
+TL_DISABLE_WARNINGS
 #include <QtCore/qglobal.h>
 TL_DEFAULT_WARNINGS
 

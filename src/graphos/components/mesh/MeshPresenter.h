@@ -34,12 +34,12 @@ class MeshPresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MeshPresenter() : TaskPresenter() {}
-  ~MeshPresenter() override = default;
+    MeshPresenter() : TaskPresenter() {}
+    ~MeshPresenter() override = default;
 
 };
 

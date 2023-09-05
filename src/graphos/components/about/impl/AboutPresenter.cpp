@@ -25,7 +25,6 @@
 
 #include "graphos/components/about/AboutModel.h"
 #include "graphos/components/about/AboutView.h"
-#include "graphos/core/AppStatus.h"
 
 #include <tidop/core/licence.h>
 
@@ -36,47 +35,46 @@ namespace graphos
 {
 
 AboutPresenterImp::AboutPresenterImp(AboutView *view,
-                                     AboutModel *model,
-                                     AppStatus *status)
+                                     AboutModel *model)
   : AboutPresenter(),
     mView(view),
     mModel(model)
 {
-  init();
+    init();
 }
 
 void AboutPresenterImp::open()
 {
-  mView->exec();
+    mView->exec();
 }
 
 void AboutPresenterImp::init()
 {
-  tl::Licence licence = mModel->graphosLicence();
+    tl::Licence licence = mModel->graphosLicence();
 
-  // Set Graphos licence
+    // Set Graphos licence
 
-  licence.productName();
-  licence.version();
-  mView->setGraphosVersion(QString::fromStdString(licence.version()));
-  mView->setGraphosLicence(mModel->readLicence(QString::fromStdString(licence.text())));
+    licence.productName();
+    licence.version();
+    mView->setGraphosVersion(QString::fromStdString(licence.version()));
+    mView->setGraphosLicence(mModel->readLicence(QString::fromStdString(licence.text())));
 
-  // Set licenses 
+    // Set licenses 
 
-  for (const auto &licence : *mModel) {
-    std::string name = licence.productName();
-    name.append("  ").append(licence.version());
-    QString licence_text = mModel->readLicence(QString::fromStdString(licence.text()));
-    mView->addLicence(QString::fromStdString(name), licence_text);
-  }
+    for (const auto &licence : *mModel) {
+        std::string name = licence.productName();
+        name.append("  ").append(licence.version());
+        QString licence_text = mModel->readLicence(QString::fromStdString(licence.text()));
+        mView->addLicence(QString::fromStdString(name), licence_text);
+    }
 
 }
 
 void AboutPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &DialogView::help, [&]() {
-    emit help("menus.html#about");
-  });
+    connect(mView, &DialogView::help, [&]() {
+        emit help("menus.html#about");
+    });
 }
 
 } // namespace graphos

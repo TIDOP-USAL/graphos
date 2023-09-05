@@ -23,7 +23,7 @@
 
 #include "MatchViewerPresenter.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 #include "graphos/components/matchviewer/impl/MatchViewerModel.h"
 #include "graphos/components/matchviewer/impl/MatchViewerView.h"
@@ -39,8 +39,8 @@ MatchViewerPresenterImp::MatchViewerPresenterImp(MatchViewerView *view,
     mView(view),
     mModel(model)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 MatchViewerPresenterImp::~MatchViewerPresenterImp()
@@ -50,63 +50,63 @@ MatchViewerPresenterImp::~MatchViewerPresenterImp()
 
 void MatchViewerPresenterImp::setLeftImage(size_t imageId)
 {
-  Image image = mModel->image(imageId);
-  mView->setLeftImage(image.path());
+    Image image = mModel->image(imageId);
+    mView->setLeftImage(image.path());
 
-  std::vector<std::pair<size_t, QString>> pairs;
-  for (const auto &pair_id : mModel->imagePairs(imageId)) {
-    pairs.emplace_back(pair_id, mModel->image(pair_id).path());
-  }
+    std::vector<std::pair<size_t, QString>> pairs;
+    for (const auto &pair_id : mModel->imagePairs(imageId)) {
+        pairs.emplace_back(pair_id, mModel->image(pair_id).path());
+    }
 
-  if (!pairs.empty()){
-    mView->setRightImageList(pairs);
-    mView->setRightImage(pairs[0].second);
-    loadMatches(imageId, pairs[0].first);
-  }
+    if (!pairs.empty()) {
+        mView->setRightImageList(pairs);
+        mView->setRightImage(pairs[0].second);
+        loadMatches(imageId, pairs[0].first);
+    }
 }
 
 void MatchViewerPresenterImp::setRightImage(size_t imageId)
 {
-  mView->setRightImage(mModel->image(imageId).path());
+    mView->setRightImage(mModel->image(imageId).path());
 }
 
 void MatchViewerPresenterImp::loadMatches(size_t imageId1,
                                           size_t imageId2)
 {
-  try {
+    try {
 
-    mView->setMatches(mModel->loadMatches(imageId1, imageId2));
+        mView->setMatches(mModel->loadMatches(imageId1, imageId2));
 
-  } catch (const std::exception &e) {
-    msgError(e.what());
-  }
+    } catch (const std::exception &e) {
+        tl::printException(e);
+    }
 }
 
 void MatchViewerPresenterImp::open()
 {
-  mView->clear();
+    mView->clear();
 
-  mView->setBackgroundColor(mModel->backgroundColor());
-  mView->setSelectedMarkerStyle(mModel->selectedMarkerColor(),
-                                mModel->viewerSelectMarkerWidth());
-  mView->setMarkerStyle(mModel->markerColor(),
-                        mModel->markerWidth(),
-                        mModel->markerType(),
-                        mModel->markerSize());
-  mView->setLineStyle(mModel->lineColor(),
-                      mModel->lineWidth());
+    mView->setBackgroundColor(mModel->backgroundColor());
+    mView->setSelectedMarkerStyle(mModel->selectedMarkerColor(),
+                                  mModel->viewerSelectMarkerWidth());
+    mView->setMarkerStyle(mModel->markerColor(),
+                          mModel->markerWidth(),
+                          mModel->markerType(),
+                          mModel->markerSize());
+    mView->setLineStyle(mModel->lineColor(),
+                        mModel->lineWidth());
 
-  mView->show();
+    mView->show();
 
-  std::vector<std::pair<size_t, QString>> images;
-  for (const auto &pair_id_image : mModel->images()) {
-    images.emplace_back(pair_id_image.first, pair_id_image.second.path());
-  }
+    std::vector<std::pair<size_t, QString>> images;
+    for (const auto &pair_id_image : mModel->images()) {
+        images.emplace_back(pair_id_image.first, pair_id_image.second.path());
+    }
 
-  if (!images.empty()) {
-    mView->setLeftImageList(images);
-    setLeftImage(images[0].first);
-  }
+    if (!images.empty()) {
+        mView->setLeftImageList(images);
+        setLeftImage(images[0].first);
+    }
 
 }
 
@@ -116,13 +116,13 @@ void MatchViewerPresenterImp::init()
 
 void MatchViewerPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &MatchViewerView::leftImageChange,         this, &MatchViewerPresenterImp::setLeftImage);
-  connect(mView, &MatchViewerView::rightImageChange,        this, &MatchViewerPresenterImp::setRightImage);
-  connect(mView, &MatchViewerView::loadMatches,             this, &MatchViewerPresenterImp::loadMatches);
+    connect(mView, &MatchViewerView::leftImageChange, this, &MatchViewerPresenterImp::setLeftImage);
+    connect(mView, &MatchViewerView::rightImageChange, this, &MatchViewerPresenterImp::setRightImage);
+    connect(mView, &MatchViewerView::loadMatches, this, &MatchViewerPresenterImp::loadMatches);
 
-  connect(mView, &DialogView::help, [&]() {
-    emit help("matches_viewer.html");
-  });
+    connect(mView, &DialogView::help, [&]() {
+        emit help("matches_viewer.html");
+    });
 }
 
 } // namespace graphos

@@ -38,104 +38,104 @@ namespace graphos
 
 
 class MatchViewerSettingsWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MatchViewerSettingsWidget(QWidget *parent = nullptr);
-  virtual ~MatchViewerSettingsWidget() = default;
-  
-  QString backgroundColor() const;
-  int markerType() const;
-  int markerSize() const;
-  int markerWidth() const;
-  QString markerColor() const;
-  int selectedMarkerWidth() const;
-  QString selectedMarkerColor() const;
-  QString lineColor() const;
-  int lineWidth() const;
-  
+    MatchViewerSettingsWidget(QWidget *parent = nullptr);
+    virtual ~MatchViewerSettingsWidget() = default;
+
+    QString backgroundColor() const;
+    int markerType() const;
+    int markerSize() const;
+    int markerWidth() const;
+    QString markerColor() const;
+    int selectedMarkerWidth() const;
+    QString selectedMarkerColor() const;
+    QString lineColor() const;
+    int lineWidth() const;
+
 public slots:
-  
-  void setBackgroundColor(const QString &color);
-  void setMarkerType(int type);
-  void setMarkerSize(int size);
-  void setMarkerWidth(int width);
-  void setMarkerColor(const QString &color);
-  void setSelectedMarkerWidth(int width);
-  void setSelectedMarkerColor(const QString &color);
-  void setLineColor(const QString &color);
-  void setLineWidth(int width);
-  
+
+    void setBackgroundColor(const QString &color);
+    void setMarkerType(int type);
+    void setMarkerSize(int size);
+    void setMarkerWidth(int width);
+    void setMarkerColor(const QString &color);
+    void setSelectedMarkerWidth(int width);
+    void setSelectedMarkerColor(const QString &color);
+    void setLineColor(const QString &color);
+    void setLineWidth(int width);
+
 signals:
-  
-  void backgroundColorChange(const QString &);
-  void markerTypeChange(int);
-  void markerSizeChange(int);
-  void markerWidthChange(int);
-  void markerColorChange(const QString &);
-  void lineWidthChange(int);
-  void lineColorChange(const QString &);
-  void selectedMarkerWidthChange(int);
-  void selectedMarkerColorChange(const QString &);
+
+    void backgroundColorChange(const QString &);
+    void markerTypeChange(int);
+    void markerSizeChange(int);
+    void markerWidthChange(int);
+    void markerColorChange(const QString &);
+    void lineWidthChange(int);
+    void lineColorChange(const QString &);
+    void selectedMarkerWidthChange(int);
+    void selectedMarkerColorChange(const QString &);
 
 public slots:
 
 protected slots:
 
-  void onPushButtonBackgroundColorClicked();
-  void onPushButtonMarkerColorClicked();
-  void onPushButtonSelectMarkerColorClicked();
-  void onPushButtonMatchViewerLineColorClicked();
+    void onPushButtonBackgroundColorClicked();
+    void onPushButtonMarkerColorClicked();
+    void onPushButtonSelectMarkerColorClicked();
+    void onPushButtonMatchViewerLineColorClicked();
 
 // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 protected:
 
-  QLabel *mLabelBackgroundColor;
-  QLineEdit *mLineEditBackgroundColor;
-  QPushButton *mPushButtonBackgroundColor;
+    QLabel *mLabelBackgroundColor;
+    QLineEdit *mLineEditBackgroundColor;
+    QPushButton *mPushButtonBackgroundColor;
 
-  QGroupBox *mGroupBoxMVMarker;
-  QLabel *mLabelMarkerType;
-  QListWidget *mListWidgetMarkerType;
-  QLabel *mLabelMarkerSize;
-  QSpinBox *mSpinBoxMarkerSize;
-  QLabel *mLabelMarkerWidth;
-  QSpinBox *mSpinBoxMarkerWidth;
-  QLabel *mLabelMarkerColor;
-  QLineEdit *mLineEditMarkerColor;
-  QPushButton *mPushButtonMarkerColor;
+    QGroupBox *mGroupBoxMVMarker;
+    QLabel *mLabelMarkerType;
+    QListWidget *mListWidgetMarkerType;
+    QLabel *mLabelMarkerSize;
+    QSpinBox *mSpinBoxMarkerSize;
+    QLabel *mLabelMarkerWidth;
+    QSpinBox *mSpinBoxMarkerWidth;
+    QLabel *mLabelMarkerColor;
+    QLineEdit *mLineEditMarkerColor;
+    QPushButton *mPushButtonMarkerColor;
 
-  QGroupBox *mGroupBoxSelectMatches;
-  QLabel *mLabelSelectMarkerWidth;
-  QSpinBox *mSpinBoxSelectMarkerWidth;
-  QLabel *mLabelSelectMarkerColor;
-  QLineEdit *mLineEditSelectMarkerColor;
-  QPushButton *mPushButtonSelectMarkerColor;
-  
-  QGroupBox *mGroupBoxLine;
-  QLabel *mLabelLineWidth;
-  QSpinBox *mSpinBoxLineWidth;
-  QLabel *mLabelLineColor;
-  QLineEdit *mLineEditLineColor;
-  QPushButton *mPushButtonLineColor;
+    QGroupBox *mGroupBoxSelectMatches;
+    QLabel *mLabelSelectMarkerWidth;
+    QSpinBox *mSpinBoxSelectMarkerWidth;
+    QLabel *mLabelSelectMarkerColor;
+    QLineEdit *mLineEditSelectMarkerColor;
+    QPushButton *mPushButtonSelectMarkerColor;
+
+    QGroupBox *mGroupBoxLine;
+    QLabel *mLabelLineWidth;
+    QSpinBox *mSpinBoxLineWidth;
+    QLabel *mLabelLineColor;
+    QLineEdit *mLineEditLineColor;
+    QPushButton *mPushButtonLineColor;
 
 };
 

@@ -34,40 +34,40 @@ namespace graphos
 class PropertiesViewImp
   : public PropertiesView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit PropertiesViewImp(QWidget *parent = nullptr);
-  ~PropertiesViewImp() override = default;
+    explicit PropertiesViewImp(QWidget *parent = nullptr);
+    ~PropertiesViewImp() override = default;
 
 // PropertiesView interface
 
 public:
 
-  void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) override;
-  void setAlternatingRowColors(bool active) override;
+    void setProperties(const std::unordered_map<QString, std::list<std::pair<QString, QString>>> &properties) override;
+    void setAlternatingRowColors(bool active) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QTreeWidget *mTreeWidgetProperties;
-  
+    QTreeWidget *mTreeWidgetProperties;
+
 };
 
 } // namespace graphos

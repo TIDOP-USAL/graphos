@@ -30,39 +30,35 @@
 namespace graphos
 {
 
-class AppStatus;
-
 class AboutView;
 class AboutModel;
-  
-class AboutPresenterImp 
+
+class AboutPresenterImp
   : public AboutPresenter
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  AboutPresenterImp(AboutView *view, 
-                    AboutModel *model,
-                    AppStatus *status);
-  ~AboutPresenterImp() override = default;
-  
+    AboutPresenterImp(AboutView *view,
+                      AboutModel *model);
+    ~AboutPresenterImp() override = default;
+
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  AboutView *mView;
-  AboutModel *mModel;
-  AppStatus *mAppStatus;
+    AboutView *mView;
+    AboutModel *mModel;
 
 };
 

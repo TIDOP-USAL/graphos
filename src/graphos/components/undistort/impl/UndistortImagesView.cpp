@@ -23,13 +23,6 @@
 
 #include "UndistortImagesView.h"
 
-//#include <QApplication>
-//#include <QGridLayout>
-//#include <QDialogButtonBox>
-//#include <QPushButton>
-//#include <QLabel>
-//#include <QComboBox>
-
 
 namespace graphos
 {
@@ -37,7 +30,7 @@ namespace graphos
 UndistortImagesViewImp::UndistortImagesViewImp(QWidget *parent)
   : UndistortImagesView(parent)
 {
-  this->init();
+    this->init();
 }
 
 UndistortImagesViewImp::~UndistortImagesViewImp()
@@ -48,22 +41,17 @@ UndistortImagesViewImp::~UndistortImagesViewImp()
 void UndistortImagesViewImp::init()
 {
 
-  QFileDialog::setWindowTitle(tr("Undistort images output path"));
-  
-  QFileDialog::setFileMode(QFileDialog::Directory);
-  QFileDialog::setOption(ShowDirsOnly, true);
-  QFileDialog::setOption(DontResolveSymlinks, true);
+    QFileDialog::setWindowTitle(tr("Undistort images output path"));
+
+    QFileDialog::setFileMode(QFileDialog::Directory);
+    QFileDialog::setOption(ShowDirsOnly, true);
+    QFileDialog::setOption(DontResolveSymlinks, true);
 
 }
 
-//QString UndistortImagesViewImp::outputPath() const 
-//{
-//  return mComboBoxOutputPath->currentText();
-//}
-
 void UndistortImagesViewImp::setProjectDirectory(const QString &directory)
 {
-  QFileDialog::setDirectory(directory);
+    QFileDialog::setDirectory(directory);
 }
 
 

@@ -37,12 +37,12 @@ namespace graphos
 class SaveProjectView
   : public QFileDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectView(QWidget *parent) : QFileDialog(parent) {}
-  ~SaveProjectView() override = default;
+    SaveProjectView(QWidget *parent) : QFileDialog(parent) {}
+    ~SaveProjectView() override = default;
 
 };
 

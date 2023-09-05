@@ -34,47 +34,40 @@ class LoadFromVideoModelImp
   : public LoadFromVideoModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  LoadFromVideoModelImp(Project *project, QObject *parent = nullptr);
-  ~LoadFromVideoModelImp() override;
+    LoadFromVideoModelImp(Project *project, QObject *parent = nullptr);
+    ~LoadFromVideoModelImp() override;
 
 // LoadFromVideoModel interface
 
 public:
 
-  tl::Path imagesPath() const override;
-  void addImage(const Image &image) override;
-  const std::map<int, Camera> &cameras() const override;
-  int addCamera(const Camera &camera) override;
-  int cameraID(const Camera &camera) const override;
-  int cameraID(const QString &make,
-               const QString &model) const override;
-  //LoadFromVideoParameters *parameters() const override;
+    tl::Path imagesPath() const override;
+    void addImage(const Image &image) override;
+    const std::map<int, Camera> &cameras() const override;
+    int addCamera(const Camera &camera) override;
+    int cameraID(const Camera &camera) const override;
+    int cameraID(const QString &make,
+                 const QString &model) const override;
 
 public slots:
-
-  //void loadSettings() override;
-  //void saveSettings() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  //QSettings *mSettings;
-  //bool mReadSettings;
-  //LoadFromVideoParameters *mParameters;
+    Project *mProject;
 };
 
 } // namespace graphos

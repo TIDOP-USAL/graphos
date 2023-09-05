@@ -33,16 +33,16 @@ class SaveProjectViewImp
   : public SaveProjectView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit SaveProjectViewImp(QWidget *parent = nullptr);
-  ~SaveProjectViewImp() override = default;
+    explicit SaveProjectViewImp(QWidget *parent = nullptr);
+    ~SaveProjectViewImp() override = default;
 
 private:
 
-  void init();
+    void init();
 
 };
 

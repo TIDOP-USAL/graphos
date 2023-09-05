@@ -33,16 +33,16 @@ class OpenProjectViewImp /*final*/
   : public OpenProjectView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit OpenProjectViewImp(QWidget *parent = nullptr);
-  ~OpenProjectViewImp() override = default;
+    explicit OpenProjectViewImp(QWidget *parent = nullptr);
+    ~OpenProjectViewImp() override = default;
 
 private:
 
-  void init();
+    void init();
 
 private:
 
@@ -50,7 +50,7 @@ private:
 
 public:
 
-  void setGraphosProjectsPath(const QString &directory) override;
+    void setGraphosProjectsPath(const QString &directory) override;
 
 };
 

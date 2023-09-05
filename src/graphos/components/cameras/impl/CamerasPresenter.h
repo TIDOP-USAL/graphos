@@ -37,50 +37,50 @@ class CamerasPresenterImp
   : public CamerasPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CamerasPresenterImp(CamerasView *view,
-                      CamerasModel *model);
-  ~CamerasPresenterImp() override = default;
+    CamerasPresenterImp(CamerasView *view,
+                        CamerasModel *model);
+    ~CamerasPresenterImp() override = default;
 
 private:
 
-  void loadCameras();
-  void clear();
+    void loadCameras();
+    void clear();
 
 private slots:
 
-  void calibrationImport(const QString &file,
-                         const QString &format);
+    void calibrationImport(const QString &file,
+                           const QString &format);
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 // CamerasPresenter interface
 
 public slots:
 
-  void activeCamera(int id) override;
+    void activeCamera(int id) override;
 
 protected slots:
 
-  void save() override;
-  void discart() override;
+    void save() override;
+    void discart() override;
 
 private:
 
-  CamerasView *mView;
-  CamerasModel *mModel;
+    CamerasView *mView;
+    CamerasModel *mModel;
 
 };
 

@@ -39,28 +39,28 @@ namespace graphos
  * \brief Track
  *
  * [image_id_1 point_id_1 image_id_2 point_id_2 ...]
- * 
+ *
  */
 class Track
 {
 
 public:
 
-  Track();
-  ~Track();
+    Track();
+    ~Track();
 
-  size_t size() const;
+    size_t size() const;
 
-  size_t pointId(size_t idx);
-  const std::unordered_map<size_t, size_t> &pairs() const;
+    size_t pointId(size_t idx);
+    const std::unordered_map<size_t, size_t> &pairs() const;
 
-  void addPair(size_t imageId, size_t pointId);
-  bool existPair(size_t imageId) const;
-  void removePair(size_t imageId);
+    void addPair(size_t imageId, size_t pointId);
+    bool existPair(size_t imageId) const;
+    void removePair(size_t imageId);
 
 private:
 
-  std::unordered_map<size_t, size_t> mPairs;
+    std::unordered_map<size_t, size_t> mPairs;
 
 };
 
@@ -70,21 +70,21 @@ class GCPTrack
 
 public:
 
-  GCPTrack();
-  ~GCPTrack();
+    GCPTrack();
+    ~GCPTrack();
 
-  size_t size() const;
+    size_t size() const;
 
-  tl::Point<double> point(size_t idx) const;
-  const std::unordered_map<size_t, tl::Point<double>> &points() const;
+    tl::Point<double> point(size_t idx) const;
+    const std::unordered_map<size_t, tl::Point<double>> &points() const;
 
-  void addPoint(size_t imageId, const tl::Point<double> &point);
-  bool existPoint(size_t imageId) const;
-  void removePoint(size_t imageId);
+    void addPoint(size_t imageId, const tl::Point<double> &point);
+    bool existPoint(size_t imageId) const;
+    void removePoint(size_t imageId);
 
 private:
 
-  std::unordered_map<size_t, tl::Point<double>> mImageIdPoint;
+    std::unordered_map<size_t, tl::Point<double>> mImageIdPoint;
 };
 
 

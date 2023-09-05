@@ -37,47 +37,47 @@ class OrientationModelImp
 
 public:
 
-  OrientationModelImp(Project *project,
-                      QObject *parent = nullptr);
-  ~OrientationModelImp() override = default;
+    OrientationModelImp(Project *project,
+                        QObject *parent = nullptr);
+    ~OrientationModelImp() override = default;
 
 // OrientationModel interface
 
 public:
 
-  bool calibratedCamera() const override;
-  void setSparseModel(const tl::Path &sparseModel) override;
-  void setOffset(const tl::Path &offset) override;
-  void setGroundPoints(const tl::Path &offset) override;
-  bool isPhotoOriented(size_t imageId) const override;
-  CameraPose photoOrientation(size_t imageId) const override;
-  void addPhotoOrientation(size_t imageId, 
-                           const CameraPose &orientation) override;
-  tl::Path database() const override;
-  tl::Path projectFolder() const override;
-  bool gpsPositions() const override;
-  bool rtkOrientations() const override;
-  tl::Path reconstructionPath() const override;
-  TL_DEPRECATED("", "2.0")
-  void setReconstructionPath(const tl::Path &reconstructionPath) override;
-  void clearProject() override;
-  const std::map<int, Camera> &cameras() const override;
-  bool updateCamera(int id, const Camera &camera) override;
-  const std::unordered_map<size_t, Image> &images() const override;
+    bool calibratedCamera() const override;
+    void setSparseModel(const tl::Path &sparseModel) override;
+    void setOffset(const tl::Path &offset) override;
+    void setGroundPoints(const tl::Path &offset) override;
+    bool isPhotoOriented(size_t imageId) const override;
+    CameraPose photoOrientation(size_t imageId) const override;
+    void addPhotoOrientation(size_t imageId,
+                             const CameraPose &orientation) override;
+    tl::Path database() const override;
+    tl::Path projectFolder() const override;
+    bool gpsPositions() const override;
+    bool rtkOrientations() const override;
+    tl::Path reconstructionPath() const override;
+    TL_DEPRECATED("", "2.0")
+    void setReconstructionPath(const tl::Path &reconstructionPath) override;
+    void clearProject() override;
+    const std::map<int, Camera> &cameras() const override;
+    bool updateCamera(int id, const Camera &camera) override;
+    const std::unordered_map<size_t, Image> &images() const override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
+    Project *mProject;
 
 };
 

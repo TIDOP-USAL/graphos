@@ -32,7 +32,7 @@
 #include "graphos/core/dtm/invdist.h"
 #include "graphos/core/dtm/invdistnn.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 #include <QDir>
 #include <QImageReader>
@@ -49,173 +49,173 @@ DtmPresenterImp::DtmPresenterImp(DtmView *view,
     mDtmInvDistWidget(new DtmInvDistWidgetImp),
     mDtmInvDistNNWidget(new DtmInvDistNNWidgetImp)
 {
-  this->init();
-  this->initSignalAndSlots();
+    this->init();
+    this->initSignalAndSlots();
 }
 
 DtmPresenterImp::~DtmPresenterImp()
 {
-  if (mDtmInvDistWidget){
-    delete mDtmInvDistWidget;
-    mDtmInvDistWidget = nullptr;
-  }
+    if (mDtmInvDistWidget) {
+        delete mDtmInvDistWidget;
+        mDtmInvDistWidget = nullptr;
+    }
 
-  if (mDtmInvDistNNWidget){
-    delete mDtmInvDistNNWidget;
-    mDtmInvDistNNWidget = nullptr;
-  }
+    if (mDtmInvDistNNWidget) {
+        delete mDtmInvDistNNWidget;
+        mDtmInvDistNNWidget = nullptr;
+    }
 }
 
 void DtmPresenterImp::setDtmProperties()
 {
-  this->setInvDistProperties();
-  this->setInvDistNNProperties();
+    this->setInvDistProperties();
+    this->setInvDistNNProperties();
 }
 
 void DtmPresenterImp::setInvDistProperties()
 {
-  std::shared_ptr<DtmInvDist> invdist = std::make_shared<DtmInvDistProperties>();
-  if (std::shared_ptr<Dtm> dtm_properties = mModel->dtmMethod()) {
-    if (dtm_properties->interpolation() == Dtm::Interpolation::inv_dist) {
-      invdist = std::dynamic_pointer_cast<DtmInvDist>(dtm_properties);
+    std::shared_ptr<DtmInvDist> invdist = std::make_shared<DtmInvDistProperties>();
+    if (std::shared_ptr<Dtm> dtm_properties = mModel->dtmMethod()) {
+        if (dtm_properties->interpolation() == Dtm::Interpolation::inv_dist) {
+            invdist = std::dynamic_pointer_cast<DtmInvDist>(dtm_properties);
+        }
     }
-  }
 
-  mDtmInvDistWidget->setPower(invdist->power());
-  mDtmInvDistWidget->setSmoothing(invdist->smoothing());
-  mDtmInvDistWidget->setRadius1(invdist->radius1());
-  mDtmInvDistWidget->setRadius2(invdist->radius2());
-  mDtmInvDistWidget->setAngle(invdist->angle());
-  mDtmInvDistWidget->setMaxPoints(invdist->maxPoints());
-  mDtmInvDistWidget->setMinPoints(invdist->minPoints());
+    mDtmInvDistWidget->setPower(invdist->power());
+    mDtmInvDistWidget->setSmoothing(invdist->smoothing());
+    mDtmInvDistWidget->setRadius1(invdist->radius1());
+    mDtmInvDistWidget->setRadius2(invdist->radius2());
+    mDtmInvDistWidget->setAngle(invdist->angle());
+    mDtmInvDistWidget->setMaxPoints(invdist->maxPoints());
+    mDtmInvDistWidget->setMinPoints(invdist->minPoints());
 }
 
 void DtmPresenterImp::setInvDistNNProperties()
 {
-  std::shared_ptr<DtmInvDistNN> invdistnn = std::make_shared<DtmInvDistNNProperties>();;
-  if (std::shared_ptr<Dtm> dtm_properties = mModel->dtmMethod()) {
-    if (dtm_properties->interpolation() == Dtm::Interpolation::inv_distnn) {
-      invdistnn = std::dynamic_pointer_cast<DtmInvDistNN>(dtm_properties);
+    std::shared_ptr<DtmInvDistNN> invdistnn = std::make_shared<DtmInvDistNNProperties>();;
+    if (std::shared_ptr<Dtm> dtm_properties = mModel->dtmMethod()) {
+        if (dtm_properties->interpolation() == Dtm::Interpolation::inv_distnn) {
+            invdistnn = std::dynamic_pointer_cast<DtmInvDistNN>(dtm_properties);
+        }
     }
-  }
 
-  mDtmInvDistNNWidget->setPower(invdistnn->power());
-  mDtmInvDistNNWidget->setSmoothing(invdistnn->smoothing());
-  mDtmInvDistNNWidget->setRadius(invdistnn->radius());
-  mDtmInvDistNNWidget->setMaxPoints(invdistnn->maxPoints());
-  mDtmInvDistNNWidget->setMinPoints(invdistnn->minPoints());
+    mDtmInvDistNNWidget->setPower(invdistnn->power());
+    mDtmInvDistNNWidget->setSmoothing(invdistnn->smoothing());
+    mDtmInvDistNNWidget->setRadius(invdistnn->radius());
+    mDtmInvDistNNWidget->setMaxPoints(invdistnn->maxPoints());
+    mDtmInvDistNNWidget->setMinPoints(invdistnn->minPoints());
 }
 
 void DtmPresenterImp::open()
 {
-  this->setDtmProperties();
+    this->setDtmProperties();
 
-  mView->exec();
+    mView->exec();
 }
 
 void DtmPresenterImp::init()
 {
-  //mView->addDtmMethod(mDtmInvDistWidget);
-  mView->addDtmMethod(mDtmInvDistNNWidget);
-  mView->setCurrentDtmMethod(mDtmInvDistNNWidget->windowTitle());
+    //mView->addDtmMethod(mDtmInvDistWidget);
+    mView->addDtmMethod(mDtmInvDistNNWidget);
+    mView->setCurrentDtmMethod(mDtmInvDistNNWidget->windowTitle());
 }
 
 void DtmPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &DtmView::dtmMethodChange,  this, &DtmPresenterImp::setCurrentDtmMethod);
-  connect(mView, &DtmView::run,   this, &DtmPresenterImp::run);
-  connect(mView, &DialogView::help, [&]() {
-    emit help("dtm.html");
+    connect(mView, &DtmView::dtmMethodChange, this, &DtmPresenterImp::setCurrentDtmMethod);
+    connect(mView, &DtmView::run, this, &DtmPresenterImp::run);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("dtm.html");
     });
 }
 
 void DtmPresenterImp::onError(tl::TaskErrorEvent *event)
 {
-  TaskPresenter::onError(event);
+    TaskPresenter::onError(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("DTM error"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("DTM error"));
+    }
 }
 
 void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-  TaskPresenter::onFinished(event);
+    TaskPresenter::onFinished(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("DTM finished"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("DTM finished"));
+    }
 
-  tl::Path dtm_file = mModel->projectPath();
-  dtm_file.append("dtm").append("dtm.tif");
-  mModel->setDtmPath(dtm_file);
+    tl::Path dtm_file = mModel->projectPath();
+    dtm_file.append("dtm").append("dtm.tif");
+    mModel->setDtmPath(dtm_file);
 }
 
 std::unique_ptr<tl::Task> DtmPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> dtm_process;
+    std::unique_ptr<tl::Task> dtm_process;
 
-  QString currentDtmMethod = mView->currentDtmMethod();
-  std::shared_ptr<DtmAlgorithm> dtm_algorithm;
+    QString currentDtmMethod = mView->currentDtmMethod();
+    std::shared_ptr<DtmAlgorithm> dtm_algorithm;
 
-  if (currentDtmMethod.compare("Inverse distance to a power") == 0){
-    dtm_algorithm = std::make_shared<DtmInvDistAlgorithm>(mDtmInvDistWidget->power(),
-                                                          mDtmInvDistWidget->smoothing(),
-                                                          mDtmInvDistWidget->radius1(),
-                                                          mDtmInvDistWidget->radius2(), 
-                                                          mDtmInvDistWidget->angle(),
-                                                          mDtmInvDistWidget->maxPoints(),
-                                                          mDtmInvDistWidget->minPoints());
-  } else if (currentDtmMethod.compare("Inverse distance to a power with nearest neighbor searching") == 0){
-    dtm_algorithm = std::make_shared<DtmInvDistNNAlgorithm>(mDtmInvDistNNWidget->power(),
-                                                            mDtmInvDistNNWidget->smoothing(),
-                                                            mDtmInvDistNNWidget->radius(),
-                                                            mDtmInvDistNNWidget->maxPoints(),
-                                                            mDtmInvDistNNWidget->minPoints());
-  } else {
+    if (currentDtmMethod.compare("Inverse distance to a power") == 0) {
+        dtm_algorithm = std::make_shared<DtmInvDistAlgorithm>(mDtmInvDistWidget->power(),
+                                                              mDtmInvDistWidget->smoothing(),
+                                                              mDtmInvDistWidget->radius1(),
+                                                              mDtmInvDistWidget->radius2(),
+                                                              mDtmInvDistWidget->angle(),
+                                                              mDtmInvDistWidget->maxPoints(),
+                                                              mDtmInvDistWidget->minPoints());
+    } else if (currentDtmMethod.compare("Inverse distance to a power with nearest neighbor searching") == 0) {
+        dtm_algorithm = std::make_shared<DtmInvDistNNAlgorithm>(mDtmInvDistNNWidget->power(),
+                                                                mDtmInvDistNNWidget->smoothing(),
+                                                                mDtmInvDistNNWidget->radius(),
+                                                                mDtmInvDistNNWidget->maxPoints(),
+                                                                mDtmInvDistNNWidget->minPoints());
+    } else {
+        mView->hide();
+        throw std::runtime_error("Invalid DTM Method");
+    }
+
+    mModel->setDtmMethod(std::dynamic_pointer_cast<Dtm>(dtm_algorithm));
+
+    if (progressHandler()) {
+        progressHandler()->setRange(0, 0);
+        progressHandler()->setTitle("DTM generation...");
+        progressHandler()->setDescription("DTM generation...");
+    }
+
+    tl::Path dtm_file = mModel->projectPath();
+    dtm_file.append("dtm").append("dtm.tif");
+
+    dtm_process = std::make_unique<DtmProcess>(dtm_algorithm,
+                                               mModel->denseModel(),
+                                               mModel->offset(),
+                                               dtm_file,
+                                               mView->gsd(),
+                                               mView->isDSM(),
+                                               mModel->crs());
+
+    //connect(dtm_process.get(), &DtmProcess::dtmFinished, 
+    //        this, &DtmPresenterImp::onFinishDtm);
+
+    //mMultiProcess->appendProcess(dtm_process);
+
     mView->hide();
-    throw std::runtime_error("Invalid DTM Method");
-  }
 
-  mModel->setDtmMethod(std::dynamic_pointer_cast<Dtm>(dtm_algorithm));
-
-  if (progressHandler()){
-    progressHandler()->setRange(0, 0);
-    progressHandler()->setTitle("DTM generation...");
-    progressHandler()->setDescription("DTM generation...");
-  }
-
-  tl::Path dtm_file = mModel->projectPath();
-  dtm_file.append("dtm").append("dtm.tif");
-
-  dtm_process = std::make_unique<DtmProcess>(dtm_algorithm,
-                                             mModel->denseModel(),
-                                             mModel->offset(),
-                                             dtm_file,
-                                             mView->gsd(),
-                                             mView->isDSM(),
-                                             mModel->crs());
-
-  //connect(dtm_process.get(), &DtmProcess::dtmFinished, 
-  //        this, &DtmPresenterImp::onFinishDtm);
-
-  //mMultiProcess->appendProcess(dtm_process);
-
-  mView->hide();
-
-  return dtm_process;
+    return dtm_process;
 }
 
 void DtmPresenterImp::setCurrentDtmMethod(const QString &method)
 {
-  mView->setCurrentDtmMethod(method);
+    mView->setCurrentDtmMethod(method);
 }
 
 void DtmPresenterImp::cancel()
 {
-  TaskPresenter::cancel();
+    TaskPresenter::cancel();
 
-  msgWarning("Processing has been canceled by the user");
+    tl::Message::warning("Processing has been canceled by the user");
 }
 
 } // namespace graphos

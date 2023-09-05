@@ -40,124 +40,124 @@ SettingsPresenterImp::SettingsPresenterImp(SettingsView *view,
     mView(view),
     mModel(model)
 {
-  init();
-  initSignalAndSlots();
+    init();
+    initSignalAndSlots();
 }
 
 void SettingsPresenterImp::open()
 {
 
-  setLanguageSettings();
+    setLanguageSettings();
 
-  mView->setHistoryMaxSize(mModel->historyMaxSize());
-  mView->setUseCuda(mModel->useCuda() && mModel->checkDevice());
-  mView->setCudaEnabled(mModel->checkDevice());
+    mView->setHistoryMaxSize(mModel->historyMaxSize());
+    mView->setUseCuda(mModel->useCuda() && mModel->checkDevice());
+    mView->setCudaEnabled(mModel->checkDevice());
 
-  setKeypointsViewerSettings();
-  setMatchesViewerSettings();
+    setKeypointsViewerSettings();
+    setMatchesViewerSettings();
 
-  mView->exec();
+    mView->exec();
 }
 
 void SettingsPresenterImp::setFeatureViewer(FeatureViewerSettingsWidget *widget)
 {
-  mFeatureViewerSettingsWidget = widget;
+    mFeatureViewerSettingsWidget = widget;
 
-  mView->addWidget(widget);
+    mView->addWidget(widget);
 
-  connect(widget, &FeatureViewerSettingsWidget::backgroundColorChange, 
-          mModel, &SettingsModel::setKeypointsViewerBGColor);
-  connect(widget, &FeatureViewerSettingsWidget::markerTypeChange, 
-          mModel, &SettingsModel::setKeypointsViewerMarkerType);
-  connect(widget, &FeatureViewerSettingsWidget::markerSizeChange, 
-          mModel, &SettingsModel::setKeypointsViewerMarkerSize);
-  connect(widget, &FeatureViewerSettingsWidget::markerWidthChange, 
-          mModel, &SettingsModel::setKeypointsViewerMarkerWidth);
-  connect(widget, &FeatureViewerSettingsWidget::markerColorChange,
-          mModel, &SettingsModel::setKeypointsViewerMarkerColor);
-  connect(widget, &FeatureViewerSettingsWidget::selectedMarkerWidthChange, 
-          mModel, &SettingsModel::setKeypointsViewerSelectMarkerWidth);
-  connect(widget, &FeatureViewerSettingsWidget::selectedMarkerColorChange,
-          mModel, &SettingsModel::setKeypointsViewerSelectMarkerColor);
+    connect(widget, &FeatureViewerSettingsWidget::backgroundColorChange,
+            mModel, &SettingsModel::setKeypointsViewerBGColor);
+    connect(widget, &FeatureViewerSettingsWidget::markerTypeChange,
+            mModel, &SettingsModel::setKeypointsViewerMarkerType);
+    connect(widget, &FeatureViewerSettingsWidget::markerSizeChange,
+            mModel, &SettingsModel::setKeypointsViewerMarkerSize);
+    connect(widget, &FeatureViewerSettingsWidget::markerWidthChange,
+            mModel, &SettingsModel::setKeypointsViewerMarkerWidth);
+    connect(widget, &FeatureViewerSettingsWidget::markerColorChange,
+            mModel, &SettingsModel::setKeypointsViewerMarkerColor);
+    connect(widget, &FeatureViewerSettingsWidget::selectedMarkerWidthChange,
+            mModel, &SettingsModel::setKeypointsViewerSelectMarkerWidth);
+    connect(widget, &FeatureViewerSettingsWidget::selectedMarkerColorChange,
+            mModel, &SettingsModel::setKeypointsViewerSelectMarkerColor);
 
 }
 
 void SettingsPresenterImp::setMatchesViewer(MatchViewerSettingsWidget *widget)
 {
-  mMatchViewerSettingsWidget = widget;
+    mMatchViewerSettingsWidget = widget;
 
-  mView->addWidget(widget);
+    mView->addWidget(widget);
 
-  connect(widget, &MatchViewerSettingsWidget::backgroundColorChange, 
-          mModel, &SettingsModel::setMatchesViewerBGColor);
-  connect(widget, &MatchViewerSettingsWidget::markerTypeChange, 
-          mModel, &SettingsModel::setMatchesViewerMarkerType);
-  connect(widget, &MatchViewerSettingsWidget::markerSizeChange, 
-          mModel, &SettingsModel::setMatchesViewerMarkerSize);
-  connect(widget, &MatchViewerSettingsWidget::markerWidthChange, 
-          mModel, &SettingsModel::setMatchesViewerMarkerWidth);
-  connect(widget, &MatchViewerSettingsWidget::markerColorChange, 
-          mModel, &SettingsModel::setMatchesViewerMarkerColor);
-  connect(widget, &MatchViewerSettingsWidget::selectedMarkerWidthChange, 
-          mModel, &SettingsModel::setMatchesViewerSelectMarkerWidth);
-  connect(widget, &MatchViewerSettingsWidget::selectedMarkerColorChange, 
-          mModel, &SettingsModel::setMatchesViewerSelectMarkerColor);
-  connect(widget, &MatchViewerSettingsWidget::lineWidthChange,
-          mModel, &SettingsModel::setMatchesViewerLineWidth);
-  connect(widget, &MatchViewerSettingsWidget::lineColorChange,
-          mModel, &SettingsModel::setMatchesViewerLineColor);
+    connect(widget, &MatchViewerSettingsWidget::backgroundColorChange,
+            mModel, &SettingsModel::setMatchesViewerBGColor);
+    connect(widget, &MatchViewerSettingsWidget::markerTypeChange,
+            mModel, &SettingsModel::setMatchesViewerMarkerType);
+    connect(widget, &MatchViewerSettingsWidget::markerSizeChange,
+            mModel, &SettingsModel::setMatchesViewerMarkerSize);
+    connect(widget, &MatchViewerSettingsWidget::markerWidthChange,
+            mModel, &SettingsModel::setMatchesViewerMarkerWidth);
+    connect(widget, &MatchViewerSettingsWidget::markerColorChange,
+            mModel, &SettingsModel::setMatchesViewerMarkerColor);
+    connect(widget, &MatchViewerSettingsWidget::selectedMarkerWidthChange,
+            mModel, &SettingsModel::setMatchesViewerSelectMarkerWidth);
+    connect(widget, &MatchViewerSettingsWidget::selectedMarkerColorChange,
+            mModel, &SettingsModel::setMatchesViewerSelectMarkerColor);
+    connect(widget, &MatchViewerSettingsWidget::lineWidthChange,
+            mModel, &SettingsModel::setMatchesViewerLineWidth);
+    connect(widget, &MatchViewerSettingsWidget::lineColorChange,
+            mModel, &SettingsModel::setMatchesViewerLineColor);
 }
 
 void SettingsPresenterImp::setLanguageSettings()
 {
-  QStringList languages = mModel->languages();
-  QStringList langs;
-  mLang.clear();
+    QStringList languages = mModel->languages();
+    QStringList langs;
+    mLang.clear();
 
-  for(int i = 0; i < languages.size(); ++i) {
+    for (int i = 0; i < languages.size(); ++i) {
 
-    QString lang_code = languages[i];
-    lang_code.truncate(lang_code.lastIndexOf('.'));
-    lang_code.remove(0, lang_code.indexOf('_') + 1);
-    QString lang_name = QLocale::languageToString(QLocale(lang_code).language());
-    langs.push_back(lang_name);
-    mLang[lang_name] = lang_code;
+        QString lang_code = languages[i];
+        lang_code.truncate(lang_code.lastIndexOf('.'));
+        lang_code.remove(0, lang_code.indexOf('_') + 1);
+        QString lang_name = QLocale::languageToString(QLocale(lang_code).language());
+        langs.push_back(lang_name);
+        mLang[lang_name] = lang_code;
 
-  }
+    }
 
-  mView->setLanguages(langs);
+    mView->setLanguages(langs);
 }
 
 void SettingsPresenterImp::setKeypointsViewerSettings()
 {
-  if(mFeatureViewerSettingsWidget) {
+    if (mFeatureViewerSettingsWidget) {
 
-    mFeatureViewerSettingsWidget->setBackgroundColor(mModel->keypointsViewerBGColor());
-    mFeatureViewerSettingsWidget->setMarkerType(mModel->keypointsViewerMarkerType());
-    mFeatureViewerSettingsWidget->setMarkerSize(mModel->keypointsViewerMarkerSize());
-    mFeatureViewerSettingsWidget->setMarkerWidth(mModel->keypointsViewerMarkerWidth());
-    mFeatureViewerSettingsWidget->setMarkerColor(mModel->keypointsViewerMarkerColor());
-    mFeatureViewerSettingsWidget->setSelectedMarkerColor(mModel->keypointsViewerSelectMarkerColor());
-    mFeatureViewerSettingsWidget->setSelectedMarkerWidth(mModel->keypointsViewerSelectMarkerWidth());
+        mFeatureViewerSettingsWidget->setBackgroundColor(mModel->keypointsViewerBGColor());
+        mFeatureViewerSettingsWidget->setMarkerType(mModel->keypointsViewerMarkerType());
+        mFeatureViewerSettingsWidget->setMarkerSize(mModel->keypointsViewerMarkerSize());
+        mFeatureViewerSettingsWidget->setMarkerWidth(mModel->keypointsViewerMarkerWidth());
+        mFeatureViewerSettingsWidget->setMarkerColor(mModel->keypointsViewerMarkerColor());
+        mFeatureViewerSettingsWidget->setSelectedMarkerColor(mModel->keypointsViewerSelectMarkerColor());
+        mFeatureViewerSettingsWidget->setSelectedMarkerWidth(mModel->keypointsViewerSelectMarkerWidth());
 
-  }
+    }
 }
 
 void SettingsPresenterImp::setMatchesViewerSettings()
 {
-  if(mMatchViewerSettingsWidget) {
+    if (mMatchViewerSettingsWidget) {
 
-    mMatchViewerSettingsWidget->setBackgroundColor(mModel->matchesViewerBGColor());
-    mMatchViewerSettingsWidget->setMarkerType(mModel->matchesViewerMarkerType());
-    mMatchViewerSettingsWidget->setMarkerSize(mModel->matchesViewerMarkerSize());
-    mMatchViewerSettingsWidget->setMarkerWidth(mModel->matchesViewerMarkerWidth());
-    mMatchViewerSettingsWidget->setMarkerColor(mModel->matchesViewerMarkerColor());
-    mMatchViewerSettingsWidget->setSelectedMarkerWidth(mModel->matchesViewerSelectMarkerWidth());
-    mMatchViewerSettingsWidget->setSelectedMarkerColor(mModel->matchesViewerSelectMarkerColor());
-    mMatchViewerSettingsWidget->setLineColor(mModel->matchesViewerLineColor());
-    mMatchViewerSettingsWidget->setLineWidth(mModel->matchesViewerLineWidth());
+        mMatchViewerSettingsWidget->setBackgroundColor(mModel->matchesViewerBGColor());
+        mMatchViewerSettingsWidget->setMarkerType(mModel->matchesViewerMarkerType());
+        mMatchViewerSettingsWidget->setMarkerSize(mModel->matchesViewerMarkerSize());
+        mMatchViewerSettingsWidget->setMarkerWidth(mModel->matchesViewerMarkerWidth());
+        mMatchViewerSettingsWidget->setMarkerColor(mModel->matchesViewerMarkerColor());
+        mMatchViewerSettingsWidget->setSelectedMarkerWidth(mModel->matchesViewerSelectMarkerWidth());
+        mMatchViewerSettingsWidget->setSelectedMarkerColor(mModel->matchesViewerSelectMarkerColor());
+        mMatchViewerSettingsWidget->setLineColor(mModel->matchesViewerLineColor());
+        mMatchViewerSettingsWidget->setLineWidth(mModel->matchesViewerLineWidth());
 
-  }
+    }
 }
 
 void SettingsPresenterImp::init()
@@ -167,45 +167,45 @@ void SettingsPresenterImp::init()
 
 void SettingsPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &SettingsView::languageChange,        
-          this, &SettingsPresenterImp::setLanguage);
+    connect(mView, &SettingsView::languageChange,
+            this, &SettingsPresenterImp::setLanguage);
 
-  connect(mView, &SettingsView::historyMaxSizeChange,   
-          mModel, &SettingsModel::setHistoryMaxSize);
-  connect(mView, &SettingsView::useCudaChange,      
-          mModel, &SettingsModel::setUseCuda);
-  connect(mView, &SettingsView::imageViewerBGColorChange,
-          mModel, &SettingsModel::setImageViewerBGcolor);
+    connect(mView, &SettingsView::historyMaxSizeChange,
+            mModel, &SettingsModel::setHistoryMaxSize);
+    connect(mView, &SettingsView::useCudaChange,
+            mModel, &SettingsModel::setUseCuda);
+    connect(mView, &SettingsView::imageViewerBGColorChange,
+            mModel, &SettingsModel::setImageViewerBGcolor);
 
-  connect(mView, &SettingsView::accepted,
-          this, &SettingsPresenterImp::save);
-  connect(mView, &SettingsView::applyChanges, 
-          this, &SettingsPresenterImp::save);
-  connect(mView, &SettingsView::rejected, 
-          this, &SettingsPresenterImp::discart);
-  connect(mView, &DialogView::help, [&]() {
-    emit help("settings.html");
-  });
+    connect(mView, &SettingsView::accepted,
+            this, &SettingsPresenterImp::save);
+    connect(mView, &SettingsView::applyChanges,
+            this, &SettingsPresenterImp::save);
+    connect(mView, &SettingsView::rejected,
+            this, &SettingsPresenterImp::discart);
+    connect(mView, &DialogView::help, [&]() {
+        emit help("settings.html");
+            });
 
-  connect(mModel, &SettingsModel::unsavedChanges, 
-          mView, &SettingsView::setUnsavedChanges);
+    connect(mModel, &SettingsModel::unsavedChanges,
+            mView, &SettingsView::setUnsavedChanges);
 }
 
 void SettingsPresenterImp::setLanguage(const QString &language)
 {
-  QString lang_code = mLang[language];
+    QString lang_code = mLang[language];
 
-  mModel->setLanguage(lang_code);
+    mModel->setLanguage(lang_code);
 }
 
 void SettingsPresenterImp::save()
 {
-  mModel->write();
+    mModel->write();
 }
 
 void SettingsPresenterImp::discart()
 {
-  mModel->read();
+    mModel->read();
 }
 
 } // namespace graphos

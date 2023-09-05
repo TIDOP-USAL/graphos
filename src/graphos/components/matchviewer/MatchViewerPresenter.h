@@ -33,23 +33,23 @@ class MatchViewerPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MatchViewerPresenter(){}
-  virtual ~MatchViewerPresenter() {}
+    MatchViewerPresenter() {}
+    virtual ~MatchViewerPresenter() {}
 
 public slots:
 
-  virtual void setLeftImage(size_t imageId) = 0;
-  virtual void setRightImage(size_t imageId) = 0;
+    virtual void setLeftImage(size_t imageId) = 0;
+    virtual void setRightImage(size_t imageId) = 0;
 
 protected slots:
 
 
-  virtual void loadMatches(size_t imageId1,
-                           size_t imageId2) = 0;
+    virtual void loadMatches(size_t imageId1,
+                             size_t imageId2) = 0;
 };
 
 } // namespace graphos

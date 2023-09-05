@@ -35,39 +35,39 @@ class DtmInvDistNNProperties
 
 public:
 
-  DtmInvDistNNProperties();
-  ~DtmInvDistNNProperties();
+    DtmInvDistNNProperties();
+    ~DtmInvDistNNProperties();
 
 // DtmInvDistNN interface
 
 public:
 
-  double power() const override;
-  double smoothing() const override;
-  double radius() const override;
-  int maxPoints() const override;
-  int minPoints() const override;
+    double power() const override;
+    double smoothing() const override;
+    double radius() const override;
+    int maxPoints() const override;
+    int minPoints() const override;
 
-  void setPower(double power) override;
-  void setSmoothing(double smoothing) override;
-  void setRadius(double radius) override;
-  void setMaxPoints(int maxPoints) override;
-  void setMinPoints(int minPoints) override;
+    void setPower(double power) override;
+    void setSmoothing(double smoothing) override;
+    void setRadius(double radius) override;
+    void setMaxPoints(int maxPoints) override;
+    void setMinPoints(int minPoints) override;
 
 // Dtm interface
 
 public:
 
-  std::string name() const override final;
-  void reset() override;
+    std::string name() const override final;
+    void reset() override;
 
 protected:
 
-  double mPower;
-  double mSmoothing;
-  double mRadius;
-  int mMaxPoints;
-  int mMinPoints;
+    double mPower;
+    double mSmoothing;
+    double mRadius;
+    int mMaxPoints;
+    int mMinPoints;
 
 };
 
@@ -81,26 +81,26 @@ class DtmInvDistNNAlgorithm
 
 public:
 
-  DtmInvDistNNAlgorithm();
-  DtmInvDistNNAlgorithm(double power,
-                        double smoothing,
-                        double radius,
-                        int maxPoints,
-                        int minPoints);
-  ~DtmInvDistNNAlgorithm();
+    DtmInvDistNNAlgorithm();
+    DtmInvDistNNAlgorithm(double power,
+                          double smoothing,
+                          double radius,
+                          int maxPoints,
+                          int minPoints);
+    ~DtmInvDistNNAlgorithm();
 
 // DtmAlgorithm interface
 
 public:
 
-  bool run(const tl::Path &pointCloud,
-           const tl::Path &dtmFile,
-           const tl::Size<int> &size) override;
+    bool run(const tl::Path &pointCloud,
+             const tl::Path &dtmFile,
+             const tl::Size<int> &size) override;
 
-  bool run(const tl::Path &pointCloud,
-           const tl::Path &dtmFile,
-           const tl::BoundingBox<tl::Point3<double>> &bbox,
-           double gsd) override;
+    bool run(const tl::Path &pointCloud,
+             const tl::Path &dtmFile,
+             const tl::BoundingBox<tl::Point3<double>> &bbox,
+             double gsd) override;
 
 };
 

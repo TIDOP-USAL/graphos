@@ -33,16 +33,16 @@ class OrientationPresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OrientationPresenter() {}
-  ~OrientationPresenter() override = default;
+    OrientationPresenter() {}
+    ~OrientationPresenter() override = default;
 
 signals:
 
-  void orientation_deleted();
+    void orientation_deleted();
 };
 
 } // namespace graphos

@@ -43,27 +43,27 @@ class OrientationModel
 
 public:
 
-  OrientationModel(QObject *parent = nullptr) : Model(parent) {}
-  ~OrientationModel() override = default;
+    OrientationModel(QObject *parent = nullptr) : Model(parent) {}
+    ~OrientationModel() override = default;
 
-  virtual bool calibratedCamera() const = 0;
-  virtual void setSparseModel(const tl::Path &sparseModel) = 0;
-  virtual void setOffset(const tl::Path &offset) = 0;
-  virtual void setGroundPoints(const tl::Path &offset) = 0;
-  virtual bool isPhotoOriented(size_t imageId) const = 0;
-  virtual CameraPose photoOrientation(size_t imageId) const = 0;
-  virtual void addPhotoOrientation(size_t imageId,
-                                   const CameraPose &orientation) = 0;
-  virtual tl::Path database() const = 0;
-  virtual tl::Path projectFolder() const = 0;
-  virtual bool gpsPositions() const = 0;
-  virtual bool rtkOrientations() const = 0;
-  virtual tl::Path reconstructionPath() const = 0;
-  virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
-  virtual void clearProject() = 0;
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual bool updateCamera(int id, const Camera &camera) = 0;
-  virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual bool calibratedCamera() const = 0;
+    virtual void setSparseModel(const tl::Path &sparseModel) = 0;
+    virtual void setOffset(const tl::Path &offset) = 0;
+    virtual void setGroundPoints(const tl::Path &offset) = 0;
+    virtual bool isPhotoOriented(size_t imageId) const = 0;
+    virtual CameraPose photoOrientation(size_t imageId) const = 0;
+    virtual void addPhotoOrientation(size_t imageId,
+                                     const CameraPose &orientation) = 0;
+    virtual tl::Path database() const = 0;
+    virtual tl::Path projectFolder() const = 0;
+    virtual bool gpsPositions() const = 0;
+    virtual bool rtkOrientations() const = 0;
+    virtual tl::Path reconstructionPath() const = 0;
+    virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
+    virtual void clearProject() = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual bool updateCamera(int id, const Camera &camera) = 0;
+    virtual const std::unordered_map<size_t, Image> &images() const = 0;
 };
 
 } // namespace graphos

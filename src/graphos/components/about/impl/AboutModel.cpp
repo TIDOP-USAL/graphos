@@ -36,120 +36,119 @@
 namespace graphos
 {
 
-  
+
 AboutModelImp::AboutModelImp(QObject *parent)
   : AboutModel(parent),
     mAppLicence(new tl::AppLicence)
 {
-  AboutModelImp::init();
+    AboutModelImp::init();
 }
 
 AboutModelImp::~AboutModelImp()
 {
-  if (mAppLicence) {
-    delete mAppLicence;
-    mAppLicence = nullptr;
-  }
+    if (mAppLicence) {
+        delete mAppLicence;
+        mAppLicence = nullptr;
+    }
 }
 
 const tl::Licence &AboutModelImp::graphosLicence() const
 {
-  return *static_cast<tl::Licence *>(mAppLicence);
+    return *static_cast<tl::Licence *>(mAppLicence);
 }
 
 QString AboutModelImp::readLicence(const QString &licence)
 {
-  QString licence_text;
+    QString licence_text;
 
-  QFile file(licence);
-  file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QFile file(licence);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-  if (file.isOpen()) {
+    if (file.isOpen()) {
 
-    licence_text = file.readAll();
-    file.close();
-  }
+        licence_text = file.readAll();
+        file.close();
+    }
 
-  return licence_text;
+    return licence_text;
 }
 
 AboutModelImp::const_iterator AboutModelImp::begin() const
 {
-  return mAppLicence->begin();
+    return mAppLicence->begin();
 }
 
 AboutModelImp::const_iterator AboutModelImp::end() const
 {
-  return mAppLicence->end();
+    return mAppLicence->end();
 }
 
 /* private */
 
 void AboutModelImp::init()
 {
-  // Lectura de la licencia y de las licencias de terceros
+    // Lectura de la licencia y de las licencias de terceros
 
+    QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "\\licenses");
+    QFile file(pluginsDir.absoluteFilePath("licence.json"));
+    tl::Path path(pluginsDir.absolutePath().toStdWString());
 
-  QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "\\licenses");
-  QFile file(pluginsDir.absoluteFilePath("licence.json"));
-  tl::Path path(pluginsDir.absolutePath().toStdWString());
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-  file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString json;
 
-  QString json;
+    if (file.isOpen()) {
 
-  if (file.isOpen()) {
+        json = file.readAll();
+        file.close();
 
-    json = file.readAll();
-    file.close();
+        QJsonDocument json_document = QJsonDocument::fromJson(json.toUtf8());
+        QJsonObject json_object = json_document.object();
 
-    QJsonDocument json_document = QJsonDocument::fromJson(json.toUtf8());
-    QJsonObject json_object = json_document.object();
-
-    QJsonValue json_value = json_object.value("ProductName");
-    if (!json_value.isNull())
-      mAppLicence->setProductName(json_value.toString().toStdString());
-
-    json_value = json_object.value("ProductVersion");
-    if (!json_value.isNull())
-      mAppLicence->setVersion(json_value.toString().toStdString());
-
-    json_value = json_object.value("LicenceFile");
-    if (!json_value.isNull()) {
-      tl::Path path_licence(path);
-      path_licence.append(json_value.toString().toStdString());
-      mAppLicence->setText(path_licence.toString());
-    }
-
-
-    json_value = json_object.value("ThirdPartyLicences");
-    if (!json_value.isNull()) {
-
-      tl::Licence licence;
-
-      QJsonArray json_array = json_value.toArray();
-      for (const auto &json : json_array) {
-
-        QJsonObject json_object = json.toObject();
         QJsonValue json_value = json_object.value("ProductName");
         if (!json_value.isNull())
-          licence.setProductName(json_value.toString().toStdString());
-        
+            mAppLicence->setProductName(json_value.toString().toStdString());
+
         json_value = json_object.value("ProductVersion");
         if (!json_value.isNull())
-          licence.setVersion(json_value.toString().toStdString());
+            mAppLicence->setVersion(json_value.toString().toStdString());
 
         json_value = json_object.value("LicenceFile");
         if (!json_value.isNull()) {
-          tl::Path path_licence(path);
-          path_licence.append(json_value.toString().toStdString());
-          licence.setText(path_licence.toString());
+            tl::Path path_licence(path);
+            path_licence.append(json_value.toString().toStdString());
+            mAppLicence->setText(path_licence.toString());
         }
 
-        mAppLicence->push_back(licence);
-      }
+
+        json_value = json_object.value("ThirdPartyLicences");
+        if (!json_value.isNull()) {
+
+            tl::Licence licence;
+
+            QJsonArray json_array = json_value.toArray();
+            for (const auto &json : json_array) {
+
+                QJsonObject json_object = json.toObject();
+                QJsonValue json_value = json_object.value("ProductName");
+                if (!json_value.isNull())
+                    licence.setProductName(json_value.toString().toStdString());
+
+                json_value = json_object.value("ProductVersion");
+                if (!json_value.isNull())
+                    licence.setVersion(json_value.toString().toStdString());
+
+                json_value = json_object.value("LicenceFile");
+                if (!json_value.isNull()) {
+                    tl::Path path_licence(path);
+                    path_licence.append(json_value.toString().toStdString());
+                    licence.setText(path_licence.toString());
+                }
+
+                mAppLicence->push_back(licence);
+            }
+        }
     }
-  }
 
 }
 

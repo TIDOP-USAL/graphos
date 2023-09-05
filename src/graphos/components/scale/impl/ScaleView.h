@@ -40,49 +40,49 @@ class ScaleViewImp
   : public ScaleView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ScaleViewImp(QWidget *parent = nullptr);
-  ~ScaleViewImp() override;
+    ScaleViewImp(QWidget *parent = nullptr);
+    ~ScaleViewImp() override;
 
 // ScaleView
 
 public:
 
-  double distance() const override;
-  double distanceReal() const override;
+    double distance() const override;
+    double distanceReal() const override;
 
 public slots:
-  
-  void setDistance(double distance) override;
+
+    void setDistance(double distance) override;
 
 // DialogView
 
 private:
 
-  void initUI();
-  void initSignalAndSlots();
+    void initUI();
+    void initSignalAndSlots();
 
 public slots:
 
-  void clear();
+    void clear();
 
 private slots:
 
-  void update();
-  void retranslate();
+    void update();
+    void retranslate();
 
 protected:
 
-  QLabel *mLabelDistance;
-  QDoubleSpinBox *mDoubleSpinBoxDistance;
-  QPushButton *mPushButtonDistance;
-  QLabel *mLabelDistanceReal;
-  QDoubleSpinBox *mDoubleSpinBoxDistanceReal;
+    QLabel *mLabelDistance;
+    QDoubleSpinBox *mDoubleSpinBoxDistance;
+    QPushButton *mPushButtonDistance;
+    QLabel *mLabelDistanceReal;
+    QDoubleSpinBox *mDoubleSpinBoxDistanceReal;
 
-  QDialogButtonBox *mButtonBox;
+    QDialogButtonBox *mButtonBox;
 
 };
 

@@ -39,7 +39,8 @@ target_link_libraries(${test_target} PRIVATE
                       ${OpenCV_LIBS}
                       ${CERES_LIBRARIES}
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-                      ${Boost_PROGRAM_OPTIONS_LIBRARY})
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      ${CLOUDCOMPARE_LIBRARIES})
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}

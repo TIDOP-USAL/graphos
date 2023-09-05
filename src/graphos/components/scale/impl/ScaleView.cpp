@@ -41,9 +41,9 @@ namespace graphos
 ScaleViewImp::ScaleViewImp(QWidget *parent)
   : ScaleView(parent)
 {
-  this->setWindowFlags(this->windowFlags() | Qt::WindowStaysOnTopHint);
-  this->initUI();
-  this->initSignalAndSlots();
+    this->setWindowFlags(this->windowFlags() | Qt::WindowStaysOnTopHint);
+    this->initUI();
+    this->initSignalAndSlots();
 }
 
 ScaleViewImp::~ScaleViewImp()
@@ -53,59 +53,59 @@ ScaleViewImp::~ScaleViewImp()
 
 void ScaleViewImp::initUI()
 {
-  this->setObjectName(QString("ScaleView"));
-  this->resize(380, 250);
+    this->setObjectName(QString("ScaleView"));
+    this->resize(380, 250);
 
-  QGridLayout *gridLayout = new QGridLayout();
-  this->setLayout(gridLayout);
+    QGridLayout *gridLayout = new QGridLayout();
+    this->setLayout(gridLayout);
 
-  mLabelDistanceReal = new QLabel(this);
-  gridLayout->addWidget(mLabelDistanceReal, 0, 0, 1, 1);
-  mDoubleSpinBoxDistanceReal = new QDoubleSpinBox(this);
-  mDoubleSpinBoxDistanceReal->setMaximum(1000000.);
-  gridLayout->addWidget(mDoubleSpinBoxDistanceReal, 0, 1, 1, 2);
+    mLabelDistanceReal = new QLabel(this);
+    gridLayout->addWidget(mLabelDistanceReal, 0, 0, 1, 1);
+    mDoubleSpinBoxDistanceReal = new QDoubleSpinBox(this);
+    mDoubleSpinBoxDistanceReal->setMaximum(1000000.);
+    gridLayout->addWidget(mDoubleSpinBoxDistanceReal, 0, 1, 1, 2);
 
-  mLabelDistance = new QLabel(this);
-  gridLayout->addWidget(mLabelDistance, 1, 0, 1, 1);
-  mDoubleSpinBoxDistance = new QDoubleSpinBox(this);
-  mDoubleSpinBoxDistance->setMaximum(1000000.);
-  gridLayout->addWidget(mDoubleSpinBoxDistance, 1, 1, 1, 1);
-  mPushButtonDistance = new QPushButton(this);
-  mPushButtonDistance->setIcon(QIcon::fromTheme("distance"));
-  mPushButtonDistance->setCheckable(true);
-  gridLayout->addWidget(mPushButtonDistance, 1, 2, 1, 1);
+    mLabelDistance = new QLabel(this);
+    gridLayout->addWidget(mLabelDistance, 1, 0, 1, 1);
+    mDoubleSpinBoxDistance = new QDoubleSpinBox(this);
+    mDoubleSpinBoxDistance->setMaximum(1000000.);
+    gridLayout->addWidget(mDoubleSpinBoxDistance, 1, 1, 1, 1);
+    mPushButtonDistance = new QPushButton(this);
+    mPushButtonDistance->setIcon(QIcon::fromTheme("distance"));
+    mPushButtonDistance->setCheckable(true);
+    gridLayout->addWidget(mPushButtonDistance, 1, 2, 1, 1);
 
-  mButtonBox = new QDialogButtonBox(this);
-  mButtonBox->setOrientation(Qt::Orientation::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 2, 0, 1, 2);
+    mButtonBox = new QDialogButtonBox(this);
+    mButtonBox->setOrientation(Qt::Orientation::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
+    gridLayout->addWidget(mButtonBox, 2, 0, 1, 2);
 
-  this->retranslate();
-  this->clear();
-  this->update();
+    this->retranslate();
+    this->clear();
+    this->update();
 }
 
 void ScaleViewImp::initSignalAndSlots()
 {
-  connect(mDoubleSpinBoxDistance, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ScaleView::distanceChanged);
-  connect(mPushButtonDistance, &QPushButton::toggled, this, &ScaleViewImp::enableMeasure);
+    connect(mDoubleSpinBoxDistance, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ScaleView::distanceChanged);
+    connect(mPushButtonDistance, &QPushButton::toggled, this, &ScaleViewImp::enableMeasure);
 
-  connect(mButtonBox,                                    &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Apply),   &QAbstractButton::clicked,   this, &ScaleView::run);
-  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked,   this, &DialogView::help);
+    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &ScaleView::run);
+    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void ScaleViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("ScaleView", "Scale"));
-  
-  mLabelDistance->setText(QApplication::translate("DistanceView", "Length:"));
-  mLabelDistanceReal->setText(QApplication::translate("DistanceView", "Length in the model:"));
+    this->setWindowTitle(QApplication::translate("ScaleView", "Scale"));
 
-  
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ScaleView", "Cancel"));
-  mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("ScaleView", "Scale"));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ScaleView", "Help"));
+    mLabelDistance->setText(QApplication::translate("DistanceView", "Length:"));
+    mLabelDistanceReal->setText(QApplication::translate("DistanceView", "Length in the model:"));
+
+
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ScaleView", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("ScaleView", "Scale"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ScaleView", "Help"));
 }
 
 void ScaleViewImp::clear()
@@ -117,20 +117,20 @@ void ScaleViewImp::update()
 {
 }
 
-double ScaleViewImp::distance() const 
+double ScaleViewImp::distance() const
 {
-  return mDoubleSpinBoxDistance->value();
+    return mDoubleSpinBoxDistance->value();
 }
 
-double ScaleViewImp::distanceReal() const 
+double ScaleViewImp::distanceReal() const
 {
-  return mDoubleSpinBoxDistanceReal->value();
+    return mDoubleSpinBoxDistanceReal->value();
 }
 
-void ScaleViewImp::setDistance(double distance) 
+void ScaleViewImp::setDistance(double distance)
 {
-  const QSignalBlocker blocker(mDoubleSpinBoxDistance);
-  mDoubleSpinBoxDistance->setValue(distance);
+    const QSignalBlocker blocker(mDoubleSpinBoxDistance);
+    mDoubleSpinBoxDistance->setValue(distance);
 }
 
 

@@ -38,29 +38,29 @@ class OpenProjectModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OpenProjectModel(QObject *parent = nullptr) : Model(parent) {}
-  ~OpenProjectModel() override = default;
+    OpenProjectModel(QObject *parent = nullptr) : Model(parent) {}
+    ~OpenProjectModel() override = default;
 
-  /*!
-   * \brief Returns Graphos projects path
-   */
-  virtual tl::Path graphosProjectsDirectory() const = 0;
+    /*!
+     * \brief Returns Graphos projects path
+     */
+    virtual tl::Path graphosProjectsDirectory() const = 0;
 
 public slots:
 
-  /*!
-   * \brief Save Graphos project
-   */
-  virtual void saveProject() = 0;
-  
-  /*!
-   * \brief Load Graphos projects
-   */
-  virtual void loadProject(const tl::Path &projectPath) = 0;
+    /*!
+     * \brief Save Graphos project
+     */
+    virtual void saveProject() = 0;
+
+    /*!
+     * \brief Load Graphos projects
+     */
+    virtual void loadProject(const tl::Path &projectPath) = 0;
 
 };
 

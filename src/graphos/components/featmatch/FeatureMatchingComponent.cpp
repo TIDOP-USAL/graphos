@@ -39,7 +39,7 @@ namespace graphos
 FeatureMatchingComponent::FeatureMatchingComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 FeatureMatchingComponent::~FeatureMatchingComponent()
@@ -48,86 +48,83 @@ FeatureMatchingComponent::~FeatureMatchingComponent()
 
 void FeatureMatchingComponent::init()
 {
-  this->setName("Feature Matching");
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+    this->setName("Feature Matching");
+    this->setMenu("workflow");
+    this->setToolbar("workflow");
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("matching"));
+    action()->setIcon(QIcon::fromTheme("matching"));
 }
 
 void FeatureMatchingComponent::createModel()
 {
-  setModel(new FeatureMatchingModelImp(app()->project()));
+    setModel(new FeatureMatchingModelImp(app()->project()));
 }
 
 void FeatureMatchingComponent::createView()
 {
-  setView(new FeatureMatchingViewImp());
+    setView(new FeatureMatchingViewImp());
 }
 
 void FeatureMatchingComponent::createPresenter()
 {
-  setPresenter(new FeatureMatchingPresenterImp(dynamic_cast<FeatureMatchingView *>(view()), 
-                                               dynamic_cast<FeatureMatchingModel *>(model())));
+    setPresenter(new FeatureMatchingPresenterImp(dynamic_cast<FeatureMatchingView *>(view()),
+                 dynamic_cast<FeatureMatchingModel *>(model())));
 
-  connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), 
-          &FeatureMatchingPresenter::matches_deleted,
-          this,
-          &FeatureMatchingComponent::matches_deleted);
+    connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()),
+            &FeatureMatchingPresenter::matches_deleted,
+            this,
+            &FeatureMatchingComponent::matches_deleted);
 }
 
 void FeatureMatchingComponent::createCommand()
 {
-  setCommand(std::make_shared<FeatureMatchingCommand>());
+    setCommand(std::make_shared<FeatureMatchingCommand>());
 }
 
 void FeatureMatchingComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool feature_matching_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
-                                 app_status->isEnabled(AppStatus::Flag::feature_extraction) && 
-                                 !app_status->isEnabled(AppStatus::Flag::processing);
+    bool feature_matching_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
+        app_status->isEnabled(AppStatus::Flag::feature_extraction) &&
+        !app_status->isEnabled(AppStatus::Flag::processing);
 
-  //if (!feature_matching_active)
-  //  app_status->flagOff(AppStatus::Flag::feature_matching);
-
-  action()->setEnabled(feature_matching_active);
+    action()->setEnabled(feature_matching_active);
 }
 
 void FeatureMatchingComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void FeatureMatchingComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
+    TaskComponent::onFinished();
 
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
-  app_status->activeFlag(AppStatus::Flag::feature_matching, true);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::feature_matching, true);
 }
 
 void FeatureMatchingComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
+    TaskComponent::onFailed();
 
-  app_status->activeFlag(AppStatus::Flag::feature_matching, false);
+    app_status->activeFlag(AppStatus::Flag::feature_matching, false);
 }
 
 } // namespace graphos

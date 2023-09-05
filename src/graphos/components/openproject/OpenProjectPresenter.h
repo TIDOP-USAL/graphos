@@ -36,27 +36,27 @@ class OpenProjectPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OpenProjectPresenter(){}
-  virtual ~OpenProjectPresenter() override = default;
+    OpenProjectPresenter() {}
+    virtual ~OpenProjectPresenter() override = default;
 
 protected slots:
 
-  /*!
-   * \brief Set Graphos project file
-   * \param[in] file Graphos projects file
-   */
-  virtual void setProjectFile(const QString &file) = 0;
+    /*!
+     * \brief Set Graphos project file
+     * \param[in] file Graphos projects file
+     */
+    virtual void setProjectFile(const QString &file) = 0;
 
 signals:
 
-  /*!
-   * \brief Signal emitted when the project is loaded
-   */
-  void project_loaded();
+    /*!
+     * \brief Signal emitted when the project is loaded
+     */
+    void project_loaded();
 
 };
 

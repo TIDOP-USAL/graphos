@@ -42,7 +42,7 @@ namespace graphos
 CreateProjectComponent::CreateProjectComponent(Application *application)
   : ComponentBase(application)
 {
-  init();
+    init();
 }
 
 CreateProjectComponent::~CreateProjectComponent()
@@ -51,67 +51,65 @@ CreateProjectComponent::~CreateProjectComponent()
 
 void CreateProjectComponent::init()
 {
-  setName("New Project");
-  setMenu("file");
-  setToolbar("file");
+    setName("New Project");
+    setMenu("file");
+    setToolbar("file");
 
-  createCommand();
+    createCommand();
 
-  action()->setIcon(QIcon::fromTheme("new-project"));
+    action()->setIcon(QIcon::fromTheme("new-project"));
 #ifndef QT_NO_SHORTCUT
-  action()->setShortcut(tr("Ctrl+N"));
+    action()->setShortcut(tr("Ctrl+N"));
 #endif // QT_NO_SHORTCUT
 }
 
 void CreateProjectComponent::createModel()
 {
-  setModel(new CreateProjectModelImp(app()->project()));
+    setModel(new CreateProjectModelImp(app()->project()));
 }
 
 void CreateProjectComponent::createView()
 {
-  setView(new CreateProjectViewImp());
+    setView(new CreateProjectViewImp());
 }
 
 void CreateProjectComponent::createPresenter()
 {
-  setPresenter(new CreateProjectPresenterImp(dynamic_cast<CreateProjectView *>(view()),
-                                             dynamic_cast<CreateProjectModel *>(model()),
-                                             app()->status()));
+    setPresenter(new CreateProjectPresenterImp(dynamic_cast<CreateProjectView *>(view()),
+                 dynamic_cast<CreateProjectModel *>(model()),
+                 app()->status()));
 
-  connect(dynamic_cast<CreateProjectPresenter *>(presenter()), &CreateProjectPresenter::project_created,
-          this, &CreateProjectComponent::onProjectCreated);
+    connect(dynamic_cast<CreateProjectPresenter *>(presenter()), &CreateProjectPresenter::project_created,
+            this, &CreateProjectComponent::onProjectCreated);
 }
 
 void CreateProjectComponent::createCommand()
 {
-  setCommand(std::make_shared<CreateProjectCommand>());
+    setCommand(std::make_shared<CreateProjectCommand>());
 }
 
 void CreateProjectComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-  action()->setEnabled(!bProcessing);
+    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
+    action()->setEnabled(!bProcessing);
 }
 
 void CreateProjectComponent::onProjectCreated()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  app_status->clear();
-  app_status->activeFlag(AppStatus::Flag::project_exists, true);
-  
-  emit project_created();
+    app_status->clear();
+    app_status->activeFlag(AppStatus::Flag::project_exists, true);
+
+    emit project_created();
 }
-
-
 
 } // namespace graphos

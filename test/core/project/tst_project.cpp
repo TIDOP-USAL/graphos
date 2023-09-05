@@ -33,265 +33,264 @@ BOOST_AUTO_TEST_SUITE(TestProjectSuite)
 struct TestProject
 {
 
-  TestProject()
-    : mProject(new ProjectImp),
-      mProjectXml(new ProjectImp)
-  {
+    TestProject()
+      : mProject(new ProjectImp),
+        mProjectXml(new ProjectImp)
+    {
 
-  }
-
-  ~TestProject()
-  {
-    if (mProject) {
-      delete mProject;
-      mProject = nullptr;
     }
 
-    if (mProjectXml) {
-      delete mProjectXml;
-      mProjectXml = nullptr;
-    }
-  }
+    ~TestProject()
+    {
+        if (mProject) {
+            delete mProject;
+            mProject = nullptr;
+        }
 
-  void setup()
-  {
-    mProjectXml->load(tl::Path(GRAPHOS_SOURCE_PATH).append("test/data/project.xml"));
-  }
-  
-  void teardown()
-  {
-  }
+        if (mProjectXml) {
+            delete mProjectXml;
+            mProjectXml = nullptr;
+        }
+    }
+
+    void setup()
+    {
+        mProjectXml->load(tl::Path(GRAPHOS_SOURCE_PATH).append("test/data/project.xml"));
+    }
+
+    void teardown()
+    {
+    }
 
 protected:
 
-  Project *mProject;
-  Project *mProjectXml;
+    Project *mProject;
+    Project *mProjectXml;
 };
 
 
 
 BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestProject)
 {
-  BOOST_CHECK_EQUAL("", mProject->name().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->description().toStdString());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectFolder());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectPath());
-  BOOST_CHECK_EQUAL("1.0", mProject->version().toStdString());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->database());
-  BOOST_CHECK_EQUAL(0, mProject->imagesCount());
-  const auto &images = mProject->images();
-  BOOST_CHECK_EQUAL(0, images.size());
-  const auto &cameras = mProject->cameras();
-  BOOST_CHECK_EQUAL(0, cameras.size());
-  BOOST_CHECK_EQUAL(0, mProject->camerasCount());
-  BOOST_CHECK_EQUAL("", mProject->crs().toStdString());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->denseModel());
-  auto densification = mProject->densification();
-  BOOST_CHECK(!densification);
-  auto featureExtractor = mProject->featureExtractor();
-  BOOST_CHECK(!featureExtractor);
-  auto featureMatching = mProject->featureMatching();
-  BOOST_CHECK(!featureMatching);
-  auto features = mProject->features();
-  BOOST_CHECK_EQUAL(0, features.size());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->offset());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->reconstructionPath());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->sparseModel());
-
+    BOOST_CHECK_EQUAL("", mProject->name().toStdString());
+    BOOST_CHECK_EQUAL("", mProject->description().toStdString());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectFolder());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectPath());
+    BOOST_CHECK_EQUAL("1.0", mProject->version().toStdString());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->database());
+    BOOST_CHECK_EQUAL(0, mProject->imagesCount());
+    const auto &images = mProject->images();
+    BOOST_CHECK_EQUAL(0, images.size());
+    const auto &cameras = mProject->cameras();
+    BOOST_CHECK_EQUAL(0, cameras.size());
+    BOOST_CHECK_EQUAL(0, mProject->camerasCount());
+    BOOST_CHECK_EQUAL("", mProject->crs().toStdString());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->denseModel());
+    auto densification = mProject->densification();
+    BOOST_CHECK(!densification);
+    auto featureExtractor = mProject->featureExtractor();
+    BOOST_CHECK(!featureExtractor);
+    auto featureMatching = mProject->featureMatching();
+    BOOST_CHECK(!featureMatching);
+    auto features = mProject->features();
+    BOOST_CHECK_EQUAL(0, features.size());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->offset());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->reconstructionPath());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->sparseModel());
 }
 
 BOOST_FIXTURE_TEST_CASE(clear, TestProject)
 {
-  mProject->clear();
+    mProject->clear();
 
-  BOOST_CHECK_EQUAL("", mProject->name().toStdString());
-  BOOST_CHECK_EQUAL("", mProject->description().toStdString());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectFolder());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectPath());
-  BOOST_CHECK_EQUAL("1.0", mProject->version().toStdString());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->database());
-  BOOST_CHECK_EQUAL(0, mProject->imagesCount());
-  const auto &images = mProject->images();
-  BOOST_CHECK_EQUAL(0, images.size());
-  const auto &cameras = mProject->cameras();
-  BOOST_CHECK_EQUAL(0, cameras.size());
-  BOOST_CHECK_EQUAL(0, mProject->camerasCount());
-  BOOST_CHECK_EQUAL("", mProject->crs().toStdString());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->denseModel());
-  auto densification = mProject->densification();
-  BOOST_CHECK(!densification);
-  auto featureExtractor = mProject->featureExtractor();
-  BOOST_CHECK(!featureExtractor);
-  auto featureMatching = mProject->featureMatching();
-  BOOST_CHECK(!featureMatching);
-  auto features = mProject->features();
-  BOOST_CHECK_EQUAL(0, features.size());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->offset());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->reconstructionPath());
-  BOOST_CHECK_EQUAL(tl::Path(""), mProject->sparseModel());
+    BOOST_CHECK_EQUAL("", mProject->name().toStdString());
+    BOOST_CHECK_EQUAL("", mProject->description().toStdString());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectFolder());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->projectPath());
+    BOOST_CHECK_EQUAL("1.0", mProject->version().toStdString());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->database());
+    BOOST_CHECK_EQUAL(0, mProject->imagesCount());
+    const auto &images = mProject->images();
+    BOOST_CHECK_EQUAL(0, images.size());
+    const auto &cameras = mProject->cameras();
+    BOOST_CHECK_EQUAL(0, cameras.size());
+    BOOST_CHECK_EQUAL(0, mProject->camerasCount());
+    BOOST_CHECK_EQUAL("", mProject->crs().toStdString());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->denseModel());
+    auto densification = mProject->densification();
+    BOOST_CHECK(!densification);
+    auto featureExtractor = mProject->featureExtractor();
+    BOOST_CHECK(!featureExtractor);
+    auto featureMatching = mProject->featureMatching();
+    BOOST_CHECK(!featureMatching);
+    auto features = mProject->features();
+    BOOST_CHECK_EQUAL(0, features.size());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->offset());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->reconstructionPath());
+    BOOST_CHECK_EQUAL(tl::Path(""), mProject->sparseModel());
 }
 
 BOOST_FIXTURE_TEST_CASE(name, TestProject)
 {
-  mProject->setName("Project1");
-  BOOST_CHECK_EQUAL("Project1", mProject->name().toStdString());
-  BOOST_CHECK_EQUAL("San Segundo", mProjectXml->name().toStdString());
+    mProject->setName("Project1");
+    BOOST_CHECK_EQUAL("Project1", mProject->name().toStdString());
+    BOOST_CHECK_EQUAL("San Segundo", mProjectXml->name().toStdString());
 }
 
 BOOST_FIXTURE_TEST_CASE(description, TestProject)
 {
-  mProject->setDescription("****");
-  BOOST_CHECK_EQUAL("****", mProject->description().toStdString());
-  BOOST_CHECK_EQUAL("Portada de San Segundo", mProjectXml->description().toStdString());
+    mProject->setDescription("****");
+    BOOST_CHECK_EQUAL("****", mProject->description().toStdString());
+    BOOST_CHECK_EQUAL("Portada de San Segundo", mProjectXml->description().toStdString());
 }
 
 BOOST_FIXTURE_TEST_CASE(projectFolder, TestProject)
 {
-  mProject->setProjectFolder(tl::Path("C:/Users/temp"));
-  BOOST_CHECK_EQUAL(tl::Path("C:/Users/temp"), mProject->projectFolder());
-  BOOST_CHECK_EQUAL(tl::Path("C:/Users/qwerty/Documents/graphos/Projects/San Segundo"), mProjectXml->projectFolder());
+    mProject->setProjectFolder(tl::Path("C:/Users/temp"));
+    BOOST_CHECK_EQUAL(tl::Path("C:/Users/temp"), mProject->projectFolder());
+    BOOST_CHECK_EQUAL(tl::Path("C:/Users/qwerty/Documents/graphos/Projects/San Segundo"), mProjectXml->projectFolder());
 }
 
 BOOST_FIXTURE_TEST_CASE(database, TestProject)
 {
-  BOOST_CHECK_EQUAL(tl::Path("C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db"), mProjectXml->database());
+    BOOST_CHECK_EQUAL(tl::Path("C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db"), mProjectXml->database());
 }
 
 BOOST_FIXTURE_TEST_CASE(crs, TestProject)
 {
-  BOOST_CHECK_EQUAL("", mProjectXml->crs().toStdString());
+    BOOST_CHECK_EQUAL("", mProjectXml->crs().toStdString());
 }
 
 BOOST_FIXTURE_TEST_CASE(addImage, TestProject)
 {
-  Image image("C:/Users/temp/images/image01.jpg");
-  mProject->addImage(image);
-  BOOST_CHECK_EQUAL(1, mProject->images().size());
+    Image image("C:/Users/temp/images/image01.jpg");
+    mProject->addImage(image);
+    BOOST_CHECK_EQUAL(1, mProject->images().size());
 }
 
 BOOST_FIXTURE_TEST_CASE(removeImage, TestProject)
 {
-  Image image("C:/Users/temp/images/image01.jpg");
-  mProject->addImage(image);
-  BOOST_CHECK_EQUAL(1, mProject->images().size());
-  mProject->removeImage(image.id());
-  BOOST_CHECK_EQUAL(0, mProject->images().size());
+    Image image("C:/Users/temp/images/image01.jpg");
+    mProject->addImage(image);
+    BOOST_CHECK_EQUAL(1, mProject->images().size());
+    mProject->removeImage(image.id());
+    BOOST_CHECK_EQUAL(0, mProject->images().size());
 }
 
 BOOST_FIXTURE_TEST_CASE(existImage, TestProject)
 {
-  BOOST_CHECK(mProjectXml->existImage(1904085996873346300));
-  BOOST_CHECK(!mProjectXml->existImage(1));
+    BOOST_CHECK(mProjectXml->existImage(1904085996873346300));
+    BOOST_CHECK(!mProjectXml->existImage(1));
 }
 
 BOOST_FIXTURE_TEST_CASE(findImageById, TestProject)
 {
-  Image image = mProjectXml->findImageById(1904085996873346300);
-  BOOST_CHECK_EQUAL("IMG_7212.jpg", image.name().toStdString());
+    Image image = mProjectXml->findImageById(1904085996873346300);
+    BOOST_CHECK_EQUAL("IMG_7212.jpg", image.name().toStdString());
 }
 
 BOOST_FIXTURE_TEST_CASE(images, TestProject)
 {
-  BOOST_CHECK_EQUAL(4, mProjectXml->images().size());
+    BOOST_CHECK_EQUAL(4, mProjectXml->images().size());
 }
 
 BOOST_FIXTURE_TEST_CASE(imagesCount, TestProject)
 {
-  BOOST_CHECK_EQUAL(4, mProjectXml->imagesCount());
+    BOOST_CHECK_EQUAL(4, mProjectXml->imagesCount());
 }
 
 BOOST_FIXTURE_TEST_CASE(addCamera, TestProject)
 {
-  BOOST_CHECK_EQUAL(0, mProject->camerasCount());
-  Camera camera("SONY", "ILCE-6000");
-  camera.setFocal(3552.23);
-  camera.setWidth(5472);
-  camera.setHeight(3648);
-  mProject->addCamera(camera);
-  BOOST_CHECK_EQUAL(1, mProject->camerasCount());
+    BOOST_CHECK_EQUAL(0, mProject->camerasCount());
+    Camera camera("SONY", "ILCE-6000");
+    camera.setFocal(3552.23);
+    camera.setWidth(5472);
+    camera.setHeight(3648);
+    mProject->addCamera(camera);
+    BOOST_CHECK_EQUAL(1, mProject->camerasCount());
 }
 
 BOOST_FIXTURE_TEST_CASE(removeCamera, TestProject)
 {
-  int id = mProject->cameraId("SONY", "ILCE-6000");
-  mProject->removeCamera(id);
-  BOOST_CHECK_EQUAL(0, mProject->camerasCount());
+    int id = mProject->cameraId("SONY", "ILCE-6000");
+    mProject->removeCamera(id);
+    BOOST_CHECK_EQUAL(0, mProject->camerasCount());
 }
 
 BOOST_FIXTURE_TEST_CASE(findCamera, TestProject)
 {
-  Camera camera = mProjectXml->findCamera("Unknown camera", "0");
-  BOOST_CHECK_EQUAL(5835.6, camera.focal());
-  BOOST_CHECK_EQUAL(4863, camera.width());
-  BOOST_CHECK_EQUAL(3221, camera.height());
-  BOOST_CHECK_EQUAL(1, camera.sensorSize());
+    Camera camera = mProjectXml->findCamera("Unknown camera", "0");
+    BOOST_CHECK_EQUAL(5835.6, camera.focal());
+    BOOST_CHECK_EQUAL(4863, camera.width());
+    BOOST_CHECK_EQUAL(3221, camera.height());
+    BOOST_CHECK_EQUAL(1, camera.sensorSize());
 
-  Camera camera2 = mProjectXml->findCamera(1);
-  BOOST_CHECK_EQUAL(5835.6, camera2.focal());
-  BOOST_CHECK_EQUAL(4863, camera2.width());
-  BOOST_CHECK_EQUAL(3221, camera2.height());
-  BOOST_CHECK_EQUAL(1, camera2.sensorSize());
+    Camera camera2 = mProjectXml->findCamera(1);
+    BOOST_CHECK_EQUAL(5835.6, camera2.focal());
+    BOOST_CHECK_EQUAL(4863, camera2.width());
+    BOOST_CHECK_EQUAL(3221, camera2.height());
+    BOOST_CHECK_EQUAL(1, camera2.sensorSize());
 }
 
 BOOST_FIXTURE_TEST_CASE(cameraId, TestProject)
 {
-  int id = mProjectXml->cameraId("Unknown camera", "0");
-  BOOST_CHECK_EQUAL(1, id);
+    int id = mProjectXml->cameraId("Unknown camera", "0");
+    BOOST_CHECK_EQUAL(1, id);
 }
 
 BOOST_FIXTURE_TEST_CASE(existCamera, TestProject)
 {
-  BOOST_CHECK(!mProjectXml->existCamera("DJI", "FC6310"));
-  BOOST_CHECK(mProjectXml->existCamera("Unknown camera", "0"));
+    BOOST_CHECK(!mProjectXml->existCamera("DJI", "FC6310"));
+    BOOST_CHECK(mProjectXml->existCamera("Unknown camera", "0"));
 }
 
 BOOST_FIXTURE_TEST_CASE(featureExtractor, TestProject)
 {
-  std::shared_ptr<Feature> feature_extractor = mProjectXml->featureExtractor();
-  BOOST_CHECK(Feature::Type::sift == feature_extractor->type());
+    std::shared_ptr<Feature> feature_extractor = mProjectXml->featureExtractor();
+    BOOST_CHECK(Feature::Type::sift == feature_extractor->type());
 }
 
 BOOST_FIXTURE_TEST_CASE(features, TestProject)
 {
-  QString features = mProjectXml->features(16355064570535277777);
-  BOOST_CHECK_EQUAL("IMG_7209@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db", features.toStdString());
+    QString features = mProjectXml->features(16355064570535277777);
+    BOOST_CHECK_EQUAL("IMG_7209@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db", features.toStdString());
 
-  features = mProjectXml->features(1904085996873346300);
-  BOOST_CHECK_EQUAL("IMG_7210@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db", features.toStdString());
+    features = mProjectXml->features(1904085996873346300);
+    BOOST_CHECK_EQUAL("IMG_7210@C:/Users/qwerty/Documents/graphos/Projects/San Segundo/San Segundo.db", features.toStdString());
 }
 
 BOOST_FIXTURE_TEST_CASE(featureMatching, TestProject)
 {
-  std::shared_ptr<FeatureMatching> feature_matching = mProjectXml->featureMatching();
-  BOOST_CHECK(feature_matching);
+    std::shared_ptr<FeatureMatching> feature_matching = mProjectXml->featureMatching();
+    BOOST_CHECK(feature_matching);
 }
 
 BOOST_FIXTURE_TEST_CASE(photoOrientation, TestProject)
 {
-  CameraPose ori = mProjectXml->photoOrientation(16355064570535277777);
-  BOOST_CHECK_CLOSE(5.3242274858, ori.position().x, 0.01);
-  BOOST_CHECK_CLOSE(-0.1640853199, ori.position().y, 0.01);
-  BOOST_CHECK_CLOSE(-0.4738843519, ori.position().z, 0.01);
+    CameraPose ori = mProjectXml->photoOrientation(16355064570535277777);
+    BOOST_CHECK_CLOSE(5.3242274858, ori.position().x, 0.01);
+    BOOST_CHECK_CLOSE(-0.1640853199, ori.position().y, 0.01);
+    BOOST_CHECK_CLOSE(-0.4738843519, ori.position().z, 0.01);
 }
 
 BOOST_FIXTURE_TEST_CASE(sparseModel, TestProject)
 {
-  tl::Path sparse_model("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply");
-  mProject->setSparseModel(sparse_model);
-  BOOST_CHECK_EQUAL(sparse_model, mProject->sparseModel());
+    tl::Path sparse_model("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/sparse/0/sparse.ply");
+    mProject->setSparseModel(sparse_model);
+    BOOST_CHECK_EQUAL(sparse_model, mProject->sparseModel());
 }
 
 BOOST_FIXTURE_TEST_CASE(densification, TestProject)
 {
-  std::shared_ptr<Densification> dense = mProjectXml->densification();
-  BOOST_CHECK(Densification::Method::cmvs_pmvs == dense->method());
+    std::shared_ptr<Densification> dense = mProjectXml->densification();
+    BOOST_CHECK(Densification::Method::cmvs_pmvs == dense->method());
 }
 
 BOOST_FIXTURE_TEST_CASE(denseModel, TestProject)
 {
-  tl::Path dense_model("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply");
-  mProject->setDenseModel(dense_model);
-  BOOST_CHECK_EQUAL(dense_model, mProject->denseModel());
+    tl::Path dense_model("C:/Users/esteban/Documents/inspector/Projects/SanSegundo/dense/pmvs/models/option-all.ply");
+    mProject->setDenseModel(dense_model);
+    BOOST_CHECK_EQUAL(dense_model, mProject->denseModel());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

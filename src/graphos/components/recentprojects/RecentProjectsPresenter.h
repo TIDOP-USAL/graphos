@@ -36,24 +36,24 @@ class RecentProjectsPresenter
   : public Presenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  RecentProjectsPresenter(){}
-  virtual ~RecentProjectsPresenter() override = default;
+    RecentProjectsPresenter() {}
+    virtual ~RecentProjectsPresenter() override = default;
 
 protected slots:
 
-  virtual void clearHistory() = 0;
+    virtual void clearHistory() = 0;
 
 signals:
 
-  /*!
-   * \brief Signal emitted when the project is loaded
-   */
-  void project_loaded();
-  void open_project(QString);
+    /*!
+     * \brief Signal emitted when the project is loaded
+     */
+    void project_loaded();
+    void open_project(QString);
 };
 
 } // namespace graphos

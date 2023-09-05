@@ -39,44 +39,44 @@ class FeaturesViewerModelImp
   : public FeaturesViewerModel
 {
 
- Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeaturesViewerModelImp(Project *project,
-                         QObject *parent = nullptr);
-  ~FeaturesViewerModelImp() override;
+    FeaturesViewerModelImp(Project *project,
+                           QObject *parent = nullptr);
+    ~FeaturesViewerModelImp() override;
 
 // FeaturesViewerModel interface
 
 public:
 
-  const std::unordered_map<size_t, Image> &images() const override;
-  Image image(size_t imageId) const;
-  std::vector<std::tuple<QPointF, float, float>> loadKeypoints(size_t imageId) override;
+    const std::unordered_map<size_t, Image> &images() const override;
+    Image image(size_t imageId) const;
+    std::vector<std::tuple<QPointF, float, float>> loadKeypoints(size_t imageId) override;
 
-  QString backgroundColor() const override;
-  int markerType() const override;
-  int markerSize() const override;
-  int markerWidth() const override;
-  QString markerColor() const override;
-  int selectedMarkerWidth() const override;
-  QString selectedMarkerColor() const override;
+    QString backgroundColor() const override;
+    int markerType() const override;
+    int markerSize() const override;
+    int markerWidth() const override;
+    QString markerColor() const override;
+    int selectedMarkerWidth() const override;
+    QString selectedMarkerColor() const override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
+    Project *mProject;
+    QSettings *mSettings;
 
 };
 

@@ -39,51 +39,51 @@ class DensificationComponent
   : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
     enum class Method
     {
-        mvs =  (1 << 0),
+        mvs = (1 << 0),
         pmvs = (1 << 1),
         smvs = (1 << 2)
     };
 
 public:
 
-  DensificationComponent(Application *application);
-  ~DensificationComponent();
+    DensificationComponent(Application *application);
+    ~DensificationComponent();
 
-  void enableMethod(Method method);
-  void disableMethod(Method method);
-  bool isEnabled(Method method) const;
+    void enableMethod(Method method);
+    void disableMethod(Method method);
+    bool isEnabled(Method method) const;
 
 private:
 
-  void init();
+    void init();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 // TaskComponent
 
 protected slots:
 
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 
 private:
 
-  tl::EnumFlags<Method> mMethod;
+    tl::EnumFlags<Method> mMethod;
 
 };
 ALLOW_BITWISE_FLAG_OPERATIONS(DensificationComponent::Method)

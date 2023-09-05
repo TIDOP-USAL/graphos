@@ -43,7 +43,7 @@ class Task;
 
 namespace graphos
 {
-	
+
 class ScaleAlgorithm;
 
 class ScaleTask
@@ -52,25 +52,25 @@ class ScaleTask
 
 public:
 
-  ScaleTask(double scale, ccHObject *model);
-  ~ScaleTask();
+    ScaleTask(double scale, ccHObject *model);
+    ~ScaleTask();
 
 public:
 
-  void setScale(double);
-  tl::math::Matrix<double, 4, 4> transform() const;
+    void setScale(double);
+    tl::Matrix<double, 4, 4> transform() const;
 
 // tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
-  
+    void execute(tl::Progress *progressBar) override;
+
 private:
 
-  double mScale;
-  ccHObject *mModel;
-  tl::math::Matrix<double, 4, 4> mTransform;
+    double mScale;
+    ccHObject *mModel;
+    tl::Matrix<double, 4, 4> mTransform;
 };
 
 } // namespace graphos

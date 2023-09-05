@@ -35,12 +35,12 @@ class UndistortImagesPresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  UndistortImagesPresenter() : TaskPresenter() {}
-  ~UndistortImagesPresenter() override = default;
+    UndistortImagesPresenter() : TaskPresenter() {}
+    ~UndistortImagesPresenter() override = default;
 
 };
 

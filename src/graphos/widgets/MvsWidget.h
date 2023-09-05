@@ -38,66 +38,66 @@ namespace graphos
 class MvsWidget
   : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MvsWidget(QWidget *parent = nullptr);
-  ~MvsWidget() override;
+    MvsWidget(QWidget *parent = nullptr);
+    ~MvsWidget() override;
 
 public:
 
-  int resolutionLevel() const;
-  int minResolution() const;
-  int maxResolution() const;
-  int numberViews() const;
-  int numberViewsFuse() const;
-  
+    int resolutionLevel() const;
+    int minResolution() const;
+    int maxResolution() const;
+    int numberViews() const;
+    int numberViewsFuse() const;
+
 signals:
 
-  void resolutionLevelChanged(int);
-  void minResolutionChanged(int);
-  void maxResolutionChanged(int);
-  void numberViewsChanged(int);
-  void numberViewsFuseChanged(int);
-  
+    void resolutionLevelChanged(int);
+    void minResolutionChanged(int);
+    void maxResolutionChanged(int);
+    void numberViewsChanged(int);
+    void numberViewsFuseChanged(int);
+
 public slots:
 
-  void setResolutionLevel(int resolutionLevel);
-  void setMinResolution(int minResolution);
-  void setMaxResolution(int maxResolution);
-  void setNumberViews(int numberViews);
-  void setNumberViewsFuse(int numberViewsFuse);
+    void setResolutionLevel(int resolutionLevel);
+    void setMinResolution(int minResolution);
+    void setMaxResolution(int maxResolution);
+    void setNumberViews(int numberViews);
+    void setNumberViewsFuse(int numberViewsFuse);
 
 // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 protected:
-  
-  QGroupBox *mGroupBox;
-  QLabel *mLabelResolutionLevel;
-  QSpinBox *mSpinBoxResolutionLevel;
-  QLabel *mLabelMinResolution;
-  QSpinBox *mSpinBoxMinResolution;
-  QLabel *mLabelMaxResolution;
-  QSpinBox *mSpinBoxMaxResolution;
-  QLabel *mLabelNumberViews;
-  QSpinBox *mSpinBoxNumberViews;
-  QLabel *mLabelNumberViewsFuse;
-  QSpinBox *mSpinBoxNumberViewsFuse;
+
+    QGroupBox *mGroupBox;
+    QLabel *mLabelResolutionLevel;
+    QSpinBox *mSpinBoxResolutionLevel;
+    QLabel *mLabelMinResolution;
+    QSpinBox *mSpinBoxMinResolution;
+    QLabel *mLabelMaxResolution;
+    QSpinBox *mSpinBoxMaxResolution;
+    QLabel *mLabelNumberViews;
+    QSpinBox *mSpinBoxNumberViews;
+    QLabel *mLabelNumberViewsFuse;
+    QSpinBox *mSpinBoxNumberViewsFuse;
 
 };
 

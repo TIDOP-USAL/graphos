@@ -31,14 +31,14 @@
 
 namespace graphos
 {
-	
+
 TaskPresenter::TaskPresenter()
-  : Presenter(),
+    : Presenter(),
     mProcess(nullptr),
     mProgressHandler(nullptr)
 {
-  TaskPresenter::init();
-  TaskPresenter::initSignalAndSlots();
+    TaskPresenter::init();
+    TaskPresenter::initSignalAndSlots();
 }
 
 TaskPresenter::~TaskPresenter()
@@ -47,92 +47,96 @@ TaskPresenter::~TaskPresenter()
 
 void TaskPresenter::onError(tl::TaskErrorEvent *event)
 {
-  if (mProgressHandler){
-    mProgressHandler->finish();
-    mProgressHandler->reset();
-    mProgressHandler->setDescription(QString::fromStdString(event->errorMessage()));
-    mProgressHandler->setRange(0, 100);
+    if (mProgressHandler) {
+        mProgressHandler->finish();
+        mProgressHandler->reset();
+        mProgressHandler->setDescription(QString::fromStdString(event->errorMessage()));
+        mProgressHandler->setRange(0, 100);
 
-    disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-  }
+        disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
+    }
 
-  emit failed();
+    emit failed();
 }
 
 void TaskPresenter::onFinished(tl::TaskFinalizedEvent *event)
 {
-  if (mProgressHandler){
-    mProgressHandler->finish();
-    mProgressHandler->reset();
-    mProgressHandler->setDescription(tr("Process Finished"));
+    tl::unusedParameter(event);
 
-    disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-  }
+    if (mProgressHandler) {
+        mProgressHandler->finish();
+        mProgressHandler->reset();
+        mProgressHandler->setDescription(tr("Process Finished"));
 
-  emit finished();
+        disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
+    }
+
+    emit finished();
 }
 
 void TaskPresenter::onStopped(tl::TaskStoppedEvent *event)
 {
-  if(mProgressHandler) {
-    mProgressHandler->finish();
-    mProgressHandler->reset();
-    mProgressHandler->setDescription(tr("Process canceled"));
+    tl::unusedParameter(event);
 
-    disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-  }
+    if (mProgressHandler) {
+        mProgressHandler->finish();
+        mProgressHandler->reset();
+        mProgressHandler->setDescription(tr("Process canceled"));
 
-  emit canceled();
+        disconnect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
+    }
+
+    emit canceled();
 }
 
 ProgressHandler *TaskPresenter::progressHandler()
 {
-  return mProgressHandler;
+    return mProgressHandler;
 }
 
 void TaskPresenter::setProgressHandler(ProgressHandler *progressHandler)
 {
-  mProgressHandler = progressHandler;
+    mProgressHandler = progressHandler;
 }
 
 void TaskPresenter::run()
 {
-  try {
+    try {
 
-    tl::Task *p = mProcess.release();
-    delete p;
-    p = nullptr;
+        tl::Task *p = mProcess.release();
+        delete p;
+        p = nullptr;
 
-    mProcess = createProcess();
+        mProcess = createProcess();
 
-    TL_ASSERT(mProcess, "Empty process");
+        TL_ASSERT(mProcess, "Empty process");
 
-    mProcess->subscribe(std::bind(&TaskPresenter::onError, this, std::placeholders::_1));
-    mProcess->subscribe(std::bind(&TaskPresenter::onFinished, this, std::placeholders::_1));
-    mProcess->subscribe(std::bind(&TaskPresenter::onStopped, this, std::placeholders::_1));
+        mProcess->subscribe(std::bind(&TaskPresenter::onError, this, std::placeholders::_1));
+        mProcess->subscribe(std::bind(&TaskPresenter::onFinished, this, std::placeholders::_1));
+        mProcess->subscribe(std::bind(&TaskPresenter::onStopped, this, std::placeholders::_1));
 
-    if(mProgressHandler) {
-      connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-      mProgressHandler->init();
+        if (mProgressHandler) {
+            connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
+            mProgressHandler->init();
+        }
+
+        emit running();
+
+        mProcess->runAsync(mProgressHandler);
+
+    } catch (const std::exception &e) {
+        tl::printException(e);
     }
-
-    emit running();
-
-    mProcess->runAsync(mProgressHandler);
-
-  } catch(const std::exception &e) {
-    msgError(e.what());
-  }
 }
 
 void TaskPresenter::cancel()
 {
-  if(mProcess) {
-    mProcess->stop();
-    if(mProgressHandler) {
-      mProgressHandler->setDescription(tr("Stopping process"));
+    if (mProcess) {
+        mProcess->stop();
+        if (mProgressHandler) {
+            mProgressHandler->setDescription(tr("Stopping process"));
+        }
     }
-  }
 }
 
 void TaskPresenter::init()

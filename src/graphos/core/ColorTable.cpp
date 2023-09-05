@@ -38,33 +38,33 @@ ColorTable::ColorTable(std::string name)
 
 std::string ColorTable::name() const
 {
-  return mName;
+    return mName;
 }
 
 void ColorTable::add(int code,
                      const std::string &name,
-                     const tl::graph::Color &color)
+                     const tl::Color &color)
 {
-  mColors[code] = std::make_pair(name, color);
+    mColors[code] = std::make_pair(name, color);
 }
 
-tl::graph::Color ColorTable::color(int code) const
+tl::Color ColorTable::color(int code) const
 {
-  return mColors.at(code).second;
+    return mColors.at(code).second;
 }
 
 void ColorTable::setVisible(int code, bool visible)
 {
-  mColors.at(code).second.setOpacity(visible ? 
-                                     static_cast<uint8_t>(255) : 
-                                     tl::math::consts::zero<uint8_t>);
+    mColors.at(code).second.setOpacity(visible ?
+                                       static_cast<uint8_t>(255) :
+                                       tl::consts::zero<uint8_t>);
 
-  emit change();
+    emit change();
 }
 
 bool ColorTable::isVisible(int code) const
 {
-  return mColors.at(code).second.opacity() == static_cast<uint8_t>(255);
+    return mColors.at(code).second.opacity() == static_cast<uint8_t>(255);
 }
 
 //std::string ColorTable::name(int code) const
@@ -74,32 +74,32 @@ bool ColorTable::isVisible(int code) const
 
 size_t ColorTable::size() const
 {
-  return mColors.size();
+    return mColors.size();
 }
 
 bool ColorTable::empty() const
 {
-  return mColors.empty();
+    return mColors.empty();
 }
 
 ColorTable::iterator ColorTable::begin()
 {
-  return mColors.begin();
+    return mColors.begin();
 }
 
 ColorTable::const_iterator ColorTable::begin() const
 {
-  return mColors.begin();
+    return mColors.begin();
 }
 
 ColorTable::iterator ColorTable::end()
 {
-  return mColors.end();
+    return mColors.end();
 }
 
 ColorTable::const_iterator ColorTable::end() const
 {
-  return mColors.end();
+    return mColors.end();
 }
 
 } // namespace graphos

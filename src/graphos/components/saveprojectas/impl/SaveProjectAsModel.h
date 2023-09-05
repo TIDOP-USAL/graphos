@@ -35,34 +35,34 @@ class SaveProjectAsModelImp
   : public SaveProjectAsModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SaveProjectAsModelImp(Project *project,
-										  	QObject *parent = nullptr);
-  ~SaveProjectAsModelImp();
+    SaveProjectAsModelImp(Project *project,
+                          QObject *parent = nullptr);
+    ~SaveProjectAsModelImp();
 
 // SaveProjectAsModel interface
 
 public slots:
 
-  void save(const tl::Path &file) override;
-  tl::Path graphosProjectsDirectory() const override;
+    void save(const tl::Path &file) override;
+    tl::Path graphosProjectsDirectory() const override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
+    Project *mProject;
 
 };
 

@@ -23,7 +23,9 @@
 
 #include "LogWidget.h"
 
-TL_SUPPRESS_WARNINGS
+#include <tidop/core/chrono.h>
+
+TL_DISABLE_WARNINGS
 #include <QToolBar>
 #include <QGridLayout>
 #include <QListWidgetItem>
@@ -36,18 +38,17 @@ using namespace tl;
 namespace graphos
 {
 
-EnumFlags<MessageLevel> LogWidget::sLevel = MessageLevel::msg_verbose;
-EnumFlags<MessageLevel> LogWidget::sFilterLevel = MessageLevel::msg_verbose;
+EnumFlags<MessageLevel> LogWidget::sLevel = MessageLevel::all;
+EnumFlags<MessageLevel> LogWidget::sFilterLevel = MessageLevel::all;
 std::mutex LogWidget::mtx;
 
 LogWidget::LogWidget(QWidget *parent)
   : GraphosWidgetView(parent),
-    MessageManager::Listener(),
     mGridLayout(new QGridLayout(this))
 {
-  LogWidget::initUI();
-  LogWidget::initSignalAndSlots();
-  LogWidget::retranslate();
+    LogWidget::initUI();
+    LogWidget::initSignalAndSlots();
+    LogWidget::retranslate();
 }
 
 LogWidget::~LogWidget()
@@ -57,185 +58,246 @@ LogWidget::~LogWidget()
 
 void LogWidget::filter(tl::MessageLevel level)
 {
-  sFilterLevel = level;
- 
-  mMsgErrorAction->setChecked(sFilterLevel.isEnabled(MessageLevel::msg_error));
-  mMsgWarningAction->setChecked(sFilterLevel.isEnabled(MessageLevel::msg_warning));
-  mMsgInfoAction->setChecked(sFilterLevel.isEnabled(MessageLevel::msg_info));
+    sFilterLevel = level;
 
-  refresh();
+    mMsgErrorAction->setChecked(sFilterLevel.isEnabled(MessageLevel::error));
+    mMsgWarningAction->setChecked(sFilterLevel.isEnabled(MessageLevel::warning));
+    mMsgInfoAction->setChecked(sFilterLevel.isEnabled(MessageLevel::info));
+
+    refresh();
 }
 
 void LogWidget::setLogLevel(MessageLevel level)
 {
-  sLevel = level;
+    sLevel = level;
 }
 
-void LogWidget::print(const std::string &msg, const std::string &date, MessageLevel level)
+//void LogWidget::print(const std::string &msg, const std::string &date, MessageLevel level)
+//{
+//    std::lock_guard<std::mutex> lck(LogWidget::mtx);
+//
+//    QString _msg = QString(date.c_str()) + " " + msg.c_str();
+//
+//    QListWidgetItem *qListWidgetItem = new QListWidgetItem(_msg);
+//    qListWidgetItem->setData(Qt::UserRole, QVariant(static_cast<int>(level)));
+//
+//    if (level == MessageLevel::error)
+//        qListWidgetItem->setForeground(Qt::red);
+//    else if (level == MessageLevel::warning)
+//        qListWidgetItem->setForeground(Qt::magenta);
+//
+//    mListWidget->insertItem(mListWidget->count(), qListWidgetItem);
+//
+//    if (!sFilterLevel.isEnabled(level)) {
+//        mListWidget->setRowHidden(mListWidget->count() - 1, true);
+//    }
+//}
+
+void LogWidget::print(String msg, tl::MessageLevel level)
 {
-  std::lock_guard<std::mutex> lck(LogWidget::mtx);
+    std::lock_guard<std::mutex> lck(LogWidget::mtx);
 
-  QString _msg = QString(date.c_str()) + " " + msg.c_str();
+    auto date = tl::formatTimeToString("%d/%b/%Y %H:%M:%S");
 
-  QListWidgetItem *qListWidgetItem = new QListWidgetItem(_msg);
-  qListWidgetItem->setData(Qt::UserRole, QVariant(static_cast<int>(level)));
+    //QString _msg = QString(date.c_str()) + " " + msg.c_str();
+    std::stringstream ss;
+    ss << date << " " << msg;
+    std::string message = ss.str();
 
-  if (level == MessageLevel::msg_error)
-    qListWidgetItem->setForeground(Qt::red);
-  else if (level == MessageLevel::msg_warning)
-    qListWidgetItem->setForeground(Qt::magenta);
+    QListWidgetItem *qListWidgetItem = new QListWidgetItem(message.c_str());
+    qListWidgetItem->setData(Qt::UserRole, QVariant(static_cast<int>(level)));
 
-  mListWidget->insertItem(mListWidget->count(), qListWidgetItem);
+    if (level == MessageLevel::error)
+        qListWidgetItem->setForeground(Qt::red);
+    else if (level == MessageLevel::warning)
+        qListWidgetItem->setForeground(Qt::magenta);
+    else if (level == MessageLevel::success)
+        qListWidgetItem->setForeground(Qt::green);
 
-  if (!sFilterLevel.isEnabled(level)) {
-    mListWidget->setRowHidden(mListWidget->count() - 1, true);
-  }
+    mListWidget->insertItem(mListWidget->count(), qListWidgetItem);
+
+    if (!sFilterLevel.isEnabled(level)) {
+        mListWidget->setRowHidden(mListWidget->count() - 1, true);
+    }
 }
 
 void LogWidget::refresh()
 {
-  std::lock_guard<std::mutex> lck(LogWidget::mtx);
-  MessageLevel level;
-  for (int i = 0; i < mListWidget->count(); i++) {
-    QListWidgetItem *qListWidgetItem = mListWidget->item(i);
-    level = static_cast<tl::MessageLevel>(qListWidgetItem->data(Qt::UserRole).toInt());
-    mListWidget->setRowHidden(i, !sFilterLevel.isEnabled(level));
-  }
+    std::lock_guard<std::mutex> lck(LogWidget::mtx);
+    MessageLevel level;
+    for (int i = 0; i < mListWidget->count(); i++) {
+        QListWidgetItem *qListWidgetItem = mListWidget->item(i);
+        level = static_cast<tl::MessageLevel>(qListWidgetItem->data(Qt::UserRole).toInt());
+        mListWidget->setRowHidden(i, !sFilterLevel.isEnabled(level));
+    }
 }
 
 void LogWidget::onPushButtonShowLogWarningToggled(bool active)
 {
-  sFilterLevel.activeFlag(MessageLevel::msg_warning, active);
-  refresh();
+    sFilterLevel.activeFlag(MessageLevel::warning, active);
+    refresh();
 }
 
 void LogWidget::onPushButtonShowLogErrorsToggled(bool active)
 {
-  sFilterLevel.activeFlag(MessageLevel::msg_error, active);
-  refresh();
+    sFilterLevel.activeFlag(MessageLevel::error, active);
+    refresh();
 }
 
 void LogWidget::onPushButtonShowLogInfoToggled(bool active)
 {
-  sFilterLevel.activeFlag(MessageLevel::msg_info, active);
-  refresh();
+    sFilterLevel.activeFlag(MessageLevel::info, active);
+    refresh();
 }
 
 void LogWidget::onPushButtonShowLogDebugToggled(bool active)
 {
-  sFilterLevel.activeFlag(MessageLevel::msg_debug, active);
-  refresh();
+    sFilterLevel.activeFlag(MessageLevel::debug, active);
+    refresh();
 }
 
 void LogWidget::onRowsInserted(const QModelIndex &parent, int start, int end, LogWidget::QPrivateSignal)
 {
-  update();
+    update();
 }
 
 void LogWidget::onRowsRemoved(const QModelIndex &parent, int start, int end, LogWidget::QPrivateSignal)
 {
-  update();
+    update();
 }
 
 void LogWidget::update()
 {
-  mClearAction->setEnabled(mListWidget->count() > 0);
+    mClearAction->setEnabled(mListWidget->count() > 0);
 }
 
 void LogWidget::retranslate()
 {
-  mMsgErrorAction->setText(QApplication::translate("LogWidget", "Show errors"));
-  mMsgErrorAction->setStatusTip(QApplication::translate("LogWidget", "Show errors"));
-  mMsgWarningAction->setText(QApplication::translate("LogWidget", "Show warnings"));
-  mMsgWarningAction->setStatusTip(QApplication::translate("LogWidget", "Show warnings"));
-  mMsgInfoAction->setText(QApplication::translate("LogWidget", "Show messages"));
-  mMsgInfoAction->setStatusTip(QApplication::translate("LogWidget", "Show messages"));
-  mClearAction->setText(QApplication::translate("LogWidget", "Clean log"));
-  mClearAction->setStatusTip(QApplication::translate("LogWidget", "Clean log"));
+    mMsgErrorAction->setText(QApplication::translate("LogWidget", "Show errors"));
+    mMsgErrorAction->setStatusTip(QApplication::translate("LogWidget", "Show errors"));
+    mMsgWarningAction->setText(QApplication::translate("LogWidget", "Show warnings"));
+    mMsgWarningAction->setStatusTip(QApplication::translate("LogWidget", "Show warnings"));
+    mMsgInfoAction->setText(QApplication::translate("LogWidget", "Show messages"));
+    mMsgInfoAction->setStatusTip(QApplication::translate("LogWidget", "Show messages"));
+    mClearAction->setText(QApplication::translate("LogWidget", "Clean log"));
+    mClearAction->setStatusTip(QApplication::translate("LogWidget", "Clean log"));
 }
 
 void LogWidget::clear()
 {
-  std::lock_guard<std::mutex> lck(LogWidget::mtx);
-  mListWidget->clear();
-  update();
+    std::lock_guard<std::mutex> lck(LogWidget::mtx);
+    mListWidget->clear();
+    update();
 }
 
 void LogWidget::initUI()
 {
-  QToolBar *toolBar = new QToolBar(this);
+    QToolBar *toolBar = new QToolBar(this);
 
-  mMsgErrorAction = new QAction(this);
-  mMsgErrorAction->setIcon(QIcon::fromTheme("show-errors"));
-  mMsgErrorAction->setCheckable(true);
-  mMsgErrorAction->setChecked(true);
-  toolBar->addAction(mMsgErrorAction);
+    mMsgErrorAction = new QAction(this);
+    mMsgErrorAction->setIcon(QIcon::fromTheme("show-errors"));
+    mMsgErrorAction->setCheckable(true);
+    mMsgErrorAction->setChecked(true);
+    toolBar->addAction(mMsgErrorAction);
 
-  mMsgWarningAction = new QAction(this);
-  mMsgWarningAction->setIcon(QIcon::fromTheme("show-warnings"));
-  mMsgWarningAction->setCheckable(true);
-  mMsgWarningAction->setChecked(true);
-  toolBar->addAction(mMsgWarningAction);
+    mMsgWarningAction = new QAction(this);
+    mMsgWarningAction->setIcon(QIcon::fromTheme("show-warnings"));
+    mMsgWarningAction->setCheckable(true);
+    mMsgWarningAction->setChecked(true);
+    toolBar->addAction(mMsgWarningAction);
 
-  mMsgInfoAction = new QAction(this);
-  mMsgInfoAction->setIcon(QIcon::fromTheme("show-info"));
-  mMsgInfoAction->setCheckable(true);
-  mMsgInfoAction->setChecked(true);
-  toolBar->addAction(mMsgInfoAction);
+    mMsgInfoAction = new QAction(this);
+    mMsgInfoAction->setIcon(QIcon::fromTheme("show-info"));
+    mMsgInfoAction->setCheckable(true);
+    mMsgInfoAction->setChecked(true);
+    toolBar->addAction(mMsgInfoAction);
 
-  toolBar->addSeparator();
+    toolBar->addSeparator();
 
-  mClearAction = new QAction(this);
-  mClearAction->setIcon(QIcon::fromTheme("clean-console"));
-  mClearAction->setStatusTip(tr("Clean log"));
-  toolBar->addAction(mClearAction);
+    mClearAction = new QAction(this);
+    mClearAction->setIcon(QIcon::fromTheme("clean-console"));
+    mClearAction->setStatusTip(tr("Clean log"));
+    toolBar->addAction(mClearAction);
 
-  mGridLayout->setMargin(0);
-  mGridLayout->addWidget(toolBar);
-  mListWidget = new QListWidget(this);
-  mGridLayout->addWidget(mListWidget);
+    mGridLayout->setMargin(0);
+    mGridLayout->addWidget(toolBar);
+    mListWidget = new QListWidget(this);
+    mGridLayout->addWidget(mListWidget);
 
-  LogWidget::update();
+    LogWidget::update();
 }
 
 void LogWidget::initSignalAndSlots()
 {
-  connect(mMsgErrorAction,      SIGNAL(toggled(bool)),                             this, SLOT(onPushButtonShowLogErrorsToggled(bool)));
-  connect(mMsgWarningAction,    SIGNAL(toggled(bool)),                             this, SLOT(onPushButtonShowLogWarningToggled(bool)));
-  connect(mMsgInfoAction,       SIGNAL(toggled(bool)),                             this, SLOT(onPushButtonShowLogInfoToggled(bool)));
-  connect(mClearAction,         SIGNAL(triggered(bool)),                           this, SLOT(clear()));
-  connect(mListWidget->model(), SIGNAL(rowsInserted(const QModelIndex &,int,int)), this, SLOT(onRowsInserted(const QModelIndex &,int,int)));
-  connect(mListWidget->model(), SIGNAL(rowsRemoved(const QModelIndex &,int,int)),  this, SLOT(onRowsRemoved(const QModelIndex &,int,int)));
+    connect(mMsgErrorAction, SIGNAL(toggled(bool)), this, SLOT(onPushButtonShowLogErrorsToggled(bool)));
+    connect(mMsgWarningAction, SIGNAL(toggled(bool)), this, SLOT(onPushButtonShowLogWarningToggled(bool)));
+    connect(mMsgInfoAction, SIGNAL(toggled(bool)), this, SLOT(onPushButtonShowLogInfoToggled(bool)));
+    connect(mClearAction, SIGNAL(triggered(bool)), this, SLOT(clear()));
+    connect(mListWidget->model(), SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(onRowsInserted(const QModelIndex &, int, int)));
+    connect(mListWidget->model(), SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(onRowsRemoved(const QModelIndex &, int, int)));
 }
 
-void LogWidget::onMsgDebug(const std::string &msg, const std::string &date)
+void LogWidget::debug(String message)
 {
-  if (sLevel.isEnabled(MessageLevel::msg_debug)) {
-    print(msg, date, MessageLevel::msg_debug);
-  }
+    if (sLevel.isEnabled(MessageLevel::debug)) {
+        print(message, MessageLevel::debug);
+    }
 }
 
-void LogWidget::onMsgInfo(const std::string &msg, const std::string &date)
+void LogWidget::info(String message)
 {
-  if (sLevel.isEnabled(MessageLevel::msg_info)) {
-    print(msg, date, MessageLevel::msg_info);
-  }
+    if (sLevel.isEnabled(MessageLevel::info)) {
+        print(message, MessageLevel::info);
+    }
 }
 
-void LogWidget::onMsgWarning(const std::string &msg, const std::string &date)
+void LogWidget::success(String message)
 {
-  if (sLevel.isEnabled(MessageLevel::msg_warning)) {
-    print(msg, date, MessageLevel::msg_warning);
-  }
+    if (sLevel.isEnabled(MessageLevel::success)) {
+        print(message, MessageLevel::success);
+    }
 }
 
-void LogWidget::onMsgError(const std::string &msg, const std::string &date)
+void LogWidget::warning(String message)
 {
-  if (sLevel.isEnabled(MessageLevel::msg_error)) {
-    print(msg, date, MessageLevel::msg_error);
-  }
+    if (sLevel.isEnabled(MessageLevel::warning)) {
+        print(message, MessageLevel::warning);
+    }
 }
+
+void LogWidget::error(String message)
+{
+    if (sLevel.isEnabled(MessageLevel::error)) {
+        print(message, MessageLevel::error);
+    }
+}
+
+//void LogWidget::onMsgDebug(const std::string &msg, const std::string &date)
+//{
+//    if (sLevel.isEnabled(MessageLevel::debug)) {
+//        print(msg, date, MessageLevel::debug);
+//    }
+//}
+
+//void LogWidget::onMsgInfo(const std::string &msg, const std::string &date)
+//{
+//    if (sLevel.isEnabled(MessageLevel::info)) {
+//        print(msg, date, MessageLevel::info);
+//    }
+//}
+
+//void LogWidget::onMsgWarning(const std::string &msg, const std::string &date)
+//{
+//    if (sLevel.isEnabled(MessageLevel::warning)) {
+//        print(msg, date, MessageLevel::warning);
+//    }
+//}
+//
+//void LogWidget::onMsgError(const std::string &msg, const std::string &date)
+//{
+//    if (sLevel.isEnabled(MessageLevel::error)) {
+//        print(msg, date, MessageLevel::error);
+//    }
+//}
 
 } // namespace graphos
-
-

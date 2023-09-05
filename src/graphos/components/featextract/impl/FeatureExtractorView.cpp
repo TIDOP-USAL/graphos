@@ -113,7 +113,7 @@ void FeatureExtractorViewImp::update()
 
 void FeatureExtractorViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("FeatureExtractorView", "Feature Detector/Descriptor"));
+  this->setWindowTitle(QApplication::translate("FeatureExtractorView", "Feature Extractor"));
   mLabelMaxImageSize->setText(QApplication::translate("FeatureExtractorView", "Max Image Size:"));
   mCheckBoxFullImage->setText(QApplication::translate("FeatureExtractorView", "Full Image Size"));
   mLabelDetectorDescriptor->setText(QApplication::translate("FeatureExtractorView", "Keypoint Detector/Descriptor:"));

@@ -72,7 +72,8 @@ set(CMAKE_AUTORCC ON)
 if(MSVC)
     add_compile_options("/W3" "/EHsc" "-D_SCL_SECURE_NO_WARNINGS" "-D_CRT_SECURE_NO_DEPRECATE")
 else()
-    add_compile_options("-Wall" "-Wextra" "-Werror")
+    #add_compile_options("-Wall" "-Wextra" "-Werror")
+    add_compile_options("-Wall" "-Wextra")
 endif()
 
 
@@ -146,6 +147,7 @@ unset(GRAPHOS_HAVE_GEOREFERENCE CACHE)
 unset(GRAPHOS_HAVE_SCALE CACHE)
 unset(GRAPHOS_HAVE_IMAGE_LOAD CACHE)
 unset(GRAPHOS_HAVE_IMPORT_CAMERAS CACHE)
+unset(GRAPHOS_HAVE_EXPORT_CAMERAS CACHE)
 unset(GRAPHOS_HAVE_MATCH_VIEWER CACHE)
 unset(GRAPHOS_HAVE_MESH CACHE)
 unset(GRAPHOS_HAVE_OPEN_PROJECT CACHE)
@@ -172,6 +174,7 @@ option(BUILD_GEOREFERENCE_COMPONENT "Build Georeference Component"  ON)
 option(BUILD_SCALE_COMPONENT "Build Scale Component"  ON)
 option(BUILD_IMAGE_LOAD_COMPONENT "Build Image Load Component"  ON)
 option(BUILD_IMPORT_CAMERAS_COMPONENT "Build Import Cameras Component"  ON)
+option(BUILD_EXPORT_CAMERAS_COMPONENT "Build Export Cameras"  ON)
 option(BUILD_MATCH_VIEWER_COMPONENT "Build Match Viewer Component"  ON)
 option(BUILD_MESH_COMPONENT "Build Mesh Component"  ON)
 option(BUILD_OPEN_PROJECT_COMPONENT "Build Open Project Component"  ON)
@@ -229,7 +232,7 @@ message(STATUS "\nDependency loading:\n")
 # TidopLib (REQUIRED)                                                    #
 ##########################################################################      
 
-find_package(TidopLib 2.1 REQUIRED)
+find_package(TidopLib 3.0 REQUIRED)
 
 
 ##########################################################################
@@ -326,6 +329,8 @@ if(MSVC)
   add_definitions("-DGL_GLEXT_PROTOTYPES")
 endif()
 
+
+find_package(GLEW REQUIRED)
 
 
 #  QT 

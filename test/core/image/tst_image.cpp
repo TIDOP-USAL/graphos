@@ -33,39 +33,39 @@ BOOST_AUTO_TEST_SUITE(TestImageSuite)
 struct TestImage
 {
 
-  TestImage() 
-    : mImageDefaultConstructor(new Image),
-      mImage(new Image("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png"))
-  {
+    TestImage()
+        : mImageDefaultConstructor(new Image),
+        mImage(new Image("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img001.png"))
+    {
 
-  }
-
-  ~TestImage()
-  {
-    if (mImageDefaultConstructor) {
-      delete mImageDefaultConstructor;
     }
 
-    if (mImage) {
-      delete mImage;
+    ~TestImage()
+    {
+        if (mImageDefaultConstructor) {
+            delete mImageDefaultConstructor;
+        }
+
+        if (mImage) {
+            delete mImage;
+        }
     }
-  }
 
-  void setup()
-  {
-    mImage->setCameraId(1);
-    CameraPose camera_pose;
-    camera_pose.setPosition(tl::Point3D(0.5, 2.3, 10.2));
-    mImage->setCameraPose(camera_pose);
-  }
+    void setup()
+    {
+        mImage->setCameraId(1);
+        CameraPose camera_pose;
+        camera_pose.setPosition(tl::Point3<double>(0.5, 2.3, 10.2));
+        mImage->setCameraPose(camera_pose);
+    }
 
-  void teardown()
-  {
+    void teardown()
+    {
 
-  }
+    }
 
-  Image *mImageDefaultConstructor;
-  Image *mImage;
+    Image *mImageDefaultConstructor;
+    Image *mImage;
 };
 
 
@@ -85,7 +85,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, TestImage)
   BOOST_CHECK_EQUAL(1, mImage->cameraId());
   CameraPose camera_pose = mImage->cameraPose();
   BOOST_CHECK_EQUAL(false, camera_pose.isEmpty());
-  BOOST_CHECK(tl::Point3D(0.5, 2.3, 10.2) == camera_pose.position());
+  BOOST_CHECK(tl::Point3<double>(0.5, 2.3, 10.2) == camera_pose.position());
 }
 
 BOOST_FIXTURE_TEST_CASE(copy_constructor, TestImage)
@@ -95,7 +95,7 @@ BOOST_FIXTURE_TEST_CASE(copy_constructor, TestImage)
   BOOST_CHECK_EQUAL("img001.png", image.name().toStdString());
   BOOST_CHECK_EQUAL(1, image.cameraId());
   CameraPose camera_pose = image.cameraPose();
-  BOOST_CHECK(tl::Point3D(0.5, 2.3, 10.2) == camera_pose.position());
+  BOOST_CHECK(tl::Point3<double>(0.5, 2.3, 10.2) == camera_pose.position());
 }
 
 BOOST_FIXTURE_TEST_CASE(move_constructor, TestImage)
@@ -103,7 +103,7 @@ BOOST_FIXTURE_TEST_CASE(move_constructor, TestImage)
   Image image("C:\\Users\\User01\\Documents\\Graphos\\Projects\\images\\img002.png");
   image.setCameraId(1);
   CameraPose camera_pose;
-  camera_pose.setPosition(tl::Point3D(0.6, 2.4, 10.1));
+  camera_pose.setPosition(tl::Point3<double>(0.6, 2.4, 10.1));
   image.setCameraPose(camera_pose);
 
   Image image_move(image);
@@ -111,7 +111,7 @@ BOOST_FIXTURE_TEST_CASE(move_constructor, TestImage)
   BOOST_CHECK_EQUAL("img002.png", image_move.name().toStdString());
   BOOST_CHECK_EQUAL(1, image_move.cameraId());
   camera_pose = image_move.cameraPose();
-  BOOST_CHECK(tl::Point3D(0.6, 2.4, 10.1) == camera_pose.position());
+  BOOST_CHECK(tl::Point3<double>(0.6, 2.4, 10.1) == camera_pose.position());
 
 }
 

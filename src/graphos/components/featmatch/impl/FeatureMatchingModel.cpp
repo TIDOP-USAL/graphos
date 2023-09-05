@@ -23,7 +23,7 @@
 
 #include "FeatureMatchingModel.h"
 
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 
 #include <colmap/base/database.h>
 
@@ -35,22 +35,22 @@ namespace graphos
 
 FeatureMatchingModelImp::FeatureMatchingModelImp(Project *project,
                                                  QObject *parent)
-  : FeatureMatchingModel(parent),
+    : FeatureMatchingModel(parent),
     mProject(project),
-    mSettings(new QSettings(QSettings::IniFormat, 
-                            QSettings::UserScope, 
-                            qApp->organizationName(), 
-                            qApp->applicationName()))
+    mSettings(new QSettings(QSettings::IniFormat,
+              QSettings::UserScope,
+              qApp->organizationName(),
+              qApp->applicationName()))
 {
-  this->init();
+    this->init();
 }
 
 FeatureMatchingModelImp::~FeatureMatchingModelImp()
 {
-  if (mSettings){
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if (mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 }
 
 void FeatureMatchingModelImp::init()
@@ -64,114 +64,114 @@ void FeatureMatchingModelImp::clear()
 
 std::shared_ptr<FeatureMatching> FeatureMatchingModelImp::featureMatching() const
 {
-  return mProject->featureMatching();
+    return mProject->featureMatching();
 }
 
 void FeatureMatchingModelImp::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
 {
-  mProject->setFeatureMatching(featureMatching);
+    mProject->setFeatureMatching(featureMatching);
 }
 
 tl::Path FeatureMatchingModelImp::database() const
 {
-  return mProject->database();
+    return mProject->database();
 }
 
 bool FeatureMatchingModelImp::useCuda() const
 {
-  return mSettings->value("UseCuda", true).toBool();
+    return mSettings->value("UseCuda", true).toBool();
 }
 
 bool FeatureMatchingModelImp::spatialMatching() const
 {
-  bool bSpatialMatching = false;
+    bool bSpatialMatching = false;
 
-  auto it = mProject->images().begin();
-  if (it != mProject->images().end()){
-    CameraPose cameraPosition = it->second.cameraPose();
-    if (!cameraPosition.isEmpty())
-      bSpatialMatching = true;
-  }
+    auto it = mProject->images().begin();
+    if (it != mProject->images().end()) {
+        CameraPose cameraPosition = it->second.cameraPose();
+        if (!cameraPosition.isEmpty())
+            bSpatialMatching = true;
+    }
 
-  return bSpatialMatching;
+    return bSpatialMatching;
 }
 
 void FeatureMatchingModelImp::writeMatchPairs()
 {
 
-  colmap::Database database(mProject->database().toString());
-  std::vector<colmap::Image> db_images = database.ReadAllImages();
-  colmap::image_t colmap_image_id_l = 0;
-  colmap::image_t colmap_image_id_r = 0;
+    colmap::Database database(mProject->database().toString());
+    std::vector<colmap::Image> db_images = database.ReadAllImages();
+    colmap::image_t colmap_image_id_l = 0;
+    colmap::image_t colmap_image_id_r = 0;
 
-  for (size_t i = 0; i < db_images.size(); i++) {
+    for (size_t i = 0; i < db_images.size(); i++) {
 
-    colmap_image_id_l = db_images[i].ImageId();
+        colmap_image_id_l = db_images[i].ImageId();
 
-    for (size_t j = 0; j < i; j++) {
-      colmap_image_id_r = db_images[j].ImageId();
+        for (size_t j = 0; j < i; j++) {
+            colmap_image_id_r = db_images[j].ImageId();
 
-      colmap::FeatureMatches matches = database.ReadMatches(colmap_image_id_l, colmap_image_id_r);
+            colmap::FeatureMatches matches = database.ReadMatches(colmap_image_id_l, colmap_image_id_r);
 
-      if (matches.size() > 0) {
-        
-        tl::Path colmap_image1(db_images[i].Name());
-        tl::Path colmap_image2(db_images[j].Name());
-        
-        bool find_id_1 = false;
-        bool find_id_2 = false;
-        size_t image_id_1 = 0;
-        size_t image_id_2 = 0;
+            if (matches.size() > 0) {
 
-        for (const auto &image_pair : mProject->images()) {
-          
-          tl::Path image(image_pair.second.path().toStdString());
-          
-          if (!find_id_1 && image.equivalent(colmap_image1)) {
-            find_id_1 = true;
-            image_id_1 = image_pair.first;
-          }
+                tl::Path colmap_image1(db_images[i].Name());
+                tl::Path colmap_image2(db_images[j].Name());
 
-          if (!find_id_2 && image.equivalent(colmap_image2)) {
-            find_id_2 = true;
-            image_id_2 = image_pair.first;
-          }
+                bool find_id_1 = false;
+                bool find_id_2 = false;
+                size_t image_id_1 = 0;
+                size_t image_id_2 = 0;
 
-          if (find_id_1 && find_id_2) {
-            mProject->addMatchesPair(image_id_1, image_id_2);
-          }
+                for (const auto &image_pair : mProject->images()) {
+
+                    tl::Path image(image_pair.second.path().toStdString());
+
+                    if (!find_id_1 && image.equivalent(colmap_image1)) {
+                        find_id_1 = true;
+                        image_id_1 = image_pair.first;
+                    }
+
+                    if (!find_id_2 && image.equivalent(colmap_image2)) {
+                        find_id_2 = true;
+                        image_id_2 = image_pair.first;
+                    }
+
+                    if (find_id_1 && find_id_2) {
+                        mProject->addMatchesPair(image_id_1, image_id_2);
+                    }
+                }
+
+            }
+
         }
-
-      }
 
     }
 
-  }
-
-  database.Close();
+    database.Close();
 
 }
 
 bool FeatureMatchingModelImp::existsMatches() const
 {
-  colmap::Database database(mProject->database().toString());
-  size_t num_matches = database.NumMatches();
-  return num_matches > 0;
-  database.Close();
+    colmap::Database database(mProject->database().toString());
+    size_t num_matches = database.NumMatches();
+    return num_matches > 0;
+    database.Close();
 }
 
 void FeatureMatchingModelImp::clearProject()
 {
-  colmap::Database database(mProject->database().toString());
-  database.ClearMatches();
-  database.ClearTwoViewGeometries();
-  database.Close();
-  mProject->removeMatchesPair();
+    colmap::Database database(mProject->database().toString());
+    database.ClearMatches();
+    database.ClearTwoViewGeometries();
+    database.Close();
+    mProject->removeMatchesPair();
 }
 
 bool FeatureMatchingModelImp::imagesCount() const
 {
-  return mProject->imagesCount();
+    return mProject->imagesCount();
 }
 
 } // End namespace graphos

@@ -36,19 +36,19 @@ class ImportCamerasPresenterImp
   : public ImportCamerasPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImportCamerasPresenterImp(ImportCamerasView *view,
-                            ImportCamerasModel *model);
-  ~ImportCamerasPresenterImp() override;
+    ImportCamerasPresenterImp(ImportCamerasView *view,
+                              ImportCamerasModel *model);
+    ~ImportCamerasPresenterImp() override;
 
 private slots:
 
-  void previewCSV();
-  void checkInputCRS(const QString &crs);
-  void checkOutputCRS(const QString &crs);
+    void previewCSV();
+    void checkInputCRS(const QString &crs);
+    void checkOutputCRS(const QString &crs);
 
 private:
 
@@ -56,17 +56,17 @@ private:
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  ImportCamerasView *mView;
-  ImportCamerasModel *mModel;
+    ImportCamerasView *mView;
+    ImportCamerasModel *mModel;
 
 };
 

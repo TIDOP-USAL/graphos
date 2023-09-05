@@ -28,7 +28,7 @@
 
 namespace graphos
 {
-	
+
 class Project;
 
 class DensificationCommand
@@ -37,42 +37,22 @@ class DensificationCommand
 
 public:
 
-  DensificationCommand();
-  ~DensificationCommand() override;
+    DensificationCommand();
+    ~DensificationCommand() override;
 
 private:
 
 // Command
 
-  bool run() override;
+    bool run() override;
 
 private:
 
-  tl::Path mProjectFile;
-  std::string mDensificationMethod;
-  bool mPmvsUseVisibilityInformation;
-  int mPmvsImagesPerCluster;
-  int mPmvsLevel;
-  int mPmvsCellSize;
-  double mPmvsThreshold;
-  int mPmvsWindowSize;
-  int mPmvsMinimunImageNumber;
-  bool mPmvsImageOriginalDepth;
-  int mSmvsInputImageScale;
-  int mSmvsOutputDepthScale;
-  bool mSmvsShadingBasedOptimization;
-  bool mSmvsSemiGlobalMatching;
-  double mSmvsSurfaceSmoothingFactor;
-  int mMvsResolutionLevel;
-  int mMvsMinResolution;
-  int mMvsMaxResolution;
-  int mMvsNumberViews;
-  int mMvsNumberViewsFuse;
-  bool mDisableCuda;
-  Project *mProject;
+	bool mDisableCuda;
+    Project *mProject;
 };
 
-	
+
 } // namespace graphos
 
 #endif // GRAPHOS_DENSIFICATION_COMMAND_H

@@ -43,22 +43,22 @@ namespace graphos
 {
 
 
-class TL_DEPRECATED("CameraPosesReader", "2.0") ReadCameraPoses
-{
-
-public:
-
-  ReadCameraPoses();
-  ~ReadCameraPoses();
-
-  void open(const QString &path);
-  CameraPose orientation(const QString &image) const;
-
-protected:
-
-  colmap::Reconstruction *mReconstruction;
-
-};
+//class TL_DEPRECATED("CameraPosesReader", "2.0") ReadCameraPoses
+//{
+//
+//public:
+//
+//    ReadCameraPoses();
+//    ~ReadCameraPoses();
+//
+//    void open(const QString & path);
+//    CameraPose orientation(const QString & image) const;
+//
+//protected:
+//
+//    colmap::Reconstruction *mReconstruction;
+//
+//};
 
 
 /* Camera Poses Reader */
@@ -68,22 +68,22 @@ class CameraPosesReader
 
 public:
 
-  CameraPosesReader();
-  virtual ~CameraPosesReader() = default;
+    CameraPosesReader();
+    virtual ~CameraPosesReader() = default;
 
-  virtual void read(const tl::Path &path) = 0;
-  virtual std::string format() const = 0;
+    virtual void read(const tl::Path &path) = 0;
+    virtual std::string format() const = 0;
 
-  std::unordered_map<size_t, CameraPose> cameraPoses() const;
+    std::unordered_map<size_t, CameraPose> cameraPoses() const;
 
 protected:
 
-  void addCameraPose(size_t imageId,
-                     const CameraPose &cameraPoses);
+    void addCameraPose(size_t imageId,
+                       const CameraPose &cameraPoses);
 
 private:
 
-  std::unordered_map<size_t, CameraPose> mCameraPoses;
+    std::unordered_map<size_t, CameraPose> mCameraPoses;
 
 };
 
@@ -93,11 +93,11 @@ class CameraPosesReaderFactory
 
 private:
 
-  CameraPosesReaderFactory() = default;
+    CameraPosesReaderFactory() = default;
 
 public:
 
-  static std::unique_ptr<CameraPosesReader> create(const std::string &format);
+    static std::unique_ptr<CameraPosesReader> create(const std::string &format);
 
 };
 
@@ -109,21 +109,21 @@ class CameraPosesWriter
 
 public:
 
-  CameraPosesWriter();
-  virtual ~CameraPosesWriter() = default;
+    CameraPosesWriter();
+    virtual ~CameraPosesWriter() = default;
 
-  virtual void write(const tl::Path &path) = 0;
-  virtual std::string format() const = 0;
+    virtual void write(const tl::Path &path) = 0;
+    virtual std::string format() const = 0;
 
-  void setCameraPoses(const std::unordered_map<size_t, CameraPose> &cameraPoses);
+    void setCameraPoses(const std::unordered_map<size_t, CameraPose> &cameraPoses);
 
 protected:
 
-  std::unordered_map<size_t, CameraPose> cameraPoses() const;
+    std::unordered_map<size_t, CameraPose> cameraPoses() const;
 
 private:
 
-  std::unordered_map<size_t, CameraPose> mCameraPoses;
+    std::unordered_map<size_t, CameraPose> mCameraPoses;
 };
 
 
@@ -132,11 +132,11 @@ class CameraPosesWriterFactory
 
 private:
 
-  CameraPosesWriterFactory() = default;
+    CameraPosesWriterFactory() = default;
 
 public:
 
-  static std::unique_ptr<CameraPosesWriter> create(const std::string &format);
+    static std::unique_ptr<CameraPosesWriter> create(const std::string &format);
 
 };
 

@@ -44,71 +44,71 @@ namespace graphos
 class SettingsViewImp
   : public SettingsView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SettingsViewImp(QWidget *parent = nullptr);
-  ~SettingsViewImp() override;
+    SettingsViewImp(QWidget *parent = nullptr);
+    ~SettingsViewImp() override;
 
 protected slots:
 
-  void onPushButtonImageViewerBGColorClicked();
+    void onPushButtonImageViewerBGColorClicked();
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 // SettingsView interface
 
 public:
 
-  QString activeLanguage() const override;
-  int historyMaxSize() const override;
-  QString imageViewerBGColor() const override;
-  bool useCuda() const override;
+    QString activeLanguage() const override;
+    int historyMaxSize() const override;
+    QString imageViewerBGColor() const override;
+    bool useCuda() const override;
 
 public slots:
 
-  void setPage(int page) override;
-  void setLanguages(const QStringList &languages) override;
-  void setActiveLanguage(const QString &language) override;
-  void setHistoryMaxSize(int size) override;
-  void setImageViewerBGcolor(const QString &color) override;
-  void setUseCuda(bool active) override;
-  void setCudaEnabled(bool enabled) override;
-  void setUnsavedChanges(bool unsaveChanges) override;
-  void addWidget(QWidget *widget) override;
+    void setPage(int page) override;
+    void setLanguages(const QStringList &languages) override;
+    void setActiveLanguage(const QString &language) override;
+    void setHistoryMaxSize(int size) override;
+    void setImageViewerBGcolor(const QString &color) override;
+    void setUseCuda(bool active) override;
+    void setCudaEnabled(bool enabled) override;
+    void setUnsavedChanges(bool unsaveChanges) override;
+    void addWidget(QWidget *widget) override;
 
 protected:
 
-  QListWidget *mListWidget;
-  QStackedWidget *mStackedWidget;
-  QLabel *mLabelLanguages;
-  QComboBox *mLanguages;
-  QLabel *mLabelHistoryMaxSize;
-  QSpinBox *mHistoryMaxSize;
-  QTabWidget *mTabWidgetTools;
-  QLabel *mLabelUseCuda;
-  QCheckBox *mCheckBoxUseCuda;
-  QLabel *mLabelImageViewerBGcolor;
-  QLineEdit *mLineEditImageViewerBGcolor;
-  QPushButton *mPushButtonImageViewerBGcolor;
-  QDialogButtonBox *mButtonBox;
+    QListWidget *mListWidget;
+    QStackedWidget *mStackedWidget;
+    QLabel *mLabelLanguages;
+    QComboBox *mLanguages;
+    QLabel *mLabelHistoryMaxSize;
+    QSpinBox *mHistoryMaxSize;
+    QTabWidget *mTabWidgetTools;
+    QLabel *mLabelUseCuda;
+    QCheckBox *mCheckBoxUseCuda;
+    QLabel *mLabelImageViewerBGcolor;
+    QLineEdit *mLineEditImageViewerBGcolor;
+    QPushButton *mPushButtonImageViewerBGcolor;
+    QDialogButtonBox *mButtonBox;
 
-  bool bUnsaveChanges;
+    bool bUnsaveChanges;
 };
 
 

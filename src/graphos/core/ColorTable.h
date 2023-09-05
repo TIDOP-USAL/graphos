@@ -38,45 +38,45 @@ namespace graphos
 {
 
 class ColorTable
-  : public QObject
+    : public QObject
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  using iterator = std::map<int, std::pair<std::string, tl::graph::Color>>::iterator;
-  using const_iterator = std::map<int, std::pair<std::string, tl::graph::Color>>::const_iterator;
+    using iterator = std::map<int, std::pair<std::string, tl::Color>>::iterator;
+    using const_iterator = std::map<int, std::pair<std::string, tl::Color>>::const_iterator;
 
 public:
 
-  ColorTable(std::string name);
+    ColorTable(std::string name);
 
-  std::string name() const;
-  void add(int code,
-           const std::string &name,
-           const tl::graph::Color &color);
+    std::string name() const;
+    void add(int code,
+             const std::string &name,
+             const tl::Color &color);
 
-  tl::graph::Color color(int code) const;
-  void setVisible(int code, bool visible);
-  bool isVisible(int code) const;
-  //std::string name(int code) const;
-  size_t size() const;
-  bool empty() const;
+    tl::Color color(int code) const;
+    void setVisible(int code, bool visible);
+    bool isVisible(int code) const;
+    //std::string name(int code) const;
+    size_t size() const;
+    bool empty() const;
 
-  iterator begin();
-  const_iterator begin() const;
-  iterator end();
-  const_iterator end() const;
+    iterator begin();
+    const_iterator begin() const;
+    iterator end();
+    const_iterator end() const;
 
 signals:
 
-  void change();
+    void change();
 
 private:
 
-  std::string mName;
-  std::map<int, std::pair<std::string, tl::graph::Color>> mColors;
+    std::string mName;
+    std::map<int, std::pair<std::string, tl::Color>> mColors;
 };
 
 } // namespace graphos

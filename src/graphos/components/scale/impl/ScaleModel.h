@@ -37,40 +37,40 @@ class ScaleModelImp
   : public ScaleModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ScaleModelImp(Project *project, QObject *parent = nullptr);
-  ~ScaleModelImp() override;
+    ScaleModelImp(Project *project, QObject *parent = nullptr);
+    ~ScaleModelImp() override;
 
 // ScaleModel interface
 
 public:
 
-  //QVector3D offset() const;
-  void setTransform(const tl::math::Matrix<double, 4, 4> &transform) override;
+    //QVector3D offset() const;
+    void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
 
 public slots:
 
-  void loadSettings() override;
-  void saveSettings() override;
+    void loadSettings() override;
+    void saveSettings() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
-  bool mReadSettings;
+    Project *mProject;
+    QSettings *mSettings;
+    bool mReadSettings;
 };
 
 } // namespace graphos

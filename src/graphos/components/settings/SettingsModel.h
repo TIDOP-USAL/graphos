@@ -35,133 +35,133 @@ class SettingsModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SettingsModel(QObject *parent = nullptr) : Model(parent) {}
-  virtual ~SettingsModel() override = default;
+    SettingsModel(QObject *parent = nullptr) : Model(parent) {}
+    virtual ~SettingsModel() override = default;
 
-  /*!
-   * \brief List of available languages
-   * \return
-   */
-  virtual QStringList languages() const = 0;
+    /*!
+     * \brief List of available languages
+     * \return
+     */
+    virtual QStringList languages() const = 0;
 
-  /*!
-   * \brief Current language
-   * \return Current language
-   */
-  virtual QString language() const = 0;
+    /*!
+     * \brief Current language
+     * \return Current language
+     */
+    virtual QString language() const = 0;
 
-  /*!
-   * \brief Recent history projects
-   * \return List of recent projects
-   */
-  //virtual QStringList history() const = 0;
+    /*!
+     * \brief Recent history projects
+     * \return List of recent projects
+     */
+     //virtual QStringList history() const = 0;
 
-  /*!
-   * \brief Maximum history size
-   * \return Maximum history size
-   */
-  virtual int historyMaxSize() const = 0;
+     /*!
+      * \brief Maximum history size
+      * \return Maximum history size
+      */
+    virtual int historyMaxSize() const = 0;
 
-  /*!
-   * \brief Image viewer Background color
-   * \return Hex value
-   */
-  virtual QString imageViewerBGcolor() const = 0;
+    /*!
+     * \brief Image viewer Background color
+     * \return Hex value
+     */
+    virtual QString imageViewerBGcolor() const = 0;
 
-  virtual bool useCuda() const = 0;
-  virtual bool checkDevice() const = 0;
-  ///TODO: Sift Properties
+    virtual bool useCuda() const = 0;
+    virtual bool checkDevice() const = 0;
+    ///TODO: Sift Properties
 
-  virtual QString keypointsViewerBGColor() const = 0;
-  virtual int keypointsViewerMarkerType() const = 0;
-  virtual int keypointsViewerMarkerSize() const = 0;
-  virtual int keypointsViewerMarkerWidth() const = 0;
-  virtual QString keypointsViewerMarkerColor() const = 0;
-  virtual int keypointsViewerSelectMarkerWidth() const = 0;
-  virtual QString keypointsViewerSelectMarkerColor() const = 0;
+    virtual QString keypointsViewerBGColor() const = 0;
+    virtual int keypointsViewerMarkerType() const = 0;
+    virtual int keypointsViewerMarkerSize() const = 0;
+    virtual int keypointsViewerMarkerWidth() const = 0;
+    virtual QString keypointsViewerMarkerColor() const = 0;
+    virtual int keypointsViewerSelectMarkerWidth() const = 0;
+    virtual QString keypointsViewerSelectMarkerColor() const = 0;
 
-  virtual QString matchesViewerBGColor() const = 0;
-  virtual int matchesViewerMarkerType() const = 0;
-  virtual int matchesViewerMarkerSize() const = 0;
-  virtual int matchesViewerMarkerWidth() const = 0;
-  virtual QString matchesViewerMarkerColor() const = 0;
-  virtual int matchesViewerSelectMarkerWidth() const = 0;
-  virtual QString matchesViewerSelectMarkerColor() const = 0;
-  virtual QString matchesViewerLineColor() const = 0;
-  virtual int matchesViewerLineWidth() const = 0;
+    virtual QString matchesViewerBGColor() const = 0;
+    virtual int matchesViewerMarkerType() const = 0;
+    virtual int matchesViewerMarkerSize() const = 0;
+    virtual int matchesViewerMarkerWidth() const = 0;
+    virtual QString matchesViewerMarkerColor() const = 0;
+    virtual int matchesViewerSelectMarkerWidth() const = 0;
+    virtual QString matchesViewerSelectMarkerColor() const = 0;
+    virtual QString matchesViewerLineColor() const = 0;
+    virtual int matchesViewerLineWidth() const = 0;
 
 
-  /*!
-   * \brief read
-   * \return
-   */
-  virtual void read() = 0;
+    /*!
+     * \brief read
+     * \return
+     */
+    virtual void read() = 0;
 
-  /*!
-   * \brief write
-   * \return
-   */
-  virtual void write() = 0;
+    /*!
+     * \brief write
+     * \return
+     */
+    virtual void write() = 0;
 
 public slots:
 
-  /*!
-   * \brief Set the language
-   * \param[in] language GUI language
-   */
-  virtual void setLanguage(const QString &language) = 0;
+    /*!
+     * \brief Set the language
+     * \param[in] language GUI language
+     */
+    virtual void setLanguage(const QString &language) = 0;
 
-  /*!
-   * \brief Add a project to the history
-   * \param[in] project Project path
-   */
-  //virtual void addToHistory(const QString &project) = 0;
+    /*!
+     * \brief Add a project to the history
+     * \param[in] project Project path
+     */
+     //virtual void addToHistory(const QString &project) = 0;
 
-  /*!
-   * \brief Clear the history of recent projects
-   */
-  //virtual void clearHistory() = 0;
+     /*!
+      * \brief Clear the history of recent projects
+      */
+      //virtual void clearHistory() = 0;
 
-  /*!
-   * \brief Set the size number of history items
-   * \param[in] maxSize History size
-   */
-  virtual void setHistoryMaxSize(int maxSize) = 0;
+      /*!
+       * \brief Set the size number of history items
+       * \param[in] maxSize History size
+       */
+    virtual void setHistoryMaxSize(int maxSize) = 0;
 
-  /*!
-   * \brief Set Image Viewer background color
-   * \param bgColor Hex value
-   */
-  virtual void setImageViewerBGcolor(const QString &bgColor) = 0;
+    /*!
+     * \brief Set Image Viewer background color
+     * \param bgColor Hex value
+     */
+    virtual void setImageViewerBGcolor(const QString &bgColor) = 0;
 
-  virtual void setUseCuda(bool active) = 0;
+    virtual void setUseCuda(bool active) = 0;
 
-  virtual void setKeypointsViewerBGColor(const QString &color) = 0;
-  virtual void setKeypointsViewerMarkerType(int type) = 0;
-  virtual void setKeypointsViewerMarkerSize(int size) = 0;
-  virtual void setKeypointsViewerMarkerWidth(int width) = 0;
-  virtual void setKeypointsViewerMarkerColor(const QString &color) = 0;
-  virtual void setKeypointsViewerSelectMarkerWidth(int width) = 0;
-  virtual void setKeypointsViewerSelectMarkerColor(const QString &color) = 0;
+    virtual void setKeypointsViewerBGColor(const QString &color) = 0;
+    virtual void setKeypointsViewerMarkerType(int type) = 0;
+    virtual void setKeypointsViewerMarkerSize(int size) = 0;
+    virtual void setKeypointsViewerMarkerWidth(int width) = 0;
+    virtual void setKeypointsViewerMarkerColor(const QString &color) = 0;
+    virtual void setKeypointsViewerSelectMarkerWidth(int width) = 0;
+    virtual void setKeypointsViewerSelectMarkerColor(const QString &color) = 0;
 
 
-  virtual void setMatchesViewerBGColor(const QString &color) = 0;
-  virtual void setMatchesViewerMarkerType(int type) = 0;
-  virtual void setMatchesViewerMarkerSize(int size) = 0;
-  virtual void setMatchesViewerMarkerWidth(int width) = 0;
-  virtual void setMatchesViewerMarkerColor(const QString &color) = 0;
-  virtual void setMatchesViewerSelectMarkerWidth(int width) = 0;
-  virtual void setMatchesViewerSelectMarkerColor(const QString &color) = 0;
-  virtual void setMatchesViewerLineColor(const QString &color) = 0;
-  virtual void setMatchesViewerLineWidth(int width) = 0;
+    virtual void setMatchesViewerBGColor(const QString &color) = 0;
+    virtual void setMatchesViewerMarkerType(int type) = 0;
+    virtual void setMatchesViewerMarkerSize(int size) = 0;
+    virtual void setMatchesViewerMarkerWidth(int width) = 0;
+    virtual void setMatchesViewerMarkerColor(const QString &color) = 0;
+    virtual void setMatchesViewerSelectMarkerWidth(int width) = 0;
+    virtual void setMatchesViewerSelectMarkerColor(const QString &color) = 0;
+    virtual void setMatchesViewerLineColor(const QString &color) = 0;
+    virtual void setMatchesViewerLineWidth(int width) = 0;
 
 signals:
 
-  void unsavedChanges(bool);
+    void unsavedChanges(bool);
 };
 
 

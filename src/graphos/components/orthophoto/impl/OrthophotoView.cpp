@@ -37,8 +37,8 @@ namespace graphos
 OrthophotoViewImp::OrthophotoViewImp(QWidget *parent)
   : OrthophotoView(parent)
 {
-  this->initUI();
-  this->initSignalAndSlots();
+    this->initUI();
+    this->initSignalAndSlots();
 }
 
 OrthophotoViewImp::~OrthophotoViewImp()
@@ -48,47 +48,47 @@ OrthophotoViewImp::~OrthophotoViewImp()
 
 void OrthophotoViewImp::initUI()
 {
-  this->setObjectName(QString("OrthophotoView"));
-  this->resize(380, 250);
+    this->setObjectName(QString("OrthophotoView"));
+    this->resize(380, 250);
 
-  QGridLayout *gridLayout = new QGridLayout();
-  this->setLayout(gridLayout);
+    QGridLayout *gridLayout = new QGridLayout();
+    this->setLayout(gridLayout);
 
-  mLabelResolution = new QLabel(this);
-  gridLayout->addWidget(mLabelResolution, 0, 0, 1, 1);
-  mDoubleSpinBoxResolution = new QDoubleSpinBox(this);
-  gridLayout->addWidget(mDoubleSpinBoxResolution, 0, 1, 1, 1);
+    mLabelResolution = new QLabel(this);
+    gridLayout->addWidget(mLabelResolution, 0, 0, 1, 1);
+    mDoubleSpinBoxResolution = new QDoubleSpinBox(this);
+    gridLayout->addWidget(mDoubleSpinBoxResolution, 0, 1, 1, 1);
 
 
-  mButtonBox = new QDialogButtonBox(this);
-  mButtonBox->setOrientation(Qt::Orientation::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 7, 0, 1, 2);
+    mButtonBox = new QDialogButtonBox(this);
+    mButtonBox->setOrientation(Qt::Orientation::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
+    gridLayout->addWidget(mButtonBox, 7, 0, 1, 2);
 
-  this->retranslate();
-  this->clear();
-  this->update();
+    this->retranslate();
+    this->clear();
+    this->update();
 }
 
 void OrthophotoViewImp::initSignalAndSlots()
 {
-  connect(mDoubleSpinBoxResolution, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &OrthophotoView::resolutionChanged);
+    connect(mDoubleSpinBoxResolution, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &OrthophotoView::resolutionChanged);
 
-  connect(mButtonBox,                                    &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Apply),   &QAbstractButton::clicked,   this, &OrthophotoView::run);
-  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked,   this, &DialogView::help);
+    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &OrthophotoView::run);
+    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void OrthophotoViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("OrthophotoView", "Orthophoto"));
-  
-  mLabelResolution->setText(QApplication::translate("ResolutionView", "Resolution (m):"));
+    this->setWindowTitle(QApplication::translate("OrthophotoView", "Orthophoto"));
 
-  
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("BilateralFilterView", "Cancel"));
-  mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("BilateralFilterView", "Run"));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("BilateralFilterView", "Help"));
+    mLabelResolution->setText(QApplication::translate("ResolutionView", "Resolution (m):"));
+
+
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("BilateralFilterView", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("BilateralFilterView", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("BilateralFilterView", "Help"));
 }
 
 void OrthophotoViewImp::clear()
@@ -97,19 +97,18 @@ void OrthophotoViewImp::clear()
 }
 
 void OrthophotoViewImp::update()
+{}
+
+double OrthophotoViewImp::resolution() const
 {
+    return mDoubleSpinBoxResolution->value();
 }
 
-double OrthophotoViewImp::resolution() const 
-{
-  return mDoubleSpinBoxResolution->value();
-}
 
-
-void OrthophotoViewImp::setResolution(double resolution) 
+void OrthophotoViewImp::setResolution(double resolution)
 {
-  const QSignalBlocker blocker(mDoubleSpinBoxResolution);
-  mDoubleSpinBoxResolution->setValue(resolution);
+    const QSignalBlocker blocker(mDoubleSpinBoxResolution);
+    mDoubleSpinBoxResolution->setValue(resolution);
 }
 
 

@@ -35,59 +35,59 @@ namespace graphos
 {
 
 class ProgressBarDialog
-  : public DialogView
+    : public DialogView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit ProgressBarDialog(QWidget *parent = nullptr);
-  ~ProgressBarDialog() override = default;
+    explicit ProgressBarDialog(QWidget *parent = nullptr);
+    ~ProgressBarDialog() override = default;
 
 public slots:
 
-  void setRange(int min, int max);
-  void setValue(int value);
-  void setInitialized();
-  void setFinished();
-  void setTitle(QString title);
-  void setStatusText(QString text);
-  void setCloseAuto(bool active = false);
+    void setRange(int min, int max);
+    void setValue(int value);
+    void setInitialized();
+    void setFinished();
+    void setTitle(QString title);
+    void setStatusText(QString text);
+    void setCloseAuto(bool active = false);
 
 protected slots:
 
-  void onMinimized();
-  void onPushButtonCancelClicked();
+    void onMinimized();
+    void onPushButtonCancelClicked();
 
 signals:
 
-  void cancel();
+    void cancel();
 
-// DialogView interface
+    // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 private:
 
-  QLabel *mLabelStatus;
-  QProgressBar *mProgressBar;
-  QPushButton *mPushButtonCancel;
-  QPushButton *mPushButtonMinimize;
-  QPushButton *mPushButtonClose;
-  bool mAutoClose;
-  
+    QLabel *mLabelStatus;
+    QProgressBar *mProgressBar;
+    QPushButton *mPushButtonCancel;
+    QPushButton *mPushButtonMinimize;
+    QPushButton *mPushButtonClose;
+    bool mAutoClose;
+
 };
 
 } // namespace graphos

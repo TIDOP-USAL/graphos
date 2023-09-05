@@ -45,186 +45,186 @@ ComponentBase::ComponentBase(Application *application)
     mApplication(application),
     mDeleteView(true)
 {
-  init();
+    init();
 }
 
 ComponentBase::~ComponentBase()
 {
-  if (mAction) {
-    delete mAction;
-    mAction = nullptr;
-  }
+    if (mAction) {
+        delete mAction;
+        mAction = nullptr;
+    }
 
-  if (mPresenter) {
-    delete mPresenter;
-    mPresenter = nullptr;
-  }
+    if (mPresenter) {
+        delete mPresenter;
+        mPresenter = nullptr;
+    }
 
-  if (mModel) {
-    delete mModel;
-    mModel = nullptr;
-  }
+    if (mModel) {
+        delete mModel;
+        mModel = nullptr;
+    }
 
-  if(mDeleteView && mView) {
-    delete mView;
-    mView = nullptr;
-  }
+    if (mDeleteView && mView) {
+        delete mView;
+        mView = nullptr;
+    }
 
 }
 
 void ComponentBase::init()
 {
 
-  ComponentBase::createAction();
+    ComponentBase::createAction();
 
-  connect(mAction, &QAction::triggered,
-          this, &ComponentBase::open);
-  connect(mApplication->status(), &AppStatus::update,
-          this, &ComponentBase::update);
+    connect(mAction, &QAction::triggered,
+            this, &ComponentBase::open);
+    connect(mApplication->status(), &AppStatus::update,
+            this, &ComponentBase::update);
 
 }
 
 void ComponentBase::create()
 {
-  if(!mPresenter) {
-    createModel();
-    createView();
-    createPresenter();
+    if (!mPresenter) {
+        createModel();
+        createView();
+        createPresenter();
 
-    emit created();
-  }
+        emit created();
+    }
 }
 
 void ComponentBase::open()
 {
-  create();
+    create();
 
-  mPresenter->open();
+    mPresenter->open();
 }
 
 void ComponentBase::createAction()
 {
-  mAction = new QAction();
+    mAction = new QAction();
 }
 
 QString ComponentBase::name() const
 {
-  return mName;
+    return mName;
 }
 
 QAction *ComponentBase::action() const
 {
-  return mAction;
+    return mAction;
 }
 
 QString ComponentBase::menu() const
 {
-  return mMenu;
+    return mMenu;
 }
 
 QString ComponentBase::toolbar() const
 {
-  return mToolbar;
+    return mToolbar;
 }
 
 QWidget *ComponentBase::widget() const
 {
-  return dynamic_cast<QWidget *>(mView);
+    return dynamic_cast<QWidget *>(mView);
 }
 
 std::shared_ptr<Command> ComponentBase::command()
 {
-  if (!mCommand) {
-    createCommand();
-  }
-  return mCommand;
+    if (!mCommand) {
+        createCommand();
+    }
+    return mCommand;
 }
 
 void ComponentBase::setName(const QString &name)
 {
-  mName = name;
-  mAction->setText(name);
+    mName = name;
+    mAction->setText(name);
 }
 
 void ComponentBase::setMenu(const QString &menu)
 {
-  mMenu = menu;
+    mMenu = menu;
 }
 
 void ComponentBase::setToolbar(const QString &toolbar)
 {
-  mToolbar = toolbar;
+    mToolbar = toolbar;
 }
 
 void ComponentBase::freeMemory()
 {
 
-  if (mPresenter) {
-    delete mPresenter;
-    mPresenter = nullptr;
-  }
+    if (mPresenter) {
+        delete mPresenter;
+        mPresenter = nullptr;
+    }
 
-  if (mModel) {
-    delete mModel;
-    mModel = nullptr;
-  }
+    if (mModel) {
+        delete mModel;
+        mModel = nullptr;
+    }
 
-  if (mView) {
-    delete mView;
-    mView = nullptr;
-  }
+    if (mView) {
+        delete mView;
+        mView = nullptr;
+    }
 
-  mCommand.reset();
+    mCommand.reset();
 
 }
 
 Model *ComponentBase::model()
 {
-  return mModel;
+    return mModel;
 }
 
 View *ComponentBase::view()
 {
-  return mView;
+    return mView;
 }
 
 Presenter *ComponentBase::presenter()
 {
-  return mPresenter;
+    return mPresenter;
 }
 
 void ComponentBase::setModel(Model *model)
 {
-  mModel = model;
+    mModel = model;
 }
 
 void ComponentBase::setView(View *view)
 {
-  mView = view;
-  if(mView->parent()) {
-    mDeleteView = false;
-  }
+    mView = view;
+    if (mView->parent()) {
+        mDeleteView = false;
+    }
 }
 
 void ComponentBase::setPresenter(Presenter *presenter)
 {
-  mPresenter = presenter;
+    mPresenter = presenter;
 
-  connect(mPresenter, &Presenter::help,
-          this, &ComponentBase::help);
+    connect(mPresenter, &Presenter::help,
+            this, &ComponentBase::help);
 }
 
 void ComponentBase::setCommand(std::shared_ptr<Command> command)
 {
-  if (command) {
-    mCommand = command;
-    mApplication->addComponent(this);
-  }
+    if (command) {
+        mCommand = command;
+        mApplication->addComponent(this);
+    }
 }
 
 Application *ComponentBase::app()
 {
-  return mApplication;
+    return mApplication;
 }
 
 
@@ -236,50 +236,50 @@ TaskComponent::TaskComponent(Application *application)
   : ComponentBase(application),
     mProgressHandler(nullptr)
 {
-  connect(this, &Component::created, 
-          this, &TaskComponent::onComponentCreated);
+    connect(this, &Component::created,
+            this, &TaskComponent::onComponentCreated);
 }
 
 void TaskComponent::setProgressHandler(ProgressHandler *progressHandler)
 {
-  mProgressHandler = progressHandler;
+    mProgressHandler = progressHandler;
 }
 
 void TaskComponent::onComponentCreated()
 {
-  Presenter *presenter = this->presenter();
-  connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::running,
-          this, &TaskComponent::onRunning);
-  connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::finished,
-          this, &TaskComponent::onFinished);
-  connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::failed,
-          this, &TaskComponent::onFailed);
-  connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::canceled,
-          this, &TaskComponent::onCanceled);
+    Presenter *presenter = this->presenter();
+    connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::running,
+            this, &TaskComponent::onRunning);
+    connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::finished,
+            this, &TaskComponent::onFinished);
+    connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::failed,
+            this, &TaskComponent::onFailed);
+    connect(dynamic_cast<TaskPresenter *>(presenter), &TaskPresenter::canceled,
+            this, &TaskComponent::onCanceled);
 
-  dynamic_cast<TaskPresenter *>(presenter)->setProgressHandler(mProgressHandler);
+    dynamic_cast<TaskPresenter *>(presenter)->setProgressHandler(mProgressHandler);
 }
 
 void TaskComponent::onRunning()
 {
-  app()->status()->activeFlag(AppStatus::Flag::processing, true);
+    app()->status()->activeFlag(AppStatus::Flag::processing, true);
 }
 
 void TaskComponent::onFinished()
 {
-  app()->status()->activeFlag(AppStatus::Flag::processing, false);
+    app()->status()->activeFlag(AppStatus::Flag::processing, false);
 
-  emit finished();
+    emit finished();
 }
 
 void TaskComponent::onFailed()
 {
-  app()->status()->activeFlag(AppStatus::Flag::processing, false);
+    app()->status()->activeFlag(AppStatus::Flag::processing, false);
 }
 
 void TaskComponent::onCanceled()
 {
-  app()->status()->activeFlag(AppStatus::Flag::processing, false);
+    app()->status()->activeFlag(AppStatus::Flag::processing, false);
 }
 
 
@@ -290,88 +290,88 @@ void TaskComponent::onCanceled()
 MultiComponentBase::MultiComponentBase(Application *application)
   : mModel(nullptr),
     mView(nullptr),
-    mPresenter(nullptr), 
+    mPresenter(nullptr),
     mApplication(application)
 {
-  init();
+    init();
 }
 
 MultiComponentBase::~MultiComponentBase()
 {
-  if(mPresenter) {
-    delete mPresenter;
-    mPresenter = nullptr;
-  }
+    if (mPresenter) {
+        delete mPresenter;
+        mPresenter = nullptr;
+    }
 
-  if(mModel) {
-    delete mModel;
-    mModel = nullptr;
-  }
+    if (mModel) {
+        delete mModel;
+        mModel = nullptr;
+    }
 
-  if(mView) {
-    delete mView;
-    mView = nullptr;
-  }
+    if (mView) {
+        delete mView;
+        mView = nullptr;
+    }
 }
 
 void MultiComponentBase::init()
 {
-  connect(mApplication->status(), &AppStatus::update,
-          this, &MultiComponentBase::update);
+    connect(mApplication->status(), &AppStatus::update,
+            this, &MultiComponentBase::update);
 }
 
 QMenu *MultiComponentBase::subMenu() const
 {
-  return dynamic_cast<QMenu *>(mView);
+    return dynamic_cast<QMenu *>(mView);
 }
 
 QString MultiComponentBase::name() const
 {
-  return mName;
+    return mName;
 }
 
 QAction *MultiComponentBase::action() const
 {
-  return nullptr;
+    return nullptr;
 }
 
 QString MultiComponentBase::menu() const
 {
-  return mParentMenu;
+    return mParentMenu;
 }
 
 QString MultiComponentBase::toolbar() const
 {
-  return mToolbar;
+    return mToolbar;
 }
 
 QWidget *MultiComponentBase::widget() const
 {
-  return dynamic_cast<QWidget *>(mView);
+    return dynamic_cast<QWidget *>(mView);
 }
 
 std::shared_ptr<Command> MultiComponentBase::command()
 {
-  //if(!mCommand) {
-  //  this->createCommand();
-  //}
-  //return mCommand;
-  return std::shared_ptr<Command>();
+    //if(!mCommand) {
+    //  this->createCommand();
+    //}
+    //return mCommand;
+    return std::shared_ptr<Command>();
 }
 
 void MultiComponentBase::setName(const QString &name)
 {
-  mName = name;
+    mName = name;
 }
 
 void MultiComponentBase::setMenu(const QString &menu)
 {
-  mParentMenu = menu;
+    mParentMenu = menu;
 }
 
 void MultiComponentBase::setToolbar(const QString &toolbar)
 {
-  mToolbar = toolbar;
+    mToolbar = toolbar;
 }
 
 void MultiComponentBase::freeMemory()
@@ -380,45 +380,46 @@ void MultiComponentBase::freeMemory()
 
 Model *MultiComponentBase::model()
 {
-  return mModel;
+    return mModel;
 }
 
 View *MultiComponentBase::view()
 {
-  return mView;
+    return mView;
 }
 
 Presenter *MultiComponentBase::presenter()
 {
-  return mPresenter;
+    return mPresenter;
 }
 
 void MultiComponentBase::setModel(Model *model)
 {
-  mModel = model;
+    mModel = model;
 }
 
 void MultiComponentBase::setView(View *view)
 {
-  mView = view;
+    mView = view;
 }
 
 void MultiComponentBase::setPresenter(Presenter *presenter)
 {
-  mPresenter = presenter;
+    mPresenter = presenter;
 }
 
 void MultiComponentBase::setCommand(std::shared_ptr<Command> command)
 {
-  //if(command) {
-  //  mCommand = command;
-  //  mApplication->addComponent(this);
-  //}
+    tl::unusedParameter(command);
+    //if(command) {
+    //  mCommand = command;
+    //  mApplication->addComponent(this);
+    //}
 }
 
 Application *MultiComponentBase::app()
 {
-  return mApplication;
+    return mApplication;
 }
 
 } // namespace graphos

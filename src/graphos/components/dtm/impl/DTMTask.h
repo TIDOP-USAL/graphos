@@ -42,34 +42,34 @@ class GRAPHOS_EXPORT DtmProcess
     public tl::TaskBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
-             const tl::Path &pointCloud,
-             const tl::Point3<double> &offset,
-             const tl::Path &dtmFile,
-             double gsd,
-             bool dsm,
-             const QString &crs);
-  ~DtmProcess() override = default;
+    DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
+               const tl::Path &pointCloud,
+               const tl::Point3<double> &offset,
+               const tl::Path &dtmFile,
+               double gsd,
+               bool dsm,
+               const QString &crs);
+    ~DtmProcess() override = default;
 
 // tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-  std::shared_ptr<DtmAlgorithm> mDtmAlgorithm;
-  tl::Path mPointCloud;
-  tl::Point3<double> mOffset;
-  tl::Path mDtmFile;
-  double mGSD;
-  bool mDSM;
-  QString mCrs;
+    std::shared_ptr<DtmAlgorithm> mDtmAlgorithm;
+    tl::Path mPointCloud;
+    tl::Point3<double> mOffset;
+    tl::Path mDtmFile;
+    double mGSD;
+    bool mDSM;
+    QString mCrs;
 };
 
 } // namespace graphos

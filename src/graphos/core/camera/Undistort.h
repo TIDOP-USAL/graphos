@@ -34,6 +34,7 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Calibration.h"
+#include "graphos/core/image.h"
 
 namespace tl
 {
@@ -43,7 +44,6 @@ class Progress;
 namespace graphos
 {
 
-class Image;
 
 TL_DEPRECATED("Undistort", "2.0")
 cv::Mat openCVCameraMatrix(const Calibration &calibration);
@@ -56,73 +56,73 @@ class Undistort
 
 public:
 
-  Undistort();
-  Undistort(const Camera &camera);
-  Undistort(const Undistort &undistort);
-  ~Undistort() = default;
+    Undistort();
+    Undistort(const Camera &camera);
+    Undistort(const Undistort &undistort);
+    ~Undistort() = default;
 
-  Camera camera() const;
-  void setCamera(const Camera &camera);
-  Camera undistortCamera() const;
-  cv::Mat undistortImage(const cv::Mat &image,
-                         bool cuda = false);
-  tl::Point<float> undistortPoint(const tl::Point<float> &point);
-
-private:
-
-  void init();
-  void initCameraMatrix();
-  void initDistCoeffs();
-  void initOptimalNewCameraMatrix();
-  void initUndistortCamera();
-  void initUndistortMaps();
+    Camera camera() const;
+    void setCamera(const Camera &camera);
+    Camera undistortCamera() const;
+    cv::Mat undistortImage(const cv::Mat &image,
+                           bool cuda = false);
+    tl::Point<float> undistortPoint(const tl::Point<float> &point);
 
 private:
 
-  Camera mCamera;
-  Camera mUndistortCamera;
-  cv::Mat mCameraMatrix;
-  cv::Mat mDistCoeffs;
-  cv::Mat mOptimalNewCameraMatrix;
-  cv::Mat mMap1;
-  cv::Mat mMap2;
+    void init();
+    void initCameraMatrix();
+    void initDistCoeffs();
+    void initOptimalNewCameraMatrix();
+    void initUndistortCamera();
+    void initUndistortMaps();
+
+private:
+
+    Camera mCamera;
+    Camera mUndistortCamera;
+    cv::Mat mCameraMatrix;
+    cv::Mat mDistCoeffs;
+    cv::Mat mOptimalNewCameraMatrix;
+    cv::Mat mMap1;
+    cv::Mat mMap2;
 };
 
 class UndistortImages
-  : public tl::TaskBase
+    : public tl::TaskBase
 {
 
 public:
 
-  enum class Format : uint8_t
-  {
-    tiff,
-    jpeg,
-    png
-  };
+    enum class Format : uint8_t
+    {
+        tiff,
+        jpeg,
+        png
+    };
 
 public:
 
-  UndistortImages(const std::unordered_map<size_t, Image> &images,
-                  const std::map<int, Camera> &cameras,
-                  const QString &outputPath,
-                  Format outputFormat,
-                  bool cuda = false);
-  ~UndistortImages();
+    UndistortImages(const std::unordered_map<size_t, Image> &images,
+                    const std::map<int, Camera> &cameras,
+                    const QString &outputPath,
+                    Format outputFormat,
+                    bool cuda = false);
+    ~UndistortImages();
 
-// TaskBase
-  
+    // TaskBase
+
 protected:
-  
-  void execute(tl::Progress *progressBar = nullptr) override;
+
+    void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
-  const std::unordered_map<size_t, Image> &mImages;
-  const std::map<int, Camera> &mCameras;
-  QString mOutputPath;
-  Format mOutputFormat;
-  bool bUseCuda;
+    const std::unordered_map<size_t, Image> &mImages;
+    const std::map<int, Camera> &mCameras;
+    QString mOutputPath;
+    Format mOutputFormat;
+    bool bUseCuda;
 
 };
 

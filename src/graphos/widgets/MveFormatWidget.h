@@ -36,79 +36,79 @@ namespace graphos
 {
 
 class MveFormatWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MveFormatWidget(QWidget *parent = nullptr);
-  ~MveFormatWidget() override = default;
+    MveFormatWidget(QWidget *parent = nullptr);
+    ~MveFormatWidget() override = default;
 
-  virtual QString file() const = 0;
+    virtual QString file() const = 0;
 
 signals:
 
-  void fileChanged(QString);
+    void fileChanged(QString);
 
 public slots:
 
-  virtual void setFile(const QString &file) = 0;
+    virtual void setFile(const QString &file) = 0;
 
 };
 
 
 
 class MveFormatWidgetImp
-  : public MveFormatWidget
+    : public MveFormatWidget
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MveFormatWidgetImp(QWidget *parent = nullptr);
-  ~MveFormatWidgetImp() override = default;
+    MveFormatWidgetImp(QWidget *parent = nullptr);
+    ~MveFormatWidgetImp() override = default;
 
 protected slots:
 
-  void onPushButtonSelectPath();
+    void onPushButtonSelectPath();
 
 // MveFormatWidget interface
 
-  QString file() const override;
+    QString file() const override;
 
 signals:
 
-  void fileChanged(const QString &);
+    void fileChanged(const QString &);
 
 public slots:
 
-  void setFile(const QString &file) override;
+    void setFile(const QString &file) override;
 
 // GraphosWidgetView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QGroupBox *mGroupBox;
-  QLabel *mLabelFile;
-  QLineEdit *mLineEditFile;
-  QPushButton *mPushButtonSelectPath;
+    QGroupBox *mGroupBox;
+    QLabel *mLabelFile;
+    QLineEdit *mLineEditFile;
+    QPushButton *mPushButtonSelectPath;
 
 };
 

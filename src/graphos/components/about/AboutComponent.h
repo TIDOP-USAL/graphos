@@ -34,26 +34,26 @@ class AboutComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  AboutComponent(Application *application);
-  ~AboutComponent();
+    AboutComponent(Application *application);
+    ~AboutComponent();
 
 private:
 
-  void init();
+    void init();
 
 // ComponentBase
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 

@@ -41,11 +41,11 @@ namespace graphos
 SettingsComponent::SettingsComponent(Application *application)
   : ComponentBase(application)
 {
-  this->setName("Settings");
-  this->setMenu("tools");
-  this->setToolbar("tools");
+    this->setName("Settings");
+    this->setMenu("tools");
+    this->setToolbar("tools");
 
-  action()->setIcon(QIcon::fromTheme("settings"));
+    action()->setIcon(QIcon::fromTheme("settings"));
 }
 
 SettingsComponent::~SettingsComponent()
@@ -54,21 +54,21 @@ SettingsComponent::~SettingsComponent()
 
 void SettingsComponent::createModel()
 {
-  setModel(new SettingsModelImp(app()->settings()));
+    setModel(new SettingsModelImp(app()->settings()));
 }
 
 void SettingsComponent::createView()
 {
-  setView(new SettingsViewImp());
+    setView(new SettingsViewImp());
 }
 
 void SettingsComponent::createPresenter()
 {
-  setPresenter(new SettingsPresenterImp(dynamic_cast<SettingsView *>(view()),
-                                        dynamic_cast<SettingsModel *>(model())));
+    setPresenter(new SettingsPresenterImp(dynamic_cast<SettingsView *>(view()),
+                 dynamic_cast<SettingsModel *>(model())));
 
-  dynamic_cast<SettingsPresenter *>(presenter())->setFeatureViewer(new FeatureViewerSettingsWidget());
-  dynamic_cast<SettingsPresenter *>(presenter())->setMatchesViewer(new MatchViewerSettingsWidget());
+    dynamic_cast<SettingsPresenter *>(presenter())->setFeatureViewer(new FeatureViewerSettingsWidget());
+    dynamic_cast<SettingsPresenter *>(presenter())->setMatchesViewer(new MatchViewerSettingsWidget());
 }
 
 void SettingsComponent::createCommand()
@@ -77,12 +77,12 @@ void SettingsComponent::createCommand()
 
 void SettingsComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  action()->setEnabled(true);
+    action()->setEnabled(true);
 }
 
 } // namespace graphos

@@ -38,73 +38,75 @@ class PointCloudCSVFormatWidget
   : public GraphosWidgetView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  PointCloudCSVFormatWidget(QWidget *parent = nullptr) : GraphosWidgetView(parent){}
-  ~PointCloudCSVFormatWidget() override = default;
+    PointCloudCSVFormatWidget(QWidget *parent = nullptr) : GraphosWidgetView(parent) {}
+    ~PointCloudCSVFormatWidget() override = default;
 
-  virtual QString delimiter() const = 0;
+    virtual QString delimiter() const = 0;
 
 signals:
 
-  void delimiterChanged(QString);
+    void delimiterChanged(QString);
 
 public slots:
 
-  virtual void setDelimiter(const QString &delimiter) = 0;
+    virtual void setDelimiter(const QString &delimiter) = 0;
 
 };
 
+
+
 class PointCloudCSVFormatWidgetImp
-  : public PointCloudCSVFormatWidget
+    : public PointCloudCSVFormatWidget
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  PointCloudCSVFormatWidgetImp(QWidget *parent = nullptr);
-  ~PointCloudCSVFormatWidgetImp() override = default;
+    PointCloudCSVFormatWidgetImp(QWidget *parent = nullptr);
+    ~PointCloudCSVFormatWidgetImp() override = default;
 
 protected slots:
 
-  void onDelimiterChanged();
+    void onDelimiterChanged();
 
 // PointCloudCSVFormatWidget interface
 
 public:
 
-  QString delimiter() const override;
+    QString delimiter() const override;
 
 public slots:
 
-  void setDelimiter(const QString &delimiter) override;
+    void setDelimiter(const QString &delimiter) override;
 
 // GraphosWidgetView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QGroupBox *mGroupBoxDelimiter;
-  QRadioButton *mRadioButtonTab;
-  QRadioButton *mRadioButtonComma;
-  QRadioButton *mRadioButtonSpace;
-  QRadioButton *mRadioButtonSemicolon;
+    QGroupBox *mGroupBoxDelimiter;
+    QRadioButton *mRadioButtonTab;
+    QRadioButton *mRadioButtonComma;
+    QRadioButton *mRadioButtonSpace;
+    QRadioButton *mRadioButtonSemicolon;
 
 };
 

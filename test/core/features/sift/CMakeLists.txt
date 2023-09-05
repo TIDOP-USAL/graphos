@@ -44,7 +44,8 @@ target_link_libraries(${test_target} PRIVATE
                       ${OPENGL_glu_LIBRARY}
                       ${OpenCV_LIBS}
                       ${GDAL_LIBRARY}
-                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+                      ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+                      ${CLOUDCOMPARE_LIBRARIES})
 
 set_target_properties(${test_target} PROPERTIES
                       OUTPUT_NAME ${test_target}

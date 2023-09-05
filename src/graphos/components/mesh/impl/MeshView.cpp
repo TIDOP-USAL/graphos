@@ -45,8 +45,8 @@ namespace graphos
 MeshViewImp::MeshViewImp(QWidget *parent)
   : MeshView(parent)
 {
-  this->initUI();
-  this->initSignalAndSlots();
+    this->initUI();
+    this->initSignalAndSlots();
 }
 
 MeshViewImp::~MeshViewImp()
@@ -56,138 +56,138 @@ MeshViewImp::~MeshViewImp()
 
 void MeshViewImp::initUI()
 {
-  this->setObjectName(QString("MeshView"));
-  this->resize(380, 250);
+    this->setObjectName(QString("MeshView"));
+    this->resize(380, 250);
 
-  QGridLayout *gridLayout = new QGridLayout();
-  this->setLayout(gridLayout);
+    QGridLayout *gridLayout = new QGridLayout();
+    this->setLayout(gridLayout);
 
-  mLabelDepth = new QLabel(this);
-  gridLayout->addWidget(mLabelDepth, 0, 0, 1, 1);
-  mSpinBoxDepth = new QSpinBox(this);
-  gridLayout->addWidget(mSpinBoxDepth, 0, 1, 1, 1);
+    mLabelDepth = new QLabel(this);
+    gridLayout->addWidget(mLabelDepth, 0, 0, 1, 1);
+    mSpinBoxDepth = new QSpinBox(this);
+    gridLayout->addWidget(mSpinBoxDepth, 0, 1, 1, 1);
 
-  mLabelSolveDepth = new QLabel(this);
-  gridLayout->addWidget(mLabelSolveDepth, 1, 0, 1, 1);
+    mLabelSolveDepth = new QLabel(this);
+    gridLayout->addWidget(mLabelSolveDepth, 1, 0, 1, 1);
 
-  mSpinBoxSolveDepth = new QSpinBox(this);
-  gridLayout->addWidget(mSpinBoxSolveDepth, 1, 1, 1, 1);
+    mSpinBoxSolveDepth = new QSpinBox(this);
+    gridLayout->addWidget(mSpinBoxSolveDepth, 1, 1, 1, 1);
 
-  mLabelBoundaryType = new QLabel(this);
-  gridLayout->addWidget(mLabelBoundaryType, 2, 0, 1, 1);
-  mComboBoxBoundaryType = new QComboBox(this);
-  mComboBoxBoundaryType->addItem("free");
-  mComboBoxBoundaryType->addItem("Dirichlet");
-  mComboBoxBoundaryType->addItem("Neumann");
-  gridLayout->addWidget(mComboBoxBoundaryType, 2, 1, 1, 1);
+    mLabelBoundaryType = new QLabel(this);
+    gridLayout->addWidget(mLabelBoundaryType, 2, 0, 1, 1);
+    mComboBoxBoundaryType = new QComboBox(this);
+    mComboBoxBoundaryType->addItem("free");
+    mComboBoxBoundaryType->addItem("Dirichlet");
+    mComboBoxBoundaryType->addItem("Neumann");
+    gridLayout->addWidget(mComboBoxBoundaryType, 2, 1, 1, 1);
 
-  mLabelWidth = new QLabel(this);
-  gridLayout->addWidget(mLabelWidth, 3, 0, 1, 1);
-  mSpinBoxWidth = new QSpinBox(this);
-  gridLayout->addWidget(mSpinBoxWidth, 3, 1, 1, 1);
+    //mLabelWidth = new QLabel(this);
+    //gridLayout->addWidget(mLabelWidth, 3, 0, 1, 1);
+    //mSpinBoxWidth = new QSpinBox(this);
+    //gridLayout->addWidget(mSpinBoxWidth, 3, 1, 1, 1);
 
-  //mLabelFullDepth = new QLabel(this);
-  //gridLayout->addWidget(mLabelFullDepth, 4, 0, 1, 1);
-  //mSpinBoxFullDepth = new QSpinBox(this);
-  //gridLayout->addWidget(mSpinBoxFullDepth, 4, 1, 1, 1);
+    //mLabelFullDepth = new QLabel(this);
+    //gridLayout->addWidget(mLabelFullDepth, 4, 0, 1, 1);
+    //mSpinBoxFullDepth = new QSpinBox(this);
+    //gridLayout->addWidget(mSpinBoxFullDepth, 4, 1, 1, 1);
 
 
-  mButtonBox = new QDialogButtonBox(this);
-  mButtonBox->setOrientation(Qt::Orientation::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
+    mButtonBox = new QDialogButtonBox(this);
+    mButtonBox->setOrientation(Qt::Orientation::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
+    gridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
 
-  this->retranslate();
-  this->clear();
-  this->update();
+    this->retranslate();
+    this->clear();
+    this->update();
 }
 
 void MeshViewImp::initSignalAndSlots()
 {
-  connect(mSpinBoxDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::depthChanged);
-  connect(mSpinBoxSolveDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::solveDepthChanged);
-  connect(mSpinBoxWidth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::widthChanged);
-  //connect(mSpinBoxFullDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::fullDepthChanged);
+    connect(mSpinBoxDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::depthChanged);
+    connect(mSpinBoxSolveDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::solveDepthChanged);
+    //connect(mSpinBoxWidth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::widthChanged);
+    //connect(mSpinBoxFullDepth, QOverload<int>::of(&QSpinBox::valueChanged), this, &MeshViewImp::fullDepthChanged);
 
-  connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &MeshViewImp::run);
-  connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
+    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &MeshViewImp::run);
+    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void MeshViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("MeshView", "Mesh"));
-  
-  mLabelDepth->setText(QApplication::translate("DepthView", "Maximum reconstruction depth:"));
-  mLabelSolveDepth->setText(QApplication::translate("SolveDepthView", "Maximum solution depth:"));
-  mLabelBoundaryType->setText(QApplication::translate("BoundaryTypeView", "Boundary Type:"));
-  mLabelWidth->setText(QApplication::translate("WidthView", "Grid width:"));
-  //mLabelFullDepth->setText(QApplication::translate("FullDepthView", "Full Depth:"));
+    this->setWindowTitle(QApplication::translate("MeshView", "Mesh"));
 
-  
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("MeshView", "Cancel"));
-  mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("MeshView", "Run"));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("MeshView", "Help"));
+    mLabelDepth->setText(QApplication::translate("DepthView", "Maximum reconstruction depth:"));
+    mLabelSolveDepth->setText(QApplication::translate("SolveDepthView", "Maximum solution depth:"));
+    mLabelBoundaryType->setText(QApplication::translate("BoundaryTypeView", "Boundary Type:"));
+    //mLabelWidth->setText(QApplication::translate("WidthView", "Grid width:"));
+    //mLabelFullDepth->setText(QApplication::translate("FullDepthView", "Full Depth:"));
+
+
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("MeshView", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("MeshView", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("MeshView", "Help"));
 }
 
 void MeshViewImp::clear()
 {
-  mSpinBoxDepth->setMinimum(11);
-  mSpinBoxSolveDepth->setMinimum(10);
+    mSpinBoxDepth->setMinimum(11);
+    mSpinBoxSolveDepth->setMinimum(10);
 }
 
 void MeshViewImp::update()
 {
 }
 
-int MeshViewImp::depth() const 
+int MeshViewImp::depth() const
 {
-  return mSpinBoxDepth->value();
+    return mSpinBoxDepth->value();
 }
 
-int MeshViewImp::solveDepth() const 
+int MeshViewImp::solveDepth() const
 {
-  return mSpinBoxSolveDepth->value();
+    return mSpinBoxSolveDepth->value();
 }
 
-QString MeshViewImp::boundaryType() const 
+QString MeshViewImp::boundaryType() const
 {
-  return mComboBoxBoundaryType->currentText();
+    return mComboBoxBoundaryType->currentText();
 }
 
-int MeshViewImp::width() const 
-{
-  return mSpinBoxWidth->value();
-}
+//int MeshViewImp::width() const 
+//{
+//  return mSpinBoxWidth->value();
+//}
 
 //int MeshViewImp::fullDepth() const 
 //{
 //  return mSpinBoxFullDepth->value();
 //}
 
-void MeshViewImp::setDepth(int Depth) 
+void MeshViewImp::setDepth(int Depth)
 {
-  const QSignalBlocker blocker(mSpinBoxDepth);
-  mSpinBoxDepth->setValue(Depth);
+    const QSignalBlocker blocker(mSpinBoxDepth);
+    mSpinBoxDepth->setValue(Depth);
 }
 
-void MeshViewImp::setSolveDepth(int SolveDepth) 
+void MeshViewImp::setSolveDepth(int SolveDepth)
 {
-  const QSignalBlocker blocker(mSpinBoxSolveDepth);
-  mSpinBoxSolveDepth->setValue(SolveDepth);
+    const QSignalBlocker blocker(mSpinBoxSolveDepth);
+    mSpinBoxSolveDepth->setValue(SolveDepth);
 }
 
-void MeshViewImp::setBoundaryType(const QString &BoundaryType) 
+void MeshViewImp::setBoundaryType(const QString &BoundaryType)
 {
-  const QSignalBlocker blocker(mComboBoxBoundaryType);
-  mComboBoxBoundaryType->setCurrentText(BoundaryType);
+    const QSignalBlocker blocker(mComboBoxBoundaryType);
+    mComboBoxBoundaryType->setCurrentText(BoundaryType);
 }
 
-void MeshViewImp::setWidth(int width) 
-{
-  const QSignalBlocker blocker(mSpinBoxWidth);
-  mSpinBoxWidth->setValue(width);
-}
+//void MeshViewImp::setWidth(int width) 
+//{
+//  const QSignalBlocker blocker(mSpinBoxWidth);
+//  mSpinBoxWidth->setValue(width);
+//}
 
 //void MeshViewImp::setFullDepth(int FullDepth) 
 //{

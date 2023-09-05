@@ -26,31 +26,31 @@
 #define GRAPHOS_ORTHOPHOTO_VIEW_INTERFACE_H
 
 
-#include "graphos/core/process/ProcessView.h"
+#include "graphos/core/task/TaskView.h"
 
 namespace graphos
 {
 
 class OrthophotoView
-  : public ProcessView
+  : public TaskView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OrthophotoView(QWidget *parent) : ProcessView(parent) {}
-  ~OrthophotoView() override = default;
+    OrthophotoView(QWidget *parent) : TaskView(parent) {}
+    ~OrthophotoView() override = default;
 
-  virtual double resolution() const = 0;
+    virtual double resolution() const = 0;
 
 public slots:
 
-  virtual void setResolution(double resolution) = 0;
+    virtual void setResolution(double resolution) = 0;
 
 signals:
 
-  void resolutionChanged(double);
+    void resolutionChanged(double);
 
 };
 

@@ -34,19 +34,19 @@ class DtmPresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DtmPresenter() {}
-  ~DtmPresenter() override = default;
+    DtmPresenter() {}
+    ~DtmPresenter() override = default;
 
 signals:
 
 
 public slots:
 
-  virtual void setCurrentDtmMethod(const QString &method) = 0;
+    virtual void setCurrentDtmMethod(const QString &method) = 0;
 
 };
 

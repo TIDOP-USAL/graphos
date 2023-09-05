@@ -32,20 +32,20 @@ BOOST_AUTO_TEST_SUITE(CSFTestSuite)
 
 struct TestCSF
 {
-  TestCSF()
-    : mCsf(new Csf())
-  {
-  }
-
-  ~TestCSF()
-  {
-    if (mCsf) {
-      delete mCsf;
-      mCsf = nullptr;
+    TestCSF()
+        : mCsf(new Csf())
+    {
     }
-  }
 
-  Csf *mCsf;
+    ~TestCSF()
+    {
+        if (mCsf) {
+            delete mCsf;
+            mCsf = nullptr;
+        }
+    }
+
+    Csf *mCsf;
 
 };
 
@@ -55,78 +55,78 @@ struct TestCSF
 
 BOOST_FIXTURE_TEST_CASE(default_constructor, TestCSF)
 {
-  BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
-  BOOST_CHECK_EQUAL(0.65, mCsf->timeStep());
-  BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
-  BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
-  BOOST_CHECK_EQUAL(2, mCsf->rigidness());
-  BOOST_CHECK_EQUAL(500, mCsf->iterations());
+    BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
+    BOOST_CHECK_EQUAL(0.65, mCsf->timeStep());
+    BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
+    BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
+    BOOST_CHECK_EQUAL(2, mCsf->rigidness());
+    BOOST_CHECK_EQUAL(500, mCsf->iterations());
 }
 
 BOOST_FIXTURE_TEST_CASE(reset, TestCSF)
 {
-  mCsf->reset();
+    mCsf->reset();
 
-  BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
-  BOOST_CHECK_EQUAL(0.65, mCsf->timeStep());
-  BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
-  BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
-  BOOST_CHECK_EQUAL(2, mCsf->rigidness());
-  BOOST_CHECK_EQUAL(500, mCsf->iterations());
+    BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
+    BOOST_CHECK_EQUAL(0.65, mCsf->timeStep());
+    BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
+    BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
+    BOOST_CHECK_EQUAL(2, mCsf->rigidness());
+    BOOST_CHECK_EQUAL(500, mCsf->iterations());
 }
 
 BOOST_FIXTURE_TEST_CASE(sloop_smooth, TestCSF)
 {
-  mCsf->setSloopSmooth(true);
-  BOOST_CHECK_EQUAL(true, mCsf->sloopSmooth());
+    mCsf->setSloopSmooth(true);
+    BOOST_CHECK_EQUAL(true, mCsf->sloopSmooth());
 
-  mCsf->setSloopSmooth(false);
-  BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
+    mCsf->setSloopSmooth(false);
+    BOOST_CHECK_EQUAL(false, mCsf->sloopSmooth());
 }
 
 BOOST_FIXTURE_TEST_CASE(time_step, TestCSF)
 {
-  mCsf->setTimeStep(.3);
-  BOOST_CHECK_EQUAL(.3, mCsf->timeStep());
+    mCsf->setTimeStep(.3);
+    BOOST_CHECK_EQUAL(.3, mCsf->timeStep());
 
-  mCsf->setTimeStep(.5);
-  BOOST_CHECK_EQUAL(.5, mCsf->timeStep());
+    mCsf->setTimeStep(.5);
+    BOOST_CHECK_EQUAL(.5, mCsf->timeStep());
 }
 
 BOOST_FIXTURE_TEST_CASE(class_threshold, TestCSF)
 {
-  mCsf->setClassThreshold(1.0);
-  BOOST_CHECK_EQUAL(1.0, mCsf->classThreshold());
+    mCsf->setClassThreshold(1.0);
+    BOOST_CHECK_EQUAL(1.0, mCsf->classThreshold());
 
-  mCsf->setClassThreshold(0.5);
-  BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
+    mCsf->setClassThreshold(0.5);
+    BOOST_CHECK_EQUAL(0.5, mCsf->classThreshold());
 }
 
 BOOST_FIXTURE_TEST_CASE(cloth_resolution, TestCSF)
 {
-  mCsf->setClothResolution(1);
-  BOOST_CHECK_EQUAL(1, mCsf->clothResolution());
+    mCsf->setClothResolution(1);
+    BOOST_CHECK_EQUAL(1, mCsf->clothResolution());
 
-  mCsf->setClothResolution(2);
-  BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
+    mCsf->setClothResolution(2);
+    BOOST_CHECK_EQUAL(2, mCsf->clothResolution());
 }
 
 BOOST_FIXTURE_TEST_CASE(rigidness, TestCSF)
 {
-  mCsf->setRigidness(1);
-  BOOST_CHECK_EQUAL(1, mCsf->rigidness());
+    mCsf->setRigidness(1);
+    BOOST_CHECK_EQUAL(1, mCsf->rigidness());
 
-  mCsf->setRigidness(2);
-  BOOST_CHECK_EQUAL(2, mCsf->rigidness());
+    mCsf->setRigidness(2);
+    BOOST_CHECK_EQUAL(2, mCsf->rigidness());
 }
 
 BOOST_FIXTURE_TEST_CASE(iterations, TestCSF)
 {
-  mCsf->setIterations(50);
-  BOOST_CHECK_EQUAL(50, mCsf->iterations());
+    mCsf->setIterations(50);
+    BOOST_CHECK_EQUAL(50, mCsf->iterations());
 
-  mCsf->setIterations(100);
-  BOOST_CHECK_EQUAL(100, mCsf->iterations());
+    mCsf->setIterations(100);
+    BOOST_CHECK_EQUAL(100, mCsf->iterations());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

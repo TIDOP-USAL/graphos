@@ -39,45 +39,45 @@ class OrthophotoViewImp
   : public OrthophotoView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OrthophotoViewImp(QWidget *parent = nullptr);
-  ~OrthophotoViewImp() override;
+    OrthophotoViewImp(QWidget *parent = nullptr);
+    ~OrthophotoViewImp() override;
 
 // OrthophotoView
 
 public:
 
-  double resolution() const override;
+    double resolution() const override;
 
 public slots:
-  
-  void setResolution(double resolution) override;
+
+    void setResolution(double resolution) override;
 
 // DialogView
 
 private:
 
-  void initUI();
-  void initSignalAndSlots();
+    void initUI();
+    void initSignalAndSlots();
 
 public slots:
 
-  void clear();
+    void clear();
 
 private slots:
 
-  void update();
-  void retranslate();
+    void update();
+    void retranslate();
 
 protected:
 
-  QLabel *mLabelResolution;
-  QDoubleSpinBox *mDoubleSpinBoxResolution;
-  QDialogButtonBox *mButtonBox;
-  
+    QLabel *mLabelResolution;
+    QDoubleSpinBox *mDoubleSpinBoxResolution;
+    QDialogButtonBox *mButtonBox;
+
 };
 
 } // namespace graphos

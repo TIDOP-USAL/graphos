@@ -36,16 +36,16 @@ class DTMComponent
   : public TaskComponent
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  DTMComponent(Application *application);
-  ~DTMComponent();
+    DTMComponent(Application *application);
+    ~DTMComponent();
 
 private:
 
-  void init();
+    void init();
 
 signals:
 
@@ -53,19 +53,19 @@ signals:
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 // TaskComponent
 
 protected slots:
 
-  void onRunning() override;
-  void onFinished() override;
-  void onFailed() override;
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 
 };
 

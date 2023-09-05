@@ -45,78 +45,78 @@ class Command;
  * \brief Component interface
  */
 class Component
-  : public QObject
+    : public QObject
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  Component() {}
-  virtual ~Component() = default;
+    Component() {}
+    virtual ~Component() = default;
 
-  /*!
-   * \brief Component name
-   */
-  virtual QString name() const = 0;
+    /*!
+     * \brief Component name
+     */
+    virtual QString name() const = 0;
 
-  /*!
-   * \brief Component action.
-   * Action that opens the tool.
-   */
-  virtual QAction *action() const = 0;
+    /*!
+     * \brief Component action.
+     * Action that opens the tool.
+     */
+    virtual QAction *action() const = 0;
 
-  /*!
-   * \brief Menu where the tool is loaded.
-   */
-  virtual QString menu() const = 0;
+    /*!
+     * \brief Menu where the tool is loaded.
+     */
+    virtual QString menu() const = 0;
 
-  /*!
-   * \brief Toolbar where the tool is loaded.
-   */
-  virtual QString toolbar() const = 0;
+    /*!
+     * \brief Toolbar where the tool is loaded.
+     */
+    virtual QString toolbar() const = 0;
 
-  /*!
-   * \brief Widget associated to the component.
-   */
-  virtual QWidget *widget() const = 0;
+    /*!
+     * \brief Widget associated to the component.
+     */
+    virtual QWidget *widget() const = 0;
 
-  /*!
-   * \brief Component associated command.
-   */
-  virtual std::shared_ptr<Command> command() = 0;
+    /*!
+     * \brief Component associated command.
+     */
+    virtual std::shared_ptr<Command> command() = 0;
 
-  /*!
-   * \brief Set the component name
-   * \param[in] name Component name
-   */
-  virtual void setName(const QString &name) = 0;
+    /*!
+     * \brief Set the component name
+     * \param[in] name Component name
+     */
+    virtual void setName(const QString &name) = 0;
 
-  /*!
-   * \brief Set the component menu
-   * \param[in] menu Component menu
-   */
-  virtual void setMenu(const QString &menu) = 0;
+    /*!
+     * \brief Set the component menu
+     * \param[in] menu Component menu
+     */
+    virtual void setMenu(const QString &menu) = 0;
 
-  /*!
-   * \brief Set the component toolbar
-   * \param[in] toolbar Component toolbar
-   */
-  virtual void setToolbar(const QString &toolbar) = 0;
+    /*!
+     * \brief Set the component toolbar
+     * \param[in] toolbar Component toolbar
+     */
+    virtual void setToolbar(const QString &toolbar) = 0;
 
-  /*!
-   * \brief Free memory
-   * Release the component
-   */
-  virtual void freeMemory() = 0;
+    /*!
+     * \brief Free memory
+     * Release the component
+     */
+    virtual void freeMemory() = 0;
 
 signals:
 
-  /*!
-   * \brief Signal emitted when the component is created
-   */
-  void created();
-  void help(QString);
+    /*!
+     * \brief Signal emitted when the component is created
+     */
+    void created();
+    void help(QString);
 };
 
 
@@ -127,76 +127,76 @@ class ComponentBase
   : public Component
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ComponentBase(Application *application);
-  ~ComponentBase();
+    ComponentBase(Application *application);
+    ~ComponentBase();
 
-  /*!
-   * \brief Create component
-   */
-  virtual void create();
+    /*!
+     * \brief Create component
+     */
+    virtual void create();
 
-  /*!
-   * \brief Open the component
-   */
-  virtual void open();
+    /*!
+     * \brief Open the component
+     */
+    virtual void open();
 
 protected:
 
-  virtual void createAction();
-  virtual void createModel() = 0;
-  virtual void createView() = 0;
-  virtual void createPresenter() = 0;
-  virtual void createCommand() = 0;
-  virtual void update() = 0;
+    virtual void createAction();
+    virtual void createModel() = 0;
+    virtual void createView() = 0;
+    virtual void createPresenter() = 0;
+    virtual void createCommand() = 0;
+    virtual void update() = 0;
 
 private:
 
-  void init();
+    void init();
 
 // Component
 
 public:
 
-  QString name() const override;
-  QAction *action() const override;
-  QString menu() const override;
-  QString toolbar() const override;
-  QWidget *widget() const override;
-  std::shared_ptr<Command> command() override;
+    QString name() const override;
+    QAction *action() const override;
+    QString menu() const override;
+    QString toolbar() const override;
+    QWidget *widget() const override;
+    std::shared_ptr<Command> command() override;
 
-  void setName(const QString &name) override;
-  void setMenu(const QString &menu) override;
-  void setToolbar(const QString &toolbar) override;
+    void setName(const QString &name) override;
+    void setMenu(const QString &menu) override;
+    void setToolbar(const QString &toolbar) override;
 
-  void freeMemory() override;
+    void freeMemory() override;
 
 protected:
 
-  Model *model();
-  View *view();
-  Presenter *presenter();
-  void setModel(Model *model);
-  void setView(View *view);
-  void setPresenter(Presenter *presenter);
-  void setCommand(std::shared_ptr<Command> command);
-  Application *app();
+    Model *model();
+    View *view();
+    Presenter *presenter();
+    void setModel(Model *model);
+    void setView(View *view);
+    void setPresenter(Presenter *presenter);
+    void setCommand(std::shared_ptr<Command> command);
+    Application *app();
 
 private:
 
-  QString mMenu;
-  QString mToolbar;
-  QString mName;
-  QAction *mAction;
-  Model *mModel;
-  View *mView;
-  Presenter *mPresenter;
-  std::shared_ptr<Command> mCommand;
-  Application *mApplication;
-  bool mDeleteView;
+    QString mMenu;
+    QString mToolbar;
+    QString mName;
+    QAction *mAction;
+    Model *mModel;
+    View *mView;
+    Presenter *mPresenter;
+    std::shared_ptr<Command> mCommand;
+    Application *mApplication;
+    bool mDeleteView;
 };
 
 
@@ -207,42 +207,42 @@ class TaskComponent
   : public ComponentBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  TaskComponent(Application *application);
-  ~TaskComponent() override = default;
+    TaskComponent(Application *application);
+    ~TaskComponent() override = default;
 
 public slots:
 
-  /*!
-   * \brief Set the progress handler
-   * \param[in] progressHandler Progress handler
-   */
-  virtual void setProgressHandler(ProgressHandler *progressHandler);
+    /*!
+     * \brief Set the progress handler
+     * \param[in] progressHandler Progress handler
+     */
+    virtual void setProgressHandler(ProgressHandler *progressHandler);
 
 private slots:
 
-  void onComponentCreated();
+    void onComponentCreated();
 
 protected slots:
 
-  virtual void onRunning();
-  virtual void onFinished();
-  virtual void onFailed();
-  virtual void onCanceled();
+    virtual void onRunning();
+    virtual void onFinished();
+    virtual void onFailed();
+    virtual void onCanceled();
 
 signals:
 
-  void running();
-  void finished();
-  void failed();
-  void canceled();
+    void running();
+    void finished();
+    void failed();
+    void canceled();
 
 private:
 
-  ProgressHandler *mProgressHandler;
+    ProgressHandler *mProgressHandler;
 };
 
 
@@ -251,81 +251,81 @@ class MultiComponent
   : public Component
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  MultiComponent() = default;
-  virtual ~MultiComponent() = default;
+    MultiComponent() = default;
+    virtual ~MultiComponent() = default;
 
-  virtual QMenu *subMenu() const = 0;
+    virtual QMenu *subMenu() const = 0;
 
 };
 
 
 class MultiComponentBase
-  : public MultiComponent
+    : public MultiComponent
 {
 
 public:
 
-  MultiComponentBase(Application *application);
-  ~MultiComponentBase();
+    MultiComponentBase(Application *application);
+    ~MultiComponentBase();
 
 protected:
 
-  virtual void createModel() = 0;
-  virtual void createView() = 0;
-  virtual void createPresenter() = 0;
-  virtual void update() = 0;
+    virtual void createModel() = 0;
+    virtual void createView() = 0;
+    virtual void createPresenter() = 0;
+    virtual void update() = 0;
 
 private:
 
-  void init();
+    void init();
 
 // MultiComponent
 
 public:
 
-  QMenu *subMenu() const override;
+    QMenu *subMenu() const override;
 
 // Component
 
 public:
 
-  QString name() const override;
-  QAction *action() const override;
-  QString menu() const override;
-  QString toolbar() const override;
-  QWidget *widget() const override;
-  std::shared_ptr<Command> command() override;
+    QString name() const override;
+    QAction *action() const override;
+    QString menu() const override;
+    QString toolbar() const override;
+    QWidget *widget() const override;
+    std::shared_ptr<Command> command() override;
 
-  void setName(const QString &name) override;
-  void setMenu(const QString &menu) override;
-  void setToolbar(const QString &toolbar) override;
+    void setName(const QString &name) override;
+    void setMenu(const QString &menu) override;
+    void setToolbar(const QString &toolbar) override;
 
-  void freeMemory() override;
+    void freeMemory() override;
 
 protected:
 
-  Model *model();
-  View *view();
-  Presenter *presenter();
-  void setModel(Model *model);
-  void setView(View *view);
-  void setPresenter(Presenter *presenter);
-  void setCommand(std::shared_ptr<Command> command);
-  Application *app();
+    Model *model();
+    View *view();
+    Presenter *presenter();
+    void setModel(Model *model);
+    void setView(View *view);
+    void setPresenter(Presenter *presenter);
+    void setCommand(std::shared_ptr<Command> command);
+    Application *app();
 
 private:
 
-  QString mParentMenu;
-  QString mToolbar;
-  QString mName;
-  Model *mModel;
-  View *mView;
-  Presenter *mPresenter;
-  Application *mApplication;
+    QString mParentMenu;
+    QString mToolbar;
+    QString mName;
+    Model *mModel;
+    View *mView;
+    Presenter *mPresenter;
+    Application *mApplication;
 
 };
 

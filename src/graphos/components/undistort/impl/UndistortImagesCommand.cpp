@@ -31,26 +31,24 @@ namespace graphos
 {
 
 UndistortImagesCommand::UndistortImagesCommand()
-  : Command("undistort", "Undistort images"),
-    mProjectFile(""),
-    mUndistortPath(""),
+    : Command("undistort", "Undistort images"),
     mDisableCuda(false)
 {
-  this->push_back(CreateArgumentPathRequired("prj", 'p', "Project file", &mProjectFile));
-  this->push_back(CreateArgumentPathRequired("output_path", 'o', "Output directory for undistorted images.", &mUndistortPath));
+    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<std::string>("output_path", 'o', "Output directory for undistorted images.");
 
 #ifdef HAVE_CUDA
-  tl::MessageManager::instance().pause();
-  bool cuda_enabled = cudaEnabled(10.0, 3.0);
-  tl::MessageManager::instance().resume();
-  if (cuda_enabled)
-    this->push_back(CreateArgumentBooleanOptional("disable_cuda", "If true disable CUDA (default = false)", &mDisableCuda));
-  else mDisableCuda = true;
+    tl::Message::instance().pauseMessages();
+    bool cuda_enabled = cudaEnabled(10.0, 3.0);
+    tl::Message::instance().resumeMessages();
+    if (cuda_enabled)
+        this->addArgument<bool>("disable_cuda", "If true disable CUDA", mDisableCuda);
+    else mDisableCuda = true;
 #else
-  mDisableCuda = true;
+    mDisableCuda = true;
 #endif //HAVE_CUDA
 
-  this->addExample("undistort --p 253/253.xml --output_path undistort");
+    this->addExample("undistort --p 253/253.xml --output_path undistort");
 }
 
 UndistortImagesCommand::~UndistortImagesCommand()
@@ -59,35 +57,40 @@ UndistortImagesCommand::~UndistortImagesCommand()
 
 bool UndistortImagesCommand::run()
 {
-  bool r = false;
+    bool r = false;
 
-  QString file_path;
-  QString project_path;
+    QString file_path;
+    QString project_path;
 
-  try {
+    try {
 
-    TL_ASSERT(mProjectFile.exists(), "Project doesn't exist");
-    TL_ASSERT(mProjectFile.isFile(), "Project file doesn't exist");
+        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path output_path = this->value<std::string>("output_path");
+        if (!mDisableCuda)
+            mDisableCuda = this->value<bool>("disable_cuda");
 
-    ProjectImp project;
-    project.load(mProjectFile);
+        TL_ASSERT(project_path.exists(), "Project doesn't exist");
+        TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-    UndistortImages process(project.images(),
-                            project.cameras(),
-                            QString::fromStdWString(mUndistortPath.toWString()),
-                            UndistortImages::Format::tiff,
-                            mDisableCuda);
+        ProjectImp project;
+        project.load(project_path);
 
-    process.run(/*&progress_bar*/);
+        UndistortImages process(project.images(),
+                                project.cameras(),
+                                QString::fromStdWString(output_path.toWString()),
+                                UndistortImages::Format::tiff,
+                                mDisableCuda);
 
-  } catch (const std::exception &e) {
+        process.run(/*&progress_bar*/);
 
-    tl::printException(e);
+    } catch (const std::exception &e) {
 
-    r = true;
-  }
+        tl::printException(e);
 
-  return r;
+        r = true;
+    }
+
+    return r;
 }
 
 } // namespace graphos

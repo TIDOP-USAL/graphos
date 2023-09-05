@@ -38,92 +38,91 @@ namespace graphos
 
 
 class FeatureViewerSettingsWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureViewerSettingsWidget(QWidget *parent = nullptr);
-  virtual ~FeatureViewerSettingsWidget() = default;
-  
-  QString backgroundColor() const;
-  int markerType() const;
-  int markerSize() const;
-  int markerWidth() const;
-  QString markerColor() const;
-  int selectedMarkerWidth() const;
-  QString selectedMarkerColor() const;
-  
+    FeatureViewerSettingsWidget(QWidget *parent = nullptr);
+    virtual ~FeatureViewerSettingsWidget() = default;
+
+    QString backgroundColor() const;
+    int markerType() const;
+    int markerSize() const;
+    int markerWidth() const;
+    QString markerColor() const;
+    int selectedMarkerWidth() const;
+    QString selectedMarkerColor() const;
+
 public slots:
 
-  void setBackgroundColor(const QString &color);
-  void setMarkerType(int type);
-  void setMarkerSize(int size);
-  void setMarkerWidth(int width);
-  void setMarkerColor(const QString &color);
-  void setSelectedMarkerWidth(int width);
-  void setSelectedMarkerColor(const QString &color);
+    void setBackgroundColor(const QString &color);
+    void setMarkerType(int type);
+    void setMarkerSize(int size);
+    void setMarkerWidth(int width);
+    void setMarkerColor(const QString &color);
+    void setSelectedMarkerWidth(int width);
+    void setSelectedMarkerColor(const QString &color);
 
 signals:
-  
-  void backgroundColorChange(QString);
-  void markerTypeChange(int);
-  void markerSizeChange(int);
-  void markerWidthChange(int);
-  void markerColorChange(const QString &);
-  void selectedMarkerWidthChange(int);
-  void selectedMarkerColorChange(const QString &);
+
+    void backgroundColorChange(QString);
+    void markerTypeChange(int);
+    void markerSizeChange(int);
+    void markerWidthChange(int);
+    void markerColorChange(const QString &);
+    void selectedMarkerWidthChange(int);
+    void selectedMarkerColorChange(const QString &);
 
 public slots:
 
 protected slots:
 
-  void onPushButtonBackgroundColorClicked();
-  void onPushButtonMarkerColorClicked();
-  void onPushButtonSelectedMarkerColorClicked();
-  
+    void onPushButtonBackgroundColorClicked();
+    void onPushButtonMarkerColorClicked();
+    void onPushButtonSelectedMarkerColorClicked();
+
 // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 protected:
 
-  QLabel *mLabelBackgroundColor;
-  QLineEdit *mLineEditBackgroundColor;
-  QPushButton *mPushButtonBackgroundColor;
+    QLabel *mLabelBackgroundColor;
+    QLineEdit *mLineEditBackgroundColor;
+    QPushButton *mPushButtonBackgroundColor;
 
-  QGroupBox *mGroupBoxMVMarker;
-  QLabel *mLabelMarkerType;
-  QListWidget *mListWidgetMarkerType;
-  QLabel *mLabelMarkerSize;
-  QSpinBox *mSpinBoxMarkerSize;
-  QLabel *mLabelMarkerWidth;
-  QSpinBox *mSpinBoxMarkerWidth;
-  QLabel *mLabelMarkerColor;
-  QLineEdit *mLineEditMarkerColor;
-  QPushButton *mPushButtonMarkerColor;
+    QGroupBox *mGroupBoxMVMarker;
+    QLabel *mLabelMarkerType;
+    QListWidget *mListWidgetMarkerType;
+    QLabel *mLabelMarkerSize;
+    QSpinBox *mSpinBoxMarkerSize;
+    QLabel *mLabelMarkerWidth;
+    QSpinBox *mSpinBoxMarkerWidth;
+    QLabel *mLabelMarkerColor;
+    QLineEdit *mLineEditMarkerColor;
+    QPushButton *mPushButtonMarkerColor;
 
-  QGroupBox *mGroupBoxSelectMarker;
-  QLabel *mLabelSelectMarkerWidth;
-  QSpinBox *mSpinBoxSelectMarkerWidth;
-  QLabel *mLabelSelectMarkerColor;
-  QLineEdit *mLineEditSelectMarkerColor;
-  QPushButton *mPushButtonSelectMarkerColor;
+    QGroupBox *mGroupBoxSelectMarker;
+    QLabel *mLabelSelectMarkerWidth;
+    QSpinBox *mSpinBoxSelectMarkerWidth;
+    QLabel *mLabelSelectMarkerColor;
+    QLineEdit *mLineEditSelectMarkerColor;
+    QPushButton *mPushButtonSelectMarkerColor;
 
-  
 };
 
 

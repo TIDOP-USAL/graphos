@@ -38,73 +38,73 @@ class GeoreferenceModelImp
   : public GeoreferenceModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  GeoreferenceModelImp(Project *project,
-                       QObject *parent = nullptr);
-  ~GeoreferenceModelImp() override = default;
+    GeoreferenceModelImp(Project *project,
+                         QObject *parent = nullptr);
+    ~GeoreferenceModelImp() override = default;
 
 private:
 
-  //void readGroundControlPoints(QXmlStreamReader &stream);
-  //void readGroundControlPoint(QXmlStreamReader &stream);
-  //void readImagePoints(QXmlStreamReader &stream, const QString &gcp_id);
-  //void readImagePoint(QXmlStreamReader &stream, const QString &gcp_id);
-  void writeGroundControlPoints(QXmlStreamWriter &stream);
+    //void readGroundControlPoints(QXmlStreamReader &stream);
+    //void readGroundControlPoint(QXmlStreamReader &stream);
+    //void readImagePoints(QXmlStreamReader &stream, const QString &gcp_id);
+    //void readImagePoint(QXmlStreamReader &stream, const QString &gcp_id);
+    void writeGroundControlPoints(QXmlStreamWriter &stream);
 
 // GeoreferenceModel interface
 
 public:
-  
-  void loadGroundControlPoints() override;
-  QString crs() const;
-  QStandardItemModel *itemModelGroundControlPoints() override;
-  QStandardItemModel *itemModelImagePoints() override;
-  const std::unordered_map<size_t, Image> &images() const override;
-  Image image(size_t imageId) const override;
-  void addGroundControlPoint() override;
-  void removeGroundControlPoint(int index) override;
-  void addImagePoint(const QString &gcp, 
-                     size_t imageId, 
-                     const QPointF &point) override;
-  void removeImagePoint(const QString &gcp, size_t imageId) override;
-  std::list<std::pair<QString, QPointF>> points(size_t imageId) const override;
-  std::vector<GroundControlPoint> groundControlPoints() const override;
-  tl::Path projectPath() const override;
-  void setReconstructionPath(const tl::Path &reconstructionPath) override;
-  void setSparseModel(const tl::Path &sparseModel) override;
-  void setOffset(const tl::Path &offset) override;
-  void addPhotoOrientation(size_t imageId,
-                           const CameraPose &orientation) override;
-  const std::unordered_map<size_t, CameraPose> &poses() const override;
-  const std::map<int, Camera> &cameras() const override;
-  std::vector<GroundPoint> groundPoints() const override;
-  tl::Path database() const override;
+
+    void loadGroundControlPoints() override;
+    QString crs() const;
+    QStandardItemModel *itemModelGroundControlPoints() override;
+    QStandardItemModel *itemModelImagePoints() override;
+    const std::unordered_map<size_t, Image> &images() const override;
+    Image image(size_t imageId) const override;
+    void addGroundControlPoint() override;
+    void removeGroundControlPoint(int index) override;
+    void addImagePoint(const QString &gcp,
+                       size_t imageId,
+                       const QPointF &point) override;
+    void removeImagePoint(const QString &gcp, size_t imageId) override;
+    std::list<std::pair<QString, QPointF>> points(size_t imageId) const override;
+    std::vector<GroundControlPoint> groundControlPoints() const override;
+    tl::Path projectPath() const override;
+    void setReconstructionPath(const tl::Path &reconstructionPath) override;
+    void setSparseModel(const tl::Path &sparseModel) override;
+    void setOffset(const tl::Path &offset) override;
+    void addPhotoOrientation(size_t imageId,
+                             const CameraPose &orientation) override;
+    const std::unordered_map<size_t, CameraPose> &poses() const override;
+    const std::map<int, Camera> &cameras() const override;
+    std::vector<GroundPoint> groundPoints() const override;
+    tl::Path database() const override;
 
 public slots:
 
-  void save() override;
-  void setCrs(const QString &crs) override;
+    void save() override;
+    void setCrs(const QString &crs) override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  //std::vector<GroundControlPoint> mGroundControlPoints;
-  QStandardItemModel *mItemModelGroundControlPoints;
-  QStandardItemModel *mItemModelImagePoints;
-  QString mCrs;
+    Project *mProject;
+    //std::vector<GroundControlPoint> mGroundControlPoints;
+    QStandardItemModel *mItemModelGroundControlPoints;
+    QStandardItemModel *mItemModelImagePoints;
+    QString mCrs;
 };
 
 } // namespace graphos

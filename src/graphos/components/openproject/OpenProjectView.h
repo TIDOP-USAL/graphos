@@ -37,18 +37,18 @@ namespace graphos
 class OpenProjectView
   : public QFileDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OpenProjectView(QWidget *parent) : QFileDialog(parent) {}
-  ~OpenProjectView() override = default;
+    OpenProjectView(QWidget *parent) : QFileDialog(parent) {}
+    ~OpenProjectView() override = default;
 
-  /*!
-   * \brief Set Graphos projects path
-   * \param[in] directory Graphos projects directory
-   */
-  virtual void setGraphosProjectsPath(const QString &directory) = 0;
+    /*!
+     * \brief Set Graphos projects path
+     * \param[in] directory Graphos projects directory
+     */
+    virtual void setGraphosProjectsPath(const QString &directory) = 0;
 
 };
 

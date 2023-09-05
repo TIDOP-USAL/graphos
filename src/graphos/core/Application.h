@@ -33,7 +33,7 @@
 #include <QApplication>
 
 /* TidopLib */
-#include <tidop/core/messages.h>
+#include <tidop/core/msg/message.h>
 #include <tidop/core/console.h>
 #include <tidop/core/path.h>
 
@@ -64,44 +64,44 @@ class Viewer3D
 
 public:
 
-  /*!
-   * \brief TViewer3D
-   */
-  Viewer3D() {}
-  virtual ~Viewer3D() {}
+    /*!
+     * \brief TViewer3D
+     */
+    Viewer3D() {}
+    virtual ~Viewer3D() {}
 
-  virtual void clear() = 0;
-  virtual void createGroup(const QString &group,
-                           const QString &parent = QString()) = 0;
-  virtual void deleteEntity(const QString &id) = 0;
-  virtual void deleteSelectEntity() = 0;
-  virtual void loadFromFile(const QString &file, 
-                            const QString &parent = QString()) = 0;
-  virtual void loadFromFiles(const QStringList &files, 
+    virtual void clear() = 0;
+    virtual void createGroup(const QString &group,
                              const QString &parent = QString()) = 0;
+    virtual void deleteEntity(const QString &id) = 0;
+    virtual void deleteSelectEntity() = 0;
+    virtual void loadFromFile(const QString &file,
+                              const QString &parent = QString()) = 0;
+    virtual void loadFromFiles(const QStringList &files,
+                               const QString &parent = QString()) = 0;
 
-  /* Vistas por defecto */
-  virtual void setFrontView() = 0;
-  virtual void setBottomView() = 0;
-  virtual void setTopView() = 0;
-  virtual void setBackView() = 0;
-  virtual void setLeftView() = 0;
-  virtual void setRightView() = 0;
-  virtual void setIsoView1() = 0;
-  virtual void setIsoView2() = 0;
-  virtual void setGlobalZoom() = 0;
+    /* Vistas por defecto */
+    virtual void setFrontView() = 0;
+    virtual void setBottomView() = 0;
+    virtual void setTopView() = 0;
+    virtual void setBackView() = 0;
+    virtual void setLeftView() = 0;
+    virtual void setRightView() = 0;
+    virtual void setIsoView1() = 0;
+    virtual void setIsoView2() = 0;
+    virtual void setGlobalZoom() = 0;
 
-  virtual void setVisible(const QString &id, bool visible) = 0;
-  virtual void showClassification(bool show) = 0;
-  virtual void setColorTable(std::shared_ptr<ColorTable> colorTable)  = 0;
-  virtual void enableEDL() = 0;
-  virtual void disableEDL() = 0;
-  virtual void addCamera(const QString &id, 
-                         double x, 
-                         double y,
-                         double z, 
-                         const std::array<std::array<float,3>, 3> &rot) = 0;
-  virtual bool isEDL() const = 0;
+    virtual void setVisible(const QString &id, bool visible) = 0;
+    virtual void showClassification(bool show) = 0;
+    virtual void setColorTable(std::shared_ptr<ColorTable> colorTable) = 0;
+    virtual void enableEDL() = 0;
+    virtual void disableEDL() = 0;
+    virtual void addCamera(const QString &id,
+                           double x,
+                           double y,
+                           double z,
+                           const std::array<std::array<float, 3>, 3> &rot) = 0;
+    virtual bool isEDL() const = 0;
 
 protected:
 
@@ -109,77 +109,73 @@ protected:
 
 
 class Application
-  : public QApplication
+    : public QApplication
 {
 
-  Q_OBJECT
-
-//private:
-//
-//  Application();
+    Q_OBJECT
 
 public:
 
-  static Application &instance();
-  Application(int argc, char **argv);
-  ~Application();
+    static Application &instance();
+    Application(int &argc, char **argv);
+    ~Application();
 
-  Application(const Application &) = delete;
-  Application(Application &&) = delete;
-  Application operator=(const Application &) = delete;
-  Application operator=(Application &&) = delete;
+    Application(const Application &) = delete;
+    Application(Application &&) = delete;
+    Application operator=(const Application &) = delete;
+    Application operator=(Application &&) = delete;
 
-  tl::Path documentsLocation() const;
-  AppStatus *status();
-  tl::MessageManager *messageManager();
+    tl::Path documentsLocation() const;
+    AppStatus *status();
+    //tl::MessageManager *messageManager();
 
-  Project *const project();
-  const Project *const project() const;
-  void setProject(Project *project);
+    Project *project();
+    const Project *project() const;
+    void setProject(Project *project);
 
-  Settings *settings();
+    Settings *settings();
 
-  QMainWindow *mainWindow() const;
-  void setMainWindow(QMainWindow *mainWindow);
-  
-  Viewer3D *viewer3D() const;
+    QMainWindow *mainWindow() const;
+    void setMainWindow(QMainWindow *mainWindow);
 
-  void addComponent(Component *component);
-  tl::CommandList::Status parse(int argc, char **argv);
-  bool runCommand();
+    Viewer3D *viewer3D() const;
 
-  void freeMemory();
+    void addComponent(Component *component);
+    tl::CommandList::Status parse(int argc, char **argv);
+    bool runCommand();
 
-  QStringList history() const;
-  void addToHistory(const QString &project);
-  void clearHistory();
+    void freeMemory();
+
+    QStringList history() const;
+    void addToHistory(const QString &project);
+    void clearHistory();
 
 signals:
 
-  void image_loaded(size_t);
-  void update_history();
+    void image_loaded(size_t);
+    void update_history();
 
 public slots:
 
-  void setViewer3D(Viewer3D *viewer3D);
+    void setViewer3D(Viewer3D *viewer3D);
 
 private:
 
-  tl::CommandList *commandList();
+    tl::CommandList *commandList();
 
 private:
 
-  static std::unique_ptr<Application> sApplication;
-  static std::mutex sMutex;
-  static std::once_flag sInitFlag;
-  AppStatus *mAppStatus;
-  Project *mProject;
-  Settings *mSettings;
-  QMainWindow *mMainWindow;
-  std::list<Component *> mComponents;
-  tl::CommandList *mCommandList;
-  mutable QStringList mHistory;
-  Viewer3D *mViewer3D;
+    static std::unique_ptr<Application> sApplication;
+    static std::mutex sMutex;
+    static std::once_flag sInitFlag;
+    AppStatus *mAppStatus;
+    Project *mProject;
+    Settings *mSettings;
+    QMainWindow *mMainWindow;
+    std::list<Component *> mComponents;
+    tl::CommandList *mCommandList;
+    mutable QStringList mHistory;
+    Viewer3D *mViewer3D;
 };
 
 } // namespace graphos

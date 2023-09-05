@@ -37,31 +37,31 @@ class CloseProjectPresenterImp
   : public CloseProjectPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CloseProjectPresenterImp(CloseProjectView *view,
-                           CloseProjectModel *model,
-                           AppStatus *status);
-  ~CloseProjectPresenterImp() override;
+    CloseProjectPresenterImp(CloseProjectView *view,
+                             CloseProjectModel *model,
+                             AppStatus *status);
+    ~CloseProjectPresenterImp() override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  CloseProjectView *mView;
-  CloseProjectModel *mModel;
-  AppStatus *mAppStatus;
+    CloseProjectView *mView;
+    CloseProjectModel *mModel;
+    AppStatus *mAppStatus;
 };
 
 } // namespace graphos

@@ -30,25 +30,25 @@
 
 namespace graphos
 {
-	
+
 FeatureExtractorModelImp::FeatureExtractorModelImp(Project *project,
                                                    QObject *parent)
   : FeatureExtractorModel(parent),
     mProject(project),
-    mSettings(new QSettings(QSettings::IniFormat, 
-                            QSettings::UserScope, 
-                            qApp->organizationName(), 
-                            qApp->applicationName()))
+    mSettings(new QSettings(QSettings::IniFormat,
+              QSettings::UserScope,
+              qApp->organizationName(),
+              qApp->applicationName()))
 {
-  init();
+    init();
 }
 
 FeatureExtractorModelImp::~FeatureExtractorModelImp()
 {
-  if (mSettings){
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if (mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 }
 
 void FeatureExtractorModelImp::init()
@@ -63,43 +63,43 @@ void FeatureExtractorModelImp::clear()
 
 std::shared_ptr<Feature> FeatureExtractorModelImp::featureExtractor() const
 {
-  return mProject->featureExtractor();
+    return mProject->featureExtractor();
 }
 
 void FeatureExtractorModelImp::setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor)
 {
-  mProject->setFeatureExtractor(featureExtractor);
+    mProject->setFeatureExtractor(featureExtractor);
 }
 
 tl::Path FeatureExtractorModelImp::database() const
 {
-  return mProject->database();
+    return mProject->database();
 }
 
 void FeatureExtractorModelImp::addFeatures(size_t imageId, const QString &featuresFile)
 {
-  mProject->addFeatures(imageId, featuresFile);
+    mProject->addFeatures(imageId, featuresFile);
 }
 
 bool FeatureExtractorModelImp::useCuda() const
 {
-  return mSettings->value("UseCuda", true).toBool();
+    return mSettings->value("UseCuda", true).toBool();
 }
 
 const std::unordered_map<size_t, Image> &FeatureExtractorModelImp::images() const
 {
-  return mProject->images();
+    return mProject->images();
 }
 
 const std::map<int, Camera> &FeatureExtractorModelImp::cameras() const
 {
-  return mProject->cameras();
+    return mProject->cameras();
 }
 
 void FeatureExtractorModelImp::clearProject()
 {
-  tl::Path::removeFile(database());
-  mProject->removeFeatures();
+    tl::Path::removeFile(database());
+    mProject->removeFeatures();
 }
 
 } // namespace graphos

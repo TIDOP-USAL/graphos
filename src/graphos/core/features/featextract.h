@@ -44,37 +44,37 @@ class FeatureExtractorTask
     public tl::TaskBase
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
-                       const std::map<int, Camera> &cameras,
-                       const tl::Path &database,
-                       int maxImageSize,
-                       bool cuda,
-                       const std::shared_ptr<FeatureExtractor> &featureExtractor);
+    FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
+                         const std::map<int, Camera> &cameras,
+                         const tl::Path &database,
+                         int maxImageSize,
+                         bool cuda,
+                         const std::shared_ptr<FeatureExtractor> &featureExtractor);
 
-  ~FeatureExtractorTask() override = default;
+    ~FeatureExtractorTask() override = default;
 
 signals:
 
-  void features_extracted(qulonglong, QString);
+    void features_extracted(qulonglong, QString);
 
-  // tl::TaskBase interface
-
-protected:
-
-  void execute(tl::Progress *progressBar) override;
+// tl::TaskBase interface
 
 protected:
 
-  const std::unordered_map<size_t, Image> &mImages;
-  const std::map<int, Camera> &mCameras;
-  tl::Path mDatabase;
-  int mMaxImageSize;
-  bool bUseCuda;
-  std::shared_ptr<FeatureExtractor> mFeatureExtractor;
+    void execute(tl::Progress *progressBar) override;
+
+protected:
+
+    const std::unordered_map<size_t, Image> &mImages;
+    const std::map<int, Camera> &mCameras;
+    tl::Path mDatabase;
+    int mMaxImageSize;
+    bool bUseCuda;
+    std::shared_ptr<FeatureExtractor> mFeatureExtractor;
 };
 
 } // namespace graphos

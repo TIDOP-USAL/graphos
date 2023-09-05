@@ -36,7 +36,7 @@ SaveProjectAsModelImp::SaveProjectAsModelImp(Project *project,
   : SaveProjectAsModel(parent),
     mProject(project)
 {
-  SaveProjectAsModelImp::init();
+    SaveProjectAsModelImp::init();
 }
 
 SaveProjectAsModelImp::~SaveProjectAsModelImp()
@@ -45,14 +45,14 @@ SaveProjectAsModelImp::~SaveProjectAsModelImp()
 
 void SaveProjectAsModelImp::save(const tl::Path &file)
 {
-  mProject->save(file);
+    mProject->save(file);
 }
 
 tl::Path SaveProjectAsModelImp::graphosProjectsDirectory() const
 {
-  //tl::Path project_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
-  //project_directory.append("graphos").append("Projects");
-  return dynamic_cast<Application *>(qApp)->documentsLocation();
+    //tl::Path project_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
+    //project_directory.append("graphos").append("Projects");
+    return dynamic_cast<Application *>(qApp)->documentsLocation();
 }
 
 void SaveProjectAsModelImp::init()
@@ -61,7 +61,7 @@ void SaveProjectAsModelImp::init()
 
 void SaveProjectAsModelImp::clear()
 {
-  mProject->clear();
+    mProject->clear();
 }
 
 } // namespace graphos

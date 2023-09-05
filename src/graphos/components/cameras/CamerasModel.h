@@ -35,58 +35,58 @@ class CamerasModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CamerasModel(QObject *parent = nullptr) : Model(parent) {}
-  virtual ~CamerasModel() override = default;
+    CamerasModel(QObject *parent = nullptr) : Model(parent) {}
+    virtual ~CamerasModel() override = default;
 
-  virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
 
-  virtual int addCamera(const Camera &camera) = 0;
-  virtual int cameraID(const Camera &camera) const = 0;
-  virtual int cameraID(const QString &make, 
-                       const QString &model) const = 0;
-  virtual Camera camera(int id) const = 0;
-  virtual Camera camera(const QString &make, 
-                        const QString &model) const = 0;
-  virtual int currentCameraID() const = 0;
-  virtual bool updateCamera(int id, 
-                            const Camera &camera) = 0;
-  virtual bool removeCamera(int id) = 0;
-  virtual bool removeCamera(const Camera &camera) = 0;
-  virtual QStringList imagesFromCamera(int id) const = 0;
+    virtual int addCamera(const Camera &camera) = 0;
+    virtual int cameraID(const Camera &camera) const = 0;
+    virtual int cameraID(const QString &make,
+                         const QString &model) const = 0;
+    virtual Camera camera(int id) const = 0;
+    virtual Camera camera(const QString &make,
+                          const QString &model) const = 0;
+    virtual int currentCameraID() const = 0;
+    virtual bool updateCamera(int id,
+                              const Camera &camera) = 0;
+    virtual bool removeCamera(int id) = 0;
+    virtual bool removeCamera(const Camera &camera) = 0;
+    virtual QStringList imagesFromCamera(int id) const = 0;
 
-  virtual bool modified() = 0;
+    virtual bool modified() = 0;
 
-  virtual void save() = 0;
+    virtual void save() = 0;
 
 public slots:
 
-  virtual void updateCurrentCameraMake(const QString &make) = 0;
-  virtual void updateCurrentCameraModel(const QString &model) = 0;
-  virtual void updateCurrentCameraSensorSize(const QString &sensorSize) = 0;
-  virtual void updateCurrentCameraFocal(const QString &focal) = 0;
-  virtual void updateCurrentCameraType(const QString &type) = 0;
-  virtual void updateCurrentCameraCalibCx(double cx) = 0;
-  virtual void updateCurrentCameraCalibCy(double cy) = 0;
-  virtual void updateCurrentCameraCalibF(double f) = 0;
-  virtual void updateCurrentCameraCalibFx(double fx) = 0;
-  virtual void updateCurrentCameraCalibFy(double fy) = 0;
-  virtual void updateCurrentCameraCalibK1(double k1) = 0;
-  virtual void updateCurrentCameraCalibK2(double k2) = 0;
-  virtual void updateCurrentCameraCalibK3(double k3) = 0;
-  virtual void updateCurrentCameraCalibK4(double k4) = 0;
-  virtual void updateCurrentCameraCalibK5(double k5) = 0;
-  virtual void updateCurrentCameraCalibK6(double k6) = 0;
-  virtual void updateCurrentCameraCalibP1(double p1) = 0;
-  virtual void updateCurrentCameraCalibP2(double p2) = 0;
+    virtual void updateCurrentCameraMake(const QString &make) = 0;
+    virtual void updateCurrentCameraModel(const QString &model) = 0;
+    virtual void updateCurrentCameraSensorSize(const QString &sensorSize) = 0;
+    virtual void updateCurrentCameraFocal(const QString &focal) = 0;
+    virtual void updateCurrentCameraType(const QString &type) = 0;
+    virtual void updateCurrentCameraCalibCx(double cx) = 0;
+    virtual void updateCurrentCameraCalibCy(double cy) = 0;
+    virtual void updateCurrentCameraCalibF(double f) = 0;
+    virtual void updateCurrentCameraCalibFx(double fx) = 0;
+    virtual void updateCurrentCameraCalibFy(double fy) = 0;
+    virtual void updateCurrentCameraCalibK1(double k1) = 0;
+    virtual void updateCurrentCameraCalibK2(double k2) = 0;
+    virtual void updateCurrentCameraCalibK3(double k3) = 0;
+    virtual void updateCurrentCameraCalibK4(double k4) = 0;
+    virtual void updateCurrentCameraCalibK5(double k5) = 0;
+    virtual void updateCurrentCameraCalibK6(double k6) = 0;
+    virtual void updateCurrentCameraCalibP1(double p1) = 0;
+    virtual void updateCurrentCameraCalibP2(double p2) = 0;
 
-  virtual void calibrationImport(const QString &file,
-                                 const QString &format) = 0;
-  virtual void calibrationExport(const QString &file,
-                                 const QString &format) = 0;
+    virtual void calibrationImport(const QString &file,
+                                   const QString &format) = 0;
+    virtual void calibrationExport(const QString &file,
+                                   const QString &format) = 0;
 };
 
 } // namespace graphos

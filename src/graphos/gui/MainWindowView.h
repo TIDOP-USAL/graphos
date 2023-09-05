@@ -54,262 +54,263 @@ class ProgressBarWidget;
 class MainWindowView
   : public QMainWindow
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  enum class Menu
-  {
-    file,
-    file_import,
-    file_export,
-    view,
-    workflow,
-    tools,
-    plugins,
-    help
-  };
+    enum class Menu
+    {
+        file,
+        file_import,
+        file_export,
+        view,
+        workflow,
+        tools,
+        plugins,
+        help
+    };
 
-  enum class Toolbar
-  {
-    file,
-    view,
-    workflow,
-    model3d,
-    tools
-  };
+    enum class Toolbar
+    {
+        file,
+        view,
+        workflow,
+        model3d,
+        tools
+    };
 
 public:
 
-  explicit MainWindowView(QWidget *parent = nullptr);
-  ~MainWindowView() override;
+    explicit MainWindowView(QWidget *parent = nullptr);
+    ~MainWindowView() override;
 
 
-  /// Configuración de acciones 
+    /// Configuración de acciones 
 
-  void addActionToMenu(QAction *action, Menu menuName);
-  void addMenuToMenu(QMenu *menu, Menu menuName);
-  void addSeparatorToMenu(Menu menu);
-  void addActionToToolbar(QAction *action, Toolbar toolbar);
-  void addSeparatorToToolbar(Toolbar toolbar);
+    void addActionToMenu(QAction *action, Menu menuName);
+    void addMenuToMenu(QMenu *menu, Menu menuName);
+    void addSeparatorToMenu(Menu menu);
+    void addActionToToolbar(QAction *action, Toolbar toolbar);
+    void addSeparatorToToolbar(Toolbar toolbar);
 
-  void setPropertiesWidget(QWidget *widget);
+    void setPropertiesWidget(QWidget *widget);
 
-  void clear();
+    void clear();
 
-  /*!
-   * \brief Establece el nombre del proyecto
-   * \param[in] title Titulo del proyecto
-   */
-  void setProjectTitle(const QString &title);
+    /*!
+     * \brief Establece el nombre del proyecto
+     * \param[in] title Titulo del proyecto
+     */
+    void setProjectTitle(const QString &title);
 
-  void addImage(const Image &image, const Camera &camera);
-  void addImages(const std::unordered_map<size_t, Image> &images, 
-                 const std::map<int, Camera> &cameras);
-  void setActiveImage(size_t imageId);
-  void setActiveImages(const std::vector<size_t> &imageIds);
-  void addFeatures(size_t imageId);
-  void deleteFeatures(size_t imageId);
-  void addMatches(size_t imageId);
-  void deleteMatches(size_t imageId);
+    void addImage(const Image &image, const Camera &camera);
+    void addImages(const std::unordered_map<size_t, Image> &images,
+                   const std::map<int, Camera> &cameras);
+    void setActiveImage(size_t imageId);
+    void setActiveImages(const std::vector<size_t> &imageIds);
+    void addFeatures(size_t imageId);
+    void deleteFeatures(size_t imageId);
+    void addMatches(size_t imageId);
+    void deleteMatches(size_t imageId);
 
-  // Por refactorizar ....
-  
-  void setSparseModel(const QString &sparseModel);
-  void deleteSparseModel();
-  void setDenseModel(const QString &sparseModel);
-  void deleteDenseModel();
-  void setMesh(const QString &mesh);
-  void deleteMesh();
-  void setDSM(const QString &dsm);
-  void deleteDsm();
-  void setOrtho(const QString &ortho);
-  void deleteOrtho();
+    // Por refactorizar ....
 
-  /*!
-   * \brief Añade un mensaje temporal en la barra de herramientas
-   * \param msg Mensaje
-   */
-  void setStatusBarMsg(const QString &msg);
+    void setSparseModel(const QString &sparseModel);
+    void deleteSparseModel();
+    void setDenseModel(const QString &sparseModel);
+    void deleteDenseModel();
+    void setMesh(const QString &mesh);
+    void deleteMesh();
+    void setDSM(const QString &dsm);
+    void deleteDsm();
+    void setOrtho(const QString &ortho);
+    void deleteOrtho();
 
-  ProgressBarWidget *progressBar();
+    /*!
+     * \brief Añade un mensaje temporal en la barra de herramientas
+     * \param msg Mensaje
+     */
+    void setStatusBarMsg(const QString &msg);
 
-  /*!
-   * \brief Tab handler
-   * \return
-   */
-  TabWidget *tabWidget();
+    ProgressBarWidget *progressBar();
 
-  //QAction *actionDistanceMeasuse();
+    /*!
+     * \brief Tab handler
+     * \return
+     */
+    TabWidget *tabWidget();
+
+    //QAction *actionDistanceMeasuse();
 
 public slots:
 
-  /*!
-   * \brief Elimina una imagen
-   * \param[in] file
-   */
-  void deleteImages(const std::vector<size_t> &imageIds);
+    /*!
+     * \brief Elimina una imagen
+     * \param[in] file
+     */
+    void deleteImages(const std::vector<size_t> &imageIds);
 
 signals:
 
-  /* Menu File */
+    /* Menu File */
 
-  void openProjectFromHistory(QString);
-  void clearHistory();
-  void openCamerasImport();
-  void openExportFeatures();
-  void openExportMatches();
-  void openExportOrientations();
-  void openExportPointCloud();
-  void exit();
+    void openProjectFromHistory(QString);
+    void clearHistory();
+    void openCamerasImport();
+    void openExportFeatures();
+    void openExportMatches();
+    void openExportOrientations();
+    void openExportPointCloud();
+    void exit();
 
 
-  /* Menú View */
+    /* Menú View */
 
-  void openStartPage();
+    void openStartPage();
 
-  /* Menú herramientas */
+    /* Menú herramientas */
 
-  void openKeypointsViewer(size_t);
-  void openMatchesViewer(size_t);
+    void openKeypointsViewer(size_t);
+    void openMatchesViewer(size_t);
 
-  /* Menú Ayuda */
+    /* Menú Ayuda */
 
-  void openHelpDialog();
-  
-  void select_image(size_t);
-  void select_images(std::vector<size_t>);
-  void delete_images(std::vector<size_t>);
-  void open_image(size_t);
-  void all_tabs_closed();
+    void openHelpDialog();
 
-  /// Sin refactorizar
-  
-  
-  
-  void selectFeatures(QString);
-  void selectDetector(QString);
-  void selectDescriptor(QString);
-  void selectImageFeatures(QString);
+    void select_image(size_t);
+    void select_images(std::vector<size_t>);
+    void delete_images(std::vector<size_t>);
+    void open_image(size_t);
+    void all_tabs_closed();
 
-  void open3DModel(QString, bool);
-  void openDtm();
-  void openOrtho(QString);
-  void openMultiView(QString);
+    /// Sin refactorizar
+
+
+
+    void selectFeatures(QString);
+    void selectDetector(QString);
+    void selectDescriptor(QString);
+    void selectImageFeatures(QString);
+
+    void open3DModel(QString, bool);
+    void openDtm();
+    void openOrtho(QString);
+    void openMultiView(QString);
 
 protected:
 
-  void changeEvent(QEvent *e) override;
-  void readSettings();
+    void changeEvent(QEvent *e) override;
+    void readSettings();
 
 private slots:
 
-  void openFromHistory();
-  void onSelectionChanged();
-  void onItemDoubleClicked(QTreeWidgetItem *item, int column);
-  void onTreeContextMenu(const QPoint &point);
+    void openFromHistory();
+    void onSelectionChanged();
+    void onItemDoubleClicked(QTreeWidgetItem *item, int column);
+    void onTreeContextMenu(const QPoint &point);
 
 private:
 
-  void initUI();
-  void initTabWidget();
-  void initThumbnailsTool();
-  void initConsole();
-  void initActions();
-  void initToolbars();
-  void initToolbarFile();
-  void initToolbarWorkflow();
-  void initToolbarView();
-  void initToolbar3dModel();
-  void initToolbarTools();
-  void initTreeWidget();
-  void initMenus();
-  void initMenuFile();
-  void initMenuView();
-  void initMenuWorkflow();
-  void initMenuTools();
-  void initMenuPlugins();
-  void initMenuHelp();
-  void initProgressBar();
-  void initSignalAndSlots();
+    void initUI();
+    void initTabWidget();
+    void initThumbnailsTool();
+    void initConsole();
+    void initActions();
+    void initToolbars();
+    void initToolbarFile();
+    void initToolbarWorkflow();
+    void initToolbarView();
+    void initToolbar3dModel();
+    void initToolbarTools();
+    void initTreeWidget();
+    void initMenus();
+    void initMenuFile();
+    void initMenuView();
+    void initMenuWorkflow();
+    void initMenuTools();
+    void initMenuPlugins();
+    void initMenuHelp();
+    void initProgressBar();
+    void initSignalAndSlots();
 
-  QMenu *findMenu(Menu menu);
-  QToolBar *findToolbar(MainWindowView::Toolbar toolbar);
+    QMenu *findMenu(Menu menu);
+    QToolBar *findToolbar(MainWindowView::Toolbar toolbar);
 
 private slots:
 
-  void update();
-  void retranslate();
+    void update();
+    void retranslate();
 
 // QWidget interface
 
 public:
 
-  void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 
 private:
 
-  Ui::MainWindowView *ui;
-  QTreeWidget *mTreeWidgetProject;
-  QAction *mActionNewProject;
-  QAction *mActionOpenProject;
-  QAction *mActionSaveProject;
-  QAction *mActionSaveProjectAs;
-  QAction *mActionCloseProject;
-  QAction *mActionExit;
-  QAction *mActionStartPage;
-  QAction *mActionLoadImages;
-  QAction *mActionCameras;
-  QAction *mActionHelp;
-  QAction *mActionImportCameras;
-  QAction *mActionExportTiePoints;
-  QAction *mActionExportMatches;
-  QAction *mActionExportPointCloud;
-  QAction *mActionOrtho;
-  QMenu *mMenuRecentProjects;
-  QMenu *mMenuImport;
-  QMenu *mMenuExport;
-  QMenu *mMenuPanels;
-  QMenu *mMenuToolBar;
-  QToolBar *mToolBarFile;
-  QToolBar *mToolBarWorkflow;
-  QToolBar *mToolBarTools;
-  QToolBar *mToolBarView;
-  QToolBar *mToolBar3dModel;
+    Ui::MainWindowView *ui;
+    QTreeWidget *mTreeWidgetProject;
+    QAction *mActionNewProject;
+    QAction *mActionOpenProject;
+    QAction *mActionSaveProject;
+    QAction *mActionSaveProjectAs;
+    QAction *mActionCloseProject;
+    QAction *mActionExit;
+    QAction *mActionStartPage;
+    QAction *mActionLoadImages;
+    QAction *mActionCameras;
+    QAction *mActionHelp;
+    QAction *mActionImportCameras;
+    QAction *mActionExportCameras;
+    QAction *mActionExportTiePoints;
+    QAction *mActionExportMatches;
+    QAction *mActionExportPointCloud;
+    QAction *mActionOrtho;
+    QMenu *mMenuRecentProjects;
+    QMenu *mMenuImport;
+    QMenu *mMenuExport;
+    QMenu *mMenuPanels;
+    QMenu *mMenuToolBar;
+    QToolBar *mToolBarFile;
+    QToolBar *mToolBarWorkflow;
+    QToolBar *mToolBarTools;
+    QToolBar *mToolBarView;
+    QToolBar *mToolBar3dModel;
 
-  ///TreeWidget
-  QAction *mActionOpenImage;
-  QAction *mActionDeleteImage;
-  QAction *mActionViewKeypoints;
-  QAction *mActionViewMatches;
-  QAction *mActionOpenModel3D;
-  QMenu *mMenuTreeProjectImages;
-  QMenu *mMenuTreeProjectImage;
-  QMenu *mMenuTreeProjectModel3D;
+    ///TreeWidget
+    QAction *mActionOpenImage;
+    QAction *mActionDeleteImage;
+    QAction *mActionViewKeypoints;
+    QAction *mActionViewMatches;
+    QAction *mActionOpenModel3D;
+    QMenu *mMenuTreeProjectImages;
+    QMenu *mMenuTreeProjectImage;
+    QMenu *mMenuTreeProjectModel3D;
 
-  QAction *mActionZoomIn;
-  QAction *mActionZoomOut;
-  QAction *mActionZoomExtend;
-  QAction *mActionZoom11;
-  QAction *mActionGlobalZoom;
-  QAction *mActionViewFront;
-  QAction *mActionViewTop;
-  QAction *mActionViewLeft;
-  QAction *mActionViewRight;
-  QAction *mActionViewBack;
-  QAction *mActionViewBottom;
-  QAction *mActionPointMeasuse;
-  QAction *mActionDistanceMeasuse;
-  QAction *mActionAngleMeasure;
+    QAction *mActionZoomIn;
+    QAction *mActionZoomOut;
+    QAction *mActionZoomExtend;
+    QAction *mActionZoom11;
+    QAction *mActionGlobalZoom;
+    QAction *mActionViewFront;
+    QAction *mActionViewTop;
+    QAction *mActionViewLeft;
+    QAction *mActionViewRight;
+    QAction *mActionViewBack;
+    QAction *mActionViewBottom;
+    QAction *mActionPointMeasuse;
+    QAction *mActionDistanceMeasuse;
+    QAction *mActionAngleMeasure;
 
-  ThumbnailsWidget *mThumbnailsWidget;
-  LogWidget *mLogWidget;
-  ProgressBarWidget *mProgressBar;
+    ThumbnailsWidget *mThumbnailsWidget;
+    LogWidget *mLogWidget;
+    ProgressBarWidget *mProgressBar;
 
-  std::vector<QAction*> mHistory;
-  QGridLayout *mLayoutCentral;
-  TabWidget *mTabWidget;
+    std::vector<QAction *> mHistory;
+    QGridLayout *mLayoutCentral;
+    TabWidget *mTabWidget;
 
 };
 

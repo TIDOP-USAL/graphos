@@ -47,12 +47,12 @@ namespace graphos
 
 GeoreferenceViewImp::GeoreferenceViewImp(QWidget *parent,
                                          Qt::WindowFlags f)
-  : GeoreferenceView(parent, f),
+    : GeoreferenceView(parent, f),
     mProjectPath(""),
     bSelectedItem(false)
 {
-  this->initUI();
-  this->initSignalAndSlots();
+    this->initUI();
+    this->initSignalAndSlots();
 }
 
 GeoreferenceViewImp::~GeoreferenceViewImp()
@@ -62,135 +62,135 @@ GeoreferenceViewImp::~GeoreferenceViewImp()
 
 void GeoreferenceViewImp::onGraphicsViewSelectionChanged()
 {
-  const QSignalBlocker blocker1(mGraphicViewerWidget);
-  //const QSignalBlocker blocker2(mTreeWidget);
+    const QSignalBlocker blocker1(mGraphicViewerWidget);
+    //const QSignalBlocker blocker2(mTreeWidget);
 
-  QList<QGraphicsItem *> items = mGraphicViewerWidget->items();
-  bSelectedItem = false;
-  for (int i = 0; i < items.size(); i++) {
-    if (items[i] && items[i]->isSelected() == true) {
+    QList<QGraphicsItem *> items = mGraphicViewerWidget->items();
+    bSelectedItem = false;
+    for (int i = 0; i < items.size(); i++) {
+        if (items[i] && items[i]->isSelected() == true) {
 
-  //    mTreeWidget->selectionModel()->clearSelection();
-  //    for (int j = 0; j < mTreeWidget->topLevelItemCount(); j++){
-  //      QTreeWidgetItem *item = mTreeWidget->topLevelItem(j);
-  //      if (item && item->text(0).compare(items[i]->toolTip()) == 0){
-  //        item->setSelected(true);
-  //        QModelIndex index = mTreeWidget->model()->index(j, 0);
-  //        mTreeWidget->scrollTo(index);
-  //        break;
-  //      }
-  //    }
+            //    mTreeWidget->selectionModel()->clearSelection();
+            //    for (int j = 0; j < mTreeWidget->topLevelItemCount(); j++){
+            //      QTreeWidgetItem *item = mTreeWidget->topLevelItem(j);
+            //      if (item && item->text(0).compare(items[i]->toolTip()) == 0){
+            //        item->setSelected(true);
+            //        QModelIndex index = mTreeWidget->model()->index(j, 0);
+            //        mTreeWidget->scrollTo(index);
+            //        break;
+            //      }
+            //    }
 
-      bSelectedItem = true;
-      break;
+            bSelectedItem = true;
+            break;
+        }
     }
-  }
 
-  update();
+    update();
 }
 
 void GeoreferenceViewImp::onGraphicsViewRemoveSelectItems()
 {
-  //QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
-  //QModelIndexList modelIndexList = selecctionModel->selectedRows();
-  //while(modelIndexList.size() > 0){
-  //  int index = modelIndexList.at(0).row();
-  //  emit removeGroundControlPoint(index);
-  //  modelIndexList = selecctionModel->selectedRows();
-  //}
-  const QSignalBlocker blocker1(mGraphicViewerWidget);
-  //const QSignalBlocker blocker2(mComboBoxImages);
-  QString image = mComboBoxImages->currentText();
+    //QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
+    //QModelIndexList modelIndexList = selecctionModel->selectedRows();
+    //while(modelIndexList.size() > 0){
+    //  int index = modelIndexList.at(0).row();
+    //  emit removeGroundControlPoint(index);
+    //  modelIndexList = selecctionModel->selectedRows();
+    //}
+    const QSignalBlocker blocker1(mGraphicViewerWidget);
+    //const QSignalBlocker blocker2(mComboBoxImages);
+    QString image = mComboBoxImages->currentText();
 
 
-  //QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
-  //QModelIndexList modelIndexList = selecctionModel->selectedRows();
-  //while(modelIndexList.size() > 0){
-  //  int index = modelIndexList.at(0).row();
-  //  emit removeGroundControlPoint(index);
-  //  modelIndexList = selecctionModel->selectedRows();
-  //}
+    //QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
+    //QModelIndexList modelIndexList = selecctionModel->selectedRows();
+    //while(modelIndexList.size() > 0){
+    //  int index = modelIndexList.at(0).row();
+    //  emit removeGroundControlPoint(index);
+    //  modelIndexList = selecctionModel->selectedRows();
+    //}
 
-  QList<QGraphicsItem *> items = mGraphicViewerWidget->items();
-  for (int i = 0; i < items.size(); i++) {
-    if (items[i] && items[i]->isSelected() == true) {
-      QString gcp = items[i]->toolTip();
-      mGraphicViewerWidget->scene()->removeItem(items[i]);
-      emit remove_image_point(gcp, items[i]->data(Qt::UserRole).toULongLong());
-  //    mTreeWidget->selectionModel()->clearSelection();
-  //    for (int j = 0; j < mTreeWidget->topLevelItemCount(); j++){
-  //      QTreeWidgetItem *item = mTreeWidget->topLevelItem(j);
-  //      if (item && item->text(0).compare(items[i]->toolTip()) == 0){
-  //        item->setSelected(true);
-  //        QModelIndex index = mTreeWidget->model()->index(j, 0);
-  //        mTreeWidget->scrollTo(index);
-  //        break;
-  //      }
-  //    }
+    QList<QGraphicsItem *> items = mGraphicViewerWidget->items();
+    for (int i = 0; i < items.size(); i++) {
+        if (items[i] && items[i]->isSelected() == true) {
+            QString gcp = items[i]->toolTip();
+            mGraphicViewerWidget->scene()->removeItem(items[i]);
+            emit remove_image_point(gcp, items[i]->data(Qt::UserRole).toULongLong());
+            //    mTreeWidget->selectionModel()->clearSelection();
+            //    for (int j = 0; j < mTreeWidget->topLevelItemCount(); j++){
+            //      QTreeWidgetItem *item = mTreeWidget->topLevelItem(j);
+            //      if (item && item->text(0).compare(items[i]->toolTip()) == 0){
+            //        item->setSelected(true);
+            //        QModelIndex index = mTreeWidget->model()->index(j, 0);
+            //        mTreeWidget->scrollTo(index);
+            //        break;
+            //      }
+            //    }
 
+        }
     }
-  }
 }
 
-void GeoreferenceViewImp::selectionChanged(const QItemSelection &selected, 
+void GeoreferenceViewImp::selectionChanged(const QItemSelection &selected,
                                            const QItemSelection &deselected)
 {
-  this->setEnableImagePointsAddOrEdit(false);
-  QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
+    this->setEnableImagePointsAddOrEdit(false);
+    QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
 
-  QModelIndexList modelIndexList = selecctionModel->selectedRows();
-   
-  /// Por ahora...
-  this->setEnableImagePointsAddOrEdit(modelIndexList.size() == 1);
+    QModelIndexList modelIndexList = selecctionModel->selectedRows();
 
-  for (auto modelIndex : modelIndexList) {
-    // Se obtiene el identificador de la fila seleccionada y se filtran los puntos imagen.
-    int index = modelIndex.row();
-    //mTableViewGroundControlPoints->
-  }
+    /// Por ahora...
+    this->setEnableImagePointsAddOrEdit(modelIndexList.size() == 1);
 
-  this->update();
+    // for (auto modelIndex : modelIndexList) {
+    //   // Se obtiene el identificador de la fila seleccionada y se filtran los puntos imagen.
+    //   int index = modelIndex.row();
+    //   //mTableViewGroundControlPoints->
+    // }
+
+    this->update();
 }
 
 void GeoreferenceViewImp::clickedPoint(const QPointF &point)
 {
-  
-  QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
-  QModelIndexList modelIndexList = selecctionModel->selectedRows();
 
-  int index = -1;
-  if (modelIndexList.size() == 1) {
-    index = modelIndexList.at(0).row();
-    
-  } else {
-    /// Si no hay nada activado mostrar lista de Ground Control Points para seleccionar
-  }
+    QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
+    QModelIndexList modelIndexList = selecctionModel->selectedRows();
 
-  if (index != -1) {
-    QString groundControlPoint = mTableViewGroundControlPoints->model()->index(index, 0).data().toString();
+    int index = -1;
+    if (modelIndexList.size() == 1) {
+        index = modelIndexList.at(0).row();
 
-    emit add_image_point(groundControlPoint, mComboBoxImages->currentData().toULongLong(), point);
-
-    QPen pen(QColor("#FF0000"), 1);
-    pen.setCosmetic(true);
-    QPen select_pen(QColor("#FF0000"), 2);
-    select_pen.setCosmetic(true);
-
-    QList<QGraphicsItem *> items = mGraphicViewerWidget->items();
-    for (int i = 0; i < items.size(); i++) {
-      if (items[i]->toolTip().compare(groundControlPoint) == 0) {
-        mGraphicViewerWidget->scene()->removeItem(items[i]);
-        break;
-      }
+    } else {
+        /// Si no hay nada activado mostrar lista de Ground Control Points para seleccionar
     }
 
-    CrossGraphicItem *crossGraphicItemLeft = new CrossGraphicItem(point, 20);
-    crossGraphicItemLeft->setPen(pen);
-    crossGraphicItemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    crossGraphicItemLeft->setToolTip(groundControlPoint);
-    crossGraphicItemLeft->setSelectedPen(select_pen);
-    mGraphicViewerWidget->scene()->addItem(crossGraphicItemLeft);
-  }
+    if (index != -1) {
+        QString groundControlPoint = mTableViewGroundControlPoints->model()->index(index, 0).data().toString();
+
+        emit add_image_point(groundControlPoint, mComboBoxImages->currentData().toULongLong(), point);
+
+        QPen pen(QColor("#FF0000"), 1);
+        pen.setCosmetic(true);
+        QPen select_pen(QColor("#FF0000"), 2);
+        select_pen.setCosmetic(true);
+
+        QList<QGraphicsItem *> items = mGraphicViewerWidget->items();
+        for (int i = 0; i < items.size(); i++) {
+            if (items[i]->toolTip().compare(groundControlPoint) == 0) {
+                mGraphicViewerWidget->scene()->removeItem(items[i]);
+                break;
+            }
+        }
+
+        CrossGraphicItem *crossGraphicItemLeft = new CrossGraphicItem(point, 20);
+        crossGraphicItemLeft->setPen(pen);
+        crossGraphicItemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        crossGraphicItemLeft->setToolTip(groundControlPoint);
+        crossGraphicItemLeft->setSelectedPen(select_pen);
+        mGraphicViewerWidget->scene()->addItem(crossGraphicItemLeft);
+    }
 }
 
 //void GeoreferenceViewImp::onTreeWidgetItemSelectionChanged()
@@ -218,277 +218,277 @@ void GeoreferenceViewImp::clickedPoint(const QPointF &point)
 
 void GeoreferenceViewImp::setImageList(const std::vector<std::pair<size_t, QString>> &imageList)
 {
-  QSignalBlocker blocker(mComboBoxImages);
-  mComboBoxImages->clear();
-  for (auto &image : imageList){
-    QFileInfo file_info(image.second);
-    mComboBoxImages->addItem(file_info.baseName(), image.first);
-  }
+    QSignalBlocker blocker(mComboBoxImages);
+    mComboBoxImages->clear();
+    for (auto &image : imageList) {
+        QFileInfo file_info(image.second);
+        mComboBoxImages->addItem(file_info.baseName(), static_cast<qulonglong>(image.first));
+    }
 }
 
 void GeoreferenceViewImp::setCurrentImage(const QString &imagePath)
 {
-  QSignalBlocker blocker(mComboBoxImages);
-  QFileInfo file_info(imagePath);
-  mComboBoxImages->setCurrentText(file_info.baseName());
-  mGraphicViewerWidget->scene()->clearSelection();
+    QSignalBlocker blocker(mComboBoxImages);
+    QFileInfo file_info(imagePath);
+    mComboBoxImages->setCurrentText(file_info.baseName());
+    mGraphicViewerWidget->scene()->clearSelection();
 
-  std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(imagePath.toStdString());
-  imageReader->open();
-  if (imageReader->isOpen()) {
-    cv::Mat bmp = imageReader->read();
-    mGraphicViewerWidget->setImage(cvMatToQImage(bmp));
-    imageReader->close();
-  }
-  mGraphicViewerWidget->zoomExtend();
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(imagePath.toStdString());
+    imageReader->open();
+    if (imageReader->isOpen()) {
+        cv::Mat bmp = imageReader->read();
+        mGraphicViewerWidget->setImage(cvMatToQImage(bmp));
+        imageReader->close();
+    }
+    mGraphicViewerWidget->zoomExtend();
 }
 
 void GeoreferenceViewImp::setItemModelGroundControlPoints(QAbstractItemModel *model)
 {
-  mTableViewGroundControlPoints->setModel(model);
-  QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
-  connect(selecctionModel, &QItemSelectionModel::selectionChanged, this, &GeoreferenceViewImp::selectionChanged);
+    mTableViewGroundControlPoints->setModel(model);
+    QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
+    connect(selecctionModel, &QItemSelectionModel::selectionChanged, this, &GeoreferenceViewImp::selectionChanged);
 }
 
 void GeoreferenceViewImp::setItemModelImagePoints(QAbstractItemModel *model)
 {
-  mTableViewImagePoints->setModel(model);
+    mTableViewImagePoints->setModel(model);
 }
 
 void GeoreferenceViewImp::setEnableImagePointsAddOrEdit(bool active)
 {
-  if (active)
-    connect(mGraphicViewerWidget, SIGNAL(mouseClicked(QPointF)), this, SLOT(clickedPoint(QPointF)));
-  else 
-    disconnect(mGraphicViewerWidget, SIGNAL(mouseClicked(QPointF)), this, SLOT(clickedPoint(QPointF)));
+    if (active)
+        connect(mGraphicViewerWidget, SIGNAL(mouseClicked(QPointF)), this, SLOT(clickedPoint(QPointF)));
+    else
+        disconnect(mGraphicViewerWidget, SIGNAL(mouseClicked(QPointF)), this, SLOT(clickedPoint(QPointF)));
 }
 
 void GeoreferenceViewImp::setPoints(const std::list<std::pair<QString, QPointF>> &points)
 {
-  QBrush brush;
-  brush = QBrush(Qt::NoBrush);
+    QBrush brush;
+    brush = QBrush(Qt::NoBrush);
 
-  QPen pen(QColor("#FF0000"), 1);
-  pen.setCosmetic(true);
-  QPen select_pen(QColor("#FF0000"), 2);
-  select_pen.setCosmetic(true);
+    QPen pen(QColor("#FF0000"), 1);
+    pen.setCosmetic(true);
+    QPen select_pen(QColor("#FF0000"), 2);
+    select_pen.setCosmetic(true);
 
-  for (auto &item : mGraphicViewerWidget->scene()->items()) {
-    if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)) {
-      mGraphicViewerWidget->scene()->removeItem(item);
-      delete keyPoint;
-      keyPoint = nullptr;
-    } else if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)) {
-      mGraphicViewerWidget->scene()->removeItem(item);
-      delete keyPoint;
-      keyPoint = nullptr;
-    } else if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)) {
-      mGraphicViewerWidget->scene()->removeItem(item);
-      delete keyPoint;
-      keyPoint = nullptr;
+    for (auto &item : mGraphicViewerWidget->scene()->items()) {
+        if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)) {
+            mGraphicViewerWidget->scene()->removeItem(item);
+            delete keyPoint;
+            keyPoint = nullptr;
+        } else if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)) {
+            mGraphicViewerWidget->scene()->removeItem(item);
+            delete keyPoint;
+            keyPoint = nullptr;
+        } else if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)) {
+            mGraphicViewerWidget->scene()->removeItem(item);
+            delete keyPoint;
+            keyPoint = nullptr;
+        }
     }
-  }
 
-  for (auto &point : points) {
-    
-    CrossGraphicItem *crossGraphicItemLeft = new CrossGraphicItem(point.second, 20);
-    crossGraphicItemLeft->setPen(pen);
-    crossGraphicItemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
-    crossGraphicItemLeft->setToolTip(point.first);
-    crossGraphicItemLeft->setSelectedPen(select_pen);
-    mGraphicViewerWidget->scene()->addItem(crossGraphicItemLeft);
-  }
+    for (auto &point : points) {
+
+        CrossGraphicItem *crossGraphicItemLeft = new CrossGraphicItem(point.second, 20);
+        crossGraphicItemLeft->setPen(pen);
+        crossGraphicItemLeft->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        crossGraphicItemLeft->setToolTip(point.first);
+        crossGraphicItemLeft->setSelectedPen(select_pen);
+        mGraphicViewerWidget->scene()->addItem(crossGraphicItemLeft);
+    }
 }
 
 void GeoreferenceViewImp::setCrs(const QString &crs)
 {
-  mLineEditCRS->setText(crs);
+    mLineEditCRS->setText(crs);
 }
 
 void GeoreferenceViewImp::removeGroundControlPoints()
 {
-  QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
-  QModelIndexList modelIndexList = selecctionModel->selectedRows();
-  while(modelIndexList.size() > 0){
-    int index = modelIndexList.at(0).row();
-    emit removeGroundControlPoint(index);
-    modelIndexList = selecctionModel->selectedRows();
-  }
+    QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel();
+    QModelIndexList modelIndexList = selecctionModel->selectedRows();
+    while (modelIndexList.size() > 0) {
+        int index = modelIndexList.at(0).row();
+        emit removeGroundControlPoint(index);
+        modelIndexList = selecctionModel->selectedRows();
+    }
 }
 
 void GeoreferenceViewImp::initUI()
 {
-  this->setObjectName(QStringLiteral("ExportOrientationsView"));
-  this->resize(400, 200);
+    this->setObjectName(QStringLiteral("ExportOrientationsView"));
+    this->resize(400, 200);
 
-  QGridLayout *gridLayout = new QGridLayout();
-  this->setLayout(gridLayout);
+    QGridLayout *gridLayout = new QGridLayout();
+    this->setLayout(gridLayout);
 
-  mLabelCRS = new QLabel(this);
-  gridLayout->addWidget(mLabelCRS, 0, 0, 1, 1);
-  mLineEditCRS = new QLineEdit(this);
-  mLineEditCRS->setMaximumWidth(250);
-  gridLayout->addWidget(mLineEditCRS, 0, 1, 1, 1);
+    mLabelCRS = new QLabel(this);
+    gridLayout->addWidget(mLabelCRS, 0, 0, 1, 1);
+    mLineEditCRS = new QLineEdit(this);
+    mLineEditCRS->setMaximumWidth(250);
+    gridLayout->addWidget(mLineEditCRS, 0, 1, 1, 1);
 
-  QGridLayout *gridLayout2 = new QGridLayout();
+    QGridLayout *gridLayout2 = new QGridLayout();
 
-  mTableViewGroundControlPoints = new QTableView(this);
-  gridLayout2->addWidget(mTableViewGroundControlPoints, 1, 0, 4, 1);
+    mTableViewGroundControlPoints = new QTableView(this);
+    gridLayout2->addWidget(mTableViewGroundControlPoints, 1, 0, 4, 1);
 
-  mPushButtonAddPoint = new QPushButton(this);
-  mPushButtonAddPoint->setMaximumWidth(93);
-  gridLayout2->addWidget(mPushButtonAddPoint, 1, 1, 1, 1);
+    mPushButtonAddPoint = new QPushButton(this);
+    mPushButtonAddPoint->setMaximumWidth(93);
+    gridLayout2->addWidget(mPushButtonAddPoint, 1, 1, 1, 1);
 
-  mPushButtonDeletePoint = new QPushButton(this);
-  mPushButtonDeletePoint->setMaximumWidth(93);
-  gridLayout2->addWidget(mPushButtonDeletePoint, 2, 1, 1, 1);
+    mPushButtonDeletePoint = new QPushButton(this);
+    mPushButtonDeletePoint->setMaximumWidth(93);
+    gridLayout2->addWidget(mPushButtonDeletePoint, 2, 1, 1, 1);
 
-  mPushButtonGeoreference = new QPushButton(this);
-  mPushButtonGeoreference->setMaximumWidth(93);
-  gridLayout2->addWidget(mPushButtonGeoreference, 3, 1, 1, 1);
+    mPushButtonGeoreference = new QPushButton(this);
+    mPushButtonGeoreference->setMaximumWidth(93);
+    gridLayout2->addWidget(mPushButtonGeoreference, 3, 1, 1, 1);
 
-  verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-  gridLayout2->addItem(verticalSpacer, 4, 1, 1, 1);
+    gridLayout2->addItem(verticalSpacer, 4, 1, 1, 1);
 
 
-  //mLabelFilterByControlPoint = new QLabel(this);
-  //gridLayout2->addWidget(mLabelFilterByControlPoint, 5, 0, 1, 1);
-  //mComboBoxFilterByControlPoint = new QComboBox(this);
-  //gridLayout2->addWidget(mComboBoxFilterByControlPoint, 5, 1, 1, 1);
-  //mLabelFilterByImage = new QLabel(this);
-  //gridLayout2->addWidget(mLabelFilterByImage, 6, 2, 1, 1);
-  //mComboBoxFilterByImage = new QComboBox(this);
-  //gridLayout2->addWidget(mComboBoxFilterByImage, 6, 3, 1, 1);
+    //mLabelFilterByControlPoint = new QLabel(this);
+    //gridLayout2->addWidget(mLabelFilterByControlPoint, 5, 0, 1, 1);
+    //mComboBoxFilterByControlPoint = new QComboBox(this);
+    //gridLayout2->addWidget(mComboBoxFilterByControlPoint, 5, 1, 1, 1);
+    //mLabelFilterByImage = new QLabel(this);
+    //gridLayout2->addWidget(mLabelFilterByImage, 6, 2, 1, 1);
+    //mComboBoxFilterByImage = new QComboBox(this);
+    //gridLayout2->addWidget(mComboBoxFilterByImage, 6, 3, 1, 1);
 
-  mLabelImagePoints = new QLabel(this);
-  gridLayout2->addWidget(mLabelImagePoints, 5, 0, 1, 1);
+    mLabelImagePoints = new QLabel(this);
+    gridLayout2->addWidget(mLabelImagePoints, 5, 0, 1, 1);
 
-  mTableViewImagePoints = new QTableView(this);
-  gridLayout2->addWidget(mTableViewImagePoints, 6, 0, 1, 1);
+    mTableViewImagePoints = new QTableView(this);
+    gridLayout2->addWidget(mTableViewImagePoints, 6, 0, 1, 1);
 
-  gridLayout->addLayout(gridLayout2, 1, 0, 2, 2);
+    gridLayout->addLayout(gridLayout2, 1, 0, 2, 2);
 
-  mLabelImage = new QLabel(this);
-  gridLayout->addWidget(mLabelImage, 1, 3, 1, 1);
+    mLabelImage = new QLabel(this);
+    gridLayout->addWidget(mLabelImage, 1, 3, 1, 1);
 
-  mComboBoxImages = new QComboBox(this);
-  gridLayout->addWidget(mComboBoxImages, 1, 4, 1, 1);
+    mComboBoxImages = new QComboBox(this);
+    gridLayout->addWidget(mComboBoxImages, 1, 4, 1, 1);
 
-  mGraphicViewerWidget = new GraphicViewerImp(this);
-  mGraphicViewerWidget->setMinimumSize(QSize(541, 441));
-  gridLayout->addWidget(mGraphicViewerWidget, 2, 2, 1, 3);
+    mGraphicViewerWidget = new GraphicViewerImp(this);
+    mGraphicViewerWidget->setMinimumSize(QSize(541, 441));
+    gridLayout->addWidget(mGraphicViewerWidget, 2, 2, 1, 3);
 
-  mButtonBox = new QDialogButtonBox(this);
-  mButtonBox->setOrientation(Qt::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 3, 0, 1, 5);
+    mButtonBox = new QDialogButtonBox(this);
+    mButtonBox->setOrientation(Qt::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok | QDialogButtonBox::Help);
+    gridLayout->addWidget(mButtonBox, 3, 0, 1, 5);
 
-  this->retranslate();
-  this->update();
+    this->retranslate();
+    this->update();
 }
 
 void GeoreferenceViewImp::initSignalAndSlots()
 {
-  connect(mComboBoxImages, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          [&](int idx) {
-            emit image_changed(mComboBoxImages->itemData(idx).toULongLong());
-          });
-  //connect(mTreeWidgetGroundControlPoints, &QTreeWidget::itemSelectionChanged, this, &GeoreferenceViewImp::onTreeWidgetItemSelectionChanged);
-  connect(mGraphicViewerWidget, &GraphicViewer::selectionChanged, this,  &GeoreferenceViewImp::onGraphicsViewSelectionChanged);
-  connect(mGraphicViewerWidget, &GraphicViewer::removeSelectItems, this,  &GeoreferenceViewImp::onGraphicsViewRemoveSelectItems);
-  connect(mPushButtonAddPoint,  &QAbstractButton::clicked, this, &GeoreferenceViewImp::addGroundControlPoint);
-  connect(mPushButtonDeletePoint,  &QAbstractButton::clicked, this, &GeoreferenceViewImp::removeGroundControlPoints);
-  connect(mPushButtonGeoreference,  &QAbstractButton::clicked, this, &GeoreferenceViewImp::georeference);
+    connect(mComboBoxImages, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [&](int idx) {
+                emit image_changed(mComboBoxImages->itemData(idx).toULongLong());
+            });
+    //connect(mTreeWidgetGroundControlPoints, &QTreeWidget::itemSelectionChanged, this, &GeoreferenceViewImp::onTreeWidgetItemSelectionChanged);
+    connect(mGraphicViewerWidget, &GraphicViewer::selectionChanged, this, &GeoreferenceViewImp::onGraphicsViewSelectionChanged);
+    connect(mGraphicViewerWidget, &GraphicViewer::removeSelectItems, this, &GeoreferenceViewImp::onGraphicsViewRemoveSelectItems);
+    connect(mPushButtonAddPoint, &QAbstractButton::clicked, this, &GeoreferenceViewImp::addGroundControlPoint);
+    connect(mPushButtonDeletePoint, &QAbstractButton::clicked, this, &GeoreferenceViewImp::removeGroundControlPoints);
+    connect(mPushButtonGeoreference, &QAbstractButton::clicked, this, &GeoreferenceViewImp::georeference);
 
-  connect(mLineEditCRS, &QLineEdit::textChanged,   this, &GeoreferenceView::crsChange);
-  //connect(mPushButtonImportGroundControlPoints,  &QAbstractButton::clicked, this, &GeoreferenceViewImp::openFile);
-  //connect(mLineEditCrsInput, &QLineEdit::textChanged, this, &GeoreferenceViewImp::update);
-  //connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &GeoreferenceViewImp::update);
+    connect(mLineEditCRS, &QLineEdit::textChanged, this, &GeoreferenceView::crsChange);
+    //connect(mPushButtonImportGroundControlPoints,  &QAbstractButton::clicked, this, &GeoreferenceViewImp::openFile);
+    //connect(mLineEditCrsInput, &QLineEdit::textChanged, this, &GeoreferenceViewImp::update);
+    //connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &GeoreferenceViewImp::update);
 
-  connect(mButtonBox,                                   &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Ok),     &QAbstractButton::clicked,   this, &QDialog::accept);
-  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked,   this, &DialogView::help);
+    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(mButtonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
+    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void GeoreferenceViewImp::clear()
 {
 
-  //mLineEditImportCameras->clear();
-  //mLineEditCrsInput->clear();
-  //mLineEditCrsOutput->clear();
-  //mProjectPath = "";
+    //mLineEditImportCameras->clear();
+    //mLineEditCrsInput->clear();
+    //mLineEditCrsOutput->clear();
+    //mProjectPath = "";
 
-  update();
+    update();
 }
 
 void GeoreferenceViewImp::update()
 {
-  
-  if (QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel()) {
-    QModelIndexList modelIndexList = selecctionModel->selectedRows();
-    mPushButtonDeletePoint->setDisabled(modelIndexList.empty());
-  } else {
-    mPushButtonDeletePoint->setEnabled(false);
-  }
 
-  
-  if (bSelectedItem == false){
-    //if (QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel())
-    //  selecctionModel->clearSelection();
-  } else {
-    /// Boton para borrar punto o puntos seleccionados
-  }
+    if (QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel()) {
+        QModelIndexList modelIndexList = selecctionModel->selectedRows();
+        mPushButtonDeletePoint->setDisabled(modelIndexList.empty());
+    } else {
+        mPushButtonDeletePoint->setEnabled(false);
+    }
 
-  //QFileInfo file_info(mLineEditImportCameras->text());
-  //bool file_exist = file_info.exists();
 
-  //QPalette palette;
-  //if(file_exist){
-  //  palette.setColor(QPalette::Text, Qt::black);
-  //} else {
-  //  palette.setColor(QPalette::Text, Qt::red);
-  //}
-  //mLineEditImportCameras->setPalette(palette);
+    if (bSelectedItem == false) {
+        //if (QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel())
+        //  selecctionModel->clearSelection();
+    } else {
+        /// Boton para borrar punto o puntos seleccionados
+    }
 
-//  bool bx = mComboBoxXColumn->currentText().compare("--") != 0;
-//  bool by = mComboBoxYColumn->currentText().compare("--") != 0;
-//  bool bz = mComboBoxZColumn->currentText().compare("--") != 0;
+    //QFileInfo file_info(mLineEditImportCameras->text());
+    //bool file_exist = file_info.exists();
 
-//  mPushButtonGeoreference->setEnabled(file_exist && bx && by && bz);
+    //QPalette palette;
+    //if(file_exist){
+    //  palette.setColor(QPalette::Text, Qt::black);
+    //} else {
+    //  palette.setColor(QPalette::Text, Qt::red);
+    //}
+    //mLineEditImportCameras->setPalette(palette);
+
+  //  bool bx = mComboBoxXColumn->currentText().compare("--") != 0;
+  //  bool by = mComboBoxYColumn->currentText().compare("--") != 0;
+  //  bool bz = mComboBoxZColumn->currentText().compare("--") != 0;
+
+  //  mPushButtonGeoreference->setEnabled(file_exist && bx && by && bz);
 }
 
 void GeoreferenceViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
-  //mPushButtonImportGroundControlPoints->setText(QCoreApplication::translate("GeoreferenceViewImp", "Import Ground Control Points", nullptr));
-  mLabelCRS->setText(QCoreApplication::translate("GeoreferenceViewImp", "Coordinate Reference System:", nullptr));
-  mPushButtonAddPoint->setText(QCoreApplication::translate("GeoreferenceViewImp", "Add", nullptr));
-  mPushButtonDeletePoint->setText(QCoreApplication::translate("GeoreferenceViewImp", "Remove", nullptr));
-  mPushButtonGeoreference->setText(QCoreApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
-  mLabelImagePoints->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image Points:", nullptr));
-  mLabelImage->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image:", nullptr));
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("GeoreferenceViewImp", "Cancel", nullptr));
-  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("GeoreferenceViewImp", "Save", nullptr));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("GeoreferenceViewImp", "Help", nullptr));
+    this->setWindowTitle(QApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
+    //mPushButtonImportGroundControlPoints->setText(QCoreApplication::translate("GeoreferenceViewImp", "Import Ground Control Points", nullptr));
+    mLabelCRS->setText(QCoreApplication::translate("GeoreferenceViewImp", "Coordinate Reference System:", nullptr));
+    mPushButtonAddPoint->setText(QCoreApplication::translate("GeoreferenceViewImp", "Add", nullptr));
+    mPushButtonDeletePoint->setText(QCoreApplication::translate("GeoreferenceViewImp", "Remove", nullptr));
+    mPushButtonGeoreference->setText(QCoreApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
+    mLabelImagePoints->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image Points:", nullptr));
+    mLabelImage->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image:", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("GeoreferenceViewImp", "Cancel", nullptr));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("GeoreferenceViewImp", "Save", nullptr));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("GeoreferenceViewImp", "Help", nullptr));
 }
 
 void GeoreferenceViewImp::openFile()
 {
-//  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
-//                                              tr("Ground Control Points"),
-//                                              mProjectPath,
-//                                              tr("Comma-separated values (*.csv); XYZ (*.txt)"));
-//  if (!file.isEmpty()){
-//    mLineEditImportCameras->setText(file);
-//
-//    emit loadCSV(file, ",");
-//  }
+    //  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
+    //                                              tr("Ground Control Points"),
+    //                                              mProjectPath,
+    //                                              tr("Comma-separated values (*.csv); XYZ (*.txt)"));
+    //  if (!file.isEmpty()){
+    //    mLineEditImportCameras->setText(file);
+    //
+    //    emit loadCSV(file, ",");
+    //  }
 }
 
 void GeoreferenceViewImp::setProjectPath(const QString &path)
 {
-  mProjectPath = path;
+    mProjectPath = path;
 }
 
 //QString GeoreferenceViewImp::orientationFile() const

@@ -35,29 +35,29 @@
 
 namespace graphos
 {
-	
+
 class OrthophotoAlgorithm;
 
-class OrthophotoProcess
+class OrthophotoTask
   : public QObject,
     public tl::TaskBase
 {
 
 public:
 
-  OrthophotoProcess(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm);
-  ~OrthophotoProcess();
+    OrthophotoTask(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm);
+    ~OrthophotoTask();
 
 // tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-  std::shared_ptr<OrthophotoAlgorithm> mOrthophotoAlgorithm;
-  
+    std::shared_ptr<OrthophotoAlgorithm> mOrthophotoAlgorithm;
+
 };
 
 } // namespace graphos

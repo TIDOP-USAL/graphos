@@ -31,20 +31,20 @@ namespace graphos
 OpenProjectViewImp::OpenProjectViewImp(QWidget *parent)
   : OpenProjectView(parent)
 {
-  this->init();
+    this->init();
 }
 
 void OpenProjectViewImp::init()
 {
-  QString filter = Application::applicationDisplayName() + QString(" project (*.xml)");
-  QFileDialog::setWindowTitle(tr("Open project"));
-  QFileDialog::setNameFilter(filter);
-  QFileDialog::setFileMode(QFileDialog::ExistingFile);
+    QString filter = Application::applicationDisplayName() + QString(" project (*.xml)");
+    QFileDialog::setWindowTitle(tr("Open project"));
+    QFileDialog::setNameFilter(filter);
+    QFileDialog::setFileMode(QFileDialog::ExistingFile);
 }
 
 void OpenProjectViewImp::setGraphosProjectsPath(const QString &directory)
 {
-  QFileDialog::setDirectory(directory);
+    QFileDialog::setDirectory(directory);
 }
 
 } // namespace graphos

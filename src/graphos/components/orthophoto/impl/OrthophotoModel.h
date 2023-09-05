@@ -37,48 +37,48 @@ class OrthophotoModelImp
   : public OrthophotoModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OrthophotoModelImp(Project *project, QObject *parent = nullptr);
-  ~OrthophotoModelImp() override;
+    OrthophotoModelImp(Project *project, QObject *parent = nullptr);
+    ~OrthophotoModelImp() override;
 
 // OrthophotoModel interface
 
 public:
 
-  OrthophotoParameters *parameters() const override;
+    OrthophotoParameters *parameters() const override;
 
-  std::vector<Image> images() const override;
-  std::map<int, Camera> cameras() const override;
-  tl::Path orthoPath() const override;
-  tl::Path dtmPath() const override;
-  QString epsCode() const override;
-  void clearProject() override;
-  bool useCuda() const override;
+    std::vector<Image> images() const override;
+    std::map<int, Camera> cameras() const override;
+    tl::Path orthoPath() const override;
+    tl::Path dtmPath() const override;
+    QString epsCode() const override;
+    void clearProject() override;
+    bool useCuda() const override;
 
 public slots:
 
-  void loadSettings() override;
-  void saveSettings() override;
+    void loadSettings() override;
+    void saveSettings() override;
 
 // Model interface
 
 private:
 
-  void init() override;
+    void init() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 protected:
 
-  Project *mProject;
-  QSettings *mSettings;
-  bool mReadSettings;
-  OrthophotoParameters *mParameters;
+    Project *mProject;
+    QSettings *mSettings;
+    bool mReadSettings;
+    OrthophotoParameters *mParameters;
 };
 
 } // namespace graphos

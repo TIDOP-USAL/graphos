@@ -37,37 +37,37 @@ class OpenProjectPresenterImp final
   : public OpenProjectPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  OpenProjectPresenterImp(OpenProjectView *view,
-                          OpenProjectModel *model,
-                          AppStatus *status);
-  ~OpenProjectPresenterImp() override;
+    OpenProjectPresenterImp(OpenProjectView *view,
+                            OpenProjectModel *model,
+                            AppStatus *status);
+    ~OpenProjectPresenterImp() override;
 
 // OpenProjectPresenter interface
 
 protected slots:
 
-  void setProjectFile(const QString &file) override;
+    void setProjectFile(const QString &file) override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  OpenProjectView *mView;
-  OpenProjectModel *mModel;
-  AppStatus *mAppStatus;
+    OpenProjectView *mView;
+    OpenProjectModel *mModel;
+    AppStatus *mAppStatus;
 };
 
 } // namespace graphos

@@ -39,37 +39,37 @@ class RecentProjectsPresenterImp
   : public RecentProjectsPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  RecentProjectsPresenterImp(RecentProjectsView *view,
-                             RecentProjectsModel *model,
-                             AppStatus *status);
-  ~RecentProjectsPresenterImp() override;
+    RecentProjectsPresenterImp(RecentProjectsView *view,
+                               RecentProjectsModel *model,
+                               AppStatus *status);
+    ~RecentProjectsPresenterImp() override;
 
 // RecentProjectsPresenter interface
 
 protected slots:
 
-  void clearHistory() override;
+    void clearHistory() override;
 
 // Presenter interface
 
 public slots:
 
-  void open() override;
+    void open() override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
+    void init() override;
+    void initSignalAndSlots() override;
 
 private:
 
-  RecentProjectsView *mView;
-  RecentProjectsModel *mModel;
-  AppStatus *mAppStatus;
+    RecentProjectsView *mView;
+    RecentProjectsModel *mModel;
+    AppStatus *mAppStatus;
 };
 
 } // namespace graphos

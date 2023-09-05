@@ -43,58 +43,58 @@ class CmvsPmvsProperties
 
 public:
 
-  CmvsPmvsProperties();
-  CmvsPmvsProperties(bool useVisibilityInformation,
-                     int imagesPerCluster,
-                     int level,
-                     int cellSize,
-                     double threshold,
-                     int windowSize,
-                     int minimunImageNumber);
-  CmvsPmvsProperties(const CmvsPmvsProperties &cmvsPmvs);
-  CmvsPmvsProperties(CmvsPmvsProperties &&cmvsPmvs) noexcept;
-  ~CmvsPmvsProperties() override = default;
+    CmvsPmvsProperties();
+    CmvsPmvsProperties(bool useVisibilityInformation,
+                       int imagesPerCluster,
+                       int level,
+                       int cellSize,
+                       double threshold,
+                       int windowSize,
+                       int minimunImageNumber);
+    CmvsPmvsProperties(const CmvsPmvsProperties &cmvsPmvs);
+    CmvsPmvsProperties(CmvsPmvsProperties &&cmvsPmvs) noexcept;
+    ~CmvsPmvsProperties() override = default;
 
-  CmvsPmvsProperties &operator =(const CmvsPmvsProperties &cmvsPmvs);
-  CmvsPmvsProperties &operator =(CmvsPmvsProperties &&cmvsPmvs) noexcept;
+    CmvsPmvsProperties &operator =(const CmvsPmvsProperties &cmvsPmvs);
+    CmvsPmvsProperties &operator =(CmvsPmvsProperties &&cmvsPmvs) noexcept;
 
 // CmvsPmvs interface
 
 public:
 
-  bool useVisibilityInformation() const override;
-  int imagesPerCluster() const override;
-  int level() const override;
-  int cellSize() const override;
-  double threshold() const override;
-  int windowSize() const override;
-  int minimunImageNumber() const override;
+    bool useVisibilityInformation() const override;
+    int imagesPerCluster() const override;
+    int level() const override;
+    int cellSize() const override;
+    double threshold() const override;
+    int windowSize() const override;
+    int minimunImageNumber() const override;
 
-  void setUseVisibilityInformation(bool useVisibilityInformation) override;
-  void setImagesPerCluster(int imagesPerCluster) override;
-  void setLevel(int level) override;
-  void setCellSize(int cellSize) override;
-  void setThreshold(double threshold) override;
-  void setWindowSize(int windowSize) override;
-  void setMinimunImageNumber(int minimunImageNumber) override;
+    void setUseVisibilityInformation(bool useVisibilityInformation) override;
+    void setImagesPerCluster(int imagesPerCluster) override;
+    void setLevel(int level) override;
+    void setCellSize(int cellSize) override;
+    void setThreshold(double threshold) override;
+    void setWindowSize(int windowSize) override;
+    void setMinimunImageNumber(int minimunImageNumber) override;
 
 // Densification interface
 
 public:
 
-  void reset() override;
-  QString name() const override;
+    void reset() override;
+    QString name() const override;
 
 protected:
 
-  bool mUseVisibilityInformation;
-  int mImagesPerCluster;
-  int mLevel;
-  int mCellSize;
-  double mThreshold;
-  int mWindowSize;
-  int mMinimunImageNumber;
-  bool mImageOriginalDepth{false};
+    bool mUseVisibilityInformation;
+    int mImagesPerCluster;
+    int mLevel;
+    int mCellSize;
+    double mThreshold;
+    int mWindowSize;
+    int mMinimunImageNumber;
+    bool mImageOriginalDepth{false};
 };
 
 
@@ -108,38 +108,38 @@ class CmvsPmvsDensifier
 
 public:
 
-  CmvsPmvsDensifier(const std::unordered_map<size_t, Image> &images,
-                    const std::map<int, Camera> &cameras,
-                    const std::unordered_map<size_t, CameraPose> &poses,
-                    const std::vector<GroundPoint> &groundPoints,
-                    const tl::Path &outputPath,
-                    const tl::Path &database,
-                    bool cuda = false);
-  ~CmvsPmvsDensifier() override;
-  
-  CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
-  CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
-  CmvsPmvsDensifier &operator =(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
-  CmvsPmvsDensifier &operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
+    CmvsPmvsDensifier(const std::unordered_map<size_t, Image> &images,
+                      const std::map<int, Camera> &cameras,
+                      const std::unordered_map<size_t, CameraPose> &poses,
+                      const std::vector<GroundPoint> &groundPoints,
+                      const tl::Path &outputPath,
+                      const tl::Path &database,
+                      bool cuda = false);
+    ~CmvsPmvsDensifier() override;
+
+    CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
+    CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
+    CmvsPmvsDensifier &operator =(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
+    CmvsPmvsDensifier &operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
 
 private:
 
-  void clearPreviousModel();
-  void writeBundleFile();
-  void writeVisibility();
-  void writeOptions();
-  void densify();
+    void clearPreviousModel();
+    void writeBundleFile();
+    void writeVisibility();
+    void writeOptions();
+    void densify();
 
 // TaskBase
 
 protected:
 
-  void execute(tl::Progress *progressBar = nullptr) override;
+    void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
-  std::unordered_map<size_t, size_t> mGraphosToBundlerIds;
-  tl::Path mDatabase;
+    std::unordered_map<size_t, size_t> mGraphosToBundlerIds;
+    tl::Path mDatabase;
 
 };
 

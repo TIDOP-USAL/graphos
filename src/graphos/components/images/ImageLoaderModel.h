@@ -38,23 +38,23 @@ class ImageLoaderModel
   : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImageLoaderModel(QObject *parent = nullptr) : Model(parent) {}
-  ~ImageLoaderModel() override = default;
+    ImageLoaderModel(QObject *parent = nullptr) : Model(parent) {}
+    ~ImageLoaderModel() override = default;
 
-  virtual QString projectCRS() const = 0;
-  virtual void setProjectCRS(const QString &crs) = 0;
-  virtual void addImage(const Image &image) = 0;
-  virtual bool existImage(size_t imageId) const = 0;
-  virtual tl::Path imagesDirectory() const = 0;
-  virtual const std::map<int, Camera> &cameras() const = 0;
-  virtual int addCamera(const Camera &camera) = 0;
-  virtual int cameraID(const Camera &camera) const = 0;
-  virtual int cameraID(const QString &make, 
-                       const QString &model) const = 0;
+    virtual QString projectCRS() const = 0;
+    virtual void setProjectCRS(const QString &crs) = 0;
+    virtual void addImage(const Image &image) = 0;
+    virtual bool existImage(size_t imageId) const = 0;
+    virtual tl::Path imagesDirectory() const = 0;
+    virtual const std::map<int, Camera> &cameras() const = 0;
+    virtual int addCamera(const Camera &camera) = 0;
+    virtual int cameraID(const Camera &camera) const = 0;
+    virtual int cameraID(const QString &make,
+                         const QString &model) const = 0;
 };
 
 } // namespace graphos

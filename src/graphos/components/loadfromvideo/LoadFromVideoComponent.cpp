@@ -39,7 +39,7 @@ namespace graphos
 LoadFromVideoComponent::LoadFromVideoComponent(Application *application)
   : TaskComponent(application)
 {
-  init();
+    init();
 }
 
 LoadFromVideoComponent::~LoadFromVideoComponent()
@@ -48,30 +48,30 @@ LoadFromVideoComponent::~LoadFromVideoComponent()
 
 void LoadFromVideoComponent::init()
 {
-  this->setName(tr("Load from Video"));
-  this->setMenu("workflow");
-  this->setToolbar("workflow");
+    this->setName(tr("Load from Video"));
+    this->setMenu("workflow");
+    this->setToolbar("workflow");
 
-  action()->setIcon(QIcon::fromTheme("video-folder"));
+    action()->setIcon(QIcon::fromTheme("video-folder"));
 }
 
 void LoadFromVideoComponent::createModel()
 {
-  setModel(new LoadFromVideoModelImp(app()->project()));
+    setModel(new LoadFromVideoModelImp(app()->project()));
 }
 
 void LoadFromVideoComponent::createView()
 {
-  setView(new LoadFromVideoViewImp());
+    setView(new LoadFromVideoViewImp());
 }
 
 void LoadFromVideoComponent::createPresenter()
 {
-  setPresenter(new LoadFromVideoPresenterImp(dynamic_cast<LoadFromVideoView *>(view()),
-                                             dynamic_cast<LoadFromVideoModel *>(model())));
+    setPresenter(new LoadFromVideoPresenterImp(dynamic_cast<LoadFromVideoView *>(view()),
+                 dynamic_cast<LoadFromVideoModel *>(model())));
 
-  connect(dynamic_cast<LoadFromVideoPresenter *>(presenter()), &LoadFromVideoPresenter::frame_loaded,
-          this, &LoadFromVideoComponent::frame_loaded);
+    connect(dynamic_cast<LoadFromVideoPresenter *>(presenter()), &LoadFromVideoPresenter::frame_loaded,
+            this, &LoadFromVideoComponent::frame_loaded);
 }
 
 void LoadFromVideoComponent::createCommand()
@@ -80,42 +80,42 @@ void LoadFromVideoComponent::createCommand()
 
 void LoadFromVideoComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  bool processing = app_status->isEnabled(AppStatus::Flag::processing);
-  bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
-  action()->setEnabled(project_exists && !loading_images && !processing);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
+    action()->setEnabled(project_exists && !loading_images && !processing);
 }
 
 void LoadFromVideoComponent::onRunning()
 {
-  TaskComponent::onRunning();
+    TaskComponent::onRunning();
 }
 
 void LoadFromVideoComponent::onFinished()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFinished();
-  
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    TaskComponent::onFinished();
+
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void LoadFromVideoComponent::onFailed()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  TaskComponent::onFailed();
+    TaskComponent::onFailed();
 }
 
 

@@ -40,63 +40,63 @@ class GraphicViewer;
 class FeaturesViewerViewImp
   : public FeaturesViewerView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  FeaturesViewerViewImp(QWidget *parent = nullptr,
-                        Qt::WindowFlags f = Qt::WindowFlags());
-  ~FeaturesViewerViewImp() override;
+    FeaturesViewerViewImp(QWidget *parent = nullptr,
+                          Qt::WindowFlags f = Qt::WindowFlags());
+    ~FeaturesViewerViewImp() override;
 
 protected slots:
 
-  void onGraphicsViewSelectionChanged();
-  void onTreeWidgetItemSelectionChanged();
+    void onGraphicsViewSelectionChanged();
+    void onTreeWidgetItemSelectionChanged();
 
 // FeaturesViewerView interface
 
-  void setImageList(const std::vector<std::pair<size_t, QString>> &imageList) override;
-  void setCurrentImage(const QString &imagePath) override;
-  void setKeyPoints(const std::vector<std::tuple<QPointF, float, float>> &keyPoints) override;
-  void setBackgroundColor(const QString &bgColor) override;
-  void setSelectedMarkerStyle(const QString &color, int width) override;
-  void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) override;
+    void setImageList(const std::vector<std::pair<size_t, QString>> &imageList) override;
+    void setCurrentImage(const QString &imagePath) override;
+    void setKeyPoints(const std::vector<std::tuple<QPointF, float, float>> &keyPoints) override;
+    void setBackgroundColor(const QString &bgColor) override;
+    void setSelectedMarkerStyle(const QString &color, int width) override;
+    void setMarkerStyle(const QString &color, int width, int type = 0, int size = 20) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 // QWidget interface
 
 protected:
 
-  void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 protected:
 
-  QDialogButtonBox *mButtonBox;
-  QLabel *mLabelImages;
-  QComboBox *mComboBoxImages;
-  GraphicViewer *mGraphicView;
-  QTreeWidget *mTreeWidget;
-  QString mMarkerColor;
-  QString mSelectedMarkerColor;
-  int mMarkerType;
-  int mMarkerSize;
-  int mMarkerWidth;
-  int mSelectedMarkerWidth;
+    QDialogButtonBox *mButtonBox;
+    QLabel *mLabelImages;
+    QComboBox *mComboBoxImages;
+    GraphicViewer *mGraphicView;
+    QTreeWidget *mTreeWidget;
+    QString mMarkerColor;
+    QString mSelectedMarkerColor;
+    int mMarkerType;
+    int mMarkerSize;
+    int mMarkerWidth;
+    int mSelectedMarkerWidth;
 };
 
 } // namespace graphos

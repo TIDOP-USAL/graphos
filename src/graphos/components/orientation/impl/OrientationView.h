@@ -38,51 +38,51 @@ class OrientationViewImp
 
 public:
 
-  OrientationViewImp(QWidget *parent = nullptr);
-  ~OrientationViewImp() override = default;
+    OrientationViewImp(QWidget *parent = nullptr);
+    ~OrientationViewImp() override = default;
 
 // OrientationView interface
 
 public:
 
-  bool fixCalibration() const override;
-  bool isEnabledCalibration() const override;
-  bool absoluteOrientation() const override;
-  bool isEnabledAbsoluteOrientation() const override;
-  bool fixPoses() const override;
-  bool isEnabledPoses() const override;
+    bool fixCalibration() const override;
+    bool isEnabledCalibration() const override;
+    bool absoluteOrientation() const override;
+    bool isEnabledAbsoluteOrientation() const override;
+    bool fixPoses() const override;
+    bool isEnabledPoses() const override;
 
 public slots:
 
-  void setCalibration(bool active) override;
-  void enabledCalibration(bool enabled) override;
-  void setAbsoluteOrientation(bool active) override;
-  void enabledAbsoluteOrientation(bool enabled) override;
-  void setPoses(bool active) override;
-  void enabledPoses(bool enabled) override;
+    void setCalibration(bool active) override;
+    void enabledCalibration(bool enabled) override;
+    void setAbsoluteOrientation(bool active) override;
+    void enabledAbsoluteOrientation(bool enabled) override;
+    void setPoses(bool active) override;
+    void enabledPoses(bool enabled) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QCheckBox *mCheckBoxFixCalibration;
-  QCheckBox *mCheckBoxFixPoses;
-  QCheckBox *mCheckBoxAbsoluteOrientation;
-  QDialogButtonBox *mButtonBox;
+    QCheckBox *mCheckBoxFixCalibration;
+    QCheckBox *mCheckBoxFixPoses;
+    QCheckBox *mCheckBoxAbsoluteOrientation;
+    QDialogButtonBox *mButtonBox;
 
 };
 

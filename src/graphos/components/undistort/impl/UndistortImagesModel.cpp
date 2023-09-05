@@ -36,70 +36,70 @@ UndistortImagesModelImp::UndistortImagesModelImp(Project *project,
                                                  QObject *parent)
   : UndistortImagesModel(parent),
     mSettings(new QSettings(QSettings::IniFormat,
-                            QSettings::UserScope, 
-                            qApp->organizationName(), 
-                            qApp->applicationName())),
+              QSettings::UserScope,
+              qApp->organizationName(),
+              qApp->applicationName())),
     mProject(project)
 {
-  this->init();
+    this->init();
 }
 
 UndistortImagesModelImp::~UndistortImagesModelImp()
 {
-  if (mSettings){
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if (mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 }
 
 const std::unordered_map<size_t, Image> &UndistortImagesModelImp::images() const
 {
-  return mProject->images();
+    return mProject->images();
 }
 
 const std::map<int, Camera> &UndistortImagesModelImp::cameras() const
 {
-  return mProject->cameras();
+    return mProject->cameras();
 }
 
 bool UndistortImagesModelImp::useCuda() const
 {
-  return mSettings->value("UseCuda", true).toBool();
+    return mSettings->value("UseCuda", true).toBool();
 }
 
 tl::Path UndistortImagesModelImp::projectFolder() const
 {
-  return mProject->projectFolder();
+    return mProject->projectFolder();
 }
 
 void UndistortImagesModelImp::loadSettings()
 {
-  if (mReadSettings) {
-	  
-	/* Read Settings here
-	
-	Example (replace PropertyName):
-	
-    mParameters->setPropertyName(mSettings->value("UNDISTORTIMAGES/PropertyName", mParameters->propertyName()).toInt());
-  
-    */
+    if (mReadSettings) {
 
-  }
+        /* Read Settings here
+
+        Example (replace PropertyName):
+
+        mParameters->setPropertyName(mSettings->value("UNDISTORTIMAGES/PropertyName", mParameters->propertyName()).toInt());
+
+        */
+
+    }
 }
 
 void UndistortImagesModelImp::saveSettings()
 {
-  if (mReadSettings) {
-	
-	/* Write Settings here
-	
-	Example:
-	
-    mSettings->setValue("UNDISTORTIMAGES/PropertyName", mParameters->propertyName());
-  
-    */
-    
-  }
+    if (mReadSettings) {
+
+        /* Write Settings here
+
+        Example:
+
+        mSettings->setValue("UNDISTORTIMAGES/PropertyName", mParameters->propertyName());
+
+        */
+
+    }
 }
 
 //UndistortImagesParameters *UndistortImagesModelImp::parameters() const
@@ -109,7 +109,7 @@ void UndistortImagesModelImp::saveSettings()
 
 void UndistortImagesModelImp::init()
 {
-  mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
+    mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
 }
 
 void UndistortImagesModelImp::clear()

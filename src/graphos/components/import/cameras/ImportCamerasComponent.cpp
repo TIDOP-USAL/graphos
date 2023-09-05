@@ -38,8 +38,8 @@ namespace graphos
 ImportCamerasComponent::ImportCamerasComponent(Application *application)
   : ComponentBase(application)
 {
-  this->setName("Import Cameras");
-  this->setMenu("file_import");
+    this->setName("Import Cameras");
+    this->setMenu("file_import");
 }
 
 ImportCamerasComponent::~ImportCamerasComponent()
@@ -48,31 +48,31 @@ ImportCamerasComponent::~ImportCamerasComponent()
 
 void ImportCamerasComponent::onImportedCameras()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  app_status->activeFlag(AppStatus::Flag::project_modified, true);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void ImportCamerasComponent::createModel()
 {
-  setModel(new ImportCamerasModelImp(app()->project()));
+    setModel(new ImportCamerasModelImp(app()->project()));
 }
 
 void ImportCamerasComponent::createView()
 {
-  setView(new ImportCamerasViewImp());
+    setView(new ImportCamerasViewImp());
 }
 
 void ImportCamerasComponent::createPresenter()
 {
-  setPresenter(new ImportCamerasPresenterImp(dynamic_cast<ImportCamerasView *>(view()), 
-                                             dynamic_cast<ImportCamerasModel *>(model())));
-  
-  connect(dynamic_cast<ImportCamerasPresenter *>(presenter()), &ImportCamerasPresenter::importedCameras,
-          this, &ImportCamerasComponent::onImportedCameras);
+    setPresenter(new ImportCamerasPresenterImp(dynamic_cast<ImportCamerasView *>(view()),
+                 dynamic_cast<ImportCamerasModel *>(model())));
+
+    connect(dynamic_cast<ImportCamerasPresenter *>(presenter()), &ImportCamerasPresenter::importedCameras,
+            this, &ImportCamerasComponent::onImportedCameras);
 }
 
 void ImportCamerasComponent::createCommand()
@@ -81,15 +81,15 @@ void ImportCamerasComponent::createCommand()
 
 void ImportCamerasComponent::update()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-  bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-  bool bImagesLoaded = app_status->isEnabled(AppStatus::Flag::images_added);
-  action()->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
+    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool bImagesLoaded = app_status->isEnabled(AppStatus::Flag::images_added);
+    action()->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
 }
 
 } // namespace graphos

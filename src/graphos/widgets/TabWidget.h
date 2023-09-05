@@ -39,55 +39,55 @@ class Viewer3D;
 class TabWidget
   : public QTabWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  explicit TabWidget(QWidget *parent = nullptr);
-  ~TabWidget() override = default;
+    explicit TabWidget(QWidget *parent = nullptr);
+    ~TabWidget() override = default;
 
-  int fileTab(const QString &file) const;
-  void clear();
+    int fileTab(const QString &file) const;
+    void clear();
 
 public slots:
 
-  void closeTab(int tabId);
-  void setCurrentTab(int tabId);
+    void closeTab(int tabId);
+    void setCurrentTab(int tabId);
 
 protected slots:
 
-  void onTabChanged(int tabId);
-  void onTabWidgetContextMenu(const QPoint &position);
+    void onTabChanged(int tabId);
+    void onTabWidgetContextMenu(const QPoint &position);
 
 signals:
 
-  void currentTabChanged(int);
-  void imageActive(bool);
-  void model3dActive(bool);
-  void model3dChange(Viewer3D *);
-  void all_tabs_closed();
+    void currentTabChanged(int);
+    void imageActive(bool);
+    void model3dActive(bool);
+    void model3dChange(Viewer3D *);
+    void all_tabs_closed();
 
 private:
 
-  void initUI();
-  void initActions();
-  void initMenu();
-  void initSignalAndSlots();
-  void retranslate();
-  void update();
-  
+    void initUI();
+    void initActions();
+    void initMenu();
+    void initSignalAndSlots();
+    void retranslate();
+    void update();
+
 // QWidget interface
 
 protected:
 
-  void changeEvent(QEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
 protected:
 
-  QMenu *mMenu;
-  QAction *mCloseTab;
-  QAction *mCloseAllTabs;
-  QAction *mCloseAllTabsButCurrentOne;
+    QMenu *mMenu;
+    QAction *mCloseTab;
+    QAction *mCloseAllTabs;
+    QAction *mCloseAllTabsButCurrentOne;
 };
 
 } // namespace graphos

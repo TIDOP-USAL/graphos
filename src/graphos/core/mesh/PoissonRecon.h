@@ -45,34 +45,34 @@ namespace graphos
 
 
 class PoissonReconParameters
-{ 
+{
 
 public:
 
-  PoissonReconParameters();
-  ~PoissonReconParameters();
+    PoissonReconParameters();
+    ~PoissonReconParameters();
 
-  virtual int depth() const;
-  virtual int solveDepth() const;
-  virtual QString boundaryType() const;
-  virtual int width() const;
-  virtual int fullDepth() const;
+    virtual int depth() const;
+    virtual int solveDepth() const;
+    virtual QString boundaryType() const;
+    virtual int width() const;
+    virtual int fullDepth() const;
 
-  virtual void setDepth(int Depth);
-  virtual void setSolveDepth(int SolveDepth);
-  virtual void setBoundaryType(const QString &BoundaryType);
-  virtual void setWidth(int width);
-  virtual void setFullDepth(int FullDepth);
+    virtual void setDepth(int Depth);
+    virtual void setSolveDepth(int SolveDepth);
+    virtual void setBoundaryType(const QString &BoundaryType);
+    virtual void setWidth(int width);
+    virtual void setFullDepth(int FullDepth);
 
-  void clear();
+    void clear();
 
 private:
 
-  int mDepth;
-  int mSolveDepth;
-  QString mBoundaryType;
-  int mWidth;
-  int mFullDepth;
+    int mDepth;
+    int mSolveDepth;
+    QString mBoundaryType;
+    int mWidth;
+    int mFullDepth;
 
 };
 
@@ -84,20 +84,20 @@ class PoissonReconTask
 
 public:
 
-  PoissonReconTask(const tl::Path &input,
-                   const tl::Path &output);
-  ~PoissonReconTask();
+    PoissonReconTask(const tl::Path &input,
+                     const tl::Path &output);
+    ~PoissonReconTask();
 
-  // tl::TaskBase interface
+// tl::TaskBase interface
 
 protected:
 
-  void execute(tl::Progress *progressBar) override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-  tl::Path mInput;
-  tl::Path mOutput;
+    tl::Path mInput;
+    tl::Path mOutput;
 };
 
 

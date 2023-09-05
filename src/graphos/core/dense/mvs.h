@@ -47,49 +47,49 @@ class MvsProperties
 
 public:
 
-  MvsProperties(); 
-  MvsProperties(int resolutionLevel,
-                int minResolution,
-                int maxResolution,
-                int numberViews,
-                int numberViewsFuse);
-  MvsProperties(const MvsProperties &mvs);
-  MvsProperties(MvsProperties &&mvs) noexcept;
-  ~MvsProperties() override = default;
+    MvsProperties();
+    MvsProperties(int resolutionLevel,
+                  int minResolution,
+                  int maxResolution,
+                  int numberViews,
+                  int numberViewsFuse);
+    MvsProperties(const MvsProperties &mvs);
+    MvsProperties(MvsProperties &&mvs) noexcept;
+    ~MvsProperties() override = default;
 
-  MvsProperties &operator =(const MvsProperties &mvs);
-  MvsProperties &operator =(MvsProperties &&mvs) noexcept;
+    MvsProperties &operator =(const MvsProperties &mvs);
+    MvsProperties &operator =(MvsProperties &&mvs) noexcept;
 
 // Mvs interface
 
 public:
 
-  int resolutionLevel() const override;
-  int minResolution() const override;
-  int maxResolution() const override;
-  int numberViews() const override;
-  int numberViewsFuse() const override;
+    int resolutionLevel() const override;
+    int minResolution() const override;
+    int maxResolution() const override;
+    int numberViews() const override;
+    int numberViewsFuse() const override;
 
-  void setResolutionLevel(int resolutionLevel) override;
-  void setMinResolution(int minResolution) override;
-  void setMaxResolution(int maxResolution) override;
-  void setNumberViews(int numberViews) override;
-  void setNumberViewsFuse(int numberViewsFuse) override;
+    void setResolutionLevel(int resolutionLevel) override;
+    void setMinResolution(int minResolution) override;
+    void setMaxResolution(int maxResolution) override;
+    void setNumberViews(int numberViews) override;
+    void setNumberViewsFuse(int numberViewsFuse) override;
 
 // Densification interface
 
 public:
 
-  void reset() override;
-  QString name() const override;
+    void reset() override;
+    QString name() const override;
 
 protected:
 
-  int mResolutionLevel;
-  int mMinResolution;
-  int mMaxResolution;
-  int mNumberViews;
-  int mNumberViewsFuse;
+    int mResolutionLevel;
+    int mMinResolution;
+    int mMaxResolution;
+    int mNumberViews;
+    int mNumberViewsFuse;
 
 };
 
@@ -104,40 +104,39 @@ class MvsDensifier
 
 public:
 
-  MvsDensifier(const std::unordered_map<size_t, Image> &images,
-               const std::map<int, Camera> &cameras,
-               const std::unordered_map<size_t, CameraPose> &poses,
-               const std::vector<GroundPoint> &groundPoints,
-               const tl::Path &outputPath,
-               const tl::Path &database,
-               bool cuda = false);
-  ~MvsDensifier() override;
+    MvsDensifier(const std::unordered_map<size_t, Image> &images,
+                 const std::map<int, Camera> &cameras,
+                 const std::unordered_map<size_t, CameraPose> &poses,
+                 const std::vector<GroundPoint> &groundPoints,
+                 const tl::Path &outputPath,
+                 const tl::Path &database,
+                 bool cuda = false);
+    ~MvsDensifier() override;
 
-  MvsDensifier(const MvsDensifier &MvsProcess) = delete;
-  MvsDensifier(MvsDensifier &&MvsProcess) = delete;
-  MvsDensifier &operator =(const MvsDensifier &MvsProcess) = delete;
-  MvsDensifier &operator =(MvsDensifier &&MvsProcess) = delete;
+    MvsDensifier(const MvsDensifier &MvsProcess) = delete;
+    MvsDensifier(MvsDensifier &&MvsProcess) = delete;
+    MvsDensifier &operator =(const MvsDensifier &MvsProcess) = delete;
+    MvsDensifier &operator =(MvsDensifier &&MvsProcess) = delete;
 
-private: 
+private:
 
-  void clearTemporalFiles();
-  void exportToColmap();
-  void writeNVMFile();
-  void exportToMVS();
-  void densify();
+    void clearTemporalFiles();
+    void exportToColmap();
+    void writeNVMFile();
+    void exportToMVS();
+    void densify();
 
 // TaskBase
 
 protected:
-  
-  void execute(tl::Progress *progressBar = nullptr) override;
+
+    void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
-  tl::Path mDatabase;
+    tl::Path mDatabase;
 
 };
-
 
 
 } // namespace graphos

@@ -38,94 +38,94 @@ namespace graphos
  * \brief Shading-Aware Multi-View Stereo Widget Interface
  */
 class SmvsWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SmvsWidget(QWidget *parent = nullptr);
-  ~SmvsWidget() = default;
+    SmvsWidget(QWidget *parent = nullptr);
+    ~SmvsWidget() = default;
 
-  virtual int inputImageScale() const = 0;
-  virtual int outputDepthScale() const  = 0;
-  virtual bool shadingBasedOptimization() const = 0;
-  virtual bool semiGlobalMatching() const = 0;
-  virtual double surfaceSmoothingFactor() const = 0;
+    virtual int inputImageScale() const = 0;
+    virtual int outputDepthScale() const = 0;
+    virtual bool shadingBasedOptimization() const = 0;
+    virtual bool semiGlobalMatching() const = 0;
+    virtual double surfaceSmoothingFactor() const = 0;
 
 signals:
 
-  void inputImageScaleChanged(int);
-  void outputDepthScaleChanged(int);
-  void shadingBasedOptimizationChanged(bool);
-  void semiGlobalMatchingChanged(bool);
-  void surfaceSmoothingFactorChanged(double);
+    void inputImageScaleChanged(int);
+    void outputDepthScaleChanged(int);
+    void shadingBasedOptimizationChanged(bool);
+    void semiGlobalMatchingChanged(bool);
+    void surfaceSmoothingFactorChanged(double);
 
 public slots:
 
-  virtual void setInputImageScale(int inputImageScale) = 0;
-  virtual void setOutputDepthScale(int outputDepthScale)  = 0;
-  virtual void setShadingBasedOptimization(bool shadingBasedOptimization) = 0;
-  virtual void setSemiGlobalMatching(bool semiGlobalMatching) = 0;
-  virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) = 0;
+    virtual void setInputImageScale(int inputImageScale) = 0;
+    virtual void setOutputDepthScale(int outputDepthScale) = 0;
+    virtual void setShadingBasedOptimization(bool shadingBasedOptimization) = 0;
+    virtual void setSemiGlobalMatching(bool semiGlobalMatching) = 0;
+    virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) = 0;
 };
 
 
 class SmvsWidgetImp
-  : public SmvsWidget
+    : public SmvsWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SmvsWidgetImp(QWidget *parent = nullptr);
-  ~SmvsWidgetImp() override;
+    SmvsWidgetImp(QWidget *parent = nullptr);
+    ~SmvsWidgetImp() override;
 
-// GraphosWidgetView interface
+// SmvsWidget interface
 
 public:
 
-  int inputImageScale() const override;
-  int outputDepthScale() const  override;
-  bool shadingBasedOptimization() const override;
-  bool semiGlobalMatching() const override;
-  double surfaceSmoothingFactor() const override;
+    int inputImageScale() const override;
+    int outputDepthScale() const  override;
+    bool shadingBasedOptimization() const override;
+    bool semiGlobalMatching() const override;
+    double surfaceSmoothingFactor() const override;
 
 public slots:
 
-  void setInputImageScale(int inputImageScale) override;
-  void setOutputDepthScale(int outputDepthScale)  override;
-  void setShadingBasedOptimization(bool shadingBasedOptimization) override;
-  void setSemiGlobalMatching(bool semiGlobalMatching) override;
-  void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) override;
+    void setInputImageScale(int inputImageScale) override;
+    void setOutputDepthScale(int outputDepthScale)  override;
+    void setShadingBasedOptimization(bool shadingBasedOptimization) override;
+    void setSemiGlobalMatching(bool semiGlobalMatching) override;
+    void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) override;
 
 // GraphosWidget interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 protected:
-  
-  QGroupBox *mGroupBox;
-  QLabel *mLabelInputImageScale;
-  QSpinBox *mInputImageScale;
-  QLabel *mLabelOutputDepthScale;
-  QSpinBox *mOutputDepthScale;
-  QCheckBox *mShadingBasedOptimization;
-  QCheckBox *mSemiGlobalMatching;
-  QLabel *mLabelSurfaceSmoothingFactor;
-  QDoubleSpinBox *mSurfaceSmoothingFactor;
+
+    QGroupBox *mGroupBox;
+    QLabel *mLabelInputImageScale;
+    QSpinBox *mInputImageScale;
+    QLabel *mLabelOutputDepthScale;
+    QSpinBox *mOutputDepthScale;
+    QCheckBox *mShadingBasedOptimization;
+    QCheckBox *mSemiGlobalMatching;
+    QLabel *mLabelSurfaceSmoothingFactor;
+    QDoubleSpinBox *mSurfaceSmoothingFactor;
 
 };
 

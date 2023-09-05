@@ -42,8 +42,8 @@ CloseProjectPresenterImp::CloseProjectPresenterImp(CloseProjectView *view,
     mModel(model),
     mAppStatus(status)
 {
-  init();
-  initSignalAndSlots();
+    init();
+    initSignalAndSlots();
 }
 
 CloseProjectPresenterImp::~CloseProjectPresenterImp()
@@ -52,23 +52,23 @@ CloseProjectPresenterImp::~CloseProjectPresenterImp()
 
 void CloseProjectPresenterImp::open()
 {
-  if(mAppStatus->isEnabled(AppStatus::Flag::project_modified)){
-    int i_ret = QMessageBox(QMessageBox::Information,
-                            tr("Save Changes"),
-                            tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
-                            QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-    if (i_ret == QMessageBox::Yes) {
-      mModel->saveProject();
-    } else if (i_ret == QMessageBox::Cancel) {
-      return;
+    if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
+        int i_ret = QMessageBox(QMessageBox::Information,
+                                tr("Save Changes"),
+                                tr("There are unsaved changes. Do you want to save the changes before closing the project?"),
+                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+        if (i_ret == QMessageBox::Yes) {
+            mModel->saveProject();
+        } else if (i_ret == QMessageBox::Cancel) {
+            return;
+        }
     }
-  }
 
-  mModel->clear();
+    mModel->clear();
 
-  mAppStatus->clear();
+    mAppStatus->clear();
 
-  emit projectClosed();
+    emit projectClosed();
 }
 
 void CloseProjectPresenterImp::init()

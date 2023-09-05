@@ -45,59 +45,59 @@ OrthophotoModelImp::OrthophotoModelImp(Project *project, QObject *parent)
     mParameters(new OrthophotoParameters),
     mProject(project)
 {
-  this->init();
+    this->init();
 }
 
 OrthophotoModelImp::~OrthophotoModelImp()
 {
-  if (mSettings){
-    delete mSettings;
-    mSettings = nullptr;
-  }
+    if(mSettings) {
+        delete mSettings;
+        mSettings = nullptr;
+    }
 
-  if (mParameters) {
-    delete mParameters;
-    mParameters = nullptr;
-  }
+    if(mParameters) {
+        delete mParameters;
+        mParameters = nullptr;
+    }
 }
 
 void OrthophotoModelImp::loadSettings()
 {
-  if (mReadSettings) {
-	  
-    mParameters->setResolution(mSettings->value("ORTHOPHOTO/Resolution", mParameters->resolution()).toDouble());
+    if(mReadSettings) {
 
-	/* Read Settings here
-	
-	Example (replace PropertyName):
-	
-    mParameters->setPropertyName(mSettings->value("ORTHOPHOTO/PropertyName", mParameters->propertyName()).toInt());
-  
-    */
+        mParameters->setResolution(mSettings->value("ORTHOPHOTO/Resolution", mParameters->resolution()).toDouble());
 
-  }
+        /* Read Settings here
+
+        Example (replace PropertyName):
+
+        mParameters->setPropertyName(mSettings->value("ORTHOPHOTO/PropertyName", mParameters->propertyName()).toInt());
+
+        */
+
+    }
 }
 
 void OrthophotoModelImp::saveSettings()
 {
-  if (mReadSettings) {
-	
-    mSettings->setValue("ORTHOPHOTO/Resolution", mParameters->resolution());
+    if(mReadSettings) {
 
-	/* Write Settings here
+        mSettings->setValue("ORTHOPHOTO/Resolution", mParameters->resolution());
 
-	Example:
-	
-    mSettings->setValue("ORTHOPHOTO/PropertyName", mParameters->propertyName());
-  
-    */
-    
-  }
+        /* Write Settings here
+
+        Example:
+
+        mSettings->setValue("ORTHOPHOTO/PropertyName", mParameters->propertyName());
+
+        */
+
+    }
 }
 
 OrthophotoParameters *OrthophotoModelImp::parameters() const
 {
-  return mParameters;
+    return mParameters;
 }
 
 //std::vector<tl::Photo> OrthophotoModelImp::images() const
@@ -254,83 +254,83 @@ OrthophotoParameters *OrthophotoModelImp::parameters() const
 
 std::vector<Image> OrthophotoModelImp::images() const
 {
-  std::vector<Image> images;
+    std::vector<Image> images;
 
-  tl::Point3D offset;
+    tl::Point3<double> offset;
 
-  std::ifstream ifs;
-  ifs.open(mProject->offset().toString(), std::ifstream::in);
-  if (ifs.is_open()) {
+    std::ifstream ifs;
+    ifs.open(mProject->offset().toString(), std::ifstream::in);
+    if(ifs.is_open()) {
 
-    ifs >> offset.x >> offset.y >> offset.z;
+        ifs >> offset.x >> offset.y >> offset.z;
 
-    ifs.close();
-  }
-
-  for (const auto &image : mProject->images()) {
-
-    Image photo(image.second);
-    size_t image_id = image.first;
-
-    if (mProject->isPhotoOriented(image_id)) {
-      CameraPose photoOrientation = mProject->photoOrientation(image_id);
-      auto rotation_matrix = photoOrientation.rotationMatrix();
-      rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
-      rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
-      rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
-      rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
-      rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
-      rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
-      photoOrientation.setRotationMatrix(rotation_matrix);
-
-      photoOrientation.setPosition(photoOrientation.position() + offset);
-
-      photo.setCameraPose(photoOrientation);
-
-      images.push_back(photo);
+        ifs.close();
     }
 
-  }
+    for(const auto &image : mProject->images()) {
 
-  return images;
+        Image photo(image.second);
+        size_t image_id = image.first;
+
+        if(mProject->isPhotoOriented(image_id)) {
+            CameraPose photoOrientation = mProject->photoOrientation(image_id);
+            auto rotation_matrix = photoOrientation.rotationMatrix();
+            rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
+            rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
+            rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
+            rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
+            rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
+            rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
+            photoOrientation.setRotationMatrix(rotation_matrix);
+
+            photoOrientation.setPosition(photoOrientation.position() + offset);
+
+            photo.setCameraPose(photoOrientation);
+
+            images.push_back(photo);
+        }
+
+    }
+
+    return images;
 }
 
 std::map<int, Camera> OrthophotoModelImp::cameras() const
 {
-  return mProject->cameras();
+    return mProject->cameras();
 }
 
 tl::Path OrthophotoModelImp::orthoPath() const
 {
-  tl::Path ortho_path = mProject->projectFolder();
-  ortho_path.append("ortho");
-  return ortho_path;
+    tl::Path ortho_path = mProject->projectFolder();
+    ortho_path.append("ortho");
+    return ortho_path;
 }
 
 tl::Path OrthophotoModelImp::dtmPath() const
 {
-  return mProject->dtmPath();
+    return mProject->dtmPath();
 }
 
 QString OrthophotoModelImp::epsCode() const
 {
-  return mProject->crs();
+    return mProject->crs();
 }
 
 void OrthophotoModelImp::clearProject()
 {
-  /// TODO: 
-  //mProject->clearOrtho();
+    /// TODO: 
+    //mProject->clearOrtho();
 }
 
 bool OrthophotoModelImp::useCuda() const
 {
-  return mSettings->value("UseCuda", true).toBool();
+    return mSettings->value("UseCuda", true).toBool();
 }
 
 void OrthophotoModelImp::init()
 {
-  mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
+    mReadSettings = mSettings->value("GENERAL/SAVE_PARAMETERS", false).toBool();
 }
 
 void OrthophotoModelImp::clear()
