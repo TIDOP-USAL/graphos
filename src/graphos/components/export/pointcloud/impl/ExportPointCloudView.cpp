@@ -20,35 +20,29 @@
  * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
  *                                                                      *
  ************************************************************************/
-
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_INTERFACE_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_INTERFACE_H
-
-#include "graphos/interfaces/mvp.h"
-
+ 
+#include "ExportPointCloudView.h"
 
 namespace graphos
 {
 
-class ExportPointCloudPresenter
-  : public Presenter
+ExportPointCloudViewImp::ExportPointCloudViewImp(QWidget *parent)
+  : ExportPointCloudView(parent)
 {
+  this->init();
+}
 
-  Q_OBJECT
+void ExportPointCloudViewImp::setGraphosProjectsPath(const QString &directory)
+{
+  QFileDialog::setDirectory(directory);
+}
 
-public:
-
-  ExportPointCloudPresenter(){}
-  ~ExportPointCloudPresenter() override = default;
-
-public slots:
-
-  virtual void save() = 0;
-  virtual void setCurrentFormat(const QString &format) = 0;
-
-};
-
+void ExportPointCloudViewImp::init()
+{
+  QFileDialog::setWindowTitle(tr("Export Point Cloud"));
+  QFileDialog::setNameFilter(tr("PLY (*.ply)"));
+  //QFileDialog::setFileMode(QFileDialog::ExistingFile);
+  QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+}
+ 
 } // namespace graphos
-
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H

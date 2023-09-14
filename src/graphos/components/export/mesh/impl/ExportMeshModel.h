@@ -21,44 +21,51 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_COMPONENT_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_COMPONENT_H
+#ifndef GRAPHOS_EXPORT_MESH_MODEL_H
+#define GRAPHOS_EXPORT_MESH_MODEL_H
 
-#include "graphos/core/Component.h"
-
+#include "graphos/components/export/mesh/ExportMeshModel.h"
 
 namespace graphos
 {
 
-class ExportPointCloudComponent
-  : public ComponentBase
+class Project;
+
+class ExportMeshModelImp
+  : public ExportMeshModel
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ExportPointCloudComponent(Application *application);
-  ~ExportPointCloudComponent();
+    ExportMeshModelImp(Project *project,
+                          QObject *parent = nullptr);
+    ~ExportMeshModelImp();
 
-private slots:
+// ExportMeshModel interface
 
-signals:
+public slots:
 
+    void exportMesh(const tl::Path &exportPath) override;
+    tl::Path graphosProjectsDirectory() const override;
 
-// ComponentBase
+// Model interface
+
+private:
+
+    void init() override;
+
+public slots:
+
+    void clear() override;
 
 protected:
 
-  void createModel() override;
-  void createView() override;
-  void createPresenter() override;
-  void createCommand() override;
-  void update() override;
+    Project *mProject;
 
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_COMPONENT_H
+#endif // GRAPHOS_EXPORT_MESH_MODEL_H

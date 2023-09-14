@@ -157,10 +157,11 @@ signals:
     void openProjectFromHistory(QString);
     void clearHistory();
     void openCamerasImport();
-    void openExportFeatures();
-    void openExportMatches();
-    void openExportOrientations();
-    void openExportPointCloud();
+    //void openExportFeatures();
+    //void openExportMatches();
+    //void openExportOrientations();
+    //void openExportPointCloud();
+    //void openExportMesh();
     void exit();
 
 
@@ -267,6 +268,7 @@ private:
     QAction *mActionExportTiePoints;
     QAction *mActionExportMatches;
     QAction *mActionExportPointCloud;
+    QAction *mActionExportMesh;
     QAction *mActionOrtho;
     QMenu *mMenuRecentProjects;
     QMenu *mMenuImport;

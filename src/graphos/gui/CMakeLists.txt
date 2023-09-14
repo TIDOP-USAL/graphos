@@ -128,6 +128,8 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_IMAGE_LOAD}>:Graphos::ImageLoad>
                       $<$<BOOL:${GRAPHOS_HAVE_IMPORT_CAMERAS}>:Graphos::ImportCameras>
                       $<$<BOOL:${GRAPHOS_HAVE_EXPORT_CAMERAS}>:Graphos::ExportCameras>
+                      $<$<BOOL:${GRAPHOS_HAVE_EXPORT_POINT_CLOUD}>:Graphos::ExportPointCloud>
+                      $<$<BOOL:${GRAPHOS_HAVE_EXPORT_MESH}>:Graphos::ExportMesh>
                       $<$<BOOL:${GRAPHOS_HAVE_MATCH_VIEWER}>:Graphos::MatchViewer>
                       $<$<BOOL:${GRAPHOS_HAVE_MESH}>:Graphos::Mesh>
                       $<$<BOOL:${GRAPHOS_HAVE_OPEN_PROJECT}>:Graphos::OpenProject>

@@ -21,52 +21,37 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_POINT_CLOUD_EXPORT_MODEL_H
-#define GRAPHOS_POINT_CLOUD_EXPORT_MODEL_H
+#ifndef GRAPHOS_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H
+#define GRAPHOS_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H
 
-#include "graphos/components/export/densemodel/ExportPointCloudModel.h"
+#include <tidop/core/path.h>
 
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {
 
-class Project;
-
-class ExportPointCloudModelImp
-  : public ExportPointCloudModel
+/*!
+ * \brief ExportPointCloudModel interface
+ */
+class ExportPointCloudModel
+  : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ExportPointCloudModelImp(Project *project,
-                           QObject *parent = nullptr);
-  ~ExportPointCloudModelImp() override = default;
-
-// ExportPointCloudModel interface
-
-public:
-
-  std::array<double, 3> offset() const override;
-  QString denseModel() const override;
-
-// Model interface
-
-private:
-
-  void init() override;
+    ExportPointCloudModel(QObject *parent = nullptr) : Model(parent) {}
+    ~ExportPointCloudModel() override = default;
 
 public slots:
 
-  void clear() override;
-
-protected:
-
-  Project *mProject;
+    virtual void exportPointCloud(const tl::Path &exportPath) = 0;
+    virtual tl::Path graphosProjectsDirectory() const = 0;
 
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_POINT_CLOUD_EXPORT_MODEL_H
+#endif // GRAPHOS_EXPORT_POINT_CLOUD_MODEL_INTERFACE_H

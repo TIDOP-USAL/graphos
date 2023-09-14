@@ -21,64 +21,55 @@
  *                                                                      *
  ************************************************************************/
 
-#include "ExportPointCloudComponent.h"
+#include "ExportMeshPresenter.h"
 
-#include "graphos/components/export/densemodel/impl/ExportPointCloudModel.h"
-#include "graphos/components/export/densemodel/impl/ExportPointCloudView.h"
-#include "graphos/components/export/densemodel/impl/ExportPointCloudPresenter.h"
-#include "graphos/core/project.h"
+#include "graphos/components/export/mesh/ExportMeshModel.h"
+#include "graphos/components/export/mesh/ExportMeshView.h"
+#include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
-#include <QAction>
-#include <QString>
+#include <QFileDialog>
+#include <QMessageBox>
 
 namespace graphos
 {
 
-
-ExportPointCloudComponent::ExportPointCloudComponent(Application *application)
-  : ComponentBase(application)
+ExportMeshPresenterImp::ExportMeshPresenterImp(ExportMeshView *view,
+                                                     ExportMeshModel *model,
+                                                     AppStatus *status)
+  : ExportMeshPresenter(),
+    mView(view),
+    mModel(model),
+    mAppStatus(status)
 {
-  this->setName("Export Point Cloud");
-  this->setMenu("file_export");
+    this->init();
+    this->initSignalAndSlots();
 }
 
-ExportPointCloudComponent::~ExportPointCloudComponent()
-{
-}
-
-void ExportPointCloudComponent::createModel()
-{
-  setModel(new ExportPointCloudModelImp(app()->project()));
-}
-
-void ExportPointCloudComponent::createView()
-{
-  setView(new ExportPointCloudViewImp());
-}
-
-void ExportPointCloudComponent::createPresenter()
-{
-  setPresenter(new ExportPointCloudPresenterImp(dynamic_cast<ExportPointCloudView *>(view()), 
-                                                dynamic_cast<ExportPointCloudModel *>(model())));
-}
-
-void ExportPointCloudComponent::createCommand()
+ExportMeshPresenterImp::~ExportMeshPresenterImp()
 {
 }
 
-void ExportPointCloudComponent::update()
+void ExportMeshPresenterImp::open()
 {
-  Application *app = this->app();
-  TL_ASSERT(app != nullptr, "Application is null");
-  AppStatus *app_status = app->status();
-  TL_ASSERT(app_status != nullptr, "AppStatus is null");
+    mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
+    mView->exec();
+}
 
-  bool bProjectExists = app_status->isActive(AppStatus::Flag::project_exists);
-  bool bProcessing = app_status->isActive(AppStatus::Flag::processing);
-  bool bImagesLoaded = app_status->isActive(AppStatus::Flag::oriented) || 
-                       app_status->isActive(AppStatus::Flag::absolute_oriented);
-  action()->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
+void ExportMeshPresenterImp::exportMesh(const QString &file)
+{
+    if (file.isEmpty() == false) {
+        mModel->exportMesh(file.toStdWString());
+    }
+}
+
+void ExportMeshPresenterImp::init()
+{
+}
+
+void ExportMeshPresenterImp::initSignalAndSlots()
+{
+    connect(mView, &ExportMeshView::fileSelected, this, &ExportMeshPresenterImp::exportMesh);
 }
 
 } // namespace graphos

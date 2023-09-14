@@ -576,8 +576,10 @@ void MainWindowPresenter::initSignalAndSlots()
     /* Menú Archivo */
 
     connect(mView, &MainWindowView::openCamerasImport, this, &MainWindowPresenter::openCamerasImportDialog);
-    connect(mView, &MainWindowView::openExportOrientations, this, &MainWindowPresenter::openExportOrientationsDialog);
-    connect(mView, &MainWindowView::openExportPointCloud, this, &MainWindowPresenter::openExportPointCloudDialog);
+    //connect(mView, &MainWindowView::openExportOrientations, this, &MainWindowPresenter::openExportOrientationsDialog);
+    //connect(mView, &MainWindowView::openExportPointCloud, this, &MainWindowPresenter::openExportPointCloudDialog);
+    //connect(mView, &MainWindowView::openExportMesh, this, &MainWindowPresenter::openExportMesh);
+
     connect(mView, &MainWindowView::exit, this, &MainWindowPresenter::exit);
 
     /* Menú View */

@@ -20,75 +20,29 @@
  * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
  *                                                                      *
  ************************************************************************/
-
-#ifndef GRAPHOS_POINT_CLOUD_EXPORT_VIEW_H
-#define GRAPHOS_POINT_CLOUD_EXPORT_VIEW_H
-
-#include "graphos/components/export/densemodel/ExportPointCloudView.h"
-
-class QLabel;
-class QComboBox;
-class QCheckBox;
-class QGridLayout;
-class QDialogButtonBox;
+ 
+#include "ExportMeshView.h"
 
 namespace graphos
 {
 
-
-class ExportPointCloudViewImp
-  : public ExportPointCloudView
+ExportMeshViewImp::ExportMeshViewImp(QWidget *parent)
+  : ExportMeshView(parent)
 {
+  this->init();
+}
 
-  Q_OBJECT
+void ExportMeshViewImp::setGraphosProjectsPath(const QString &directory)
+{
+  QFileDialog::setDirectory(directory);
+}
 
-public:
-
-  ExportPointCloudViewImp(QWidget *parent = nullptr);
-  ~ExportPointCloudViewImp() override;
-
-// ExportPointCloudView interface
-
-public:
-
-//  void addFormatWidget(QWidget *formatWidget) override;
-//  QString format() const override;
-  bool isColorActive() const override;
-  bool isNormalsActive() const override;
-
-public slots:
-
-//  void setCurrentFormat(const QString &format) override;
-  void setActiveColor(bool active) override;
-  void setActiveNormals(bool active) override;
-
-// DialogView interface
-
-private:
-
-  void initUI() override;
-  void initSignalAndSlots() override;
-
-public slots:
-
-  void clear() override;
-
-private slots:
-
-  void update() override;
-  void retranslate() override;
-
-protected:
-
-  //QLabel *mLabelFormat;
-  //QComboBox *mComboBoxFormat;
-  QCheckBox *mCheckBoxColor;
-  QCheckBox *mCheckBoxNormals;
-  QGridLayout *mGridLayoutFormat;
-  QDialogButtonBox *mButtonBox;
-
-};
-
+void ExportMeshViewImp::init()
+{
+  QFileDialog::setWindowTitle(tr("Export Mesh..."));
+  QFileDialog::setNameFilter(tr("PLY (*.ply)"));
+  //QFileDialog::setFileMode(QFileDialog::ExistingFile);
+  QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+}
+ 
 } // namespace graphos
-
-#endif // GRAPHOS_POINT_CLOUD_EXPORT_VIEW_H

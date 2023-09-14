@@ -21,62 +21,35 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_POINT_CLOUD_EXPORT_PRESENTER_H
-#define GRAPHOS_POINT_CLOUD_EXPORT_PRESENTER_H
+#ifndef GRAPHOS_EXPORT_MESH_VIEW_H
+#define GRAPHOS_EXPORT_MESH_VIEW_H
 
-#include "graphos/components/export/densemodel/ExportPointCloudPresenter.h"
+#include "graphos/components/export/mesh/ExportMeshView.h"
 
 namespace graphos
 {
 
-class PointCloudCSVFormatWidget;
-class ExportPointCloudView;
-class ExportPointCloudModel;
-class HelpDialog;
-
-class ExportPointCloudPresenterImp
-  : public ExportPointCloudPresenter
+class ExportMeshViewImp
+  : public ExportMeshView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ExportPointCloudPresenterImp(ExportPointCloudView *view,
-                               ExportPointCloudModel *model);
-  ~ExportPointCloudPresenterImp() override;
+    explicit ExportMeshViewImp(QWidget *parent = nullptr);
+    ~ExportMeshViewImp() override = default;
 
-// ExportPointCloudPresenter interface
+// ExportMeshView interface
 
-public slots:
-
-  void save() override;
-  void setCurrentFormat(const QString &format) override;
-
-// Presenter interface
-
-public slots:
-
-  void help() override;
-  void open() override;
-  void setHelp(HelpDialog *help) override;
+    void setGraphosProjectsPath(const QString &directory) override;
 
 private:
 
-  void init() override;
-  void initSignalAndSlots() override;
-
-private:
-
-  ExportPointCloudView *mView;
-  ExportPointCloudModel *mModel;
-  //PointCloudCSVFormatWidget *mPointCloudCSVFormatWidget;
-  HelpDialog *mHelp;
-  QString mFile;
-  QString mFormat;
+    void init();
 
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_POINT_CLOUD_EXPORT_PRESENTER_H
+#endif // GRAPHOS_EXPORT_MESH_VIEW_H

@@ -99,7 +99,12 @@
 #ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
 #include "graphos/components/export/cameras/ExportCamerasComponent.h"
 #endif // GRAPHOS_HAVE_EXPORT_CAMERAS
-//#include "graphos/components/export/densemodel/ExportPointCloudComponent.h"
+#ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
+#include "graphos/components/export/pointcloud/ExportPointCloudComponent.h"
+#endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
+#ifdef GRAPHOS_HAVE_EXPORT_MESH
+#include "graphos/components/export/mesh/ExportMeshComponent.h"
+#endif // GRAPHOS_HAVE_EXPORT_MESH
 #ifdef GRAPHOS_HAVE_SETTINGS
 #include "graphos/components/settings/SettingsComponent.h"
 #endif // GRAPHOS_HAVE_SETTINGS
@@ -180,7 +185,14 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
     ExportCamerasComponent export_cameras_component(&app);
 #endif // GRAPHOS_HAVE_EXPORT_CAMERAS
-    //ExportPointCloudComponent export_point_cloud_component(&app);
+
+#ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
+    ExportPointCloudComponent export_point_cloud_component(&app);
+#endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
+
+#ifdef GRAPHOS_HAVE_EXPORT_MESH
+    ExportMeshComponent export_mesh_component(&app);
+#endif // GRAPHOS_HAVE_EXPORT_MESH
 
 #ifdef GRAPHOS_HAVE_IMAGE_LOAD
     ImageLoaderComponent image_loader_component(&app);
@@ -328,7 +340,14 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_EXPORT_CAMERAS
         componentsManager.registerComponent(&export_cameras_component);
 #endif
-        //componentsManager.registerComponent(&export_point_cloud_component);
+
+#ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
+        componentsManager.registerComponent(&export_point_cloud_component);
+#endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
+        
+#ifdef GRAPHOS_HAVE_EXPORT_MESH
+        componentsManager.registerComponent(&export_mesh_component);
+#endif // GRAPHOS_HAVE_EXPORT_MESH
 
         /* Workflow menu */
 

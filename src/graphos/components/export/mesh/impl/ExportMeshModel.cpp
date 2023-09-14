@@ -21,33 +21,46 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_POINT_CLOUD_EXPORT_MODEL_INTERFACE_H
-#define GRAPHOS_POINT_CLOUD_EXPORT_MODEL_INTERFACE_H
+#include "ExportMeshModel.h"
 
-#include <array>
+#include "graphos/core/project.h"
+#include "graphos/core/Application.h"
 
-#include "graphos/interfaces/mvp.h"
+#include <QStandardPaths>
 
 namespace graphos
 {
 
-class ExportPointCloudModel
-  : public Model
+ExportMeshModelImp::ExportMeshModelImp(Project *project,
+                                             QObject *parent)
+  : ExportMeshModel(parent),
+    mProject(project)
 {
+    ExportMeshModelImp::init();
+}
 
-  Q_OBJECT
+ExportMeshModelImp::~ExportMeshModelImp()
+{
+}
 
-public:
+void ExportMeshModelImp::exportMesh(const tl::Path &exportPath)
+{
+    tl::Path::copy(mProject->meshPath(), exportPath);
+}
 
-  ExportPointCloudModel(QObject *parent = nullptr) : Model(parent) {}
-  ~ExportPointCloudModel() override = default;
+tl::Path ExportMeshModelImp::graphosProjectsDirectory() const
+{
+    //tl::Path project_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
+    //project_directory.append("graphos").append("Projects");
+    return dynamic_cast<Application *>(qApp)->documentsLocation();
+}
 
-  virtual std::array<double, 3> offset() const = 0;
-  virtual QString denseModel() const = 0;
+void ExportMeshModelImp::init()
+{
+}
 
-};
+void ExportMeshModelImp::clear()
+{
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_POINT_CLOUD_EXPORT_MODEL_INTERFACE_H

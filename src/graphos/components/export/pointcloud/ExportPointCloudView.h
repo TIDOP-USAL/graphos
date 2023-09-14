@@ -24,44 +24,30 @@
 #ifndef GRAPHOS_EXPORT_POINT_CLOUD_VIEW_INTERFACE_H
 #define GRAPHOS_EXPORT_POINT_CLOUD_VIEW_INTERFACE_H
 
+#include "graphos/core/mvp.h"
 
-#include "graphos/interfaces/mvp.h"
-
+#include <QFileDialog>
 
 namespace graphos
 {
 
+/*!
+ * \brief ExportPointCloudView interface
+ */
 class ExportPointCloudView
-  : public DialogView
+  : public QFileDialog
 {
-
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ExportPointCloudView(QWidget *parent) : DialogView(parent) {}
-  ~ExportPointCloudView() override = default;
+    ExportPointCloudView(QWidget *parent) : QFileDialog(parent) {}
+    ~ExportPointCloudView() override = default;
 
-//  virtual void addFormatWidget(QWidget *formatWidget) = 0;
-//  virtual QString format() const = 0;
-  virtual bool isColorActive() const = 0;
-  virtual bool isNormalsActive() const = 0;
-
-public slots:
-
-//  virtual void setCurrentFormat(const QString &format) = 0;
-  virtual void setActiveColor(bool active) = 0;
-  virtual void setActiveNormals(bool active) = 0;
-
-signals:
-
-//  void formatChange(const QString &);
-  void colorChange(bool);
-  void normalsChange(bool);
+    virtual void setGraphosProjectsPath(const QString &directory) = 0;
 
 };
 
 } // namespace graphos
-
 
 #endif // GRAPHOS_EXPORT_POINT_CLOUD_VIEW_INTERFACE_H

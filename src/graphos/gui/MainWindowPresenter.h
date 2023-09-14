@@ -58,8 +58,9 @@ signals:
 
     void openCreateProjectDialog();
     void openProjectDialog();
-    void openExportOrientationsDialog();
-    void openExportPointCloudDialog();
+    //void openExportOrientationsDialog();
+    //void openExportPointCloudDialog();
+    //void openExportMesh();
     void openGeoreferenceDialog();
     void openCamerasImportDialog();
     void openSettings();
