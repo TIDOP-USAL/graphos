@@ -105,6 +105,12 @@ public:
     virtual void setToolbar(const QString &toolbar) = 0;
 
     /*!
+     * \brief Set the component icon
+     * \param[in] toolbar Component toolbar
+     */
+    virtual void setIcon(const QIcon &icon) = 0;
+
+    /*!
      * \brief Free memory
      * Release the component
      */
@@ -171,6 +177,7 @@ public:
     void setName(const QString &name) override;
     void setMenu(const QString &menu) override;
     void setToolbar(const QString &toolbar) override;
+    void setIcon(const QIcon &icon) override;
 
     void freeMemory() override;
 
@@ -303,6 +310,7 @@ public:
     void setName(const QString &name) override;
     void setMenu(const QString &menu) override;
     void setToolbar(const QString &toolbar) override;
+    void setIcon(const QIcon &icon) override;
 
     void freeMemory() override;
 

@@ -84,15 +84,14 @@ bool DensificationComponent::isEnabled(Method method) const
 
 void DensificationComponent::init()
 {
-    this->setName("Densification");
-    this->setMenu("workflow");
-    this->setToolbar("workflow");
+    setName("Densification");
+    setMenu("workflow");
+    setToolbar("workflow");
+    setIcon(QIcon::fromTheme("dense"));
 
     mMethod.enable(Method::mvs);
 
     createCommand();
-
-    action()->setIcon(QIcon::fromTheme("dense"));
 }
 
 void DensificationComponent::createModel()

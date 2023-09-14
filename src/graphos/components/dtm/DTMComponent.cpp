@@ -47,8 +47,8 @@ DTMComponent::~DTMComponent()
 
 void DTMComponent::init()
 {
-    this->setName("DTM/DSM");
-    this->setMenu("tools");
+    setName("DTM/DSM");
+    setMenu("tools");
 
     createCommand();
 }

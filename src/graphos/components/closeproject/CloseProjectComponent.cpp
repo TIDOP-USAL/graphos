@@ -48,10 +48,10 @@ CloseProjectComponent::~CloseProjectComponent()
 
 void CloseProjectComponent::init()
 {
-    this->setName("Close Project");
-    this->setMenu("file");
+    setName("Close Project");
+    setMenu("file");
+    setIcon(QIcon::fromTheme("close-project"));
 
-    action()->setIcon(QIcon::fromTheme("close-project"));
 #ifndef QT_NO_SHORTCUT
     action()->setShortcut(tr("Ctrl+O"));
 #endif // QT_NO_SHORTCUT

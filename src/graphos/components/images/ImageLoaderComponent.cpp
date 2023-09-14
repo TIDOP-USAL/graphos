@@ -48,13 +48,12 @@ ImageLoaderComponent::~ImageLoaderComponent()
 
 void ImageLoaderComponent::init()
 {
-    this->setName("Load Images");
-    this->setMenu("workflow");
-    this->setToolbar("workflow");
+    setName("Load Images");
+    setMenu("workflow");
+    setToolbar("workflow");
+    setIcon(QIcon::fromTheme("pictures-folder"));
 
     createCommand();
-
-    action()->setIcon(QIcon::fromTheme("pictures-folder"));
 }
 
 void ImageLoaderComponent::createModel()

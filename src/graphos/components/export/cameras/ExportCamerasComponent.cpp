@@ -48,8 +48,8 @@ ExportCamerasComponent::~ExportCamerasComponent()
 
 void ExportCamerasComponent::init()
 {
-    this->setName("Export Cameras");
-    this->setMenu("file_export");
+    setName("Export Cameras");
+    setMenu("file_export");
 
     createCommand();
 }

@@ -156,6 +156,11 @@ void ComponentBase::setToolbar(const QString &toolbar)
     mToolbar = toolbar;
 }
 
+void ComponentBase::setIcon(const QIcon &icon)
+{
+    action()->setIcon(icon);
+}
+
 void ComponentBase::freeMemory()
 {
 
@@ -372,6 +377,11 @@ void MultiComponentBase::setMenu(const QString &menu)
 void MultiComponentBase::setToolbar(const QString &toolbar)
 {
     mToolbar = toolbar;
+}
+
+void MultiComponentBase::setIcon(const QIcon &icon)
+{
+    action()->setIcon(icon);
 }
 
 void MultiComponentBase::freeMemory()

@@ -48,13 +48,12 @@ FeatureExtractorComponent::~FeatureExtractorComponent()
 
 void FeatureExtractorComponent::init()
 {
-    this->setName("Feature Extractor");
-    this->setMenu("workflow");
-    this->setToolbar("workflow");
+    setName("Feature Extractor");
+    setMenu("workflow");
+    setToolbar("workflow");
+    setIcon(QIcon::fromTheme("features"));
 
     createCommand();
-
-    action()->setIcon(QIcon::fromTheme("features"));
 }
 
 void FeatureExtractorComponent::createModel()

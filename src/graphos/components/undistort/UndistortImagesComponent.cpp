@@ -51,10 +51,9 @@ void UndistortImagesComponent::init()
 {
     setName(tr("Undistort Images"));
     setMenu("tools");
+    setIcon(QIcon::fromTheme("undistort"));
 
     createCommand();
-
-    action()->setIcon(QIcon::fromTheme("undistort"));
 }
 
 void UndistortImagesComponent::createModel()

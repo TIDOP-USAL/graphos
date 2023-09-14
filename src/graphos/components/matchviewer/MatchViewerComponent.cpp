@@ -50,8 +50,7 @@ void MatchViewerComponent::init()
     setName("Match Viewer");
     setMenu("tools");
     setToolbar("tools");
-
-    action()->setIcon(QIcon::fromTheme("matches-viewer"));
+    setIcon(QIcon::fromTheme("matches-viewer"));
 }
 
 void MatchViewerComponent::openMatchesViewer(size_t imageId)

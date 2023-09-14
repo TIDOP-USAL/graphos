@@ -48,11 +48,11 @@ SaveProjectComponent::~SaveProjectComponent()
 
 void SaveProjectComponent::init()
 {
-    this->setName("Save Project");
-    this->setMenu("file");
-    this->setToolbar("file");
+    setName("Save Project");
+    setMenu("file");
+    setToolbar("file");
+    setIcon(QIcon::fromTheme("save"));
 
-    action()->setIcon(QIcon::fromTheme("save"));
 #ifndef QT_NO_SHORTCUT
     action()->setShortcut(tr("Ctrl+S"));
 #endif // QT_NO_SHORTCUT

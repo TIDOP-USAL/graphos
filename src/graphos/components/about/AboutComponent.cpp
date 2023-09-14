@@ -48,8 +48,7 @@ void AboutComponent::init()
 {
     setName("About Graphos");
     setMenu("help");
-
-    action()->setIcon(QIcon::fromTheme("about"));
+    setIcon(QIcon::fromTheme("about"));
 }
 
 void AboutComponent::createModel()

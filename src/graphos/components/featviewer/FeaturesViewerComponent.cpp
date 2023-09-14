@@ -50,8 +50,7 @@ void FeaturesViewerComponent::init()
     setName("Features Viewer");
     setMenu("tools");
     setToolbar("tools");
-
-    action()->setIcon(QIcon::fromTheme("features-viewer"));
+    setIcon(QIcon::fromTheme("features-viewer"));
 }
 
 void FeaturesViewerComponent::openKeypointsViewer(size_t imageId)

@@ -41,11 +41,10 @@ namespace graphos
 SettingsComponent::SettingsComponent(Application *application)
   : ComponentBase(application)
 {
-    this->setName("Settings");
-    this->setMenu("tools");
-    this->setToolbar("tools");
-
-    action()->setIcon(QIcon::fromTheme("settings"));
+    setName("Settings");
+    setMenu("tools");
+    setToolbar("tools");
+    setIcon(QIcon::fromTheme("settings"));
 }
 
 SettingsComponent::~SettingsComponent()

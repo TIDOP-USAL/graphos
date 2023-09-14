@@ -54,10 +54,10 @@ void CreateProjectComponent::init()
     setName("New Project");
     setMenu("file");
     setToolbar("file");
+    setIcon(QIcon::fromTheme("new-project"));
 
     createCommand();
 
-    action()->setIcon(QIcon::fromTheme("new-project"));
 #ifndef QT_NO_SHORTCUT
     action()->setShortcut(tr("Ctrl+N"));
 #endif // QT_NO_SHORTCUT

@@ -48,11 +48,10 @@ LoadFromVideoComponent::~LoadFromVideoComponent()
 
 void LoadFromVideoComponent::init()
 {
-    this->setName(tr("Load from Video"));
-    this->setMenu("workflow");
-    this->setToolbar("workflow");
-
-    action()->setIcon(QIcon::fromTheme("video-folder"));
+    setName(tr("Load from Video"));
+    setMenu("workflow");
+    setToolbar("workflow");
+    setIcon(QIcon::fromTheme("video-folder"));
 }
 
 void LoadFromVideoComponent::createModel()

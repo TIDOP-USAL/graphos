@@ -47,11 +47,10 @@ CamerasComponent::~CamerasComponent()
 
 void CamerasComponent::init()
 {
-    this->setName("Cameras");
-    this->setMenu("tools");
-    this->setToolbar("tools");
-
-    action()->setIcon(QIcon::fromTheme("cameras"));
+    setName("Cameras");
+    setMenu("tools");
+    setToolbar("tools");
+    setIcon(QIcon::fromTheme("cameras"));
 }
 
 void CamerasComponent::onUpdateCameras()

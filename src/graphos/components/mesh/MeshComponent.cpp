@@ -49,13 +49,12 @@ MeshComponent::~MeshComponent()
 
 void MeshComponent::init()
 {
-    this->setName(tr("Mesh"));
-    this->setMenu("workflow");
-    this->setToolbar("workflow");
+    setName(tr("Mesh"));
+    setMenu("workflow");
+    setToolbar("workflow");
+    setIcon(QIcon::fromTheme("mesh"));
 
     createCommand();
-
-    action()->setIcon(QIcon::fromTheme("mesh"));
 }
 
 void MeshComponent::createModel()

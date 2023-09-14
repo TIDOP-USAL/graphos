@@ -48,13 +48,12 @@ FeatureMatchingComponent::~FeatureMatchingComponent()
 
 void FeatureMatchingComponent::init()
 {
-    this->setName("Feature Matching");
-    this->setMenu("workflow");
-    this->setToolbar("workflow");
+    setName("Feature Matching");
+    setMenu("workflow");
+    setToolbar("workflow");
+    setIcon(QIcon::fromTheme("matching"));
 
     createCommand();
-
-    action()->setIcon(QIcon::fromTheme("matching"));
 }
 
 void FeatureMatchingComponent::createModel()

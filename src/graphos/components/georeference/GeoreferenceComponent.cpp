@@ -49,13 +49,12 @@ GeoreferenceComponent::~GeoreferenceComponent()
 
 void GeoreferenceComponent::init()
 {
-    this->setName("Georeference");
-    this->setMenu("tools");
-    this->setToolbar("tools");
+    setName("Georeference");
+    setMenu("tools");
+    setToolbar("tools");
+    setIcon(QIcon::fromTheme("orientation"));
 
     createCommand();
-
-    action()->setIcon(QIcon::fromTheme("orientation"));
 }
 
 void GeoreferenceComponent::createModel()

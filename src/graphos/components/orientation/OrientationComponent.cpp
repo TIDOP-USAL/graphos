@@ -48,13 +48,12 @@ OrientationComponent::~OrientationComponent()
 
 void OrientationComponent::init()
 {
-    this->setName("Orientation");
-    this->setMenu("workflow");
-    this->setToolbar("workflow");
+    setName("Orientation");
+    setMenu("workflow");
+    setToolbar("workflow");
+    setIcon(QIcon::fromTheme("orientation"));
 
     createCommand();
-
-    action()->setIcon(QIcon::fromTheme("orientation"));
 }
 
 void OrientationComponent::createModel()

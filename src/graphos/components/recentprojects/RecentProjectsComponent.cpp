@@ -48,12 +48,12 @@ RecentProjectsComponent::~RecentProjectsComponent()
 
 void RecentProjectsComponent::init()
 {
-    this->setName("Recent Projects");
-    this->setMenu("file");
+    setName("Recent Projects");
+    setMenu("file");
 
-    this->createModel();
-    this->createView();
-    this->createPresenter();
+    createModel();
+    createView();
+    createPresenter();
 }
 
 void RecentProjectsComponent::createModel()
