@@ -51,7 +51,7 @@ class GraphicViewer
 public:
 
     /*!
-     * \brief IGraphicViewer
+     * \brief GraphicViewer
      */
     GraphicViewer(QWidget *parent = nullptr) : QGraphicsView(parent) {}
     virtual ~GraphicViewer() = default;

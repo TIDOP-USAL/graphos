@@ -474,16 +474,21 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
                     position[1] = camera_pose.position().y;
                     position[2] = camera_pose.position().z;
 
+                    auto rot = camera_pose.rotationMatrix();
+                    rot[1] *= -1.;
+                    rot[2] *= -1.;
+                    rot = rot.transpose();
+
                     std::array<std::array<float, 3>, 3> cameraRotationMatrix;
-                    cameraRotationMatrix[0][0] = static_cast<float>(camera_pose.rotationMatrix().at(0, 0));
-                    cameraRotationMatrix[0][1] = static_cast<float>(camera_pose.rotationMatrix().at(0, 1));
-                    cameraRotationMatrix[0][2] = static_cast<float>(camera_pose.rotationMatrix().at(0, 2));
-                    cameraRotationMatrix[1][0] = static_cast<float>(camera_pose.rotationMatrix().at(1, 0));
-                    cameraRotationMatrix[1][1] = static_cast<float>(camera_pose.rotationMatrix().at(1, 1));
-                    cameraRotationMatrix[1][2] = static_cast<float>(camera_pose.rotationMatrix().at(1, 2));
-                    cameraRotationMatrix[2][0] = static_cast<float>(camera_pose.rotationMatrix().at(2, 0));
-                    cameraRotationMatrix[2][1] = static_cast<float>(camera_pose.rotationMatrix().at(2, 1));
-                    cameraRotationMatrix[2][2] = static_cast<float>(camera_pose.rotationMatrix().at(2, 2));
+                    cameraRotationMatrix[0][0] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(0, 0));
+                    cameraRotationMatrix[0][1] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(0, 1));
+                    cameraRotationMatrix[0][2] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(0, 2));
+                    cameraRotationMatrix[1][0] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(1, 0));
+                    cameraRotationMatrix[1][1] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(1, 1));
+                    cameraRotationMatrix[1][2] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(1, 2));
+                    cameraRotationMatrix[2][0] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(2, 0));
+                    cameraRotationMatrix[2][1] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(2, 1));
+                    cameraRotationMatrix[2][2] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(2, 2));
 
                     viewer3D->addCamera(mModel->image(image_id).name(), position[0], position[1], position[2], cameraRotationMatrix);
                 }

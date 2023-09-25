@@ -743,14 +743,12 @@ void ImportCamerasModelImp::importCameras()
                     if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
                         tl::EulerAngles<double> ypr(yaw.toDouble() * tl::consts::deg_to_rad<double>,
                                                     pitch.toDouble() * tl::consts::deg_to_rad<double>,
-                                                    roll.toDouble() * tl::consts::deg_to_rad<double>,
-                                                    tl::EulerAngles<double>::Axes::xyz);
+                                                    roll.toDouble() * tl::consts::deg_to_rad<double>);
                         tl::RotationConverter<double>::convert(ypr, quaternion);
                     } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
                         tl::EulerAngles<double> opk(omega.toDouble() * tl::consts::deg_to_rad<double>,
                                                     phi.toDouble() * tl::consts::deg_to_rad<double>,
-                                                    kappa.toDouble() * tl::consts::deg_to_rad<double>,
-                                                    tl::EulerAngles<double>::Axes::xyz);
+                                                    kappa.toDouble() * tl::consts::deg_to_rad<double>);
                         tl::RotationConverter<double>::convert(opk, quaternion);
                     } else {
                         quaternion.x = qx.toDouble();

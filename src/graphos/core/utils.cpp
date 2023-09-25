@@ -252,7 +252,6 @@ TL_EXPORT bool cudaEnabled(double minDriver, double minCapability)
 
                     if (runtime_version_major < minDriver || propiedades.major < minCapability) {
                         bUseGPU = false;
-                        tl::Message::warning("No cuda compatibility device found. The processing time will increase significantly");
                     }
 
                 }
@@ -261,6 +260,10 @@ TL_EXPORT bool cudaEnabled(double minDriver, double minCapability)
 
     } else {
         tl::Message::error("[{}] {}", cudaGetErrorName(err_cuda), cudaGetErrorString(err_cuda));
+    }
+
+    if (!bUseGPU) {
+        tl::Message::warning("No cuda compatibility device found. The processing time will increase significantly");
     }
 
 #else
