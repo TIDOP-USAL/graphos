@@ -35,8 +35,6 @@ namespace graphos
 {
 
 
-
-
 MainWindowModel::MainWindowModel(Project *project)
   : mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,

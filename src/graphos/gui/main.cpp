@@ -118,7 +118,6 @@
 #include "graphos/components/loadfromvideo/LoadFromVideoComponent.h"
 #endif // GRAPHOS_HAVE_VIDEO_LOAD
 
-
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
 #include <tidop/core/msg/message.h>
@@ -135,6 +134,7 @@
 #endif
 
 using namespace graphos;
+
 
 int main(int argc, char *argv[])
 {

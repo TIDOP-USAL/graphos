@@ -50,6 +50,18 @@ PropertiesPresenterImp::PropertiesPresenterImp(PropertiesView *view,
     PropertiesPresenterImp::initSignalAndSlots();
 }
 
+void PropertiesPresenterImp::parseDocument(const QString &parser, const QString &file)
+{
+    try {
+
+        auto properties = mModel->parse(parser, file);
+        mView->setProperties(properties);
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
+}
+
 void PropertiesPresenterImp::setImageActive(size_t imageId)
 {
     try {

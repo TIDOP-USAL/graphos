@@ -50,6 +50,7 @@ public:
 public slots:
 
     void setImageActive(size_t imageId) override;
+    void parseDocument(const QString &parser, const QString &file) override;
 
 // Presenter interface
 

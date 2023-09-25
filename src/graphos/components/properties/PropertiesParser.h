@@ -21,53 +21,64 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_COMPONENT_H
-#define GRAPHOS_PROPERTIES_COMPONENT_H
+#ifndef GRAPHOS_PROPERTIES_READER_INTERFACE_H
+#define GRAPHOS_PROPERTIES_READER_INTERFACE_H
 
-#include "graphos/core/Component.h"
-#include "graphos/components/properties/PropertiesParser.h"
+
+#include <unordered_map>
+#include <memory>
+
+#include <QString>
 
 namespace graphos
 {
 
 
-class PropertiesComponent
-  : public ComponentBase
+class PropertiesParser
 {
-
-    Q_OBJECT
 
 public:
 
-    PropertiesComponent(Application *application);
-    ~PropertiesComponent();
+using Properties = std::unordered_map<QString, std::list<std::pair<QString, QString>>>;
 
-    void setAlternatingRowColors(bool active);
-    void registerParser(std::shared_ptr<PropertiesParser> &parser);
+public:
+
+    PropertiesParser(const QString &name) : mName(name){}
+    virtual ~PropertiesParser() = default;
+
+    virtual Properties parse(const QString &fileName) = 0;
+    QString name() const { return mName; }
+	
+private:
+
+    QString mName;
+	
+};
+
+
+
+class PropertiesParserFactory
+{
 
 private:
 
-    void init();
+    PropertiesParserFactory() {}
 
-signals:
+public:
 
-    void selectImage(size_t);
-    void parseDocument(QString /*parser*/, QString /*file*/);
+    static PropertiesParserFactory &instace();
+    void addParser(const std::shared_ptr<PropertiesParser> &parser);
+    static std::shared_ptr<PropertiesParser> create(const QString &name);
+	
+private:
 
-// ComponentBase
-
-protected:
-
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
-
+    std::list<std::shared_ptr<PropertiesParser>> parsers;
+	
 };
+
 
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_PROPERTIES_COMPONENT_H
+#endif // GRAPHOS_PROPERTIES_READER_INTERFACE_H

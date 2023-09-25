@@ -21,53 +21,35 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_COMPONENT_H
-#define GRAPHOS_PROPERTIES_COMPONENT_H
+#include "PropertiesParser.h"
 
-#include "graphos/core/Component.h"
-#include "graphos/components/properties/PropertiesParser.h"
 
 namespace graphos
 {
 
 
-class PropertiesComponent
-  : public ComponentBase
+PropertiesParserFactory &PropertiesParserFactory::instace()
 {
+    static PropertiesParserFactory parser;
+    return parser;
+}
 
-    Q_OBJECT
+void PropertiesParserFactory::addParser(const std::shared_ptr<PropertiesParser> &parser)
+{
+    parsers.push_back(parser);
+}
 
-public:
-
-    PropertiesComponent(Application *application);
-    ~PropertiesComponent();
-
-    void setAlternatingRowColors(bool active);
-    void registerParser(std::shared_ptr<PropertiesParser> &parser);
-
-private:
-
-    void init();
-
-signals:
-
-    void selectImage(size_t);
-    void parseDocument(QString /*parser*/, QString /*file*/);
-
-// ComponentBase
-
-protected:
-
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
-
-};
-
+std::shared_ptr<PropertiesParser> PropertiesParserFactory::create(const QString &name)
+{
+    std::shared_ptr<PropertiesParser> properties_parser;
+    ;
+    for (auto &parser : PropertiesParserFactory::instace().parsers){
+        if (parser->name() == name){
+            properties_parser = parser;
+        }
+    }
+    
+    return properties_parser;
+}
 
 } // namespace graphos
-
-
-#endif // GRAPHOS_PROPERTIES_COMPONENT_H

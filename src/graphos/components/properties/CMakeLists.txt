@@ -40,11 +40,13 @@ if(BUILD_PROPERTIES_COMPONENT)
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              PropertiesComponent.cpp
+                             PropertiesParser.cpp
                              impl/PropertiesModel.cpp
                              impl/PropertiesView.cpp
                              impl/PropertiesPresenter.cpp
                          HEADER_FILES
                              PropertiesComponent.h
+                             PropertiesParser.h
                              PropertiesModel.h
                              PropertiesView.h
                              PropertiesPresenter.h

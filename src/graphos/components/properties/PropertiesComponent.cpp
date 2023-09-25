@@ -53,6 +53,11 @@ void PropertiesComponent::setAlternatingRowColors(bool active)
         dynamic_cast<PropertiesView *>(view())->setAlternatingRowColors(active);
 }
 
+void PropertiesComponent::registerParser(std::shared_ptr<PropertiesParser> &parser)
+{
+    PropertiesParserFactory::instace().addParser(parser);
+}
+
 void PropertiesComponent::init()
 {
     this->setName("Properties");
@@ -76,6 +81,8 @@ void PropertiesComponent::createPresenter()
 
     connect(this, &PropertiesComponent::selectImage,
             dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
+    connect(this, &PropertiesComponent::parseDocument,
+            dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocument);
 }
 
 void PropertiesComponent::createCommand()

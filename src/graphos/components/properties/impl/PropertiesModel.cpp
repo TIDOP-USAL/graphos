@@ -24,6 +24,7 @@
 #include "PropertiesModel.h"
 
 #include "graphos/core/project.h"
+#include "graphos/components/properties/PropertiesParser.h"
 
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
@@ -808,6 +809,12 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
     }
 
     return exif;
+}
+
+std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::parse(const QString &parser, const QString &file) const
+{
+    auto properties_parser = PropertiesParserFactory::create(parser);
+    return properties_parser->parse(file);
 }
 
 void PropertiesModelImp::init()
