@@ -47,6 +47,7 @@ public:
     virtual ~DensificationView() {}
 
     virtual QString currentDensificationMethod() const = 0;
+    virtual bool autoSegmentation() const = 0;
 
 signals:
 

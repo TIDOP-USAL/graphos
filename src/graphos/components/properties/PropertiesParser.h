@@ -39,7 +39,7 @@ class PropertiesParser
 
 public:
 
-using Properties = std::unordered_map<QString, std::list<std::pair<QString, QString>>>;
+    using Properties = std::unordered_map<QString, std::list<std::pair<QString, QString>>>;
 
 public:
 

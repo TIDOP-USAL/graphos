@@ -114,7 +114,8 @@ public:
                       const std::vector<GroundPoint> &groundPoints,
                       const tl::Path &outputPath,
                       const tl::Path &database,
-                      bool cuda = false);
+                      bool cuda = false,
+                      bool autoSegmentation = false);
     ~CmvsPmvsDensifier() override;
 
     CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
@@ -140,7 +141,7 @@ private:
 
     std::unordered_map<size_t, size_t> mGraphosToBundlerIds;
     tl::Path mDatabase;
-
+    bool mAutoSegmentation;
 };
 
 

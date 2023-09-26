@@ -236,9 +236,11 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(const std::unordered_map<size_t, Image> &im
                                      const std::vector<GroundPoint> &groundPoints,
                                      const tl::Path &outputPath,
                                      const tl::Path &database,
-                                     bool cuda)
+                                     bool cuda,
+                                     bool autoSegmentation)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
-    mDatabase(database)
+    mDatabase(database),
+    mAutoSegmentation(autoSegmentation)
 {
     enableCuda(cuda);
     setUndistortImagesFormat(UndistortImages::Format::jpeg);
@@ -645,7 +647,7 @@ void CmvsPmvsDensifier::execute(Progress *progressBar)
         if (status() == Task::Status::stopping) return;
 
         this->densify();
-        this->autoSegmentation();
+        if (mAutoSegmentation) this->autoSegmentation();
 
         chrono.stop();
 

@@ -30,6 +30,7 @@ class QGridLayout;
 class QDialogButtonBox;
 class QComboBox;
 class QLabel;
+class QCheckBox;
 
 namespace graphos
 {
@@ -49,6 +50,7 @@ public:
 public:
 
     QString currentDensificationMethod() const override;
+    bool autoSegmentation() const override;
 
 public slots:
 
@@ -77,6 +79,7 @@ private:
     QGridLayout *mGridLayoutDensification;
     QLabel *mLabelDensification;
     QComboBox *mComboBoxDensification;
+    QCheckBox *mCheckBoxAutoSegmentation;
     QDialogButtonBox *mButtonBox;
 
 };

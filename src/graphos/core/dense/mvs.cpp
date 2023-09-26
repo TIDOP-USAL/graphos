@@ -201,9 +201,11 @@ MvsDensifier::MvsDensifier(const std::unordered_map<size_t, Image> &images,
                            const std::vector<GroundPoint> &groundPoints,
                            const tl::Path &outputPath,
                            const tl::Path &database,
-                           bool cuda)
+                           bool cuda,
+                           bool autoSegmentation)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
-    mDatabase(database)
+    mDatabase(database),
+    mAutoSegmentation(autoSegmentation)
 {
     enableCuda(cuda);
     setUndistortImagesFormat(UndistortImages::Format::tiff);
@@ -645,7 +647,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 
         this->exportToMVS();
         this->densify();
-        this->autoSegmentation();
+        if (mAutoSegmentation) this->autoSegmentation();
 
         this->clearTemporalFiles();
 

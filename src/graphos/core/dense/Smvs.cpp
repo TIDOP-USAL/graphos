@@ -191,8 +191,10 @@ SmvsDensifier::SmvsDensifier(const std::unordered_map<size_t, Image> &images,
                              const std::unordered_map<size_t, CameraPose> &poses,
                              const std::vector<GroundPoint> &groundPoints,
                              const tl::Path &outputPath,
-                             bool cuda)
-  : DensifierBase(images, cameras, poses, groundPoints, outputPath)
+                             bool cuda,
+                             bool autoSegmentation)
+  : DensifierBase(images, cameras, poses, groundPoints, outputPath),
+    mAutoSegmentation(autoSegmentation)
 {
     enableCuda(cuda);
     setUndistortImagesFormat(UndistortImages::Format::jpeg);
@@ -408,7 +410,7 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
         if (status() == tl::Task::Status::stopping) return;
 
         this->densify();
-        this->autoSegmentation();
+        if (mAutoSegmentation) this->autoSegmentation();
 
         chrono.stop();
 

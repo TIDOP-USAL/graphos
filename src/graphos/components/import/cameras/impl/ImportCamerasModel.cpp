@@ -756,6 +756,7 @@ void ImportCamerasModelImp::importCameras()
                         quaternion.z = qz.toDouble();
                         quaternion.w = qw.toDouble();
                     }
+
                     quaternion.normalize();
                     camera_pose.setQuaternion(quaternion);
 

@@ -220,7 +220,8 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                         mModel->groundPoints(),
                                                         dense_path,
                                                         mModel->database(),
-                                                        mModel->useCuda());
+                                                        mModel->useCuda(),
+                                                        mView->autoSegmentation());
 
         pmvs->setUseVisibilityInformation(mCmvsPmvs->useVisibilityInformation());
         pmvs->setImagesPerCluster(mCmvsPmvs->imagesPerCluster());
@@ -250,7 +251,8 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                     mModel->poses(),
                                                     mModel->groundPoints(),
                                                     dense_path,
-                                                    mModel->useCuda());
+                                                    mModel->useCuda(),
+                                                    mView->autoSegmentation());
 
         smvs->setInputImageScale(mSmvs->inputImageScale());
         smvs->setOutputDepthScale(mSmvs->outputDepthScale());
@@ -277,7 +279,8 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                   mModel->groundPoints(),
                                                   dense_path,
                                                   mModel->database(),
-                                                  mModel->useCuda());
+                                                  mModel->useCuda(),
+                                                  mView->autoSegmentation());
 
         mvs->setMaxResolution(mMVS->maxResolution());
         mvs->setMinResolution(mMVS->minResolution());

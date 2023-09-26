@@ -475,9 +475,10 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
                     position[2] = camera_pose.position().z;
 
                     auto rot = camera_pose.rotationMatrix();
-                    rot[1] *= -1.;
-                    rot[2] *= -1.;
-                    rot = rot.transpose();
+                    //rot.block(1, 2, 0, 2) *= -1;
+                    //rot[1] *= -1.;
+                    //rot[2] *= -1.;
+                    //rot = rot.transpose();
 
                     std::array<std::array<float, 3>, 3> cameraRotationMatrix;
                     cameraRotationMatrix[0][0] = static_cast<float>(/*camera_pose.rotationMatrix()*/rot.at(0, 0));

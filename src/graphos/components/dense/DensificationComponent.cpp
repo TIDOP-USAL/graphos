@@ -90,6 +90,8 @@ void DensificationComponent::init()
     setIcon(QIcon::fromTheme("dense"));
 
     mMethod.enable(Method::mvs);
+    mMethod.enable(Method::pmvs);
+    mMethod.enable(Method::smvs);
 
     createCommand();
 }

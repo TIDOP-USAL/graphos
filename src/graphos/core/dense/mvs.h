@@ -110,7 +110,8 @@ public:
                  const std::vector<GroundPoint> &groundPoints,
                  const tl::Path &outputPath,
                  const tl::Path &database,
-                 bool cuda = false);
+                 bool cuda = false,
+                 bool autoSegmentation = false);
     ~MvsDensifier() override;
 
     MvsDensifier(const MvsDensifier &MvsProcess) = delete;
@@ -135,7 +136,7 @@ protected:
 private:
 
     tl::Path mDatabase;
-
+    bool mAutoSegmentation;
 };
 
 

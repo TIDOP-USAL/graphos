@@ -31,6 +31,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QApplication>
+#include <QCheckBox>
 
 namespace graphos
 {
@@ -65,6 +66,9 @@ void DensificationViewImp::initUI()
     mGridLayoutDensification->setContentsMargins(0, 0, 0, 0);
     mGridLayout->addWidget(widgetDensification, 1, 0, 1, 2);
 
+    mCheckBoxAutoSegmentation = new QCheckBox(this);
+    mGridLayout->addWidget(mCheckBoxAutoSegmentation, 2, 0, 1, 2);
+
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
@@ -86,7 +90,7 @@ void DensificationViewImp::initSignalAndSlots()
 
 void DensificationViewImp::clear()
 {
-
+    mCheckBoxAutoSegmentation->setChecked(false);
 }
 
 void DensificationViewImp::update()
@@ -99,6 +103,7 @@ void DensificationViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("DensificationView", "Densification", nullptr));
     mLabelDensification->setText(QApplication::translate("DensificationView", "Method:", nullptr));
+    mCheckBoxAutoSegmentation->setText(QApplication::translate("DensificationView", "Point cloud automatic segmentation", nullptr));
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureExtractorView", "Cancel"));
     mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureExtractorView", "Run"));
     mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureExtractorView", "Help"));
@@ -107,6 +112,11 @@ void DensificationViewImp::retranslate()
 QString DensificationViewImp::currentDensificationMethod() const
 {
     return mComboBoxDensification->currentText();
+}
+
+bool DensificationViewImp::autoSegmentation() const
+{
+    return mCheckBoxAutoSegmentation->isChecked();
 }
 
 void DensificationViewImp::addDensification(QWidget *densification)

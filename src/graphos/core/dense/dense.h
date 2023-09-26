@@ -111,7 +111,7 @@ public:
                   const tl::Path &outputPath);
     ~DensifierBase();
 
-    // Densifier
+// Densifier
 
 public:
 

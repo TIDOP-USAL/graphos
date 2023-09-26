@@ -105,7 +105,8 @@ public:
                   const std::unordered_map<size_t, CameraPose> &poses,
                   const std::vector<GroundPoint> &groundPoints,
                   const tl::Path &outputPath,
-                  bool cuda = false);
+                  bool cuda = false,
+                  bool autoSegmentation = false);
     ~SmvsDensifier() override;
 
     SmvsDensifier(const SmvsDensifier &smvs) = delete;
@@ -128,7 +129,7 @@ protected:
 private:
 
     std::unordered_map<size_t, size_t> mGraphosToMveIds;
-
+    bool mAutoSegmentation;
 };
 
 
