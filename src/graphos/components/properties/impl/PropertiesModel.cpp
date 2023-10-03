@@ -813,8 +813,12 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
 std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::parse(const QString &parser, const QString &file) const
 {
-    auto properties_parser = PropertiesParserFactory::create(parser);
-    return properties_parser->parse(file);
+    try {
+        auto properties_parser = PropertiesParserFactory::create(parser);
+        return properties_parser->parse(file);
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
 }
 
 void PropertiesModelImp::init()

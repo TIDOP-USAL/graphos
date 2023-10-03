@@ -43,6 +43,7 @@ TL_DISABLE_WARNINGS
 #include <ccCameraSensor.h>
 #include <cc2DLabel.h>
 #include <cc2DViewportLabel.h>
+#include <ccGenericPrimitive.h>
 
 /* Qt */
 #include <QMouseEvent>
@@ -460,6 +461,11 @@ void CCViewer3D::addCamera(const QString &id,
     }
 
     addToDB(camera);
+}
+
+void CCViewer3D::addPrimitive(ccGenericPrimitive *primitive)
+{
+    addToDB(primitive);
 }
 
 void CCViewer3D::activatePicker(PickingMode pickerMode)

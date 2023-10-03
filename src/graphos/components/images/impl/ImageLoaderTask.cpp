@@ -194,16 +194,21 @@ void LoadImagesTask::loadImage(size_t imageId)
                 epsg_out = mEPSG.toStdString();
             }
 
-            bool bTrfCrs = mCrsIn->isValid() && mCrsOut->isValid();
-            tl::CrsTransform crs_trf(mCrsIn, mCrsOut);
-            tl::Point3<double> pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
-            tl::Point3<double> pt_out = crs_trf.transform(pt_in);
+            try {
 
-            CameraPose camera_pose;
-            camera_pose.setPosition(pt_out);
-            camera_pose.setCrs(epsg_out.c_str());
-            camera_pose.setSource("EXIF");
-            (*mImages)[imageId].setCameraPose(camera_pose);
+                bool bTrfCrs = mCrsIn->isValid() && mCrsOut->isValid();
+                tl::CrsTransform crs_trf(mCrsIn, mCrsOut);
+                tl::Point3<double> pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
+                tl::Point3<double> pt_out = crs_trf.transform(pt_in);
+
+                CameraPose camera_pose;
+                camera_pose.setPosition(pt_out);
+                camera_pose.setCrs(epsg_out.c_str());
+                camera_pose.setSource("EXIF");
+                (*mImages)[imageId].setCameraPose(camera_pose);
+            } catch (std::exception &e) {
+                tl::printException(e);
+            }
         }
 
         tl::Message::instance().resumeMessages();

@@ -39,6 +39,7 @@
 
 
 class QMainWindow;
+class ccGenericPrimitive;
 
 namespace tl
 {
@@ -101,6 +102,7 @@ public:
                            double y,
                            double z,
                            const std::array<std::array<float, 3>, 3> &rot) = 0;
+    virtual void addPrimitive(ccGenericPrimitive *primitive) = 0;
     virtual bool isEDL() const = 0;
 
 protected:

@@ -122,6 +122,10 @@
 #include <tidop/core/log.h>
 #include <tidop/core/msg/message.h>
 
+#include <gdal.h>
+#include <cpl_conv.h>
+#include <ogr_srs_api.h>
+
 #include <QAction>
 
 #ifdef HAVE_VLD
@@ -138,6 +142,19 @@ using namespace graphos;
 
 int main(int argc, char *argv[])
 {
+    tl::Path app_path(argv[0]);
+    tl::Path graphos_path = app_path.parentPath().parentPath();
+    tl::Path gdal_data_path(graphos_path);
+    gdal_data_path.append("gdal\\data");
+    tl::Path proj_data_path(graphos_path);
+    proj_data_path.append("proj");
+    CPLSetConfigOption( "GDAL_DATA", gdal_data_path.toString().c_str());
+#if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
+    CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
+#else
+    const char *proj_data[] {proj_data_path.toString().c_str(), nullptr};
+    OSRSetPROJSearchPaths(proj_data);
+#endif
 
     Application app(argc, argv);
     app.setApplicationName("GRAPHOS");

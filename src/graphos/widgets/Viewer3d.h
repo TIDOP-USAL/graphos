@@ -162,6 +162,7 @@ public:
                    double y,
                    double z,
                    const std::array<std::array<float, 3>, 3> &rot) override;
+    void addPrimitive(ccGenericPrimitive *primitive) override;
 
     void activatePicker(PickingMode pickerMode);
     void deactivatePicker();
