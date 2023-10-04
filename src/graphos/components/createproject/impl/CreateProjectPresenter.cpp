@@ -55,6 +55,7 @@ void CreateProjectPresenterImp::saveProject()
     ///   QRegExp re("(^(PRN|AUX|NUL|CON|COM[1-9]|LPT[1-9]|(\\.+)$)(\\..*)?$)|(([\\x00-\\x1f\\\\?*:\";|/<>])+)|(([\\. ]+)");
     /// https://www.boost.org/doc/libs/1_43_0/libs/filesystem/doc/portability_guide.htm
 
+    mModel->clear();
 
     tl::Path project_folder = this->projectFolder();
     project_folder.createDirectories();
@@ -122,8 +123,6 @@ void CreateProjectPresenterImp::open()
             return;
         }
     }
-
-    mModel->clear();
 
     mView->setProjectPath(QString::fromStdWString(mProjectsDefaultPath.toWString()));
 
