@@ -424,6 +424,11 @@ tl::Path GeoreferenceModelImp::projectPath() const
     return mProject->projectFolder();
 }
 
+tl::Path GeoreferenceModelImp::reconstructionPath() const
+{
+    return mProject->reconstructionPath();
+}
+
 void GeoreferenceModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
 {
     mProject->setReconstructionPath(reconstructionPath);
@@ -469,6 +474,11 @@ std::vector<GroundPoint> GeoreferenceModelImp::groundPoints() const
 tl::Path GeoreferenceModelImp::database() const
 {
     return mProject->database();
+}
+
+void GeoreferenceModelImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
+{
+    mProject->setTransform(transform);
 }
 
 void GeoreferenceModelImp::setCrs(const QString &crs)

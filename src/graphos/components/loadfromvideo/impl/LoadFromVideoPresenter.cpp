@@ -61,22 +61,11 @@ void LoadFromVideoPresenterImp::addImage(QString imagePath, int cameraId)
     image.setCameraId(camera_id);
     mModel->addImage(image);
 
-    //QString crs_proj = mModel->projectCRS();
-    //QString crs_image = image.cameraPose().crs();
-    //if(crs_proj.isEmpty() && !crs_image.isEmpty()) {
-    //  mModel->setProjectCRS(crs_image);
-    //}
-
     emit frame_loaded(image.id());
 }
 
 void LoadFromVideoPresenterImp::open()
 {
-    //mModel->loadSettings();
-    //LoadFromVideoParameters *parameters = mModel->parameters();
-
-    /* Configure View here */
-
     mView->exec();
 }
 
@@ -91,10 +80,6 @@ void LoadFromVideoPresenterImp::initSignalAndSlots()
     connect(mView, &DialogView::help, [&]() {
         emit help("load_from_video.html");
             });
-
-    //connect(mView, &LoadFromVideoView::video_changed, [&](QString video) {
-    //  //QMediaPlayer 
-    //        });
 }
 
 void LoadFromVideoPresenterImp::onError(tl::TaskErrorEvent *event)
@@ -120,10 +105,6 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
     std::unique_ptr<tl::Task> process;
 
     tl::Path images_path = mModel->imagesPath();
-    //std::shared_ptr<ImportVideoFramesAlgorithm> algorithm = std::make_shared<ImportVideoFramesAlgorithm>();
-    //algorithm->setVideo(mView->video().toStdWString());
-    //algorithm->setImagesPath(images_path.toStdWString());
-    //algorithm->setSkipFrames(mView->skipFrames());
 
     mCameras.clear();
     for (const auto &camera : mModel->cameras()) {
@@ -149,8 +130,8 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
 
     if (progressHandler()) {
         progressHandler()->setRange(0, (static_cast<size_t>(end) - begin) / skip_frames);
-        progressHandler()->setTitle("Computing LoadFromVideo...");
-        progressHandler()->setDescription("Computing LoadFromVideo...");
+        progressHandler()->setTitle("Frame extraction...");
+        progressHandler()->setDescription("Frame extraction...");
     }
 
     mView->hide();

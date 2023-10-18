@@ -178,8 +178,16 @@ void ImportCamerasModelImp::previewImportCameras()
         int i = 0;
         while (!stream.atEnd() && i < 20) {
 
-            line = stream.readLine();
-            QStringList reg = line.split(mDelimiter);
+            line = stream.readLine().trimmed();
+            //QStringList reg = line.split(mDelimiter);
+            QStringList reg;
+            QStringList _reg = line.split('"');
+            if (_reg.size() == 3) {
+                reg = _reg.at(2).trimmed().split(mDelimiter);
+                reg.insert(0, _reg.at(1));
+            } else {
+                reg = line.split(mDelimiter);
+            }
 
             if (!bFieldNamesFromFirstRow && i == 0) {
 
@@ -210,231 +218,247 @@ void ImportCamerasModelImp::previewImportCameras()
 
 void ImportCamerasModelImp::previewImportCamerasFormated()
 {
-    bool checkX = false;
-    bool checkY = false;
-    bool checkZ = false;
-    bool checkQw = false;
-    bool checkQx = false;
-    bool checkQy = false;
-    bool checkQz = false;
-    bool checkYaw = false;
-    bool checkPitch = false;
-    bool checkRoll = false;
-    bool checkOmega = false;
-    bool checkPhi = false;
-    bool checkKappa = false;
+    try {
 
-    mItemModelCameras->clear();
+        bool checkX = false;
+        bool checkY = false;
+        bool checkZ = false;
+        bool checkQw = false;
+        bool checkQx = false;
+        bool checkQy = false;
+        bool checkQz = false;
+        bool checkYaw = false;
+        bool checkPitch = false;
+        bool checkRoll = false;
+        bool checkOmega = false;
+        bool checkPhi = false;
+        bool checkKappa = false;
 
+        mItemModelCameras->clear();
 
-    if (mRotationType.compare("Quaternions") == 0) {
-        mItemModelCameras->setColumnCount(8);
-        mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Qw" << "Qx" << "Qy" << "Qz");
-    } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
-        mItemModelCameras->setColumnCount(7);
-        mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Yaw" << "Pitch" << "Roll");
-    } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
-        mItemModelCameras->setColumnCount(7);
-        mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Omega" << "Phi" << "Kappa");
-    } else {
-        mItemModelCameras->setColumnCount(4);
-        mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z");
-    }
-
-    QFile file(mCsvFile);
-    if (file.open(QFile::ReadOnly | QFile::Text)) {
-        QTextStream stream(&file);
-
-        if (mIniLine) {
-            for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
-                stream.readLine();
+        if (mRotationType.compare("Quaternions") == 0) {
+            mItemModelCameras->setColumnCount(8);
+            mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Qw" << "Qx" << "Qy" << "Qz");
+        } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
+            mItemModelCameras->setColumnCount(7);
+            mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Yaw" << "Pitch" << "Roll");
+        } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
+            mItemModelCameras->setColumnCount(7);
+            mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z" << "Omega" << "Phi" << "Kappa");
+        } else {
+            mItemModelCameras->setColumnCount(4);
+            mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z");
         }
 
-        QString line;
-        if (bFieldNamesFromFirstRow) {
-            line = stream.readLine();
+        QFile file(mCsvFile);
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
+            QTextStream stream(&file);
+
+            if (mIniLine) {
+                for (size_t i = 0; i < static_cast<size_t>(mIniLine); i++)
+                    stream.readLine();
+            }
+
+            QString line;
+            if (bFieldNamesFromFirstRow) {
+                line = stream.readLine();
+            }
+
+            QString image;
+            QString x;
+            QString y;
+            QString z;
+            QString qx;
+            QString qy;
+            QString qz;
+            QString qw;
+            QString yaw;
+            QString pitch;
+            QString roll;
+            QString omega;
+            QString phi;
+            QString kappa;
+
+            int i = 0;
+            while (!stream.atEnd() && i < 20) {
+
+                line = stream.readLine();
+                
+                QStringList reg;
+                QStringList _reg = line.trimmed().split('"');
+                if (_reg.size() == 3) {
+                    //reg.append(_reg.at(1));
+                    reg = _reg.at(2).trimmed().split(mDelimiter);
+                    reg.insert(0, _reg.at(1));
+                } else {
+                    reg = line.split(mDelimiter);
+                }
+                
+                if (reg.size() < 4 ) continue;
+
+                QList<QStandardItem *> standardItem;
+
+                auto it = mFieldIds.find("Image");
+                if (it != mFieldIds.end() && it->second != -1) {
+                    image = reg.at(it->second);
+                } else {
+                    image = "";
+                }
+
+                standardItem.append(new QStandardItem(image));
+
+                it = mFieldIds.find("X");
+                if (it != mFieldIds.end() && it->second != -1) {
+                    x = reg.at(it->second);
+                    if (i == 0) x.toDouble(&checkX);
+                } else {
+                    x = "";
+                }
+
+                standardItem.append(new QStandardItem(x));
+
+                it = mFieldIds.find("Y");
+                if (it != mFieldIds.end() && it->second != -1) {
+                    y = reg.at(it->second);
+                    if (i == 0) y.toDouble(&checkY);
+                } else {
+                    y = "";
+                }
+
+                standardItem.append(new QStandardItem(y));
+
+                it = mFieldIds.find("Z");
+                if (it != mFieldIds.end() && it->second != -1) {
+                    z = reg.at(it->second);
+                    if (i == 0) z.toDouble(&checkZ);
+                } else {
+                    z = "";
+                }
+
+                standardItem.append(new QStandardItem(z));
+
+                if (mRotationType.compare("Quaternions") == 0) {
+
+                    it = mFieldIds.find("Qw");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        qw = reg.at(it->second);
+                        if (i == 0) qw.toDouble(&checkQw);
+                    } else {
+                        qw = "";
+                    }
+                    standardItem.append(new QStandardItem(qw));
+
+
+                    it = mFieldIds.find("Qx");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        qx = reg.at(it->second);
+                        if (i == 0) qx.toDouble(&checkQx);
+                    } else {
+                        qx = "";
+                    }
+                    standardItem.append(new QStandardItem(qx));
+
+
+                    it = mFieldIds.find("Qy");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        qy = reg.at(it->second);
+                        if (i == 0) qy.toDouble(&checkQy);
+                    } else {
+                        qy = "";
+                    }
+                    standardItem.append(new QStandardItem(qy));
+
+
+                    it = mFieldIds.find("Qz");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        qz = reg.at(it->second);
+                        if (i == 0) qz.toDouble(&checkQz);
+                    } else {
+                        qz = "";
+                    }
+                    standardItem.append(new QStandardItem(qz));
+
+                } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
+
+                    it = mFieldIds.find("Yaw");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        yaw = reg.at(it->second);
+                        if (i == 0) yaw.toDouble(&checkYaw);
+                    } else {
+                        yaw = "";
+                    }
+                    standardItem.append(new QStandardItem(yaw));
+
+                    it = mFieldIds.find("Pitch");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        pitch = reg.at(it->second);
+                        if (i == 0) pitch.toDouble(&checkPitch);
+                    } else {
+                        pitch = "";
+                    }
+                    standardItem.append(new QStandardItem(pitch));
+
+                    it = mFieldIds.find("Roll");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        roll = reg.at(it->second);
+                        if (i == 0) roll.toDouble(&checkRoll);
+                    } else {
+                        roll = "";
+                    }
+                    standardItem.append(new QStandardItem(roll));
+
+                } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
+
+                    it = mFieldIds.find("Omega");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        omega = reg.at(it->second);
+                        if (i == 0) omega.toDouble(&checkOmega);
+                    } else {
+                        omega = "";
+                    }
+                    standardItem.append(new QStandardItem(omega));
+
+                    it = mFieldIds.find("Phi");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        phi = reg.at(it->second);
+                        if (i == 0) phi.toDouble(&checkPhi);
+                    } else {
+                        phi = "";
+                    }
+                    standardItem.append(new QStandardItem(phi));
+
+                    it = mFieldIds.find("Kappa");
+                    if (it != mFieldIds.end() && it->second != -1) {
+                        kappa = reg.at(it->second);
+                        if (i == 0) kappa.toDouble(&checkKappa);
+                    } else {
+                        kappa = "";
+                    }
+
+                    standardItem.append(new QStandardItem(kappa));
+                }
+
+                mItemModelCameras->insertRow(mItemModelCameras->rowCount(), standardItem);
+
+                i++;
+            }
+
+            file.close();
         }
 
-        QString image;
-        QString x;
-        QString y;
-        QString z;
-        QString qx;
-        QString qy;
-        QString qz;
-        QString qw;
-        QString yaw;
-        QString pitch;
-        QString roll;
-        QString omega;
-        QString phi;
-        QString kappa;
 
-        int i = 0;
-        while (!stream.atEnd() && i < 20) {
-
-            line = stream.readLine();
-            QStringList reg = line.split(mDelimiter);
-
-            QList<QStandardItem *> standardItem;
-
-            auto it = mFieldIds.find("Image");
-            if (it != mFieldIds.end() && it->second != -1) {
-                image = reg.at(it->second);
-            } else {
-                image = "";
-            }
-
-            standardItem.append(new QStandardItem(image));
-
-            it = mFieldIds.find("X");
-            if (it != mFieldIds.end() && it->second != -1) {
-                x = reg.at(it->second);
-                if (i == 0) x.toDouble(&checkX);
-            } else {
-                x = "";
-            }
-
-            standardItem.append(new QStandardItem(x));
-
-            it = mFieldIds.find("Y");
-            if (it != mFieldIds.end() && it->second != -1) {
-                y = reg.at(it->second);
-                if (i == 0) y.toDouble(&checkY);
-            } else {
-                y = "";
-            }
-
-            standardItem.append(new QStandardItem(y));
-
-            it = mFieldIds.find("Z");
-            if (it != mFieldIds.end() && it->second != -1) {
-                z = reg.at(it->second);
-                if (i == 0) z.toDouble(&checkZ);
-            } else {
-                z = "";
-            }
-
-            standardItem.append(new QStandardItem(z));
-
-            if (mRotationType.compare("Quaternions") == 0) {
-
-                it = mFieldIds.find("Qw");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    qw = reg.at(it->second);
-                    if (i == 0) qw.toDouble(&checkQw);
-                } else {
-                    qw = "";
-                }
-                standardItem.append(new QStandardItem(qw));
-
-
-                it = mFieldIds.find("Qx");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    qx = reg.at(it->second);
-                    if (i == 0) qx.toDouble(&checkQx);
-                } else {
-                    qx = "";
-                }
-                standardItem.append(new QStandardItem(qx));
-
-
-                it = mFieldIds.find("Qy");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    qy = reg.at(it->second);
-                    if (i == 0) qy.toDouble(&checkQy);
-                } else {
-                    qy = "";
-                }
-                standardItem.append(new QStandardItem(qy));
-
-
-                it = mFieldIds.find("Qz");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    qz = reg.at(it->second);
-                    if (i == 0) qz.toDouble(&checkQz);
-                } else {
-                    qz = "";
-                }
-                standardItem.append(new QStandardItem(qz));
-
-            } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
-
-                it = mFieldIds.find("Yaw");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    yaw = reg.at(it->second);
-                    if (i == 0) yaw.toDouble(&checkYaw);
-                } else {
-                    yaw = "";
-                }
-                standardItem.append(new QStandardItem(yaw));
-
-                it = mFieldIds.find("Pitch");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    pitch = reg.at(it->second);
-                    if (i == 0) pitch.toDouble(&checkPitch);
-                } else {
-                    pitch = "";
-                }
-                standardItem.append(new QStandardItem(pitch));
-
-                it = mFieldIds.find("Roll");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    roll = reg.at(it->second);
-                    if (i == 0) roll.toDouble(&checkRoll);
-                } else {
-                    roll = "";
-                }
-                standardItem.append(new QStandardItem(roll));
-
-            } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
-
-                it = mFieldIds.find("Omega");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    omega = reg.at(it->second);
-                    if (i == 0) omega.toDouble(&checkOmega);
-                } else {
-                    omega = "";
-                }
-                standardItem.append(new QStandardItem(omega));
-
-                it = mFieldIds.find("Phi");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    phi = reg.at(it->second);
-                    if (i == 0) phi.toDouble(&checkPhi);
-                } else {
-                    phi = "";
-                }
-                standardItem.append(new QStandardItem(phi));
-
-                it = mFieldIds.find("Kappa");
-                if (it != mFieldIds.end() && it->second != -1) {
-                    kappa = reg.at(it->second);
-                    if (i == 0) kappa.toDouble(&checkKappa);
-                } else {
-                    kappa = "";
-                }
-
-                standardItem.append(new QStandardItem(kappa));
-            }
-
-            mItemModelCameras->insertRow(mItemModelCameras->rowCount(), standardItem);
-
-            i++;
+        if (mRotationType.compare("Quaternions") == 0) {
+            emit parseOk(checkX && checkY && checkZ && checkQw && checkQx && checkQy && checkQz);
+        } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
+            emit parseOk(checkX && checkY && checkZ && checkYaw && checkPitch && checkRoll);
+        } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
+            emit parseOk(checkX && checkY && checkZ && checkOmega && checkKappa && checkPhi);
+        } else {
+            emit parseOk(checkX && checkY && checkZ);
         }
 
-        file.close();
-    }
-
-
-    if (mRotationType.compare("Quaternions") == 0) {
-        emit parseOk(checkX && checkY && checkZ && checkQw && checkQx && checkQy && checkQz);
-    } else if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
-        emit parseOk(checkX && checkY && checkZ && checkYaw && checkPitch && checkRoll);
-    } else if (mRotationType.compare("Omega, Phi, Kappa") == 0) {
-        emit parseOk(checkX && checkY && checkZ && checkOmega && checkKappa && checkPhi);
-    } else {
-        emit parseOk(checkX && checkY && checkZ);
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
 }
 
@@ -600,8 +624,18 @@ void ImportCamerasModelImp::importCameras()
 
         while (!stream.atEnd()) {
 
-            line = stream.readLine();
-            QStringList reg = line.split(mDelimiter);
+            line = stream.readLine().trimmed();
+            //QStringList reg = line.split(mDelimiter);
+            QStringList reg;
+            QStringList _reg = line.split('"');
+            if (_reg.size() == 3) {
+                reg = _reg.at(2).trimmed().split(mDelimiter);
+                reg.insert(0, _reg.at(1));
+            } else {
+                reg = line.split(mDelimiter);
+            }
+
+            if (reg.size() < 4 ) continue;
 
             auto it = mFieldIds.find("Image");
             if (it != mFieldIds.end() && it->second != -1) {

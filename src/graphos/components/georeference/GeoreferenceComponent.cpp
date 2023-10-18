@@ -106,6 +106,7 @@ void GeoreferenceComponent::onFinished()
 
     TaskComponent::onFinished();
     app_status->activeFlag(AppStatus::Flag::absolute_oriented, true);
+    app_status->activeFlag(AppStatus::Flag::project_modified, true);
 }
 
 void GeoreferenceComponent::onFailed()

@@ -76,7 +76,7 @@ bool GeoreferenceCommand::run()
         std::vector<GroundControlPoint> ground_control_points = reader->gcps();
         //std::vector<GroundControlPoint> ground_control_points = groundControlPointsRead(mGCP);
 
-        //GeoreferenceProcess georeference_process(ori_relative,
+        //GeoreferenceTask georeference_process(ori_relative,
         //                                         ori_absolute,
         //                                         ground_control_points);
 

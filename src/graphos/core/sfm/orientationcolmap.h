@@ -42,6 +42,7 @@ class Progress;
 
 namespace colmap
 {
+class Reconstruction;
 class ReconstructionManager;
 struct IncrementalMapperOptions;
 class IncrementalMapperController;
@@ -53,6 +54,33 @@ namespace graphos
 
 class Image;
 class Camera;
+class GroundPoint;
+class CameraPose;
+class Calibration;
+
+class ColmapReconstructionConvert
+{
+
+public:
+
+    ColmapReconstructionConvert(const colmap::Reconstruction *reconstruction,
+                                const std::vector<Image> &images);
+
+    ~ColmapReconstructionConvert()
+    {
+    }
+
+    std::vector<GroundPoint> groundPoints() const;
+    std::unordered_map<size_t, CameraPose> cameraPoses() const;
+    std::shared_ptr<Calibration> readCalibration(size_t cameraId) const;
+
+private:
+
+    const colmap::Reconstruction *mReconstruction;
+    std::vector<Image> mImages;
+    std::unordered_map<uint32_t, size_t> mImageIds;
+};
+
 
 class RelativeOrientationColmapProperties
   : public RelativeOrientation

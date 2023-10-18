@@ -31,6 +31,7 @@
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 #include <tidop/core/path.h>
+#include <tidop/math/algebra/matrix.h>
 
 #include <QObject>
 
@@ -40,7 +41,7 @@ namespace graphos
 class CameraPose;
 class Camera;
 
-class GRAPHOS_EXPORT GeoreferenceProcess
+class GRAPHOS_EXPORT GeoreferenceTask
   : public QObject,
     public tl::TaskBase
 {
@@ -48,13 +49,18 @@ class GRAPHOS_EXPORT GeoreferenceProcess
 
 public:
 
-    GeoreferenceProcess(const std::unordered_map<size_t, Image> &images,
+    GeoreferenceTask(const std::unordered_map<size_t, Image> &images,
                         const std::map<int, Camera> &cameras,
                         const std::unordered_map<size_t, CameraPose> &poses,
                         const std::vector<GroundPoint> &groundPoints,
                         const std::vector<GroundControlPoint> &groundControlPoints,
+                        const tl::Path &outputPath,
                         const tl::Path &database);
-    ~GeoreferenceProcess() override;
+    ~GeoreferenceTask() override;
+
+public:
+
+    tl::Matrix<double, 4, 4> transform() const;
 
 signals:
 
@@ -73,7 +79,9 @@ private:
     std::unordered_map<size_t, CameraPose> mPoses;
     std::vector<GroundPoint> mGroundPoints;
     std::vector<GroundControlPoint> mGroundControlPoints;
+    tl::Path mPath;
     tl::Path mDatabase;
+    tl::Matrix<double, 4, 4> mTransform;
 };
 
 } // namespace graphos

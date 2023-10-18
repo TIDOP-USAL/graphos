@@ -340,7 +340,7 @@ void MvsDensifier::exportToColmap()
                 transform_to_colmap.at(1, 1) = -1;
                 transform_to_colmap.at(2, 2) = -1;
 
-                tl::Quaternion<double> quaternion = pose.second.quaternion();;
+                tl::Quaternion<double> quaternion = pose.second.quaternion();
 
                 auto xyx = rotation_matrix * -projection_center.vector();
                 tl::Path image_path = image.path().toStdString();

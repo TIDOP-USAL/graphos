@@ -74,7 +74,6 @@ void ScaleTask::execute(tl::Progress *progressBar)
                      static_cast<PointCoordinateType>(mScale),
                      center);
 
-
         mTransform[0][0] = mScale;
         mTransform[1][1] = mScale;
         mTransform[2][2] = mScale;

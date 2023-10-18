@@ -26,8 +26,6 @@
 
 #include "graphos/components/scale/ScalePresenter.h"
 
-#include <tidop/geometry/entities/segment.h>
-
 namespace graphos
 {
 

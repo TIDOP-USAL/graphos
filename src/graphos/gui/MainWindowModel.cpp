@@ -174,6 +174,11 @@ const std::unordered_map<size_t, CameraPose> &MainWindowModel::poses() const
     return mProject->poses();
 }
 
+tl::Matrix<double, 4, 4> MainWindowModel::transform() const
+{
+    return mProject->transform();
+}
+
 tl::Path MainWindowModel::denseModel() const
 {
     return mProject->denseModel();

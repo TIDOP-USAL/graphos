@@ -23,9 +23,14 @@
 
 #include "SaveProjectModel.h"
 
+#include <tidop/math/algebra/rotation_convert.h>
+#include <tidop/math/algebra/affine.h>
+
 #include "graphos/core/project.h"
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/core/sfm/groundpoint.h"
+
+//#include <colmap/base/similarity_transform.h>
 
 #include <QStandardPaths>
 
@@ -63,7 +68,10 @@ void SaveProjectModelImp::save()
 
             tl::Path sfm_path = mProject->reconstructionPath();
 
-            // Transforma las camaras
+            tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
+            auto rotation = affine.rotation();
+
+            // Transforma las cámaras
             {
 
                 tl::Path poses_path = sfm_path;
@@ -76,12 +84,11 @@ void SaveProjectModelImp::save()
                 tl::Point3<double> point;
                 for (auto &camera_pose : poses) {
 
-
-                    point.x = transform[0][0] * camera_pose.second.position().x + transform[0][3];
-                    point.y = transform[1][1] * camera_pose.second.position().y + transform[1][3];
-                    point.z = transform[2][2] * camera_pose.second.position().z + transform[2][3];
-
+                    point = affine.transform(camera_pose.second.position());
                     camera_pose.second.setPosition(point);
+
+                    auto rot = camera_pose.second.rotationMatrix() * rotation.inverse();
+                    camera_pose.second.setRotationMatrix(tl::RotationMatrix<double>(rot));
 
                     mProject->addPhotoOrientation(camera_pose.first, camera_pose.second);
                 }
@@ -91,21 +98,23 @@ void SaveProjectModelImp::save()
                 poses_writer->write(poses_path);
             }
 
-            tl::Path ground_points_path = sfm_path;
-            ground_points_path.append("ground_points.bin");
-            auto gp_reader = GroundPointsReaderFactory::create("GRAPHOS");
-            gp_reader->read(ground_points_path);
-            auto ground_points = gp_reader->points();
+            /// Transforma los puntos terreno
+            {
+                tl::Path ground_points_path = sfm_path;
+                ground_points_path.append("ground_points.bin");
+                auto gp_reader = GroundPointsReaderFactory::create("GRAPHOS");
+                gp_reader->read(ground_points_path);
+                auto ground_points = gp_reader->points();
 
-            for (auto &point : ground_points) {
-                point.x = transform[0][0] * point.x + transform[0][3];
-                point.y = transform[1][1] * point.y + transform[1][3];
-                point.z = transform[2][2] * point.z + transform[2][3];
+                for (auto &ground_point : ground_points) {
+                    auto point = affine.transform(ground_point);
+                    ground_point.setPoint(point);
+                }
+
+                auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
+                gp_writer->setGroundPoints(ground_points);
+                gp_writer->write(ground_points_path);
             }
-
-            auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
-            gp_writer->setGroundPoints(ground_points);
-            gp_writer->write(ground_points_path);
 
             mProject->setTransform(tl::Matrix<double, 4, 4>::identity());
         }

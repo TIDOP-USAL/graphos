@@ -64,6 +64,7 @@ public:
     bool isAbsoluteOrientation() const;
 
     const std::unordered_map<size_t, CameraPose> &poses() const;
+    tl::Matrix<double, 4, 4> transform() const;
 
     tl::Path denseModel() const;
     tl::Path mesh() const;

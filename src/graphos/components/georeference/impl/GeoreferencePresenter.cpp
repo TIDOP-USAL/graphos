@@ -87,6 +87,15 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     if (progressHandler()) {
         progressHandler()->setDescription(tr("Georeference finished"));
     }
+
+    try {
+
+        auto transform = dynamic_cast<GeoreferenceTask const *>(event->task())->transform();
+        mModel->setTransform(transform);
+
+    } catch (const std::exception &e) {
+        tl::printException(e);
+    }
 }
 
 std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
@@ -96,11 +105,12 @@ std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
     //QString ori_relative = mModel->projectPath() + "/ori/relative/";
     //QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
 
-    georeference_process = std::make_unique<GeoreferenceProcess>(mModel->images(),
+    georeference_process = std::make_unique<GeoreferenceTask>(mModel->images(),
                                                                  mModel->cameras(),
                                                                  mModel->poses(),
                                                                  mModel->groundPoints(),
                                                                  mModel->groundControlPoints(),
+                                                                 mModel->reconstructionPath(),
                                                                  mModel->database());
 
     if (progressHandler()) {

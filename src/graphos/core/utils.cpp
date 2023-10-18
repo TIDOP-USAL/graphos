@@ -405,11 +405,31 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
 
         bool lockedVertices;
         ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model_3d, &lockedVertices);
+        ccGLMatrix cc_rot;
+        float *mat = cc_rot.data();
 
-        cloud->scale(static_cast<PointCoordinateType>(transform[0][0]),
-                     static_cast<PointCoordinateType>(transform[1][1]),
-                     static_cast<PointCoordinateType>(transform[2][2]),
-                     CCVector3(transform[0][3], transform[1][3], transform[2][3]));
+        mat[0] = transform[0][0];
+        mat[1] = transform[1][0];
+        mat[2] = transform[2][0];
+
+        mat[4] = transform[0][1];
+        mat[5] = transform[1][1];
+        mat[6] = transform[2][1];
+
+        mat[8] = transform[0][2];
+        mat[9] = transform[1][2];
+        mat[10] = transform[2][2];
+       
+        CCVector3 t(static_cast<PointCoordinateType>(transform[0][3]),
+                    static_cast<PointCoordinateType>(transform[1][3]),
+                    static_cast<PointCoordinateType>(transform[2][3]));
+        cc_rot.setTranslation(t);
+
+        cloud->applyRigidTransformation(cc_rot);
+        //cloud->scale(static_cast<PointCoordinateType>(transform[0][0]),
+        //             static_cast<PointCoordinateType>(transform[1][1]),
+        //             static_cast<PointCoordinateType>(transform[2][2]),
+        //             CCVector3(transform[0][3], transform[1][3], transform[2][3]));
 
         FileIOFilter::SaveParameters save_parameters;
         save_parameters.alwaysDisplaySaveDialog = false;

@@ -73,6 +73,7 @@ public:
     std::list<std::pair<QString, QPointF>> points(size_t imageId) const override;
     std::vector<GroundControlPoint> groundControlPoints() const override;
     tl::Path projectPath() const override;
+    tl::Path reconstructionPath() const override;
     void setReconstructionPath(const tl::Path &reconstructionPath) override;
     void setSparseModel(const tl::Path &sparseModel) override;
     void setOffset(const tl::Path &offset) override;
@@ -82,6 +83,7 @@ public:
     const std::map<int, Camera> &cameras() const override;
     std::vector<GroundPoint> groundPoints() const override;
     tl::Path database() const override;
+    void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
 
 public slots:
 

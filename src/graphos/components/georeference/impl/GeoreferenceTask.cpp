@@ -23,10 +23,12 @@
 
 #include "GeoreferenceTask.h"
 
+#include "graphos/core/sfm/orientationcolmap.h"
 #include "graphos/core/sfm/orientationexport.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
+#include "graphos/core/sfm/posesio.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
@@ -37,6 +39,10 @@
 #include <colmap/base/similarity_transform.h>
 #include <colmap/util/misc.h>
 #include <colmap/base/database.h>
+//////////////////////////////////////
+#include <colmap/base/pose.h>
+#include <colmap/base/similarity_transform.h>
+//////////////////////////////////////
 
 #include <QFileInfo>
 
@@ -58,17 +64,10 @@ void exportToColmap(const tl::Path &databasePath,
         colmap::Database database;
         database.Open(databasePath.toString());
 
-        //colmap::DatabaseCache database_cache;
-        //database_cache.Load(database, 15, false, std::unordered_set<std::string>{});
-
-        //colmap::Reconstruction reconstruction;
-        //reconstruction.Load(database_cache);
-
-        //colmap::Camera colmap_camera;
-        //reconstruction.AddCamera(colmap_camera);
         const auto &colmap_images = database.ReadAllImages();
 
         std::unordered_map<size_t, colmap::image_t> graphos_to_colmap_image_ids;
+        std::unordered_map<size_t, colmap::FeatureKeypoints> keypoints;
 
         for (const auto &image : images) {
 
@@ -79,27 +78,22 @@ void exportToColmap(const tl::Path &databasePath,
 
                 if (image_path.equivalent(colmap_image_path)) {
                     graphos_to_colmap_image_ids[image.first] = colmap_image.ImageId();
+                    keypoints[colmap_image.ImageId()] = database.ReadKeypoints(colmap_image.ImageId());
                     break;
                 }
             }
 
         }
 
-        //std::map<int, Undistort> undistort_map;
-
-        //for (auto &camera : cameras()) {
-        //  undistort_map[camera.first] = Undistort(camera.second);
-        //}
-
 
         tl::TemporalDir temp_dir;
         tl::Path colmap_sparse_path = temp_dir.path();
-        //colmap_sparse_path.append("temp");
         colmap_sparse_path.append("sparse");
         colmap_sparse_path.createDirectories();
 
         TL_TODO("Extraer la exportaci�n a colmap")
-            // cameras.txt
+            
+        // cameras.txt
         {
             tl::Path colmap_cameras(colmap_sparse_path);
             colmap_cameras.append("cameras.txt");
@@ -238,108 +232,6 @@ void exportToColmap(const tl::Path &databasePath,
 
         }
 
-        /// Escritura en colmap::Reconstruction
-        //{
-
-        //  for (auto &camera_pair : cameras) {
-        //    
-        //    Camera graphos_camera = camera_pair.second;
-        //    auto calibration = graphos_camera.calibration();
-
-        //    colmap::Camera &colmap_camera = reconstruction.Camera(static_cast<colmap::image_t>(camera_pair.first));
-        //    std::vector<double> &params = colmap_camera.Params();
-
-        //    switch (calibration->cameraModel()) {
-        //      case graphos::Calibration::CameraModel::radial1:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focal);
-        //        params[1] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cy);
-        //        params[3] = calibration->parameter(Calibration::Parameters::k1);
-        //        break;    
-        //      case graphos::Calibration::CameraModel::radial2:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focal);
-        //        params[1] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cy);
-        //        params[3] = calibration->parameter(Calibration::Parameters::k1);
-        //        params[4] = calibration->parameter(Calibration::Parameters::k2);
-        //        break;
-        //      case graphos::Calibration::CameraModel::radial3:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focal);
-        //        params[1] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cy);
-        //        params[3] = calibration->parameter(Calibration::Parameters::k1);
-        //        params[4] = calibration->parameter(Calibration::Parameters::k2);
-        //        params[5] = calibration->parameter(Calibration::Parameters::k3);
-        //        params[6] = calibration->parameter(Calibration::Parameters::p1);
-        //        params[7] = calibration->parameter(Calibration::Parameters::p2);
-        //        break;
-        //      case graphos::Calibration::CameraModel::simple_radial_fisheye:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focal);
-        //        params[1] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cy);
-        //        params[3] = calibration->parameter(Calibration::Parameters::k1);
-        //        break;
-        //      case graphos::Calibration::CameraModel::radial_fisheye:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focal);
-        //        params[1] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cy);
-        //        params[3] = calibration->parameter(Calibration::Parameters::k1);
-        //        params[4] = calibration->parameter(Calibration::Parameters::k2);
-        //        break;
-        //      case graphos::Calibration::CameraModel::opencv:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focalx);
-        //        params[1] = calibration->parameter(Calibration::Parameters::focaly);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[3] = calibration->parameter(Calibration::Parameters::cy);
-        //        params[4] = calibration->parameter(Calibration::Parameters::k1);
-        //        params[5] = calibration->parameter(Calibration::Parameters::k2);
-        //        params[6] = calibration->parameter(Calibration::Parameters::p1);
-        //        params[7] = calibration->parameter(Calibration::Parameters::p2);
-        //        break;
-        //      case graphos::Calibration::CameraModel::opencv_fisheye:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focalx);
-        //        params[1] = calibration->parameter(Calibration::Parameters::focaly);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[3] = calibration->parameter(Calibration::Parameters::cy);
-        //        params[4] = calibration->parameter(Calibration::Parameters::k1);
-        //        params[5] = calibration->parameter(Calibration::Parameters::k2);
-        //        params[6] = calibration->parameter(Calibration::Parameters::k3);
-        //        params[7] = calibration->parameter(Calibration::Parameters::k4);
-        //        break;
-        //      case graphos::Calibration::CameraModel::opencv_full:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focalx);
-        //        params[1] = calibration->parameter(Calibration::Parameters::focaly);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[3] = calibration->parameter(Calibration::Parameters::cy);
-        //        params[4] = calibration->parameter(Calibration::Parameters::k1);
-        //        params[5] = calibration->parameter(Calibration::Parameters::k2);
-        //        params[6] = calibration->parameter(Calibration::Parameters::p1);
-        //        params[7] = calibration->parameter(Calibration::Parameters::p2);
-        //        params[8] = calibration->parameter(Calibration::Parameters::k3);
-        //        params[9] = calibration->parameter(Calibration::Parameters::k4);
-        //        params[10] = calibration->parameter(Calibration::Parameters::k5);
-        //        params[11] = calibration->parameter(Calibration::Parameters::k6);
-        //        break;
-        //      case graphos::Calibration::CameraModel::simple_pinhole:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focal);
-        //        params[1] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cy);
-        //        break;
-        //      case graphos::Calibration::CameraModel::pinhole:
-        //        params[0] = calibration->parameter(Calibration::Parameters::focalx);
-        //        params[1] = calibration->parameter(Calibration::Parameters::focaly);
-        //        params[2] = calibration->parameter(Calibration::Parameters::cx);
-        //        params[3] = calibration->parameter(Calibration::Parameters::cy);
-        //        break;
-        //      default:
-        //        break;
-        //    }
-        //    
-        //  }
-        //}
-
-        //std::unordered_map<size_t, size_t> graphos_to_mvs_ids;
-
         // images.txt
         {
             tl::Path colmap_images(colmap_sparse_path);
@@ -359,9 +251,6 @@ void exportToColmap(const tl::Path &databasePath,
                 size_t image_id = pose.first;
                 auto &image_pose = pose.second;
 
-                //size_t mvs_id = graphos_to_mvs_ids.size();
-                //graphos_to_mvs_ids[image_id] = mvs_id;
-
                 const auto &image = images.at(image_id);
 
                 auto projection_center = image_pose.position();
@@ -371,15 +260,13 @@ void exportToColmap(const tl::Path &databasePath,
                 transform_to_colmap.at(1, 1) = -1;
                 transform_to_colmap.at(2, 2) = -1;
 
-                tl::RotationMatrix<double> rotation = transform_to_colmap * rotation_matrix.transpose();
+                tl::Quaternion<double> quaternion = pose.second.quaternion();
 
-                tl::Quaternion<double> quaternion;
-                tl::RotationConverter<double>::convert(rotation, quaternion);
-                quaternion.normalize();
+                auto xyx = rotation_matrix * -projection_center.vector();
 
-                auto xyx = rotation * -projection_center.vector();
+                auto colmap_image_id = graphos_to_colmap_image_ids[image_id];
 
-                ofs << graphos_to_colmap_image_ids[image_id] << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
+                ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
                     << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image.name().toStdString() << std::endl;
 
                 /// #   POINTS2D[] as (X, Y, POINT3D_ID)
@@ -394,9 +281,8 @@ void exportToColmap(const tl::Path &databasePath,
 
                             if (map.first == image_id) {
                                 size_t point_id = map.second;
-                                auto keypoints = database.ReadKeypoints(graphos_to_colmap_image_ids.at(image_id));
 
-                                ofs << keypoints[point_id].x << " " << keypoints[point_id].y << " " << i + 1 << " ";
+                                ofs << keypoints[colmap_image_id][point_id].x << " " << keypoints[colmap_image_id][point_id].y << " " << i + 1 << " ";
 
                             }
 
@@ -410,19 +296,6 @@ void exportToColmap(const tl::Path &databasePath,
 
             ofs.close();
         }
-
-        /// colmap::Reconstruction images
-        //{
-
-        //  for (const auto &pose : poses) {
-
-        //    size_t image_id = pose.first;
-
-        //    colmap::Image colmap_image = reconstruction.Image(graphos_to_colmap_image_ids[image_id]);
-        //    colmap_image.Po
-        //  }
-
-        //}
 
         // points3D.txt
         {
@@ -463,34 +336,49 @@ void exportToColmap(const tl::Path &databasePath,
 
         reconstruction.ReadText(colmap_sparse_path.toString());
 
+        for (const auto &pose : poses) {
+
+            size_t image_id = pose.first;
+            const auto &image = images.at(image_id);
+            reconstruction.Image(graphos_to_colmap_image_ids[image_id]).Name() = image.path().toStdString();
+
+        }
+
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
     }
 }
 
 
-GeoreferenceProcess::GeoreferenceProcess(const std::unordered_map<size_t, Image> &images,
+GeoreferenceTask::GeoreferenceTask(const std::unordered_map<size_t, Image> &images,
                                          const std::map<int, Camera> &cameras,
                                          const std::unordered_map<size_t, CameraPose> &poses,
                                          const std::vector<GroundPoint> &groundPoints,
                                          const std::vector<GroundControlPoint> &groundControlPoints,
+                                         const tl::Path &outputPath,
                                          const tl::Path &database)
     : tl::TaskBase(),
-    mImages(images),
-    mCameras(cameras),
-    mPoses(poses),
-    mGroundPoints(groundPoints),
-    mGroundControlPoints(groundControlPoints),
-    mDatabase(database)
+      mImages(images),
+      mCameras(cameras),
+      mPoses(poses),
+      mGroundPoints(groundPoints),
+      mGroundControlPoints(groundControlPoints),
+      mPath(outputPath),
+      mDatabase(database)
 {
 
 }
 
-GeoreferenceProcess::~GeoreferenceProcess()
+GeoreferenceTask::~GeoreferenceTask()
 {
 }
 
-void GeoreferenceProcess::execute(tl::Progress *progressBar)
+tl::Matrix<double, 4, 4> GeoreferenceTask::transform() const
+{
+    return mTransform;
+}
+
+void GeoreferenceTask::execute(tl::Progress *progressBar)
 {
     try {
 
@@ -511,8 +399,6 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
         std::vector<std::string> gcp_name;
 
         colmap::IncrementalTriangulator::Options options;
-        //colmap::Reconstruction reconstruction;
-        ////reconstruction.ReadBinary(mInputPath.toStdString());
 
         // Setup estimation options.
         colmap::EstimateTriangulationOptions tri_options;
@@ -587,7 +473,6 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
             Eigen::Vector3d xyz;
             std::vector<char> inlier_mask;
             if (colmap::EstimateTriangulation(tri_options, points_data, poses_data, &inlier_mask, &xyz)) {
-                //triangulate_points[ground_control_point.name()] = xyz;
                 src.push_back(xyz);
                 dst.push_back(Eigen::Vector3d(ground_control_point.x,
                               ground_control_point.y,
@@ -597,60 +482,63 @@ void GeoreferenceProcess::execute(tl::Progress *progressBar)
 
         }
 
-        if (src.size() > 3) {
+        TL_ASSERT(src.size() > 3, "Insufficient number of points");
 
-            Eigen::Vector3d offset(0., 0., 0.);
-            for (size_t i = 0; i < dst.size(); i++) {
-                offset += (dst[i] - offset) / (i + 1);
-            }
+        Eigen::Vector3d offset(0., 0., 0.);
+        for (size_t i = 0; i < dst.size(); i++) {
+            offset += (dst[i] - offset) / (i + 1);
+        }
 
-            for (size_t i = 0; i < dst.size(); i++) {
-                dst[i] -= offset;
-            }
+        for (size_t i = 0; i < dst.size(); i++) {
+            dst[i] -= offset;
+        }
 
-            //std::string path = mOutputPath.toStdString();
-            tl::Path offset_path(mDatabase);
-            offset_path.replaceFileName("offset.txt");
-            //if (!fs::exists(dir)) {
-            //  if (!fs::create_directories(dir)) {
-            //    std::string err = "The output directory cannot be created: ";
-            //    err.append(path);
-            //    throw std::runtime_error(err);
-            //  }
-            //}
+        tl::Path offset_path(mPath);
+        offset_path.append("offset.txt");
 
-            //std::string offset_file = std::string(path).append("\\offset.txt");
-            std::ofstream stream(offset_path.toString(), std::ios::trunc);
-            if (stream.is_open()) {
-                stream << QString::number(offset.x(), 'f', 3).toStdString() << " "
+        /// writeOffset
+        std::ofstream stream(offset_path.toString(), std::ios::trunc);
+        if (stream.is_open()) {
+            stream << QString::number(offset.x(), 'f', 3).toStdString() << " "
                     << QString::number(offset.y(), 'f', 3).toStdString() << " "
                     << QString::number(offset.z(), 'f', 3).toStdString() << std::endl;
-            }
-
-            colmap::SimilarityTransform3 similarity_transform;
-            similarity_transform.Estimate(src, dst);
-
-            reconstruction.Transform(similarity_transform);
-            //reconstruction.Write(path);
-
-            OrientationExport orientationExport(&reconstruction);
-            //orientationExport.exportPLY(QString(path.c_str()).append("\\sparse.ply"));
-
-
-            std::vector<double> errors;
-            errors.reserve(dst.size());
-
-            for (size_t i = 0; i < dst.size(); ++i) {
-                similarity_transform.TransformPoint(&src.at(i));
-                errors.push_back((src[i] - dst[i]).norm());
-
-                tl::Message::info("Ground Control Point {}: Error -> {}", gcp_name[i], errors[i]);
-            }
-
-            tl::Message::info("Georeference error: {} (mean), {} (median)",
-                              colmap::Mean(errors), colmap::Median(errors));
-
+            stream.close();
         }
+
+        colmap::SimilarityTransform3 similarity_transform;
+        similarity_transform.Estimate(src, dst);
+
+        auto transform_matrix = similarity_transform.Matrix();
+        mTransform(0, 0) = transform_matrix(0, 0);
+        mTransform(0, 1) = transform_matrix(0, 1);
+        mTransform(0, 2) = transform_matrix(0, 2);
+        mTransform(0, 3) = transform_matrix(0, 3);
+        mTransform(1, 0) = transform_matrix(1, 0);
+        mTransform(1, 1) = transform_matrix(1, 1);
+        mTransform(1, 2) = transform_matrix(1, 2);
+        mTransform(1, 3) = transform_matrix(1, 3);
+        mTransform(2, 0) = transform_matrix(2, 0);
+        mTransform(2, 1) = transform_matrix(2, 1);
+        mTransform(2, 2) = transform_matrix(2, 2);
+        mTransform(2, 3) = transform_matrix(2, 3);
+        mTransform(3, 0) = transform_matrix(3, 0);
+        mTransform(3, 1) = transform_matrix(3, 1);
+        mTransform(3, 2) = transform_matrix(3, 2);
+        mTransform(3, 3) = transform_matrix(3, 3);
+
+        std::vector<double> errors;
+        errors.reserve(dst.size());
+
+        for (size_t i = 0; i < dst.size(); ++i) {
+            similarity_transform.TransformPoint(&src.at(i));
+            errors.push_back((src[i] - dst[i]).norm());
+
+            tl::Message::info("Ground Control Point {}: Error -> {}", gcp_name[i], errors[i]);
+        }
+
+        tl::Message::info("Georeference error: {} (mean), {} (median)",
+                          colmap::Mean(errors), colmap::Median(errors));
+
 
         emit georeferenceFinished();
 
