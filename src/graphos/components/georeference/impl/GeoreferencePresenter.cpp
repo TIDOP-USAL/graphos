@@ -64,24 +64,6 @@ void GeoreferencePresenterImp::onError(tl::TaskErrorEvent *event)
 
 void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
-    //QString ori_absolute_path = mModel->projectPath() + "/ori/absolute/";
-    //QString sparse_model = ori_absolute_path + "/sparse.ply";
-    //if (QFileInfo::exists(sparse_model)) {
-    //  mModel->setReconstructionPath(ori_absolute_path);
-    //  mModel->setSparseModel(sparse_model);
-    //  mModel->setOffset(ori_absolute_path + "/offset.txt");
-
-    //  ReadCameraPoses readPhotoOrientations;
-    //  readPhotoOrientations.open(ori_absolute_path);
-    //  for (const auto &image : mModel->images()) {
-    //    CameraPose photoOrientation = readPhotoOrientations.orientation(QFileInfo(image.second.path()).fileName());
-    //    if (photoOrientation.position() != tl::Point3D()) {
-    //      mModel->addPhotoOrientation(image.first, photoOrientation);
-    //    }
-    //  }
-
-    //}
-
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
@@ -92,6 +74,9 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
         auto transform = dynamic_cast<GeoreferenceTask const *>(event->task())->transform();
         mModel->setTransform(transform);
+        tl::Path offset = mModel->reconstructionPath();
+        offset.append("offset.txt");
+        mModel->setOffset(offset);
 
     } catch (const std::exception &e) {
         tl::printException(e);
@@ -102,16 +87,13 @@ std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
 {
     std::unique_ptr<tl::Task> georeference_process;
 
-    //QString ori_relative = mModel->projectPath() + "/ori/relative/";
-    //QString ori_absolute = mModel->projectPath() + "/ori/absolute/";
-
     georeference_process = std::make_unique<GeoreferenceTask>(mModel->images(),
-                                                                 mModel->cameras(),
-                                                                 mModel->poses(),
-                                                                 mModel->groundPoints(),
-                                                                 mModel->groundControlPoints(),
-                                                                 mModel->reconstructionPath(),
-                                                                 mModel->database());
+                                                              mModel->cameras(),
+                                                              mModel->poses(),
+                                                              mModel->groundPoints(),
+                                                              mModel->groundControlPoints(),
+                                                              mModel->reconstructionPath(),
+                                                              mModel->database());
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 0);
