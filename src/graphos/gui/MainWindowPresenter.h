@@ -53,6 +53,7 @@ public slots:
     void activeImage(size_t imageId);
     void activeImages(const std::vector<size_t> &imageIds);
     void deleteImages(const std::vector<size_t> &imageIds);
+    void open3DModel(const QString &model3D, bool loadCameras);
 
 signals:
 
@@ -96,8 +97,6 @@ protected slots:
     void loadOrtho();
 
     void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
-
-    void open3DModel(const QString &model3D, bool loadCameras);
 
     void openDtm();
 

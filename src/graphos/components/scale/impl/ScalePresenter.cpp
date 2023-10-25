@@ -37,6 +37,8 @@
 
 #include <tidop/core/defs.h>
 
+#include <QMessageBox>
+
 namespace graphos
 {
 
@@ -56,7 +58,7 @@ ScalePresenterImp::~ScalePresenterImp()
 
 }
 
-void ScalePresenterImp::meassure(bool active)
+void ScalePresenterImp::measure(bool active)
 {
     if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
 
@@ -69,6 +71,17 @@ void ScalePresenterImp::meassure(bool active)
                 disconnect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
                 ccviewer->deactivatePicker();
             }
+        }
+
+    } else if (active) {
+        QMessageBox msgBox(QMessageBox::Warning,
+                           "A 3D model is required for the measurement",
+                           "Do you want to open the 3D model??",
+                           QMessageBox::Yes | QMessageBox::No, mView);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Yes) {
+            emit open_3d_model();
         }
 
     }
@@ -104,7 +117,7 @@ void ScalePresenterImp::init()
 void ScalePresenterImp::initSignalAndSlots()
 {
     connect(mView, &TaskView::run, this, &TaskPresenter::run);
-    connect(mView, &ScaleView::enableMeasure, this, &ScalePresenterImp::meassure);
+    connect(mView, &ScaleView::enableMeasure, this, &ScalePresenterImp::measure);
     connect(mView, &DialogView::help, [&]() {
         emit help("Scale.html");
             });
@@ -164,7 +177,7 @@ std::unique_ptr<tl::Task> ScalePresenterImp::createProcess()
             tl::printException(e);
         }
 
-                       });
+    });
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 0);
@@ -172,7 +185,7 @@ std::unique_ptr<tl::Task> ScalePresenterImp::createProcess()
         progressHandler()->setDescription("Computing Scale...");
     }
 
-    meassure(false);
+    measure(false);
 
     mView->hide();
 

@@ -221,10 +221,9 @@ private:
 
             mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_GRAYSCALE | cv::IMREAD_ANYDEPTH);
 
-            //mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR);
-            //cv::Mat color_boost;
-            //cv::decolor(mat, mat, color_boost);
-            //color_boost.release();
+            //mat = cv::imread(image.path().toStdString(), cv::IMREAD_IGNORE_ORIENTATION | cv::IMREAD_COLOR | cv::IMREAD_ANYDEPTH);
+            //if (mat.channels() >= 3)
+            //    convertRgbToGray(mat);
 
             if (mat.empty()) {
                 featextract_opencv_read = false;
@@ -288,9 +287,13 @@ private:
 #endif
 
             cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
+
 #ifdef HAVE_CUDA
         }
 #endif
+        //cv::Mat color_boost;
+        //cv::decolor(mat, mat, color_boost);
+        //color_boost.release();
     }
 
     void normalizeImage(cv::Mat &mat)

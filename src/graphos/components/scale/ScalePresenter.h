@@ -42,6 +42,9 @@ public:
     ScalePresenter() : TaskPresenter() {}
     ~ScalePresenter() override = default;
 
+signals:
+
+    void open_3d_model();
 };
 
 } // namespace graphos

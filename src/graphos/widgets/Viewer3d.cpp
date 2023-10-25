@@ -874,7 +874,7 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
         if (!cloud) {
             return;
         }
-        P = cloud->toGlobal3d(*cloud->getPoint(pointIndex));
+        P = cloud->toGlobal3d(point/**cloud->getPoint(pointIndex)*/);
         //#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
         mLabel->addPickedPoint(cloud, pointIndex);
         // #else
@@ -882,7 +882,14 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
         // #endif
     } else if (entity->isKindOf(CC_TYPES::MESH)) {
 
-        mLabel->addPickedPoint(static_cast<ccGenericMesh *>(entity), pointIndex, CCVector2d(uvw.x, uvw.y));
+        auto mesh = static_cast<ccGenericMesh *>(entity);
+        if (!mesh) {
+            return;
+        }
+        mLabel->addPickedPoint(mesh, pointIndex, CCVector2d(uvw.x, uvw.y));
+        //CCVector3 point;
+        //mesh->computePointPosition(pointIndex, CCVector2d(uvw.x, uvw.y), point);
+        P = mesh->toGlobal3d(point);
     } else {
 
         return;

@@ -560,6 +560,15 @@ int main(int argc, char *argv[])
                          settings_component.action(), &QAction::trigger);
 #endif // GRAPHOS_HAVE_SETTINGS
 
+#ifdef GRAPHOS_HAVE_SCALE
+        QObject::connect(&scale_component, &ScaleComponent::open_3d_model,
+                         [&]() {
+                             
+                             QString dense_model = QString::fromStdString(componentsManager.mainWindowModel()->denseModel().toString());
+                             componentsManager.mainWindowPresenter()->open3DModel(dense_model, false);
+                         });
+#endif // GRAPHOS_HAVE_SCALE
+
         //componentsManager.loadPlugins();
 
         app.status()->activeFlag(AppStatus::Flag::none, true);

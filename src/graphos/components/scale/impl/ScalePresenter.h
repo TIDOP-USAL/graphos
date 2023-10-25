@@ -44,9 +44,12 @@ public:
                       ScaleModel *model);
     ~ScalePresenterImp() override;
 
+public slots:
+
+    void measure(bool active);
+
 private slots:
 
-    void meassure(bool active);
     void pointClicked(const QVector3D &point);
 
 // Presenter interface

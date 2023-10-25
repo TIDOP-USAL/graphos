@@ -47,6 +47,10 @@ private:
 
     void init();
 
+signals:
+
+    void open_3d_model();
+
 // ComponentBase
 
 protected:

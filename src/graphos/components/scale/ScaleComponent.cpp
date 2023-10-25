@@ -68,6 +68,12 @@ void ScaleComponent::createPresenter()
 {
     setPresenter(new ScalePresenterImp(dynamic_cast<ScaleView *>(view()),
                  dynamic_cast<ScaleModel *>(model())));
+
+    connect(dynamic_cast<ScalePresenter *>(presenter()), &ScalePresenter::open_3d_model,
+            [&]() {
+                emit open_3d_model();
+                dynamic_cast<ScalePresenterImp *>(presenter())->measure(true);
+            });
 }
 
 void ScaleComponent::createCommand()
@@ -83,7 +89,7 @@ void ScaleComponent::update()
 
     action()->setEnabled(app_status->isEnabled(AppStatus::Flag::project_exists) &&
                          !app_status->isEnabled(AppStatus::Flag::processing) &&
-                         app_status->isEnabled(AppStatus::Flag::tab_3d_viewer_active));
+                         app_status->isEnabled(AppStatus::Flag::dense_model));
 }
 
 void ScaleComponent::onRunning()

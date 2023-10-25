@@ -78,7 +78,7 @@ void ScaleViewImp::initUI()
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 2, 0, 1, 2);
+    gridLayout->addWidget(mButtonBox, 2, 0, 1, 3);
 
     this->retranslate();
     this->clear();
