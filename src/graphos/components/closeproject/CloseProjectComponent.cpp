@@ -51,10 +51,6 @@ void CloseProjectComponent::init()
     setName("Close Project");
     setMenu("file");
     setIcon(QIcon::fromTheme("close-project"));
-
-#ifndef QT_NO_SHORTCUT
-    action()->setShortcut(tr("Ctrl+O"));
-#endif // QT_NO_SHORTCUT
 }
 
 void CloseProjectComponent::createModel()

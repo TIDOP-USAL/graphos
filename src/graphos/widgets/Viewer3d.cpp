@@ -863,6 +863,10 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
         if (mLabel->size() >= 3)
             mLabel->clear();
         break;
+    case PickingMode::level_points:
+        if (mLabel->size() >= 3)
+            mLabel->clear();
+        break;
     case PickingMode::rect_zone:
         return; //we don't use this slot for 2D mode
     }
@@ -876,7 +880,8 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
         }
         P = cloud->toGlobal3d(point/**cloud->getPoint(pointIndex)*/);
         //#if CLOUDCOMPARE_VERSION_MAJOR == 2 && CLOUDCOMPARE_VERSION_MINOR >= 11 || CLOUDCOMPARE_VERSION_MAJOR > 3
-        mLabel->addPickedPoint(cloud, pointIndex);
+        if (mPickingMode != PickingMode::level_points) 
+            mLabel->addPickedPoint(cloud, pointIndex);
         // #else
         //     mLabel->addPoint(cloud, pointIndex);
         // #endif
@@ -886,7 +891,9 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
         if (!mesh) {
             return;
         }
-        mLabel->addPickedPoint(mesh, pointIndex, CCVector2d(uvw.x, uvw.y));
+
+        if (mPickingMode != PickingMode::level_points)
+            mLabel->addPickedPoint(mesh, pointIndex, CCVector2d(uvw.x, uvw.y));
         //CCVector3 point;
         //mesh->computePointPosition(pointIndex, CCVector2d(uvw.x, uvw.y), point);
         P = mesh->toGlobal3d(point);
@@ -898,7 +905,8 @@ void CCViewer3D::processPickedPoint(ccHObject *entity,
     emit mouseClicked(QVector3D(P.x, P.y, P.z));
 
     mLabel->setVisible(true);
-    mLabel->displayPointLegend(mLabel->size() == 3); //we need to display 'A', 'B' and 'C' for 3-points labels
+    if (mPickingMode != PickingMode::level_points)
+        mLabel->displayPointLegend(mLabel->size() == 3); //we need to display 'A', 'B' and 'C' for 3-points labels
     if (mLabel->size() == 1) {
         mLabel->setPosition(static_cast<float>(x + 20) / this->glWidth(), static_cast<float>(y + 20) / this->glHeight());
     }

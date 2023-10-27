@@ -1573,7 +1573,7 @@ void MainWindowView::retranslate()
     mActionOpenProject->setShortcut(QApplication::translate("MainWindowView", "Ctrl+O", nullptr));
     mActionSaveProject->setShortcut(QApplication::translate("MainWindowView", "Ctrl+S", nullptr));
     mActionSaveProjectAs->setShortcut(QApplication::translate("MainWindowView", "Ctrl+Shift+S", nullptr));
-    mActionExit->setShortcut(QApplication::translate("MainWindowView", "Ctrl+F4", nullptr));
+    mActionExit->setShortcut(QApplication::translate("MainWindowView", "Alt+F4", nullptr));
     mActionHelp->setShortcut(QApplication::translate("MainWindowView", "F1", nullptr));
 #endif // QT_NO_SHORTCUT
 }
