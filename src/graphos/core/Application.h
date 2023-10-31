@@ -44,6 +44,7 @@ class ccGenericPrimitive;
 namespace tl
 {
 class CommandList;
+class Command;
 }
 
 
@@ -143,7 +144,7 @@ public:
     Viewer3D *viewer3D() const;
 
     void addComponent(Component *component);
-    tl::CommandList::Status parse(int argc, char **argv);
+    bool parse(int argc, char **argv);
     bool runCommand();
 
     void freeMemory();

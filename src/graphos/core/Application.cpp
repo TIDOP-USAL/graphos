@@ -142,14 +142,14 @@ void Application::addComponent(Component *component)
     }
 }
 
-tl::CommandList::Status Application::parse(int argc, char **argv)
+bool Application::parse(int argc, char **argv)
 {
-    tl::CommandList::Status status = commandList()->parse(argc, argv);
-
-    if (status == tl::CommandList::Status::parse_success)
+    if (commandList()->parse(argc, argv) == tl::Command::Status::parse_success) {
         mAppStatus->activeFlag(AppStatus::Flag::command_mode, true);
-
-    return status;
+        return false;
+    } else {
+        return false;
+    }
 }
 
 bool Application::runCommand()

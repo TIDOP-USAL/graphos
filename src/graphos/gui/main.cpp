@@ -295,12 +295,10 @@ int main(int argc, char *argv[])
 
     if (argc > 1) {
 
-        tl::CommandList::Status status = app.parse(argc, argv);
-        if (status == tl::CommandList::Status::parse_success) {
-
+        if (bool status = app.parse(argc, argv)) {
             r = app.runCommand();
-
         }
+
     } else {
         //    TL_TODO("Añadir como opción")
 #if defined WIN32

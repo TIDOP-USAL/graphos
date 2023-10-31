@@ -167,14 +167,14 @@ Image ProjectImp::findImageById(size_t id) const
     try {
         return mImages.at(id);
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
+        TL_THROW_EXCEPTION_WITH_NESTED("Image ID not found");
     }
 }
 
 bool ProjectImp::existImage(size_t imageId) const
 {
     auto it = mImages.find(imageId);
-    return (it != mImages.end());
+    return it != mImages.end();
 }
 
 const std::unordered_map<size_t, Image> &ProjectImp::images() const

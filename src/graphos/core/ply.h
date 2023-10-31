@@ -221,7 +221,7 @@ public:
         if ((littleEndian && tl::endianness::native == tl::endianness::big_endian) ||
             (!littleEndian && tl::endianness::native == tl::endianness::little_endian))
             value = tl::swapEndian(value);
-        stream->write(reinterpret_cast<char *>(&mValue), sizeof(T));
+        stream->write(reinterpret_cast<char *>(&value), sizeof(T));
     }
 
 private:
