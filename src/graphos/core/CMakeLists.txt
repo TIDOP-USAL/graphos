@@ -59,10 +59,6 @@ add_files_to_project(${PROJECT_NAME}
                          dense/DenseExport.cpp
                          mesh/PoissonRecon.cpp
                          utils.cpp
-                         dtm/dtm.cpp
-                         dtm/invdist.cpp
-                         dtm/invdistnn.cpp
-                         dtm/csf.cpp
                          camera/Calibration.cpp
                          camera/Camera.cpp
                          camera/Colmap.cpp
@@ -107,10 +103,6 @@ add_files_to_project(${PROJECT_NAME}
                          dense/DenseExport.h
                          mesh/PoissonRecon.h
                          utils.h
-                         dtm/dtm.h
-                         dtm/invdist.h
-                         dtm/invdistnn.h
-                         dtm/csf.h
                          camera/Calibration.h
                          camera/Camera.h
                          camera/Colmap.h
@@ -143,7 +135,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::Math
                       TidopLib::Vect
                       TidopLib::Graphic
-                      CSF
                       glog::glog
                       Qt5::PrintSupport
                       Qt5::Sql

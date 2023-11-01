@@ -89,7 +89,11 @@ void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
     tl::Path dtm_file = mModel->projectPath();
     dtm_file.append("dtm").append("dtm.tif");
-    mModel->setDtmPath(dtm_file);
+    if (dtm_file.exists()) {
+        mModel->setDtmPath(dtm_file);
+        mModel->setDsmPath(dtm_file.replaceBaseName("dsm"));
+        mModel->setGSD(mView->gsd());
+    }
 }
 
 std::unique_ptr<tl::Task> DtmPresenterImp::createProcess()
@@ -104,10 +108,6 @@ std::unique_ptr<tl::Task> DtmPresenterImp::createProcess()
                                          dtm_file,
                                          mView->gsd(),
                                          mModel->crs());
-
-    mModel->setDtmPath(dtm_file);
-    mModel->setDsmPath(dtm_file.replaceBaseName("dsm"));
-    mModel->setGSD(mView->gsd());
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 8);

@@ -28,8 +28,6 @@
 #include "graphos/core/dense/Smvs.h"
 #include "graphos/core/dense/CmvsPmvs.h"
 #include "graphos/core/dense/mvs.h"
-#include "graphos/core/dtm/invdist.h"
-#include "graphos/core/dtm/invdistnn.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/core/mesh/PoissonRecon.h"
 

@@ -204,6 +204,9 @@
         <file alias="24/folder_3d.png">icons/Material/24/folder_3d.png</file>
         <file alias="48/folder_3d.png">icons/Material/48/folder_3d.png</file>
         <file alias="96/folder_3d.png">icons/Material/96/folder_3d.png</file>
+        <file alias="24/dtm.png">icons/Material/24/dtm.png</file>
+        <file alias="48/dtm.png">icons/Material/48/dtm.png</file>
+        <file alias="96/dtm.png">icons/Material/96/dtm.png</file>
     </qresource>
     <qresource prefix="/CC">
         <file alias="images/ccMinus.png">icons/cc/ccMinus.png</file>

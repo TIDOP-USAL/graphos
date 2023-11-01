@@ -49,7 +49,7 @@ void DTMComponent::init()
 {
     setName("DTM/DSM");
     setMenu("tools");
-
+    setIcon(QIcon::fromTheme("dtm"));
     createCommand();
 }
 

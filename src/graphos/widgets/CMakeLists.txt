@@ -42,8 +42,6 @@ add_files_to_project(${PROJECT_NAME}
                          BundlerFormatWidget.cpp
                          MveFormatWidget.cpp
                          PointCloudCSVFormatWidget.cpp
-                         DtmInvDistWidget.cpp
-                         DtmInvDistNNWidget.cpp
                          OriTxtFormatWidget.cpp
                          GraphicItem.cpp
                          GraphicViewer.cpp
@@ -69,8 +67,6 @@ add_files_to_project(${PROJECT_NAME}
                          BundlerFormatWidget.h
                          MveFormatWidget.h
                          PointCloudCSVFormatWidget.h
-                         DtmInvDistWidget.h
-                         DtmInvDistNNWidget.h
                          OriTxtFormatWidget.h
                          GraphicItem.h
                          GraphicViewer.h

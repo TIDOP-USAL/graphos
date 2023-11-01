@@ -24,8 +24,6 @@
 #ifndef GRAPHOS_DTM_PROCESS_H
 #define GRAPHOS_DTM_PROCESS_H
 
-#include "graphos/core/dtm/dtm.h"
-
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 #include <tidop/geometry/entities/point.h>
