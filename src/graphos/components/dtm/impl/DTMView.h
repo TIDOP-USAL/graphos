@@ -27,11 +27,9 @@
 #include "graphos/components/dtm/DTMView.h"
 
 class QGridLayout;
-class QComboBox;
 class QDialogButtonBox;
 class QLabel;
 class QDoubleSpinBox;
-class QRadioButton;
 
 namespace graphos
 {
@@ -68,25 +66,16 @@ private slots:
 public:
 
     double gsd() const override;
-    void addDtmMethod(QWidget *method) override;
-    QString currentDtmMethod() const override;
-    bool isDSM() const override;
 
 public slots:
 
     void setGSD(double gsd) override;
-    void setCurrentDtmMethod(const QString &method) override;
-    void setDSM(bool active) override;
 
 private:
 
     QGridLayout *mGridLayoutDtmMethod;
     QLabel *mLabelGSD;
     QDoubleSpinBox *mDoubleSpinBoxGSD;
-    QRadioButton *mRadioButtonMdt;
-    QRadioButton *mRadioButtonMds;
-    QLabel *mLabelDtmMethod;
-    QComboBox *mComboBoxDtmMethod;
     QDialogButtonBox *mButtonBox;
 };
 

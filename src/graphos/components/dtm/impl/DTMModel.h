@@ -30,7 +30,6 @@ namespace graphos
 {
 
 class Project;
-class Feature;
 
 class DtmModelImp
   : public DtmModel
@@ -44,15 +43,19 @@ public:
 
 // DtmModel interface
 
+public:
+
     std::array<double, 3> offset() const override;
     tl::Path projectPath() const override;
     tl::Path denseModel() const override;
     QString crs() const override;
-
-    std::shared_ptr<Dtm> dtmMethod() const override;
-    void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
+    double gsd() const override;
     tl::Path dtmPath() const override;
+    tl::Path dsmPath() const override;
+
+    void setGSD(double gsd) override;
     void setDtmPath(const tl::Path &dtmPath) override;
+    void setDsmPath(const tl::Path &dsmPath) override;
 
 // Model interface
 

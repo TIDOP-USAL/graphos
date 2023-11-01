@@ -422,6 +422,17 @@ if(WITH_VLD)
 endif(WITH_VLD)
 
 
+if (BUILD_DTM_COMPONENT)
+
+    find_package(CGAL REQUIRED)
+    find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
+    
+    include(CGAL_Eigen3_support)
+    include(CGAL_Boost_serialization_support)
+    include(CGAL_Boost_iostreams_support)
+
+endif ()
+
 
 include_directories("${PROJECT_BINARY_DIR}")
 add_subdirectory(third_party)

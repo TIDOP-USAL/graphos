@@ -34,7 +34,7 @@ namespace graphos
 
 DtmModelImp::DtmModelImp(Project *project,
                          QObject *parent)
-    : DtmModel(parent),
+  : DtmModel(parent),
     mProject(project)
 {
     this->init();
@@ -55,24 +55,34 @@ QString DtmModelImp::crs() const
     return mProject->crs();
 }
 
-std::shared_ptr<Dtm> DtmModelImp::dtmMethod() const
+double DtmModelImp::gsd() const
 {
-    return mProject->dtmMethod();
+    return mProject->dtm().gsd;
 }
 
-void DtmModelImp::setDtmMethod(const std::shared_ptr<Dtm> &dtm)
+void DtmModelImp::setGSD(double gsd)
 {
-    mProject->setDtmMethod(dtm);
+    mProject->dtm().gsd = gsd;
 }
 
 tl::Path DtmModelImp::dtmPath() const
 {
-    return mProject->dtmPath();
+    return mProject->dtm().dtmPath;
+}
+
+tl::Path DtmModelImp::dsmPath() const
+{
+    return mProject->dtm().dsmPath;
 }
 
 void DtmModelImp::setDtmPath(const tl::Path &dtmPath)
 {
-    mProject->setDtmPath(dtmPath);
+    mProject->dtm().dtmPath = dtmPath;
+}
+
+void DtmModelImp::setDsmPath(const tl::Path &dsmPath)
+{
+    mProject->dtm().dsmPath = dsmPath;
 }
 
 std::array<double, 3> DtmModelImp::offset() const

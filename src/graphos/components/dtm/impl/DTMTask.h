@@ -35,9 +35,7 @@
 namespace graphos
 {
 
-class DenseExport;
-
-class GRAPHOS_EXPORT DtmProcess
+class DtmTask
   : public QObject,
     public tl::TaskBase
 {
@@ -46,14 +44,17 @@ class GRAPHOS_EXPORT DtmProcess
 
 public:
 
-    DtmProcess(const std::shared_ptr<DtmAlgorithm> &dtmAlgorithm,
-               const tl::Path &pointCloud,
-               const tl::Point3<double> &offset,
-               const tl::Path &dtmFile,
-               double gsd,
-               bool dsm,
-               const QString &crs);
-    ~DtmProcess() override = default;
+    DtmTask(const tl::Path &pointCloud,
+            const tl::Point3<double> &offset,
+            const tl::Path &dtmFile,
+            double gsd,
+            //bool dsm,
+            const QString &crs);
+
+    ~DtmTask()
+    {
+
+    }
 
 // tl::TaskBase interface
 
@@ -63,14 +64,15 @@ protected:
 
 private:
 
-    std::shared_ptr<DtmAlgorithm> mDtmAlgorithm;
     tl::Path mPointCloud;
     tl::Point3<double> mOffset;
     tl::Path mDtmFile;
     double mGSD;
-    bool mDSM;
+    //bool mDSM;
     QString mCrs;
+
 };
+
 
 } // namespace graphos
 

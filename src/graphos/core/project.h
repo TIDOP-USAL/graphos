@@ -48,7 +48,12 @@ class QXmlStreamReader;
 namespace graphos
 {
 
-class Dtm;
+struct DTMData
+{
+    tl::Path dtmPath;
+    tl::Path dsmPath;
+    double gsd = 0.1;
+};
 
 /*!
  * \brief Interface Project
@@ -229,10 +234,13 @@ public:
     virtual void setMeshPath(const tl::Path &meshPath) = 0;
     virtual void clearMesh() = 0;
 
-    virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
-    virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
-    virtual tl::Path dtmPath() const = 0;
-    virtual void setDtmPath(const tl::Path &dtmPath) = 0;
+    //virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
+    //virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
+    //virtual tl::Path dtmPath() const = 0;
+    //virtual void setDtmPath(const tl::Path &dtmPath) = 0;
+    virtual const DTMData &dtm() const = 0;
+    virtual DTMData &dtm() = 0;
+    virtual void setDtm(const DTMData &dtm) = 0;
     virtual void clearDTM() = 0;
 
     virtual tl::Path orthophotoPath() const = 0;
@@ -362,10 +370,12 @@ public:
     void setMeshPath(const tl::Path &meshPath) override;
     void clearMesh() override;
 
-    std::shared_ptr<Dtm> dtmMethod() const override;
-    void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
-    tl::Path dtmPath() const override;
-    void setDtmPath(const tl::Path &dtmPath) override;
+    const DTMData &dtm() const override;
+    DTMData &dtm() override;
+    void setDtm(const DTMData &dtm) override;
+    //void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
+    //tl::Path dtmPath() const override;
+    //void setDtmPath(const tl::Path &dtmPath) override;
     void clearDTM() override;
 
     tl::Path orthophotoPath() const override;
@@ -418,10 +428,6 @@ protected:
     void readMeshModel(QXmlStreamReader &stream);
     void readMeshParameters(QXmlStreamReader &stream);
     void readDtm(QXmlStreamReader &stream);
-    void readDtmPath(QXmlStreamReader &stream);
-    void readDtmInterpolation(QXmlStreamReader &stream);
-    void readInvDist(QXmlStreamReader &stream);
-    void readInvDistNN(QXmlStreamReader &stream);
     void readOrthophoto(QXmlStreamReader &stream);
 
     void writeVersion(QXmlStreamWriter &stream) const;
@@ -454,8 +460,6 @@ protected:
     void writeMeshModel(QXmlStreamWriter &stream) const;
     void writeMeshParameters(QXmlStreamWriter &stream) const;
     void writeDtm(QXmlStreamWriter &stream) const;
-    void writeDtmPath(QXmlStreamWriter &stream) const;
-    void writeDtmInterpolation(QXmlStreamWriter &stream) const;
     void writeOrthophoto(QXmlStreamWriter &stream) const;
 
     QSize readSize(QXmlStreamReader &stream) const;
@@ -489,8 +493,9 @@ protected:
     tl::Path mDenseModel;
     std::shared_ptr<PoissonReconParameters> mMeshParameters;
     tl::Path mMeshModel;
-    std::shared_ptr<Dtm> mDtmMethod;
-    tl::Path mDTM;
+    //std::shared_ptr<Dtm> mDtmMethod;
+    //tl::Path mDTM;
+    DTMData mDTM;
     static std::mutex sMutex;
     int mCameraCount;
     tl::Path mOrthophoto;

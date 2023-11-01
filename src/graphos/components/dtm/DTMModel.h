@@ -31,8 +31,6 @@
 namespace graphos
 {
 
-class Dtm;
-
 class DtmModel
   : public Model
 {
@@ -46,11 +44,12 @@ public:
     virtual tl::Path projectPath() const = 0;
     virtual tl::Path denseModel() const = 0;
     virtual QString crs() const = 0;
-
-    virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
-    virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
+    virtual double gsd() const = 0;
     virtual tl::Path dtmPath() const = 0;
+    virtual tl::Path dsmPath() const = 0;
+    virtual void setGSD(double gsd) = 0;
     virtual void setDtmPath(const tl::Path &dtmPath) = 0;
+    virtual void setDsmPath(const tl::Path &dsmPath) = 0;
 };
 
 } // namespace graphos

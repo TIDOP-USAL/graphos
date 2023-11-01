@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class DtmInvDistWidget;
-class DtmInvDistNNWidget;
 class DtmView;
 class DtmModel;
 
@@ -46,10 +44,6 @@ public:
     DtmPresenterImp(DtmView *view,
                     DtmModel *model);
     ~DtmPresenterImp() override;
-
-    void setDtmProperties();
-    void setInvDistProperties();
-    void setInvDistNNProperties();
 
 // Presenter interface
 
@@ -74,18 +68,10 @@ public slots:
 
     void cancel() override;
 
-// DtmPresenter interface
-
-public slots:
-
-    void setCurrentDtmMethod(const QString &method) override;
-
 protected:
 
     DtmView *mView;
     DtmModel *mModel;
-    DtmInvDistWidget *mDtmInvDistWidget;
-    DtmInvDistNNWidget *mDtmInvDistNNWidget;
 };
 
 } // namespace graphos

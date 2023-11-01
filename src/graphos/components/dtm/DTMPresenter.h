@@ -41,13 +41,6 @@ public:
     DtmPresenter() {}
     ~DtmPresenter() override = default;
 
-signals:
-
-
-public slots:
-
-    virtual void setCurrentDtmMethod(const QString &method) = 0;
-
 };
 
 } // namespace graphos

@@ -67,7 +67,8 @@ if(BUILD_DTM_COMPONENT)
                           Graphos::Core
                           Graphos::Widgets
                           Eigen3::Eigen
-                          glog::glog)
+                          glog::glog
+                          CGAL::CGAL)
     
     set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
     

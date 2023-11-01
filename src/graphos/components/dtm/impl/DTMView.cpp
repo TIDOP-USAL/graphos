@@ -53,37 +53,21 @@ DtmViewImp::~DtmViewImp()
 void DtmViewImp::initUI()
 {
     this->setObjectName(QString("DtmView"));
-    this->resize(380, 350);
+    this->resize(300, 200);
 
     QGridLayout *gridLayout = new QGridLayout();
     this->setLayout(gridLayout);
 
-    mRadioButtonMdt = new QRadioButton(this);
-    gridLayout->addWidget(mRadioButtonMdt, 0, 0);
-    mRadioButtonMds = new QRadioButton(this);
-    gridLayout->addWidget(mRadioButtonMds, 0, 1);
-
     mLabelGSD = new QLabel(this);
-    gridLayout->addWidget(mLabelGSD, 1, 0);
+    gridLayout->addWidget(mLabelGSD, 0, 0);
     mDoubleSpinBoxGSD = new QDoubleSpinBox(this);
     mDoubleSpinBoxGSD->setDecimals(3);
-    gridLayout->addWidget(mDoubleSpinBoxGSD, 1, 1);
-
-    mLabelDtmMethod = new QLabel(this);
-    gridLayout->addWidget(mLabelDtmMethod, 2, 0, 1, 1);
-    mComboBoxDtmMethod = new QComboBox(this);
-    gridLayout->addWidget(mComboBoxDtmMethod, 2, 1, 1, 1);
-
-    QWidget *widgetDtm = new QWidget();
-    mGridLayoutDtmMethod = new QGridLayout(widgetDtm);
-    mGridLayoutDtmMethod->setContentsMargins(0, 0, 0, 0);
-    gridLayout->addWidget(widgetDtm, 3, 0, 1, 2);
-
-    //gridLayout->addItem(new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding), 2, 0, 1, 2);
+    mDoubleSpinBoxGSD->setSingleStep(0.1);
+    gridLayout->addWidget(mDoubleSpinBoxGSD, 0, 1);
 
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
+    gridLayout->addWidget(mButtonBox, 1, 0, 1, 2);
 
     this->retranslate();
     this->clear();
@@ -92,9 +76,6 @@ void DtmViewImp::initUI()
 
 void DtmViewImp::initSignalAndSlots()
 {
-    //connect(mRadioButtonMdt,  &QAbstractButton::released,  this, &DtmViewImp::onMdtSelect);
-    //connect(mRadioButtonMds,  &QAbstractButton::released,  this, &DtmViewImp::onMdsSelect);
-
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &DtmView::run);
     connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
@@ -104,24 +85,16 @@ void DtmViewImp::clear()
 {
     const QSignalBlocker signalBlocker(mDoubleSpinBoxGSD);
     mDoubleSpinBoxGSD->setValue(0.1);
-    mRadioButtonMdt->setChecked(true);
 }
 
 void DtmViewImp::update()
 {
-    int mdtWidgetsCount = mComboBoxDtmMethod->count();
-    mLabelDtmMethod->setVisible(mdtWidgetsCount > 1);
-    mComboBoxDtmMethod->setVisible(mdtWidgetsCount > 1);
-
 }
 
 void DtmViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("DtmView", "DTM/DSM"));
-    mLabelDtmMethod->setText(QApplication::translate("DtmView", "Dtm interpolation method:"));
     mLabelGSD->setText(QApplication::translate("DtmView", "Ground sampling distance (GSD):"));
-    mRadioButtonMdt->setText(QApplication::translate("DtmView", "MDT"));
-    mRadioButtonMds->setText(QApplication::translate("DtmView", "MDS"));
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("DtmView", "Cancel"));
     mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("DtmView", "Run"));
     mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("DtmView", "Help"));
@@ -132,50 +105,10 @@ double DtmViewImp::gsd() const
     return mDoubleSpinBoxGSD->value();
 }
 
-void DtmViewImp::addDtmMethod(QWidget *method)
-{
-    mComboBoxDtmMethod->addItem(method->windowTitle());
-    mGridLayoutDtmMethod->addWidget(method, 0, 0, 1, 2);
-    method->setVisible(false);
-
-    this->update();
-}
-
-QString DtmViewImp::currentDtmMethod() const
-{
-    return mComboBoxDtmMethod->currentText();
-}
-
-bool DtmViewImp::isDSM() const
-{
-    return mRadioButtonMds->isChecked();
-}
-
 void DtmViewImp::setGSD(double gsd)
 {
     const QSignalBlocker signalBlocker(mDoubleSpinBoxGSD);
     mDoubleSpinBoxGSD->setValue(gsd);
-}
-
-void DtmViewImp::setCurrentDtmMethod(const QString &method)
-{
-    const QSignalBlocker blocker(mComboBoxDtmMethod);
-    mComboBoxDtmMethod->setCurrentText(method);
-
-    for (int idx = 0; idx < mGridLayoutDtmMethod->count(); idx++) {
-        QLayoutItem *const item = mGridLayoutDtmMethod->itemAt(idx);
-        if (dynamic_cast<QWidgetItem *>(item)) {
-            if (item->widget()->windowTitle().compare(method) == 0)
-                item->widget()->setVisible(true);
-            else
-                item->widget()->setVisible(false);
-        }
-    }
-}
-
-void DtmViewImp::setDSM(bool active)
-{
-    mRadioButtonMds->setChecked(active);
 }
 
 } // namespace graphos
