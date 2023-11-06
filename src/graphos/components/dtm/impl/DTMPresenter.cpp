@@ -87,11 +87,12 @@ void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
         progressHandler()->setDescription(tr("DTM finished"));
     }
 
-    tl::Path dtm_file = mModel->projectPath();
-    dtm_file.append("dtm").append("dtm.tif");
-    if (dtm_file.exists()) {
-        mModel->setDtmPath(dtm_file);
-        mModel->setDsmPath(dtm_file.replaceBaseName("dsm"));
+    tl::Path dsm_file = mModel->projectPath();
+    dsm_file.append("dtm").append("dsm.tif");
+    if (dsm_file.exists()) {
+        mModel->setDsmPath(dsm_file);
+        tl::Path dtm = dsm_file.replaceBaseName("dsm");
+        if (dtm.exists()) mModel->setDtmPath(dtm);
         mModel->setGSD(mView->gsd());
     }
 }
@@ -110,7 +111,7 @@ std::unique_ptr<tl::Task> DtmPresenterImp::createProcess()
                                          mModel->crs());
 
     if (progressHandler()) {
-        progressHandler()->setRange(0, 8);
+        progressHandler()->setRange(0, 100);
         progressHandler()->setTitle("DTM/DSM");
         progressHandler()->setDescription("DTM/DSM processing...");
     }

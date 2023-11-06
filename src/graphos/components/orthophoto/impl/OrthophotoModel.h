@@ -48,17 +48,20 @@ public:
 
 public:
 
-    OrthophotoParameters *parameters() const override;
-
     std::vector<Image> images() const override;
     std::map<int, Camera> cameras() const override;
+    tl::Path projectFolder() const override;
     tl::Path orthoPath() const override;
+    void setOrthoPath(const tl::Path &orthoPath) override;
     tl::Path dtmPath() const override;
     QString epsCode() const override;
     void clearProject() override;
     bool useCuda() const override;
+    bool gsd() const override;
 
 public slots:
+
+    void setGSD(bool gsd);
 
     void loadSettings() override;
     void saveSettings() override;
@@ -78,7 +81,6 @@ protected:
     Project *mProject;
     QSettings *mSettings;
     bool mReadSettings;
-    OrthophotoParameters *mParameters;
 };
 
 } // namespace graphos

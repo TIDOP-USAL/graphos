@@ -55,7 +55,7 @@ public:
     const std::map<int, Camera> &cameras() const;
     Camera camera(int id) const;
     void deleteImages(const std::vector<size_t> &imageIds);
-    QImage readImage(size_t imageId);
+    QImage readImage(const tl::Path &imageFile);
 
     const std::unordered_map<size_t, QString> &features() const;
     std::vector<size_t> imagePairs(size_t imageId) const;
@@ -68,6 +68,9 @@ public:
 
     tl::Path denseModel() const;
     tl::Path mesh() const;
+    tl::Path dtm() const;
+    tl::Path dsm() const;
+    tl::Path orthophoto() const;
 
     QString graphicViewerBackgroundColor() const;
 

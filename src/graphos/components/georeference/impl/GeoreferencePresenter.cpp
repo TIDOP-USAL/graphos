@@ -77,6 +77,7 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
         tl::Path offset = mModel->reconstructionPath();
         offset.append("offset.txt");
         mModel->setOffset(offset);
+        mModel->setCrs(mView->crs());
 
     } catch (const std::exception &e) {
         tl::printException(e);

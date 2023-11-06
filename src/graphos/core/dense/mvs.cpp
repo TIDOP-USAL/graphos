@@ -50,8 +50,8 @@ namespace graphos
 {
 
 constexpr auto mvsDefaultResolutionLevel = 1;
-constexpr auto mvsDefaultMinResolution = 640;
-constexpr auto mvsDefaultMaxResolution = 3200;
+constexpr auto mvsDefaultMinResolution = 256;
+constexpr auto mvsDefaultMaxResolution = 3000;
 constexpr auto mvsDefaultNumberViews = 5;
 constexpr auto mvsDefaultNumberViewsFuse = 3;
 
@@ -540,16 +540,25 @@ void MvsDensifier::writeNVMFile()
 
 }
 
+
 void MvsDensifier::exportToMVS()
 {
     try {
 
+        tl::Path input_path = outputPath().toString();
+        input_path.append("temp").append("export");
+        tl::Path output_path = outputPath().toString();
+        output_path.append("temp").append("model.mvs");
+        tl::Path images_path = input_path;
+        images_path.append("images");
+
         tl::Path app_path = tl::App::instance().path();
         std::string cmd_mvs("\"");
         cmd_mvs.append(app_path.parentPath().toString());
-        cmd_mvs.append("\\OpenMVS\\InterfaceCOLMAP\"");
-        cmd_mvs.append(" -i \"").append(outputPath().toString()).append("\\temp\\export\"");
-        cmd_mvs.append(" -o \"").append(outputPath().toString()).append("\\temp\\model.mvs\"");
+        cmd_mvs.append("\\InterfaceCOLMAP\"");
+        cmd_mvs.append(" -v 2 -i \"").append(input_path.toString()).append("\"");
+        cmd_mvs.append(" -o \"").append(output_path.toString()).append("\"");
+        cmd_mvs.append(" --image-folder \"").append(images_path.toString()).append("\"");
         tl::Message::info("Process: {}", cmd_mvs);
         tl::Process process(cmd_mvs);
 
@@ -576,9 +585,9 @@ void MvsDensifier::densify()
         tl::Path app_path = tl::App::instance().path();
         std::string cmd_mvs("\"");
         cmd_mvs.append(app_path.parentPath().toString());
-        cmd_mvs.append("\\OpenMVS\\DensifyPointCloud\" -w \"");
+        cmd_mvs.append("\\DensifyPointCloud\" -w \"");
         cmd_mvs.append(outputPath().toString());
-        cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 0");
+        cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 2");
         cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
         cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
         cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
@@ -588,7 +597,7 @@ void MvsDensifier::densify()
             cmd_mvs.append(" --cuda-device -1");
         else
             cmd_mvs.append(" --cuda-device -2");
-        //cmd_mvs.append(" --filter-point-cloud 1");
+        cmd_mvs.append(" --filter-point-cloud 1");
 
         tl::Message::info("Process: {}", cmd_mvs);
         tl::Process process(cmd_mvs);

@@ -23,15 +23,12 @@
 
 #include "DTMTask.h"
 
-//#include "graphos/core/dense/DenseExport.h"
-//#include "graphos/core/dense/DenseExport.h"
-//#include "graphos/core/dtm/csf.h"
+#include "graphos/core/task/Progress.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
 #include <tidop/core/path.h>
 #include <tidop/geometry/entities/point.h>
-//#include <tidop/geometry/entities/bbox.h>
 #include <tidop/geometry/size.h>
 #include <tidop/img/img.h>
 #include <tidop/img/imgwriter.h>
@@ -51,7 +48,6 @@
 #include <CGAL/Polygon_mesh_processing/remesh.h>
 #include <CGAL/compute_average_spacing.h>
 
-#include <opencv2/core/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
 #include <iostream>
@@ -74,6 +70,14 @@ using Concurrency_tag = CGAL::Parallel_tag;
 using Concurrency_tag = CGAL::Sequential_tag;
 #endif
 
+namespace internal
+{
+struct TIN
+{
+    ::TIN *ref;
+};
+
+}
 
 namespace graphos
 {
@@ -88,22 +92,27 @@ std::array<double, 3> barycentricCoordinates(const Point_3 &pt1, const Point_3 &
                                                                   Kernel());
 }
 
-cv::Mat extractDTMfromTIN(TIN &dsm, CGAL::Bbox_3 &bbox, double gsd, double zOffset)
+cv::Mat DtmTask::extractDTMfromTIN(const internal::TIN &dsm, const tl::BoundingBoxD &bbox, tl::Progress *progressBar/*, double gsd, double zOffset*/)
 {
-    tl::Size<int> size(tl::roundToInteger((bbox.xmax() - bbox.xmin()) / gsd), 
-                       tl::roundToInteger((bbox.ymax() - bbox.ymin()) / gsd));
-
-    cv::Mat mat(size.height, size.width, CV_64F, -9999.);
+    tl::Size<int> size(tl::roundToInteger(bbox.width() / mGSD), 
+                       tl::roundToInteger(bbox.height()/ mGSD));
+    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
 
     TIN::Face_handle location;
 
+    double increment = 40. / static_cast<double>(size.height);
+    double progress = 0.;
+
     for (std::size_t r = 0; r < size.height; ++r) {
+
+        if (status() == Task::Status::stopping) return mat;
+
         for (std::size_t c = 0; c < size.width; ++c) {
 
-            Point_3 query(bbox.xmin() + c * gsd, bbox.ymin() + (size.height - r) * gsd, 0.);
-            location = dsm.locate(query, location);
+            Point_3 query(bbox.pt1.x + c * mGSD, bbox.pt1.y + (size.height - r) * mGSD, 0.);
+            location = dsm.ref->locate(query, location);
 
-            if (!dsm.is_infinite(location)) {
+            if (!dsm.ref->is_infinite(location)) {
    
                 auto barycentric_coordinates = barycentricCoordinates(location->vertex(0)->point(),
                                                                       location->vertex(1)->point(),
@@ -114,8 +123,18 @@ cv::Mat extractDTMfromTIN(TIN &dsm, CGAL::Bbox_3 &bbox, double gsd, double zOffs
                                         + barycentric_coordinates[1] * location->vertex(1)->point().z()
                                         + barycentric_coordinates[2] * location->vertex(2)->point().z());
 
-                mat.at<double>(r, c) = height_at_query + zOffset; // Z offset
+                mat.at<float>(r, c) = static_cast<float>(height_at_query + mOffset.z); // Z offset
             }
+        }
+
+        if (progressBar) {
+            progress += increment;
+            int _progress = static_cast<int>(progress);
+            if (_progress == 1) {
+                (*progressBar)(_progress);
+                progress -= _progress;
+            }
+
         }
     }
 
@@ -131,7 +150,7 @@ void writeDTM(const tl::Path &file, const cv::Mat &mat,
     
     TL_ASSERT(image_writer_mds->isOpen(), "Can not create image: {}", file.toString());
 
-    image_writer_mds->create(mat.rows, mat.cols, 1, tl::DataType::TL_64F);
+    image_writer_mds->create(mat.rows, mat.cols, 1, tl::DataType::TL_32F);
     image_writer_mds->setGeoreference(georeference);
     tl::Crs crs(epsg);
     image_writer_mds->setCRS(crs.toWktFormat());
@@ -175,43 +194,60 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         std::string filename = mPointCloud.toString();
 
+        // 1 - Read points
 
-        // Read points
         std::ifstream input_stream(filename.c_str(), std::ios::binary);
         CGAL::Point_set_3<Point_3> points;
         input_stream >> points;
 
         tl::Message::info("Read {} points", points.size());
 
-        if (progressBar) (*progressBar)();
+        if (progressBar) (*progressBar)(25);
 
         if (status() == Task::Status::stopping) return;
 
 
-        // DSM
+        // 2 - Create TIN
 
         TIN dsm(points.points().begin(), points.points().end());
 
-        CGAL::Bbox_3 bbox = CGAL::bbox_3(points.points().begin(), points.points().end());           
-        tl::Affine<tl::Point<double>> georeference(bbox.xmin() + mOffset.x, bbox.ymax() + mOffset.y, mGSD, -mGSD, 0.);
+        if (progressBar) (*progressBar)(25);
 
-        cv::Mat dsm_raster = extractDTMfromTIN(dsm, bbox, mGSD, mOffset.z);
+        if (status() == Task::Status::stopping) return;
 
+        // 3 - Create DSM        
+
+        CGAL::Bbox_3 cgal_bbox = CGAL::bbox_3(points.points().begin(), points.points().end());   
+        tl::BoundingBoxD bbox(tl::Point3d(cgal_bbox.xmin(), cgal_bbox.ymin(), cgal_bbox.zmin()), 
+                              tl::Point3d(cgal_bbox.xmax(), cgal_bbox.ymax(), cgal_bbox.zmax()));
+
+        // Ajustar el progreso para tener en cuenta la extracción por filas en el DTM
+        // Hay que considerar el avance realizado ¿10% , 20%?
+        //dynamic_cast<ProgressHandler *>(progressBar)->setRange(0, (tl::roundToInteger(bbox.height()/ mGSD) + );
+
+        tl::Affine<tl::Point<double>> georeference(cgal_bbox.xmin() + mOffset.x, cgal_bbox.ymax() + mOffset.y, mGSD, -mGSD, 0.);
+
+        internal::TIN internal_tin;
+        internal_tin.ref = &dsm;
+        cv::Mat dsm_raster = extractDTMfromTIN(internal_tin, bbox, progressBar/*, mGSD, mOffset.z*/);
+
+        // 4 - Write DSM
         tl::Path mds_path = mDtmFile;
-        mds_path.replaceBaseName("mds");
+        mds_path.replaceBaseName("dsm");
 
         writeDTM(mds_path, dsm_raster, georeference, mCrs.toStdString());
         dsm_raster.release();
 
         tl::Message::info("DSM writed at: {}", mds_path.toString());
 
-        if (progressBar) (*progressBar)();
+        //if (progressBar) (*progressBar)(10);
 
-        if (status() == Task::Status::stopping) return;
+        //if (status() == Task::Status::stopping) return;
 
 
         // DTM
 
+#ifdef DTM
         auto idx_to_point_with_info = [&](const Point_set::Index &idx) -> std::pair<Point_3, Point_set::Index> {
             return std::make_pair(points.point(idx), idx);
         };
@@ -398,9 +434,11 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         tl::Message::info("DTM writed at: {}", mDtmFile.toString());
 
+#endif //DTM
+
         chrono.stop();
 
-        if (progressBar) (*progressBar)();
+        if (progressBar) (*progressBar)(10);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("DTM tast error");

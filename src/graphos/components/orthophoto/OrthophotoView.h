@@ -42,11 +42,11 @@ public:
     OrthophotoView(QWidget *parent) : TaskView(parent) {}
     ~OrthophotoView() override = default;
 
-    virtual double resolution() const = 0;
+    virtual double gsd() const = 0;
 
 public slots:
 
-    virtual void setResolution(double resolution) = 0;
+    virtual void setGSD(double gsd) = 0;
 
 signals:
 

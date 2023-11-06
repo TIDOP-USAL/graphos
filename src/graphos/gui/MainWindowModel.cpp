@@ -112,19 +112,20 @@ void MainWindowModel::deleteImages(const std::vector<size_t> &imageIds)
     }
 }
 
-QImage MainWindowModel::readImage(size_t imageId)
+QImage MainWindowModel::readImage(const tl::Path &imagePath)
 {
     QImage image;
 
     try {
-
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(this->image(imageId).path().toStdWString());
+        
+        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(imagePath);
         imageReader->open();
         if (imageReader->isOpen()) {
 
             /// Imagen georeferenciada.
             /// TODO: mostrar coordenadas en la barra de estado
             bool geo = imageReader->isGeoreferenced();
+            auto affine = imageReader->georeference();
 
             cv::Mat bmp;
 
@@ -132,6 +133,7 @@ QImage MainWindowModel::readImage(size_t imageId)
             if (data_type == tl::DataType::TL_32F ||
                 data_type == tl::DataType::TL_64F) {
                 /// TODO: Aplicar paleta, mapa de sombras, etc, al DTM
+                bmp = imageReader->read();
             } else {
                 bmp = imageReader->read();
             }
@@ -187,6 +189,21 @@ tl::Path MainWindowModel::denseModel() const
 tl::Path MainWindowModel::mesh() const
 {
     return mProject->meshPath();
+}
+
+tl::Path MainWindowModel::dtm() const
+{
+    return mProject->dtm().dtmPath;
+}
+
+tl::Path MainWindowModel::dsm() const
+{
+    return mProject->dtm().dsmPath;
+}
+
+tl::Path MainWindowModel::orthophoto() const
+{
+    return mProject->orthophoto().path;
 }
 
 QString MainWindowModel::graphicViewerBackgroundColor() const

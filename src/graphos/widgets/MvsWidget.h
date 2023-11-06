@@ -31,6 +31,7 @@ class QLabel;
 class QSpinBox;
 class QDoubleSpinBox;
 class QCheckBox;
+class QComboBox;
 
 namespace graphos
 {
@@ -47,25 +48,28 @@ public:
 
 public:
 
-    int resolutionLevel() const;
-    int minResolution() const;
-    int maxResolution() const;
+    int quality() const;
+    //int resolutionLevel() const;
+    //int minResolution() const;
+    //int maxResolution() const;
     int numberViews() const;
     int numberViewsFuse() const;
 
 signals:
 
-    void resolutionLevelChanged(int);
-    void minResolutionChanged(int);
-    void maxResolutionChanged(int);
+    void qualityChanged(int);
+    //void resolutionLevelChanged(int);
+    //void minResolutionChanged(int);
+    //void maxResolutionChanged(int);
     void numberViewsChanged(int);
     void numberViewsFuseChanged(int);
 
 public slots:
 
-    void setResolutionLevel(int resolutionLevel);
-    void setMinResolution(int minResolution);
-    void setMaxResolution(int maxResolution);
+    void setQuality(int quality);
+    //void setResolutionLevel(int resolutionLevel);
+    //void setMinResolution(int minResolution);
+    //void setMaxResolution(int maxResolution);
     void setNumberViews(int numberViews);
     void setNumberViewsFuse(int numberViewsFuse);
 
@@ -88,12 +92,14 @@ private:
 protected:
 
     QGroupBox *mGroupBox;
-    QLabel *mLabelResolutionLevel;
-    QSpinBox *mSpinBoxResolutionLevel;
-    QLabel *mLabelMinResolution;
-    QSpinBox *mSpinBoxMinResolution;
-    QLabel *mLabelMaxResolution;
-    QSpinBox *mSpinBoxMaxResolution;
+    QLabel *mLabelQuality;
+    QComboBox *mComboBoxQuality;
+    //QLabel *mLabelResolutionLevel;
+    //QSpinBox *mSpinBoxResolutionLevel;
+    //QLabel *mLabelMinResolution;
+    //QSpinBox *mSpinBoxMinResolution;
+    //QLabel *mLabelMaxResolution;
+    //QSpinBox *mSpinBoxMaxResolution;
     QLabel *mLabelNumberViews;
     QSpinBox *mSpinBoxNumberViews;
     QLabel *mLabelNumberViewsFuse;

@@ -31,6 +31,7 @@ TL_DISABLE_WARNINGS
 #include <QLabel>
 #include <QGroupBox>
 #include <QApplication>
+#include <QComboBox>
 TL_DEFAULT_WARNINGS
 
 namespace graphos
@@ -39,12 +40,14 @@ namespace graphos
 MvsWidget::MvsWidget(QWidget *parent)
   : GraphosWidgetView(parent),
     mGroupBox(new QGroupBox(this)),
-    mLabelResolutionLevel(new QLabel(this)),
-    mSpinBoxResolutionLevel(new QSpinBox(this)),
-    mLabelMinResolution(new QLabel(this)),
-    mSpinBoxMinResolution(new QSpinBox(this)),
-    mLabelMaxResolution(new QLabel(this)),
-    mSpinBoxMaxResolution(new QSpinBox(this)),
+    mLabelQuality(new QLabel(this)),
+    mComboBoxQuality(new QComboBox(this)),
+    //mLabelResolutionLevel(new QLabel(this)),
+    //mSpinBoxResolutionLevel(new QSpinBox(this)),
+    //mLabelMinResolution(new QLabel(this)),
+    //mSpinBoxMinResolution(new QSpinBox(this)),
+    //mLabelMaxResolution(new QLabel(this)),
+    //mSpinBoxMaxResolution(new QSpinBox(this)),
     mLabelNumberViews(new QLabel(this)),
     mSpinBoxNumberViews(new QSpinBox(this)),
     mLabelNumberViewsFuse(new QLabel(this)),
@@ -59,20 +62,25 @@ MvsWidget::~MvsWidget()
 
 }
 
-int MvsWidget::resolutionLevel() const
+int MvsWidget::quality() const
 {
-    return mSpinBoxResolutionLevel->value();
+    return mComboBoxQuality->currentIndex();
 }
 
-int MvsWidget::minResolution() const
-{
-    return mSpinBoxMinResolution->value();
-}
-
-int MvsWidget::maxResolution() const
-{
-    return mSpinBoxMaxResolution->value();
-}
+//int MvsWidget::resolutionLevel() const
+//{
+//    return mSpinBoxResolutionLevel->value();
+//}
+//
+//int MvsWidget::minResolution() const
+//{
+//    return mSpinBoxMinResolution->value();
+//}
+//
+//int MvsWidget::maxResolution() const
+//{
+//    return mSpinBoxMaxResolution->value();
+//}
 
 int MvsWidget::numberViews() const
 {
@@ -84,23 +92,29 @@ int MvsWidget::numberViewsFuse() const
     return mSpinBoxNumberViewsFuse->value();
 }
 
-void MvsWidget::setResolutionLevel(int resolutionLevel)
+void MvsWidget::setQuality(int quality)
 {
-    const QSignalBlocker blockerResolutionLevel(mSpinBoxResolutionLevel);
-    mSpinBoxResolutionLevel->setValue(resolutionLevel);
+    const QSignalBlocker blocker(mComboBoxQuality);
+    mComboBoxQuality->setCurrentIndex(quality);
 }
 
-void MvsWidget::setMinResolution(int minResolution)
-{
-    const QSignalBlocker blockerMinResolution(mSpinBoxMinResolution);
-    mSpinBoxMinResolution->setValue(minResolution);
-}
-
-void MvsWidget::setMaxResolution(int maxResolution)
-{
-    const QSignalBlocker blockerMaxResolution(mSpinBoxMaxResolution);
-    mSpinBoxMaxResolution->setValue(maxResolution);
-}
+//void MvsWidget::setResolutionLevel(int resolutionLevel)
+//{
+//    const QSignalBlocker blockerResolutionLevel(mSpinBoxResolutionLevel);
+//    mSpinBoxResolutionLevel->setValue(resolutionLevel);
+//}
+//
+//void MvsWidget::setMinResolution(int minResolution)
+//{
+//    const QSignalBlocker blockerMinResolution(mSpinBoxMinResolution);
+//    mSpinBoxMinResolution->setValue(minResolution);
+//}
+//
+//void MvsWidget::setMaxResolution(int maxResolution)
+//{
+//    const QSignalBlocker blockerMaxResolution(mSpinBoxMaxResolution);
+//    mSpinBoxMaxResolution->setValue(maxResolution);
+//}
 
 void MvsWidget::setNumberViews(int numberViews)
 {
@@ -122,24 +136,31 @@ void MvsWidget::update()
 void MvsWidget::retranslate()
 {
     mGroupBox->setTitle(QApplication::translate("MvsWidget", "MVS", nullptr));
-    mLabelResolutionLevel->setText(QApplication::translate("MvsWidget", "Resolution Level:"));
-    mLabelMinResolution->setText(QApplication::translate("MvsWidget", "Min Resolution:"));
-    mLabelMaxResolution->setText(QApplication::translate("MvsWidget", "Max Resolution:"));
+    //mLabelResolutionLevel->setText(QApplication::translate("MvsWidget", "Resolution Level:"));
+    //mLabelMinResolution->setText(QApplication::translate("MvsWidget", "Min Resolution:"));
+    //mLabelMaxResolution->setText(QApplication::translate("MvsWidget", "Max Resolution:"));
+    mLabelQuality->setText(QApplication::translate("MvsWidget", "Quality"));
+    mComboBoxQuality->setItemText(0, QApplication::translate("MvsWidget", "Ultra"));
+    mComboBoxQuality->setItemText(1, QApplication::translate("MvsWidget", "High"));
+    mComboBoxQuality->setItemText(2, QApplication::translate("MvsWidget", "Medium"));
+    mComboBoxQuality->setItemText(3, QApplication::translate("MvsWidget", "Low"));
     mLabelNumberViews->setText(QApplication::translate("MvsWidget", "Number Views:"));
     mLabelNumberViewsFuse->setText(QApplication::translate("MvsWidget", "Number Views Fuse:"));
 }
 
 void MvsWidget::clear()
 {
-    const QSignalBlocker blockerBoxResolutionLevel(mSpinBoxResolutionLevel);
-    const QSignalBlocker blockerMinResolution(mSpinBoxMinResolution);
-    const QSignalBlocker blockerMaxResolution(mSpinBoxMaxResolution);
+    //const QSignalBlocker blockerBoxResolutionLevel(mSpinBoxResolutionLevel);
+    //const QSignalBlocker blockerMinResolution(mSpinBoxMinResolution);
+    //const QSignalBlocker blockerMaxResolution(mSpinBoxMaxResolution);
     const QSignalBlocker blockerNumberViews(mSpinBoxNumberViews);
     const QSignalBlocker blockerNumberViewsFuse(mSpinBoxNumberViewsFuse);
+    const QSignalBlocker blockerQuality(mComboBoxQuality);
 
-    mSpinBoxResolutionLevel->setValue(1);
-    mSpinBoxMinResolution->setValue(640);
-    mSpinBoxMaxResolution->setValue(3200);
+    mComboBoxQuality->setCurrentIndex(2);
+    //mSpinBoxResolutionLevel->setValue(1);
+    //mSpinBoxMinResolution->setValue(640);
+    //mSpinBoxMaxResolution->setValue(3200);
     mSpinBoxNumberViews->setValue(5);
     mSpinBoxNumberViewsFuse->setValue(3);
 }
@@ -157,25 +178,34 @@ void MvsWidget::initUI()
     QGridLayout *propertiesLayout = new QGridLayout();
     mGroupBox->setLayout(propertiesLayout);
 
-    propertiesLayout->addWidget(mLabelResolutionLevel, 0, 0);
-    mSpinBoxResolutionLevel->setRange(1, 4);
-    propertiesLayout->addWidget(mSpinBoxResolutionLevel, 0, 1);
+    
+    propertiesLayout->addWidget(mLabelQuality, 1, 0);
+    mComboBoxQuality->addItem("");
+    mComboBoxQuality->addItem("");
+    mComboBoxQuality->addItem("");
+    mComboBoxQuality->addItem("");
+    mComboBoxQuality->setCurrentIndex(1);
+    propertiesLayout->addWidget(mComboBoxQuality, 1, 1);
 
-    propertiesLayout->addWidget(mLabelMinResolution, 1, 0);
-    mSpinBoxMinResolution->setRange(0, 10000);
-    propertiesLayout->addWidget(mSpinBoxMinResolution, 1, 1);
+    //propertiesLayout->addWidget(mLabelResolutionLevel, 0, 0);
+    //mSpinBoxResolutionLevel->setRange(1, 4);
+    //propertiesLayout->addWidget(mSpinBoxResolutionLevel, 0, 1);
 
-    propertiesLayout->addWidget(mLabelMaxResolution, 2, 0);
-    mSpinBoxMaxResolution->setRange(1, 10000);
-    propertiesLayout->addWidget(mSpinBoxMaxResolution, 2, 1);
+    //propertiesLayout->addWidget(mLabelMinResolution, 1, 0);
+    //mSpinBoxMinResolution->setRange(0, 10000);
+    //propertiesLayout->addWidget(mSpinBoxMinResolution, 1, 1);
 
-    propertiesLayout->addWidget(mLabelNumberViews, 3, 0);
+    //propertiesLayout->addWidget(mLabelMaxResolution, 2, 0);
+    //mSpinBoxMaxResolution->setRange(1, 10000);
+    //propertiesLayout->addWidget(mSpinBoxMaxResolution, 2, 1);
+
+    propertiesLayout->addWidget(mLabelNumberViews, 2, 0);
     mSpinBoxNumberViews->setRange(1, 100);
-    propertiesLayout->addWidget(mSpinBoxNumberViews, 3, 1);
+    propertiesLayout->addWidget(mSpinBoxNumberViews, 2, 1);
 
-    propertiesLayout->addWidget(mLabelNumberViewsFuse, 4, 0);
+    propertiesLayout->addWidget(mLabelNumberViewsFuse, 3, 0);
     mSpinBoxNumberViewsFuse->setRange(1, 100);
-    propertiesLayout->addWidget(mSpinBoxNumberViewsFuse, 4, 1);
+    propertiesLayout->addWidget(mSpinBoxNumberViewsFuse, 3, 1);
 
     MvsWidget::retranslate();
     MvsWidget::clear(); /// set default values
@@ -184,9 +214,10 @@ void MvsWidget::initUI()
 
 void MvsWidget::initSignalAndSlots()
 {
-    connect(mSpinBoxResolutionLevel, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::resolutionLevelChanged);
-    connect(mSpinBoxMinResolution, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::minResolutionChanged);
-    connect(mSpinBoxMaxResolution, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::maxResolutionChanged);
+    connect(mComboBoxQuality, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MvsWidget::qualityChanged);
+    //connect(mSpinBoxResolutionLevel, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::resolutionLevelChanged);
+    //connect(mSpinBoxMinResolution, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::minResolutionChanged);
+    //connect(mSpinBoxMaxResolution, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::maxResolutionChanged);
     connect(mSpinBoxNumberViewsFuse, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::numberViewsFuseChanged);
     connect(mSpinBoxNumberViewsFuse, QOverload<int>::of(&QSpinBox::valueChanged), this, &MvsWidget::numberViewsFuseChanged);
 }

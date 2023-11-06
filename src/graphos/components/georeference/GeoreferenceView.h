@@ -47,6 +47,9 @@ public:
     ~GeoreferenceView() override = default;
 
     //virtual QString orientationFile() const = 0;
+public:
+
+    virtual QString crs() const = 0;
 
 public slots:
 

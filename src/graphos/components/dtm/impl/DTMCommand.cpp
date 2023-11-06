@@ -21,79 +21,52 @@
  *                                                                      *
  ************************************************************************/
 
-#include "DTMModel.h"
 
+#include "DTMCommand.h"
+
+#include "graphos/core/utils.h"
 #include "graphos/core/project.h"
+#include "graphos/components/dtm/impl/DTMTask.h"
+
+#include <tidop/core/chrono.h>
+#include <tidop/core/msg/message.h>
 
 #include <QFileInfo>
-#include <QFile>
-#include <QTextStream>
+
+using namespace tl;
 
 namespace graphos
 {
 
-DtmModelImp::DtmModelImp(Project *project,
-                         QObject *parent)
-  : DtmModel(parent),
-    mProject(project)
+
+DTMCommand::DTMCommand()
+  : Command("dsm", "Create DSM"),
+    mProject(nullptr)
 {
-    this->init();
+    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<double>("gsd", 'g', "Ground sample distance", 0.1);
+
+    this->addExample("dsm -p 253/253.xml --gsd 0.1");
+
+    this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
-tl::Path DtmModelImp::projectPath() const
+DTMCommand::~DTMCommand()
 {
-    return mProject->projectFolder();
+    if (mProject) {
+        delete mProject;
+        mProject = nullptr;
+    }
 }
 
-tl::Path DtmModelImp::denseModel() const
-{
-    return mProject->denseModel();
-}
-
-QString DtmModelImp::crs() const
-{
-    return mProject->crs();
-}
-
-double DtmModelImp::gsd() const
-{
-    return mProject->dtm().gsd;
-}
-
-void DtmModelImp::setGSD(double gsd)
-{
-    mProject->dtm().gsd = gsd;
-}
-
-tl::Path DtmModelImp::dtmPath() const
-{
-    return mProject->dtm().dtmPath;
-}
-
-tl::Path DtmModelImp::dsmPath() const
-{
-    return mProject->dtm().dsmPath;
-}
-
-void DtmModelImp::setDtmPath(const tl::Path &dtmPath)
-{
-    mProject->dtm().dtmPath = dtmPath;
-}
-
-void DtmModelImp::setDsmPath(const tl::Path &dsmPath)
-{
-    mProject->dtm().dsmPath = dsmPath;
-}
-
-std::array<double, 3> DtmModelImp::offset() const
+std::array<double, 3> DTMCommand::offset() const
 {
     std::array<double, 3> offset{};
     offset.fill(0.);
 
     try {
 
-        tl::Path path = mProject->offset();
-        QFile file(QString::fromStdWString(path.toWString()));
+        QFile file(QString::fromStdWString(mProject->offset().toWString()));
         if (file.open(QFile::ReadOnly | QFile::Text)) {
             QTextStream stream(&file);
             QString line = stream.readLine();
@@ -110,14 +83,49 @@ std::array<double, 3> DtmModelImp::offset() const
     return offset;
 }
 
-void DtmModelImp::init()
+bool DTMCommand::run()
 {
-}
+    bool r = false;
 
-void DtmModelImp::clear()
-{
+    QString file_path;
+    QString project_path;
+
+    try {
+
+        tl::Path projectFile = this->value<std::string>("prj");
+        double gsd =  this->value<double>("gsd");
+
+        TL_ASSERT(projectFile.exists(), "Project doesn't exist");
+        TL_ASSERT(projectFile.isFile(), "Project file doesn't exist");
+
+        mProject = new ProjectImp;
+        mProject->load(projectFile);
+
+        tl::Path dtm_path(mProject->projectFolder());
+        dtm_path.append("dtm");
+        dtm_path.append("dtm.tif");
+		
+        tl::Path ground_points_path(mProject->reconstructionPath());
+        ground_points_path.append("ground_points.bin");
+
+        DtmTask dtm_task(mProject->denseModel(), offset(), dtm_path, gsd, mProject->crs());
+        dtm_task.run();
+
+        if (dtm_path.exists()) {
+            mProject->dtm().dtmPath = dtm_path;
+            mProject->dtm().dtmPath = dtm_path.replaceBaseName("dsm");
+            mProject->dtm().gsd = gsd;
+            mProject->save(projectFile);
+        }
+
+    } catch (const std::exception &e) {
+
+        printException(e);
+
+        r = true;
+    }
+
+    return r;
 }
 
 } // namespace graphos
-
-

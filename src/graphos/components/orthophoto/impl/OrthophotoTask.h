@@ -30,13 +30,18 @@
 #include <QObject>
 
 #include <tidop/core/task.h>
-#include <tidop/core/progress.h>
+#include <tidop/core/path.h>
 
+namespace tl 
+{
+class Progress;
+}
 
 namespace graphos
 {
 
-class OrthophotoAlgorithm;
+class Image;
+class Camera;
 
 class OrthophotoTask
   : public QObject,
@@ -45,8 +50,22 @@ class OrthophotoTask
 
 public:
 
-    OrthophotoTask(std::shared_ptr<OrthophotoAlgorithm> &orthophotoAlgorithm);
+    OrthophotoTask(double resolution,
+                   const std::vector<Image> &images,
+                   const std::map<int, Camera> &cameras,
+                   const tl::Path &orthoPath,
+                   const tl::Path &mdt,
+                   const QString &epsg,
+                   bool cuda = false);
+
     ~OrthophotoTask();
+
+    void setGSD(double gsd);
+    void setPhotos(const std::vector<Image> &images);
+    void setOrthoPath(const tl::Path &orthoPath);
+    void setMdt(const tl::Path &mdt);
+    void setCrs(const QString &epsg);
+    void setCuda(bool active);
 
 // tl::TaskBase interface
 
@@ -56,7 +75,13 @@ protected:
 
 private:
 
-    std::shared_ptr<OrthophotoAlgorithm> mOrthophotoAlgorithm;
+    double mGSD;
+    std::vector<Image> mPhotos;
+    std::map<int, Camera> mCameras;
+    tl::Path mOrthoPath;
+    tl::Path mMdt;
+    QString mEpsg;
+    bool bCuda;
 
 };
 

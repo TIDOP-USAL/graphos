@@ -129,9 +129,10 @@ void DensificationPresenterImp::setMvsProperties()
     }
 
     if (mvs) {
-        mMVS->setResolutionLevel(mvs->resolutionLevel());
-        mMVS->setMinResolution(mvs->minResolution());
-        mMVS->setMaxResolution(mvs->maxResolution());
+        mMVS->setQuality(mvs->resolutionLevel());
+        //mMVS->setResolutionLevel(mvs->resolutionLevel());
+        //mMVS->setMinResolution(mvs->minResolution());
+        //mMVS->setMaxResolution(mvs->maxResolution());
         mMVS->setNumberViews(mvs->numberViews());
         mMVS->setNumberViewsFuse(mvs->numberViewsFuse());
     }
@@ -282,15 +283,15 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                   mModel->useCuda(),
                                                   mView->autoSegmentation());
 
-        mvs->setMaxResolution(mMVS->maxResolution());
-        mvs->setMinResolution(mMVS->minResolution());
+        mvs->setMaxResolution(3000/*mMVS->maxResolution()*/);
+        mvs->setMinResolution(256/*mMVS->minResolution()*/);
         mvs->setNumberViews(mMVS->numberViews());
         mvs->setNumberViewsFuse(mMVS->numberViewsFuse());
-        mvs->setResolutionLevel(mMVS->resolutionLevel());
+        mvs->setResolutionLevel(mMVS->quality());
 
-        auto properties = std::make_shared<MvsProperties>(mMVS->resolutionLevel(),
-                                                          mMVS->minResolution(),
-                                                          mMVS->maxResolution(),
+        auto properties = std::make_shared<MvsProperties>(mMVS->quality(),
+                                                          256/*mMVS->minResolution()*/,
+                                                          3000/*mMVS->maxResolution()*/,
                                                           mMVS->numberViews(),
                                                           mMVS->numberViewsFuse());
         mModel->setDensification(properties);

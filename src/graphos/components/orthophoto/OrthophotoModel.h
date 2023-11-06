@@ -35,7 +35,6 @@ namespace graphos
 
 class Image;
 class Camera;
-class OrthophotoParameters;
 
 class OrthophotoModel
   : public Model
@@ -48,17 +47,20 @@ public:
     OrthophotoModel(QObject *parent = nullptr) : Model(parent){}
     ~OrthophotoModel() override = default;
 
-    virtual OrthophotoParameters *parameters() const = 0;
-
     virtual std::vector<Image> images() const = 0;
     virtual std::map<int, Camera> cameras() const = 0;
+    virtual tl::Path projectFolder() const = 0;
     virtual tl::Path orthoPath() const = 0;
+    virtual void setOrthoPath(const tl::Path &orthoPath) = 0;
     virtual tl::Path dtmPath() const = 0;
     virtual QString epsCode() const = 0;
     virtual void clearProject() = 0;
     virtual bool useCuda() const = 0;
+    virtual bool gsd() const = 0;
 
 public slots:
+
+    virtual void setGSD(bool gsd) = 0;
 
     virtual void loadSettings() = 0;
     virtual void saveSettings() = 0;

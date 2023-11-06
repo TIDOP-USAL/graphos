@@ -60,7 +60,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 {
     TL_TODO("Comprobar que visibilityMap tenga el tamaño adecuado")
 
-        try {
+    try {
 
         tl::Rect<int> rect_image = mOrthorectification->rectImage();
         tl::Rect<int> rect_dtm = mOrthorectification->rectDtm();
@@ -283,7 +283,7 @@ void OrthoimageProcess::execute(tl::Progress *progressBar)
 
     TL_TODO("Producer-consumer...")
 
-        if (progressBar) progressBar->setMaximum(mImages.size());
+    //if (progressBar) progressBar->setMaximum(mImages.size());
 
     for (const auto &image : mImages) {
 
@@ -405,7 +405,12 @@ cv::Mat OrthoimageProcess::visibilityMap(const Orthorectification &orthorectific
         }
     }
 
-    return std::move(visibility_map);
+    //cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT,
+    //                                        cv::Size(2 * 2 + 1, 2 * 2 + 1),
+    //                                        cv::Point(2, 2));
+    //cv::dilate(visibility_map, visibility_map, element);
+
+    return visibility_map;
 }
 
 

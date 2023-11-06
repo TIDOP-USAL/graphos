@@ -99,6 +99,7 @@ protected slots:
     void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
     void openDtm();
+    void openOrthophoto(const QString &orthophoto);
 
     void deleteFeatures();
     void deleteMatches();

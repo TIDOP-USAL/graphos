@@ -778,12 +778,46 @@ void MainWindowView::deleteDsm()
     }
 }
 
-void MainWindowView::setOrtho(const QString& ortho)
+void MainWindowView::setOrtho(const QString &ortho)
 {
+    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+        QTreeWidgetItem *itemOrthophoto = nullptr;
+        for (int i = 0; i < itemProject->childCount(); i++) {
+            QTreeWidgetItem *temp = itemProject->child(i);
+            if (temp->text(0).compare(tr("Orthophoto")) == 0) {
+                itemOrthophoto = temp;
+                break;
+            }
+        }
+
+        if (itemOrthophoto == nullptr) {
+            itemOrthophoto = new QTreeWidgetItem();
+            itemProject->addChild(itemOrthophoto);
+        }
+
+        itemOrthophoto->setText(0, "Orthophoto");
+        itemOrthophoto->setIcon(0, QIcon::fromTheme("image-file"));
+        itemOrthophoto->setToolTip(0, ortho);
+        itemOrthophoto->setData(0, Qt::UserRole, graphos::ortho);
+    }
 }
 
 void MainWindowView::deleteOrtho()
 {
+    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+        QTreeWidgetItem *itemOrthophoto = nullptr;
+        for (int i = 0; i < itemProject->childCount(); i++) {
+            QTreeWidgetItem *temp = itemProject->child(i);
+            if (temp->text(0).compare(tr("Orthophoto")) == 0) {
+                itemOrthophoto = temp;
+                delete itemOrthophoto;
+                itemOrthophoto = nullptr;
+                break;
+            }
+        }
+    }
 }
 
 void MainWindowView::setStatusBarMsg(const QString &msg)

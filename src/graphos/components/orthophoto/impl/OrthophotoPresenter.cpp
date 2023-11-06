@@ -23,7 +23,6 @@
 
 #include "OrthophotoPresenter.h"
 
-#include "graphos/core/ortho/Orthomosaic.h"
 #include "graphos/core/task/Progress.h"
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
@@ -56,9 +55,8 @@ OrthophotoPresenterImp::~OrthophotoPresenterImp()
 void OrthophotoPresenterImp::open()
 {
     mModel->loadSettings();
-    OrthophotoParameters *parameters = mModel->parameters();
 
-    mView->setResolution(parameters->resolution());
+    mView->setGSD(mModel->gsd());
 
     mView->exec();
 }
@@ -92,6 +90,11 @@ void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     if(progressHandler()) {
         progressHandler()->setDescription(tr("Orthophoto finished"));
     }
+        
+    tl::Path ortho_path = mModel->projectFolder();
+    ortho_path.append("ortho");
+    ortho_path.append("ortho.tif");
+    mModel->setOrthoPath(ortho_path);
 }
 
 std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
@@ -99,7 +102,7 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
     std::unique_ptr<tl::Task> ortho_process;
 
     tl::Path ortho_path = mModel->orthoPath();
-    if(!ortho_path.empty()) {
+    if(!ortho_path.exists()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
                                 tr("Previous results"),
                                 tr("The previous results will be overwritten. Do you wish to continue?"),
@@ -111,18 +114,18 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
 
     mModel->clearProject();
 
-    OrthophotoParameters *parameters = mModel->parameters();
-    parameters->setResolution(mView->resolution());
+    mModel->setGSD(mView->gsd());
 
-    std::shared_ptr<OrthophotoAlgorithm> algorithm = std::make_shared<OrthophotoAlgorithm>(mView->resolution(),
-                                                                                           mModel->images(),
-                                                                                           mModel->cameras(),
-                                                                                           mModel->orthoPath(),
-                                                                                           mModel->dtmPath(),
-                                                                                           mModel->epsCode(),
-                                                                                           mModel->useCuda());
+    tl::Path ortho_dir = mModel->projectFolder();
+    ortho_dir.append("ortho");
 
-    ortho_process = std::make_unique<OrthophotoTask>(algorithm);
+    ortho_process = std::make_unique<OrthophotoTask>(mView->gsd(),
+                                                     mModel->images(),
+                                                     mModel->cameras(),
+                                                     ortho_dir,
+                                                     mModel->dtmPath(),
+                                                     mModel->epsCode(),
+                                                     mModel->useCuda());
 
     if(progressHandler()) {
         progressHandler()->setRange(0, 0);

@@ -27,8 +27,17 @@
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 #include <tidop/geometry/entities/point.h>
+#include <tidop/geometry/entities/bbox.h>
+
+#include <opencv2/core/core.hpp>
 
 #include <QObject>
+
+namespace internal
+{
+struct TIN;
+}
+
 
 namespace graphos
 {
@@ -53,6 +62,10 @@ public:
     {
 
     }
+
+private:
+
+    cv::Mat extractDTMfromTIN(const internal::TIN &dsm, const tl::BoundingBoxD &bbox, tl::Progress *progressBar = nullptr/*, double gsd, double zOffset*/);
 
 // tl::TaskBase interface
 

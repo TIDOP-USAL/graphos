@@ -21,86 +21,41 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_ALGORITHM_H
-#define GRAPHOS_ORTHOPHOTO_ALGORITHM_H
+#ifndef GRAPHOS_DTM_COMMAND_H
+#define GRAPHOS_DTM_COMMAND_H
 
-#include "graphos/graphos_global.h"
-
-#include <vector>
-#include <map>
-#include <string>
-
-#include <tidop/core/path.h>
-
-#include "graphos/core/utils.h"
+#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-class Image;
-class Camera;
+class Project;
 
-class OrthophotoParameters
+class DTMCommand
+  : public Command
 {
 
 public:
 
-    OrthophotoParameters();
-    ~OrthophotoParameters();
-
-    virtual double resolution() const;
-    virtual void setResolution(double resolution);
-
-    void clear();
+    DTMCommand();
+    ~DTMCommand() override;
 
 private:
 
-    double mResolution;
-
-};
-
-
-
-
-
-class OrthophotoAlgorithm
-    : public OrthophotoParameters
-{
-
-public:
-
-    OrthophotoAlgorithm();
-    OrthophotoAlgorithm(double resolution,
-                        const std::vector<Image> &images,
-                        const std::map<int, Camera> &cameras,
-                        const tl::Path &orthoPath,
-                        const tl::Path &mdt,
-                        const QString &epsg,
-                        bool cuda = false);
-    ~OrthophotoAlgorithm();
-
-public:
-
-    void run();
-
-    void setPhotos(const std::vector<Image> &images);
-    void setOrthoPath(const tl::Path &orthoPath);
-    void setMdt(const tl::Path &mdt);
-    void setCrs(const QString &epsg);
-    void setCuda(bool active);
+    std::array<double, 3> offset() const;
 
 private:
 
-    std::vector<Image> mPhotos;
-    std::map<int, Camera> mCameras;
-    tl::Path mOrthoPath;
-    tl::Path mMdt;
-    QString mEpsg;
-    bool bCuda;
+// Command
+
+    bool run() override;
+
+private:
+
+    Project *mProject;
 };
 
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_ORTHOPHOTO_ALGORITHM_H
+#endif // GRAPHOS_DTM_COMMAND_H

@@ -55,6 +55,13 @@ struct DTMData
     double gsd = 0.1;
 };
 
+struct OrthophotoData
+{
+    tl::Path path;
+    double gsd = 0.05;
+};
+
+
 /*!
  * \brief Interface Project
  */
@@ -243,9 +250,12 @@ public:
     virtual void setDtm(const DTMData &dtm) = 0;
     virtual void clearDTM() = 0;
 
-    virtual tl::Path orthophotoPath() const = 0;
-    virtual void setOrthophotoPath(const tl::Path &orthophotoPath) = 0;
-    virtual void clearOrthophotoDTM() = 0;
+    //virtual tl::Path orthophotoPath() const = 0;
+    //virtual void setOrthophotoPath(const tl::Path &orthophotoPath) = 0;
+    virtual const OrthophotoData &orthophoto() const = 0;
+    virtual OrthophotoData &orthophoto() = 0;
+    virtual void setOrthophoto(const OrthophotoData &orthophoto) = 0;
+    virtual void clearOrthophoto() = 0;
 
     virtual tl::Matrix<double, 4, 4> transform() const = 0;
     virtual void setTransform(const tl::Matrix<double, 4, 4> &transform) = 0;
@@ -378,9 +388,12 @@ public:
     //void setDtmPath(const tl::Path &dtmPath) override;
     void clearDTM() override;
 
-    tl::Path orthophotoPath() const override;
-    void setOrthophotoPath(const tl::Path &orthophotoPath) override;
-    void clearOrthophotoDTM() override;
+    //tl::Path orthophotoPath() const override;
+    //void setOrthophotoPath(const tl::Path &orthophotoPath) override;
+    const OrthophotoData &orthophoto() const override;
+    OrthophotoData &orthophoto() override;
+    void setOrthophoto(const OrthophotoData &orthophoto) override;
+    void clearOrthophoto() override;
 
     void clear() override;
 
@@ -496,9 +509,10 @@ protected:
     //std::shared_ptr<Dtm> mDtmMethod;
     //tl::Path mDTM;
     DTMData mDTM;
+    OrthophotoData mOrthophoto;
     static std::mutex sMutex;
     int mCameraCount;
-    tl::Path mOrthophoto;
+    //tl::Path mOrthophoto;
     tl::Matrix<double, 4, 4> mTransform;
 };
 

@@ -233,11 +233,15 @@ void Orthorectification::init()
 
     mAffineDtmImageToTerrain = mDtmReader->georeference();
 
+    tl::Point<float> principal_point = this->principalPoint();
+    mAffineImageToPhotocoordinates = tl::Affine<tl::Point<int>>(-principal_point.x, principal_point.y, 1, -1, 0);
+
     mWindowDtmTerrainExtension.pt1.x = mAffineDtmImageToTerrain.tx;
     mWindowDtmTerrainExtension.pt1.y = mAffineDtmImageToTerrain.ty;
-    mWindowDtmTerrainExtension.pt2.x = mAffineDtmImageToTerrain.tx + mAffineDtmImageToTerrain.scaleX() * mDtmReader->cols();
-    mWindowDtmTerrainExtension.pt2.y = mAffineDtmImageToTerrain.ty + mAffineDtmImageToTerrain.scaleY() * mDtmReader->rows();
-
+    //mWindowDtmTerrainExtension.pt2.x = mAffineDtmImageToTerrain.tx + mAffineDtmImageToTerrain.scaleX() * mDtmReader->cols();
+    //mWindowDtmTerrainExtension.pt2.y = mAffineDtmImageToTerrain.ty + mAffineDtmImageToTerrain.scaleY() * mDtmReader->rows();
+    mWindowDtmTerrainExtension.pt2 = mAffineDtmImageToTerrain.transform(tl::Point<double>(mDtmReader->cols(), mDtmReader->rows()));
+    
     mDifferentialRectification = std::make_unique<tl::DifferentialRectification>(mCameraPose.rotationMatrix(),
                                                                                  mCameraPose.position(),
                                                                                  focal());
@@ -246,6 +250,7 @@ void Orthorectification::init()
     double nodata_value = mDtmReader->noDataValue(&exist_nodata);
     if (exist_nodata) mNoDataValue = nodata_value;
 
+    mRectImage = tl::Rect<int>(0, 0, mCamera.width(), mCamera.height());
     tl::Point<double> center_project = imageToTerrain(mRectImage.window().center());
 
     tl::WindowD w(center_project,
@@ -253,11 +258,6 @@ void Orthorectification::init()
                   mAffineDtmImageToTerrain.scaleY());
     cv::Mat image = mDtmReader->read(w);
     mIniZ = image.at<float>(0, 0);
-
-    tl::Point<float> principal_point = this->principalPoint();
-    mAffineImageToPhotocoordinates = tl::Affine<tl::Point<int>>(-principal_point.x, principal_point.y, 1, -1, 0);
-
-    mRectImage = tl::Rect<int>(0, 0, mCamera.width(), mCamera.height());
 
     tl::RectI rect_full(tl::Point<int>(), mDtmReader->cols(), mDtmReader->rows());
 

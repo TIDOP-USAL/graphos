@@ -68,7 +68,6 @@ add_files_to_project(${PROJECT_NAME}
                          ortho/ZBuffer.cpp
                          ortho/Footprint.cpp
                          ortho/Orthoimage.cpp
-                         ortho/Orthomosaic.cpp
                      HEADER_FILES
                          mvp.h
                          Application.h
@@ -111,8 +110,7 @@ add_files_to_project(${PROJECT_NAME}
                          ortho/Orthorectification.h
                          ortho/ZBuffer.h
                          ortho/Footprint.h
-                         ortho/Orthoimage.h
-                         ortho/Orthomosaic.h)
+                         ortho/Orthoimage.h)
 
 	
 add_library(${PROJECT_NAME} ${LIB_TYPE}

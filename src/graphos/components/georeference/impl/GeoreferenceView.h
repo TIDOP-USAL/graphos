@@ -64,14 +64,13 @@ protected slots:
 
     void selectionChanged(const QItemSelection &selected,
                           const QItemSelection &deselected);
-    //void onTreeWidgetItemSelectionChanged();
     void clickedPoint(const QPointF &point);
 
 // GeoreferenceView interface
 
 public:
 
-    //QString orientationFile() const override;
+    QString crs() const override;
 
 public slots:
 
@@ -80,7 +79,6 @@ public slots:
     void setCurrentImage(const QString &imagePath) override;
     void setItemModelGroundControlPoints(QAbstractItemModel *model) override;
     void setItemModelImagePoints(QAbstractItemModel *model) override;
-    //void setTableHeader(const QStringList &header) override;
     void setEnableImagePointsAddOrEdit(bool active) override;
     void setPoints(const std::list<std::pair<QString, QPointF>> &points) override;
     void setCrs(const QString &crs) override;
@@ -109,14 +107,12 @@ protected:
 
     QLabel *mLabelCRS;
     QLineEdit *mLineEditCRS;
-    //QTreeWidget *mTreeWidgetGroundControlPoints;
     QTableView *mTableViewGroundControlPoints;
     QPushButton *mPushButtonAddPoint;
     QPushButton *mPushButtonDeletePoint;
     QPushButton *mPushButtonGeoreference;
     QSpacerItem *verticalSpacer;
 
-    //QTreeWidget *mTreeWidgetImagePoints;
     QLabel *mLabelFilterByControlPoint;
     QComboBox *mComboBoxFilterByControlPoint;
     QLabel *mLabelFilterByImage;

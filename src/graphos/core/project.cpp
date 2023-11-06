@@ -516,7 +516,7 @@ void ProjectImp::clearDTM()
     mDTM.gsd = 0.1;
 }
 
-tl::Path ProjectImp::orthophotoPath() const
+/*l::Path ProjectImp::orthophotoPath() const
 {
     return mOrthophoto;
 }
@@ -524,11 +524,27 @@ tl::Path ProjectImp::orthophotoPath() const
 void ProjectImp::setOrthophotoPath(const tl::Path &orthophotoPath)
 {
     mOrthophoto = orthophotoPath;
+}*/
+
+const OrthophotoData &ProjectImp::orthophoto() const
+{
+    return mOrthophoto;
 }
 
-void ProjectImp::clearOrthophotoDTM()
+OrthophotoData &ProjectImp::orthophoto()
 {
-    mOrthophoto.clear();
+    return mOrthophoto;
+}
+
+void ProjectImp::setOrthophoto(const OrthophotoData &orthophoto)
+{
+    mOrthophoto = orthophoto;
+}
+
+void ProjectImp::clearOrthophoto()
+{
+    mOrthophoto.path.clear();
+    mOrthophoto.gsd = 0.05;
 }
 
 void ProjectImp::clear()
@@ -555,7 +571,7 @@ void ProjectImp::clear()
     mMeshModel.clear();
     mDenseModel.clear();
     clearDTM();
-    mOrthophoto.clear();
+    clearOrthophoto();
     mCameraCount = 0;
     mTransform = tl::Matrix<double, 4, 4>::identity();
 }
@@ -1297,7 +1313,15 @@ void ProjectImp::readDtm(QXmlStreamReader &stream)
 
 void ProjectImp::readOrthophoto(QXmlStreamReader &stream)
 {
-    this->setOrthophotoPath(stream.readElementText().toStdWString());
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Path") {
+            this->mOrthophoto.path = stream.readElementText().toStdWString();
+        } else if (stream.name() == "GSD") {
+            this->mOrthophoto.gsd = stream.readElementText().toDouble();
+        } else
+            stream.skipCurrentElement();
+    }
+
 }
 
 void ProjectImp::writeVersion(QXmlStreamWriter &stream) const
@@ -1691,12 +1715,12 @@ void ProjectImp::writeMeshParameters(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeDtm(QXmlStreamWriter &stream) const
 {
-    if (mDTM.dtmPath.empty() || mDTM.dsmPath.empty()) return;
+    if (/*mDTM.dtmPath.empty() || */mDTM.dsmPath.empty()) return;
 
     stream.writeStartElement("Dtm");
     {
-        stream.writeTextElement("DTMPath", QString::fromStdWString(mDTM.dtmPath.toWString()));
-        stream.writeTextElement("DTMPath", QString::fromStdWString(mDTM.dsmPath.toWString()));
+        if (mDTM.dtmPath.empty()) stream.writeTextElement("DTMPath", QString::fromStdWString(mDTM.dtmPath.toWString()));
+        stream.writeTextElement("DSMPath", QString::fromStdWString(mDTM.dsmPath.toWString()));
         stream.writeTextElement("GSD", QString::number(mDTM.gsd));
     }
     stream.writeEndElement();
@@ -1704,9 +1728,13 @@ void ProjectImp::writeDtm(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeOrthophoto(QXmlStreamWriter &stream) const
 {
-    QString ortho_path = QString::fromStdWString(orthophotoPath().toWString());
-    if (!ortho_path.isEmpty())
-        stream.writeTextElement("Orthophoto", ortho_path);
+    if (mOrthophoto.path.empty()) return;
+
+    stream.writeStartElement("Orthophoto");
+    {
+        stream.writeTextElement("Path", QString::fromStdWString(mOrthophoto.path.toWString()));
+        stream.writeTextElement("GSD", QString::number(mOrthophoto.gsd));
+    }
 }
 
 QSize ProjectImp::readSize(QXmlStreamReader &stream) const

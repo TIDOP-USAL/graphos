@@ -50,11 +50,11 @@ public:
 
 public:
 
-    double resolution() const override;
+    double gsd() const override;
 
 public slots:
 
-    void setResolution(double resolution) override;
+    void setGSD(double gsd) override;
 
 // DialogView
 

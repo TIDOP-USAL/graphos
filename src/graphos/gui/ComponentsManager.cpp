@@ -49,7 +49,7 @@ namespace graphos
 {
 
 ComponentsManager::ComponentsManager(QObject *parent)
-    : QObject(parent),
+  : QObject(parent),
     mMainWindowView(nullptr),
     mMainWindowModel(nullptr),
     mMainWindowPresenter(nullptr),

@@ -32,7 +32,7 @@ namespace graphos
 ZBuffer::ZBuffer(Orthorectification *orthorectification,
                  const tl::Rect<int> &rectOrtho,
                  const tl::Affine<tl::Point<double>> &georeference)
-    : mOrthorectification(orthorectification),
+  : mOrthorectification(orthorectification),
     mRectOrtho(rectOrtho),
     mGeoreference(georeference)
 {

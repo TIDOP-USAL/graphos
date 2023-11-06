@@ -23,7 +23,6 @@
 
 #include "OrthophotoModel.h"
 
-#include "graphos/core/ortho/Orthomosaic.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/sfm/poses.h"
 
@@ -42,7 +41,6 @@ namespace graphos
 OrthophotoModelImp::OrthophotoModelImp(Project *project, QObject *parent)
   : OrthophotoModel(parent),
     mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName())),
-    mParameters(new OrthophotoParameters),
     mProject(project)
 {
     this->init();
@@ -54,18 +52,16 @@ OrthophotoModelImp::~OrthophotoModelImp()
         delete mSettings;
         mSettings = nullptr;
     }
+}
 
-    if(mParameters) {
-        delete mParameters;
-        mParameters = nullptr;
-    }
+void OrthophotoModelImp::setGSD(bool gsd)
+{
+    mProject->orthophoto().gsd = gsd;
 }
 
 void OrthophotoModelImp::loadSettings()
 {
     if(mReadSettings) {
-
-        mParameters->setResolution(mSettings->value("ORTHOPHOTO/Resolution", mParameters->resolution()).toDouble());
 
         /* Read Settings here
 
@@ -82,8 +78,6 @@ void OrthophotoModelImp::saveSettings()
 {
     if(mReadSettings) {
 
-        mSettings->setValue("ORTHOPHOTO/Resolution", mParameters->resolution());
-
         /* Write Settings here
 
         Example:
@@ -94,163 +88,6 @@ void OrthophotoModelImp::saveSettings()
 
     }
 }
-
-OrthophotoParameters *OrthophotoModelImp::parameters() const
-{
-    return mParameters;
-}
-
-//std::vector<tl::Photo> OrthophotoModelImp::images() const
-//{
-//  std::vector<tl::Photo> images;
-//
-//  tl::Point3D offset;
-//
-//  std::ifstream ifs;
-//  ifs.open(mProject->offset().toStdString(), std::ifstream::in);
-//  if (ifs.is_open()) {
-//
-//    ifs >> offset.x >> offset.y >> offset.z;
-//
-//    ifs.close();
-//  }
-//
-//  QString undistort_images_path = mProject->projectFolder();
-//  std::shared_ptr<Densification> densification = mProject->densification();
-//  std::map<int, Camera> cameras;
-//  if (densification->method() == Densification::Method::smvs) {
-//    //undistort_images_path.append("/dense/");
-//  } else if (densification->method() == Densification::Method::cmvs_pmvs) {
-//    undistort_images_path.append("/dense/pmvs/visualize/");
-//
-//    for (auto camera = mProject->cameraBegin(); camera != mProject->cameraEnd(); camera++) {
-//      if (cameras.find(camera->first) == cameras.end()) {
-//
-//        std::shared_ptr<Calibration> calibration = camera->second.calibration();
-//
-//        float focal_x = 1.f;
-//        float focal_y = 1.f;
-//        {
-//          for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-//            Calibration::Parameters parameter = param->first;
-//            float value = static_cast<float>(param->second);
-//            switch (parameter) {
-//              case Calibration::Parameters::focal:
-//                focal_x = value;
-//                focal_y = value;
-//                break;
-//              case Calibration::Parameters::focalx:
-//                focal_x = value;
-//                break;
-//              case Calibration::Parameters::focaly:
-//                focal_y = value;
-//                break;
-//              default:
-//                break;
-//            }
-//          }
-//        }
-//
-//        float ppx = static_cast<float>(calibration->parameter(Calibration::Parameters::cx));
-//        float ppy = static_cast<float>(calibration->parameter(Calibration::Parameters::cy));
-//        std::array<std::array<float, 3>, 3> camera_matrix_data = { focal_x, 0.f, ppx,
-//                                                                  0.f, focal_y, ppy,
-//                                                                  0.f, 0.f, 1.f };
-//        cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, camera_matrix_data.data());
-//
-//        cv::Mat dist_coeffs = cv::Mat::zeros(1, 5, CV_32F);
-//
-//        for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
-//          Calibration::Parameters parameter = param->first;
-//          float value = static_cast<float>(param->second);
-//          switch (parameter) {
-//            case Calibration::Parameters::k1:
-//              dist_coeffs.at<float>(0) = value;
-//              break;
-//            case Calibration::Parameters::k2:
-//              dist_coeffs.at<float>(1) = value;
-//              break;
-//            case Calibration::Parameters::k3:
-//              dist_coeffs.at<float>(4) = value;
-//              break;
-//            case Calibration::Parameters::k4:
-//              dist_coeffs.at<float>(5) = value;
-//              break;
-//            case Calibration::Parameters::k5:
-//              dist_coeffs.at<float>(6) = value;
-//              break;
-//            case Calibration::Parameters::k6:
-//              dist_coeffs.at<float>(7) = value;
-//              break;
-//            case Calibration::Parameters::p1:
-//              dist_coeffs.at<float>(2) = value;
-//              break;
-//            case Calibration::Parameters::p2:
-//              dist_coeffs.at<float>(3) = value;
-//              break;
-//            default:
-//              break;
-//          }
-//        }
-//
-//        cv::Size imageSize(static_cast<int>(camera->second.width()),
-//                           static_cast<int>(camera->second.height()));
-//
-//        cv::Mat optCameraMat = cv::getOptimalNewCameraMatrix(cameraMatrix, dist_coeffs, imageSize, 1, imageSize, nullptr);
-//
-//        Camera camera_dist = camera->second;
-//        camera_dist.setFocal((optCameraMat.at<float>(0, 0)+ optCameraMat.at<float>(1, 1))/2.);
-//        std::shared_ptr<Calibration> calibration_dist = CalibrationFactory::create(calibration->cameraModel());
-//        calibration_dist->setParameter(Calibration::Parameters::focal, (optCameraMat.at<float>(0, 0) + optCameraMat.at<float>(1, 1)) / 2.);
-//        calibration_dist->setParameter(Calibration::Parameters::focalx, optCameraMat.at<float>(0, 0));
-//        calibration_dist->setParameter(Calibration::Parameters::focaly, optCameraMat.at<float>(1, 1));
-//        calibration_dist->setParameter(Calibration::Parameters::cx, optCameraMat.at<float>(0, 2));
-//        calibration_dist->setParameter(Calibration::Parameters::cy, optCameraMat.at<float>(1, 2));
-//        camera_dist.setCalibration(calibration_dist);
-//        cameras[camera->first] = camera_dist;
-//
-//      }
-//    }
-//  } else {
-//    /// Devolver error o volver a corregir las imagenes
-//  }
-//
-//  for (auto image = mProject->imageBegin(); image != mProject->imageEnd(); image++) {
-//
-//    QFileInfo file_info(image->path());
-//    QString image_path = undistort_images_path;
-//    image_path.append(file_info.fileName());
-//
-//    tl::Photo photo(image_path.toStdString());
-//
-//    if (mProject->isPhotoOriented(image->name())) {
-//      CameraPose photoOrientation = mProject->photoOrientation(image->name());
-//      auto rotation_matrix = photoOrientation.rotationMatrix();
-//      rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
-//      rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
-//      rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
-//      rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
-//      rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
-//      rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
-//      photoOrientation.setRotationMatrix(rotation_matrix);
-//
-//      photoOrientation.setPosition(photoOrientation.position() + offset);
-//
-//      photo.setCameraPose(photoOrientation);
-//
-//      int camera_id = image->cameraId();
-//      auto camera = cameras.find(camera_id);
-//      if (camera != cameras.end()) {
-//        photo.setCamera(camera->second);
-//      } else continue;
-//
-//      images.push_back(photo);
-//    }
-//
-//  }
-//
-//  return images;
-//}
 
 std::vector<Image> OrthophotoModelImp::images() const
 {
@@ -300,16 +137,24 @@ std::map<int, Camera> OrthophotoModelImp::cameras() const
     return mProject->cameras();
 }
 
+tl::Path OrthophotoModelImp::projectFolder() const
+{
+    return mProject->projectFolder();
+}
+
 tl::Path OrthophotoModelImp::orthoPath() const
 {
-    tl::Path ortho_path = mProject->projectFolder();
-    ortho_path.append("ortho");
-    return ortho_path;
+    return mProject->orthophoto().path;
+}
+
+void OrthophotoModelImp::setOrthoPath(const tl::Path &orthoPath)
+{
+    mProject->orthophoto().path = orthoPath;
 }
 
 tl::Path OrthophotoModelImp::dtmPath() const
 {
-    return mProject->dtmPath();
+    return mProject->dtm().dsmPath;
 }
 
 QString OrthophotoModelImp::epsCode() const
@@ -326,6 +171,11 @@ void OrthophotoModelImp::clearProject()
 bool OrthophotoModelImp::useCuda() const
 {
     return mSettings->value("UseCuda", true).toBool();
+}
+
+bool OrthophotoModelImp::gsd() const
+{
+    return mProject->orthophoto().gsd;
 }
 
 void OrthophotoModelImp::init()

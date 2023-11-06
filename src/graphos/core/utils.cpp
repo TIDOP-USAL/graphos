@@ -124,6 +124,14 @@ QImage cvMatToQImage(const cv::Mat &image)
             //cv::Mat temp;
             cv::normalize(image, aux, 0., 255., cv::NORM_MINMAX, CV_8U);
             //cv::applyColorMap(temp, aux, cv::COLORMAP_HOT);
+        } else if (image.depth() == CV_32F) {
+            cv::Mat temp;
+            cv::Mat mask_image = cv::Mat::zeros(image.rows, image.cols, CV_8U);
+            mask_image.setTo(cv::Scalar::all(255), image > -9999.);
+            cv::normalize(image, temp, 0., 255., cv::NORM_MINMAX, CV_8U, mask_image);
+            cv::applyColorMap(temp, aux, cv::COLORMAP_JET);
+            format = QImage::Format_RGB888;
+            cv::cvtColor(aux, aux, cv::COLOR_BGR2RGB);
         }
 
     } else if (image.channels() == 3) {

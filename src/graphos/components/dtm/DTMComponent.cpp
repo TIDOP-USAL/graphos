@@ -26,6 +26,7 @@
 #include "graphos/components/dtm/impl/DTMModel.h"
 #include "graphos/components/dtm/impl/DTMView.h"
 #include "graphos/components/dtm/impl/DTMPresenter.h"
+#include "graphos/components/dtm/impl/DTMCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -71,6 +72,7 @@ void DTMComponent::createPresenter()
 
 void DTMComponent::createCommand()
 {
+    setCommand(std::make_shared<DTMCommand>());
 }
 
 void DTMComponent::update()

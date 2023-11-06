@@ -254,8 +254,8 @@ void MainWindowPresenter::loadProject()
     this->loadOrientation();
     this->loadDenseModel();
     this->loadMesh();
-    //this->loadDTM();
-    //this->loadOrtho();
+    this->loadDTM();
+    this->loadOrtho();
 }
 
 void MainWindowPresenter::updateProject()
@@ -263,8 +263,8 @@ void MainWindowPresenter::updateProject()
     Application &app = Application::instance();
     AppStatus *app_status = app.status();
 
-    //this->loadOrtho();
-    //this->loadDTM();
+    this->loadOrtho();
+    this->loadDTM();
     this->loadMesh();
     this->loadDenseModel();
     this->loadOrientation();
@@ -352,26 +352,26 @@ void MainWindowPresenter::loadMesh()
 
 void MainWindowPresenter::loadDTM()
 {
-    //  QString dtm = mProjectModel->dtm();
-    //  if (!dtm.isEmpty()) {
-    //    mView->setDSM(dtm);
-    //    Application &app = Application::instance();
-    //    app.status()->activeFlag(AppStatus::Flag::dtm, true);
-    //  } else {
-    //    mView->deleteDsm();
-    //  }
+    QString dsm = QString::fromStdString(mModel->dsm().toString());
+    if (!dsm.isEmpty()) {
+        mView->setDSM(dsm);
+        Application &app = Application::instance();
+        app.status()->activeFlag(AppStatus::Flag::dtm, true);
+    } else {
+        mView->deleteDsm();
+    }
 }
 
 void MainWindowPresenter::loadOrtho()
 {
-    //QString ortho = mProjectModel->ortho();
-    //if (!ortho.isEmpty()) {
-    //  mView->setOrtho(ortho);
-    //  Application& app = Application::instance();
-    //  app.status()->activeFlag(AppStatus::Flag::ortho, true);
-    //} else {
-    //  mView->deleteOrtho();
-    //}
+    QString ortho = QString::fromStdString(mModel->orthophoto().toString());
+    if (!ortho.isEmpty()) {
+        mView->setOrtho(ortho);
+        Application &app = Application::instance();
+        app.status()->activeFlag(AppStatus::Flag::ortho, true);
+    } else {
+        mView->deleteOrtho();
+    }
 }
 
 void MainWindowPresenter::openImage(size_t imageId)
@@ -388,7 +388,7 @@ void MainWindowPresenter::openImage(size_t imageId)
         } else {
             GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
             graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
-            graphic_viewer->setImage(mModel->readImage(imageId));
+            graphic_viewer->setImage(mModel->readImage(mModel->image(imageId).path().toStdString()));
             tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(image).fileName());
             tab_widget->setCurrentIndex(tab_id);
             tab_widget->setTabToolTip(tab_id, image);
@@ -569,7 +569,63 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
 void MainWindowPresenter::openDtm()
 {
     try {
-        //mTabHandler->setMapLayer(mProjectModel->dtm());
+
+        QString dsm = QString::fromStdString(mModel->dsm().toString());
+        auto tab_widget = mView->tabWidget();
+        int tab_id = tab_widget->fileTab(dsm);
+
+        if (tab_id != -1) {
+            tab_widget->setCurrentIndex(tab_id);
+        } else {
+
+            //mTabHandler->setMapLayer(mModel->dsm());
+
+            GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+            graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            graphic_viewer->setImage(mModel->readImage(mModel->dsm()));
+            tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dsm).fileName());
+            tab_widget->setCurrentIndex(tab_id);
+            tab_widget->setTabToolTip(tab_id, dsm);
+            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+
+            graphic_viewer->zoomExtend();
+        }
+
+        AppStatus *status = Application::instance().status();
+        status->activeFlag(AppStatus::Flag::tab_image_active, true);
+        status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
+}
+
+void MainWindowPresenter::openOrthophoto(const QString &orthophoto)
+{
+    try {
+
+        auto tab_widget = mView->tabWidget();
+        int tab_id = tab_widget->fileTab(orthophoto);
+
+        if (tab_id != -1) {
+            tab_widget->setCurrentIndex(tab_id);
+        } else {
+
+            GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+            graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            graphic_viewer->setImage(mModel->readImage(orthophoto.toStdString()));
+            tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(orthophoto).fileName());
+            tab_widget->setCurrentIndex(tab_id);
+            tab_widget->setTabToolTip(tab_id, orthophoto);
+            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+
+            graphic_viewer->zoomExtend();
+        }
+
+        AppStatus *status = Application::instance().status();
+        status->activeFlag(AppStatus::Flag::tab_image_active, true);
+        status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
+
     } catch (std::exception &e) {
         tl::printException(e);
     }
@@ -677,7 +733,8 @@ void MainWindowPresenter::initSignalAndSlots()
 
     /* Visor DTM/DSM */
 
-    connect(mView, SIGNAL(openDtm()), this, SLOT(openDtm()));
+    connect(mView, &MainWindowView::openDtm, this, &MainWindowPresenter::openDtm);
+    connect(mView, &MainWindowView::openOrtho, this, &MainWindowPresenter::openOrthophoto);
 
     connect(mView, &MainWindowView::all_tabs_closed, []() {
         AppStatus *status = Application::instance().status();

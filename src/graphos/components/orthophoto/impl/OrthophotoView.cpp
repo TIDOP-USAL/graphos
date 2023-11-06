@@ -99,16 +99,16 @@ void OrthophotoViewImp::clear()
 void OrthophotoViewImp::update()
 {}
 
-double OrthophotoViewImp::resolution() const
+double OrthophotoViewImp::gsd() const
 {
     return mDoubleSpinBoxResolution->value();
 }
 
 
-void OrthophotoViewImp::setResolution(double resolution)
+void OrthophotoViewImp::setGSD(double gsd)
 {
     const QSignalBlocker blocker(mDoubleSpinBoxResolution);
-    mDoubleSpinBoxResolution->setValue(resolution);
+    mDoubleSpinBoxResolution->setValue(gsd);
 }
 
 
