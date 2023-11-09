@@ -91,6 +91,7 @@ private:
     ccPointCloud *mLevelMarkersCloud;
     //std::vector<cc2DLabel*> s_levelLabels;
     std::vector<QVector3D> mPoints;
+
 };
 
 } // namespace graphos

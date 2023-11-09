@@ -69,12 +69,16 @@ public:
     int maxResolution() const override;
     int numberViews() const override;
     int numberViewsFuse() const override;
+    bool estimateColors() const override;
+    bool estimateNormals() const override;
 
     void setResolutionLevel(int resolutionLevel) override;
     void setMinResolution(int minResolution) override;
     void setMaxResolution(int maxResolution) override;
     void setNumberViews(int numberViews) override;
     void setNumberViewsFuse(int numberViewsFuse) override;
+    void setEstimateColors(bool estimateColors) override;
+    void setEstimateNormals(bool estimateNormals) override;
 
 // Densification interface
 
@@ -83,13 +87,15 @@ public:
     void reset() override;
     QString name() const override;
 
-protected:
+private:
 
     int mResolutionLevel;
     int mMinResolution;
     int mMaxResolution;
     int mNumberViews;
     int mNumberViewsFuse;
+    bool mEstimateColors;
+    bool mEstimateNormals;
 
 };
 

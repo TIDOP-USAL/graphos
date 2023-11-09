@@ -48,6 +48,12 @@
 #include <CGAL/Polygon_mesh_processing/remesh.h>
 #include <CGAL/compute_average_spacing.h>
 
+
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/AABB_face_graph_triangle_primitive.h>
+#include <CGAL/AABB_traits.h>
+#include <CGAL/AABB_tree.h>
+
 #include <opencv2/imgcodecs.hpp>
 
 #include <iostream>
@@ -58,7 +64,7 @@ using Projection_traits = CGAL::Projection_traits_xy_3<Kernel>;
 using TIN = CGAL::Delaunay_triangulation_2<Projection_traits>;
 using Point_2 = Kernel::Point_2;
 using Point_3 = Kernel::Point_3;
-using Mesh = CGAL::Surface_mesh<Point_3>;
+//using Mesh = CGAL::Surface_mesh<Point_3>;
 using Point_set = CGAL::Point_set_3<Point_3>;
 using Vbi = CGAL::Triangulation_vertex_base_with_info_2<Point_set::Index, Projection_traits>;
 using Fbi = CGAL::Triangulation_face_base_with_info_2<int, Projection_traits>;
@@ -69,6 +75,17 @@ using Concurrency_tag = CGAL::Parallel_tag;
 #else
 using Concurrency_tag = CGAL::Sequential_tag;
 #endif
+
+using SimpleCartesian = CGAL::Simple_cartesian<double>;
+using PointCGAL = SimpleCartesian::Point_3;
+using VectorCGAL = SimpleCartesian::Vector_3 ;
+using Ray = SimpleCartesian::Ray_3;
+using Mesh = CGAL::Surface_mesh<PointCGAL>;
+using Primitive = CGAL::AABB_face_graph_triangle_primitive<Mesh>;
+using Traits = CGAL::AABB_traits<SimpleCartesian, Primitive>;
+using Tree = CGAL::AABB_tree<Traits>;
+using RayIntersection = boost::optional<Tree::Intersection_and_primitive_id<Ray>::Type>;
+using PrimitiveId = Tree::Primitive_id ;
 
 namespace internal
 {
@@ -141,6 +158,56 @@ cv::Mat DtmTask::extractDTMfromTIN(const internal::TIN &dsm, const tl::BoundingB
     return mat;
 }
 
+cv::Mat extractDTMfromMesh(Mesh &mesh, const tl::BoundingBoxD &bbox, tl::Progress *progressBar, double gsd, double zOffset)
+{
+
+
+    tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd), 
+                       tl::roundToInteger(bbox.height()/ gsd));
+    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
+
+    TIN::Face_handle location;
+
+    double increment = 40. / static_cast<double>(size.height);
+    double progress = 0.;
+
+    Tree tree(faces(mesh).first, faces(mesh).second, mesh);
+
+    for (std::size_t r = 0; r < size.height; ++r) {
+
+        //if (status() == Task::Status::stopping) return mat;
+
+        for (std::size_t c = 0; c < size.width; ++c) {
+
+
+            VectorCGAL orientation(0., 0., -1.);
+            PointCGAL camera_center = PointCGAL(bbox.pt1.x + c * gsd, bbox.pt1.y + (size.height - r) * gsd, 100.);
+
+            Ray ray(camera_center, orientation);
+               
+            if (RayIntersection intersection = tree.first_intersection(ray)) {
+
+                if (PointCGAL *p = boost::get<PointCGAL>(&(intersection->first))) {
+                    mat.at<float>(r, c) = static_cast<float>(p->z() + zOffset);
+                }
+            }
+
+        }
+
+        if (progressBar) {
+            progress += increment;
+            int _progress = static_cast<int>(progress);
+            if (_progress == 1) {
+                (*progressBar)(_progress);
+                progress -= _progress;
+            }
+
+        }
+    }
+
+    return mat;
+}
+
 void writeDTM(const tl::Path &file, const cv::Mat &mat,
               const tl::Affine<tl::Point<double>> &georeference,
               const std::string &epsg)
@@ -194,6 +261,19 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         std::string filename = mPointCloud.toString();
 
+        // 1 - Read Mesh
+
+#ifndef  READ_POINTS
+
+        tl::Path mesh_path = mPointCloud.parentPath().parentPath();
+        mesh_path.append("mesh.pr.ply");
+        std::ifstream input(mesh_path.toString(), std::ios::binary);
+        Mesh mesh;
+        std::string comments;
+        bool error = CGAL::IO::read_PLY(input, mesh, comments, true);
+
+#else
+
         // 1 - Read points
 
         std::ifstream input_stream(filename.c_str(), std::ios::binary);
@@ -202,6 +282,8 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         tl::Message::info("Read {} points", points.size());
 
+#endif // ! READ_POINTS
+
         if (progressBar) (*progressBar)(25);
 
         if (status() == Task::Status::stopping) return;
@@ -209,15 +291,22 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         // 2 - Create TIN
 
+#ifdef  READ_POINTS
         TIN dsm(points.points().begin(), points.points().end());
+#else
+        //TIN dsm(mesh.points().begin(), mesh.points().end());
+#endif
 
         if (progressBar) (*progressBar)(25);
 
         if (status() == Task::Status::stopping) return;
 
         // 3 - Create DSM        
-
+#ifdef  READ_POINTS
         CGAL::Bbox_3 cgal_bbox = CGAL::bbox_3(points.points().begin(), points.points().end());   
+#else
+        CGAL::Bbox_3 cgal_bbox = CGAL::bbox_3(mesh.points().begin(), mesh.points().end());
+#endif
         tl::BoundingBoxD bbox(tl::Point3d(cgal_bbox.xmin(), cgal_bbox.ymin(), cgal_bbox.zmin()), 
                               tl::Point3d(cgal_bbox.xmax(), cgal_bbox.ymax(), cgal_bbox.zmax()));
 
@@ -227,10 +316,14 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         tl::Affine<tl::Point<double>> georeference(cgal_bbox.xmin() + mOffset.x, cgal_bbox.ymax() + mOffset.y, mGSD, -mGSD, 0.);
 
+
+#ifdef  READ_POINTS
         internal::TIN internal_tin;
         internal_tin.ref = &dsm;
         cv::Mat dsm_raster = extractDTMfromTIN(internal_tin, bbox, progressBar/*, mGSD, mOffset.z*/);
-
+#else
+        cv::Mat dsm_raster = extractDTMfromMesh(mesh, bbox, progressBar, mGSD, mOffset.z);
+#endif
         // 4 - Write DSM
         tl::Path mds_path = mDtmFile;
         mds_path.replaceBaseName("dsm");

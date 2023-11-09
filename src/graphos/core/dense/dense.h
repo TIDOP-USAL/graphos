@@ -223,12 +223,16 @@ public:
     virtual int maxResolution() const = 0;
     virtual int numberViews() const = 0;
     virtual int numberViewsFuse() const = 0;
+    virtual bool estimateColors() const = 0;
+    virtual bool estimateNormals() const = 0;
 
     virtual void setResolutionLevel(int resolutionLevel) = 0;
     virtual void setMinResolution(int minResolution) = 0;
     virtual void setMaxResolution(int maxResolution) = 0;
     virtual void setNumberViews(int numberViews) = 0;
     virtual void setNumberViewsFuse(int numberViewsFuse) = 0;
+    virtual void setEstimateColors(bool estimateColors) = 0;
+    virtual void setEstimateNormals(bool estimateNormals) = 0;
 };
 
 

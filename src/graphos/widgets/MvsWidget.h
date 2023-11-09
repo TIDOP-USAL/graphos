@@ -54,6 +54,8 @@ public:
     //int maxResolution() const;
     int numberViews() const;
     int numberViewsFuse() const;
+    bool estimateColors() const;
+    bool estimateNormals() const;
 
 signals:
 
@@ -72,6 +74,8 @@ public slots:
     //void setMaxResolution(int maxResolution);
     void setNumberViews(int numberViews);
     void setNumberViewsFuse(int numberViewsFuse);
+    void setEstimateColors(bool estimateColors);
+    void setEstimateNormals(bool estimateNormals);
 
 // GraphosWidgetView interface
 
@@ -104,6 +108,17 @@ protected:
     QSpinBox *mSpinBoxNumberViews;
     QLabel *mLabelNumberViewsFuse;
     QSpinBox *mSpinBoxNumberViewsFuse;
+    QCheckBox *mCheckBoxEstimateColors;
+    QCheckBox *mCheckBoxEstimateNormals;
+
+    //--fusion-mode arg (=0)                depth-maps fusion mode (-2 - fuse
+    //                                    disparity-maps, -1 - export
+    //                                    disparity-maps only, 0 - depth-maps &
+    //                                    fusion, 1 - export depth-maps only)
+    //--postprocess-dmaps arg (=7)          flags used to filter the depth-maps
+    //                                    after estimation (0 - disabled, 1 -
+    //                                    remove-speckles, 2 - fill-gaps, 4 -
+    //                                    adjust-filter)
 
 };
 

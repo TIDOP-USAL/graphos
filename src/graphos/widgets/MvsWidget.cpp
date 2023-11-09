@@ -32,6 +32,8 @@ TL_DISABLE_WARNINGS
 #include <QGroupBox>
 #include <QApplication>
 #include <QComboBox>
+#include <QCheckBox>
+
 TL_DEFAULT_WARNINGS
 
 namespace graphos
@@ -51,7 +53,9 @@ MvsWidget::MvsWidget(QWidget *parent)
     mLabelNumberViews(new QLabel(this)),
     mSpinBoxNumberViews(new QSpinBox(this)),
     mLabelNumberViewsFuse(new QLabel(this)),
-    mSpinBoxNumberViewsFuse(new QSpinBox(this))
+    mSpinBoxNumberViewsFuse(new QSpinBox(this)),
+    mCheckBoxEstimateColors(new QCheckBox(this)),
+    mCheckBoxEstimateNormals(new QCheckBox(this))
 {
     MvsWidget::initUI();
     MvsWidget::initSignalAndSlots();
@@ -92,6 +96,16 @@ int MvsWidget::numberViewsFuse() const
     return mSpinBoxNumberViewsFuse->value();
 }
 
+bool MvsWidget::estimateColors() const
+{
+    return mCheckBoxEstimateColors->isChecked();
+}
+
+bool MvsWidget::estimateNormals() const
+{
+    return mCheckBoxEstimateNormals->isChecked();
+}
+
 void MvsWidget::setQuality(int quality)
 {
     const QSignalBlocker blocker(mComboBoxQuality);
@@ -128,6 +142,16 @@ void MvsWidget::setNumberViewsFuse(int numberViewsFuse)
     mSpinBoxNumberViewsFuse->setValue(numberViewsFuse);
 }
 
+void MvsWidget::setEstimateColors(bool estimateColors)
+{
+    mCheckBoxEstimateColors->setChecked(estimateColors);
+}
+
+void MvsWidget::setEstimateNormals(bool estimateNormals)
+{
+    mCheckBoxEstimateNormals->setChecked(estimateNormals);
+}
+
 void MvsWidget::update()
 {
 
@@ -146,6 +170,8 @@ void MvsWidget::retranslate()
     mComboBoxQuality->setItemText(3, QApplication::translate("MvsWidget", "Low"));
     mLabelNumberViews->setText(QApplication::translate("MvsWidget", "Number Views:"));
     mLabelNumberViewsFuse->setText(QApplication::translate("MvsWidget", "Number Views Fuse:"));
+    mCheckBoxEstimateColors->setText(QApplication::translate("MvsWidget", "Estimate colors"));
+    mCheckBoxEstimateNormals->setText(QApplication::translate("MvsWidget", "Estimate normals"));
 }
 
 void MvsWidget::clear()
@@ -163,6 +189,8 @@ void MvsWidget::clear()
     //mSpinBoxMaxResolution->setValue(3200);
     mSpinBoxNumberViews->setValue(5);
     mSpinBoxNumberViewsFuse->setValue(3);
+    mCheckBoxEstimateColors->setChecked(true);
+    mCheckBoxEstimateNormals->setChecked(true);
 }
 
 void MvsWidget::initUI()
@@ -206,6 +234,9 @@ void MvsWidget::initUI()
     propertiesLayout->addWidget(mLabelNumberViewsFuse, 3, 0);
     mSpinBoxNumberViewsFuse->setRange(1, 100);
     propertiesLayout->addWidget(mSpinBoxNumberViewsFuse, 3, 1);
+
+    propertiesLayout->addWidget(mCheckBoxEstimateColors, 4, 0, 1, 2);
+    propertiesLayout->addWidget(mCheckBoxEstimateNormals, 5, 0, 1, 2);
 
     MvsWidget::retranslate();
     MvsWidget::clear(); /// set default values

@@ -288,6 +288,8 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         mvs->setNumberViews(mMVS->numberViews());
         mvs->setNumberViewsFuse(mMVS->numberViewsFuse());
         mvs->setResolutionLevel(mMVS->quality());
+        mvs->setEstimateColors(mMVS->estimateColors());
+        mvs->setEstimateNormals(mMVS->estimateNormals());
 
         auto properties = std::make_shared<MvsProperties>(mMVS->quality(),
                                                           256/*mMVS->minResolution()*/,

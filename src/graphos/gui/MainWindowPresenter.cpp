@@ -511,7 +511,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
 
             if (loadCameras) {
 
-                tl::Matrix4x4d transform = mModel->transform();
+                //tl::Matrix4x4d transform = mModel->transform();
                 tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
                 auto rotation = affine.rotation();
 

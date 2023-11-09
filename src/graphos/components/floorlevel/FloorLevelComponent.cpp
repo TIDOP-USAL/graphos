@@ -69,7 +69,7 @@ void FloorLevelComponent::open()
 
             connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
             ccviewer->activatePicker(CCViewer3D::PickingMode::level_points);
-            mPoints.reserve(4);
+            mPoints.reserve(3);
             dynamic_cast<ccGLWindow *>(viewer_3d)->displayNewMessage("Pick three points on the floor plane (click the Level button or press Escape to cancel)", ccGLWindow::LOWER_LEFT_MESSAGE, true, 24 * 3600);
         }
 
@@ -168,21 +168,20 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
 
         tl::Matrix<double, 4, 4> transform;
         transform(0, 0) = mat[0];
-        transform(0, 1) = mat[1];
-        transform(0, 2) = mat[2];
-        transform(0, 3) = mat[3];
-        transform(1, 0) = mat[4];
+        transform(1, 0) = mat[1];
+        transform(2, 0) = mat[2];
+        
+        transform(0, 1) = mat[4];
         transform(1, 1) = mat[5];
-        transform(1, 2) = mat[6];
-        transform(1, 3) = mat[7];
-        transform(2, 0) = mat[8];
-        transform(2, 1) = mat[9];
+        transform(2, 1) = mat[6];
+        
+        transform(0, 2) = mat[8];
+        transform(1, 2) = mat[9];
         transform(2, 2) = mat[10];
+
+        transform(0, 3) = mat[3];
+        transform(1, 3) = mat[7];
         transform(2, 3) = mat[11];
-        transform(3, 0) = mat[12];
-        transform(3, 1) = mat[13];
-        transform(3, 2) = mat[14];
-        transform(3, 3) = mat[15];
 
         dynamic_cast<Application *>(qApp)->project()->setTransform(transform);
 

@@ -733,7 +733,7 @@ tl::Matrix<double, 4, 4> ProjectImp::transform() const
 
 void ProjectImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
 {
-    mTransform = transform;
+    mTransform = mTransform * transform;
 }
 
 bool ProjectImp::read(QXmlStreamReader &stream)

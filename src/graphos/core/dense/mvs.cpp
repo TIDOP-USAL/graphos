@@ -148,6 +148,16 @@ int MvsProperties::numberViewsFuse() const
     return mNumberViewsFuse;
 }
 
+bool MvsProperties::estimateColors() const
+{
+    return mEstimateColors;
+}
+
+bool MvsProperties::estimateNormals() const
+{
+    return mEstimateNormals;
+}
+
 void MvsProperties::setResolutionLevel(int resolutionLevel)
 {
     mResolutionLevel = resolutionLevel;
@@ -173,6 +183,16 @@ void MvsProperties::setNumberViewsFuse(int numberViewsFuse)
     mNumberViewsFuse = numberViewsFuse;
 }
 
+void MvsProperties::setEstimateColors(bool estimateColors)
+{
+    mEstimateColors = estimateColors;
+}
+
+void MvsProperties::setEstimateNormals(bool estimateNormals)
+{
+    mEstimateNormals = estimateNormals;
+}
+
 void MvsProperties::reset()
 {
     mResolutionLevel = mvsDefaultResolutionLevel;
@@ -180,6 +200,8 @@ void MvsProperties::reset()
     mMaxResolution = mvsDefaultMaxResolution;
     mNumberViews = mvsDefaultNumberViews;
     mNumberViewsFuse = mvsDefaultNumberViewsFuse;
+    mEstimateColors = true;
+    mEstimateNormals = true;
 }
 
 
@@ -597,7 +619,11 @@ void MvsDensifier::densify()
             cmd_mvs.append(" --cuda-device -1");
         else
             cmd_mvs.append(" --cuda-device -2");
-        cmd_mvs.append(" --filter-point-cloud 1");
+        if (!MvsProperties::estimateColors())
+            cmd_mvs.append(" --estimate-colors 0");
+        if (!MvsProperties::estimateNormals())
+            cmd_mvs.append(" --estimate-normals 0");
+        //cmd_mvs.append(" --filter-point-cloud 1");
 
         tl::Message::info("Process: {}", cmd_mvs);
         tl::Process process(cmd_mvs);
