@@ -386,6 +386,8 @@ void GeoreferenceModelImp::save()
 
         file.close();
     }
+
+    mProject->setCrs(mCrs);
 }
 
 } // namespace graphos
