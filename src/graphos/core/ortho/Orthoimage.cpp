@@ -165,7 +165,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 
                     /// Estoy expandiendo despues de comprobar si se sale de los limites de la imagen... Solucionar cuando refactorice
                     /// Habría que calcular la intersección de window_aux con la ventana imagen total.
-                    tl::WindowI window_aux = tl::expandWindow(window_image_in, 1);
+                    tl::WindowI window_aux = tl::expandWindow(window_image_in, 2);
                     if (rect_image.contains(window_aux.pt1) &&
                         rect_image.contains(window_aux.pt2)) {
                         window_image_in = window_aux;

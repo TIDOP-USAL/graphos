@@ -31,6 +31,7 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/exception.h>
 #include <tidop/core/progress.h>
+#include <tidop/core/chrono.h>
 #include <tidop/geospatial/crs.h>
 #include <tidop/vect/vectreader.h>
 #include <tidop/graphic/layer.h>
@@ -576,6 +577,9 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
     try {
 
+        tl::Chrono chrono("Orthophoto task finished");
+        chrono.run();
+
         tl::Path footprint_file(mOrthoPath);
         footprint_file.append("footprint.shp");
         tl::Path graph_orthos = tl::Path(footprint_file).replaceBaseName("graph_orthos");
@@ -602,6 +606,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
         orthoMosaic(optimal_footprint_path, mOrthoPath, mGSD, crs, grid);
 
+        chrono.stop();
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Orthophoto process error");

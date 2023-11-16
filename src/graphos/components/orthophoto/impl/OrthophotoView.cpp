@@ -57,6 +57,7 @@ void OrthophotoViewImp::initUI()
     mLabelResolution = new QLabel(this);
     gridLayout->addWidget(mLabelResolution, 0, 0, 1, 1);
     mDoubleSpinBoxResolution = new QDoubleSpinBox(this);
+    mDoubleSpinBoxResolution->setSingleStep(0.1);
     gridLayout->addWidget(mDoubleSpinBoxResolution, 0, 1, 1, 1);
 
 
@@ -93,7 +94,7 @@ void OrthophotoViewImp::retranslate()
 
 void OrthophotoViewImp::clear()
 {
-
+    mDoubleSpinBoxResolution->setValue(0.05);
 }
 
 void OrthophotoViewImp::update()

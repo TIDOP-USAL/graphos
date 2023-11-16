@@ -56,11 +56,11 @@ public:
     virtual QString epsCode() const = 0;
     virtual void clearProject() = 0;
     virtual bool useCuda() const = 0;
-    virtual bool gsd() const = 0;
+    virtual double gsd() const = 0;
 
 public slots:
 
-    virtual void setGSD(bool gsd) = 0;
+    virtual void setGSD(double gsd) = 0;
 
     virtual void loadSettings() = 0;
     virtual void saveSettings() = 0;

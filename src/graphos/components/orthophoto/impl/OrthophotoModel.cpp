@@ -54,7 +54,7 @@ OrthophotoModelImp::~OrthophotoModelImp()
     }
 }
 
-void OrthophotoModelImp::setGSD(bool gsd)
+void OrthophotoModelImp::setGSD(double gsd)
 {
     mProject->orthophoto().gsd = gsd;
 }
@@ -173,7 +173,7 @@ bool OrthophotoModelImp::useCuda() const
     return mSettings->value("UseCuda", true).toBool();
 }
 
-bool OrthophotoModelImp::gsd() const
+double OrthophotoModelImp::gsd() const
 {
     return mProject->orthophoto().gsd;
 }
