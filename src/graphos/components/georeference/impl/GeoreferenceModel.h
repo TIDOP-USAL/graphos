@@ -84,6 +84,8 @@ public:
     std::vector<GroundPoint> groundPoints() const override;
     tl::Path database() const override;
     void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
+    void setGroundPoints(const tl::Path &groundPoints) override;
+    bool updateCamera(int id, const Camera &camera) override;
 
 public slots:
 

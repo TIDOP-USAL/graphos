@@ -78,6 +78,8 @@ public:
     virtual std::vector<GroundPoint> groundPoints() const = 0;
     virtual tl::Path database() const = 0;
     virtual void setTransform(const tl::Matrix<double, 4, 4> &trasnform) = 0;
+    virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
+    virtual bool updateCamera(int id, const Camera &camera) = 0;
 
 public slots:
 

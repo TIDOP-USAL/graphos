@@ -29,6 +29,7 @@
 #include "graphos/core/task/Progress.h"
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 #include <tidop/core/defs.h>
 #include <tidop/core/msg/message.h>
@@ -73,11 +74,41 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     try {
 
         auto transform = dynamic_cast<GeoreferenceTask const *>(event->task())->transform();
-        mModel->setTransform(transform);
-        tl::Path offset = mModel->reconstructionPath();
-        offset.append("offset.txt");
-        mModel->setOffset(offset);
+
+        tl::Path path = mModel->reconstructionPath();
+
+        if (transform != tl::Matrix<double, 4, 4>::identity()) {
+            mModel->setTransform(transform);
+        } 
+
+        mModel->setReconstructionPath(path);
+
+        path.append("offset.txt");
+        mModel->setOffset(path);
+
+        path.replaceFileName("poses.bin");
+
+        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+        poses_reader->read(path);
+        auto poses = poses_reader->cameraPoses();
+
+        for (const auto &camera_pose : poses) {
+            mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
+        }
+
+        path.replaceFileName("sparse.ply");
+        mModel->setSparseModel(path);
+
+        path.replaceFileName("ground_points.bin");
+        mModel->setGroundPoints(path);
+
         mModel->setCrs(mView->crs());
+
+        auto cameras = dynamic_cast<GeoreferenceTask const *>(event->task())->cameras();
+
+        for (const auto &camera : cameras) {
+            mModel->updateCamera(camera.first, camera.second);
+        }
 
     } catch (const std::exception &e) {
         tl::printException(e);
