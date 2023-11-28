@@ -32,13 +32,21 @@ namespace graphos
 Image::Image()
   : mFilePath(""),
     mId(0),
-    //mName(""),
     mCameraId(0),
     mCameraPose()
 {
 }
 
 Image::Image(const QString &file)
+  : mFilePath(file.toStdString()),
+    mId(0),
+    mCameraId(0),
+    mCameraPose()
+{
+    update();
+}
+
+Image::Image(const tl::Path &file)
   : mFilePath(file),
     mId(0),
     mCameraId(0),
@@ -50,7 +58,6 @@ Image::Image(const QString &file)
 Image::Image(const Image &image)
   : mFilePath(image.mFilePath),
     mId(image.mId),
-    //mName(image.mName),
     mCameraId(image.mCameraId),
     mCameraPose(image.mCameraPose)
 {
@@ -60,7 +67,6 @@ Image::Image(const Image &image)
 Image::Image(Image &&image) noexcept
   : mFilePath(std::move(image.mFilePath)),
     mId(std::exchange(image.mId, 0)),
-    //mName(std::move(image.mName)),
     mCameraId(std::exchange(image.mCameraId, 0)),
     mCameraPose(std::move(image.mCameraPose))
 {
@@ -68,18 +74,23 @@ Image::Image(Image &&image) noexcept
 
 QString Image::path() const
 {
-    return mFilePath;
+    return QString::fromStdString(mFilePath.toString());
 }
 
 void Image::setPath(const QString &file)
 {
-    mFilePath = file;
+    mFilePath = file.toStdString();
     update();
+}
+
+void Image::setPath(const tl::Path &file)
+{
+    mFilePath = file;
 }
 
 QString Image::name() const
 {
-    return QFileInfo(mFilePath).fileName();
+    return QString::fromStdString(mFilePath.fileName().toString());
 }
 
 size_t Image::id() const
@@ -131,8 +142,7 @@ Image &Image::operator =(Image &&image) noexcept
 
 void Image::update()
 {
-    tl::Path img_path(mFilePath.toStdWString());
-    mId = tl::Path::hash(img_path);
+    mId = tl::Path::hash(mFilePath);
 }
 
 

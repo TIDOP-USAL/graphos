@@ -50,7 +50,6 @@ public:
 private:
 
     tl::Path projectFolder() const;
-    tl::Path databasePath(const tl::Path &projectFolder) const;
     tl::Path projectPath(const tl::Path &projectFolder) const;
 
 // CreateProjectPresenter interface
@@ -77,7 +76,6 @@ private:
     CreateProjectView *mView;
     CreateProjectModel *mModel;
     AppStatus *mAppStatus;
-    tl::Path mProjectsDefaultPath;
 
 };
 

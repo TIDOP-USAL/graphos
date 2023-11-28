@@ -24,6 +24,7 @@
 #include "CreateProjectModel.h"
 
 #include "graphos/core/project.h"
+#include "graphos/core/Application.h"
 
 namespace graphos
 {
@@ -32,8 +33,7 @@ namespace graphos
 CreateProjectModelImp::CreateProjectModelImp(Project *project,
                                              QObject *parent)
   : CreateProjectModel(parent),
-    mProject(project),
-    mPrjFile("")
+    mProject(project)
 {
     init();
 }
@@ -43,24 +43,9 @@ CreateProjectModelImp::~CreateProjectModelImp()
 
 }
 
-QString CreateProjectModelImp::projectName() const
+tl::Path CreateProjectModelImp::projectsDefaultPath() const
 {
-    return mProject->name();
-}
-
-QString CreateProjectModelImp::projectDescription() const
-{
-    return mProject->description();
-}
-
-tl::Path CreateProjectModelImp::projectFolder() const
-{
-    return mProject->projectFolder();
-}
-
-tl::Path CreateProjectModelImp::projectPath() const
-{
-    return mPrjFile;
+    return dynamic_cast<Application*>(qApp)->documentsLocation();
 }
 
 void CreateProjectModelImp::setProjectName(const QString &name)
@@ -78,15 +63,16 @@ void CreateProjectModelImp::setProjectFolder(const tl::Path &folder)
     mProject->setProjectFolder(folder);
 }
 
-void CreateProjectModelImp::setDatabase(const tl::Path &database)
+void CreateProjectModelImp::save()
 {
-    mProject->setDatabase(database);
-}
+    tl::Path project_path = mProject->projectFolder();
+    project_path.append(mProject->name().append(".xml").toStdWString());
 
-void CreateProjectModelImp::saveAs(const tl::Path &file)
-{
-    mPrjFile = file;
-    mProject->save(file);
+    tl::Path database_path = project_path;
+    database_path.replaceExtension(".db");
+    mProject->setDatabase(database_path);
+
+    mProject->save(project_path);
 }
 
 void CreateProjectModelImp::init()
@@ -97,7 +83,6 @@ void CreateProjectModelImp::init()
 void CreateProjectModelImp::clear()
 {
     mProject->clear();
-    mPrjFile.clear();
 }
 
 } // namespace graphos

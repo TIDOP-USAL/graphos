@@ -53,8 +53,7 @@ public:
     virtual const std::map<int, Camera> &cameras() const = 0;
     virtual int addCamera(const Camera &camera) = 0;
     virtual int cameraID(const Camera &camera) const = 0;
-    virtual int cameraID(const QString &make,
-                         const QString &model) const = 0;
+
 };
 
 } // namespace graphos

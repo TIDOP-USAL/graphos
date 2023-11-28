@@ -50,18 +50,19 @@ signals:
 
 public:
 
-    QString projectName() const override;
-    QString projectDescription() const override;
-    tl::Path projectFolder() const override;
-    tl::Path projectPath() const override;
+    //QString projectName() const override;
+    //QString projectDescription() const override;
+    //tl::Path projectFolder() const override;
+    //tl::Path projectPath() const override;
+    tl::Path projectsDefaultPath() const override;
 
 public slots:
 
     void setProjectName(const QString &name) override;
     void setProjectDescription(const QString &projectDescription) override;
     void setProjectFolder(const tl::Path &folder) override;
-    void setDatabase(const tl::Path &database) override;
-    void saveAs(const tl::Path &file) override;
+    //void setDatabase(const tl::Path &database) override;
+    void save() override;
 
 // Model interface
 
@@ -76,7 +77,7 @@ public slots:
 private:
 
     Project *mProject;
-    tl::Path mPrjFile;
+    //tl::Path mPrjFile;
 
 };
 

@@ -21,6 +21,7 @@ public:
 public:
 
   bool load(const tl::Path &file) override;
+  bool save(const tl::Path &file) override;
 
 protected:
 

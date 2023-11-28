@@ -69,7 +69,7 @@ void ImageLoaderComponent::createView()
 void ImageLoaderComponent::createPresenter()
 {
     setPresenter(new ImageLoaderPresenterImp(dynamic_cast<ImageLoaderView *>(view()),
-                 dynamic_cast<ImageLoaderModel *>(model())));
+                                             dynamic_cast<ImageLoaderModel *>(model())));
 
     connect(dynamic_cast<ImageLoaderPresenter *>(presenter()), &ImageLoaderPresenter::image_loaded,
             this, &ImageLoaderComponent::image_loaded);

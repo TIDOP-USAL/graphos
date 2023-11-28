@@ -40,32 +40,32 @@ class CreateProjectPresenter
 
 public:
 
-  CreateProjectPresenter(){}
-  virtual ~CreateProjectPresenter() override = default;
+    CreateProjectPresenter(){}
+    virtual ~CreateProjectPresenter() override = default;
 
 signals:
 
-  /*!
-   * \brief Signal emitted when the project is created
-   */
-  void project_created();
+    /*!
+     * \brief Signal emitted when the project is created
+     */
+    void project_created();
 
 protected slots:
 
-  /*!
-   * \brief Save the project
-   */
-  virtual void saveProject() = 0;
-
-  /*!
-   * \brief Discard the changes in the project
-   */
-  virtual void discartProject() = 0;
-
-  /*!
-   * \brief Check if a project with the same name already exists
-   */
-  virtual void checkProjectName() const = 0;
+    /*!
+     * \brief Save the project
+     */
+    virtual void saveProject() = 0;
+    
+    /*!
+     * \brief Discard the changes in the project
+     */
+    virtual void discartProject() = 0;
+    
+    /*!
+     * \brief Check if a project with the same name already exists
+     */
+    virtual void checkProjectName() const = 0;
 
 };
 
