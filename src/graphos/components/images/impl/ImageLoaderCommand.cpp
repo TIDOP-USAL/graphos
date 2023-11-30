@@ -28,6 +28,7 @@
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
+#include <tidop/core/progress.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
@@ -176,7 +177,8 @@ bool ImageLoaderCommand::run()
 
                     });
 
-            image_loader_process.run();
+            tl::ProgressBarColor progress(0, images.size());
+            image_loader_process.run(&progress);
 
         }
 

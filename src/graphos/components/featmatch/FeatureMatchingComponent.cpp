@@ -90,8 +90,8 @@ void FeatureMatchingComponent::update()
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
     bool feature_matching_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
-        app_status->isEnabled(AppStatus::Flag::feature_extraction) &&
-        !app_status->isEnabled(AppStatus::Flag::processing);
+                                   app_status->isEnabled(AppStatus::Flag::feature_extraction) &&
+                                   !app_status->isEnabled(AppStatus::Flag::processing);
 
     action()->setEnabled(feature_matching_active);
 }

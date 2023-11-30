@@ -49,47 +49,48 @@ FeatureExtractorPresenterImp::FeatureExtractorPresenterImp(FeatureExtractorView 
     mModel(model),
     mSift(new SiftWidgetImp)
 {
-  FeatureExtractorPresenterImp::init();
-  FeatureExtractorPresenterImp::initSignalAndSlots();
+    FeatureExtractorPresenterImp::init();
+    FeatureExtractorPresenterImp::initSignalAndSlots();
 }
 
 FeatureExtractorPresenterImp::~FeatureExtractorPresenterImp()
 {
-  if (mSift){
-    delete mSift;
-    mSift = nullptr;
-  }
+    if (mSift) {
+        delete mSift;
+        mSift = nullptr;
+    }
 }
 
 void FeatureExtractorPresenterImp::open()
 {
-  this->setDetectorAndDescriptorProperties();
+    this->setDetectorAndDescriptorProperties();
 
-  mView->exec();
+    mView->exec();
 }
 
 void FeatureExtractorPresenterImp::init()
 {
-  mView->addDetectorDescriptor(mSift);
-  mView->setCurrentDetectorDescriptor(mSift->windowTitle());
+    mView->addDetectorDescriptor(mSift);
+    mView->setCurrentDetectorDescriptor(mSift->windowTitle());
 }
 
 void FeatureExtractorPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &FeatureExtractorView::detectorDescriptorChange,
-          this, &FeatureExtractorPresenterImp::setCurrentDetectorDescriptor);
-  connect(mView, &FeatureExtractorView::run,
-          this, &FeatureExtractorPresenterImp::run);
-  connect(mView, &DialogView::help, [&]() {
-    emit help("feature_extraction.html");
-  });
+    connect(mView, &FeatureExtractorView::detectorDescriptorChange,
+            this, &FeatureExtractorPresenterImp::setCurrentDetectorDescriptor);
+    connect(mView, &FeatureExtractorView::run,
+            this, &FeatureExtractorPresenterImp::run);
+    connect(mView, &DialogView::help, 
+            [&]() {
+                emit help("feature_extraction.html");
+            });
 }
 
 void FeatureExtractorPresenterImp::cancel()
 {
-  TaskPresenter::cancel();
+    TaskPresenter::cancel();
 
-  tl::Message::warning("Processing has been canceled by the user");
+    tl::Message::warning("Processing has been canceled by the user");
 }
 
 void FeatureExtractorPresenterImp::setCurrentDetectorDescriptor(const QString &detectorDescriptor)
@@ -104,121 +105,124 @@ void FeatureExtractorPresenterImp::setDetectorAndDescriptorProperties()
 
 void FeatureExtractorPresenterImp::setSiftProperties()
 {
-  std::shared_ptr<Sift> sift;
-  if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()){
-    if (feature_extractor->type() == Feature::Type::sift){
-      sift = std::dynamic_pointer_cast<Sift>(feature_extractor);
+    std::shared_ptr<Sift> sift;
+    if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
+        if (feature_extractor->type() == Feature::Type::sift) {
+            sift = std::dynamic_pointer_cast<Sift>(feature_extractor);
+        }
+    } else {
+        TL_TODO("Sift *sift = mSettingsModel->sift();")
     }
-  } else {
-    TL_TODO("Sift *sift = mSettingsModel->sift();")
-  }
 
-  if (sift){
-    mSift->setOctaveLayers(sift->octaveLayers());
-    bool thresholdAuto = sift->constrastThresholdAuto();
-    mSift->setContrastThresholdAuto(thresholdAuto);
-    if (!thresholdAuto)
-      mSift->setEdgeThreshold(sift->edgeThreshold());
-    mSift->setFeaturesNumber(sift->featuresNumber());
-    mSift->setContrastThreshold(sift->contrastThreshold());
-  }
+    if (sift) {
+        mSift->setOctaveLayers(sift->octaveLayers());
+        bool thresholdAuto = sift->constrastThresholdAuto();
+        mSift->setContrastThresholdAuto(thresholdAuto);
+        if (!thresholdAuto)
+            mSift->setEdgeThreshold(sift->edgeThreshold());
+        mSift->setFeaturesNumber(sift->featuresNumber());
+        mSift->setContrastThreshold(sift->contrastThreshold());
+    }
 }
 
-void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent *event)
+void FeatureExtractorPresenterImp::onError(tl::TaskErrorEvent* event)
 {
-  TaskPresenter::onError(event);
+    TaskPresenter::onError(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Feature detection and description error"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Feature detection and description error"));
+    }
 }
 
-void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent* event)
 {
-  TaskPresenter::onFinished(event);
+    TaskPresenter::onFinished(event);
 
-  if (progressHandler()) {
-    progressHandler()->setDescription(tr("Feature detection and description finished"));
-  }
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Feature detection and description finished"));
+    }
 }
 
 std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
 {
-  std::unique_ptr<tl::Task> feat_extract_process;
+    std::unique_ptr<tl::Task> feat_extract_process;
 
-  if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
-    int i_ret = QMessageBox(QMessageBox::Warning,
-                            tr("Previous results"),
-                            tr("The previous results will be overwritten. Do you wish to continue?"),
-                            QMessageBox::Yes | QMessageBox::No).exec();
-    if (i_ret == QMessageBox::No) {
-      tl::Message::warning("Process canceled by user");
-      return feat_extract_process;
+    if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
+
+        int i_ret = QMessageBox(QMessageBox::Warning,
+                                tr("Previous results"),
+                                tr("The previous results will be overwritten. Do you wish to continue?"),
+                                QMessageBox::Yes | QMessageBox::No).exec();
+
+        if (i_ret == QMessageBox::No) {
+            tl::Message::warning("Process canceled by user");
+            return feat_extract_process;
+        }
+
     }
-  }
 
-  mModel->clearProject();
-  emit features_deleted();
+    mModel->clearProject();
+    emit features_deleted();
 
-  QString currentKeyPointDetector = mView->currentDetectorDescriptor();
-  std::shared_ptr<FeatureExtractor> feature_extractor;
+    QString currentKeyPointDetector = mView->currentDetectorDescriptor();
+    std::shared_ptr<FeatureExtractor> feature_extractor;
 
-  if (currentKeyPointDetector.compare("SIFT") == 0) {
-    if (mModel->useCuda()) {
-      feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
-                                                                       mSift->octaveLayers(),
-                                                                       mSift->edgeThreshold(),
-                                                                       mSift->constrastThresholdAuto() ? 
-                                                                       0. : mSift->contrastThreshold());
+    if (currentKeyPointDetector.compare("SIFT") == 0) {
+
+        if (mModel->useCuda()) {
+            feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(mSift->featuresNumber(),
+                                                                             mSift->octaveLayers(),
+                                                                             mSift->edgeThreshold(),
+                                                                             mSift->constrastThresholdAuto() ?
+                                                                             0. : mSift->contrastThreshold());
+        } else {
+            feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(mSift->featuresNumber(),
+                                                                            mSift->octaveLayers(),
+                                                                            mSift->edgeThreshold(),
+                                                                            mSift->constrastThresholdAuto() ?
+                                                                            0. : mSift->contrastThreshold());
+        }
+
     } else {
-      feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(mSift->featuresNumber(),
-                                                                      mSift->octaveLayers(),
-                                                                      mSift->edgeThreshold(),
-                                                                      mSift->constrastThresholdAuto() ?
-                                                                      0. : mSift->contrastThreshold());
+        mView->hide();
+        throw std::runtime_error("Invalid Keypoint Detector");
     }
 
-  } else {
+    mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
+
+    const std::unordered_map<size_t, Image> &images = mModel->images();
+
+    int maxSize = -1;
+    if (mView->fullImageSize() == false) {
+        maxSize = mView->maxImageSize();
+    }
+
+    feat_extract_process = std::make_unique<FeatureExtractorTask>(images,
+                                                                  mModel->cameras(),
+                                                                  mModel->database(),
+                                                                  maxSize,
+                                                                  mModel->useCuda(),
+                                                                  feature_extractor);
+
+    connect(dynamic_cast<FeatureExtractorTask*>(feat_extract_process.get()), &FeatureExtractorTask::features_extracted,
+            this, &FeatureExtractorPresenterImp::onFeaturesExtracted);
+
+    if (progressHandler()) {
+        progressHandler()->setRange(0, images.size());
+        progressHandler()->setTitle("Computing Features...");
+        progressHandler()->setDescription("Computing Features...");
+    }
+
     mView->hide();
-    throw std::runtime_error("Invalid Keypoint Detector");
-  }
 
-  mModel->setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
-
-  const std::unordered_map<size_t, Image> &images = mModel->images();
-
-  int maxSize = -1;
-  if (mView->fullImageSize() == false) {
-    maxSize = mView->maxImageSize();
-  }
-
-  feat_extract_process = std::make_unique<FeatureExtractorTask>(images,
-                                                                mModel->cameras(),
-                                                                mModel->database(),
-                                                                maxSize,
-                                                                mModel->useCuda(),
-                                                                feature_extractor);
-
-  connect(dynamic_cast<FeatureExtractorTask *>(feat_extract_process.get()),
-          &FeatureExtractorTask::features_extracted,
-          this, &FeatureExtractorPresenterImp::onFeaturesExtracted);
-
-  if (progressHandler()) {
-    progressHandler()->setRange(0, images.size());
-    progressHandler()->setTitle("Computing Features...");
-    progressHandler()->setDescription("Computing Features...");
-  }
-
-  mView->hide();
-
-  return feat_extract_process;
+    return feat_extract_process;
 }
 
-void FeatureExtractorPresenterImp::onFeaturesExtracted(size_t imageId, 
+void FeatureExtractorPresenterImp::onFeaturesExtracted(size_t imageId,
                                                        const QString &featuresFile)
 {
-  mModel->addFeatures(imageId, featuresFile);
-  emit features_extracted(imageId);
+    mModel->addFeatures(imageId, featuresFile);
+    emit features_extracted(imageId);
 }
 
 } // namespace graphos

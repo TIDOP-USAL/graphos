@@ -74,12 +74,12 @@ void FeatureMatchingPresenterImp::init()
 
 void FeatureMatchingPresenterImp::initSignalAndSlots()
 {
-    connect(mView, &FeatureMatchingView::matchMethodChange,
-            this, &FeatureMatchingPresenterImp::setCurrentMatchMethod);
-    connect(mView, &FeatureMatchingView::run,
-            this, &FeatureMatchingPresenterImp::run);
-    connect(mView, &DialogView::help, [&]() {
-        emit help("feature_matching.html");
+    connect(mView, &FeatureMatchingView::matchMethodChange, this, &FeatureMatchingPresenterImp::setCurrentMatchMethod);
+    connect(mView, &FeatureMatchingView::run, this, &FeatureMatchingPresenterImp::run);
+
+    connect(mView, &DialogView::help, 
+            [&]() {
+                emit help("feature_matching.html");
             });
 }
 
@@ -112,7 +112,6 @@ void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 
     mModel->writeMatchPairs();
-    //emit matching_finished();
 }
 
 std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
@@ -130,7 +129,7 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
         }
     }
 
-    mModel->clearProject();
+    mModel->cleanProject();
     emit matches_deleted();
 
     QString currentMatchMethod = mView->currentMatchMethod();
@@ -149,10 +148,6 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 
     mModel->setFeatureMatching(featureMatching);
 
-    //featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
-    //                                                             mModel->useCuda(),
-    //                                                             mView->spatialMatching(),
-    //                                                             featureMatching);
     if (mView->spatialMatching()) {
         featmatching_process = std::make_unique<SpatialMatchingTask>(mModel->database(),
                                                                      mModel->useCuda(),
@@ -164,12 +159,14 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
     }
 
     if (progressHandler()) {
-        //size_t size = mModel->imagesCount();
-        //size_t max = size;
-        //if (!mView->spatialMatching()) {
-        //  max = (size * (size - 1)) / 2;
-        //}
-        progressHandler()->setRange(0, 1);
+        size_t size = mModel->imagesSize();
+        size_t max = size;
+        if (!mView->spatialMatching()) {
+            size_t block_size = 50;
+            size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(size) / block_size));
+            max = num_blocks * num_blocks;
+        }
+        progressHandler()->setRange(0, max);
         progressHandler()->setTitle("Computing Matches...");
         progressHandler()->setDescription("Computing Matches...");
     }

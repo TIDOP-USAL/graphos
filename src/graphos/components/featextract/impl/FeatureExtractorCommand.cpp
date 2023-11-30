@@ -122,19 +122,20 @@ bool FeatureExtractorCommand::run()
                                                                              contrast_threshold);
         }
 
-        FeatureExtractorTask feature_extractor_process(project.images(),
-                                                       project.cameras(),
-                                                       database_path,
-                                                       max_image_size,
-                                                       !mDisableCuda,
-                                                       feature_extractor);
+        FeatureExtractorTask feature_extractor_task(project.images(),
+                                                    project.cameras(),
+                                                    database_path,
+                                                    max_image_size,
+                                                    !mDisableCuda,
+                                                    feature_extractor);
 
-        connect(&feature_extractor_process, &FeatureExtractorTask::features_extracted,
+        connect(&feature_extractor_task, &FeatureExtractorTask::features_extracted,
                 [&](size_t imageId, const QString &featuresFile) {
                     project.addFeatures(imageId, featuresFile);
                 });
 
-        feature_extractor_process.run();
+        ProgressBarColor progress(0, project.images().size());
+        feature_extractor_task.run(&progress);
 
         project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
         project.save(projectFile);
