@@ -140,8 +140,55 @@
 using namespace graphos;
 
 
+void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg) 
+{
+    switch (errorClass)
+    {
+        case CE_None:
+            break;
+        case CE_Debug:
+            break;        
+        case CE_Warning:
+            tl::Message::warning("GDAL error [{}]: {}", error, msg);
+            break;       
+        case CE_Failure:
+            tl::Message::error("GDAL error [{}]: {}", error, msg);
+            break;    
+        case CE_Fatal:
+            tl::Message::error("GDAL error [{}]: {}", error, msg);
+            break;
+        default:
+            break;
+    } 
+}
+
+void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    //QByteArray localMsg = msg.toLocal8Bit();
+    //switch (type) {
+    //    case QtDebugMsg:
+    //        tl::Message::debug("Qt: {}", msg.toStdString());
+    //        break;
+    //    case QtInfoMsg:
+    //        tl::Message::info("Qt: {}", msg.toStdString());
+    //        break;
+    //    case QtWarningMsg:
+    //        tl::Message::warning("Qt: {}", msg.toStdString());
+    //        break;
+    //    case QtCriticalMsg:
+    //        tl::Message::error("Qt: {}", msg.toStdString());
+    //        break;
+    //    case QtFatalMsg:
+    //        tl::Message::error("Qt: {}", msg.toStdString());
+    //        abort();
+    //}
+}
+
+
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(messageHandlerQt);
+
     tl::Path app_path(argv[0]);
     tl::Path graphos_path = app_path.parentPath().parentPath();
     tl::Path gdal_data_path(graphos_path);
@@ -156,6 +203,7 @@ int main(int argc, char *argv[])
     const char *proj_data[] {s_proj.c_str(), nullptr};
     OSRSetPROJSearchPaths(proj_data);
 #endif
+    CPLSetErrorHandler(messageHandlerGDAL);
 
     Application app(argc, argv);
     app.setApplicationName("GRAPHOS");

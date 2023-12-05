@@ -61,6 +61,7 @@ public:
 public:
 
     tl::Matrix<double, 4, 4> transform() const;
+    std::map<int, Camera> cameras() const;
 
 signals:
 

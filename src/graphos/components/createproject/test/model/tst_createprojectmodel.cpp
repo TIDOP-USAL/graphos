@@ -40,7 +40,7 @@ struct TestCreateProjectModel
 
     TestCreateProjectModel()
         : project(new ProjectFake),
-        projectModel(new CreateProjectModelImp(project))
+          projectModel(new CreateProjectModelImp(project))
     {
 
     }
@@ -67,57 +67,69 @@ struct TestCreateProjectModel
 
 BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestCreateProjectModel)
 {
-  BOOST_CHECK_EQUAL("", projectModel->projectName().toStdString());
-  BOOST_CHECK_EQUAL("", projectModel->projectPath().toString());
-  BOOST_CHECK_EQUAL("", projectModel->projectDescription().toStdString());
-  BOOST_CHECK_EQUAL("", projectModel->projectFolder().toString());
+    BOOST_CHECK_EQUAL("", project->name().toStdString());
+    BOOST_CHECK_EQUAL("", project->projectPath().toString());
+    BOOST_CHECK_EQUAL("", project->description().toStdString());
+    BOOST_CHECK_EQUAL("", project->projectFolder().toString());
 }
 
 BOOST_FIXTURE_TEST_CASE(clear, TestCreateProjectModel)
 {
-  projectModel->clear();
+    projectModel->setProjectName("test");
+    projectModel->setProjectFolder(tl::Path("C:/Users/Tido/Documents/graphos/Projects"));
+    projectModel->setProjectDescription("project description");
 
-  BOOST_CHECK_EQUAL("", projectModel->projectName().toStdString());
-  BOOST_CHECK_EQUAL("", projectModel->projectPath().toString());
-  BOOST_CHECK_EQUAL("", projectModel->projectDescription().toStdString());
-  BOOST_CHECK_EQUAL("", projectModel->projectFolder().toString());
+    projectModel->clear();
+
+    BOOST_CHECK_EQUAL("", project->name().toStdString());
+    BOOST_CHECK_EQUAL("", project->projectPath().toString());
+    BOOST_CHECK_EQUAL("", project->description().toStdString());
+    BOOST_CHECK_EQUAL("", project->projectFolder().toString());
 }
 
 
 BOOST_FIXTURE_TEST_CASE(project_name, TestCreateProjectModel)
 {
-  projectModel->setProjectName("Project 1");
-  BOOST_CHECK_EQUAL("Project 1", projectModel->projectName().toStdString());
+    projectModel->setProjectName("Project 1");
+    BOOST_CHECK_EQUAL("Project 1", project->name().toStdString());
 
-  projectModel->setProjectName("Project 2");
-  BOOST_CHECK_EQUAL("Project 2", projectModel->projectName().toStdString());
+    projectModel->setProjectName("Project 2");
+    BOOST_CHECK_EQUAL("Project 2", project->name().toStdString());
 }
 
 BOOST_FIXTURE_TEST_CASE(project_description, TestCreateProjectModel)
 {
-  projectModel->setProjectDescription("Project 1 description");
-  BOOST_CHECK_EQUAL("Project 1 description", projectModel->projectDescription().toStdString());
+    projectModel->setProjectDescription("Project 1 description");
+    BOOST_CHECK_EQUAL("Project 1 description", project->description().toStdString());
 
-  projectModel->setProjectDescription("Project 2 description");
-  BOOST_CHECK_EQUAL("Project 2 description", projectModel->projectDescription().toStdString());
+    projectModel->setProjectDescription("Project 2 description");
+    BOOST_CHECK_EQUAL("Project 2 description", project->description().toStdString());
 }
 
 BOOST_FIXTURE_TEST_CASE(project_folder, TestCreateProjectModel)
 {
-  projectModel->setProjectFolder(tl::Path("C:/Users/Tido/Documents/graphos/Projects"));
-  BOOST_CHECK_EQUAL(tl::Path("C:/Users/Tido/Documents/graphos/Projects"), projectModel->projectFolder());
+    projectModel->setProjectFolder(tl::Path("C:/Users/Tido/Documents/graphos/Projects"));
+    BOOST_CHECK_EQUAL(tl::Path("C:/Users/Tido/Documents/graphos/Projects"), project->projectFolder());
 
-  projectModel->setProjectFolder(tl::Path("C:/Users/user1/Documents/graphos/Projects"));
-  BOOST_CHECK_EQUAL(tl::Path("C:/Users/user1/Documents/graphos/Projects"), projectModel->projectFolder());
+    projectModel->setProjectFolder(tl::Path("C:/Users/user1/Documents/graphos/Projects"));
+    BOOST_CHECK_EQUAL(tl::Path("C:/Users/user1/Documents/graphos/Projects"), project->projectFolder());
 }
 
 BOOST_FIXTURE_TEST_CASE(project_path, TestCreateProjectModel)
 {
-  projectModel->saveAs(tl::Path("C:/Users/Tido/Documents/graphos/Projects/Project 1/Project 1.xml"));
-  BOOST_CHECK_EQUAL(tl::Path("C:/Users/Tido/Documents/graphos/Projects/Project 1/Project 1.xml"), projectModel->projectPath());
+    projectModel->setProjectName("Project 1");
+    projectModel->setProjectFolder(tl::Path("C:/Users/Tido/Documents/graphos/Projects/Project 1"));
+    projectModel->save();
+    tl::Path path1("C:/Users/Tido/Documents/graphos/Projects/Project 1/Project 1.xml");
+    path1.normalize();
+    BOOST_CHECK_EQUAL(path1, project->projectPath());
 
-  projectModel->saveAs(tl::Path("C:/Users/user1/Documents/graphos/Projects/Project 2/Project 2.xml"));
-  BOOST_CHECK_EQUAL(tl::Path("C:/Users/user1/Documents/graphos/Projects/Project 2/Project 2.xml"), projectModel->projectPath());
+    projectModel->setProjectName("Project 2");
+    projectModel->setProjectFolder(tl::Path("C:/Users/user1/Documents/graphos/Projects/Project 2"));
+    projectModel->save();
+    tl::Path path2("C:/Users/user1/Documents/graphos/Projects/Project 2/Project 2.xml");
+    path2.normalize();
+    BOOST_CHECK_EQUAL(path2, project->projectPath());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

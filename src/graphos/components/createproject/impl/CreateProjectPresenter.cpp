@@ -48,6 +48,48 @@ CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
     initSignalAndSlots();
 }
 
+void CreateProjectPresenterImp::open()
+{
+    if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
+        int i_ret = QMessageBox(QMessageBox::Information,
+            tr("Save Changes"),
+            tr("There are unsaved changes. Do you want to save them?"),
+            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+        if (i_ret == QMessageBox::Yes) {
+            saveProject();
+            mAppStatus->clear();
+        }
+        else if (i_ret == QMessageBox::Cancel) {
+            return;
+        }
+    }
+
+    mView->setProjectPath(QString::fromStdWString(mModel->projectsDefaultPath().toWString()));
+
+    mView->exec();
+}
+
+void CreateProjectPresenterImp::init()
+{
+}
+
+void CreateProjectPresenterImp::initSignalAndSlots()
+{
+    connect(mView, &CreateProjectView::project_name_changed,
+            this, &CreateProjectPresenterImp::checkProjectName);
+
+    connect(mView, &QDialog::accepted,
+            this, &CreateProjectPresenterImp::saveProject);
+
+    connect(mView, &QDialog::rejected,
+            this, &CreateProjectPresenterImp::discartProject);
+
+    connect(mView, &DialogView::help, 
+        [&]() {
+            emit help("menus.html#new_project");
+        });
+}
+
 void CreateProjectPresenterImp::saveProject()
 {
     ///TODO: Hay que comprobar que el nombre y la ruta sean correctos.
@@ -62,8 +104,7 @@ void CreateProjectPresenterImp::saveProject()
     mModel->setProjectName(mView->projectName());
     mModel->setProjectFolder(project_folder);
     mModel->setProjectDescription(mView->projectDescription());
-    mModel->setDatabase(databasePath(project_folder));
-    mModel->saveAs(projectPath(project_folder));
+    mModel->save();
 
     emit project_created();
 
@@ -89,15 +130,6 @@ tl::Path CreateProjectPresenterImp::projectPath(const tl::Path &projectFolder) c
     return project_path;
 }
 
-tl::Path CreateProjectPresenterImp::databasePath(const tl::Path &projectFolder) const
-{
-    tl::Path database_path = projectFolder;
-    database_path.append(mView->projectName().append(".db").toStdWString());
-    database_path.normalize();
-
-    return database_path;
-}
-
 void CreateProjectPresenterImp::discartProject()
 {
     mView->clear();
@@ -107,48 +139,6 @@ void CreateProjectPresenterImp::checkProjectName() const
 {
     tl::Path project_path = projectPath(this->projectFolder());
     mView->setExistingProject(project_path.exists());
-}
-
-void CreateProjectPresenterImp::open()
-{
-    if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
-        int i_ret = QMessageBox(QMessageBox::Information,
-                                tr("Save Changes"),
-                                tr("There are unsaved changes. Do you want to save them?"),
-                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
-        if (i_ret == QMessageBox::Yes) {
-            saveProject();
-            mAppStatus->clear();
-        } else if (i_ret == QMessageBox::Cancel) {
-            return;
-        }
-    }
-
-    mView->setProjectPath(QString::fromStdWString(mProjectsDefaultPath.toWString()));
-
-    mView->exec();
-}
-
-void CreateProjectPresenterImp::init()
-{
-    mProjectsDefaultPath = dynamic_cast<Application *>(qApp)->documentsLocation();
-    mProjectsDefaultPath.createDirectories();
-}
-
-void CreateProjectPresenterImp::initSignalAndSlots()
-{
-    connect(mView, &CreateProjectView::project_name_changed,
-            this, &CreateProjectPresenterImp::checkProjectName);
-
-    connect(mView, &QDialog::accepted,
-            this, &CreateProjectPresenterImp::saveProject);
-
-    connect(mView, &QDialog::rejected,
-            this, &CreateProjectPresenterImp::discartProject);
-
-    connect(mView, &DialogView::help, [&]() {
-        emit help("menus.html#new_project");
-    });
 }
 
 } // namespace graphos

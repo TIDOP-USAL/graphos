@@ -28,6 +28,7 @@
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
+#include <tidop/core/progress.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
@@ -78,9 +79,6 @@ bool ImageLoaderCommand::run()
 {
     bool r = false;
 
-    QString file_path;
-    QString project_path;
-
     try {
 
         tl::Path prj_path = this->value<std::string>("prj");
@@ -95,10 +93,13 @@ bool ImageLoaderCommand::run()
         ProjectImp project;
         project.load(prj_path);
 
-        std::vector<QString> image_list;
-        image_list.reserve(1000);
+        std::vector<Image> images;
 
-        if (!image_path.empty()) image_list.push_back(QString::fromStdWString(image_path.toWString()));
+        if (!image_path.empty()) {
+            Image img(image_path);
+            if (!project.existImage(img.id()))
+                images.push_back(img);
+        }
 
         if (!image_list_path.empty() && image_list_path.exists()) {
 
@@ -108,7 +109,12 @@ bool ImageLoaderCommand::run()
 
                 std::string line;
                 while (std::getline(ifs, line)) {
-                    image_list.push_back(QString::fromStdString(line));
+
+                    if (line.empty()) continue;
+
+                    Image img(line);
+                    if (!project.existImage(img.id()))
+                        images.push_back(img);
                 }
 
                 ifs.close();
@@ -135,14 +141,7 @@ bool ImageLoaderCommand::run()
             //}
         } else {
 
-            std::vector<Image> images;
             std::vector<Camera> cameras;
-
-            for (auto &image : image_list) {
-                Image img(image);
-                if (!project.existImage(img.id()))
-                    images.push_back(img);
-            }
 
             for (const auto &camera : project.cameras()) {
                 cameras.push_back(camera.second);
@@ -178,7 +177,8 @@ bool ImageLoaderCommand::run()
 
                     });
 
-            image_loader_process.run();
+            tl::ProgressBarColor progress(0, images.size());
+            image_loader_process.run(&progress);
 
         }
 

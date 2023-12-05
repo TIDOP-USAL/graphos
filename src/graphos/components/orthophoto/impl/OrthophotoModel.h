@@ -57,11 +57,11 @@ public:
     QString epsCode() const override;
     void clearProject() override;
     bool useCuda() const override;
-    bool gsd() const override;
+    double gsd() const override;
 
 public slots:
 
-    void setGSD(bool gsd);
+    void setGSD(double gsd);
 
     void loadSettings() override;
     void saveSettings() override;

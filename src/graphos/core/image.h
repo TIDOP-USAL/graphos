@@ -41,16 +41,20 @@ class Image
 
 public:
 
-    /*!
-     * \brief Constructor Image por defecto
-     */
     Image();
 
     /*!
      * \brief Constructor Image
-     * \param[in] file Fichero imagen
+     * \param[in] file Image file
      */
+    TL_DEPRECATED("Image(const tl::Path &file)", 2.0.0)
     Image(const QString &file);
+
+    /*!
+     * \brief Constructor Image
+     * \param[in] file Image file
+     */
+    Image(const tl::Path &file);
 
     /*!
      * \brief Constructor de copia Image
@@ -74,16 +78,24 @@ public:
      * \return Ruta del fichero
      */
     QString path() const;
-
+    // reemplazar QString path() por:
+    //tl::Path path() const;
+    
     /*!
      * \brief Establece la ruta del fichero imagen
      * \param[in] file Ruta del fichero
      */
+    TL_DEPRECATED("Image::setPath(const tl::Path &file)", 2.0.0)
     void setPath(const QString &file);
+    
+    /*!
+     * \brief Sets the path to the image file 
+     * \param[in] file File path
+     */
+    void setPath(const tl::Path &file);
 
     /*!
-     * \brief Nombre del fichero
-     * \return Nombre del fichero
+     * \brief Image file name
      */
     QString name() const;
 
@@ -139,8 +151,7 @@ private:
 
 protected:
 
-    QString mFilePath;
-    //QString mName;
+    tl::Path mFilePath;
     size_t mId;
     int mCameraId;
     CameraPose mCameraPose;

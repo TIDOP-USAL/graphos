@@ -35,12 +35,12 @@ namespace graphos
 
 FeatureMatchingModelImp::FeatureMatchingModelImp(Project *project,
                                                  QObject *parent)
-    : FeatureMatchingModel(parent),
+  : FeatureMatchingModel(parent),
     mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
-              QSettings::UserScope,
-              qApp->organizationName(),
-              qApp->applicationName()))
+                            QSettings::UserScope,
+                            qApp->organizationName(),
+                            qApp->applicationName()))
 {
     this->init();
 }
@@ -84,16 +84,13 @@ bool FeatureMatchingModelImp::useCuda() const
 
 bool FeatureMatchingModelImp::spatialMatching() const
 {
-    bool bSpatialMatching = false;
-
-    auto it = mProject->images().begin();
-    if (it != mProject->images().end()) {
-        CameraPose cameraPosition = it->second.cameraPose();
-        if (!cameraPosition.isEmpty())
-            bSpatialMatching = true;
+    for (const auto &image : mProject->images()) {
+        if (!image.second.cameraPose().isEmpty()) {
+            return true;
+        }
     }
 
-    return bSpatialMatching;
+    return false;
 }
 
 void FeatureMatchingModelImp::writeMatchPairs()
@@ -107,6 +104,7 @@ void FeatureMatchingModelImp::writeMatchPairs()
     for (size_t i = 0; i < db_images.size(); i++) {
 
         colmap_image_id_l = db_images[i].ImageId();
+        tl::Path colmap_image1(db_images[i].Name());
 
         for (size_t j = 0; j < i; j++) {
             colmap_image_id_r = db_images[j].ImageId();
@@ -115,7 +113,7 @@ void FeatureMatchingModelImp::writeMatchPairs()
 
             if (matches.size() > 0) {
 
-                tl::Path colmap_image1(db_images[i].Name());
+                
                 tl::Path colmap_image2(db_images[j].Name());
 
                 bool find_id_1 = false;
@@ -152,15 +150,7 @@ void FeatureMatchingModelImp::writeMatchPairs()
 
 }
 
-bool FeatureMatchingModelImp::existsMatches() const
-{
-    colmap::Database database(mProject->database().toString());
-    size_t num_matches = database.NumMatches();
-    return num_matches > 0;
-    database.Close();
-}
-
-void FeatureMatchingModelImp::clearProject()
+void FeatureMatchingModelImp::cleanProject()
 {
     colmap::Database database(mProject->database().toString());
     database.ClearMatches();
@@ -169,7 +159,7 @@ void FeatureMatchingModelImp::clearProject()
     mProject->removeMatchesPair();
 }
 
-bool FeatureMatchingModelImp::imagesCount() const
+size_t FeatureMatchingModelImp::imagesSize() const
 {
     return mProject->imagesCount();
 }

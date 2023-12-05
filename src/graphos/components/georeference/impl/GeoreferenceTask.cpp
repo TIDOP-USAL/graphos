@@ -48,6 +48,14 @@
 
 #include <iomanip>
 
+#define TEST_CONTROL_POINT_ADJUST 1
+
+#ifdef TEST_CONTROL_POINT_ADJUST
+#include <colmap/controllers/bundle_adjustment.h>
+#include <colmap/util/option_manager.h>
+#include <colmap/controllers/hierarchical_mapper.h>
+#endif
+
 namespace graphos
 {
 
@@ -91,7 +99,7 @@ void exportToColmap(const tl::Path &databasePath,
         colmap_sparse_path.append("sparse");
         colmap_sparse_path.createDirectories();
 
-        TL_TODO("Extraer la exportaci�n a colmap")
+        TL_TODO("Extraer la exportación a colmap")
             
         // cameras.txt
         {
@@ -133,11 +141,11 @@ void exportToColmap(const tl::Path &databasePath,
                 ofs << focal_x << " " << focal_y << " ";
 
                 double cx = calibration->existParameter(Calibration::Parameters::cx) ?
-                    calibration->parameter(Calibration::Parameters::cx) :
-                    camera.width() / 2.;
+                            calibration->parameter(Calibration::Parameters::cx) :
+                            camera.width() / 2.;
                 double cy = calibration->existParameter(Calibration::Parameters::cy) ?
-                    calibration->parameter(Calibration::Parameters::cy) :
-                    camera.height() / 2.;
+                            calibration->parameter(Calibration::Parameters::cy) :
+                            camera.height() / 2.;
 
                 ofs << cx << " " << cy;
 
@@ -233,6 +241,11 @@ void exportToColmap(const tl::Path &databasePath,
         }
 
         // images.txt
+
+#ifdef TEST_CONTROL_POINT_ADJUST
+        std::unordered_map<size_t, size_t> points_ids;
+#endif
+
         {
             tl::Path colmap_images(colmap_sparse_path);
             colmap_images.append("images.txt");
@@ -290,6 +303,20 @@ void exportToColmap(const tl::Path &databasePath,
                     }
                 }
 
+#ifdef TEST_CONTROL_POINT_ADJUST
+                /// Puntos de control
+                for (size_t i = 0; i < groundControlPoints.size(); i++) {
+
+                    auto &track = groundControlPoints[i].track();
+                    if (track.existPoint(image_id)) {
+                        points_ids[image_id] = groundPoints.size() + i + 1;
+                        ofs << track.point(image_id).x << " " << track.point(image_id).y << " " << groundPoints.size() + i + 1 << " ";
+                    }
+
+                }
+                /// Puntos de control
+#endif
+
                 ofs << std::endl;
 
             }
@@ -299,6 +326,21 @@ void exportToColmap(const tl::Path &databasePath,
 
         // points3D.txt
         {
+			
+#ifdef TEST_CONTROL_POINT_ADJUST
+
+        tl::Point3d offset(0., 0., 0.);
+        for (size_t i = 0; i < groundControlPoints.size(); i++) {
+            offset += (groundControlPoints[i] - offset) / (i + 1);
+        }
+
+
+
+      //for (const auto &pose : poses) {
+      //  points_ids[pose.first] = 50000;
+      //}
+#endif
+
             tl::Path colmap_points_3d(colmap_sparse_path);
             colmap_points_3d.append("points3D.txt");
 
@@ -331,6 +373,29 @@ void exportToColmap(const tl::Path &databasePath,
 
             }
 
+#ifdef TEST_CONTROL_POINT_ADJUST
+      /// Puntos de control ....
+      for (auto &points_3d : groundControlPoints) {
+
+        ofs << ++point_id << " "
+            << points_3d.x - offset.x << " "
+            << points_3d.y - offset.y << " "
+            << points_3d.z - offset.z << " "
+            << "0 0 0 0";
+
+        auto &track = points_3d.track();
+
+        for (auto &map : track.points()) {
+          //points_ids[map.first] = points_ids[map.first] + 1;
+          ofs << " " << graphos_to_colmap_image_ids.at(map.first) << " " << points_ids[map.first];
+        }
+
+        ofs << std::endl;
+
+      }
+      /// ... Puntos de control
+#endif
+
             ofs.close();
         }
 
@@ -351,12 +416,12 @@ void exportToColmap(const tl::Path &databasePath,
 
 
 GeoreferenceTask::GeoreferenceTask(const std::unordered_map<size_t, Image> &images,
-                                         const std::map<int, Camera> &cameras,
-                                         const std::unordered_map<size_t, CameraPose> &poses,
-                                         const std::vector<GroundPoint> &groundPoints,
-                                         const std::vector<GroundControlPoint> &groundControlPoints,
-                                         const tl::Path &outputPath,
-                                         const tl::Path &database)
+                                   const std::map<int, Camera> &cameras,
+                                   const std::unordered_map<size_t, CameraPose> &poses,
+                                   const std::vector<GroundPoint> &groundPoints,
+                                   const std::vector<GroundControlPoint> &groundControlPoints,
+                                   const tl::Path &outputPath,
+                                   const tl::Path &database)
     : tl::TaskBase(),
       mImages(images),
       mCameras(cameras),
@@ -364,7 +429,8 @@ GeoreferenceTask::GeoreferenceTask(const std::unordered_map<size_t, Image> &imag
       mGroundPoints(groundPoints),
       mGroundControlPoints(groundControlPoints),
       mPath(outputPath),
-      mDatabase(database)
+      mDatabase(database),
+      mTransform(tl::Matrix<double, 4, 4>::identity())
 {
 
 }
@@ -376,6 +442,11 @@ GeoreferenceTask::~GeoreferenceTask()
 tl::Matrix<double, 4, 4> GeoreferenceTask::transform() const
 {
     return mTransform;
+}
+
+std::map<int, Camera> GeoreferenceTask::cameras() const
+{
+    return mCameras;
 }
 
 void GeoreferenceTask::execute(tl::Progress *progressBar)
@@ -393,6 +464,119 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
                        mGroundPoints,
                        mGroundControlPoints,
                        reconstruction);
+
+
+#ifdef TEST_CONTROL_POINT_ADJUST
+
+    colmap::BundleAdjustmentOptions ba_options;
+    ba_options.solver_options.function_tolerance = 0.0;
+    ba_options.solver_options.gradient_tolerance = 1.0;
+    ba_options.solver_options.parameter_tolerance = 0.0;
+    //ba_options.solver_options.max_num_iterations = ba_global_max_num_iterations;
+    ba_options.solver_options.max_linear_solver_iterations = 100;
+    ba_options.solver_options.minimizer_progress_to_stdout = true;
+    //ba_options.solver_options.num_threads = num_threads;
+#if CERES_VERSION_MAJOR < 2
+    ba_options.solver_options.num_linear_solver_threads = num_threads;
+#endif  // CERES_VERSION_MAJOR
+    ba_options.print_summary = true;
+    ba_options.refine_focal_length = true;
+    ba_options.refine_principal_point = true;
+    ba_options.refine_extra_params = true;
+    ba_options.refine_extrinsics = true;
+    //ba_options.min_num_residuals_for_multi_threading = ba_min_num_residuals_for_multi_threading;
+    ba_options.loss_function_type = colmap::BundleAdjustmentOptions::LossFunctionType::TRIVIAL;
+
+    const std::vector<colmap::image_t> &reg_image_ids = reconstruction.RegImageIds();
+
+    // Configure bundle adjustment.
+    colmap::BundleAdjustmentConfig ba_config;
+    for (const colmap::image_t image_id : reg_image_ids) {
+        ba_config.AddImage(image_id);
+    }
+
+    auto &points = reconstruction.Points3D();
+    for (size_t i = mGroundPoints.size(); i < points.size(); i++) {
+        ba_config.AddConstantPoint(i);
+    }
+
+    ba_config.SetConstantPose(reg_image_ids[0]);
+    ba_config.SetConstantTvec(reg_image_ids[1], {0});
+
+    // Run bundle adjustment.
+    colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+    bundle_adjuster.Solve(&reconstruction);
+    auto &summary = bundle_adjuster.Summary();
+    tl::Message::info(summary.BriefReport());
+    //tl::Message::info(summary.FullReport());
+
+    // Esto es lo que se tiene que comprobar...
+    TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
+       
+    //auto &points2 = reconstruction.Points3D();
+    //
+    //for (size_t i = points2.size(); i > points2.size() - mGroundPoints.size(); ) {
+    //   
+    //    bool B = reconstruction.ExistsPoint3D(--i);
+    //    reconstruction.DeletePoint3D(0);
+    //    tl::Message::warning("Borrado punto");
+    //}
+
+    std::vector<Image> images;
+    images.reserve(mImages.size());
+    for (const auto &image : mImages) {
+        images.push_back(image.second);
+    }
+
+    ColmapReconstructionConvert convert(&reconstruction, images);
+
+    std::vector<GroundPoint> ground_points = convert.groundPoints();
+    //for (size_t i = ground_points.size(); i > ground_points.size() - mGroundPoints.size(); ) {
+        ground_points.erase(ground_points.end() - mGroundControlPoints.size(), ground_points.end());
+    //    bool B = reconstruction.ExistsPoint3D(--i);
+    //    reconstruction.DeletePoint3D(0);
+    //    tl::Message::warning("Borrado punto");
+    //}
+
+    auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
+    gp_writer->setGroundPoints(ground_points);
+    tl::Path ground_points_path(mPath);
+    ground_points_path.append("ground_points.bin");
+    gp_writer->write(ground_points_path);
+
+
+    auto camera_poses = convert.cameraPoses();
+    auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
+    poses_writer->setCameraPoses(camera_poses);
+    tl::Path poses_path(mPath);
+    poses_path.append("poses.bin");
+    poses_writer->write(poses_path);
+
+    for (auto &camera : mCameras) {
+
+        std::shared_ptr<Calibration> calibration = convert.readCalibration(camera.first);
+
+        if (calibration) {
+            camera.second.setCalibration(calibration);
+        }
+    }
+
+    OrientationExport orientationExport(&reconstruction);
+
+    //orientationExport.exportBinary(QString::fromStdWString(mPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
+    //orientationExport.exportText(QString::fromStdWString(mOutputPath.toWString()));
+    tl::Path sparse_file = mPath;
+    sparse_file.append("sparse.ply");
+    orientationExport.exportPLY(QString::fromStdWString(sparse_file.toWString()));
+
+
+
+
+    emit georeferenceFinished();
+    
+
+#else
+	
 
         std::vector<Eigen::Vector3d> src;
         std::vector<Eigen::Vector3d> dst;
@@ -539,8 +723,9 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
         tl::Message::info("Georeference error: {} (mean), {} (median)",
                           colmap::Mean(errors), colmap::Median(errors));
 
-
         emit georeferenceFinished();
+
+#endif
 
         chrono.stop();
 

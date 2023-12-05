@@ -54,9 +54,8 @@ public:
     bool useCuda() const override;
     bool spatialMatching() const override;
     void writeMatchPairs() override;
-    bool existsMatches() const override;
-    void clearProject() override;
-    bool imagesCount() const override;
+    void cleanProject() override;
+    size_t imagesSize() const override;
 
 // Model interface
 

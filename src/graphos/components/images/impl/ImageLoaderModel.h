@@ -55,8 +55,6 @@ public:
     const std::map<int, Camera> &cameras() const override;
     int addCamera(const Camera &camera) override;
     int cameraID(const Camera &camera) const override;
-    int cameraID(const QString &make,
-                 const QString &model) const override;
 
 // Model interface
 

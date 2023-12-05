@@ -119,8 +119,6 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         QString image = (*mImages)[imageId].path();
 
-        //msgInfo("Load image: %s", image.toStdString().c_str());
-
         std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
         imageReader->open();
         if (!imageReader->isOpen()) throw std::runtime_error("  Failed to read image file");
@@ -137,8 +135,6 @@ void LoadImagesTask::loadImage(size_t imageId)
         std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
         std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
         tl::Message::instance().resumeMessages();
-
-        //msgInfo(" - Camera: %s %s", camera_make.c_str(), camera_model.c_str());
 
         camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
         if (camera_id == -1) {
@@ -357,7 +353,7 @@ void LoadImagesTask::execute(tl::Progress *progressBar)
 {
     try {
 
-        tl::Chrono chrono("Images loaded");
+        tl::Chrono chrono;
         chrono.run();
 
         mCrsIn = std::make_shared<tl::Crs>("EPSG:4326");
@@ -379,7 +375,8 @@ void LoadImagesTask::execute(tl::Progress *progressBar)
         if (status() == tl::Task::Status::stopping) {
             chrono.reset();
         } else {
-            chrono.stop();
+            
+            tl::Message::success("{} images loaded in {:.2} minutes", mImages->size(), chrono.stop()/60.);
         }
 
     } catch (...) {

@@ -35,7 +35,7 @@ class Project;
 class Feature;
 
 class FeatureExtractorModelImp final
-    : public FeatureExtractorModel
+  : public FeatureExtractorModel
 {
 
 public:
@@ -43,16 +43,6 @@ public:
     FeatureExtractorModelImp(Project *project,
                              QObject *parent = nullptr);
     ~FeatureExtractorModelImp() override;
-
-// Model interface
-
-private:
-
-    void init() override;
-
-public slots:
-
-    void clear() override;
 
 // FeatureExtractorModel interface
 
@@ -66,6 +56,16 @@ public:
     const std::unordered_map<size_t, Image> &images() const override;
     const std::map<int, Camera> &cameras() const override;
     void clearProject() override;
+
+// Model interface
+
+private:
+
+    void init() override;
+
+public slots:
+
+    void clear() override;
 
 protected:
 

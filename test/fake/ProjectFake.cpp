@@ -45,10 +45,16 @@ ProjectFake::ProjectFake()
 
 bool ProjectFake::load(const tl::Path &file)
 {
-  QXmlStreamReader stream;
-  stream.addData(mProjectFileText);
+    QXmlStreamReader stream;
+    stream.addData(mProjectFileText);
 
-  return this->read(stream);
+    return this->read(stream);
+}
+
+bool ProjectFake::save(const tl::Path& file)
+{
+    mProjectPath = file;
+    return false;
 }
 
 } // end namespace graphos

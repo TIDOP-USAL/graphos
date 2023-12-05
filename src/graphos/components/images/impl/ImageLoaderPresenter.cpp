@@ -125,8 +125,7 @@ std::unique_ptr<tl::Task> ImageLoaderPresenterImp::createProcess()
 
     image_loader_process = std::make_unique<LoadImagesTask>(&mImages, &mCameras, "OpenCV 1", mModel->projectCRS());
 
-    connect(dynamic_cast<LoadImagesTask *>(image_loader_process.get()),
-            &LoadImagesTask::imageAdded,
+    connect(dynamic_cast<LoadImagesTask *>(image_loader_process.get()), &LoadImagesTask::imageAdded,
             this, &ImageLoaderPresenterImp::addImage);
 
     if (progressHandler()) {

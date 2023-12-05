@@ -362,6 +362,16 @@ void GeoreferenceModelImp::setTransform(const tl::Matrix<double, 4, 4> &transfor
     mProject->setTransform(transform);
 }
 
+void GeoreferenceModelImp::setGroundPoints(const tl::Path &groundPoints)
+{
+    mProject->setGroundPoints(groundPoints);
+}
+
+bool GeoreferenceModelImp::updateCamera(int id, const Camera &camera)
+{
+    return mProject->updateCamera(id, camera);
+}
+
 void GeoreferenceModelImp::setCrs(const QString &crs)
 {
     mCrs = crs;

@@ -63,7 +63,7 @@ tl::Path ImageLoaderModelImp::imagesDirectory() const
 {
     tl::Path image_directory = mProject->projectFolder();
 
-    tl::Path path(mProject->projectFolder());
+    tl::Path path(image_directory);
     path.append("images");
     if (path.exists()) {
         image_directory = path;
@@ -84,24 +84,19 @@ int ImageLoaderModelImp::addCamera(const Camera &camera)
 
 int ImageLoaderModelImp::cameraID(const Camera &camera) const
 {
-    return cameraID(camera.make().c_str(), camera.model().c_str());
-}
+    int camera_id = 0;
+    for (const auto &_camera : mProject->cameras()) {
 
-int ImageLoaderModelImp::cameraID(const QString &make,
-                                  const QString &model) const
-{
-    int id_camera = 0;
-    for (const auto &camera : mProject->cameras()) {
-
-        QString camera_make = camera.second.make().c_str();
-        QString camera_model = camera.second.model().c_str();
-        if (make.compare(camera_make) == 0 &&
-            model.compare(camera_model) == 0) {
-            id_camera = camera.first;
+        std::string camera_make = _camera.second.make();
+        std::string camera_model = _camera.second.model();
+        if (camera.make() == camera_make &&
+            camera.model() == camera_model) {
+            camera_id = _camera.first;
             break;
         }
     }
-    return id_camera;
+
+    return camera_id;
 }
 
 void ImageLoaderModelImp::init()

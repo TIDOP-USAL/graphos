@@ -198,14 +198,10 @@ private:
             queue_data data;
             data.mat = mat;
             data.colmap_image_id = colmap_image_id;
-            data.image_id = image.id();//image_id;
+            data.image_id = image.id();
             data.scale = scale;
-            //data.image_name = image.name();
 
             mBuffer->push(data);
-
-            //double time = chrono.stop();
-            //msgInfo("Read image %s: [Time: %f seconds]", image_path.c_str(), time);
 
         } catch (std::exception &e) {
             tl::printException(e);
@@ -400,12 +396,13 @@ private:
 
             QString image_name = mImages->at(data.image_id).name();
             mFeatureExtractorTask->features_extracted(data.image_id, image_name + "@" + mDatabaseFile.c_str());
-            if (mProgressBar) (*mProgressBar)();
 
         } catch (std::exception &e) {
             tl::printException(e);
             featextract_done = true;
         }
+
+        if (mProgressBar) (*mProgressBar)();
     }
 
     void featureExtraction(const cv::Mat &mat,
@@ -510,7 +507,7 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
 
         tl::Message::info("Feature extraction running");
 
-        tl::Chrono chrono("Feature extraction finished ");
+        tl::Chrono chrono;
         chrono.run();
 
         colmap::Database database(mDatabase.toString());
@@ -563,9 +560,11 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
             chrono.reset();
         } else {
             size_t keypoints = database.NumKeypoints();
+
             TL_ASSERT(keypoints > 0, "Keypoints not detected");
 
-            chrono.stop();
+            tl::Message::success("Feature extraction finished in {:.2} minutes", chrono.stop() / 60.);
+            tl::Message::info(" - Total features extracted: {}", keypoints);
         }
 
     } catch (...) {

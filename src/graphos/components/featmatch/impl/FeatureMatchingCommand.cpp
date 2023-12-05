@@ -137,12 +137,18 @@ bool FeatureMatchingCommand::run()
             SpatialMatchingTask featmatching_process(project.database(),
                                                      !mDisableCuda,
                                                      feature_matching_properties);
-            featmatching_process.run();
+
+            ProgressBarColor progress(0, project.images().size());
+            featmatching_process.run(&progress);
         } else {
             FeatureMatchingTask featmatching_process(project.database(),
                                                      !mDisableCuda,
                                                      feature_matching_properties);
-            featmatching_process.run();
+
+            size_t block_size = 50;
+            size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(project.images().size()) / 50));
+            ProgressBarColor progress(0, num_blocks * num_blocks);
+            featmatching_process.run(&progress);
         }
 
         project.setFeatureMatching(feature_matching_properties);

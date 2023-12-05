@@ -146,7 +146,7 @@ bool Application::parse(int argc, char **argv)
 {
     if (commandList()->parse(argc, argv) == tl::Command::Status::parse_success) {
         mAppStatus->activeFlag(AppStatus::Flag::command_mode, true);
-        return false;
+        return true;
     } else {
         return false;
     }

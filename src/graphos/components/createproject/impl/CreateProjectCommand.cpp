@@ -89,6 +89,7 @@ bool CreateProjectCommand::run()
             project_path = file_info.path().toStdWString();
 
         }
+        file_path.normalize();
 
         tl::Path database_path = file_path;
         database_path.replaceExtension(".db");
@@ -109,11 +110,11 @@ bool CreateProjectCommand::run()
 
         project.setName(base_name);
         project.setProjectFolder(project_path);
-        project.setDescription(projectDescription.c_str());
+        project.setDescription(QString::fromStdString(projectDescription));
         project.setDatabase(database_path);
         project.save(file_path);
 
-        tl::Message::info("Project created");
+        tl::Message::success("Project created at {}", file_path.toString());
         tl::Message::info("- Name: {}", base_name.toStdString());
         tl::Message::info("- Description: {}", projectDescription);
 

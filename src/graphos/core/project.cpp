@@ -93,6 +93,7 @@ tl::Path ProjectImp::projectFolder() const
 void ProjectImp::setProjectFolder(const tl::Path &folder)
 {
     mProjectFolder = folder;
+    mProjectFolder.normalize();
 }
 
 tl::Path ProjectImp::projectPath() const
@@ -114,6 +115,7 @@ tl::Path ProjectImp::database() const
 void ProjectImp::setDatabase(const tl::Path &database)
 {
     mDatabase = database;
+    mDatabase.normalize();
 }
 
 QString ProjectImp::crs() const
@@ -602,10 +604,11 @@ bool ProjectImp::save(const tl::Path &file)
     std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
 
     mProjectPath = file;
+    mProjectPath.normalize();
 
-    tl::Path tmp_file = file;
+    tl::Path tmp_file = mProjectPath;
     tmp_file.replaceExtension(".bak");
-    std::ifstream  src(file.toString(), std::ios::binary);
+    std::ifstream  src(mProjectPath.toString(), std::ios::binary);
     std::ofstream  dst(tmp_file.toString(), std::ios::binary);
     dst << src.rdbuf();
     src.close();
@@ -613,7 +616,7 @@ bool ProjectImp::save(const tl::Path &file)
 
     try {
 
-        QFile output(QString::fromStdWString(file.toWString()));
+        QFile output(QString::fromStdWString(mProjectPath.toWString()));
         if (output.open(QFile::WriteOnly)) {
             QXmlStreamWriter stream(&output);
             stream.setAutoFormatting(true);
@@ -648,7 +651,7 @@ bool ProjectImp::save(const tl::Path &file)
         tl::printException(e);
 
         std::ifstream  src(tmp_file.toString(), std::ios::binary);
-        std::ofstream  dst(file.toString(), std::ios::binary);
+        std::ofstream  dst(mProjectPath.toString(), std::ios::binary);
         dst << src.rdbuf();
         src.close();
         dst.close();

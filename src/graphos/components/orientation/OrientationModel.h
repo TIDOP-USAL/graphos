@@ -49,7 +49,7 @@ public:
     virtual bool calibratedCamera() const = 0;
     virtual void setSparseModel(const tl::Path &sparseModel) = 0;
     virtual void setOffset(const tl::Path &offset) = 0;
-    virtual void setGroundPoints(const tl::Path &offset) = 0;
+    virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
     virtual bool isPhotoOriented(size_t imageId) const = 0;
     virtual CameraPose photoOrientation(size_t imageId) const = 0;
     virtual void addPhotoOrientation(size_t imageId,

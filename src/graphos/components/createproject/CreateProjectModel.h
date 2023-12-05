@@ -35,74 +35,44 @@ namespace graphos
  * \brief CreateProjectModel interface
  */
 class CreateProjectModel
-  : public Model
+    : public Model
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CreateProjectModel(QObject *parent = nullptr) : Model(parent) {}
-  ~CreateProjectModel() override = default;
+    CreateProjectModel(QObject* parent = nullptr) : Model(parent) {}
+    ~CreateProjectModel() override = default;
 
-  /*!
-   * \brief Returns project name
-   * \return Project name
-   */
-  virtual QString projectName() const = 0;
-
-  /*!
-   * \brief Returns project description
-   * \return Project description
-   */
-  virtual QString projectDescription() const = 0;
-
-  /*!
-   * \brief Returns project directory
-   * \return Project directory
-   */
-  virtual tl::Path projectFolder() const = 0;
-
-  /*!
-   * \brief Returns project file path
-   * \return Project directory
-   */
-  virtual tl::Path projectPath() const = 0;
+    virtual tl::Path projectsDefaultPath() const = 0;
 
 public slots:
 
-  /*!
-   * \brief Set project name
-   * \param[in] name Project's name
-   */
-  virtual void setProjectName(const QString &name) = 0;
+    /*!
+     * \brief Set project name
+     * \param[in] name Project's name
+     */
+    virtual void setProjectName(const QString& name) = 0;
 
-  /*!
-   * \brief Set project description
-   * \param[in] description Project description
-   */
-  virtual void setProjectDescription(const QString &projectDescription) = 0;
+    /*!
+     * \brief Set project description
+     * \param[in] description Project description
+     */
+    virtual void setProjectDescription(const QString& projectDescription) = 0;
 
-  /*!
-   * \brief Set project directory
-   * \param[in] folder Project Directory
-   */
-  virtual void setProjectFolder(const tl::Path &folder) = 0;
+    /*!
+     * \brief Set project directory
+     * \param[in] folder Project Directory
+     */
+    virtual void setProjectFolder(const tl::Path& folder) = 0;
 
-  /*!
-   * \brief Set project database
-   * \param[in] path Database path
-   */
-  virtual void setDatabase(const tl::Path &database) = 0;
-
-  /*!
-   * \brief Save a project as ...
-   * \param[in] file Project file
-   */
-  virtual void saveAs(const tl::Path &file) = 0;
+    /*!
+     * \brief Save the project
+     */
+    virtual void save() = 0;
 
 };
-
 
 
 } // namespace graphos

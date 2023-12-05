@@ -34,12 +34,6 @@
 
 #include "graphos/core/features/features.h"
 
-
-namespace colmap
-{
-class Thread;
-}
-
 namespace graphos
 {
 
@@ -108,17 +102,12 @@ public:
 
 // tl::TaskBase interface
 
-public:
-
-    void stop() override;
-
 protected:
 
     void execute(tl::Progress *progressBar) override;
 
 private:
 
-    colmap::Thread *mFeatureMatcher;
     tl::Path mDatabase;
     bool bUseCuda;
     std::shared_ptr<FeatureMatching> mFeatureMatching;
@@ -154,17 +143,12 @@ public:
 
 // tl::TaskBase interface
 
-public:
-
-    void stop() override;
-
 protected:
 
     void execute(tl::Progress *progressBar) override;
 
 private:
 
-    colmap::Thread *mFeatureMatcher;
     tl::Path mDatabase;
     bool bUseCuda;
     std::shared_ptr<FeatureMatching> mFeatureMatching;

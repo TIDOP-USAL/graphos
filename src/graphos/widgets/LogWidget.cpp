@@ -112,7 +112,7 @@ void LogWidget::print(String msg, tl::MessageLevel level)
     else if (level == MessageLevel::warning)
         qListWidgetItem->setForeground(Qt::magenta);
     else if (level == MessageLevel::success)
-        qListWidgetItem->setForeground(Qt::green);
+        qListWidgetItem->setForeground(Qt::darkGreen);
 
     mListWidget->insertItem(mListWidget->count(), qListWidgetItem);
 
@@ -271,33 +271,5 @@ void LogWidget::error(String message)
         print(message, MessageLevel::error);
     }
 }
-
-//void LogWidget::onMsgDebug(const std::string &msg, const std::string &date)
-//{
-//    if (sLevel.isEnabled(MessageLevel::debug)) {
-//        print(msg, date, MessageLevel::debug);
-//    }
-//}
-
-//void LogWidget::onMsgInfo(const std::string &msg, const std::string &date)
-//{
-//    if (sLevel.isEnabled(MessageLevel::info)) {
-//        print(msg, date, MessageLevel::info);
-//    }
-//}
-
-//void LogWidget::onMsgWarning(const std::string &msg, const std::string &date)
-//{
-//    if (sLevel.isEnabled(MessageLevel::warning)) {
-//        print(msg, date, MessageLevel::warning);
-//    }
-//}
-//
-//void LogWidget::onMsgError(const std::string &msg, const std::string &date)
-//{
-//    if (sLevel.isEnabled(MessageLevel::error)) {
-//        print(msg, date, MessageLevel::error);
-//    }
-//}
 
 } // namespace graphos
