@@ -59,7 +59,7 @@ public:
     virtual bool gpsPositions() const = 0;
     virtual bool rtkOrientations() const = 0;
     virtual tl::Path reconstructionPath() const = 0;
-    virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
+    //virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
     virtual void clearProject() = 0;
     virtual const std::map<int, Camera> &cameras() const = 0;
     virtual bool updateCamera(int id, const Camera &camera) = 0;

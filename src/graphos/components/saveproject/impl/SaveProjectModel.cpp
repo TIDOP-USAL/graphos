@@ -54,7 +54,7 @@ void SaveProjectModelImp::save()
 
     try {
 
-        auto transform = mProject->transform();
+        auto &transform = mProject->transform();
         if (transform != tl::Matrix<double, 4, 4>::identity()) {
 
             // Transforma los modelos
@@ -82,20 +82,23 @@ void SaveProjectModelImp::save()
                 auto poses = poses_reader->cameraPoses();
 
                 tl::Point3<double> point;
-                for (auto &camera_pose : poses) {
+                for (auto &pose : poses) {
 
-                    point = affine.transform(camera_pose.second.position());
-                    camera_pose.second.setPosition(point);
+                    size_t image_id = pose.first;
+                    CameraPose camera_pose = pose.second;
 
-                    auto rot = camera_pose.second.rotationMatrix() * rotation.inverse();
-                    camera_pose.second.setRotationMatrix(tl::RotationMatrix<double>(rot));
+                    point = affine.transform(camera_pose.position());
+                    camera_pose.setPosition(point);
 
-                    mProject->addPhotoOrientation(camera_pose.first, camera_pose.second);
+                    auto rot = camera_pose.rotationMatrix() * rotation.inverse();
+                    camera_pose.setRotationMatrix(tl::RotationMatrix<double>(rot));
+
+                    mProject->addPhotoOrientation(image_id, camera_pose);
                 }
 
                 auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
                 poses_writer->setCameraPoses(poses);
-                poses_writer->write(poses_path);
+                poses_writer->write(poses_path.replaceBaseName("poses2"));
             }
 
             /// Transforma los puntos terreno
@@ -113,10 +116,11 @@ void SaveProjectModelImp::save()
 
                 auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
                 gp_writer->setGroundPoints(ground_points);
-                gp_writer->write(ground_points_path);
+                gp_writer->write(ground_points_path.replaceBaseName("ground_points2"));
             }
 
-            mProject->setTransform(tl::Matrix<double, 4, 4>::identity());
+            transform = tl::Matrix<double, 4, 4>::identity();
+            //mProject->setTransform(tl::Matrix<double, 4, 4>::identity());
         }
 
     } catch (std::exception &e) {

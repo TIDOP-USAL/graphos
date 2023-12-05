@@ -134,10 +134,10 @@ tl::Path OrientationModelImp::reconstructionPath() const
     return mProject->reconstructionPath();
 }
 
-void OrientationModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
-{
-    mProject->setReconstructionPath(reconstructionPath);
-}
+//void OrientationModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
+//{
+//    mProject->setReconstructionPath(reconstructionPath);
+//}
 
 void OrientationModelImp::clearProject()
 {

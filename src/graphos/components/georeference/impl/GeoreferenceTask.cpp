@@ -500,8 +500,8 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
         std::ofstream stream(offset_path.toString(), std::ios::trunc);
         if (stream.is_open()) {
             stream << QString::number(offset.x(), 'f', 3).toStdString() << " "
-                    << QString::number(offset.y(), 'f', 3).toStdString() << " "
-                    << QString::number(offset.z(), 'f', 3).toStdString() << std::endl;
+                   << QString::number(offset.y(), 'f', 3).toStdString() << " "
+                   << QString::number(offset.z(), 'f', 3).toStdString() << std::endl;
             stream.close();
         }
 

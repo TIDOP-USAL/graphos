@@ -58,7 +58,7 @@ ProjectImp::ProjectImp()
     mVersion(GRAPHOS_PROJECT_FILE_VERSION),
     mDatabase(""),
     mCrs(""),
-    mReconstructionPath(""),
+    //mReconstructionPath(""),
     mCameraCount(0),
     mTransform(tl::Matrix<double, 4, 4>::identity())
 {
@@ -406,13 +406,13 @@ void ProjectImp::setGroundPoints(const tl::Path &groundPoints)
 
 tl::Path ProjectImp::reconstructionPath() const
 {
-    return mReconstructionPath;
+    return tl::Path(mProjectFolder).append("sfm");
 }
 
-void ProjectImp::setReconstructionPath(const tl::Path &reconstructionPath)
-{
-    mReconstructionPath = reconstructionPath;
-}
+//void ProjectImp::setReconstructionPath(const tl::Path &reconstructionPath)
+//{
+//    mReconstructionPath = reconstructionPath;
+//}
 
 bool ProjectImp::isPhotoOriented(size_t imageId) const
 {
@@ -440,7 +440,7 @@ void ProjectImp::clearReconstruction()
     mPhotoOrientation.clear();
     mSparseModel.clear();
     mOffset.clear();
-    mReconstructionPath.clear();
+    //mReconstructionPath.clear();
     this->clearDensification();
 }
 
@@ -566,7 +566,7 @@ void ProjectImp::clear()
     mSparseModel.clear();
     mOffset.clear();
     mGroundPoints.clear();
-    mReconstructionPath.clear();
+    //mReconstructionPath.clear();
     mDensification.reset();
     mMeshModel.clear();
     mDenseModel.clear();
@@ -726,14 +726,19 @@ void ProjectImp::oldVersionBak(const tl::Path &file) const
     dst.close();
 }
 
-tl::Matrix<double, 4, 4> ProjectImp::transform() const
+tl::Matrix<double, 4, 4> &ProjectImp::transform()
+{
+    return mTransform;
+}
+
+const tl::Matrix<double, 4, 4> &ProjectImp::transform() const
 {
     return mTransform;
 }
 
 void ProjectImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
 {
-    mTransform = mTransform * transform;
+    mTransform = transform;
 }
 
 bool ProjectImp::read(QXmlStreamReader &stream)
@@ -1084,9 +1089,9 @@ void ProjectImp::readPairs(QXmlStreamReader &stream)
 void ProjectImp::readOrientations(QXmlStreamReader &stream)
 {
     while (stream.readNextStartElement()) {
-        if (stream.name() == "ReconstructionPath") {
+        /*if (stream.name() == "ReconstructionPath") {
             this->readReconstructionPath(stream);
-        } else if (stream.name() == "SparseModel") {
+        } else*/ if (stream.name() == "SparseModel") {
             this->readOrientationSparseModel(stream);
         } else if (stream.name() == "Offset") {
             this->readOffset(stream);
@@ -1099,10 +1104,10 @@ void ProjectImp::readOrientations(QXmlStreamReader &stream)
     }
 }
 
-void ProjectImp::readReconstructionPath(QXmlStreamReader &stream)
-{
-    this->setReconstructionPath(stream.readElementText().toStdWString());
-}
+//void ProjectImp::readReconstructionPath(QXmlStreamReader &stream)
+//{
+//    this->setReconstructionPath(stream.readElementText().toStdWString());
+//}
 
 void ProjectImp::readOrientationSparseModel(QXmlStreamReader &stream)
 {
@@ -1540,7 +1545,7 @@ void ProjectImp::writeOrientations(QXmlStreamWriter &stream) const
 {
     stream.writeStartElement("Orientations");
     {
-        this->writeReconstructionPath(stream);
+        //this->writeReconstructionPath(stream);
         this->writeOrientationSparseModel(stream);
         this->writeOffset(stream);
         this->writeGroundPoints(stream);
@@ -1549,12 +1554,12 @@ void ProjectImp::writeOrientations(QXmlStreamWriter &stream) const
     stream.writeEndElement(); // Orientations
 }
 
-void ProjectImp::writeReconstructionPath(QXmlStreamWriter &stream) const
-{
-    tl::Path reconstruction_path = reconstructionPath();
-    if (!reconstruction_path.empty())
-        stream.writeTextElement("ReconstructionPath", QString::fromStdWString(reconstruction_path.toWString()));
-}
+//void ProjectImp::writeReconstructionPath(QXmlStreamWriter &stream) const
+//{
+//    tl::Path reconstruction_path = reconstructionPath();
+//    if (!reconstruction_path.empty())
+//        stream.writeTextElement("ReconstructionPath", QString::fromStdWString(reconstruction_path.toWString()));
+//}
 
 void ProjectImp::writeOrientationSparseModel(QXmlStreamWriter &stream) const
 {

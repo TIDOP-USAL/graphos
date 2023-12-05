@@ -68,7 +68,7 @@ public:
     virtual std::vector<GroundControlPoint> groundControlPoints() const = 0;
     virtual tl::Path projectPath() const = 0;
     virtual tl::Path reconstructionPath() const = 0;
-    virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
+    //virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
     virtual void setSparseModel(const tl::Path &sparseModel) = 0;
     virtual void setOffset(const tl::Path &offset) = 0;
     virtual void addPhotoOrientation(size_t imageId,

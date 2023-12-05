@@ -416,6 +416,8 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
         ccGLMatrix cc_rot;
         float *mat = cc_rot.data();
 
+        std::cout << "transformModel: \n" << transform << std::endl;
+
         mat[0] = transform[0][0];
         mat[1] = transform[1][0];
         mat[2] = transform[2][0];

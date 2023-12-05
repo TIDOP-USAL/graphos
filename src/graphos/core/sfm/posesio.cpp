@@ -126,9 +126,11 @@ public:
     {
         try {
 
+            TL_TODO("Cambiar la lectura a fstream")
+
             FILE *file = std::fopen(path.toString().c_str(), "rb");
 
-            TL_ASSERT(file, "File not open");
+            TL_ASSERT(file, "File not open: {}", path.toString());
 
             uint64_t size = 0;
 
