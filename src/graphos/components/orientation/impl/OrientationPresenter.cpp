@@ -58,7 +58,7 @@ void OrientationPresenterImp::open()
 {
     TL_TODO("mSettingsModel->refinePrincipalPoint();")
 
-        mView->setCalibration(mModel->calibratedCamera());
+    mView->setCalibration(mModel->calibratedCamera());
     mView->enabledCalibration(mModel->calibratedCamera());
 
     if (mModel->rtkOrientations()) {
@@ -216,7 +216,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
                 mModel->updateCamera(camera.first, camera.second);
             }
 
-                                       });
+        });
 
     } else {
 

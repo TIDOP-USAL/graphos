@@ -59,6 +59,7 @@ private:
 public:
 
     void loadGroundControlPoints() override;
+    void loadGroundControlPoints(const std::vector<GroundControlPoint> &gcps) override;
     QString crs() const;
     QStandardItemModel *itemModelGroundControlPoints() override;
     QStandardItemModel *itemModelImagePoints() override;
@@ -86,6 +87,8 @@ public:
     void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
     void setGroundPoints(const tl::Path &groundPoints) override;
     bool updateCamera(int id, const Camera &camera) override;
+    void importGroundControlPoints(const QString &file, const QString &format) override;
+    void exportGroundControlPoints(const QString &file, const QString &format) override;
 
 public slots:
 

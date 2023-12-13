@@ -55,6 +55,7 @@ public:
     ~GeoreferenceModel() override = default;
 
     virtual void loadGroundControlPoints() = 0;
+    virtual void loadGroundControlPoints(const std::vector<GroundControlPoint> &gcps) = 0;
     virtual QString crs() const = 0;
     virtual QStandardItemModel *itemModelGroundControlPoints() = 0;
     virtual QStandardItemModel *itemModelImagePoints() = 0;
@@ -80,6 +81,8 @@ public:
     virtual void setTransform(const tl::Matrix<double, 4, 4> &trasnform) = 0;
     virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
     virtual bool updateCamera(int id, const Camera &camera) = 0;
+    virtual void importGroundControlPoints(const QString &file, const QString &format) = 0;
+    virtual void exportGroundControlPoints(const QString &file, const QString &format) = 0;
 
 public slots:
 

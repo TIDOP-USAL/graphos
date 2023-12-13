@@ -178,6 +178,13 @@ void GeoreferencePresenterImp::initSignalAndSlots()
     connect(mView, &GeoreferenceView::crsChange, mModel, &GeoreferenceModel::setCrs);
     connect(mView, &GeoreferenceView::georeference, this, &TaskPresenter::run);
     connect(mView, &GeoreferenceView::accepted, mModel, &GeoreferenceModel::save);
+    connect(mView, &GeoreferenceView::import_gcp, 
+        [&](const QString &file, const QString &format) {
+            mModel->importGroundControlPoints(file, format);
+            mView->setCrs(mModel->crs());
+        });
+    connect(mView, &GeoreferenceView::export_gcp, mModel, &GeoreferenceModel::exportGroundControlPoints);
+
     connect(mView, &DialogView::help, [&]() {
         emit help("cameras.html");
     });

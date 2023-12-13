@@ -58,7 +58,7 @@ public:
 
 protected slots:
 
-    void openFile();
+    //void openFile();
     void onGraphicsViewSelectionChanged();
     void onGraphicsViewRemoveSelectItems();
 
@@ -86,6 +86,8 @@ public slots:
 private slots:
 
     void removeGroundControlPoints() override;
+    void importGCP() override;
+    void exportGCP() override;
 
 // DialogView interface
 
@@ -105,12 +107,14 @@ private slots:
 
 protected:
 
+    QAction *mActionImportGCP;
+    QAction *mActionExportGCP;
+    QAction *mActionAddPoint;
+    QAction *mActionDeletePoint;
+    QAction *mActionGeoreference;
     QLabel *mLabelCRS;
     QLineEdit *mLineEditCRS;
     QTableView *mTableViewGroundControlPoints;
-    QPushButton *mPushButtonAddPoint;
-    QPushButton *mPushButtonDeletePoint;
-    QPushButton *mPushButtonGeoreference;
     QSpacerItem *verticalSpacer;
 
     QLabel *mLabelFilterByControlPoint;
