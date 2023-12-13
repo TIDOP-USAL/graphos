@@ -131,6 +131,7 @@ void GeoreferenceModelImp::writeGroundControlPoints(QXmlStreamWriter &stream)
 
 void GeoreferenceModelImp::loadGroundControlPoints()
 {
+    ///TODO: Quitar esto y utilizar el método de abajo
     mItemModelGroundControlPoints->clear();
     mItemModelImagePoints->clear();
 
@@ -188,6 +189,70 @@ void GeoreferenceModelImp::loadGroundControlPoints()
 
         mItemModelGroundControlPoints->insertRow(mItemModelGroundControlPoints->rowCount(),
                                                  standardItem);
+
+    }
+
+}
+
+void GeoreferenceModelImp::loadGroundControlPoints(const std::vector<GroundControlPoint> &gcps)
+{
+    mItemModelGroundControlPoints->clear();
+    mItemModelImagePoints->clear();
+
+    mItemModelGroundControlPoints->setColumnCount(5);
+    QStringList header{"ID","X", "Y", "Z", "Error"};
+    mItemModelGroundControlPoints->setHorizontalHeaderLabels(header);
+
+    mItemModelImagePoints->setColumnCount(4);
+    QStringList headerImagePoints{"CP", "Image", "X", "Y"};
+    mItemModelImagePoints->setHorizontalHeaderLabels(headerImagePoints);
+
+    tl::Path gcp_file = mProject->projectFolder();
+    gcp_file.append("sfm").append("georef.xml");
+
+    //auto reader = GCPsReaderFactory::create("GRAPHOS");
+    //reader->read(gcp_file);
+    ////reader->epsgCode();
+    //auto gcps = reader->gcps();
+
+    for (auto &gcp : gcps) {
+
+        QString name = QString::fromStdString(gcp.name());
+        QList<QStandardItem *> standardItem;
+        standardItem.append(new QStandardItem(name));
+        standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 3)));
+        standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 3)));
+        standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 3)));
+        standardItem.append(new QStandardItem(QString()));
+
+        for (auto &pair : gcp.track().points()) {
+
+            size_t image_id = pair.first;
+            tl::Point<double> point = pair.second;
+
+            bool exist_image = mProject->existImage(image_id);
+            if (!exist_image) continue;
+
+            QString image = mProject->findImageById(image_id).name();            
+            QString x = QString::number(point.x);
+            QString y = QString::number(point.y);
+
+
+            QList<QStandardItem *> standardItem;
+            standardItem.append(new QStandardItem(name));
+            standardItem.append(new QStandardItem(image));
+            standardItem.append(new QStandardItem(x));
+            standardItem.append(new QStandardItem(y));
+            standardItem[1]->setData(static_cast<qulonglong>(image_id));
+            mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
+                standardItem);
+        }
+
+        QStandardItem *item = standardItem.at(4);
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+
+        mItemModelGroundControlPoints->insertRow(mItemModelGroundControlPoints->rowCount(),
+            standardItem);
 
     }
 
@@ -370,6 +435,26 @@ void GeoreferenceModelImp::setGroundPoints(const tl::Path &groundPoints)
 bool GeoreferenceModelImp::updateCamera(int id, const Camera &camera)
 {
     return mProject->updateCamera(id, camera);
+}
+
+void GeoreferenceModelImp::importGroundControlPoints(const QString &file, const QString &format)
+{
+    auto reader = GCPsReaderFactory::create(format.toStdString());
+    reader->setImages(images());
+    reader->read(file.toStdString());
+    mCrs = QString::fromStdString(reader->epsgCode());
+    auto gcps = reader->gcps();
+
+    loadGroundControlPoints(gcps);
+}
+
+void GeoreferenceModelImp::exportGroundControlPoints(const QString &file, const QString &format)
+{
+    auto writer = GCPsWriterFactory::create(format.toStdString());
+    writer->setEPSGCode(mCrs.toStdString());
+    writer->setGCPs(groundControlPoints());
+    writer->setImages(images());
+    writer->write(file.toStdString());
 }
 
 void GeoreferenceModelImp::setCrs(const QString &crs)

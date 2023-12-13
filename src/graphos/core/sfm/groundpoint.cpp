@@ -27,6 +27,8 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+#include <fstream>
+
 namespace graphos
 {
 
@@ -102,6 +104,11 @@ std::string GCPsReader::epsgCode() const
     return mEpsgCode;
 }
 
+void GCPsReader::setImages(const std::unordered_map<size_t, Image> &images)
+{
+    mImages = images;
+}
+
 void GCPsReader::addGroundControlPoint(const GroundControlPoint &gcp)
 {
     mGCPs.push_back(gcp);
@@ -112,6 +119,10 @@ void GCPsReader::setEPSGCode(const std::string &epsgCode)
     mEpsgCode = epsgCode;
 }
 
+const std::unordered_map<size_t,Image>& GCPsReader::images() const
+{
+    return mImages;
+}
 
 /* Graphos reader */
 
@@ -233,6 +244,107 @@ public:
 
 };
 
+
+class OpenDroneMapGCPsReader
+    : public GCPsReader
+{
+
+public:
+    
+    OpenDroneMapGCPsReader()
+    {
+    }
+
+    ~OpenDroneMapGCPsReader()
+    {
+    }
+
+// GCPsReader interfaces
+
+public:
+
+    void read(const tl::Path &path) override
+    {
+        std::ifstream ifs;
+        ifs.open(path.toString(), std::ifstream::in);
+        if (ifs.is_open()) {
+
+            TL_ASSERT(images().size() > 0, "");
+
+            std::string line;
+            std::getline(ifs, line);
+
+            std::string projection = line;
+            setEPSGCode(projection);
+            ///TODO: hay que ver si la proyección viene por codigo EPSG o en formato PROJ
+
+            std::vector<GroundControlPoint> ground_control_points;
+
+            std::stringstream ss;
+
+            int counter = 0;
+            while (std::getline(ifs, line)) {
+
+                if (line.empty()) continue;
+
+                ss << line;
+
+                tl::Point3<double> point;
+                tl::Point<double> image_point;
+                std::string image_name;
+                ss >> point.x >> point.y >> point.z >> image_point.x >> image_point.y >> image_name;
+                ss.clear();
+
+                size_t image_id = 0;
+
+                for (auto &image : images()) {
+
+                    if (image.second.name().toStdString() == image_name) {
+                        image_id = image.first;
+                        break;
+                    }
+                }
+
+                if (image_id != 0) {
+
+                    bool exists_gcp = false;
+                    for (auto& ground_control_point : ground_control_points) {
+                        if (ground_control_point.x == point.x &&
+                            ground_control_point.y == point.y &&
+                            ground_control_point.z == point.z) {
+
+                            ground_control_point.addPointToTrack(image_id, image_point);
+
+                            exists_gcp = true;
+                            break;
+                        }
+                    }
+
+                    if (!exists_gcp) {
+                        GroundControlPoint gcp(point);
+                        gcp.setName(std::string("P").append(std::to_string(counter++)));
+                        gcp.addPointToTrack(image_id, image_point);
+                        ground_control_points.push_back(gcp);
+                    }
+
+                }
+            }
+
+            ifs.close();
+
+            for (auto &ground_control_point : ground_control_points) {
+                addGroundControlPoint(ground_control_point);
+            }
+        }
+    }
+
+    std::string format() const final override
+    {
+        return "ODM";
+    }
+
+};
+
 std::unique_ptr<GCPsReader> GCPsReaderFactory::create(const std::string &format)
 {
     std::unique_ptr<GCPsReader> reader;
@@ -241,6 +353,8 @@ std::unique_ptr<GCPsReader> GCPsReaderFactory::create(const std::string &format)
 
         if (format == "GRAPHOS") {
             reader = std::make_unique<GraphosGCPsReader>();
+        } else if (format == "ODM") {
+            reader = std::make_unique<OpenDroneMapGCPsReader>();
         } else {
             TL_THROW_EXCEPTION("Invalid format: {}", format);
         }
@@ -269,14 +383,24 @@ void GCPsWriter::setEPSGCode(const std::string &epsgCode)
     mEpsgCode = epsgCode;
 }
 
-std::vector<GroundControlPoint> GCPsWriter::gcps() const
+void GCPsWriter::setImages(const std::unordered_map<size_t,Image>& images)
+{
+    mImages = images;
+}
+
+const std::vector<GroundControlPoint> &GCPsWriter::gcps() const
 {
     return mGCPs;
 }
 
-std::string GCPsWriter::epsgCode() const
+const std::string &GCPsWriter::epsgCode() const
 {
     return mEpsgCode;
+}
+
+const std::unordered_map<size_t, Image> &GCPsWriter::images() const
+{
+    return mImages;
 }
 
 
@@ -370,6 +494,53 @@ public:
 };
 
 
+class OpenDroneMapGCPsWriter
+    : public GCPsWriter
+{
+
+public:
+    
+    OpenDroneMapGCPsWriter()
+    {
+    }
+
+    ~OpenDroneMapGCPsWriter()
+    {
+    }
+
+// GCPsWriter interface
+
+public:
+
+    void write(const tl::Path &path) override
+    {
+        std::ofstream stream(path.toString(), std::ios::trunc);
+        TL_ASSERT(stream.is_open(), "Can't open {}", path.toString());
+
+        stream << epsgCode() << std::endl;
+
+        stream << std::fixed << std::setprecision(12);
+
+        for (const auto &gcp : gcps()) {
+
+            for (const auto &point : gcp.track().points()) {
+
+                stream << gcp.x << " " << gcp.y << " " << gcp.z << " " << point.second.x << " " << point.second.y << " " << images().at(point.first).name().toStdString() << std::endl;
+            }
+        }
+
+        stream.close();
+    }
+
+    std::string format() const final override
+    {
+        return "ODM";
+    }
+
+};
+
+
+
 /* GCPsWriterFactory */
 
 std::unique_ptr<GCPsWriter> GCPsWriterFactory::create(const std::string &format)
@@ -380,6 +551,8 @@ std::unique_ptr<GCPsWriter> GCPsWriterFactory::create(const std::string &format)
 
         if (format == "GRAPHOS") {
             writer = std::make_unique<GraphosGCPsWriter>();
+        } else if (format == "ODM") {
+            writer = std::make_unique<OpenDroneMapGCPsWriter>();
         } else {
             TL_THROW_EXCEPTION("Invalid format: {}", format);
         }

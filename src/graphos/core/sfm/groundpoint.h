@@ -34,6 +34,7 @@
 #include <tidop/graphic/color.h>
 
 #include "graphos/core/sfm/track.h"
+#include "graphos/core/image.h"
 
 namespace graphos
 {
@@ -81,16 +82,19 @@ public:
 
     std::vector<GroundControlPoint> gcps() const;
     std::string epsgCode() const;
+    void setImages(const std::unordered_map<size_t, Image> &images);
 
 protected:
 
     void addGroundControlPoint(const GroundControlPoint &gcp);
     void setEPSGCode(const std::string &epsgCode);
+    const std::unordered_map<size_t, Image> &images() const;
 
 private:
 
     std::vector<GroundControlPoint> mGCPs;
     std::string mEpsgCode;
+    std::unordered_map<size_t, Image> mImages;
 };
 
 
@@ -123,16 +127,19 @@ public:
 
     void setGCPs(const std::vector<GroundControlPoint> &GCPs);
     void setEPSGCode(const std::string &epsgCode);
+    void setImages(const std::unordered_map<size_t, Image> &images);
 
 protected:
 
-    std::vector<GroundControlPoint> gcps() const;
-    std::string epsgCode() const;
+    const std::vector<GroundControlPoint> &gcps() const;
+    const std::string &epsgCode() const;
+    const std::unordered_map<size_t, Image> &images() const;
 
 private:
 
     std::vector<GroundControlPoint> mGCPs;
     std::string mEpsgCode;
+    std::unordered_map<size_t, Image> mImages;
 };
 
 

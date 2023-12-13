@@ -66,6 +66,8 @@ public slots:
 private slots:
 
     virtual void removeGroundControlPoints() = 0;
+    virtual void importGCP() = 0;
+    virtual void exportGCP() = 0;
 
 signals:
 
@@ -77,6 +79,9 @@ signals:
     void add_image_point(const QString &, size_t, const QPointF &);
     void remove_image_point(const QString &, size_t);
     void georeference();
+    void export_gcp(const QString&/*file*/, const QString&/*format*/);
+    void import_gcp(const QString&/*file*/, const QString&/*format*/);
+
 };
 
 } // namespace graphos
