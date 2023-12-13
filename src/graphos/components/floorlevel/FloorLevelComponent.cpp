@@ -166,7 +166,7 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
             model->prepareDisplayForRefresh_recursive();
         }
 
-        tl::Matrix<double, 4, 4> transform;
+        auto transform = tl::Matrix<double, 4, 4>::identity();
         transform(0, 0) = mat[0];
         transform(1, 0) = mat[1];
         transform(2, 0) = mat[2];
@@ -183,7 +183,9 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
         transform(1, 3) = mat[7];
         transform(2, 3) = mat[11];
 
-        dynamic_cast<Application *>(qApp)->project()->setTransform(transform);
+        auto &_transform = dynamic_cast<Application *>(qApp)->project()->transform();
+        _transform = _transform * transform;
+        //dynamic_cast<Application *>(qApp)->project()->setTransform(transform);
 
         if (mLevelMarkersCloud) {
             delete mLevelMarkersCloud;

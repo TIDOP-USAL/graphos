@@ -75,7 +75,7 @@ public:
     std::vector<GroundControlPoint> groundControlPoints() const override;
     tl::Path projectPath() const override;
     tl::Path reconstructionPath() const override;
-    void setReconstructionPath(const tl::Path &reconstructionPath) override;
+    //void setReconstructionPath(const tl::Path &reconstructionPath) override;
     void setSparseModel(const tl::Path &sparseModel) override;
     void setOffset(const tl::Path &offset) override;
     void addPhotoOrientation(size_t imageId,

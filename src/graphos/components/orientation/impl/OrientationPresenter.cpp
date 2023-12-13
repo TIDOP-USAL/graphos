@@ -196,7 +196,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
             TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
             TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
 
-            mModel->setReconstructionPath(sfm_path);
+            //mModel->setReconstructionPath(sfm_path);
             mModel->setSparseModel(sparse_model_path);
             mModel->setOffset(offset_path);
             mModel->setGroundPoints(ground_points_path);
@@ -251,7 +251,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
                 TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
                 TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
 
-                mModel->setReconstructionPath(sfm_path);
+                //mModel->setReconstructionPath(sfm_path);
                 mModel->setSparseModel(sparse_model_path);
                 mModel->setOffset(tl::Path(""));
                 mModel->setGroundPoints(ground_points_path);

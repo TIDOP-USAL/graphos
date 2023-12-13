@@ -66,7 +66,8 @@ void ScaleModelImp::loadSettings()
 
 void ScaleModelImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
 {
-    mProject->setTransform(transform);
+    auto &_transform = mProject->transform();
+    _transform = _transform * transform;
 }
 
 void ScaleModelImp::saveSettings()

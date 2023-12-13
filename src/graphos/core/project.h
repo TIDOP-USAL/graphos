@@ -222,7 +222,7 @@ public:
     virtual tl::Path groundPoints() const = 0;
     virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
     virtual tl::Path reconstructionPath() const = 0;
-    virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
+    //virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
     virtual bool isPhotoOriented(size_t imageId) const = 0;
     virtual CameraPose photoOrientation(size_t imageId) const = 0;
     virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
@@ -257,7 +257,8 @@ public:
     virtual void setOrthophoto(const OrthophotoData &orthophoto) = 0;
     virtual void clearOrthophoto() = 0;
 
-    virtual tl::Matrix<double, 4, 4> transform() const = 0;
+    virtual tl::Matrix<double, 4, 4> &transform() = 0;
+    virtual const tl::Matrix<double, 4, 4> &transform() const = 0;
     virtual void setTransform(const tl::Matrix<double, 4, 4> &transform) = 0;
 
     /*!
@@ -361,7 +362,7 @@ public:
     tl::Path groundPoints() const override;
     void setGroundPoints(const tl::Path &groundPoints) override;
     tl::Path reconstructionPath() const override;
-    void setReconstructionPath(const tl::Path &reconstructionPath) override;
+    //void setReconstructionPath(const tl::Path &reconstructionPath) override;
     bool isPhotoOriented(size_t imageId) const override;
     CameraPose photoOrientation(size_t imageId) const override;
     const std::unordered_map<size_t, CameraPose> &poses() const override;
@@ -402,7 +403,8 @@ public:
     bool checkOldVersion(const tl::Path &file) const override;
     void oldVersionBak(const tl::Path &file) const override;
 
-    tl::Matrix<double, 4, 4> transform() const override;
+    tl::Matrix<double, 4, 4> &transform() override;
+    const tl::Matrix<double, 4, 4> &transform() const override;
     void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
 
 protected:
@@ -461,7 +463,7 @@ protected:
     void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
     void writePairs(QXmlStreamWriter &stream) const;
     void writeOrientations(QXmlStreamWriter &stream) const;
-    void writeReconstructionPath(QXmlStreamWriter &stream) const;
+    //void writeReconstructionPath(QXmlStreamWriter &stream) const;
     void writeOrientationSparseModel(QXmlStreamWriter &stream) const;
     void writeOffset(QXmlStreamWriter &stream) const;
     void writeGroundPoints(QXmlStreamWriter &stream) const;
@@ -501,7 +503,7 @@ protected:
     tl::Path mSparseModel;
     tl::Path mOffset;
     tl::Path mGroundPoints;
-    tl::Path mReconstructionPath;
+    //tl::Path mReconstructionPath;
     std::shared_ptr<Densification> mDensification;
     tl::Path mDenseModel;
     std::shared_ptr<PoissonReconParameters> mMeshParameters;

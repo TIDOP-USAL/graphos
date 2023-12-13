@@ -720,7 +720,7 @@ bool OrientationCommand::run()
                 ground_points_path.exists() &&
                 poses_path.exists()) {
 
-                project.setReconstructionPath(sfm_path);
+                //project.setReconstructionPath(sfm_path);
                 project.setSparseModel(sparse_model_path);
                 project.setOffset(tl::Path(""));
 

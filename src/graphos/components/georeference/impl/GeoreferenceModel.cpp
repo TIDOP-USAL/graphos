@@ -375,10 +375,10 @@ tl::Path GeoreferenceModelImp::reconstructionPath() const
     return mProject->reconstructionPath();
 }
 
-void GeoreferenceModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
-{
-    mProject->setReconstructionPath(reconstructionPath);
-}
+//void GeoreferenceModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
+//{
+//    mProject->setReconstructionPath(reconstructionPath);
+//}
 
 void GeoreferenceModelImp::setSparseModel(const tl::Path &sparseModel)
 {

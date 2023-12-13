@@ -36,7 +36,8 @@
 #include <tidop/core/msg/message.h>
 #include <tidop/core/console.h>
 #include <tidop/core/path.h>
-
+#include <tidop/geometry/entities/point.h>
+#include <tidop/graphic/color.h>
 
 class QMainWindow;
 class ccGenericPrimitive;
@@ -103,6 +104,10 @@ public:
                            double y,
                            double z,
                            const std::array<std::array<float, 3>, 3> &rot) = 0;
+    virtual void drawLine(const std::string &name, 
+                          const tl::Point3<double> &point1, 
+                          const tl::Point3<double> &point2, 
+                          const tl::Color &color, int width) = 0;
     virtual void addPrimitive(ccGenericPrimitive *primitive) = 0;
     virtual bool isEDL() const = 0;
 

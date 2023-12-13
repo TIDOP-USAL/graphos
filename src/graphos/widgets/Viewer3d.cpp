@@ -44,6 +44,7 @@ TL_DISABLE_WARNINGS
 #include <cc2DLabel.h>
 #include <cc2DViewportLabel.h>
 #include <ccGenericPrimitive.h>
+#include <ccPolyline.h>
 
 /* Qt */
 #include <QMouseEvent>
@@ -129,7 +130,7 @@ void Viewer3DContextMenu::retranslate()
 
 
 CCViewer3D::CCViewer3D(QWidget *parent)
-    : ccGLWindow(nullptr),
+  : ccGLWindow(nullptr),
     mSelectedObject(nullptr),
     mScaleX(1),
     mScaleY(1),
@@ -461,6 +462,55 @@ void CCViewer3D::addCamera(const QString &id,
     }
 
     addToDB(camera);
+}
+
+void CCViewer3D::drawLine(const std::string &name, 
+                  const tl::Point3<double> &point1, 
+                  const tl::Point3<double> &point2, 
+                  const tl::Color &color, int width)
+{
+    ccHObject *currentRoot = getSceneDB();
+
+    if (currentRoot) {
+
+        ccHObject *entities = nullptr;
+
+        for (unsigned int i = 0; i < currentRoot->getChildrenNumber(); i++) {
+            ccHObject *temp = currentRoot->getChild(i);
+            if (temp->getName().compare(name.c_str()) == 0 /*&&
+                temp->isKindOf(CC_TYPES::POINT_CLOUD)*/) {
+                entities = temp;
+            }
+        }
+
+        if (!entities) {
+            entities = new ccPointCloud(name.c_str());
+            addToDB(entities);
+        }
+
+        ccPointCloud *cloudMeasures = new ccPointCloud("Measures");
+        cloudMeasures->setEnabled(true);
+        cloudMeasures->setDisplay(this);
+
+        ccPolyline *segment = new ccPolyline(cloudMeasures);
+        segment->setTempColor(ccColor::Rgb(color.red(), color.green(), color.blue()));
+        segment->set2DMode(false);
+        segment->addChild(cloudMeasures);
+        segment->setWidth(width);
+        entities->addChild(segment);
+
+        if (!segment->reserve(segment->size() + 2)
+            || !cloudMeasures->reserve(cloudMeasures->size() + 2)) {
+            return;
+        }
+
+        // Se añade el segmento
+        cloudMeasures->addPoint(CCVector3(point1.x, point1.y, point1.z));
+        cloudMeasures->addPoint(CCVector3(point2.x, point2.y, point2.z));
+
+        segment->addPointIndex(cloudMeasures->size() - 2);
+        segment->addPointIndex(cloudMeasures->size() - 1);
+    }
 }
 
 void CCViewer3D::addPrimitive(ccGenericPrimitive *primitive)
