@@ -331,10 +331,10 @@ template<typename T>
 std::shared_ptr<PlyProperty> PlyProperty::create(const std::string &name,
                                                  T value)
 {
-    //auto ply_property = std::make_shared<PlyPropertyImp<T>>(name, PlyTraits<T>::property_type);
-    //ply_property->setValue(value);
-    //return ply_property;
-    return nullptr;
+    auto ply_property = std::make_shared<PlyPropertyImp<T>>(name, PlyTraits<T>::property_type);
+    ply_property->setValue(value);
+    return ply_property;
+    //return nullptr;
 }
 
 

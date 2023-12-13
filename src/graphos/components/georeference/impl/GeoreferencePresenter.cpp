@@ -81,8 +81,6 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
             mModel->setTransform(transform);
         } 
 
-        mModel->setReconstructionPath(path);
-
         path.append("offset.txt");
         mModel->setOffset(path);
 
