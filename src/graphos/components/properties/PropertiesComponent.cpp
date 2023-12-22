@@ -83,6 +83,8 @@ void PropertiesComponent::createPresenter()
             dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
     connect(this, &PropertiesComponent::parseDocument,
             dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocument);
+    connect(this, &PropertiesComponent::parseDocuments,
+            dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocuments);
 }
 
 void PropertiesComponent::createCommand()

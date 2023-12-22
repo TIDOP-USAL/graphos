@@ -821,6 +821,26 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
     }
 }
 
+std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::parse(const QStringList &parsers, const QStringList &files) const
+{
+    std::unordered_map<QString, std::list<std::pair<QString, QString>>> properties;
+
+    try {
+
+        TL_ASSERT(parsers.size() == files.size(), "The number of parsers and files must be the same.");
+
+        for (size_t i = 0; i < parsers.size(); i++) {
+            auto _properties = parse(parsers[i], files[i]);
+            properties.insert(_properties.begin(), _properties.end());
+        }
+        
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
+
+    return properties;
+}
+
 void PropertiesModelImp::init()
 {
 

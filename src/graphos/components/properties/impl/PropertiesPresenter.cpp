@@ -62,6 +62,18 @@ void PropertiesPresenterImp::parseDocument(const QString &parser, const QString 
     }
 }
 
+void PropertiesPresenterImp::parseDocuments(const QStringList &parsers, const QStringList &files)
+{
+    try {
+
+        auto properties = mModel->parse(parsers, files);
+        mView->setProperties(properties);
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
+}
+
 void PropertiesPresenterImp::setImageActive(size_t imageId)
 {
     try {

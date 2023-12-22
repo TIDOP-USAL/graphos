@@ -47,6 +47,7 @@ public:
 
     virtual std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(size_t imageId) const = 0;
     virtual std::unordered_map<QString, std::list<std::pair<QString, QString>>> parse(const QString &parser, const QString &file) const = 0;
+    virtual std::unordered_map<QString, std::list<std::pair<QString, QString>>> parse(const QStringList &parsers, const QStringList &files) const = 0;
 };
 
 

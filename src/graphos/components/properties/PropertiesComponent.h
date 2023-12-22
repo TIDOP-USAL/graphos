@@ -53,6 +53,7 @@ signals:
 
     void selectImage(size_t);
     void parseDocument(QString /*parser*/, QString /*file*/);
+    void parseDocuments(QStringList /*parsers*/, QStringList /*files*/);
 
 // ComponentBase
 

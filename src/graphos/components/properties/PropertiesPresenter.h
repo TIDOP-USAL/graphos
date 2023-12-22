@@ -50,6 +50,7 @@ public slots:
 
     virtual void setImageActive(size_t imageId) = 0;
     virtual void parseDocument(const QString &parser, const QString &file) = 0;
+    virtual void parseDocuments(const QStringList &parsers, const QStringList &files) = 0;
 };
 
 } // namespace graphos

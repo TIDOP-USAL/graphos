@@ -52,6 +52,8 @@ public:
 
     std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif(size_t imageId) const override;
     std::unordered_map<QString, std::list<std::pair<QString, QString>>> parse(const QString &parser, const QString &file) const override;
+    std::unordered_map<QString, std::list<std::pair<QString, QString>>> parse(const QStringList &parsers, const QStringList &files) const override;
+
 // Model interface
 
 private:
