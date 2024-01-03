@@ -158,6 +158,9 @@ void GraphicViewerImp::mousePressEvent(QMouseEvent *event)
 
     mPointOld = event->pos();
 
+    QPointF imagePoint = mapToScene(QPoint(event->x(), event->y()));
+    emit mousePressed(imagePoint);   
+
     QGraphicsView::mousePressEvent(event);
 }
 
@@ -169,9 +172,11 @@ void GraphicViewerImp::mouseReleaseEvent(QMouseEvent *event)
             setDragMode(QGraphicsView::NoDrag);
         }
 
+        QPointF imagePoint = mapToScene(QPoint(event->x(), event->y()));
         if (event->pos() == mPointOld) {
-            QPointF imagePoint = mapToScene(QPoint(event->x(), event->y()));
             emit mouseClicked(imagePoint);
+        } else {
+            emit mouseReleased(imagePoint);
         }
 
     }
