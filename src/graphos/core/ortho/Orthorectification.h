@@ -102,8 +102,8 @@ private:
     std::unique_ptr<tl::ImageReader> mDtmReader;
     cv::Mat mDtm;
     tl::Window<tl::Point<double>> mWindowDtmTerrainExtension;
-    tl::Affine<tl::Point<int>> mAffineImageToPhotocoordinates;
-    tl::Affine<tl::Point<double>> mAffineDtmImageToTerrain;
+    tl::geom::Affine<tl::Point<int>> mAffineImageToPhotocoordinates;
+    tl::geom::Affine<tl::Point<double>> mAffineDtmImageToTerrain;
     std::unique_ptr<tl::DifferentialRectification> mDifferentialRectification;
     double mIniZ;
     tl::Rect<int> mRectImage;

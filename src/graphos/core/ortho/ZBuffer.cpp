@@ -31,7 +31,7 @@ namespace graphos
 
 ZBuffer::ZBuffer(Orthorectification *orthorectification,
                  const tl::Rect<int> &rectOrtho,
-                 const tl::Affine<tl::Point<double>> &georeference)
+                 const tl::geom::Affine<tl::Point<double>> &georeference)
   : mOrthorectification(orthorectification),
     mRectOrtho(rectOrtho),
     mGeoreference(georeference)
@@ -78,10 +78,10 @@ void ZBuffer::run()
                     }
                 }
 
-                ortho_image_coordinates[0] = mGeoreference.transform(dtm_grid_terrain_points[0], tl::Transform::Order::inverse);
-                ortho_image_coordinates[1] = mGeoreference.transform(dtm_grid_terrain_points[1], tl::Transform::Order::inverse);
-                ortho_image_coordinates[2] = mGeoreference.transform(dtm_grid_terrain_points[2], tl::Transform::Order::inverse);
-                ortho_image_coordinates[3] = mGeoreference.transform(dtm_grid_terrain_points[3], tl::Transform::Order::inverse);
+                ortho_image_coordinates[0] = mGeoreference.transform(dtm_grid_terrain_points[0], tl::geom::Transform::Order::inverse);
+                ortho_image_coordinates[1] = mGeoreference.transform(dtm_grid_terrain_points[1], tl::geom::Transform::Order::inverse);
+                ortho_image_coordinates[2] = mGeoreference.transform(dtm_grid_terrain_points[2], tl::geom::Transform::Order::inverse);
+                ortho_image_coordinates[3] = mGeoreference.transform(dtm_grid_terrain_points[3], tl::geom::Transform::Order::inverse);
 
                 photo_photocoordinates[0] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[0]);
                 photo_photocoordinates[1] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[1]);

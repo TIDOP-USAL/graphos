@@ -55,7 +55,7 @@ public:
 			   Orthorectification *orthorectification,
 			   const tl::Crs &crs,
 			   const tl::Rect<int> &rectOrtho,
-			   const tl::Affine<tl::Point<double>> &georeference,
+			   const tl::geom::Affine<tl::Point<double>> &georeference,
 			   bool cuda = false);
 	~Orthoimage();
 
@@ -68,7 +68,7 @@ private:
 	Orthorectification *mOrthorectification;
 	tl::Crs mCrs;
 	tl::Rect<int> mRectOrtho;
-	tl::Affine<tl::Point<double>> mGeoreference;
+	tl::geom::Affine<tl::Point<double>> mGeoreference;
 	std::unique_ptr<tl::ImageWriter> mOrthophotoWriter;
 	tl::Window<tl::Point<double>> mWindowOrthoTerrain;
 	bool bCuda;
