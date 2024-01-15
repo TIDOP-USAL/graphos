@@ -142,7 +142,7 @@ tl::Point<int> Orthorectification::imageToPhotocoordinates(const tl::Point<int> 
 
 tl::Point<int> Orthorectification::photocoordinatesToImage(const tl::Point<int> &photocoordinates) const
 {
-    return mAffineImageToPhotocoordinates.transform(photocoordinates, tl::Transform::Order::inverse);
+    return mAffineImageToPhotocoordinates.transform(photocoordinates, tl::geom::Transform::Order::inverse);
 }
 
 tl::Point3<double> Orthorectification::dtmToTerrain(const tl::Point<int> &imagePoint) const
@@ -163,7 +163,7 @@ tl::Point3<double> Orthorectification::dtmToTerrain(const tl::Point<int> &imageP
 
 tl::Point<int> Orthorectification::terrainToDTM(const tl::Point3<double> &terrainPoint) const
 {
-    return mAffineDtmImageToTerrain.transform(terrainPoint, tl::Transform::Order::inverse);
+    return mAffineDtmImageToTerrain.transform(terrainPoint, tl::geom::Transform::Order::inverse);
 }
 
 double Orthorectification::z(const tl::Point<double> &terrainPoint) const
@@ -236,7 +236,7 @@ void Orthorectification::init()
         mAffineDtmImageToTerrain = mDtmReader->georeference();
 
         tl::Point<float> principal_point = this->principalPoint();
-        mAffineImageToPhotocoordinates = tl::Affine<tl::Point<int>>(-principal_point.x, principal_point.y, 1, -1, 0);
+        mAffineImageToPhotocoordinates = tl::geom::Affine<tl::Point<int>>(-principal_point.x, principal_point.y, 1, -1, 0);
 
         mWindowDtmTerrainExtension.pt1.x = mAffineDtmImageToTerrain.tx;
         mWindowDtmTerrainExtension.pt1.y = mAffineDtmImageToTerrain.ty;

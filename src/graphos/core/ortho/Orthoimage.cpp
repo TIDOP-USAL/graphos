@@ -41,7 +41,7 @@ Orthoimage::Orthoimage(const tl::Path &image,
                        Orthorectification *orthorectification,
                        const tl::Crs &crs,
                        const tl::Rect<int> &rectOrtho,
-                       const tl::Affine<tl::Point<double>> &georeference,
+                       const tl::geom::Affine<tl::Point<double>> &georeference,
                        bool cuda)
   : mImageReader(tl::ImageReaderFactory::create(image)),
     mOrthorectification(orthorectification),
@@ -131,10 +131,10 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                     }
                 }
 
-                ortho_image_coordinates[0] = mGeoreference.transform(dtm_grid_terrain_points[0], tl::Transform::Order::inverse);
-                ortho_image_coordinates[1] = mGeoreference.transform(dtm_grid_terrain_points[1], tl::Transform::Order::inverse);
-                ortho_image_coordinates[2] = mGeoreference.transform(dtm_grid_terrain_points[2], tl::Transform::Order::inverse);
-                ortho_image_coordinates[3] = mGeoreference.transform(dtm_grid_terrain_points[3], tl::Transform::Order::inverse);
+                ortho_image_coordinates[0] = mGeoreference.transform(dtm_grid_terrain_points[0], tl::geom::Transform::Order::inverse);
+                ortho_image_coordinates[1] = mGeoreference.transform(dtm_grid_terrain_points[1], tl::geom::Transform::Order::inverse);
+                ortho_image_coordinates[2] = mGeoreference.transform(dtm_grid_terrain_points[2], tl::geom::Transform::Order::inverse);
+                ortho_image_coordinates[3] = mGeoreference.transform(dtm_grid_terrain_points[3], tl::geom::Transform::Order::inverse);
 
                 photo_photocoordinates[0] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[0]);
                 photo_photocoordinates[1] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[1]);
@@ -322,7 +322,7 @@ void OrthoimageProcess::execute(tl::Progress *progressBar)
                 i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomRight()));
                 i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomLeft()));
 
-                tl::Affine<tl::Point<double>> affine_terrain_image;
+                tl::geom::Affine<tl::Point<double>> affine_terrain_image;
                 affine_terrain_image.compute(i_coor, t_coor);
                 scale = (affine_terrain_image.scaleY() + affine_terrain_image.scaleX()) / 2.;
             }
@@ -336,7 +336,7 @@ void OrthoimageProcess::execute(tl::Progress *progressBar)
             int cols_ortho = static_cast<int>(std::round(window_ortho_terrain.width() / scale));
             tl::Rect<int> rect_ortho = tl::Rect<int>(0, 0, cols_ortho, rows_ortho);
 
-            tl::Affine<tl::Point<double>> affine_ortho(window_ortho_terrain.pt1.x,
+            tl::geom::Affine<tl::Point<double>> affine_ortho(window_ortho_terrain.pt1.x,
                                                 window_ortho_terrain.pt2.y,
                                                 scale, -scale, 0.0);
 

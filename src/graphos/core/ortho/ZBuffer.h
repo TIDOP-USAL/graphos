@@ -42,7 +42,7 @@ public:
 
     ZBuffer(Orthorectification *orthorectification,
             const tl::Rect<int> &rectOrtho,
-            const tl::Affine<tl::Point<double>> &georeference);
+            const tl::geom::Affine<tl::Point<double>> &georeference);
     ~ZBuffer();
 
     void run();
@@ -57,7 +57,7 @@ private:
 
     Orthorectification *mOrthorectification;
     tl::Rect<int> mRectOrtho;
-    tl::Affine<tl::Point<double>> mGeoreference;
+    tl::geom::Affine<tl::Point<double>> mGeoreference;
     tl::Window<tl::Point<double>> mWindowOrthoTerrain;
     cv::Mat mDistances;
     cv::Mat mY;
