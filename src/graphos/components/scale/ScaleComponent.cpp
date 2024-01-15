@@ -50,7 +50,8 @@ void ScaleComponent::init()
 {
     setName(tr("Scale"));
     setMenu("tools");
-
+    setToolbar("tools");
+    setIcon(QIcon::fromTheme("scale"));
     createCommand();
 }
 

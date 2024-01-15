@@ -121,6 +121,8 @@ signals:
     void mouseScenePosition(QPointF);
     void mouseClicked(QPoint);
     void mouseClicked(QPointF);
+    void mousePressed(QPointF);
+    void mouseReleased(QPointF);
     void selectionChanged();
     void removeSelectItems();
 };

@@ -207,6 +207,9 @@
         <file alias="24/dtm.png">icons/Material/24/dtm.png</file>
         <file alias="48/dtm.png">icons/Material/48/dtm.png</file>
         <file alias="96/dtm.png">icons/Material/96/dtm.png</file>
+        <file alias="24/scale.png">icons/Material/24/scale.png</file>
+        <file alias="48/scale.png">icons/Material/48/scale.png</file>
+        <file alias="96/scale.png">icons/Material/96/scale.png</file>
     </qresource>
     <qresource prefix="/CC">
         <file alias="images/ccMinus.png">icons/cc/ccMinus.png</file>
