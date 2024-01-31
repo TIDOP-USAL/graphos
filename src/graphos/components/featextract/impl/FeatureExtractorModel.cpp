@@ -71,6 +71,11 @@ void FeatureExtractorModelImp::setFeatureExtractor(const std::shared_ptr<Feature
     mProject->setFeatureExtractor(featureExtractor);
 }
 
+void FeatureExtractorModelImp::setFeatureExtractorReport(const FeatureExtractorReport &report)
+{
+    mProject->setFeatureExtractorReport(report);
+}
+
 tl::Path FeatureExtractorModelImp::database() const
 {
     return mProject->database();

@@ -47,6 +47,19 @@ namespace graphos
 class Camera;
 class CameraPose;
 
+struct DenseReport
+{
+    double time = 0.0;
+    int points = 0;
+    std::string method;
+    bool cuda = false;
+
+    bool isEmpty() const
+    {
+        return time == 0. && points == 0 && method.empty();
+    }
+};
+
 class Densification
 {
 
@@ -92,7 +105,7 @@ public:
     virtual void enableCuda(bool enable) = 0;
     virtual bool isCudaEnabled() const = 0;
     virtual tl::Path denseModel() const = 0;
-
+    virtual auto report() const -> DenseReport = 0;
 };
 
 
@@ -111,13 +124,6 @@ public:
                   const tl::Path &outputPath);
     ~DensifierBase();
 
-// Densifier
-
-public:
-
-    void enableCuda(bool enable) override;
-    virtual bool isCudaEnabled() const override;
-    tl::Path denseModel() const override;
     void setUndistortImagesFormat(UndistortImages::Format format);
 
 protected:
@@ -130,6 +136,19 @@ protected:
     const std::vector<GroundPoint> &groundPoints() const;
     void setDenseModel(const tl::Path &denseModel);
     void autoSegmentation();
+
+// Densifier
+
+public:
+
+    void enableCuda(bool enable) override;
+    virtual bool isCudaEnabled() const override;
+    tl::Path denseModel() const override;
+    auto report() const -> DenseReport override;
+
+protected:
+
+    DenseReport mReport;
 
 private:
 

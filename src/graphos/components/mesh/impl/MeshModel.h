@@ -48,12 +48,15 @@ public:
 
 public:
 
-    PoissonReconParameters *parameters() const override;
+    std::shared_ptr<PoissonReconProperties> properties() const override;
     tl::Path denseModel() const override;
     tl::Path projectDir() const override;
     void setMesh(const tl::Path &mesh) override;
 
 public slots:
+
+    void setProperties(const std::shared_ptr<PoissonReconProperties> &properties) override;
+    void setMeshReport(const MeshReport &report) override;
 
     void loadSettings() override;
     void saveSettings() override;
@@ -73,7 +76,6 @@ protected:
     Project *mProject;
     QSettings *mSettings;
     bool mReadSettings;
-    PoissonReconParameters *mParameters;
 };
 
 } // namespace graphos

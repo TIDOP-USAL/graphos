@@ -100,6 +100,8 @@ public:
     bool useGPU() const;
     void setUseGPU(bool useGPU);
 
+    auto report() const->FeatureMatchingReport;
+
 // tl::TaskBase interface
 
 protected:
@@ -111,6 +113,7 @@ private:
     tl::Path mDatabase;
     bool bUseCuda;
     std::shared_ptr<FeatureMatching> mFeatureMatching;
+    FeatureMatchingReport mReport;
 
 };
 
@@ -141,6 +144,8 @@ public:
     bool useGPU() const;
     void setUseGPU(bool useGPU);
 
+    auto report() const -> FeatureMatchingReport;
+
 // tl::TaskBase interface
 
 protected:
@@ -152,6 +157,7 @@ private:
     tl::Path mDatabase;
     bool bUseCuda;
     std::shared_ptr<FeatureMatching> mFeatureMatching;
+    FeatureMatchingReport mReport;
 
 };
 

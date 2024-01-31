@@ -43,14 +43,26 @@ namespace tl
 namespace graphos
 {
 
+    
+struct MeshReport
+{
+    double time = 0.0;
 
-class PoissonReconParameters
+    bool isEmpty() const
+    {
+        return time == 0.;
+    }
+};
+
+
+
+class PoissonReconProperties
 {
 
 public:
 
-    PoissonReconParameters();
-    ~PoissonReconParameters();
+    PoissonReconProperties();
+    ~PoissonReconProperties();
 
     virtual int depth() const;
     virtual int solveDepth() const;
@@ -79,7 +91,7 @@ private:
 
 class PoissonReconTask
   : public tl::TaskBase,
-    public PoissonReconParameters
+    public PoissonReconProperties
 {
 
 public:
@@ -87,6 +99,8 @@ public:
     PoissonReconTask(const tl::Path &input,
                      const tl::Path &output);
     ~PoissonReconTask();
+
+    auto report() const -> MeshReport;
 
 // tl::TaskBase interface
 
@@ -98,6 +112,7 @@ private:
 
     tl::Path mInput;
     tl::Path mOutput;
+    MeshReport mReport;
 };
 
 

@@ -590,7 +590,7 @@ void TablePdf::Cell::setText(const QString &text)
 Pdf::Pdf(const QString &file)
   : mFile(file),
     pPdfWriter(new QPdfWriter(file)),
-    pPainter(0),
+    pPainter(nullptr),
     mTitleStyle(QFont("Helvetica", 16, QFont::Bold), QBrush(), QPen(), Qt::TextWordWrap | Qt::AlignJustify),
     mHeading1Style(QFont("Times", 14, QFont::Bold), QBrush(), QPen(), Qt::TextWordWrap),
     mHeading2Style(QFont("Times", 13, QFont::DemiBold), QBrush(), QPen(), Qt::TextWordWrap),
@@ -613,9 +613,15 @@ Pdf::Pdf(const QString &file)
 
 Pdf::~Pdf()
 {
-    if (pPdfWriter) delete pPdfWriter;
-    if (pPainter) delete pPainter;
-    //if (mTextBodyFont) delete mTextBodyFont;
+    if (pPainter) {
+        delete pPainter;
+        pPainter = nullptr;
+    }
+
+    if (pPdfWriter) {
+        delete pPdfWriter;
+        pPdfWriter = nullptr;
+    }
 }
 
 void Pdf::addHeader(const QString &text)
@@ -781,8 +787,8 @@ void Pdf::drawList(const QString &text)
         pPainter->drawPoint(QPoint(mX + 100, mY + height / 2));
 
         pPainter->drawText(QRect(mX + 200, mY, mWidth, mHeight), Qt::TextWordWrap | Qt::AlignJustify, text, &usedRect);
-        mY += usedRect.height() + mSpace;
-        mHeight -= (usedRect.height() + mSpace);
+        mY += usedRect.height() + 60/*mSpace*/;
+        mHeight -= (usedRect.height() + 60/*mSpace*/);
     }
 }
 
@@ -1008,7 +1014,7 @@ void Pdf::endDraw()
 
 void Pdf::initDraw()
 {
-    if (pPainter == NULL) {
+    if (pPainter == nullptr) {
         pPdfWriter->setResolution(600);
         pPainter = new QPainter(pPdfWriter);
         pPainter->setRenderHint(QPainter::Antialiasing);
@@ -1070,7 +1076,7 @@ void Pdf::initDraw()
 
             mRectBody.setHeight(mRectBody.height() - mRectFooter.height());
 
-            //drawFooter();
+            drawFooter();
         }
 
         mX = mRectBody.x();

@@ -232,7 +232,10 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 
             try {
 
-                auto cameras = dynamic_cast<RelativeOrientationColmapTask const *>(event->task())->cameras();
+                auto task = dynamic_cast<RelativeOrientationColmapTask const*>(event->task());
+                auto cameras = task->cameras();
+                auto report = task->report();
+                report.time = task->time();
 
                 /// Se comprueba que se han generado todos los productos
                 tl::Path sfm_path = mModel->projectFolder();
@@ -276,11 +279,15 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
                     mModel->updateCamera(camera.first, camera.second);
                 }
 
+                report.orientedImages = poses.size();
+                report.type = "Relative";
+                mModel->setOrientationReport(report);
+
             } catch (const std::exception &e) {
                 tl::printException(e);
             }
 
-                                             });
+        });
 
         dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(relative_orientation_task);
 
@@ -291,6 +298,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
 
             absolute_orientation_task->subscribe([&](tl::TaskFinalizedEvent *event) {
 
+                
                 tl::Path sfm_path = mModel->projectFolder();
                 sfm_path.append("sfm");
 
@@ -313,7 +321,12 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
                     }
                 }
 
-                                                 });
+                auto report = mModel->orientationReport();
+                report.type = "Absolute";
+                report.time += event->task()->time();
+                mModel->setOrientationReport(report);
+
+            });
 
             dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(absolute_orientation_task);
         }

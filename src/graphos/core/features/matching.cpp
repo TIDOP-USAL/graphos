@@ -131,7 +131,7 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
 {
     try {
 
-        tl::Chrono chrono("Feature Matching finished");
+        tl::Chrono chrono;
         chrono.run();
 
         colmap::SiftMatchingOptions siftMatchingOptions;
@@ -216,6 +216,10 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
             TL_ASSERT(num_matches > 0, "Matching points not detected");
             tl::Message::success("Feature Matching finished in {:.2} minutes", chrono.stop() / 60.);
             tl::Message::info(" - Total matches: {}", num_matches);
+
+            mReport.matches = num_matches;
+            mReport.cuda = bUseCuda;
+            mReport.time = this->time();
         }
 
     } catch (...) {
@@ -254,6 +258,10 @@ void FeatureMatchingTask::setFeatureMatching(const std::shared_ptr<FeatureMatchi
     mFeatureMatching = featureMatching;
 }
 
+auto FeatureMatchingTask::report() const -> FeatureMatchingReport
+{
+    return mReport;
+}
 
 
 /* Spatial Matching */
@@ -473,6 +481,10 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
 
             tl::Message::success("Feature Matching finished in {:.2} minutes", chrono.stop() / 60.);
             tl::Message::info(" - Total matches: {}", num_matches);
+
+            mReport.matches = num_matches;
+            mReport.cuda = bUseCuda;
+            mReport.time = this->time();
         }
 
     } catch (...) {
@@ -508,6 +520,11 @@ std::shared_ptr<FeatureMatching> SpatialMatchingTask::featureMatching() const
 void SpatialMatchingTask::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
 {
     mFeatureMatching = featureMatching;
+}
+
+auto SpatialMatchingTask::report() const -> FeatureMatchingReport
+{
+    return mReport;
 }
 
 } // namespace graphos

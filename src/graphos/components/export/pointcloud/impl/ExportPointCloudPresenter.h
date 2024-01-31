@@ -42,8 +42,8 @@ class ExportPointCloudPresenterImp
 public:
 
     ExportPointCloudPresenterImp(ExportPointCloudView *view,
-                              ExportPointCloudModel *model,
-                              AppStatus *status);
+                                 ExportPointCloudModel *model,
+                                 AppStatus *status);
     ~ExportPointCloudPresenterImp() override;
 
 // ExportPointCloudPresenter interface

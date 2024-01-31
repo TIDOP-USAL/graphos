@@ -123,6 +123,8 @@ public:
     CmvsPmvsDensifier &operator =(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
     CmvsPmvsDensifier &operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
 
+    //auto report() const -> DenseReport;
+
 private:
 
     void clearPreviousModel();
@@ -142,6 +144,7 @@ private:
     std::unordered_map<size_t, size_t> mGraphosToBundlerIds;
     tl::Path mDatabase;
     bool mAutoSegmentation;
+    //DenseReport mReport;
 };
 
 

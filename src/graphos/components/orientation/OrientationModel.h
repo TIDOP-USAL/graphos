@@ -31,6 +31,7 @@
 #include "graphos/core/mvp.h"
 #include "graphos/core/image.h"
 #include "graphos/core/sfm/poses.h"
+#include "graphos/core/sfm/OrientationReport.h"
 
 namespace graphos
 {
@@ -64,6 +65,8 @@ public:
     virtual const std::map<int, Camera> &cameras() const = 0;
     virtual bool updateCamera(int id, const Camera &camera) = 0;
     virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual OrientationReport orientationReport() const = 0;
+    virtual void setOrientationReport(const OrientationReport &orientationReport) = 0;
 };
 
 } // namespace graphos

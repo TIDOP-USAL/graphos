@@ -131,9 +131,9 @@ void Ply::open(const std::string &file,
         stream = new std::fstream(_file, std::ios_base::in | std::ios_base::binary);
 
         readHeader();
-        readBody();
+        //readBody();
 
-        stream->close();
+        //stream->close();
     }
 
     //if (flags.isEnabled(OpenMode::out)) {
@@ -147,6 +147,19 @@ void Ply::open(const std::string &file,
     //  stream = new std::fstream(file, open_mode);
     //}
 
+}
+
+void Ply::read()
+{
+    if (flags.isEnabled(OpenMode::in) && stream->is_open()) {
+
+        //stream = new std::fstream(_file, std::ios_base::in | std::ios_base::binary);
+        TL_ASSERT(stream != nullptr, "File not open");
+        //readHeader();
+        readBody();
+
+        stream->close();
+    }
 }
 
 void Ply::save(bool binary)

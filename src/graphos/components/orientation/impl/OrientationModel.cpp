@@ -159,4 +159,14 @@ const std::unordered_map<size_t, Image> &OrientationModelImp::images() const
     return mProject->images();
 }
 
+OrientationReport OrientationModelImp::orientationReport() const
+{
+    return mProject->orientationReport();
+}
+
+void OrientationModelImp::setOrientationReport(const OrientationReport &orientationReport)
+{
+    mProject->setOrientationReport(orientationReport);
+}
+
 } // namespace graphos

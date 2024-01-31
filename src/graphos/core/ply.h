@@ -254,6 +254,7 @@ public:
     ~Ply();
 
     void open(const std::string &file, OpenMode mode);
+    void read();
     void save(bool binary = true);
     void close();
 

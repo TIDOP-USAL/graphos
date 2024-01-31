@@ -29,6 +29,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/sfm/orientationexport.h"
+#include "graphos/core/ply.h"
 
 /* TIDOP LIB */
 #include <tidop/core/task.h>
@@ -204,6 +205,11 @@ SmvsDensifier::~SmvsDensifier()
 {
 }
 
+//auto SmvsDensifier::report() const -> DenseReport
+//{
+//    return mReport;
+//}
+
 void SmvsDensifier::clearPreviousModel()
 {
     outputPath().removeDirectory();
@@ -367,8 +373,8 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
 
     try {
 
-        tl::Chrono chrono("Densification finished");
-        chrono.run();
+        //tl::Chrono chrono("Densification finished");
+        //chrono.run();
 
         this->clearPreviousModel();
 
@@ -412,7 +418,13 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        chrono.stop();
+        //chrono.stop();
+        Ply ply(denseModel().toString());
+        mReport.points = ply.size();
+        ply.close();
+        mReport.cuda = isCudaEnabled();
+        mReport.method = this->name().toStdString();
+        mReport.time = this->time();
 
         if (progressBar) (*progressBar)();
 

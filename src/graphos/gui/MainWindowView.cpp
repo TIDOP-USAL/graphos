@@ -905,7 +905,14 @@ void MainWindowView::onSelectionChanged()
     if (item.isEmpty()) return;
     if (item[0]->data(0, Qt::UserRole) == graphos::project) {
 
+    } else if (item[0]->data(0, Qt::UserRole) == graphos::sparse_model) {
+        emit select_sparse_model();
+    } else if (item[0]->data(0, Qt::UserRole) == graphos::dense_model) {
+        emit  select_dense_model();
+    } else if (item[0]->data(0, Qt::UserRole) == graphos::mesh) {
+        emit select_mesh_model();
     } else if (item[0]->data(0, Qt::UserRole) == graphos::images) {
+
     } else if (item[0]->data(0, Qt::UserRole) == graphos::image ||
                item[0]->data(0, Qt::UserRole) == graphos::image_features ||
                item[0]->data(0, Qt::UserRole) == graphos::image_features_matches) {

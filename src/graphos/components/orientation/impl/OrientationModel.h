@@ -64,6 +64,8 @@ public:
     const std::map<int, Camera> &cameras() const override;
     bool updateCamera(int id, const Camera &camera) override;
     const std::unordered_map<size_t, Image> &images() const override;
+    OrientationReport orientationReport() const override;
+    void setOrientationReport(const OrientationReport &orientationReport) override;
 
 // Model interface
 

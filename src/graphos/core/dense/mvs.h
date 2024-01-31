@@ -125,6 +125,8 @@ public:
     MvsDensifier &operator =(const MvsDensifier &MvsProcess) = delete;
     MvsDensifier &operator =(MvsDensifier &&MvsProcess) = delete;
 
+    //auto report() const -> DenseReport;
+
 private:
 
     void clearTemporalFiles();
@@ -143,6 +145,7 @@ private:
 
     tl::Path mDatabase;
     bool mAutoSegmentation;
+    //DenseReport mReport;
 };
 
 

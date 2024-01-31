@@ -25,6 +25,7 @@
 #define GRAPHOS_CORE_ORIENTATION_COLMAP_H
 
 #include "graphos/core/sfm/orientation.h"
+#include "graphos/core/sfm/OrientationReport.h"
 
 #include <memory>
 #include <map>
@@ -46,7 +47,7 @@ class Reconstruction;
 class ReconstructionManager;
 struct IncrementalMapperOptions;
 class IncrementalMapperController;
-class BundleAdjustmentController;
+//class BundleAdjustmentController;
 }
 
 namespace graphos
@@ -134,6 +135,8 @@ public:
 
     std::map<int, Camera> cameras() const;
 
+    auto report() const -> OrientationReport;
+
 // tl::TaskBase
 
 public:
@@ -153,7 +156,8 @@ private:
     colmap::IncrementalMapperOptions *mIncrementalMapper;
     colmap::IncrementalMapperController *mMapper;
     std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
-    colmap::BundleAdjustmentController *mBundleAdjustmentController;
+    //colmap::BundleAdjustmentController *mBundleAdjustmentController;
+    OrientationReport mOrientationReport;
 
 };
 

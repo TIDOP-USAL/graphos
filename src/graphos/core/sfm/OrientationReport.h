@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
  *                                                                      *
  *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
@@ -21,54 +21,43 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_MODEL_INTERFACE_H
-#define GRAPHOS_DENSE_MODEL_INTERFACE_H
+#ifndef GRAPHOS_CORE_BA_REPORT_H
+#define GRAPHOS_CORE_BA_REPORT_H
 
-#include "graphos/core/mvp.h"
-#include "graphos/core/dense/dense.h"
+#include "graphos/graphos_global.h"
 
-#include <tidop/core/path.h>
-
+#include <vector>
 #include <unordered_map>
+
+#include <tidop/geometry/entities/point.h>
 
 namespace graphos
 {
 
-class Image;
-class Camera;
-class Densification;
-class CameraPose;
-class GroundPoint;
-
-class DensificationModel
-  : public Model
+struct OrientationReport
 {
+	int orientedImages = 0;
+	std::string type;
 
-    Q_OBJECT
+	// Bundle Adjust
+    int iterations = 0;
+    double initialCost = 0.0;
+	double finalCost = 0.0;
+    std::string termination = "NO_CONVERGENCE";
+	
+	double alignmentErrorMean = 0.0;
+	double alignmentErrorMedian = 0.0;
+	double time = 0.0;
 
-public:
-
-    DensificationModel(QObject *parent = nullptr) : Model(parent) {}
-    ~DensificationModel() override = default;
-
-    virtual std::shared_ptr<Densification> densification() const = 0;
-    virtual tl::Path projectFolder() const = 0;
-    virtual tl::Path reconstructionPath() const = 0;
-    virtual tl::Path database() const = 0;
-    virtual bool useCuda() const = 0;
-    virtual bool existDenseModel() const = 0;
-    virtual const std::unordered_map<size_t, Image> &images() const = 0;
-    virtual const std::map<int, Camera> &cameras() const = 0;
-    virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
-    virtual std::vector<GroundPoint> groundPoints() const = 0;
-
-public slots:
-
-    virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
-    virtual void setDenseModel(const tl::Path &denseModel) = 0;
-    virtual void setDenseReport(const DenseReport &report) = 0;
+	bool isEmpty() const
+	{
+		return iterations == 0 && initialCost == 0.0 
+			&& finalCost == 0.0 && termination == "NO_CONVERGENCE";
+	}
+	
 };
 
-} // End namespace graphos
 
-#endif // GRAPHOS_DENSE_MODEL_INTERFACE_H
+} // namespace graphos
+
+#endif // GRAPHOS_CORE_BA_REPORT_H

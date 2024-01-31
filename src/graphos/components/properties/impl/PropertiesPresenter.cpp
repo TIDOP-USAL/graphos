@@ -74,6 +74,42 @@ void PropertiesPresenterImp::parseDocuments(const QStringList &parsers, const QS
     }
 }
 
+void PropertiesPresenterImp::selectSparseModel()
+{
+    try {
+
+        auto properties = mModel->sparseModel();
+        mView->setProperties(properties);
+
+    } catch (std::exception& e) {
+        tl::printException(e);
+    }
+}
+
+void PropertiesPresenterImp::selectDenseModel()
+{
+    try {
+
+        auto properties = mModel->denseModel();
+        mView->setProperties(properties);
+
+    } catch (std::exception& e) {
+        tl::printException(e);
+    }
+}
+
+void PropertiesPresenterImp::selectMeshModel()
+{
+    try {
+
+        auto properties = mModel->meshModel();
+        mView->setProperties(properties);
+
+    } catch (std::exception& e) {
+        tl::printException(e);
+    }
+}
+
 void PropertiesPresenterImp::setImageActive(size_t imageId)
 {
     try {

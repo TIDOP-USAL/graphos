@@ -178,6 +178,9 @@ signals:
 
     void openHelpDialog();
 
+    void select_sparse_model();
+    void select_dense_model();
+    void select_mesh_model();
     void select_image(size_t);
     void select_images(std::vector<size_t>);
     void delete_images(std::vector<size_t>);

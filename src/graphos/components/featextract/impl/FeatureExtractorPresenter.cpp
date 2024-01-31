@@ -145,7 +145,7 @@ void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent* event)
 
 std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
 {
-    std::unique_ptr<tl::Task> feat_extract_process;
+    std::unique_ptr<tl::Task> feat_extract_task;
 
     if (std::shared_ptr<Feature> feature_extractor = mModel->featureExtractor()) {
 
@@ -156,7 +156,7 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
 
         if (i_ret == QMessageBox::No) {
             tl::Message::warning("Process canceled by user");
-            return feat_extract_process;
+            return feat_extract_task;
         }
 
     }
@@ -197,15 +197,23 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
         maxSize = mView->maxImageSize();
     }
 
-    feat_extract_process = std::make_unique<FeatureExtractorTask>(images,
+    feat_extract_task = std::make_unique<FeatureExtractorTask>(images,
                                                                   mModel->cameras(),
                                                                   mModel->database(),
                                                                   maxSize,
                                                                   mModel->useCuda(),
                                                                   feature_extractor);
 
-    connect(dynamic_cast<FeatureExtractorTask*>(feat_extract_process.get()), &FeatureExtractorTask::features_extracted,
+    connect(dynamic_cast<FeatureExtractorTask*>(feat_extract_task.get()), &FeatureExtractorTask::features_extracted,
             this, &FeatureExtractorPresenterImp::onFeaturesExtracted);
+
+    feat_extract_task->subscribe([&](tl::TaskFinalizedEvent *event) {
+
+        auto report = dynamic_cast<FeatureExtractorTask const*>(event->task())->report();
+    
+        mModel->setFeatureExtractorReport(report);
+
+    });
 
     if (progressHandler()) {
         progressHandler()->setRange(0, images.size());
@@ -215,7 +223,7 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
 
     mView->hide();
 
-    return feat_extract_process;
+    return feat_extract_task;
 }
 
 void FeatureExtractorPresenterImp::onFeaturesExtracted(size_t imageId,

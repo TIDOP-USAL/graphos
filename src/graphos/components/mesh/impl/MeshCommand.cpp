@@ -36,17 +36,17 @@ namespace graphos
 MeshCommand::MeshCommand()
   : Command("mesh", "Poisson reconstruction mesh")
 {
-    PoissonReconParameters parameters;
+    PoissonReconProperties properties;
 
     this->addArgument<std::string>("prj", 'p', "Project file");
-    this->addArgument<int>("depth", "Maximum reconstruction depth", parameters.depth());
-    this->addArgument<int>("solve_depth", "Maximum solution depth", parameters.solveDepth());
-    auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", parameters.boundaryType().toStdString());
+    this->addArgument<int>("depth", "Maximum reconstruction depth", properties.depth());
+    this->addArgument<int>("solve_depth", "Maximum solution depth", properties.solveDepth());
+    auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", properties.boundaryType().toStdString());
     std::vector<std::string> boundary_types{"free", "Dirichlet", "Neumann"};
     arg_boundary_type->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(boundary_types));
     this->addArgument(arg_boundary_type);
-    this->addArgument<int>("grid_width", "Grid width", parameters.width());
-    this->addArgument<int>("full_depth", "Full depth", parameters.fullDepth());
+    this->addArgument<int>("grid_width", "Grid width", properties.width());
+    this->addArgument<int>("full_depth", "Full depth", properties.fullDepth());
     
     this->addExample("mesh -p 253/253.xml --method PMVS");
 
@@ -97,7 +97,7 @@ bool MeshCommand::run()
 
         process->run();
 
-        project.setMeshParameters(process);
+        project.setProperties(process);
         project.setMeshPath(mesh_path);
         project.save(prj_path);
 

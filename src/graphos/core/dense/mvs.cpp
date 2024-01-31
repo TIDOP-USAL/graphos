@@ -28,6 +28,7 @@
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/image.h"
 #include "graphos/core/sfm/groundpoint.h"
+#include "graphos/core/ply.h"
 
 /* TidopLib */
 #include <tidop/core/task.h>
@@ -236,6 +237,11 @@ MvsDensifier::MvsDensifier(const std::unordered_map<size_t, Image> &images,
 MvsDensifier::~MvsDensifier()
 {
 }
+
+//auto MvsDensifier::report() const -> DenseReport
+//{
+//    return mReport;
+//}
 
 void MvsDensifier::clearTemporalFiles()
 {
@@ -660,8 +666,8 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 {
     try {
 
-        tl::Chrono chrono("Densification finished");
-        chrono.run();
+        //tl::Chrono chrono("Densification finished");
+        //chrono.run();
 
         //this->clearPreviousModel();
 
@@ -686,12 +692,19 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 
         this->clearTemporalFiles();
 
-        chrono.stop();
+        Ply ply(denseModel().toString());
+        mReport.points = ply.size();
+        ply.close();
+        mReport.cuda = isCudaEnabled();
+        mReport.method = this->name().toStdString();
+        mReport.time = this->time();
+
+        tl::Message::success("Densification finished in {:.2} minutes", mReport.time / 60.);
 
         if (progressBar) (*progressBar)();
 
     } catch (...) {
-        //this->clearTemporalFiles();
+        this->clearTemporalFiles();
         TL_THROW_EXCEPTION_WITH_NESTED("MVS error");
     }
 

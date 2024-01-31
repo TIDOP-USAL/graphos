@@ -58,6 +58,42 @@ void PropertiesComponent::registerParser(std::shared_ptr<PropertiesParser> &pars
     PropertiesParserFactory::instace().addParser(parser);
 }
 
+void PropertiesComponent::selectSparseModel()
+{
+    if (auto properties_presenter = dynamic_cast<PropertiesPresenter*>(presenter()))
+        properties_presenter->selectSparseModel();
+}
+
+void PropertiesComponent::selectDenseModel()
+{
+    if (auto properties_presenter = dynamic_cast<PropertiesPresenter*>(presenter()))
+        properties_presenter->selectDenseModel();
+}
+
+void PropertiesComponent::selectMeshModel()
+{
+    if (auto properties_presenter = dynamic_cast<PropertiesPresenter*>(presenter()))
+        properties_presenter->selectMeshModel();
+}
+
+void PropertiesComponent::selectImage(size_t imageId)
+{
+    if (auto properties_presenter = dynamic_cast<PropertiesPresenter*>(presenter()))
+        properties_presenter->setImageActive(imageId);
+}
+
+void PropertiesComponent::parseDocument(const QString &parser, const QString &file)
+{
+    if (auto properties_presenter = dynamic_cast<PropertiesPresenter*>(presenter()))
+        properties_presenter->parseDocument(parser, file);
+}
+
+void PropertiesComponent::parseDocuments(const QStringList &parsers, const QStringList &files)
+{
+    if (auto properties_presenter = dynamic_cast<PropertiesPresenter*>(presenter()))
+        properties_presenter->parseDocuments(parsers, files);
+}
+
 void PropertiesComponent::init()
 {
     this->setName("Properties");
@@ -79,12 +115,12 @@ void PropertiesComponent::createPresenter()
                  dynamic_cast<PropertiesModel *>(model()),
                  app()->status()));
 
-    connect(this, &PropertiesComponent::selectImage,
-            dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
-    connect(this, &PropertiesComponent::parseDocument,
-            dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocument);
-    connect(this, &PropertiesComponent::parseDocuments,
-            dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocuments);
+    //connect(this, &PropertiesComponent::selectImage,
+    //        dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::setImageActive);
+    //connect(this, &PropertiesComponent::parseDocument,
+    //        dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocument);
+    //connect(this, &PropertiesComponent::parseDocuments,
+    //        dynamic_cast<PropertiesPresenter *>(presenter()), &PropertiesPresenter::parseDocuments);
 }
 
 void PropertiesComponent::createCommand()

@@ -39,6 +39,7 @@
 #include "graphos/core/image.h"
 #include "graphos/core/features/features.h"
 #include "graphos/core/sfm/poses.h"
+#include "graphos/core/sfm/OrientationReport.h"
 #include "graphos/core/dense/dense.h"
 #include "graphos/core/mesh/PoissonRecon.h"
 
@@ -200,6 +201,8 @@ public:
 
     virtual std::shared_ptr<Feature> featureExtractor() const = 0;
     virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
+    virtual FeatureExtractorReport featureExtractorReport() const = 0;
+    virtual void setFeatureExtractorReport(const FeatureExtractorReport &report) = 0;
 
     virtual QString features(size_t imageId) const = 0;
     virtual void addFeatures(size_t imageId, const QString &featureFile) = 0;
@@ -209,6 +212,8 @@ public:
 
     virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;
     virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
+    virtual FeatureMatchingReport featureMatchingReport() const = 0;
+    virtual void setFeatureMatchingReport(const FeatureMatchingReport &report) = 0;
 
     virtual void addMatchesPair(size_t imageLeftId, size_t imageRightId) = 0;
     virtual const std::vector<size_t> matchesPairs(size_t imageLeftId) const = 0;
@@ -228,17 +233,23 @@ public:
     virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
     virtual void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) = 0;
     virtual void clearReconstruction() = 0;
+    virtual OrientationReport orientationReport() const = 0;
+    virtual void setOrientationReport(const OrientationReport &orientationReport) = 0;
 
     virtual std::shared_ptr<Densification> densification() const = 0;
     virtual void setDensification(const std::shared_ptr<Densification> &densification) = 0;
     virtual tl::Path denseModel() const = 0;
     virtual void setDenseModel(const tl::Path &denseModel) = 0;
+    virtual DenseReport denseReport() const = 0;
+    virtual void setDenseReport(const DenseReport &denseReport) = 0;
     virtual void clearDensification() = 0;
 
-    virtual std::shared_ptr<PoissonReconParameters> meshParameters() const = 0;
-    virtual void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) = 0;
+    virtual std::shared_ptr<PoissonReconProperties> meshProperties() const = 0;
+    virtual void setProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) = 0;
     virtual tl::Path meshPath() const = 0;
     virtual void setMeshPath(const tl::Path &meshPath) = 0;
+    virtual MeshReport meshReport() const = 0;
+    virtual void setMeshReport(const MeshReport &report) = 0;
     virtual void clearMesh() = 0;
 
     //virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
@@ -340,6 +351,8 @@ public:
 
     std::shared_ptr<Feature> featureExtractor() const override;
     void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
+    FeatureExtractorReport featureExtractorReport() const override;
+    void setFeatureExtractorReport(const FeatureExtractorReport& report) override;
 
     QString features(size_t imageId) const override;
     void addFeatures(size_t imageId, const QString &featureFile) override;
@@ -349,6 +362,8 @@ public:
 
     std::shared_ptr<FeatureMatching> featureMatching() const override;
     void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
+    FeatureMatchingReport featureMatchingReport() const override;
+    void setFeatureMatchingReport(const FeatureMatchingReport &report) override;
 
     void addMatchesPair(size_t imageLeftId, size_t imageRightId) override;
     const std::vector<size_t> matchesPairs(size_t imageLeftId) const override;
@@ -368,17 +383,23 @@ public:
     const std::unordered_map<size_t, CameraPose> &poses() const override;
     void addPhotoOrientation(size_t imageId, const CameraPose &photoOrientation) override;
     void clearReconstruction() override;
+    OrientationReport orientationReport() const override;
+    void setOrientationReport(const OrientationReport &orientationReport) override;
 
     std::shared_ptr<Densification> densification() const override;
     void setDensification(const std::shared_ptr<Densification> &densification) override;
     tl::Path denseModel() const override;
     void setDenseModel(const tl::Path &denseModel) override;
+    DenseReport denseReport() const override;
+    void setDenseReport(const DenseReport &denseReport) override;
     void clearDensification() override;
 
-    std::shared_ptr<PoissonReconParameters> meshParameters() const override;
-    void setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters) override;
+    std::shared_ptr<PoissonReconProperties> meshProperties() const override;
+    void setProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) override;
     tl::Path meshPath() const override;
     void setMeshPath(const tl::Path &meshPath) override;
+    MeshReport meshReport() const override;
+    void setMeshReport(const MeshReport &report) override;
     void clearMesh() override;
 
     const DTMData &dtm() const override;
@@ -421,26 +442,31 @@ protected:
     void readCalibration(QXmlStreamReader &stream, Camera &camera);
     void readFeatures(QXmlStreamReader &stream);
     void readFeatureExtractor(QXmlStreamReader &stream);
+    void readFeatureExtractorReport(QXmlStreamReader &stream);
     void readSIFT(QXmlStreamReader &stream);
     void readFeatureFiles(QXmlStreamReader &stream);
     void readFeatureFile(QXmlStreamReader &stream);
     void readMatches(QXmlStreamReader &stream);
     void readMatchingMethod(QXmlStreamReader &stream);
+    void readFeatureMatchingReport(QXmlStreamReader &stream);
     void readPairs(QXmlStreamReader &stream);
     void readOrientations(QXmlStreamReader &stream);
-    void readReconstructionPath(QXmlStreamReader &stream);
+    //void readReconstructionPath(QXmlStreamReader &stream);
     void readOrientationSparseModel(QXmlStreamReader &stream);
     void readOffset(QXmlStreamReader &stream);
     void readGroundPoints(QXmlStreamReader &stream);
     void readPhotoOrientations(QXmlStreamReader &stream);
+    void readOrientationReport(QXmlStreamReader& stream);
     void readDensification(QXmlStreamReader &stream);
     void readDenseModel(QXmlStreamReader &stream);
+    void readDenseReport(QXmlStreamReader &stream);
     void readDensificationMethod(QXmlStreamReader &stream);
     void readSmvs(QXmlStreamReader &stream);
     void readCmvsPmvs(QXmlStreamReader &stream);
     void readMVS(QXmlStreamReader &stream);
     void readMesh(QXmlStreamReader &stream);
     void readMeshModel(QXmlStreamReader &stream);
+    void readMeshReport(QXmlStreamReader &stream);
     void readMeshParameters(QXmlStreamReader &stream);
     void readDtm(QXmlStreamReader &stream);
     void readOrthophoto(QXmlStreamReader &stream);
@@ -457,10 +483,12 @@ protected:
     void writeCameraPosition(QXmlStreamWriter &stream, const CameraPose &cameraPosition) const;
     void writeFeatures(QXmlStreamWriter &stream) const;
     void writeFeatureExtractor(QXmlStreamWriter &stream) const;
+    void writeFeatureExtractorReport(QXmlStreamWriter &stream) const;
     void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
     void writeFeatureFiles(QXmlStreamWriter &stream) const;
     void writeMatches(QXmlStreamWriter &stream) const;
     void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;
+    void writeFeatureMatchingReport(QXmlStreamWriter &stream) const;
     void writePairs(QXmlStreamWriter &stream) const;
     void writeOrientations(QXmlStreamWriter &stream) const;
     //void writeReconstructionPath(QXmlStreamWriter &stream) const;
@@ -468,11 +496,14 @@ protected:
     void writeOffset(QXmlStreamWriter &stream) const;
     void writeGroundPoints(QXmlStreamWriter &stream) const;
     void writePhotoOrientations(QXmlStreamWriter &stream) const;
+    void writeOrientationReport(QXmlStreamWriter &stream) const;
     void writeDensification(QXmlStreamWriter &stream) const;
     void writeDenseModel(QXmlStreamWriter &stream) const;
+    void writeDenseReport(QXmlStreamWriter &stream) const;
     void writeDensificationMethod(QXmlStreamWriter &stream) const;
     void writeMesh(QXmlStreamWriter &stream) const;
     void writeMeshModel(QXmlStreamWriter &stream) const;
+    void writeMeshReport(QXmlStreamWriter &stream) const;
     void writeMeshParameters(QXmlStreamWriter &stream) const;
     void writeDtm(QXmlStreamWriter &stream) const;
     void writeOrthophoto(QXmlStreamWriter &stream) const;
@@ -495,19 +526,24 @@ protected:
     std::unordered_map<size_t, Image> mImages;
     std::map<int, Camera> mCameras;
     std::shared_ptr<Feature> mFeatureExtractor;
+    FeatureExtractorReport mFeatureExtractorReport;
     std::unordered_map<size_t, QString> mFeatures;
     std::shared_ptr<FeatureMatching> mFeatureMatching;
+    FeatureMatchingReport mFeatureMatchingReport;
     std::unordered_map<size_t, std::vector<size_t>> mImagesPairs;
     std::unordered_map<size_t, CameraPose> mPhotoOrientation;
 
     tl::Path mSparseModel;
     tl::Path mOffset;
     tl::Path mGroundPoints;
+    OrientationReport mOrientationReport;
     //tl::Path mReconstructionPath;
     std::shared_ptr<Densification> mDensification;
     tl::Path mDenseModel;
-    std::shared_ptr<PoissonReconParameters> mMeshParameters;
+    DenseReport mDenseReport;
+    std::shared_ptr<PoissonReconProperties> mMeshProperties;
     tl::Path mMeshModel;
+    MeshReport mMeshReport;
     //std::shared_ptr<Dtm> mDtmMethod;
     //tl::Path mDTM;
     DTMData mDTM;

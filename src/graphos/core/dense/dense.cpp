@@ -77,6 +77,11 @@ tl::Path DensifierBase::denseModel() const
     return mDenseModel;
 }
 
+auto DensifierBase::report() const -> DenseReport
+{
+    return mReport;
+}
+
 void DensifierBase::setUndistortImagesFormat(UndistortImages::Format format)
 {
     mFormat = format;

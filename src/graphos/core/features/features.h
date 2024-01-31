@@ -314,6 +314,30 @@ public:
 
 };
 
+struct FeatureExtractorReport
+{
+    double time = 0.0;
+    int features = 0;
+    bool cuda = false;
+
+    bool isEmpty() const
+    {
+        return time == 0. && features == 0;
+    }
+};
+
+struct FeatureMatchingReport
+{
+    double time = 0.0;
+    int matches = 0;
+    bool cuda = false;
+
+    bool isEmpty() const
+    {
+        return time == 0. && matches == 0;
+    }
+};
+
 
 } // namespace graphos
 

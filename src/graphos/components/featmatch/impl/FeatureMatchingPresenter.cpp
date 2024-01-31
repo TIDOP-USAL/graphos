@@ -116,7 +116,7 @@ void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 {
-    std::unique_ptr<tl::Task> featmatching_process;
+    std::unique_ptr<tl::Task> featmatching_task;
 
     if (std::shared_ptr<FeatureMatching> feature_matcher = mModel->featureMatching()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
@@ -125,7 +125,7 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
                                 QMessageBox::Yes | QMessageBox::No).exec();
         if (i_ret == QMessageBox::No) {
             tl::Message::warning("Process canceled by user");
-            return featmatching_process;
+            return featmatching_task;
         }
     }
 
@@ -149,13 +149,30 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
     mModel->setFeatureMatching(featureMatching);
 
     if (mView->spatialMatching()) {
-        featmatching_process = std::make_unique<SpatialMatchingTask>(mModel->database(),
-                                                                     mModel->useCuda(),
-                                                                     featureMatching);
+        featmatching_task = std::make_unique<SpatialMatchingTask>(mModel->database(),
+                                                                  mModel->useCuda(),
+                                                                 featureMatching);
+
+        featmatching_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+
+            auto report = dynamic_cast<SpatialMatchingTask const*>(event->task())->report();
+
+            mModel->setFeatureMatchingReport(report);
+
+        });
+
     } else {
-        featmatching_process = std::make_unique<FeatureMatchingTask>(mModel->database(),
-                                                                     mModel->useCuda(),
-                                                                     featureMatching);
+        featmatching_task = std::make_unique<FeatureMatchingTask>(mModel->database(),
+                                                                  mModel->useCuda(),
+                                                                  featureMatching);
+
+        featmatching_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+
+            auto report = dynamic_cast<FeatureMatchingTask const*>(event->task())->report();
+
+            mModel->setFeatureMatchingReport(report);
+
+        });
     }
 
     if (progressHandler()) {
@@ -173,7 +190,7 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 
     mView->hide();
 
-    return featmatching_process;
+    return featmatching_task;
 }
 
 void FeatureMatchingPresenterImp::cancel()

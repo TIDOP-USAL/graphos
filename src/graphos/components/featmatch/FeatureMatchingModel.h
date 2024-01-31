@@ -25,6 +25,7 @@
 #define GRAPHOS_FEATURE_MATCHING_MODEL_INTERFACE_H
 
 #include "graphos/core/mvp.h"
+#include "graphos/core/features/features.h"
 
 #include <tidop/core/path.h>
 
@@ -46,6 +47,7 @@ public:
 
     virtual std::shared_ptr<FeatureMatching> featureMatching() const = 0;
     virtual void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) = 0;
+    virtual void setFeatureMatchingReport(const FeatureMatchingReport &report) = 0;
     virtual tl::Path database() const = 0;
     virtual bool useCuda() const = 0;
     virtual bool spatialMatching() const = 0;

@@ -48,6 +48,9 @@ signals:
 
 public slots:
 
+    virtual void selectSparseModel() = 0;
+    virtual void selectDenseModel() = 0;
+    virtual void selectMeshModel() = 0;
     virtual void setImageActive(size_t imageId) = 0;
     virtual void parseDocument(const QString &parser, const QString &file) = 0;
     virtual void parseDocuments(const QStringList &parsers, const QStringList &files) = 0;

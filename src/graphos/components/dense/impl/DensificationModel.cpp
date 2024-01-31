@@ -133,5 +133,10 @@ void DensificationModelImp::setDenseModel(const tl::Path &denseModel)
     mProject->setDenseModel(denseModel);
 }
 
+void DensificationModelImp::setDenseReport(const DenseReport &report)
+{
+    mProject->setDenseReport(report);
+}
+
 
 } // End namespace graphos

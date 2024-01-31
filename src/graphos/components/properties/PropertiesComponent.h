@@ -45,15 +45,23 @@ public:
     void setAlternatingRowColors(bool active);
     void registerParser(std::shared_ptr<PropertiesParser> &parser);
 
+public slots:
+
+    void selectSparseModel();
+    void selectDenseModel();
+    void selectMeshModel();
+    void selectImage(size_t imageId);
+    void parseDocument(const QString &parser, const QString &file);
+    void parseDocuments(const QStringList &parsers, const QStringList &files);
+
 private:
 
     void init();
 
 signals:
 
-    void selectImage(size_t);
-    void parseDocument(QString /*parser*/, QString /*file*/);
-    void parseDocuments(QStringList /*parsers*/, QStringList /*files*/);
+    //void parseDocument(QString /*parser*/, QString /*file*/);
+    //void parseDocuments(QStringList /*parsers*/, QStringList /*files*/);
 
 // ComponentBase
 

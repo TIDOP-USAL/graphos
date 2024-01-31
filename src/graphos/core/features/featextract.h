@@ -57,6 +57,8 @@ public:
 
     ~FeatureExtractorTask() override = default;
 
+    auto report() const ->FeatureExtractorReport;
+
 signals:
 
     void features_extracted(qulonglong, QString);
@@ -75,6 +77,7 @@ protected:
     int mMaxImageSize;
     bool bUseCuda;
     std::shared_ptr<FeatureExtractor> mFeatureExtractor;
+    FeatureExtractorReport mReport;
 };
 
 } // namespace graphos

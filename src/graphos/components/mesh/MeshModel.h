@@ -29,11 +29,12 @@
 #include <tidop/core/path.h>
 
 #include "graphos/core/mvp.h"
+#include "graphos/core/mesh/PoissonRecon.h"
 
 namespace graphos
 {
 
-class PoissonReconParameters;
+class PoissonReconProperties;
 
 class MeshModel
   : public Model
@@ -46,13 +47,16 @@ public:
     MeshModel(QObject *parent = nullptr) : Model(parent) {}
     ~MeshModel() override = default;
 
-    virtual PoissonReconParameters *parameters() const = 0;
+    virtual std::shared_ptr<PoissonReconProperties> properties() const = 0;
 
     virtual tl::Path denseModel() const = 0;
     virtual tl::Path projectDir() const = 0;
     virtual void setMesh(const tl::Path &mesh) = 0;
 
 public slots:
+
+    virtual void setProperties(const std::shared_ptr<PoissonReconProperties> &properties) = 0;
+    virtual void setMeshReport(const MeshReport &report) = 0;
 
     virtual void loadSettings() = 0;
     virtual void saveSettings() = 0;

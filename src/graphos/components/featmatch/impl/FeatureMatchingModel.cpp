@@ -72,6 +72,11 @@ void FeatureMatchingModelImp::setFeatureMatching(const std::shared_ptr<FeatureMa
     mProject->setFeatureMatching(featureMatching);
 }
 
+void FeatureMatchingModelImp::setFeatureMatchingReport(const FeatureMatchingReport &report)
+{
+    mProject->setFeatureMatchingReport(report);
+}
+
 tl::Path FeatureMatchingModelImp::database() const
 {
     return mProject->database();

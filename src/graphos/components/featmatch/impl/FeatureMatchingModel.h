@@ -50,6 +50,7 @@ public:
 
     std::shared_ptr<FeatureMatching> featureMatching() const override;
     void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
+    void setFeatureMatchingReport(const FeatureMatchingReport& report) override;
     tl::Path database() const override;
     bool useCuda() const override;
     bool spatialMatching() const override;

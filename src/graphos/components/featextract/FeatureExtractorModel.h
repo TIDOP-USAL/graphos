@@ -30,6 +30,7 @@
 
 #include "graphos/core/mvp.h"
 #include "graphos/core/image.h"
+#include "graphos/core/features/features.h"
 
 namespace graphos
 {
@@ -48,6 +49,7 @@ public:
 
     virtual std::shared_ptr<Feature> featureExtractor() const = 0;
     virtual void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) = 0;
+    virtual void setFeatureExtractorReport(const FeatureExtractorReport &report) = 0;
     virtual tl::Path database() const = 0;
     virtual void addFeatures(size_t imageId, const QString &featuresFile) = 0;
     virtual bool useCuda() const = 0;

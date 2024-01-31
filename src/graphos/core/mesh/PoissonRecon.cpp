@@ -42,9 +42,9 @@ constexpr auto DefaultPoissonReconWidth = 0;
 constexpr auto DefaultPoissonReconFullDepth = 5;
 
 
-/* PoissonReconParameters */
+/* PoissonReconProperties */
 
-PoissonReconParameters::PoissonReconParameters()
+PoissonReconProperties::PoissonReconProperties()
   : mDepth(DefaultPoissonReconDepth),
     mSolveDepth(DefaultPoissonReconSolveDepth),
     mBoundaryType(DefaultPoissonReconBoundaryType),
@@ -53,61 +53,61 @@ PoissonReconParameters::PoissonReconParameters()
 {
 }
 
-PoissonReconParameters::~PoissonReconParameters()
+PoissonReconProperties::~PoissonReconProperties()
 {
 }
 
-int PoissonReconParameters::depth() const
+int PoissonReconProperties::depth() const
 {
     return mDepth;
 }
 
-int PoissonReconParameters::solveDepth() const
+int PoissonReconProperties::solveDepth() const
 {
     return mSolveDepth;
 }
 
-QString PoissonReconParameters::boundaryType() const
+QString PoissonReconProperties::boundaryType() const
 {
     return mBoundaryType;
 }
 
-int PoissonReconParameters::width() const
+int PoissonReconProperties::width() const
 {
     return mWidth;
 }
 
-int PoissonReconParameters::fullDepth() const
+int PoissonReconProperties::fullDepth() const
 {
     return mFullDepth;
 }
 
-void PoissonReconParameters::setDepth(int Depth)
+void PoissonReconProperties::setDepth(int Depth)
 {
     mDepth = Depth;
 }
 
-void PoissonReconParameters::setSolveDepth(int SolveDepth)
+void PoissonReconProperties::setSolveDepth(int SolveDepth)
 {
     mSolveDepth = SolveDepth;
 }
 
-void PoissonReconParameters::setBoundaryType(const QString &BoundaryType)
+void PoissonReconProperties::setBoundaryType(const QString &BoundaryType)
 {
     mBoundaryType = BoundaryType;
 }
 
-void PoissonReconParameters::setWidth(int width)
+void PoissonReconProperties::setWidth(int width)
 {
     mWidth = width;
 }
 
-void PoissonReconParameters::setFullDepth(int FullDepth)
+void PoissonReconProperties::setFullDepth(int FullDepth)
 {
     mFullDepth = FullDepth;
 }
 
-void PoissonReconParameters::clear()
+void PoissonReconProperties::clear()
 {
     mDepth = DefaultPoissonReconDepth;
     mSolveDepth = DefaultPoissonReconSolveDepth;
@@ -123,7 +123,7 @@ void PoissonReconParameters::clear()
 PoissonReconTask::PoissonReconTask(const tl::Path &input,
                                    const tl::Path &output)
   : tl::TaskBase(),
-    PoissonReconParameters(),
+    PoissonReconProperties(),
     mInput(input),
     mOutput(output)
 {
@@ -139,9 +139,6 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 {
 
     try {
-
-        tl::Chrono chrono("Poisson reconstruction finished");
-        chrono.run();
 
         tl::Path app_path = tl::App::instance().path();
 
@@ -197,7 +194,9 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 
         }
 
-        chrono.stop();
+        mReport.time = this->time();
+
+        tl::Message::success("Poisson reconstruction finished in {:.2} minutes", mReport.time / 60.);
 
         if (progressBar) (*progressBar)();
 
@@ -207,5 +206,9 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 
 }
 
+auto PoissonReconTask::report() const -> MeshReport
+{
+    return mReport;
+}
 
 } // namespace graphos

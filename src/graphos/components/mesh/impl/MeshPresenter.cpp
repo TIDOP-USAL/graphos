@@ -53,13 +53,13 @@ MeshPresenterImp::~MeshPresenterImp()
 void MeshPresenterImp::open()
 {
     mModel->loadSettings();
-    PoissonReconParameters *parameters = mModel->parameters();
-
-    mView->setBoundaryType(parameters->boundaryType());
-    mView->setDepth(parameters->depth());
-    //mView->setFullDepth(parameters->fullDepth());
-    mView->setSolveDepth(parameters->solveDepth());
-    //mView->setWidth(parameters->width());
+    auto properties = mModel->properties();
+    if (properties == nullptr) {
+        properties = std::make_shared<PoissonReconProperties>();
+    }
+    mView->setBoundaryType(properties->boundaryType());
+    mView->setDepth(properties->depth());
+    mView->setSolveDepth(properties->solveDepth());
 
     mView->exec();
 }
@@ -74,7 +74,7 @@ void MeshPresenterImp::initSignalAndSlots()
     connect(mView, &TaskView::run, this, &TaskPresenter::run);
     connect(mView, &DialogView::help, [&]() {
         emit help("mesh.html");
-            });
+    });
 }
 
 void MeshPresenterImp::onError(tl::TaskErrorEvent *event)
@@ -102,38 +102,47 @@ void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
 {
-    std::unique_ptr<tl::Task> process;
+    std::unique_ptr<tl::Task> mesh_task;
 
     tl::Path point_cloud = mModel->denseModel();
     tl::Path mesh = mModel->projectDir();
     mesh.append("dense").append("mesh.pr.ply");
 
-    auto parameters = mModel->parameters();
-    parameters->setBoundaryType(mView->boundaryType());
-    parameters->setDepth(mView->depth());
-    //parameters->setFullDepth(mView->fullDepth());
-    parameters->setSolveDepth(mView->solveDepth());
-    //parameters->setWidth(mView->width());
+    auto properties = mModel->properties();
+    if (properties == nullptr) {
+        properties = std::make_shared<PoissonReconProperties>();
+    }
+    properties->setBoundaryType(mView->boundaryType());
+    properties->setDepth(mView->depth());
+    properties->setSolveDepth(mView->solveDepth());
+    mModel->setProperties(properties);
 
-    process = std::make_unique<PoissonReconTask>(point_cloud,
-                                                 mesh);
+    mesh_task = std::make_unique<PoissonReconTask>(point_cloud,
+                                                   mesh);
 
-    auto task_parameters = dynamic_cast<PoissonReconParameters *>(process.get());
-    task_parameters->setBoundaryType(parameters->boundaryType());
-    task_parameters->setDepth(parameters->depth());
-    //task_parameters->setFullDepth(parameters->fullDepth());
-    task_parameters->setSolveDepth(parameters->solveDepth());
-    task_parameters->setWidth(parameters->width());
+    auto task_parameters = dynamic_cast<PoissonReconProperties *>(mesh_task.get());
+    task_parameters->setBoundaryType(properties->boundaryType());
+    task_parameters->setDepth(properties->depth());
+    task_parameters->setSolveDepth(properties->solveDepth());
+    task_parameters->setWidth(properties->width());
+
+    mesh_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+
+        auto report = dynamic_cast<PoissonReconTask const*>(event->task())->report();
+
+        mModel->setMeshReport(report);
+
+    });
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
-        progressHandler()->setTitle("Computing PoissonRecon...");
-        progressHandler()->setDescription("Computing PoissonRecon...");
+        progressHandler()->setTitle("Poisson surface reconstruction");
+        progressHandler()->setDescription("Computing Poisson Reconstruction");
     }
 
     mView->hide();
 
-    return process;
+    return mesh_task;
 }
 
 void MeshPresenterImp::cancel()

@@ -565,12 +565,21 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
 
             tl::Message::success("Feature extraction finished in {:.2} minutes", chrono.stop() / 60.);
             tl::Message::info(" - Total features extracted: {}", keypoints);
+
+            mReport.features = keypoints;
+            mReport.cuda = bUseCuda;
+            mReport.time = this->time();
         }
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Feature Extractor error");
     }
 
+}
+
+auto FeatureExtractorTask::report() const -> FeatureExtractorReport
+{
+    return mReport;
 }
 
 } // graphos

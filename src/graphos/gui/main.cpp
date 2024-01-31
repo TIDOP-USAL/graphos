@@ -602,6 +602,13 @@ int main(int argc, char *argv[])
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_image,
                          &properties_component, &PropertiesComponent::selectImage);
 
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_sparse_model,
+                         &properties_component, &PropertiesComponent::selectSparseModel);
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_dense_model,
+                         &properties_component, &PropertiesComponent::selectDenseModel);
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_mesh_model,
+                         &properties_component, &PropertiesComponent::selectMeshModel);
+
 #ifdef GRAPHOS_HAVE_SETTINGS
         QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openSettings,
                          settings_component.action(), &QAction::trigger);

@@ -1,4 +1,4 @@
-/************************************************************************
+﻿/************************************************************************
  *                                                                      *
  *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
  *                                                                      *
@@ -29,20 +29,21 @@ namespace graphos
 ExportPointCloudViewImp::ExportPointCloudViewImp(QWidget *parent)
   : ExportPointCloudView(parent)
 {
-  this->init();
+    this->init();
 }
 
 void ExportPointCloudViewImp::setGraphosProjectsPath(const QString &directory)
 {
-  QFileDialog::setDirectory(directory);
+    QFileDialog::setDirectory(directory);
 }
 
 void ExportPointCloudViewImp::init()
 {
-  QFileDialog::setWindowTitle(tr("Export Point Cloud"));
-  QFileDialog::setNameFilter(tr("PLY (*.ply)"));
-  //QFileDialog::setFileMode(QFileDialog::ExistingFile);
-  QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
+	QFileDialog::setWindowTitle(tr("Export Point Cloud"));
+	QFileDialog::setNameFilter(tr("PLY (*.ply)"));
+	//QFileDialog::setNameFilter(tr("LAS (*.las)"));
+	//QFileDialog::setFileMode(QFileDialog::ExistingFile);
+	QFileDialog::setAcceptMode(QFileDialog::AcceptMode::AcceptSave);
 }
  
 } // namespace graphos

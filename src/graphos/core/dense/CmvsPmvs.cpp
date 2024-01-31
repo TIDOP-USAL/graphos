@@ -28,6 +28,7 @@
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/sfm/orientationexport.h"
+#include "graphos/core/ply.h"
 
 /* TidopLib */ 
 
@@ -249,6 +250,11 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(const std::unordered_map<size_t, Image> &im
 CmvsPmvsDensifier::~CmvsPmvsDensifier()
 {
 }
+
+//auto CmvsPmvsDensifier::report() const -> DenseReport
+//{
+//    return mReport;
+//}
 
 void CmvsPmvsDensifier::clearPreviousModel()
 {
@@ -585,8 +591,8 @@ void CmvsPmvsDensifier::execute(Progress *progressBar)
 
     try {
 
-        Chrono chrono("Densification finished");
-        chrono.run();
+        //Chrono chrono("Densification finished");
+        //chrono.run();
 
         this->clearPreviousModel();
 
@@ -649,7 +655,15 @@ void CmvsPmvsDensifier::execute(Progress *progressBar)
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        chrono.stop();
+        //chrono.stop();
+        Ply ply(denseModel().toString());
+        mReport.points = ply.size();
+        ply.close();
+        mReport.cuda = isCudaEnabled();
+        mReport.method = this->name().toStdString();
+        mReport.time = this->time();
+
+        tl::Message::success("Densification finished in {:.2} minutes", mReport.time / 60.);
 
         if (progressBar) (*progressBar)();
 

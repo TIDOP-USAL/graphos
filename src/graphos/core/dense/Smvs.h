@@ -114,6 +114,8 @@ public:
     SmvsDensifier &operator =(const SmvsDensifier &smvs) = delete;
     SmvsDensifier &operator =(SmvsDensifier &&smvs) = delete;
 
+    //auto report() const -> DenseReport;
+
 private:
 
     void clearPreviousModel();
@@ -130,6 +132,7 @@ private:
 
     std::unordered_map<size_t, size_t> mGraphosToMveIds;
     bool mAutoSegmentation;
+    //DenseReport mReport;
 };
 
 

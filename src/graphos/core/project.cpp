@@ -293,6 +293,16 @@ void ProjectImp::setFeatureExtractor(const std::shared_ptr<Feature> &featureExtr
     mFeatureExtractor = featureExtractor;
 }
 
+FeatureExtractorReport ProjectImp::featureExtractorReport() const
+{
+    return mFeatureExtractorReport;
+}
+
+void ProjectImp::setFeatureExtractorReport(const FeatureExtractorReport &report)
+{
+    mFeatureExtractorReport = report;
+}
+
 QString ProjectImp::features(size_t imageId) const
 {
     return mFeatures.at(imageId);
@@ -330,6 +340,16 @@ std::shared_ptr<FeatureMatching> ProjectImp::featureMatching() const
 void ProjectImp::setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching)
 {
     mFeatureMatching = featureMatching;
+}
+
+FeatureMatchingReport ProjectImp::featureMatchingReport() const
+{
+    return mFeatureMatchingReport;
+}
+
+void ProjectImp::setFeatureMatchingReport(const FeatureMatchingReport &report)
+{
+    mFeatureMatchingReport = report;
 }
 
 void ProjectImp::addMatchesPair(size_t imageLeftId,
@@ -443,7 +463,18 @@ void ProjectImp::clearReconstruction()
     mSparseModel.clear();
     mOffset.clear();
     //mReconstructionPath.clear();
+    mOrientationReport = OrientationReport();
     this->clearDensification();
+}
+
+OrientationReport ProjectImp::orientationReport() const
+{
+    return mOrientationReport;
+}
+
+void ProjectImp::setOrientationReport(const OrientationReport &orientationReport)
+{
+    mOrientationReport = orientationReport;
 }
 
 std::shared_ptr<Densification> ProjectImp::densification() const
@@ -461,6 +492,16 @@ void ProjectImp::setDenseModel(const tl::Path &denseModel)
     mDenseModel = denseModel;
 }
 
+DenseReport ProjectImp::denseReport() const
+{
+    return mDenseReport;
+}
+
+void ProjectImp::setDenseReport(const DenseReport &denseReport)
+{
+    mDenseReport = denseReport;
+}
+
 tl::Path ProjectImp::denseModel() const
 {
     return mDenseModel;
@@ -471,14 +512,14 @@ void ProjectImp::clearDensification()
     mDenseModel.clear();
 }
 
-std::shared_ptr<PoissonReconParameters> ProjectImp::meshParameters() const
+std::shared_ptr<PoissonReconProperties> ProjectImp::meshProperties() const
 {
-    return mMeshParameters;
+    return mMeshProperties;
 }
 
-void ProjectImp::setMeshParameters(const std::shared_ptr<PoissonReconParameters> &meshParameters)
+void ProjectImp::setProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties)
 {
-    mMeshParameters = meshParameters;
+    mMeshProperties = meshProperties;
 }
 
 tl::Path ProjectImp::meshPath() const
@@ -489,6 +530,16 @@ tl::Path ProjectImp::meshPath() const
 void ProjectImp::setMeshPath(const tl::Path &meshPath)
 {
     mMeshModel = meshPath;
+}
+
+MeshReport ProjectImp::meshReport() const
+{
+    return mMeshReport;
+}
+
+void ProjectImp::setMeshReport(const MeshReport &report)
+{
+    mMeshReport = report;
 }
 
 void ProjectImp::clearMesh()
@@ -561,6 +612,7 @@ void ProjectImp::clear()
     mImages.clear();
     mCameras.clear();
     mFeatureExtractor.reset();
+    mFeatureExtractorReport = FeatureExtractorReport();
     mFeatures.clear();
     mFeatureMatching.reset();
     mImagesPairs.clear();
@@ -569,8 +621,10 @@ void ProjectImp::clear()
     mOffset.clear();
     mGroundPoints.clear();
     //mReconstructionPath.clear();
+    mOrientationReport = OrientationReport();
     mDensification.reset();
     mMeshModel.clear();
+    mMeshReport = MeshReport();
     mDenseModel.clear();
     clearDTM();
     clearOrthophoto();
@@ -976,6 +1030,8 @@ void ProjectImp::readFeatures(QXmlStreamReader &stream)
     while (stream.readNextStartElement()) {
         if (stream.name() == "FeatureExtractor") {
             this->readFeatureExtractor(stream);
+        } else if (stream.name() == "Report") {
+            this->readFeatureExtractorReport(stream);
         } else if (stream.name() == "Files") {
             this->readFeatureFiles(stream);
         } else
@@ -988,6 +1044,20 @@ void ProjectImp::readFeatureExtractor(QXmlStreamReader &stream)
     while (stream.readNextStartElement()) {
         if (stream.name() == "SIFT") {
             readSIFT(stream);
+        } else
+            stream.skipCurrentElement();
+    }
+}
+
+void ProjectImp::readFeatureExtractorReport(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Features") {
+            mFeatureExtractorReport.features = readInt(stream);
+        } else if (stream.name() == "Time") {
+            mFeatureExtractorReport.time = readDouble(stream);
+        } else if (stream.name() == "Cuda") {
+            mFeatureExtractorReport.cuda = readBoolean(stream);
         } else
             stream.skipCurrentElement();
     }
@@ -1044,6 +1114,8 @@ void ProjectImp::readMatches(QXmlStreamReader &stream)
     while (stream.readNextStartElement()) {
         if (stream.name() == "FeatureMatchingMethod") {
             this->readMatchingMethod(stream);
+        } else if (stream.name() == "Report") {
+            this->readFeatureMatchingReport(stream);
         } else if (stream.name() == "Image") {
             this->readPairs(stream);
         } else
@@ -1069,6 +1141,20 @@ void ProjectImp::readMatchingMethod(QXmlStreamReader &stream)
             stream.skipCurrentElement();
     }
     this->setFeatureMatching(matchingMethod);
+}
+
+void ProjectImp::readFeatureMatchingReport(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Matches") {
+            mFeatureMatchingReport.matches = readInt(stream);
+        } else if (stream.name() == "Time") {
+            mFeatureMatchingReport.time = readDouble(stream);
+        } else if (stream.name() == "Cuda") {
+            mFeatureMatchingReport.cuda = readBoolean(stream);
+        } else
+            stream.skipCurrentElement();
+    }
 }
 
 void ProjectImp::readPairs(QXmlStreamReader &stream)
@@ -1102,6 +1188,8 @@ void ProjectImp::readOrientations(QXmlStreamReader &stream)
             this->readGroundPoints(stream);
         } else if (stream.name() == "Image") {
             this->readPhotoOrientations(stream);
+        } else if (stream.name() == "Report") {
+            this->readOrientationReport(stream);
         } else
             stream.skipCurrentElement();
     }
@@ -1169,6 +1257,32 @@ void ProjectImp::readPhotoOrientations(QXmlStreamReader &stream)
     this->addPhotoOrientation(id_image, camera_pose);
 }
 
+void ProjectImp::readOrientationReport(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "OrientedImages") {
+            mOrientationReport.orientedImages = readInt(stream);
+        } else if (stream.name() == "OrientationType") {
+            mOrientationReport.type = stream.readElementText().toStdString();
+        } else if (stream.name() == "Iterations") {
+            mOrientationReport.iterations = readInt(stream);
+        } else if (stream.name() == "InitialCost") {
+            mOrientationReport.initialCost = readDouble(stream);
+        } else if (stream.name() == "FinalCost") {
+            mOrientationReport.finalCost = readDouble(stream);
+        } else if (stream.name() == "Termination") {
+            mOrientationReport.termination = stream.readElementText().toStdString();
+        } else if (stream.name() == "ErrorMean") {
+            mOrientationReport.alignmentErrorMean = readDouble(stream);
+        } else if (stream.name() == "ErrorMedian") {
+            mOrientationReport.alignmentErrorMedian = readDouble(stream);
+        } else if (stream.name() == "Time") {
+            mOrientationReport.time = readDouble(stream);
+        } else
+            stream.skipCurrentElement();
+    }
+}
+
 void ProjectImp::readDensification(QXmlStreamReader &stream)
 {
     while (stream.readNextStartElement()) {
@@ -1176,6 +1290,8 @@ void ProjectImp::readDensification(QXmlStreamReader &stream)
             this->readDenseModel(stream);
         } else if (stream.name() == "DensificationMethod") {
             this->readDensificationMethod(stream);
+        } else if (stream.name() == "Report") {
+            this->readDenseReport(stream);
         } else
             stream.skipCurrentElement();
     }
@@ -1184,6 +1300,22 @@ void ProjectImp::readDensification(QXmlStreamReader &stream)
 void ProjectImp::readDenseModel(QXmlStreamReader &stream)
 {
     this->setDenseModel(stream.readElementText().toStdWString());
+}
+
+void ProjectImp::readDenseReport(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Points") {
+            mDenseReport.points = readInt(stream);
+        } else if (stream.name() == "Method") {
+            mDenseReport.method = stream.readElementText().toStdString();
+        } else if (stream.name() == "Time") {
+            mDenseReport.time = readDouble(stream);
+        } else if (stream.name() == "Cuda") {
+            mDenseReport.cuda = readBoolean(stream);
+        } else
+            stream.skipCurrentElement();
+    }
 }
 
 void ProjectImp::readDensificationMethod(QXmlStreamReader &stream)
@@ -1273,7 +1405,10 @@ void ProjectImp::readMesh(QXmlStreamReader &stream)
             this->readMeshModel(stream);
         } else if (stream.name() == "PoissonParameters") {
             this->readMeshParameters(stream);
-        } else
+        } else if (stream.name() == "Report") {
+            this->readMeshReport(stream);
+        }
+        else
             stream.skipCurrentElement();
     }
 }
@@ -1283,9 +1418,19 @@ void ProjectImp::readMeshModel(QXmlStreamReader &stream)
     this->setMeshPath(stream.readElementText().toStdWString());
 }
 
+void ProjectImp::readMeshReport(QXmlStreamReader &stream)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Time") {
+            mMeshReport.time = readDouble(stream);
+        } else
+            stream.skipCurrentElement();
+    }
+}
+
 void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
 {
-    auto mesh = std::make_shared<PoissonReconParameters>();
+    auto mesh = std::make_shared<PoissonReconProperties>();
 
     while (stream.readNextStartElement()) {
         if (stream.name() == "Depth") {
@@ -1293,7 +1438,7 @@ void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
         } else if (stream.name() == "SolveDepth") {
             mesh->setSolveDepth(readInt(stream));
         } else if (stream.name() == "BoundaryType") {
-            mesh->setBoundaryType(stream.text().toString());
+            mesh->setBoundaryType(stream.readElementText());
         } else if (stream.name() == "Width") {
             mesh->setWidth(readInt(stream));
         } else if (stream.name() == "FullDepth") {
@@ -1302,7 +1447,7 @@ void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
             stream.skipCurrentElement();
     }
 
-    setMeshParameters(mesh);
+    setProperties(mesh);
 }
 
 void ProjectImp::readDtm(QXmlStreamReader &stream)
@@ -1454,6 +1599,7 @@ void ProjectImp::writeFeatures(QXmlStreamWriter &stream) const
     stream.writeStartElement("Features");
     {
         this->writeFeatureExtractor(stream);
+        this->writeFeatureExtractorReport(stream);
         this->writeFeatureFiles(stream);
     }
     stream.writeEndElement();
@@ -1467,6 +1613,20 @@ void ProjectImp::writeFeatureExtractor(QXmlStreamWriter &stream) const
             this->writeSIFT(stream, dynamic_cast<Sift *>(feature.get()));
         }
         stream.writeEndElement();
+    }
+}
+
+void ProjectImp::writeFeatureExtractorReport(QXmlStreamWriter& stream) const
+{
+    if (!mFeatureExtractorReport.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("Features", QString::number(mFeatureExtractorReport.features));
+        stream.writeTextElement("Time", QString::number(mFeatureExtractorReport.time, 'f', 10));
+        stream.writeTextElement("Cuda", mFeatureExtractorReport.time ? "true" : "false");
+
+        stream.writeEndElement(); // Report
     }
 }
 
@@ -1506,6 +1666,7 @@ void ProjectImp::writeMatches(QXmlStreamWriter &stream) const
     stream.writeStartElement("Matches");
     {
         this->writeFeatureMatchingMethod(stream);
+        this->writeFeatureMatchingReport(stream);
         this->writePairs(stream);
     }
     stream.writeEndElement();
@@ -1523,6 +1684,20 @@ void ProjectImp::writeFeatureMatchingMethod(QXmlStreamWriter &stream) const
             stream.writeTextElement("CrossCheck", matchingMethod->crossCheck() ? "true" : "false");
         }
         stream.writeEndElement();
+    }
+}
+
+void ProjectImp::writeFeatureMatchingReport(QXmlStreamWriter& stream) const
+{
+    if (!mFeatureMatchingReport.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("Matches", QString::number(mFeatureMatchingReport.matches));
+        stream.writeTextElement("Time", QString::number(mFeatureMatchingReport.time, 'f', 10));
+        stream.writeTextElement("Cuda", mFeatureMatchingReport.time ? "true" : "false");
+
+        stream.writeEndElement(); // Report
     }
 }
 
@@ -1553,6 +1728,7 @@ void ProjectImp::writeOrientations(QXmlStreamWriter &stream) const
         this->writeOffset(stream);
         this->writeGroundPoints(stream);
         this->writePhotoOrientations(stream);
+        this->writeOrientationReport(stream);
     }
     stream.writeEndElement(); // Orientations
 }
@@ -1619,12 +1795,33 @@ void ProjectImp::writePhotoOrientations(QXmlStreamWriter &stream) const
     }
 }
 
+void ProjectImp::writeOrientationReport(QXmlStreamWriter &stream) const
+{
+    if (!mOrientationReport.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("OrientedImages", QString::number(mOrientationReport.orientedImages));
+        stream.writeTextElement("OrientationType", QString::fromStdString(mOrientationReport.type));
+        stream.writeTextElement("Iterations", QString::number(mOrientationReport.iterations));
+        stream.writeTextElement("InitialCost", QString::number(mOrientationReport.initialCost, 'f', 10));
+        stream.writeTextElement("FinalCost", QString::number(mOrientationReport.finalCost, 'f', 10));
+        stream.writeTextElement("Termination", QString::fromStdString(mOrientationReport.termination));
+        stream.writeTextElement("ErrorMean", QString::number(mOrientationReport.alignmentErrorMean, 'f', 10));
+        stream.writeTextElement("ErrorMedian", QString::number(mOrientationReport.alignmentErrorMedian, 'f', 10));
+        stream.writeTextElement("Time", QString::number(mOrientationReport.time, 'f', 10));
+
+        stream.writeEndElement(); // Report
+    }
+}
+
 void ProjectImp::writeDensification(QXmlStreamWriter &stream) const
 {
     stream.writeStartElement("Densification");
     {
         this->writeDenseModel(stream);
         this->writeDensificationMethod(stream);
+        this->writeDenseReport(stream);
     }
     stream.writeEndElement(); // Densification
 }
@@ -1634,6 +1831,21 @@ void ProjectImp::writeDenseModel(QXmlStreamWriter &stream) const
     tl::Path dense_model = denseModel();
     if (!dense_model.empty())
         stream.writeTextElement("DenseModel", QString::fromStdWString(dense_model.toWString()));
+}
+
+void ProjectImp::writeDenseReport(QXmlStreamWriter &stream) const
+{
+    if (!mDenseReport.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("Points", QString::number(mDenseReport.points));
+        stream.writeTextElement("Method", QString::fromStdString(mDenseReport.method));
+        stream.writeTextElement("Time", QString::number(mDenseReport.time, 'f', 10));
+        stream.writeTextElement("Cuda", mDenseReport.time ? "true" : "false");
+
+        stream.writeEndElement(); // Report
+    }
 }
 
 void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
@@ -1693,6 +1905,7 @@ void ProjectImp::writeMesh(QXmlStreamWriter &stream) const
     {
         this->writeMeshModel(stream);
         this->writeMeshParameters(stream);
+        this->writeMeshReport(stream);
     }
     stream.writeEndElement(); // Densification
 }
@@ -1704,9 +1917,21 @@ void ProjectImp::writeMeshModel(QXmlStreamWriter &stream) const
         stream.writeTextElement("MeshModel", mesh_model);
 }
 
+void ProjectImp::writeMeshReport(QXmlStreamWriter& stream) const
+{
+    if (!mMeshReport.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("Time", QString::number(mMeshReport.time, 'f', 10));
+
+        stream.writeEndElement(); // Report
+    }
+}
+
 void ProjectImp::writeMeshParameters(QXmlStreamWriter &stream) const
 {
-    if (auto mesh = std::dynamic_pointer_cast<PoissonReconParameters>(meshParameters())) {
+    if (auto mesh = std::dynamic_pointer_cast<PoissonReconProperties>(meshProperties())) {
 
         stream.writeStartElement("PoissonParameters");
 

@@ -804,6 +804,21 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
             imageReader->close();
         }
 
+        if (mProject->isPhotoOriented(imageId)) {
+            auto orientation = mProject->photoOrientation(imageId);
+            auto position = orientation.position();
+            auto q = orientation.quaternion();
+
+            exif["Orientation"].push_back(std::make_pair(QString("X"), QString::number(position.x, 'g', 3)));
+            exif["Orientation"].push_back(std::make_pair(QString("Y"), QString::number(position.y, 'g', 3)));
+            exif["Orientation"].push_back(std::make_pair(QString("Z"), QString::number(position.z, 'g', 3)));
+            exif["Orientation"].push_back(std::make_pair(QString("Qx"), QString::number(q.x, 'g', 3)));
+            exif["Orientation"].push_back(std::make_pair(QString("Qy"), QString::number(q.y, 'g', 3)));
+            exif["Orientation"].push_back(std::make_pair(QString("Qz"), QString::number(q.z, 'g', 3)));
+            exif["Orientation"].push_back(std::make_pair(QString("Qw"), QString::number(q.w, 'g', 3)));
+
+        }
+
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
@@ -849,6 +864,99 @@ void PropertiesModelImp::init()
 void PropertiesModelImp::clear()
 {
     mProject->clear();
+}
+
+std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::sparseModel() const
+{
+    std::unordered_map<QString, std::list<std::pair<QString, QString>>> sparse_model_info;
+
+    auto orientation_report = mProject->orientationReport();
+
+    sparse_model_info["Orientation parameters"].push_back(std::make_pair(QString("Orientation type"), QString::fromStdString(orientation_report.type)));
+    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("Oriented images"), QString::number(orientation_report.orientedImages).append(" of ").append(QString::number(mProject->imagesCount()))));
+    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("BA iterations"), QString::number(orientation_report.iterations)));
+    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("BA initial cost"), QString::number(orientation_report.initialCost, 'f', 10)));
+    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("BA final cost"), QString::number(orientation_report.finalCost, 'f', 10)));
+    if (orientation_report.type == "Absolute") {
+        sparse_model_info["Orientation results"].push_back(std::make_pair(QString("Absolute orientation error (mean)"), QString::number(orientation_report.alignmentErrorMean, 'f', 10)));
+        sparse_model_info["Orientation results"].push_back(std::make_pair(QString("Absolute orientation error (median)"), QString::number(orientation_report.alignmentErrorMedian, 'f', 10)));
+    }
+
+    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("Processing time"), QString::number(orientation_report.time / 60., 'g', 2).append(" minutes")));
+
+    return sparse_model_info;
+}
+
+std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::denseModel() const
+{
+    std::unordered_map<QString, std::list<std::pair<QString, QString>>> dense_model_info;
+
+    if (auto densification = mProject->densification()) {
+
+        auto densification_method = densification->method();
+        if (densification_method == graphos::Densification::Method::cmvs_pmvs) {
+
+            auto cmvs_pmvs = std::dynamic_pointer_cast<graphos::CmvsPmvs>(densification);
+            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Level"), QString::number(cmvs_pmvs->level())));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Cell size"), QString::number(cmvs_pmvs->cellSize())));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Threshold"), QString::number(cmvs_pmvs->threshold(), 'g', 5)));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Window Size"), QString::number(cmvs_pmvs->windowSize())));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Images per cluster"), QString::number(cmvs_pmvs->imagesPerCluster())));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Minimun image number"), QString::number(cmvs_pmvs->minimunImageNumber())));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Use visibility information"), cmvs_pmvs->useVisibilityInformation() ? "True" : "False"));
+
+        } else if (densification_method == graphos::Densification::Method::smvs) {
+
+            auto smvs = std::dynamic_pointer_cast<graphos::Smvs>(densification);
+            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Input image scale"), QString::number(smvs->inputImageScale())));
+            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Output depth scale"), QString::number(smvs->outputDepthScale())));
+            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Semi-global matching"), smvs->semiGlobalMatching() ? "True" : "False"));
+            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Surface smoothing factor"), QString::number(smvs->surfaceSmoothingFactor(), 'g', 5)));
+            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Shading based optimization"), smvs->shadingBasedOptimization() ? "True" : "False"));
+
+        } else if (densification_method == graphos::Densification::Method::mvs) {
+
+            auto mvs = std::dynamic_pointer_cast<graphos::Mvs>(densification);
+            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Resolution level"), QString::number(mvs->resolutionLevel())));
+            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Min resolution"), QString::number(mvs->minResolution())));
+            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Max resolution"), QString::number(mvs->maxResolution())));
+            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Number views"), QString::number(mvs->numberViews())));
+            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Number views fuse"), QString::number(mvs->numberViewsFuse())));
+
+        }
+
+        auto dense_report = mProject->denseReport();
+        if (!dense_report.isEmpty()) {
+
+            dense_model_info["Densification parameters"].push_back(std::make_pair(QString("Cuda"), dense_report.time ? "True" : "False"));
+
+            dense_model_info["Densification results"].push_back(std::make_pair(QString("Point cloud size"), QString::number(dense_report.points)));
+            dense_model_info["Densification results"].push_back(std::make_pair(QString("Processig time"), QString::number(dense_report.time / 60., 'g', 2).append(" minutes")));
+
+        }
+    }
+
+    return dense_model_info;
+}
+
+std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::meshModel() const
+{
+    std::unordered_map<QString, std::list<std::pair<QString, QString>>> mesh_info;
+
+    if (auto mesh_properties = mProject->meshProperties()) {
+
+        mesh_info["Poisson reconstruction parameters"].push_back(std::make_pair(QString("Depth"), QString::number(mesh_properties->depth())));
+        mesh_info["Poisson reconstruction parameters"].push_back(std::make_pair(QString("Solve depth"), QString::number(mesh_properties->solveDepth())));
+        mesh_info["Poisson reconstruction parameters"].push_back(std::make_pair(QString("Boundary type"), mesh_properties->boundaryType()));
+        mesh_info["Poisson reconstruction parameters"].push_back(std::make_pair(QString("Full depth"), QString::number(mesh_properties->fullDepth())));
+
+        auto mesh_report = mProject->meshReport();
+        if (!mesh_report.isEmpty()) {
+            mesh_info["Poisson reconstruction results"].push_back(std::make_pair(QString("Processig time"), QString::number(mesh_report.time / 60., 'g', 2).append(" minutes")));
+        }
+    }
+
+    return mesh_info;
 }
 
 } // namespace graphos

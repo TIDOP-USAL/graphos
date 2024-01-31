@@ -35,7 +35,6 @@ namespace graphos
 MeshModelImp::MeshModelImp(Project *project, QObject *parent)
   : MeshModel(parent),
     mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName())),
-    mParameters(new PoissonReconParameters),
     mProject(project)
 {
     this->init();
@@ -47,46 +46,25 @@ MeshModelImp::~MeshModelImp()
         delete mSettings;
         mSettings = nullptr;
     }
-
-    if (mParameters) {
-        delete mParameters;
-        mParameters = nullptr;
-    }
 }
 
 void MeshModelImp::loadSettings()
 {
-    if (mReadSettings) {
+    //if (mReadSettings) {
 
-        /* Read Settings here
-
-        Example (replace PropertyName):
-
-        mParameters->setPropertyName(mSettings->value("MESH/PropertyName", mParameters->propertyName()).toInt());
-
-        */
-
-    }
+    //}
 }
 
 void MeshModelImp::saveSettings()
 {
-    if (mReadSettings) {
+    //if (mReadSettings) {
 
-        /* Write Settings here
-
-        Example:
-
-        mSettings->setValue("MESH/PropertyName", mParameters->propertyName());
-
-        */
-
-    }
+    //}
 }
 
-PoissonReconParameters *MeshModelImp::parameters() const
+std::shared_ptr<PoissonReconProperties> MeshModelImp::properties() const
 {
-    return mParameters;
+    return mProject->meshProperties();
 }
 
 tl::Path MeshModelImp::denseModel() const
@@ -102,6 +80,16 @@ tl::Path MeshModelImp::projectDir() const
 void MeshModelImp::setMesh(const tl::Path &mesh)
 {
     mProject->setMeshPath(mesh);
+}
+
+void MeshModelImp::setProperties(const std::shared_ptr<PoissonReconProperties> &properties)
+{
+    mProject->setProperties(properties);
+}
+
+void MeshModelImp::setMeshReport(const MeshReport &report)
+{
+    mProject->setMeshReport(report);
 }
 
 void MeshModelImp::init()

@@ -42,6 +42,35 @@
 #include <colmap/controllers/hierarchical_mapper.h>
 #include <colmap/controllers/bundle_adjustment.h>
 
+std::atomic<bool> ba_terminate(false);
+
+namespace internal
+{
+
+// Callback functor called after each bundle adjustment iteration.
+class BundleAdjustmentIterationCallback
+    : public ceres::IterationCallback 
+{
+
+public:
+
+    explicit BundleAdjustmentIterationCallback() {}
+
+    virtual ceres::CallbackReturnType operator()(
+        const ceres::IterationSummary& summary) {
+
+        if (ba_terminate) {
+            return ceres::SOLVER_TERMINATE_SUCCESSFULLY;
+        } else {
+            return ceres::SOLVER_CONTINUE;
+        }
+    }
+
+};
+
+}
+
+
 namespace graphos
 {
 
@@ -329,8 +358,8 @@ RelativeOrientationColmapTask::RelativeOrientationColmapTask(const tl::Path &dat
     mCameras(cameras),
     mIncrementalMapper(new colmap::IncrementalMapperOptions),
     mMapper(nullptr),
-    mReconstructionManager(new colmap::ReconstructionManager),
-    mBundleAdjustmentController(nullptr)
+    mReconstructionManager(new colmap::ReconstructionManager)/*,
+    mBundleAdjustmentController(nullptr)*/
 {
     setRefineFocalLength(!fixCalibration);
     setRefinePrincipalPoint(!fixCalibration);
@@ -349,10 +378,10 @@ RelativeOrientationColmapTask::~RelativeOrientationColmapTask()
         mMapper = nullptr;
     }
 
-    if (mBundleAdjustmentController) {
-        delete mBundleAdjustmentController;
-        mBundleAdjustmentController = nullptr;
-    }
+    //if (mBundleAdjustmentController) {
+    //    delete mBundleAdjustmentController;
+    //    mBundleAdjustmentController = nullptr;
+    //}
 
     mReconstructionManager->Clear();
     mReconstructionManager.reset();
@@ -363,6 +392,11 @@ std::map<int, Camera> RelativeOrientationColmapTask::cameras() const
     return mCameras;
 }
 
+auto RelativeOrientationColmapTask::report() const -> OrientationReport
+{
+    return mOrientationReport;
+}
+
 void RelativeOrientationColmapTask::stop()
 {
     TaskBase::stop();
@@ -370,8 +404,9 @@ void RelativeOrientationColmapTask::stop()
     if (mMapper && mMapper->IsRunning())
         mMapper->Stop();
 
-    if (mBundleAdjustmentController && mBundleAdjustmentController->IsRunning())
-        mBundleAdjustmentController->Stop();
+    ba_terminate = true;
+    //if (mBundleAdjustmentController && mBundleAdjustmentController->IsRunning())
+    //    mBundleAdjustmentController->Stop();
 }
 
 void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
@@ -443,10 +478,59 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
         colmap::Reconstruction &reconstruction = mReconstructionManager->Get(0);
 
-        mBundleAdjustmentController = new colmap::BundleAdjustmentController(optionManager, &reconstruction);
+        //mBundleAdjustmentController = new colmap::BundleAdjustmentController(optionManager, &reconstruction);
 
-        mBundleAdjustmentController->Start();
-        mBundleAdjustmentController->Wait();
+        //mBundleAdjustmentController->Start();
+        //mBundleAdjustmentController->Wait();
+
+        {
+            //CHECK_NOTNULL(reconstruction_);
+
+            //tl::Message::info("Global bundle adjustment");
+
+            const std::vector<colmap::image_t>& reg_image_ids = reconstruction.RegImageIds();
+
+            TL_ASSERT(reg_image_ids.size() >= 2, "Need at least two views.");
+
+            // Avoid degeneracies in bundle adjustment.
+            reconstruction.FilterObservationsWithNegativeDepth();
+
+            colmap::BundleAdjustmentOptions ba_options = *optionManager.bundle_adjustment;
+            ba_options.solver_options.minimizer_progress_to_stdout = true;
+            ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
+
+            internal::BundleAdjustmentIterationCallback iteration_callback;
+            ba_options.solver_options.callbacks.push_back(&iteration_callback);
+
+            // Configure bundle adjustment.
+            colmap::BundleAdjustmentConfig ba_config;
+            for (const colmap::image_t image_id : reg_image_ids) {
+                ba_config.AddImage(image_id);
+            }
+            ba_config.SetConstantPose(reg_image_ids[0]);
+            ba_config.SetConstantTvec(reg_image_ids[1], { 0 });
+
+            ba_terminate = false;
+            // Run bundle adjustment.
+            colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+            bundle_adjuster.Solve(&reconstruction);
+
+            if (status() == tl::Task::Status::stopping) return;
+            
+            ba_terminate = true;
+            auto &summary = bundle_adjuster.Summary();
+
+            mOrientationReport.iterations = summary.num_successful_steps + summary.num_unsuccessful_steps;
+            mOrientationReport.initialCost = std::sqrt(summary.initial_cost / summary.num_residuals_reduced);
+            mOrientationReport.finalCost = std::sqrt(summary.final_cost / summary.num_residuals_reduced);
+            mOrientationReport.termination = "CONVERGENCE";
+
+            tl::Message::info("{}", reconstruction.NumPoints3D());
+
+            //tl::Message::info(summary.BriefReport());
+
+            TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
+        }
 
         if (status() == tl::Task::Status::stopping) return;
 
@@ -486,7 +570,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
         if (status() == tl::Task::Status::stopping) return;
 
-        chrono.stop();
+        /*mOrientationReport.time = */chrono.stop();
 
         if (progressBar) (*progressBar)();
 
@@ -536,14 +620,14 @@ double AbsoluteOrientationColmapProperties::robustAlignmentMaxError() const
 
 void AbsoluteOrientationColmapProperties::setRobustAlignmentMaxError(double robustAlignmentMaxError)
 {
-  mRobustAlignmentMaxError = robustAlignmentMaxError;
+    mRobustAlignmentMaxError = robustAlignmentMaxError;
 }
 
 void AbsoluteOrientationColmapProperties::reset()
 {
-  mMinCommonImages = min_common_images;
-  mRobustAlignment = robust_alignment;
-  mRobustAlignmentMaxError = robust_alignment_max_error;
+    mMinCommonImages = min_common_images;
+    mRobustAlignment = robust_alignment;
+    mRobustAlignmentMaxError = robust_alignment_max_error;
 }
 
 QString AbsoluteOrientationColmapProperties::name() const

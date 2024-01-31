@@ -1,3 +1,26 @@
+/************************************************************************
+ *                                                                      *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
+ *                                                                      *
+ * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is free software: you can *
+ * redistribute it and/or modify it under the terms of the GNU General  *
+ * Public License as published by the Free Software Foundation, either  *
+ * version 3 of the License, or (at your option) any later version.     *
+ *                                                                      *
+ * GRAPHOS - inteGRAted PHOtogrammetric Suite is distributed in the     *
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even  *
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  *
+ * PURPOSE.  See the GNU General Public License for more details.       *
+ *                                                                      *
+ * You should have received a copy of the GNU General Public License    *
+ * along with Graphos.  If not, see <http://www.gnu.org/licenses/>.     *
+ *                                                                      *
+ * https://spdx.org/licenses/GPL-3.0-or-later.html                      *
+ *                                                                      *
+ ************************************************************************/
+
 #include "DensificationPresenter.h"
 
 #include "graphos/components/dense/DensificationModel.h"
@@ -193,7 +216,7 @@ void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 {
-    std::unique_ptr<tl::Task> dense_process;
+    std::unique_ptr<tl::Task> dense_task;
 
     if (mModel->existDenseModel()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
@@ -202,7 +225,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                 QMessageBox::Yes | QMessageBox::No).exec();
         if (i_ret == QMessageBox::No) {
             tl::Message::warning("Process canceled by user");
-            return dense_process;
+            return dense_task;
         }
     }
 
@@ -241,7 +264,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                                mCmvsPmvs->minimunImageNumber());
         mModel->setDensification(properties);
 
-        dense_process = std::move(pmvs);
+        dense_task = std::move(pmvs);
 
     } else if (densification_method.compare("Shading-Aware Multi-View Stereo") == 0) {
 
@@ -268,7 +291,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                            mSmvs->surfaceSmoothingFactor());
         mModel->setDensification(properties);
 
-        dense_process = std::move(smvs);
+        dense_task = std::move(smvs);
 
     } else if (densification_method.compare("MVS") == 0) {
 
@@ -298,12 +321,20 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
                                                           mMVS->numberViewsFuse());
         mModel->setDensification(properties);
 
-        dense_process = std::move(mvs);
+        dense_task = std::move(mvs);
 
     } else {
         mView->hide();
         throw std::runtime_error("Densification Method not valid");
     }
+
+    dense_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+
+        auto report = dynamic_cast<DensifierBase const*>(event->task())->report();
+
+        mModel->setDenseReport(report);
+
+    });
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
@@ -313,7 +344,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
     mView->hide();
 
-    return dense_process;
+    return dense_task;
 }
 
 } // End namespace graphos

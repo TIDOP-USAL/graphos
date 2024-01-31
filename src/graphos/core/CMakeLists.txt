@@ -95,6 +95,7 @@ add_files_to_project(${PROJECT_NAME}
                          sfm/posesio.h
                          sfm/groundpoint.h
                          sfm/track.h
+                         sfm/OrientationReport.h
                          dense/dense.h
                          dense/CmvsPmvs.h
                          dense/Smvs.h
