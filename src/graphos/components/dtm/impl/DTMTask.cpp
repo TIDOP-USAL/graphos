@@ -209,7 +209,7 @@ cv::Mat extractDTMfromMesh(Mesh &mesh, const tl::BoundingBoxD &bbox, tl::Progres
 }
 
 void writeDTM(const tl::Path &file, const cv::Mat &mat,
-              const tl::geom::Affine<tl::Point<double>> &georeference,
+              const tl::Affine<double, 2> &georeference,
               const std::string &epsg)
 {
     auto image_writer_mds = tl::ImageWriterFactory::create(file);
@@ -314,7 +314,7 @@ void DtmTask::execute(tl::Progress *progressBar)
         // Hay que considerar el avance realizado ¿10% , 20%?
         //dynamic_cast<ProgressHandler *>(progressBar)->setRange(0, (tl::roundToInteger(bbox.height()/ mGSD) + );
 
-        tl::geom::Affine<tl::Point<double>> georeference(cgal_bbox.xmin() + mOffset.x, cgal_bbox.ymax() + mOffset.y, mGSD, -mGSD, 0.);
+        tl::Affine<double, 2> georeference(mGSD, -mGSD, cgal_bbox.xmin() + mOffset.x, cgal_bbox.ymax() + mOffset.y, 0.);
 
 
 #ifdef  READ_POINTS

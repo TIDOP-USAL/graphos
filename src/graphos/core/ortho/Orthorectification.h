@@ -30,6 +30,7 @@
 
 #include <tidop/core/path.h>
 #include <tidop/img/imgreader.h>
+#include <tidop/math/algebra/affine.h>
 #include <tidop/geometry/transform/affine.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/diffrect.h>
@@ -103,7 +104,8 @@ private:
     cv::Mat mDtm;
     tl::Window<tl::Point<double>> mWindowDtmTerrainExtension;
     tl::geom::Affine<tl::Point<int>> mAffineImageToPhotocoordinates;
-    tl::geom::Affine<tl::Point<double>> mAffineDtmImageToTerrain;
+    //tl::geom::Affine<tl::Point<double>> mAffineDtmImageToTerrain;
+    tl::Affine<double, 2> mAffineDtmImageToTerrain;
     std::unique_ptr<tl::DifferentialRectification> mDifferentialRectification;
     double mIniZ;
     tl::Rect<int> mRectImage;

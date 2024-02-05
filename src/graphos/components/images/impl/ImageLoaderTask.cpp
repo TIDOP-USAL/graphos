@@ -119,7 +119,7 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         QString image = (*mImages)[imageId].path();
 
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(image.toStdString());
+        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.toStdString());
         imageReader->open();
         if (!imageReader->isOpen()) throw std::runtime_error("  Failed to read image file");
 

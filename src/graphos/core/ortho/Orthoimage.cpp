@@ -41,7 +41,7 @@ Orthoimage::Orthoimage(const tl::Path &image,
                        Orthorectification *orthorectification,
                        const tl::Crs &crs,
                        const tl::Rect<int> &rectOrtho,
-                       const tl::geom::Affine<tl::Point<double>> &georeference,
+                       const tl::Affine<double, 2> &georeference,
                        bool cuda)
   : mImageReader(tl::ImageReaderFactory::create(image)),
     mOrthorectification(orthorectification),
@@ -97,7 +97,7 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         image.release();
         /// georeferencia orto
 
-        mOrthophotoWriter = tl::ImageWriterFactory::createWriter(ortho);
+        mOrthophotoWriter = tl::ImageWriterFactory::create(ortho);
         mOrthophotoWriter->open();
         if (!mOrthophotoWriter->isOpen()) throw std::runtime_error("Image open error");
         int channels_ortho = mImageReader->channels();
@@ -131,10 +131,16 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                     }
                 }
 
-                ortho_image_coordinates[0] = mGeoreference.transform(dtm_grid_terrain_points[0], tl::geom::Transform::Order::inverse);
-                ortho_image_coordinates[1] = mGeoreference.transform(dtm_grid_terrain_points[1], tl::geom::Transform::Order::inverse);
-                ortho_image_coordinates[2] = mGeoreference.transform(dtm_grid_terrain_points[2], tl::geom::Transform::Order::inverse);
-                ortho_image_coordinates[3] = mGeoreference.transform(dtm_grid_terrain_points[3], tl::geom::Transform::Order::inverse);
+                auto inverse_transform = mGeoreference.inverse();
+
+                //ortho_image_coordinates[0] = mGeoreference.transform(dtm_grid_terrain_points[0], tl::geom::Transform::Order::inverse);
+                //ortho_image_coordinates[1] = mGeoreference.transform(dtm_grid_terrain_points[1], tl::geom::Transform::Order::inverse);
+                //ortho_image_coordinates[2] = mGeoreference.transform(dtm_grid_terrain_points[2], tl::geom::Transform::Order::inverse);
+                //ortho_image_coordinates[3] = mGeoreference.transform(dtm_grid_terrain_points[3], tl::geom::Transform::Order::inverse);
+                ortho_image_coordinates[0] = inverse_transform.transform(static_cast<tl::Point<double>>(dtm_grid_terrain_points[0]));
+                ortho_image_coordinates[1] = inverse_transform.transform(static_cast<tl::Point<double>>(dtm_grid_terrain_points[1]));
+                ortho_image_coordinates[2] = inverse_transform.transform(static_cast<tl::Point<double>>(dtm_grid_terrain_points[2]));
+                ortho_image_coordinates[3] = inverse_transform.transform(static_cast<tl::Point<double>>(dtm_grid_terrain_points[3]));
 
                 photo_photocoordinates[0] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[0]);
                 photo_photocoordinates[1] = mOrthorectification->terrainToPhotocoordinates(dtm_grid_terrain_points[1]);
@@ -336,10 +342,12 @@ void OrthoimageProcess::execute(tl::Progress *progressBar)
             int cols_ortho = static_cast<int>(std::round(window_ortho_terrain.width() / scale));
             tl::Rect<int> rect_ortho = tl::Rect<int>(0, 0, cols_ortho, rows_ortho);
 
-            tl::geom::Affine<tl::Point<double>> affine_ortho(window_ortho_terrain.pt1.x,
-                                                window_ortho_terrain.pt2.y,
-                                                scale, -scale, 0.0);
-
+            //tl::geom::Affine<tl::Point<double>> affine_ortho(window_ortho_terrain.pt1.x,
+            //                                    window_ortho_terrain.pt2.y,
+            //                                    scale, -scale, 0.0);
+            tl::Affine<double, 2> affine_ortho(scale, -scale, 
+                                               window_ortho_terrain.pt1.x,
+                                               window_ortho_terrain.pt2.y, 0.0);
             /// Grafico ortofotos
             {
                 tl::Rect<double> rect(window_ortho_terrain.pt1, window_ortho_terrain.pt2);

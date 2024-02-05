@@ -28,8 +28,8 @@
 #include <tidop/core/task.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/imgwriter.h>
+#include <tidop/math/algebra/affine.h>
 #include <tidop/vect/vectwriter.h>
-#include <tidop/geometry/transform/affine.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/crs.h>
 
@@ -55,7 +55,7 @@ public:
 			   Orthorectification *orthorectification,
 			   const tl::Crs &crs,
 			   const tl::Rect<int> &rectOrtho,
-			   const tl::geom::Affine<tl::Point<double>> &georeference,
+			   const tl::Affine<double, 2> &georeference,
 			   bool cuda = false);
 	~Orthoimage();
 
@@ -68,7 +68,8 @@ private:
 	Orthorectification *mOrthorectification;
 	tl::Crs mCrs;
 	tl::Rect<int> mRectOrtho;
-	tl::geom::Affine<tl::Point<double>> mGeoreference;
+	//tl::geom::Affine<tl::Point<double>> mGeoreference;
+	tl::Affine<double, 2> mGeoreference;
 	std::unique_ptr<tl::ImageWriter> mOrthophotoWriter;
 	tl::Window<tl::Point<double>> mWindowOrthoTerrain;
 	bool bCuda;

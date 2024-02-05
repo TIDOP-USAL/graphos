@@ -194,7 +194,7 @@ void MatchViewerViewImp::setLeftImage(const QString &imageLeft)
     mComboBoxLeftImage->setCurrentText(file_info.baseName());
     mGraphicsViewLeftImage->scene()->clearSelection();
 
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(imageLeft.toStdString());
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(imageLeft.toStdString());
     imageReader->open();
     if (imageReader->isOpen()) {
         cv::Mat bmp = imageReader->read();
@@ -210,7 +210,7 @@ void MatchViewerViewImp::setRightImage(const QString &imageRight)
     mComboBoxRightImage->setCurrentText(imageRight);
     mGraphicsViewRightImage->scene()->clearSelection();
 
-    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::createReader(imageRight.toStdString());
+    std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(imageRight.toStdString());
     imageReader->open();
     if (imageReader->isOpen()) {
         cv::Mat bmp = imageReader->read();
