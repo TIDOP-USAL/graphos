@@ -30,7 +30,7 @@
 
 #include <tidop/core/path.h>
 #include <tidop/img/imgreader.h>
-#include <tidop/math/algebra/affine.h>
+#include <tidop/math/geometry/affine.h>
 #include <tidop/geometry/transform/affine.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/diffrect.h>

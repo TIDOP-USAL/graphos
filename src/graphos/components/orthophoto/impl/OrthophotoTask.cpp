@@ -287,7 +287,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
                         if (image_reader->isOpen()) {
                             cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
                             mat_orthos[i] = image.clone();
-                            double scale = image_reader->georeference().scaleX();
+                            double scale = image_reader->georeference().scale().x();
 
                             /// Esquinas
                             corners[i].x = tl::roundToInteger((windows[i].pt1.x - window_all.pt1.x) * exposure_compensator_factor / scale);
@@ -412,9 +412,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
     if (image_writer->isOpen()) {
         image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
         image_writer->setCRS(crs.toWktFormat());
-        tl::geom::Affine<tl::Point<double>> affine_ortho(window_all.pt1.x,
-                                                         window_all.pt2.y,
-                                                   res_ortho, -res_ortho, 0.0);
+        tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_all.pt1.x, window_all.pt2.y, 0.0);
         image_writer->setGeoreference(affine_ortho);
 
         for (size_t i = 0; i < grid.size(); i++) {
@@ -460,16 +458,20 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
                     if (!intersectWindows(image_reader->window(), grid[i]) ||
                         !intersectWindows(image_reader_seam->window(), grid[i])) continue;
 
-                    double scale_x = image_reader->georeference().scaleX();
-                    double scale_y = image_reader->georeference().scaleY();
+                    auto georef = image_reader->georeference();
+
+                    double scale_x = georef.scale().x();
+                    double scale_y = georef.scale().y();
                     double read_scale_x = scale_x / res_ortho;
                     double read_scale_y = scale_y / res_ortho;
-                    tl::Point<double> p1 = image_reader->georeference().transform(grid[i].pt1, tl::geom::Transform::Order::inverse);
-                    tl::Point<double> p2 = image_reader->georeference().transform(grid[i].pt2, tl::geom::Transform::Order::inverse);
+
+                    auto inverse_transform = georef.inverse();
+                    tl::Point<double> p1 = inverse_transform.transform(grid[i].pt1);
+                    tl::Point<double> p2 = inverse_transform.transform(grid[i].pt2);
                     tl::WindowI window_to_read(static_cast<tl::Point<int>>(p1), static_cast<tl::Point<int>>(p2));
                     window_to_read.normalized();
 
-                    tl::geom::Affine<tl::Point<int>> affine;
+                    tl::Affine<int, 2> affine;
                     cv::Mat compensate_image;
                     cv::Mat seam_image;
 
@@ -485,12 +487,13 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
                         compensate_image.convertTo(compensate_image_16s, CV_16S);
                         compensate_image.release();
 
-                        cv::Rect rect = cv::Rect(tl::roundToInteger(affine.tx),
-                                                 tl::roundToInteger(affine.ty),
+                        cv::Rect rect = cv::Rect(tl::roundToInteger(affine.translation().x()),
+                                                 tl::roundToInteger(affine.translation().y()),
                                                  compensate_image_16s.cols,
                                                  compensate_image_16s.rows);
                         blender->feed(compensate_image_16s, seam_image, rect.tl());
                     }
+
                 } catch (...) {
                     continue;
                 }
@@ -502,8 +505,9 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
 
             affine_ortho.transform(grid[i].pt1);
             affine_ortho.transform(grid[i].pt2);
-            tl::Point<double> p1 = affine_ortho.transform(grid[i].pt1, tl::geom::Transform::Order::inverse);
-            tl::Point<double> p2 = affine_ortho.transform(grid[i].pt2, tl::geom::Transform::Order::inverse);
+            auto affine_ortho_inverse = affine_ortho.inverse();
+            tl::Point<double> p1 = affine_ortho_inverse.transform(grid[i].pt1);
+            tl::Point<double> p2 = affine_ortho_inverse.transform(grid[i].pt2);
             tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1), static_cast<tl::Point<int>>(p2));
             window_to_write.normalized();
             if (window_to_write.isValid())

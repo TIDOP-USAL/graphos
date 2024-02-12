@@ -719,7 +719,7 @@ void CCViewer3D::showClassification(bool show)
         currentRoot->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
 
         /// Sólo se permite una nube de puntos en el visor
-        if (clouds.size() != 1) return;
+        //if (clouds.size() != 1) return;
 
         if (auto cloud = static_cast<ccPointCloud *>(clouds.at(0))) {
 

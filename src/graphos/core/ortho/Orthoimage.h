@@ -28,7 +28,7 @@
 #include <tidop/core/task.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/imgwriter.h>
-#include <tidop/math/algebra/affine.h>
+#include <tidop/math/geometry/affine.h>
 #include <tidop/vect/vectwriter.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/crs.h>

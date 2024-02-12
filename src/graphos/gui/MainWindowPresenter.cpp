@@ -37,7 +37,7 @@
 #include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
 #include <tidop/core/log.h>
-#include <tidop/math/algebra/affine.h>
+#include <tidop/math/geometry/affine.h>
 
 /* Qt */
 

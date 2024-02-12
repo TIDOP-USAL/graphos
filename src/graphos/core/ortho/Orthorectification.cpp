@@ -25,7 +25,7 @@
 
 #include "graphos/core/camera/Undistort.h"
 
-#include <tidop/math/algebra/translation.h>
+#include <tidop/math/geometry/translation.h>
 
 #include <opencv2/calib3d.hpp>
 #ifdef HAVE_OPENCV_CUDAWARPING

@@ -24,7 +24,7 @@
 #include "SaveProjectModel.h"
 
 #include <tidop/math/algebra/rotation_convert.h>
-#include <tidop/math/algebra/affine.h>
+#include <tidop/math/geometry/affine.h>
 
 #include "graphos/core/project.h"
 #include "graphos/core/sfm/posesio.h"
