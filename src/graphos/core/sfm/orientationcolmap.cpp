@@ -413,8 +413,6 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 {
     try {
 
-        tl::Chrono chrono("Relative Orientation finished");
-        chrono.run();
 
         mReconstructionManager->Clear();
 
@@ -570,7 +568,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
         if (status() == tl::Task::Status::stopping) return;
 
-        /*mOrientationReport.time = */chrono.stop();
+        tl::Message::success("Relative orientation finished in {:.2} minutes", time() / 60.);
 
         if (progressBar) (*progressBar)();
 
@@ -665,9 +663,6 @@ void AbsoluteOrientationColmapTask::stop()
 void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
 {
     try {
-
-        tl::Chrono chrono("Absolute Orientation finished");
-        chrono.run();
 
         bool robust_alignment = robustAlignment();
         colmap::RANSACOptions ransac_options;
@@ -805,7 +800,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
 
         if (status() == tl::Task::Status::stopping) return;
 
-        chrono.stop();
+        tl::Message::success("Absolute orientation finished in {:.2} minutes", time() / 60.);
 
         if (progressBar) (*progressBar)();
 

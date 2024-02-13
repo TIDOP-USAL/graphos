@@ -581,9 +581,6 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
     try {
 
-        tl::Chrono chrono("Orthophoto task finished");
-        chrono.run();
-
         tl::Path footprint_file(mOrthoPath);
         footprint_file.append("footprint.shp");
         tl::Path graph_orthos = tl::Path(footprint_file).replaceBaseName("graph_orthos");
@@ -610,10 +607,10 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
         orthoMosaic(optimal_footprint_path, mOrthoPath, mGSD, crs, grid);
 
-        chrono.stop();
+        tl::Message::success("Orthophoto task finished in {:.2} minutes", this->time() / 60.);
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Orthophoto process error");
+        TL_THROW_EXCEPTION_WITH_NESTED("Orthophoto task error");
     }
 
 }

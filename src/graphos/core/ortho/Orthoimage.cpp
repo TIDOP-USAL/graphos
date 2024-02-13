@@ -342,9 +342,6 @@ void OrthoimageProcess::execute(tl::Progress *progressBar)
             int cols_ortho = static_cast<int>(std::round(window_ortho_terrain.width() / scale));
             tl::Rect<int> rect_ortho = tl::Rect<int>(0, 0, cols_ortho, rows_ortho);
 
-            //tl::geom::Affine<tl::Point<double>> affine_ortho(window_ortho_terrain.pt1.x,
-            //                                    window_ortho_terrain.pt2.y,
-            //                                    scale, -scale, 0.0);
             tl::Affine<double, 2> affine_ortho(scale, -scale, 
                                                window_ortho_terrain.pt1.x,
                                                window_ortho_terrain.pt2.y, 0.0);

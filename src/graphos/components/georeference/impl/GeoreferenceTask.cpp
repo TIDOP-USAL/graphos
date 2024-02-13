@@ -48,7 +48,7 @@
 
 #include <iomanip>
 
-#define TEST_CONTROL_POINT_ADJUST 1
+//#define TEST_CONTROL_POINT_ADJUST
 
 #ifdef TEST_CONTROL_POINT_ADJUST
 #include <colmap/controllers/bundle_adjustment.h>

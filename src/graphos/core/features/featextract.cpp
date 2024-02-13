@@ -507,8 +507,6 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
 
         tl::Message::info("Feature extraction running");
 
-        tl::Chrono chrono;
-        chrono.run();
 
         colmap::Database database(mDatabase.toString());
 
@@ -557,18 +555,19 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
             consumer_threads[i].join();
 
         if (status() == tl::Task::Status::stopping) {
-            chrono.reset();
+            //chrono.reset();
         } else {
             size_t keypoints = database.NumKeypoints();
 
             TL_ASSERT(keypoints > 0, "Keypoints not detected");
 
-            tl::Message::success("Feature extraction finished in {:.2} minutes", chrono.stop() / 60.);
-            tl::Message::info(" - Total features extracted: {}", keypoints);
-
             mReport.features = keypoints;
             mReport.cuda = bUseCuda;
             mReport.time = this->time();
+
+            tl::Message::success("Feature extraction finished in {:.2} minutes", mReport.time / 60.);
+            tl::Message::info(" - Total features extracted: {}", keypoints);
+
         }
 
     } catch (...) {

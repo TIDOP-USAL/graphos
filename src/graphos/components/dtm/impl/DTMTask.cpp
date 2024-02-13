@@ -250,9 +250,6 @@ void DtmTask::execute(tl::Progress *progressBar)
 
     try {
 
-        tl::Chrono chrono("DTM finished");
-        chrono.run();
-
         TL_ASSERT(mPointCloud.exists(), "Point cloud file not exist: '{}'", mPointCloud.toString().c_str());
         TL_ASSERT(mPointCloud.isFile(), "The path is not valid: '{}'", mPointCloud.toString().c_str());
 
@@ -529,7 +526,7 @@ void DtmTask::execute(tl::Progress *progressBar)
 
 #endif //DTM
 
-        chrono.stop();
+        tl::Message::success("DTM task finished in {:.2} minutes", this->time() / 60.);
 
         if (progressBar) (*progressBar)(10);
 

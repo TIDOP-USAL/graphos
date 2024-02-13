@@ -102,15 +102,15 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
     std::unique_ptr<tl::Task> ortho_process;
 
     tl::Path ortho_path = mModel->orthoPath();
-    if(!ortho_path.exists()) {
-        int i_ret = QMessageBox(QMessageBox::Warning,
-                                tr("Previous results"),
-                                tr("The previous results will be overwritten. Do you wish to continue?"),
-                                QMessageBox::Yes | QMessageBox::No).exec();
-        if(i_ret == QMessageBox::No) {
-            return ortho_process;
-        }
-    }
+    //if(!ortho_path.exists()) {
+    //    int i_ret = QMessageBox(QMessageBox::Warning,
+    //                            tr("Previous results"),
+    //                            tr("The previous results will be overwritten. Do you wish to continue?"),
+    //                            QMessageBox::Yes | QMessageBox::No).exec();
+    //    if(i_ret == QMessageBox::No) {
+    //        return ortho_process;
+    //    }
+    //}
 
     mModel->clearProject();
 
