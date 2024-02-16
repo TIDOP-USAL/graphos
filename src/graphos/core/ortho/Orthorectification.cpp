@@ -250,8 +250,8 @@ void Orthorectification::init()
         mWindowDtmTerrainExtension.normalized();
 
         mDifferentialRectification = std::make_unique<tl::DifferentialRectification>(mCameraPose.rotationMatrix(),
-            mCameraPose.position(),
-            focal());
+                                                                                     mCameraPose.position(),
+                                                                                     focal());
 
         bool exist_nodata = false;
         double nodata_value = mDtmReader->noDataValue(&exist_nodata);
@@ -259,8 +259,14 @@ void Orthorectification::init()
 
         mRectImage = tl::Rect<int>(0, 0, mCamera.width(), mCamera.height());
 
-        // Si no existe DTM en el centro es un problema
-        // En lugar de calcular en el centro establezco las coordenadas
+        // Se necesita un primera aproximación de mIniZ
+        // Poco optimizado. Habría que calcularlo sólo una vez.
+        cv::Mat image = mDtmReader->read();
+        cv::Mat mask  = cv::Mat::zeros(image.rows, image.cols, CV_8U);
+        mask.setTo(cv::Scalar::all(255), image > -9999.);
+        cv::Scalar zmean = cv::mean(image, mask);
+        mIniZ = zmean(0);
+
         tl::Point<double> center_project = imageToTerrain(mRectImage.window().center());
 
         // Lo compruebo antes
@@ -268,7 +274,7 @@ void Orthorectification::init()
             tl::WindowD w(center_project, mAffineDtmImageToTerrain.scale().x(), mAffineDtmImageToTerrain.scale().y());
             cv::Mat image = mDtmReader->read(w);
             mIniZ = image.at<float>(0, 0);
-        } else {
+        } /*else {
             // ¿Buscar la z media del DTM?, ¿la mas próxima? o ¿ir buscando en las diferentes esquinas de la imagen?
             tl::WindowD w(center_project, mAffineDtmImageToTerrain.scale().x() * mRectImage.width / 2., mAffineDtmImageToTerrain.scale().y() * mRectImage.height / 2.);
             w.normalized();
@@ -280,7 +286,7 @@ void Orthorectification::init()
                 cv::Scalar zmean = cv::mean(image, mask);
                 mIniZ = zmean(0);
             } else return; // No intersecta con el DTM
-        }
+        }*/
 
         tl::Rect<int> rect_full(tl::Point<int>(), mDtmReader->cols(), mDtmReader->rows());
 

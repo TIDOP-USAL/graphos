@@ -298,6 +298,8 @@ void OrthoimageProcess::execute(tl::Progress *progressBar)
             tl::Path file(image.path().toStdWString());
             tl::Path file_name = file.fileName();
 
+            //if (file_name.toString() != "DSC04741.JPG") continue; ///..........
+
             if (!file.exists()) {
                  tl::Message::warning("Image not found: {}", file_name.toString());
                 continue;
@@ -409,11 +411,6 @@ cv::Mat OrthoimageProcess::visibilityMap(const Orthorectification &orthorectific
             }
         }
     }
-
-    //cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT,
-    //                                        cv::Size(2 * 2 + 1, 2 * 2 + 1),
-    //                                        cv::Point(2, 2));
-    //cv::dilate(visibility_map, visibility_map, element);
 
     return visibility_map;
 }

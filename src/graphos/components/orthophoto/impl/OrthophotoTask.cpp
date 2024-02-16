@@ -304,6 +304,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
 
                             ortho_masks[i].setTo(cv::Scalar::all(0));
                             ortho_masks[i].setTo(cv::Scalar::all(255), gray > 0);
+
                         }
                     }
 
@@ -339,7 +340,9 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
                         cv::Mat element = getStructuringElement(cv::MorphShapes::MORPH_RECT,
                                                                 cv::Size(2 * 2 + 1, 2 * 2 + 1),
                                                                 cv::Point(2, 2));
-                        cv::erode(mask_full_size, mask_full_size, element);
+                        //Revisar
+                        //cv::erode(mask_full_size, mask_full_size, element);
+                        //cv::dilate(mask_full_size, mask_full_size, element);
                         compensator->apply(0, corner, compensate_image, mask_full_size);
 
                         tl::Path orto_compensate(ortho_to_compensate);
@@ -360,7 +363,8 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
                         /// 2 - Busqueda de costuras (seam finder)
 
                         cv::Mat mask_finder = ortho_masks[0].getMat(cv::ACCESS_READ);
-                        cv::erode(mask_finder, mask_finder, element);
+                        /// revisar
+                        //cv::erode(mask_finder, mask_finder, element);
                         cv::resize(mask_finder, mask_finder, compensate_image.size());
                         mask_finder = mask_finder & mask_full_size;
 
@@ -594,7 +598,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
                                         crs,
                                         footprint_file,
                                         mGSD,
-                                        0.4,
+                                        0.8/*0.4*/,
                                         bCuda);
         ortho_process.run(progressBar);
 

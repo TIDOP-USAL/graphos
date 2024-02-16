@@ -148,12 +148,13 @@ void ZBuffer::run()
                                 terrain_point += (dtm_grid_terrain_points[j] - terrain_point) / (j + 1);
                             }
 
+                            // Revisar
                             double distance = tl::distance3D(terrain_point, mOrthorectification->orientation().position());
                             double z_buffer_distance = mDistances.at<float>(pt_image.y, pt_image.x);
                             double old_row = mY.at<int>(pt_image.y, pt_image.x);
                             double old_col = mX.at<int>(pt_image.y, pt_image.x);
 
-                            {
+                            if (z_buffer_distance == 0. || distance < z_buffer_distance){
                                 cv::Mat mask_image = cv::Mat::zeros(window_image_in.height(), window_image_in.width(), CV_8U);
                                 std::vector<cv::Point> pts;
                                 for (int k = 0; k < photo_image_coordinates.size(); k++) {
