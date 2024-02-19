@@ -47,63 +47,121 @@ namespace graphos
 
 constexpr double exposure_compensator_factor = 0.5;
 
-
-std::vector<tl::WindowD> findGrid(const tl::Path &footprint_file)
-{
-    std::vector<tl::WindowD> grid;
-
-    tl::WindowD window_all;
-
-    std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
-    vectorReader->open();
-    if (vectorReader->isOpen()) {
-        if (vectorReader->layersCount() >= 1) {
-
-            std::map<double, std::shared_ptr<tl::GPolygon>> entities;
-            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
-
-            /// Busqueda ventana total
-
-            double grid_step = -1;
-
-            for (const auto &entity : *layer) {
-                std::shared_ptr<tl::GPolygon> polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
-                std::shared_ptr<tl::TableRegister> data = polygon->data();
-                tl::WindowD window = polygon->window();
-                grid_step = std::min(window.width(), window.height());
-                window_all = tl::joinWindow(window_all, window);
-            }
-
-            grid_step /= 3.;
-
-            int grid_horizontal_size = static_cast<int>(window_all.width() / grid_step);
-            int grid_vertical_size = static_cast<int>(window_all.height() / grid_step);
-
-            double x_ini = window_all.pt1.x + grid_step / 2.;
-            double y_ini = window_all.pt2.y - grid_step / 2.;
-
-            grid.emplace_back(tl::Point<double>(x_ini, y_ini), grid_step * 2);
-
-            tl::Point<double> point;
-            for (size_t i = 0; i < grid_horizontal_size; i++) {
-
-                point.x = x_ini + grid_step * i;
-
-                for (size_t j = 0; j < grid_vertical_size; j++) {
-
-                    point.y = y_ini - grid_step * j;
-
-                    grid.emplace_back(point, grid_step * 2);
-
-                }
-            }
-
-        }
-
-    }
-
-    return grid;
-}
+//std::vector<tl::WindowD> findGrid(const tl::Path &footprint_file)
+//{
+//    std::vector<tl::WindowD> grid;
+//    ///
+//    std::vector<std::shared_ptr<tl::GPolygon>> grid_to_save;
+//    ///
+//    tl::WindowD window_all;
+//
+//    std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
+//    vectorReader->open();
+//    if (vectorReader->isOpen()) {
+//        if (vectorReader->layersCount() >= 1) {
+//
+//            std::map<double, std::shared_ptr<tl::GPolygon>> entities;
+//            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+//
+//            /// Busqueda ventana total
+//
+//            double grid_step = -1;
+//
+//            for (const auto &entity : *layer) {
+//                std::shared_ptr<tl::GPolygon> polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
+//                std::shared_ptr<tl::TableRegister> data = polygon->data();
+//                tl::WindowD window = polygon->window();
+//                // Esto lo estoy recalculando cada vez...
+//                grid_step = std::min(window.width(), window.height());
+//                window_all = tl::joinWindow(window_all, window);
+//            }
+//
+//            grid_step /= 3.;
+//
+//            int grid_horizontal_size = static_cast<int>(window_all.width() / grid_step);
+//            int grid_vertical_size = static_cast<int>(window_all.height() / grid_step);
+//
+//            double x_ini = window_all.pt1.x + grid_step / 2.;
+//            double y_ini = window_all.pt2.y - grid_step / 2.;
+//
+//            grid.emplace_back(tl::Point<double>(x_ini, y_ini), grid_step /** 2*/);
+//            ///
+//            std::shared_ptr<tl::GPolygon> polygon = std::make_shared<tl::GPolygon>();
+//            auto x_min = grid.back().pt1.x;
+//            auto y_min = grid.back().pt1.y;
+//            auto x_max = grid.back().pt2.x;
+//            auto y_max = grid.back().pt2.y;
+//
+//            polygon->push_back(tl::Point<double>(x_min, y_min));
+//            polygon->push_back(tl::Point<double>(x_max, y_min));
+//            polygon->push_back(tl::Point<double>(x_max, y_max));
+//            polygon->push_back(tl::Point<double>(x_min, y_max));
+//            grid_to_save.push_back(polygon);
+//            ///
+//
+//            tl::Point<double> point;
+//            for (size_t i = 0; i < grid_horizontal_size; i++) {
+//
+//                point.x = x_ini + grid_step * i;
+//
+//                for (size_t j = 0; j < grid_vertical_size; j++) {
+//
+//                    point.y = y_ini - grid_step * j;
+//
+//                    grid.emplace_back(point, grid_step /** 2*/);
+//                    ///
+//                    std::shared_ptr<tl::GPolygon> polygon = std::make_shared<tl::GPolygon>();
+//                    auto x_min = grid.back().pt1.x;
+//                    auto y_min = grid.back().pt1.y;
+//                    auto x_max = grid.back().pt2.x;
+//                    auto y_max = grid.back().pt2.y;
+//
+//                    polygon->push_back(tl::Point<double>(x_min, y_min));
+//                    polygon->push_back(tl::Point<double>(x_max, y_min));
+//                    polygon->push_back(tl::Point<double>(x_max, y_max));
+//                    polygon->push_back(tl::Point<double>(x_min, y_max));
+//                    grid_to_save.push_back(polygon);
+//                    ///
+//                }
+//            }
+//
+//        }
+//
+//    }
+//
+//
+//    ///
+//    auto grid_file = footprint_file;
+//    grid_file.replaceBaseName("grid");
+//    std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::create(grid_file);
+//    vector_writer->open();
+//    if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
+//    vector_writer->create();
+//    vector_writer->setCRS(tl::Crs("EPSG:").toWktFormat());
+//
+//    std::shared_ptr<tl::TableField> field(new tl::TableField("image",
+//                                          tl::TableField::Type::STRING,
+//                                          254));
+//    std::vector<std::shared_ptr<tl::TableField>> fields;
+//    fields.push_back(field);
+//
+//    tl::GLayer layer;
+//    layer.setName("footprint");
+//    layer.addDataField(field);
+//
+//    for (const auto &footprint : grid_to_save) {
+//        std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
+//        //data->setValue(0, footprint.first);
+//        layer.push_back(footprint);
+//    }
+//
+//        vector_writer->write(layer);
+//
+//        vector_writer->close();
+//    ///
+//
+//    return grid;
+//}
 
 std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std::shared_ptr<tl::GLayer> layer)
 {
@@ -142,6 +200,9 @@ void findOptimalFootprint(const tl::Path &footprint_file,
                           const tl::Crs &crs)
 {
     std::map<std::string, std::shared_ptr<tl::GPolygon>> clean_footprint;
+    ///....
+    std::vector<std::pair<std::string, std::shared_ptr<tl::GPolygon>>> grid_images;
+    ///....
 
     std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
     vectorReader->open();
@@ -160,6 +221,21 @@ void findOptimalFootprint(const tl::Path &footprint_file,
                     std::shared_ptr<tl::TableRegister> data = polygon->data();
                     std::string ortho_to_compensate = data->value(0);
                     clean_footprint[ortho_to_compensate] = polygon;
+
+                    ///....
+                    std::shared_ptr<tl::GPolygon> polygon = std::make_shared<tl::GPolygon>();
+                    auto x_min = grid[i].pt1.x;
+                    auto y_min = grid[i].pt1.y;
+                    auto x_max = grid[i].pt2.x;
+                    auto y_max = grid[i].pt2.y;
+
+                    polygon->push_back(tl::Point<double>(x_min, y_min));
+                    polygon->push_back(tl::Point<double>(x_max, y_min));
+                    polygon->push_back(tl::Point<double>(x_max, y_max));
+                    polygon->push_back(tl::Point<double>(x_min, y_max));
+
+                    grid_images.push_back({ortho_to_compensate, polygon});
+                    ///....
                 }
 
             }
@@ -169,32 +245,69 @@ void findOptimalFootprint(const tl::Path &footprint_file,
         }
 
         tl::Message::info("Optimal footprint. {} retained images", clean_footprint.size());
+        {
+            std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::create(optimal_footprint_path);
+            vector_writer->open();
+            if (!vector_writer->isOpen()) throw std::runtime_error("Vector open error");
+            vector_writer->create();
+            vector_writer->setCRS(crs.toWktFormat());
 
-        std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::create(optimal_footprint_path.toString());
-        vector_writer->open();
-        if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
-        vector_writer->create();
-        vector_writer->setCRS(crs.toWktFormat());
+            std::shared_ptr<tl::TableField> field(new tl::TableField("image",
+                                                  tl::TableField::Type::STRING,
+                                                  254));
+            std::vector<std::shared_ptr<tl::TableField>> fields;
+            fields.push_back(field);
 
-        std::shared_ptr<tl::TableField> field(new tl::TableField("image",
-                                              tl::TableField::Type::STRING,
-                                              254));
-        std::vector<std::shared_ptr<tl::TableField>> fields;
-        fields.push_back(field);
+            tl::GLayer layer;
+            layer.setName("footprint");
+            layer.addDataField(field);
 
-        tl::GLayer layer;
-        layer.setName("footprint");
-        layer.addDataField(field);
+            for (const auto &footprint : clean_footprint) {
+                std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
+                data->setValue(0, footprint.first);
+                layer.push_back(footprint.second);
+            }
 
-        for (const auto &footprint : clean_footprint) {
-            std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
-            data->setValue(0, footprint.first);
-            layer.push_back(footprint.second);
+            vector_writer->write(layer);
+
+            vector_writer->close();
         }
 
-        vector_writer->write(layer);
+        /// Write grid
+        {
 
-        vector_writer->close();
+            auto grid_path = optimal_footprint_path;
+            grid_path.replaceBaseName("grid");
+            std::unique_ptr<tl::VectorWriter> grid_writer = tl::VectorWriterFactory::create(grid_path);
+            grid_writer->open();
+            if (!grid_writer->isOpen()) throw std::runtime_error("Vector open error");
+            grid_writer->create();
+            grid_writer->setCRS(crs.toWktFormat());
+            
+            std::shared_ptr<tl::TableField> field_image(new tl::TableField("image",
+                                                  tl::TableField::Type::STRING,
+                                                  254));
+            std::vector<std::shared_ptr<tl::TableField>> fields;
+            fields.push_back(field_image);
+            
+            tl::GLayer layer;
+            layer.setName("grid");
+            layer.addDataField(field_image);
+            int i = 0;
+            for (const auto &grid_image : grid_images) {
+                std::string image_name = grid_image.first;
+                auto polygon = grid_image.second;
+                std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
+                data->setValue(0, image_name);
+                polygon->setData(data);
+                layer.push_back(polygon);
+            }
+            
+            grid_writer->write(layer);
+            
+            grid_writer->close();
+        }
+        ////
     }
 }
 
@@ -523,9 +636,6 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
     }
 }
 
-
-
-
 OrthophotoTask::OrthophotoTask(double gsd,
                                const std::vector<Image> &images,
                                const std::map<int, Camera> &cameras,
@@ -580,6 +690,85 @@ void OrthophotoTask::setCuda(bool active)
     bCuda = active;
 }
 
+std::vector<tl::WindowD> OrthophotoTask::findGrid(const tl::Path &mdt, double gsd)
+{
+    std::vector<tl::WindowD> grid;
+    /////
+    //std::vector<std::shared_ptr<tl::GPolygon>> grid_to_save;
+    /////
+
+    auto reader = tl::ImageReaderFactory::create(mdt);
+    reader->open();
+    TL_ASSERT(reader->isOpen(), "Can not open the MDT");
+    auto window = reader->window();
+    int step_x = std::ceil(window.width() / (gsd * 255.));
+    int step_y = std::ceil(window.height() / (gsd * 255.));
+
+    auto center = window.center();
+
+    //double x_ini = step_x % 2 ? center.x + (step_x-1) * (gsd * 255.) / 2. /* - (gsd * 255.) / 2.*/ : center.x + (step_x / 2) * (gsd * 255.);
+    //double y_ini = step_y % 2 ? center.y + (step_y-1) * (gsd * 255.) / 2./* + (gsd * 255.) / 2.*/ : center.y + (step_y / 2) * (gsd * 255.);
+    double x_ini = center.x - ((step_x-1) * gsd * 255.) / 2.;
+    double y_ini = center.y + ((step_y-1) * gsd * 255.) / 2.;
+
+    tl::Point<double> point;
+    for (size_t i = 0; i < step_x; i++) {
+
+        point.x = x_ini + (gsd * 255.) * i;
+
+        for (size_t j = 0; j < step_y; j++) {
+
+            point.y = y_ini - (gsd * 255.) * j;
+            grid.emplace_back(point, (gsd * 255.));
+
+            /////
+            //std::shared_ptr<tl::GPolygon> polygon = std::make_shared<tl::GPolygon>();
+            //auto x_min = grid.back().pt1.x;
+            //auto y_min = grid.back().pt1.y;
+            //auto x_max = grid.back().pt2.x;
+            //auto y_max = grid.back().pt2.y;
+
+            //polygon->push_back(tl::Point<double>(x_min, y_min));
+            //polygon->push_back(tl::Point<double>(x_max, y_min));
+            //polygon->push_back(tl::Point<double>(x_max, y_max));
+            //polygon->push_back(tl::Point<double>(x_min, y_max));
+            //grid_to_save.push_back(polygon);
+            /////
+        }
+    }
+
+    /////
+    //auto grid_file = tl::Path("C:\\GRAPHOS\\urban2\\ortho\\grid.shp");
+    //std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::create(grid_file);
+    //vector_writer->open();
+    //if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
+    //vector_writer->create();
+    //vector_writer->setCRS(tl::Crs("EPSG:").toWktFormat());
+
+    //std::shared_ptr<tl::TableField> field(new tl::TableField("image",
+    //                                      tl::TableField::Type::STRING,
+    //                                      254));
+    //std::vector<std::shared_ptr<tl::TableField>> fields;
+    //fields.push_back(field);
+
+    //tl::GLayer layer;
+    //layer.setName("footprint");
+    //layer.addDataField(field);
+
+    //for (const auto &footprint : grid_to_save) {
+    //    std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
+    //    //data->setValue(0, footprint.first);
+    //    layer.push_back(footprint);
+    //}
+
+    //    vector_writer->write(layer);
+
+    //    vector_writer->close();
+    /////
+
+    return grid;
+}
+
 void OrthophotoTask::execute(tl::Progress *progressBar)
 {
 
@@ -602,14 +791,23 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
                                         bCuda);
         ortho_process.run(progressBar);
 
-        std::vector<tl::WindowD> grid = findGrid(graph_orthos);
+        //std::vector<tl::WindowD> grid = findGrid(graph_orthos);
+        std::vector<tl::WindowD> grid = this->findGrid(mMdt, mGSD);
 
         tl::Path optimal_footprint_path(graph_orthos);
         std::string name = optimal_footprint_path.baseName().toString() + "_optimal";
         optimal_footprint_path.replaceBaseName(name);
         findOptimalFootprint(graph_orthos, grid, optimal_footprint_path, crs);
 
+        /// La ventana total de la orto tiene que ser la misma que la del MDT....
         orthoMosaic(optimal_footprint_path, mOrthoPath, mGSD, crs, grid);
+
+        // Grid tiene que ser std::vector<std::vector<std::pair<std::string,tl::WindowD>>>> 
+        // De está forma se puede recorrer como una matriz y ver las imagenes que están a los lados
+        // Se expande la ventana correspondiente a un grid y las de sus vecinos y se procede a ajusta 
+        // radiometricamente la imagen. 
+        // Posteriormente se determinan las líneas de cosido y se fusionan las ortoimagenes en el mosaico.
+        //orthoMosaic2(mOrthoPath, mGSD, crs, grid);
 
         tl::Message::success("Orthophoto task finished in {:.2} minutes", this->time() / 60.);
 

@@ -31,6 +31,7 @@
 
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
+#include <tidop/geometry/entities/window.h>
 
 namespace tl 
 {
@@ -66,6 +67,10 @@ public:
     void setMdt(const tl::Path &mdt);
     void setCrs(const QString &epsg);
     void setCuda(bool active);
+
+private:
+
+    std::vector<tl::Window<tl::Point<double>>> findGrid(const tl::Path &mdt, double gsd);
 
 // tl::TaskBase interface
 
