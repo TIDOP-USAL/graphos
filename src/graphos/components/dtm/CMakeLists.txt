@@ -22,6 +22,8 @@
 ##########################################################################
 
 include(TidopUtils)
+include_directories(${CMAKE_SOURCE_DIR}/third_party)
+
 
 if(BUILD_DTM_COMPONENT)
 
@@ -70,7 +72,8 @@ if(BUILD_DTM_COMPONENT)
                           Graphos::Widgets
                           Eigen3::Eigen
                           glog::glog
-                          CGAL::CGAL)
+                          CGAL::CGAL
+                          CSF)
     
     set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
     

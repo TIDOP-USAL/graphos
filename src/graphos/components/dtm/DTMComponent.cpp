@@ -82,12 +82,11 @@ void DTMComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-    bool bAbsoluteOriented = app_status->isEnabled(AppStatus::Flag::absolute_oriented);
-    //bool bDenseModel = app_status->isEnabled(AppStatus::Flag::dense_model);
-    bool mesh = app_status->isEnabled(AppStatus::Flag::mesh);
-    action()->setEnabled(bProjectExists && bAbsoluteOriented && mesh && !bProcessing);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool dense_model = app_status->isEnabled(AppStatus::Flag::dense_model);
+    //bool mesh = app_status->isEnabled(AppStatus::Flag::mesh);
+    action()->setEnabled(project_exists && dense_model && !processing);
 }
 
 void DTMComponent::onRunning()

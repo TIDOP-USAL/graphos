@@ -156,7 +156,7 @@ std::unique_ptr<tl::Task> ScalePresenterImp::createProcess()
             root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
 
             /// Sólo se permite una nube de puntos en el visor
-            TL_ASSERT(clouds.size() == 1, "Error");
+            //TL_ASSERT(clouds.size() == 1, "Error");
 
             model = clouds.at(0);
         }

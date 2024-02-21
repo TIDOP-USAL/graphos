@@ -121,7 +121,7 @@ TablePdf::TablePdf()
     mStyleTable(QFont("Times", 9, QFont::Normal), QBrush(), QPen(), Qt::AlignCenter)
 {
     setBorderTable(Border::all, QPen());
-    updateTable();
+    //updateTable();
 }
 
 TablePdf::TablePdf(int cols, int rows)
@@ -410,9 +410,10 @@ void TablePdf::updateTable()
     if (mValues.size() != static_cast<size_t>(mRows))
         mValues.resize(mRows);
 
-    if (mValues[0].size() != static_cast<size_t>(mCols)) {
+    if (!mValues.empty()) {
         for (int r = 0; r < mRows; r++) {
-            mValues[r].resize(mCols, TablePdf::Cell(this));
+            if (mValues[r].size() != static_cast<size_t>(mCols))
+                mValues[r].resize(mCols, TablePdf::Cell(this));
         }
     }
 }
@@ -693,8 +694,8 @@ QRect Pdf::drawImage(const QImage &image, const QString &caption, int options)
 
         double scale = pPdfWriter->logicalDpiX() / _image.logicalDpiX();
 
-        double scale_x = mWidth / _image.width();
-        double scale_y = mHeight / _image.height();
+        double scale_x = mWidth / static_cast<double>(_image.width());
+        double scale_y = mHeight / static_cast<double>(_image.height());
         if (scale_x < scale_y) {
             if (_image.width() * scale > mWidth) {
                 _image = _image.scaledToWidth(mWidth);
@@ -1047,27 +1048,27 @@ void Pdf::initDraw()
 
         if (bFooter) {
 
-            int height = 0;
-            if (mHeaderText.isEmpty()) {
+            int height = 300;
+            //if (mHeaderText.isEmpty()) {
 
-                QRect text_rect;
-                if (mHeader.hasText()) {
-                    text_rect = mHeader.textRect();
-                }
+            //    QRect text_rect;
+            //    if (mHeader.hasText()) {
+            //        text_rect = mHeader.textRect();
+            //    }
 
-                QRect image_rect;
-                if (mHeader.hasImage()) {
-                    image_rect = mHeader.imageRect();
-                }
+            //    QRect image_rect;
+            //    if (mHeader.hasImage()) {
+            //        image_rect = mHeader.imageRect();
+            //    }
 
-                height = std::max(text_rect.height(), image_rect.height());
+            //    height = std::max(text_rect.height(), image_rect.height());
 
 
-            } else {
-                QFontMetrics fontMetrics(mFooterStyle.font(), pPainter->device());
-                QRect aux_rect = fontMetrics.boundingRect(rect, mFooterStyle.options(), mFooterText);
-                height = aux_rect.height() * 3;
-            }
+            //} else {
+            //    QFontMetrics fontMetrics(mFooterStyle.font(), pPainter->device());
+            //    QRect aux_rect = fontMetrics.boundingRect(rect, mFooterStyle.options(), mFooterText);
+            //    height = aux_rect.height() * 3;
+            //}
 
             mRectFooter.setX(rect.x());
             mRectFooter.setY(rect.height() - height);
