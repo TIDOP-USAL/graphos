@@ -576,6 +576,8 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_DTM
         QObject::connect(&dtm_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
+        QObject::connect(&dtm_component, SIGNAL(finished()),
+                         componentsManager.mainWindowPresenter(), SLOT(loadDSM()));
 #endif // GRAPHOS_HAVE_DTM
 
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO

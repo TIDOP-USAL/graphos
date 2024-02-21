@@ -255,6 +255,7 @@ void MainWindowPresenter::loadProject()
     this->loadDenseModel();
     this->loadMesh();
     this->loadDTM();
+    this->loadDSM();
     this->loadOrtho();
 }
 
@@ -265,6 +266,7 @@ void MainWindowPresenter::updateProject()
 
     this->loadOrtho();
     this->loadDTM();
+    this->loadDSM();
     this->loadMesh();
     this->loadDenseModel();
     this->loadOrientation();
@@ -352,11 +354,23 @@ void MainWindowPresenter::loadMesh()
 
 void MainWindowPresenter::loadDTM()
 {
+    QString dtm = QString::fromStdString(mModel->dtm().toString());
+    if (!dtm.isEmpty()) {
+        mView->setDTM(dtm);
+        Application &app = Application::instance();
+        app.status()->activeFlag(AppStatus::Flag::dtm, true);
+    } else {
+        mView->deleteDtm();
+    }
+}
+
+void MainWindowPresenter::loadDSM()
+{
     QString dsm = QString::fromStdString(mModel->dsm().toString());
     if (!dsm.isEmpty()) {
         mView->setDSM(dsm);
         Application &app = Application::instance();
-        app.status()->activeFlag(AppStatus::Flag::dtm, true);
+        app.status()->activeFlag(AppStatus::Flag::dsm, true);
     } else {
         mView->deleteDsm();
     }
@@ -570,6 +584,37 @@ void MainWindowPresenter::openDtm()
 {
     try {
 
+        QString dtm = QString::fromStdString(mModel->dtm().toString());
+        auto tab_widget = mView->tabWidget();
+        int tab_id = tab_widget->fileTab(dtm);
+
+        if (tab_id != -1) {
+            tab_widget->setCurrentIndex(tab_id);
+        } else {
+            GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+            graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
+            graphic_viewer->setImage(mModel->readImage(mModel->dtm()));
+            tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dtm).fileName());
+            tab_widget->setCurrentIndex(tab_id);
+            tab_widget->setTabToolTip(tab_id, dtm);
+            tab_widget->setTabIcon(tab_id, QIcon::fromTheme("image-file"));
+
+            graphic_viewer->zoomExtend();
+        }
+
+        AppStatus *status = Application::instance().status();
+        status->activeFlag(AppStatus::Flag::tab_image_active, true);
+        status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, false);
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
+}
+
+void MainWindowPresenter::openDsm()
+{
+    try {
+
         QString dsm = QString::fromStdString(mModel->dsm().toString());
         auto tab_widget = mView->tabWidget();
         int tab_id = tab_widget->fileTab(dsm);
@@ -577,8 +622,6 @@ void MainWindowPresenter::openDtm()
         if (tab_id != -1) {
             tab_widget->setCurrentIndex(tab_id);
         } else {
-
-            //mTabHandler->setMapLayer(mModel->dsm());
 
             GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
             graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
@@ -734,6 +777,7 @@ void MainWindowPresenter::initSignalAndSlots()
     /* Visor DTM/DSM */
 
     connect(mView, &MainWindowView::openDtm, this, &MainWindowPresenter::openDtm);
+    connect(mView, &MainWindowView::openDsm, this, &MainWindowPresenter::openDsm);
     connect(mView, &MainWindowView::openOrtho, this, &MainWindowPresenter::openOrthophoto);
 
     connect(mView, &MainWindowView::all_tabs_closed, []() {

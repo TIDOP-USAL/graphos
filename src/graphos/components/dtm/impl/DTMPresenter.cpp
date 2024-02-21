@@ -54,6 +54,7 @@ DtmPresenterImp::~DtmPresenterImp()
 void DtmPresenterImp::open()
 {
     mView->setGSD(mModel->gsd());
+    mView->enableMDS();
 
     mView->exec();
 }
@@ -75,7 +76,7 @@ void DtmPresenterImp::onError(tl::TaskErrorEvent *event)
     TaskPresenter::onError(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("DTM error"));
+        progressHandler()->setDescription(tr("DEM error"));
     }
 }
 
@@ -84,36 +85,43 @@ void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     TaskPresenter::onFinished(event);
 
     if (progressHandler()) {
-        progressHandler()->setDescription(tr("DTM finished"));
+        progressHandler()->setDescription(tr("DEM finished"));
     }
 
     tl::Path dsm_file = mModel->projectPath();
     dsm_file.append("dtm").append("dsm.tif");
-    if (dsm_file.exists()) {
+    if (mView->isMdsEnable() && dsm_file.exists()) {
         mModel->setDsmPath(dsm_file);
-        tl::Path dtm = dsm_file.replaceBaseName("dsm");
-        if (dtm.exists()) mModel->setDtmPath(dtm);
-        mModel->setGSD(mView->gsd());
     }
+
+    tl::Path dtm_file = dsm_file;
+    dtm_file.replaceBaseName("dtm");
+    if (mView->isMdtEnable() && dtm_file.exists()) {
+        mModel->setDtmPath(dtm_file);
+    }
+
+    mModel->setGSD(mView->gsd());
 }
 
 std::unique_ptr<tl::Task> DtmPresenterImp::createProcess()
 {
     std::unique_ptr<tl::Task> dtm_task;
 
-    tl::Path dtm_file = mModel->projectPath();
-    dtm_file.append("dtm").append("dtm.tif");
+    tl::Path dtm_path = mModel->projectPath();
+    dtm_path.append("dtm");
 
     dtm_task = std::make_unique<DtmTask>(mModel->denseModel(), 
                                          mModel->offset(),
-                                         dtm_file,
+                                         dtm_path,
                                          mView->gsd(),
-                                         mModel->crs());
+                                         mModel->crs(),
+                                         mView->isMdsEnable(),
+                                         mView->isMdtEnable());
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 100);
-        progressHandler()->setTitle("DTM/DSM");
-        progressHandler()->setDescription("DTM/DSM processing...");
+        progressHandler()->setTitle("DEM");
+        progressHandler()->setDescription("DEM processing...");
     }
 
     mView->hide();

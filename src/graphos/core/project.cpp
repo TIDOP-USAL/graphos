@@ -1948,11 +1948,11 @@ void ProjectImp::writeMeshParameters(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeDtm(QXmlStreamWriter &stream) const
 {
-    if (/*mDTM.dtmPath.empty() || */mDTM.dsmPath.empty()) return;
+    if (mDTM.dtmPath.empty() && mDTM.dsmPath.empty()) return;
 
     stream.writeStartElement("Dtm");
     {
-        if (mDTM.dtmPath.empty()) stream.writeTextElement("DTMPath", QString::fromStdWString(mDTM.dtmPath.toWString()));
+        stream.writeTextElement("DTMPath", QString::fromStdWString(mDTM.dtmPath.toWString()));
         stream.writeTextElement("DSMPath", QString::fromStdWString(mDTM.dsmPath.toWString()));
         stream.writeTextElement("GSD", QString::number(mDTM.gsd));
     }
@@ -1968,6 +1968,7 @@ void ProjectImp::writeOrthophoto(QXmlStreamWriter &stream) const
         stream.writeTextElement("Path", QString::fromStdWString(mOrthophoto.path.toWString()));
         stream.writeTextElement("GSD", QString::number(mOrthophoto.gsd));
     }
+    stream.writeEndElement();
 }
 
 QSize ProjectImp::readSize(QXmlStreamReader &stream) const

@@ -40,11 +40,13 @@ namespace graphos
 
 
 DTMCommand::DTMCommand()
-  : Command("dsm", "Create DSM"),
+  : Command("dem", "Create DSM and/od DTM"),
     mProject(nullptr)
 {
     this->addArgument<std::string>("prj", 'p', "Project file");
     this->addArgument<double>("gsd", 'g', "Ground sample distance", 0.1);
+    this->addArgument<bool>("dsm", "Create a Digital Surface Model", true);
+    this->addArgument<bool>("dtm", "Create a Digital Terrain Model", false);
 
     this->addExample("dsm -p 253/253.xml --gsd 0.1");
 
@@ -94,6 +96,8 @@ bool DTMCommand::run()
 
         tl::Path projectFile = this->value<std::string>("prj");
         double gsd =  this->value<double>("gsd");
+        bool dsm =  this->value<bool>("dsm");
+        bool dtm =  this->value<bool>("dtm");
 
         TL_ASSERT(projectFile.exists(), "Project doesn't exist");
         TL_ASSERT(projectFile.isFile(), "Project file doesn't exist");
@@ -103,20 +107,27 @@ bool DTMCommand::run()
 
         tl::Path dtm_path(mProject->projectFolder());
         dtm_path.append("dtm");
-        dtm_path.append("dtm.tif");
 		
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
 
-        DtmTask dtm_task(mProject->denseModel(), offset(), dtm_path, gsd, mProject->crs());
+        DtmTask dtm_task(mProject->denseModel(), offset(), dtm_path, gsd, mProject->crs(), dsm, dtm);
         dtm_task.run();
 
-        if (dtm_path.exists()) {
-            mProject->dtm().dtmPath = dtm_path;
-            mProject->dtm().dtmPath = dtm_path.replaceBaseName("dsm");
-            mProject->dtm().gsd = gsd;
-            mProject->save(projectFile);
+        tl::Path dsm_file = dtm_path;
+        dsm_file.append("dsm.tif");
+        if (dsm && dsm_file.exists()) {
+            mProject->dtm().dsmPath = dsm_file;
         }
+        
+        tl::Path dtm_file = dsm_file;
+        dtm_file.replaceBaseName("dtm");
+        if (dtm && dtm_file.exists()) {
+            mProject->dtm().dtmPath = dtm_file;
+        }
+
+        mProject->dtm().gsd = gsd;
+        mProject->save(projectFile);
 
     } catch (const std::exception &e) {
 

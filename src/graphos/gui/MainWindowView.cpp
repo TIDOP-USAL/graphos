@@ -73,6 +73,7 @@ enum
     dense_model,
     mesh,
     dsm,
+    dtm,
     ortho
 };
 
@@ -743,7 +744,7 @@ void MainWindowView::setDSM(const QString &dsm)
         QTreeWidgetItem *itemDSM = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("DTM/DSM")) == 0) {
+            if (temp->text(0).compare(tr("DSM")) == 0) {
                 itemDSM = temp;
                 break;
             }
@@ -754,10 +755,37 @@ void MainWindowView::setDSM(const QString &dsm)
             itemProject->addChild(itemDSM);
         }
 
-        itemDSM->setText(0, "DTM/DSM");
+        itemDSM->setText(0, "DSM");
         itemDSM->setIcon(0, QIcon::fromTheme("image-file"));
         itemDSM->setToolTip(0, dsm);
         itemDSM->setData(0, Qt::UserRole, graphos::dsm);
+    }
+}
+
+void MainWindowView::setDTM(const QString &dtm)
+{
+    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+        QTreeWidgetItem *itemDSM = nullptr;
+        for (int i = 0; i < itemProject->childCount(); i++) {
+
+            QTreeWidgetItem *temp = itemProject->child(i);
+            if (temp->text(0).compare(tr("DTM")) == 0) {
+                itemDSM = temp;
+                break;
+            }
+        }
+
+        if (itemDSM == nullptr) {
+            itemDSM = new QTreeWidgetItem();
+            itemProject->addChild(itemDSM);
+        }
+
+        itemDSM->setText(0, "DTM");
+        itemDSM->setIcon(0, QIcon::fromTheme("image-file"));
+        itemDSM->setToolTip(0, dtm);
+        itemDSM->setData(0, Qt::UserRole, graphos::dtm);
+
     }
 }
 
@@ -772,6 +800,23 @@ void MainWindowView::deleteDsm()
                 itemDSM = temp;
                 delete itemDSM;
                 itemDSM = nullptr;
+                break;
+            }
+        }
+    }
+}
+
+void MainWindowView::deleteDtm()
+{
+    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+        QTreeWidgetItem *itemDTM = nullptr;
+        for (int i = 0; i < itemProject->childCount(); i++) {
+            QTreeWidgetItem *temp = itemProject->child(i);
+            if (temp->text(0).compare(tr("DTM")) == 0) {
+                itemDTM = temp;
+                delete itemDTM;
+                itemDTM = nullptr;
                 break;
             }
         }
@@ -944,8 +989,10 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
             emit open3DModel(item->toolTip(column), false);
         } else if (item->data(0, Qt::UserRole) == graphos::mesh) {
             emit open3DModel(item->toolTip(column), false);
-        } else if (item->data(0, Qt::UserRole) == graphos::dsm) {
+        } else if (item->data(0, Qt::UserRole) == graphos::dtm) {
             emit openDtm();
+        } else if (item->data(0, Qt::UserRole) == graphos::dsm) {
+            emit openDsm();
         } else if (item->data(0, Qt::UserRole) == graphos::ortho) {
             emit openOrtho(item->toolTip(column));
         }

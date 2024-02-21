@@ -53,19 +53,20 @@ public:
 
     DtmTask(const tl::Path &pointCloud,
             const tl::Point3<double> &offset,
-            const tl::Path &dtmFile,
+            const tl::Path &demPath,
             double gsd,
-            //bool dsm,
-            const QString &crs);
+            const QString &crs,
+            bool dsm,
+            bool dtm);
 
     ~DtmTask()
     {
 
     }
 
-private:
-
-    cv::Mat extractDTMfromTIN(const internal::TIN &dsm, const tl::BoundingBoxD &bbox, tl::Progress *progressBar = nullptr/*, double gsd, double zOffset*/);
+//private:
+//
+//    cv::Mat extractDTMfromTIN(const internal::TIN &dsm, const tl::BoundingBoxD &bbox, tl::Progress *progressBar = nullptr/*, double gsd, double zOffset*/);
 
 // tl::TaskBase interface
 
@@ -77,11 +78,11 @@ private:
 
     tl::Path mPointCloud;
     tl::Point3<double> mOffset;
-    tl::Path mDtmFile;
+    tl::Path mDemPath;
     double mGSD;
-    //bool mDSM;
     QString mCrs;
-
+    bool mDSM;
+    bool mDTM;
 };
 
 

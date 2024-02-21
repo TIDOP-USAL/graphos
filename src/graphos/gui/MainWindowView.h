@@ -122,7 +122,9 @@ public:
     void setMesh(const QString &mesh);
     void deleteMesh();
     void setDSM(const QString &dsm);
+    void setDTM(const QString &dtm);
     void deleteDsm();
+    void deleteDtm();
     void setOrtho(const QString &ortho);
     void deleteOrtho();
 
@@ -189,8 +191,6 @@ signals:
 
     /// Sin refactorizar
 
-
-
     void selectFeatures(QString);
     void selectDetector(QString);
     void selectDescriptor(QString);
@@ -198,6 +198,7 @@ signals:
 
     void open3DModel(QString, bool);
     void openDtm();
+    void openDsm();
     void openOrtho(QString);
     void openMultiView(QString);
 

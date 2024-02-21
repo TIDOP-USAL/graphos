@@ -42,6 +42,8 @@ public:
     ~DtmView() override = default;
 
     virtual double gsd() const = 0;
+    virtual bool isMdsEnable() const = 0;
+    virtual bool isMdtEnable() const = 0;
 
 signals:
 
@@ -50,6 +52,9 @@ signals:
 public slots:
 
     virtual void setGSD(double gsd) = 0;
+    virtual void enableMDS(bool enable = true) = 0;
+    virtual void enableMDT(bool enable = true) = 0;
+
 };
 
 } // namespace graphos

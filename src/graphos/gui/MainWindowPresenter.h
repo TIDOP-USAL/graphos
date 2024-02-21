@@ -94,11 +94,13 @@ protected slots:
     void loadDenseModel();
     void loadMesh();
     void loadDTM();
+    void loadDSM();
     void loadOrtho();
 
     void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
     void openDtm();
+    void openDsm();
     void openOrthophoto(const QString &orthophoto);
 
     void deleteFeatures();
