@@ -31,6 +31,7 @@
 
 /* Qt */
 #include <QApplication>
+#include <QImage>
 
 /* TidopLib */
 #include <tidop/core/msg/message.h>
@@ -110,6 +111,7 @@ public:
                           const tl::Color &color, int width) = 0;
     virtual void addPrimitive(ccGenericPrimitive *primitive) = 0;
     virtual bool isEDL() const = 0;
+    virtual QImage captureModel() = 0;
 
 protected:
 

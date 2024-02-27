@@ -32,6 +32,7 @@
 #include <QObject>
 #include <QOpenGLWidget>
 #include <QVector3D>
+#include <QImage>
 
 #include <tidop/core/defs.h>
 #include <tidop/graphic/color.h>
@@ -172,6 +173,7 @@ public:
     void deactivatePicker();
 
     ccHObject *object();
+    QImage captureModel() override;
 
 signals:
 

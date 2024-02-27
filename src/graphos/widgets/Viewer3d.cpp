@@ -568,6 +568,11 @@ ccHObject *CCViewer3D::object()
     else return nullptr;
 }
 
+QImage CCViewer3D::captureModel()
+{
+    return this->renderToImage();
+}
+
 /* public slots */
 
 
