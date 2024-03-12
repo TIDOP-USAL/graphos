@@ -28,14 +28,12 @@
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
-#include <tidop/core/chrono.h>
 #include <tidop/core/concurrency.h>
 #include <tidop/img/imgreader.h>
 
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core.hpp>
-#include <opencv2/photo.hpp>
 #ifdef HAVE_CUDA
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudawarping.hpp>
@@ -54,6 +52,7 @@ namespace graphos
 
 namespace internal
 {
+
 std::atomic<bool> featextract_opencv_read(true);
 std::mutex featextract_mutex;
 std::atomic<bool> featextract_done(false);
@@ -115,8 +114,6 @@ private:
             bool exist_image = mDatabase->ExistsImageWithName(image_path);
             featextract_mutex.unlock();
             if (!exist_image) {
-
-                colmap::Camera camera_colmap;
                 colmap::camera_t camera_id = static_cast<colmap::camera_t>(image.cameraId());
 
                 featextract_mutex.lock();
@@ -125,10 +122,12 @@ private:
 
                 if (!exists_camera) {
 
+                    colmap::Camera camera_colmap;
+
                     Camera camera;
-                    auto it = mCameras->find(camera_id);
+                    auto it = mCameras->find(image.cameraId());
                     if (it != mCameras->end()) {
-                        camera = mCameras->at(camera_id);
+                        camera = mCameras->at(image.cameraId());
                     } else {
                         throw std::runtime_error(std::string("Camera not found for image: ").append(image_path));
                     }
@@ -240,25 +239,26 @@ private:
         }
 
         if (!featextract_opencv_read) {
-            std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.path().toStdString());
-            imageReader->open();
-            if (imageReader->isOpen()) {
 
-                double max_dimension = std::max(imageReader->cols(), imageReader->rows());
+            auto image_reader = tl::ImageReaderFactory::create(image.path().toStdString());
+            image_reader->open();
+            if (image_reader->isOpen()) {
+
+                double max_dimension = std::max(image_reader->cols(), image_reader->rows());
 
                 if (mMaxImageSize > 0 && mMaxImageSize < max_dimension) {
                     scale = mMaxImageSize / max_dimension;
-                    mat = imageReader->read(scale, scale);
+                    mat = image_reader->read(scale, scale);
                     scale = 1. / scale;
                 } else {
-                    mat = imageReader->read();
+                    mat = image_reader->read();
                 }
 
                 if (mat.channels() >= 3) {
                     convertRgbToGray(mat);
                 }
 
-                imageReader->close();
+                image_reader->close();
             }
         }
 
@@ -271,7 +271,7 @@ private:
      * \brief Convert an RGB image to gray
      * \param [in|out] mat Image to convert
      */
-    void convertRgbToGray(cv::Mat &mat)
+    void convertRgbToGray(cv::Mat &mat) const
     {
 #ifdef HAVE_CUDA
         if (bUseGPU) {
@@ -292,7 +292,7 @@ private:
         //color_boost.release();
     }
 
-    void normalizeImage(cv::Mat &mat)
+    void normalizeImage(cv::Mat &mat) const
     {
         if (mat.depth() != CV_8U) {
 #ifdef HAVE_CUDA
@@ -310,7 +310,7 @@ private:
         }
     }
 
-    void resizeImage(cv::Mat &mat, const cv::Size &size)
+    void resizeImage(cv::Mat &mat, const cv::Size &size) const
     {
 #ifdef HAVE_CUDA
         if (bUseGPU) {
@@ -345,16 +345,16 @@ class ConsumerImp
 public:
 
     ConsumerImp(const std::unordered_map<size_t, Image> *images,
-                FeatureExtractor *feat_extractor,
-                const std::string &databaseFile,
+                FeatureExtractor *featExtractor,
+                std::string databaseFile,
                 colmap::Database *database,
                 QueueMPMC<queue_data> *buffer,
                 FeatureExtractorTask *featureExtractorTask,
                 bool useGPU,
                 tl::Progress *progressBar)
       : mImages(images),
-        mFeatExtractor(feat_extractor),
-        mDatabaseFile(databaseFile),
+        mFeatExtractor(featExtractor),
+        mDatabaseFile(std::move(databaseFile)),
         mDatabase(database),
         mBuffer(buffer),
         mFeatureExtractorTask(featureExtractorTask),
@@ -365,7 +365,7 @@ public:
 
     void operator() ()
     {
-        while (!featextract_done || mBuffer->size()) {
+        while (!featextract_done || !mBuffer->empty()) {
             if (mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
                 featextract_done = true;
                 return;
@@ -407,13 +407,13 @@ private:
 
     void featureExtraction(const cv::Mat &mat,
                            std::vector<cv::KeyPoint> &keyPoints,
-                           cv::Mat &descriptors)
+                           cv::Mat &descriptors) const
     {
         mFeatExtractor->run(mat, keyPoints, descriptors);
     }
 
-    void resizeFeatures(std::vector<cv::KeyPoint> &keyPoints,
-                        double scale)
+    static void resizeFeatures(std::vector<cv::KeyPoint> &keyPoints,
+                               double scale)
     {
         if (scale > 1) {
             for (auto &keypoint : keyPoints) {
@@ -424,15 +424,14 @@ private:
     }
 
     void writeFeatures(const colmap::image_t &image_id,
-                       std::vector<cv::KeyPoint> &keyPoints,
-                       cv::Mat &descriptors)
+                       const std::vector<cv::KeyPoint> &keyPoints,
+                       cv::Mat &descriptors) const
     {
         std::lock_guard<std::mutex> lck(featextract_mutex);
 
         size_t features_size = keyPoints.size();
 
         colmap::FeatureKeypoints keypoints_colmap(features_size);
-        colmap::FeatureDescriptors descriptors_colmap;// (features_size, descriptors.cols);
         Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> descriptors_float(features_size, descriptors.cols);
 
         for (size_t i = 0; i < features_size; i++) {
@@ -457,7 +456,7 @@ private:
             throw std::runtime_error("Description normalization type not supported");
         }
 
-        descriptors_colmap = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
+        colmap::FeatureDescriptors descriptors_colmap = colmap::FeatureDescriptorsToUnsignedByte(descriptors_float);
 
         mDatabase->WriteKeypoints(image_id, keypoints_colmap);
         mDatabase->WriteDescriptors(image_id, descriptors_colmap);
@@ -486,14 +485,13 @@ private:
 
 FeatureExtractorTask::FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
                                            const std::map<int, Camera> &cameras,
-                                           const tl::Path &database,
+                                           tl::Path database,
                                            int maxImageSize,
                                            bool cuda,
                                            const std::shared_ptr<FeatureExtractor> &featureExtractor)
-  : tl::TaskBase(),
-    mImages(images),
+  : mImages(images),
     mCameras(cameras),
-    mDatabase(database),
+    mDatabase(std::move(database)),
     mMaxImageSize(maxImageSize),
     bUseCuda(cuda),
     mFeatureExtractor(featureExtractor)
@@ -539,11 +537,11 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
             size_t _end = _ini + size;
             if (i == num_threads - 1) _end = mImages.size();
 
-            producer_threads[i] = std::move(std::thread(producer, _ini, _end));
+            producer_threads[i] = std::thread(producer, _ini, _end);
         }
 
         for (size_t i = 0; i < num_threads; ++i) {
-            consumer_threads[i] = std::move(std::thread(consumer));
+            consumer_threads[i] = std::thread(consumer);
         }
 
         for (size_t i = 0; i < num_threads; ++i)
@@ -554,14 +552,12 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
         for (size_t i = 0; i < num_threads; ++i)
             consumer_threads[i].join();
 
-        if (status() == tl::Task::Status::stopping) {
-            //chrono.reset();
-        } else {
+        if (status() != Status::stopping) {
             size_t keypoints = database.NumKeypoints();
 
             TL_ASSERT(keypoints > 0, "Keypoints not detected");
 
-            mReport.features = keypoints;
+            mReport.features = static_cast<int>(keypoints);
             mReport.cuda = bUseCuda;
             mReport.time = this->time();
 

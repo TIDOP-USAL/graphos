@@ -31,7 +31,7 @@
 #include <tidop/core/path.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/math/geometry/affine.h>
-#include <tidop/geometry/transform/affine.h>
+//#include <tidop/geometry/transform/affine.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/diffrect.h>
 #include <tidop/graphic/entities/polygon.h>
@@ -60,11 +60,11 @@ public:
     }
 
     tl::Point<int> terrainToImage(const tl::Point3<double> &terrainPoint) const;
-    tl::Point<int> terrainToPhotocoordinates(const tl::Point3<double> &terrainPoint) const;
+    tl::Point<double> terrainToPhotocoordinates(const tl::Point3<double> &terrainPoint) const;
     tl::Point3<double> imageToTerrain(const tl::Point<int> &imagePoint) const;
-    tl::Point3<double> photocoordinatesToTerrain(const tl::Point<int> &photocoordinates) const;
-    tl::Point<int> imageToPhotocoordinates(const tl::Point<int> &imagePoint) const;
-    tl::Point<int> photocoordinatesToImage(const tl::Point<int> &photocoordinates) const;
+    tl::Point3<double> photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const;
+    tl::Point<double> imageToPhotocoordinates(const tl::Point<int> &imagePoint) const;
+    tl::Point<int> photocoordinatesToImage(const tl::Point<double> &photocoordinates) const;
     tl::Point3<double> dtmToTerrain(const tl::Point<int> &imagePoint) const;
     tl::Point<int> terrainToDTM(const tl::Point3<double> &terrainPoint) const;
     double z(const tl::Point<double> &terrainPoint) const;
@@ -103,7 +103,8 @@ private:
     std::unique_ptr<tl::ImageReader> mDtmReader;
     cv::Mat mDtm;
     tl::Window<tl::Point<double>> mWindowDtmTerrainExtension;
-    tl::geom::Affine<tl::Point<int>> mAffineImageToPhotocoordinates;
+    //tl::geom::Affine<tl::Point<int>> mAffineImageToPhotocoordinates;
+    tl::Affine<double, 2> mAffineImageToPhotocoordinates;
     //tl::geom::Affine<tl::Point<double>> mAffineDtmImageToTerrain;
     tl::Affine<double, 2> mAffineDtmImageToTerrain;
     std::unique_ptr<tl::DifferentialRectification> mDifferentialRectification;

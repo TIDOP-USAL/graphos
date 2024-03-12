@@ -453,9 +453,6 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
 {
     try {
 
-        tl::Chrono chrono("Georeference process finished");
-        chrono.run();
-
         colmap::Reconstruction reconstruction;
         exportToColmap(mDatabase,
                        mImages,
@@ -727,7 +724,8 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
 
 #endif
 
-        chrono.stop();
+        tl::Message::success("Georeference finished in {:.2} minutes", this->time() / 60.);
+
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Georeference error");

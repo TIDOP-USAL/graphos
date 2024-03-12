@@ -34,7 +34,7 @@ struct TestMvs
 {
 
     TestMvs()
-      : mMVS(new MvsProperties())
+      : mMVS(new Mvs())
     {
     }
 
@@ -62,7 +62,7 @@ BOOST_FIXTURE_TEST_CASE(default_constructor, TestMvs)
 
 BOOST_FIXTURE_TEST_CASE(constructor, TestMvs)
 {
-    MvsProperties mvs(2, 500, 3000, 6, 4);
+    Mvs mvs(2, 500, 3000, 6, 4);
     BOOST_CHECK_EQUAL(2, mvs.resolutionLevel());
     BOOST_CHECK_EQUAL(500, mvs.minResolution());
     BOOST_CHECK_EQUAL(3000, mvs.maxResolution());

@@ -100,23 +100,23 @@ void DensificationPresenterImp::setCurrentDensifier(const QString &densifier)
 
 void DensificationPresenterImp::setCmvsPmvsProperties()
 {
-    CmvsPmvs *cmvsPmvs = nullptr;
+    CmvsPmvs *cmvs_pmvs = nullptr;
     if (std::shared_ptr<Densification> densification = mModel->densification()) {
         if (densification->method() == Densification::Method::cmvs_pmvs) {
-            cmvsPmvs = dynamic_cast<CmvsPmvs *>(densification.get());
+            cmvs_pmvs = dynamic_cast<CmvsPmvs*>(densification.get());
         }
     } else {
         TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
     }
 
-    if (cmvsPmvs) {
-        mCmvsPmvs->setLevel(cmvsPmvs->level());
-        mCmvsPmvs->setCellSize(cmvsPmvs->cellSize());
-        mCmvsPmvs->setThreshold(cmvsPmvs->threshold());
-        mCmvsPmvs->setWindowSize(cmvsPmvs->windowSize());
-        mCmvsPmvs->setImagesPerCluster(cmvsPmvs->imagesPerCluster());
-        mCmvsPmvs->setMinimunImageNumber(cmvsPmvs->minimunImageNumber());
-        mCmvsPmvs->setUseVisibilityInformation(cmvsPmvs->useVisibilityInformation());
+    if (cmvs_pmvs) {
+        mCmvsPmvs->setLevel(cmvs_pmvs->level());
+        mCmvsPmvs->setCellSize(cmvs_pmvs->cellSize());
+        mCmvsPmvs->setThreshold(cmvs_pmvs->threshold());
+        mCmvsPmvs->setWindowSize(cmvs_pmvs->windowSize());
+        mCmvsPmvs->setImagesPerCluster(cmvs_pmvs->imagesPerCluster());
+        mCmvsPmvs->setMinimunImageNumber(cmvs_pmvs->minimunImageNumber());
+        mCmvsPmvs->setUseVisibilityInformation(cmvs_pmvs->useVisibilityInformation());
     }
 }
 
@@ -255,7 +255,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         pmvs->setWindowSize(mCmvsPmvs->windowSize());
         pmvs->setMinimunImageNumber(mCmvsPmvs->minimunImageNumber());
 
-        auto properties = std::make_shared<CmvsPmvsProperties>(mCmvsPmvs->useVisibilityInformation(),
+        auto properties = std::make_shared<CmvsPmvs>(mCmvsPmvs->useVisibilityInformation(),
                                                                mCmvsPmvs->imagesPerCluster(),
                                                                mCmvsPmvs->level(),
                                                                mCmvsPmvs->cellSize(),
@@ -284,7 +284,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         smvs->setSemiGlobalMatching(mSmvs->semiGlobalMatching());
         smvs->setSurfaceSmoothingFactor(mSmvs->surfaceSmoothingFactor());
         
-        auto properties = std::make_shared<SmvsProperties>(mSmvs->inputImageScale(),
+        auto properties = std::make_shared<Smvs>(mSmvs->inputImageScale(),
                                                            mSmvs->outputDepthScale(),
                                                            mSmvs->shadingBasedOptimization(),
                                                            mSmvs->semiGlobalMatching(),
@@ -314,7 +314,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         mvs->setEstimateColors(mMVS->estimateColors());
         mvs->setEstimateNormals(mMVS->estimateNormals());
 
-        auto properties = std::make_shared<MvsProperties>(mMVS->quality(),
+        auto properties = std::make_shared<Mvs>(mMVS->quality(),
                                                           256/*mMVS->minResolution()*/,
                                                           3000/*mMVS->maxResolution()*/,
                                                           mMVS->numberViews(),

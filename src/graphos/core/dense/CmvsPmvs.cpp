@@ -37,7 +37,6 @@
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/core/progress.h>
-#include <tidop/core/chrono.h>
 
 /* COLMAP */
 
@@ -52,44 +51,50 @@ using namespace tl;
 namespace graphos
 {
 
-constexpr auto PmvsDefaultUseVisibilityInformation = true;
-constexpr auto PmvsDefaultmImagesPerCluster = 100;
-constexpr auto PmvsDefaultLevel = 1;
-constexpr auto PmvsDefaultCellSize = 2;
-constexpr auto PmvsDefaultThreshold = 0.7;
-constexpr auto PmvsDefaultWindowSize = 7;
-constexpr auto PmvsDefaultMinimunImageNumber = 3;
+/* Default parameters */
 
-CmvsPmvsProperties::CmvsPmvsProperties()
-  : mUseVisibilityInformation(PmvsDefaultUseVisibilityInformation),
-    mImagesPerCluster(PmvsDefaultmImagesPerCluster),
-    mLevel(PmvsDefaultLevel),
-    mCellSize(PmvsDefaultCellSize),
-    mThreshold(PmvsDefaultThreshold),
-    mWindowSize(PmvsDefaultWindowSize),
-    mMinimunImageNumber(PmvsDefaultMinimunImageNumber)
+constexpr auto pmvs_default_use_visibility_information = true;
+constexpr auto pmvs_defaultm_images_per_cluster = 100;
+constexpr auto pmvs_default_level = 1;
+constexpr auto pmvs_default_cell_size = 2;
+constexpr auto pmvs_default_threshold = 0.7;
+constexpr auto pmvs_default_window_size = 7;
+constexpr auto pmvs_default_minimun_image_number = 3;
+
+
+
+CmvsPmvs::CmvsPmvs()
+  : Densification(Method::cmvs_pmvs),
+    mUseVisibilityInformation(pmvs_default_use_visibility_information),
+    mImagesPerCluster(pmvs_defaultm_images_per_cluster),
+    mLevel(pmvs_default_level),
+    mCellSize(pmvs_default_cell_size),
+    mThreshold(pmvs_default_threshold),
+    mWindowSize(pmvs_default_window_size),
+    mMinimunImageNumber(pmvs_default_minimun_image_number)
 {
 }
 
-CmvsPmvsProperties::CmvsPmvsProperties(bool useVisibilityInformation,
+CmvsPmvs::CmvsPmvs(bool useVisibilityInformation,
                                        int imagesPerCluster,
                                        int level,
                                        int cellSize,
                                        double threshold,
                                        int windowSize,
                                        int minimunImageNumber)
-  : mUseVisibilityInformation(useVisibilityInformation),
-    mImagesPerCluster(imagesPerCluster),
-    mLevel(level),
-    mCellSize(cellSize),
-    mThreshold(threshold),
-    mWindowSize(windowSize),
-    mMinimunImageNumber(minimunImageNumber)
+    : Densification(Method::cmvs_pmvs),
+      mUseVisibilityInformation(useVisibilityInformation),
+      mImagesPerCluster(imagesPerCluster),
+      mLevel(level),
+      mCellSize(cellSize),
+      mThreshold(threshold),
+      mWindowSize(windowSize),
+      mMinimunImageNumber(minimunImageNumber)
 {
 }
 
-CmvsPmvsProperties::CmvsPmvsProperties(const CmvsPmvsProperties &cmvsPmvs)
-  : CmvsPmvs(cmvsPmvs),
+CmvsPmvs::CmvsPmvs(const CmvsPmvs &cmvsPmvs)
+  : Densification(cmvsPmvs),
     mUseVisibilityInformation(cmvsPmvs.mUseVisibilityInformation),
     mImagesPerCluster(cmvsPmvs.mImagesPerCluster),
     mLevel(cmvsPmvs.mLevel),
@@ -100,8 +105,8 @@ CmvsPmvsProperties::CmvsPmvsProperties(const CmvsPmvsProperties &cmvsPmvs)
 {
 }
 
-CmvsPmvsProperties::CmvsPmvsProperties(CmvsPmvsProperties &&cmvsPmvs) noexcept
-  : CmvsPmvs(std::forward<CmvsPmvs>(cmvsPmvs)),
+CmvsPmvs::CmvsPmvs(CmvsPmvs &&cmvsPmvs) noexcept
+  : Densification(std::forward<Densification>(cmvsPmvs)),
     mUseVisibilityInformation(cmvsPmvs.mUseVisibilityInformation),
     mImagesPerCluster(cmvsPmvs.mImagesPerCluster),
     mLevel(cmvsPmvs.mLevel),
@@ -112,7 +117,7 @@ CmvsPmvsProperties::CmvsPmvsProperties(CmvsPmvsProperties &&cmvsPmvs) noexcept
 {
 }
 
-CmvsPmvsProperties &CmvsPmvsProperties::operator =(const CmvsPmvsProperties &cmvsPmvs)
+auto CmvsPmvs::operator =(const CmvsPmvs& cmvsPmvs) -> CmvsPmvs&
 {
     if (this != &cmvsPmvs) {
         this->mUseVisibilityInformation = cmvsPmvs.mUseVisibilityInformation;
@@ -126,7 +131,7 @@ CmvsPmvsProperties &CmvsPmvsProperties::operator =(const CmvsPmvsProperties &cmv
     return *this;
 }
 
-CmvsPmvsProperties &CmvsPmvsProperties::operator =(CmvsPmvsProperties &&cmvsPmvs) noexcept
+auto CmvsPmvs::operator =(CmvsPmvs&& cmvsPmvs) noexcept -> CmvsPmvs&
 {
     if (this != &cmvsPmvs) {
         this->mUseVisibilityInformation = cmvsPmvs.mUseVisibilityInformation;
@@ -140,91 +145,91 @@ CmvsPmvsProperties &CmvsPmvsProperties::operator =(CmvsPmvsProperties &&cmvsPmvs
     return *this;
 }
 
-bool CmvsPmvsProperties::useVisibilityInformation() const
+auto CmvsPmvs::useVisibilityInformation() const -> bool
 {
     return mUseVisibilityInformation;
 }
 
-int CmvsPmvsProperties::imagesPerCluster() const
+auto CmvsPmvs::imagesPerCluster() const -> int
 {
     return mImagesPerCluster;
 }
 
-int CmvsPmvsProperties::level() const
+auto CmvsPmvs::level() const -> int
 {
     return mLevel;
 }
 
-int CmvsPmvsProperties::cellSize() const
+auto CmvsPmvs::cellSize() const -> int
 {
     return mCellSize;
 }
 
-double CmvsPmvsProperties::threshold() const
+auto CmvsPmvs::threshold() const -> double
 {
     return mThreshold;
 }
 
-int CmvsPmvsProperties::windowSize() const
+auto CmvsPmvs::windowSize() const -> int
 {
     return mWindowSize;
 }
 
-int CmvsPmvsProperties::minimunImageNumber() const
+auto CmvsPmvs::minimunImageNumber() const -> int
 {
     return mMinimunImageNumber;
 }
 
-void CmvsPmvsProperties::setUseVisibilityInformation(bool useVisibilityInformation)
+void CmvsPmvs::setUseVisibilityInformation(bool useVisibilityInformation)
 {
     mUseVisibilityInformation = useVisibilityInformation;
 }
 
-void CmvsPmvsProperties::setImagesPerCluster(int imagesPerCluster)
+void CmvsPmvs::setImagesPerCluster(int imagesPerCluster)
 {
     mImagesPerCluster = imagesPerCluster;
 }
 
-void CmvsPmvsProperties::setLevel(int level)
+void CmvsPmvs::setLevel(int level)
 {
     mLevel = level;
 }
 
-void CmvsPmvsProperties::setCellSize(int cellSize)
+void CmvsPmvs::setCellSize(int cellSize)
 {
     mCellSize = cellSize;
 }
 
-void CmvsPmvsProperties::setThreshold(double threshold)
+void CmvsPmvs::setThreshold(double threshold)
 {
     mThreshold = threshold;
 }
 
-void CmvsPmvsProperties::setWindowSize(int windowSize)
+void CmvsPmvs::setWindowSize(int windowSize)
 {
     mWindowSize = windowSize;
 }
 
-void CmvsPmvsProperties::setMinimunImageNumber(int minimunImageNumber)
+void CmvsPmvs::setMinimunImageNumber(int minimunImageNumber)
 {
     mMinimunImageNumber = minimunImageNumber;
 }
 
-void CmvsPmvsProperties::reset()
+void CmvsPmvs::reset()
 {
-    mUseVisibilityInformation = PmvsDefaultUseVisibilityInformation;
-    mImagesPerCluster = PmvsDefaultmImagesPerCluster;
-    mLevel = PmvsDefaultLevel;
-    mCellSize = PmvsDefaultCellSize;
-    mThreshold = PmvsDefaultThreshold;
-    mWindowSize = PmvsDefaultWindowSize;
-    mMinimunImageNumber = PmvsDefaultMinimunImageNumber;
+    mUseVisibilityInformation = pmvs_default_use_visibility_information;
+    mImagesPerCluster = pmvs_defaultm_images_per_cluster;
+    mLevel = pmvs_default_level;
+    mCellSize = pmvs_default_cell_size;
+    mThreshold = pmvs_default_threshold;
+    mWindowSize = pmvs_default_window_size;
+    mMinimunImageNumber = pmvs_default_minimun_image_number;
 }
 
 
-QString CmvsPmvsProperties::name() const
+auto CmvsPmvs::name() const -> QString
 {
-    return QString("CMVS/PMVS");
+    return {"CMVS/PMVS"};
 }
 
 
@@ -236,27 +241,20 @@ CmvsPmvsDensifier::CmvsPmvsDensifier(const std::unordered_map<size_t, Image> &im
                                      const std::unordered_map<size_t, CameraPose> &poses,
                                      const std::vector<GroundPoint> &groundPoints,
                                      const tl::Path &outputPath,
-                                     const tl::Path &database,
+                                     tl::Path database,
                                      bool cuda,
                                      bool autoSegmentation)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
-    mDatabase(database),
+    mDatabase(std::move(database)),
     mAutoSegmentation(autoSegmentation)
 {
-    enableCuda(cuda);
+    DensifierBase::enableCuda(cuda);
     setUndistortImagesFormat(UndistortImages::Format::jpeg);
 }
 
-CmvsPmvsDensifier::~CmvsPmvsDensifier()
-{
-}
+CmvsPmvsDensifier::~CmvsPmvsDensifier() = default;
 
-//auto CmvsPmvsDensifier::report() const -> DenseReport
-//{
-//    return mReport;
-//}
-
-void CmvsPmvsDensifier::clearPreviousModel()
+void CmvsPmvsDensifier::clearPreviousModel() const
 {
     outputPath().removeDirectory();
 }
@@ -368,7 +366,7 @@ void CmvsPmvsDensifier::writeBundleFile()
 
                     proj_matrix = calib_matrix * proj_matrix;
 
-                    file << "CONTOUR" << std::endl;
+                    file << "CONTOUR" << '\n';
                     file << proj_matrix << std::endl;
 
                 }
@@ -410,7 +408,7 @@ void CmvsPmvsDensifier::writeBundleFile()
 
                 }
 
-                stream << std::endl;
+                stream << '\n';
 
             }
 
@@ -460,8 +458,8 @@ void CmvsPmvsDensifier::writeVisibility()
         std::ofstream stream(visibility_path.toString(), std::ios::trunc);
         if (stream.is_open()) {
 
-            stream << "VISDATA" << std::endl;
-            stream << poses().size() << std::endl;
+            stream << "VISDATA" << '\n';
+            stream << poses().size() << '\n';
 
             size_t max_size = poses().size() - 1;
 
@@ -498,7 +496,7 @@ void CmvsPmvsDensifier::writeVisibility()
                     stream << " " << mGraphosToBundlerIds[id];
                 }
 
-                stream << std::endl;
+                stream << '\n';
             }
 
             stream.close();
@@ -510,7 +508,7 @@ void CmvsPmvsDensifier::writeVisibility()
     }
 }
 
-void CmvsPmvsDensifier::writeOptions()
+void CmvsPmvsDensifier::writeOptions() const
 {
     try {
 
@@ -525,15 +523,15 @@ void CmvsPmvsDensifier::writeOptions()
 
         file_options << "# Generated by Graphos - all images, no clustering.\n";
 
-        file_options << "level " << CmvsPmvsProperties::level() << "\n";
-        file_options << "csize " << CmvsPmvsProperties::cellSize() << "\n";
-        file_options << "threshold " << CmvsPmvsProperties::threshold() << "\n";
-        file_options << "wsize " << CmvsPmvsProperties::windowSize() << "\n";
-        file_options << "minImageNum " << CmvsPmvsProperties::minimunImageNumber() << "\n";
+        file_options << "level " << CmvsPmvs::level() << "\n";
+        file_options << "csize " << CmvsPmvs::cellSize() << "\n";
+        file_options << "threshold " << CmvsPmvs::threshold() << "\n";
+        file_options << "wsize " << CmvsPmvs::windowSize() << "\n";
+        file_options << "minImageNum " << CmvsPmvs::minimunImageNumber() << "\n";
         file_options << "CPU " << std::thread::hardware_concurrency() << "\n";
         file_options << "setEdge 0" << "\n";
         file_options << "useBound 0" << "\n";
-        file_options << "useVisData " << (CmvsPmvsProperties::useVisibilityInformation() ? 1 : 0) << "\n";
+        file_options << "useVisData " << (CmvsPmvs::useVisibilityInformation() ? 1 : 0) << "\n";
         file_options << "sequence -1" << "\n";
         file_options << "maxAngle 10" << "\n";
         file_options << "quad 2.0" << "\n";
@@ -612,15 +610,15 @@ void CmvsPmvsDensifier::execute(Progress *progressBar)
 
         writeBundleFile();
 
-        if (status() == Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         writeVisibility();
 
-        if (status() == Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         writeOptions();
 
-        if (status() == Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         Path undistort_path(outputPath().parentPath());
         undistort_path.append("undistort");
@@ -629,41 +627,35 @@ void CmvsPmvsDensifier::execute(Progress *progressBar)
 
         /// Copiar imagenes corregidas
 
-        {
+        for (const auto &pose : poses()) {
 
+            size_t image_id = pose.first;
+            const auto &image = images().at(image_id);
 
-            for (const auto &pose : poses()) {
+            Path undistort_image_path = undistort_path;
+            undistort_image_path.append(image.name().toStdWString());
+            undistort_image_path.replaceExtension(".jpg");
 
-                size_t image_id = pose.first;
-                const auto &image = images().at(image_id);
+            Path undistort_pmvs_path = outputPath();
+            undistort_pmvs_path.append("visualize");
+            undistort_pmvs_path.append(colmap::StringPrintf("%08d.jpg", mGraphosToBundlerIds.at(image_id)));
 
-                Path undistort_path = outputPath().parentPath();
-                undistort_path.append("undistort");
-                undistort_path.append(image.name().toStdWString());
-                undistort_path.replaceExtension(".jpg");
-
-                Path undistort_pmvs_path = outputPath();
-                undistort_pmvs_path.append("visualize");
-                undistort_pmvs_path.append(colmap::StringPrintf("%08d.jpg", mGraphosToBundlerIds.at(image_id)));
-
-                Path::copy(undistort_path, undistort_pmvs_path);
-            }
+            Path::copy(undistort_image_path, undistort_pmvs_path);
         }
 
-        if (status() == Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        //chrono.stop();
         Ply ply(denseModel().toString());
-        mReport.points = ply.size();
+        mReport.points = static_cast<int>(ply.size());
         ply.close();
         mReport.cuda = isCudaEnabled();
         mReport.method = this->name().toStdString();
         mReport.time = this->time();
 
-        tl::Message::success("Densification finished in {:.2} minutes", mReport.time / 60.);
+        Message::success("Densification finished in {:.2} minutes", mReport.time / 60.);
 
         if (progressBar) (*progressBar)();
 

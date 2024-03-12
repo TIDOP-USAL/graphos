@@ -38,8 +38,8 @@ using namespace tl;
 namespace graphos
 {
 
-EnumFlags<MessageLevel> LogWidget::sLevel = MessageLevel::all;
-EnumFlags<MessageLevel> LogWidget::sFilterLevel = MessageLevel::all;
+EnumFlags<MessageLevel> LogWidget::sLevel = EnumFlags<MessageLevel>(MessageLevel::all);
+EnumFlags<MessageLevel> LogWidget::sFilterLevel = EnumFlags<MessageLevel>(MessageLevel::all);
 std::mutex LogWidget::mtx;
 
 LogWidget::LogWidget(QWidget *parent)

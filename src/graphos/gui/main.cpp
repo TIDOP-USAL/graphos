@@ -90,6 +90,9 @@
 #ifdef GRAPHOS_HAVE_SCALE
 #include "graphos/components/scale/ScaleComponent.h"
 #endif // GRAPHOS_HAVE_SCALE
+#ifdef GRAPHOS_HAVE_FLOOR_LEVEL
+#include "graphos/components/floorlevel/FloorLevelComponent.h"
+#endif // GRAPHOS_HAVE_FLOOR_LEVEL
 #ifdef GRAPHOS_HAVE_FEATVIEWER
 #include "graphos/components/featviewer/FeaturesViewerComponent.h"
 #endif // GRAPHOS_HAVE_FEATVIEWER
@@ -296,6 +299,10 @@ int main(int argc, char *argv[])
     ScaleComponent scale_component(&app);
 #endif // GRAPHOS_HAVE_SCALE
 
+#ifdef GRAPHOS_HAVE_FLOOR_LEVEL
+    FloorLevelComponent floor_level_component;
+#endif // GRAPHOS_HAVE_FLOOR_LEVEL
+
 #ifdef GRAPHOS_HAVE_UNDISTORT
     UndistortImagesComponent undistort_component(&app);
 #endif // GRAPHOS_HAVE_UNDISTORT
@@ -333,12 +340,12 @@ int main(int argc, char *argv[])
     tl::Console &console = tl::Console::instance();
     console.setMessageLevel(tl::MessageLevel::all);
     console.setTitle(app.applicationName().toStdString());
-    tl::Message::instance().addMessageHandler(&console);
+    tl::Message::addMessageHandler(&console);
 
     // Log file
     tl::Log &log = tl::Log::instance();
     log.setMessageLevel(tl::MessageLevel::all);
-    tl::Message::instance().addMessageHandler(&log);
+    tl::Message::addMessageHandler(&log);
 
     bool r = false;
 
@@ -460,6 +467,10 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_SCALE
         componentsManager.registerComponent(&scale_component);
 #endif // GRAPHOS_HAVE_SCALE
+
+#ifdef GRAPHOS_HAVE_FLOOR_LEVEL
+        componentsManager.registerComponent(&floor_level_component);
+#endif // GRAPHOS_HAVE_FLOOR_LEVEL
 
 #ifdef GRAPHOS_HAVE_DTM
         componentsManager.registerComponent(&dtm_component,

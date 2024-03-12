@@ -34,7 +34,7 @@ struct TestSmvs
 {
 
     TestSmvs()
-      : mSmvs(new SmvsProperties())
+      : mSmvs(new Smvs())
     {
     }
 
@@ -62,7 +62,7 @@ BOOST_FIXTURE_TEST_CASE(default_constructor, TestSmvs)
 
 BOOST_FIXTURE_TEST_CASE(constructor, TestSmvs)
 {
-    SmvsProperties smvs(2, 3, true, true, 0.7);
+    Smvs smvs(2, 3, true, true, 0.7);
     BOOST_CHECK_EQUAL(2, smvs.inputImageScale());
     BOOST_CHECK_EQUAL(3, smvs.outputDepthScale());
     BOOST_CHECK_EQUAL(true, smvs.semiGlobalMatching());

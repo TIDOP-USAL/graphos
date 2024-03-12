@@ -37,7 +37,6 @@
 #include <tidop/core/app.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/core/progress.h>
-#include <tidop/core/chrono.h>
 
 /* COLMAP */
 #include <colmap/util/string.h>
@@ -53,8 +52,9 @@ constexpr auto SmvsDefaultShadingBasedOptimization = false;
 constexpr auto SmvsDefaultSemiGlobalMatching = false;
 constexpr auto SmvsDefaultSurfaceSmoothingFactor = 1.0;
 
-SmvsProperties::SmvsProperties()
-  : mInputImageScale(SmvsDefaultInputImageScale),
+Smvs::Smvs()
+  : Densification(Method::smvs),
+    mInputImageScale(SmvsDefaultInputImageScale),
     mOutputDepthScale(SmvsDefaultOutputDepthScale),
     mShadingBasedOptimization(SmvsDefaultShadingBasedOptimization),
     mSemiGlobalMatching(SmvsDefaultSemiGlobalMatching),
@@ -62,12 +62,13 @@ SmvsProperties::SmvsProperties()
 {
 }
 
-SmvsProperties::SmvsProperties(int inputImageScale,
+Smvs::Smvs(int inputImageScale,
                                int outputDepthScale,
                                bool shadingBasedOptimization,
                                bool semiGlobalMatching,
                                double surfaceSmoothingFactor)
-  : mInputImageScale(inputImageScale),
+  : Densification(Method::smvs),
+    mInputImageScale(inputImageScale),
     mOutputDepthScale(outputDepthScale),
     mShadingBasedOptimization(shadingBasedOptimization),
     mSemiGlobalMatching(semiGlobalMatching),
@@ -75,8 +76,8 @@ SmvsProperties::SmvsProperties(int inputImageScale,
 {
 }
 
-SmvsProperties::SmvsProperties(const SmvsProperties &smvs)
-  : Smvs(smvs),
+Smvs::Smvs(const Smvs &smvs)
+  : Densification(smvs),
     mInputImageScale(smvs.mInputImageScale),
     mOutputDepthScale(smvs.mOutputDepthScale),
     mShadingBasedOptimization(smvs.mShadingBasedOptimization),
@@ -85,8 +86,9 @@ SmvsProperties::SmvsProperties(const SmvsProperties &smvs)
 {
 }
 
-SmvsProperties::SmvsProperties(SmvsProperties &&smvs) noexcept
-  : mInputImageScale(smvs.mInputImageScale),
+Smvs::Smvs(Smvs &&smvs) noexcept
+  : Densification(std::forward<Densification>(smvs)),
+    mInputImageScale(smvs.mInputImageScale),
     mOutputDepthScale(smvs.mOutputDepthScale),
     mShadingBasedOptimization(smvs.mShadingBasedOptimization),
     mSemiGlobalMatching(smvs.mSemiGlobalMatching),
@@ -94,7 +96,7 @@ SmvsProperties::SmvsProperties(SmvsProperties &&smvs) noexcept
 {
 }
 
-SmvsProperties &SmvsProperties::operator =(const SmvsProperties &smvs)
+auto Smvs::operator =(const Smvs& smvs) -> Smvs&
 {
     if (this != &smvs) {
         this->mInputImageScale = smvs.mInputImageScale;
@@ -106,7 +108,7 @@ SmvsProperties &SmvsProperties::operator =(const SmvsProperties &smvs)
     return *this;
 }
 
-SmvsProperties &SmvsProperties::operator =(SmvsProperties &&smvs) noexcept
+auto Smvs::operator =(Smvs&& smvs) noexcept -> Smvs&
 {
     if (this != &smvs) {
         this->mInputImageScale = smvs.mInputImageScale;
@@ -118,57 +120,57 @@ SmvsProperties &SmvsProperties::operator =(SmvsProperties &&smvs) noexcept
     return *this;
 }
 
-int SmvsProperties::inputImageScale() const
+auto Smvs::inputImageScale() const -> int
 {
     return mInputImageScale;
 }
 
-int SmvsProperties::outputDepthScale() const
+auto Smvs::outputDepthScale() const -> int
 {
     return mOutputDepthScale;
 }
 
-bool SmvsProperties::shadingBasedOptimization() const
+auto Smvs::shadingBasedOptimization() const -> bool
 {
     return mShadingBasedOptimization;
 }
 
-bool SmvsProperties::semiGlobalMatching() const
+auto Smvs::semiGlobalMatching() const -> bool
 {
     return mSemiGlobalMatching;
 }
 
-double SmvsProperties::surfaceSmoothingFactor() const
+auto Smvs::surfaceSmoothingFactor() const -> double
 {
     return mSurfaceSmoothingFactor;
 }
 
-void SmvsProperties::setInputImageScale(int inputImageScale)
+void Smvs::setInputImageScale(int inputImageScale)
 {
     mInputImageScale = inputImageScale;
 }
 
-void SmvsProperties::setOutputDepthScale(int outputDepthScale)
+void Smvs::setOutputDepthScale(int outputDepthScale)
 {
     mOutputDepthScale = outputDepthScale;
 }
 
-void SmvsProperties::setShadingBasedOptimization(bool shadingBasedOptimization)
+void Smvs::setShadingBasedOptimization(bool shadingBasedOptimization)
 {
     mShadingBasedOptimization = shadingBasedOptimization;
 }
 
-void SmvsProperties::setSemiGlobalMatching(bool semiGlobalMatching)
+void Smvs::setSemiGlobalMatching(bool semiGlobalMatching)
 {
     mSemiGlobalMatching = semiGlobalMatching;
 }
 
-void SmvsProperties::setSurfaceSmoothingFactor(double surfaceSmoothingFactor)
+void Smvs::setSurfaceSmoothingFactor(double surfaceSmoothingFactor)
 {
     mSurfaceSmoothingFactor = surfaceSmoothingFactor;
 }
 
-void SmvsProperties::reset()
+void Smvs::reset()
 {
     mInputImageScale = SmvsDefaultInputImageScale;
     mOutputDepthScale = SmvsDefaultOutputDepthScale;
@@ -177,9 +179,9 @@ void SmvsProperties::reset()
     mSurfaceSmoothingFactor = SmvsDefaultSurfaceSmoothingFactor;
 }
 
-QString SmvsProperties::name() const
+auto Smvs::name() const -> QString
 {
-    return QString("SMVS");
+    return {"SMVS"};
 }
 
 
@@ -197,25 +199,18 @@ SmvsDensifier::SmvsDensifier(const std::unordered_map<size_t, Image> &images,
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
     mAutoSegmentation(autoSegmentation)
 {
-    enableCuda(cuda);
+    DensifierBase::enableCuda(cuda);
     setUndistortImagesFormat(UndistortImages::Format::jpeg);
 }
 
-SmvsDensifier::~SmvsDensifier()
-{
-}
+SmvsDensifier::~SmvsDensifier() = default;
 
-//auto SmvsDensifier::report() const -> DenseReport
-//{
-//    return mReport;
-//}
-
-void SmvsDensifier::clearPreviousModel()
+void SmvsDensifier::clearPreviousModel() const
 {
     outputPath().removeDirectory();
 }
 
-void SmvsDensifier::writeMVEFile()
+void SmvsDensifier::writeMveFile()
 {
 
     try {
@@ -333,13 +328,13 @@ void SmvsDensifier::densify()
         std::string cmd("\"");
         cmd.append(app_path.parentPath().toString());
         cmd.append("\\smvsrecon_SSE41.exe\" ");
-        cmd.append("--scale=").append(std::to_string(SmvsProperties::inputImageScale()));
-        cmd.append(" --output-scale=").append(std::to_string(SmvsProperties::outputDepthScale()));
-        cmd.append(" --alpha=").append(std::to_string(SmvsProperties::surfaceSmoothingFactor()));
+        cmd.append("--scale=").append(std::to_string(Smvs::inputImageScale()));
+        cmd.append(" --output-scale=").append(std::to_string(Smvs::outputDepthScale()));
+        cmd.append(" --alpha=").append(std::to_string(Smvs::surfaceSmoothingFactor()));
         cmd.append(" --force ");
-        if (!SmvsProperties::semiGlobalMatching())
+        if (!Smvs::semiGlobalMatching())
             cmd.append(" --no-sgm ");
-        if (SmvsProperties::shadingBasedOptimization())
+        if (Smvs::shadingBasedOptimization())
             cmd.append(" --shading ");
         cmd.append("\"").append(outputPath().toString());
 
@@ -350,11 +345,11 @@ void SmvsDensifier::densify()
         TL_ASSERT(process.status() == tl::Process::Status::finalized, "Densify Point Cloud error");
 
         std::string model_name("smvs-");
-        if (SmvsProperties::shadingBasedOptimization())
+        if (Smvs::shadingBasedOptimization())
             model_name.append("S");
         else
             model_name.append("B");
-        model_name.append(std::to_string(SmvsProperties::inputImageScale())).append(".ply");
+        model_name.append(std::to_string(Smvs::inputImageScale())).append(".ply");
 
         tl::Path dense_model = outputPath();
         dense_model.append(model_name);
@@ -373,9 +368,6 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
 
     try {
 
-        //tl::Chrono chrono("Densification finished");
-        //chrono.run();
-
         this->clearPreviousModel();
 
         outputPath().createDirectories();
@@ -384,7 +376,7 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
         undistort_path.append("undistort");
         undistort_path.createDirectories();
 
-        this->writeMVEFile();
+        this->writeMveFile();
 
         if (status() == tl::Task::Status::stopping) return;
 
@@ -392,35 +384,29 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
 
         /// Copiar imagenes corregidas
 
-        {
+        for (const auto &pose : poses()) {
 
+            size_t image_id = pose.first;
+            const auto &image = images().at(image_id);
 
-            for (const auto &pose : poses()) {
+            tl::Path undistort_image_path = undistort_path;
+            undistort_image_path.append(image.name().toStdWString());
+            undistort_image_path.replaceExtension(".jpg");
 
-                size_t image_id = pose.first;
-                const auto &image = images().at(image_id);
+            tl::Path undistort_smvs_path = outputPath().toString();
+            undistort_smvs_path.append(colmap::StringPrintf("\\views\\view_%04d.mve\\", mGraphosToMveIds.at(image_id)));
+            undistort_smvs_path.append("undistorted.jpg");
 
-                tl::Path undistort_path = outputPath().parentPath();
-                undistort_path.append("undistort");
-                undistort_path.append(image.name().toStdWString());
-                undistort_path.replaceExtension(".jpg");
-
-                tl::Path undistort_smvs_path = outputPath().toString();
-                undistort_smvs_path.append(colmap::StringPrintf("\\views\\view_%04d.mve\\", mGraphosToMveIds.at(image_id)));
-                undistort_smvs_path.append("undistorted.jpg");
-
-                tl::Path::copy(undistort_path, undistort_smvs_path);
-            }
+            tl::Path::copy(undistort_image_path, undistort_smvs_path);
         }
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        //chrono.stop();
         Ply ply(denseModel().toString());
-        mReport.points = ply.size();
+        mReport.points = static_cast<int>(ply.size());
         ply.close();
         mReport.cuda = isCudaEnabled();
         mReport.method = this->name().toStdString();

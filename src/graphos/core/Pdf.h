@@ -698,6 +698,7 @@ public:
     QRect drawTable(const TablePdf &table,
                     const QString &caption = "");
     void drawLine(const QPoint &pt1, const QPoint &pt2, const PdfStyle &style);
+    void drawRect(const QRect &rect, const PdfStyle &style);
 
     void endDraw();
     void initDraw();

@@ -193,7 +193,8 @@ void ThumbnailsWidget::addThumbnail(const Image &image, const QSize &imageSize)
         item->setToolTip(image.path());
         item->setData(Qt::UserRole, static_cast<qulonglong>(image.id()));
         mListWidget->addItem(item);
-
+        // TODO: Utilizar setGridSize para ajustar el tamaño
+        //mListWidget->setGridSize();
         if (mLoadImages)
             loadVisibleImages();
 
@@ -285,6 +286,7 @@ void ThumbnailsWidget::onThumbnailClicked()
     mListWidget->setIconSize(mIconSize);
     mListWidget->setViewMode(QListWidget::IconMode);
     mListWidget->setResizeMode(QListWidget::Adjust);
+    //mListWidget->setGridSize(QSize(210, 200));
     mListWidget->verticalScrollBar()->setSingleStep(175);
     const QSignalBlocker block0(mThumbnailAction);
     const QSignalBlocker block1(mThumbnailSmallAction);
@@ -302,6 +304,7 @@ void ThumbnailsWidget::onThumbnailSmallClicked()
     mListWidget->setViewMode(QListWidget::IconMode);
     mListWidget->setResizeMode(QListWidget::Adjust);
     mListWidget->verticalScrollBar()->setSingleStep(100);
+    //mListWidget->setGridSize(QSize(110, 100));
     const QSignalBlocker block0(mThumbnailAction);
     const QSignalBlocker block1(mThumbnailSmallAction);
     const QSignalBlocker block2(mDetailsAction);
@@ -317,6 +320,7 @@ void ThumbnailsWidget::onDetailsClicked()
     mListWidget->setIconSize(mIconSize);
     mListWidget->setViewMode(QListWidget::ListMode);
     mListWidget->setResizeMode(QListWidget::Adjust);
+    //mListWidget->setGridSize(QSize(-1, -1));
     mListWidget->verticalScrollBar()->setSingleStep(50);
     const QSignalBlocker block0(mThumbnailAction);
     const QSignalBlocker block1(mThumbnailSmallAction);

@@ -36,116 +36,252 @@
 namespace graphos
 {
 
-namespace internal
-{
-class Reconstruction;
-}
 
-class MvsProperties
-  : public Mvs
+/*!
+ * \brief MVS properties for dense reconstruction.
+ *
+ * This class represents properties related to Multi-View Stereo (MVS) for dense reconstruction.
+ * It allows configuring parameters such as resolution levels, number of views, and estimation options.
+ *
+ * For more information on Multi-View Stereo (MVS), refer to: https://github.com/cdcseacave/openMVS
+ */
+class Mvs
+  : public Densification
 {
 
 public:
 
-    MvsProperties();
-    MvsProperties(int resolutionLevel,
+    /*!
+     * \brief Default constructor.
+     * Constructs an Mvs object with default values.
+     */
+    Mvs();
+
+    /*!
+     * \brief Parameterized constructor.
+     * Constructs an Mvs object with specified parameters.
+     * \param[in] resolutionLevel The resolution level.
+     * \param[in] minResolution The minimum resolution.
+     * \param[in] maxResolution The maximum resolution.
+     * \param[in] numberViews The number of views.
+     * \param[in] numberViewsFuse The number of views to fuse.
+     */
+    Mvs(int resolutionLevel,
                   int minResolution,
                   int maxResolution,
                   int numberViews,
                   int numberViewsFuse);
-    MvsProperties(const MvsProperties &mvs);
-    MvsProperties(MvsProperties &&mvs) noexcept;
-    ~MvsProperties() override = default;
 
-    MvsProperties &operator =(const MvsProperties &mvs);
-    MvsProperties &operator =(MvsProperties &&mvs) noexcept;
+    /*!
+     * \brief Copy constructor.
+     * Constructs a new Mvs object by copying from another Mvs object.
+     * \param[in] mvs The Mvs object to copy from.
+     */
+    Mvs(const Mvs &mvs);
 
-// Mvs interface
+    /*!
+     * \brief Move constructor.
+     * Constructs a new Mvs object by moving the resources of another Mvs object.
+     * \param[in] mvs The Mvs object to move from.
+     */
+    Mvs(Mvs &&mvs) noexcept;
 
-public:
+    /*!
+     * \brief Destructor.
+     */
+    ~Mvs() override = default;
 
-    int resolutionLevel() const override;
-    int minResolution() const override;
-    int maxResolution() const override;
-    int numberViews() const override;
-    int numberViewsFuse() const override;
-    bool estimateColors() const override;
-    bool estimateNormals() const override;
+    /*!
+     * \brief Copy assignment operator.
+     * Assigns values from another Mvs object to this object.
+     * \param[in] mvs The Mvs object to assign from.
+     * \return Reference to the assigned Mvs object.
+     */
+    auto operator =(const Mvs& mvs) -> Mvs&;
 
-    void setResolutionLevel(int resolutionLevel) override;
-    void setMinResolution(int minResolution) override;
-    void setMaxResolution(int maxResolution) override;
-    void setNumberViews(int numberViews) override;
-    void setNumberViewsFuse(int numberViewsFuse) override;
-    void setEstimateColors(bool estimateColors) override;
-    void setEstimateNormals(bool estimateNormals) override;
+    /*!
+     * \brief Move assignment operator.
+     * Moves the resources from another Mvs object to this object.
+     * \param[in] mvs The Mvs object to move from.
+     * \return Reference to the moved Mvs object.
+     */
+    auto operator =(Mvs&& mvs) noexcept -> Mvs&;
 
-// Densification interface
+
+// Getter methods
+
+    /*!
+     * \brief Get the resolution level.
+     * \return The resolution level.
+     */
+    virtual auto resolutionLevel() const -> int;
+
+    /*!
+     * \brief Get the minimum resolution.
+     * \return The minimum resolution.
+     */
+    virtual auto minResolution() const -> int;
+
+    /*!
+     * \brief Get the maximum resolution.
+     * \return The maximum resolution.
+     */
+    virtual auto maxResolution() const -> int;
+
+    /*!
+     * \brief Get the number of views.
+     * \return The number of views.
+     */
+    virtual auto numberViews() const -> int;
+
+    /*!
+     * \brief Get the number of views to fuse.
+     * \return The number of views to fuse.
+     */
+    virtual auto numberViewsFuse() const -> int;
+
+    /*!
+     * \brief Check if color estimation is enabled.
+     * \return True if color estimation is enabled, false otherwise.
+     */
+    virtual auto estimateColors() const -> bool;
+
+    /*!
+     * \brief Check if normals estimation is enabled.
+     * \return True if normals estimation is enabled, false otherwise.
+     */
+    virtual auto estimateNormals() const -> bool;
+
+// Setter methods
+
+    /*!
+     * \brief Set the resolution level.
+     * \param[in] resolutionLevel The resolution level to set.
+     */
+    virtual void setResolutionLevel(int resolutionLevel);
+
+    /*!
+     * \brief Set the minimum resolution.
+     * \param[in] minResolution The minimum resolution to set.
+     */
+    virtual void setMinResolution(int minResolution);
+
+    /*!
+     * \brief Set the maximum resolution.
+     * \param[in] maxResolution The maximum resolution to set.
+     */
+    virtual void setMaxResolution(int maxResolution);
+
+    /*!
+     * \brief Set the number of views.
+     * \param[in] numberViews The number of views to set.
+     */
+    virtual void setNumberViews(int numberViews);
+
+    /*!
+     * \brief Set the number of views to fuse.
+     * \param[in] numberViewsFuse The number of views to fuse.
+     */
+    virtual void setNumberViewsFuse(int numberViewsFuse);
+
+    /*!
+     * \brief Set whether color estimation is enabled.
+     * \param[in] estimateColors True to enable color estimation, false otherwise.
+     */
+    virtual void setEstimateColors(bool estimateColors);
+
+    /*!
+     * \brief Set whether normals estimation is enabled.
+     * \param[in] estimateNormals True to enable normals estimation, false otherwise.
+     */
+    virtual void setEstimateNormals(bool estimateNormals);
+
+// Densification interface methods
 
 public:
 
     void reset() override;
-    QString name() const override;
+    auto name() const -> QString override;
 
 private:
 
-    int mResolutionLevel;
-    int mMinResolution;
-    int mMaxResolution;
-    int mNumberViews;
-    int mNumberViewsFuse;
-    bool mEstimateColors;
-    bool mEstimateNormals;
+    int mResolutionLevel;     //!< The resolution level.
+    int mMinResolution;       //!< The minimum resolution.
+    int mMaxResolution;       //!< The maximum resolution.
+    int mNumberViews;         //!< The number of views.
+    int mNumberViewsFuse;     //!< The number of views to fuse.
+    bool mEstimateColors;     //!< Flag indicating whether color estimation is enabled.
+    bool mEstimateNormals;    //!< Flag indicating whether normal estimation is enabled.
 
 };
 
 
 /*----------------------------------------------------------------*/
 
-
+/*!
+ * \brief Class for Multi-View Stereo (MVS) densification.
+ *
+ * This class represents a densifier using Multi-View Stereo (MVS) reconstruction.
+ * It inherits properties related to MVS reconstruction from Mvs and functionality
+ * for densification from DensifierBase.
+ */
 class MvsDensifier
-  : public MvsProperties,
+  : public Mvs,
     public DensifierBase
 {
 
 public:
 
+    /*!
+     * \brief Constructor for MVS densifier.
+     * Constructs an MvsDensifier object with provided parameters.
+     * \param[in] images Images used for densification.
+     * \param[in] cameras Cameras associated with the images.
+     * \param[in] poses Camera poses associated with the images.
+     * \param[in] groundPoints Ground points
+     * \param[in] outputPath The output path for storing densification results.
+     * \param[in] database The path to the database.
+     * \param[in] cuda Flag indicating whether to use CUDA for computation (default is false).
+     * \param[in] autoSegmentation Flag indicating whether to enable auto-segmentation (default is false).
+     */
     MvsDensifier(const std::unordered_map<size_t, Image> &images,
                  const std::map<int, Camera> &cameras,
                  const std::unordered_map<size_t, CameraPose> &poses,
                  const std::vector<GroundPoint> &groundPoints,
                  const tl::Path &outputPath,
-                 const tl::Path &database,
+                 tl::Path database,
                  bool cuda = false,
                  bool autoSegmentation = false);
+
     ~MvsDensifier() override;
 
-    MvsDensifier(const MvsDensifier &MvsProcess) = delete;
-    MvsDensifier(MvsDensifier &&MvsProcess) = delete;
-    MvsDensifier &operator =(const MvsDensifier &MvsProcess) = delete;
-    MvsDensifier &operator =(MvsDensifier &&MvsProcess) = delete;
-
-    //auto report() const -> DenseReport;
+    TL_DISABLE_COPY(MvsDensifier)
+    TL_DISABLE_MOVE(MvsDensifier)
 
 private:
 
-    void clearTemporalFiles();
-    void exportToColmap();
-    void writeNVMFile();
-    void exportToMVS();
+    void clearTemporalFiles() const;
+    void exportToColmap() const;
+    void writeNvmFile() const;
+    void exportToMvs() const;
     void densify();
 
 // TaskBase
 
 protected:
 
+    /*!
+     * \brief Executes the densification task.
+     * Overrides the execute method from the TaskBase class.
+     * \param progressBar Pointer to a progress bar for tracking progress (default is nullptr).
+     */
     void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
     tl::Path mDatabase;
     bool mAutoSegmentation;
-    //DenseReport mReport;
+
 };
 
 

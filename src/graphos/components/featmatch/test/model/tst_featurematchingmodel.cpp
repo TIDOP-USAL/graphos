@@ -64,13 +64,13 @@ BOOST_FIXTURE_TEST_CASE(feature_matching, TestFeatureMatchingModel)
 
 {
   {
-    std::shared_ptr<FeatureMatching> match_properties = std::make_shared<FeatureMatchingProperties>();
+    std::shared_ptr<FeatureMatching> match_properties = std::make_shared<FeatureMatching>();
     mFeatureMatchingModel->setFeatureMatching(match_properties);
   }
 
   std::shared_ptr<FeatureMatching> match_properties = mFeatureMatchingModel->featureMatching();
-  BOOST_CHECK_EQUAL(true, std::dynamic_pointer_cast<FeatureMatchingProperties>(match_properties)->crossCheck());
-  BOOST_CHECK_EQUAL(0.8, std::dynamic_pointer_cast<FeatureMatchingProperties>(match_properties)->ratio());
+  BOOST_CHECK_EQUAL(true, std::dynamic_pointer_cast<FeatureMatching>(match_properties)->crossCheck());
+  BOOST_CHECK_EQUAL(0.8, std::dynamic_pointer_cast<FeatureMatching>(match_properties)->ratio());
 }
 
 BOOST_FIXTURE_TEST_CASE(database, TestFeatureMatchingModel)

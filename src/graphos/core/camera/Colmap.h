@@ -52,7 +52,7 @@ public:
     ~ReadCalibration();
 
     void open(const QString &path);
-    std::shared_ptr<Calibration> calibration(int cameraId) const;
+    auto calibration(int cameraId) const -> std::shared_ptr<Calibration>;
 
 protected:
 
@@ -60,7 +60,13 @@ protected:
 
 };
 
-QString cameraToColmapType(const Camera &camera);
+
+/*!
+ * \brief Convert camera type to Colmap camera type
+ * \param[in] camera GRAPHOS camera type
+ * \return Colmap camera type
+ */
+auto cameraToColmapType(const Camera &camera) -> QString;
 
 } // namespace graphos
 

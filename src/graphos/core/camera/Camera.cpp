@@ -28,9 +28,7 @@ namespace graphos
 {
 
 Camera::Camera()
-    : mMake(""),
-      mModel(""),
-      mType("OpenCV 1"),
+    : mType("OpenCV 1"),
       mFocal(1.),
       mWidth(0),
       mHeight(0),
@@ -40,9 +38,9 @@ Camera::Camera()
     init();
 }
 
-Camera::Camera(const std::string &make, const std::string &model)
-    : mMake(make),
-      mModel(model),
+Camera::Camera(std::string make, std::string model)
+    : mMake(std::move(make)),
+      mModel(std::move(model)),
       mType("OpenCV 1"),
       mFocal(1.),
       mWidth(0),
@@ -65,7 +63,7 @@ Camera::Camera(const Camera &camera)
 {
 }
 
-std::string Camera::make() const
+auto Camera::make() const -> std::string
 {
     return mMake;
 }
@@ -75,7 +73,7 @@ void Camera::setMake(const std::string &make)
     mMake = make;
 }
 
-std::string Camera::model() const
+auto Camera::model() const -> std::string
 {
     return mModel;
 }
@@ -85,7 +83,7 @@ void Camera::setModel(const std::string &model)
     mModel = model;
 }
 
-std::string Camera::type() const
+auto Camera::type() const -> std::string
 {
     return mType;
 }
@@ -95,7 +93,7 @@ void Camera::setType(const std::string &type)
     mType = type;
 }
 
-double Camera::focal() const
+auto Camera::focal() const -> double
 {
     return mFocal;
 }
@@ -105,7 +103,7 @@ void Camera::setFocal(double focal)
     mFocal = focal;
 }
 
-int Camera::width() const
+auto Camera::width() const -> int
 {
     return mWidth;
 }
@@ -115,7 +113,7 @@ void Camera::setWidth(int width)
     mWidth = width;
 }
 
-int Camera::height() const
+auto Camera::height() const -> int
 {
     return mHeight;
 }
@@ -125,7 +123,7 @@ void Camera::setHeight(int height)
     mHeight = height;
 }
 
-double Camera::sensorSize() const
+auto Camera::sensorSize() const -> double
 {
     return mSensorSize;
 }
@@ -135,7 +133,7 @@ void Camera::setSensorSize(double sensorSize)
     mSensorSize = sensorSize;
 }
 
-std::shared_ptr<Calibration> Camera::calibration() const
+auto Camera::calibration() const -> std::shared_ptr<Calibration>
 {
     return mCalibration;
 }
@@ -145,7 +143,7 @@ void Camera::setCalibration(std::shared_ptr<Calibration> &calibration)
     mCalibration = calibration;
 }
 
-Camera &Camera::operator =(const Camera &camera)
+auto Camera::operator =(const Camera& camera) -> Camera&
 {
     if (this != &camera) {
         this->mMake = camera.mMake;

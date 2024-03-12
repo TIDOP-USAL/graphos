@@ -176,7 +176,7 @@ BOOST_FIXTURE_TEST_CASE(parameterName, CalibrationTest)
 
 BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
 {
-    Calibration::parameter_iterator it = mCalibrationRadial1->parametersBegin();
+    Calibration::iterator it = mCalibrationRadial1->begin();
 
     BOOST_CHECK(Calibration::Parameters::focal == it->first);
     BOOST_CHECK_EQUAL(4000., it->second);
@@ -193,7 +193,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::k1 == it->first);
     BOOST_CHECK_EQUAL(0.005, it->second);
 
-    Calibration::parameter_iterator it2 = mCalibrationRadial2->parametersBegin();
+    Calibration::iterator it2 = mCalibrationRadial2->begin();
 
     BOOST_CHECK(Calibration::Parameters::focal == it2->first);
     BOOST_CHECK_EQUAL(4000., it2->second);
@@ -214,7 +214,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::k2 == it2->first);
     BOOST_CHECK_EQUAL(0.001, it2->second);
 
-    Calibration::parameter_iterator it3 = mCalibrationRadial3->parametersBegin();
+    Calibration::iterator it3 = mCalibrationRadial3->begin();
 
     BOOST_CHECK(Calibration::Parameters::focal == it3->first);
     BOOST_CHECK_EQUAL(4000., it3->second);
@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::p2 == it3->first);
     BOOST_CHECK_EQUAL(0.001, it3->second);
 
-    Calibration::parameter_iterator it4 = mCalibrationSimpleRadialFisheye->parametersBegin();
+    Calibration::iterator it4 = mCalibrationSimpleRadialFisheye->begin();
 
     BOOST_CHECK(Calibration::Parameters::focal == it4->first);
     BOOST_CHECK_EQUAL(4000., it4->second);
@@ -264,7 +264,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::k1 == it4->first);
     BOOST_CHECK_EQUAL(0.005, it4->second);
 
-    Calibration::parameter_iterator it5 = mCalibrationRadialFisheye->parametersBegin();
+    Calibration::iterator it5 = mCalibrationRadialFisheye->begin();
 
     BOOST_CHECK(Calibration::Parameters::focal == it5->first);
     BOOST_CHECK_EQUAL(4000., it5->second);
@@ -285,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::k2 == it5->first);
     BOOST_CHECK_EQUAL(0.001, it5->second);
 
-    Calibration::parameter_iterator it6 = mCalibrationOpenCV->parametersBegin();
+    Calibration::iterator it6 = mCalibrationOpenCV->begin();
 
     BOOST_CHECK(Calibration::Parameters::focalx == it6->first);
     BOOST_CHECK_EQUAL(4000., it6->second);
@@ -318,7 +318,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::p2 == it6->first);
     BOOST_CHECK_EQUAL(0.001, it6->second);
 
-    Calibration::parameter_iterator it7 = mCalibrationOpenCVFisheye->parametersBegin();
+    Calibration::iterator it7 = mCalibrationOpenCVFisheye->begin();
 
     BOOST_CHECK(Calibration::Parameters::focalx == it7->first);
     BOOST_CHECK_EQUAL(4000., it7->second);
@@ -351,7 +351,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::k4 == it7->first);
     BOOST_CHECK_EQUAL(0.0001, it7->second);
 
-    Calibration::parameter_iterator it8 = mCalibrationOpenCVFull->parametersBegin();
+    Calibration::iterator it8 = mCalibrationOpenCVFull->begin();
 
     BOOST_CHECK(Calibration::Parameters::focalx == it8->first);
     BOOST_CHECK_EQUAL(4000., it8->second);
@@ -400,7 +400,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::p2 == it8->first);
     BOOST_CHECK_EQUAL(0.001, it8->second);
 
-    Calibration::parameter_iterator it9 = mCalibrationSimplePinhole->parametersBegin();
+    Calibration::iterator it9 = mCalibrationSimplePinhole->begin();
 
     BOOST_CHECK(Calibration::Parameters::focal == it9->first);
     BOOST_CHECK_EQUAL(4000., it9->second);
@@ -413,7 +413,7 @@ BOOST_FIXTURE_TEST_CASE(iterator, CalibrationTest)
     BOOST_CHECK(Calibration::Parameters::cy == it9->first);
     BOOST_CHECK_EQUAL(0.5, it9->second);
 
-    Calibration::parameter_iterator it10 = mCalibrationPinhole->parametersBegin();
+    Calibration::iterator it10 = mCalibrationPinhole->begin();
 
     BOOST_CHECK(Calibration::Parameters::focalx == it10->first);
     BOOST_CHECK_EQUAL(4000., it10->second);

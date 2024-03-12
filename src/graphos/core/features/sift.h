@@ -41,41 +41,107 @@ namespace graphos
 
 
 /*!
- * \brief SIFT detector/descriptor properties class
+ * \brief Class representing properties for SIFT detector/descriptor.
+ *
+ * This class encapsulates properties related to the SIFT (Scale-Invariant Feature Transform) detector/descriptor.
  */
-class SiftProperties
-    : public Sift
+class Sift
+  : public Feature
 {
 
 public:
 
-    SiftProperties();
-    SiftProperties(const SiftProperties &siftProperties);
-    ~SiftProperties() override = default;
+    /*!
+     * \brief Default constructor for SIFT properties.
+     * Constructs a Sift object with default values.
+     */
+    Sift();
 
-    // Sift interface
+    /*!
+     * \brief Copy constructor for SIFT properties.
+     * Constructs a new Sift object by copying from another Sift object.
+     * \param[in] sift The Sift object to copy from.
+     */
+    Sift(const Sift &sift);
+
+    /*!
+     * \brief Destructor for SIFT.
+     */
+    ~Sift() override = default;
 
 public:
 
-    int featuresNumber() const override;
-    int octaveLayers() const override;
-    bool constrastThresholdAuto() const override;
-    double contrastThreshold() const override;
-    double edgeThreshold() const override;
+    /*!
+     * \brief Get the number of features for SIFT.
+     * The features are ranked by their scores (measured in
+     * SIFT algorithm as the local contrast)
+     * \return The number of best features to retain.
+     */
+    virtual auto featuresNumber() const -> int;
 
-    void setFeaturesNumber(int featuresNumber) override;
-    void setOctaveLayers(int octaveLayers) override;
-    void setContrastThresholdAuto(bool active) override;
-    void setContrastThreshold(double contrastThreshold) override;
-    void setEdgeThreshold(double edgeThreshold) override;
+    /*!
+     * \brief Get the number of layers per octave.
+     * 3 is the value used in D. Lowe paper. The number of octaves is computed
+     * automatically from the image resolution.
+     * \return The number of layers per octave.
+     */
+    virtual auto octaveLayers() const -> int;
 
+    /*!
+     * \brief Check if automatic contrast thresholding is enabled.
+     * \return True if automatic contrast thresholding is enabled, false otherwise.
+     */
+    virtual auto constrastThresholdAuto() const -> bool;
 
-    // Feature interface
+    /*!
+     * \brief Get the contrast threshold used to filter out weak features in semi-uniform (low-contrast) regions.
+     * The larger the threshold, the less features are produced by the detector.
+     * \return The contrast threshold value.
+     */
+    virtual auto contrastThreshold() const -> double;
+
+    /*!
+     * \brief Get the edge threshold value for SIFT.
+     * \return The edge threshold value.
+     */
+    virtual auto edgeThreshold() const -> double;
+
+    /*!
+     * \brief Set the number of best features to retain
+     * \param[in] featuresNumber The number of features.
+     */
+    virtual void setFeaturesNumber(int featuresNumber);
+
+    /*!
+     * \brief Set the number of layers per octave.
+     * \param[in] octaveLayers The number of layers per octave (3 by default).
+     */
+    virtual void setOctaveLayers(int octaveLayers);
+
+    /*!
+     * \brief Enable or disable automatic contrast thresholding.
+     * \param[in] active True to enable automatic contrast thresholding, false to disable it.
+     */
+    virtual void setContrastThresholdAuto(bool active);
+
+    /*!
+     * \brief Set the contrast threshold value.
+     * \param[in] contrastThreshold The contrast threshold value.
+     */
+    virtual void setContrastThreshold(double contrastThreshold);
+
+    /*!
+     * \brief Set the threshold used to filter out edge-like features
+     * \param[in] edgeThreshold The edge threshold value.
+     */
+    virtual void setEdgeThreshold(double edgeThreshold);
+
+// Feature interface methods
 
 public:
 
     void reset() override;
-    QString name() const final;
+    auto name() const -> QString final;
 
 private:
 
@@ -84,41 +150,77 @@ private:
     bool mContrastThresholdAuto;
     double mContrastThreshold;
     double mEdgeThreshold;
-    //double mSigma;
+
 };
 
 
-/*----------------------------------------------------------------*/
 
 
+/*!
+ * \brief Class for SIFT feature extraction using CPU.
+ *
+ * This class provides functionality for detecting and describing SIFT (Scale-Invariant Feature Transform) features
+ * using CPU-based computation. It inherits properties related to SIFT from the Sift class and implements
+ * feature extraction functionality from the FeatureExtractor interface.
+ */
 class SiftCPUDetectorDescriptor
-    : public SiftProperties,
+  : public Sift,
     public FeatureExtractor
 {
 
 public:
 
+    /*!
+     * \brief Default constructor for SIFT CPU-based detector/descriptor.
+     * Constructs an SiftCPUDetectorDescriptor object with default values.
+     */
     SiftCPUDetectorDescriptor();
-    SiftCPUDetectorDescriptor(const SiftCPUDetectorDescriptor &siftDetectorDescriptor);
+
+    /*!
+     * \brief Copy constructor for SIFT CPU-based detector/descriptor.
+     * Constructs a new SiftCPUDetectorDescriptor object by copying from another SiftCPUDetectorDescriptor object.
+     * \param[in] sift The SiftCPUDetectorDescriptor object to copy from.
+     */
+    SiftCPUDetectorDescriptor(const SiftCPUDetectorDescriptor &sift);
+
+    /*!
+     * \brief Parameterized constructor for SIFT CPU-based detector/descriptor.
+     * Constructs an SiftCPUDetectorDescriptor object with provided parameters.
+     * \param[in] featuresNumber The number of features.
+     * \param[in] octaveLayers The number of layers per octave.
+     * \param[in] edgeThreshold The edge threshold value.
+     * \param[in] contrastThreshold The contrast threshold value (default is 0.0).
+     */
     SiftCPUDetectorDescriptor(int featuresNumber,
                               int octaveLayers,
                               double edgeThreshold,
                               double contrastThreshold = 0.);
+
+    /*!
+     * \brief Destructor for SIFT CPU-based detector/descriptor.
+     */
     ~SiftCPUDetectorDescriptor() override;
 
 private:
 
     void update();
 
-    // FeatureExtractor interface
+// FeatureExtractor interface
 
 public:
 
+    /*!
+     * \brief Runs the SIFT feature extraction on the provided image.
+     * Overrides the run method from the FeatureExtractor interface.
+     * \param[in] bitmap The input image for feature extraction.
+     * \param[out] keyPoints Detected keypoints will be stored here.
+     * \param[out] descriptors Computed descriptors will be stored here.
+     */
     void run(const cv::Mat &bitmap,
              std::vector<cv::KeyPoint> &keyPoints,
              cv::Mat &descriptors) override;
 
-    // Sift interface
+// Sift interface
 
 public:
 
@@ -127,7 +229,7 @@ public:
     void setContrastThreshold(double contrastThreshold) override;
     void setEdgeThreshold(double edgeThreshold) override;
 
-    // Feature interface
+// Feature interface
 
 public:
 
@@ -144,37 +246,73 @@ protected:
 };
 
 
-/*----------------------------------------------------------------*/
 
 
+
+/*!
+ * \brief Class for CUDA-accelerated SIFT feature extraction.
+ *
+ * This class provides functionality for detecting and describing SIFT (Scale-Invariant Feature Transform) features
+ * using CUDA-accelerated computation. It inherits properties related to SIFT from the Sift class and implements
+ * feature extraction functionality from the FeatureExtractor interface.
+ */
 class SiftCudaDetectorDescriptor
-    : public SiftProperties,
+  : public Sift,
     public FeatureExtractor
 {
 
 public:
 
+    /*!
+     * \brief Default constructor for CUDA-accelerated SIFT detector/descriptor.
+     * Constructs an SiftCudaDetectorDescriptor object with default values.
+     */
     SiftCudaDetectorDescriptor();
-    SiftCudaDetectorDescriptor(const SiftCudaDetectorDescriptor &siftDetectorDescriptor);
+
+    /*!
+     * \brief Copy constructor for CUDA-accelerated SIFT detector/descriptor.
+     * Constructs a new SiftCudaDetectorDescriptor object by copying from another SiftCudaDetectorDescriptor object.
+     * \param[in] sift The SiftCudaDetectorDescriptor object to copy from.
+     */
+    SiftCudaDetectorDescriptor(const SiftCudaDetectorDescriptor &sift);
+
+    /*!
+     * \brief Parameterized constructor for CUDA-accelerated SIFT detector/descriptor.
+     * Constructs an SiftCudaDetectorDescriptor object with provided parameters.
+     * \param[in] featuresNumber The number of features.
+     * \param[in] octaveLayers The number of layers per octave.
+     * \param[in] edgeThreshold The edge threshold value.
+     * \param[in] contrastThreshold The contrast threshold value (default is 0.0).
+     */
     SiftCudaDetectorDescriptor(int featuresNumber,
                                int octaveLayers,
                                double edgeThreshold,
                                double contrastThreshold = 0.);
+    /*!
+     * \brief Destructor for CUDA-accelerated SIFT detector/descriptor.
+     */
     ~SiftCudaDetectorDescriptor() override;
 
 private:
 
     void update();
 
-    // FeatureExtractor interface
+// FeatureExtractor interface
 
 public:
 
+    /*!
+     * \brief Runs the CUDA-accelerated SIFT feature extraction on the provided image.
+     * Overrides the run method from the FeatureExtractor interface.
+     * \param[in] bitmap The input image for feature extraction.
+     * \param[out] keyPoints Detected keypoints will be stored here.
+     * \param[out] descriptors Computed descriptors will be stored here.
+     */
     void run(const cv::Mat &bitmap,
              std::vector<cv::KeyPoint> &keyPoints,
              cv::Mat &descriptors) override;
 
-    // Sift interface
+// Sift interface
 
 public:
 

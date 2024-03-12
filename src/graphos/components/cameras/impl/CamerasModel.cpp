@@ -166,8 +166,8 @@ void CamerasModelImp::updateCurrentCameraType(const QString &type)
 
                 std::shared_ptr<Calibration> calibration = CalibrationFactory::create(type.toStdString());
 
-                for (auto param = calibration->parametersBegin();
-                     param != calibration->parametersEnd();
+                for (auto param = calibration->begin();
+                     param != calibration->end();
                      param++) {
 
                     Calibration::Parameters param_name = param->first;

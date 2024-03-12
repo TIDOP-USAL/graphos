@@ -28,7 +28,7 @@
 #include "graphos/core/project.h"
 
 #include <tidop/core/msg/message.h>
-#include <tidop/core/chrono.h>
+#include <tidop/core/progress.h>
 
 #include <colmap/feature/matching.h>
 #include <colmap/base/database.h>
@@ -44,7 +44,7 @@ FeatureMatchingCommand::FeatureMatchingCommand()
   : Command("featmatch", "Feature Matching"),
     mDisableCuda(false)
 {
-    FeatureMatchingProperties featureMatchingProperties;
+    FeatureMatching featureMatchingProperties;
     auto ratio = featureMatchingProperties.ratio();
 	auto distance = featureMatchingProperties.distance();
 	auto max_error = featureMatchingProperties.maxError();
@@ -60,9 +60,9 @@ FeatureMatchingCommand::FeatureMatchingCommand()
     this->addArgument<bool>("exhaustive_matching", "Force exhaustive matching (default = false)", false);
 
 #ifdef HAVE_CUDA
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
     if (cuda_enabled)
         this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
     else mDisableCuda = true;
@@ -115,7 +115,7 @@ bool FeatureMatchingCommand::run()
         }
 
 
-        std::shared_ptr<FeatureMatching> feature_matching_properties = std::make_shared<FeatureMatchingProperties>();
+        std::shared_ptr<FeatureMatching> feature_matching_properties = std::make_shared<FeatureMatching>();
         feature_matching_properties->setRatio(ratio);
         feature_matching_properties->setDistance(distance);
         feature_matching_properties->setMaxError(max_error);

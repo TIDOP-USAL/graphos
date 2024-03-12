@@ -1072,9 +1072,7 @@ void MainWindowView::initUI()
     this->initMenus();
     this->initProgressBar();
 
-    // Configuración de mensajes
-    auto &msg_h = tl::Message::instance();
-    msg_h.addMessageHandler(mLogWidget);
+    tl::Message::addMessageHandler(mLogWidget);
 
     this->readSettings();
 

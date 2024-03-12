@@ -71,9 +71,9 @@ DensificationCommand::DensificationCommand()
     this->addArgument<double>("smvs:smooth_factor", "Surface Smoothing Factor", 1.0);
 
 #ifdef HAVE_CUDA
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
     if (cuda_enabled)
         this->addArgument<bool>("disable_cuda", "If true disable CUDA", mDisableCuda);
     else mDisableCuda = true;

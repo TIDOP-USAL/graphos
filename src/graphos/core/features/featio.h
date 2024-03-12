@@ -76,8 +76,8 @@ public:
 
     virtual bool read() = 0;
 
-    colmap::FeatureKeypoints keyPoints() const;
-    colmap::FeatureDescriptors descriptors() const;
+    auto keyPoints() const -> colmap::FeatureKeypoints;
+    auto descriptors() const -> colmap::FeatureDescriptors;
 
 protected:
 
@@ -104,7 +104,7 @@ private:
 
 public:
 
-    static std::unique_ptr<FeaturesReader> createReader(const QString &fileName);
+    static auto createReader(const QString& fileName) -> std::unique_ptr<FeaturesReader>;
 };
 
 /*!
@@ -120,7 +120,7 @@ private:
 
 public:
 
-    static std::unique_ptr<FeaturesWriter> createWriter(const QString &fileName);
+    static auto createWriter(const QString& fileName) -> std::unique_ptr<FeaturesWriter>;
 };
 
 
@@ -137,8 +137,8 @@ public:
     FeaturesIOHandler();
     virtual ~FeaturesIOHandler() = default;
 
-    bool read(const QString &file);
-    bool write(const QString &file);
+    auto read(const QString& file) -> bool;
+    auto write(const QString& file) -> bool;
 
 protected:
 

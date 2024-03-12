@@ -76,7 +76,7 @@ void MeshViewImp::initUI()
     mLabelBoundaryType = new QLabel(this);
     gridLayout->addWidget(mLabelBoundaryType, 2, 0, 1, 1);
     mComboBoxBoundaryType = new QComboBox(this);
-    mComboBoxBoundaryType->addItem("free");
+    mComboBoxBoundaryType->addItem("Free");
     mComboBoxBoundaryType->addItem("Dirichlet");
     mComboBoxBoundaryType->addItem("Neumann");
     gridLayout->addWidget(mComboBoxBoundaryType, 2, 1, 1, 1);

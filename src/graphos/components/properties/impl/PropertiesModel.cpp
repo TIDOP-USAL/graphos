@@ -29,6 +29,10 @@
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
 
+#include "graphos/core/dense/CmvsPmvs.h"
+#include "graphos/core/dense/mvs.h"
+#include "graphos/core/dense/Smvs.h"
+
 
 std::string removeParentheses(const std::string &value)
 {
@@ -82,7 +86,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
             std::map<std::string, std::string> values;
 
-            tl::Message::instance().pauseMessages();
+            tl::Message::pauseMessages();
 
             bool active = false;
 
@@ -98,22 +102,22 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
             value = image_metadata->metadata("EXIF_Make", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Camera make"), QString::fromStdString(value)));
+                exif["Camera"].emplace_back(QString("Camera make"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_Model", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Camera model"), QString::fromStdString(value)));
+                exif["Camera"].emplace_back(QString("Camera model"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_FNumber", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("F Number"), QString::fromStdString("f/" + removeParentheses(value))));
+                exif["Camera"].emplace_back(QString("F Number"), QString::fromStdString("f/" + removeParentheses(value)));
             }
 
             value = image_metadata->metadata("EXIF_ExposureTime", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Exposure time"), QString::fromStdString(removeParentheses(value))));
+                exif["Camera"].emplace_back(QString("Exposure time"), QString::fromStdString(removeParentheses(value)));
             }
 
             //value = image_metadata->metadata("EXIF_ISOSpeed", active);
@@ -123,7 +127,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
             value = image_metadata->metadata("EXIF_ISOSpeedRatings", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("ISO Speed"), QString::fromStdString("ISO-" + value)));
+                exif["Camera"].emplace_back(QString("ISO Speed"), QString::fromStdString("ISO-" + value));
             }
 
             value = image_metadata->metadata("EXIF_ExposureTime", active);
@@ -136,7 +140,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
             if (active) {
                 value = removeParentheses(value);
                 double exposure_bias = std::stod(value);
-                exif["Camera"].push_back(std::make_pair(QString("Exposure bias"), QString::number(exposure_bias, 'f', 1) + " step"));
+                exif["Camera"].emplace_back(QString("Exposure bias"), QString::number(exposure_bias, 'f', 1) + " step");
             }
 
             value = image_metadata->metadata("EXIF_ExposureMode", active);
@@ -152,7 +156,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
                 }
 
                 if (exposure_mode != QString("0"))
-                    exif["Camera"].push_back(std::make_pair(QString("Exposure mode"), exposure_mode));
+                    exif["Camera"].emplace_back(QString("Exposure mode"), exposure_mode);
             }
 
             value = image_metadata->metadata("EXIF_ExposureProgram", active);
@@ -178,27 +182,27 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
                 }
 
                 if (exposure_program != QString("0"))
-                    exif["Camera"].push_back(std::make_pair(QString("Exposure program"), exposure_program));
+                    exif["Camera"].emplace_back(QString("Exposure program"), exposure_program);
             }
 
             value = image_metadata->metadata("EXIF_FocalLength", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Focal length"), QString::fromStdString(removeParentheses(value) + " mm")));
+                exif["Camera"].emplace_back(QString("Focal length"), QString::fromStdString(removeParentheses(value) + " mm"));
             }
 
             value = image_metadata->metadata("EXIF_ApertureValue", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Aperture value"), QString::fromStdString(removeParentheses(value))));
+                exif["Camera"].emplace_back(QString("Aperture value"), QString::fromStdString(removeParentheses(value)));
             }
 
             value = image_metadata->metadata("EXIF_MaxApertureValue", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Max aperture"), QString::fromStdString(removeParentheses(value))));
+                exif["Camera"].emplace_back(QString("Max aperture"), QString::fromStdString(removeParentheses(value)));
             }
 
             value = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Focal Length In 35 mm"), QString::fromStdString(value)));
+                exif["Camera"].emplace_back(QString("Focal Length In 35 mm"), QString::fromStdString(value));
             }
 
             //value = image_metadata->metadata("EXIF_LensSpecification", active);
@@ -208,17 +212,17 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
             value = image_metadata->metadata("EXIF_LensMake", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Lens make"), QString::fromStdString(value)));
+                exif["Camera"].emplace_back(QString("Lens make"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_LensModel", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Lens model"), QString::fromStdString(value)));
+                exif["Camera"].emplace_back(QString("Lens model"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_LensSerialNumber", active);
             if (active) {
-                exif["Camera"].push_back(std::make_pair(QString("Lens Serial number"), QString::fromStdString(value)));
+                exif["Camera"].emplace_back(QString("Lens Serial number"), QString::fromStdString(value));
             }
 
             // Image
@@ -229,9 +233,9 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
                 std::string x_dimension = image_metadata->metadata("EXIF_PixelXDimension", active1);
                 std::string y_dimension = image_metadata->metadata("EXIF_PixelYDimension", active2);
                 if (active1 && active2) {
-                    exif["Image"].push_back(std::make_pair(QString("Dimensions"), QString::fromStdString(x_dimension + " x " + y_dimension)));
-                    exif["Image"].push_back(std::make_pair(QString("Width"), QString::fromStdString(x_dimension + " pixels")));
-                    exif["Image"].push_back(std::make_pair(QString("Height"), QString::fromStdString(y_dimension + " pixels")));
+                    exif["Image"].emplace_back(QString("Dimensions"), QString::fromStdString(x_dimension + " x " + y_dimension));
+                    exif["Image"].emplace_back(QString("Width"), QString::fromStdString(x_dimension + " pixels"));
+                    exif["Image"].emplace_back(QString("Height"), QString::fromStdString(y_dimension + " pixels"));
                 }
             }
 
@@ -253,8 +257,8 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
                 std::string y_resolution = image_metadata->metadata("EXIF_YResolution", active2);
 
                 if (active1 && active2) {
-                    exif["Image"].push_back(std::make_pair(QString("Horizontal resolution"), QString::fromStdString(removeParentheses(x_resolution) + " " + resolution_unit)));
-                    exif["Image"].push_back(std::make_pair(QString("Vertical resolution"), QString::fromStdString(removeParentheses(y_resolution) + " " + resolution_unit)));
+                    exif["Image"].emplace_back(QString("Horizontal resolution"), QString::fromStdString(removeParentheses(x_resolution) + " " + resolution_unit));
+                    exif["Image"].emplace_back(QString("Vertical resolution"), QString::fromStdString(removeParentheses(y_resolution) + " " + resolution_unit));
                 }
 
             }
@@ -280,12 +284,12 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
                     orientation = "Rotate 270 CW";
                 }
 
-                exif["Image"].push_back(std::make_pair(QString("Orientation"), orientation));
+                exif["Image"].emplace_back(QString("Orientation"), orientation);
             }
 
             value = image_metadata->metadata("EXIF_CompressedBitsPerPixel", active);
             if (active) {
-                exif["Image"].push_back(std::make_pair(QString("Compressed bits per pixel"), QString::fromStdString(removeParentheses(value))));
+                exif["Image"].emplace_back(QString("Compressed bits per pixel"), QString::fromStdString(removeParentheses(value)));
             }
 
             //value = image_metadata->metadata("EXIF_Software", active);
@@ -383,27 +387,27 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
             value = image_metadata->metadata("EXIF_DateTimeOriginal", active);
             if (active) {
-                exif["Origin"].push_back(std::make_pair(QString("Date Time Original"), QString::fromStdString(value)));
+                exif["Origin"].emplace_back(QString("Date Time Original"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_DateTimeDigitized", active);
             if (active) {
-                exif["Origin"].push_back(std::make_pair(QString("Date Time Digitized"), QString::fromStdString(value)));
+                exif["Origin"].emplace_back(QString("Date Time Digitized"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_OffsetTime", active);
             if (active) {
-                exif["Origin"].push_back(std::make_pair(QString("Offset Time"), QString::fromStdString(value)));
+                exif["Origin"].emplace_back(QString("Offset Time"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_OffsetTimeOriginal", active);
             if (active) {
-                exif["Origin"].push_back(std::make_pair(QString("Offset Time Original"), QString::fromStdString(value)));
+                exif["Origin"].emplace_back(QString("Offset Time Original"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_OffsetTimeDigitized", active);
             if (active) {
-                exif["Origin"].push_back(std::make_pair(QString("Offset Time Digitized"), QString::fromStdString(value)));
+                exif["Origin"].emplace_back(QString("Offset Time Digitized"), QString::fromStdString(value));
             }
 
             ////value = image_metadata->metadata("EXIF_ComponentsConfiguration", active);
@@ -566,25 +570,25 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
             if (active) {
                 std::string ref = image_metadata->metadata("EXIF_GPSLatitudeRef", active);
                 tl::Degrees<double> latitude = formatDegreesFromExif(value, ref);
-                exif["GPS"].push_back(std::make_pair(
+                exif["GPS"].emplace_back(
                     QString("GPS Latitude"),
                     QString("%1º%2'%3'' %4").arg(std::abs(latitude.degrees()))
                     .arg(latitude.minutes())
                     .arg(latitude.seconds())
-                    .arg(ref.c_str())));
+                    .arg(ref.c_str()));
             }
 
             value = image_metadata->metadata("EXIF_GPSLongitude", active);
             if (active) {
                 std::string ref = image_metadata->metadata("EXIF_GPSLongitudeRef", active);
                 tl::Degrees<double> longitude = formatDegreesFromExif(value, ref);
-                exif["GPS"].push_back(std::make_pair(
+                exif["GPS"].emplace_back(
                     QString("GPS Longitude"),
                     QString("%1º%2'%3'' %4")
                     .arg(std::abs(longitude.degrees()))
                     .arg(longitude.minutes())
                     .arg(longitude.seconds())
-                    .arg(ref.c_str())));
+                    .arg(ref.c_str()));
             }
 
             value = image_metadata->metadata("EXIF_GPSAltitude", active);
@@ -596,189 +600,189 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
                 else
                     altitude.append(" Below sea level");
                 value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);
-                exif["GPS"].push_back(std::make_pair(QString("GPS Altitude"), QString::fromStdString(altitude)));
+                exif["GPS"].emplace_back(QString("GPS Altitude"), QString::fromStdString(altitude));
             }
 
             value = image_metadata->metadata("EXIF_GPSTimeStamp", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Time Stamp"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Time Stamp"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSSatellites", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Satellites"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Satellites"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSStatus", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Status"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Status"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSMeasureMode", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Measure Mode"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Measure Mode"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDOP", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS DOP"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS DOP"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSSpeedRef", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Speed Ref"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Speed Ref"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSSpeed", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Speed"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Speed"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("GPS Track Ref", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Track Ref"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Track Ref"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSTrack", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Track"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Track"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSImgDirectionRef", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Img Direction Ref"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Img Direction Ref"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSImgDirection", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Img Direction"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Img Direction"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSMapDatum", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Map Datum"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Map Datum"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDestLatitudeRef", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Dest Latitude Ref"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Dest Latitude Ref"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDestLatitude", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Dest Latitude"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Dest Latitude"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDestLongitudeRef", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Dest Longitude Ref"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Dest Longitude Ref"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDestLongitude", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Dest Longitude"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Dest Longitude"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDestBearingRef", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Dest Bearing Ref"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Dest Bearing Ref"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDestBearing", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Dest Bearing"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Dest Bearing"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDestDistanceRef", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Dest Distance Ref"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Dest Distance Ref"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDestDistance", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Dest Distance"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Dest Distance"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSProcessingMethod", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Processing Method"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Processing Method"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSAreaInformation", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Area Information"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Area Information"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDateStamp", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Date Stamp"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Date Stamp"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSDifferential", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Differential"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Differential"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("EXIF_GPSHPositioningError", active);
             if (active) {
-                exif["GPS"].push_back(std::make_pair(QString("GPS Horizontal Positioning Error"), QString::fromStdString(value)));
+                exif["GPS"].emplace_back(QString("GPS Horizontal Positioning Error"), QString::fromStdString(value));
             }
 
             /// XMP
 
             value = image_metadata->metadata("XMP_AbsoluteAltitude", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Absolute Altitude"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Absolute Altitude"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_RelativeAltitude", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Relative Altitude"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Relative Altitude"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_GimbalRollDegree", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Gimbal Roll Degree"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Gimbal Roll Degree"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_GimbalYawDegree", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Gimbal Yaw Degree"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Gimbal Yaw Degree"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_GimbalPitchDegree", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Gimbal Pitch Degree"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Gimbal Pitch Degree"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_FlightRollDegree", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Flight Roll Degree"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Flight Roll Degree"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_FlightYawDegree", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Flight Yaw Degree"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Flight Yaw Degree"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_FlightPitchDegree", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Flight Pitch Degree"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Flight Pitch Degree"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_CamReverse", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("CamReverse"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("CamReverse"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_GimbalReverse", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Gimbal Reverse"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Gimbal Reverse"), QString::fromStdString(value));
             }
 
             value = image_metadata->metadata("XMP_RtkFlag", active);
             if (active) {
-                exif["XMP"].push_back(std::make_pair(QString("Rtk Flag"), QString::fromStdString(value)));
+                exif["XMP"].emplace_back(QString("Rtk Flag"), QString::fromStdString(value));
             }
 
             ///// TIFF
@@ -799,7 +803,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
             //}
 
             /// ...
-            tl::Message::instance().resumeMessages();
+            tl::Message::resumeMessages();
 
             imageReader->close();
         }
@@ -809,13 +813,13 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
             auto position = orientation.position();
             auto q = orientation.quaternion();
 
-            exif["Orientation"].push_back(std::make_pair(QString("X"), QString::number(position.x, 'g', 3)));
-            exif["Orientation"].push_back(std::make_pair(QString("Y"), QString::number(position.y, 'g', 3)));
-            exif["Orientation"].push_back(std::make_pair(QString("Z"), QString::number(position.z, 'g', 3)));
-            exif["Orientation"].push_back(std::make_pair(QString("Qx"), QString::number(q.x, 'g', 3)));
-            exif["Orientation"].push_back(std::make_pair(QString("Qy"), QString::number(q.y, 'g', 3)));
-            exif["Orientation"].push_back(std::make_pair(QString("Qz"), QString::number(q.z, 'g', 3)));
-            exif["Orientation"].push_back(std::make_pair(QString("Qw"), QString::number(q.w, 'g', 3)));
+            exif["Orientation"].emplace_back(QString("X"), QString::number(position.x, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Y"), QString::number(position.y, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Z"), QString::number(position.z, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Qx"), QString::number(q.x, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Qy"), QString::number(q.y, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Qz"), QString::number(q.z, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Qw"), QString::number(q.w, 'g', 3));
 
         }
 
@@ -872,17 +876,17 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
     auto orientation_report = mProject->orientationReport();
 
-    sparse_model_info["Orientation parameters"].push_back(std::make_pair(QString("Orientation type"), QString::fromStdString(orientation_report.type)));
-    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("Oriented images"), QString::number(orientation_report.orientedImages).append(" of ").append(QString::number(mProject->imagesCount()))));
-    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("BA iterations"), QString::number(orientation_report.iterations)));
-    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("BA initial cost"), QString::number(orientation_report.initialCost, 'f', 10)));
-    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("BA final cost"), QString::number(orientation_report.finalCost, 'f', 10)));
+    sparse_model_info["Orientation parameters"].emplace_back(QString("Orientation type"), QString::fromStdString(orientation_report.type));
+    sparse_model_info["Orientation results"].emplace_back(QString("Oriented images"), QString::number(orientation_report.orientedImages).append(" of ").append(QString::number(mProject->imagesCount())));
+    sparse_model_info["Orientation results"].emplace_back(QString("BA iterations"), QString::number(orientation_report.iterations));
+    sparse_model_info["Orientation results"].emplace_back(QString("BA initial cost"), QString::number(orientation_report.initialCost, 'f', 10));
+    sparse_model_info["Orientation results"].emplace_back(QString("BA final cost"), QString::number(orientation_report.finalCost, 'f', 10));
     if (orientation_report.type == "Absolute") {
-        sparse_model_info["Orientation results"].push_back(std::make_pair(QString("Absolute orientation error (mean)"), QString::number(orientation_report.alignmentErrorMean, 'f', 10)));
-        sparse_model_info["Orientation results"].push_back(std::make_pair(QString("Absolute orientation error (median)"), QString::number(orientation_report.alignmentErrorMedian, 'f', 10)));
+        sparse_model_info["Orientation results"].emplace_back(QString("Absolute orientation error (mean)"), QString::number(orientation_report.alignmentErrorMean, 'f', 10));
+        sparse_model_info["Orientation results"].emplace_back(QString("Absolute orientation error (median)"), QString::number(orientation_report.alignmentErrorMedian, 'f', 10));
     }
 
-    sparse_model_info["Orientation results"].push_back(std::make_pair(QString("Processing time"), QString::number(orientation_report.time / 60., 'g', 2).append(" minutes")));
+    sparse_model_info["Orientation results"].emplace_back(QString("Processing time"), QString::number(orientation_report.time / 60., 'g', 2).append(" minutes"));
 
     return sparse_model_info;
 }
@@ -894,44 +898,44 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
     if (auto densification = mProject->densification()) {
 
         auto densification_method = densification->method();
-        if (densification_method == graphos::Densification::Method::cmvs_pmvs) {
+        if (densification_method == Densification::Method::cmvs_pmvs) {
 
-            auto cmvs_pmvs = std::dynamic_pointer_cast<graphos::CmvsPmvs>(densification);
-            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Level"), QString::number(cmvs_pmvs->level())));
-            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Cell size"), QString::number(cmvs_pmvs->cellSize())));
-            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Threshold"), QString::number(cmvs_pmvs->threshold(), 'g', 5)));
-            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Window Size"), QString::number(cmvs_pmvs->windowSize())));
-            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Images per cluster"), QString::number(cmvs_pmvs->imagesPerCluster())));
-            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Minimun image number"), QString::number(cmvs_pmvs->minimunImageNumber())));
-            dense_model_info["Densification parameters (CMVS/PMVS)"].push_back(std::make_pair(QString("Use visibility information"), cmvs_pmvs->useVisibilityInformation() ? "True" : "False"));
+            auto cmvs_pmvs = std::dynamic_pointer_cast<CmvsPmvs>(densification);
+            dense_model_info["Densification parameters (CMVS/PMVS)"].emplace_back(QString("Level"), QString::number(cmvs_pmvs->level()));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].emplace_back(QString("Cell size"), QString::number(cmvs_pmvs->cellSize()));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].emplace_back(QString("Threshold"), QString::number(cmvs_pmvs->threshold(), 'g', 5));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].emplace_back(QString("Window Size"), QString::number(cmvs_pmvs->windowSize()));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].emplace_back(QString("Images per cluster"), QString::number(cmvs_pmvs->imagesPerCluster()));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].emplace_back(QString("Minimun image number"), QString::number(cmvs_pmvs->minimunImageNumber()));
+            dense_model_info["Densification parameters (CMVS/PMVS)"].emplace_back(QString("Use visibility information"), cmvs_pmvs->useVisibilityInformation() ? "True" : "False");
 
-        } else if (densification_method == graphos::Densification::Method::smvs) {
+        } else if (densification_method == Densification::Method::smvs) {
 
-            auto smvs = std::dynamic_pointer_cast<graphos::Smvs>(densification);
-            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Input image scale"), QString::number(smvs->inputImageScale())));
-            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Output depth scale"), QString::number(smvs->outputDepthScale())));
-            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Semi-global matching"), smvs->semiGlobalMatching() ? "True" : "False"));
-            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Surface smoothing factor"), QString::number(smvs->surfaceSmoothingFactor(), 'g', 5)));
-            dense_model_info["Densification parameters (SMVS)"].push_back(std::make_pair(QString("Shading based optimization"), smvs->shadingBasedOptimization() ? "True" : "False"));
+            auto smvs = std::dynamic_pointer_cast<Smvs>(densification);
+            dense_model_info["Densification parameters (SMVS)"].emplace_back(QString("Input image scale"), QString::number(smvs->inputImageScale()));
+            dense_model_info["Densification parameters (SMVS)"].emplace_back(QString("Output depth scale"), QString::number(smvs->outputDepthScale()));
+            dense_model_info["Densification parameters (SMVS)"].emplace_back(QString("Semi-global matching"), smvs->semiGlobalMatching() ? "True" : "False");
+            dense_model_info["Densification parameters (SMVS)"].emplace_back(QString("Surface smoothing factor"), QString::number(smvs->surfaceSmoothingFactor(), 'g', 5));
+            dense_model_info["Densification parameters (SMVS)"].emplace_back(QString("Shading based optimization"), smvs->shadingBasedOptimization() ? "True" : "False");
 
-        } else if (densification_method == graphos::Densification::Method::mvs) {
+        } else if (densification_method == Densification::Method::mvs) {
 
-            auto mvs = std::dynamic_pointer_cast<graphos::Mvs>(densification);
-            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Resolution level"), QString::number(mvs->resolutionLevel())));
-            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Min resolution"), QString::number(mvs->minResolution())));
-            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Max resolution"), QString::number(mvs->maxResolution())));
-            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Number views"), QString::number(mvs->numberViews())));
-            dense_model_info["Densification parameters (MVS)"].push_back(std::make_pair(QString("Number views fuse"), QString::number(mvs->numberViewsFuse())));
+            auto mvs = std::dynamic_pointer_cast<Mvs>(densification);
+            dense_model_info["Densification parameters (MVS)"].emplace_back(QString("Resolution level"), QString::number(mvs->resolutionLevel()));
+            dense_model_info["Densification parameters (MVS)"].emplace_back(QString("Min resolution"), QString::number(mvs->minResolution()));
+            dense_model_info["Densification parameters (MVS)"].emplace_back(QString("Max resolution"), QString::number(mvs->maxResolution()));
+            dense_model_info["Densification parameters (MVS)"].emplace_back(QString("Number views"), QString::number(mvs->numberViews()));
+            dense_model_info["Densification parameters (MVS)"].emplace_back(QString("Number views fuse"), QString::number(mvs->numberViewsFuse()));
 
         }
 
         auto dense_report = mProject->denseReport();
         if (!dense_report.isEmpty()) {
 
-            dense_model_info["Densification parameters"].push_back(std::make_pair(QString("Cuda"), dense_report.time ? "True" : "False"));
+            dense_model_info["Densification parameters"].emplace_back(QString("Cuda"), dense_report.time ? "True" : "False");
 
-            dense_model_info["Densification results"].push_back(std::make_pair(QString("Point cloud size"), QString::number(dense_report.points)));
-            dense_model_info["Densification results"].push_back(std::make_pair(QString("Processig time"), QString::number(dense_report.time / 60., 'g', 2).append(" minutes")));
+            dense_model_info["Densification results"].emplace_back(QString("Point cloud size"), QString::number(dense_report.points));
+            dense_model_info["Densification results"].emplace_back(QString("Processig time"), QString::number(dense_report.time / 60., 'g', 2).append(" minutes"));
 
         }
     }
@@ -945,14 +949,13 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
 
     if (auto mesh_properties = mProject->meshProperties()) {
 
-        mesh_info["Poisson reconstruction parameters"].push_back(std::make_pair(QString("Depth"), QString::number(mesh_properties->depth())));
-        mesh_info["Poisson reconstruction parameters"].push_back(std::make_pair(QString("Solve depth"), QString::number(mesh_properties->solveDepth())));
-        mesh_info["Poisson reconstruction parameters"].push_back(std::make_pair(QString("Boundary type"), mesh_properties->boundaryType()));
-        mesh_info["Poisson reconstruction parameters"].push_back(std::make_pair(QString("Full depth"), QString::number(mesh_properties->fullDepth())));
+        mesh_info["Poisson reconstruction parameters"].emplace_back(QString("Depth"), QString::number(mesh_properties->depth()));
+        mesh_info["Poisson reconstruction parameters"].emplace_back(QString("Solve depth"), QString::number(mesh_properties->solveDepth()));
+        mesh_info["Poisson reconstruction parameters"].emplace_back(QString("Boundary type"), mesh_properties->boundaryTypeAsText());
 
         auto mesh_report = mProject->meshReport();
         if (!mesh_report.isEmpty()) {
-            mesh_info["Poisson reconstruction results"].push_back(std::make_pair(QString("Processig time"), QString::number(mesh_report.time / 60., 'g', 2).append(" minutes")));
+            mesh_info["Poisson reconstruction results"].emplace_back(QString("Processig time"), QString::number(mesh_report.time / 60., 'g', 2).append(" minutes"));
         }
     }
 

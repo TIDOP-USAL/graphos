@@ -856,9 +856,9 @@ void ImportCamerasModelImp::importCameras()
 
 bool ImportCamerasModelImp::checkCRS(const QString &crs)
 {
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     tl::Crs _crs(crs.toStdString());
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
     return _crs.isValid();
 }
 

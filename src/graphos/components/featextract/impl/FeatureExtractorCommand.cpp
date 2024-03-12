@@ -50,7 +50,7 @@ FeatureExtractorCommand::FeatureExtractorCommand()
   : Command("featextract", "Feature extraction (SIFT)"),
     mDisableCuda(false)
 {
-    SiftProperties siftProperties;
+    Sift siftProperties;
     this->addArgument<std::string>("prj", 'p', "Project file");
     this->addArgument<int>("max_image_size", 's', "Maximum image size (default = 3200)", 3200);
     this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(siftProperties.featuresNumber())).append(")"), siftProperties.featuresNumber());
@@ -60,9 +60,9 @@ FeatureExtractorCommand::FeatureExtractorCommand()
 
 
 #ifdef HAVE_CUDA
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
     if (cuda_enabled)
         this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
     else mDisableCuda = true;

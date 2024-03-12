@@ -108,7 +108,7 @@ void CamerasPresenterImp::activeCamera(int id)
 
         std::shared_ptr<Calibration> calibration = camera.calibration();
         if (calibration) {
-            for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
+            for (auto param = calibration->begin(); param != calibration->end(); param++) {
                 Calibration::Parameters parameter = param->first;
                 double value = param->second;
                 switch (parameter) {

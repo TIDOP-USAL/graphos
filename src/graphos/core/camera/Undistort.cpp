@@ -42,7 +42,7 @@ using namespace tl;
 namespace graphos
 {
 
-cv::Mat openCVCameraMatrix(const Calibration &calibration)
+auto openCvCameraMatrix(const Calibration &calibration) -> cv::Mat
 {
     float focal_x{};
     float focal_y{};
@@ -61,84 +61,69 @@ cv::Mat openCVCameraMatrix(const Calibration &calibration)
     std::array<std::array<float, 3>, 3> camera_matrix_data = {focal_x, 0.f, ppx,
                                                               0.f, focal_y, ppy,
                                                               0.f, 0.f, 1.f};
+
     cv::Mat camera_matrix(3, 3, CV_32F, camera_matrix_data.data());
 
     return camera_matrix.clone();
 }
 
-cv::Mat openCVDistortionCoefficients(const Calibration &calibration)
+auto openCvDistortionCoefficients(const Calibration& calibration) -> cv::Mat
 {
     Calibration::CameraModel camera_model = calibration.cameraModel();
-    bool b_fisheye = calibration.checkCameraType(Calibration::CameraType::fisheye);
+    bool is_fisheye = calibration.checkCameraType(Calibration::CameraType::fisheye);
 
-    int distCoeffs_size = 4;
+    int distortions_coefficients_size = 4;
 
     switch (camera_model) {
     case Calibration::CameraModel::radial1:
-        distCoeffs_size = 4;
-        break;
     case Calibration::CameraModel::radial2:
-        distCoeffs_size = 4;
+    case Calibration::CameraModel::simple_radial_fisheye:
+    case Calibration::CameraModel::radial_fisheye:
+    case Calibration::CameraModel::opencv:
+    case Calibration::CameraModel::opencv_fisheye:
+    case Calibration::CameraModel::simple_pinhole:
+    case Calibration::CameraModel::pinhole:
+        distortions_coefficients_size = 4;
         break;
     case Calibration::CameraModel::radial3:
-        distCoeffs_size = 5;
-        break;
-    case Calibration::CameraModel::simple_radial_fisheye:
-        distCoeffs_size = 4;
-        break;
-    case Calibration::CameraModel::radial_fisheye:
-        distCoeffs_size = 4;
-        break;
-    case Calibration::CameraModel::opencv:
-        distCoeffs_size = 4;
-        break;
-    case Calibration::CameraModel::opencv_fisheye:
-        distCoeffs_size = 4;
+        distortions_coefficients_size = 5;
         break;
     case Calibration::CameraModel::opencv_full:
-        distCoeffs_size = 8;
-        break;
-    case Calibration::CameraModel::simple_pinhole:
-        distCoeffs_size = 4;
-        break;
-    case Calibration::CameraModel::pinhole:
-        distCoeffs_size = 4;
-        break;
-    default:
+        distortions_coefficients_size = 8;
         break;
     }
 
-    cv::Mat distCoeffs = cv::Mat::zeros(1, distCoeffs_size, CV_32F);
+    cv::Mat distCoeffs = cv::Mat::zeros(1, distortions_coefficients_size, CV_32F);
 
     distCoeffs.at<float>(0) = calibration.existParameter(Calibration::Parameters::k1) ?
-        static_cast<float>(calibration.parameter(Calibration::Parameters::k1)) : 0.f;
+                              static_cast<float>(calibration.parameter(Calibration::Parameters::k1)) : 0.f;
     distCoeffs.at<float>(1) = calibration.existParameter(Calibration::Parameters::k2) ?
-        static_cast<float>(calibration.parameter(Calibration::Parameters::k2)) : 0.f;
-    if (b_fisheye) {
+                              static_cast<float>(calibration.parameter(Calibration::Parameters::k2)) : 0.f;
+    if (is_fisheye) {
         distCoeffs.at<float>(2) = calibration.existParameter(Calibration::Parameters::k3) ?
-            static_cast<float>(calibration.parameter(Calibration::Parameters::k3)) : 0.f;
+                                  static_cast<float>(calibration.parameter(Calibration::Parameters::k3)) : 0.f;
         distCoeffs.at<float>(3) = calibration.existParameter(Calibration::Parameters::k4) ?
-            static_cast<float>(calibration.parameter(Calibration::Parameters::k4)) : 0.f;
+                                  static_cast<float>(calibration.parameter(Calibration::Parameters::k4)) : 0.f;
     } else {
 
         distCoeffs.at<float>(2) = calibration.existParameter(Calibration::Parameters::p1) ?
-            static_cast<float>(calibration.parameter(Calibration::Parameters::p1)) : 0.f;
+                                  static_cast<float>(calibration.parameter(Calibration::Parameters::p1)) : 0.f;
         distCoeffs.at<float>(3) = calibration.existParameter(Calibration::Parameters::p2) ?
-            static_cast<float>(calibration.parameter(Calibration::Parameters::p2)) : 0.f;
+                                  static_cast<float>(calibration.parameter(Calibration::Parameters::p2)) : 0.f;
 
         if (camera_model == Calibration::CameraModel::opencv_full ||
             camera_model == Calibration::CameraModel::radial3) {
             distCoeffs.at<float>(4) = calibration.existParameter(Calibration::Parameters::k3) ?
-                static_cast<float>(calibration.parameter(Calibration::Parameters::k3)) : 0.f;
+                                      static_cast<float>(calibration.parameter(Calibration::Parameters::k3)) : 0.f;
         }
 
         if (camera_model == Calibration::CameraModel::opencv_full) {
             distCoeffs.at<float>(5) = calibration.existParameter(Calibration::Parameters::k4) ?
-                static_cast<float>(calibration.parameter(Calibration::Parameters::k4)) : 0.f;
+                                      static_cast<float>(calibration.parameter(Calibration::Parameters::k4)) : 0.f;
             distCoeffs.at<float>(6) = calibration.existParameter(Calibration::Parameters::k5) ?
-                static_cast<float>(calibration.parameter(Calibration::Parameters::k5)) : 0.f;
+                                      static_cast<float>(calibration.parameter(Calibration::Parameters::k5)) : 0.f;
             distCoeffs.at<float>(7) = calibration.existParameter(Calibration::Parameters::k6) ?
-                static_cast<float>(calibration.parameter(Calibration::Parameters::k6)) : 0.f;
+                                      static_cast<float>(calibration.parameter(Calibration::Parameters::k6)) : 0.f;
         }
     }
 
@@ -146,12 +131,10 @@ cv::Mat openCVDistortionCoefficients(const Calibration &calibration)
 }
 
 
-Undistort::Undistort()
-{
-}
+Undistort::Undistort() = default;
 
 Undistort::Undistort(const Camera &camera)
-    : mCamera(camera)
+  : mCamera(camera)
 {
     init();
 }
@@ -167,7 +150,7 @@ Undistort::Undistort(const Undistort &undistort)
 {
 }
 
-Camera Undistort::camera() const
+auto Undistort::camera() const -> Camera
 {
     return mCamera;
 }
@@ -178,12 +161,12 @@ void Undistort::setCamera(const Camera &camera)
     init();
 }
 
-Camera Undistort::undistortCamera() const
+auto Undistort::undistortCamera() const -> Camera
 {
     return mUndistortCamera;
 }
 
-cv::Mat Undistort::undistortImage(const cv::Mat &image, bool cuda)
+auto Undistort::undistortImage(const cv::Mat &image, bool cuda) const -> cv::Mat
 {
     cv::Mat img_undistort;
 
@@ -214,12 +197,12 @@ cv::Mat Undistort::undistortImage(const cv::Mat &image, bool cuda)
     return img_undistort;
 }
 
-tl::Point<float> Undistort::undistortPoint(const tl::Point<float> &point)
+auto Undistort::undistortPoint(const tl::Point<float>& point) const -> tl::Point<float>
 {
     std::vector<cv::Point2f> cv_point{cv::Point2f(point.x, point.y)};
     std::vector<cv::Point2f> cv_point_out;
     cv::undistortPoints(cv_point, cv_point_out, mCameraMatrix, mDistCoeffs, cv::Mat(), mOptimalNewCameraMatrix);
-    return tl::Point<float>(cv_point_out[0].x, cv_point_out[0].y);
+    return {cv_point_out[0].x, cv_point_out[0].y};
 }
 
 void Undistort::init()
@@ -233,12 +216,12 @@ void Undistort::init()
 
 void Undistort::initCameraMatrix()
 {
-    mCameraMatrix = openCVCameraMatrix(*mCamera.calibration());
+    mCameraMatrix = openCvCameraMatrix(*mCamera.calibration());
 }
 
 void Undistort::initDistCoeffs()
 {
-    mDistCoeffs = openCVDistortionCoefficients(*mCamera.calibration());
+    mDistCoeffs = openCvDistortionCoefficients(*mCamera.calibration());
 }
 
 void Undistort::initOptimalNewCameraMatrix()
@@ -275,8 +258,7 @@ void Undistort::initUndistortCamera()
 
 void Undistort::initUndistortMaps()
 {
-    cv::Size size(static_cast<int>(mCamera.width()),
-                  static_cast<int>(mCamera.height()));
+    cv::Size size(mCamera.width(), mCamera.height());
 
     bool b_fisheye = mCamera.calibration()->checkCameraType(Calibration::CameraType::fisheye);
 
@@ -299,16 +281,14 @@ class UndistortQueueData
 
 public:
 
-    UndistortQueueData()
-    {
-    }
+    UndistortQueueData() = default;
 
-    UndistortQueueData(const cv::Mat &image,
-                       std::shared_ptr<Undistort> undistort,
-                       const tl::Path &undistortImage)
-        : mImage(image),
+    UndistortQueueData(cv::Mat image,
+                       const std::shared_ptr<Undistort> &undistort,
+                       tl::Path undistortImage)
+        : mImage(std::move(image)),
           mUndistort(undistort),
-          mUndistortImage(undistortImage)
+          mUndistortImage(std::move(undistortImage))
     {
 
     }
@@ -318,17 +298,17 @@ public:
         mImage = image;
     }
 
-    cv::Mat image() const
+    auto image() const -> cv::Mat
     {
         return mImage;
     }
 
-    void setUndistort(std::shared_ptr<Undistort> undistort)
+    void setUndistort(const std::shared_ptr<Undistort> &undistort)
     {
         mUndistort = undistort;
     }
 
-    std::shared_ptr<Undistort> undistort() const
+    auto undistort() const -> std::shared_ptr<Undistort>
     {
         return mUndistort;
     }
@@ -338,7 +318,7 @@ public:
         mUndistortImage = undistortImage;
     }
 
-    tl::Path undistortImage() const
+    auto undistortImage() const -> tl::Path
     {
         return mUndistortImage;
     }
@@ -351,7 +331,7 @@ private:
 };
 
 class UndistortProducerImp
-    : public tl::Producer<UndistortQueueData>
+  : public tl::Producer<UndistortQueueData>
 {
 
 public:
@@ -359,14 +339,14 @@ public:
     UndistortProducerImp(tl::QueueMPMC<UndistortQueueData> *queue,
                          const std::unordered_map<size_t, Image> *images,
                          const std::map<int, Camera> *cameras,
-                         const tl::Path &undistortPath,
-                         const std::string &extension,
+                         tl::Path undistortPath,
+                         std::string extension,
                          tl::Task *parentTask = nullptr)
         : tl::Producer<UndistortQueueData>(queue),
           mImages(images),
           mCameras(cameras),
-          mUndistortPath(undistortPath),
-          mExtension(extension),
+          mUndistortPath(std::move(undistortPath)),
+          mExtension(std::move(extension)),
           mParentTask(parentTask)
     {
     }
@@ -449,7 +429,7 @@ private:
         }
     }
 
-    cv::Mat readImage(const Image &image)
+    auto readImage(const Image& image) -> cv::Mat
     {
         cv::Mat mat;
 
@@ -504,7 +484,7 @@ class UndistortConsumerImp
 public:
 
     UndistortConsumerImp(tl::QueueMPMC<UndistortQueueData> *buffer,
-                         const std::unordered_map<size_t, Image> *images,
+                         std::unordered_map<size_t, Image> *images,
                          bool useGPU,
                          tl::Progress *progressBar,
                          tl::Task *parentTask = nullptr)
@@ -516,11 +496,11 @@ public:
     {
     }
 
-    void operator() ()
+    void operator() () override
     {
         while (!data_load_done) {
 
-            while (queue()->size()) {
+            while (!queue()->empty()) {
 
                 if (mParentTask->status() == tl::Task::Status::stopping) {
                     data_load_done = true;
@@ -531,7 +511,7 @@ public:
             }
         }
 
-        while (queue()->size()) {
+        while (!queue()->empty()) {
 
             if (mParentTask->status() == tl::Task::Status::stopping) {
                 data_load_done = true;
@@ -583,7 +563,7 @@ private:
 
 private:
 
-    const std::unordered_map<size_t, Image> *mImages;
+    std::unordered_map<size_t, Image> *mImages;
     std::string mDatabaseFile;
     bool bUseGPU;
     tl::Progress *mProgressBar;
@@ -599,21 +579,19 @@ private:
 
 UndistortImages::UndistortImages(const std::unordered_map<size_t, Image> &images,
                                  const std::map<int, Camera> &cameras,
-                                 const QString &outputPath,
+                                 QString outputPath,
                                  Format outputFormat,
                                  bool cuda)
-    : tl::TaskBase(),
-      mImages(images),
+    : mImages(images),
       mCameras(cameras),
-      mOutputPath(outputPath),
+      mOutputPath(std::move(outputPath)),
       mOutputFormat(outputFormat),
-      bUseCuda(cuda)
+      mUseCuda(cuda)
 {
 }
 
-UndistortImages::~UndistortImages()
-{
-}
+UndistortImages::~UndistortImages() = default;
+
 void UndistortImages::execute(tl::Progress *progressBar)
 {
 
@@ -624,13 +602,13 @@ void UndistortImages::execute(tl::Progress *progressBar)
 
         std::string extension;
         switch (mOutputFormat) {
-        case graphos::UndistortImages::Format::tiff:
+        case Format::tiff:
             extension = ".tif";
             break;
-        case graphos::UndistortImages::Format::jpeg:
+        case Format::jpeg:
             extension = ".jpg";
             break;
-        case graphos::UndistortImages::Format::png:
+        case Format::png:
             extension = ".png";
             break;
         }
@@ -648,7 +626,7 @@ void UndistortImages::execute(tl::Progress *progressBar)
                                                 this);
         internal::UndistortConsumerImp consumer(&queue,
                                                 &mImages,
-                                                bUseCuda,
+                                                mUseCuda,
                                                 progressBar,
                                                 this);
 
@@ -666,29 +644,29 @@ void UndistortImages::execute(tl::Progress *progressBar)
             size_t _end = _ini + size;
             if (i == num_threads - 1) _end = mImages.size();
 
-            producer_threads[i] = std::move(std::thread(producer, _ini, _end));
+            producer_threads[i] = std::thread(producer, _ini, _end);
         }
 
-        for (auto &_thread : consumer_threads) {
-            _thread = std::move(std::thread(consumer));
+        for (auto &consumer_thread : consumer_threads) {
+            consumer_thread = std::thread(consumer);
         }
 
-        for (auto &_thread : producer_threads) {
-            if (_thread.joinable()) {
-                _thread.join();
+        for (auto &producer_thread : producer_threads) {
+            if (producer_thread.joinable()) {
+                producer_thread.join();
             }
         }
 
         internal::data_load_done = true;
         queue.stop();
 
-        for (auto &_thread : consumer_threads) {
-            if (_thread.joinable()) {
-                _thread.join();
+        for (auto &consumer_thread : consumer_threads) {
+            if (consumer_thread.joinable()) {
+                consumer_thread.join();
             }
         }
 
-        if (status() == tl::Task::Status::stopping) {
+        if (status() == Status::stopping) {
             chrono.reset();
         } else {
             chrono.stop();

@@ -401,13 +401,14 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
         parameters.alwaysDisplayLoadDialog = false;
         parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
         parameters.parentWidget = nullptr;
-        result = filter.loadFile(QString::fromStdString(model),
-                                 group,
-                                 parameters);
+        result = filter.loadFile(QString::fromStdString(model), group, parameters);
+        
+        TL_ASSERT(result == CC_FERR_NO_ERROR, "Open Ply error");
+
         ccHObject::Container clouds;
         group.filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
 
-        TL_ASSERT(clouds.size() == 1, "Error");
+        //TL_ASSERT(clouds.size() == 1, "Error");
 
         ccHObject *model_3d = clouds.at(0);
 
@@ -415,8 +416,6 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
         ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model_3d, &lockedVertices);
         ccGLMatrix cc_rot;
         float *mat = cc_rot.data();
-
-        std::cout << "transformModel: \n" << transform << std::endl;
 
         mat[0] = transform[0][0];
         mat[1] = transform[1][0];
@@ -436,21 +435,16 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
         cc_rot.setTranslation(t);
 
         cloud->applyRigidTransformation(cc_rot);
-        //cloud->scale(static_cast<PointCoordinateType>(transform[0][0]),
-        //             static_cast<PointCoordinateType>(transform[1][1]),
-        //             static_cast<PointCoordinateType>(transform[2][2]),
-        //             CCVector3(transform[0][3], transform[1][3], transform[2][3]));
 
         FileIOFilter::SaveParameters save_parameters;
         save_parameters.alwaysDisplaySaveDialog = false;
         save_parameters.parentWidget = nullptr;
         result = filter.saveToFile(group.getChild(0), QString::fromStdString(model), save_parameters);
-        if (result != CC_FERR_NO_ERROR)
-            tl::Message::info("Save Ply error");
+
+        TL_ASSERT(result == CC_FERR_NO_ERROR, "Save Ply error");
 
     } catch (...) {
-        tl::Message::warning("[I/O] CC has caught an unhandled exception while loading file '{}'", model);
-        return; ///TODO: Devolver error
+        TL_THROW_EXCEPTION_WITH_NESTED("Transform model error");
     }
 }
 

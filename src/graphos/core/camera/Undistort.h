@@ -44,13 +44,14 @@ class Progress;
 namespace graphos
 {
 
+/// TODO: dejar sólo en el cpp para su uso por la clase Undistort
+auto openCvCameraMatrix(const Calibration &calibration) -> cv::Mat;
+auto openCvDistortionCoefficients(const Calibration &calibration) -> cv::Mat;
 
-TL_DEPRECATED("Undistort", "2.0")
-cv::Mat openCVCameraMatrix(const Calibration &calibration);
-TL_DEPRECATED("Undistort", "2.0")
-cv::Mat openCVDistortionCoefficients(const Calibration &calibration);
-//Camera undistortCamera(const Camera &camera);
 
+/*!
+ * \brief Class for the correction of image distortion and image coordinate points.
+ */
 class Undistort
 {
 
@@ -61,12 +62,12 @@ public:
     Undistort(const Undistort &undistort);
     ~Undistort() = default;
 
-    Camera camera() const;
+    auto camera() const -> Camera;
     void setCamera(const Camera &camera);
-    Camera undistortCamera() const;
-    cv::Mat undistortImage(const cv::Mat &image,
-                           bool cuda = false);
-    tl::Point<float> undistortPoint(const tl::Point<float> &point);
+    auto undistortCamera() const -> Camera;
+    auto undistortImage(const cv::Mat &image,
+                        bool cuda = false) const -> cv::Mat;
+    auto undistortPoint(const tl::Point<float> &point) const -> tl::Point<float>;
 
 private:
 
@@ -88,8 +89,12 @@ private:
     cv::Mat mMap2;
 };
 
+
+/*!
+ * \brief Task for the correction of a set of images
+ */
 class UndistortImages
-    : public tl::TaskBase
+  : public tl::TaskBase
 {
 
 public:
@@ -105,10 +110,10 @@ public:
 
     UndistortImages(const std::unordered_map<size_t, Image> &images,
                     const std::map<int, Camera> &cameras,
-                    const QString &outputPath,
+                    QString outputPath,
                     Format outputFormat,
                     bool cuda = false);
-    ~UndistortImages();
+    ~UndistortImages() override;
 
     // TaskBase
 
@@ -118,11 +123,11 @@ protected:
 
 private:
 
-    const std::unordered_map<size_t, Image> &mImages;
-    const std::map<int, Camera> &mCameras;
+    std::unordered_map<size_t, Image> mImages;
+    std::map<int, Camera> mCameras;
     QString mOutputPath;
     Format mOutputFormat;
-    bool bUseCuda;
+    bool mUseCuda;
 
 };
 

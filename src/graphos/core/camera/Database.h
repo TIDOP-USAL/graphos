@@ -40,25 +40,63 @@ class Reconstruction;
 namespace graphos
 {
 
+
+/*!
+ * \brief Camera database management
+ */
 class DatabaseCameras
 {
 
 public:
 
-    DatabaseCameras(QString database);
+    DatabaseCameras(const QString &database);
     ~DatabaseCameras();
 
+    /*!
+     * \brief Open the database
+     */
     void open();
-    bool isOpen() const;
+
+    /*!
+     * \brief Check if the database is open
+     * \return 
+     */
+    auto isOpen() const -> bool;
+
+    /*!
+     * \brief Close the database
+     */
     void close();
 
-    bool existCameraMakeId(const QString &cameraMake) const;
-    bool existCameraModel(int cameraMake,
-                          const QString &cameraModel) const;
+    /*!
+     * \brief Check if the camera brand exists in the database.
+     * \param[in] cameraMake Camera 
+     * \return 
+     */
+    auto existCameraMakeId(const QString &cameraMake) const -> bool;
 
-    int cameraMakeId(const QString &cameraMake) const;
-    double cameraSensorSize(int cameraMake,
-                            const QString &cameraModel) const;
+    /*!
+     * \brief Check if the camera make and model exists in the database.
+     * \param[in] cameraMake Camera make
+     * \param[in] cameraModel Camera model
+     * \return 
+     */
+    auto existCameraModel(int cameraMake, const QString &cameraModel) const -> bool;
+
+    /*!
+     * \brief Camera make identifier
+     * \param[in] cameraMake Camera make
+     * \return Identifier
+     */
+    auto cameraMakeId(const QString &cameraMake) const -> int;
+
+    /*!
+     * \brief Camera sensor size
+     * \param[in] cameraMake Camera make
+     * \param[in] cameraModel Camera model
+     * \return 
+     */
+    auto cameraSensorSize(int cameraMake, const QString &cameraModel) const -> double;
 
 private:
 

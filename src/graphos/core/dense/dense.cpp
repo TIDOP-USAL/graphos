@@ -46,33 +46,31 @@ DensifierBase::DensifierBase(const std::unordered_map<size_t, Image> &images,
                              const std::map<int, Camera> &cameras,
                              const std::unordered_map<size_t, CameraPose> &poses,
                              const std::vector<GroundPoint> &groundPoints,
-                             const tl::Path &outputPath)
+                             tl::Path outputPath)
   : mImages(images),
     mCameras(cameras),
     mPoses(poses),
     mGroundPoints(groundPoints),
-    mOutputPath(outputPath),
+    mOutputPath(std::move(outputPath)),
     mCuda(false),
     mFormat(UndistortImages::Format::tiff)
 {
 
 }
 
-DensifierBase::~DensifierBase()
-{
-}
+DensifierBase::~DensifierBase() = default;
 
 void DensifierBase::enableCuda(bool enable)
 {
     mCuda = enable;
 }
 
-bool DensifierBase::isCudaEnabled() const
+auto DensifierBase::isCudaEnabled() const -> bool
 {
     return mCuda;
 }
 
-tl::Path DensifierBase::denseModel() const
+auto DensifierBase::denseModel() const -> tl::Path
 {
     return mDenseModel;
 }
@@ -87,13 +85,11 @@ void DensifierBase::setUndistortImagesFormat(UndistortImages::Format format)
     mFormat = format;
 }
 
-void DensifierBase::undistort(const QString &dir)
+auto DensifierBase::undistort(const QString &dir) const -> void
 {
 
     try {
 
-        //TODO: Se están corrigiendo de distorsión todas las imágenes.
-        //      Habría que ver si están orientadas
         UndistortImages undistort(mImages,
                                   mCameras,
                                   dir,
@@ -106,27 +102,27 @@ void DensifierBase::undistort(const QString &dir)
     }
 }
 
-tl::Path DensifierBase::outputPath() const
+auto DensifierBase::outputPath() const -> tl::Path
 {
     return mOutputPath;
 }
 
-const std::unordered_map<size_t, Image> &DensifierBase::images() const
+auto DensifierBase::images() const -> const std::unordered_map<size_t, Image>&
 {
     return mImages;
 }
 
-const std::map<int, Camera> &DensifierBase::cameras() const
+auto DensifierBase::cameras() const -> const std::map<int, Camera>&
 {
     return mCameras;
 }
 
-const std::unordered_map<size_t, CameraPose> &DensifierBase::poses() const
+auto DensifierBase::poses() const -> const std::unordered_map<size_t, CameraPose>&
 {
     return mPoses;
 }
 
-const std::vector<GroundPoint> &DensifierBase::groundPoints() const
+auto DensifierBase::groundPoints() const -> const std::vector<GroundPoint>&
 {
     return mGroundPoints;
 }
@@ -136,18 +132,18 @@ void DensifierBase::setDenseModel(const tl::Path &denseModel)
     mDenseModel = denseModel;
 }
 
-void DensifierBase::autoSegmentation()
+void DensifierBase::autoSegmentation() const
 {
-    CC_FILE_ERROR result = CC_FERR_NO_ERROR;
-    ccHObject group;
-
     try {
+
+        ccHObject group;
 
         PlyFilter filter;
         FileIOFilter::LoadParameters parameters;
         parameters.alwaysDisplayLoadDialog = false;
         parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
         parameters.parentWidget = nullptr;
+        CC_FILE_ERROR result = CC_FERR_NO_ERROR;
         result = filter.loadFile(QString::fromStdString(mDenseModel.toString()),
                                  group,
                                  parameters);
@@ -161,48 +157,32 @@ void DensifierBase::autoSegmentation()
 
         ccHObject *model_3d = clouds.at(0);
 
-        bool lockedVertices;
-        ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model_3d, &lockedVertices);
+        bool locked_vertices;
+        ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model_3d, &locked_vertices);
 
         if (cloud && cloud->isA(CC_TYPES::POINT_CLOUD)) {
 
-            ccPointCloud *pc = static_cast<ccPointCloud *>(cloud);
+            auto pc = dynamic_cast<ccPointCloud *>(cloud);
 
-            //ccOctree::Shared theOctree = cloud->getOctree();
-            //if (!theOctree)
-            //{
-            //	//ccProgressDialog pOctreeDlg(true, this);
-            //	theOctree = cloud->computeOctree(&pOctreeDlg);
-            //	if (!theOctree)
-            //	{
-            //		ccConsole::Error(tr("Couldn't compute octree for cloud '%1'!").arg(cloud->getName()));
-            //		break;
-            //	}
-            //}
-
-            //we create/activate CCs label scalar field
-            int sfIdx = pc->getScalarFieldIndexByName(CC_CONNECTED_COMPONENTS_DEFAULT_LABEL_NAME);
-            if (sfIdx < 0) {
-                sfIdx = pc->addScalarField(CC_CONNECTED_COMPONENTS_DEFAULT_LABEL_NAME);
+            int scalar_field_index = pc->getScalarFieldIndexByName(CC_CONNECTED_COMPONENTS_DEFAULT_LABEL_NAME);
+            if (scalar_field_index < 0) {
+                scalar_field_index = pc->addScalarField(CC_CONNECTED_COMPONENTS_DEFAULT_LABEL_NAME);
             }
 
-            TL_ASSERT(sfIdx >= 0, "Couldn't allocate a new scalar field for computing CC labels! Try to free some memory ...");
+            TL_ASSERT(scalar_field_index >= 0, "Couldn't allocate a new scalar field for computing CC labels! Try to free some memory ...");
 
-            pc->setCurrentScalarField(sfIdx);
+            pc->setCurrentScalarField(scalar_field_index);
 
             //try to label all CCs
-            int componentCount = CCCoreLib::AutoSegmentationTools::labelConnectedComponents(cloud,
-                                                                                            static_cast<unsigned char>(8),
-                                                                                            false,
-                                                                                            nullptr);
+            int component_count = CCCoreLib::AutoSegmentationTools::labelConnectedComponents(cloud, 8, false, nullptr);
 
-            TL_ASSERT(componentCount > 0, "No component found!");
+            TL_ASSERT(component_count > 0, "No component found!");
 
             pc->getCurrentInScalarField()->computeMinAndMax();
             CCCoreLib::ReferenceCloudContainer components;
             bool success = CCCoreLib::AutoSegmentationTools::extractConnectedComponents(pc, components);
-            pc->deleteScalarField(sfIdx);
-            sfIdx = -1;
+            pc->deleteScalarField(scalar_field_index);
+            scalar_field_index = -1;
 
             TL_ASSERT(success, "An error occurred (failed to finish the extraction)");
 
@@ -217,18 +197,17 @@ void DensifierBase::autoSegmentation()
                     }
                 }
 
-                CCCoreLib::ReferenceCloud *compIndexes = components[index];
+                CCCoreLib::ReferenceCloud *component_indexes = components[index];
 
-                ccPointCloud *compCloud = pc->partialClone(compIndexes);
-                if (compCloud) {
-                    compCloud->copyGlobalShiftAndScale(*pc);
+                ccPointCloud *component_cloud = pc->partialClone(component_indexes);
+                if (component_cloud) {
+                    component_cloud->copyGlobalShiftAndScale(*pc);
                 }
 
                 FileIOFilter::SaveParameters save_parameters;
                 save_parameters.alwaysDisplaySaveDialog = false;
                 save_parameters.parentWidget = nullptr;
-                //result = filter.saveToFile(group.getChild(0), QString::fromStdString(mDenseModel.toString()), save_parameters);
-                result = filter.saveToFile(compCloud, QString::fromStdString(mDenseModel.toString()), save_parameters);
+                result = filter.saveToFile(component_cloud, QString::fromStdString(mDenseModel.toString()), save_parameters);
 
                 TL_ASSERT(result == CC_FERR_NO_ERROR, "Save Ply error");
 
@@ -238,7 +217,7 @@ void DensifierBase::autoSegmentation()
 
     } catch (...) {
 
-        return;
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception caught in the automatic segmentation of the point cloud");
     }
 
 }

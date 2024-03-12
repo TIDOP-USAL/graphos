@@ -37,7 +37,6 @@
 #include <tidop/img/imgreader.h>
 #include <tidop/core/progress.h>
 #include <tidop/math/algebra/rotation_convert.h>
-#include <tidop/core/chrono.h>
 
 /* Colmap */
 #include <colmap/base/database.h>
@@ -50,55 +49,65 @@
 namespace graphos
 {
 
-constexpr auto mvsDefaultResolutionLevel = 1;
-constexpr auto mvsDefaultMinResolution = 256;
-constexpr auto mvsDefaultMaxResolution = 3000;
-constexpr auto mvsDefaultNumberViews = 5;
-constexpr auto mvsDefaultNumberViewsFuse = 3;
+constexpr auto mvs_default_resolution_level = 1;
+constexpr auto mvs_default_min_resolution = 256;
+constexpr auto mvs_default_max_resolution = 3000;
+constexpr auto mvs_default_number_views = 5;
+constexpr auto mvs_default_number_views_fuse = 3;
 
-MvsProperties::MvsProperties()
-  : mResolutionLevel(mvsDefaultResolutionLevel),
-    mMinResolution(mvsDefaultMinResolution),
-    mMaxResolution(mvsDefaultMaxResolution),
-    mNumberViews(mvsDefaultNumberViews),
-    mNumberViewsFuse(mvsDefaultNumberViewsFuse)
+Mvs::Mvs()
+  : Densification(Method::smvs),
+    mResolutionLevel(mvs_default_resolution_level),
+    mMinResolution(mvs_default_min_resolution),
+    mMaxResolution(mvs_default_max_resolution),
+    mNumberViews(mvs_default_number_views),
+    mNumberViewsFuse(mvs_default_number_views_fuse),
+    mEstimateColors(false),
+    mEstimateNormals(false)
 {
 }
 
-MvsProperties::MvsProperties(int resolutionLevel,
+Mvs::Mvs(int resolutionLevel,
                              int minResolution,
                              int maxResolution,
                              int numberViews,
                              int numberViewsFuse)
-  : mResolutionLevel(resolutionLevel),
+  : Densification(Method::smvs),
+    mResolutionLevel(resolutionLevel),
     mMinResolution(minResolution),
     mMaxResolution(maxResolution),
     mNumberViews(numberViews),
-    mNumberViewsFuse(numberViewsFuse)
+    mNumberViewsFuse(numberViewsFuse),
+    mEstimateColors(false),
+    mEstimateNormals(false)
 {
 }
 
-MvsProperties::MvsProperties(const MvsProperties &mvs)
-  : Mvs(mvs),
+Mvs::Mvs(const Mvs &mvs)
+  : Densification(mvs),
     mResolutionLevel(mvs.mResolutionLevel),
     mMinResolution(mvs.mMinResolution),
     mMaxResolution(mvs.mMaxResolution),
     mNumberViews(mvs.mNumberViews),
-    mNumberViewsFuse(mvs.mNumberViewsFuse)
+    mNumberViewsFuse(mvs.mNumberViewsFuse),
+    mEstimateColors(mvs.mEstimateColors),
+    mEstimateNormals(mvs.mEstimateNormals)
 {
 }
 
-MvsProperties::MvsProperties(MvsProperties &&mvs) noexcept
-  : Mvs(std::forward<Mvs>(mvs)),
-    mResolutionLevel(mvs.mResolutionLevel),
-    mMinResolution(mvs.mMinResolution),
-    mMaxResolution(mvs.mMaxResolution),
-    mNumberViews(mvs.mNumberViews),
-    mNumberViewsFuse(mvs.mNumberViewsFuse)
+Mvs::Mvs(Mvs &&mvs) noexcept
+    : Densification(std::forward<Densification>(mvs)),
+      mResolutionLevel(mvs.mResolutionLevel),
+      mMinResolution(mvs.mMinResolution),
+      mMaxResolution(mvs.mMaxResolution),
+      mNumberViews(mvs.mNumberViews),
+      mNumberViewsFuse(mvs.mNumberViewsFuse),
+      mEstimateColors(mvs.mEstimateColors),
+      mEstimateNormals(mvs.mEstimateNormals)
 {
 }
 
-MvsProperties &MvsProperties::operator =(const MvsProperties &mvs)
+auto Mvs::operator =(const Mvs& mvs) -> Mvs&
 {
     if (this != &mvs) {
         mResolutionLevel = mvs.mResolutionLevel;
@@ -106,12 +115,14 @@ MvsProperties &MvsProperties::operator =(const MvsProperties &mvs)
         mMaxResolution = mvs.mMaxResolution;
         mNumberViews = mvs.mNumberViews;
         mNumberViewsFuse = mvs.mNumberViewsFuse;
+        mEstimateColors = mvs.mEstimateColors;
+        mEstimateNormals = mvs.mEstimateNormals;
     }
 
     return *this;
 }
 
-MvsProperties &MvsProperties::operator =(MvsProperties &&mvs) noexcept
+auto Mvs::operator =(Mvs&& mvs) noexcept -> Mvs&
 {
     if (this != &mvs) {
         mResolutionLevel = mvs.mResolutionLevel;
@@ -119,96 +130,98 @@ MvsProperties &MvsProperties::operator =(MvsProperties &&mvs) noexcept
         mMaxResolution = mvs.mMaxResolution;
         mNumberViews = mvs.mNumberViews;
         mNumberViewsFuse = mvs.mNumberViewsFuse;
+        mEstimateColors = mvs.mEstimateColors;
+        mEstimateNormals = mvs.mEstimateNormals;
     }
 
     return *this;
 }
 
-int MvsProperties::resolutionLevel() const
+auto Mvs::resolutionLevel() const -> int
 {
     return mResolutionLevel;
 }
 
-int MvsProperties::minResolution() const
+auto Mvs::minResolution() const -> int
 {
     return mMinResolution;
 }
 
-int MvsProperties::maxResolution() const
+auto Mvs::maxResolution() const -> int
 {
     return mMaxResolution;
 }
 
-int MvsProperties::numberViews() const
+auto Mvs::numberViews() const -> int
 {
     return mNumberViews;
 }
 
-int MvsProperties::numberViewsFuse() const
+auto Mvs::numberViewsFuse() const -> int
 {
     return mNumberViewsFuse;
 }
 
-bool MvsProperties::estimateColors() const
+auto Mvs::estimateColors() const -> bool
 {
     return mEstimateColors;
 }
 
-bool MvsProperties::estimateNormals() const
+auto Mvs::estimateNormals() const -> bool
 {
     return mEstimateNormals;
 }
 
-void MvsProperties::setResolutionLevel(int resolutionLevel)
+void Mvs::setResolutionLevel(int resolutionLevel)
 {
     mResolutionLevel = resolutionLevel;
 }
 
-void MvsProperties::setMinResolution(int minResolution)
+void Mvs::setMinResolution(int minResolution)
 {
     mMinResolution = minResolution;
 }
 
-void MvsProperties::setMaxResolution(int maxResolution)
+void Mvs::setMaxResolution(int maxResolution)
 {
     mMaxResolution = maxResolution;
 }
 
-void MvsProperties::setNumberViews(int numberViews)
+void Mvs::setNumberViews(int numberViews)
 {
     mNumberViews = numberViews;
 }
 
-void MvsProperties::setNumberViewsFuse(int numberViewsFuse)
+void Mvs::setNumberViewsFuse(int numberViewsFuse)
 {
     mNumberViewsFuse = numberViewsFuse;
 }
 
-void MvsProperties::setEstimateColors(bool estimateColors)
+void Mvs::setEstimateColors(bool estimateColors)
 {
     mEstimateColors = estimateColors;
 }
 
-void MvsProperties::setEstimateNormals(bool estimateNormals)
+void Mvs::setEstimateNormals(bool estimateNormals)
 {
     mEstimateNormals = estimateNormals;
 }
 
-void MvsProperties::reset()
+void Mvs::reset()
 {
-    mResolutionLevel = mvsDefaultResolutionLevel;
-    mMinResolution = mvsDefaultMinResolution;
-    mMaxResolution = mvsDefaultMaxResolution;
-    mNumberViews = mvsDefaultNumberViews;
-    mNumberViewsFuse = mvsDefaultNumberViewsFuse;
+    mResolutionLevel = mvs_default_resolution_level;
+    mMinResolution = mvs_default_min_resolution;
+    mMaxResolution = mvs_default_max_resolution;
+    mNumberViews = mvs_default_number_views;
+    mNumberViewsFuse = mvs_default_number_views_fuse;
     mEstimateColors = true;
     mEstimateNormals = true;
 }
 
 
-QString MvsProperties::name() const
+auto Mvs::name() const -> QString
 {
-    return QString("MVS");
+    return {"MVS"};
 }
 
 
@@ -223,32 +236,30 @@ MvsDensifier::MvsDensifier(const std::unordered_map<size_t, Image> &images,
                            const std::unordered_map<size_t, CameraPose> &poses,
                            const std::vector<GroundPoint> &groundPoints,
                            const tl::Path &outputPath,
-                           const tl::Path &database,
+                           tl::Path database,
                            bool cuda,
                            bool autoSegmentation)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
-    mDatabase(database),
+    mDatabase(std::move(database)),
     mAutoSegmentation(autoSegmentation)
 {
-    enableCuda(cuda);
+    DensifierBase::enableCuda(cuda);
     setUndistortImagesFormat(UndistortImages::Format::tiff);
 }
 
-MvsDensifier::~MvsDensifier()
-{
-}
+MvsDensifier::~MvsDensifier() = default;
 
 //auto MvsDensifier::report() const -> DenseReport
 //{
 //    return mReport;
 //}
 
-void MvsDensifier::clearTemporalFiles()
+void MvsDensifier::clearTemporalFiles() const
 {
     outputPath().append("temp").removeDirectory();
 }
 
-void MvsDensifier::exportToColmap()
+void MvsDensifier::exportToColmap() const
 {
     try {
 
@@ -446,7 +457,7 @@ void MvsDensifier::exportToColmap()
     }
 }
 
-void MvsDensifier::writeNVMFile()
+void MvsDensifier::writeNvmFile() const
 {
     try {
 
@@ -569,7 +580,7 @@ void MvsDensifier::writeNVMFile()
 }
 
 
-void MvsDensifier::exportToMVS()
+void MvsDensifier::exportToMvs() const
 {
     try {
 
@@ -616,18 +627,18 @@ void MvsDensifier::densify()
         cmd_mvs.append("\\DensifyPointCloud\" -w \"");
         cmd_mvs.append(outputPath().toString());
         cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 2");
-        cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
-        cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
-        cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
-        cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
-        cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
+        cmd_mvs.append(" --resolution-level ").append(std::to_string(Mvs::resolutionLevel()));
+        cmd_mvs.append(" --min-resolution ").append(std::to_string(Mvs::minResolution()));
+        cmd_mvs.append(" --max-resolution ").append(std::to_string(Mvs::maxResolution()));
+        cmd_mvs.append(" --number-views ").append(std::to_string(Mvs::numberViews()));
+        cmd_mvs.append(" --number-views-fuse ").append(std::to_string(Mvs::numberViewsFuse()));
         if (isCudaEnabled())
             cmd_mvs.append(" --cuda-device -1");
         else
             cmd_mvs.append(" --cuda-device -2");
-        if (!MvsProperties::estimateColors())
+        if (!Mvs::estimateColors())
             cmd_mvs.append(" --estimate-colors 0");
-        if (!MvsProperties::estimateNormals())
+        if (!Mvs::estimateNormals())
             cmd_mvs.append(" --estimate-normals 0");
         //cmd_mvs.append(" --filter-point-cloud 1");
 
@@ -666,11 +677,6 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 {
     try {
 
-        //tl::Chrono chrono("Densification finished");
-        //chrono.run();
-
-        //this->clearPreviousModel();
-
         tl::Path undistort_path(outputPath());
         undistort_path.append("temp").append("export").append("images");
         undistort_path.createDirectories();
@@ -680,20 +686,20 @@ void MvsDensifier::execute(tl::Progress *progressBar)
         this->exportToColmap();
         //this->writeNVMFile(); 
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         this->undistort(QString::fromStdWString(undistort_path.toWString()));
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
-        this->exportToMVS();
+        this->exportToMvs();
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
         this->clearTemporalFiles();
 
         Ply ply(denseModel().toString());
-        mReport.points = ply.size();
+        mReport.points = static_cast<int>(ply.size());
         ply.close();
         mReport.cuda = isCudaEnabled();
         mReport.method = this->name().toStdString();

@@ -215,7 +215,7 @@ void CCViewer3D::deleteEntity(const QString &id)
                 } else {
                     delete temp;
                 }
-                break;
+                //break;
             }
         }
 

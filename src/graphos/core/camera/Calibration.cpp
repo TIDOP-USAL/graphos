@@ -32,199 +32,209 @@ namespace graphos
 {
 
 
-class CalibrationRadial1
-    : public Calibration
+class CalibrationRadial1 final
+  : public Calibration
 {
 
 public:
 
     CalibrationRadial1()
-        : Calibration(Calibration::CameraModel::radial1)
+        : Calibration(CameraModel::radial1)
     {
     }
-    virtual ~CalibrationRadial1() override {}
 
-    std::string name() const override
+    ~CalibrationRadial1() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("Radial 1");
+        return std::string{"Radial 1"};
     }
 
 };
 
-class CalibrationRadial2
-    : public Calibration
+class CalibrationRadial2 final
+  : public Calibration
 {
 
 public:
 
     CalibrationRadial2()
-        : Calibration(Calibration::CameraModel::radial2)
+        : Calibration(CameraModel::radial2)
     {
     }
-    virtual ~CalibrationRadial2() override {}
 
-    std::string name() const override
+    ~CalibrationRadial2() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("Radial 2");
+        return {"Radial 2"};
     }
 
 };
 
-class CalibrationRadial3
-    : public Calibration
+class CalibrationRadial3 final
+  : public Calibration
 {
 
 public:
 
     CalibrationRadial3()
-        : Calibration(Calibration::CameraModel::radial3)
+        : Calibration(CameraModel::radial3)
     {
     }
-    virtual ~CalibrationRadial3() override {}
 
-    std::string name() const override
+    ~CalibrationRadial3() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("Radial 3");
+        return {"Radial 3"};
     }
 
 };
 
-class CalibrationSimpleRadialFisheye
-    : public Calibration
+class CalibrationSimpleRadialFisheye final
+  : public Calibration
 {
 
 public:
 
     CalibrationSimpleRadialFisheye()
-        : Calibration(Calibration::CameraModel::simple_radial_fisheye)
+        : Calibration(CameraModel::simple_radial_fisheye)
     {
     }
-    virtual ~CalibrationSimpleRadialFisheye() override {}
 
-    std::string name() const override
+    ~CalibrationSimpleRadialFisheye() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("Radial Fisheye 1");
+        return {"Radial Fisheye 1"};
     }
 
 };
 
 
-class CalibrationRadialFisheye
-    : public Calibration
+class CalibrationRadialFisheye final
+  : public Calibration
 {
 
 public:
 
     CalibrationRadialFisheye()
-        : Calibration(Calibration::CameraModel::radial_fisheye)
+        : Calibration(CameraModel::radial_fisheye)
     {
     }
-    virtual ~CalibrationRadialFisheye() override {}
 
-    std::string name() const override
+    ~CalibrationRadialFisheye() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("Radial Fisheye 2");
+        return {"Radial Fisheye 2"};
     }
 
 };
 
 
-class CalibrationOpenCV
-    : public Calibration
+class CalibrationOpenCv final
+  : public Calibration
 {
 
 public:
 
-    CalibrationOpenCV()
-        : Calibration(Calibration::CameraModel::opencv)
+    CalibrationOpenCv()
+        : Calibration(CameraModel::opencv)
     {
     }
-    virtual ~CalibrationOpenCV() override {}
 
-    std::string name() const override
+    ~CalibrationOpenCv() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("OpenCV 1");
+        return {"OpenCV 1"};
     }
 
 };
 
 
-class CalibrationOpenCVFisheye
-    : public Calibration
+class CalibrationOpenCvFisheye final
+  : public Calibration
 {
 
 public:
 
-    CalibrationOpenCVFisheye()
-        : Calibration(Calibration::CameraModel::opencv_fisheye)
+    CalibrationOpenCvFisheye()
+        : Calibration(CameraModel::opencv_fisheye)
     {
     }
-    virtual ~CalibrationOpenCVFisheye() override {}
 
-    std::string name() const override
+    ~CalibrationOpenCvFisheye() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("OpenCV Fisheye");
+        return {"OpenCV Fisheye"};
     }
 
 };
 
 
-class CalibrationOpenCVFull
-    : public Calibration
+class CalibrationOpenCvFull final
+  : public Calibration
 {
 
 public:
 
-    CalibrationOpenCVFull()
-        : Calibration(Calibration::CameraModel::opencv_full)
+    CalibrationOpenCvFull()
+        : Calibration(CameraModel::opencv_full)
     {
     }
-    virtual ~CalibrationOpenCVFull() override {}
 
-    std::string name() const override
+    ~CalibrationOpenCvFull() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("OpenCV 2");
+        return {"OpenCV 2"};
     }
 
 };
 
 
-class CalibrationSimplePinhole
-    : public Calibration
+class CalibrationSimplePinhole final
+  : public Calibration
 {
 
 public:
 
     CalibrationSimplePinhole()
-        : Calibration(Calibration::CameraModel::simple_pinhole)
+        : Calibration(CameraModel::simple_pinhole)
     {
     }
-    virtual ~CalibrationSimplePinhole() override {}
 
-    std::string name() const override
+    ~CalibrationSimplePinhole() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("Pinhole 1");
+        return {"Pinhole 1"};
     }
 
 };
 
 
 
-class CalibrationPinhole
-    : public Calibration
+class CalibrationPinhole final
+  : public Calibration
 {
 
 public:
 
     CalibrationPinhole()
-        : Calibration(Calibration::CameraModel::pinhole)
+        : Calibration(CameraModel::pinhole)
     {
     }
-    virtual ~CalibrationPinhole() override {}
 
-    std::string name() const override
+    ~CalibrationPinhole() override = default;
+
+    auto name() const -> std::string override
     {
-        return std::string("Pinhole 2");
+        return {"Pinhole 2"};
     }
 
 };
@@ -232,7 +242,7 @@ public:
 
 
 Calibration::Calibration(CameraModel cameraModel)
-    : mCameraModel(cameraModel)
+  : mCameraModel(cameraModel)
 {
 
     if (mCameraModel.isEnabled(convertFlags(Parameters::focalx)) &&
@@ -291,17 +301,17 @@ Calibration::Calibration(Calibration &&calibration) TL_NOEXCEPT
 {
 }
 
-Calibration::CameraModel Calibration::cameraModel() const
+auto Calibration::cameraModel() const -> CameraModel
 {
     return mCameraModel.flags();
 }
 
-int Calibration::cameraModelId() const
+auto Calibration::cameraModelId() const -> int
 {
     return static_cast<int>(mCameraModel.flags());
 }
 
-Calibration &Calibration::operator = (const Calibration &calibration)
+auto Calibration::operator =(const Calibration& calibration) -> Calibration&
 {
     if (this != &calibration) {
         mCameraModel = calibration.mCameraModel;
@@ -310,17 +320,17 @@ Calibration &Calibration::operator = (const Calibration &calibration)
     return *this;
 }
 
-Calibration::CameraModel Calibration::convertFlags(Parameters parameter) const
+auto Calibration::convertFlags(Parameters parameter) -> CameraModel
 {
-    return static_cast<CameraModel>(static_cast<std::underlying_type<CameraModel>::type>(parameter));
+    return static_cast<CameraModel>(static_cast<std::underlying_type_t<CameraModel>>(parameter));
 }
 
-Calibration::CameraModel Calibration::convertFlags(CameraType cameraType) const
+auto Calibration::convertFlags(CameraType cameraType) -> CameraModel
 {
-    return static_cast<CameraModel>(static_cast<std::underlying_type<CameraModel>::type>(cameraType));
+    return static_cast<CameraModel>(static_cast<std::underlying_type_t<CameraModel>>(cameraType));
 }
 
-Calibration &Calibration::operator = (Calibration &&calibration) TL_NOEXCEPT
+auto Calibration::operator =(Calibration&& calibration) TL_NOEXCEPT -> Calibration&
 {
     if (this != &calibration) {
         mCameraModel = std::move(calibration.mCameraModel);
@@ -330,92 +340,97 @@ Calibration &Calibration::operator = (Calibration &&calibration) TL_NOEXCEPT
     return *this;
 }
 
-Calibration::parameter_iterator Calibration::parametersBegin()
+auto Calibration::begin() -> iterator
 {
     return mParameters.begin();
 }
 
-Calibration::parameter_const_iterator Calibration::parametersBegin() const
+auto Calibration::begin() const -> const_iterator
 {
     return mParameters.cbegin();
 }
 
-Calibration::parameter_iterator Calibration::parametersEnd()
+auto Calibration::end() -> iterator
 {
     return mParameters.end();
 }
 
-Calibration::parameter_const_iterator Calibration::parametersEnd() const
+auto Calibration::end() const -> const_iterator
 {
     return mParameters.cend();
 }
 
-std::string Calibration::parameterName(Parameters parameter) const
+auto Calibration::name() const -> std::string
+{
+    return {};
+}
+
+auto Calibration::parameterName(Parameters parameter) -> std::string
 {
     std::string parameter_name;
     switch (parameter) {
-    case Calibration::Parameters::focal:
+    case Parameters::focal:
         parameter_name = "f";
         break;
-    case Calibration::Parameters::focalx:
+    case Parameters::focalx:
         parameter_name = "fx";
         break;
-    case Calibration::Parameters::focaly:
+    case Parameters::focaly:
         parameter_name = "fy";
         break;
-    case Calibration::Parameters::cx:
+    case Parameters::cx:
         parameter_name = "cx";
         break;
-    case Calibration::Parameters::cy:
+    case Parameters::cy:
         parameter_name = "cy";
         break;
-    case Calibration::Parameters::k1:
+    case Parameters::k1:
         parameter_name = "k1";
         break;
-    case Calibration::Parameters::k2:
+    case Parameters::k2:
         parameter_name = "k2";
         break;
-    case Calibration::Parameters::k3:
+    case Parameters::k3:
         parameter_name = "k3";
         break;
-    case Calibration::Parameters::k4:
+    case Parameters::k4:
         parameter_name = "k4";
         break;
-    case Calibration::Parameters::k5:
+    case Parameters::k5:
         parameter_name = "k5";
         break;
-    case Calibration::Parameters::k6:
+    case Parameters::k6:
         parameter_name = "k6";
         break;
-    case Calibration::Parameters::p1:
+    case Parameters::p1:
         parameter_name = "p1";
         break;
-    case Calibration::Parameters::p2:
+    case Parameters::p2:
         parameter_name = "p2";
         break;
     }
     return parameter_name;
 }
 
-bool Calibration::existParameter(Calibration::Parameters parameter) const
+auto Calibration::existParameter(Parameters parameter) const -> bool
 {
     return mParameters.find(parameter) != mParameters.end();
 }
 
-double Calibration::parameter(Calibration::Parameters parameter) const
+auto Calibration::parameter(Parameters parameter) const -> double
 {
     return this->existParameter(parameter) ? mParameters.at(parameter) : 0.0;
 }
 
-void Calibration::setParameter(Calibration::Parameters parameter, double value)
+void Calibration::setParameter(Parameters parameter, double value)
 {
     if (this->existParameter(parameter))
         mParameters.at(parameter) = value;
 }
 
-bool Calibration::checkCameraType(CameraType camera_type) const
+auto Calibration::checkCameraType(CameraType cameraType) const -> bool
 {
-    return mCameraModel.isEnabled(convertFlags(camera_type));
+    return mCameraModel.isEnabled(convertFlags(cameraType));
 }
 
 
@@ -425,31 +440,31 @@ bool Calibration::checkCameraType(CameraType camera_type) const
 
 
 
-std::shared_ptr<Calibration> CalibrationFactory::create(const std::string &cameraType)
+auto CalibrationFactory::create(const std::string& cameraType) -> std::shared_ptr<Calibration>
 {
     std::shared_ptr<Calibration> calibration;
 
     try {
 
-        if (cameraType.compare("Pinhole 1") == 0) {
+        if (cameraType == "Pinhole 1") {
             calibration = std::make_shared<CalibrationSimplePinhole>();
-        } else if (cameraType.compare("Pinhole 2") == 0) {
+        } else if (cameraType == "Pinhole 2") {
             calibration = std::make_shared<CalibrationPinhole>();
-        } else if (cameraType.compare("Radial 1") == 0) {
+        } else if (cameraType == "Radial 1") {
             calibration = std::make_shared<CalibrationRadial1>();
-        } else if (cameraType.compare("Radial 2") == 0) {
+        } else if (cameraType == "Radial 2") {
             calibration = std::make_shared<CalibrationRadial2>();
-        } else if (cameraType.compare("OpenCV 1") == 0) {
-            calibration = std::make_shared<CalibrationOpenCV>();
-        } else if (cameraType.compare("OpenCV Fisheye") == 0) {
-            calibration = std::make_shared<CalibrationOpenCVFisheye>();
-        } else if (cameraType.compare("OpenCV 2") == 0) {
-            calibration = std::make_shared<CalibrationOpenCVFull>();
-        } else if (cameraType.compare("Radial Fisheye 1") == 0) {
+        } else if (cameraType == "OpenCV 1") {
+            calibration = std::make_shared<CalibrationOpenCv>();
+        } else if (cameraType == "OpenCV Fisheye") {
+            calibration = std::make_shared<CalibrationOpenCvFisheye>();
+        } else if (cameraType == "OpenCV 2") {
+            calibration = std::make_shared<CalibrationOpenCvFull>();
+        } else if (cameraType == "Radial Fisheye 1") {
             calibration = std::make_shared<CalibrationSimpleRadialFisheye>();
-        } else if (cameraType.compare("Radial Fisheye 2") == 0) {
+        } else if (cameraType == "Radial Fisheye 2") {
             calibration = std::make_shared<CalibrationRadialFisheye>();
-        } else if (cameraType.compare("Radial 3") == 0) {
+        } else if (cameraType == "Radial 3") {
             calibration = std::make_shared<CalibrationRadial3>();
         } else {
             TL_THROW_EXCEPTION("Invalid Camera Type: '{}'.", cameraType);
@@ -462,7 +477,7 @@ std::shared_ptr<Calibration> CalibrationFactory::create(const std::string &camer
     return calibration;
 }
 
-std::shared_ptr<Calibration> CalibrationFactory::create(Calibration::CameraModel cameraModel)
+auto CalibrationFactory::create(Calibration::CameraModel cameraModel) -> std::shared_ptr<Calibration>
 {
     std::shared_ptr<Calibration> calibration;
     switch (cameraModel) {
@@ -482,13 +497,13 @@ std::shared_ptr<Calibration> CalibrationFactory::create(Calibration::CameraModel
         calibration = std::make_shared<CalibrationRadialFisheye>();
         break;
     case Calibration::CameraModel::opencv:
-        calibration = std::make_shared<CalibrationOpenCV>();
+        calibration = std::make_shared<CalibrationOpenCv>();
         break;
     case Calibration::CameraModel::opencv_fisheye:
-        calibration = std::make_shared<CalibrationOpenCVFisheye>();
+        calibration = std::make_shared<CalibrationOpenCvFisheye>();
         break;
     case Calibration::CameraModel::opencv_full:
-        calibration = std::make_shared<CalibrationOpenCVFull>();
+        calibration = std::make_shared<CalibrationOpenCvFull>();
         break;
     case Calibration::CameraModel::simple_pinhole:
         calibration = std::make_shared<CalibrationSimplePinhole>();
@@ -504,11 +519,9 @@ std::shared_ptr<Calibration> CalibrationFactory::create(Calibration::CameraModel
 
 /* Calibration reader */
 
-CalibrationReader::CalibrationReader()
-{
-}
+CalibrationReader::CalibrationReader() = default;
 
-std::unordered_map<size_t, std::shared_ptr<Calibration>> CalibrationReader::calibrations()
+auto CalibrationReader::calibrations() -> std::unordered_map<size_t, std::shared_ptr<Calibration>>
 {
     return mCalibrations;
 }
@@ -516,7 +529,7 @@ std::unordered_map<size_t, std::shared_ptr<Calibration>> CalibrationReader::cali
 
 /* Calibration reader factory */
 
-std::unique_ptr<CalibrationReader> CalibrationReaderFactory::create(const std::string &format)
+auto CalibrationReaderFactory::create(const std::string& format) -> std::unique_ptr<CalibrationReader>
 {
     return std::unique_ptr<CalibrationReader>();
 }
@@ -524,9 +537,7 @@ std::unique_ptr<CalibrationReader> CalibrationReaderFactory::create(const std::s
 
 /* Calibration writer */
 
-CalibrationWriter::CalibrationWriter()
-{
-}
+CalibrationWriter::CalibrationWriter() = default;
 
 void CalibrationWriter::setCalibrations(const std::unordered_map<size_t, std::shared_ptr<Calibration>> &calibrations)
 {
@@ -536,19 +547,15 @@ void CalibrationWriter::setCalibrations(const std::unordered_map<size_t, std::sh
 
 /* GraphosXMLCalibrationWriter */
 
-class GraphosXMLCalibrationWriter
+class GraphosXmlCalibrationWriter
     : public CalibrationWriter
 {
 
 public:
 
-    GraphosXMLCalibrationWriter()
-    {
-    }
+    GraphosXmlCalibrationWriter() = default;
 
-    ~GraphosXMLCalibrationWriter()
-    {
-    }
+    ~GraphosXmlCalibrationWriter() override = default;
 
 private:
 
@@ -559,9 +566,9 @@ private:
     {
     }
 
-    virtual std::string format() const override
+    auto format() const -> std::string override
     {
-        return std::string("GRAPHOS_XML");
+        return {"GRAPHOS_XML"};
     }
 
 };
@@ -569,14 +576,14 @@ private:
 
 /* Camera Poses Writer Factory */
 
-std::unique_ptr<CalibrationWriter> CalibrationWriterFactory::create(const std::string &format)
+auto CalibrationWriterFactory::create(const std::string& format) -> std::unique_ptr<CalibrationWriter>
 {
     std::unique_ptr<CalibrationWriter> writer;
 
     try {
 
         if (format == "GRAPHOS_XML") {
-            writer = std::make_unique<GraphosXMLCalibrationWriter>();
+            writer = std::make_unique<GraphosXmlCalibrationWriter>();
         } else {
             TL_THROW_EXCEPTION("Invalid format: {}", format.c_str());
         }

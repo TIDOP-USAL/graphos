@@ -35,6 +35,7 @@
 #include <QString>
 #include <QSize>
 
+#include "features/matching.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/image.h"
 #include "graphos/core/features/features.h"
@@ -48,6 +49,7 @@ class QXmlStreamReader;
 
 namespace graphos
 {
+class Sift;
 
 struct DTMData
 {
@@ -484,7 +486,7 @@ protected:
     void writeFeatures(QXmlStreamWriter &stream) const;
     void writeFeatureExtractor(QXmlStreamWriter &stream) const;
     void writeFeatureExtractorReport(QXmlStreamWriter &stream) const;
-    void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
+    void writeSIFT(QXmlStreamWriter &stream, const Sift *sift) const;
     void writeFeatureFiles(QXmlStreamWriter &stream) const;
     void writeMatches(QXmlStreamWriter &stream) const;
     void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;

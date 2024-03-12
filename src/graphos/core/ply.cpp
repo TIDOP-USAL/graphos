@@ -481,7 +481,7 @@ tl::Color Ply::color(size_t index) const
 {
     return tl::ColorRGB(property<int>(index, "red"),
                         property<int>(index, "green"),
-                        property<int>(index, "blue"));
+                        property<int>(index, "blue")).toColor();
 }
 
 void Ply::addColor(const tl::Color &color)

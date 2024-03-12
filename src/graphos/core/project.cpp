@@ -1065,7 +1065,7 @@ void ProjectImp::readFeatureExtractorReport(QXmlStreamReader& stream)
 
 void ProjectImp::readSIFT(QXmlStreamReader &stream)
 {
-    std::shared_ptr<Sift> sift = std::make_shared<SiftProperties>();
+    auto sift = std::make_shared<Sift>();
     while (stream.readNextStartElement()) {
         if (stream.name() == "FeaturesNumber") {
             sift->setFeaturesNumber(readInt(stream));
@@ -1125,22 +1125,22 @@ void ProjectImp::readMatches(QXmlStreamReader &stream)
 
 void ProjectImp::readMatchingMethod(QXmlStreamReader &stream)
 {
-    std::shared_ptr<FeatureMatching> matchingMethod = std::make_shared<FeatureMatchingProperties>();
+    auto matching_method = std::make_shared<FeatureMatching>();
     while (stream.readNextStartElement()) {
         if (stream.name() == "Distance") {
-            matchingMethod->setDistance(readDouble(stream));
+            matching_method->setDistance(readDouble(stream));
         } else if (stream.name() == "Ratio") {
-            matchingMethod->setRatio(readDouble(stream));
+            matching_method->setRatio(readDouble(stream));
         } else if (stream.name() == "MaxError") {
-            matchingMethod->setMaxError(readDouble(stream));
+            matching_method->setMaxError(readDouble(stream));
         } else if (stream.name() == "Confidence") {
-            matchingMethod->setConfidence(readDouble(stream));
+            matching_method->setConfidence(readDouble(stream));
         } else if (stream.name() == "CrossCheck") {
-            matchingMethod->enableCrossCheck(readBoolean(stream));
+            matching_method->enableCrossCheck(readBoolean(stream));
         } else
             stream.skipCurrentElement();
     }
-    this->setFeatureMatching(matchingMethod);
+    this->setFeatureMatching(matching_method);
 }
 
 void ProjectImp::readFeatureMatchingReport(QXmlStreamReader& stream)
@@ -1334,7 +1334,7 @@ void ProjectImp::readDensificationMethod(QXmlStreamReader &stream)
 
 void ProjectImp::readSmvs(QXmlStreamReader &stream)
 {
-    std::shared_ptr<Smvs> smvs = std::make_shared<SmvsProperties>();
+    auto smvs = std::make_shared<Smvs>();
     while (stream.readNextStartElement()) {
         if (stream.name() == "InputImageScale") {
             smvs->setInputImageScale(readInt(stream));
@@ -1354,31 +1354,31 @@ void ProjectImp::readSmvs(QXmlStreamReader &stream)
 
 void ProjectImp::readCmvsPmvs(QXmlStreamReader &stream)
 {
-    std::shared_ptr<CmvsPmvs> cmvsPmvs = std::make_shared<CmvsPmvsProperties>();
+    auto cmvs_pmvs = std::make_shared<CmvsPmvs>();
     while (stream.readNextStartElement()) {
         if (stream.name() == "Level") {
-            cmvsPmvs->setLevel(readInt(stream));
+            cmvs_pmvs->setLevel(readInt(stream));
         } else if (stream.name() == "CellSize") {
-            cmvsPmvs->setCellSize(readInt(stream));
+            cmvs_pmvs->setCellSize(readInt(stream));
         } else if (stream.name() == "Threshold") {
-            cmvsPmvs->setThreshold(readDouble(stream));
+            cmvs_pmvs->setThreshold(readDouble(stream));
         } else if (stream.name() == "Confidence") {
-            cmvsPmvs->setWindowSize(readInt(stream));
+            cmvs_pmvs->setWindowSize(readInt(stream));
         } else if (stream.name() == "ImagesPerCluster") {
-            cmvsPmvs->setImagesPerCluster(readInt(stream));
+            cmvs_pmvs->setImagesPerCluster(readInt(stream));
         } else if (stream.name() == "MinimunImageNumber") {
-            cmvsPmvs->setMinimunImageNumber(readInt(stream));
+            cmvs_pmvs->setMinimunImageNumber(readInt(stream));
         } else if (stream.name() == "UseVisibilityInformation") {
-            cmvsPmvs->setUseVisibilityInformation(readBoolean(stream));
+            cmvs_pmvs->setUseVisibilityInformation(readBoolean(stream));
         } else
             stream.skipCurrentElement();
     }
-    this->setDensification(cmvsPmvs);
+    this->setDensification(cmvs_pmvs);
 }
 
 void ProjectImp::readMVS(QXmlStreamReader &stream)
 {
-    std::shared_ptr<Mvs> mvs = std::make_shared<MvsProperties>();
+    auto mvs = std::make_shared<Mvs>();
 
     while (stream.readNextStartElement()) {
         if (stream.name() == "ResolutionLevel") {
@@ -1438,11 +1438,16 @@ void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
         } else if (stream.name() == "SolveDepth") {
             mesh->setSolveDepth(readInt(stream));
         } else if (stream.name() == "BoundaryType") {
-            mesh->setBoundaryType(stream.readElementText());
-        } else if (stream.name() == "Width") {
-            mesh->setWidth(readInt(stream));
-        } else if (stream.name() == "FullDepth") {
-            mesh->setFullDepth(readInt(stream));
+            QString bt = stream.readElementText();
+            PoissonReconProperties::BoundaryType boundary_type;
+            if (bt == "Free"){
+                boundary_type = PoissonReconProperties::BoundaryType::free;
+            } else if (bt == "Dirichlet") {
+                boundary_type = PoissonReconProperties::BoundaryType::dirichlet;
+            } else {
+                boundary_type = PoissonReconProperties::BoundaryType::neumann;
+            }
+            mesh->setBoundaryType(boundary_type);
         } else
             stream.skipCurrentElement();
     }
@@ -1539,7 +1544,7 @@ void ProjectImp::writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Cali
     if (calibration) {
         stream.writeStartElement("Calibration");
         {
-            for (auto param = calibration->parametersBegin(); param != calibration->parametersEnd(); param++) {
+            for (auto param = calibration->begin(); param != calibration->end(); param++) {
                 stream.writeTextElement(calibration->parameterName(param->first).c_str(), QString::number(param->second, 'f', 10));
             }
         }
@@ -1630,7 +1635,7 @@ void ProjectImp::writeFeatureExtractorReport(QXmlStreamWriter& stream) const
     }
 }
 
-void ProjectImp::writeSIFT(QXmlStreamWriter &stream, Sift *sift) const
+void ProjectImp::writeSIFT(QXmlStreamWriter &stream, const Sift *sift) const
 {
     stream.writeStartElement("SIFT");
     {
@@ -1850,15 +1855,15 @@ void ProjectImp::writeDenseReport(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
 {
-    if (auto densificationMethod = this->densification()) {
+    if (auto densification_method = this->densification()) {
 
         stream.writeStartElement("DensificationMethod");
 
-        if (densificationMethod->method() == Densification::Method::smvs) {
+        if (densification_method->method() == Densification::Method::smvs) {
 
             stream.writeStartElement("Smvs");
 
-            auto smvs = std::dynamic_pointer_cast<Smvs>(densificationMethod);
+            auto smvs = std::dynamic_pointer_cast<Smvs>(densification_method);
             stream.writeTextElement("InputImageScale", QString::number(smvs->inputImageScale()));
             stream.writeTextElement("OutputDepthScale", QString::number(smvs->outputDepthScale()));
             stream.writeTextElement("SemiGlobalMatching", smvs->semiGlobalMatching() ? "true" : "false");
@@ -1867,25 +1872,25 @@ void ProjectImp::writeDensificationMethod(QXmlStreamWriter &stream) const
 
             stream.writeEndElement();
 
-        } else if (densificationMethod->method() == Densification::Method::cmvs_pmvs) {
+        } else if (densification_method->method() == Densification::Method::cmvs_pmvs) {
 
             stream.writeStartElement("CmvsPmvs");
 
-            auto cmvsPmvs = std::dynamic_pointer_cast<CmvsPmvs>(densificationMethod);
-            stream.writeTextElement("Level", QString::number(cmvsPmvs->level()));
-            stream.writeTextElement("CellSize", QString::number(cmvsPmvs->cellSize()));
-            stream.writeTextElement("Threshold", QString::number(cmvsPmvs->threshold()));
-            stream.writeTextElement("WindowSize", QString::number(cmvsPmvs->windowSize()));
-            stream.writeTextElement("ImagesPerCluster", QString::number(cmvsPmvs->imagesPerCluster()));
-            stream.writeTextElement("MinimunImageNumber", QString::number(cmvsPmvs->minimunImageNumber()));
-            stream.writeTextElement("UseVisibilityInformation", cmvsPmvs->useVisibilityInformation() ? "true" : "false");
+            auto cmvs_pmvs = std::dynamic_pointer_cast<CmvsPmvs>(densification_method);
+            stream.writeTextElement("Level", QString::number(cmvs_pmvs->level()));
+            stream.writeTextElement("CellSize", QString::number(cmvs_pmvs->cellSize()));
+            stream.writeTextElement("Threshold", QString::number(cmvs_pmvs->threshold()));
+            stream.writeTextElement("WindowSize", QString::number(cmvs_pmvs->windowSize()));
+            stream.writeTextElement("ImagesPerCluster", QString::number(cmvs_pmvs->imagesPerCluster()));
+            stream.writeTextElement("MinimunImageNumber", QString::number(cmvs_pmvs->minimunImageNumber()));
+            stream.writeTextElement("UseVisibilityInformation", cmvs_pmvs->useVisibilityInformation() ? "true" : "false");
 
             stream.writeEndElement();
-        } else if (densificationMethod->method() == Densification::Method::mvs) {
+        } else if (densification_method->method() == Densification::Method::mvs) {
 
             stream.writeStartElement("MVS");
 
-            auto mvs = std::dynamic_pointer_cast<Mvs>(densificationMethod);
+            auto mvs = std::dynamic_pointer_cast<Mvs>(densification_method);
             stream.writeTextElement("ResolutionLevel", QString::number(mvs->resolutionLevel()));
             stream.writeTextElement("MinResolution", QString::number(mvs->minResolution()));
             stream.writeTextElement("MaxResolution", QString::number(mvs->maxResolution()));
@@ -1937,9 +1942,7 @@ void ProjectImp::writeMeshParameters(QXmlStreamWriter &stream) const
 
         stream.writeTextElement("Depth", QString::number(mesh->depth()));
         stream.writeTextElement("SolveDepth", QString::number(mesh->solveDepth()));
-        stream.writeTextElement("BoundaryType", mesh->boundaryType());
-        stream.writeTextElement("Width", QString::number(mesh->width()));
-        stream.writeTextElement("FullDepth", QString::number(mesh->fullDepth()));
+        stream.writeTextElement("BoundaryType", mesh->boundaryTypeAsText());
 
         stream.writeEndElement();
 

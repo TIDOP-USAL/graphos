@@ -41,21 +41,17 @@ MeshCommand::MeshCommand()
     this->addArgument<std::string>("prj", 'p', "Project file");
     this->addArgument<int>("depth", "Maximum reconstruction depth", properties.depth());
     this->addArgument<int>("solve_depth", "Maximum solution depth", properties.solveDepth());
-    auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", properties.boundaryType().toStdString());
-    std::vector<std::string> boundary_types{"free", "Dirichlet", "Neumann"};
+    auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", properties.boundaryTypeAsText().toStdString());
+    std::vector<std::string> boundary_types{"Free", "Dirichlet", "Neumann"};
     arg_boundary_type->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(boundary_types));
     this->addArgument(arg_boundary_type);
-    this->addArgument<int>("grid_width", "Grid width", properties.width());
-    this->addArgument<int>("full_depth", "Full depth", properties.fullDepth());
     
     this->addExample("mesh -p 253/253.xml --method PMVS");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
-MeshCommand::~MeshCommand()
-{
-}
+MeshCommand::~MeshCommand() = default;
 
 bool MeshCommand::run()
 {
@@ -89,11 +85,19 @@ bool MeshCommand::run()
 
         auto process = std::make_shared<PoissonReconTask>(point_cloud_path,
                                                           mesh_path);
-        process->setBoundaryType(QString::fromStdString(boundary_type));
+
+        PoissonReconProperties::BoundaryType bt;
+        if (boundary_type == "Free") {
+            bt = PoissonReconProperties::BoundaryType::free;
+        } else if (boundary_type == "Dirichlet") {
+            bt = PoissonReconProperties::BoundaryType::dirichlet;
+        } else {
+            bt = PoissonReconProperties::BoundaryType::neumann;
+        }
+
+        process->setBoundaryType(bt);
         process->setDepth(depth);
-        process->setFullDepth(full_depth);
         process->setSolveDepth(solve_depth);
-        process->setWidth(grid_width);
 
         process->run();
 

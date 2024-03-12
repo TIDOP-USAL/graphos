@@ -136,7 +136,7 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
 
     std::shared_ptr<FeatureMatching> featureMatching;
     if (currentMatchMethod.compare("Feature Matching Colmap") == 0) {
-        featureMatching = std::make_shared<FeatureMatchingProperties>();
+        featureMatching = std::make_shared<FeatureMatching>();
         featureMatching->setRatio(mFeatureMatchingWidget->ratio());
         featureMatching->setDistance(mFeatureMatchingWidget->distance());
         featureMatching->setMaxError(mFeatureMatchingWidget->maxError());

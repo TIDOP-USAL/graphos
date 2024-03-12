@@ -57,7 +57,8 @@ void MeshPresenterImp::open()
     if (properties == nullptr) {
         properties = std::make_shared<PoissonReconProperties>();
     }
-    mView->setBoundaryType(properties->boundaryType());
+
+    mView->setBoundaryType(properties->boundaryTypeAsText());
     mView->setDepth(properties->depth());
     mView->setSolveDepth(properties->solveDepth());
 
@@ -112,7 +113,17 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
     if (properties == nullptr) {
         properties = std::make_shared<PoissonReconProperties>();
     }
-    properties->setBoundaryType(mView->boundaryType());
+
+    QString bt = mView->boundaryType();
+    PoissonReconProperties::BoundaryType boundary_type;
+    if (bt == "Free") {
+        boundary_type = PoissonReconProperties::BoundaryType::free;
+    } else if (bt == "Dirichlet") {
+        boundary_type = PoissonReconProperties::BoundaryType::dirichlet;
+    } else {
+        boundary_type = PoissonReconProperties::BoundaryType::neumann;
+    }
+    properties->setBoundaryType(boundary_type);
     properties->setDepth(mView->depth());
     properties->setSolveDepth(mView->solveDepth());
     mModel->setProperties(properties);
@@ -124,7 +135,6 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
     task_parameters->setBoundaryType(properties->boundaryType());
     task_parameters->setDepth(properties->depth());
     task_parameters->setSolveDepth(properties->solveDepth());
-    task_parameters->setWidth(properties->width());
 
     mesh_task->subscribe([&](tl::TaskFinalizedEvent* event) {
 

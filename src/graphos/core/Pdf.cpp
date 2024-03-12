@@ -1004,6 +1004,14 @@ void Pdf::drawLine(const QPoint &pt1, const QPoint &pt2, const PdfStyle &style)
     pPainter->drawLine(pt1, pt2);
 }
 
+void Pdf::drawRect(const QRect &rect, const PdfStyle &style)
+{
+    pPainter->setBrush(style.brush());
+    pPainter->setPen(style.pen());
+
+    pPainter->drawRect(rect);
+}
+
 void Pdf::endDraw()
 {
     if (pPainter) {

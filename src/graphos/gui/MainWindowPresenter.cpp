@@ -543,7 +543,7 @@ void MainWindowPresenter::open3DModel(const QString &model3D,
                         position[0] = point.x;
                         position[1] = point.y;
                         position[2] = point.z;
-                        rot = camera_pose.rotationMatrix() * rotation.inverse();
+                        rot = camera_pose.rotationMatrix() * rotation.inverse().toMatrix();
 
                     } else {
 

@@ -174,9 +174,9 @@ bool SettingsModelImp::checkDevice() const
     bool bUseGPU = false;
 
 #ifdef HAVE_CUDA
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     bUseGPU = cudaEnabled(10.0, 3.0);
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
 #endif //HAVE_CUDA
 
     return bUseGPU;

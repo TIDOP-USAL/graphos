@@ -35,20 +35,19 @@ class Camera
 public:
 
     /*!
-     * \brief Constructor por defecto de Camera
+     * \brief Default constructor for Camera
      */
     Camera();
 
     /*!
-     * \brief Constructor Camera
-     * \param[in] make Marca de la cámara
-     * \param[in] model Modelo de la cámara
+     * \brief Camera constructor
+     * \param[in] make Camera make
+     * \param[in] model Camera model
      */
-    Camera(const std::string &make,
-           const std::string &model);
+    Camera(std::string make, std::string model);
 
     /*!
-     * \brief Constructor de copia Camera
+     * \brief Camera copy constructor
      * \param[in] camera
      */
     Camera(const Camera &camera);
@@ -59,100 +58,100 @@ public:
     ~Camera() = default;
 
     /*!
-     * \brief Devuelve la marca de la cámara
-     * \return Marca de la cámara
+     * \brief Returns the camera make
+     * \return Camera make
      */
-    std::string make() const;
+    auto make() const -> std::string;
 
     /*!
-     * \brief Establece la marca de la cámara
-     * \param[in] make Marca de la cámara
+     * \brief Sets the camera make
+     * \param[in] make Camera make
      */
     void setMake(const std::string &make);
 
     /*!
-     * \brief Devuelve el modelo de la cámara
-     * \return Modelo de la cámara
+     * \brief Returns the camera model
+     * \return Camera model
      */
-    std::string model() const;
+    auto model() const -> std::string;
 
     /*!
-     * \brief Establece el modelo de la cámara
-     * \param[in] model Modelo de la cámara
+     * \brief Sets the camera model
+     * \param[in] model Camera model
      */
     void setModel(const std::string &model);
 
     /*!
-     * \brief Devuelve el tipo de cámara
+     * \brief Returns the camera type
      * \return
      */
-    std::string type() const;
+    auto type() const -> std::string;
 
     /*!
-     * \brief Establece el tipo de cámara
-     * El tipo de cámara se utiliza para la autocalibración
-     * \param[in] type Tipo de cámara
+     * \brief Sets the camera type
+     * The camera type is used for self-calibration
+     * \param[in] type Camera type
      */
     void setType(const std::string &type);
 
     /*!
-     * \brief Devuelve la focal de la cámara en milímetros
-     * \return Focal de la cámara
+     * \brief Returns the camera focal length in millimeters
+     * \return Camera focal length
      */
-    double focal() const;
+    auto focal() const -> double;
 
     /*!
-     * \brief Establece la focal de la cámara en milímetros
-     * \param[in] focal Focal de la cámara en milímetros
+     * \brief Sets the camera focal length in millimeters
+     * \param[in] focal Camera focal length in millimeters
      */
     void setFocal(double focal);
 
     /*!
-     * \brief Devuelve el ancho de sensor en píxeles
-     * \return Ancho del sensor en píxeles
+     * \brief Returns the sensor width in pixels
+     * \return Sensor width in pixels
      */
-    int width() const;
+    auto width() const -> int;
 
     /*!
-     * \brief Establece el ancho del sensor en píxeles
-     * \param[in] width Ancho del sensor en píxeles
+     * \brief Sets the sensor width in pixels
+     * \param[in] width Sensor width in pixels
      */
     void setWidth(int width);
 
     /*!
-     * \brief Altura del sensor en píxeles
+     * \brief Sensor height in pixels
      * \return
      */
-    int height() const;
+    auto height() const -> int;
 
     /*!
-     * \brief Establece el alto del sensor en pixeles
-     * \param[in] height Alto del sensor en pixeles
+     * \brief Sets the sensor height in pixels
+     * \param[in] height Sensor height in pixels
      */
     void setHeight(int height);
 
     /*!
-     * \brief Tamaño del sensor en mm
-     * Si no existe la cámara en la base de datos se devuelve 1
-     * \return Tamaños del sensor
+     * \brief Sensor size in mm
+     * If the camera does not exist in the database, 1 is returned
+     * \return Sensor size
      */
-    double sensorSize() const;
+    auto sensorSize() const -> double;
 
     /*!
-     * \brief Establece el tamaño del sensor
-     * \param[in] sensorSize Tamaño del sensor
+     * \brief Sets the sensor size
+     * \param[in] sensorSize Sensor size
      */
     void setSensorSize(double sensorSize);
 
-    std::shared_ptr<Calibration> calibration() const;
+    auto calibration() const -> std::shared_ptr<Calibration>;
     void setCalibration(std::shared_ptr<Calibration> &calibration);
 
     /*!
-     * \brief Operador de asignación
-     * \param[in] camera Objeto que se asigna
-     * \return Referencia al objeto Camera
+     * \brief Assignment operator
+     * \param[in] camera Object to assign
+     * \return Reference to the Camera object
      */
-    Camera &operator =(const Camera &camera);
+    auto operator =(const Camera& camera) -> Camera&;
 
 private:
 

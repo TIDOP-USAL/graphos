@@ -128,20 +128,20 @@ void LoadImagesTask::loadImage(size_t imageId)
         int height = imageReader->rows();
         int camera_id = -1;
 
-        tl::Message::instance().pauseMessages();
+        tl::Message::pauseMessages();
         std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
         bool bActiveCameraName = false;
         bool bActiveCameraModel = false;
         std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
         std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
-        tl::Message::instance().resumeMessages();
+        tl::Message::resumeMessages();
 
         camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
         if (camera_id == -1) {
             camera_id = loadCamera(imageReader.get());
         }
 
-        tl::Message::instance().pauseMessages();
+        tl::Message::pauseMessages();
 
         tl::Degrees<double> latitude_degrees{};
         tl::Degrees<double> longitude_degrees{};
@@ -207,7 +207,7 @@ void LoadImagesTask::loadImage(size_t imageId)
             }
         }
 
-        tl::Message::instance().resumeMessages();
+        tl::Message::resumeMessages();
 
         emit imageAdded(static_cast<int>(imageId), camera_id);
 
@@ -222,13 +222,13 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
     int width = imageReader->cols();
     int height = imageReader->rows();
 
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
     bool bActiveCameraName = false;
     bool bActiveCameraModel = false;
     std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
     std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
 
     if (!bActiveCameraName && !bActiveCameraModel) {
 

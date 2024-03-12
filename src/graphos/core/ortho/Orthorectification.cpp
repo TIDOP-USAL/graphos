@@ -64,9 +64,9 @@ tl::Point<int> Orthorectification::terrainToImage(const tl::Point3<double> &terr
     return image_coordinates;
 }
 
-tl::Point<int> Orthorectification::terrainToPhotocoordinates(const tl::Point3<double> &terrainPoint) const
+tl::Point<double> Orthorectification::terrainToPhotocoordinates(const tl::Point3<double> &terrainPoint) const
 {
-    tl::Point<int> photocoordinates;
+    tl::Point<double> photocoordinates;
 
     try {
 
@@ -85,7 +85,7 @@ tl::Point3<double> Orthorectification::imageToTerrain(const tl::Point<int> &imag
 
     try {
 
-        tl::Point<int> photo_coordinates = imageToPhotocoordinates(imageCoordinates);
+        tl::Point<double> photo_coordinates = imageToPhotocoordinates(imageCoordinates);
         terrain_coordinates = photocoordinatesToTerrain(photo_coordinates);
 
     } catch (...) {
@@ -95,7 +95,7 @@ tl::Point3<double> Orthorectification::imageToTerrain(const tl::Point<int> &imag
     return terrain_coordinates;
 }
 
-tl::Point3<double> Orthorectification::photocoordinatesToTerrain(const tl::Point<int> &photocoordinates) const
+tl::Point3<double> Orthorectification::photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const
 {
     double z = mIniZ;
     int it = 10;
@@ -137,14 +137,14 @@ tl::Point3<double> Orthorectification::photocoordinatesToTerrain(const tl::Point
     return terrain_coordinates;
 }
 
-tl::Point<int> Orthorectification::imageToPhotocoordinates(const tl::Point<int> &imagePoint) const
+tl::Point<double> Orthorectification::imageToPhotocoordinates(const tl::Point<int> &imagePoint) const
 {
-    return mAffineImageToPhotocoordinates.transform(imagePoint);
+    return mAffineImageToPhotocoordinates.transform(tl::Point<double>(imagePoint));
 }
 
-tl::Point<int> Orthorectification::photocoordinatesToImage(const tl::Point<int> &photocoordinates) const
+tl::Point<int> Orthorectification::photocoordinatesToImage(const tl::Point<double> &photocoordinates) const
 {
-    return mAffineImageToPhotocoordinates.transform(photocoordinates, tl::geom::Transform::Order::inverse);
+    return mAffineImageToPhotocoordinates.inverse().transform(photocoordinates);
 }
 
 tl::Point3<double> Orthorectification::dtmToTerrain(const tl::Point<int> &imagePoint) const
@@ -240,7 +240,8 @@ void Orthorectification::init()
         mAffineDtmImageToTerrain = mDtmReader->georeference();
 
         tl::Point<float> principal_point = this->principalPoint();
-        mAffineImageToPhotocoordinates = tl::geom::Affine<tl::Point<int>>(-principal_point.x, principal_point.y, 1, -1, 0);
+
+        mAffineImageToPhotocoordinates = tl::Affine<double, 2>(1., -1., -principal_point.x, principal_point.y, 0.);
 
         mWindowDtmTerrainExtension.pt1.x = mAffineDtmImageToTerrain.translation().x();
         mWindowDtmTerrainExtension.pt1.y = mAffineDtmImageToTerrain.translation().y();
@@ -315,8 +316,8 @@ void Orthorectification::initUndistortCamera()
 {
     std::shared_ptr<Calibration> calibration = mCamera.calibration();
 
-    cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
-    cv::Mat dist_coeffs = openCVDistortionCoefficients(*calibration);
+    cv::Mat cameraMatrix = openCvCameraMatrix(*calibration);
+    cv::Mat dist_coeffs = openCvDistortionCoefficients(*calibration);
 
     cv::Size imageSize(static_cast<int>(mCamera.width()),
                        static_cast<int>(mCamera.height()));
@@ -368,7 +369,7 @@ cv::Mat Orthorectification::distCoeffs() const
 {
     std::shared_ptr<Calibration> calibration = mUndistortCamera.calibration();
 
-    cv::Mat dist_coeffs = openCVDistortionCoefficients(*calibration);
+    cv::Mat dist_coeffs = openCvDistortionCoefficients(*calibration);
 
     return dist_coeffs;
 }
@@ -380,6 +381,8 @@ void Orthorectification::setCuda(bool active)
 
 cv::Mat Orthorectification::undistort(const cv::Mat &image)
 {
+    TL_TODO("Reemplazar con la clase Undistort")
+
     cv::Mat img_undistort;
 
     TL_TODO("No debería calcular la cámara y los coeficientes de distorsión cada vez")
@@ -388,8 +391,8 @@ cv::Mat Orthorectification::undistort(const cv::Mat &image)
 
         std::shared_ptr<Calibration> calibration = mCamera.calibration();
 
-        cv::Mat cameraMatrix = openCVCameraMatrix(*calibration);
-        cv::Mat distCoeffs = openCVDistortionCoefficients(*calibration);
+        cv::Mat cameraMatrix = openCvCameraMatrix(*calibration);
+        cv::Mat distCoeffs = openCvDistortionCoefficients(*calibration);
         cv::Size imageSize(static_cast<int>(mCamera.width()),
                            static_cast<int>(mCamera.height()));
 

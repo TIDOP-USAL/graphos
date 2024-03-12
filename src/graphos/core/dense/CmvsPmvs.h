@@ -37,46 +37,105 @@
 namespace graphos
 {
 
-class CmvsPmvsProperties
-  : public CmvsPmvs
+/*!
+ * \brief Properties for CMVS/PMVS densification.
+ *
+ * This class represents properties related to Clustering Views for Multi-view Stereo (CMVS) and
+ * Patch-based Multi-view Stereo Software (PMVS). It inherits functionality for densification from
+ * the Densification class.
+ *
+ * CMVS: Clustering Views for Multi-view Stereo
+ * Website: https://www.di.ens.fr/cmvs/
+ *
+ * PMVS: Patch-based Multi-view Stereo Software (Version 2)
+ * Website: https://www.di.ens.fr/pmvs/
+ */
+class CmvsPmvs
+  : public Densification
 {
 
 public:
 
-    CmvsPmvsProperties();
-    CmvsPmvsProperties(bool useVisibilityInformation,
+    /*!
+     * \brief Default constructor for CMVS/PMVS properties.
+     * Constructs a CmvsPmvs object with default values.
+     */
+    CmvsPmvs();
+
+    /*!
+     * \brief Parameterized constructor for CMVS/PMVS properties.
+     * Constructs a CmvsPmvs object with provided parameters.
+     * \param[in] useVisibilityInformation Flag indicating whether to use visibility information.
+     * \param[in] imagesPerCluster The number of images per cluster.
+     * \param[in] level The software internally builds an image pyramid, and this parameter specifies
+     * the level in the image pyramid that is used for the computation. When level is 0, original (full)
+     * resolution images are used. When level is 1, images are halved. When level is 2, images are 4 times smaller.
+     * \param[in] cellSize Controls the density of reconstructions. The software tries to reconstruct at
+     * least one patch in every csize x csize pixel square region in all the target images. Therefore,
+     * increasing the value of csize leads to sparaser reconstructions.
+     * \param[in] threshold A patch reconstruction is accepted as a success and kept, if its associcated
+     * photometric consistency measure is above this threshold. Normalized cross correlation is used as a
+     * photometric consistency measure, whose value ranges from -1 (bad) to 1 (good). The software repeats
+     * three iterations of the reconstruction pipeline, and this threshold is relaxed (decreased) by 0.05
+     * at the end of each iteration. For example, if you specify threshold=0.7, the values of the threshold
+     * are 0.7, 0.65, and 0.6 for the three iterations of the pipeline, respectively.
+     * \param[in] windowSize The software samples windowSize x windowSize pixel colors from each image to compute
+     * photometric consistency score. For example, when windowSize=7, 7x7=49 pixel colors are sampled in each
+     * image. Increasing the value leads to more stable reconstructions, but the program becomes slower.
+     * \param[in] minimunImageNumber Each 3D point must be visible in the specified minimum number of images for being reconstructed.
+     */
+    CmvsPmvs(bool useVisibilityInformation,
                        int imagesPerCluster,
                        int level,
                        int cellSize,
                        double threshold,
                        int windowSize,
                        int minimunImageNumber);
-    CmvsPmvsProperties(const CmvsPmvsProperties &cmvsPmvs);
-    CmvsPmvsProperties(CmvsPmvsProperties &&cmvsPmvs) noexcept;
-    ~CmvsPmvsProperties() override = default;
 
-    CmvsPmvsProperties &operator =(const CmvsPmvsProperties &cmvsPmvs);
-    CmvsPmvsProperties &operator =(CmvsPmvsProperties &&cmvsPmvs) noexcept;
+    /*!
+     * \brief Copy constructor for CMVS/PMVS properties.
+     * Constructs a new CmvsPmvs object by copying from another CmvsPmvs object.
+     * \param[in] cmvsPmvs The CmvsPmvs object to copy from.
+     */
+    CmvsPmvs(const CmvsPmvs &cmvsPmvs);
 
-// CmvsPmvs interface
+    /*!
+     * \brief Move constructor for CMVS/PMVS properties.
+     * Constructs a new CmvsPmvs object by moving the resources of another CmvsPmvs object.
+     * \param[in] cmvsPmvs The CmvsPmvs object to move from.
+     */
+    CmvsPmvs(CmvsPmvs &&cmvsPmvs) noexcept;
+    ~CmvsPmvs() override = default;
 
-public:
+    /*!
+     * \brief Move constructor for CMVS/PMVS properties.
+     * Constructs a new CmvsPmvs object by moving the resources of another CmvsPmvs object.
+     * \param[in] cmvsPmvs The CmvsPmvs object to move from.
+     */
+    auto operator =(const CmvsPmvs& cmvsPmvs) -> CmvsPmvs&;
 
-    bool useVisibilityInformation() const override;
-    int imagesPerCluster() const override;
-    int level() const override;
-    int cellSize() const override;
-    double threshold() const override;
-    int windowSize() const override;
-    int minimunImageNumber() const override;
+    /*!
+     * \brief Move constructor for CMVS/PMVS properties.
+     * Constructs a new CmvsPmvs object by moving the resources of another CmvsPmvs object.
+     * \param[in] cmvsPmvs The CmvsPmvs object to move from.
+     */
+    auto operator =(CmvsPmvs&& cmvsPmvs) noexcept -> CmvsPmvs&;
 
-    void setUseVisibilityInformation(bool useVisibilityInformation) override;
-    void setImagesPerCluster(int imagesPerCluster) override;
-    void setLevel(int level) override;
-    void setCellSize(int cellSize) override;
-    void setThreshold(double threshold) override;
-    void setWindowSize(int windowSize) override;
-    void setMinimunImageNumber(int minimunImageNumber) override;
+    virtual auto useVisibilityInformation() const -> bool;
+    virtual auto imagesPerCluster() const -> int;
+    virtual auto level() const -> int;
+    virtual auto cellSize() const -> int;
+    virtual auto threshold() const -> double;
+    virtual auto windowSize() const -> int;
+    virtual auto minimunImageNumber() const -> int;
+
+    virtual void setUseVisibilityInformation(bool useVisibilityInformation);
+    virtual void setImagesPerCluster(int imagesPerCluster);
+    virtual void setLevel(int level);
+    virtual void setCellSize(int cellSize);
+    virtual void setThreshold(double threshold);
+    virtual void setWindowSize(int windowSize);
+    virtual void setMinimunImageNumber(int minimunImageNumber);
 
 // Densification interface
 
@@ -100,43 +159,63 @@ protected:
 
 /*----------------------------------------------------------------*/
 
-
+/*!
+ * \brief Class for CMVS/PMVS densification.
+ *
+ * This class represents a densifier using Clustering Views for Multi-view Stereo (CMVS) and
+ * Patch-based Multi-view Stereo Software (PMVS) reconstruction. It inherits properties related
+ * to CMVS/PMVS densification from the CmvsPmvs class and functionality for densification
+ * from the DensifierBase class.
+ */
 class CmvsPmvsDensifier
-  : public CmvsPmvsProperties,
+  : public CmvsPmvs,
     public DensifierBase
 {
 
 public:
 
+    /*!
+     * \brief Constructor for CMVS/PMVS densifier.
+     * Constructs a CmvsPmvsDensifier object with provided parameters.
+     * \param[in] images Images used for densification.
+     * \param[in] cameras Cameras associated with the images.
+     * \param[in] poses Camera poses associated with the images.
+     * \param[in] groundPoints Ground points.
+     * \param[in] outputPath The output path for storing densification results.
+     * \param[in] database The path to the database.
+     * \param[in] cuda Flag indicating whether to use CUDA for computation (default is false).
+     * \param[in] autoSegmentation Flag indicating whether to enable auto-segmentation (default is false).
+     */
     CmvsPmvsDensifier(const std::unordered_map<size_t, Image> &images,
                       const std::map<int, Camera> &cameras,
                       const std::unordered_map<size_t, CameraPose> &poses,
                       const std::vector<GroundPoint> &groundPoints,
                       const tl::Path &outputPath,
-                      const tl::Path &database,
+                      tl::Path database,
                       bool cuda = false,
                       bool autoSegmentation = false);
     ~CmvsPmvsDensifier() override;
 
-    CmvsPmvsDensifier(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
-    CmvsPmvsDensifier(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
-    CmvsPmvsDensifier &operator =(const CmvsPmvsDensifier &cmvsPmvsProcess) = delete;
-    CmvsPmvsDensifier &operator =(CmvsPmvsDensifier &&cmvsPmvsProcess) = delete;
-
-    //auto report() const -> DenseReport;
+    TL_DISABLE_COPY(CmvsPmvsDensifier)
+    TL_DISABLE_MOVE(CmvsPmvsDensifier)
 
 private:
 
-    void clearPreviousModel();
+    void clearPreviousModel() const;
     void writeBundleFile();
     void writeVisibility();
-    void writeOptions();
+    void writeOptions() const;
     void densify();
 
 // TaskBase
 
 protected:
 
+    /*!
+     * \brief Executes the densification task.
+     * Overrides the execute method from the TaskBase class.
+     * \param[in] progressBar Pointer to a progress bar for tracking progress (default is nullptr).
+     */
     void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
