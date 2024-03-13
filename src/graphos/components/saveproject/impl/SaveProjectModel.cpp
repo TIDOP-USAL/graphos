@@ -123,11 +123,13 @@ void SaveProjectModelImp::save()
 
         }
 
-    } catch (std::exception &e) {
-        tl::printException(e);
+        mProject->save(mProject->projectPath());
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when saving the project");
     }
 
-    mProject->save(mProject->projectPath());
+
 }
 
 void SaveProjectModelImp::init()

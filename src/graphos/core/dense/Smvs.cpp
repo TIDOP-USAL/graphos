@@ -46,19 +46,19 @@
 namespace graphos
 {
 
-constexpr auto SmvsDefaultInputImageScale = 1;
-constexpr auto SmvsDefaultOutputDepthScale = 2;
-constexpr auto SmvsDefaultShadingBasedOptimization = false;
-constexpr auto SmvsDefaultSemiGlobalMatching = false;
-constexpr auto SmvsDefaultSurfaceSmoothingFactor = 1.0;
+constexpr auto smvs_default_input_image_scale = 1;
+constexpr auto smvs_default_output_depth_scale = 2;
+constexpr auto smvs_default_shading_based_optimization = false;
+constexpr auto smvs_default_semi_global_matching = false;
+constexpr auto smvs_default_surface_smoothing_factor = 1.0;
 
 Smvs::Smvs()
   : Densification(Method::smvs),
-    mInputImageScale(SmvsDefaultInputImageScale),
-    mOutputDepthScale(SmvsDefaultOutputDepthScale),
-    mShadingBasedOptimization(SmvsDefaultShadingBasedOptimization),
-    mSemiGlobalMatching(SmvsDefaultSemiGlobalMatching),
-    mSurfaceSmoothingFactor(SmvsDefaultSurfaceSmoothingFactor)
+    mInputImageScale(smvs_default_input_image_scale),
+    mOutputDepthScale(smvs_default_output_depth_scale),
+    mShadingBasedOptimization(smvs_default_shading_based_optimization),
+    mSemiGlobalMatching(smvs_default_semi_global_matching),
+    mSurfaceSmoothingFactor(smvs_default_surface_smoothing_factor)
 {
 }
 
@@ -172,11 +172,11 @@ void Smvs::setSurfaceSmoothingFactor(double surfaceSmoothingFactor)
 
 void Smvs::reset()
 {
-    mInputImageScale = SmvsDefaultInputImageScale;
-    mOutputDepthScale = SmvsDefaultOutputDepthScale;
-    mShadingBasedOptimization = SmvsDefaultShadingBasedOptimization;
-    mSemiGlobalMatching = SmvsDefaultSemiGlobalMatching;
-    mSurfaceSmoothingFactor = SmvsDefaultSurfaceSmoothingFactor;
+    mInputImageScale = smvs_default_input_image_scale;
+    mOutputDepthScale = smvs_default_output_depth_scale;
+    mShadingBasedOptimization = smvs_default_shading_based_optimization;
+    mSemiGlobalMatching = smvs_default_semi_global_matching;
+    mSurfaceSmoothingFactor = smvs_default_surface_smoothing_factor;
 }
 
 auto Smvs::name() const -> QString

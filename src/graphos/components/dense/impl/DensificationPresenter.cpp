@@ -52,19 +52,18 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
     mSmvs(new SmvsWidgetImp),
     mMVS(new MvsWidget)
 {
-    this->init();
-    this->initSignalAndSlots();
+    DensificationPresenterImp::init();
+    DensificationPresenterImp::initSignalAndSlots();
 }
 
-DensificationPresenterImp::~DensificationPresenterImp()
-{
-}
+DensificationPresenterImp::~DensificationPresenterImp() = default;
 
 void DensificationPresenterImp::open()
 {
-    this->setCmvsPmvsProperties();
-    this->setSmvsProperties();
-    this->setMvsProperties();
+    this->configureCmvsPmvsProperties();
+    this->configureSmvsProperties();
+    this->configureMvsProperties();
+
     mView->setCurrentDensificationMethod(mMVS->windowTitle());
 
     mView->exec();
@@ -98,7 +97,7 @@ void DensificationPresenterImp::setCurrentDensifier(const QString &densifier)
 }
 
 
-void DensificationPresenterImp::setCmvsPmvsProperties()
+void DensificationPresenterImp::configureCmvsPmvsProperties() const
 {
     CmvsPmvs *cmvs_pmvs = nullptr;
     if (std::shared_ptr<Densification> densification = mModel->densification()) {
@@ -120,7 +119,7 @@ void DensificationPresenterImp::setCmvsPmvsProperties()
     }
 }
 
-void DensificationPresenterImp::setSmvsProperties()
+void DensificationPresenterImp::configureSmvsProperties() const
 {
     Smvs *smvs = nullptr;
     if (std::shared_ptr<Densification> densification = mModel->densification()) {
@@ -140,7 +139,7 @@ void DensificationPresenterImp::setSmvsProperties()
     }
 }
 
-void DensificationPresenterImp::setMvsProperties()
+void DensificationPresenterImp::configureMvsProperties() const
 {
     Mvs *mvs = nullptr;
     if (std::shared_ptr<Densification> densification = mModel->densification()) {
@@ -229,6 +228,15 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         }
     }
 
+
+    std::unordered_map<size_t, Image> images;
+    for (auto &image : mModel->images()) {
+        auto it = mModel->poses().find(image.first);
+        if (it != mModel->poses().end()) {
+            images[image.first] = image.second;
+        }
+    }
+
     QString densification_method = mView->currentDensificationMethod();
 
     tl::Path dense_path(mModel->projectFolder());
@@ -238,7 +246,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
         dense_path.append("pmvs");
 
-        auto pmvs = std::make_unique<CmvsPmvsDensifier>(mModel->images(),
+        auto pmvs = std::make_unique<CmvsPmvsDensifier>(images,
                                                         mModel->cameras(),
                                                         mModel->poses(),
                                                         mModel->groundPoints(),
@@ -270,7 +278,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
         dense_path.append("smvs");
 
-        auto smvs = std::make_unique<SmvsDensifier>(mModel->images(),
+        auto smvs = std::make_unique<SmvsDensifier>(images,
                                                     mModel->cameras(),
                                                     mModel->poses(),
                                                     mModel->groundPoints(),
@@ -297,7 +305,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
         dense_path.append("mvs");
 
-        auto mvs = std::make_unique<MvsDensifier>(mModel->images(),
+        auto mvs = std::make_unique<MvsDensifier>(images,
                                                   mModel->cameras(),
                                                   mModel->poses(),
                                                   mModel->groundPoints(),
@@ -315,10 +323,10 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         mvs->setEstimateNormals(mMVS->estimateNormals());
 
         auto properties = std::make_shared<Mvs>(mMVS->quality(),
-                                                          256/*mMVS->minResolution()*/,
-                                                          3000/*mMVS->maxResolution()*/,
-                                                          mMVS->numberViews(),
-                                                          mMVS->numberViewsFuse());
+                                                256/*mMVS->minResolution()*/,
+                                                3000/*mMVS->maxResolution()*/,
+                                                mMVS->numberViews(),
+                                                mMVS->numberViewsFuse());
         mModel->setDensification(properties);
 
         dense_task = std::move(mvs);
@@ -328,7 +336,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         throw std::runtime_error("Densification Method not valid");
     }
 
-    dense_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+    dense_task->subscribe([&](tl::TaskFinalizedEvent *event) {
 
         auto report = dynamic_cast<DensifierBase const*>(event->task())->report();
 

@@ -31,7 +31,12 @@
 #include <tidop/core/path.h>
 
 #include <QString>
+#include <unordered_map>
 
+namespace colmap
+{
+struct FeatureKeypoint;
+}
 
 namespace graphos
 {
@@ -67,10 +72,10 @@ public:
      * \param[in] numberViewsFuse The number of views to fuse.
      */
     Mvs(int resolutionLevel,
-                  int minResolution,
-                  int maxResolution,
-                  int numberViews,
-                  int numberViewsFuse);
+        int minResolution,
+        int maxResolution,
+        int numberViews,
+        int numberViewsFuse);
 
     /*!
      * \brief Copy constructor.
@@ -216,7 +221,7 @@ private:
 };
 
 
-/*----------------------------------------------------------------*/
+
 
 /*!
  * \brief Class for Multi-View Stereo (MVS) densification.
@@ -261,6 +266,13 @@ public:
 private:
 
     void clearTemporalFiles() const;
+    void exportCameras(const std::map<int, Undistort> &undistortMap, 
+                       const tl::Path &colmapSparsePath) const;
+    void exportImages(const std::unordered_map<size_t, uint32_t> &graphosToColmapImageIds,
+                      const std::unordered_map<size_t, std::vector<colmap::FeatureKeypoint>> &keypoints,
+                      const tl::Path &colmapSparsePath) const;
+    void exportPoints(const std::unordered_map<size_t, uint32_t> &graphosToColmapImageIds,
+                      const tl::Path &colmapSparsePath) const;
     void exportToColmap() const;
     void writeNvmFile() const;
     void exportToMvs() const;

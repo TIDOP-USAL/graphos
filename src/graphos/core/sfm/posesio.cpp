@@ -23,7 +23,9 @@
 
 #include "graphos/core/sfm/posesio.h"
 
+#include <fstream>
 #include <colmap/base/reconstruction.h>
+#include <tidop/core/endian.h>
 
 #include <tidop/core/path.h>
 #include <tidop/math/algebra/quaternion.h>
@@ -31,66 +33,13 @@
 namespace graphos
 {
 
-//ReadCameraPoses::ReadCameraPoses()
-//  : mReconstruction(new colmap::Reconstruction)
-//{
-//
-//}
-//
-//ReadCameraPoses::~ReadCameraPoses()
-//{
-//    if (mReconstruction) {
-//        delete mReconstruction;
-//        mReconstruction = nullptr;
-//    }
-//}
-//
-//void ReadCameraPoses::open(const QString &path)
-//{
-//    mReconstruction->ReadBinary(path.toStdString());
-//}
-//
-//CameraPose ReadCameraPoses::orientation(const QString &imageName) const
-//{
-//    CameraPose photoOrientation;
-//
-//    for (auto &image : mReconstruction->Images()) {
-//        std::string image_name = tl::Path(image.second.Name()).fileName().toString();
-//        if (imageName.compare(image_name.c_str()) == 0) {
-//
-//            colmap::image_t image_id = image.second.ImageId();
-//            colmap::Image &colmap_image = mReconstruction->Image(image_id);
-//
-//            const Eigen::Matrix<double, 3, 4> inv_proj_matrix = colmap_image.InverseProjectionMatrix();
-//            const Eigen::Vector3d pc = inv_proj_matrix.rightCols<1>();
-//            photoOrientation.setPosition(tl::Point3D(pc(0), pc(1), pc(2)));
-//
-//            Eigen::Matrix3d rot = colmap_image.RotationMatrix();
-//            tl::math::RotationMatrix<double> rotation_matrix;
-//            rotation_matrix.at(0, 0) = rot(0, 0);
-//            rotation_matrix.at(0, 1) = rot(0, 1);
-//            rotation_matrix.at(0, 2) = rot(0, 2);
-//            rotation_matrix.at(1, 0) = rot(1, 0);
-//            rotation_matrix.at(1, 1) = rot(1, 1);
-//            rotation_matrix.at(1, 2) = rot(1, 2);
-//            rotation_matrix.at(2, 0) = rot(2, 0);
-//            rotation_matrix.at(2, 1) = rot(2, 1);
-//            rotation_matrix.at(2, 2) = rot(2, 2);
-//            photoOrientation.setRotationMatrix(rotation_matrix);
-//        }
-//    }
-//
-//    return photoOrientation;
-//}
 
 
 /* Camera Poses Reader */
 
-CameraPosesReader::CameraPosesReader()
-{
-}
+CameraPosesReader::CameraPosesReader() = default;
 
-std::unordered_map<size_t, CameraPose> CameraPosesReader::cameraPoses() const
+auto CameraPosesReader::cameraPoses() const -> std::unordered_map<size_t, CameraPose>
 {
     return mCameraPoses;
 }
@@ -110,13 +59,9 @@ class GraphosCameraPosesReader
 
 public:
 
-    GraphosCameraPosesReader()
-    {
-    }
+    GraphosCameraPosesReader() = default;
 
-    ~GraphosCameraPosesReader()
-    {
-    }
+    ~GraphosCameraPosesReader() override = default;
 
 // CameraPosesReader
 
@@ -126,41 +71,35 @@ public:
     {
         try {
 
-            TL_TODO("Cambiar la lectura a fstream")
+            std::fstream stream(path.toString(), std::ios_base::in | std::ios_base::binary);
 
-            FILE *file = std::fopen(path.toString().c_str(), "rb");
-
-            TL_ASSERT(file, "File not open: {}", path.toString());
+            TL_ASSERT(stream.is_open(), "File not open: {}", path.toString());
 
             uint64_t size = 0;
-
-            /// Header
-            {
-                std::array<char, 19> header_message;
-                std::fread(&header_message, sizeof(char), 19, file);
-                std::fread(&size, sizeof(uint64_t), 1, file);
-            }
+            std::array<char, 19> header_message;
+            stream.read(header_message.data(), sizeof(char) * 19);
+            tl::read(&stream, size);
 
             for (size_t i = 0; i < size; i++) {
 
                 size_t image_id = 0;
-                std::fread(&image_id, sizeof(uint64_t), 1, file);
+                tl::read(&stream, image_id);
 
                 CameraPose camera_pose;
 
                 tl::Point3<double> coordinates;
 
-                std::fread(&coordinates.x, sizeof(double), 1, file);
-                std::fread(&coordinates.y, sizeof(double), 1, file);
-                std::fread(&coordinates.z, sizeof(double), 1, file);
+                tl::read(&stream, coordinates.x);
+                tl::read(&stream, coordinates.y);
+                tl::read(&stream, coordinates.z);
 
                 camera_pose.setPosition(coordinates);
 
                 tl::Quaternion<double> quaternion;
-                std::fread(&quaternion.x, sizeof(double), 1, file);
-                std::fread(&quaternion.y, sizeof(double), 1, file);
-                std::fread(&quaternion.z, sizeof(double), 1, file);
-                std::fread(&quaternion.w, sizeof(double), 1, file);
+                tl::read(&stream, quaternion.x);
+                tl::read(&stream, quaternion.y);
+                tl::read(&stream, quaternion.z);
+                tl::read(&stream, quaternion.w);
 
                 camera_pose.setQuaternion(quaternion);
 
@@ -168,22 +107,68 @@ public:
 
             }
 
-            std::fclose(file);
+            //TL_TODO("Cambiar la lectura a fstream")
+
+            //FILE *file = std::fopen(path.toString().c_str(), "rb");
+
+            //TL_ASSERT(file, "File not open: {}", path.toString());
+
+            //uint64_t size = 0;
+
+            ///// Header
+            //{
+            //    std::array<char, 19> header_message;
+            //    std::fread(&header_message, sizeof(char), 19, file);
+            //    std::fread(&size, sizeof(uint64_t), 1, file);
+            //}
+
+            //for (size_t i = 0; i < size; i++) {
+
+            //    size_t image_id = 0;
+            //    std::fread(&image_id, sizeof(uint64_t), 1, file);
+
+            //    CameraPose camera_pose;
+
+            //    tl::Point3<double> coordinates;
+
+            //    std::fread(&coordinates.x, sizeof(double), 1, file);
+            //    std::fread(&coordinates.y, sizeof(double), 1, file);
+            //    std::fread(&coordinates.z, sizeof(double), 1, file);
+
+            //    camera_pose.setPosition(coordinates);
+
+            //    tl::Quaternion<double> quaternion;
+            //    std::fread(&quaternion.x, sizeof(double), 1, file);
+            //    std::fread(&quaternion.y, sizeof(double), 1, file);
+            //    std::fread(&quaternion.z, sizeof(double), 1, file);
+            //    std::fread(&quaternion.w, sizeof(double), 1, file);
+
+            //    camera_pose.setQuaternion(quaternion);
+
+            //    addCameraPose(image_id, camera_pose);
+
+            //}
+
+            //std::fclose(file);
 
         } catch (...) {
             TL_THROW_EXCEPTION_WITH_NESTED("");
         }
     }
 
-    std::string format() const final override
+    auto format() const -> std::string final
     {
         return "GRAPHOS_BIN";
     }
 };
 
+
+
+
+
 /* Camera Poses Reader Factory */
 
-std::unique_ptr<CameraPosesReader> CameraPosesReaderFactory::create(const std::string &format)
+auto CameraPosesReaderFactory::create(const std::string& format) -> std::unique_ptr<CameraPosesReader>
 {
     std::unique_ptr<CameraPosesReader> reader;
 
@@ -203,41 +188,39 @@ std::unique_ptr<CameraPosesReader> CameraPosesReaderFactory::create(const std::s
 }
 
 
+
+
 /* Camera Poses Writer */
 
-
-CameraPosesWriter::CameraPosesWriter()
-{
-}
+CameraPosesWriter::CameraPosesWriter() = default;
 
 void CameraPosesWriter::setCameraPoses(const std::unordered_map<size_t, CameraPose> &cameraPoses)
 {
     mCameraPoses = cameraPoses;
 }
 
-std::unordered_map<size_t, CameraPose> CameraPosesWriter::cameraPoses() const
+auto CameraPosesWriter::cameraPoses() const -> std::unordered_map<size_t, CameraPose>
 {
     return mCameraPoses;
 }
 
 
+
+
 /* Camera Poses Writer Graphos */
 
 class GraphosCameraPosesWriter
-    : public CameraPosesWriter
+  : public CameraPosesWriter
 {
 
 public:
 
     GraphosCameraPosesWriter()
-    {
-    }
+    = default;
 
-    ~GraphosCameraPosesWriter()
-    {
-    }
+    ~GraphosCameraPosesWriter() override = default;
 
-    // CameraPosesWriter
+// CameraPosesWriter
 
 public:
 
@@ -245,46 +228,78 @@ public:
     {
         try {
 
-            FILE *file = std::fopen(path.toString().c_str(), "wb");
+            std::ofstream stream(path.toString(), std::ios_base::trunc | std::ios_base::binary);
 
-            TL_ASSERT(file, "File not open");
+            TL_ASSERT(stream.is_open(), "File not open");
 
             const auto &camera_poses = this->cameraPoses();
 
             // Header
             {
-                std::fwrite("GRAPHOS_POSES_V1.0", sizeof(char), 19, file);
+                stream.write("GRAPHOS_POSES_V1.0", sizeof("GRAPHOS_POSES_V1.0"));
                 uint64_t size = camera_poses.size();
-                std::fwrite(&size, sizeof(uint64_t), 1, file);
+                tl::write(&stream, size);
             }
 
             for (const auto &camera_pose : camera_poses) {
 
                 size_t image_id = camera_pose.first;
-                std::fwrite(&image_id, sizeof(uint64_t), 1, file);
+                tl::write(&stream, image_id);
 
                 tl::Point3<double> coordinates = camera_pose.second.position();
 
-                std::fwrite(&coordinates.x, sizeof(double), 1, file);
-                std::fwrite(&coordinates.y, sizeof(double), 1, file);
-                std::fwrite(&coordinates.z, sizeof(double), 1, file);
+                tl::write(&stream, coordinates.x);
+                tl::write(&stream, coordinates.y);
+                tl::write(&stream, coordinates.z);
 
                 tl::Quaternion<double> quaternion = camera_pose.second.quaternion();
-                std::fwrite(&quaternion.x, sizeof(double), 1, file);
-                std::fwrite(&quaternion.y, sizeof(double), 1, file);
-                std::fwrite(&quaternion.z, sizeof(double), 1, file);
-                std::fwrite(&quaternion.w, sizeof(double), 1, file);
+                tl::write(&stream, quaternion.x);
+                tl::write(&stream, quaternion.y);
+                tl::write(&stream, quaternion.z);
+                tl::write(&stream, quaternion.w);
 
             }
 
-            std::fclose(file);
+            //FILE *file = std::fopen(path.toString().c_str(), "wb");
+
+            //TL_ASSERT(file, "File not open");
+
+            //const auto &camera_poses = this->cameraPoses();
+
+            //// Header
+            //{
+            //    std::fwrite("GRAPHOS_POSES_V1.0", sizeof(char), 19, file);
+            //    uint64_t size = camera_poses.size();
+            //    std::fwrite(&size, sizeof(uint64_t), 1, file);
+            //}
+
+            //for (const auto &camera_pose : camera_poses) {
+
+            //    size_t image_id = camera_pose.first;
+            //    std::fwrite(&image_id, sizeof(uint64_t), 1, file);
+
+            //    tl::Point3<double> coordinates = camera_pose.second.position();
+
+            //    std::fwrite(&coordinates.x, sizeof(double), 1, file);
+            //    std::fwrite(&coordinates.y, sizeof(double), 1, file);
+            //    std::fwrite(&coordinates.z, sizeof(double), 1, file);
+
+            //    tl::Quaternion<double> quaternion = camera_pose.second.quaternion();
+            //    std::fwrite(&quaternion.x, sizeof(double), 1, file);
+            //    std::fwrite(&quaternion.y, sizeof(double), 1, file);
+            //    std::fwrite(&quaternion.z, sizeof(double), 1, file);
+            //    std::fwrite(&quaternion.w, sizeof(double), 1, file);
+
+            //}
+
+            //std::fclose(file);
 
         } catch (...) {
             TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
         }
     }
 
-    virtual std::string format() const final override
+    auto format() const -> std::string final
     {
         return std::string("GRAPHOS_BIN");
     }
@@ -295,7 +310,7 @@ public:
 
 /* Camera Poses Writer Factory */
 
-std::unique_ptr<CameraPosesWriter> CameraPosesWriterFactory::create(const std::string &format)
+auto CameraPosesWriterFactory::create(const std::string& format) -> std::unique_ptr<CameraPosesWriter>
 {
     std::unique_ptr<CameraPosesWriter> writer;
 

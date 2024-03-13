@@ -40,6 +40,7 @@
 
 /* Colmap */
 #include <colmap/base/database.h>
+#include <feature/types.h>
 
 #include <fstream>
 #include <iomanip>
@@ -56,7 +57,7 @@ constexpr auto mvs_default_number_views = 5;
 constexpr auto mvs_default_number_views_fuse = 3;
 
 Mvs::Mvs()
-  : Densification(Method::smvs),
+  : Densification(Method::mvs),
     mResolutionLevel(mvs_default_resolution_level),
     mMinResolution(mvs_default_min_resolution),
     mMaxResolution(mvs_default_max_resolution),
@@ -68,11 +69,11 @@ Mvs::Mvs()
 }
 
 Mvs::Mvs(int resolutionLevel,
-                             int minResolution,
-                             int maxResolution,
-                             int numberViews,
-                             int numberViewsFuse)
-  : Densification(Method::smvs),
+         int minResolution,
+         int maxResolution,
+         int numberViews,
+         int numberViewsFuse)
+  : Densification(Method::mvs),
     mResolutionLevel(resolutionLevel),
     mMinResolution(minResolution),
     mMaxResolution(maxResolution),
@@ -249,14 +250,162 @@ MvsDensifier::MvsDensifier(const std::unordered_map<size_t, Image> &images,
 
 MvsDensifier::~MvsDensifier() = default;
 
-//auto MvsDensifier::report() const -> DenseReport
-//{
-//    return mReport;
-//}
-
 void MvsDensifier::clearTemporalFiles() const
 {
     outputPath().append("temp").removeDirectory();
+}
+
+void MvsDensifier::exportCameras(const std::map<int, Undistort> &undistortMap, const tl::Path &colmapSparsePath) const
+{
+    tl::Path colmap_cameras(colmapSparsePath);
+    colmap_cameras.append("cameras.txt");
+
+    std::ofstream ofs;
+    ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
+
+    TL_ASSERT(ofs.is_open(), "Open fail: cameras.txt");
+
+    ofs << "# Camera list with one line of data per camera: \n";
+    ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
+    ofs << "# Number of cameras: " << cameras().size() << "\n";
+
+    ofs << std::fixed << std::setprecision(12);
+
+    for (auto &undistort_pair : undistortMap) {
+
+        int camera_id = undistort_pair.first;
+        Undistort undistort = undistort_pair.second;
+        Camera undistort_camera = undistort.undistortCamera();
+        auto calibration = undistort_camera.calibration();
+
+        TL_ASSERT(calibration, "Camera calibration not found");
+
+        /// La cámara tiene que ser PINHOLE para InterfaceCOLMAP
+        ofs << camera_id << " PINHOLE " << undistort_camera.width() << " " << undistort_camera.height() << " ";
+
+        double focal_x = 0.0;
+        double focal_y = 0.0;
+
+        if (calibration->existParameter(Calibration::Parameters::focal)) {
+            focal_x = focal_y = calibration->parameter(Calibration::Parameters::focal);
+        } else {
+            focal_x = calibration->parameter(Calibration::Parameters::focalx);
+            focal_y = calibration->parameter(Calibration::Parameters::focaly);
+        }
+
+        ofs << focal_x << " " << focal_y << " ";
+
+        double cx = calibration->existParameter(Calibration::Parameters::cx) ?
+                        calibration->parameter(Calibration::Parameters::cx) :
+                        undistort_camera.width() / 2.;
+        double cy = calibration->existParameter(Calibration::Parameters::cy) ?
+                        calibration->parameter(Calibration::Parameters::cy) :
+                        undistort_camera.height() / 2.;
+
+        ofs << cx << " " << cy << std::endl;
+
+    }
+}
+
+void MvsDensifier::exportImages(const std::unordered_map<size_t, colmap::image_t> &graphosToColmapImageIds, 
+                                const std::unordered_map<size_t, std::vector<colmap::FeatureKeypoint>> &keypoints,
+                                const tl::Path &colmapSparsePath) const
+{
+    tl::Path colmap_images(colmapSparsePath);
+    colmap_images.append("images.txt");
+
+    std::ofstream ofs;
+    ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
+
+    TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
+
+    ofs << std::fixed << std::setprecision(12);
+
+    for (const auto &pose : poses()) {
+
+        size_t image_id = pose.first;
+        auto &image_pose = pose.second;
+
+        const auto &image = images().at(image_id);
+
+        auto projection_center = image_pose.position();
+        auto rotation_matrix = image_pose.rotationMatrix();
+
+        tl::RotationMatrix<double> transform_to_colmap = tl::RotationMatrix<double>::identity();
+        transform_to_colmap.at(1, 1) = -1;
+        transform_to_colmap.at(2, 2) = -1;
+
+        tl::Quaternion<double> quaternion = pose.second.quaternion();
+
+        auto xyx = rotation_matrix * -projection_center.vector();
+        tl::Path image_path = image.path().toStdString();
+        image_path.replaceExtension(".tif");
+
+        auto colmap_image_id = graphosToColmapImageIds.at(image_id);
+
+        ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
+            << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image_path.fileName().toString() << std::endl;
+
+        for (size_t i = 0; i < groundPoints().size(); i++) {
+
+            auto &track = groundPoints()[i].track();
+
+            if (track.existPair(image_id)) {
+
+                for (auto &map : track.pairs()) {
+
+                    if (map.first == image_id) {
+
+                        size_t point_id = map.second;
+                        ofs << keypoints.at(colmap_image_id)[point_id].x << " " << keypoints.at(colmap_image_id)[point_id].y << " " << i + 1 << " ";
+
+                    }
+
+                }
+            }
+        }
+
+        ofs << std::endl;
+
+    }
+}
+
+void MvsDensifier::exportPoints(const std::unordered_map<size_t, colmap::image_t> &graphosToColmapImageIds, 
+                                const tl::Path &colmapSparsePath) const
+{
+    tl::Path colmap_points_3d(colmapSparsePath);
+    colmap_points_3d.append("points3D.txt");
+
+    std::ofstream ofs;
+    ofs.open(colmap_points_3d.toString(), std::ofstream::out | std::ofstream::trunc);
+
+    TL_ASSERT(ofs.is_open(), "Open fail: points3D.txt");
+
+    ofs << std::fixed << std::setprecision(12);
+
+    ///#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX) 
+    size_t point_id = 0;
+    for (auto &points_3d : groundPoints()) {
+
+        ofs << ++point_id << " "
+            << points_3d.x << " "
+            << points_3d.y << " "
+            << points_3d.z << " "
+            << points_3d.color().red() << " "
+            << points_3d.color().green() << " "
+            << points_3d.color().blue() << " 0";
+
+        auto &track = points_3d.track();
+
+        for (auto &map : track.pairs()) {
+            ofs << " " << graphosToColmapImageIds.at(map.first) << " " << map.second;
+        }
+
+        ofs << std::endl;
+
+    }
+
+    ofs.close();
 }
 
 void MvsDensifier::exportToColmap() const
@@ -299,158 +448,9 @@ void MvsDensifier::exportToColmap() const
         colmap_sparse_path.append("sparse");
         colmap_sparse_path.createDirectories();
 
-        //  TL_TODO("Extraer la exportación a colmap")
-        // cameras.txt
-        {
-            tl::Path colmap_cameras(colmap_sparse_path);
-            colmap_cameras.append("cameras.txt");
-
-            std::ofstream ofs;
-            ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
-
-            TL_ASSERT(ofs.is_open(), "Open fail: cameras.txt");
-
-            ofs << "# Camera list with one line of data per camera: \n";
-            ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
-            ofs << "# Number of cameras: " << cameras().size() << "\n";
-
-            ofs << std::fixed << std::setprecision(12);
-
-            for (auto &undistort_pair : undistort_map) {
-
-                int camera_id = undistort_pair.first;
-                Undistort undistort = undistort_pair.second;
-                Camera undistort_camera = undistort.undistortCamera();
-                auto calibration = undistort_camera.calibration();
-
-                TL_ASSERT(calibration, "Camera calibration not found");
-
-                /// La cámara tiene que ser PINHOLE para InterfaceCOLMAP
-                ofs << camera_id << " PINHOLE " << undistort_camera.width() << " " << undistort_camera.height() << " ";
-
-                double focal_x = 0.0;
-                double focal_y = 0.0;
-
-                if (calibration->existParameter(Calibration::Parameters::focal)) {
-                    focal_x = focal_y = calibration->parameter(Calibration::Parameters::focal);
-                } else {
-                    focal_x = calibration->parameter(Calibration::Parameters::focalx);
-                    focal_y = calibration->parameter(Calibration::Parameters::focaly);
-                }
-
-                ofs << focal_x << " " << focal_y << " ";
-
-                double cx = calibration->existParameter(Calibration::Parameters::cx) ?
-                            calibration->parameter(Calibration::Parameters::cx) :
-                            undistort_camera.width() / 2.;
-                double cy = calibration->existParameter(Calibration::Parameters::cy) ?
-                            calibration->parameter(Calibration::Parameters::cy) :
-                            undistort_camera.height() / 2.;
-
-                ofs << cx << " " << cy << std::endl;
-
-            }
-
-        }
-
-        // images.txt
-        {
-            tl::Path colmap_images(colmap_sparse_path);
-            colmap_images.append("images.txt");
-
-            std::ofstream ofs;
-            ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
-
-            TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
-
-            ofs << std::fixed << std::setprecision(12);
-
-            for (const auto &pose : poses()) {
-
-                size_t image_id = pose.first;
-                auto &image_pose = pose.second;
-
-                const auto &image = images().at(image_id);
-
-                auto projection_center = image_pose.position();
-                auto rotation_matrix = image_pose.rotationMatrix();
-
-                tl::RotationMatrix<double> transform_to_colmap = tl::RotationMatrix<double>::identity();
-                transform_to_colmap.at(1, 1) = -1;
-                transform_to_colmap.at(2, 2) = -1;
-
-                tl::Quaternion<double> quaternion = pose.second.quaternion();
-
-                auto xyx = rotation_matrix * -projection_center.vector();
-                tl::Path image_path = image.path().toStdString();
-                image_path.replaceExtension(".tif");
-
-                auto colmap_image_id = graphos_to_colmap_image_ids[image_id];
-
-                ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
-                    << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image_path.fileName().toString() << std::endl;
-
-                for (size_t i = 0; i < groundPoints().size(); i++) {
-
-                    auto &track = groundPoints()[i].track();
-
-                    if (track.existPair(image_id)) {
-
-                        for (auto &map : track.pairs()) {
-
-                            if (map.first == image_id) {
-
-                                size_t point_id = map.second;
-                                ofs << keypoints[colmap_image_id][point_id].x << " " << keypoints[colmap_image_id][point_id].y << " " << i + 1 << " ";
-
-                            }
-
-                        }
-                    }
-                }
-
-                ofs << std::endl;
-
-            }
-
-        }
-
-        // points3D.txt
-        {
-            tl::Path colmap_points_3d(colmap_sparse_path);
-            colmap_points_3d.append("points3D.txt");
-
-            std::ofstream ofs;
-            ofs.open(colmap_points_3d.toString(), std::ofstream::out | std::ofstream::trunc);
-
-            TL_ASSERT(ofs.is_open(), "Open fail: points3D.txt");
-
-            ofs << std::fixed << std::setprecision(12);
-
-            ///#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX) 
-            size_t point_id = 0;
-            for (auto &points_3d : groundPoints()) {
-
-                ofs << ++point_id << " "
-                    << points_3d.x << " "
-                    << points_3d.y << " "
-                    << points_3d.z << " "
-                    << points_3d.color().red() << " "
-                    << points_3d.color().green() << " "
-                    << points_3d.color().blue() << " 0";
-
-                auto &track = points_3d.track();
-
-                for (auto &map : track.pairs()) {
-                    ofs << " " << graphos_to_colmap_image_ids.at(map.first) << " " << map.second;
-                }
-
-                ofs << std::endl;
-
-            }
-
-            ofs.close();
-        }
+        exportCameras(undistort_map, colmap_sparse_path);
+        exportImages(graphos_to_colmap_image_ids, keypoints, colmap_sparse_path);
+        exportPoints(graphos_to_colmap_image_ids, colmap_sparse_path);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Densification error");

@@ -33,74 +33,153 @@
 namespace graphos
 {
 
+/*!
+* \brief Represents the pose of a camera in 3D space
+*
+* The `CameraPose` class encapsulates the position and orientation of a camera in 3D space.
+*/
 class CameraPose
 {
 
 public:
 
+    /*!
+     * \brief Default constructor.
+     *
+     * Constructs an empty `CameraPose` object.
+     */
     CameraPose();
+
+    /*!
+     * \brief Constructor.
+     *
+     * Constructs a `CameraPose` object with the given coordinates and rotation matrix.
+     *
+     * \param[in] x X-coordinate of the camera position.
+     * \param[in] y Y-coordinate of the camera position.
+     * \param[in] z Z-coordinate of the camera position.
+     * \param[in] rotationMatrix Rotation matrix representing the orientation of the camera.
+     */
     CameraPose(double x, double y, double z,
                const tl::RotationMatrix<double> &rotationMatrix);
+
+    /*!
+     * \brief Constructor.
+     *
+     * Constructs a `CameraPose` object with the given center point and rotation matrix.
+     *
+     * \param[in] center Center point of the camera.
+     * \param[in] rotationMatrix Rotation matrix representing the orientation of the camera.
+     */
     CameraPose(const tl::Point3<double> &center,
                const tl::RotationMatrix<double> &rotationMatrix);
+
+    /*!
+     * \brief Constructor.
+     *
+     * Constructs a `CameraPose` object with the given coordinates and quaternion.
+     *
+     * \param[in] x X-coordinate of the camera position.
+     * \param[in] y Y-coordinate of the camera position.
+     * \param[in] z Z-coordinate of the camera position.
+     * \param[in] quaternion Quaternion representing the orientation of the camera.
+     */
     CameraPose(double x, double y, double z,
                const tl::Quaternion<double> &quaternion);
+
+    /*!
+     * \brief Constructor.
+     *
+     * Constructs a `CameraPose` object with the given center point and quaternion.
+     *
+     * \param[in] center Center point of the camera.
+     * \param[in] quaternion Quaternion representing the orientation of the camera.
+     */
     CameraPose(const tl::Point3<double> &center,
                const tl::Quaternion<double> &quaternion);
+
     ~CameraPose();
 
-    tl::Point3<double> position() const;
+    /*!
+     * \brief Get the position of the camera.
+     *
+     * \return The position of the camera as a 3D point.
+     */
+    auto position() const -> tl::Point3<double>;
+
+    /*!
+     * \brief Set the position of the camera.
+     *
+     * \param[in] position The position of the camera as a 3D point.
+     */
     void setPosition(const tl::Point3<double> &position);
 
     /*!
-     * \brief Rotación como cuaterniones
-     * \return
+     * \brief Get the orientation of the camera as a quaternion.
+     *
+     * \return The orientation of the camera as a quaternion.
      */
-    tl::Quaterniond quaternion() const;
+    auto quaternion() const -> tl::Quaterniond;
 
     /*!
-     * \brief Establece la orientación de la cámaras como cuaterniones
-     * \param[in] quaternion Orientación de la cámara
+     * \brief Set the orientation of the camera as a quaternion.
+     *
+     * \param[in] quaternion The orientation of the camera as a quaternion.
      */
     void setQuaternion(const tl::Quaterniond &quaternion);
 
     /*!
-     * \brief Rotación como matriz de rotación
-     * \return
+     * \brief Get the orientation of the camera as a rotation matrix.
+     *
+     * \return The orientation of the camera as a rotation matrix.
      */
-    tl::RotationMatrix<double> rotationMatrix() const;
+    auto rotationMatrix() const -> tl::RotationMatrix<double>;
 
     /*!
-     * \brief Establece la orientación de la cámaras como matriz de rotación
-     * \param[in] rotationMatrix Orientación de la cámara
+     * \brief Set the orientation of the camera as a rotation matrix.
+     *
+     * \param[in] rotationMatrix The orientation of the camera as a rotation matrix.
      */
     void setRotationMatrix(const tl::RotationMatrix<double> &rotationMatrix);
 
     /*!
-     * \brief Sistema de referencia como código EPSG
-     * \return
+     * \brief Get the coordinate reference system (CRS) of the camera.
+     *
+     * \return The CRS of the camera as EPSG code.
      */
-    QString crs() const;
+    auto crs() const -> QString;
 
     /*!
-     * \brief Establece el sistema de referencia como código EPSG
-     * \param[in] crs Código EPSG
-     */
+      * \brief Set the coordinate reference system (CRS) of the camera.
+      *
+      * \param crs The CRS of the camera as EPSG code.
+      */
     void setCrs(const QString &crs);
 
     /*!
-     * \brief Fichero fuente con las posiciones/orientaciones o EXIF
-     * \return
+     * \brief Get the source of the camera pose data.
+     *
+     * \return The source of the camera pose data as a string.
      */
-    QString source() const;
+    auto source() const -> QString;
 
     /*!
      * \brief Establece el fichero fuente con las posiciones/orientaciones o EXIF
      * \param[in] source
      */
+     /*!
+      * \brief Sets the file with the orientation data or the `EXIF` string if read from the camera metadata.
+      *
+      * \param[in] source The source of the camera pose data as a string.
+      */
     void setSource(const QString &source);
 
-    bool isEmpty() const;
+    /*!
+     * \brief Check if the camera pose is empty.
+     *
+     * \return True if the camera pose is empty, false otherwise.
+     */
+    auto isEmpty() const -> bool;
 
 private:
 

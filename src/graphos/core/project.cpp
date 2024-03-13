@@ -632,29 +632,35 @@ void ProjectImp::clear()
     mTransform = tl::Matrix<double, 4, 4>::identity();
 }
 
-bool ProjectImp::load(const tl::Path &file)
+void ProjectImp::load(const tl::Path &file)
 {
     std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
 
-    bool err = false;
-    QFile input(QString::fromStdWString(file.toWString()));
-    mProjectPath = file;
-    mProjectPath.normalize();
+    try {
 
-    if (input.open(QIODevice::ReadOnly)) {
-        QXmlStreamReader stream;
-        stream.setDevice(&input);
+        QFile input(QString::fromStdWString(file.toWString()));
+        mProjectPath = file;
+        mProjectPath.normalize();
 
-        err = this->read(stream);
-        input.close();
-    } else err = true;
+        if (input.open(QIODevice::ReadOnly)) {
 
-    return err;
+            QXmlStreamReader stream;
+            stream.setDevice(&input);
+
+            this->read(stream);
+
+            input.close();
+
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when reading the project");
+    }
+
 }
 
-bool ProjectImp::save(const tl::Path &file)
+void ProjectImp::save(const tl::Path &file)
 {
-    bool err = false;
     std::lock_guard<std::mutex> lck(ProjectImp::sMutex);
 
     mProjectPath = file;
@@ -662,13 +668,14 @@ bool ProjectImp::save(const tl::Path &file)
 
     tl::Path tmp_file = mProjectPath;
     tmp_file.replaceExtension(".bak");
-    std::ifstream  src(mProjectPath.toString(), std::ios::binary);
-    std::ofstream  dst(tmp_file.toString(), std::ios::binary);
-    dst << src.rdbuf();
-    src.close();
-    dst.close();
 
     try {
+
+        std::ifstream src(mProjectPath.toString(), std::ios::binary);
+        std::ofstream dst(tmp_file.toString(), std::ios::binary);
+        dst << src.rdbuf();
+        src.close();
+        dst.close();
 
         QFile output(QString::fromStdWString(mProjectPath.toWString()));
         if (output.open(QFile::WriteOnly)) {
@@ -697,25 +704,22 @@ bool ProjectImp::save(const tl::Path &file)
 
             output.close();
 
-        } else {
-            err = true;
         }
 
-    } catch (std::exception &e) {
-        tl::printException(e);
+    } catch (...) {
 
         std::ifstream  src(tmp_file.toString(), std::ios::binary);
         std::ofstream  dst(mProjectPath.toString(), std::ios::binary);
         dst << src.rdbuf();
         src.close();
         dst.close();
+        tl::Path::removeFile(tmp_file);
 
-        err = true;
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when writing the project");
+
     }
 
     tl::Path::removeFile(tmp_file);
-
-    return err;
 }
 
 bool ProjectImp::checkOldVersion(const tl::Path &file) const
@@ -798,7 +802,7 @@ void ProjectImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
     mTransform = transform;
 }
 
-bool ProjectImp::read(QXmlStreamReader &stream)
+void ProjectImp::read(QXmlStreamReader &stream)
 {
     if (stream.readNextStartElement()) {
         if (stream.name() == "Graphos") {
@@ -832,11 +836,8 @@ bool ProjectImp::read(QXmlStreamReader &stream)
             }
         } else {
             stream.raiseError(QObject::tr("Incorrect project file"));
-            return true;
         }
-    } else return true;
-
-    return false;
+    }
 }
 
 void ProjectImp::readGeneral(QXmlStreamReader &stream)

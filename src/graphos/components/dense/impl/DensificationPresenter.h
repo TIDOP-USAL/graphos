@@ -45,9 +45,9 @@ public:
 
 private:
 
-    void setCmvsPmvsProperties();
-    void setSmvsProperties();
-    void setMvsProperties();
+    void configureCmvsPmvsProperties() const;
+    void configureSmvsProperties() const;
+    void configureMvsProperties() const;
 
 private slots:
 

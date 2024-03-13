@@ -274,24 +274,9 @@ public:
     virtual const tl::Matrix<double, 4, 4> &transform() const = 0;
     virtual void setTransform(const tl::Matrix<double, 4, 4> &transform) = 0;
 
-    /*!
-     * \brief Limpia el proyecto
-     */
     virtual void clear() = 0;
-
-    /*!
-     * \brief Carga el proyecto
-     * \param[in] file Ruta del fichero de proyecto
-     * \return
-     */
-    virtual bool load(const tl::Path &file) = 0;
-
-    /*!
-     * \brief Guarda el proyecto
-     * \param file
-     * \return
-     */
-    virtual bool save(const tl::Path &file) = 0;
+    virtual void load(const tl::Path &file) = 0;
+    virtual void save(const tl::Path &file) = 0;
 
     /*!
      * \brief checkOldVersion
@@ -421,8 +406,8 @@ public:
 
     void clear() override;
 
-    bool load(const tl::Path &file) override;
-    bool save(const tl::Path &file) override;
+    void load(const tl::Path &file) override;
+    void save(const tl::Path &file) override;
     bool checkOldVersion(const tl::Path &file) const override;
     void oldVersionBak(const tl::Path &file) const override;
 
@@ -432,7 +417,7 @@ public:
 
 protected:
 
-    bool read(QXmlStreamReader &stream);
+    void read(QXmlStreamReader &stream);
     void readGeneral(QXmlStreamReader &stream);
     void readDatabase(QXmlStreamReader &stream);
     void readCrs(QXmlStreamReader &stream);

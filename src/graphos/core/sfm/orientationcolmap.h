@@ -47,7 +47,6 @@ class Reconstruction;
 class ReconstructionManager;
 struct IncrementalMapperOptions;
 class IncrementalMapperController;
-//class BundleAdjustmentController;
 }
 
 namespace graphos
@@ -59,11 +58,28 @@ class GroundPoint;
 class CameraPose;
 class Calibration;
 
+
+
+/*!
+ * \brief COLMAP Reconstruction Converter
+ *
+ * The `ColmapReconstructionConvert` class is responsible for converting a COLMAP reconstruction into GRAPHOS format.
+ *
+ * It provides methods to access ground points, camera poses, and calibration information.
+ */
 class ColmapReconstructionConvert
 {
 
 public:
 
+    /*!
+     * \brief Constructor.
+     *
+     * Constructs a `ColmapReconstructionConvert` object with the given COLMAP reconstruction and images.
+     *
+     * \param[in] reconstruction Pointer to the COLMAP reconstruction.
+     * \param[in] images Images associated with the reconstruction.
+     */
     ColmapReconstructionConvert(const colmap::Reconstruction *reconstruction,
                                 const std::vector<Image> &images);
 
@@ -71,9 +87,29 @@ public:
     {
     }
 
-    std::vector<GroundPoint> groundPoints() const;
-    std::unordered_map<size_t, CameraPose> cameraPoses() const;
-    std::shared_ptr<Calibration> readCalibration(size_t cameraId) const;
+    /*!
+     * \brief Get the ground points from the reconstruction.
+     *
+     * \return A vector of ground points extracted from the reconstruction.
+     */
+    auto groundPoints() const -> std::vector<GroundPoint>;
+
+    /*!
+     * \brief Get the camera poses from the reconstruction.
+     *
+     * \return An unordered map containing image IDs and corresponding camera poses.
+     */
+    auto cameraPoses() const -> std::unordered_map<size_t, CameraPose>;
+
+    /*!
+     * \brief Read calibration information for a specific camera.
+     *
+     * Reads calibration information for the camera with the specified ID.
+     *
+     * \param[in] cameraId The ID of the camera.
+     * \return A shared pointer to the calibration of the specified camera.
+     */
+    auto readCalibration(size_t cameraId) const -> std::shared_ptr<Calibration>;
 
 private:
 
@@ -83,6 +119,14 @@ private:
 };
 
 
+
+/*!
+ * \brief Relative Orientation with COLMAP Properties
+ *
+ * The `RelativeOrientationColmapProperties` class represents the relative orientation of images with additional
+ * properties specific to COLMAP reconstruction. It provides methods to refine focal length, principal point, and
+ * extra parameters during relative orientation computation.
+ */
 class RelativeOrientationColmapProperties
   : public RelativeOrientation
 {
@@ -92,13 +136,46 @@ public:
     RelativeOrientationColmapProperties();
     ~RelativeOrientationColmapProperties() override = default;
 
-    virtual bool refineFocalLength() const;
+    /*!
+     * \brief Check if focal length refinement is enabled.
+     *
+     * \return True if focal length refinement is enabled, false otherwise.
+     */
+    virtual auto refineFocalLength() const -> bool;
+
+    /*!
+     * \brief Set whether to enable focal length refinement.
+     *
+     * \param refineFocalLength True to enable focal length refinement, false otherwise.
+     */
     virtual void setRefineFocalLength(bool refineFocalLength);
 
-    virtual bool refinePrincipalPoint() const;
+    /*!
+     * \brief Check if principal point refinement is enabled.
+     *
+     * \return True if principal point refinement is enabled, false otherwise.
+     */
+    virtual auto refinePrincipalPoint() const -> bool;
+
+    /*!
+     * \brief Set whether to enable principal point refinement.
+     *
+     * \param refinePrincipalPoint True to enable principal point refinement, false otherwise.
+     */
     virtual void setRefinePrincipalPoint(bool refinePrincipalPoint);
 
-    virtual bool refineExtraParams() const;
+    /*!
+     * \brief Check if extra parameters refinement is enabled.
+     *
+     * \return True if extra parameters refinement is enabled, false otherwise.
+     */
+    virtual auto refineExtraParams() const -> bool;
+
+    /*!
+     * \brief Set whether to enable extra parameters refinement.
+     *
+     * \param refineExtraParams True to enable extra parameters refinement, false otherwise.
+     */
     virtual void setRefineExtraParams(bool refineExtraParams);
 
 // RelativeOrientation interface
@@ -106,7 +183,7 @@ public:
 public:
 
     void reset() override;
-    QString name() const override;
+    auto name() const -> QString override;
 
 private:
 
@@ -118,7 +195,13 @@ private:
 
 
 
-
+/*!
+ * \brief Relative Orientation Task with COLMAP Properties
+ *
+ * The `RelativeOrientationColmapTask` class represents a task for performing relative orientation of images with
+ * additional properties specific to COLMAP reconstruction. It inherits from `RelativeOrientationColmapProperties` to
+ * leverage COLMAP-specific refinement options and from `tl::TaskBase` to support task execution and progress reporting.
+ */
 class RelativeOrientationColmapTask
   : public RelativeOrientationColmapProperties,
     public tl::TaskBase
@@ -126,15 +209,37 @@ class RelativeOrientationColmapTask
 
 public:
 
-    RelativeOrientationColmapTask(const tl::Path &database,
-                                  const tl::Path &outputPath,
+    /*!
+     * \brief Constructor.
+     *
+     * Constructs a `RelativeOrientationColmapTask` object with the given database path, output path, images, cameras,
+     * and calibration fixing option.
+     *
+     * \param[in] database Path to the COLMAP database.
+     * \param[in] outputPath Path to the output directory.
+     * \param[in] images Images to be used for relative orientation.
+     * \param[in] cameras Camera.
+     * \param[in] fixCalibration Flag indicating whether to fix the calibration parameters.
+     */
+    RelativeOrientationColmapTask(tl::Path database,
+                                  tl::Path outputPath,
                                   const std::vector<Image> &images,
                                   const std::map<int, Camera> &cameras,
                                   bool fixCalibration);
     ~RelativeOrientationColmapTask() override;
 
-    std::map<int, Camera> cameras() const;
+    /*!
+     * \brief Get the cameras used in the task.
+     *
+     * \return A map of camera IDs to camera objects.
+     */
+    auto cameras() const -> std::map<int, Camera>;
 
+    /*!
+     * \brief Get the orientation report after task execution.
+     *
+     * \return An `OrientationReport` containing information about the orientation task.
+     */
     auto report() const -> OrientationReport;
 
 // tl::TaskBase
@@ -156,7 +261,6 @@ private:
     colmap::IncrementalMapperOptions *mIncrementalMapper;
     colmap::IncrementalMapperController *mMapper;
     std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
-    //colmap::BundleAdjustmentController *mBundleAdjustmentController;
     OrientationReport mOrientationReport;
 
 };
@@ -174,13 +278,13 @@ public:
     AbsoluteOrientationColmapProperties();
     ~AbsoluteOrientationColmapProperties() override = default;
 
-    virtual int minCommonImages() const;
+    virtual auto minCommonImages() const -> int;
     virtual void setMinCommonImages(int minCommonImages);
 
-    virtual bool robustAlignment() const;
+    virtual auto robustAlignment() const -> bool;
     virtual void setRobustAlignment(bool robustAlignment);
 
-    virtual double robustAlignmentMaxError() const;
+    virtual auto robustAlignmentMaxError() const -> double;
     virtual void setRobustAlignmentMaxError(double robustAlignmentMaxError);
 
 // AbsoluteOrientation Interface
@@ -188,7 +292,7 @@ public:
 public:
 
     void reset() override;
-    QString name() const override;
+    auto name() const -> QString override;
 
 private:
 
@@ -208,11 +312,11 @@ class AbsoluteOrientationColmapTask
 
 public:
 
-    AbsoluteOrientationColmapTask(const tl::Path &path,
+    AbsoluteOrientationColmapTask(tl::Path path,
                                   const std::vector<Image> &images);
     ~AbsoluteOrientationColmapTask() override;
 
-    std::unordered_map<size_t, double> cameraPosesErrors() const;
+    auto cameraPosesErrors() const -> std::unordered_map<size_t, double>;
 
 // tl::TaskBase interface
 
@@ -243,13 +347,13 @@ public:
 
     ImportPosesTask(const std::vector<Image> &images,
                     const std::map<int, Camera> &cameras,
-                    const tl::Path &outputPath,
-                    const tl::Path &database,
+                    tl::Path outputPath,
+                    tl::Path database,
                     bool fixCalibration = false,
                     bool fixPoses = true);
     ~ImportPosesTask() override;
 
-    std::map<int, Camera> cameras() const;
+    auto cameras() const -> std::map<int, Camera>;
 
     void setFixCalibration(bool fixCalibration);
     void setFixPoses(bool fixPoses);
@@ -259,9 +363,9 @@ private:
     void computeOffset();
     void temporalReconstruction(const tl::Path &tempPath);
     void writeImages(const tl::Path &tempPath);
-    void writeCameras(const tl::Path &tempPath);
+    void writeCameras(const tl::Path &tempPath) const;
     void writePoints(const tl::Path &tempPath);
-    bool isCoordinatesLocal() const;
+    auto isCoordinatesLocal() const -> bool;
 
 // tl::TaskBase interface
 
@@ -282,7 +386,8 @@ private:
 };
 
 
-/*----------------------------------------------------------------*/
+
+
 
 void colmapRemoveOrientations(const std::vector<std::string> &images,
                               const std::string &reconstruction);

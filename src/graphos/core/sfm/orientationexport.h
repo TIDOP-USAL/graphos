@@ -29,8 +29,6 @@
 #include <tidop/core/defs.h>
 #include <tidop/geometry/entities/point.h>
 
-#include <QString>
-
 namespace colmap
 {
   class Reconstruction;

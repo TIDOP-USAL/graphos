@@ -105,27 +105,27 @@ void writeBinaryPlyPoints(const std::string &path,
     std::fstream text_file(path, std::ios::out);
     if (!text_file.is_open()) throw std::runtime_error(std::string("File not open: ").append(path));
 
-    text_file << "ply" << std::endl;
-    text_file << "format binary_little_endian 1.0" << std::endl;
-    text_file << "element vertex " << points.size() << std::endl;
+    text_file << "ply\n";
+    text_file << "format binary_little_endian 1.0\n";
+    text_file << "element vertex " << points.size() << '\n';
 
-    text_file << "property float x" << std::endl;
-    text_file << "property float y" << std::endl;
-    text_file << "property float z" << std::endl;
+    text_file << "property float x\n";
+    text_file << "property float y\n";
+    text_file << "property float z\n";
 
     if (write_normal) {
-        text_file << "property float nx" << std::endl;
-        text_file << "property float ny" << std::endl;
-        text_file << "property float nz" << std::endl;
+        text_file << "property float nx\n";
+        text_file << "property float ny\n";
+        text_file << "property float nz\n";
     }
 
     if (write_rgb) {
-        text_file << "property uchar red" << std::endl;
-        text_file << "property uchar green" << std::endl;
-        text_file << "property uchar blue" << std::endl;
+        text_file << "property uchar red\n";
+        text_file << "property uchar green\n";
+        text_file << "property uchar blue\n";
     }
 
-    text_file << "end_header" << std::endl;
+    text_file << "end_header\n";
     text_file.close();
 
     std::fstream binary_file(path,
@@ -405,24 +405,24 @@ void OrientationExport::exportPix4DCalibration(const QString &path, const QStrin
                         std::vector<double> params = camera.second.Params();
 
                         ///TODO: ¿El 0 se refiere a un identificador de cámara??
-                        stream << "Pix4D camera calibration file 0" << std::endl;
+                        stream << "Pix4D camera calibration file 0\n";
                         stream << "#Focal Length mm assuming a sensor width of " <<
-                            w * scale << "x" << h * scale << "mm" << std::endl;
-                        stream << "F " << camera.second.FocalLength() * scale << std::endl;
+                            w * scale << "x" << h * scale << "mm" << '\n';
+                        stream << "F " << camera.second.FocalLength() * scale << '\n';
 
-                        stream << "#Principal Point mm" << std::endl;
-                        stream << "Px " << camera.second.PrincipalPointX() * scale << std::endl;
-                        stream << "Py " << camera.second.PrincipalPointY() * scale << std::endl;
+                        stream << "#Principal Point mm" << '\n';
+                        stream << "Px " << camera.second.PrincipalPointX() * scale << '\n';
+                        stream << "Py " << camera.second.PrincipalPointY() * scale << '\n';
 
-                        stream << "#Symmetrical Lens Distortion Coeffs" << std::endl;
-                        stream << "K1 " << (model_id == 0 ? 0.0 : params[3]) << std::endl;
-                        stream << "K2 " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
-                        stream << "K3 " << (model_id == 50 ? params[5] : 0.0) << std::endl;
+                        stream << "#Symmetrical Lens Distortion Coeffs" << '\n';
+                        stream << "K1 " << (model_id == 0 ? 0.0 : params[3]) << '\n';
+                        stream << "K2 " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << '\n';
+                        stream << "K3 " << (model_id == 50 ? params[5] : 0.0) << '\n';
 
                         /// TODO: Controlar según el tipo de cámara.
-                        stream << "#Tangential Lens Distortion Coeffs" << std::endl;
-                        stream << "T1 " << (model_id == 50 ? params[6] : 0.0) << std::endl;
-                        stream << "T2 " << (model_id == 50 ? params[7] : 0.0) << std::endl << std::endl;
+                        stream << "#Tangential Lens Distortion Coeffs" << '\n';
+                        stream << "T1 " << (model_id == 50 ? params[6] : 0.0) << '\n';
+                        stream << "T2 " << (model_id == 50 ? params[7] : 0.0) << '\n' << '\n';
                     } else {
                         ///TODO: Cámara no soportada. ¿devolver error, escribir mensaje de error, ...?
                     }
@@ -446,35 +446,35 @@ void OrientationExport::exportPix4DCalibration(const QString &path, const QStrin
                         double h_2_mm = h * scale / 2.;
 
                         ///TODO: ¿El 0 se refiere a un identificador de cámara??
-                        stream << "camera_calibration_file 0" << std::endl;
+                        stream << "camera_calibration_file 0\n";
 
                         stream << "#Focal Length mm assuming a sensor width of " <<
-                            w * scale << "x" << h * scale << "mm" << std::endl;
-                        stream << "#Image size " << w << "x" << h << " pixel" << std::endl;
-                        stream << "FOCAL " << camera.second.FocalLength() * scale << std::endl << std::endl;
+                            w * scale << "x" << h * scale << "mm" << '\n';
+                        stream << "#Image size " << w << "x" << h << " pixel\n";
+                        stream << "FOCAL " << camera.second.FocalLength() * scale << '\n' << '\n';
 
-                        stream << "#Principal Point Offset xpoff ypoff in mm (Inpho)" << std::endl;
-                        stream << "XPOFF " << (camera.second.PrincipalPointX() * scale) - w_2_mm << std::endl;
-                        stream << "YPOFF " << (camera.second.PrincipalPointY() * scale) - h_2_mm << std::endl;
-                        stream << "#Principal Point Offset xpoff ypoff in mm" << std::endl;
-                        stream << "XPOFF " << w_2_mm - (camera.second.PrincipalPointX() * scale) << std::endl;
-                        stream << "YPOFF " << (camera.second.PrincipalPointY() * scale) - h_2_mm << std::endl;
-                        stream << "#Principal Point Offset xpoff ypoff in pixel" << std::endl;
-                        stream << "XPOFF " << w / 2. - camera.second.PrincipalPointX() << std::endl;
-                        stream << "XPOFF " << camera.second.PrincipalPointY() - h / 2. << std::endl << std::endl;
+                        stream << "#Principal Point Offset xpoff ypoff in mm (Inpho)\n";
+                        stream << "XPOFF " << (camera.second.PrincipalPointX() * scale) - w_2_mm << '\n';
+                        stream << "YPOFF " << (camera.second.PrincipalPointY() * scale) - h_2_mm << '\n';
+                        stream << "#Principal Point Offset xpoff ypoff in mm\n";
+                        stream << "XPOFF " << w_2_mm - (camera.second.PrincipalPointX() * scale) << '\n';
+                        stream << "YPOFF " << (camera.second.PrincipalPointY() * scale) - h_2_mm << '\n';
+                        stream << "#Principal Point Offset xpoff ypoff in pixel\n";
+                        stream << "XPOFF " << w / 2. - camera.second.PrincipalPointX() << '\n';
+                        stream << "XPOFF " << camera.second.PrincipalPointY() - h / 2. << '\n' << '\n';
 
-                        stream << "#How many fiducial pairs (max 8):" << std::endl;
-                        stream << "NUM_FIDS 4" << std::endl << std::endl;
+                        stream << "#How many fiducial pairs (max 8):\n";
+                        stream << "NUM_FIDS 4\n\n";
 
-                        stream << "#Fiducials position" << std::endl;
-                        stream << "DATA_STRIP_SIDE left" << std::endl << std::endl;
+                        stream << "#Fiducials position\n";
+                        stream << "DATA_STRIP_SIDE left\n\n";
 
-                        stream << "#Fiducial x,y pairs in mm:" << std::endl;
-                        stream << "FID_PAIRS" << std::endl;
-                        stream << "    " << w_2_mm << " " << -h_2_mm << std::endl;
-                        stream << "    " << -w_2_mm << " " << -h_2_mm << std::endl;
-                        stream << "    " << -w_2_mm << " " << h_2_mm << std::endl;
-                        stream << "    " << w_2_mm << " " << h_2_mm << std::endl << std::endl;
+                        stream << "#Fiducial x,y pairs in mm:\n";
+                        stream << "FID_PAIRS\n";
+                        stream << "    " << w_2_mm << " " << -h_2_mm << '\n';
+                        stream << "    " << -w_2_mm << " " << -h_2_mm << '\n';
+                        stream << "    " << -w_2_mm << " " << h_2_mm << '\n';
+                        stream << "    " << w_2_mm << " " << h_2_mm << '\n' << '\n';
 
                         /// La relación entre unos parametros y otros es:
                         /// K0' = 0;
@@ -484,19 +484,19 @@ void OrientationExport::exportPix4DCalibration(const QString &path, const QStrin
                         /// P1  = T1 / f²
                         /// P2  = T2 / f²
                         double f = camera.second.FocalLength() * scale;
-                        stream << "#Symmetrical Lens Distortion Odd-order Poly Coeffs:K0,K1,K2,K3" << std::endl;
+                        stream << "#Symmetrical Lens Distortion Odd-order Poly Coeffs:K0,K1,K2,K3\n";
                         stream << "SYM_DIST 0 " <<
                             (model_id == 0 ? 0.0 : params[3] / pow(f, 3)) << " " <<
                             (model_id == 3 || model_id == 50 ? params[4] / pow(f, 5) : 0.0) << " " <<
-                            (model_id == 50 ? params[5] / pow(f, 7) : 0.0) << std::endl << std::endl;
+                            (model_id == 50 ? params[5] / pow(f, 7) : 0.0) << '\n' << '\n';
 
-                        stream << "#Decentering Lens Coeffs p1,p2,p3" << std::endl;
+                        stream << "#Decentering Lens Coeffs p1,p2,p3\n";
                         stream << "DEC_DIST " <<
                             (model_id == 50 ? params[6] / f * f : 0.0) << " " <<
-                            (model_id == 50 ? params[7] / f * f : 0.0) << " 0" << std::endl << std::endl;
+                            (model_id == 50 ? params[7] / f * f : 0.0) << " 0" << '\n' << '\n';
 
-                        stream << "#How many distortion pairs (max 20):" << std::endl;
-                        stream << "NUM_DIST_PAIRS 20" << std::endl << std::endl;
+                        stream << "#How many distortion pairs (max 20):\n";
+                        stream << "NUM_DIST_PAIRS 20\n\n";
 
                     } else {
                         ///TODO: Cámara no soportada. ¿devolver error, escribir mensaje de error, ...?
@@ -541,8 +541,8 @@ void OrientationExport::exportMVE(const QString &path) const
             int camera_count = static_cast<int>(mReconstruction->Images().size());
             int feature_count = static_cast<int>(mReconstruction->NumPoints3D());
 
-            stream << "drews 1.0" << std::endl;
-            stream << camera_count << " " << feature_count << std::endl;
+            stream << "drews 1.0\n";
+            stream << camera_count << " " << feature_count << '\n';
 
             for (auto &camera : mReconstruction->Cameras()) {
 
@@ -581,29 +581,29 @@ void OrientationExport::exportMVE(const QString &path) const
 
                         if (stream_ini.is_open()) {
 
-                            stream_ini << "# MVE view meta data is stored in INI-file syntax." << std::endl;
-                            stream_ini << "# This file is generated, formatting will get lost." << std::endl << std::endl;
-                            stream_ini << "[camera]" << std::endl;
-                            stream_ini << "focal_length = " << focal << std::endl;
-                            stream_ini << "pixel_aspect = " << 1. << std::endl;
+                            stream_ini << "# MVE view meta data is stored in INI-file syntax.\n";
+                            stream_ini << "# This file is generated, formatting will get lost.\n\n";
+                            stream_ini << "[camera]\n";
+                            stream_ini << "focal_length = " << focal << '\n';
+                            stream_ini << "pixel_aspect = " << 1. << '\n';
                             //stream_ini << "principal_point = " << ppx << " " << ppy << endl;
-                            stream_ini << "principal_point = 0.5 0.5" << std::endl;
+                            stream_ini << "principal_point = 0.5 0.5\n";
                             stream_ini << "rotation = " << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << " "
                                 << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << " "
-                                << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << std::endl;
-                            stream_ini << "translation = " << translation[0] << " " << translation[1] << " " << translation[2] << std::endl << std::endl;
-                            stream_ini << "[view]" << std::endl;
-                            stream_ini << "id = " << image.second.ImageId() - 1 << std::endl;
-                            stream_ini << "name = " << image.second.Name().c_str() << std::endl;
+                                << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << '\n';
+                            stream_ini << "translation = " << translation[0] << " " << translation[1] << " " << translation[2] << '\n' << '\n';
+                            stream_ini << "[view]\n";
+                            stream_ini << "id = " << image.second.ImageId() - 1 << '\n';
+                            stream_ini << "name = " << image.second.Name().c_str() << '\n';
 
                             stream_ini.close();
                         }
 
-                        stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
-                        stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
-                        stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << std::endl;
-                        stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << std::endl;
-                        stream << translation[0] << " " << translation[1] << " " << translation[2] << std::endl;
+                        stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << '\n';
+                        stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << '\n';
+                        stream << rotation_matrix(1, 0) << " " << rotation_matrix(1, 1) << " " << rotation_matrix(1, 2) << '\n';
+                        stream << rotation_matrix(2, 0) << " " << rotation_matrix(2, 1) << " " << rotation_matrix(2, 2) << '\n';
+                        stream << translation[0] << " " << translation[1] << " " << translation[2] << '\n';
 
                     }
                 }
@@ -613,12 +613,12 @@ void OrientationExport::exportMVE(const QString &path) const
             for (auto &points_3d : mReconstruction->Points3D()) {
 
                 Eigen::Vector3ub color = points_3d.second.Color();
-                stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
+                stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << '\n';
 
                 //stream << 250 << " " << 100 << " " << 150 << endl;  // Write arbitrary RGB color, see above note
                 stream << static_cast<int>(color[0]) << " " <<
                     static_cast<int>(color[1]) << " " <<
-                    static_cast<int>(color[2]) << std::endl;
+                    static_cast<int>(color[2]) << '\n';
 
                 colmap::Track track = points_3d.second.Track();
 
@@ -634,7 +634,7 @@ void OrientationExport::exportMVE(const QString &path) const
                 }
 
 
-                stream << std::endl;
+                stream << '\n';
             }
 
             stream.close();
@@ -661,72 +661,6 @@ void OrientationExport::exportCMVS(const QString &path) const
 
 void OrientationExport::exportBundler(const QString &oriFile) const
 {
-    ///TODO: ¿En que cambiaba de generarlo yo o Colmap?
-
-    //if (mReconstruction)
-    //  mReconstruction->ExportBundler(oriFile.toStdString(), imageListFile.toStdString());
-    //else
-    //  msgError("There is not a valid reconstruction");
-
-
-
-  //#ifdef _DEBUG
-  //  /// Borrar
-  //  if (mReconstruction) {
-  //    const colmap::Image image = mReconstruction->Image(static_cast<colmap::image_t>(3));
-  //    std::string name = image.Name().c_str();
-  //    msgInfo(image.Name().c_str());
-  //    colmap::camera_t camera_id = image.CameraId();
-  //    colmap::Camera camera =mReconstruction->Camera(camera_id);
-  //
-  //    for (auto &points_3d : mReconstruction->Points3D()) {
-  //      colmap::point3D_t point_3d_id = points_3d.first;
-  //      const colmap::Point3D point_3d = points_3d.second;
-  //      if (image.HasPoint3D(point_3d_id)){
-  //        colmap::Track track = point_3d.Track();
-  //        for (auto &element : track.Elements()) {
-  //          colmap::image_t image_id = element.image_id;
-  //          if (image_id == image.ImageId()) {
-  //            colmap::point2D_t point_2d_id = element.point2D_idx;
-  //            const colmap::Point2D point_2d = image.Point2D(point_2d_id);
-  //            msgInfo("3D Point: (%lf;%lf;%lf)", point_3d.X(), point_3d.Y(), point_3d.Z());
-  //            msgInfo("2D Point: (%lf;%lf)", point_2d.X(), point_2d.Y());
-  //            Eigen::Vector3d point3D = point_3d.XYZ();
-  //            Eigen::Matrix3x4d proj_matrix = image.ProjectionMatrix();
-  //            Eigen::Vector2d image_point = colmap::ProjectPointToImage(point3D, proj_matrix, camera);
-  //            msgInfo("Project Point: (%lf;%lf)", image_point[0], image_point[1]);
-  //            double x = image_point[0];
-  //            double y = image_point[1];
-  //            double x_dif = x - point_2d.X();
-  //            double y_dif = y - point_2d.Y();
-  //            msgInfo("dif: %lf;%lf", x_dif, y_dif);
-  //
-  //            //Eigen::Vector3d point3D_2(271998 - 272021.250, 4338425.7 - 4338368.076, 351.916 - 379.370);
-  //            Eigen::Vector3d point3D_2(-22.9325, 57.457, -27.328);
-  //            Eigen::Vector2d image_point_2 = colmap::ProjectPointToImage(point3D_2, proj_matrix, camera);
-  //
-  //            msgInfo("3D Point: (%lf;%lf;%lf)", point3D_2[0], point3D_2[1], point3D_2[2]);
-  //            msgInfo("2D Point: (%lf;%lf)", image_point_2[0], image_point_2[1]);
-  //
-  //            const Eigen::Matrix<double, 3, 4> inv_proj_matrix = image.InverseProjectionMatrix();
-  //            const Eigen::Vector3d point3D_3 = inv_proj_matrix.rightCols<1>();
-  //            Eigen::Vector2d image_point_3 = colmap::ProjectPointToImage(point3D_3, proj_matrix, camera);
-  //                        
-  //            msgInfo("3D Point: (%lf;%lf;%lf)", point3D_3[0], point3D_3[1], point3D_3[2]);
-  //            msgInfo("2D Point: (%lf;%lf)", image_point_3[0], image_point_3[1]);
-  //            return;
-  //          }
-  //
-  //        }
-  //      }
-  //
-  //    }
-  //
-  //
-  //  }
-  //#endif
-
-
 
     if (mReconstruction) {
 
@@ -736,8 +670,8 @@ void OrientationExport::exportBundler(const QString &oriFile) const
             size_t camera_count = mReconstruction->Images().size();
             size_t feature_count = mReconstruction->NumPoints3D();
 
-            stream << "# Bundle file v0.3" << std::endl;
-            stream << camera_count << " " << feature_count << std::endl;
+            stream << "# Bundle file v0.3\n";
+            stream << camera_count << " " << feature_count << '\n';
 
             for (auto &camera : mReconstruction->Cameras()) {
 
@@ -754,11 +688,11 @@ void OrientationExport::exportBundler(const QString &oriFile) const
 
                         Eigen::Matrix3d rotation_matrix = image.second.RotationMatrix();
                         Eigen::Vector3d translation = image.second.Tvec();
-                        stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << std::endl;
-                        stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << std::endl;
-                        stream << -rotation_matrix(1, 0) << " " << -rotation_matrix(1, 1) << " " << -rotation_matrix(1, 2) << std::endl;
-                        stream << -rotation_matrix(2, 0) << " " << -rotation_matrix(2, 1) << " " << -rotation_matrix(2, 2) << std::endl;
-                        stream << translation[0] << " " << -translation[1] << " " << -translation[2] << std::endl;
+                        stream << focal << " " << (model_id == 0 ? 0 : params[3]) << " " << (model_id == 3 || model_id == 50 ? params[4] : 0.0) << '\n';
+                        stream << rotation_matrix(0, 0) << " " << rotation_matrix(0, 1) << " " << rotation_matrix(0, 2) << '\n';
+                        stream << -rotation_matrix(1, 0) << " " << -rotation_matrix(1, 1) << " " << -rotation_matrix(1, 2) << '\n';
+                        stream << -rotation_matrix(2, 0) << " " << -rotation_matrix(2, 1) << " " << -rotation_matrix(2, 2) << '\n';
+                        stream << translation[0] << " " << -translation[1] << " " << -translation[2] << '\n';
 
                     }
                 }
@@ -768,11 +702,11 @@ void OrientationExport::exportBundler(const QString &oriFile) const
             for (auto &points_3d : mReconstruction->Points3D()) {
 
                 Eigen::Vector3ub color = points_3d.second.Color();
-                stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << std::endl;
+                stream << points_3d.second.X() << " " << points_3d.second.Y() << " " << points_3d.second.Z() << '\n';
 
                 stream << static_cast<int>(color[0]) << " " <<
                     static_cast<int>(color[1]) << " " <<
-                    static_cast<int>(color[2]) << std::endl;
+                    static_cast<int>(color[2]) << '\n';
 
                 colmap::Track track = points_3d.second.Track();
 
@@ -795,7 +729,7 @@ void OrientationExport::exportBundler(const QString &oriFile) const
                     stream << camera.PrincipalPointY() - point2D.Y() << " ";
                 }
 
-                stream << std::endl;
+                stream << '\n';
             }
             stream.close();
 

@@ -28,8 +28,6 @@
 
 #include <unordered_map>
 
-#include <QString>
-
 #include <tidop/core/path.h>
 
 #include "graphos/core/sfm/poses.h"
@@ -43,38 +41,51 @@ namespace graphos
 {
 
 
-//class TL_DEPRECATED("CameraPosesReader", "2.0") ReadCameraPoses
-//{
-//
-//public:
-//
-//    ReadCameraPoses();
-//    ~ReadCameraPoses();
-//
-//    void open(const QString & path);
-//    CameraPose orientation(const QString & image) const;
-//
-//protected:
-//
-//    colmap::Reconstruction *mReconstruction;
-//
-//};
 
-
-/* Camera Poses Reader */
-
+/*!
+ * \brief Reader for camera poses
+ *
+ * The `CameraPosesReader` class provides an interface for reading camera poses from different sources. It defines
+ * methods for reading camera poses from a specific path and format. Subclasses of `CameraPosesReader` implement
+ * the actual reading logic for different file formats.
+ */
 class CameraPosesReader
 {
 
 public:
 
+    /*!
+     * \brief Default constructor.
+     *
+     * Constructs a `CameraPosesReader` object.
+     */
     CameraPosesReader();
     virtual ~CameraPosesReader() = default;
 
+    /*!
+     * \brief Read camera poses from a specific path.
+     *
+     * This method should be implemented by subclasses to read camera poses from a specific file format.
+     *
+     * \param[in] path The path to the file containing camera poses.
+     */
     virtual void read(const tl::Path &path) = 0;
-    virtual std::string format() const = 0;
 
-    std::unordered_map<size_t, CameraPose> cameraPoses() const;
+    /*!
+     * \brief Get the format of the camera poses.
+     *
+     * This method should be implemented by subclasses to return the format of the camera poses.
+     *
+     * \return A string representing the format of the camera poses.
+     */
+    virtual auto format() const -> std::string = 0;
+
+    /*!
+     * \brief Get the camera poses read by the reader.
+     *
+     * \return An unordered map containing image IDs and corresponding camera poses.
+     */
+    auto cameraPoses() const -> std::unordered_map<size_t, CameraPose>;
 
 protected:
 
@@ -88,6 +99,13 @@ private:
 };
 
 
+/*!
+ * \brief Factory for creating camera poses readers
+ *
+ * The `CameraPosesReaderFactory` class provides a static method to create instances of camera poses readers based on
+ * a specified format. It encapsulates the creation logic and allows for dynamic selection of the appropriate reader
+ * based on the format provided.
+ */
 class CameraPosesReaderFactory
 {
 
@@ -97,24 +115,64 @@ private:
 
 public:
 
-    static std::unique_ptr<CameraPosesReader> create(const std::string &format);
+    /*!
+     * \brief Create a camera poses reader based on the specified format.
+     *
+     * This method creates an instance of a camera poses reader corresponding to the given format.
+     *
+     * \param[in] format The format of the camera poses to be read.
+     * \return A unique pointer to the created camera poses reader.
+     */
+    static auto create(const std::string& format) -> std::unique_ptr<CameraPosesReader>;
 
 };
 
 
-/* Camera Poses Writer */
 
+
+/*!
+ * \brief Writer for camera poses
+ *
+ * The `CameraPosesWriter` class provides an interface for writing camera poses to different file formats. It defines
+ * methods for writing camera poses to a specific path and format. Subclasses of `CameraPosesWriter` implement
+ * the actual writing logic for different file formats.
+ */
 class CameraPosesWriter
 {
 
 public:
 
+    /*!
+     * \brief Default constructor.
+     *
+     * Constructs a `CameraPosesWriter` object.
+     */
     CameraPosesWriter();
     virtual ~CameraPosesWriter() = default;
 
+    /*!
+     * \brief Write camera poses to a specific path.
+     *
+     * This method should be implemented by subclasses to write camera poses to a specific file format.
+     *
+     * \param path The path to write the camera poses to.
+     */
     virtual void write(const tl::Path &path) = 0;
-    virtual std::string format() const = 0;
 
+    /*!
+     * \brief Get the format of the camera poses.
+     *
+     * This method should be implemented by subclasses to return the format of the camera poses.
+     *
+     * \return A string representing the format of the camera poses.
+     */
+    virtual auto format() const -> std::string = 0;
+
+    /*!
+     * \brief Set the camera poses to be written.
+     *
+     * \param[in] cameraPoses The camera poses to be written, stored as an unordered map of image IDs and camera poses.
+     */
     void setCameraPoses(const std::unordered_map<size_t, CameraPose> &cameraPoses);
 
 protected:
@@ -127,6 +185,15 @@ private:
 };
 
 
+
+
+/*!
+ * \brief Factory for creating camera poses writers
+ *
+ * The `CameraPosesWriterFactory` class provides a static method to create instances of camera poses writers based on
+ * a specified format. It encapsulates the creation logic and allows for dynamic selection of the appropriate writer
+ * based on the format provided.
+ */
 class CameraPosesWriterFactory
 {
 
@@ -136,6 +203,14 @@ private:
 
 public:
 
+    /*!
+     * \brief Create a camera poses writer based on the specified format.
+     *
+     * This method creates an instance of a camera poses writer corresponding to the given format.
+     *
+     * \param[in] format The format of the camera poses to be written.
+     * \return A unique pointer to the created camera poses writer.
+     */
     static std::unique_ptr<CameraPosesWriter> create(const std::string &format);
 
 };

@@ -40,7 +40,7 @@
 #include <colmap/util/option_manager.h>
 #include <colmap/util/misc.h>
 #include <colmap/controllers/hierarchical_mapper.h>
-#include <colmap/controllers/bundle_adjustment.h>
+
 
 std::atomic<bool> ba_terminate(false);
 
@@ -97,7 +97,7 @@ ColmapReconstructionConvert::ColmapReconstructionConvert(const colmap::Reconstru
     }
 }
 
-std::vector<GroundPoint> ColmapReconstructionConvert::groundPoints() const
+auto ColmapReconstructionConvert::groundPoints() const -> std::vector<GroundPoint>
 {
     std::vector<GroundPoint> ground_points(mReconstruction->NumPoints3D());
 
@@ -131,7 +131,7 @@ std::vector<GroundPoint> ColmapReconstructionConvert::groundPoints() const
     return ground_points;
 }
 
-std::unordered_map<size_t, CameraPose> ColmapReconstructionConvert::cameraPoses() const
+auto ColmapReconstructionConvert::cameraPoses() const -> std::unordered_map<size_t, CameraPose>
 {
     std::unordered_map<size_t, CameraPose> camera_poses;
 
@@ -146,8 +146,8 @@ std::unordered_map<size_t, CameraPose> ColmapReconstructionConvert::cameraPoses(
         const Eigen::Vector3d pc = inv_proj_matrix.rightCols<1>();
         photoOrientation.setPosition(tl::Point3<double>(pc(0), pc(1), pc(2)));
 
-        auto &qvec = colmap_image.Qvec();
-        Eigen::Vector4d normalized_qvec = colmap::NormalizeQuaternion(qvec);
+        //auto &qvec = colmap_image.Qvec();
+        //Eigen::Vector4d normalized_qvec = colmap::NormalizeQuaternion(qvec);
 
         Eigen::Matrix3d rot = colmap_image.RotationMatrix();
         tl::RotationMatrix<double> rotation_matrix;
@@ -169,7 +169,7 @@ std::unordered_map<size_t, CameraPose> ColmapReconstructionConvert::cameraPoses(
     return camera_poses;
 }
 
-inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration(size_t cameraId) const
+auto ColmapReconstructionConvert::readCalibration(size_t cameraId) const -> std::shared_ptr<Calibration>
 {
     std::shared_ptr<Calibration> calibration;
     if (mReconstruction->ExistsCamera(static_cast<colmap::image_t>(cameraId))) {
@@ -179,14 +179,14 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
 
         std::string model_name = camera.ModelName();
 
-        if (model_name.compare("SIMPLE_PINHOLE") == 0) {
+        if (model_name == "SIMPLE_PINHOLE") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::simple_pinhole);
             calibration->setParameter(Calibration::Parameters::focal, params[0]);
             calibration->setParameter(Calibration::Parameters::cx, params[1]);
             calibration->setParameter(Calibration::Parameters::cy, params[2]);
 
-        } else if (model_name.compare("PINHOLE") == 0) {
+        } else if (model_name == "PINHOLE") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::pinhole);
             calibration->setParameter(Calibration::Parameters::focalx, params[0]);
@@ -194,7 +194,7 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
             calibration->setParameter(Calibration::Parameters::cx, params[2]);
             calibration->setParameter(Calibration::Parameters::cy, params[3]);
 
-        } else if (model_name.compare("SIMPLE_RADIAL") == 0) {
+        } else if (model_name == "SIMPLE_RADIAL") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::radial1);
             calibration->setParameter(Calibration::Parameters::focal, params[0]);
@@ -202,7 +202,7 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
             calibration->setParameter(Calibration::Parameters::cy, params[2]);
             calibration->setParameter(Calibration::Parameters::k1, params[3]);
 
-        } else if (model_name.compare("RADIAL") == 0) {
+        } else if (model_name == "RADIAL") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::radial2);
             calibration->setParameter(Calibration::Parameters::focal, params[0]);
@@ -211,7 +211,7 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
             calibration->setParameter(Calibration::Parameters::k1, params[3]);
             calibration->setParameter(Calibration::Parameters::k2, params[4]);
 
-        } else if (model_name.compare("OPENCV") == 0) {
+        } else if (model_name == "OPENCV") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::opencv);
             calibration->setParameter(Calibration::Parameters::focalx, params[0]);
@@ -223,7 +223,7 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
             calibration->setParameter(Calibration::Parameters::p1, params[6]);
             calibration->setParameter(Calibration::Parameters::p2, params[7]);
 
-        } else if (model_name.compare("OPENCV_FISHEYE") == 0) {
+        } else if (model_name == "OPENCV_FISHEYE") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::opencv_fisheye);
             calibration->setParameter(Calibration::Parameters::focalx, params[0]);
@@ -235,7 +235,7 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
             calibration->setParameter(Calibration::Parameters::k3, params[6]);
             calibration->setParameter(Calibration::Parameters::k4, params[7]);
 
-        } else if (model_name.compare("FULL_OPENCV") == 0) {
+        } else if (model_name == "FULL_OPENCV") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::opencv_full);
             calibration->setParameter(Calibration::Parameters::focalx, params[0]);
@@ -251,7 +251,7 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
             calibration->setParameter(Calibration::Parameters::k5, params[10]);
             calibration->setParameter(Calibration::Parameters::k6, params[11]);
 
-        } else if (model_name.compare("SIMPLE_RADIAL_FISHEYE") == 0) {
+        } else if (model_name == "SIMPLE_RADIAL_FISHEYE") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::simple_radial_fisheye);
             calibration->setParameter(Calibration::Parameters::focal, params[0]);
@@ -259,7 +259,7 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
             calibration->setParameter(Calibration::Parameters::cy, params[2]);
             calibration->setParameter(Calibration::Parameters::k1, params[3]);
 
-        } else if (model_name.compare("RADIAL_FISHEYE") == 0) {
+        } else if (model_name == "RADIAL_FISHEYE") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::radial_fisheye);
             calibration->setParameter(Calibration::Parameters::focal, params[0]);
@@ -268,7 +268,7 @@ inline std::shared_ptr<Calibration> ColmapReconstructionConvert::readCalibration
             calibration->setParameter(Calibration::Parameters::k1, params[3]);
             calibration->setParameter(Calibration::Parameters::k2, params[4]);
 
-        } else if (model_name.compare("FULL_RADIAL") == 0) {
+        } else if (model_name == "FULL_RADIAL") {
 
             calibration = CalibrationFactory::create(Calibration::CameraModel::radial3);
             calibration->setParameter(Calibration::Parameters::focal, params[0]);
@@ -299,7 +299,7 @@ RelativeOrientationColmapProperties::RelativeOrientationColmapProperties()
 
 }
 
-bool RelativeOrientationColmapProperties::refineFocalLength() const
+auto RelativeOrientationColmapProperties::refineFocalLength() const -> bool
 {
     return mRefineFocalLength;
 }
@@ -309,7 +309,7 @@ void RelativeOrientationColmapProperties::setRefineFocalLength(bool refineFocalL
     mRefineFocalLength = refineFocalLength;
 }
 
-bool RelativeOrientationColmapProperties::refinePrincipalPoint() const
+auto RelativeOrientationColmapProperties::refinePrincipalPoint() const -> bool
 {
     return mRefinePrincipalPoint;
 }
@@ -319,7 +319,7 @@ void RelativeOrientationColmapProperties::setRefinePrincipalPoint(bool refinePri
     mRefinePrincipalPoint = refinePrincipalPoint;
 }
 
-bool RelativeOrientationColmapProperties::refineExtraParams() const
+auto RelativeOrientationColmapProperties::refineExtraParams() const -> bool
 {
     return mRefineExtraParams;
 }
@@ -336,34 +336,33 @@ void RelativeOrientationColmapProperties::reset()
     mRefineExtraParams = true;
 }
 
-QString RelativeOrientationColmapProperties::name() const
+auto RelativeOrientationColmapProperties::name() const -> QString
 {
     return QString("Colmap");
 }
 
 
 
-/*----------------------------------------------------------------*/
 
 
 
-RelativeOrientationColmapTask::RelativeOrientationColmapTask(const tl::Path &database,
-                                                             const tl::Path &outputPath,
+
+RelativeOrientationColmapTask::RelativeOrientationColmapTask(tl::Path database,
+                                                             tl::Path outputPath,
                                                              const std::vector<Image> &images,
                                                              const std::map<int, Camera> &cameras,
                                                              bool fixCalibration)
-  : mDatabase(database),
-    mOutputPath(outputPath),
+  : mDatabase(std::move(database)),
+    mOutputPath(std::move(outputPath)),
     mImages(images),
     mCameras(cameras),
     mIncrementalMapper(new colmap::IncrementalMapperOptions),
     mMapper(nullptr),
-    mReconstructionManager(new colmap::ReconstructionManager)/*,
-    mBundleAdjustmentController(nullptr)*/
+    mReconstructionManager(new colmap::ReconstructionManager)
 {
-    setRefineFocalLength(!fixCalibration);
-    setRefinePrincipalPoint(!fixCalibration);
-    setRefineExtraParams(!fixCalibration);
+    RelativeOrientationColmapProperties::setRefineFocalLength(!fixCalibration);
+    RelativeOrientationColmapProperties::setRefinePrincipalPoint(!fixCalibration);
+    RelativeOrientationColmapProperties::setRefineExtraParams(!fixCalibration);
 }
 
 RelativeOrientationColmapTask::~RelativeOrientationColmapTask()
@@ -378,16 +377,11 @@ RelativeOrientationColmapTask::~RelativeOrientationColmapTask()
         mMapper = nullptr;
     }
 
-    //if (mBundleAdjustmentController) {
-    //    delete mBundleAdjustmentController;
-    //    mBundleAdjustmentController = nullptr;
-    //}
-
     mReconstructionManager->Clear();
     mReconstructionManager.reset();
 }
 
-std::map<int, Camera> RelativeOrientationColmapTask::cameras() const
+auto RelativeOrientationColmapTask::cameras() const -> std::map<int, Camera>
 {
     return mCameras;
 }
@@ -405,8 +399,6 @@ void RelativeOrientationColmapTask::stop()
         mMapper->Stop();
 
     ba_terminate = true;
-    //if (mBundleAdjustmentController && mBundleAdjustmentController->IsRunning())
-    //    mBundleAdjustmentController->Stop();
 }
 
 void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
@@ -469,10 +461,10 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 
         if (mReconstructionManager->Size() == 0) throw std::runtime_error("Reconstruction fail");
 
-        colmap::OptionManager optionManager;
-        optionManager.bundle_adjustment->refine_focal_length = refineFocalLength();
-        optionManager.bundle_adjustment->refine_principal_point = refinePrincipalPoint();
-        optionManager.bundle_adjustment->refine_extra_params = refineExtraParams();
+        colmap::OptionManager option_manager;
+        option_manager.bundle_adjustment->refine_focal_length = refineFocalLength();
+        option_manager.bundle_adjustment->refine_principal_point = refinePrincipalPoint();
+        option_manager.bundle_adjustment->refine_extra_params = refineExtraParams();
 
         colmap::Reconstruction &reconstruction = mReconstructionManager->Get(0);
 
@@ -482,9 +474,6 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
         //mBundleAdjustmentController->Wait();
 
         {
-            //CHECK_NOTNULL(reconstruction_);
-
-            //tl::Message::info("Global bundle adjustment");
 
             const std::vector<colmap::image_t>& reg_image_ids = reconstruction.RegImageIds();
 
@@ -493,7 +482,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
             // Avoid degeneracies in bundle adjustment.
             reconstruction.FilterObservationsWithNegativeDepth();
 
-            colmap::BundleAdjustmentOptions ba_options = *optionManager.bundle_adjustment;
+            colmap::BundleAdjustmentOptions ba_options = *option_manager.bundle_adjustment;
             ba_options.solver_options.minimizer_progress_to_stdout = true;
             ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
 
@@ -523,14 +512,10 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
             mOrientationReport.finalCost = std::sqrt(summary.final_cost / summary.num_residuals_reduced);
             mOrientationReport.termination = "CONVERGENCE";
 
-            tl::Message::info("{}", reconstruction.NumPoints3D());
-
-            //tl::Message::info(summary.BriefReport());
-
             TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
         }
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         ColmapReconstructionConvert convert(&reconstruction, mImages);
 
@@ -566,7 +551,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
         sparse_file.append("sparse.ply");
         orientationExport.exportPLY(QString::fromStdWString(sparse_file.toWString()));
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         tl::Message::success("Relative orientation finished in {:.2} minutes", time() / 60.);
 
@@ -578,20 +563,22 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 }
 
 
-/*----------------------------------------------------------------*/
 
-constexpr auto min_common_images = 3;
-constexpr auto robust_alignment = true;
-constexpr auto robust_alignment_max_error = 1.;
+
+
+
+constexpr auto absolute_orientation_colmap_min_common_images = 3;
+constexpr auto absolute_orientation_colmap_robust_alignment = true;
+constexpr auto absolute_orientation_colmap_robust_alignment_max_error = 1.;
 
 AbsoluteOrientationColmapProperties::AbsoluteOrientationColmapProperties()
-  : mMinCommonImages(min_common_images),
-    mRobustAlignment(robust_alignment),
-    mRobustAlignmentMaxError(robust_alignment_max_error)
+  : mMinCommonImages(absolute_orientation_colmap_min_common_images),
+    mRobustAlignment(absolute_orientation_colmap_robust_alignment),
+    mRobustAlignmentMaxError(absolute_orientation_colmap_robust_alignment_max_error)
 {
 }
 
-int AbsoluteOrientationColmapProperties::minCommonImages() const
+auto AbsoluteOrientationColmapProperties::minCommonImages() const -> int
 {
   return mMinCommonImages;
 }
@@ -601,7 +588,7 @@ void AbsoluteOrientationColmapProperties::setMinCommonImages(int minCommonImages
   mMinCommonImages = minCommonImages;
 }
 
-bool AbsoluteOrientationColmapProperties::robustAlignment() const
+auto AbsoluteOrientationColmapProperties::robustAlignment() const -> bool
 {
   return mRobustAlignment;
 }
@@ -611,7 +598,7 @@ void AbsoluteOrientationColmapProperties::setRobustAlignment(bool robustAlignmen
   mRobustAlignment = robustAlignment;
 }
 
-double AbsoluteOrientationColmapProperties::robustAlignmentMaxError() const
+auto AbsoluteOrientationColmapProperties::robustAlignmentMaxError() const -> double
 {
   return mRobustAlignmentMaxError;
 }
@@ -623,34 +610,33 @@ void AbsoluteOrientationColmapProperties::setRobustAlignmentMaxError(double robu
 
 void AbsoluteOrientationColmapProperties::reset()
 {
-    mMinCommonImages = min_common_images;
-    mRobustAlignment = robust_alignment;
-    mRobustAlignmentMaxError = robust_alignment_max_error;
+    mMinCommonImages = absolute_orientation_colmap_min_common_images;
+    mRobustAlignment = absolute_orientation_colmap_robust_alignment;
+    mRobustAlignmentMaxError = absolute_orientation_colmap_robust_alignment_max_error;
 }
 
-QString AbsoluteOrientationColmapProperties::name() const
+auto AbsoluteOrientationColmapProperties::name() const -> QString
 {
   return QString("Colmap");
 }
 
 
 
-/*----------------------------------------------------------------*/
 
 
 
-AbsoluteOrientationColmapTask::AbsoluteOrientationColmapTask(const tl::Path &inputPath,
+
+
+AbsoluteOrientationColmapTask::AbsoluteOrientationColmapTask(tl::Path inputPath,
                                                              const std::vector<Image> &images)
-  : mInputPath(inputPath),
+  : mInputPath(std::move(inputPath)),
     mImages(images)
 {
 }
 
-AbsoluteOrientationColmapTask::~AbsoluteOrientationColmapTask()
-{
-}
+AbsoluteOrientationColmapTask::~AbsoluteOrientationColmapTask() = default;
 
-std::unordered_map<size_t, double> AbsoluteOrientationColmapTask::cameraPosesErrors() const
+auto AbsoluteOrientationColmapTask::cameraPosesErrors() const -> std::unordered_map<size_t, double>
 {
     return mCameraPosesErrors;
 }
@@ -667,7 +653,6 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
         bool robust_alignment = robustAlignment();
         colmap::RANSACOptions ransac_options;
         ransac_options.max_error = robustAlignmentMaxError();
-        int min_common_images = minCommonImages();
 
         TL_ASSERT(mInputPath.exists() && mInputPath.isDirectory(), "Invalid reconstruction");
 
@@ -714,7 +699,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
             }
         }
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         tl::Path offset_path = mInputPath;
         offset_path.append("offset.txt");
@@ -726,17 +711,17 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
         if (!tl::Path(mInputPath.toString()).exists())
             throw std::runtime_error(std::string("Reconstruction not found in path: ").append(mInputPath.toString()));
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         bool alignment_success;
         if (robust_alignment) {
             alignment_success = reconstruction.AlignRobust(
-                ref_image_names, ref_locations, min_common_images, ransac_options);
+                ref_image_names, ref_locations, minCommonImages(), ransac_options);
         } else {
-            alignment_success = reconstruction.Align(ref_image_names, ref_locations, min_common_images);
+            alignment_success = reconstruction.Align(ref_image_names, ref_locations, minCommonImages());
         }
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         if (!alignment_success) throw std::runtime_error("Absolute Orientation failed");
 
@@ -798,7 +783,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
         tl::Message::info("Alignment error: {} (mean), {} (median)",
                           colmap::Mean(errors), colmap::Median(errors));
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         tl::Message::success("Absolute orientation finished in {:.2} minutes", time() / 60.);
 
@@ -809,135 +794,29 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
     }
 }
 
-/*
-void AbsoluteOrientationColmapAlgorithm::run()
-{
-  bool robust_alignment = AbsoluteOrientationColmapProperties::robustAlignment();
-  colmap::RANSACOptions ransac_options;
-  ransac_options.max_error = AbsoluteOrientationColmapProperties::robustAlignmentMaxError();
-  int min_common_images = AbsoluteOrientationColmapProperties::minCommonImages();
-
-  tl::Path dir(mOutputPath.toStdString());
-  if (!dir.exists() && !dir.createDirectories()) {
-    throw std::runtime_error(std::string("Directory couldn't be created: ").append(mOutputPath.toStdString()));
-  }
-
-  if (robust_alignment && ransac_options.max_error <= 0) {
-    throw std::runtime_error("ERROR: You must provide a maximum alignment error > 0");
-  }
-
-  std::vector<std::string> ref_image_names;
-  std::vector<Eigen::Vector3d> ref_locations;
-  //std::vector<std::string> lines = colmap::ReadTextFileLines(mImagePath.toStdString());
-  //for (const auto line : lines) {
-  //  std::stringstream line_parser(line);
-  //  std::string image_name = "";
-  //  Eigen::Vector3d camera_position;
-  //  line_parser >> image_name >> camera_position[0] >> camera_position[1] >>
-  //    camera_position[2];
-  //  ref_image_names.push_back(image_name);
-  //  ref_locations.push_back(camera_position);
-  //}
-
-  Eigen::Vector3d offset(0.,0.,0.);
-
-  double i = 1.;
-  for (const auto &cameraPosition : mCameraPositions) {
-    std::string image_name = cameraPosition.first.toStdString();
-    ref_image_names.push_back(image_name);
-    Eigen::Vector3d camera_position;
-    camera_position[0] = cameraPosition.second[0];
-    camera_position[1] = cameraPosition.second[1];
-    camera_position[2] = cameraPosition.second[2];
-
-    //Para evitar desbordamiento
-    offset += (camera_position - offset)/(i);
-    ref_locations.push_back(camera_position);
-    i++;
-  }
-  
-
-  QString offset_file = mOutputPath + "/offset.txt";
-  std::ofstream stream(offset_file.toStdString(), std::ios::trunc);
-  if (stream.is_open()) {
-    stream << QString::number(offset[0], 'f', 6).toStdString() << " "
-           << QString::number(offset[1], 'f', 6).toStdString() << " "
-           << QString::number(offset[2], 'f', 6).toStdString() << std::endl;
-
-    msgInfo("Camera offset: %lf,%lf,%lf", offset[0], offset[1], offset[2] );
-
-    stream.close();
-  }
-
-  for (auto &pos : ref_locations){
-    pos -= offset;
-  }
-
-  if (!tl::Path(mInputPath.toStdString()).exists())
-    throw std::runtime_error(std::string("Reconstruction not found in path: ").append(mInputPath.toStdString()));
-
-  colmap::Reconstruction reconstruction;
-  reconstruction.Read(mInputPath.toStdString());
-
-  bool alignment_success;
-  if (robust_alignment) {
-    alignment_success = reconstruction.AlignRobust(
-      ref_image_names, ref_locations, min_common_images, ransac_options);
-  } else {
-    alignment_success =
-      reconstruction.Align(ref_image_names, ref_locations, min_common_images);
-  }
-
-  if (!alignment_success) throw std::runtime_error("Absolute Orientation failed");
-
-  reconstruction.Write(mOutputPath.toStdString());
-
-  OrientationExport orientationExport(&reconstruction);
-  orientationExport.exportPLY(mOutputPath + "/sparse.ply");
-
-  std::vector<double> errors;
-  errors.reserve(ref_image_names.size());
-
-  for (size_t i = 0; i < ref_image_names.size(); ++i) {
-    const colmap::Image *image = reconstruction.FindImageWithName(ref_image_names[i]);
-    if (image != nullptr) {
-      double error = (image->ProjectionCenter() - ref_locations[i]).norm();
-      std::cout << image->Name() << "[ Error: " << error << std::endl;
-      errors.push_back(error);
-    }
-  }
-
-  msgInfo("Alignment error: %f (mean), %f (median)",
-          colmap::Mean(errors), colmap::Median(errors));
-}
-*/
 
 
-/*----------------------------------------------------------------*/
 
 
 ImportPosesTask::ImportPosesTask(const std::vector<Image> &images,
                                  const std::map<int, Camera> &cameras,
-                                 const tl::Path &outputPath,
-                                 const tl::Path &database,
+                                 tl::Path outputPath,
+                                 tl::Path database,
                                  bool fixCalibration,
                                  bool fixPoses)
-  : tl::TaskBase(),
-    mImages(images),
+  : mImages(images),
     mCameras(cameras),
-    mOutputPath(outputPath),
-    mDatabase(database),
+    mOutputPath(std::move(outputPath)),
+    mDatabase(std::move(database)),
     mFixCalibration(fixCalibration),
     mFixPoses(fixPoses)
 {
     computeOffset();
 }
 
-ImportPosesTask::~ImportPosesTask()
-{
-}
+ImportPosesTask::~ImportPosesTask() = default;
 
-std::map<int, Camera> ImportPosesTask::cameras() const
+auto ImportPosesTask::cameras() const -> std::map<int, Camera>
 {
     return mCameras;
 }
@@ -970,7 +849,7 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
                     tl::Path colmap_image_path(colmap_image.Name());
 
                     if (image_path.equivalent(colmap_image_path)) {
-                        mGraphosToColmapId[image.id()] = colmap_image.ImageId();
+                        mGraphosToColmapId[image.id()] = static_cast<int>(colmap_image.ImageId());
                         break;
                     }
                 }
@@ -986,7 +865,7 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
 
         temporalReconstruction(temp_path);
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         /// Triangulación y ajuste de haces
         {
@@ -1058,24 +937,23 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
 
             const auto &reg_image_ids = reconstruction.RegImageIds();
 
-            for (size_t i = 0; i < reg_image_ids.size(); ++i) {
+            for (unsigned int image_id : reg_image_ids)
+            {
 
-                if (status() == tl::Task::Status::stopping) return;
-
-                const colmap::image_t image_id = reg_image_ids[i];
+                if (status() == Status::stopping) return;
 
                 const auto &image = reconstruction.Image(image_id);
 
                 const size_t num_existing_points3D = image.NumPoints3D();
 
                 std::cout << "  => Image sees " << num_existing_points3D << " / "
-                    << image.NumObservations() << " points" << std::endl;
+                          << image.NumObservations() << " points" << '\n';
 
                 mapper.TriangulateImage(triangulation_options, image_id);
 
                 std::cout << "  => Triangulated "
-                    << (image.NumPoints3D() - num_existing_points3D) << " points"
-                    << std::endl;
+                          << (image.NumPoints3D() - num_existing_points3D) << " points"
+                          << std::endl;
             }
 
             //////////////////////////////////////////////////////////////////////////////
@@ -1103,13 +981,13 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
                 ba_config.AddImage(image_id);
             }
 
-            if (status() == tl::Task::Status::stopping) return;
+            if (status() == Status::stopping) return;
 
             for (int i = 0; i < mapper_options->ba_global_max_refinements; ++i) {
                 // Avoid degeneracies in bundle adjustment.
                 reconstruction.FilterObservationsWithNegativeDepth();
 
-                const size_t num_observations = reconstruction.ComputeNumObservations();
+                size_t num_observations = reconstruction.ComputeNumObservations();
 
                 colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
                 TL_ASSERT(bundle_adjuster.Solve(&reconstruction), "Bundle adjust error");
@@ -1117,16 +995,14 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
                 size_t num_changed_observations = 0;
                 num_changed_observations += CompleteAndMergeTracks(*mapper_options, &mapper);
                 num_changed_observations += FilterPoints(*mapper_options, &mapper);
-                const double changed =
-                    static_cast<double>(num_changed_observations) / num_observations;
-                std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed)
-                    << std::endl;
+                double changed = static_cast<double>(num_changed_observations) / static_cast<double>(num_observations);
+                std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed) << std::endl;
                 if (changed < mapper_options->ba_global_max_refinement_change) {
                     break;
                 }
             }
 
-            if (status() == tl::Task::Status::stopping) return;
+            if (status() == Status::stopping) return;
 
             // Se incluye el punto principal en el ajuste
             if (!mFixCalibration) {
@@ -1135,7 +1011,7 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
                     // Avoid degeneracies in bundle adjustment.
                     reconstruction.FilterObservationsWithNegativeDepth();
 
-                    const size_t num_observations = reconstruction.ComputeNumObservations();
+                    size_t num_observations = reconstruction.ComputeNumObservations();
 
                     //PrintHeading1("Bundle adjustment");
                     //graphos::BundleAdjuster bundle_adjuster(ba_options, ba_config);
@@ -1145,10 +1021,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
                     size_t num_changed_observations = 0;
                     num_changed_observations += CompleteAndMergeTracks(*mapper_options, &mapper);
                     num_changed_observations += FilterPoints(*mapper_options, &mapper);
-                    const double changed =
-                        static_cast<double>(num_changed_observations) / num_observations;
-                    std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed)
-                        << std::endl;
+                    double changed = static_cast<double>(num_changed_observations) / static_cast<double>(num_observations);
+                    std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed) << std::endl;
                     if (changed < mapper_options->ba_global_max_refinement_change) {
                         break;
                     }
@@ -1158,8 +1032,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
             tl::Message::info("Extracting colors");
             reconstruction.ExtractColorsForAllImages("");
 
-            const bool kDiscardReconstruction = false;
-            mapper.EndReconstruction(kDiscardReconstruction);
+            bool discard_reconstruction = false;
+            mapper.EndReconstruction(discard_reconstruction);
 
             ColmapReconstructionConvert convert(&reconstruction, mImages);
             std::vector<GroundPoint> ground_points = convert.groundPoints();
@@ -1178,7 +1052,7 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
             poses_path.append("poses.bin");
             poses_writer->write(poses_path);
 
-            if (status() == tl::Task::Status::stopping) return;
+            if (status() == Status::stopping) return;
 
             for (auto &camera : mCameras) {
 
@@ -1204,8 +1078,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
             std::ofstream stream(offset_path.toString(), std::ios::trunc);
             if (stream.is_open()) {
                 stream << QString::number(mOffset.x, 'f', 6).toStdString() << " "
-                    << QString::number(mOffset.y, 'f', 6).toStdString() << " "
-                    << QString::number(mOffset.z, 'f', 6).toStdString() << std::endl;
+                       << QString::number(mOffset.y, 'f', 6).toStdString() << " "
+                       << QString::number(mOffset.z, 'f', 6).toStdString() << '\n';
 
                 tl::Message::info("Camera offset: {},{},{}", mOffset.x, mOffset.y, mOffset.z);
 
@@ -1241,11 +1115,11 @@ void ImportPosesTask::temporalReconstruction(const tl::Path &tempPath)
 
         writeImages(tempPath);
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         writeCameras(tempPath);
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         writePoints(tempPath);
 
@@ -1303,8 +1177,8 @@ void ImportPosesTask::writeImages(const tl::Path &tempPath)
                 << QString::number(quaternion.z, 'g', 10).toStdString() << " "
                 << QString::number(vector_camera_position[0], 'g', 10).toStdString() << " "
                 << QString::number(vector_camera_position[1], 'g', 10).toStdString() << " "
-                << QString::number(vector_camera_position[2], 'g', 10).toStdString() << " 1 " << file_name << std::endl;
-            ofs << std::endl;
+                << QString::number(vector_camera_position[2], 'g', 10).toStdString() << " 1 " << file_name << '\n';
+            ofs << '\n';
 
         }
 
@@ -1315,7 +1189,7 @@ void ImportPosesTask::writeImages(const tl::Path &tempPath)
     }
 }
 
-void ImportPosesTask::writeCameras(const tl::Path &tempPath)
+void ImportPosesTask::writeCameras(const tl::Path &tempPath) const
 {
     try {
 
@@ -1336,8 +1210,8 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
             size_t camera_id = _camera.first;
             Camera camera = _camera.second;
 
-            std::string camera_type = cameraToColmapType(camera).toStdString();
-            std::shared_ptr<Calibration> calibration = camera.calibration();
+            auto camera_type = cameraToColmapType(camera).toStdString();
+            auto calibration = camera.calibration();
 
             if (calibration) {
 
@@ -1350,30 +1224,30 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
                     camera_type == "RADIAL_FISHEYE") {
 
                     double focal = calibration->existParameter(Calibration::Parameters::focal) ?
-                        calibration->parameter(Calibration::Parameters::focal) :
-                        std::min(camera.width(), camera.height());
+                                   calibration->parameter(Calibration::Parameters::focal) :
+                                   std::min(camera.width(), camera.height());
 
                     ofs << QString::number(focal, 'g', 10).toStdString() << " ";
 
                 } else {
 
                     double focal_x = calibration->existParameter(Calibration::Parameters::focalx) ?
-                        calibration->parameter(Calibration::Parameters::focalx) :
-                        std::min(camera.width(), camera.height());
+                                     calibration->parameter(Calibration::Parameters::focalx) :
+                                     std::min(camera.width(), camera.height());
                     double focal_y = calibration->existParameter(Calibration::Parameters::focaly) ?
-                        calibration->parameter(Calibration::Parameters::focaly) :
-                        std::min(camera.width(), camera.height());
+                                     calibration->parameter(Calibration::Parameters::focaly) :
+                                     std::min(camera.width(), camera.height());
 
                     ofs << QString::number(focal_x, 'g', 10).toStdString() << " " << QString::number(focal_y, 'g', 10).toStdString() << " ";
 
                 }
 
                 double cx = calibration->existParameter(Calibration::Parameters::cx) ?
-                    calibration->parameter(Calibration::Parameters::cx) :
-                    camera.width() / 2.;
+                            calibration->parameter(Calibration::Parameters::cx) :
+                            camera.width() / 2.;
                 double cy = calibration->existParameter(Calibration::Parameters::cy) ?
-                    calibration->parameter(Calibration::Parameters::cy) :
-                    camera.height() / 2.;
+                            calibration->parameter(Calibration::Parameters::cy) :
+                            camera.height() / 2.;
 
                 ofs << QString::number(cx, 'g', 10).toStdString() << " "
                     << QString::number(cy, 'g', 10).toStdString();
@@ -1389,7 +1263,7 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
                     camera_type == "THIN_PRISM_FISHEYE") {
 
                     double k1 = calibration->existParameter(Calibration::Parameters::k1) ?
-                        calibration->parameter(Calibration::Parameters::k1) : 0.0;
+                                calibration->parameter(Calibration::Parameters::k1) : 0.0;
 
                     ofs << " " << QString::number(k1, 'g', 10).toStdString();
 
@@ -1404,7 +1278,7 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
                     camera_type == "THIN_PRISM_FISHEYE") {
 
                     double k2 = calibration->existParameter(Calibration::Parameters::k2) ?
-                        calibration->parameter(Calibration::Parameters::k2) : 0.0;
+                                calibration->parameter(Calibration::Parameters::k2) : 0.0;
 
                     ofs << " " << QString::number(k2, 'g', 10).toStdString();
 
@@ -1416,9 +1290,9 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
                     camera_type == "FULL_RADIAL") {
 
                     double p1 = calibration->existParameter(Calibration::Parameters::p1) ?
-                        calibration->parameter(Calibration::Parameters::p1) : 0.0;
+                                calibration->parameter(Calibration::Parameters::p1) : 0.0;
                     double p2 = calibration->existParameter(Calibration::Parameters::p2) ?
-                        calibration->parameter(Calibration::Parameters::p2) : 0.0;
+                                calibration->parameter(Calibration::Parameters::p2) : 0.0;
 
                     ofs << " " << QString::number(p1, 'g', 10).toStdString()
                         << " " << QString::number(p2, 'g', 10).toStdString();
@@ -1431,7 +1305,7 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
                     camera_type == "FULL_RADIAL") {
 
                     double k3 = calibration->existParameter(Calibration::Parameters::k3) ?
-                        calibration->parameter(Calibration::Parameters::k3) : 0.0;
+                                calibration->parameter(Calibration::Parameters::k3) : 0.0;
 
                     ofs << " " << QString::number(k3, 'g', 10).toStdString();
 
@@ -1442,7 +1316,7 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
                     camera_type == "THIN_PRISM_FISHEYE") {
 
                     double k4 = calibration->existParameter(Calibration::Parameters::k4) ?
-                        calibration->parameter(Calibration::Parameters::k4) : 0.0;
+                                calibration->parameter(Calibration::Parameters::k4) : 0.0;
 
                     ofs << " " << QString::number(k4, 'g', 10).toStdString();
 
@@ -1450,9 +1324,9 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
 
                 if (camera_type == "FULL_OPENCV") {
                     double k5 = calibration->existParameter(Calibration::Parameters::k5) ?
-                        calibration->parameter(Calibration::Parameters::k5) : 0.0;
+                                calibration->parameter(Calibration::Parameters::k5) : 0.0;
                     double k6 = calibration->existParameter(Calibration::Parameters::k6) ?
-                        calibration->parameter(Calibration::Parameters::k6) : 0.0;
+                                calibration->parameter(Calibration::Parameters::k6) : 0.0;
 
                     ofs << " " << QString::number(k5, 'g', 10).toStdString()
                         << " " << QString::number(k6, 'g', 10).toStdString();
@@ -1507,12 +1381,12 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath)
                 if (camera_type == "THIN_PRISM_FISHEYE")
                     ofs << " 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
 
-                if (camera_type.compare("FULL_RADIAL") == 0)
+                if (camera_type == "FULL_RADIAL")
                     ofs << " 0.0 0.0 0.0 0.0 0.0 0.0";
 
             }
 
-            ofs << std::endl;
+            ofs << '\n';
         }
 
 

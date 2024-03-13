@@ -24,7 +24,6 @@
 #include "SmvsWidget.h"
 
 TL_DISABLE_WARNINGS
-#include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QCheckBox>
@@ -59,10 +58,7 @@ SmvsWidgetImp::SmvsWidgetImp(QWidget *parent)
     SmvsWidgetImp::initSignalAndSlots();
 }
 
-SmvsWidgetImp::~SmvsWidgetImp()
-{
-
-}
+SmvsWidgetImp::~SmvsWidgetImp() = default;
 
 void SmvsWidgetImp::initUI()
 {
@@ -130,8 +126,8 @@ void SmvsWidgetImp::update()
 void SmvsWidgetImp::retranslate()
 {
     mGroupBox->setTitle(QApplication::translate("SmvsWidgetImp", "Shading-Aware Multi-View Stereo Parameters", nullptr));
-    mLabelInputImageScale->setText(QApplication::translate("SmvsWidgetImp", "Input Image Scale:"));
-    mLabelOutputDepthScale->setText(QApplication::translate("SmvsWidgetImp", "Output Depth Scale:"));
+    mLabelInputImageScale->setText(QApplication::translate("SmvsWidgetImp", "Image Scale:"));
+    mLabelOutputDepthScale->setText(QApplication::translate("SmvsWidgetImp", "Depth Scale:"));
     mShadingBasedOptimization->setText(QApplication::translate("SmvsWidgetImp", "Shading-Based Optimization:"));
     mSemiGlobalMatching->setText(QApplication::translate("SmvsWidgetImp", "Semi Global Matching:"));
     mLabelSurfaceSmoothingFactor->setText(QApplication::translate("SmvsWidgetImp", "Surface Smoothing Factor:"));

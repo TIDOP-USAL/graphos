@@ -23,11 +23,15 @@
 
 #include "graphos/core/sfm/groundpoint.h"
 
+#include <tidop/core/endian.h>
+
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 #include <fstream>
+
+
 
 namespace graphos
 {
@@ -35,9 +39,7 @@ namespace graphos
 
 
 GroundControlPoint::GroundControlPoint()
-  : tl::Point3<double>()
 {
-
 }
 
 GroundControlPoint::GroundControlPoint(const tl::Point3<double> &point3d)
@@ -45,11 +47,9 @@ GroundControlPoint::GroundControlPoint(const tl::Point3<double> &point3d)
 {
 }
 
-GroundControlPoint::~GroundControlPoint()
-{
-}
+GroundControlPoint::~GroundControlPoint() = default;
 
-std::string GroundControlPoint::name() const
+auto GroundControlPoint::name() const -> std::string
 {
     return mName;
 }
@@ -81,7 +81,7 @@ void GroundControlPoint::setTrack(const GCPTrack &track)
     mTrack = track;
 }
 
-const GCPTrack &GroundControlPoint::track() const
+auto GroundControlPoint::track() const -> const GCPTrack&
 {
     return mTrack;
 }
@@ -90,16 +90,14 @@ const GCPTrack &GroundControlPoint::track() const
 
 /* Readers */
 
-GCPsReader::GCPsReader()
-{
-}
+GCPsReader::GCPsReader() = default;
 
-std::vector<GroundControlPoint> GCPsReader::gcps() const
+auto GCPsReader::gcps() const -> std::vector<GroundControlPoint>
 {
     return mGCPs;
 }
 
-std::string GCPsReader::epsgCode() const
+auto GCPsReader::epsgCode() const -> std::string
 {
     return mEpsgCode;
 }
@@ -119,26 +117,24 @@ void GCPsReader::setEPSGCode(const std::string &epsgCode)
     mEpsgCode = epsgCode;
 }
 
-const std::unordered_map<size_t,Image>& GCPsReader::images() const
+auto GCPsReader::images() const -> const std::unordered_map<size_t, Image>&
 {
     return mImages;
 }
 
+
+
+
 /* Graphos reader */
 
 class GraphosGCPsReader
-    : public GCPsReader
+  : public GCPsReader
 {
 
 public:
 
-    GraphosGCPsReader()
-    {
-    }
-
-    ~GraphosGCPsReader() override
-    {
-    }
+    GraphosGCPsReader() = default;
+    ~GraphosGCPsReader() override = default;
 
     // GCPsReader
 
@@ -161,63 +157,7 @@ public:
                                     if (stream.name() == "Crs") {
                                         setEPSGCode(stream.readElementText().toStdString());
                                     } else if (stream.name() == "GroundControlPoint") {
-
-                                        GroundControlPoint gcp;
-                                        GCPTrack track;
-
-                                        while (stream.readNextStartElement()) {
-                                            if (stream.name() == "Name") {
-                                                gcp.setName(stream.readElementText().toStdString());
-                                            } else if (stream.name() == "x") {
-                                                gcp.x = stream.readElementText().toDouble();
-                                            } else if (stream.name() == "y") {
-                                                gcp.y = stream.readElementText().toDouble();
-                                            } else if (stream.name() == "z") {
-                                                gcp.z = stream.readElementText().toDouble();
-                                            } else if (stream.name() == "error") {
-                                                QString error = stream.readElementText();
-                                            } else if (stream.name() == "ImagePoints") {
-
-                                                while (stream.readNextStartElement()) {
-
-                                                    if (stream.name() == "ImagePoint") {
-
-
-                                                        size_t image_id = 0;
-                                                        tl::Point<double> point_2d;
-
-                                                        for (auto &attr : stream.attributes()) {
-                                                            if (attr.name().compare(QString("image_id")) == 0) {
-                                                                image_id = attr.value().toULongLong();
-                                                                break;
-                                                            }
-                                                        }
-
-                                                        while (stream.readNextStartElement()) {
-                                                            if (stream.name() == "x") {
-                                                                point_2d.x = stream.readElementText().toDouble();
-                                                            } else if (stream.name() == "y") {
-                                                                point_2d.y = stream.readElementText().toDouble();
-                                                            } else {
-                                                                stream.skipCurrentElement();
-                                                            }
-                                                        }
-
-                                                        track.addPoint(image_id, point_2d);
-
-                                                    } else
-                                                        stream.skipCurrentElement();
-
-                                                }
-
-                                            } else {
-                                                stream.skipCurrentElement();
-                                            }
-                                        }
-
-                                        gcp.setTrack(track);
-                                        addGroundControlPoint(gcp);
-
+                                        addGroundControlPoint(readGroundControlPoint(stream));
                                     } else
                                         stream.skipCurrentElement();
                                 }
@@ -237,27 +177,84 @@ public:
         }
     }
 
-    std::string format() const final override
+    auto format() const -> std::string final
     {
         return "GRAPHOS";
     }
 
+private:
+
+    static auto readGroundControlPoint(QXmlStreamReader &stream) -> GroundControlPoint
+    {
+        GroundControlPoint gcp;
+        GCPTrack track;
+
+        while (stream.readNextStartElement()) {
+            if (stream.name() == "Name") {
+                gcp.setName(stream.readElementText().toStdString());
+            } else if (stream.name() == "x") {
+                gcp.x = stream.readElementText().toDouble();
+            } else if (stream.name() == "y") {
+                gcp.y = stream.readElementText().toDouble();
+            } else if (stream.name() == "z") {
+                gcp.z = stream.readElementText().toDouble();
+            } else if (stream.name() == "error") {
+                QString error = stream.readElementText();
+            } else if (stream.name() == "ImagePoints") {
+
+                while (stream.readNextStartElement()) {
+
+                    if (stream.name() == "ImagePoint") {
+
+                        size_t image_id = 0;
+                        tl::Point<double> point_2d;
+
+                        for (auto &attr : stream.attributes()) {
+                            if (attr.name().compare(QString("image_id")) == 0) {
+                                image_id = attr.value().toULongLong();
+                                break;
+                            }
+                        }
+
+                        while (stream.readNextStartElement()) {
+                            if (stream.name() == "x") {
+                                point_2d.x = stream.readElementText().toDouble();
+                            } else if (stream.name() == "y") {
+                                point_2d.y = stream.readElementText().toDouble();
+                            } else {
+                                stream.skipCurrentElement();
+                            }
+                        }
+
+                        track.addPoint(image_id, point_2d);
+
+                    } else
+                        stream.skipCurrentElement();
+
+                }
+
+            } else {
+                stream.skipCurrentElement();
+            }
+        }
+
+        gcp.setTrack(track);
+
+        return gcp;
+    }
 };
 
 
 class OpenDroneMapGCPsReader
-    : public GCPsReader
+  : public GCPsReader
 {
 
 public:
     
     OpenDroneMapGCPsReader()
-    {
-    }
+    = default;
 
-    ~OpenDroneMapGCPsReader()
-    {
-    }
+    ~OpenDroneMapGCPsReader() override = default;
 
 // GCPsReader interfaces
 
@@ -269,7 +266,7 @@ public:
         ifs.open(path.toString(), std::ifstream::in);
         if (ifs.is_open()) {
 
-            TL_ASSERT(images().size() > 0, "");
+            TL_ASSERT(!images().empty(), "");
 
             std::string line;
             std::getline(ifs, line);
@@ -338,14 +335,17 @@ public:
         }
     }
 
-    std::string format() const final override
+    auto format() const -> std::string final
     {
         return "ODM";
     }
 
 };
 
-std::unique_ptr<GCPsReader> GCPsReaderFactory::create(const std::string &format)
+
+
+
+auto GCPsReaderFactory::create(const std::string& format) -> std::unique_ptr<GCPsReader>
 {
     std::unique_ptr<GCPsReader> reader;
 
@@ -367,11 +367,11 @@ std::unique_ptr<GCPsReader> GCPsReaderFactory::create(const std::string &format)
 }
 
 
+
+
 /* Writers */
 
-GCPsWriter::GCPsWriter()
-{
-}
+GCPsWriter::GCPsWriter() = default;
 
 void GCPsWriter::setGCPs(const std::vector<GroundControlPoint> &GCPs)
 {
@@ -388,17 +388,17 @@ void GCPsWriter::setImages(const std::unordered_map<size_t,Image>& images)
     mImages = images;
 }
 
-const std::vector<GroundControlPoint> &GCPsWriter::gcps() const
+auto GCPsWriter::gcps() const -> const std::vector<GroundControlPoint>&
 {
     return mGCPs;
 }
 
-const std::string &GCPsWriter::epsgCode() const
+auto GCPsWriter::epsgCode() const -> const std::string&
 {
     return mEpsgCode;
 }
 
-const std::unordered_map<size_t, Image> &GCPsWriter::images() const
+auto GCPsWriter::images() const -> const std::unordered_map<size_t, Image>&
 {
     return mImages;
 }
@@ -408,20 +408,15 @@ const std::unordered_map<size_t, Image> &GCPsWriter::images() const
 /* Graphos writer */
 
 class GraphosGCPsWriter
-    : public GCPsWriter
+  : public GCPsWriter
 {
 
 public:
 
-    GraphosGCPsWriter()
-    {
-    }
+    GraphosGCPsWriter() = default;
+    ~GraphosGCPsWriter() override = default;
 
-    ~GraphosGCPsWriter()
-    {
-    }
-
-    // GCPsWriter
+// GCPsWriter
 
     void write(const tl::Path &path) override
     {
@@ -448,9 +443,10 @@ public:
         }
     }
 
-    void writeGroundControlPoints(QXmlStreamWriter &stream)
+    void writeGroundControlPoints(QXmlStreamWriter &stream) const
     {
         try {
+
             stream.writeStartElement("GroundControlPoints");
             {
                 stream.writeTextElement("Crs", QString::fromStdString(epsgCode()));
@@ -486,7 +482,7 @@ public:
         }
     }
 
-    std::string format() const final override
+    auto format() const -> std::string final
     {
         return "GRAPHOS";
     }
@@ -500,13 +496,9 @@ class OpenDroneMapGCPsWriter
 
 public:
     
-    OpenDroneMapGCPsWriter()
-    {
-    }
+    OpenDroneMapGCPsWriter() = default;
 
-    ~OpenDroneMapGCPsWriter()
-    {
-    }
+    ~OpenDroneMapGCPsWriter() override = default;
 
 // GCPsWriter interface
 
@@ -517,7 +509,7 @@ public:
         std::ofstream stream(path.toString(), std::ios::trunc);
         TL_ASSERT(stream.is_open(), "Can't open {}", path.toString());
 
-        stream << epsgCode() << std::endl;
+        stream << epsgCode() << '\n';
 
         stream << std::fixed << std::setprecision(12);
 
@@ -525,14 +517,15 @@ public:
 
             for (const auto &point : gcp.track().points()) {
 
-                stream << gcp.x << " " << gcp.y << " " << gcp.z << " " << point.second.x << " " << point.second.y << " " << images().at(point.first).name().toStdString() << std::endl;
+                stream << gcp.x << " " << gcp.y << " " << gcp.z << " " << point.second.x << " " << point.second.y << " " << images().at(point.first).name().toStdString() <<
+                    '\n';
             }
         }
 
         stream.close();
     }
 
-    std::string format() const final override
+    auto format() const -> std::string final
     {
         return "ODM";
     }
@@ -543,7 +536,7 @@ public:
 
 /* GCPsWriterFactory */
 
-std::unique_ptr<GCPsWriter> GCPsWriterFactory::create(const std::string &format)
+auto GCPsWriterFactory::create(const std::string &format) -> std::unique_ptr<GCPsWriter>
 {
     std::unique_ptr<GCPsWriter> writer;
 
@@ -569,18 +562,14 @@ std::unique_ptr<GCPsWriter> GCPsWriterFactory::create(const std::string &format)
 
 /* Ground Points */
 
-GroundPoint::GroundPoint()
-{
-}
+GroundPoint::GroundPoint() = default;
 
 GroundPoint::GroundPoint(const tl::Point3<double> &point3d)
-    : tl::Point3<double>(point3d)
+  : tl::Point3<double>(point3d)
 {
 }
 
-GroundPoint::~GroundPoint()
-{
-}
+GroundPoint::~GroundPoint() = default;
 
 void GroundPoint::setPoint(const tl::Point3<double> &point)
 {
@@ -589,7 +578,7 @@ void GroundPoint::setPoint(const tl::Point3<double> &point)
     this->z = point.z;
 }
 
-tl::Color GroundPoint::color() const
+auto GroundPoint::color() const -> tl::Color
 {
     return mColor;
 }
@@ -615,24 +604,24 @@ void GroundPoint::removeTrackPair(size_t imageId)
     mTrack.removePair(imageId);
 }
 
-const Track &GroundPoint::track() const
+auto GroundPoint::track() const -> const Track&
 {
     return mTrack;
 }
 
 
+
 /* GroundPointsReader */
 
-GroundPointsReader::GroundPointsReader()
-{
-}
 
-std::vector<GroundPoint> GroundPointsReader::points() const
+GroundPointsReader::GroundPointsReader() = default;
+
+auto GroundPointsReader::points() const -> std::vector<GroundPoint>
 {
     return mGroundPoints;
 }
 
-std::string GroundPointsReader::epsgCode() const
+auto GroundPointsReader::epsgCode() const -> std::string
 {
     return mEpsgCode;
 }
@@ -656,20 +645,15 @@ void GroundPointsReader::setEPSGCode(const std::string &epsgCode)
 /* GraphosGPsReader */
 
 class GraphosGPsReader
-    : public GroundPointsReader
+  : public GroundPointsReader
 {
 
 public:
 
-    GraphosGPsReader()
-    {
-    }
+    GraphosGPsReader() = default;
+    ~GraphosGPsReader() override = default;
 
-    ~GraphosGPsReader()
-    {
-    }
-
-    // GroundPointsReader
+// GroundPointsReader
 
 public:
 
@@ -679,15 +663,58 @@ public:
 
             TL_ASSERT(path.exists(), "File not exists");
 
-            FILE *file = std::fopen(path.toString().c_str(), "rb");
+            std::fstream stream(path.toString(), std::ios_base::in | std::ios_base::binary);
 
-            TL_ASSERT(file, "File not open");
+            if (stream.is_open()) {
 
-            setEPSGCode(readEpsg(file));
-            uint64_t size = readGroundPointsSize(file);
-            setGroundPoints(readGroundPoints(file, size));
+                uint32_t epsg;
+                tl::read(&stream, epsg);
+                if (epsg) {
+                    std::string code;
+                    code.append("EPSG:");
+                    code.append(std::to_string(epsg));
+                    this->setEPSGCode(code);
+                }
 
-            std::fclose(file);
+                uint64_t size = 0;
+                tl::read(&stream, size);
+                std::vector<graphos::GroundPoint> ground_points(size);
+
+                for (auto &ground_point : ground_points) {
+
+                    tl::read(&stream, ground_point.x);
+                    tl::read(&stream, ground_point.y);
+                    tl::read(&stream, ground_point.z);
+
+                    uint32_t color = 0;
+                    tl::read(&stream, color);
+                    if (color)
+                        ground_point.setColor(tl::Color(color));
+
+                    size = 0;
+                    tl::read(&stream, size);
+
+                    Track track;
+
+                    size_t image_id = 0;
+                    size_t point_id = 0;
+
+                    for (size_t i = 0; i < size; i++) {
+
+                        tl::read(&stream, image_id);
+                        tl::read(&stream, point_id);
+
+                        track.addPair(image_id, point_id);
+
+                    }
+
+                    ground_point.setTrack(track);
+
+                }
+
+            }
+
+            stream.close();
 
         } catch (...) {
             TL_THROW_EXCEPTION_WITH_NESTED("");
@@ -695,98 +722,17 @@ public:
 
     }
 
-    std::string format() const final override
+    auto format() const -> std::string final
     {
         return std::string("GRAPHOS");
     }
 
-private:
-
-    std::string readEpsg(FILE *file)
-    {
-        std::string code;
-
-        try {
-
-            uint32_t epsg = 0;
-            std::fread(&epsg, sizeof(uint32_t), 1, file);
-
-            if (epsg) {
-                code.append("EPSG:");
-                code.append(std::to_string(epsg));
-                this->setEPSGCode(code);
-            }
-
-        } catch (...) {
-            TL_THROW_EXCEPTION_WITH_NESTED("");
-        }
-
-        return code;
-    }
-
-    uint64_t readGroundPointsSize(FILE *file)
-    {
-        uint64_t size = 0;
-
-        try {
-
-            std::fread(&size, sizeof(uint64_t), 1, file);
-
-        } catch (...) {
-            TL_THROW_EXCEPTION_WITH_NESTED("");
-        }
-
-        return size;
-    }
-
-    std::vector<graphos::GroundPoint> readGroundPoints(FILE *file, uint64_t &size)
-    {
-        std::vector<graphos::GroundPoint> ground_points(size);
-
-        try {
-
-            for (auto &ground_point : ground_points) {
-
-                std::fread(&ground_point.x, sizeof(double), 1, file);
-                std::fread(&ground_point.y, sizeof(double), 1, file);
-                std::fread(&ground_point.z, sizeof(double), 1, file);
-                uint32_t color = 0;
-                std::fread(&color, sizeof(uint32_t), 1, file);
-                if (color)
-                    ground_point.setColor(tl::Color(color));
-
-                size = 0;
-                std::fread(&size, sizeof(uint64_t), 1, file);
-                Track track;
-
-                size_t image_id = 0;
-                size_t point_id = 0;
-
-                for (size_t i = 0; i < size; i++) {
-
-                    std::fread(&image_id, sizeof(uint64_t), 1, file);
-                    std::fread(&point_id, sizeof(uint64_t), 1, file);
-
-                    track.addPair(image_id, point_id);
-
-                }
-
-                ground_point.setTrack(track);
-
-            }
-
-        } catch (...) {
-            TL_THROW_EXCEPTION_WITH_NESTED("");
-        }
-
-        return ground_points;
-    }
 };
 
 
 /* GroundPointsReaderFactory */
 
-std::unique_ptr<GroundPointsReader> GroundPointsReaderFactory::create(const std::string &format)
+auto GroundPointsReaderFactory::create(const std::string& format) -> std::unique_ptr<GroundPointsReader>
 {
     std::unique_ptr<GroundPointsReader> reader;
 
@@ -822,39 +768,35 @@ void GroundPointsWriter::setEPSGCode(const std::string &epsgCode)
     mEpsgCode = epsgCode;
 }
 
-std::vector<GroundPoint> GroundPointsWriter::groundPoints() const
+auto GroundPointsWriter::groundPoints() const -> std::vector<GroundPoint>
 {
     return mGroundPoints;
 }
 
-std::string GroundPointsWriter::epsgCode() const
+auto GroundPointsWriter::epsgCode() const -> std::string
 {
     return mEpsgCode;
 }
 
 
 class GraphosGPsWriter
-    : public GroundPointsWriter
+  : public GroundPointsWriter
 {
 public:
 
-    GraphosGPsWriter()
-    {
-    }
+    GraphosGPsWriter() = default;
 
-    ~GraphosGPsWriter()
-    {
-    }
+    ~GraphosGPsWriter() override = default;
 
-    // GroundPointsWriter
+// GroundPointsWriter
 
     void write(const tl::Path &path) override
     {
         try {
 
-            FILE *file = std::fopen(path.toString().c_str(), "wb");
+            std::ofstream stream(path.toString(), std::ios_base::trunc | std::ios_base::binary);
 
-            TL_ASSERT(file, "File not open");
+            TL_ASSERT(stream.is_open(), "File not open");
 
             uint32_t epsg = 0;
             std::string epsg_code = this->epsgCode();
@@ -865,33 +807,32 @@ public:
                 }
             }
 
-            std::fwrite(&epsg, sizeof(uint32_t), 1, file);
+            tl::write(&stream, epsg);
 
             uint64_t size = this->groundPoints().size();
-            std::fwrite(&size, sizeof(uint64_t), 1, file);
+            tl::write(&stream, size);
 
             for (auto &ground_point : this->groundPoints()) {
 
-                std::fwrite(&ground_point.x, sizeof(double), 1, file);
-                std::fwrite(&ground_point.y, sizeof(double), 1, file);
-                std::fwrite(&ground_point.z, sizeof(double), 1, file);
+                tl::write(&stream, ground_point.x);
+                tl::write(&stream, ground_point.y);
+                tl::write(&stream, ground_point.z);
 
                 uint32_t color = ground_point.color();
 
-                std::fwrite(&color, sizeof(uint32_t), 1, file);
+                tl::write(&stream, color);
 
                 const auto &track = ground_point.track();
                 size = track.size();
-                std::fwrite(&size, sizeof(uint64_t), 1, file);
+                tl::write(&stream, size);
 
                 for (const auto &pair : track.pairs()) {
-                    std::fwrite(&pair.first, sizeof(uint64_t), 1, file);
-                    std::fwrite(&pair.second, sizeof(uint64_t), 1, file);
+                    tl::write(&stream, pair.first);
+                    tl::write(&stream, pair.second);
                 }
-
             }
 
-            std::fclose(file);
+            stream.close();
 
         } catch (...) {
             TL_THROW_EXCEPTION_WITH_NESTED("Catched exception");
@@ -899,7 +840,7 @@ public:
 
     }
 
-    std::string format() const final override
+    auto format() const -> std::string final
     {
         return std::string("GRAPHOS");
     }
@@ -909,7 +850,7 @@ public:
 
 /* GroundPointsWriterFactory */
 
-std::unique_ptr<GroundPointsWriter> GroundPointsWriterFactory::create(const std::string &format)
+auto GroundPointsWriterFactory::create(const std::string& format) -> std::unique_ptr<GroundPointsWriter>
 {
     std::unique_ptr<GroundPointsWriter> writer;
 

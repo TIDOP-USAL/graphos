@@ -67,7 +67,7 @@ auto openCvCameraMatrix(const Calibration &calibration) -> cv::Mat
     return camera_matrix.clone();
 }
 
-auto openCvDistortionCoefficients(const Calibration& calibration) -> cv::Mat
+auto openCvDistortionCoefficients(const Calibration &calibration) -> cv::Mat
 {
     Calibration::CameraModel camera_model = calibration.cameraModel();
     bool is_fisheye = calibration.checkCameraType(Calibration::CameraType::fisheye);

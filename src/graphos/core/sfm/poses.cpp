@@ -33,8 +33,7 @@ namespace graphos
 
 
 CameraPose::CameraPose()
-    : mPosition(),
-      mRotation(nullptr),
+    : mRotation(nullptr),
       mCrs(""),
       mSource("")
 {
@@ -80,11 +79,9 @@ CameraPose::CameraPose(const Point3<double> &center,
 
 }
 
-CameraPose::~CameraPose()
-{
-}
+CameraPose::~CameraPose() = default;
 
-Point3<double> CameraPose::position() const
+auto CameraPose::position() const -> Point3<double>
 {
     return mPosition;
 }
@@ -94,7 +91,7 @@ void CameraPose::setPosition(const Point3<double> &position)
     mPosition = position;
 }
 
-Quaterniond CameraPose::quaternion() const
+auto CameraPose::quaternion() const -> Quaterniond
 {
     Quaterniond quaternion = Quaterniond::zero();
 
@@ -117,7 +114,7 @@ void CameraPose::setQuaternion(const Quaterniond &quaternion)
     mRotation = std::make_shared<Quaternion<double>>(quaternion);
 }
 
-RotationMatrix<double> CameraPose::rotationMatrix() const
+auto CameraPose::rotationMatrix() const -> RotationMatrix<double>
 {
     RotationMatrix<double> rotation_matrix = RotationMatrix<double>::zero();
 
@@ -138,7 +135,7 @@ void CameraPose::setRotationMatrix(const RotationMatrix<double> &rotationMatrix)
     mRotation = std::make_shared<RotationMatrix<double>>(rotationMatrix);
 }
 
-QString CameraPose::crs() const
+auto CameraPose::crs() const -> QString
 {
     return mCrs;
 }
@@ -148,7 +145,7 @@ void CameraPose::setCrs(const QString &crs)
     mCrs = crs;
 }
 
-QString CameraPose::source() const
+auto CameraPose::source() const -> QString
 {
     return mSource;
 }
@@ -158,7 +155,7 @@ void CameraPose::setSource(const QString &source)
     mSource = source;
 }
 
-bool CameraPose::isEmpty() const
+auto CameraPose::isEmpty() const -> bool
 {
     return mPosition == Point3<double>();
 }

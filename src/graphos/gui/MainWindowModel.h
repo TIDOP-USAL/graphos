@@ -80,7 +80,7 @@ public:
 
 public slots:
 
-    void load(const tl::Path &file);
+    void load(const tl::Path &file) const;
     //void save();
     //void saveAs(const tl::Path &file);
 
