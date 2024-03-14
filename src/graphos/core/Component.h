@@ -42,7 +42,10 @@ class Command;
 
 
 /*!
- * \brief Component interface
+ * \brief Interface for components
+ *
+ * The `Component` class represents an interface for components in the application.
+ * It inherits from `QObject`.
  */
 class Component
     : public QObject
@@ -52,39 +55,51 @@ class Component
 
 public:
 
+    /*!
+     * \brief Constructor
+     */
     Component() {}
+
+    /*!
+     * \brief Destructor
+     */
     virtual ~Component() = default;
 
     /*!
-     * \brief Component name
+     * \brief Get the component name
+     * \return The component name
      */
-    virtual QString name() const = 0;
+    virtual auto name() const -> QString = 0;
 
     /*!
-     * \brief Component action.
-     * Action that opens the tool.
+     * \brief Get the component action
+     * \return Pointer to the component's action
      */
-    virtual QAction *action() const = 0;
+    virtual auto action() const -> QAction* = 0;
 
     /*!
-     * \brief Menu where the tool is loaded.
+     * \brief Get the menu where the tool is loaded
+     * \return The menu where the tool is loaded
      */
-    virtual QString menu() const = 0;
+    virtual auto menu() const -> QString = 0;
 
     /*!
-     * \brief Toolbar where the tool is loaded.
+     * \brief Get the toolbar where the tool is loaded
+     * \return The toolbar where the tool is loaded
      */
-    virtual QString toolbar() const = 0;
+    virtual auto toolbar() const -> QString = 0;
 
     /*!
-     * \brief Widget associated to the component.
+     * \brief Get the widget associated with the component
+     * \return Pointer to the widget associated with the component
      */
-    virtual QWidget *widget() const = 0;
+    virtual auto widget() const -> QWidget* = 0;
 
     /*!
-     * \brief Component associated command.
+     * \brief Get the command associated with the component
+     * \return Shared pointer to the command associated with the component
      */
-    virtual std::shared_ptr<Command> command() = 0;
+    virtual auto command() -> std::shared_ptr<Command> = 0;
 
     /*!
      * \brief Set the component name
@@ -106,7 +121,7 @@ public:
 
     /*!
      * \brief Set the component icon
-     * \param[in] toolbar Component toolbar
+     * \param[in] icon Component toolbar
      */
     virtual void setIcon(const QIcon &icon) = 0;
 
@@ -122,12 +137,21 @@ signals:
      * \brief Signal emitted when the component is created
      */
     void created();
+
+    /*!
+     * \brief Signal to show help for the component
+     */
     void help(QString);
 };
 
 
+
+
 /*!
- * \brief Component base class
+ * \brief Base class for components
+ *
+ * The `ComponentBase` class serves as the base class for components in the application.
+ * It inherits from `Component` and `QObject`.
  */
 class ComponentBase
   : public Component
@@ -137,7 +161,15 @@ class ComponentBase
 
 public:
 
+    /*!
+     * \brief Constructor
+     * \param application Pointer to the application instance
+     */
     ComponentBase(Application *application);
+
+    /*!
+     * \brief Destructor
+     */
     ~ComponentBase();
 
     /*!
@@ -150,29 +182,106 @@ public:
      */
     virtual void open();
 
+
 protected:
 
+    /*!
+     * \brief Get the model associated with the component
+     * \return Pointer to the model associated with the component
+     */
+    auto model() const -> Model*;
+
+    /*!
+     * \brief Get the view associated with the component
+     * \return Pointer to the view associated with the component
+     */
+    auto view() const -> View*;
+
+    /*!
+     * \brief Get the presenter associated with the component
+     * \return Pointer to the presenter associated with the component
+     */
+    auto presenter() const -> Presenter*;
+
+    /*!
+     * \brief Set the model associated with the component
+     * \param model Pointer to the model
+     */
+    void setModel(Model *model);
+
+    /*!
+     * \brief Set the view associated with the component
+     * \param view Pointer to the view
+     */
+    void setView(View *view);
+
+    /*!
+     * \brief Set the presenter associated with the component
+     * \param presenter Pointer to the presenter
+     */
+    void setPresenter(Presenter *presenter);
+
+    /*!
+     * \brief Set the command associated with the component
+     * \param command Shared pointer to the command
+     */
+    void setCommand(const std::shared_ptr<Command>& command);
+
+    /*!
+     * \brief Get the application instance
+     * \return Pointer to the application instance
+     */
+    auto app() const -> Application*;
+
+protected:
+
+    /*!
+     * \brief Create action for the component
+     */
     virtual void createAction();
+
+    /*!
+     * \brief Create model for the component
+     */
     virtual void createModel() = 0;
+
+    /*!
+     * \brief Create view for the component
+     */
     virtual void createView() = 0;
+
+    /*!
+     * \brief Create presenter for the component
+     */
     virtual void createPresenter() = 0;
+
+    /*!
+     * \brief Create command for the component
+     */
     virtual void createCommand() = 0;
+
+    /*!
+     * \brief Update the component
+     */
     virtual void update() = 0;
 
 private:
 
+    /*!
+     * \brief Initialize the component
+     */
     void init();
 
 // Component
 
 public:
 
-    QString name() const override;
-    QAction *action() const override;
-    QString menu() const override;
-    QString toolbar() const override;
-    QWidget *widget() const override;
-    std::shared_ptr<Command> command() override;
+    auto name() const -> QString override;
+    auto action() const -> QAction* override;
+    auto menu() const -> QString override;
+    auto toolbar() const -> QString override;
+    auto widget() const -> QWidget* override;
+    auto command() -> std::shared_ptr<Command> override;
 
     void setName(const QString &name) override;
     void setMenu(const QString &menu) override;
@@ -180,17 +289,6 @@ public:
     void setIcon(const QIcon &icon) override;
 
     void freeMemory() override;
-
-protected:
-
-    Model *model();
-    View *view();
-    Presenter *presenter();
-    void setModel(Model *model);
-    void setView(View *view);
-    void setPresenter(Presenter *presenter);
-    void setCommand(std::shared_ptr<Command> command);
-    Application *app();
 
 private:
 
@@ -207,6 +305,9 @@ private:
 };
 
 
+
+
+
 /*!
  * \brief Component that executes a task
  */
@@ -218,7 +319,15 @@ class TaskComponent
 
 public:
 
+    /*!
+     * \brief Constructor
+     * \param application Pointer to the application instance
+     */
     TaskComponent(Application *application);
+
+    /*!
+     * \brief Destructor
+     */
     ~TaskComponent() override = default;
 
 public slots:
@@ -231,26 +340,61 @@ public slots:
 
 private slots:
 
+    /*!
+     * \brief Slot invoked when the component is created
+     */
     void onComponentCreated();
 
 protected slots:
 
+    /*!
+     * \brief Slot invoked when the task is running
+     */
     virtual void onRunning();
+
+    /*!
+     * \brief Slot invoked when the task is finished
+     */
     virtual void onFinished();
+
+    /*!
+     * \brief Slot invoked when the task fails
+     */
     virtual void onFailed();
+
+    /*!
+     * \brief Slot invoked when the task is canceled
+     */
     virtual void onCanceled();
 
 signals:
 
+    /*!
+     * \brief Signal emitted when the task is running
+     */
     void running();
+
+    /*!
+     * \brief Signal emitted when the task is finished
+     */
     void finished();
+
+    /*!
+     * \brief Signal emitted when the task fails
+     */
     void failed();
+
+    /*!
+     * \brief Signal emitted when the task is canceled
+     */
     void canceled();
 
 private:
 
     ProgressHandler *mProgressHandler;
 };
+
+
 
 
 
@@ -265,7 +409,7 @@ public:
     MultiComponent() = default;
     virtual ~MultiComponent() = default;
 
-    virtual QMenu *subMenu() const = 0;
+    virtual auto subMenu() const -> QMenu* = 0;
 
 };
 
@@ -294,18 +438,18 @@ private:
 
 public:
 
-    QMenu *subMenu() const override;
+    auto subMenu() const -> QMenu* override;
 
 // Component
 
 public:
 
-    QString name() const override;
-    QAction *action() const override;
-    QString menu() const override;
-    QString toolbar() const override;
-    QWidget *widget() const override;
-    std::shared_ptr<Command> command() override;
+    auto name() const -> QString override;
+    auto action() const -> QAction* override;
+    auto menu() const -> QString override;
+    auto toolbar() const -> QString override;
+    auto widget() const -> QWidget* override;
+    auto command() -> std::shared_ptr<Command> override;
 
     void setName(const QString &name) override;
     void setMenu(const QString &menu) override;
@@ -316,14 +460,14 @@ public:
 
 protected:
 
-    Model *model();
-    View *view();
-    Presenter *presenter();
+    auto model() const -> Model*;
+    auto view() const -> View*;
+    auto presenter() const -> Presenter*;
     void setModel(Model *model);
     void setView(View *view);
     void setPresenter(Presenter *presenter);
-    void setCommand(std::shared_ptr<Command> command);
-    Application *app();
+    void setCommand(const std::shared_ptr<Command>& command);
+    auto app() const -> Application*;
 
 private:
 

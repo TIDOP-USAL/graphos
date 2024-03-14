@@ -114,7 +114,7 @@ void FeatureMatchingPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     mModel->writeMatchPairs();
 }
 
-std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createProcess()
+std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> featmatching_task;
 

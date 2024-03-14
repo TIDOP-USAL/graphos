@@ -143,7 +143,7 @@ void FeatureExtractorPresenterImp::onFinished(tl::TaskFinalizedEvent* event)
     }
 }
 
-std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createProcess()
+std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> feat_extract_task;
 

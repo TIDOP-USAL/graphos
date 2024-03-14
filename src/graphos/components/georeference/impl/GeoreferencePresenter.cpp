@@ -113,7 +113,7 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
+std::unique_ptr<tl::Task> GeoreferencePresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> georeference_process;
 

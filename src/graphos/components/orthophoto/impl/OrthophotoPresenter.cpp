@@ -97,7 +97,7 @@ void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     mModel->setOrthoPath(ortho_path);
 }
 
-std::unique_ptr<tl::Task> OrthophotoPresenterImp::createProcess()
+std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> ortho_process;
 

@@ -33,17 +33,14 @@ namespace graphos
 {
 
 TaskPresenter::TaskPresenter()
-    : Presenter(),
-    mProcess(nullptr),
+  : mProcess(nullptr),
     mProgressHandler(nullptr)
 {
     TaskPresenter::init();
     TaskPresenter::initSignalAndSlots();
 }
 
-TaskPresenter::~TaskPresenter()
-{
-}
+TaskPresenter::~TaskPresenter() = default;
 
 void TaskPresenter::onError(tl::TaskErrorEvent *event)
 {
@@ -89,7 +86,7 @@ void TaskPresenter::onStopped(tl::TaskStoppedEvent *event)
     emit canceled();
 }
 
-ProgressHandler *TaskPresenter::progressHandler()
+auto TaskPresenter::progressHandler() const -> ProgressHandler*
 {
     return mProgressHandler;
 }
@@ -107,13 +104,24 @@ void TaskPresenter::run()
         delete p;
         p = nullptr;
 
-        mProcess = createProcess();
+        mProcess = createTask();
 
         TL_ASSERT(mProcess, "Empty process");
 
-        mProcess->subscribe(std::bind(&TaskPresenter::onError, this, std::placeholders::_1));
-        mProcess->subscribe(std::bind(&TaskPresenter::onFinished, this, std::placeholders::_1));
-        mProcess->subscribe(std::bind(&TaskPresenter::onStopped, this, std::placeholders::_1));
+        mProcess->subscribe([this](tl::TaskErrorEvent *event)
+        {
+            onError(event);
+        });
+
+        mProcess->subscribe([this](tl::TaskFinalizedEvent *event)
+        {
+            onFinished(event);
+        });
+
+        mProcess->subscribe([this](tl::TaskStoppedEvent *event)
+        {
+            onStopped(event);
+        });
 
         if (mProgressHandler) {
             connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));

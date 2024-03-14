@@ -141,7 +141,7 @@ void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> ScalePresenterImp::createProcess()
+std::unique_ptr<tl::Task> ScalePresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> process;
 

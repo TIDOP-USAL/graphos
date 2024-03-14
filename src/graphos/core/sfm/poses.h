@@ -51,6 +51,18 @@ public:
     CameraPose();
 
     /*!
+     * \brief Copy constructor for CameraPose
+     * \param[in] pose CameraPose object to copy
+     */
+    CameraPose(const CameraPose &pose);
+
+    /*!
+     * \brief Move constructor for CameraPose
+     * \param[in] pose CameraPose object to move
+     */
+    CameraPose(CameraPose &&pose) noexcept;
+
+    /*!
      * \brief Constructor.
      *
      * Constructs a `CameraPose` object with the given coordinates and rotation matrix.

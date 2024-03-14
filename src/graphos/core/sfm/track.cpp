@@ -26,21 +26,21 @@
 namespace graphos
 {
 
-Track::Track() {}
+Track::Track() = default;
 
-Track::~Track() {}
+Track::~Track() = default;
 
-size_t Track::size() const
+auto Track::size() const -> size_t
 {
     return mPairs.size();
 }
 
-size_t Track::pointId(size_t idx)
+auto Track::pointId(size_t idx) const -> size_t
 {
     return mPairs.at(idx);
 }
 
-const std::unordered_map<size_t, size_t> &Track::pairs() const
+auto Track::pairs() const -> const std::unordered_map<size_t, size_t>&
 {
     return mPairs;
 }
@@ -50,7 +50,7 @@ void Track::addPair(size_t imageId, size_t pointId)
     mPairs[imageId] = pointId;
 }
 
-bool Track::existPair(size_t imageId) const
+auto Track::existPair(size_t imageId) const -> bool
 {
     auto point_id = mPairs.find(imageId);
     return (point_id != mPairs.end());
@@ -67,25 +67,21 @@ void Track::removePair(size_t imageId)
 
 
 
-GCPTrack::GCPTrack()
-{
-}
+GCPTrack::GCPTrack() = default;
 
-GCPTrack::~GCPTrack()
-{
-}
+GCPTrack::~GCPTrack() = default;
 
-size_t GCPTrack::size() const
+auto GCPTrack::size() const -> size_t
 {
     return mImageIdPoint.size();
 }
 
-tl::Point<double> GCPTrack::point(size_t idx) const
+auto GCPTrack::point(size_t idx) const -> tl::Point<double>
 {
     return mImageIdPoint.at(idx);
 }
 
-const std::unordered_map<size_t, tl::Point<double>> &GCPTrack::points() const
+auto GCPTrack::points() const -> const std::unordered_map<size_t, tl::Point<double>>&
 {
     return mImageIdPoint;
 }
@@ -95,7 +91,7 @@ void GCPTrack::addPoint(size_t imageId, const tl::Point<double> &point)
     mImageIdPoint[imageId] = point;
 }
 
-bool GCPTrack::existPoint(size_t imageId) const
+auto GCPTrack::existPoint(size_t imageId) const -> bool
 {
     auto point = mImageIdPoint.find(imageId);
     return (point != mImageIdPoint.end());

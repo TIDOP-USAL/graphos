@@ -39,6 +39,17 @@ CameraPose::CameraPose()
 {
 }
 
+CameraPose::CameraPose(const CameraPose &pose) = default;
+
+CameraPose::CameraPose(CameraPose &&pose) noexcept
+  : mPosition(std::move(pose.mPosition)),
+    mRotation(std::move(pose.mRotation)),
+    mCrs(std::move(pose.mCrs)),
+    mSource(std::move(pose.mSource))
+{
+
+}
+
 CameraPose::CameraPose(double x, double y, double z,
                        const RotationMatrix<double> &rotationMatrix)
     : mPosition(x, y, z),

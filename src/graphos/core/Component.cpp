@@ -107,32 +107,32 @@ void ComponentBase::createAction()
     mAction = new QAction();
 }
 
-QString ComponentBase::name() const
+auto ComponentBase::name() const -> QString
 {
     return mName;
 }
 
-QAction *ComponentBase::action() const
+auto ComponentBase::action() const -> QAction*
 {
     return mAction;
 }
 
-QString ComponentBase::menu() const
+auto ComponentBase::menu() const -> QString
 {
     return mMenu;
 }
 
-QString ComponentBase::toolbar() const
+auto ComponentBase::toolbar() const -> QString
 {
     return mToolbar;
 }
 
-QWidget *ComponentBase::widget() const
+auto ComponentBase::widget() const -> QWidget*
 {
     return dynamic_cast<QWidget *>(mView);
 }
 
-std::shared_ptr<Command> ComponentBase::command()
+auto ComponentBase::command() -> std::shared_ptr<Command>
 {
     if (!mCommand) {
         createCommand();
@@ -183,17 +183,17 @@ void ComponentBase::freeMemory()
 
 }
 
-Model *ComponentBase::model()
+auto ComponentBase::model() const -> Model*
 {
     return mModel;
 }
 
-View *ComponentBase::view()
+auto ComponentBase::view() const -> View*
 {
     return mView;
 }
 
-Presenter *ComponentBase::presenter()
+auto ComponentBase::presenter() const -> Presenter*
 {
     return mPresenter;
 }
@@ -219,7 +219,7 @@ void ComponentBase::setPresenter(Presenter *presenter)
             this, &ComponentBase::help);
 }
 
-void ComponentBase::setCommand(std::shared_ptr<Command> command)
+void ComponentBase::setCommand(const std::shared_ptr<Command>& command)
 {
     if (command) {
         mCommand = command;
@@ -227,7 +227,7 @@ void ComponentBase::setCommand(std::shared_ptr<Command> command)
     }
 }
 
-Application *ComponentBase::app()
+auto ComponentBase::app() const -> Application*
 {
     return mApplication;
 }
@@ -325,37 +325,37 @@ void MultiComponentBase::init()
             this, &MultiComponentBase::update);
 }
 
-QMenu *MultiComponentBase::subMenu() const
+auto MultiComponentBase::subMenu() const -> QMenu*
 {
     return dynamic_cast<QMenu *>(mView);
 }
 
-QString MultiComponentBase::name() const
+auto MultiComponentBase::name() const -> QString
 {
     return mName;
 }
 
-QAction *MultiComponentBase::action() const
+auto MultiComponentBase::action() const -> QAction*
 {
     return nullptr;
 }
 
-QString MultiComponentBase::menu() const
+auto MultiComponentBase::menu() const -> QString
 {
     return mParentMenu;
 }
 
-QString MultiComponentBase::toolbar() const
+auto MultiComponentBase::toolbar() const -> QString
 {
     return mToolbar;
 }
 
-QWidget *MultiComponentBase::widget() const
+auto MultiComponentBase::widget() const -> QWidget*
 {
     return dynamic_cast<QWidget *>(mView);
 }
 
-std::shared_ptr<Command> MultiComponentBase::command()
+auto MultiComponentBase::command() -> std::shared_ptr<Command>
 {
     //if(!mCommand) {
     //  this->createCommand();
@@ -388,17 +388,17 @@ void MultiComponentBase::freeMemory()
 {
 }
 
-Model *MultiComponentBase::model()
+auto MultiComponentBase::model() const -> Model*
 {
     return mModel;
 }
 
-View *MultiComponentBase::view()
+auto MultiComponentBase::view() const -> View*
 {
     return mView;
 }
 
-Presenter *MultiComponentBase::presenter()
+auto MultiComponentBase::presenter() const -> Presenter*
 {
     return mPresenter;
 }
@@ -418,7 +418,7 @@ void MultiComponentBase::setPresenter(Presenter *presenter)
     mPresenter = presenter;
 }
 
-void MultiComponentBase::setCommand(std::shared_ptr<Command> command)
+void MultiComponentBase::setCommand(const std::shared_ptr<Command>& command)
 {
     tl::unusedParameter(command);
     //if(command) {
@@ -427,7 +427,7 @@ void MultiComponentBase::setCommand(std::shared_ptr<Command> command)
     //}
 }
 
-Application *MultiComponentBase::app()
+auto MultiComponentBase::app() const -> Application*
 {
     return mApplication;
 }

@@ -101,7 +101,7 @@ void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     mModel->setMesh(mesh);
 }
 
-std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
+std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> mesh_task;
 

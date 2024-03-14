@@ -48,7 +48,7 @@ void ColorTable::add(int code,
     mColors[code] = std::make_pair(name, color);
 }
 
-tl::Color ColorTable::color(int code) const
+auto ColorTable::color(int code) const -> tl::Color
 {
     return mColors.at(code).second;
 }
@@ -62,42 +62,37 @@ void ColorTable::setVisible(int code, bool visible)
     emit change();
 }
 
-bool ColorTable::isVisible(int code) const
+auto ColorTable::isVisible(int code) const -> bool
 {
     return mColors.at(code).second.opacity() == static_cast<uint8_t>(255);
 }
 
-//std::string ColorTable::name(int code) const
-//{
-//  return mColors.at(code).first;
-//}
-
-size_t ColorTable::size() const
+auto ColorTable::size() const -> size_t
 {
     return mColors.size();
 }
 
-bool ColorTable::empty() const
+auto ColorTable::empty() const -> bool
 {
     return mColors.empty();
 }
 
-ColorTable::iterator ColorTable::begin()
+auto ColorTable::begin() -> iterator
 {
     return mColors.begin();
 }
 
-ColorTable::const_iterator ColorTable::begin() const
+auto ColorTable::begin() const -> const_iterator
 {
     return mColors.begin();
 }
 
-ColorTable::iterator ColorTable::end()
+auto ColorTable::end() -> iterator
 {
     return mColors.end();
 }
 
-ColorTable::const_iterator ColorTable::end() const
+auto ColorTable::end() const -> const_iterator
 {
     return mColors.end();
 }

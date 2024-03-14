@@ -27,13 +27,9 @@
 namespace graphos
 {
 
-AppStatus::AppStatus()
-{
-}
+AppStatus::AppStatus() = default;
 
-AppStatus::~AppStatus()
-{
-}
+AppStatus::~AppStatus() = default;
 
 void AppStatus::activeFlag(Flag flag, bool active)
 {
@@ -43,7 +39,7 @@ void AppStatus::activeFlag(Flag flag, bool active)
     }
 }
 
-bool AppStatus::isEnabled(Flag flag) const
+auto AppStatus::isEnabled(Flag flag) const -> bool
 {
     return mFlags.isEnabled(flag);
 }
@@ -76,7 +72,7 @@ void AppStatus::activeFlag(uint32_t flag, bool active)
     emit update();
 }
 
-bool AppStatus::isEnabled(uint32_t flag) const
+auto AppStatus::isEnabled(uint32_t flag) const -> bool
 {
     return mUserFlags.isEnabled(flag);
 }

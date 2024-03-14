@@ -31,7 +31,12 @@
 namespace graphos
 {
 
-
+/*!
+ * \brief Progress handler
+ *
+ * The `ProgressHandler` class provides functionality for handling progress updates during a task execution.
+ * It inherits from QObject and tl::ProgressBase, enabling it to emit signals and handle progress-related operations.
+ */
 class ProgressHandler
   : public QObject,
     public tl::ProgressBase
@@ -40,41 +45,125 @@ class ProgressHandler
 
 public:
 
+    /*!
+     * \brief Default constructor
+     *
+     * Constructs a `ProgressHandler` object with no parent.
+     *
+     * \param[in] parent The parent object (optional).
+     */
     ProgressHandler(QObject *parent = nullptr);
+
+    /*!
+     * \brief Constructor with range initialization
+     *
+     * Constructs a `ProgressHandler` object with the specified minimum and maximum values for the progress range.
+     *
+     * \param[in] min The minimum value of the progress range.
+     * \param[in] max The maximum value of the progress range.
+     * \param[in] parent The parent object (optional).
+     */
     ProgressHandler(size_t min, size_t max, QObject *parent = nullptr);
     ~ProgressHandler() override;
 
-public:
-
-    //int min() const;
-    //int max() const;
-    //int value() const;
-
 signals:
 
+    /*!
+     * \brief Signal emitted when the range of the progress changes
+     *
+     * \param[in] min The new minimum value of the progress range.
+     * \param[in] max The new maximum value of the progress range.
+     */
     void rangeChange(int, int);
+
+    /*!
+     * \brief Signal emitted when the value of the progress changes
+     *
+     * \param[in] value The new value of the progress.
+     */
     void valueChange(int);
+
+    /*!
+     * \brief Signal emitted when the progress is initialized
+     */
     void initialized();
+
+    /*!
+     * \brief Signal emitted when the progress is finished
+     */
     void finished();
+
+    /*!
+     * \brief Signal emitted when the title of the progress changes
+     *
+     * \param title The new title of the progress.
+     */
     void titleChange(QString);
+
+    /*!
+     * \brief Signal emitted when the description of the progress changes
+     *
+     * \param description The new description of the progress.
+     */
     void descriptionChange(QString);
+
+    /*!
+     * \brief Signal emitted when the progress is canceled
+     */
     void cancel();
+
+    /*!
+     * \brief Signal emitted to control whether the progress should be automatically closed
+     *
+     * \param active True if automatic closing is enabled, false otherwise.
+     */
     void closeAuto(bool);
 
 public slots:
 
-    //void setValue(int value);
-    //void next();
+    /*!
+     * \brief Slot to initialize the progress
+     */
     void init();
+
+    /*!
+     * \brief Slot to finish the progress
+     */
     void finish();
+
+    /*!
+     * \brief Slot to set the title of the progress
+     *
+     * \param[in] title The new title of the progress.
+     */
     void setTitle(const QString &title);
+
+    /*!
+     * \brief Slot to set the description of the progress
+     *
+     * \param[in] description The new description of the progress.
+     */
     void setDescription(const QString &description);
+
+    /*!
+     * \brief Slot to control whether the progress should be automatically closed
+     *
+     * \param[in] active True if automatic closing is enabled, false otherwise.
+     */
     void setCloseAuto(bool active);
 
 // ProgressBase interface
 
 public:
 
+    /*!
+     * \brief Set the range of the progress
+     *
+     * Overrides the base class method to set the range of the progress.
+     *
+     * \param[in] min The minimum value of the progress range.
+     * \param[in] max The maximum value of the progress range.
+     */
     void setRange(size_t min, size_t max) override;
 
 protected:

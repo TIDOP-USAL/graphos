@@ -30,7 +30,11 @@
 namespace graphos
 {
 
-
+/*!
+ * \brief View for Tasks
+ *
+ * The `TaskView` class represents the view for tasks in the application. It inherits from the `DialogView` class.
+ */
 class TaskView
   : public DialogView
 {
@@ -39,12 +43,31 @@ class TaskView
 
 public:
 
+    /*!
+     * \brief Constructor
+     *
+     * Constructs a `TaskView` object with the specified parent widget and window flags.
+     *
+     * \param[in] parent Pointer to the parent widget.
+     * \param[in] f Window flags specifying the behavior of the window.
+     */
     TaskView(QWidget *parent = nullptr,
              Qt::WindowFlags f = Qt::WindowFlags());
-    ~TaskView();
+
+    /*!
+     * \brief Destructor
+     *
+     * Destroys the `TaskView` object.
+     */
+    ~TaskView() override;
 
 signals:
 
+    /*!
+     * \brief Signal emitted when starting a task
+     *
+     * This signal is emitted when the user initiates the execution of a task.
+     */
     void run();
 
 };

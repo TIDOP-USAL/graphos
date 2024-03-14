@@ -36,7 +36,13 @@ class TaskErrorEvent;
 class TaskFinalizedEvent;
 }
 
-
+/*!
+ * \brief Task presenter
+ *
+ * The `TaskPresenter` class is responsible for presenting and managing a task's execution.
+ * It inherits from the Presenter class and provides methods for handling task events, setting up progress handling,
+ * creating and running tasks, and emitting signals to indicate task status.
+ */
 namespace graphos
 {
 
@@ -50,34 +56,106 @@ class TaskPresenter
 
 public:
 
+    /*!
+     * \brief Default constructor
+     *
+     * Constructs a `TaskPresenter` object.
+     */
     TaskPresenter();
     ~TaskPresenter() override;
 
 protected:
 
+    /*!
+     * \brief Error handler for task events
+     *
+     * This method is called when an error event occurs during task execution.
+     *
+     * \param[in] event The error event.
+     */
     virtual void onError(tl::TaskErrorEvent *event);
+
+    /*!
+     * \brief Finished handler for task events
+     *
+     * This method is called when the task finishes successfully.
+     *
+     * \param[in] event The finished event.
+     */
     virtual void onFinished(tl::TaskFinalizedEvent *event);
+
+    /*!
+     * \brief Stopped handler for task events
+     *
+     * This method is called when the task is stopped.
+     *
+     * \param[in] event The stopped event.
+     */
     virtual void onStopped(tl::TaskStoppedEvent *event);
 
-    ProgressHandler *progressHandler();
+    /*!
+     * \brief Get the progress handler
+     *
+     * This method returns a pointer to the progress handler used by the task presenter.
+     *
+     * \return A pointer to the progress handler.
+     */
+    auto progressHandler() const -> ProgressHandler*;
 
     /*!
      * \brief Create task
-     * return Task
+     *
+     * This method creates a new task.
+     *
+     * \return A unique pointer to the created task.
      */
-    virtual std::unique_ptr<tl::Task> createProcess() = 0;
+    virtual auto createTask() -> std::unique_ptr<tl::Task> = 0;
 
 public slots:
 
+    /*!
+     * \brief Set the progress handler
+     *
+     * This slot sets the progress handler for the task presenter.
+     *
+     * \param[in] progressHandler Pointer to the progress handler.
+     */
     virtual void setProgressHandler(ProgressHandler *progressHandler);
+
+    /*!
+     * \brief Run the task
+     *
+     * This slot starts the execution of the task.
+     */
     virtual void run();
+
+    /*!
+     * \brief Cancel the task
+     *
+     * This slot cancels the execution of the task.
+     */
     virtual void cancel();
 
 signals:
 
+    /*!
+     * \brief Signal emitted when the task is running
+     */
     void running();
+
+    /*!
+     * \brief Signal emitted when the task finishes successfully
+     */
     void finished();
+
+    /*!
+     * \brief Signal emitted when the task fails
+     */
     void failed();
+
+    /*!
+     * \brief Signal emitted when the task is canceled
+     */
     void canceled();
 
 private:

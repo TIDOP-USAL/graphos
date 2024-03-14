@@ -61,7 +61,7 @@ protected:
 
     void onError(tl::TaskErrorEvent *event) override;
     void onFinished(tl::TaskFinalizedEvent *event) override;
-    std::unique_ptr<tl::Task> createProcess() override;
+    std::unique_ptr<tl::Task> createTask() override;
 
 public slots:
 

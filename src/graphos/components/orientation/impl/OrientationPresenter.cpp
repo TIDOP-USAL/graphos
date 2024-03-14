@@ -135,7 +135,7 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 }
 
-std::unique_ptr<tl::Task> OrientationPresenterImp::createProcess()
+std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
 {
 
     std::unique_ptr<tl::Task> orientation_process;

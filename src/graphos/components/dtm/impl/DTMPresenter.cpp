@@ -103,7 +103,7 @@ void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     mModel->setGSD(mView->gsd());
 }
 
-std::unique_ptr<tl::Task> DtmPresenterImp::createProcess()
+std::unique_ptr<tl::Task> DtmPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> dtm_task;
 

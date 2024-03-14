@@ -73,7 +73,7 @@ Application::~Application()
     }
 }
 
-tl::Path Application::documentsLocation() const
+auto Application::documentsLocation() -> tl::Path
 {
     tl::Path path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
     path.append(qApp->applicationDisplayName().toStdWString());
@@ -83,22 +83,17 @@ tl::Path Application::documentsLocation() const
     return path;
 }
 
-AppStatus *Application::status()
+auto Application::status() const -> AppStatus*
 {
     return mAppStatus;
 }
 
-//tl::MessageManager *Application::messageManager()
-//{
-//  return &tl::MessageManager::instance();
-//}
-
-Project *Application::project()
+auto Application::project() -> Project*
 {
     return mProject;
 }
 
-const Project *Application::project() const
+auto Application::project() const -> const Project*
 {
     return mProject;
 }
@@ -108,12 +103,12 @@ void Application::setProject(Project *project)
     mProject = project;
 }
 
-Settings *Application::settings()
+auto Application::settings() const -> Settings*
 {
     return mSettings;
 }
 
-QMainWindow *Application::mainWindow() const
+auto Application::mainWindow() const -> QMainWindow*
 {
     return mMainWindow;
 }
@@ -123,7 +118,7 @@ void Application::setMainWindow(QMainWindow *mainWindow)
     mMainWindow = mainWindow;
 }
 
-Viewer3D *Application::viewer3D() const
+auto Application::viewer3D() const -> Viewer3D*
 {
     return mViewer3D;
 }
@@ -142,14 +137,14 @@ void Application::addComponent(Component *component)
     }
 }
 
-bool Application::parse(int argc, char **argv)
+auto Application::parse(int argc, char** argv) -> bool
 {
     if (commandList()->parse(argc, argv) == tl::Command::Status::parse_success) {
         mAppStatus->activeFlag(AppStatus::Flag::command_mode, true);
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 bool Application::runCommand()
@@ -166,14 +161,14 @@ bool Application::runCommand()
     return err;
 }
 
-void Application::freeMemory()
+void Application::freeMemory() const
 {
     for (auto component : mComponents) {
         component->freeMemory();
     }
 }
 
-QStringList Application::history() const
+auto Application::history() const -> QStringList
 {
     if (mHistory.isEmpty()) {
         QSettings settings(QSettings::IniFormat, QSettings::UserScope, organizationName(), applicationName());
@@ -214,12 +209,12 @@ void Application::clearHistory()
     emit update_history();
 }
 
-Application &Application::instance()
+auto Application::instance() -> Application&
 {
-    return *(static_cast<Application *>(QCoreApplication::instance()));
+    return *(dynamic_cast<Application *>(QCoreApplication::instance()));
 }
 
-tl::CommandList *Application::commandList()
+auto Application::commandList() -> tl::CommandList*
 {
     if (mCommandList == nullptr) {
         std::string command_name = applicationName().toStdString();

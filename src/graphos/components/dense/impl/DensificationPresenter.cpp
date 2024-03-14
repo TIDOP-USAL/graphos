@@ -213,7 +213,7 @@ void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 }
 
-std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
+std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> dense_task;
 

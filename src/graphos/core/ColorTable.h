@@ -37,8 +37,15 @@
 namespace graphos
 {
 
+
+/*!
+ * \brief Color table for CCViewer3D
+ *
+ * The `ColorTable` class represents a color table for CCViewer3D.
+ * It inherits from QObject.
+ */
 class ColorTable
-    : public QObject
+  : public QObject
 {
 
     Q_OBJECT
@@ -50,27 +57,108 @@ public:
 
 public:
 
+    /*!
+     * \brief Constructor
+     *
+     * Constructs a `ColorTable` object with the specified name.
+     *
+     * \param[in] name The name of the color table
+     */
     ColorTable(std::string name);
 
-    std::string name() const;
+    /*!
+     * \brief Get the name of the color table
+     *
+     * \return The name of the color table
+     */
+    auto name() const -> std::string;
+
+    /*!
+     * \brief Add a color entry to the table
+     *
+     * Adds a color entry with the specified code, name, and color.
+     *
+     * \param[in] code The code associated with the color
+     * \param[in] name The name of the color
+     * \param[in] color The color value
+     */
     void add(int code,
              const std::string &name,
              const tl::Color &color);
 
-    tl::Color color(int code) const;
-    void setVisible(int code, bool visible);
-    bool isVisible(int code) const;
-    //std::string name(int code) const;
-    size_t size() const;
-    bool empty() const;
+    /*!
+     * \brief Get the color associated with a code
+     *
+     * \param code The code associated with the color
+     * \return The color associated with the code
+     */
+    auto color(int code) const -> tl::Color;
 
-    iterator begin();
-    const_iterator begin() const;
-    iterator end();
-    const_iterator end() const;
+    /*!
+     * \brief Set the visibility of a color entry
+     *
+     * Sets the visibility of the color entry with the specified code.
+     *
+     * \param[in] code The code associated with the color
+     * \param[in] visible The visibility status (true for visible, false for hidden)
+     */
+    void setVisible(int code, bool visible);
+
+    /*!
+     * \brief Check if a color entry is visible
+     *
+     * \param[in] code The code associated with the color
+     * \return True if the color entry is visible, otherwise false
+     */
+    auto isVisible(int code) const -> bool;
+
+    /*!
+     * \brief Get the number of color entries in the table
+     *
+     * \return The number of color entries
+     */
+    auto size() const -> size_t;
+
+    /*!
+     * \brief Check if the color table is empty
+     *
+     * \return True if the color table is empty, otherwise false
+     */
+    auto empty() const -> bool;
+
+    /*!
+     * \brief Get an iterator to the beginning of the color table
+     *
+     * \return An iterator to the beginning of the color table
+     */
+    auto begin() -> iterator;
+
+    /*!
+     * \brief Get a const iterator to the beginning of the color table
+     *
+     * \return A const iterator to the beginning of the color table
+     */
+    auto begin() const -> const_iterator;
+
+    /*!
+     * \brief Get an iterator to the end of the color table
+     *
+     * \return An iterator to the end of the color table
+     */
+    auto end() -> iterator;
+
+    /*!
+     * \brief Get a const iterator to the end of the color table
+     *
+     * \return A const iterator to the end of the color table
+     */
+    auto end() const -> const_iterator;
 
 signals:
 
+    /*!
+     * \brief Signal emitted when the color table changes
+     */
     void change();
 
 private:

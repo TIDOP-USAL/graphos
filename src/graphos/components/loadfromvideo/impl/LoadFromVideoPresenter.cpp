@@ -100,7 +100,7 @@ void LoadFromVideoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createProcess()
+std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> process;
 

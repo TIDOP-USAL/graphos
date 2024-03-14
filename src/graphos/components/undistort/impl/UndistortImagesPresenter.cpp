@@ -88,7 +88,7 @@ void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> UndistortImagesPresenterImp::createProcess()
+std::unique_ptr<tl::Task> UndistortImagesPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> process = std::make_unique<UndistortImages>(mModel->images(),
                                                                           mModel->cameras(),

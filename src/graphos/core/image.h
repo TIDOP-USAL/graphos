@@ -41,6 +41,9 @@ class Image
 
 public:
 
+    /*!
+     * \brief Default constructor for Image
+     */
     Image();
 
     /*!
@@ -52,98 +55,97 @@ public:
 
     /*!
      * \brief Constructor Image
-     * \param[in] file Image file
+     * \param[in] file Image file path
      */
-    Image(const tl::Path &file);
+    Image(tl::Path file);
 
     /*!
-     * \brief Constructor de copia Image
-     * \param[in] image Objeto que se copia
+     * \brief Copy constructor for Image
+     * \param[in] image Image object to copy
      */
     Image(const Image &image);
 
     /*!
-     * \brief Constructor de movimiento Image
-     * \param[in] image Objeto que se copia
+     * \brief Move constructor for Image
+     * \param[in] image Image object to move
      */
     Image(Image &&image) noexcept;
 
     /*!
-     * \brief Destructor Image
+     * \brief Destructor for Image
      */
     ~Image() = default;
 
     /*!
-     * \brief Devuelve la ruta del fichero imagen
-     * \return Ruta del fichero
+     * \brief Returns the path of the image file
+     * \return Image file path
      */
-    QString path() const;
+    auto path() const -> QString;
     // reemplazar QString path() por:
     //tl::Path path() const;
     
     /*!
-     * \brief Establece la ruta del fichero imagen
-     * \param[in] file Ruta del fichero
+     * \brief Sets the path of the image file
+     * \param[in] file Image file path
      */
     TL_DEPRECATED("Image::setPath(const tl::Path &file)", 2.0.0)
     void setPath(const QString &file);
     
     /*!
-     * \brief Sets the path to the image file 
-     * \param[in] file File path
+     * \brief Sets the path of the image file
+     * \param[in] file Image file path
      */
     void setPath(const tl::Path &file);
 
     /*!
-     * \brief Image file name
+     * \brief Returns the name of the image file
+     * \return Image file name
      */
-    QString name() const;
+    auto name() const -> QString;
 
     /*!
-     * \brief Devuelve el identificador de la imagen
-     * \return
+     * \brief Returns the identifier of the image
+     * \return Image identifier
      */
-    size_t id() const;
+    auto id() const -> size_t;
 
     /*!
-     * \brief Devuelve el identificador de la cámara
-     * \return
+     * \brief Returns the identifier of the camera
+     * \return Camera identifier
      */
-    int cameraId() const;
+    auto cameraId() const -> int;
 
     /*!
-     * \brief Establece el identificador de la cámara
-     * \param[in] cameraId Identificador de cámara
+     * \brief Sets the identifier of the camera
+     * \param[in] cameraId Camera identifier
      */
     void setCameraId(int cameraId);
 
     /*!
-     * \brief Posición y orientación de la imagen
-     * Posición (coordenadas XYZ) y orientación de la cámara en el caso
-     * de que sean conocidas.
-     * \return
+     * \brief Returns the position and orientation of the image
+     * \return Camera pose
      */
-    CameraPose cameraPose() const;
+    auto cameraPose() const -> CameraPose;
 
     /*!
-     * \brief Establece la Posición y orientación de la imagen
-     * \param[in] cameraPose
+     * \brief Sets the position and orientation of the image
+     * \param[in] cameraPose Camera pose
      */
     void setCameraPose(const CameraPose &cameraPose);
 
     /*!
-     * \brief Operador de asignación
-     * \param[in] image Objeto que se asigna
-     * \return Referencia al objeto Image
+     * \brief Assignment operator for Image
+     * \param[in] image Image object to assign
+     * \return Reference to the Image object
      */
-    Image &operator =(const Image &image);
+    auto operator =(const Image& image) -> Image&;
 
     /*!
-     * \brief Operador de asignación de movimiento
-     * \param[in] image Objeto que se mueve
-     * \return Referencia al objeto Image
+     * \brief Move assignment operator for Image
+     * \param[in] image Image object to move
+     * \return Reference to the Image object
      */
-    Image &operator =(Image &&image) noexcept;
+    auto operator =(Image&& image) noexcept -> Image&;
 
 private:
 
