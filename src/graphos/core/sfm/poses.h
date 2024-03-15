@@ -112,6 +112,9 @@ public:
 
     ~CameraPose();
 
+    auto operator =(const CameraPose &pose) -> CameraPose &;
+    auto operator =(CameraPose &&pose) noexcept -> CameraPose &;
+
     /*!
      * \brief Get the position of the camera.
      *

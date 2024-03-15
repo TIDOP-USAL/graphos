@@ -92,6 +92,30 @@ CameraPose::CameraPose(const Point3<double> &center,
 
 CameraPose::~CameraPose() = default;
 
+auto CameraPose::operator=(const CameraPose &pose) -> CameraPose &
+{
+    if (this != &pose) {
+        mPosition = pose.mPosition;
+        mRotation = pose.mRotation;
+        mCrs = pose.mCrs;
+        mSource = pose.mSource;
+    }
+
+    return *this;
+}
+
+auto CameraPose::operator=(CameraPose &&pose) noexcept -> CameraPose&
+{
+    if (this != &pose) {
+        mPosition = std::move(pose.mPosition);
+        mRotation = std::move(pose.mRotation);
+        mCrs = std::move(pose.mCrs);
+        mSource = std::move(pose.mSource);
+    }
+
+    return *this;
+}
+
 auto CameraPose::position() const -> Point3<double>
 {
     return mPosition;

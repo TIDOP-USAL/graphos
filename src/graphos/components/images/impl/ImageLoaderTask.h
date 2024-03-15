@@ -54,8 +54,8 @@ public:
 
     LoadImagesTask(std::vector<Image> *images,
                    std::vector<Camera> *cameras,
-                   const std::string &cameraType,
-                   const QString &epsg = QString());
+                   std::string cameraType,
+                   QString epsg = QString());
     ~LoadImagesTask() override;
 
 signals:

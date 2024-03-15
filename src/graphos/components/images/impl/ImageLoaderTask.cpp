@@ -46,13 +46,13 @@ namespace graphos
 
 LoadImagesTask::LoadImagesTask(std::vector<Image> *images,
                                std::vector<Camera> *cameras,
-                               const std::string &cameraType,
-                               const QString &epsg)
+                               std::string cameraType,
+                               QString epsg)
   : tl::TaskBase(),
     mImages(images),
     mCameras(cameras),
-    mCameraType(cameraType),
-    mEPSG(epsg)
+    mEPSG(std::move(epsg)),
+    mCameraType(std::move(cameraType))
 {
 #ifdef _DEBUG
     mDatabaseCamerasPath = QString(GRAPHOS_SOURCE_PATH).append("/res");
@@ -169,8 +169,8 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         if (altitude_active) {
 
-            size_t pos1 = gps_altitude.find("(");
-            size_t pos2 = gps_altitude.find(")");
+            size_t pos1 = gps_altitude.find('(');
+            size_t pos2 = gps_altitude.find(')');
 
             if (pos1 != std::string::npos && pos2 != std::string::npos) {
                 altitude = std::stod(gps_altitude.substr(pos1 + 1, pos2 - pos1 + 1));
