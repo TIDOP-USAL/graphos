@@ -712,6 +712,7 @@ public:
 
                 }
 
+                this->setGroundPoints(ground_points);
             }
 
             stream.close();

@@ -103,9 +103,9 @@ bool MeshCommand::run()
 
         project.setProperties(process);
         project.setMeshPath(mesh_path);
+        project.setMeshReport(process->report());
         project.save(prj_path);
 
-        //chrono.stop();
 
     } catch (const std::exception &e) {
 

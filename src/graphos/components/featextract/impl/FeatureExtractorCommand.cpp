@@ -50,13 +50,13 @@ FeatureExtractorCommand::FeatureExtractorCommand()
   : Command("featextract", "Feature extraction (SIFT)"),
     mDisableCuda(false)
 {
-    Sift siftProperties;
+    Sift sift_properties;
     this->addArgument<std::string>("prj", 'p', "Project file");
     this->addArgument<int>("max_image_size", 's', "Maximum image size (default = 3200)", 3200);
-    this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(siftProperties.featuresNumber())).append(")"), siftProperties.featuresNumber());
-    this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(siftProperties.octaveLayers())).append(")"), siftProperties.octaveLayers());
-    this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(siftProperties.contrastThreshold())).append(")"), siftProperties.contrastThreshold());
-    this->addArgument<double>("edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(siftProperties.edgeThreshold())).append(")"), siftProperties.edgeThreshold());  
+    this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(sift_properties.featuresNumber())).append(")"), sift_properties.featuresNumber());
+    this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(sift_properties.octaveLayers())).append(")"), sift_properties.octaveLayers());
+    this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(sift_properties.contrastThreshold())).append(")"), sift_properties.contrastThreshold());
+    this->addArgument<double>("edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(sift_properties.edgeThreshold())).append(")"), sift_properties.edgeThreshold());  
 
 
 #ifdef HAVE_CUDA
@@ -88,7 +88,7 @@ bool FeatureExtractorCommand::run()
 
     try {
 
-        tl::Path projectFile = this->value<std::string>("prj");
+        tl::Path project_file = this->value<std::string>("prj");
         int max_image_size = this->value<int>("max_image_size");
         int max_features_number = this->value<int>("max_features_number");
         int octave_resolution = this->value<int>("octave_resolution");
@@ -97,11 +97,11 @@ bool FeatureExtractorCommand::run()
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
-        TL_ASSERT(projectFile.exists(), "Project doesn't exist");
-        TL_ASSERT(projectFile.isFile(), "Project file doesn't exist");
+        TL_ASSERT(project_file.exists(), "Project doesn't exist");
+        TL_ASSERT(project_file.isFile(), "Project file doesn't exist");
 
         ProjectImp project;
-        project.load(projectFile);
+        project.load(project_file);
         tl::Path database_path = project.database();
 
         tl::Path::removeFile(database_path);
@@ -138,7 +138,8 @@ bool FeatureExtractorCommand::run()
         feature_extractor_task.run(&progress);
 
         project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
-        project.save(projectFile);
+        project.setFeatureExtractorReport(feature_extractor_task.report());
+        project.save(project_file);
 
     } catch (const std::exception &e) {
 

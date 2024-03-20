@@ -140,6 +140,9 @@ bool FeatureMatchingCommand::run()
 
             ProgressBarColor progress(0, project.images().size());
             featmatching_process.run(&progress);
+
+            project.setFeatureMatchingReport(featmatching_process.report());
+
         } else {
             FeatureMatchingTask featmatching_process(project.database(),
                                                      !mDisableCuda,
@@ -149,6 +152,8 @@ bool FeatureMatchingCommand::run()
             size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(project.images().size()) / 50));
             ProgressBarColor progress(0, num_blocks * num_blocks);
             featmatching_process.run(&progress);
+
+            project.setFeatureMatchingReport(featmatching_process.report());
         }
 
         project.setFeatureMatching(feature_matching_properties);

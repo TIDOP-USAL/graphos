@@ -39,8 +39,8 @@ namespace graphos
 DensificationViewImp::DensificationViewImp(QWidget *parent)
   : DensificationView(parent)
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    DensificationViewImp::initUI();
+    DensificationViewImp::initSignalAndSlots();
 }
 
 DensificationViewImp::~DensificationViewImp()

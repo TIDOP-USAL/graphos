@@ -44,8 +44,8 @@ FeatureMatchingPresenterImp::FeatureMatchingPresenterImp(FeatureMatchingView *vi
     mModel(model),
     mFeatureMatchingWidget(new FeatureMatchingWidgetImp)
 {
-    this->init();
-    this->initSignalAndSlots();
+    FeatureMatchingPresenterImp::init();
+    FeatureMatchingPresenterImp::initSignalAndSlots();
 }
 
 FeatureMatchingPresenterImp::~FeatureMatchingPresenterImp()

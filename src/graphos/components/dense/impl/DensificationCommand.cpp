@@ -238,7 +238,6 @@ bool DensificationCommand::run()
             mvs->setResolutionLevel(mvsResolutionLevel);
 
             mProject->setDensification(mvs);
-            //mProject->setDenseModel(mvs->denseModel());
 
             dense_task = mvs;
 
@@ -250,10 +249,8 @@ bool DensificationCommand::run()
         
         dense_path = dynamic_cast<DensifierBase const *>(dense_task.get())->denseModel();
         mProject->setDenseModel(dense_path);
-
+        mProject->setDenseReport(dynamic_cast<DensifierBase const *>(dense_task.get())->report());
         mProject->save(projectFile);
-
-        //chrono.stop();
 
     } catch (const std::exception &e) {
 

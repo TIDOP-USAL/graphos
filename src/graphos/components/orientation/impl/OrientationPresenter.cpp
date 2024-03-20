@@ -196,7 +196,6 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
             TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
             TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
 
-            //mModel->setReconstructionPath(sfm_path);
             mModel->setSparseModel(sparse_model_path);
             mModel->setOffset(offset_path);
             mModel->setGroundPoints(ground_points_path);
@@ -254,7 +253,6 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
                 TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
                 TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
 
-                //mModel->setReconstructionPath(sfm_path);
                 mModel->setSparseModel(sparse_model_path);
                 mModel->setOffset(tl::Path(""));
                 mModel->setGroundPoints(ground_points_path);
@@ -279,7 +277,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
                     mModel->updateCamera(camera.first, camera.second);
                 }
 
-                report.orientedImages = poses.size();
+                report.orientedImages = static_cast<int>(poses.size());
                 report.type = "Relative";
                 mModel->setOrientationReport(report);
 
