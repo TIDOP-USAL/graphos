@@ -46,8 +46,8 @@ GeoreferencePresenterImp::GeoreferencePresenterImp(GeoreferenceView *view,
   : mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    GeoreferencePresenterImp::init();
+    GeoreferencePresenterImp::initSignalAndSlots();
 }
 
 GeoreferencePresenterImp::~GeoreferencePresenterImp()

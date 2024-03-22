@@ -82,10 +82,10 @@ void MatchViewerViewImp::initUI()
     mComboBoxRightImage = new QComboBox(this);
     gridLayout->addWidget(mComboBoxRightImage, 1, 1, 1, 1);
 
-    mGraphicsViewLeftImage = new GraphicViewerImp(this);
+    mGraphicsViewLeftImage = new GraphicViewer(this);
     gridLayout->addWidget(mGraphicsViewLeftImage, 2, 0, 1, 1);
 
-    mGraphicsViewRightImage = new GraphicViewerImp(this);
+    mGraphicsViewRightImage = new GraphicViewer(this);
     gridLayout->addWidget(mGraphicsViewRightImage, 2, 1, 1, 1);
 
     mLabelMatches = new QLabel(this);

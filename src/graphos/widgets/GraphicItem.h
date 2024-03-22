@@ -37,15 +37,15 @@ class GraphicItem
 public:
 
   GraphicItem(QGraphicsItem *parent = nullptr) : QGraphicsItem(parent){}
-  virtual ~GraphicItem() override = default;
+  ~GraphicItem() override = default;
 
-  virtual QPen pen() const = 0;
+  virtual auto pen() const -> QPen = 0;
   virtual void setPen(const QPen &pen) = 0;
 
-  virtual double size() = 0;
+  virtual auto size() -> double = 0;
   virtual void setSize(double size) = 0;
 
-  virtual QPen selectedPen() const = 0;
+  virtual auto selectedPen() const -> QPen = 0;
   virtual void setSelectedPen(const QPen &pen) = 0;
 };
 
@@ -64,19 +64,19 @@ public:
 
 public:
 
-  QPen pen() const override;
+  auto pen() const -> QPen override;
   void setPen(const QPen &pen) override;
-  double size() override;
+  auto size() -> double override;
   void setSize(double size) override;
-  QPen selectedPen() const override;
+  auto selectedPen() const -> QPen override;
   void setSelectedPen(const QPen &pen) override;
 
 // QGraphicsItem interface
 
 public:
 
-  QRectF boundingRect() const override;
-  QPainterPath shape() const override;
+  auto boundingRect() const -> QRectF override;
+  auto shape() const -> QPainterPath override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
 private:
@@ -103,19 +103,19 @@ public:
 
 public:
 
-  QPen pen() const override;
+  auto pen() const -> QPen override;
   void setPen(const QPen &pen) override;
-  double size() override;
+  auto size() -> double override;
   void setSize(double size) override;
-  QPen selectedPen() const override;
+  auto selectedPen() const -> QPen override;
   void setSelectedPen(const QPen &pen) override;
 
 // QGraphicsItem interface
 
 public:
 
-  QRectF boundingRect() const override;
-  QPainterPath shape() const override;
+  auto boundingRect() const -> QRectF override;
+  auto shape() const -> QPainterPath override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
 private:
@@ -140,26 +140,26 @@ public:
   KeyPointGraphicsItem(QPointF center, double size, double angle, QGraphicsItem *parent = nullptr);
   ~KeyPointGraphicsItem() override;
 
-  double angle();
+  auto angle() const -> double;
   void setAngle(double angle);
 
 // GraphicItem interface
 
 public:
 
-  QPen pen() const override;
+  auto pen() const -> QPen override;
   void setPen(const QPen &pen) override;
-  double size() override;
+  auto size() -> double override;
   void setSize(double size) override;
-  QPen selectedPen() const override;
+  auto selectedPen() const -> QPen override;
   void setSelectedPen(const QPen &pen) override;
 
 // QGraphicsItem interface
 
 public:
 
-  QRectF boundingRect() const override;
-  QPainterPath shape() const override;
+  auto boundingRect() const -> QRectF override;
+  auto shape() const -> QPainterPath override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
 private:
@@ -187,19 +187,19 @@ public:
 
 public:
 
-  QPen pen() const override;
+  auto pen() const -> QPen override;
   void setPen(const QPen &pen) override;
-  double size() override;
+  auto size() -> double override;
   void setSize(double size) override;
-  QPen selectedPen() const override;
+  auto selectedPen() const -> QPen override;
   void setSelectedPen(const QPen &pen) override;
 
 // QGraphicsItem interface
 
 public:
 
-  QRectF boundingRect() const override;
-  QPainterPath shape() const override;
+  auto boundingRect() const -> QRectF override;
+  auto shape() const -> QPainterPath override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
 private:

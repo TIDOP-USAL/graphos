@@ -368,7 +368,7 @@ void GeoreferenceViewImp::initUI()
     mComboBoxImages = new QComboBox(this);
     gridLayout->addWidget(mComboBoxImages, 1, 4, 1, 1);
 
-    mGraphicViewerWidget = new GraphicViewerImp(this);
+    mGraphicViewerWidget = new GraphicViewer(this);
     mGraphicViewerWidget->setMinimumSize(QSize(541, 441));
     gridLayout->addWidget(mGraphicViewerWidget, 2, 2, 1, 3);
 

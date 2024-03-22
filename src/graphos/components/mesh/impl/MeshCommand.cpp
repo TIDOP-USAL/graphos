@@ -23,10 +23,10 @@
 
 #include "MeshCommand.h"
 
+#include <tidop/core/log.h>
+
 #include "graphos/core/mesh/PoissonRecon.h"
 #include "graphos/core/project.h"
-
-#include <tidop/core/chrono.h>
 
 using namespace tl;
 
@@ -58,33 +58,30 @@ bool MeshCommand::run()
 
     bool r = false;
 
-    QString file_path;
-    QString project_path;
+    tl::Log &log = tl::Log::instance();
 
     try {
 
-        //tl::Chrono chrono("Poisson Reconstruction finished");
-        //chrono.run();
-
-        tl::Path prj_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<std::string>("prj");
         int depth = this->value<int>("depth");
         int solve_depth = this->value<int>("solve_depth");
         std::string boundary_type = this->value<std::string>("boundary_type");
-        int grid_width = this->value<int>("grid_width");
-        int full_depth = this->value<int>("full_depth");
 
-        TL_ASSERT(prj_path.exists(), "Project doesn't exist");
-        TL_ASSERT(prj_path.isFile(), "Project file doesn't exist");
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path.toString());
+
+        TL_ASSERT(project_path.exists(), "Project doesn't exist");
+        TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
         ProjectImp project;
-        project.load(prj_path);
+        project.load(project_path);
 
         tl::Path point_cloud_path = project.denseModel();
         tl::Path mesh_path = project.projectFolder();
         mesh_path.append("dense").append("mesh.pr.ply");
 
-        auto process = std::make_shared<PoissonReconTask>(point_cloud_path,
-                                                          mesh_path);
+        auto task = std::make_shared<PoissonReconTask>(point_cloud_path, mesh_path);
 
         PoissonReconProperties::BoundaryType bt;
         if (boundary_type == "Free") {
@@ -95,16 +92,16 @@ bool MeshCommand::run()
             bt = PoissonReconProperties::BoundaryType::neumann;
         }
 
-        process->setBoundaryType(bt);
-        process->setDepth(depth);
-        process->setSolveDepth(solve_depth);
+        task->setBoundaryType(bt);
+        task->setDepth(depth);
+        task->setSolveDepth(solve_depth);
 
-        process->run();
+        task->run();
 
-        project.setProperties(process);
+        project.setProperties(task);
         project.setMeshPath(mesh_path);
-        project.setMeshReport(process->report());
-        project.save(prj_path);
+        project.setMeshReport(task->report());
+        project.save(project_path);
 
 
     } catch (const std::exception &e) {
@@ -114,7 +111,9 @@ bool MeshCommand::run()
         r = true;
     }
 
-    return false;
+    log.close();
+
+    return r;
 }
 
 }

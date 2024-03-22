@@ -47,7 +47,7 @@ FeatureExtractorPresenterImp::FeatureExtractorPresenterImp(FeatureExtractorView 
   : FeatureExtractorPresenter(),
     mView(view),
     mModel(model),
-    mSift(new SiftWidgetImp)
+    mSift(new SiftWidget)
 {
     FeatureExtractorPresenterImp::init();
     FeatureExtractorPresenterImp::initSignalAndSlots();

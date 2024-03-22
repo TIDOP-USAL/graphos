@@ -32,14 +32,11 @@
 
 #include <tidop/core/msg/message.h>
 
-#include <QFileInfo>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 
 #include <atomic>
+#include <tidop/core/log.h>
 
 using namespace tl;
 
@@ -75,33 +72,36 @@ FeatureExtractorCommand::FeatureExtractorCommand()
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
-FeatureExtractorCommand::~FeatureExtractorCommand()
-{
-}
+FeatureExtractorCommand::~FeatureExtractorCommand() = default;
 
 bool FeatureExtractorCommand::run()
 {
     bool r = false;
 
-    QString file_path;
-    QString project_path;
+    tl::Log &log = tl::Log::instance();
 
     try {
 
-        tl::Path project_file = this->value<std::string>("prj");
+        tl::Path project_path = this->value<std::string>("prj");
         int max_image_size = this->value<int>("max_image_size");
         int max_features_number = this->value<int>("max_features_number");
         int octave_resolution = this->value<int>("octave_resolution");
-        int contrast_threshold = this->value<double>("contrast_threshold");
-        int edge_threshold = this->value<double>("edge_threshold");
+        double contrast_threshold = this->value<double>("contrast_threshold");
+        double edge_threshold = this->value<double>("edge_threshold");
+
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
-        TL_ASSERT(project_file.exists(), "Project doesn't exist");
-        TL_ASSERT(project_file.isFile(), "Project file doesn't exist");
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path.toString());
+
+
+        TL_ASSERT(project_path.exists(), "Project doesn't exist");
+        TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
         ProjectImp project;
-        project.load(project_file);
+        project.load(project_path);
         tl::Path database_path = project.database();
 
         tl::Path::removeFile(database_path);
@@ -139,7 +139,7 @@ bool FeatureExtractorCommand::run()
 
         project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
         project.setFeatureExtractorReport(feature_extractor_task.report());
-        project.save(project_file);
+        project.save(project_path);
 
     } catch (const std::exception &e) {
 
@@ -147,6 +147,8 @@ bool FeatureExtractorCommand::run()
 
         r = true;
     }
+
+    log.close();
 
     return r;
 }

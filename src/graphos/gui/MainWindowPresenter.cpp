@@ -66,15 +66,15 @@ MainWindowPresenter::MainWindowPresenter(MainWindowView *view,
     mModel(model),
     mStartPageWidget(nullptr)
 {
-    this->init();
-    this->initSignalAndSlots();
+    MainWindowPresenter::init();
+    MainWindowPresenter::initSignalAndSlots();
 }
 
 MainWindowPresenter::~MainWindowPresenter()
 {
 }
 
-void MainWindowPresenter::openFromHistory(const QString &file)
+void MainWindowPresenter::openProject(const QString &file)
 {
     try {
 
@@ -400,7 +400,7 @@ void MainWindowPresenter::openImage(size_t imageId)
         if (tab_id != -1) {
             tab_widget->setCurrentIndex(tab_id);
         } else {
-            GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
             graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
             graphic_viewer->setImage(mModel->readImage(mModel->image(imageId).path().toStdString()));
             tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(image).fileName());
@@ -591,7 +591,7 @@ void MainWindowPresenter::openDtm()
         if (tab_id != -1) {
             tab_widget->setCurrentIndex(tab_id);
         } else {
-            GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
             graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
             graphic_viewer->setImage(mModel->readImage(mModel->dtm()));
             tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dtm).fileName());
@@ -623,7 +623,7 @@ void MainWindowPresenter::openDsm()
             tab_widget->setCurrentIndex(tab_id);
         } else {
 
-            GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
             graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
             graphic_viewer->setImage(mModel->readImage(mModel->dsm()));
             tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(dsm).fileName());
@@ -654,7 +654,7 @@ void MainWindowPresenter::openOrthophoto(const QString &orthophoto)
             tab_widget->setCurrentIndex(tab_id);
         } else {
 
-            GraphicViewer *graphic_viewer = new GraphicViewerImp(mView);
+            GraphicViewer *graphic_viewer = new GraphicViewer(mView);
             graphic_viewer->setBackgroundBrush(QBrush(QColor(mModel->graphicViewerBackgroundColor())));
             graphic_viewer->setImage(mModel->readImage(orthophoto.toStdString()));
             tab_id = tab_widget->addTab(graphic_viewer, QFileInfo(orthophoto).fileName());
@@ -789,6 +789,8 @@ void MainWindowPresenter::initSignalAndSlots()
     connect(&Application::instance(), &Application::update_history, [&]() {
         mStartPageWidget->setHistory(Application::instance().history());
     });
+
+    connect(mView, &MainWindowView::openProject, this, &MainWindowPresenter::openProject);
 }
 
 void MainWindowPresenter::initStartPage()
@@ -800,7 +802,7 @@ void MainWindowPresenter::initStartPage()
         connect(mStartPageWidget, &StartPageWidget::openNew, this, &MainWindowPresenter::openCreateProjectDialog);
         connect(mStartPageWidget, &StartPageWidget::openProject, this, &MainWindowPresenter::openProjectDialog);
         connect(mStartPageWidget, &StartPageWidget::clearHistory, this, &MainWindowPresenter::deleteHistory);
-        connect(mStartPageWidget, &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openFromHistory);
+        connect(mStartPageWidget, &StartPageWidget::openProjectFromHistory, this, &MainWindowPresenter::openProject);
         connect(mStartPageWidget, &StartPageWidget::openSettings, this, &MainWindowPresenter::openSettings);
     }
 }

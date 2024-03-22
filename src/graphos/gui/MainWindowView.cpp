@@ -39,12 +39,9 @@
 #include <QTreeWidgetItem>
 #include <QFileInfo>
 #include <QSettings>
-#include <QGraphicsEllipseItem>
 #include <QDesktopServices>
-#include <QUrl>
-#include <QComboBox>
-#include <QProgressBar>
-#include <QLabel>
+#include <QMimeData>
+#include <QDragEnterEvent>
 #include <QToolBar>
 
 #include <unordered_map>
@@ -937,12 +934,12 @@ void MainWindowView::changeEvent(QEvent *e)
 
 
 
-void MainWindowView::openFromHistory()
-{
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (action)
-        emit openProjectFromHistory(action->data().toString());
-}
+//void MainWindowView::openFromHistory()
+//{
+//    QAction *action = qobject_cast<QAction *>(sender());
+//    if (action)
+//        emit openProjectFromHistory(action->data().toString());
+//}
 
 void MainWindowView::onSelectionChanged()
 {
@@ -1061,6 +1058,8 @@ void MainWindowView::initUI()
     mLayoutCentral = new QGridLayout(this->centralWidget());
     mLayoutCentral->setSpacing(6);
     mLayoutCentral->setContentsMargins(0, 0, 0, 0);
+
+    setAcceptDrops(true);
 
     this->initTabWidget();
     this->initThumbnailsTool();
@@ -1511,6 +1510,7 @@ void MainWindowView::initSignalAndSlots()
         AppStatus *app_status = app.status();
         app_status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, active);
     });
+
 }
 
 QMenu *MainWindowView::findMenu(Menu menu)
@@ -1672,6 +1672,32 @@ void MainWindowView::closeEvent(QCloseEvent *event)
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
     QMainWindow::closeEvent(event);
+}
+
+void MainWindowView::dragEnterEvent(QDragEnterEvent *event)
+{
+    const QMimeData *mime_data = event->mimeData();
+
+    if (mime_data->hasUrls()) {
+        QList<QUrl> url_list = mime_data->urls();
+        if (url_list.size() == 1) {
+            //if (event->mimeData()->hasFormat("text/xml"))
+                event->acceptProposedAction();
+        }
+    }
+}
+
+void MainWindowView::dropEvent(QDropEvent *event)
+{
+    const QMimeData *mime_data = event->mimeData();
+    if (mime_data->hasUrls()) {
+        QList<QUrl> url_list = mime_data->urls();
+
+        if (url_list.size() == 1) {
+            QString project = url_list.at(0).toLocalFile();
+            emit openProject(project);
+        }
+    }
 }
 
 void MainWindowView::readSettings()

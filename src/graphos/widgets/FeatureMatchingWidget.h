@@ -35,8 +35,9 @@ class QCheckBox;
 namespace graphos
 {
 
+
 class FeatureMatchingWidget
-    : public GraphosWidgetView
+  : public GraphosWidgetView
 {
 
     Q_OBJECT
@@ -44,67 +45,33 @@ class FeatureMatchingWidget
 public:
 
     FeatureMatchingWidget(QWidget *parent = nullptr);
-    ~FeatureMatchingWidget() override = default;
+    ~FeatureMatchingWidget() override;
 
-    virtual bool crossCheck() const = 0;
-    virtual double ratio() const = 0;
-    virtual double distance() const = 0;
-    //virtual int maxMatches() const = 0;
-    virtual double maxError() const = 0;
-    virtual double confidence() const = 0;
+public:
+
+    auto crossCheck() const -> bool;
+    auto ratio() const -> double;
+    auto distance() const -> double;
+    auto maxError() const -> double;
+    auto confidence() const -> double;
+
+public slots:
+
+    void enableCrossCheck(bool enable);
+    void setRatio(double ratio);
+    void setDistance(double distance);
+    void setMaxError(double error);
+    void setConfidence(double confidence);
 
 signals:
 
     void crossCheckChanged(bool);
     void ratioChanged(double);
     void distanceChanged(double);
-    //void maxMachesChanged(int);
     void maxErrorChanged(double);
     void confidenceChanged(double);
 
-public slots:
-
-    virtual void enableCrossCheck(bool enable = true) = 0;
-    virtual void setRatio(double ratio) = 0;
-    virtual void setDistance(double distance) = 0;
-    //virtual void setMaxMatches(int maxMatches) = 0;
-    virtual void setMaxError(double error) = 0;
-    virtual void setConfidence(double confidence) = 0;
-};
-
-
-class FeatureMatchingWidgetImp
-    : public FeatureMatchingWidget
-{
-
-    Q_OBJECT
-
-public:
-
-    FeatureMatchingWidgetImp(QWidget *parent = nullptr);
-    ~FeatureMatchingWidgetImp() override;
-
-    // FeatureMatchingWidget interface
-
-public:
-
-    bool crossCheck() const override;
-    double ratio() const override;
-    double distance() const override;
-    //int maxMatches() const override;
-    double maxError() const override;
-    double confidence() const override;
-
-public slots:
-
-    void enableCrossCheck(bool enable) override;
-    void setRatio(double ratio) override;
-    void setDistance(double distance) override;
-    //void setMaxMatches(int maxMatches) override;
-    void setMaxError(double error) override;
-    void setConfidence(double confidence) override;
-
-    // GraphosWidgetView interface
+// GraphosWidgetView interface
 
 private:
 

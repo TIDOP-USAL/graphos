@@ -66,19 +66,16 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar)
 {
     if (mItem == nullptr) return;
 
-    QImage image;
-
     try {
 
         const QString thumb = mItem->toolTip();
         std::string image_file = thumb.toStdString();
 
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
-        imageReader->open();
-        if (imageReader->isOpen()) {
-
-            int w = imageReader->cols();
-            int h = imageReader->rows();
+        auto image_reader = tl::ImageReaderFactory::create(image_file);
+        image_reader->open();
+        if (image_reader->isOpen()) {
+            int w = image_reader->cols();
+            int h = image_reader->rows();
             double scale = 1.;
             if (w > h) {
                 scale = 200. / static_cast<double>(w);
@@ -86,11 +83,11 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar)
                 scale = 200. / static_cast<double>(h);
             }
 
-            cv::Mat bmp = imageReader->read(scale, scale);
+            cv::Mat bmp = image_reader->read(scale, scale);
 
-            image = graphos::cvMatToQImage(bmp);
+            QImage image = graphos::cvMatToQImage(bmp);
 
-            imageReader->close();
+            image_reader->close();
 
             QPixmap pixmap = QPixmap::fromImage(image);
             QIcon icon(pixmap);
@@ -123,8 +120,8 @@ ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
     mThumbLoad(new tl::TaskQueue),
     mLoadImages(true)
 {
-    initUI();
-    initSignalAndSlots();
+    ThumbnailsWidget::initUI();
+    ThumbnailsWidget::initSignalAndSlots();
 }
 
 ThumbnailsWidget::~ThumbnailsWidget()
@@ -214,8 +211,8 @@ void ThumbnailsWidget::deleteImages(const std::vector<size_t> &imageIds)
 
     for (int i = 0; i < mListWidget->count(); i++) {
         item = mListWidget->item(i);
-        for (auto imageId : imageIds) {
-            if (item && item->data(Qt::UserRole).toULongLong() == imageId) {
+        for (auto image_id : imageIds) {
+            if (item && item->data(Qt::UserRole).toULongLong() == image_id) {
                 delete item;
                 item = nullptr;
                 i--;
@@ -241,6 +238,7 @@ void ThumbnailsWidget::onSelectionChanged()
             emit select_image(item[0]->data(Qt::UserRole).toULongLong());
         } else {
             std::vector<size_t> selected_images;
+            selected_images.reserve(size);
             for (int i = 0; i < size; i++) {
                 selected_images.push_back(item[i]->data(Qt::UserRole).toULongLong());
             }
@@ -335,7 +333,7 @@ void ThumbnailsWidget::onDeleteImageClicked()
 {
     std::lock_guard<std::mutex> lck(sMutexThumbnail);
 
-    if (mListWidget->selectedItems().size() > 0) {
+    if (!mListWidget->selectedItems().empty()) {
         std::vector<size_t> selectImages;
         for (const auto &item : mListWidget->selectedItems()) {
             selectImages.push_back(item->data(Qt::UserRole).toULongLong());
@@ -356,7 +354,7 @@ void ThumbnailsWidget::update()
     mThumbnailAction->setEnabled(images_added);
     mThumbnailSmallAction->setEnabled(images_added);
     mDetailsAction->setEnabled(images_added);
-    mDeleteImageAction->setEnabled(mListWidget->selectedItems().size() > 0 && !bLoadingImages);
+    mDeleteImageAction->setEnabled(!mListWidget->selectedItems().empty() && !bLoadingImages);
 }
 
 void ThumbnailsWidget::retranslate()

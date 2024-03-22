@@ -594,7 +594,8 @@ void MvsDensifier::exportToMvs() const
         tl::Path app_path = tl::App::instance().path();
         std::string cmd_mvs("\"");
         cmd_mvs.append(app_path.parentPath().toString());
-        cmd_mvs.append("\\InterfaceCOLMAP\"");
+        cmd_mvs.append("\\OpenMVS\\InterfaceCOLMAP\"");
+        //cmd_mvs.append("\\InterfaceCOLMAP\"");
         cmd_mvs.append(" -v 2 -i \"").append(input_path.toString()).append("\"");
         cmd_mvs.append(" -o \"").append(output_path.toString()).append("\"");
         cmd_mvs.append(" --image-folder \"").append(images_path.toString()).append("\"");
@@ -624,7 +625,8 @@ void MvsDensifier::densify()
         tl::Path app_path = tl::App::instance().path();
         std::string cmd_mvs("\"");
         cmd_mvs.append(app_path.parentPath().toString());
-        cmd_mvs.append("\\DensifyPointCloud\" -w \"");
+        cmd_mvs.append("\\OpenMVS\\DensifyPointCloud\" -w \"");
+        //cmd_mvs.append("\\DensifyPointCloud\" -w \"");
         cmd_mvs.append(outputPath().toString());
         cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 2");
         cmd_mvs.append(" --resolution-level ").append(std::to_string(Mvs::resolutionLevel()));
@@ -696,7 +698,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        this->clearTemporalFiles();
+        //this->clearTemporalFiles();
 
         Ply ply(denseModel().toString());
         mReport.points = static_cast<int>(ply.size());

@@ -72,7 +72,7 @@ protected slots:
 
     /* Menú Archivo */
 
-    void openFromHistory(const QString &file);
+    void openProject(const QString &file);
     void deleteHistory();
     //void saveProject();
     void exit();

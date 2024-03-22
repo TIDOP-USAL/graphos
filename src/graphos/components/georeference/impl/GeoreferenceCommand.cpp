@@ -27,10 +27,14 @@
 #include "graphos/components/georeference/impl/GeoreferenceTask.h"
 #include "graphos/core/sfm/groundpoint.h"
 #include "graphos/core/sfm/posesio.h"
+#include "graphos/core/project.h"
 
 #include <tidop/core/msg/message.h>
+#include <tidop/math/geometry/affine.h>
 
 #include <QFileInfo>
+#include <tidop/core/log.h>
+
 
 namespace graphos
 {
@@ -41,70 +45,181 @@ GeoreferenceCommand::GeoreferenceCommand()
 {
     this->addArgument<std::string>("prj", 'p', "Project file");
     this->addArgument<std::string>("cp", "Ground Control Points");
+    this->addArgument<std::string>("crs", "CRS", "");
 
     this->addExample("georef --p 253/253.xml --cp 253/georef.xml");
 }
 
-GeoreferenceCommand::~GeoreferenceCommand()
+GeoreferenceCommand::~GeoreferenceCommand() = default;
+
+auto GeoreferenceCommand::readGroundPoints(const tl::Path &groundPointsPath) -> std::vector<GroundPoint>
 {
+    auto reader = GroundPointsReaderFactory::create("GRAPHOS");
+    reader->read(groundPointsPath);
+
+    return reader->points();
 }
 
 bool GeoreferenceCommand::run()
 {
     bool r = false;
 
+    tl::Log &log = tl::Log::instance();
+
     try {
 
-        tl::Path prj = this->value<std::string>("prj");
+        tl::Path project_path = this->value<std::string>("prj");
         tl::Path gcp = this->value<std::string>("cp");
+        std::string crs = this->value<std::string>("crs");
 
-        TL_ASSERT(prj.exists(), "Project doesn't exist");
-        TL_ASSERT(prj.isFile(), "Project file doesn't exist");
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path.toString());
+
+        TL_ASSERT(project_path.exists(), "Project doesn't exist");
+        TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
         TL_ASSERT(gcp.isFile(), "GCP file doesn't exist");
 
         ProjectImp project;
-        project.load(prj);
+        project.load(project_path);
 
-        tl::Path ori_relative = project.projectFolder();
-        ori_relative.append("ori").append("relative");
-        tl::Path ori_absolute = project.projectFolder();
-        ori_absolute.append("ori");
-        ori_absolute.append("absolute");
+        tl::Path reconstruction_path = project.reconstructionPath();
 
-        auto reader = GCPsReaderFactory::create("GRAPHOS");
+        std::string format;
+        if (tl::compareInsensitiveCase(gcp.extension().toString(), ".xml")) {
+            format = "GRAPHOS";
+        } else if (tl::compareInsensitiveCase(gcp.extension().toString(), ".txt")) {
+            format = "ODM";
+        } else {
+            throw std::runtime_error("Ground control point format invalid");
+        }
+
+        auto reader = GCPsReaderFactory::create(format);
+        reader->setImages(project.images());
         reader->read(gcp);
         std::vector<GroundControlPoint> ground_control_points = reader->gcps();
-        //std::vector<GroundControlPoint> ground_control_points = groundControlPointsRead(mGCP);
 
-        //GeoreferenceTask georeference_process(ori_relative,
-        //                                         ori_absolute,
-        //                                         ground_control_points);
 
-        //georeference_process.run();
+        auto ground_points = readGroundPoints(project.groundPoints());
 
-        //QString sparse_model = ori_absolute + "/sparse.ply";
+        if (crs.empty()) {
+            crs = reader->epsgCode();
+        }
 
-        //if(QFileInfo::exists(sparse_model)) {
+        GeoreferenceTask georeference_task(project.images(),
+                                           project.cameras(),
+                                           project.poses(),
+                                           ground_points,
+                                           ground_control_points,
+                                           reconstruction_path,
+                                           project.database());
 
-        //  project.setReconstructionPath(ori_absolute);
-        //  project.setSparseModel(sparse_model);
-        //  project.setOffset(ori_absolute + "/offset.txt");
+        georeference_task.run();
 
-        //  ReadCameraPoses readPhotoOrientations;
-        //  readPhotoOrientations.open(ori_absolute);
+        if (format == "ODM") {
+            auto writer = GCPsWriterFactory::create("GRAPHOS");
+            writer->setEPSGCode(crs);
+            writer->setGCPs(reader->gcps());
+            writer->setImages(project.images());
+        }
 
-        //  for (const auto &image : project.images()){
-        //    size_t image_id = image.first;
-        //  //for(auto image = project.imageBegin(); image != project.imageEnd(); image++) {
-        //    CameraPose photoOrientation = readPhotoOrientations.orientation(image.second.name());
-        //    if(photoOrientation.position() != tl::Point3D()) {
-        //      project.addPhotoOrientation(image_id, photoOrientation);
-        //    }
-        //  }
+        auto transform = georeference_task.transform();
 
+        tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
+        auto rotation = affine.rotation();
+
+        // Transforms the models
+
+        auto sparse = project.sparseModel();
+        if (sparse.exists()) transformModel(transform, sparse.toString());
+        auto dense = project.denseModel();
+        if (dense.exists()) transformModel(transform, dense.toString());
+        auto mesh = project.meshPath();
+        if (mesh.exists()) transformModel(transform, mesh.toString());
+
+
+        // Transforms the cameras
+
+
+        tl::Path poses_path = reconstruction_path;
+        poses_path.append("poses.bin");
+
+        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+        poses_reader->read(poses_path);
+        auto poses = poses_reader->cameraPoses();
+
+        tl::Point3<double> point;
+        for (auto &pose : poses) {
+
+            size_t image_id = pose.first;
+            CameraPose camera_pose = pose.second;
+
+            point = affine.transform(camera_pose.position());
+            camera_pose.setPosition(point);
+
+            auto rot = tl::Rotation<double, 3>(camera_pose.rotationMatrix()) * rotation.inverse();
+            camera_pose.setRotationMatrix(tl::RotationMatrix<double>(rot.toMatrix()));
+
+            project.addPhotoOrientation(image_id, camera_pose);
+        }
+
+        auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
+        poses_writer->setCameraPoses(poses);
+        poses_writer->write(poses_path.replaceBaseName("poses"));
+
+
+        // Transforms terrain points
+
+        //tl::Path ground_points_path = reconstruction_path;
+        //ground_points_path.append("ground_points.bin");
+
+        //auto gp_reader = GroundPointsReaderFactory::create("GRAPHOS");
+        //gp_reader->read(ground_points_path);
+        //auto ground_points = gp_reader->points();
+        
+        for (auto &ground_point : ground_points) {
+            ground_point.setPoint(affine.transform(ground_point));
+        }
+
+        auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
+        gp_writer->setGroundPoints(ground_points);
+        gp_writer->write(project.groundPoints());
+
+
+
+
+        //if (transform != tl::Matrix<double, 4, 4>::identity()) {
+        //    project.setTransform(transform);
         //}
 
-        project.save(gcp);
+        //reconstruction_path.append("offset.txt");
+        //project.setOffset(reconstruction_path);
+
+        //reconstruction_path.replaceFileName("poses.bin");
+
+        //auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+        //poses_reader->read(reconstruction_path);
+        //auto poses = poses_reader->cameraPoses();
+
+        //for (const auto &camera_pose : poses) {
+        //    project.addPhotoOrientation(camera_pose.first, camera_pose.second);
+        //}
+
+        //reconstruction_path.replaceFileName("sparse.ply");
+        //project.setSparseModel(reconstruction_path);
+
+        //reconstruction_path.replaceFileName("ground_points.bin");
+        //project.setGroundPoints(reconstruction_path);
+
+        project.setCrs(QString::fromStdString(crs));
+
+        auto cameras = georeference_task.cameras();
+
+        for (const auto &camera : cameras) {
+            project.updateCamera(camera.first, camera.second);
+        }
+
+        project.save(project_path);
 
     } catch (const std::exception &e) {
 
@@ -112,6 +227,8 @@ bool GeoreferenceCommand::run()
 
         r = true;
     }
+
+    log.close();
 
     return r;
 }

@@ -35,8 +35,31 @@ class QPushButton;
 namespace graphos
 {
 
+//class BundlerFormatWidget
+//  : public GraphosWidgetView
+//{
+//
+//    Q_OBJECT
+//
+//public:
+//
+//    BundlerFormatWidget(QWidget *parent = nullptr);
+//    ~BundlerFormatWidget() override = default;
+//
+//    virtual QString file() const = 0;
+//
+//signals:
+//
+//    void fileChanged(QString);
+//
+//public slots:
+//
+//    virtual void setFile(const QString &file) = 0;
+//
+//};
+
 class BundlerFormatWidget
-    : public GraphosWidgetView
+  : public GraphosWidgetView
 {
 
     Q_OBJECT
@@ -46,36 +69,9 @@ public:
     BundlerFormatWidget(QWidget *parent = nullptr);
     ~BundlerFormatWidget() override = default;
 
-    virtual QString file() const = 0;
-
-signals:
-
-    void fileChanged(QString);
-
-public slots:
-
-    virtual void setFile(const QString &file) = 0;
-
-};
-
-class BundlerFormatWidgetImp
-    : public BundlerFormatWidget
-{
-
-    Q_OBJECT
-
 public:
 
-    BundlerFormatWidgetImp(QWidget *parent = nullptr);
-    ~BundlerFormatWidgetImp() override = default;
-
-protected slots:
-
-    void onPushButtonSelectPath();
-
-// BundlerFormatWidget interface
-
-    QString file() const override;
+    QString file() const;
 
 signals:
 
@@ -83,7 +79,11 @@ signals:
 
 public slots:
 
-    void setFile(const QString &file) override;
+    void setFile(const QString &file);
+
+protected slots:
+
+    void onPushButtonSelectPath();
 
 // GraphosWidgetView interface
 

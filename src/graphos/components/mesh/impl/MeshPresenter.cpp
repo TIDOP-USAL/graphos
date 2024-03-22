@@ -41,8 +41,8 @@ MeshPresenterImp::MeshPresenterImp(MeshView *view,
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    MeshPresenterImp::init();
+    MeshPresenterImp::initSignalAndSlots();
 }
 
 MeshPresenterImp::~MeshPresenterImp()

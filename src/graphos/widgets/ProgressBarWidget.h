@@ -28,7 +28,6 @@
 
 
 class QProgressBar;
-//class QPushButton;
 class QAction;
 
 namespace graphos
@@ -36,7 +35,7 @@ namespace graphos
 
 
 class ProgressBarWidget
-    : public GraphosWidgetView
+  : public GraphosWidgetView
 {
     Q_OBJECT
 

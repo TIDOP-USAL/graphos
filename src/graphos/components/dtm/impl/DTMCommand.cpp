@@ -28,8 +28,8 @@
 #include "graphos/core/project.h"
 #include "graphos/components/dtm/impl/DTMTask.h"
 
-#include <tidop/core/chrono.h>
 #include <tidop/core/msg/message.h>
+#include <tidop/core/log.h>
 
 #include <QFileInfo>
 
@@ -89,21 +89,24 @@ bool DTMCommand::run()
 {
     bool r = false;
 
-    QString file_path;
-    QString project_path;
+    tl::Log &log = tl::Log::instance();
 
     try {
 
-        tl::Path projectFile = this->value<std::string>("prj");
-        double gsd =  this->value<double>("gsd");
-        bool dsm =  this->value<bool>("dsm");
-        bool dtm =  this->value<bool>("dtm");
+        tl::Path project_path = this->value<std::string>("prj");
+        auto gsd =  this->value<double>("gsd");
+        auto dsm =  this->value<bool>("dsm");
+        auto dtm =  this->value<bool>("dtm");
 
-        TL_ASSERT(projectFile.exists(), "Project doesn't exist");
-        TL_ASSERT(projectFile.isFile(), "Project file doesn't exist");
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path.toString());
+
+        TL_ASSERT(project_path.exists(), "Project doesn't exist");
+        TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
         mProject = new ProjectImp;
-        mProject->load(projectFile);
+        mProject->load(project_path);
 
         tl::Path dtm_path(mProject->projectFolder());
         dtm_path.append("dtm");
@@ -127,7 +130,7 @@ bool DTMCommand::run()
         }
 
         mProject->dtm().gsd = gsd;
-        mProject->save(projectFile);
+        mProject->save(project_path);
 
     } catch (const std::exception &e) {
 
@@ -135,6 +138,8 @@ bool DTMCommand::run()
 
         r = true;
     }
+
+    log.close();
 
     return r;
 }

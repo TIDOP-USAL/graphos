@@ -36,6 +36,8 @@ class QComboBox;
 namespace graphos
 {
 
+
+
 class OriTxtFormatWidget
   : public GraphosWidgetView
 {
@@ -47,46 +49,24 @@ public:
     OriTxtFormatWidget(QWidget *parent = nullptr);
     ~OriTxtFormatWidget() override = default;
 
-    virtual QString file() const = 0;
-    virtual QString rotation() const = 0;
+public:
 
-signals:
-
-    void fileChanged(QString);
-    void rotationChanged(QString);
+    QString file() const;
+    QString rotation() const;
 
 public slots:
 
-    virtual void setFile(const QString &file) = 0;
-    virtual void setRotation(const QString &rotation) = 0;
-};
-
-
-
-class OriTxtFormatWidgetImp
-  : public OriTxtFormatWidget
-{
-
-    Q_OBJECT
-
-public:
-
-    OriTxtFormatWidgetImp(QWidget *parent = nullptr);
-    ~OriTxtFormatWidgetImp() override = default;
+    void setFile(const QString &file);
+    void setRotation(const QString &rotation);
 
 protected slots:
 
     void onPushButtonSelectPath();
 
-// OriTxtFormatWidget interface
+signals:
 
-    QString file() const override;
-    QString rotation() const override;
-
-public slots:
-
-    void setFile(const QString &file) override;
-    void setRotation(const QString &rotation) override;
+    void fileChanged(QString);
+    void rotationChanged(QString);
 
 // GraphosWidgetView interface
 

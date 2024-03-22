@@ -49,7 +49,7 @@ public:
 
   TestFeatureMatchingView() 
     : FeatureMatchingViewImp(),
-    mFeatureMatchingWidget(new FeatureMatchingWidgetImp)
+    mFeatureMatchingWidget(new FeatureMatchingWidget)
   {
     //QApplication::setActiveWindow(this);
   }

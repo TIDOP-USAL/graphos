@@ -49,7 +49,7 @@ private:
 private:
 
 	bool mDisableCuda;
-    Project *mProject;
+
 };
 
 

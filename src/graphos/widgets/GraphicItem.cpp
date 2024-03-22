@@ -60,7 +60,7 @@ CircleGraphicItem::~CircleGraphicItem()
 
 }
 
-QPen CircleGraphicItem::pen() const
+auto CircleGraphicItem::pen() const -> QPen
 {
     return mPen;
 }
@@ -70,7 +70,7 @@ void CircleGraphicItem::setPen(const QPen &pen)
     mPen = pen;
 }
 
-double CircleGraphicItem::size()
+auto CircleGraphicItem::size() -> double
 {
     return mSize;
 }
@@ -80,7 +80,7 @@ void CircleGraphicItem::setSize(double size)
     mSize = size;
 }
 
-QPen CircleGraphicItem::selectedPen() const
+auto CircleGraphicItem::selectedPen() const -> QPen
 {
     return mSelectedPen;
 }
@@ -90,13 +90,13 @@ void CircleGraphicItem::setSelectedPen(const QPen &pen)
     mSelectedPen = pen;
 }
 
-QRectF CircleGraphicItem::boundingRect() const
+auto CircleGraphicItem::boundingRect() const -> QRectF
 {
     double r = mSize / 2.;
     return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
 }
 
-QPainterPath CircleGraphicItem::shape() const
+auto CircleGraphicItem::shape() const -> QPainterPath
 {
     QPainterPath path;
     double r = mSize / 2.;
@@ -146,7 +146,7 @@ CrossGraphicItem::~CrossGraphicItem()
 
 }
 
-QPen CrossGraphicItem::pen() const
+auto CrossGraphicItem::pen() const -> QPen
 {
     return mPen;
 }
@@ -156,7 +156,7 @@ void CrossGraphicItem::setPen(const QPen &pen)
     mPen = pen;
 }
 
-double CrossGraphicItem::size()
+auto CrossGraphicItem::size() -> double
 {
     return mSize;
 }
@@ -166,7 +166,7 @@ void CrossGraphicItem::setSize(double size)
     mSize = size;
 }
 
-QPen CrossGraphicItem::selectedPen() const
+auto CrossGraphicItem::selectedPen() const -> QPen
 {
     return mSelectedPen;
 }
@@ -176,13 +176,13 @@ void CrossGraphicItem::setSelectedPen(const QPen &pen)
     mSelectedPen = pen;
 }
 
-QRectF CrossGraphicItem::boundingRect() const
+auto CrossGraphicItem::boundingRect() const -> QRectF
 {
     double r = mSize / 2.;
     return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
 }
 
-QPainterPath CrossGraphicItem::shape() const
+auto CrossGraphicItem::shape() const -> QPainterPath
 {
     QPainterPath path;
     double r = mSize / 2.;
@@ -237,7 +237,7 @@ KeyPointGraphicsItem::~KeyPointGraphicsItem()
 
 }
 
-QPen KeyPointGraphicsItem::pen() const
+auto KeyPointGraphicsItem::pen() const -> QPen
 {
     return mPen;
 }
@@ -247,7 +247,7 @@ void KeyPointGraphicsItem::setPen(const QPen &pen)
     mPen = pen;
 }
 
-double KeyPointGraphicsItem::size()
+auto KeyPointGraphicsItem::size() -> double
 {
     return mSize;
 }
@@ -257,7 +257,7 @@ void KeyPointGraphicsItem::setSize(double size)
     mSize = size;
 }
 
-double KeyPointGraphicsItem::angle()
+auto KeyPointGraphicsItem::angle() const -> double
 {
     return mAngle;
 }
@@ -267,7 +267,7 @@ void KeyPointGraphicsItem::setAngle(double angle)
     mAngle = angle;
 }
 
-QPen KeyPointGraphicsItem::selectedPen() const
+auto KeyPointGraphicsItem::selectedPen() const -> QPen
 {
     return mSelectedPen;
 }
@@ -277,13 +277,13 @@ void KeyPointGraphicsItem::setSelectedPen(const QPen &pen)
     mSelectedPen = pen;
 }
 
-QRectF KeyPointGraphicsItem::boundingRect() const
+auto KeyPointGraphicsItem::boundingRect() const -> QRectF
 {
     double r = mSize / 2.;
     return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
 }
 
-QPainterPath KeyPointGraphicsItem::shape() const
+auto KeyPointGraphicsItem::shape() const -> QPainterPath
 {
     QPainterPath path;
     double r = 5/*mSize*/ / 2.;
@@ -336,7 +336,7 @@ DiagonalCrossGraphicItem::~DiagonalCrossGraphicItem()
 
 }
 
-QPen DiagonalCrossGraphicItem::pen() const
+auto DiagonalCrossGraphicItem::pen() const -> QPen
 {
     return mPen;
 }
@@ -346,7 +346,7 @@ void DiagonalCrossGraphicItem::setPen(const QPen &pen)
     mPen = pen;
 }
 
-double DiagonalCrossGraphicItem::size()
+auto DiagonalCrossGraphicItem::size() -> double
 {
     return mSize;
 }
@@ -356,7 +356,7 @@ void DiagonalCrossGraphicItem::setSize(double size)
     mSize = size;
 }
 
-QPen DiagonalCrossGraphicItem::selectedPen() const
+auto DiagonalCrossGraphicItem::selectedPen() const -> QPen
 {
     return mSelectedPen;
 }
@@ -366,13 +366,13 @@ void DiagonalCrossGraphicItem::setSelectedPen(const QPen &pen)
     mSelectedPen = pen;
 }
 
-QRectF DiagonalCrossGraphicItem::boundingRect() const
+auto DiagonalCrossGraphicItem::boundingRect() const -> QRectF
 {
     double r = mSize / 2.;
     return QRectF(mCenter.x() - r, mCenter.y() - r, mSize, mSize);
 }
 
-QPainterPath DiagonalCrossGraphicItem::shape() const
+auto DiagonalCrossGraphicItem::shape() const -> QPainterPath
 {
     QPainterPath path;
     double r = mSize / 2.;
@@ -385,11 +385,11 @@ void DiagonalCrossGraphicItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (this->isSelected()) painter->setPen(mSelectedPen);
     else painter->setPen(mPen);
 
-    double halfSize = mSize / 2.;
+    double half_size = mSize / 2.;
     double x = mCenter.x();
     double y = mCenter.y();
-    painter->drawLine(QPointF(x - halfSize, y - halfSize), QPointF(x + halfSize, y + halfSize));
-    painter->drawLine(QPointF(x - halfSize, y + halfSize), QPointF(x + halfSize, y - halfSize));
+    painter->drawLine(QPointF(x - half_size, y - half_size), QPointF(x + half_size, y + half_size));
+    painter->drawLine(QPointF(x - half_size, y + half_size), QPointF(x + half_size, y - half_size));
 }
 
 

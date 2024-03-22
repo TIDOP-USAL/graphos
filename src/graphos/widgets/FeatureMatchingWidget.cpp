@@ -38,14 +38,7 @@ namespace graphos
 
 
 FeatureMatchingWidget::FeatureMatchingWidget(QWidget *parent)
-  : GraphosWidgetView(parent)
-{
-}
-
-
-
-FeatureMatchingWidgetImp::FeatureMatchingWidgetImp(QWidget *parent)
-  : FeatureMatchingWidget(parent),
+  : GraphosWidgetView(parent),
     mGroupBox(new QGroupBox(this)),
     mCheckBoxCrossCheck(new QCheckBox(this)),
     mLabelRatio(new QLabel(this)),
@@ -57,15 +50,15 @@ FeatureMatchingWidgetImp::FeatureMatchingWidgetImp(QWidget *parent)
     mLabelConfidence(new QLabel(this)),
     mDoubleSpinBoxConfidence(new QDoubleSpinBox(this))
 {
-    FeatureMatchingWidgetImp::initUI();
-    FeatureMatchingWidgetImp::initSignalAndSlots();
+    FeatureMatchingWidget::initUI();
+    FeatureMatchingWidget::initSignalAndSlots();
 }
 
-FeatureMatchingWidgetImp::~FeatureMatchingWidgetImp()
+FeatureMatchingWidget::~FeatureMatchingWidget()
 {
 }
 
-void FeatureMatchingWidgetImp::initUI()
+void FeatureMatchingWidget::initUI()
 {
     this->setObjectName(QStringLiteral("FeatureMatchingWidget"));
     this->setWindowTitle("Feature Matching Colmap");
@@ -76,35 +69,35 @@ void FeatureMatchingWidgetImp::initUI()
 
     layout->addWidget(mGroupBox);
 
-    QGridLayout *propertiesLayout = new QGridLayout();
-    mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *properties_layout = new QGridLayout();
+    mGroupBox->setLayout(properties_layout);
 
-    propertiesLayout->addWidget(mCheckBoxCrossCheck, 0, 0, 1, 1);
+    properties_layout->addWidget(mCheckBoxCrossCheck, 0, 0, 1, 1);
 
-    propertiesLayout->addWidget(mLabelRatio, 1, 0, 1, 1);
+    properties_layout->addWidget(mLabelRatio, 1, 0, 1, 1);
     mDoubleSpinBoxRatio->setSingleStep(0.01);
-    propertiesLayout->addWidget(mDoubleSpinBoxRatio, 1, 1, 1, 2);
+    properties_layout->addWidget(mDoubleSpinBoxRatio, 1, 1, 1, 2);
 
-    propertiesLayout->addWidget(mLabelDistance, 2, 0, 1, 1);
+    properties_layout->addWidget(mLabelDistance, 2, 0, 1, 1);
     mDoubleSpinBoxDistance->setSingleStep(0.01);
-    propertiesLayout->addWidget(mDoubleSpinBoxDistance, 2, 1, 1, 2);
+    properties_layout->addWidget(mDoubleSpinBoxDistance, 2, 1, 1, 2);
 
-    propertiesLayout->addWidget(mLabelMaxError, 3, 0, 1, 1);
+    properties_layout->addWidget(mLabelMaxError, 3, 0, 1, 1);
     mDoubleSpinBoxMaxError->setSingleStep(0.01);
-    propertiesLayout->addWidget(mDoubleSpinBoxMaxError, 3, 1, 1, 2);
+    properties_layout->addWidget(mDoubleSpinBoxMaxError, 3, 1, 1, 2);
 
-    propertiesLayout->addWidget(mLabelConfidence, 4, 0, 1, 1);
+    properties_layout->addWidget(mLabelConfidence, 4, 0, 1, 1);
     mDoubleSpinBoxConfidence->setDecimals(4);
     mDoubleSpinBoxConfidence->setMaximum(1);
     mDoubleSpinBoxConfidence->setSingleStep(0.0001);
-    propertiesLayout->addWidget(mDoubleSpinBoxConfidence, 4, 1, 1, 2);
+    properties_layout->addWidget(mDoubleSpinBoxConfidence, 4, 1, 1, 2);
 
-    FeatureMatchingWidgetImp::retranslate();
-    FeatureMatchingWidgetImp::clear();
-    FeatureMatchingWidgetImp::update();
+    retranslate();
+    clear();
+    update();
 }
 
-void FeatureMatchingWidgetImp::initSignalAndSlots()
+void FeatureMatchingWidget::initSignalAndSlots()
 {
     connect(mCheckBoxCrossCheck, &QAbstractButton::clicked, this, &FeatureMatchingWidget::crossCheckChanged);
     connect(mDoubleSpinBoxDistance, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FeatureMatchingWidget::distanceChanged);
@@ -113,12 +106,12 @@ void FeatureMatchingWidgetImp::initSignalAndSlots()
     connect(mDoubleSpinBoxConfidence, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FeatureMatchingWidget::confidenceChanged);
 }
 
-void FeatureMatchingWidgetImp::clear()
+void FeatureMatchingWidget::clear()
 {
-    const QSignalBlocker blockerRatio(mDoubleSpinBoxRatio);
-    const QSignalBlocker blockerDistance(mDoubleSpinBoxDistance);
-    const QSignalBlocker blockerMaxError(mDoubleSpinBoxMaxError);
-    const QSignalBlocker blockerConfidence(mDoubleSpinBoxConfidence);
+    const QSignalBlocker blocker_ratio(mDoubleSpinBoxRatio);
+    const QSignalBlocker blocker_distance(mDoubleSpinBoxDistance);
+    const QSignalBlocker blocker_max_error(mDoubleSpinBoxMaxError);
+    const QSignalBlocker blocker_confidence(mDoubleSpinBoxConfidence);
 
     mCheckBoxCrossCheck->setChecked(true);
     mDoubleSpinBoxRatio->setValue(0.8);
@@ -127,11 +120,11 @@ void FeatureMatchingWidgetImp::clear()
     mDoubleSpinBoxConfidence->setValue(0.999);
 }
 
-void FeatureMatchingWidgetImp::update()
+void FeatureMatchingWidget::update()
 {
 }
 
-void FeatureMatchingWidgetImp::retranslate()
+void FeatureMatchingWidget::retranslate()
 {
     mGroupBox->setTitle(QApplication::translate("FeatureMatchingWidget", "Feature Matching parameters", nullptr));
     mLabelMaxError->setText(QApplication::translate("FeatureMatchingWidget", "Max error", nullptr));
@@ -141,65 +134,61 @@ void FeatureMatchingWidgetImp::retranslate()
     mLabelRatio->setText(QApplication::translate("FeatureMatchingWidget", "Ratio", nullptr));
 }
 
-bool FeatureMatchingWidgetImp::crossCheck() const
+auto FeatureMatchingWidget::crossCheck() const -> bool
 {
     return mCheckBoxCrossCheck->isChecked();
 }
 
-double FeatureMatchingWidgetImp::ratio() const
+auto FeatureMatchingWidget::ratio() const -> double
 {
     return mDoubleSpinBoxRatio->value();
 }
 
-double FeatureMatchingWidgetImp::distance() const
+auto FeatureMatchingWidget::distance() const -> double
 {
     return mDoubleSpinBoxDistance->value();
 }
 
-//int FeatureMatchingWidgetImp::maxMatches() const
-//{
-//}
-
-double FeatureMatchingWidgetImp::maxError() const
+auto FeatureMatchingWidget::maxError() const -> double
 {
     return mDoubleSpinBoxMaxError->value();
 }
 
-double FeatureMatchingWidgetImp::confidence() const
+auto FeatureMatchingWidget::confidence() const -> double
 {
     return mDoubleSpinBoxConfidence->value();
 }
 
-void FeatureMatchingWidgetImp::enableCrossCheck(bool enable)
+void FeatureMatchingWidget::enableCrossCheck(bool enable)
 {
     mCheckBoxCrossCheck->setChecked(enable);
 }
 
-void FeatureMatchingWidgetImp::setRatio(double ratio)
+void FeatureMatchingWidget::setRatio(double ratio)
 {
-    const QSignalBlocker blockerRatio(mDoubleSpinBoxRatio);
+    const QSignalBlocker blocker_ratio(mDoubleSpinBoxRatio);
     mDoubleSpinBoxRatio->setValue(ratio);
 }
 
-void FeatureMatchingWidgetImp::setDistance(double distance)
+void FeatureMatchingWidget::setDistance(double distance)
 {
-    const QSignalBlocker blockerDistance(mDoubleSpinBoxDistance);
+    const QSignalBlocker blocker_distance(mDoubleSpinBoxDistance);
     mDoubleSpinBoxDistance->setValue(distance);
 }
 
-//void FeatureMatchingWidgetImp::setMaxMatches(int maxMatches)
+//void FeatureMatchingWidget::setMaxMatches(int maxMatches)
 //{
 //}
 
-void FeatureMatchingWidgetImp::setMaxError(double error)
+void FeatureMatchingWidget::setMaxError(double error)
 {
-    const QSignalBlocker blockerMaxError(mDoubleSpinBoxMaxError);
+    const QSignalBlocker blocker_max_error(mDoubleSpinBoxMaxError);
     mDoubleSpinBoxMaxError->setValue(error);
 }
 
-void FeatureMatchingWidgetImp::setConfidence(double confidence)
+void FeatureMatchingWidget::setConfidence(double confidence)
 {
-    const QSignalBlocker blockerConfidence(mDoubleSpinBoxConfidence);
+    const QSignalBlocker blocker_confidence(mDoubleSpinBoxConfidence);
     mDoubleSpinBoxConfidence->setValue(confidence);
 }
 

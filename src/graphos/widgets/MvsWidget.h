@@ -48,14 +48,14 @@ public:
 
 public:
 
-    int quality() const;
+    auto quality() const -> int;
     //int resolutionLevel() const;
     //int minResolution() const;
     //int maxResolution() const;
-    int numberViews() const;
-    int numberViewsFuse() const;
-    bool estimateColors() const;
-    bool estimateNormals() const;
+    auto numberViews() const -> int;
+    auto numberViewsFuse() const -> int;
+    auto estimateColors() const -> bool;
+    auto estimateNormals() const -> bool;
 
 signals:
 

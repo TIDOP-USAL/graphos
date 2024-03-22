@@ -75,7 +75,7 @@ void FeaturesViewerViewImp::initUI()
     mComboBoxImages = new QComboBox(this);
     gridLayout->addWidget(mComboBoxImages, 0, 1, 1, 1);
 
-    mGraphicView = new GraphicViewerImp(this);
+    mGraphicView = new GraphicViewer(this);
     gridLayout->addWidget(mGraphicView, 1, 0, 1, 2);
 
     mTreeWidget = new QTreeWidget(this);

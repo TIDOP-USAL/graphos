@@ -35,15 +35,10 @@ TL_DEFAULT_WARNINGS
 namespace graphos
 {
 
+
+
 SmvsWidget::SmvsWidget(QWidget *parent)
-  : GraphosWidgetView(parent)
-{
-}
-
-
-
-SmvsWidgetImp::SmvsWidgetImp(QWidget *parent)
-  : SmvsWidget(parent),
+  : GraphosWidgetView(parent),
     mGroupBox(new QGroupBox(this)),
     mLabelInputImageScale(new QLabel(this)),
     mInputImageScale(new QSpinBox(this)),
@@ -54,13 +49,13 @@ SmvsWidgetImp::SmvsWidgetImp(QWidget *parent)
     mLabelSurfaceSmoothingFactor(new QLabel(this)),
     mSurfaceSmoothingFactor(new QDoubleSpinBox(this))
 {
-    SmvsWidgetImp::initUI();
-    SmvsWidgetImp::initSignalAndSlots();
+    SmvsWidget::initUI();
+    SmvsWidget::initSignalAndSlots();
 }
 
-SmvsWidgetImp::~SmvsWidgetImp() = default;
+SmvsWidget::~SmvsWidget() = default;
 
-void SmvsWidgetImp::initUI()
+void SmvsWidget::initUI()
 {
     this->setWindowTitle("Shading-Aware Multi-View Stereo");
 
@@ -70,33 +65,33 @@ void SmvsWidgetImp::initUI()
 
     layout->addWidget(mGroupBox);
 
-    QGridLayout *propertiesLayout = new QGridLayout();
-    mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *properties_layout = new QGridLayout();
+    mGroupBox->setLayout(properties_layout);
 
-    propertiesLayout->addWidget(mLabelInputImageScale, 0, 0);
+    properties_layout->addWidget(mLabelInputImageScale, 0, 0);
     mInputImageScale->setRange(0, 6);
-    propertiesLayout->addWidget(mInputImageScale, 0, 1);
+    properties_layout->addWidget(mInputImageScale, 0, 1);
 
-    propertiesLayout->addWidget(mLabelOutputDepthScale, 1, 0);
+    properties_layout->addWidget(mLabelOutputDepthScale, 1, 0);
     mOutputDepthScale->setRange(0, 6);
-    propertiesLayout->addWidget(mOutputDepthScale, 1, 1);
+    properties_layout->addWidget(mOutputDepthScale, 1, 1);
 
-    propertiesLayout->addWidget(mShadingBasedOptimization, 2, 0, 1, 2);
+    properties_layout->addWidget(mShadingBasedOptimization, 2, 0, 1, 2);
 
-    propertiesLayout->addWidget(mSemiGlobalMatching, 3, 0, 1, 2);
+    properties_layout->addWidget(mSemiGlobalMatching, 3, 0, 1, 2);
 
-    propertiesLayout->addWidget(mLabelSurfaceSmoothingFactor, 4, 0);
+    properties_layout->addWidget(mLabelSurfaceSmoothingFactor, 4, 0);
     mSurfaceSmoothingFactor->setRange(0., 10.);
     mSurfaceSmoothingFactor->setDecimals(2);
     mSurfaceSmoothingFactor->setSingleStep(0.1);
-    propertiesLayout->addWidget(mSurfaceSmoothingFactor, 4, 1);
+    properties_layout->addWidget(mSurfaceSmoothingFactor, 4, 1);
 
-    SmvsWidgetImp::retranslate();
-    SmvsWidgetImp::clear(); /// set default values
-    SmvsWidgetImp::update();
+    retranslate();
+    clear(); /// set default values
+    update();
 }
 
-void SmvsWidgetImp::initSignalAndSlots()
+void SmvsWidget::initSignalAndSlots()
 {
     connect(mInputImageScale, QOverload<int>::of(&QSpinBox::valueChanged), this, &SmvsWidget::inputImageScaleChanged);
     connect(mOutputDepthScale, QOverload<int>::of(&QSpinBox::valueChanged), this, &SmvsWidget::outputDepthScaleChanged);
@@ -105,11 +100,11 @@ void SmvsWidgetImp::initSignalAndSlots()
     connect(mSurfaceSmoothingFactor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SmvsWidget::surfaceSmoothingFactorChanged);
 }
 
-void SmvsWidgetImp::clear()
+void SmvsWidget::clear()
 {
-    const QSignalBlocker blockerInputImageScale(mInputImageScale);
-    const QSignalBlocker blockerOutputDepthScale(mOutputDepthScale);
-    const QSignalBlocker blockerSurfaceSmoothingFactor(mSurfaceSmoothingFactor);
+    const QSignalBlocker blocker_input_image_scale(mInputImageScale);
+    const QSignalBlocker blocker_output_depth_scale(mOutputDepthScale);
+    const QSignalBlocker blocker_surface_smoothing_factor(mSurfaceSmoothingFactor);
 
     mInputImageScale->setValue(1);
     mOutputDepthScale->setValue(2);
@@ -118,69 +113,69 @@ void SmvsWidgetImp::clear()
     mSurfaceSmoothingFactor->setValue(1.0);
 }
 
-void SmvsWidgetImp::update()
+void SmvsWidget::update()
 {
 
 }
 
-void SmvsWidgetImp::retranslate()
+void SmvsWidget::retranslate()
 {
-    mGroupBox->setTitle(QApplication::translate("SmvsWidgetImp", "Shading-Aware Multi-View Stereo Parameters", nullptr));
-    mLabelInputImageScale->setText(QApplication::translate("SmvsWidgetImp", "Image Scale:"));
-    mLabelOutputDepthScale->setText(QApplication::translate("SmvsWidgetImp", "Depth Scale:"));
-    mShadingBasedOptimization->setText(QApplication::translate("SmvsWidgetImp", "Shading-Based Optimization:"));
-    mSemiGlobalMatching->setText(QApplication::translate("SmvsWidgetImp", "Semi Global Matching:"));
-    mLabelSurfaceSmoothingFactor->setText(QApplication::translate("SmvsWidgetImp", "Surface Smoothing Factor:"));
+    mGroupBox->setTitle(QApplication::translate("SmvsWidget", "Shading-Aware Multi-View Stereo Parameters", nullptr));
+    mLabelInputImageScale->setText(QApplication::translate("SmvsWidget", "Image Scale:"));
+    mLabelOutputDepthScale->setText(QApplication::translate("SmvsWidget", "Depth Scale:"));
+    mShadingBasedOptimization->setText(QApplication::translate("SmvsWidget", "Shading-Based Optimization:"));
+    mSemiGlobalMatching->setText(QApplication::translate("SmvsWidget", "Semi Global Matching:"));
+    mLabelSurfaceSmoothingFactor->setText(QApplication::translate("SmvsWidget", "Surface Smoothing Factor:"));
 }
 
-int SmvsWidgetImp::inputImageScale() const
+auto SmvsWidget::inputImageScale() const -> int
 {
     return mInputImageScale->value();
 }
 
-int SmvsWidgetImp::outputDepthScale() const
+auto SmvsWidget::outputDepthScale() const -> int
 {
     return mOutputDepthScale->value();
 }
 
-bool SmvsWidgetImp::shadingBasedOptimization() const
+auto SmvsWidget::shadingBasedOptimization() const -> bool
 {
     return mShadingBasedOptimization->isChecked();
 }
 
-bool SmvsWidgetImp::semiGlobalMatching() const
+auto SmvsWidget::semiGlobalMatching() const -> bool
 {
     return mSemiGlobalMatching->isChecked();
 }
 
-double SmvsWidgetImp::surfaceSmoothingFactor() const
+auto SmvsWidget::surfaceSmoothingFactor() const -> double
 {
     return mSurfaceSmoothingFactor->value();
 }
 
-void SmvsWidgetImp::setInputImageScale(int inputImageScale)
+void SmvsWidget::setInputImageScale(int inputImageScale)
 {
     const QSignalBlocker blockerInputImageScale(mInputImageScale);
     mInputImageScale->setValue(inputImageScale);
 }
 
-void SmvsWidgetImp::setOutputDepthScale(int outputDepthScale)
+void SmvsWidget::setOutputDepthScale(int outputDepthScale)
 {
     const QSignalBlocker blockerOutputDepthScale(mOutputDepthScale);
     mOutputDepthScale->setValue(outputDepthScale);
 }
 
-void SmvsWidgetImp::setShadingBasedOptimization(bool shadingBasedOptimization)
+void SmvsWidget::setShadingBasedOptimization(bool shadingBasedOptimization)
 {
     mShadingBasedOptimization->setChecked(shadingBasedOptimization);
 }
 
-void SmvsWidgetImp::setSemiGlobalMatching(bool semiGlobalMatching)
+void SmvsWidget::setSemiGlobalMatching(bool semiGlobalMatching)
 {
     mSemiGlobalMatching->setChecked(semiGlobalMatching);
 }
 
-void SmvsWidgetImp::setSurfaceSmoothingFactor(double surfaceSmoothingFactor)
+void SmvsWidget::setSurfaceSmoothingFactor(double surfaceSmoothingFactor)
 {
     const QSignalBlocker blockerSurfaceSmoothingFactor(mSurfaceSmoothingFactor);
     mSurfaceSmoothingFactor->setValue(surfaceSmoothingFactor);

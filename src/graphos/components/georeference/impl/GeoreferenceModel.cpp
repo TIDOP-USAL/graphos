@@ -408,11 +408,8 @@ const std::map<int, Camera> &GeoreferenceModelImp::cameras() const
 
 std::vector<GroundPoint> GeoreferenceModelImp::groundPoints() const
 {
-    tl::Path ground_points_path(mProject->reconstructionPath());
-    ground_points_path.append("ground_points.bin");
-
     std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
-    reader->read(ground_points_path);
+    reader->read(mProject->groundPoints());
 
     return reader->points();
 }

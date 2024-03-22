@@ -45,10 +45,10 @@ ExportCamerasPresenterImp::ExportCamerasPresenterImp(ExportCamerasView *view,
   : ExportCamerasPresenter(),
     mView(view),
     mModel(model),
-    //mNvmFormatWidget(new NvmFormatWidgetImp),
+    //mNvmFormatWidget(new NvmFormatWidget),
     //mBundlerFormatWidget(new BundlerFormatWidgetImp),
-    //mMveFormatWidget(new MveFormatWidgetImp),
-    mOriTxtFormatWidget(new OriTxtFormatWidgetImp)
+    //mMveFormatWidget(new MveFormatWidget),
+    mOriTxtFormatWidget(new OriTxtFormatWidget)
 {
     this->init();
     this->initSignalAndSlots();

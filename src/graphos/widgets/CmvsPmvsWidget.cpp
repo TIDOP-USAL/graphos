@@ -36,8 +36,8 @@ TL_DEFAULT_WARNINGS
 namespace graphos
 {
 
-CmvsPmvsWidgetImp::CmvsPmvsWidgetImp(QWidget *parent)
-  : CmvsPmvsWidget(parent),
+CmvsPmvsWidget::CmvsPmvsWidget(QWidget *parent)
+  : GraphosWidgetView(parent),
     mGroupBox(new QGroupBox(this)),
     mCheckBoxUseVisibilityInformation(new QCheckBox(this)),
     mLabelImagesPerCluster(new QLabel(this)),
@@ -53,109 +53,109 @@ CmvsPmvsWidgetImp::CmvsPmvsWidgetImp(QWidget *parent)
     mLabelMinimunImageNumber(new QLabel(this)),
     mSpinBoxMinimunImageNumber(new QSpinBox(this))
 {
-    CmvsPmvsWidgetImp::initUI();
-    CmvsPmvsWidgetImp::initSignalAndSlots();
+    CmvsPmvsWidget::initUI();
+    CmvsPmvsWidget::initSignalAndSlots();
 }
 
-CmvsPmvsWidgetImp::~CmvsPmvsWidgetImp()
+CmvsPmvsWidget::~CmvsPmvsWidget()
 {
 
 }
 
-bool CmvsPmvsWidgetImp::useVisibilityInformation() const
+bool CmvsPmvsWidget::useVisibilityInformation() const
 {
     return mCheckBoxUseVisibilityInformation->isChecked();
 }
 
-int CmvsPmvsWidgetImp::imagesPerCluster() const
+int CmvsPmvsWidget::imagesPerCluster() const
 {
     return mSpinBoxImagesPerCluster->value();
 }
 
-int CmvsPmvsWidgetImp::level() const
+int CmvsPmvsWidget::level() const
 {
     return mSpinBoxLevel->value();
 }
 
-int CmvsPmvsWidgetImp::cellSize() const
+int CmvsPmvsWidget::cellSize() const
 {
     return mSpinBoxCellSize->value();
 }
 
-double CmvsPmvsWidgetImp::threshold() const
+double CmvsPmvsWidget::threshold() const
 {
     return mDoubleSpinBoxThreshold->value();
 }
 
-int CmvsPmvsWidgetImp::windowSize() const
+int CmvsPmvsWidget::windowSize() const
 {
     return mSpinBoxWindowSize->value();
 }
 
-int CmvsPmvsWidgetImp::minimunImageNumber() const
+int CmvsPmvsWidget::minimunImageNumber() const
 {
     return mSpinBoxMinimunImageNumber->value();
 }
 
-void CmvsPmvsWidgetImp::setUseVisibilityInformation(bool useVisibilityInformation)
+void CmvsPmvsWidget::setUseVisibilityInformation(bool useVisibilityInformation)
 {
     mCheckBoxUseVisibilityInformation->setChecked(useVisibilityInformation);
 }
 
-void CmvsPmvsWidgetImp::setImagesPerCluster(int imagesPerCluster)
+void CmvsPmvsWidget::setImagesPerCluster(int imagesPerCluster)
 {
     const QSignalBlocker blockerImagesPerCluster(mSpinBoxImagesPerCluster);
     mSpinBoxImagesPerCluster->setValue(imagesPerCluster);
 }
 
-void CmvsPmvsWidgetImp::setLevel(int level)
+void CmvsPmvsWidget::setLevel(int level)
 {
     const QSignalBlocker blockerLevel(mSpinBoxLevel);
     mSpinBoxLevel->setValue(level);
 }
 
-void CmvsPmvsWidgetImp::setCellSize(int cellSize)
+void CmvsPmvsWidget::setCellSize(int cellSize)
 {
     const QSignalBlocker blockerCellSize(mSpinBoxCellSize);
     mSpinBoxCellSize->setValue(cellSize);
 }
 
-void CmvsPmvsWidgetImp::setThreshold(double threshold)
+void CmvsPmvsWidget::setThreshold(double threshold)
 {
     const QSignalBlocker blockerThreshold(mDoubleSpinBoxThreshold);
     mDoubleSpinBoxThreshold->setValue(threshold);
 }
 
-void CmvsPmvsWidgetImp::setWindowSize(int windowSize)
+void CmvsPmvsWidget::setWindowSize(int windowSize)
 {
     const QSignalBlocker blockerWindowSize(mSpinBoxWindowSize);
     mSpinBoxWindowSize->setValue(windowSize);
 }
 
-void CmvsPmvsWidgetImp::setMinimunImageNumber(int minimunImageNumber)
+void CmvsPmvsWidget::setMinimunImageNumber(int minimunImageNumber)
 {
     const QSignalBlocker blockerMinimunImageNumber(mSpinBoxMinimunImageNumber);
     mSpinBoxMinimunImageNumber->setValue(minimunImageNumber);
 }
 
-void CmvsPmvsWidgetImp::update()
+void CmvsPmvsWidget::update()
 {
 
 }
 
-void CmvsPmvsWidgetImp::retranslate()
+void CmvsPmvsWidget::retranslate()
 {
-    mGroupBox->setTitle(QApplication::translate("CmvsPmvsWidgetImp", "CMVS/PMVS", nullptr));
-    mCheckBoxUseVisibilityInformation->setText(QApplication::translate("CmvsPmvsWidgetImp", "Use Visibility Information:"));
-    mLabelImagesPerCluster->setText(QApplication::translate("CmvsPmvsWidgetImp", "Images Per Cluster:"));
-    mLabelLevel->setText(QApplication::translate("CmvsPmvsWidgetImp", "Level:"));
-    mLabelCellSize->setText(QApplication::translate("CmvsPmvsWidgetImp", "Cell Size:"));
-    mLabelThreshold->setText(QApplication::translate("CmvsPmvsWidgetImp", "Threshold:"));
-    mLabelWindowSize->setText(QApplication::translate("CmvsPmvsWidgetImp", "Window Size:"));
-    mLabelMinimunImageNumber->setText(QApplication::translate("CmvsPmvsWidgetImp", "Minimun Image Number:"));
+    mGroupBox->setTitle(QApplication::translate("CmvsPmvsWidget", "CMVS/PMVS", nullptr));
+    mCheckBoxUseVisibilityInformation->setText(QApplication::translate("CmvsPmvsWidget", "Use Visibility Information:"));
+    mLabelImagesPerCluster->setText(QApplication::translate("CmvsPmvsWidget", "Images Per Cluster:"));
+    mLabelLevel->setText(QApplication::translate("CmvsPmvsWidget", "Level:"));
+    mLabelCellSize->setText(QApplication::translate("CmvsPmvsWidget", "Cell Size:"));
+    mLabelThreshold->setText(QApplication::translate("CmvsPmvsWidget", "Threshold:"));
+    mLabelWindowSize->setText(QApplication::translate("CmvsPmvsWidget", "Window Size:"));
+    mLabelMinimunImageNumber->setText(QApplication::translate("CmvsPmvsWidget", "Minimun Image Number:"));
 }
 
-void CmvsPmvsWidgetImp::clear()
+void CmvsPmvsWidget::clear()
 {
     const QSignalBlocker blockerImagesPerCluster(mSpinBoxImagesPerCluster);
     const QSignalBlocker blockerLevel(mSpinBoxLevel);
@@ -173,7 +173,7 @@ void CmvsPmvsWidgetImp::clear()
     mSpinBoxMinimunImageNumber->setValue(3);
 }
 
-void CmvsPmvsWidgetImp::initUI()
+void CmvsPmvsWidget::initUI()
 {
     this->setWindowTitle("CMVS/PMVS");
 
@@ -214,12 +214,12 @@ void CmvsPmvsWidgetImp::initUI()
     mSpinBoxMinimunImageNumber->setRange(2, 6);
     propertiesLayout->addWidget(mSpinBoxMinimunImageNumber, 6, 1);
 
-    CmvsPmvsWidgetImp::retranslate();
-    CmvsPmvsWidgetImp::clear(); /// set default values
-    CmvsPmvsWidgetImp::update();
+    retranslate();
+    clear(); /// set default values
+    update();
 }
 
-void CmvsPmvsWidgetImp::initSignalAndSlots()
+void CmvsPmvsWidget::initSignalAndSlots()
 {
     connect(mCheckBoxUseVisibilityInformation, &QAbstractButton::clicked, this, &CmvsPmvsWidget::useVisibilityInformationChanged);
     connect(mSpinBoxImagesPerCluster, QOverload<int>::of(&QSpinBox::valueChanged), this, &CmvsPmvsWidget::imagesPerClusterChanged);

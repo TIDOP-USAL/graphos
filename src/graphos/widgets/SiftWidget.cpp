@@ -36,16 +36,10 @@ TL_DEFAULT_WARNINGS
 namespace graphos
 {
 
+
+
 SiftWidget::SiftWidget(QWidget *parent)
-  : GraphosWidgetView(parent)
-{
-}
-
-
-
-
-SiftWidgetImp::SiftWidgetImp(QWidget *parent)
-  : SiftWidget(parent),
+  : GraphosWidgetView(parent),
     mGroupBox(new QGroupBox(this)),
     mLabelFeaturesNumber(new QLabel(this)),
     mFeaturesNumber(new QSpinBox(this)),
@@ -55,22 +49,20 @@ SiftWidgetImp::SiftWidgetImp(QWidget *parent)
     mLabelContrastThreshold(new QLabel(this)),
     mContrastThreshold(new QDoubleSpinBox(this)),
     mLabelEdgeThreshold(new QLabel(this)),
-    mEdgeThreshold(new QDoubleSpinBox(this))/*,
-    mLabelSigma(new QLabel(this)),
-    mSigma(new QDoubleSpinBox(this))*/
+    mEdgeThreshold(new QDoubleSpinBox(this))
 {
-    SiftWidgetImp::initUI();
-    SiftWidgetImp::initSignalAndSlots();
+    SiftWidget::initUI();
+    SiftWidget::initSignalAndSlots();
 }
 
-SiftWidgetImp::~SiftWidgetImp()
+SiftWidget::~SiftWidget()
 {
 
 }
 
-void SiftWidgetImp::initUI()
+void SiftWidget::initUI()
 {
-    this->setObjectName(QStringLiteral("SiftWidgetImp"));
+    this->setObjectName(QStringLiteral("SiftWidget"));
     this->setWindowTitle("SIFT");
 
     QGridLayout *layout = new QGridLayout();
@@ -102,45 +94,36 @@ void SiftWidgetImp::initUI()
     mEdgeThreshold->setRange(0., 100.);
     propertiesLayout->addWidget(mEdgeThreshold, 4, 1);
 
-    //propertiesLayout->addWidget(mLabelSigma, 5, 0);
-    //mSigma->setRange(0., 100.);
-    //mSigma->setSingleStep(0.1);
-    //propertiesLayout->addWidget(mSigma, 5, 1);
-
-    SiftWidgetImp::retranslate();
-    SiftWidgetImp::clear(); /// set default values
-    SiftWidgetImp::update();
+    SiftWidget::retranslate();
+    SiftWidget::clear(); /// set default values
+    SiftWidget::update();
 }
 
-void SiftWidgetImp::initSignalAndSlots()
+void SiftWidget::initSignalAndSlots()
 {
     connect(mFeaturesNumber, SIGNAL(valueChanged(int)), this, SIGNAL(featuresNumberChange(int)));
     connect(mOctaveLayers, SIGNAL(valueChanged(int)), this, SIGNAL(octaveLayersChange(int)));
     connect(mContrastThreshold, SIGNAL(valueChanged(double)), this, SIGNAL(contrastThresholdChange(double)));
     connect(mContrastThresholdAuto, SIGNAL(clicked(bool)), this, SIGNAL(contrastThresholdAutoChange(bool)));
     connect(mEdgeThreshold, SIGNAL(valueChanged(double)), this, SIGNAL(edgeThresholdChange(double)));
-    //connect(mSigma,                  SIGNAL(valueChanged(double)), this, SIGNAL(sigmaChange(double)));
-
     connect(mContrastThresholdAuto, SIGNAL(clicked(bool)), mContrastThreshold, SLOT(setDisabled(bool)));
 }
 
-void SiftWidgetImp::clear()
+void SiftWidget::clear()
 {
-    const QSignalBlocker blockerFeaturesNumber(mFeaturesNumber);
-    const QSignalBlocker blockerOctaveLayers(mOctaveLayers);
-    const QSignalBlocker blockerContrastThreshold(mContrastThreshold);
-    const QSignalBlocker blockerEdgeThreshold(mEdgeThreshold);
-    //const QSignalBlocker blockerSigma(mSigma);
+    const QSignalBlocker blocker_features_number(mFeaturesNumber);
+    const QSignalBlocker blocker_octave_layers(mOctaveLayers);
+    const QSignalBlocker blocker_contrast_threshold(mContrastThreshold);
+    const QSignalBlocker blocker_edge_threshold(mEdgeThreshold);
 
     mFeaturesNumber->setValue(5000);
     mOctaveLayers->setValue(3);
     mContrastThresholdAuto->setChecked(true);
     mContrastThreshold->setValue(0.02 / 3.);
     mEdgeThreshold->setValue(10.);
-    //mSigma->setValue(1.6);
 }
 
-void SiftWidgetImp::update()
+void SiftWidget::update()
 {
     if (mContrastThresholdAuto) {
         mContrastThreshold->setValue(0.02 / static_cast<double>(mOctaveLayers->value()));
@@ -150,7 +133,7 @@ void SiftWidgetImp::update()
     }
 }
 
-void SiftWidgetImp::retranslate()
+void SiftWidget::retranslate()
 {
     mGroupBox->setTitle(QApplication::translate("SiftWidget", "SIFT Parameters", nullptr));
     mLabelFeaturesNumber->setText(QApplication::translate("SiftWidget", "Features Number:"));
@@ -158,46 +141,40 @@ void SiftWidgetImp::retranslate()
     mContrastThresholdAuto->setText(QApplication::translate("SiftWidget", "Contrast Threshold Auto"));
     mLabelContrastThreshold->setText(QApplication::translate("SiftWidget", "Contrast Threshold:"));
     mLabelEdgeThreshold->setText(QApplication::translate("SiftWidget", "Edge Threshold:"));
-    //mLabelSigma->setText(QApplication::translate("SiftWidget", "Sigma:"));
 }
 
-int SiftWidgetImp::featuresNumber() const
+auto SiftWidget::featuresNumber() const -> int
 {
     return mFeaturesNumber->value();
 }
 
-int SiftWidgetImp::octaveLayers() const
+auto SiftWidget::octaveLayers() const -> int
 {
     return mOctaveLayers->value();
 }
 
-double SiftWidgetImp::contrastThreshold() const
+auto SiftWidget::contrastThreshold() const -> double
 {
     return mContrastThreshold->value();
 }
 
-bool SiftWidgetImp::constrastThresholdAuto() const
+auto SiftWidget::constrastThresholdAuto() const -> bool
 {
     return mContrastThresholdAuto->isChecked();
 }
 
-double SiftWidgetImp::edgeThreshold() const
+auto SiftWidget::edgeThreshold() const -> double
 {
     return mEdgeThreshold->value();
 }
 
-//double SiftWidgetImp::sigma() const
-//{
-//  return mSigma->value();
-//}
-
-void SiftWidgetImp::setFeaturesNumber(int featuresNumber)
+void SiftWidget::setFeaturesNumber(int featuresNumber)
 {
     const QSignalBlocker blockerFeaturesNumber(mFeaturesNumber);
     mFeaturesNumber->setValue(featuresNumber);
 }
 
-void SiftWidgetImp::setOctaveLayers(int octaveLayers)
+void SiftWidget::setOctaveLayers(int octaveLayers)
 {
     const QSignalBlocker blockerFeaturesNumber(mOctaveLayers);
     mOctaveLayers->setValue(octaveLayers);
@@ -207,7 +184,7 @@ void SiftWidgetImp::setOctaveLayers(int octaveLayers)
     }
 }
 
-void SiftWidgetImp::setContrastThreshold(double contrastThreshold)
+void SiftWidget::setContrastThreshold(double contrastThreshold)
 {
     if (!mContrastThresholdAuto->isChecked()) {
         const QSignalBlocker blockerContrastThreshold(mContrastThreshold);
@@ -215,24 +192,18 @@ void SiftWidgetImp::setContrastThreshold(double contrastThreshold)
     }
 }
 
-void SiftWidgetImp::setContrastThresholdAuto(bool active)
+void SiftWidget::setContrastThresholdAuto(bool active)
 {
     mContrastThresholdAuto->setChecked(active);
     const QSignalBlocker blockerContrastThreshold(mContrastThreshold);
     mContrastThreshold->setValue(0.02 / static_cast<double>(mOctaveLayers->value()));
 }
 
-void SiftWidgetImp::setEdgeThreshold(double edgeThreshold)
+void SiftWidget::setEdgeThreshold(double edgeThreshold)
 {
     const QSignalBlocker blockerEdgeThreshold(mEdgeThreshold);
     mEdgeThreshold->setValue(edgeThreshold);
 }
-
-//void SiftWidgetImp::setSigma(double sigma)
-//{
-//  const QSignalBlocker blockerSigma(mSigma);
-//  mSigma->setValue(sigma);
-//}
 
 
 } // namespace photomatch

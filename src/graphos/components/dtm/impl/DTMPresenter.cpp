@@ -43,8 +43,8 @@ DtmPresenterImp::DtmPresenterImp(DtmView *view,
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    DtmPresenterImp::init();
+    DtmPresenterImp::initSignalAndSlots();
 }
 
 DtmPresenterImp::~DtmPresenterImp()

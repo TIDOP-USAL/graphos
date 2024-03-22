@@ -43,6 +43,7 @@
 #include <QFileInfo>
 
 #include <fstream>
+#include <tidop/core/log.h>
 
 using namespace tl;
 
@@ -655,12 +656,18 @@ bool OrientationCommand::run()
 {
     bool r = false;
 
+    tl::Log &log = tl::Log::instance();
+
     try {
 
         tl::Path project_path = this->value<std::string>("prj");
         bool fix_calibration = this->value<bool>("fix_calibration");
         bool fix_poses = this->value<bool>("fix_poses");
         bool absolute_orientation = this->value<bool>("absolute_orientation");
+
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path.toString());
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
@@ -824,6 +831,8 @@ bool OrientationCommand::run()
 
         r = true;
     }
+
+    log.close();
 
     return r;
 }

@@ -34,6 +34,7 @@ class QRadioButton;
 namespace graphos
 {
 
+
 class PointCloudCSVFormatWidget
   : public GraphosWidgetView
 {
@@ -42,47 +43,24 @@ class PointCloudCSVFormatWidget
 
 public:
 
-    PointCloudCSVFormatWidget(QWidget *parent = nullptr) : GraphosWidgetView(parent) {}
+    PointCloudCSVFormatWidget(QWidget *parent = nullptr);
     ~PointCloudCSVFormatWidget() override = default;
-
-    virtual QString delimiter() const = 0;
-
-signals:
-
-    void delimiterChanged(QString);
-
-public slots:
-
-    virtual void setDelimiter(const QString &delimiter) = 0;
-
-};
-
-
-
-class PointCloudCSVFormatWidgetImp
-    : public PointCloudCSVFormatWidget
-{
-
-    Q_OBJECT
 
 public:
 
-    PointCloudCSVFormatWidgetImp(QWidget *parent = nullptr);
-    ~PointCloudCSVFormatWidgetImp() override = default;
+    auto delimiter() const -> QString;
+
+public slots:
+
+    void setDelimiter(const QString &delimiter);
 
 protected slots:
 
     void onDelimiterChanged();
 
-// PointCloudCSVFormatWidget interface
+signals:
 
-public:
-
-    QString delimiter() const override;
-
-public slots:
-
-    void setDelimiter(const QString &delimiter) override;
+    void delimiterChanged(QString);
 
 // GraphosWidgetView interface
 

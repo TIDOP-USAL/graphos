@@ -24,16 +24,13 @@
 #include "MvsWidget.h"
 
 TL_DISABLE_WARNINGS
-#include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QGridLayout>
-#include <QCheckBox>
 #include <QLabel>
 #include <QGroupBox>
 #include <QApplication>
 #include <QComboBox>
 #include <QCheckBox>
-
 TL_DEFAULT_WARNINGS
 
 namespace graphos
@@ -66,7 +63,7 @@ MvsWidget::~MvsWidget()
 
 }
 
-int MvsWidget::quality() const
+auto MvsWidget::quality() const -> int
 {
     return mComboBoxQuality->currentIndex();
 }
@@ -86,22 +83,22 @@ int MvsWidget::quality() const
 //    return mSpinBoxMaxResolution->value();
 //}
 
-int MvsWidget::numberViews() const
+auto MvsWidget::numberViews() const -> int
 {
     return mSpinBoxNumberViews->value();
 }
 
-int MvsWidget::numberViewsFuse() const
+auto MvsWidget::numberViewsFuse() const -> int
 {
     return mSpinBoxNumberViewsFuse->value();
 }
 
-bool MvsWidget::estimateColors() const
+auto MvsWidget::estimateColors() const -> bool
 {
     return mCheckBoxEstimateColors->isChecked();
 }
 
-bool MvsWidget::estimateNormals() const
+auto MvsWidget::estimateNormals() const -> bool
 {
     return mCheckBoxEstimateNormals->isChecked();
 }
@@ -132,13 +129,13 @@ void MvsWidget::setQuality(int quality)
 
 void MvsWidget::setNumberViews(int numberViews)
 {
-    const QSignalBlocker blockerNumberViews(mSpinBoxNumberViews);
+    const QSignalBlocker blocker_number_views(mSpinBoxNumberViews);
     mSpinBoxNumberViews->setValue(numberViews);
 }
 
 void MvsWidget::setNumberViewsFuse(int numberViewsFuse)
 {
-    const QSignalBlocker blockerNumberViewsFuse(mSpinBoxNumberViewsFuse);
+    const QSignalBlocker blocker_number_views_fuse(mSpinBoxNumberViewsFuse);
     mSpinBoxNumberViewsFuse->setValue(numberViewsFuse);
 }
 
@@ -179,9 +176,9 @@ void MvsWidget::clear()
     //const QSignalBlocker blockerBoxResolutionLevel(mSpinBoxResolutionLevel);
     //const QSignalBlocker blockerMinResolution(mSpinBoxMinResolution);
     //const QSignalBlocker blockerMaxResolution(mSpinBoxMaxResolution);
-    const QSignalBlocker blockerNumberViews(mSpinBoxNumberViews);
-    const QSignalBlocker blockerNumberViewsFuse(mSpinBoxNumberViewsFuse);
-    const QSignalBlocker blockerQuality(mComboBoxQuality);
+    const QSignalBlocker blocker_number_views(mSpinBoxNumberViews);
+    const QSignalBlocker blocker_number_views_fuse(mSpinBoxNumberViewsFuse);
+    const QSignalBlocker blocker_quality(mComboBoxQuality);
 
     mComboBoxQuality->setCurrentIndex(2);
     //mSpinBoxResolutionLevel->setValue(1);
@@ -203,17 +200,17 @@ void MvsWidget::initUI()
 
     layout->addWidget(mGroupBox);
 
-    QGridLayout *propertiesLayout = new QGridLayout();
-    mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *properties_layout = new QGridLayout();
+    mGroupBox->setLayout(properties_layout);
 
     
-    propertiesLayout->addWidget(mLabelQuality, 1, 0);
+    properties_layout->addWidget(mLabelQuality, 1, 0);
     mComboBoxQuality->addItem("");
     mComboBoxQuality->addItem("");
     mComboBoxQuality->addItem("");
     mComboBoxQuality->addItem("");
     mComboBoxQuality->setCurrentIndex(1);
-    propertiesLayout->addWidget(mComboBoxQuality, 1, 1);
+    properties_layout->addWidget(mComboBoxQuality, 1, 1);
 
     //propertiesLayout->addWidget(mLabelResolutionLevel, 0, 0);
     //mSpinBoxResolutionLevel->setRange(1, 4);
@@ -227,16 +224,16 @@ void MvsWidget::initUI()
     //mSpinBoxMaxResolution->setRange(1, 10000);
     //propertiesLayout->addWidget(mSpinBoxMaxResolution, 2, 1);
 
-    propertiesLayout->addWidget(mLabelNumberViews, 2, 0);
+    properties_layout->addWidget(mLabelNumberViews, 2, 0);
     mSpinBoxNumberViews->setRange(1, 100);
-    propertiesLayout->addWidget(mSpinBoxNumberViews, 2, 1);
+    properties_layout->addWidget(mSpinBoxNumberViews, 2, 1);
 
-    propertiesLayout->addWidget(mLabelNumberViewsFuse, 3, 0);
+    properties_layout->addWidget(mLabelNumberViewsFuse, 3, 0);
     mSpinBoxNumberViewsFuse->setRange(1, 100);
-    propertiesLayout->addWidget(mSpinBoxNumberViewsFuse, 3, 1);
+    properties_layout->addWidget(mSpinBoxNumberViewsFuse, 3, 1);
 
-    propertiesLayout->addWidget(mCheckBoxEstimateColors, 4, 0, 1, 2);
-    propertiesLayout->addWidget(mCheckBoxEstimateNormals, 5, 0, 1, 2);
+    properties_layout->addWidget(mCheckBoxEstimateColors, 4, 0, 1, 2);
+    properties_layout->addWidget(mCheckBoxEstimateNormals, 5, 0, 1, 2);
 
     MvsWidget::retranslate();
     MvsWidget::clear(); /// set default values

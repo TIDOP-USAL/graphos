@@ -35,6 +35,7 @@ class QCheckBox;
 namespace graphos
 {
 
+
 /*!
  * \brief Shading-Aware Multi-View Stereo Widget Interface
  */
@@ -45,16 +46,28 @@ class CmvsPmvsWidget
 
 public:
 
-    CmvsPmvsWidget(QWidget *parent = nullptr) : GraphosWidgetView(parent) {}
-    virtual ~CmvsPmvsWidget() = default;
+    CmvsPmvsWidget(QWidget *parent = nullptr);
+    ~CmvsPmvsWidget() override;
 
-    virtual bool useVisibilityInformation() const = 0;
-    virtual int imagesPerCluster() const = 0;
-    virtual int level() const = 0;
-    virtual int cellSize() const = 0;
-    virtual double threshold() const = 0;
-    virtual int windowSize() const = 0;
-    virtual int minimunImageNumber() const = 0;
+public:
+
+    bool useVisibilityInformation() const;
+    int imagesPerCluster() const;
+    int level() const;
+    int cellSize() const;
+    double threshold() const;
+    int windowSize() const;
+    int minimunImageNumber() const;
+
+public slots:
+
+    void setUseVisibilityInformation(bool useVisibilityInformation);
+    void setImagesPerCluster(int imagesPerCluster);
+    void setLevel(int level);
+    void setCellSize(int cellSize);
+    void setThreshold(double threshold);
+    void setWindowSize(int windowSize);
+    void setMinimunImageNumber(int minimunImageNumber);
 
 signals:
 
@@ -65,50 +78,6 @@ signals:
     void thresholdChanged(double);
     void windowSizeChanged(int);
     void minimunImageNumberChanged(int);
-
-public slots:
-
-    virtual void setUseVisibilityInformation(bool useVisibilityInformation) = 0;
-    virtual void setImagesPerCluster(int imagesPerCluster) = 0;
-    virtual void setLevel(int level) = 0;
-    virtual void setCellSize(int cellSize) = 0;
-    virtual void setThreshold(double threshold) = 0;
-    virtual void setWindowSize(int windowSize) = 0;
-    virtual void setMinimunImageNumber(int minimunImageNumber) = 0;
-};
-
-
-class CmvsPmvsWidgetImp
-    : public CmvsPmvsWidget
-{
-    Q_OBJECT
-
-public:
-
-    CmvsPmvsWidgetImp(QWidget *parent = nullptr);
-    ~CmvsPmvsWidgetImp() override;
-
-// CmvsPmvsWidget interface
-
-public:
-
-    bool useVisibilityInformation() const override;
-    int imagesPerCluster() const  override;
-    int level() const override;
-    int cellSize() const override;
-    double threshold() const override;
-    int windowSize() const override;
-    int minimunImageNumber() const override;
-
-public slots:
-
-    void setUseVisibilityInformation(bool useVisibilityInformation) override;
-    void setImagesPerCluster(int imagesPerCluster) override;
-    void setLevel(int level) override;
-    void setCellSize(int cellSize) override;
-    void setThreshold(double threshold) override;
-    void setWindowSize(int windowSize) override;
-    void setMinimunImageNumber(int minimunImageNumber) override;
 
 // GraphosWidgetView interface
 

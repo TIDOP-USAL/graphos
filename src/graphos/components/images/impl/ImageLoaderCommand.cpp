@@ -27,21 +27,18 @@
 #include "graphos/components/images/impl/ImageLoaderTask.h"
 
 #include <tidop/core/msg/message.h>
-#include <tidop/core/chrono.h>
 #include <tidop/core/progress.h>
 #include <tidop/img/imgreader.h>
 #include <tidop/img/metadata.h>
-#include <tidop/math/angles.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
 
 #include <QFileInfo>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QCoreApplication>
-#include <QVariant>
 
 #include <fstream>
+#include <tidop/core/log.h>
 
 namespace graphos
 {
@@ -71,27 +68,31 @@ ImageLoaderCommand::ImageLoaderCommand()
     this->addExample("image_manager -p 253/253.xml -i image001.jpg -d");
 }
 
-ImageLoaderCommand::~ImageLoaderCommand()
-{
-}
+ImageLoaderCommand::~ImageLoaderCommand() = default;
 
 bool ImageLoaderCommand::run()
 {
     bool r = false;
 
+    tl::Log &log = tl::Log::instance();
+
     try {
 
-        tl::Path prj_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<std::string>("prj");
         tl::Path image_path = this->value<std::string>("image");
         tl::Path image_list_path = this->value<std::string>("image_list");
         bool delete_image = this->value<bool>("delete");
         std::string camera_type = this->value<std::string>("camera");
 
-        TL_ASSERT(prj_path.exists(), "Project doesn't exist");
-        TL_ASSERT(prj_path.isFile(), "Project file doesn't exist");
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path.toString());
+
+        TL_ASSERT(project_path.exists(), "Project doesn't exist");
+        TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
         ProjectImp project;
-        project.load(prj_path);
+        project.load(project_path);
 
         std::vector<Image> images;
 
@@ -151,14 +152,15 @@ bool ImageLoaderCommand::run()
 
             connect(&image_loader_process, &LoadImagesTask::imageAdded,
                     [&](int imageId, int cameraId) {
+
                         Image image = images[imageId];
                         Camera camera = cameras[cameraId];
                         int id_camera = 0;
                         for (const auto &_camera : project.cameras()) {
                             std::string camera_make = _camera.second.make();
                             std::string camera_model = _camera.second.model();
-                            if (camera.make().compare(camera_make) == 0 &&
-                                camera.model().compare(camera_model) == 0) {
+                            if (camera.make() == camera_make &&
+                                camera.model() == camera_model) {
                                 id_camera = _camera.first;
                                 break;
                             }
@@ -182,7 +184,7 @@ bool ImageLoaderCommand::run()
 
         }
 
-        project.save(prj_path);
+        project.save(project_path);
 
     } catch (const std::exception &e) {
 
@@ -190,6 +192,8 @@ bool ImageLoaderCommand::run()
 
         r = true;
     }
+
+    log.close();
 
     return r;
 }

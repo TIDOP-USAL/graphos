@@ -37,14 +37,14 @@ TL_DEFAULT_WARNINGS
 namespace graphos
 {
 
-PointCloudCSVFormatWidgetImp::PointCloudCSVFormatWidgetImp(QWidget *parent)
-  : PointCloudCSVFormatWidget(parent)
+PointCloudCSVFormatWidget::PointCloudCSVFormatWidget(QWidget *parent)
+  : GraphosWidgetView(parent)
 {
-    PointCloudCSVFormatWidgetImp::initUI();
-    PointCloudCSVFormatWidgetImp::initSignalAndSlots();
+    PointCloudCSVFormatWidget::initUI();
+    PointCloudCSVFormatWidget::initSignalAndSlots();
 }
 
-void PointCloudCSVFormatWidgetImp::initUI()
+void PointCloudCSVFormatWidget::initUI()
 {
     this->setWindowTitle("Point Cloud CSV Format");
     this->setObjectName("PointCloudCSVFormatWidget");
@@ -55,42 +55,42 @@ void PointCloudCSVFormatWidgetImp::initUI()
 
     mGroupBoxDelimiter = new QGroupBox(this);
 
-    QGridLayout *gridLayoutDelimiter = new QGridLayout(mGroupBoxDelimiter);
+    QGridLayout *grid_layout_delimiter = new QGridLayout(mGroupBoxDelimiter);
     mRadioButtonTab = new QRadioButton(mGroupBoxDelimiter);
-    gridLayoutDelimiter->addWidget(mRadioButtonTab, 0, 0, 1, 1);
+    grid_layout_delimiter->addWidget(mRadioButtonTab, 0, 0, 1, 1);
     mRadioButtonComma = new QRadioButton(mGroupBoxDelimiter);
-    gridLayoutDelimiter->addWidget(mRadioButtonComma, 0, 1, 1, 1);
+    grid_layout_delimiter->addWidget(mRadioButtonComma, 0, 1, 1, 1);
     mRadioButtonSpace = new QRadioButton(mGroupBoxDelimiter);
-    gridLayoutDelimiter->addWidget(mRadioButtonSpace, 0, 2, 1, 1);
+    grid_layout_delimiter->addWidget(mRadioButtonSpace, 0, 2, 1, 1);
     mRadioButtonSemicolon = new QRadioButton(mGroupBoxDelimiter);
-    gridLayoutDelimiter->addWidget(mRadioButtonSemicolon, 0, 3, 1, 1);
+    grid_layout_delimiter->addWidget(mRadioButtonSemicolon, 0, 3, 1, 1);
     layout->addWidget(mGroupBoxDelimiter);
 
-    PointCloudCSVFormatWidgetImp::retranslate();
-    PointCloudCSVFormatWidgetImp::clear(); /// set default values
-    PointCloudCSVFormatWidgetImp::update();
+    retranslate();
+    clear(); /// set default values
+    update();
 }
 
-void PointCloudCSVFormatWidgetImp::initSignalAndSlots()
+void PointCloudCSVFormatWidget::initSignalAndSlots()
 {
-    connect(mRadioButtonTab, &QRadioButton::released, this, &PointCloudCSVFormatWidgetImp::onDelimiterChanged);
-    connect(mRadioButtonComma, &QRadioButton::released, this, &PointCloudCSVFormatWidgetImp::onDelimiterChanged);
-    connect(mRadioButtonSpace, &QRadioButton::released, this, &PointCloudCSVFormatWidgetImp::onDelimiterChanged);
-    connect(mRadioButtonSemicolon, &QRadioButton::released, this, &PointCloudCSVFormatWidgetImp::onDelimiterChanged);
+    connect(mRadioButtonTab, &QRadioButton::released, this, &PointCloudCSVFormatWidget::onDelimiterChanged);
+    connect(mRadioButtonComma, &QRadioButton::released, this, &PointCloudCSVFormatWidget::onDelimiterChanged);
+    connect(mRadioButtonSpace, &QRadioButton::released, this, &PointCloudCSVFormatWidget::onDelimiterChanged);
+    connect(mRadioButtonSemicolon, &QRadioButton::released, this, &PointCloudCSVFormatWidget::onDelimiterChanged);
 }
 
-void PointCloudCSVFormatWidgetImp::clear()
+void PointCloudCSVFormatWidget::clear()
 {
     const QSignalBlocker blocker(mRadioButtonSemicolon);
 
     mRadioButtonSemicolon->setChecked(true);
 }
 
-void PointCloudCSVFormatWidgetImp::update()
+void PointCloudCSVFormatWidget::update()
 {
 }
 
-void PointCloudCSVFormatWidgetImp::retranslate()
+void PointCloudCSVFormatWidget::retranslate()
 {
     mGroupBoxDelimiter->setTitle(QCoreApplication::translate("PointCloudCSVFormatWidget", "Delimiter", nullptr));
     mRadioButtonTab->setText(QCoreApplication::translate("PointCloudCSVFormatWidget", "Tab", nullptr));
@@ -99,7 +99,7 @@ void PointCloudCSVFormatWidgetImp::retranslate()
     mRadioButtonSemicolon->setText(QCoreApplication::translate("PointCloudCSVFormatWidget", "Semicolon", nullptr));
 }
 
-QString PointCloudCSVFormatWidgetImp::delimiter() const
+QString PointCloudCSVFormatWidget::delimiter() const
 {
     QString delimiter;
     if (mRadioButtonTab->isChecked()) {
@@ -114,7 +114,7 @@ QString PointCloudCSVFormatWidgetImp::delimiter() const
     return delimiter;
 }
 
-void PointCloudCSVFormatWidgetImp::setDelimiter(const QString &delimiter)
+void PointCloudCSVFormatWidget::setDelimiter(const QString &delimiter)
 {
     if (delimiter.compare("\t") == 0) {
         mRadioButtonTab->setChecked(true);
@@ -127,7 +127,7 @@ void PointCloudCSVFormatWidgetImp::setDelimiter(const QString &delimiter)
     }
 }
 
-void PointCloudCSVFormatWidgetImp::onDelimiterChanged()
+void PointCloudCSVFormatWidget::onDelimiterChanged()
 {
     emit delimiterChanged(this->delimiter());
 }

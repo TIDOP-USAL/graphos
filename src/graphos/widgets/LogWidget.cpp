@@ -93,7 +93,7 @@ void LogWidget::setLogLevel(MessageLevel level)
 //    }
 //}
 
-void LogWidget::print(String msg, tl::MessageLevel level)
+void LogWidget::print(String msg, tl::MessageLevel level) const
 {
     std::lock_guard<std::mutex> lck(LogWidget::mtx);
 

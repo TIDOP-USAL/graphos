@@ -56,10 +56,10 @@ void DensificationComponent::enableMethod(Method method)
         dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(std::make_unique<MvsWidget>());
     } else if (method == Method::pmvs && mMethod.isDisabled(method)) {
         mMethod.enable(method);
-        dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidgetImp>());
+        dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidget>());
     } else if (method == Method::smvs && mMethod.isDisabled(method)) {
         mMethod.enable(method);
-        dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidgetImp>());
+        dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidget>());
     }
 }
 
@@ -113,9 +113,9 @@ void DensificationComponent::createPresenter()
     if (mMethod.isEnabled(Method::mvs))
         dynamic_cast<DensificationPresenter *>(presenter())->setMvsWidget(std::make_unique<MvsWidget>());
     if (mMethod.isEnabled(Method::pmvs))
-        dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidgetImp>());
+        dynamic_cast<DensificationPresenter *>(presenter())->setCmvsPmvsWidget(std::make_unique<CmvsPmvsWidget>());
     if (mMethod.isEnabled(Method::smvs))
-        dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidgetImp>());
+        dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidget>());
 
 }
 

@@ -48,8 +48,8 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
                                                      DensificationModel *model)
   : mView(view),
     mModel(model),
-    mCmvsPmvs(new CmvsPmvsWidgetImp),
-    mSmvs(new SmvsWidgetImp),
+    mCmvsPmvs(new CmvsPmvsWidget),
+    mSmvs(new SmvsWidget),
     mMVS(new MvsWidget)
 {
     DensificationPresenterImp::init();

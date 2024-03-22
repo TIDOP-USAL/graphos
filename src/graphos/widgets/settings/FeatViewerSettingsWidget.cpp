@@ -42,46 +42,46 @@ namespace graphos
 FeatureViewerSettingsWidget::FeatureViewerSettingsWidget(QWidget *parent)
     : GraphosWidgetView(parent)
 {
-    initUI();
-    initSignalAndSlots();
+    FeatureViewerSettingsWidget::initUI();
+    FeatureViewerSettingsWidget::initSignalAndSlots();
 }
 
-QString FeatureViewerSettingsWidget::backgroundColor() const
+auto FeatureViewerSettingsWidget::backgroundColor() const -> QString
 {
     return mLineEditBackgroundColor->text();
 }
 
-int FeatureViewerSettingsWidget::markerType() const
+auto FeatureViewerSettingsWidget::markerType() const -> int
 {
     return mListWidgetMarkerType->currentRow();
 }
 
-int FeatureViewerSettingsWidget::markerSize() const
+auto FeatureViewerSettingsWidget::markerSize() const -> int
 {
     return mSpinBoxMarkerSize->value();
 }
 
-int FeatureViewerSettingsWidget::markerWidth() const
+auto FeatureViewerSettingsWidget::markerWidth() const -> int
 {
     return mSpinBoxMarkerWidth->value();
 }
 
-QString FeatureViewerSettingsWidget::markerColor() const
+auto FeatureViewerSettingsWidget::markerColor() const -> QString
 {
     return mLineEditMarkerColor->text();
 }
 
-int FeatureViewerSettingsWidget::selectedMarkerWidth() const
+auto FeatureViewerSettingsWidget::selectedMarkerWidth() const -> int
 {
     return mSpinBoxSelectMarkerWidth->value();
 }
 
-QString FeatureViewerSettingsWidget::selectedMarkerColor() const
+auto FeatureViewerSettingsWidget::selectedMarkerColor() const -> QString
 {
     return mLineEditSelectMarkerColor->text();
 }
 
-void FeatureViewerSettingsWidget::setBackgroundColor(const QString &color)
+void FeatureViewerSettingsWidget::setBackgroundColor(const QString &color) const
 {
     const QSignalBlocker blockerKeypointViewerBGColor(mLineEditBackgroundColor);
     mLineEditBackgroundColor->setText(color);
@@ -165,13 +165,13 @@ void FeatureViewerSettingsWidget::retranslate()
 
 void FeatureViewerSettingsWidget::clear()
 {
-    const QSignalBlocker blockerKeypointViewerBGColor(mLineEditBackgroundColor);
-    const QSignalBlocker blockerKeypointsMarker(mListWidgetMarkerType);
-    const QSignalBlocker blockerKeypointMarkerSize(mSpinBoxMarkerSize);
-    const QSignalBlocker blockerKeypointViewerWidth(mSpinBoxMarkerWidth);
-    const QSignalBlocker blockerKeypointMarkerColor(mLineEditMarkerColor);
-    const QSignalBlocker blockerSelectKeypointViewerWidth(mSpinBoxSelectMarkerWidth);
-    const QSignalBlocker blockerSelectKeypointViewerColor(mLineEditSelectMarkerColor);
+    const QSignalBlocker blocker_keypoint_viewer_bg_color(mLineEditBackgroundColor);
+    const QSignalBlocker blocker_keypoints_marker(mListWidgetMarkerType);
+    const QSignalBlocker blocker_keypoint_marker_size(mSpinBoxMarkerSize);
+    const QSignalBlocker blocker_keypoint_viewer_width(mSpinBoxMarkerWidth);
+    const QSignalBlocker blocker_keypoint_marker_color(mLineEditMarkerColor);
+    const QSignalBlocker blocker_select_keypoint_viewer_width(mSpinBoxSelectMarkerWidth);
+    const QSignalBlocker blocker_select_keypoint_viewer_color(mLineEditSelectMarkerColor);
 
     mLineEditBackgroundColor->setText("#dcdcdc");
     mListWidgetMarkerType->setCurrentRow(0);

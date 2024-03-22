@@ -41,6 +41,8 @@ class QTreeWidget;
 class QTreeWidgetItem;
 class QComboBox;
 class QGridLayout;
+class QDragEnterEvent;
+class QDropEvent;
 
 namespace graphos
 {
@@ -156,6 +158,7 @@ signals:
 
     /* Menu File */
 
+    void openProject(QString);
     void openProjectFromHistory(QString);
     void clearHistory();
     void openCamerasImport();
@@ -209,7 +212,7 @@ protected:
 
 private slots:
 
-    void openFromHistory();
+    //void openFromHistory();
     void onSelectionChanged();
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
     void onTreeContextMenu(const QPoint &point);
@@ -251,7 +254,8 @@ private slots:
 public:
 
     void closeEvent(QCloseEvent *event) override;
-
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private:
 

@@ -124,7 +124,7 @@ void TabWidget::setCurrentTab(int tabId)
 {
 }
 
-int TabWidget::fileTab(const QString &file) const
+auto TabWidget::fileTab(const QString& file) const -> int
 {
     int id = -1;
 
@@ -141,17 +141,17 @@ int TabWidget::fileTab(const QString &file) const
 
 void TabWidget::onTabChanged(int tabId)
 {
-    GraphicViewer *graphicViewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
-    Viewer3D *viewer3D = dynamic_cast<Viewer3D *>(this->widget(tabId));
+    GraphicViewer *graphic_viewer = dynamic_cast<GraphicViewer *>(this->widget(tabId));
+    Viewer3D *viewer_3d = dynamic_cast<Viewer3D *>(this->widget(tabId));
 
-    if (graphicViewer) {
+    if (graphic_viewer) {
         emit imageActive(true);
         emit model3dActive(false);
         emit model3dChange(nullptr);
-    } else if (viewer3D) {
+    } else if (viewer_3d) {
         emit model3dActive(true);
         emit imageActive(false);
-        emit model3dChange(viewer3D);
+        emit model3dChange(viewer_3d);
     } else {
         emit imageActive(false);
         emit model3dActive(false);
@@ -167,14 +167,14 @@ void TabWidget::onTabWidgetContextMenu(const QPoint &position)
 
     if (this->tabBar() == nullptr) return;
 
-    int tabIndex = this->tabBar()->tabAt(position);
+    int tab_index = this->tabBar()->tabAt(position);
 
-    if (tabIndex == -1) return;
+    if (tab_index == -1) return;
 
     QPoint globalPos = mapToGlobal(position);
     if (QAction *action = mMenu->exec(globalPos)) {
         if (action->text() == tr("Close")) {
-            closeTab(tabIndex);
+            closeTab(tab_index);
         } else if (action->text() == tr("Close all tabs")) {
             int n = this->count();
             for (int i = 0; i < n; i++) {
@@ -182,13 +182,13 @@ void TabWidget::onTabWidgetContextMenu(const QPoint &position)
             }
         } else if (action->text() == tr("Close all tabs but current one")) {
             int n = this->count();
-            int tabToCloseId = 0;
-            QString tabText = this->tabBar()->tabText(tabIndex);
+            int tab_to_close_id = 0;
+            QString tab_text = this->tabBar()->tabText(tab_index);
             for (int i = 0; i < n; i++) {
-                if (this->tabBar()->tabText(tabToCloseId).compare(tabText) == 0) {
-                    tabToCloseId = 1;
+                if (this->tabBar()->tabText(tab_to_close_id).compare(tab_text) == 0) {
+                    tab_to_close_id = 1;
                 } else {
-                    closeTab(tabToCloseId);
+                    closeTab(tab_to_close_id);
                 }
             }
         }

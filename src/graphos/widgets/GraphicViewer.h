@@ -24,10 +24,7 @@
 #ifndef GRAPHOS_GRAPHIC_VIEWER_H
 #define GRAPHOS_GRAPHIC_VIEWER_H
 
-#include <memory>
-
 #include <QGraphicsView>
-#include <QMenu>
 #include <QGraphicsEllipseItem>
 
 // Default zoom factors
@@ -39,81 +36,119 @@ namespace graphos
 
 class ImageContextMenu;
 
+
+
 /*!
- * \brief The GraphicViewer class
+ * \brief The GraphicViewer class is a subclass of QGraphicsView and provides
+ * functionality for displaying and interacting with graphics, particularly images.
  */
 class GraphicViewer
   : public QGraphicsView
 {
-
     Q_OBJECT
 
 public:
 
     /*!
-     * \brief GraphicViewer
+     * \brief Constructs a GraphicViewer object.
+     * \param parent The parent widget.
      */
-    GraphicViewer(QWidget *parent = nullptr) : QGraphicsView(parent) {}
-    virtual ~GraphicViewer() = default;
+    GraphicViewer(QWidget *parent = nullptr);
 
     /*!
-     * \brief Establece la imagen
-     * \param[in] image QImage que se muestra
+     * \brief Destroys the GraphicViewer object.
      */
-    virtual void setImage(const QImage &image) = 0;
+    ~GraphicViewer() override;
 
     /*!
-     * \brief Establecer la imagen a partir de datos en bruto
-     * \param[in] data Datos de la imagen en bruto (data format is RGBRGBRGBRGB ...)
-     * \param[in] width Ancho de la imagen
-     * \param[in] height Alto de la imagen
+     * \brief Sets the image to be displayed.
+     * \param[in] image The QImage to be displayed.
      */
-    virtual void setImageFromRawData(const uchar *data, int width, int height) = 0;
+    virtual void setImage(const QImage &image);
 
     /*!
-     * \brief Establecer el factor de zoom cuando la tecla CTRL no se presiona
-     * \param factor zoom factor (>1)
+      * \brief Sets the image from raw data.
+      * \param data Raw image data (RGBRGBRGBRGB ...).
+      * \param[in] width Width of the image.
+      * \param[in] height Height of the image.
+      */
+    virtual void setImageFromRawData(const uchar *data, int width, int height);
+
+    /*!
+     * \brief Sets the zoom factor when CTRL key is not pressed.
+     * \param[in] factor Zoom factor (>1).
      */
-    virtual void setZoomFactor(double factor) = 0;
+    virtual void setZoomFactor(double factor);
 
 
     /*!
-     * \brief Establezca el factor de zoom cuando se presiona la tecla CTRL
-     * \param factor zoom factor (>1)
+     * \brief Sets the zoom factor when CTRL key is pressed.
+     * \param[in] factor Zoom factor (>1).
      */
-    virtual void setZoomCtrlFactor(double factor) = 0;
+    virtual void setZoomCtrlFactor(double factor);
+
+protected:
+
+    /*!
+     * \brief Draws on the image.
+     * \param[in] painter The QPainter object used for drawing.
+     * \param[in] imageSize Size of the image.
+     */
+    virtual void drawOnImage(QPainter *painter, QSize imageSize);
+
+    /*!
+     * \brief Draws in the viewport.
+     * \param[in] painter The QPainter object used for drawing.
+     * \param[in] portSize Size of the viewport.
+     */
+    virtual void drawInViewPort(QPainter *painter, QSize portSize);
+
+    void drawForeground(QPainter *painter, const QRectF &rect) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+#ifndef QT_NO_WHEELEVENT
+
+    void wheelEvent(QWheelEvent *event) override;
+
+#endif
+
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 public slots:
 
     /*!
-     * \brief Zoom extensión
+     * \brief Zooms to fit the viewport.
      */
-    virtual void zoomExtend() = 0;
+    virtual void zoomExtend();
 
     /*!
-     * \brief Zoom a resolución 1:1
+     * \brief Zooms to a 1:1 scale.
      */
-    virtual void zoom11() = 0;
+    virtual void zoom11();
 
     /*!
-     * \brief zoom +
-     * \param point
+     * \brief Zooms in.
+     * \param point The point to zoom in (default is QPoint()).
      */
-    virtual void zoomIn(QPoint point = QPoint()) = 0;
+    virtual void zoomIn(QPoint point = QPoint());
 
     /*!
-     * \brief zoom -
-     * \param point
+     * \brief Zooms out.
+     * \param point The point to zoom out (default is QPoint()).
      */
-    virtual void zoomOut(QPoint point = QPoint()) = 0;
+    virtual void zoomOut(QPoint point = QPoint());
 
 protected slots:
 
     /*!
-     * \brief Mostrar el menú contextual (al hacer clic con el botón derecho)
-     * \param[in] position Posición del mouse en el widget
+     * \brief Displays the context menu (on right-click).
+     * \param position Position of the mouse in the widget.
      */
-    virtual void showContextMenu(const QPoint &position) = 0;
+    virtual void showContextMenu(const QPoint &position);
 
 signals:
 
@@ -125,146 +160,23 @@ signals:
     void mouseReleased(QPointF);
     void selectionChanged();
     void removeSelectItems();
-};
-
-
-class GraphicViewerImp
-    : public GraphicViewer
-{
-    Q_OBJECT
-
-public:
-
-    GraphicViewerImp(QWidget *parent = nullptr);
-
-    ~GraphicViewerImp() override;
-
-    /*!
-     * \brief Establece la imagen
-     * \param[in] image QImage que se muestra
-     */
-    virtual void setImage(const QImage &image) override;
-
-    /*!
-     * \brief Establecer la imagen a partir de datos en bruto
-     * \param[in] data Datos de la imagen en bruto (data format is RGBRGBRGBRGB ...)
-     * \param[in] width Ancho de la imagen
-     * \param[in] height Alto de la imagen
-     */
-    virtual void setImageFromRawData(const uchar *data, int width, int height) override;
-
-    /*!
-     * \brief Establecer el factor de zoom cuando la tecla CTRL no se presiona
-     * \param factor zoom factor (>1)
-     */
-    virtual void setZoomFactor(double factor) override;
-
-
-    /*!
-     * \brief Establezca el factor de zoom cuando se presiona la tecla CTRL
-     * \param factor zoom factor (>1)
-     */
-    virtual void setZoomCtrlFactor(double factor) override;
-
-protected:
-
-    virtual void drawOnImage(QPainter *painter, QSize imageSize);
-    virtual void drawInViewPort(QPainter *painter, QSize portSize);
-    void drawForeground(QPainter *painter, const QRectF &rect) override;
-
-    /*!
-     * \brief mousePressEvent
-     * \param event Evento del ratón
-     */
-    void mousePressEvent(QMouseEvent *event) override;
-
-    /*!
-     * \brief mouseReleaseEvent
-     * \param event Evento del ratón
-     */
-    void mouseReleaseEvent(QMouseEvent *event) override;
-
-    void mouseDoubleClickEvent(QMouseEvent *event) override;
-
-#ifndef QT_NO_WHEELEVENT
-
-    /*!
-     * \brief wheelEvent Evento movimiento rueda del ratón
-     * \param event Evento rueda ratón
-     */
-    void wheelEvent(QWheelEvent *event) override;
-
-#endif
-
-    /*!
-     * \brief Evento de movimiento del ratón
-     * \param event Evento del ratón
-     */
-    void mouseMoveEvent(QMouseEvent *event) override;
-
-    /*!
-     * \brief Evento redimensión
-     * \param event Evento resize
-     */
-    void resizeEvent(QResizeEvent *event) override;
-
-    void keyPressEvent(QKeyEvent *event) override;
-
-public slots:
-
-    virtual void zoomExtend() override;
-    virtual void zoom11() override;
-    virtual void zoomIn(QPoint point = QPoint()) override;
-    virtual void zoomOut(QPoint point = QPoint()) override;
-
-protected slots:
-
-    /*!
-     * \brief showContextMenu       Display the contextual menu (on right click)
-     * \param pos                   Position of the mouse in the widget
-     */
-    virtual void showContextMenu(const QPoint &position) override;
 
 private:
 
     void init();
     void initSignalsAndSlots();
 
-    //signals:
-
-    //  void mousePosition(QPoint);
-    //  void mouseClicked(QPoint);
-    //  void mouseClicked(QPointF);
-    //  void selectionChanged();
-
 protected:
 
-    // Scene where the image is drawn
     QGraphicsScene *mScene;
-
-    // Pixmap item containing the image
     QGraphicsPixmapItem *mPixmapItem;
-
-    /*!
-     * \brief Tamaño de la imagen
-     */
     QSize mImageSize;
-
-    /*!
-     * \brief Factor de zoom
-     */
     double mZoomFactor;
-
-    /*!
-     * \brief Factor de zoom cuando la tecla ctrl esta presionada
-     */
     double mZoomCtrlFactor;
-
     QPixmap mPixmap;
-
     QPoint mPointOld;
-
     ImageContextMenu *mContextMenu;
+
 };
 
 

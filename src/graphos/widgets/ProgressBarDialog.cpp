@@ -46,42 +46,42 @@ void ProgressBarDialog::initUI()
 {
     this->setObjectName(QString::fromUtf8("ProgressBarView"));
     this->resize(445, 121);
-    QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    sizePolicy.setHorizontalStretch(0);
-    sizePolicy.setVerticalStretch(0);
-    sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
-    this->setSizePolicy(sizePolicy);
+    QSizePolicy size_policy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    size_policy.setHorizontalStretch(0);
+    size_policy.setVerticalStretch(0);
+    size_policy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
+    this->setSizePolicy(size_policy);
 
 
-    QGridLayout *gridLayout = new QGridLayout(this);
-    QSpacerItem *horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    gridLayout->addItem(horizontalSpacer, 3, 0, 1, 1);
+    QGridLayout *grid_layout = new QGridLayout(this);
+    QSpacerItem *horizontal_spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    grid_layout->addItem(horizontal_spacer, 3, 0, 1, 1);
 
-    QSpacerItem *verticalSpacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Maximum);
-    gridLayout->addItem(verticalSpacer, 0, 0, 1, 1);
+    QSpacerItem *vertical_spacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Maximum);
+    grid_layout->addItem(vertical_spacer, 0, 0, 1, 1);
 
     mLabelStatus = new QLabel(this);
-    gridLayout->addWidget(mLabelStatus, 2, 0, 1, 1);
+    grid_layout->addWidget(mLabelStatus, 2, 0, 1, 1);
 
     mPushButtonCancel = new QPushButton(this);
     mPushButtonCancel->setObjectName(QString::fromUtf8("mPushButtonCancel"));
-    QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Fixed);
-    sizePolicy1.setHorizontalStretch(0);
-    sizePolicy1.setVerticalStretch(0);
-    sizePolicy1.setHeightForWidth(mPushButtonCancel->sizePolicy().hasHeightForWidth());
-    mPushButtonCancel->setSizePolicy(sizePolicy1);
-    gridLayout->addWidget(mPushButtonCancel, 3, 3, 1, 1);
+    QSizePolicy size_policy1(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    size_policy1.setHorizontalStretch(0);
+    size_policy1.setVerticalStretch(0);
+    size_policy1.setHeightForWidth(mPushButtonCancel->sizePolicy().hasHeightForWidth());
+    mPushButtonCancel->setSizePolicy(size_policy1);
+    grid_layout->addWidget(mPushButtonCancel, 3, 3, 1, 1);
 
     mProgressBar = new QProgressBar(this);
     mProgressBar->setValue(0);
-    gridLayout->addWidget(mProgressBar, 1, 0, 1, 4);
+    grid_layout->addWidget(mProgressBar, 1, 0, 1, 4);
 
     mPushButtonMinimize = new QPushButton(this);
     mPushButtonMinimize->setFocus();
-    gridLayout->addWidget(mPushButtonMinimize, 3, 1, 1, 1);
+    grid_layout->addWidget(mPushButtonMinimize, 3, 1, 1, 1);
 
     mPushButtonClose = new QPushButton(this);
-    gridLayout->addWidget(mPushButtonClose, 3, 2, 1, 1);
+    grid_layout->addWidget(mPushButtonClose, 3, 2, 1, 1);
 
     ProgressBarDialog::retranslate();
     ProgressBarDialog::update();

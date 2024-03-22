@@ -50,7 +50,7 @@ public:
   {
   }
 
-  virtual ~GraphosWidgetView() override {}
+  ~GraphosWidgetView() override {}
 
 private:
 
@@ -99,7 +99,7 @@ public:
   {
   }
 
-  virtual ~GraphosContextMenu() override {}
+  ~GraphosContextMenu() override {}
 
 private slots:
 

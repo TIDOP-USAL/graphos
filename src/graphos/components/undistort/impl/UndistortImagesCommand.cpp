@@ -24,6 +24,9 @@
 
 #include "UndistortImagesCommand.h"
 
+#include <tidop/core/log.h>
+#include <tidop/core/progress.h>
+
 #include "graphos/core/camera/Undistort.h"
 #include "graphos/core/utils.h"
 
@@ -59,8 +62,7 @@ bool UndistortImagesCommand::run()
 {
     bool r = false;
 
-    QString file_path;
-    QString project_path;
+    tl::Log &log = tl::Log::instance();
 
     try {
 
@@ -69,19 +71,24 @@ bool UndistortImagesCommand::run()
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path.toString());
+
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
         ProjectImp project;
         project.load(project_path);
 
-        UndistortImages process(project.images(),
-                                project.cameras(),
-                                QString::fromStdWString(output_path.toWString()),
-                                UndistortImages::Format::tiff,
-                                mDisableCuda);
+        UndistortImages task(project.images(),
+                             project.cameras(),
+                             QString::fromStdWString(output_path.toWString()),
+                             UndistortImages::Format::tiff,
+                             mDisableCuda);
 
-        process.run(/*&progress_bar*/);
+        tl::ProgressBarColor progress(0, project.images().size());
+        task.run(&progress);
 
     } catch (const std::exception &e) {
 
@@ -89,6 +96,8 @@ bool UndistortImagesCommand::run()
 
         r = true;
     }
+
+    log.close();
 
     return r;
 }

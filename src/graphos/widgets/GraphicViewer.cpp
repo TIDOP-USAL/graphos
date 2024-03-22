@@ -36,8 +36,8 @@ TL_DEFAULT_WARNINGS
 namespace graphos
 {
 
-GraphicViewerImp::GraphicViewerImp(QWidget *parent)
-  : GraphicViewer(parent),
+GraphicViewer::GraphicViewer(QWidget *parent)
+  : QGraphicsView(parent),
     mScene(new QGraphicsScene()),
     mPixmapItem(nullptr),
     mZoomFactor(DEFAULT_ZOOM_FACTOR),
@@ -48,7 +48,7 @@ GraphicViewerImp::GraphicViewerImp(QWidget *parent)
     initSignalsAndSlots();
 }
 
-GraphicViewerImp::~GraphicViewerImp()
+GraphicViewer::~GraphicViewer()
 {
     if (mPixmapItem) {
         delete mPixmapItem;
@@ -61,7 +61,7 @@ GraphicViewerImp::~GraphicViewerImp()
     }
 }
 
-void GraphicViewerImp::init()
+void GraphicViewer::init()
 {
     // Permitir el seguimiento del mouse incluso si no se presiona ningún botón
     this->setMouseTracking(true);
@@ -85,7 +85,7 @@ void GraphicViewerImp::init()
     setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-void GraphicViewerImp::initSignalsAndSlots()
+void GraphicViewer::initSignalsAndSlots()
 {
     connect(mScene, SIGNAL(selectionChanged()), this, SIGNAL(selectionChanged()));
 
@@ -93,11 +93,11 @@ void GraphicViewerImp::initSignalsAndSlots()
 
     connect(mContextMenu, SIGNAL(zoomIn()), this, SLOT(zoomIn()));
     connect(mContextMenu, SIGNAL(zoomOut()), this, SLOT(zoomOut()));
-    connect(mContextMenu, &ImageContextMenu::zoomExtend, this, &GraphicViewerImp::zoomExtend);
-    connect(mContextMenu, &ImageContextMenu::zoom11, this, &GraphicViewerImp::zoom11);
+    connect(mContextMenu, &ImageContextMenu::zoomExtend, this, &GraphicViewer::zoomExtend);
+    connect(mContextMenu, &ImageContextMenu::zoom11, this, &GraphicViewer::zoom11);
 }
 
-void GraphicViewerImp::setImage(const QImage &image)
+void GraphicViewer::setImage(const QImage &image)
 {
     // Update the pixmap in the scene
     if (image.isGrayscale()) {
@@ -113,33 +113,33 @@ void GraphicViewerImp::setImage(const QImage &image)
     mImageSize = image.size();
 }
 
-void GraphicViewerImp::setImageFromRawData(const uchar *data, int width, int height)
+void GraphicViewer::setImageFromRawData(const uchar *data, int width, int height)
 {
     QImage image(data, width, height, width * 3, QImage::Format_RGB888);
     setImage(image);
 }
 
-void GraphicViewerImp::setZoomFactor(double factor)
+void GraphicViewer::setZoomFactor(double factor)
 {
     mZoomFactor = factor;
 }
 
-void GraphicViewerImp::setZoomCtrlFactor(double factor)
+void GraphicViewer::setZoomCtrlFactor(double factor)
 {
     mZoomCtrlFactor = factor;
 }
 
-void GraphicViewerImp::drawOnImage(QPainter *painter, QSize imageSize)
+void GraphicViewer::drawOnImage(QPainter *painter, QSize imageSize)
 {
 
 }
 
-void GraphicViewerImp::drawInViewPort(QPainter *painter, QSize portSize)
+void GraphicViewer::drawInViewPort(QPainter *painter, QSize portSize)
 {
 
 }
 
-void GraphicViewerImp::drawForeground(QPainter *painter, const QRectF &rect)
+void GraphicViewer::drawForeground(QPainter *painter, const QRectF &rect)
 {
     //  // Call the function to draw over the image
     //  drawOnImage(painter, mImageSize);
@@ -151,20 +151,20 @@ void GraphicViewerImp::drawForeground(QPainter *painter, const QRectF &rect)
     //  drawInViewPort(painter, viewport()->size());
 }
 
-void GraphicViewerImp::mousePressEvent(QMouseEvent *event)
+void GraphicViewer::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
         setDragMode(QGraphicsView::ScrollHandDrag);
 
     mPointOld = event->pos();
 
-    QPointF imagePoint = mapToScene(QPoint(event->x(), event->y()));
-    emit mousePressed(imagePoint);   
+    QPointF image_point = mapToScene(QPoint(event->x(), event->y()));
+    emit mousePressed(image_point);   
 
     QGraphicsView::mousePressEvent(event);
 }
 
-void GraphicViewerImp::mouseReleaseEvent(QMouseEvent *event)
+void GraphicViewer::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
 
@@ -172,11 +172,11 @@ void GraphicViewerImp::mouseReleaseEvent(QMouseEvent *event)
             setDragMode(QGraphicsView::NoDrag);
         }
 
-        QPointF imagePoint = mapToScene(QPoint(event->x(), event->y()));
+        QPointF image_point = mapToScene(QPoint(event->x(), event->y()));
         if (event->pos() == mPointOld) {
-            emit mouseClicked(imagePoint);
+            emit mouseClicked(image_point);
         } else {
-            emit mouseReleased(imagePoint);
+            emit mouseReleased(image_point);
         }
 
     }
@@ -184,7 +184,7 @@ void GraphicViewerImp::mouseReleaseEvent(QMouseEvent *event)
     QGraphicsView::mouseReleaseEvent(event);
 }
 
-void GraphicViewerImp::mouseDoubleClickEvent(QMouseEvent *event)
+void GraphicViewer::mouseDoubleClickEvent(QMouseEvent *event)
 {
     //QPoint pt(event->x(), event->y());
     //QGraphicsItem *item = this->itemAt(pt);
@@ -201,7 +201,7 @@ void GraphicViewerImp::mouseDoubleClickEvent(QMouseEvent *event)
 
 #ifndef QT_NO_WHEELEVENT
 
-void GraphicViewerImp::wheelEvent(QWheelEvent *event)
+void GraphicViewer::wheelEvent(QWheelEvent *event)
 {
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
@@ -220,34 +220,34 @@ void GraphicViewerImp::wheelEvent(QWheelEvent *event)
 
 #endif
 
-void GraphicViewerImp::mouseMoveEvent(QMouseEvent *event)
+void GraphicViewer::mouseMoveEvent(QMouseEvent *event)
 {
 
-    QPointF imagePoint = mapToScene(QPoint(event->x(), event->y()));
-    emit mouseScenePosition(imagePoint);
+    QPointF image_point = mapToScene(QPoint(event->x(), event->y()));
+    emit mouseScenePosition(image_point);
 
     QGraphicsView::mouseMoveEvent(event);
 }
 
-void GraphicViewerImp::resizeEvent(QResizeEvent *event)
+void GraphicViewer::resizeEvent(QResizeEvent *event)
 {
     if (event->oldSize().width() == -1 || event->oldSize().height() == -1) return;
 
     // Get the previous rectangle of the scene in the viewport
-    QPointF P1 = mapToScene(QPoint(0, 0));
-    QPointF P2 = mapToScene(QPoint(event->oldSize().width(), event->oldSize().height()));
+    QPointF p1 = mapToScene(QPoint(0, 0));
+    QPointF p2 = mapToScene(QPoint(event->oldSize().width(), event->oldSize().height()));
 
     // Stretch the rectangle around the scene
-    if (P1.x() < 0) P1.setX(0);
-    if (P1.y() < 0) P1.setY(0);
-    if (P2.x() > mScene->width()) P2.setX(mScene->width());
-    if (P2.y() > mScene->height()) P2.setY(mScene->height());
+    if (p1.x() < 0) p1.setX(0);
+    if (p1.y() < 0) p1.setY(0);
+    if (p2.x() > mScene->width()) p2.setX(mScene->width());
+    if (p2.y() > mScene->height()) p2.setY(mScene->height());
 
     // Fit the previous area in the scene
-    this->fitInView(QRect(P1.toPoint(), P2.toPoint()), Qt::KeepAspectRatio);
+    this->fitInView(QRect(p1.toPoint(), p2.toPoint()), Qt::KeepAspectRatio);
 }
 
-void GraphicViewerImp::keyPressEvent(QKeyEvent *event)
+void GraphicViewer::keyPressEvent(QKeyEvent *event)
 {
     int key = event->key();
     switch (key) {
@@ -259,10 +259,10 @@ void GraphicViewerImp::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void GraphicViewerImp::zoomExtend()
+void GraphicViewer::zoomExtend()
 {
-    Qt::ScrollBarPolicy	currentHorizontalPolicy = horizontalScrollBarPolicy();
-    Qt::ScrollBarPolicy	currentverticalPolicy = verticalScrollBarPolicy();
+    Qt::ScrollBarPolicy	current_horizontal_policy = horizontalScrollBarPolicy();
+    Qt::ScrollBarPolicy	currentvertical_policy = verticalScrollBarPolicy();
 
     // Disable scroll bar to avoid a margin around the image
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -271,31 +271,31 @@ void GraphicViewerImp::zoomExtend()
     fitInView(mScene->sceneRect(), Qt::KeepAspectRatio);
 
     // Restaure scroll bar policy
-    setHorizontalScrollBarPolicy(currentHorizontalPolicy);
-    setVerticalScrollBarPolicy(currentverticalPolicy);
+    setHorizontalScrollBarPolicy(current_horizontal_policy);
+    setVerticalScrollBarPolicy(currentvertical_policy);
 }
 
-void GraphicViewerImp::zoom11()
+void GraphicViewer::zoom11()
 {
     double scale11 = 1. / transform().m11();
     scale(scale11, scale11);
 }
 
-void GraphicViewerImp::zoomIn(QPoint point)
+void GraphicViewer::zoomIn(QPoint point)
 {
     scale(mZoomFactor, mZoomFactor);
 }
 
-void GraphicViewerImp::zoomOut(QPoint point)
+void GraphicViewer::zoomOut(QPoint point)
 {
     double factor = 1.0 / mZoomFactor;
     scale(factor, factor);
 }
 
-void GraphicViewerImp::showContextMenu(const QPoint &position)
+void GraphicViewer::showContextMenu(const QPoint &position)
 {
-    QPoint globalPos = mapToGlobal(position);
-    mContextMenu->exec(globalPos);
+    QPoint global_pos = mapToGlobal(position);
+    mContextMenu->exec(global_pos);
 }
 
 } // namespace graphos

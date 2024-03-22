@@ -42,7 +42,7 @@ public:
 
 private:
 
-    void writeMatchPairs(Project *project);
+    static void writeMatchPairs(Project *project);
 
 // Command
 

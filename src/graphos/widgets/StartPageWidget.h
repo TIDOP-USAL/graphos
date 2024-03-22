@@ -38,55 +38,55 @@ class StartPageWidget
   : public GraphosWidgetView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  StartPageWidget(QWidget *parent = nullptr);
-  ~StartPageWidget() override = default;
+    StartPageWidget(QWidget *parent = nullptr);
+    ~StartPageWidget() override = default;
 
-  void setHistory(const QStringList &history);
+    void setHistory(const QStringList &history);
 
 // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 signals:
 
-  void openNew();
-  void openProject();
-  void openSettings();
-  void clearHistory();
-  void openProjectFromHistory(QString);
+    void openNew();
+    void openProject();
+    void openSettings();
+    void clearHistory();
+    void openProjectFromHistory(QString);
 
 // QWidget interface
 
 protected:
 
-  void changeEvent(QEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
 protected:
 
-  QLabel *mLabelGraphosLogo;
-  QLabel *mLabelRecentProjects;
-  QSplitter *mSplitter;
-  QCommandLinkButton *mCommandLinkButtonNewProject;
-  QCommandLinkButton *mCommandLinkButtonOpenProject;
-  QCommandLinkButton *mCommandLinkButtonSettings;
-  QListWidget *mListWidgetRecentProjects;
-  QCommandLinkButton *mCommandLinkButtonClearHistory;
+    QLabel *mLabelGraphosLogo;
+    QLabel *mLabelRecentProjects;
+    QSplitter *mSplitter;
+    QCommandLinkButton *mCommandLinkButtonNewProject;
+    QCommandLinkButton *mCommandLinkButtonOpenProject;
+    QCommandLinkButton *mCommandLinkButtonSettings;
+    QListWidget *mListWidgetRecentProjects;
+    QCommandLinkButton *mCommandLinkButtonClearHistory;
 };
 
 } // namespace graphos
