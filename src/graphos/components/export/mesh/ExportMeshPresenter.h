@@ -40,8 +40,7 @@ class ExportMeshPresenter
 
 public:
 
-    ExportMeshPresenter() {}
-    virtual ~ExportMeshPresenter() override = default;
+    ExportMeshPresenter() = default;
 
 public slots:
 

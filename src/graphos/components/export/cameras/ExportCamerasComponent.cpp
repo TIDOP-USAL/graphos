@@ -81,11 +81,11 @@ void ExportCamerasComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-    bool bImagesLoaded = app_status->isEnabled(AppStatus::Flag::oriented) ||
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool images_loaded = app_status->isEnabled(AppStatus::Flag::oriented) ||
                          app_status->isEnabled(AppStatus::Flag::absolute_oriented);
-    action()->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
+    action()->setEnabled(project_exists && images_loaded && !processing);
 }
 
 void ExportCamerasComponent::onRunning()

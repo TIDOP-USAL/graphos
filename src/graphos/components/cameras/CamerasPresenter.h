@@ -29,6 +29,10 @@
 namespace graphos
 {
 
+
+/*!
+ * \brief Cameras presenter interface
+ */
 class CamerasPresenter
   : public Presenter
 {
@@ -37,20 +41,34 @@ class CamerasPresenter
 
 public:
 
-    CamerasPresenter() {}
-    virtual ~CamerasPresenter() override = default;
+    CamerasPresenter() = default;
+    ~CamerasPresenter() override = default;
 
 public slots:
 
+    /*!
+     * \brief Slot to set the active camera.
+     * \param[in] id The ID of the active camera.
+     */
     virtual void activeCamera(int id) = 0;
 
 protected slots:
 
+    /*!
+     * \brief save Slot to save data.
+     */
     virtual void save() = 0;
-    virtual void discart() = 0;
+
+    /*!
+     * \brief discart Slot to discard changes.
+     */
+    virtual void discard() = 0;
 
 signals:
 
+    /*!
+     * \brief Signal emitted to indicate the need for updating cameras.
+     */
     void updateCameras();
 
 };

@@ -34,29 +34,66 @@ class QLabel;
 namespace graphos
 {
 
+
+/*!
+ * \brief The DensificationView class represents the view interface for densification tasks.
+ */
 class DensificationView
   : public DialogView
 {
 
     Q_OBJECT
 
-
 public:
 
+    /*!
+     * \brief Constructor for DensificationView.
+     * \param[in] parent The parent QWidget (default is nullptr).
+     */
     DensificationView(QWidget *parent) : DialogView(parent) {}
-    virtual ~DensificationView() {}
 
-    virtual QString currentDensificationMethod() const = 0;
-    virtual bool autoSegmentation() const = 0;
+    /*!
+     * \brief Destructor for DensificationView.
+     */
+    ~DensificationView() override = default;
+
+    /*!
+     * \brief currentDensificationMethod Retrieves the current densification method.
+     * \return The current densification method.
+     */
+    virtual auto currentDensificationMethod() const -> QString = 0;
+
+    /*!
+     * \brief autoSegmentation Checks if auto-segmentation is enabled.
+     * \return True if auto-segmentation is enabled, otherwise false.
+     */
+    virtual auto autoSegmentation() const -> bool = 0;
 
 signals:
 
-    void densificationChanged(QString);
+    /*!
+     * \brief densificationChanged Signal emitted when the densification method changes.
+     * \param[in] densification The new densification method.
+     */
+    void densificationChanged(QString densification);
+
+    /*!
+     * \brief run Signal emitted to start the densification process.
+     */
     void run();
 
 public slots:
 
+    /*!
+     * \brief Adds a densification widget to the view.
+     * \param[in] densification The densification widget to add.
+     */
     virtual void addDensification(QWidget *densification) = 0;
+
+    /*!
+     * \brief Sets the current densification method.
+     * \param[in] densificationMethod The densification method to set.
+     */
     virtual void setCurrentDensificationMethod(const QString &densificationMethod) = 0;
 
 };

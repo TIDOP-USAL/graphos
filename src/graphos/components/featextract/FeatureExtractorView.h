@@ -41,9 +41,9 @@ public:
     ~FeatureExtractorView() override = default;
 
     virtual void addDetectorDescriptor(QWidget *detectorDescriptor) = 0;
-    virtual QString currentDetectorDescriptor() const = 0;
-    virtual int maxImageSize() const = 0;
-    virtual bool fullImageSize() const = 0;
+    virtual auto currentDetectorDescriptor() const -> QString = 0;
+    virtual auto maxImageSize() const -> int = 0;
+    virtual auto fullImageSize() const -> bool = 0;
 
 signals:
 

@@ -38,18 +38,14 @@ class ExportCamerasModelImp
 public:
 
     ExportCamerasModelImp(Project *project,
-                               QObject *parent = nullptr);
-    ~ExportCamerasModelImp() override = default;
+                          QObject *parent = nullptr);
 
 // ExportCamerasModel interface
 
 public:
     
-    const std::unordered_map<size_t, Image> &images() const override;
-    const std::unordered_map<size_t, CameraPose> &poses() const override;
-
-    //QString reconstruction() const override;
-    //tl::Point3<double> offset() const override;
+    auto images() const -> const std::unordered_map<size_t, Image>& override;
+    auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
 
 // Model interface
 

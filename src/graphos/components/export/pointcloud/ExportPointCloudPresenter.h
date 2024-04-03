@@ -40,8 +40,8 @@ class ExportPointCloudPresenter
 
 public:
 
-    ExportPointCloudPresenter() {}
-    virtual ~ExportPointCloudPresenter() override = default;
+    ExportPointCloudPresenter() = default;
+    ~ExportPointCloudPresenter() override = default;
 
 public slots:
 

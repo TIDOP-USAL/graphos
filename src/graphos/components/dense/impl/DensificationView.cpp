@@ -23,8 +23,6 @@
 
 #include "DensificationView.h"
 
-#include <QPushButton>
-#include <QApplication>
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QPushButton>
@@ -43,11 +41,6 @@ DensificationViewImp::DensificationViewImp(QWidget *parent)
     DensificationViewImp::initSignalAndSlots();
 }
 
-DensificationViewImp::~DensificationViewImp()
-{
-
-}
-
 void DensificationViewImp::initUI()
 {
     this->setObjectName(QString("DensificationView"));
@@ -61,10 +54,10 @@ void DensificationViewImp::initUI()
     mComboBoxDensification = new QComboBox(this);
     mGridLayout->addWidget(mComboBoxDensification, 0, 1, 1, 1);
 
-    QWidget *widgetDensification = new QWidget();
-    mGridLayoutDensification = new QGridLayout(widgetDensification);
+    QWidget *widget_densification = new QWidget();
+    mGridLayoutDensification = new QGridLayout(widget_densification);
     mGridLayoutDensification->setContentsMargins(0, 0, 0, 0);
-    mGridLayout->addWidget(widgetDensification, 1, 0, 1, 2);
+    mGridLayout->addWidget(widget_densification, 1, 0, 1, 2);
 
     mCheckBoxAutoSegmentation = new QCheckBox(this);
     mGridLayout->addWidget(mCheckBoxAutoSegmentation, 2, 0, 1, 2);

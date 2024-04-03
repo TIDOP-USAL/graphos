@@ -50,10 +50,10 @@ CreateProjectViewImp::CreateProjectViewImp(QWidget *parent)
     mCheckBoxProjectFolder(new QCheckBox(this)),
     mPushButtonProjectPath(new QPushButton(this)),
     mButtonBox(new QDialogButtonBox(this)),
-    bPrjExist(false)
+    mProjectExist(false)
 {
-    initUI();
-    initSignalAndSlots();
+    CreateProjectViewImp::initUI();
+    CreateProjectViewImp::initSignalAndSlots();
 }
 
 void CreateProjectViewImp::initUI()
@@ -119,7 +119,7 @@ void CreateProjectViewImp::update()
 {
     bool bSave = !mLineEditProjectName->text().isEmpty() &&
         !mLineEditProjectPath->text().isEmpty();
-    mButtonBox->button(QDialogButtonBox::Save)->setEnabled(bSave && !bPrjExist);
+    mButtonBox->button(QDialogButtonBox::Save)->setEnabled(bSave && !mProjectExist);
 
     if (bSave) {
         QString file(mLineEditProjectPath->text());
@@ -146,12 +146,12 @@ void CreateProjectViewImp::retranslate()
     mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CreateProjectView", "Help", nullptr));
 }
 
-QString CreateProjectViewImp::projectName() const
+auto CreateProjectViewImp::projectName() const -> QString
 {
     return mLineEditProjectName->text();
 }
 
-QString CreateProjectViewImp::projectPath() const
+auto CreateProjectViewImp::projectPath() const -> QString
 {
     return mLineEditProjectPath->text();
 }
@@ -161,21 +161,21 @@ void CreateProjectViewImp::setProjectPath(const QString &path)
     mLineEditProjectPath->setText(path);
 }
 
-QString CreateProjectViewImp::projectDescription() const
+auto CreateProjectViewImp::projectDescription() const -> QString
 {
     return mTextEditDescription->toPlainText();
 }
 
-bool CreateProjectViewImp::createProjectFolderEnable() const
+auto CreateProjectViewImp::createProjectFolderEnable() const -> bool
 {
     return mCheckBoxProjectFolder->isChecked();
 }
 
-void CreateProjectViewImp::setExistingProject(bool prjExist)
+auto CreateProjectViewImp::setExistingProject(bool prjExist) -> void
 {
-    bPrjExist = prjExist;
+    mProjectExist = prjExist;
     QPalette palette;
-    if (bPrjExist) {
+    if (mProjectExist) {
         palette.setColor(QPalette::Text, Qt::red);
     } else {
         palette.setColor(QPalette::Text, Qt::black);

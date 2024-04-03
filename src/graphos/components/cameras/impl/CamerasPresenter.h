@@ -75,7 +75,7 @@ public slots:
 protected slots:
 
     void save() override;
-    void discart() override;
+    void discard() override;
 
 private:
 

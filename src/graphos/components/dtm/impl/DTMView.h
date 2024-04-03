@@ -66,15 +66,15 @@ private slots:
 
 public:
 
-    double gsd() const override;
-    bool isMdsEnable() const override;
-    bool isMdtEnable() const override;
+    auto gsd() const -> double override;
+    auto isMdsEnable() const -> bool override;
+    auto isMdtEnable() const -> bool override;
 
 public slots:
 
-    void setGSD(double gsd) override;
-    void enableMDS(bool enable = true) override;
-    void enableMDT(bool enable = true) override;
+    void setGsd(double gsd) override;
+    void enableMds(bool enable = true) override;
+    void enableMdt(bool enable = true) override;
 
 private:
 

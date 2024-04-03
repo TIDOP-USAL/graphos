@@ -43,14 +43,14 @@ class DensificationViewImp
 public:
 
     explicit DensificationViewImp(QWidget *parent = nullptr);
-    ~DensificationViewImp() override;
+    ~DensificationViewImp() override = default;;
 
 // DensificationView interface
 
 public:
 
-    QString currentDensificationMethod() const override;
-    bool autoSegmentation() const override;
+    auto currentDensificationMethod() const -> QString override;
+    auto autoSegmentation() const -> bool override;
 
 public slots:
 

@@ -39,7 +39,7 @@ class ExportCamerasComponent
 public:
 
     ExportCamerasComponent(Application *application);
-    ~ExportCamerasComponent();
+    ~ExportCamerasComponent() override;
 
 private:
 

@@ -36,7 +36,7 @@ ExportPointCloudModelImp::ExportPointCloudModelImp(Project *project,
   : ExportPointCloudModel(parent),
     mProject(project)
 {
-    init();
+    ExportPointCloudModelImp::init();
 }
 
 ExportPointCloudModelImp::~ExportPointCloudModelImp()
@@ -48,11 +48,9 @@ void ExportPointCloudModelImp::exportPointCloud(const tl::Path &exportPath)
     tl::Path::copy(mProject->denseModel(), exportPath);
 }
 
-tl::Path ExportPointCloudModelImp::graphosProjectsDirectory() const
+auto ExportPointCloudModelImp::graphosProjectsDirectory() const -> tl::Path
 {
-    //tl::Path project_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
-    //project_directory.append("graphos").append("Projects");
-    return dynamic_cast<Application *>(qApp)->documentsLocation();
+    return Application::documentsLocation();
 }
 
 void ExportPointCloudModelImp::init()

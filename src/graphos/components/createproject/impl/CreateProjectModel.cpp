@@ -35,7 +35,7 @@ CreateProjectModelImp::CreateProjectModelImp(Project *project,
   : CreateProjectModel(parent),
     mProject(project)
 {
-    init();
+    CreateProjectModelImp::init();
 }
 
 CreateProjectModelImp::~CreateProjectModelImp()
@@ -43,9 +43,9 @@ CreateProjectModelImp::~CreateProjectModelImp()
 
 }
 
-tl::Path CreateProjectModelImp::projectsDefaultPath() const
+auto CreateProjectModelImp::projectsDefaultPath() const -> tl::Path
 {
-    return dynamic_cast<Application*>(qApp)->documentsLocation();
+    return Application::documentsLocation();
 }
 
 void CreateProjectModelImp::setProjectName(const QString &name)

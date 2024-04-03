@@ -46,15 +46,12 @@ ExportCamerasTask::ExportCamerasTask(const QString &file,
                                      const std::unordered_map<size_t, Image> &images,
                                      const std::unordered_map<size_t, CameraPose> &poses,
                                      const QString &format)
-  : tl::TaskBase(),
-    mFile(file),
-    mImages(images),
-    mPoses(poses),
-    mFormat(format)
-{
-}
-
-ExportCamerasTask::~ExportCamerasTask()
+    : tl::TaskBase(),
+      mFile(file),
+      mImages(images),
+      mPoses(poses),
+      mFormat(format),
+      mQuaternions(false)
 {
 }
 

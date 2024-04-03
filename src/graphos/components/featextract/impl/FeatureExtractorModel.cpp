@@ -36,9 +36,9 @@ FeatureExtractorModelImp::FeatureExtractorModelImp(Project *project,
   : FeatureExtractorModel(parent),
     mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
-              QSettings::UserScope,
-              qApp->organizationName(),
-              qApp->applicationName()))
+                            QSettings::UserScope,
+                            qApp->organizationName(),
+                            qApp->applicationName()))
 {
     init();
 }
@@ -61,7 +61,7 @@ void FeatureExtractorModelImp::clear()
 
 }
 
-std::shared_ptr<Feature> FeatureExtractorModelImp::featureExtractor() const
+auto FeatureExtractorModelImp::featureExtractor() const -> std::shared_ptr<Feature>
 {
     return mProject->featureExtractor();
 }
@@ -76,7 +76,7 @@ void FeatureExtractorModelImp::setFeatureExtractorReport(const FeatureExtractorR
     mProject->setFeatureExtractorReport(report);
 }
 
-tl::Path FeatureExtractorModelImp::database() const
+auto FeatureExtractorModelImp::database() const -> tl::Path
 {
     return mProject->database();
 }
@@ -91,12 +91,12 @@ bool FeatureExtractorModelImp::useCuda() const
     return mSettings->value("UseCuda", true).toBool();
 }
 
-const std::unordered_map<size_t, Image> &FeatureExtractorModelImp::images() const
+auto FeatureExtractorModelImp::images() const -> const std::unordered_map<size_t, Image>&
 {
     return mProject->images();
 }
 
-const std::map<int, Camera> &FeatureExtractorModelImp::cameras() const
+auto FeatureExtractorModelImp::cameras() const -> const std::map<int, Camera>&
 {
     return mProject->cameras();
 }

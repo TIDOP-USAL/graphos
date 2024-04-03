@@ -41,7 +41,7 @@ public:
 
     CloseProjectModelImp(Project *project,
                          QObject *parent = nullptr);
-    ~CloseProjectModelImp();
+    ~CloseProjectModelImp() override;
 
 // CloseProjectModel interface
 

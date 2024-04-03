@@ -33,7 +33,6 @@
 namespace graphos
 {
 
-class DensificationProcess;
 
 class DensificationComponent
   : public TaskComponent
@@ -43,20 +42,38 @@ class DensificationComponent
 
 public:
 
+    /*!
+     * \brief Different densification methods.
+     */
     enum class Method
     {
-        mvs = (1 << 0),
-        pmvs = (1 << 1),
-        smvs = (1 << 2)
+        mvs = (1 << 0),   // Multi-View Stereo
+        pmvs = (1 << 1),  // Patch-based Multi-View Stereo
+        smvs = (1 << 2)   // Structure from Motion Multi-View Stereo
     };
 
 public:
 
     DensificationComponent(Application *application);
-    ~DensificationComponent();
+    ~DensificationComponent() override;
 
+    /*!
+     * \brief Enables a densification method.
+     * \param[in] method The method to enable.
+     */
     void enableMethod(Method method);
+
+    /*!
+     * \brief Disables a densification method.
+     * \param[in] method The method to disable.
+     */
     void disableMethod(Method method);
+
+    /*!
+     * \brief Checks if a densification method is enabled.
+     * \param[in] method The method to check.
+     * \return True if the method is enabled, otherwise false.
+     */
     bool isEnabled(Method method) const;
 
 private:

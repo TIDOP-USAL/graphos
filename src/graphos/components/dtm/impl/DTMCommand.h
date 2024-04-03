@@ -42,7 +42,7 @@ public:
 
 private:
 
-    std::array<double, 3> offset() const;
+    auto offset() const -> std::array<double, 3>;
 
 private:
 

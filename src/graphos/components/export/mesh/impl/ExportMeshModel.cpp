@@ -48,11 +48,9 @@ void ExportMeshModelImp::exportMesh(const tl::Path &exportPath)
     tl::Path::copy(mProject->meshPath(), exportPath);
 }
 
-tl::Path ExportMeshModelImp::graphosProjectsDirectory() const
+auto ExportMeshModelImp::graphosProjectsDirectory() const -> tl::Path
 {
-    //tl::Path project_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
-    //project_directory.append("graphos").append("Projects");
-    return dynamic_cast<Application *>(qApp)->documentsLocation();
+    return Application::documentsLocation();
 }
 
 void ExportMeshModelImp::init()

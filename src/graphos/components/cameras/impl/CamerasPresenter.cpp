@@ -84,9 +84,9 @@ void CamerasPresenterImp::initSignalAndSlots()
     connect(mView, &CamerasView::calibP2Change, mModel, &CamerasModel::updateCurrentCameraCalibP2);
 
     connect(mView, &QDialog::accepted, this, &CamerasPresenterImp::save);
-    connect(mView, &QDialog::rejected, this, &CamerasPresenterImp::discart);
+    connect(mView, &QDialog::rejected, this, &CamerasPresenterImp::discard);
     connect(mView, &DialogView::help, [&]() {
-        emit help("cameras.html");
+                emit help("cameras.html");
             });
 }
 
@@ -108,9 +108,10 @@ void CamerasPresenterImp::activeCamera(int id)
 
         std::shared_ptr<Calibration> calibration = camera.calibration();
         if (calibration) {
-            for (auto param = calibration->begin(); param != calibration->end(); param++) {
-                Calibration::Parameters parameter = param->first;
-                double value = param->second;
+            for (const auto &param : *calibration)
+            {
+                Calibration::Parameters parameter = param.first;
+                double value = param.second;
                 switch (parameter) {
                 case Calibration::Parameters::focal:
                     mView->setCalibF(value);
@@ -151,8 +152,6 @@ void CamerasPresenterImp::activeCamera(int id)
                 case Calibration::Parameters::p2:
                     mView->setCalibP2(value);
                     break;
-                default:
-                    break;
                 }
             }
         }
@@ -173,7 +172,7 @@ void CamerasPresenterImp::save()
     }
 }
 
-void CamerasPresenterImp::discart()
+void CamerasPresenterImp::discard()
 {
     clear();
 }

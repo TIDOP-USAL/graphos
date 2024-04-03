@@ -29,7 +29,6 @@
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QLabel>
-#include <QRadioButton>
 #include <QGridLayout>
 #include <QStandardItemModel>
 #include <QApplication>
@@ -41,8 +40,8 @@ DtmViewImp::DtmViewImp(QWidget *parent)
   : DtmView(parent),
     mButtonBox(new QDialogButtonBox(this))
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    DtmViewImp::initUI();
+    DtmViewImp::initSignalAndSlots();
 }
 
 DtmViewImp::~DtmViewImp()
@@ -55,25 +54,25 @@ void DtmViewImp::initUI()
     this->setObjectName(QString("DtmView"));
     this->resize(300, 200);
 
-    QGridLayout *gridLayout = new QGridLayout();
-    this->setLayout(gridLayout);
+    QGridLayout *grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
     mCheckBoxMDS = new QCheckBox(this);
-    gridLayout->addWidget(mCheckBoxMDS, 0, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxMDS, 0, 0, 1, 2);
 
     mCheckBoxMDT = new QCheckBox(this);
-    gridLayout->addWidget(mCheckBoxMDT, 1, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxMDT, 1, 0, 1, 2);
 
     mLabelGSD = new QLabel(this);
-    gridLayout->addWidget(mLabelGSD, 2, 0);
+    grid_layout->addWidget(mLabelGSD, 2, 0);
     mDoubleSpinBoxGSD = new QDoubleSpinBox(this);
     mDoubleSpinBoxGSD->setDecimals(3);
     mDoubleSpinBoxGSD->setSingleStep(0.1);
-    gridLayout->addWidget(mDoubleSpinBoxGSD, 2, 1);
+    grid_layout->addWidget(mDoubleSpinBoxGSD, 2, 1);
 
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 3, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 3, 0, 1, 2);
 
     this->retranslate();
     this->clear();
@@ -91,7 +90,7 @@ void DtmViewImp::initSignalAndSlots()
 
 void DtmViewImp::clear()
 {
-    const QSignalBlocker signalBlocker(mDoubleSpinBoxGSD);
+    const QSignalBlocker signal_blocker(mDoubleSpinBoxGSD);
     mDoubleSpinBoxGSD->setValue(0.1);
 }
 
@@ -111,34 +110,34 @@ void DtmViewImp::retranslate()
     mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("DtmView", "Help"));
 }
 
-double DtmViewImp::gsd() const
+auto DtmViewImp::gsd() const -> double
 {
     return mDoubleSpinBoxGSD->value();
 }
 
-bool DtmViewImp::isMdsEnable() const
+auto DtmViewImp::isMdsEnable() const -> bool
 {
     return mCheckBoxMDS->isChecked();
 }
 
-bool DtmViewImp::isMdtEnable() const
+auto DtmViewImp::isMdtEnable() const -> bool
 {
     return mCheckBoxMDT->isChecked();
 }
 
-void DtmViewImp::enableMDS(bool enable)
+void DtmViewImp::enableMds(bool enable)
 {
     mCheckBoxMDS->setChecked(enable);
 }
 
-void DtmViewImp::enableMDT(bool enable)
+void DtmViewImp::enableMdt(bool enable)
 {
     mCheckBoxMDT->setChecked(enable);
 }
 
-void DtmViewImp::setGSD(double gsd)
+void DtmViewImp::setGsd(double gsd)
 {
-    const QSignalBlocker signalBlocker(mDoubleSpinBoxGSD);
+    const QSignalBlocker signal_blocker(mDoubleSpinBoxGSD);
     mDoubleSpinBoxGSD->setValue(gsd);
 }
 

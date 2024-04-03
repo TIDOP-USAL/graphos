@@ -40,7 +40,7 @@ AboutPresenterImp::AboutPresenterImp(AboutView *view,
     mView(view),
     mModel(model)
 {
-    init();
+    AboutPresenterImp::init();
 }
 
 void AboutPresenterImp::open()
@@ -50,21 +50,19 @@ void AboutPresenterImp::open()
 
 void AboutPresenterImp::init()
 {
-    tl::Licence licence = mModel->graphosLicence();
+    tl::Licence licence = mModel->licence();
 
     // Set Graphos licence
 
-    licence.productName();
-    licence.version();
-    mView->setGraphosVersion(QString::fromStdString(licence.version()));
-    mView->setGraphosLicence(mModel->readLicence(QString::fromStdString(licence.text())));
+    mView->setVersion(QString::fromStdString(licence.version()));
+    mView->setLicence(mModel->readLicence(QString::fromStdString(licence.text())));
 
     // Set licenses 
 
-    for (const auto &licence : *mModel) {
-        std::string name = licence.productName();
-        name.append("  ").append(licence.version());
-        QString licence_text = mModel->readLicence(QString::fromStdString(licence.text()));
+    for (const auto &third_party_licence : *mModel) {
+        std::string name = third_party_licence.productName();
+        name.append("  ").append(third_party_licence.version());
+        QString licence_text = mModel->readLicence(QString::fromStdString(third_party_licence.text()));
         mView->addLicence(QString::fromStdString(name), licence_text);
     }
 

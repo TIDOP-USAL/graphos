@@ -47,14 +47,10 @@ DtmPresenterImp::DtmPresenterImp(DtmView *view,
     DtmPresenterImp::initSignalAndSlots();
 }
 
-DtmPresenterImp::~DtmPresenterImp()
-{
-}
-
 void DtmPresenterImp::open()
 {
-    mView->setGSD(mModel->gsd());
-    mView->enableMDS();
+    mView->setGsd(mModel->gsd());
+    mView->enableMds();
 
     mView->exec();
 }
@@ -100,23 +96,21 @@ void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
         mModel->setDtmPath(dtm_file);
     }
 
-    mModel->setGSD(mView->gsd());
+    mModel->setGsd(mView->gsd());
 }
 
-std::unique_ptr<tl::Task> DtmPresenterImp::createTask()
+auto DtmPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    std::unique_ptr<tl::Task> dtm_task;
-
     tl::Path dtm_path = mModel->projectPath();
     dtm_path.append("dtm");
 
-    dtm_task = std::make_unique<DtmTask>(mModel->denseModel(), 
-                                         mModel->offset(),
-                                         dtm_path,
-                                         mView->gsd(),
-                                         mModel->crs(),
-                                         mView->isMdsEnable(),
-                                         mView->isMdtEnable());
+    std::unique_ptr<tl::Task> dtm_task = std::make_unique<DtmTask>(mModel->denseModel(),
+                                                                   mModel->offset(),
+                                                                   dtm_path,
+                                                                   mView->gsd(),
+                                                                   mModel->crs(),
+                                                                   mView->isMdsEnable(),
+                                                                   mView->isMdtEnable());
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 100);

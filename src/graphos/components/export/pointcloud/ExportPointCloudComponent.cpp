@@ -42,10 +42,6 @@ ExportPointCloudComponent::ExportPointCloudComponent(Application *application)
     init();
 }
 
-ExportPointCloudComponent::~ExportPointCloudComponent()
-{
-}
-
 void ExportPointCloudComponent::init()
 {
     setName("Export Point Cloud");
@@ -68,8 +64,8 @@ void ExportPointCloudComponent::createView()
 void ExportPointCloudComponent::createPresenter()
 {
     setPresenter(new ExportPointCloudPresenterImp(dynamic_cast<ExportPointCloudView *>(view()),
-                 dynamic_cast<ExportPointCloudModel *>(model()),
-                 app()->status()));
+                                                  dynamic_cast<ExportPointCloudModel *>(model()),
+                                                  app()->status()));
 }
 
 void ExportPointCloudComponent::createCommand()

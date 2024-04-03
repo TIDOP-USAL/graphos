@@ -42,13 +42,11 @@ CloseProjectPresenterImp::CloseProjectPresenterImp(CloseProjectView *view,
     mModel(model),
     mAppStatus(status)
 {
-    init();
-    initSignalAndSlots();
+    CloseProjectPresenterImp::init();
+    CloseProjectPresenterImp::initSignalAndSlots();
 }
 
-CloseProjectPresenterImp::~CloseProjectPresenterImp()
-{
-}
+CloseProjectPresenterImp::~CloseProjectPresenterImp() = default;
 
 void CloseProjectPresenterImp::open()
 {

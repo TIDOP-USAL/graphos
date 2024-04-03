@@ -53,8 +53,8 @@ public:
 
 public:
 
-    void setGraphosVersion(const QString &version) override;
-    void setGraphosLicence(const QString &licence) override;
+    void setVersion(const QString &version) override;
+    void setLicence(const QString &licence) override;
     void addLicence(const QString &product, const QString &licence) override;
 
 // DialogView interface

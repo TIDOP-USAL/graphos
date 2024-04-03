@@ -45,10 +45,11 @@ public:
     ExportPointCloudModel(QObject *parent = nullptr) : Model(parent) {}
     ~ExportPointCloudModel() override = default;
 
+    virtual auto graphosProjectsDirectory() const -> tl::Path = 0;
+
 public slots:
 
     virtual void exportPointCloud(const tl::Path &exportPath) = 0;
-    virtual tl::Path graphosProjectsDirectory() const = 0;
 
 };
 

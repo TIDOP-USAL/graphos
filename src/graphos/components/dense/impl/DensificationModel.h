@@ -58,16 +58,16 @@ public slots:
 
 public:
 
-    std::shared_ptr<Densification> densification() const override;
-    tl::Path projectFolder() const override;
-    tl::Path reconstructionPath() const override;
-    tl::Path database() const override;
-    bool useCuda() const override;
-    bool existDenseModel() const override;
-    const std::unordered_map<size_t, Image> &images() const override;
-    const std::map<int, Camera> &cameras() const override;
-    const std::unordered_map<size_t, CameraPose> &poses() const override;
-    std::vector<GroundPoint> groundPoints() const override;
+    auto densification() const -> std::shared_ptr<Densification> override;
+    auto projectFolder() const -> tl::Path override;
+    auto reconstructionPath() const -> tl::Path override;
+    auto database() const -> tl::Path override;
+    auto useCuda() const -> bool override;
+    auto existDenseModel() const -> bool override;
+    auto images() const -> const std::unordered_map<size_t, Image>& override;
+    auto cameras() const -> const std::map<int, Camera>& override;
+    auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
+    auto groundPoints() const -> std::vector<GroundPoint> override;
 
 public slots:
 

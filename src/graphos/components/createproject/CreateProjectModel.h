@@ -45,7 +45,7 @@ public:
     CreateProjectModel(QObject* parent = nullptr) : Model(parent) {}
     ~CreateProjectModel() override = default;
 
-    virtual tl::Path projectsDefaultPath() const = 0;
+    virtual auto projectsDefaultPath() const -> tl::Path = 0;
 
 public slots:
 
@@ -57,15 +57,15 @@ public slots:
 
     /*!
      * \brief Set project description
-     * \param[in] description Project description
+     * \param[in] projectDescription Project description
      */
-    virtual void setProjectDescription(const QString& projectDescription) = 0;
+    virtual void setProjectDescription(const QString &projectDescription) = 0;
 
     /*!
      * \brief Set project directory
      * \param[in] folder Project Directory
      */
-    virtual void setProjectFolder(const tl::Path& folder) = 0;
+    virtual void setProjectFolder(const tl::Path &folder) = 0;
 
     /*!
      * \brief Save the project

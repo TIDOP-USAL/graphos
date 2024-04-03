@@ -41,7 +41,7 @@ class CreateProjectPresenter
 public:
 
     CreateProjectPresenter(){}
-    virtual ~CreateProjectPresenter() override = default;
+    ~CreateProjectPresenter() override = default;
 
 signals:
 

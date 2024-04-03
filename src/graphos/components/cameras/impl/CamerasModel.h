@@ -48,23 +48,23 @@ public:
 
 public:
 
-    const std::map<int, Camera> &cameras() const override;
-    int addCamera(const Camera &camera) override;
-    int cameraID(const Camera &camera) const override;
-    int cameraID(const QString &make,
-                 const QString &model) const override;
-    Camera camera(int id) const override;
-    Camera camera(const QString &make,
-                  const QString &model) const override;
-    int currentCameraID() const override;
-    bool updateCamera(int id, const Camera &camera) override;
-    bool removeCamera(int id) override;
-    bool removeCamera(const Camera &camera) override;
-    QStringList imagesFromCamera(int id) const override;
+    auto cameras() const -> const std::map<int, Camera> & override;
+    auto addCamera(const Camera &camera) -> int override;
+    auto cameraID(const Camera &camera) const -> int override;
+    auto cameraID(const QString &make,
+                  const QString &model) const -> int override;
+    auto camera(int id) const -> Camera override;
+    auto camera(const QString &make,
+                const QString &model) const -> Camera override;
+    auto currentCameraID() const -> int override;
+    auto updateCamera(int id, const Camera &camera) -> bool override;
+    auto removeCamera(int id) -> bool override;
+    auto removeCamera(const Camera &camera) -> bool override;
+    auto imagesFromCamera(int id) const -> QStringList override;
 
     void save() override;
 
-    bool modified() override;
+    auto modified() -> bool override;
 
 public slots:
 
@@ -110,7 +110,7 @@ private:
 protected:
 
     Project *mProject;
-    bool bModifiedProject;
+    bool mModifiedProject;
     mutable int mActiveCameraId;
     mutable std::map<int, Camera> mCameraCache;
 };

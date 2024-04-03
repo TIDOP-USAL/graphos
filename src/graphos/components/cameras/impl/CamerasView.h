@@ -69,7 +69,7 @@ private slots:
 
 public:
 
-    int activeCamera() const override;
+    auto activeCamera() const -> int override;
     void setActiveCamera(int id) override;
     void enableCameraEdition(bool enable) override;
     void addCamera(int cameraId, const QString &cameraName) override;
@@ -103,19 +103,19 @@ protected slots:
 
 private:
 
-    bool isPrincipalPointEnable() const;
-    bool isFocalEnable() const;
-    bool isFocalXYEnable() const;
-    bool isK1Enable() const;
-    bool isK2Enable() const;
-    bool isK3Enable() const;
-    bool isK4Enable() const;
-    bool isK5Enable() const;
-    bool isK6Enable() const;
-    bool isP1Enable() const;
-    bool isP2Enable() const;
-    bool isFocalVisible() const;
-    bool isFocalXYVisible() const;
+    auto isPrincipalPointEnable() const -> bool;
+    auto isFocalEnable() const -> bool;
+    auto isFocalXYEnable() const -> bool;
+    auto isK1Enable() const -> bool;
+    auto isK2Enable() const -> bool;
+    auto isK3Enable() const -> bool;
+    auto isK4Enable() const -> bool;
+    auto isK5Enable() const -> bool;
+    auto isK6Enable() const -> bool;
+    auto isP1Enable() const -> bool;
+    auto isP2Enable() const -> bool;
+    auto isFocalVisible() const -> bool;
+    auto isFocalXYVisible() const -> bool;
 
 private slots:
 

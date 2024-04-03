@@ -76,8 +76,8 @@ void CreateProjectComponent::createView()
 void CreateProjectComponent::createPresenter()
 {
     setPresenter(new CreateProjectPresenterImp(dynamic_cast<CreateProjectView *>(view()),
-                 dynamic_cast<CreateProjectModel *>(model()),
-                 app()->status()));
+                                               dynamic_cast<CreateProjectModel *>(model()),
+                                               app()->status()));
 
     connect(dynamic_cast<CreateProjectPresenter *>(presenter()), &CreateProjectPresenter::project_created,
             this, &CreateProjectComponent::onProjectCreated);
@@ -95,8 +95,7 @@ void CreateProjectComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-    action()->setEnabled(!bProcessing);
+    action()->setEnabled(!app_status->isEnabled(AppStatus::Flag::processing));
 }
 
 void CreateProjectComponent::onProjectCreated()

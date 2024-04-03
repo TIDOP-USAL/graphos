@@ -40,7 +40,7 @@ namespace graphos
 
 
 DTMCommand::DTMCommand()
-  : Command("dem", "Create DSM and/od DTM"),
+  : Command("dem", "Create DSM and/or DTM"),
     mProject(nullptr)
 {
     this->addArgument<std::string>("prj", 'p', "Project file");
@@ -61,7 +61,7 @@ DTMCommand::~DTMCommand()
     }
 }
 
-std::array<double, 3> DTMCommand::offset() const
+auto DTMCommand::offset() const -> std::array<double, 3>
 {
     std::array<double, 3> offset{};
     offset.fill(0.);
@@ -78,6 +78,7 @@ std::array<double, 3> DTMCommand::offset() const
             offset[2] = reg[2].toDouble();
             file.close();
         }
+
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }

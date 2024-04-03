@@ -698,7 +698,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        //this->clearTemporalFiles();
+        this->clearTemporalFiles();
 
         Ply ply(denseModel().toString());
         mReport.points = static_cast<int>(ply.size());

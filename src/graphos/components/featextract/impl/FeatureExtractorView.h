@@ -56,9 +56,9 @@ protected slots:
 public:
 
     void addDetectorDescriptor(QWidget *detectorDescriptor) override;
-    QString currentDetectorDescriptor() const override;
-    int maxImageSize() const override;
-    bool fullImageSize() const override;
+    auto currentDetectorDescriptor() const -> QString override;
+    auto maxImageSize() const -> int override;
+    auto fullImageSize() const -> bool override;
 
 public slots:
 

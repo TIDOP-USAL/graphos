@@ -40,8 +40,8 @@ class CloseProjectPresenter
 
 public:
 
-    CloseProjectPresenter() {}
-    virtual ~CloseProjectPresenter() override = default;
+    CloseProjectPresenter() = default;
+    ~CloseProjectPresenter() override = default;
 
 signals:
 

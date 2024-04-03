@@ -30,6 +30,10 @@
 namespace graphos
 {
 
+
+/*!
+ * \brief The DtmView class represents the view for Digital Terrain Model (DTM) tasks.
+ */
 class DtmView
   : public DialogView
 {
@@ -38,22 +42,61 @@ class DtmView
 
 public:
 
+    /*!
+     * \brief Constructor for DtmView.
+     * \param[in] parent The parent QWidget (default is nullptr).
+     */
     DtmView(QWidget *parent = nullptr) : DialogView(parent) {}
+
+    /*!
+     * \brief Destructor for DtmView.
+     */
     ~DtmView() override = default;
 
-    virtual double gsd() const = 0;
-    virtual bool isMdsEnable() const = 0;
-    virtual bool isMdtEnable() const = 0;
+    /*!
+     * \brief gsd Retrieves the Ground Sample Distance (GSD).
+     * \return The GSD value.
+     */
+    virtual auto gsd() const -> double = 0;
+
+    /*!
+     * \brief isMdsEnable Checks if the Minimum Data Sheet (MDS) is enabled.
+     * \return True if the MDS is enabled, otherwise false.
+     */
+    virtual auto isMdsEnable() const -> bool = 0;
+
+    /*!
+     * \brief isMdtEnable Checks if the Minimum Digital Terrain (MDT) is enabled.
+     * \return True if the MDT is enabled, otherwise false.
+     */
+    virtual auto isMdtEnable() const -> bool = 0;
 
 signals:
 
+    /*!
+     * \brief run Signal emitted to start the DTM task.
+     */
     void run();
 
 public slots:
 
-    virtual void setGSD(double gsd) = 0;
-    virtual void enableMDS(bool enable = true) = 0;
-    virtual void enableMDT(bool enable = true) = 0;
+    /*!
+     * \brief setGsd Sets the Ground Sample Distance (GSD).
+     * \param[in] gsd The GSD value to set.
+     */
+    virtual void setGsd(double gsd) = 0;
+
+    /*!
+     * \brief enableMds Enables or disables the Minimum Data Sheet (MDS).
+     * \param[in] enable True to enable, false to disable (default is true).
+     */
+    virtual void enableMds(bool enable = true) = 0;
+
+    /*!
+     * \brief enableMdt Enables or disables the Minimum Digital Terrain (MDT).
+     * \param[in] enable True to enable, false to disable (default is true).
+     */
+    virtual void enableMdt(bool enable = true) = 0;
 
 };
 

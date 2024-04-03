@@ -42,9 +42,7 @@ CloseProjectComponent::CloseProjectComponent(Application *application)
     init();
 }
 
-CloseProjectComponent::~CloseProjectComponent()
-{
-}
+CloseProjectComponent::~CloseProjectComponent() = default;
 
 void CloseProjectComponent::init()
 {
@@ -66,13 +64,11 @@ void CloseProjectComponent::createView()
 void CloseProjectComponent::createPresenter()
 {
     setPresenter(new CloseProjectPresenterImp(dynamic_cast<CloseProjectView *>(view()),
-                 dynamic_cast<CloseProjectModel *>(model()),
-                 app()->status()));
+                                              dynamic_cast<CloseProjectModel *>(model()),
+                                              app()->status()));
 
-    connect(dynamic_cast<CloseProjectPresenter *>(presenter()),
-            &CloseProjectPresenter::projectClosed,
-            this,
-            &CloseProjectComponent::projectClosed);
+    connect(dynamic_cast<CloseProjectPresenter *>(presenter()), &CloseProjectPresenter::projectClosed,
+            this, &CloseProjectComponent::projectClosed);
 }
 
 void CloseProjectComponent::createCommand()

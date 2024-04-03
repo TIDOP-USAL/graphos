@@ -336,7 +336,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
         throw std::runtime_error("Densification Method not valid");
     }
 
-    dense_task->subscribe([&](tl::TaskFinalizedEvent *event) {
+    dense_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
         auto report = dynamic_cast<DensifierBase const*>(event->task())->report();
 

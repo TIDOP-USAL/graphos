@@ -41,7 +41,7 @@ class CamerasComponent
 public:
 
     CamerasComponent(Application *application);
-    ~CamerasComponent();
+    ~CamerasComponent() override;
 
 private:
 
@@ -49,7 +49,7 @@ private:
 
 private slots:
 
-    void onUpdateCameras();
+    void onUpdateCameras() const;
 
 // ComponentBase
 

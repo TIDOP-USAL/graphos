@@ -31,24 +31,85 @@
 namespace graphos
 {
 
+
+/*!
+ * \brief The DtmModel class provides an interface for accessing Digital Terrain Model (DTM) data.
+ */
 class DtmModel
   : public Model
 {
 
 public:
 
+    /*!
+     * \brief Constructor for DtmModel.
+     * \param[in] parent The parent QObject (default is nullptr).
+     */
     DtmModel(QObject *parent = nullptr) : Model(parent) {}
+
+    /*!
+     * \brief Destructor for DtmModel.
+     */
     ~DtmModel() override = default;
 
-    virtual std::array<double, 3> offset() const = 0;
-    virtual tl::Path projectPath() const = 0;
-    virtual tl::Path denseModel() const = 0;
-    virtual QString crs() const = 0;
-    virtual double gsd() const = 0;
-    virtual tl::Path dtmPath() const = 0;
-    virtual tl::Path dsmPath() const = 0;
-    virtual void setGSD(double gsd) = 0;
+    /*!
+     * \brief Retrieves the offset values.
+     * \return An array containing the offset values [x, y, z].
+     */
+    virtual auto offset() const -> std::array<double, 3> = 0;
+
+    /*!
+     * \brief Retrieves the path to the project folder.
+     * \return The path to the project folder.
+     */
+    virtual auto projectPath() const -> tl::Path = 0;
+
+    /*!
+     * \brief Retrieves the path to the dense model.
+     * \return The path to the dense model.
+     */
+    virtual auto denseModel() const -> tl::Path = 0;
+
+    /*!
+     * \brief Retrieves the Coordinate Reference System (CRS) information.
+     * \return The CRS information as a string.
+     */
+    virtual auto crs() const -> QString = 0;
+
+    /*!
+     * \brief Retrieves the Ground Sample Distance (GSD).
+     * \return The GSD value.
+     */
+    virtual auto gsd() const -> double = 0;
+
+    /*!
+     * \brief Retrieves the path to the Digital Terrain Model (DTM) file.
+     * \return The path to the DTM file.
+     */
+    virtual auto dtmPath() const -> tl::Path = 0;
+
+    /*!
+     * \brief Retrieves the path to the Digital Surface Model (DSM) file.
+     * \return The path to the DSM file.
+     */
+    virtual auto dsmPath() const -> tl::Path = 0;
+
+    /*!
+     * \brief Sets the Ground Sample Distance (GSD).
+     * \param[in] gsd The GSD value to set.
+     */
+    virtual void setGsd(double gsd) = 0;
+
+    /*!
+     * \brief Sets the path to the Digital Terrain Model (DTM) file.
+     * \param[in] dtmPath The path to the DTM file.
+     */
     virtual void setDtmPath(const tl::Path &dtmPath) = 0;
+
+    /*!
+     * \brief Sets the path to the Digital Surface Model (DSM) file.
+     * \param[in] dsmPath The path to the DSM file.
+     */
     virtual void setDsmPath(const tl::Path &dsmPath) = 0;
 };
 

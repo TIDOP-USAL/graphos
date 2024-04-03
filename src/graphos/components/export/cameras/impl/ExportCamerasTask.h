@@ -50,7 +50,6 @@ public:
                       const std::unordered_map<size_t, Image> &images,
                       const std::unordered_map<size_t, CameraPose> &poses,
                       const QString &format);
-    ~ExportCamerasTask() override;
 
     void setQuaternionRotation(bool quaternions);
 

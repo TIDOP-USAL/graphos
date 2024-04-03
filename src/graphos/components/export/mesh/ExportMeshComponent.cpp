@@ -42,10 +42,6 @@ ExportMeshComponent::ExportMeshComponent(Application *application)
     init();
 }
 
-ExportMeshComponent::~ExportMeshComponent()
-{
-}
-
 void ExportMeshComponent::init()
 {
     setName("Export Mesh");
@@ -68,8 +64,8 @@ void ExportMeshComponent::createView()
 void ExportMeshComponent::createPresenter()
 {
     setPresenter(new ExportMeshPresenterImp(dynamic_cast<ExportMeshView *>(view()),
-                 dynamic_cast<ExportMeshModel *>(model()),
-                 app()->status()));
+                                            dynamic_cast<ExportMeshModel *>(model()),
+                                            app()->status()));
 }
 
 void ExportMeshComponent::createCommand()

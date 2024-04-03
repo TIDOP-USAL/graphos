@@ -30,6 +30,13 @@
 namespace graphos
 {
 
+/*!
+ * \brief About component
+ *
+ * The `AboutComponent` class represents a component that displays information about the application.
+ * It inherits from `graphos::ComponentBase` and provides methods to initialize, create model, view, presenter,
+ * command, and update the component.
+ */
 class AboutComponent
   : public ComponentBase
 {

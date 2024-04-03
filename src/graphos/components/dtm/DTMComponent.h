@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class DtmProcess;
-
 class DTMComponent
   : public TaskComponent
 {
@@ -46,8 +44,6 @@ public:
 private:
 
     void init();
-
-signals:
 
 // ComponentBase
 

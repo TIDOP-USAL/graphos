@@ -23,6 +23,7 @@
 
 #include "DTMTask.h"
 
+
 #include "graphos/core/task/Progress.h"
 
 TL_DISABLE_WARNINGS
@@ -30,20 +31,21 @@ TL_DISABLE_WARNINGS
 TL_DEFAULT_WARNINGS
 
 #include <tidop/core/msg/message.h>
-#include <tidop/core/chrono.h>
+//#include <tidop/core/chrono.h>
 #include <tidop/core/path.h>
 #include <tidop/geometry/entities/point.h>
 #include <tidop/geometry/size.h>
 #include <tidop/img/img.h>
 #include <tidop/img/imgwriter.h>
 #include <tidop/geospatial/crs.h>
+#include <tidop/geometry/entities/bbox.h>
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Projection_traits_xy_3.h>
 #include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/Triangulation_vertex_base_with_info_2.h>
 #include <CGAL/Triangulation_face_base_with_info_2.h>
-#include <CGAL/boost/graph/graph_traits_Delaunay_triangulation_2.h>
+//#include <CGAL/boost/graph/graph_traits_Delaunay_triangulation_2.h>
 #include <CGAL/Point_set_3.h>
 #include <CGAL/Point_set_3/IO.h>
 #include <CGAL/Surface_mesh.h>
@@ -58,18 +60,18 @@ TL_DEFAULT_WARNINGS
 #include <CGAL/AABB_face_graph_triangle_primitive.h>
 #include <CGAL/AABB_traits.h>
 #include <CGAL/AABB_tree.h>
-#include <CGAL/jet_smooth_point_set.h>
-#include <CGAL/jet_estimate_normals.h>
+//#include <CGAL/jet_smooth_point_set.h>
+//#include <CGAL/jet_estimate_normals.h>
 #include <CGAL/mst_orient_normals.h>
 
 #include <opencv2/imgcodecs.hpp>
 
-#include <iostream>
+//#include <iostream>
 #include <fstream>
 
 using Kernel = CGAL::Exact_predicates_inexact_constructions_kernel;
 using Projection_traits = CGAL::Projection_traits_xy_3<Kernel>;
-using TIN = CGAL::Delaunay_triangulation_2<Projection_traits>;
+using DelaunayTriangulation = CGAL::Delaunay_triangulation_2<Projection_traits>;
 using Point_2 = Kernel::Point_2;
 using Point_3 = Kernel::Point_3;
 using Vector_3 = Kernel::Vector_3;
@@ -107,15 +109,6 @@ using Point_set = CGAL::Point_set_3<Point_3, Vector_3>;
 //#define DTM 1
 
 
-//namespace internal
-//{
-//struct TIN
-//{
-//    ::TIN *ref;
-//};
-//
-//}
-
 namespace graphos
 {
 
@@ -129,18 +122,18 @@ std::array<double, 3> barycentricCoordinates(const Point_3 &pt1, const Point_3 &
                                                                   Kernel());
 }
 
-cv::Mat extractDTMfromTIN(const TIN &tin, const tl::BoundingBoxD &bbox, tl::Progress *progressBar, double gsd, double zOffset)
+cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin, const tl::BoundingBoxD &bbox, tl::Progress *progressBar, double gsd, double zOffset)
 {
     tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd), 
                        tl::roundToInteger(bbox.height()/ gsd));
     cv::Mat mat(size.height, size.width, CV_32F, -9999.);
 
-    TIN::Face_handle location;
+    DelaunayTriangulation::Face_handle location;
 
     double increment = 40. / static_cast<double>(size.height);
     double progress = 0.;
 
-    for (std::size_t r = 0; r < size.height; ++r) {
+    for (std::size_t r = 0; r < static_cast<size_t>(size.height); ++r) {
 
         //if (status() == Task::Status::stopping) return mat;
 
@@ -186,7 +179,7 @@ cv::Mat extractDTMfromMesh(SurfaceMesh &mesh, const tl::BoundingBoxD &bbox, tl::
                        tl::roundToInteger(bbox.height()/ gsd));
     cv::Mat mat(size.height, size.width, CV_32F, -9999.);
 
-    TIN::Face_handle location;
+    DelaunayTriangulation::Face_handle location;
 
     double increment = 40. / static_cast<double>(size.height);
     double progress = 0.;
@@ -269,19 +262,19 @@ void writeDTM(const tl::Path &file, const cv::Mat &mat,
 
 }
 
-DtmTask::DtmTask(const tl::Path &pointCloud, 
-                 const tl::Point3<double> &offset, 
-                 const tl::Path &demPath,
+DtmTask::DtmTask(tl::Path pointCloud, 
+                 tl::Point3<double> offset,
+                 tl::Path demPath,
                  double gsd, 
-                 const QString &crs,
+                 QString crs,
                  bool dsm,
                  bool dtm)
   : tl::TaskBase(),
-    mPointCloud(pointCloud),
-    mOffset(offset),
-    mDemPath(demPath),
+    mPointCloud(std::move(pointCloud)),
+    mOffset(std::move(offset)),
+    mDemPath(std::move(demPath)),
     mGSD(gsd),
-    mCrs(crs),
+    mCrs(std::move(crs)),
     mDSM(dsm),
     mDTM(dtm)
 {
@@ -331,7 +324,7 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         if (mDSM) {
 
-            TIN dtm_clean(points_dsm.points().begin(), points_dsm.points().end());
+            DelaunayTriangulation dtm_clean(points_dsm.points().begin(), points_dsm.points().end());
             dsm_raster = extractDTMfromTIN(dtm_clean, bbox, progressBar, mGSD, mOffset.z);
 
             tl::Path mds_path = mDemPath;
@@ -374,7 +367,7 @@ void DtmTask::execute(tl::Progress *progressBar)
             tl::Path mdt_path = mDemPath;
             mdt_path.append("dtm.tif");
 
-            TIN dtm(points_ground.points().begin(), points_ground.points().end());
+            DelaunayTriangulation dtm(points_ground.points().begin(), points_ground.points().end());
 
             //CGAL::Bbox_3 cgal_bbox = CGAL::bbox_3(points_ground.points().begin(), points_ground.points().end());
             //tl::BoundingBoxD bbox(tl::Point3d(cgal_bbox.xmin(), cgal_bbox.ymin(), cgal_bbox.zmin()),

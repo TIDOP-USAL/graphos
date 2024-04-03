@@ -39,7 +39,6 @@ class ExportMeshComponent
 public:
 
     ExportMeshComponent(Application *application);
-    ~ExportMeshComponent();
 
 private:
 

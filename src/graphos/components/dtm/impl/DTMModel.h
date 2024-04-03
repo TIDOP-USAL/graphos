@@ -37,23 +37,22 @@ class DtmModelImp
 
 public:
 
-    DtmModelImp(Project *project,
-                QObject *parent = nullptr);
+    DtmModelImp(Project *project, QObject *parent = nullptr);
     ~DtmModelImp() override = default;
 
 // DtmModel interface
 
 public:
 
-    std::array<double, 3> offset() const override;
-    tl::Path projectPath() const override;
-    tl::Path denseModel() const override;
-    QString crs() const override;
-    double gsd() const override;
-    tl::Path dtmPath() const override;
-    tl::Path dsmPath() const override;
+    auto offset() const -> std::array<double, 3> override;
+    auto projectPath() const -> tl::Path override;
+    auto denseModel() const -> tl::Path override;
+    auto crs() const -> QString override;
+    auto gsd() const -> double override;
+    auto dtmPath() const -> tl::Path override;
+    auto dsmPath() const -> tl::Path override;
 
-    void setGSD(double gsd) override;
+    void setGsd(double gsd) override;
     void setDtmPath(const tl::Path &dtmPath) override;
     void setDsmPath(const tl::Path &dsmPath) override;
 

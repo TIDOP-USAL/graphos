@@ -41,7 +41,7 @@ class CreateProjectComponent
 public:
 
     CreateProjectComponent(Application *application);
-    ~CreateProjectComponent();
+    ~CreateProjectComponent() override;
 
 private:
 

@@ -41,7 +41,7 @@ class FeatureExtractorComponent
 public:
 
     FeatureExtractorComponent(Application *application);
-    ~FeatureExtractorComponent();
+    ~FeatureExtractorComponent() override;
 
 private:
 

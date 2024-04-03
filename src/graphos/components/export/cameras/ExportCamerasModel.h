@@ -43,10 +43,9 @@ class ExportCamerasModel
 public:
 
     ExportCamerasModel(QObject *parent = nullptr) : Model(parent) {}
-    ~ExportCamerasModel() override = default;
 
-    virtual const std::unordered_map<size_t, CameraPose> &poses() const = 0;
-    virtual const std::unordered_map<size_t, Image> &images() const = 0;
+    virtual auto poses() const -> const std::unordered_map<size_t, CameraPose>& = 0;
+    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
 
 };
 

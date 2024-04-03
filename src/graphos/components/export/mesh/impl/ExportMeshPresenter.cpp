@@ -35,15 +35,15 @@ namespace graphos
 {
 
 ExportMeshPresenterImp::ExportMeshPresenterImp(ExportMeshView *view,
-                                                     ExportMeshModel *model,
-                                                     AppStatus *status)
+                                               ExportMeshModel *model,
+                                               AppStatus *status)
   : ExportMeshPresenter(),
     mView(view),
     mModel(model),
     mAppStatus(status)
 {
-    this->init();
-    this->initSignalAndSlots();
+    ExportMeshPresenterImp::init();
+    ExportMeshPresenterImp::initSignalAndSlots();
 }
 
 ExportMeshPresenterImp::~ExportMeshPresenterImp()

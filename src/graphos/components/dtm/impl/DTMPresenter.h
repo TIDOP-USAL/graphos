@@ -43,7 +43,7 @@ public:
 
     DtmPresenterImp(DtmView *view,
                     DtmModel *model);
-    ~DtmPresenterImp() override;
+    ~DtmPresenterImp() override = default;
 
 // Presenter interface
 
@@ -62,7 +62,7 @@ protected:
 
     void onError(tl::TaskErrorEvent *event) override;
     void onFinished(tl::TaskFinalizedEvent *event) override;
-    std::unique_ptr<tl::Task> createTask() override;
+    auto createTask() -> std::unique_ptr<tl::Task> override;
 
 public slots:
 

@@ -39,7 +39,7 @@ class ExportPointCloudComponent
 public:
 
     ExportPointCloudComponent(Application *application);
-    ~ExportPointCloudComponent();
+    ~ExportPointCloudComponent() override = default;
 
 private:
 

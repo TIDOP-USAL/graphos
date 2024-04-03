@@ -44,7 +44,7 @@ public:
     ExportPointCloudPresenterImp(ExportPointCloudView *view,
                                  ExportPointCloudModel *model,
                                  AppStatus *status);
-    ~ExportPointCloudPresenterImp() override;
+    ~ExportPointCloudPresenterImp() override = default;
 
 // ExportPointCloudPresenter interface
 

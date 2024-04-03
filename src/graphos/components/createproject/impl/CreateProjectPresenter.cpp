@@ -51,15 +51,16 @@ CreateProjectPresenterImp::CreateProjectPresenterImp(CreateProjectView *view,
 void CreateProjectPresenterImp::open()
 {
     if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
+
         int i_ret = QMessageBox(QMessageBox::Information,
-            tr("Save Changes"),
-            tr("There are unsaved changes. Do you want to save them?"),
-            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+                                tr("Save Changes"),
+                                tr("There are unsaved changes. Do you want to save them?"),
+                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+
         if (i_ret == QMessageBox::Yes) {
             saveProject();
             mAppStatus->clear();
-        }
-        else if (i_ret == QMessageBox::Cancel) {
+        } else if (i_ret == QMessageBox::Cancel) {
             return;
         }
     }
@@ -85,9 +86,9 @@ void CreateProjectPresenterImp::initSignalAndSlots()
             this, &CreateProjectPresenterImp::discartProject);
 
     connect(mView, &DialogView::help, 
-        [&]() {
-            emit help("menus.html#new_project");
-        });
+            [&]() {
+                emit help("menus.html#new_project");
+            });
 }
 
 void CreateProjectPresenterImp::saveProject()
@@ -111,7 +112,7 @@ void CreateProjectPresenterImp::saveProject()
     mView->clear();
 }
 
-tl::Path CreateProjectPresenterImp::projectFolder() const
+auto CreateProjectPresenterImp::projectFolder() const -> tl::Path
 {
     tl::Path project_folder = mView->projectPath().toStdWString();
     if (mView->createProjectFolderEnable())
@@ -121,7 +122,7 @@ tl::Path CreateProjectPresenterImp::projectFolder() const
     return project_folder;
 }
 
-tl::Path CreateProjectPresenterImp::projectPath(const tl::Path &projectFolder) const
+auto CreateProjectPresenterImp::projectPath(const tl::Path& projectFolder) const -> tl::Path
 {
     tl::Path project_path = projectFolder;
     project_path.append(mView->projectName().append(".xml").toStdWString());

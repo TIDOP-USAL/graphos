@@ -33,6 +33,10 @@ class CmvsPmvsWidget;
 class SmvsWidget;
 class MvsWidget;
 
+
+/*!
+ * \brief The DensificationPresenter class represents the presenter interface for densification tasks.
+ */
 class DensificationPresenter
   : public TaskPresenter
 
@@ -42,15 +46,33 @@ class DensificationPresenter
 
 public:
 
-    DensificationPresenter() {}
+    DensificationPresenter() = default;
     ~DensificationPresenter() override = default;
 
+    /*!
+     * \brief Sets the widget for CMVS/PMVS.
+     * \param[in] cmvsPmvs The CMVS/PMVS widget.
+     */
     virtual void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) = 0;
+
+    /*!
+     * \brief setSmvsWidget Sets the widget for SMVS.
+     * \param[in] smvs The SMVS widget.
+     */
     virtual void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) = 0;
+
+    /*!
+     * \brief setMvsWidget Sets the widget for MVS.
+     * \param[in] mvs The MVS widget.
+     */
     virtual void setMvsWidget(std::shared_ptr<MvsWidget> mvs) = 0;
 
 public slots:
 
+    /*!
+     * \brief Sets the current densifier.
+     * \param[in] densifier The densifier to set.
+     */
     virtual void setCurrentDensifier(const QString &densifier) = 0;
 
 };
