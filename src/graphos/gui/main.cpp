@@ -165,32 +165,37 @@ void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg)
     } 
 }
 
+#ifdef DEBUG
+
 void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    //QByteArray localMsg = msg.toLocal8Bit();
-    //switch (type) {
-    //    case QtDebugMsg:
-    //        tl::Message::debug("Qt: {}", msg.toStdString());
-    //        break;
-    //    case QtInfoMsg:
-    //        tl::Message::info("Qt: {}", msg.toStdString());
-    //        break;
-    //    case QtWarningMsg:
-    //        tl::Message::warning("Qt: {}", msg.toStdString());
-    //        break;
-    //    case QtCriticalMsg:
-    //        tl::Message::error("Qt: {}", msg.toStdString());
-    //        break;
-    //    case QtFatalMsg:
-    //        tl::Message::error("Qt: {}", msg.toStdString());
-    //        abort();
-    //}
+    QByteArray localMsg = msg.toLocal8Bit();
+    switch (type) {
+        case QtDebugMsg:
+            tl::Message::debug("Qt: {}", msg.toStdString());
+            break;
+        case QtInfoMsg:
+            tl::Message::info("Qt: {}", msg.toStdString());
+            break;
+        case QtWarningMsg:
+            tl::Message::warning("Qt: {}", msg.toStdString());
+            break;
+        case QtCriticalMsg:
+            tl::Message::error("Qt: {}", msg.toStdString());
+            break;
+        case QtFatalMsg:
+            tl::Message::error("Qt: {}", msg.toStdString());
+            abort();
+    }
 }
+#endif // DEBUG
 
 
 int main(int argc, char *argv[])
 {
+#ifdef DEBUG
     qInstallMessageHandler(messageHandlerQt);
+#endif // DEBUG
 
     tl::Path app_path(argv[0]);
     tl::Path graphos_path = app_path.parentPath().parentPath();
