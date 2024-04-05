@@ -105,7 +105,7 @@ void ImageLoaderPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> ImageLoaderPresenterImp::createTask()
+auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
     std::unique_ptr<tl::Task> image_loader_process;
 

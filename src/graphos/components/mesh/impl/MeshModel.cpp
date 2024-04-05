@@ -26,7 +26,6 @@
 #include "graphos/core/mesh/PoissonRecon.h"
 
 #include <QFile>
-#include <QTextStream>
 #include <QSettings>
 
 namespace graphos
@@ -34,10 +33,10 @@ namespace graphos
 
 MeshModelImp::MeshModelImp(Project *project, QObject *parent)
   : MeshModel(parent),
-    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName())),
-    mProject(project)
+    mProject(project),
+    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName()))
 {
-    this->init();
+    this->MeshModelImp::init();
 }
 
 MeshModelImp::~MeshModelImp()
@@ -50,29 +49,23 @@ MeshModelImp::~MeshModelImp()
 
 void MeshModelImp::loadSettings()
 {
-    //if (mReadSettings) {
-
-    //}
 }
 
 void MeshModelImp::saveSettings()
 {
-    //if (mReadSettings) {
-
-    //}
 }
 
-std::shared_ptr<PoissonReconProperties> MeshModelImp::properties() const
+auto MeshModelImp::properties() const -> std::shared_ptr<PoissonReconProperties>
 {
     return mProject->meshProperties();
 }
 
-tl::Path MeshModelImp::denseModel() const
+auto MeshModelImp::denseModel() const -> tl::Path
 {
     return mProject->denseModel();
 }
 
-tl::Path MeshModelImp::projectDir() const
+auto MeshModelImp::projectDir() const -> tl::Path
 {
     return mProject->projectFolder();
 }

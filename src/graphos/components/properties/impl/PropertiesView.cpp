@@ -41,7 +41,7 @@ void PropertiesViewImp::initUI()
 {
     this->setObjectName(QString::fromUtf8("PropertiesView"));
 
-    QGridLayout *layout = new QGridLayout();
+    auto layout = new QGridLayout();
     this->setLayout(layout);
 
     layout->setSpacing(6);
@@ -49,7 +49,7 @@ void PropertiesViewImp::initUI()
     layout->setContentsMargins(0, 0, 0, 0);
 
     mTreeWidgetProperties = new QTreeWidget(this);
-    QTreeWidgetItem *header_item = new QTreeWidgetItem();
+    auto header_item = new QTreeWidgetItem();
     mTreeWidgetProperties->setHeaderItem(header_item);
 
     layout->addWidget(mTreeWidgetProperties, 0, 0, 1, 1);
@@ -86,14 +86,13 @@ void PropertiesViewImp::setProperties(const std::unordered_map<QString, std::lis
     mTreeWidgetProperties->expandAll();
 
     for (auto &group : properties) {
-
-        QTreeWidgetItem *item = new QTreeWidgetItem();
+        auto item = new QTreeWidgetItem();
         item->setText(0, group.first);
 
         mTreeWidgetProperties->addTopLevelItem(item);
 
         for (auto &property : group.second) {
-            QTreeWidgetItem *item_property = new QTreeWidgetItem();
+            auto item_property = new QTreeWidgetItem();
             item_property->setText(0, property.first);
             item_property->setText(1, property.second);
             item->addChild(item_property);

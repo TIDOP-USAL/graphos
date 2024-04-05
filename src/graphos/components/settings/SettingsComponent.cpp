@@ -27,7 +27,6 @@
 #include "graphos/components/settings/impl/SettingsView.h"
 #include "graphos/components/settings/impl/SettingsPresenter.h"
 #include "graphos/core/project.h"
-#include "graphos/core/AppStatus.h"
 #include "graphos/widgets/settings/FeatViewerSettingsWidget.h"
 #include "graphos/widgets/settings/MatchViewerSettingsWidget.h"
 
@@ -41,10 +40,10 @@ namespace graphos
 SettingsComponent::SettingsComponent(Application *application)
   : ComponentBase(application)
 {
-    setName("Settings");
-    setMenu("tools");
-    setToolbar("tools");
-    setIcon(QIcon::fromTheme("settings"));
+    ComponentBase::setName("Settings");
+    ComponentBase::setMenu("tools");
+    ComponentBase::setToolbar("tools");
+    ComponentBase::setIcon(QIcon::fromTheme("settings"));
 }
 
 SettingsComponent::~SettingsComponent()

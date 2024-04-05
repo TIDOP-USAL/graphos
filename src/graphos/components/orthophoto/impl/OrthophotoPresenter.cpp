@@ -27,9 +27,6 @@
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoTask.h"
-#include "graphos/core/utils.h"
-
-#include <tidop/core/defs.h>
 
 #include <QFileInfo>
 #include <QMessageBox>
@@ -43,8 +40,8 @@ OrthophotoPresenterImp::OrthophotoPresenterImp(OrthophotoView *view,
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    OrthophotoPresenterImp::init();
+    OrthophotoPresenterImp::initSignalAndSlots();
 }
 
 OrthophotoPresenterImp::~OrthophotoPresenterImp()
@@ -71,7 +68,7 @@ void OrthophotoPresenterImp::initSignalAndSlots()
     connect(mView, &TaskView::run, this, &TaskPresenter::run);
     connect(mView, &DialogView::help, [&]() {
         emit help("orthophoto.html");
-  });
+    });
 }
 
 void OrthophotoPresenterImp::onError(tl::TaskErrorEvent *event)
@@ -99,8 +96,6 @@ void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 {
-    std::unique_ptr<tl::Task> ortho_process;
-
     tl::Path ortho_path = mModel->orthoPath();
     //if(!ortho_path.exists()) {
     //    int i_ret = QMessageBox(QMessageBox::Warning,
@@ -119,13 +114,13 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
     tl::Path ortho_dir = mModel->projectFolder();
     ortho_dir.append("ortho");
 
-    ortho_process = std::make_unique<OrthophotoTask>(mView->gsd(),
-                                                     mModel->images(),
-                                                     mModel->cameras(),
-                                                     ortho_dir,
-                                                     mModel->dtmPath(),
-                                                     mModel->epsCode(),
-                                                     mModel->useCuda());
+    std::unique_ptr<tl::Task> ortho_process = std::make_unique<OrthophotoTask>(mView->gsd(),
+                                                                               mModel->images(),
+                                                                               mModel->cameras(),
+                                                                               ortho_dir,
+                                                                               mModel->dtmPath(),
+                                                                               mModel->epsCode(),
+                                                                               mModel->useCuda());
 
     if(progressHandler()) {
         progressHandler()->setRange(0, 0);

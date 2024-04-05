@@ -51,7 +51,7 @@ public:
 
 protected slots:
 
-    void onTreeWidgetMatchesItemClicked(QTreeWidgetItem *item, int col);
+    void onTreeWidgetMatchesItemClicked(QTreeWidgetItem *item, int col) const;
     void onTreeWidgetMatchesItemSelectionChanged();
     void onGraphicsViewLeftSelectionChanged();
     void onGraphicsViewRightSelectionChanged();

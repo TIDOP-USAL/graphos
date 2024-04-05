@@ -132,28 +132,28 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
     mModel->cleanProject();
     emit matches_deleted();
 
-    QString currentMatchMethod = mView->currentMatchMethod();
+    QString current_match_method = mView->currentMatchMethod();
 
-    std::shared_ptr<FeatureMatching> featureMatching;
-    if (currentMatchMethod.compare("Feature Matching Colmap") == 0) {
-        featureMatching = std::make_shared<FeatureMatching>();
-        featureMatching->setRatio(mFeatureMatchingWidget->ratio());
-        featureMatching->setDistance(mFeatureMatchingWidget->distance());
-        featureMatching->setMaxError(mFeatureMatchingWidget->maxError());
-        featureMatching->setConfidence(mFeatureMatchingWidget->confidence());
-        featureMatching->enableCrossCheck(mFeatureMatchingWidget->crossCheck());
+    std::shared_ptr<FeatureMatching> feature_matching;
+    if (current_match_method.compare("Feature Matching Colmap") == 0) {
+        feature_matching = std::make_shared<FeatureMatching>();
+        feature_matching->setRatio(mFeatureMatchingWidget->ratio());
+        feature_matching->setDistance(mFeatureMatchingWidget->distance());
+        feature_matching->setMaxError(mFeatureMatchingWidget->maxError());
+        feature_matching->setConfidence(mFeatureMatchingWidget->confidence());
+        feature_matching->enableCrossCheck(mFeatureMatchingWidget->crossCheck());
     } else {
         throw std::runtime_error("Invalid Feature Matching method");
     }
 
-    mModel->setFeatureMatching(featureMatching);
+    mModel->setFeatureMatching(feature_matching);
 
     if (mView->spatialMatching()) {
         featmatching_task = std::make_unique<SpatialMatchingTask>(mModel->database(),
                                                                   mModel->useCuda(),
-                                                                 featureMatching);
+                                                                 feature_matching);
 
-        featmatching_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+        featmatching_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
             auto report = dynamic_cast<SpatialMatchingTask const*>(event->task())->report();
 
@@ -164,9 +164,9 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
     } else {
         featmatching_task = std::make_unique<FeatureMatchingTask>(mModel->database(),
                                                                   mModel->useCuda(),
-                                                                  featureMatching);
+                                                                  feature_matching);
 
-        featmatching_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+        featmatching_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
             auto report = dynamic_cast<FeatureMatchingTask const*>(event->task())->report();
 
@@ -180,7 +180,7 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
         size_t max = size;
         if (!mView->spatialMatching()) {
             size_t block_size = 50;
-            size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(size) / block_size));
+            size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(size) / static_cast<double>(block_size)));
             max = num_blocks * num_blocks;
         }
         progressHandler()->setRange(0, max);

@@ -42,8 +42,8 @@ RecentProjectsPresenterImp::RecentProjectsPresenterImp(RecentProjectsView *view,
     mModel(model),
     mAppStatus(status)
 {
-    this->init();
-    this->initSignalAndSlots();
+    RecentProjectsPresenterImp::init();
+    RecentProjectsPresenterImp::initSignalAndSlots();
 }
 
 RecentProjectsPresenterImp::~RecentProjectsPresenterImp()

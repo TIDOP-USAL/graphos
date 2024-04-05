@@ -41,12 +41,12 @@ public:
     OrientationView(QWidget *parent = nullptr) : DialogView(parent) {}
     ~OrientationView() override = default;
 
-    virtual bool fixCalibration() const = 0;
-    virtual bool isEnabledCalibration() const = 0;
-    virtual bool absoluteOrientation() const = 0;
-    virtual bool isEnabledAbsoluteOrientation() const = 0;
-    virtual bool fixPoses() const = 0;
-    virtual bool isEnabledPoses() const = 0;
+    virtual auto fixCalibration() const -> bool = 0;
+    virtual auto isEnabledCalibration() const -> bool = 0;
+    virtual auto absoluteOrientation() const -> bool = 0;
+    virtual auto isEnabledAbsoluteOrientation() const -> bool = 0;
+    virtual auto fixPoses() const -> bool = 0;
+    virtual auto isEnabledPoses() const -> bool = 0;
 
 public slots:
 

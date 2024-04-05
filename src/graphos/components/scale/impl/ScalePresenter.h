@@ -65,11 +65,14 @@ private:
 
 // TaskPresenter interface
 
+protected:
+
+    auto createTask() -> std::unique_ptr<tl::Task> override;
+
 protected slots:
 
     void onError(tl::TaskErrorEvent *event) override;
     void onFinished(tl::TaskFinalizedEvent *event) override;
-    std::unique_ptr<tl::Task> createTask() override;
 
 public slots:
 

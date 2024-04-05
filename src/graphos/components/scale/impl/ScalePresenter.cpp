@@ -33,7 +33,6 @@
 #include "graphos/core/utils.h"
 
 #include <ccPointCloud.h>
-#include <ccGenericMesh.h>
 
 #include <tidop/core/defs.h>
 
@@ -49,8 +48,8 @@ ScalePresenterImp::ScalePresenterImp(ScaleView *view,
     mModel(model),
     mPoints(0)
 {
-    this->init();
-    this->initSignalAndSlots();
+    ScalePresenterImp::init();
+    ScalePresenterImp::initSignalAndSlots();
 }
 
 ScalePresenterImp::~ScalePresenterImp()
@@ -74,12 +73,12 @@ void ScalePresenterImp::measure(bool active)
         }
 
     } else if (active) {
-        QMessageBox msgBox(QMessageBox::Warning,
+        QMessageBox msg_box(QMessageBox::Warning,
                            "A 3D model is required for the measurement",
                            "Do you want to open the 3D model??",
                            QMessageBox::Yes | QMessageBox::No, mView);
-        msgBox.setDefaultButton(QMessageBox::Yes);
-        int ret = msgBox.exec();
+        msg_box.setDefaultButton(QMessageBox::Yes);
+        int ret = msg_box.exec();
         if (ret == QMessageBox::Yes) {
             emit open_3d_model();
         }
@@ -118,9 +117,10 @@ void ScalePresenterImp::initSignalAndSlots()
 {
     connect(mView, &TaskView::run, this, &TaskPresenter::run);
     connect(mView, &ScaleView::enableMeasure, this, &ScalePresenterImp::measure);
-    connect(mView, &DialogView::help, [&]() {
-        emit help("Scale.html");
-            });
+    connect(mView, &DialogView::help, 
+        [&]() {
+            emit help("Scale.html");
+        });
 }
 
 void ScalePresenterImp::onError(tl::TaskErrorEvent *event)
@@ -141,10 +141,8 @@ void ScalePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> ScalePresenterImp::createTask()
+auto ScalePresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    std::unique_ptr<tl::Task> process;
-
     ccHObject *model = nullptr;
 
     if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
@@ -164,9 +162,9 @@ std::unique_ptr<tl::Task> ScalePresenterImp::createTask()
 
     double scale = mView->distanceReal() / mView->distance();
 
-    process = std::make_unique<ScaleTask>(scale, model);
+    std::unique_ptr<tl::Task> task = std::make_unique<ScaleTask>(scale, model);
 
-    process->subscribe([&](tl::TaskFinalizedEvent *event) {
+    task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
         try {
 
@@ -189,7 +187,7 @@ std::unique_ptr<tl::Task> ScalePresenterImp::createTask()
 
     mView->hide();
 
-    return process;
+    return task;
 }
 
 void ScalePresenterImp::cancel()

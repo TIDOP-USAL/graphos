@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class LoadFromVideoProcess;
-
 class LoadFromVideoComponent
   : public TaskComponent
 {

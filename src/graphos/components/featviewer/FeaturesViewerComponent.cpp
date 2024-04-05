@@ -53,7 +53,7 @@ void FeaturesViewerComponent::init()
     setIcon(QIcon::fromTheme("features-viewer"));
 }
 
-void FeaturesViewerComponent::openKeypointsViewer(size_t imageId)
+void FeaturesViewerComponent::openKeypointsViewer(size_t imageId) const
 {
     action()->trigger();
     dynamic_cast<FeaturesViewerPresenter *>(presenter())->setImageActive(imageId);
@@ -73,7 +73,7 @@ void FeaturesViewerComponent::createView()
 void FeaturesViewerComponent::createPresenter()
 {
     setPresenter(new FeaturesViewerPresenterImp(dynamic_cast<FeaturesViewerView *>(view()),
-                 dynamic_cast<FeaturesViewerModel *>(model())));
+                                                dynamic_cast<FeaturesViewerModel *>(model())));
 }
 
 void FeaturesViewerComponent::createCommand()
@@ -87,8 +87,7 @@ void FeaturesViewerComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bFeatureExtraction = app_status->isEnabled(AppStatus::Flag::feature_extraction);
-    action()->setEnabled(bFeatureExtraction);
+    action()->setEnabled(app_status->isEnabled(AppStatus::Flag::feature_extraction));
 }
 
 } // namespace graphos

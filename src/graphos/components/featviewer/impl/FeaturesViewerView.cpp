@@ -52,8 +52,8 @@ FeaturesViewerViewImp::FeaturesViewerViewImp(QWidget *parent,
     mMarkerWidth(1),
     mSelectedMarkerWidth(2)
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    this->FeaturesViewerViewImp::initUI();
+    this->FeaturesViewerViewImp::initSignalAndSlots();
 }
 
 FeaturesViewerViewImp::~FeaturesViewerViewImp()
@@ -66,27 +66,27 @@ void FeaturesViewerViewImp::initUI()
 
     this->resize(994, 688);
 
-    QGridLayout *gridLayout = new QGridLayout();
-    this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
     mLabelImages = new QLabel(this);
-    gridLayout->addWidget(mLabelImages, 0, 0, 1, 1);
+    grid_layout->addWidget(mLabelImages, 0, 0, 1, 1);
 
     mComboBoxImages = new QComboBox(this);
-    gridLayout->addWidget(mComboBoxImages, 0, 1, 1, 1);
+    grid_layout->addWidget(mComboBoxImages, 0, 1, 1, 1);
 
     mGraphicView = new GraphicViewer(this);
-    gridLayout->addWidget(mGraphicView, 1, 0, 1, 2);
+    grid_layout->addWidget(mGraphicView, 1, 0, 1, 2);
 
     mTreeWidget = new QTreeWidget(this);
     mTreeWidget->setAlternatingRowColors(true);
     mTreeWidget->setMaximumSize(QSize(16777215, 192));
-    gridLayout->addWidget(mTreeWidget, 2, 0, 1, 2);
+    grid_layout->addWidget(mTreeWidget, 2, 0, 1, 2);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Close | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 3, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 3, 0, 1, 2);
 
     this->retranslate();
     this->update();
@@ -118,10 +118,10 @@ void FeaturesViewerViewImp::initSignalAndSlots()
 void FeaturesViewerViewImp::clear()
 {
     this->setWindowTitle(tr("Keypoints Viewer"));
-    const QSignalBlocker blockerTreeWidget(mTreeWidget);
+    const QSignalBlocker blocker_tree_widget(mTreeWidget);
     mTreeWidget->clear();
 
-    const QSignalBlocker blockerComboBoxImages(mComboBoxImages);
+    const QSignalBlocker blocker_combo_box_images(mComboBoxImages);
     mComboBoxImages->clear();
 }
 
@@ -134,12 +134,12 @@ void FeaturesViewerViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("FeaturesViewerView", "Keypoints Viewer"));
     mLabelImages->setText(QApplication::translate("FeaturesViewerView", "Images:"));
-    QTreeWidgetItem *qTreeWidgetItem = mTreeWidget->headerItem();
-    qTreeWidgetItem->setText(0, QApplication::translate("FeaturesViewerView", "ID"));
-    qTreeWidgetItem->setText(1, QApplication::translate("FeaturesViewerView", "X"));
-    qTreeWidgetItem->setText(2, QApplication::translate("FeaturesViewerView", "Y"));
-    qTreeWidgetItem->setText(3, QApplication::translate("FeaturesViewerView", "Size"));
-    qTreeWidgetItem->setText(4, QApplication::translate("FeaturesViewerView", "Angle"));
+    QTreeWidgetItem *tree_widget_item = mTreeWidget->headerItem();
+    tree_widget_item->setText(0, QApplication::translate("FeaturesViewerView", "ID"));
+    tree_widget_item->setText(1, QApplication::translate("FeaturesViewerView", "X"));
+    tree_widget_item->setText(2, QApplication::translate("FeaturesViewerView", "Y"));
+    tree_widget_item->setText(3, QApplication::translate("FeaturesViewerView", "Size"));
+    tree_widget_item->setText(4, QApplication::translate("FeaturesViewerView", "Angle"));
     mButtonBox->button(QDialogButtonBox::Close)->setText(tr("Close"));
     mButtonBox->button(QDialogButtonBox::Help)->setText("Help");
 }
@@ -150,31 +150,30 @@ void FeaturesViewerViewImp::onGraphicsViewSelectionChanged()
     const QSignalBlocker blocker2(mTreeWidget);
 
     QList<QGraphicsItem *> items = mGraphicView->items();
-    bool bSelectedItem = false;
-    for (int i = 0; i < items.size(); i++) {
-        if (items[i] && items[i]->isSelected() == true) {
+    bool selected_item = false;
+    for (const auto &item : items) {
+        if (item && item->isSelected() == true) {
 
             mTreeWidget->selectionModel()->clearSelection();
 
             for (int j = 0; j < mTreeWidget->topLevelItemCount(); j++) {
-                QTreeWidgetItem *item = mTreeWidget->topLevelItem(j);
-                if (item && item->text(0).compare(items[i]->toolTip()) == 0) {
-                    item->setSelected(true);
+                QTreeWidgetItem *tree_item = mTreeWidget->topLevelItem(j);
+                if (tree_item && tree_item->text(0).compare(item->toolTip()) == 0) {
+                    tree_item->setSelected(true);
                     QModelIndex index = mTreeWidget->model()->index(j, 0);
                     mTreeWidget->scrollTo(index);
                     break;
                 }
             }
 
-            bSelectedItem = true;
+            selected_item = true;
             break;
         }
     }
 
-    if (bSelectedItem == false) {
-        QList<QGraphicsItem *> items = mGraphicView->items();
-        for (int i = 0; i < items.size(); i++) {
-            items[i]->setSelected(false);
+    if (selected_item == false) {
+        for (auto& item : items) {
+            item->setSelected(false);
         }
         mTreeWidget->selectionModel()->clearSelection();
     }
@@ -202,6 +201,7 @@ void FeaturesViewerViewImp::onTreeWidgetItemSelectionChanged()
     } else {
         mGraphicView->scene()->clearSelection();
     }
+
     update();
 }
 
@@ -240,40 +240,38 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<std::tuple<QPointF, f
 
     for (auto &item : mGraphicView->scene()->items()) {
         if (mMarkerType == 0) {
-            if (KeyPointGraphicsItem *keyPoint = dynamic_cast<KeyPointGraphicsItem *>(item)) {
+            if (auto key_point = dynamic_cast<KeyPointGraphicsItem *>(item)) {
                 mGraphicView->scene()->removeItem(item);
-                delete keyPoint;
-                keyPoint = nullptr;
+                delete key_point;
+                key_point = nullptr;
             }
         } else if (mMarkerType == 1) {
             // Circle
-            if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)) {
+            if (auto key_point = dynamic_cast<CircleGraphicItem *>(item)) {
                 mGraphicView->scene()->removeItem(item);
-                delete keyPoint;
-                keyPoint = nullptr;
+                delete key_point;
+                key_point = nullptr;
             }
         } else if (mMarkerType == 2) {
             // Cross
-            if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)) {
+            if (auto key_point = dynamic_cast<CrossGraphicItem *>(item)) {
                 mGraphicView->scene()->removeItem(item);
-                delete keyPoint;
-                keyPoint = nullptr;
+                delete key_point;
+                key_point = nullptr;
             }
         } else if (mMarkerType == 3) {
             // Diagonal cross
-            if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)) {
+            if (auto key_point = dynamic_cast<DiagonalCrossGraphicItem *>(item)) {
                 mGraphicView->scene()->removeItem(item);
-                delete keyPoint;
-                keyPoint = nullptr;
+                delete key_point;
+                key_point = nullptr;
             }
         }
     }
 
 
-    QBrush brush;
-    brush = QBrush(Qt::NoBrush);
+    //QBrush brush(Qt::NoBrush);
 
-    //
     //mMarkerSize;
     QPen pen(QColor(mMarkerColor), mMarkerWidth);
     pen.setCosmetic(true);
@@ -281,22 +279,22 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<std::tuple<QPointF, f
     select_pen.setCosmetic(true);
 
     for (size_t i = 0; i < keyPoints.size(); i++) {
-        QTreeWidgetItem *treeWidgetItem = new QTreeWidgetItem();
-        treeWidgetItem->setText(0, QString::number(i + 1));
+        auto tree_widget_item = new QTreeWidgetItem();
+        tree_widget_item->setText(0, QString::number(i + 1));
         QPointF point;
         double size;
         double angle;
         std::tie(point, size, angle) = keyPoints[i];
 
         //QPointF point = keyPoints[i];
-        treeWidgetItem->setText(1, QString::number(point.x()));
-        treeWidgetItem->setText(2, QString::number(point.y()));
-        treeWidgetItem->setText(3, QString::number(size));
-        treeWidgetItem->setText(4, QString::number(angle));
-        mTreeWidget->addTopLevelItem(treeWidgetItem);
+        tree_widget_item->setText(1, QString::number(point.x()));
+        tree_widget_item->setText(2, QString::number(point.y()));
+        tree_widget_item->setText(3, QString::number(size));
+        tree_widget_item->setText(4, QString::number(angle));
+        mTreeWidget->addTopLevelItem(tree_widget_item);
 
         if (mMarkerType == 0) {
-            KeyPointGraphicsItem *item = new KeyPointGraphicsItem(point, size, angle);
+            auto item = new KeyPointGraphicsItem(point, size, angle);
             item->setPen(pen);
             item->setSelectedPen(select_pen);
             item->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -304,7 +302,7 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<std::tuple<QPointF, f
             mGraphicView->scene()->addItem(item);
         } else if (mMarkerType == 1) {
             // Circle
-            CircleGraphicItem *item = new CircleGraphicItem(point, mMarkerSize);
+            auto item = new CircleGraphicItem(point, mMarkerSize);
             item->setPen(pen);
             item->setSelectedPen(select_pen);
             item->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -312,7 +310,7 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<std::tuple<QPointF, f
             mGraphicView->scene()->addItem(item);
         } else if (mMarkerType == 2) {
             // Cross
-            CrossGraphicItem *item = new CrossGraphicItem(point, mMarkerSize);
+            auto item = new CrossGraphicItem(point, mMarkerSize);
             item->setPen(pen);
             item->setSelectedPen(select_pen);
             item->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -320,7 +318,7 @@ void FeaturesViewerViewImp::setKeyPoints(const std::vector<std::tuple<QPointF, f
             mGraphicView->scene()->addItem(item);
         } else if (mMarkerType == 3) {
             // Diagonal cross
-            DiagonalCrossGraphicItem *item = new DiagonalCrossGraphicItem(point, mMarkerSize);
+            auto item = new DiagonalCrossGraphicItem(point, mMarkerSize);
             item->setPen(pen);
             item->setSelectedPen(select_pen);
             item->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -348,31 +346,31 @@ void FeaturesViewerViewImp::setMarkerStyle(const QString &color, int width, int 
     if (mMarkerType != type) {  /// TODO: ¿Es necesario?
         for (auto &item : mGraphicView->scene()->items()) {
             if (mMarkerType == 0) {
-                if (KeyPointGraphicsItem *keyPoint = dynamic_cast<KeyPointGraphicsItem *>(item)) {
+                if (auto key_point = dynamic_cast<KeyPointGraphicsItem *>(item)) {
                     mGraphicView->scene()->removeItem(item);
-                    delete keyPoint;
-                    keyPoint = nullptr;
+                    delete key_point;
+                    key_point = nullptr;
                 }
             } else if (mMarkerType == 1) {
                 // Circle
-                if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)) {
+                if (auto key_point = dynamic_cast<CircleGraphicItem *>(item)) {
                     mGraphicView->scene()->removeItem(item);
-                    delete keyPoint;
-                    keyPoint = nullptr;
+                    delete key_point;
+                    key_point = nullptr;
                 }
             } else if (mMarkerType == 2) {
                 // Cross
-                if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)) {
+                if (auto key_point = dynamic_cast<CrossGraphicItem *>(item)) {
                     mGraphicView->scene()->removeItem(item);
-                    delete keyPoint;
-                    keyPoint = nullptr;
+                    delete key_point;
+                    key_point = nullptr;
                 }
             } else if (mMarkerType == 3) {
                 // Diagonal cross
-                if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)) {
+                if (auto key_point = dynamic_cast<DiagonalCrossGraphicItem *>(item)) {
                     mGraphicView->scene()->removeItem(item);
-                    delete keyPoint;
-                    keyPoint = nullptr;
+                    delete key_point;
+                    key_point = nullptr;
                 }
             }
         }
@@ -395,31 +393,31 @@ void FeaturesViewerViewImp::closeEvent(QCloseEvent *event)
 {
     for (auto &item : mGraphicView->scene()->items()) {
         if (mMarkerType == 0) {
-            if (KeyPointGraphicsItem *keyPoint = dynamic_cast<KeyPointGraphicsItem *>(item)) {
+            if (auto key_point = dynamic_cast<KeyPointGraphicsItem *>(item)) {
                 mGraphicView->scene()->removeItem(item);
-                delete keyPoint;
-                keyPoint = nullptr;
+                delete key_point;
+                key_point = nullptr;
             }
         } else if (mMarkerType == 1) {
             // Circle
-            if (CircleGraphicItem *keyPoint = dynamic_cast<CircleGraphicItem *>(item)) {
+            if (auto key_point = dynamic_cast<CircleGraphicItem *>(item)) {
                 mGraphicView->scene()->removeItem(item);
-                delete keyPoint;
-                keyPoint = nullptr;
+                delete key_point;
+                key_point = nullptr;
             }
         } else if (mMarkerType == 2) {
             // Cross
-            if (CrossGraphicItem *keyPoint = dynamic_cast<CrossGraphicItem *>(item)) {
+            if (auto key_point = dynamic_cast<CrossGraphicItem *>(item)) {
                 mGraphicView->scene()->removeItem(item);
-                delete keyPoint;
-                keyPoint = nullptr;
+                delete key_point;
+                key_point = nullptr;
             }
         } else if (mMarkerType == 3) {
             // Diagonal cross
-            if (DiagonalCrossGraphicItem *keyPoint = dynamic_cast<DiagonalCrossGraphicItem *>(item)) {
+            if (auto key_point = dynamic_cast<DiagonalCrossGraphicItem *>(item)) {
                 mGraphicView->scene()->removeItem(item);
-                delete keyPoint;
-                keyPoint = nullptr;
+                delete key_point;
+                key_point = nullptr;
             }
         }
     }

@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class MeshProcess;
-
 class MeshComponent
   : public TaskComponent
 {
@@ -64,10 +62,6 @@ protected slots:
     void onRunning() override;
     void onFinished() override;
     void onFailed() override;
-
-private:
-
-    MeshProcess *mProcess;
 
 };
 

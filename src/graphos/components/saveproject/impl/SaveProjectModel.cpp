@@ -30,8 +30,6 @@
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/core/sfm/groundpoint.h"
 
-//#include <colmap/base/similarity_transform.h>
-
 #include <QStandardPaths>
 
 namespace graphos

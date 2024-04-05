@@ -48,16 +48,16 @@ public:
 
 public:
 
-    std::vector<Image> images() const override;
-    std::map<int, Camera> cameras() const override;
-    tl::Path projectFolder() const override;
-    tl::Path orthoPath() const override;
+    auto images() const -> Images override;
+    auto cameras() const -> Cameras override;
+    auto projectFolder() const -> tl::Path override;
+    auto orthoPath() const -> tl::Path override;
     void setOrthoPath(const tl::Path &orthoPath) override;
-    tl::Path dtmPath() const override;
-    QString epsCode() const override;
+    auto dtmPath() const -> tl::Path override;
+    auto epsCode() const -> QString override;
     void clearProject() override;
-    bool useCuda() const override;
-    double gsd() const override;
+    auto useCuda() const -> bool override;
+    auto gsd() const -> double override;
 
 public slots:
 

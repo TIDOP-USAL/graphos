@@ -38,12 +38,8 @@ class LoadFromVideoPresenter
 
 public:
 
-    LoadFromVideoPresenter() : TaskPresenter() {}
+    LoadFromVideoPresenter() = default;
     ~LoadFromVideoPresenter() override = default;
-
-public slots:
-
-    //virtual void setImages(const QStringList &files) = 0;
 
 protected slots:
 

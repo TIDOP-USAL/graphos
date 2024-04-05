@@ -31,9 +31,8 @@ namespace graphos
 
 class OpenProjectView;
 class OpenProjectModel;
-class AppStatus;
 
-class OpenProjectPresenterImp final
+class OpenProjectPresenterImp
   : public OpenProjectPresenter
 {
 
@@ -42,8 +41,7 @@ class OpenProjectPresenterImp final
 public:
 
     OpenProjectPresenterImp(OpenProjectView *view,
-                            OpenProjectModel *model,
-                            AppStatus *status);
+                            OpenProjectModel *model);
     ~OpenProjectPresenterImp() override;
 
 // OpenProjectPresenter interface
@@ -67,7 +65,7 @@ private:
 
     OpenProjectView *mView;
     OpenProjectModel *mModel;
-    AppStatus *mAppStatus;
+
 };
 
 } // namespace graphos

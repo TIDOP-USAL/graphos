@@ -25,7 +25,6 @@
 #ifndef GRAPHOS_SCALE_PRESENTER_INTERFACE_H
 #define GRAPHOS_SCALE_PRESENTER_INTERFACE_H
 
-#include "graphos/core/mvp.h"
 #include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
@@ -39,7 +38,7 @@ class ScalePresenter
 
 public:
 
-    ScalePresenter() : TaskPresenter() {}
+    ScalePresenter() = default;
     ~ScalePresenter() override = default;
 
 signals:

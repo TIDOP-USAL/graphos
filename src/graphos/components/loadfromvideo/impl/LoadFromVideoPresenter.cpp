@@ -41,14 +41,11 @@ LoadFromVideoPresenterImp::LoadFromVideoPresenterImp(LoadFromVideoView *view,
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    LoadFromVideoPresenterImp::init();
+    LoadFromVideoPresenterImp::initSignalAndSlots();
 }
 
-LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp()
-{
-
-}
+LoadFromVideoPresenterImp::~LoadFromVideoPresenterImp() = default;
 
 void LoadFromVideoPresenterImp::addImage(QString imagePath, int cameraId)
 {
@@ -100,9 +97,9 @@ void LoadFromVideoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createTask()
+auto LoadFromVideoPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    std::unique_ptr<tl::Task> process;
+    std::unique_ptr<tl::Task> task;
 
     tl::Path images_path = mModel->imagesPath();
 
@@ -116,7 +113,7 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createTask()
     int end = mView->videoEnd();
 
 
-    process = std::make_unique<LoadFromVideoTask>(mView->video().toStdWString(),
+    task = std::make_unique<LoadFromVideoTask>(mView->video().toStdWString(),
                                                   skip_frames,
                                                   begin,
                                                   end,
@@ -124,7 +121,7 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createTask()
                                                   &mCameras,
                                                   "OpenCV 1");
 
-    connect(dynamic_cast<LoadFromVideoTask *>(process.get()),
+    connect(dynamic_cast<LoadFromVideoTask *>(task.get()),
             &LoadFromVideoTask::image_added,
             this, &LoadFromVideoPresenterImp::addImage);
 
@@ -136,7 +133,7 @@ std::unique_ptr<tl::Task> LoadFromVideoPresenterImp::createTask()
 
     mView->hide();
 
-    return process;
+    return task;
 }
 
 void LoadFromVideoPresenterImp::cancel()

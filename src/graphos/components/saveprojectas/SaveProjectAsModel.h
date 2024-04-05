@@ -45,10 +45,13 @@ public:
     SaveProjectAsModel(QObject *parent = nullptr) : Model(parent) {}
     ~SaveProjectAsModel() override = default;
 
+public:
+
+    virtual auto graphosProjectsDirectory() const -> tl::Path = 0;
+
 public slots:
 
     virtual void save(const tl::Path &file) = 0;
-    virtual tl::Path graphosProjectsDirectory() const = 0;
 
 };
 

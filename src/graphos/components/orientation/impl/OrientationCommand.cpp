@@ -58,7 +58,7 @@ class ImportPoses
 public:
 
     ImportPoses(Project *project);
-    ~ImportPoses();
+    ~ImportPoses() = default;
 
     void run();
 
@@ -70,21 +70,21 @@ private:
     void computeOffset();
 
     void temporalReconstruction(const tl::Path &tempPath);
-    void writeImages(const tl::Path &tempPath);
+    void writeImages(const tl::Path &tempPath) const;
     void writeCameras(const tl::Path &tempPath);
     void writePoints(const tl::Path &tempPath);
-    colmap::Reconstruction importReconstruction(const tl::Path &tempPath);
-    colmap::DatabaseCache loadDatabase(colmap::Reconstruction &reconstruction,
-                                       std::shared_ptr<colmap::IncrementalMapperOptions> mapper_options);
+    auto importReconstruction(const tl::Path& tempPath) -> colmap::Reconstruction;
+    auto loadDatabase(colmap::Reconstruction& reconstruction,
+                      std::shared_ptr<colmap::IncrementalMapperOptions> mapper_options) const -> colmap::DatabaseCache;
     void triangulation(colmap::Reconstruction &reconstruction,
                        colmap::IncrementalMapper &mapper,
                        const colmap::IncrementalTriangulator::Options &options);
     void bundleAdjustment(colmap::Reconstruction &reconstruction,
                           colmap::IncrementalMapper &mapper,
-                          std::shared_ptr<colmap::IncrementalMapperOptions> mapper_options);
+                          std::shared_ptr<colmap::IncrementalMapperOptions> mapper_options) const;
 
-    bool isCoordinatesLocal() const;
-    tl::Point3<double> offset();
+    auto isCoordinatesLocal() const -> bool;
+    auto offset() -> tl::Point3<double>;
 
 private:
 
@@ -98,10 +98,6 @@ ImportPoses::ImportPoses(Project *project)
     : mProject(project)
 {
     computeOffset();
-}
-
-ImportPoses::~ImportPoses()
-{
 }
 
 void ImportPoses::run()
@@ -204,7 +200,7 @@ void ImportPoses::temporalReconstruction(const tl::Path &tempPath)
     writePoints(tempPath);
 }
 
-void ImportPoses::writeImages(const tl::Path &tempPath)
+void ImportPoses::writeImages(const tl::Path &tempPath) const
 {
     tl::Path images_path(tempPath);
     images_path.append("images.txt");
@@ -262,7 +258,7 @@ void ImportPoses::writeImages(const tl::Path &tempPath)
 }
 
 
-void ImportPoses::writeCameras(const tl::Path &tempPath)
+auto ImportPoses::writeCameras(const tl::Path& tempPath) -> void
 {
     tl::Path cameras_path(tempPath);
     cameras_path.append("cameras.txt");
@@ -425,7 +421,7 @@ void ImportPoses::writeCameras(const tl::Path &tempPath)
             if (camera_type == "THIN_PRISM_FISHEYE")
                 ofs << " 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
 
-            if (camera_type.compare("FULL_RADIAL") == 0)
+            if (camera_type == "FULL_RADIAL")
                 ofs << " 0.0 0.0 0.0 0.0 0.0 0.0";
 
         }
@@ -446,15 +442,15 @@ void ImportPoses::writePoints(const tl::Path &tempPath)
     ofs.close();
 }
 
-colmap::Reconstruction ImportPoses::importReconstruction(const tl::Path &tempPath)
+auto ImportPoses::importReconstruction(const tl::Path& tempPath) -> colmap::Reconstruction
 {
     colmap::Reconstruction reconstruction;
     reconstruction.Read(tempPath.toString());
     return reconstruction;
 }
 
-colmap::DatabaseCache ImportPoses::loadDatabase(colmap::Reconstruction &reconstruction,
-                                                std::shared_ptr<colmap::IncrementalMapperOptions> mapper_options)
+auto ImportPoses::loadDatabase(colmap::Reconstruction& reconstruction,
+                               std::shared_ptr<colmap::IncrementalMapperOptions> mapper_options) const -> colmap::DatabaseCache
 {
     colmap::DatabaseCache database_cache;
 
@@ -506,7 +502,7 @@ void ImportPoses::triangulation(colmap::Reconstruction &reconstruction,
 
 void ImportPoses::bundleAdjustment(colmap::Reconstruction &reconstruction,
                                    colmap::IncrementalMapper &mapper,
-                                   std::shared_ptr<colmap::IncrementalMapperOptions> mapper_options)
+                                   std::shared_ptr<colmap::IncrementalMapperOptions> mapper_options) const
 {
     auto ba_options = mapper_options->GlobalBundleAdjustment();
 
@@ -572,7 +568,7 @@ void ImportPoses::bundleAdjustment(colmap::Reconstruction &reconstruction,
     }
 }
 
-bool ImportPoses::isCoordinatesLocal() const
+auto ImportPoses::isCoordinatesLocal() const -> bool
 {
     bool local = true;
 
@@ -585,7 +581,7 @@ bool ImportPoses::isCoordinatesLocal() const
     return local;
 }
 
-tl::Point3<double> ImportPoses::offset()
+auto ImportPoses::offset() -> tl::Point3<double>
 {
     return mOffset;
 }
@@ -594,7 +590,7 @@ tl::Point3<double> ImportPoses::offset()
 }
 
 
-bool rtkOrientations(const ProjectImp &project)
+auto rtkOrientations(const ProjectImp& project) -> bool
 {
     bool bRtkOrientations = false;
 
@@ -611,7 +607,7 @@ bool rtkOrientations(const ProjectImp &project)
     return bRtkOrientations;
 }
 
-std::map<QString, std::array<double, 3>> cameraPositions(const ProjectImp &project)
+auto cameraPositions(const ProjectImp& project) -> std::map<QString, std::array<double, 3>>
 {
     std::map<QString, std::array<double, 3>> camera_positions;
 

@@ -209,10 +209,10 @@ int main(int argc, char *argv[])
     CPLSetErrorHandler(messageHandlerGDAL);
 
     Application app(argc, argv);
-    app.setApplicationName("GRAPHOS");
-    app.setApplicationDisplayName("GRAPHOS");
-    app.setApplicationVersion(GRAPHOS_VERSION);
-    app.setOrganizationName("TIDOP");
+    Application::setApplicationName("GRAPHOS");
+    Application::setApplicationDisplayName("GRAPHOS");
+    Application::setApplicationVersion(GRAPHOS_VERSION);
+    Application::setOrganizationName("TIDOP");
 
     ProjectImp project;
     app.setProject(&project);
@@ -528,7 +528,7 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_RECENT_PROJECTS
         QObject::connect(&recent_projects_component, SIGNAL(open_project(QString)),
-                         componentsManager.mainWindowPresenter(), SLOT(openFromHistory(QString)));
+                         componentsManager.mainWindowPresenter(), SLOT(openProject(QString)));
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
 
         // No se usa

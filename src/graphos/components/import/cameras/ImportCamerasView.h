@@ -42,7 +42,7 @@ public:
     ImportCamerasView(QWidget *parent) : DialogView(parent) {}
     ~ImportCamerasView() override = default;
 
-    virtual QString delimiter() const = 0;
+    virtual auto delimiter() const -> QString = 0;
 
 public slots:
 

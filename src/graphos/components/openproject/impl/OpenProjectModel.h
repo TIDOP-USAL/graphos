@@ -31,7 +31,7 @@ namespace graphos
 
 class Project;
 
-class OpenProjectModelImp final
+class OpenProjectModelImp
   : public OpenProjectModel
 {
 
@@ -41,13 +41,13 @@ public:
 
     OpenProjectModelImp(Project *project,
                         QObject *parent = nullptr);
-    ~OpenProjectModelImp();
+    ~OpenProjectModelImp() override;
 
 // OpenProjectModel interface
 
 public:
 
-    tl::Path graphosProjectsDirectory() const override;
+    auto graphosProjectsDirectory() const -> tl::Path override;
 
 public slots:
 

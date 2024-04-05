@@ -39,8 +39,8 @@ FeaturesViewerPresenterImp::FeaturesViewerPresenterImp(FeaturesViewerView *view,
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    FeaturesViewerPresenterImp::init();
+    FeaturesViewerPresenterImp::initSignalAndSlots();
 }
 
 FeaturesViewerPresenterImp::~FeaturesViewerPresenterImp()

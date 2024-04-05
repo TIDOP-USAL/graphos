@@ -32,13 +32,13 @@ namespace graphos
 
 ScaleModelImp::ScaleModelImp(Project *project, QObject *parent)
   : ScaleModel(parent),
+    mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
-              QSettings::UserScope,
-              qApp->organizationName(),
-              qApp->applicationName())),
-    mProject(project)
+                            QSettings::UserScope,
+                            qApp->organizationName(),
+                            qApp->applicationName()))
 {
-    this->init();
+    ScaleModelImp::init();
 }
 
 ScaleModelImp::~ScaleModelImp()

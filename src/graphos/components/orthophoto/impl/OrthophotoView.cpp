@@ -37,13 +37,12 @@ namespace graphos
 OrthophotoViewImp::OrthophotoViewImp(QWidget *parent)
   : OrthophotoView(parent)
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    OrthophotoViewImp::initUI();
+    OrthophotoViewImp::initSignalAndSlots();
 }
 
 OrthophotoViewImp::~OrthophotoViewImp()
 {
-
 }
 
 void OrthophotoViewImp::initUI()
@@ -51,20 +50,20 @@ void OrthophotoViewImp::initUI()
     this->setObjectName(QString("OrthophotoView"));
     this->resize(380, 250);
 
-    QGridLayout *gridLayout = new QGridLayout();
-    this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
     mLabelResolution = new QLabel(this);
-    gridLayout->addWidget(mLabelResolution, 0, 0, 1, 1);
+    grid_layout->addWidget(mLabelResolution, 0, 0, 1, 1);
     mDoubleSpinBoxResolution = new QDoubleSpinBox(this);
     mDoubleSpinBoxResolution->setSingleStep(0.1);
-    gridLayout->addWidget(mDoubleSpinBoxResolution, 0, 1, 1, 1);
+    grid_layout->addWidget(mDoubleSpinBoxResolution, 0, 1, 1, 1);
 
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 7, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 7, 0, 1, 2);
 
     this->retranslate();
     this->clear();
@@ -100,7 +99,7 @@ void OrthophotoViewImp::clear()
 void OrthophotoViewImp::update()
 {}
 
-double OrthophotoViewImp::gsd() const
+auto OrthophotoViewImp::gsd() const -> double
 {
     return mDoubleSpinBoxResolution->value();
 }

@@ -50,18 +50,18 @@ class GRAPHOS_EXPORT GeoreferenceTask
 public:
 
     GeoreferenceTask(const std::unordered_map<size_t, Image> &images,
-                        const std::map<int, Camera> &cameras,
-                        const std::unordered_map<size_t, CameraPose> &poses,
-                        const std::vector<GroundPoint> &groundPoints,
-                        const std::vector<GroundControlPoint> &groundControlPoints,
-                        const tl::Path &outputPath,
-                        const tl::Path &database);
+                     const std::map<int, Camera> &cameras,
+                     const std::unordered_map<size_t, CameraPose> &poses,
+                     const std::vector<GroundPoint> &groundPoints,
+                     const std::vector<GroundControlPoint> &groundControlPoints,
+                     const tl::Path &outputPath,
+                     const tl::Path &database);
     ~GeoreferenceTask() override;
 
 public:
 
-    tl::Matrix<double, 4, 4> transform() const;
-    std::map<int, Camera> cameras() const;
+    auto transform() const -> tl::Matrix<double, 4, 4>;
+    auto cameras() const -> std::map<int, Camera>;
 
 signals:
 

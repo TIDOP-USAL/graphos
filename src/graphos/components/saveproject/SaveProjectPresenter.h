@@ -40,8 +40,8 @@ class SaveProjectPresenter
 
 public:
 
-    SaveProjectPresenter() {}
-    virtual ~SaveProjectPresenter() override = default;
+    SaveProjectPresenter() = default;
+    ~SaveProjectPresenter() override = default;
 
 };
 

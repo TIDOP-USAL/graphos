@@ -47,14 +47,14 @@ public:
 
 public:
 
-    QString projectCRS() const override;
+    auto projectCRS() const -> QString override;
     void setProjectCRS(const QString &crs) override;
     void addImage(const Image &image) override;
-    bool existImage(size_t imageId) const;
-    tl::Path imagesDirectory() const override;
-    const std::map<int, Camera> &cameras() const override;
-    int addCamera(const Camera &camera) override;
-    int cameraID(const Camera &camera) const override;
+    auto existImage(size_t imageId) const -> bool override;
+    auto imagesDirectory() const -> tl::Path override;
+    auto cameras() const -> const Cameras & override;
+    auto addCamera(const Camera &camera) -> int override;
+    auto cameraID(const Camera &camera) const -> int override;
 
 // Model interface
 

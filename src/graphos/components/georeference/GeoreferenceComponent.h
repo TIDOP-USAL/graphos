@@ -39,7 +39,7 @@ class GeoreferenceComponent
 public:
 
     GeoreferenceComponent(Application *application);
-    ~GeoreferenceComponent();
+    ~GeoreferenceComponent() override;
 
 private:
 

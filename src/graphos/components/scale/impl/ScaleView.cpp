@@ -29,7 +29,6 @@
 #include <QApplication>
 #include <QGridLayout>
 #include <QDialogButtonBox>
-#include <QPushButton>
 #include <QLabel>
 #include <QSpinBox>
 #include <QPushButton>
@@ -42,43 +41,40 @@ ScaleViewImp::ScaleViewImp(QWidget *parent)
   : ScaleView(parent)
 {
     this->setWindowFlags(this->windowFlags() | Qt::WindowStaysOnTopHint);
-    this->initUI();
-    this->initSignalAndSlots();
+    ScaleViewImp::initUI();
+    ScaleViewImp::initSignalAndSlots();
 }
 
-ScaleViewImp::~ScaleViewImp()
-{
-
-}
+ScaleViewImp::~ScaleViewImp() = default;
 
 void ScaleViewImp::initUI()
 {
     this->setObjectName(QString("ScaleView"));
     this->resize(380, 250);
 
-    QGridLayout *gridLayout = new QGridLayout();
-    this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
     mLabelDistanceReal = new QLabel(this);
-    gridLayout->addWidget(mLabelDistanceReal, 0, 0, 1, 1);
+    grid_layout->addWidget(mLabelDistanceReal, 0, 0, 1, 1);
     mDoubleSpinBoxDistanceReal = new QDoubleSpinBox(this);
     mDoubleSpinBoxDistanceReal->setMaximum(1000000.);
-    gridLayout->addWidget(mDoubleSpinBoxDistanceReal, 0, 1, 1, 2);
+    grid_layout->addWidget(mDoubleSpinBoxDistanceReal, 0, 1, 1, 2);
 
     mLabelDistance = new QLabel(this);
-    gridLayout->addWidget(mLabelDistance, 1, 0, 1, 1);
+    grid_layout->addWidget(mLabelDistance, 1, 0, 1, 1);
     mDoubleSpinBoxDistance = new QDoubleSpinBox(this);
     mDoubleSpinBoxDistance->setMaximum(1000000.);
-    gridLayout->addWidget(mDoubleSpinBoxDistance, 1, 1, 1, 1);
+    grid_layout->addWidget(mDoubleSpinBoxDistance, 1, 1, 1, 1);
     mPushButtonDistance = new QPushButton(this);
     mPushButtonDistance->setIcon(QIcon::fromTheme("distance"));
     mPushButtonDistance->setCheckable(true);
-    gridLayout->addWidget(mPushButtonDistance, 1, 2, 1, 1);
+    grid_layout->addWidget(mPushButtonDistance, 1, 2, 1, 1);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 2, 0, 1, 3);
+    grid_layout->addWidget(mButtonBox, 2, 0, 1, 3);
 
     this->retranslate();
     this->clear();

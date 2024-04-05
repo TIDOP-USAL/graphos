@@ -51,8 +51,8 @@ public:
 
 public:
 
-    double distance() const override;
-    double distanceReal() const override;
+    auto distance() const -> double override;
+    auto distanceReal() const -> double override;
 
 public slots:
 
@@ -62,17 +62,17 @@ public slots:
 
 private:
 
-    void initUI();
-    void initSignalAndSlots();
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-    void clear();
+    void clear() override;
 
 private slots:
 
-    void update();
-    void retranslate();
+    void update() override;
+    void retranslate() override;
 
 protected:
 

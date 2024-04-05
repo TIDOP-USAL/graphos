@@ -25,7 +25,6 @@
 #ifndef GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H
 #define GRAPHOS_UNDISTORTIMAGES_PRESENTER_INTERFACE_H
 
-#include "graphos/core/mvp.h"
 #include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
@@ -39,7 +38,7 @@ class UndistortImagesPresenter
 
 public:
 
-    UndistortImagesPresenter() : TaskPresenter() {}
+    UndistortImagesPresenter() = default;
     ~UndistortImagesPresenter() override = default;
 
 };

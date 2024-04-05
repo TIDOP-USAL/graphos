@@ -23,8 +23,6 @@
 
 #include "MatchViewerPresenter.h"
 
-#include <tidop/core/msg/message.h>
-
 #include "graphos/components/matchviewer/impl/MatchViewerModel.h"
 #include "graphos/components/matchviewer/impl/MatchViewerView.h"
 
@@ -39,8 +37,8 @@ MatchViewerPresenterImp::MatchViewerPresenterImp(MatchViewerView *view,
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    MatchViewerPresenterImp::init();
+    MatchViewerPresenterImp::initSignalAndSlots();
 }
 
 MatchViewerPresenterImp::~MatchViewerPresenterImp()

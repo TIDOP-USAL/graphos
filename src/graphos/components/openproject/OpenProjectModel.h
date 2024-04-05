@@ -48,7 +48,7 @@ public:
     /*!
      * \brief Returns Graphos projects path
      */
-    virtual tl::Path graphosProjectsDirectory() const = 0;
+    virtual auto graphosProjectsDirectory() const -> tl::Path = 0;
 
 public slots:
 

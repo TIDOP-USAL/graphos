@@ -46,8 +46,8 @@ public:
     ~FeatureMatchingView() override = default;
 
     virtual void addMatchMethod(QWidget *matchMethod) = 0;
-    virtual QString currentMatchMethod() const = 0;
-    virtual bool spatialMatching() const = 0;
+    virtual auto currentMatchMethod() const -> QString = 0;
+    virtual auto spatialMatching() const -> bool = 0;
 
 signals:
 

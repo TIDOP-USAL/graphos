@@ -32,7 +32,7 @@ namespace graphos
 class Project;
 
 class SaveProjectModelImp
-    : public SaveProjectModel
+  : public SaveProjectModel
 {
 
     Q_OBJECT
@@ -41,7 +41,7 @@ public:
 
     SaveProjectModelImp(Project *project,
                         QObject *parent = nullptr);
-    ~SaveProjectModelImp();
+    ~SaveProjectModelImp() override;
 
 // SaveProjectModel interface
 

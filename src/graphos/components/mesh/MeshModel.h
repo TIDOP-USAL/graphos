@@ -24,8 +24,6 @@
 #ifndef GRAPHOS_MESH_MODEL_INTERFACE_H
 #define GRAPHOS_MESH_MODEL_INTERFACE_H
 
-#include <array>
-
 #include <tidop/core/path.h>
 
 #include "graphos/core/mvp.h"
@@ -47,10 +45,10 @@ public:
     MeshModel(QObject *parent = nullptr) : Model(parent) {}
     ~MeshModel() override = default;
 
-    virtual std::shared_ptr<PoissonReconProperties> properties() const = 0;
+    virtual auto properties() const -> std::shared_ptr<PoissonReconProperties> = 0;
 
-    virtual tl::Path denseModel() const = 0;
-    virtual tl::Path projectDir() const = 0;
+    virtual auto denseModel() const -> tl::Path = 0;
+    virtual auto projectDir() const -> tl::Path = 0;
     virtual void setMesh(const tl::Path &mesh) = 0;
 
 public slots:

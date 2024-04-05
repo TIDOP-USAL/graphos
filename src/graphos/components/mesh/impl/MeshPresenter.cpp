@@ -30,8 +30,6 @@
 #include "graphos/components/mesh/impl/MeshView.h"
 #include "graphos/core/utils.h"
 
-#include <tidop/core/defs.h>
-
 namespace graphos
 {
 
@@ -136,7 +134,7 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
     task_parameters->setDepth(properties->depth());
     task_parameters->setSolveDepth(properties->solveDepth());
 
-    mesh_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+    mesh_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
         auto report = dynamic_cast<PoissonReconTask const*>(event->task())->report();
 

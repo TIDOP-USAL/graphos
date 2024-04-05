@@ -29,7 +29,7 @@
 namespace graphos
 {
 
-class OpenProjectViewImp /*final*/
+class OpenProjectViewImp
   : public OpenProjectView
 {
 

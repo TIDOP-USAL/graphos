@@ -63,7 +63,7 @@ public:
     /*!
      * \brief Destructor
      */
-    virtual ~Component() = default;
+    ~Component() override = default;
 
     /*!
      * \brief Get the component name

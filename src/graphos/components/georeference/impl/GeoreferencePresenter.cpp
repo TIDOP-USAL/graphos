@@ -115,15 +115,13 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 std::unique_ptr<tl::Task> GeoreferencePresenterImp::createTask()
 {
-    std::unique_ptr<tl::Task> georeference_process;
-
-    georeference_process = std::make_unique<GeoreferenceTask>(mModel->images(),
-                                                              mModel->cameras(),
-                                                              mModel->poses(),
-                                                              mModel->groundPoints(),
-                                                              mModel->groundControlPoints(),
-                                                              mModel->reconstructionPath(),
-                                                              mModel->database());
+    std::unique_ptr<tl::Task> georeference_process = std::make_unique<GeoreferenceTask>(mModel->images(),
+        mModel->cameras(),
+        mModel->poses(),
+        mModel->groundPoints(),
+        mModel->groundControlPoints(),
+        mModel->reconstructionPath(),
+        mModel->database());
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 0);

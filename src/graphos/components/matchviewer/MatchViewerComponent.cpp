@@ -87,8 +87,7 @@ void MatchViewerComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bFeatureMatching = app_status->isEnabled(AppStatus::Flag::feature_matching);
-    action()->setEnabled(bFeatureMatching);
+    action()->setEnabled(app_status->isEnabled(AppStatus::Flag::feature_matching));
 }
 
 } // namespace graphos

@@ -64,11 +64,11 @@ signals:
 
 private:
 
-    bool existCamera(const QString &make, const QString &model) const;
-    int findCamera(const QString &make, const QString &model) const;
+    auto existCamera(const QString &make, const QString &model) const -> bool;
+    auto findCamera(const QString &make, const QString &model) const -> int;
     void loadImage(size_t imageId);
-    int loadCamera(tl::ImageReader *imageReader);
-    double parseFocal(const std::string &focal, double def);
+    auto loadCamera(tl::ImageReader *imageReader) -> int;
+    auto parseFocal(const std::string &focal, double def) -> double;
 
 // tl::TaskBase interface
 

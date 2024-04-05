@@ -69,7 +69,7 @@ void OrientationComponent::createView()
 void OrientationComponent::createPresenter()
 {
     setPresenter(new OrientationPresenterImp(dynamic_cast<OrientationView *>(view()),
-                 dynamic_cast<OrientationModel *>(model())));
+                                             dynamic_cast<OrientationModel *>(model())));
 
     connect(dynamic_cast<OrientationPresenter *>(presenter()),
             &OrientationPresenter::orientation_deleted,

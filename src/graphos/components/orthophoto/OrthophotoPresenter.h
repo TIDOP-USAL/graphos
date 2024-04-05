@@ -25,7 +25,6 @@
 #ifndef GRAPHOS_ORTHOPHOTO_PRESENTER_INTERFACE_H
 #define GRAPHOS_ORTHOPHOTO_PRESENTER_INTERFACE_H
 
-#include "graphos/core/mvp.h"
 #include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
@@ -39,7 +38,7 @@ class OrthophotoPresenter
 
 public:
 
-    OrthophotoPresenter() : TaskPresenter() {}
+    OrthophotoPresenter() = default;
     ~OrthophotoPresenter() override = default;
 
 };

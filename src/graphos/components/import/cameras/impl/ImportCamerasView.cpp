@@ -47,8 +47,8 @@ namespace graphos
 ImportCamerasViewImp::ImportCamerasViewImp(QWidget *parent)
   : ImportCamerasView(parent)
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    ImportCamerasViewImp::initUI();
+    ImportCamerasViewImp::initSignalAndSlots();
 }
 
 ImportCamerasViewImp::~ImportCamerasViewImp()
@@ -180,113 +180,113 @@ void ImportCamerasViewImp::initUI()
 
     mStackedWidget = new QStackedWidget(mGroupBoxRotations);
     pageQuaternions = new QWidget();
-    QGridLayout *gridLayoutQuaternions = new QGridLayout(pageQuaternions);
+    auto grid_layout_quaternions = new QGridLayout(pageQuaternions);
 
-    QSpacerItem *horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    gridLayoutRotations->addItem(horizontalSpacer, 0, 2, 1, 1);
+    auto horizontal_spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    gridLayoutRotations->addItem(horizontal_spacer, 0, 2, 1, 1);
 
-    QHBoxLayout *horizontalLayoutQuaternions = new QHBoxLayout();
+    auto horizontal_layout_quaternions = new QHBoxLayout();
     mLabelQxColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutQuaternions->addWidget(mLabelQxColumn);
+    horizontal_layout_quaternions->addWidget(mLabelQxColumn);
     mComboBoxQxColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutQuaternions->addWidget(mComboBoxQxColumn);
+    horizontal_layout_quaternions->addWidget(mComboBoxQxColumn);
 
-    QSpacerItem *horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    horizontalLayoutQuaternions->addItem(horizontalSpacer_3);
+    auto horizontal_spacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    horizontal_layout_quaternions->addItem(horizontal_spacer_3);
 
     mLabelQyColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutQuaternions->addWidget(mLabelQyColumn);
+    horizontal_layout_quaternions->addWidget(mLabelQyColumn);
     mComboBoxQyColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutQuaternions->addWidget(mComboBoxQyColumn);
+    horizontal_layout_quaternions->addWidget(mComboBoxQyColumn);
 
-    QSpacerItem *horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    horizontalLayoutQuaternions->addItem(horizontalSpacer_4);
+    auto horizontal_spacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    horizontal_layout_quaternions->addItem(horizontal_spacer_4);
 
     mLabelQzColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutQuaternions->addWidget(mLabelQzColumn);
+    horizontal_layout_quaternions->addWidget(mLabelQzColumn);
 
     mComboBoxQzColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutQuaternions->addWidget(mComboBoxQzColumn);
+    horizontal_layout_quaternions->addWidget(mComboBoxQzColumn);
 
-    QSpacerItem *horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    horizontalLayoutQuaternions->addItem(horizontalSpacer_5);
+    auto horizontal_spacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    horizontal_layout_quaternions->addItem(horizontal_spacer_5);
 
     mLabelQwColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutQuaternions->addWidget(mLabelQwColumn);
+    horizontal_layout_quaternions->addWidget(mLabelQwColumn);
 
     mComboBoxQwColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutQuaternions->addWidget(mComboBoxQwColumn);
+    horizontal_layout_quaternions->addWidget(mComboBoxQwColumn);
 
-    gridLayoutQuaternions->addLayout(horizontalLayoutQuaternions, 0, 0, 1, 1);
+    grid_layout_quaternions->addLayout(horizontal_layout_quaternions, 0, 0, 1, 1);
 
     mStackedWidget->addWidget(pageQuaternions);
 
     pageYawPitchRoll = new QWidget();
-    QGridLayout *gridLayoutYawPitchRoll = new QGridLayout(pageYawPitchRoll);
+    auto grid_layout_yaw_pitch_roll = new QGridLayout(pageYawPitchRoll);
 
-    QHBoxLayout *horizontalLayoutYawPitchRoll = new QHBoxLayout();
+    auto horizontal_layout_yaw_pitch_roll = new QHBoxLayout();
 
     mLabelYawColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutYawPitchRoll->addWidget(mLabelYawColumn);
+    horizontal_layout_yaw_pitch_roll->addWidget(mLabelYawColumn);
 
     mComboBoxYawColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutYawPitchRoll->addWidget(mComboBoxYawColumn);
+    horizontal_layout_yaw_pitch_roll->addWidget(mComboBoxYawColumn);
 
-    QSpacerItem *horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    horizontalLayoutYawPitchRoll->addItem(horizontalSpacer_8);
+    auto horizontal_spacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    horizontal_layout_yaw_pitch_roll->addItem(horizontal_spacer_8);
 
     mLabelPitchColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutYawPitchRoll->addWidget(mLabelPitchColumn);
+    horizontal_layout_yaw_pitch_roll->addWidget(mLabelPitchColumn);
 
     mComboBoxPitchColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutYawPitchRoll->addWidget(mComboBoxPitchColumn);
+    horizontal_layout_yaw_pitch_roll->addWidget(mComboBoxPitchColumn);
 
-    QSpacerItem *horizontalSpacer_9 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    auto horizontal_spacer_9 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-    horizontalLayoutYawPitchRoll->addItem(horizontalSpacer_9);
+    horizontal_layout_yaw_pitch_roll->addItem(horizontal_spacer_9);
 
     mLabelRollColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutYawPitchRoll->addWidget(mLabelRollColumn);
+    horizontal_layout_yaw_pitch_roll->addWidget(mLabelRollColumn);
 
     mComboBoxRollColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutYawPitchRoll->addWidget(mComboBoxRollColumn);
+    horizontal_layout_yaw_pitch_roll->addWidget(mComboBoxRollColumn);
 
-    gridLayoutYawPitchRoll->addLayout(horizontalLayoutYawPitchRoll, 0, 0, 1, 1);
+    grid_layout_yaw_pitch_roll->addLayout(horizontal_layout_yaw_pitch_roll, 0, 0, 1, 1);
 
     mStackedWidget->addWidget(pageYawPitchRoll);
 
 
 
     pageOmegaPhiKappa = new QWidget();
-    QGridLayout *gridOmegaPhiKappa = new QGridLayout(pageOmegaPhiKappa);
+    auto grid_omega_phi_kappa = new QGridLayout(pageOmegaPhiKappa);
 
-    QHBoxLayout *horizontalLayoutOmegaPhiKappa = new QHBoxLayout();
+    auto horizontal_layout_omega_phi_kappa = new QHBoxLayout();
 
     mLabelOmegaColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutOmegaPhiKappa->addWidget(mLabelOmegaColumn);
+    horizontal_layout_omega_phi_kappa->addWidget(mLabelOmegaColumn);
 
     mComboBoxOmegaColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutOmegaPhiKappa->addWidget(mComboBoxOmegaColumn);
+    horizontal_layout_omega_phi_kappa->addWidget(mComboBoxOmegaColumn);
 
-    QSpacerItem *horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    horizontalLayoutOmegaPhiKappa->addItem(horizontalSpacer_6);
+    auto horizontal_spacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    horizontal_layout_omega_phi_kappa->addItem(horizontal_spacer_6);
 
     mLabelPhiColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutOmegaPhiKappa->addWidget(mLabelPhiColumn);
+    horizontal_layout_omega_phi_kappa->addWidget(mLabelPhiColumn);
 
     mComboBoxPhiColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutOmegaPhiKappa->addWidget(mComboBoxPhiColumn);
+    horizontal_layout_omega_phi_kappa->addWidget(mComboBoxPhiColumn);
 
-    QSpacerItem *horizontalSpacer_7 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    horizontalLayoutOmegaPhiKappa->addItem(horizontalSpacer_7);
+    auto horizontal_spacer_7 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    horizontal_layout_omega_phi_kappa->addItem(horizontal_spacer_7);
 
     mLabelKappaColumn = new QLabel(mGroupBoxRotations);
-    horizontalLayoutOmegaPhiKappa->addWidget(mLabelKappaColumn);
+    horizontal_layout_omega_phi_kappa->addWidget(mLabelKappaColumn);
 
     mComboBoxKappaColumn = new QComboBox(mGroupBoxRotations);
-    horizontalLayoutOmegaPhiKappa->addWidget(mComboBoxKappaColumn);
+    horizontal_layout_omega_phi_kappa->addWidget(mComboBoxKappaColumn);
 
-    gridOmegaPhiKappa->addLayout(horizontalLayoutOmegaPhiKappa, 0, 0, 1, 1);
+    grid_omega_phi_kappa->addLayout(horizontal_layout_omega_phi_kappa, 0, 0, 1, 1);
 
     mStackedWidget->addWidget(pageOmegaPhiKappa);
 
@@ -294,8 +294,8 @@ void ImportCamerasViewImp::initUI()
 
     gridLayoutColumns->addWidget(mGroupBoxRotations, 2, 0, 1, 3);
 
-    QSpacerItem *horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    gridLayoutColumns->addItem(horizontalSpacer_2, 0, 2, 1, 1);
+    auto horizontal_spacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    gridLayoutColumns->addItem(horizontal_spacer_2, 0, 2, 1, 1);
 
 
     gridLayout->addWidget(mGroupBoxColumns, 5, 0, 1, 3);
@@ -318,9 +318,6 @@ void ImportCamerasViewImp::initUI()
 
 void ImportCamerasViewImp::initSignalAndSlots()
 {
-    //connect(mLineEditImportCameras, &QLineEdit::textChanged,   this, &ImportCamerasViewImp::update);
-    //connect(mPushButtonImportGroundControlPoints,  &QAbstractButton::clicked, this, &ImportCamerasViewImp::openFile);
-
     connect(mRadioButtonTab, &QRadioButton::released, this, &ImportCamerasViewImp::onDelimiterChanged);
     connect(mRadioButtonComma, &QRadioButton::released, this, &ImportCamerasViewImp::onDelimiterChanged);
     connect(mRadioButtonSpace, &QRadioButton::released, this, &ImportCamerasViewImp::onDelimiterChanged);
@@ -332,13 +329,9 @@ void ImportCamerasViewImp::initSignalAndSlots()
     connect(mSpinBoxSkipLines, QOverload<int>::of(&QSpinBox::valueChanged), this, &ImportCamerasView::skipLines);
     connect(mComboBoxImageColumn, &QComboBox::currentTextChanged, this, &ImportCamerasView::imageColumnChange);
     connect(mComboBoxImageColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::imageFieldIdChanged);
-    //connect(mComboBoxImageColumn, &QComboBox::currentTextChanged, this, &ImportCamerasViewImp::update);
     connect(mComboBoxXColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::xFieldIdChanged);
     connect(mComboBoxYColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::yFieldIdChanged);
     connect(mComboBoxZColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::zFieldIdChanged);
-    //connect(mComboBoxXColumn, &QComboBox::currentTextChanged, this, &ImportCamerasViewImp::update);
-    //connect(mComboBoxYColumn, &QComboBox::currentTextChanged, this, &ImportCamerasViewImp::update);
-    //connect(mComboBoxZColumn, &QComboBox::currentTextChanged, this, &ImportCamerasViewImp::update);
     connect(mComboBoxQxColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::qxFieldChange);
     connect(mComboBoxQyColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::qyFieldChange);
     connect(mComboBoxQzColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::qzFieldChange);
@@ -353,12 +346,6 @@ void ImportCamerasViewImp::initSignalAndSlots()
     connect(mComboBoxRotation, &QComboBox::currentTextChanged, this, &ImportCamerasView::rotationChange);
     connect(mLineEditCrsInput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsInputChanged);
     connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsOutputChanged);
-
-    //  connect(mComboBoxImageColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
-    //  connect(mComboBoxXColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
-    //  connect(mComboBoxYColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
-    //  connect(mComboBoxZColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(uptdate()));
-
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
     connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
@@ -406,74 +393,18 @@ void ImportCamerasViewImp::clear()
     mLineEditCrsInput->clear();
     mLineEditCrsOutput->clear();
     mLineEditCrsOutput->setEnabled(true);
-    bParseOk = false;
-    bValidCrsIn = false;
-    bValidCrsOut = false;
+    mParseOk = false;
+    mValidCrsIn = false;
+    mValidCrsOut = false;
 
     update();
 }
 
 void ImportCamerasViewImp::update()
 {
-    //  QFileInfo file_info(mLineEditImportCameras->text());
-    //  bool file_exist = file_info.exists();
-
-    //  QPalette palette;
-    //  if(file_exist){
-    //    palette.setColor(QPalette::Text, Qt::black);
-    //  } else {
-    //    palette.setColor(QPalette::Text, Qt::red);
-    //  }
-    //  mLineEditImportCameras->setPalette(palette);
-
-    //  bool bx = mComboBoxXColumn->currentText().compare("--") != 0;
-    //  bool by = mComboBoxYColumn->currentText().compare("--") != 0;
-    //  bool bz = mComboBoxZColumn->currentText().compare("--") != 0;
-
-    //  mPushButtonImportCameras->setEnabled(file_exist && bx && by && bz);
-
-    //  QString rotation = mComboBoxRotation->currentText();
-    //  bool bQuaternions = rotation.compare("Quaternions") == 0;
-    //  bool bYawPitchRoll = rotation.compare("Yaw, Pitch, Roll") == 0;
-    //  bool bOmegaPhiKappa = rotation.compare("Omega, Phi, Kappa") == 0;
-
-    //  mComboBoxQxColumn->setVisible(bQuaternions);
-    //  mComboBoxQyColumn->setVisible(bQuaternions);
-    //  mComboBoxQzColumn->setVisible(bQuaternions);
-    //  mComboBoxQwColumn->setVisible(bQuaternions);
-    //  mComboBoxYawColumn->setVisible(bYawPitchRoll);
-    //  mComboBoxPitchColumn->setVisible(bYawPitchRoll);
-    //  mComboBoxRollColumn->setVisible(bYawPitchRoll);
-    //  mComboBoxOmegaColumn->setVisible(bOmegaPhiKappa);
-    //  mComboBoxPhiColumn->setVisible(bOmegaPhiKappa);
-    //  mComboBoxKappaColumn->setVisible(bOmegaPhiKappa);
-    //  mLabelQxColumn->setVisible(bQuaternions);
-    //  mLabelQyColumn->setVisible(bQuaternions);
-    //  mLabelQzColumn->setVisible(bQuaternions);
-    //  mLabelQwColumn->setVisible(bQuaternions);
-    //  mLabelYawColumn->setVisible(bYawPitchRoll);
-    //  mLabelPitchColumn->setVisible(bYawPitchRoll);
-    //  mLabelRollColumn->setVisible(bYawPitchRoll);
-    //  mLabelOmegaColumn->setVisible(bOmegaPhiKappa);
-    //  mLabelPhiColumn->setVisible(bOmegaPhiKappa);
-    //  mLabelKappaColumn->setVisible(bOmegaPhiKappa);
-
     mLineEditOther->setEnabled(mRadioButtonOther->isChecked());
 
-    //  bool bSave = false;
-
-    //  bool checkX = false;
-    //  mComboBoxXColumn->currentText().toDouble(&checkX);
-    //  bool checkY = false;
-    //  mComboBoxYColumn->currentText().toDouble(&checkY);
-    //  bool checkZ = false;
-    //  mComboBoxZColumn->currentText().toDouble(&checkZ);
-
-    //  bSave = checkX && checkY && checkZ;
-    //  mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(bSave);
-
-    mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(/*bParseOk && */
-                                                         ((bValidCrsIn && bValidCrsOut) ||
+    mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(((mValidCrsIn && mValidCrsOut) ||
                                                          (mLineEditCrsInput->text().isEmpty() && mLineEditCrsOutput->text().isEmpty())));
 }
 
@@ -516,27 +447,7 @@ void ImportCamerasViewImp::retranslate()
     mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ImportCamerasViewImp", "Save", nullptr));
     mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ImportCamerasViewImp", "Help", nullptr));
 
-    //mPushButtonImportGroundControlPoints->setText(QCoreApplication::translate("ImportCamerasViewImp", "Import Cameras", nullptr));
-    //mPushButtonImportCameras->setText(QCoreApplication::translate("ImportCamerasViewImp", "ImportCameras", nullptr));
 }
-
-//void ImportCamerasViewImp::openFile()
-//{
-//  QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
-//                                              tr("Orientation cameras file"),
-//                                              mProjectPath,
-//                                              tr("Comma-separated values (*.csv)"));
-//  if (!file.isEmpty()){
-//    mLineEditImportCameras->setText(file);
-
-//    emit loadCSV(file, ",");
-//  }
-//}
-
-//QString ImportCamerasViewImp::orientationFile() const
-//{
-//  return mLineEditImportCameras->text();
-//}
 
 void ImportCamerasViewImp::setTableHeader(const QStringList &header)
 {
@@ -587,9 +498,6 @@ void ImportCamerasViewImp::setTableHeader(const QStringList &header)
     mComboBoxPhiColumn->addItems(reg);
     mComboBoxKappaColumn->addItems(reg);
 
-    //  QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(mTableViewGroundControlPoints->model());
-    //  model->setColumnCount(header.size());
-    //  model->setHorizontalHeaderLabels(header);
 }
 
 void ImportCamerasViewImp::setItemModel(QStandardItemModel *model)
@@ -599,125 +507,108 @@ void ImportCamerasViewImp::setItemModel(QStandardItemModel *model)
 
 void ImportCamerasViewImp::setItemModelFormatCameras(QStandardItemModel *model)
 {
-    //mItemModelCameras->setColumnCount(4);
-  //mItemModelCameras->setHorizontalHeaderLabels(QStringList() << "Image" << "X" << "Y" << "Z");
-
     mTableViewFormatCameras->setModel(model);
 }
 
 void ImportCamerasViewImp::setImageColumn(const QString &imageColumn)
 {
-    //QSignalBlocker blocker(mComboBoxImageColumn);
     mComboBoxImageColumn->setCurrentText(imageColumn);
     update();
 }
 
 void ImportCamerasViewImp::setXColumn(const QString &xColumn)
 {
-    //QSignalBlocker blocker(mComboBoxXColumn);
     mComboBoxXColumn->setCurrentText(xColumn);
     update();
 }
 
 void ImportCamerasViewImp::setYColumn(const QString &yColumn)
 {
-    //QSignalBlocker blocker(mComboBoxYColumn);
     mComboBoxYColumn->setCurrentText(yColumn);
     update();
 }
 
 void ImportCamerasViewImp::setZColumn(const QString &zColumn)
 {
-    //QSignalBlocker blocker(mComboBoxZColumn);
     mComboBoxZColumn->setCurrentText(zColumn);
     update();
 }
 
 void ImportCamerasViewImp::setQxColumn(const QString &qxColumn)
 {
-    //QSignalBlocker blocker(mComboBoxQxColumn);
     mComboBoxQxColumn->setCurrentText(qxColumn);
     update();
 }
 
 void ImportCamerasViewImp::setQyColumn(const QString &qyColumn)
 {
-    //QSignalBlocker blocker(mComboBoxQyColumn);
     mComboBoxQyColumn->setCurrentText(qyColumn);
     update();
 }
 
 void ImportCamerasViewImp::setQzColumn(const QString &qzColumn)
 {
-    //QSignalBlocker blocker7(mComboBoxQzColumn);
     mComboBoxQzColumn->setCurrentText(qzColumn);
     update();
 }
 
 void ImportCamerasViewImp::setQwColumn(const QString &qwColumn)
 {
-    //QSignalBlocker blocker(mComboBoxQwColumn);
     mComboBoxQwColumn->setCurrentText(qwColumn);
     update();
 }
 
 void ImportCamerasViewImp::setOmegaColumn(const QString &omegaColumn)
 {
-    //QSignalBlocker blocker(mComboBoxOmegaColumn);
     mComboBoxOmegaColumn->setCurrentText(omegaColumn);
     update();
 }
 
 void ImportCamerasViewImp::setPhiColumn(const QString &phiColumn)
 {
-    //QSignalBlocker blocker(mComboBoxPhiColumn);
     mComboBoxPhiColumn->setCurrentText(phiColumn);
     update();
 }
 
 void ImportCamerasViewImp::setKappaColumn(const QString &kappaColumn)
 {
-    //QSignalBlocker blocker(mComboBoxKappaColumn);
     mComboBoxKappaColumn->setCurrentText(kappaColumn);
     update();
 }
 
 void ImportCamerasViewImp::setYawColumn(const QString &yawColumn)
 {
-    //QSignalBlocker blocker(mComboBoxYawColumn);
     mComboBoxYawColumn->setCurrentText(yawColumn);
     update();
 }
 
 void ImportCamerasViewImp::setPitchColumn(const QString &pitchColumn)
 {
-    //QSignalBlocker blocker(mComboBoxPitchColumn);
     mComboBoxPitchColumn->setCurrentText(pitchColumn);
     update();
 }
 
 void ImportCamerasViewImp::setRollColumn(const QString &rollColumn)
 {
-    //QSignalBlocker blocker(mComboBoxRollColumn);
     mComboBoxRollColumn->setCurrentText(rollColumn);
     update();
 }
 
 void ImportCamerasViewImp::setParseOk(bool parseOk)
 {
-    bParseOk = parseOk;
+    mParseOk = parseOk;
     update();
 }
 
 void ImportCamerasViewImp::setValidInputCRS(bool valid)
 {
-    bValidCrsIn = valid;
+    mValidCrsIn = valid;
     update();
 }
 
 void ImportCamerasViewImp::setValidOutputCRS(bool valid)
 {
-    bValidCrsOut = valid;
+    mValidCrsOut = valid;
     update();
 }
 
@@ -727,8 +618,8 @@ void ImportCamerasViewImp::setOutputCRS(const QString &crs)
         QSignalBlocker blocker(mLineEditCrsOutput);
         mLineEditCrsOutput->setText(crs);
         mLineEditCrsOutput->setEnabled(false); // CRS de proyecto. No editable
-        bValidCrsOut = true;
-    } else bValidCrsOut = false;
+        mValidCrsOut = true;
+    } else mValidCrsOut = false;
 }
 
 } // namespace graphos

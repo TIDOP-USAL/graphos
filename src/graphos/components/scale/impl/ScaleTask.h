@@ -24,12 +24,6 @@
 #ifndef GRAPHOS_SCALE_TASK_H
 #define GRAPHOS_SCALE_TASK_H
 
-#include <vector>
-#include <map>
-
-#include <QString>
-#include <QVector3D>
-
 #include <tidop/core/task.h>
 #include <tidop/math/algebra/matrix.h>
 
@@ -53,12 +47,12 @@ class ScaleTask
 public:
 
     ScaleTask(double scale, ccHObject *model);
-    ~ScaleTask();
+    ~ScaleTask() override;
 
 public:
 
     void setScale(double);
-    tl::Matrix<double, 4, 4> transform() const;
+    auto transform() const -> tl::Matrix<double, 4, 4>;
 
 // tl::TaskBase interface
 

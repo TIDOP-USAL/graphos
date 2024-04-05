@@ -159,7 +159,7 @@ signals:
     /* Menu File */
 
     void openProject(QString);
-    void openProjectFromHistory(QString);
+    //void openProjectFromHistory(QString);
     void clearHistory();
     void openCamerasImport();
     //void openExportFeatures();

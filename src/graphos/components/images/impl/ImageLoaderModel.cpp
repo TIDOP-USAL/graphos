@@ -36,7 +36,7 @@ ImageLoaderModelImp::ImageLoaderModelImp(Project *project,
   : ImageLoaderModel(parent),
     mProject(project)
 {
-    init();
+    ImageLoaderModelImp::init();
 }
 
 QString ImageLoaderModelImp::projectCRS() const
@@ -72,17 +72,17 @@ tl::Path ImageLoaderModelImp::imagesDirectory() const
     return image_directory;
 }
 
-const std::map<int, Camera> &ImageLoaderModelImp::cameras() const
+auto ImageLoaderModelImp::cameras() const -> const std::map<int, Camera>&
 {
     return mProject->cameras();
 }
 
-int ImageLoaderModelImp::addCamera(const Camera &camera)
+auto ImageLoaderModelImp::addCamera(const Camera& camera) -> int
 {
     return mProject->addCamera(camera);
 }
 
-int ImageLoaderModelImp::cameraID(const Camera &camera) const
+auto ImageLoaderModelImp::cameraID(const Camera& camera) const -> int
 {
     int camera_id = 0;
     for (const auto &_camera : mProject->cameras()) {

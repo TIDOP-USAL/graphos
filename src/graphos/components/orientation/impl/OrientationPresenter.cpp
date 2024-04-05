@@ -46,8 +46,8 @@ OrientationPresenterImp::OrientationPresenterImp(OrientationView *view,
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    OrientationPresenterImp::init();
+    OrientationPresenterImp::initSignalAndSlots();
 }
 
 OrientationPresenterImp::~OrientationPresenterImp()
@@ -89,7 +89,7 @@ void OrientationPresenterImp::initSignalAndSlots()
 {
     connect(mView, &OrientationView::run, this, &OrientationPresenterImp::run);
     connect(mView, &DialogView::help, [&]() {
-        emit help("orientation.html");
+                emit help("orientation.html");
             });
 }
 
@@ -135,7 +135,7 @@ void OrientationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 }
 
-std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
+auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
 
     std::unique_ptr<tl::Task> orientation_process;
@@ -173,12 +173,9 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
                                                                 mView->fixCalibration(),
                                                                 mView->fixPoses());
 
-        orientation_process->subscribe([&](tl::TaskFinalizedEvent *event) {
+        orientation_process->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
             auto cameras = dynamic_cast<ImportPosesTask const *>(event->task())->cameras();
-
-            tl::Path sfm_path = mModel->projectFolder();
-            sfm_path.append("sfm");
 
             tl::Path offset_path = sfm_path;
             offset_path.append("offset.txt");
@@ -227,7 +224,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
                                                                                          mModel->cameras(),
                                                                                          mView->fixCalibration());
 
-        relative_orientation_task->subscribe([&](tl::TaskFinalizedEvent *event) {
+        relative_orientation_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
             try {
 
@@ -235,10 +232,6 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
                 auto cameras = task->cameras();
                 auto report = task->report();
                 report.time = task->time();
-
-                /// Se comprueba que se han generado todos los productos
-                tl::Path sfm_path = mModel->projectFolder();
-                sfm_path.append("sfm");
 
                 tl::Path sparse_model_path = sfm_path;
                 sparse_model_path.append("sparse.ply");
@@ -294,11 +287,7 @@ std::unique_ptr<tl::Task> OrientationPresenterImp::createTask()
             auto absolute_orientation_task = std::make_shared<AbsoluteOrientationColmapTask>(sfm_path,
                                                                                              images);
 
-            absolute_orientation_task->subscribe([&](tl::TaskFinalizedEvent *event) {
-
-                
-                tl::Path sfm_path = mModel->projectFolder();
-                sfm_path.append("sfm");
+            absolute_orientation_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
                 tl::Path offset_path = sfm_path;
                 offset_path.append("offset.txt");

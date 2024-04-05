@@ -58,9 +58,9 @@ public:
 
 public:
 
-    int depth() const override;
-    int solveDepth() const override;
-    QString boundaryType() const override;
+    auto depth() const -> int override;
+    auto solveDepth() const -> int override;
+    auto boundaryType() const -> QString override;
     //int width() const override;
     //int fullDepth() const override;
 
@@ -76,17 +76,17 @@ public slots:
 
 private:
 
-    void initUI();
-    void initSignalAndSlots();
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-    void clear();
+    void clear() override;
 
 private slots:
 
-    void update();
-    void retranslate();
+    void update() override;
+    void retranslate() override;
 
 protected:
 

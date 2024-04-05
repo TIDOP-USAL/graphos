@@ -39,7 +39,7 @@ class OpenProjectComponent
 public:
 
     OpenProjectComponent(Application *application);
-    ~OpenProjectComponent();
+    ~OpenProjectComponent() override;
 
 private:
 

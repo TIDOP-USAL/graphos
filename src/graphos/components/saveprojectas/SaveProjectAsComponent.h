@@ -39,7 +39,7 @@ class SaveProjectAsComponent
 public:
 
     SaveProjectAsComponent(Application *application);
-    ~SaveProjectAsComponent();
+    ~SaveProjectAsComponent() override;
 
 private:
 

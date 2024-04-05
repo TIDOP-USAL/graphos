@@ -48,10 +48,6 @@ public:
 
 private:
 
-    //void readGroundControlPoints(QXmlStreamReader &stream);
-    //void readGroundControlPoint(QXmlStreamReader &stream);
-    //void readImagePoints(QXmlStreamReader &stream, const QString &gcp_id);
-    //void readImagePoint(QXmlStreamReader &stream, const QString &gcp_id);
     void writeGroundControlPoints(QXmlStreamWriter &stream);
 
 // GeoreferenceModel interface
@@ -59,34 +55,33 @@ private:
 public:
 
     void loadGroundControlPoints() override;
-    void loadGroundControlPoints(const std::vector<GroundControlPoint> &gcps) override;
-    QString crs() const;
-    QStandardItemModel *itemModelGroundControlPoints() override;
-    QStandardItemModel *itemModelImagePoints() override;
-    const std::unordered_map<size_t, Image> &images() const override;
-    Image image(size_t imageId) const override;
+    void loadGroundControlPoints(const GroundControlPoints &gcps) override;
+    auto crs() const -> QString override;
+    auto itemModelGroundControlPoints() -> QStandardItemModel* override;
+    auto itemModelImagePoints() -> QStandardItemModel* override;
+    auto images() const -> const Images& override;
+    auto image(size_t imageId) const -> Image override;
     void addGroundControlPoint() override;
     void removeGroundControlPoint(int index) override;
     void addImagePoint(const QString &gcp,
                        size_t imageId,
                        const QPointF &point) override;
     void removeImagePoint(const QString &gcp, size_t imageId) override;
-    std::list<std::pair<QString, QPointF>> points(size_t imageId) const override;
-    std::vector<GroundControlPoint> groundControlPoints() const override;
-    tl::Path projectPath() const override;
-    tl::Path reconstructionPath() const override;
-    //void setReconstructionPath(const tl::Path &reconstructionPath) override;
+    auto points(size_t imageId) const -> std::list<std::pair<QString, QPointF>> override;
+    auto groundControlPoints() const -> GroundControlPoints override;
+    auto projectPath() const -> tl::Path override;
+    auto reconstructionPath() const -> tl::Path override;
     void setSparseModel(const tl::Path &sparseModel) override;
     void setOffset(const tl::Path &offset) override;
     void addPhotoOrientation(size_t imageId,
                              const CameraPose &orientation) override;
-    const std::unordered_map<size_t, CameraPose> &poses() const override;
-    const std::map<int, Camera> &cameras() const override;
-    std::vector<GroundPoint> groundPoints() const override;
-    tl::Path database() const override;
+    auto poses() const -> const CameraPoses& override;
+    auto cameras() const -> const Cameras& override;
+    auto groundPoints() const -> GroundPoints override;
+    auto database() const -> tl::Path override;
     void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
     void setGroundPoints(const tl::Path &groundPoints) override;
-    bool updateCamera(int id, const Camera &camera) override;
+    auto updateCamera(int id, const Camera &camera) -> bool override;
     void importGroundControlPoints(const QString &file, const QString &format) override;
     void exportGroundControlPoints(const QString &file, const QString &format) override;
 
@@ -108,7 +103,6 @@ public slots:
 protected:
 
     Project *mProject;
-    //std::vector<GroundControlPoint> mGroundControlPoints;
     QStandardItemModel *mItemModelGroundControlPoints;
     QStandardItemModel *mItemModelImagePoints;
     QString mCrs;

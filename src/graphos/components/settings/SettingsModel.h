@@ -40,19 +40,19 @@ class SettingsModel
 public:
 
     SettingsModel(QObject *parent = nullptr) : Model(parent) {}
-    virtual ~SettingsModel() override = default;
+    ~SettingsModel() override = default;
 
     /*!
      * \brief List of available languages
      * \return
      */
-    virtual QStringList languages() const = 0;
+    virtual auto languages() const -> QStringList = 0;
 
     /*!
      * \brief Current language
      * \return Current language
      */
-    virtual QString language() const = 0;
+    virtual auto language() const -> QString = 0;
 
     /*!
      * \brief Recent history projects
@@ -64,35 +64,35 @@ public:
       * \brief Maximum history size
       * \return Maximum history size
       */
-    virtual int historyMaxSize() const = 0;
+    virtual auto historyMaxSize() const -> int = 0;
 
     /*!
      * \brief Image viewer Background color
      * \return Hex value
      */
-    virtual QString imageViewerBGcolor() const = 0;
+    virtual auto imageViewerBGcolor() const -> QString = 0;
 
-    virtual bool useCuda() const = 0;
-    virtual bool checkDevice() const = 0;
+    virtual auto useCuda() const -> bool = 0;
+    virtual auto checkDevice() const -> bool = 0;
     ///TODO: Sift Properties
 
-    virtual QString keypointsViewerBGColor() const = 0;
-    virtual int keypointsViewerMarkerType() const = 0;
-    virtual int keypointsViewerMarkerSize() const = 0;
-    virtual int keypointsViewerMarkerWidth() const = 0;
-    virtual QString keypointsViewerMarkerColor() const = 0;
-    virtual int keypointsViewerSelectMarkerWidth() const = 0;
-    virtual QString keypointsViewerSelectMarkerColor() const = 0;
+    virtual auto keypointsViewerBGColor() const -> QString = 0;
+    virtual auto keypointsViewerMarkerType() const -> int = 0;
+    virtual auto keypointsViewerMarkerSize() const -> int = 0;
+    virtual auto keypointsViewerMarkerWidth() const -> int = 0;
+    virtual auto keypointsViewerMarkerColor() const -> QString = 0;
+    virtual auto keypointsViewerSelectMarkerWidth() const -> int = 0;
+    virtual auto keypointsViewerSelectMarkerColor() const -> QString = 0;
 
-    virtual QString matchesViewerBGColor() const = 0;
-    virtual int matchesViewerMarkerType() const = 0;
-    virtual int matchesViewerMarkerSize() const = 0;
-    virtual int matchesViewerMarkerWidth() const = 0;
-    virtual QString matchesViewerMarkerColor() const = 0;
-    virtual int matchesViewerSelectMarkerWidth() const = 0;
-    virtual QString matchesViewerSelectMarkerColor() const = 0;
-    virtual QString matchesViewerLineColor() const = 0;
-    virtual int matchesViewerLineWidth() const = 0;
+    virtual auto matchesViewerBGColor() const -> QString = 0;
+    virtual auto matchesViewerMarkerType() const -> int = 0;
+    virtual auto matchesViewerMarkerSize() const -> int = 0;
+    virtual auto matchesViewerMarkerWidth() const -> int = 0;
+    virtual auto matchesViewerMarkerColor() const -> QString = 0;
+    virtual auto matchesViewerSelectMarkerWidth() const -> int = 0;
+    virtual auto matchesViewerSelectMarkerColor() const -> QString = 0;
+    virtual auto matchesViewerLineColor() const -> QString = 0;
+    virtual auto matchesViewerLineWidth() const -> int = 0;
 
 
     /*!

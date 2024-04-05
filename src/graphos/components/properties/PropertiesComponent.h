@@ -40,7 +40,7 @@ class PropertiesComponent
 public:
 
     PropertiesComponent(Application *application);
-    ~PropertiesComponent();
+    ~PropertiesComponent() override;
 
     void setAlternatingRowColors(bool active);
     void registerParser(std::shared_ptr<PropertiesParser> &parser);
@@ -57,11 +57,6 @@ public slots:
 private:
 
     void init();
-
-signals:
-
-    //void parseDocument(QString /*parser*/, QString /*file*/);
-    //void parseDocuments(QStringList /*parsers*/, QStringList /*files*/);
 
 // ComponentBase
 

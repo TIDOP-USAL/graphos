@@ -33,10 +33,7 @@ UndistortImagesViewImp::UndistortImagesViewImp(QWidget *parent)
     this->init();
 }
 
-UndistortImagesViewImp::~UndistortImagesViewImp()
-{
-
-}
+UndistortImagesViewImp::~UndistortImagesViewImp() = default;
 
 void UndistortImagesViewImp::init()
 {

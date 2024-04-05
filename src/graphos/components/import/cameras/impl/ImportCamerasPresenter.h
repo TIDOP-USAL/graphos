@@ -46,9 +46,9 @@ public:
 
 private slots:
 
-    void previewCSV();
-    void checkInputCRS(const QString &crs);
-    void checkOutputCRS(const QString &crs);
+    void previewCSV() const;
+    void checkInputCRS(const QString &crs) const;
+    void checkOutputCRS(const QString &crs) const;
 
 private:
 

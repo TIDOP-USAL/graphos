@@ -42,17 +42,21 @@ class ImageLoaderModel
 
 public:
 
+    using Cameras = std::map<int, Camera>;
+
+public:
+
     ImageLoaderModel(QObject *parent = nullptr) : Model(parent) {}
     ~ImageLoaderModel() override = default;
 
-    virtual QString projectCRS() const = 0;
+    virtual auto projectCRS() const -> QString = 0;
     virtual void setProjectCRS(const QString &crs) = 0;
     virtual void addImage(const Image &image) = 0;
     virtual bool existImage(size_t imageId) const = 0;
-    virtual tl::Path imagesDirectory() const = 0;
-    virtual const std::map<int, Camera> &cameras() const = 0;
-    virtual int addCamera(const Camera &camera) = 0;
-    virtual int cameraID(const Camera &camera) const = 0;
+    virtual auto imagesDirectory() const -> tl::Path = 0;
+    virtual auto cameras() const -> const Cameras & = 0;
+    virtual auto addCamera(const Camera &camera) -> int = 0;
+    virtual auto cameraID(const Camera &camera) const -> int = 0;
 
 };
 

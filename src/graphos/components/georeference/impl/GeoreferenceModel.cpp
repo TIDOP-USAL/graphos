@@ -43,7 +43,7 @@ GeoreferenceModelImp::GeoreferenceModelImp(Project *project,
     mItemModelGroundControlPoints(new QStandardItemModel(this)),
     mItemModelImagePoints(new QStandardItemModel(this))
 {
-    this->init();
+    GeoreferenceModelImp::init();
 }
 
 void GeoreferenceModelImp::init()
@@ -56,9 +56,9 @@ void GeoreferenceModelImp::clear()
     mItemModelImagePoints->clear();
 }
 
-std::vector<GroundControlPoint> GeoreferenceModelImp::groundControlPoints() const
+auto GeoreferenceModelImp::groundControlPoints() const -> GroundControlPoints
 {
-    std::vector<GroundControlPoint> ground_control_points;
+    GroundControlPoints ground_control_points;
 
     int rows = mItemModelGroundControlPoints->rowCount();
 
@@ -194,7 +194,7 @@ void GeoreferenceModelImp::loadGroundControlPoints()
 
 }
 
-void GeoreferenceModelImp::loadGroundControlPoints(const std::vector<GroundControlPoint> &gcps)
+void GeoreferenceModelImp::loadGroundControlPoints(const GroundControlPoints &gcps)
 {
     mItemModelGroundControlPoints->clear();
     mItemModelImagePoints->clear();
@@ -258,27 +258,27 @@ void GeoreferenceModelImp::loadGroundControlPoints(const std::vector<GroundContr
 
 }
 
-QString GeoreferenceModelImp::crs() const
+auto GeoreferenceModelImp::crs() const -> QString
 {
     return mCrs;
 }
 
-QStandardItemModel *GeoreferenceModelImp::itemModelGroundControlPoints()
+auto GeoreferenceModelImp::itemModelGroundControlPoints() -> QStandardItemModel*
 {
     return mItemModelGroundControlPoints;
 }
 
-QStandardItemModel *GeoreferenceModelImp::itemModelImagePoints()
+auto GeoreferenceModelImp::itemModelImagePoints() -> QStandardItemModel*
 {
     return mItemModelImagePoints;
 }
 
-const std::unordered_map<size_t, Image> &GeoreferenceModelImp::images() const
+auto GeoreferenceModelImp::images() const -> const Images&
 {
     return mProject->images();
 }
 
-Image GeoreferenceModelImp::image(size_t imageId) const
+auto GeoreferenceModelImp::image(size_t imageId) const -> Image
 {
     return mProject->findImageById(imageId);
 }
@@ -346,7 +346,7 @@ void GeoreferenceModelImp::removeImagePoint(const QString &gcp,
     }
 }
 
-std::list<std::pair<QString, QPointF>> GeoreferenceModelImp::points(size_t imageId) const
+auto GeoreferenceModelImp::points(size_t imageId) const -> std::list<std::pair<QString, QPointF>>
 {
     std::list<std::pair<QString, QPointF>> image_points;
 
@@ -359,26 +359,21 @@ std::list<std::pair<QString, QPointF>> GeoreferenceModelImp::points(size_t image
         QString gcp = mItemModelImagePoints->index(row, 0).data().toString();
         QPointF point(mItemModelImagePoints->index(row, 2).data().toDouble(),
                       mItemModelImagePoints->index(row, 3).data().toDouble());
-        image_points.push_back(std::make_pair(gcp, point));
+        image_points.emplace_back(gcp, point);
     }
 
     return image_points;
 }
 
-tl::Path GeoreferenceModelImp::projectPath() const
+auto GeoreferenceModelImp::projectPath() const -> tl::Path
 {
     return mProject->projectFolder();
 }
 
-tl::Path GeoreferenceModelImp::reconstructionPath() const
+auto GeoreferenceModelImp::reconstructionPath() const -> tl::Path
 {
     return mProject->reconstructionPath();
 }
-
-//void GeoreferenceModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
-//{
-//    mProject->setReconstructionPath(reconstructionPath);
-//}
 
 void GeoreferenceModelImp::setSparseModel(const tl::Path &sparseModel)
 {
@@ -396,25 +391,25 @@ void GeoreferenceModelImp::addPhotoOrientation(size_t imageId,
     mProject->addPhotoOrientation(imageId, orientation);
 }
 
-const std::unordered_map<size_t, CameraPose> &GeoreferenceModelImp::poses() const
+auto GeoreferenceModelImp::poses() const -> const CameraPoses&
 {
     return mProject->poses();
 }
 
-const std::map<int, Camera> &GeoreferenceModelImp::cameras() const
+auto GeoreferenceModelImp::cameras() const -> const Cameras&
 {
     return mProject->cameras();
 }
 
-std::vector<GroundPoint> GeoreferenceModelImp::groundPoints() const
+auto GeoreferenceModelImp::groundPoints() const -> GroundPoints
 {
-    std::unique_ptr<GroundPointsReader> reader = GroundPointsReaderFactory::create("GRAPHOS");
+    auto reader = GroundPointsReaderFactory::create("GRAPHOS");
     reader->read(mProject->groundPoints());
 
     return reader->points();
 }
 
-tl::Path GeoreferenceModelImp::database() const
+auto GeoreferenceModelImp::database() const -> tl::Path
 {
     return mProject->database();
 }

@@ -42,7 +42,7 @@ FeatureMatchingModelImp::FeatureMatchingModelImp(Project *project,
                             qApp->organizationName(),
                             qApp->applicationName()))
 {
-    this->init();
+    FeatureMatchingModelImp::init();
 }
 
 FeatureMatchingModelImp::~FeatureMatchingModelImp()
@@ -62,7 +62,7 @@ void FeatureMatchingModelImp::clear()
 
 }
 
-std::shared_ptr<FeatureMatching> FeatureMatchingModelImp::featureMatching() const
+auto FeatureMatchingModelImp::featureMatching() const -> std::shared_ptr<FeatureMatching>
 {
     return mProject->featureMatching();
 }
@@ -77,17 +77,17 @@ void FeatureMatchingModelImp::setFeatureMatchingReport(const FeatureMatchingRepo
     mProject->setFeatureMatchingReport(report);
 }
 
-tl::Path FeatureMatchingModelImp::database() const
+auto FeatureMatchingModelImp::database() const -> tl::Path
 {
     return mProject->database();
 }
 
-bool FeatureMatchingModelImp::useCuda() const
+auto FeatureMatchingModelImp::useCuda() const -> bool
 {
     return mSettings->value("UseCuda", true).toBool();
 }
 
-bool FeatureMatchingModelImp::spatialMatching() const
+auto FeatureMatchingModelImp::spatialMatching() const -> bool
 {
     for (const auto &image : mProject->images()) {
         if (!image.second.cameraPose().isEmpty()) {
@@ -116,8 +116,7 @@ void FeatureMatchingModelImp::writeMatchPairs()
 
             colmap::FeatureMatches matches = database.ReadMatches(colmap_image_id_l, colmap_image_id_r);
 
-            if (matches.size() > 0) {
-
+            if (!matches.empty()) {
                 
                 tl::Path colmap_image2(db_images[j].Name());
 

@@ -39,7 +39,7 @@ class ImportCamerasComponent
 public:
 
     ImportCamerasComponent(Application *application);
-    ~ImportCamerasComponent();
+    ~ImportCamerasComponent() override;
 
 private slots:
 

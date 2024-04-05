@@ -41,7 +41,7 @@ class SettingsPresenter
 public:
 
     SettingsPresenter() = default;
-    virtual ~SettingsPresenter() override = default;
+    ~SettingsPresenter() override = default;
 
 public slots:
 

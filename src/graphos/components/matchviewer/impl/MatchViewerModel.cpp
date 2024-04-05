@@ -43,7 +43,7 @@ MatchViewerModelImp::MatchViewerModelImp(Project *project,
               qApp->organizationName(),
               qApp->applicationName()))
 {
-    this->init();
+    MatchViewerModelImp::init();
 }
 
 MatchViewerModelImp::~MatchViewerModelImp()
@@ -54,47 +54,47 @@ MatchViewerModelImp::~MatchViewerModelImp()
     }
 }
 
-QString MatchViewerModelImp::backgroundColor() const
+auto MatchViewerModelImp::backgroundColor() const -> QString
 {
     return mSettings->value("MatchesViewer/BackgroundColor", "#dcdcdc").toString();
 }
 
-int MatchViewerModelImp::markerType() const
+auto MatchViewerModelImp::markerType() const -> int
 {
     return mSettings->value("MatchesViewer/MarkerType", 1).toInt();
 }
 
-int MatchViewerModelImp::markerSize() const
+auto MatchViewerModelImp::markerSize() const -> int
 {
     return mSettings->value("MatchesViewer/MarkerSize", 20).toInt();
 }
 
-int MatchViewerModelImp::markerWidth() const
+auto MatchViewerModelImp::markerWidth() const -> int
 {
     return mSettings->value("MatchesViewer/MarkerWidth", 2).toInt();
 }
 
-QString MatchViewerModelImp::markerColor() const
+auto MatchViewerModelImp::markerColor() const -> QString
 {
     return mSettings->value("MatchesViewer/MarkerColor", "#00aa00").toString();
 }
 
-int MatchViewerModelImp::viewerSelectMarkerWidth() const
+auto MatchViewerModelImp::viewerSelectMarkerWidth() const -> int
 {
     return mSettings->value("MatchesViewer/SelectMarkerWidth", 2).toInt();
 }
 
-QString MatchViewerModelImp::selectedMarkerColor() const
+auto MatchViewerModelImp::selectedMarkerColor() const -> QString
 {
     return mSettings->value("MatchesViewer/SelectMarkerColor", "#e5097e").toString();
 }
 
-QString MatchViewerModelImp::lineColor() const
+auto MatchViewerModelImp::lineColor() const -> QString
 {
     return mSettings->value("MatchesViewer/LineColor", "#0000ff").toString();
 }
 
-int MatchViewerModelImp::lineWidth() const
+auto MatchViewerModelImp::lineWidth() const -> int
 {
     return mSettings->value("MatchesViewer/LineWidth", 2).toInt();
 }
@@ -103,30 +103,28 @@ void MatchViewerModelImp::init()
 {
 }
 
-const std::unordered_map<size_t, Image> &MatchViewerModelImp::images() const
+auto MatchViewerModelImp::images() const -> const Images&
 {
     return mProject->images();
 }
 
-Image MatchViewerModelImp::image(size_t imageId) const
+auto MatchViewerModelImp::image(size_t imageId) const -> Image
 {
     return mProject->findImageById(imageId);
 }
 
-std::vector<size_t> MatchViewerModelImp::imagePairs(size_t imageId) const
+auto MatchViewerModelImp::imagePairs(size_t imageId) const -> std::vector<size_t>
 {
     std::vector<size_t> image_pairs = mProject->matchesPairs(imageId);
     return image_pairs;
 }
 
-std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>>
-MatchViewerModelImp::loadMatches(size_t imageId1,
-                                 size_t imageId2) const
+auto MatchViewerModelImp::loadMatches(size_t imageId1, size_t imageId2) const -> Matches
 {
     std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> matches;
 
-    Image imageLeft = mProject->findImageById(imageId1);
-    Image imageRight = mProject->findImageById(imageId2);
+    Image image_left = mProject->findImageById(imageId1);
+    Image image_right = mProject->findImageById(imageId2);
 
     tl::Path database_path = mProject->database();
 
@@ -134,14 +132,14 @@ MatchViewerModelImp::loadMatches(size_t imageId1,
 
     colmap::Database database(database_path.toString());
 
-    if (!database.ExistsImageWithName(imageLeft.path().toStdString()))
-        throw std::runtime_error(std::string("Image not found in database: ").append(imageLeft.name().toStdString()));
-    if (!database.ExistsImageWithName(imageRight.path().toStdString()))
-        throw std::runtime_error(std::string("Image not found in database: ").append(imageRight.name().toStdString()));
+    if (!database.ExistsImageWithName(image_left.path().toStdString()))
+        throw std::runtime_error(std::string("Image not found in database: ").append(image_left.name().toStdString()));
+    if (!database.ExistsImageWithName(image_right.path().toStdString()))
+        throw std::runtime_error(std::string("Image not found in database: ").append(image_right.name().toStdString()));
 
-    colmap::Image image_left_colmap = database.ReadImageWithName(imageLeft.path().toStdString());
+    colmap::Image image_left_colmap = database.ReadImageWithName(image_left.path().toStdString());
     colmap::image_t image_left_id = image_left_colmap.ImageId();
-    colmap::Image image_right_colmap = database.ReadImageWithName(imageRight.path().toStdString());
+    colmap::Image image_right_colmap = database.ReadImageWithName(image_right.path().toStdString());
     colmap::image_t image_right_id = image_right_colmap.ImageId();
 
     if (image_left_id != 0 && image_right_id != 0) {
@@ -158,11 +156,8 @@ MatchViewerModelImp::loadMatches(size_t imageId1,
                                static_cast<qreal>(kp_1[match_colmap.point2D_idx1].y));
             QPointF right_point(static_cast<qreal>(kp_2[match_colmap.point2D_idx2].x),
                                 static_cast<qreal>(kp_2[match_colmap.point2D_idx2].y));
-            matches.push_back(std::make_tuple(i,
-                              match_colmap.point2D_idx1,
-                              left_point,
-                              match_colmap.point2D_idx1,
-                              right_point));
+            matches.emplace_back(i, match_colmap.point2D_idx1, left_point,
+                                 match_colmap.point2D_idx1, right_point);
         }
     }
 

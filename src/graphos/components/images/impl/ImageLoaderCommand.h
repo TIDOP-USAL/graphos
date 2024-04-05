@@ -27,8 +27,6 @@
 #include "graphos/core/command.h"
 #include "graphos/core/project.h"
 
-#include <QDir>
-#include <QFileInfo>
 #include <QStandardPaths>
 
 namespace graphos

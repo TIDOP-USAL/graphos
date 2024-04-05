@@ -40,8 +40,8 @@ class OpenProjectPresenter
 
 public:
 
-    OpenProjectPresenter() {}
-    virtual ~OpenProjectPresenter() override = default;
+    OpenProjectPresenter() = default;
+    ~OpenProjectPresenter() override = default;
 
 protected slots:
 

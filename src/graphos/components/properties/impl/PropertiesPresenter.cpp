@@ -25,14 +25,10 @@
 
 #include "graphos/components/properties/PropertiesModel.h"
 #include "graphos/components/properties/PropertiesView.h"
-#include "graphos/core/AppStatus.h"
 
 #include <tidop/core/exception.h>
 
-#include <QStandardPaths>
-#include <QDir>
 #include <QFileDialog>
-#include <QMessageBox>
 
 namespace graphos
 {

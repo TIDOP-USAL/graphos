@@ -38,7 +38,6 @@
 ///
 
 #include <QStandardItemModel>
-#include <QFile>
 #include <QTextStream>
 #include <QFileInfo>
 
@@ -57,15 +56,15 @@ ImportCamerasModelImp::ImportCamerasModelImp(Project *project,
     mItemModelCSV(new QStandardItemModel(this)),
     mItemModelCameras(new QStandardItemModel(this))
 {
-    this->init();
+    ImportCamerasModelImp::init();
 }
 
-QStandardItemModel *ImportCamerasModelImp::itemModelCSV()
+auto ImportCamerasModelImp::itemModelCSV() -> QStandardItemModel*
 {
     return mItemModelCSV;
 }
 
-QStandardItemModel *ImportCamerasModelImp::itemModelFormatCameras()
+auto ImportCamerasModelImp::itemModelFormatCameras() -> QStandardItemModel*
 {
     return mItemModelCameras;
 }
@@ -97,8 +96,6 @@ void ImportCamerasModelImp::clear()
 void ImportCamerasModelImp::previewImportCameras()
 {
     mItemModelCSV->clear();
-
-    //emit parseOk(false); // Desactiva salvar
 
     QFile file(mCsvFile);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
@@ -743,12 +740,11 @@ void ImportCamerasModelImp::importCameras()
             }
 
             for (const auto &pair_image : mProject->images()) {
-                //QString base_name = QFileInfo(image).baseName();
+
                 tl::Path image_path(image.toStdWString());
                 tl::Path image_path2(pair_image.second.path().toStdWString());
 
                 if (image_path.equivalent(image_path2)) {
-                    //if (image_it->name().compare(base_name) == 0){
 
                     CameraPose camera_pose;
                     camera_pose.setSource(mCsvFile);
@@ -756,17 +752,10 @@ void ImportCamerasModelImp::importCameras()
                         tl::CrsTransform crs_trf(crs_in, crs_out);
 
                         tl::Point3<double> pt_in;
-                        //if (crs_in->isGeographic())
-                        //  pt_in = tl::Point3D(y.toDouble(), x.toDouble(), z.toDouble());
-                        //else
                         pt_in = tl::Point3<double>(x.toDouble(), y.toDouble(), z.toDouble());
 
                         tl::Point3<double> pt_out = crs_trf.transform(pt_in);
-                        //if (crs_out->isGeographic()) {
-                        //  double x = pt_out.y;
-                        //  pt_out.y = pt_out.x;
-                        //  pt_out.x = x;
-                        //}
+
                         camera_pose.setPosition(pt_out);
                         camera_pose.setCrs(mOutputCrs);
                     } else {
@@ -837,18 +826,6 @@ void ImportCamerasModelImp::importCameras()
             }
         }
 
-        //if (database.ExistsImageWithName(image_path)) {
-
-        //  colmap::Image image_colmap = database.ReadImageWithName(image_path);
-        //  image_colmap.TvecPrior(0) = image_it->cameraPose().position().x;
-        //  image_colmap.TvecPrior(1) = image_it->cameraPose().position().y;
-        //  image_colmap.TvecPrior(2) = image_it->cameraPose().position().z;
-        //  image_colmap.QvecPrior(0) = image_it->cameraPose().quaternion().w;
-        //  image_colmap.QvecPrior(1) = image_it->cameraPose().quaternion().x;
-        //  image_colmap.QvecPrior(2) = image_it->cameraPose().quaternion().y;
-        //  image_colmap.QvecPrior(3) = image_it->cameraPose().quaternion().z;
-        //  database.UpdateImage(image_colmap);
-        //}
     }
 
     /// 

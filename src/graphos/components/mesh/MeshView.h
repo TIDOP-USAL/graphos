@@ -42,9 +42,9 @@ public:
     MeshView(QWidget *parent) : TaskView(parent) {}
     ~MeshView() override = default;
 
-    virtual int depth() const = 0;
-    virtual int solveDepth() const = 0;
-    virtual QString boundaryType() const = 0;
+    virtual auto depth() const -> int = 0;
+    virtual auto solveDepth() const -> int = 0;
+    virtual auto boundaryType() const -> QString = 0;
     //virtual int width() const = 0;
     //virtual int fullDepth() const = 0;
 

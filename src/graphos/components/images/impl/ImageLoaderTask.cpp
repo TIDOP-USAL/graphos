@@ -37,9 +37,6 @@
 #include <tidop/geospatial/util.h>
 
 #include <QFileInfo>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QCoreApplication>
 
 namespace graphos
 {
@@ -71,16 +68,11 @@ bool LoadImagesTask::existCamera(const QString &make, const QString &model) cons
 {
     bool camera_exist = false;
 
-    QString camera_make;
-    QString camera_model;
 
     for (const auto &camera : *mCameras) {
 
-        camera_make = QString::fromStdString(camera.make());
-        camera_model = QString::fromStdString(camera.model());
-
-        if (make.compare(camera_make) == 0 &&
-            model.compare(camera_model) == 0) {
+        if (make.toStdString() == camera.make() &&
+            model.toStdString() == camera.model()) {
             camera_exist = true;
             break;
         }
@@ -94,16 +86,13 @@ int LoadImagesTask::findCamera(const QString &make, const QString &model) const
 {
     int camera_id = -1;
 
-    QString camera_make;
-    QString camera_model;
-
     for (size_t i = 0; i < mCameras->size(); i++) {
 
-        camera_make = QString::fromStdString((*mCameras)[i].make());
-        camera_model = QString::fromStdString((*mCameras)[i].model());
+        QString camera_make = QString::fromStdString((*mCameras)[i].make());
+        QString camera_model = QString::fromStdString((*mCameras)[i].model());
 
-        if (make.compare(camera_make) == 0 &&
-            model.compare(camera_model) == 0) {
+        if (make == camera_make &&
+            model == camera_model) {
             camera_id = static_cast<int>(i);
             break;
         }
@@ -119,17 +108,14 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         QString image = (*mImages)[imageId].path();
 
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.toStdString());
-        imageReader->open();
-        if (!imageReader->isOpen()) throw std::runtime_error("  Failed to read image file");
+        auto image_reader = tl::ImageReaderFactory::create(image.toStdString());
+        image_reader->open();
+        if (!image_reader->isOpen()) throw std::runtime_error("  Failed to read image file");
 
-        int id_camera = 0;
-        int width = imageReader->cols();
-        int height = imageReader->rows();
         int camera_id = -1;
 
         tl::Message::pauseMessages();
-        std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
+        auto image_metadata = image_reader->metadata();
         bool bActiveCameraName = false;
         bool bActiveCameraModel = false;
         std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
@@ -138,7 +124,7 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         camera_id = findCamera(camera_make.c_str(), camera_model.c_str());
         if (camera_id == -1) {
-            camera_id = loadCamera(imageReader.get());
+            camera_id = loadCamera(image_reader.get());
         }
 
         tl::Message::pauseMessages();
@@ -192,7 +178,6 @@ void LoadImagesTask::loadImage(size_t imageId)
 
             try {
 
-                bool bTrfCrs = mCrsIn->isValid() && mCrsOut->isValid();
                 tl::CrsTransform crs_trf(mCrsIn, mCrsOut);
                 tl::Point3<double> pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
                 tl::Point3<double> pt_out = crs_trf.transform(pt_in);
@@ -202,6 +187,7 @@ void LoadImagesTask::loadImage(size_t imageId)
                 camera_pose.setCrs(epsg_out.c_str());
                 camera_pose.setSource("EXIF");
                 (*mImages)[imageId].setCameraPose(camera_pose);
+
             } catch (std::exception &e) {
                 tl::printException(e);
             }
@@ -232,12 +218,10 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 
     if (!bActiveCameraName && !bActiveCameraModel) {
 
-        Camera camera2;
         int counter = 0;
-        for (auto it = mCameras->begin(); it != mCameras->end(); it++) {
-            camera2 = *it;
-            if (camera2.make().compare("Unknown camera") == 0) {
-                if (camera2.width() == width && camera2.height() == height) {
+        for (auto &camera : *mCameras) {
+            if (camera.make() == "Unknown camera") {
+                if (camera.width() == width && camera.height() == height) {
                     return counter;
                 }
                 counter++;
@@ -256,20 +240,20 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
     camera.setType(mCameraType);
     /// Extract sensor size
     double sensor_width_mm = -1.;
-    DatabaseCameras databaseCameras(mDatabaseCamerasPath);
-    databaseCameras.open();
+    DatabaseCameras database_cameras(mDatabaseCamerasPath);
+    database_cameras.open();
 
-    if (databaseCameras.isOpen()) {
+    if (database_cameras.isOpen()) {
 
-        if (databaseCameras.existCameraMakeId(camera_make.c_str())) {
-            int camera_make_id = databaseCameras.cameraMakeId(camera_make.c_str());
+        if (database_cameras.existCameraMakeId(camera_make.c_str())) {
+            int camera_make_id = database_cameras.cameraMakeId(camera_make.c_str());
 
-            if (databaseCameras.existCameraModel(camera_make_id, camera_model.c_str())) {
-                sensor_width_mm = databaseCameras.cameraSensorSize(camera_make_id, camera_model.c_str());
+            if (database_cameras.existCameraModel(camera_make_id, camera_model.c_str())) {
+                sensor_width_mm = database_cameras.cameraSensorSize(camera_make_id, camera_model.c_str());
             }
         }
 
-        databaseCameras.close();
+        database_cameras.close();
     }
 
     /// Extract focal
@@ -310,8 +294,8 @@ int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
                         double focal_plane_x_resolution = 0.;
                         std::string exif_focal_plane_x_resolution = image_metadata->metadata("EXIF_FocalPlaneXResolution", bActive);
                         if (bActive) {
-                            size_t pos1 = exif_focal_plane_x_resolution.find("(");
-                            size_t pos2 = exif_focal_plane_x_resolution.find(")");
+                            size_t pos1 = exif_focal_plane_x_resolution.find('(');
+                            size_t pos2 = exif_focal_plane_x_resolution.find(')');
                             if (pos1 != std::string::npos && pos2 != std::string::npos) {
                                 focal_plane_x_resolution = std::stod(exif_focal_plane_x_resolution.substr(pos1 + 1, pos2 - pos1 + 1));
                             }
@@ -364,7 +348,7 @@ void LoadImagesTask::execute(tl::Progress *progressBar)
 
         for (size_t i = 0; i < mImages->size(); i++) {
 
-            if (status() == tl::Task::Status::stopping)  break;
+            if (status() == Status::stopping)  break;
 
             loadImage(i);
 
@@ -372,7 +356,7 @@ void LoadImagesTask::execute(tl::Progress *progressBar)
 
         }
 
-        if (status() == tl::Task::Status::stopping) {
+        if (status() == Status::stopping) {
             chrono.reset();
         } else {
             
@@ -393,12 +377,12 @@ double LoadImagesTask::parseFocal(const std::string &focal, double def)
 
         std::string f = focal;
 
-        size_t pos = f.find("(");
+        size_t pos = f.find('(');
         if (pos != std::string::npos) {
             f.erase(pos, 1);
         }
 
-        pos = f.find(")");
+        pos = f.find(')');
         if (pos != std::string::npos) {
             f.erase(pos, 1);
         }

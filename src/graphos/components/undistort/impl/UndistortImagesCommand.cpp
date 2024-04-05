@@ -34,7 +34,7 @@ namespace graphos
 {
 
 UndistortImagesCommand::UndistortImagesCommand()
-    : Command("undistort", "Undistort images"),
+  : Command("undistort", "Undistort images"),
     mDisableCuda(false)
 {
     this->addArgument<std::string>("prj", 'p', "Project file");

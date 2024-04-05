@@ -60,17 +60,17 @@ public slots:
 
 private:
 
-    void initUI();
-    void initSignalAndSlots();
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-    void clear();
+    void clear() override;
 
 private slots:
 
-    void update();
-    void retranslate();
+    void update() override;
+    void retranslate() override;
 
 protected:
 

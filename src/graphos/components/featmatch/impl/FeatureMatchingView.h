@@ -52,7 +52,7 @@ public:
 public:
 
   void addMatchMethod(QWidget *matchMethod) override;
-  QString currentMatchMethod() const override;
+  auto currentMatchMethod() const -> QString override;
   bool spatialMatching() const override;
 
 public slots:

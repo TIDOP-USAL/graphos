@@ -36,8 +36,8 @@
 
 std::string removeParentheses(const std::string &value)
 {
-  size_t pos1 = value.find("(");
-  size_t pos2 = value.find(")");
+  size_t pos1 = value.find('(');
+  size_t pos2 = value.find(')');
 
   std::string parse_value;
 
@@ -67,19 +67,19 @@ PropertiesModelImp::~PropertiesModelImp()
 
 }
 
-std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::exif(size_t imageId) const
+auto PropertiesModelImp::exif(size_t imageId) const -> Properties
 {
-    std::unordered_map<QString, std::list<std::pair<QString, QString>>> exif;
+    Properties exif;
 
     try {
 
         Image image = mProject->findImageById(imageId);
 
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image.path().toStdString());
-        imageReader->open();
-        if (imageReader->isOpen()) {
+        auto image_reader = tl::ImageReaderFactory::create(image.path().toStdString());
+        image_reader->open();
+        if (image_reader->isOpen()) {
 
-            std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
+            std::shared_ptr<tl::ImageMetadata> image_metadata = image_reader->metadata();
             std::map<std::string, std::string> metadata = image_metadata->activeMetadata();
             std::string name;
             std::string value;
@@ -91,14 +91,14 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
             bool active = false;
 
             //value = image_metadata->metadata("EXIF_Document_Name", active);
-      //if(active) {
-      //  exif["Image"][QString("Document Name")] = QString::fromStdString(value);
-      //}
-      //
-      //value = image_metadata->metadata("EXIF_ImageDescription", active);
-      //if(active) {
-      //  exif["Description"][QString("Image description")] = QString::fromStdString(value);
-      //}
+            //if(active) {
+            //  exif["Image"][QString("Document Name")] = QString::fromStdString(value);
+            //}
+            //
+            //value = image_metadata->metadata("EXIF_ImageDescription", active);
+            //if(active) {
+            //  exif["Description"][QString("Image description")] = QString::fromStdString(value);
+            //}
 
             value = image_metadata->metadata("EXIF_Make", active);
             if (active) {
@@ -595,7 +595,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
             if (active) {
                 std::string altitude = removeParentheses(value);
                 value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);
-                if ("0x00" == 0)
+                if ("0x00" == value)
                     altitude.append(" Above sea level");
                 else
                     altitude.append(" Below sea level");
@@ -805,7 +805,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
             /// ...
             tl::Message::resumeMessages();
 
-            imageReader->close();
+            image_reader->close();
         }
 
         if (mProject->isPhotoOriented(imageId)) {
@@ -830,7 +830,7 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
     return exif;
 }
 
-std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::parse(const QString &parser, const QString &file) const
+auto PropertiesModelImp::parse(const QString& parser, const QString& file) const -> Properties
 {
     try {
         auto properties_parser = PropertiesParserFactory::create(parser);
@@ -840,9 +840,10 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
     }
 }
 
-std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::parse(const QStringList &parsers, const QStringList &files) const
+auto PropertiesModelImp::parse(const QStringList& parsers,
+                               const QStringList& files) const -> Properties
 {
-    std::unordered_map<QString, std::list<std::pair<QString, QString>>> properties;
+    Properties properties;
 
     try {
 
@@ -870,9 +871,9 @@ void PropertiesModelImp::clear()
     mProject->clear();
 }
 
-std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::sparseModel() const
+auto PropertiesModelImp::sparseModel() const -> Properties
 {
-    std::unordered_map<QString, std::list<std::pair<QString, QString>>> sparse_model_info;
+    Properties sparse_model_info;
 
     auto orientation_report = mProject->orientationReport();
 
@@ -891,9 +892,9 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
     return sparse_model_info;
 }
 
-std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::denseModel() const
+auto PropertiesModelImp::denseModel() const -> Properties
 {
-    std::unordered_map<QString, std::list<std::pair<QString, QString>>> dense_model_info;
+    Properties dense_model_info;
 
     if (auto densification = mProject->densification()) {
 
@@ -943,9 +944,9 @@ std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesMo
     return dense_model_info;
 }
 
-std::unordered_map<QString, std::list<std::pair<QString, QString>>> PropertiesModelImp::meshModel() const
+auto PropertiesModelImp::meshModel() const -> Properties
 {
-    std::unordered_map<QString, std::list<std::pair<QString, QString>>> mesh_info;
+    Properties mesh_info;
 
     if (auto mesh_properties = mProject->meshProperties()) {
 

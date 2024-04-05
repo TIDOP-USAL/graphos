@@ -31,7 +31,6 @@
 #include <tidop/core/messages.h>
 #include <tidop/core/exception.h>
 #include <tidop/core/progress.h>
-#include <tidop/core/chrono.h>
 #include <tidop/geospatial/crs.h>
 #include <tidop/vect/vectreader.h>
 #include <tidop/graphic/layer.h>
@@ -40,7 +39,6 @@
 
 /* OpenCV */
 #include <opencv2/stitching.hpp>
-#include <opencv2/imgcodecs.hpp>
 
 namespace graphos
 {
@@ -54,13 +52,13 @@ std::vector<tl::WindowD> findGrid(const tl::Path &footprint_file)
 
     tl::WindowD window_all;
 
-    std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
-    vectorReader->open();
-    if (vectorReader->isOpen()) {
-        if (vectorReader->layersCount() >= 1) {
+    auto vector_reader = tl::VectorReaderFactory::create(footprint_file);
+    vector_reader->open();
+    if (vector_reader->isOpen()) {
+        if (vector_reader->layersCount() >= 1) {
 
             std::map<double, std::shared_ptr<tl::GPolygon>> entities;
-            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+            std::shared_ptr<tl::GLayer> layer = vector_reader->read(0);
 
             /// Busqueda ventana total
 
@@ -105,7 +103,7 @@ std::vector<tl::WindowD> findGrid(const tl::Path &footprint_file)
     return grid;
 }
 
-std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std::shared_ptr<tl::GLayer> layer)
+auto bestImage(const tl::Point<double>& pt, const std::shared_ptr<tl::GLayer>& layer) -> std::shared_ptr<tl::GPolygon>
 {
     std::shared_ptr<tl::GPolygon> footprint_image;
 
@@ -137,25 +135,25 @@ std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std::shared
 }
 
 void findOptimalFootprint(const tl::Path &footprint_file,
-                          std::vector<tl::WindowD> &grid,
+                          const std::vector<tl::WindowD> &grid,
                           const tl::Path &optimal_footprint_path,
                           const tl::Crs &crs)
 {
     std::map<std::string, std::shared_ptr<tl::GPolygon>> clean_footprint;
 
-    std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
-    vectorReader->open();
-    if (vectorReader->isOpen()) {
+    auto vector_reader = tl::VectorReaderFactory::create(footprint_file);
+    vector_reader->open();
+    if (vector_reader->isOpen()) {
 
-        if (vectorReader->layersCount() >= 1) {
+        if (vector_reader->layersCount() >= 1) {
 
             std::map<double, std::shared_ptr<tl::GPolygon>> entities;
-            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+            std::shared_ptr<tl::GLayer> layer = vector_reader->read(0);
 
-            for (size_t i = 0; i < grid.size(); i++) {
+            for (const auto& window : grid) {
 
                 /// Busqueda de imagen mas centrada
-                std::shared_ptr<tl::GPolygon> polygon = bestImage(grid[i].center(), layer);
+                std::shared_ptr<tl::GPolygon> polygon = bestImage(window.center(), layer);
                 if (polygon) {
                     std::shared_ptr<tl::TableRegister> data = polygon->data();
                     std::string ortho_to_compensate = data->value(0);
@@ -164,13 +162,13 @@ void findOptimalFootprint(const tl::Path &footprint_file,
 
             }
 
-            vectorReader->close();
+            vector_reader->close();
 
         }
 
         tl::Message::info("Optimal footprint. {} retained images", clean_footprint.size());
 
-        std::unique_ptr<tl::VectorWriter> vector_writer = tl::VectorWriterFactory::create(optimal_footprint_path.toString());
+        auto vector_writer = tl::VectorWriterFactory::create(optimal_footprint_path.toString());
         vector_writer->open();
         if (!vector_writer->isOpen())throw std::runtime_error("Vector open error");
         vector_writer->create();
@@ -187,7 +185,7 @@ void findOptimalFootprint(const tl::Path &footprint_file,
         layer.addDataField(field);
 
         for (const auto &footprint : clean_footprint) {
-            std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(fields));
+            auto data = std::make_shared<tl::TableRegister>(fields);
             data->setValue(0, footprint.first);
             layer.push_back(footprint.second);
         }
@@ -221,16 +219,15 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
     //int type = cv::detail::ExposureCompensator::CHANNELS_BLOCKS;
     cv::Ptr<cv::detail::ExposureCompensator> compensator = cv::detail::ExposureCompensator::createDefault(type);
 
-    std::unique_ptr<tl::VectorReader> vectorReader;
-    vectorReader = tl::VectorReaderFactory::create(optimal_footprint_path.toString());
-    vectorReader->open();
+    auto vector_reader = tl::VectorReaderFactory::create(optimal_footprint_path.toString());
+    vector_reader->open();
 
-    if (vectorReader->isOpen()) {
+    if (vector_reader->isOpen()) {
 
-        if (vectorReader->layersCount() >= 1) {
+        if (vector_reader->layersCount() >= 1) {
 
             std::map<double, std::shared_ptr<tl::GPolygon>> entities;
-            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+            std::shared_ptr<tl::GLayer> layer = vector_reader->read(0);
 
             for (const auto &entity : *layer) {
 
@@ -282,7 +279,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
                     /// Aplicar un factor de escala para el calculo de la compensación de exposición
                     for (size_t i = 0; i < n_orthos; i++) {
 
-                        std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(orthos[i]);
+                        auto image_reader = tl::ImageReaderFactory::create(orthos[i]);
                         image_reader->open();
                         if (image_reader->isOpen()) {
                             cv::Mat image = image_reader->read(exposure_compensator_factor, exposure_compensator_factor);
@@ -322,7 +319,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
                     umat_orthos.clear();
                     mat_orthos.clear();
 
-                    std::unique_ptr<tl::ImageReader> image_reader = tl::ImageReaderFactory::create(ortho_to_compensate);
+                    auto image_reader = tl::ImageReaderFactory::create(ortho_to_compensate);
                     image_reader->open();
                     if (image_reader->isOpen()) {
                         cv::Mat compensate_image = image_reader->read();
@@ -395,7 +392,7 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
 
         }
 
-        vectorReader->close();
+        vector_reader->close();
     }
 
     /// 3 - mezcla (blender)

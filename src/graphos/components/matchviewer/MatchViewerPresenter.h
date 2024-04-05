@@ -38,7 +38,7 @@ class MatchViewerPresenter
 public:
 
     MatchViewerPresenter() {}
-    virtual ~MatchViewerPresenter() {}
+    ~MatchViewerPresenter() override {}
 
 public slots:
 

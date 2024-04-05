@@ -43,9 +43,7 @@ MeshComponent::MeshComponent(Application *application)
     init();
 }
 
-MeshComponent::~MeshComponent()
-{
-}
+MeshComponent::~MeshComponent() = default;
 
 void MeshComponent::init()
 {
@@ -70,7 +68,7 @@ void MeshComponent::createView()
 void MeshComponent::createPresenter()
 {
     setPresenter(new MeshPresenterImp(dynamic_cast<MeshView *>(view()),
-                 dynamic_cast<MeshModel *>(model())));
+                                     dynamic_cast<MeshModel *>(model())));
 }
 
 void MeshComponent::createCommand()
@@ -85,10 +83,10 @@ void MeshComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
     bool process_run = app_status->isEnabled(AppStatus::Flag::processing);
-    bool bDenseModel = app_status->isEnabled(AppStatus::Flag::dense_model);
-    action()->setEnabled(bProjectExists && !process_run && bDenseModel);
+    bool dense_model = app_status->isEnabled(AppStatus::Flag::dense_model);
+    action()->setEnabled(project_exists && !process_run && dense_model);
 }
 
 void MeshComponent::onRunning()

@@ -28,7 +28,6 @@
 
 #include <CCGeom.h>
 #include <ccPointCloud.h>
-#include <ccGenericMesh.h>
 #include <ccHObjectCaster.h>
 
 namespace graphos
@@ -53,7 +52,7 @@ void ScaleTask::setScale(double scale)
     mScale = scale;
 }
 
-tl::Matrix<double, 4, 4> ScaleTask::transform() const
+auto ScaleTask::transform() const -> tl::Matrix<double, 4, 4>
 {
     return mTransform;
 }
@@ -64,8 +63,8 @@ void ScaleTask::execute(tl::Progress *progressBar)
 
     try {
 
-        bool lockedVertices;
-        ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(mModel, &lockedVertices);
+        bool locked_vertices;
+        ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(mModel, &locked_vertices);
 
         CCVector3 center(0, 0, 0);
 

@@ -39,20 +39,16 @@ SaveProjectAsModelImp::SaveProjectAsModelImp(Project *project,
     SaveProjectAsModelImp::init();
 }
 
-SaveProjectAsModelImp::~SaveProjectAsModelImp()
-{
-}
+SaveProjectAsModelImp::~SaveProjectAsModelImp() = default;
 
 void SaveProjectAsModelImp::save(const tl::Path &file)
 {
     mProject->save(file);
 }
 
-tl::Path SaveProjectAsModelImp::graphosProjectsDirectory() const
+auto SaveProjectAsModelImp::graphosProjectsDirectory() const -> tl::Path
 {
-    //tl::Path project_directory = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
-    //project_directory.append("graphos").append("Projects");
-    return dynamic_cast<Application *>(qApp)->documentsLocation();
+    return Application::documentsLocation();
 }
 
 void SaveProjectAsModelImp::init()

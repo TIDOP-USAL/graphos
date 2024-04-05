@@ -35,7 +35,7 @@ OrientationModelImp::OrientationModelImp(Project *project,
   : OrientationModel(parent),
     mProject(project)
 {
-    this->init();
+    OrientationModelImp::init();
 }
 
 
@@ -73,12 +73,12 @@ void OrientationModelImp::setGroundPoints(const tl::Path &groundPoints)
     mProject->setGroundPoints(groundPoints);
 }
 
-bool OrientationModelImp::isPhotoOriented(size_t imageId) const
+auto OrientationModelImp::isPhotoOriented(size_t imageId) const -> bool
 {
     return mProject->isPhotoOriented(imageId);
 }
 
-CameraPose OrientationModelImp::photoOrientation(size_t imageId) const
+auto OrientationModelImp::photoOrientation(size_t imageId) const -> CameraPose
 {
     return mProject->photoOrientation(imageId);
 }
@@ -89,77 +89,72 @@ void OrientationModelImp::addPhotoOrientation(size_t imageId,
     mProject->addPhotoOrientation(imageId, orientation);
 }
 
-tl::Path OrientationModelImp::database() const
+auto OrientationModelImp::database() const -> tl::Path
 {
     return mProject->database();
 }
 
 
-tl::Path OrientationModelImp::projectFolder() const
+auto OrientationModelImp::projectFolder() const -> tl::Path
 {
     return mProject->projectFolder();
 }
 
-bool OrientationModelImp::gpsPositions() const
+auto OrientationModelImp::gpsPositions() const -> bool
 {
-    bool bGpsOrientation = false;
+    bool gps_orientation = false;
 
     auto it = mProject->images().begin();
     CameraPose camera_pose = it->second.cameraPose();
     if (!camera_pose.isEmpty())
-        bGpsOrientation = true;
+        gps_orientation = true;
 
-    return bGpsOrientation;
+    return gps_orientation;
 }
 
 bool OrientationModelImp::rtkOrientations() const
 {
-    bool bRtkOrientations = false;
+    bool rtk_orientations = false;
 
     auto it = mProject->images().begin();
     CameraPose camera_pose = it->second.cameraPose();
     if (!camera_pose.isEmpty()) {
         tl::Quaternion<double> q = camera_pose.quaternion();
         if (q == tl::Quaternion<double>::zero())
-            bRtkOrientations = false;
+            rtk_orientations = false;
         else
-            bRtkOrientations = true;
+            rtk_orientations = true;
     }
 
-    return bRtkOrientations;
+    return rtk_orientations;
 }
 
-tl::Path OrientationModelImp::reconstructionPath() const
+auto OrientationModelImp::reconstructionPath() const -> tl::Path
 {
     return mProject->reconstructionPath();
 }
-
-//void OrientationModelImp::setReconstructionPath(const tl::Path &reconstructionPath)
-//{
-//    mProject->setReconstructionPath(reconstructionPath);
-//}
 
 void OrientationModelImp::clearProject()
 {
     mProject->clearReconstruction();
 }
 
-const std::map<int, Camera> &OrientationModelImp::cameras() const
+auto OrientationModelImp::cameras() const -> const std::map<int, Camera>&
 {
     return mProject->cameras();
 }
 
-bool OrientationModelImp::updateCamera(int id, const Camera &camera)
+auto OrientationModelImp::updateCamera(int id, const Camera& camera) -> bool
 {
     return mProject->updateCamera(id, camera);
 }
 
-const std::unordered_map<size_t, Image> &OrientationModelImp::images() const
+auto OrientationModelImp::images() const -> const std::unordered_map<size_t, Image>&
 {
     return mProject->images();
 }
 
-OrientationReport OrientationModelImp::orientationReport() const
+auto OrientationModelImp::orientationReport() const -> OrientationReport
 {
     return mProject->orientationReport();
 }

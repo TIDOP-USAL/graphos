@@ -29,14 +29,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QSpinBox>
-#include <QLabel>
-#include <QSpinBox>
-#include <QLabel>
 #include <QComboBox>
-#include <QLabel>
-#include <QSpinBox>
-#include <QLabel>
-#include <QSpinBox>
 
 
 namespace graphos
@@ -45,41 +38,38 @@ namespace graphos
 MeshViewImp::MeshViewImp(QWidget *parent)
   : MeshView(parent)
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    MeshViewImp::initUI();
+    MeshViewImp::initSignalAndSlots();
 }
 
-MeshViewImp::~MeshViewImp()
-{
-
-}
+MeshViewImp::~MeshViewImp() = default;
 
 void MeshViewImp::initUI()
 {
     this->setObjectName(QString("MeshView"));
     this->resize(380, 250);
 
-    QGridLayout *gridLayout = new QGridLayout();
-    this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
     mLabelDepth = new QLabel(this);
-    gridLayout->addWidget(mLabelDepth, 0, 0, 1, 1);
+    grid_layout->addWidget(mLabelDepth, 0, 0, 1, 1);
     mSpinBoxDepth = new QSpinBox(this);
-    gridLayout->addWidget(mSpinBoxDepth, 0, 1, 1, 1);
+    grid_layout->addWidget(mSpinBoxDepth, 0, 1, 1, 1);
 
     mLabelSolveDepth = new QLabel(this);
-    gridLayout->addWidget(mLabelSolveDepth, 1, 0, 1, 1);
+    grid_layout->addWidget(mLabelSolveDepth, 1, 0, 1, 1);
 
     mSpinBoxSolveDepth = new QSpinBox(this);
-    gridLayout->addWidget(mSpinBoxSolveDepth, 1, 1, 1, 1);
+    grid_layout->addWidget(mSpinBoxSolveDepth, 1, 1, 1, 1);
 
     mLabelBoundaryType = new QLabel(this);
-    gridLayout->addWidget(mLabelBoundaryType, 2, 0, 1, 1);
+    grid_layout->addWidget(mLabelBoundaryType, 2, 0, 1, 1);
     mComboBoxBoundaryType = new QComboBox(this);
     mComboBoxBoundaryType->addItem("Free");
     mComboBoxBoundaryType->addItem("Dirichlet");
     mComboBoxBoundaryType->addItem("Neumann");
-    gridLayout->addWidget(mComboBoxBoundaryType, 2, 1, 1, 1);
+    grid_layout->addWidget(mComboBoxBoundaryType, 2, 1, 1, 1);
 
     //mLabelWidth = new QLabel(this);
     //gridLayout->addWidget(mLabelWidth, 3, 0, 1, 1);
@@ -95,7 +85,7 @@ void MeshViewImp::initUI()
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 4, 0, 1, 2);
 
     this->retranslate();
     this->clear();
@@ -150,7 +140,7 @@ int MeshViewImp::solveDepth() const
     return mSpinBoxSolveDepth->value();
 }
 
-QString MeshViewImp::boundaryType() const
+auto MeshViewImp::boundaryType() const -> QString
 {
     return mComboBoxBoundaryType->currentText();
 }

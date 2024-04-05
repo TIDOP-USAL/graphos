@@ -41,31 +41,32 @@ class Camera;
 class OrientationModel
   : public Model
 {
+public :
+
+    using Images = const std::unordered_map<size_t, Image>;
 
 public:
 
     OrientationModel(QObject *parent = nullptr) : Model(parent) {}
     ~OrientationModel() override = default;
 
-    virtual bool calibratedCamera() const = 0;
+    virtual auto calibratedCamera() const -> bool = 0;
     virtual void setSparseModel(const tl::Path &sparseModel) = 0;
     virtual void setOffset(const tl::Path &offset) = 0;
     virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
-    virtual bool isPhotoOriented(size_t imageId) const = 0;
-    virtual CameraPose photoOrientation(size_t imageId) const = 0;
-    virtual void addPhotoOrientation(size_t imageId,
-                                     const CameraPose &orientation) = 0;
-    virtual tl::Path database() const = 0;
-    virtual tl::Path projectFolder() const = 0;
-    virtual bool gpsPositions() const = 0;
-    virtual bool rtkOrientations() const = 0;
-    virtual tl::Path reconstructionPath() const = 0;
-    //virtual void setReconstructionPath(const tl::Path &reconstructionPath) = 0;
+    virtual auto isPhotoOriented(size_t imageId) const -> bool = 0;
+    virtual auto photoOrientation(size_t imageId) const -> CameraPose = 0;
+    virtual void addPhotoOrientation(size_t imageId, const CameraPose &orientation) = 0;
+    virtual auto database() const -> tl::Path = 0;
+    virtual auto projectFolder() const -> tl::Path = 0;
+    virtual auto gpsPositions() const -> bool = 0;
+    virtual auto rtkOrientations() const -> bool = 0;
+    virtual auto reconstructionPath() const -> tl::Path = 0;
     virtual void clearProject() = 0;
-    virtual const std::map<int, Camera> &cameras() const = 0;
-    virtual bool updateCamera(int id, const Camera &camera) = 0;
-    virtual const std::unordered_map<size_t, Image> &images() const = 0;
-    virtual OrientationReport orientationReport() const = 0;
+    virtual auto cameras() const -> const std::map<int, Camera>& = 0;
+    virtual auto updateCamera(int id, const Camera& camera) -> bool = 0;
+    virtual auto images() const -> const Images & = 0;
+    virtual auto orientationReport() const -> OrientationReport = 0;
     virtual void setOrientationReport(const OrientationReport &orientationReport) = 0;
 };
 

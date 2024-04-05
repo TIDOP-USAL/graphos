@@ -29,8 +29,6 @@
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
 
-#include "graphos/core/image.h"
-
 namespace tl
 {
 class ImageReader;

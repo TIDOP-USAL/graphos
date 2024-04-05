@@ -48,7 +48,6 @@ public:
 
 public:
 
-    //QVector3D offset() const;
     void setTransform(const tl::Matrix<double, 4, 4> &transform) override;
 
 public slots:

@@ -24,8 +24,6 @@
 #ifndef GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H
 #define GRAPHOS_LOADFROMVIDEO_MODEL_INTERFACE_H
 
-#include <array>
-
 #include <tidop/core/path.h>
 
 #include "graphos/core/mvp.h"
@@ -47,13 +45,13 @@ public:
     LoadFromVideoModel(QObject *parent = nullptr) : Model(parent) {}
     ~LoadFromVideoModel() override = default;
 
-    virtual tl::Path imagesPath() const = 0;
+    virtual auto imagesPath() const -> tl::Path = 0;
     virtual void addImage(const Image &image) = 0;
-    virtual const std::map<int, Camera> &cameras() const = 0;
-    virtual int addCamera(const Camera &camera) = 0;
-    virtual int cameraID(const Camera &camera) const = 0;
-    virtual int cameraID(const QString &make,
-                         const QString &model) const = 0;
+    virtual auto cameras() const -> const std::map<int, Camera>& = 0;
+    virtual auto addCamera(const Camera& camera) -> int = 0;
+    virtual auto cameraID(const Camera& camera) const -> int = 0;
+    virtual auto cameraID(const QString& make,
+                          const QString& model) const -> int = 0;
 
 };
 

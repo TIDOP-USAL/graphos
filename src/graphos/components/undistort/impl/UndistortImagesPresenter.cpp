@@ -41,8 +41,8 @@ UndistortImagesPresenterImp::UndistortImagesPresenterImp(UndistortImagesView *vi
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    UndistortImagesPresenterImp::init();
+    UndistortImagesPresenterImp::initSignalAndSlots();
 }
 
 UndistortImagesPresenterImp::~UndistortImagesPresenterImp()
@@ -88,7 +88,7 @@ void UndistortImagesPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> UndistortImagesPresenterImp::createTask()
+auto UndistortImagesPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
     std::unique_ptr<tl::Task> process = std::make_unique<UndistortImages>(mModel->images(),
                                                                           mModel->cameras(),

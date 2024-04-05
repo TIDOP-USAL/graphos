@@ -38,7 +38,7 @@ class SettingsView
 public:
 
     SettingsView(QWidget *parent) : DialogView(parent) {}
-    virtual ~SettingsView() override = default;
+    ~SettingsView() override = default;
 
 public:
 

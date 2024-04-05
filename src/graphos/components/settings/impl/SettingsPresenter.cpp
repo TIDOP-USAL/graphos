@@ -40,8 +40,8 @@ SettingsPresenterImp::SettingsPresenterImp(SettingsView *view,
     mView(view),
     mModel(model)
 {
-    init();
-    initSignalAndSlots();
+    SettingsPresenterImp::init();
+    SettingsPresenterImp::initSignalAndSlots();
 }
 
 void SettingsPresenterImp::open()
@@ -114,9 +114,8 @@ void SettingsPresenterImp::setLanguageSettings()
     QStringList langs;
     mLang.clear();
 
-    for (int i = 0; i < languages.size(); ++i) {
-
-        QString lang_code = languages[i];
+    for (auto lang_code : languages)
+    {
         lang_code.truncate(lang_code.lastIndexOf('.'));
         lang_code.remove(0, lang_code.indexOf('_') + 1);
         QString lang_name = QLocale::languageToString(QLocale(lang_code).language());
@@ -183,8 +182,9 @@ void SettingsPresenterImp::initSignalAndSlots()
             this, &SettingsPresenterImp::save);
     connect(mView, &SettingsView::rejected,
             this, &SettingsPresenterImp::discart);
-    connect(mView, &DialogView::help, [&]() {
-        emit help("settings.html");
+    connect(mView, &DialogView::help, 
+            [&]() {
+                emit help("settings.html");
             });
 
     connect(mModel, &SettingsModel::unsavedChanges,

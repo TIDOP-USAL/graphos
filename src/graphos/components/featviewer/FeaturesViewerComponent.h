@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class DtmProcess;
-
 class FeaturesViewerComponent
   : public ComponentBase
 {
@@ -41,7 +39,7 @@ class FeaturesViewerComponent
 public:
 
     FeaturesViewerComponent(Application *application);
-    ~FeaturesViewerComponent();
+    ~FeaturesViewerComponent() override;
 
 private:
 
@@ -49,7 +47,7 @@ private:
 
 public slots:
 
-    void openKeypointsViewer(size_t imageId);
+    void openKeypointsViewer(size_t imageId) const;
 
 // ComponentBase
 

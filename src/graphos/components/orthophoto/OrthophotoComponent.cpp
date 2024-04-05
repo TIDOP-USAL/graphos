@@ -39,12 +39,11 @@ namespace graphos
 OrthophotoComponent::OrthophotoComponent(Application *application)
   : TaskComponent(application)
 {
-    this->setName(tr("Orthophoto"));
-    this->setMenu("tools");
+    ComponentBase::setName(tr("Orthophoto"));
+    ComponentBase::setMenu("tools");
 }
 
-OrthophotoComponent::~OrthophotoComponent()
-{}
+OrthophotoComponent::~OrthophotoComponent() = default;
 
 void OrthophotoComponent::createModel()
 {
@@ -72,10 +71,10 @@ void OrthophotoComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
     bool dtm = app_status->isEnabled(AppStatus::Flag::dtm);
     bool process_run = app_status->isEnabled(AppStatus::Flag::processing);
-    action()->setEnabled(bProjectExists && dtm && !process_run);
+    action()->setEnabled(project_exists && dtm && !process_run);
 }
 
 void OrthophotoComponent::onRunning()

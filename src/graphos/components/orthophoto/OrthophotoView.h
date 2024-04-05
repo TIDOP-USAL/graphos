@@ -42,7 +42,7 @@ public:
     OrthophotoView(QWidget *parent) : TaskView(parent) {}
     ~OrthophotoView() override = default;
 
-    virtual double gsd() const = 0;
+    virtual auto gsd() const -> double = 0;
 
 public slots:
 

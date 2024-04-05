@@ -27,7 +27,6 @@
 #include "graphos/core/Component.h"
 
 class ccPointCloud;
-//class cc2DLabel;
 
 namespace graphos
 {
@@ -64,17 +63,17 @@ signals:
 
 public:
 
-    virtual QString name() const override;
-    virtual QAction *action() const override;
-    virtual QString menu() const override;
-    virtual QString toolbar() const override;
-    virtual QWidget *widget() const override;
-    virtual std::shared_ptr<Command> command() override;
-    virtual void setName(const QString &name) override;
-    virtual void setMenu(const QString &menu) override;
-    virtual void setToolbar(const QString &toolbar) override;
-    virtual void setIcon(const QIcon &icon) override;
-    virtual void freeMemory() override;
+    auto name() const -> QString override;
+    auto action() const -> QAction* override;
+    auto menu() const -> QString override;
+    auto toolbar() const -> QString override;
+    auto widget() const -> QWidget* override;
+    auto command() -> std::shared_ptr<Command> override;
+    void setName(const QString &name) override;
+    void setMenu(const QString &menu) override;
+    void setToolbar(const QString &toolbar) override;
+    void setIcon(const QIcon &icon) override;
+    void freeMemory() override;
 
 private:
 
@@ -89,7 +88,6 @@ private:
     Application *mApplication;
     bool mDeleteView;
     ccPointCloud *mLevelMarkersCloud;
-    //std::vector<cc2DLabel*> s_levelLabels;
     std::vector<QVector3D> mPoints;
 
 };

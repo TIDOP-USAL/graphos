@@ -42,8 +42,8 @@ public:
     ScaleView(QWidget *parent) : TaskView(parent) {}
     ~ScaleView() override = default;
 
-    virtual double distance() const = 0;
-    virtual double distanceReal() const = 0;
+    virtual auto distance() const -> double = 0;
+    virtual auto distanceReal() const -> double = 0;
 
 public slots:
 

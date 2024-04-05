@@ -26,6 +26,7 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Database.h"
+#include "graphos/core/image.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
@@ -34,16 +35,11 @@
 #include <tidop/img/metadata.h>
 #include <tidop/math/angles.h>
 #include <tidop/geospatial/crstransf.h>
-#include <tidop/geospatial/util.h>
 
 #include <QFileInfo>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QCoreApplication>
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
 
 constexpr auto DefaultImportVideoFramesSkipFrames = 20;
 
@@ -52,38 +48,38 @@ class ImportVideoFramesAlgorithm
 
 public:
 
-  ImportVideoFramesAlgorithm();
-  ~ImportVideoFramesAlgorithm();
+    ImportVideoFramesAlgorithm();
+    ~ImportVideoFramesAlgorithm();
 
-  bool open();
-  cv::Mat read();
+    bool open();
+    auto read() -> cv::Mat;
 
-  tl::Path video() const;
-  void setVideo(const tl::Path &video);
+    auto video() const -> tl::Path;
+    void setVideo(const tl::Path &video);
 
-  double framesPerSecond() const;
-  int width() const;
-  int height() const;
-  int framePosition() const;
-  int skipFrames() const;
-  void setSkipFrames(int skipFrames);
-  void startAt(int frame);
-  void finishAt(int frame);
+    auto framesPerSecond() const -> double;
+    auto width() const -> int;
+    auto height() const -> int;
+    auto framePosition() const -> int;
+    auto skipFrames() const -> int;
+    void setSkipFrames(int skipFrames);
+    void startAt(int frame);
+    void finishAt(int frame);
 
-  void clear();
+    void clear();
 
 private:
 
-  tl::Path mVideo;
+    tl::Path mVideo;
 
-  cv::VideoCapture mVideoCapture;
-  double mFramesPerSecond;
-  int mCodec;
-  int mWidth{0};
-  int mHeight{0};
-  int mSkipFrames;
-  int mStartAt{0};
-  int mFinishAt{-1};
+    cv::VideoCapture mVideoCapture;
+    double mFramesPerSecond;
+    int mCodec;
+    int mWidth{0};
+    int mHeight{0};
+    int mSkipFrames;
+    int mStartAt{0};
+    int mFinishAt{-1};
 };
 
 
@@ -101,113 +97,112 @@ ImportVideoFramesAlgorithm::~ImportVideoFramesAlgorithm()
 {
 }
 
-int ImportVideoFramesAlgorithm::skipFrames() const 
+auto ImportVideoFramesAlgorithm::skipFrames() const -> int
 {
-  return mSkipFrames;
+    return mSkipFrames;
 }
 
 void ImportVideoFramesAlgorithm::setSkipFrames(int skipFrames) 
 {
-  mSkipFrames = skipFrames;
+    mSkipFrames = skipFrames;
 }
 
 void ImportVideoFramesAlgorithm::startAt(int frame)
 {
-  mStartAt = frame;
+    mStartAt = frame;
 }
 
 void ImportVideoFramesAlgorithm::finishAt(int frame)
 {
-  mFinishAt = frame;
+    mFinishAt = frame;
 }
 
 void ImportVideoFramesAlgorithm::clear()
 {
-  mSkipFrames = DefaultImportVideoFramesSkipFrames;
+    mSkipFrames = DefaultImportVideoFramesSkipFrames;
 }
 
-bool ImportVideoFramesAlgorithm::open()
+auto ImportVideoFramesAlgorithm::open() -> bool
 {
 
-  if (!mVideoCapture.open(mVideo.toString())) {
-    return false;
-  } else {
+    if (!mVideoCapture.open(mVideo.toString())) {
+        return false;
+    } else {
 
-    mWidth = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_WIDTH));
-    mHeight = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
-    tl::Message::info("Video size: {}x{}", mWidth, mHeight);
+        mWidth = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_WIDTH));
+        mHeight = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_HEIGHT));
+        tl::Message::info("Video size: {}x{}", mWidth, mHeight);
 
-    mFramesPerSecond = mVideoCapture.get(cv::CAP_PROP_FPS);
-    tl::Message::info("Framerate: {}", mFramesPerSecond);
+        mFramesPerSecond = mVideoCapture.get(cv::CAP_PROP_FPS);
+        tl::Message::info("Framerate: {}", mFramesPerSecond);
 
-    mCodec = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FOURCC));
-    char c[] = {(char)(mCodec & 0XFF) , (char)((mCodec & 0XFF00) >> 8),(char)((mCodec & 0XFF0000) >> 16),(char)((mCodec & 0XFF000000) >> 24), 0};
-    tl::Message::info("Video codec: {}", c);
-    
-    mVideoCapture.set(cv::CAP_PROP_POS_FRAMES, mStartAt - 1);
+        mCodec = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FOURCC));
+        char c[] = {static_cast<char>(mCodec & 0XFF),
+                    static_cast<char>((mCodec & 0XFF00) >> 8),
+                    static_cast<char>((mCodec & 0XFF0000) >> 16),
+                    static_cast<char>((mCodec & 0XFF000000) >> 24), 0};
+        tl::Message::info("Video codec: {}", c);
 
-    int frames = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_COUNT));
-    if (mFinishAt == -1 || mFinishAt > frames) {
-      mFinishAt = frames;
+        mVideoCapture.set(cv::CAP_PROP_POS_FRAMES, mStartAt - 1);
+
+        int frames = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_FRAME_COUNT));
+        if (mFinishAt == -1 || mFinishAt > frames) {
+            mFinishAt = frames;
+        }
+
+        return true;
+    }
+}
+
+auto ImportVideoFramesAlgorithm::read() -> cv::Mat
+{
+
+    cv::Mat frame;
+
+    try {
+        int current_frame = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_POS_FRAMES));
+
+        if (current_frame < mFinishAt && mVideoCapture.read(frame)) {
+            double posframe = mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
+            int next_frame = static_cast<int>(posframe) - 1 + skipFrames();
+            mVideoCapture.set(cv::CAP_PROP_POS_FRAMES, next_frame);
+        }
+
+    } catch (std::exception &e) {
+        tl::printException(e);
     }
 
-    return true;
-  }
+    return frame;
 }
 
-cv::Mat ImportVideoFramesAlgorithm::read()
+auto ImportVideoFramesAlgorithm::video() const -> tl::Path
 {
-
-  cv::Mat frame;
-
-  try {
-
-    double posframe;
-    
-    int current_frame = static_cast<int>(mVideoCapture.get(cv::CAP_PROP_POS_FRAMES));
-
-    if (current_frame < mFinishAt && mVideoCapture.read(frame)) {
-      
-      posframe = mVideoCapture.get(cv::CAP_PROP_POS_FRAMES);
-      int next_frame = static_cast<int>(posframe) - 1 + skipFrames();
-      mVideoCapture.set(cv::CAP_PROP_POS_FRAMES, next_frame);
-    }
-
-  } catch (std::exception &e) {
-    tl::printException(e);
-  }
-
-  return frame;
-}
-
-tl::Path ImportVideoFramesAlgorithm::video() const
-{
-  return mVideo;
+     return mVideo;
 }
 
 void ImportVideoFramesAlgorithm::setVideo(const tl::Path &video)
 {
-  mVideo = video;
+    mVideo = video;
 }
 
-double ImportVideoFramesAlgorithm::framesPerSecond() const
+auto ImportVideoFramesAlgorithm::framesPerSecond() const -> double
 {
-  return mFramesPerSecond;
+    return mFramesPerSecond;
 }
 
-int ImportVideoFramesAlgorithm::width() const
+auto ImportVideoFramesAlgorithm::width() const -> int
 {
-  return mWidth;
+    return mWidth;
 }
 
-int ImportVideoFramesAlgorithm::height() const
+auto ImportVideoFramesAlgorithm::height() const -> int
 {
-  return mHeight;
+    return mHeight;
 }
 
-int ImportVideoFramesAlgorithm::framePosition() const
+auto ImportVideoFramesAlgorithm::framePosition() const -> int
 {
-  return static_cast<int>(mVideoCapture.get(cv::CAP_PROP_POS_FRAMES));
+    return static_cast<int>(mVideoCapture.get(cv::CAP_PROP_POS_FRAMES));
 }
 
 
@@ -222,7 +217,7 @@ LoadFromVideoTask::LoadFromVideoTask(const tl::Path &video,
                                      const tl::Path &imagesPath,
                                      std::vector<Camera> *cameras,
                                      const std::string &cameraType)
-    : tl::TaskBase(),
+  : tl::TaskBase(),
     mVideo(video),
     mSkipFrames(skip),
     mVideoIni(videoIni),

@@ -41,10 +41,7 @@ class PropertiesPresenter
 public:
 
     PropertiesPresenter() {}
-    virtual ~PropertiesPresenter() override = default;
-
-signals:
-
+    ~PropertiesPresenter() override = default;
 
 public slots:
 

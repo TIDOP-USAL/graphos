@@ -40,8 +40,8 @@ class SaveProjectAsPresenter
 
 public:
 
-    SaveProjectAsPresenter() {}
-    virtual ~SaveProjectAsPresenter() override = default;
+    SaveProjectAsPresenter() = default;
+    ~SaveProjectAsPresenter() override = default;
 
 public slots:
 

@@ -35,14 +35,14 @@ LoadFromVideoModelImp::LoadFromVideoModelImp(Project *project,
   : LoadFromVideoModel(parent),
     mProject(project)
 {
-    this->init();
+    LoadFromVideoModelImp::init();
 }
 
 LoadFromVideoModelImp::~LoadFromVideoModelImp()
 {
 }
 
-tl::Path LoadFromVideoModelImp::imagesPath() const
+auto LoadFromVideoModelImp::imagesPath() const -> tl::Path
 {
     return tl::Path(mProject->projectFolder()).append("images");
 }
@@ -52,23 +52,23 @@ void LoadFromVideoModelImp::addImage(const Image &image)
     mProject->addImage(image);
 }
 
-const std::map<int, Camera> &LoadFromVideoModelImp::cameras() const
+auto LoadFromVideoModelImp::cameras() const -> const std::map<int, Camera>&
 {
     return mProject->cameras();
 }
 
-int LoadFromVideoModelImp::addCamera(const Camera &camera)
+auto LoadFromVideoModelImp::addCamera(const Camera& camera) -> int
 {
     return mProject->addCamera(camera);
 }
 
-int LoadFromVideoModelImp::cameraID(const Camera &camera) const
+auto LoadFromVideoModelImp::cameraID(const Camera& camera) const -> int
 {
     return cameraID(camera.make().c_str(), camera.model().c_str());
 }
 
-int LoadFromVideoModelImp::cameraID(const QString &make,
-                                    const QString &model) const
+auto LoadFromVideoModelImp::cameraID(const QString& make,
+                                     const QString& model) const -> int
 {
     int id_camera = 0;
     for (const auto &camera : mProject->cameras()) {

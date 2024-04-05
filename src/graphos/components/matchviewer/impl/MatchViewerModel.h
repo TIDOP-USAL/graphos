@@ -51,21 +51,20 @@ public:
 
 public:
 
-    QString backgroundColor() const override;
-    int markerType() const override;
-    int markerSize() const override;
-    int markerWidth() const override;
-    QString markerColor() const override;
-    int viewerSelectMarkerWidth() const override;
-    QString selectedMarkerColor() const override;
-    QString lineColor() const override;
-    int lineWidth() const override;
+    auto backgroundColor() const -> QString override;
+    auto markerType() const -> int override;
+    auto markerSize() const -> int override;
+    auto markerWidth() const -> int override;
+    auto markerColor() const -> QString override;
+    auto viewerSelectMarkerWidth() const -> int override;
+    auto selectedMarkerColor() const -> QString override;
+    auto lineColor() const -> QString override;
+    auto lineWidth() const -> int override;
 
-    const std::unordered_map<size_t, Image> &images() const override;
-    Image image(size_t imageId) const override;
-    std::vector<size_t> imagePairs(size_t imageId) const override;
-    std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(size_t imageId1,
-                                                                                  size_t imageId2) const override;
+    auto images() const -> const Images& override;
+    auto image(size_t imageId) const -> Image override;
+    auto imagePairs(size_t imageId) const -> std::vector<size_t> override;
+    auto loadMatches(size_t imageId1, size_t imageId2) const -> Matches override;
 
 // Model interface
 

@@ -40,8 +40,8 @@ class RecentProjectsPresenter
 
 public:
 
-    RecentProjectsPresenter() {}
-    virtual ~RecentProjectsPresenter() override = default;
+    RecentProjectsPresenter() = default;
+    ~RecentProjectsPresenter() override = default;
 
 protected slots:
 

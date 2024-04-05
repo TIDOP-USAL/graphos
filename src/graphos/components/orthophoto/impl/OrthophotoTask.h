@@ -58,7 +58,7 @@ public:
                    const QString &epsg,
                    bool cuda = false);
 
-    ~OrthophotoTask();
+    ~OrthophotoTask() override;
 
     void setGSD(double gsd);
     void setPhotos(const std::vector<Image> &images);

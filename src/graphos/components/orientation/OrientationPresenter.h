@@ -37,7 +37,7 @@ class OrientationPresenter
 
 public:
 
-    OrientationPresenter() {}
+    OrientationPresenter() = default;
     ~OrientationPresenter() override = default;
 
 signals:

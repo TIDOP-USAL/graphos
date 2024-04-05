@@ -37,14 +37,14 @@ namespace graphos
 
 FeaturesViewerModelImp::FeaturesViewerModelImp(Project *project,
                                                QObject *parent)
-    : FeaturesViewerModel(parent),
+  : FeaturesViewerModel(parent),
     mProject(project),
     mSettings(new QSettings(QSettings::IniFormat,
-              QSettings::UserScope,
-              qApp->organizationName(),
-              qApp->applicationName()))
+                            QSettings::UserScope,
+                            qApp->organizationName(),
+                            qApp->applicationName()))
 {
-    this->init();
+    FeaturesViewerModelImp::init();
 }
 
 FeaturesViewerModelImp::~FeaturesViewerModelImp()
@@ -64,17 +64,17 @@ void FeaturesViewerModelImp::clear()
 
 }
 
-const std::unordered_map<size_t, Image> &FeaturesViewerModelImp::images() const
+auto FeaturesViewerModelImp::images() const -> const std::unordered_map<size_t, Image>&
 {
     return mProject->images();
 }
 
-Image FeaturesViewerModelImp::image(size_t imageId) const
+auto FeaturesViewerModelImp::image(size_t imageId) const -> Image
 {
     return mProject->findImageById(imageId);
 }
 
-std::vector<std::tuple<QPointF, float, float>> FeaturesViewerModelImp::loadKeypoints(size_t imageId)
+auto FeaturesViewerModelImp::loadKeypoints(size_t imageId) -> std::vector<std::tuple<QPointF, float, float>>
 {
     std::vector<std::tuple<QPointF, float, float>> keyPoints;
 
@@ -122,37 +122,37 @@ std::vector<std::tuple<QPointF, float, float>> FeaturesViewerModelImp::loadKeypo
     return keyPoints;
 }
 
-QString FeaturesViewerModelImp::backgroundColor() const
+auto FeaturesViewerModelImp::backgroundColor() const -> QString
 {
     return mSettings->value("KeypointsViewer/BackgroundColor", "#dcdcdc").toString();
 }
 
-int FeaturesViewerModelImp::markerType() const
+auto FeaturesViewerModelImp::markerType() const -> int
 {
     return mSettings->value("KeypointsViewer/Type", 1).toInt();
 }
 
-int FeaturesViewerModelImp::markerSize() const
+auto FeaturesViewerModelImp::markerSize() const -> int
 {
     return mSettings->value("KeypointsViewer/MarkerSize", 20).toInt();
 }
 
-int FeaturesViewerModelImp::markerWidth() const
+auto FeaturesViewerModelImp::markerWidth() const -> int
 {
     return mSettings->value("KeypointsViewer/MarkerWidth", 2).toInt();
 }
 
-QString FeaturesViewerModelImp::markerColor() const
+auto FeaturesViewerModelImp::markerColor() const -> QString
 {
     return mSettings->value("KeypointsViewer/MarkerColor", "#00aa00").toString();
 }
 
-int FeaturesViewerModelImp::selectedMarkerWidth() const
+auto FeaturesViewerModelImp::selectedMarkerWidth() const -> int
 {
     return mSettings->value("KeypointsViewer/SelectMarkerWidth", 2).toInt();
 }
 
-QString FeaturesViewerModelImp::selectedMarkerColor() const
+auto FeaturesViewerModelImp::selectedMarkerColor() const -> QString
 {
     return mSettings->value("KeypointsViewer/SelectMarkerColor", "#e5097e").toString();
 }

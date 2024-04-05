@@ -28,10 +28,12 @@
 #include "graphos/core/AppStatus.h"
 #include "graphos/widgets/Viewer3d.h"
 
+TL_DISABLE_WARNINGS
 #include <ccPointCloud.h>
 #include <ccGenericMesh.h>
 #include <ccHObjectCaster.h>
 #include <cc2DLabel.h>
+TL_DEFAULT_WARNINGS
 
 #include <QAction>
 #include <QString>
@@ -109,10 +111,10 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
     } 
             
     mLevelMarkersCloud->addPoint(CCVector3(point.x(), point.y(), point.z()));
-    unsigned markerCount = mLevelMarkersCloud->size();
-    cc2DLabel* label = new cc2DLabel();
-    label->addPickedPoint(mLevelMarkersCloud, markerCount - 1);
-    label->setName(QString("P#%1").arg(markerCount));
+    unsigned marker_count = mLevelMarkersCloud->size();
+    cc2DLabel *label = new cc2DLabel();
+    label->addPickedPoint(mLevelMarkersCloud, marker_count - 1);
+    label->setName(QString("P#%1").arg(marker_count));
     label->setDisplayedIn2D(false);
     label->setDisplay(dynamic_cast<ccGLWindow *>(viewer_3d));
     label->setVisible(true);
@@ -132,7 +134,7 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
         auto Z = QVector3D::crossProduct(X, Y);
         //we choose 'Z' so that it points 'upward' relatively to the camera (assuming the user will be looking from the top)
         CCVector3d viewDir = ccviewer->getViewportParameters().getViewDir();
-        if (QVector3D::dotProduct(Z, QVector3D(viewDir.x, viewDir.y, viewDir.z)) > 0) {
+        if (QVector3D::dotProduct(Z, QVector3D(static_cast<float>(viewDir.x), static_cast<float>(viewDir.y), static_cast<float>(viewDir.z))) > 0) {
             Z = -Z;
         }
         Y = QVector3D::crossProduct(Z, X);
@@ -155,12 +157,12 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
         ccHObject *root = ccviewer->object();
         ccHObject::Container clouds;
         root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-        ccHObject *model = nullptr;
-        if (clouds.size() == 1) {
-            model = clouds.at(0);
 
-            bool lockedVertices;
-            ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model, &lockedVertices);
+        if (clouds.size() == 1) {
+            ccHObject *model = clouds.at(0);
+
+            bool locked_vertices;
+            ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(model, &locked_vertices);
 
             cloud->applyRigidTransformation(trans);
             model->prepareDisplayForRefresh_recursive();
@@ -234,34 +236,34 @@ void FloorLevelComponent::update()
     action()->setEnabled(!processing && dense_model);
 }
 
-QString FloorLevelComponent::name() const
+auto FloorLevelComponent::name() const -> QString
 {
     return mName;
 }
 
-QAction *FloorLevelComponent::action() const
+auto FloorLevelComponent::action() const -> QAction*
 {
     return mAction;
 }
 
-QString FloorLevelComponent::menu() const
+auto FloorLevelComponent::menu() const -> QString
 {
     return mMenu;
 }
 
-QString FloorLevelComponent::toolbar() const
+auto FloorLevelComponent::toolbar() const -> QString
 {
     return mToolbar;
 }
 
-QWidget *FloorLevelComponent::widget() const
+auto FloorLevelComponent::widget() const -> QWidget*
 {
     return nullptr;
 }
 
-std::shared_ptr<Command> FloorLevelComponent::command()
+auto FloorLevelComponent::command() -> std::shared_ptr<Command>
 {
-    return std::shared_ptr<Command>();
+    return {};
 }
 
 void FloorLevelComponent::setName(const QString &name)

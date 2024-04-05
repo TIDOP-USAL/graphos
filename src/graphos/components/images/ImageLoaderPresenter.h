@@ -33,25 +33,25 @@ class ImageLoaderPresenter
   : public TaskPresenter
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ImageLoaderPresenter(){}
-  ~ImageLoaderPresenter() override = default;
+    ImageLoaderPresenter() = default;
+   ~ImageLoaderPresenter() override = default;
 
 public slots:
 
-  virtual void setImages(const QStringList &files) = 0;
+    virtual void setImages(const QStringList &files) = 0;
 
 protected slots:
 
-  virtual void addImage(int imageId, int cameraId) = 0;
+    virtual void addImage(int imageId, int cameraId) = 0;
 
 signals:
 
-  //void loading_images(bool);
-  void image_loaded(size_t);
+    void image_loaded(size_t);
+
 };
 
 } // namespace graphos
