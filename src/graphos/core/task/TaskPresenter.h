@@ -36,6 +36,12 @@ class TaskErrorEvent;
 class TaskFinalizedEvent;
 }
 
+
+namespace graphos
+{
+
+class ProgressHandler;
+
 /*!
  * \brief Task presenter
  *
@@ -43,11 +49,6 @@ class TaskFinalizedEvent;
  * It inherits from the Presenter class and provides methods for handling task events, setting up progress handling,
  * creating and running tasks, and emitting signals to indicate task status.
  */
-namespace graphos
-{
-
-class ProgressHandler;
-
 class TaskPresenter
   : public Presenter
 {
