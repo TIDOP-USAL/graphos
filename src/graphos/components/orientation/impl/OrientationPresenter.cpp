@@ -177,16 +177,19 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
             auto cameras = dynamic_cast<ImportPosesTask const *>(event->task())->cameras();
 
-            tl::Path offset_path = sfm_path;
+            tl::Path path = mModel->projectFolder();
+            path.append("sfm");
+
+            tl::Path offset_path = path;
             offset_path.append("offset.txt");
 
-            tl::Path poses_path = sfm_path;
+            tl::Path poses_path = path;
             poses_path.append("poses.bin");
 
-            tl::Path sparse_model_path = sfm_path;
+            tl::Path sparse_model_path = path;
             sparse_model_path.append("sparse.ply");
 
-            tl::Path ground_points_path = sfm_path;
+            tl::Path ground_points_path = path;
             ground_points_path.append("ground_points.bin");
 
             TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
@@ -233,13 +236,17 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                 auto report = task->report();
                 report.time = task->time();
 
-                tl::Path sparse_model_path = sfm_path;
+                /// Se comprueba que se han generado todos los productos
+                tl::Path path = mModel->projectFolder();
+                path.append("sfm");
+
+                tl::Path sparse_model_path = path;
                 sparse_model_path.append("sparse.ply");
 
-                tl::Path ground_points_path = sfm_path;
+                tl::Path ground_points_path = path;
                 ground_points_path.append("ground_points.bin");
 
-                tl::Path poses_path = sfm_path;
+                tl::Path poses_path = path;
                 poses_path.append("poses.bin");
 
                 TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
@@ -289,9 +296,13 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
             absolute_orientation_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
-                tl::Path offset_path = sfm_path;
+
+                tl::Path path = mModel->projectFolder();
+                path.append("sfm");
+
+                tl::Path offset_path = path;
                 offset_path.append("offset.txt");
-                tl::Path poses_path = sfm_path;
+                tl::Path poses_path = path;
                 poses_path.append("poses.bin");
 
                 if (offset_path.exists()) {
@@ -316,6 +327,7 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
             });
 
             dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(absolute_orientation_task);
+
         }
     }
 

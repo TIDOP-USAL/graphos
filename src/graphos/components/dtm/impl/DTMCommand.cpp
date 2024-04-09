@@ -48,7 +48,7 @@ DTMCommand::DTMCommand()
     this->addArgument<bool>("dsm", "Create a Digital Surface Model", true);
     this->addArgument<bool>("dtm", "Create a Digital Terrain Model", false);
 
-    this->addExample("dsm -p 253/253.xml --gsd 0.1");
+    this->addExample("dem -p 253/253.xml --gsd 0.1");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }

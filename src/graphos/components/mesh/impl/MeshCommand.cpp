@@ -46,7 +46,7 @@ MeshCommand::MeshCommand()
     arg_boundary_type->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(boundary_types));
     this->addArgument(arg_boundary_type);
     
-    this->addExample("mesh -p 253/253.xml --method PMVS");
+    this->addExample("mesh -p 253/253.xml --boundary_type Dirichlet");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
