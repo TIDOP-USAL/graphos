@@ -68,6 +68,7 @@ public:
     auto cameras() const -> const std::map<int, Camera>& override;
     auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
     auto groundPoints() const -> std::vector<GroundPoint> override;
+    void cleanProject() override;
 
 public slots:
 

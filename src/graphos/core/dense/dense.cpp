@@ -197,6 +197,17 @@ void DensifierBase::autoSegmentation() const
                     }
                 }
 
+                //TODO: No quedarse sólo con la mayor nube de puntos. Comprobar el tamaño de las siguientes
+                //std::map<size_t, size_t> map_size_index;
+                //for (unsigned i = 0; i < static_cast<unsigned>(components.size()); ++i) {
+                //    map_size_index[components[i]->size()] = i;
+                //}
+
+                //auto it = std::prev(map_size_index.end());
+                //while (it != map_size_index.begin()){
+                //    
+                //}
+
                 CCCoreLib::ReferenceCloud *component_indexes = components[index];
 
                 ccPointCloud *component_cloud = pc->partialClone(component_indexes);

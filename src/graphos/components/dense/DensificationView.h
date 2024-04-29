@@ -96,6 +96,9 @@ public slots:
      */
     virtual void setCurrentDensificationMethod(const QString &densificationMethod) = 0;
 
+
+    virtual void setAutoSegmentation(bool autoSegmentation) = 0;
+
 };
 
 } // End namespace graphos

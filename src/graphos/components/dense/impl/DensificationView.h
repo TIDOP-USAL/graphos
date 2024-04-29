@@ -56,6 +56,7 @@ public slots:
 
     void addDensification(QWidget *densification) override;
     void setCurrentDensificationMethod(const QString &densificationMethod) override;
+    void setAutoSegmentation(bool autoSegmentation) override;
 
 // DialogView interface
 

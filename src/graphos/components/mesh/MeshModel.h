@@ -49,7 +49,9 @@ public:
 
     virtual auto denseModel() const -> tl::Path = 0;
     virtual auto projectDir() const -> tl::Path = 0;
+    virtual auto mesh() const -> tl::Path = 0;
     virtual void setMesh(const tl::Path &mesh) = 0;
+    virtual void cleanProject() = 0;
 
 public slots:
 

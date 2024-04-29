@@ -45,6 +45,10 @@ private:
 
     void init();
 
+signals:
+
+    void mesh_deleted();
+
 // ComponentBase
 
 protected:

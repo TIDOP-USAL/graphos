@@ -354,37 +354,40 @@ void MainWindowPresenter::loadMesh()
 
 void MainWindowPresenter::loadDTM()
 {
+    Application &app = Application::instance();
     QString dtm = QString::fromStdString(mModel->dtm().toString());
     if (!dtm.isEmpty()) {
         mView->setDTM(dtm);
-        Application &app = Application::instance();
         app.status()->activeFlag(AppStatus::Flag::dtm, true);
     } else {
         mView->deleteDtm();
+        app.status()->activeFlag(AppStatus::Flag::dtm, false);
     }
 }
 
 void MainWindowPresenter::loadDSM()
 {
+    Application &app = Application::instance();
     QString dsm = QString::fromStdString(mModel->dsm().toString());
     if (!dsm.isEmpty()) {
         mView->setDSM(dsm);
-        Application &app = Application::instance();
         app.status()->activeFlag(AppStatus::Flag::dsm, true);
     } else {
         mView->deleteDsm();
+        app.status()->activeFlag(AppStatus::Flag::dsm, false);
     }
 }
 
 void MainWindowPresenter::loadOrtho()
 {
+    Application &app = Application::instance();
     QString ortho = QString::fromStdString(mModel->orthophoto().toString());
     if (!ortho.isEmpty()) {
         mView->setOrtho(ortho);
-        Application &app = Application::instance();
         app.status()->activeFlag(AppStatus::Flag::ortho, true);
     } else {
         mView->deleteOrtho();
+        app.status()->activeFlag(AppStatus::Flag::ortho, false);
     }
 }
 

@@ -117,6 +117,9 @@ void DensificationComponent::createPresenter()
     if (mMethod.isEnabled(Method::smvs))
         dynamic_cast<DensificationPresenter *>(presenter())->setSmvsWidget(std::make_unique<SmvsWidget>());
 
+    connect(dynamic_cast<DensificationPresenter *>(presenter()), &DensificationPresenter::densification_deleted,
+            this, &DensificationComponent::densification_deleted);
+
 }
 
 void DensificationComponent::createCommand()

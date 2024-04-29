@@ -228,6 +228,8 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
         }
     }
 
+    mModel->cleanProject();
+    emit densification_deleted();
 
     std::unordered_map<size_t, Image> images;
     for (auto &image : mModel->images()) {

@@ -40,7 +40,7 @@ DensificationModelImp::DensificationModelImp(Project *project,
   : DensificationModel(parent),
     mProject(project)
 {
-    init();
+    DensificationModelImp::init();
 }
 
 DensificationModelImp::~DensificationModelImp()
@@ -57,56 +57,56 @@ void DensificationModelImp::clear()
     mProject->clearDensification();
 }
 
-std::shared_ptr<Densification> DensificationModelImp::densification() const
+auto DensificationModelImp::densification() const -> std::shared_ptr<Densification>
 {
     ///TODO: Densificación guardada en proyecto y si no de configuración
     return mProject->densification();
 }
 
-tl::Path DensificationModelImp::projectFolder() const
+auto DensificationModelImp::projectFolder() const -> tl::Path
 {
     return mProject->projectFolder();
 }
 
 
-tl::Path DensificationModelImp::reconstructionPath() const
+auto DensificationModelImp::reconstructionPath() const -> tl::Path
 {
     return mProject->reconstructionPath();
 }
 
-tl::Path DensificationModelImp::database() const
+auto DensificationModelImp::database() const -> tl::Path
 {
     return mProject->database();
 }
 
-bool DensificationModelImp::useCuda() const
+auto DensificationModelImp::useCuda() const -> bool
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName());
     return settings.value("UseCuda", true).toBool();
 }
 
-bool DensificationModelImp::existDenseModel() const
+auto DensificationModelImp::existDenseModel() const -> bool
 {
     tl::Path dense_model = mProject->denseModel();
     return !dense_model.empty();
 }
 
-const std::unordered_map<size_t, Image> &DensificationModelImp::images() const
+auto DensificationModelImp::images() const -> const std::unordered_map<size_t, Image>&
 {
     return mProject->images();
 }
 
-const std::map<int, Camera> &DensificationModelImp::cameras() const
+auto DensificationModelImp::cameras() const -> const std::map<int, Camera>&
 {
     return mProject->cameras();
 }
 
-const std::unordered_map<size_t, CameraPose> &DensificationModelImp::poses() const
+auto DensificationModelImp::poses() const -> const std::unordered_map<size_t, CameraPose>&
 {
     return mProject->poses();
 }
 
-std::vector<GroundPoint> DensificationModelImp::groundPoints() const
+auto DensificationModelImp::groundPoints() const -> std::vector<GroundPoint>
 {
     std::vector<GroundPoint> ground_points;
 
@@ -121,6 +121,11 @@ std::vector<GroundPoint> DensificationModelImp::groundPoints() const
     }
 
     return ground_points;
+}
+
+void DensificationModelImp::cleanProject()
+{
+    mProject->clearDensification();
 }
 
 void DensificationModelImp::setDensification(const std::shared_ptr<Densification> &densification)

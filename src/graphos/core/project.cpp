@@ -431,11 +431,6 @@ tl::Path ProjectImp::reconstructionPath() const
     return tl::Path(mProjectFolder).append("sfm");
 }
 
-//void ProjectImp::setReconstructionPath(const tl::Path &reconstructionPath)
-//{
-//    mReconstructionPath = reconstructionPath;
-//}
-
 bool ProjectImp::isPhotoOriented(size_t imageId) const
 {
     return mPhotoOrientation.find(imageId) != mPhotoOrientation.end();
@@ -462,7 +457,6 @@ void ProjectImp::clearReconstruction()
     mPhotoOrientation.clear();
     mSparseModel.clear();
     mOffset.clear();
-    //mReconstructionPath.clear();
     mOrientationReport = OrientationReport();
     this->clearDensification();
 }
@@ -510,6 +504,9 @@ tl::Path ProjectImp::denseModel() const
 void ProjectImp::clearDensification()
 {
     mDenseModel.clear();
+    mDenseReport = DenseReport();
+    clearMesh();
+    clearDTM();
 }
 
 std::shared_ptr<PoissonReconProperties> ProjectImp::meshProperties() const
@@ -545,6 +542,7 @@ void ProjectImp::setMeshReport(const MeshReport &report)
 void ProjectImp::clearMesh()
 {
     mMeshModel.clear();
+    mMeshReport = MeshReport();
 }
 
 const DTMData &ProjectImp::dtm() const
@@ -567,6 +565,7 @@ void ProjectImp::clearDTM()
     mDTM.dsmPath.clear();
     mDTM.dtmPath.clear();
     mDTM.gsd = 0.1;
+    clearOrthophoto();
 }
 
 /*l::Path ProjectImp::orthophotoPath() const
@@ -616,16 +615,12 @@ void ProjectImp::clear()
     mFeatures.clear();
     mFeatureMatching.reset();
     mImagesPairs.clear();
-    mPhotoOrientation.clear();
-    mSparseModel.clear();
-    mOffset.clear();
+    clearReconstruction();
     mGroundPoints.clear();
-    //mReconstructionPath.clear();
     mOrientationReport = OrientationReport();
     mDensification.reset();
-    mMeshModel.clear();
-    mMeshReport = MeshReport();
-    mDenseModel.clear();
+    clearDensification();
+    clearMesh();
     clearDTM();
     clearOrthophoto();
     mCameraCount = 0;

@@ -123,6 +123,8 @@ public:
      */
     virtual auto groundPoints() const -> std::vector<GroundPoint> = 0;
 
+    virtual void cleanProject() = 0;
+
 public slots:
 
     /*!

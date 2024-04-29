@@ -30,6 +30,8 @@
 #include "graphos/components/mesh/impl/MeshView.h"
 #include "graphos/core/utils.h"
 
+#include <QMessageBox>
+
 namespace graphos
 {
 
@@ -103,7 +105,23 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> mesh_task;
 
-    tl::Path point_cloud = mModel->denseModel();
+    tl::Path mesh_model = mModel->mesh();
+
+    if (mesh_model.exists()) {
+        int i_ret = QMessageBox(QMessageBox::Warning,
+            tr("Previous results"),
+            tr("The previous results will be overwritten. Do you wish to continue?"),
+            QMessageBox::Yes | QMessageBox::No).exec();
+        if (i_ret == QMessageBox::No) {
+            tl::Message::warning("Process canceled by user");
+            return mesh_task;
+        }
+    }
+
+    mModel->cleanProject();
+    emit mesh_deleted();
+
+    
     tl::Path mesh = mModel->projectDir();
     mesh.append("dense").append("mesh.pr.ply");
 
@@ -126,7 +144,7 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
     properties->setSolveDepth(mView->solveDepth());
     mModel->setProperties(properties);
 
-    mesh_task = std::make_unique<PoissonReconTask>(point_cloud,
+    mesh_task = std::make_unique<PoissonReconTask>(mModel->denseModel(),
                                                    mesh);
 
     auto task_parameters = dynamic_cast<PoissonReconProperties *>(mesh_task.get());

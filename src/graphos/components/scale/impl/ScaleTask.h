@@ -30,11 +30,6 @@
 class ccHObject;
 
 
-namespace tl
-{
-class Task;
-}
-
 namespace graphos
 {
 

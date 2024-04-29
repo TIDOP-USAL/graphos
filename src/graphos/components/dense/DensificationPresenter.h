@@ -75,6 +75,10 @@ public slots:
      */
     virtual void setCurrentDensifier(const QString &densifier) = 0;
 
+signals:
+
+    void densification_deleted();
+
 };
 
 } // End namespace graphos

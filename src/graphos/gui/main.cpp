@@ -563,6 +563,8 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadFeatures(size_t)));
         QObject::connect(&feature_extractor_component, SIGNAL(features_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#else
+#   undef GRAPHOS_HAVE_FEATMATCH
 #endif // GRAPHOS_HAVE_FEATEXTRACT
 
 #ifdef GRAPHOS_HAVE_FEATMATCH
@@ -570,6 +572,8 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(updateMatches()));
         QObject::connect(&feature_matching_component, SIGNAL(matches_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#else
+#   undef GRAPHOS_HAVE_ORIENTATION
 #endif // GRAPHOS_HAVE_FEATMATCH
 
 #ifdef GRAPHOS_HAVE_ORIENTATION
@@ -577,16 +581,24 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
         QObject::connect(&orientation_component, SIGNAL(orientation_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#else
+#   undef GRAPHOS_HAVE_DENSE
 #endif // GRAPHOS_HAVE_ORIENTATION
 
 #ifdef GRAPHOS_HAVE_DENSE
         QObject::connect(&densification_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
+        QObject::connect(&densification_component, SIGNAL(densification_deleted()),
+                         componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#else
+#   undef GRAPHOS_HAVE_MESH
 #endif // GRAPHOS_HAVE_DENSE
 
 #ifdef GRAPHOS_HAVE_MESH
         QObject::connect(&mesh_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadMesh()));
+        QObject::connect(&mesh_component, SIGNAL(mesh_deleted()),
+                         componentsManager.mainWindowPresenter(), SLOT(updateProject()));
 #endif // GRAPHOS_HAVE_MESH
 
 #ifdef GRAPHOS_HAVE_DTM
@@ -594,6 +606,8 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
         QObject::connect(&dtm_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadDSM()));
+#else
+#   undef GRAPHOS_HAVE_ORTHOPHOTO
 #endif // GRAPHOS_HAVE_DTM
 
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO

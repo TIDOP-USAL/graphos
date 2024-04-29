@@ -70,9 +70,20 @@ auto MeshModelImp::projectDir() const -> tl::Path
     return mProject->projectFolder();
 }
 
+auto MeshModelImp::mesh() const -> tl::Path
+{
+    return mProject->meshPath();
+}
+
 void MeshModelImp::setMesh(const tl::Path &mesh)
 {
     mProject->setMeshPath(mesh);
+}
+
+void MeshModelImp::cleanProject()
+{
+    mProject->setMeshPath(tl::Path());
+    mProject->setMeshReport(MeshReport());
 }
 
 void MeshModelImp::setProperties(const std::shared_ptr<PoissonReconProperties> &properties)

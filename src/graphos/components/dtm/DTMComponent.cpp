@@ -84,9 +84,10 @@ void DTMComponent::update()
 
     bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
     bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool absolute_oriented = app_status->isEnabled(AppStatus::Flag::absolute_oriented);
     bool dense_model = app_status->isEnabled(AppStatus::Flag::dense_model);
     //bool mesh = app_status->isEnabled(AppStatus::Flag::mesh);
-    action()->setEnabled(project_exists && dense_model && !processing);
+    action()->setEnabled(project_exists && absolute_oriented && dense_model && !processing);
 }
 
 void DTMComponent::onRunning()

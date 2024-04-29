@@ -76,9 +76,15 @@ public:
      */
     bool isEnabled(Method method) const;
 
+    void setAutoSegmentation(bool autoSegmentation);
+
 private:
 
     void init();
+
+signals:
+
+    void densification_deleted();
 
 // ComponentBase
 

@@ -561,31 +561,26 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
 
 void MainWindowView::deleteSparseModel()
 {
-    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+    if (QTreeWidgetItem *item_project = mTreeWidgetProject->topLevelItem(0)) {
 
-        QTreeWidgetItem *itemModels = nullptr;
-        for (int i = 0; i < itemProject->childCount(); i++) {
-            QTreeWidgetItem *temp = itemProject->child(i);
+        QTreeWidgetItem *item_models = nullptr;
+        for (int i = 0; i < item_project->childCount(); i++) {
+            QTreeWidgetItem *temp = item_project->child(i);
             if (temp->text(0).compare(tr("3D Models")) == 0) {
-                itemModels = itemProject->child(i);
+                item_models = item_project->child(i);
                 break;
             }
         }
 
-        if (itemModels == nullptr) return;/*{
-          itemModels = new QTreeWidgetItem();
-          itemModels->setText(0, tr("3D Models"));
-          itemProject->addChild(itemModels);
-          itemModels->setExpanded(true);
-        }*/
+        if (item_models == nullptr) return;
 
-        QTreeWidgetItem *itemSparseModel = nullptr;
-        for (int i = 0; i < itemModels->childCount(); i++) {
-            QTreeWidgetItem *temp = itemModels->child(i);
+        QTreeWidgetItem *item_sparse_model = nullptr;
+        for (int i = 0; i < item_models->childCount(); i++) {
+            QTreeWidgetItem *temp = item_models->child(i);
             if (temp->text(0).compare(tr("Sparse Model")) == 0) {
-                itemSparseModel = temp;
-                delete itemSparseModel;
-                itemSparseModel = nullptr;
+                item_sparse_model = temp;
+                delete item_sparse_model;
+                item_sparse_model = nullptr;
                 break;
             }
         }

@@ -137,4 +137,9 @@ void DensificationViewImp::setCurrentDensificationMethod(const QString &densific
     }
 }
 
+void DensificationViewImp::setAutoSegmentation(bool autoSegmentation)
+{
+    mCheckBoxAutoSegmentation->setChecked(autoSegmentation);
+}
+
 } // End namespace graphos
