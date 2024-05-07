@@ -70,6 +70,7 @@ DensificationCommand::DensificationCommand()
     this->addArgument<bool>("smvs:shading_optimization", "Shading Based Optimization", false);
     this->addArgument<bool>("smvs:sgm", "Semi-global Matching", true);
     this->addArgument<double>("smvs:smooth_factor", "Surface Smoothing Factor", 1.0);
+    this->addArgument<bool>("segment", 's', "Auto-segmentation", false);
 
 #ifdef HAVE_CUDA
     tl::Message::pauseMessages();
@@ -119,6 +120,7 @@ bool DensificationCommand::run()
 	    auto mvs_number_views_fuse = this->value<int>("mvs:number_views_fuse");
         auto mvs_estimate_colors = this->value<int>("mvs:estimate-colors");
         auto mvs_estimate_normals = this->value<int>("mvs:estimate-normals");
+        auto auto_segment = this->value<bool>("segment");
 
 
         tl::Path log_path = project_path;
@@ -168,7 +170,8 @@ bool DensificationCommand::run()
                                                             ground_points,
                                                             dense_path,
                                                             project.database(),
-                                                            !mDisableCuda);
+                                                            !mDisableCuda,
+                                                            auto_segment);
 
             pmvs->setUseVisibilityInformation(pmvs_use_visibility_information);
             pmvs->setImagesPerCluster(pmvs_images_per_cluster);
@@ -198,7 +201,8 @@ bool DensificationCommand::run()
                                                         project.poses(),
                                                         ground_points,
                                                         dense_path,
-                                                        !mDisableCuda);
+                                                        !mDisableCuda,
+                                                        auto_segment);
 
             smvs->setInputImageScale(smvs_input_image_scale);
             smvs->setOutputDepthScale(smvs_output_depth_scale);
@@ -229,7 +233,8 @@ bool DensificationCommand::run()
                                                       ground_points,
                                                       dense_path,
                                                       project.database(),
-                                                      !mDisableCuda);
+                                                      !mDisableCuda,
+                                                      auto_segment);
 
             mvs->setMaxResolution(mvs_max_resolution);
             mvs->setMinResolution(mvs_min_resolution);
