@@ -23,13 +23,21 @@
 
 #include "PoissonRecon.h"
 
+#include "graphos/core/AppStatus.h"
+
 #include <tidop/core/exception.h>
 #include <tidop/core/app.h>
 #include <tidop/core/path.h>
 #include <tidop/core/progress.h>
 #include <tidop/core/chrono.h>
 
-#include "AppStatus.h"
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/Point_set_3.h>
+#include <CGAL/Point_set_3/IO.h>
+
+
+using namespace CGAL;
+
 
 namespace graphos
 {
@@ -127,9 +135,32 @@ PoissonReconTask::~PoissonReconTask() = default;
 
 void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
 {
+
+    using Kernel = Simple_cartesian<double>;
+    using Point = Kernel::Point_3;
+    using Point_set = Point_set_3<Point>;
+
     try {
 
         if (mOutput.exists()) tl::Path::removeFile(mOutput);
+
+        auto input = mInput.toString();
+
+        /// Para Law-Game
+        std::ifstream in(mInput.toString(), std::ios::binary);
+        Point_set pts;
+        in >> pts;
+        bool has_scalar_label = pts.has_property_map<float>("scalar_label");
+        if (has_scalar_label) {
+            pts.remove_property_map(pts.property_map<float>("scalar_label").first);
+
+            auto copy_point_cloud = mInput;
+            copy_point_cloud.replaceBaseName("temp");
+            input = copy_point_cloud.toString();
+            std::ofstream out(input, std::ios::binary);
+            CGAL::IO::set_binary_mode(out);
+            CGAL::IO::write_PLY(out, pts);
+        }
 
         std::string boundary_type;
 
@@ -148,7 +179,7 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
         std::string cmd("\"");
         cmd.append(app_path.parentPath().toString());
         cmd.append("\\PoissonRecon.exe\" ");
-        cmd.append("--in \"").append(mInput.toString());
+        cmd.append("--in \"").append(input);
         cmd.append("\" --out \"").append(mOutput.toString());
         cmd.append("\" --depth ").append(std::to_string(depth()));
         cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));
@@ -162,6 +193,10 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
         tl::Process process(cmd);
 
         process.run();
+
+        if (has_scalar_label) {
+            tl::Path::removeFile(input);
+        }
 
         TL_ASSERT(process.status() == tl::Process::Status::finalized, "Poisson Reconstruction error. Process error.");
 
@@ -214,7 +249,7 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
         if (progressBar) (*progressBar)();
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Load images error");
+        TL_THROW_EXCEPTION_WITH_NESTED("Poisson reconstruction error");
     }
 
 }

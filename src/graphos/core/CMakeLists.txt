@@ -143,7 +143,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       ${CUDA_LIBRARIES}
                       ${FREEIMAGE_LIBRARIES}
                       GLEW::glew
-                      ${Boost_PROGRAM_OPTIONS_LIBRARY})
+                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                      CGAL::CGAL)
 
 
 set_target_properties(${PROJECT_NAME} PROPERTIES 

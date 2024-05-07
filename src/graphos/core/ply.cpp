@@ -474,7 +474,7 @@ bool Ply::hasNormals() const
 
 bool Ply::hasScalarFields() const
 {
-    return false;
+    return mHasScalarFields;
 }
 
 tl::Color Ply::color(size_t index) const
