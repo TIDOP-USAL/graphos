@@ -247,7 +247,7 @@ public:
     virtual void clearDensification() = 0;
 
     virtual std::shared_ptr<PoissonReconProperties> meshProperties() const = 0;
-    virtual void setProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) = 0;
+    virtual void setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) = 0;
     virtual tl::Path meshPath() const = 0;
     virtual void setMeshPath(const tl::Path &meshPath) = 0;
     virtual MeshReport meshReport() const = 0;
@@ -382,7 +382,7 @@ public:
     void clearDensification() override;
 
     std::shared_ptr<PoissonReconProperties> meshProperties() const override;
-    void setProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) override;
+    void setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) override;
     tl::Path meshPath() const override;
     void setMeshPath(const tl::Path &meshPath) override;
     MeshReport meshReport() const override;

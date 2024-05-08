@@ -951,7 +951,7 @@ auto PropertiesModelImp::meshModel() const -> Properties
     if (auto mesh_properties = mProject->meshProperties()) {
 
         mesh_info["Poisson reconstruction parameters"].emplace_back(QString("Depth"), QString::number(mesh_properties->depth()));
-        mesh_info["Poisson reconstruction parameters"].emplace_back(QString("Solve depth"), QString::number(mesh_properties->solveDepth()));
+        //mesh_info["Poisson reconstruction parameters"].emplace_back(QString("Solve depth"), QString::number(mesh_properties->solveDepth()));
         mesh_info["Poisson reconstruction parameters"].emplace_back(QString("Boundary type"), mesh_properties->boundaryTypeAsText());
 
         auto mesh_report = mProject->meshReport();

@@ -514,7 +514,7 @@ std::shared_ptr<PoissonReconProperties> ProjectImp::meshProperties() const
     return mMeshProperties;
 }
 
-void ProjectImp::setProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties)
+void ProjectImp::setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties)
 {
     mMeshProperties = meshProperties;
 }
@@ -1431,9 +1431,9 @@ void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
     while (stream.readNextStartElement()) {
         if (stream.name() == "Depth") {
             mesh->setDepth(readInt(stream));
-        } else if (stream.name() == "SolveDepth") {
+        } /*else if (stream.name() == "SolveDepth") {
             mesh->setSolveDepth(readInt(stream));
-        } else if (stream.name() == "BoundaryType") {
+        } */else if (stream.name() == "BoundaryType") {
             QString bt = stream.readElementText();
             PoissonReconProperties::BoundaryType boundary_type;
             if (bt == "Free"){
@@ -1448,7 +1448,7 @@ void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
             stream.skipCurrentElement();
     }
 
-    setProperties(mesh);
+    setMeshProperties(mesh);
 }
 
 void ProjectImp::readDtm(QXmlStreamReader &stream)
@@ -1937,7 +1937,7 @@ void ProjectImp::writeMeshParameters(QXmlStreamWriter &stream) const
         stream.writeStartElement("PoissonParameters");
 
         stream.writeTextElement("Depth", QString::number(mesh->depth()));
-        stream.writeTextElement("SolveDepth", QString::number(mesh->solveDepth()));
+        //stream.writeTextElement("SolveDepth", QString::number(mesh->solveDepth()));
         stream.writeTextElement("BoundaryType", mesh->boundaryTypeAsText());
 
         stream.writeEndElement();

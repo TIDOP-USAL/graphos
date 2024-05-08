@@ -88,7 +88,7 @@ void MeshModelImp::cleanProject()
 
 void MeshModelImp::setProperties(const std::shared_ptr<PoissonReconProperties> &properties)
 {
-    mProject->setProperties(properties);
+    mProject->setMeshProperties(properties);
 }
 
 void MeshModelImp::setMeshReport(const MeshReport &report)

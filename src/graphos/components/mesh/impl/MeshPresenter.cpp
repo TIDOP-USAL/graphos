@@ -60,7 +60,7 @@ void MeshPresenterImp::open()
 
     mView->setBoundaryType(properties->boundaryTypeAsText());
     mView->setDepth(properties->depth());
-    mView->setSolveDepth(properties->solveDepth());
+    //mView->setSolveDepth(properties->solveDepth());
 
     mView->exec();
 }
@@ -141,7 +141,7 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
     }
     properties->setBoundaryType(boundary_type);
     properties->setDepth(mView->depth());
-    properties->setSolveDepth(mView->solveDepth());
+    //properties->setSolveDepth(mView->solveDepth());
     mModel->setProperties(properties);
 
     mesh_task = std::make_unique<PoissonReconTask>(mModel->denseModel(),
@@ -150,7 +150,7 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
     auto task_parameters = dynamic_cast<PoissonReconProperties *>(mesh_task.get());
     task_parameters->setBoundaryType(properties->boundaryType());
     task_parameters->setDepth(properties->depth());
-    task_parameters->setSolveDepth(properties->solveDepth());
+    //task_parameters->setSolveDepth(properties->solveDepth());
 
     mesh_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
