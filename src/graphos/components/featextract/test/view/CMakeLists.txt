@@ -37,7 +37,7 @@ target_link_libraries(${test_target} PRIVATE
                       Qt5::OpenGLExtensions
                       Graphos::Core
                       Graphos::FeatExtract
-                      Graphos::Widgets
+                      #Graphos::Widgets
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 set_target_properties(${test_target} PROPERTIES

@@ -65,7 +65,7 @@ if(BUILD_UNDISTORT_COMPONENT)
                           Qt5::Core
                           Qt5::Widgets
                           Graphos::Core
-                          Graphos::Widgets
+                          #Graphos::Widgets
                           Eigen3::Eigen
                           glog::glog
                           Ceres::ceres)

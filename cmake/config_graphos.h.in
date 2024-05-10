@@ -37,6 +37,7 @@
 
 /* Graphos Components */
 
+#cmakedefine GRAPHOS_HAVE_GUI
 #cmakedefine GRAPHOS_HAVE_ABOUT
 #cmakedefine GRAPHOS_HAVE_CAMERAS
 #cmakedefine GRAPHOS_HAVE_CREATE_PROJECT

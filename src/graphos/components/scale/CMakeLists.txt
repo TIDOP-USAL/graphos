@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_SCALE_COMPONENT)
+if(BUILD_SCALE_COMPONENT AND BUILD_GUI)
 
     project(Scale CXX)
 
@@ -64,7 +64,7 @@ if(BUILD_SCALE_COMPONENT)
                           Qt5::Core
                           Qt5::Widgets
                           Graphos::Core
-                          Graphos::Widgets
+                          #Graphos::Widgets
                           Eigen3::Eigen
                           glog::glog
                           Ceres::ceres)
@@ -89,8 +89,8 @@ if(BUILD_SCALE_COMPONENT)
         #add_subdirectory(test)
     endif(BUILD_TEST)
 
-else()
+else(BUILD_SCALE_COMPONENT AND BUILD_GUI)
 
     message(STATUS "  Graphos::Scale disabled")
     
-endif(BUILD_SCALE_COMPONENT)
+endif(BUILD_SCALE_COMPONENT AND BUILD_GUI)

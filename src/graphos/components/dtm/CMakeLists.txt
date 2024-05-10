@@ -69,7 +69,7 @@ if(BUILD_DTM_COMPONENT)
                           Qt5::Core
                           Qt5::Widgets
                           Graphos::Core
-                          Graphos::Widgets
+                          $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Graphos::Widgets>
                           Eigen3::Eigen
                           glog::glog
                           CGAL::CGAL

@@ -164,6 +164,7 @@ unset(GRAPHOS_HAVE_SETTINGS CACHE)
 unset(GRAPHOS_HAVE_UNDISTORT CACHE)
 unset(GRAPHOS_HAVE_PROPERTIES CACHE)
 unset(GRAPHOS_HAVE_VIDEO_LOAD CACHE)
+unset(GRAPHOS_HAVE_GUI CACHE)
 
 option(BUILD_ABOUT_COMPONENT          "Build About Component"         ON)
 option(BUILD_CAMERAS_COMPONENT        "Build Cameras Component"       ON)
@@ -196,17 +197,29 @@ option(BUILD_PROPERTIES_COMPONENT "Build Properties Component"  ON)
 option(BUILD_VIDEO_LOAD_COMPONENT "Build Video load Component"  ON)
 
 # Activación desactivación de otros componentes 
-OPTION (BUILD_TEST                 "Include test"          OFF)
-OPTION (BUILD_PLUGINS              "Build Plugins"         ON )
+option (BUILD_TEST                 "Include test"          OFF)
+option (BUILD_PLUGINS              "Build Plugins"         ON )
+option (BUILD_GUI                  "Build GUI"             ON )
 
 # Activa el gestor de mensajes. Si se desactiva no se mostrarán los mensajes del la librería
 # por consola ni se escribirán en el log
-OPTION (BUILD_MESSAGE_HANDLER "Active message handle" ON)
+option (BUILD_MESSAGE_HANDLER "Active message handle" ON)
 
 # Si se activa esta opción se pueden utilizar los métodos marcados como obsoletos (deprecated)
-OPTION (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
+option (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
+
+if(MSVC)
+option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
+endif(MSVC)
 
 
+if(BUILD_GUI)
+    message(STATUS "  [GRAPHOS] Build GUI")
+    set(GRAPHOS_HAVE_GUI YES)
+else()
+    message(STATUS "  [GRAPHOS] GUI disabled")
+	set(GRAPHOS_HAVE_GUI NO)
+endif()
 
 
 
@@ -224,11 +237,6 @@ OPTION (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 # - CloudCompare              REQUIRED                                   #
 # - VLD                       OPTIONAL                                   #
 ##########################################################################
-
-
-if(MSVC)
-option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
-endif(MSVC)
 
 message(STATUS "\nDependency loading:\n")
 

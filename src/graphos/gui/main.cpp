@@ -23,10 +23,12 @@
 
 #include "graphos/graphos_global.h"
 
+#ifdef GRAPHOS_GUI
 #include "MainWindowView.h"
 #include "MainWindowModel.h"
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
+#endif
 
 #include "graphos/core/project.h"
 #include "graphos/core/Application.h"
@@ -361,6 +363,9 @@ int main(int argc, char *argv[])
         }
 
     } else {
+
+#ifdef GRAPHOS_GUI
+
         //    TL_TODO("Añadir como opción")
 #if defined WIN32
         HWND hwnd = GetConsoleWindow();
@@ -666,7 +671,11 @@ int main(int argc, char *argv[])
 #if defined WIN32
         ShowWindow(hwnd, 1);
 #endif
+
+#endif // GRAPHOS_GUI
     }
+
+
 
 #ifdef HAVE_VLD
     // Clean up memory allocated by flags.  This is only needed to reduce

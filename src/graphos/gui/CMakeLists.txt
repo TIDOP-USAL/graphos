@@ -25,7 +25,6 @@ include(TidopUtils)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
-#include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
 #--------------------------------------------------------------------------------------------#
 # Configuración para Qt                                                                      #
@@ -46,35 +45,47 @@ set(CMAKE_AUTORCC ON)
 
 project(graphos LANGUAGES CXX)
 
+
 add_files_to_project(${PROJECT_NAME}
                      SOURCE_FILES
-                         main.cpp
-                         ComponentsManager.cpp
-                         MainWindowModel.cpp
-                         MainWindowPresenter.cpp
-                         MainWindowView.cpp
-                         HelpDialog.cpp
-                         ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
-                     HEADER_FILES
-                         ComponentsManager.h
-                         MainWindowModel.h
-                         MainWindowPresenter.h
-                         MainWindowView.h
-                         HelpDialog.h
-                         ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
-                     RESOURCE_FILES
-                         ${GRAPHOS_RESOURCES}
-                     FORM_FILES
-                         MainWindowView.ui)
+                         main.cpp)
+
+if (BUILD_GUI)
+
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             ComponentsManager.cpp
+                             MainWindowModel.cpp
+                             MainWindowPresenter.cpp
+                             MainWindowView.cpp
+                             HelpDialog.cpp
+                             ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
+                         HEADER_FILES
+                             ComponentsManager.h
+                             MainWindowModel.h
+                             MainWindowPresenter.h
+                             MainWindowView.h
+                             HelpDialog.h
+                             ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
+                         RESOURCE_FILES
+                             ${GRAPHOS_RESOURCES}
+                         FORM_FILES
+                             MainWindowView.ui)
+
+    if(MSVC)
+
+        add_files_to_project(${PROJECT_NAME}
+                             RESOURCE_FILES
+                                 graphos.rc
+                             HEADER_FILES
+                                 resource.h)
+
+    endif(MSVC)
+
+endif(BUILD_GUI)
 
 
-if(MSVC)
-add_files_to_project(${PROJECT_NAME}
-                     RESOURCE_FILES
-                         graphos.rc
-                     HEADER_FILES
-                         resource.h)
-endif(MSVC)
+
 
 
 # Translation files
@@ -110,7 +121,7 @@ target_link_libraries(${PROJECT_NAME}
                       Qt5::OpenGL
                       Qt5::OpenGLExtensions
                       Graphos::Core
-                      Graphos::Widgets
+                      $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Graphos::Widgets>
                       $<$<BOOL:${GRAPHOS_HAVE_ABOUT}>:Graphos::About>
                       $<$<BOOL:${GRAPHOS_HAVE_CAMERAS}>:Graphos::Cameras>
                       $<$<BOOL:${GRAPHOS_HAVE_CREATE_PROJECT}>:Graphos::CreateProject>
@@ -151,7 +162,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${GDAL_LIBRARY} 
                       ${PROJ4_LIBRARY}
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                      ${CLOUDCOMPARE_LIBRARIES}
+                      #$<$<BOOL:${GRAPHOS_HAVE_GUI}>:${CLOUDCOMPARE_LIBRARIES}>
                       $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)
 
 

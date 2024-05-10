@@ -21,6 +21,8 @@
 #                                                                        #
 ##########################################################################
 
+if (GRAPHOS_HAVE_GUI)
+
 include(TidopUtils)
 
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
@@ -118,3 +120,5 @@ install(DIRECTORY .
         FILES_MATCHING PATTERN "*.h")
 
 set(GRAPHOS_LIBRARIES ${GRAPHOS_LIBRARIES} ${PROJECT_NAME})
+
+endif(GRAPHOS_HAVE_GUI)
