@@ -27,6 +27,7 @@
 #include "graphos/core/mvp.h"
 
 #include <unordered_map>
+#include <tidop/geometry/entities/point.h>
 
 namespace graphos
 {
@@ -46,7 +47,7 @@ public:
 
     virtual auto poses() const -> const std::unordered_map<size_t, CameraPose>& = 0;
     virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
-
+    virtual auto offset() const -> tl::Point3<double> = 0;
 };
 
 } // namespace graphos

@@ -48,7 +48,7 @@ FeatureExtractorCommand::FeatureExtractorCommand()
     mDisableCuda(false)
 {
     Sift sift_properties;
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<int>("max_image_size", 's', "Maximum image size (default = 3200)", 3200);
     this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(sift_properties.featuresNumber())).append(")"), sift_properties.featuresNumber());
     this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(sift_properties.octaveLayers())).append(")"), sift_properties.octaveLayers());
@@ -82,7 +82,7 @@ bool FeatureExtractorCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         int max_image_size = this->value<int>("max_image_size");
         int max_features_number = this->value<int>("max_features_number");
         int octave_resolution = this->value<int>("octave_resolution");
@@ -94,7 +94,7 @@ bool FeatureExtractorCommand::run()
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");

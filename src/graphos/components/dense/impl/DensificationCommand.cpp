@@ -45,7 +45,7 @@ DensificationCommand::DensificationCommand()
   : Command("dense", "Create a dense point cloud"),
     mDisableCuda(false)
 {
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     auto arg_method = tl::Argument::make<std::string>("method", 'm', "Densification Method", "mvs");
     std::vector<std::string> methods{"mvs", "pmvs", "smvs"};
     arg_method->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(methods));
@@ -97,7 +97,7 @@ bool DensificationCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         auto densification_method = this->value<std::string>("method");
         auto pmvs_use_visibility_information = this->value<bool>("pmvs:visibility");
         auto pmvs_images_per_cluster = this->value<int>("pmvs:images_per_cluster");
@@ -123,7 +123,7 @@ bool DensificationCommand::run()
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
 
         if (!mDisableCuda)

@@ -420,16 +420,16 @@ GeoreferenceTask::GeoreferenceTask(const std::unordered_map<size_t, Image> &imag
                                    const std::unordered_map<size_t, CameraPose> &poses,
                                    const std::vector<GroundPoint> &groundPoints,
                                    const std::vector<GroundControlPoint> &groundControlPoints,
-                                   const tl::Path &outputPath,
-                                   const tl::Path &database)
+                                   tl::Path outputPath,
+                                   tl::Path database)
     : tl::TaskBase(),
       mImages(images),
       mCameras(cameras),
       mPoses(poses),
       mGroundPoints(groundPoints),
       mGroundControlPoints(groundControlPoints),
-      mPath(outputPath),
-      mDatabase(database),
+      mPath(std::move(outputPath)),
+      mDatabase(std::move(database)),
       mTransform(tl::Matrix<double, 4, 4>::identity())
 {
 
@@ -676,7 +676,7 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
         offset_path.append("offset.txt");
 
         /// writeOffset
-        std::ofstream stream(offset_path.toString(), std::ios::trunc);
+        std::ofstream stream(offset_path.toWString(), std::ios::trunc);
         if (stream.is_open()) {
             stream << QString::number(offset.x(), 'f', 3).toStdString() << " "
                    << QString::number(offset.y(), 'f', 3).toStdString() << " "

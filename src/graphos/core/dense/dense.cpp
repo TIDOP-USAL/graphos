@@ -197,7 +197,7 @@ void DensifierBase::autoSegmentation() const
                     }
                 }
 
-                //TODO: No quedarse sólo con la mayor nube de puntos. Comprobar el tamaño de las siguientes
+                //TODO: No quedarse sÃ³lo con la mayor nube de puntos. Comprobar el tamaÃ±o de las siguientes
                 //std::map<size_t, size_t> map_size_index;
                 //for (unsigned i = 0; i < static_cast<unsigned>(components.size()); ++i) {
                 //    map_size_index[components[i]->size()] = i;

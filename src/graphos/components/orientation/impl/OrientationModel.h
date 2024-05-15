@@ -57,7 +57,7 @@ public:
     auto projectFolder() const -> tl::Path override;
     auto gpsPositions() const -> bool override;
     auto rtkOrientations() const -> bool override;
-    auto reconstructionPath() const -> tl::Path override;
+    auto existReconstruction() const -> bool override;
     void clearProject() override;
     auto cameras() const -> const std::map<int, Camera>& override;
     auto updateCamera(int id, const Camera& camera) -> bool override;

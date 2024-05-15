@@ -505,7 +505,6 @@ void FeatureExtractorTask::execute(tl::Progress *progressBar)
 
         tl::Message::info("Feature extraction running");
 
-
         colmap::Database database(mDatabase.toString());
 
         QueueMPMC<internal::queue_data> buffer(50);

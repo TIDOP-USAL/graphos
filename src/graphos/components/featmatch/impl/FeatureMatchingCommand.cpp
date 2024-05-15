@@ -52,7 +52,7 @@ FeatureMatchingCommand::FeatureMatchingCommand()
 	auto confidence = feature_matching_properties.confidence();
 	auto cross_check = feature_matching_properties.crossCheck();
 
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<double>("ratio", 'r', std::string("Ratio (default = ").append(std::to_string(ratio)).append(")"), ratio);
     this->addArgument<double>("distance", 'd', std::string("Distance (default = ").append(std::to_string(distance)).append(")"), distance);
     this->addArgument<double>("max_error", 'e', std::string("Maximun error (default = ").append(std::to_string(max_error)).append(")"), max_error);
@@ -86,7 +86,7 @@ bool FeatureMatchingCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         double ratio = this->value<double>("ratio");
         double distance = this->value<double>("distance");
         double max_error = this->value<double>("max_error");
@@ -98,7 +98,7 @@ bool FeatureMatchingCommand::run()
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");

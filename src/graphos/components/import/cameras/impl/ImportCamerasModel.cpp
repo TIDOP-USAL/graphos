@@ -741,7 +741,7 @@ void ImportCamerasModelImp::importCameras()
 
             for (const auto &pair_image : mProject->images()) {
 
-                tl::Path image_path(image.toStdWString());
+                tl::Path image_path(image.toLocal8Bit().toStdString());
                 tl::Path image_path2(pair_image.second.path().toStdWString());
 
                 if (image_path.equivalent(image_path2)) {
@@ -805,7 +805,7 @@ void ImportCamerasModelImp::importCameras()
 
         Image image = pair_image.second;
 
-        tl::Path image_path(image.path().toStdString());
+        tl::Path image_path(image.path().toStdWString());
 
         for (auto image_colmap : database.ReadAllImages()) {
 

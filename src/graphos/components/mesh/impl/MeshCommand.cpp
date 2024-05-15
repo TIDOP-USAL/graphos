@@ -38,7 +38,7 @@ MeshCommand::MeshCommand()
 {
     PoissonReconProperties properties;
 
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<int>("depth", "Maximum reconstruction depth", properties.depth());
     this->addArgument<int>("solve_depth", "Maximum solution depth", properties.solveDepth());
     auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", properties.boundaryTypeAsText().toStdString());
@@ -62,14 +62,14 @@ bool MeshCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         int depth = this->value<int>("depth");
         int solve_depth = this->value<int>("solve_depth");
         std::string boundary_type = this->value<std::string>("boundary_type");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");

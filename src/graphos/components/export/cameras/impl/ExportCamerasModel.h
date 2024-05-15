@@ -46,6 +46,7 @@ public:
     
     auto images() const -> const std::unordered_map<size_t, Image>& override;
     auto poses() const -> const std::unordered_map<size_t, CameraPose>& override;
+    auto offset() const -> tl::Point3<double> override;
 
 // Model interface
 

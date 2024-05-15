@@ -296,8 +296,8 @@ void CmvsPmvsDensifier::writeBundleFile()
             undistort[camera.first] = Undistort(camera.second);
         }
 
-        std::ofstream stream(bundler_path.toString(), std::ios::trunc);
-        std::ofstream stream_image_list(bundler_path_list.toString(), std::ios::trunc);
+        std::ofstream stream(bundler_path.toWString(), std::ios::trunc);
+        std::ofstream stream_image_list(bundler_path_list.toWString(), std::ios::trunc);
 
         if (stream.is_open() && stream_image_list.is_open()) {
 
@@ -341,7 +341,7 @@ void CmvsPmvsDensifier::writeBundleFile()
                     tl::Path proj_matrix_path = outputPath();
                     proj_matrix_path.append(colmap::StringPrintf("/txt/%08d.txt", bundler_image_id));
 
-                    std::ofstream file(proj_matrix_path.toString(), std::ios::trunc);
+                    std::ofstream file(proj_matrix_path.toWString(), std::ios::trunc);
                     TL_ASSERT(file.is_open(), "Write Projection Matrix Error");
 
                     Matrix<double, 3, 3> calib_matrix = Matrix<double, 3, 3>::identity();
@@ -455,7 +455,7 @@ void CmvsPmvsDensifier::writeVisibility()
 
         Path visibility_path(outputPath());
         visibility_path.append("vis.dat");
-        std::ofstream stream(visibility_path.toString(), std::ios::trunc);
+        std::ofstream stream(visibility_path.toWString(), std::ios::trunc);
         if (stream.is_open()) {
 
             stream << "VISDATA" << '\n';
@@ -516,7 +516,7 @@ void CmvsPmvsDensifier::writeOptions() const
 
         Path options_path(outputPath());
         options_path.append("option-all");
-        std::ofstream file_options(options_path.toString(), std::ios::trunc);
+        std::ofstream file_options(options_path.toWString(), std::ios::trunc);
         TL_ASSERT(file_options.is_open(), "Can't open file")
 
             TL_TODO("Si hay muchas imagenes separar en clusters pero con solape ya que los generados por cmvs dejan huecos al fusionar");
@@ -588,10 +588,6 @@ void CmvsPmvsDensifier::execute(Progress *progressBar)
 {
 
     try {
-
-        //Chrono chrono("Densification finished");
-        //chrono.run();
-
         this->clearPreviousModel();
 
         outputPath().createDirectories();
@@ -648,7 +644,7 @@ void CmvsPmvsDensifier::execute(Progress *progressBar)
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        Ply ply(denseModel().toString());
+        Ply ply(denseModel());
         mReport.points = static_cast<int>(ply.size());
         ply.close();
         mReport.cuda = isCudaEnabled();

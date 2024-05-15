@@ -144,10 +144,10 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
 
         if (mOutput.exists()) tl::Path::removeFile(mOutput);
 
-        auto input = mInput.toString();
+        auto input = mInput;
 
         /// Para Law-Game
-        std::ifstream in(mInput.toString(), std::ios::binary);
+        std::ifstream in(mInput.toWString(), std::ios::binary);
         Point_set pts;
         in >> pts;
         bool has_scalar_label = pts.has_property_map<float>("scalar_label");
@@ -156,8 +156,8 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
 
             auto copy_point_cloud = mInput;
             copy_point_cloud.replaceBaseName("temp");
-            input = copy_point_cloud.toString();
-            std::ofstream out(input, std::ios::binary);
+            input = copy_point_cloud;
+            std::ofstream out(input.toWString(), std::ios::binary);
             CGAL::IO::set_binary_mode(out);
             CGAL::IO::write_PLY(out, pts);
         }
@@ -179,7 +179,7 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
         std::string cmd("\"");
         cmd.append(app_path.parentPath().toString());
         cmd.append("\\PoissonRecon.exe\" ");
-        cmd.append("--in \"").append(input);
+        cmd.append("--in \"").append(input.toString());
         cmd.append("\" --out \"").append(mOutput.toString());
         cmd.append("\" --depth ").append(std::to_string(depth()));
         cmd.append(" --solveDepth ").append(std::to_string(solveDepth()));

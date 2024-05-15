@@ -54,8 +54,8 @@ public:
                      const std::unordered_map<size_t, CameraPose> &poses,
                      const std::vector<GroundPoint> &groundPoints,
                      const std::vector<GroundControlPoint> &groundControlPoints,
-                     const tl::Path &outputPath,
-                     const tl::Path &database);
+                     tl::Path outputPath,
+                     tl::Path database);
     ~GeoreferenceTask() override;
 
 public:

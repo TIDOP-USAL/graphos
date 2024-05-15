@@ -473,7 +473,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
         //mBundleAdjustmentController->Start();
         //mBundleAdjustmentController->Wait();
 
-        {
+        //{
 
             const std::vector<colmap::image_t>& reg_image_ids = reconstruction.RegImageIds();
 
@@ -513,7 +513,7 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
             mOrientationReport.termination = "CONVERGENCE";
 
             TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
-        }
+        //}
 
         if (status() == Status::stopping) return;
 
@@ -544,12 +544,10 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
         }
 
         OrientationExport orientationExport(&reconstruction);
-
-        orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
-        //orientationExport.exportText(QString::fromStdWString(mOutputPath.toWString()));
+        orientationExport.exportBinary(mOutputPath); // TODO: Por ahora lo guardo y lo borro al finalizar
         tl::Path sparse_file = mOutputPath;
         sparse_file.append("sparse.ply");
-        orientationExport.exportPLY(QString::fromStdWString(sparse_file.toWString()));
+        orientationExport.exportPLY(sparse_file);
 
         if (status() == Status::stopping) return;
 
@@ -708,8 +706,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
             pos -= offset;
         }
 
-        if (!tl::Path(mInputPath.toString()).exists())
-            throw std::runtime_error(std::string("Reconstruction not found in path: ").append(mInputPath.toString()));
+        TL_ASSERT(mInputPath.exists(), "Reconstruction not found in path: {}", mInputPath.toString());
 
         if (status() == Status::stopping) return;
 
@@ -752,12 +749,10 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
         tl::Path sparse_path(mInputPath);
         sparse_path.append("sparse.ply");
         OrientationExport orientationExport(&reconstruction);
-        //orientationExport.exportBinary(QString::fromStdString(sparse_path.toString()));
-        //orientationExport.exportText(QString::fromStdString(sparse_path.toString()));
-        orientationExport.exportPLY(QString::fromStdString(sparse_path.toString()));
+        orientationExport.exportPLY(sparse_path);
 
         /// writeOffset
-        std::ofstream stream(offset_path.toString(), std::ios::trunc);
+        std::ofstream stream(offset_path.toWString(), std::ios::trunc);
         if (stream.is_open()) {
             stream << QString::number(offset[0], 'f', 6).toStdString() << " "
                    << QString::number(offset[1], 'f', 6).toStdString() << " "
@@ -892,7 +887,19 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
             tl::Message::info("Loading model");
 
             colmap::Reconstruction reconstruction;
-            reconstruction.Read(temp_path.toString());
+            reconstruction.Read(temp_path.toLocal8Bit());
+
+            for (const auto &image : mImages) {
+
+                CameraPose camera_pose = image.cameraPose();
+                if (camera_pose.isEmpty()) {
+                    continue; /// Se saltan las imagenes no orientadas
+                }
+
+                size_t image_id = image.id();
+                reconstruction.Image(mGraphosToColmapId[image_id]).Name() = image.path().toStdString();
+
+            }
 
             tl::Message::info("Loading database");
 
@@ -1068,14 +1075,12 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
             tl::Path sparse_path(mOutputPath);
             sparse_path.append("sparse.ply");
             OrientationExport orientationExport(&reconstruction);
-            //orientationExport.exportBinary(QString::fromStdWString(mOutputPath.toWString())); // TODO: Por ahora lo guardo y lo borro al finalizar
-            //orientationExport.exportText(QString::fromStdWString(mOutputPath.toWString()));
-            orientationExport.exportPLY(QString::fromStdString(sparse_path.toString()));
+            orientationExport.exportPLY(sparse_path);
 
             /// writeOffset
             tl::Path offset_path(mOutputPath);
             offset_path.append("offset.txt");
-            std::ofstream stream(offset_path.toString(), std::ios::trunc);
+            std::ofstream stream(offset_path.toWString(), std::ios::trunc);
             if (stream.is_open()) {
                 stream << QString::number(mOffset.x, 'f', 6).toStdString() << " "
                        << QString::number(mOffset.y, 'f', 6).toStdString() << " "
@@ -1136,7 +1141,7 @@ void ImportPosesTask::writeImages(const tl::Path &tempPath)
         images_path.append("images.txt");
 
         std::ofstream ofs;
-        ofs.open(images_path.toString(), std::ofstream::out | std::ofstream::trunc);
+        ofs.open(images_path.toWString(), std::ofstream::out | std::ofstream::trunc);
 
         if (!ofs.is_open()) throw std::runtime_error(std::string("Open fail: images.txt"));
 
@@ -1197,7 +1202,7 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath) const
         cameras_path.append("cameras.txt");
 
         std::ofstream ofs;
-        ofs.open(cameras_path.toString(), std::ofstream::out | std::ofstream::trunc);
+        ofs.open(cameras_path.toWString(), std::ofstream::out | std::ofstream::trunc);
 
         if (!ofs.is_open()) throw std::runtime_error(std::string("Open fail: cameras.txt"));
 
@@ -1404,7 +1409,7 @@ void ImportPosesTask::writePoints(const tl::Path &tempPath)
     points3d_path.append("points3D.txt");
 
     std::ofstream ofs;
-    ofs.open(points3d_path.toString(), std::ofstream::out | std::ofstream::trunc);
+    ofs.open(points3d_path.toWString(), std::ofstream::out | std::ofstream::trunc);
     ofs.close();
 }
 

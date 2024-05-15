@@ -44,7 +44,7 @@ class Progress;
 namespace graphos
 {
 
-/// TODO: dejar sólo en el cpp para su uso por la clase Undistort
+/// TODO: dejar sÃ³lo en el cpp para su uso por la clase Undistort
 auto openCvCameraMatrix(const Calibration &calibration) -> cv::Mat;
 auto openCvDistortionCoefficients(const Calibration &calibration) -> cv::Mat;
 

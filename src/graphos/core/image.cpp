@@ -37,7 +37,7 @@ Image::Image()
 }
 
 Image::Image(const QString &file)
-  : mFilePath(file.toStdString()),
+  : mFilePath(file.toStdWString()),
     mId(0),
     mCameraId(0),
     mCameraPose()
@@ -73,12 +73,12 @@ Image::Image(Image &&image) noexcept
 
 auto Image::path() const -> QString
 {
-    return QString::fromStdString(mFilePath.toString());
+    return QString::fromStdWString(mFilePath.toWString());
 }
 
 void Image::setPath(const QString &file)
 {
-    mFilePath = file.toStdString();
+    mFilePath = file.toStdWString();
     update();
 }
 
@@ -89,7 +89,7 @@ void Image::setPath(const tl::Path &file)
 
 auto Image::name() const -> QString
 {
-    return QString::fromStdString(mFilePath.fileName().toString());
+    return QString::fromStdWString(mFilePath.fileName().toWString());
 }
 
 auto Image::id() const -> size_t

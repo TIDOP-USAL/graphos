@@ -37,7 +37,7 @@ namespace graphos
 CreateProjectCommand::CreateProjectCommand()
   : Command("createproj", "Create Graphos project")
 {
-    this->addArgument<std::string>("name", 'n', "Project name or project file (.xml)");
+    this->addArgument<tl::Path>("name", 'n', "Project name or project file (.xml)");
     this->addArgument<std::string>("description", 'd', "Project description", "");
     this->addArgument<bool>("overwrite", 'o', "Force project overwrite (default = false)", false);
 
@@ -56,40 +56,40 @@ bool CreateProjectCommand::run()
 
     try {
 
-        tl::Path project_path;
+        
         tl::Path project_folder_path;
-        QString base_name;
-
-        auto project_name = this->value<std::string>("name");
+        
+        auto project_name = this->value<tl::Path>("name");
         auto project_description = this->value<std::string>("description");
         bool force_overwrite = this->value<bool>("overwrite");
 
-        QFileInfo file_info(project_name.c_str());
+        tl::Path project_path = project_name;
+        QString base_name = QString::fromStdWString(project_path.baseName().toWString());
 
-        if (file_info.isRelative()) {
+        if (project_path.isAbsolutePath()) {
 
-            project_path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString();
-            project_path.append("graphos").append("Projects");
-
-            QString extension = file_info.suffix();
-            QString file_name;
-            if (extension.compare(".xml", Qt::CaseInsensitive) == 0) {
-                base_name = file_info.baseName();
-                file_name = file_info.fileName();
-            } else {
-                file_name = base_name = file_info.baseName();
-                file_name.append(".xml");
-            }
-            project_folder_path = project_path.append(base_name.toStdWString());
-            project_path.append(file_name.toStdWString());
+            project_folder_path = project_path.parentPath();
 
         } else {
 
-            base_name = file_info.baseName();
-            project_path = project_name;
-            project_folder_path = file_info.path().toStdWString();
+            project_folder_path = tl::Path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
+            project_folder_path.append("graphos").append("Projects");
+
+            auto extension = project_path.extension().toString();
+            tl::Path file_name;
+            if (tl::compareInsensitiveCase(extension, ".xml")){
+                file_name = project_path.fileName();
+            } else {
+                file_name = tl::Path(base_name.append(".xml").toStdWString());
+            }
+            
+            project_folder_path.append(base_name.toStdWString());
+            project_path = project_folder_path;
+            project_path.append(file_name);
 
         }
+
+        project_folder_path.normalize();
         project_path.normalize();
 
         tl::Path database_path = project_path;
@@ -105,7 +105,7 @@ bool CreateProjectCommand::run()
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         if (!project_folder_path.createDirectories()) {
             throw std::runtime_error("Project directory cannot be created: " + project_folder_path.toString());

@@ -263,76 +263,76 @@ public:
     void read(const tl::Path &path) override
     {
         std::ifstream ifs;
-        ifs.open(path.toString(), std::ifstream::in);
-        if (ifs.is_open()) {
+        ifs.open(path.toWString(), std::ifstream::in);
 
-            TL_ASSERT(!images().empty(), "");
+        TL_ASSERT(ifs.is_open(), "File not open: {}", path.toString());
+        TL_ASSERT(!images().empty(), "");
 
-            std::string line;
-            std::getline(ifs, line);
+        std::string line;
+        std::getline(ifs, line);
 
-            std::string projection = line;
-            setEPSGCode(projection);
-            ///TODO: hay que ver si la proyección viene por codigo EPSG o en formato PROJ
+        std::string projection = line;
+        setEPSGCode(projection);
+        ///TODO: hay que ver si la proyecciÃ³n viene por codigo EPSG o en formato PROJ
 
-            std::vector<GroundControlPoint> ground_control_points;
+        std::vector<GroundControlPoint> ground_control_points;
 
-            std::stringstream ss;
+        std::stringstream ss;
 
-            int counter = 0;
-            while (std::getline(ifs, line)) {
+        int counter = 0;
+        while (std::getline(ifs, line)) {
 
-                if (line.empty()) continue;
+            if (line.empty()) continue;
 
-                ss << line;
+            ss << line;
 
-                tl::Point3<double> point;
-                tl::Point<double> image_point;
-                std::string image_name;
-                ss >> point.x >> point.y >> point.z >> image_point.x >> image_point.y >> image_name;
-                ss.clear();
+            tl::Point3<double> point;
+            tl::Point<double> image_point;
+            std::string image_name;
+            ss >> point.x >> point.y >> point.z >> image_point.x >> image_point.y >> image_name;
+            ss.clear();
 
-                size_t image_id = 0;
+            size_t image_id = 0;
 
-                for (auto &image : images()) {
+            for (auto &image : images()) {
 
-                    if (image.second.name().toStdString() == image_name) {
-                        image_id = image.first;
+                if (image.second.name().toStdString() == image_name) {
+                    image_id = image.first;
+                    break;
+                }
+            }
+
+            if (image_id != 0) {
+
+                bool exists_gcp = false;
+                for (auto &ground_control_point : ground_control_points) {
+                    if (ground_control_point.x == point.x &&
+                        ground_control_point.y == point.y &&
+                        ground_control_point.z == point.z) {
+
+                        ground_control_point.addPointToTrack(image_id, image_point);
+
+                        exists_gcp = true;
                         break;
                     }
                 }
 
-                if (image_id != 0) {
-
-                    bool exists_gcp = false;
-                    for (auto& ground_control_point : ground_control_points) {
-                        if (ground_control_point.x == point.x &&
-                            ground_control_point.y == point.y &&
-                            ground_control_point.z == point.z) {
-
-                            ground_control_point.addPointToTrack(image_id, image_point);
-
-                            exists_gcp = true;
-                            break;
-                        }
-                    }
-
-                    if (!exists_gcp) {
-                        GroundControlPoint gcp(point);
-                        gcp.setName(std::string("P").append(std::to_string(counter++)));
-                        gcp.addPointToTrack(image_id, image_point);
-                        ground_control_points.push_back(gcp);
-                    }
-
+                if (!exists_gcp) {
+                    GroundControlPoint gcp(point);
+                    gcp.setName(std::string("P").append(std::to_string(counter++)));
+                    gcp.addPointToTrack(image_id, image_point);
+                    ground_control_points.push_back(gcp);
                 }
-            }
 
-            ifs.close();
-
-            for (auto &ground_control_point : ground_control_points) {
-                addGroundControlPoint(ground_control_point);
             }
         }
+
+        ifs.close();
+
+        for (auto &ground_control_point : ground_control_points) {
+            addGroundControlPoint(ground_control_point);
+        }
+
     }
 
     auto format() const -> std::string final
@@ -506,7 +506,7 @@ public:
 
     void write(const tl::Path &path) override
     {
-        std::ofstream stream(path.toString(), std::ios::trunc);
+        std::ofstream stream(path.toWString(), std::ios::trunc);
         TL_ASSERT(stream.is_open(), "Can't open {}", path.toString());
 
         stream << epsgCode() << '\n';
@@ -663,7 +663,7 @@ public:
 
             TL_ASSERT(path.exists(), "File not exists");
 
-            std::fstream stream(path.toString(), std::ios_base::in | std::ios_base::binary);
+            std::fstream stream(path.toWString(), std::ios_base::in | std::ios_base::binary);
 
             if (stream.is_open()) {
 
@@ -795,7 +795,7 @@ public:
     {
         try {
 
-            std::ofstream stream(path.toString(), std::ios_base::trunc | std::ios_base::binary);
+            std::ofstream stream(path.toWString(), std::ios_base::trunc | std::ios_base::binary);
 
             TL_ASSERT(stream.is_open(), "File not open");
 
@@ -851,7 +851,7 @@ public:
 
 /* GroundPointsWriterFactory */
 
-auto GroundPointsWriterFactory::create(const std::string& format) -> std::unique_ptr<GroundPointsWriter>
+auto GroundPointsWriterFactory::create(const std::string &format) -> std::unique_ptr<GroundPointsWriter>
 {
     std::unique_ptr<GroundPointsWriter> writer;
 

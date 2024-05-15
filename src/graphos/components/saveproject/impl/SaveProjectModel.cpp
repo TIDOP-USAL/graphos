@@ -69,7 +69,7 @@ void SaveProjectModelImp::save()
             tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
             auto rotation = affine.rotation();
 
-            // Transforma las c·maras
+            // Transforma las c√°maras
             {
 
                 tl::Path poses_path = sfm_path;

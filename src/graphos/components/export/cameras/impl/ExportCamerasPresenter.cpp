@@ -129,10 +129,13 @@ auto ExportCamerasPresenterImp::createTask() -> std::unique_ptr<tl::Task>
         progressHandler()->setDescription("Export Cameras poses...");
     }
 
+    tl::Path export_file_path(mOriTxtFormatWidget->file().toStdWString());
+
     QString format = mView->format();
-    export_task = std::make_unique<ExportCamerasTask>(mOriTxtFormatWidget->file(),
+    export_task = std::make_unique<ExportCamerasTask>(export_file_path,
                                                       mModel->images(),
                                                       mModel->poses(),
+                                                      mModel->offset(),
                                                       format);
     if (format.compare("TXT") == 0) {
         dynamic_cast<ExportCamerasTask *>(export_task.get())->setQuaternionRotation(mOriTxtFormatWidget->rotation() == "Quaternions");

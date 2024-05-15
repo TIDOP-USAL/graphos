@@ -301,10 +301,10 @@ void ImportCamerasViewImp::initUI()
     gridLayout->addWidget(mGroupBoxColumns, 5, 0, 1, 3);
 
     mLabelCameras = new QLabel(this);
-    gridLayout->addWidget(mLabelPreview, 5, 0, 1, 1);
+    gridLayout->addWidget(mLabelPreview, 6, 0, 1, 1);
 
     mTableViewFormatCameras = new QTableView(this);
-    gridLayout->addWidget(mTableViewFormatCameras, 6, 0, 1, 3);
+    gridLayout->addWidget(mTableViewFormatCameras, 7, 0, 1, 3);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Horizontal);

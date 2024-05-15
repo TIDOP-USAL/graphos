@@ -140,8 +140,7 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     std::unique_ptr<tl::Task> orientation_process;
 
-    tl::Path reconstruction_path = mModel->reconstructionPath();
-    if (!reconstruction_path.empty()) {
+    if (mModel->existReconstruction()) {
         int i_ret = QMessageBox(QMessageBox::Warning,
                                 tr("Previous results"),
                                 tr("The previous results will be overwritten. Do you wish to continue?"),
