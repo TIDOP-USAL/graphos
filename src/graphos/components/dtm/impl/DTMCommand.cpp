@@ -43,7 +43,7 @@ DTMCommand::DTMCommand()
   : Command("dem", "Create DSM and/or DTM"),
     mProject(nullptr)
 {
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<Path>("prj", 'p', "Project file");
     this->addArgument<double>("gsd", 'g', "Ground sample distance", 0.1);
     this->addArgument<bool>("dsm", "Create a Digital Surface Model", true);
     this->addArgument<bool>("dtm", "Create a Digital Terrain Model", false);
@@ -94,14 +94,14 @@ bool DTMCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<Path>("prj");
         auto gsd =  this->value<double>("gsd");
         auto dsm =  this->value<bool>("dsm");
         auto dtm =  this->value<bool>("dtm");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");

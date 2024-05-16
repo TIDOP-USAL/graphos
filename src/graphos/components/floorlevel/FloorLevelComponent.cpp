@@ -38,6 +38,7 @@ TL_DEFAULT_WARNINGS
 #include <QAction>
 #include <QString>
 #include <QMessageBox>
+#include <QMainWindow>
 
 namespace graphos
 {
@@ -68,6 +69,7 @@ void FloorLevelComponent::open()
 
         if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
             const QSignalBlocker blocker2(ccviewer);
+            dynamic_cast<Application *>(qApp)->mainWindow()->activateWindow();
 
             connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
             ccviewer->activatePicker(CCViewer3D::PickingMode::level_points);

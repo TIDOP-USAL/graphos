@@ -73,8 +73,9 @@ void OrthophotoComponent::update()
 
     bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
     bool dtm = app_status->isEnabled(AppStatus::Flag::dtm);
+    bool dsm = app_status->isEnabled(AppStatus::Flag::dsm);
     bool process_run = app_status->isEnabled(AppStatus::Flag::processing);
-    action()->setEnabled(project_exists && dtm && !process_run);
+    action()->setEnabled(project_exists && (dtm || dsm) && !process_run);
 }
 
 void OrthophotoComponent::onRunning()

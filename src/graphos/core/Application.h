@@ -333,9 +333,6 @@ private:
 
 private:
 
-    static std::unique_ptr<Application> sApplication;
-    static std::mutex sMutex;
-    static std::once_flag sInitFlag;
     AppStatus *mAppStatus;
     Project *mProject;
     Settings *mSettings;

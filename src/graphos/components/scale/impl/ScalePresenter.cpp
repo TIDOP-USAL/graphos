@@ -37,6 +37,7 @@
 #include <tidop/core/defs.h>
 
 #include <QMessageBox>
+#include <QMainWindow>
 
 namespace graphos
 {
@@ -64,6 +65,7 @@ void ScalePresenterImp::measure(bool active)
         if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
             const QSignalBlocker blocker2(ccviewer);
             if (active) {
+                dynamic_cast<Application *>(qApp)->mainWindow()->activateWindow();
                 connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
                 ccviewer->activatePicker(CCViewer3D::PickingMode::distance);
             } else {
@@ -153,7 +155,7 @@ auto ScalePresenterImp::createTask() -> std::unique_ptr<tl::Task>
             // Nubes de puntos o malla
             root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
 
-            /// Sólo se permite una nube de puntos en el visor
+            /// SÃ³lo se permite una nube de puntos en el visor
             //TL_ASSERT(clouds.size() == 1, "Error");
 
             model = clouds.at(0);
@@ -181,6 +183,7 @@ auto ScalePresenterImp::createTask() -> std::unique_ptr<tl::Task>
         progressHandler()->setRange(0, 0);
         progressHandler()->setTitle("Computing Scale...");
         progressHandler()->setDescription("Computing Scale...");
+        progressHandler()->closeAuto(true);
     }
 
     measure(false);

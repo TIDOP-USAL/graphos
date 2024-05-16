@@ -191,9 +191,9 @@ bool GeoreferenceCommand::run()
         //if (transform != tl::Matrix<double, 4, 4>::identity()) {
         //    project.setTransform(transform);
         //}
-
-        //reconstruction_path.append("offset.txt");
-        //project.setOffset(reconstruction_path);
+        tl::Path offset_path = reconstruction_path;
+        offset_path.append("offset.txt");
+        project.setOffset(offset_path);
 
         //reconstruction_path.replaceFileName("poses.bin");
 

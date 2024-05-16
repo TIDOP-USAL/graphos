@@ -128,7 +128,7 @@ ThumbnailsWidget::~ThumbnailsWidget()
 {
     if (mThumbLoad) {
 
-        // Para evitar una excepci�n al cerrar la aplicaci�n si se esta ejecutando
+        // Para evitar una excepción al cerrar la aplicación si se esta ejecutando
         while (!mThumbLoad->empty());
 
         delete mThumbLoad;
