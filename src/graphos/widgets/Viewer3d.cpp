@@ -314,6 +314,7 @@ void CCViewer3D::loadFromFile(const QString &file, const QString &parent)
         }
 
         this->setSceneDB(current_root);
+
     } catch (std::exception & e){
         tl::printException(e);
     }
@@ -477,12 +478,13 @@ void CCViewer3D::drawLine(const std::string &name,
 
         if (!entities) {
             entities = new ccPointCloud(name.c_str());
+            //entities->redrawDisplay();
             addToDB(entities);
         }
 
         auto cloud_measures = new ccPointCloud("Measures");
         cloud_measures->setEnabled(true);
-        cloud_measures->setDisplay(this);
+        //cloud_measures->setDisplay(this);
 
         auto segment = new ccPolyline(cloud_measures);
         segment->setTempColor(ccColor::Rgb(color.red(), color.green(), color.blue()));
@@ -507,6 +509,7 @@ void CCViewer3D::drawLine(const std::string &name,
 
 void CCViewer3D::addPrimitive(ccGenericPrimitive *primitive)
 {
+    //primitive->redrawDisplay();
     addToDB(primitive);
 }
 
@@ -1018,8 +1021,8 @@ void CCViewer3D::addToDB(ccHObject *entity)
         //already a pure 'root'
         if (currentRoot->isA(CC_TYPES::HIERARCHY_OBJECT)) {
             currentRoot->addChild(entity);
-            this->setSceneDB(currentRoot);
-            entity->setDisplay_recursive(this);
+            //this->setSceneDB(currentRoot);
+            //entity->setDisplay_recursive(this);
         }
     }
 

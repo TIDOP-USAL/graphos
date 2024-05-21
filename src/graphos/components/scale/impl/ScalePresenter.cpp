@@ -170,6 +170,12 @@ auto ScalePresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
         try {
 
+            if (auto viewer_3d = dynamic_cast<Application *>(qApp)->viewer3D()) {
+                if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
+                    ccviewer->redraw();
+                }
+            }
+
             auto transform = dynamic_cast<ScaleTask const *>(event->task())->transform();
             mModel->setTransform(transform);
 
