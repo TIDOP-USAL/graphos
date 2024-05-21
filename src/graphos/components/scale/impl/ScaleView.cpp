@@ -128,7 +128,7 @@ double ScaleViewImp::distanceReal() const
 
 void ScaleViewImp::setDistance(double distance)
 {
-    const QSignalBlocker blocker(mDoubleSpinBoxDistance);
+    //const QSignalBlocker blocker(mDoubleSpinBoxDistance);
     mDoubleSpinBoxDistance->setValue(distance);
 }
 
