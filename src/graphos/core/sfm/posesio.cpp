@@ -71,7 +71,7 @@ public:
     {
         try {
 
-            std::fstream stream(path.toWString(), std::ios_base::in | std::ios_base::binary);
+            std::fstream stream(path.toString(), std::ios_base::in | std::ios_base::binary);
 
             TL_ASSERT(stream.is_open(), "File not open: {}", path.toString());
 
@@ -228,7 +228,7 @@ public:
     {
         try {
 
-;            std::ofstream stream(path.toWString(), std::ios_base::trunc | std::ios_base::binary);
+;            std::ofstream stream(path.toString(), std::ios_base::trunc | std::ios_base::binary);
 
             TL_ASSERT(stream.is_open(), "File not open");
 
@@ -335,7 +335,7 @@ tl::Point3<double> offsetRead(const tl::Path &path)
 
     try {
 
-        std::ifstream stream(path.toWString(), std::ios::in);
+        std::ifstream stream(path.toString(), std::ios::in);
 
         TL_ASSERT(stream.is_open(), "File not open: {}", path.toString());
 

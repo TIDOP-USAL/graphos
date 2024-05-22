@@ -261,7 +261,7 @@ void MvsDensifier::exportCameras(const std::map<int, Undistort> &undistortMap, c
     colmap_cameras.append("cameras.txt");
 
     std::ofstream ofs;
-    ofs.open(colmap_cameras.toWString(), std::ofstream::out | std::ofstream::trunc);
+    ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
 
     TL_ASSERT(ofs.is_open(), "Open fail: {}", colmap_cameras.toString());
 
@@ -315,7 +315,7 @@ void MvsDensifier::exportImages(const std::unordered_map<size_t, colmap::image_t
     colmap_images.append("images.txt");
 
     std::ofstream ofs;
-    ofs.open(colmap_images.toWString(), std::ofstream::out | std::ofstream::trunc);
+    ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
 
     TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
 
@@ -377,7 +377,7 @@ void MvsDensifier::exportPoints(const std::unordered_map<size_t, colmap::image_t
     colmap_points_3d.append("points3D.txt");
 
     std::ofstream ofs;
-    ofs.open(colmap_points_3d.toWString(), std::ofstream::out | std::ofstream::trunc);
+    ofs.open(colmap_points_3d.toString(), std::ofstream::out | std::ofstream::trunc);
 
     TL_ASSERT(ofs.is_open(), "Open fail: points3D.txt");
 
@@ -495,7 +495,7 @@ void MvsDensifier::writeNvmFile() const
             undistort[camera.first] = Undistort(camera.second);
         }
 
-        std::ofstream stream(nvm_path.toWString(), std::ios::trunc);
+        std::ofstream stream(nvm_path.toString(), std::ios::trunc);
 
         if (stream.is_open()) {
 

@@ -676,7 +676,7 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
         offset_path.append("offset.txt");
 
         /// writeOffset
-        std::ofstream stream(offset_path.toWString(), std::ios::trunc);
+        std::ofstream stream(offset_path.toString(), std::ios::trunc);
         if (stream.is_open()) {
             stream << QString::number(offset.x(), 'f', 3).toStdString() << " "
                    << QString::number(offset.y(), 'f', 3).toStdString() << " "

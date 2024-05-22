@@ -224,7 +224,7 @@ void SmvsDensifier::writeMveFile()
             undistort[camera.first] = Undistort(camera.second);
         }
 
-        std::ofstream stream(mve_path.toWString(), std::ios::trunc);
+        std::ofstream stream(mve_path.toString(), std::ios::trunc);
 
         if (stream.is_open()) {
 
@@ -257,7 +257,7 @@ void SmvsDensifier::writeMveFile()
                 ini_file.createDirectories();
 
                 ini_file.append("meta.ini");
-                std::ofstream stream_ini(ini_file.toWString(), std::ios::trunc);
+                std::ofstream stream_ini(ini_file.toString(), std::ios::trunc);
 
                 if (stream_ini.is_open()) {
 
