@@ -105,7 +105,7 @@ bool ImageLoaderCommand::run()
         if (!image_list_path.empty() && image_list_path.exists()) {
 
             std::ifstream ifs;
-            ifs.open(image_list_path.toWString(), std::ifstream::in);
+            ifs.open(image_list_path.toString(), std::ifstream::in);
             TL_ASSERT(ifs.is_open(), "Images could not be loaded");
 
             std::string line;

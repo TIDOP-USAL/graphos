@@ -263,7 +263,7 @@ public:
     void read(const tl::Path &path) override
     {
         std::ifstream ifs;
-        ifs.open(path.toWString(), std::ifstream::in);
+        ifs.open(path.toString(), std::ifstream::in);
 
         TL_ASSERT(ifs.is_open(), "File not open: {}", path.toString());
         TL_ASSERT(!images().empty(), "");
@@ -506,7 +506,7 @@ public:
 
     void write(const tl::Path &path) override
     {
-        std::ofstream stream(path.toWString(), std::ios::trunc);
+        std::ofstream stream(path.toString(), std::ios::trunc);
         TL_ASSERT(stream.is_open(), "Can't open {}", path.toString());
 
         stream << epsgCode() << '\n';
@@ -663,7 +663,7 @@ public:
 
             TL_ASSERT(path.exists(), "File not exists");
 
-            std::fstream stream(path.toWString(), std::ios_base::in | std::ios_base::binary);
+            std::fstream stream(path.toString(), std::ios_base::in | std::ios_base::binary);
 
             if (stream.is_open()) {
 
@@ -795,7 +795,7 @@ public:
     {
         try {
 
-            std::ofstream stream(path.toWString(), std::ios_base::trunc | std::ios_base::binary);
+            std::ofstream stream(path.toString(), std::ios_base::trunc | std::ios_base::binary);
 
             TL_ASSERT(stream.is_open(), "File not open");
 

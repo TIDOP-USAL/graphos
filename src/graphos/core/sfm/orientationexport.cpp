@@ -62,7 +62,7 @@ OrientationExport::~OrientationExport()
 void OrientationExport::exportBinary(const tl::Path &path) const
 {
     if (mReconstruction)
-        mReconstruction->WriteBinary(path.toLocal8Bit());
+        mReconstruction->WriteBinary(path.toString());
     else
         tl::Message::error("There is not a valid reconstruction");
 }
@@ -70,7 +70,7 @@ void OrientationExport::exportBinary(const tl::Path &path) const
 void OrientationExport::exportText(const tl::Path &path) const
 {
     if (mReconstruction)
-        mReconstruction->WriteText(path.toLocal8Bit());
+        mReconstruction->WriteText(path.toString());
     else
         tl::Message::error("There is not a valid reconstruction");
 }
@@ -175,7 +175,7 @@ void OrientationExport::exportPLY(const tl::Path &path) const
 
         bool kWriteNormal = false;
         bool kWriteRGB = true;
-        writeBinaryPlyPoints(path.toLocal8Bit(), ply_points, kWriteNormal, kWriteRGB);
+        writeBinaryPlyPoints(path.toString(), ply_points, kWriteNormal, kWriteRGB);
 
     } else
         tl::Message::error("There is not a valid reconstruction");

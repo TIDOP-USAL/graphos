@@ -64,7 +64,7 @@ void ExportCamerasTask::setQuaternionRotation(bool quaternions)
 
 void ExportCamerasTask::textExport()
 {
-    std::ofstream stream(mFile.toWString(), std::ios::trunc);
+    std::ofstream stream(mFile.toString(), std::ios::trunc);
     TL_ASSERT(stream.is_open(), "Can't open {}", mFile.toString());
 
     if (mQuaternions) {
