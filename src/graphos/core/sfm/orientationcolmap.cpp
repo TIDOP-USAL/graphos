@@ -752,7 +752,7 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
         orientationExport.exportPLY(sparse_path);
 
         /// writeOffset
-        std::ofstream stream(offset_path.toWString(), std::ios::trunc);
+        std::ofstream stream(offset_path.toString(), std::ios::trunc);
         if (stream.is_open()) {
             stream << QString::number(offset[0], 'f', 6).toStdString() << " "
                    << QString::number(offset[1], 'f', 6).toStdString() << " "
@@ -887,7 +887,7 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
             tl::Message::info("Loading model");
 
             colmap::Reconstruction reconstruction;
-            reconstruction.Read(temp_path.toLocal8Bit());
+            reconstruction.Read(temp_path.toString());
 
             for (const auto &image : mImages) {
 
@@ -1080,7 +1080,7 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
             /// writeOffset
             tl::Path offset_path(mOutputPath);
             offset_path.append("offset.txt");
-            std::ofstream stream(offset_path.toWString(), std::ios::trunc);
+            std::ofstream stream(offset_path.toString(), std::ios::trunc);
             if (stream.is_open()) {
                 stream << QString::number(mOffset.x, 'f', 6).toStdString() << " "
                        << QString::number(mOffset.y, 'f', 6).toStdString() << " "
@@ -1141,7 +1141,7 @@ void ImportPosesTask::writeImages(const tl::Path &tempPath)
         images_path.append("images.txt");
 
         std::ofstream ofs;
-        ofs.open(images_path.toWString(), std::ofstream::out | std::ofstream::trunc);
+        ofs.open(images_path.toString(), std::ofstream::out | std::ofstream::trunc);
 
         if (!ofs.is_open()) throw std::runtime_error(std::string("Open fail: images.txt"));
 
@@ -1202,7 +1202,7 @@ void ImportPosesTask::writeCameras(const tl::Path &tempPath) const
         cameras_path.append("cameras.txt");
 
         std::ofstream ofs;
-        ofs.open(cameras_path.toWString(), std::ofstream::out | std::ofstream::trunc);
+        ofs.open(cameras_path.toString(), std::ofstream::out | std::ofstream::trunc);
 
         if (!ofs.is_open()) throw std::runtime_error(std::string("Open fail: cameras.txt"));
 
@@ -1409,7 +1409,7 @@ void ImportPosesTask::writePoints(const tl::Path &tempPath)
     points3d_path.append("points3D.txt");
 
     std::ofstream ofs;
-    ofs.open(points3d_path.toWString(), std::ofstream::out | std::ofstream::trunc);
+    ofs.open(points3d_path.toString(), std::ofstream::out | std::ofstream::trunc);
     ofs.close();
 }
 
