@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_ORTHOPHOTO_COMPONENT)
+if(BUILD_ORTHOPHOTO_COMPONENT AND BUILD_GUI)
 
     project(Orthophoto LANGUAGES CXX)
     
@@ -89,4 +89,4 @@ else()
 
     message(STATUS "  Graphos::Orthophoto disabled")    
     
-endif(BUILD_ORTHOPHOTO_COMPONENT)
+endif(BUILD_ORTHOPHOTO_COMPONENT AND BUILD_GUI)

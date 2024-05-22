@@ -23,9 +23,11 @@
 
 #include "ImageLoaderComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/images/impl/ImageLoaderModel.h"
 #include "graphos/components/images/impl/ImageLoaderView.h"
 #include "graphos/components/images/impl/ImageLoaderPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/images/impl/ImageLoaderCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -58,21 +60,27 @@ void ImageLoaderComponent::init()
 
 void ImageLoaderComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new ImageLoaderModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void ImageLoaderComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new ImageLoaderViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void ImageLoaderComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new ImageLoaderPresenterImp(dynamic_cast<ImageLoaderView *>(view()),
                                              dynamic_cast<ImageLoaderModel *>(model())));
 
     connect(dynamic_cast<ImageLoaderPresenter *>(presenter()), &ImageLoaderPresenter::image_loaded,
             this, &ImageLoaderComponent::image_loaded);
+#endif // GRAPHOS_GUI
 }
 
 void ImageLoaderComponent::createCommand()

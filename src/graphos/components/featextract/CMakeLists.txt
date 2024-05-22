@@ -36,24 +36,30 @@ if(BUILD_FEATEXTRACT_COMPONENT)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
     
-        
+
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              FeatureExtractorComponent.cpp
-                             impl/FeatureExtractorView.cpp
-                             impl/FeatureExtractorModel.cpp
-                             impl/FeatureExtractorPresenter.cpp
                              impl/FeatureExtractorCommand.cpp
                          HEADER_FILES
                              FeatureExtractorComponent.h
+                             impl/FeatureExtractorCommand.h)
+
+if (BUILD_GUI)        
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/FeatureExtractorView.cpp
+                             impl/FeatureExtractorModel.cpp
+                             impl/FeatureExtractorPresenter.cpp
+                         HEADER_FILES
                              FeatureExtractorView.h
                              FeatureExtractorModel.h
                              FeatureExtractorPresenter.h
                              impl/FeatureExtractorView.h
                              impl/FeatureExtractorModel.h
-                             impl/FeatureExtractorPresenter.h
-                             impl/FeatureExtractorCommand.h)
-            
+                             impl/FeatureExtractorPresenter.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -63,7 +69,7 @@ if(BUILD_FEATEXTRACT_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Graphos::Widgets>
                           Eigen3::Eigen

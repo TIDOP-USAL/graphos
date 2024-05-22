@@ -40,20 +40,26 @@ if(BUILD_FEATMATCH_COMPONENT)
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              FeatureMatchingComponent.cpp
-                             impl/FeatureMatchingModel.cpp
-                             impl/FeatureMatchingView.cpp
-                             impl/FeatureMatchingPresenter.cpp
                              impl/FeatureMatchingCommand.cpp
                          HEADER_FILES
                              FeatureMatchingComponent.h
+                             impl/FeatureMatchingCommand.h)
+
+if (BUILD_GUI)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/FeatureMatchingModel.cpp
+                             impl/FeatureMatchingView.cpp
+                             impl/FeatureMatchingPresenter.cpp
+                         HEADER_FILES
                              FeatureMatchingModel.h
                              FeatureMatchingView.h
                              FeatureMatchingPresenter.h
                              impl/FeatureMatchingModel.h
                              impl/FeatureMatchingView.h
-                             impl/FeatureMatchingPresenter.h
-                             impl/FeatureMatchingCommand.h)
-            
+                             impl/FeatureMatchingPresenter.h)
+endif(BUILD_GUI)
+ 
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -63,7 +69,7 @@ if(BUILD_FEATMATCH_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

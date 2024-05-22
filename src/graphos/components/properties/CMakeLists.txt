@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_PROPERTIES_COMPONENT)
+if(BUILD_PROPERTIES_COMPONENT AND BUILD_GUI)
 
     project(Properties LANGUAGES CXX)
     
@@ -88,4 +88,4 @@ else()
 
     message(STATUS "  Graphos::Properties disabled")
     
-endif(BUILD_PROPERTIES_COMPONENT)
+endif(BUILD_PROPERTIES_COMPONENT AND BUILD_GUI)

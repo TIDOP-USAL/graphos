@@ -57,6 +57,7 @@ public:
     DensificationComponent(Application *application);
     ~DensificationComponent() override;
 
+#ifdef GRAPHOS_GUI
     /*!
      * \brief Enables a densification method.
      * \param[in] method The method to enable.
@@ -75,6 +76,8 @@ public:
      * \return True if the method is enabled, otherwise false.
      */
     bool isEnabled(Method method) const;
+
+#endif // GRAPHOS_GUI
 
     void setAutoSegmentation(bool autoSegmentation);
 

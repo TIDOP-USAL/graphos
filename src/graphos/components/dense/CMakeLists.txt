@@ -35,25 +35,30 @@ if(BUILD_DENSE_COMPONENT)
     # Create code from a list of Qt designer ui files
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
-    
-        
+
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              DensificationComponent.cpp
-                             impl/DensificationModel.cpp
-                             impl/DensificationView.cpp
-                             impl/DensificationPresenter.cpp
                              impl/DensificationCommand.cpp
                          HEADER_FILES
                              DensificationComponent.h
+                             impl/DensificationCommand.h)
+                             
+if (BUILD_GUI)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/DensificationModel.cpp
+                             impl/DensificationView.cpp
+                             impl/DensificationPresenter.cpp
+                         HEADER_FILES
                              DensificationModel.h
                              DensificationView.h
                              DensificationPresenter.h
                              impl/DensificationModel.h
                              impl/DensificationView.h
-                             impl/DensificationPresenter.h
-                             impl/DensificationCommand.h)
-            
+                             impl/DensificationPresenter.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -63,7 +68,7 @@ if(BUILD_DENSE_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

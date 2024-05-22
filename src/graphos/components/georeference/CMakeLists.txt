@@ -35,27 +35,32 @@ if(BUILD_GEOREFERENCE_COMPONENT)
     # Create code from a list of Qt designer ui files
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
-    
-        
+
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              GeoreferenceComponent.cpp
+                             impl/GeoreferenceCommand.cpp
+                             impl/GeoreferenceTask.cpp
+                         HEADER_FILES
+                             GeoreferenceComponent.h
+                             impl/GeoreferenceCommand.h
+                             impl/GeoreferenceTask.h)    
+
+if (BUILD_GUI)       
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
                              impl/GeoreferenceModel.cpp
                              impl/GeoreferenceView.cpp
                              impl/GeoreferencePresenter.cpp
-                             impl/GeoreferenceTask.cpp
-                             impl/GeoreferenceCommand.cpp
                          HEADER_FILES
-                             GeoreferenceComponent.h
                              GeoreferenceModel.h
                              GeoreferencePresenter.h
                              GeoreferenceView.h
                              impl/GeoreferenceModel.h
                              impl/GeoreferencePresenter.h
-                             impl/GeoreferenceView.h
-                             impl/GeoreferenceTask.h
-                             impl/GeoreferenceCommand.h)
-            
+                             impl/GeoreferenceView.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -65,7 +70,7 @@ if(BUILD_GEOREFERENCE_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog

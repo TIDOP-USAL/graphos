@@ -26,24 +26,30 @@ include(TidopUtils)
 if(BUILD_CREATE_PROJECT_COMPONENT)
 
     project(CreateProject LANGUAGES CXX)
-    
+  
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              CreateProjectComponent.cpp
-                             impl/CreateProjectModel.cpp
-                             impl/CreateProjectView.cpp
-                             impl/CreateProjectPresenter.cpp
                              impl/CreateProjectCommand.cpp
                          HEADER_FILES
                              CreateProjectComponent.h
+                             impl/CreateProjectCommand.h)
+                             
+if (BUILD_GUI)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/CreateProjectModel.cpp
+                             impl/CreateProjectView.cpp
+                             impl/CreateProjectPresenter.cpp
+                         HEADER_FILES
                              CreateProjectModel.h
                              CreateProjectView.h
                              CreateProjectPresenter.h
                              impl/CreateProjectModel.h
                              impl/CreateProjectView.h
-                             impl/CreateProjectPresenter.h
-                             impl/CreateProjectCommand.h)
-            
+                             impl/CreateProjectPresenter.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -53,7 +59,7 @@ if(BUILD_CREATE_PROJECT_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

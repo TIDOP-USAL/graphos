@@ -23,9 +23,11 @@
 
 #include "FeatureMatchingComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/featmatch/impl/FeatureMatchingModel.h"
 #include "graphos/components/featmatch/impl/FeatureMatchingView.h"
 #include "graphos/components/featmatch/impl/FeatureMatchingPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/featmatch/impl/FeatureMatchingCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -58,21 +60,27 @@ void FeatureMatchingComponent::init()
 
 void FeatureMatchingComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new FeatureMatchingModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void FeatureMatchingComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new FeatureMatchingViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void FeatureMatchingComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new FeatureMatchingPresenterImp(dynamic_cast<FeatureMatchingView *>(view()),
                                                  dynamic_cast<FeatureMatchingModel *>(model())));
 
     connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), &FeatureMatchingPresenter::matches_deleted,
             this, &FeatureMatchingComponent::matches_deleted);
+#endif // GRAPHOS_GUI
 }
 
 void FeatureMatchingComponent::createCommand()

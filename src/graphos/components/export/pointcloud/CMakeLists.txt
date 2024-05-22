@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_EXPORT_POINT_CLOUD_COMPONENT)
+if(BUILD_EXPORT_POINT_CLOUD_COMPONENT AND BUILD_GUI)
 
     project(ExportPointCloud LANGUAGES CXX)
     
@@ -87,4 +87,4 @@ else()
 
     message(STATUS "  Graphos::ExportPointCloud disabled")
     
-endif(BUILD_EXPORT_POINT_CLOUD_COMPONENT)
+endif(BUILD_EXPORT_POINT_CLOUD_COMPONENT AND BUILD_GUI)

@@ -38,26 +38,32 @@ if(BUILD_DTM_COMPONENT)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
     
-        
+
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              DTMComponent.cpp
-                             impl/DTMModel.cpp
-                             impl/DTMView.cpp
-                             impl/DTMPresenter.cpp
                              impl/DTMTask.cpp
                              impl/DTMCommand.cpp
                          HEADER_FILES
                              DTMComponent.h
+                             impl/DTMTask.h
+                             impl/DTMCommand.h)
+
+if (BUILD_GUI)        
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/DTMModel.cpp
+                             impl/DTMView.cpp
+                             impl/DTMPresenter.cpp
+                         HEADER_FILES
                              DTMModel.h
                              DTMView.h
                              DTMPresenter.h
                              impl/DTMModel.h
                              impl/DTMView.h
-                             impl/DTMPresenter.h
-                             impl/DTMTask.h
-                             impl/DTMCommand.h)
-            
+                             impl/DTMPresenter.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -67,7 +73,7 @@ if(BUILD_DTM_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Graphos::Widgets>
                           Eigen3::Eigen
