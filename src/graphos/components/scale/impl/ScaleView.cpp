@@ -84,6 +84,8 @@ void ScaleViewImp::initUI()
 void ScaleViewImp::initSignalAndSlots()
 {
     connect(mDoubleSpinBoxDistance, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ScaleView::distanceChanged);
+    connect(mDoubleSpinBoxDistance, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ScaleViewImp::update);
+    connect(mDoubleSpinBoxDistanceReal, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ScaleViewImp::update);
     connect(mPushButtonDistance, &QPushButton::toggled, this, &ScaleViewImp::enableMeasure);
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -106,11 +108,12 @@ void ScaleViewImp::retranslate()
 
 void ScaleViewImp::clear()
 {
-
+    
 }
 
 void ScaleViewImp::update()
 {
+    mButtonBox->button(QDialogButtonBox::Apply)->setEnabled(mDoubleSpinBoxDistance->value() > 0. && mDoubleSpinBoxDistanceReal->value() > 0.);
 }
 
 double ScaleViewImp::distance() const
@@ -125,7 +128,7 @@ double ScaleViewImp::distanceReal() const
 
 void ScaleViewImp::setDistance(double distance)
 {
-    const QSignalBlocker blocker(mDoubleSpinBoxDistance);
+    //const QSignalBlocker blocker(mDoubleSpinBoxDistance);
     mDoubleSpinBoxDistance->setValue(distance);
 }
 

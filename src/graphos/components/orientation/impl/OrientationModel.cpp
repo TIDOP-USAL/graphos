@@ -50,7 +50,7 @@ void OrientationModelImp::clear()
 
 bool OrientationModelImp::calibratedCamera() const
 {
-    TL_TODO("Deberia contemplarse cámaras calibradas y sin calibrar")
+    TL_TODO("Deberia contemplarse cÃ¡maras calibradas y sin calibrar")
     bool calibrated = false;
     for (const auto &camera : mProject->cameras()) {
         if (camera.second.calibration()) calibrated = true;
@@ -129,9 +129,9 @@ bool OrientationModelImp::rtkOrientations() const
     return rtk_orientations;
 }
 
-auto OrientationModelImp::reconstructionPath() const -> tl::Path
+auto OrientationModelImp::existReconstruction() const -> bool
 {
-    return mProject->reconstructionPath();
+    return !mProject->sparseModel().empty() && !mProject->groundPoints().empty();
 }
 
 void OrientationModelImp::clearProject()

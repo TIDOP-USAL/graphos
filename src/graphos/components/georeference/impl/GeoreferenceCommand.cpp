@@ -43,8 +43,8 @@ namespace graphos
 GeoreferenceCommand::GeoreferenceCommand()
   : Command("georef", "Georeference")
 {
-    this->addArgument<std::string>("prj", 'p', "Project file");
-    this->addArgument<std::string>("cp", "Ground Control Points");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("cp", "Ground Control Points");
     this->addArgument<std::string>("crs", "CRS", "");
 
     this->addExample("georef --p 253/253.xml --cp 253/georef.xml");
@@ -68,13 +68,13 @@ bool GeoreferenceCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
-        tl::Path gcp = this->value<std::string>("cp");
+        tl::Path project_path = this->value<tl::Path>("prj");
+        tl::Path gcp = this->value<tl::Path>("cp");
         std::string crs = this->value<std::string>("crs");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
@@ -191,9 +191,9 @@ bool GeoreferenceCommand::run()
         //if (transform != tl::Matrix<double, 4, 4>::identity()) {
         //    project.setTransform(transform);
         //}
-
-        //reconstruction_path.append("offset.txt");
-        //project.setOffset(reconstruction_path);
+        tl::Path offset_path = reconstruction_path;
+        offset_path.append("offset.txt");
+        project.setOffset(offset_path);
 
         //reconstruction_path.replaceFileName("poses.bin");
 

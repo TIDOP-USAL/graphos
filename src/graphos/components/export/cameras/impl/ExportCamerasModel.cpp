@@ -24,6 +24,7 @@
 #include "ExportCamerasModel.h"
 
 #include "graphos/core/project.h"
+#include "graphos/core/sfm/posesio.h"
 
 
 namespace graphos
@@ -45,6 +46,11 @@ auto ExportCamerasModelImp::images() const -> const std::unordered_map<size_t, I
 auto ExportCamerasModelImp::poses() const -> const std::unordered_map<size_t, CameraPose>&
 {
     return mProject->poses();
+}
+
+auto ExportCamerasModelImp::offset() const -> tl::Point3<double>
+{
+    return offsetRead(mProject->offset());
 }
 
 void ExportCamerasModelImp::init()

@@ -46,9 +46,9 @@ namespace graphos
 ImageLoaderCommand::ImageLoaderCommand()
   : Command("image_manager", "Image manager")
 {
-    this->addArgument<std::string>("prj", 'p', "Project file");
-    this->addArgument<std::string>("image", 'i', "Image added or removed (with option [--delete|-d]) from project.", "");
-    this->addArgument<std::string>("image_list", 'l', "List of images added or removed (with option [--delete|-d]) from project.", "");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("image", 'i', "Image added or removed (with option [--delete|-d]) from project.", tl::Path(""));
+    this->addArgument<tl::Path>("image_list", 'l', "List of images added or removed (with option [--delete|-d]) from project.", tl::Path(""));
     this->addArgument<bool>("delete", 'd', "Delete an image in project", false);
     auto arg_camera = tl::Argument::make<std::string>("camera", 'c', "Camera type", "OpenCV 1");
     std::vector<std::string> camera_types{"Pinhole 1",
@@ -78,15 +78,15 @@ bool ImageLoaderCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
-        tl::Path image_path = this->value<std::string>("image");
-        tl::Path image_list_path = this->value<std::string>("image_list");
+        tl::Path project_path = this->value<tl::Path>("prj");
+        tl::Path image_path = this->value<tl::Path>("image");
+        tl::Path image_list_path = this->value<tl::Path>("image_list");
         bool delete_image = this->value<bool>("delete");
         std::string camera_type = this->value<std::string>("camera");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
@@ -105,21 +105,21 @@ bool ImageLoaderCommand::run()
         if (!image_list_path.empty() && image_list_path.exists()) {
 
             std::ifstream ifs;
-            ifs.open(image_list_path.toString(), std::ifstream::in);
-            if (ifs.is_open()) {
+            ifs.open(image_list_path.toWString(), std::ifstream::in);
+            TL_ASSERT(ifs.is_open(), "Images could not be loaded");
 
-                std::string line;
-                while (std::getline(ifs, line)) {
+            std::string line;
+            while (std::getline(ifs, line)) {
 
-                    if (line.empty()) continue;
+                if (line.empty()) continue;
 
-                    Image img(line);
-                    if (!project.existImage(img.id()))
-                        images.push_back(img);
-                }
-
-                ifs.close();
+                Image img(line);
+                if (!project.existImage(img.id()))
+                    images.push_back(img);
             }
+
+            ifs.close();
+            
 
         }
 

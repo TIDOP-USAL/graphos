@@ -45,7 +45,7 @@ DensificationCommand::DensificationCommand()
   : Command("dense", "Create a dense point cloud"),
     mDisableCuda(false)
 {
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     auto arg_method = tl::Argument::make<std::string>("method", 'm', "Densification Method", "mvs");
     std::vector<std::string> methods{"mvs", "pmvs", "smvs"};
     arg_method->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(methods));
@@ -70,6 +70,7 @@ DensificationCommand::DensificationCommand()
     this->addArgument<bool>("smvs:shading_optimization", "Shading Based Optimization", false);
     this->addArgument<bool>("smvs:sgm", "Semi-global Matching", true);
     this->addArgument<double>("smvs:smooth_factor", "Surface Smoothing Factor", 1.0);
+    this->addArgument<bool>("segment", 's', "Auto-segmentation", false);
 
 #ifdef HAVE_CUDA
     tl::Message::pauseMessages();
@@ -97,7 +98,7 @@ bool DensificationCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         auto densification_method = this->value<std::string>("method");
         auto pmvs_use_visibility_information = this->value<bool>("pmvs:visibility");
         auto pmvs_images_per_cluster = this->value<int>("pmvs:images_per_cluster");
@@ -119,11 +120,12 @@ bool DensificationCommand::run()
 	    auto mvs_number_views_fuse = this->value<int>("mvs:number_views_fuse");
         auto mvs_estimate_colors = this->value<int>("mvs:estimate-colors");
         auto mvs_estimate_normals = this->value<int>("mvs:estimate-normals");
+        auto auto_segment = this->value<bool>("segment");
 
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
 
         if (!mDisableCuda)
@@ -168,7 +170,8 @@ bool DensificationCommand::run()
                                                             ground_points,
                                                             dense_path,
                                                             project.database(),
-                                                            !mDisableCuda);
+                                                            !mDisableCuda,
+                                                            auto_segment);
 
             pmvs->setUseVisibilityInformation(pmvs_use_visibility_information);
             pmvs->setImagesPerCluster(pmvs_images_per_cluster);
@@ -198,7 +201,8 @@ bool DensificationCommand::run()
                                                         project.poses(),
                                                         ground_points,
                                                         dense_path,
-                                                        !mDisableCuda);
+                                                        !mDisableCuda,
+                                                        auto_segment);
 
             smvs->setInputImageScale(smvs_input_image_scale);
             smvs->setOutputDepthScale(smvs_output_depth_scale);
@@ -229,7 +233,8 @@ bool DensificationCommand::run()
                                                       ground_points,
                                                       dense_path,
                                                       project.database(),
-                                                      !mDisableCuda);
+                                                      !mDisableCuda,
+                                                      auto_segment);
 
             mvs->setMaxResolution(mvs_max_resolution);
             mvs->setMinResolution(mvs_min_resolution);

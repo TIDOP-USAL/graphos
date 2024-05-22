@@ -92,7 +92,7 @@ public:
      * \brief Gets the solve depth parameter.
      * \return The solve depth parameter.
      */
-    virtual auto solveDepth() const -> int;
+    //virtual auto solveDepth() const -> int;
 
     /*!
      * \brief Gets the boundary type parameter.
@@ -118,7 +118,7 @@ public:
      * \brief Sets the solve depth parameter.
      * \param[in] solveDepth The solve depth parameter to set.
      */
-    virtual void setSolveDepth(int solveDepth);
+    //virtual void setSolveDepth(int solveDepth);
 
     /*!
      * \brief Sets the boundary type parameter.
@@ -132,7 +132,7 @@ public:
 private:
 
     int mDepth;
-    int mSolveDepth;
+    //int mSolveDepth;
     BoundaryType mBoundaryType;
 
 };

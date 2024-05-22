@@ -261,9 +261,9 @@ void MvsDensifier::exportCameras(const std::map<int, Undistort> &undistortMap, c
     colmap_cameras.append("cameras.txt");
 
     std::ofstream ofs;
-    ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
+    ofs.open(colmap_cameras.toWString(), std::ofstream::out | std::ofstream::trunc);
 
-    TL_ASSERT(ofs.is_open(), "Open fail: cameras.txt");
+    TL_ASSERT(ofs.is_open(), "Open fail: {}", colmap_cameras.toString());
 
     ofs << "# Camera list with one line of data per camera: \n";
     ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
@@ -280,7 +280,7 @@ void MvsDensifier::exportCameras(const std::map<int, Undistort> &undistortMap, c
 
         TL_ASSERT(calibration, "Camera calibration not found");
 
-        /// La c·mara tiene que ser PINHOLE para InterfaceCOLMAP
+        /// La c√°mara tiene que ser PINHOLE para InterfaceCOLMAP
         ofs << camera_id << " PINHOLE " << undistort_camera.width() << " " << undistort_camera.height() << " ";
 
         double focal_x = 0.0;
@@ -315,7 +315,7 @@ void MvsDensifier::exportImages(const std::unordered_map<size_t, colmap::image_t
     colmap_images.append("images.txt");
 
     std::ofstream ofs;
-    ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
+    ofs.open(colmap_images.toWString(), std::ofstream::out | std::ofstream::trunc);
 
     TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
 
@@ -377,7 +377,7 @@ void MvsDensifier::exportPoints(const std::unordered_map<size_t, colmap::image_t
     colmap_points_3d.append("points3D.txt");
 
     std::ofstream ofs;
-    ofs.open(colmap_points_3d.toString(), std::ofstream::out | std::ofstream::trunc);
+    ofs.open(colmap_points_3d.toWString(), std::ofstream::out | std::ofstream::trunc);
 
     TL_ASSERT(ofs.is_open(), "Open fail: points3D.txt");
 
@@ -495,7 +495,7 @@ void MvsDensifier::writeNvmFile() const
             undistort[camera.first] = Undistort(camera.second);
         }
 
-        std::ofstream stream(nvm_path.toString(), std::ios::trunc);
+        std::ofstream stream(nvm_path.toWString(), std::ios::trunc);
 
         if (stream.is_open()) {
 
@@ -584,9 +584,9 @@ void MvsDensifier::exportToMvs() const
 {
     try {
 
-        tl::Path input_path = outputPath().toString();
+        tl::Path input_path = outputPath();
         input_path.append("temp").append("export");
-        tl::Path output_path = outputPath().toString();
+        tl::Path output_path = outputPath();
         output_path.append("temp").append("model.mvs");
         tl::Path images_path = input_path;
         images_path.append("images");
@@ -700,7 +700,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 
         this->clearTemporalFiles();
 
-        Ply ply(denseModel().toString());
+        Ply ply(denseModel());
         mReport.points = static_cast<int>(ply.size());
         ply.close();
         mReport.cuda = isCudaEnabled();

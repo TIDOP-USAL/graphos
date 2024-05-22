@@ -250,10 +250,10 @@ public:
 public:
 
     Ply();
-    Ply(const std::string &file, OpenMode mode = OpenMode::in);
+    Ply(const tl::Path &file, OpenMode mode = OpenMode::in);
     ~Ply();
 
-    void open(const std::string &file, OpenMode mode);
+    void open(const tl::Path &file, OpenMode mode);
     void read();
     void save(bool binary = true);
     void close();
@@ -303,7 +303,7 @@ private:
 
 private:
 
-    std::string _file;
+    tl::Path _file;
     std::fstream *stream;
     tl::EnumFlags<OpenMode> flags;
     bool mIsBinary;

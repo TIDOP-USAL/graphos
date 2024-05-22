@@ -178,8 +178,12 @@ void GeoreferencePresenterImp::initSignalAndSlots()
     connect(mView, &GeoreferenceView::accepted, mModel, &GeoreferenceModel::save);
     connect(mView, &GeoreferenceView::import_gcp, 
         [&](const QString &file, const QString &format) {
-            mModel->importGroundControlPoints(file, format);
-            mView->setCrs(mModel->crs());
+            try {
+                mModel->importGroundControlPoints(file, format);
+                mView->setCrs(mModel->crs());
+            } catch (std::exception &e){
+                tl::printException(e);
+            }
         });
     connect(mView, &GeoreferenceView::export_gcp, mModel, &GeoreferenceModel::exportGroundControlPoints);
 

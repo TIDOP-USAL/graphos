@@ -214,105 +214,110 @@ void CCViewer3D::deleteEntity(const QString &id)
 
 void CCViewer3D::loadFromFile(const QString &file, const QString &parent)
 {
-    FileIOFilter::LoadParameters parameters;
-    parameters.alwaysDisplayLoadDialog = false;
-    parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
-    parameters.parentWidget = this;
-    CC_FILE_ERROR result = CC_FERR_NO_ERROR;
-
-    ///TODO: esto asigna un grupo por defecto a la nube de puntos cargada...
-    //if (ccHObject *newEntities = FileIOFilter::LoadFromFile(file, parameters, result)) {
-    //  newEntities->setName(file);
-    //  addToDB(newEntities);
-    //}
-
-    ///TODO: Por lo anterior extraigo el código necesario y lo adapto
-    QString extension = QFileInfo(file).suffix();
-    if (extension.isEmpty()) {
-        tl::Message::error("[Load] Can't guess file format: no file extension");
-        return; ///TODO: Devolver error
-    }
-
-    //convert extension to file format
-    QSharedPointer<FileIOFilter> filter = FileIOFilter::FindBestFilterForExtension(extension);
-
-    //unknown extension?
-    if (!filter) {
-        tl::Message::error("[Load] Can't guess file format: unhandled file extension '{}'", extension.toStdString());
-        return; ///TODO: Devolver error
-    }
-
-    //check file existence
-    QFileInfo fi(file);
-    if (!fi.exists()) {
-        tl::Message::error("[Load] File '{}' doesn't exist!", file.toStdString());
-        return; ///TODO: Devolver error
-    }
-
-    ccHObject *group = nullptr;
-    // Se carga el grupo si existe. Si no se añade a root
-    /// TODO: Esto tiene que ser recursivo
-    ccHObject *current_root = this->getSceneDB();
-    if (current_root) {
-        ccHObject *temp = nullptr;
-        for (uint32_t i = 0; i < current_root->getChildrenNumber(); i++) {
-            temp = current_root->getChild(i);
-            if (temp->getName().compare(parent) == 0 &&
-                temp->isKindOf(CC_TYPES::HIERARCHY_OBJECT)) {
-                group = temp;
-                break;
-            }
-        }
-
-    }
-
-    if (group == nullptr) {
-        group = current_root;
-    }
-
-    //load file
     try {
-        result = filter->loadFile(file,
-                                  *group,
-                                  parameters);
-    } catch (...) {
-        tl::Message::warning("[I/O] CC has caught an unhandled exception while loading file '{}'", file.toStdString());
-        //if (container)
-        //  container->removeAllChildren();
-        return; ///TODO: Devolver error
-    }
+        FileIOFilter::LoadParameters parameters;
+        parameters.alwaysDisplayLoadDialog = false;
+        parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
+        parameters.parentWidget = this;
+        CC_FILE_ERROR result = CC_FERR_NO_ERROR;
 
-    // Disable normals
-    ccHObject::Container clouds;
-    group->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-    for (auto cloud : clouds) {
-        if (cloud) {
-            static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
-            static_cast<ccGenericPointCloud *>(cloud)->showColors(true);
-            static_cast<ccGenericPointCloud *>(cloud)->showSF(false);
+        ///TODO: esto asigna un grupo por defecto a la nube de puntos cargada...
+        //if (ccHObject *newEntities = FileIOFilter::LoadFromFile(file, parameters, result)) {
+        //  newEntities->setName(file);
+        //  addToDB(newEntities);
+        //}
+
+        ///TODO: Por lo anterior extraigo el código necesario y lo adapto
+        QString extension = QFileInfo(file).suffix();
+        if (extension.isEmpty()) {
+            tl::Message::error("[Load] Can't guess file format: no file extension");
+            return; ///TODO: Devolver error
         }
 
-    }
+        //convert extension to file format
+        QSharedPointer<FileIOFilter> filter = FileIOFilter::FindBestFilterForExtension(extension);
 
-    group->setDisplay_recursive(this);
+        //unknown extension?
+        if (!filter) {
+            tl::Message::error("[Load] Can't guess file format: unhandled file extension '{}'", extension.toStdString());
+            return; ///TODO: Devolver error
+        }
 
-    size_t childCount = group->getChildrenNumber();
-    if (childCount != 0) {
-        for (size_t i = 0; i < childCount; ++i) {
-            ccHObject *child = group->getChild(static_cast<unsigned int>(i));
-            QString new_name = child->getName();
-            if (new_name.startsWith("unnamed")) {
-                child->setName(file);
+        //check file existence
+        QFileInfo fi(file);
+        if (!fi.exists()) {
+            tl::Message::error("[Load] File '{}' doesn't exist!", file.toStdString());
+            return; ///TODO: Devolver error
+        }
+
+        ccHObject *group = nullptr;
+        // Se carga el grupo si existe. Si no se añade a root
+        /// TODO: Esto tiene que ser recursivo
+        ccHObject *current_root = this->getSceneDB();
+        if (current_root) {
+            ccHObject *temp = nullptr;
+            for (uint32_t i = 0; i < current_root->getChildrenNumber(); i++) {
+                temp = current_root->getChild(i);
+                if (temp->getName().compare(parent) == 0 &&
+                    temp->isKindOf(CC_TYPES::HIERARCHY_OBJECT)) {
+                    group = temp;
+                    break;
+                }
+            }
+
+        }
+
+        if (group == nullptr) {
+            group = current_root;
+        }
+
+        //load file
+        try {
+            result = filter->loadFile(file,
+                *group,
+                parameters);
+        } catch (...) {
+            tl::Message::warning("[I/O] CC has caught an unhandled exception while loading file '{}'", file.toStdString());
+            //if (container)
+            //  container->removeAllChildren();
+            return; ///TODO: Devolver error
+        }
+
+        // Disable normals
+        ccHObject::Container clouds;
+        group->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+        for (auto cloud : clouds) {
+            if (cloud) {
+                static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
+                static_cast<ccGenericPointCloud *>(cloud)->showColors(true);
+                static_cast<ccGenericPointCloud *>(cloud)->showSF(false);
+            }
+
+        }
+
+        group->setDisplay_recursive(this);
+
+        size_t childCount = group->getChildrenNumber();
+        if (childCount != 0) {
+            for (size_t i = 0; i < childCount; ++i) {
+                ccHObject *child = group->getChild(static_cast<unsigned int>(i));
+                QString new_name = child->getName();
+                if (new_name.startsWith("unnamed")) {
+                    child->setName(file);
+                }
+            }
+        } else {
+            if (group) {
+                delete group;
+                group = nullptr;
             }
         }
-    } else {
-        if (group) {
-            delete group;
-            group = nullptr;
-        }
-    }
 
-    this->setSceneDB(current_root);
+        this->setSceneDB(current_root);
+
+    } catch (std::exception & e){
+        tl::printException(e);
+    }
 }
 
 void CCViewer3D::loadFromFiles(const QStringList &files, const QString &parent)
@@ -473,12 +478,13 @@ void CCViewer3D::drawLine(const std::string &name,
 
         if (!entities) {
             entities = new ccPointCloud(name.c_str());
+            //entities->redrawDisplay();
             addToDB(entities);
         }
 
         auto cloud_measures = new ccPointCloud("Measures");
         cloud_measures->setEnabled(true);
-        cloud_measures->setDisplay(this);
+        //cloud_measures->setDisplay(this);
 
         auto segment = new ccPolyline(cloud_measures);
         segment->setTempColor(ccColor::Rgb(color.red(), color.green(), color.blue()));
@@ -503,6 +509,7 @@ void CCViewer3D::drawLine(const std::string &name,
 
 void CCViewer3D::addPrimitive(ccGenericPrimitive *primitive)
 {
+    //primitive->redrawDisplay();
     addToDB(primitive);
 }
 
@@ -1014,8 +1021,8 @@ void CCViewer3D::addToDB(ccHObject *entity)
         //already a pure 'root'
         if (currentRoot->isA(CC_TYPES::HIERARCHY_OBJECT)) {
             currentRoot->addChild(entity);
-            this->setSceneDB(currentRoot);
-            entity->setDisplay_recursive(this);
+            //this->setSceneDB(currentRoot);
+            //entity->setDisplay_recursive(this);
         }
     }
 

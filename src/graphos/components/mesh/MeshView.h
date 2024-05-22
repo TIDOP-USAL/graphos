@@ -43,7 +43,7 @@ public:
     ~MeshView() override = default;
 
     virtual auto depth() const -> int = 0;
-    virtual auto solveDepth() const -> int = 0;
+    //virtual auto solveDepth() const -> int = 0;
     virtual auto boundaryType() const -> QString = 0;
     //virtual int width() const = 0;
     //virtual int fullDepth() const = 0;
@@ -51,7 +51,7 @@ public:
 public slots:
 
     virtual void setDepth(int Depth) = 0;
-    virtual void setSolveDepth(int SolveDepth) = 0;
+    //virtual void setSolveDepth(int SolveDepth) = 0;
     virtual void setBoundaryType(const QString &BoundaryType) = 0;
     //virtual void setWidth(int width) = 0;
     //virtual void setFullDepth(int FullDepth) = 0;
@@ -59,7 +59,7 @@ public slots:
 signals:
 
     void depthChanged(int);
-    void solveDepthChanged(int);
+    //void solveDepthChanged(int);
     void boundaryTypeChanged(QString);
     //void widthChanged(int);
     //void fullDepthChanged(int);

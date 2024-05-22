@@ -38,15 +38,15 @@ MeshCommand::MeshCommand()
 {
     PoissonReconProperties properties;
 
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<int>("depth", "Maximum reconstruction depth", properties.depth());
-    this->addArgument<int>("solve_depth", "Maximum solution depth", properties.solveDepth());
+    //this->addArgument<int>("solve_depth", "Maximum solution depth", properties.solveDepth());
     auto arg_boundary_type = tl::Argument::make<std::string>("boundary_type", "Boundary type", properties.boundaryTypeAsText().toStdString());
     std::vector<std::string> boundary_types{"Free", "Dirichlet", "Neumann"};
     arg_boundary_type->setValidator(std::make_shared<tl::ValuesValidator<std::string>>(boundary_types));
     this->addArgument(arg_boundary_type);
     
-    this->addExample("mesh -p 253/253.xml --boundary_type Dirichlet");
+    this->addExample("mesh -p 253/253.xml --depth 12 --boundary_type Dirichlet");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
@@ -62,14 +62,14 @@ bool MeshCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         int depth = this->value<int>("depth");
-        int solve_depth = this->value<int>("solve_depth");
+        //int solve_depth = this->value<int>("solve_depth");
         std::string boundary_type = this->value<std::string>("boundary_type");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
@@ -94,11 +94,11 @@ bool MeshCommand::run()
 
         task->setBoundaryType(bt);
         task->setDepth(depth);
-        task->setSolveDepth(solve_depth);
+        //task->setSolveDepth(solve_depth);
 
         task->run();
 
-        project.setProperties(task);
+        project.setMeshProperties(task);
         project.setMeshPath(mesh_path);
         project.setMeshReport(task->report());
         project.save(project_path);

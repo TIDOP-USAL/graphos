@@ -291,13 +291,10 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         mDemPath.createDirectories();
 
-        std::string filename = mPointCloud.toString();
 
         CGAL::Point_set_3<Point_3> points_dsm;
 
-
-
-        std::ifstream input_stream(filename.c_str(), std::ios::binary);
+        std::ifstream input_stream(mPointCloud.toWString(), std::ios::binary);
         CGAL::Point_set_3<Point_3> points;
         input_stream >> points;
         tl::Message::info("Read {} points", points.size());

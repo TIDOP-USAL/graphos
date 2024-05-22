@@ -633,7 +633,7 @@ OrientationCommand::OrientationCommand()
   : Command("ori", "3D Reconstruction")
 {
 
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<bool>("fix_calibration", 'c', "Fix calibration", false);
     this->addArgument<bool>("fix_poses", 'p', "Fix Poses", false);
     this->addArgument<bool>("absolute_orientation", 'a', "Absolute Orientation", false);
@@ -656,14 +656,14 @@ bool OrientationCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         bool fix_calibration = this->value<bool>("fix_calibration");
         bool fix_poses = this->value<bool>("fix_poses");
         bool absolute_orientation = this->value<bool>("absolute_orientation");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
-        log.open(log_path.toString());
+        log.open(log_path);
 
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");

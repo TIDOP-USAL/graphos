@@ -59,7 +59,7 @@ public:
 public:
 
     auto depth() const -> int override;
-    auto solveDepth() const -> int override;
+    //auto solveDepth() const -> int override;
     auto boundaryType() const -> QString override;
     //int width() const override;
     //int fullDepth() const override;
@@ -67,7 +67,7 @@ public:
 public slots:
 
     void setDepth(int Depth) override;
-    void setSolveDepth(int SolveDepth) override;
+    //void setSolveDepth(int SolveDepth) override;
     void setBoundaryType(const QString &BoundaryType) override;
     //void setWidth(int width) override;
     //void setFullDepth(int FullDepth) override;
@@ -92,8 +92,8 @@ protected:
 
     QLabel *mLabelDepth;
     QSpinBox *mSpinBoxDepth;
-    QLabel *mLabelSolveDepth;
-    QSpinBox *mSpinBoxSolveDepth;
+    //QLabel *mLabelSolveDepth;
+    //QSpinBox *mSpinBoxSolveDepth;
     QLabel *mLabelBoundaryType;
     QComboBox *mComboBoxBoundaryType;
     //QLabel *mLabelWidth;

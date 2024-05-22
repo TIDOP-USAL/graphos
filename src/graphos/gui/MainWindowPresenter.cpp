@@ -216,7 +216,7 @@ void MainWindowPresenter::loadProject()
     tl::Log &log = tl::Log::instance();
     tl::Path log_path = mModel->projectPath();
     log_path.replaceExtension(".log");
-    log.open(log_path.toString());
+    log.open(log_path);
 
     mView->clear();
 
@@ -355,7 +355,7 @@ void MainWindowPresenter::loadMesh()
 void MainWindowPresenter::loadDTM()
 {
     Application &app = Application::instance();
-    QString dtm = QString::fromStdString(mModel->dtm().toString());
+    QString dtm = QString::fromStdWString(mModel->dtm().toWString());
     if (!dtm.isEmpty()) {
         mView->setDTM(dtm);
         app.status()->activeFlag(AppStatus::Flag::dtm, true);
@@ -368,7 +368,7 @@ void MainWindowPresenter::loadDTM()
 void MainWindowPresenter::loadDSM()
 {
     Application &app = Application::instance();
-    QString dsm = QString::fromStdString(mModel->dsm().toString());
+    QString dsm = QString::fromStdWString(mModel->dsm().toWString());
     if (!dsm.isEmpty()) {
         mView->setDSM(dsm);
         app.status()->activeFlag(AppStatus::Flag::dsm, true);
@@ -381,7 +381,7 @@ void MainWindowPresenter::loadDSM()
 void MainWindowPresenter::loadOrtho()
 {
     Application &app = Application::instance();
-    QString ortho = QString::fromStdString(mModel->orthophoto().toString());
+    QString ortho = QString::fromStdWString(mModel->orthophoto().toWString());
     if (!ortho.isEmpty()) {
         mView->setOrtho(ortho);
         app.status()->activeFlag(AppStatus::Flag::ortho, true);
@@ -587,7 +587,7 @@ void MainWindowPresenter::openDtm()
 {
     try {
 
-        QString dtm = QString::fromStdString(mModel->dtm().toString());
+        QString dtm = QString::fromStdWString(mModel->dtm().toWString());
         auto tab_widget = mView->tabWidget();
         int tab_id = tab_widget->fileTab(dtm);
 
@@ -618,7 +618,7 @@ void MainWindowPresenter::openDsm()
 {
     try {
 
-        QString dsm = QString::fromStdString(mModel->dsm().toString());
+        QString dsm = QString::fromStdWString(mModel->dsm().toWString());
         auto tab_widget = mView->tabWidget();
         int tab_id = tab_widget->fileTab(dsm);
 

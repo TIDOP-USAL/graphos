@@ -224,7 +224,7 @@ void SmvsDensifier::writeMveFile()
             undistort[camera.first] = Undistort(camera.second);
         }
 
-        std::ofstream stream(mve_path.toString(), std::ios::trunc);
+        std::ofstream stream(mve_path.toWString(), std::ios::trunc);
 
         if (stream.is_open()) {
 
@@ -257,7 +257,7 @@ void SmvsDensifier::writeMveFile()
                 ini_file.createDirectories();
 
                 ini_file.append("meta.ini");
-                std::ofstream stream_ini(ini_file.toString(), std::ios::trunc);
+                std::ofstream stream_ini(ini_file.toWString(), std::ios::trunc);
 
                 if (stream_ini.is_open()) {
 
@@ -393,7 +393,7 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
             undistort_image_path.append(image.name().toStdWString());
             undistort_image_path.replaceExtension(".jpg");
 
-            tl::Path undistort_smvs_path = outputPath().toString();
+            tl::Path undistort_smvs_path = outputPath();
             undistort_smvs_path.append(colmap::StringPrintf("\\views\\view_%04d.mve\\", mGraphosToMveIds.at(image_id)));
             undistort_smvs_path.append("undistorted.jpg");
 
@@ -405,7 +405,7 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        Ply ply(denseModel().toString());
+        Ply ply(denseModel());
         mReport.points = static_cast<int>(ply.size());
         ply.close();
         mReport.cuda = isCudaEnabled();

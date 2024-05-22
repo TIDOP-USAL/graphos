@@ -42,14 +42,16 @@ using namespace tl;
 namespace graphos
 {
 
-ExportCamerasTask::ExportCamerasTask(const QString &file,
+ExportCamerasTask::ExportCamerasTask(const tl::Path &file,
                                      const std::unordered_map<size_t, Image> &images,
                                      const std::unordered_map<size_t, CameraPose> &poses,
+                                     const tl::Point3<double> &offset, 
                                      const QString &format)
     : tl::TaskBase(),
       mFile(file),
       mImages(images),
       mPoses(poses),
+      mOffset(offset),
       mFormat(format),
       mQuaternions(false)
 {
@@ -62,8 +64,8 @@ void ExportCamerasTask::setQuaternionRotation(bool quaternions)
 
 void ExportCamerasTask::textExport()
 {
-    std::ofstream stream(mFile.toStdString(), std::ios::trunc);
-    TL_ASSERT(stream.is_open(), "Can't open {}", mFile.toStdString());
+    std::ofstream stream(mFile.toWString(), std::ios::trunc);
+    TL_ASSERT(stream.is_open(), "Can't open {}", mFile.toString());
 
     if (mQuaternions) {
         stream << "image X Y Z QW QX QY QZ" << std::endl;
@@ -76,7 +78,7 @@ void ExportCamerasTask::textExport()
         auto &camera_pose = pose.second;
         auto &image = mImages[image_id];
 
-        auto position = camera_pose.position();
+        auto position = camera_pose.position() + mOffset;
         auto quaternion = camera_pose.quaternion();
 
         stream << std::fixed << "\"" << image.path().toStdString() << "\" "

@@ -346,7 +346,8 @@ int main(int argc, char *argv[])
 
     tl::Console &console = tl::Console::instance();
     console.setMessageLevel(tl::MessageLevel::all);
-    console.setTitle(app.applicationName().toStdString());
+    console.setTitle(Application::applicationName().toStdString());
+    console.setConsoleUnicode();
     tl::Message::addMessageHandler(&console);
 
     // Log file

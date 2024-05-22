@@ -131,7 +131,7 @@ void GeoreferenceModelImp::writeGroundControlPoints(QXmlStreamWriter &stream)
 
 void GeoreferenceModelImp::loadGroundControlPoints()
 {
-    ///TODO: Quitar esto y utilizar el método de abajo
+    ///TODO: Quitar esto y utilizar el mÃ©todo de abajo
     mItemModelGroundControlPoints->clear();
     mItemModelImagePoints->clear();
 
@@ -431,13 +431,19 @@ bool GeoreferenceModelImp::updateCamera(int id, const Camera &camera)
 
 void GeoreferenceModelImp::importGroundControlPoints(const QString &file, const QString &format)
 {
-    auto reader = GCPsReaderFactory::create(format.toStdString());
-    reader->setImages(images());
-    reader->read(file.toStdString());
-    mCrs = QString::fromStdString(reader->epsgCode());
-    auto gcps = reader->gcps();
+    try{
 
-    loadGroundControlPoints(gcps);
+        auto reader = GCPsReaderFactory::create(format.toStdString());
+        reader->setImages(images());
+        reader->read(file.toStdString());
+        mCrs = QString::fromStdString(reader->epsgCode());
+        auto gcps = reader->gcps();
+
+        loadGroundControlPoints(gcps);
+
+    } catch (...){
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
 }
 
 void GeoreferenceModelImp::exportGroundControlPoints(const QString &file, const QString &format)

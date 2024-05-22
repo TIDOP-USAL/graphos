@@ -38,6 +38,7 @@ TL_DEFAULT_WARNINGS
 #include <QAction>
 #include <QString>
 #include <QMessageBox>
+#include <QMainWindow>
 
 namespace graphos
 {
@@ -68,6 +69,7 @@ void FloorLevelComponent::open()
 
         if (auto ccviewer = dynamic_cast<CCViewer3D *>(viewer_3d)) {
             const QSignalBlocker blocker2(ccviewer);
+            dynamic_cast<Application *>(qApp)->mainWindow()->activateWindow();
 
             connect(ccviewer, SIGNAL(mouseClicked(QVector3D)), this, SLOT(pointClicked(QVector3D)));
             ccviewer->activatePicker(CCViewer3D::PickingMode::level_points);
@@ -143,16 +145,17 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
         Z.normalize();
 
         ccGLMatrix trans;
-        float *mat = trans.data();
-        mat[0] = X.x(); mat[4] = X.y(); mat[8] = X.z(); mat[12] = 0;
-        mat[1] = Y.x(); mat[5] = Y.y(); mat[9] = Y.z(); mat[13] = 0;
-        mat[2] = Z.x(); mat[6] = Z.y(); mat[10] = Z.z(); mat[14] = 0;
-        mat[3] = 0; mat[7] = 0; mat[11] = 0; mat[15] = 1;
 
         CCVector3d T(-A.x(), -A.y(), -A.z());
         trans.apply(T);
         T += CCVector3d(A.x(), A.y(), A.z());
         trans.setTranslation(T);
+
+        float *mat = trans.data();
+        mat[0] = X.x(); mat[4] = X.y(); mat[8] = X.z(); mat[12] = 0;
+        mat[1] = Y.x(); mat[5] = Y.y(); mat[9] = Y.z(); mat[13] = 0;
+        mat[2] = Z.x(); mat[6] = Z.y(); mat[10] = Z.z(); mat[14] = 0;
+        mat[3] = 0; mat[7] = 0; mat[11] = 0; mat[15] = 1;
 
         ccHObject *root = ccviewer->object();
         ccHObject::Container clouds;
@@ -166,6 +169,7 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
 
             cloud->applyRigidTransformation(trans);
             model->prepareDisplayForRefresh_recursive();
+
         }
 
         auto transform = tl::Matrix<double, 4, 4>::identity();
