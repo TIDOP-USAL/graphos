@@ -21,7 +21,7 @@
 #                                                                        #
 ##########################################################################
 
-if (GRAPHOS_HAVE_GUI)
+if (GRAPHOS_GUI)
 
 include(TidopUtils)
 
@@ -121,4 +121,4 @@ install(DIRECTORY .
 
 set(GRAPHOS_LIBRARIES ${GRAPHOS_LIBRARIES} ${PROJECT_NAME})
 
-endif(GRAPHOS_HAVE_GUI)
+endif(GRAPHOS_GUI)

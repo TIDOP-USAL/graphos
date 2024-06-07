@@ -26,12 +26,14 @@
 
 #include "graphos/core/utils.h"
 #include "graphos/core/project.h"
+#include "graphos/core/sfm/posesio.h"
 #include "graphos/components/dtm/impl/DTMTask.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/log.h>
 
 #include <QFileInfo>
+
 
 using namespace tl;
 
@@ -61,30 +63,30 @@ DTMCommand::~DTMCommand()
     }
 }
 
-auto DTMCommand::offset() const -> std::array<double, 3>
-{
-    std::array<double, 3> offset{};
-    offset.fill(0.);
-
-    try {
-
-        QFile file(QString::fromStdWString(mProject->offset().toWString()));
-        if (file.open(QFile::ReadOnly | QFile::Text)) {
-            QTextStream stream(&file);
-            QString line = stream.readLine();
-            QStringList reg = line.split(" ");
-            offset[0] = reg[0].toDouble();
-            offset[1] = reg[1].toDouble();
-            offset[2] = reg[2].toDouble();
-            file.close();
-        }
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-
-    return offset;
-}
+//auto DTMCommand::offset() const -> std::array<double, 3>
+//{
+//    std::array<double, 3> offset{};
+//    offset.fill(0.);
+//
+//    try {
+//
+//        QFile file(QString::fromStdWString(mProject->offset().toWString()));
+//        if (file.open(QFile::ReadOnly | QFile::Text)) {
+//            QTextStream stream(&file);
+//            QString line = stream.readLine();
+//            QStringList reg = line.split(" ");
+//            offset[0] = reg[0].toDouble();
+//            offset[1] = reg[1].toDouble();
+//            offset[2] = reg[2].toDouble();
+//            file.close();
+//        }
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("");
+//    }
+//
+//    return offset;
+//}
 
 bool DTMCommand::run()
 {
@@ -115,7 +117,9 @@ bool DTMCommand::run()
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
 
-        DtmTask dtm_task(mProject->denseModel(), offset(), dtm_path, gsd, mProject->crs(), dsm, dtm);
+        tl::Point3<double> offset = offsetRead(mProject->offset());
+
+        DtmTask dtm_task(mProject->denseModel(), offset, dtm_path, gsd, mProject->crs(), dsm, dtm);
         dtm_task.run();
 
         tl::Path dsm_file = dtm_path;

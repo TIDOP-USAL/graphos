@@ -751,17 +751,11 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
         OrientationExport orientationExport(&reconstruction);
         orientationExport.exportPLY(sparse_path);
 
+
         /// writeOffset
-        std::ofstream stream(offset_path.toString(), std::ios::trunc);
-        if (stream.is_open()) {
-            stream << QString::number(offset[0], 'f', 6).toStdString() << " "
-                   << QString::number(offset[1], 'f', 6).toStdString() << " "
-                   << QString::number(offset[2], 'f', 6).toStdString() << std::endl;
-
-            tl::Message::info("Camera offset: {},{},{}", offset[0], offset[1], offset[2]);
-
-            stream.close();
-        }
+        
+        offsetWrite(offset_path, tl::Point3<double>(offset[0], offset[1], offset[2]));
+        tl::Message::info("Camera offset: {},{},{}", offset[0], offset[1], offset[2]);
 
 
         std::vector<double> errors;

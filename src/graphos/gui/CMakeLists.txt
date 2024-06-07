@@ -113,15 +113,15 @@ target_link_libraries(${PROJECT_NAME}
                       TidopLib::Vect
                       TidopLib::Graphic
                       Qt5::Core
-                      Qt5::Widgets
-                      Qt5::Help
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
+                      $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Help>
                       Qt5::Concurrent
                       Qt5::Sql
                       Qt5::PrintSupport
                       Qt5::OpenGL
                       Qt5::OpenGLExtensions
                       Graphos::Core
-                      $<$<BOOL:${GRAPHOS_HAVE_GUI}>:Graphos::Widgets>
+                      $<$<BOOL:${GRAPHOS_GUI}>:Graphos::Widgets>
                       $<$<BOOL:${GRAPHOS_HAVE_ABOUT}>:Graphos::About>
                       $<$<BOOL:${GRAPHOS_HAVE_CAMERAS}>:Graphos::Cameras>
                       $<$<BOOL:${GRAPHOS_HAVE_CREATE_PROJECT}>:Graphos::CreateProject>
@@ -162,7 +162,7 @@ target_link_libraries(${PROJECT_NAME}
                       ${GDAL_LIBRARY} 
                       ${PROJ4_LIBRARY}
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                      #$<$<BOOL:${GRAPHOS_HAVE_GUI}>:${CLOUDCOMPARE_LIBRARIES}>
+                      #$<$<BOOL:${GRAPHOS_GUI}>:${CLOUDCOMPARE_LIBRARIES}>
                       $<$<BOOL:${HAVE_VLD}>:${VLD_LIBRARY}>)
 
 
@@ -183,8 +183,8 @@ if(WIN32)
     if (MSVC AND NOT BUILD_SHARED_LIBS)
         set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:atlthunk.lib /NODEFAULTLIB:atlsd.lib /DEBUG")
     endif()
-
-    install(TARGETS ${PROJECT_NAME}
-            RUNTIME DESTINATION bin
-            COMPONENT bin)
 endif()
+
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION bin
+        COMPONENT bin)

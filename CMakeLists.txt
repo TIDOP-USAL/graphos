@@ -167,7 +167,7 @@ unset(GRAPHOS_HAVE_SETTINGS CACHE)
 unset(GRAPHOS_HAVE_UNDISTORT CACHE)
 unset(GRAPHOS_HAVE_PROPERTIES CACHE)
 unset(GRAPHOS_HAVE_VIDEO_LOAD CACHE)
-unset(GRAPHOS_HAVE_GUI CACHE)
+unset(GRAPHOS_GUI CACHE)
 
 option(BUILD_ABOUT_COMPONENT          "Build About Component"         ON)
 option(BUILD_CAMERAS_COMPONENT        "Build Cameras Component"       ON)
@@ -218,10 +218,10 @@ endif(MSVC)
 
 if(BUILD_GUI)
     message(STATUS "  [GRAPHOS] Build GUI")
-    set(GRAPHOS_HAVE_GUI YES)
+    set(GRAPHOS_GUI YES)
 else()
     message(STATUS "  [GRAPHOS] GUI disabled")
-	set(GRAPHOS_HAVE_GUI NO)
+	set(GRAPHOS_GUI NO)
 endif()
 
 
@@ -251,6 +251,12 @@ message(STATUS "\nDependency loading:\n")
 
 find_package(TidopLib 3.0 REQUIRED)
 
+if(TidopLib_FOUND)
+    message(STATUS "  TidopLib version: ${TidopLib_VERSION}")
+else()
+    message(STATUS "Not Found TidopLib")
+endif()
+
 
 ##########################################################################
 # BOOST (REQUIRED)                                                       #
@@ -262,6 +268,7 @@ set(Boost_USE_STATIC_RUNTIME     OFF)
  	
 find_package(Boost COMPONENTS filesystem system unit_test_framework REQUIRED)
 if(Boost_FOUND)
+    message(STATUS "  Boost version: ${Boost_VERSION}")
     include_directories(${Boost_INCLUDE_DIRS})
     set(HAVE_BOOST YES)
 else()
@@ -286,6 +293,7 @@ find_package(OpenCV REQUIRED
                  flann
                  objdetect
                  stitching)
+
 if (HAVE_CUDA)
  find_package(OpenCV REQUIRED
               COMPONENTS
@@ -296,6 +304,7 @@ endif(HAVE_CUDA)
 if(NOT OPENCV_FOUND)
     set(HAVE_OPENCV NO)
 else()
+    message(STATUS "  OpenCV version: ${OpenCV_VERSION}")
     set(HAVE_OPENCV YES)
     include_directories(${OpenCV_INCLUDE_DIRS})
 endif()
@@ -336,10 +345,6 @@ if(MSVC)
 endif()
 
 
-##########################################################################
-# Colmap (OPTIONAL)                                                      #
-##########################################################################  
-
 if(MSVC)
   # Some fixes for the Glog library.
   add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
@@ -356,12 +361,17 @@ find_package(Qt5 REQUIRED
              COMPONENTS 
                Core 
                OpenGL  
-               Widgets 
-               Help 
                Sql 
                Concurrent 
                LinguistTools
                PrintSupport)
+			   
+if(BUILD_GUI)
+find_package(Qt5 REQUIRED 
+             COMPONENTS 
+			   Widgets 
+               Help)		   
+endif(BUILD_GUI)
 
 if(BUILD_TEST)
   find_package(Qt5 REQUIRED
@@ -407,6 +417,7 @@ if(Qt5_FOUND)
 endif()
 
 
+if(BUILD_GUI)
 find_package(CloudCompare REQUIRED)
 
 if (NOT CLOUDCOMPARE_FOUND)
@@ -415,6 +426,7 @@ else()
     set(HAVE_CLOUDCOMPARE YES)
     include_directories(${CLOUDCOMPARE_INCLUDE_DIR})
 endif()
+endif(BUILD_GUI)
 
 
 # VLD
@@ -436,11 +448,12 @@ endif(WITH_VLD)
 if (BUILD_DTM_COMPONENT)
 
     find_package(CGAL REQUIRED)
-    find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
-    
-    include(CGAL_Eigen3_support)
-    include(CGAL_Boost_serialization_support)
-    include(CGAL_Boost_iostreams_support)
+    message(STATUS "  CGAL version: ${CGAL_VERSION}")
+    #find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
+    #
+    #include(CGAL_Eigen3_support)
+    #include(CGAL_Boost_serialization_support)
+    #include(CGAL_Boost_iostreams_support)
 
 endif ()
 
@@ -511,6 +524,12 @@ include(CMakePackageConfigHelpers)
 # Graphos configuration header
 install(FILES ${PROJECT_BINARY_DIR}/config_graphos.h DESTINATION include)
 
+# Graphos camera database
+install(FILES 
+            ${CMAKE_CURRENT_SOURCE_DIR}/res/cameras.db
+            ${CMAKE_CURRENT_SOURCE_DIR}/res/cameras_user.db
+        DESTINATION
+            bin)
 
 set(GRAPHOS_CONFIG_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}")
 set(GRAPHOS_CONFIG_VERSION_CMAKE_PATH "${CMAKE_CURRENT_BINARY_DIR}/GraphosConfigVersion.cmake")

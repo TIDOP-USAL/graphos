@@ -39,7 +39,7 @@
 #include <ccPointCloud.h>
 #include <ccCommon.h>
 #include <ReferenceCloud.h>
-#endif
+#endif // GRAPHOS_GUI
 
 namespace graphos
 {
@@ -233,7 +233,7 @@ void DensifierBase::autoSegmentation() const
 
         TL_THROW_EXCEPTION_WITH_NESTED("Exception caught in the automatic segmentation of the point cloud");
     }
-#endif
+#endif // GRAPHOS_GUI
 
 }
 

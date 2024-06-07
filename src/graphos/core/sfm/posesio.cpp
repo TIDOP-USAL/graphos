@@ -360,9 +360,18 @@ void offsetWrite(const tl::Path &path, const tl::Point3<double> &coordinates)
 {
     try {
 
+        std::ofstream stream(path.toString(), std::ios::trunc);
+        if (stream.is_open()) {
+            stream << QString::number(coordinates.x, 'f', 6).toStdString() << " "
+                   << QString::number(coordinates.y, 'f', 6).toStdString() << " "
+                   << QString::number(coordinates.z, 'f', 6).toStdString() << std::endl;
+
+            stream.close();
+        }
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
 }
+
 } // namespace graphos

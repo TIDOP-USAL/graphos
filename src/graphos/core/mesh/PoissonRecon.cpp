@@ -152,7 +152,8 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
         in >> pts;
         bool has_scalar_label = pts.has_property_map<float>("scalar_label");
         if (has_scalar_label) {
-            pts.remove_property_map(pts.property_map<float>("scalar_label").first);
+            auto property_map = pts.property_map<float>("scalar_label").first;
+            pts.remove_property_map(property_map);
 
             auto copy_point_cloud = mInput;
             copy_point_cloud.replaceBaseName("temp");
