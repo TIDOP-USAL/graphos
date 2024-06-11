@@ -653,6 +653,12 @@ void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
         ransac_options.max_error = robustAlignmentMaxError();
 
         TL_ASSERT(mInputPath.exists() && mInputPath.isDirectory(), "Invalid reconstruction");
+        
+        auto cameras_colmap = tl::Path(mInputPath).append("cameras.bin");
+        auto images_colmap = tl::Path(mInputPath).append("images.bin");
+        auto points3d_colmap = tl::Path(mInputPath).append("points3D.bin");
+
+        TL_ASSERT(cameras_colmap.exists() && images_colmap.exists() && points3d_colmap.exists(), "Invalid reconstruction");
 
         if (robust_alignment && ransac_options.max_error <= 0) {
             throw std::runtime_error("ERROR: You must provide a maximum alignment error > 0");

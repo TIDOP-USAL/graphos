@@ -214,7 +214,7 @@ option (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 if(MSVC)
 option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
 endif(MSVC)
-
+#option(WITH_PIXKIT   "Include PixKit"                  OFF)
 
 if(BUILD_GUI)
     message(STATUS "  [GRAPHOS] Build GUI")
@@ -444,6 +444,19 @@ if(WITH_VLD)
 
 endif(WITH_VLD)
 
+#[[
+if(WITH_PIXKIT)
+
+    find_package(PIXKIT REQUIRED)
+    if(NOT PIXKIT_FOUND)
+        set(HAVE_PIXKIT NO)
+    else()
+        set(HAVE_PIXKIT YES)
+        include_directories(${PIXKIT_INCLUDE_DIRS})
+    endif()
+
+endif(WITH_PIXKIT)
+]]
 
 if (BUILD_DTM_COMPONENT)
 

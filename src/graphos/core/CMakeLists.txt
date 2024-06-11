@@ -68,6 +68,9 @@ add_files_to_project(${PROJECT_NAME}
                          ortho/ZBuffer.cpp
                          ortho/Footprint.cpp
                          ortho/Orthoimage.cpp
+                         #[[preprocess/clahe.cpp
+                         preprocess/dhe.cpp
+                         preprocess/pohe.cpp]]
                      HEADER_FILES
                          mvp.h
                          Application.h
@@ -111,7 +114,11 @@ add_files_to_project(${PROJECT_NAME}
                          ortho/Orthorectification.h
                          ortho/ZBuffer.h
                          ortho/Footprint.h
-                         ortho/Orthoimage.h)
+                         ortho/Orthoimage.h
+                         #[[preprocess/preprocess.h
+                         preprocess/clahe.h
+                         preprocess/dhe.h
+                         preprocess/pohe.h]])
 
 	
 add_library(${PROJECT_NAME} ${LIB_TYPE}
@@ -144,7 +151,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       ${FREEIMAGE_LIBRARIES}
                       GLEW::glew
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                      CGAL::CGAL)
+                      CGAL::CGAL
+                      #[[${PIXKIT_LIBRARIES}]])
 
 
 set_target_properties(${PROJECT_NAME} PROPERTIES 

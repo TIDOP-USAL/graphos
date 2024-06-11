@@ -330,6 +330,8 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
         }
     }
 
+    dynamic_cast<tl::TaskList *>(orientation_process.get())->setCancelTaskOnError(true);
+
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
         progressHandler()->setTitle("Computing Orientation...");
