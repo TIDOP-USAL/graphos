@@ -656,7 +656,7 @@ int main(int argc, char *argv[])
                          });
 #endif // GRAPHOS_HAVE_SCALE
 
-        //componentsManager.loadPlugins();
+        componentsManager.loadPlugins();
 
         app.status()->activeFlag(AppStatus::Flag::none, true);
 
