@@ -55,6 +55,7 @@ public slots:
     virtual void setCurrentDetectorDescriptor(const QString &detectorDescriptor) = 0;
     virtual void setMaxImageSize(int imageSize) = 0;
     virtual void setFullImageSize(bool fullImageSize) = 0;
+
 };
 
 } // namespace graphos
