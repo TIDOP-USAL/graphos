@@ -83,6 +83,11 @@ auto Sift::edgeThreshold() const -> double
     return mEdgeThreshold;
 }
 
+auto Sift::domainSizePooling() const -> bool
+{
+    return mDomainSizePooling;
+}
+
 void Sift::setFeaturesNumber(int featuresNumber)
 {
     mFeaturesNumber = featuresNumber;
@@ -108,6 +113,11 @@ void Sift::setEdgeThreshold(double edgeThreshold)
     mEdgeThreshold = edgeThreshold;
 }
 
+void Sift::setDomainSizePooling(bool domainSizePooling)
+{
+    mDomainSizePooling = domainSizePooling;
+}
+
 void Sift::reset()
 {
     mFeaturesNumber = 5000;
@@ -115,6 +125,7 @@ void Sift::reset()
     mContrastThresholdAuto = true;
     mContrastThreshold = 0.02 / 3.;
     mEdgeThreshold = 10.;
+    mDomainSizePooling = true;
 }
 
 auto Sift::name() const -> QString
@@ -258,7 +269,8 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(const SiftCudaDetectorDes
 SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
                                                        int octaveLayers,
                                                        double edgeThreshold,
-                                                       double contrastThreshold)
+                                                       double contrastThreshold,
+                                                       bool domainSizePooling)
 {
     Sift::setFeaturesNumber(featuresNumber);
     Sift::setOctaveLayers(octaveLayers);
@@ -267,6 +279,7 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
         Sift::setContrastThreshold(contrastThreshold);
     }
     Sift::setEdgeThreshold(edgeThreshold);
+    Sift::setDomainSizePooling(domainSizePooling);
     update();
 }
 
@@ -279,7 +292,7 @@ void SiftCudaDetectorDescriptor::update()
     options.octave_resolution = Sift::octaveLayers();
     options.edge_threshold = Sift::edgeThreshold();
     options.peak_threshold = Sift::contrastThreshold();
-    options.domain_size_pooling = false;
+    options.domain_size_pooling = Sift::domainSizePooling();
     options.use_gpu = true;
 
     mSiftGpu.reset(new SiftGPU);
@@ -347,6 +360,12 @@ void SiftCudaDetectorDescriptor::setContrastThreshold(double contrastThreshold)
 void SiftCudaDetectorDescriptor::setEdgeThreshold(double edgeThreshold)
 {
     Sift::setEdgeThreshold(edgeThreshold);
+    update();
+}
+
+void SiftCudaDetectorDescriptor::setDomainSizePooling(bool domainSizePooling)
+{
+    Sift::setDomainSizePooling(domainSizePooling);
     update();
 }
 

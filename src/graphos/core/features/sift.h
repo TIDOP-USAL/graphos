@@ -106,6 +106,8 @@ public:
      */
     virtual auto edgeThreshold() const -> double;
 
+    virtual auto domainSizePooling() const -> bool;
+
     /*!
      * \brief Set the number of best features to retain
      * \param[in] featuresNumber The number of features.
@@ -136,6 +138,8 @@ public:
      */
     virtual void setEdgeThreshold(double edgeThreshold);
 
+    virtual void setDomainSizePooling(bool domainSizePooling);
+
 // Feature interface methods
 
 public:
@@ -150,7 +154,7 @@ private:
     bool mContrastThresholdAuto;
     double mContrastThreshold;
     double mEdgeThreshold;
-
+    bool mDomainSizePooling;
 };
 
 
@@ -287,7 +291,8 @@ public:
     SiftCudaDetectorDescriptor(int featuresNumber,
                                int octaveLayers,
                                double edgeThreshold,
-                               double contrastThreshold = 0.);
+                               double contrastThreshold = 0.,
+                               bool domainSizePooling = true);
     /*!
      * \brief Destructor for CUDA-accelerated SIFT detector/descriptor.
      */
@@ -320,8 +325,9 @@ public:
     void setOctaveLayers(int octaveLayers) override;
     void setContrastThreshold(double contrastThreshold) override;
     void setEdgeThreshold(double edgeThreshold) override;
+    void setDomainSizePooling(bool domainSizePooling) override;
 
-    // Feature interface
+// Feature interface
 
 public:
 
