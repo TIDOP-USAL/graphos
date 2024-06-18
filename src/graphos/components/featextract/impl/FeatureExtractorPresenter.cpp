@@ -122,6 +122,7 @@ void FeatureExtractorPresenterImp::setSiftProperties()
             mSift->setEdgeThreshold(sift->edgeThreshold());
         mSift->setFeaturesNumber(sift->featuresNumber());
         mSift->setContrastThreshold(sift->contrastThreshold());
+        mSift->setDomainSizePooling(sift->domainSizePooling());
     }
 }
 
@@ -174,7 +175,8 @@ std::unique_ptr<tl::Task> FeatureExtractorPresenterImp::createTask()
                                                                              mSift->octaveLayers(),
                                                                              mSift->edgeThreshold(),
                                                                              mSift->constrastThresholdAuto() ?
-                                                                             0. : mSift->contrastThreshold());
+                                                                             0. : mSift->contrastThreshold(),
+                                                                             mSift->domainSizePooling());
         } else {
             feature_extractor = std::make_shared<SiftCPUDetectorDescriptor>(mSift->featuresNumber(),
                                                                             mSift->octaveLayers(),

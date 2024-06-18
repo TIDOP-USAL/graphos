@@ -473,47 +473,64 @@ void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
         //mBundleAdjustmentController->Start();
         //mBundleAdjustmentController->Wait();
 
-        //{
+        const std::vector<colmap::image_t>& reg_image_ids = reconstruction.RegImageIds();
 
-            const std::vector<colmap::image_t>& reg_image_ids = reconstruction.RegImageIds();
+        TL_ASSERT(reg_image_ids.size() >= 2, "Need at least two views.");
 
-            TL_ASSERT(reg_image_ids.size() >= 2, "Need at least two views.");
+        // Avoid degeneracies in bundle adjustment.
+        reconstruction.FilterObservationsWithNegativeDepth();
 
-            // Avoid degeneracies in bundle adjustment.
-            reconstruction.FilterObservationsWithNegativeDepth();
+        colmap::BundleAdjustmentOptions ba_options = *option_manager.bundle_adjustment;
+        ba_options.solver_options.minimizer_progress_to_stdout = true;
+        ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
 
-            colmap::BundleAdjustmentOptions ba_options = *option_manager.bundle_adjustment;
-            ba_options.solver_options.minimizer_progress_to_stdout = true;
-            ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
+        internal::BundleAdjustmentIterationCallback iteration_callback;
+        ba_options.solver_options.callbacks.push_back(&iteration_callback);
 
-            internal::BundleAdjustmentIterationCallback iteration_callback;
-            ba_options.solver_options.callbacks.push_back(&iteration_callback);
+        // Configure bundle adjustment.
+        colmap::BundleAdjustmentConfig ba_config;
+        for (const colmap::image_t image_id : reg_image_ids) {
+            ba_config.AddImage(image_id);
+        }
+        ba_config.SetConstantPose(reg_image_ids[0]);
+        ba_config.SetConstantTvec(reg_image_ids[1], { 0 });
 
-            // Configure bundle adjustment.
-            colmap::BundleAdjustmentConfig ba_config;
-            for (const colmap::image_t image_id : reg_image_ids) {
-                ba_config.AddImage(image_id);
-            }
-            ba_config.SetConstantPose(reg_image_ids[0]);
-            ba_config.SetConstantTvec(reg_image_ids[1], { 0 });
+        ceres::Solver::Summary summary;
 
+        {
             ba_terminate = false;
             // Run bundle adjustment.
             colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
             bundle_adjuster.Solve(&reconstruction);
 
             if (status() == tl::Task::Status::stopping) return;
-            
+
             ba_terminate = true;
-            auto &summary = bundle_adjuster.Summary();
+            summary = bundle_adjuster.Summary();
+        }
 
-            mOrientationReport.iterations = summary.num_successful_steps + summary.num_unsuccessful_steps;
-            mOrientationReport.initialCost = std::sqrt(summary.initial_cost / summary.num_residuals_reduced);
-            mOrientationReport.finalCost = std::sqrt(summary.final_cost / summary.num_residuals_reduced);
-            mOrientationReport.termination = "CONVERGENCE";
+        
 
-            TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
-        //}
+        if (summary.termination_type == ceres::NO_CONVERGENCE) {
+
+            ba_terminate = false;
+
+            // Se vuelve a intentar el ajuste de haces
+            colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+            bundle_adjuster.Solve(&reconstruction);
+
+            if (status() == tl::Task::Status::stopping) return;
+
+            ba_terminate = true;
+            summary = bundle_adjuster.Summary();
+        }
+
+        mOrientationReport.iterations = summary.num_successful_steps + summary.num_unsuccessful_steps;
+        mOrientationReport.initialCost = std::sqrt(summary.initial_cost / summary.num_residuals_reduced);
+        mOrientationReport.finalCost = std::sqrt(summary.final_cost / summary.num_residuals_reduced);
+        mOrientationReport.termination = "CONVERGENCE";
+
+        TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
 
         if (status() == Status::stopping) return;
 

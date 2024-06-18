@@ -507,7 +507,13 @@ configure_file("${PROJECT_SOURCE_DIR}/cmake/config_graphos.h.in" "${PROJECT_BINA
 ##########################################################################
 
 if (BUILD_PLUGINS)
-  add_subdirectory(plugins)
+
+    message(STATUS "\nGRAPHOS plugins:\n")
+
+    add_subdirectory(plugins)
+    
+    message("\n")
+
 endif(BUILD_PLUGINS)
 
 
