@@ -99,12 +99,12 @@ add_library(Graphos::${PROJECT_NAME}
             ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                           ${CLOUDCOMPARE_INCLUDE_DIR})
+                           ${CloudCompare_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::Core
                       TidopLib::Img
-                      ${CLOUDCOMPARE_LIBRARIES})
+                      ${CloudCompare_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES 
                       FOLDER "lib"

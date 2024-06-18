@@ -27,6 +27,9 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
+if(POLICY CMP0146) 
+    cmake_policy(SET CMP0146 OLD) 
+endif()
 
 project(GRAPHOS 
         VERSION 2.0.0
@@ -82,15 +85,15 @@ endif()
 
 if(MSVC)
 
-  if(MSVC_VERSION EQUAL 1900)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
-  elseif(MSVC_VERSION MATCHES "^191[0-9]$")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
-  elseif(MSVC_VERSION MATCHES "^192[0-9]$")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
-  elseif(MSVC_VERSION MATCHES "^193[0-9]$")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
-  endif()
+    if(MSVC_VERSION EQUAL 1900)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+    elseif(MSVC_VERSION MATCHES "^191[0-9]$")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+    elseif(MSVC_VERSION MATCHES "^192[0-9]$")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+    elseif(MSVC_VERSION MATCHES "^193[0-9]$")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+    endif()
 
 endif()
 
@@ -98,6 +101,9 @@ endif()
 # Directorio con modulos extra de CMAKE
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
+if(MSVC)
+    set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/msvc" ${CMAKE_MODULE_PATH})
+endif()
 
 set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
 
@@ -327,6 +333,7 @@ endif()
 # Colmap (REQUIRED)                                                      #
 ##########################################################################   
 
+
 find_package(COLMAP REQUIRED)
 
 set(HAVE_COLMAP YES)
@@ -345,17 +352,16 @@ if(MSVC)
 endif()
 
 
-if(MSVC)
-  # Some fixes for the Glog library.
-  add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
-  add_definitions("-DGL_GLEXT_PROTOTYPES")
-endif()
-
+##########################################################################
+# GLEW (REQUIRED)                                                        #
+##########################################################################   
 
 find_package(GLEW REQUIRED)
 
 
-#  QT 
+##########################################################################
+# QT (REQUIRED)                                                          #
+##########################################################################
 
 find_package(Qt5 REQUIRED 
              COMPONENTS 
@@ -420,16 +426,19 @@ endif()
 if(BUILD_GUI)
 find_package(CloudCompare REQUIRED)
 
-if (NOT CLOUDCOMPARE_FOUND)
-    set(HAVE_CLOUDCOMPARE NO)
+if (NOT CloudCompare_FOUND)
+    set(HAVE_CloudCompare NO)
 else()
-    set(HAVE_CLOUDCOMPARE YES)
-    include_directories(${CLOUDCOMPARE_INCLUDE_DIR})
+    set(HAVE_CloudCompare YES)
+    include_directories(${CloudCompare_INCLUDE_DIR})
 endif()
 endif(BUILD_GUI)
 
 
 # VLD
+##########################################################################
+# VLD (OPTIONAL)                                                         #
+##########################################################################
 
 if(WITH_VLD)
 
