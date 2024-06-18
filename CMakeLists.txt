@@ -286,6 +286,17 @@ endif()
 # OpenCV  (REQUIRED)                                                     #
 ##########################################################################
 
+#  CUDA  
+
+find_package(CUDA)
+
+if (CUDA_FOUND)
+  set(HAVE_CUDA YES)
+  include_directories(${CUDA_INCLUDE_DIRS})
+else()
+  set(HAVE_CUDA NO)
+endif()
+
 find_package(OpenCV REQUIRED
              COMPONENTS
                  core
@@ -313,18 +324,6 @@ else()
     message(STATUS "  OpenCV version: ${OpenCV_VERSION}")
     set(HAVE_OPENCV YES)
     include_directories(${OpenCV_INCLUDE_DIRS})
-endif()
-
-
-#  CUDA  
-
-find_package(CUDA)
-include_directories(${CUDA_INCLUDE_DIRS})
-
-if (CUDA_FOUND)
-  set(HAVE_CUDA YES)
-else()
-  set(HAVE_CUDA NO)
 endif()
 
 
