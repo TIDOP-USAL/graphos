@@ -221,6 +221,7 @@ if(MSVC)
 option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
 endif(MSVC)
 #option(WITH_PIXKIT   "Include PixKit"                  OFF)
+option (WITH_CUDA     "Include Cuda Support"    OFF)
 
 if(BUILD_GUI)
     message(STATUS "  [GRAPHOS] Build GUI")
@@ -288,13 +289,17 @@ endif()
 
 #  CUDA  
 
-find_package(CUDA)
+if (WITH_CUDA)
 
-if (CUDA_FOUND)
-  set(HAVE_CUDA YES)
-  include_directories(${CUDA_INCLUDE_DIRS})
-else()
-  set(HAVE_CUDA NO)
+    find_package(CUDA)
+    
+    if (CUDA_FOUND)
+        set(HAVE_CUDA YES)
+        include_directories(${CUDA_INCLUDE_DIRS})
+    else()
+        set(HAVE_CUDA NO)
+    endif()
+
 endif()
 
 find_package(OpenCV REQUIRED
