@@ -23,10 +23,12 @@
 
 #include "graphos/graphos_global.h"
 
+#ifdef GRAPHOS_GUI
 #include "MainWindowView.h"
 #include "MainWindowModel.h"
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
+#endif // GRAPHOS_GUI
 
 #include "graphos/core/project.h"
 #include "graphos/core/Application.h"
@@ -197,20 +199,25 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(messageHandlerQt);
 #endif // DEBUG
 
+
     tl::Path app_path(argv[0]);
+
+#ifdef TL_OS_WINDOWS
     tl::Path graphos_path = app_path.parentPath().parentPath();
     tl::Path gdal_data_path(graphos_path);
     gdal_data_path.append("gdal\\data");
     tl::Path proj_data_path(graphos_path);
     proj_data_path.append("proj");
     CPLSetConfigOption( "GDAL_DATA", gdal_data_path.toString().c_str());
-#if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
-    CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
-#else
-    std::string s_proj = proj_data_path.toString();
-    const char *proj_data[] {s_proj.c_str(), nullptr};
-    OSRSetPROJSearchPaths(proj_data);
-#endif
+#   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
+        CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
+#   else
+        std::string s_proj = proj_data_path.toString();
+        const char *proj_data[] {s_proj.c_str(), nullptr};
+        OSRSetPROJSearchPaths(proj_data);
+#   endif
+#endif // TL_OS_WINDOWS
+
     CPLSetErrorHandler(messageHandlerGDAL);
 
     Application app(argc, argv);
@@ -362,6 +369,9 @@ int main(int argc, char *argv[])
         }
 
     } else {
+
+#ifdef GRAPHOS_GUI
+
         //    TL_TODO("Añadir como opción")
 #if defined WIN32
         HWND hwnd = GetConsoleWindow();
@@ -656,7 +666,7 @@ int main(int argc, char *argv[])
                          });
 #endif // GRAPHOS_HAVE_SCALE
 
-        //componentsManager.loadPlugins();
+        componentsManager.loadPlugins();
 
         app.status()->activeFlag(AppStatus::Flag::none, true);
 
@@ -667,7 +677,11 @@ int main(int argc, char *argv[])
 #if defined WIN32
         ShowWindow(hwnd, 1);
 #endif
+
+#endif // GRAPHOS_GUI
     }
+
+
 
 #ifdef HAVE_VLD
     // Clean up memory allocated by flags.  This is only needed to reduce

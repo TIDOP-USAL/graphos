@@ -38,30 +38,32 @@ namespace graphos
 
 
 class SiftWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SiftWidget(QWidget *parent = nullptr);
-  ~SiftWidget() override;
+    SiftWidget(QWidget *parent = nullptr);
+    ~SiftWidget() override;
 
 public:
 
-  auto featuresNumber() const -> int;
-  auto octaveLayers() const -> int;
-  auto contrastThreshold() const -> double;
-  auto constrastThresholdAuto() const -> bool;
-  auto edgeThreshold() const -> double;
+    auto featuresNumber() const -> int;
+    auto octaveLayers() const -> int;
+    auto contrastThreshold() const -> double;
+    auto constrastThresholdAuto() const -> bool;
+    auto edgeThreshold() const -> double;
+    auto domainSizePooling() const -> bool;
 
 public slots:
 
-  void setFeaturesNumber(int featuresNumber);
-  void setOctaveLayers(int octaveLayers);
-  void setContrastThreshold(double contrastThreshold);
-  void setContrastThresholdAuto(bool active);
-  void setEdgeThreshold(double edgeThreshold);
+    void setFeaturesNumber(int featuresNumber);
+    void setOctaveLayers(int octaveLayers);
+    void setContrastThreshold(double contrastThreshold);
+    void setContrastThresholdAuto(bool active);
+    void setEdgeThreshold(double edgeThreshold);
+    void setDomainSizePooling(bool domainSizePooling);
 
 signals:
 
@@ -70,35 +72,37 @@ signals:
     void contrastThresholdAutoChange(bool);
     void contrastThresholdChange(double);
     void edgeThresholdChange(double);
+    void domainSizePooling(bool);
 
-// GraphosWidgetView interface
+    // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 protected:
 
-  QGroupBox *mGroupBox;
-  QLabel *mLabelFeaturesNumber;
-  QSpinBox *mFeaturesNumber;
-  QLabel *mLabelOctaveLayers;
-  QSpinBox *mOctaveLayers;
-  QCheckBox *mContrastThresholdAuto;
-  QLabel *mLabelContrastThreshold;
-  QDoubleSpinBox *mContrastThreshold;
-  QLabel *mLabelEdgeThreshold;
-  QDoubleSpinBox *mEdgeThreshold;
+    QGroupBox *mGroupBox;
+    QLabel *mLabelFeaturesNumber;
+    QSpinBox *mFeaturesNumber;
+    QLabel *mLabelOctaveLayers;
+    QSpinBox *mOctaveLayers;
+    QCheckBox *mContrastThresholdAuto;
+    QLabel *mLabelContrastThreshold;
+    QDoubleSpinBox *mContrastThreshold;
+    QLabel *mLabelEdgeThreshold;
+    QDoubleSpinBox *mEdgeThreshold;
+    QCheckBox *mDomainSizePooling;
 
 };
 
