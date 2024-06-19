@@ -66,13 +66,13 @@ BOOST_FIXTURE_TEST_CASE(DefaultConstructor, TestFeatureExtractorModel)
 BOOST_FIXTURE_TEST_CASE(feature_extractor, TestFeatureExtractorModel)
 {
   {
-    std::shared_ptr<Feature> feature = std::make_shared<SiftProperties>();
+    std::shared_ptr<Feature> feature = std::make_shared<Sift>();
     mFeatureExtractorModel->setFeatureExtractor(feature);
   }
 
   std::shared_ptr<Feature> feature = mFeatureExtractorModel->featureExtractor();
-  BOOST_CHECK_EQUAL(5000, std::dynamic_pointer_cast<SiftProperties>(feature)->featuresNumber());
-  BOOST_CHECK_EQUAL(3, std::dynamic_pointer_cast<SiftProperties>(feature)->octaveLayers());
+  BOOST_CHECK_EQUAL(5000, std::dynamic_pointer_cast<Sift>(feature)->featuresNumber());
+  BOOST_CHECK_EQUAL(3, std::dynamic_pointer_cast<Sift>(feature)->octaveLayers());
 }
 
 BOOST_FIXTURE_TEST_CASE(database, TestFeatureExtractorModel)

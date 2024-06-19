@@ -39,12 +39,9 @@
 #include <QTreeWidgetItem>
 #include <QFileInfo>
 #include <QSettings>
-#include <QGraphicsEllipseItem>
 #include <QDesktopServices>
-#include <QUrl>
-#include <QComboBox>
-#include <QProgressBar>
-#include <QLabel>
+#include <QMimeData>
+#include <QDragEnterEvent>
 #include <QToolBar>
 
 #include <unordered_map>
@@ -73,6 +70,7 @@ enum
     dense_model,
     mesh,
     dsm,
+    dtm,
     ortho
 };
 
@@ -563,31 +561,26 @@ void MainWindowView::setSparseModel(const QString &sparseModel)
 
 void MainWindowView::deleteSparseModel()
 {
-    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+    if (QTreeWidgetItem *item_project = mTreeWidgetProject->topLevelItem(0)) {
 
-        QTreeWidgetItem *itemModels = nullptr;
-        for (int i = 0; i < itemProject->childCount(); i++) {
-            QTreeWidgetItem *temp = itemProject->child(i);
+        QTreeWidgetItem *item_models = nullptr;
+        for (int i = 0; i < item_project->childCount(); i++) {
+            QTreeWidgetItem *temp = item_project->child(i);
             if (temp->text(0).compare(tr("3D Models")) == 0) {
-                itemModels = itemProject->child(i);
+                item_models = item_project->child(i);
                 break;
             }
         }
 
-        if (itemModels == nullptr) return;/*{
-          itemModels = new QTreeWidgetItem();
-          itemModels->setText(0, tr("3D Models"));
-          itemProject->addChild(itemModels);
-          itemModels->setExpanded(true);
-        }*/
+        if (item_models == nullptr) return;
 
-        QTreeWidgetItem *itemSparseModel = nullptr;
-        for (int i = 0; i < itemModels->childCount(); i++) {
-            QTreeWidgetItem *temp = itemModels->child(i);
+        QTreeWidgetItem *item_sparse_model = nullptr;
+        for (int i = 0; i < item_models->childCount(); i++) {
+            QTreeWidgetItem *temp = item_models->child(i);
             if (temp->text(0).compare(tr("Sparse Model")) == 0) {
-                itemSparseModel = temp;
-                delete itemSparseModel;
-                itemSparseModel = nullptr;
+                item_sparse_model = temp;
+                delete item_sparse_model;
+                item_sparse_model = nullptr;
                 break;
             }
         }
@@ -743,7 +736,7 @@ void MainWindowView::setDSM(const QString &dsm)
         QTreeWidgetItem *itemDSM = nullptr;
         for (int i = 0; i < itemProject->childCount(); i++) {
             QTreeWidgetItem *temp = itemProject->child(i);
-            if (temp->text(0).compare(tr("DTM/DSM")) == 0) {
+            if (temp->text(0).compare(tr("DSM")) == 0) {
                 itemDSM = temp;
                 break;
             }
@@ -754,10 +747,37 @@ void MainWindowView::setDSM(const QString &dsm)
             itemProject->addChild(itemDSM);
         }
 
-        itemDSM->setText(0, "DTM/DSM");
+        itemDSM->setText(0, "DSM");
         itemDSM->setIcon(0, QIcon::fromTheme("image-file"));
         itemDSM->setToolTip(0, dsm);
         itemDSM->setData(0, Qt::UserRole, graphos::dsm);
+    }
+}
+
+void MainWindowView::setDTM(const QString &dtm)
+{
+    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+        QTreeWidgetItem *itemDSM = nullptr;
+        for (int i = 0; i < itemProject->childCount(); i++) {
+
+            QTreeWidgetItem *temp = itemProject->child(i);
+            if (temp->text(0).compare(tr("DTM")) == 0) {
+                itemDSM = temp;
+                break;
+            }
+        }
+
+        if (itemDSM == nullptr) {
+            itemDSM = new QTreeWidgetItem();
+            itemProject->addChild(itemDSM);
+        }
+
+        itemDSM->setText(0, "DTM");
+        itemDSM->setIcon(0, QIcon::fromTheme("image-file"));
+        itemDSM->setToolTip(0, dtm);
+        itemDSM->setData(0, Qt::UserRole, graphos::dtm);
+
     }
 }
 
@@ -772,6 +792,23 @@ void MainWindowView::deleteDsm()
                 itemDSM = temp;
                 delete itemDSM;
                 itemDSM = nullptr;
+                break;
+            }
+        }
+    }
+}
+
+void MainWindowView::deleteDtm()
+{
+    if (QTreeWidgetItem *itemProject = mTreeWidgetProject->topLevelItem(0)) {
+
+        QTreeWidgetItem *itemDTM = nullptr;
+        for (int i = 0; i < itemProject->childCount(); i++) {
+            QTreeWidgetItem *temp = itemProject->child(i);
+            if (temp->text(0).compare(tr("DTM")) == 0) {
+                itemDTM = temp;
+                delete itemDTM;
+                itemDTM = nullptr;
                 break;
             }
         }
@@ -892,12 +929,12 @@ void MainWindowView::changeEvent(QEvent *e)
 
 
 
-void MainWindowView::openFromHistory()
-{
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (action)
-        emit openProjectFromHistory(action->data().toString());
-}
+//void MainWindowView::openFromHistory()
+//{
+//    QAction *action = qobject_cast<QAction *>(sender());
+//    if (action)
+//        emit openProjectFromHistory(action->data().toString());
+//}
 
 void MainWindowView::onSelectionChanged()
 {
@@ -944,8 +981,10 @@ void MainWindowView::onItemDoubleClicked(QTreeWidgetItem *item, int column)
             emit open3DModel(item->toolTip(column), false);
         } else if (item->data(0, Qt::UserRole) == graphos::mesh) {
             emit open3DModel(item->toolTip(column), false);
-        } else if (item->data(0, Qt::UserRole) == graphos::dsm) {
+        } else if (item->data(0, Qt::UserRole) == graphos::dtm) {
             emit openDtm();
+        } else if (item->data(0, Qt::UserRole) == graphos::dsm) {
+            emit openDsm();
         } else if (item->data(0, Qt::UserRole) == graphos::ortho) {
             emit openOrtho(item->toolTip(column));
         }
@@ -1015,6 +1054,8 @@ void MainWindowView::initUI()
     mLayoutCentral->setSpacing(6);
     mLayoutCentral->setContentsMargins(0, 0, 0, 0);
 
+    setAcceptDrops(true);
+
     this->initTabWidget();
     this->initThumbnailsTool();
     this->initConsole();
@@ -1025,9 +1066,7 @@ void MainWindowView::initUI()
     this->initMenus();
     this->initProgressBar();
 
-    // Configuración de mensajes
-    auto &msg_h = tl::Message::instance();
-    msg_h.addMessageHandler(mLogWidget);
+    tl::Message::addMessageHandler(mLogWidget);
 
     this->readSettings();
 
@@ -1466,6 +1505,7 @@ void MainWindowView::initSignalAndSlots()
         AppStatus *app_status = app.status();
         app_status->activeFlag(AppStatus::Flag::tab_3d_viewer_active, active);
     });
+
 }
 
 QMenu *MainWindowView::findMenu(Menu menu)
@@ -1627,6 +1667,32 @@ void MainWindowView::closeEvent(QCloseEvent *event)
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
     QMainWindow::closeEvent(event);
+}
+
+void MainWindowView::dragEnterEvent(QDragEnterEvent *event)
+{
+    const QMimeData *mime_data = event->mimeData();
+
+    if (mime_data->hasUrls()) {
+        QList<QUrl> url_list = mime_data->urls();
+        if (url_list.size() == 1) {
+            //if (event->mimeData()->hasFormat("text/xml"))
+                event->acceptProposedAction();
+        }
+    }
+}
+
+void MainWindowView::dropEvent(QDropEvent *event)
+{
+    const QMimeData *mime_data = event->mimeData();
+    if (mime_data->hasUrls()) {
+        QList<QUrl> url_list = mime_data->urls();
+
+        if (url_list.size() == 1) {
+            QString project = url_list.at(0).toLocalFile();
+            emit openProject(project);
+        }
+    }
 }
 
 void MainWindowView::readSettings()

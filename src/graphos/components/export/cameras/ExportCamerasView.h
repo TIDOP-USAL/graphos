@@ -38,10 +38,9 @@ class ExportCamerasView
 public:
 
     ExportCamerasView(QWidget *parent) : DialogView(parent) {}
-    ~ExportCamerasView() override = default;
 
     virtual void addFormatWidget(QWidget *formatWidget) = 0;
-    virtual QString format() const = 0;
+    virtual auto format() const -> QString = 0;
 
 public slots:
 

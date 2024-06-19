@@ -48,15 +48,15 @@ public:
 
 public:
 
-    std::shared_ptr<FeatureMatching> featureMatching() const override;
+    auto featureMatching() const -> std::shared_ptr<FeatureMatching> override;
     void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching) override;
     void setFeatureMatchingReport(const FeatureMatchingReport& report) override;
-    tl::Path database() const override;
-    bool useCuda() const override;
-    bool spatialMatching() const override;
+    auto database() const -> tl::Path override;
+    auto useCuda() const -> bool override;
+    auto spatialMatching() const -> bool override;
     void writeMatchPairs() override;
     void cleanProject() override;
-    size_t imagesSize() const override;
+    auto imagesSize() const -> size_t override;
 
 // Model interface
 

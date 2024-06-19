@@ -38,7 +38,7 @@ class DtmPresenter
 
 public:
 
-    DtmPresenter() {}
+    DtmPresenter() = default;
     ~DtmPresenter() override = default;
 
 };

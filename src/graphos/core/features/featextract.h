@@ -50,14 +50,14 @@ public:
 
     FeatureExtractorTask(const std::unordered_map<size_t, Image> &images,
                          const std::map<int, Camera> &cameras,
-                         const tl::Path &database,
+                         tl::Path database,
                          int maxImageSize,
                          bool cuda,
                          const std::shared_ptr<FeatureExtractor> &featureExtractor);
 
     ~FeatureExtractorTask() override = default;
 
-    auto report() const ->FeatureExtractorReport;
+    auto report() const -> FeatureExtractorReport;
 
 signals:
 
@@ -71,8 +71,8 @@ protected:
 
 protected:
 
-    const std::unordered_map<size_t, Image> &mImages;
-    const std::map<int, Camera> &mCameras;
+    std::unordered_map<size_t, Image> mImages;
+    std::map<int, Camera> mCameras;
     tl::Path mDatabase;
     int mMaxImageSize;
     bool bUseCuda;

@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class OrthophotoProcess;
-
 class OrthophotoComponent
   : public TaskComponent
 {
@@ -60,10 +58,6 @@ protected slots:
     void onRunning() override;
     void onFinished() override;
     void onFailed() override;
-
-private:
-
-    OrthophotoProcess *mProcess;
 
 };
 

@@ -45,13 +45,13 @@ ExportCamerasPresenterImp::ExportCamerasPresenterImp(ExportCamerasView *view,
   : ExportCamerasPresenter(),
     mView(view),
     mModel(model),
-    //mNvmFormatWidget(new NvmFormatWidgetImp),
+    //mNvmFormatWidget(new NvmFormatWidget),
     //mBundlerFormatWidget(new BundlerFormatWidgetImp),
-    //mMveFormatWidget(new MveFormatWidgetImp),
-    mOriTxtFormatWidget(new OriTxtFormatWidgetImp)
+    //mMveFormatWidget(new MveFormatWidget),
+    mOriTxtFormatWidget(new OriTxtFormatWidget)
 {
-    this->init();
-    this->initSignalAndSlots();
+    ExportCamerasPresenterImp::init();
+    ExportCamerasPresenterImp::initSignalAndSlots();
 }
 
 ExportCamerasPresenterImp::~ExportCamerasPresenterImp()
@@ -94,41 +94,11 @@ void ExportCamerasPresenterImp::init()
 void ExportCamerasPresenterImp::initSignalAndSlots()
 {
     connect(mView, &ExportCamerasView::formatChange, this, &ExportCamerasPresenterImp::setCurrentFormat);
-    connect(mView, &ExportCamerasView::run,
-            this, &ExportCamerasPresenterImp::run);
+    connect(mView, &ExportCamerasView::run, this, &ExportCamerasPresenterImp::run);
     connect(mView, &DialogView::help, [&]() {
         emit help("export_cameras.html");
     });
 }
-
-//void ExportCamerasPresenterImp::save()
-//{
-//    QString reconstructionPath = mModel->reconstruction();
-//
-//    colmap::Reconstruction reconstruction;
-//    //#ifdef _DEBUG
-//    //  //Lectura como texto
-//    //  reconstruction.ReadText(reconstructionPath.toStdString());
-//    //#else
-//      //Lectura como binario
-//    reconstruction.ReadBinary(reconstructionPath.toStdString());
-//    //#endif
-//
-//    tl::Point3D offset = mModel->offset();
-//    OrientationExport orientationExport(&reconstruction, offset);
-//
-//    QString oriFormat = mView->format();
-//    if (oriFormat.compare("NVM") == 0) {
-//        orientationExport.exportMVE(mNvmFormatWidget->file());
-//    } else if (oriFormat.compare("Bundler") == 0) {
-//        orientationExport.exportBundler(mBundlerFormatWidget->file());
-//    } else if (oriFormat.compare("MVE") == 0) {
-//        orientationExport.exportMVE(mMveFormatWidget->file());
-//    } else if (oriFormat.compare("TXT") == 0) {
-//        orientationExport.exportOrientation(mOriTxtFormatWidget->file(), mOriTxtFormatWidget->rotation().compare("Quaternions") == 0);
-//    }
-//
-//}
 
 void ExportCamerasPresenterImp::onError(tl::TaskErrorEvent *event)
 {
@@ -148,7 +118,7 @@ void ExportCamerasPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> ExportCamerasPresenterImp::createProcess()
+auto ExportCamerasPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
     std::unique_ptr<tl::Task> export_task;
 
@@ -159,10 +129,13 @@ std::unique_ptr<tl::Task> ExportCamerasPresenterImp::createProcess()
         progressHandler()->setDescription("Export Cameras poses...");
     }
 
+    tl::Path export_file_path(mOriTxtFormatWidget->file().toStdString());
+
     QString format = mView->format();
-    export_task = std::make_unique<ExportCamerasTask>(mOriTxtFormatWidget->file(),
+    export_task = std::make_unique<ExportCamerasTask>(export_file_path,
                                                       mModel->images(),
                                                       mModel->poses(),
+                                                      mModel->offset(),
                                                       format);
     if (format.compare("TXT") == 0) {
         dynamic_cast<ExportCamerasTask *>(export_task.get())->setQuaternionRotation(mOriTxtFormatWidget->rotation() == "Quaternions");

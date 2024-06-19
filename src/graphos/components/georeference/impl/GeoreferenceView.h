@@ -38,6 +38,8 @@ class QHBoxLayout;
 class QGridLayout;
 class QSpacerItem;
 class QTableView;
+class QPushButton;
+
 
 namespace graphos
 {
@@ -114,6 +116,7 @@ protected:
     QAction *mActionGeoreference;
     QLabel *mLabelCRS;
     QLineEdit *mLineEditCRS;
+    QPushButton *mQPushButtonCRS;
     QTableView *mTableViewGroundControlPoints;
     QSpacerItem *verticalSpacer;
 

@@ -39,7 +39,7 @@ class RecentProjectsComponent
 public:
 
     RecentProjectsComponent(Application *application);
-    ~RecentProjectsComponent();
+    ~RecentProjectsComponent() override;
 
 private:
 

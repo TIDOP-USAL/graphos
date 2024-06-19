@@ -32,6 +32,7 @@
 #include <QObject>
 #include <QOpenGLWidget>
 #include <QVector3D>
+#include <QImage>
 
 #include <tidop/core/defs.h>
 #include <tidop/graphic/color.h>
@@ -57,7 +58,7 @@ namespace graphos
 
 
 class Viewer3DContextMenu
-    : public GraphosContextMenu
+  : public GraphosContextMenu
 {
     Q_OBJECT
 
@@ -82,7 +83,7 @@ private:
     void init();
     void initSignalAndSlots();
 
-    // GraphosContextMenu
+// GraphosContextMenu
 
 private slots:
 
@@ -171,7 +172,8 @@ public:
     void activatePicker(PickingMode pickerMode);
     void deactivatePicker();
 
-    ccHObject *object();
+    auto object() -> ccHObject*;
+    auto captureModel() -> QImage override;
 
 signals:
 
@@ -203,17 +205,6 @@ public:
 
     bool isEDL() const override { return edl; }
 
-protected:
-
-    //virtual void paintGL() override;
-    //virtual void resizeGL(int width, int height) override;
-    //virtual void initializeGL() override;
-    //virtual void mouseMoveEvent(QMouseEvent* event) override;
-    //virtual void mousePressEvent(QMouseEvent* event) override;
-    //virtual void mouseReleaseEvent(QMouseEvent* event) override;
-    //virtual void wheelEvent(QWheelEvent* event) override;
-    //virtual bool event(QEvent* event) override;
-
 protected slots:
 
     /*!
@@ -239,7 +230,7 @@ private:
     /*!
      * \brief Función para buscar un objeto mediante su nombre
      */
-    ccHObject *findChild(const QString &name, ccHObject *parent = nullptr);
+    auto findChild(const QString& name, ccHObject* parent = nullptr) -> ccHObject*;
 
 private:
 

@@ -27,8 +27,7 @@ namespace graphos
 {
 
 ProgressHandler::ProgressHandler(QObject *parent)
-  : QObject(parent),
-    tl::ProgressBase()
+  : QObject(parent)
 {
 }
 
@@ -40,10 +39,7 @@ ProgressHandler::ProgressHandler(size_t min,
 {
 }
 
-ProgressHandler::~ProgressHandler()
-{
-
-}
+ProgressHandler::~ProgressHandler() = default;
 
 void ProgressHandler::init()
 {

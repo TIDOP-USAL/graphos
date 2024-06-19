@@ -32,8 +32,5 @@ TaskView::TaskView(QWidget *parent,
 {
 }
 
-TaskView::~TaskView()
-{
-}
-
+TaskView::~TaskView() = default;
 } // namespace graphos

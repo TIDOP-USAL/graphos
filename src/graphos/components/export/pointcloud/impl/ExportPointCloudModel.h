@@ -41,14 +41,17 @@ public:
 
     ExportPointCloudModelImp(Project *project,
                              QObject *parent = nullptr);
-    ~ExportPointCloudModelImp();
+    ~ExportPointCloudModelImp() override;
 
 // ExportPointCloudModel interface
+
+public:
+
+    auto graphosProjectsDirectory() const -> tl::Path override;
 
 public slots:
 
     void exportPointCloud(const tl::Path &exportPath) override;
-    tl::Path graphosProjectsDirectory() const override;
 
 // Model interface
 

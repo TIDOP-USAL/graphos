@@ -95,8 +95,8 @@ public:
 private:
 
     void open();
-    bool isOpen();
-    void readDB();
+    auto isOpen() const -> bool;
+    void readDB() const;
     void close();
 
 private:
@@ -113,7 +113,7 @@ FeaturesReaderColmap::FeaturesReaderColmap(const QString &fileName)
 
 }
 
-bool FeaturesReaderColmap::read()
+auto FeaturesReaderColmap::read() -> bool
 {
     try {
         open();
@@ -142,12 +142,12 @@ void FeaturesReaderColmap::open()
     }
 }
 
-bool FeaturesReaderColmap::isOpen()
+auto FeaturesReaderColmap::isOpen() const -> bool
 {
     return bOpen;
 }
 
-void FeaturesReaderColmap::readDB()
+void FeaturesReaderColmap::readDB() const
 {
     mImageId;
 }
@@ -177,26 +177,13 @@ public:
 
 public:
 
-    bool write() override
-    {
-        try {
-            open();
-            if (isOpen()) {
-                writeDB();
-                close();
-            }
-        } catch (std::exception &e) {
-            tl::printException(e);
-            return true;
-        }
-        return false;
-    }
+    auto write() -> bool override;
 
 private:
 
     void open();
-    bool isOpen();
-    void writeDB();
+    auto isOpen() const -> bool;
+    void writeDB() const;
     void close();
 
 private:
@@ -206,11 +193,30 @@ private:
     colmap::Image mImageId;
 };
 
+
+
 FeaturesWriterColmap::FeaturesWriterColmap(const QString &fileName)
     : FeaturesWriter(fileName),
     mDatabase(new colmap::Database)
 {
 
+}
+
+auto FeaturesWriterColmap::write() -> bool
+{
+    try {
+
+        open();
+        if (isOpen()) {
+            writeDB();
+            close();
+        }
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+        return true;
+    }
+    return false;
 }
 
 void FeaturesWriterColmap::open()
@@ -227,12 +233,12 @@ void FeaturesWriterColmap::open()
     }
 }
 
-bool FeaturesWriterColmap::isOpen()
+bool FeaturesWriterColmap::isOpen() const
 {
     return bOpen;
 }
 
-void FeaturesWriterColmap::writeDB()
+void FeaturesWriterColmap::writeDB() const
 {
     mDatabase->WriteKeypoints(mImageId.ImageId(), mKeyPoints);
     mDatabase->WriteDescriptors(mImageId.ImageId(), mDescriptors);
@@ -246,9 +252,9 @@ void FeaturesWriterColmap::close()
 
 
 
-/* ---------------------------------------------------------------------------------- */
 
-std::unique_ptr<FeaturesReader> FeaturesReaderFactory::createReader(const QString &fileName)
+
+auto FeaturesReaderFactory::createReader(const QString &fileName) -> std::unique_ptr<FeaturesReader>
 {
     QString ext = QFileInfo(fileName).suffix();
     std::unique_ptr<FeaturesReader> features_reader;
@@ -262,11 +268,8 @@ std::unique_ptr<FeaturesReader> FeaturesReaderFactory::createReader(const QStrin
 
 
 
-/* ---------------------------------------------------------------------------------- */
 
-
-
-std::unique_ptr<FeaturesWriter> FeaturesWriterFactory::createWriter(const QString &fileName)
+auto FeaturesWriterFactory::createWriter(const QString &fileName) -> std::unique_ptr<FeaturesWriter>
 {
     QString ext = QFileInfo(fileName).suffix();
     std::unique_ptr<FeaturesWriter> features_writer;
@@ -280,15 +283,10 @@ std::unique_ptr<FeaturesWriter> FeaturesWriterFactory::createWriter(const QStrin
 
 
 
-/* ---------------------------------------------------------------------------------- */
 
+FeaturesIOHandler::FeaturesIOHandler() = default;
 
-
-FeaturesIOHandler::FeaturesIOHandler()
-{
-}
-
-bool FeaturesIOHandler::read(const QString &file)
+auto FeaturesIOHandler::read(const QString &file) -> bool
 {
     try {
         mReader = FeaturesReaderFactory::createReader(file);
@@ -299,7 +297,7 @@ bool FeaturesIOHandler::read(const QString &file)
     }
 }
 
-bool FeaturesIOHandler::write(const QString &file)
+auto FeaturesIOHandler::write(const QString &file) -> bool
 {
     try {
         mWriter = FeaturesWriterFactory::createWriter(file);

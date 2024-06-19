@@ -37,8 +37,7 @@ class ExportCamerasPresenter
 
 public:
 
-    ExportCamerasPresenter() {}
-    ~ExportCamerasPresenter() override = default;
+    ExportCamerasPresenter() = default;
 
 public slots:
 

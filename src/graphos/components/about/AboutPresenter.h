@@ -31,8 +31,12 @@
 namespace graphos
 {
 
-class HelpDialog;
-
+/*!
+ * \brief About presenter
+ *
+ * The `AboutPresenter` class represents the Presenter interface of the "About" component.
+ * It inherits from `Presenter` and provides functionality related to presenting the "About" information.
+ */
 class AboutPresenter
   : public Presenter
 {

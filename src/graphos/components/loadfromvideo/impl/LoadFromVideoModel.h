@@ -45,15 +45,13 @@ public:
 
 public:
 
-    tl::Path imagesPath() const override;
+    auto imagesPath() const -> tl::Path override;
     void addImage(const Image &image) override;
-    const std::map<int, Camera> &cameras() const override;
-    int addCamera(const Camera &camera) override;
-    int cameraID(const Camera &camera) const override;
-    int cameraID(const QString &make,
-                 const QString &model) const override;
-
-public slots:
+    auto cameras() const -> const std::map<int, Camera>& override;
+    auto addCamera(const Camera& camera) -> int override;
+    auto cameraID(const Camera& camera) const -> int override;
+    auto cameraID(const QString& make,
+                  const QString& model) const -> int override;
 
 // Model interface
 

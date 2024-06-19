@@ -420,16 +420,16 @@ GeoreferenceTask::GeoreferenceTask(const std::unordered_map<size_t, Image> &imag
                                    const std::unordered_map<size_t, CameraPose> &poses,
                                    const std::vector<GroundPoint> &groundPoints,
                                    const std::vector<GroundControlPoint> &groundControlPoints,
-                                   const tl::Path &outputPath,
-                                   const tl::Path &database)
+                                   tl::Path outputPath,
+                                   tl::Path database)
     : tl::TaskBase(),
       mImages(images),
       mCameras(cameras),
       mPoses(poses),
       mGroundPoints(groundPoints),
       mGroundControlPoints(groundControlPoints),
-      mPath(outputPath),
-      mDatabase(database),
+      mPath(std::move(outputPath)),
+      mDatabase(std::move(database)),
       mTransform(tl::Matrix<double, 4, 4>::identity())
 {
 
@@ -439,12 +439,12 @@ GeoreferenceTask::~GeoreferenceTask()
 {
 }
 
-tl::Matrix<double, 4, 4> GeoreferenceTask::transform() const
+auto GeoreferenceTask::transform() const -> tl::Matrix<double, 4, 4>
 {
     return mTransform;
 }
 
-std::map<int, Camera> GeoreferenceTask::cameras() const
+auto GeoreferenceTask::cameras() const -> std::map<int, Camera>
 {
     return mCameras;
 }
@@ -452,9 +452,6 @@ std::map<int, Camera> GeoreferenceTask::cameras() const
 void GeoreferenceTask::execute(tl::Progress *progressBar)
 {
     try {
-
-        tl::Chrono chrono("Georeference process finished");
-        chrono.run();
 
         colmap::Reconstruction reconstruction;
         exportToColmap(mDatabase,
@@ -617,9 +614,7 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
 
         }
 
-        for (size_t i = 0; i < mGroundControlPoints.size(); i++) {
-
-            GroundControlPoint ground_control_point = mGroundControlPoints[i];
+        for (auto ground_control_point : mGroundControlPoints) {
 
             std::vector<colmap::TriangulationEstimator::PointData> points_data;
             std::vector<colmap::TriangulationEstimator::PoseData> poses_data;
@@ -658,9 +653,9 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
             std::vector<char> inlier_mask;
             if (colmap::EstimateTriangulation(tri_options, points_data, poses_data, &inlier_mask, &xyz)) {
                 src.push_back(xyz);
-                dst.push_back(Eigen::Vector3d(ground_control_point.x,
-                              ground_control_point.y,
-                              ground_control_point.z));
+                dst.emplace_back(ground_control_point.x,
+                                 ground_control_point.y,
+                                 ground_control_point.z);
                 gcp_name.push_back(ground_control_point.name());
             }
 
@@ -673,8 +668,8 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
             offset += (dst[i] - offset) / (i + 1);
         }
 
-        for (size_t i = 0; i < dst.size(); i++) {
-            dst[i] -= offset;
+        for (auto &i : dst) {
+            i -= offset;
         }
 
         tl::Path offset_path(mPath);
@@ -727,7 +722,8 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
 
 #endif
 
-        chrono.stop();
+        tl::Message::success("Georeference finished in {:.2} minutes", this->time() / 60.);
+
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Georeference error");

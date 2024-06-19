@@ -76,7 +76,7 @@ struct TestUndistort
 
 BOOST_FIXTURE_TEST_CASE(opencv_camera_matrix, TestUndistort)
 {
-    cv::Mat camera_matrix = openCVCameraMatrix(*calibration);
+    cv::Mat camera_matrix = openCvCameraMatrix(*calibration);
 
     BOOST_CHECK_CLOSE(camera_matrix.at<float>(0, 0), 3859.3453965517, 0.001);
     BOOST_CHECK_CLOSE(camera_matrix.at<float>(0, 1), 0.0, 0.001);
@@ -88,7 +88,7 @@ BOOST_FIXTURE_TEST_CASE(opencv_camera_matrix, TestUndistort)
     BOOST_CHECK_CLOSE(camera_matrix.at<float>(2, 1), 0.0, 0.001);
     BOOST_CHECK_CLOSE(camera_matrix.at<float>(2, 2), 1.0, 0.001);
 
-    cv::Mat camera_matrix2 = openCVCameraMatrix(*calibration2);
+    cv::Mat camera_matrix2 = openCvCameraMatrix(*calibration2);
 
     BOOST_CHECK_CLOSE(camera_matrix2.at<float>(0, 0), 3639.8586374454, 0.001);
     BOOST_CHECK_CLOSE(camera_matrix2.at<float>(0, 1), 0.0, 0.001);
@@ -103,7 +103,7 @@ BOOST_FIXTURE_TEST_CASE(opencv_camera_matrix, TestUndistort)
 
 BOOST_FIXTURE_TEST_CASE(opencv_distortion_coefficients, TestUndistort)
 {
-    cv::Mat distortion_coefficients = openCVDistortionCoefficients(*calibration);
+    cv::Mat distortion_coefficients = openCvDistortionCoefficients(*calibration);
 
     BOOST_CHECK_EQUAL(4, distortion_coefficients.cols);
     BOOST_CHECK_CLOSE(distortion_coefficients.at<float>(0), 0.0004829397, 0.001);
@@ -111,7 +111,7 @@ BOOST_FIXTURE_TEST_CASE(opencv_distortion_coefficients, TestUndistort)
     BOOST_CHECK_CLOSE(distortion_coefficients.at<float>(2), 0.0000801173, 0.001);
     BOOST_CHECK_CLOSE(distortion_coefficients.at<float>(3), -0.0022438688, 0.001);
 
-    cv::Mat distortion_coefficients2 = openCVDistortionCoefficients(*calibration2);
+    cv::Mat distortion_coefficients2 = openCvDistortionCoefficients(*calibration2);
 
     BOOST_CHECK_EQUAL(4, distortion_coefficients2.cols);
     BOOST_CHECK_CLOSE(distortion_coefficients2.at<float>(0), 0.0658540516, 0.001);

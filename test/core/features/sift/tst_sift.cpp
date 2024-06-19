@@ -34,7 +34,7 @@ struct SiftTest
 {
 
     SiftTest()
-        : mSift(new SiftProperties()),
+        : mSift(new Sift()),
         mSiftCPUDetectorDescriptor(new SiftCPUDetectorDescriptor(6000, 4, 9.)),
         mSiftCudaDetectorDescriptor(new SiftCudaDetectorDescriptor(10000, 8, 11., 0.8))
     {

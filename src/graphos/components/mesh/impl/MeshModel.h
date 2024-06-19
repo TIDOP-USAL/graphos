@@ -48,10 +48,12 @@ public:
 
 public:
 
-    std::shared_ptr<PoissonReconProperties> properties() const override;
-    tl::Path denseModel() const override;
-    tl::Path projectDir() const override;
+    auto properties() const -> std::shared_ptr<PoissonReconProperties> override;
+    auto denseModel() const -> tl::Path override;
+    auto projectDir() const -> tl::Path override;
+    auto mesh() const -> tl::Path override;
     void setMesh(const tl::Path &mesh) override;
+    void cleanProject() override;
 
 public slots:
 

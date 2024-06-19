@@ -41,7 +41,7 @@ UndistortImagesModelImp::UndistortImagesModelImp(Project *project,
               qApp->applicationName())),
     mProject(project)
 {
-    this->init();
+    UndistortImagesModelImp::init();
 }
 
 UndistortImagesModelImp::~UndistortImagesModelImp()
@@ -52,22 +52,22 @@ UndistortImagesModelImp::~UndistortImagesModelImp()
     }
 }
 
-const std::unordered_map<size_t, Image> &UndistortImagesModelImp::images() const
+auto UndistortImagesModelImp::images() const -> const Images&
 {
     return mProject->images();
 }
 
-const std::map<int, Camera> &UndistortImagesModelImp::cameras() const
+auto UndistortImagesModelImp::cameras() const -> const Cameras&
 {
     return mProject->cameras();
 }
 
-bool UndistortImagesModelImp::useCuda() const
+auto UndistortImagesModelImp::useCuda() const -> bool
 {
     return mSettings->value("UseCuda", true).toBool();
 }
 
-tl::Path UndistortImagesModelImp::projectFolder() const
+auto UndistortImagesModelImp::projectFolder() const -> tl::Path
 {
     return mProject->projectFolder();
 }
@@ -101,11 +101,6 @@ void UndistortImagesModelImp::saveSettings()
 
     }
 }
-
-//UndistortImagesParameters *UndistortImagesModelImp::parameters() const
-//{
-//  return mParameters;
-//}
 
 void UndistortImagesModelImp::init()
 {

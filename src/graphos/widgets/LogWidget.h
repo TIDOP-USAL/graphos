@@ -61,10 +61,9 @@ public:
      * \brief Set log level
      * \param[in] level Log level
      */
-    void setLogLevel(tl::MessageLevel level);
+    static void setLogLevel(tl::MessageLevel level);
 
-    //void print(const std::string &msg, const std::string &date, tl::MessageLevel level);
-    void print(String msg, tl::MessageLevel level);
+    void print(String msg, tl::MessageLevel level) const;
     void refresh();
 
 private slots:
@@ -101,13 +100,6 @@ public:
     void success(String message) override;
     void warning(String message) override;
     void error(String message) override;
-
-//public:
-//
-//    void onMsgDebug(const std::string &msg, const std::string &date) override;
-//    void onMsgInfo(const std::string &msg, const std::string &date) override;
-//    void onMsgWarning(const std::string &msg, const std::string &date) override;
-//    void onMsgError(const std::string &msg, const std::string &date) override;
 
 private:
 

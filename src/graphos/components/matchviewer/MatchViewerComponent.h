@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class DtmProcess;
-
 class MatchViewerComponent
   : public ComponentBase
 {
@@ -41,7 +39,7 @@ class MatchViewerComponent
 public:
 
     MatchViewerComponent(Application *application);
-    ~MatchViewerComponent();
+    ~MatchViewerComponent() override;
 
 private:
 

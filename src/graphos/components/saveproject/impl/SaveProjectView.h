@@ -40,10 +40,6 @@ public:
     explicit SaveProjectViewImp(QWidget *parent = nullptr);
     ~SaveProjectViewImp() override = default;
 
-private:
-
-    void init();
-
 };
 
 } // namespace graphos

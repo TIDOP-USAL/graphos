@@ -31,24 +31,23 @@ TL_DISABLE_WARNINGS
 #include <QApplication>
 #include <QPushButton>
 #include <QFileDialog>
-#include <QStandardPaths>
 TL_DEFAULT_WARNINGS
 
 namespace graphos
 {
 
-NvmFormatWidgetImp::NvmFormatWidgetImp(QWidget *parent)
-  : NvmFormatWidget(parent),
+NvmFormatWidget::NvmFormatWidget(QWidget *parent)
+  : GraphosWidgetView(parent),
     mGroupBox(new QGroupBox(this)),
     mLabelFile(new QLabel(this)),
     mLineEditFile(new QLineEdit(this)),
     mPushButtonSelectPath(new QPushButton(this))
 {
-    NvmFormatWidgetImp::initUI();
-    NvmFormatWidgetImp::initSignalAndSlots();
+    NvmFormatWidget::initUI();
+    NvmFormatWidget::initSignalAndSlots();
 }
 
-void NvmFormatWidgetImp::initUI()
+void NvmFormatWidget::initUI()
 {
     this->setWindowTitle("NVM");
     this->setObjectName("NvmOrientationFormatWidget");
@@ -59,62 +58,62 @@ void NvmFormatWidgetImp::initUI()
 
     layout->addWidget(mGroupBox);
 
-    QGridLayout *propertiesLayout = new QGridLayout();
-    mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *properties_layout = new QGridLayout();
+    mGroupBox->setLayout(properties_layout);
 
-    propertiesLayout->addWidget(mLabelFile, 0, 0, 1, 1);
-    propertiesLayout->addWidget(mLineEditFile, 0, 1, 1, 1);
+    properties_layout->addWidget(mLabelFile, 0, 0, 1, 1);
+    properties_layout->addWidget(mLineEditFile, 0, 1, 1, 1);
     mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
     mPushButtonSelectPath->setText("...");
-    propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
+    properties_layout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
 
-    NvmFormatWidgetImp::retranslate();
-    NvmFormatWidgetImp::clear(); /// set default values
-    NvmFormatWidgetImp::update();
+    retranslate();
+    clear(); /// set default values
+    update();
 }
 
-void NvmFormatWidgetImp::initSignalAndSlots()
+void NvmFormatWidget::initSignalAndSlots()
 {
-    connect(mLineEditFile, &QLineEdit::textChanged, this, &NvmFormatWidgetImp::fileChanged);
-    connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &NvmFormatWidgetImp::onPushButtonSelectPath);
+    connect(mLineEditFile, &QLineEdit::textChanged, this, &NvmFormatWidget::fileChanged);
+    connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &NvmFormatWidget::onPushButtonSelectPath);
 }
 
-void NvmFormatWidgetImp::clear()
+void NvmFormatWidget::clear()
 {
     const QSignalBlocker blocker(mLineEditFile);
 
     mLineEditFile->clear();
 }
 
-void NvmFormatWidgetImp::update()
+void NvmFormatWidget::update()
 {
 }
 
-void NvmFormatWidgetImp::retranslate()
+void NvmFormatWidget::retranslate()
 {
     mLabelFile->setText(QApplication::translate("NvmOrientationFormatWidget", "NVM  export path", nullptr));
 }
 
-void NvmFormatWidgetImp::setFile(const QString &file)
+void NvmFormatWidget::setFile(const QString &file)
 {
     const QSignalBlocker blocker(mLineEditFile);
     mLineEditFile->setText(file);
 }
 
-QString NvmFormatWidgetImp::file() const
+QString NvmFormatWidget::file() const
 {
     return mLineEditFile->text();
 }
 
-void NvmFormatWidgetImp::onPushButtonSelectPath()
+void NvmFormatWidget::onPushButtonSelectPath()
 {
-    QString pathName = QFileDialog::getExistingDirectory(this,
+    QString export_path = QFileDialog::getExistingDirectory(this,
                                                          tr("Export directory"),
                                                          "",
                                                          QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-    if (!pathName.isEmpty()) {
-        mLineEditFile->setText(pathName);
+    if (!export_path.isEmpty()) {
+        mLineEditFile->setText(export_path);
     }
 
     update();

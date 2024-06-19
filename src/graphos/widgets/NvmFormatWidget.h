@@ -35,6 +35,7 @@ class QPushButton;
 namespace graphos
 {
 
+
 class NvmFormatWidget
   : public GraphosWidgetView
 {
@@ -43,39 +44,12 @@ class NvmFormatWidget
 
 public:
 
-    NvmFormatWidget(QWidget *parent = nullptr) : GraphosWidgetView(parent) {}
+    NvmFormatWidget(QWidget *parent = nullptr);
     ~NvmFormatWidget() override = default;
-
-    virtual QString file() const = 0;
-
-signals:
-
-    void fileChanged(QString);
-
-public slots:
-
-    virtual void setFile(const QString &file) = 0;
-
-};
-
-class NvmFormatWidgetImp
-  : public NvmFormatWidget
-{
-
-    Q_OBJECT
 
 public:
 
-    NvmFormatWidgetImp(QWidget *parent = nullptr);
-    ~NvmFormatWidgetImp() override = default;
-
-protected slots:
-
-    void onPushButtonSelectPath();
-
-// NvmFormatWidget interface
-
-    QString file() const override;
+    QString file() const;
 
 signals:
 
@@ -83,7 +57,11 @@ signals:
 
 public slots:
 
-    void setFile(const QString &file) override;
+    void setFile(const QString &file);
+
+protected slots:
+
+    void onPushButtonSelectPath();
 
 // GraphosWidgetView interface
 

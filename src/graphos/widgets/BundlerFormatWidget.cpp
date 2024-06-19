@@ -37,30 +37,23 @@ TL_DEFAULT_WARNINGS
 namespace graphos
 {
 
+
+
 BundlerFormatWidget::BundlerFormatWidget(QWidget *parent)
-  : GraphosWidgetView(parent)
-{
-
-}
-
-
-
-
-BundlerFormatWidgetImp::BundlerFormatWidgetImp(QWidget *parent)
-  : BundlerFormatWidget(parent),
+  : GraphosWidgetView(parent),
     mGroupBox(new QGroupBox(this)),
     mLabelFile(new QLabel(this)),
     mLineEditFile(new QLineEdit(this)),
     mPushButtonSelectPath(new QPushButton(this))
 {
-    BundlerFormatWidgetImp::initUI();
-    BundlerFormatWidgetImp::initSignalAndSlots();
+    BundlerFormatWidget::initUI();
+    BundlerFormatWidget::initSignalAndSlots();
 }
 
-void BundlerFormatWidgetImp::initUI()
+void BundlerFormatWidget::initUI()
 {
     this->setWindowTitle("Bundler");
-    this->setObjectName("BundlerFormatWidget");
+    this->setObjectName("BundlerFormatWidgett");
 
     QGridLayout *layout = new QGridLayout();
     layout->setContentsMargins(0, 0, 0, 0);
@@ -68,62 +61,62 @@ void BundlerFormatWidgetImp::initUI()
 
     layout->addWidget(mGroupBox);
 
-    QGridLayout *propertiesLayout = new QGridLayout();
-    mGroupBox->setLayout(propertiesLayout);
+    QGridLayout *properties_layout = new QGridLayout();
+    mGroupBox->setLayout(properties_layout);
 
-    propertiesLayout->addWidget(mLabelFile, 0, 0, 1, 1);
-    propertiesLayout->addWidget(mLineEditFile, 0, 1, 1, 1);
+    properties_layout->addWidget(mLabelFile, 0, 0, 1, 1);
+    properties_layout->addWidget(mLineEditFile, 0, 1, 1, 1);
     mPushButtonSelectPath->setMaximumSize(QSize(23, 16777215));
     mPushButtonSelectPath->setText("...");
-    propertiesLayout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
+    properties_layout->addWidget(mPushButtonSelectPath, 0, 2, 1, 1);
 
-    BundlerFormatWidgetImp::retranslate();
-    BundlerFormatWidgetImp::clear(); /// set default values
-    BundlerFormatWidgetImp::update();
+    retranslate();
+    clear(); /// set default values
+    update();
 }
 
-void BundlerFormatWidgetImp::initSignalAndSlots()
+void BundlerFormatWidget::initSignalAndSlots()
 {
-    connect(mLineEditFile, &QLineEdit::textChanged, this, &BundlerFormatWidgetImp::fileChanged);
-    connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &BundlerFormatWidgetImp::onPushButtonSelectPath);
+    connect(mLineEditFile, &QLineEdit::textChanged, this, &BundlerFormatWidget::fileChanged);
+    connect(mPushButtonSelectPath, &QAbstractButton::clicked, this, &BundlerFormatWidget::onPushButtonSelectPath);
 }
 
-void BundlerFormatWidgetImp::clear()
+void BundlerFormatWidget::clear()
 {
     const QSignalBlocker blocker(mLineEditFile);
 
     mLineEditFile->clear();
 }
 
-void BundlerFormatWidgetImp::update()
+void BundlerFormatWidget::update()
 {
 }
 
-void BundlerFormatWidgetImp::retranslate()
+void BundlerFormatWidget::retranslate()
 {
-    mLabelFile->setText(QApplication::translate("BundlerFormatWidget", "Bundler File", nullptr));
+    mLabelFile->setText(QApplication::translate("BundlerFormatWidgett", "Bundler File", nullptr));
 }
 
-void BundlerFormatWidgetImp::setFile(const QString &file)
+void BundlerFormatWidget::setFile(const QString &file)
 {
     const QSignalBlocker blocker(mLineEditFile);
     mLineEditFile->setText(file);
 }
 
-QString BundlerFormatWidgetImp::file() const
+QString BundlerFormatWidget::file() const
 {
     return mLineEditFile->text();
 }
 
-void BundlerFormatWidgetImp::onPushButtonSelectPath()
+void BundlerFormatWidget::onPushButtonSelectPath()
 {
-    QString pathName = QFileDialog::getSaveFileName(nullptr,
+    QString bundler_file = QFileDialog::getSaveFileName(nullptr,
                                                     tr("Bundler file"),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
                                                     tr("Bundler v3 (*.out)"));
 
-    if (!pathName.isEmpty()) {
-        mLineEditFile->setText(pathName);
+    if (!bundler_file.isEmpty()) {
+        mLineEditFile->setText(bundler_file);
     }
 
     update();

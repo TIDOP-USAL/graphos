@@ -42,8 +42,8 @@ namespace graphos
 LoadFromVideoViewImp::LoadFromVideoViewImp(QWidget *parent)
     : LoadFromVideoView(parent)
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    LoadFromVideoViewImp::initUI();
+    LoadFromVideoViewImp::initSignalAndSlots();
 }
 
 LoadFromVideoViewImp::~LoadFromVideoViewImp()
@@ -56,29 +56,29 @@ void LoadFromVideoViewImp::initUI()
     this->setObjectName(QString("LoadFromVideoView"));
     this->resize(750, 450);
 
-    QGridLayout *gridLayout = new QGridLayout();
-    this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
-    QToolBar *toolBar = new QToolBar(this);
+    auto tool_bar = new QToolBar(this);
     mActionLoadVideo = new QAction(this);
     mActionLoadVideo->setIcon(QIcon::fromTheme("video-folder"));
-    toolBar->addAction(mActionLoadVideo);
-    toolBar->addSeparator();
+    tool_bar->addAction(mActionLoadVideo);
+    tool_bar->addSeparator();
     mActionPlayVideo = new QAction(this);
     mActionPlayVideo->setIcon(QIcon::fromTheme("play"));
-    toolBar->addAction(mActionPlayVideo);
+    tool_bar->addAction(mActionPlayVideo);
     mActionPauseVideo = new QAction(this);
     mActionPauseVideo->setIcon(QIcon::fromTheme("pause"));
-    toolBar->addAction(mActionPauseVideo);
+    tool_bar->addAction(mActionPauseVideo);
     mActionStopVideo = new QAction(this);
     mActionStopVideo->setIcon(QIcon::fromTheme("stop"));
-    toolBar->addAction(mActionStopVideo);
-    gridLayout->setMargin(0);
-    gridLayout->addWidget(toolBar, 0, 1);
+    tool_bar->addAction(mActionStopVideo);
+    grid_layout->setMargin(0);
+    grid_layout->addWidget(tool_bar, 0, 1);
 
-    QGridLayout *gridLayout2 = new QGridLayout();
-    gridLayout2->setContentsMargins(11, 0, 11, 11);
-    gridLayout->addLayout(gridLayout2, 1, 1);
+    auto grid_layout2 = new QGridLayout();
+    grid_layout2->setContentsMargins(11, 0, 11, 11);
+    grid_layout->addLayout(grid_layout2, 1, 1);
 
     //mLabelVideo = new QLabel(this);
     //gridLayout->addWidget(mLabelVideo, 0, 0, 1, 1);
@@ -92,35 +92,35 @@ void LoadFromVideoViewImp::initUI()
     mLabelVideoViewer = new QLabel(this);
     mLabelVideoViewer->setMinimumHeight(400);
     mLabelVideoViewer->setStyleSheet("background-color: #FF000000");
-    gridLayout2->addWidget(mLabelVideoViewer, 0, 0, 1, 3);
+    grid_layout2->addWidget(mLabelVideoViewer, 0, 0, 1, 3);
 
     mSliderVideo = new QSlider(Qt::Orientation::Horizontal, this);
-    gridLayout2->addWidget(mSliderVideo, 1, 0, 1, 3);
+    grid_layout2->addWidget(mSliderVideo, 1, 0, 1, 3);
 
     mLabelSkipFrames = new QLabel(this);
-    gridLayout2->addWidget(mLabelSkipFrames, 2, 0, 1, 1);
+    grid_layout2->addWidget(mLabelSkipFrames, 2, 0, 1, 1);
     mSpinBoxSkipFrames = new QSpinBox(this);
     mSpinBoxSkipFrames->setValue(20);
-    gridLayout2->addWidget(mSpinBoxSkipFrames, 2, 1, 1, 2);
+    grid_layout2->addWidget(mSpinBoxSkipFrames, 2, 1, 1, 2);
 
     mLabelVideoIni = new QLabel(this);
-    gridLayout2->addWidget(mLabelVideoIni, 3, 0, 1, 1);
+    grid_layout2->addWidget(mLabelVideoIni, 3, 0, 1, 1);
     mSpinBoxVideoIni = new QSpinBox(this);
-    gridLayout2->addWidget(mSpinBoxVideoIni, 3, 1, 1, 1);
+    grid_layout2->addWidget(mSpinBoxVideoIni, 3, 1, 1, 1);
     mPushButtonVideoIni = new QPushButton(this);
-    gridLayout2->addWidget(mPushButtonVideoIni, 3, 2, 1, 1);
+    grid_layout2->addWidget(mPushButtonVideoIni, 3, 2, 1, 1);
 
     mLabelVideoEnd = new QLabel(this);
-    gridLayout2->addWidget(mLabelVideoEnd, 4, 0, 1, 1);
+    grid_layout2->addWidget(mLabelVideoEnd, 4, 0, 1, 1);
     mSpinBoxVideoEnd = new QSpinBox(this);
-    gridLayout2->addWidget(mSpinBoxVideoEnd, 4, 1, 1, 1);
+    grid_layout2->addWidget(mSpinBoxVideoEnd, 4, 1, 1, 1);
     mPushButtonVideoEnd = new QPushButton(this);
-    gridLayout2->addWidget(mPushButtonVideoEnd, 4, 2, 1, 1);
+    grid_layout2->addWidget(mPushButtonVideoEnd, 4, 2, 1, 1);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout2->addWidget(mButtonBox, 5, 0, 1, 3);
+    grid_layout2->addWidget(mButtonBox, 5, 0, 1, 3);
 
     this->retranslate();
     this->clear();
@@ -129,59 +129,61 @@ void LoadFromVideoViewImp::initUI()
 
 void LoadFromVideoViewImp::initSignalAndSlots()
 {
-    //connect(mLineEditVideo, &QLineEdit::textChanged, this, &LoadFromVideoViewImp::update);
-    connect(mActionLoadVideo, &QAction::triggered, [&]() {
+    connect(mActionLoadVideo, &QAction::triggered, 
+        [&]() {
 
-        mVideo = QFileDialog::getOpenFileName(nullptr, tr("Open video"),
-        QDir::homePath(),
-        tr("Video file (*.*)"));
+            mVideo = QFileDialog::getOpenFileName(nullptr, tr("Open video"),
+            QDir::homePath(),
+            tr("Video file (*.*)"));
 
-    if (!mVideo.isEmpty()) {
-        if (capture.open(mVideo.toStdString())) {
-            mFlags.activeFlag(Flag::video_load, true);
-            int frames = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_COUNT));
-            mSpinBoxVideoIni->setMaximum(frames);
-            mSpinBoxVideoIni->setValue(0);
-            mSpinBoxVideoEnd->setMaximum(frames);
-            mSpinBoxVideoEnd->setValue(frames);
-            mSliderVideo->setMaximum(frames);
-            //importFrame();
+            if (!mVideo.isEmpty()) {
+                if (capture.open(mVideo.toStdString())) {
+                    mFlags.activeFlag(Flag::video_load, true);
+                    int frames = static_cast<int>(capture.get(cv::CAP_PROP_FRAME_COUNT));
+                    mSpinBoxVideoIni->setMaximum(frames);
+                    mSpinBoxVideoIni->setValue(0);
+                    mSpinBoxVideoEnd->setMaximum(frames);
+                    mSpinBoxVideoEnd->setValue(frames);
+                    mSliderVideo->setMaximum(frames);
+                    update();
+                }
+            }
+        });
+
+    connect(mActionPlayVideo, &QAction::triggered, 
+        [&]() {
+            if (!capture.isOpened()) {
+                capture.open(mVideo.toStdString());
+            }
+
+            mFlags.activeFlag(Flag::video_run, true);
+
+            int frame_per_seconds = static_cast<int>(capture.get(cv::CAP_PROP_FPS));
+            timer->start(frame_per_seconds);
+
             update();
-        }
-    }
-            });
+        });
 
-    connect(mActionPlayVideo, &QAction::triggered, [&]() {
-        if (!capture.isOpened()) {
-            capture.open(mVideo.toStdString());
-        }
+    connect(mActionPauseVideo, &QAction::triggered, 
+        [&]() {
 
-        mFlags.activeFlag(Flag::video_run, true);
+            timer->stop();
 
-        int frame_per_seconds = static_cast<int>(capture.get(cv::CAP_PROP_FPS));
-        timer->start(frame_per_seconds);
+            mFlags.activeFlag(Flag::video_run, false);
 
-        update();
-            });
+            update();
+        });
 
-    connect(mActionPauseVideo, &QAction::triggered, [&]() {
+    connect(mActionStopVideo, &QAction::triggered, 
+        [&]() {
 
-        timer->stop();
+            timer->stop();
+            capture.release();
+            mFlags.activeFlag(Flag::video_run, false);
+            mLabelVideoViewer->clear();
+            update();
 
-        mFlags.activeFlag(Flag::video_run, false);
-
-        update();
-            });
-
-    connect(mActionStopVideo, &QAction::triggered, [&]() {
-
-        timer->stop();
-        capture.release();
-        mFlags.activeFlag(Flag::video_run, false);
-        mLabelVideoViewer->clear();
-        update();
-
-            });
+        });
 
     connect(mSpinBoxSkipFrames, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &LoadFromVideoView::skip_frames_changed);
@@ -201,20 +203,20 @@ void LoadFromVideoViewImp::initSignalAndSlots()
             mSpinBoxVideoEnd->setValue(frame);
             });
 
-    connect(mPushButtonVideoEnd, &QPushButton::clicked, [&]() {
+    connect(mPushButtonVideoEnd, &QPushButton::clicked,
+        [&]() {
 
-        int frame = static_cast<int>(capture.get(cv::CAP_PROP_POS_FRAMES));
-        mSpinBoxVideoEnd->setValue(frame);
-        if (mSpinBoxVideoIni->value() > frame)
-            mSpinBoxVideoIni->setValue(frame);
+            int frame = static_cast<int>(capture.get(cv::CAP_PROP_POS_FRAMES));
+            mSpinBoxVideoEnd->setValue(frame);
+            if (mSpinBoxVideoIni->value() > frame)
+                mSpinBoxVideoIni->setValue(frame);
 
-            });
+        });
 
-    connect(mSliderVideo, &QSlider::valueChanged, [&](int value) {
-
-        capture.set(cv::CAP_PROP_POS_FRAMES, static_cast<double>(value));
-
-            });
+    connect(mSliderVideo, &QSlider::valueChanged,
+        [&](int value) {
+            capture.set(cv::CAP_PROP_POS_FRAMES, static_cast<double>(value));
+        });
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &LoadFromVideoView::run);
@@ -228,7 +230,6 @@ void LoadFromVideoViewImp::retranslate()
     mActionPlayVideo->setText(QApplication::translate("LoadFromVideoView", "Play video"));
     mActionPauseVideo->setText(QApplication::translate("LoadFromVideoView", "Pause video"));
     mActionStopVideo->setText(QApplication::translate("LoadFromVideoView", "Stop video"));
-    //mLabelVideo->setText(QApplication::translate("VideoView", "Video:"));
     mLabelSkipFrames->setText(QApplication::translate("SkipFramesView", "Skip Frames:"));
     mLabelVideoIni->setText(QApplication::translate("SkipFramesView", "Video ini:"));
     mPushButtonVideoIni->setText(QApplication::translate("SkipFramesView", "Set video ini"));
@@ -261,31 +262,25 @@ void LoadFromVideoViewImp::update()
     mButtonBox->button(QDialogButtonBox::Apply)->setEnabled(video_opened);
 }
 
-QString LoadFromVideoViewImp::video() const
+auto LoadFromVideoViewImp::video() const -> QString
 {
     return mVideo;
 }
 
-int LoadFromVideoViewImp::skipFrames() const
+auto LoadFromVideoViewImp::skipFrames() const -> int
 {
     return mSpinBoxSkipFrames->value();
 }
 
-int LoadFromVideoViewImp::videoIni() const
+auto LoadFromVideoViewImp::videoIni() const -> int
 {
     return mSpinBoxVideoIni->value();
 }
 
-int LoadFromVideoViewImp::videoEnd() const
+auto LoadFromVideoViewImp::videoEnd() const -> int
 {
     return mSpinBoxVideoEnd->value();
 }
-
-
-//void LoadFromVideoViewImp::setVideo(const QString &video) 
-//{
-//  mVideo = video;
-//}
 
 void LoadFromVideoViewImp::setSkipFrames(int SkipFrames)
 {
@@ -304,10 +299,10 @@ void LoadFromVideoViewImp::importFrame()
         mSliderVideo->setValue(position);
 
         cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-        QImage srcQImage = QImage((uchar *)(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+        QImage image(frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
         int w = mLabelVideoViewer->width();
         int h = mLabelVideoViewer->height();
-        QPixmap pixmap = QPixmap::fromImage(srcQImage);
+        QPixmap pixmap = QPixmap::fromImage(image);
         mLabelVideoViewer->setPixmap(pixmap.scaled(w, h, Qt::KeepAspectRatio));
         mLabelVideoViewer->show();
 
@@ -318,20 +313,6 @@ void LoadFromVideoViewImp::importFrame()
         timer->stop();
     }
 }
-
-//void LoadFromVideoViewImp::onLoadVideo()
-//{
-//
-//  //int frame_per_seconds = static_cast<int>(capture.get(cv::CAP_PROP_FPS));
-//  //timer->start(33);
-//}
-
-//void LoadFromVideoViewImp::on_stopButton_clicked()
-//{
-//  timer->stop();
-//  capture.release();
-//}
-/**/
 
 } // namespace graphos
 

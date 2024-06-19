@@ -26,10 +26,7 @@
 
 #include "graphos/graphos_global.h"
 
-#include <vector>
-#include <unordered_map>
-
-#include <tidop/geometry/entities/point.h>
+#include <string>
 
 namespace graphos
 {

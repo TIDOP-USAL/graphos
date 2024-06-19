@@ -24,11 +24,8 @@
 #include "AboutView.h"
 
 #include <QApplication>
-#include <QIcon>
 #include <QGridLayout>
 #include <QLabel>
-#include <QTabWidget>
-#include <QTextEdit>
 #include <QListWidget>
 #include <QStackedWidget>
 #include <QPlainTextEdit>
@@ -48,12 +45,12 @@ AboutViewImp::~AboutViewImp()
 {
 }
 
-void AboutViewImp::setGraphosVersion(const QString &version)
+void AboutViewImp::setVersion(const QString &version)
 {
     mLabelGraphosVersion->setText(mLabelGraphosVersion->text() + " " + version);
 }
 
-void AboutViewImp::setGraphosLicence(const QString &licence)
+void AboutViewImp::setLicence(const QString &licence)
 {
     mTextEditGraphosLicence->setPlainText(licence);
 }
@@ -64,12 +61,12 @@ void AboutViewImp::addLicence(const QString &product,
     QListWidgetItem *item = new QListWidgetItem(mListWidgetThirdPartyLiceses);
     item->setText(product);
 
-    QWidget *page = new QWidget(this);
-    QGridLayout *gridLayout = new QGridLayout(page);
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    QPlainTextEdit *plainText = new QPlainTextEdit(page);
-    plainText->setPlainText(licence);
-    gridLayout->addWidget(plainText, 0, 0, 1, 1);
+    auto page = new QWidget(this);
+    auto grid_layout = new QGridLayout(page);
+    grid_layout->setContentsMargins(0, 0, 0, 0);
+    auto plain_text = new QPlainTextEdit(page);
+    plain_text->setPlainText(licence);
+    grid_layout->addWidget(plain_text, 0, 0, 1, 1);
 
     mStackedWidgetThirdPartyLicenses->addWidget(page);
 }
@@ -79,7 +76,7 @@ void AboutViewImp::initUI()
     this->setObjectName(QString::fromUtf8("AboutView"));
     this->resize(692, 540);
 
-    QGridLayout *layout = new QGridLayout();
+    auto layout = new QGridLayout();
     this->setLayout(layout);
 
     mLabelGraphosLogo = new QLabel(this);

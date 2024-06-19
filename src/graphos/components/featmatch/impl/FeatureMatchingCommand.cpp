@@ -28,12 +28,13 @@
 #include "graphos/core/project.h"
 
 #include <tidop/core/msg/message.h>
-#include <tidop/core/chrono.h>
+#include <tidop/core/progress.h>
 
 #include <colmap/feature/matching.h>
 #include <colmap/base/database.h>
 
 #include <QFileInfo>
+#include <tidop/core/log.h>
 
 using namespace tl;
 
@@ -44,25 +45,25 @@ FeatureMatchingCommand::FeatureMatchingCommand()
   : Command("featmatch", "Feature Matching"),
     mDisableCuda(false)
 {
-    FeatureMatchingProperties featureMatchingProperties;
-    auto ratio = featureMatchingProperties.ratio();
-	auto distance = featureMatchingProperties.distance();
-	auto max_error = featureMatchingProperties.maxError();
-	auto confidence = featureMatchingProperties.confidence();
-	auto cross_check = featureMatchingProperties.crossCheck();
+    FeatureMatching feature_matching_properties;
+    auto ratio = feature_matching_properties.ratio();
+	auto distance = feature_matching_properties.distance();
+	auto max_error = feature_matching_properties.maxError();
+	auto confidence = feature_matching_properties.confidence();
+	auto cross_check = feature_matching_properties.crossCheck();
 
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<double>("ratio", 'r', std::string("Ratio (default = ").append(std::to_string(ratio)).append(")"), ratio);
     this->addArgument<double>("distance", 'd', std::string("Distance (default = ").append(std::to_string(distance)).append(")"), distance);
     this->addArgument<double>("max_error", 'e', std::string("Maximun error (default = ").append(std::to_string(max_error)).append(")"), max_error);
-    this->addArgument<double>("confidence", 'c', "Confidence", featureMatchingProperties.confidence());
+    this->addArgument<double>("confidence", 'c', "Confidence", confidence);
     this->addArgument<bool>("cross_check", 'x', std::string("If true, cross checking is enabled (default = ").append(cross_check ? "true)" : "false)"), cross_check);
     this->addArgument<bool>("exhaustive_matching", "Force exhaustive matching (default = false)", false);
 
 #ifdef HAVE_CUDA
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
     if (cuda_enabled)
         this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
     else mDisableCuda = true;
@@ -75,21 +76,17 @@ FeatureMatchingCommand::FeatureMatchingCommand()
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
-FeatureMatchingCommand::~FeatureMatchingCommand()
-{
-
-}
+FeatureMatchingCommand::~FeatureMatchingCommand() = default;
 
 bool FeatureMatchingCommand::run()
 {
     bool r = false;
 
-    QString file_path;
-    QString project_path;
+    tl::Log &log = tl::Log::instance();
 
     try {
 
-        tl::Path project_path = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         double ratio = this->value<double>("ratio");
         double distance = this->value<double>("distance");
         double max_error = this->value<double>("max_error");
@@ -99,15 +96,19 @@ bool FeatureMatchingCommand::run()
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path);
+
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
+
         ProjectImp project;
         project.load(project_path);
-        tl::Path database_file = project.database();
 
         {
-            colmap::Database database(database_file.toString());
+            colmap::Database database(project.database().toString());
             database.ClearMatches();
             database.ClearTwoViewGeometries();
             database.Close();
@@ -115,7 +116,7 @@ bool FeatureMatchingCommand::run()
         }
 
 
-        std::shared_ptr<FeatureMatching> feature_matching_properties = std::make_shared<FeatureMatchingProperties>();
+        auto feature_matching_properties = std::make_shared<FeatureMatching>();
         feature_matching_properties->setRatio(ratio);
         feature_matching_properties->setDistance(distance);
         feature_matching_properties->setMaxError(max_error);
@@ -127,8 +128,8 @@ bool FeatureMatchingCommand::run()
         if (!exhaustive_matching) {
             auto it = project.images().begin();
             if (it != project.images().end()) {
-                CameraPose cameraPosition = it->second.cameraPose();
-                if (!cameraPosition.isEmpty())
+                CameraPose camera_position = it->second.cameraPose();
+                if (!camera_position.isEmpty())
                     spatial_matching = true;
             }
         }
@@ -140,15 +141,20 @@ bool FeatureMatchingCommand::run()
 
             ProgressBarColor progress(0, project.images().size());
             featmatching_process.run(&progress);
+
+            project.setFeatureMatchingReport(featmatching_process.report());
+
         } else {
-            FeatureMatchingTask featmatching_process(project.database(),
+            FeatureMatchingTask feature_matching_task(project.database(),
                                                      !mDisableCuda,
                                                      feature_matching_properties);
 
             size_t block_size = 50;
-            size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(project.images().size()) / 50));
+            size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(project.images().size()) / block_size));
             ProgressBarColor progress(0, num_blocks * num_blocks);
-            featmatching_process.run(&progress);
+            feature_matching_task.run(&progress);
+
+            project.setFeatureMatchingReport(feature_matching_task.report());
         }
 
         project.setFeatureMatching(feature_matching_properties);
@@ -161,6 +167,8 @@ bool FeatureMatchingCommand::run()
 
         r = true;
     }
+
+    log.close();
 
     return r;
 }
@@ -182,7 +190,7 @@ void FeatureMatchingCommand::writeMatchPairs(Project *project)
 
             colmap::FeatureMatches matches = database.ReadMatches(colmap_image_id_l, colmap_image_id_r);
 
-            if (matches.size() > 0) {
+            if (!matches.empty()) {
 
                 tl::Path colmap_image1(db_images[i].Name());
                 tl::Path colmap_image2(db_images[j].Name());

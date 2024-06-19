@@ -69,7 +69,7 @@ void FeatureExtractorComponent::createView()
 void FeatureExtractorComponent::createPresenter()
 {
     setPresenter(new FeatureExtractorPresenterImp(dynamic_cast<FeatureExtractorView *>(view()),
-                 dynamic_cast<FeatureExtractorModel *>(model())));
+                                                  dynamic_cast<FeatureExtractorModel *>(model())));
 
     connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::features_extracted,
             this, &FeatureExtractorComponent::features_extracted);
@@ -90,11 +90,8 @@ void FeatureExtractorComponent::update()
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
     bool feature_extraction_active = app_status->isEnabled(AppStatus::Flag::project_exists) &&
-        app_status->isEnabled(AppStatus::Flag::images_added) &&
-        !app_status->isEnabled(AppStatus::Flag::processing);
-
-    //if (!feature_extraction_active) 
-    //  app_status->flagOff(AppStatus::Flag::feature_extraction);
+                                     app_status->isEnabled(AppStatus::Flag::images_added) &&
+                                    !app_status->isEnabled(AppStatus::Flag::processing);
 
     action()->setEnabled(feature_extraction_active);
 }

@@ -31,9 +31,8 @@
 namespace graphos
 {
 
-DenseExport::DenseExport(const tl::Path &denseModel)
-  : mDenseModel(denseModel),
-    mOffset()
+DenseExport::DenseExport(tl::Path denseModel)
+  : mDenseModel(std::move(denseModel))
 {
 
 }
@@ -44,8 +43,8 @@ void DenseExport::setOffset(const tl::Point3<double> &point)
 }
 
 void DenseExport::exportToCSV(const std::string &csv,
-                              const tl::EnumFlags<DenseExport::Fields> &flag,
-                              tl::BoundingBox<tl::Point3<double>> *bbox)
+                              const tl::EnumFlags<Fields> &flag,
+                              tl::BoundingBox<tl::Point3<double>> *bbox) const
 {
 
     std::ofstream stream(csv, std::ios::trunc);
@@ -62,15 +61,16 @@ void DenseExport::exportToCSV(const std::string &csv,
         if (flag.isEnabled(Fields::normals)) {
             stream << ";Nx;Ny;Nz";
         }
-        stream << std::endl;
+        stream << '\n';
 
-        std::vector<colmap::PlyPoint> points = colmap::ReadPly(mDenseModel.toString());
+        std::vector<colmap::PlyPoint> colmap_points = colmap::ReadPly(mDenseModel.toString());
 
-        for (size_t i = 0; i < points.size(); i++) {
+        for (auto &colmap_point : colmap_points)
+        {
 
-            point.x = points[i].x;
-            point.y = points[i].y;
-            point.z = points[i].z;
+            point.x = colmap_point.x;
+            point.y = colmap_point.y;
+            point.z = colmap_point.z;
 
             point += mOffset;
 
@@ -90,16 +90,16 @@ void DenseExport::exportToCSV(const std::string &csv,
 
             if (flag.isEnabled(Fields::rgb)) {
                 stream << ";" 
-                       << static_cast<int>(points[i].r) << ";" 
-                       << static_cast<int>(points[i].g) << ";" 
-                       << static_cast<int>(points[i].b);
+                       << static_cast<int>(colmap_point.r) << ";" 
+                       << static_cast<int>(colmap_point.g) << ";" 
+                       << static_cast<int>(colmap_point.b);
             }
 
             if (flag.isEnabled(Fields::normals)) {
                 stream << ";" 
-                       << points[i].nx << ";" 
-                       << points[i].ny << ";" 
-                       << points[i].nz;
+                       << colmap_point.nx << ";" 
+                       << colmap_point.ny << ";" 
+                       << colmap_point.nz;
             }
 
             stream << std::endl;

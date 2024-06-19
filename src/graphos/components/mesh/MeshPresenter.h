@@ -38,9 +38,12 @@ class MeshPresenter
 
 public:
 
-    MeshPresenter() : TaskPresenter() {}
+    MeshPresenter() = default;
     ~MeshPresenter() override = default;
 
+signals:
+
+    void mesh_deleted();
 };
 
 } // namespace graphos

@@ -90,6 +90,9 @@
 #ifdef GRAPHOS_HAVE_SCALE
 #include "graphos/components/scale/ScaleComponent.h"
 #endif // GRAPHOS_HAVE_SCALE
+#ifdef GRAPHOS_HAVE_FLOOR_LEVEL
+#include "graphos/components/floorlevel/FloorLevelComponent.h"
+#endif // GRAPHOS_HAVE_FLOOR_LEVEL
 #ifdef GRAPHOS_HAVE_FEATVIEWER
 #include "graphos/components/featviewer/FeaturesViewerComponent.h"
 #endif // GRAPHOS_HAVE_FEATVIEWER
@@ -117,6 +120,7 @@
 #ifdef GRAPHOS_HAVE_VIDEO_LOAD
 #include "graphos/components/loadfromvideo/LoadFromVideoComponent.h"
 #endif // GRAPHOS_HAVE_VIDEO_LOAD
+#include "graphos/components/crs/CoordinateReferenceSystemComponent.h"
 
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
@@ -162,54 +166,64 @@ void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg)
     } 
 }
 
+#ifdef DEBUG
+
 void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    //QByteArray localMsg = msg.toLocal8Bit();
-    //switch (type) {
-    //    case QtDebugMsg:
-    //        tl::Message::debug("Qt: {}", msg.toStdString());
-    //        break;
-    //    case QtInfoMsg:
-    //        tl::Message::info("Qt: {}", msg.toStdString());
-    //        break;
-    //    case QtWarningMsg:
-    //        tl::Message::warning("Qt: {}", msg.toStdString());
-    //        break;
-    //    case QtCriticalMsg:
-    //        tl::Message::error("Qt: {}", msg.toStdString());
-    //        break;
-    //    case QtFatalMsg:
-    //        tl::Message::error("Qt: {}", msg.toStdString());
-    //        abort();
-    //}
+    QByteArray localMsg = msg.toLocal8Bit();
+    switch (type) {
+        case QtDebugMsg:
+            tl::Message::debug("Qt: {}", msg.toStdString());
+            break;
+        case QtInfoMsg:
+            tl::Message::info("Qt: {}", msg.toStdString());
+            break;
+        case QtWarningMsg:
+            tl::Message::warning("Qt: {}", msg.toStdString());
+            break;
+        case QtCriticalMsg:
+            tl::Message::error("Qt: {}", msg.toStdString());
+            break;
+        case QtFatalMsg:
+            tl::Message::error("Qt: {}", msg.toStdString());
+            abort();
+    }
 }
+#endif // DEBUG
 
 
 int main(int argc, char *argv[])
 {
+#ifdef DEBUG
     qInstallMessageHandler(messageHandlerQt);
+#endif // DEBUG
+
 
     tl::Path app_path(argv[0]);
+
+#ifdef TL_OS_WINDOWS
     tl::Path graphos_path = app_path.parentPath().parentPath();
     tl::Path gdal_data_path(graphos_path);
     gdal_data_path.append("gdal\\data");
     tl::Path proj_data_path(graphos_path);
     proj_data_path.append("proj");
     CPLSetConfigOption( "GDAL_DATA", gdal_data_path.toString().c_str());
-#if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
-    CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
-#else
-    std::string s_proj = proj_data_path.toString();
-    const char *proj_data[] {s_proj.c_str(), nullptr};
-    OSRSetPROJSearchPaths(proj_data);
-#endif
+#   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
+        CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
+#   else
+        std::string s_proj = proj_data_path.toString();
+        const char *proj_data[] {s_proj.c_str(), nullptr};
+        OSRSetPROJSearchPaths(proj_data);
+#   endif
+#endif // TL_OS_WINDOWS
+
     CPLSetErrorHandler(messageHandlerGDAL);
 
     Application app(argc, argv);
-    app.setApplicationName("GRAPHOS");
-    app.setApplicationDisplayName("GRAPHOS");
-    app.setApplicationVersion(GRAPHOS_VERSION);
-    app.setOrganizationName("TIDOP");
+    Application::setApplicationName("GRAPHOS");
+    Application::setApplicationDisplayName("GRAPHOS");
+    Application::setApplicationVersion(GRAPHOS_VERSION);
+    Application::setOrganizationName("TIDOP");
 
     ProjectImp project;
     app.setProject(&project);
@@ -296,6 +310,10 @@ int main(int argc, char *argv[])
     ScaleComponent scale_component(&app);
 #endif // GRAPHOS_HAVE_SCALE
 
+#ifdef GRAPHOS_HAVE_FLOOR_LEVEL
+    FloorLevelComponent floor_level_component;
+#endif // GRAPHOS_HAVE_FLOOR_LEVEL
+
 #ifdef GRAPHOS_HAVE_UNDISTORT
     UndistortImagesComponent undistort_component(&app);
 #endif // GRAPHOS_HAVE_UNDISTORT
@@ -332,13 +350,14 @@ int main(int argc, char *argv[])
 
     tl::Console &console = tl::Console::instance();
     console.setMessageLevel(tl::MessageLevel::all);
-    console.setTitle(app.applicationName().toStdString());
-    tl::Message::instance().addMessageHandler(&console);
+    console.setTitle(Application::applicationName().toStdString());
+    console.setConsoleUnicode();
+    tl::Message::addMessageHandler(&console);
 
     // Log file
     tl::Log &log = tl::Log::instance();
     log.setMessageLevel(tl::MessageLevel::all);
-    tl::Message::instance().addMessageHandler(&log);
+    tl::Message::addMessageHandler(&log);
 
     bool r = false;
 
@@ -349,6 +368,7 @@ int main(int argc, char *argv[])
         }
 
     } else {
+
         //    TL_TODO("Añadir como opción")
 #if defined WIN32
         HWND hwnd = GetConsoleWindow();
@@ -455,11 +475,23 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_GEOREFERENCE
         componentsManager.registerComponent(&georeference_component,
                                             ComponentsManager::Flags::separator_before);
+        QObject::connect(&georeference_component, &GeoreferenceComponent::select_crs, [&]() {
+            CoordinateReferenceSystemComponent crs_component(&app);
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                             &georeference_component, &GeoreferenceComponent::setCRS);
+
+            crs_component.open();
+                //CoordinateReferenceSystemComponent crs_component(&app);
+        });
 #endif // GRAPHOS_HAVE_GEOREFERENCE
 
 #ifdef GRAPHOS_HAVE_SCALE
         componentsManager.registerComponent(&scale_component);
 #endif // GRAPHOS_HAVE_SCALE
+
+#ifdef GRAPHOS_HAVE_FLOOR_LEVEL
+        componentsManager.registerComponent(&floor_level_component);
+#endif // GRAPHOS_HAVE_FLOOR_LEVEL
 
 #ifdef GRAPHOS_HAVE_DTM
         componentsManager.registerComponent(&dtm_component,
@@ -517,7 +549,7 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_RECENT_PROJECTS
         QObject::connect(&recent_projects_component, SIGNAL(open_project(QString)),
-                         componentsManager.mainWindowPresenter(), SLOT(openFromHistory(QString)));
+                         componentsManager.mainWindowPresenter(), SLOT(openProject(QString)));
 #endif // GRAPHOS_HAVE_OPEN_PROJECT
 
         // No se usa
@@ -547,6 +579,8 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadFeatures(size_t)));
         QObject::connect(&feature_extractor_component, SIGNAL(features_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#else
+#   undef GRAPHOS_HAVE_FEATMATCH
 #endif // GRAPHOS_HAVE_FEATEXTRACT
 
 #ifdef GRAPHOS_HAVE_FEATMATCH
@@ -554,6 +588,8 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(updateMatches()));
         QObject::connect(&feature_matching_component, SIGNAL(matches_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#else
+#   undef GRAPHOS_HAVE_ORIENTATION
 #endif // GRAPHOS_HAVE_FEATMATCH
 
 #ifdef GRAPHOS_HAVE_ORIENTATION
@@ -561,21 +597,33 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
         QObject::connect(&orientation_component, SIGNAL(orientation_deleted()),
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#else
+#   undef GRAPHOS_HAVE_DENSE
 #endif // GRAPHOS_HAVE_ORIENTATION
 
 #ifdef GRAPHOS_HAVE_DENSE
         QObject::connect(&densification_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadDenseModel()));
+        QObject::connect(&densification_component, SIGNAL(densification_deleted()),
+                         componentsManager.mainWindowPresenter(), SLOT(updateProject()));
+#else
+#   undef GRAPHOS_HAVE_MESH
 #endif // GRAPHOS_HAVE_DENSE
 
 #ifdef GRAPHOS_HAVE_MESH
         QObject::connect(&mesh_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadMesh()));
+        QObject::connect(&mesh_component, SIGNAL(mesh_deleted()),
+                         componentsManager.mainWindowPresenter(), SLOT(updateProject()));
 #endif // GRAPHOS_HAVE_MESH
 
 #ifdef GRAPHOS_HAVE_DTM
         QObject::connect(&dtm_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
+        QObject::connect(&dtm_component, SIGNAL(finished()),
+                         componentsManager.mainWindowPresenter(), SLOT(loadDSM()));
+#else
+#   undef GRAPHOS_HAVE_ORTHOPHOTO
 #endif // GRAPHOS_HAVE_DTM
 
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
@@ -623,7 +671,7 @@ int main(int argc, char *argv[])
                          });
 #endif // GRAPHOS_HAVE_SCALE
 
-        //componentsManager.loadPlugins();
+        componentsManager.loadPlugins();
 
         app.status()->activeFlag(AppStatus::Flag::none, true);
 
@@ -634,7 +682,10 @@ int main(int argc, char *argv[])
 #if defined WIN32
         ShowWindow(hwnd, 1);
 #endif
+
     }
+
+
 
 #ifdef HAVE_VLD
     // Clean up memory allocated by flags.  This is only needed to reduce

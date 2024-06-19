@@ -57,10 +57,10 @@ void RecentProjectsViewImp::initSignalAndSlots()
     connect(mActionClearHistory, &QAction::triggered, this, &RecentProjectsViewImp::clearHistory);
 }
 
-void RecentProjectsViewImp::update()
+void RecentProjectsViewImp::update() const
 {
-    mActionNotRecentProjects->setVisible(mHistory.size() == 0);
-    mActionClearHistory->setEnabled(mHistory.size() > 0);
+    mActionNotRecentProjects->setVisible(mHistory.empty());
+    mActionClearHistory->setEnabled(!mHistory.empty());
 }
 
 void RecentProjectsViewImp::retranslate()
@@ -72,8 +72,7 @@ void RecentProjectsViewImp::retranslate()
 
 void RecentProjectsViewImp::openFromHistory()
 {
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (action)
+    if (auto action = qobject_cast<QAction *>(sender()))
         emit openProject(action->data().toString());
 }
 
@@ -82,7 +81,7 @@ void RecentProjectsViewImp::setHistory(const QStringList &history)
     int n = history.size();
 
     if (n == 0) {
-        while (mHistory.size() > 0) {
+        while (!mHistory.empty()) {
             disconnect(mHistory[0], SIGNAL(triggered()), this, SLOT(openFromHistory()));
             this->removeAction(mHistory[0]);
             mHistory.erase(mHistory.begin());
@@ -91,12 +90,11 @@ void RecentProjectsViewImp::setHistory(const QStringList &history)
 
     for (int r = 0; r < n; r++) {
 
-        QString prjFileName = tr("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
+        QString project_path = tr("&%1 %2").arg(r + 1).arg(QFileInfo(history[r]).fileName());
 
         if (mHistory.size() == static_cast<size_t>(r)) {
 
-            // Se añade un nuevo elemento
-            QAction *action = new QAction(prjFileName, this);
+            auto action = new QAction(project_path, this);
             action->setData(history[r]);
             action->setToolTip(history[r]);
             mHistory.push_back(action);
@@ -107,7 +105,7 @@ void RecentProjectsViewImp::setHistory(const QStringList &history)
 
         } else {
 
-            mHistory[static_cast<size_t>(r)]->setText(prjFileName);
+            mHistory[static_cast<size_t>(r)]->setText(project_path);
             mHistory[static_cast<size_t>(r)]->setData(history[r]);
             mHistory[static_cast<size_t>(r)]->setToolTip(history[r]);
 
@@ -115,6 +113,13 @@ void RecentProjectsViewImp::setHistory(const QStringList &history)
     }
 
     update();
+}
+
+void RecentProjectsViewImp::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+        retranslate();
+    }
 }
 
 } // namespace graphos

@@ -366,9 +366,9 @@ void SettingsControllerImp::read(Settings &settings)
     settings.setMatchesViewerLineColor(mSettingsController->value("MatchesViewer/LineColor", settings.matchesViewerLineColor()).toString());
     settings.setMatchesViewerLineWidth(mSettingsController->value("MatchesViewer/LineWidth", settings.matchesViewerLineWidth()).toInt());
 
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     bool bUseGPU = cudaEnabled(10.0, 3.0);
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
 
     settings.setUseCuda(mSettingsController->value("UseCuda", bUseGPU).toBool());
 }

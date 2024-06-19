@@ -69,12 +69,10 @@ void FeatureMatchingComponent::createView()
 void FeatureMatchingComponent::createPresenter()
 {
     setPresenter(new FeatureMatchingPresenterImp(dynamic_cast<FeatureMatchingView *>(view()),
-                 dynamic_cast<FeatureMatchingModel *>(model())));
+                                                 dynamic_cast<FeatureMatchingModel *>(model())));
 
-    connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()),
-            &FeatureMatchingPresenter::matches_deleted,
-            this,
-            &FeatureMatchingComponent::matches_deleted);
+    connect(dynamic_cast<FeatureMatchingPresenter *>(presenter()), &FeatureMatchingPresenter::matches_deleted,
+            this, &FeatureMatchingComponent::matches_deleted);
 }
 
 void FeatureMatchingComponent::createCommand()

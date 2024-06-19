@@ -36,7 +36,7 @@ class QLabel;
 namespace graphos
 {
 
-class CreateProjectViewImp /*final*/
+class CreateProjectViewImp
   : public CreateProjectView
 {
     Q_OBJECT
@@ -54,11 +54,11 @@ protected slots:
 
 public:
 
-    QString projectName() const override;
-    QString projectPath() const override;
+    auto projectName() const -> QString override;
+    auto projectPath() const -> QString override;
     void setProjectPath(const QString &path) override;
-    QString projectDescription() const override;
-    bool createProjectFolderEnable() const override;
+    auto projectDescription() const -> QString override;
+    auto createProjectFolderEnable() const -> bool override;
     void setExistingProject(bool prjExist) override;
 
 // DialogView interface
@@ -90,7 +90,7 @@ protected:
     QCheckBox *mCheckBoxProjectFolder;
     QPushButton *mPushButtonProjectPath;
     QDialogButtonBox *mButtonBox;
-    bool bPrjExist;
+    bool mProjectExist;
 };
 
 } // namespace graphos

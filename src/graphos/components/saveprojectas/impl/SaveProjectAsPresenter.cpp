@@ -42,8 +42,8 @@ SaveProjectAsPresenterImp::SaveProjectAsPresenterImp(SaveProjectAsView *view,
     mModel(model),
     mAppStatus(status)
 {
-    this->init();
-    this->initSignalAndSlots();
+    SaveProjectAsPresenterImp::init();
+    SaveProjectAsPresenterImp::initSignalAndSlots();
 }
 
 SaveProjectAsPresenterImp::~SaveProjectAsPresenterImp()

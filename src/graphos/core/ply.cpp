@@ -93,7 +93,7 @@ Ply::Ply()
     init();
 }
 
-Ply::Ply(const std::string &file,
+Ply::Ply(const tl::Path &file,
          OpenMode mode)
   : _file(file),
     stream(nullptr),
@@ -117,7 +117,7 @@ Ply::~Ply()
 
 
 
-void Ply::open(const std::string &file,
+void Ply::open(const tl::Path &file,
                OpenMode mode)
 {
     _file = file;
@@ -128,7 +128,7 @@ void Ply::open(const std::string &file,
 
     if (flags.isEnabled(OpenMode::in)) {
 
-        stream = new std::fstream(_file, std::ios_base::in | std::ios_base::binary);
+        stream = new std::fstream(_file.toString(), std::ios_base::in | std::ios_base::binary);
 
         readHeader();
         //readBody();
@@ -167,14 +167,13 @@ void Ply::save(bool binary)
     mIsBinary = binary;
     std::ios_base::openmode open_mode = std::ios_base::out;
 
-    stream = new std::fstream(_file, open_mode | std::ios_base::trunc);
+    stream = new std::fstream(_file.toString(), open_mode | std::ios_base::trunc);
 
     writeHeader();
 
     if (mIsBinary) {
         stream->close();
-        //stream = new std::fstream(_file, open_mode | std::ios_base::app | std::ios_base::binary);
-        stream->open(_file, open_mode | std::ios_base::app | std::ios_base::binary);
+        stream->open(_file.toString(), open_mode | std::ios_base::app | std::ios_base::binary);
     }
 
     writeBody();
@@ -474,14 +473,14 @@ bool Ply::hasNormals() const
 
 bool Ply::hasScalarFields() const
 {
-    return false;
+    return mHasScalarFields;
 }
 
 tl::Color Ply::color(size_t index) const
 {
     return tl::ColorRGB(property<int>(index, "red"),
                         property<int>(index, "green"),
-                        property<int>(index, "blue"));
+                        property<int>(index, "blue")).toColor();
 }
 
 void Ply::addColor(const tl::Color &color)

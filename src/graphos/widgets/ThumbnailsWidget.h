@@ -26,8 +26,6 @@
 
 #include <unordered_map>
 
-#include <QImage>
-
 #include <tidop/core/task.h>
 
 #include "graphos/widgets/GraphosWidget.h"
@@ -54,11 +52,7 @@ public:
                       QListWidget *listWidget);
     ~LoadThumbnailTask() override;
 
-signals:
-
-private:
-
-    // tl::TaskBase interface
+// tl::TaskBase interface
 
 protected:
 
@@ -72,7 +66,7 @@ protected:
 
 
 class ThumbnailsWidget
-    : public GraphosWidgetView
+  : public GraphosWidgetView
 {
     Q_OBJECT
 
@@ -119,7 +113,7 @@ public slots:
 
 private:
 
-    virtual void initUI() override;
+    void initUI() override;
     void initSignalAndSlots() override;
 
 // QWidget interface

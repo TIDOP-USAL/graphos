@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class OrientationProcess;
-
 class OrientationComponent
   : public TaskComponent
 {
@@ -41,7 +39,7 @@ class OrientationComponent
 public:
 
     OrientationComponent(Application *application);
-    ~OrientationComponent();
+    ~OrientationComponent() override;
 
 private:
 
@@ -68,10 +66,6 @@ protected slots:
     void onRunning() override;
     void onFinished() override;
     void onFailed() override;
-
-protected:
-
-    OrientationProcess *mProcess;
 
 };
 

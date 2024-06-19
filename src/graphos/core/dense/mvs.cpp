@@ -37,10 +37,10 @@
 #include <tidop/img/imgreader.h>
 #include <tidop/core/progress.h>
 #include <tidop/math/algebra/rotation_convert.h>
-#include <tidop/core/chrono.h>
 
 /* Colmap */
 #include <colmap/base/database.h>
+#include <feature/types.h>
 
 #include <fstream>
 #include <iomanip>
@@ -50,55 +50,65 @@
 namespace graphos
 {
 
-constexpr auto mvsDefaultResolutionLevel = 1;
-constexpr auto mvsDefaultMinResolution = 256;
-constexpr auto mvsDefaultMaxResolution = 3000;
-constexpr auto mvsDefaultNumberViews = 5;
-constexpr auto mvsDefaultNumberViewsFuse = 3;
+constexpr auto mvs_default_resolution_level = 1;
+constexpr auto mvs_default_min_resolution = 256;
+constexpr auto mvs_default_max_resolution = 3000;
+constexpr auto mvs_default_number_views = 5;
+constexpr auto mvs_default_number_views_fuse = 3;
 
-MvsProperties::MvsProperties()
-  : mResolutionLevel(mvsDefaultResolutionLevel),
-    mMinResolution(mvsDefaultMinResolution),
-    mMaxResolution(mvsDefaultMaxResolution),
-    mNumberViews(mvsDefaultNumberViews),
-    mNumberViewsFuse(mvsDefaultNumberViewsFuse)
+Mvs::Mvs()
+  : Densification(Method::mvs),
+    mResolutionLevel(mvs_default_resolution_level),
+    mMinResolution(mvs_default_min_resolution),
+    mMaxResolution(mvs_default_max_resolution),
+    mNumberViews(mvs_default_number_views),
+    mNumberViewsFuse(mvs_default_number_views_fuse),
+    mEstimateColors(false),
+    mEstimateNormals(false)
 {
 }
 
-MvsProperties::MvsProperties(int resolutionLevel,
-                             int minResolution,
-                             int maxResolution,
-                             int numberViews,
-                             int numberViewsFuse)
-  : mResolutionLevel(resolutionLevel),
+Mvs::Mvs(int resolutionLevel,
+         int minResolution,
+         int maxResolution,
+         int numberViews,
+         int numberViewsFuse)
+  : Densification(Method::mvs),
+    mResolutionLevel(resolutionLevel),
     mMinResolution(minResolution),
     mMaxResolution(maxResolution),
     mNumberViews(numberViews),
-    mNumberViewsFuse(numberViewsFuse)
+    mNumberViewsFuse(numberViewsFuse),
+    mEstimateColors(false),
+    mEstimateNormals(false)
 {
 }
 
-MvsProperties::MvsProperties(const MvsProperties &mvs)
-  : Mvs(mvs),
+Mvs::Mvs(const Mvs &mvs)
+  : Densification(mvs),
     mResolutionLevel(mvs.mResolutionLevel),
     mMinResolution(mvs.mMinResolution),
     mMaxResolution(mvs.mMaxResolution),
     mNumberViews(mvs.mNumberViews),
-    mNumberViewsFuse(mvs.mNumberViewsFuse)
+    mNumberViewsFuse(mvs.mNumberViewsFuse),
+    mEstimateColors(mvs.mEstimateColors),
+    mEstimateNormals(mvs.mEstimateNormals)
 {
 }
 
-MvsProperties::MvsProperties(MvsProperties &&mvs) noexcept
-  : Mvs(std::forward<Mvs>(mvs)),
-    mResolutionLevel(mvs.mResolutionLevel),
-    mMinResolution(mvs.mMinResolution),
-    mMaxResolution(mvs.mMaxResolution),
-    mNumberViews(mvs.mNumberViews),
-    mNumberViewsFuse(mvs.mNumberViewsFuse)
+Mvs::Mvs(Mvs &&mvs) noexcept
+    : Densification(std::forward<Densification>(mvs)),
+      mResolutionLevel(mvs.mResolutionLevel),
+      mMinResolution(mvs.mMinResolution),
+      mMaxResolution(mvs.mMaxResolution),
+      mNumberViews(mvs.mNumberViews),
+      mNumberViewsFuse(mvs.mNumberViewsFuse),
+      mEstimateColors(mvs.mEstimateColors),
+      mEstimateNormals(mvs.mEstimateNormals)
 {
 }
 
-MvsProperties &MvsProperties::operator =(const MvsProperties &mvs)
+auto Mvs::operator =(const Mvs& mvs) -> Mvs&
 {
     if (this != &mvs) {
         mResolutionLevel = mvs.mResolutionLevel;
@@ -106,12 +116,14 @@ MvsProperties &MvsProperties::operator =(const MvsProperties &mvs)
         mMaxResolution = mvs.mMaxResolution;
         mNumberViews = mvs.mNumberViews;
         mNumberViewsFuse = mvs.mNumberViewsFuse;
+        mEstimateColors = mvs.mEstimateColors;
+        mEstimateNormals = mvs.mEstimateNormals;
     }
 
     return *this;
 }
 
-MvsProperties &MvsProperties::operator =(MvsProperties &&mvs) noexcept
+auto Mvs::operator =(Mvs&& mvs) noexcept -> Mvs&
 {
     if (this != &mvs) {
         mResolutionLevel = mvs.mResolutionLevel;
@@ -119,96 +131,98 @@ MvsProperties &MvsProperties::operator =(MvsProperties &&mvs) noexcept
         mMaxResolution = mvs.mMaxResolution;
         mNumberViews = mvs.mNumberViews;
         mNumberViewsFuse = mvs.mNumberViewsFuse;
+        mEstimateColors = mvs.mEstimateColors;
+        mEstimateNormals = mvs.mEstimateNormals;
     }
 
     return *this;
 }
 
-int MvsProperties::resolutionLevel() const
+auto Mvs::resolutionLevel() const -> int
 {
     return mResolutionLevel;
 }
 
-int MvsProperties::minResolution() const
+auto Mvs::minResolution() const -> int
 {
     return mMinResolution;
 }
 
-int MvsProperties::maxResolution() const
+auto Mvs::maxResolution() const -> int
 {
     return mMaxResolution;
 }
 
-int MvsProperties::numberViews() const
+auto Mvs::numberViews() const -> int
 {
     return mNumberViews;
 }
 
-int MvsProperties::numberViewsFuse() const
+auto Mvs::numberViewsFuse() const -> int
 {
     return mNumberViewsFuse;
 }
 
-bool MvsProperties::estimateColors() const
+auto Mvs::estimateColors() const -> bool
 {
     return mEstimateColors;
 }
 
-bool MvsProperties::estimateNormals() const
+auto Mvs::estimateNormals() const -> bool
 {
     return mEstimateNormals;
 }
 
-void MvsProperties::setResolutionLevel(int resolutionLevel)
+void Mvs::setResolutionLevel(int resolutionLevel)
 {
     mResolutionLevel = resolutionLevel;
 }
 
-void MvsProperties::setMinResolution(int minResolution)
+void Mvs::setMinResolution(int minResolution)
 {
     mMinResolution = minResolution;
 }
 
-void MvsProperties::setMaxResolution(int maxResolution)
+void Mvs::setMaxResolution(int maxResolution)
 {
     mMaxResolution = maxResolution;
 }
 
-void MvsProperties::setNumberViews(int numberViews)
+void Mvs::setNumberViews(int numberViews)
 {
     mNumberViews = numberViews;
 }
 
-void MvsProperties::setNumberViewsFuse(int numberViewsFuse)
+void Mvs::setNumberViewsFuse(int numberViewsFuse)
 {
     mNumberViewsFuse = numberViewsFuse;
 }
 
-void MvsProperties::setEstimateColors(bool estimateColors)
+void Mvs::setEstimateColors(bool estimateColors)
 {
     mEstimateColors = estimateColors;
 }
 
-void MvsProperties::setEstimateNormals(bool estimateNormals)
+void Mvs::setEstimateNormals(bool estimateNormals)
 {
     mEstimateNormals = estimateNormals;
 }
 
-void MvsProperties::reset()
+void Mvs::reset()
 {
-    mResolutionLevel = mvsDefaultResolutionLevel;
-    mMinResolution = mvsDefaultMinResolution;
-    mMaxResolution = mvsDefaultMaxResolution;
-    mNumberViews = mvsDefaultNumberViews;
-    mNumberViewsFuse = mvsDefaultNumberViewsFuse;
+    mResolutionLevel = mvs_default_resolution_level;
+    mMinResolution = mvs_default_min_resolution;
+    mMaxResolution = mvs_default_max_resolution;
+    mNumberViews = mvs_default_number_views;
+    mNumberViewsFuse = mvs_default_number_views_fuse;
     mEstimateColors = true;
     mEstimateNormals = true;
 }
 
 
-QString MvsProperties::name() const
+auto Mvs::name() const -> QString
 {
-    return QString("MVS");
+    return {"MVS"};
 }
 
 
@@ -223,32 +237,178 @@ MvsDensifier::MvsDensifier(const std::unordered_map<size_t, Image> &images,
                            const std::unordered_map<size_t, CameraPose> &poses,
                            const std::vector<GroundPoint> &groundPoints,
                            const tl::Path &outputPath,
-                           const tl::Path &database,
+                           tl::Path database,
                            bool cuda,
                            bool autoSegmentation)
   : DensifierBase(images, cameras, poses, groundPoints, outputPath),
-    mDatabase(database),
+    mDatabase(std::move(database)),
     mAutoSegmentation(autoSegmentation)
 {
-    enableCuda(cuda);
+    DensifierBase::enableCuda(cuda);
     setUndistortImagesFormat(UndistortImages::Format::tiff);
 }
 
-MvsDensifier::~MvsDensifier()
-{
-}
+MvsDensifier::~MvsDensifier() = default;
 
-//auto MvsDensifier::report() const -> DenseReport
-//{
-//    return mReport;
-//}
-
-void MvsDensifier::clearTemporalFiles()
+void MvsDensifier::clearTemporalFiles() const
 {
     outputPath().append("temp").removeDirectory();
 }
 
-void MvsDensifier::exportToColmap()
+void MvsDensifier::exportCameras(const std::map<int, Undistort> &undistortMap, const tl::Path &colmapSparsePath) const
+{
+    tl::Path colmap_cameras(colmapSparsePath);
+    colmap_cameras.append("cameras.txt");
+
+    std::ofstream ofs;
+    ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
+
+    TL_ASSERT(ofs.is_open(), "Open fail: {}", colmap_cameras.toString());
+
+    ofs << "# Camera list with one line of data per camera: \n";
+    ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
+    ofs << "# Number of cameras: " << cameras().size() << "\n";
+
+    ofs << std::fixed << std::setprecision(12);
+
+    for (auto &undistort_pair : undistortMap) {
+
+        int camera_id = undistort_pair.first;
+        Undistort undistort = undistort_pair.second;
+        Camera undistort_camera = undistort.undistortCamera();
+        auto calibration = undistort_camera.calibration();
+
+        TL_ASSERT(calibration, "Camera calibration not found");
+
+        /// La cÃ¡mara tiene que ser PINHOLE para InterfaceCOLMAP
+        ofs << camera_id << " PINHOLE " << undistort_camera.width() << " " << undistort_camera.height() << " ";
+
+        double focal_x = 0.0;
+        double focal_y = 0.0;
+
+        if (calibration->existParameter(Calibration::Parameters::focal)) {
+            focal_x = focal_y = calibration->parameter(Calibration::Parameters::focal);
+        } else {
+            focal_x = calibration->parameter(Calibration::Parameters::focalx);
+            focal_y = calibration->parameter(Calibration::Parameters::focaly);
+        }
+
+        ofs << focal_x << " " << focal_y << " ";
+
+        double cx = calibration->existParameter(Calibration::Parameters::cx) ?
+                        calibration->parameter(Calibration::Parameters::cx) :
+                        undistort_camera.width() / 2.;
+        double cy = calibration->existParameter(Calibration::Parameters::cy) ?
+                        calibration->parameter(Calibration::Parameters::cy) :
+                        undistort_camera.height() / 2.;
+
+        ofs << cx << " " << cy << std::endl;
+
+    }
+}
+
+void MvsDensifier::exportImages(const std::unordered_map<size_t, colmap::image_t> &graphosToColmapImageIds, 
+                                const std::unordered_map<size_t, std::vector<colmap::FeatureKeypoint>> &keypoints,
+                                const tl::Path &colmapSparsePath) const
+{
+    tl::Path colmap_images(colmapSparsePath);
+    colmap_images.append("images.txt");
+
+    std::ofstream ofs;
+    ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
+
+    TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
+
+    ofs << std::fixed << std::setprecision(12);
+
+    for (const auto &pose : poses()) {
+
+        size_t image_id = pose.first;
+        auto &image_pose = pose.second;
+
+        const auto &image = images().at(image_id);
+
+        auto projection_center = image_pose.position();
+        auto rotation_matrix = image_pose.rotationMatrix();
+
+        tl::RotationMatrix<double> transform_to_colmap = tl::RotationMatrix<double>::identity();
+        transform_to_colmap.at(1, 1) = -1;
+        transform_to_colmap.at(2, 2) = -1;
+
+        tl::Quaternion<double> quaternion = pose.second.quaternion();
+
+        auto xyx = rotation_matrix * -projection_center.vector();
+        tl::Path image_path = image.path().toStdString();
+        image_path.replaceExtension(".tif");
+
+        auto colmap_image_id = graphosToColmapImageIds.at(image_id);
+
+        ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
+            << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image_path.fileName().toString() << std::endl;
+
+        for (size_t i = 0; i < groundPoints().size(); i++) {
+
+            auto &track = groundPoints()[i].track();
+
+            if (track.existPair(image_id)) {
+
+                for (auto &map : track.pairs()) {
+
+                    if (map.first == image_id) {
+
+                        size_t point_id = map.second;
+                        ofs << keypoints.at(colmap_image_id)[point_id].x << " " << keypoints.at(colmap_image_id)[point_id].y << " " << i + 1 << " ";
+
+                    }
+
+                }
+            }
+        }
+
+        ofs << std::endl;
+
+    }
+}
+
+void MvsDensifier::exportPoints(const std::unordered_map<size_t, colmap::image_t> &graphosToColmapImageIds, 
+                                const tl::Path &colmapSparsePath) const
+{
+    tl::Path colmap_points_3d(colmapSparsePath);
+    colmap_points_3d.append("points3D.txt");
+
+    std::ofstream ofs;
+    ofs.open(colmap_points_3d.toString(), std::ofstream::out | std::ofstream::trunc);
+
+    TL_ASSERT(ofs.is_open(), "Open fail: points3D.txt");
+
+    ofs << std::fixed << std::setprecision(12);
+
+    ///#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX) 
+    size_t point_id = 0;
+    for (auto &points_3d : groundPoints()) {
+
+        ofs << ++point_id << " "
+            << points_3d.x << " "
+            << points_3d.y << " "
+            << points_3d.z << " "
+            << points_3d.color().red() << " "
+            << points_3d.color().green() << " "
+            << points_3d.color().blue() << " 0";
+
+        auto &track = points_3d.track();
+
+        for (auto &map : track.pairs()) {
+            ofs << " " << graphosToColmapImageIds.at(map.first) << " " << map.second;
+        }
+
+        ofs << std::endl;
+
+    }
+
+    ofs.close();
+}
+
+void MvsDensifier::exportToColmap() const
 {
     try {
 
@@ -288,165 +448,16 @@ void MvsDensifier::exportToColmap()
         colmap_sparse_path.append("sparse");
         colmap_sparse_path.createDirectories();
 
-        //  TL_TODO("Extraer la exportación a colmap")
-        // cameras.txt
-        {
-            tl::Path colmap_cameras(colmap_sparse_path);
-            colmap_cameras.append("cameras.txt");
-
-            std::ofstream ofs;
-            ofs.open(colmap_cameras.toString(), std::ofstream::out | std::ofstream::trunc);
-
-            TL_ASSERT(ofs.is_open(), "Open fail: cameras.txt");
-
-            ofs << "# Camera list with one line of data per camera: \n";
-            ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
-            ofs << "# Number of cameras: " << cameras().size() << "\n";
-
-            ofs << std::fixed << std::setprecision(12);
-
-            for (auto &undistort_pair : undistort_map) {
-
-                int camera_id = undistort_pair.first;
-                Undistort undistort = undistort_pair.second;
-                Camera undistort_camera = undistort.undistortCamera();
-                auto calibration = undistort_camera.calibration();
-
-                TL_ASSERT(calibration, "Camera calibration not found");
-
-                /// La cámara tiene que ser PINHOLE para InterfaceCOLMAP
-                ofs << camera_id << " PINHOLE " << undistort_camera.width() << " " << undistort_camera.height() << " ";
-
-                double focal_x = 0.0;
-                double focal_y = 0.0;
-
-                if (calibration->existParameter(Calibration::Parameters::focal)) {
-                    focal_x = focal_y = calibration->parameter(Calibration::Parameters::focal);
-                } else {
-                    focal_x = calibration->parameter(Calibration::Parameters::focalx);
-                    focal_y = calibration->parameter(Calibration::Parameters::focaly);
-                }
-
-                ofs << focal_x << " " << focal_y << " ";
-
-                double cx = calibration->existParameter(Calibration::Parameters::cx) ?
-                            calibration->parameter(Calibration::Parameters::cx) :
-                            undistort_camera.width() / 2.;
-                double cy = calibration->existParameter(Calibration::Parameters::cy) ?
-                            calibration->parameter(Calibration::Parameters::cy) :
-                            undistort_camera.height() / 2.;
-
-                ofs << cx << " " << cy << std::endl;
-
-            }
-
-        }
-
-        // images.txt
-        {
-            tl::Path colmap_images(colmap_sparse_path);
-            colmap_images.append("images.txt");
-
-            std::ofstream ofs;
-            ofs.open(colmap_images.toString(), std::ofstream::out | std::ofstream::trunc);
-
-            TL_ASSERT(ofs.is_open(), "Open fail: images.txt");
-
-            ofs << std::fixed << std::setprecision(12);
-
-            for (const auto &pose : poses()) {
-
-                size_t image_id = pose.first;
-                auto &image_pose = pose.second;
-
-                const auto &image = images().at(image_id);
-
-                auto projection_center = image_pose.position();
-                auto rotation_matrix = image_pose.rotationMatrix();
-
-                tl::RotationMatrix<double> transform_to_colmap = tl::RotationMatrix<double>::identity();
-                transform_to_colmap.at(1, 1) = -1;
-                transform_to_colmap.at(2, 2) = -1;
-
-                tl::Quaternion<double> quaternion = pose.second.quaternion();
-
-                auto xyx = rotation_matrix * -projection_center.vector();
-                tl::Path image_path = image.path().toStdString();
-                image_path.replaceExtension(".tif");
-
-                auto colmap_image_id = graphos_to_colmap_image_ids[image_id];
-
-                ofs << colmap_image_id << " " << quaternion.w << " " << quaternion.x << " " << quaternion.y << " " << quaternion.z << " "
-                    << xyx[0] << " " << xyx[1] << " " << xyx[2] << " " << image.cameraId() << " " << image_path.fileName().toString() << std::endl;
-
-                for (size_t i = 0; i < groundPoints().size(); i++) {
-
-                    auto &track = groundPoints()[i].track();
-
-                    if (track.existPair(image_id)) {
-
-                        for (auto &map : track.pairs()) {
-
-                            if (map.first == image_id) {
-
-                                size_t point_id = map.second;
-                                ofs << keypoints[colmap_image_id][point_id].x << " " << keypoints[colmap_image_id][point_id].y << " " << i + 1 << " ";
-
-                            }
-
-                        }
-                    }
-                }
-
-                ofs << std::endl;
-
-            }
-
-        }
-
-        // points3D.txt
-        {
-            tl::Path colmap_points_3d(colmap_sparse_path);
-            colmap_points_3d.append("points3D.txt");
-
-            std::ofstream ofs;
-            ofs.open(colmap_points_3d.toString(), std::ofstream::out | std::ofstream::trunc);
-
-            TL_ASSERT(ofs.is_open(), "Open fail: points3D.txt");
-
-            ofs << std::fixed << std::setprecision(12);
-
-            ///#   POINT3D_ID, X, Y, Z, R, G, B, ERROR, TRACK[] as (IMAGE_ID, POINT2D_IDX) 
-            size_t point_id = 0;
-            for (auto &points_3d : groundPoints()) {
-
-                ofs << ++point_id << " "
-                    << points_3d.x << " "
-                    << points_3d.y << " "
-                    << points_3d.z << " "
-                    << points_3d.color().red() << " "
-                    << points_3d.color().green() << " "
-                    << points_3d.color().blue() << " 0";
-
-                auto &track = points_3d.track();
-
-                for (auto &map : track.pairs()) {
-                    ofs << " " << graphos_to_colmap_image_ids.at(map.first) << " " << map.second;
-                }
-
-                ofs << std::endl;
-
-            }
-
-            ofs.close();
-        }
+        exportCameras(undistort_map, colmap_sparse_path);
+        exportImages(graphos_to_colmap_image_ids, keypoints, colmap_sparse_path);
+        exportPoints(graphos_to_colmap_image_ids, colmap_sparse_path);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
     }
 }
 
-void MvsDensifier::writeNVMFile()
+void MvsDensifier::writeNvmFile() const
 {
     try {
 
@@ -569,13 +580,13 @@ void MvsDensifier::writeNVMFile()
 }
 
 
-void MvsDensifier::exportToMVS()
+void MvsDensifier::exportToMvs() const
 {
     try {
 
-        tl::Path input_path = outputPath().toString();
+        tl::Path input_path = outputPath();
         input_path.append("temp").append("export");
-        tl::Path output_path = outputPath().toString();
+        tl::Path output_path = outputPath();
         output_path.append("temp").append("model.mvs");
         tl::Path images_path = input_path;
         images_path.append("images");
@@ -583,7 +594,8 @@ void MvsDensifier::exportToMVS()
         tl::Path app_path = tl::App::instance().path();
         std::string cmd_mvs("\"");
         cmd_mvs.append(app_path.parentPath().toString());
-        cmd_mvs.append("\\InterfaceCOLMAP\"");
+        cmd_mvs.append("\\OpenMVS\\InterfaceCOLMAP\"");
+        //cmd_mvs.append("\\InterfaceCOLMAP\"");
         cmd_mvs.append(" -v 2 -i \"").append(input_path.toString()).append("\"");
         cmd_mvs.append(" -o \"").append(output_path.toString()).append("\"");
         cmd_mvs.append(" --image-folder \"").append(images_path.toString()).append("\"");
@@ -613,21 +625,22 @@ void MvsDensifier::densify()
         tl::Path app_path = tl::App::instance().path();
         std::string cmd_mvs("\"");
         cmd_mvs.append(app_path.parentPath().toString());
-        cmd_mvs.append("\\DensifyPointCloud\" -w \"");
+        cmd_mvs.append("\\OpenMVS\\DensifyPointCloud\" -w \"");
+        //cmd_mvs.append("\\DensifyPointCloud\" -w \"");
         cmd_mvs.append(outputPath().toString());
         cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 2");
-        cmd_mvs.append(" --resolution-level ").append(std::to_string(MvsProperties::resolutionLevel()));
-        cmd_mvs.append(" --min-resolution ").append(std::to_string(MvsProperties::minResolution()));
-        cmd_mvs.append(" --max-resolution ").append(std::to_string(MvsProperties::maxResolution()));
-        cmd_mvs.append(" --number-views ").append(std::to_string(MvsProperties::numberViews()));
-        cmd_mvs.append(" --number-views-fuse ").append(std::to_string(MvsProperties::numberViewsFuse()));
+        cmd_mvs.append(" --resolution-level ").append(std::to_string(Mvs::resolutionLevel()));
+        cmd_mvs.append(" --min-resolution ").append(std::to_string(Mvs::minResolution()));
+        cmd_mvs.append(" --max-resolution ").append(std::to_string(Mvs::maxResolution()));
+        cmd_mvs.append(" --number-views ").append(std::to_string(Mvs::numberViews()));
+        cmd_mvs.append(" --number-views-fuse ").append(std::to_string(Mvs::numberViewsFuse()));
         if (isCudaEnabled())
             cmd_mvs.append(" --cuda-device -1");
         else
             cmd_mvs.append(" --cuda-device -2");
-        if (!MvsProperties::estimateColors())
+        if (!Mvs::estimateColors())
             cmd_mvs.append(" --estimate-colors 0");
-        if (!MvsProperties::estimateNormals())
+        if (!Mvs::estimateNormals())
             cmd_mvs.append(" --estimate-normals 0");
         //cmd_mvs.append(" --filter-point-cloud 1");
 
@@ -666,11 +679,6 @@ void MvsDensifier::execute(tl::Progress *progressBar)
 {
     try {
 
-        //tl::Chrono chrono("Densification finished");
-        //chrono.run();
-
-        //this->clearPreviousModel();
-
         tl::Path undistort_path(outputPath());
         undistort_path.append("temp").append("export").append("images");
         undistort_path.createDirectories();
@@ -680,20 +688,20 @@ void MvsDensifier::execute(tl::Progress *progressBar)
         this->exportToColmap();
         //this->writeNVMFile(); 
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
         this->undistort(QString::fromStdWString(undistort_path.toWString()));
 
-        if (status() == tl::Task::Status::stopping) return;
+        if (status() == Status::stopping) return;
 
-        this->exportToMVS();
+        this->exportToMvs();
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
         this->clearTemporalFiles();
 
-        Ply ply(denseModel().toString());
-        mReport.points = ply.size();
+        Ply ply(denseModel());
+        mReport.points = static_cast<int>(ply.size());
         ply.close();
         mReport.cuda = isCudaEnabled();
         mReport.method = this->name().toStdString();

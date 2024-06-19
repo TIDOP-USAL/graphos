@@ -42,12 +42,8 @@ ExportPointCloudPresenterImp::ExportPointCloudPresenterImp(ExportPointCloudView 
     mModel(model),
     mAppStatus(status)
 {
-    this->init();
-    this->initSignalAndSlots();
-}
-
-ExportPointCloudPresenterImp::~ExportPointCloudPresenterImp()
-{
+    ExportPointCloudPresenterImp::init();
+    ExportPointCloudPresenterImp::initSignalAndSlots();
 }
 
 void ExportPointCloudPresenterImp::open()

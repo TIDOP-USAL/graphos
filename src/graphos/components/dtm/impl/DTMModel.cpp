@@ -32,45 +32,44 @@
 namespace graphos
 {
 
-DtmModelImp::DtmModelImp(Project *project,
-                         QObject *parent)
+DtmModelImp::DtmModelImp(Project *project, QObject *parent)
   : DtmModel(parent),
     mProject(project)
 {
-    this->init();
+    DtmModelImp::init();
 }
 
-tl::Path DtmModelImp::projectPath() const
+auto DtmModelImp::projectPath() const -> tl::Path
 {
     return mProject->projectFolder();
 }
 
-tl::Path DtmModelImp::denseModel() const
+auto DtmModelImp::denseModel() const -> tl::Path
 {
     return mProject->denseModel();
 }
 
-QString DtmModelImp::crs() const
+auto DtmModelImp::crs() const -> QString
 {
     return mProject->crs();
 }
 
-double DtmModelImp::gsd() const
+auto DtmModelImp::gsd() const -> double
 {
     return mProject->dtm().gsd;
 }
 
-void DtmModelImp::setGSD(double gsd)
+void DtmModelImp::setGsd(double gsd)
 {
     mProject->dtm().gsd = gsd;
 }
 
-tl::Path DtmModelImp::dtmPath() const
+auto DtmModelImp::dtmPath() const -> tl::Path
 {
     return mProject->dtm().dtmPath;
 }
 
-tl::Path DtmModelImp::dsmPath() const
+auto DtmModelImp::dsmPath() const -> tl::Path
 {
     return mProject->dtm().dsmPath;
 }
@@ -85,7 +84,7 @@ void DtmModelImp::setDsmPath(const tl::Path &dsmPath)
     mProject->dtm().dsmPath = dsmPath;
 }
 
-std::array<double, 3> DtmModelImp::offset() const
+auto DtmModelImp::offset() const -> std::array<double, 3>
 {
     std::array<double, 3> offset{};
     offset.fill(0.);
@@ -103,6 +102,7 @@ std::array<double, 3> DtmModelImp::offset() const
             offset[2] = reg[2].toDouble();
             file.close();
         }
+
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }

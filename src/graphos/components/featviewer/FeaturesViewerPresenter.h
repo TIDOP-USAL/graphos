@@ -37,8 +37,8 @@ class FeaturesViewerPresenter
 
 public:
 
-    FeaturesViewerPresenter() {}
-    ~FeaturesViewerPresenter() {}
+    FeaturesViewerPresenter() = default;
+    ~FeaturesViewerPresenter() override = default;
 
 public slots:
 

@@ -46,7 +46,7 @@ public:
     /*!
      * \brief Return history
      */
-    virtual QStringList history() const = 0;
+    virtual auto history() const -> QStringList = 0;
 
 public slots:
 

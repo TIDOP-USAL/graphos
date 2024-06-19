@@ -38,46 +38,45 @@ class ExportCamerasViewImp
   : public ExportCamerasView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  ExportCamerasViewImp(QWidget *parent = nullptr);
-  ~ExportCamerasViewImp() override;
+    ExportCamerasViewImp(QWidget *parent = nullptr);
 
 // ExportCamerasView interface
 
 public:
 
-  void addFormatWidget(QWidget *formatWidget) override;
-  QString format() const override;
+    void addFormatWidget(QWidget *formatWidget) override;
+    auto format() const -> QString override;
 
 public slots:
 
-  void setCurrentFormat(const QString &format) override;
+    void setCurrentFormat(const QString &format) override;
 
 // DialogView interface
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 protected:
 
-  QLabel *mLabelFormat;
-  QComboBox *mComboBoxFormat;
-  QGridLayout *mGridLayoutFormat;
-  QDialogButtonBox *mButtonBox;
+    QLabel *mLabelFormat;
+    QComboBox *mComboBoxFormat;
+    QGridLayout *mGridLayoutFormat;
+    QDialogButtonBox *mButtonBox;
 
 };
 

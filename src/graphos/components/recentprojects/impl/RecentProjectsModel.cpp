@@ -31,7 +31,7 @@ namespace graphos
 {
 
 RecentProjectsModelImp::RecentProjectsModelImp(QObject *parent)
-    : RecentProjectsModel(parent)
+  : RecentProjectsModel(parent)
 {
     RecentProjectsModelImp::init();
 }

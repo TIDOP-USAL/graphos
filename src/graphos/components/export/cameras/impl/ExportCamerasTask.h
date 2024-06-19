@@ -46,11 +46,11 @@ class ExportCamerasTask
 
 public:
 
-    ExportCamerasTask(const QString &file,
+    ExportCamerasTask(const tl::Path &file,
                       const std::unordered_map<size_t, Image> &images,
                       const std::unordered_map<size_t, CameraPose> &poses,
+                      const tl::Point3<double> &offset,
                       const QString &format);
-    ~ExportCamerasTask() override;
 
     void setQuaternionRotation(bool quaternions);
 
@@ -66,9 +66,10 @@ protected:
 
 protected:
 
-    QString mFile;
+    tl::Path mFile;
     std::unordered_map<size_t, Image> mImages;
     std::unordered_map<size_t, CameraPose> mPoses;
+    tl::Point3<double> mOffset;
     QString mFormat;
     bool mQuaternions;
 };

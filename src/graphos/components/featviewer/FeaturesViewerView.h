@@ -41,7 +41,7 @@ public:
         : DialogView(parent, f)
     {
     }
-    ~FeaturesViewerView() = default;
+    ~FeaturesViewerView() override = default;
 
     /*!
      * \brief Set the list of images
@@ -51,7 +51,7 @@ public:
 
     /*!
      * \brief setCurrentImage
-     * \param leftImage
+     * \param[in] imagePath
      */
     virtual void setCurrentImage(const QString &imagePath) = 0;
 

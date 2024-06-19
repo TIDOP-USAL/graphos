@@ -48,23 +48,22 @@ DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
                                                      DensificationModel *model)
   : mView(view),
     mModel(model),
-    mCmvsPmvs(new CmvsPmvsWidgetImp),
-    mSmvs(new SmvsWidgetImp),
+    mCmvsPmvs(new CmvsPmvsWidget),
+    mSmvs(new SmvsWidget),
     mMVS(new MvsWidget)
 {
-    this->init();
-    this->initSignalAndSlots();
+    DensificationPresenterImp::init();
+    DensificationPresenterImp::initSignalAndSlots();
 }
 
-DensificationPresenterImp::~DensificationPresenterImp()
-{
-}
+DensificationPresenterImp::~DensificationPresenterImp() = default;
 
 void DensificationPresenterImp::open()
 {
-    this->setCmvsPmvsProperties();
-    this->setSmvsProperties();
-    this->setMvsProperties();
+    this->configureCmvsPmvsProperties();
+    this->configureSmvsProperties();
+    this->configureMvsProperties();
+
     mView->setCurrentDensificationMethod(mMVS->windowTitle());
 
     mView->exec();
@@ -98,29 +97,29 @@ void DensificationPresenterImp::setCurrentDensifier(const QString &densifier)
 }
 
 
-void DensificationPresenterImp::setCmvsPmvsProperties()
+void DensificationPresenterImp::configureCmvsPmvsProperties() const
 {
-    CmvsPmvs *cmvsPmvs = nullptr;
+    CmvsPmvs *cmvs_pmvs = nullptr;
     if (std::shared_ptr<Densification> densification = mModel->densification()) {
         if (densification->method() == Densification::Method::cmvs_pmvs) {
-            cmvsPmvs = dynamic_cast<CmvsPmvs *>(densification.get());
+            cmvs_pmvs = dynamic_cast<CmvsPmvs*>(densification.get());
         }
     } else {
         TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
     }
 
-    if (cmvsPmvs) {
-        mCmvsPmvs->setLevel(cmvsPmvs->level());
-        mCmvsPmvs->setCellSize(cmvsPmvs->cellSize());
-        mCmvsPmvs->setThreshold(cmvsPmvs->threshold());
-        mCmvsPmvs->setWindowSize(cmvsPmvs->windowSize());
-        mCmvsPmvs->setImagesPerCluster(cmvsPmvs->imagesPerCluster());
-        mCmvsPmvs->setMinimunImageNumber(cmvsPmvs->minimunImageNumber());
-        mCmvsPmvs->setUseVisibilityInformation(cmvsPmvs->useVisibilityInformation());
+    if (cmvs_pmvs) {
+        mCmvsPmvs->setLevel(cmvs_pmvs->level());
+        mCmvsPmvs->setCellSize(cmvs_pmvs->cellSize());
+        mCmvsPmvs->setThreshold(cmvs_pmvs->threshold());
+        mCmvsPmvs->setWindowSize(cmvs_pmvs->windowSize());
+        mCmvsPmvs->setImagesPerCluster(cmvs_pmvs->imagesPerCluster());
+        mCmvsPmvs->setMinimunImageNumber(cmvs_pmvs->minimunImageNumber());
+        mCmvsPmvs->setUseVisibilityInformation(cmvs_pmvs->useVisibilityInformation());
     }
 }
 
-void DensificationPresenterImp::setSmvsProperties()
+void DensificationPresenterImp::configureSmvsProperties() const
 {
     Smvs *smvs = nullptr;
     if (std::shared_ptr<Densification> densification = mModel->densification()) {
@@ -140,7 +139,7 @@ void DensificationPresenterImp::setSmvsProperties()
     }
 }
 
-void DensificationPresenterImp::setMvsProperties()
+void DensificationPresenterImp::configureMvsProperties() const
 {
     Mvs *mvs = nullptr;
     if (std::shared_ptr<Densification> densification = mModel->densification()) {
@@ -214,7 +213,7 @@ void DensificationPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 }
 
-std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
+std::unique_ptr<tl::Task> DensificationPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> dense_task;
 
@@ -229,6 +228,17 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         }
     }
 
+    mModel->cleanProject();
+    emit densification_deleted();
+
+    std::unordered_map<size_t, Image> images;
+    for (auto &image : mModel->images()) {
+        auto it = mModel->poses().find(image.first);
+        if (it != mModel->poses().end()) {
+            images[image.first] = image.second;
+        }
+    }
+
     QString densification_method = mView->currentDensificationMethod();
 
     tl::Path dense_path(mModel->projectFolder());
@@ -238,7 +248,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
         dense_path.append("pmvs");
 
-        auto pmvs = std::make_unique<CmvsPmvsDensifier>(mModel->images(),
+        auto pmvs = std::make_unique<CmvsPmvsDensifier>(images,
                                                         mModel->cameras(),
                                                         mModel->poses(),
                                                         mModel->groundPoints(),
@@ -255,7 +265,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         pmvs->setWindowSize(mCmvsPmvs->windowSize());
         pmvs->setMinimunImageNumber(mCmvsPmvs->minimunImageNumber());
 
-        auto properties = std::make_shared<CmvsPmvsProperties>(mCmvsPmvs->useVisibilityInformation(),
+        auto properties = std::make_shared<CmvsPmvs>(mCmvsPmvs->useVisibilityInformation(),
                                                                mCmvsPmvs->imagesPerCluster(),
                                                                mCmvsPmvs->level(),
                                                                mCmvsPmvs->cellSize(),
@@ -270,7 +280,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
         dense_path.append("smvs");
 
-        auto smvs = std::make_unique<SmvsDensifier>(mModel->images(),
+        auto smvs = std::make_unique<SmvsDensifier>(images,
                                                     mModel->cameras(),
                                                     mModel->poses(),
                                                     mModel->groundPoints(),
@@ -284,7 +294,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         smvs->setSemiGlobalMatching(mSmvs->semiGlobalMatching());
         smvs->setSurfaceSmoothingFactor(mSmvs->surfaceSmoothingFactor());
         
-        auto properties = std::make_shared<SmvsProperties>(mSmvs->inputImageScale(),
+        auto properties = std::make_shared<Smvs>(mSmvs->inputImageScale(),
                                                            mSmvs->outputDepthScale(),
                                                            mSmvs->shadingBasedOptimization(),
                                                            mSmvs->semiGlobalMatching(),
@@ -297,7 +307,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
 
         dense_path.append("mvs");
 
-        auto mvs = std::make_unique<MvsDensifier>(mModel->images(),
+        auto mvs = std::make_unique<MvsDensifier>(images,
                                                   mModel->cameras(),
                                                   mModel->poses(),
                                                   mModel->groundPoints(),
@@ -314,11 +324,11 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         mvs->setEstimateColors(mMVS->estimateColors());
         mvs->setEstimateNormals(mMVS->estimateNormals());
 
-        auto properties = std::make_shared<MvsProperties>(mMVS->quality(),
-                                                          256/*mMVS->minResolution()*/,
-                                                          3000/*mMVS->maxResolution()*/,
-                                                          mMVS->numberViews(),
-                                                          mMVS->numberViewsFuse());
+        auto properties = std::make_shared<Mvs>(mMVS->quality(),
+                                                256/*mMVS->minResolution()*/,
+                                                3000/*mMVS->maxResolution()*/,
+                                                mMVS->numberViews(),
+                                                mMVS->numberViewsFuse());
         mModel->setDensification(properties);
 
         dense_task = std::move(mvs);
@@ -328,7 +338,7 @@ std::unique_ptr<tl::Task> DensificationPresenterImp::createProcess()
         throw std::runtime_error("Densification Method not valid");
     }
 
-    dense_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+    dense_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
         auto report = dynamic_cast<DensifierBase const*>(event->task())->report();
 

@@ -50,10 +50,10 @@ public:
 
 public:
 
-    const std::unordered_map<size_t, Image> &images() const override;
-    const std::map<int, Camera> &cameras() const override;
-    bool useCuda() const override;
-    tl::Path projectFolder() const override;
+    auto images() const -> const Images& override;
+    auto cameras() const -> const Cameras& override;
+    auto useCuda() const -> bool override;
+    auto projectFolder() const -> tl::Path override;
 
 public slots:
 

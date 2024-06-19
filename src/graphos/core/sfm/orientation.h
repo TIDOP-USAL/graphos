@@ -49,8 +49,8 @@ public:
     virtual ~RelativeOrientation() = default;
 
     virtual void reset() = 0;
-    virtual QString name() const = 0;
-    Method method() const { return mOrientationMethod.flags(); }
+    virtual auto name() const -> QString = 0;
+    auto method() const -> Method { return mOrientationMethod.flags(); }
 
 protected:
 
@@ -61,23 +61,6 @@ ALLOW_BITWISE_FLAG_OPERATIONS(RelativeOrientation::Method)
 
 
 
-/*----------------------------------------------------------------*/
-
-
-
-//class RelativeOrientationAlgorithm
-//{
-//
-//public:
-//
-//  RelativeOrientationAlgorithm() {}
-//  virtual ~RelativeOrientationAlgorithm() = default;
-//
-//  virtual void run() = 0;
-//};
-
-
-/*----------------------------------------------------------------*/
 
 class AbsoluteOrientation
 {
@@ -95,8 +78,8 @@ public:
     virtual ~AbsoluteOrientation() = default;
 
     virtual void reset() = 0;
-    virtual QString name() const = 0;
-    Method method() const { return mOrientationMethod.flags(); }
+    virtual auto name() const -> QString = 0;
+    auto method() const -> Method { return mOrientationMethod.flags(); }
 
 protected:
 
@@ -105,19 +88,6 @@ protected:
 ALLOW_BITWISE_FLAG_OPERATIONS(AbsoluteOrientation::Method)
 
 
-/*----------------------------------------------------------------*/
-
-
-//class AbsoluteOrientationAlgorithm
-//{
-//
-//public:
-//
-//  AbsoluteOrientationAlgorithm() {}
-//  virtual ~AbsoluteOrientationAlgorithm() = default;
-//
-//  virtual void run() = 0;
-//};
 
 } // namespace graphos
 

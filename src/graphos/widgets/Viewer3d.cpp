@@ -23,9 +23,6 @@
 
 #include "Viewer3d.h"
 
-//#include "graphos/widgets/plugins/ccPluginInterface.h"
-//#include "graphos/widgets/plugins/core/qEDL/include/qEDL.h"
-//#include "graphos/widgets/plugins/core/qEDL/include/ccEDLFilter.h"
 #include "EDLfilter/ccEDLFilter.h"
 
 /* TidopLib */
@@ -48,7 +45,6 @@ TL_DISABLE_WARNINGS
 
 /* Qt */
 #include <QMouseEvent>
-#include <QFileInfo>
 #include <QApplication>
 #include <QDir>
 
@@ -136,8 +132,8 @@ CCViewer3D::CCViewer3D(QWidget *parent)
     mScaleY(1),
     mOrderedLabelsContainer(nullptr),
     mContextMenu(new Viewer3DContextMenu(this)),
-    mShowClassification(false),
     mRGBAColors(nullptr),
+    mShowClassification(false),
     edl(false),
     filter(nullptr)
 {
@@ -148,12 +144,11 @@ CCViewer3D::CCViewer3D(QWidget *parent)
 CCViewer3D::~CCViewer3D()
 {
     /// TODO: la destructora de ccGLWindow no es virtual con lo cual no se llama...
-    ///       Mejor composición que herencia.
-    if (ccHObject *currentRoot = this->getSceneDB()) {
+    if (ccHObject *current_root = this->getSceneDB()) {
         mSelectedObject = nullptr;
         this->setSceneDB(nullptr);
-        delete currentRoot;
-        currentRoot = nullptr;
+        delete current_root;
+        current_root = nullptr;
     }
 
     if (mLabel) {
@@ -165,11 +160,6 @@ CCViewer3D::~CCViewer3D()
         delete mRect2DLabel;
         mRect2DLabel = nullptr;
     }
-
-    //if (filter) {
-    //  delete filter;
-    //  filter = nullptr;
-    //}
 }
 
 void CCViewer3D::clear()
@@ -179,7 +169,6 @@ void CCViewer3D::clear()
         this->setSceneDB(nullptr);
         this->redraw();
         this->setPickingMode(ccGLWindow::DEFAULT_PICKING);
-        //clearLables();
         delete currentRoot;
         currentRoot = nullptr;
     }
@@ -201,12 +190,12 @@ void CCViewer3D::createGroup(const QString &group, const QString &parent)
 
 void CCViewer3D::deleteEntity(const QString &id)
 {
-    if (ccHObject *currentRoot = getSceneDB()) {
+    if (ccHObject *current_root = getSceneDB()) {
 
         ccHObject *temp = nullptr;
 
-        for (uint32_t i = 0; i < currentRoot->getChildrenNumber(); i++) {
-            temp = currentRoot->getChild(i);
+        for (uint32_t i = 0; i < current_root->getChildrenNumber(); i++) {
+            temp = current_root->getChild(i);
             if (temp->getName().compare(id) == 0 /*&&
                 temp->isKindOf(CC_TYPES::POINT_CLOUD)*/) {
                 if (temp->getParent()) {
@@ -215,7 +204,7 @@ void CCViewer3D::deleteEntity(const QString &id)
                 } else {
                     delete temp;
                 }
-                break;
+                //break;
             }
         }
 
@@ -225,105 +214,110 @@ void CCViewer3D::deleteEntity(const QString &id)
 
 void CCViewer3D::loadFromFile(const QString &file, const QString &parent)
 {
-    FileIOFilter::LoadParameters parameters;
-    parameters.alwaysDisplayLoadDialog = false;
-    parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
-    parameters.parentWidget = this;
-    CC_FILE_ERROR result = CC_FERR_NO_ERROR;
-
-    ///TODO: esto asigna un grupo por defecto a la nube de puntos cargada...
-    //if (ccHObject *newEntities = FileIOFilter::LoadFromFile(file, parameters, result)) {
-    //  newEntities->setName(file);
-    //  addToDB(newEntities);
-    //}
-
-    ///TODO: Por lo anterior extraigo el código necesario y lo adapto
-    QString extension = QFileInfo(file).suffix();
-    if (extension.isEmpty()) {
-        tl::Message::error("[Load] Can't guess file format: no file extension");
-        return; ///TODO: Devolver error
-    }
-
-    //convert extension to file format
-    QSharedPointer<FileIOFilter> filter = FileIOFilter::FindBestFilterForExtension(extension);
-
-    //unknown extension?
-    if (!filter) {
-        tl::Message::error("[Load] Can't guess file format: unhandled file extension '{}'", extension.toStdString());
-        return; ///TODO: Devolver error
-    }
-
-    //check file existence
-    QFileInfo fi(file);
-    if (!fi.exists()) {
-        tl::Message::error("[Load] File '{}' doesn't exist!", file.toStdString());
-        return; ///TODO: Devolver error
-    }
-
-    ccHObject *group = nullptr;
-    // Se carga el grupo si existe. Si no se añade a root
-    /// TODO: Esto tiene que ser recursivo
-    ccHObject *currentRoot = this->getSceneDB();
-    if (currentRoot) {
-        ccHObject *temp = nullptr;
-        for (uint32_t i = 0; i < currentRoot->getChildrenNumber(); i++) {
-            temp = currentRoot->getChild(i);
-            if (temp->getName().compare(parent) == 0 &&
-                temp->isKindOf(CC_TYPES::HIERARCHY_OBJECT)) {
-                group = temp;
-                break;
-            }
-        }
-
-    }
-
-    if (group == nullptr) {
-        group = currentRoot;
-    }
-
-    //load file
     try {
-        result = filter->loadFile(file,
-                                  *group,
-                                  parameters);
-    } catch (...) {
-        tl::Message::warning("[I/O] CC has caught an unhandled exception while loading file '{}'", file.toStdString());
-        //if (container)
-        //  container->removeAllChildren();
-        return; ///TODO: Devolver error
-    }
+        FileIOFilter::LoadParameters parameters;
+        parameters.alwaysDisplayLoadDialog = false;
+        parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
+        parameters.parentWidget = this;
+        CC_FILE_ERROR result = CC_FERR_NO_ERROR;
 
-    // Disable normals
-    ccHObject::Container clouds;
-    group->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
-    for (auto cloud : clouds) {
-        if (cloud) {
-            static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
-            static_cast<ccGenericPointCloud *>(cloud)->showColors(true);
-            static_cast<ccGenericPointCloud *>(cloud)->showSF(false);
+        ///TODO: esto asigna un grupo por defecto a la nube de puntos cargada...
+        //if (ccHObject *newEntities = FileIOFilter::LoadFromFile(file, parameters, result)) {
+        //  newEntities->setName(file);
+        //  addToDB(newEntities);
+        //}
+
+        ///TODO: Por lo anterior extraigo el código necesario y lo adapto
+        QString extension = QFileInfo(file).suffix();
+        if (extension.isEmpty()) {
+            tl::Message::error("[Load] Can't guess file format: no file extension");
+            return; ///TODO: Devolver error
         }
 
-    }
+        //convert extension to file format
+        QSharedPointer<FileIOFilter> filter = FileIOFilter::FindBestFilterForExtension(extension);
 
-    group->setDisplay_recursive(this);
+        //unknown extension?
+        if (!filter) {
+            tl::Message::error("[Load] Can't guess file format: unhandled file extension '{}'", extension.toStdString());
+            return; ///TODO: Devolver error
+        }
 
-    size_t childCount = group->getChildrenNumber();
-    if (childCount != 0) {
-        for (size_t i = 0; i < childCount; ++i) {
-            ccHObject *child = group->getChild(static_cast<unsigned int>(i));
-            QString newName = child->getName();
-            if (newName.startsWith("unnamed")) {
-                child->setName(file);
+        //check file existence
+        QFileInfo fi(file);
+        if (!fi.exists()) {
+            tl::Message::error("[Load] File '{}' doesn't exist!", file.toStdString());
+            return; ///TODO: Devolver error
+        }
+
+        ccHObject *group = nullptr;
+        // Se carga el grupo si existe. Si no se añade a root
+        /// TODO: Esto tiene que ser recursivo
+        ccHObject *current_root = this->getSceneDB();
+        if (current_root) {
+            ccHObject *temp = nullptr;
+            for (uint32_t i = 0; i < current_root->getChildrenNumber(); i++) {
+                temp = current_root->getChild(i);
+                if (temp->getName().compare(parent) == 0 &&
+                    temp->isKindOf(CC_TYPES::HIERARCHY_OBJECT)) {
+                    group = temp;
+                    break;
+                }
+            }
+
+        }
+
+        if (group == nullptr) {
+            group = current_root;
+        }
+
+        //load file
+        try {
+            result = filter->loadFile(file,
+                *group,
+                parameters);
+        } catch (...) {
+            tl::Message::warning("[I/O] CC has caught an unhandled exception while loading file '{}'", file.toStdString());
+            //if (container)
+            //  container->removeAllChildren();
+            return; ///TODO: Devolver error
+        }
+
+        // Disable normals
+        ccHObject::Container clouds;
+        group->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+        for (auto cloud : clouds) {
+            if (cloud) {
+                static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
+                static_cast<ccGenericPointCloud *>(cloud)->showColors(true);
+                static_cast<ccGenericPointCloud *>(cloud)->showSF(false);
+            }
+
+        }
+
+        group->setDisplay_recursive(this);
+
+        size_t childCount = group->getChildrenNumber();
+        if (childCount != 0) {
+            for (size_t i = 0; i < childCount; ++i) {
+                ccHObject *child = group->getChild(static_cast<unsigned int>(i));
+                QString new_name = child->getName();
+                if (new_name.startsWith("unnamed")) {
+                    child->setName(file);
+                }
+            }
+        } else {
+            if (group) {
+                delete group;
+                group = nullptr;
             }
         }
-    } else {
-        if (group) {
-            delete group;
-            group = nullptr;
-        }
-    }
 
-    this->setSceneDB(currentRoot);
+        this->setSceneDB(current_root);
+
+    } catch (std::exception & e){
+        tl::printException(e);
+    }
 }
 
 void CCViewer3D::loadFromFiles(const QStringList &files, const QString &parent)
@@ -333,14 +327,15 @@ void CCViewer3D::loadFromFiles(const QStringList &files, const QString &parent)
     parameters.shiftHandlingMode = ccGlobalShiftManager::NO_DIALOG_AUTO_SHIFT;
     parameters.parentWidget = this;
 
-    for (int i = 0; i < files.size(); ++i) {
+    for (const auto &file : files)
+    {
         CC_FILE_ERROR result = CC_FERR_NO_ERROR;
-        if (ccHObject *newEntities = FileIOFilter::LoadFromFile(files[i], parameters, result)) {
-            newEntities->setName(files[i]);
+        if (ccHObject *new_entities = FileIOFilter::LoadFromFile(file, parameters, result)) {
+            new_entities->setName(file);
 
             // Disable normals
             ccHObject::Container clouds;
-            newEntities->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+            new_entities->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
             for (auto cloud : clouds) {
                 if (cloud) {
                     static_cast<ccGenericPointCloud *>(cloud)->showNormals(false);
@@ -350,7 +345,7 @@ void CCViewer3D::loadFromFiles(const QStringList &files, const QString &parent)
 
             }
 
-            addToDB(newEntities);
+            addToDB(new_entities);
         }
 
         if (result == CC_FERR_CANCELED_BY_USER) {
@@ -373,18 +368,16 @@ void CCViewer3D::addCamera(const QString &id,
                            double z,
                            const std::array<std::array<float, 3>, 3> &rot)
 {
-    ccCameraSensor *camera = new ccCameraSensor();
+    auto camera = new ccCameraSensor();
 
-    ccHObject *currentRoot = getSceneDB();
+    ccHObject *current_root = getSceneDB();
     CCVector3d camera_center(x, y, z);
-    if (currentRoot) {
-        ccHObject *child = currentRoot->getFirstChild();
+    if (current_root) {
+        ccHObject *child = current_root->getFirstChild();
         ccGenericPointCloud *cloud = ccHObjectCaster::ToGenericPointCloud(child);
-        bool isShifted = cloud->isShifted();
-        if (isShifted) {
+        bool is_shifted = cloud->isShifted();
+        if (is_shifted) {
             CCVector3d shift = cloud->getGlobalShift();
-            //msgInfo("Desplazamiento camara [%lf,%lf,%lf]", shift.x, shift.y, shift.z);
-            //msgInfo("Camara cargada [%lf,%lf,%lf]", camera_center.x, camera_center.y, camera_center.z);
             camera_center += shift;
         }
         ccBBox bb = cloud->getOwnBB();
@@ -447,16 +440,16 @@ void CCViewer3D::addCamera(const QString &id,
     mCameras[id] = camera;
 
     ccGLWindow *win = nullptr;
-    if (currentRoot) {
-        currentRoot->addChild(camera);
-        win = static_cast<ccGLWindow *>(currentRoot->getDisplay());
+    if (current_root) {
+        current_root->addChild(camera);
+        win = dynamic_cast<ccGLWindow *>(current_root->getDisplay());
     }
 
     if (win) {
         camera->setDisplay(win);
         camera->setVisible(true);
-        if (currentRoot) {
-            ccBBox box = currentRoot->getOwnBB();
+        if (current_root) {
+            ccBBox box = current_root->getOwnBB();
             win->updateConstellationCenterAndZoom(&box);
         }
     }
@@ -485,36 +478,38 @@ void CCViewer3D::drawLine(const std::string &name,
 
         if (!entities) {
             entities = new ccPointCloud(name.c_str());
+            //entities->redrawDisplay();
             addToDB(entities);
         }
 
-        ccPointCloud *cloudMeasures = new ccPointCloud("Measures");
-        cloudMeasures->setEnabled(true);
-        cloudMeasures->setDisplay(this);
+        auto cloud_measures = new ccPointCloud("Measures");
+        cloud_measures->setEnabled(true);
+        //cloud_measures->setDisplay(this);
 
-        ccPolyline *segment = new ccPolyline(cloudMeasures);
+        auto segment = new ccPolyline(cloud_measures);
         segment->setTempColor(ccColor::Rgb(color.red(), color.green(), color.blue()));
         segment->set2DMode(false);
-        segment->addChild(cloudMeasures);
+        segment->addChild(cloud_measures);
         segment->setWidth(width);
         entities->addChild(segment);
 
         if (!segment->reserve(segment->size() + 2)
-            || !cloudMeasures->reserve(cloudMeasures->size() + 2)) {
+            || !cloud_measures->reserve(cloud_measures->size() + 2)) {
             return;
         }
 
         // Se añade el segmento
-        cloudMeasures->addPoint(CCVector3(point1.x, point1.y, point1.z));
-        cloudMeasures->addPoint(CCVector3(point2.x, point2.y, point2.z));
+        cloud_measures->addPoint(CCVector3(point1.x, point1.y, point1.z));
+        cloud_measures->addPoint(CCVector3(point2.x, point2.y, point2.z));
 
-        segment->addPointIndex(cloudMeasures->size() - 2);
-        segment->addPointIndex(cloudMeasures->size() - 1);
+        segment->addPointIndex(cloud_measures->size() - 2);
+        segment->addPointIndex(cloud_measures->size() - 1);
     }
 }
 
 void CCViewer3D::addPrimitive(ccGenericPrimitive *primitive)
 {
+    //primitive->redrawDisplay();
     addToDB(primitive);
 }
 
@@ -564,8 +559,13 @@ void CCViewer3D::deactivatePicker()
 
 ccHObject *CCViewer3D::object()
 {
-    if (ccHObject *currentRoot = getSceneDB()) return currentRoot;
-    else return nullptr;
+    if (ccHObject *current_root = getSceneDB()) return current_root;
+    return nullptr;
+}
+
+QImage CCViewer3D::captureModel()
+{
+    return this->renderToImage();
 }
 
 /* public slots */
@@ -573,13 +573,13 @@ ccHObject *CCViewer3D::object()
 
 void CCViewer3D::deleteSelectEntity()
 {
-    if (ccHObject *currentRoot = getSceneDB()) {
-        ccHObject::Container toCheck;
-        toCheck.push_back(currentRoot);
+    if (ccHObject *current_root = getSceneDB()) {
+        ccHObject::Container to_check;
+        to_check.push_back(current_root);
 
-        while (!toCheck.empty()) {
-            ccHObject *obj = toCheck.back();
-            toCheck.pop_back();
+        while (!to_check.empty()) {
+            ccHObject *obj = to_check.back();
+            to_check.pop_back();
 
             if (obj->isSelected()) {
                 if (obj->getParent()) {
@@ -590,7 +590,7 @@ void CCViewer3D::deleteSelectEntity()
                 }
             } else {
                 for (unsigned i = 0; i < obj->getChildrenNumber(); ++i)
-                    toCheck.push_back(obj->getChild(i));
+                    to_check.push_back(obj->getChild(i));
             }
         }
         redraw();
@@ -710,18 +710,18 @@ void CCViewer3D::showClassification(bool show)
 
     if (mColorTable == nullptr) return;
 
-    if (ccHObject *currentRoot = getSceneDB()) {
+    if (ccHObject *current_root = getSceneDB()) {
 
         //currentRoot->showColors(!show);
         //currentRoot->showSF(show);
 
         ccHObject::Container clouds;
-        currentRoot->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+        current_root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
 
         /// Sólo se permite una nube de puntos en el visor
         //if (clouds.size() != 1) return;
 
-        if (auto cloud = static_cast<ccPointCloud *>(clouds.at(0))) {
+        if (auto cloud = dynamic_cast<ccPointCloud *>(clouds.at(0))) {
 
             if (show) {
 
@@ -795,15 +795,15 @@ void CCViewer3D::setColorTable(std::shared_ptr<ColorTable> colorTable)
         showClassification(mShowClassification);
             });
 
-    if (ccHObject *currentRoot = getSceneDB()) {
+    if (ccHObject *current_root = getSceneDB()) {
 
         ccHObject::Container clouds;
-        currentRoot->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
+        current_root->filterChildren(clouds, true, CC_TYPES::POINT_CLOUD);
 
         /// Sólo se permite una nube de puntos en el visor
         if (clouds.size() != 1) return;
 
-        if (auto cloud = static_cast<ccPointCloud *>(clouds.at(0))) {
+        if (auto cloud = dynamic_cast<ccPointCloud *>(clouds.at(0))) {
 
             if (cloud->hasColors()) {
 
@@ -1021,8 +1021,8 @@ void CCViewer3D::addToDB(ccHObject *entity)
         //already a pure 'root'
         if (currentRoot->isA(CC_TYPES::HIERARCHY_OBJECT)) {
             currentRoot->addChild(entity);
-            this->setSceneDB(currentRoot);
-            entity->setDisplay_recursive(this);
+            //this->setSceneDB(currentRoot);
+            //entity->setDisplay_recursive(this);
         }
     }
 

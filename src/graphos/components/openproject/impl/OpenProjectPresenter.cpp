@@ -35,49 +35,47 @@ namespace graphos
 {
 
 OpenProjectPresenterImp::OpenProjectPresenterImp(OpenProjectView *view,
-                                                 OpenProjectModel *model,
-                                                 AppStatus *status)
+                                                 OpenProjectModel *model)
   : OpenProjectPresenter(),
     mView(view),
-    mModel(model),
-    mAppStatus(status)
+    mModel(model)
 {
-  init();
-  initSignalAndSlots();
+    OpenProjectPresenterImp::init();
+    OpenProjectPresenterImp::initSignalAndSlots();
 }
 
-OpenProjectPresenterImp::~OpenProjectPresenterImp()
-{
-}
+OpenProjectPresenterImp::~OpenProjectPresenterImp() = default;
 
 void OpenProjectPresenterImp::setProjectFile(const QString &file)
 {
 
-  if (!file.isEmpty()) {
-    if (mAppStatus->isEnabled(AppStatus::Flag::project_modified)) {
-      int i_ret = QMessageBox(QMessageBox::Information,
-                              tr("Save Changes"),
-                              tr("There are unsaved changes. Do you want to save them?"),
-                              QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel).exec();
-      if (i_ret == QMessageBox::Yes) {
-        mModel->saveProject();
-        mAppStatus->clear();
-      } else if (i_ret == QMessageBox::Cancel) {
-        return;
-      }
+    if (!file.isEmpty()) {
+        auto status = Application::instance().status();
+
+        if (status->isEnabled(AppStatus::Flag::project_modified)) {
+            int i_ret = QMessageBox(QMessageBox::Information,
+                tr("Save Changes"),
+                tr("There are unsaved changes. Do you want to save them?"),
+                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel).exec();
+            if (i_ret == QMessageBox::Yes) {
+                mModel->saveProject();
+                status->clear();
+            } else if (i_ret == QMessageBox::Cancel) {
+                return;
+            }
+        }
+
+        mModel->clear();
+        mModel->loadProject(file.toStdWString());
+
+        emit project_loaded();
     }
-
-    mModel->clear();
-    mModel->loadProject(file.toStdWString());
-
-    emit project_loaded();
-  }
 }
 
 void OpenProjectPresenterImp::open()
 {
-  mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
-  mView->exec();
+    mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
+    mView->exec();
 }
 
 void OpenProjectPresenterImp::init()
@@ -86,7 +84,7 @@ void OpenProjectPresenterImp::init()
 
 void OpenProjectPresenterImp::initSignalAndSlots()
 {
-  connect(mView, &OpenProjectView::fileSelected, this, &OpenProjectPresenterImp::setProjectFile);
+    connect(mView, &OpenProjectView::fileSelected, this, &OpenProjectPresenterImp::setProjectFile);
 }
 
 } // namespace graphos

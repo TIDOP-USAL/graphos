@@ -45,17 +45,17 @@ class MatchViewerSettingsWidget
 public:
 
     MatchViewerSettingsWidget(QWidget *parent = nullptr);
-    virtual ~MatchViewerSettingsWidget() = default;
+    ~MatchViewerSettingsWidget() override = default;
 
-    QString backgroundColor() const;
-    int markerType() const;
-    int markerSize() const;
-    int markerWidth() const;
-    QString markerColor() const;
-    int selectedMarkerWidth() const;
-    QString selectedMarkerColor() const;
-    QString lineColor() const;
-    int lineWidth() const;
+    auto backgroundColor() const -> QString;
+    auto markerType() const -> int;
+    auto markerSize() const -> int;
+    auto markerWidth() const -> int;
+    auto markerColor() const -> QString;
+    auto selectedMarkerWidth() const -> int;
+    auto selectedMarkerColor() const -> QString;
+    auto lineColor() const -> QString;
+    auto lineWidth() const -> int;
 
 public slots:
 

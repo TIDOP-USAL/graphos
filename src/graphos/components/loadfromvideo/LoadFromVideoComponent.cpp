@@ -67,7 +67,7 @@ void LoadFromVideoComponent::createView()
 void LoadFromVideoComponent::createPresenter()
 {
     setPresenter(new LoadFromVideoPresenterImp(dynamic_cast<LoadFromVideoView *>(view()),
-                 dynamic_cast<LoadFromVideoModel *>(model())));
+                                               dynamic_cast<LoadFromVideoModel *>(model())));
 
     connect(dynamic_cast<LoadFromVideoPresenter *>(presenter()), &LoadFromVideoPresenter::frame_loaded,
             this, &LoadFromVideoComponent::frame_loaded);

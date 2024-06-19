@@ -226,10 +226,13 @@ void MainWindowModel::oldVersionBackup(const tl::Path &file) const
     mProject->oldVersionBak(file);
 }
 
-void MainWindowModel::load(const tl::Path &file)
+void MainWindowModel::load(const tl::Path &file) const
 {
-    mProject->load(file);
-    //bUnsavedChanges = false;
+    try {
+        mProject->load(file);
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception caught when loading the project");
+    }
 }
 
 //void MainWindowModel::save()

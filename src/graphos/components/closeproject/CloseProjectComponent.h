@@ -39,7 +39,7 @@ class CloseProjectComponent
 public:
 
     CloseProjectComponent(Application *application);
-    ~CloseProjectComponent();
+    ~CloseProjectComponent() override;
 
 private:
 

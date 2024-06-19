@@ -58,8 +58,8 @@ SettingsViewImp::SettingsViewImp(QWidget *parent)
     mButtonBox(new QDialogButtonBox(this)),
     bUnsaveChanges(false)
 {
-  SettingsViewImp::initUI();
-  SettingsViewImp::initSignalAndSlots();
+    SettingsViewImp::initUI();
+    SettingsViewImp::initSignalAndSlots();
 }
 
 SettingsViewImp::~SettingsViewImp()
@@ -67,241 +67,240 @@ SettingsViewImp::~SettingsViewImp()
 
 }
 
-void SettingsViewImp::onPushButtonImageViewerBGColorClicked()
-{
-  QColor color = QColorDialog::getColor(QColor(mLineEditImageViewerBGcolor->text()), this, "Pick a color",  QColorDialog::DontUseNativeDialog);
-  if (color.isValid())
-    emit imageViewerBGColorChange(color.name());
-}
-
 void SettingsViewImp::initUI()
 {
-  setObjectName(QString("SettingsView"));
-  resize(750, 450);
+    setObjectName(QString("SettingsView"));
+    resize(750, 450);
 
 
-  QGridLayout *layout = new QGridLayout();
-  setLayout(layout);
+    auto layout = new QGridLayout();
+    setLayout(layout);
 
-  mListWidget->setMaximumSize(QSize(250, 16777215));
-  mListWidget->addItem(tr("General"));
-  mListWidget->addItem(tr("Image Viewer"));
-  mListWidget->addItem(tr("Tools"));
-  layout->addWidget(mListWidget, 0, 0, 1, 1);
+    mListWidget->setMaximumSize(QSize(250, 16777215));
+    mListWidget->addItem(tr("General"));
+    mListWidget->addItem(tr("Image Viewer"));
+    mListWidget->addItem(tr("Tools"));
+    layout->addWidget(mListWidget, 0, 0, 1, 1);
 
-  layout->addWidget(mStackedWidget, 0, 1, 1, 3);
+    layout->addWidget(mStackedWidget, 0, 1, 1, 3);
 
-  /* General */
-  QWidget *pageGeneral = new QWidget(this);
-  QGridLayout *gridLayoutGeneral = new QGridLayout(pageGeneral);
+    /* General */
+    auto page_general = new QWidget(this);
+    auto grid_layout_general = new QGridLayout(page_general);
 
-  gridLayoutGeneral->addWidget(mLabelLanguages, 0, 0, 1, 1);
-  gridLayoutGeneral->addWidget(mLanguages, 0, 1, 1, 1);
+    grid_layout_general->addWidget(mLabelLanguages, 0, 0, 1, 1);
+    grid_layout_general->addWidget(mLanguages, 0, 1, 1, 1);
 
-  gridLayoutGeneral->addWidget(mLabelHistoryMaxSize, 1, 0, 1, 1);
-  mHistoryMaxSize->setRange(1, 50);
-  mHistoryMaxSize->setValue(10);
-  gridLayoutGeneral->addWidget(mHistoryMaxSize, 1, 1, 1, 1);
+    grid_layout_general->addWidget(mLabelHistoryMaxSize, 1, 0, 1, 1);
+    mHistoryMaxSize->setRange(1, 50);
+    mHistoryMaxSize->setValue(10);
+    grid_layout_general->addWidget(mHistoryMaxSize, 1, 1, 1, 1);
 
-  gridLayoutGeneral->addWidget(mLabelUseCuda, 2, 0, 1, 1);
-  gridLayoutGeneral->addWidget(mCheckBoxUseCuda, 2, 1, 1, 1);
+    grid_layout_general->addWidget(mLabelUseCuda, 2, 0, 1, 1);
+    grid_layout_general->addWidget(mCheckBoxUseCuda, 2, 1, 1, 1);
 
-  QSpacerItem *verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    auto vertical_spacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-  gridLayoutGeneral->addItem(verticalSpacer, 3, 0, 1, 1);
+    grid_layout_general->addItem(vertical_spacer, 3, 0, 1, 1);
 
-  mStackedWidget->addWidget(pageGeneral);
+    mStackedWidget->addWidget(page_general);
 
-  /* Viewer */
-  QWidget *pageImageViewer = new QWidget(this);
-  QGridLayout *gridLayoutViewer = new QGridLayout(pageImageViewer);
-  gridLayoutViewer->setContentsMargins(0, 0, 0, 0);
+    /* Viewer */
+    auto page_image_viewer = new QWidget(this);
+    auto grid_layout_viewer = new QGridLayout(page_image_viewer);
+    grid_layout_viewer->setContentsMargins(0, 0, 0, 0);
 
-  QTabWidget *tabWidgetImageViewer = new QTabWidget(pageImageViewer);
+    auto tab_widget_image_viewer = new QTabWidget(page_image_viewer);
 
-  QWidget *tabImageViewerGeneral = new QWidget(this);
-  QGridLayout *gridLayoutTabImageViewerGeneral = new QGridLayout(tabImageViewerGeneral);
-  gridLayoutTabImageViewerGeneral->setContentsMargins(0, 0, 0, 0);
-  QScrollArea *scrollAreaImageViewerGeneral = new QScrollArea(tabImageViewerGeneral);
-  scrollAreaImageViewerGeneral->setWidgetResizable(true);
-  scrollAreaImageViewerGeneral->setFrameShape(QFrame::Shape::NoFrame);
-  QWidget *scrollAreaWidgetContentsImageViewerGeneral = new QWidget(this);
-  QGridLayout *gridLayoutContentsImageViewerGeneral = new QGridLayout(scrollAreaWidgetContentsImageViewerGeneral);
-  gridLayoutContentsImageViewerGeneral->addWidget(mLabelImageViewerBGcolor, 0, 0, 1, 1);
-  mLineEditImageViewerBGcolor = new QLineEdit(tabImageViewerGeneral);
-  mLineEditImageViewerBGcolor->setText("#dcdcdc");
-  gridLayoutContentsImageViewerGeneral->addWidget(mLineEditImageViewerBGcolor, 0, 1, 1, 1);
-  mPushButtonImageViewerBGcolor = new QPushButton(tr("..."), tabImageViewerGeneral);
-  mPushButtonImageViewerBGcolor->setMaximumSize(QSize(23, 23));
-  gridLayoutContentsImageViewerGeneral->addWidget(mPushButtonImageViewerBGcolor, 0, 2, 1, 1);
+    auto tab_image_viewer_general = new QWidget(this);
+    auto grid_layout_tab_image_viewer_general = new QGridLayout(tab_image_viewer_general);
+    grid_layout_tab_image_viewer_general->setContentsMargins(0, 0, 0, 0);
+    auto scroll_area_image_viewer_general = new QScrollArea(tab_image_viewer_general);
+    scroll_area_image_viewer_general->setWidgetResizable(true);
+    scroll_area_image_viewer_general->setFrameShape(QFrame::Shape::NoFrame);
+    auto scroll_area_widget_contents_image_viewer_general = new QWidget(this);
+    auto grid_layout_contents_image_viewer_general = new QGridLayout(scroll_area_widget_contents_image_viewer_general);
+    grid_layout_contents_image_viewer_general->addWidget(mLabelImageViewerBGcolor, 0, 0, 1, 1);
+    mLineEditImageViewerBGcolor = new QLineEdit(tab_image_viewer_general);
+    mLineEditImageViewerBGcolor->setText("#dcdcdc");
+    grid_layout_contents_image_viewer_general->addWidget(mLineEditImageViewerBGcolor, 0, 1, 1, 1);
+    mPushButtonImageViewerBGcolor = new QPushButton(tr("..."), tab_image_viewer_general);
+    mPushButtonImageViewerBGcolor->setMaximumSize(QSize(23, 23));
+    grid_layout_contents_image_viewer_general->addWidget(mPushButtonImageViewerBGcolor, 0, 2, 1, 1);
 
-  scrollAreaImageViewerGeneral->setWidget(scrollAreaWidgetContentsImageViewerGeneral);
-  gridLayoutTabImageViewerGeneral->addWidget(scrollAreaImageViewerGeneral);
+    scroll_area_image_viewer_general->setWidget(scroll_area_widget_contents_image_viewer_general);
+    grid_layout_tab_image_viewer_general->addWidget(scroll_area_image_viewer_general);
 
-  tabWidgetImageViewer->addTab(tabImageViewerGeneral, QString(tr("General")));
+    tab_widget_image_viewer->addTab(tab_image_viewer_general, QString(tr("General")));
 
-  gridLayoutViewer->addWidget(tabWidgetImageViewer, 0, 0, 1, 1);
+    grid_layout_viewer->addWidget(tab_widget_image_viewer, 0, 0, 1, 1);
 
-  mStackedWidget->addWidget(pageImageViewer);
+    mStackedWidget->addWidget(page_image_viewer);
 
-  /* Tools */
-  QWidget *pageTools = new QWidget(this);
-  QGridLayout *gridLayoutTools = new QGridLayout(pageTools);
-  gridLayoutTools->setContentsMargins(0, 0, 0, 0);
+    /* Tools */
+    auto page_tools = new QWidget(this);
+    auto grid_layout_tools = new QGridLayout(page_tools);
+    grid_layout_tools->setContentsMargins(0, 0, 0, 0);
 
-  mTabWidgetTools = new QTabWidget(pageTools);
+    mTabWidgetTools = new QTabWidget(page_tools);
 
-  QWidget *tabToolsGeneral = new QWidget(this);
-  QGridLayout *gridLayoutTabToolsGeneral = new QGridLayout(tabToolsGeneral);
-  gridLayoutTabToolsGeneral->setContentsMargins(0, 0, 0, 0);
-  QScrollArea *scrollAreaToolsGeneral = new QScrollArea(tabToolsGeneral);
-  scrollAreaToolsGeneral->setWidgetResizable(true);
-  scrollAreaToolsGeneral->setFrameShape(QFrame::Shape::NoFrame);
-  QWidget *scrollAreaWidgetContentsToolsGeneral = new QWidget(this);
-  //QGridLayout *gridLayoutContentsToolsGeneral = new QGridLayout(scrollAreaWidgetContentsToolsGeneral);
-  scrollAreaToolsGeneral->setWidget(scrollAreaWidgetContentsToolsGeneral);
-  gridLayoutTabToolsGeneral->addWidget(scrollAreaToolsGeneral, 0, 0, 1, 1);
-  mTabWidgetTools->addTab(tabToolsGeneral, QString(tr("General")));
+    auto tab_tools_general = new QWidget(this);
+    auto grid_layout_tab_tools_general = new QGridLayout(tab_tools_general);
+    grid_layout_tab_tools_general->setContentsMargins(0, 0, 0, 0);
+    auto scroll_area_tools_general = new QScrollArea(tab_tools_general);
+    scroll_area_tools_general->setWidgetResizable(true);
+    scroll_area_tools_general->setFrameShape(QFrame::Shape::NoFrame);
+    auto scroll_area_widget_contents_tools_general = new QWidget(this);
+    scroll_area_tools_general->setWidget(scroll_area_widget_contents_tools_general);
+    grid_layout_tab_tools_general->addWidget(scroll_area_tools_general, 0, 0, 1, 1);
+    mTabWidgetTools->addTab(tab_tools_general, QString(tr("General")));
 
 
-  gridLayoutTools->addWidget(mTabWidgetTools, 0, 0, 1, 1);
-  mStackedWidget->addWidget(pageTools);
+    grid_layout_tools->addWidget(mTabWidgetTools, 0, 0, 1, 1);
+    mStackedWidget->addWidget(page_tools);
 
-  mButtonBox->setOrientation(Qt::Orientation::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel |
-                                 QDialogButtonBox::Apply | QDialogButtonBox::Help);
+    mButtonBox->setOrientation(Qt::Orientation::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel |
+                                   QDialogButtonBox::Apply | QDialogButtonBox::Help);
 
-  layout->addWidget(mButtonBox, 1, 0, 1, 4);
+    layout->addWidget(mButtonBox, 1, 0, 1, 4);
 
-  this->retranslate();
-  this->clear();
-  this->update();
+    this->retranslate();
+    this->clear();
+    this->update();
 }
 
 void SettingsViewImp::initSignalAndSlots()
 {
-  connect(mListWidget, &QListWidget::currentRowChanged, 
-          mStackedWidget, &QStackedWidget::setCurrentIndex);
-  connect(mLanguages, &QComboBox::currentTextChanged,
-          this, &SettingsViewImp::languageChange);
-  connect(mHistoryMaxSize, QOverload<int>::of(&QSpinBox::valueChanged),  
-          this, &SettingsViewImp::historyMaxSizeChange);
-  connect(mLineEditImageViewerBGcolor, &QLineEdit::textChanged, 
-          this, &SettingsViewImp::imageViewerBGColorChange);
-  connect(mPushButtonImageViewerBGcolor, &QAbstractButton::clicked,
-          this, &SettingsViewImp::onPushButtonImageViewerBGColorClicked);
-  connect(mCheckBoxUseCuda, &QAbstractButton::clicked,
-          this, &SettingsViewImp::useCudaChange);
+    connect(mListWidget, &QListWidget::currentRowChanged,
+        mStackedWidget, &QStackedWidget::setCurrentIndex);
+    connect(mLanguages, &QComboBox::currentTextChanged,
+        this, &SettingsViewImp::languageChange);
+    connect(mHistoryMaxSize, QOverload<int>::of(&QSpinBox::valueChanged),
+        this, &SettingsViewImp::historyMaxSizeChange);
+    connect(mLineEditImageViewerBGcolor, &QLineEdit::textChanged,
+        this, &SettingsViewImp::imageViewerBGColorChange);
+    connect(mPushButtonImageViewerBGcolor, &QAbstractButton::clicked,
+           [&]() {
+               QColor color = QColorDialog::getColor(QColor(mLineEditImageViewerBGcolor->text()), 
+                                                     this,
+                                                     "Pick a color",
+                                                     QColorDialog::DontUseNativeDialog);
+               if (color.isValid())
+                   emit imageViewerBGColorChange(color.name());
+           });
+    connect(mCheckBoxUseCuda, &QAbstractButton::clicked,
+        this, &SettingsViewImp::useCudaChange);
 
-  connect(mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-  connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,    
-          this, &SettingsView::applyChanges);
-  connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked,  
-          this, &DialogView::help);
+    connect(mButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
+        this, &SettingsView::applyChanges);
+    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked,
+        this, &DialogView::help);
 }
 
 void SettingsViewImp::clear()
 {
-  const QSignalBlocker blocker1(mLanguages);
-  const QSignalBlocker blockerImageViewerBGcolor(mLineEditImageViewerBGcolor);
+    const QSignalBlocker blocker1(mLanguages);
+    const QSignalBlocker blocker_image_viewer_b_gcolor(mLineEditImageViewerBGcolor);
 
-  mLanguages->clear();
-  mHistoryMaxSize->setValue(10);
-  mLineEditImageViewerBGcolor->setText("#dcdcdc");
-  mCheckBoxUseCuda->setChecked(false);
+    mLanguages->clear();
+    mHistoryMaxSize->setValue(10);
+    mLineEditImageViewerBGcolor->setText("#dcdcdc");
+    mCheckBoxUseCuda->setChecked(false);
 }
 
 void SettingsViewImp::update()
 {
-  mButtonBox->button(QDialogButtonBox::Apply)->setEnabled(bUnsaveChanges);
+    mButtonBox->button(QDialogButtonBox::Apply)->setEnabled(bUnsaveChanges);
 }
 
 void SettingsViewImp::retranslate()
 {
-  setWindowTitle(QApplication::translate("SettingsView", "Settings", nullptr));
-  mLabelHistoryMaxSize->setText(QApplication::translate("SettingsView", "History Max Size", nullptr));
-  mLabelLanguages->setText(QApplication::translate("SettingsView", "Language", nullptr));
-  mLabelUseCuda->setText(QApplication::translate("SettingsView", "Use Cuda", nullptr));
-  mLabelImageViewerBGcolor->setText(QApplication::translate("SettingsView", "Background Color:", nullptr));
+    setWindowTitle(QApplication::translate("SettingsView", "Settings", nullptr));
+    mLabelHistoryMaxSize->setText(QApplication::translate("SettingsView", "History Max Size", nullptr));
+    mLabelLanguages->setText(QApplication::translate("SettingsView", "Language", nullptr));
+    mLabelUseCuda->setText(QApplication::translate("SettingsView", "Use Cuda", nullptr));
+    mLabelImageViewerBGcolor->setText(QApplication::translate("SettingsView", "Background Color:", nullptr));
 
-  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("SettingsView", "Ok", nullptr));
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("SettingsView", "Cancel", nullptr));
-  mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("SettingsView", "Apply", nullptr));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("SettingsView", "Help", nullptr));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("SettingsView", "Ok", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("SettingsView", "Cancel", nullptr));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("SettingsView", "Apply", nullptr));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("SettingsView", "Help", nullptr));
 }
 
-QString SettingsViewImp::activeLanguage() const
+auto SettingsViewImp::activeLanguage() const -> QString
 {
-  return mLanguages->currentText();
+    return mLanguages->currentText();
 }
 
-int SettingsViewImp::historyMaxSize() const
+auto SettingsViewImp::historyMaxSize() const -> int
 {
-  return mHistoryMaxSize->value();
+    return mHistoryMaxSize->value();
 }
 
-QString SettingsViewImp::imageViewerBGColor() const
+auto SettingsViewImp::imageViewerBGColor() const -> QString
 {
-  return mLineEditImageViewerBGcolor->text();
+    return mLineEditImageViewerBGcolor->text();
 }
 
-bool SettingsViewImp::useCuda() const
+auto SettingsViewImp::useCuda() const -> bool
 {
-  return mCheckBoxUseCuda->isEnabled() && mCheckBoxUseCuda->isChecked();
+    return mCheckBoxUseCuda->isEnabled() && mCheckBoxUseCuda->isChecked();
 }
 
 void SettingsViewImp::setPage(int page)
 {
-  mListWidget->setCurrentRow(page);
+    mListWidget->setCurrentRow(page);
 }
 
 void SettingsViewImp::setLanguages(const QStringList &languages)
 {
-  const QSignalBlocker blocker(mLanguages);
+    const QSignalBlocker blocker(mLanguages);
 
-  mLanguages->clear();
-  mLanguages->insertItems(0, languages);
+    mLanguages->clear();
+    mLanguages->insertItems(0, languages);
 }
 
 void SettingsViewImp::setActiveLanguage(const QString &language)
 {
-  const QSignalBlocker blocker(mLanguages);
-  mLanguages->setCurrentText(language);
+    const QSignalBlocker blocker(mLanguages);
+    mLanguages->setCurrentText(language);
 }
 
 void SettingsViewImp::setHistoryMaxSize(int size)
 {
-  const QSignalBlocker blocker(mHistoryMaxSize);
-  mHistoryMaxSize->setValue(size);
+    const QSignalBlocker blocker(mHistoryMaxSize);
+    mHistoryMaxSize->setValue(size);
 }
 
 void SettingsViewImp::setImageViewerBGcolor(const QString &color)
 {
-  const QSignalBlocker blockerImageViewerBGcolor(mLineEditImageViewerBGcolor);
-  mLineEditImageViewerBGcolor->setText(color);
+    const QSignalBlocker blockerImageViewerBGcolor(mLineEditImageViewerBGcolor);
+    mLineEditImageViewerBGcolor->setText(color);
 }
 
 void SettingsViewImp::setUseCuda(bool active)
 {
-  mCheckBoxUseCuda->setChecked(active);
+    mCheckBoxUseCuda->setChecked(active);
 }
 
 void SettingsViewImp::setCudaEnabled(bool enabled)
 {
-  mCheckBoxUseCuda->setEnabled(enabled);
+    mCheckBoxUseCuda->setEnabled(enabled);
 }
 
 void SettingsViewImp::setUnsavedChanges(bool unsaveChanges)
 {
-  bUnsaveChanges = unsaveChanges;
-  update();
+    bUnsaveChanges = unsaveChanges;
+    update();
 }
 
 void SettingsViewImp::addWidget(QWidget *widget)
 {
-  mListWidget->addItem(widget->windowTitle());
-  mStackedWidget->addWidget(widget);
+    mListWidget->addItem(widget->windowTitle());
+    mStackedWidget->addWidget(widget);
 }
 
 } // namespace graphos

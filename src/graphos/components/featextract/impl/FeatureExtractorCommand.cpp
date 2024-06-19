@@ -32,14 +32,11 @@
 
 #include <tidop/core/msg/message.h>
 
-#include <QFileInfo>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 
 #include <atomic>
+#include <tidop/core/log.h>
 
 using namespace tl;
 
@@ -50,19 +47,20 @@ FeatureExtractorCommand::FeatureExtractorCommand()
   : Command("featextract", "Feature extraction (SIFT)"),
     mDisableCuda(false)
 {
-    SiftProperties siftProperties;
-    this->addArgument<std::string>("prj", 'p', "Project file");
+    Sift sift_properties;
+    this->addArgument<tl::Path>("prj", 'p', "Project file");
     this->addArgument<int>("max_image_size", 's', "Maximum image size (default = 3200)", 3200);
-    this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(siftProperties.featuresNumber())).append(")"), siftProperties.featuresNumber());
-    this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(siftProperties.octaveLayers())).append(")"), siftProperties.octaveLayers());
-    this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(siftProperties.contrastThreshold())).append(")"), siftProperties.contrastThreshold());
-    this->addArgument<double>("edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(siftProperties.edgeThreshold())).append(")"), siftProperties.edgeThreshold());  
+    this->addArgument<int>("max_features_number", std::string("Maximum number of features to detect (default = ").append(std::to_string(sift_properties.featuresNumber())).append(")"), sift_properties.featuresNumber());
+    this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(sift_properties.octaveLayers())).append(")"), sift_properties.octaveLayers());
+    this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(sift_properties.contrastThreshold())).append(")"), sift_properties.contrastThreshold());
+    this->addArgument<double>("edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(sift_properties.edgeThreshold())).append(")"), sift_properties.edgeThreshold());  
+    this->addArgument<bool>("domain_size_pooling", std::string("SIFT: domain size pooling (default = true"));  
 
 
 #ifdef HAVE_CUDA
-    tl::Message::instance().pauseMessages();
+    tl::Message::pauseMessages();
     bool cuda_enabled = cudaEnabled(10.0, 3.0);
-    tl::Message::instance().resumeMessages();
+    tl::Message::resumeMessages();
     if (cuda_enabled)
         this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
     else mDisableCuda = true;
@@ -75,33 +73,37 @@ FeatureExtractorCommand::FeatureExtractorCommand()
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
-FeatureExtractorCommand::~FeatureExtractorCommand()
-{
-}
+FeatureExtractorCommand::~FeatureExtractorCommand() = default;
 
 bool FeatureExtractorCommand::run()
 {
     bool r = false;
 
-    QString file_path;
-    QString project_path;
+    tl::Log &log = tl::Log::instance();
 
     try {
 
-        tl::Path projectFile = this->value<std::string>("prj");
+        tl::Path project_path = this->value<tl::Path>("prj");
         int max_image_size = this->value<int>("max_image_size");
         int max_features_number = this->value<int>("max_features_number");
         int octave_resolution = this->value<int>("octave_resolution");
-        int contrast_threshold = this->value<double>("contrast_threshold");
-        int edge_threshold = this->value<double>("edge_threshold");
+        double contrast_threshold = this->value<double>("contrast_threshold");
+        double edge_threshold = this->value<double>("edge_threshold");
+        bool domain_size_pooling = this->value<bool>("domain_size_pooling");
+
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
-        TL_ASSERT(projectFile.exists(), "Project doesn't exist");
-        TL_ASSERT(projectFile.isFile(), "Project file doesn't exist");
+        tl::Path log_path = project_path;
+        log_path.replaceExtension(".log");
+        log.open(log_path);
+
+
+        TL_ASSERT(project_path.exists(), "Project doesn't exist");
+        TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
         ProjectImp project;
-        project.load(projectFile);
+        project.load(project_path);
         tl::Path database_path = project.database();
 
         tl::Path::removeFile(database_path);
@@ -119,7 +121,8 @@ bool FeatureExtractorCommand::run()
             feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(max_features_number,
                                                                              octave_resolution,
                                                                              edge_threshold,
-                                                                             contrast_threshold);
+                                                                             contrast_threshold,
+                                                                             domain_size_pooling);
         }
 
         FeatureExtractorTask feature_extractor_task(project.images(),
@@ -138,7 +141,8 @@ bool FeatureExtractorCommand::run()
         feature_extractor_task.run(&progress);
 
         project.setFeatureExtractor(std::dynamic_pointer_cast<Feature>(feature_extractor));
-        project.save(projectFile);
+        project.setFeatureExtractorReport(feature_extractor_task.report());
+        project.save(project_path);
 
     } catch (const std::exception &e) {
 
@@ -146,6 +150,8 @@ bool FeatureExtractorCommand::run()
 
         r = true;
     }
+
+    log.close();
 
     return r;
 }

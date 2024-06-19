@@ -41,19 +41,19 @@ class FeaturesViewerModel
 public:
 
     FeaturesViewerModel(QObject *parent = nullptr) : Model(parent) {}
-    ~FeaturesViewerModel() = default;
+    ~FeaturesViewerModel() override = default;
 
-    virtual const std::unordered_map<size_t, Image> &images() const = 0;
-    virtual Image image(size_t imageId) const = 0;
-    virtual std::vector<std::tuple<QPointF, float, float>> loadKeypoints(size_t imageId) = 0;
+    virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
+    virtual auto image(size_t imageId) const -> Image = 0;
+    virtual auto loadKeypoints(size_t imageId) -> std::vector<std::tuple<QPointF, float, float>> = 0;
 
-    virtual QString backgroundColor() const = 0;
-    virtual int markerType() const = 0;
-    virtual int markerSize() const = 0;
-    virtual int markerWidth() const = 0;
-    virtual QString markerColor() const = 0;
-    virtual int selectedMarkerWidth() const = 0;
-    virtual QString selectedMarkerColor() const = 0;
+    virtual auto backgroundColor() const -> QString = 0;
+    virtual auto markerType() const -> int = 0;
+    virtual auto markerSize() const -> int = 0;
+    virtual auto markerWidth() const -> int = 0;
+    virtual auto markerColor() const -> QString = 0;
+    virtual auto selectedMarkerWidth() const -> int = 0;
+    virtual auto selectedMarkerColor() const -> QString = 0;
 
 };
 

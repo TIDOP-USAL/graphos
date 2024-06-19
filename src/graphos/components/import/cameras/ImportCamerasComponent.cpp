@@ -38,8 +38,8 @@ namespace graphos
 ImportCamerasComponent::ImportCamerasComponent(Application *application)
   : ComponentBase(application)
 {
-    this->setName("Import Cameras");
-    this->setMenu("file_import");
+    ComponentBase::setName("Import Cameras");
+    ComponentBase::setMenu("file_import");
 }
 
 ImportCamerasComponent::~ImportCamerasComponent()
@@ -69,7 +69,7 @@ void ImportCamerasComponent::createView()
 void ImportCamerasComponent::createPresenter()
 {
     setPresenter(new ImportCamerasPresenterImp(dynamic_cast<ImportCamerasView *>(view()),
-                 dynamic_cast<ImportCamerasModel *>(model())));
+                                               dynamic_cast<ImportCamerasModel *>(model())));
 
     connect(dynamic_cast<ImportCamerasPresenter *>(presenter()), &ImportCamerasPresenter::importedCameras,
             this, &ImportCamerasComponent::onImportedCameras);
@@ -86,10 +86,10 @@ void ImportCamerasComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-    bool bImagesLoaded = app_status->isEnabled(AppStatus::Flag::images_added);
-    action()->setEnabled(bProjectExists && bImagesLoaded && !bProcessing);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool images_loaded = app_status->isEnabled(AppStatus::Flag::images_added);
+    action()->setEnabled(project_exists && images_loaded && !processing);
 }
 
 } // namespace graphos

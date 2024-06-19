@@ -35,7 +35,7 @@ namespace graphos
 {
 
 class ProgressBarDialog
-    : public DialogView
+  : public DialogView
 {
     Q_OBJECT
 
@@ -63,7 +63,7 @@ signals:
 
     void cancel();
 
-    // DialogView interface
+// DialogView interface
 
 private:
 

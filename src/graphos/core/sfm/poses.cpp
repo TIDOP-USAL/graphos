@@ -33,11 +33,21 @@ namespace graphos
 
 
 CameraPose::CameraPose()
-    : mPosition(),
-      mRotation(nullptr),
+    : mRotation(nullptr),
       mCrs(""),
       mSource("")
 {
+}
+
+CameraPose::CameraPose(const CameraPose &pose) = default;
+
+CameraPose::CameraPose(CameraPose &&pose) noexcept
+  : mPosition(std::move(pose.mPosition)),
+    mRotation(std::move(pose.mRotation)),
+    mCrs(std::move(pose.mCrs)),
+    mSource(std::move(pose.mSource))
+{
+
 }
 
 CameraPose::CameraPose(double x, double y, double z,
@@ -80,11 +90,33 @@ CameraPose::CameraPose(const Point3<double> &center,
 
 }
 
-CameraPose::~CameraPose()
+CameraPose::~CameraPose() = default;
+
+auto CameraPose::operator=(const CameraPose &pose) -> CameraPose &
 {
+    if (this != &pose) {
+        mPosition = pose.mPosition;
+        mRotation = pose.mRotation;
+        mCrs = pose.mCrs;
+        mSource = pose.mSource;
+    }
+
+    return *this;
 }
 
-Point3<double> CameraPose::position() const
+auto CameraPose::operator=(CameraPose &&pose) noexcept -> CameraPose&
+{
+    if (this != &pose) {
+        mPosition = std::move(pose.mPosition);
+        mRotation = std::move(pose.mRotation);
+        mCrs = std::move(pose.mCrs);
+        mSource = std::move(pose.mSource);
+    }
+
+    return *this;
+}
+
+auto CameraPose::position() const -> Point3<double>
 {
     return mPosition;
 }
@@ -94,7 +126,7 @@ void CameraPose::setPosition(const Point3<double> &position)
     mPosition = position;
 }
 
-Quaterniond CameraPose::quaternion() const
+auto CameraPose::quaternion() const -> Quaterniond
 {
     Quaterniond quaternion = Quaterniond::zero();
 
@@ -117,7 +149,7 @@ void CameraPose::setQuaternion(const Quaterniond &quaternion)
     mRotation = std::make_shared<Quaternion<double>>(quaternion);
 }
 
-RotationMatrix<double> CameraPose::rotationMatrix() const
+auto CameraPose::rotationMatrix() const -> RotationMatrix<double>
 {
     RotationMatrix<double> rotation_matrix = RotationMatrix<double>::zero();
 
@@ -138,7 +170,7 @@ void CameraPose::setRotationMatrix(const RotationMatrix<double> &rotationMatrix)
     mRotation = std::make_shared<RotationMatrix<double>>(rotationMatrix);
 }
 
-QString CameraPose::crs() const
+auto CameraPose::crs() const -> QString
 {
     return mCrs;
 }
@@ -148,7 +180,7 @@ void CameraPose::setCrs(const QString &crs)
     mCrs = crs;
 }
 
-QString CameraPose::source() const
+auto CameraPose::source() const -> QString
 {
     return mSource;
 }
@@ -158,7 +190,7 @@ void CameraPose::setSource(const QString &source)
     mSource = source;
 }
 
-bool CameraPose::isEmpty() const
+auto CameraPose::isEmpty() const -> bool
 {
     return mPosition == Point3<double>();
 }

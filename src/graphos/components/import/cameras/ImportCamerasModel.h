@@ -42,10 +42,10 @@ public:
     ImportCamerasModel(QObject *parent = nullptr) : Model(parent) {}
     ~ImportCamerasModel() override = default;
 
-    virtual QStandardItemModel *itemModelCSV() = 0;
-    virtual QStandardItemModel *itemModelFormatCameras() = 0;
-    virtual bool checkCRS(const QString &crs) = 0;
-    virtual QString outputCRS() const = 0;
+    virtual auto itemModelCSV() -> QStandardItemModel* = 0;
+    virtual auto itemModelFormatCameras() -> QStandardItemModel* = 0;
+    virtual auto checkCRS(const QString& crs) -> bool = 0;
+    virtual auto outputCRS() const -> QString = 0;
 
 public slots:
 

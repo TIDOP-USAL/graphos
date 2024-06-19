@@ -24,7 +24,6 @@
 #ifndef GRAPHOS_MATCH_VIEWER_MODEL_INTERFACE_H
 #define GRAPHOS_MATCH_VIEWER_MODEL_INTERFACE_H
 
-#include <memory>
 #include <unordered_map>
 
 #include "graphos/core/mvp.h"
@@ -41,26 +40,29 @@ class MatchViewerModel
 
 public:
 
+    using Matches = std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>>;
+    using Images = std::unordered_map<size_t, Image>;
+
+public:
+
     MatchViewerModel(QObject *parent = nullptr) : Model(parent) {}
-    virtual ~MatchViewerModel() = default;
+    ~MatchViewerModel() override = default;
 
-    virtual QString backgroundColor() const = 0;
-    virtual int markerType() const = 0;
-    virtual int markerSize() const = 0;
-    virtual int markerWidth() const = 0;
-    virtual QString markerColor() const = 0;
-    virtual int viewerSelectMarkerWidth() const = 0;
-    virtual QString selectedMarkerColor() const = 0;
-    virtual QString lineColor() const = 0;
-    virtual int lineWidth() const = 0;
+    virtual auto backgroundColor() const -> QString = 0;
+    virtual auto markerType() const -> int = 0;
+    virtual auto markerSize() const -> int = 0;
+    virtual auto markerWidth() const -> int = 0;
+    virtual auto markerColor() const -> QString = 0;
+    virtual auto viewerSelectMarkerWidth() const -> int = 0;
+    virtual auto selectedMarkerColor() const -> QString = 0;
+    virtual auto lineColor() const -> QString = 0;
+    virtual auto lineWidth() const -> int = 0;
 
-    virtual const std::unordered_map<size_t, Image> &images() const = 0;
-    virtual Image image(size_t imageId) const = 0;
-    virtual std::vector<size_t> imagePairs(size_t imageId) const = 0;
-    virtual std::vector<std::tuple<size_t, size_t, QPointF, size_t, QPointF>> loadMatches(size_t imageId1,
-                                                                                          size_t imageId2) const = 0;
+    virtual auto images() const -> const Images& = 0;
+    virtual auto image(size_t imageId) const -> Image = 0;
+    virtual auto imagePairs(size_t imageId) const -> std::vector<size_t> = 0;
+    virtual auto loadMatches(size_t imageId1, size_t imageId2) const -> Matches = 0;
 
-public slots:
 
 };
 

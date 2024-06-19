@@ -46,12 +46,12 @@ public:
 
 public:
 
-    DenseExport(const tl::Path &denseModel);
+    DenseExport(tl::Path denseModel);
 
     void setOffset(const tl::Point3<double> &point);
     void exportToCSV(const std::string &csv,
                      const tl::EnumFlags<Fields> &flag,
-                     tl::BoundingBox<tl::Point3<double>> *bbox = nullptr);
+                     tl::BoundingBox<tl::Point3<double>> *bbox = nullptr) const;
 
 protected:
 

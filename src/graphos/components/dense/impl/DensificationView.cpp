@@ -23,8 +23,6 @@
 
 #include "DensificationView.h"
 
-#include <QPushButton>
-#include <QApplication>
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QPushButton>
@@ -39,13 +37,8 @@ namespace graphos
 DensificationViewImp::DensificationViewImp(QWidget *parent)
   : DensificationView(parent)
 {
-    this->initUI();
-    this->initSignalAndSlots();
-}
-
-DensificationViewImp::~DensificationViewImp()
-{
-
+    DensificationViewImp::initUI();
+    DensificationViewImp::initSignalAndSlots();
 }
 
 void DensificationViewImp::initUI()
@@ -61,10 +54,10 @@ void DensificationViewImp::initUI()
     mComboBoxDensification = new QComboBox(this);
     mGridLayout->addWidget(mComboBoxDensification, 0, 1, 1, 1);
 
-    QWidget *widgetDensification = new QWidget();
-    mGridLayoutDensification = new QGridLayout(widgetDensification);
+    QWidget *widget_densification = new QWidget();
+    mGridLayoutDensification = new QGridLayout(widget_densification);
     mGridLayoutDensification->setContentsMargins(0, 0, 0, 0);
-    mGridLayout->addWidget(widgetDensification, 1, 0, 1, 2);
+    mGridLayout->addWidget(widget_densification, 1, 0, 1, 2);
 
     mCheckBoxAutoSegmentation = new QCheckBox(this);
     mGridLayout->addWidget(mCheckBoxAutoSegmentation, 2, 0, 1, 2);
@@ -142,6 +135,11 @@ void DensificationViewImp::setCurrentDensificationMethod(const QString &densific
                 item->widget()->setVisible(false);
         }
     }
+}
+
+void DensificationViewImp::setAutoSegmentation(bool autoSegmentation)
+{
+    mCheckBoxAutoSegmentation->setChecked(autoSegmentation);
 }
 
 } // End namespace graphos

@@ -23,7 +23,6 @@
 
 #include "graphos/core/image.h"
 
-#include <QFileInfo>
 
 namespace graphos
 {
@@ -46,8 +45,8 @@ Image::Image(const QString &file)
     update();
 }
 
-Image::Image(const tl::Path &file)
-  : mFilePath(file),
+Image::Image(tl::Path file)
+  : mFilePath(std::move(file)),
     mId(0),
     mCameraId(0),
     mCameraPose()
@@ -72,7 +71,7 @@ Image::Image(Image &&image) noexcept
 {
 }
 
-QString Image::path() const
+auto Image::path() const -> QString
 {
     return QString::fromStdString(mFilePath.toString());
 }
@@ -88,17 +87,17 @@ void Image::setPath(const tl::Path &file)
     mFilePath = file;
 }
 
-QString Image::name() const
+auto Image::name() const -> QString
 {
     return QString::fromStdString(mFilePath.fileName().toString());
 }
 
-size_t Image::id() const
+auto Image::id() const -> size_t
 {
     return mId;
 }
 
-int Image::cameraId() const
+auto Image::cameraId() const -> int
 {
     return mCameraId;
 }
@@ -108,7 +107,7 @@ void Image::setCameraId(int cameraId)
     mCameraId = cameraId;
 }
 
-CameraPose Image::cameraPose() const
+auto Image::cameraPose() const -> CameraPose
 {
     return mCameraPose;
 }
@@ -118,7 +117,7 @@ void Image::setCameraPose(const CameraPose &cameraPose)
     mCameraPose = cameraPose;
 }
 
-Image &Image::operator =(const Image &image)
+auto Image::operator =(const Image& image) -> Image&
 {
     if (this != &image) {
         this->mFilePath = image.mFilePath;
@@ -129,7 +128,7 @@ Image &Image::operator =(const Image &image)
     return *this;
 }
 
-Image &Image::operator =(Image &&image) noexcept
+auto Image::operator =(Image&& image) noexcept -> Image&
 {
     if (this != &image) {
         this->mFilePath = std::move(image.mFilePath);

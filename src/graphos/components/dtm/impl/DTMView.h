@@ -30,6 +30,7 @@ class QGridLayout;
 class QDialogButtonBox;
 class QLabel;
 class QDoubleSpinBox;
+class QCheckBox;
 
 namespace graphos
 {
@@ -65,15 +66,21 @@ private slots:
 
 public:
 
-    double gsd() const override;
+    auto gsd() const -> double override;
+    auto isMdsEnable() const -> bool override;
+    auto isMdtEnable() const -> bool override;
 
 public slots:
 
-    void setGSD(double gsd) override;
+    void setGsd(double gsd) override;
+    void enableMds(bool enable = true) override;
+    void enableMdt(bool enable = true) override;
 
 private:
 
     QGridLayout *mGridLayoutDtmMethod;
+    QCheckBox *mCheckBoxMDS;
+    QCheckBox *mCheckBoxMDT;
     QLabel *mLabelGSD;
     QDoubleSpinBox *mDoubleSpinBoxGSD;
     QDialogButtonBox *mButtonBox;

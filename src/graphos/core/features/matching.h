@@ -29,7 +29,6 @@
 #include <QObject>
 
 #include <tidop/core/task.h>
-#include <tidop/core/progress.h>
 #include <tidop/core/path.h>
 
 #include "graphos/core/features/features.h"
@@ -37,30 +36,27 @@
 namespace graphos
 {
 
-class FeatureMatchingProperties
-  : public FeatureMatching
+class FeatureMatching
 {
 
 public:
 
-    FeatureMatchingProperties();
-    FeatureMatchingProperties(const FeatureMatchingProperties &featureMatching);
-    ~FeatureMatchingProperties() override = default;
-
-// FeatureMatching interface
+    FeatureMatching();
+    FeatureMatching(const FeatureMatching &featureMatching);
+    virtual ~FeatureMatching() = default;
 
 public:
 
-    bool crossCheck() const override;
-    void enableCrossCheck(bool enable) override;
-    double ratio() const override;
-    void setRatio(double ratio) override;
-    double distance() const override;
-    void setDistance(double distance) override;
-    double maxError() const override;
-    void setMaxError(double error) override;
-    double confidence() const override;
-    void setConfidence(double error) override;
+    virtual auto crossCheck() const -> bool;
+    virtual void enableCrossCheck(bool enable);
+    virtual auto ratio() const -> double;
+    virtual void setRatio(double ratio);
+    virtual auto distance() const -> double;
+    virtual void setDistance(double distance);
+    virtual auto maxError() const -> double;
+    virtual void setMaxError(double error);
+    virtual auto confidence() const -> double;
+    virtual void setConfidence(double error);
 
 private:
 
@@ -84,20 +80,20 @@ class FeatureMatchingTask
 
 public:
 
-    FeatureMatchingTask(const tl::Path &database,
+    FeatureMatchingTask(tl::Path database,
                         bool cuda,
                         const std::shared_ptr<FeatureMatching> &featureMatching);
     ~FeatureMatchingTask() override;
 
 public:
 
-    std::shared_ptr<FeatureMatching> featureMatching() const;
+    auto featureMatching() const -> std::shared_ptr<FeatureMatching>;
     void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
 
-    tl::Path database() const;
+    auto database() const -> tl::Path;
     void setDatabase(const tl::Path &database);
 
-    bool useGPU() const;
+    auto useGPU() const -> bool;
     void setUseGPU(bool useGPU);
 
     auto report() const->FeatureMatchingReport;
@@ -128,20 +124,20 @@ class SpatialMatchingTask
 
 public:
 
-    SpatialMatchingTask(const tl::Path &database,
+    SpatialMatchingTask(tl::Path database,
                         bool cuda,
                         const std::shared_ptr<FeatureMatching> &featureMatching);
     ~SpatialMatchingTask() override;
 
 public:
 
-    std::shared_ptr<FeatureMatching> featureMatching() const;
+    auto featureMatching() const -> std::shared_ptr<FeatureMatching>;
     void setFeatureMatching(const std::shared_ptr<FeatureMatching> &featureMatching);
 
-    tl::Path database() const;
+    auto database() const -> tl::Path;
     void setDatabase(const tl::Path &database);
 
-    bool useGPU() const;
+    auto useGPU() const -> bool;
     void setUseGPU(bool useGPU);
 
     auto report() const -> FeatureMatchingReport;

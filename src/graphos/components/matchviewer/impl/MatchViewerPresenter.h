@@ -24,8 +24,6 @@
 #ifndef GRAPHOS_MATCH_VIEWER_PRESENTER_H
 #define GRAPHOS_MATCH_VIEWER_PRESENTER_H
 
-#include <memory>
-
 #include <QObject>
 
 #include "graphos/components/matchviewer/MatchViewerPresenter.h"
@@ -72,8 +70,6 @@ private:
 
     void init() override;
     void initSignalAndSlots() override;
-
-public slots:
 
 private:
 

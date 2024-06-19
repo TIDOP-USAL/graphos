@@ -40,13 +40,13 @@ class RecentProjectsModelImp
 public:
 
     RecentProjectsModelImp(QObject *parent = nullptr);
-    ~RecentProjectsModelImp();
+    ~RecentProjectsModelImp() override;
 
 // RecentProjectsModel interface
 
 public:
 
-    QStringList history() const override;
+    auto history() const -> QStringList override;
 
 public slots:
 

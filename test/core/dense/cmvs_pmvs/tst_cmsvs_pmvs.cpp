@@ -34,7 +34,7 @@ struct TestPmvs
 {
 
     TestPmvs()
-      : mCmvsPmvs(new CmvsPmvsProperties())
+      : mCmvsPmvs(new CmvsPmvs())
     {
     }
 
@@ -63,7 +63,7 @@ BOOST_FIXTURE_TEST_CASE(default_constructor, TestPmvs)
 
 BOOST_FIXTURE_TEST_CASE(constructor, TestPmvs)
 {
-    CmvsPmvsProperties cmvsPmvs(true, 50, 2, 3, 0.5, 10, 2);
+    CmvsPmvs cmvsPmvs(true, 50, 2, 3, 0.5, 10, 2);
     BOOST_CHECK_EQUAL(true, cmvsPmvs.useVisibilityInformation());
     BOOST_CHECK_EQUAL(50, cmvsPmvs.imagesPerCluster());
     BOOST_CHECK_EQUAL(2, cmvsPmvs.level());

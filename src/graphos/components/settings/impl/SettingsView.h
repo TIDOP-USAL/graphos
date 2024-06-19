@@ -51,10 +51,6 @@ public:
     SettingsViewImp(QWidget *parent = nullptr);
     ~SettingsViewImp() override;
 
-protected slots:
-
-    void onPushButtonImageViewerBGColorClicked();
-
 // DialogView interface
 
 private:
@@ -75,10 +71,10 @@ private slots:
 
 public:
 
-    QString activeLanguage() const override;
-    int historyMaxSize() const override;
-    QString imageViewerBGColor() const override;
-    bool useCuda() const override;
+    auto activeLanguage() const -> QString override;
+    auto historyMaxSize() const -> int override;
+    auto imageViewerBGColor() const -> QString override;
+    auto useCuda() const -> bool override;
 
 public slots:
 

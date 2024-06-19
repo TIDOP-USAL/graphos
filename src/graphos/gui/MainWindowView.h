@@ -41,6 +41,8 @@ class QTreeWidget;
 class QTreeWidgetItem;
 class QComboBox;
 class QGridLayout;
+class QDragEnterEvent;
+class QDropEvent;
 
 namespace graphos
 {
@@ -122,7 +124,9 @@ public:
     void setMesh(const QString &mesh);
     void deleteMesh();
     void setDSM(const QString &dsm);
+    void setDTM(const QString &dtm);
     void deleteDsm();
+    void deleteDtm();
     void setOrtho(const QString &ortho);
     void deleteOrtho();
 
@@ -154,7 +158,8 @@ signals:
 
     /* Menu File */
 
-    void openProjectFromHistory(QString);
+    void openProject(QString);
+    //void openProjectFromHistory(QString);
     void clearHistory();
     void openCamerasImport();
     //void openExportFeatures();
@@ -189,8 +194,6 @@ signals:
 
     /// Sin refactorizar
 
-
-
     void selectFeatures(QString);
     void selectDetector(QString);
     void selectDescriptor(QString);
@@ -198,6 +201,7 @@ signals:
 
     void open3DModel(QString, bool);
     void openDtm();
+    void openDsm();
     void openOrtho(QString);
     void openMultiView(QString);
 
@@ -208,7 +212,7 @@ protected:
 
 private slots:
 
-    void openFromHistory();
+    //void openFromHistory();
     void onSelectionChanged();
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
     void onTreeContextMenu(const QPoint &point);
@@ -250,7 +254,8 @@ private slots:
 public:
 
     void closeEvent(QCloseEvent *event) override;
-
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private:
 

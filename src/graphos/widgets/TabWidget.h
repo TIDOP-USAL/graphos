@@ -46,7 +46,7 @@ public:
     explicit TabWidget(QWidget *parent = nullptr);
     ~TabWidget() override = default;
 
-    int fileTab(const QString &file) const;
+    auto fileTab(const QString& file) const -> int;
     void clear();
 
 public slots:

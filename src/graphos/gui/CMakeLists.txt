@@ -121,6 +121,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_FEATVIEWER}>:Graphos::FeatViewer>
                       $<$<BOOL:${GRAPHOS_HAVE_GEOREFERENCE}>:Graphos::Georeference>
                       $<$<BOOL:${GRAPHOS_HAVE_SCALE}>:Graphos::Scale>
+                      $<$<BOOL:${GRAPHOS_HAVE_FLOOR_LEVEL}>:Graphos::FloorLevel>
                       $<$<BOOL:${GRAPHOS_HAVE_IMAGE_LOAD}>:Graphos::ImageLoad>
                       $<$<BOOL:${GRAPHOS_HAVE_IMPORT_CAMERAS}>:Graphos::ImportCameras>
                       $<$<BOOL:${GRAPHOS_HAVE_EXPORT_CAMERAS}>:Graphos::ExportCameras>
@@ -139,6 +140,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_SETTINGS}>:Graphos::Settings>
                       $<$<BOOL:${GRAPHOS_HAVE_PROPERTIES}>:Graphos::Properties>
                       $<$<BOOL:${GRAPHOS_HAVE_VIDEO_LOAD}>:Graphos::VideoLoad>
+                      Graphos::CoordinateReferenceSystem
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}

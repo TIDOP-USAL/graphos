@@ -48,14 +48,14 @@ public:
 
 public:
 
-    std::shared_ptr<Feature> featureExtractor() const override;
+    auto featureExtractor() const -> std::shared_ptr<Feature> override;
     void setFeatureExtractor(const std::shared_ptr<Feature> &featureExtractor) override;
     void setFeatureExtractorReport(const FeatureExtractorReport &report) override;
-    tl::Path database() const override;
+    auto database() const -> tl::Path override;
     void addFeatures(size_t imageId, const QString &featuresFile) override;
-    bool useCuda() const override;
-    const std::unordered_map<size_t, Image> &images() const override;
-    const std::map<int, Camera> &cameras() const override;
+    auto useCuda() const -> bool override;
+    auto images() const -> const std::unordered_map<size_t, Image>& override;
+    auto cameras() const -> const std::map<int, Camera>& override;
     void clearProject() override;
 
 // Model interface

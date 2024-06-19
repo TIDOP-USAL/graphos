@@ -24,8 +24,6 @@
 #ifndef GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
 #define GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
 
-#include <array>
-
 #include <tidop/core/path.h>
 
 #include "graphos/core/mvp.h"
@@ -44,19 +42,24 @@ class OrthophotoModel
 
 public:
 
+    using Images = std::vector<Image>;
+    using Cameras = std::map<int, Camera>;
+
+public:
+
     OrthophotoModel(QObject *parent = nullptr) : Model(parent){}
     ~OrthophotoModel() override = default;
 
-    virtual std::vector<Image> images() const = 0;
-    virtual std::map<int, Camera> cameras() const = 0;
-    virtual tl::Path projectFolder() const = 0;
-    virtual tl::Path orthoPath() const = 0;
+    virtual auto images() const -> Images = 0;
+    virtual auto cameras() const -> Cameras = 0;
+    virtual auto projectFolder() const -> tl::Path = 0;
+    virtual auto orthoPath() const -> tl::Path = 0;
     virtual void setOrthoPath(const tl::Path &orthoPath) = 0;
-    virtual tl::Path dtmPath() const = 0;
-    virtual QString epsCode() const = 0;
+    virtual auto dtmPath() const -> tl::Path = 0;
+    virtual auto epsCode() const -> QString = 0;
     virtual void clearProject() = 0;
-    virtual bool useCuda() const = 0;
-    virtual double gsd() const = 0;
+    virtual auto useCuda() const -> bool = 0;
+    virtual auto gsd() const -> double = 0;
 
 public slots:
 

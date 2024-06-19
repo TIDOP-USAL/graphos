@@ -48,60 +48,60 @@ namespace graphos
 CamerasViewImp::CamerasViewImp(QWidget *parent)
   : CamerasView(parent)
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    CamerasViewImp::initUI();
+    CamerasViewImp::initSignalAndSlots();
 }
 
 void CamerasViewImp::onCalibrationImport()
 {
-    QString selectedFilter;
-    QString pathName = QFileDialog::getOpenFileName(nullptr,
+    QString selected_filter;
+    QString path_name = QFileDialog::getOpenFileName(nullptr,
                                                     tr("Import calibration"),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
                                                     //tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
                                                     tr("Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
-                                                    &selectedFilter);
+                                                    &selected_filter);
 
-    if (!pathName.isEmpty()) {
+    if (!path_name.isEmpty()) {
         QString format;
         /*if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
           format = "Pix4D";
-        } else */if (selectedFilter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
+        } else */if (selected_filter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
             format = "Agisoft";
-        } else if (selectedFilter.compare("OpenCV Camera Calibration (*.xml)") == 0) {
+        } else if (selected_filter.compare("OpenCV Camera Calibration (*.xml)") == 0) {
             format = "OpenCV";
         } else {
             tl::Message::error("Unsupported format");
         }
 
-        emit calibrationImport(pathName, format);
+        emit calibrationImport(path_name, format);
     }
 }
 
 void CamerasViewImp::onCalibrationExport()
 {
-    QString selectedFilter;
-    QString pathName = QFileDialog::getSaveFileName(nullptr,
+    QString selected_filter;
+    QString path_name = QFileDialog::getSaveFileName(nullptr,
                                                     tr("Export Calibration"),
                                                     QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
                                                     //tr("Pix4D Camera Calibration (*.cam);;Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
                                                     tr("Agisoft Camera Calibration (*.xml);;OpenCV Camera Calibration (*.xml)"),
-                                                    &selectedFilter);
+                                                    &selected_filter);
 
-    if (!pathName.isEmpty()) {
+    if (!path_name.isEmpty()) {
 
         QString format;
         /*if (selectedFilter.compare("Pix4D Camera Calibration (*.cam)") == 0) {
           format = "Pix4D";
-        } else */if (selectedFilter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
+        } else */if (selected_filter.compare("Agisoft Camera Calibration (*.xml)") == 0) {
             format = "Agisoft";
-        } else if (selectedFilter.compare("OpenCV Camera Calibration (*.xml)") == 0) {
+        } else if (selected_filter.compare("OpenCV Camera Calibration (*.xml)") == 0) {
             format = "OpenCV";
         } else {
             tl::Message::error("Unsupported format");
         }
 
-        emit calibrationExport(pathName, format);
+        emit calibrationExport(path_name, format);
     }
 }
 
@@ -339,8 +339,6 @@ void CamerasViewImp::initSignalAndSlots()
 
     connect(mActionImportCalibration, &QAction::triggered, this, &CamerasViewImp::onCalibrationImport);
     connect(mActionExportCalibration, &QAction::triggered, this, &CamerasViewImp::onCalibrationExport);
-    //connect(mActionFixCalibration, SIGNAL(toggled(bool)), this, SIGNAL(fixCalibration(bool)));
-    //connect(mActionFixCalibration, SIGNAL(toggled(bool)), this, SLOT(update()));
 
     connect(mDoubleSpinBoxCx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibCxChange);
     connect(mDoubleSpinBoxCy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CamerasView::calibCyChange);
@@ -385,7 +383,6 @@ void CamerasViewImp::clear()
     const QSignalBlocker blocker19(mDoubleSpinBoxK6);
     const QSignalBlocker blocker20(mDoubleSpinBoxP1);
     const QSignalBlocker blocker21(mDoubleSpinBoxP2);
-    //const QSignalBlocker blocker22(mActionFixCalibration);
 
     mListWidgetCameras->clear();
     mListWidgetImages->clear();
@@ -413,14 +410,11 @@ void CamerasViewImp::clear()
     mDoubleSpinBoxP1->setValue(0.);
     mDoubleSpinBoxP2->setValue(0.);
 
-    //mActionFixCalibration->setChecked(false);
 }
 
 void CamerasViewImp::update()
 {
     bool selected_camera = !mListWidgetCameras->selectedItems().empty();
-    //bool fix_calibration = mActionFixCalibration->isChecked();
-    //int camera_index = mComboBoxType->currentIndex();
     bool cx_enable = isPrincipalPointEnable();
     bool cy_enable = isPrincipalPointEnable();
     bool f_enable = isFocalEnable();
@@ -438,19 +432,19 @@ void CamerasViewImp::update()
     mComboBoxType->setEnabled(selected_camera);
     mPushButtonEditCamera->setEnabled(selected_camera);
 
-    mDoubleSpinBoxF->setEnabled(selected_camera && /*!fix_calibration &&*/ f_enable);
-    mDoubleSpinBoxFx->setEnabled(selected_camera && /*!fix_calibration &&*/ fx_enable);
-    mDoubleSpinBoxFy->setEnabled(selected_camera && /*!fix_calibration &&*/ fy_enable);
-    mDoubleSpinBoxCx->setEnabled(selected_camera && /*!fix_calibration &&*/ cx_enable);
-    mDoubleSpinBoxCy->setEnabled(selected_camera && /*!fix_calibration &&*/ cy_enable);
-    mDoubleSpinBoxK1->setEnabled(selected_camera && /*!fix_calibration &&*/ k1_enable);
-    mDoubleSpinBoxK2->setEnabled(selected_camera && /*!fix_calibration &&*/ k2_enable);
-    mDoubleSpinBoxK3->setEnabled(selected_camera && /*!fix_calibration &&*/ k3_enable);
-    mDoubleSpinBoxK4->setEnabled(selected_camera && /*!fix_calibration &&*/ k4_enable);
-    mDoubleSpinBoxK5->setEnabled(selected_camera && /*!fix_calibration &&*/ k5_enable);
-    mDoubleSpinBoxK6->setEnabled(selected_camera && /*!fix_calibration &&*/ k6_enable);
-    mDoubleSpinBoxP1->setEnabled(selected_camera && /*!fix_calibration &&*/ p1_enable);
-    mDoubleSpinBoxP2->setEnabled(selected_camera && /*!fix_calibration &&*/ p2_enable);
+    mDoubleSpinBoxF->setEnabled(selected_camera && f_enable);
+    mDoubleSpinBoxFx->setEnabled(selected_camera && fx_enable);
+    mDoubleSpinBoxFy->setEnabled(selected_camera && fy_enable);
+    mDoubleSpinBoxCx->setEnabled(selected_camera && cx_enable);
+    mDoubleSpinBoxCy->setEnabled(selected_camera && cy_enable);
+    mDoubleSpinBoxK1->setEnabled(selected_camera && k1_enable);
+    mDoubleSpinBoxK2->setEnabled(selected_camera && k2_enable);
+    mDoubleSpinBoxK3->setEnabled(selected_camera && k3_enable);
+    mDoubleSpinBoxK4->setEnabled(selected_camera && k4_enable);
+    mDoubleSpinBoxK5->setEnabled(selected_camera && k5_enable);
+    mDoubleSpinBoxK6->setEnabled(selected_camera && k6_enable);
+    mDoubleSpinBoxP1->setEnabled(selected_camera && p1_enable);
+    mDoubleSpinBoxP2->setEnabled(selected_camera && p2_enable);
 
     mLabelF->setVisible(isFocalVisible());
     mDoubleSpinBoxF->setVisible(isFocalVisible());
@@ -459,10 +453,9 @@ void CamerasViewImp::update()
     mLabelFy->setVisible(isFocalXYVisible());
     mDoubleSpinBoxFy->setVisible(isFocalXYVisible());
 
-    mActionImportCalibration->setEnabled(selected_camera /*&& !fix_calibration*/);
-    mActionExportCalibration->setEnabled(selected_camera /*&& !fix_calibration*/);
+    mActionImportCalibration->setEnabled(selected_camera);
+    mActionExportCalibration->setEnabled(selected_camera);
 
-    //mActionFixCalibration->setEnabled(selected_camera);
 }
 
 void CamerasViewImp::retranslate()
@@ -473,8 +466,6 @@ void CamerasViewImp::retranslate()
     mActionImportCalibration->setStatusTip(QApplication::translate("CamerasView", "Import Calibration", nullptr));
     mActionExportCalibration->setText(QApplication::translate("CamerasView", "Export Calibration", nullptr));
     mActionExportCalibration->setStatusTip(QApplication::translate("CamerasView", "Export Calibration", nullptr));
-    //mActionFixCalibration->setText(QApplication::translate("CamerasView", "Fix Calibration", nullptr));
-    //mActionFixCalibration->setStatusTip(QApplication::translate("CamerasView", "Fix Calibration", nullptr));
     mLabelF->setText(QApplication::translate("CamerasView", "f", nullptr));
     mLabelFx->setText(QApplication::translate("CamerasView", "fx", nullptr));
     mLabelFy->setText(QApplication::translate("CamerasView", "fy", nullptr));
@@ -515,7 +506,7 @@ void CamerasViewImp::retranslate()
     mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("CamerasView", "Help"));
 }
 
-int CamerasViewImp::activeCamera() const
+auto CamerasViewImp::activeCamera() const -> int
 {
     QList<QListWidgetItem *> itemsCameras = mListWidgetCameras->selectedItems();
     if (itemsCameras.size() == 1)
@@ -669,7 +660,7 @@ void CamerasViewImp::onSelectionChanged()
     }
 }
 
-bool CamerasViewImp::isPrincipalPointEnable() const
+auto CamerasViewImp::isPrincipalPointEnable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == radial_1 ||
@@ -683,7 +674,7 @@ bool CamerasViewImp::isPrincipalPointEnable() const
            camera_index == radial_fisheye_2;
 }
 
-bool CamerasViewImp::isFocalEnable() const
+auto CamerasViewImp::isFocalEnable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == radial_1 ||
@@ -702,7 +693,7 @@ bool CamerasViewImp::isFocalXYEnable() const
            camera_index == opencv_fisheye;
 }
 
-bool CamerasViewImp::isK1Enable() const
+auto CamerasViewImp::isK1Enable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == radial_1 ||
@@ -714,7 +705,7 @@ bool CamerasViewImp::isK1Enable() const
            camera_index == radial_fisheye_2;
 }
 
-bool CamerasViewImp::isK2Enable() const
+auto CamerasViewImp::isK2Enable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == radial_2 ||
@@ -724,47 +715,47 @@ bool CamerasViewImp::isK2Enable() const
            camera_index == radial_fisheye_2;
 }
 
-bool CamerasViewImp::isK3Enable() const
+auto CamerasViewImp::isK3Enable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == opencv_2 ||
            camera_index == opencv_fisheye;
 }
 
-bool CamerasViewImp::isK4Enable() const
+auto CamerasViewImp::isK4Enable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == opencv_2 ||
            camera_index == opencv_fisheye;
 }
 
-bool CamerasViewImp::isK5Enable() const
+auto CamerasViewImp::isK5Enable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == opencv_2;
 }
 
-bool CamerasViewImp::isK6Enable() const
+auto CamerasViewImp::isK6Enable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == opencv_2;
 }
 
-bool CamerasViewImp::isP1Enable() const
+auto CamerasViewImp::isP1Enable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == opencv_1 ||
            camera_index == opencv_2;
 }
 
-bool CamerasViewImp::isP2Enable() const
+auto CamerasViewImp::isP2Enable() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == opencv_1 ||
            camera_index == opencv_2;
 }
 
-bool CamerasViewImp::isFocalVisible() const
+auto CamerasViewImp::isFocalVisible() const -> bool
 {
     int camera_index = mComboBoxType->currentIndex();
     return camera_index == pinhole_1 ||
@@ -774,7 +765,7 @@ bool CamerasViewImp::isFocalVisible() const
            camera_index == radial_fisheye_2;
 }
 
-bool CamerasViewImp::isFocalXYVisible() const
+auto CamerasViewImp::isFocalXYVisible() const -> bool
 {
     return !isFocalVisible();
 }

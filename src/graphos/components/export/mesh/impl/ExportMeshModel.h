@@ -41,14 +41,18 @@ public:
 
     ExportMeshModelImp(Project *project,
                           QObject *parent = nullptr);
-    ~ExportMeshModelImp();
+    ~ExportMeshModelImp() override;
 
 // ExportMeshModel interface
+
+public:
+
+    auto graphosProjectsDirectory() const -> tl::Path override;
 
 public slots:
 
     void exportMesh(const tl::Path &exportPath) override;
-    tl::Path graphosProjectsDirectory() const override;
+
 
 // Model interface
 

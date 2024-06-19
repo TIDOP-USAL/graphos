@@ -33,7 +33,7 @@ namespace graphos
 class Project;
 
 class ImportCamerasModelImp
-    : public ImportCamerasModel
+  : public ImportCamerasModel
 {
 
     Q_OBJECT
@@ -48,10 +48,10 @@ public:
 
 public:
 
-    QStandardItemModel *itemModelCSV() override;
-    QStandardItemModel *itemModelFormatCameras() override;
-    bool checkCRS(const QString &crs) override;
-    QString outputCRS() const override;
+    auto itemModelCSV() -> QStandardItemModel* override;
+    auto itemModelFormatCameras() -> QStandardItemModel* override;
+    auto checkCRS(const QString& crs) -> bool override;
+    auto outputCRS() const -> QString override;
 
 public slots:
 

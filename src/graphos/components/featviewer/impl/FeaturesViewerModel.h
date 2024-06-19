@@ -51,17 +51,17 @@ public:
 
 public:
 
-    const std::unordered_map<size_t, Image> &images() const override;
-    Image image(size_t imageId) const;
-    std::vector<std::tuple<QPointF, float, float>> loadKeypoints(size_t imageId) override;
+    auto images() const -> const std::unordered_map<size_t, Image>& override;
+    auto image(size_t imageId) const -> Image override;
+    auto loadKeypoints(size_t imageId) -> std::vector<std::tuple<QPointF, float, float>> override;
 
-    QString backgroundColor() const override;
-    int markerType() const override;
-    int markerSize() const override;
-    int markerWidth() const override;
-    QString markerColor() const override;
-    int selectedMarkerWidth() const override;
-    QString selectedMarkerColor() const override;
+    auto backgroundColor() const -> QString override;
+    auto markerType() const -> int override;
+    auto markerSize() const -> int override;
+    auto markerWidth() const -> int override;
+    auto markerColor() const -> QString override;
+    auto selectedMarkerWidth() const -> int override;
+    auto selectedMarkerColor() const -> QString override;
 
 // Model interface
 

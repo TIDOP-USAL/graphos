@@ -49,8 +49,8 @@ public:
 
 private:
 
-    tl::Path projectFolder() const;
-    tl::Path projectPath(const tl::Path &projectFolder) const;
+    auto projectFolder() const -> tl::Path;
+    auto projectPath(const tl::Path& projectFolder) const -> tl::Path;
 
 // CreateProjectPresenter interface
 

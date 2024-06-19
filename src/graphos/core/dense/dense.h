@@ -77,10 +77,21 @@ public:
     Densification(Method method) : mDensificationMethod(method) {}
     virtual ~Densification() = default;
 
-
+    /*!
+     * \brief Reset the Densification properties.
+     */
     virtual void reset() = 0;
-    virtual QString name() const = 0;
-    Method method() const { return mDensificationMethod.flags(); }
+
+    /*!
+     * \brief Densification method name
+     */
+    virtual auto name() const -> QString = 0;
+
+    /*!
+     * \brief Densification method
+     * \see Method
+     */
+    auto method() const -> Method { return mDensificationMethod.flags(); }
 
 protected:
 
@@ -99,12 +110,12 @@ class Densifier
 
 public:
 
-    Densifier() {}
+    Densifier() = default;
     virtual ~Densifier() = default;
 
     virtual void enableCuda(bool enable) = 0;
-    virtual bool isCudaEnabled() const = 0;
-    virtual tl::Path denseModel() const = 0;
+    virtual auto isCudaEnabled() const -> bool = 0;
+    virtual auto denseModel() const -> tl::Path = 0;
     virtual auto report() const -> DenseReport = 0;
 };
 
@@ -121,34 +132,30 @@ public:
                   const std::map<int, Camera> &cameras,
                   const std::unordered_map<size_t, CameraPose> &poses,
                   const std::vector<GroundPoint> &groundPoints,
-                  const tl::Path &outputPath);
-    ~DensifierBase();
+                  tl::Path outputPath);
+    ~DensifierBase() override;
 
     void setUndistortImagesFormat(UndistortImages::Format format);
 
 protected:
 
-    void undistort(const QString &dir);
-    tl::Path outputPath() const;
-    const std::unordered_map<size_t, Image> &images() const;
-    const std::map<int, Camera> &cameras() const;
-    const std::unordered_map<size_t, CameraPose> &poses() const;
-    const std::vector<GroundPoint> &groundPoints() const;
+    void undistort(const QString &dir) const;
+    auto outputPath() const -> tl::Path;
+    auto images() const -> const std::unordered_map<size_t, Image>&;
+    auto cameras() const -> const std::map<int, Camera>&;
+    auto poses() const -> const std::unordered_map<size_t, CameraPose>&;
+    auto groundPoints() const -> const std::vector<GroundPoint>&;
     void setDenseModel(const tl::Path &denseModel);
-    void autoSegmentation();
+    void autoSegmentation() const;
 
 // Densifier
 
 public:
 
     void enableCuda(bool enable) override;
-    virtual bool isCudaEnabled() const override;
-    tl::Path denseModel() const override;
+    auto isCudaEnabled() const -> bool override;
+    auto denseModel() const -> tl::Path override;
     auto report() const -> DenseReport override;
-
-protected:
-
-    DenseReport mReport;
 
 private:
 
@@ -160,99 +167,12 @@ private:
     bool mCuda;
     tl::Path mDenseModel;
     UndistortImages::Format mFormat;
+
+protected:
+
+    DenseReport mReport;
 };
 
-
-
-/*----------------------------------------------------------------*/
-
-
-
-class CmvsPmvs
-  : public Densification
-{
-
-public:
-
-    CmvsPmvs() : Densification(Densification::Method::cmvs_pmvs) {}
-    ~CmvsPmvs() override = default;
-
-    virtual bool useVisibilityInformation() const = 0;
-    virtual int imagesPerCluster() const = 0;
-    virtual int level() const = 0;
-    virtual int cellSize() const = 0;
-    virtual double threshold() const = 0;
-    virtual int windowSize() const = 0;
-    virtual int minimunImageNumber() const = 0;
-
-    virtual void setUseVisibilityInformation(bool useVisibilityInformation) = 0;
-    virtual void setImagesPerCluster(int imagesPerCluster) = 0;
-    virtual void setLevel(int level) = 0;
-    virtual void setCellSize(int cellSize) = 0;
-    virtual void setThreshold(double threshold) = 0;
-    virtual void setWindowSize(int windowSize) = 0;
-    virtual void setMinimunImageNumber(int minimunImageNumber) = 0;
-};
-
-
-/*----------------------------------------------------------------*/
-
-
-
-class Smvs
-  : public Densification
-{
-
-public:
-
-    Smvs() : Densification(Densification::Method::smvs) {}
-    ~Smvs() override = default;
-
-    virtual int inputImageScale() const = 0;
-    virtual int outputDepthScale() const = 0;
-    virtual bool shadingBasedOptimization() const = 0;
-    virtual bool semiGlobalMatching() const = 0;
-    virtual double surfaceSmoothingFactor() const = 0;
-
-    virtual void setInputImageScale(int inputImageScale) = 0;
-    virtual void setOutputDepthScale(int outputDepthScale) = 0;
-    virtual void setShadingBasedOptimization(bool shadingBasedOptimization) = 0;
-    virtual void setSemiGlobalMatching(bool semiGlobalMatching) = 0;
-    virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) = 0;
-
-};
-
-/*----------------------------------------------------------------*/
-
-
-
-class Mvs
-  : public Densification
-{
-
-public:
-
-    Mvs() : Densification(Densification::Method::mvs)
-    {
-    }
-    ~Mvs() override = default;
-
-    virtual int resolutionLevel() const = 0;
-    virtual int minResolution() const = 0;
-    virtual int maxResolution() const = 0;
-    virtual int numberViews() const = 0;
-    virtual int numberViewsFuse() const = 0;
-    virtual bool estimateColors() const = 0;
-    virtual bool estimateNormals() const = 0;
-
-    virtual void setResolutionLevel(int resolutionLevel) = 0;
-    virtual void setMinResolution(int minResolution) = 0;
-    virtual void setMaxResolution(int maxResolution) = 0;
-    virtual void setNumberViews(int numberViews) = 0;
-    virtual void setNumberViewsFuse(int numberViewsFuse) = 0;
-    virtual void setEstimateColors(bool estimateColors) = 0;
-    virtual void setEstimateNormals(bool estimateNormals) = 0;
-};
 
 
 } // namespace graphos

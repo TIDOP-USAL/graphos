@@ -71,8 +71,8 @@ void SaveProjectComponent::createView()
 void SaveProjectComponent::createPresenter()
 {
     setPresenter(new SaveProjectPresenterImp(dynamic_cast<SaveProjectView *>(view()),
-                 dynamic_cast<SaveProjectModel *>(model()),
-                 app()->status()));
+                                             dynamic_cast<SaveProjectModel *>(model()),
+                                             app()->status()));
 }
 
 void SaveProjectComponent::createCommand()
@@ -86,10 +86,10 @@ void SaveProjectComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-    bool bLoadingImages = app_status->isEnabled(AppStatus::Flag::loading_images);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool loading_images = app_status->isEnabled(AppStatus::Flag::loading_images);
     bool project_modified = app_status->isEnabled(AppStatus::Flag::project_modified);
-    action()->setEnabled(!bLoadingImages && !bProcessing && project_modified);
+    action()->setEnabled(!loading_images && !processing && project_modified);
 }
 
 } // namespace graphos

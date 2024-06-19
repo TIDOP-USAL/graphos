@@ -38,33 +38,26 @@ ImportCamerasPresenterImp::ImportCamerasPresenterImp(ImportCamerasView *view,
   : mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    ImportCamerasPresenterImp::init();
+    ImportCamerasPresenterImp::initSignalAndSlots();
 }
 
 ImportCamerasPresenterImp::~ImportCamerasPresenterImp()
 {
 }
 
-void ImportCamerasPresenterImp::previewCSV()
+void ImportCamerasPresenterImp::previewCSV() const
 {
-    //mModel->clear();
     mModel->previewImportCameras();
 }
 
-//bool ImportCamerasPresenterImp::checkCRS(const QString &crs)
-//{
-//  tl::geospatial::Crs _crs(crs.toStdString());
-//  return _crs.isValid();
-//}
-
-void ImportCamerasPresenterImp::checkInputCRS(const QString &crs)
+void ImportCamerasPresenterImp::checkInputCRS(const QString &crs) const
 {
     mView->setValidInputCRS(mModel->checkCRS(crs));
     mModel->setInputCRS(crs);
 }
 
-void ImportCamerasPresenterImp::checkOutputCRS(const QString &crs)
+void ImportCamerasPresenterImp::checkOutputCRS(const QString &crs) const
 {
     mView->setValidOutputCRS(mModel->checkCRS(crs));
     mModel->setOutputCRS(crs);
@@ -117,7 +110,6 @@ void ImportCamerasPresenterImp::initSignalAndSlots()
     connect(mView, &ImportCamerasView::omegaFieldChange, mModel, &ImportCamerasModel::setOmegaFieldId);
     connect(mView, &ImportCamerasView::phiFieldChange, mModel, &ImportCamerasModel::setPhiFieldId);
     connect(mView, &ImportCamerasView::kappaFieldChange, mModel, &ImportCamerasModel::setKappaFieldId);
-    //connect(mView, &ImportCamerasView::crsChanged,                 mModel, &ImportCamerasModel::setCRS);
     connect(mView, &ImportCamerasView::loadFieldNamesFromFirstRow, this, &ImportCamerasPresenterImp::previewCSV);
     connect(mView, &ImportCamerasView::delimiterChanged, this, &ImportCamerasPresenterImp::previewCSV);
     connect(mView, &ImportCamerasView::skipLines, this, &ImportCamerasPresenterImp::previewCSV);

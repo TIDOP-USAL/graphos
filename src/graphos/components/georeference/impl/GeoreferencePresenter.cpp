@@ -46,8 +46,8 @@ GeoreferencePresenterImp::GeoreferencePresenterImp(GeoreferenceView *view,
   : mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    GeoreferencePresenterImp::init();
+    GeoreferencePresenterImp::initSignalAndSlots();
 }
 
 GeoreferencePresenterImp::~GeoreferencePresenterImp()
@@ -113,17 +113,15 @@ void GeoreferencePresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 }
 
-std::unique_ptr<tl::Task> GeoreferencePresenterImp::createProcess()
+std::unique_ptr<tl::Task> GeoreferencePresenterImp::createTask()
 {
-    std::unique_ptr<tl::Task> georeference_process;
-
-    georeference_process = std::make_unique<GeoreferenceTask>(mModel->images(),
-                                                              mModel->cameras(),
-                                                              mModel->poses(),
-                                                              mModel->groundPoints(),
-                                                              mModel->groundControlPoints(),
-                                                              mModel->reconstructionPath(),
-                                                              mModel->database());
+    std::unique_ptr<tl::Task> georeference_process = std::make_unique<GeoreferenceTask>(mModel->images(),
+        mModel->cameras(),
+        mModel->poses(),
+        mModel->groundPoints(),
+        mModel->groundControlPoints(),
+        mModel->reconstructionPath(),
+        mModel->database());
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 0);
@@ -180,8 +178,12 @@ void GeoreferencePresenterImp::initSignalAndSlots()
     connect(mView, &GeoreferenceView::accepted, mModel, &GeoreferenceModel::save);
     connect(mView, &GeoreferenceView::import_gcp, 
         [&](const QString &file, const QString &format) {
-            mModel->importGroundControlPoints(file, format);
-            mView->setCrs(mModel->crs());
+            try {
+                mModel->importGroundControlPoints(file, format);
+                mView->setCrs(mModel->crs());
+            } catch (std::exception &e){
+                tl::printException(e);
+            }
         });
     connect(mView, &GeoreferenceView::export_gcp, mModel, &GeoreferenceModel::exportGroundControlPoints);
 

@@ -67,7 +67,7 @@ void DTMComponent::createView()
 void DTMComponent::createPresenter()
 {
     setPresenter(new DtmPresenterImp(dynamic_cast<DtmView *>(view()),
-                 dynamic_cast<DtmModel *>(model())));
+                                     dynamic_cast<DtmModel *>(model())));
 }
 
 void DTMComponent::createCommand()
@@ -82,11 +82,12 @@ void DTMComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-    bool bAbsoluteOriented = app_status->isEnabled(AppStatus::Flag::absolute_oriented);
-    bool bDenseModel = app_status->isEnabled(AppStatus::Flag::dense_model);
-    action()->setEnabled(bProjectExists && bAbsoluteOriented && bDenseModel && !bProcessing);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool absolute_oriented = app_status->isEnabled(AppStatus::Flag::absolute_oriented);
+    bool dense_model = app_status->isEnabled(AppStatus::Flag::dense_model);
+    //bool mesh = app_status->isEnabled(AppStatus::Flag::mesh);
+    action()->setEnabled(project_exists && absolute_oriented && dense_model && !processing);
 }
 
 void DTMComponent::onRunning()
@@ -105,6 +106,7 @@ void DTMComponent::onFinished()
 
     app_status->activeFlag(AppStatus::Flag::project_modified, true);
     app_status->activeFlag(AppStatus::Flag::dtm, true);
+    app_status->activeFlag(AppStatus::Flag::dsm, true);
 }
 
 void DTMComponent::onFailed()
@@ -116,6 +118,7 @@ void DTMComponent::onFailed()
 
     TaskComponent::onFailed();
     app_status->activeFlag(AppStatus::Flag::dtm, false);
+    app_status->activeFlag(AppStatus::Flag::dsm, false);
 }
 
 } // namespace graphos

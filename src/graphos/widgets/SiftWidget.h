@@ -36,157 +36,73 @@ class QCheckBox;
 namespace graphos
 {
 
-/*!
- * \brief Interface SIFT Widget
- */
+
 class SiftWidget
-  : public GraphosWidgetView
+    : public GraphosWidgetView
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  SiftWidget(QWidget *parent = nullptr);
-  ~SiftWidget() override = default;
+    SiftWidget(QWidget *parent = nullptr);
+    ~SiftWidget() override;
 
-  /*!
-   * \brief featuresNumber
-   * \return
-   */
-  virtual int featuresNumber() const = 0;
+public:
 
-  /*!
-   * \brief octaveLayers
-   * \return
-   */
-  virtual int octaveLayers() const = 0;
+    auto featuresNumber() const -> int;
+    auto octaveLayers() const -> int;
+    auto contrastThreshold() const -> double;
+    auto constrastThresholdAuto() const -> bool;
+    auto edgeThreshold() const -> double;
+    auto domainSizePooling() const -> bool;
 
-  /*!
-   * \brief contrastThreshold
-   * \return
-   */
-  virtual double contrastThreshold() const = 0;
+public slots:
 
-  virtual bool constrastThresholdAuto() const = 0;
-
-  /*!
-   * \brief edgeThreshold
-   * \return
-   */
-  virtual double edgeThreshold() const = 0;
-
-  /*!
-   * \brief sigma
-   * \return
-   */
-  //virtual double sigma() const = 0;
+    void setFeaturesNumber(int featuresNumber);
+    void setOctaveLayers(int octaveLayers);
+    void setContrastThreshold(double contrastThreshold);
+    void setContrastThresholdAuto(bool active);
+    void setEdgeThreshold(double edgeThreshold);
+    void setDomainSizePooling(bool domainSizePooling);
 
 signals:
 
-  void featuresNumberChange(int);
-  void octaveLayersChange(int);
-  void contrastThresholdAutoChange(bool);
-  void contrastThresholdChange(double);
-  void edgeThresholdChange(double);
-  //void sigmaChange(double);
+    void featuresNumberChange(int);
+    void octaveLayersChange(int);
+    void contrastThresholdAutoChange(bool);
+    void contrastThresholdChange(double);
+    void edgeThresholdChange(double);
+    void domainSizePooling(bool);
 
-public slots:
-
-  /*!
-   * \brief setFeaturesNumber
-   * \param featuresNumber
-   */
-  virtual void setFeaturesNumber(int featuresNumber) = 0;
-
-  /*!
-   * \brief setOctaveLayers
-   * \param octaveLayers
-   */
-  virtual void setOctaveLayers(int octaveLayers) = 0;
-
-  /*!
-   * \brief setContrastThreshold
-   * \param contrastThreshold
-   */
-  virtual void setContrastThreshold(double contrastThreshold) = 0;
-
-  virtual void setContrastThresholdAuto(bool active) = 0;
-
-  /*!
-   * \brief setEdgeThreshold
-   * \param edgeThreshold
-   */
-  virtual void setEdgeThreshold(double edgeThreshold) = 0;
-
-  /*!
-   * \brief setSigma
-   * \param sigma
-   */
-  //virtual void setSigma(double sigma) = 0;
-
-};
-
-
-class SiftWidgetImp
-  : public SiftWidget
-{
-  Q_OBJECT
-
-public:
-
-  SiftWidgetImp(QWidget *parent = nullptr);
-  ~SiftWidgetImp() override;
-
-// ISiftWidget interface
-
-public:
-
-  int featuresNumber() const override;
-  int octaveLayers() const override;
-  double contrastThreshold() const override;
-  bool constrastThresholdAuto() const override;
-  double edgeThreshold() const override;
-  //double sigma() const override;
-
-public slots:
-
-  void setFeaturesNumber(int featuresNumber) override;
-  void setOctaveLayers(int octaveLayers) override;
-  void setContrastThreshold(double contrastThreshold) override;
-  void setContrastThresholdAuto(bool active) override;
-  void setEdgeThreshold(double edgeThreshold) override;
-  //void setSigma(double sigma) override;
-
-// PhotoMatchWidget interface
+    // GraphosWidgetView interface
 
 protected slots:
 
-  void update() override;
-  void retranslate() override;
+    void update() override;
+    void retranslate() override;
 
 public slots:
 
-  void clear() override;
+    void clear() override;
 
 private:
 
-  void initUI() override;
-  void initSignalAndSlots() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 protected:
 
-  QGroupBox *mGroupBox;
-  QLabel *mLabelFeaturesNumber;
-  QSpinBox *mFeaturesNumber;
-  QLabel *mLabelOctaveLayers;
-  QSpinBox *mOctaveLayers;
-  QCheckBox *mContrastThresholdAuto;
-  QLabel *mLabelContrastThreshold;
-  QDoubleSpinBox *mContrastThreshold;
-  QLabel *mLabelEdgeThreshold;
-  QDoubleSpinBox *mEdgeThreshold;
-  //QLabel *mLabelSigma;
-  //QDoubleSpinBox *mSigma;
+    QGroupBox *mGroupBox;
+    QLabel *mLabelFeaturesNumber;
+    QSpinBox *mFeaturesNumber;
+    QLabel *mLabelOctaveLayers;
+    QSpinBox *mOctaveLayers;
+    QCheckBox *mContrastThresholdAuto;
+    QLabel *mLabelContrastThreshold;
+    QDoubleSpinBox *mContrastThreshold;
+    QLabel *mLabelEdgeThreshold;
+    QDoubleSpinBox *mEdgeThreshold;
+    QCheckBox *mDomainSizePooling;
 
 };
 

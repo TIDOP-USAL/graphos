@@ -34,24 +34,32 @@ class QCheckBox;
 namespace graphos
 {
 
-/*!
- * \brief Shading-Aware Multi-View Stereo Widget Interface
- */
+
 class SmvsWidget
-    : public GraphosWidgetView
+  : public GraphosWidgetView
 {
     Q_OBJECT
 
 public:
 
     SmvsWidget(QWidget *parent = nullptr);
-    ~SmvsWidget() = default;
+    ~SmvsWidget() override;
 
-    virtual int inputImageScale() const = 0;
-    virtual int outputDepthScale() const = 0;
-    virtual bool shadingBasedOptimization() const = 0;
-    virtual bool semiGlobalMatching() const = 0;
-    virtual double surfaceSmoothingFactor() const = 0;
+public:
+
+    auto inputImageScale() const -> int;
+    auto outputDepthScale() const -> int;
+    auto shadingBasedOptimization() const -> bool;
+    auto semiGlobalMatching() const -> bool;
+    auto surfaceSmoothingFactor() const -> double;
+
+public slots:
+
+    void setInputImageScale(int inputImageScale);
+    void setOutputDepthScale(int outputDepthScale);
+    void setShadingBasedOptimization(bool shadingBasedOptimization);
+    void setSemiGlobalMatching(bool semiGlobalMatching);
+    void setSurfaceSmoothingFactor(double surfaceSmoothingFactor);
 
 signals:
 
@@ -60,44 +68,6 @@ signals:
     void shadingBasedOptimizationChanged(bool);
     void semiGlobalMatchingChanged(bool);
     void surfaceSmoothingFactorChanged(double);
-
-public slots:
-
-    virtual void setInputImageScale(int inputImageScale) = 0;
-    virtual void setOutputDepthScale(int outputDepthScale) = 0;
-    virtual void setShadingBasedOptimization(bool shadingBasedOptimization) = 0;
-    virtual void setSemiGlobalMatching(bool semiGlobalMatching) = 0;
-    virtual void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) = 0;
-};
-
-
-class SmvsWidgetImp
-    : public SmvsWidget
-{
-    Q_OBJECT
-
-public:
-
-    SmvsWidgetImp(QWidget *parent = nullptr);
-    ~SmvsWidgetImp() override;
-
-// SmvsWidget interface
-
-public:
-
-    int inputImageScale() const override;
-    int outputDepthScale() const  override;
-    bool shadingBasedOptimization() const override;
-    bool semiGlobalMatching() const override;
-    double surfaceSmoothingFactor() const override;
-
-public slots:
-
-    void setInputImageScale(int inputImageScale) override;
-    void setOutputDepthScale(int outputDepthScale)  override;
-    void setShadingBasedOptimization(bool shadingBasedOptimization) override;
-    void setSemiGlobalMatching(bool semiGlobalMatching) override;
-    void setSurfaceSmoothingFactor(double surfaceSmoothingFactor) override;
 
 // GraphosWidget interface
 

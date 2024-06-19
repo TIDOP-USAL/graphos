@@ -49,7 +49,7 @@ private:
 
 private slots:
 
-    void update();
+    void update() const;
     void retranslate();
     void openFromHistory();
 
@@ -63,12 +63,7 @@ public:
 
 protected:
 
-    void changeEvent(QEvent *event) override
-    {
-        if (event->type() == QEvent::LanguageChange) {
-            retranslate();
-        }
-    }
+    void changeEvent(QEvent *event) override;
 
 private:
 

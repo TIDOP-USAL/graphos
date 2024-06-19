@@ -66,19 +66,16 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar)
 {
     if (mItem == nullptr) return;
 
-    QImage image;
-
     try {
 
         const QString thumb = mItem->toolTip();
         std::string image_file = thumb.toStdString();
 
-        std::unique_ptr<tl::ImageReader> imageReader = tl::ImageReaderFactory::create(image_file);
-        imageReader->open();
-        if (imageReader->isOpen()) {
-
-            int w = imageReader->cols();
-            int h = imageReader->rows();
+        auto image_reader = tl::ImageReaderFactory::create(image_file);
+        image_reader->open();
+        if (image_reader->isOpen()) {
+            int w = image_reader->cols();
+            int h = image_reader->rows();
             double scale = 1.;
             if (w > h) {
                 scale = 200. / static_cast<double>(w);
@@ -86,11 +83,11 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar)
                 scale = 200. / static_cast<double>(h);
             }
 
-            cv::Mat bmp = imageReader->read(scale, scale);
+            cv::Mat bmp = image_reader->read(scale, scale);
 
-            image = graphos::cvMatToQImage(bmp);
+            QImage image = graphos::cvMatToQImage(bmp);
 
-            imageReader->close();
+            image_reader->close();
 
             QPixmap pixmap = QPixmap::fromImage(image);
             QIcon icon(pixmap);
@@ -123,15 +120,15 @@ ThumbnailsWidget::ThumbnailsWidget(QWidget *parent)
     mThumbLoad(new tl::TaskQueue),
     mLoadImages(true)
 {
-    initUI();
-    initSignalAndSlots();
+    ThumbnailsWidget::initUI();
+    ThumbnailsWidget::initSignalAndSlots();
 }
 
 ThumbnailsWidget::~ThumbnailsWidget()
 {
     if (mThumbLoad) {
 
-        // Para evitar una excepci�n al cerrar la aplicaci�n si se esta ejecutando
+        // Para evitar una excepción al cerrar la aplicación si se esta ejecutando
         while (!mThumbLoad->empty());
 
         delete mThumbLoad;
@@ -193,7 +190,8 @@ void ThumbnailsWidget::addThumbnail(const Image &image, const QSize &imageSize)
         item->setToolTip(image.path());
         item->setData(Qt::UserRole, static_cast<qulonglong>(image.id()));
         mListWidget->addItem(item);
-
+        // TODO: Utilizar setGridSize para ajustar el tamaño
+        //mListWidget->setGridSize();
         if (mLoadImages)
             loadVisibleImages();
 
@@ -213,8 +211,8 @@ void ThumbnailsWidget::deleteImages(const std::vector<size_t> &imageIds)
 
     for (int i = 0; i < mListWidget->count(); i++) {
         item = mListWidget->item(i);
-        for (auto imageId : imageIds) {
-            if (item && item->data(Qt::UserRole).toULongLong() == imageId) {
+        for (auto image_id : imageIds) {
+            if (item && item->data(Qt::UserRole).toULongLong() == image_id) {
                 delete item;
                 item = nullptr;
                 i--;
@@ -240,6 +238,7 @@ void ThumbnailsWidget::onSelectionChanged()
             emit select_image(item[0]->data(Qt::UserRole).toULongLong());
         } else {
             std::vector<size_t> selected_images;
+            selected_images.reserve(size);
             for (int i = 0; i < size; i++) {
                 selected_images.push_back(item[i]->data(Qt::UserRole).toULongLong());
             }
@@ -251,32 +250,36 @@ void ThumbnailsWidget::onSelectionChanged()
 
 void ThumbnailsWidget::loadVisibleImages()
 {
-    if (mListWidget->count() == 0) return;
+    try {
+        if (mListWidget->count() == 0) return;
 
-    QRect rect = mListWidget->viewport()->rect();
-    QRegion region = mListWidget->viewport()->visibleRegion();
+        QRect rect = mListWidget->viewport()->rect();
+        QRegion region = mListWidget->viewport()->visibleRegion();
 
-    mLoadImages = false;
+        mLoadImages = false;
 
-    for (int i = 0; i < mListWidget->count(); i++) {
-        QModelIndex idx = mListWidget->model()->index(i, 0);
-        QRect idx_rect = mListWidget->visualRect(idx);
-        if (region.contains(idx_rect) || region.intersects(idx_rect)) {
-            auto item = mListWidget->item(i);
-            if (!item->data(Qt::UserRole + 1).toBool()) {
+        for (int i = 0; i < mListWidget->count(); i++) {
+            QModelIndex idx = mListWidget->model()->index(i, 0);
+            QRect idx_rect = mListWidget->visualRect(idx);
+            if (region.contains(idx_rect) || region.intersects(idx_rect)) {
+                auto item = mListWidget->item(i);
+                if (!item->data(Qt::UserRole + 1).toBool()) {
 
-                mLoadImages = true;
+                    mLoadImages = true;
 
-                item->setData(Qt::UserRole + 1, true);
+                    item->setData(Qt::UserRole + 1, true);
 
-                mThumbLoad->push(std::make_shared<LoadThumbnailTask>(item, mListWidget));
+                    mThumbLoad->push(std::make_shared<LoadThumbnailTask>(item, mListWidget));
+
+                }
 
             }
-
         }
-    }
 
-    mThumbLoad->runAsync();
+        mThumbLoad->runAsync();
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
 }
 
 void ThumbnailsWidget::onThumbnailClicked()
@@ -285,6 +288,7 @@ void ThumbnailsWidget::onThumbnailClicked()
     mListWidget->setIconSize(mIconSize);
     mListWidget->setViewMode(QListWidget::IconMode);
     mListWidget->setResizeMode(QListWidget::Adjust);
+    //mListWidget->setGridSize(QSize(210, 200));
     mListWidget->verticalScrollBar()->setSingleStep(175);
     const QSignalBlocker block0(mThumbnailAction);
     const QSignalBlocker block1(mThumbnailSmallAction);
@@ -302,6 +306,7 @@ void ThumbnailsWidget::onThumbnailSmallClicked()
     mListWidget->setViewMode(QListWidget::IconMode);
     mListWidget->setResizeMode(QListWidget::Adjust);
     mListWidget->verticalScrollBar()->setSingleStep(100);
+    //mListWidget->setGridSize(QSize(110, 100));
     const QSignalBlocker block0(mThumbnailAction);
     const QSignalBlocker block1(mThumbnailSmallAction);
     const QSignalBlocker block2(mDetailsAction);
@@ -317,6 +322,7 @@ void ThumbnailsWidget::onDetailsClicked()
     mListWidget->setIconSize(mIconSize);
     mListWidget->setViewMode(QListWidget::ListMode);
     mListWidget->setResizeMode(QListWidget::Adjust);
+    //mListWidget->setGridSize(QSize(-1, -1));
     mListWidget->verticalScrollBar()->setSingleStep(50);
     const QSignalBlocker block0(mThumbnailAction);
     const QSignalBlocker block1(mThumbnailSmallAction);
@@ -331,7 +337,7 @@ void ThumbnailsWidget::onDeleteImageClicked()
 {
     std::lock_guard<std::mutex> lck(sMutexThumbnail);
 
-    if (mListWidget->selectedItems().size() > 0) {
+    if (!mListWidget->selectedItems().empty()) {
         std::vector<size_t> selectImages;
         for (const auto &item : mListWidget->selectedItems()) {
             selectImages.push_back(item->data(Qt::UserRole).toULongLong());
@@ -352,7 +358,7 @@ void ThumbnailsWidget::update()
     mThumbnailAction->setEnabled(images_added);
     mThumbnailSmallAction->setEnabled(images_added);
     mDetailsAction->setEnabled(images_added);
-    mDeleteImageAction->setEnabled(mListWidget->selectedItems().size() > 0 && !bLoadingImages);
+    mDeleteImageAction->setEnabled(!mListWidget->selectedItems().empty() && !bLoadingImages);
 }
 
 void ThumbnailsWidget::retranslate()

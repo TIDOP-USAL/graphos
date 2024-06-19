@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class ScaleProcess;
-
 class ScaleComponent
   : public TaskComponent
 {

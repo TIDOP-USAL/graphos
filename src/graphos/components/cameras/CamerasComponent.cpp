@@ -53,7 +53,7 @@ void CamerasComponent::init()
     setIcon(QIcon::fromTheme("cameras"));
 }
 
-void CamerasComponent::onUpdateCameras()
+void CamerasComponent::onUpdateCameras() const
 {
     Application *app = this->app();
     TL_ASSERT(app != nullptr, "Application is null");
@@ -76,7 +76,7 @@ void CamerasComponent::createView()
 void CamerasComponent::createPresenter()
 {
     setPresenter(new CamerasPresenterImp(dynamic_cast<CamerasView *>(view()),
-                 dynamic_cast<CamerasModel *>(model())));
+                                         dynamic_cast<CamerasModel *>(model())));
     connect(dynamic_cast<CamerasPresenter *>(presenter()), &CamerasPresenter::updateCameras,
             this, &CamerasComponent::onUpdateCameras);
 }
@@ -92,9 +92,9 @@ void CamerasComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-    bool bImagesLoaded = app_status->isEnabled(AppStatus::Flag::images_added);
-    action()->setEnabled(bProjectExists && bImagesLoaded);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool images_loaded = app_status->isEnabled(AppStatus::Flag::images_added);
+    action()->setEnabled(project_exists && images_loaded);
 }
 
 } // namespace graphos

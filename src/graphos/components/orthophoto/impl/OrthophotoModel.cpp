@@ -26,24 +26,21 @@
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/sfm/poses.h"
 
-#include <QFile>
-#include <QTextStream>
 #include <QSettings>
 #include <QFileInfo>
 
 /// TODO: mover
 #include <colmap/base/reconstruction.h>
-#include <opencv2/calib3d.hpp>
 
 namespace graphos
 {
 
 OrthophotoModelImp::OrthophotoModelImp(Project *project, QObject *parent)
   : OrthophotoModel(parent),
-    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName())),
-    mProject(project)
+    mProject(project),
+    mSettings(new QSettings(QSettings::IniFormat, QSettings::UserScope, qApp->organizationName(), qApp->applicationName()))
 {
-    this->init();
+    OrthophotoModelImp::init();
 }
 
 OrthophotoModelImp::~OrthophotoModelImp()
@@ -89,9 +86,9 @@ void OrthophotoModelImp::saveSettings()
     }
 }
 
-std::vector<Image> OrthophotoModelImp::images() const
+auto OrthophotoModelImp::images() const -> Images
 {
-    std::vector<Image> images;
+    Images images;
 
     tl::Point3<double> offset;
 
@@ -132,17 +129,17 @@ std::vector<Image> OrthophotoModelImp::images() const
     return images;
 }
 
-std::map<int, Camera> OrthophotoModelImp::cameras() const
+auto OrthophotoModelImp::cameras() const -> Cameras
 {
     return mProject->cameras();
 }
 
-tl::Path OrthophotoModelImp::projectFolder() const
+auto OrthophotoModelImp::projectFolder() const -> tl::Path
 {
     return mProject->projectFolder();
 }
 
-tl::Path OrthophotoModelImp::orthoPath() const
+auto OrthophotoModelImp::orthoPath() const -> tl::Path
 {
     return mProject->orthophoto().path;
 }
@@ -152,12 +149,12 @@ void OrthophotoModelImp::setOrthoPath(const tl::Path &orthoPath)
     mProject->orthophoto().path = orthoPath;
 }
 
-tl::Path OrthophotoModelImp::dtmPath() const
+auto OrthophotoModelImp::dtmPath() const -> tl::Path
 {
     return mProject->dtm().dsmPath;
 }
 
-QString OrthophotoModelImp::epsCode() const
+auto OrthophotoModelImp::epsCode() const -> QString
 {
     return mProject->crs();
 }
@@ -168,12 +165,12 @@ void OrthophotoModelImp::clearProject()
     //mProject->clearOrtho();
 }
 
-bool OrthophotoModelImp::useCuda() const
+auto OrthophotoModelImp::useCuda() const -> bool
 {
     return mSettings->value("UseCuda", true).toBool();
 }
 
-double OrthophotoModelImp::gsd() const
+auto OrthophotoModelImp::gsd() const -> double
 {
     return mProject->orthophoto().gsd;
 }

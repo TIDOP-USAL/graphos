@@ -42,8 +42,8 @@ class ExportMeshPresenterImp
 public:
 
     ExportMeshPresenterImp(ExportMeshView *view,
-                              ExportMeshModel *model,
-                              AppStatus *status);
+                           ExportMeshModel *model,
+                           AppStatus *status);
     ~ExportMeshPresenterImp() override;
 
 // ExportMeshPresenter interface

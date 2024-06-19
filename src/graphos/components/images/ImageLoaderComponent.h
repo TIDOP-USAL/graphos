@@ -29,8 +29,6 @@
 namespace graphos
 {
 
-class LoadImagesTask;
-
 class ImageLoaderComponent
   : public TaskComponent
 {
@@ -40,7 +38,7 @@ class ImageLoaderComponent
 public:
 
     ImageLoaderComponent(Application *application);
-    ~ImageLoaderComponent();
+    ~ImageLoaderComponent() override;
 
 private:
 

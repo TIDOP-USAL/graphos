@@ -32,7 +32,7 @@ namespace graphos
 class Project;
 
 
-class CreateProjectModelImp final
+class CreateProjectModelImp
   : public CreateProjectModel
 {
 
@@ -44,16 +44,10 @@ public:
                                    QObject *parent = nullptr);
     ~CreateProjectModelImp() override;
 
-signals:
-
 // CreateProjectModel interface
 
 public:
 
-    //QString projectName() const override;
-    //QString projectDescription() const override;
-    //tl::Path projectFolder() const override;
-    //tl::Path projectPath() const override;
     tl::Path projectsDefaultPath() const override;
 
 public slots:
@@ -61,7 +55,6 @@ public slots:
     void setProjectName(const QString &name) override;
     void setProjectDescription(const QString &projectDescription) override;
     void setProjectFolder(const tl::Path &folder) override;
-    //void setDatabase(const tl::Path &database) override;
     void save() override;
 
 // Model interface
@@ -77,7 +70,6 @@ public slots:
 private:
 
     Project *mProject;
-    //tl::Path mPrjFile;
 
 };
 

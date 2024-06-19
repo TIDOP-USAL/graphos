@@ -72,7 +72,7 @@ protected slots:
 
     /* Menú Archivo */
 
-    void openFromHistory(const QString &file);
+    void openProject(const QString &file);
     void deleteHistory();
     //void saveProject();
     void exit();
@@ -94,11 +94,13 @@ protected slots:
     void loadDenseModel();
     void loadMesh();
     void loadDTM();
+    void loadDSM();
     void loadOrtho();
 
     void openImageMatches(const QString &sessionName, const QString &imgName1, const QString &imgName2);
 
     void openDtm();
+    void openDsm();
     void openOrthophoto(const QString &orthophoto);
 
     void deleteFeatures();

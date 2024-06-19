@@ -24,7 +24,6 @@
 #include "ExportCamerasView.h"
 
 #include <QFileDialog>
-#include <QIcon>
 #include <QGridLayout>
 #include <QLabel>
 #include <QApplication>
@@ -32,7 +31,6 @@
 #include <QPushButton>
 #include <QDialogButtonBox>
 #include <QLineEdit>
-#include <QStandardPaths>
 
 namespace graphos
 {
@@ -40,59 +38,54 @@ namespace graphos
 ExportCamerasViewImp::ExportCamerasViewImp(QWidget *parent)
   : ExportCamerasView(parent)
 {
-  this->initUI();
-  this->initSignalAndSlots();
-}
-
-ExportCamerasViewImp::~ExportCamerasViewImp()
-{
-
+    ExportCamerasViewImp::initUI();
+    ExportCamerasViewImp::initSignalAndSlots();
 }
 
 void ExportCamerasViewImp::initUI()
 {
-  this->setObjectName(QStringLiteral("ExportCamerasView"));
-  this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
-  this->resize(400, 200);
+    this->setObjectName(QStringLiteral("ExportCamerasView"));
+    this->setWindowIcon(QIcon(":/ico/app/img/FMELogo.ico"));
+    this->resize(400, 200);
 
-  QGridLayout *gridLayout = new QGridLayout();
-  this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
-  mLabelFormat = new QLabel(this);
-  mLabelFormat->setMaximumSize(QSize(71, 16777215));
-  gridLayout->addWidget(mLabelFormat, 0, 0, 1, 1);
+    mLabelFormat = new QLabel(this);
+    mLabelFormat->setMaximumSize(QSize(71, 16777215));
+    grid_layout->addWidget(mLabelFormat, 0, 0, 1, 1);
 
-  mComboBoxFormat = new QComboBox(this);
-  gridLayout->addWidget(mComboBoxFormat, 0, 1, 1, 1);
+    mComboBoxFormat = new QComboBox(this);
+    grid_layout->addWidget(mComboBoxFormat, 0, 1, 1, 1);
 
-  QWidget *widgetFeatureExtractor = new QWidget();
-  mGridLayoutFormat = new QGridLayout(widgetFeatureExtractor);
-  mGridLayoutFormat->setContentsMargins(0, 0, 0, 0);
-  gridLayout->addWidget(widgetFeatureExtractor, 1, 0, 1, 2);
+    auto widget_feature_extractor = new QWidget();
+    mGridLayoutFormat = new QGridLayout(widget_feature_extractor);
+    mGridLayoutFormat->setContentsMargins(0, 0, 0, 0);
+    grid_layout->addWidget(widget_feature_extractor, 1, 0, 1, 2);
 
-  mButtonBox = new QDialogButtonBox(this);
-  mButtonBox->setOrientation(Qt::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 2, 0, 1, 2);
+    mButtonBox = new QDialogButtonBox(this);
+    mButtonBox->setOrientation(Qt::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok | QDialogButtonBox::Help);
+    grid_layout->addWidget(mButtonBox, 2, 0, 1, 2);
 
-  this->retranslate();
-  this->update();
+    this->retranslate();
+    this->update();
 }
 
 void ExportCamerasViewImp::initSignalAndSlots()
 {
-  connect(mComboBoxFormat,         &QComboBox::currentTextChanged,     this, &ExportCamerasView::formatChange);
+    connect(mComboBoxFormat, &QComboBox::currentTextChanged, this, &ExportCamerasView::formatChange);
 
-  connect(mButtonBox,                                   &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Ok),     &QAbstractButton::clicked,   this, &ExportCamerasView::run);
-  connect(mButtonBox->button(QDialogButtonBox::Help),   &QAbstractButton::clicked,   this, &DialogView::help);
+    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(mButtonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &ExportCamerasView::run);
+    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void ExportCamerasViewImp::clear()
 {
-  const QSignalBlocker blockerComboBoxFormat(mComboBoxFormat);
-  mComboBoxFormat->clear();
-  update();
+    const QSignalBlocker blocker_combo_box_format(mComboBoxFormat);
+    mComboBoxFormat->clear();
+    update();
 }
 
 void ExportCamerasViewImp::update()
@@ -101,41 +94,41 @@ void ExportCamerasViewImp::update()
 
 void ExportCamerasViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("ExportCamerasView", "Export Cameras", nullptr));
-  mLabelFormat->setText(QApplication::translate("ExportCamerasView", "Format:", nullptr));
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportCamerasView", "Cancel", nullptr));
-  mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportCamerasView", "Save", nullptr));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportCamerasView", "Help", nullptr));
+    this->setWindowTitle(QApplication::translate("ExportCamerasView", "Export Cameras", nullptr));
+    mLabelFormat->setText(QApplication::translate("ExportCamerasView", "Format:", nullptr));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ExportCamerasView", "Cancel", nullptr));
+    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("ExportCamerasView", "Save", nullptr));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("ExportCamerasView", "Help", nullptr));
 }
 
 void ExportCamerasViewImp::addFormatWidget(QWidget *formatWidget)
 {
-  mComboBoxFormat->addItem(formatWidget->windowTitle());
-  mGridLayoutFormat->addWidget(formatWidget, 0, 0, 1, 2);
-  formatWidget->setVisible(false);
+    mComboBoxFormat->addItem(formatWidget->windowTitle());
+    mGridLayoutFormat->addWidget(formatWidget, 0, 0, 1, 2);
+    formatWidget->setVisible(false);
 
-  this->update();
+    this->update();
 }
 
-QString ExportCamerasViewImp::format() const
+auto ExportCamerasViewImp::format() const -> QString
 {
-  return mComboBoxFormat->currentText();
+    return mComboBoxFormat->currentText();
 }
 
 void ExportCamerasViewImp::setCurrentFormat(const QString &format)
 {
-  const QSignalBlocker blockerComboBoxFormat(mComboBoxFormat);
-  mComboBoxFormat->setCurrentText(format);
+    const QSignalBlocker blocker_combo_box_format(mComboBoxFormat);
+    mComboBoxFormat->setCurrentText(format);
 
-  for (int idx = 0; idx < mGridLayoutFormat->count(); idx++){
-    QLayoutItem *item = mGridLayoutFormat->itemAt(idx);
-    if(dynamic_cast<QWidgetItem *>(item)){
-      if (item->widget()->windowTitle().compare(format) == 0)
-        item->widget()->setVisible(true);
-      else
-        item->widget()->setVisible(false);
+    for (int idx = 0; idx < mGridLayoutFormat->count(); idx++) {
+        QLayoutItem *item = mGridLayoutFormat->itemAt(idx);
+        if (dynamic_cast<QWidgetItem *>(item)) {
+            if (item->widget()->windowTitle().compare(format) == 0)
+                item->widget()->setVisible(true);
+            else
+                item->widget()->setVisible(false);
+        }
     }
-  }
 }
 
 } // namespace graphos

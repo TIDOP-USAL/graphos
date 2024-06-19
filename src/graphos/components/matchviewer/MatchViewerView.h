@@ -42,7 +42,8 @@ public:
         : DialogView(parent, f)
     {
     }
-    virtual ~MatchViewerView() = default;
+
+    ~MatchViewerView() override = default;
 
     /*!
      * \brief Set the left image

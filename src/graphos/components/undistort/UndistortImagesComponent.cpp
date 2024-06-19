@@ -70,7 +70,7 @@ void UndistortImagesComponent::createView()
 void UndistortImagesComponent::createPresenter()
 {
     setPresenter(new UndistortImagesPresenterImp(dynamic_cast<UndistortImagesView *>(view()),
-                 dynamic_cast<UndistortImagesModel *>(model())));
+                                                 dynamic_cast<UndistortImagesModel *>(model())));
 }
 
 void UndistortImagesComponent::createCommand()

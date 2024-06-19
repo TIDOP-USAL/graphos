@@ -41,14 +41,17 @@ public:
 
     SaveProjectAsModelImp(Project *project,
                           QObject *parent = nullptr);
-    ~SaveProjectAsModelImp();
+    ~SaveProjectAsModelImp() override;
 
 // SaveProjectAsModel interface
+
+public:
+
+    auto graphosProjectsDirectory() const->tl::Path override;
 
 public slots:
 
     void save(const tl::Path &file) override;
-    tl::Path graphosProjectsDirectory() const override;
 
 // Model interface
 

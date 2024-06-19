@@ -38,26 +38,26 @@ namespace graphos
 
 
 class FeatureViewerSettingsWidget
-    : public GraphosWidgetView
+  : public GraphosWidgetView
 {
     Q_OBJECT
 
 public:
 
     FeatureViewerSettingsWidget(QWidget *parent = nullptr);
-    virtual ~FeatureViewerSettingsWidget() = default;
+    ~FeatureViewerSettingsWidget() override = default;
 
-    QString backgroundColor() const;
-    int markerType() const;
-    int markerSize() const;
-    int markerWidth() const;
-    QString markerColor() const;
-    int selectedMarkerWidth() const;
-    QString selectedMarkerColor() const;
+    auto backgroundColor() const -> QString;
+    auto markerType() const -> int;
+    auto markerSize() const -> int;
+    auto markerWidth() const -> int;
+    auto markerColor() const -> QString;
+    auto selectedMarkerWidth() const -> int;
+    auto selectedMarkerColor() const -> QString;
 
 public slots:
 
-    void setBackgroundColor(const QString &color);
+    void setBackgroundColor(const QString &color) const;
     void setMarkerType(int type);
     void setMarkerSize(int size);
     void setMarkerWidth(int width);
@@ -74,8 +74,6 @@ signals:
     void markerColorChange(const QString &);
     void selectedMarkerWidthChange(int);
     void selectedMarkerColorChange(const QString &);
-
-public slots:
 
 protected slots:
 

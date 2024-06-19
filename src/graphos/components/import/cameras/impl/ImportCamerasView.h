@@ -162,10 +162,9 @@ protected:
     QLabel *mLabelCameras;
     QTableView *mTableViewFormatCameras;
     QDialogButtonBox *mButtonBox;
-    //QString mProjectPath;
-    bool bParseOk;
-    bool bValidCrsIn;
-    bool bValidCrsOut;
+    bool mParseOk;
+    bool mValidCrsIn;
+    bool mValidCrsOut;
 };
 
 } // namespace graphos

@@ -38,12 +38,12 @@ namespace graphos
 {
 
 FeatureMatchingViewImp::FeatureMatchingViewImp(QWidget *parent)
-  : FeatureMatchingView(parent),
+    : FeatureMatchingView(parent),
     mCheckBoxSpatialMatching(new QCheckBox(this)),
     mButtonBox(new QDialogButtonBox(this))
 {
-  this->initUI();
-  this->initSignalAndSlots();
+    FeatureMatchingViewImp::initUI();
+    FeatureMatchingViewImp::initSignalAndSlots();
 }
 
 FeatureMatchingViewImp::~FeatureMatchingViewImp()
@@ -53,110 +53,110 @@ FeatureMatchingViewImp::~FeatureMatchingViewImp()
 
 void FeatureMatchingViewImp::initUI()
 {
-  this->setObjectName(QString("FeatureMatchingView"));
-  this->resize(400, 300);
+    this->setObjectName(QString("FeatureMatchingView"));
+    this->resize(400, 300);
 
-  QGridLayout *gridLayout = new QGridLayout();
-  this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
-  mLabelMatcher = new QLabel(this);
-  gridLayout->addWidget(mLabelMatcher, 0, 0, 1, 1);
-  mComboBoxMatcher = new QComboBox(this);
-  gridLayout->addWidget(mComboBoxMatcher, 0, 1, 1, 1);
+    mLabelMatcher = new QLabel(this);
+    grid_layout->addWidget(mLabelMatcher, 0, 0, 1, 1);
+    mComboBoxMatcher = new QComboBox(this);
+    grid_layout->addWidget(mComboBoxMatcher, 0, 1, 1, 1);
 
-  QWidget *widgetFeatureMatching = new QWidget();
-  mGridLayoutMatcher = new QGridLayout(widgetFeatureMatching);
-  mGridLayoutMatcher->setContentsMargins(0, 0, 0, 0);
-  gridLayout->addWidget(widgetFeatureMatching, 1, 0, 1, 2);
+    auto widget_feature_matching = new QWidget();
+    mGridLayoutMatcher = new QGridLayout(widget_feature_matching);
+    mGridLayoutMatcher->setContentsMargins(0, 0, 0, 0);
+    grid_layout->addWidget(widget_feature_matching, 1, 0, 1, 2);
 
-  gridLayout->addWidget(mCheckBoxSpatialMatching, 2, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxSpatialMatching, 2, 0, 1, 2);
 
-  gridLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding), 3, 0, 1, 2);
+    grid_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding), 3, 0, 1, 2);
 
-  mButtonBox->setOrientation(Qt::Orientation::Horizontal);
-  mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-  gridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
+    mButtonBox->setOrientation(Qt::Orientation::Horizontal);
+    mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
+    grid_layout->addWidget(mButtonBox, 4, 0, 1, 2);
 
-  this->retranslate();
-  this->clear();
-  this->update();
+    this->retranslate();
+    this->clear();
+    this->update();
 }
 
 void FeatureMatchingViewImp::initSignalAndSlots()
 {
-  connect(mComboBoxMatcher,  &QComboBox::currentTextChanged, this, &FeatureMatchingView::matchMethodChange);
-  connect(mCheckBoxSpatialMatching, SIGNAL(clicked(bool)), this, SIGNAL(spatialMatchingChange(bool)));
+    connect(mComboBoxMatcher, &QComboBox::currentTextChanged, this, &FeatureMatchingView::matchMethodChange);
+    connect(mCheckBoxSpatialMatching, SIGNAL(clicked(bool)), this, SIGNAL(spatialMatchingChange(bool)));
 
-  connect(mButtonBox,                                    &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect(mButtonBox->button(QDialogButtonBox::Apply),   &QAbstractButton::clicked,   this, &FeatureMatchingViewImp::run);
-  connect(mButtonBox->button(QDialogButtonBox::Help),    &QAbstractButton::clicked,   this, &DialogView::help);
+    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &FeatureMatchingViewImp::run);
+    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
 }
 
 void FeatureMatchingViewImp::clear()
 {
-  mCheckBoxSpatialMatching->setChecked(false);
+    mCheckBoxSpatialMatching->setChecked(false);
 }
 
 void FeatureMatchingViewImp::update()
 {
-  int count = mComboBoxMatcher->count();
-  mLabelMatcher->setVisible(count > 1);
-  mComboBoxMatcher->setVisible(count > 1);
+    int count = mComboBoxMatcher->count();
+    mLabelMatcher->setVisible(count > 1);
+    mComboBoxMatcher->setVisible(count > 1);
 }
 
 void FeatureMatchingViewImp::retranslate()
 {
-  this->setWindowTitle(QApplication::translate("FeatureMatchingView", "Feature Matching"));
-  mCheckBoxSpatialMatching->setText(QApplication::translate("FeatureMatchingView", "Spatial Matching", nullptr));
-  mLabelMatcher->setText(QApplication::translate("FeatureMatchingView", "Feature Matching Method:"));
-  mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureMatchingView", "Cancel"));
-  mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureMatchingView", "Run"));
-  mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureMatchingView", "Help"));
+    this->setWindowTitle(QApplication::translate("FeatureMatchingView", "Feature Matching"));
+    mCheckBoxSpatialMatching->setText(QApplication::translate("FeatureMatchingView", "Spatial Matching", nullptr));
+    mLabelMatcher->setText(QApplication::translate("FeatureMatchingView", "Feature Matching Method:"));
+    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("FeatureMatchingView", "Cancel"));
+    mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("FeatureMatchingView", "Run"));
+    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("FeatureMatchingView", "Help"));
 }
 
 void FeatureMatchingViewImp::addMatchMethod(QWidget *matchMethod)
 {
-  mComboBoxMatcher->addItem(matchMethod->windowTitle());
-  mGridLayoutMatcher->addWidget(matchMethod, 0, 0, 1, 2);
-  matchMethod->setVisible(false);
+    mComboBoxMatcher->addItem(matchMethod->windowTitle());
+    mGridLayoutMatcher->addWidget(matchMethod, 0, 0, 1, 2);
+    matchMethod->setVisible(false);
 
-  this->update();
+    this->update();
 }
 
-QString FeatureMatchingViewImp::currentMatchMethod() const
+auto FeatureMatchingViewImp::currentMatchMethod() const -> QString
 {
-  return mComboBoxMatcher->currentText();
+    return mComboBoxMatcher->currentText();
 }
 
-bool FeatureMatchingViewImp::spatialMatching() const
+auto FeatureMatchingViewImp::spatialMatching() const -> bool
 {
-  return mCheckBoxSpatialMatching->isChecked();
+    return mCheckBoxSpatialMatching->isChecked();
 }
 
 void FeatureMatchingViewImp::setSpatialMatching(bool active)
 {
-  mCheckBoxSpatialMatching->setChecked(active);
+    mCheckBoxSpatialMatching->setChecked(active);
 }
 
 void FeatureMatchingViewImp::enabledSpatialMatching(bool enabled)
 {
-  mCheckBoxSpatialMatching->setEnabled(enabled);
+    mCheckBoxSpatialMatching->setEnabled(enabled);
 }
 
 void FeatureMatchingViewImp::setCurrentMatchMethod(const QString &matchMethodName)
 {
-  const QSignalBlocker blocker(mComboBoxMatcher);
-  mComboBoxMatcher->setCurrentText(matchMethodName);
+    const QSignalBlocker blocker(mComboBoxMatcher);
+    mComboBoxMatcher->setCurrentText(matchMethodName);
 
-  for (int idx = 0; idx < mGridLayoutMatcher->count(); idx++){
-    QLayoutItem * const item = mGridLayoutMatcher->itemAt(idx);
-    if(dynamic_cast<QWidgetItem *>(item)){
-      if (item->widget()->windowTitle().compare(matchMethodName) == 0)
-        item->widget()->setVisible(true);
-      else
-        item->widget()->setVisible(false);
+    for (int idx = 0; idx < mGridLayoutMatcher->count(); idx++) {
+        QLayoutItem *const item = mGridLayoutMatcher->itemAt(idx);
+        if (dynamic_cast<QWidgetItem *>(item)) {
+            if (item->widget()->windowTitle().compare(matchMethodName) == 0)
+                item->widget()->setVisible(true);
+            else
+                item->widget()->setVisible(false);
+        }
     }
-  }
 }
 
 } // End namespace graphos

@@ -66,12 +66,14 @@ void GeoreferenceComponent::createView()
 {
     Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
     setView(new GeoreferenceViewImp(nullptr, f));
+    connect(dynamic_cast<GeoreferenceView *>(view()), &GeoreferenceView::select_crs,
+            this, &GeoreferenceComponent::select_crs);
 }
 
 void GeoreferenceComponent::createPresenter()
 {
     setPresenter(new GeoreferencePresenterImp(dynamic_cast<GeoreferenceView *>(view()),
-                 dynamic_cast<GeoreferenceModel *>(model())));
+                                              dynamic_cast<GeoreferenceModel *>(model())));
 }
 
 void GeoreferenceComponent::createCommand()
@@ -86,10 +88,10 @@ void GeoreferenceComponent::update()
     AppStatus *app_status = app->status();
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
-    bool bProjectExists = app_status->isEnabled(AppStatus::Flag::project_exists);
-    bool bProcessing = app_status->isEnabled(AppStatus::Flag::processing);
-    bool bOriented = app_status->isEnabled(AppStatus::Flag::oriented);
-    action()->setEnabled(bProjectExists && bOriented && !bProcessing);
+    bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    bool oriented = app_status->isEnabled(AppStatus::Flag::oriented);
+    action()->setEnabled(project_exists && oriented && !processing);
 }
 
 void GeoreferenceComponent::onRunning()
@@ -118,6 +120,12 @@ void GeoreferenceComponent::onFailed()
 
     TaskComponent::onFailed();
     app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
+}
+
+void GeoreferenceComponent::setCRS(const QString &crs)
+{
+    if (view())
+        dynamic_cast<GeoreferenceView *>(view())->setCrs(crs);
 }
 
 } // namespace graphos

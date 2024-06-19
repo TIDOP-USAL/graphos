@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class FeatureMatchingTask;
-
 class FeatureMatchingComponent
   : public TaskComponent
 {
@@ -41,7 +39,7 @@ class FeatureMatchingComponent
 public:
 
     FeatureMatchingComponent(Application *application);
-    ~FeatureMatchingComponent();
+    ~FeatureMatchingComponent() override;
 
 private:
 

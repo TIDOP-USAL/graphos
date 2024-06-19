@@ -36,7 +36,7 @@ struct TestFeatureMatchingProperties
 {
 
     TestFeatureMatchingProperties()
-        : mFeatureMatching(new FeatureMatchingProperties())
+        : mFeatureMatching(new FeatureMatching())
     {
 
     }

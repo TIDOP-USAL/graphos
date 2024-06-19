@@ -49,10 +49,10 @@ public:
 
 public:
 
-    const tl::Licence &graphosLicence() const override;
-    QString readLicence(const QString &licence) override;
-    const_iterator begin() const override;
-    const_iterator end() const override;
+    auto licence() const -> const tl::Licence& override;
+    auto readLicence(const QString& licence) -> QString override;
+    auto begin() const -> const_iterator override;
+    auto end() const -> const_iterator override;
 
 // Model interface
 

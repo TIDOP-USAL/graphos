@@ -24,10 +24,6 @@
 #ifndef GRAPHOS_SCALE_MODEL_INTERFACE_H
 #define GRAPHOS_SCALE_MODEL_INTERFACE_H
 
-#include <array>
-
-#include <QVector3D>
-
 #include <tidop/math/algebra/matrix.h>
 
 #include "graphos/core/mvp.h"

@@ -88,9 +88,9 @@ void ProgressBarWidget::initUI()
     toolBar->setIconSize(QSize(20, 20));
     layout->addWidget(toolBar, 0, 1);
 
-    ProgressBarWidget::retranslate();
-    ProgressBarWidget::clear();
-    ProgressBarWidget::update();
+    retranslate();
+    clear();
+    update();
 }
 
 void ProgressBarWidget::initSignalAndSlots()

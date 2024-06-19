@@ -43,11 +43,11 @@ public:
 
 public:
 
-    PropertiesParser(const QString &name) : mName(name){}
+    PropertiesParser(QString name) : mName(std::move(name)){}
     virtual ~PropertiesParser() = default;
 
     virtual Properties parse(const QString &fileName) = 0;
-    QString name() const { return mName; }
+    auto name() const -> QString { return mName; }
 	
 private:
 

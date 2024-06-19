@@ -36,26 +36,24 @@ OpenProjectModelImp::OpenProjectModelImp(Project *project,
   : OpenProjectModel(parent),
     mProject(project)
 {
-  OpenProjectModelImp::init();
+    OpenProjectModelImp::init();
 }
 
-OpenProjectModelImp::~OpenProjectModelImp()
-{
-}
+OpenProjectModelImp::~OpenProjectModelImp() = default;
 
-tl::Path OpenProjectModelImp::graphosProjectsDirectory() const
+auto OpenProjectModelImp::graphosProjectsDirectory() const -> tl::Path
 {
-  return Application::instance().documentsLocation();
+    return Application::documentsLocation();
 }
 
 void OpenProjectModelImp::saveProject()
 {
-  mProject->save(mProject->projectPath());
+    mProject->save(mProject->projectPath());
 }
 
 void OpenProjectModelImp::loadProject(const tl::Path &projectPath)
 {
-  mProject->load(projectPath);
+    mProject->load(projectPath);
 }
 
 void OpenProjectModelImp::init()
@@ -64,7 +62,7 @@ void OpenProjectModelImp::init()
 
 void OpenProjectModelImp::clear()
 {
-  mProject->clear();
+    mProject->clear();
 }
 
 } // namespace graphos

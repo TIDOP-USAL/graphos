@@ -39,8 +39,8 @@ OrientationViewImp::OrientationViewImp(QWidget *parent)
     mCheckBoxAbsoluteOrientation(new QCheckBox(this)),
     mButtonBox(new QDialogButtonBox(this))
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    OrientationViewImp::initUI();
+    OrientationViewImp::initSignalAndSlots();
 }
 
 void OrientationViewImp::initUI()
@@ -48,16 +48,16 @@ void OrientationViewImp::initUI()
     this->setObjectName(QString("OrientationView"));
     this->resize(380, 250);
 
-    QGridLayout *gridLayout = new QGridLayout();
-    this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
-    gridLayout->addWidget(mCheckBoxFixCalibration, 0, 0, 1, 2);
-    gridLayout->addWidget(mCheckBoxFixPoses, 1, 0, 1, 2);
-    gridLayout->addWidget(mCheckBoxAbsoluteOrientation, 2, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxFixCalibration, 0, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxFixPoses, 1, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxAbsoluteOrientation, 2, 0, 1, 2);
 
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 3, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 3, 0, 1, 2);
 
     this->retranslate();
     this->clear();
@@ -98,32 +98,32 @@ void OrientationViewImp::retranslate()
     mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("OrientationView", "Help"));
 }
 
-bool OrientationViewImp::fixCalibration() const
+auto OrientationViewImp::fixCalibration() const -> bool
 {
     return mCheckBoxFixCalibration->isChecked();
 }
 
-bool OrientationViewImp::isEnabledCalibration() const
+auto OrientationViewImp::isEnabledCalibration() const -> bool
 {
     return mCheckBoxFixCalibration->isEnabled();
 }
 
-bool OrientationViewImp::absoluteOrientation() const
+auto OrientationViewImp::absoluteOrientation() const -> bool
 {
     return mCheckBoxAbsoluteOrientation->isChecked();
 }
 
-bool OrientationViewImp::isEnabledAbsoluteOrientation() const
+auto OrientationViewImp::isEnabledAbsoluteOrientation() const -> bool
 {
     return mCheckBoxAbsoluteOrientation->isEnabled();
 }
 
-bool OrientationViewImp::fixPoses() const
+auto OrientationViewImp::fixPoses() const -> bool
 {
     return mCheckBoxFixPoses->isChecked();;
 }
 
-bool OrientationViewImp::isEnabledPoses() const
+auto OrientationViewImp::isEnabledPoses() const -> bool
 {
     return mCheckBoxFixPoses->isEnabled();
 }

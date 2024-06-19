@@ -30,8 +30,6 @@
 #include "graphos/core/sfm/posesio.h"
 #include "graphos/core/sfm/groundpoint.h"
 
-//#include <colmap/base/similarity_transform.h>
-
 #include <QStandardPaths>
 
 namespace graphos
@@ -71,7 +69,7 @@ void SaveProjectModelImp::save()
             tl::Affine<double, 3> affine(transform.block(0, 2, 0, 3));
             auto rotation = affine.rotation();
 
-            // Transforma las c·maras
+            // Transforma las c√°maras
             {
 
                 tl::Path poses_path = sfm_path;
@@ -90,15 +88,15 @@ void SaveProjectModelImp::save()
                     point = affine.transform(camera_pose.position());
                     camera_pose.setPosition(point);
 
-                    auto rot = camera_pose.rotationMatrix() * rotation.inverse();
-                    camera_pose.setRotationMatrix(tl::RotationMatrix<double>(rot));
+                    auto rot = tl::Rotation<double,3>(camera_pose.rotationMatrix()) * rotation.inverse();
+                    camera_pose.setRotationMatrix(tl::RotationMatrix<double>(rot.toMatrix()));
 
                     mProject->addPhotoOrientation(image_id, camera_pose);
                 }
 
                 auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
                 poses_writer->setCameraPoses(poses);
-                poses_writer->write(poses_path.replaceBaseName("poses2"));
+                poses_writer->write(poses_path.replaceBaseName("poses"));
             }
 
             /// Transforma los puntos terreno
@@ -116,18 +114,20 @@ void SaveProjectModelImp::save()
 
                 auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
                 gp_writer->setGroundPoints(ground_points);
-                gp_writer->write(ground_points_path.replaceBaseName("ground_points2"));
+                gp_writer->write(ground_points_path.replaceBaseName("ground_points"));
             }
 
             transform = tl::Matrix<double, 4, 4>::identity();
-            //mProject->setTransform(tl::Matrix<double, 4, 4>::identity());
+
         }
 
-    } catch (std::exception &e) {
-        tl::printException(e);
+        mProject->save(mProject->projectPath());
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("Exception detected when saving the project");
     }
 
-    mProject->save(mProject->projectPath());
+
 }
 
 void SaveProjectModelImp::init()

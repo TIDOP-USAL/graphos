@@ -26,7 +26,6 @@
 #include <tidop/core/licence.h>
 #include <tidop/core/path.h>
 
-#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -52,12 +51,12 @@ AboutModelImp::~AboutModelImp()
     }
 }
 
-const tl::Licence &AboutModelImp::graphosLicence() const
+auto AboutModelImp::licence() const -> const tl::Licence&
 {
     return *static_cast<tl::Licence *>(mAppLicence);
 }
 
-QString AboutModelImp::readLicence(const QString &licence)
+auto AboutModelImp::readLicence(const QString& licence) -> QString
 {
     QString licence_text;
 
@@ -73,12 +72,12 @@ QString AboutModelImp::readLicence(const QString &licence)
     return licence_text;
 }
 
-AboutModelImp::const_iterator AboutModelImp::begin() const
+auto AboutModelImp::begin() const -> const_iterator
 {
     return mAppLicence->begin();
 }
 
-AboutModelImp::const_iterator AboutModelImp::end() const
+auto AboutModelImp::end() const -> const_iterator
 {
     return mAppLicence->end();
 }
@@ -89,17 +88,15 @@ void AboutModelImp::init()
 {
     // Lectura de la licencia y de las licencias de terceros
 
-    QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "\\licenses");
-    QFile file(pluginsDir.absoluteFilePath("licence.json"));
-    tl::Path path(pluginsDir.absolutePath().toStdWString());
+    QDir plugins_dir = QDir(QCoreApplication::applicationDirPath() + "\\licenses");
+    QFile file(plugins_dir.absoluteFilePath("licence.json"));
+    tl::Path path(plugins_dir.absolutePath().toStdWString());
 
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    QString json;
-
     if (file.isOpen()) {
 
-        json = file.readAll();
+        QString json = file.readAll();
         file.close();
 
         QJsonDocument json_document = QJsonDocument::fromJson(json.toUtf8());

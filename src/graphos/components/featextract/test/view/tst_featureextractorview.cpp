@@ -46,7 +46,7 @@ public:
 
   TestFeatureExtractorView()
     : FeatureExtractorViewImp(),
-      mSift(new SiftWidgetImp){}
+      mSift(new SiftWidget){}
   ~TestFeatureExtractorView() 
   {
     if (mSift) {

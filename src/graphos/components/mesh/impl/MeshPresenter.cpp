@@ -30,7 +30,7 @@
 #include "graphos/components/mesh/impl/MeshView.h"
 #include "graphos/core/utils.h"
 
-#include <tidop/core/defs.h>
+#include <QMessageBox>
 
 namespace graphos
 {
@@ -41,8 +41,8 @@ MeshPresenterImp::MeshPresenterImp(MeshView *view,
     mView(view),
     mModel(model)
 {
-    this->init();
-    this->initSignalAndSlots();
+    MeshPresenterImp::init();
+    MeshPresenterImp::initSignalAndSlots();
 }
 
 MeshPresenterImp::~MeshPresenterImp()
@@ -57,9 +57,10 @@ void MeshPresenterImp::open()
     if (properties == nullptr) {
         properties = std::make_shared<PoissonReconProperties>();
     }
-    mView->setBoundaryType(properties->boundaryType());
+
+    mView->setBoundaryType(properties->boundaryTypeAsText());
     mView->setDepth(properties->depth());
-    mView->setSolveDepth(properties->solveDepth());
+    //mView->setSolveDepth(properties->solveDepth());
 
     mView->exec();
 }
@@ -100,11 +101,27 @@ void MeshPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     mModel->setMesh(mesh);
 }
 
-std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
+std::unique_ptr<tl::Task> MeshPresenterImp::createTask()
 {
     std::unique_ptr<tl::Task> mesh_task;
 
-    tl::Path point_cloud = mModel->denseModel();
+    tl::Path mesh_model = mModel->mesh();
+
+    if (mesh_model.exists()) {
+        int i_ret = QMessageBox(QMessageBox::Warning,
+            tr("Previous results"),
+            tr("The previous results will be overwritten. Do you wish to continue?"),
+            QMessageBox::Yes | QMessageBox::No).exec();
+        if (i_ret == QMessageBox::No) {
+            tl::Message::warning("Process canceled by user");
+            return mesh_task;
+        }
+    }
+
+    mModel->cleanProject();
+    emit mesh_deleted();
+
+    
     tl::Path mesh = mModel->projectDir();
     mesh.append("dense").append("mesh.pr.ply");
 
@@ -112,21 +129,30 @@ std::unique_ptr<tl::Task> MeshPresenterImp::createProcess()
     if (properties == nullptr) {
         properties = std::make_shared<PoissonReconProperties>();
     }
-    properties->setBoundaryType(mView->boundaryType());
+
+    QString bt = mView->boundaryType();
+    PoissonReconProperties::BoundaryType boundary_type;
+    if (bt == "Free") {
+        boundary_type = PoissonReconProperties::BoundaryType::free;
+    } else if (bt == "Dirichlet") {
+        boundary_type = PoissonReconProperties::BoundaryType::dirichlet;
+    } else {
+        boundary_type = PoissonReconProperties::BoundaryType::neumann;
+    }
+    properties->setBoundaryType(boundary_type);
     properties->setDepth(mView->depth());
-    properties->setSolveDepth(mView->solveDepth());
+    //properties->setSolveDepth(mView->solveDepth());
     mModel->setProperties(properties);
 
-    mesh_task = std::make_unique<PoissonReconTask>(point_cloud,
+    mesh_task = std::make_unique<PoissonReconTask>(mModel->denseModel(),
                                                    mesh);
 
     auto task_parameters = dynamic_cast<PoissonReconProperties *>(mesh_task.get());
     task_parameters->setBoundaryType(properties->boundaryType());
     task_parameters->setDepth(properties->depth());
-    task_parameters->setSolveDepth(properties->solveDepth());
-    task_parameters->setWidth(properties->width());
+    //task_parameters->setSolveDepth(properties->solveDepth());
 
-    mesh_task->subscribe([&](tl::TaskFinalizedEvent* event) {
+    mesh_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
         auto report = dynamic_cast<PoissonReconTask const*>(event->task())->report();
 

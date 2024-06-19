@@ -37,10 +37,10 @@ namespace graphos
 {
 
 
-DatabaseCameras::DatabaseCameras(QString database)
-    : mDatabase(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE")))
+DatabaseCameras::DatabaseCameras(const QString &database)
+  : mDatabase(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE")))
 {
-    mDatabase->setDatabaseName(std::move(database));
+    mDatabase->setDatabaseName(database);
 }
 
 DatabaseCameras::~DatabaseCameras()
@@ -52,18 +52,19 @@ DatabaseCameras::~DatabaseCameras()
         mDatabase = nullptr;
     }
 
-    //QSqlDatabase db = QSqlDatabase::database();
-    //QString name = db.connectionName();
     QSqlDatabase::removeDatabase(name);
 }
 
 void DatabaseCameras::open()
 {
-    bool db_open = false;
-    if (QFileInfo(mDatabase->databaseName()).exists()) {
-        db_open = mDatabase->open();
-    } else {
-        Message::error("The camera database does not exist");
+    try {
+
+        TL_ASSERT(QFileInfo(mDatabase->databaseName()).exists(), "The camera database does not exist");
+
+        TL_ASSERT(mDatabase->open(), "The camera database does not exist");
+
+    } catch (...){
+        TL_THROW_EXCEPTION_WITH_NESTED("Catched exception in open");
     }
 }
 

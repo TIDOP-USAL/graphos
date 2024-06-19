@@ -27,11 +27,6 @@
 
 #include "graphos/components/undistort/UndistortImagesView.h"
 
-//class QDialogButtonBox;
-//class QLabel;
-//class QComboBox;
-
-
 namespace graphos
 {
 

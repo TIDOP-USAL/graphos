@@ -31,7 +31,7 @@ namespace graphos
 {
 
 class CamerasView
-    : public DialogView
+  : public DialogView
 {
 
     Q_OBJECT
@@ -53,23 +53,101 @@ public:
 
 public:
 
+    /*!
+     * \brief Constructor for CamerasView.
+     * \param[in] parent The parent widget.
+     */
     CamerasView(QWidget *parent) : DialogView(parent) {}
-    virtual ~CamerasView() {}
 
-    virtual int activeCamera() const = 0;
+    /*!
+     * \brief Destructor for CamerasView.
+     */
+    ~CamerasView() override = default;
+
+    /*!
+     * \brief Retrieves the ID of the active camera.
+     * \return The ID of the active camera.
+     */
+    virtual auto activeCamera() const -> int = 0;
+
+    /*!
+     * \brief Sets the active camera.
+     * \param[in] id The ID of the camera to set as active.
+     */
     virtual void setActiveCamera(int id) = 0;
 
+    /*!
+     * \brief Enables or disables camera edition.
+     * \param[in] enable Boolean flag indicating whether camera edition should be enabled.
+     */
     virtual void enableCameraEdition(bool enable) = 0;
+
+    /*!
+     * \brief Adds a camera with the given ID and name.
+     * \param[in] cameraId The ID of the camera to add.
+     * \param[in] cameraName The name of the camera to add.
+     */
     virtual void addCamera(int cameraId, const QString &cameraName) = 0;
+
+    /*!
+     * \brief Sets the make of the camera.
+     * \param[in] make The make of the camera.
+     */
     virtual void setMake(const QString &make) = 0;
+
+    /*!
+     * \brief Sets the model of the camera.
+     * \param[in] model The model of the camera.
+     */
     virtual void setModel(const QString &model) = 0;
+
+    /*!
+     * \brief Sets the width of the camera.
+     * \param[in] width The width of the camera.
+     */
     virtual void setWidth(int width) = 0;
+
+    /*!
+     * \brief Sets the height of the camera.
+     * \param[in] height The height of the camera.
+     */
     virtual void setHeight(int height) = 0;
+
+    /*!
+     * \brief Sets the sensor size of the camera.
+     * \param[in] sensorSize The sensor size of the camera.
+     */
     virtual void setSensorSize(const QString &sensorSize) = 0;
+
+    /*!
+     * \brief Sets the focal length of the camera.
+     * \param[in] focal The focal length of the camera.
+     */
     virtual void setFocal(const QString &focal) = 0;
+
+    /*!
+     * \brief Sets the type of the camera.
+     * Types:
+     * - Radial 1
+     * - Radial 2
+     * - Pinhole 1
+     * - Pinhole 2
+     * - OpenCV 1
+     * - OpenCV 2
+     * - OpenCV Fisheye
+     * - Radial Fisheye 1
+     * - Radial Fisheye 2
+     * \param[in] type The type of the camera.
+     */
     virtual void setType(const QString &type) = 0;
+
+    /*!
+     * \brief setImages Sets the images associated with the camera.
+     * \param[in] images The list of images associated with the camera.
+     */
     virtual void setImages(const QStringList &images) = 0;
 
+    // Calibration parameters setters
     virtual void setCalibCx(double cx) = 0;
     virtual void setCalibCy(double cy) = 0;
     virtual void setCalibF(double f) = 0;
@@ -86,6 +164,7 @@ public:
 
 signals:
 
+    // Signals for camera changes
     void cameraChange(int);
     void makeChanged(QString);
     void modelChanged(QString);
@@ -93,10 +172,11 @@ signals:
     void focalChange(QString);
     void typeChange(QString);
 
+    // Signals for calibration import/export
     void calibrationImport(QString, QString);
     void calibrationExport(QString, QString);
-    //void fixCalibration(bool);
 
+    // Calibration parameter change signals
     void calibCxChange(double);
     void calibCyChange(double);
     void calibFChange(double);

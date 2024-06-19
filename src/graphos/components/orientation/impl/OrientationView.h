@@ -45,12 +45,12 @@ public:
 
 public:
 
-    bool fixCalibration() const override;
-    bool isEnabledCalibration() const override;
-    bool absoluteOrientation() const override;
-    bool isEnabledAbsoluteOrientation() const override;
-    bool fixPoses() const override;
-    bool isEnabledPoses() const override;
+    auto fixCalibration() const -> bool override;
+    auto isEnabledCalibration() const -> bool override;
+    auto absoluteOrientation() const -> bool override;
+    auto isEnabledAbsoluteOrientation() const -> bool override;
+    auto fixPoses() const -> bool override;
+    auto isEnabledPoses() const -> bool override;
 
 public slots:
 

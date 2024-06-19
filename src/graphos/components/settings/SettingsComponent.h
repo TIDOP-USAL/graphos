@@ -39,7 +39,7 @@ class SettingsComponent
 public:
 
     SettingsComponent(Application *application);
-    ~SettingsComponent();
+    ~SettingsComponent() override;
 
 // ComponentBase
 

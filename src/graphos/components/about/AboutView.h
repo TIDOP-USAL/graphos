@@ -29,6 +29,12 @@
 namespace graphos
 {
 
+/*!
+* \brief About view
+*
+* The `AboutView` class represents the View interface of the "About" component.
+* It inherits from `DialogView` and provides methods to display information about the application.
+*/
 class AboutView
   : public DialogView
 {
@@ -36,11 +42,43 @@ class AboutView
 
 public:
 
+    /*!
+     * \brief Constructor
+     *
+     * Constructs an `AboutView` object with the specified parent and window flags.
+     *
+     * \param[in] parent Pointer to the parent widget.
+     */
     explicit AboutView(QWidget *parent) : DialogView(parent) {}
+
     ~AboutView() override = default;
 
-    virtual void setGraphosVersion(const QString &version) = 0;
-    virtual void setGraphosLicence(const QString &licence) = 0;
+    /*!
+     * \brief Set the version information
+     *
+     * Sets the version information to be displayed in the view.
+     *
+     * \param[in] version The version string.
+     */
+    virtual void setVersion(const QString &version) = 0;
+
+    /*!
+     * \brief Set the license information
+     *
+     * Sets the application license to be displayed in the view.
+     *
+     * \param[in] licence The license text.
+     */
+    virtual void setLicence(const QString &licence) = 0;
+
+    /*!
+     * \brief Add license information for a third party product
+     *
+     * Adds license information for a specific product to be displayed in the view.
+     *
+     * \param[in] product The name of the product.
+     * \param[in] licence The license text.
+     */
     virtual void addLicence(const QString &product, const QString &licence) = 0;
 };
 

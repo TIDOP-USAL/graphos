@@ -29,9 +29,8 @@
 
 #include <tidop/core/flags.h>
 #include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
 #include <tidop/math/algebra/rotation_matrix.h>
-#include <tidop/math/algebra/quaternion.h>
+
 
 namespace graphos
 {
@@ -71,162 +70,190 @@ public:
     {
         /*!< f, cx, cy, k1 */
         radial1 = CameraType::radial |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focal) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focal) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k1),
         /*!< f, cx, cy, k1, k2 */
         radial2 = CameraType::radial |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focal) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k2),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focal) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k2),
         /*!< f, cx, cy, k1, k2, k3, p1, p2 */
         radial3 = CameraType::radial |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focal) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k2) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k3) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::p1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::p2),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focal) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k2) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k3) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::p1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::p2),
         /*!< f, cx, cy, k1 */
         simple_radial_fisheye = CameraType::radial |
         CameraType::fisheye |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focal) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focal) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k1),
         /*!< f, cx, cy, k1, k2 */
         radial_fisheye = CameraType::radial |
         CameraType::fisheye |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focal) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k2),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focal) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k2),
         /*!< fx, fy, cx, cy, k1, k2, p1, p2 */
         opencv = CameraType::radial |
         CameraType::opencv |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focalx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focaly) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k2) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::p1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::p2),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focalx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focaly) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k2) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::p1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::p2),
         /*!< fx, fy, cx, cy, k1, k2, k3, k4 */
         opencv_fisheye = CameraType::radial |
         CameraType::opencv |
         CameraType::fisheye |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focalx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focaly) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k2) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k3) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k4),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focalx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focaly) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k2) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k3) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k4),
         /*!< fx, fy, cx, cy, k1, k2, p1, p2, k3, k4, k5, k6 */
         opencv_full = CameraType::radial |
         CameraType::opencv |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focalx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focaly) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k2) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k3) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k4) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k5) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::k6) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::p1) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::p2),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focalx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focaly) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k2) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k3) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k4) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k5) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::k6) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::p1) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::p2),
         /*!< f, cx, cy */
         simple_pinhole = CameraType::pinhole |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focal) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy),
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focal) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy),
         /*!< fx, fy, cx, cy */
         pinhole = CameraType::pinhole |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focalx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::focaly) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cx) |
-        static_cast<std::underlying_type<CameraModel>::type>(Parameters::cy)
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focalx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::focaly) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cx) |
+        static_cast<std::underlying_type_t<CameraModel>>(Parameters::cy)
         //fov,                      /*!< fx, fy, cx, cy, omega */
         //thin_prism                /*!< fx, fy, cx, cy, k1, k2, p1, p2, k3, k4, sx1, sy1 */
     };
 
-    typedef std::map<Calibration::Parameters, double>::iterator parameter_iterator;
-    typedef std::map<Calibration::Parameters, double>::const_iterator parameter_const_iterator;
+    using iterator = std::map<Parameters, double>::iterator;
+    using const_iterator = std::map<Parameters, double>::const_iterator;
 
 public:
 
-    Calibration(CameraModel cameraModel);
+    explicit Calibration(CameraModel cameraModel);
     Calibration(const Calibration &calibration);
     Calibration(Calibration &&calibration) TL_NOEXCEPT;
 
     virtual ~Calibration() = default;
 
-    CameraModel cameraModel() const;
-    int cameraModelId() const;
+    /*!
+     * \brief Camera model used
+     * Available camera types are radial1, radial2, radial3, simple_radial_fisheye,
+     * radial_fisheye, opencv, opencv_fisheye, opencv_full, simple_pinhole and pinhole.
+     * \return Camera model
+     * \see CameraModel
+     */
+    auto cameraModel() const -> CameraModel;
 
     /*!
-     * \brief Operador de asignación
+     * \brief Camera model ID
      */
-    Calibration &operator = (const Calibration &calibration);
+    auto cameraModelId() const -> int;
+
+    auto operator =(const Calibration& calibration) -> Calibration&;
+    auto operator =(Calibration&& calibration) TL_NOEXCEPT -> Calibration&;
+
+    auto begin() -> iterator;
+    auto begin() const -> const_iterator;
+    auto end() -> iterator;
+    auto end() const -> const_iterator;
 
     /*!
-     * \brief Operador de asignación de movimiento
+     * \brief Camera model name
+     * The names corresponding to each camera model are:
+     * - radial1 -> Radial 1
+     * - radial2 -> Radial 2
+     * - radial3 -> Radial 3
+     * - simple_radial_fisheye -> Radial Fisheye 1
+     * - radial_fisheye -> Radial Fisheye 2
+     * - opencv -> OpenCV 1
+     * - opencv_fisheye -> OpenCV Fisheye
+     * - opencv_full -> OpenCV 2
+     * - simple_pinhole -> Pinhole 1
+     * - pinhole -> Pinhole 2
+     * \return 
      */
-    Calibration &operator = (Calibration &&calibration) TL_NOEXCEPT;
+    virtual auto name() const -> std::string;
 
     /*!
-     * \brief Devuelve un iterador al inicio del listado de parametros de la calibración
-     * \return Iterador al primer parámetro de calibración
+     * \brief Check if the parameter exists for the camera model
+     * \param[in] parameter Parameter
+     * \see Parameters
      */
-    parameter_iterator parametersBegin();
+    auto existParameter(Parameters parameter) const -> bool;
 
     /*!
-     * \brief Devuelve un iterador constante al inicio del listado de parametros de la calibración
-     * \return Iterador al primer parámetro de calibración
+     * \brief Returns the value of the parameter. If the parameter does not exist it returns 0
+     * \param[in] parameter Parameter
+     * \return Value of the parameter
      */
-    parameter_const_iterator parametersBegin() const;
+    auto parameter(Parameters parameter) const -> double;
 
     /*!
-     * \brief Devuelve un iterador al siguiente elemento después del último parámetro de la calibración
-     * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-     * \return Iterador al siguiente elemento después del último parámetro de la calibración
+     * \brief Sets the value of a parameter
+     * \param[in] parameter Parameter key
+     * \param[in] value Parameter value
      */
-    parameter_iterator parametersEnd();
-
-    /*!
-     * \brief Devuelve un iterador constante al siguiente elemento después del último parámetro de la calibración
-     * Este elemento actúa como un marcador de posición, intentar acceder a él resulta en un comportamiento no definido
-     * \return Iterador constante al siguiente elemento después del último parámetro de la calibración
-     */
-    parameter_const_iterator parametersEnd() const;
-
-    //  parameter_iterator find(Parameters parameter);
-    //  parameter_const_iterator find(Parameters parameter) const;
-
-    virtual std::string name() const = 0;
-
-    std::string parameterName(Parameters parameter) const;
-
-    bool existParameter(Parameters parameter) const;
-    double parameter(Parameters parameter) const;
     void setParameter(Parameters parameter, double value);
 
-    bool checkCameraType(CameraType camera_type) const;
+    /*!
+     * \brief Check if the camera model corresponds to the type of camera.
+     * There are four types of cameras:
+     * - radial
+     * - fisheye
+     * - pinhole
+     * - opencv
+     * \param[in] cameraType Camera type
+     * \return
+     * \see CameraType
+     */
+    auto checkCameraType(CameraType cameraType) const -> bool;
+
+    /*!
+     * \brief string with the name of the parameter
+     * \param[in] parameter Parameter key
+     * \return 
+     */
+    static auto parameterName(Parameters parameter) -> std::string;
 
 protected:
 
-    CameraModel convertFlags(Parameters parameter) const;
-    CameraModel convertFlags(CameraType cameraType) const;
+    static auto convertFlags(Parameters parameter) -> CameraModel;
+    static auto convertFlags(CameraType cameraType) -> CameraModel;
 
 protected:
 
@@ -246,8 +273,8 @@ private:
 
 public:
 
-    static std::shared_ptr<Calibration> create(const std::string &cameraType);
-    static std::shared_ptr<Calibration> create(Calibration::CameraModel cameraModel);
+    static auto create(const std::string &cameraType) -> std::shared_ptr<Calibration>;
+    static auto create(Calibration::CameraModel cameraModel) -> std::shared_ptr<Calibration>;
 };
 
 
@@ -260,12 +287,12 @@ class CalibrationReader
 public:
 
     CalibrationReader();
-    ~CalibrationReader() = default;
+    virtual ~CalibrationReader() = default;
 
     virtual void read(const tl::Path &path) = 0;
-    virtual std::string format() const = 0;
+    virtual auto format() const -> std::string = 0;
 
-    std::unordered_map<size_t, std::shared_ptr<Calibration>> calibrations();
+    auto calibrations() -> std::unordered_map<size_t, std::shared_ptr<Calibration>>;
 
 private:
 
@@ -283,7 +310,7 @@ private:
 
 public:
 
-    static std::unique_ptr<CalibrationReader> create(const std::string &format);
+    static auto create(const std::string& format) -> std::unique_ptr<CalibrationReader>;
 
 };
 
@@ -298,10 +325,10 @@ class CalibrationWriter
 public:
 
     CalibrationWriter();
-    ~CalibrationWriter() = default;
+    virtual ~CalibrationWriter() = default;
 
     virtual void write(const tl::Path &path) = 0;
-    virtual std::string format() const = 0;
+    virtual auto format() const -> std::string = 0;
 
     void setCalibrations(const std::unordered_map<size_t, std::shared_ptr<Calibration>> &calibrations);
 
@@ -320,7 +347,7 @@ private:
 
 public:
 
-    static std::unique_ptr<CalibrationWriter> create(const std::string &format);
+    static auto create(const std::string& format) -> std::unique_ptr<CalibrationWriter>;
 
 };
 

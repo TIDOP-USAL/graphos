@@ -330,9 +330,9 @@ void OrthoimageProcess::execute(tl::Progress *progressBar)
                 i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomRight()));
                 i_coor.push_back(orthorectification.imageToPhotocoordinates(rect_image.bottomLeft()));
 
-                tl::geom::Affine<tl::Point<double>> affine_terrain_image;
-                affine_terrain_image.compute(i_coor, t_coor);
-                scale = (affine_terrain_image.scaleY() + affine_terrain_image.scaleX()) / 2.;
+                tl::Affine<double, 2> affine_terrain_image = tl::Affine2DEstimator<double>::estimate(i_coor, t_coor);
+                //affine_terrain_image.compute(i_coor, t_coor);
+                scale = (affine_terrain_image.scale().x() + affine_terrain_image.scale().y()) / 2.;
             }
 
             // Se reserva tamaño para la orto

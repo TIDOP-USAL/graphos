@@ -35,6 +35,7 @@
 #include <QString>
 #include <QSize>
 
+#include "features/matching.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/image.h"
 #include "graphos/core/features/features.h"
@@ -48,6 +49,7 @@ class QXmlStreamReader;
 
 namespace graphos
 {
+class Sift;
 
 struct DTMData
 {
@@ -245,7 +247,7 @@ public:
     virtual void clearDensification() = 0;
 
     virtual std::shared_ptr<PoissonReconProperties> meshProperties() const = 0;
-    virtual void setProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) = 0;
+    virtual void setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) = 0;
     virtual tl::Path meshPath() const = 0;
     virtual void setMeshPath(const tl::Path &meshPath) = 0;
     virtual MeshReport meshReport() const = 0;
@@ -272,24 +274,9 @@ public:
     virtual const tl::Matrix<double, 4, 4> &transform() const = 0;
     virtual void setTransform(const tl::Matrix<double, 4, 4> &transform) = 0;
 
-    /*!
-     * \brief Limpia el proyecto
-     */
     virtual void clear() = 0;
-
-    /*!
-     * \brief Carga el proyecto
-     * \param[in] file Ruta del fichero de proyecto
-     * \return
-     */
-    virtual bool load(const tl::Path &file) = 0;
-
-    /*!
-     * \brief Guarda el proyecto
-     * \param file
-     * \return
-     */
-    virtual bool save(const tl::Path &file) = 0;
+    virtual void load(const tl::Path &file) = 0;
+    virtual void save(const tl::Path &file) = 0;
 
     /*!
      * \brief checkOldVersion
@@ -395,7 +382,7 @@ public:
     void clearDensification() override;
 
     std::shared_ptr<PoissonReconProperties> meshProperties() const override;
-    void setProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) override;
+    void setMeshProperties(const std::shared_ptr<PoissonReconProperties> &meshProperties) override;
     tl::Path meshPath() const override;
     void setMeshPath(const tl::Path &meshPath) override;
     MeshReport meshReport() const override;
@@ -419,8 +406,8 @@ public:
 
     void clear() override;
 
-    bool load(const tl::Path &file) override;
-    bool save(const tl::Path &file) override;
+    void load(const tl::Path &file) override;
+    void save(const tl::Path &file) override;
     bool checkOldVersion(const tl::Path &file) const override;
     void oldVersionBak(const tl::Path &file) const override;
 
@@ -430,7 +417,7 @@ public:
 
 protected:
 
-    bool read(QXmlStreamReader &stream);
+    void read(QXmlStreamReader &stream);
     void readGeneral(QXmlStreamReader &stream);
     void readDatabase(QXmlStreamReader &stream);
     void readCrs(QXmlStreamReader &stream);
@@ -484,7 +471,7 @@ protected:
     void writeFeatures(QXmlStreamWriter &stream) const;
     void writeFeatureExtractor(QXmlStreamWriter &stream) const;
     void writeFeatureExtractorReport(QXmlStreamWriter &stream) const;
-    void writeSIFT(QXmlStreamWriter &stream, Sift *sift) const;
+    void writeSIFT(QXmlStreamWriter &stream, const Sift *sift) const;
     void writeFeatureFiles(QXmlStreamWriter &stream) const;
     void writeMatches(QXmlStreamWriter &stream) const;
     void writeFeatureMatchingMethod(QXmlStreamWriter &stream) const;

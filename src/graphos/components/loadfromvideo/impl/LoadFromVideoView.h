@@ -88,17 +88,17 @@ public slots:
 
 private:
 
-    void initUI();
-    void initSignalAndSlots();
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-    void clear();
+    void clear() override;
 
 private slots:
 
-    void update();
-    void retranslate();
+    void update() override;
+    void retranslate() override;
 
 protected:
 
@@ -109,9 +109,6 @@ protected:
     QString mVideo;
     QLabel *mLabelVideoViewer;
     QSlider *mSliderVideo;
-    /* QLabel *mLabelVideo;
-     QLineEdit *mLineEditVideo;
-     QPushButton *mPushButtonVideo;*/
     QLabel *mLabelSkipFrames;
     QSpinBox *mSpinBoxSkipFrames;
     QLabel *mLabelVideoIni;
@@ -126,7 +123,7 @@ protected:
     cv::VideoCapture capture;
     QTimer *timer;
     cv::Mat frame;
-    bool isCamera = 0;
+    bool isCamera = false;
 
     tl::EnumFlags<Flag> mFlags;
 

@@ -40,8 +40,8 @@ FeatureExtractorViewImp::FeatureExtractorViewImp(QWidget *parent)
   : FeatureExtractorView(parent),
     mButtonBox(new QDialogButtonBox(this))
 {
-    this->initUI();
-    this->initSignalAndSlots();
+    FeatureExtractorViewImp::initUI();
+    FeatureExtractorViewImp::initSignalAndSlots();
 }
 
 FeatureExtractorViewImp::~FeatureExtractorViewImp()
@@ -53,33 +53,33 @@ void FeatureExtractorViewImp::initUI()
     this->setObjectName(QString("FeatureExtractorView"));
     this->resize(380, 300);
 
-    QGridLayout* gridLayout = new QGridLayout();
-    this->setLayout(gridLayout);
+    auto grid_layout = new QGridLayout();
+    this->setLayout(grid_layout);
 
     mCheckBoxFullImage = new QCheckBox(this);
-    gridLayout->addWidget(mCheckBoxFullImage, 0, 0, 1, 1);
+    grid_layout->addWidget(mCheckBoxFullImage, 0, 0, 1, 1);
 
     mLabelMaxImageSize = new QLabel(this);
-    gridLayout->addWidget(mLabelMaxImageSize, 1, 0, 1, 1);
+    grid_layout->addWidget(mLabelMaxImageSize, 1, 0, 1, 1);
     mSpinBoxMaxImageSize = new QSpinBox(this);
     mSpinBoxMaxImageSize->setRange(100, 100000);
-    gridLayout->addWidget(mSpinBoxMaxImageSize, 1, 1, 1, 1);
+    grid_layout->addWidget(mSpinBoxMaxImageSize, 1, 1, 1, 1);
 
     mLabelDetectorDescriptor = new QLabel(this);
-    gridLayout->addWidget(mLabelDetectorDescriptor, 2, 0, 1, 1);
+    grid_layout->addWidget(mLabelDetectorDescriptor, 2, 0, 1, 1);
     mComboBoxDetectorDescriptor = new QComboBox(this);
-    gridLayout->addWidget(mComboBoxDetectorDescriptor, 2, 1, 1, 1);
+    grid_layout->addWidget(mComboBoxDetectorDescriptor, 2, 1, 1, 1);
 
-    QWidget* widgetFeatureExtractor = new QWidget(this);
-    mGridLayoutDetectorDescriptor = new QGridLayout(widgetFeatureExtractor);
+    auto widget_feature_extractor = new QWidget(this);
+    mGridLayoutDetectorDescriptor = new QGridLayout(widget_feature_extractor);
     mGridLayoutDetectorDescriptor->setContentsMargins(0, 0, 0, 0);
-    gridLayout->addWidget(widgetFeatureExtractor, 3, 0, 1, 2);
+    grid_layout->addWidget(widget_feature_extractor, 3, 0, 1, 2);
 
-    gridLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding), 4, 0, 1, 2);
+    grid_layout->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding), 4, 0, 1, 2);
 
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    gridLayout->addWidget(mButtonBox, 4, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 4, 0, 1, 2);
 
     this->retranslate();
     this->clear();
@@ -98,7 +98,7 @@ void FeatureExtractorViewImp::initSignalAndSlots()
 
 void FeatureExtractorViewImp::clear()
 {
-    const QSignalBlocker blockerMaxImageSize(mSpinBoxMaxImageSize);
+    const QSignalBlocker blocker_max_image_size(mSpinBoxMaxImageSize);
 
     mSpinBoxMaxImageSize->setValue(3000);
     mCheckBoxFullImage->setChecked(false);
@@ -127,26 +127,26 @@ void FeatureExtractorViewImp::onCheckBoxFullImageChange()
     mSpinBoxMaxImageSize->setEnabled(!mCheckBoxFullImage->isChecked());
 }
 
-void FeatureExtractorViewImp::addDetectorDescriptor(QWidget* detectorExtractor)
+void FeatureExtractorViewImp::addDetectorDescriptor(QWidget *detectorDescriptor)
 {
-    mComboBoxDetectorDescriptor->addItem(detectorExtractor->windowTitle());
-    mGridLayoutDetectorDescriptor->addWidget(detectorExtractor, 0, 0, 1, 2);
-    detectorExtractor->setVisible(false);
+    mComboBoxDetectorDescriptor->addItem(detectorDescriptor->windowTitle());
+    mGridLayoutDetectorDescriptor->addWidget(detectorDescriptor, 0, 0, 1, 2);
+    detectorDescriptor->setVisible(false);
 
     this->update();
 }
 
-QString FeatureExtractorViewImp::currentDetectorDescriptor() const
+auto FeatureExtractorViewImp::currentDetectorDescriptor() const -> QString
 {
     return mComboBoxDetectorDescriptor->currentText();
 }
 
-int FeatureExtractorViewImp::maxImageSize() const
+auto FeatureExtractorViewImp::maxImageSize() const -> int
 {
     return mSpinBoxMaxImageSize->value();
 }
 
-bool FeatureExtractorViewImp::fullImageSize() const
+auto FeatureExtractorViewImp::fullImageSize() const -> bool
 {
     return mCheckBoxFullImage->isChecked();
 }

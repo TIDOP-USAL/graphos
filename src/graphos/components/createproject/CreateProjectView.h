@@ -37,53 +37,53 @@ class CreateProjectView
   : public DialogView
 {
 
-  Q_OBJECT
+    Q_OBJECT
 
 public:
 
-  CreateProjectView(QWidget *parent) : DialogView(parent) {}
-  virtual ~CreateProjectView() override = default;
+    CreateProjectView(QWidget *parent) : DialogView(parent) {}
+    ~CreateProjectView() override = default;
 
-  /*!
-   * \brief Return the project name
-   * \return Project name
-   */
-  virtual QString projectName() const = 0;
+    /*!
+     * \brief Return the project name
+     * \return Project name
+     */
+    virtual auto projectName() const -> QString = 0;
 
-  /*!
-   * \brief Returns the project path
-   * \return Project path
-   */
-  virtual QString projectPath() const = 0;
+    /*!
+     * \brief Returns the project path
+     * \return Project path
+     */
+    virtual auto projectPath() const -> QString = 0;
 
-  /*!
-   * \brief Set the project path
-   * \param path Project path
-   */
-  virtual void setProjectPath(const QString &path) = 0;
+    /*!
+     * \brief Set the project path
+     * \param path Project path
+     */
+    virtual void setProjectPath(const QString &path) = 0;
 
-  /*!
-   * \brief Returns the description of the project
-   * \return Project description
-   */
-  virtual QString projectDescription() const = 0;
+    /*!
+     * \brief Returns the description of the project
+     * \return Project description
+     */
+    virtual auto projectDescription() const -> QString = 0;
 
-  /*!
-   * \brief Check if a folder with the name of the project will be created
-   */
-  virtual bool createProjectFolderEnable() const = 0;
+    /*!
+     * \brief Check if a folder with the name of the project will be created
+     */
+    virtual auto createProjectFolderEnable() const -> bool = 0;
 
-  /*!
-   * \brief Sets if the project exists or not
-   * If it already exists, the save button is disabled and the path 
-   * is changed to red.
-   * \param[in] prjExist
-   */
-  virtual void setExistingProject(bool prjExist) = 0;
+    /*!
+     * \brief Sets if the project exists or not
+     * If it already exists, the save button is disabled and the path
+     * is changed to red.
+     * \param[in] prjExist
+     */
+    virtual void setExistingProject(bool prjExist) = 0;
 
 signals:
 
-  void project_name_changed();
+    void project_name_changed();
 };
 
 } // namespace graphos

@@ -42,51 +42,51 @@ namespace graphos
 MatchViewerSettingsWidget::MatchViewerSettingsWidget(QWidget *parent)
     : GraphosWidgetView(parent)
 {
-    initUI();
-    initSignalAndSlots();
+    MatchViewerSettingsWidget::initUI();
+    MatchViewerSettingsWidget::initSignalAndSlots();
 }
 
-QString MatchViewerSettingsWidget::backgroundColor() const
+auto MatchViewerSettingsWidget::backgroundColor() const -> QString
 {
     return mLineEditBackgroundColor->text();
 }
 
-int MatchViewerSettingsWidget::markerType() const
+auto MatchViewerSettingsWidget::markerType() const -> int
 {
     return mListWidgetMarkerType->currentRow();
 }
 
-int MatchViewerSettingsWidget::markerSize() const
+auto MatchViewerSettingsWidget::markerSize() const -> int
 {
     return mSpinBoxMarkerSize->value();
 }
 
-int MatchViewerSettingsWidget::markerWidth() const
+auto MatchViewerSettingsWidget::markerWidth() const -> int
 {
     return mSpinBoxMarkerWidth->value();
 }
 
-QString MatchViewerSettingsWidget::markerColor() const
+auto MatchViewerSettingsWidget::markerColor() const -> QString
 {
     return mLineEditMarkerColor->text();
 }
 
-int MatchViewerSettingsWidget::selectedMarkerWidth() const
+auto MatchViewerSettingsWidget::selectedMarkerWidth() const -> int
 {
     return mSpinBoxSelectMarkerWidth->value();
 }
 
-QString MatchViewerSettingsWidget::selectedMarkerColor() const
+auto MatchViewerSettingsWidget::selectedMarkerColor() const -> QString
 {
     return mLineEditSelectMarkerColor->text();
 }
 
-QString MatchViewerSettingsWidget::lineColor() const
+auto MatchViewerSettingsWidget::lineColor() const -> QString
 {
     return mLineEditLineColor->text();
 }
 
-int MatchViewerSettingsWidget::lineWidth() const
+auto MatchViewerSettingsWidget::lineWidth() const -> int
 {
     return mSpinBoxLineWidth->value();
 }
@@ -197,13 +197,13 @@ void MatchViewerSettingsWidget::retranslate()
 
 void MatchViewerSettingsWidget::clear()
 {
-    const QSignalBlocker blockerKeypointViewerBGColor(mLineEditBackgroundColor);
-    const QSignalBlocker blockerKeypointsMarker(mListWidgetMarkerType);
-    const QSignalBlocker blockerKeypointMarkerSize(mSpinBoxMarkerSize);
-    const QSignalBlocker blockerKeypointViewerWidth(mSpinBoxMarkerWidth);
-    const QSignalBlocker blockerKeypointMarkerColor(mLineEditMarkerColor);
-    const QSignalBlocker blockerSelectKeypointViewerWidth(mSpinBoxSelectMarkerWidth);
-    const QSignalBlocker blockerSelectKeypointViewerColor(mLineEditSelectMarkerColor);
+    const QSignalBlocker blocker_keypoint_viewer_bg_color(mLineEditBackgroundColor);
+    const QSignalBlocker blocker_keypoints_marker(mListWidgetMarkerType);
+    const QSignalBlocker blocker_keypoint_marker_size(mSpinBoxMarkerSize);
+    const QSignalBlocker blocker_keypoint_viewer_width(mSpinBoxMarkerWidth);
+    const QSignalBlocker blocker_keypoint_marker_color(mLineEditMarkerColor);
+    const QSignalBlocker blocker_select_keypoint_viewer_width(mSpinBoxSelectMarkerWidth);
+    const QSignalBlocker blocker_select_keypoint_viewer_color(mLineEditSelectMarkerColor);
 
     mLineEditBackgroundColor->setText("#dcdcdc");
     mListWidgetMarkerType->setCurrentRow(0);
@@ -220,31 +220,31 @@ void MatchViewerSettingsWidget::initUI()
     QGridLayout *layout = new QGridLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    QScrollArea *scrollMatchesViewer = new QScrollArea(this);
-    scrollMatchesViewer->setWidgetResizable(true);
-    scrollMatchesViewer->setFrameShape(QFrame::Shape::NoFrame);
-    QWidget *scrollAreaWidgetContentsViewerMatches = new QWidget(this);
+    QScrollArea *scroll_matches_viewer = new QScrollArea(this);
+    scroll_matches_viewer->setWidgetResizable(true);
+    scroll_matches_viewer->setFrameShape(QFrame::Shape::NoFrame);
+    QWidget *scroll_area_widget_contents_viewer_matches = new QWidget(this);
 
-    QGridLayout *gridLayoutContentsMatchesViewer = new QGridLayout(scrollAreaWidgetContentsViewerMatches);
+    QGridLayout *grid_layout_contents_matches_viewer = new QGridLayout(scroll_area_widget_contents_viewer_matches);
 
     mLabelBackgroundColor = new QLabel(this);
-    gridLayoutContentsMatchesViewer->addWidget(mLabelBackgroundColor, 0, 0, 1, 1);
+    grid_layout_contents_matches_viewer->addWidget(mLabelBackgroundColor, 0, 0, 1, 1);
     mLineEditBackgroundColor = new QLineEdit(this);
     mLineEditBackgroundColor->setText("#dcdcdc");
-    gridLayoutContentsMatchesViewer->addWidget(mLineEditBackgroundColor, 0, 1, 1, 1);
+    grid_layout_contents_matches_viewer->addWidget(mLineEditBackgroundColor, 0, 1, 1, 1);
     mPushButtonBackgroundColor = new QPushButton(tr("..."), this);
     mPushButtonBackgroundColor->setMaximumSize(QSize(23, 23));
-    gridLayoutContentsMatchesViewer->addWidget(mPushButtonBackgroundColor, 0, 2, 1, 1);
+    grid_layout_contents_matches_viewer->addWidget(mPushButtonBackgroundColor, 0, 2, 1, 1);
 
     /* Marker */
 
     mGroupBoxMVMarker = new QGroupBox(this);
-    gridLayoutContentsMatchesViewer->addWidget(mGroupBoxMVMarker, 1, 0, 1, 3);
-    QGridLayout *layoutMVMarker = new QGridLayout();
-    mGroupBoxMVMarker->setLayout(layoutMVMarker);
+    grid_layout_contents_matches_viewer->addWidget(mGroupBoxMVMarker, 1, 0, 1, 3);
+    QGridLayout *layout_mv_marker = new QGridLayout();
+    mGroupBoxMVMarker->setLayout(layout_mv_marker);
 
     mLabelMarkerType = new QLabel(this);
-    layoutMVMarker->addWidget(mLabelMarkerType, 0, 0, 1, 1);
+    layout_mv_marker->addWidget(mLabelMarkerType, 0, 0, 1, 1);
     mListWidgetMarkerType = new QListWidget(this);
     mListWidgetMarkerType->setIconSize(QSize(30, 30));
     mListWidgetMarkerType->setViewMode(QListWidget::ListMode);
@@ -253,81 +253,81 @@ void MatchViewerSettingsWidget::initUI()
     mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_cross.png"), "Cross", mListWidgetMarkerType));
     mListWidgetMarkerType->addItem(new QListWidgetItem(QIcon(":/ico/96/img/icons/keypoint_diag_cross.png"), "Diagonal cross", mListWidgetMarkerType));
     mListWidgetMarkerType->setCurrentRow(0);
-    layoutMVMarker->addWidget(mListWidgetMarkerType, 0, 1, 1, 2);
+    layout_mv_marker->addWidget(mListWidgetMarkerType, 0, 1, 1, 2);
 
     mLabelMarkerSize = new QLabel(this);
-    layoutMVMarker->addWidget(mLabelMarkerSize, 1, 0, 1, 2);
+    layout_mv_marker->addWidget(mLabelMarkerSize, 1, 0, 1, 2);
     mSpinBoxMarkerSize = new QSpinBox(this);
     mSpinBoxMarkerSize->setRange(0, 100);
     mSpinBoxMarkerSize->setValue(20);
-    layoutMVMarker->addWidget(mSpinBoxMarkerSize, 1, 1, 1, 2);
+    layout_mv_marker->addWidget(mSpinBoxMarkerSize, 1, 1, 1, 2);
 
     mLabelMarkerWidth = new QLabel(this);
-    layoutMVMarker->addWidget(mLabelMarkerWidth, 2, 0, 1, 1);
+    layout_mv_marker->addWidget(mLabelMarkerWidth, 2, 0, 1, 1);
     mSpinBoxMarkerWidth = new QSpinBox(this);
     mSpinBoxMarkerWidth->setRange(0, 50);
     mSpinBoxMarkerWidth->setValue(2);
-    layoutMVMarker->addWidget(mSpinBoxMarkerWidth, 2, 1, 1, 2);
+    layout_mv_marker->addWidget(mSpinBoxMarkerWidth, 2, 1, 1, 2);
 
     mLabelMarkerColor = new QLabel(this);
-    layoutMVMarker->addWidget(mLabelMarkerColor, 3, 0, 1, 1);
+    layout_mv_marker->addWidget(mLabelMarkerColor, 3, 0, 1, 1);
     mLineEditMarkerColor = new QLineEdit(this);
     mLineEditMarkerColor->setText("#e5097e");
-    layoutMVMarker->addWidget(mLineEditMarkerColor, 3, 1, 1, 1);
+    layout_mv_marker->addWidget(mLineEditMarkerColor, 3, 1, 1, 1);
     mPushButtonMarkerColor = new QPushButton(tr("..."), this);
     mPushButtonMarkerColor->setMaximumSize(QSize(23, 23));
-    layoutMVMarker->addWidget(mPushButtonMarkerColor, 3, 2, 1, 1);
+    layout_mv_marker->addWidget(mPushButtonMarkerColor, 3, 2, 1, 1);
 
     /* Select matches */
 
     mGroupBoxSelectMatches = new QGroupBox(this);
-    gridLayoutContentsMatchesViewer->addWidget(mGroupBoxSelectMatches, 2, 0, 1, 3);
-    QGridLayout *layoutMVSelectMarker = new QGridLayout();
-    mGroupBoxSelectMatches->setLayout(layoutMVSelectMarker);
+    grid_layout_contents_matches_viewer->addWidget(mGroupBoxSelectMatches, 2, 0, 1, 3);
+    QGridLayout *layout_mv_select_marker = new QGridLayout();
+    mGroupBoxSelectMatches->setLayout(layout_mv_select_marker);
 
     mLabelSelectMarkerWidth = new QLabel(this);
-    layoutMVSelectMarker->addWidget(mLabelSelectMarkerWidth, 0, 0, 1, 1);
+    layout_mv_select_marker->addWidget(mLabelSelectMarkerWidth, 0, 0, 1, 1);
     mSpinBoxSelectMarkerWidth = new QSpinBox(this);
     mSpinBoxSelectMarkerWidth->setRange(0, 50);
     mSpinBoxSelectMarkerWidth->setValue(2);
-    layoutMVSelectMarker->addWidget(mSpinBoxSelectMarkerWidth, 0, 1, 1, 2);
+    layout_mv_select_marker->addWidget(mSpinBoxSelectMarkerWidth, 0, 1, 1, 2);
 
     mLabelSelectMarkerColor = new QLabel(this);
-    layoutMVSelectMarker->addWidget(mLabelSelectMarkerColor, 1, 0, 1, 1);
+    layout_mv_select_marker->addWidget(mLabelSelectMarkerColor, 1, 0, 1, 1);
     mLineEditSelectMarkerColor = new QLineEdit(this);
     mLineEditSelectMarkerColor->setText("#ff0000");
-    layoutMVSelectMarker->addWidget(mLineEditSelectMarkerColor, 1, 1, 1, 1);
+    layout_mv_select_marker->addWidget(mLineEditSelectMarkerColor, 1, 1, 1, 1);
     mPushButtonSelectMarkerColor = new QPushButton(tr("..."), this);
     mPushButtonSelectMarkerColor->setMaximumSize(QSize(23, 23));
-    layoutMVSelectMarker->addWidget(mPushButtonSelectMarkerColor, 1, 2, 1, 1);
+    layout_mv_select_marker->addWidget(mPushButtonSelectMarkerColor, 1, 2, 1, 1);
 
     /* Line */
 
     mGroupBoxLine = new QGroupBox(this);
-    gridLayoutContentsMatchesViewer->addWidget(mGroupBoxLine, 3, 0, 1, 3);
-    QGridLayout *layoutMVLine = new QGridLayout();
-    mGroupBoxLine->setLayout(layoutMVLine);
+    grid_layout_contents_matches_viewer->addWidget(mGroupBoxLine, 3, 0, 1, 3);
+    QGridLayout *layout_mv_line = new QGridLayout();
+    mGroupBoxLine->setLayout(layout_mv_line);
 
     mLabelLineWidth = new QLabel(this);
-    layoutMVLine->addWidget(mLabelLineWidth, 0, 0, 1, 1);
+    layout_mv_line->addWidget(mLabelLineWidth, 0, 0, 1, 1);
     mSpinBoxLineWidth = new QSpinBox(this);
     mSpinBoxLineWidth->setRange(0, 50);
     mSpinBoxLineWidth->setValue(2);
-    layoutMVLine->addWidget(mSpinBoxLineWidth, 0, 1, 1, 2);
+    layout_mv_line->addWidget(mSpinBoxLineWidth, 0, 1, 1, 2);
 
     mLabelLineColor = new QLabel(this);
-    layoutMVLine->addWidget(mLabelLineColor, 1, 0, 1, 1);
+    layout_mv_line->addWidget(mLabelLineColor, 1, 0, 1, 1);
     mLineEditLineColor = new QLineEdit(this);
     mLineEditLineColor->setText("#e5097e");
-    layoutMVLine->addWidget(mLineEditLineColor, 1, 1, 1, 1);
+    layout_mv_line->addWidget(mLineEditLineColor, 1, 1, 1, 1);
     mPushButtonLineColor = new QPushButton(tr("..."), this);
     mPushButtonLineColor->setMaximumSize(QSize(23, 23));
-    layoutMVLine->addWidget(mPushButtonLineColor, 1, 2, 1, 1);
+    layout_mv_line->addWidget(mPushButtonLineColor, 1, 2, 1, 1);
 
-    gridLayoutContentsMatchesViewer->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding), 4, 1, 1, 1);
+    grid_layout_contents_matches_viewer->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding), 4, 1, 1, 1);
 
-    scrollMatchesViewer->setWidget(scrollAreaWidgetContentsViewerMatches);
-    layout->addWidget(scrollMatchesViewer);
+    scroll_matches_viewer->setWidget(scroll_area_widget_contents_viewer_matches);
+    layout->addWidget(scroll_matches_viewer);
 
     retranslate();
     clear();

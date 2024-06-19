@@ -43,18 +43,17 @@ ProjectFake::ProjectFake()
                      "</Graphos>";
 }
 
-bool ProjectFake::load(const tl::Path &file)
+void ProjectFake::load(const tl::Path &file)
 {
     QXmlStreamReader stream;
     stream.addData(mProjectFileText);
 
-    return this->read(stream);
+    this->read(stream);
 }
 
-bool ProjectFake::save(const tl::Path& file)
+void ProjectFake::save(const tl::Path& file)
 {
     mProjectPath = file;
-    return false;
 }
 
 } // end namespace graphos

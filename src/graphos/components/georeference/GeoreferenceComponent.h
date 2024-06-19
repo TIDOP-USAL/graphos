@@ -39,11 +39,19 @@ class GeoreferenceComponent
 public:
 
     GeoreferenceComponent(Application *application);
-    ~GeoreferenceComponent();
+    ~GeoreferenceComponent() override;
+
+public slots:
+
+    void setCRS(const QString &crs);
 
 private:
 
     void init();
+
+signals:
+
+    void select_crs();
 
 // ComponentBase
 
