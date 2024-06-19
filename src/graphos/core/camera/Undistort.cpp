@@ -29,6 +29,7 @@
 #include <tidop/img/imgreader.h>
 #include <tidop/img/imgwriter.h>
 
+#include <opencv2/imgproc.hpp>
 #include <opencv2/calib3d.hpp>
 #ifdef HAVE_OPENCV_CUDAWARPING
 #include <opencv2/cudawarping.hpp>

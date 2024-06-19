@@ -23,12 +23,10 @@
 
 #include "graphos/graphos_global.h"
 
-#ifdef GRAPHOS_GUI
 #include "MainWindowView.h"
 #include "MainWindowModel.h"
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
-#endif // GRAPHOS_GUI
 
 #include "graphos/core/project.h"
 #include "graphos/core/Application.h"
@@ -122,6 +120,7 @@
 #ifdef GRAPHOS_HAVE_VIDEO_LOAD
 #include "graphos/components/loadfromvideo/LoadFromVideoComponent.h"
 #endif // GRAPHOS_HAVE_VIDEO_LOAD
+#include "graphos/components/crs/CoordinateReferenceSystemComponent.h"
 
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
@@ -370,8 +369,6 @@ int main(int argc, char *argv[])
 
     } else {
 
-#ifdef GRAPHOS_GUI
-
         //    TL_TODO("Añadir como opción")
 #if defined WIN32
         HWND hwnd = GetConsoleWindow();
@@ -478,6 +475,14 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_GEOREFERENCE
         componentsManager.registerComponent(&georeference_component,
                                             ComponentsManager::Flags::separator_before);
+        QObject::connect(&georeference_component, &GeoreferenceComponent::select_crs, [&]() {
+            CoordinateReferenceSystemComponent crs_component(&app);
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                             &georeference_component, &GeoreferenceComponent::setCRS);
+
+            crs_component.open();
+                //CoordinateReferenceSystemComponent crs_component(&app);
+        });
 #endif // GRAPHOS_HAVE_GEOREFERENCE
 
 #ifdef GRAPHOS_HAVE_SCALE
@@ -678,7 +683,6 @@ int main(int argc, char *argv[])
         ShowWindow(hwnd, 1);
 #endif
 
-#endif // GRAPHOS_GUI
     }
 
 

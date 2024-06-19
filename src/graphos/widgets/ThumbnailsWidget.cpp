@@ -250,32 +250,36 @@ void ThumbnailsWidget::onSelectionChanged()
 
 void ThumbnailsWidget::loadVisibleImages()
 {
-    if (mListWidget->count() == 0) return;
+    try {
+        if (mListWidget->count() == 0) return;
 
-    QRect rect = mListWidget->viewport()->rect();
-    QRegion region = mListWidget->viewport()->visibleRegion();
+        QRect rect = mListWidget->viewport()->rect();
+        QRegion region = mListWidget->viewport()->visibleRegion();
 
-    mLoadImages = false;
+        mLoadImages = false;
 
-    for (int i = 0; i < mListWidget->count(); i++) {
-        QModelIndex idx = mListWidget->model()->index(i, 0);
-        QRect idx_rect = mListWidget->visualRect(idx);
-        if (region.contains(idx_rect) || region.intersects(idx_rect)) {
-            auto item = mListWidget->item(i);
-            if (!item->data(Qt::UserRole + 1).toBool()) {
+        for (int i = 0; i < mListWidget->count(); i++) {
+            QModelIndex idx = mListWidget->model()->index(i, 0);
+            QRect idx_rect = mListWidget->visualRect(idx);
+            if (region.contains(idx_rect) || region.intersects(idx_rect)) {
+                auto item = mListWidget->item(i);
+                if (!item->data(Qt::UserRole + 1).toBool()) {
 
-                mLoadImages = true;
+                    mLoadImages = true;
 
-                item->setData(Qt::UserRole + 1, true);
+                    item->setData(Qt::UserRole + 1, true);
 
-                mThumbLoad->push(std::make_shared<LoadThumbnailTask>(item, mListWidget));
+                    mThumbLoad->push(std::make_shared<LoadThumbnailTask>(item, mListWidget));
+
+                }
 
             }
-
         }
-    }
 
-    mThumbLoad->runAsync();
+        mThumbLoad->runAsync();
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
 }
 
 void ThumbnailsWidget::onThumbnailClicked()

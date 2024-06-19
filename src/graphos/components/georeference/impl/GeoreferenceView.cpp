@@ -331,13 +331,18 @@ void GeoreferenceViewImp::initUI()
     mActionGeoreference = new QAction(this);
     tool_bar->addAction(mActionGeoreference);
 
-    grid_layout->addWidget(tool_bar, 0, 0, 1, 2);
+    grid_layout->addWidget(tool_bar, 0, 0, 1, 5);
 
     mLabelCRS = new QLabel(this);
     grid_layout->addWidget(mLabelCRS, 1, 0, 1, 1);
     mLineEditCRS = new QLineEdit(this);
-    mLineEditCRS->setMaximumWidth(250);
+    mLineEditCRS->setMaximumWidth(200);
+    mLineEditCRS->setDisabled(true);
     grid_layout->addWidget(mLineEditCRS, 1, 1, 1, 1);
+    mQPushButtonCRS = new QPushButton(this);
+    mQPushButtonCRS->setMaximumSize(QSize(31, 28));
+    mQPushButtonCRS->setText("...");
+    grid_layout->addWidget(mQPushButtonCRS, 1, 2, 1, 1);
 
     auto grid_layout2 = new QGridLayout();
 
@@ -354,22 +359,22 @@ void GeoreferenceViewImp::initUI()
     mTableViewImagePoints = new QTableView(this);
     grid_layout2->addWidget(mTableViewImagePoints, 5, 0, 1, 1);
 
-    grid_layout->addLayout(grid_layout2, 2, 0, 2, 2);
+    grid_layout->addLayout(grid_layout2, 2, 0, 2, 3);
 
     mLabelImage = new QLabel(this);
-    grid_layout->addWidget(mLabelImage, 1, 3, 1, 1);
+    grid_layout->addWidget(mLabelImage, 1, 4, 1, 1);
 
     mComboBoxImages = new QComboBox(this);
-    grid_layout->addWidget(mComboBoxImages, 1, 4, 1, 1);
+    grid_layout->addWidget(mComboBoxImages, 1, 5, 1, 1);
 
     mGraphicViewerWidget = new GraphicViewer(this);
     mGraphicViewerWidget->setMinimumSize(QSize(541, 441));
-    grid_layout->addWidget(mGraphicViewerWidget, 2, 2, 1, 3);
+    grid_layout->addWidget(mGraphicViewerWidget, 2, 3, 1, 3);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok | QDialogButtonBox::Help);
-    grid_layout->addWidget(mButtonBox, 3, 0, 1, 5);
+    grid_layout->addWidget(mButtonBox, 4, 0, 1, 6);
 
     this->retranslate();
     this->update();
@@ -391,6 +396,7 @@ void GeoreferenceViewImp::initSignalAndSlots()
     connect(mActionGeoreference, &QAction::triggered, this, &GeoreferenceViewImp::georeference);
 
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &GeoreferenceView::crsChange);
+    connect(mQPushButtonCRS, &QAbstractButton::clicked, this, &GeoreferenceView::select_crs);
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
@@ -399,7 +405,6 @@ void GeoreferenceViewImp::initSignalAndSlots()
 
 void GeoreferenceViewImp::clear()
 {
-
     update();
 }
 
