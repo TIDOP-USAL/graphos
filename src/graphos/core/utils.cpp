@@ -202,7 +202,7 @@ bool cudaEnabled()
     }
 
 #else
-    msgWarning("No Cuda support enabled. The processing time will increase significantly");
+    tl::Message::warning("No Cuda support enabled. The processing time will increase significantly");
 #endif
 
     return bUseGPU;
