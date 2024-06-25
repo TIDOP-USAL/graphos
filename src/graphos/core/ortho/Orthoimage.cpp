@@ -33,9 +33,52 @@
 #include <opencv2/cudaarithm.hpp>
 #endif
 #include <opencv2/imgproc.hpp>
+#include <opencv2/photo.hpp>
 
 namespace graphos
 {
+
+cv::Mat createBlackPixelMask(const cv::Mat &image, double areaThreshold, bool upper) 
+{
+    try {
+        // Convert the image to grayscale if it's not already
+        cv::Mat gray;
+        if (image.channels() != 1) {
+            cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+        } else {
+            gray = image.clone();
+        }
+
+        // Create an initial mask for black pixels (value 0)
+        cv::Mat blackMask = (gray == 0);
+
+        // Find connected components to identify areas
+        cv::Mat labels, stats, centroids;
+        int numComponents = cv::connectedComponentsWithStats(blackMask, labels, stats, centroids);
+
+        // Create a new mask to store the valid black pixels
+        cv::Mat finalMask = cv::Mat::zeros(image.size(), CV_8U);
+
+        // Iterate through each component
+        for (int i = 0; i < numComponents; i++) { 
+            int area = stats.at<int>(i, cv::CC_STAT_AREA);
+            //int width = stats.at<int>(i, cv::CC_STAT_WIDTH);
+            //int height = stats.at<int>(i, cv::CC_STAT_HEIGHT);
+
+            // Check if the area is less than or equal to 4 and within a 2x2 bounding box
+            if ((upper && area > areaThreshold) || area <= areaThreshold /*&& width <= 2 && height <= 2*/) {
+                cv::Mat componentMask = (labels == i);
+                finalMask |= componentMask;
+            }
+        }
+
+        return finalMask;
+
+    } catch (std::exception &e) {
+        tl::printException(e);
+    }
+}
+
 
 Orthoimage::Orthoimage(const tl::Path &image,
                        Orthorectification *orthorectification,
@@ -197,6 +240,13 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
                                .rowRange(window_ortho_in.pt1.y, window_ortho_in.pt2.y));
                 }
             }
+        }
+
+
+        // Relleno de pixeles negros
+        {
+            //cv::Mat blackPixelMask = createBlackPixelMask(mat_ortho);
+            //cv::inpaint(mat_ortho, blackPixelMask, mat_ortho, 3, cv::INPAINT_TELEA);
         }
 
         mOrthophotoWriter->setCRS(mCrs.toWktFormat());

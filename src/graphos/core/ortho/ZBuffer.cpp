@@ -154,7 +154,7 @@ void ZBuffer::run()
                             double old_row = mY.at<int>(pt_image.y, pt_image.x);
                             double old_col = mX.at<int>(pt_image.y, pt_image.x);
 
-                            if (z_buffer_distance == 0. || distance < z_buffer_distance){
+                            if (z_buffer_distance == 0. || distance < z_buffer_distance + 0.25){
                                 cv::Mat mask_image = cv::Mat::zeros(window_image_in.height(), window_image_in.width(), CV_8U);
                                 std::vector<cv::Point> pts;
                                 for (int k = 0; k < photo_image_coordinates.size(); k++) {

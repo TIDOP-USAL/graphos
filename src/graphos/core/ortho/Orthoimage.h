@@ -43,6 +43,8 @@ namespace graphos
 class Orthorectification;
 class ZBuffer;
 
+cv::Mat createBlackPixelMask(const cv::Mat &image, double areaThreshold = 4, bool upper = false);
+
 /*!
  * \brief Orthoimage
  */

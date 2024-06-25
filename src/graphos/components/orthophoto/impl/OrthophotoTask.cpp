@@ -41,6 +41,7 @@
 /* OpenCV */
 #include <opencv2/stitching.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/photo.hpp>
 
 namespace graphos
 {
@@ -162,6 +163,59 @@ constexpr double exposure_compensator_factor = 0.5;
 //
 //    return grid;
 //}
+
+std::vector<tl::WindowD> findGrid(const tl::Path &footprint_file, double gsd)
+{
+    std::vector<tl::WindowD> grid;
+
+    tl::WindowD window_all;
+
+    std::unique_ptr<tl::VectorReader> vectorReader = tl::VectorReaderFactory::create(footprint_file);
+    vectorReader->open();
+    if (vectorReader->isOpen()) {
+        if (vectorReader->layersCount() >= 1) {
+
+            std::map<double, std::shared_ptr<tl::GPolygon>> entities;
+            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+
+            /// Busqueda ventana total
+            for (const auto &entity : *layer) {
+                std::shared_ptr<tl::GPolygon> polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
+                std::shared_ptr<tl::TableRegister> data = polygon->data();
+                tl::WindowD window = polygon->window();
+                // Esto lo estoy recalculando cada vez...
+                //grid_step = std::min(window.width(), window.height());
+                window_all = tl::joinWindow(window_all, window);
+            }
+
+            double grid_step = 256 * gsd;
+
+            int grid_horizontal_size = static_cast<int>(window_all.width() / grid_step);
+            int grid_vertical_size = static_cast<int>(window_all.height() / grid_step);
+
+            double x_ini = window_all.pt1.x + grid_step / 2.;
+            double y_ini = window_all.pt2.y - grid_step / 2.;
+
+            grid.emplace_back(tl::Point<double>(x_ini, y_ini), grid_step * 2);
+
+            tl::Point<double> point;
+            for (size_t i = 0; i < grid_horizontal_size; i++) {
+
+                point.x = x_ini + grid_step * i;
+
+                for (size_t j = 0; j < grid_vertical_size; j++) {
+
+                    point.y = y_ini - grid_step * j;
+
+                    grid.emplace_back(point, grid_step * 2);
+                }
+            }
+        }
+    }
+
+    return grid;
+}
+
 
 std::shared_ptr<tl::GPolygon> bestImage(const tl::Point<double> &pt, std::shared_ptr<tl::GLayer> layer)
 {
@@ -310,6 +364,253 @@ void findOptimalFootprint(const tl::Path &footprint_file,
         ////
     }
 }
+
+void orthoMosaic(const tl::Path &graph_orthos,
+                 const tl::Path &ortho_path, 
+                 double res_ortho, 
+                 const tl::Crs &crs, 
+                 const std::vector<std::vector<tl::WindowD>> &grid)
+{
+    try {
+
+        tl::WindowD window_all;
+        std::vector<std::vector<std::map<double,std::string>>> orthos(grid.size());
+
+        std::unique_ptr<tl::VectorReader> vectorReader;
+        vectorReader = tl::VectorReaderFactory::create(graph_orthos);
+        vectorReader->open();
+
+        TL_ASSERT(vectorReader->isOpen(), "");
+
+        if (vectorReader->layersCount() >= 1) {
+
+            std::shared_ptr<tl::GLayer> layer = vectorReader->read(0);
+
+            for (size_t r = 0; r < grid.size(); r++) {
+
+                orthos[r].resize(grid[r].size());
+
+                for (size_t c = 0; c < grid[r].size(); c++) {
+
+                    const auto &window = grid[r][c];
+                    window_all = joinWindow(window_all, window);
+                    auto window_center = window.center();
+                    //double min_distance = std::numeric_limits<double>::max();
+
+                    // Se busca la mejor ortoimagen
+                    for (const auto &entity : *layer) {
+                    
+                        tl::GraphicEntity::Type type = entity->type();
+                        if (type == tl::GraphicEntity::Type::polygon_2d) {
+                            auto polygon = std::dynamic_pointer_cast<tl::GPolygon>(entity);
+                            auto window_orto = polygon->window();
+                            auto orto_center = window_orto.center();
+                            auto dist = tl::distance(orto_center, window_center);
+                            //if (dist < min_distance) {
+                            //    min_distance = dist;
+                            //    orthos[r][c] = polygon->data()->value(0);
+                            //}
+                            orthos[r][c][dist] = polygon->data()->value(0);
+                        }
+
+                    }
+
+                }
+            }
+        }
+        
+
+        /// Escritura de los tiles con solape
+
+
+        for (size_t r = 0; r < grid.size(); r++) {
+            for (size_t c = 0; c < grid[r].size(); c++) {
+
+                const auto &window = grid[r][c];
+
+                auto &ortho_it = orthos[r][c].begin();
+
+                cv::Mat read_image;
+                tl::WindowD window_to_read;
+                {
+                    auto image_reader = tl::ImageReaderFactory::create(ortho_it->second/*orthos[r][c]*/);
+                    image_reader->open();
+                    if (!image_reader->isOpen()) {
+                        tl::Message::error("Image open error :{}", ortho_it->second/*orthos[r][c]*/);
+                        continue;
+                    }
+
+                    if (!intersectWindows(image_reader->window(), window)) continue;
+
+                    auto window_aux = tl::expandWindow(window, 50 * res_ortho);
+                    window_to_read = tl::windowIntersection(image_reader->window(), window_aux);
+
+                    read_image = image_reader->read(window_to_read);
+                    image_reader->close();
+                }
+                /// Si la imagen está incompleta se rellena
+
+                //cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
+                cv::Mat gray;
+                if (read_image.channels() != 1) {
+                    cv::cvtColor(read_image, gray, cv::COLOR_BGR2GRAY);
+                } else {
+                    gray = read_image.clone();
+                }
+
+                // Create an initial mask for black pixels (value 0)
+                cv::Mat blackMask = (gray == 0);
+
+                // Find connected components to identify areas
+                cv::Mat labels, stats, centroids;
+                int numComponents = cv::connectedComponentsWithStats(blackMask, labels, stats, centroids);
+
+                // Create a new mask to store the valid black pixels
+                //cv::Mat finalMask = cv::Mat::zeros(gray.size(), CV_8U);
+
+                // Iterate through each component
+                //for (int i = 1; i < numComponents; i++) {  // Start from 1 to ignore the background
+                for (int i = 0; i < numComponents; i++) {
+                    int area = stats.at<int>(i, cv::CC_STAT_AREA);
+                    if (area > 1024) {
+                        cv::Mat componentMask = (labels == i);
+                        //finalMask |= componentMask;
+                        ortho_it++;
+                        tl::ImageReader::Ptr image_reader2 = tl::ImageReaderFactory::create(ortho_it->second);
+                        for (auto it = ortho_it; it != orthos[r][c].end(); it++) {
+
+                            tl::ImageReader::Ptr image_reader2 = tl::ImageReaderFactory::create(it->second);
+
+                            if (!image_reader2->isOpen()) {
+                                tl::Message::error("Image open error :{}", it->second);
+                                continue;
+                            }
+
+                            if (!intersectWindows(image_reader2->window(), window)) continue;
+
+                            auto window_aux = tl::expandWindow(window, 50 * res_ortho);
+                            auto window_to_read = tl::windowIntersection(image_reader2->window(), window_aux);
+
+                            cv::Mat second_image = image_reader2->read(window_to_read);
+                            image_reader2->close();
+                            cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
+                            cv::Mat finalMask = componentMask;
+                            finalMask |= blackPixelMask;
+
+                            // Se tiene que comprobar solo en el area de la componente
+                            int numBlackPixels = finalMask.size().area() - cv::countNonZero(finalMask);                                    
+                            if (numBlackPixels < 1024) {
+                                cv::Mat result;
+                                cv::seamlessClone(second_image, read_image, componentMask, cv::Point(read_image.cols / 2, read_image.rows / 2), result, cv::NORMAL_CLONE);
+                                read_image = result;
+                            }
+                        }
+                    }
+
+                    //for (; ortho_it != orthos[r][c].end(); ortho_it++) {
+                    //    auto image_reader = tl::ImageReaderFactory::create(ortho_it->second);
+
+                    //    if (!image_reader->isOpen()) {
+                    //        tl::Message::error("Image open error :{}", ortho_it->second);
+                    //        continue;
+                    //    }
+
+                    //    if (!intersectWindows(image_reader->window(), window)) continue;
+
+                    //    auto window_aux = tl::expandWindow(window, 50 * res_ortho);
+                    //    auto window_to_read = tl::windowIntersection(image_reader->window(), window_aux);
+
+                    //    cv::Mat second_image = image_reader->read(window_to_read);
+                    //    image_reader->close();
+                    //    cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
+
+                    //}
+
+                }
+
+                tl::Path tile(ortho_path);
+                tile.append(std::to_string(r));
+                tile.append(std::to_string(c));
+                tile.createDirectories();
+                tile.append("t.tif");
+                auto image_writer = tl::ImageWriterFactory::create(tile);
+                image_writer->open();
+                int cols = static_cast<int>(std::round(window_to_read.width() / res_ortho));
+                int rows = static_cast<int>(std::round(window_to_read.height() / res_ortho));
+
+                image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
+                image_writer->setCRS(crs.toWktFormat());
+                tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_to_read.pt1.x, window_to_read.pt2.y, 0.0);
+                image_writer->setGeoreference(affine_ortho);
+                image_writer->write(read_image);
+                image_writer->close();
+            }
+        }
+
+        /// Escritura de la orto
+        tl::Path ortho_final(ortho_path);
+        ortho_final.append("ortho.tif");
+        std::unique_ptr<tl::ImageWriter> image_writer = tl::ImageWriterFactory::create(ortho_final);
+        image_writer->open();
+        int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
+        int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
+
+        if (image_writer->isOpen()) {
+            image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
+            image_writer->setCRS(crs.toWktFormat());
+            tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_all.pt1.x, window_all.pt2.y, 0.0);
+            image_writer->setGeoreference(affine_ortho);
+
+            for (size_t r = 0; r < grid.size(); r++) {
+                for (size_t c = 0; c < grid[r].size(); c++) {
+
+                    const auto &window = grid[r][c];
+                    auto image_reader = tl::ImageReaderFactory::create(orthos[r][c].begin()->second);
+                    image_reader->open();
+                    if (!image_reader->isOpen()) {
+                        tl::Message::error("Image open error :{}", orthos[r][c].begin()->second);
+                        continue;
+                    }
+
+                    if (!intersectWindows(image_reader->window(), window) /*||
+                        !intersectWindows(image_reader_seam->window(), window)*/) continue;
+
+                    auto georef = image_reader->georeference();
+
+                    double scale_x = georef.scale().x();
+                    double scale_y = georef.scale().y();
+                    double read_scale_x = scale_x / res_ortho;
+                    double read_scale_y = scale_y / res_ortho;
+
+                    //auto inverse_transform = georef.inverse();
+                    //tl::Point<double> p1 = inverse_transform.transform(window.pt1);
+                    //tl::Point<double> p2 = inverse_transform.transform(window.pt2);
+                    //tl::WindowI window_to_read(static_cast<tl::Point<int>>(p1), static_cast<tl::Point<int>>(p2));
+                    //window_to_read.normalized();
+
+                    tl::Affine<int, 2> affine;
+                    cv::Mat compensate_image = image_reader->read(window, read_scale_x, read_scale_y, &affine);
+                    // Relleno de pixeles negros
+                    cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
+                    cv::inpaint(compensate_image, blackPixelMask, compensate_image, 3, cv::INPAINT_TELEA);
+
+                    auto affine_ortho_inverse = affine_ortho.inverse();
+                    tl::Point<double> p1_ortho = affine_ortho_inverse.transform(window.pt1);
+                    tl::Point<double> p2_ortho = affine_ortho_inverse.transform(window.pt2);
+                    tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
+                    window_to_write.normalized();
+                    if (window_to_write.isValid())
+                        image_writer->write(compensate_image, window_to_write);
+                }
+            }
+
+        }
+
+    } catch(std::exception &e){
+        tl::printException(e);
+    }
+}
+
 
 void orthoMosaic(tl::Path &optimal_footprint_path,
                  tl::Path &ortho_path,
@@ -620,8 +921,8 @@ void orthoMosaic(tl::Path &optimal_footprint_path,
             blender->blend(ortho_blend, mask_blend);
             ortho_blend.convertTo(ortho_blend, CV_8U);
 
-            affine_ortho.transform(grid[i].pt1);
-            affine_ortho.transform(grid[i].pt2);
+            //affine_ortho.transform(grid[i].pt1);
+            //affine_ortho.transform(grid[i].pt2);
             auto affine_ortho_inverse = affine_ortho.inverse();
             tl::Point<double> p1 = affine_ortho_inverse.transform(grid[i].pt1);
             tl::Point<double> p2 = affine_ortho_inverse.transform(grid[i].pt2);
@@ -735,6 +1036,7 @@ std::vector<tl::WindowD> OrthophotoTask::findGrid(const tl::Path &mdt, double gs
             //grid_to_save.push_back(polygon);
             /////
         }
+
     }
 
     /////
@@ -769,6 +1071,42 @@ std::vector<tl::WindowD> OrthophotoTask::findGrid(const tl::Path &mdt, double gs
     return grid;
 }
 
+std::vector<std::vector<tl::WindowD>> OrthophotoTask::findGrid2(const tl::Path &mdt, double gsd)
+{
+    std::vector<std::vector<tl::WindowD>> grid;
+
+    auto reader = tl::ImageReaderFactory::create(mdt);
+    reader->open();
+    TL_ASSERT(reader->isOpen(), "Can not open the MDT");
+    auto window = reader->window();
+    int step_x = std::ceil(window.width() / (gsd * 255.));
+    int step_y = std::ceil(window.height() / (gsd * 255.));
+
+    auto center = window.center();
+
+    double x_ini = center.x - ((step_x-1) * gsd * 255.) / 2.;
+    double y_ini = center.y + ((step_y-1) * gsd * 255.) / 2.;
+
+    tl::Point<double> point;
+    for (size_t i = 0; i < step_x; i++) {
+
+        std::vector<tl::WindowD> row_grid;
+
+        point.x = x_ini + (gsd * 255.) * i;
+
+        for (size_t j = 0; j < step_y; j++) {
+
+            point.y = y_ini - (gsd * 255.) * j;
+            row_grid.emplace_back(point, (gsd * 255.));
+
+        }
+
+        grid.push_back(row_grid);
+    }
+
+    return grid;
+}
+
 void OrthophotoTask::execute(tl::Progress *progressBar)
 {
 
@@ -779,35 +1117,41 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         tl::Path graph_orthos = tl::Path(footprint_file).replaceBaseName("graph_orthos");
         tl::Crs crs(mEpsg.toStdString());
 
-        OrthoimageProcess ortho_process(mPhotos,
-                                        mCameras,
-                                        mMdt,
-                                        mOrthoPath,
-                                        graph_orthos,
-                                        crs,
-                                        footprint_file,
-                                        mGSD,
-                                        0.8/*0.4*/,
-                                        bCuda);
-        ortho_process.run(progressBar);
+        //OrthoimageProcess ortho_process(mPhotos,
+        //                                mCameras,
+        //                                mMdt,
+        //                                mOrthoPath,
+        //                                graph_orthos,
+        //                                crs,
+        //                                footprint_file,
+        //                                mGSD,
+        //                                0.8/*0.4*/,
+        //                                bCuda);
+        //ortho_process.run(progressBar);
 
         //std::vector<tl::WindowD> grid = findGrid(graph_orthos);
-        std::vector<tl::WindowD> grid = this->findGrid(mMdt, mGSD);
+        //std::vector<tl::WindowD> grid = this->findGrid(mMdt, mGSD);
+        std::vector<std::vector<tl::WindowD>> grid = this->findGrid2(mMdt, mGSD);
+        //std::vector<tl::WindowD> grid = this->findGrid(graph_orthos, mGSD);
 
-        tl::Path optimal_footprint_path(graph_orthos);
-        std::string name = optimal_footprint_path.baseName().toString() + "_optimal";
-        optimal_footprint_path.replaceBaseName(name);
-        findOptimalFootprint(graph_orthos, grid, optimal_footprint_path, crs);
+        //tl::Path optimal_footprint_path(graph_orthos);
+        //std::string name = optimal_footprint_path.baseName().toString() + "_optimal";
+        //optimal_footprint_path.replaceBaseName(name);
+        //findOptimalFootprint(graph_orthos, grid, optimal_footprint_path, crs);
 
         /// La ventana total de la orto tiene que ser la misma que la del MDT....
-        orthoMosaic(optimal_footprint_path, mOrthoPath, mGSD, crs, grid);
+        //orthoMosaic(optimal_footprint_path, mOrthoPath, mGSD, crs, grid);
+        //orthoMosaic(graph_orthos, mOrthoPath, mGSD, crs, grid);
 
         // Grid tiene que ser std::vector<std::vector<std::pair<std::string,tl::WindowD>>>> 
         // De está forma se puede recorrer como una matriz y ver las imagenes que están a los lados
         // Se expande la ventana correspondiente a un grid y las de sus vecinos y se procede a ajusta 
         // radiometricamente la imagen. 
         // Posteriormente se determinan las líneas de cosido y se fusionan las ortoimagenes en el mosaico.
-        //orthoMosaic2(mOrthoPath, mGSD, crs, grid);
+        // Ortomosaico con mosaicos de 256x256 sin ninguna clase de ajuste.
+        //orthoMosaic2(graph_orthos, mOrthoPath, mGSD, crs, grid);
+        // Ortomosaico con mosaicos de 256x256 con relleno de zonas negras de area < 1024
+        orthoMosaic(graph_orthos, mOrthoPath, mGSD, crs, grid);
 
         tl::Message::success("Orthophoto task finished in {:.2} minutes", this->time() / 60.);
 
