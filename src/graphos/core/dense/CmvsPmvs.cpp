@@ -315,7 +315,7 @@ void CmvsPmvsDensifier::writeBundleFile()
 
                 const auto &image = images().at(image_id);
                 int camera_id = image.cameraId();
-                auto &camera = cameras().at(camera_id);
+                //auto &camera = cameras().at(camera_id);
 
                 Camera undistort_camera = undistort.at(camera_id).undistortCamera();
                 double new_focal = undistort_camera.focal();
@@ -341,7 +341,7 @@ void CmvsPmvsDensifier::writeBundleFile()
                     tl::Path proj_matrix_path = outputPath();
                     proj_matrix_path.append(colmap::StringPrintf("/txt/%08d.txt", bundler_image_id));
 
-                    std::ofstream file(proj_matrix_path.toWString(), std::ios::trunc);
+                    std::ofstream file(proj_matrix_path.toString(), std::ios::trunc);
                     TL_ASSERT(file.is_open(), "Write Projection Matrix Error");
 
                     Matrix<double, 3, 3> calib_matrix = Matrix<double, 3, 3>::identity();

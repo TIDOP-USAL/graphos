@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_SAVE_PROJECT_AS_COMPONENT)
+if(BUILD_SAVE_PROJECT_AS_COMPONENT AND BUILD_GUI)
 
     project(SaveProjectAs LANGUAGES CXX)
     
@@ -87,4 +87,4 @@ else()
 
     message(STATUS "  Graphos::SaveProjectAs disabled")
     
-endif(BUILD_SAVE_PROJECT_AS_COMPONENT)
+endif(BUILD_SAVE_PROJECT_AS_COMPONENT AND BUILD_GUI)

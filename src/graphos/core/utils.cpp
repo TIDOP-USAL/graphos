@@ -28,11 +28,13 @@
 #include <tidop/core/msg/message.h>
 #include <tidop/core/chrono.h>
 
+#ifdef GRAPHOS_GUI
 #include <FileIOFilter.h>
 #include <ccPointCloud.h>
 #include <ccGenericMesh.h>
 #include <PlyFilter.h>
 #include <ccHObjectCaster.h>
+#endif // GRAPHOS_GUI
 
 #ifdef HAVE_CUDA
 #include <cuda_runtime.h>
@@ -391,6 +393,7 @@ tl::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const st
 
 void transformModel(const tl::Matrix<double> &transform, const std::string &model)
 {
+#ifdef GRAPHOS_GUI
     CC_FILE_ERROR result = CC_FERR_NO_ERROR;
     ccHObject group;
 
@@ -446,6 +449,7 @@ void transformModel(const tl::Matrix<double> &transform, const std::string &mode
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Transform model error");
     }
+#endif // GRAPHOS_GUI
 }
 
 

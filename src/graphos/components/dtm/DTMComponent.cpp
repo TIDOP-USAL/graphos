@@ -23,9 +23,11 @@
 
 #include "DTMComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/dtm/impl/DTMModel.h"
 #include "graphos/components/dtm/impl/DTMView.h"
 #include "graphos/components/dtm/impl/DTMPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/dtm/impl/DTMCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -56,18 +58,24 @@ void DTMComponent::init()
 
 void DTMComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new DtmModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void DTMComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new DtmViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void DTMComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new DtmPresenterImp(dynamic_cast<DtmView *>(view()),
                                      dynamic_cast<DtmModel *>(model())));
+#endif // GRAPHOS_GUI
 }
 
 void DTMComponent::createCommand()

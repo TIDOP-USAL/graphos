@@ -27,6 +27,9 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
+if(POLICY CMP0146) 
+    cmake_policy(SET CMP0146 OLD) 
+endif()
 
 project(GRAPHOS 
         VERSION 2.0.0
@@ -82,15 +85,15 @@ endif()
 
 if(MSVC)
 
-  if(MSVC_VERSION EQUAL 1900)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
-  elseif(MSVC_VERSION MATCHES "^191[0-9]$")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
-  elseif(MSVC_VERSION MATCHES "^192[0-9]$")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
-  elseif(MSVC_VERSION MATCHES "^193[0-9]$")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
-  endif()
+    if(MSVC_VERSION EQUAL 1900)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+    elseif(MSVC_VERSION MATCHES "^191[0-9]$")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+    elseif(MSVC_VERSION MATCHES "^192[0-9]$")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+    elseif(MSVC_VERSION MATCHES "^193[0-9]$")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+    endif()
 
 endif()
 
@@ -98,6 +101,9 @@ endif()
 # Directorio con modulos extra de CMAKE
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
+if(MSVC)
+    set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/msvc" ${CMAKE_MODULE_PATH})
+endif()
 
 set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
 
@@ -167,6 +173,7 @@ unset(GRAPHOS_HAVE_SETTINGS CACHE)
 unset(GRAPHOS_HAVE_UNDISTORT CACHE)
 unset(GRAPHOS_HAVE_PROPERTIES CACHE)
 unset(GRAPHOS_HAVE_VIDEO_LOAD CACHE)
+unset(GRAPHOS_GUI CACHE)
 
 option(BUILD_ABOUT_COMPONENT          "Build About Component"         ON)
 option(BUILD_CAMERAS_COMPONENT        "Build Cameras Component"       ON)
@@ -199,17 +206,30 @@ option(BUILD_PROPERTIES_COMPONENT "Build Properties Component"  ON)
 option(BUILD_VIDEO_LOAD_COMPONENT "Build Video load Component"  ON)
 
 # Activación desactivación de otros componentes 
-OPTION (BUILD_TEST                 "Include test"          OFF)
-OPTION (BUILD_PLUGINS              "Build Plugins"         ON )
+option (BUILD_TEST                 "Include test"          OFF)
+option (BUILD_PLUGINS              "Build Plugins"         ON )
+option (BUILD_GUI                  "Build GUI"             ON )
 
 # Activa el gestor de mensajes. Si se desactiva no se mostrarán los mensajes del la librería
 # por consola ni se escribirán en el log
-OPTION (BUILD_MESSAGE_HANDLER "Active message handle" ON)
+option (BUILD_MESSAGE_HANDLER "Active message handle" ON)
 
 # Si se activa esta opción se pueden utilizar los métodos marcados como obsoletos (deprecated)
-OPTION (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
+option (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 
+if(MSVC)
+option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
+endif(MSVC)
+#option(WITH_PIXKIT   "Include PixKit"                  OFF)
+option (WITH_CUDA     "Include Cuda Support"    OFF)
 
+if(BUILD_GUI)
+    message(STATUS "  [GRAPHOS] Build GUI")
+    set(GRAPHOS_GUI YES)
+else()
+    message(STATUS "  [GRAPHOS] GUI disabled")
+	set(GRAPHOS_GUI NO)
+endif()
 
 
 
@@ -228,11 +248,6 @@ OPTION (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 # - VLD                       OPTIONAL                                   #
 ##########################################################################
 
-
-if(MSVC)
-option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
-endif(MSVC)
-
 message(STATUS "\nDependency loading:\n")
 
 
@@ -242,6 +257,12 @@ message(STATUS "\nDependency loading:\n")
 ##########################################################################      
 
 find_package(TidopLib 3.0 REQUIRED)
+
+if(TidopLib_FOUND)
+    message(STATUS "  TidopLib version: ${TidopLib_VERSION}")
+else()
+    message(STATUS "Not Found TidopLib")
+endif()
 
 
 ##########################################################################
@@ -254,6 +275,7 @@ set(Boost_USE_STATIC_RUNTIME     OFF)
  	
 find_package(Boost COMPONENTS filesystem system unit_test_framework REQUIRED)
 if(Boost_FOUND)
+    message(STATUS "  Boost version: ${Boost_VERSION}")
     include_directories(${Boost_INCLUDE_DIRS})
     set(HAVE_BOOST YES)
 else()
@@ -264,6 +286,21 @@ endif()
 ##########################################################################
 # OpenCV  (REQUIRED)                                                     #
 ##########################################################################
+
+#  CUDA  
+
+if (WITH_CUDA)
+
+    find_package(CUDA)
+    
+    if (CUDA_FOUND)
+        set(HAVE_CUDA YES)
+        include_directories(${CUDA_INCLUDE_DIRS})
+    else()
+        set(HAVE_CUDA NO)
+    endif()
+
+endif()
 
 find_package(OpenCV REQUIRED
              COMPONENTS
@@ -278,6 +315,7 @@ find_package(OpenCV REQUIRED
                  flann
                  objdetect
                  stitching)
+
 if (HAVE_CUDA)
  find_package(OpenCV REQUIRED
               COMPONENTS
@@ -288,20 +326,9 @@ endif(HAVE_CUDA)
 if(NOT OPENCV_FOUND)
     set(HAVE_OPENCV NO)
 else()
+    message(STATUS "  OpenCV version: ${OpenCV_VERSION}")
     set(HAVE_OPENCV YES)
     include_directories(${OpenCV_INCLUDE_DIRS})
-endif()
-
-
-#  CUDA  
-
-find_package(CUDA)
-include_directories(${CUDA_INCLUDE_DIRS})
-
-if (CUDA_FOUND)
-  set(HAVE_CUDA YES)
-else()
-  set(HAVE_CUDA NO)
 endif()
 
 
@@ -309,6 +336,7 @@ endif()
 ##########################################################################
 # Colmap (REQUIRED)                                                      #
 ##########################################################################   
+
 
 find_package(COLMAP REQUIRED)
 
@@ -329,31 +357,31 @@ endif()
 
 
 ##########################################################################
-# Colmap (OPTIONAL)                                                      #
-##########################################################################  
-
-if(MSVC)
-  # Some fixes for the Glog library.
-  add_definitions("-DGLOG_NO_ABBREVIATED_SEVERITIES")
-  add_definitions("-DGL_GLEXT_PROTOTYPES")
-endif()
-
+# GLEW (REQUIRED)                                                        #
+##########################################################################   
 
 find_package(GLEW REQUIRED)
 
 
-#  QT 
+##########################################################################
+# QT (REQUIRED)                                                          #
+##########################################################################
 
 find_package(Qt5 REQUIRED 
              COMPONENTS 
                Core 
                OpenGL  
-               Widgets 
-               Help 
                Sql 
                Concurrent 
                LinguistTools
                PrintSupport)
+			   
+if(BUILD_GUI)
+find_package(Qt5 REQUIRED 
+             COMPONENTS 
+			   Widgets 
+               Help)		   
+endif(BUILD_GUI)
 
 if(BUILD_TEST)
   find_package(Qt5 REQUIRED
@@ -399,17 +427,22 @@ if(Qt5_FOUND)
 endif()
 
 
+if(BUILD_GUI)
 find_package(CloudCompare REQUIRED)
 
-if (NOT CLOUDCOMPARE_FOUND)
-    set(HAVE_CLOUDCOMPARE NO)
+if (NOT CloudCompare_FOUND)
+    set(HAVE_CloudCompare NO)
 else()
-    set(HAVE_CLOUDCOMPARE YES)
-    include_directories(${CLOUDCOMPARE_INCLUDE_DIR})
+    set(HAVE_CloudCompare YES)
+    include_directories(${CloudCompare_INCLUDE_DIR})
 endif()
+endif(BUILD_GUI)
 
 
 # VLD
+##########################################################################
+# VLD (OPTIONAL)                                                         #
+##########################################################################
 
 if(WITH_VLD)
 
@@ -424,15 +457,29 @@ if(WITH_VLD)
 
 endif(WITH_VLD)
 
+#[[
+if(WITH_PIXKIT)
+
+    find_package(PIXKIT REQUIRED)
+    if(NOT PIXKIT_FOUND)
+        set(HAVE_PIXKIT NO)
+    else()
+        set(HAVE_PIXKIT YES)
+        include_directories(${PIXKIT_INCLUDE_DIRS})
+    endif()
+
+endif(WITH_PIXKIT)
+]]
 
 if (BUILD_DTM_COMPONENT)
 
     find_package(CGAL REQUIRED)
-    find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
-    
-    include(CGAL_Eigen3_support)
-    include(CGAL_Boost_serialization_support)
-    include(CGAL_Boost_iostreams_support)
+    message(STATUS "  CGAL version: ${CGAL_VERSION}")
+    #find_package(Boost OPTIONAL_COMPONENTS serialization iostreams)
+    #
+    #include(CGAL_Eigen3_support)
+    #include(CGAL_Boost_serialization_support)
+    #include(CGAL_Boost_iostreams_support)
 
 endif ()
 
@@ -509,6 +556,12 @@ include(CMakePackageConfigHelpers)
 # Graphos configuration header
 install(FILES ${PROJECT_BINARY_DIR}/config_graphos.h DESTINATION include)
 
+# Graphos camera database
+install(FILES 
+            ${CMAKE_CURRENT_SOURCE_DIR}/res/cameras.db
+            ${CMAKE_CURRENT_SOURCE_DIR}/res/cameras_user.db
+        DESTINATION
+            bin)
 
 set(GRAPHOS_CONFIG_CMAKE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/${PROJECT_NAME}")
 set(GRAPHOS_CONFIG_VERSION_CMAKE_PATH "${CMAKE_CURRENT_BINARY_DIR}/GraphosConfigVersion.cmake")

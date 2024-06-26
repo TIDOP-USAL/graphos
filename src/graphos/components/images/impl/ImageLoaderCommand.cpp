@@ -112,7 +112,7 @@ bool ImageLoaderCommand::run()
             while (std::getline(ifs, line)) {
 
                 if (line.empty()) continue;
-
+                tl::trim(line);
                 Image img(line);
                 if (!project.existImage(img.id()))
                     images.push_back(img);

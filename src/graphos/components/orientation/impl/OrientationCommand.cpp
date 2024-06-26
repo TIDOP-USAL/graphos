@@ -160,16 +160,17 @@ void ImportPoses::run()
     reconstruction.WriteText(reconstruction_path.toString());
     reconstruction.ExportPLY(tl::Path(reconstruction_path).append("sparse.ply").toString());
 
-    std::ofstream stream(tl::Path(reconstruction_path).append("offset.txt").toString(), std::ios::trunc);
-    if (stream.is_open()) {
-        stream << QString::number(mOffset.x, 'f', 6).toStdString() << " "
-            << QString::number(mOffset.y, 'f', 6).toStdString() << " "
-            << QString::number(mOffset.z, 'f', 6).toStdString() << std::endl;
+    offsetWrite(tl::Path(reconstruction_path).append("offset.txt"), mOffset);
+    //std::ofstream stream(tl::Path(reconstruction_path).append("offset.txt").toString(), std::ios::trunc);
+    //if (stream.is_open()) {
+    //    stream << QString::number(mOffset.x, 'f', 6).toStdString() << " "
+    //        << QString::number(mOffset.y, 'f', 6).toStdString() << " "
+    //        << QString::number(mOffset.z, 'f', 6).toStdString() << std::endl;
 
         tl::Message::info("Camera offset: {},{},{}", mOffset.x, mOffset.y, mOffset.z);
 
-        stream.close();
-    }
+    //    stream.close();
+    //}
 }
 
 void ImportPoses::setFixCalibration(bool fixCalibration)

@@ -150,6 +150,21 @@ Undistort::Undistort(const Undistort &undistort)
 {
 }
 
+auto Undistort::operator=(const Undistort &undistort) -> Undistort&
+{
+    if (this != &undistort) {
+        mCamera = undistort.mCamera;
+        mUndistortCamera = undistort.mUndistortCamera;
+        mCameraMatrix = undistort.mCameraMatrix;
+        mDistCoeffs = undistort.mDistCoeffs;
+        mOptimalNewCameraMatrix = undistort.mOptimalNewCameraMatrix;
+        mMap1 = undistort.mMap1;
+        mMap2 = undistort.mMap2;
+    }
+
+    return *this;
+}
+
 auto Undistort::camera() const -> Camera
 {
     return mCamera;

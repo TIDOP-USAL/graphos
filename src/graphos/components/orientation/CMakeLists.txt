@@ -35,25 +35,30 @@ if(BUILD_ORIENTATION_COMPONENT)
     # Create code from a list of Qt designer ui files
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
-   
-        
+
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              OrientationComponent.cpp
-                             impl/OrientationModel.cpp
-                             impl/OrientationView.cpp
-                             impl/OrientationPresenter.cpp
                              impl/OrientationCommand.cpp
                          HEADER_FILES
                              OrientationComponent.h
+                             impl/OrientationCommand.h)   
+
+if (BUILD_GUI)        
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/OrientationModel.cpp
+                             impl/OrientationView.cpp
+                             impl/OrientationPresenter.cpp
+                         HEADER_FILES
                              OrientationModel.h
                              OrientationView.h
                              OrientationPresenter.h
                              impl/OrientationModel.h
                              impl/OrientationView.h
-                             impl/OrientationPresenter.h
-                             impl/OrientationCommand.h)
-            
+                             impl/OrientationPresenter.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -63,7 +68,7 @@ if(BUILD_ORIENTATION_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog

@@ -36,26 +36,31 @@ if(BUILD_IMAGE_LOAD_COMPONENT)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
     
-    
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              ImageLoaderComponent.cpp
+                             impl/ImageLoaderTask.cpp
+                             impl/ImageLoaderCommand.cpp
+                         HEADER_FILES
+                             ImageLoaderComponent.h
+                             impl/ImageLoaderTask.h
+                             impl/ImageLoaderCommand.h)
+
+if (BUILD_GUI)   
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
                              impl/ImageLoaderModel.cpp
                              impl/ImageLoaderPresenter.cpp
                              impl/ImageLoaderView.cpp
-                             impl/ImageLoaderCommand.cpp
-                             impl/ImageLoaderTask.cpp
                          HEADER_FILES
-                             ImageLoaderComponent.h
                              ImageLoaderModel.h
                              ImageLoaderPresenter.h
                              ImageLoaderView.h
                              impl/ImageLoaderModel.h
                              impl/ImageLoaderPresenter.h
-                             impl/ImageLoaderView.h
-                             impl/ImageLoaderCommand.h
-                             impl/ImageLoaderTask.h)
-            
+                             impl/ImageLoaderView.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -65,7 +70,7 @@ if(BUILD_IMAGE_LOAD_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

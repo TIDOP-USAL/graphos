@@ -35,25 +35,30 @@ if(BUILD_MESH_COMPONENT)
     # Create code from a list of Qt designer ui files
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
-    
-    
+     
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              MeshComponent.cpp
-                             impl/MeshModel.cpp
-                             impl/MeshView.cpp
-                             impl/MeshPresenter.cpp
                              impl/MeshCommand.cpp
                          HEADER_FILES
                              MeshComponent.h
+                             impl/MeshCommand.h)   
+
+if (BUILD_GUI)    
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/MeshModel.cpp
+                             impl/MeshView.cpp
+                             impl/MeshPresenter.cpp
+                         HEADER_FILES
                              MeshModel.h
                              MeshView.h
                              MeshPresenter.h
                              impl/MeshModel.h
                              impl/MeshPresenter.h
-                             impl/MeshView.h
-                             impl/MeshCommand.h)
-            
+                             impl/MeshView.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -63,7 +68,7 @@ if(BUILD_MESH_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)

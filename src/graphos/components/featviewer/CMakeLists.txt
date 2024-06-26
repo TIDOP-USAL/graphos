@@ -24,7 +24,7 @@
 include(TidopUtils)
 
 
-if(BUILD_FEATVIEWER_COMPONENT)
+if(BUILD_FEATVIEWER_COMPONENT AND BUILD_GUI)
 
     project(FeatViewer LANGUAGES CXX)
     
@@ -88,4 +88,4 @@ else()
 
     message(STATUS "  Graphos::FeatViewer disabled")
     
-endif(BUILD_FEATVIEWER_COMPONENT)
+endif(BUILD_FEATVIEWER_COMPONENT AND BUILD_GUI)

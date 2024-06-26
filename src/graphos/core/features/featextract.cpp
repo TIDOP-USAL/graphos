@@ -25,6 +25,9 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
+//#include "graphos/core/preprocess/clahe.h"
+//#include "preprocess/dhe.h"
+//#include "preprocess/pohe.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/exception.h>
@@ -44,6 +47,7 @@
 #include <colmap/base/camera_models.h>
 #include <colmap/feature/sift.h>
 #include <colmap/feature/utils.h>
+
 
 using namespace tl;
 
@@ -290,6 +294,16 @@ private:
         //cv::Mat color_boost;
         //cv::decolor(mat, mat, color_boost);
         //color_boost.release();
+
+        ///// CLAHE Preprocess
+        //ClahePreprocessCuda clahe;
+        //mat = clahe.process(mat);
+        /// CLAHE Preprocess
+        //DhePreprocess dhe;
+        //mat = dhe.process(mat);
+        //PohePreprocess pohe;
+        //mat = pohe.process(mat);
+
     }
 
     void normalizeImage(cv::Mat &mat) const
