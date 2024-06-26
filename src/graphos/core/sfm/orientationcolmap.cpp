@@ -1314,13 +1314,16 @@ void ImportPosesTask::setFixPoses(bool fixPoses)
     mFixPoses = fixPoses;
 }
 
+auto ImportPosesTask::report() const -> OrientationReport
+{
+    return mOrientationReport;
+}
+
 void ImportPosesTask::execute(tl::Progress *progressBar)
 {
     try {
 
-        tl::Chrono chrono("Import Orientation finished");
-        chrono.run();
-
+        
         {
             colmap::Database database(mDatabase.toString());
 
@@ -1463,6 +1466,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
             // Bundle adjustment
             //////////////////////////////////////////////////////////////////////////////
 
+            ceres::Solver::Summary summary;
+
             auto ba_options = mapper_options->GlobalBundleAdjustment();
 
             ba_options.refine_focal_length = !mFixCalibration;
@@ -1486,6 +1491,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
 
                 colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
                 TL_ASSERT(bundle_adjuster.Solve(&reconstruction), "Bundle adjust error");
+
+                summary = bundle_adjuster.Summary();
 
                 size_t num_changed_observations = 0;
                 num_changed_observations += CompleteAndMergeTracks(*mapper_options, &mapper);
@@ -1513,6 +1520,8 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
                     colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
                     if (!bundle_adjuster.Solve(&reconstruction)) throw std::runtime_error(std::string("Reconstruction error"));
 
+                    summary = bundle_adjuster.Summary();
+
                     size_t num_changed_observations = 0;
                     num_changed_observations += CompleteAndMergeTracks(*mapper_options, &mapper);
                     num_changed_observations += FilterPoints(*mapper_options, &mapper);
@@ -1523,6 +1532,13 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
                     }
                 }
             }
+
+            mOrientationReport.iterations = summary.num_successful_steps + summary.num_unsuccessful_steps;
+            mOrientationReport.initialCost = std::sqrt(summary.initial_cost / summary.num_residuals_reduced);
+            mOrientationReport.finalCost = std::sqrt(summary.final_cost / summary.num_residuals_reduced);
+            mOrientationReport.termination = "CONVERGENCE";
+
+            TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
 
             tl::Message::info("Extracting colors");
             reconstruction.ExtractColorsForAllImages("");
@@ -1581,7 +1597,7 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
 
         }
 
-        chrono.stop();
+        tl::Message::success("Import Orientation finished {:.2} minutes", time() / 60.);
 
         if (progressBar) (*progressBar)();
 

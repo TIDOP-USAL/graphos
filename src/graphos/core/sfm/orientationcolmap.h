@@ -358,6 +358,13 @@ public:
     void setFixCalibration(bool fixCalibration);
     void setFixPoses(bool fixPoses);
 
+    /*!
+     * \brief Get the orientation report after task execution.
+     *
+     * \return An `OrientationReport` containing information about the orientation task.
+     */
+    auto report() const -> OrientationReport;
+
 private:
 
     void computeOffset();
@@ -383,6 +390,7 @@ private:
     bool mFixPoses;
     tl::Point3<double> mOffset;
     std::unordered_map<size_t, int> mGraphosToColmapId;
+    OrientationReport mOrientationReport;
 };
 
 

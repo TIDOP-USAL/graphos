@@ -174,7 +174,8 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
         orientation_process->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
-            auto cameras = dynamic_cast<ImportPosesTask const *>(event->task())->cameras();
+            auto task = dynamic_cast<ImportPosesTask const *>(event->task());
+            auto cameras = task->cameras();
 
             tl::Path path = mModel->projectFolder();
             path.append("sfm");
@@ -213,6 +214,12 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
             for (const auto &camera : cameras) {
                 mModel->updateCamera(camera.first, camera.second);
             }
+
+            auto report = task->report();
+            report.type = "Absolute";
+            report.time += event->task()->time();
+            report.orientedImages = static_cast<int>(poses.size());
+            mModel->setOrientationReport(report);
 
         });
 
@@ -326,11 +333,9 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
             });
 
             dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(absolute_orientation_task);
-
+            dynamic_cast<tl::TaskList *>(orientation_process.get())->setCancelTaskOnError(true);
         }
     }
-
-    dynamic_cast<tl::TaskList *>(orientation_process.get())->setCancelTaskOnError(true);
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);
