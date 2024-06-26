@@ -40,12 +40,478 @@
 #include <colmap/util/option_manager.h>
 #include <colmap/util/misc.h>
 #include <colmap/controllers/hierarchical_mapper.h>
+#include <colmap/base/camera_models.h>
+#include <colmap/base/cost_functions.h>
 
 
 std::atomic<bool> ba_terminate(false);
 
 namespace internal
 {
+
+
+struct PositionError {
+  explicit PositionError(const Eigen::Vector3d& translation)
+      : translation_(translation) {}
+
+  template <typename T>
+  bool operator()(const T* const cam_translation, T* residuals) const {
+    residuals[0] = cam_translation[0] - T(translation_[0]);
+    residuals[1] = cam_translation[1] - T(translation_[1]);
+    residuals[2] = cam_translation[2] - T(translation_[2]);
+    return true;
+  }
+
+  static ceres::CostFunction* Create(const Eigen::Vector3d& translation) {
+    return new ceres::AutoDiffCostFunction<PositionError, 3, 3>(
+        new PositionError(translation));
+  }
+
+  Eigen::Vector3d translation_;
+};
+
+
+// Extraido de Colmap para añadir los puntos de control
+
+class _BundleAdjustmentConfig
+    : public colmap::BundleAdjustmentConfig
+{
+private:
+
+    std::unordered_map<colmap::image_t, double> cam_position_errors_;
+
+public:
+
+    _BundleAdjustmentConfig() : colmap::BundleAdjustmentConfig()
+    {
+    }
+
+    void SetCamPositionError(colmap::image_t image_id, double position_error)
+    {
+        cam_position_errors_[image_id] = position_error;
+    }
+
+    double GetCamPositionError(colmap::image_t image_id) const
+    {
+        auto it = cam_position_errors_.find(image_id);
+        return (it != cam_position_errors_.end()) ? it->second : std::numeric_limits<double>::max();
+    }
+};
+
+
+class BundleAdjuster
+{
+public:
+    BundleAdjuster(const colmap::BundleAdjustmentOptions &options,
+                   const _BundleAdjustmentConfig &config);
+
+    bool Solve(colmap::Reconstruction *reconstruction);
+
+    // Get the Ceres solver summary for the last call to `Solve`.
+    const ceres::Solver::Summary &Summary() const;
+
+private:
+    void SetUp(colmap::Reconstruction *reconstruction,
+               ceres::LossFunction *loss_function);
+    void TearDown(colmap::Reconstruction *reconstruction);
+
+    void AddImageToProblem(const colmap::image_t image_id, colmap::Reconstruction *reconstruction,
+                           ceres::LossFunction *loss_function);
+
+    void AddPointToProblem(const colmap::point3D_t point3D_id,
+                           colmap::Reconstruction *reconstruction,
+                           ceres::LossFunction *loss_function);
+
+protected:
+    void ParameterizeCameras(colmap::Reconstruction *reconstruction);
+    void ParameterizePoints(colmap::Reconstruction *reconstruction);
+
+    const colmap::BundleAdjustmentOptions options_;
+    _BundleAdjustmentConfig config_;
+    std::unique_ptr<ceres::Problem> problem_;
+    ceres::Solver::Summary summary_;
+    std::unordered_set<colmap::camera_t> camera_ids_;
+    std::unordered_map<colmap::point3D_t, size_t> point3D_num_observations_;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// BundleAdjuster
+////////////////////////////////////////////////////////////////////////////////
+
+BundleAdjuster::BundleAdjuster(const colmap::BundleAdjustmentOptions& options,
+                               const _BundleAdjustmentConfig& config)
+    : options_(options), config_(config)
+{
+    CHECK(options_.Check());
+}
+
+bool BundleAdjuster::Solve(colmap::Reconstruction* reconstruction) {
+  CHECK_NOTNULL(reconstruction);
+  CHECK(!problem_) << "Cannot use the same BundleAdjuster multiple times";
+
+  problem_.reset(new ceres::Problem());
+
+  ceres::LossFunction* loss_function = options_.CreateLossFunction();
+  SetUp(reconstruction, loss_function);
+
+  if (problem_->NumResiduals() == 0) {
+    return false;
+  }
+
+  ceres::Solver::Options solver_options = options_.solver_options;
+  const bool has_sparse =
+      solver_options.sparse_linear_algebra_library_type != ceres::NO_SPARSE;
+
+  // Empirical choice.
+  const size_t kMaxNumImagesDirectDenseSolver = 50;
+  const size_t kMaxNumImagesDirectSparseSolver = 1000;
+  const size_t num_images = config_.NumImages();
+  if (num_images <= kMaxNumImagesDirectDenseSolver) {
+    solver_options.linear_solver_type = ceres::DENSE_SCHUR;
+  } else if (num_images <= kMaxNumImagesDirectSparseSolver && has_sparse) {
+    solver_options.linear_solver_type = ceres::SPARSE_SCHUR;
+  } else {  // Indirect sparse (preconditioned CG) solver.
+    solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
+    solver_options.preconditioner_type = ceres::SCHUR_JACOBI;
+  }
+
+  if (problem_->NumResiduals() <
+      options_.min_num_residuals_for_multi_threading) {
+    solver_options.num_threads = 1;
+#if CERES_VERSION_MAJOR < 2
+    solver_options.num_linear_solver_threads = 1;
+#endif  // CERES_VERSION_MAJOR
+  } else {
+    solver_options.num_threads =
+        colmap::GetEffectiveNumThreads(solver_options.num_threads);
+#if CERES_VERSION_MAJOR < 2
+    solver_options.num_linear_solver_threads =
+        GetEffectiveNumThreads(solver_options.num_linear_solver_threads);
+#endif  // CERES_VERSION_MAJOR
+  }
+
+  std::string solver_error;
+  CHECK(solver_options.IsValid(&solver_error)) << solver_error;
+
+  ceres::Solve(solver_options, problem_.get(), &summary_);
+
+  if (solver_options.minimizer_progress_to_stdout) {
+    std::cout << std::endl;
+  }
+
+  if (options_.print_summary) {
+    colmap::PrintHeading2("Bundle adjustment report");
+    colmap::PrintSolverSummary(summary_);
+  }
+
+  TearDown(reconstruction);
+
+  return true;
+}
+
+const ceres::Solver::Summary& BundleAdjuster::Summary() const {
+  return summary_;
+}
+
+void BundleAdjuster::SetUp(colmap::Reconstruction* reconstruction,
+                           ceres::LossFunction* loss_function) {
+  // Warning: AddPointsToProblem assumes that AddImageToProblem is called first.
+  // Do not change order of instructions!
+  for (const colmap::image_t image_id : config_.Images()) {
+    AddImageToProblem(image_id, reconstruction, loss_function);
+  }
+  for (const auto point3D_id : config_.VariablePoints()) {
+    AddPointToProblem(point3D_id, reconstruction, loss_function);
+  }
+  for (const auto point3D_id : config_.ConstantPoints()) {
+    AddPointToProblem(point3D_id, reconstruction, loss_function);
+  }
+
+  ParameterizeCameras(reconstruction);
+  ParameterizePoints(reconstruction);
+}
+
+void BundleAdjuster::TearDown(colmap::Reconstruction*) {
+  // Nothing to do
+}
+
+void BundleAdjuster::AddImageToProblem(const colmap::image_t image_id,
+                                       colmap::Reconstruction *reconstruction,
+                                       ceres::LossFunction *loss_function)
+{
+    colmap::Image &image = reconstruction->Image(image_id);
+    colmap::Camera &camera = reconstruction->Camera(image.CameraId());
+
+    // CostFunction assumes unit quaternions.
+    image.NormalizeQvec();
+
+    double *qvec_data = image.Qvec().data();
+    double *tvec_data = image.Tvec().data();
+    double *camera_params_data = camera.ParamsData();
+
+    const bool constant_pose =
+        !options_.refine_extrinsics || config_.HasConstantPose(image_id);
+
+    double position_error = config_.GetCamPositionError(image_id);
+
+    // Add residuals to bundle adjustment problem.
+    size_t num_observations = 0;
+    for (const colmap::Point2D &point2D : image.Points2D()) {
+        if (!point2D.HasPoint3D()) {
+            continue;
+        }
+
+        num_observations += 1;
+        point3D_num_observations_[point2D.Point3DId()] += 1;
+
+        colmap::Point3D &point3D = reconstruction->Point3D(point2D.Point3DId());
+        assert(point3D.Track().Length() > 1);
+
+        ceres::CostFunction *cost_function = nullptr;
+
+        if (constant_pose) {
+            switch (camera.ModelId()) {
+                //#define CAMERA_MODEL_CASE(CameraModel)                                 \
+                //  case CameraModel::kModelId:                                          \
+                //    cost_function =                                                    \
+                //        BundleAdjustmentConstantPoseCostFunction<CameraModel>::Create( \
+                //            image.Qvec(), image.Tvec(), point2D.XY());                 \
+                //    break;
+
+            case colmap::SimplePinholeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::SimplePinholeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::PinholeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::PinholeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::SimpleRadialCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::SimpleRadialCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::SimpleRadialFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::SimpleRadialFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::RadialCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::RadialCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::RadialFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::RadialFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::OpenCVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::OpenCVCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::OpenCVFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::OpenCVFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::FullOpenCVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::FullOpenCVCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::FOVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::FOVCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            case colmap::ThinPrismFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::ThinPrismFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+                break;
+            default: throw std::domain_error("Camera model does not exist");
+                break;
+
+                //#undef CAMERA_MODEL_CASE
+            }
+
+            problem_->AddResidualBlock(cost_function, loss_function,
+                                       point3D.XYZ().data(), camera_params_data);
+        } else {
+            switch (camera.ModelId()) {
+                //#define CAMERA_MODEL_CASE(CameraModel)                                   \
+                //  case CameraModel::kModelId:                                            \
+                //    cost_function =                                                      \
+                //        BundleAdjustmentCostFunction<CameraModel>::Create(point2D.XY()); \
+                //    break;
+                //
+                //                CAMERA_MODEL_SWITCH_CASES
+                //
+                //#undef CAMERA_MODEL_CASE
+            case colmap::SimplePinholeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::SimplePinholeCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::PinholeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::PinholeCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::SimpleRadialCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::SimpleRadialCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::SimpleRadialFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::SimpleRadialFisheyeCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::RadialCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::RadialCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::RadialFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::RadialFisheyeCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::OpenCVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::OpenCVCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::OpenCVFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::OpenCVFisheyeCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::FullOpenCVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::FullOpenCVCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::FOVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::FOVCameraModel>::Create(point2D.XY());
+                break;
+            case colmap::ThinPrismFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::ThinPrismFisheyeCameraModel>::Create(point2D.XY());
+                break;
+            default: throw std::domain_error("Camera model does not exist"); break;
+            }
+
+            problem_->AddResidualBlock(cost_function, loss_function, qvec_data,
+                                       tvec_data, point3D.XYZ().data(),
+                                       camera_params_data);
+        }
+    }
+
+    if (num_observations > 0) {
+        camera_ids_.insert(image.CameraId());
+
+        // Set pose parameterization.
+        if (!constant_pose) {
+            ceres::LocalParameterization *quaternion_parameterization =
+                new ceres::QuaternionParameterization;
+            problem_->SetParameterization(qvec_data, quaternion_parameterization);
+            //if (config_.HasConstantTvec(image_id)) {
+            //    const std::vector<int> &constant_tvec_idxs =
+            //        config_.ConstantTvec(image_id);
+            //    ceres::SubsetParameterization *tvec_parameterization =
+            //        new ceres::SubsetParameterization(3, constant_tvec_idxs);
+            //    problem_->SetParameterization(tvec_data, tvec_parameterization);
+            //}
+            if (position_error < std::numeric_limits<double>::max()) {
+                // Crear una loss function específica para las posiciones con error
+                ceres::LossFunction *position_loss_function = new ceres::ScaledLoss(nullptr, position_error, ceres::TAKE_OWNERSHIP);
+                problem_->AddResidualBlock(new ceres::AutoDiffCostFunction<internal::PositionError, 3, 3>(
+                    new internal::PositionError(image.Tvec())), position_loss_function, tvec_data);
+            }
+        }
+    }
+}
+
+void BundleAdjuster::AddPointToProblem(const colmap::point3D_t point3D_id,
+                                       colmap::Reconstruction* reconstruction,
+                                       ceres::LossFunction* loss_function)
+{
+    colmap::Point3D& point3D = reconstruction->Point3D(point3D_id);
+
+    // Is 3D point already fully contained in the problem? I.e. its entire track
+    // is contained in `variable_image_ids`, `constant_image_ids`,
+    // `constant_x_image_ids`.
+    if (point3D_num_observations_[point3D_id] == point3D.Track().Length()) {
+        return;
+    }
+
+    for (const auto &track_el : point3D.Track().Elements()) {
+        // Skip observations that were already added in `FillImages`.
+        if (config_.HasImage(track_el.image_id)) {
+            continue;
+        }
+
+        point3D_num_observations_[point3D_id] += 1;
+
+        colmap::Image &image = reconstruction->Image(track_el.image_id);
+        colmap::Camera &camera = reconstruction->Camera(image.CameraId());
+        const colmap::Point2D &point2D = image.Point2D(track_el.point2D_idx);
+
+        // We do not want to refine the camera of images that are not
+        // part of `constant_image_ids_`, `constant_image_ids_`,
+        // `constant_x_image_ids_`.
+        if (camera_ids_.count(image.CameraId()) == 0) {
+            camera_ids_.insert(image.CameraId());
+            config_.SetConstantCamera(image.CameraId());
+        }
+
+        ceres::CostFunction *cost_function = nullptr;
+
+        switch (camera.ModelId()) {
+            //#define CAMERA_MODEL_CASE(CameraModel)                                 \
+            //  case CameraModel::kModelId:                                          \
+            //    cost_function =                                                    \
+            //        BundleAdjustmentConstantPoseCostFunction<CameraModel>::Create( \
+            //            image.Qvec(), image.Tvec(), point2D.XY());                 \
+            //    break;
+            //
+            //      CAMERA_MODEL_SWITCH_CASES
+            //
+            //#undef CAMERA_MODEL_CASE
+        case colmap::SimplePinholeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::SimplePinholeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::PinholeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::PinholeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::SimpleRadialCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::SimpleRadialCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::SimpleRadialFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::SimpleRadialFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::RadialCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::RadialCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::RadialFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::RadialFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::OpenCVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::OpenCVCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::OpenCVFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::OpenCVFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::FullOpenCVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::FullOpenCVCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::FOVCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::FOVCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        case colmap::ThinPrismFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::ThinPrismFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
+            break;
+        default: throw std::domain_error("Camera model does not exist");
+            break;
+        }
+        problem_->AddResidualBlock(cost_function, loss_function,
+            point3D.XYZ().data(), camera.ParamsData());
+    }
+}
+
+void BundleAdjuster::ParameterizeCameras(colmap::Reconstruction *reconstruction)
+{
+    const bool constant_camera = !options_.refine_focal_length &&
+        !options_.refine_principal_point &&
+        !options_.refine_extra_params;
+    for (const colmap::camera_t camera_id : camera_ids_) {
+        colmap::Camera &camera = reconstruction->Camera(camera_id);
+
+        if (constant_camera || config_.IsConstantCamera(camera_id)) {
+            problem_->SetParameterBlockConstant(camera.ParamsData());
+            continue;
+        } else {
+            std::vector<int> const_camera_params;
+
+            if (!options_.refine_focal_length) {
+                const std::vector<size_t> &params_idxs = camera.FocalLengthIdxs();
+                const_camera_params.insert(const_camera_params.end(),
+                    params_idxs.begin(), params_idxs.end());
+            }
+            if (!options_.refine_principal_point) {
+                const std::vector<size_t> &params_idxs = camera.PrincipalPointIdxs();
+                const_camera_params.insert(const_camera_params.end(),
+                    params_idxs.begin(), params_idxs.end());
+            }
+            if (!options_.refine_extra_params) {
+                const std::vector<size_t> &params_idxs = camera.ExtraParamsIdxs();
+                const_camera_params.insert(const_camera_params.end(),
+                    params_idxs.begin(), params_idxs.end());
+            }
+
+            if (const_camera_params.size() > 0) {
+                ceres::SubsetParameterization *camera_params_parameterization =
+                    new ceres::SubsetParameterization(
+                        static_cast<int>(camera.NumParams()), const_camera_params);
+                problem_->SetParameterization(camera.ParamsData(),
+                    camera_params_parameterization);
+            }
+        }
+    }
+}
+
+void BundleAdjuster::ParameterizePoints(colmap::Reconstruction *reconstruction)
+{
+    for (const auto elem : point3D_num_observations_) {
+        colmap::Point3D &point3D = reconstruction->Point3D(elem.first);
+        if (point3D.Track().Length() > elem.second) {
+            problem_->SetParameterBlockConstant(point3D.XYZ().data());
+        }
+    }
+
+    for (const colmap::point3D_t point3D_id : config_.ConstantPoints()) {
+        colmap::Point3D &point3D = reconstruction->Point3D(point3D_id);
+        problem_->SetParameterBlockConstant(point3D.XYZ().data());
+    }
+}
+
+
+
+
+
 
 // Callback functor called after each bundle adjustment iteration.
 class BundleAdjustmentIterationCallback
@@ -401,6 +867,8 @@ void RelativeOrientationColmapTask::stop()
     ba_terminate = true;
 }
 
+/// Comprobar que funcione el ajuste de haces extraido de Colmap y sacarlo a un fichero a parte para poder usarlo desde la herramienta de georeferencia
+///
 void RelativeOrientationColmapTask::execute(tl::Progress *progressBar)
 {
     try {
@@ -661,6 +1129,9 @@ void AbsoluteOrientationColmapTask::stop()
     TaskBase::stop();
 }
 
+
+/// Hay que comprobar si existen puntos de control. En ese caso se da prioridad al uso de los puntos de control.
+/// Ver la herramienta de georeferencia.
 void AbsoluteOrientationColmapTask::execute(tl::Progress *progressBar)
 {
     try {
