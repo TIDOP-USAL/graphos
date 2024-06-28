@@ -48,7 +48,7 @@
 
 #include <iomanip>
 
-//#define TEST_CONTROL_POINT_ADJUST
+#define TEST_CONTROL_POINT_ADJUST
 
 #ifdef TEST_CONTROL_POINT_ADJUST
 #include <colmap/controllers/bundle_adjustment.h>
@@ -410,7 +410,7 @@ void exportToColmap(const tl::Path &databasePath,
         }
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Densification error");
+        TL_THROW_EXCEPTION_WITH_NESTED("");
     }
 }
 
@@ -564,7 +564,7 @@ void GeoreferenceTask::execute(tl::Progress *progressBar)
     //orientationExport.exportText(QString::fromStdWString(mOutputPath.toWString()));
     tl::Path sparse_file = mPath;
     sparse_file.append("sparse.ply");
-    orientationExport.exportPLY(QString::fromStdWString(sparse_file.toWString()));
+    orientationExport.exportPLY(sparse_file);
 
 
 

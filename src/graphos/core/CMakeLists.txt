@@ -52,6 +52,8 @@ add_files_to_project(${PROJECT_NAME}
                          sfm/posesio.cpp
                          sfm/groundpoint.cpp
                          sfm/track.cpp
+                         sfm/BundleAdjuster.cpp
+                         sfm/Reconstruction.cpp
                          dense/dense.cpp
                          dense/CmvsPmvs.cpp
                          dense/Smvs.cpp
@@ -99,6 +101,8 @@ add_files_to_project(${PROJECT_NAME}
                          sfm/groundpoint.h
                          sfm/track.h
                          sfm/OrientationReport.h
+                         sfm/BundleAdjuster.h
+                         sfm/Reconstruction.h
                          dense/dense.h
                          dense/CmvsPmvs.h
                          dense/Smvs.h

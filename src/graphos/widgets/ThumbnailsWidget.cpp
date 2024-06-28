@@ -420,6 +420,7 @@ void ThumbnailsWidget::initUI()
     onThumbnailClicked();
 
     mListWidget->setSelectionMode(QListWidget::ExtendedSelection);
+    mListWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
 
     mGridLayout->setMargin(0);
     mGridLayout->addWidget(toolBar);

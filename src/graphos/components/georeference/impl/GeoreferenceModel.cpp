@@ -210,6 +210,7 @@ void GeoreferenceModelImp::loadGroundControlPoints(const GroundControlPoints &gc
     tl::Path gcp_file = mProject->projectFolder();
     gcp_file.append("sfm").append("georef.xml");
 
+    TL_TODO("Extraer la lectura escritura de puntos de control")
     //auto reader = GCPsReaderFactory::create("GRAPHOS");
     //reader->read(gcp_file);
     ////reader->epsgCode();
@@ -463,7 +464,9 @@ void GeoreferenceModelImp::setCrs(const QString &crs)
 void GeoreferenceModelImp::save()
 {
     tl::Path gcp_file = mProject->projectFolder();
-    gcp_file.append("sfm").append("georef.xml");
+    gcp_file.append("sfm");
+    gcp_file.createDirectories();
+    gcp_file.append("georef.xml");
 
     QFile file(QString::fromStdWString(gcp_file.toWString()));
 

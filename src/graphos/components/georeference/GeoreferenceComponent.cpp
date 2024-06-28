@@ -96,8 +96,8 @@ void GeoreferenceComponent::update()
 
     bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
     bool processing = app_status->isEnabled(AppStatus::Flag::processing);
-    bool oriented = app_status->isEnabled(AppStatus::Flag::oriented);
-    action()->setEnabled(project_exists && oriented && !processing);
+    bool images_added = app_status->isEnabled(AppStatus::Flag::images_added);
+    action()->setEnabled(project_exists && images_added && !processing);
 }
 
 void GeoreferenceComponent::onRunning()
