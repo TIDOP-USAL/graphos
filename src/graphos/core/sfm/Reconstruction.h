@@ -72,6 +72,7 @@ public:
                        const std::map<int, Camera> &cameras,
                        bool fixCalibration,
                        bool absoluteOrientation,
+                       bool gps,
                        bool controlPoints);
 
     ~ReconstructionTask() override;
@@ -113,6 +114,7 @@ private:
 
     bool mFixCalibration;
     bool mAbsoluteOrientation;
+    bool mGPS;
     bool mControlPoints;
 
     int mMinCommonImages;

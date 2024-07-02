@@ -233,17 +233,13 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     } else {
 
-
-        mModel->hasControlPoints();
-        mModel->rtkOrientations();
-        mModel->gpsPositions();
-
         orientation_process = std::make_unique<ReconstructionTask>(mModel->database(),
                                                                    sfm_path,
                                                                    images,
                                                                    mModel->cameras(),
                                                                    mView->fixCalibration(), 
                                                                    mView->absoluteOrientation(),
+                                                                   mModel->gpsPositions(),
                                                                    mModel->hasControlPoints());
 
         orientation_process->subscribe([&](const tl::TaskFinalizedEvent *event) {

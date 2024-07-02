@@ -30,6 +30,8 @@
 #include <colmap/base/cost_functions.h>
 #include <colmap/optim/bundle_adjustment.h>
 
+#include "groundpoint.h"
+
 namespace graphos
 {
 
@@ -43,6 +45,8 @@ class BundleAdjustmentConfig
 private:
 
     std::unordered_map<colmap::image_t, double> cam_position_errors_;
+    std::vector<GroundControlPoint> control_points_;
+    std::unordered_map<size_t, uint32_t> image_ids_graphos_to_colmap;
 
 public:
 
@@ -60,6 +64,26 @@ public:
         auto it = cam_position_errors_.find(image_id);
         return (it != cam_position_errors_.end()) ? it->second : std::numeric_limits<double>::max();
     }
+
+    std::vector<GroundControlPoint> controlPoints() const
+    {
+        return control_points_;
+    }
+
+    void setGroundControlPoints(const std::vector<GroundControlPoint> &controlPoints)
+    {
+        control_points_ = controlPoints;
+    }
+
+    void setImageIdsGraphosToColmap(const std::unordered_map<size_t, uint32_t> &convert)
+    {
+        image_ids_graphos_to_colmap = convert;
+    }
+
+    uint32_t colmapId(size_t graphosId) const
+    {
+        return image_ids_graphos_to_colmap.at(graphosId);
+    }
 };
 
 
@@ -68,8 +92,8 @@ class BundleAdjuster
 
 public:
 
-    BundleAdjuster(const colmap::BundleAdjustmentOptions &options,
-                   const BundleAdjustmentConfig &config);
+    BundleAdjuster(colmap::BundleAdjustmentOptions options,
+                   BundleAdjustmentConfig config);
 
     bool solve(colmap::Reconstruction *reconstruction);
 
@@ -89,6 +113,11 @@ private:
     void addPointToProblem(colmap::point3D_t point3DId,
                            colmap::Reconstruction *reconstruction,
                            ceres::LossFunction *lossFunction);
+
+    void addControlPointToProblem(const GroundControlPoint &ground_points,
+                                  colmap::Reconstruction *reconstruction,
+                                  double ground_point_error,
+                                  ceres::LossFunction *lossFunction);
 
 protected:
 
