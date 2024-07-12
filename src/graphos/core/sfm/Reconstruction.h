@@ -73,6 +73,7 @@ public:
                        bool fixCalibration,
                        bool absoluteOrientation,
                        bool gps,
+                       bool rtk,
                        bool controlPoints);
 
     ~ReconstructionTask() override;
@@ -115,6 +116,7 @@ private:
     bool mFixCalibration;
     bool mAbsoluteOrientation;
     bool mGPS;
+    bool mRTK;
     bool mControlPoints;
 
     int mMinCommonImages;
@@ -125,7 +127,7 @@ private:
     tl::Path mOutputPath;
     std::vector<Image> mImages;
     std::map<int, Camera> mCameras;
-    colmap::IncrementalMapperOptions *mIncrementalMapper;
+    colmap::IncrementalMapperOptions *mIncrementalMapperOptions;
     colmap::IncrementalMapperController *mMapper;
     std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
     std::unordered_map<size_t, double> mCameraPosesErrors;

@@ -240,6 +240,7 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                                                                    mView->fixCalibration(), 
                                                                    mView->absoluteOrientation(),
                                                                    mModel->gpsPositions(),
+                                                                   mModel->rtkOrientations(),
                                                                    mModel->hasControlPoints());
 
         orientation_process->subscribe([&](const tl::TaskFinalizedEvent *event) {

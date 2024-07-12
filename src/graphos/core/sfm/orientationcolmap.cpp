@@ -50,31 +50,31 @@ namespace internal
 {
 
 
-struct PositionError
-{
-
-    explicit PositionError(const Eigen::Vector3d &translation)
-        : translation_(translation)
-    {
-    }
-
-    template <typename T>
-    bool operator()(const T *const cam_translation, T *residuals) const
-    {
-        residuals[0] = cam_translation[0] - T(translation_[0]);
-        residuals[1] = cam_translation[1] - T(translation_[1]);
-        residuals[2] = cam_translation[2] - T(translation_[2]);
-        return true;
-    }
-
-    static ceres::CostFunction *Create(const Eigen::Vector3d &translation)
-    {
-        return new ceres::AutoDiffCostFunction<PositionError, 3, 3>(
-            new PositionError(translation));
-    }
-
-    Eigen::Vector3d translation_;
-};
+//struct PositionError
+//{
+//
+//    explicit PositionError(const Eigen::Vector3d &translation)
+//        : translation_(translation)
+//    {
+//    }
+//
+//    template <typename T>
+//    bool operator()(const T *const cam_translation, T *residuals) const
+//    {
+//        residuals[0] = cam_translation[0] - T(translation_[0]);
+//        residuals[1] = cam_translation[1] - T(translation_[1]);
+//        residuals[2] = cam_translation[2] - T(translation_[2]);
+//        return true;
+//    }
+//
+//    static ceres::CostFunction *Create(const Eigen::Vector3d &translation)
+//    {
+//        return new ceres::AutoDiffCostFunction<PositionError, 3, 3>(
+//            new PositionError(translation));
+//    }
+//
+//    Eigen::Vector3d translation_;
+//};
 
 //// Clase de costo para restringir la posición de la cámara
 //class CameraPositionCostFunction
@@ -1610,7 +1610,6 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
 
                     const colmap::Image &image = reconstruction.Image(mGraphosToColmapId[mImages[i].id()]);
                     tl::Point3<double> position = mImages[i].cameraPose().position();
-                    //tl::Message::info("Point prior [{},{},{}]", position.x, position.y, position.z);
                     position -= mOffset;
                     Eigen::Vector3d pos_ini;
                     pos_ini[0] = position.x;
@@ -1618,9 +1617,9 @@ void ImportPosesTask::execute(tl::Progress *progressBar)
                     pos_ini[2] = position.z;
 
                     auto pos_final = image.ProjectionCenter();
-                    //tl::Message::info("Point final [{},{},{}]", pos_final.x(), pos_final.y(), pos_final.z());
+                    auto error_xyz = pos_final - pos_ini;
                     double error = (pos_final - pos_ini).norm();
-                    //tl::Message::info("Error {}", error);
+                    tl::Message::info("Error [x: {}, y: {}, z: {}]", error_xyz.x(), error_xyz.y(), error_xyz.z());
                     errors.push_back(error);
                 }
             }

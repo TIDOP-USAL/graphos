@@ -36,6 +36,15 @@ namespace graphos
 {
 
 
+/// La clase GroundControlPoint no me sirve...
+
+
+struct GCP
+{
+    tl::Vector3d point;
+    GCPTrack mTrack;
+};
+
 // Extraido de Colmap para añadir los puntos de control
 
 class BundleAdjustmentConfig
@@ -45,8 +54,11 @@ class BundleAdjustmentConfig
 private:
 
     std::unordered_map<colmap::image_t, double> cam_position_errors_;
-    std::vector<GroundControlPoint> control_points_;
+    //std::vector<GroundControlPoint> control_points_;
+    std::vector<GCP> control_points_;
     std::unordered_map<size_t, uint32_t> image_ids_graphos_to_colmap;
+    std::unordered_map<uint32_t, size_t> image_ids_colmap_to_graphos;
+    //Eigen::Vector3d _offset;
 
 public:
 
@@ -62,18 +74,46 @@ public:
     double getCamPositionError(colmap::image_t image_id) const
     {
         auto it = cam_position_errors_.find(image_id);
-        return (it != cam_position_errors_.end()) ? it->second : std::numeric_limits<double>::max();
+        return (it != cam_position_errors_.end()) ? it->second : 0.;
     }
 
-    std::vector<GroundControlPoint> controlPoints() const
+    //std::vector<GroundControlPoint> controlPoints() const
+    //{
+    //    return control_points_;
+    //}
+
+    std::vector<GCP> controlPoints() const
     {
         return control_points_;
     }
 
-    void setGroundControlPoints(const std::vector<GroundControlPoint> &controlPoints)
+    //void setGroundControlPoints(const std::vector<GroundControlPoint> &controlPoints)
+    //{
+    //    control_points_ = controlPoints;
+    //}
+
+    void setGroundControlPoints(const std::vector<GroundControlPoint> &controlPoints, const tl::Point3d &offset)
     {
-        control_points_ = controlPoints;
+        for (const auto &gcp : controlPoints)
+        {
+            auto point = gcp - offset;
+            GCP _gcp;
+            _gcp.point = {point.x, point.y, point.z};
+            _gcp.mTrack = gcp.track();
+            control_points_.push_back(_gcp);
+        }
+        
     }
+
+    //void setOffet(const Eigen::Vector3d &offset)
+    //{
+    //    _offset = offset;
+    //}
+
+    //Eigen::Vector3d offset() const
+    //{
+    //    return _offset;
+    //}
 
     void setImageIdsGraphosToColmap(const std::unordered_map<size_t, uint32_t> &convert)
     {
@@ -83,6 +123,16 @@ public:
     uint32_t colmapId(size_t graphosId) const
     {
         return image_ids_graphos_to_colmap.at(graphosId);
+    }
+
+    void setImageIdsColmapToGraphos(const std::unordered_map<uint32_t, size_t> &convert)
+    {
+        image_ids_colmap_to_graphos = convert;
+    }
+
+    size_t graphosId(uint32_t graphosId) const
+    {
+        return image_ids_colmap_to_graphos.at(graphosId);
     }
 };
 
@@ -114,10 +164,10 @@ private:
                            colmap::Reconstruction *reconstruction,
                            ceres::LossFunction *lossFunction);
 
-    void addControlPointToProblem(const GroundControlPoint &ground_points,
-                                  colmap::Reconstruction *reconstruction,
-                                  double ground_point_error,
-                                  ceres::LossFunction *lossFunction);
+    //void addControlPointToProblem(GCP &ground_points,
+    //                              colmap::Reconstruction *reconstruction,
+    //                              double ground_point_error,
+    //                              ceres::LossFunction *lossFunction);
 
 protected:
 
@@ -130,6 +180,7 @@ protected:
     ceres::Solver::Summary summary_;
     std::unordered_set<colmap::camera_t> camera_ids_;
     std::unordered_map<colmap::point3D_t, size_t> point3D_num_observations_;
+    //std::vector<size_t> groundControlPoints;
 };
 
 
