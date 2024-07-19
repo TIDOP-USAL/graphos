@@ -22,6 +22,7 @@
  ************************************************************************/
 
 #include "graphos/core/Application.h"
+
 #include "graphos/core/AppStatus.h"
 #include "graphos/core/Component.h"
 #include "graphos/core/command.h"
@@ -29,6 +30,10 @@
 #include "graphos/core/settings.h"
 
 #include <tidop/core/console.h>
+
+#include <gdal.h>
+#include <cpl_conv.h>
+#include <ogr_srs_api.h>
 
 #include <QAction>
 #include <QSettings>
@@ -48,6 +53,24 @@ Application::Application(int &argc, char **argv)
     mCommandList(nullptr),
     mViewer3D(nullptr)
 {
+
+    tl::Path app_path(argv[0]);
+
+#ifdef TL_OS_WINDOWS
+    tl::Path graphos_path = app_path.parentPath().parentPath();
+    tl::Path gdal_data_path(graphos_path);
+    gdal_data_path.append("gdal\\data");
+    tl::Path proj_data_path(graphos_path);
+    proj_data_path.append("proj");
+    CPLSetConfigOption("GDAL_DATA", gdal_data_path.toString().c_str());
+#   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
+    CPLSetConfigOption("PROJ_DATA", proj_data_path.toString().c_str());
+#   else
+    std::string s_proj = proj_data_path.toString();
+    const char *proj_data[]{s_proj.c_str(), nullptr};
+    OSRSetPROJSearchPaths(proj_data);
+#   endif
+#endif // TL_OS_WINDOWS
 }
 
 Application::~Application()
@@ -67,6 +90,8 @@ Application::~Application()
         delete mCommandList;
         mCommandList = nullptr;
     }
+
+    GDALDestroy();
 }
 
 auto Application::documentsLocation() -> tl::Path

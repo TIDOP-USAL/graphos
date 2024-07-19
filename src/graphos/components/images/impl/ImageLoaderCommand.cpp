@@ -148,7 +148,7 @@ bool ImageLoaderCommand::run()
                 cameras.push_back(camera.second);
             }
 
-            LoadImagesTask image_loader_process(&images, &cameras, camera_type, project.crs());
+            LoadImagesTask image_loader_process(&images, &cameras, camera_type/*, project.crs()*/);
 
             connect(&image_loader_process, &LoadImagesTask::imageAdded,
                     [&](int imageId, int cameraId) {

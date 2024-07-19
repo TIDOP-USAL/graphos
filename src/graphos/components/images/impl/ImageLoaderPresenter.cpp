@@ -78,11 +78,11 @@ void ImageLoaderPresenterImp::addImage(int imageId, int cameraId)
     image.setCameraId(camera_id);
     mModel->addImage(image);
 
-    QString crs_proj = mModel->projectCRS();
-    QString crs_image = image.cameraPose().crs();
-    if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
-        mModel->setProjectCRS(crs_image);
-    }
+    //QString crs_proj = mModel->projectCRS();
+    //QString crs_image = image.cameraPose().crs();
+    //if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
+    //    mModel->setProjectCRS(crs_image);
+    //}
 
     emit image_loaded(image.id());
 }
@@ -123,7 +123,7 @@ auto ImageLoaderPresenterImp::createTask() -> std::unique_ptr<tl::Task>
         mCameras.push_back(camera.second);
     }
 
-    image_loader_process = std::make_unique<LoadImagesTask>(&mImages, &mCameras, "OpenCV 1", mModel->projectCRS());
+    image_loader_process = std::make_unique<LoadImagesTask>(&mImages, &mCameras, "OpenCV 1"/*, mModel->projectCRS()*/);
 
     connect(dynamic_cast<LoadImagesTask *>(image_loader_process.get()), &LoadImagesTask::imageAdded,
             this, &ImageLoaderPresenterImp::addImage);

@@ -43,12 +43,12 @@ namespace graphos
 
 LoadImagesTask::LoadImagesTask(std::vector<Image> *images,
                                std::vector<Camera> *cameras,
-                               std::string cameraType,
-                               QString epsg)
+                               std::string cameraType/*,
+                               QString epsg*/)
   : tl::TaskBase(),
     mImages(images),
     mCameras(cameras),
-    mEPSG(std::move(epsg)),
+    //mEPSG(std::move(epsg)),
     mCameraType(std::move(cameraType))
 {
 #ifdef _DEBUG
@@ -166,31 +166,41 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         if (latitude_active && longitude_active && altitude_active) {
 
-            std::string epsg_out;
-            if (!mCrsOut) {
-                int zone = tl::utmZoneFromLongitude(longitude_degrees.value());
-                epsg_out = "EPSG:326";
-                epsg_out.append(std::to_string(zone));
-                mCrsOut = std::make_shared<tl::Crs>(epsg_out);
-            } else {
-                epsg_out = mEPSG.toStdString();
-            }
+            /// Se va a trabajar internamente con coordenadas ENU así que se quitá la transformación
+            //std::string epsg_out;
+            //if (!mCrsOut) {
+            //    int zone = tl::utmZoneFromLongitude(longitude_degrees.value());
+            //    epsg_out = "EPSG:326";
+            //    epsg_out.append(std::to_string(zone));
+            //    mCrsOut = std::make_shared<tl::Crs>(epsg_out);
+            //} else {
+            //    epsg_out = mEPSG.toStdString();
+            //}
 
-            try {
+            //try {
 
-                tl::CrsTransform crs_trf(mCrsIn, mCrsOut);
-                tl::Point3<double> pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
-                tl::Point3<double> pt_out = crs_trf.transform(pt_in);
+            //    tl::CrsTransform crs_trf(mCrsIn, mCrsOut);
+            //    tl::Point3<double> pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
+            //    tl::Point3<double> pt_out = crs_trf.transform(pt_in);
 
-                CameraPose camera_pose;
-                camera_pose.setPosition(pt_out);
-                camera_pose.setCrs(epsg_out.c_str());
-                camera_pose.setSource("EXIF");
-                (*mImages)[imageId].setCameraPose(camera_pose);
+            //    CameraPose camera_pose;
+            //    camera_pose.setPosition(pt_out);
+            //    camera_pose.setCrs(epsg_out.c_str());
+            //    camera_pose.setSource("EXIF");
+            //    (*mImages)[imageId].setCameraPose(camera_pose);
 
-            } catch (std::exception &e) {
-                tl::printException(e);
-            }
+            //} catch (std::exception &e) {
+            //    tl::printException(e);
+            //}
+
+            tl::Point3<double> pt(longitude_degrees.value(), latitude_degrees.value(), altitude);
+
+            CameraPose camera_pose;
+            camera_pose.setPosition(pt);
+            camera_pose.setCrs("EPSG:4326");
+            camera_pose.setSource("EXIF");
+            (*mImages)[imageId].setCameraPose(camera_pose);
+
         }
 
         tl::Message::resumeMessages();
@@ -347,11 +357,11 @@ void LoadImagesTask::execute(tl::Progress *progressBar)
         tl::Chrono chrono;
         chrono.run();
 
-        mCrsIn = std::make_shared<tl::Crs>("EPSG:4326");
-        std::shared_ptr<tl::Crs> crs_out;
-        if (!mEPSG.isEmpty()) {
-            mCrsOut = std::make_shared<tl::Crs>(mEPSG.toStdString());
-        }
+        //mCrsIn = std::make_shared<tl::Crs>("EPSG:4326");
+        //std::shared_ptr<tl::Crs> crs_out;
+        //if (!mEPSG.isEmpty()) {
+        //    mCrsOut = std::make_shared<tl::Crs>(mEPSG.toStdString());
+        //}
 
         for (size_t i = 0; i < mImages->size(); i++) {
 

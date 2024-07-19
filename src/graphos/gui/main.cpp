@@ -127,10 +127,6 @@
 #include <tidop/core/log.h>
 #include <tidop/core/msg/message.h>
 
-#include <gdal.h>
-#include <cpl_conv.h>
-#include <ogr_srs_api.h>
-
 #include <QAction>
 
 #ifdef HAVE_VLD
@@ -145,27 +141,27 @@
 using namespace graphos;
 
 
-void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg) 
-{
-    switch (errorClass)
-    {
-        case CE_None:
-            break;
-        case CE_Debug:
-            break;        
-        case CE_Warning:
-            tl::Message::warning("GDAL error [{}]: {}", error, msg);
-            break;       
-        case CE_Failure:
-            tl::Message::error("GDAL error [{}]: {}", error, msg);
-            break;    
-        case CE_Fatal:
-            tl::Message::error("GDAL error [{}]: {}", error, msg);
-            break;
-        default:
-            break;
-    } 
-}
+//void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg) 
+//{
+//    switch (errorClass)
+//    {
+//        case CE_None:
+//            break;
+//        case CE_Debug:
+//            break;        
+//        case CE_Warning:
+//            tl::Message::warning("GDAL error [{}]: {}", error, msg);
+//            break;       
+//        case CE_Failure:
+//            tl::Message::error("GDAL error [{}]: {}", error, msg);
+//            break;    
+//        case CE_Fatal:
+//            tl::Message::error("GDAL error [{}]: {}", error, msg);
+//            break;
+//        default:
+//            break;
+//    } 
+//}
 
 #ifdef DEBUG
 
@@ -200,25 +196,25 @@ int main(int argc, char *argv[])
 #endif // DEBUG
 
 
-    tl::Path app_path(argv[0]);
+//    tl::Path app_path(argv[0]);
+//
+//#ifdef TL_OS_WINDOWS
+//    tl::Path graphos_path = app_path.parentPath().parentPath();
+//    tl::Path gdal_data_path(graphos_path);
+//    gdal_data_path.append("gdal\\data");
+//    tl::Path proj_data_path(graphos_path);
+//    proj_data_path.append("proj");
+//    CPLSetConfigOption( "GDAL_DATA", gdal_data_path.toString().c_str());
+//#   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
+//        CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
+//#   else
+//        std::string s_proj = proj_data_path.toString();
+//        const char *proj_data[] {s_proj.c_str(), nullptr};
+//        OSRSetPROJSearchPaths(proj_data);
+//#   endif
+//#endif // TL_OS_WINDOWS
 
-#ifdef TL_OS_WINDOWS
-    tl::Path graphos_path = app_path.parentPath().parentPath();
-    tl::Path gdal_data_path(graphos_path);
-    gdal_data_path.append("gdal\\data");
-    tl::Path proj_data_path(graphos_path);
-    proj_data_path.append("proj");
-    CPLSetConfigOption( "GDAL_DATA", gdal_data_path.toString().c_str());
-#   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
-        CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
-#   else
-        std::string s_proj = proj_data_path.toString();
-        const char *proj_data[] {s_proj.c_str(), nullptr};
-        OSRSetPROJSearchPaths(proj_data);
-#   endif
-#endif // TL_OS_WINDOWS
-
-    CPLSetErrorHandler(messageHandlerGDAL);
+    //CPLSetErrorHandler(messageHandlerGDAL);
 
     Application app(argc, argv);
     Application::setApplicationName("GRAPHOS");

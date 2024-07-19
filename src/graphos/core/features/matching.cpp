@@ -258,10 +258,12 @@ auto FeatureMatchingTask::report() const -> FeatureMatchingReport
 
 SpatialMatchingTask::SpatialMatchingTask(tl::Path database,
                                          bool cuda,
-                                         const std::shared_ptr<FeatureMatching> &featureMatching)
+                                         const std::shared_ptr<FeatureMatching> &featureMatching,
+                                         bool geodeticCoordinates)
   : mDatabase(std::move(database)),
     bUseCuda(cuda),
-    mFeatureMatching(featureMatching)
+    mFeatureMatching(featureMatching),
+    mGeodeticCoordinates(geodeticCoordinates)
 {
 }
 
@@ -287,7 +289,7 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
         spatial_matching_options.max_num_neighbors = 100;// 500;
         //spatialMatchingOptions.max_distance = 250;
         spatial_matching_options.ignore_z = true;
-        spatial_matching_options.is_gps = false; /// TODO: Comprobar el tipo de sistema de coordenadas
+        spatial_matching_options.is_gps = mGeodeticCoordinates;
 
         // Extraido de colmap para incluir barra de progreso
 
@@ -343,9 +345,25 @@ void SpatialMatchingTask::execute(tl::Progress *progressBar)
 
             location_idxs.push_back(i);
 
-            location_matrix(num_locations, 0) = static_cast<float>(image.TvecPrior(0) - offset.x());
-            location_matrix(num_locations, 1) = static_cast<float>(image.TvecPrior(1) - offset.y());
-            location_matrix(num_locations, 2) = static_cast<float>(spatial_matching_options.ignore_z ? 0 : image.TvecPrior(2) - offset.z());
+            if (spatial_matching_options.is_gps) {
+
+                ells[0](0) = image.TvecPrior(0);
+                ells[0](1) = image.TvecPrior(1);
+                ells[0](2) = spatial_matching_options.ignore_z ? 0 : image.TvecPrior(2);
+
+                const auto xyzs = gps_transform.EllToXYZ(ells);
+
+                location_matrix(num_locations, 0) = static_cast<float>(xyzs[0](0));
+                location_matrix(num_locations, 1) = static_cast<float>(xyzs[0](1));
+                location_matrix(num_locations, 2) = static_cast<float>(xyzs[0](2));
+
+            } else {
+
+                location_matrix(num_locations, 0) = static_cast<float>(image.TvecPrior(0) - offset.x());
+                location_matrix(num_locations, 1) = static_cast<float>(image.TvecPrior(1) - offset.y());
+                location_matrix(num_locations, 2) = static_cast<float>(spatial_matching_options.ignore_z ? 0 : image.TvecPrior(2) - offset.z());
+
+            }
 
             num_locations += 1;
         }

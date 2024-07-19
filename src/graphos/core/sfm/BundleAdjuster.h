@@ -42,7 +42,8 @@ namespace graphos
 struct GCP
 {
     tl::Vector3d point;
-    GCPTrack mTrack;
+    GCPTrack track;
+    std::string name;
 };
 
 // Extraido de Colmap para añadir los puntos de control
@@ -92,17 +93,9 @@ public:
     //    control_points_ = controlPoints;
     //}
 
-    void setGroundControlPoints(const std::vector<GroundControlPoint> &controlPoints, const tl::Point3d &offset)
+    void setGroundControlPoints(const std::vector<GCP> &controlPoints)
     {
-        for (const auto &gcp : controlPoints)
-        {
-            auto point = gcp - offset;
-            GCP _gcp;
-            _gcp.point = {point.x, point.y, point.z};
-            _gcp.mTrack = gcp.track();
-            control_points_.push_back(_gcp);
-        }
-        
+        control_points_ = controlPoints;
     }
 
     //void setOffet(const Eigen::Vector3d &offset)

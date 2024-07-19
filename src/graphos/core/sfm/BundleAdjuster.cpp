@@ -389,7 +389,7 @@ void BundleAdjuster::addImageToProblem(const colmap::image_t imageId,
         //auto offset = config_.offset();
         //Eigen::Vector3d point3D(gcp.x, gcp.y, gcp.z);
         //auto &point3D = gcp.point;
-        auto &track = gcp.mTrack;
+        auto &track = gcp.track;
 
         if (track.existPoint(config_.graphosId(imageId))) {
 
@@ -470,7 +470,7 @@ void BundleAdjuster::addImageToProblem(const colmap::image_t imageId,
             for (auto &gcp : config_.controlPoints()) {
                 // Agregar restricciones para los puntos de control
                 Eigen::Vector3d point3D(gcp.point.x(), gcp.point.y(), gcp.point.z());
-                ceres::CostFunction *control_point_cost_function = ControlPointCostFunction::create(point3D, 10000. * static_cast<double>(gcp.mTrack.size()));
+                ceres::CostFunction *control_point_cost_function = ControlPointCostFunction::create(point3D, 10000. * static_cast<double>(gcp.track.size()));
                 problem_->AddResidualBlock(control_point_cost_function, nullptr, gcp.point.data());
             }
         }

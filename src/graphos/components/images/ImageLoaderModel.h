@@ -49,8 +49,8 @@ public:
     ImageLoaderModel(QObject *parent = nullptr) : Model(parent) {}
     ~ImageLoaderModel() override = default;
 
-    virtual auto projectCRS() const -> QString = 0;
-    virtual void setProjectCRS(const QString &crs) = 0;
+    //virtual auto projectCRS() const -> QString = 0;
+    //virtual void setProjectCRS(const QString &crs) = 0;
     virtual void addImage(const Image &image) = 0;
     virtual bool existImage(size_t imageId) const = 0;
     virtual auto imagesDirectory() const -> tl::Path = 0;

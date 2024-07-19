@@ -29,6 +29,7 @@
 
 #include <QFileInfo>
 #include <QSettings>
+#include <tidop/geospatial/crs.h>
 
 namespace graphos
 {
@@ -92,6 +93,19 @@ auto FeatureMatchingModelImp::spatialMatching() const -> bool
     for (const auto &image : mProject->images()) {
         if (!image.second.cameraPose().isEmpty()) {
             return true;
+        }
+    }
+
+    return false;
+}
+
+auto FeatureMatchingModelImp::geodeticCoordinates() const -> bool
+{
+    for (const auto &image : mProject->images()) {
+        if (!image.second.cameraPose().isEmpty()) {
+            auto epsg_code = image.second.cameraPose().crs().toStdString();
+            tl::Crs crs(epsg_code);
+            return crs.isGeographic();
         }
     }
 

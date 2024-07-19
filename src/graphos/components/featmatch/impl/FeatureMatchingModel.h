@@ -54,6 +54,7 @@ public:
     auto database() const -> tl::Path override;
     auto useCuda() const -> bool override;
     auto spatialMatching() const -> bool override;
+    auto geodeticCoordinates() const -> bool override;
     void writeMatchPairs() override;
     void cleanProject() override;
     auto imagesSize() const -> size_t override;
