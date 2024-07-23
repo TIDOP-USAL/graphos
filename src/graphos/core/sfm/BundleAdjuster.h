@@ -52,6 +52,12 @@ class BundleAdjustmentConfig
   : public colmap::BundleAdjustmentConfig
 {
 
+public:
+
+    /// Opciones de OpenMVG
+    double pose_center_robust_fitting_error;
+    bool bUse_loss_function_;
+
 private:
 
     std::unordered_map<colmap::image_t, double> cam_position_errors_;
@@ -60,6 +66,7 @@ private:
     std::unordered_map<size_t, uint32_t> image_ids_graphos_to_colmap;
     std::unordered_map<uint32_t, size_t> image_ids_colmap_to_graphos;
     //Eigen::Vector3d _offset;
+    
 
 public:
 
@@ -78,6 +85,15 @@ public:
         return (it != cam_position_errors_.end()) ? it->second : 0.;
     }
 
+    void setCamPositionRTK(colmap::image_t image_id)
+    {
+        cam_position_errors_[image_id] = 2.2;
+    }
+
+    void setCamPositionGPS(colmap::image_t image_id)
+    {
+        cam_position_errors_[image_id] = 1.1;
+    }
     //std::vector<GroundControlPoint> controlPoints() const
     //{
     //    return control_points_;
@@ -157,10 +173,10 @@ private:
                            colmap::Reconstruction *reconstruction,
                            ceres::LossFunction *lossFunction);
 
-    //void addControlPointToProblem(GCP &ground_points,
-    //                              colmap::Reconstruction *reconstruction,
-    //                              double ground_point_error,
-    //                              ceres::LossFunction *lossFunction);
+    void addControlPointToProblem(GCP &ground_points,
+                                  colmap::Reconstruction *reconstruction,
+                                  double ground_point_error,
+                                  ceres::LossFunction *lossFunction);
 
 protected:
 
@@ -177,6 +193,71 @@ protected:
 };
 
 
+
+
+struct BundleAdjusterOptions
+{
+    bool bVerbose_;
+    unsigned int nb_threads_;
+    bool bCeres_summary_;
+    int linear_solver_type_;
+    int preconditioner_type_;
+    int sparse_linear_algebra_library_type_;
+    double parameter_tolerance_;
+    double gradient_tolerance_;
+    bool bUse_loss_function_;
+    int max_num_iterations_;
+    int max_linear_solver_iterations_;
+
+    BundleAdjusterOptions(bool bVerbose = true, bool bmultithreaded = true)
+    {
+#ifdef OPENMVG_USE_OPENMP
+        nb_threads_ = omp_get_max_threads();
+#endif // OPENMVG_USE_OPENMP
+        if (!bmultithreaded)
+            nb_threads_ = 1;
+
+        bCeres_summary_ = false;
+
+        // Default configuration use a DENSE representation
+        linear_solver_type_ = ceres::DENSE_SCHUR;
+        preconditioner_type_ = ceres::JACOBI;
+        // If Sparse linear solver are available
+        // Descending priority order by efficiency (SUITE_SPARSE > CX_SPARSE > EIGEN_SPARSE)
+        if (ceres::IsSparseLinearAlgebraLibraryTypeAvailable(ceres::SUITE_SPARSE)) {
+            sparse_linear_algebra_library_type_ = ceres::SUITE_SPARSE;
+            linear_solver_type_ = ceres::SPARSE_SCHUR;
+        } else {
+            if (ceres::IsSparseLinearAlgebraLibraryTypeAvailable(ceres::EIGEN_SPARSE)) {
+                sparse_linear_algebra_library_type_ = ceres::EIGEN_SPARSE;
+                linear_solver_type_ = ceres::SPARSE_SCHUR;
+            }
+        }
+    }
+};
+
+class BundleAdjuster2
+{
+
+public:
+
+    BundleAdjuster2(colmap::BundleAdjustmentOptions options,
+                    BundleAdjustmentConfig config);
+
+    bool solve(colmap::Reconstruction *reconstruction);
+
+    const ceres::Solver::Summary &summary() const;
+
+protected:
+
+    colmap::BundleAdjustmentOptions options_;
+    BundleAdjustmentConfig config_;
+    ceres::Solver::Summary summary_;
+
+};
+
+
 } // namespace graphos
+
 
 #endif // GRAPHOS_CORE_BUNDLE_ADJUST_H

@@ -330,6 +330,11 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             //Eigen::Vector3d offset(0., 0., 0.);
 
             /// Si se dispone de coordenadas GPS o RTK se hace una transformación de semejanza
+
+
+            // OpenMVG utiliza este parámetro. Creo que la equivalencia es la mediana calculada 
+            double pose_center_robust_fitting_error = 0.0;
+            
             if (mGPS || mRTK) {
 
 
@@ -372,7 +377,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 tl::Point3<double> ecef_center;
                 double i = 1.;
                 for (const auto &ecef : cameras_geocentric) {
-                    ecef_center += (ecef.second - ecef_center) / i++;
+                    //ecef_center += (ecef.second - ecef_center) / i++;
+                    ecef_center += ecef.second / static_cast<double>(cameras_geocentric.size());
                 }
                 //tl::Message::info("ENU center coordinates [{} {} {}]", ecef_center.x, ecef_center.y, ecef_center.z);
 
@@ -392,7 +398,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                 std::unordered_map<size_t, tl::Point3<double>> cameras_enu;
 
-                colmap::GPSTransform gps_transform;
+                //colmap::GPSTransform gps_transform;
 
                 for (const auto &ecef : cameras_geocentric) {
                     cameras_enu[ecef.first] = ecef_to_enu->direct(ecef.second);
@@ -460,6 +466,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     }
                 }
 
+                pose_center_robust_fitting_error = colmap::Median(errors);
                 tl::Message::info("Alignment error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
 
                 if (status() == Status::stopping) return;
@@ -495,154 +502,162 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
             if (mControlPoints || mRTK) {
 
-                /// Lectura de los puntos de control
-                tl::Path gcp_file = mOutputPath;
-                gcp_file.append("georef.xml");
-                auto gcp_reader = GCPsReaderFactory::create("GRAPHOS");
-                gcp_reader->read(gcp_file);
-                auto gcps = gcp_reader->gcps();
-                auto gcps_epsg_code = gcp_reader->epsgCode();
-                TL_ASSERT(!gcps_epsg_code.empty(), "Unknow CRS for ground control points");
-                auto gcps_crs = std::make_shared<tl::Crs>(gcps_epsg_code);
-                tl::CrsTransform transfom_to_geocentric(gcps_crs, epsg_geocentric);
-
                 std::vector<GCP> control_points_enu;
 
-                // Si no se dispone de datos GPS de las imágenes se hace una transformación de semejanza 
-                if (!(mGPS || mRTK)) {
-
-                    /// Cálculo del centro
-                    tl::Point3<double> ecef_center;
-                    double i = 1.;
-                    for (auto &ground_control_point : gcps) {
-                        ecef_center += (ground_control_point - ecef_center) / i++;
-                    }
-                    tl::Message::info("ENU center coordinates [{} {} {}]", ecef_center.x, ecef_center.y, ecef_center.z);
-
-                    /// Por ahora aprovecho el fichero offset pero hay que ver como se guarda.
-                    {
-                        /// writeOffset
-                        tl::Path offset_path = mOutputPath;
-                        offset_path.append("offset.txt");
-                        offsetWrite(offset_path, tl::Point3<double>(ecef_center.x, ecef_center.y, ecef_center.z));
-                    }
-
-                    auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
-                    auto rotation = tl::rotationEnutoEcef(lla.x, lla.y);
-                    ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);
-
-                    std::vector<Eigen::Vector3d> src;
-                    std::vector<Eigen::Vector3d> dst;
-                    std::vector<std::string> gcp_name;
-
-                    colmap::IncrementalTriangulator::Options options;
-
-                    // Setup estimation options.
-                    colmap::EstimateTriangulationOptions tri_options;
-                    tri_options.min_tri_angle = colmap::DegToRad(options.min_angle);
-                    tri_options.residual_type = colmap::TriangulationEstimator::ResidualType::REPROJECTION_ERROR;
-                    tri_options.ransac_options.max_error = options.complete_max_reproj_error;
-                    tri_options.ransac_options.confidence = 0.9999;
-                    tri_options.ransac_options.min_inlier_ratio = 0.02;
-                    tri_options.ransac_options.max_num_trials = 10000;
+                /// Lectura de los puntos de control
+                if (mControlPoints) {
 
 
-                    colmap::Database database;
-                    database.Open(mDatabase.toString());
+                    tl::Path gcp_file = mOutputPath;
+                    gcp_file.append("georef.xml");
+                    auto gcp_reader = GCPsReaderFactory::create("GRAPHOS");
+                    gcp_reader->read(gcp_file);
+                    auto gcps = gcp_reader->gcps();
+                    auto gcps_epsg_code = gcp_reader->epsgCode();
+                    TL_ASSERT(!gcps_epsg_code.empty(), "Unknow CRS for ground control points");
+                    auto gcps_crs = std::make_shared<tl::Crs>(gcps_epsg_code);
+                    tl::CrsTransform transfom_to_geocentric(gcps_crs, epsg_geocentric);
 
-                    for (auto &ground_control_point : gcps) {
 
-                        std::vector<colmap::TriangulationEstimator::PointData> points_data;
-                        std::vector<colmap::TriangulationEstimator::PoseData> poses_data;
 
-                        for (auto &camera : reconstruction.Cameras()) {
+                    // Si no se dispone de datos GPS de las imágenes se hace una transformación de semejanza
+                    // Si ya se tiene una orientación aproximada pero hay puntos de control habría que calcular igual control_points_enu
 
-                            for (auto &image : reconstruction.Images()) {
+                    if (!(mGPS || mRTK)) {
 
-                                if (image.second.CameraId() == camera.second.CameraId()) {
+                        /// Cálculo del centro
+                        tl::Point3<double> ecef_center;
+                        double i = 1.;
+                        for (auto &ground_control_point : gcps) {
+                            //ecef_center += (ground_control_point - ecef_center) / i++;
+                            ecef_center += ground_control_point / static_cast<double>(gcps.size());
+                        }
+                        tl::Message::info("ENU center coordinates [{} {} {}]", ecef_center.x, ecef_center.y, ecef_center.z);
 
-                                    auto &track = ground_control_point.track();
+                        /// Por ahora aprovecho el fichero offset pero hay que ver como se guarda.
+                        {
+                            /// writeOffset
+                            tl::Path offset_path = mOutputPath;
+                            offset_path.append("offset.txt");
+                            offsetWrite(offset_path, tl::Point3<double>(ecef_center.x, ecef_center.y, ecef_center.z));
+                        }
 
-                                    if (track.existPoint(image_ids_colmap_to_graphos[image.second.ImageId()])) {
+                        auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
+                        auto rotation = tl::rotationEnutoEcef(lla.x, lla.y);
+                        ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);
 
-                                        tl::Point<double> point = track.point(image_ids_colmap_to_graphos[image.second.ImageId()]);
+                        std::vector<Eigen::Vector3d> src;
+                        std::vector<Eigen::Vector3d> dst;
+                        std::vector<std::string> gcp_name;
 
-                                        colmap::TriangulationEstimator::PointData point_data;
-                                        point_data.point = Eigen::Vector2d(point.x, point.y);
-                                        point_data.point_normalized = camera.second.ImageToWorld(point_data.point);
-                                        points_data.push_back(point_data);
+                        colmap::IncrementalTriangulator::Options options;
 
-                                        colmap::TriangulationEstimator::PoseData pose_data;
-                                        pose_data.proj_matrix = image.second.ProjectionMatrix();
-                                        pose_data.proj_center = image.second.ProjectionCenter();
-                                        pose_data.camera = &camera.second;
-                                        poses_data.push_back(pose_data);
+                        // Setup estimation options.
+                        colmap::EstimateTriangulationOptions tri_options;
+                        tri_options.min_tri_angle = colmap::DegToRad(options.min_angle);
+                        tri_options.residual_type = colmap::TriangulationEstimator::ResidualType::REPROJECTION_ERROR;
+                        tri_options.ransac_options.max_error = options.complete_max_reproj_error;
+                        tri_options.ransac_options.confidence = 0.9999;
+                        tri_options.ransac_options.min_inlier_ratio = 0.02;
+                        tri_options.ransac_options.max_num_trials = 10000;
+
+
+                        colmap::Database database;
+                        database.Open(mDatabase.toString());
+
+                        for (auto &ground_control_point : gcps) {
+
+                            std::vector<colmap::TriangulationEstimator::PointData> points_data;
+                            std::vector<colmap::TriangulationEstimator::PoseData> poses_data;
+
+                            for (auto &camera : reconstruction.Cameras()) {
+
+                                for (auto &image : reconstruction.Images()) {
+
+                                    if (image.second.CameraId() == camera.second.CameraId()) {
+
+                                        auto &track = ground_control_point.track();
+
+                                        if (track.existPoint(image_ids_colmap_to_graphos[image.second.ImageId()])) {
+
+                                            tl::Point<double> point = track.point(image_ids_colmap_to_graphos[image.second.ImageId()]);
+
+                                            colmap::TriangulationEstimator::PointData point_data;
+                                            point_data.point = Eigen::Vector2d(point.x, point.y);
+                                            point_data.point_normalized = camera.second.ImageToWorld(point_data.point);
+                                            points_data.push_back(point_data);
+
+                                            colmap::TriangulationEstimator::PoseData pose_data;
+                                            pose_data.proj_matrix = image.second.ProjectionMatrix();
+                                            pose_data.proj_center = image.second.ProjectionCenter();
+                                            pose_data.camera = &camera.second;
+                                            poses_data.push_back(pose_data);
+                                        }
+
                                     }
-
                                 }
                             }
+
+                            if (points_data.size() < 2) continue;
+
+                            Eigen::Vector3d xyz;
+                            std::vector<char> inlier_mask;
+                            if (colmap::EstimateTriangulation(tri_options, points_data, poses_data, &inlier_mask, &xyz)) {
+
+                                src.push_back(xyz);
+
+                                auto gcp_ecef = transfom_to_geocentric.transform(ground_control_point);
+                                auto cgp_enu = ecef_to_enu->direct(gcp_ecef);
+
+                                GCP _gcp;
+                                _gcp.point = {cgp_enu.x, cgp_enu.y, cgp_enu.z};
+                                _gcp.track = ground_control_point.track();
+                                _gcp.name = ground_control_point.name();
+                                control_points_enu.push_back(_gcp);
+
+                                dst.emplace_back(cgp_enu.x,
+                                    cgp_enu.y,
+                                    cgp_enu.z);
+                                gcp_name.push_back(ground_control_point.name());
+                            }
+
                         }
 
-                        if (points_data.size() < 2) continue;
+                        TL_ASSERT(src.size() > 3, "Insufficient number of points");
 
-                        Eigen::Vector3d xyz;
-                        std::vector<char> inlier_mask;
-                        if (colmap::EstimateTriangulation(tri_options, points_data, poses_data, &inlier_mask, &xyz)) {
+                        //for (size_t i = 0; i < dst.size(); i++) {
+                        //    offset += (dst[i] - offset) / (i + 1);
+                        //}
 
-                            src.push_back(xyz);
+                        //for (auto &i : dst) {
+                        //    i -= offset;
+                        //}
 
-                            auto gcp_ecef = transfom_to_geocentric.transform(ground_control_point);
-                            auto cgp_enu = ecef_to_enu->direct(gcp_ecef);
+                        //tl::Path offset_path = mOutputPath;
+                        //offset_path.append("offset.txt");
 
-                            GCP _gcp;
-                            _gcp.point = {cgp_enu.x, cgp_enu.y, cgp_enu.z};
-                            _gcp.track = ground_control_point.track();
-                            _gcp.name = ground_control_point.name();
-                            control_points_enu.push_back(_gcp);
+                        //offsetWrite(offset_path, tl::Point3<double>(offset.x(), offset.y(), offset.z()));
 
-                            dst.emplace_back(cgp_enu.x,
-                                             cgp_enu.y,
-                                             cgp_enu.z);
-                            gcp_name.push_back(ground_control_point.name());
+                        colmap::SimilarityTransform3 similarity_transform;
+                        similarity_transform.Estimate(src, dst);
+
+                        reconstruction.Transform(similarity_transform);
+
+                        tl::Message::info("\nSimilarity transform:\n");
+                        std::vector<double> errors;
+                        errors.reserve(dst.size());
+
+                        for (size_t i = 0; i < dst.size(); ++i) {
+                            similarity_transform.TransformPoint(&src.at(i));
+                            errors.push_back((src[i] - dst[i]).norm());
+
+                            tl::Message::info("Ground Control Point {}: Error -> {}", gcp_name[i], errors[i]);
                         }
 
+                        tl::Message::info("Georeference error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
+
                     }
-
-                    TL_ASSERT(src.size() > 3, "Insufficient number of points");
-
-                    //for (size_t i = 0; i < dst.size(); i++) {
-                    //    offset += (dst[i] - offset) / (i + 1);
-                    //}
-
-                    //for (auto &i : dst) {
-                    //    i -= offset;
-                    //}
-
-                    //tl::Path offset_path = mOutputPath;
-                    //offset_path.append("offset.txt");
-
-                    //offsetWrite(offset_path, tl::Point3<double>(offset.x(), offset.y(), offset.z()));
-
-                    colmap::SimilarityTransform3 similarity_transform;
-                    similarity_transform.Estimate(src, dst);
-
-                    reconstruction.Transform(similarity_transform);
-
-                    tl::Message::info("\nSimilarity transform:\n");
-                    std::vector<double> errors;
-                    errors.reserve(dst.size());
-
-                    for (size_t i = 0; i < dst.size(); ++i) {
-                        similarity_transform.TransformPoint(&src.at(i));
-                        errors.push_back((src[i] - dst[i]).norm());
-
-                        tl::Message::info("Ground Control Point {}: Error -> {}", gcp_name[i], errors[i]);
-                    }
-
-                    tl::Message::info("Georeference error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
-
                 }
-
 
                 // Se hace un ajuste mas fino con los puntos de control
                 //tl::Message::info("Se hace un ajuste mas fino con los puntos de control");
@@ -654,8 +669,15 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 BundleAdjustmentConfig ba_config;
                 for (const colmap::image_t image_id : reg_image_ids) {
                     ba_config.AddImage(image_id);
+                    if (mRTK){
+                        ba_config.setCamPositionRTK(image_id);
+                    } else if (mGPS){
+                        ba_config.setCamPositionGPS(image_id);
+                    }
                 }
-                ba_config.setGroundControlPoints(control_points_enu);
+
+                if (mControlPoints)
+                    ba_config.setGroundControlPoints(control_points_enu);
                 ba_config.setImageIdsGraphosToColmap(image_ids_graphos_to_colmap); //Por ahora...
                 ba_config.setImageIdsColmapToGraphos(image_ids_colmap_to_graphos);
 

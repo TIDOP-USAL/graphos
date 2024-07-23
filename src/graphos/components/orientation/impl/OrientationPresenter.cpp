@@ -171,7 +171,8 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     tl::Path sfm_path = mModel->projectFolder();
     sfm_path.append("sfm");
 
-    if (mModel->rtkOrientations()) {
+    // Ahora no es correcto. Se está haciendo ajuste de haces
+    if (mView->fixPoses()/*mModel->rtkOrientations()*/) {
 
         orientation_process = std::make_unique<ImportPosesTask>(images,
                                                                 mModel->cameras(),
