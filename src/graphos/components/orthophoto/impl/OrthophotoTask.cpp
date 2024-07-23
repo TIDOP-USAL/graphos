@@ -428,6 +428,7 @@ void orthoMosaic(const tl::Path &graph_orthos,
 
                 const auto &window = grid[r][c];
 
+                // Best image
                 auto &ortho_it = orthos[r][c].begin();
 
                 cv::Mat read_image;
@@ -471,16 +472,16 @@ void orthoMosaic(const tl::Path &graph_orthos,
                 // Iterate through each component
                 //for (int i = 1; i < numComponents; i++) {  // Start from 1 to ignore the background
                 for (int i = 0; i < numComponents; i++) {
-                    int area = stats.at<int>(i, cv::CC_STAT_AREA);
+                    int area = stats.at<int>(i+1, cv::CC_STAT_AREA);
                     if (area > 1024) {
-                        cv::Mat componentMask = (labels == i);
+                        cv::Mat componentMask = (labels == i+1);
                         //finalMask |= componentMask;
-                        ortho_it++;
-                        tl::ImageReader::Ptr image_reader2 = tl::ImageReaderFactory::create(ortho_it->second);
-                        for (auto it = ortho_it; it != orthos[r][c].end(); it++) {
+                        auto it = ortho_it;
+                        it++;
+                        for (; it != orthos[r][c].end(); it++) {
 
                             tl::ImageReader::Ptr image_reader2 = tl::ImageReaderFactory::create(it->second);
-
+                            image_reader2->open();
                             if (!image_reader2->isOpen()) {
                                 tl::Message::error("Image open error :{}", it->second);
                                 continue;
@@ -493,16 +494,31 @@ void orthoMosaic(const tl::Path &graph_orthos,
 
                             cv::Mat second_image = image_reader2->read(window_to_read);
                             image_reader2->close();
-                            cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
-                            cv::Mat finalMask = componentMask;
-                            finalMask |= blackPixelMask;
+
+                            if (second_image.size() != read_image.size()) continue;
+                            //cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
+                            cv::Mat finalMask = componentMask.clone();
+                            finalMask |= blackMask;
 
                             // Se tiene que comprobar solo en el area de la componente
-                            int numBlackPixels = finalMask.size().area() - cv::countNonZero(finalMask);                                    
-                            if (numBlackPixels < 1024) {
-                                cv::Mat result;
-                                cv::seamlessClone(second_image, read_image, componentMask, cv::Point(read_image.cols / 2, read_image.rows / 2), result, cv::NORMAL_CLONE);
-                                read_image = result;
+                            // La mascara se establece sobre los pixeles negros asi que compruebo lo puntos que son mascara
+
+                            // Tengo que recalcular la mascara a la zona en concreto que se quiere clonar.
+                            // De esta forma se evita que se clonen trozos negros de imagen.
+                            int numBlackPixels = /*finalMask.size().area() -*/ cv::countNonZero(finalMask);
+                            if (finalMask.size().area() == numBlackPixels) continue;
+                            if (numBlackPixels < 512/*1024*/) {
+                                break;
+                            } else {
+                                try {
+                                    cv::Mat result;
+                                    cv::seamlessClone(second_image, read_image, componentMask, 
+                                                      cv::Point(read_image.cols / 2, read_image.rows / 2), result, cv::NORMAL_CLONE);
+                                    read_image = result.clone();
+                                    blackMask = finalMask.clone();
+                                } catch (std::exception &e) {
+                                    tl::printException(e);
+                                }
                             }
                         }
                     }
@@ -565,7 +581,11 @@ void orthoMosaic(const tl::Path &graph_orthos,
                 for (size_t c = 0; c < grid[r].size(); c++) {
 
                     const auto &window = grid[r][c];
-                    auto image_reader = tl::ImageReaderFactory::create(orthos[r][c].begin()->second);
+                    tl::Path tile(ortho_path);
+                    tile.append(std::to_string(r));
+                    tile.append(std::to_string(c));
+                    tile.append("t.tif");
+                    auto image_reader = tl::ImageReaderFactory::create(tile/*orthos[r][c].begin()->second*/);
                     image_reader->open();
                     if (!image_reader->isOpen()) {
                         tl::Message::error("Image open error :{}", orthos[r][c].begin()->second);
