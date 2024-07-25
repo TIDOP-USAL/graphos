@@ -29,6 +29,7 @@ TL_DISABLE_WARNINGS
 #include <QGridLayout>
 #include <QLabel>
 #include <QApplication>
+#include <QCloseEvent>
 TL_DEFAULT_WARNINGS
 
 namespace graphos
@@ -115,7 +116,29 @@ void ProgressBarDialog::retranslate()
     mPushButtonClose->setText(QCoreApplication::translate("ProgressBarView", "Close", nullptr));
 }
 
-void ProgressBarDialog::setStatusText(QString text)
+//void ProgressBarDialog::changeEvent(QEvent *event)
+//{
+//    if (event->type() == QEvent::WindowStateChange) {
+//        auto state_event = dynamic_cast<QWindowStateChangeEvent *>(event);
+//        if (state_event->oldState() != Qt::WindowMinimized && windowState() == Qt::WindowMinimized) {
+//            hide();
+//            setWindowState(Qt::WindowNoState);
+//            event->ignore();
+//        }
+//    }
+//}
+
+void ProgressBarDialog::closeEvent(QCloseEvent *event)
+{
+    if (mPushButtonClose->isVisible()){
+        QDialog::close();
+    } else {
+        event->ignore();
+        onPushButtonCancelClicked();
+    }
+}
+
+void ProgressBarDialog::setStatusText(const QString& text)
 {
     mLabelStatus->setText(text);
 }
