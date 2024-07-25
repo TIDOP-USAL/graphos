@@ -91,7 +91,7 @@ public:
     {
         for (const auto &image : *mImages) {
 
-            if (mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
+            if (mFeatureExtractorTask && mFeatureExtractorTask->status() == tl::Task::Status::stopping) {
                 featextract_done = true;
                 return;
             }
