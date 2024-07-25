@@ -97,8 +97,8 @@ void ScaleViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("ScaleView", "Scale"));
 
-    mLabelDistance->setText(QApplication::translate("DistanceView", "Length:"));
-    mLabelDistanceReal->setText(QApplication::translate("DistanceView", "Length in the model:"));
+    mLabelDistance->setText(QApplication::translate("DistanceView", "Length (m):"));
+    mLabelDistanceReal->setText(QApplication::translate("DistanceView", "Length in the model (m):"));
 
 
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("ScaleView", "Cancel"));

@@ -125,12 +125,15 @@ void TaskPresenter::run()
 
         if (mProgressHandler) {
             connect(mProgressHandler, SIGNAL(cancel()), this, SLOT(cancel()));
-            mProgressHandler->init();
         }
 
         emit running();
 
         mProcess->runAsync(mProgressHandler);
+
+        if (mProgressHandler) {
+            mProgressHandler->init();
+        }
 
     } catch (const std::exception &e) {
         tl::printException(e);
