@@ -59,14 +59,12 @@ if (BUILD_GUI)
                              MainWindowPresenter.cpp
                              MainWindowView.cpp
                              HelpDialog.cpp
-                             ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
                          HEADER_FILES
                              ComponentsManager.h
                              MainWindowModel.h
                              MainWindowPresenter.h
                              MainWindowView.h
                              HelpDialog.h
-                             ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
                          RESOURCE_FILES
                              ${GRAPHOS_RESOURCES}
                          FORM_FILES
