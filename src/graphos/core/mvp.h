@@ -46,21 +46,21 @@ namespace graphos
 
 using View = QObject;
 
-class CommandView
-  : public View
-{
-
-public:
-
-    CommandView(QObject *parent = nullptr)
-      : View(parent)
-    {
-    }
-    virtual ~CommandView() override = default;
-
-    virtual std::shared_ptr<tl::Command> command() = 0;
-
-};
+//class CommandView
+//  : public View
+//{
+//
+//public:
+//
+//    CommandView(QObject *parent = nullptr)
+//      : View(parent)
+//    {
+//    }
+//    virtual ~CommandView() override = default;
+//
+//    virtual std::shared_ptr<tl::Command> command() = 0;
+//
+//};
 
 
 class DialogView
@@ -80,7 +80,7 @@ public:
         QWidget::setWindowFlags(flags);
     }
 
-    virtual ~DialogView() override = default;
+    ~DialogView() override = default;
 
 private:
 
@@ -97,7 +97,7 @@ private:
 signals:
 
     void help();
-    void restore();
+    //void restore();
 
 public slots:
 
