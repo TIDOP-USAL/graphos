@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_FLOOR_LEVEL_COMPONENT)
+if(BUILD_FLOOR_LEVEL_COMPONENT AND BUILD_GUI)
 
     project(FloorLevel CXX)
     
@@ -52,7 +52,7 @@ if(BUILD_FLOOR_LEVEL_COMPONENT)
                           Qt5::Core
                           Qt5::Widgets
                           Graphos::Core
-                          Graphos::Widgets
+                          #Graphos::Widgets
                           Eigen3::Eigen
                           glog::glog
                           Ceres::ceres)
@@ -77,4 +77,4 @@ if(BUILD_FLOOR_LEVEL_COMPONENT)
         #add_subdirectory(test)
     endif(BUILD_TEST)
 
-endif(BUILD_FLOOR_LEVEL_COMPONENT)
+endif(BUILD_FLOOR_LEVEL_COMPONENT AND BUILD_GUI)

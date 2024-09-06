@@ -40,9 +40,9 @@ public:
     DTMCommand();
     ~DTMCommand() override;
 
-private:
-
-    auto offset() const -> std::array<double, 3>;
+//private:
+//
+//    auto offset() const -> std::array<double, 3>;
 
 private:
 

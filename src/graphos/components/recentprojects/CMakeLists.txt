@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_RECENT_PROJECTS_COMPONENT)
+if(BUILD_RECENT_PROJECTS_COMPONENT AND BUILD_GUI)
 
     project(RecentProjects LANGUAGES CXX)
     
@@ -87,4 +87,4 @@ else()
 
     message(STATUS "  Graphos::RecentProjects disabled")
     
-endif(BUILD_RECENT_PROJECTS_COMPONENT)
+endif(BUILD_RECENT_PROJECTS_COMPONENT AND BUILD_GUI)

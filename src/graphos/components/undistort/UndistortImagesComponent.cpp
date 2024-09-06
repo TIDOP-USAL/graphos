@@ -24,9 +24,11 @@
 
 #include "UndistortImagesComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/undistort/impl/UndistortImagesModel.h"
 #include "graphos/components/undistort/impl/UndistortImagesView.h"
 #include "graphos/components/undistort/impl/UndistortImagesPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/undistort/impl/UndistortImagesCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -59,18 +61,24 @@ void UndistortImagesComponent::init()
 
 void UndistortImagesComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new UndistortImagesModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void UndistortImagesComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new UndistortImagesViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void UndistortImagesComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new UndistortImagesPresenterImp(dynamic_cast<UndistortImagesView *>(view()),
                                                  dynamic_cast<UndistortImagesModel *>(model())));
+#endif // GRAPHOS_GUI
 }
 
 void UndistortImagesComponent::createCommand()

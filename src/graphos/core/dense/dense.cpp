@@ -30,6 +30,7 @@
 #include <tidop/core/path.h>
 
 /* CloudCompare*/
+#ifdef GRAPHOS_GUI
 #include <FileIOFilter.h>
 #include <PlyFilter.h>
 #include <AutoSegmentationTools.h>
@@ -38,6 +39,7 @@
 #include <ccPointCloud.h>
 #include <ccCommon.h>
 #include <ReferenceCloud.h>
+#endif // GRAPHOS_GUI
 
 namespace graphos
 {
@@ -134,6 +136,7 @@ void DensifierBase::setDenseModel(const tl::Path &denseModel)
 
 void DensifierBase::autoSegmentation() const
 {
+#ifdef GRAPHOS_GUI
     try {
 
         ccHObject group;
@@ -230,6 +233,7 @@ void DensifierBase::autoSegmentation() const
 
         TL_THROW_EXCEPTION_WITH_NESTED("Exception caught in the automatic segmentation of the point cloud");
     }
+#endif // GRAPHOS_GUI
 
 }
 

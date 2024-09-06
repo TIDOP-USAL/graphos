@@ -23,9 +23,11 @@
 
 #include "CreateProjectComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/createproject/impl/CreateProjectModel.h"
 #include "graphos/components/createproject/impl/CreateProjectView.h"
 #include "graphos/components/createproject/impl/CreateProjectPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/createproject/impl/CreateProjectCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -65,22 +67,28 @@ void CreateProjectComponent::init()
 
 void CreateProjectComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new CreateProjectModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void CreateProjectComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new CreateProjectViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void CreateProjectComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new CreateProjectPresenterImp(dynamic_cast<CreateProjectView *>(view()),
                                                dynamic_cast<CreateProjectModel *>(model()),
                                                app()->status()));
 
     connect(dynamic_cast<CreateProjectPresenter *>(presenter()), &CreateProjectPresenter::project_created,
             this, &CreateProjectComponent::onProjectCreated);
+#endif // GRAPHOS_GUI
 }
 
 void CreateProjectComponent::createCommand()

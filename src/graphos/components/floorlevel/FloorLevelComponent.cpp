@@ -84,6 +84,7 @@ void FloorLevelComponent::open()
                            "Do you want to open the 3D model??",
                            QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::Yes);
+        msgBox.setWindowFlags(msgBox.windowFlags() | Qt::WindowStaysOnTopHint);
         int ret = msgBox.exec();
         if (ret == QMessageBox::Yes) {
             emit open_3d_model();
@@ -211,6 +212,8 @@ void FloorLevelComponent::pointClicked(const QVector3D &point)
         AppStatus *app_status = app->status();
 
         app_status->activeFlag(AppStatus::Flag::project_modified, true);
+
+        emit finished();
     }
 }
 

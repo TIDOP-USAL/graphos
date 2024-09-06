@@ -150,7 +150,7 @@ void FeatureMatchingTask::execute(tl::Progress *progressBar)
         const std::vector<colmap::image_t> image_ids = cache.GetImageIds();
 
         const size_t block_size = static_cast<size_t>(exhaustive_matching_options.block_size);
-        const size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(image_ids.size()) / block_size));
+        //const size_t num_blocks = static_cast<size_t>(std::ceil(static_cast<double>(image_ids.size()) / block_size));
         const size_t num_pairs_per_block = block_size * (block_size - 1) / 2;
 
         std::vector<std::pair<colmap::image_t, colmap::image_t>> image_pairs;

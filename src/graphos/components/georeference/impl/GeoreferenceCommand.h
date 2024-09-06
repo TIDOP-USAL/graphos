@@ -41,9 +41,10 @@ public:
     ~GeoreferenceCommand() override;
 
 private:
+
     static auto readGroundPoints(const tl::Path &groundPointsPath) -> std::vector<GroundPoint>;
 
-    // Command
+// Command
 
 private:
 

@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_VIDEO_LOAD_COMPONENT)
+if(BUILD_VIDEO_LOAD_COMPONENT AND BUILD_GUI)
 
     project(VideoLoad)
 
@@ -89,4 +89,4 @@ else()
 
     message(STATUS "  Graphos::video_load disabled")
 
-endif(BUILD_VIDEO_LOAD_COMPONENT)
+endif(BUILD_VIDEO_LOAD_COMPONENT AND BUILD_GUI)

@@ -24,9 +24,11 @@
 
 #include "GeoreferenceComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/georeference/impl/GeoreferenceModel.h"
 #include "graphos/components/georeference/impl/GeoreferenceView.h"
 #include "graphos/components/georeference/impl/GeoreferencePresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/georeference/impl/GeoreferenceCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -59,21 +61,27 @@ void GeoreferenceComponent::init()
 
 void GeoreferenceComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new GeoreferenceModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void GeoreferenceComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
     setView(new GeoreferenceViewImp(nullptr, f));
     connect(dynamic_cast<GeoreferenceView *>(view()), &GeoreferenceView::select_crs,
             this, &GeoreferenceComponent::select_crs);
+#endif // GRAPHOS_GUI
 }
 
 void GeoreferenceComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new GeoreferencePresenterImp(dynamic_cast<GeoreferenceView *>(view()),
                                               dynamic_cast<GeoreferenceModel *>(model())));
+#endif // GRAPHOS_GUI
 }
 
 void GeoreferenceComponent::createCommand()

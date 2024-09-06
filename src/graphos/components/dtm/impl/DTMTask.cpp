@@ -133,13 +133,13 @@ cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin, const tl::BoundingBo
     double increment = 40. / static_cast<double>(size.height);
     double progress = 0.;
 
-    for (std::size_t r = 0; r < static_cast<size_t>(size.height); ++r) {
+    for (size_t r = 0; r < static_cast<size_t>(size.height); ++r) {
 
         //if (status() == Task::Status::stopping) return mat;
 
-        for (std::size_t c = 0; c < size.width; ++c) {
+        for (size_t c = 0; c < static_cast<size_t>(size.width); ++c) {
 
-            Point_3 query(bbox.pt1.x + c * gsd, bbox.pt1.y + (size.height - r) * gsd, 0.);
+            Point_3 query(bbox.pt1.x + static_cast<double>(c) * gsd, bbox.pt1.y + (static_cast<double>(size.height) - static_cast<double>(r)) * gsd, 0.);
             location = tin.locate(query, location);
 
             if (!tin.is_infinite(location)) {
@@ -186,11 +186,11 @@ cv::Mat extractDTMfromMesh(SurfaceMesh &mesh, const tl::BoundingBoxD &bbox, tl::
 
     /*Tree*/Tree2 tree(faces(mesh).first, faces(mesh).second, mesh);
 
-    for (std::size_t r = 0; r < size.height; ++r) {
+    for (size_t r = 0; r < static_cast<size_t>(size.height); ++r) {
 
         //if (status() == Task::Status::stopping) return mat;
 
-        for (std::size_t c = 0; c < size.width; ++c) {
+        for (size_t c = 0; c < static_cast<size_t>(size.width); ++c) {
 
 
             Vector_3 orientation(0., 0., -1.);
@@ -223,10 +223,10 @@ cv::Mat extractDTMfromMesh(SurfaceMesh &mesh, const tl::BoundingBoxD &bbox, tl::
 
 cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points, 
                                  const tl::BoundingBoxD &bbox, 
-                                 tl::Progress *progressBar, 
+                                 //tl::Progress *progressBar, 
                                  double gsd, 
-                                 const tl::Affine<double, 2> &georeference, 
-                                 tl::Point3<double> offset)
+                                 const tl::Affine<double, 2> &georeference,
+                                 const tl::Point3<double> &offset)
 {
     tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd),
                        tl::roundToInteger(bbox.height() / gsd));
@@ -306,7 +306,7 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         tl::Affine<double, 2> georeference(mGSD, -mGSD, cgal_bbox.xmin() + mOffset.x, cgal_bbox.ymax() + mOffset.y, 0.);
 
-        cv::Mat dsm_raster = extractDSMfromPointCloud(points, bbox, progressBar, mGSD, georeference.inverse(), mOffset);
+        cv::Mat dsm_raster = extractDSMfromPointCloud(points, bbox, /*progressBar,*/ mGSD, georeference.inverse(), mOffset);
 
         for (int r = 0; r < dsm_raster.rows; r++) {
             for (int c = 0; c < dsm_raster.cols; c++) {

@@ -35,25 +35,30 @@ if(BUILD_UNDISTORT_COMPONENT)
     # Create code from a list of Qt designer ui files
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
-    
-
+ 
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              UndistortImagesComponent.cpp
-                             impl/UndistortImagesModel.cpp
-                             impl/UndistortImagesView.cpp
-                             impl/UndistortImagesPresenter.cpp
                              impl/UndistortImagesCommand.cpp
                          HEADER_FILES
                              UndistortImagesComponent.h
+                             impl/UndistortImagesCommand.h)
+                             
+if (BUILD_GUI)
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/UndistortImagesModel.cpp
+                             impl/UndistortImagesView.cpp
+                             impl/UndistortImagesPresenter.cpp
+                         HEADER_FILES
                              UndistortImagesModel.h
                              UndistortImagesView.h
                              UndistortImagesPresenter.h
                              impl/UndistortImagesModel.h
                              impl/UndistortImagesView.h
-                             impl/UndistortImagesPresenter.h
-                             impl/UndistortImagesCommand.h)
-            
+                             impl/UndistortImagesPresenter.h)
+endif(BUILD_GUI)
+ 
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -63,9 +68,8 @@ if(BUILD_UNDISTORT_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                           Graphos::Core
-                          Graphos::Widgets
                           Eigen3::Eigen
                           glog::glog
                           Ceres::ceres)

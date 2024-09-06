@@ -62,6 +62,8 @@ public:
     Undistort(const Undistort &undistort);
     ~Undistort() = default;
 
+    auto operator=(const Undistort &undistort) -> Undistort&;
+
     auto camera() const -> Camera;
     void setCamera(const Camera &camera);
     auto undistortCamera() const -> Camera;

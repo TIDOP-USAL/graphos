@@ -64,7 +64,7 @@ bool CreateProjectCommand::run()
         bool force_overwrite = this->value<bool>("overwrite");
 
         tl::Path project_path = project_name;
-        QString base_name = QString::fromStdWString(project_path.baseName().toWString());
+        auto base_name = project_path.baseName().toString();
 
         if (project_path.isAbsolutePath()) {
 
@@ -72,7 +72,7 @@ bool CreateProjectCommand::run()
 
         } else {
 
-            project_folder_path = tl::Path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdWString());
+            project_folder_path = tl::Path(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString());
             project_folder_path.append("graphos").append("Projects");
 
             auto extension = project_path.extension().toString();
@@ -80,10 +80,10 @@ bool CreateProjectCommand::run()
             if (tl::compareInsensitiveCase(extension, ".xml")){
                 file_name = project_path.fileName();
             } else {
-                file_name = tl::Path(base_name.append(".xml").toStdWString());
+                file_name = tl::Path(std::string(base_name).append(".xml"));
             }
             
-            project_folder_path.append(base_name.toStdWString());
+            project_folder_path.append(base_name);
             project_path = project_folder_path;
             project_path.append(file_name);
 
@@ -113,14 +113,14 @@ bool CreateProjectCommand::run()
 
         ProjectImp project;
 
-        project.setName(base_name);
+        project.setName(QString::fromStdString(base_name));
         project.setProjectFolder(project_folder_path);
         project.setDescription(QString::fromStdString(project_description));
         project.setDatabase(database_path);
         project.save(project_path);
 
         tl::Message::success("Project created at {}", project_path.toString());
-        tl::Message::info("- Name: {}", base_name.toStdString());
+        tl::Message::info("- Name: {}", base_name);
         tl::Message::info("- Description: {}", project_description);
 
     } catch (const std::exception &e) {
