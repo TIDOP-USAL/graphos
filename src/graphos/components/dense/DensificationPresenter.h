@@ -39,7 +39,6 @@ class MvsWidget;
  */
 class DensificationPresenter
   : public TaskPresenter
-
 {
 
     Q_OBJECT

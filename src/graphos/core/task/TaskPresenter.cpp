@@ -33,7 +33,7 @@ namespace graphos
 {
 
 TaskPresenter::TaskPresenter()
-  : mProcess(nullptr),
+  : mTask(nullptr),
     mProgressHandler(nullptr)
 {
     TaskPresenter::init();
@@ -100,25 +100,25 @@ void TaskPresenter::run()
 {
     try {
 
-        tl::Task *p = mProcess.release();
+        tl::Task *p = mTask.release();
         delete p;
         p = nullptr;
 
-        mProcess = createTask();
+        mTask = createTask();
 
-        TL_ASSERT(mProcess, "Empty process");
+        TL_ASSERT(mTask, "Empty process");
 
-        mProcess->subscribe([this](tl::TaskErrorEvent *event)
+        mTask->subscribe([this](tl::TaskErrorEvent *event)
         {
             onError(event);
         });
 
-        mProcess->subscribe([this](tl::TaskFinalizedEvent *event)
+        mTask->subscribe([this](tl::TaskFinalizedEvent *event)
         {
             onFinished(event);
         });
 
-        mProcess->subscribe([this](tl::TaskStoppedEvent *event)
+        mTask->subscribe([this](tl::TaskStoppedEvent *event)
         {
             onStopped(event);
         });
@@ -129,7 +129,7 @@ void TaskPresenter::run()
 
         emit running();
 
-        mProcess->runAsync(mProgressHandler);
+        mTask->runAsync(mProgressHandler);
 
         if (mProgressHandler) {
             mProgressHandler->init();
@@ -142,8 +142,8 @@ void TaskPresenter::run()
 
 void TaskPresenter::cancel()
 {
-    if (mProcess) {
-        mProcess->stop();
+    if (mTask) {
+        mTask->stop();
         if (mProgressHandler) {
             mProgressHandler->setDescription(tr("Stopping process"));
         }
