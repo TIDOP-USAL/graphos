@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,65 +21,47 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_PRESENTER_INTERFACE_H
-#define GRAPHOS_DENSE_PRESENTER_INTERFACE_H
+#ifndef GRAPHOS_CRS_COMPONENT_H
+#define GRAPHOS_CRS_COMPONENT_H
 
-#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/core/Component.h"
+
 
 namespace graphos
 {
 
-class CmvsPmvsWidget;
-class SmvsWidget;
-class MvsWidget;
-
-
-/*!
- * \brief The DensificationPresenter class represents the presenter interface for densification tasks.
- */
-class DensificationPresenter
-  : public TaskPresenter
+class CoordinateReferenceSystemComponent
+  : public ComponentBase
 {
 
     Q_OBJECT
 
 public:
 
-    DensificationPresenter() = default;
-    ~DensificationPresenter() override = default;
+    CoordinateReferenceSystemComponent(Application *application);
+    ~CoordinateReferenceSystemComponent() override;
 
-    /*!
-     * \brief Sets the widget for CMVS/PMVS.
-     * \param[in] cmvsPmvs The CMVS/PMVS widget.
-     */
-    virtual void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) = 0;
+private:
 
-    /*!
-     * \brief setSmvsWidget Sets the widget for SMVS.
-     * \param[in] smvs The SMVS widget.
-     */
-    virtual void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) = 0;
-
-    /*!
-     * \brief setMvsWidget Sets the widget for MVS.
-     * \param[in] mvs The MVS widget.
-     */
-    virtual void setMvsWidget(std::shared_ptr<MvsWidget> mvs) = 0;
-
-public slots:
-
-    /*!
-     * \brief Sets the current densifier.
-     * \param[in] densifier The densifier to set.
-     */
-    virtual void setCurrentDensifier(const QString &densifier) = 0;
+    void init();
 
 signals:
 
-    void densification_deleted();
+    void crs_changed(QString);
+
+// ComponentBase
+
+protected:
+
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 
-} // End namespace graphos
+} // namespace graphos
 
-#endif // GRAPHOS_DENSE_PRESENTER_INTERFACE_H
+
+#endif // GRAPHOS_CRS_COMPONENT_H

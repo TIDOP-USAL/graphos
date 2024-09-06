@@ -77,7 +77,7 @@ signals:
     void georeference();
     void export_gcp(const QString&/*file*/, const QString&/*format*/);
     void import_gcp(const QString&/*file*/, const QString&/*format*/);
-
+    void select_crs();
 };
 
 } // namespace graphos

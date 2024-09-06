@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,65 +21,52 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_PRESENTER_INTERFACE_H
-#define GRAPHOS_DENSE_PRESENTER_INTERFACE_H
+#include "CoordinateReferenceSystemPresenter.h"
 
-#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/components/crs/impl/CoordinateReferenceSystemModel.h"
+#include "graphos/components/crs/impl/CoordinateReferenceSystemView.h"
+#include "graphos/core/utils.h"
+
+#include <tidop/core/defs.h>
+
+#include <QFileDialog>
 
 namespace graphos
 {
 
-class CmvsPmvsWidget;
-class SmvsWidget;
-class MvsWidget;
+CoordinateReferenceSystemPresenterImp::CoordinateReferenceSystemPresenterImp(CoordinateReferenceSystemView *view,
+                                                         CoordinateReferenceSystemModel *model)
+  : CoordinateReferenceSystemPresenter(),
+    mView(view),
+    mModel(model)
+{
+    this->init();
+    this->initSignalAndSlots();
+}
 
-
-/*!
- * \brief The DensificationPresenter class represents the presenter interface for densification tasks.
- */
-class DensificationPresenter
-  : public TaskPresenter
+CoordinateReferenceSystemPresenterImp::~CoordinateReferenceSystemPresenterImp()
 {
 
-    Q_OBJECT
+}
 
-public:
+void CoordinateReferenceSystemPresenterImp::open()
+{
+    mModel->loadSettings();
 
-    DensificationPresenter() = default;
-    ~DensificationPresenter() override = default;
+    mView->exec();
+}
 
-    /*!
-     * \brief Sets the widget for CMVS/PMVS.
-     * \param[in] cmvsPmvs The CMVS/PMVS widget.
-     */
-    virtual void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) = 0;
+void CoordinateReferenceSystemPresenterImp::init()
+{
 
-    /*!
-     * \brief setSmvsWidget Sets the widget for SMVS.
-     * \param[in] smvs The SMVS widget.
-     */
-    virtual void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) = 0;
+}
 
-    /*!
-     * \brief setMvsWidget Sets the widget for MVS.
-     * \param[in] mvs The MVS widget.
-     */
-    virtual void setMvsWidget(std::shared_ptr<MvsWidget> mvs) = 0;
+void CoordinateReferenceSystemPresenterImp::initSignalAndSlots()
+{
+    connect(mView, &DialogView::help, [&]() {
+            emit help("CoordinateReferenceSystem.html");
+    });
+}
 
-public slots:
 
-    /*!
-     * \brief Sets the current densifier.
-     * \param[in] densifier The densifier to set.
-     */
-    virtual void setCurrentDensifier(const QString &densifier) = 0;
-
-signals:
-
-    void densification_deleted();
-
-};
-
-} // End namespace graphos
-
-#endif // GRAPHOS_DENSE_PRESENTER_INTERFACE_H
+} // namespace graphos

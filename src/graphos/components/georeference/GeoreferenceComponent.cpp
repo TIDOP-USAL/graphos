@@ -71,6 +71,8 @@ void GeoreferenceComponent::createView()
 #ifdef GRAPHOS_GUI
     Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
     setView(new GeoreferenceViewImp(nullptr, f));
+    connect(dynamic_cast<GeoreferenceView *>(view()), &GeoreferenceView::select_crs,
+            this, &GeoreferenceComponent::select_crs);
 #endif // GRAPHOS_GUI
 }
 
@@ -126,6 +128,12 @@ void GeoreferenceComponent::onFailed()
 
     TaskComponent::onFailed();
     app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
+}
+
+void GeoreferenceComponent::setCRS(const QString &crs)
+{
+    if (view())
+        dynamic_cast<GeoreferenceView *>(view())->setCrs(crs);
 }
 
 } // namespace graphos

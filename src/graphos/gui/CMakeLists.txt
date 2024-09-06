@@ -59,14 +59,12 @@ if (BUILD_GUI)
                              MainWindowPresenter.cpp
                              MainWindowView.cpp
                              HelpDialog.cpp
-                             ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.cpp
                          HEADER_FILES
                              ComponentsManager.h
                              MainWindowModel.h
                              MainWindowPresenter.h
                              MainWindowView.h
                              HelpDialog.h
-                             ${CMAKE_SOURCE_DIR}/third_party/easyexif/exif.h
                          RESOURCE_FILES
                              ${GRAPHOS_RESOURCES}
                          FORM_FILES
@@ -151,9 +149,11 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_SETTINGS}>:Graphos::Settings>
                       $<$<BOOL:${GRAPHOS_HAVE_PROPERTIES}>:Graphos::Properties>
                       $<$<BOOL:${GRAPHOS_HAVE_VIDEO_LOAD}>:Graphos::VideoLoad>
+                      Graphos::CoordinateReferenceSystem
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}
+                      ${CUDA_cublas_LIBRARY}
                       ${FREEIMAGE_LIBRARIES}
                       GLEW::glew
                       ${CERES_LIBRARIES}

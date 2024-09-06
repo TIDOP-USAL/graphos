@@ -210,10 +210,6 @@ option (BUILD_TEST                 "Include test"          OFF)
 option (BUILD_PLUGINS              "Build Plugins"         ON )
 option (BUILD_GUI                  "Build GUI"             ON )
 
-# Activa el gestor de mensajes. Si se desactiva no se mostrarán los mensajes del la librería
-# por consola ni se escribirán en el log
-option (BUILD_MESSAGE_HANDLER "Active message handle" ON)
-
 # Si se activa esta opción se pueden utilizar los métodos marcados como obsoletos (deprecated)
 option (BUILD_DEPRECATED_METHODS "Show deprecated methods and class" OFF)
 
@@ -221,7 +217,7 @@ if(MSVC)
 option (WITH_VLD     "Include Visual Leak Detector Support"    OFF)
 endif(MSVC)
 #option(WITH_PIXKIT   "Include PixKit"                  OFF)
-option (WITH_CUDA     "Include Cuda Support"    OFF)
+option (WITH_CUDA     "Include Cuda Support"    ON)
 
 if(BUILD_GUI)
     message(STATUS "  [GRAPHOS] Build GUI")
@@ -296,6 +292,7 @@ if (WITH_CUDA)
     if (CUDA_FOUND)
         set(HAVE_CUDA YES)
         include_directories(${CUDA_INCLUDE_DIRS})
+        message(STATUS "  ${CUDA_INCLUDE_DIRS}")
     else()
         set(HAVE_CUDA NO)
     endif()

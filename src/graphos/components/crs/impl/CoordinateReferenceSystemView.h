@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,65 +21,88 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_PRESENTER_INTERFACE_H
-#define GRAPHOS_DENSE_PRESENTER_INTERFACE_H
 
-#include "graphos/core/task/TaskPresenter.h"
+#ifndef GRAPHOS_CRS_VIEW_H
+#define GRAPHOS_CRS_VIEW_H
+
+#include "graphos/components/crs/CoordinateReferenceSystemView.h"
+
+#include <proj.h>
+
+class QDialogButtonBox;
+class QLabel;
+class QLineEdit;
+class QTreeWidget;
+class QStringList;
+class QTextEdit;
+class QCheckBox;
+class QComboBox;
+
 
 namespace graphos
 {
 
-class CmvsPmvsWidget;
-class SmvsWidget;
-class MvsWidget;
+struct CRSInfo 
+{
+    QString auth_name;
+    QString name;
+    QString code;
+    QString type;
+    QString area_name;
+    QString projection_method_name;
+    bool deprecated;
+};
 
-
-/*!
- * \brief The DensificationPresenter class represents the presenter interface for densification tasks.
- */
-class DensificationPresenter
-  : public TaskPresenter
+class CoordinateReferenceSystemViewImp
+  : public CoordinateReferenceSystemView
 {
 
     Q_OBJECT
 
 public:
 
-    DensificationPresenter() = default;
-    ~DensificationPresenter() override = default;
+    CoordinateReferenceSystemViewImp(QWidget *parent = nullptr);
+    ~CoordinateReferenceSystemViewImp() override;
 
-    /*!
-     * \brief Sets the widget for CMVS/PMVS.
-     * \param[in] cmvsPmvs The CMVS/PMVS widget.
-     */
-    virtual void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) = 0;
+private slots:
 
-    /*!
-     * \brief setSmvsWidget Sets the widget for SMVS.
-     * \param[in] smvs The SMVS widget.
-     */
-    virtual void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) = 0;
+    void filterSRS();
+    void showSRSDetails();
 
-    /*!
-     * \brief setMvsWidget Sets the widget for MVS.
-     * \param[in] mvs The MVS widget.
-     */
-    virtual void setMvsWidget(std::shared_ptr<MvsWidget> mvs) = 0;
+private:
+
+    void loadSRS();
+    QString pjTypeToString(PJ_TYPE type);
+
+// DialogView
+
+private:
+
+    void initUI();
+    void initSignalAndSlots();
 
 public slots:
 
-    /*!
-     * \brief Sets the current densifier.
-     * \param[in] densifier The densifier to set.
-     */
-    virtual void setCurrentDensifier(const QString &densifier) = 0;
+    void clear();
 
-signals:
+private slots:
 
-    void densification_deleted();
+    void update();
+    void retranslate();
 
+protected:
+
+    QLabel *mLabelSearch;
+    QLineEdit *searchBar;
+    QTreeWidget *srsTree; 
+    QCheckBox *showDeprecatedCheckBox;
+    QStringList srsEntries;
+    QDialogButtonBox *mButtonBox;
+    QTextEdit *srsDetails;
+    QList<CRSInfo> crsInfoList;
+  
 };
 
-} // End namespace graphos
+} // namespace graphos
 
-#endif // GRAPHOS_DENSE_PRESENTER_INTERFACE_H
+#endif // GRAPHOS_CRS_VIEW_H

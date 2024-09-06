@@ -166,7 +166,7 @@ private:
 
 private:
 
-    std::unique_ptr<tl::Task> mProcess;
+    std::unique_ptr<tl::Task> mTask;
     ProgressHandler *mProgressHandler;
 };
 

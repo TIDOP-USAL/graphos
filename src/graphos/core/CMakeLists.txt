@@ -152,6 +152,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
                       Ceres::ceres
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}
+                      ${CUDA_cublas_LIBRARY}
                       ${FREEIMAGE_LIBRARIES}
                       GLEW::glew
                       ${Boost_PROGRAM_OPTIONS_LIBRARY}

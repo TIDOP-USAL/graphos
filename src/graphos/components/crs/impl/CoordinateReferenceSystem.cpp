@@ -1,6 +1,6 @@
 /************************************************************************
  *                                                                      *
- *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
+ *  Copyright 2016 by Tidop Research Group <daguilera@usal.se>          *
  *                                                                      *
  * This file is part of GRAPHOS - inteGRAted PHOtogrammetric Suite.     *
  *                                                                      *
@@ -21,65 +21,47 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DENSE_PRESENTER_INTERFACE_H
-#define GRAPHOS_DENSE_PRESENTER_INTERFACE_H
+#include "CoordinateReferenceSystem.h"
 
-#include "graphos/core/task/TaskPresenter.h"
+#include <tidop/core/exception.h>
+
 
 namespace graphos
 {
 
-class CmvsPmvsWidget;
-class SmvsWidget;
-class MvsWidget;
+
+/// Definir valores por defecto
+/*constexpr auto DefaultCoordinateReferenceSystem[propiety] = 1;*/
 
 
-/*!
- * \brief The DensificationPresenter class represents the presenter interface for densification tasks.
- */
-class DensificationPresenter
-  : public TaskPresenter
+
+/* CoordinateReferenceSystemParameters */
+
+CoordinateReferenceSystemParameters::CoordinateReferenceSystemParameters()
+  : mSearch()
 {
+}
 
-    Q_OBJECT
+CoordinateReferenceSystemParameters::~CoordinateReferenceSystemParameters()
+{
+}
 
-public:
+QString CoordinateReferenceSystemParameters::Search() const 
+{
+    return mSearch;
+}
 
-    DensificationPresenter() = default;
-    ~DensificationPresenter() override = default;
 
-    /*!
-     * \brief Sets the widget for CMVS/PMVS.
-     * \param[in] cmvsPmvs The CMVS/PMVS widget.
-     */
-    virtual void setCmvsPmvsWidget(std::shared_ptr<CmvsPmvsWidget> cmvsPmvs) = 0;
+void CoordinateReferenceSystemParameters::setSearch(const QString &Search) 
+{
+  mSearch = Search;
+}
 
-    /*!
-     * \brief setSmvsWidget Sets the widget for SMVS.
-     * \param[in] smvs The SMVS widget.
-     */
-    virtual void setSmvsWidget(std::shared_ptr<SmvsWidget> smvs) = 0;
 
-    /*!
-     * \brief setMvsWidget Sets the widget for MVS.
-     * \param[in] mvs The MVS widget.
-     */
-    virtual void setMvsWidget(std::shared_ptr<MvsWidget> mvs) = 0;
 
-public slots:
+void CoordinateReferenceSystemParameters::clear()
+{
+    /*m[propiety] = DefaultCoordinateReferenceSystem[propiety];*/
+}
 
-    /*!
-     * \brief Sets the current densifier.
-     * \param[in] densifier The densifier to set.
-     */
-    virtual void setCurrentDensifier(const QString &densifier) = 0;
-
-signals:
-
-    void densification_deleted();
-
-};
-
-} // End namespace graphos
-
-#endif // GRAPHOS_DENSE_PRESENTER_INTERFACE_H
+} // namespace graphos
