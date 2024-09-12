@@ -56,7 +56,7 @@ public:
 
     /// Opciones de OpenMVG
     double pose_center_robust_fitting_error;
-    bool bUse_loss_function_;
+    //bool bUse_loss_function_;
 
 private:
 
@@ -66,7 +66,6 @@ private:
     std::unordered_map<size_t, uint32_t> image_ids_graphos_to_colmap;
     std::unordered_map<uint32_t, size_t> image_ids_colmap_to_graphos;
     //Eigen::Vector3d _offset;
-    
 
 public:
 

@@ -336,6 +336,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
             if (mGPS || mRTK) {
 
+                tl::Message::info("Transformación de semejanza como primera aproximación utilizando las posiciones de las cámaras");
+
                 for (const auto &image : mImages) {
 
                     if (image_ids_graphos_to_colmap[image.id()] == 0) continue;
@@ -352,7 +354,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     tl::CrsTransform crs_transfom(camera_crs, epsg_geocentric);
 
-                    colmap::GPSTransform gps_transform;
+                    //colmap::GPSTransform gps_transform;
                     if (camera_crs->isGeographic()) {
                         geocentric_coordinates = crs_transfom.transform(image.cameraPose().position());
                         //tl::Message::warning("geocentric coordinates graphos -> [{} {} {}]", geocentric_coordinates.x, geocentric_coordinates.y, geocentric_coordinates.z);
@@ -514,6 +516,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     gcp_reader->read(gcp_file);
                     auto gcps = gcp_reader->gcps();
                     auto gcps_epsg_code = gcp_reader->epsgCode();
+                    //tl::Message::info("EPSG Puntos de control: {}", gcps_epsg_code);
                     TL_ASSERT(!gcps_epsg_code.empty(), "Unknow CRS for ground control points");
                     auto gcps_crs = std::make_shared<tl::Crs>(gcps_epsg_code);
                     tl::CrsTransform transfom_to_geocentric(gcps_crs, epsg_geocentric);
@@ -525,13 +528,18 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     if (!(mGPS || mRTK)) {
 
+                        tl::Message::info("Transformación de semejanza como primera aproximación utilizando los puntos de control");
+
                         /// Cálculo del centro
                         tl::Point3<double> ecef_center;
                         double i = 1.;
                         for (auto &ground_control_point : gcps) {
                             //ecef_center += (ground_control_point - ecef_center) / i++;
-                            ecef_center += ground_control_point / static_cast<double>(gcps.size());
+                            auto ecef = transfom_to_geocentric.transform(ground_control_point);
+                            ecef_center += ecef / static_cast<double>(gcps.size());
                         }
+
+                        // ¿Esto en que coordenadas está?
                         tl::Message::info("ENU center coordinates [{} {} {}]", ecef_center.x, ecef_center.y, ecef_center.z);
 
                         /// Por ahora aprovecho el fichero offset pero hay que ver como se guarda.
@@ -615,9 +623,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                                 _gcp.name = ground_control_point.name();
                                 control_points_enu.push_back(_gcp);
 
-                                dst.emplace_back(cgp_enu.x,
-                                    cgp_enu.y,
-                                    cgp_enu.z);
+                                dst.emplace_back(cgp_enu.x, cgp_enu.y, cgp_enu.z);
                                 gcp_name.push_back(ground_control_point.name());
                             }
 
@@ -667,6 +673,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                 // Configure bundle adjustment.
                 BundleAdjustmentConfig ba_config;
+                ba_config.pose_center_robust_fitting_error = pose_center_robust_fitting_error;
                 for (const colmap::image_t image_id : reg_image_ids) {
                     ba_config.AddImage(image_id);
                     if (mRTK){
@@ -681,25 +688,26 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 ba_config.setImageIdsGraphosToColmap(image_ids_graphos_to_colmap); //Por ahora...
                 ba_config.setImageIdsColmapToGraphos(image_ids_colmap_to_graphos);
 
+                /// Configuración de OpenMVG
                 colmap::BundleAdjustmentOptions ba_options;
                 ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
-                //ba_options.solver_options.function_tolerance = 0.0;
-                ba_options.solver_options.gradient_tolerance = 1e-10;
-                ba_options.solver_options.parameter_tolerance = 1e-8;
-                ba_options.solver_options.minimizer_progress_to_stdout = false;
-                ba_options.solver_options.max_num_iterations = 50;
-                ba_options.solver_options.max_linear_solver_iterations = 500;
-                ba_options.solver_options.max_num_consecutive_invalid_steps = 10;
-                ba_options.solver_options.max_consecutive_nonmonotonic_steps = 10;
-                ba_options.solver_options.num_threads = 1;
-#if CERES_VERSION_MAJOR < 2
-                solver_options.num_linear_solver_threads = -1;
-#endif  // CERES_VERSION_MAJOR
-                ba_options.loss_function_type = colmap::BundleAdjustmentOptions::LossFunctionType::CAUCHY;
-                ba_options.loss_function_scale = 4.;
-                ba_options.refine_focal_length = true;
-                ba_options.refine_principal_point = false;
-                ba_options.refine_extra_params = false; //true;
+//                //ba_options.solver_options.function_tolerance = 0.0;
+                ba_options.solver_options.gradient_tolerance = 1e-10; // Es el valor por defecto
+                ba_options.solver_options.parameter_tolerance = 1e-8; // Es el valor por defecto
+//                ba_options.solver_options.minimizer_progress_to_stdout = false;
+                ba_options.solver_options.max_num_iterations = 50;  // Es el valor por defecto
+                ba_options.solver_options.max_linear_solver_iterations = 500; // Es el valor por defecto
+//                ba_options.solver_options.max_num_consecutive_invalid_steps = 10;
+//                ba_options.solver_options.max_consecutive_nonmonotonic_steps = 10;
+//                ba_options.solver_options.num_threads = 1;
+//#if CERES_VERSION_MAJOR < 2
+//                solver_options.num_linear_solver_threads = -1;
+//#endif  // CERES_VERSION_MAJOR
+//                ba_options.loss_function_type = colmap::BundleAdjustmentOptions::LossFunctionType::CAUCHY;
+//                ba_options.loss_function_scale = 4.;
+//                ba_options.refine_focal_length = false;// true;
+//                ba_options.refine_principal_point = false;
+//                ba_options.refine_extra_params = false;// true;
 
                 ceres::Solver::Summary summary;
                 
@@ -730,7 +738,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     summary = bundle_adjuster.summary();
                 }
 
-//
+
 //                colmap::DatabaseCache database_cache;
 //
 //                {
@@ -809,7 +817,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 //                ba_options.solver_options.gradient_tolerance = 1e-10;
 //                ba_options.solver_options.parameter_tolerance = 1e-8;
 //                ba_options.solver_options.minimizer_progress_to_stdout = false;
-//                ba_options.solver_options.max_num_iterations = 50;
+//                ba_options.solver_options.max_num_iterations = 200;// 50;
 //                ba_options.solver_options.max_linear_solver_iterations = 500;
 //                ba_options.solver_options.max_num_consecutive_invalid_steps = 10;
 //                ba_options.solver_options.max_consecutive_nonmonotonic_steps = 10;
@@ -905,36 +913,36 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 //                //    }
 //                //}
 //                
-//                {
-//                    ba_options.refine_focal_length = true;
-//                    ba_options.refine_principal_point = true;
-//                    ba_options.refine_extra_params = true;
+//                //{
+//                //    ba_options.refine_focal_length = true;
+//                //    ba_options.refine_principal_point = true;
+//                //    ba_options.refine_extra_params = true;
 //
-//                    ba_terminate = false;
-//                    BundleAdjuster bundle_adjuster(ba_options, ba_config);
-//                    bundle_adjuster.solve(&reconstruction);
-//                
-//                    if (status() == Status::stopping) return;
-//                
-//                    ba_terminate = true;
-//                    summary = bundle_adjuster.summary();
-//                }
-//                
-//                
-//                
-//                if (summary.termination_type == ceres::NO_CONVERGENCE) {
-//                
-//                    ba_terminate = false;
-//                
-//                    // Se vuelve a intentar el ajuste de haces
-//                    BundleAdjuster bundle_adjuster(ba_options, ba_config);
-//                    bundle_adjuster.solve(&reconstruction);
-//                
-//                    if (status() == Status::stopping) return;
-//                
-//                    ba_terminate = true;
-//                    summary = bundle_adjuster.summary();
-//                }
+//                //    ba_terminate = false;
+//                //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
+//                //    bundle_adjuster.solve(&reconstruction);
+//                //
+//                //    if (status() == Status::stopping) return;
+//                //
+//                //    ba_terminate = true;
+//                //    summary = bundle_adjuster.summary();
+//                //}
+//                //
+//                //
+//                //
+//                //if (summary.termination_type == ceres::NO_CONVERGENCE) {
+//                //
+//                //    ba_terminate = false;
+//                //
+//                //    // Se vuelve a intentar el ajuste de haces
+//                //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
+//                //    bundle_adjuster.solve(&reconstruction);
+//                //
+//                //    if (status() == Status::stopping) return;
+//                //
+//                //    ba_terminate = true;
+//                //    summary = bundle_adjuster.summary();
+//                //}
 
                 // Calculo de los errores en el ajuste de haces:
                 if (mControlPoints){
