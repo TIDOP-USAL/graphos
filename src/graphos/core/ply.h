@@ -24,9 +24,6 @@
 #ifndef GRAPHOS_CORE_PLY_H
 #define GRAPHOS_CORE_PLY_H
 
-
-//#include "graphos/graphos_global.h"
-
 #include <tidop/core/exception.h>
 #include <tidop/core/flags.h>
 #include <tidop/core/path.h>
@@ -35,15 +32,12 @@
 #include <tidop/geometry/entities/point.h>
 #include <tidop/graphic/color.h>
 
-#include <sstream>
 #include <fstream>
-#include <array>
 #include <memory>
 #include <map>
 
 namespace graphos
 {
-
 
 class PlyProperty
 {
@@ -73,31 +67,23 @@ public:
 
 protected:
 
-    PlyProperty(std::string name,
-                Type type);
-
-    // No tiene constructor de copia ni de movimiento ....
+    PlyProperty(std::string name, Type type)
+      : mName(std::move(name)),
+        mType(type) {}
 
 public:
 
-    virtual void setValue(const std::string &value) = 0;
+    auto type() const -> Type { return mType; }
 
-    Type type() const;
+    virtual size_t size() const = 0;
+    virtual void resize(size_t size) = 0;
+    virtual void reserve(size_t size) = 0;
+    virtual void setValue(size_t index, const std::string &value) = 0;
+    virtual void addValue(const std::string &value) = 0;
     virtual int bytes() const = 0;
-    virtual void read(std::fstream *stream, bool littleEndian = true) = 0;
-    virtual void write(std::fstream *stream, bool littleEndian) = 0;
-    virtual void write(std::fstream *stream) = 0;
-
-    static std::shared_ptr<PlyProperty> create(const std::string &name,
-                                               Type type);
-    template<typename T>
-    static std::shared_ptr<PlyProperty> create(const std::string &name,
-                                               T value);
-    // {
-    //   auto ply_property = std::make_shared<PlyPropertyImp<T>>(name, PlyTraits<T>::property_type);
-    //   ply_property->setValue(value);
-    //   return ply_property;
-    // }
+    virtual void read(std::fstream *stream, size_t id, bool littleEndian = true) = 0;
+    virtual void write(std::fstream *stream, size_t id, bool littleEndian) = 0;
+    virtual void write(std::fstream *stream, size_t id) = 0;
 
 private:
 
@@ -105,7 +91,6 @@ private:
     Type mType;
 
 };
-
 
 template<typename T>
 struct PlyTraits
@@ -169,6 +154,9 @@ struct PlyTraits<unsigned int>
     static constexpr auto property_type = PlyProperty::Type::ply_uint;
 };
 
+
+
+
 template<typename T>
 class PlyPropertyImp
     : public PlyProperty
@@ -177,64 +165,32 @@ class PlyPropertyImp
 public:
 
     PlyPropertyImp(const std::string &name, Type type)
-        : PlyProperty(name, type),
+      : PlyProperty(name, type),
         mValue(0)
     {
     }
 
-    T value()
-    {
-        return mValue;
-    }
+    auto size() const -> size_t override;
+    void resize(size_t size) override;
+    void reserve(size_t size) override;
+    auto value(size_t index) const -> T;
+    auto bytes() const -> int override;
+    void setValue(size_t index, const std::string &value) override;
+    void setValue(size_t index, T value);
+    void addValue(const std::string &value) override;
+    void addValue(T value);
 
-    int bytes() const override
-    {
-        return sizeof(T);
-    }
-
-    void setValue(const std::string &value) override
-    {
-        mValue = tl::convertStringTo<T>(value);
-    }
-
-    void setValue(T value)
-    {
-        mValue = value;
-    }
-
-    void read(std::fstream *stream, bool littleEndian) override
-    {
-        stream->read(reinterpret_cast<char *>(&mValue), sizeof(T));
-        if ((littleEndian && tl::endianness::native == tl::endianness::big_endian) ||
-            (!littleEndian && tl::endianness::native == tl::endianness::little_endian))
-            mValue = tl::swapEndian(mValue);
-    }
-
-    void write(std::fstream *stream) override
-    {
-        *stream << mValue;
-    }
-
-    void write(std::fstream *stream, bool littleEndian) override
-    {
-        T value = mValue;
-        if ((littleEndian && tl::endianness::native == tl::endianness::big_endian) ||
-            (!littleEndian && tl::endianness::native == tl::endianness::little_endian))
-            value = tl::swapEndian(value);
-        stream->write(reinterpret_cast<char *>(&value), sizeof(T));
-    }
+    void read(std::fstream *stream, size_t id, bool littleEndian) override;
+    void write(std::fstream *stream, size_t id) override;
+    void write(std::fstream *stream, size_t id, bool littleEndian) override;
 
 private:
 
-    T mValue;
+    std::vector<T> mValue;
 };
 
-//class PlyElement
-//{
-//
-//
-//  std::map<std::string, PlyProperty> mProperties;
-//};
+
+
 
 class Ply
 {
@@ -250,38 +206,34 @@ public:
 public:
 
     Ply();
-    Ply(const tl::Path &file, OpenMode mode = OpenMode::in);
+    Ply(tl::Path file, OpenMode mode = OpenMode::in);
     ~Ply();
 
     void open(const tl::Path &file, OpenMode mode);
     void read();
-    void save(bool binary = true);
-    void close();
-
+    void save(bool binary = true, bool littleEndian = tl::endianness::native == tl::endianness::little_endian);
+    void close() const;
     void resize(size_t size);
-    void reserve(size_t size);
-    size_t size() const;
+    void reserve(size_t size) const;
+    void setProperty(const std::string &name, PlyProperty::Type type);
 
-    bool hasColors() const;
-    bool hasNormals() const;
-    bool hasScalarFields() const;
+    auto size() const -> size_t;
 
-    template<typename T> tl::Point3<T> point(size_t index) const;
-    template<typename T> size_t addPoint(const tl::Point3<T> &point);
+    auto hasColors() const -> bool;
+    auto hasNormals() const -> bool;
+    auto hasScalarFields() const -> bool;
 
-    template<typename T> tl::Point3<T> normals(size_t index) const;
-    template<typename T> void addNormals(const tl::Point3<T> &normals);
+    template<typename T> auto point(size_t index) const -> tl::Point3<T>;
+    template<typename T> auto addPoint(const tl::Point3<T>& point) -> size_t;
+    template<typename T> auto normals(size_t index) const -> tl::Point3<T>;
+    template<typename T> void addNormals(const tl::Point3<T>& normals);
 
-    tl::Color color(size_t index) const;
+    auto color(size_t index) const -> tl::Color;
     void addColor(const tl::Color &color);
 
+    auto property(const std::string& propertyName) const -> std::shared_ptr<PlyProperty>;
 
-    std::shared_ptr<PlyProperty> property(size_t index,
-                                          const std::string &propertyName) const;
-
-    template<typename T> size_t addProperty(const std::string &name, T value);
-
-    template<typename T> void setProperty(size_t index, const std::string &name, T value);
+    template<typename T> auto addProperty(const std::string& name, T value) -> size_t;
 
 private:
 
@@ -293,13 +245,16 @@ private:
     void writeHeader();
     void writeBody();
     void writeTextBody();
+
     void writeBinaryBody();
 
-    PlyProperty::Type findType(const std::string &type) const;
-    std::string findStringType(PlyProperty::Type type) const;
+    auto findType(const std::string& type) const -> PlyProperty::Type;
+    auto findStringType(PlyProperty::Type type) const -> std::string;
 
     template<typename T>
     T property(size_t index, const std::string &propertyName) const;
+
+    auto createProperty(const std::string& name, PlyProperty::Type type) -> std::shared_ptr<PlyProperty>;
 
 private:
 
@@ -313,10 +268,8 @@ private:
     bool mHasScalarFields;
     size_t mSize;
     size_t mFaceSize;
-    size_t mReserveSize;
-    std::map<std::string, std::vector<std::shared_ptr<PlyProperty>>> mProperties;
-    std::vector<std::string> mPropertiesNames;
-    std::vector<PlyProperty::Type> mPropertiesTypes;
+    std::map<std::string, std::shared_ptr<PlyProperty>> mProperties;
+    std::vector<std::string> mPropertiesOrder;
     std::map<std::string, PlyProperty::Type> mStringTypes;
     std::vector<tl::Point3<int>> mFaces;
 
@@ -327,24 +280,115 @@ ALLOW_BITWISE_FLAG_OPERATIONS(Ply::OpenMode)
 
 
 
-
-template<typename T>
-std::shared_ptr<PlyProperty> PlyProperty::create(const std::string &name,
-                                                 T value)
+template <typename T>
+auto PlyPropertyImp<T>::size() const -> size_t
 {
-    auto ply_property = std::make_shared<PlyPropertyImp<T>>(name, PlyTraits<T>::property_type);
-    ply_property->setValue(value);
-    return ply_property;
-    //return nullptr;
+    return mValue.size();
+}
+
+template <typename T>
+void PlyPropertyImp<T>::resize(size_t size)
+{
+    mValue.resize(size);
+}
+
+template <typename T>
+void PlyPropertyImp<T>::reserve(size_t size)
+{
+    mValue.reserve(size);
+}
+
+template <typename T>
+auto PlyPropertyImp<T>::value(size_t index) const -> T
+{
+    // Comprobar que este en rango
+    return mValue.at(index);
+}
+
+template <typename T>
+auto PlyPropertyImp<T>::bytes() const -> int
+{
+    return sizeof(T);
+}
+
+template <typename T>
+void PlyPropertyImp<T>::setValue(size_t index, const std::string& value)
+{
+    // Comprobar que este en rango
+    mValue[index] = tl::convertStringTo<T>(value);
+}
+
+template <typename T>
+void PlyPropertyImp<T>::setValue(size_t index, T value)
+{
+    // Comprobar que este en rango
+    mValue[index] = value;
+}
+
+template <typename T>
+void PlyPropertyImp<T>::addValue(const std::string& value)
+{
+    // Comprobar que este en rango
+    mValue.push_back(tl::convertStringTo<T>(value));
+}
+
+template <typename T>
+void PlyPropertyImp<T>::addValue(T value)
+{
+    // Comprobar que este en rango
+    mValue.push_back(value);
+}
+
+template <typename T>
+void PlyPropertyImp<T>::read(std::fstream* stream, size_t id, bool littleEndian)
+{
+    stream->read(reinterpret_cast<char *>(&mValue[id]), sizeof(T));
+    if ((littleEndian && tl::endianness::native == tl::endianness::big_endian) ||
+        (!littleEndian && tl::endianness::native == tl::endianness::little_endian))
+        mValue[id] = tl::swapEndian(mValue[id]);
+}
+
+template <typename T>
+void PlyPropertyImp<T>::write(std::fstream* stream, size_t id)
+{
+    *stream << mValue.at(id);
+}
+
+template <typename T>
+void PlyPropertyImp<T>::write(std::fstream* stream, size_t id, bool littleEndian)
+{
+    T value = mValue.at(id);
+    if ((littleEndian && tl::endianness::native == tl::endianness::big_endian) ||
+        (!littleEndian && tl::endianness::native == tl::endianness::little_endian))
+        value = tl::swapEndian(value);
+    stream->write(reinterpret_cast<char *>(&value), sizeof(T));
 }
 
 
 
 
+inline auto Ply::size() const -> size_t
+{
+    return mSize;
+}
 
+inline auto Ply::hasColors() const -> bool
+{
+    return mHasColors;
+}
 
-template<typename T>
-inline tl::Point3<T> Ply::point(size_t index) const
+inline auto Ply::hasNormals() const -> bool
+{
+    return mHasNormals;
+}
+
+inline auto Ply::hasScalarFields() const -> bool
+{
+    return mHasScalarFields;
+}
+
+template <typename T>
+auto Ply::point(size_t index) const -> tl::Point3<T>
 {
     tl::Point3<T> point(property<T>(index, "x"),
                         property<T>(index, "y"),
@@ -352,8 +396,8 @@ inline tl::Point3<T> Ply::point(size_t index) const
     return point;
 }
 
-template<typename T>
-size_t Ply::addPoint(const tl::Point3<T> &point)
+template <typename T>
+auto Ply::addPoint(const tl::Point3<T>& point) -> size_t
 {
     auto index = addProperty("x", point.x);
     addProperty("y", point.y);
@@ -364,8 +408,8 @@ size_t Ply::addPoint(const tl::Point3<T> &point)
     return index;
 }
 
-template<typename T>
-inline tl::Point3<T> Ply::normals(size_t index) const
+template <typename T>
+auto Ply::normals(size_t index) const -> tl::Point3<T>
 {
     tl::Point3<T> normals(property<T>(index, "nx"),
                           property<T>(index, "ny"),
@@ -374,27 +418,66 @@ inline tl::Point3<T> Ply::normals(size_t index) const
     return normals;
 }
 
-template<typename T>
-void Ply::addNormals(const tl::Point3<T> &normals)
+template <typename T>
+void Ply::addNormals(const tl::Point3<T>& normals)
 {
-    mHasNormals = true;
+    mHasNormals = true; // Esto se tiene que definir antes
     addProperty("nx", normals.x);
     addProperty("ny", normals.y);
     addProperty("nz", normals.z);
 }
 
-template<typename T>
-T Ply::property(size_t index, const std::string &propertyName) const
+template <typename T>
+auto Ply::addProperty(const std::string& name, T value) -> size_t
 {
-    auto type = property(index, propertyName)->type();
+    size_t index = mProperties[name]->size();
+    auto type = PlyTraits<T>::property_type;
 
+    switch (type) {
+    case PlyProperty::ply_unknown:
+        break;
+    case PlyProperty::ply_int8:
+        std::dynamic_pointer_cast<PlyPropertyImp<char>>(mProperties[name])->addValue(value);
+        break;
+    case PlyProperty::ply_uint8:
+        std::dynamic_pointer_cast<PlyPropertyImp<unsigned char>>(mProperties[name])->addValue(value);
+        break;
+    case PlyProperty::ply_int16:
+        std::dynamic_pointer_cast<PlyPropertyImp<short>>(mProperties[name])->addValue(value);
+        break;
+    case PlyProperty::ply_uint16:
+        std::dynamic_pointer_cast<PlyPropertyImp<unsigned short>>(mProperties[name])->addValue(value);
+        break;
+    case PlyProperty::ply_int32:
+        std::dynamic_pointer_cast<PlyPropertyImp<int>>(mProperties[name])->addValue(value);
+        break;
+    case PlyProperty::ply_uin32:
+        std::dynamic_pointer_cast<PlyPropertyImp<unsigned int>>(mProperties[name])->addValue(value);
+        break;
+    case PlyProperty::ply_float32:
+        std::dynamic_pointer_cast<PlyPropertyImp<float>>(mProperties[name])->addValue(value);
+        break;
+    case PlyProperty::ply_float64:
+        std::dynamic_pointer_cast<PlyPropertyImp<double>>(mProperties[name])->addValue(value);
+        break;
+    default:
+        break;
+    }
+
+    return index;
+}
+
+template <typename T>
+T Ply::property(size_t index, const std::string& propertyName) const
+{
+    auto type = mProperties.at(propertyName)->type();
     if (PlyTraits<T>::property_type < type) {
         tl::Message::warning("Conversión de {} a {}. Posible perdida de datos",
                              findStringType(PlyTraits<T>::property_type),
                              findStringType(type));
     }
 
-    auto _property = property(index, propertyName);
+    auto _property = mProperties.at(propertyName);
 
     T value{};
 
@@ -402,28 +485,28 @@ T Ply::property(size_t index, const std::string &propertyName) const
     case graphos::PlyProperty::ply_unknown:
         break;
     case graphos::PlyProperty::ply_int8:
-        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<char>>(_property)->value());
+        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<char>>(_property)->value(index));
         break;
     case graphos::PlyProperty::ply_uint8:
-        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<unsigned char>>(_property)->value());
+        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<unsigned char>>(_property)->value(index));
         break;
     case graphos::PlyProperty::ply_int16:
-        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<short>>(_property)->value());
+        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<short>>(_property)->value(index));
         break;
     case graphos::PlyProperty::ply_uint16:
-        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<unsigned short>>(_property)->value());
+        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<unsigned short>>(_property)->value(index));
         break;
     case graphos::PlyProperty::ply_int32:
-        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<int>>(_property)->value());
+        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<int>>(_property)->value(index));
         break;
     case graphos::PlyProperty::ply_uin32:
-        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<unsigned int>>(_property)->value());
+        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<unsigned int>>(_property)->value(index));
         break;
     case graphos::PlyProperty::ply_float32:
-        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<float>>(_property)->value());
+        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<float>>(_property)->value(index));
         break;
     case graphos::PlyProperty::ply_float64:
-        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<double>>(_property)->value());
+        value = static_cast<T>(std::dynamic_pointer_cast<PlyPropertyImp<double>>(_property)->value(index));
         break;
     default:
         break;
@@ -431,37 +514,6 @@ T Ply::property(size_t index, const std::string &propertyName) const
 
     return value;
 }
-
-template<typename T>
-size_t Ply::addProperty(const std::string &name, T value)
-{
-    size_t index = mProperties[name].size();
-    auto type = PlyTraits<T>::property_type;
-
-    if (index == 0) {
-        mPropertiesNames.push_back(name);
-        mPropertiesTypes.push_back(type);
-        mProperties[name].reserve(mReserveSize);
-    }
-
-    mProperties[name].push_back(PlyProperty::create(name, value));
-    return index;
-}
-
-template<typename T>
-void Ply::setProperty(size_t index, const std::string &name, T value)
-{
-    auto type = PlyTraits<T>::property_type;
-
-    TL_ASSERT(!mProperties[name].empty(), "Property not found");
-    //if (mProperties[name].empty()) {
-    //  mPropertiesNames.push_back(name);
-    //  mPropertiesTypes.push_back(type);
-    //}
-    std::dynamic_pointer_cast<PlyPropertyImp<T>>(mProperties[name].at(index))->setValue(value);
-    //mProperties[name].at(index) = PlyProperty::create(name, value);
-}
-
 } // end namespace graphos
 
 #endif // GRAPHOS_CORE_PLY_H

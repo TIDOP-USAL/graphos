@@ -324,12 +324,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
             std::shared_ptr<tl::EcefToEnu> ecef_to_enu;
 
-
-            //Eigen::Vector3d offset(0., 0., 0.);
-
-            /// Si se dispone de coordenadas GPS o RTK se hace una transformación de semejanza
-
-
             // OpenMVG utiliza este parámetro. Creo que la equivalencia es la mediana calculada 
             double pose_center_robust_fitting_error = 0.0;
             std::unordered_map<size_t, tl::Point3<double>> cameras_enu;
@@ -354,17 +348,10 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     tl::CrsTransform crs_transfom(camera_crs, epsg_geocentric);
 
-                    //colmap::GPSTransform gps_transform;
                     if (camera_crs->isGeographic()) {
                         geocentric_coordinates = crs_transfom.transform(image.cameraPose().position());
-                        //tl::Message::warning("geocentric coordinates graphos -> [{} {} {}]", geocentric_coordinates.x, geocentric_coordinates.y, geocentric_coordinates.z);
-                        //std::vector<Eigen::Vector3d> ells;
-                        //ells.emplace_back(image.cameraPose().position().y, image.cameraPose().position().x, image.cameraPose().position().z);
-                        //auto xyzs = gps_transform.EllToXYZ(ells);
-                        //tl::Message::warning("geocentric coordinates colmap -> [{} {} {}]", xyzs[0].x(), xyzs[0].y(), xyzs[0].z());
                         
                     } else if (camera_crs->isGeocentric()) {
-                        /// TODO: Ver si el CRS geocentrico es el mismo
                         geocentric_coordinates = image.cameraPose().position();
                     } else {
                         geocentric_coordinates = crs_transfom.transform(image.cameraPose().position());
@@ -377,10 +364,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 tl::Point3<double> ecef_center;
                 //double i = 1.;
                 for (const auto &ecef : cameras_geocentric) {
-                    //ecef_center += (ecef.second - ecef_center) / i++;
                     ecef_center += ecef.second / static_cast<double>(cameras_geocentric.size());
                 }
-                //tl::Message::info("ENU center coordinates [{} {} {}]", ecef_center.x, ecef_center.y, ecef_center.z);
 
                 /// Por ahora aprovecho el fichero offset pero hay que ver como se guarda.
                 {
@@ -392,25 +377,13 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
 
                 auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
-                //tl::Message::info("Lon lat alt [{} {} {}]", lla.x, lla.y, lla.z);
                 auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
                 ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);
-
-                //std::unordered_map<size_t, tl::Point3<double>> cameras_enu;
-
-                //colmap::GPSTransform gps_transform;
 
                 for (const auto &ecef : cameras_geocentric) {
                     auto imagage_id = ecef.first;
                     auto ecef_coordinates = ecef.second;
                     cameras_enu[imagage_id] = ecef_to_enu->direct(ecef_coordinates);
-                    //tl::Message::warning("ENU coordinates graphos -> [{} {} {}]", cameras_enu[ecef.first].x, cameras_enu[ecef.first].y, cameras_enu[ecef.first].z);
-
-                    //std::vector<Eigen::Vector3d> xyz;
-                    //xyz.emplace_back(ecef_center.x, ecef_center.y, ecef_center.z);
-                    //xyz.emplace_back(ecef.second.x, ecef.second.y, ecef.second.z);
-                    //auto enu_colmap = gps_transform.XYZToENU(xyz, lla.y, lla.x);
-                    //tl::Message::warning("ENU coordinates colmap -> [{} {} {}]", enu_colmap[1].x(), enu_colmap[1].y(), enu_colmap[1].z());
                 }
 
 
@@ -473,14 +446,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                 if (status() == Status::stopping) return;
 
-                //tl::Message::success("Absolute orientation finished in {:.2} minutes", (this->time() - mOrientationReport.time) / 60.);
-
-                /// writeOffset
-                /// Ya no hay offset
-                //tl::Path offset_path = mOutputPath;
-                //offset_path.append("offset.txt");
-                //offsetWrite(offset_path, tl::Point3<double>(offset[0], offset[1], offset[2]));
-                //tl::Message::info("Camera offset: {},{},{}", offset[0], offset[1], offset[2]);
             } 
 
 
@@ -625,24 +590,13 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                                 dst.emplace_back(cgp_enu.x, cgp_enu.y, cgp_enu.z);
                                 gcp_name.push_back(ground_control_point.name());
+
+                                tl::Message::info("GCP [{} : {} {} {}]", ground_control_point.name(), cgp_enu.x, cgp_enu.y, cgp_enu.z);
                             }
 
                         }
 
                         TL_ASSERT(src.size() > 3, "Insufficient number of points");
-
-                        //for (size_t i = 0; i < dst.size(); i++) {
-                        //    offset += (dst[i] - offset) / (i + 1);
-                        //}
-
-                        //for (auto &i : dst) {
-                        //    i -= offset;
-                        //}
-
-                        //tl::Path offset_path = mOutputPath;
-                        //offset_path.append("offset.txt");
-
-                        //offsetWrite(offset_path, tl::Point3<double>(offset.x(), offset.y(), offset.z()));
 
                         colmap::SimilarityTransform3 similarity_transform;
                         similarity_transform.Estimate(src, dst);
@@ -665,15 +619,11 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     }
                 }
 
-                // Se hace un ajuste mas fino con los puntos de control
-                //tl::Message::info("Se hace un ajuste mas fino con los puntos de control");
-
 
                 // Esto no parece ser suficiente...
-
+                tl::Message::info("Configure bundle adjustment.");
                 // Configure bundle adjustment.
                 BundleAdjustmentConfig ba_config;
-                ba_config.pose_center_robust_fitting_error = pose_center_robust_fitting_error;
                 for (const colmap::image_t image_id : reg_image_ids) {
                     ba_config.AddImage(image_id);
                     if (mRTK){
@@ -683,36 +633,42 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     }
                 }
 
-                if (mControlPoints)
+                if (mControlPoints) {
+                    tl::Message::info("ba_config.setGroundControlPoints(control_points_enu);");
                     ba_config.setGroundControlPoints(control_points_enu);
+                }
+
                 ba_config.setImageIdsGraphosToColmap(image_ids_graphos_to_colmap); //Por ahora...
                 ba_config.setImageIdsColmapToGraphos(image_ids_colmap_to_graphos);
 
                 /// Configuración de OpenMVG
+                tl::Message::info("colmap::BundleAdjustmentOptions ba_options;");
                 colmap::BundleAdjustmentOptions ba_options;
                 ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
-//                //ba_options.solver_options.function_tolerance = 0.0;
-                ba_options.solver_options.gradient_tolerance = 1e-10; // Es el valor por defecto
-                ba_options.solver_options.parameter_tolerance = 1e-8; // Es el valor por defecto
+                tl::Message::info("ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;");
+                //ba_options.solver_options.function_tolerance = 0.0;
+//                ba_options.solver_options.gradient_tolerance = 1e-10;
+//                ba_options.solver_options.parameter_tolerance = 1e-8;
 //                ba_options.solver_options.minimizer_progress_to_stdout = false;
-                ba_options.solver_options.max_num_iterations = 50;  // Es el valor por defecto
-                ba_options.solver_options.max_linear_solver_iterations = 500; // Es el valor por defecto
+//                ba_options.solver_options.max_num_iterations = 50;
+                ba_options.solver_options.max_linear_solver_iterations = 500;
 //                ba_options.solver_options.max_num_consecutive_invalid_steps = 10;
 //                ba_options.solver_options.max_consecutive_nonmonotonic_steps = 10;
-//                ba_options.solver_options.num_threads = 1;
+//                ba_options.solver_options.num_threads = 4; // 1;
 //#if CERES_VERSION_MAJOR < 2
 //                solver_options.num_linear_solver_threads = -1;
 //#endif  // CERES_VERSION_MAJOR
 //                ba_options.loss_function_type = colmap::BundleAdjustmentOptions::LossFunctionType::CAUCHY;
 //                ba_options.loss_function_scale = 4.;
-//                ba_options.refine_focal_length = false;// true;
-//                ba_options.refine_principal_point = false;
-//                ba_options.refine_extra_params = false;// true;
+                //ba_options.refine_focal_length = false;// true;
+                //ba_options.refine_principal_point = false;
+                //ba_options.refine_extra_params = false;// true;
 
                 ceres::Solver::Summary summary;
                 
-                {
+                for (size_t i = 0; i < 5; i++) {
                     ba_terminate = false;
+
                     BundleAdjuster bundle_adjuster(ba_options, ba_config);
                     bundle_adjuster.solve(&reconstruction);
                 
@@ -720,229 +676,9 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 
                     ba_terminate = true;
                     summary = bundle_adjuster.summary();
-                }
-                
-                
-                
-                if (summary.termination_type == ceres::NO_CONVERGENCE) {
-                
-                    ba_terminate = false;
-                
-                    // Se vuelve a intentar el ajuste de haces
-                    BundleAdjuster bundle_adjuster(ba_options, ba_config);
-                    bundle_adjuster.solve(&reconstruction);
-                
-                    if (status() == Status::stopping) return;
-                
-                    ba_terminate = true;
-                    summary = bundle_adjuster.summary();
-                }
 
-
-//                colmap::DatabaseCache database_cache;
-//
-//                {
-//                    tl::Chrono timer("Elapsed time:");
-//                    timer.run();
-//
-//                    colmap::Database database(mDatabase.toString());
-//
-//                    size_t min_num_matches = static_cast<size_t>(mIncrementalMapperOptions->min_num_matches);
-//                    database_cache.Load(database, min_num_matches,
-//                        mIncrementalMapperOptions->ignore_watermarks,
-//                        mIncrementalMapperOptions->image_names);
-//
-//                    //Por ahora lo comento
-//                    //if (clear_points) {
-//                    //    reconstruction.DeleteAllPoints2DAndPoints3D();
-//                    //    reconstruction.TranscribeImageIdsToDatabase(database);
-//                    //}
-//
-//                    database.Close();
-//
-//                    std::cout << std::endl;
-//                    timer.stop();
-//                }
-//
-//                colmap::IncrementalMapper mapper(&database_cache);
-//                mapper.BeginReconstruction(&reconstruction);
-//
-//                //////////////////////////////////////////////////////////////////////////////
-//                // Triangulation
-//                //////////////////////////////////////////////////////////////////////////////
-//
-//                auto triangulation_options = mIncrementalMapperOptions->Triangulation();
-//
-//                const auto &reg_image_ids = reconstruction.RegImageIds();
-//
-//                for (unsigned int image_id : reg_image_ids) {
-//
-//                    if (status() == Status::stopping) return;
-//
-//                    const auto &image = reconstruction.Image(image_id);
-//
-//                    const size_t num_existing_points3D = image.NumPoints3D();
-//
-//                    std::cout << "  => Image sees " << num_existing_points3D << " / "
-//                        << image.NumObservations() << " points" << '\n';
-//
-//                    mapper.TriangulateImage(triangulation_options, image_id);
-//
-//                    std::cout << "  => Triangulated "
-//                        << (image.NumPoints3D() - num_existing_points3D) << " points"
-//                        << std::endl;
-//                }
-//
-//
-//                //////////////////////////////////////////////////////////////////////////////
-//                // Retriangulation
-//                //////////////////////////////////////////////////////////////////////////////
-//
-//                tl::Message::info("Retriangulation");
-//
-//                CompleteAndMergeTracks(*mIncrementalMapperOptions, &mapper);
-//
-//
-//                //////////////////////////////////////////////////////////////////////////////
-//                // Bundle adjustment
-//                //////////////////////////////////////////////////////////////////////////////
-//
-//                ceres::Solver::Summary summary;
-//
-//                //auto ba_options = mIncrementalMapperOptions->GlobalBundleAdjustment();
-//                //auto ba_options = mIncrementalMapperOptions->LocalBundleAdjustment();
-//                colmap::BundleAdjustmentOptions ba_options;
-//                ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
-//                //ba_options.solver_options.function_tolerance = 0.0;
-//                ba_options.solver_options.gradient_tolerance = 1e-10;
-//                ba_options.solver_options.parameter_tolerance = 1e-8;
-//                ba_options.solver_options.minimizer_progress_to_stdout = false;
-//                ba_options.solver_options.max_num_iterations = 200;// 50;
-//                ba_options.solver_options.max_linear_solver_iterations = 500;
-//                ba_options.solver_options.max_num_consecutive_invalid_steps = 10;
-//                ba_options.solver_options.max_consecutive_nonmonotonic_steps = 10;
-//                ba_options.solver_options.num_threads = 1;
-//#if CERES_VERSION_MAJOR < 2
-//                solver_options.num_linear_solver_threads = -1;
-//#endif  // CERES_VERSION_MAJOR
-//                ba_options.loss_function_type = colmap::BundleAdjustmentOptions::LossFunctionType::CAUCHY;
-//                ba_options.loss_function_scale = 10.0;
-//                ba_options.refine_focal_length = false;
-//                ba_options.refine_principal_point = false;
-//                ba_options.refine_extra_params = false;
-//
-//                BundleAdjustmentConfig ba_config;
-//                for (const colmap::image_t image_id : reconstruction.RegImageIds()) {
-//                    ba_config.AddImage(image_id);
-//                    // Activar si tenemos posición de las cámaras
-//                    // El problema es que las posiciones de las cámaras ya se han modificado
-//                    // ba_config.setCamPositionError(image_id, mRTK ? 0.01 : 0.5);
-//                    if (mRTK){
-//                        ba_config.setCamPositionRTK(image_id);
-//                    } else if (mGPS){
-//                        ba_config.setCamPositionGPS(image_id);
-//                    }
-//                }
-//                ba_config.setGroundControlPoints(control_points_enu);
-//                ba_config.setImageIdsGraphosToColmap(image_ids_graphos_to_colmap); //Por ahora...
-//                ba_config.setImageIdsColmapToGraphos(image_ids_colmap_to_graphos);
-//
-//                if (status() == Status::stopping) return;
-//
-//                for (int i = 0; i < mIncrementalMapperOptions->ba_global_max_refinements; ++i) {
-//
-//                    ba_terminate = false;
-//
-//                    // Avoid degeneracies in bundle adjustment.
-//                    reconstruction.FilterObservationsWithNegativeDepth();
-//
-//                    size_t num_observations = reconstruction.ComputeNumObservations();
-//
-//                    BundleAdjuster bundle_adjuster(ba_options, ba_config);
-//                    TL_ASSERT(bundle_adjuster.solve(&reconstruction), "Bundle adjust error");
-//
-//                    if (status() == Status::stopping) return;
-//
-//                    ba_terminate = true;
-//
-//                    summary = bundle_adjuster.summary();
-//
-//                    size_t num_changed_observations = 0;
-//                    num_changed_observations += CompleteAndMergeTracks(*mIncrementalMapperOptions, &mapper);
-//                    num_changed_observations += FilterPoints(*mIncrementalMapperOptions, &mapper);
-//                    double changed = static_cast<double>(num_changed_observations) / static_cast<double>(num_observations);
-//                    std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed) << std::endl;
-//                    if (changed < mIncrementalMapperOptions->ba_global_max_refinement_change) {
-//                        break;
-//                    }
-//                }
-//
-//                //if (status() == Status::stopping) return;
-//
-//                // Se incluye el punto principal en el ajuste
-//                //if (!mFixCalibration) {
-//                //    ba_options.refine_focal_length = true;
-//                //    ba_options.refine_principal_point = true;
-//                //    ba_options.refine_extra_params = true;
-//                //    for (int i = 0; i < mIncrementalMapperOptions->ba_global_max_refinements; ++i) {
-//
-//                //        ba_terminate = false;
-//
-//                //        // Avoid degeneracies in bundle adjustment.
-//                //        reconstruction.FilterObservationsWithNegativeDepth();
-//
-//                //        size_t num_observations = reconstruction.ComputeNumObservations();
-//
-//                //        BundleAdjuster bundle_adjuster(ba_options, ba_config);
-//                //        if (!bundle_adjuster.solve(&reconstruction)) throw std::runtime_error(std::string("Reconstruction error"));
-//
-//                //        if (status() == Status::stopping) return;
-//
-//                //        ba_terminate = true;
-//
-//                //        summary = bundle_adjuster.summary();
-//
-//                //        size_t num_changed_observations = 0;
-//                //        num_changed_observations += CompleteAndMergeTracks(*mIncrementalMapperOptions, &mapper);
-//                //        num_changed_observations += FilterPoints(*mIncrementalMapperOptions, &mapper);
-//                //        double changed = static_cast<double>(num_changed_observations) / static_cast<double>(num_observations);
-//                //        std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed) << std::endl;
-//                //        if (changed < mIncrementalMapperOptions->ba_global_max_refinement_change) {
-//                //            break;
-//                //        }
-//                //    }
-//                //}
-//                
-//                //{
-//                //    ba_options.refine_focal_length = true;
-//                //    ba_options.refine_principal_point = true;
-//                //    ba_options.refine_extra_params = true;
-//
-//                //    ba_terminate = false;
-//                //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
-//                //    bundle_adjuster.solve(&reconstruction);
-//                //
-//                //    if (status() == Status::stopping) return;
-//                //
-//                //    ba_terminate = true;
-//                //    summary = bundle_adjuster.summary();
-//                //}
-//                //
-//                //
-//                //
-//                //if (summary.termination_type == ceres::NO_CONVERGENCE) {
-//                //
-//                //    ba_terminate = false;
-//                //
-//                //    // Se vuelve a intentar el ajuste de haces
-//                //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
-//                //    bundle_adjuster.solve(&reconstruction);
-//                //
-//                //    if (status() == Status::stopping) return;
-//                //
-//                //    ba_terminate = true;
-//                //    summary = bundle_adjuster.summary();
-//                //}
+                    if (summary.termination_type == ceres::CONVERGENCE) break;
+                }
 
                 // Calculo de los errores en el ajuste de haces:
                 if (mControlPoints){

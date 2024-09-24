@@ -28,58 +28,6 @@ namespace graphos
 {
 
 
-PlyProperty::PlyProperty(std::string name, Type type)
-  : mName(std::move(name)),
-    mType(type)
-{
-}
-
-PlyProperty::Type PlyProperty::type() const
-{
-    return mType;
-}
-
-std::shared_ptr<PlyProperty> PlyProperty::create(const std::string &name, Type type)
-{
-    std::shared_ptr<PlyProperty> ply_property;
-
-    switch (type) {
-    case graphos::PlyProperty::ply_unknown:
-        //TODO: Devolver excepción
-        break;
-    case graphos::PlyProperty::ply_char:
-        ply_property = std::make_shared<PlyPropertyImp<int8_t>>(name, type);
-        break;
-    case graphos::PlyProperty::ply_uchar:
-        ply_property = std::make_shared<PlyPropertyImp<uint8_t>>(name, type);
-        break;
-    case graphos::PlyProperty::ply_short:
-        ply_property = std::make_shared<PlyPropertyImp<int16_t>>(name, type);
-        break;
-    case graphos::PlyProperty::ply_ushort:
-        ply_property = std::make_shared<PlyPropertyImp<uint16_t>>(name, type);
-        break;
-    case graphos::PlyProperty::ply_int:
-        ply_property = std::make_shared<PlyPropertyImp<int32_t>>(name, type);
-        break;
-    case graphos::PlyProperty::ply_uint:
-        ply_property = std::make_shared<PlyPropertyImp<uint32_t>>(name, type);
-        break;
-    case graphos::PlyProperty::ply_float:
-        ply_property = std::make_shared<PlyPropertyImp<float>>(name, type);
-        break;
-    case graphos::PlyProperty::ply_double:
-        ply_property = std::make_shared<PlyPropertyImp<double>>(name, type);
-        break;
-    default:
-        break;
-    }
-
-    return ply_property;
-}
-
-
-
 Ply::Ply()
   : stream(nullptr),
     mIsBinary(false),
@@ -87,15 +35,13 @@ Ply::Ply()
     mHasColors(false),
     mHasNormals(false),
     mHasScalarFields(false),
-    mSize(0),
-    mReserveSize(0)
+    mSize(0)
 {
     init();
 }
 
-Ply::Ply(const tl::Path &file,
-         OpenMode mode)
-  : _file(file),
+Ply::Ply(tl::Path file, OpenMode mode)
+  : _file(std::move(file)),
     stream(nullptr),
     mIsBinary(false),
     mIsLittleEndian(false),
@@ -115,56 +61,41 @@ Ply::~Ply()
     }
 }
 
-
-
-void Ply::open(const tl::Path &file,
-               OpenMode mode)
+void Ply::open(const tl::Path& file, OpenMode mode)
 {
     _file = file;
-
     flags = mode;
 
-    TL_ASSERT(tl::Path::exists(file), "File does not exist");
-
     if (flags.isEnabled(OpenMode::in)) {
+
+        TL_ASSERT(tl::Path::exists(file), "File does not exist");
 
         stream = new std::fstream(_file.toString(), std::ios_base::in | std::ios_base::binary);
 
         readHeader();
-        //readBody();
-
-        //stream->close();
     }
-
-    //if (flags.isEnabled(OpenMode::out)) {
-
-    //  open_mode += std::ios_base::out;
-    //  //if (flags.isEnabled(OpenMode::binary)) open_mode += std::ios_base::binary;
-    //  
-    //  mIsBinary = flags.isEnabled(OpenMode::binary);
-    //  if (mIsBinary) mIsLittleEndian = true;
-
-    //  stream = new std::fstream(file, open_mode);
-    //}
-
 }
 
 void Ply::read()
 {
     if (flags.isEnabled(OpenMode::in) && stream->is_open()) {
 
-        //stream = new std::fstream(_file, std::ios_base::in | std::ios_base::binary);
         TL_ASSERT(stream != nullptr, "File not open");
-        //readHeader();
+
+        for (auto &property : mProperties) {
+            property.second->resize(mSize);
+        }
+
         readBody();
 
         stream->close();
     }
 }
 
-void Ply::save(bool binary)
+void Ply::save(bool binary, bool littleEndian)
 {
     mIsBinary = binary;
+    mIsLittleEndian = littleEndian;
     std::ios_base::openmode open_mode = std::ios_base::out;
 
     stream = new std::fstream(_file.toString(), open_mode | std::ios_base::trunc);
@@ -181,7 +112,7 @@ void Ply::save(bool binary)
     stream->close();
 }
 
-void Ply::close()
+void Ply::close() const
 {
     if (stream && stream->is_open())
         stream->close();
@@ -190,15 +121,43 @@ void Ply::close()
 void Ply::resize(size_t size)
 {
     mSize = size;
-    for (auto property_name : mPropertiesNames)
-        mProperties[property_name].resize(size);
+
+    for (auto &property : mProperties){
+        property.second->resize(size);
+    }
 }
 
-void Ply::reserve(size_t size)
+void Ply::reserve(size_t size) const
 {
-    mReserveSize = size;
-    for (auto property_name : mPropertiesNames)
-        mProperties[property_name].reserve(size);
+    for (auto &property : mProperties) {
+        property.second->reserve(size);
+    }
+}
+
+void Ply::setProperty(const std::string& name, PlyProperty::Type type)
+{
+    mPropertiesOrder.push_back(name);
+    mProperties[name] = createProperty(name, type);
+}
+
+auto Ply::color(size_t index) const -> tl::Color
+{
+    return tl::ColorRGB(property<int>(index, "red"),
+                        property<int>(index, "green"),
+                        property<int>(index, "blue")).toColor();
+}
+
+void Ply::addColor(const tl::Color& color)
+{
+    mHasColors = true; // Esto se tiene que definir antes
+    addProperty("red", color.red());
+    addProperty("green", color.green());
+    addProperty("blue", color.blue());
+}
+
+auto Ply::property(const std::string& propertyName) const -> std::shared_ptr<PlyProperty>
+{
+    return mProperties.at(propertyName);
 }
 
 void Ply::init()
@@ -270,16 +229,14 @@ void Ply::readHeader()
             if (type == "vertex") {
                 mSize = tl::convertStringTo<size_t>(value);
             } /*else if (type == "vertex") {
-              mFaceSize = tl::convertStringTo<size_t>(value);
-            }*/ else {
+                  mFaceSize = tl::convertStringTo<size_t>(value);
+                }*/ else {
                 tl::Message::error("Error reading Ply: Only vertex elements supported");
             }
 
         } else if (name == "property") {
 
-            mProperties[value].reserve(mSize);
-            mPropertiesNames.push_back(value);
-            mPropertiesTypes.push_back(findType(type));
+            setProperty(value, findType(type));
 
             if (value == "x" || value == "y" || value == "z") {
 
@@ -309,11 +266,6 @@ void Ply::readHeader()
     mHasNormals = normals_dimension == 3;
 }
 
-size_t Ply::size() const
-{
-    return mSize;
-}
-
 void Ply::readBody()
 {
     if (mIsBinary) {
@@ -327,7 +279,7 @@ void Ply::readTextBody()
 {
     std::string line;
 
-    size_t counter{};
+    size_t id{};
 
     while (std::getline(*stream, line)) {
 
@@ -335,38 +287,34 @@ void Ply::readTextBody()
             std::getline(*stream, line);
         }
 
+        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+        line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+
         std::stringstream line_stream(line);
 
         std::string item;
         std::vector<std::string> items;
-        size_t property_index = 0;
+        auto property_order = mPropertiesOrder.begin();
 
         while (!line_stream.eof()) {
 
             std::getline(line_stream, item, ' ');
-            std::string property_name = mPropertiesNames[property_index++];
-            PlyProperty::Type property_type = mPropertiesTypes[property_index++];
-            auto property = PlyProperty::create(property_name, property_type);
-            property->setValue(item);
-            mProperties[property_name].push_back(property);
-
+            if (item.empty()) continue;
+            auto property = mProperties[*property_order];
+            property->setValue(id, item);
+            ++property_order;
         }
 
-        counter++;
+        id++;
     }
 }
 
 void Ply::readBinaryBody()
 {
     for (size_t i = 0; i < mSize; ++i) {
-        for (size_t j = 0; j < mPropertiesNames.size(); j++) {
-
-            std::string property_name = mPropertiesNames[j];
-            PlyProperty::Type property_type = mPropertiesTypes[j];
-            auto property = PlyProperty::create(property_name, property_type);
-            property->read(stream);
-            mProperties[property_name].push_back(property);
-
+        for (auto &property_name : mPropertiesOrder) {
+            auto property = mProperties[property_name];
+            property->read(stream, i);
         }
     }
 }
@@ -389,9 +337,10 @@ void Ply::writeHeader()
 
     *stream << "comment Created by GRAPHOS" << std::endl;
 
-    for (size_t i = 0; i < mPropertiesNames.size(); i++) {
-        std::string property_name = mPropertiesNames[i];
-        std::string property_type = findStringType(mPropertiesTypes[i]);
+    for (auto &property_name : mPropertiesOrder) {
+
+        auto property = mProperties[property_name];
+        std::string property_type = findStringType(property->type());
         *stream << "property " << property_type << " " << property_name << "\n";
     }
 
@@ -409,12 +358,15 @@ void Ply::writeBody()
 
 void Ply::writeTextBody()
 {
+    *stream << std::fixed;
+
     for (size_t i = 0; i < mSize; ++i) {
 
-        for (auto &name : mPropertiesNames) {
-            auto &property = mProperties.at(name).at(i);
-            property->write(stream);
-            *stream << " ";
+        for (size_t j = 0; j < mPropertiesOrder.size(); j++) {
+            auto property_name = mPropertiesOrder[j];
+            auto property = mProperties[property_name];
+            property->write(stream, i);
+            if (j +1 < mPropertiesOrder.size()) *stream << " ";
         }
 
         *stream << "\n";
@@ -426,26 +378,26 @@ void Ply::writeTextBody()
 void Ply::writeBinaryBody()
 {
     for (size_t i = 0; i < mSize; ++i) {
-        for (auto &name : mPropertiesNames) {
-            auto &property = mProperties.at(name).at(i);
-            property->write(stream, mIsLittleEndian);
+        for (auto &property_name : mPropertiesOrder) {
+            auto property = mProperties[property_name];
+            property->write(stream, i, mIsLittleEndian);
         }
     }
 }
 
-PlyProperty::Type Ply::findType(const std::string &sType) const
+auto Ply::findType(const std::string& type) const -> PlyProperty::Type
 {
-    PlyProperty::Type type = PlyProperty::Type::ply_unknown;
+    PlyProperty::Type _type = PlyProperty::Type::ply_unknown;
 
-    auto string_type = mStringTypes.find(sType);
+    auto string_type = mStringTypes.find(type);
     if (string_type != mStringTypes.end()) {
-        type = string_type->second;
+        _type = string_type->second;
     }
 
-    return type;
+    return _type;
 }
 
-std::string Ply::findStringType(PlyProperty::Type type) const
+auto Ply::findStringType(PlyProperty::Type type) const -> std::string
 {
     std::string string_type = "unknown";
 
@@ -458,43 +410,43 @@ std::string Ply::findStringType(PlyProperty::Type type) const
 
     return string_type;
 }
-
-
-
-bool Ply::hasColors() const
+auto Ply::createProperty(const std::string& name, PlyProperty::Type type) -> std::shared_ptr<PlyProperty>
 {
-    return mHasColors;
-}
+    std::shared_ptr<PlyProperty> ply_property;
 
-bool Ply::hasNormals() const
-{
-    return mHasNormals;
-}
+    switch (type) {
+    case PlyProperty::ply_unknown:
+        //TODO: Devolver excepción
+        break;
+    case PlyProperty::ply_char:
+        ply_property = std::make_shared<PlyPropertyImp<int8_t>>(name, type);
+        break;
+    case PlyProperty::ply_uchar:
+        ply_property = std::make_shared<PlyPropertyImp<uint8_t>>(name, type);
+        break;
+    case PlyProperty::ply_short:
+        ply_property = std::make_shared<PlyPropertyImp<int16_t>>(name, type);
+        break;
+    case PlyProperty::ply_ushort:
+        ply_property = std::make_shared<PlyPropertyImp<uint16_t>>(name, type);
+        break;
+    case PlyProperty::ply_int:
+        ply_property = std::make_shared<PlyPropertyImp<int32_t>>(name, type);
+        break;
+    case PlyProperty::ply_uint:
+        ply_property = std::make_shared<PlyPropertyImp<uint32_t>>(name, type);
+        break;
+    case PlyProperty::ply_float:
+        ply_property = std::make_shared<PlyPropertyImp<float>>(name, type);
+        break;
+    case PlyProperty::ply_double:
+        ply_property = std::make_shared<PlyPropertyImp<double>>(name, type);
+        break;
+    default:
+        break;
+    }
 
-bool Ply::hasScalarFields() const
-{
-    return mHasScalarFields;
-}
-
-tl::Color Ply::color(size_t index) const
-{
-    return tl::ColorRGB(property<int>(index, "red"),
-                        property<int>(index, "green"),
-                        property<int>(index, "blue")).toColor();
-}
-
-void Ply::addColor(const tl::Color &color)
-{
-    mHasColors = true;
-    addProperty("red", color.red());
-    addProperty("green", color.green());
-    addProperty("blue", color.blue());
-}
-
-std::shared_ptr<PlyProperty> Ply::property(size_t index,
-                                           const std::string &propertyName) const
-{
-    return mProperties.at(propertyName).at(index);
+    return ply_property;
 }
 
 } // end namespace graphos

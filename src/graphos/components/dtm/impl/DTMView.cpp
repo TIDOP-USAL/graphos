@@ -102,8 +102,8 @@ void DtmViewImp::update()
 void DtmViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("DtmView", "DEM"));
-    mCheckBoxMDS->setText(QApplication::translate("DtmView", "MDS"));
-    mCheckBoxMDT->setText(QApplication::translate("DtmView", "MDT"));
+    mCheckBoxMDS->setText(QApplication::translate("DtmView", "DSM"));
+    mCheckBoxMDT->setText(QApplication::translate("DtmView", "DTM"));
     mLabelGSD->setText(QApplication::translate("DtmView", "Ground sampling distance (GSD):"));
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("DtmView", "Cancel"));
     mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("DtmView", "Run"));
