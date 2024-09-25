@@ -125,15 +125,16 @@ std::array<double, 3> barycentricCoordinates(const Point_3 &pt1, const Point_3 &
 }
 
 cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin, 
-                          const tl::BoundingBoxD &bbox,
+                          //const tl::BoundingBoxD &bbox,
+                          const tl::Window<tl::Point<double>> &window,
                           const tl::Affine<double, 2> &georeference,
                           tl::Progress *progressBar/*, 
                           double gsd, 
                           double zOffset*/)
 {
     double gsd = georeference.scale().x();
-    tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd), 
-                       tl::roundToInteger(bbox.height()/ gsd));
+    tl::Size<int> size(tl::roundToInteger(window.width() / gsd),
+                       tl::roundToInteger(window.height()/ gsd));
     cv::Mat mat(size.height, size.width, CV_32F, -9999.);
 
     DelaunayTriangulation::Face_handle location;
@@ -235,21 +236,19 @@ cv::Mat extractDTMfromMesh(SurfaceMesh &mesh, const tl::BoundingBoxD &bbox, tl::
 }
 
 cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points, 
-                                 const tl::BoundingBoxD &bbox, 
-                                 //tl::Progress *progressBar, 
+                                 //const tl::BoundingBoxD &bbox, 
+                                 const tl::Window<tl::Point<double>> &window,
                                  const tl::Affine<double, 2> &georeference,
                                  const tl::EcefToEnu &ecef_to_enu, 
-                                 const tl::CrsTransform &crs_transfom
-                                 /*const tl::Point3<double> &offset*/)
+                                 const tl::CrsTransform &crs_transfom)
 {
     tl::Affine<double, 2> georeference_inverse = georeference.inverse();
     double gsd = georeference.scale().x();
-    tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd),
-                       tl::roundToInteger(bbox.height() / gsd));
+    tl::Size<int> size(tl::roundToInteger(window.width() / gsd),
+                       tl::roundToInteger(window.height() / gsd));
     cv::Mat mat(size.height, size.width, CV_32F, -9999.);
 
     for (auto &point : points.points()) {
-        //tl::Point2d _point(point.x()+ offset.x, point.y() + offset.y);
         auto point_ecef = ecef_to_enu.inverse({point.x(), point.y(), point.z()});
         auto point_utm = crs_transfom.transform(point_ecef);
         tl::Point2i point_image = georeference_inverse.transform(static_cast<tl::Point<double>>(point_utm));
@@ -332,21 +331,35 @@ void DtmTask::execute(tl::Progress *progressBar)
 
 
         CGAL::Bbox_3 cgal_bbox = CGAL::bbox_3(points.points().begin(), points.points().end());
-        tl::BoundingBoxD bbox;
+        tl::Window<tl::Point<double>> window;
+
+        //tl::BoundingBoxD bbox;
         {
+            std::vector<tl::Point<double>> points;
             auto point_ecef = ecef_to_enu.inverse({cgal_bbox.xmin(), cgal_bbox.ymin(), cgal_bbox.zmin()});
-            auto point_min = crs_transfom.transform(point_ecef);
-            point_ecef = ecef_to_enu.inverse({cgal_bbox.xmax(), cgal_bbox.ymax(), cgal_bbox.zmax()});
-            auto point_max = crs_transfom.transform(point_ecef);
-            bbox = tl::BoundingBoxD(point_min, point_max);
+            auto pt1 = crs_transfom.transform(point_ecef);
+            points.emplace_back(pt1.x, pt1.y);
+            point_ecef = ecef_to_enu.inverse({cgal_bbox.xmin(), cgal_bbox.ymax(), cgal_bbox.zmin()});
+            auto pt2 = crs_transfom.transform(point_ecef);
+            points.emplace_back(pt2.x, pt2.y);
+            point_ecef = ecef_to_enu.inverse({cgal_bbox.xmax(), cgal_bbox.ymax(), cgal_bbox.zmin()});
+            auto pt3 = crs_transfom.transform(point_ecef);
+            points.emplace_back(pt3.x, pt3.y);
+            point_ecef = ecef_to_enu.inverse({cgal_bbox.xmax(), cgal_bbox.ymin(), cgal_bbox.zmin()});
+            auto pt4 = crs_transfom.transform(point_ecef);
+            points.emplace_back(pt4.x, pt4.y);
+            //bbox = tl::BoundingBoxD(point_min, point_max);
+            window = tl::Window<tl::Point<double>>(points);
         }
 
 
-        auto point_ecef = ecef_to_enu.inverse({cgal_bbox.xmin(), cgal_bbox.ymax(), cgal_bbox.zmin()});
-        auto point_utm = crs_transfom.transform(point_ecef);
-        tl::Affine<double, 2> georeference(mGSD, -mGSD, point_utm.x, point_utm.y, 0.);
+        //auto point_ecef = ecef_to_enu.inverse({cgal_bbox.xmin(), cgal_bbox.ymax(), cgal_bbox.zmin()});
+        //auto point_utm = crs_transfom.transform(point_ecef);
+        //tl::Affine<double, 2> georeference(mGSD, -mGSD, point_utm.x, point_utm.y, 0.);
+        tl::Affine<double, 2> georeference(mGSD, -mGSD, window.pt1.x, window.pt2.y, 0.);
 
-        cv::Mat dsm_raster = extractDSMfromPointCloud(points, bbox, georeference, ecef_to_enu, crs_transfom);
+        //cv::Mat dsm_raster = extractDSMfromPointCloud(points, bbox, georeference, ecef_to_enu, crs_transfom);
+        cv::Mat dsm_raster = extractDSMfromPointCloud(points, window, georeference, ecef_to_enu, crs_transfom);
 
 
         CGAL::Point_set_3<Point_3> points_dsm;
@@ -364,8 +377,9 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         if (mDSM) {
 
+            /// Esto me esta dando error algunas veces...
             DelaunayTriangulation dtm_clean(points_dsm.points().begin(), points_dsm.points().end());
-            dsm_raster = extractDTMfromTIN(dtm_clean, bbox, georeference, progressBar);
+            dsm_raster = extractDTMfromTIN(dtm_clean, window/*bbox*/, georeference, progressBar);
 
             tl::Path mds_path = mDemPath;
             mds_path.append("dsm.tif");
@@ -409,7 +423,7 @@ void DtmTask::execute(tl::Progress *progressBar)
 
             DelaunayTriangulation dtm(points_ground.points().begin(), points_ground.points().end());
 
-            cv::Mat dtm_raster = extractDTMfromTIN(dtm, bbox, georeference, progressBar);
+            cv::Mat dtm_raster = extractDTMfromTIN(dtm, window/*bbox*/, georeference, progressBar);
             writeDTM(mdt_path, dtm_raster, georeference, mCrs.toStdString());
             dtm_raster.release();
 
