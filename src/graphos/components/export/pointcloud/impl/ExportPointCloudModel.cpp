@@ -69,8 +69,8 @@ void ExportPointCloudModelImp::exportPointCloud(const tl::Path &exportPath)
     auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
     auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
     std::shared_ptr<tl::EcefToEnu> ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);;
-
-    auto epsg_utm = std::make_shared<tl::Crs>("EPSG:25830");
+    
+    auto epsg_utm = std::make_shared<tl::Crs>(mProject->crs().toStdString());
     tl::CrsTransform crs_transfom(epsg_geocentric, epsg_utm);
 
     Ply ply_reader(mProject->denseModel(), Ply::OpenMode::in);
