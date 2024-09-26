@@ -121,7 +121,7 @@ RUN wget https://download.osgeo.org/proj/proj-${PROJ_VERSION}.tar.gz && \
 	
 	
 # Build and install GDAL 3.5
-RUN git clone https://github.com/OSGeo/gdal.git /tmp/gdal && \
+RUN git clone --branch release/3.5 https://github.com/OSGeo/gdal.git /tmp/gdal && \
     cd /tmp/gdal && \
     mkdir build && \ 
     cd build && \
@@ -260,7 +260,7 @@ RUN git clone https://github.com/mkazhdan/PoissonRecon.git /tmp/PoissonRecon && 
 # Copy TidopLib from local directory
 #COPY ./tidoplib /tmp/tidoplib	
 
-RUN git clone https://github.com/TIDOP-USAL/tidoplib.git /tmp/tidoplib && \
+RUN git clone --branch dev_3.1 https://github.com/TIDOP-USAL/tidoplib.git /tmp/tidoplib && \
     cd /tmp/tidoplib && \
     mkdir build && \
     cd build && \
@@ -289,10 +289,12 @@ RUN mkdir build && \
           -DCMAKE_BUILD_TYPE=Release \
 		  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
 		  -DBUILD_GUI=OFF \
+          -DWITH_CUDA=OFF \
 		  -DCOLMAP_ROOT=${INSTALL_PREFIX} \
 		  -DTidopLib_DIR=${INSTALL_PREFIX} && \
     ninja && \
-    ninja install
+    ninja install && \
+    cd /app && rm -rf build
 
 # Set the entrypoint
 ENTRYPOINT ["/bin/bash"]
