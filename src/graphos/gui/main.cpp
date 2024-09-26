@@ -120,7 +120,9 @@
 #ifdef GRAPHOS_HAVE_VIDEO_LOAD
 #include "graphos/components/loadfromvideo/LoadFromVideoComponent.h"
 #endif // GRAPHOS_HAVE_VIDEO_LOAD
+#ifdef GRAPHOS_HAVE_CRS
 #include "graphos/components/crs/CoordinateReferenceSystemComponent.h"
+#endif // GRAPHOS_HAVE_CRS
 
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
@@ -476,6 +478,7 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_GEOREFERENCE
         componentsManager.registerComponent(&georeference_component,
                                             ComponentsManager::Flags::separator_before);
+#   ifdef GRAPHOS_HAVE_CRS
         QObject::connect(&georeference_component, &GeoreferenceComponent::select_crs, [&]() {
             CoordinateReferenceSystemComponent crs_component(&app);
             QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
@@ -484,6 +487,8 @@ int main(int argc, char *argv[])
             crs_component.open();
                 //CoordinateReferenceSystemComponent crs_component(&app);
         });
+
+#   endif // GRAPHOS_HAVE_CRS
 #endif // GRAPHOS_HAVE_GEOREFERENCE
 
 #ifdef GRAPHOS_HAVE_SCALE

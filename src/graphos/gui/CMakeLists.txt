@@ -149,7 +149,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_SETTINGS}>:Graphos::Settings>
                       $<$<BOOL:${GRAPHOS_HAVE_PROPERTIES}>:Graphos::Properties>
                       $<$<BOOL:${GRAPHOS_HAVE_VIDEO_LOAD}>:Graphos::VideoLoad>
-                      Graphos::CoordinateReferenceSystem
+                      $<$<BOOL:${GRAPHOS_HAVE_CRS}>:Graphos::CoordinateReferenceSystem>
                       ${OpenCV_LIBS}
                       ${COLMAP_LIBRARIES}
                       ${CUDA_LIBRARIES}

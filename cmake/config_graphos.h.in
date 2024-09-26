@@ -67,6 +67,8 @@
 #cmakedefine GRAPHOS_HAVE_UNDISTORT
 #cmakedefine GRAPHOS_HAVE_PROPERTIES
 #cmakedefine GRAPHOS_HAVE_VIDEO_LOAD
+#cmakedefine GRAPHOS_HAVE_CRS
+
 
 /* Graphos source path */
 

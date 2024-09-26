@@ -23,71 +23,79 @@
 
 include(TidopUtils)
 
-project(CoordinateReferenceSystem CXX)
+if(BUILD_CRS_COMPONENT AND BUILD_GUI)
 
-set(CMAKE_DEBUG_POSTFIX d)
-set (CMAKE_CXX_STANDARD 14)
+    project(CoordinateReferenceSystem CXX)
 
-# Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed
-set(CMAKE_AUTOMOC ON)
-# Create code from a list of Qt designer ui files
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
+    set(CMAKE_DEBUG_POSTFIX d)
+    set (CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+    # Find includes in corresponding build directories
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    # Instruct CMake to run moc automatically when needed
+    set(CMAKE_AUTOMOC ON)
+    # Create code from a list of Qt designer ui files
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTORCC ON)
 
-add_files_to_project(${PROJECT_NAME}
-                     SOURCE_FILES
-                         CoordinateReferenceSystemComponent.cpp
-                         impl/CoordinateReferenceSystemModel.cpp
-                         impl/CoordinateReferenceSystemView.cpp
-                         impl/CoordinateReferenceSystemPresenter.cpp
-                     HEADER_FILES
-                         CoordinateReferenceSystemComponent.h
-                         CoordinateReferenceSystemModel.h
-                         CoordinateReferenceSystemView.h
-                         CoordinateReferenceSystemPresenter.h
-                         impl/CoordinateReferenceSystemModel.h
-                         impl/CoordinateReferenceSystemView.h
-                         impl/CoordinateReferenceSystemPresenter.h)
+    set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
-add_library(${PROJECT_NAME} ${LIB_TYPE}
-            ${PROJECT_SOURCE_FILES}
-            ${PROJECT_HEADER_FILES})
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             CoordinateReferenceSystemComponent.cpp
+                             impl/CoordinateReferenceSystemModel.cpp
+                             impl/CoordinateReferenceSystemView.cpp
+                             impl/CoordinateReferenceSystemPresenter.cpp
+                         HEADER_FILES
+                             CoordinateReferenceSystemComponent.h
+                             CoordinateReferenceSystemModel.h
+                             CoordinateReferenceSystemView.h
+                             CoordinateReferenceSystemPresenter.h
+                             impl/CoordinateReferenceSystemModel.h
+                             impl/CoordinateReferenceSystemView.h
+                             impl/CoordinateReferenceSystemPresenter.h)
 
-add_library(Graphos::${PROJECT_NAME} 
-            ALIAS ${PROJECT_NAME})
+    add_library(${PROJECT_NAME} ${LIB_TYPE}
+                ${PROJECT_SOURCE_FILES}
+                ${PROJECT_HEADER_FILES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE 
-                      Qt5::Core
-                      Qt5::Widgets
-                      Graphos::Core
-                      Graphos::Widgets
-                      Eigen3::Eigen
-                      glog::glog
-                      Ceres::ceres
-                      ${GDAL_LIBRARY} 
-                      $<$<BOOL:${TL_HAVE_PROJ}>:PROJ::proj>)
+    add_library(Graphos::${PROJECT_NAME} 
+                ALIAS ${PROJECT_NAME})
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+                          Qt5::Core
+                          Qt5::Widgets
+                          Graphos::Core
+                          Graphos::Widgets
+                          Eigen3::Eigen
+                          glog::glog
+                          Ceres::ceres
+                          ${GDAL_LIBRARY} 
+                          $<$<BOOL:${TL_HAVE_PROJ}>:PROJ::proj>)
 
-install(TARGETS ${PROJECT_NAME}
-        EXPORT "${TARGETS_EXPORT_NAME}"
-        LIBRARY DESTINATION lib 
-        ARCHIVE DESTINATION lib)
+    set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Components")
+
+    install(TARGETS ${PROJECT_NAME}
+            EXPORT "${TARGETS_EXPORT_NAME}"
+            LIBRARY DESTINATION lib 
+            ARCHIVE DESTINATION lib)
                     
-install(DIRECTORY .
-        DESTINATION include/graphos/components/${componentName}
-        FILES_MATCHING PATTERN "*.h"
-        PATTERN "impl" EXCLUDE)
+    install(DIRECTORY .
+            DESTINATION include/graphos/components/${componentName}
+            FILES_MATCHING PATTERN "*.h"
+            PATTERN "impl" EXCLUDE)
 		
-set(GRAPHOS_HAVE_FEATEXTRACT YES CACHE INTERNAL "")
+    set(GRAPHOS_HAVE_CRS YES CACHE INTERNAL "")
 
-message(STATUS "  Graphos::CoordinateReferenceSystem enabled")
+    message(STATUS "  Graphos::CoordinateReferenceSystem enabled")
 	
-if(BUILD_TEST)
-    #add_subdirectory(test)
-endif(BUILD_TEST)
+    if(BUILD_TEST)
+        #add_subdirectory(test)
+    endif(BUILD_TEST)
+
+else()
+
+    message(STATUS "  Graphos::CoordinateReferenceSystem disabled")
+    
+endif(BUILD_CRS_COMPONENT AND BUILD_GUI)

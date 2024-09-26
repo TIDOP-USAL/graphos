@@ -173,6 +173,7 @@ unset(GRAPHOS_HAVE_SETTINGS CACHE)
 unset(GRAPHOS_HAVE_UNDISTORT CACHE)
 unset(GRAPHOS_HAVE_PROPERTIES CACHE)
 unset(GRAPHOS_HAVE_VIDEO_LOAD CACHE)
+unset(GRAPHOS_HAVE_CRS CACHE)
 unset(GRAPHOS_GUI CACHE)
 
 option(BUILD_ABOUT_COMPONENT          "Build About Component"         ON)
@@ -204,6 +205,7 @@ option(BUILD_SETTINGS_COMPONENT "Build Settings Component"  ON)
 option(BUILD_UNDISTORT_COMPONENT "Build Undistort Component"  ON)
 option(BUILD_PROPERTIES_COMPONENT "Build Properties Component"  ON)
 option(BUILD_VIDEO_LOAD_COMPONENT "Build Video load Component"  ON)
+option(BUILD_CRS_COMPONENT "Build Coordinate Reference System Component"  ON)
 
 # Activación desactivación de otros componentes 
 option (BUILD_TEST                 "Include test"          OFF)

@@ -377,7 +377,6 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         if (mDSM) {
 
-            /// Esto me esta dando error algunas veces...
             DelaunayTriangulation dtm_clean(points_dsm.points().begin(), points_dsm.points().end());
             dsm_raster = extractDTMfromTIN(dtm_clean, window/*bbox*/, georeference, progressBar);
 
