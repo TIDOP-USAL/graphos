@@ -23,10 +23,12 @@
 
 #include "graphos/graphos_global.h"
 
+#ifdef GRAPHOS_GUI
 #include "MainWindowView.h"
 #include "MainWindowModel.h"
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
+#endif // GRAPHOS_GUI
 
 #include "graphos/core/project.h"
 #include "graphos/core/Application.h"
@@ -372,6 +374,8 @@ int main(int argc, char *argv[])
 
     } else {
 
+#ifdef GRAPHOS_GUI
+
         //    TL_TODO("Añadir como opción")
 #if defined WIN32
         HWND hwnd = GetConsoleWindow();
@@ -530,9 +534,11 @@ int main(int argc, char *argv[])
                                             ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_ABOUT
 
+#ifdef GRAPHOS_HAVE_PROPERTIES
         properties_component.open();
         properties_component.setAlternatingRowColors(true);
         componentsManager.mainWindowView()->setPropertiesWidget(properties_component.widget());
+#endif // GRAPHOS_HAVE_PROPERTIES
 
         QObject::connect(componentsManager.mainWindowView()->tabWidget(),
                          &TabWidget::model3dChange,
@@ -653,6 +659,7 @@ int main(int argc, char *argv[])
                          &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
 #endif // GRAPHOS_HAVE_MATCH_VIEWER
 
+#ifdef GRAPHOS_HAVE_PROPERTIES
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_image,
                          &properties_component, &PropertiesComponent::selectImage);
 
@@ -662,6 +669,7 @@ int main(int argc, char *argv[])
                          &properties_component, &PropertiesComponent::selectDenseModel);
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_mesh_model,
                          &properties_component, &PropertiesComponent::selectMeshModel);
+#endif // GRAPHOS_HAVE_PROPERTIES
 
 #ifdef GRAPHOS_HAVE_SETTINGS
         QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openSettings,
@@ -689,6 +697,7 @@ int main(int argc, char *argv[])
         ShowWindow(hwnd, 1);
 #endif
 
+#endif // GRAPHOS_GUI
     }
 
 

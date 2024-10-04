@@ -97,7 +97,26 @@ bool CreateProjectCommand::run()
 
         if (project_folder_path.exists()) {
             if (force_overwrite) {
-                tl::Path::removeDirectory(project_folder_path);
+
+                tl::Path::removeFile(project_path);
+                tl::Path::removeFile(database_path);
+
+                tl::Path dense_path = tl::Path(project_folder_path).append("dense");
+                if (dense_path.exists())
+                    tl::Path::removeDirectory(dense_path);
+
+                tl::Path dtm_path = tl::Path(project_folder_path).append("dtm");
+                if (dtm_path.exists())
+                    tl::Path::removeDirectory(dtm_path);
+
+                tl::Path ortho_path = tl::Path(project_folder_path).append("ortho");
+                if (ortho_path.exists())
+                    tl::Path::removeDirectory(ortho_path);
+
+                tl::Path sfm_path = tl::Path(project_folder_path).append("sfm");
+                if (sfm_path.exists())
+                    tl::Path::removeDirectory(sfm_path);
+
             } else {
                 throw std::runtime_error("The project already exists. Use '--overwrite' for delete previous project.");
             }
@@ -107,7 +126,7 @@ bool CreateProjectCommand::run()
         log_path.replaceExtension(".log");
         log.open(log_path);
 
-        if (!project_folder_path.createDirectories()) {
+        if (!project_folder_path.exists() && !project_folder_path.createDirectories()) {
             throw std::runtime_error("Project directory cannot be created: " + project_folder_path.toString());
         }
 

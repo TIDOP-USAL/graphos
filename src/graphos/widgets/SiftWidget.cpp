@@ -49,8 +49,8 @@ SiftWidget::SiftWidget(QWidget *parent)
     mLabelContrastThreshold(new QLabel(this)),
     mContrastThreshold(new QDoubleSpinBox(this)),
     mLabelEdgeThreshold(new QLabel(this)),
-    mEdgeThreshold(new QDoubleSpinBox(this)),
-    mDomainSizePooling(new QCheckBox(this))
+    mEdgeThreshold(new QDoubleSpinBox(this))/*,
+    mDomainSizePooling(new QCheckBox(this))*/
 {
     SiftWidget::initUI();
     SiftWidget::initSignalAndSlots();
@@ -95,7 +95,7 @@ void SiftWidget::initUI()
     mEdgeThreshold->setRange(0., 100.);
     propertiesLayout->addWidget(mEdgeThreshold, 4, 1);
 
-    propertiesLayout->addWidget(mDomainSizePooling, 5, 0, 1, 2);
+    //propertiesLayout->addWidget(mDomainSizePooling, 5, 0, 1, 2);
 
     SiftWidget::retranslate();
     SiftWidget::clear(); /// set default values
@@ -110,7 +110,7 @@ void SiftWidget::initSignalAndSlots()
     connect(mContrastThresholdAuto, SIGNAL(clicked(bool)), this, SIGNAL(contrastThresholdAutoChange(bool)));
     connect(mEdgeThreshold, SIGNAL(valueChanged(double)), this, SIGNAL(edgeThresholdChange(double)));
     connect(mContrastThresholdAuto, SIGNAL(clicked(bool)), mContrastThreshold, SLOT(setDisabled(bool)));
-    connect(mDomainSizePooling, SIGNAL(clicked(bool)), this, SIGNAL(domainSizePooling(bool)));
+    //connect(mDomainSizePooling, SIGNAL(clicked(bool)), this, SIGNAL(domainSizePooling(bool)));
 }
 
 void SiftWidget::clear()
@@ -125,7 +125,7 @@ void SiftWidget::clear()
     mContrastThresholdAuto->setChecked(true);
     mContrastThreshold->setValue(0.02 / 3.);
     mEdgeThreshold->setValue(10.);
-    mDomainSizePooling->setChecked(true);
+    //mDomainSizePooling->setChecked(true);
 }
 
 void SiftWidget::update()
@@ -146,7 +146,7 @@ void SiftWidget::retranslate()
     mContrastThresholdAuto->setText(QApplication::translate("SiftWidget", "Contrast Threshold Auto"));
     mLabelContrastThreshold->setText(QApplication::translate("SiftWidget", "Contrast Threshold:"));
     mLabelEdgeThreshold->setText(QApplication::translate("SiftWidget", "Edge Threshold:"));
-    mDomainSizePooling->setText(QApplication::translate("SiftWidget", "Domain Size Pooling"));
+    //mDomainSizePooling->setText(QApplication::translate("SiftWidget", "Domain Size Pooling"));
 }
 
 auto SiftWidget::featuresNumber() const -> int
@@ -174,10 +174,10 @@ auto SiftWidget::edgeThreshold() const -> double
     return mEdgeThreshold->value();
 }
 
-auto SiftWidget::domainSizePooling() const -> bool
-{
-    return mDomainSizePooling->isChecked();
-}
+//auto SiftWidget::domainSizePooling() const -> bool
+//{
+//    return mDomainSizePooling->isChecked();
+//}
 
 void SiftWidget::setFeaturesNumber(int featuresNumber)
 {
@@ -216,10 +216,10 @@ void SiftWidget::setEdgeThreshold(double edgeThreshold)
     mEdgeThreshold->setValue(edgeThreshold);
 }
 
-void SiftWidget::setDomainSizePooling(bool domainSizePooling)
-{
-    mDomainSizePooling->setChecked(domainSizePooling);
-}
+//void SiftWidget::setDomainSizePooling(bool domainSizePooling)
+//{
+//    mDomainSizePooling->setChecked(domainSizePooling);
+//}
 
 
 } // namespace photomatch

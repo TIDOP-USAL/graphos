@@ -121,8 +121,8 @@ bool FeatureExtractorCommand::run()
             feature_extractor = std::make_shared<SiftCudaDetectorDescriptor>(max_features_number,
                                                                              octave_resolution,
                                                                              edge_threshold,
-                                                                             contrast_threshold,
-                                                                             domain_size_pooling);
+                                                                             contrast_threshold/*,
+                                                                             domain_size_pooling*/);
         }
 
         FeatureExtractorTask feature_extractor_task(project.images(),
