@@ -54,7 +54,7 @@ public:
     auto contrastThreshold() const -> double;
     auto constrastThresholdAuto() const -> bool;
     auto edgeThreshold() const -> double;
-    auto domainSizePooling() const -> bool;
+    //auto domainSizePooling() const -> bool;
 
 public slots:
 
@@ -63,7 +63,7 @@ public slots:
     void setContrastThreshold(double contrastThreshold);
     void setContrastThresholdAuto(bool active);
     void setEdgeThreshold(double edgeThreshold);
-    void setDomainSizePooling(bool domainSizePooling);
+    //void setDomainSizePooling(bool domainSizePooling);
 
 signals:
 
@@ -72,7 +72,7 @@ signals:
     void contrastThresholdAutoChange(bool);
     void contrastThresholdChange(double);
     void edgeThresholdChange(double);
-    void domainSizePooling(bool);
+    //void domainSizePooling(bool);
 
     // GraphosWidgetView interface
 
@@ -102,7 +102,7 @@ protected:
     QDoubleSpinBox *mContrastThreshold;
     QLabel *mLabelEdgeThreshold;
     QDoubleSpinBox *mEdgeThreshold;
-    QCheckBox *mDomainSizePooling;
+    //QCheckBox *mDomainSizePooling;
 
 };
 

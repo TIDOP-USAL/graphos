@@ -132,8 +132,10 @@ void GeoreferenceComponent::onFailed()
 
 void GeoreferenceComponent::setCRS(const QString &crs)
 {
+#ifdef GRAPHOS_GUI
     if (view())
         dynamic_cast<GeoreferenceView *>(view())->setCrs(crs);
+#endif // GRAPHOS_GUI
 }
 
 } // namespace graphos
