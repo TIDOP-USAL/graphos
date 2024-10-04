@@ -210,7 +210,7 @@ RUN git clone https://github.com/colmap/colmap.git /tmp/colmap && \
     cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CUDA_ARCHITECTURES="5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6" \ 
     -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-    && ninja && \
+    && ninja -j2 && \
     ninja install && \
     cd /app && rm -rf /tmp/colmap
 
@@ -252,7 +252,7 @@ RUN git clone https://github.com/mkazhdan/PoissonRecon.git /tmp/PoissonRecon && 
     #cd build && \
     #cmake .. -DCMAKE_BUILD_TYPE=Release \
     #         -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} && \
-    make -j$(nproc) && \
+    make -j2 && \
     cp Bin/Linux/PoissonRecon ${INSTALL_PREFIX}/bin/ && \
     cd /app && rm -rf /tmp/PoissonRecon
 
