@@ -101,6 +101,7 @@ public:
 private:
 
     QSqlDatabase *mDatabase;
+    QString mDatabasePath;
 };
 
 
