@@ -54,7 +54,7 @@ FeatureExtractorCommand::FeatureExtractorCommand()
     this->addArgument<int>("octave_resolution", std::string("SIFT: Number of layers in each octave (default = ").append(std::to_string(sift_properties.octaveLayers())).append(")"), sift_properties.octaveLayers());
     this->addArgument<double>("contrast_threshold", std::string("SIFT: Contrast Threshold (default = ").append(std::to_string(sift_properties.contrastThreshold())).append(")"), sift_properties.contrastThreshold());
     this->addArgument<double>("edge_threshold", std::string("SIFT: Threshold used to filter out edge-like features (default = ").append(std::to_string(sift_properties.edgeThreshold())).append(")"), sift_properties.edgeThreshold());  
-    this->addArgument<bool>("domain_size_pooling", std::string("SIFT: domain size pooling (default = true)"));  
+    //this->addArgument<bool>("domain_size_pooling", std::string("SIFT: domain size pooling (default = true)"));  
 
 
 #ifdef HAVE_CUDA
@@ -89,7 +89,7 @@ bool FeatureExtractorCommand::run()
         int octave_resolution = this->value<int>("octave_resolution");
         double contrast_threshold = this->value<double>("contrast_threshold");
         double edge_threshold = this->value<double>("edge_threshold");
-        bool domain_size_pooling = this->value<bool>("domain_size_pooling");
+        //bool domain_size_pooling = this->value<bool>("domain_size_pooling");
 
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");

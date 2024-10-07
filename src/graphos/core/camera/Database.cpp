@@ -31,6 +31,8 @@
 #include <QSqlError>
 #include <QVariant>
 
+#include <SQLite/sqlite3.h>
+
 using namespace tl;
 
 namespace graphos
@@ -38,7 +40,8 @@ namespace graphos
 
 
 DatabaseCameras::DatabaseCameras(const QString &database)
-  : mDatabase(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE")))
+  : mDatabase(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", "database_cameras"))),
+    mDatabasePath(database)
 {
     mDatabase->setDatabaseName(database);
 }
@@ -60,7 +63,6 @@ void DatabaseCameras::open()
     try {
 
         TL_ASSERT(QFileInfo(mDatabase->databaseName()).exists(), "The camera database does not exist");
-
         TL_ASSERT(mDatabase->open(), "The camera database does not exist");
 
     } catch (...){
@@ -84,19 +86,21 @@ bool DatabaseCameras::existCameraMakeId(const QString &cameraMake) const
 
     try {
 
-        TL_ASSERT(isOpen(), "Database is not open");
+        TL_ASSERT(isOpen(), "Cannot open database");
 
-        QSqlQuery query;
+        QSqlQuery query(QSqlDatabase::database("database_cameras"));
         query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
         query.bindValue(":camera_make", cameraMake);
         if (query.exec()) {
-            while (query.next()) {
+            if (query.next()) {
                 exist_camera = true;
             }
         } else {
             QSqlError err = query.lastError();
-            throw err.text().toStdString();
+            tl::Message::error(err.text().toStdString());
         }
+
+        query.finish();
 
     } catch (...) {
         exist_camera = false;
@@ -112,20 +116,53 @@ bool DatabaseCameras::existCameraModel(int cameraMake,
 
     try {
 
-        TL_ASSERT(isOpen(), "Database is not open");
+        // Error al compilar Docker... 
+        //TL_ASSERT(isOpen(), "Cannot open database");
         TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
 
-        QSqlQuery query;
-        query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
-        query.bindValue(":camera_model", cameraModel);
-        query.bindValue(":id_camera", cameraMake);
-        if (query.exec()) {
-            while (query.next()) {
-                exist_camera_model = true;
-                break;
-            }
+        //QSqlQuery query(QSqlDatabase::database("database_cameras"));
+        //query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera = :id_camera");
+        //query.bindValue(":camera_model", cameraModel);
+        //query.bindValue(":id_camera", cameraMake);
+        //if (query.exec()) {
+        //    if (query.next()) {
+        //        exist_camera_model = true;
+        //    }
+        //} else {
+        //    QSqlError err = query.lastError();
+        //    tl::Message::error(err.text().toStdString());
+        //}
 
+        //query.finish();
+
+        sqlite3 *db;
+        sqlite3_stmt *stmt;
+
+        int rc = sqlite3_open(mDatabasePath.toStdString().c_str(), &db);
+        TL_ASSERT(rc == SQLITE_OK, "Cannot open database: {}", sqlite3_errmsg(db));
+
+        auto sql = "SELECT COUNT(*) FROM models WHERE id_camera = ? AND camera_model LIKE ?";
+        rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+        if (rc != SQLITE_OK) {
+            tl::Message::error("Failed to prepare statement: {}", sqlite3_errmsg(db));
+            sqlite3_close(db);
+            return exist_camera_model;
         }
+
+        sqlite3_bind_int(stmt, 1, cameraMake);
+        sqlite3_bind_text(stmt, 2, cameraModel.toStdString().c_str(), -1, SQLITE_STATIC);
+
+        rc = sqlite3_step(stmt);
+        if (rc == SQLITE_ROW) {
+            int count = sqlite3_column_int(stmt, 0);
+            exist_camera_model = count > 0;
+        } else {
+            tl::Message::error("Query error: {}", sqlite3_errmsg(db));
+            exist_camera_model = false;
+        }
+
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
 
     } catch (...) {
         exist_camera_model = false;
@@ -142,17 +179,19 @@ int DatabaseCameras::cameraMakeId(const QString &cameraMake) const
 
         TL_ASSERT(isOpen(), "Database is not open");
 
-        QSqlQuery query;
+        QSqlQuery query(QSqlDatabase::database("database_cameras"));
         query.prepare("SELECT id_camera FROM cameras WHERE camera_make LIKE :camera_make LIMIT 1");
         query.bindValue(":camera_make", cameraMake);
         if (query.exec()) {
-            while (query.next()) {
+            if (query.next()) {
                 id_camera = query.value(0).toInt();
             }
         } else {
             QSqlError err = query.lastError();
-            throw err.text().toStdString();
+            tl::Message::error(err.text().toStdString());
         }
+
+        query.finish();
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
@@ -167,24 +206,53 @@ double DatabaseCameras::cameraSensorSize(int cameraMake, const QString &cameraMo
 
     try {
 
-        TL_ASSERT(isOpen(), "Database is not open");
+        // Crash in docker build...
+        //TL_ASSERT(isOpen(), "Database is not open");
         TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
 
-        QSqlQuery query;
-        query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera LIKE :id_camera");
-        query.bindValue(":camera_model", cameraModel);
-        query.bindValue(":id_camera", cameraMake);
-        if (query.exec()) {
-            while (query.next()) {
-                sensor_width_mm = query.value(0).toDouble();
-            }
+        //QSqlQuery query(QSqlDatabase::database("database_cameras"));
+        //query.prepare("SELECT sensor_width FROM models WHERE camera_model LIKE :camera_model AND id_camera = :id_camera");
+        //query.bindValue(":camera_model", cameraModel);
+        //query.bindValue(":id_camera", cameraMake);
+        //if (query.exec()) {
+        //    if (query.next()) {
+        //        sensor_width_mm = query.value(0).toDouble();
+        //    }
 
-            TL_ASSERT(sensor_width_mm > 0., "Camera model not found in database");
+        //    TL_ASSERT(sensor_width_mm > 0., "Camera model not found in database");
 
-        } else {
-            QSqlError err = query.lastError();
-            throw err.text().toStdString();
+        //} else {
+        //    QSqlError err = query.lastError();
+        //    tl::Message::error(err.text().toStdString());
+        //}
+
+        //query.finish();
+
+        sqlite3 *db;
+        sqlite3_stmt *stmt;
+
+        int rc = sqlite3_open(mDatabasePath.toStdString().c_str(), &db);
+        TL_ASSERT(rc == SQLITE_OK, "Cannot open database: {}", sqlite3_errmsg(db));
+
+        auto sql = "SELECT sensor_width FROM models WHERE camera_model LIKE ? AND id_camera = ?";
+        rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+        if (rc != SQLITE_OK) {
+            tl::Message::error("Failed to prepare statement: {}", sqlite3_errmsg(db));
+            sqlite3_close(db);
+            return sensor_width_mm;
         }
+
+        sqlite3_bind_text(stmt, 1, cameraModel.toStdString().c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 2, cameraMake);
+
+        rc = sqlite3_step(stmt);
+        if (rc == SQLITE_ROW) {
+            sensor_width_mm = sqlite3_column_double(stmt, 0);
+        }
+
+        // Limpiar y cerrar
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
