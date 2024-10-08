@@ -467,7 +467,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             // ceres::CostFunction *control_point_cost_function = ControlPointCostFunction::create(point3D, weight_cp);
             //problem_->AddResidualBlock(control_point_cost_function, new ceres::HuberLoss(Square(colmap::Median(errors))), gcp.point.data());
 
-            if (mControlPoints || mRTK) {
+            if (mControlPoints || mRTK || mGPS) {
 
                 std::vector<GCP> control_points_enu;
 
@@ -620,7 +620,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 }
 
 
-                // Esto no parece ser suficiente...
                 tl::Message::info("Configure bundle adjustment.");
                 // Configure bundle adjustment.
                 BundleAdjustmentConfig ba_config;
@@ -634,7 +633,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 }
 
                 if (mControlPoints) {
-                    tl::Message::info("ba_config.setGroundControlPoints(control_points_enu);");
                     ba_config.setGroundControlPoints(control_points_enu);
                 }
 
@@ -642,10 +640,9 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 ba_config.setImageIdsColmapToGraphos(image_ids_colmap_to_graphos);
 
                 /// Configuración de OpenMVG
-                tl::Message::info("colmap::BundleAdjustmentOptions ba_options;");
+
                 colmap::BundleAdjustmentOptions ba_options;
                 ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
-                tl::Message::info("ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;");
                 //ba_options.solver_options.function_tolerance = 0.0;
 //                ba_options.solver_options.gradient_tolerance = 1e-10;
 //                ba_options.solver_options.parameter_tolerance = 1e-8;
@@ -755,7 +752,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     tl::Message::info("Georeference error: {} (mean), {} (median)",
                                       colmap::Mean(errors), colmap::Median(errors));
-                } else if (mRTK){
+                } else if (mRTK || mGPS){
 
                     std::vector<double> errors;
                     errors.reserve(mImages.size());
@@ -775,7 +772,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                             auto pos_final = image.ProjectionCenter();
                             auto error_xyz = pos_final - pos_ini;
                             double error = (pos_final - pos_ini).norm();
-                            tl::Message::info("Error [x: {}, y: {}, z: {}]", error_xyz.x(), error_xyz.y(), error_xyz.z());
+                            //tl::Message::info("Error [x: {}, y: {}, z: {}]", error_xyz.x(), error_xyz.y(), error_xyz.z());
                             errors.push_back(error);
                         }
                     }
