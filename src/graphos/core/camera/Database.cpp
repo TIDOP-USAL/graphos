@@ -116,7 +116,7 @@ bool DatabaseCameras::existCameraModel(int cameraMake,
 
     try {
 
-        // Error al compilar Docker... 
+        // Application crash. Docker image with Qt version 5.12.8
         //TL_ASSERT(isOpen(), "Cannot open database");
         TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
 
@@ -206,7 +206,8 @@ double DatabaseCameras::cameraSensorSize(int cameraMake, const QString &cameraMo
 
     try {
 
-        // Crash in docker build...
+        // Application crash. Docker image with Qt version 5.12.8
+
         //TL_ASSERT(isOpen(), "Database is not open");
         TL_ASSERT(cameraMake != -1, "Invalid Camera Make");
 

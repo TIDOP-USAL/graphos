@@ -45,6 +45,8 @@
 #include <fstream>
 #include <tidop/core/log.h>
 
+#include "graphos/core/sfm/Reconstruction.h"
+
 using namespace tl;
 
 namespace graphos
@@ -591,7 +593,19 @@ auto ImportPoses::offset() -> tl::Point3<double>
 }
 
 
-auto rtkOrientations(const ProjectImp& project) -> bool
+auto gpsPositions(const ProjectImp &project) -> bool
+{
+    bool gps_orientation = false;
+
+    auto it = project.images().begin();
+    CameraPose camera_pose = it->second.cameraPose();
+    if (!camera_pose.isEmpty())
+        gps_orientation = true;
+
+    return gps_orientation;
+}
+
+auto rtkOrientations(const ProjectImp &project) -> bool
 {
     bool bRtkOrientations = false;
 
@@ -606,6 +620,13 @@ auto rtkOrientations(const ProjectImp& project) -> bool
     }
 
     return bRtkOrientations;
+}
+
+auto hasControlPoints(const ProjectImp &project) -> bool
+{
+    tl::Path gcp_file = project.projectFolder();
+    gcp_file.append("sfm").append("georef.xml");
+    return gcp_file.exists();
 }
 
 auto cameraPositions(const ProjectImp& project) -> std::map<QString, std::array<double, 3>>
@@ -681,144 +702,68 @@ bool OrientationCommand::run()
             images.push_back(image.second);
         }
 
-        if (rtkOrientations(project)) {
+        ReconstructionTask reconstruction(database_path,
+                                          sfm_path,
+                                          images,
+                                          project.cameras(),
+                                          fix_calibration,
+                                          absolute_orientation,
+                                          gpsPositions(project),
+                                          rtkOrientations(project),
+                                          hasControlPoints(project));
 
-            ImportPosesTask import_orientation_task(images,
-                                                    project.cameras(),
-                                                    sfm_path,
-                                                    database_path,
-                                                    fix_calibration,
-                                                    fix_poses);
+        reconstruction.run();
 
-            import_orientation_task.run();
+        auto cameras = reconstruction.cameras();
+        auto report = reconstruction.report();
 
-            auto cameras = import_orientation_task.cameras();
+        /// Se comprueba que se han generado todos los productos
 
-            tl::Path offset_path = sfm_path;
-            offset_path.append("offset.txt");
+        tl::Path sparse_model_path = sfm_path;
+        sparse_model_path.append("sparse.ply");
 
-            tl::Path sparse_model_path = sfm_path;
-            sparse_model_path.append("sparse.ply");
+        tl::Path ground_points_path = sfm_path;
+        ground_points_path.append("ground_points.bin");
 
-            tl::Path ground_points_path = sfm_path;
-            ground_points_path.append("ground_points.bin");
+        tl::Path poses_path = sfm_path;
+        poses_path.append("poses.bin");
 
-            tl::Path poses_path = sfm_path;
-            poses_path.append("poses.bin");
+        tl::Path offset_path = sfm_path;
+        offset_path.append("offset.txt");
 
-            if (sparse_model_path.exists() &&
-                ground_points_path.exists() &&
-                poses_path.exists()) {
+        TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
+        TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
+        TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
+        TL_ASSERT(!absolute_orientation || (absolute_orientation && offset_path.exists()), "3D reconstruction fail");
 
-                project.setSparseModel(sparse_model_path);
-                project.setOffset(offset_path);
-                project.setGroundPoints(ground_points_path);
+        project.setSparseModel(sparse_model_path);
+        project.setGroundPoints(ground_points_path);
+        if (absolute_orientation)
+            project.setOffset(absolute_orientation ? offset_path : tl::Path(""));
 
-                auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-                poses_reader->read(poses_path);
-                auto poses = poses_reader->cameraPoses();
+        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+        poses_reader->read(poses_path);
+        auto poses = poses_reader->cameraPoses();
 
-                for (const auto &camera_pose : poses) {
-                    project.addPhotoOrientation(camera_pose.first, camera_pose.second);
-                }
-
-                tl::Message::info("Oriented {} images", poses.size());
-
-                for (const auto &camera : cameras) {
-                    project.updateCamera(camera.first, camera.second);
-                }
-            }
-
-        } else {
-
-
-
-        //    RelativeOrientationColmapTask relative_orientation_task(database_path,
-        //                                                            sfm_path,
-        //                                                            images,
-        //                                                            project.cameras(),
-        //                                                            fix_calibration);
-
-        //    relative_orientation_task.run();
-
-        //    auto cameras = relative_orientation_task.cameras();
-
-        //    /// Se comprueba que se han generado todos los productos
-
-
-        //    tl::Path sparse_model_path = sfm_path;
-        //    sparse_model_path.append("sparse.ply");
-
-        //    tl::Path ground_points_path = sfm_path;
-        //    ground_points_path.append("ground_points.bin");
-
-        //    tl::Path poses_path = sfm_path;
-        //    poses_path.append("poses.bin");
-
-        //    if (sparse_model_path.exists() &&
-        //        ground_points_path.exists() &&
-        //        poses_path.exists()) {
-
-        //        project.setSparseModel(sparse_model_path);
-        //        project.setOffset(tl::Path(""));
-        //        project.setGroundPoints(ground_points_path);
-
-        //        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-        //        poses_reader->read(poses_path);
-        //        auto poses = poses_reader->cameraPoses();
-
-        //        for (const auto &camera_pose : poses) {
-        //            project.addPhotoOrientation(camera_pose.first, camera_pose.second);
-        //        }
-
-        //        tl::Message::info("Oriented {} images", poses.size());
-
-        //        for (const auto &camera : cameras) {
-        //            project.updateCamera(camera.first, camera.second);
-        //        }
-
-        //        auto report = relative_orientation_task.report();
-        //        report.time = relative_orientation_task.time();
-        //        report.orientedImages = static_cast<int>(poses.size());
-        //        report.type = "Relative";
-        //        project.setOrientationReport(report);
-        //    }
-
-        //    if (absolute_orientation) {
-
-        //        std::map<QString, std::array<double, 3>> camera_positions = cameraPositions(project);
-
-        //        AbsoluteOrientationColmapTask absolute_orientation_task(sfm_path,
-        //                                                                images);
-        //        absolute_orientation_task.run();
-
-        //        tl::Path offset_path = sfm_path;
-        //        offset_path.append("offset.txt");
-
-        //        tl::Path poses_path = sfm_path;
-        //        poses_path.append("poses.bin");
-
-        //        if (offset_path.exists()) {
-        //            project.setOffset(offset_path);
-        //        }
-
-        //        if (poses_path.exists()) {
-        //            auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-        //            poses_reader->read(poses_path);
-        //            auto poses = poses_reader->cameraPoses();
-
-        //            for (const auto &camera_pose : poses) {
-        //                project.addPhotoOrientation(camera_pose.first, camera_pose.second);
-        //            }
-        //        }
-
-        //        auto report = project.orientationReport();
-        //        report.type = "Absolute";
-        //        report.time += absolute_orientation_task.time();
-        //        project.setOrientationReport(report);
-
-        //    }
+        for (const auto &camera_pose : poses) {
+            project.addPhotoOrientation(camera_pose.first, camera_pose.second);
         }
+
+        tl::Message::info("Oriented {} images", poses.size());
+
+        double oriented_percent = (static_cast<double>(poses.size()) / static_cast<double>(project.images().size())) * 100.;
+        if (oriented_percent < 90.) {
+            // Menos del 90% de imagenes orientadas
+            tl::Message::warning("{} percent of images oriented. Increase image size and number of points in Feature detector.", tl::roundToInteger(oriented_percent));
+        }
+
+        for (const auto &camera : cameras) {
+            project.updateCamera(camera.first, camera.second);
+        }
+
+        report.orientedImages = static_cast<int>(poses.size());
+        report.type = absolute_orientation ? "Absolute" : "Relative";
+        project.setOrientationReport(report);
 
         project.save(project_path);
 

@@ -203,12 +203,8 @@ bool BundleAdjuster::solve(colmap::Reconstruction *reconstruction)
     //problem_.reset(new ceres::Problem(problem_options));
     //// OpenMVG
 
-    /// Colmap
     problem_.reset(new ceres::Problem());
-    tl::Message::info("problem_.reset(new ceres::Problem());");
     ceres::LossFunction *loss_function = options_.CreateLossFunction();
-    tl::Message::info("ceres::LossFunction *loss_function = options_.CreateLossFunction();");
-    /// Colmap
     
     setUp(reconstruction, loss_function);
 
@@ -287,7 +283,6 @@ void BundleAdjuster::setUp(colmap::Reconstruction *reconstruction,
     //Se cargan los puntos de control. Los puntos de control son constantes
     for (auto &gcp : config_.controlPoints()) {
         //0.5 Es lo que usa openMVG por defecto
-        tl::Message::info("addControlPointToProblem(gcp, reconstruction, 0.2, lossFunction);");
         addControlPointToProblem(gcp, reconstruction, 0.2, lossFunction);
     }
     //// GRAPHOS
