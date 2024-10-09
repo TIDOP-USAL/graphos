@@ -225,12 +225,12 @@ RUN git clone https://github.com/colmap/colmap.git /tmp/colmap && \
     -DCMAKE_CUDA_ARCHITECTURES="5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6" \ 
     -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
     && ninja -j2 && \
-    && ninja -j2 && \
     ninja install && \
     cd /app && rm -rf /tmp/colmap
 
 RUN git clone https://github.com/mkazhdan/PoissonRecon.git /tmp/PoissonRecon && \
     cd /tmp/PoissonRecon && \
+	git checkout 19a8cbd && \
     make -j$(nproc) poissonrecon && \
     make -j$(nproc) surfacetrimmer && \
     cp Bin/Linux/PoissonRecon ${INSTALL_PREFIX}/bin/ && \
