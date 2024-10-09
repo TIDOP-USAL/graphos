@@ -323,11 +323,12 @@ void SmvsDensifier::densify()
 {
     try {
 
-        tl::Path app_path = tl::App::instance().path();
+        tl::Path app_path = tl::App::instance().path().parentPath();
+        app_path.append("smvsrecon_SSE41");
 
         std::string cmd("\"");
-        cmd.append(app_path.parentPath().toString());
-        cmd.append("\\smvsrecon_SSE41.exe\" ");
+        cmd.append(app_path.toString());
+        cmd.append("\" ");
         cmd.append("--scale=").append(std::to_string(Smvs::inputImageScale()));
         cmd.append(" --output-scale=").append(std::to_string(Smvs::outputDepthScale()));
         cmd.append(" --alpha=").append(std::to_string(Smvs::surfaceSmoothingFactor()));
@@ -394,7 +395,8 @@ void SmvsDensifier::execute(tl::Progress *progressBar)
             undistort_image_path.replaceExtension(".jpg");
 
             tl::Path undistort_smvs_path = outputPath();
-            undistort_smvs_path.append(colmap::StringPrintf("\\views\\view_%04d.mve\\", mGraphosToMveIds.at(image_id)));
+            undistort_smvs_path.append("views");
+            undistort_smvs_path.append(colmap::StringPrintf("view_%04d.mve", mGraphosToMveIds.at(image_id)));
             undistort_smvs_path.append("undistorted.jpg");
 
             tl::Path::copy(undistort_image_path, undistort_smvs_path);

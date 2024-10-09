@@ -584,6 +584,9 @@ void MvsDensifier::exportToMvs() const
 {
     try {
 
+        tl::Path app_path = tl::App::instance().path().parentPath();
+        app_path.append("OpenMVS").append("InterfaceCOLMAP");
+
         tl::Path input_path = outputPath();
         input_path.append("temp").append("export");
         tl::Path output_path = outputPath();
@@ -591,12 +594,9 @@ void MvsDensifier::exportToMvs() const
         tl::Path images_path = input_path;
         images_path.append("images");
 
-        tl::Path app_path = tl::App::instance().path();
         std::string cmd_mvs("\"");
-        cmd_mvs.append(app_path.parentPath().toString());
-        cmd_mvs.append("\\OpenMVS\\InterfaceCOLMAP\"");
-        //cmd_mvs.append("\\InterfaceCOLMAP\"");
-        cmd_mvs.append(" -v 2 -i \"").append(input_path.toString()).append("\"");
+        cmd_mvs.append(app_path.toString());
+        cmd_mvs.append("\" -v 2 -i \"").append(input_path.toString()).append("\"");
         cmd_mvs.append(" -o \"").append(output_path.toString()).append("\"");
         cmd_mvs.append(" --image-folder \"").append(images_path.toString()).append("\"");
         tl::Message::info("Process: {}", cmd_mvs);
@@ -622,13 +622,17 @@ void MvsDensifier::densify()
 {
     try {
 
-        tl::Path app_path = tl::App::instance().path();
+        tl::Path app_path = tl::App::instance().path().parentPath();
+        app_path.append("OpenMVS").append("DensifyPointCloud");
+
+        tl::Path output_path = outputPath();
+        output_path.append("temp");
+
         std::string cmd_mvs("\"");
-        cmd_mvs.append(app_path.parentPath().toString());
-        cmd_mvs.append("\\OpenMVS\\DensifyPointCloud\" -w \"");
-        //cmd_mvs.append("\\DensifyPointCloud\" -w \"");
-        cmd_mvs.append(outputPath().toString());
-        cmd_mvs.append("\\temp\" -i model.mvs -o model_dense.mvs -v 2");
+        cmd_mvs.append(app_path.toString());
+        cmd_mvs.append("\" -w \"");
+        cmd_mvs.append(output_path.toString());
+        cmd_mvs.append("\" -i model.mvs -o model_dense.mvs -v 2");
         cmd_mvs.append(" --resolution-level ").append(std::to_string(Mvs::resolutionLevel()));
         cmd_mvs.append(" --min-resolution ").append(std::to_string(Mvs::minResolution()));
         cmd_mvs.append(" --max-resolution ").append(std::to_string(Mvs::maxResolution()));
