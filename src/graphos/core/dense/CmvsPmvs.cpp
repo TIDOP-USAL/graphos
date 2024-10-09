@@ -557,10 +557,12 @@ void CmvsPmvsDensifier::densify()
 
     try {
 
-        Path app_path = tl::App::instance().path();
+        Path app_path = tl::App::instance().path().parentPath();
+        app_path.append("pmvs2");
+
         std::string cmd_cmvs("\"");
-        cmd_cmvs.append(app_path.parentPath().toString());
-        cmd_cmvs.append("\\pmvs2\" \"");
+        cmd_cmvs.append(app_path.toString());
+        cmd_cmvs.append("\" \"");
         cmd_cmvs.append(outputPath().toString());
         cmd_cmvs.append("/\" option-all");
 

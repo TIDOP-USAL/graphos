@@ -14,7 +14,7 @@ ARG CERES_VERSION=2.0.0
 ARG GDAL_VERSION=3.5.0
 ARG PROJ_VERSION=9.0.0
 ARG GLOG_VERSION=0.5.0
-ARG OPENMVS_VERSION=2.3.0
+ARG OPENMVS_VERSION=2.2.0
 #ARG POISSONRECON_VERSION=13.58
 
 # Sets the working directory
@@ -80,7 +80,7 @@ RUN git clone --branch ${OPENCV_VERSION} https://github.com/opencv/opencv.git /t
           -DBUILD_TESTS=OFF \
           -DBUILD_PERF_TESTS=OFF \
           -DCMAKE_CXX_FLAGS="-Wno-deprecated-declarations -march=x86-64 -mtune=generic" .. && \     
-    ninja && \
+    ninja -j2 && \
     ninja install && \
     ldconfig && \
     cd /app && \
@@ -135,8 +135,22 @@ RUN git clone --branch release/3.5 https://github.com/OSGeo/gdal.git /tmp/gdal &
     cd /app && \
     rm -rf /tmp/gdal
 	
+RUN git clone --branch 3.4 https://gitlab.com/libeigen/eigen.git /tmp/eigen && \
+    cd /tmp/eigen && \
+    mkdir build && \ 
+    cd build && \
+    cmake .. -GNinja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
+          -DBUILD_TESTING=OFF \   
+          -DEIGEN_BUILD_TESTING=OFF \  
+          -DBUILD_APPS=OFF && \  
+    ninja && \
+    ninja install && \
+    cd /app && \
+    rm -rf /tmp/eigen
+
 RUN apt-get update && apt-get install -y \
-    libeigen3-dev \
 	libexpat1-dev \
 	libfreeimage-dev \
     libflann-dev \	
@@ -211,54 +225,41 @@ RUN git clone https://github.com/colmap/colmap.git /tmp/colmap && \
     -DCMAKE_CUDA_ARCHITECTURES="5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6" \ 
     -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
     && ninja -j2 && \
+    && ninja -j2 && \
     ninja install && \
     cd /app && rm -rf /tmp/colmap
 
-
-# Install VCG
-#RUN git clone https://github.com/cdcseacave/VCG.git /tmp/vcglib && \
-#    mkdir -p ${INSTALL_PREFIX}/vcglib && \
-#    cp -r /tmp/vcglib/* ${INSTALL_PREFIX}/vcglib && \
-#    rm -rf /tmp/vcglib
-#	
-#	
-## Build and install OpenMVS
-#RUN git clone https://github.com/cdcseacave/openMVS.git /tmp/openMVS && \
-#    cd /tmp/openMVS && \
-#    #Requiere Eigen 3.4...
-#	#git checkout tags/v${OPENMVS_VERSION} && \
-#    git checkout tags/v2.0 && \
-#    mkdir _build && \
-#    cd _build && \
-#    cmake .. -DCMAKE_BUILD_TYPE=Release \
-#             -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
-#             -DVCG_ROOT="${INSTALL_PREFIX}/vcglib" \
-#             #-DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-11.5 \
-#             #-DCUDA_SDK_ROOT_DIR=/usr/local/cuda-11.5 \
-#             #-DCUDA_CUDART_LIBRARY=/usr/local/cuda-11.5/lib64/libcudart.so \	
-#             -DCUDA_CUDA_LIBRARY=/usr/local/cuda-11.5/lib64/stubs/libcuda.so \			 
-#             -DOpenMVS_ENABLE_TEST=OFF \
-#             -DOpenMVS_MAX_CUDA_COMPATIBILITY=ON \
-#             #-DOpenMVS_USE_PYTHON=OFF \
-#             -DBUILD_SHARED_LIBS=OFF && \
-#    make -j$(nproc) && \
-#    make install && \
-#    cd /app && rm -rf /tmp/openMVS
-	
 RUN git clone https://github.com/mkazhdan/PoissonRecon.git /tmp/PoissonRecon && \
     cd /tmp/PoissonRecon && \
-    #git checkout tags/v${POISSONRECON_VERSION} && \
-    #mkdir build && \
-    #cd build && \
-    #cmake .. -DCMAKE_BUILD_TYPE=Release \
-    #         -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} && \
-    make -j2 && \
+    make -j$(nproc) poissonrecon && \
+    make -j$(nproc) surfacetrimmer && \
     cp Bin/Linux/PoissonRecon ${INSTALL_PREFIX}/bin/ && \
+    cp Bin/Linux/SurfaceTrimmer ${INSTALL_PREFIX}/bin/ && \
     cd /app && rm -rf /tmp/PoissonRecon
 
+# Install VCG
+RUN git clone https://github.com/cdcseacave/VCG.git /tmp/vcglib && \
+    mkdir -p ${INSTALL_PREFIX}/vcglib && \
+    cp -r /tmp/vcglib/* ${INSTALL_PREFIX}/vcglib && \
+    rm -rf /tmp/vcglib
 	
-# Copy TidopLib from local directory
-#COPY ./tidoplib /tmp/tidoplib	
+	
+# Build and install OpenMVS
+RUN git clone https://github.com/cdcseacave/openMVS.git /tmp/openMVS && \
+    cd /tmp/openMVS && \
+	git checkout tags/v${OPENMVS_VERSION} && \
+    mkdir _build && \
+    cd _build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release \
+             -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+             -DVCG_DIR="${INSTALL_PREFIX}/vcglib" \	
+             -DCUDA_CUDA_LIBRARY=/usr/local/cuda-11.5/lib64/stubs/libcuda.so \			 
+             -DOpenMVS_MAX_CUDA_COMPATIBILITY=ON \
+             -DBUILD_TESTING=OFF \
+             -DBUILD_SHARED_LIBS=OFF && \
+    make -j2 && \
+    make install && \
+    cd /app && rm -rf /tmp/openMVS
 
 RUN git clone --branch dev_3.1 https://github.com/TIDOP-USAL/tidoplib.git /tmp/tidoplib && \
     cd /tmp/tidoplib && \
@@ -273,6 +274,7 @@ RUN git clone --branch dev_3.1 https://github.com/TIDOP-USAL/tidoplib.git /tmp/t
           -DBUILD_APPS=ON \
           -DBUILD_TEST=OFF \
           -DBUILD_DOC=OFF \
+          -DWITH_CUDA=ON \
           -DTIDOPLIB_USE_SIMD_INTRINSICS=ON \
           -DTIDOPLIB_CXX_STANDARD=C++14 && \
     ninja && \
@@ -289,7 +291,7 @@ RUN mkdir build && \
           -DCMAKE_BUILD_TYPE=Release \
 		  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc \
 		  -DBUILD_GUI=OFF \
-          -DWITH_CUDA=OFF \
+          -DWITH_CUDA=ON \
 		  -DCOLMAP_ROOT=${INSTALL_PREFIX} \
 		  -DTidopLib_DIR=${INSTALL_PREFIX} && \
     ninja && \
