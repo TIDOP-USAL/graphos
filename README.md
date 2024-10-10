@@ -45,8 +45,10 @@ Make sure your environment has these dependencies installed before proceeding wi
 
 ### Cloning the Repository
 
+```bash
 git clone https://github.com/TIDOP-USAL/graphos.git
 cd graphos
+```
 
 ### Building with CMake
 
