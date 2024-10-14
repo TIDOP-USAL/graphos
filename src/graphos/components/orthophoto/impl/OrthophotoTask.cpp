@@ -428,138 +428,186 @@ void orthoMosaic(const tl::Path &graph_orthos,
 
                 const auto &window = grid[r][c];
 
-                // Best image
-                auto &ortho_it = orthos[r][c].begin();
-
                 cv::Mat read_image;
                 tl::WindowD window_to_read;
-                {
-                    auto image_reader = tl::ImageReaderFactory::create(ortho_it->second/*orthos[r][c]*/);
+
+                // Best image
+                //auto &ortho_it = orthos[r][c].begin();
+                //{
+                //    try {
+                //        auto image_reader = tl::ImageReaderFactory::create(ortho_it->second/*orthos[r][c]*/);
+                //        image_reader->open();
+                //        if (!image_reader->isOpen()) {
+                //            tl::Message::error("Image open error :{}", ortho_it->second/*orthos[r][c]*/);
+                //            continue;
+                //        }
+
+                //        if (!intersectWindows(image_reader->window(), window)) continue;
+
+                //        auto window_aux = tl::expandWindow(window, 50 * res_ortho);
+                //        window_to_read = tl::windowIntersection(image_reader->window(), window_aux);
+
+                //        read_image = image_reader->read(window_to_read);
+                //        image_reader->close();
+                //    } catch (std::exception &e) {
+                //        tl::printException(e);
+                //    }
+                //}
+
+                //Imagen con menos pixeles negros
+                int numBlackPixels = std::numeric_limits<int>::max();
+                for (auto &ortho : orthos[r][c]) {
+                    auto image_reader = tl::ImageReaderFactory::create(ortho.second/*orthos[r][c]*/);
                     image_reader->open();
                     if (!image_reader->isOpen()) {
-                        tl::Message::error("Image open error :{}", ortho_it->second/*orthos[r][c]*/);
+                        tl::Message::error("Image open error :{}", ortho.second/*orthos[r][c]*/);
                         continue;
                     }
 
                     if (!intersectWindows(image_reader->window(), window)) continue;
 
-                    auto window_aux = tl::expandWindow(window, 50 * res_ortho);
-                    window_to_read = tl::windowIntersection(image_reader->window(), window_aux);
+                    auto window_aux = tl::expandWindow(window, /*50 **/ res_ortho);
+                    auto _window_to_read = tl::windowIntersection(image_reader->window(), window_aux);
 
-                    read_image = image_reader->read(window_to_read);
+                    auto image = image_reader->read(_window_to_read);
                     image_reader->close();
+
+                    cv::Mat gray;
+                    if (image.channels() != 1) {
+                        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+                    } else {
+                        gray = image.clone();
+                    }
+                    auto image_pixels = image.cols * image.rows;
+                    auto max_image_pixels = 255 * 255/*355 * 355*/;
+                    auto black_pixels = max_image_pixels - image_pixels;
+                    cv::Mat blackMask = (gray == 0);
+                    int _numBlackPixels = black_pixels + cv::countNonZero(blackMask);
+                    if (_numBlackPixels < numBlackPixels) {
+                        read_image = image.clone();
+                        numBlackPixels = _numBlackPixels;
+                        window_to_read = _window_to_read;
+                    }
                 }
+
+                if (read_image.empty()) continue;
+
                 /// Si la imagen está incompleta se rellena
 
-                //cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
-                cv::Mat gray;
-                if (read_image.channels() != 1) {
-                    cv::cvtColor(read_image, gray, cv::COLOR_BGR2GRAY);
-                } else {
-                    gray = read_image.clone();
+                ////cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
+                //cv::Mat gray;
+                //if (read_image.channels() != 1) {
+                //    cv::cvtColor(read_image, gray, cv::COLOR_BGR2GRAY);
+                //} else {
+                //    gray = read_image.clone();
+                //}
+
+                //// Create an initial mask for black pixels (value 0)
+                //cv::Mat blackMask = (gray == 0);
+
+                //// Find connected components to identify areas
+                //cv::Mat labels, stats, centroids;
+                //int numComponents = cv::connectedComponentsWithStats(blackMask, labels, stats, centroids);
+
+                //// Create a new mask to store the valid black pixels
+                ////cv::Mat finalMask = cv::Mat::zeros(gray.size(), CV_8U);
+
+                //// Iterate through each component
+                ////for (int i = 1; i < numComponents; i++) {  // Start from 1 to ignore the background
+                //for (int i = 0; i < numComponents; i++) {
+                //    int area = stats.at<int>(i+1, cv::CC_STAT_AREA);
+                //    if (area > 1024) {
+                //        cv::Mat componentMask = (labels == i+1);
+                //        //finalMask |= componentMask;
+                //        auto it = ortho_it;
+                //        it++;
+                //        for (; it != orthos[r][c].end(); it++) {
+
+                //            tl::ImageReader::Ptr image_reader2 = tl::ImageReaderFactory::create(it->second);
+                //            image_reader2->open();
+                //            if (!image_reader2->isOpen()) {
+                //                tl::Message::error("Image open error :{}", it->second);
+                //                continue;
+                //            }
+
+                //            if (!intersectWindows(image_reader2->window(), window)) continue;
+
+                //            auto window_aux = tl::expandWindow(window, 50 * res_ortho);
+                //            auto window_to_read = tl::windowIntersection(image_reader2->window(), window_aux);
+
+                //            cv::Mat second_image = image_reader2->read(window_to_read);
+                //            image_reader2->close();
+
+                //            if (second_image.size() != read_image.size()) continue;
+                //            //cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
+                //            cv::Mat finalMask = componentMask.clone();
+                //            finalMask |= blackMask;
+
+                //            // Se tiene que comprobar solo en el area de la componente
+                //            // La mascara se establece sobre los pixeles negros asi que compruebo lo puntos que son mascara
+
+                //            // Tengo que recalcular la mascara a la zona en concreto que se quiere clonar.
+                //            // De esta forma se evita que se clonen trozos negros de imagen.
+                //            int numBlackPixels = /*finalMask.size().area() -*/ cv::countNonZero(finalMask);
+                //            if (finalMask.size().area() == numBlackPixels) continue;
+                //            if (numBlackPixels < 512/*1024*/) {
+                //                break;
+                //            } else {
+                //                try {
+                //                    cv::Mat result;
+                //                    cv::seamlessClone(second_image, read_image, componentMask, 
+                //                                      cv::Point(read_image.cols / 2, read_image.rows / 2), result, cv::NORMAL_CLONE);
+                //                    read_image = result.clone();
+                //                    blackMask = finalMask.clone();
+                //                } catch (std::exception &e) {
+                //                    tl::printException(e);
+                //                }
+                //            }
+                //        }
+                //    }
+
+                //    //for (; ortho_it != orthos[r][c].end(); ortho_it++) {
+                //    //    auto image_reader = tl::ImageReaderFactory::create(ortho_it->second);
+
+                //    //    if (!image_reader->isOpen()) {
+                //    //        tl::Message::error("Image open error :{}", ortho_it->second);
+                //    //        continue;
+                //    //    }
+
+                //    //    if (!intersectWindows(image_reader->window(), window)) continue;
+
+                //    //    auto window_aux = tl::expandWindow(window, 50 * res_ortho);
+                //    //    auto window_to_read = tl::windowIntersection(image_reader->window(), window_aux);
+
+                //    //    cv::Mat second_image = image_reader->read(window_to_read);
+                //    //    image_reader->close();
+                //    //    cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
+
+                //    //}
+
+                //}
+
+                try {
+                    tl::Path tile(ortho_path);
+                    tile.append(std::to_string(r));
+                    tile.append(std::to_string(c));
+                    tile.createDirectories();
+                    tile.append("t.tif");
+                    //if (!tile.exists()) continue;
+                    auto image_writer = tl::ImageWriterFactory::create(tile);
+                    image_writer->open();
+                    int cols = static_cast<int>(std::round(window_to_read.width() / res_ortho));
+                    int rows = static_cast<int>(std::round(window_to_read.height() / res_ortho));
+
+                    image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
+                    image_writer->setCRS(crs.toWktFormat());
+                    tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_to_read.pt1.x, window_to_read.pt2.y, 0.0);
+                    image_writer->setGeoreference(affine_ortho);
+                    image_writer->write(read_image);
+                    image_writer->close();
+                } catch (std::exception &e) {
+                    tl::printException(e);
                 }
-
-                // Create an initial mask for black pixels (value 0)
-                cv::Mat blackMask = (gray == 0);
-
-                // Find connected components to identify areas
-                cv::Mat labels, stats, centroids;
-                int numComponents = cv::connectedComponentsWithStats(blackMask, labels, stats, centroids);
-
-                // Create a new mask to store the valid black pixels
-                //cv::Mat finalMask = cv::Mat::zeros(gray.size(), CV_8U);
-
-                // Iterate through each component
-                //for (int i = 1; i < numComponents; i++) {  // Start from 1 to ignore the background
-                for (int i = 0; i < numComponents; i++) {
-                    int area = stats.at<int>(i+1, cv::CC_STAT_AREA);
-                    if (area > 1024) {
-                        cv::Mat componentMask = (labels == i+1);
-                        //finalMask |= componentMask;
-                        auto it = ortho_it;
-                        it++;
-                        for (; it != orthos[r][c].end(); it++) {
-
-                            tl::ImageReader::Ptr image_reader2 = tl::ImageReaderFactory::create(it->second);
-                            image_reader2->open();
-                            if (!image_reader2->isOpen()) {
-                                tl::Message::error("Image open error :{}", it->second);
-                                continue;
-                            }
-
-                            if (!intersectWindows(image_reader2->window(), window)) continue;
-
-                            auto window_aux = tl::expandWindow(window, 50 * res_ortho);
-                            auto window_to_read = tl::windowIntersection(image_reader2->window(), window_aux);
-
-                            cv::Mat second_image = image_reader2->read(window_to_read);
-                            image_reader2->close();
-
-                            if (second_image.size() != read_image.size()) continue;
-                            //cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
-                            cv::Mat finalMask = componentMask.clone();
-                            finalMask |= blackMask;
-
-                            // Se tiene que comprobar solo en el area de la componente
-                            // La mascara se establece sobre los pixeles negros asi que compruebo lo puntos que son mascara
-
-                            // Tengo que recalcular la mascara a la zona en concreto que se quiere clonar.
-                            // De esta forma se evita que se clonen trozos negros de imagen.
-                            int numBlackPixels = /*finalMask.size().area() -*/ cv::countNonZero(finalMask);
-                            if (finalMask.size().area() == numBlackPixels) continue;
-                            if (numBlackPixels < 512/*1024*/) {
-                                break;
-                            } else {
-                                try {
-                                    cv::Mat result;
-                                    cv::seamlessClone(second_image, read_image, componentMask, 
-                                                      cv::Point(read_image.cols / 2, read_image.rows / 2), result, cv::NORMAL_CLONE);
-                                    read_image = result.clone();
-                                    blackMask = finalMask.clone();
-                                } catch (std::exception &e) {
-                                    tl::printException(e);
-                                }
-                            }
-                        }
-                    }
-
-                    //for (; ortho_it != orthos[r][c].end(); ortho_it++) {
-                    //    auto image_reader = tl::ImageReaderFactory::create(ortho_it->second);
-
-                    //    if (!image_reader->isOpen()) {
-                    //        tl::Message::error("Image open error :{}", ortho_it->second);
-                    //        continue;
-                    //    }
-
-                    //    if (!intersectWindows(image_reader->window(), window)) continue;
-
-                    //    auto window_aux = tl::expandWindow(window, 50 * res_ortho);
-                    //    auto window_to_read = tl::windowIntersection(image_reader->window(), window_aux);
-
-                    //    cv::Mat second_image = image_reader->read(window_to_read);
-                    //    image_reader->close();
-                    //    cv::Mat blackPixelMask = createBlackPixelMask(read_image, 1024, true);
-
-                    //}
-
-                }
-
-                tl::Path tile(ortho_path);
-                tile.append(std::to_string(r));
-                tile.append(std::to_string(c));
-                tile.createDirectories();
-                tile.append("t.tif");
-                auto image_writer = tl::ImageWriterFactory::create(tile);
-                image_writer->open();
-                int cols = static_cast<int>(std::round(window_to_read.width() / res_ortho));
-                int rows = static_cast<int>(std::round(window_to_read.height() / res_ortho));
-
-                image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
-                image_writer->setCRS(crs.toWktFormat());
-                tl::Affine<double, 2> affine_ortho(res_ortho, -res_ortho, window_to_read.pt1.x, window_to_read.pt2.y, 0.0);
-                image_writer->setGeoreference(affine_ortho);
-                image_writer->write(read_image);
-                image_writer->close();
             }
         }
 
@@ -580,47 +628,56 @@ void orthoMosaic(const tl::Path &graph_orthos,
             for (size_t r = 0; r < grid.size(); r++) {
                 for (size_t c = 0; c < grid[r].size(); c++) {
 
-                    const auto &window = grid[r][c];
-                    tl::Path tile(ortho_path);
-                    tile.append(std::to_string(r));
-                    tile.append(std::to_string(c));
-                    tile.append("t.tif");
-                    auto image_reader = tl::ImageReaderFactory::create(tile/*orthos[r][c].begin()->second*/);
-                    image_reader->open();
-                    if (!image_reader->isOpen()) {
-                        tl::Message::error("Image open error :{}", orthos[r][c].begin()->second);
-                        continue;
+                    try {
+                        const auto &window = grid[r][c];
+                        tl::Path tile(ortho_path);
+                        tile.append(std::to_string(r));
+                        tile.append(std::to_string(c));
+                        tile.append("t.tif");
+                        if (!tile.exists()) continue;
+                        auto image_reader = tl::ImageReaderFactory::create(tile/*orthos[r][c].begin()->second*/);
+                        image_reader->open();
+                        if (!image_reader->isOpen()) {
+                            tl::Message::error("Image open error :{}", orthos[r][c].begin()->second);
+                            continue;
+                        }
+
+                        auto tile_window = image_reader->window();
+
+                        if (!intersectWindows(tile_window, window) /*||
+                            !intersectWindows(image_reader_seam->window(), window)*/) continue;
+
+                        auto georef = image_reader->georeference();
+
+                        //double scale_x = georef.scale().x();
+                        //double scale_y = georef.scale().y();
+                        //double read_scale_x = scale_x / res_ortho;
+                        //double read_scale_y = scale_y / res_ortho;
+
+                        //auto inverse_transform = georef.inverse();
+                        //tl::Point<double> p1 = inverse_transform.transform(window.pt1);
+                        //tl::Point<double> p2 = inverse_transform.transform(window.pt2);
+                        //tl::WindowI window_to_read(static_cast<tl::Point<int>>(p1), static_cast<tl::Point<int>>(p2));
+                        //window_to_read.normalized();
+
+                        //tl::Affine<int, 2> affine;
+                        //cv::Mat compensate_image = image_reader->read(window, read_scale_x, read_scale_y, &affine);
+                        // Leo toda la imagen asi que lo anterior no tiene sentido
+                        cv::Mat compensate_image = image_reader->read();
+                        // Relleno de pixeles negros
+                        cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
+                        cv::inpaint(compensate_image, blackPixelMask, compensate_image, 3, cv::INPAINT_TELEA);
+
+                        auto affine_ortho_inverse = affine_ortho.inverse();
+                        tl::Point<double> p1_ortho = affine_ortho_inverse.transform(tile_window.pt1);
+                        tl::Point<double> p2_ortho = affine_ortho_inverse.transform(tile_window.pt2);
+                        tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
+                        window_to_write.normalized();
+                        if (window_to_write.isValid())
+                            image_writer->write(compensate_image, window_to_write);
+                    } catch (std::exception &e) {
+                        tl::printException(e);
                     }
-
-                    if (!intersectWindows(image_reader->window(), window) /*||
-                        !intersectWindows(image_reader_seam->window(), window)*/) continue;
-
-                    auto georef = image_reader->georeference();
-
-                    double scale_x = georef.scale().x();
-                    double scale_y = georef.scale().y();
-                    double read_scale_x = scale_x / res_ortho;
-                    double read_scale_y = scale_y / res_ortho;
-
-                    //auto inverse_transform = georef.inverse();
-                    //tl::Point<double> p1 = inverse_transform.transform(window.pt1);
-                    //tl::Point<double> p2 = inverse_transform.transform(window.pt2);
-                    //tl::WindowI window_to_read(static_cast<tl::Point<int>>(p1), static_cast<tl::Point<int>>(p2));
-                    //window_to_read.normalized();
-
-                    tl::Affine<int, 2> affine;
-                    cv::Mat compensate_image = image_reader->read(window, read_scale_x, read_scale_y, &affine);
-                    // Relleno de pixeles negros
-                    cv::Mat blackPixelMask = createBlackPixelMask(compensate_image, 1024);
-                    cv::inpaint(compensate_image, blackPixelMask, compensate_image, 3, cv::INPAINT_TELEA);
-
-                    auto affine_ortho_inverse = affine_ortho.inverse();
-                    tl::Point<double> p1_ortho = affine_ortho_inverse.transform(window.pt1);
-                    tl::Point<double> p2_ortho = affine_ortho_inverse.transform(window.pt2);
-                    tl::WindowI window_to_write(static_cast<tl::Point<int>>(p1_ortho), static_cast<tl::Point<int>>(p2_ortho));
-                    window_to_write.normalized();
-                    if (window_to_write.isValid())
-                        image_writer->write(compensate_image, window_to_write);
                 }
             }
 
@@ -1145,7 +1202,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         //                                crs,
         //                                footprint_file,
         //                                mGSD,
-        //                                0.8/*0.4*/,
+        //                                1./*0.4*/,
         //                                bCuda);
         //ortho_process.run(progressBar);
 
