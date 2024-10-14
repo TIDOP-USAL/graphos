@@ -1,4 +1,3 @@
-#include "GeoreferenceComponent.h"
 /************************************************************************
  *                                                                      *
  *  Copyright 2016 by Tidop Research Group <daguilera@usal.es>          *
@@ -22,14 +21,14 @@
  *                                                                      *
  ************************************************************************/
 
-#include "GeoreferenceComponent.h"
+#include "GroundControlPointsComponent.h"
 
 #ifdef GRAPHOS_GUI
-#include "graphos/components/georeference/impl/GeoreferenceModel.h"
-#include "graphos/components/georeference/impl/GeoreferenceView.h"
-#include "graphos/components/georeference/impl/GeoreferencePresenter.h"
+#include "graphos/components/gcps/impl/GroundControlPointsModel.h"
+#include "graphos/components/gcps/impl/GroundControlPointsView.h"
+#include "graphos/components/gcps/impl/GroundControlPointsPresenter.h"
 #endif // GRAPHOS_GUI
-#include "graphos/components/georeference/impl/GeoreferenceCommand.h"
+#include "graphos/components/gcps/impl/GroundControlPointsCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -39,19 +38,19 @@
 namespace graphos
 {
 
-GeoreferenceComponent::GeoreferenceComponent(Application *application)
-  : TaskComponent(application)
+GroundControlPointsComponent::GroundControlPointsComponent(Application *application)
+  : ComponentBase(application)
 {
     init();
 }
 
-GeoreferenceComponent::~GeoreferenceComponent()
+GroundControlPointsComponent::~GroundControlPointsComponent()
 {
 }
 
-void GeoreferenceComponent::init()
+void GroundControlPointsComponent::init()
 {
-    setName("Georeference");
+    setName("Ground Control Points");
     setMenu("tools");
     setToolbar("tools");
     setIcon(QIcon::fromTheme("orientation"));
@@ -59,37 +58,37 @@ void GeoreferenceComponent::init()
     createCommand();
 }
 
-void GeoreferenceComponent::createModel()
+void GroundControlPointsComponent::createModel()
 {
 #ifdef GRAPHOS_GUI
-    setModel(new GeoreferenceModelImp(app()->project()));
+    setModel(new GroundControlPointsModelImp(app()->project()));
 #endif // GRAPHOS_GUI
 }
 
-void GeoreferenceComponent::createView()
+void GroundControlPointsComponent::createView()
 {
 #ifdef GRAPHOS_GUI
     Qt::WindowFlags f(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
-    setView(new GeoreferenceViewImp(nullptr, f));
-    connect(dynamic_cast<GeoreferenceView *>(view()), &GeoreferenceView::select_crs,
-            this, &GeoreferenceComponent::select_crs);
+    setView(new GroundControlPointsViewImp(nullptr, f));
+    connect(dynamic_cast<GroundControlPointsView *>(view()), &GroundControlPointsView::select_crs,
+            this, &GroundControlPointsComponent::select_crs);
 #endif // GRAPHOS_GUI
 }
 
-void GeoreferenceComponent::createPresenter()
+void GroundControlPointsComponent::createPresenter()
 {
 #ifdef GRAPHOS_GUI
-    setPresenter(new GeoreferencePresenterImp(dynamic_cast<GeoreferenceView *>(view()),
-                                              dynamic_cast<GeoreferenceModel *>(model())));
+    setPresenter(new GroundControlPointsPresenterImp(dynamic_cast<GroundControlPointsView *>(view()),
+                                                     dynamic_cast<GroundControlPointsModel *>(model())));
 #endif // GRAPHOS_GUI
 }
 
-void GeoreferenceComponent::createCommand()
+void GroundControlPointsComponent::createCommand()
 {
-    setCommand(std::make_shared<GeoreferenceCommand>());
+    setCommand(std::make_shared<GroundControlPointsCommand>());
 }
 
-void GeoreferenceComponent::update()
+void GroundControlPointsComponent::update()
 {
     Application *app = this->app();
     TL_ASSERT(app != nullptr, "Application is null");
@@ -102,39 +101,11 @@ void GeoreferenceComponent::update()
     action()->setEnabled(project_exists && images_added && !processing);
 }
 
-void GeoreferenceComponent::onRunning()
-{
-    TaskComponent::onRunning();
-}
-
-void GeoreferenceComponent::onFinished()
-{
-    Application *app = this->app();
-    TL_ASSERT(app != nullptr, "Application is null");
-    AppStatus *app_status = app->status();
-    TL_ASSERT(app_status != nullptr, "AppStatus is null");
-
-    TaskComponent::onFinished();
-    app_status->activeFlag(AppStatus::Flag::absolute_oriented, true);
-    app_status->activeFlag(AppStatus::Flag::project_modified, true);
-}
-
-void GeoreferenceComponent::onFailed()
-{
-    Application *app = this->app();
-    TL_ASSERT(app != nullptr, "Application is null");
-    AppStatus *app_status = app->status();
-    TL_ASSERT(app_status != nullptr, "AppStatus is null");
-
-    TaskComponent::onFailed();
-    app_status->activeFlag(AppStatus::Flag::absolute_oriented, false);
-}
-
-void GeoreferenceComponent::setCRS(const QString &crs)
+void GroundControlPointsComponent::setCRS(const QString &crs)
 {
 #ifdef GRAPHOS_GUI
     if (view())
-        dynamic_cast<GeoreferenceView *>(view())->setCrs(crs);
+        dynamic_cast<GroundControlPointsView *>(view())->setCrs(crs);
 #endif // GRAPHOS_GUI
 }
 

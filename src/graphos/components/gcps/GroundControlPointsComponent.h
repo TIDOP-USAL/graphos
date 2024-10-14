@@ -21,38 +21,51 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_COMMAND_H
-#define GRAPHOS_GEOREFERENCE_COMMAND_H
+#ifndef GRAPHOS_GCPS_COMPONENT_H
+#define GRAPHOS_GCPS_COMPONENT_H
 
-#include "graphos/core/command.h"
-#include "graphos/core/project.h"
+#include "graphos/core/Component.h"
 
 
 namespace graphos
 {
 
-class GeoreferenceCommand
-  : public Command
+class GroundControlPointsComponent
+  : public ComponentBase
 {
+
+    Q_OBJECT
 
 public:
 
-    GeoreferenceCommand();
-    ~GeoreferenceCommand() override;
+    GroundControlPointsComponent(Application *application);
+    ~GroundControlPointsComponent() override;
+
+public slots:
+
+    void setCRS(const QString &crs);
 
 private:
 
-    static auto readGroundPoints(const tl::Path &groundPointsPath) -> std::vector<GroundPoint>;
+    void init();
 
-// Command
+signals:
 
-private:
+    void select_crs();
 
-    bool run() override;
+// ComponentBase
+
+protected:
+
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 
-
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_COMMAND_H
+
+#endif // GRAPHOS_GCPS_COMPONENT_H

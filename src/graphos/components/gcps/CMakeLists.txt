@@ -23,9 +23,9 @@
 
 include(TidopUtils)
 
-if(BUILD_GEOREFERENCE_COMPONENT)
+if(BUILD_GCPS_COMPONENT)
 
-    project(Georeference LANGUAGES CXX)
+    project(GroundControlPoints LANGUAGES CXX)
     
     
     # Find includes in corresponding build directories
@@ -38,27 +38,25 @@ if(BUILD_GEOREFERENCE_COMPONENT)
 
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
-                             GeoreferenceComponent.cpp
-                             impl/GeoreferenceCommand.cpp
-                             impl/GeoreferenceTask.cpp
+                             GroundControlPointsComponent.cpp
+                             impl/GroundControlPointsCommand.cpp
                          HEADER_FILES
-                             GeoreferenceComponent.h
-                             impl/GeoreferenceCommand.h
-                             impl/GeoreferenceTask.h)    
+                             GroundControlPointsComponent.h
+                             impl/GroundControlPointsCommand.h)    
 
 if (BUILD_GUI)       
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
-                             impl/GeoreferenceModel.cpp
-                             impl/GeoreferenceView.cpp
-                             impl/GeoreferencePresenter.cpp
+                             impl/GroundControlPointsModel.cpp
+                             impl/GroundControlPointsView.cpp
+                             impl/GroundControlPointsPresenter.cpp
                          HEADER_FILES
-                             GeoreferenceModel.h
-                             GeoreferencePresenter.h
-                             GeoreferenceView.h
-                             impl/GeoreferenceModel.h
-                             impl/GeoreferencePresenter.h
-                             impl/GeoreferenceView.h)
+                             GroundControlPointsModel.h
+                             GroundControlPointsPresenter.h
+                             GroundControlPointsView.h
+                             impl/GroundControlPointsModel.h
+                             impl/GroundControlPointsPresenter.h
+                             impl/GroundControlPointsView.h)
 endif(BUILD_GUI)
 
     add_library(${PROJECT_NAME} ${LIB_TYPE}
@@ -84,17 +82,17 @@ endif(BUILD_GUI)
             ARCHIVE DESTINATION lib)
                         
     install(DIRECTORY .
-            DESTINATION include/graphos/components/georeference
+            DESTINATION include/graphos/components/gcps
             FILES_MATCHING PATTERN "*.h"
             PATTERN "impl" EXCLUDE)
         
 
-    set(GRAPHOS_HAVE_GEOREFERENCE YES CACHE INTERNAL "")
+    set(GRAPHOS_HAVE_GCPS YES CACHE INTERNAL "")
     
-    message(STATUS "  Graphos::Georeference enabled")
+    message(STATUS "  Graphos::GroundControlPoints enabled")
  
 else()
 
-    message(STATUS "  Graphos::Georeference disabled")
+    message(STATUS "  Graphos::GroundControlPoints disabled")
     
-endif(BUILD_GEOREFERENCE_COMPONENT)
+endif(BUILD_GCPS_COMPONENT)

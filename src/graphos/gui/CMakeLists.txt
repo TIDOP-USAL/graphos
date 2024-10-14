@@ -128,7 +128,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_FEATEXTRACT}>:Graphos::FeatExtract>
                       $<$<BOOL:${GRAPHOS_HAVE_FEATMATCH}>:Graphos::FeatMatch>
                       $<$<BOOL:${GRAPHOS_HAVE_FEATVIEWER}>:Graphos::FeatViewer>
-                      $<$<BOOL:${GRAPHOS_HAVE_GEOREFERENCE}>:Graphos::Georeference>
+                      $<$<BOOL:${GRAPHOS_HAVE_GCPS}>:Graphos::GroundControlPoints>
                       $<$<BOOL:${GRAPHOS_HAVE_SCALE}>:Graphos::Scale>
                       $<$<BOOL:${GRAPHOS_HAVE_FLOOR_LEVEL}>:Graphos::FloorLevel>
                       $<$<BOOL:${GRAPHOS_HAVE_IMAGE_LOAD}>:Graphos::ImageLoad>

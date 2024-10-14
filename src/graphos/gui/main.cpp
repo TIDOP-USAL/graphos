@@ -86,9 +86,9 @@
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
 #include "graphos/components/orthophoto/OrthophotoComponent.h"
 #endif // GRAPHOS_HAVE_ORTHOPHOTO
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-#include "graphos/components/georeference/GeoreferenceComponent.h"
-#endif // GRAPHOS_HAVE_GEOREFERENCE
+#ifdef GRAPHOS_HAVE_GCPS
+#include "graphos/components/gcps/GroundControlPointsComponent.h"
+#endif // GRAPHOS_HAVE_GCPS
 #ifdef GRAPHOS_HAVE_SCALE
 #include "graphos/components/scale/ScaleComponent.h"
 #endif // GRAPHOS_HAVE_SCALE
@@ -307,9 +307,9 @@ int main(int argc, char *argv[])
     MeshComponent mesh_component(&app);
 #endif // GRAPHOS_HAVE_MESH
 
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-    GeoreferenceComponent georeference_component(&app);
-#endif // GRAPHOS_HAVE_GEOREFERENCE
+#ifdef GRAPHOS_HAVE_GCPS
+    GroundControlPointsComponent gcps_component(&app);
+#endif // GRAPHOS_HAVE_GCPS
 
 #ifdef GRAPHOS_HAVE_SCALE
     ScaleComponent scale_component(&app);
@@ -479,21 +479,21 @@ int main(int argc, char *argv[])
                                             ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_UNDISTORT
 
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-        componentsManager.registerComponent(&georeference_component,
+#ifdef GRAPHOS_HAVE_GCPS
+        componentsManager.registerComponent(&gcps_component,
                                             ComponentsManager::Flags::separator_before);
 #   ifdef GRAPHOS_HAVE_CRS
-        QObject::connect(&georeference_component, &GeoreferenceComponent::select_crs, [&]() {
+        QObject::connect(&gcps_component, &GroundControlPointsComponent::select_crs, [&]() {
             CoordinateReferenceSystemComponent crs_component(&app);
             QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-                             &georeference_component, &GeoreferenceComponent::setCRS);
+                             &gcps_component, &GroundControlPointsComponent::setCRS);
 
             crs_component.open();
                 //CoordinateReferenceSystemComponent crs_component(&app);
         });
 
 #   endif // GRAPHOS_HAVE_CRS
-#endif // GRAPHOS_HAVE_GEOREFERENCE
+#endif // GRAPHOS_HAVE_GCPS
 
 #ifdef GRAPHOS_HAVE_SCALE
         componentsManager.registerComponent(&scale_component);
@@ -649,10 +649,10 @@ int main(int argc, char *argv[])
 #endif // GRAPHOS_HAVE_FEATVIEWER
 
 
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-        QObject::connect(&georeference_component, SIGNAL(finished()),
+#ifdef GRAPHOS_HAVE_GCPS
+        QObject::connect(&gcps_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
-#endif // GRAPHOS_HAVE_GEOREFERENCE
+#endif // GRAPHOS_HAVE_GCPS
 
 #ifdef GRAPHOS_HAVE_MATCH_VIEWER
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,

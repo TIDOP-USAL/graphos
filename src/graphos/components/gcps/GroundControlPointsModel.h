@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_MODEL_INTERFACE_H
-#define GRAPHOS_GEOREFERENCE_MODEL_INTERFACE_H
+#ifndef GRAPHOS_GCPS_MODEL_INTERFACE_H
+#define GRAPHOS_GCPS_MODEL_INTERFACE_H
 
 #include <unordered_map>
 
@@ -43,7 +43,7 @@ class Camera;
 class CameraPose;
 class GroundPoint;
 
-class GeoreferenceModel
+class GroundControlPointsModel
   : public Model
 {
 
@@ -59,8 +59,8 @@ public:
 
 public:
 
-    GeoreferenceModel(QObject *parent = nullptr) : Model(parent) {}
-    ~GeoreferenceModel() override = default;
+    GroundControlPointsModel(QObject *parent = nullptr) : Model(parent) {}
+    ~GroundControlPointsModel() override = default;
 
     virtual void loadGroundControlPoints() = 0;
     virtual void loadGroundControlPoints(const GroundControlPoints &gcps) = 0;
@@ -98,4 +98,4 @@ public slots:
 
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_MODEL_INTERFACE_H
+#endif // GRAPHOS_GCPS_MODEL_INTERFACE_H

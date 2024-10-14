@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "GeoreferenceModel.h"
+#include "GroundControlPointsModel.h"
 
 #include "graphos/core/project.h"
 #include "graphos/core/sfm/groundpoint.h"
@@ -36,27 +36,27 @@
 namespace graphos
 {
 
-GeoreferenceModelImp::GeoreferenceModelImp(Project *project,
-                                           QObject *parent)
-  : GeoreferenceModel(parent),
+GroundControlPointsModelImp::GroundControlPointsModelImp(Project *project,
+                                                         QObject *parent)
+  : GroundControlPointsModel(parent),
     mProject(project),
     mItemModelGroundControlPoints(new QStandardItemModel(this)),
     mItemModelImagePoints(new QStandardItemModel(this))
 {
-    GeoreferenceModelImp::init();
+    GroundControlPointsModelImp::init();
 }
 
-void GeoreferenceModelImp::init()
+void GroundControlPointsModelImp::init()
 {
 }
 
-void GeoreferenceModelImp::clear()
+void GroundControlPointsModelImp::clear()
 {
     mItemModelGroundControlPoints->clear();
     mItemModelImagePoints->clear();
 }
 
-auto GeoreferenceModelImp::groundControlPoints() const -> GroundControlPoints
+auto GroundControlPointsModelImp::groundControlPoints() const -> GroundControlPoints
 {
     GroundControlPoints ground_control_points;
 
@@ -90,7 +90,7 @@ auto GeoreferenceModelImp::groundControlPoints() const -> GroundControlPoints
     return ground_control_points;
 }
 
-void GeoreferenceModelImp::writeGroundControlPoints(QXmlStreamWriter &stream)
+void GroundControlPointsModelImp::writeGroundControlPoints(QXmlStreamWriter &stream)
 {
     stream.writeStartElement("GroundControlPoints");
     {
@@ -129,7 +129,7 @@ void GeoreferenceModelImp::writeGroundControlPoints(QXmlStreamWriter &stream)
     stream.writeEndElement();
 }
 
-void GeoreferenceModelImp::loadGroundControlPoints()
+void GroundControlPointsModelImp::loadGroundControlPoints()
 {
     ///TODO: Quitar esto y utilizar el método de abajo
     mItemModelGroundControlPoints->clear();
@@ -156,9 +156,9 @@ void GeoreferenceModelImp::loadGroundControlPoints()
         QString name = QString::fromStdString(gcp.name());
         QList<QStandardItem *> standardItem;
         standardItem.append(new QStandardItem(name));
-        standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 3)));
-        standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 3)));
-        standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 3)));
+        standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 6)));
         standardItem.append(new QStandardItem(QString()));
 
         for (auto &pair : gcp.track().points()) {
@@ -194,7 +194,7 @@ void GeoreferenceModelImp::loadGroundControlPoints()
 
 }
 
-void GeoreferenceModelImp::loadGroundControlPoints(const GroundControlPoints &gcps)
+void GroundControlPointsModelImp::loadGroundControlPoints(const GroundControlPoints &gcps)
 {
     mItemModelGroundControlPoints->clear();
     mItemModelImagePoints->clear();
@@ -221,9 +221,9 @@ void GeoreferenceModelImp::loadGroundControlPoints(const GroundControlPoints &gc
         QString name = QString::fromStdString(gcp.name());
         QList<QStandardItem *> standardItem;
         standardItem.append(new QStandardItem(name));
-        standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 3)));
-        standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 3)));
-        standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 3)));
+        standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 6)));
+        standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 6)));
         standardItem.append(new QStandardItem(QString()));
 
         for (auto &pair : gcp.track().points()) {
@@ -259,32 +259,32 @@ void GeoreferenceModelImp::loadGroundControlPoints(const GroundControlPoints &gc
 
 }
 
-auto GeoreferenceModelImp::crs() const -> QString
+auto GroundControlPointsModelImp::crs() const -> QString
 {
     return mCrs;
 }
 
-auto GeoreferenceModelImp::itemModelGroundControlPoints() -> QStandardItemModel*
+auto GroundControlPointsModelImp::itemModelGroundControlPoints() -> QStandardItemModel*
 {
     return mItemModelGroundControlPoints;
 }
 
-auto GeoreferenceModelImp::itemModelImagePoints() -> QStandardItemModel*
+auto GroundControlPointsModelImp::itemModelImagePoints() -> QStandardItemModel*
 {
     return mItemModelImagePoints;
 }
 
-auto GeoreferenceModelImp::images() const -> const Images&
+auto GroundControlPointsModelImp::images() const -> const Images&
 {
     return mProject->images();
 }
 
-auto GeoreferenceModelImp::image(size_t imageId) const -> Image
+auto GroundControlPointsModelImp::image(size_t imageId) const -> Image
 {
     return mProject->findImageById(imageId);
 }
 
-void GeoreferenceModelImp::addGroundControlPoint()
+void GroundControlPointsModelImp::addGroundControlPoint()
 {
     QList<QStandardItem *> standardItem;
     standardItem.append(new QStandardItem(""));
@@ -299,12 +299,12 @@ void GeoreferenceModelImp::addGroundControlPoint()
                                              standardItem);
 }
 
-void GeoreferenceModelImp::removeGroundControlPoint(int index)
+void GroundControlPointsModelImp::removeGroundControlPoint(int index)
 {
     mItemModelGroundControlPoints->removeRow(index);
 }
 
-void GeoreferenceModelImp::addImagePoint(const QString &gcp,
+void GroundControlPointsModelImp::addImagePoint(const QString &gcp,
                                          size_t imageId,
                                          const QPointF &point)
 {
@@ -331,7 +331,7 @@ void GeoreferenceModelImp::addImagePoint(const QString &gcp,
                                      standardItem);
 }
 
-void GeoreferenceModelImp::removeImagePoint(const QString &gcp,
+void GroundControlPointsModelImp::removeImagePoint(const QString &gcp,
                                             size_t imageId)
 {
     Image image = mProject->findImageById(imageId);
@@ -347,7 +347,7 @@ void GeoreferenceModelImp::removeImagePoint(const QString &gcp,
     }
 }
 
-auto GeoreferenceModelImp::points(size_t imageId) const -> std::list<std::pair<QString, QPointF>>
+auto GroundControlPointsModelImp::points(size_t imageId) const -> std::list<std::pair<QString, QPointF>>
 {
     std::list<std::pair<QString, QPointF>> image_points;
 
@@ -366,43 +366,43 @@ auto GeoreferenceModelImp::points(size_t imageId) const -> std::list<std::pair<Q
     return image_points;
 }
 
-auto GeoreferenceModelImp::projectPath() const -> tl::Path
+auto GroundControlPointsModelImp::projectPath() const -> tl::Path
 {
     return mProject->projectFolder();
 }
 
-auto GeoreferenceModelImp::reconstructionPath() const -> tl::Path
+auto GroundControlPointsModelImp::reconstructionPath() const -> tl::Path
 {
     return mProject->reconstructionPath();
 }
 
-void GeoreferenceModelImp::setSparseModel(const tl::Path &sparseModel)
+void GroundControlPointsModelImp::setSparseModel(const tl::Path &sparseModel)
 {
     mProject->setSparseModel(sparseModel);
 }
 
-void GeoreferenceModelImp::setOffset(const tl::Path &offset)
+void GroundControlPointsModelImp::setOffset(const tl::Path &offset)
 {
     mProject->setOffset(offset);
 }
 
-void GeoreferenceModelImp::addPhotoOrientation(size_t imageId,
+void GroundControlPointsModelImp::addPhotoOrientation(size_t imageId,
                                                const CameraPose &orientation)
 {
     mProject->addPhotoOrientation(imageId, orientation);
 }
 
-auto GeoreferenceModelImp::poses() const -> const CameraPoses&
+auto GroundControlPointsModelImp::poses() const -> const CameraPoses&
 {
     return mProject->poses();
 }
 
-auto GeoreferenceModelImp::cameras() const -> const Cameras&
+auto GroundControlPointsModelImp::cameras() const -> const Cameras&
 {
     return mProject->cameras();
 }
 
-auto GeoreferenceModelImp::groundPoints() const -> GroundPoints
+auto GroundControlPointsModelImp::groundPoints() const -> GroundPoints
 {
     auto reader = GroundPointsReaderFactory::create("GRAPHOS");
     reader->read(mProject->groundPoints());
@@ -410,27 +410,27 @@ auto GeoreferenceModelImp::groundPoints() const -> GroundPoints
     return reader->points();
 }
 
-auto GeoreferenceModelImp::database() const -> tl::Path
+auto GroundControlPointsModelImp::database() const -> tl::Path
 {
     return mProject->database();
 }
 
-void GeoreferenceModelImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
+void GroundControlPointsModelImp::setTransform(const tl::Matrix<double, 4, 4> &transform)
 {
     mProject->setTransform(transform);
 }
 
-void GeoreferenceModelImp::setGroundPoints(const tl::Path &groundPoints)
+void GroundControlPointsModelImp::setGroundPoints(const tl::Path &groundPoints)
 {
     mProject->setGroundPoints(groundPoints);
 }
 
-bool GeoreferenceModelImp::updateCamera(int id, const Camera &camera)
+bool GroundControlPointsModelImp::updateCamera(int id, const Camera &camera)
 {
     return mProject->updateCamera(id, camera);
 }
 
-void GeoreferenceModelImp::importGroundControlPoints(const QString &file, const QString &format)
+void GroundControlPointsModelImp::importGroundControlPoints(const QString &file, const QString &format)
 {
     try{
 
@@ -447,7 +447,7 @@ void GeoreferenceModelImp::importGroundControlPoints(const QString &file, const 
     }
 }
 
-void GeoreferenceModelImp::exportGroundControlPoints(const QString &file, const QString &format)
+void GroundControlPointsModelImp::exportGroundControlPoints(const QString &file, const QString &format)
 {
     auto writer = GCPsWriterFactory::create(format.toStdString());
     writer->setEPSGCode(mCrs.toStdString());
@@ -456,12 +456,12 @@ void GeoreferenceModelImp::exportGroundControlPoints(const QString &file, const 
     writer->write(file.toStdString());
 }
 
-void GeoreferenceModelImp::setCrs(const QString &crs)
+void GroundControlPointsModelImp::setCrs(const QString &crs)
 {
     mCrs = crs;
 }
 
-void GeoreferenceModelImp::save()
+void GroundControlPointsModelImp::save()
 {
     tl::Path gcp_file = mProject->projectFolder();
     gcp_file.append("sfm");

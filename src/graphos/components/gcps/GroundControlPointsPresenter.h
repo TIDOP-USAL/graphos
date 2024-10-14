@@ -21,24 +21,25 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_PRESENTER_INTERFACE_H
-#define GRAPHOS_GEOREFERENCE_PRESENTER_INTERFACE_H
+#ifndef GRAPHOS_GCPS_PRESENTER_INTERFACE_H
+#define GRAPHOS_GCPS_PRESENTER_INTERFACE_H
 
-#include "graphos/core/task/TaskPresenter.h"
+
+#include "graphos/core/mvp.h"
 
 namespace graphos
 {
 
-class GeoreferencePresenter
-  : public TaskPresenter
+class GroundControlPointsPresenter
+  : public Presenter
 {
 
     Q_OBJECT
 
 public:
 
-    GeoreferencePresenter() {}
-    ~GeoreferencePresenter() override = default;
+    GroundControlPointsPresenter() {}
+    ~GroundControlPointsPresenter() override = default;
 
 public slots:
 
@@ -48,4 +49,4 @@ public slots:
 
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_PRESENTER_INTERFACE_H
+#endif // GRAPHOS_GCPS_PRESENTER_INTERFACE_H

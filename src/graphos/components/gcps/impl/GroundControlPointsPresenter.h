@@ -21,59 +21,53 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_COMPONENT_H
-#define GRAPHOS_GEOREFERENCE_COMPONENT_H
+#ifndef GRAPHOS_GCPS_PRESENTER_H
+#define GRAPHOS_GCPS_PRESENTER_H
 
-#include "graphos/core/Component.h"
-
+#include "graphos/components/gcps/GroundControlPointsPresenter.h"
 
 namespace graphos
 {
 
-class GeoreferenceComponent
-  : public TaskComponent
+class GroundControlPointsView;
+class GroundControlPointsModel;
+
+class GroundControlPointsPresenterImp
+  : public GroundControlPointsPresenter
 {
 
     Q_OBJECT
 
 public:
 
-    GeoreferenceComponent(Application *application);
-    ~GeoreferenceComponent() override;
+    GroundControlPointsPresenterImp(GroundControlPointsView *view,
+                                    GroundControlPointsModel *model);
+    ~GroundControlPointsPresenterImp() override;
+
+// GroundControlPointsPresenter interface
 
 public slots:
 
-    void setCRS(const QString &crs);
+    void setImageActive(size_t imageId) override;
+
+// Presenter interface
+
+public slots:
+
+    void open() override;
 
 private:
 
-    void init();
+    void init() override;
+    void initSignalAndSlots() override;
 
-signals:
+private:
 
-    void select_crs();
-
-// ComponentBase
-
-protected:
-
-    void createModel() override;
-    void createView() override;
-    void createPresenter() override;
-    void createCommand() override;
-    void update() override;
-
-// TaskComponent
-
-protected slots:
-
-    void onRunning() override;
-    void onFinished() override;
-    void onFailed() override;
+    GroundControlPointsView *mView;
+    GroundControlPointsModel *mModel;
 
 };
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_GEOREFERENCE_COMPONENT_H
+#endif // GRAPHOS_GCPS_PRESENTER_H
