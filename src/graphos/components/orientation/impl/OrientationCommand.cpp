@@ -734,12 +734,13 @@ bool OrientationCommand::run()
         TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
         TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
         TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
-        TL_ASSERT(!absolute_orientation || (absolute_orientation && offset_path.exists()), "3D reconstruction fail");
 
         project.setSparseModel(sparse_model_path);
         project.setGroundPoints(ground_points_path);
-        if (absolute_orientation)
+        if (absolute_orientation) {
+            TL_ASSERT(offset_path.exists(), "3D reconstruction fail");
             project.setOffset(absolute_orientation ? offset_path : tl::Path(""));
+        }
 
         auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
         poses_reader->read(poses_path);
