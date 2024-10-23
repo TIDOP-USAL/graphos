@@ -21,68 +21,49 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H
+#ifndef GRAPHOS_EXPORT_POINT_CLOUD_TASK_H
+#define GRAPHOS_EXPORT_POINT_CLOUD_TASK_H
 
-#include "graphos/components/export/pointcloud/ExportPointCloudPresenter.h"
+#include <tidop/core/task.h>
+#include <tidop/core/progress.h>
+#include <tidop/geometry/entities/point.h>
+
+#include <QObject>
 
 namespace graphos
 {
 
-class ExportPointCloudView;
-class ExportPointCloudModel;
-class AppStatus;
-
-class ExportPointCloudPresenterImp
-  : public ExportPointCloudPresenter
+class ExportPointCloudTask
+  : public QObject,
+    public tl::TaskBase
 {
 
     Q_OBJECT
 
 public:
 
-    ExportPointCloudPresenterImp(ExportPointCloudView *view,
-                                 ExportPointCloudModel *model,
-                                 AppStatus *status);
-    ~ExportPointCloudPresenterImp() override = default;
+    ExportPointCloudTask(tl::Path pointCloud,
+                         tl::Point3<double> offset,
+                         tl::Path exportPointCloud,
+                         std::string crs);
 
-// ExportPointCloudPresenter interface
+    ~ExportPointCloudTask() override = default;
 
-public slots:
-
-    void exportPointCloud(const QString &file) override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
-
-private:
-
-    void init() override;
-    void initSignalAndSlots() override;
-
-// TaskPresenter interface
+// tl::TaskBase interface
 
 protected:
 
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
-    auto createTask() -> std::unique_ptr<tl::Task> override;
-
-public slots:
-
-    void cancel() override;
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-    ExportPointCloudView *mView;
-    ExportPointCloudModel *mModel;
-    AppStatus *mAppStatus;
-    QString mExportFile;
+    tl::Path mPointCloud;
+    tl::Point3<double> mOffset;
+    tl::Path mExportPointCloud;
+    std::string mCrs;
 };
+
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H
+#endif // GRAPHOS_EXPORT_POINT_CLOUD_TASK_H

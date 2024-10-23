@@ -434,10 +434,18 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
         componentsManager.registerComponent(&export_point_cloud_component);
+
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::export_point_cloud,
+                         export_point_cloud_component.action(), &QAction::trigger);
+
 #endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
         
 #ifdef GRAPHOS_HAVE_EXPORT_MESH
         componentsManager.registerComponent(&export_mesh_component);
+
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::export_mesh,
+                         export_mesh_component.action(), &QAction::trigger);
+
 #endif // GRAPHOS_HAVE_EXPORT_MESH
 
         /* Workflow menu */

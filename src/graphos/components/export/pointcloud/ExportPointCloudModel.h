@@ -26,6 +26,7 @@
 
 #include <tidop/core/path.h>
 
+#include "ExportPointCloudComponent.h"
 #include "graphos/core/mvp.h"
 
 namespace graphos
@@ -46,10 +47,14 @@ public:
     ~ExportPointCloudModel() override = default;
 
     virtual auto graphosProjectsDirectory() const -> tl::Path = 0;
+    virtual auto pointCloud() const -> tl::Path = 0;
+    virtual auto offset() const -> tl::Point3<double> = 0;
+    virtual auto crs() const -> QString = 0;
+    virtual auto pointCloudSize() const -> size_t = 0;
 
 public slots:
 
-    virtual void exportPointCloud(const tl::Path &exportPath) = 0;
+    //virtual void exportPointCloud(const tl::Path &exportPath) = 0;
 
 };
 

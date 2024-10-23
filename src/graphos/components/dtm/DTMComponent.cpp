@@ -44,10 +44,6 @@ DTMComponent::DTMComponent(Application *application)
     init();
 }
 
-DTMComponent::~DTMComponent()
-{
-}
-
 void DTMComponent::init()
 {
     setName("DTM/DSM");

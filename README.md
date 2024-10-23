@@ -163,12 +163,13 @@ graphos <command> --help
 - `image_manager` - Manage images in a Graphos project.
 - `featextract` - Extract features (SIFT) from images.
 - `featmatch` - Match features between images.
-- `georef` - Georeference a project.
+- `gcps` - Import ground control points.
 - `ori` - Perform 3D reconstruction.
 - `dense` - Generate a dense point cloud.
 - `mesh` - Create a Poisson reconstruction mesh.
 - `undistort` - Undistort images.
 - `dem` - Create DSM and/or DTM.
+- `export_point_cloud` - Export point cloud.
 
 ## Command Details
 
@@ -245,25 +246,25 @@ graphos featextract -p 253/253.xml
 
 ---
 
-### `georef`
+### `gcps`
 
-Import of control points for absolute orientation of the model
+Import of control points
 
 #### Usage
 ```bash
-graphos georef [OPTION...]
+graphos gcps [OPTION...]
 ```
 
 #### Options
 
 - `-p, --prj [R]` Project file.
-- `--cp [R]` Ground Control Points.
+- `--cp [R]` Ground control points file.
 - `--crs [O]` CRS.
 
 #### Example
 
 ```bash
-graphos georef --p 253/253.xml --cp 253/georef.xml
+graphos gcps --p 253/253.xml --cp 253/georef.xml
 ```
 
 ---
@@ -358,6 +359,30 @@ graphos dem [OPTION...]
 #### Examples
 ```bash
 graphos dem -p 253/253.xml --gsd 0.1
+```
+
+---
+
+### `export_point_cloud`
+
+Export point cloud
+
+#### Usage
+
+```bash
+graphos export_point_cloud [OPTION...]
+```
+
+#### Options
+
+- `-p, --prj [R]` - Project file.
+- `-f, --file [R]` - Export file.
+- `--crs [O]` - CRS of the point cloud (default: CRS of the project ).
+
+#### Examples
+
+```bash
+graphos export_point_cloud -p 253/253.xml --file point_cloud.ply
 ```
 
 ---

@@ -1032,15 +1032,42 @@ void MainWindowView::onTreeContextMenu(const QPoint &point)
             }
         }
     } else if (item->data(0, Qt::UserRole) == graphos::sparse_model) {
-        if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
-            if (selectedItem->text() == tr("Open Point Cloud")) {
+
+        QMenu context_menu(this);
+
+        context_menu.addAction(mActionOpenModel3D);
+
+        if (QAction *selectedItem = context_menu.exec(globalPos)) {
+            if (selectedItem->text() == tr("Open 3D model")) {
                 emit open3DModel(item->toolTip(0), true);
             }
         }
+
     } else if (item->data(0, Qt::UserRole) == graphos::dense_model) {
-        if (QAction *selectedItem = mMenuTreeProjectModel3D->exec(globalPos)) {
-            if (selectedItem->text() == tr("Open Point Cloud")) {
+
+        QMenu context_menu(this);
+        context_menu.addAction(mActionOpenModel3D);
+        context_menu.addAction(mActionExportPointCloud);
+
+        if (QAction *selectedItem = context_menu.exec(globalPos)) {
+            if (selectedItem->text() == tr("Open 3D model")) {
                 emit open3DModel(item->toolTip(0), false);
+            } else if (selectedItem->text() == tr("Export Point Cloud")) {
+                emit export_point_cloud();
+            }
+        }
+
+    } else if (item->data(0, Qt::UserRole) == graphos::mesh) {
+
+        QMenu context_menu(this);
+        context_menu.addAction(mActionOpenModel3D);
+        context_menu.addAction(mActionExportMesh);
+
+        if (QAction *selectedItem = context_menu.exec(globalPos)) {
+            if (selectedItem->text() == tr("Open 3D model")) {
+                emit open3DModel(item->toolTip(0), false);
+            } else if (selectedItem->text() == tr("Export Mesh")) {
+                emit export_mesh();
             }
         }
     }
@@ -1244,8 +1271,6 @@ void MainWindowView::initTreeWidget()
     mMenuTreeProjectImage->addAction(mActionViewKeypoints);
     mMenuTreeProjectImage->addSeparator();
     mMenuTreeProjectImage->addAction(mActionViewMatches);
-    mMenuTreeProjectModel3D = new QMenu(this);
-    mMenuTreeProjectModel3D->addAction(mActionOpenModel3D);
 }
 
 void MainWindowView::initMenus()
@@ -1619,7 +1644,7 @@ void MainWindowView::retranslate()
     mActionDeleteImage->setText(QApplication::translate("MainWindowView", "Delete Image", nullptr));
     mActionViewKeypoints->setText(QApplication::translate("MainWindowView", "View Keypoints", nullptr));
     mActionViewMatches->setText(QApplication::translate("MainWindowView", "View Matches", nullptr));
-    mActionOpenModel3D->setText(QApplication::translate("MainWindowView", "Open Point Cloud", nullptr));
+    mActionOpenModel3D->setText(QApplication::translate("MainWindowView", "Open 3D model", nullptr));
     mActionZoomIn->setText(QApplication::translate("MainWindowView", "Zoom In"));
     mActionZoomOut->setText(QApplication::translate("MainWindowView", "Zoom Out"));
     mActionZoomExtend->setText(QApplication::translate("MainWindowView", "Zoom Extend"));

@@ -24,7 +24,7 @@
 #ifndef GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_INTERFACE_H
 #define GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_INTERFACE_H
 
-#include "graphos/core/mvp.h"
+#include "graphos/core/task/TaskPresenter.h"
 
 namespace graphos
 {
@@ -33,7 +33,7 @@ namespace graphos
  * \brief ExportPointCloudPresenter interface
  */
 class ExportPointCloudPresenter
-  : public Presenter
+  : public TaskPresenter
 {
 
     Q_OBJECT

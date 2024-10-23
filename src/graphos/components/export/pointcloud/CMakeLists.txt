@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_EXPORT_POINT_CLOUD_COMPONENT AND BUILD_GUI)
+if(BUILD_EXPORT_POINT_CLOUD_COMPONENT)
 
     project(ExportPointCloud LANGUAGES CXX)
     
@@ -40,18 +40,28 @@ if(BUILD_EXPORT_POINT_CLOUD_COMPONENT AND BUILD_GUI)
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              ExportPointCloudComponent.cpp
+                             impl/ExportPointCloudTask.cpp
+                             impl/ExportPointCloudCommand.cpp
+                         HEADER_FILES
+                             ExportPointCloudComponent.h
+                             impl/ExportPointCloudTask.h
+                             impl/ExportPointCloudCommand.h)
+
+ if (BUILD_GUI)  
+     add_files_to_project(${PROJECT_NAME}
+                          SOURCE_FILES
                              impl/ExportPointCloudModel.cpp
                              impl/ExportPointCloudView.cpp
                              impl/ExportPointCloudPresenter.cpp
                          HEADER_FILES
-                             ExportPointCloudComponent.h
                              ExportPointCloudModel.h
                              ExportPointCloudView.h
                              ExportPointCloudPresenter.h
                              impl/ExportPointCloudModel.h
                              impl/ExportPointCloudView.h
                              impl/ExportPointCloudPresenter.h)
-            
+ endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -61,7 +71,7 @@ if(BUILD_EXPORT_POINT_CLOUD_COMPONENT AND BUILD_GUI)
   
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)
@@ -87,4 +97,4 @@ else()
 
     message(STATUS "  Graphos::ExportPointCloud disabled")
     
-endif(BUILD_EXPORT_POINT_CLOUD_COMPONENT AND BUILD_GUI)
+endif(BUILD_EXPORT_POINT_CLOUD_COMPONENT)

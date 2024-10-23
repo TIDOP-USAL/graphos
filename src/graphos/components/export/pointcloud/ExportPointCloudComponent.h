@@ -31,7 +31,7 @@ namespace graphos
 {
 
 class ExportPointCloudComponent
-  : public ComponentBase
+  : public TaskComponent
 {
 
     Q_OBJECT
@@ -55,6 +55,13 @@ protected:
     void createCommand() override;
     void update() override;
 
+// TaskComponent
+
+protected slots:
+
+    void onRunning() override;
+    void onFinished() override;
+    void onFailed() override;
 };
 
 

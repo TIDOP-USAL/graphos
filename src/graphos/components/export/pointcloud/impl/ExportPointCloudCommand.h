@@ -21,68 +21,33 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H
+#ifndef GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H
+#define GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H
 
-#include "graphos/components/export/pointcloud/ExportPointCloudPresenter.h"
+#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-class ExportPointCloudView;
-class ExportPointCloudModel;
-class AppStatus;
 
-class ExportPointCloudPresenterImp
-  : public ExportPointCloudPresenter
+class ExportPointCloudCommand
+  : public Command
 {
-
-    Q_OBJECT
 
 public:
 
-    ExportPointCloudPresenterImp(ExportPointCloudView *view,
-                                 ExportPointCloudModel *model,
-                                 AppStatus *status);
-    ~ExportPointCloudPresenterImp() override = default;
-
-// ExportPointCloudPresenter interface
-
-public slots:
-
-    void exportPointCloud(const QString &file) override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
+    ExportPointCloudCommand();
+    ~ExportPointCloudCommand() override;
 
 private:
 
-    void init() override;
-    void initSignalAndSlots() override;
+// Command
 
-// TaskPresenter interface
+    bool run() override;
 
-protected:
-
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
-    auto createTask() -> std::unique_ptr<tl::Task> override;
-
-public slots:
-
-    void cancel() override;
-
-private:
-
-    ExportPointCloudView *mView;
-    ExportPointCloudModel *mModel;
-    AppStatus *mAppStatus;
-    QString mExportFile;
 };
+
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_H
+#endif // GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H
