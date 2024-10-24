@@ -701,6 +701,15 @@ bool OrientationCommand::run()
         for (const auto &image : project.images()) {
             images.push_back(image.second);
         }
+        
+        if (absolute_orientation) {
+            if (gpsPositions(project) || 
+                rtkOrientations(project) ||
+                hasControlPoints(project)) {
+                tl::Message::warning("'absolute_orientation' is enabled but no control points or camera positions are available. Absolute orientation is disabled.");
+                absolute_orientation = false;
+            }
+        }
 
         ReconstructionTask reconstruction(database_path,
                                           sfm_path,
