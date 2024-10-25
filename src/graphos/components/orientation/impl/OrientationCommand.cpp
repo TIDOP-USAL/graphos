@@ -703,9 +703,9 @@ bool OrientationCommand::run()
         }
         
         if (absolute_orientation) {
-            if (gpsPositions(project) || 
-                rtkOrientations(project) ||
-                hasControlPoints(project)) {
+            if (!gpsPositions(project) && 
+                !rtkOrientations(project) &&
+                !hasControlPoints(project)) {
                 tl::Message::warning("'absolute_orientation' is enabled but no control points or camera positions are available. Absolute orientation is disabled.");
                 absolute_orientation = false;
             }
