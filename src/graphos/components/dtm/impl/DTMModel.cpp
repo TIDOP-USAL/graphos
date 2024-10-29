@@ -29,6 +29,9 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
+#include <tidop/geospatial/crs.h>
+#include <tidop/geospatial/crstransf.h>
+#include <tidop/geospatial/util.h>
 
 
 namespace graphos
@@ -53,7 +56,15 @@ auto DtmModelImp::denseModel() const -> tl::Path
 
 auto DtmModelImp::crs() const -> QString
 {
-    return mProject->crs();
+    auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+    auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+    tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+    auto lla = crs_transfom_geocentric_to_geographic.transform(offset());
+    int zone = tl::utmZoneFromLongitude(lla.x);
+    QString epsg_code = "EPSG:326";
+    epsg_code.append(QString::number(zone));
+    return epsg_code;
+    //return mProject->crs();
 }
 
 auto DtmModelImp::gsd() const -> double

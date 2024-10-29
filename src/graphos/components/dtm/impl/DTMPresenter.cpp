@@ -104,11 +104,13 @@ auto DtmPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     tl::Path dtm_path = mModel->projectPath();
     dtm_path.append("dtm");
 
+    // El CRS tiene que venir de view. Por ahora se calcula automaticamente en model
+
     std::unique_ptr<tl::Task> dtm_task = std::make_unique<DtmTask>(mModel->denseModel(),
                                                                    mModel->offset(),
                                                                    dtm_path,
                                                                    mView->gsd(),
-                                                                   mModel->crs(),
+                                                                   mModel->crs().toStdString(),
                                                                    mView->isMdsEnable(),
                                                                    mView->isMdtEnable());
 

@@ -46,7 +46,7 @@ public:
             tl::Point3<double> offset,
             tl::Path demPath,
             double gsd,
-            QString crs,
+            std::string crs,
             bool dsm,
             bool dtm);
 
@@ -64,7 +64,7 @@ private:
     tl::Point3<double> mOffset;
     tl::Path mDemPath;
     double mGSD;
-    QString mCrs;
+    std::string mCrs;
     bool mDSM;
     bool mDTM;
 };

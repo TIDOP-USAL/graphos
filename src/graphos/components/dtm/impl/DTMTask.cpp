@@ -283,7 +283,7 @@ DtmTask::DtmTask(tl::Path pointCloud,
                  tl::Point3<double> offset,
                  tl::Path demPath,
                  double gsd, 
-                 QString crs,
+                 std::string crs,
                  bool dsm,
                  bool dtm)
   : tl::TaskBase(),
@@ -305,7 +305,7 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         TL_ASSERT(mPointCloud.exists(), "Point cloud file not exist: '{}'", mPointCloud.toString().c_str());
         TL_ASSERT(mPointCloud.isFile(), "The path is not valid: '{}'", mPointCloud.toString().c_str());
-
+        
         mDemPath.createDirectories();
 
         /// Transformación de coordenadas ENU al sistema de referencia de salida
@@ -320,7 +320,9 @@ void DtmTask::execute(tl::Progress *progressBar)
         auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
         tl::EcefToEnu ecef_to_enu(ecef_center, rotation);
 
-        auto epsg_utm = std::make_shared<tl::Crs>(mCrs.toStdString());
+        auto epsg_utm = std::make_shared<tl::Crs>(mCrs);
+        TL_ASSERT(epsg_utm->isProjected(), "Only projected CRS's are allowed");
+
         tl::CrsTransform crs_transfom(epsg_geocentric, epsg_utm);
         
 
@@ -383,7 +385,7 @@ void DtmTask::execute(tl::Progress *progressBar)
             tl::Path mds_path = mDemPath;
             mds_path.append("dsm.tif");
 
-            writeDTM(mds_path, dsm_raster, georeference, mCrs.toStdString());
+            writeDTM(mds_path, dsm_raster, georeference, mCrs);
 
             dsm_raster.release();
 
@@ -423,7 +425,7 @@ void DtmTask::execute(tl::Progress *progressBar)
             DelaunayTriangulation dtm(points_ground.points().begin(), points_ground.points().end());
 
             cv::Mat dtm_raster = extractDTMfromTIN(dtm, window/*bbox*/, georeference, progressBar);
-            writeDTM(mdt_path, dtm_raster, georeference, mCrs.toStdString());
+            writeDTM(mdt_path, dtm_raster, georeference, mCrs);
             dtm_raster.release();
 
             tl::Message::info("DTM writed at: {}", mdt_path.toString());
