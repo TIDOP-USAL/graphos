@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "GeoreferenceView.h"
+#include "GroundControlPointsView.h"
 
 #include "graphos/widgets/GraphicViewer.h"
 #include "graphos/widgets/GraphicItem.h"
@@ -33,7 +33,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QApplication>
-#include <QDialogButtonBox>
+//#include <QDialogButtonBox>
 #include <QPushButton>
 #include <QTableView>
 #include <QComboBox>
@@ -47,22 +47,22 @@
 namespace graphos
 {
 
-GeoreferenceViewImp::GeoreferenceViewImp(QWidget *parent,
-                                         Qt::WindowFlags f)
-  : GeoreferenceView(parent, f),
+GroundControlPointsViewImp::GroundControlPointsViewImp(QWidget *parent,
+                                                       Qt::WindowFlags f)
+  : GroundControlPointsView(parent, f),
     mProjectPath(""),
     bSelectedItem(false)
 {
-    GeoreferenceViewImp::initUI();
-    GeoreferenceViewImp::initSignalAndSlots();
+    GroundControlPointsViewImp::initUI();
+    GroundControlPointsViewImp::initSignalAndSlots();
 }
 
-GeoreferenceViewImp::~GeoreferenceViewImp()
+GroundControlPointsViewImp::~GroundControlPointsViewImp()
 {
 
 }
 
-void GeoreferenceViewImp::onGraphicsViewSelectionChanged()
+void GroundControlPointsViewImp::onGraphicsViewSelectionChanged()
 {
     const QSignalBlocker blocker1(mGraphicViewerWidget);
 
@@ -79,7 +79,7 @@ void GeoreferenceViewImp::onGraphicsViewSelectionChanged()
     update();
 }
 
-void GeoreferenceViewImp::onGraphicsViewRemoveSelectItems()
+void GroundControlPointsViewImp::onGraphicsViewRemoveSelectItems()
 {
     const QSignalBlocker blocker1(mGraphicViewerWidget);
     QString image = mComboBoxImages->currentText();
@@ -94,7 +94,7 @@ void GeoreferenceViewImp::onGraphicsViewRemoveSelectItems()
     }
 }
 
-void GeoreferenceViewImp::selectionChanged(const QItemSelection &selected,
+void GroundControlPointsViewImp::selectionChanged(const QItemSelection &selected,
                                            const QItemSelection &deselected)
 {
     this->setEnableImagePointsAddOrEdit(false);
@@ -114,7 +114,7 @@ void GeoreferenceViewImp::selectionChanged(const QItemSelection &selected,
     this->update();
 }
 
-void GeoreferenceViewImp::clickedPoint(const QPointF &point)
+void GroundControlPointsViewImp::clickedPoint(const QPointF &point)
 {
 
     QItemSelectionModel *selecction_model = mTableViewGroundControlPoints->selectionModel();
@@ -155,12 +155,12 @@ void GeoreferenceViewImp::clickedPoint(const QPointF &point)
     }
 }
 
-auto GeoreferenceViewImp::crs() const -> QString
+auto GroundControlPointsViewImp::crs() const -> QString
 {
     return mLineEditCRS->text();
 }
 
-void GeoreferenceViewImp::setImageList(const std::vector<std::pair<size_t, QString>> &imageList)
+void GroundControlPointsViewImp::setImageList(const std::vector<std::pair<size_t, QString>> &imageList)
 {
     QSignalBlocker blocker(mComboBoxImages);
     mComboBoxImages->clear();
@@ -170,7 +170,7 @@ void GeoreferenceViewImp::setImageList(const std::vector<std::pair<size_t, QStri
     }
 }
 
-void GeoreferenceViewImp::setCurrentImage(const QString &imagePath)
+void GroundControlPointsViewImp::setCurrentImage(const QString &imagePath)
 {
     QSignalBlocker blocker(mComboBoxImages);
     QFileInfo file_info(imagePath);
@@ -187,19 +187,19 @@ void GeoreferenceViewImp::setCurrentImage(const QString &imagePath)
     mGraphicViewerWidget->zoomExtend();
 }
 
-void GeoreferenceViewImp::setItemModelGroundControlPoints(QAbstractItemModel *model)
+void GroundControlPointsViewImp::setItemModelGroundControlPoints(QAbstractItemModel *model)
 {
     mTableViewGroundControlPoints->setModel(model);
     QItemSelectionModel *selecction_model = mTableViewGroundControlPoints->selectionModel();
-    connect(selecction_model, &QItemSelectionModel::selectionChanged, this, &GeoreferenceViewImp::selectionChanged);
+    connect(selecction_model, &QItemSelectionModel::selectionChanged, this, &GroundControlPointsViewImp::selectionChanged);
 }
 
-void GeoreferenceViewImp::setItemModelImagePoints(QAbstractItemModel *model)
+void GroundControlPointsViewImp::setItemModelImagePoints(QAbstractItemModel *model)
 {
     mTableViewImagePoints->setModel(model);
 }
 
-void GeoreferenceViewImp::setEnableImagePointsAddOrEdit(bool active)
+void GroundControlPointsViewImp::setEnableImagePointsAddOrEdit(bool active)
 {
     if (active)
         connect(mGraphicViewerWidget, SIGNAL(mouseClicked(QPointF)), this, SLOT(clickedPoint(QPointF)));
@@ -207,7 +207,7 @@ void GeoreferenceViewImp::setEnableImagePointsAddOrEdit(bool active)
         disconnect(mGraphicViewerWidget, SIGNAL(mouseClicked(QPointF)), this, SLOT(clickedPoint(QPointF)));
 }
 
-void GeoreferenceViewImp::setPoints(const std::list<std::pair<QString, QPointF>> &points)
+void GroundControlPointsViewImp::setPoints(const std::list<std::pair<QString, QPointF>> &points)
 {
     //QBrush brush(Qt::NoBrush);
 
@@ -242,12 +242,12 @@ void GeoreferenceViewImp::setPoints(const std::list<std::pair<QString, QPointF>>
     }
 }
 
-void GeoreferenceViewImp::setCrs(const QString &crs)
+void GroundControlPointsViewImp::setCrs(const QString &crs)
 {
     mLineEditCRS->setText(crs);
 }
 
-void GeoreferenceViewImp::importGCP()
+void GroundControlPointsViewImp::importGCP()
 {
     QString selected_filter;
     QString path = QFileDialog::getOpenFileName(nullptr,
@@ -268,7 +268,7 @@ void GeoreferenceViewImp::importGCP()
     }
 }
 
-void GeoreferenceViewImp::exportGCP()
+void GroundControlPointsViewImp::exportGCP()
 {
     QString selected_filter;
     QString path = QFileDialog::getSaveFileName(nullptr,
@@ -290,7 +290,7 @@ void GeoreferenceViewImp::exportGCP()
     }
 }
 
-void GeoreferenceViewImp::removeGroundControlPoints()
+void GroundControlPointsViewImp::removeGroundControlPoints()
 {
     QItemSelectionModel *selecction_model = mTableViewGroundControlPoints->selectionModel();
     QModelIndexList model_index_list = selecction_model->selectedRows();
@@ -301,7 +301,7 @@ void GeoreferenceViewImp::removeGroundControlPoints()
     }
 }
 
-void GeoreferenceViewImp::initUI()
+void GroundControlPointsViewImp::initUI()
 {
     this->setObjectName(QStringLiteral("ExportOrientationsView"));
     this->resize(400, 200);
@@ -310,6 +310,15 @@ void GeoreferenceViewImp::initUI()
     this->setLayout(grid_layout);
 
     auto tool_bar = new QToolBar(this);
+
+    mActionNew = new QAction(this);
+    mActionNew->setIcon(QIcon::fromTheme("new-project"));
+    tool_bar->addAction(mActionNew);
+
+    mActionSave = new QAction(this);
+    mActionSave->setIcon(QIcon::fromTheme("save"));
+    tool_bar->addAction(mActionSave);
+
     mActionImportGCP = new QAction(this);
     mActionImportGCP->setIcon(QIcon::fromTheme("import"));
     tool_bar->addAction(mActionImportGCP);
@@ -325,11 +334,6 @@ void GeoreferenceViewImp::initUI()
 
     mActionDeletePoint = new QAction(this);
     tool_bar->addAction(mActionDeletePoint);
-
-    tool_bar->addSeparator();
-
-    mActionGeoreference = new QAction(this);
-    tool_bar->addAction(mActionGeoreference);
 
     grid_layout->addWidget(tool_bar, 0, 0, 1, 5);
 
@@ -371,44 +375,41 @@ void GeoreferenceViewImp::initUI()
     mGraphicViewerWidget->setMinimumSize(QSize(541, 441));
     grid_layout->addWidget(mGraphicViewerWidget, 2, 3, 1, 3);
 
-    mButtonBox = new QDialogButtonBox(this);
-    mButtonBox->setOrientation(Qt::Horizontal);
-    mButtonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok | QDialogButtonBox::Help);
-    grid_layout->addWidget(mButtonBox, 4, 0, 1, 6);
-
     this->retranslate();
     this->update();
 }
 
-void GeoreferenceViewImp::initSignalAndSlots()
+void GroundControlPointsViewImp::initSignalAndSlots()
 {
     connect(mComboBoxImages, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [&](int idx) {
                 emit image_changed(mComboBoxImages->itemData(idx).toULongLong());
             });
     
-    connect(mGraphicViewerWidget, &GraphicViewer::selectionChanged, this, &GeoreferenceViewImp::onGraphicsViewSelectionChanged);
-    connect(mGraphicViewerWidget, &GraphicViewer::removeSelectItems, this, &GeoreferenceViewImp::onGraphicsViewRemoveSelectItems);
-    connect(mActionImportGCP, &QAction::triggered, this, &GeoreferenceViewImp::importGCP);
-    connect(mActionExportGCP, &QAction::triggered, this, &GeoreferenceViewImp::exportGCP);
-    connect(mActionAddPoint, &QAction::triggered, this, &GeoreferenceViewImp::addGroundControlPoint);
-    connect(mActionDeletePoint, &QAction::triggered, this, &GeoreferenceViewImp::removeGroundControlPoints);
-    connect(mActionGeoreference, &QAction::triggered, this, &GeoreferenceViewImp::georeference);
+    connect(mGraphicViewerWidget, &GraphicViewer::selectionChanged, this, &GroundControlPointsViewImp::onGraphicsViewSelectionChanged);
+    connect(mGraphicViewerWidget, &GraphicViewer::removeSelectItems, this, &GroundControlPointsViewImp::onGraphicsViewRemoveSelectItems);
+    connect(mActionNew, &QAction::triggered, this, &GroundControlPointsViewImp::new_gcps);
+    connect(mActionSave, &QAction::triggered, this, &GroundControlPointsViewImp::save);
+    connect(mActionImportGCP, &QAction::triggered, this, &GroundControlPointsViewImp::importGCP);
+    connect(mActionExportGCP, &QAction::triggered, this, &GroundControlPointsViewImp::exportGCP);
+    connect(mActionAddPoint, &QAction::triggered, this, &GroundControlPointsViewImp::addGroundControlPoint);
+    connect(mActionDeletePoint, &QAction::triggered, this, &GroundControlPointsViewImp::removeGroundControlPoints);
+    connect(mLineEditCRS, &QLineEdit::textChanged, this, &GroundControlPointsView::crsChange);
+    connect(mQPushButtonCRS, &QAbstractButton::clicked, this, &GroundControlPointsView::select_crs);
 
-    connect(mLineEditCRS, &QLineEdit::textChanged, this, &GeoreferenceView::crsChange);
-    connect(mQPushButtonCRS, &QAbstractButton::clicked, this, &GeoreferenceView::select_crs);
-
-    connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(mButtonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
-    connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
 }
 
-void GeoreferenceViewImp::clear()
+void GroundControlPointsViewImp::clear()
 {
+    const QSignalBlocker blocker_crs(mLineEditCRS);
+    mLineEditCRS->clear();
+
+    setPoints(std::list<std::pair<QString, QPointF>>());
+
     update();
 }
 
-void GeoreferenceViewImp::update()
+void GroundControlPointsViewImp::update()
 {
     if (QItemSelectionModel *selecctionModel = mTableViewGroundControlPoints->selectionModel()) {
         QModelIndexList modelIndexList = selecctionModel->selectedRows();
@@ -418,21 +419,19 @@ void GeoreferenceViewImp::update()
     }
 }
 
-void GeoreferenceViewImp::retranslate()
+void GroundControlPointsViewImp::retranslate()
 {
-    this->setWindowTitle(QApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
-    mLabelCRS->setText(QCoreApplication::translate("GeoreferenceViewImp", "Coordinate Reference System:", nullptr));
-    mActionAddPoint->setText(QCoreApplication::translate("GeoreferenceViewImp", "Add point", nullptr));
-    mActionDeletePoint->setText(QCoreApplication::translate("GeoreferenceViewImp", "Remove", nullptr));
-    mActionGeoreference->setText(QCoreApplication::translate("GeoreferenceViewImp", "Georeference", nullptr));
-    mLabelImagePoints->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image Points:", nullptr));
-    mLabelImage->setText(QCoreApplication::translate("GeoreferenceViewImp", "Image:", nullptr));
-    mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("GeoreferenceViewImp", "Cancel", nullptr));
-    mButtonBox->button(QDialogButtonBox::Ok)->setText(QApplication::translate("GeoreferenceViewImp", "Save", nullptr));
-    mButtonBox->button(QDialogButtonBox::Help)->setText(QApplication::translate("GeoreferenceViewImp", "Help", nullptr));
+    this->setWindowTitle(QApplication::translate("GroundControlPointsViewImp", "GroundControlPoints", nullptr));
+    mLabelCRS->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Coordinate Reference System:", nullptr));
+    mActionNew->setText(QCoreApplication::translate("GroundControlPointsViewImp", "New", nullptr));
+    mActionSave->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Save", nullptr));
+    mActionAddPoint->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Add point", nullptr));
+    mActionDeletePoint->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Remove", nullptr));
+    mLabelImagePoints->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Image Points:", nullptr));
+    mLabelImage->setText(QCoreApplication::translate("GroundControlPointsViewImp", "Image:", nullptr));
 }
 
-void GeoreferenceViewImp::setProjectPath(const QString &path)
+void GroundControlPointsViewImp::setProjectPath(const QString &path)
 {
     mProjectPath = path;
 }

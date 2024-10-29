@@ -21,6 +21,8 @@
 #                                                                        #
 ##########################################################################
 
+if (GRAPHOS_GUI)
+
 include(TidopUtils)
 
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
@@ -97,12 +99,12 @@ add_library(Graphos::${PROJECT_NAME}
             ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                           ${CLOUDCOMPARE_INCLUDE_DIR})
+                           ${CloudCompare_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
                       TidopLib::Core
                       TidopLib::Img
-                      ${CLOUDCOMPARE_LIBRARIES})
+                      ${CloudCompare_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES 
                       FOLDER "lib"
@@ -118,3 +120,5 @@ install(DIRECTORY .
         FILES_MATCHING PATTERN "*.h")
 
 set(GRAPHOS_LIBRARIES ${GRAPHOS_LIBRARIES} ${PROJECT_NAME})
+
+endif(GRAPHOS_GUI)

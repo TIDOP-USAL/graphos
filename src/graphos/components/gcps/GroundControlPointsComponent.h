@@ -21,31 +21,51 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_PRESENTER_INTERFACE_H
-#define GRAPHOS_GEOREFERENCE_PRESENTER_INTERFACE_H
+#ifndef GRAPHOS_GCPS_COMPONENT_H
+#define GRAPHOS_GCPS_COMPONENT_H
 
-#include "graphos/core/task/TaskPresenter.h"
+#include "graphos/core/Component.h"
+
 
 namespace graphos
 {
 
-class GeoreferencePresenter
-  : public TaskPresenter
+class GroundControlPointsComponent
+  : public ComponentBase
 {
 
     Q_OBJECT
 
 public:
 
-    GeoreferencePresenter() {}
-    ~GeoreferencePresenter() override = default;
+    GroundControlPointsComponent(Application *application);
+    ~GroundControlPointsComponent() override;
 
 public slots:
 
-    virtual void setImageActive(size_t imageId) = 0;
+    void setCRS(const QString &crs);
+
+private:
+
+    void init();
+
+signals:
+
+    void select_crs();
+
+// ComponentBase
+
+protected:
+
+    void createModel() override;
+    void createView() override;
+    void createPresenter() override;
+    void createCommand() override;
+    void update() override;
 
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_PRESENTER_INTERFACE_H
+
+#endif // GRAPHOS_GCPS_COMPONENT_H

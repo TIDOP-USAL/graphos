@@ -24,7 +24,7 @@
 include(TidopUtils)
 
 
-if(BUILD_MATCH_VIEWER_COMPONENT)
+if(BUILD_MATCH_VIEWER_COMPONENT AND BUILD_GUI)
 
     project(MatchViewer LANGUAGES CXX)
     
@@ -88,4 +88,4 @@ else()
 
     message(STATUS "  Graphos::MatchViewer disabled")
     
-endif(BUILD_MATCH_VIEWER_COMPONENT)
+endif(BUILD_MATCH_VIEWER_COMPONENT AND BUILD_GUI)

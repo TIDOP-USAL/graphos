@@ -27,6 +27,7 @@
 #include "graphos/core/mvp.h"
 
 #include <tidop/core/path.h>
+#include <tidop/geometry/entities/point.h>
 
 namespace graphos
 {
@@ -56,7 +57,7 @@ public:
      * \brief Retrieves the offset values.
      * \return An array containing the offset values [x, y, z].
      */
-    virtual auto offset() const -> std::array<double, 3> = 0;
+    virtual auto offset() const -> tl::Point3<double> = 0;
 
     /*!
      * \brief Retrieves the path to the project folder.

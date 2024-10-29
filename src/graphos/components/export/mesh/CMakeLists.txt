@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_EXPORT_MESH_COMPONENT)
+if(BUILD_EXPORT_MESH_COMPONENT AND BUILD_GUI)
 
     project(ExportMesh LANGUAGES CXX)
     
@@ -87,4 +87,4 @@ else()
 
     message(STATUS "  Graphos::ExportMesh disabled")
     
-endif(BUILD_EXPORT_MESH_COMPONENT)
+endif(BUILD_EXPORT_MESH_COMPONENT AND BUILD_GUI)

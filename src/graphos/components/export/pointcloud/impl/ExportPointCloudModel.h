@@ -48,10 +48,14 @@ public:
 public:
 
     auto graphosProjectsDirectory() const -> tl::Path override;
+    auto pointCloud() const -> tl::Path override;
+    auto offset() const -> tl::Point3<double> override;
+    auto crs() const -> QString override;
+    auto pointCloudSize() const -> size_t override;
 
 public slots:
 
-    void exportPointCloud(const tl::Path &exportPath) override;
+    //void exportPointCloud(const tl::Path &exportPath) override;
 
 // Model interface
 

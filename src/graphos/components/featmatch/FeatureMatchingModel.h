@@ -51,6 +51,7 @@ public:
     virtual auto database() const -> tl::Path = 0;
     virtual auto useCuda() const -> bool = 0;
     virtual auto spatialMatching() const -> bool = 0;
+    virtual auto geodeticCoordinates() const -> bool = 0;
     virtual void writeMatchPairs() = 0;
     virtual auto imagesSize() const -> size_t = 0;
     virtual void cleanProject() = 0;

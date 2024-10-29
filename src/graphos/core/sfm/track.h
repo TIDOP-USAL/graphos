@@ -139,6 +139,7 @@ public:
      * \return The 3D point at the specified index.
      */
     auto point(size_t idx) const -> tl::Point<double>;
+    auto point(size_t idx) -> tl::Point<double>&;
 
     /*!
      * \brief Get the mapping of image IDs to 3D points in the track.

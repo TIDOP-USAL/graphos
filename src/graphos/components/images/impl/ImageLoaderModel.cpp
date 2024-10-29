@@ -39,15 +39,15 @@ ImageLoaderModelImp::ImageLoaderModelImp(Project *project,
     ImageLoaderModelImp::init();
 }
 
-QString ImageLoaderModelImp::projectCRS() const
-{
-    return mProject->crs();
-}
+//QString ImageLoaderModelImp::projectCRS() const
+//{
+//    return mProject->crs();
+//}
 
-void ImageLoaderModelImp::setProjectCRS(const QString &crs)
-{
-    mProject->setCrs(crs);
-}
+//void ImageLoaderModelImp::setProjectCRS(const QString &crs)
+//{
+//    mProject->setCrs(crs);
+//}
 
 void ImageLoaderModelImp::addImage(const Image &image)
 {

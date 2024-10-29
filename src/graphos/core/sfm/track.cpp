@@ -81,6 +81,11 @@ auto GCPTrack::point(size_t idx) const -> tl::Point<double>
     return mImageIdPoint.at(idx);
 }
 
+auto GCPTrack::point(size_t idx) -> tl::Point<double>&
+{
+    return mImageIdPoint.at(idx);
+}
+
 auto GCPTrack::points() const -> const std::unordered_map<size_t, tl::Point<double>>&
 {
     return mImageIdPoint;

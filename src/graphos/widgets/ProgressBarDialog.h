@@ -51,7 +51,7 @@ public slots:
     void setInitialized();
     void setFinished();
     void setTitle(QString title);
-    void setStatusText(QString text);
+    void setStatusText(const QString& text);
     void setCloseAuto(bool active = false);
 
 protected slots:
@@ -78,6 +78,11 @@ private slots:
 
     void update() override;
     void retranslate() override;
+
+// QDialog
+
+    //void changeEvent(QEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 private:
 

@@ -26,6 +26,7 @@
 #include "graphos/core/task/Progress.h"
 #include "graphos/core/sfm/orientationcolmap.h"
 #include "graphos/core/sfm/posesio.h"
+#include "graphos/core/sfm/Reconstruction.h"
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/camera/Colmap.h"
 #include "graphos/components/orientation/OrientationModel.h"
@@ -36,6 +37,7 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+
 
 namespace graphos
 {
@@ -61,12 +63,18 @@ void OrientationPresenterImp::open()
     mView->setCalibration(mModel->calibratedCamera());
     mView->enabledCalibration(mModel->calibratedCamera());
 
+    TL_TODO("Establecer la precisión de las camaras o de los puntos de apoyo")
     if (mModel->rtkOrientations()) {
         mView->enabledAbsoluteOrientation(true);
         mView->setAbsoluteOrientation(true);
         mView->enabledPoses(true);
         mView->setPoses(true);
     } else if (mModel->gpsPositions()) {
+        mView->enabledAbsoluteOrientation(true);
+        mView->setAbsoluteOrientation(true);
+        mView->enabledPoses(false);
+        mView->setPoses(false);
+    } else if(mModel->hasControlPoints()){
         mView->enabledAbsoluteOrientation(true);
         mView->setAbsoluteOrientation(true);
         mView->enabledPoses(false);
@@ -163,7 +171,8 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     tl::Path sfm_path = mModel->projectFolder();
     sfm_path.append("sfm");
 
-    if (mModel->rtkOrientations()) {
+    // Ahora no es correcto. Se está haciendo ajuste de haces
+    if (mView->fixPoses()/*mModel->rtkOrientations()*/) {
 
         orientation_process = std::make_unique<ImportPosesTask>(images,
                                                                 mModel->cameras(),
@@ -174,7 +183,8 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
         orientation_process->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
-            auto cameras = dynamic_cast<ImportPosesTask const *>(event->task())->cameras();
+            auto task = dynamic_cast<ImportPosesTask const *>(event->task());
+            auto cameras = task->cameras();
 
             tl::Path path = mModel->projectFolder();
             path.append("sfm");
@@ -214,26 +224,33 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                 mModel->updateCamera(camera.first, camera.second);
             }
 
+            auto report = task->report();
+            report.type = "Absolute";
+            report.time += event->task()->time();
+            report.orientedImages = static_cast<int>(poses.size());
+            mModel->setOrientationReport(report);
+
         });
 
     } else {
 
-        orientation_process = std::make_unique<tl::TaskList>();
+        orientation_process = std::make_unique<ReconstructionTask>(mModel->database(),
+                                                                   sfm_path,
+                                                                   images,
+                                                                   mModel->cameras(),
+                                                                   mView->fixCalibration(), 
+                                                                   mView->absoluteOrientation(),
+                                                                   mModel->gpsPositions(),
+                                                                   mModel->rtkOrientations(),
+                                                                   mModel->hasControlPoints());
 
-        auto relative_orientation_task = std::make_shared<RelativeOrientationColmapTask>(mModel->database(),
-                                                                                         sfm_path,
-                                                                                         images,
-                                                                                         mModel->cameras(),
-                                                                                         mView->fixCalibration());
-
-        relative_orientation_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
+        orientation_process->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
             try {
 
-                auto task = dynamic_cast<RelativeOrientationColmapTask const*>(event->task());
+                auto task = dynamic_cast<ReconstructionTask const *>(event->task());
                 auto cameras = task->cameras();
                 auto report = task->report();
-                report.time = task->time();
 
                 /// Se comprueba que se han generado todos los productos
                 tl::Path path = mModel->projectFolder();
@@ -248,13 +265,19 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                 tl::Path poses_path = path;
                 poses_path.append("poses.bin");
 
+                tl::Path offset_path = path;
+                offset_path.append("offset.txt");
+
                 TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
                 TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
                 TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
+                TL_ASSERT(!mView->absoluteOrientation() || (mView->absoluteOrientation() && offset_path.exists()), "3D reconstruction fail");
 
                 mModel->setSparseModel(sparse_model_path);
                 mModel->setOffset(tl::Path(""));
                 mModel->setGroundPoints(ground_points_path);
+                if (mView->absoluteOrientation())
+                    mModel->setOffset(offset_path);
 
                 auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
                 poses_reader->read(poses_path);
@@ -277,57 +300,14 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                 }
 
                 report.orientedImages = static_cast<int>(poses.size());
-                report.type = "Relative";
+                report.type = mView->absoluteOrientation() ? "Absolute" : "Relative";
                 mModel->setOrientationReport(report);
 
             } catch (const std::exception &e) {
                 tl::printException(e);
             }
-
         });
 
-        dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(relative_orientation_task);
-
-        if (mView->absoluteOrientation()) {
-
-            auto absolute_orientation_task = std::make_shared<AbsoluteOrientationColmapTask>(sfm_path,
-                                                                                             images);
-
-            absolute_orientation_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
-
-
-                tl::Path path = mModel->projectFolder();
-                path.append("sfm");
-
-                tl::Path offset_path = path;
-                offset_path.append("offset.txt");
-                tl::Path poses_path = path;
-                poses_path.append("poses.bin");
-
-                if (offset_path.exists()) {
-                    mModel->setOffset(offset_path);
-                }
-
-                if (poses_path.exists()) {
-                    auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-                    poses_reader->read(poses_path);
-                    auto poses = poses_reader->cameraPoses();
-
-                    for (const auto &camera_pose : poses) {
-                        mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
-                    }
-                }
-
-                auto report = mModel->orientationReport();
-                report.type = "Absolute";
-                report.time += event->task()->time();
-                mModel->setOrientationReport(report);
-
-            });
-
-            dynamic_cast<tl::TaskList *>(orientation_process.get())->push_back(absolute_orientation_task);
-
-        }
     }
 
     if (progressHandler()) {

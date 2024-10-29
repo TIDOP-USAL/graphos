@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_ABOUT_COMPONENT)
+if(BUILD_ABOUT_COMPONENT AND BUILD_GUI)
 
     project(About LANGUAGES CXX)
     
@@ -86,4 +86,4 @@ else()
 
     message(STATUS "  Graphos::About disabled")
     
-endif(BUILD_ABOUT_COMPONENT)
+endif(BUILD_ABOUT_COMPONENT AND BUILD_GUI)

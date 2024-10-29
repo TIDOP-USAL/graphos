@@ -21,16 +21,16 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_VIEW_H
-#define GRAPHOS_GEOREFERENCE_VIEW_H
+#ifndef GRAPHOS_GCPS_VIEW_H
+#define GRAPHOS_GCPS_VIEW_H
 
-#include "graphos/components/georeference/GeoreferenceView.h"
+#include "graphos/components/gcps/GroundControlPointsView.h"
 
 #include <tidop/geometry/entities/point.h>
 
 #include <QItemSelection>
 
-class QDialogButtonBox;
+//class QDialogButtonBox;
 class QLabel;
 class QLineEdit;
 class QComboBox;
@@ -46,17 +46,17 @@ namespace graphos
 
 class GraphicViewer;
 
-class GeoreferenceViewImp
-    : public GeoreferenceView
+class GroundControlPointsViewImp
+  : public GroundControlPointsView
 {
 
     Q_OBJECT
 
 public:
 
-    GeoreferenceViewImp(QWidget *parent = nullptr,
-                        Qt::WindowFlags f = Qt::WindowFlags());
-    ~GeoreferenceViewImp() override;
+    GroundControlPointsViewImp(QWidget *parent = nullptr,
+                               Qt::WindowFlags f = Qt::WindowFlags());
+    ~GroundControlPointsViewImp() override;
 
 protected slots:
 
@@ -68,7 +68,7 @@ protected slots:
                           const QItemSelection &deselected);
     void clickedPoint(const QPointF &point);
 
-// GeoreferenceView interface
+// GroundControlPointsView interface
 
 public:
 
@@ -109,11 +109,12 @@ private slots:
 
 protected:
 
+    QAction *mActionNew;
+    QAction *mActionSave;
     QAction *mActionImportGCP;
     QAction *mActionExportGCP;
     QAction *mActionAddPoint;
     QAction *mActionDeletePoint;
-    QAction *mActionGeoreference;
     QLabel *mLabelCRS;
     QLineEdit *mLineEditCRS;
     QPushButton *mQPushButtonCRS;
@@ -129,7 +130,6 @@ protected:
     GraphicViewer *mGraphicViewerWidget;
     QLabel *mLabelImage;
     QComboBox *mComboBoxImages;
-    QDialogButtonBox *mButtonBox;
     QString mProjectPath;
 
     bool bSelectedItem;
@@ -137,4 +137,4 @@ protected:
 
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_VIEW_H
+#endif // GRAPHOS_GCPS_VIEW_H

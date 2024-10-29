@@ -39,7 +39,7 @@ class DTMComponent
 public:
 
     DTMComponent(Application *application);
-    ~DTMComponent();
+    ~DTMComponent() override = default;
 
 private:
 

@@ -24,9 +24,11 @@
 
 #include "MeshComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/mesh/impl/MeshModel.h"
 #include "graphos/components/mesh/impl/MeshView.h"
 #include "graphos/components/mesh/impl/MeshPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/mesh/impl/MeshCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -57,20 +59,26 @@ void MeshComponent::init()
 
 void MeshComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new MeshModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void MeshComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new MeshViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void MeshComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new MeshPresenterImp(dynamic_cast<MeshView *>(view()),
                                      dynamic_cast<MeshModel *>(model())));
     connect(dynamic_cast<MeshPresenter *>(presenter()), &MeshPresenter::mesh_deleted,
             this, &MeshComponent::mesh_deleted);
+#endif // GRAPHOS_GUI
 }
 
 void MeshComponent::createCommand()

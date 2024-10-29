@@ -126,7 +126,8 @@ public:
 
     SpatialMatchingTask(tl::Path database,
                         bool cuda,
-                        const std::shared_ptr<FeatureMatching> &featureMatching);
+                        const std::shared_ptr<FeatureMatching> &featureMatching,
+                        bool geodeticCoordinates = true);
     ~SpatialMatchingTask() override;
 
 public:
@@ -153,6 +154,7 @@ private:
     tl::Path mDatabase;
     bool bUseCuda;
     std::shared_ptr<FeatureMatching> mFeatureMatching;
+    bool mGeodeticCoordinates;
     FeatureMatchingReport mReport;
 
 };

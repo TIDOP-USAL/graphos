@@ -25,6 +25,8 @@
 
 #include "graphos/components/export/pointcloud/ExportPointCloudModel.h"
 #include "graphos/components/export/pointcloud/ExportPointCloudView.h"
+#include "graphos/components/export/pointcloud/impl/ExportPointCloudTask.h"
+#include "graphos/core/task/Progress.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
@@ -46,6 +48,48 @@ ExportPointCloudPresenterImp::ExportPointCloudPresenterImp(ExportPointCloudView 
     ExportPointCloudPresenterImp::initSignalAndSlots();
 }
 
+void ExportPointCloudPresenterImp::onError(tl::TaskErrorEvent *event)
+{
+    TaskPresenter::onError(event);
+
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Export Point Cloud error"));
+    }
+}
+
+void ExportPointCloudPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+{
+    TaskPresenter::onFinished(event);
+
+    if (progressHandler()) {
+        progressHandler()->setDescription(tr("Export Point Cloud finished"));
+    }
+}
+
+auto ExportPointCloudPresenterImp::createTask() -> std::unique_ptr<tl::Task>
+{
+    std::unique_ptr<tl::Task> export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mModel->pointCloud(),
+                                                                                               mModel->offset(),
+                                                                                               mExportFile.toStdString(),
+                                                                                               mModel->crs().toStdString());
+
+    if (progressHandler()) {
+        progressHandler()->setRange(0, mModel->pointCloudSize()+11);
+        progressHandler()->setTitle("Export Point Cloud");
+        progressHandler()->setDescription("Export Point Cloud processing...");
+        progressHandler()->setCloseAuto(true);
+    }
+
+    mView->hide();
+
+    return export_point_cloud_task;
+}
+
+void ExportPointCloudPresenterImp::cancel()
+{
+    TaskPresenter::cancel();
+}
+
 void ExportPointCloudPresenterImp::open()
 {
     mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
@@ -55,7 +99,8 @@ void ExportPointCloudPresenterImp::open()
 void ExportPointCloudPresenterImp::exportPointCloud(const QString &file)
 {
     if (file.isEmpty() == false) {
-        mModel->exportPointCloud(file.toStdWString());
+        mExportFile = file;
+        emit run();
     }
 }
 

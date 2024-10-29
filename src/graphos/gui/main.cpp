@@ -23,10 +23,12 @@
 
 #include "graphos/graphos_global.h"
 
+#ifdef GRAPHOS_GUI
 #include "MainWindowView.h"
 #include "MainWindowModel.h"
 #include "MainWindowPresenter.h"
 #include "ComponentsManager.h"
+#endif // GRAPHOS_GUI
 
 #include "graphos/core/project.h"
 #include "graphos/core/Application.h"
@@ -84,9 +86,9 @@
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
 #include "graphos/components/orthophoto/OrthophotoComponent.h"
 #endif // GRAPHOS_HAVE_ORTHOPHOTO
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-#include "graphos/components/georeference/GeoreferenceComponent.h"
-#endif // GRAPHOS_HAVE_GEOREFERENCE
+#ifdef GRAPHOS_HAVE_GCPS
+#include "graphos/components/gcps/GroundControlPointsComponent.h"
+#endif // GRAPHOS_HAVE_GCPS
 #ifdef GRAPHOS_HAVE_SCALE
 #include "graphos/components/scale/ScaleComponent.h"
 #endif // GRAPHOS_HAVE_SCALE
@@ -120,7 +122,9 @@
 #ifdef GRAPHOS_HAVE_VIDEO_LOAD
 #include "graphos/components/loadfromvideo/LoadFromVideoComponent.h"
 #endif // GRAPHOS_HAVE_VIDEO_LOAD
+#ifdef GRAPHOS_HAVE_CRS
 #include "graphos/components/crs/CoordinateReferenceSystemComponent.h"
+#endif // GRAPHOS_HAVE_CRS
 
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
@@ -143,6 +147,7 @@
 
 using namespace graphos;
 
+#ifdef DEBUG
 
 void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg) 
 {
@@ -151,9 +156,10 @@ void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg)
         case CE_None:
             break;
         case CE_Debug:
+            tl::Message::debug("GDAL debug: {}", error, msg);
             break;        
         case CE_Warning:
-            tl::Message::warning("GDAL error [{}]: {}", error, msg);
+            tl::Message::warning("GDAL warning [{}]: {}", error, msg);
             break;       
         case CE_Failure:
             tl::Message::error("GDAL error [{}]: {}", error, msg);
@@ -166,7 +172,6 @@ void messageHandlerGDAL(CPLErr errorClass, int error, const char *msg)
     } 
 }
 
-#ifdef DEBUG
 
 void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -189,15 +194,12 @@ void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const Q
             abort();
     }
 }
+
 #endif // DEBUG
 
 
 int main(int argc, char *argv[])
 {
-#ifdef DEBUG
-    qInstallMessageHandler(messageHandlerQt);
-#endif // DEBUG
-
 
     tl::Path app_path(argv[0]);
 
@@ -217,7 +219,10 @@ int main(int argc, char *argv[])
 #   endif
 #endif // TL_OS_WINDOWS
 
+#ifdef DEBUG
+    qInstallMessageHandler(messageHandlerQt);
     CPLSetErrorHandler(messageHandlerGDAL);
+#endif // DEBUG
 
     Application app(argc, argv);
     Application::setApplicationName("GRAPHOS");
@@ -302,9 +307,9 @@ int main(int argc, char *argv[])
     MeshComponent mesh_component(&app);
 #endif // GRAPHOS_HAVE_MESH
 
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-    GeoreferenceComponent georeference_component(&app);
-#endif // GRAPHOS_HAVE_GEOREFERENCE
+#ifdef GRAPHOS_HAVE_GCPS
+    GroundControlPointsComponent gcps_component(&app);
+#endif // GRAPHOS_HAVE_GCPS
 
 #ifdef GRAPHOS_HAVE_SCALE
     ScaleComponent scale_component(&app);
@@ -369,6 +374,8 @@ int main(int argc, char *argv[])
 
     } else {
 
+#ifdef GRAPHOS_GUI
+
         //    TL_TODO("Añadir como opción")
 #if defined WIN32
         HWND hwnd = GetConsoleWindow();
@@ -427,10 +434,18 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_EXPORT_POINT_CLOUD
         componentsManager.registerComponent(&export_point_cloud_component);
+
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::export_point_cloud,
+                         export_point_cloud_component.action(), &QAction::trigger);
+
 #endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
         
 #ifdef GRAPHOS_HAVE_EXPORT_MESH
         componentsManager.registerComponent(&export_mesh_component);
+
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::export_mesh,
+                         export_mesh_component.action(), &QAction::trigger);
+
 #endif // GRAPHOS_HAVE_EXPORT_MESH
 
         /* Workflow menu */
@@ -472,18 +487,21 @@ int main(int argc, char *argv[])
                                             ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_UNDISTORT
 
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-        componentsManager.registerComponent(&georeference_component,
+#ifdef GRAPHOS_HAVE_GCPS
+        componentsManager.registerComponent(&gcps_component,
                                             ComponentsManager::Flags::separator_before);
-        QObject::connect(&georeference_component, &GeoreferenceComponent::select_crs, [&]() {
+#   ifdef GRAPHOS_HAVE_CRS
+        QObject::connect(&gcps_component, &GroundControlPointsComponent::select_crs, [&]() {
             CoordinateReferenceSystemComponent crs_component(&app);
             QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-                             &georeference_component, &GeoreferenceComponent::setCRS);
+                             &gcps_component, &GroundControlPointsComponent::setCRS);
 
             crs_component.open();
                 //CoordinateReferenceSystemComponent crs_component(&app);
         });
-#endif // GRAPHOS_HAVE_GEOREFERENCE
+
+#   endif // GRAPHOS_HAVE_CRS
+#endif // GRAPHOS_HAVE_GCPS
 
 #ifdef GRAPHOS_HAVE_SCALE
         componentsManager.registerComponent(&scale_component);
@@ -524,9 +542,11 @@ int main(int argc, char *argv[])
                                             ComponentsManager::Flags::separator_before);
 #endif // GRAPHOS_HAVE_ABOUT
 
+#ifdef GRAPHOS_HAVE_PROPERTIES
         properties_component.open();
         properties_component.setAlternatingRowColors(true);
         componentsManager.mainWindowView()->setPropertiesWidget(properties_component.widget());
+#endif // GRAPHOS_HAVE_PROPERTIES
 
         QObject::connect(componentsManager.mainWindowView()->tabWidget(),
                          &TabWidget::model3dChange,
@@ -637,16 +657,17 @@ int main(int argc, char *argv[])
 #endif // GRAPHOS_HAVE_FEATVIEWER
 
 
-#ifdef GRAPHOS_HAVE_GEOREFERENCE
-        QObject::connect(&georeference_component, SIGNAL(finished()),
+#ifdef GRAPHOS_HAVE_GCPS
+        QObject::connect(&gcps_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
-#endif // GRAPHOS_HAVE_GEOREFERENCE
+#endif // GRAPHOS_HAVE_GCPS
 
 #ifdef GRAPHOS_HAVE_MATCH_VIEWER
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
                          &match_viewer_component, &MatchViewerComponent::openMatchesViewer);
 #endif // GRAPHOS_HAVE_MATCH_VIEWER
 
+#ifdef GRAPHOS_HAVE_PROPERTIES
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_image,
                          &properties_component, &PropertiesComponent::selectImage);
 
@@ -656,6 +677,7 @@ int main(int argc, char *argv[])
                          &properties_component, &PropertiesComponent::selectDenseModel);
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_mesh_model,
                          &properties_component, &PropertiesComponent::selectMeshModel);
+#endif // GRAPHOS_HAVE_PROPERTIES
 
 #ifdef GRAPHOS_HAVE_SETTINGS
         QObject::connect(componentsManager.mainWindowPresenter(), &MainWindowPresenter::openSettings,
@@ -683,6 +705,7 @@ int main(int argc, char *argv[])
         ShowWindow(hwnd, 1);
 #endif
 
+#endif // GRAPHOS_GUI
     }
 
 

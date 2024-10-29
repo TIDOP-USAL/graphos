@@ -37,6 +37,7 @@
 
 /* Graphos Components */
 
+#cmakedefine GRAPHOS_GUI
 #cmakedefine GRAPHOS_HAVE_ABOUT
 #cmakedefine GRAPHOS_HAVE_CAMERAS
 #cmakedefine GRAPHOS_HAVE_CREATE_PROJECT
@@ -45,7 +46,7 @@
 #cmakedefine GRAPHOS_HAVE_FEATEXTRACT
 #cmakedefine GRAPHOS_HAVE_FEATMATCH
 #cmakedefine GRAPHOS_HAVE_FEATVIEWER
-#cmakedefine GRAPHOS_HAVE_GEOREFERENCE
+#cmakedefine GRAPHOS_HAVE_GCPS
 #cmakedefine GRAPHOS_HAVE_SCALE
 #cmakedefine GRAPHOS_HAVE_FLOOR_LEVEL
 #cmakedefine GRAPHOS_HAVE_IMAGE_LOAD
@@ -66,6 +67,8 @@
 #cmakedefine GRAPHOS_HAVE_UNDISTORT
 #cmakedefine GRAPHOS_HAVE_PROPERTIES
 #cmakedefine GRAPHOS_HAVE_VIDEO_LOAD
+#cmakedefine GRAPHOS_HAVE_CRS
+
 
 /* Graphos source path */
 

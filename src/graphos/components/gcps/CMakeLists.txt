@@ -23,9 +23,9 @@
 
 include(TidopUtils)
 
-if(BUILD_GEOREFERENCE_COMPONENT)
+if(BUILD_GCPS_COMPONENT)
 
-    project(Georeference LANGUAGES CXX)
+    project(GroundControlPoints LANGUAGES CXX)
     
     
     # Find includes in corresponding build directories
@@ -35,27 +35,30 @@ if(BUILD_GEOREFERENCE_COMPONENT)
     # Create code from a list of Qt designer ui files
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTORCC ON)
-    
-        
+
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
-                             GeoreferenceComponent.cpp
-                             impl/GeoreferenceModel.cpp
-                             impl/GeoreferenceView.cpp
-                             impl/GeoreferencePresenter.cpp
-                             impl/GeoreferenceTask.cpp
-                             impl/GeoreferenceCommand.cpp
+                             GroundControlPointsComponent.cpp
+                             impl/GroundControlPointsCommand.cpp
                          HEADER_FILES
-                             GeoreferenceComponent.h
-                             GeoreferenceModel.h
-                             GeoreferencePresenter.h
-                             GeoreferenceView.h
-                             impl/GeoreferenceModel.h
-                             impl/GeoreferencePresenter.h
-                             impl/GeoreferenceView.h
-                             impl/GeoreferenceTask.h
-                             impl/GeoreferenceCommand.h)
-            
+                             GroundControlPointsComponent.h
+                             impl/GroundControlPointsCommand.h)    
+
+if (BUILD_GUI)       
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
+                             impl/GroundControlPointsModel.cpp
+                             impl/GroundControlPointsView.cpp
+                             impl/GroundControlPointsPresenter.cpp
+                         HEADER_FILES
+                             GroundControlPointsModel.h
+                             GroundControlPointsPresenter.h
+                             GroundControlPointsView.h
+                             impl/GroundControlPointsModel.h
+                             impl/GroundControlPointsPresenter.h
+                             impl/GroundControlPointsView.h)
+endif(BUILD_GUI)
+
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -65,7 +68,7 @@ if(BUILD_GEOREFERENCE_COMPONENT)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog
@@ -79,17 +82,17 @@ if(BUILD_GEOREFERENCE_COMPONENT)
             ARCHIVE DESTINATION lib)
                         
     install(DIRECTORY .
-            DESTINATION include/graphos/components/georeference
+            DESTINATION include/graphos/components/gcps
             FILES_MATCHING PATTERN "*.h"
             PATTERN "impl" EXCLUDE)
         
 
-    set(GRAPHOS_HAVE_GEOREFERENCE YES CACHE INTERNAL "")
+    set(GRAPHOS_HAVE_GCPS YES CACHE INTERNAL "")
     
-    message(STATUS "  Graphos::Georeference enabled")
+    message(STATUS "  Graphos::GroundControlPoints enabled")
  
 else()
 
-    message(STATUS "  Graphos::Georeference disabled")
+    message(STATUS "  Graphos::GroundControlPoints disabled")
     
-endif(BUILD_GEOREFERENCE_COMPONENT)
+endif(BUILD_GCPS_COMPONENT)

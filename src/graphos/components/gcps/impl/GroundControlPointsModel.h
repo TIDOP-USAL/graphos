@@ -21,10 +21,10 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_MODEL_H
-#define GRAPHOS_GEOREFERENCE_MODEL_H
+#ifndef GRAPHOS_GCPS_MODEL_H
+#define GRAPHOS_GCPS_MODEL_H
 
-#include "graphos/components/georeference/GeoreferenceModel.h"
+#include "graphos/components/gcps/GroundControlPointsModel.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -34,23 +34,23 @@ namespace graphos
 
 class Project;
 
-class GeoreferenceModelImp
-  : public GeoreferenceModel
+class GroundControlPointsModelImp
+  : public GroundControlPointsModel
 {
 
     Q_OBJECT
 
 public:
 
-    GeoreferenceModelImp(Project *project,
-                         QObject *parent = nullptr);
-    ~GeoreferenceModelImp() override = default;
+    GroundControlPointsModelImp(Project *project,
+                                QObject *parent = nullptr);
+    ~GroundControlPointsModelImp() override = default;
 
 private:
 
     void writeGroundControlPoints(QXmlStreamWriter &stream);
 
-// GeoreferenceModel interface
+// GroundControlPointsModel interface
 
 public:
 
@@ -110,4 +110,4 @@ protected:
 
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_MODEL_H
+#endif // GRAPHOS_GCPS_MODEL_H

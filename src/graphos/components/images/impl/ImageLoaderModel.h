@@ -47,8 +47,8 @@ public:
 
 public:
 
-    auto projectCRS() const -> QString override;
-    void setProjectCRS(const QString &crs) override;
+    //auto projectCRS() const -> QString override;
+    //void setProjectCRS(const QString &crs) override;
     void addImage(const Image &image) override;
     auto existImage(size_t imageId) const -> bool override;
     auto imagesDirectory() const -> tl::Path override;

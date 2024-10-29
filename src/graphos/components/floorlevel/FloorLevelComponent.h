@@ -58,6 +58,7 @@ private:
 signals:
 
     void open_3d_model();
+    void finished();
 
 // Component interface
 

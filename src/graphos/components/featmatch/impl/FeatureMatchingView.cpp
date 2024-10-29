@@ -38,7 +38,7 @@ namespace graphos
 {
 
 FeatureMatchingViewImp::FeatureMatchingViewImp(QWidget *parent)
-    : FeatureMatchingView(parent),
+  : FeatureMatchingView(parent),
     mCheckBoxSpatialMatching(new QCheckBox(this)),
     mButtonBox(new QDialogButtonBox(this))
 {

@@ -112,7 +112,7 @@ bool ImageLoaderCommand::run()
             while (std::getline(ifs, line)) {
 
                 if (line.empty()) continue;
-
+                tl::trim(line);
                 Image img(line);
                 if (!project.existImage(img.id()))
                     images.push_back(img);
@@ -148,7 +148,7 @@ bool ImageLoaderCommand::run()
                 cameras.push_back(camera.second);
             }
 
-            LoadImagesTask image_loader_process(&images, &cameras, camera_type, project.crs());
+            LoadImagesTask image_loader_process(&images, &cameras, camera_type/*, project.crs()*/);
 
             connect(&image_loader_process, &LoadImagesTask::imageAdded,
                     [&](int imageId, int cameraId) {

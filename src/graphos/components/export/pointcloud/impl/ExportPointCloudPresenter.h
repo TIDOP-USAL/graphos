@@ -63,11 +63,24 @@ private:
     void init() override;
     void initSignalAndSlots() override;
 
+// TaskPresenter interface
+
+protected:
+
+    void onError(tl::TaskErrorEvent *event) override;
+    void onFinished(tl::TaskFinalizedEvent *event) override;
+    auto createTask() -> std::unique_ptr<tl::Task> override;
+
+public slots:
+
+    void cancel() override;
+
 private:
 
     ExportPointCloudView *mView;
     ExportPointCloudModel *mModel;
     AppStatus *mAppStatus;
+    QString mExportFile;
 };
 
 } // namespace graphos

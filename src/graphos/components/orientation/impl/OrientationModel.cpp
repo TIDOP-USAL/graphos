@@ -129,6 +129,13 @@ bool OrientationModelImp::rtkOrientations() const
     return rtk_orientations;
 }
 
+auto OrientationModelImp::hasControlPoints() const -> bool
+{
+    tl::Path gcp_file = mProject->projectFolder();
+    gcp_file.append("sfm").append("georef.xml");
+    return gcp_file.exists();
+}
+
 auto OrientationModelImp::existReconstruction() const -> bool
 {
     return !mProject->sparseModel().empty() && !mProject->groundPoints().empty();

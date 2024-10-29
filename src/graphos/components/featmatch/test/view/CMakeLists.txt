@@ -38,7 +38,7 @@ target_link_libraries(${test_target} PRIVATE
                       Qt5::OpenGLExtensions
                       Graphos::Core
                       Graphos::FeatMatch
-                      Graphos::Widgets
+                      #Graphos::Widgets
                       ${CLOUDCOMPARE_LIBRARIES}
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 

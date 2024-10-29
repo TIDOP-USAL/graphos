@@ -43,12 +43,12 @@ namespace graphos
 
 LoadImagesTask::LoadImagesTask(std::vector<Image> *images,
                                std::vector<Camera> *cameras,
-                               std::string cameraType,
-                               QString epsg)
+                               std::string cameraType/*,
+                               QString epsg*/)
   : tl::TaskBase(),
     mImages(images),
     mCameras(cameras),
-    mEPSG(std::move(epsg)),
+    //mEPSG(std::move(epsg)),
     mCameraType(std::move(cameraType))
 {
 #ifdef _DEBUG
@@ -166,31 +166,41 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         if (latitude_active && longitude_active && altitude_active) {
 
-            std::string epsg_out;
-            if (!mCrsOut) {
-                int zone = tl::utmZoneFromLongitude(longitude_degrees.value());
-                epsg_out = "EPSG:326";
-                epsg_out.append(std::to_string(zone));
-                mCrsOut = std::make_shared<tl::Crs>(epsg_out);
-            } else {
-                epsg_out = mEPSG.toStdString();
-            }
+            /// Se va a trabajar internamente con coordenadas ENU así que se quitá la transformación
+            //std::string epsg_out;
+            //if (!mCrsOut) {
+            //    int zone = tl::utmZoneFromLongitude(longitude_degrees.value());
+            //    epsg_out = "EPSG:326";
+            //    epsg_out.append(std::to_string(zone));
+            //    mCrsOut = std::make_shared<tl::Crs>(epsg_out);
+            //} else {
+            //    epsg_out = mEPSG.toStdString();
+            //}
 
-            try {
+            //try {
 
-                tl::CrsTransform crs_trf(mCrsIn, mCrsOut);
-                tl::Point3<double> pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
-                tl::Point3<double> pt_out = crs_trf.transform(pt_in);
+            //    tl::CrsTransform crs_trf(mCrsIn, mCrsOut);
+            //    tl::Point3<double> pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
+            //    tl::Point3<double> pt_out = crs_trf.transform(pt_in);
 
-                CameraPose camera_pose;
-                camera_pose.setPosition(pt_out);
-                camera_pose.setCrs(epsg_out.c_str());
-                camera_pose.setSource("EXIF");
-                (*mImages)[imageId].setCameraPose(camera_pose);
+            //    CameraPose camera_pose;
+            //    camera_pose.setPosition(pt_out);
+            //    camera_pose.setCrs(epsg_out.c_str());
+            //    camera_pose.setSource("EXIF");
+            //    (*mImages)[imageId].setCameraPose(camera_pose);
 
-            } catch (std::exception &e) {
-                tl::printException(e);
-            }
+            //} catch (std::exception &e) {
+            //    tl::printException(e);
+            //}
+
+            tl::Point3<double> pt(longitude_degrees.value(), latitude_degrees.value(), altitude);
+
+            CameraPose camera_pose;
+            camera_pose.setPosition(pt);
+            camera_pose.setCrs("EPSG:4326");
+            camera_pose.setSource("EXIF");
+            (*mImages)[imageId].setCameraPose(camera_pose);
+
         }
 
         tl::Message::resumeMessages();
@@ -204,131 +214,138 @@ void LoadImagesTask::loadImage(size_t imageId)
 
 int LoadImagesTask::loadCamera(tl::ImageReader *imageReader)
 {
+    int camera_id;
 
-    int width = imageReader->cols();
-    int height = imageReader->rows();
+    try {
 
-    tl::Message::pauseMessages();
-    std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
-    bool bActiveCameraName = false;
-    bool bActiveCameraModel = false;
-    std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
-    std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
-    tl::Message::resumeMessages();
+        int width = imageReader->cols();
+        int height = imageReader->rows();
 
-    if (!bActiveCameraName && !bActiveCameraModel) {
+        tl::Message::pauseMessages();
+        std::shared_ptr<tl::ImageMetadata> image_metadata = imageReader->metadata();
+        bool bActiveCameraName = false;
+        bool bActiveCameraModel = false;
+        std::string camera_make = image_metadata->metadata("EXIF_Make", bActiveCameraName);
+        std::string camera_model = image_metadata->metadata("EXIF_Model", bActiveCameraModel);
+        tl::Message::resumeMessages();
 
-        int counter = 0;
-        for (auto &camera : *mCameras) {
-            if (camera.make() == "Unknown camera") {
-                if (camera.width() == width && camera.height() == height) {
-                    return counter;
+        if (!bActiveCameraName && !bActiveCameraModel) {
+
+            int counter = 0;
+            for (auto &camera : *mCameras) {
+                if (camera.make() == "Unknown camera") {
+                    if (camera.width() == width && camera.height() == height) {
+                        return counter;
+                    }
+                    counter++;
                 }
-                counter++;
             }
+
+            camera_make = "Unknown camera";
+            camera_model = std::to_string(counter);
         }
 
-        camera_make = "Unknown camera";
-        camera_model = std::to_string(counter);
-    }
+        tl::Message::info("New camera detected: {} {}", camera_make, camera_model);
 
-    tl::Message::info("New camera detected: {} {}", camera_make, camera_model);
+        Camera camera(camera_make, camera_model);
+        camera.setWidth(width);
+        camera.setHeight(height);
+        camera.setType(mCameraType);
+        /// Extract sensor size
+        double sensor_width_mm = -1.;
+        DatabaseCameras database_cameras(mDatabaseCamerasPath);
+        database_cameras.open();
 
-    Camera camera(camera_make, camera_model);
-    camera.setWidth(width);
-    camera.setHeight(height);
-    camera.setType(mCameraType);
-    /// Extract sensor size
-    double sensor_width_mm = -1.;
-    DatabaseCameras database_cameras(mDatabaseCamerasPath);
-    database_cameras.open();
+        if (database_cameras.isOpen()) {
 
-    if (database_cameras.isOpen()) {
+            if (database_cameras.existCameraMakeId(QString::fromStdString(camera_make))) {
+                int camera_make_id = database_cameras.cameraMakeId(QString::fromStdString(camera_make));
 
-        if (database_cameras.existCameraMakeId(camera_make.c_str())) {
-            int camera_make_id = database_cameras.cameraMakeId(camera_make.c_str());
-
-            if (database_cameras.existCameraModel(camera_make_id, camera_model.c_str())) {
-                sensor_width_mm = database_cameras.cameraSensorSize(camera_make_id, camera_model.c_str());
+                if (database_cameras.existCameraModel(camera_make_id, QString::fromStdString(camera_model))) {
+                    sensor_width_mm = database_cameras.cameraSensorSize(camera_make_id, QString::fromStdString(camera_model));
+                }
             }
+
+            database_cameras.close();
         }
 
-        database_cameras.close();
-    }
+        /// Extract focal
 
-    /// Extract focal
+        double focal = -1.;
 
-    double focal = -1.;
+        if (bActiveCameraName && bActiveCameraModel) {
+            bool bActive = false;
+            int max_size = std::max(width, height);
 
-    if (bActiveCameraName && bActiveCameraModel) {
-        bool bActive = false;
-        int max_size = std::max(width, height);
+            std::string focal_length_in_35_mm_film = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", bActive);
 
-        std::string focal_length_in_35_mm_film = image_metadata->metadata("EXIF_FocalLengthIn35mmFilm", bActive);
-
-        if (bActive) {
-
-            double focal_35mm = parseFocal(focal_length_in_35_mm_film, focal);
-            focal = focal_35mm / 35.0 * max_size;
-
-        }
-
-        if (!bActive || focal < 0.) {
-
-            std::string focal_length = image_metadata->metadata("EXIF_FocalLength", bActive);
             if (bActive) {
 
-                double focal_mm = parseFocal(focal_length, focal);
+                double focal_35mm = parseFocal(focal_length_in_35_mm_film, focal);
+                focal = focal_35mm / 35.0 * max_size;
 
-                if (sensor_width_mm > 0.) {
+            }
 
-                    focal = focal_mm / sensor_width_mm * max_size;
+            if (!bActive || focal < 0.) {
 
-                } else {
+                std::string focal_length = image_metadata->metadata("EXIF_FocalLength", bActive);
+                if (bActive) {
 
-                    std::string exif_pixel_x_dimension = image_metadata->metadata("EXIF_PixelXDimension", bActive);
-                    if (bActive) {
+                    double focal_mm = parseFocal(focal_length, focal);
 
-                        double pixel_x_dimension = std::stod(exif_pixel_x_dimension);
+                    if (sensor_width_mm > 0.) {
 
-                        double focal_plane_x_resolution = 0.;
-                        std::string exif_focal_plane_x_resolution = image_metadata->metadata("EXIF_FocalPlaneXResolution", bActive);
+                        focal = focal_mm / sensor_width_mm * max_size;
+
+                    } else {
+
+                        std::string exif_pixel_x_dimension = image_metadata->metadata("EXIF_PixelXDimension", bActive);
                         if (bActive) {
-                            size_t pos1 = exif_focal_plane_x_resolution.find('(');
-                            size_t pos2 = exif_focal_plane_x_resolution.find(')');
-                            if (pos1 != std::string::npos && pos2 != std::string::npos) {
-                                focal_plane_x_resolution = std::stod(exif_focal_plane_x_resolution.substr(pos1 + 1, pos2 - pos1 + 1));
+
+                            double pixel_x_dimension = std::stod(exif_pixel_x_dimension);
+
+                            double focal_plane_x_resolution = 0.;
+                            std::string exif_focal_plane_x_resolution = image_metadata->metadata("EXIF_FocalPlaneXResolution", bActive);
+                            if (bActive) {
+                                size_t pos1 = exif_focal_plane_x_resolution.find('(');
+                                size_t pos2 = exif_focal_plane_x_resolution.find(')');
+                                if (pos1 != std::string::npos && pos2 != std::string::npos) {
+                                    focal_plane_x_resolution = std::stod(exif_focal_plane_x_resolution.substr(pos1 + 1, pos2 - pos1 + 1));
+                                }
                             }
-                        }
 
-                        std::string exif_focal_plane_resolution_unit = image_metadata->metadata("EXIF_FocalPlaneResolutionUnit", bActive);
-                        if (bActive) {
+                            std::string exif_focal_plane_resolution_unit = image_metadata->metadata("EXIF_FocalPlaneResolutionUnit", bActive);
+                            if (bActive) {
 
-                            if (exif_focal_plane_resolution_unit == "2") { // 2 = Inch.
-                                sensor_width_mm = pixel_x_dimension * 25.4 / focal_plane_x_resolution;
-                                focal = focal_mm / sensor_width_mm * max_size;
-                            } else if (exif_focal_plane_resolution_unit == "3") { //3 = Centimeter
-                                sensor_width_mm = pixel_x_dimension * 10 / focal_plane_x_resolution;
-                                focal = focal_mm / sensor_width_mm * max_size;
+                                if (exif_focal_plane_resolution_unit == "2") { // 2 = Inch.
+                                    sensor_width_mm = pixel_x_dimension * 25.4 / focal_plane_x_resolution;
+                                    focal = focal_mm / sensor_width_mm * max_size;
+                                } else if (exif_focal_plane_resolution_unit == "3") { //3 = Centimeter
+                                    sensor_width_mm = pixel_x_dimension * 10 / focal_plane_x_resolution;
+                                    focal = focal_mm / sensor_width_mm * max_size;
+                                }
                             }
                         }
                     }
-                }
 
+                }
             }
         }
+
+        if (focal < 0.) {
+            focal = 0.;
+        }
+
+        camera.setFocal(focal);
+        if (sensor_width_mm > 0.)
+            camera.setSensorSize(sensor_width_mm);
+
+        camera_id = static_cast<int>(mCameras->size());
+        mCameras->push_back(camera);
+
+    } catch (...){
+        TL_THROW_EXCEPTION_WITH_NESTED("");
     }
-
-    if (focal < 0.) {
-        focal = 0.;
-    }
-
-    camera.setFocal(focal);
-    if (sensor_width_mm > 0.)
-        camera.setSensorSize(sensor_width_mm);
-
-    int camera_id = static_cast<int>(mCameras->size());
-    mCameras->push_back(camera);
 
     return camera_id;
 }
@@ -340,11 +357,11 @@ void LoadImagesTask::execute(tl::Progress *progressBar)
         tl::Chrono chrono;
         chrono.run();
 
-        mCrsIn = std::make_shared<tl::Crs>("EPSG:4326");
-        std::shared_ptr<tl::Crs> crs_out;
-        if (!mEPSG.isEmpty()) {
-            mCrsOut = std::make_shared<tl::Crs>(mEPSG.toStdString());
-        }
+        //mCrsIn = std::make_shared<tl::Crs>("EPSG:4326");
+        //std::shared_ptr<tl::Crs> crs_out;
+        //if (!mEPSG.isEmpty()) {
+        //    mCrsOut = std::make_shared<tl::Crs>(mEPSG.toStdString());
+        //}
 
         for (size_t i = 0; i < mImages->size(); i++) {
 

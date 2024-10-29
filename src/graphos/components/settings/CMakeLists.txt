@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_SETTINGS_COMPONENT)
+if(BUILD_SETTINGS_COMPONENT AND BUILD_GUI)
 
     project(Settings LANGUAGES CXX)
     
@@ -87,4 +87,4 @@ else()
     message(STATUS "  Graphos::Settings disabled")    
     
     
-endif(BUILD_SETTINGS_COMPONENT)
+endif(BUILD_SETTINGS_COMPONENT AND BUILD_GUI)

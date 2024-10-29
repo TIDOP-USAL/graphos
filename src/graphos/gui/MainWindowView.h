@@ -205,6 +205,9 @@ signals:
     void openOrtho(QString);
     void openMultiView(QString);
 
+    void export_point_cloud();
+    void export_mesh();
+
 protected:
 
     void changeEvent(QEvent *e) override;
@@ -297,7 +300,6 @@ private:
     QAction *mActionOpenModel3D;
     QMenu *mMenuTreeProjectImages;
     QMenu *mMenuTreeProjectImage;
-    QMenu *mMenuTreeProjectModel3D;
 
     QAction *mActionZoomIn;
     QAction *mActionZoomOut;

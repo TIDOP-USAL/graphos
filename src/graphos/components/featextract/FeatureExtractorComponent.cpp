@@ -23,9 +23,11 @@
 
 #include "FeatureExtractorComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/featextract/impl/FeatureExtractorModel.h"
 #include "graphos/components/featextract/impl/FeatureExtractorView.h"
 #include "graphos/components/featextract/impl/FeatureExtractorPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/featextract/impl/FeatureExtractorCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -58,16 +60,21 @@ void FeatureExtractorComponent::init()
 
 void FeatureExtractorComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new FeatureExtractorModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void FeatureExtractorComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new FeatureExtractorViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void FeatureExtractorComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new FeatureExtractorPresenterImp(dynamic_cast<FeatureExtractorView *>(view()),
                                                   dynamic_cast<FeatureExtractorModel *>(model())));
 
@@ -75,6 +82,7 @@ void FeatureExtractorComponent::createPresenter()
             this, &FeatureExtractorComponent::features_extracted);
     connect(dynamic_cast<FeatureExtractorPresenter *>(presenter()), &FeatureExtractorPresenter::features_deleted,
             this, &FeatureExtractorComponent::features_deleted);
+#endif // GRAPHOS_GUI
 }
 
 void FeatureExtractorComponent::createCommand()

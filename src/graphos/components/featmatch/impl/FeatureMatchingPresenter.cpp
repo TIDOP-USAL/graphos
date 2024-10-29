@@ -151,7 +151,8 @@ std::unique_ptr<tl::Task> FeatureMatchingPresenterImp::createTask()
     if (mView->spatialMatching()) {
         featmatching_task = std::make_unique<SpatialMatchingTask>(mModel->database(),
                                                                   mModel->useCuda(),
-                                                                 feature_matching);
+                                                                  feature_matching,
+                                                                  mModel->geodeticCoordinates());
 
         featmatching_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
 

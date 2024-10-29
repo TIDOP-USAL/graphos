@@ -21,37 +21,49 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_COMMAND_H
-#define GRAPHOS_GEOREFERENCE_COMMAND_H
+#ifndef GRAPHOS_EXPORT_POINT_CLOUD_TASK_H
+#define GRAPHOS_EXPORT_POINT_CLOUD_TASK_H
 
-#include "graphos/core/command.h"
-#include "graphos/core/project.h"
+#include <tidop/core/task.h>
+#include <tidop/core/progress.h>
+#include <tidop/geometry/entities/point.h>
 
+#include <QObject>
 
 namespace graphos
 {
 
-class GeoreferenceCommand
-  : public Command
+class ExportPointCloudTask
+  : public QObject,
+    public tl::TaskBase
 {
+
+    Q_OBJECT
 
 public:
 
-    GeoreferenceCommand();
-    ~GeoreferenceCommand() override;
+    ExportPointCloudTask(tl::Path pointCloud,
+                         tl::Point3<double> offset,
+                         tl::Path exportPointCloud,
+                         std::string crs);
+
+    ~ExportPointCloudTask() override = default;
+
+// tl::TaskBase interface
+
+protected:
+
+    void execute(tl::Progress *progressBar) override;
 
 private:
-    static auto readGroundPoints(const tl::Path &groundPointsPath) -> std::vector<GroundPoint>;
 
-    // Command
-
-private:
-
-    bool run() override;
-
+    tl::Path mPointCloud;
+    tl::Point3<double> mOffset;
+    tl::Path mExportPointCloud;
+    std::string mCrs;
 };
 
 
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_COMMAND_H
+#endif // GRAPHOS_EXPORT_POINT_CLOUD_TASK_H

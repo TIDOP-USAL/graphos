@@ -152,7 +152,8 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
         in >> pts;
         bool has_scalar_label = pts.has_property_map<float>("scalar_label");
         if (has_scalar_label) {
-            pts.remove_property_map(pts.property_map<float>("scalar_label").first);
+            auto property_map = pts.property_map<float>("scalar_label").first;
+            pts.remove_property_map(property_map);
 
             auto copy_point_cloud = mInput;
             copy_point_cloud.replaceBaseName("temp");
@@ -176,9 +177,12 @@ void PoissonReconTask::poissonRecon(const tl::Path &app_path) const
             break;
         }
 
+        auto _app_path = app_path;
+        _app_path.append("PoissonRecon");
+
         std::string cmd("\"");
-        cmd.append(app_path.parentPath().toString());
-        cmd.append("\\PoissonRecon.exe\" ");
+        cmd.append(_app_path.toString());
+        cmd.append("\" ");
         cmd.append("--in \"").append(input.toString());
         cmd.append("\" --out \"").append(mOutput.toString());
         cmd.append("\" --depth ").append(std::to_string(depth()));
@@ -212,9 +216,12 @@ void PoissonReconTask::surfaceTrimmer(const tl::Path &app_path) const
 {
     try {
 
+        auto _app_path = app_path;
+        _app_path.append("SurfaceTrimmer");
+
         std::string cmd("\"");
-        cmd.append(app_path.parentPath().toString());
-        cmd.append("\\SurfaceTrimmer.exe\" ");
+        cmd.append(_app_path.toString());
+        cmd.append("\" ");
         cmd.append("--in \"").append(mOutput.toString());
         cmd.append("\" --out \"").append(mOutput.toString());
         cmd.append("\" --trim 7");
@@ -235,7 +242,7 @@ void PoissonReconTask::execute(tl::Progress *progressBar)
 
     try {
 
-        tl::Path app_path = tl::App::instance().path();
+        tl::Path app_path = tl::App::instance().path().parentPath();
 
 
         poissonRecon(app_path);

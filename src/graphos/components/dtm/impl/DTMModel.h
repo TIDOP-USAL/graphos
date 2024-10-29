@@ -44,7 +44,7 @@ public:
 
 public:
 
-    auto offset() const -> std::array<double, 3> override;
+    auto offset() const -> tl::Point3<double> override;
     auto projectPath() const -> tl::Path override;
     auto denseModel() const -> tl::Path override;
     auto crs() const -> QString override;

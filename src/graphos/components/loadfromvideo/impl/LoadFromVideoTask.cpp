@@ -277,7 +277,7 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
             auto image_writer = tl::ImageWriterFactory::create(path);
             image_writer->open();
             TL_ASSERT(image_writer->isOpen(), "Can't create image");
-            image_writer->setImageMetadata(image_metadata);
+            image_writer->setMetadata(image_metadata);
             image_writer->create(height, width, frame.channels(), tl::DataType::TL_8U);
             image_writer->write(frame);
             image_writer->close();

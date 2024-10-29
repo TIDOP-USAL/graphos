@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_VIEW_INTERFACE_H
-#define GRAPHOS_GEOREFERENCE_VIEW_INTERFACE_H
+#ifndef GRAPHOS_GCPS_VIEW_INTERFACE_H
+#define GRAPHOS_GCPS_VIEW_INTERFACE_H
 
 #include "graphos/core/mvp.h"
 
@@ -31,7 +31,7 @@ class QAbstractItemModel;
 namespace graphos
 {
 
-class GeoreferenceView
+class GroundControlPointsView
   : public DialogView
 {
 
@@ -39,11 +39,11 @@ class GeoreferenceView
 
 public:
 
-    GeoreferenceView(QWidget *parent, Qt::WindowFlags f = Qt::WindowFlags())
+    GroundControlPointsView(QWidget *parent, Qt::WindowFlags f = Qt::WindowFlags())
         : DialogView(parent, f)
     {
     }
-    ~GeoreferenceView() override = default;
+    ~GroundControlPointsView() override = default;
 
 public:
 
@@ -68,13 +68,14 @@ private slots:
 
 signals:
 
+    void new_gcps();
+    void save();
     void image_changed(size_t);
     void crsChange(QString);
     void addGroundControlPoint();
     void removeGroundControlPoint(int);
     void add_image_point(const QString &, size_t, const QPointF &);
     void remove_image_point(const QString &, size_t);
-    void georeference();
     void export_gcp(const QString&/*file*/, const QString&/*format*/);
     void import_gcp(const QString&/*file*/, const QString&/*format*/);
     void select_crs();
@@ -82,4 +83,4 @@ signals:
 
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_VIEW_INTERFACE_H
+#endif // GRAPHOS_GCPS_VIEW_INTERFACE_H

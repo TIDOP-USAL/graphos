@@ -24,7 +24,7 @@
 include(TidopUtils)
 
 
-if(BUILD_EXPORT_CAMERAS_COMPONENT)
+if(BUILD_EXPORT_CAMERAS_COMPONENT AND BUILD_GUI)
 
     project(ExportCameras LANGUAGES CXX)
     
@@ -90,4 +90,4 @@ else()
 
     message(STATUS "  Graphos::ExportCameras disabled")
     
-endif(BUILD_EXPORT_CAMERAS_COMPONENT)
+endif(BUILD_EXPORT_CAMERAS_COMPONENT AND BUILD_GUI)

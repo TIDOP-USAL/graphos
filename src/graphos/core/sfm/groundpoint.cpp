@@ -456,9 +456,9 @@ public:
 
                     stream.writeStartElement("GroundControlPoint");
                     stream.writeTextElement("Name", QString::fromStdString(gcp.name()));
-                    stream.writeTextElement("x", QString::number(gcp.x));
-                    stream.writeTextElement("y", QString::number(gcp.y));
-                    stream.writeTextElement("z", QString::number(gcp.z));
+                    stream.writeTextElement("x", QString::number(gcp.x, 'f', 6));
+                    stream.writeTextElement("y", QString::number(gcp.y, 'f', 6));
+                    stream.writeTextElement("z", QString::number(gcp.z, 'f', 6));
                     stream.writeTextElement("error", "");
                     stream.writeStartElement("ImagePoints");
 
@@ -511,7 +511,7 @@ public:
 
         stream << epsgCode() << '\n';
 
-        stream << std::fixed << std::setprecision(12);
+        stream << std::fixed << std::setprecision(6);
 
         for (const auto &gcp : gcps()) {
 

@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_CLOSE_PROJECT_COMPONENT)
+if(BUILD_CLOSE_PROJECT_COMPONENT AND BUILD_GUI)
 
   project(CloseProject LANGUAGES CXX)
   
@@ -87,4 +87,4 @@ else()
 
     message(STATUS "  Graphos::CloseProject disabled")
     
-endif(BUILD_CLOSE_PROJECT_COMPONENT)
+endif(BUILD_CLOSE_PROJECT_COMPONENT AND BUILD_GUI)

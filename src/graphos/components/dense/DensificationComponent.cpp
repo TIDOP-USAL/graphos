@@ -23,13 +23,15 @@
 
 #include "DensificationComponent.h"
 
+#include "graphos/components/dense/impl/DensificationCommand.h"
+#ifdef GRAPHOS_GUI
 #include "graphos/components/dense/impl/DensificationModel.h"
 #include "graphos/components/dense/impl/DensificationView.h"
 #include "graphos/components/dense/impl/DensificationPresenter.h"
-#include "graphos/components/dense/impl/DensificationCommand.h"
 #include "graphos/widgets/CmvsPmvsWidget.h"
 #include "graphos/widgets/SmvsWidget.h"
 #include "graphos/widgets/MvsWidget.h"
+#endif // GRAPHOS_GUI
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -48,6 +50,8 @@ DensificationComponent::DensificationComponent(Application *application)
 DensificationComponent::~DensificationComponent()
 {
 }
+
+#ifdef GRAPHOS_GUI
 
 void DensificationComponent::enableMethod(Method method)
 {
@@ -82,6 +86,8 @@ bool DensificationComponent::isEnabled(Method method) const
     return mMethod.isEnabled(method);
 }
 
+#endif // GRAPHOS_GUI
+
 void DensificationComponent::init()
 {
     setName("Densification");
@@ -98,16 +104,21 @@ void DensificationComponent::init()
 
 void DensificationComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new DensificationModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void DensificationComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new DensificationViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void DensificationComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new DensificationPresenterImp(dynamic_cast<DensificationView *>(view()),
                  dynamic_cast<DensificationModel *>(model())));
     if (mMethod.isEnabled(Method::mvs))
@@ -119,7 +130,7 @@ void DensificationComponent::createPresenter()
 
     connect(dynamic_cast<DensificationPresenter *>(presenter()), &DensificationPresenter::densification_deleted,
             this, &DensificationComponent::densification_deleted);
-
+#endif // GRAPHOS_GUI
 }
 
 void DensificationComponent::createCommand()

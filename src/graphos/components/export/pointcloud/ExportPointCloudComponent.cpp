@@ -23,9 +23,12 @@
 
 #include "ExportPointCloudComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudModel.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudView.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudPresenter.h"
+#endif // GRAPHOS_GUI
+#include "graphos/components/export/pointcloud/impl/ExportPointCloudCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -37,7 +40,7 @@ namespace graphos
 
 
 ExportPointCloudComponent::ExportPointCloudComponent(Application *application)
-    : ComponentBase(application)
+  : TaskComponent(application)
 {
     init();
 }
@@ -53,23 +56,30 @@ void ExportPointCloudComponent::init()
 
 void ExportPointCloudComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new ExportPointCloudModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void ExportPointCloudComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new ExportPointCloudViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void ExportPointCloudComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new ExportPointCloudPresenterImp(dynamic_cast<ExportPointCloudView *>(view()),
                                                   dynamic_cast<ExportPointCloudModel *>(model()),
                                                   app()->status()));
+#endif // GRAPHOS_GUI
 }
 
 void ExportPointCloudComponent::createCommand()
 {
+    setCommand(std::make_shared<ExportPointCloudCommand>());
 }
 
 void ExportPointCloudComponent::update()
@@ -81,7 +91,33 @@ void ExportPointCloudComponent::update()
 
     bool project_exists = app_status->isEnabled(AppStatus::Flag::project_exists);
     bool dense_model = app_status->isEnabled(AppStatus::Flag::dense_model);
-    action()->setEnabled(project_exists && dense_model);
+    bool processing = app_status->isEnabled(AppStatus::Flag::processing);
+    action()->setEnabled(project_exists && dense_model && !processing);
+}
+
+void ExportPointCloudComponent::onRunning()
+{
+    TaskComponent::onRunning();
+}
+
+void ExportPointCloudComponent::onFinished()
+{
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
+
+    TaskComponent::onFinished();
+}
+
+void ExportPointCloudComponent::onFailed()
+{
+    Application *app = this->app();
+    TL_ASSERT(app != nullptr, "Application is null");
+    AppStatus *app_status = app->status();
+    TL_ASSERT(app_status != nullptr, "AppStatus is null");
+
+    TaskComponent::onFailed();
 }
 
 } // namespace graphos

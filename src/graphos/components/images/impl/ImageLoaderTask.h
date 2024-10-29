@@ -54,8 +54,8 @@ public:
 
     LoadImagesTask(std::vector<Image> *images,
                    std::vector<Camera> *cameras,
-                   std::string cameraType,
-                   QString epsg = QString());
+                   std::string cameraType/*,
+                   QString epsg = QString()*/);
     ~LoadImagesTask() override;
 
 signals:
@@ -80,9 +80,9 @@ protected:
 
     std::vector<Image> *mImages;
     std::vector<Camera> *mCameras;
-    QString mEPSG;
-    std::shared_ptr<tl::Crs> mCrsIn;
-    std::shared_ptr<tl::Crs> mCrsOut;
+    //QString mEPSG;
+    //std::shared_ptr<tl::Crs> mCrsIn;
+    //std::shared_ptr<tl::Crs> mCrsOut;
     QString mDatabaseCamerasPath;
     std::string mCameraType;
 };

@@ -21,70 +21,33 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_PROCESS_H
-#define GRAPHOS_GEOREFERENCE_PROCESS_H
+#ifndef GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H
+#define GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H
 
-#include "graphos/core/sfm/groundpoint.h"
-
-#include "graphos/core/image.h"
-
-#include <tidop/core/task.h>
-#include <tidop/core/progress.h>
-#include <tidop/core/path.h>
-#include <tidop/math/algebra/matrix.h>
-
-#include <QObject>
+#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-class CameraPose;
-class Camera;
 
-class GRAPHOS_EXPORT GeoreferenceTask
-  : public QObject,
-    public tl::TaskBase
+class ExportPointCloudCommand
+  : public Command
 {
-    Q_OBJECT
 
 public:
 
-    GeoreferenceTask(const std::unordered_map<size_t, Image> &images,
-                     const std::map<int, Camera> &cameras,
-                     const std::unordered_map<size_t, CameraPose> &poses,
-                     const std::vector<GroundPoint> &groundPoints,
-                     const std::vector<GroundControlPoint> &groundControlPoints,
-                     tl::Path outputPath,
-                     tl::Path database);
-    ~GeoreferenceTask() override;
-
-public:
-
-    auto transform() const -> tl::Matrix<double, 4, 4>;
-    auto cameras() const -> std::map<int, Camera>;
-
-signals:
-
-    void georeferenceFinished();
-
-// tl::TaskBase interface
-
-protected:
-
-    void execute(tl::Progress *progressBar) override;
+    ExportPointCloudCommand();
+    ~ExportPointCloudCommand() override;
 
 private:
 
-    std::unordered_map<size_t, Image> mImages;
-    std::map<int, Camera> mCameras;
-    std::unordered_map<size_t, CameraPose> mPoses;
-    std::vector<GroundPoint> mGroundPoints;
-    std::vector<GroundControlPoint> mGroundControlPoints;
-    tl::Path mPath;
-    tl::Path mDatabase;
-    tl::Matrix<double, 4, 4> mTransform;
+// Command
+
+    bool run() override;
+
 };
+
 
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_PROCESS_H
+#endif // GRAPHOS_EXPORT_POINT_CLOUD_COMMAND_H

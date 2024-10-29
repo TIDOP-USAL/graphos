@@ -21,65 +21,38 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_GEOREFERENCE_PRESENTER_H
-#define GRAPHOS_GEOREFERENCE_PRESENTER_H
+#ifndef GRAPHOS_GCPS_COMMAND_H
+#define GRAPHOS_GCPS_COMMAND_H
 
-#include "graphos/components/georeference/GeoreferencePresenter.h"
+#include "graphos/core/command.h"
+#include "graphos/core/project.h"
+
 
 namespace graphos
 {
 
-class GeoreferenceView;
-class GeoreferenceModel;
-
-class GeoreferencePresenterImp
-  : public GeoreferencePresenter
+class GroundControlPointsCommand
+  : public Command
 {
-
-    Q_OBJECT
 
 public:
 
-    GeoreferencePresenterImp(GeoreferenceView *view,
-                             GeoreferenceModel *model);
-    ~GeoreferencePresenterImp() override;
-
-// TaskPresenter interface
-
-protected:
-
-    void onError(tl::TaskErrorEvent *event) override;
-    void onFinished(tl::TaskFinalizedEvent *event) override;
-    auto createTask() -> std::unique_ptr<tl::Task> override;
-
-public slots:
-
-    void cancel() override;
-
-// GeoreferencePresenter interface
-
-public slots:
-
-    void setImageActive(size_t imageId) override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
+    GroundControlPointsCommand();
+    ~GroundControlPointsCommand() override;
 
 private:
 
-    void init() override;
-    void initSignalAndSlots() override;
+    static auto readGroundPoints(const tl::Path &groundPointsPath) -> std::vector<GroundPoint>;
+
+// Command
 
 private:
 
-    GeoreferenceView *mView;
-    GeoreferenceModel *mModel;
+    bool run() override;
 
 };
 
+
 } // namespace graphos
 
-#endif // GRAPHOS_GEOREFERENCE_PRESENTER_H
+#endif // GRAPHOS_GCPS_COMMAND_H

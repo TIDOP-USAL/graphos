@@ -83,10 +83,10 @@ auto Sift::edgeThreshold() const -> double
     return mEdgeThreshold;
 }
 
-auto Sift::domainSizePooling() const -> bool
-{
-    return mDomainSizePooling;
-}
+//auto Sift::domainSizePooling() const -> bool
+//{
+//    return mDomainSizePooling;
+//}
 
 void Sift::setFeaturesNumber(int featuresNumber)
 {
@@ -113,10 +113,10 @@ void Sift::setEdgeThreshold(double edgeThreshold)
     mEdgeThreshold = edgeThreshold;
 }
 
-void Sift::setDomainSizePooling(bool domainSizePooling)
-{
-    mDomainSizePooling = domainSizePooling;
-}
+//void Sift::setDomainSizePooling(bool domainSizePooling)
+//{
+//    mDomainSizePooling = domainSizePooling;
+//}
 
 void Sift::reset()
 {
@@ -269,8 +269,8 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(const SiftCudaDetectorDes
 SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
                                                        int octaveLayers,
                                                        double edgeThreshold,
-                                                       double contrastThreshold,
-                                                       bool domainSizePooling)
+                                                       double contrastThreshold/*,
+                                                       bool domainSizePooling*/)
 {
     Sift::setFeaturesNumber(featuresNumber);
     Sift::setOctaveLayers(octaveLayers);
@@ -279,7 +279,7 @@ SiftCudaDetectorDescriptor::SiftCudaDetectorDescriptor(int featuresNumber,
         Sift::setContrastThreshold(contrastThreshold);
     }
     Sift::setEdgeThreshold(edgeThreshold);
-    Sift::setDomainSizePooling(domainSizePooling);
+    //Sift::setDomainSizePooling(domainSizePooling);
     update();
 }
 
@@ -292,7 +292,7 @@ void SiftCudaDetectorDescriptor::update()
     options.octave_resolution = Sift::octaveLayers();
     options.edge_threshold = Sift::edgeThreshold();
     options.peak_threshold = Sift::contrastThreshold();
-    options.domain_size_pooling = Sift::domainSizePooling();
+    //options.domain_size_pooling = Sift::domainSizePooling();
     options.use_gpu = true;
 
     mSiftGpu.reset(new SiftGPU);
@@ -363,11 +363,11 @@ void SiftCudaDetectorDescriptor::setEdgeThreshold(double edgeThreshold)
     update();
 }
 
-void SiftCudaDetectorDescriptor::setDomainSizePooling(bool domainSizePooling)
-{
-    Sift::setDomainSizePooling(domainSizePooling);
-    update();
-}
+//void SiftCudaDetectorDescriptor::setDomainSizePooling(bool domainSizePooling)
+//{
+//    Sift::setDomainSizePooling(domainSizePooling);
+//    update();
+//}
 
 void SiftCudaDetectorDescriptor::reset()
 {

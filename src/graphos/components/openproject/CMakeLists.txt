@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_OPEN_PROJECT_COMPONENT)
+if(BUILD_OPEN_PROJECT_COMPONENT AND BUILD_GUI)
 
     project(OpenProject LANGUAGES CXX)
     
@@ -82,4 +82,4 @@ else()
 
     message(STATUS "  Graphos::OpenProject disabled")
     
-endif(BUILD_OPEN_PROJECT_COMPONENT)
+endif(BUILD_OPEN_PROJECT_COMPONENT AND BUILD_GUI)

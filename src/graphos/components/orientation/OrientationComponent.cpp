@@ -23,9 +23,11 @@
 
 #include "OrientationComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/orientation/impl/OrientationModel.h"
 #include "graphos/components/orientation/impl/OrientationView.h"
 #include "graphos/components/orientation/impl/OrientationPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/orientation/impl/OrientationCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -58,16 +60,21 @@ void OrientationComponent::init()
 
 void OrientationComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new OrientationModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void OrientationComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new OrientationViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void OrientationComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new OrientationPresenterImp(dynamic_cast<OrientationView *>(view()),
                                              dynamic_cast<OrientationModel *>(model())));
 
@@ -75,6 +82,7 @@ void OrientationComponent::createPresenter()
             &OrientationPresenter::orientation_deleted,
             this,
             &OrientationComponent::orientation_deleted);
+#endif // GRAPHOS_GUI
 }
 
 void OrientationComponent::createCommand()

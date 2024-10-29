@@ -26,12 +26,16 @@
 
 #include "graphos/core/utils.h"
 #include "graphos/core/project.h"
+#include "graphos/core/sfm/posesio.h"
 #include "graphos/components/dtm/impl/DTMTask.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/log.h>
 
 #include <QFileInfo>
+#include <tidop/geospatial/crstransf.h>
+#include <tidop/geospatial/util.h>
+
 
 using namespace tl;
 
@@ -47,6 +51,7 @@ DTMCommand::DTMCommand()
     this->addArgument<double>("gsd", 'g', "Ground sample distance", 0.1);
     this->addArgument<bool>("dsm", "Create a Digital Surface Model", true);
     this->addArgument<bool>("dtm", "Create a Digital Terrain Model", false);
+    this->addArgument<std::string>("crs", "Coordinate Reference System", "");
 
     this->addExample("dem -p 253/253.xml --gsd 0.1");
 
@@ -61,30 +66,30 @@ DTMCommand::~DTMCommand()
     }
 }
 
-auto DTMCommand::offset() const -> std::array<double, 3>
-{
-    std::array<double, 3> offset{};
-    offset.fill(0.);
-
-    try {
-
-        QFile file(QString::fromStdWString(mProject->offset().toWString()));
-        if (file.open(QFile::ReadOnly | QFile::Text)) {
-            QTextStream stream(&file);
-            QString line = stream.readLine();
-            QStringList reg = line.split(" ");
-            offset[0] = reg[0].toDouble();
-            offset[1] = reg[1].toDouble();
-            offset[2] = reg[2].toDouble();
-            file.close();
-        }
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-
-    return offset;
-}
+//auto DTMCommand::offset() const -> std::array<double, 3>
+//{
+//    std::array<double, 3> offset{};
+//    offset.fill(0.);
+//
+//    try {
+//
+//        QFile file(QString::fromStdWString(mProject->offset().toWString()));
+//        if (file.open(QFile::ReadOnly | QFile::Text)) {
+//            QTextStream stream(&file);
+//            QString line = stream.readLine();
+//            QStringList reg = line.split(" ");
+//            offset[0] = reg[0].toDouble();
+//            offset[1] = reg[1].toDouble();
+//            offset[2] = reg[2].toDouble();
+//            file.close();
+//        }
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("");
+//    }
+//
+//    return offset;
+//}
 
 bool DTMCommand::run()
 {
@@ -98,6 +103,7 @@ bool DTMCommand::run()
         auto gsd =  this->value<double>("gsd");
         auto dsm =  this->value<bool>("dsm");
         auto dtm =  this->value<bool>("dtm");
+        auto crs =  this->value<std::string>("crs");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
@@ -115,7 +121,23 @@ bool DTMCommand::run()
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
 
-        DtmTask dtm_task(mProject->denseModel(), offset(), dtm_path, gsd, mProject->crs(), dsm, dtm);
+        tl::Point3<double> offset = offsetRead(mProject->offset());
+
+        if (crs.empty()){
+
+            // Esto no tiene que hacerse ya que vamos a tener las coordenadas geograficas directamente
+            auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+            auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+            tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+            auto lla = crs_transfom_geocentric_to_geographic.transform(offset);
+
+            //auto zone = tl::utmZoneFromLonLat(lla.x, lla.y);
+            int zone = tl::utmZoneFromLongitude(lla.x);
+            crs = "EPSG:326";
+            crs.append(std::to_string(zone));
+        }
+
+        DtmTask dtm_task(mProject->denseModel(), offset, dtm_path, gsd, crs/*mProject->crs()*/, dsm, dtm);
         dtm_task.run();
 
         tl::Path dsm_file = dtm_path;

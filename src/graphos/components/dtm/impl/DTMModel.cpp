@@ -24,10 +24,15 @@
 #include "DTMModel.h"
 
 #include "graphos/core/project.h"
+#include "graphos/core/sfm/posesio.h"
 
 #include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
+#include <tidop/geospatial/crs.h>
+#include <tidop/geospatial/crstransf.h>
+#include <tidop/geospatial/util.h>
+
 
 namespace graphos
 {
@@ -51,7 +56,15 @@ auto DtmModelImp::denseModel() const -> tl::Path
 
 auto DtmModelImp::crs() const -> QString
 {
-    return mProject->crs();
+    auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+    auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+    tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+    auto lla = crs_transfom_geocentric_to_geographic.transform(offset());
+    int zone = tl::utmZoneFromLongitude(lla.x);
+    QString epsg_code = "EPSG:326";
+    epsg_code.append(QString::number(zone));
+    return epsg_code;
+    //return mProject->crs();
 }
 
 auto DtmModelImp::gsd() const -> double
@@ -84,30 +97,30 @@ void DtmModelImp::setDsmPath(const tl::Path &dsmPath)
     mProject->dtm().dsmPath = dsmPath;
 }
 
-auto DtmModelImp::offset() const -> std::array<double, 3>
+auto DtmModelImp::offset() const -> tl::Point3<double>
 {
-    std::array<double, 3> offset{};
-    offset.fill(0.);
+    //std::array<double, 3> offset{};
+    //offset.fill(0.);
 
-    try {
+    //try {
 
-        tl::Path path = mProject->offset();
-        QFile file(QString::fromStdWString(path.toWString()));
-        if (file.open(QFile::ReadOnly | QFile::Text)) {
-            QTextStream stream(&file);
-            QString line = stream.readLine();
-            QStringList reg = line.split(" ");
-            offset[0] = reg[0].toDouble();
-            offset[1] = reg[1].toDouble();
-            offset[2] = reg[2].toDouble();
-            file.close();
-        }
+    //    tl::Path path = mProject->offset();
+    //    QFile file(QString::fromStdWString(path.toWString()));
+    //    if (file.open(QFile::ReadOnly | QFile::Text)) {
+    //        QTextStream stream(&file);
+    //        QString line = stream.readLine();
+    //        QStringList reg = line.split(" ");
+    //        offset[0] = reg[0].toDouble();
+    //        offset[1] = reg[1].toDouble();
+    //        offset[2] = reg[2].toDouble();
+    //        file.close();
+    //    }
 
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
+    //} catch (...) {
+    //    TL_THROW_EXCEPTION_WITH_NESTED("");
+    //}
 
-    return offset;
+    return offsetRead(mProject->offset());
 }
 
 void DtmModelImp::init()

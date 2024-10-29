@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_CAMERAS_COMPONENT)
+if(BUILD_CAMERAS_COMPONENT  AND BUILD_GUI)
 
     project(Cameras LANGUAGES CXX)
     
@@ -93,4 +93,4 @@ else()
 
     message(STATUS "  Graphos::Cameras disabled")
     
-endif(BUILD_CAMERAS_COMPONENT)
+endif(BUILD_CAMERAS_COMPONENT AND BUILD_GUI)
