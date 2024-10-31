@@ -110,6 +110,7 @@ target_link_libraries(${PROJECT_NAME}
                       TidopLib::Math
                       TidopLib::Vect
                       TidopLib::Graphic
+                      TidopLib::GeoTools
                       Qt5::Core
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Help>

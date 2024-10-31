@@ -129,6 +129,8 @@
 #include <tidop/core/console.h>
 #include <tidop/core/log.h>
 #include <tidop/core/msg/message.h>
+#include <tidop/GeoTools/GeoTools.h>
+#include <tidop/GeoTools/CRSsTools.h>
 
 #include <gdal.h>
 #include <cpl_conv.h>
@@ -223,6 +225,16 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(messageHandlerQt);
     CPLSetErrorHandler(messageHandlerGDAL);
 #endif // DEBUG
+
+    try {
+        tl::GeoTools* ptrGeoTools = tl::GeoTools::getInstance();
+        bool ignoreDeprecatedCRSs = true;
+        ptrGeoTools->initializeCRSsTools(ignoreDeprecatedCRSs);
+    }
+    catch (std::exception& e) {
+        tl::printException(e);
+        return(1);
+    }
 
     Application app(argc, argv);
     Application::setApplicationName("GRAPHOS");
