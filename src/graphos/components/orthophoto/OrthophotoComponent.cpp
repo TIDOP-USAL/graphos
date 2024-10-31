@@ -27,6 +27,7 @@
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoPresenter.h"
+#include "graphos/components/orthophoto/impl//OrthophotoCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -39,11 +40,18 @@ namespace graphos
 OrthophotoComponent::OrthophotoComponent(Application *application)
   : TaskComponent(application)
 {
-    ComponentBase::setName(tr("Orthophoto"));
-    ComponentBase::setMenu("tools");
+    init();
 }
 
 OrthophotoComponent::~OrthophotoComponent() = default;
+
+void OrthophotoComponent::init()
+{
+    setName(tr("Orthophoto"));
+    setMenu("tools");
+    //setIcon(QIcon::fromTheme("ortho"));
+    createCommand();
+}
 
 void OrthophotoComponent::createModel()
 {
@@ -62,7 +70,9 @@ void OrthophotoComponent::createPresenter()
 }
 
 void OrthophotoComponent::createCommand()
-{}
+{
+    setCommand(std::make_shared<OrthophotoCommand>());
+}
 
 void OrthophotoComponent::update()
 {

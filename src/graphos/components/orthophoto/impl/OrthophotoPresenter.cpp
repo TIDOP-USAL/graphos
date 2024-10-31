@@ -96,7 +96,7 @@ void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 {
-    tl::Path ortho_path = mModel->orthoPath();
+    //tl::Path ortho_path = mModel->orthoPath();
     //if(!ortho_path.exists()) {
     //    int i_ret = QMessageBox(QMessageBox::Warning,
     //                            tr("Previous results"),
@@ -119,7 +119,8 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
                                                                                mModel->cameras(),
                                                                                ortho_dir,
                                                                                mModel->dtmPath(),
-                                                                               mModel->epsCode(),
+                                                                               mModel->offset(),
+                                                                               mModel->epsCode().toStdString(), // Esto tiene que venir de View
                                                                                mModel->useCuda());
 
     if(progressHandler()) {

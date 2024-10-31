@@ -25,12 +25,18 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/sfm/poses.h"
+#include "graphos/core/sfm/posesio.h"
+
+#include <tidop/geospatial/crs.h>
+#include <tidop/geospatial/crstransf.h>
+#include <tidop/geospatial/util.h>
 
 #include <QSettings>
 #include <QFileInfo>
 
 /// TODO: mover
 #include <colmap/base/reconstruction.h>
+
 
 namespace graphos
 {
@@ -90,16 +96,16 @@ auto OrthophotoModelImp::images() const -> Images
 {
     Images images;
 
-    tl::Point3<double> offset;
+    //tl::Point3<double> offset;
 
-    std::ifstream ifs;
-    ifs.open(mProject->offset().toString(), std::ifstream::in);
-    if(ifs.is_open()) {
+    //std::ifstream ifs;
+    //ifs.open(mProject->offset().toString(), std::ifstream::in);
+    //if(ifs.is_open()) {
 
-        ifs >> offset.x >> offset.y >> offset.z;
+    //    ifs >> offset.x >> offset.y >> offset.z;
 
-        ifs.close();
-    }
+    //    ifs.close();
+    //}
 
     for(const auto &image : mProject->images()) {
 
@@ -117,7 +123,7 @@ auto OrthophotoModelImp::images() const -> Images
             rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
             photoOrientation.setRotationMatrix(rotation_matrix);
 
-            photoOrientation.setPosition(photoOrientation.position() + offset);
+            photoOrientation.setPosition(photoOrientation.position() /*+ offset*/);
 
             photo.setCameraPose(photoOrientation);
 
@@ -156,7 +162,15 @@ auto OrthophotoModelImp::dtmPath() const -> tl::Path
 
 auto OrthophotoModelImp::epsCode() const -> QString
 {
-    return mProject->crs();
+    auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+    auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+    tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+    auto lla = crs_transfom_geocentric_to_geographic.transform(offset());
+    int zone = tl::utmZoneFromLongitude(lla.x);
+    QString epsg_code = "EPSG:326";
+    epsg_code.append(QString::number(zone));
+    return epsg_code;
+    //return mProject->crs();
 }
 
 void OrthophotoModelImp::clearProject()
@@ -173,6 +187,11 @@ auto OrthophotoModelImp::useCuda() const -> bool
 auto OrthophotoModelImp::gsd() const -> double
 {
     return mProject->orthophoto().gsd;
+}
+
+auto OrthophotoModelImp::offset() const -> tl::Point3<double> 
+{
+    return offsetRead(mProject->offset());
 }
 
 void OrthophotoModelImp::init()

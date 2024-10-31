@@ -22,12 +22,12 @@
  ************************************************************************/
 
 
-#include "DTMCommand.h"
+#include "OrthophotoCommand.h"
 
 #include "graphos/core/utils.h"
 #include "graphos/core/project.h"
+#include "graphos/components/orthophoto/impl/OrthophotoTask.h"
 #include "graphos/core/sfm/posesio.h"
-#include "graphos/components/dtm/impl/DTMTask.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/log.h>
@@ -40,23 +40,33 @@ using namespace tl;
 namespace graphos
 {
 
-
-DTMCommand::DTMCommand()
-  : Command("dem", "Create DSM and/or DTM"),
-    mProject(nullptr)
+OrthophotoCommand::OrthophotoCommand()
+  : Command("ortho", "Create orthophoto"),
+    mProject(nullptr),
+    mDisableCuda(false)
 {
     this->addArgument<Path>("prj", 'p', "Project file");
     this->addArgument<double>("gsd", 'g', "Ground sample distance", 0.1);
-    this->addArgument<bool>("dsm", "Create a Digital Surface Model", true);
-    this->addArgument<bool>("dtm", "Create a Digital Terrain Model", false);
+    this->addArgument<Path>("dsm", "Digital Surface Model");
     this->addArgument<std::string>("crs", "Coordinate Reference System", "");
 
-    this->addExample("dem -p 253/253.xml --gsd 0.1");
+#ifdef HAVE_CUDA
+    tl::Message::pauseMessages();
+    bool cuda_enabled = cudaEnabled(10.0, 3.0);
+    tl::Message::resumeMessages();
+    if (cuda_enabled)
+        this->addArgument<bool>("disable_cuda", "If true disable CUDA (default = false)", mDisableCuda);
+    else mDisableCuda = true;
+#else
+    mDisableCuda = true;
+#endif //HAVE_CUDA
+
+    this->addExample("ortho -p 253/253.xml --gsd 0.1");
 
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
-DTMCommand::~DTMCommand()
+OrthophotoCommand::~OrthophotoCommand()
 {
     if (mProject) {
         delete mProject;
@@ -64,32 +74,7 @@ DTMCommand::~DTMCommand()
     }
 }
 
-//auto DTMCommand::offset() const -> std::array<double, 3>
-//{
-//    std::array<double, 3> offset{};
-//    offset.fill(0.);
-//
-//    try {
-//
-//        QFile file(QString::fromStdWString(mProject->offset().toWString()));
-//        if (file.open(QFile::ReadOnly | QFile::Text)) {
-//            QTextStream stream(&file);
-//            QString line = stream.readLine();
-//            QStringList reg = line.split(" ");
-//            offset[0] = reg[0].toDouble();
-//            offset[1] = reg[1].toDouble();
-//            offset[2] = reg[2].toDouble();
-//            file.close();
-//        }
-//
-//    } catch (...) {
-//        TL_THROW_EXCEPTION_WITH_NESTED("");
-//    }
-//
-//    return offset;
-//}
-
-bool DTMCommand::run()
+bool OrthophotoCommand::run()
 {
     bool r = false;
 
@@ -99,9 +84,10 @@ bool DTMCommand::run()
 
         tl::Path project_path = this->value<Path>("prj");
         auto gsd =  this->value<double>("gsd");
-        auto dsm =  this->value<bool>("dsm");
-        auto dtm =  this->value<bool>("dtm");
+        auto dsm =  this->value<Path>("dsm");
         auto crs =  this->value<std::string>("crs");
+        if (!mDisableCuda)
+            mDisableCuda = this->value<bool>("disable_cuda");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
@@ -113,8 +99,8 @@ bool DTMCommand::run()
         mProject = new ProjectImp;
         mProject->load(project_path);
 
-        tl::Path dtm_path(mProject->projectFolder());
-        dtm_path.append("dtm");
+        tl::Path orthophoto_path(mProject->projectFolder());
+        orthophoto_path.append("ortho");
 		
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
@@ -135,22 +121,23 @@ bool DTMCommand::run()
             crs.append(std::to_string(zone));
         }
 
-        DtmTask dtm_task(mProject->denseModel(), offset, dtm_path, gsd, crs/*mProject->crs()*/, dsm, dtm);
-        dtm_task.run();
+        OrthophotoTask orthophoto_task(gsd,
+                                       images(),
+                                       mProject->cameras(),
+                                       orthophoto_path,
+                                       dsm,
+                                       offset,
+                                       crs,
+                                       !mDisableCuda);
+        orthophoto_task.run();
 
-        tl::Path dsm_file = dtm_path;
-        dsm_file.append("dsm.tif");
-        if (dsm && dsm_file.exists()) {
-            mProject->dtm().dsmPath = dsm_file;
-        }
-        
-        tl::Path dtm_file = dsm_file;
-        dtm_file.replaceBaseName("dtm");
-        if (dtm && dtm_file.exists()) {
-            mProject->dtm().dtmPath = dtm_file;
+        tl::Path orthophoto_file = orthophoto_path;
+        orthophoto_file.append("dsm.tif");
+        if (orthophoto_file.exists()) {
+            //mProject->dtm().dsmPath = orthophoto_file;
         }
 
-        mProject->dtm().gsd = gsd;
+        //mProject->dtm().gsd = gsd;
         mProject->save(project_path);
 
     } catch (const std::exception &e) {
@@ -163,6 +150,49 @@ bool DTMCommand::run()
     log.close();
 
     return r;
+}
+
+auto OrthophotoCommand::images() -> std::vector<Image>
+{
+    std::vector<Image> images;
+
+    //tl::Point3<double> offset;
+
+    //std::ifstream ifs;
+    //ifs.open(mProject->offset().toString(), std::ifstream::in);
+    //if(ifs.is_open()) {
+
+    //    ifs >> offset.x >> offset.y >> offset.z;
+
+    //    ifs.close();
+    //}
+
+    for(const auto &image : mProject->images()) {
+
+        Image photo(image.second);
+        size_t image_id = image.first;
+
+        if(mProject->isPhotoOriented(image_id)) {
+            CameraPose photoOrientation = mProject->photoOrientation(image_id);
+            auto rotation_matrix = photoOrientation.rotationMatrix();
+            rotation_matrix.at(1, 0) = -photoOrientation.rotationMatrix().at(1, 0);
+            rotation_matrix.at(1, 1) = -photoOrientation.rotationMatrix().at(1, 1);
+            rotation_matrix.at(1, 2) = -photoOrientation.rotationMatrix().at(1, 2);
+            rotation_matrix.at(2, 0) = -photoOrientation.rotationMatrix().at(2, 0);
+            rotation_matrix.at(2, 1) = -photoOrientation.rotationMatrix().at(2, 1);
+            rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
+            photoOrientation.setRotationMatrix(rotation_matrix);
+
+            photoOrientation.setPosition(photoOrientation.position() /*+ offset*/);
+
+            photo.setCameraPose(photoOrientation);
+
+            images.push_back(photo);
+        }
+
+    }
+
+    return images;
 }
 
 } // namespace graphos

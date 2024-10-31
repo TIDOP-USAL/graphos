@@ -58,6 +58,7 @@ public:
     void clearProject() override;
     auto useCuda() const -> bool override;
     auto gsd() const -> double override;
+    auto offset() const -> tl::Point3<double> override;
 
 public slots:
 

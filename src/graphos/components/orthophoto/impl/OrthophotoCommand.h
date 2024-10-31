@@ -21,62 +21,41 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
-#define GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
+#ifndef GRAPHOS_ORTHOPHOTO_COMMAND_H
+#define GRAPHOS_ORTHOPHOTO_COMMAND_H
 
-#include <tidop/core/path.h>
-#include <tidop/geometry/entities/point.h>
-
-#include "graphos/core/mvp.h"
+#include "graphos/core/command.h"
 
 namespace graphos
 {
 
+class Project;
 class Image;
-class Camera;
 
-class OrthophotoModel
-  : public Model
+class OrthophotoCommand
+  : public Command
 {
 
-    Q_OBJECT
-
 public:
 
-    using Images = std::vector<Image>;
-    using Cameras = std::map<int, Camera>;
+    OrthophotoCommand();
+    ~OrthophotoCommand() override;
 
-public:
+private:
 
-    OrthophotoModel(QObject *parent = nullptr) : Model(parent){}
-    ~OrthophotoModel() override = default;
+    auto images() -> std::vector<Image>;
 
-    virtual auto images() const -> Images = 0;
-    virtual auto cameras() const -> Cameras = 0;
-    virtual auto projectFolder() const -> tl::Path = 0;
-    virtual auto orthoPath() const -> tl::Path = 0;
-    virtual void setOrthoPath(const tl::Path &orthoPath) = 0;
-    virtual auto dtmPath() const -> tl::Path = 0;
-    virtual auto epsCode() const -> QString = 0;
-    virtual void clearProject() = 0;
-    virtual auto useCuda() const -> bool = 0;
-    virtual auto gsd() const -> double = 0;
+// Command
 
-    /*!
-     * \brief Retrieves the offset values.
-     * \return An array containing the offset values [x, y, z].
-     */
-    virtual auto offset() const -> tl::Point3<double> = 0;
+    bool run() override;
 
-public slots:
+private:
 
-    virtual void setGSD(double gsd) = 0;
-
-    virtual void loadSettings() = 0;
-    virtual void saveSettings() = 0;
+    Project *mProject;
+    bool mDisableCuda;
 };
+
 
 } // namespace graphos
 
-
-#endif // GRAPHOS_ORTHOPHOTO_MODEL_INTERFACE_H
+#endif // GRAPHOS_ORTHOPHOTO_COMMAND_H

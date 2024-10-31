@@ -56,7 +56,8 @@ public:
                    const std::map<int, Camera> &cameras,
                    const tl::Path &orthoPath,
                    const tl::Path &mdt,
-                   const QString &epsg,
+                   tl::Point3<double> offset,
+                   const std::string &epsg,
                    bool cuda = false);
 
     ~OrthophotoTask() override;
@@ -65,7 +66,7 @@ public:
     void setPhotos(const std::vector<Image> &images);
     void setOrthoPath(const tl::Path &orthoPath);
     void setMdt(const tl::Path &mdt);
-    void setCrs(const QString &epsg);
+    void setCrs(const std::string &epsg);
     void setCuda(bool active);
 
 private:
@@ -86,7 +87,8 @@ private:
     std::map<int, Camera> mCameras;
     tl::Path mOrthoPath;
     tl::Path mMdt;
-    QString mEpsg;
+    tl::Point3<double> mOffset;
+    std::string mEpsg;
     bool bCuda;
 
 };

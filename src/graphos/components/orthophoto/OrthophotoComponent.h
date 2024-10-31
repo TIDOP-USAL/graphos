@@ -41,6 +41,10 @@ public:
     OrthophotoComponent(Application *application);
     ~OrthophotoComponent() override;
 
+private:
+
+    void init();
+
 // ComponentBase
 
 protected:

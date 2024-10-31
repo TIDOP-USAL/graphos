@@ -42,6 +42,7 @@
 #include <opencv2/stitching.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/photo.hpp>
+#include <tidop/geospatial/crstransf.h>
 
 namespace graphos
 {
@@ -1019,18 +1020,43 @@ OrthophotoTask::OrthophotoTask(double gsd,
                                const std::map<int, Camera> &cameras,
                                const tl::Path &orthoPath,
                                const tl::Path &mdt,
-                               const QString &epsg,
+                               tl::Point3<double> offset,
+                               const std::string &epsg,
                                bool cuda)
   : tl::TaskBase(),
     mGSD(gsd),
-    mPhotos(images),
+    //mPhotos(images),
     mCameras(cameras),
     mOrthoPath(orthoPath),
     mMdt(mdt),
+    mOffset(offset),
     mEpsg(epsg),
     bCuda(cuda)
 {
+    // Para hacer una prueba rapida...
+             
+    auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+    auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+    tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+    auto lla = crs_transfom_geocentric_to_geographic.transform(offset);
+    auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
+    auto ecef_to_enu = std::make_shared<tl::EcefToEnu>(offset, rotation);
+    auto epsg_utm = std::make_shared<tl::Crs>(epsg);
+    tl::CrsTransform crs_transfom(epsg_geocentric, epsg_utm);
 
+    for (const auto &image : images) {
+
+        Image photo(image);
+        auto point_ecef = ecef_to_enu->inverse(image.cameraPose().position());
+        auto point_utm = crs_transfom.transform(point_ecef);
+        CameraPose camera_pose;
+        camera_pose.setRotationMatrix(image.cameraPose().rotationMatrix());
+        camera_pose.setPosition(point_utm);
+        camera_pose.setCrs(QString::fromStdString(mEpsg));
+        photo.setCameraPose(camera_pose);
+
+        mPhotos.push_back(photo);
+    }
 }
 
 OrthophotoTask::~OrthophotoTask()
@@ -1058,7 +1084,7 @@ void OrthophotoTask::setMdt(const tl::Path &mdt)
     mMdt = mdt;
 }
 
-void OrthophotoTask::setCrs(const QString &epsg)
+void OrthophotoTask::setCrs(const std::string &epsg)
 {
     mEpsg = epsg;
 }
@@ -1192,19 +1218,19 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         tl::Path footprint_file(mOrthoPath);
         footprint_file.append("footprint.shp");
         tl::Path graph_orthos = tl::Path(footprint_file).replaceBaseName("graph_orthos");
-        tl::Crs crs(mEpsg.toStdString());
+        tl::Crs crs(mEpsg);
 
-        //OrthoimageProcess ortho_process(mPhotos,
-        //                                mCameras,
-        //                                mMdt,
-        //                                mOrthoPath,
-        //                                graph_orthos,
-        //                                crs,
-        //                                footprint_file,
-        //                                mGSD,
-        //                                1./*0.4*/,
-        //                                bCuda);
-        //ortho_process.run(progressBar);
+        OrthoimageProcess ortho_process(mPhotos,
+                                        mCameras,
+                                        mMdt,
+                                        mOrthoPath,
+                                        graph_orthos,
+                                        crs,
+                                        footprint_file,
+                                        mGSD,
+                                        1./*0.4*/,
+                                        bCuda);
+        ortho_process.run(progressBar);
 
         //std::vector<tl::WindowD> grid = findGrid(graph_orthos);
         //std::vector<tl::WindowD> grid = this->findGrid(mMdt, mGSD);
