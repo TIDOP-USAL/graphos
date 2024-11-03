@@ -72,7 +72,7 @@ public:
 private:
 
     std::vector<tl::WindowD> findGrid(const tl::Path &mdt, double gsd);
-    std::vector<std::vector<tl::WindowD>> findGrid2(const tl::Path &mdt, double gsd);
+    std::vector<std::vector<tl::WindowD>> findGrid2(const tl::Path &mdt, double gsd, int gridSize);
 
 // tl::TaskBase interface
 
