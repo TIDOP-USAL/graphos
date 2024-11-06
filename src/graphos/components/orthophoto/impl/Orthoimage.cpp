@@ -256,17 +256,118 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 
         /// Transformación de la orto al CRS de salida
         
-        /// Transformación entre coordenadas ENU y UTM
-        auto convertEnuToUTM = [&](const tl::Point3d &point) -> tl::Point3d 
+        /// Transformación entre coordenadas ENU y Projectadas
+        auto convertEnuToProjected = [&](const tl::Point3d &point) -> tl::Point3d 
         {
-            auto point_ecef = mEcefToEnu.inverse({point.x, point.y, point.z});
+            auto point_ecef = mEcefToEnu.inverse(point);
             auto point_utm = mCrsTransfom->transform(point_ecef);
             return point_utm;
         };
 
-        auto convertImageToUTM = [&](const cv::Mat &image, 
-                                     tl::Affine<double, 2> &georeference, 
-                                     cv::Mat &orthoimage) 
+        auto convertProjectedToEnu = [&](const tl::Point3d &point) -> tl::Point3d 
+        {
+            auto point_ecef = mCrsTransfom->transform(point, tl::CrsTransform::Order::inverse);
+            auto point_projected = mEcefToEnu.direct(point_ecef);
+            return point_projected;
+        };
+
+        //auto convertImageToUTM = [&](const cv::Mat &image, 
+        //                             tl::Affine<double, 2> &georeference, 
+        //                             cv::Mat &orthoimage) 
+        //{
+
+        //    // ENU coordinates
+        //    auto top_left = mGeoreference.transform(tl::Point<double>(0., 0.));
+        //    auto top_right = mGeoreference.transform(tl::Point<double>(static_cast<double>(image.cols), 0.));
+        //    auto bottom_right = mGeoreference.transform(tl::Point<double>(static_cast<double>(image.cols), static_cast<double>(image.rows)));
+        //    auto bottom_left = mGeoreference.transform(tl::Point<double>(0., static_cast<double>(image.rows)));
+ 
+        //    /// UTM coordinates
+        //    auto top_left_utm = convertEnuToUTM(top_left);
+        //    auto top_right_utm = convertEnuToUTM(top_right);
+        //    auto bottom_right_utm = convertEnuToUTM(bottom_right);
+        //    auto bottom_left_utm = convertEnuToUTM(bottom_left);
+        //    tl::Window<tl::Point<double>> window_utm({top_left_utm, 
+        //                                              top_right_utm,
+        //                                              bottom_right_utm,
+        //                                              bottom_left_utm});
+        //    int out_width = tl::numberCast<int>(window_utm.width() / mGeoreference.scale().x());
+        //    int out_height = tl::numberCast<int>(window_utm.height() / mGeoreference.scale().y());
+        //    orthoimage = cv::Mat::zeros(out_height, out_width, image.type());
+
+        //    ///TODO: mGeoreference.scale().y() debería venir con el signo adecuado
+        //    georeference = tl::Affine<double, 2>(mGeoreference.scale().x(), -mGeoreference.scale().y(), window_utm.pt1.x, window_utm.pt2.y, 0.);
+
+        //    int width = image.cols / 25;
+        //    int height = image.rows / 25;
+
+        //    for (int i = 0; i < height - 1; ++i) {
+        //        for (int j = 0; j < width - 1; ++j) {
+        //            int x = j * 25;
+        //            int y = i * 25;
+        //            int w = 25;
+        //            int h = 25;
+        //            if (image.cols < x + w) w = image.cols - x;
+        //            if (image.rows < y + h) h = image.rows - y;
+
+        //            cv::Rect roi(x, y, w, h);
+        //            cv::Mat enu_image = image(roi);
+
+        //            std::vector<cv::Point2f> srcPoints = {
+        //                cv::Point2f(0, 0),
+        //                cv::Point2f(w, 0),
+        //                cv::Point2f(w, h),
+        //                cv::Point2f(0, h)
+        //            };
+
+        //            auto top_left_enu = mGeoreference.transform(tl::Point<double>(x, y));
+        //            auto top_right_enu = mGeoreference.transform(tl::Point<double>(x + w, y));
+        //            auto bottom_right_enu = mGeoreference.transform(tl::Point<double>(x + w, y + h));
+        //            auto bottom_left_enu = mGeoreference.transform(tl::Point<double>(x, y + h));
+
+        //            auto top_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(top_left_enu));
+        //            auto top_top_right = convertEnuToUTM(static_cast<tl::Point3d>(top_right_enu));
+        //            auto bottom_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(bottom_right_enu));
+        //            auto bottom_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(bottom_left_enu));
+
+        //            auto georeference_inverse = georeference.inverse();
+
+        //            auto top_left_image = georeference_inverse.transform(static_cast<tl::Point2d>(top_left_utm));
+        //            auto top_right_image = georeference_inverse.transform(static_cast<tl::Point2d>(top_top_right));
+        //            auto bottom_right_image = georeference_inverse.transform(static_cast<tl::Point2d>(bottom_right_utm));
+        //            auto bottom_left_image = georeference_inverse.transform(static_cast<tl::Point2d>(bottom_left_utm));
+        //     
+        //            tl::Window<tl::Point<double>> window_image_utm({top_left_image, 
+        //                                                            top_right_image,
+        //                                                            bottom_right_image,
+        //                                                            bottom_left_image});
+
+        //            cv::Point2f ini_utm(window_image_utm.pt1.x, window_image_utm.pt1.y);
+
+        //            std::vector<cv::Point2f> dstPoints = {
+        //                cv::Point2f(top_left_image.x - ini_utm.x, top_left_image.y - ini_utm.y), 
+        //                cv::Point2f(top_right_image.x - ini_utm.x, top_right_image.y - ini_utm.y),
+        //                cv::Point2f(bottom_right_image.x - ini_utm.x, bottom_right_image.y - ini_utm.y), 
+        //                cv::Point2f(bottom_left_image.x - ini_utm.x, bottom_left_image.y - ini_utm.y)};
+
+
+
+        //            cv::Rect roi_utm(tl::numberCast<int>(window_image_utm.pt1.x),
+        //                             tl::numberCast<int>(window_image_utm.pt1.y), 
+        //                             tl::numberCast<int>(window_image_utm.width()), 
+        //                             tl::numberCast<int>(window_image_utm.height()));
+
+        //            cv::Mat perspective_transform = cv::getPerspectiveTransform(srcPoints, dstPoints);
+        //            cv::warpPerspective(enu_image, orthoimage(roi_utm), perspective_transform, roi_utm.size(), cv::INTER_NEAREST | cv::WARP_INVERSE_MAP, cv::BORDER_TRANSPARENT);
+
+        //        }
+        //    }
+
+        //};
+
+        auto convertImageFromEnuToProjected = [&](const cv::Mat &image, 
+                                                  tl::Affine<double, 2> &georeference, 
+                                                  cv::Mat &orthoimage) 
         {
 
             // ENU coordinates
@@ -274,16 +375,17 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
             auto top_right = mGeoreference.transform(tl::Point<double>(static_cast<double>(image.cols), 0.));
             auto bottom_right = mGeoreference.transform(tl::Point<double>(static_cast<double>(image.cols), static_cast<double>(image.rows)));
             auto bottom_left = mGeoreference.transform(tl::Point<double>(0., static_cast<double>(image.rows)));
- 
-            /// UTM coordinates
-            auto top_left_utm = convertEnuToUTM(top_left);
-            auto top_right_utm = convertEnuToUTM(top_right);
-            auto bottom_right_utm = convertEnuToUTM(bottom_right);
-            auto bottom_left_utm = convertEnuToUTM(bottom_left);
-            tl::Window<tl::Point<double>> window_utm({top_left_utm, 
-                                                      top_right_utm,
-                                                      bottom_right_utm,
-                                                      bottom_left_utm});
+            tl::Window<tl::Point<double>> window_total_enu(tl::Point<double>(0., 0.), tl::Point<double>(image.cols, image.rows));
+
+            /// Projected coordinates
+            auto top_left_projected = convertEnuToProjected(top_left);
+            auto top_right_projected = convertEnuToProjected(top_right);
+            auto bottom_right_projected = convertEnuToProjected(bottom_right);
+            auto bottom_left_projected = convertEnuToProjected(bottom_left);
+            tl::Window<tl::Point<double>> window_utm({top_left_projected, 
+                                                      top_right_projected,
+                                                      bottom_right_projected,
+                                                      bottom_left_projected});
             int out_width = tl::numberCast<int>(window_utm.width() / mGeoreference.scale().x());
             int out_height = tl::numberCast<int>(window_utm.height() / mGeoreference.scale().y());
             orthoimage = cv::Mat::zeros(out_height, out_width, image.type());
@@ -291,76 +393,94 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
             ///TODO: mGeoreference.scale().y() debería venir con el signo adecuado
             georeference = tl::Affine<double, 2>(mGeoreference.scale().x(), -mGeoreference.scale().y(), window_utm.pt1.x, window_utm.pt2.y, 0.);
 
-            int width = image.cols / 25;
-            int height = image.rows / 25;
+            int width = tl::numberCast<int>(out_width / 10.);
+            int height = tl::numberCast<int>(out_height / 10.);
 
             for (int i = 0; i < height - 1; ++i) {
                 for (int j = 0; j < width - 1; ++j) {
-                    int x = j * 25;
-                    int y = i * 25;
-                    int w = 25;
-                    int h = 25;
-                    if (image.cols < x + w) w = image.cols - x;
-                    if (image.rows < y + h) h = image.rows - y;
+                    int x = j * 10;
+                    int y = i * 10;
+                    int w = 10;
+                    int h = 10;
+                    if (orthoimage.cols < x + w) w = orthoimage.cols - x;
+                    if (orthoimage.rows < y + h) h = orthoimage.rows - y;
 
                     cv::Rect roi(x, y, w, h);
-                    cv::Mat enu_image = image(roi);
+                    //cv::Mat ortoimage_ = orthoimage(roi);
 
-                    std::vector<cv::Point2f> srcPoints = {
+                    std::vector<cv::Point2f> dst_points = {
                         cv::Point2f(0, 0),
                         cv::Point2f(w, 0),
                         cv::Point2f(w, h),
                         cv::Point2f(0, h)
                     };
 
-                    auto top_left_enu = mGeoreference.transform(tl::Point<double>(x, y));
-                    auto top_right_enu = mGeoreference.transform(tl::Point<double>(x + w, y));
-                    auto bottom_right_enu = mGeoreference.transform(tl::Point<double>(x + w, y + h));
-                    auto bottom_left_enu = mGeoreference.transform(tl::Point<double>(x, y + h));
+                    auto top_left_projected = georeference.transform(tl::Point<double>(x, y));
+                    auto top_right_projected = georeference.transform(tl::Point<double>(x + w, y));
+                    auto bottom_right_projected = georeference.transform(tl::Point<double>(x + w, y + h));
+                    auto bottom_left_projected = georeference.transform(tl::Point<double>(x, y + h));
 
-                    auto top_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(top_left_enu));
-                    auto top_top_right = convertEnuToUTM(static_cast<tl::Point3d>(top_right_enu));
-                    auto bottom_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(bottom_right_enu));
-                    auto bottom_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(bottom_left_enu));
+                    auto top_left_enu = convertProjectedToEnu(static_cast<tl::Point3d>(top_left_projected));
+                    auto top_right_enu = convertProjectedToEnu(static_cast<tl::Point3d>(top_right_projected));
+                    auto bottom_right_enu = convertProjectedToEnu(static_cast<tl::Point3d>(bottom_right_projected));
+                    auto bottom_left_enu = convertProjectedToEnu(static_cast<tl::Point3d>(bottom_left_projected));
+                     
+                    //auto top_left_enu = mGeoreference.transform(tl::Point<double>(x, y));
+                    //auto top_right_enu = mGeoreference.transform(tl::Point<double>(x + w, y));
+                    //auto bottom_right_enu = mGeoreference.transform(tl::Point<double>(x + w, y + h));
+                    //auto bottom_left_enu = mGeoreference.transform(tl::Point<double>(x, y + h));
 
-                    auto georeference_inverse = georeference.inverse();
+                    //auto top_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(top_left_enu));
+                    //auto top_top_right = convertEnuToUTM(static_cast<tl::Point3d>(top_right_enu));
+                    //auto bottom_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(bottom_right_enu));
+                    //auto bottom_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(bottom_left_enu));
 
-                    auto top_left_image = georeference_inverse.transform(static_cast<tl::Point2d>(top_left_utm));
-                    auto top_right_image = georeference_inverse.transform(static_cast<tl::Point2d>(top_top_right));
-                    auto bottom_right_image = georeference_inverse.transform(static_cast<tl::Point2d>(bottom_right_utm));
-                    auto bottom_left_image = georeference_inverse.transform(static_cast<tl::Point2d>(bottom_left_utm));
+                    auto georeference_inverse = mGeoreference.inverse();
+
+                    auto top_left_image = georeference_inverse.transform(static_cast<tl::Point2d>(top_left_enu));
+                    auto top_right_image = georeference_inverse.transform(static_cast<tl::Point2d>(top_right_enu));
+                    auto bottom_right_image = georeference_inverse.transform(static_cast<tl::Point2d>(bottom_right_enu));
+                    auto bottom_left_image = georeference_inverse.transform(static_cast<tl::Point2d>(bottom_left_enu));
              
-                    tl::Window<tl::Point<double>> window_image_utm({top_left_image, 
+                    tl::Window<tl::Point<double>> window_image_enu({top_left_image, 
                                                                     top_right_image,
                                                                     bottom_right_image,
                                                                     bottom_left_image});
 
-                    cv::Point2f ini_utm(window_image_utm.pt1.x, window_image_utm.pt1.y);
+                    /// Cuando no se carga la imagen completa no esta controlado 
 
-                    std::vector<cv::Point2f> dstPoints = {
-                        cv::Point2f(top_left_image.x - ini_utm.x, top_left_image.y - ini_utm.y), 
-                        cv::Point2f(top_right_image.x - ini_utm.x, top_right_image.y - ini_utm.y),
-                        cv::Point2f(bottom_right_image.x - ini_utm.x, bottom_right_image.y - ini_utm.y), 
-                        cv::Point2f(bottom_left_image.x - ini_utm.x, bottom_left_image.y - ini_utm.y)};
+                    if (window_total_enu.containsWindow(window_image_enu)) {
+
+                        auto window_to_read = tl::windowIntersection(window_image_enu, window_total_enu);
+
+                        cv::Point2f ini_enu(window_image_enu.pt1.x, window_image_enu.pt1.y);
+
+                        std::vector<cv::Point2f> src_points = {
+                            cv::Point2f(top_left_image.x - ini_enu.x, top_left_image.y - ini_enu.y),
+                            cv::Point2f(top_right_image.x - ini_enu.x, top_right_image.y - ini_enu.y),
+                            cv::Point2f(bottom_right_image.x - ini_enu.x, bottom_right_image.y - ini_enu.y),
+                            cv::Point2f(bottom_left_image.x - ini_enu.x, bottom_left_image.y - ini_enu.y)};
 
 
+                        
 
-                    cv::Rect roi_utm(tl::numberCast<int>(window_image_utm.pt1.x),
-                                     tl::numberCast<int>(window_image_utm.pt1.y), 
-                                     tl::numberCast<int>(window_image_utm.width()), 
-                                     tl::numberCast<int>(window_image_utm.height()));
+                        cv::Rect roi_enu(tl::numberCast<int>(window_to_read.pt1.x),
+                                         tl::numberCast<int>(window_to_read.pt1.y),
+                                         tl::numberCast<int>(window_to_read.width()),
+                                         tl::numberCast<int>(window_to_read.height()));
 
-                    cv::Mat perspective_transform = cv::getPerspectiveTransform(srcPoints, dstPoints);
-                    cv::warpPerspective(enu_image, orthoimage(roi_utm), perspective_transform, roi_utm.size(), cv::INTER_NEAREST | cv::WARP_INVERSE_MAP, cv::BORDER_TRANSPARENT);
+                        cv::Mat perspective_transform = cv::getPerspectiveTransform(src_points, dst_points);
+                        cv::warpPerspective(image(roi_enu), orthoimage(roi), perspective_transform, roi.size(), cv::INTER_NEAREST | cv::WARP_INVERSE_MAP, cv::BORDER_TRANSPARENT);
+
+                    }
 
                 }
             }
 
         };
-
         cv::Mat orthoimage;
         tl::Affine<double, 2> georeference;
-        convertImageToUTM(mat_ortho, georeference, orthoimage);
+        convertImageFromEnuToProjected(mat_ortho, georeference, orthoimage);
 
         mOrthophotoWriter->create(orthoimage.rows, orthoimage.cols, channels_ortho, data_type_ortho);
         mOrthophotoWriter->setCRS(mCrs.toWktFormat());
