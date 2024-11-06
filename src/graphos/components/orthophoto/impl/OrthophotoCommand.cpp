@@ -47,7 +47,7 @@ OrthophotoCommand::OrthophotoCommand()
 {
     this->addArgument<Path>("prj", 'p', "Project file");
     this->addArgument<double>("gsd", 'g', "Ground sample distance", 0.1);
-    this->addArgument<Path>("dsm", "Digital Surface Model");
+    //this->addArgument<Path>("dsm", "Digital Surface Model");
     this->addArgument<std::string>("crs", "Coordinate Reference System", "");
 
 #ifdef HAVE_CUDA
@@ -84,7 +84,7 @@ bool OrthophotoCommand::run()
 
         tl::Path project_path = this->value<Path>("prj");
         auto gsd =  this->value<double>("gsd");
-        auto dsm =  this->value<Path>("dsm");
+        //auto dsm =  this->value<Path>("dsm");
         auto crs =  this->value<std::string>("crs");
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
@@ -98,6 +98,8 @@ bool OrthophotoCommand::run()
 
         mProject = new ProjectImp;
         mProject->load(project_path);
+
+        auto dsm = mProject->dtm().dsmPath;
 
         tl::Path orthophoto_path(mProject->projectFolder());
         orthophoto_path.append("ortho");

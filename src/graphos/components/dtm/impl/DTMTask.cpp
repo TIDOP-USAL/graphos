@@ -185,6 +185,61 @@ cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin,
     return mat;
 }
 
+/// Para ENU
+cv::Mat extractDTMfromTIN(const DelaunayTriangulation &tin,
+                          const tl::BoundingBoxD &bbox,
+                          const tl::Affine<double, 2> &georeference,
+                          double gsd)
+{
+    tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd), 
+                       tl::roundToInteger(bbox.height()/ gsd));
+    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
+
+    DelaunayTriangulation::Face_handle location;
+
+    double increment = 40. / static_cast<double>(size.height);
+    double progress = 0.;
+
+    for (size_t r = 0; r < static_cast<size_t>(size.height); ++r) {
+
+        //if (status() == Task::Status::stopping) return mat;
+
+        for (size_t c = 0; c < static_cast<size_t>(size.width); ++c) {
+
+            tl::Point3<double> point = georeference.transform(tl::Point<double>(c, r));
+            Point_3 query(point.x, point.y, 0.);
+            //Point_3 query(bbox.pt1.x + static_cast<double>(c) * gsd, bbox.pt1.y + (static_cast<double>(size.height) - static_cast<double>(r)) * gsd, 0.);
+            location = tin.locate(query, location);
+
+            if (!tin.is_infinite(location)) {
+   
+                auto barycentric_coordinates = barycentricCoordinates(location->vertex(0)->point(),
+                                                                      location->vertex(1)->point(),
+                                                                      location->vertex(2)->point(),
+                                                                      query);
+
+                double height_at_query = (barycentric_coordinates[0] * location->vertex(0)->point().z()
+                                        + barycentric_coordinates[1] * location->vertex(1)->point().z()
+                                        + barycentric_coordinates[2] * location->vertex(2)->point().z());
+
+                mat.at<float>(r, c) = static_cast<float>(height_at_query); // Z offset
+            }
+        }
+
+        //if (progressBar) {
+        //    progress += increment;
+        //    int _progress = static_cast<int>(progress);
+        //    if (_progress == 1) {
+        //        (*progressBar)(_progress);
+        //        progress -= _progress;
+        //    }
+
+        //}
+    }
+
+    return mat;
+}
+
 cv::Mat extractDTMfromMesh(SurfaceMesh &mesh, const tl::BoundingBoxD &bbox, tl::Progress *progressBar, double gsd, double zOffset)
 {
 
@@ -254,6 +309,26 @@ cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points,
         tl::Point2i point_image = georeference_inverse.transform(static_cast<tl::Point<double>>(point_utm));
         if (point_image.x >= 0 && point_image.x < size.width && point_image.y >= 0 && point_image.y < size.height)
             mat.at<float>(point_image.y, point_image.x) = std::max(mat.at<float>(point_image.y, point_image.x), static_cast<float>(point_utm.z));
+    }
+
+    return mat;
+}
+
+// Para el mds en coordenadas ENU
+cv::Mat extractDSMfromPointCloud(const CGAL::Point_set_3<Point_3> &points, 
+                                 const tl::BoundingBoxD &bbox, 
+                                 double gsd, 
+                                 const tl::Affine<double, 2> &georeference)
+{
+    tl::Size<int> size(tl::roundToInteger(bbox.width() / gsd),
+                       tl::roundToInteger(bbox.height() / gsd));
+    cv::Mat mat(size.height, size.width, CV_32F, -9999.);
+
+    for (auto &point : points.points()) {
+        tl::Point2d _point(point.x(), point.y());
+        tl::Point2i point_image = georeference.transform(_point);
+        if (point_image.x >= 0 && point_image.x < size.width && point_image.y >= 0 && point_image.y < size.height)
+            mat.at<float>(point_image.y, point_image.x) = std::max(mat.at<float>(point_image.y, point_image.x), static_cast<float>(point.z()));
     }
 
     return mat;
@@ -352,6 +427,42 @@ void DtmTask::execute(tl::Progress *progressBar)
             points.emplace_back(pt4.x, pt4.y);
             //bbox = tl::BoundingBoxD(point_min, point_max);
             window = tl::Window<tl::Point<double>>(points);
+        }
+
+        /// DSM ENU
+        {
+            tl::Affine<double, 2> georeference_enu(mGSD, -mGSD, cgal_bbox.xmin(), cgal_bbox.ymax(), 0.);
+            tl::BoundingBoxD bbox(tl::Point3d(cgal_bbox.xmin(), cgal_bbox.ymin(), cgal_bbox.zmin()),
+                                  tl::Point3d(cgal_bbox.xmax(), cgal_bbox.ymax(), cgal_bbox.zmax()));
+            cv::Mat dsm_raster_enu = extractDSMfromPointCloud(points, bbox, mGSD, georeference_enu.inverse());
+
+            CGAL::Point_set_3<Point_3> points_dsm;
+
+            for (int r = 0; r < dsm_raster_enu.rows; r++) {
+                for (int c = 0; c < dsm_raster_enu.cols; c++) {
+
+                    tl::Point3<double> point = georeference_enu.transform(tl::Point<double>(c, r));
+                    point.z = dsm_raster_enu.at<float>(r, c);
+                    if (point.z == -9999) continue;
+                    auto _point = point;
+                    points_dsm.insert(Point_3(_point.x, _point.y, _point.z));
+                }
+            }
+
+            //if (mDSM) {
+
+                DelaunayTriangulation dtm_clean(points_dsm.points().begin(), points_dsm.points().end());
+                dsm_raster_enu = extractDTMfromTIN(dtm_clean, bbox, georeference_enu, mGSD);
+
+                tl::Path mds_path = mDemPath;
+                mds_path.append("dsm_enu.tif");
+
+                writeDTM(mds_path, dsm_raster_enu, georeference_enu, mCrs);
+
+                dsm_raster_enu.release();
+
+            //}
+
         }
 
 

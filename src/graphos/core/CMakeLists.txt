@@ -66,11 +66,11 @@ add_files_to_project(${PROJECT_NAME}
                          camera/Colmap.cpp
                          camera/Database.cpp
                          camera/Undistort.cpp
-                         ortho/Orthorectification.cpp
+                         #[[ortho/Orthorectification.cpp
                          ortho/ZBuffer.cpp
                          ortho/Footprint.cpp
                          ortho/Orthoimage.cpp
-                         #[[preprocess/clahe.cpp
+                         preprocess/clahe.cpp
                          preprocess/dhe.cpp
                          preprocess/pohe.cpp]]
                      HEADER_FILES
@@ -115,11 +115,11 @@ add_files_to_project(${PROJECT_NAME}
                          camera/Colmap.h
                          camera/Database.h
                          camera/Undistort.h
-                         ortho/Orthorectification.h
+                         #[[ortho/Orthorectification.h
                          ortho/ZBuffer.h
                          ortho/Footprint.h
                          ortho/Orthoimage.h
-                         #[[preprocess/preprocess.h
+                         preprocess/preprocess.h
                          preprocess/clahe.h
                          preprocess/dhe.h
                          preprocess/pohe.h]])

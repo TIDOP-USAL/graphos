@@ -41,11 +41,21 @@ if(BUILD_ORTHOPHOTO_COMPONENT)
                          SOURCE_FILES
                              OrthophotoComponent.cpp
                              impl/OrthophotoTask.cpp
+                             impl/OrthoimageTask.cpp
                              impl/OrthophotoCommand.cpp
+                             impl/Footprint.cpp
+                             impl/Orthoimage.cpp
+                             impl/Orthorectification.cpp
+                             impl/ZBuffer.cpp
                          HEADER_FILES
                              OrthophotoComponent.h
                              impl/OrthophotoTask.h
-                             impl/OrthophotoCommand.h)
+                             impl/OrthoimageTask.h
+                             impl/OrthophotoCommand.h
+                             impl/Footprint.h
+                             impl/Orthoimage.h
+                             impl/Orthorectification.h
+                             impl/ZBuffer.h)
 							 
 if (BUILD_GUI)        
     add_files_to_project(${PROJECT_NAME}

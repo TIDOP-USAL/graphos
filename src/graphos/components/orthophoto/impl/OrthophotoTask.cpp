@@ -24,8 +24,9 @@
 #include "OrthophotoTask.h"
 
 /* GRAPHOS */
-#include "graphos/core/ortho/Orthoimage.h"
+#include "graphos/components/orthophoto/impl/Orthoimage.h"
 #include "graphos/core/image.h"
+#include "graphos/components/orthophoto/impl/OrthoimageTask.h"
 
 /* TidopLib */
 #include <tidop/core/messages.h>
@@ -43,6 +44,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/photo.hpp>
 #include <tidop/geospatial/crstransf.h>
+
 
 namespace graphos
 {
@@ -1529,7 +1531,7 @@ OrthophotoTask::OrthophotoTask(double gsd,
                                bool cuda)
   : tl::TaskBase(),
     mGSD(gsd),
-    //mPhotos(images),
+    mPhotos(images),
     mCameras(cameras),
     mOrthoPath(orthoPath),
     mMdt(mdt),
@@ -1537,30 +1539,30 @@ OrthophotoTask::OrthophotoTask(double gsd,
     mEpsg(epsg),
     bCuda(cuda)
 {
-    // Para hacer una prueba rapida...
-             
-    auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-    auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
-    tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-    auto lla = crs_transfom_geocentric_to_geographic.transform(offset);
-    auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
-    auto ecef_to_enu = std::make_shared<tl::EcefToEnu>(offset, rotation);
-    auto epsg_utm = std::make_shared<tl::Crs>(epsg);
-    tl::CrsTransform crs_transfom(epsg_geocentric, epsg_utm);
+    //// Para hacer una prueba rapida...
+    //         
+    //auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+    //auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+    //tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+    //auto lla = crs_transfom_geocentric_to_geographic.transform(offset);
+    //auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
+    //auto ecef_to_enu = std::make_shared<tl::EcefToEnu>(offset, rotation);
+    //auto epsg_utm = std::make_shared<tl::Crs>(epsg);
+    //tl::CrsTransform crs_transfom(epsg_geocentric, epsg_utm);
 
-    for (const auto &image : images) {
+    //for (const auto &image : images) {
 
-        Image photo(image);
-        auto point_ecef = ecef_to_enu->inverse(image.cameraPose().position());
-        auto point_utm = crs_transfom.transform(point_ecef);
-        CameraPose camera_pose;
-        camera_pose.setRotationMatrix(image.cameraPose().rotationMatrix());
-        camera_pose.setPosition(point_utm);
-        camera_pose.setCrs(QString::fromStdString(mEpsg));
-        photo.setCameraPose(camera_pose);
+    //    Image photo(image);
+    //    auto point_ecef = ecef_to_enu->inverse(image.cameraPose().position());
+    //    auto point_utm = crs_transfom.transform(point_ecef);
+    //    CameraPose camera_pose;
+    //    camera_pose.setRotationMatrix(image.cameraPose().rotationMatrix());
+    //    camera_pose.setPosition(point_utm);
+    //    camera_pose.setCrs(QString::fromStdString(mEpsg));
+    //    photo.setCameraPose(camera_pose);
 
-        mPhotos.push_back(photo);
-    }
+    //    mPhotos.push_back(photo);
+    //}
 }
 
 OrthophotoTask::~OrthophotoTask()
@@ -1714,6 +1716,130 @@ std::vector<std::vector<tl::WindowD>> OrthophotoTask::findGrid2(const tl::Path &
     return grid;
 }
 
+//void transformDTM(const tl::Path &dtm,
+//                  const tl::Path &dtm_out,
+//                  const tl::CrsTransform &transform,
+//                  const tl::EcefToEnu &ecefToEnu) 
+//{
+//
+//    auto reader = tl::ImageReaderFactory::create(dtm);
+//    reader->open();
+//
+//    auto affine = reader->georeference();
+//
+//    tl::Rect<int> rect(tl::Point<int>(), reader->cols(), reader->rows());
+//    cv::Mat mdt_utm = reader->read(rect);
+//    
+//    /// Límites de la imagen en coordenadas UTM
+//    auto top_left = affine.transform(static_cast<tl::Point<double>>(rect.topLeft()));
+//    auto top_right = affine.transform(static_cast<tl::Point<double>>(rect.topRight()));
+//    auto bottom_right = affine.transform(static_cast<tl::Point<double>>(rect.bottomRight()));
+//    auto bottom_left = affine.transform(static_cast<tl::Point<double>>(rect.bottomLeft()));
+//
+//    /// Límites de la imagen en coordenadas ECEF
+//    auto top_left_ecef = transform.transform(top_left);
+//    auto top_right_ecef = transform.transform(top_right);
+//    auto bottom_right_ecef = transform.transform(bottom_right);
+//    auto bottom_left_ecef = transform.transform(bottom_left);
+//
+//    /// Límites de la imagen en coordenadas ENU
+//    auto top_left_enu =  ecefToEnu.direct(top_left_ecef);
+//    auto top_right_enu = ecefToEnu.direct(top_right_ecef);
+//    auto bottom_right_enu = ecefToEnu.direct(bottom_right_ecef);
+//    auto bottom_left_enu = ecefToEnu.direct(bottom_left_ecef);
+//
+//    tl::Window<tl::Point<double>> window_enu({top_left_enu, 
+//                                              top_right_enu,
+//                                              bottom_right_enu,
+//                                              bottom_left_enu});
+//
+//    
+//    tl::Affine<double, 2> georeference(affine.scale().x(), -affine.scale().y(), window_enu.pt1.x, window_enu.pt2.y, 0.);
+//
+//    /// Esto hay que hacerlo mejor para asegurarse que no se comenten errores
+//    int out_width = window_enu.width() / affine.scale().x();
+//    int out_height = window_enu.height() / affine.scale().y();
+//
+//    int width = reader->cols() / 25;
+//    int height = reader->rows() / 25;
+//
+//    cv::Mat mdt_enu = cv::Mat::zeros(out_height, out_width, mdt_utm.type());
+//
+//    for (int i = 0; i < height - 1; ++i) {
+//        for (int j = 0; j < width - 1; ++j) {
+//            // Definir la región de interés (ROI)
+//            int x = j * 25;
+//            int y = i * 25;
+//            int w = 25;
+//            int h = 25;
+//            if (reader->cols() < x + w) w = reader->cols() - x;
+//            if (reader->rows() < y + h) h = reader->rows() - y;
+//
+//            cv::Rect roi(x, y, 25, 25);
+//            cv::Mat mdt_utm_section = mdt_utm(roi);
+//
+//            // Definir puntos de control para el trozo
+//            std::vector<cv::Point2f> srcPoints = {
+//                cv::Point2f(x, y),
+//                cv::Point2f(x + width, y),
+//                cv::Point2f(x + width, y + 25),
+//                cv::Point2f(x, y + 25)
+//            };
+//
+//            /// Límites del trozo en coordenadas UTM
+//            auto top_left = affine.transform(tl::Point<double>(x, y));
+//            auto top_right = affine.transform(tl::Point<double>(x + width, y));
+//            auto bottom_right = affine.transform(tl::Point<double>(x + width, y + height));
+//            auto bottom_left = affine.transform(tl::Point<double>(x + width, y));
+//
+//            /// Límites del trozo en coordenadas ECEF
+//            auto top_left_ecef = transform.transform(top_left);
+//            auto top_right_ecef = transform.transform(top_right);
+//            auto bottom_right_ecef = transform.transform(bottom_right);
+//            auto bottom_left_ecef = transform.transform(bottom_left);
+//
+//            /// Límites del trozo en coordenadas ENU
+//            auto top_left_enu = ecefToEnu.direct(top_left_ecef);
+//            auto top_right_enu = ecefToEnu.direct(top_right_ecef);
+//            auto bottom_right_enu = ecefToEnu.direct(bottom_right_ecef);
+//            auto bottom_left_enu = ecefToEnu.direct(bottom_left_ecef);
+//
+//            //std::vector<cv::Point2f> dstPoints = {
+//            //    cv::Point2f(top_left_enu.x, top_left_enu.y), 
+//            //    cv::Point2f(top_right_enu.x, top_right_enu.y),
+//            //    cv::Point2f(bottom_right_enu.x, bottom_right_enu.y), 
+//            //    cv::Point2f(bottom_left_enu.x, bottom_left_enu.y)};
+//
+//            auto georeference_inverse = georeference.inverse();
+//
+//            auto top_left_image = georeference_inverse.transform(static_cast<tl::Point2d>(top_left_enu));
+//            auto top_right_image = georeference_inverse.transform(static_cast<tl::Point2d>(top_right_enu));
+//            auto bottom_right_image = georeference_inverse.transform(static_cast<tl::Point2d>(bottom_right_enu));
+//            auto bottom_left_image = georeference_inverse.transform(static_cast<tl::Point2d>(bottom_left_enu));
+//             
+//            std::vector<cv::Point2f> dstPoints = {
+//                cv::Point2f(top_left_image.x, top_left_image.y), 
+//                cv::Point2f(top_right_image.x, top_right_image.y),
+//                cv::Point2f(bottom_right_image.x, bottom_right_image.y), 
+//                cv::Point2f(bottom_left_image.x, bottom_left_image.y)};
+//
+//            // Obtener la matriz de transformación y aplicarla al trozo
+//            cv::Mat perspectiveMatrix = cv::getPerspectiveTransform(srcPoints, dstPoints);
+//            cv::warpPerspective(mdt_utm_section, mdt_enu(roi), perspectiveMatrix, roi.size());
+//
+//
+//        }
+//    }
+//
+//    auto writer = tl::ImageWriterFactory::create(dtm_out);
+//    writer->open();
+//    writer->create(mdt_enu.rows, mdt_enu.cols, 1, tl::openCVDataTypeToDataType(mdt_enu.type()));
+//    writer->setGeoreference(georeference);
+//    writer->setNoDataValue(-9999.);
+//    writer->write(mdt_enu);
+//    writer->close();
+//}
+
 void OrthophotoTask::execute(tl::Progress *progressBar)
 {
 
@@ -1724,17 +1850,55 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         tl::Path graph_orthos = tl::Path(footprint_file).replaceBaseName("graph_orthos");
         tl::Crs crs(mEpsg);
 
-        OrthoimageProcess ortho_process(mPhotos,
-                                        mCameras,
-                                        mMdt,
-                                        mOrthoPath,
-                                        graph_orthos,
-                                        crs,
-                                        footprint_file,
-                                        mGSD,
-                                        1./*0.4*/,
-                                        bCuda);
-        ortho_process.run(progressBar);
+        //OrthoimageProcess ortho_process(mPhotos,
+        //                                mCameras,
+        //                                mMdt,
+        //                                mOrthoPath,
+        //                                graph_orthos,
+        //                                crs,
+        //                                footprint_file,
+        //                                mGSD,
+        //                                1./*0.4*/,
+        //                                bCuda);
+        //ortho_process.run(progressBar);
+
+        /// Conversión del DTM a coordenadas ENU para poder trabajar con las orientaciones
+        tl::Point3<double> ecef_center = mOffset;
+
+        auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+        auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+
+        tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+        auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
+        auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
+        tl::EcefToEnu ecef_to_enu(ecef_center, rotation);
+
+        auto epsg_utm = std::make_shared<tl::Crs>(mEpsg);
+        TL_ASSERT(epsg_utm->isProjected(), "Only projected CRS's are allowed");
+
+        auto crs_transfom = std::make_shared<tl::CrsTransform>(epsg_geocentric, epsg_utm);
+
+        tl::Path dsm_path = mMdt;
+        dsm_path.replaceBaseName("dsm_enu");
+        //transformDTM(mMdt, mds_path, crs_transfom_utm_to_geocentric, ecef_to_enu);
+
+
+
+
+        OrthoimageTask orthoimage_task(mPhotos,
+                                       mCameras,
+                                       dsm_path,
+                                       mOrthoPath,
+                                       graph_orthos,
+                                       ecef_to_enu,
+                                       crs_transfom,
+                                       crs,
+                                       footprint_file,
+                                       mGSD,
+                                       1./*0.4*/,
+                                       bCuda);
+
+        orthoimage_task.run(progressBar);
 
         //std::vector<tl::WindowD> grid = findGrid(graph_orthos);
         //std::vector<tl::WindowD> grid = this->findGrid(mMdt, mGSD);
