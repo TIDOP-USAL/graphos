@@ -21,71 +21,28 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_VIEW_H
-#define GRAPHOS_DTM_VIEW_H
+#ifndef GRAPHOS_DEM_PRESENTER_INTERFACE_H
+#define GRAPHOS_DEM_PRESENTER_INTERFACE_H
 
-#include "graphos/components/dtm/DTMView.h"
+#include "graphos/core/task/TaskPresenter.h"
 
-class QGridLayout;
-class QDialogButtonBox;
-class QLabel;
-class QDoubleSpinBox;
-class QCheckBox;
 
 namespace graphos
 {
 
-class DtmViewImp
-  : public DtmView
+class DemPresenter
+  : public TaskPresenter
 {
 
     Q_OBJECT
 
 public:
 
-    DtmViewImp(QWidget *parent = nullptr);
-    ~DtmViewImp() override;
+    DemPresenter() = default;
+    ~DemPresenter() override = default;
 
-// DialogView interface
-
-private:
-
-    void initUI() override;
-    void initSignalAndSlots() override;
-
-public slots:
-
-    void clear() override;
-
-private slots:
-
-    void update() override;
-    void retranslate() override;
-
-// DtmView interface
-
-public:
-
-    auto gsd() const -> double override;
-    auto isMdsEnable() const -> bool override;
-    auto isMdtEnable() const -> bool override;
-
-public slots:
-
-    void setGsd(double gsd) override;
-    void enableMds(bool enable = true) override;
-    void enableMdt(bool enable = true) override;
-
-private:
-
-    QGridLayout *mGridLayoutDtmMethod;
-    QCheckBox *mCheckBoxMDS;
-    QCheckBox *mCheckBoxMDT;
-    QLabel *mLabelGSD;
-    QDoubleSpinBox *mDoubleSpinBoxGSD;
-    QDialogButtonBox *mButtonBox;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_DTM_VIEW_H
+#endif // GRAPHOS_DEM_PRESENTER_INTERFACE_H

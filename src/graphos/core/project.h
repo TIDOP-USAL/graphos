@@ -43,6 +43,7 @@
 #include "graphos/core/sfm/OrientationReport.h"
 #include "graphos/core/dense/dense.h"
 #include "graphos/core/mesh/PoissonRecon.h"
+#include "reports/dem.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -51,8 +52,9 @@ namespace graphos
 {
 class Sift;
 
-struct DTMData
+struct DemData
 {
+    QString epsgCode;
     tl::Path dtmPath;
     tl::Path dsmPath;
     double gsd = 0.1;
@@ -254,17 +256,13 @@ public:
     virtual void setMeshReport(const MeshReport &report) = 0;
     virtual void clearMesh() = 0;
 
-    //virtual std::shared_ptr<Dtm> dtmMethod() const = 0;
-    //virtual void setDtmMethod(const std::shared_ptr<Dtm> &dtm) = 0;
-    //virtual tl::Path dtmPath() const = 0;
-    //virtual void setDtmPath(const tl::Path &dtmPath) = 0;
-    virtual const DTMData &dtm() const = 0;
-    virtual DTMData &dtm() = 0;
-    virtual void setDtm(const DTMData &dtm) = 0;
-    virtual void clearDTM() = 0;
+    virtual const DemData &dem() const = 0;
+    virtual DemData &dem() = 0;
+    virtual void setDem(const DemData &dem) = 0;
+    virtual DemReport demReport() const = 0;
+    virtual void setDemReport(const DemReport &report) = 0;
+    virtual void clearDem() = 0;
 
-    //virtual tl::Path orthophotoPath() const = 0;
-    //virtual void setOrthophotoPath(const tl::Path &orthophotoPath) = 0;
     virtual const OrthophotoData &orthophoto() const = 0;
     virtual OrthophotoData &orthophoto() = 0;
     virtual void setOrthophoto(const OrthophotoData &orthophoto) = 0;
@@ -389,16 +387,13 @@ public:
     void setMeshReport(const MeshReport &report) override;
     void clearMesh() override;
 
-    const DTMData &dtm() const override;
-    DTMData &dtm() override;
-    void setDtm(const DTMData &dtm) override;
-    //void setDtmMethod(const std::shared_ptr<Dtm> &dtm) override;
-    //tl::Path dtmPath() const override;
-    //void setDtmPath(const tl::Path &dtmPath) override;
-    void clearDTM() override;
+    const DemData &dem() const override;
+    DemData &dem() override;
+    void setDem(const DemData &dem) override;
+    DemReport demReport() const override;
+    void setDemReport(const DemReport &report) override;
+    void clearDem() override;
 
-    //tl::Path orthophotoPath() const override;
-    //void setOrthophotoPath(const tl::Path &orthophotoPath) override;
     const OrthophotoData &orthophoto() const override;
     OrthophotoData &orthophoto() override;
     void setOrthophoto(const OrthophotoData &orthophoto) override;
@@ -455,7 +450,8 @@ protected:
     void readMeshModel(QXmlStreamReader &stream);
     void readMeshReport(QXmlStreamReader &stream);
     void readMeshParameters(QXmlStreamReader &stream);
-    void readDtm(QXmlStreamReader &stream);
+    void readDem(QXmlStreamReader &stream);
+    void readDemReport(QXmlStreamReader &stream);
     void readOrthophoto(QXmlStreamReader &stream);
 
     void writeVersion(QXmlStreamWriter &stream) const;
@@ -492,7 +488,8 @@ protected:
     void writeMeshModel(QXmlStreamWriter &stream) const;
     void writeMeshReport(QXmlStreamWriter &stream) const;
     void writeMeshParameters(QXmlStreamWriter &stream) const;
-    void writeDtm(QXmlStreamWriter &stream) const;
+    void writeDem(QXmlStreamWriter &stream) const;
+    void writeDemReport(QXmlStreamWriter &stream) const;
     void writeOrthophoto(QXmlStreamWriter &stream) const;
 
     QSize readSize(QXmlStreamReader &stream) const;
@@ -531,9 +528,8 @@ protected:
     std::shared_ptr<PoissonReconProperties> mMeshProperties;
     tl::Path mMeshModel;
     MeshReport mMeshReport;
-    //std::shared_ptr<Dtm> mDtmMethod;
-    //tl::Path mDTM;
-    DTMData mDTM;
+    DemData mDem;
+    DemReport mDemReport;
     OrthophotoData mOrthophoto;
     static std::mutex sMutex;
     int mCameraCount;

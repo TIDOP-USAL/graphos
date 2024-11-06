@@ -21,41 +21,65 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_COMMAND_H
-#define GRAPHOS_DTM_COMMAND_H
+#ifndef GRAPHOS_DEM_TASK_H
+#define GRAPHOS_DEM_TASK_H
 
-#include "graphos/core/command.h"
+#include <tidop/core/task.h>
+#include <tidop/core/progress.h>
+#include <tidop/geometry/entities/point.h>
+
+#include <QObject>
+
+#include "graphos/core/reports/dem.h"
 
 namespace graphos
 {
 
-class Project;
-
-class DTMCommand
-  : public Command
+class DemTask
+  : public QObject,
+    public tl::TaskBase
 {
+
+    Q_OBJECT
 
 public:
 
-    DTMCommand();
-    ~DTMCommand() override;
+    DemTask(tl::Path pointCloud,
+            tl::Point3<double> offset,
+            tl::Path demPath,
+            double gsd,
+            std::string crs,
+            bool dsm,
+            bool dtm);
 
-//private:
-//
-//    auto offset() const -> std::array<double, 3>;
+    ~DemTask() override = default;
+
+    /*!
+     * \brief Get the DEM report after task execution.
+     *
+     * \return A 'DemReport' containing information about the DEM task.
+     */
+    auto report() const -> DemReport;
+
+// tl::TaskBase interface
+
+protected:
+
+    void execute(tl::Progress *progressBar) override;
 
 private:
 
-// Command
-
-    bool run() override;
-
-private:
-
-    Project *mProject;
+    tl::Path mPointCloud;
+    tl::Point3<double> mOffset;
+    tl::Path mDemPath;
+    double mGsd;
+    std::string mCrs;
+    bool mDsm;
+    bool mDtm;
+    DemReport mDemReport;
 };
 
 
 } // namespace graphos
 
-#endif // GRAPHOS_DTM_COMMAND_H
+#endif // GRAPHOS_DEM_TASK_H

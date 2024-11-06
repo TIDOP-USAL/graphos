@@ -105,9 +105,9 @@ bool CreateProjectCommand::run()
                 if (dense_path.exists())
                     tl::Path::removeDirectory(dense_path);
 
-                tl::Path dtm_path = tl::Path(project_folder_path).append("dtm");
-                if (dtm_path.exists())
-                    tl::Path::removeDirectory(dtm_path);
+                tl::Path dem_path = tl::Path(project_folder_path).append("dem");
+                if (dem_path.exists())
+                    tl::Path::removeDirectory(dem_path);
 
                 tl::Path ortho_path = tl::Path(project_folder_path).append("ortho");
                 if (ortho_path.exists())

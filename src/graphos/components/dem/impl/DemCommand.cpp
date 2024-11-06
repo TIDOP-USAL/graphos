@@ -22,12 +22,12 @@
  ************************************************************************/
 
 
-#include "DTMCommand.h"
+#include "DemCommand.h"
 
 #include "graphos/core/utils.h"
 #include "graphos/core/project.h"
 #include "graphos/core/sfm/posesio.h"
-#include "graphos/components/dtm/impl/DTMTask.h"
+#include "graphos/components/dem/impl/DemTask.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/log.h>
@@ -43,7 +43,7 @@ namespace graphos
 {
 
 
-DTMCommand::DTMCommand()
+DemCommand::DemCommand()
   : Command("dem", "Create DSM and/or DTM"),
     mProject(nullptr)
 {
@@ -58,7 +58,7 @@ DTMCommand::DTMCommand()
     this->setVersion(std::to_string(GRAPHOS_VERSION_MAJOR).append(".").append(std::to_string(GRAPHOS_VERSION_MINOR)));
 }
 
-DTMCommand::~DTMCommand()
+DemCommand::~DemCommand()
 {
     if (mProject) {
         delete mProject;
@@ -66,32 +66,7 @@ DTMCommand::~DTMCommand()
     }
 }
 
-//auto DTMCommand::offset() const -> std::array<double, 3>
-//{
-//    std::array<double, 3> offset{};
-//    offset.fill(0.);
-//
-//    try {
-//
-//        QFile file(QString::fromStdWString(mProject->offset().toWString()));
-//        if (file.open(QFile::ReadOnly | QFile::Text)) {
-//            QTextStream stream(&file);
-//            QString line = stream.readLine();
-//            QStringList reg = line.split(" ");
-//            offset[0] = reg[0].toDouble();
-//            offset[1] = reg[1].toDouble();
-//            offset[2] = reg[2].toDouble();
-//            file.close();
-//        }
-//
-//    } catch (...) {
-//        TL_THROW_EXCEPTION_WITH_NESTED("");
-//    }
-//
-//    return offset;
-//}
-
-bool DTMCommand::run()
+bool DemCommand::run()
 {
     bool r = false;
 
@@ -115,8 +90,8 @@ bool DTMCommand::run()
         mProject = new ProjectImp;
         mProject->load(project_path);
 
-        tl::Path dtm_path(mProject->projectFolder());
-        dtm_path.append("dtm");
+        tl::Path dem_path(mProject->projectFolder());
+        dem_path.append("dem");
 		
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
@@ -137,22 +112,25 @@ bool DTMCommand::run()
             crs.append(std::to_string(zone));
         }
 
-        DtmTask dtm_task(mProject->denseModel(), offset, dtm_path, gsd, crs/*mProject->crs()*/, dsm, dtm);
-        dtm_task.run();
+        DemTask dem_task(mProject->denseModel(), offset, dem_path, gsd, crs, dsm, dtm);
+        dem_task.run();
 
-        tl::Path dsm_file = dtm_path;
+        tl::Path dsm_file = dem_path;
         dsm_file.append("dsm.tif");
         if (dsm && dsm_file.exists()) {
-            mProject->dtm().dsmPath = dsm_file;
+            mProject->dem().dsmPath = dsm_file;
         }
         
         tl::Path dtm_file = dsm_file;
-        dtm_file.replaceBaseName("dtm");
+        dtm_file.replaceBaseName("dem");
         if (dtm && dtm_file.exists()) {
-            mProject->dtm().dtmPath = dtm_file;
+            mProject->dem().dtmPath = dtm_file;
         }
 
-        mProject->dtm().gsd = gsd;
+        mProject->dem().gsd = gsd;
+
+        mProject->setDemReport(dem_task.report());
+
         mProject->save(project_path);
 
     } catch (const std::exception &e) {

@@ -119,6 +119,8 @@ add_files_to_project(${PROJECT_NAME}
                          ortho/ZBuffer.h
                          ortho/Footprint.h
                          ortho/Orthoimage.h
+                         reports/dem.h
+                         reports/orthophoto.h
                          #[[preprocess/preprocess.h
                          preprocess/clahe.h
                          preprocess/dhe.h

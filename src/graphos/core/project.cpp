@@ -506,7 +506,7 @@ void ProjectImp::clearDensification()
     mDenseModel.clear();
     mDenseReport = DenseReport();
     clearMesh();
-    clearDTM();
+    clearDem();
 }
 
 std::shared_ptr<PoissonReconProperties> ProjectImp::meshProperties() const
@@ -545,26 +545,38 @@ void ProjectImp::clearMesh()
     mMeshReport = MeshReport();
 }
 
-const DTMData &ProjectImp::dtm() const
+const DemData &ProjectImp::dem() const
 {
-    return mDTM;
+    return mDem;
 }
 
-DTMData &ProjectImp::dtm()
+DemData &ProjectImp::dem()
 {
-    return mDTM;
+    return mDem;
 }
 
-void ProjectImp::setDtm(const DTMData &dtm)
+void ProjectImp::setDem(const DemData &dem)
 {
-    mDTM = dtm;
+    mDem = dem;
 }
 
-void ProjectImp::clearDTM()
+DemReport ProjectImp::demReport() const
 {
-    mDTM.dsmPath.clear();
-    mDTM.dtmPath.clear();
-    mDTM.gsd = 0.1;
+    return mDemReport;
+}
+
+void ProjectImp::setDemReport(const DemReport& report)
+{
+    mDemReport = report;
+}
+
+void ProjectImp::clearDem()
+{
+    mDem.dsmPath.clear();
+    mDem.dtmPath.clear();
+    mDem.epsgCode.clear();
+    mDem.gsd = 0.1;
+    mDemReport = DemReport();
     clearOrthophoto();
 }
 
@@ -621,7 +633,7 @@ void ProjectImp::clear()
     mDensification.reset();
     clearDensification();
     clearMesh();
-    clearDTM();
+    clearDem();
     clearOrthophoto();
     mCameraCount = 0;
     mTransform = tl::Matrix<double, 4, 4>::identity();
@@ -691,7 +703,7 @@ void ProjectImp::save(const tl::Path &file)
                 writeOrientations(stream);
                 writeDensification(stream);
                 writeMesh(stream);
-                writeDtm(stream);
+                writeDem(stream);
                 writeOrthophoto(stream);
             }
 
@@ -822,8 +834,8 @@ void ProjectImp::read(QXmlStreamReader &stream)
                     readDensification(stream);
                 } else if (stream.name() == "Mesh") {
                     readMesh(stream);
-                } else if (stream.name() == "Dtm") {
-                    readDtm(stream);
+                } else if (stream.name() == "Dem") {
+                    readDem(stream);
                 } else if (stream.name() == "Orthophoto") {
                     readOrthophoto(stream);
                 } else
@@ -1451,15 +1463,31 @@ void ProjectImp::readMeshParameters(QXmlStreamReader &stream)
     setMeshProperties(mesh);
 }
 
-void ProjectImp::readDtm(QXmlStreamReader &stream)
+void ProjectImp::readDem(QXmlStreamReader &stream)
 {
     while (stream.readNextStartElement()) {
         if (stream.name() == "DTMPath") {
-            this->mDTM.dtmPath = stream.readElementText().toStdWString();
+            this->mDem.dtmPath = stream.readElementText().toStdWString();
         } else if (stream.name() == "DSMPath") {
-            this->mDTM.dsmPath = stream.readElementText().toStdWString();
-        }else if (stream.name() == "GSD") {
-            this->mDTM.gsd = stream.readElementText().toDouble();
+            this->mDem.dsmPath = stream.readElementText().toStdWString();
+        } else if (stream.name() == "GSD") {
+            this->mDem.gsd = stream.readElementText().toDouble();
+        } else if (stream.name() == "CRS") {
+            this->mDem.epsgCode = stream.readElementText();
+        } else if (stream.name() == "Report") {
+            this->readDemReport(stream);
+        } else
+            stream.skipCurrentElement();
+    }
+}
+
+void ProjectImp::readDemReport(QXmlStreamReader& stream)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Time") {
+            mDemReport.time = readDouble(stream);
+        } else if (stream.name() == "GSD") {
+            mDemReport.gsd = stream.readElementText().toDouble();
         } else
             stream.skipCurrentElement();
     }
@@ -1945,17 +1973,32 @@ void ProjectImp::writeMeshParameters(QXmlStreamWriter &stream) const
     }
 }
 
-void ProjectImp::writeDtm(QXmlStreamWriter &stream) const
+void ProjectImp::writeDem(QXmlStreamWriter &stream) const
 {
-    if (mDTM.dtmPath.empty() && mDTM.dsmPath.empty()) return;
+    if (mDem.dtmPath.empty() && mDem.dsmPath.empty()) return;
 
-    stream.writeStartElement("Dtm");
+    stream.writeStartElement("Dem");
     {
-        stream.writeTextElement("DTMPath", QString::fromStdWString(mDTM.dtmPath.toWString()));
-        stream.writeTextElement("DSMPath", QString::fromStdWString(mDTM.dsmPath.toWString()));
-        stream.writeTextElement("GSD", QString::number(mDTM.gsd));
+        stream.writeTextElement("DTMPath", QString::fromStdWString(mDem.dtmPath.toWString()));
+        stream.writeTextElement("DSMPath", QString::fromStdWString(mDem.dsmPath.toWString()));
+        stream.writeTextElement("CRS", mDem.epsgCode);
+        stream.writeTextElement("GSD", QString::number(mDem.gsd));
+        this->writeDemReport(stream);
     }
     stream.writeEndElement();
+}
+
+void ProjectImp::writeDemReport(QXmlStreamWriter &stream) const
+{
+    if (!mDemReport.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("Time", QString::number(mDemReport.time, 'f', 10));
+        stream.writeTextElement("GSD", QString::number(mDemReport.gsd, 'f', 10));
+
+        stream.writeEndElement(); // Report
+    }
 }
 
 void ProjectImp::writeOrthophoto(QXmlStreamWriter &stream) const

@@ -21,58 +21,77 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_MODEL_H
-#define GRAPHOS_DTM_MODEL_H
+#ifndef GRAPHOS_DEM_VIEW_H
+#define GRAPHOS_DEM_VIEW_H
 
-#include "graphos/components/dtm/DTMModel.h"
+#include "graphos/components/dem/DemView.h"
+
+class QLineEdit;
+class QGridLayout;
+class QDialogButtonBox;
+class QLabel;
+class QDoubleSpinBox;
+class QCheckBox;
 
 namespace graphos
 {
 
-class Project;
-
-class DtmModelImp
-  : public DtmModel
+class DemViewImp
+  : public DemView
 {
 
-public:
-
-    DtmModelImp(Project *project, QObject *parent = nullptr);
-    ~DtmModelImp() override = default;
-
-// DtmModel interface
+    Q_OBJECT
 
 public:
 
-    auto offset() const -> tl::Point3<double> override;
-    auto projectPath() const -> tl::Path override;
-    auto denseModel() const -> tl::Path override;
-    auto crs() const -> QString override;
-    auto gsd() const -> double override;
-    auto dtmPath() const -> tl::Path override;
-    auto dsmPath() const -> tl::Path override;
+    DemViewImp(QWidget *parent = nullptr);
+    ~DemViewImp() override;
 
-    void setGsd(double gsd) override;
-    void setDtmPath(const tl::Path &dtmPath) override;
-    void setDsmPath(const tl::Path &dsmPath) override;
-
-// Model interface
+// DialogView interface
 
 private:
 
-    void init() override;
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
     void clear() override;
 
-protected:
+private slots:
 
-    Project *mProject;
+    void update() override;
+    void retranslate() override;
 
+// DtmView interface
+
+public:
+
+    auto gsd() const -> double override;
+    auto isDsmEnable() const -> bool override;
+    auto isDtmEnable() const -> bool override;
+    auto crs() const -> QString override;
+
+public slots:
+
+    void setGsd(double gsd) override;
+    void enableDsm(bool enable = true) override;
+    void enableDtm(bool enable = true) override;
+    void setCrs(const QString &crs) override;
+
+private:
+
+    QGridLayout *mGridLayoutDtmMethod;
+    QLabel *mLabelCRS;
+    QLineEdit *mLineEditCRS;
+    QPushButton *mQPushButtonCRS;
+    QCheckBox *mCheckBoxDsm;
+    QCheckBox *mCheckBoxDtm;
+    QLabel *mLabelGSD;
+    QDoubleSpinBox *mDoubleSpinBoxGSD;
+    QDialogButtonBox *mButtonBox;
 };
-
 
 } // namespace graphos
 
-#endif // GRAPHOS_DTM_MODEL_H
+#endif // GRAPHOS_DEM_VIEW_H

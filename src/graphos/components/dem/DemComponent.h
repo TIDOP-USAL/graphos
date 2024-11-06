@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_COMPONENT_H
-#define GRAPHOS_DTM_COMPONENT_H
+#ifndef GRAPHOS_DEM_COMPONENT_H
+#define GRAPHOS_DEM_COMPONENT_H
 
 #include "graphos/core/Component.h"
 
@@ -30,7 +30,7 @@
 namespace graphos
 {
 
-class DTMComponent
+class DemComponent
   : public TaskComponent
 {
 
@@ -38,12 +38,20 @@ class DTMComponent
 
 public:
 
-    DTMComponent(Application *application);
-    ~DTMComponent() override = default;
+    DemComponent(Application *application);
+    ~DemComponent() override = default;
+
+public slots:
+
+    void setCRS(const QString &crs);
 
 private:
 
     void init();
+
+signals:
+
+    void select_crs();
 
 // ComponentBase
 
@@ -69,4 +77,4 @@ protected slots:
 } // namespace graphos
 
 
-#endif // GRAPHOS_DTM_COMPONENT_H
+#endif // GRAPHOS_DEM_COMPONENT_H

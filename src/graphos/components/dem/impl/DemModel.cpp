@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "DTMModel.h"
+#include "DemModel.h"
 
 #include "graphos/core/project.h"
 #include "graphos/core/sfm/posesio.h"
@@ -37,97 +37,90 @@
 namespace graphos
 {
 
-DtmModelImp::DtmModelImp(Project *project, QObject *parent)
-  : DtmModel(parent),
+DemModelImp::DemModelImp(Project *project, QObject *parent)
+  : DemModel(parent),
     mProject(project)
 {
-    DtmModelImp::init();
+    DemModelImp::init();
 }
 
-auto DtmModelImp::projectPath() const -> tl::Path
+auto DemModelImp::projectPath() const -> tl::Path
 {
     return mProject->projectFolder();
 }
 
-auto DtmModelImp::denseModel() const -> tl::Path
+auto DemModelImp::denseModel() const -> tl::Path
 {
     return mProject->denseModel();
 }
 
-auto DtmModelImp::crs() const -> QString
+auto DemModelImp::crs() const -> QString
 {
-    auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-    auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
-    tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-    auto lla = crs_transfom_geocentric_to_geographic.transform(offset());
-    int zone = tl::utmZoneFromLongitude(lla.x);
-    QString epsg_code = "EPSG:326";
-    epsg_code.append(QString::number(zone));
+    QString epsg_code = mProject->dem().epsgCode;
+
+    if (epsg_code.isEmpty()) {
+        auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+        auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+        tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+        auto lla = crs_transfom_geocentric_to_geographic.transform(offset());
+        int zone = tl::utmZoneFromLongitude(lla.x);
+        epsg_code = "EPSG:326";
+        epsg_code.append(QString::number(zone));
+    }
+
     return epsg_code;
-    //return mProject->crs();
 }
 
-auto DtmModelImp::gsd() const -> double
+auto DemModelImp::gsd() const -> double
 {
-    return mProject->dtm().gsd;
+    return mProject->dem().gsd;
 }
 
-void DtmModelImp::setGsd(double gsd)
+void DemModelImp::setGsd(double gsd)
 {
-    mProject->dtm().gsd = gsd;
+    mProject->dem().gsd = gsd;
 }
 
-auto DtmModelImp::dtmPath() const -> tl::Path
+auto DemModelImp::dtmPath() const -> tl::Path
 {
-    return mProject->dtm().dtmPath;
+    return mProject->dem().dtmPath;
 }
 
-auto DtmModelImp::dsmPath() const -> tl::Path
+auto DemModelImp::dsmPath() const -> tl::Path
 {
-    return mProject->dtm().dsmPath;
+    return mProject->dem().dsmPath;
 }
 
-void DtmModelImp::setDtmPath(const tl::Path &dtmPath)
+void DemModelImp::setDtmPath(const tl::Path &dtmPath)
 {
-    mProject->dtm().dtmPath = dtmPath;
+    mProject->dem().dtmPath = dtmPath;
 }
 
-void DtmModelImp::setDsmPath(const tl::Path &dsmPath)
+void DemModelImp::setDsmPath(const tl::Path &dsmPath)
 {
-    mProject->dtm().dsmPath = dsmPath;
+    mProject->dem().dsmPath = dsmPath;
 }
 
-auto DtmModelImp::offset() const -> tl::Point3<double>
+void DemModelImp::setCrs(const QString &crs)
 {
-    //std::array<double, 3> offset{};
-    //offset.fill(0.);
+    mProject->dem().epsgCode = crs;
+}
 
-    //try {
+void DemModelImp::setReport(const DemReport &report)
+{
+    mProject->setDemReport(report);
+}
 
-    //    tl::Path path = mProject->offset();
-    //    QFile file(QString::fromStdWString(path.toWString()));
-    //    if (file.open(QFile::ReadOnly | QFile::Text)) {
-    //        QTextStream stream(&file);
-    //        QString line = stream.readLine();
-    //        QStringList reg = line.split(" ");
-    //        offset[0] = reg[0].toDouble();
-    //        offset[1] = reg[1].toDouble();
-    //        offset[2] = reg[2].toDouble();
-    //        file.close();
-    //    }
-
-    //} catch (...) {
-    //    TL_THROW_EXCEPTION_WITH_NESTED("");
-    //}
-
+auto DemModelImp::offset() const -> tl::Point3<double>
+{
     return offsetRead(mProject->offset());
 }
 
-void DtmModelImp::init()
+void DemModelImp::init()
 {
 }
 
-void DtmModelImp::clear()
+void DemModelImp::clear()
 {
 }
 

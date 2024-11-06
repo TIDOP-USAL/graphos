@@ -21,11 +21,11 @@
  *                                                                      *
  ************************************************************************/
 
-#include "DTMPresenter.h"
+#include "DemPresenter.h"
 
-#include "graphos/components/dtm/DTMView.h"
-#include "graphos/components/dtm/DTMModel.h"
-#include "graphos/components/dtm/impl/DTMTask.h"
+#include "graphos/components/dem/DemView.h"
+#include "graphos/components/dem/DemModel.h"
+#include "graphos/components/dem/impl/DemTask.h"
 #include "graphos/core/task/Progress.h"
 
 #include <tidop/core/msg/message.h>
@@ -37,37 +37,38 @@
 namespace graphos
 {
 
-DtmPresenterImp::DtmPresenterImp(DtmView *view,
-                                 DtmModel *model)
-  : DtmPresenter(),
+DemPresenterImp::DemPresenterImp(DemView *view,
+                                 DemModel *model)
+  : DemPresenter(),
     mView(view),
     mModel(model)
 {
-    DtmPresenterImp::init();
-    DtmPresenterImp::initSignalAndSlots();
+    DemPresenterImp::init();
+    DemPresenterImp::initSignalAndSlots();
 }
 
-void DtmPresenterImp::open()
+void DemPresenterImp::open()
 {
     mView->setGsd(mModel->gsd());
-    mView->enableMds();
+    mView->setCrs(mModel->crs());
+    mView->enableDsm();
 
     mView->exec();
 }
 
-void DtmPresenterImp::init()
+void DemPresenterImp::init()
 {
 }
 
-void DtmPresenterImp::initSignalAndSlots()
+void DemPresenterImp::initSignalAndSlots()
 {
-    connect(mView, &DtmView::run, this, &DtmPresenterImp::run);
+    connect(mView, &DemView::run, this, &DemPresenterImp::run);
     connect(mView, &DialogView::help, [&]() {
         emit help("dtm.html");
     });
 }
 
-void DtmPresenterImp::onError(tl::TaskErrorEvent *event)
+void DemPresenterImp::onError(tl::TaskErrorEvent *event)
 {
     TaskPresenter::onError(event);
 
@@ -76,7 +77,7 @@ void DtmPresenterImp::onError(tl::TaskErrorEvent *event)
     }
 }
 
-void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
+void DemPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 {
     TaskPresenter::onFinished(event);
 
@@ -85,34 +86,44 @@ void DtmPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     }
 
     tl::Path dsm_file = mModel->projectPath();
-    dsm_file.append("dtm").append("dsm.tif");
-    if (mView->isMdsEnable() && dsm_file.exists()) {
+    dsm_file.append("dem").append("dsm.tif");
+    if (mView->isDsmEnable() && dsm_file.exists()) {
         mModel->setDsmPath(dsm_file);
     }
 
     tl::Path dtm_file = dsm_file;
     dtm_file.replaceBaseName("dtm");
-    if (mView->isMdtEnable() && dtm_file.exists()) {
+    if (mView->isDsmEnable() && dtm_file.exists()) {
         mModel->setDtmPath(dtm_file);
     }
 
     mModel->setGsd(mView->gsd());
+    mModel->setCrs(mView->crs());
 }
 
-auto DtmPresenterImp::createTask() -> std::unique_ptr<tl::Task>
+auto DemPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    tl::Path dtm_path = mModel->projectPath();
-    dtm_path.append("dtm");
+    tl::Path dem_path = mModel->projectPath();
+    dem_path.append("dem");
 
-    // El CRS tiene que venir de view. Por ahora se calcula automaticamente en model
-
-    std::unique_ptr<tl::Task> dtm_task = std::make_unique<DtmTask>(mModel->denseModel(),
+    std::unique_ptr<tl::Task> dtm_task = std::make_unique<DemTask>(mModel->denseModel(),
                                                                    mModel->offset(),
-                                                                   dtm_path,
+                                                                   dem_path,
                                                                    mView->gsd(),
-                                                                   mModel->crs().toStdString(),
-                                                                   mView->isMdsEnable(),
-                                                                   mView->isMdtEnable());
+                                                                   mView->crs().toStdString(),
+                                                                   mView->isDsmEnable(),
+                                                                   mView->isDsmEnable());
+
+
+    dtm_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
+
+        auto task = dynamic_cast<DemTask const *>(event->task());
+
+        auto report = task->report();
+        mModel->setReport(report);
+
+    });
+
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 100);
@@ -125,7 +136,7 @@ auto DtmPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     return dtm_task;
 }
 
-void DtmPresenterImp::cancel()
+void DemPresenterImp::cancel()
 {
     TaskPresenter::cancel();
 

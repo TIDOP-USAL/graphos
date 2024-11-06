@@ -125,7 +125,7 @@ target_link_libraries(${PROJECT_NAME}
                       $<$<BOOL:${GRAPHOS_HAVE_CAMERAS}>:Graphos::Cameras>
                       $<$<BOOL:${GRAPHOS_HAVE_CREATE_PROJECT}>:Graphos::CreateProject>
                       $<$<BOOL:${GRAPHOS_HAVE_DENSE}>:Graphos::Dense>
-                      $<$<BOOL:${GRAPHOS_HAVE_DTM}>:Graphos::Dtm>
+                      $<$<BOOL:${GRAPHOS_HAVE_DEM}>:Graphos::Dem>
                       $<$<BOOL:${GRAPHOS_HAVE_FEATEXTRACT}>:Graphos::FeatExtract>
                       $<$<BOOL:${GRAPHOS_HAVE_FEATMATCH}>:Graphos::FeatMatch>
                       $<$<BOOL:${GRAPHOS_HAVE_FEATVIEWER}>:Graphos::FeatViewer>

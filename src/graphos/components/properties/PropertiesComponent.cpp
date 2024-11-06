@@ -76,6 +76,12 @@ void PropertiesComponent::selectMeshModel()
         properties_presenter->selectMeshModel();
 }
 
+void PropertiesComponent::selectDem()
+{
+    if (auto properties_presenter = dynamic_cast<PropertiesPresenter *>(presenter()))
+        properties_presenter->selectDem();
+}
+
 void PropertiesComponent::selectImage(size_t imageId)
 {
     if (auto properties_presenter = dynamic_cast<PropertiesPresenter*>(presenter()))

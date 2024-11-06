@@ -21,29 +21,29 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_PRESENTER_H
-#define GRAPHOS_DTM_PRESENTER_H
+#ifndef GRAPHOS_DEM_PRESENTER_H
+#define GRAPHOS_DEM_PRESENTER_H
 
-#include "graphos/components/dtm/DTMPresenter.h"
+#include "graphos/components/dem/DemPresenter.h"
 
 
 namespace graphos
 {
 
-class DtmView;
-class DtmModel;
+class DemView;
+class DemModel;
 
 
-class DtmPresenterImp
-  : public DtmPresenter
+class DemPresenterImp
+  : public DemPresenter
 {
     Q_OBJECT
 
 public:
 
-    DtmPresenterImp(DtmView *view,
-                    DtmModel *model);
-    ~DtmPresenterImp() override = default;
+    DemPresenterImp(DemView *view,
+                    DemModel *model);
+    ~DemPresenterImp() override = default;
 
 // Presenter interface
 
@@ -70,10 +70,10 @@ public slots:
 
 protected:
 
-    DtmView *mView;
-    DtmModel *mModel;
+    DemView *mView;
+    DemModel *mModel;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_DTM_PRESENTER_H
+#endif // GRAPHOS_DEM_PRESENTER_H

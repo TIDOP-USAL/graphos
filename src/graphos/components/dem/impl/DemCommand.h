@@ -21,28 +21,37 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_PRESENTER_INTERFACE_H
-#define GRAPHOS_DTM_PRESENTER_INTERFACE_H
+#ifndef GRAPHOS_DEM_COMMAND_H
+#define GRAPHOS_DEM_COMMAND_H
 
-#include "graphos/core/task/TaskPresenter.h"
-
+#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-class DtmPresenter
-  : public TaskPresenter
-{
+class Project;
 
-    Q_OBJECT
+class DemCommand
+  : public Command
+{
 
 public:
 
-    DtmPresenter() = default;
-    ~DtmPresenter() override = default;
+    DemCommand();
+    ~DemCommand() override;
 
+private:
+
+// Command
+
+    bool run() override;
+
+private:
+
+    Project *mProject;
 };
+
 
 } // namespace graphos
 
-#endif // GRAPHOS_DTM_PRESENTER_INTERFACE_H
+#endif // GRAPHOS_DEM_COMMAND_H

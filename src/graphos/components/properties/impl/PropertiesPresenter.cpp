@@ -106,6 +106,18 @@ void PropertiesPresenterImp::selectMeshModel()
     }
 }
 
+void PropertiesPresenterImp::selectDem()
+{
+    try {
+
+        auto properties = mModel->dem();
+        mView->setProperties(properties);
+
+    } catch (std::exception& e) {
+        tl::printException(e);
+    }
+}
+
 void PropertiesPresenterImp::setImageActive(size_t imageId)
 {
     try {

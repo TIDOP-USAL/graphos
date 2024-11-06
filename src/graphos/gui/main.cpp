@@ -80,9 +80,9 @@
 #ifdef GRAPHOS_HAVE_UNDISTORT
 #include "graphos/components/undistort/UndistortImagesComponent.h"
 #endif // GRAPHOS_HAVE_UNDISTORT
-#ifdef GRAPHOS_HAVE_DTM
-#include "graphos/components/dtm/DTMComponent.h"
-#endif // GRAPHOS_HAVE_DTM
+#ifdef GRAPHOS_HAVE_DEM
+#include "graphos/components/dem/DemComponent.h"
+#endif // GRAPHOS_HAVE_DEM
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
 #include "graphos/components/orthophoto/OrthophotoComponent.h"
 #endif // GRAPHOS_HAVE_ORTHOPHOTO
@@ -335,9 +335,9 @@ int main(int argc, char *argv[])
     UndistortImagesComponent undistort_component(&app);
 #endif // GRAPHOS_HAVE_UNDISTORT
 
-#ifdef GRAPHOS_HAVE_DTM
-    DTMComponent dtm_component(&app);
-#endif // GRAPHOS_HAVE_DTM
+#ifdef GRAPHOS_HAVE_DEM
+    DemComponent dem_component(&app);
+#endif // GRAPHOS_HAVE_DEM
 
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
     OrthophotoComponent orthophoto_component(&app);
@@ -362,6 +362,11 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_PROPERTIES
     PropertiesComponent properties_component(&app);
 #endif // GRAPHOS_HAVE_PROPERTIES
+
+#ifdef GRAPHOS_HAVE_CRS
+    CoordinateReferenceSystemComponent crs_component(&app);
+#endif // GRAPHOS_HAVE_CRS
+
 
     //TabComponent tab_component(&app);
 
@@ -504,14 +509,14 @@ int main(int argc, char *argv[])
                                             ComponentsManager::Flags::separator_before);
 #   ifdef GRAPHOS_HAVE_CRS
         QObject::connect(&gcps_component, &GroundControlPointsComponent::select_crs, [&]() {
-            CoordinateReferenceSystemComponent crs_component(&app);
             QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
                              &gcps_component, &GroundControlPointsComponent::setCRS);
 
             crs_component.open();
-                //CoordinateReferenceSystemComponent crs_component(&app);
-        });
 
+            QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                                &gcps_component, &GroundControlPointsComponent::setCRS);
+        });
 #   endif // GRAPHOS_HAVE_CRS
 #endif // GRAPHOS_HAVE_GCPS
 
@@ -523,10 +528,25 @@ int main(int argc, char *argv[])
         componentsManager.registerComponent(&floor_level_component);
 #endif // GRAPHOS_HAVE_FLOOR_LEVEL
 
-#ifdef GRAPHOS_HAVE_DTM
-        componentsManager.registerComponent(&dtm_component,
+#ifdef GRAPHOS_HAVE_DEM
+        componentsManager.registerComponent(&dem_component,
                                             ComponentsManager::Flags::separator_before);
-#endif // GRAPHOS_HAVE_DTM
+
+#   ifdef GRAPHOS_HAVE_CRS
+        QObject::connect(&dem_component, &DemComponent::select_crs, [&]() {
+
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+            &dem_component, &DemComponent::setCRS);
+
+        crs_component.open();
+
+        QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+            &dem_component, &DemComponent::setCRS);
+
+            });
+#   endif // GRAPHOS_HAVE_CRS
+
+#endif // GRAPHOS_HAVE_DEM
 
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
         componentsManager.registerComponent(&orthophoto_component,
@@ -649,14 +669,14 @@ int main(int argc, char *argv[])
                          componentsManager.mainWindowPresenter(), SLOT(updateProject()));
 #endif // GRAPHOS_HAVE_MESH
 
-#ifdef GRAPHOS_HAVE_DTM
-        QObject::connect(&dtm_component, SIGNAL(finished()),
+#ifdef GRAPHOS_HAVE_DEM
+        QObject::connect(&dem_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadDTM()));
-        QObject::connect(&dtm_component, SIGNAL(finished()),
+        QObject::connect(&dem_component, SIGNAL(finished()),
                          componentsManager.mainWindowPresenter(), SLOT(loadDSM()));
 #else
 #   undef GRAPHOS_HAVE_ORTHOPHOTO
-#endif // GRAPHOS_HAVE_DTM
+#endif // GRAPHOS_HAVE_DEM
 
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
         QObject::connect(&orthophoto_component, SIGNAL(finished()),
@@ -689,6 +709,8 @@ int main(int argc, char *argv[])
                          &properties_component, &PropertiesComponent::selectDenseModel);
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_mesh_model,
                          &properties_component, &PropertiesComponent::selectMeshModel);
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_dem,
+                         &properties_component, &PropertiesComponent::selectDem);
 #endif // GRAPHOS_HAVE_PROPERTIES
 
 #ifdef GRAPHOS_HAVE_SETTINGS

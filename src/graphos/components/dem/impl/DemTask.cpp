@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "DTMTask.h"
+#include "DemTask.h"
 
 #include <tidop/geospatial/crstransf.h>
 
@@ -279,7 +279,7 @@ void writeDTM(const tl::Path &file, const cv::Mat &mat,
 
 }
 
-DtmTask::DtmTask(tl::Path pointCloud, 
+DemTask::DemTask(tl::Path pointCloud, 
                  tl::Point3<double> offset,
                  tl::Path demPath,
                  double gsd, 
@@ -290,15 +290,20 @@ DtmTask::DtmTask(tl::Path pointCloud,
     mPointCloud(std::move(pointCloud)),
     mOffset(std::move(offset)),
     mDemPath(std::move(demPath)),
-    mGSD(gsd),
+    mGsd(gsd),
     mCrs(std::move(crs)),
-    mDSM(dsm),
-    mDTM(dtm)
+    mDsm(dsm),
+    mDtm(dtm)
 {
 
 }
 
-void DtmTask::execute(tl::Progress *progressBar)
+auto DemTask::report() const -> DemReport
+{
+    return mDemReport;
+}
+
+void DemTask::execute(tl::Progress *progressBar)
 {
 
     try {
@@ -358,7 +363,7 @@ void DtmTask::execute(tl::Progress *progressBar)
         //auto point_ecef = ecef_to_enu.inverse({cgal_bbox.xmin(), cgal_bbox.ymax(), cgal_bbox.zmin()});
         //auto point_utm = crs_transfom.transform(point_ecef);
         //tl::Affine<double, 2> georeference(mGSD, -mGSD, point_utm.x, point_utm.y, 0.);
-        tl::Affine<double, 2> georeference(mGSD, -mGSD, window.pt1.x, window.pt2.y, 0.);
+        tl::Affine<double, 2> georeference(mGsd, -mGsd, window.pt1.x, window.pt2.y, 0.);
 
         //cv::Mat dsm_raster = extractDSMfromPointCloud(points, bbox, georeference, ecef_to_enu, crs_transfom);
         cv::Mat dsm_raster = extractDSMfromPointCloud(points, window, georeference, ecef_to_enu, crs_transfom);
@@ -377,7 +382,7 @@ void DtmTask::execute(tl::Progress *progressBar)
             }
         }
 
-        if (mDSM) {
+        if (mDsm) {
 
             DelaunayTriangulation dtm_clean(points_dsm.points().begin(), points_dsm.points().end());
             dsm_raster = extractDTMfromTIN(dtm_clean, window/*bbox*/, georeference, progressBar);
@@ -393,7 +398,7 @@ void DtmTask::execute(tl::Progress *progressBar)
 
         }
 
-        if (mDTM) {
+        if (mDtm) {
 
             size_t size = points_dsm.points().size();
 
@@ -431,13 +436,15 @@ void DtmTask::execute(tl::Progress *progressBar)
             tl::Message::info("DTM writed at: {}", mdt_path.toString());
         }
 
+        mDemReport.time = this->time();
+        mDemReport.gsd = mGsd;
 
-        tl::Message::success("DTM task finished in {:.2} minutes", this->time() / 60.);
+        tl::Message::success("DEM task finished in {:.2} minutes", mDemReport.time / 60.);
 
         if (progressBar) (*progressBar)(10);
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("DTM tast error");
+        TL_THROW_EXCEPTION_WITH_NESTED("DEM tast error");
     }
 
 }
