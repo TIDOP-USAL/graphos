@@ -21,55 +21,60 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_PROCESS_H
-#define GRAPHOS_DTM_PROCESS_H
+#ifndef GRAPHOS_DEM_MODEL_H
+#define GRAPHOS_DEM_MODEL_H
 
-#include <tidop/core/task.h>
-#include <tidop/core/progress.h>
-#include <tidop/geometry/entities/point.h>
-
-#include <QObject>
+#include "graphos/components/dem/DemModel.h"
 
 namespace graphos
 {
 
-class DtmTask
-  : public QObject,
-    public tl::TaskBase
-{
+class Project;
 
-    Q_OBJECT
+class DemModelImp
+  : public DemModel
+{
 
 public:
 
-    DtmTask(tl::Path pointCloud,
-            tl::Point3<double> offset,
-            tl::Path demPath,
-            double gsd,
-            std::string crs,
-            bool dsm,
-            bool dtm);
+    DemModelImp(Project *project, QObject *parent = nullptr);
+    ~DemModelImp() override = default;
 
-    ~DtmTask() override = default;
+// DtmModel interface
 
-// tl::TaskBase interface
+public:
 
-protected:
+    auto offset() const -> tl::Point3<double> override;
+    auto projectPath() const -> tl::Path override;
+    auto denseModel() const -> tl::Path override;
+    auto crs() const -> QString override;
+    auto gsd() const -> double override;
+    auto dtmPath() const -> tl::Path override;
+    auto dsmPath() const -> tl::Path override;
 
-    void execute(tl::Progress *progressBar) override;
+    void setGsd(double gsd) override;
+    void setDtmPath(const tl::Path &dtmPath) override;
+    void setDsmPath(const tl::Path &dsmPath) override;
+    void setCrs(const QString &crs) override;
+    void setReport(const DemReport &report) override;
+
+// Model interface
 
 private:
 
-    tl::Path mPointCloud;
-    tl::Point3<double> mOffset;
-    tl::Path mDemPath;
-    double mGSD;
-    std::string mCrs;
-    bool mDSM;
-    bool mDTM;
+    void init() override;
+
+public slots:
+
+    void clear() override;
+
+protected:
+
+    Project *mProject;
+
 };
 
 
 } // namespace graphos
 
-#endif // GRAPHOS_DTM_PROCESS_H
+#endif // GRAPHOS_DTM_MODEL_H

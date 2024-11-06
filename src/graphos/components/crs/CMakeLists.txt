@@ -71,6 +71,7 @@ if(BUILD_CRS_COMPONENT AND BUILD_GUI)
                           Eigen3::Eigen
                           glog::glog
                           Ceres::ceres
+                          TidopLib::GeoTools
                           ${GDAL_LIBRARY} 
                           $<$<BOOL:${TL_HAVE_PROJ}>:PROJ::proj>)
 

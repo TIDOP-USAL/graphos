@@ -52,6 +52,7 @@ public:
     virtual auto sparseModel() const -> Properties = 0;
     virtual auto denseModel() const -> Properties = 0;
     virtual auto meshModel() const -> Properties = 0;
+    virtual auto dem() const -> Properties = 0;
     virtual auto exif(size_t imageId) const -> Properties = 0;
     virtual auto parse(const QString& parser, const QString& file) const -> Properties = 0;
     virtual auto parse(const QStringList& parsers, const QStringList& files) const -> Properties = 0;

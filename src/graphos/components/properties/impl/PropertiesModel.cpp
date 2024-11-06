@@ -963,4 +963,24 @@ auto PropertiesModelImp::meshModel() const -> Properties
     return mesh_info;
 }
 
+auto PropertiesModelImp::dem() const -> Properties
+{
+    Properties dem_info;
+
+    auto dem_report = mProject->demReport();
+
+    if (!dem_report.isEmpty()) {
+
+        dem_info["DEM results"].emplace_back(QString("Processig time"), QString::number(dem_report.time / 60., 'g', 2).append(" minutes"));
+        dem_info["DEM parameters"].emplace_back(QString("GSD"), QString::number(dem_report.gsd));
+
+        auto mesh_report = mProject->meshReport();
+        if (!mesh_report.isEmpty()) {
+            
+        }
+    }
+
+    return dem_info;
+}
+
 } // namespace graphos

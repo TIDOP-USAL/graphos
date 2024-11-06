@@ -948,6 +948,9 @@ void MainWindowView::onSelectionChanged()
         emit  select_dense_model();
     } else if (item[0]->data(0, Qt::UserRole) == graphos::mesh) {
         emit select_mesh_model();
+    } else if (item[0]->data(0, Qt::UserRole) == graphos::dsm || 
+               item[0]->data(0, Qt::UserRole) == graphos::dtm) {
+        emit select_dem();
     } else if (item[0]->data(0, Qt::UserRole) == graphos::images) {
 
     } else if (item[0]->data(0, Qt::UserRole) == graphos::image ||

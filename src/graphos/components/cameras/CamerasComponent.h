@@ -30,8 +30,6 @@
 namespace graphos
 {
 
-class DtmProcess;
-
 class CamerasComponent
   : public ComponentBase
 {

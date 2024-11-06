@@ -21,14 +21,14 @@
  *                                                                      *
  ************************************************************************/
 
-#include "DTMComponent.h"
+#include "DemComponent.h"
 
 #ifdef GRAPHOS_GUI
-#include "graphos/components/dtm/impl/DTMModel.h"
-#include "graphos/components/dtm/impl/DTMView.h"
-#include "graphos/components/dtm/impl/DTMPresenter.h"
+#include "graphos/components/dem/impl/DemModel.h"
+#include "graphos/components/dem/impl/DemView.h"
+#include "graphos/components/dem/impl/DemPresenter.h"
 #endif // GRAPHOS_GUI
-#include "graphos/components/dtm/impl/DTMCommand.h"
+#include "graphos/components/dem/impl/DemCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -38,48 +38,51 @@
 namespace graphos
 {
 
-DTMComponent::DTMComponent(Application *application)
+DemComponent::DemComponent(Application *application)
   : TaskComponent(application)
 {
     init();
 }
 
-void DTMComponent::init()
+void DemComponent::init()
 {
-    setName("DTM/DSM");
+    setName("DEM");
     setMenu("tools");
-    setIcon(QIcon::fromTheme("dtm"));
+    setIcon(QIcon::fromTheme("dem"));
     createCommand();
 }
 
-void DTMComponent::createModel()
+void DemComponent::createModel()
 {
 #ifdef GRAPHOS_GUI
-    setModel(new DtmModelImp(app()->project()));
+    setModel(new DemModelImp(app()->project()));
 #endif // GRAPHOS_GUI
 }
 
-void DTMComponent::createView()
+void DemComponent::createView()
 {
 #ifdef GRAPHOS_GUI
-    setView(new DtmViewImp());
+    setView(new DemViewImp());
+
+    connect(dynamic_cast<DemView *>(view()), &DemView::select_crs,
+            this, &DemComponent::select_crs);
 #endif // GRAPHOS_GUI
 }
 
-void DTMComponent::createPresenter()
+void DemComponent::createPresenter()
 {
 #ifdef GRAPHOS_GUI
-    setPresenter(new DtmPresenterImp(dynamic_cast<DtmView *>(view()),
-                                     dynamic_cast<DtmModel *>(model())));
+    setPresenter(new DemPresenterImp(dynamic_cast<DemView *>(view()),
+                                     dynamic_cast<DemModel *>(model())));
 #endif // GRAPHOS_GUI
 }
 
-void DTMComponent::createCommand()
+void DemComponent::createCommand()
 {
-    setCommand(std::make_shared<DTMCommand>());
+    setCommand(std::make_shared<DemCommand>());
 }
 
-void DTMComponent::update()
+void DemComponent::update()
 {
     Application *app = this->app();
     TL_ASSERT(app != nullptr, "Application is null");
@@ -94,12 +97,12 @@ void DTMComponent::update()
     action()->setEnabled(project_exists && absolute_oriented && dense_model && !processing);
 }
 
-void DTMComponent::onRunning()
+void DemComponent::onRunning()
 {
     TaskComponent::onRunning();
 }
 
-void DTMComponent::onFinished()
+void DemComponent::onFinished()
 {
     Application *app = this->app();
     TL_ASSERT(app != nullptr, "Application is null");
@@ -113,7 +116,7 @@ void DTMComponent::onFinished()
     app_status->activeFlag(AppStatus::Flag::dsm, true);
 }
 
-void DTMComponent::onFailed()
+void DemComponent::onFailed()
 {
     Application *app = this->app();
     TL_ASSERT(app != nullptr, "Application is null");
@@ -123,6 +126,14 @@ void DTMComponent::onFailed()
     TaskComponent::onFailed();
     app_status->activeFlag(AppStatus::Flag::dtm, false);
     app_status->activeFlag(AppStatus::Flag::dsm, false);
+}
+
+void DemComponent::setCRS(const QString &crs)
+{
+#ifdef GRAPHOS_GUI
+    if (view())
+        dynamic_cast<DemView *>(view())->setCrs(crs);
+#endif // GRAPHOS_GUI
 }
 
 } // namespace graphos

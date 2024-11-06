@@ -25,9 +25,9 @@ include(TidopUtils)
 include_directories(${CMAKE_SOURCE_DIR}/third_party)
 
 
-if(BUILD_DTM_COMPONENT)
+if(BUILD_DEM_COMPONENT)
 
-    project(Dtm LANGUAGES CXX)
+    project(Dem LANGUAGES CXX)
     
     
     # Find includes in corresponding build directories
@@ -41,27 +41,27 @@ if(BUILD_DTM_COMPONENT)
 
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
-                             DTMComponent.cpp
-                             impl/DTMTask.cpp
-                             impl/DTMCommand.cpp
+                             DemComponent.cpp
+                             impl/DemTask.cpp
+                             impl/DemCommand.cpp
                          HEADER_FILES
-                             DTMComponent.h
-                             impl/DTMTask.h
-                             impl/DTMCommand.h)
+                             DemComponent.h
+                             impl/DemTask.h
+                             impl/DemCommand.h)
 
 if (BUILD_GUI)        
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
-                             impl/DTMModel.cpp
-                             impl/DTMView.cpp
-                             impl/DTMPresenter.cpp
+                             impl/DemModel.cpp
+                             impl/DemView.cpp
+                             impl/DemPresenter.cpp
                          HEADER_FILES
-                             DTMModel.h
-                             DTMView.h
-                             DTMPresenter.h
-                             impl/DTMModel.h
-                             impl/DTMView.h
-                             impl/DTMPresenter.h)
+                             DemModel.h
+                             DemView.h
+                             DemPresenter.h
+                             impl/DemModel.h
+                             impl/DemView.h
+                             impl/DemPresenter.h)
 endif(BUILD_GUI)
 
     add_library(${PROJECT_NAME} ${LIB_TYPE}
@@ -89,17 +89,17 @@ endif(BUILD_GUI)
             ARCHIVE DESTINATION lib)
                         
     install(DIRECTORY .
-            DESTINATION include/graphos/components/dtm
+            DESTINATION include/graphos/components/dem
             FILES_MATCHING PATTERN "*.h"
             PATTERN "impl" EXCLUDE)
 
         
-    set(GRAPHOS_HAVE_DTM YES CACHE INTERNAL "")
+    set(GRAPHOS_HAVE_DEM YES CACHE INTERNAL "")
     
-    message(STATUS "  Graphos::Dtm enabled")
+    message(STATUS "  Graphos::Dem enabled")
     
 else()
 
-    message(STATUS "  Graphos::Dtm disabled")
+    message(STATUS "  Graphos::Dem disabled")
     
-endif(BUILD_DTM_COMPONENT)
+endif(BUILD_DEM_COMPONENT)

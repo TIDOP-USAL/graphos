@@ -27,6 +27,8 @@
 
 #include "graphos/components/crs/CoordinateReferenceSystemView.h"
 
+#include <tidop/GeoTools/GeoToolsDefinitions.h>
+
 #include <proj.h>
 
 class QDialogButtonBox;
@@ -38,20 +40,19 @@ class QTextEdit;
 class QCheckBox;
 class QComboBox;
 
-
 namespace graphos
 {
 
-struct CRSInfo 
-{
-    QString auth_name;
-    QString name;
-    QString code;
-    QString type;
-    QString area_name;
-    QString projection_method_name;
-    bool deprecated;
-};
+//struct CRSInfo 
+//{
+//    QString auth_name;
+//    QString name;
+//    QString code;
+//    QString type;
+//    QString area_name;
+//    QString projection_method_name;
+//    bool deprecated;
+//};
 
 class CoordinateReferenceSystemViewImp
   : public CoordinateReferenceSystemView
@@ -66,13 +67,16 @@ public:
 
 private slots:
 
-    void filterSRS();
-    void showSRSDetails();
+    void filterCRS();
+    void filterVerticalCRS();
+    void showCRSDetails();
+    void showVerticalCRSDetails();
 
 private:
 
-    void loadSRS();
-    QString pjTypeToString(PJ_TYPE type);
+    void loadCRS();
+    void loadVerticalCRS();
+    //QString pjTypeToString(PJ_TYPE type);
 
 // DialogView
 
@@ -86,21 +90,24 @@ public slots:
     void clear();
 
 private slots:
-
+    void apply();
     void update();
     void retranslate();
 
 protected:
 
-    QLabel *mLabelSearch;
-    QLineEdit *searchBar;
-    QTreeWidget *srsTree; 
-    QCheckBox *showDeprecatedCheckBox;
-    QStringList srsEntries;
+    QLabel *mLabel2d3dCRS;
+    QLineEdit *mLineEditCRS;
+    QLineEdit* mLineEditVerticalCRS;
+    QTreeWidget *mCRSTree;
+    QTreeWidget* mVerticalCRSTree;
+    QCheckBox *mCheckBoxVerticalCRS;
     QDialogButtonBox *mButtonBox;
-    QTextEdit *srsDetails;
-    QList<CRSInfo> crsInfoList;
-  
+    QTextEdit *mTextEdidCRSDetails;
+    QTextEdit* mTextEdidVerticalCRSDetails;
+    //QList<CRSInfo> crsInfoList;
+    std::map<std::string, tl::CRSInfo> mCRSsInfo;
+    std::map<std::string, tl::CRSInfo> mVerticalCRSsInfo;
 };
 
 } // namespace graphos

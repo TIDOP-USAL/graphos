@@ -193,12 +193,12 @@ tl::Path MainWindowModel::mesh() const
 
 tl::Path MainWindowModel::dtm() const
 {
-    return mProject->dtm().dtmPath;
+    return mProject->dem().dtmPath;
 }
 
 tl::Path MainWindowModel::dsm() const
 {
-    return mProject->dtm().dsmPath;
+    return mProject->dem().dsmPath;
 }
 
 tl::Path MainWindowModel::orthophoto() const

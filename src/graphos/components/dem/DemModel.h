@@ -21,37 +21,39 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_MODEL_INTERFACE_H
-#define GRAPHOS_DTM_MODEL_INTERFACE_H
+#ifndef GRAPHOS_DEM_MODEL_INTERFACE_H
+#define GRAPHOS_DEM_MODEL_INTERFACE_H
 
 #include "graphos/core/mvp.h"
 
 #include <tidop/core/path.h>
 #include <tidop/geometry/entities/point.h>
 
+#include "impl/DemTask.h"
+
 namespace graphos
 {
 
 
 /*!
- * \brief The DtmModel class provides an interface for accessing Digital Terrain Model (DTM) data.
+ * \brief The DemModel class provides an interface for accessing Digital elevation Model (DEM) data.
  */
-class DtmModel
+class DemModel
   : public Model
 {
 
 public:
 
     /*!
-     * \brief Constructor for DtmModel.
+     * \brief Constructor for DemModel.
      * \param[in] parent The parent QObject (default is nullptr).
      */
-    DtmModel(QObject *parent = nullptr) : Model(parent) {}
+    DemModel(QObject *parent = nullptr) : Model(parent) {}
 
     /*!
-     * \brief Destructor for DtmModel.
+     * \brief Destructor for DemModel.
      */
-    ~DtmModel() override = default;
+    ~DemModel() override = default;
 
     /*!
      * \brief Retrieves the offset values.
@@ -112,8 +114,12 @@ public:
      * \param[in] dsmPath The path to the DSM file.
      */
     virtual void setDsmPath(const tl::Path &dsmPath) = 0;
+
+    virtual void setCrs(const QString &crs) = 0;
+    virtual void setReport(const DemReport &report) = 0;
+
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_DTM_MODEL_INTERFACE_H
+#endif // GRAPHOS_DEM_MODEL_INTERFACE_H

@@ -157,7 +157,7 @@ void OrthophotoModelImp::setOrthoPath(const tl::Path &orthoPath)
 
 auto OrthophotoModelImp::dtmPath() const -> tl::Path
 {
-    return mProject->dtm().dsmPath;
+    return mProject->dem().dsmPath;
 }
 
 auto OrthophotoModelImp::epsCode() const -> QString

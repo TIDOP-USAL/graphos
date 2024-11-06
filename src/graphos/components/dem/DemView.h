@@ -21,8 +21,8 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_DTM_VIEW_INTERFACE_H
-#define GRAPHOS_DTM_VIEW_INTERFACE_H
+#ifndef GRAPHOS_DEM_VIEW_INTERFACE_H
+#define GRAPHOS_DEM_VIEW_INTERFACE_H
 
 #include "graphos/core/mvp.h"
 
@@ -32,9 +32,9 @@ namespace graphos
 
 
 /*!
- * \brief The DtmView class represents the view for Digital Terrain Model (DTM) tasks.
+ * \brief The DemView class represents the view for Digital elevation Model (DEM) tasks.
  */
-class DtmView
+class DemView
   : public DialogView
 {
 
@@ -46,12 +46,12 @@ public:
      * \brief Constructor for DtmView.
      * \param[in] parent The parent QWidget (default is nullptr).
      */
-    DtmView(QWidget *parent = nullptr) : DialogView(parent) {}
+    DemView(QWidget *parent = nullptr) : DialogView(parent) {}
 
     /*!
      * \brief Destructor for DtmView.
      */
-    ~DtmView() override = default;
+    ~DemView() override = default;
 
     /*!
      * \brief gsd Retrieves the Ground Sample Distance (GSD).
@@ -60,16 +60,18 @@ public:
     virtual auto gsd() const -> double = 0;
 
     /*!
-     * \brief isMdsEnable Checks if the Minimum Data Sheet (MDS) is enabled.
+     * \brief isDsmEnable Checks if the Digital Surface Model (DSM) is enabled.
      * \return True if the MDS is enabled, otherwise false.
      */
-    virtual auto isMdsEnable() const -> bool = 0;
+    virtual auto isDsmEnable() const -> bool = 0;
 
     /*!
-     * \brief isMdtEnable Checks if the Minimum Digital Terrain (MDT) is enabled.
-     * \return True if the MDT is enabled, otherwise false.
+     * \brief isDtmEnable Checks if the Digital Terrain Model (DTM) is enabled.
+     * \return True if the DTM is enabled, otherwise false.
      */
-    virtual auto isMdtEnable() const -> bool = 0;
+    virtual auto isDtmEnable() const -> bool = 0;
+
+    virtual auto crs() const -> QString = 0;
 
 signals:
 
@@ -77,6 +79,9 @@ signals:
      * \brief run Signal emitted to start the DTM task.
      */
     void run();
+
+    void crs_change();
+    void select_crs();
 
 public slots:
 
@@ -87,19 +92,20 @@ public slots:
     virtual void setGsd(double gsd) = 0;
 
     /*!
-     * \brief enableMds Enables or disables the Minimum Data Sheet (MDS).
+     * \brief enableDsm Enables or disables the Digital Surface Model (DSM).
      * \param[in] enable True to enable, false to disable (default is true).
      */
-    virtual void enableMds(bool enable = true) = 0;
+    virtual void enableDsm(bool enable = true) = 0;
 
     /*!
-     * \brief enableMdt Enables or disables the Minimum Digital Terrain (MDT).
+     * \brief enableDtm Enables or disables the Digital Terrain Model (DTM).
      * \param[in] enable True to enable, false to disable (default is true).
      */
-    virtual void enableMdt(bool enable = true) = 0;
+    virtual void enableDtm(bool enable = true) = 0;
 
+    virtual void setCrs(const QString &crs) = 0;
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_DTM_VIEW_INTERFACE_H
+#endif // GRAPHOS_DEM_VIEW_INTERFACE_H
