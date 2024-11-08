@@ -444,7 +444,7 @@ void DemTask::execute(tl::Progress *progressBar)
         if (progressBar) (*progressBar)(10);
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("DEM tast error");
+        TL_THROW_EXCEPTION_WITH_NESTED("DEM task error");
     }
 
 }

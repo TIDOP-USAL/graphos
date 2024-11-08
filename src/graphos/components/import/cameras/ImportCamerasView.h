@@ -43,6 +43,7 @@ public:
     ~ImportCamerasView() override = default;
 
     virtual auto delimiter() const -> QString = 0;
+    virtual auto crs() const->QString = 0;
 
 public slots:
 
@@ -64,9 +65,10 @@ public slots:
     virtual void setPitchColumn(const QString &pitchColumn) = 0;
     virtual void setRollColumn(const QString &rollColumn) = 0;
     virtual void setParseOk(bool parseOk) = 0;
-    virtual void setValidInputCRS(bool valid) = 0;
-    virtual void setValidOutputCRS(bool valid) = 0;
-    virtual void setOutputCRS(const QString &crs) = 0;
+    //virtual void setValidInputCRS(bool valid) = 0;
+    //virtual void setValidOutputCRS(bool valid) = 0;
+    //virtual void setOutputCRS(const QString &crs) = 0;
+    virtual void setCrs(const QString &crs) = 0;
 
 signals:
 
@@ -91,7 +93,10 @@ signals:
     void pitchFieldChange(int);
     void rollFieldChange(int);
     void crsInputChanged(QString);
-    void crsOutputChanged(QString);
+    //void crsOutputChanged(QString);
+    void crs_change();
+    void select_crs();
+
 };
 
 } // namespace graphos

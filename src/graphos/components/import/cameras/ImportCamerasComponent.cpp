@@ -46,6 +46,14 @@ ImportCamerasComponent::~ImportCamerasComponent()
 {
 }
 
+void ImportCamerasComponent::setCrs(const QString& crs)
+{
+#ifdef GRAPHOS_GUI
+    if (view())
+        dynamic_cast<ImportCamerasView *>(view())->setCrs(crs);
+#endif // GRAPHOS_GUI
+}
+
 void ImportCamerasComponent::onImportedCameras()
 {
     Application *app = this->app();
@@ -64,6 +72,9 @@ void ImportCamerasComponent::createModel()
 void ImportCamerasComponent::createView()
 {
     setView(new ImportCamerasViewImp());
+
+    connect(dynamic_cast<ImportCamerasView *>(view()), &ImportCamerasView::select_crs,
+            this, &ImportCamerasComponent::select_crs);
 }
 
 void ImportCamerasComponent::createPresenter()

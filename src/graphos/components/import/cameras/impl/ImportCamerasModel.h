@@ -50,8 +50,8 @@ public:
 
     auto itemModelCSV() -> QStandardItemModel* override;
     auto itemModelFormatCameras() -> QStandardItemModel* override;
-    auto checkCRS(const QString& crs) -> bool override;
-    auto outputCRS() const -> QString override;
+    //auto checkCRS(const QString& crs) -> bool override;
+    //auto outputCRS() const -> QString override;
 
 public slots:
 
@@ -78,8 +78,7 @@ public slots:
     void setOmegaFieldId(int id) override;
     void setPhiFieldId(int id) override;
     void setKappaFieldId(int id) override;
-    void setInputCRS(const QString &crs) override;
-    void setOutputCRS(const QString &crs) override;
+    void setCrs(const QString &crs) override;
     void importCameras() override;
 
 // Model interface
@@ -99,8 +98,7 @@ protected:
     bool bFieldNamesFromFirstRow;
     QString mDelimiter;
     int mIniLine;
-    QString mInputCrs;
-    QString mOutputCrs;
+    QString mCrs;
     QString mRotationType;
     std::map<QString, int> mFieldIds;
     QStandardItemModel *mItemModelCSV;

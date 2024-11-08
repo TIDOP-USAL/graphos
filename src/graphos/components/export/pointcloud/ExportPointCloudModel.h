@@ -52,10 +52,6 @@ public:
     virtual auto crs() const -> QString = 0;
     virtual auto pointCloudSize() const -> size_t = 0;
 
-public slots:
-
-    //virtual void exportPointCloud(const tl::Path &exportPath) = 0;
-
 };
 
 } // namespace graphos

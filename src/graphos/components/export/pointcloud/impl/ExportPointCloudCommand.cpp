@@ -47,7 +47,12 @@ ExportPointCloudCommand::ExportPointCloudCommand()
 {
     this->addArgument<Path>("prj", 'p', "Project file");
     this->addArgument<Path>("file", 'f', "Export file");
-    this->addArgument<std::string>("crs", "CRS of the point cloud (default: CRS of the project )", "");
+    auto ply_format = Argument::make<std::string>("ply:format", "PLY format", "binary");
+    ply_format->setValidator(ValuesValidator<std::string>::create({"binary", "text"}));
+    this->addArgument(ply_format);
+    this->addOption("ply:colors", "Export point cloud colors", true);
+    this->addOption("ply:normals", "Export point cloud normals", true);
+    this->addArgument<std::string>("crs", "CRS of the point cloud", "");
 
     this->addExample("export_point_cloud -p 253/253.xml --file point_cloud.ply");
 
@@ -69,6 +74,9 @@ bool ExportPointCloudCommand::run()
         auto project_path = this->value<Path>("prj");
         auto file =  this->value<Path>("file");
         auto crs = this->value<std::string>("crs");
+        auto ply_format = this->value<std::string>("ply:format");
+        auto colors = this->value<bool>("ply:colors");
+        auto normals = this->value<bool>("ply:normals");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
@@ -83,9 +91,15 @@ bool ExportPointCloudCommand::run()
         ExportPointCloudTask export_point_cloud_task(project.denseModel(),
                                                      offsetRead(project.offset()),
                                                      file,
-                                                     crs.empty() ? project.crs().toStdString() : crs);
+                                                     crs.empty() ? project.crs().toStdString() : crs,
+                                                     ply_format == "binary",
+                                                     colors, 
+                                                     normals);
 
-        export_point_cloud_task.run();
+        size_t size = static_cast<size_t>(project.denseReport().points / 80.) * 20 + project.denseReport().points;
+
+        ProgressBarColor progress(0, size);
+        export_point_cloud_task.run(&progress);
 
     } catch (const std::exception &e) {
 

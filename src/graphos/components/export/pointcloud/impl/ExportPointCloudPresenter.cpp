@@ -26,12 +26,14 @@
 #include "graphos/components/export/pointcloud/ExportPointCloudModel.h"
 #include "graphos/components/export/pointcloud/ExportPointCloudView.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudTask.h"
+#include "graphos/widgets/PlyFormatWidget.h"
 #include "graphos/core/task/Progress.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QStandardPaths>
 
 namespace graphos
 {
@@ -68,10 +70,18 @@ void ExportPointCloudPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
 
 auto ExportPointCloudPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
-    std::unique_ptr<tl::Task> export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mModel->pointCloud(),
-                                                                                               mModel->offset(),
-                                                                                               mExportFile.toStdString(),
-                                                                                               mModel->crs().toStdString());
+    std::unique_ptr<tl::Task> export_point_cloud_task;
+
+    if (mPlyFormatWidget && mPlyFormatWidget->windowTitle() == mView->format()) {
+        export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mModel->pointCloud(),
+                                                                         mModel->offset(),
+                                                                         mExportFile.toStdString(),
+                                                                         mModel->crs().toStdString(),
+                                                                         mPlyFormatWidget->format() == PlyFormatWidget::Format::binary,
+                                                                         mPlyFormatWidget->isExportColorsEnabled(),
+                                                                         mPlyFormatWidget->isExportNormalsEnabled());
+    }
+
 
     if (progressHandler()) {
         progressHandler()->setRange(0, mModel->pointCloudSize()+11);
@@ -92,16 +102,44 @@ void ExportPointCloudPresenterImp::cancel()
 
 void ExportPointCloudPresenterImp::open()
 {
-    mView->setGraphosProjectsPath(QString::fromStdWString(mModel->graphosProjectsDirectory().toWString()));
+    QString filters;
+    if (mPlyFormatWidget) {
+        filters.append("PLY (*.ply)");
+    }
+
+    QString selected_filter;
+    mExportFile = QFileDialog::getSaveFileName(nullptr,
+                                               tr("Export Point Cloud"),
+                                               QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+                                               filters,
+                                               &selected_filter);
+
+    if (!mExportFile.isEmpty()) {
+
+        if (selected_filter.compare("PLY (*.ply)") == 0) {
+            mView->setFormat(mPlyFormatWidget->windowTitle());
+        } else {
+            tl::Message::error("Unsupported format");
+        }
+    }
+
+
+    mView->setCrs(mModel->crs());
+
     mView->exec();
 }
 
-void ExportPointCloudPresenterImp::exportPointCloud(const QString &file)
+void ExportPointCloudPresenterImp::setPlyFormatWidget(const std::shared_ptr<PlyFormatWidget> &plyFormatWidget)
 {
-    if (file.isEmpty() == false) {
-        mExportFile = file;
-        emit run();
-    }
+    mPlyFormatWidget = plyFormatWidget;
+
+    mView->addFormat(mPlyFormatWidget.get());
+    mView->setFormat(mPlyFormatWidget->windowTitle());
+}
+
+void ExportPointCloudPresenterImp::setFormat(const QString &format)
+{
+    mView->setFormat(format);
 }
 
 void ExportPointCloudPresenterImp::init()
@@ -110,7 +148,11 @@ void ExportPointCloudPresenterImp::init()
 
 void ExportPointCloudPresenterImp::initSignalAndSlots()
 {
-    connect(mView, &ExportPointCloudView::fileSelected, this, &ExportPointCloudPresenterImp::exportPointCloud);
+    connect(mView, &ExportPointCloudView::run, this, &ExportPointCloudPresenterImp::run);
+
+    connect(mView, &DialogView::help, [&]() {
+        emit help("export_point_cloud.html");
+        });
 }
 
 } // namespace graphos

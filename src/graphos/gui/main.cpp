@@ -439,6 +439,19 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
         componentsManager.registerComponent(&import_cameras_component);
+
+#   ifdef GRAPHOS_HAVE_CRS
+        QObject::connect(&import_cameras_component, &ImportCamerasComponent::select_crs, [&]() {
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                             &import_cameras_component, &ImportCamerasComponent::setCrs);
+
+        crs_component.open();
+
+            QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                                &import_cameras_component, &ImportCamerasComponent::setCrs);
+            });
+#   endif // GRAPHOS_HAVE_CRS
+
 #endif // GRAPHOS_HAVE_IMPORT_CAMERAS
 
 #ifdef GRAPHOS_HAVE_CAMERAS
@@ -455,6 +468,17 @@ int main(int argc, char *argv[])
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::export_point_cloud,
                          export_point_cloud_component.action(), &QAction::trigger);
 
+#   ifdef GRAPHOS_HAVE_CRS
+        QObject::connect(&export_point_cloud_component, &ExportPointCloudComponent::select_crs, [&]() {
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+            &export_point_cloud_component, &ExportPointCloudComponent::setCrs);
+
+        crs_component.open();
+
+        QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+            &export_point_cloud_component, &ExportPointCloudComponent::setCrs);
+            });
+#   endif // GRAPHOS_HAVE_CRS
 #endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
         
 #ifdef GRAPHOS_HAVE_EXPORT_MESH
@@ -536,12 +560,12 @@ int main(int argc, char *argv[])
         QObject::connect(&dem_component, &DemComponent::select_crs, [&]() {
 
             QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-            &dem_component, &DemComponent::setCRS);
+            &dem_component, &DemComponent::setCrs);
 
         crs_component.open();
 
         QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-            &dem_component, &DemComponent::setCRS);
+            &dem_component, &DemComponent::setCrs);
 
             });
 #   endif // GRAPHOS_HAVE_CRS

@@ -48,9 +48,13 @@ public:
 
 // ExportPointCloudPresenter interface
 
+public:
+
+    void setPlyFormatWidget(const std::shared_ptr<PlyFormatWidget> &plyFormatWidget) override;
+
 public slots:
 
-    void exportPointCloud(const QString &file) override;
+    void setFormat(const QString &format) override;
 
 // Presenter interface
 
@@ -79,6 +83,7 @@ private:
 
     ExportPointCloudView *mView;
     ExportPointCloudModel *mModel;
+    std::shared_ptr<PlyFormatWidget> mPlyFormatWidget;
     AppStatus *mAppStatus;
     QString mExportFile;
 };

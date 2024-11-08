@@ -47,10 +47,10 @@ namespace graphos
 DensificationPresenterImp::DensificationPresenterImp(DensificationView *view,
                                                      DensificationModel *model)
   : mView(view),
-    mModel(model),
+    mModel(model)/*,
     mCmvsPmvs(new CmvsPmvsWidget),
     mSmvs(new SmvsWidget),
-    mMVS(new MvsWidget)
+    mMVS(new MvsWidget)*/
 {
     DensificationPresenterImp::init();
     DensificationPresenterImp::initSignalAndSlots();
@@ -108,7 +108,7 @@ void DensificationPresenterImp::configureCmvsPmvsProperties() const
         TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
     }
 
-    if (cmvs_pmvs) {
+    if (cmvs_pmvs && mCmvsPmvs) {
         mCmvsPmvs->setLevel(cmvs_pmvs->level());
         mCmvsPmvs->setCellSize(cmvs_pmvs->cellSize());
         mCmvsPmvs->setThreshold(cmvs_pmvs->threshold());
@@ -130,7 +130,7 @@ void DensificationPresenterImp::configureSmvsProperties() const
         TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
     }
 
-    if (smvs) {
+    if (smvs && mSmvs) {
         mSmvs->setInputImageScale(smvs->inputImageScale());
         mSmvs->setOutputDepthScale(smvs->outputDepthScale());
         mSmvs->setSemiGlobalMatching(smvs->semiGlobalMatching());
@@ -150,7 +150,7 @@ void DensificationPresenterImp::configureMvsProperties() const
         TL_TODO("std::shared_ptr<Densification> densification = mSettingsModel->densification();")
     }
 
-    if (mvs) {
+    if (mvs && mMVS) {
         mMVS->setQuality(mvs->resolutionLevel());
         //mMVS->setResolutionLevel(mvs->resolutionLevel());
         //mMVS->setMinResolution(mvs->minResolution());

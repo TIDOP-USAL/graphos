@@ -38,12 +38,18 @@ namespace graphos
 ExportPointCloudTask::ExportPointCloudTask(tl::Path pointCloud,
                                            tl::Point3<double> offset,
                                            tl::Path exportPointCloud,
-                                           std::string crs)
+                                           std::string crs,
+                                           bool bynary,
+                                           bool colors,
+                                           bool normals)
   : tl::TaskBase(),
     mPointCloud(std::move(pointCloud)),
     mOffset(std::move(offset)),
     mExportPointCloud(std::move(exportPointCloud)),
-    mCrs(std::move(crs))
+    mCrs(std::move(crs)),
+    mBynary(bynary),
+    mColors(colors),
+    mNormals(normals)
 {
 
 }
@@ -68,26 +74,27 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
         auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
         std::shared_ptr<tl::EcefToEnu> ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);
 
-        auto epsg_utm = std::make_shared<tl::Crs>(mCrs);
-        tl::CrsTransform crs_transfom(epsg_geocentric, epsg_utm);
+        auto epsg_out = std::make_shared<tl::Crs>(mCrs);
+        tl::CrsTransform crs_transfom(epsg_geocentric, epsg_out);
 
         Ply ply_reader(mPointCloud, Ply::OpenMode::in);
         size_t size = ply_reader.size();
         ply_reader.read();
 
-        if (progressBar) (*progressBar)(10);
+        
+        if (progressBar) (*progressBar)(static_cast<size_t>(size / 80.) * 10);
 
         Ply ply;
         ply.open(mExportPointCloud, Ply::OpenMode::out);
         ply.setProperty("x", PlyProperty::ply_double);
         ply.setProperty("y", PlyProperty::ply_double);
         ply.setProperty("z", PlyProperty::ply_double);
-        if (ply_reader.hasColors()) {
+        if (ply_reader.hasColors() && mColors) {
             ply.setProperty("red", PlyProperty::ply_int);
             ply.setProperty("green", PlyProperty::ply_int);
             ply.setProperty("blue", PlyProperty::ply_int);
         }
-        if (ply_reader.hasNormals()) {
+        if (ply_reader.hasNormals() && mNormals) {
             ply.setProperty("nx", PlyProperty::ply_float);
             ply.setProperty("ny", PlyProperty::ply_float);
             ply.setProperty("nz", PlyProperty::ply_float);
@@ -97,27 +104,27 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
 
             auto point = ply_reader.point<double>(i);
             auto point_ecef = ecef_to_enu->inverse(point);
-            auto point_utm = crs_transfom.transform(point_ecef);
-            ply.addPoint<double>(point_utm);
-            if (ply_reader.hasColors())
+            auto point_projected = crs_transfom.transform(point_ecef);
+            ply.addPoint<double>(point_projected);
+            if (ply_reader.hasColors() && mColors)
                 ply.addColor(ply_reader.color(i));
-            if (ply_reader.hasNormals())
+            if (ply_reader.hasNormals() && mNormals)
                 ply.addNormals<float>(ply_reader.normals<float>(i));
 
             if (progressBar) (*progressBar)();
         }
 
-        ply.save(true);
+        ply.save(mBynary);
 
         ply_reader.close();
         ply.close();
 
         tl::Message::success("Point cloud export finished in {:.2} minutes", this->time() / 60.);
 
-        if (progressBar) (*progressBar)();
+        if (progressBar) (*progressBar)(static_cast<size_t>(static_cast<double>(size) / 80.) * 10);
 
     } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("DTM tast error");
+        TL_THROW_EXCEPTION_WITH_NESTED("Export point cloud task error");
     }
 
 }

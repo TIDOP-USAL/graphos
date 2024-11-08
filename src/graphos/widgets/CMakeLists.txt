@@ -43,6 +43,7 @@ add_files_to_project(${PROJECT_NAME}
                          NvmFormatWidget.cpp
                          BundlerFormatWidget.cpp
                          MveFormatWidget.cpp
+                         PlyFormatWidget.cpp
                          PointCloudCSVFormatWidget.cpp
                          OriTxtFormatWidget.cpp
                          GraphicItem.cpp
@@ -68,6 +69,7 @@ add_files_to_project(${PROJECT_NAME}
                          NvmFormatWidget.h
                          BundlerFormatWidget.h
                          MveFormatWidget.h
+                         PlyFormatWidget.h
                          PointCloudCSVFormatWidget.h
                          OriTxtFormatWidget.h
                          GraphicItem.h

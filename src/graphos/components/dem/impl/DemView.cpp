@@ -59,17 +59,16 @@ void DemViewImp::initUI()
 
     auto grid_layout = new QGridLayout();
     this->setLayout(grid_layout);
-    mLabelCRS = new QLabel(this);
 
+    mLabelCRS = new QLabel(this);
     grid_layout->addWidget(mLabelCRS, 0, 0, 1, 1);
     mLineEditCRS = new QLineEdit(this);
-    mLineEditCRS->setMaximumWidth(200);
     mLineEditCRS->setDisabled(true);
     grid_layout->addWidget(mLineEditCRS, 0, 1, 1, 1);
-    mQPushButtonCRS = new QPushButton(this);
-    mQPushButtonCRS->setMaximumSize(QSize(31, 28));
-    mQPushButtonCRS->setText("...");
-    grid_layout->addWidget(mQPushButtonCRS, 0, 2, 1, 1);
+    mPushButtonCRS = new QPushButton(this);
+    mPushButtonCRS->setMaximumSize(QSize(31, 28));
+    mPushButtonCRS->setText("...");
+    grid_layout->addWidget(mPushButtonCRS, 0, 2, 1, 1);
 
     mCheckBoxDsm = new QCheckBox(this);
     grid_layout->addWidget(mCheckBoxDsm, 1, 0, 1, 2);
@@ -97,7 +96,7 @@ void DemViewImp::initSignalAndSlots()
 {
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &DemViewImp::crs_change);
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &DemViewImp::update);
-    connect(mQPushButtonCRS, &QAbstractButton::clicked, this, &DemViewImp::select_crs);
+    connect(mPushButtonCRS, &QAbstractButton::clicked, this, &DemViewImp::select_crs);
     connect(mCheckBoxDsm, &QCheckBox::stateChanged, this, &DemViewImp::update);
     connect(mCheckBoxDtm, &QCheckBox::stateChanged, this, &DemViewImp::update);
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -122,7 +121,7 @@ void DemViewImp::update()
 void DemViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("DemView", "DEM"));
-    mLabelCRS->setText(QCoreApplication::translate("DemView", "Coordinate Reference System:"));
+    mLabelCRS->setText(QCoreApplication::translate("DemView", "CRS"));
     mCheckBoxDsm->setText(QApplication::translate("DemView", "DSM"));
     mCheckBoxDtm->setText(QApplication::translate("DemView", "DTM"));
     mLabelGSD->setText(QApplication::translate("DemView", "Ground sampling distance (GSD):"));

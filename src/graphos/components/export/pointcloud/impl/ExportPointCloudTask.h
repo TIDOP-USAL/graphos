@@ -45,7 +45,10 @@ public:
     ExportPointCloudTask(tl::Path pointCloud,
                          tl::Point3<double> offset,
                          tl::Path exportPointCloud,
-                         std::string crs);
+                         std::string crs,
+                         bool bynary,
+                         bool colors,
+                         bool normals);
 
     ~ExportPointCloudTask() override = default;
 
@@ -61,6 +64,10 @@ private:
     tl::Point3<double> mOffset;
     tl::Path mExportPointCloud;
     std::string mCrs;
+    bool mBynary;
+    bool mColors;
+    bool mNormals;
+
 };
 
 

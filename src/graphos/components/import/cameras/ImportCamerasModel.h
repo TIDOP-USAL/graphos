@@ -44,8 +44,8 @@ public:
 
     virtual auto itemModelCSV() -> QStandardItemModel* = 0;
     virtual auto itemModelFormatCameras() -> QStandardItemModel* = 0;
-    virtual auto checkCRS(const QString& crs) -> bool = 0;
-    virtual auto outputCRS() const -> QString = 0;
+    //virtual auto checkCRS(const QString& crs) -> bool = 0;
+    //virtual auto outputCRS() const -> QString = 0;
 
 public slots:
 
@@ -72,8 +72,7 @@ public slots:
     virtual void setOmegaFieldId(int id) = 0;
     virtual void setPhiFieldId(int id) = 0;
     virtual void setKappaFieldId(int id) = 0;
-    virtual void setInputCRS(const QString &crs) = 0;
-    virtual void setOutputCRS(const QString &crs) = 0;
+    virtual void setCrs(const QString &crs) = 0;
     virtual void importCameras() = 0;
 
 signals:

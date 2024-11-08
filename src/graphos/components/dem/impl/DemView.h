@@ -84,7 +84,7 @@ private:
     QGridLayout *mGridLayoutDtmMethod;
     QLabel *mLabelCRS;
     QLineEdit *mLineEditCRS;
-    QPushButton *mQPushButtonCRS;
+    QPushButton *mPushButtonCRS;
     QCheckBox *mCheckBoxDsm;
     QCheckBox *mCheckBoxDtm;
     QLabel *mLabelGSD;

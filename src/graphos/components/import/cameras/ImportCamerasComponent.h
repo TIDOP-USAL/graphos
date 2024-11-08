@@ -41,12 +41,17 @@ public:
     ImportCamerasComponent(Application *application);
     ~ImportCamerasComponent() override;
 
+public slots:
+
+    void setCrs(const QString &crs);
+
 private slots:
 
     void onImportedCameras();
 
 signals:
 
+    void select_crs();
 
 // ComponentBase
 

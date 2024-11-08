@@ -330,7 +330,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
             if (mGPS || mRTK) {
 
-                tl::Message::info("Transformación de semejanza como primera aproximación utilizando las posiciones de las cámaras");
+                //tl::Message::info("Transformación de semejanza como primera aproximación utilizando las posiciones de las cámaras");
 
                 for (const auto &image : mImages) {
 
@@ -626,7 +626,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 for (const colmap::image_t image_id : reg_image_ids) {
                     ba_config.AddImage(image_id);
                     if (mRTK){
-                        ba_config.setCamPositionRTK(image_id);
+                        //ba_config.setCamPositionRTK(image_id);
+                        ba_config.setCamPositionError(image_id, 100.);
                     } else if (mGPS){
                         ba_config.setCamPositionGPS(image_id);
                     }

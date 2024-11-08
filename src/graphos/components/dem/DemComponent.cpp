@@ -128,7 +128,7 @@ void DemComponent::onFailed()
     app_status->activeFlag(AppStatus::Flag::dsm, false);
 }
 
-void DemComponent::setCRS(const QString &crs)
+void DemComponent::setCrs(const QString &crs)
 {
 #ifdef GRAPHOS_GUI
     if (view())

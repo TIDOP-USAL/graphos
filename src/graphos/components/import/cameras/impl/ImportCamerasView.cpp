@@ -79,6 +79,11 @@ QString ImportCamerasViewImp::delimiter() const
     return delimiter;
 }
 
+auto ImportCamerasViewImp::crs() const -> QString
+{
+    return mLineEditCRS->text();
+}
+
 void ImportCamerasViewImp::initUI()
 {
     this->setObjectName(QStringLiteral("ExportOrientationsView"));
@@ -155,13 +160,13 @@ void ImportCamerasViewImp::initUI()
 
     mLabelCrs = new QLabel(this);
     gridLayoutCoordinates->addWidget(mLabelCrs, 1, 0, 1, 1);
-    mLineEditCrsInput = new QLineEdit(this);
-    gridLayoutCoordinates->addWidget(mLineEditCrsInput, 1, 1, 1, 1);
-
-    mLabelCrsOut = new QLabel(this);
-    gridLayoutCoordinates->addWidget(mLabelCrsOut, 1, 2, 1, 1);
-    mLineEditCrsOutput = new QLineEdit(this);
-    gridLayoutCoordinates->addWidget(mLineEditCrsOutput, 1, 3, 1, 1);
+    mLineEditCRS = new QLineEdit(this);
+    mLineEditCRS->setDisabled(true);
+    gridLayoutCoordinates->addWidget(mLineEditCRS, 1, 1, 1, 1);
+    mQPushButtonCRS = new QPushButton(this);
+    mQPushButtonCRS->setMaximumSize(QSize(31, 28));
+    mQPushButtonCRS->setText("...");
+    gridLayoutCoordinates->addWidget(mQPushButtonCRS, 1, 2, 1, 1);
 
     gridLayoutColumns->addWidget(mGroupBoxCoordinates, 1, 0, 1, 3);
 
@@ -344,8 +349,9 @@ void ImportCamerasViewImp::initSignalAndSlots()
     connect(mComboBoxKappaColumn, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ImportCamerasView::kappaFieldChange);
     connect(mComboBoxRotation, QOverload<int>::of(&QComboBox::currentIndexChanged), mStackedWidget, &QStackedWidget::setCurrentIndex);
     connect(mComboBoxRotation, &QComboBox::currentTextChanged, this, &ImportCamerasView::rotationChange);
-    connect(mLineEditCrsInput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsInputChanged);
-    connect(mLineEditCrsOutput, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crsOutputChanged);
+    connect(mLineEditCRS, &QLineEdit::textChanged, this, &ImportCamerasViewImp::crs_change);
+    connect(mLineEditCRS, &QLineEdit::textChanged, this, &ImportCamerasViewImp::update);
+    connect(mQPushButtonCRS, &QAbstractButton::clicked, this, &ImportCamerasViewImp::select_crs);
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
     connect(mButtonBox->button(QDialogButtonBox::Help), &QAbstractButton::clicked, this, &DialogView::help);
@@ -369,8 +375,7 @@ void ImportCamerasViewImp::clear()
     QSignalBlocker blocker15(mComboBoxPhiColumn);
     QSignalBlocker blocker16(mComboBoxKappaColumn);
     QSignalBlocker blocker17(mLineEditOther);
-    QSignalBlocker blocker18(mLineEditCrsInput);
-    QSignalBlocker blocker19(mLineEditCrsOutput);
+    QSignalBlocker blocker18(mLineEditCRS);
 
     mRadioButtonComma->setChecked(true);
     mCheckBoxFieldNamesAuto->setChecked(true);
@@ -390,12 +395,8 @@ void ImportCamerasViewImp::clear()
     mComboBoxPhiColumn->clear();
     mComboBoxKappaColumn->clear();
     mLineEditOther->clear();
-    mLineEditCrsInput->clear();
-    mLineEditCrsOutput->clear();
-    mLineEditCrsOutput->setEnabled(true);
+    mLineEditCRS->clear();
     mParseOk = false;
-    mValidCrsIn = false;
-    mValidCrsOut = false;
 
     update();
 }
@@ -404,8 +405,11 @@ void ImportCamerasViewImp::update()
 {
     mLineEditOther->setEnabled(mRadioButtonOther->isChecked());
 
-    mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(((mValidCrsIn && mValidCrsOut) ||
-                                                         (mLineEditCrsInput->text().isEmpty() && mLineEditCrsOutput->text().isEmpty())));
+    mButtonBox->button(QDialogButtonBox::Ok)->setEnabled(!mLineEditCRS->text().isEmpty() && 
+                                                         mComboBoxImageColumn->currentText() != "--" && 
+                                                         mComboBoxXColumn->currentText() != "--" && 
+                                                         mComboBoxYColumn->currentText() != "--" && 
+                                                         mComboBoxZColumn->currentText() != "--");
 }
 
 void ImportCamerasViewImp::retranslate()
@@ -425,8 +429,7 @@ void ImportCamerasViewImp::retranslate()
     mLabelYColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Y:", nullptr));
     mLabelXColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "X:", nullptr));
     mLabelZColumn->setText(QCoreApplication::translate("ImportCamerasViewImp", "Z:", nullptr));
-    mLabelCrs->setText(QCoreApplication::translate("ImportCamerasViewImp", "CRS Input:", nullptr));
-    mLabelCrsOut->setText(QCoreApplication::translate("ImportCamerasViewImp", "CRS Output:", nullptr));
+    mLabelCrs->setText(QCoreApplication::translate("ImportCamerasViewImp", "CRS:", nullptr));
     mGroupBoxRotations->setTitle(QCoreApplication::translate("ImportCamerasViewImp", "Rotations", nullptr));
     mLabelRotation->setText(QCoreApplication::translate("ImportCamerasViewImp", "Rotation", nullptr));
     mComboBoxRotation->setItemText(0, QCoreApplication::translate("ImportCamerasViewImp", "Quaternions", nullptr));
@@ -600,27 +603,32 @@ void ImportCamerasViewImp::setParseOk(bool parseOk)
     update();
 }
 
-void ImportCamerasViewImp::setValidInputCRS(bool valid)
+void ImportCamerasViewImp::setCrs(const QString& crs)
 {
-    mValidCrsIn = valid;
-    update();
+    mLineEditCRS->setText(crs);
 }
 
-void ImportCamerasViewImp::setValidOutputCRS(bool valid)
-{
-    mValidCrsOut = valid;
-    update();
-}
-
-void ImportCamerasViewImp::setOutputCRS(const QString &crs)
-{
-    if (!crs.isEmpty()) {
-        QSignalBlocker blocker(mLineEditCrsOutput);
-        mLineEditCrsOutput->setText(crs);
-        mLineEditCrsOutput->setEnabled(false); // CRS de proyecto. No editable
-        mValidCrsOut = true;
-    } else mValidCrsOut = false;
-}
+//void ImportCamerasViewImp::setValidInputCRS(bool valid)
+//{
+//    mValidCrsIn = valid;
+//    update();
+//}
+//
+//void ImportCamerasViewImp::setValidOutputCRS(bool valid)
+//{
+//    mValidCrsOut = valid;
+//    update();
+//}
+//
+//void ImportCamerasViewImp::setOutputCRS(const QString &crs)
+//{
+//    if (!crs.isEmpty()) {
+//        QSignalBlocker blocker(mLineEditCrsOutput);
+//        mLineEditCrsOutput->setText(crs);
+//        mLineEditCrsOutput->setEnabled(false); // CRS de proyecto. No editable
+//        mValidCrsOut = true;
+//    } else mValidCrsOut = false;
+//}
 
 } // namespace graphos
 

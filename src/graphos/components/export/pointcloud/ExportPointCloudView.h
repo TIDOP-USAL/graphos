@@ -35,16 +35,27 @@ namespace graphos
  * \brief ExportPointCloudView interface
  */
 class ExportPointCloudView
-  : public QFileDialog
+  : public DialogView
 {
     Q_OBJECT
 
 public:
 
-    ExportPointCloudView(QWidget *parent) : QFileDialog(parent) {}
+    ExportPointCloudView(QWidget *parent) : DialogView(parent) {}
     ~ExportPointCloudView() override = default;
 
-    virtual void setGraphosProjectsPath(const QString &directory) = 0;
+    virtual auto format() -> QString = 0;
+    virtual void addFormat(QWidget *format) = 0;
+    virtual void setFormat(const QString &format) = 0;
+
+    virtual auto crs() const -> QString = 0;
+    virtual void setCrs(const QString &crs) = 0;
+
+signals:
+
+    void crs_change();
+    void select_crs();
+    void run();
 
 };
 

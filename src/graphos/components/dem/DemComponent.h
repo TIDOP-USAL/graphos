@@ -43,7 +43,7 @@ public:
 
 public slots:
 
-    void setCRS(const QString &crs);
+    void setCrs(const QString &crs);
 
 private:
 
