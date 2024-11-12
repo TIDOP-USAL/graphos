@@ -74,8 +74,8 @@ auto ExportPointCloudPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
     if (mPlyFormatWidget && mPlyFormatWidget->windowTitle() == mView->format()) {
         export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mModel->pointCloud(),
-                                                                         mModel->offset(),
                                                                          mExportFile.toStdString(),
+                                                                         mModel->enuCrs().toStdString(),
                                                                          mModel->crs().toStdString(),
                                                                          mPlyFormatWidget->format() == PlyFormatWidget::Format::binary,
                                                                          mPlyFormatWidget->isExportColorsEnabled(),

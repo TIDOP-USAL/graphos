@@ -48,7 +48,7 @@ public:
 
     virtual auto graphosProjectsDirectory() const -> tl::Path = 0;
     virtual auto pointCloud() const -> tl::Path = 0;
-    virtual auto offset() const -> tl::Point3<double> = 0;
+    virtual auto enuCrs() const -> QString = 0;
     virtual auto crs() const -> QString = 0;
     virtual auto pointCloudSize() const -> size_t = 0;
 

@@ -47,7 +47,7 @@ public:
 
     auto calibratedCamera() const -> bool override;
     void setSparseModel(const tl::Path &sparseModel) override;
-    void setOffset(const tl::Path &offset) override;
+    void setEnuCrs(const QString &enuCrs) override;
     void setGroundPoints(const tl::Path &groundPoints) override;
     auto isPhotoOriented(size_t imageId) const -> bool override;
     auto photoOrientation(size_t imageId) const -> CameraPose override;

@@ -171,12 +171,6 @@ bool ImageLoaderCommand::run()
                         image.setCameraId(id_camera);
                         project.addImage(image);
 
-                        QString crs_proj = project.crs();
-                        QString crs_image = image.cameraPose().crs();
-                        if (crs_proj.isEmpty() && !crs_image.isEmpty()) {
-                            project.setCrs(crs_image);
-                        }
-
                     });
 
             tl::ProgressBarColor progress(0, images.size());

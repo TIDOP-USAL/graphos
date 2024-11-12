@@ -168,7 +168,7 @@ tl::Path MainWindowModel::sparseModel() const
 
 bool MainWindowModel::isAbsoluteOrientation() const
 {
-    return !mProject->offset().empty();
+    return !mProject->enuCrs().isEmpty();
 }
 
 const std::unordered_map<size_t, CameraPose> &MainWindowModel::poses() const

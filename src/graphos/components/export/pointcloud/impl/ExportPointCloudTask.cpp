@@ -24,6 +24,8 @@
 #include "ExportPointCloudTask.h"
 
 #include <tidop/geospatial/crstransf.h>
+#include <tidop/GeoTools/CRSsTools.h>
+#include <tidop/GeoTools/GeoTools.h>
 
 #include "graphos/core/ply.h"
 #include "graphos/core/sfm/posesio.h"
@@ -36,17 +38,17 @@ namespace graphos
 
 
 ExportPointCloudTask::ExportPointCloudTask(tl::Path pointCloud,
-                                           tl::Point3<double> offset,
                                            tl::Path exportPointCloud,
-                                           std::string crs,
+                                           std::string crsEnu,
+                                           std::string crsOut,
                                            bool bynary,
                                            bool colors,
                                            bool normals)
   : tl::TaskBase(),
     mPointCloud(std::move(pointCloud)),
-    mOffset(std::move(offset)),
     mExportPointCloud(std::move(exportPointCloud)),
-    mCrs(std::move(crs)),
+    mCrsEnu(std::move(crsEnu)),
+    mCrs(std::move(crsOut)),
     mBynary(bynary),
     mColors(colors),
     mNormals(normals)
@@ -64,18 +66,18 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
 
         mExportPointCloud.parentPath().createDirectories();
 
-        tl::Point3<double> ecef_center = mOffset;
+        //tl::Point3<double> ecef_center = mOffset;
 
-        auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-        auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+        //auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+        //auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
 
-        tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-        auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
-        auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
-        std::shared_ptr<tl::EcefToEnu> ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);
+        //tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+        //auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
+        //auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
+        //std::shared_ptr<tl::EcefToEnu> ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);
 
-        auto epsg_out = std::make_shared<tl::Crs>(mCrs);
-        tl::CrsTransform crs_transfom(epsg_geocentric, epsg_out);
+        //auto epsg_out = std::make_shared<tl::Crs>(mCrs);
+        //tl::CrsTransform crs_transfom(epsg_geocentric, epsg_out);
 
         Ply ply_reader(mPointCloud, Ply::OpenMode::in);
         size_t size = ply_reader.size();
@@ -100,12 +102,15 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
             ply.setProperty("nz", PlyProperty::ply_float);
         }
 
+        tl::GeoTools *ptrGeoTools = tl::GeoTools::getInstance();
+
         for (size_t i = 0; i < size; i++) {
 
             auto point = ply_reader.point<double>(i);
-            auto point_ecef = ecef_to_enu->inverse(point);
-            auto point_projected = crs_transfom.transform(point_ecef);
-            ply.addPoint<double>(point_projected);
+            //auto point_ecef = ecef_to_enu->inverse(point);
+            //auto point_projected = crs_transfom.transform(point_ecef);
+            ptrGeoTools->ptrCRSsTools()->crsOperation(mCrsEnu, mCrs, point.x, point.y, point.z);
+            ply.addPoint<double>(point);
             if (ply_reader.hasColors() && mColors)
                 ply.addColor(ply_reader.color(i));
             if (ply_reader.hasNormals() && mNormals)

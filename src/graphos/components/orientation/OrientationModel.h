@@ -52,7 +52,7 @@ public:
 
     virtual auto calibratedCamera() const -> bool = 0;
     virtual void setSparseModel(const tl::Path &sparseModel) = 0;
-    virtual void setOffset(const tl::Path &offset) = 0;
+    virtual void setEnuCrs(const QString &enuCrs) = 0;
     virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
     virtual auto isPhotoOriented(size_t imageId) const -> bool = 0;
     virtual auto photoOrientation(size_t imageId) const -> CameraPose = 0;

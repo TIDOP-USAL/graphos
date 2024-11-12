@@ -78,7 +78,7 @@ public:
     virtual auto projectPath() const -> tl::Path = 0;
     virtual auto reconstructionPath() const -> tl::Path = 0;
     virtual void setSparseModel(const tl::Path &sparseModel) = 0;
-    virtual void setOffset(const tl::Path &offset) = 0;
+    virtual void setEnuCrs(const QString &enuCrs) = 0;
     virtual void addPhotoOrientation(size_t imageId, const CameraPose &orientation) = 0;
     virtual auto poses() const -> const CameraPoses & = 0;
     virtual auto cameras() const -> const Cameras & = 0;

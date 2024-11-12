@@ -381,9 +381,9 @@ void GroundControlPointsModelImp::setSparseModel(const tl::Path &sparseModel)
     mProject->setSparseModel(sparseModel);
 }
 
-void GroundControlPointsModelImp::setOffset(const tl::Path &offset)
+void GroundControlPointsModelImp::setEnuCrs(const QString &enuCrs)
 {
-    mProject->setOffset(offset);
+    mProject->setEnuCrs(enuCrs);
 }
 
 void GroundControlPointsModelImp::addPhotoOrientation(size_t imageId,
@@ -482,8 +482,6 @@ void GroundControlPointsModelImp::save()
 
         file.close();
     }
-
-    mProject->setCrs(mCrs);
 }
 
 } // namespace graphos

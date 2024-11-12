@@ -56,10 +56,10 @@ public:
     ~DemModel() override = default;
 
     /*!
-     * \brief Retrieves the offset values.
-     * \return An array containing the offset values [x, y, z].
+     * \brief Retrieves the ENU CRS.
+     * \return The ENU CRS.
      */
-    virtual auto offset() const -> tl::Point3<double> = 0;
+    virtual auto enuCrs() const -> QString = 0;
 
     /*!
      * \brief Retrieves the path to the project folder.

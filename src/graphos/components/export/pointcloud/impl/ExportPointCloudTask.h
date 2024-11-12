@@ -43,9 +43,9 @@ class ExportPointCloudTask
 public:
 
     ExportPointCloudTask(tl::Path pointCloud,
-                         tl::Point3<double> offset,
                          tl::Path exportPointCloud,
-                         std::string crs,
+                         std::string crsEnu,
+                         std::string crsOut,
                          bool bynary,
                          bool colors,
                          bool normals);
@@ -61,8 +61,8 @@ protected:
 private:
 
     tl::Path mPointCloud;
-    tl::Point3<double> mOffset;
     tl::Path mExportPointCloud;
+    std::string mCrsEnu;
     std::string mCrs;
     bool mBynary;
     bool mColors;

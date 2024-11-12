@@ -173,7 +173,7 @@ void DensificationPresenterImp::setSmvsWidget(std::shared_ptr<SmvsWidget> smvs)
     mSmvs = smvs;
 
     mView->addDensification(mSmvs.get());
-    mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+    mView->setCurrentDensificationMethod(mSmvs->windowTitle());
 }
 
 void DensificationPresenterImp::setMvsWidget(std::shared_ptr<MvsWidget> mvs)
@@ -181,7 +181,7 @@ void DensificationPresenterImp::setMvsWidget(std::shared_ptr<MvsWidget> mvs)
     mMVS = mvs;
 
     mView->addDensification(mMVS.get());
-    mView->setCurrentDensificationMethod(mCmvsPmvs->windowTitle());
+    mView->setCurrentDensificationMethod(mMVS->windowTitle());
 }
 
 void DensificationPresenterImp::onDensificationChanged(const QString &densification)

@@ -45,10 +45,10 @@ class DemTask
 public:
 
     DemTask(tl::Path pointCloud,
-            tl::Point3<double> offset,
+            std::string enuCrs,
+            std::string crsOut,
             tl::Path demPath,
             double gsd,
-            std::string crs,
             bool dsm,
             bool dtm);
 
@@ -70,10 +70,10 @@ protected:
 private:
 
     tl::Path mPointCloud;
-    tl::Point3<double> mOffset;
+    std::string mEnuCrs;
+    std::string mCrs;
     tl::Path mDemPath;
     double mGsd;
-    std::string mCrs;
     bool mDsm;
     bool mDtm;
     DemReport mDemReport;

@@ -29,9 +29,14 @@
 
 #include <tidop/core/path.h>
 #include <tidop/core/task.h>
+#include <tidop/geometry/entities/point.h>
 
 #include "graphos/core/sfm/OrientationReport.h"
 
+namespace tl
+{
+class GeoTools;
+}
 
 namespace colmap
 {
@@ -94,10 +99,11 @@ public:
      */
     auto report() const -> OrientationReport;
 
+    auto enuCrs() const -> std::string;
+
     void setMinCommonImages(int minCommonImages);
     void setRobustAlignment(bool robustAlignment);
     void setRobustAlignmentMaxError(double robustAlignmentMaxError);
-
 
     void clear();
 
@@ -132,6 +138,8 @@ private:
     std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
     std::unordered_map<size_t, double> mCameraPosesErrors;
     OrientationReport mOrientationReport;
+    tl::GeoTools *mGeoTools;
+    std::string mEnuCrs;
 };
 
 

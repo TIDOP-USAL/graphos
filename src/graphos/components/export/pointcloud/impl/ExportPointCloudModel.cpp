@@ -66,23 +66,27 @@ auto ExportPointCloudModelImp::pointCloud() const -> tl::Path
     return mProject->denseModel();
 }
 
-auto ExportPointCloudModelImp::offset() const -> tl::Point3<double>
+auto ExportPointCloudModelImp::enuCrs() const -> QString
 {
-    return offsetRead(mProject->offset());
+    return mProject->enuCrs();
 }
 
 auto ExportPointCloudModelImp::crs() const -> QString
 {
-    QString epsg_code = mProject->dem().epsgCode;
+    QString epsg_code;
 
-    if (epsg_code.isEmpty()) {
-        auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-        auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
-        tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-        auto lla = crs_transfom_geocentric_to_geographic.transform(offset());
-        int zone = tl::utmZoneFromLongitude(lla.x);
+    try {
+
+        auto enu_crs = mProject->enuCrs();
+
+        auto v = tl::split<std::string>(enu_crs.toStdString(), ';');
+
+        auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
         epsg_code = "EPSG:326";
-        epsg_code.append(QString::number(zone));
+        epsg_code.append(QString::number(zone.first));
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
     }
 
     return epsg_code;

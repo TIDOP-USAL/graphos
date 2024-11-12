@@ -47,7 +47,7 @@ public:
 
     virtual auto poses() const -> const std::unordered_map<size_t, CameraPose>& = 0;
     virtual auto images() const -> const std::unordered_map<size_t, Image>& = 0;
-    virtual auto offset() const -> tl::Point3<double> = 0;
+    virtual auto enuCrs() const -> QString = 0;
 };
 
 } // namespace graphos

@@ -27,13 +27,14 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/project.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudTask.h"
+#include "graphos/core/sfm/posesio.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/log.h>
 
 #include <QFileInfo>
+#include <tidop/geospatial/util.h>
 
-#include "graphos/core/sfm/posesio.h"
 
 
 using namespace tl;
@@ -43,7 +44,8 @@ namespace graphos
 
 
 ExportPointCloudCommand::ExportPointCloudCommand()
-  : Command("export_point_cloud", "Export point cloud")
+  : Command("export_point_cloud", "Export point cloud"),
+    mProject(nullptr)
 {
     this->addArgument<Path>("prj", 'p', "Project file");
     this->addArgument<Path>("file", 'f', "Export file");
@@ -61,6 +63,29 @@ ExportPointCloudCommand::ExportPointCloudCommand()
 
 ExportPointCloudCommand::~ExportPointCloudCommand()
 {
+    if (mProject) {
+        delete mProject;
+        mProject = nullptr;
+    }
+}
+
+auto ExportPointCloudCommand::crs() const -> std::string
+{
+    std::string epsg_code;
+
+    try {
+
+        auto enu_crs = mProject->enuCrs().toStdString();
+        auto v = tl::split<std::string>(enu_crs, ';');
+        auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+        epsg_code = "EPSG:326";
+        epsg_code.append(std::to_string(zone.first));
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
+
+    return epsg_code;
 }
 
 bool ExportPointCloudCommand::run()
@@ -85,18 +110,18 @@ bool ExportPointCloudCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        ProjectImp project;
-        project.load(project_path);
+        mProject = new ProjectImp;
+        mProject->load(project_path);
 
-        ExportPointCloudTask export_point_cloud_task(project.denseModel(),
-                                                     offsetRead(project.offset()),
+        ExportPointCloudTask export_point_cloud_task(mProject->denseModel(),
                                                      file,
-                                                     crs.empty() ? project.crs().toStdString() : crs,
+                                                     mProject->enuCrs().toStdString(),
+                                                     crs.empty() ? this->crs() : crs,
                                                      ply_format == "binary",
                                                      colors, 
                                                      normals);
 
-        size_t size = static_cast<size_t>(project.denseReport().points / 80.) * 20 + project.denseReport().points;
+        size_t size = static_cast<size_t>(mProject->denseReport().points / 80.) * 20 + mProject->denseReport().points;
 
         ProgressBarColor progress(0, size);
         export_point_cloud_task.run(&progress);

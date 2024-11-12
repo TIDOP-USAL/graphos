@@ -41,7 +41,8 @@
 #include <colmap/estimators/triangulation.h>
 #include <tidop/geospatial/crs.h>
 #include <tidop/geospatial/crstransf.h>
-
+#include <tidop/GeoTools/CRSsTools.h>
+#include <tidop/GeoTools/GeoTools.h>
 
 namespace graphos
 {
@@ -98,7 +99,8 @@ ReconstructionTask::ReconstructionTask(tl::Path database,
     mCameras(cameras),
     mIncrementalMapperOptions(new colmap::IncrementalMapperOptions),
     mMapper(nullptr),
-    mReconstructionManager(new colmap::ReconstructionManager)
+    mReconstructionManager(new colmap::ReconstructionManager),
+    mGeoTools(tl::GeoTools::getInstance())
 {
 
 }
@@ -132,6 +134,11 @@ auto ReconstructionTask::cameraPosesErrors() const -> std::unordered_map<size_t,
 auto ReconstructionTask::report() const -> OrientationReport
 {
     return mOrientationReport;
+}
+
+auto ReconstructionTask::enuCrs() const -> std::string
+{
+    return mEnuCrs;
 }
 
 void ReconstructionTask::setMinCommonImages(int minCommonImages)
@@ -317,20 +324,13 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 }
             }
 
-            std::unordered_map<size_t, tl::Point3<double>> cameras_geocentric;
-
-            auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-            auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
-            tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-            std::shared_ptr<tl::EcefToEnu> ecef_to_enu;
-
             // OpenMVG utiliza este parámetro. Creo que la equivalencia es la mediana calculada 
             double pose_center_robust_fitting_error = 0.0;
             std::unordered_map<size_t, tl::Point3<double>> cameras_enu;
 
             if (mGPS || mRTK) {
 
-                //tl::Message::info("Transformación de semejanza como primera aproximación utilizando las posiciones de las cámaras");
+                std::unordered_map<size_t, tl::Point3<double>> cameras_geographic;
 
                 for (const auto &image : mImages) {
 
@@ -346,46 +346,34 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     auto camera_crs = std::make_shared<tl::Crs>(camera_epsg.toStdString());
                     TL_ASSERT(camera_crs->isValid(), "Invalid CRS: {}", camera_epsg.toStdString());
 
-                    tl::CrsTransform crs_transfom(camera_crs, epsg_geocentric);
+                    // Conversión con GeoTools
+                    TL_TODO("Estoy suponiendo que las alturas son elipsoidades... Hay que comprobarlo")
 
-                    if (camera_crs->isGeographic()) {
-                        geocentric_coordinates = crs_transfom.transform(image.cameraPose().position());
-                        
-                    } else if (camera_crs->isGeocentric()) {
-                        geocentric_coordinates = image.cameraPose().position();
-                    } else {
-                        geocentric_coordinates = crs_transfom.transform(image.cameraPose().position());
-                    }
+                    auto epsg_code = camera_epsg.toStdString();
+                    auto camera_coordinates = image.cameraPose().position();
+                    if (epsg_code != "EPSG:4326")
+                        mGeoTools->ptrCRSsTools()->crsOperation(epsg_code, "EPSG:4326", camera_coordinates.x, camera_coordinates.y, camera_coordinates.z);
 
-                    cameras_geocentric[image.id()] = geocentric_coordinates;
+                    cameras_geographic[image.id()] = camera_coordinates;
                 }
 
                 /// Cálculo del centro
-                tl::Point3<double> ecef_center;
-                //double i = 1.;
-                for (const auto &ecef : cameras_geocentric) {
-                    ecef_center += ecef.second / static_cast<double>(cameras_geocentric.size());
+
+                tl::Point3<double> geographic_center;
+                for (const auto &coordinates : cameras_geographic) {
+                    geographic_center += coordinates.second / static_cast<double>(cameras_geographic.size());
                 }
 
-                /// Por ahora aprovecho el fichero offset pero hay que ver como se guarda.
-                {
-                    /// writeOffset
-                    tl::Path offset_path = mOutputPath;
-                    offset_path.append("offset.txt");
-                    offsetWrite(offset_path, tl::Point3<double>(ecef_center.x, ecef_center.y, ecef_center.z));
+                tl::Path enu_path = mOutputPath;
+                enu_path.append("enu.txt");
+                mEnuCrs = mGeoTools->ptrCRSsTools()->getCRSEnu("EPSG:4326", geographic_center.x, geographic_center.y, geographic_center.z);
+
+                for (const auto &geographic_coordinates : cameras_geographic) {
+                    auto image_id = geographic_coordinates.first;
+                    auto coordinates = geographic_coordinates.second;
+                    mGeoTools->ptrCRSsTools()->crsOperation("EPSG:4326", mEnuCrs, coordinates.x, coordinates.y, coordinates.z);
+                    cameras_enu[image_id] = coordinates;
                 }
-
-
-                auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
-                auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
-                ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);
-
-                for (const auto &ecef : cameras_geocentric) {
-                    auto imagage_id = ecef.first;
-                    auto ecef_coordinates = ecef.second;
-                    cameras_enu[imagage_id] = ecef_to_enu->direct(ecef_coordinates);
-                }
-
 
                 tl::Message::info("Transformación de semejanza");
 
@@ -480,13 +468,9 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     auto gcp_reader = GCPsReaderFactory::create("GRAPHOS");
                     gcp_reader->read(gcp_file);
                     auto gcps = gcp_reader->gcps();
-                    auto gcps_epsg_code = gcp_reader->epsgCode();
-                    //tl::Message::info("EPSG Puntos de control: {}", gcps_epsg_code);
-                    TL_ASSERT(!gcps_epsg_code.empty(), "Unknow CRS for ground control points");
-                    auto gcps_crs = std::make_shared<tl::Crs>(gcps_epsg_code);
-                    tl::CrsTransform transfom_to_geocentric(gcps_crs, epsg_geocentric);
+                    auto epsg_code = gcp_reader->epsgCode();
 
-
+                    TL_ASSERT(!epsg_code.empty(), "Unknow CRS for ground control points");
 
                     // Si no se dispone de datos GPS de las imágenes se hace una transformación de semejanza
                     // Si ya se tiene una orientación aproximada pero hay puntos de control habría que calcular igual control_points_enu
@@ -496,28 +480,18 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         tl::Message::info("Transformación de semejanza como primera aproximación utilizando los puntos de control");
 
                         /// Cálculo del centro
-                        tl::Point3<double> ecef_center;
+                        tl::Point3<double> geographic_center;
                         double i = 1.;
-                        for (auto &ground_control_point : gcps) {
-                            //ecef_center += (ground_control_point - ecef_center) / i++;
-                            auto ecef = transfom_to_geocentric.transform(ground_control_point);
-                            ecef_center += ecef / static_cast<double>(gcps.size());
+                        for (const auto &gcp : gcps) {
+                            auto coordinates = gcp;
+                            if (epsg_code != "EPSG:4326")
+                                mGeoTools->ptrCRSsTools()->crsOperation(epsg_code, "EPSG:4326", coordinates.x, coordinates.y, coordinates.z);
+                            geographic_center += coordinates / static_cast<double>(gcps.size());
                         }
 
-                        // ¿Esto en que coordenadas está?
-                        tl::Message::info("ENU center coordinates [{} {} {}]", ecef_center.x, ecef_center.y, ecef_center.z);
-
-                        /// Por ahora aprovecho el fichero offset pero hay que ver como se guarda.
-                        {
-                            /// writeOffset
-                            tl::Path offset_path = mOutputPath;
-                            offset_path.append("offset.txt");
-                            offsetWrite(offset_path, tl::Point3<double>(ecef_center.x, ecef_center.y, ecef_center.z));
-                        }
-
-                        auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
-                        auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
-                        ecef_to_enu = std::make_shared<tl::EcefToEnu>(ecef_center, rotation);
+                        tl::Path enu_path = mOutputPath;
+                        enu_path.append("enu.txt");
+                        mEnuCrs = mGeoTools->ptrCRSsTools()->getCRSEnu("EPSG:4326", geographic_center.x, geographic_center.y, geographic_center.z);
 
                         std::vector<Eigen::Vector3d> src;
                         std::vector<Eigen::Vector3d> dst;
@@ -579,19 +553,21 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                                 src.push_back(xyz);
 
-                                auto gcp_ecef = transfom_to_geocentric.transform(ground_control_point);
-                                auto cgp_enu = ecef_to_enu->direct(gcp_ecef);
+                                //auto gcp_ecef = transfom_to_geocentric.transform(ground_control_point);
+                                //auto cgp_enu = ecef_to_enu->direct(gcp_ecef);
+                                auto gcps_enu = ground_control_point;
+                                mGeoTools->ptrCRSsTools()->crsOperation("EPSG:4326", mEnuCrs, gcps_enu.x, gcps_enu.y, gcps_enu.z);
 
                                 GCP _gcp;
-                                _gcp.point = {cgp_enu.x, cgp_enu.y, cgp_enu.z};
+                                _gcp.point = {gcps_enu.x, gcps_enu.y, gcps_enu.z};
                                 _gcp.track = ground_control_point.track();
                                 _gcp.name = ground_control_point.name();
                                 control_points_enu.push_back(_gcp);
 
-                                dst.emplace_back(cgp_enu.x, cgp_enu.y, cgp_enu.z);
+                                dst.emplace_back(gcps_enu.x, gcps_enu.y, gcps_enu.z);
                                 gcp_name.push_back(ground_control_point.name());
 
-                                tl::Message::info("GCP [{} : {} {} {}]", ground_control_point.name(), cgp_enu.x, cgp_enu.y, cgp_enu.z);
+                                //tl::Message::info("GCP [{} : {} {} {}]", ground_control_point.name(), cgp_enu.x, cgp_enu.y, cgp_enu.z);
                             }
 
                         }

@@ -42,17 +42,17 @@ using namespace tl;
 namespace graphos
 {
 
-ExportCamerasTask::ExportCamerasTask(const tl::Path &file,
+ExportCamerasTask::ExportCamerasTask(tl::Path file,
                                      const std::unordered_map<size_t, Image> &images,
                                      const std::unordered_map<size_t, CameraPose> &poses,
-                                     const tl::Point3<double> &offset, 
-                                     const QString &format)
+                                     //tl::Path enuCrs,
+                                     QString format)
     : tl::TaskBase(),
-      mFile(file),
+      mFile(std::move(file)),
       mImages(images),
       mPoses(poses),
-      mOffset(offset),
-      mFormat(format),
+      //mEnuCrs(std::move(enuCrs)),
+      mFormat(std::move(format)),
       mQuaternions(false)
 {
 }
@@ -78,7 +78,8 @@ void ExportCamerasTask::textExport()
         auto &camera_pose = pose.second;
         auto &image = mImages[image_id];
 
-        auto position = camera_pose.position() + mOffset;
+        TL_TODO("Permitir cambio de sistema de referencia")
+        auto position = camera_pose.position() /*+ mOffset*/;
         auto quaternion = camera_pose.quaternion();
 
         stream << std::fixed << "\"" << image.path().toStdString() << "\" "
