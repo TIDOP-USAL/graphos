@@ -211,14 +211,15 @@ int main(int argc, char *argv[])
     gdal_data_path.append("gdal\\data");
     tl::Path proj_data_path(graphos_path);
     proj_data_path.append("proj");
-    CPLSetConfigOption( "GDAL_DATA", gdal_data_path.toString().c_str());
 #   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
-        CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
+        CPLSetConfigOption("PROJ_DATA", proj_data_path.toString().c_str());
+        CPLSetConfigOption("PROJ_LIB", proj_data_path.toString().c_str());
 #   else
         std::string s_proj = proj_data_path.toString();
         const char *proj_data[] {s_proj.c_str(), nullptr};
         OSRSetPROJSearchPaths(proj_data);
 #   endif
+    CPLSetConfigOption("GDAL_DATA", gdal_data_path.toString().c_str());
 #endif // TL_OS_WINDOWS
 
 #ifdef DEBUG
