@@ -148,7 +148,7 @@ void GroundControlPointsModelImp::loadGroundControlPoints()
 
     auto reader = GCPsReaderFactory::create("GRAPHOS");
     reader->read(gcp_file);
-    //reader->epsgCode();
+    mCrs = QString::fromStdString(reader->epsgCode());
     auto gcps = reader->gcps();
 
     for (auto &gcp : gcps) {

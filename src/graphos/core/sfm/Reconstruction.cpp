@@ -340,12 +340,10 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     if (image.cameraPose().isEmpty()) continue;
 
-                    tl::Point3<double> geocentric_coordinates;
-
                     auto camera_epsg = image.cameraPose().crs();
                     auto camera_crs = std::make_shared<tl::Crs>(camera_epsg.toStdString());
                     TL_ASSERT(camera_crs->isValid(), "Invalid CRS: {}", camera_epsg.toStdString());
-
+                    
                     // Conversión con GeoTools
                     TL_TODO("Estoy suponiendo que las alturas son elipsoidades... Hay que comprobarlo")
 
@@ -375,7 +373,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     cameras_enu[image_id] = coordinates;
                 }
 
-                tl::Message::info("Transformación de semejanza");
 
                 /// Transformación de semejanza
                 bool robust_alignment = mRobustAlignment;
@@ -383,7 +380,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 ransac_options.max_error = mRobustAlignmentMaxError;
 
                 if (robust_alignment && ransac_options.max_error <= 0) {
-                    throw std::runtime_error("ERROR: You must provide a maximum alignment error > 0");
+                    throw std::runtime_error("Similarity transformation: You must provide a maximum alignment error > 0");
                 }
 
                 std::vector<std::string> ref_image_names;
@@ -415,7 +412,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                 if (status() == Status::stopping) return;
 
-                TL_ASSERT(alignment_success, "Absolute Orientation failed");
+                TL_ASSERT(alignment_success, "Similarity transformation: Alignment failed");
 
 
                 std::vector<double> errors;
@@ -430,7 +427,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 }
 
                 pose_center_robust_fitting_error = colmap::Median(errors);
-                tl::Message::info("Alignment error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
+                tl::Message::info("Similarity transformation: Alignment error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
 
                 if (status() == Status::stopping) return;
 
@@ -472,12 +469,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     TL_ASSERT(!epsg_code.empty(), "Unknow CRS for ground control points");
 
-                    // Si no se dispone de datos GPS de las imágenes se hace una transformación de semejanza
-                    // Si ya se tiene una orientación aproximada pero hay puntos de control habría que calcular igual control_points_enu
+                    if (mEnuCrs.empty()) {
 
-                    if (!(mGPS || mRTK)) {
-
-                        tl::Message::info("Transformación de semejanza como primera aproximación utilizando los puntos de control");
 
                         /// Cálculo del centro
                         tl::Point3<double> geographic_center;
@@ -493,101 +486,100 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         enu_path.append("enu.txt");
                         mEnuCrs = mGeoTools->ptrCRSsTools()->getCRSEnu("EPSG:4326", geographic_center.x, geographic_center.y, geographic_center.z);
 
-                        std::vector<Eigen::Vector3d> src;
-                        std::vector<Eigen::Vector3d> dst;
-                        std::vector<std::string> gcp_name;
+                    }
 
-                        colmap::IncrementalTriangulator::Options options;
+                    std::vector<Eigen::Vector3d> src;
+                    std::vector<Eigen::Vector3d> dst;
+                    std::vector<std::string> gcp_name;
 
-                        // Setup estimation options.
-                        colmap::EstimateTriangulationOptions tri_options;
-                        tri_options.min_tri_angle = colmap::DegToRad(options.min_angle);
-                        tri_options.residual_type = colmap::TriangulationEstimator::ResidualType::REPROJECTION_ERROR;
-                        tri_options.ransac_options.max_error = options.complete_max_reproj_error;
-                        tri_options.ransac_options.confidence = 0.9999;
-                        tri_options.ransac_options.min_inlier_ratio = 0.02;
-                        tri_options.ransac_options.max_num_trials = 10000;
+                    colmap::IncrementalTriangulator::Options options;
+
+                    // Setup estimation options.
+                    colmap::EstimateTriangulationOptions tri_options;
+                    tri_options.min_tri_angle = colmap::DegToRad(options.min_angle);
+                    tri_options.residual_type = colmap::TriangulationEstimator::ResidualType::REPROJECTION_ERROR;
+                    tri_options.ransac_options.max_error = options.complete_max_reproj_error;
+                    tri_options.ransac_options.confidence = 0.9999;
+                    tri_options.ransac_options.min_inlier_ratio = 0.02;
+                    tri_options.ransac_options.max_num_trials = 10000;
 
 
-                        colmap::Database database;
-                        database.Open(mDatabase.toString());
+                    colmap::Database database;
+                    database.Open(mDatabase.toString());
 
-                        for (auto &ground_control_point : gcps) {
+                    for (auto &ground_control_point : gcps) {
 
-                            std::vector<colmap::TriangulationEstimator::PointData> points_data;
-                            std::vector<colmap::TriangulationEstimator::PoseData> poses_data;
+                        std::vector<colmap::TriangulationEstimator::PointData> points_data;
+                        std::vector<colmap::TriangulationEstimator::PoseData> poses_data;
 
-                            for (auto &camera : reconstruction.Cameras()) {
+                        for (auto &camera : reconstruction.Cameras()) {
 
-                                for (auto &image : reconstruction.Images()) {
+                            for (auto &image : reconstruction.Images()) {
 
-                                    if (image.second.CameraId() == camera.second.CameraId()) {
+                                if (image.second.CameraId() == camera.second.CameraId()) {
 
-                                        auto &track = ground_control_point.track();
+                                    auto &track = ground_control_point.track();
 
-                                        if (track.existPoint(image_ids_colmap_to_graphos[image.second.ImageId()])) {
+                                    if (track.existPoint(image_ids_colmap_to_graphos[image.second.ImageId()])) {
 
-                                            tl::Point<double> point = track.point(image_ids_colmap_to_graphos[image.second.ImageId()]);
+                                        tl::Point<double> point = track.point(image_ids_colmap_to_graphos[image.second.ImageId()]);
 
-                                            colmap::TriangulationEstimator::PointData point_data;
-                                            point_data.point = Eigen::Vector2d(point.x, point.y);
-                                            point_data.point_normalized = camera.second.ImageToWorld(point_data.point);
-                                            points_data.push_back(point_data);
+                                        colmap::TriangulationEstimator::PointData point_data;
+                                        point_data.point = Eigen::Vector2d(point.x, point.y);
+                                        point_data.point_normalized = camera.second.ImageToWorld(point_data.point);
+                                        points_data.push_back(point_data);
 
-                                            colmap::TriangulationEstimator::PoseData pose_data;
-                                            pose_data.proj_matrix = image.second.ProjectionMatrix();
-                                            pose_data.proj_center = image.second.ProjectionCenter();
-                                            pose_data.camera = &camera.second;
-                                            poses_data.push_back(pose_data);
-                                        }
-
+                                        colmap::TriangulationEstimator::PoseData pose_data;
+                                        pose_data.proj_matrix = image.second.ProjectionMatrix();
+                                        pose_data.proj_center = image.second.ProjectionCenter();
+                                        pose_data.camera = &camera.second;
+                                        poses_data.push_back(pose_data);
                                     }
+
                                 }
                             }
-
-                            if (points_data.size() < 2) continue;
-
-                            Eigen::Vector3d xyz;
-                            std::vector<char> inlier_mask;
-                            if (colmap::EstimateTriangulation(tri_options, points_data, poses_data, &inlier_mask, &xyz)) {
-
-                                src.push_back(xyz);
-
-                                //auto gcp_ecef = transfom_to_geocentric.transform(ground_control_point);
-                                //auto cgp_enu = ecef_to_enu->direct(gcp_ecef);
-                                auto gcps_enu = ground_control_point;
-                                mGeoTools->ptrCRSsTools()->crsOperation("EPSG:4326", mEnuCrs, gcps_enu.x, gcps_enu.y, gcps_enu.z);
-
-                                GCP _gcp;
-                                _gcp.point = {gcps_enu.x, gcps_enu.y, gcps_enu.z};
-                                _gcp.track = ground_control_point.track();
-                                _gcp.name = ground_control_point.name();
-                                control_points_enu.push_back(_gcp);
-
-                                dst.emplace_back(gcps_enu.x, gcps_enu.y, gcps_enu.z);
-                                gcp_name.push_back(ground_control_point.name());
-
-                                //tl::Message::info("GCP [{} : {} {} {}]", ground_control_point.name(), cgp_enu.x, cgp_enu.y, cgp_enu.z);
-                            }
-
                         }
 
-                        TL_ASSERT(src.size() > 3, "Insufficient number of points");
+                        if (points_data.size() < 2) continue;
+
+                        Eigen::Vector3d xyz;
+                        std::vector<char> inlier_mask;
+                        if (colmap::EstimateTriangulation(tri_options, points_data, poses_data, &inlier_mask, &xyz)) {
+
+                            src.push_back(xyz);
+
+                            auto gcps_enu = ground_control_point;
+                            if (epsg_code != "EPSG:4326")
+                                mGeoTools->ptrCRSsTools()->crsOperation(epsg_code, mEnuCrs, gcps_enu.x, gcps_enu.y, gcps_enu.z);
+
+                            GCP _gcp;
+                            _gcp.point = {gcps_enu.x, gcps_enu.y, gcps_enu.z};
+                            _gcp.track = ground_control_point.track();
+                            _gcp.name = ground_control_point.name();
+                            control_points_enu.push_back(_gcp);
+
+                            dst.emplace_back(gcps_enu.x, gcps_enu.y, gcps_enu.z);
+                            gcp_name.push_back(ground_control_point.name());
+                        }
+
+                    }
+
+                    /// Esto solo si no tenemos datos GPS
+                    if (!(mGPS || mRTK)) {
+
+                        TL_ASSERT(src.size() > 3, "Similarity transformation: Insufficient number of points");
 
                         colmap::SimilarityTransform3 similarity_transform;
                         similarity_transform.Estimate(src, dst);
 
                         reconstruction.Transform(similarity_transform);
 
-                        tl::Message::info("\nSimilarity transform:\n");
                         std::vector<double> errors;
                         errors.reserve(dst.size());
 
                         for (size_t i = 0; i < dst.size(); ++i) {
                             similarity_transform.TransformPoint(&src.at(i));
                             errors.push_back((src[i] - dst[i]).norm());
-
-                            tl::Message::info("Ground Control Point {}: Error -> {}", gcp_name[i], errors[i]);
                         }
 
                         tl::Message::info("Georeference error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
@@ -596,20 +588,20 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 }
 
 
-                tl::Message::info("Configure bundle adjustment.");
                 // Configure bundle adjustment.
                 BundleAdjustmentConfig ba_config;
                 for (const colmap::image_t image_id : reg_image_ids) {
                     ba_config.AddImage(image_id);
                     if (mRTK){
-                        //ba_config.setCamPositionRTK(image_id);
-                        ba_config.setCamPositionError(image_id, 100.);
-                    } else if (mGPS){
+                        ba_config.setCamPositionRTK(image_id);
+                        //ba_config.setCamPositionError(image_id, 100.);
+                    } else if (mGPS && !mControlPoints){ // Si hay puntos de control puede empeorar si se usa
                         ba_config.setCamPositionGPS(image_id);
                     }
                 }
 
                 if (mControlPoints) {
+                    TL_ASSERT(control_points_enu.size() > 3, "A minimum of 3 ground control points is required");
                     ba_config.setGroundControlPoints(control_points_enu);
                 }
 
@@ -727,29 +719,30 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         tl::Message::info("Ground Control Point {}: Error -> {}", gcp_name[i], errors[i]);
                     }
 
-                    tl::Message::info("Georeference error: {} (mean), {} (median)",
+                    tl::Message::info("Absolute orientation error: {} (mean), {} (median)",
                                       colmap::Mean(errors), colmap::Median(errors));
+
                 } else if (mRTK || mGPS){
 
                     std::vector<double> errors;
                     errors.reserve(mImages.size());
                     tl::Message::info("Images: {}", mImages.size());
 
-                    for (size_t i = 0; i < mImages.size(); ++i) {
+                    for (const auto& image : mImages)
+                    {
 
-                        if (reconstruction.ExistsImage(image_ids_graphos_to_colmap[mImages[i].id()])) {
+                        if (reconstruction.ExistsImage(image_ids_graphos_to_colmap[image.id()])) {
 
-                            const colmap::Image &image = reconstruction.Image(image_ids_graphos_to_colmap[mImages[i].id()]);
-                            tl::Point3<double> position = mImages[i].cameraPose().position();
+                            const colmap::Image &colmap_image = reconstruction.Image(image_ids_graphos_to_colmap[image.id()]);
+                            tl::Point3<double> position = image.cameraPose().position();
                             Eigen::Vector3d pos_ini;
-                            pos_ini[0] = cameras_enu[mImages[i].id()].x;
-                            pos_ini[1] = cameras_enu[mImages[i].id()].y;
-                            pos_ini[2] = cameras_enu[mImages[i].id()].z;
+                            pos_ini[0] = cameras_enu[image.id()].x;
+                            pos_ini[1] = cameras_enu[image.id()].y;
+                            pos_ini[2] = cameras_enu[image.id()].z;
 
-                            auto pos_final = image.ProjectionCenter();
+                            auto pos_final = colmap_image.ProjectionCenter();
                             auto error_xyz = pos_final - pos_ini;
                             double error = (pos_final - pos_ini).norm();
-                            //tl::Message::info("Error [x: {}, y: {}, z: {}]", error_xyz.x(), error_xyz.y(), error_xyz.z());
                             errors.push_back(error);
                         }
                     }
