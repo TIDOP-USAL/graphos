@@ -147,7 +147,7 @@ tl::Point<double> Orthorectification::imageToPhotocoordinates(const tl::Point<in
     return mAffineImageToPhotocoordinates.transform(tl::Point<double>(imagePoint));
 }
 
-tl::Point<int> Orthorectification::photocoordinatesToImage(const tl::Point<double> &photocoordinates) const
+tl::Point<double> Orthorectification::photocoordinatesToImage(const tl::Point<double> &photocoordinates) const
 {
     return mAffineImageToPhotocoordinates.inverse().transform(photocoordinates);
 }

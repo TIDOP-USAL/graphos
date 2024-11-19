@@ -340,13 +340,13 @@ void findOptimalFootprint(const tl::Path &footprint_file,
             if (!grid_writer->isOpen()) throw std::runtime_error("Vector open error");
             grid_writer->create();
             grid_writer->setCRS(crs.toWktFormat());
-            
+
             std::shared_ptr<tl::TableField> field_image(new tl::TableField("image",
-                                                  tl::TableField::Type::STRING,
-                                                  254));
+                                                        tl::TableField::Type::STRING,
+                                                        254));
             std::vector<std::shared_ptr<tl::TableField>> fields;
             fields.push_back(field_image);
-            
+
             tl::GLayer layer;
             layer.setName("grid");
             layer.addDataField(field_image);
@@ -359,9 +359,9 @@ void findOptimalFootprint(const tl::Path &footprint_file,
                 polygon->setData(data);
                 layer.push_back(polygon);
             }
-            
+
             grid_writer->write(layer);
-            
+
             grid_writer->close();
         }
         ////
@@ -376,12 +376,71 @@ cv::Mat combineImages(const std::vector<cv::Mat> &images)
         cv::Mat mask;
         // Crear máscara para los píxeles negros en la imagen resultante
         cv::inRange(result, cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), mask);
+        if (cv::countNonZero(mask) == 0)
+            break;
+
+        // Dilatación de la máscara para cubrir bordes y suavizar uniones
+        cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(2, 2));
+        cv::dilate(mask, mask, element);
         // Solo copiar los píxeles de la imagen actual donde result es negro
         images[i].copyTo(result, mask);
+
     }
 
     return result;
 }
+
+//cv::Mat combineImages(const std::vector<cv::Mat> &images)
+//{
+//    cv::Mat result = images[0].clone(); // Clona la imagen base como resultado
+//
+//    for (size_t i = 1; i < images.size(); ++i) {
+//        // Crear máscara para la imagen actual, detectando sus áreas negras
+//        cv::Mat mask;
+//        cv::inRange(images[i], cv::Scalar(0, 0, 0), cv::Scalar(0, 0, 0), mask);
+//
+//        if (cv::countNonZero(mask) == 0)
+//            break;
+//
+//        // Dilatación de la máscara para cubrir bordes y suavizar uniones
+//        cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+//        cv::dilate(mask, mask, element);
+//        cv::GaussianBlur(mask, mask, cv::Size(5, 5), 0);
+//
+//        // Convertir la máscara a tipo flotante y normalizar para el blending
+//        cv::Mat floatMask;
+//        mask.convertTo(floatMask, CV_32FC1, 1.0 / 255.0);
+//
+//        // Convertir la imagen actual y la acumulada (result) a flotantes para el blending
+//        cv::Mat floatResult, floatImage;
+//        result.convertTo(floatResult, CV_32FC3);
+//        images[i].convertTo(floatImage, CV_32FC3);
+//
+//        // Aplicar la máscara individual a la imagen actual
+//        for (int c = 0; c < 3; c++) { // Iterar sobre los canales
+//            floatImage.forEach<cv::Vec3f>(
+//                [&](cv::Vec3f &pixel, const int pos[]) -> void {
+//                    pixel[c] *= (1.0f - floatMask.at<float>(pos[0], pos[1]));
+//                }
+//            );
+//        }
+//
+//        // Realizar la mezcla de ambas imágenes usando la máscara
+//        for (int c = 0; c < 3; c++) { // Iterar sobre los canales de color
+//            floatResult.forEach<cv::Vec3f>(
+//                [&](cv::Vec3f &pixel, const int pos[]) -> void {
+//                    pixel[c] = pixel[c] * floatMask.at<float>(pos[0], pos[1]) +
+//                        floatImage.at<cv::Vec3f>(pos[0], pos[1])[c];
+//                }
+//            );
+//        }
+//
+//        // Convertir el resultado de vuelta a CV_8UC3 y actualizar el resultado acumulado
+//        floatResult.convertTo(result, CV_8UC3);
+//    }
+//
+//    return result;
+//}
 
 void orthoMosaic(const tl::Path &graph_orthos,
                  const tl::Path &ortho_path, 
@@ -1025,7 +1084,12 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
                 // Todas las imagenes del elemento actual del grid
                 std::vector<cv::Mat> images;
 
+                tl::Message::info("Tile: {}{}", r, c);
+
                 for (auto &ortho : orthos[r][c]) {
+
+                    tl::Message::info("Imagen: {}", ortho.second);
+                    tl::Message::info("Distancia mejor imagen: {}", ortho.first);
 
                     auto image_reader = tl::ImageReaderFactory::create(ortho.second/*orthos[r][c]*/);
                     image_reader->open();
@@ -1125,7 +1189,6 @@ void orthoMosaicWithExposureCompensator(const tl::Path &graph_orthos,
         image_writer->open();
         int cols = static_cast<int>(std::round(window_all.width() / res_ortho));
         int rows = static_cast<int>(std::round(window_all.height() / res_ortho));
-        tl::Message::warning("Ortofoto: size -> {}x{}", cols, rows);
 
         if (image_writer->isOpen()) {
             image_writer->create(rows, cols, 3, tl::DataType::TL_8U);
@@ -1878,8 +1941,8 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
         auto crs_transfom = std::make_shared<tl::CrsTransform>(epsg_geocentric, epsg_utm);
 
-        tl::Path dsm_path = mMdt;
-        dsm_path.replaceBaseName("dsm_enu");
+        //tl::Path dsm_path = mMdt;
+        //dsm_path.replaceBaseName("dsm_enu");
         //transformDTM(mMdt, mds_path, crs_transfom_utm_to_geocentric, ecef_to_enu);
 
 
@@ -1887,7 +1950,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
 
         OrthoimageTask orthoimage_task(mPhotos,
                                        mCameras,
-                                       dsm_path,
+                                       mMdt/*dsm_path*/,
                                        mOrthoPath,
                                        graph_orthos,
                                        ecef_to_enu,
@@ -1895,7 +1958,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
                                        crs,
                                        footprint_file,
                                        mGSD,
-                                       1./*0.4*/,
+                                       0.6,
                                        bCuda);
 
         orthoimage_task.run(progressBar);

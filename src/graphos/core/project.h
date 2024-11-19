@@ -43,7 +43,7 @@
 #include "graphos/core/sfm/OrientationReport.h"
 #include "graphos/core/dense/dense.h"
 #include "graphos/core/mesh/PoissonRecon.h"
-#include "reports/dem.h"
+#include "graphos/core/reports/dem.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;

@@ -99,7 +99,7 @@ bool OrthophotoCommand::run()
         mProject = new ProjectImp;
         mProject->load(project_path);
 
-        auto dsm = mProject->dtm().dsmPath;
+        auto dsm = mProject->dem().dsmPath;
 
         tl::Path orthophoto_path(mProject->projectFolder());
         orthophoto_path.append("ortho");

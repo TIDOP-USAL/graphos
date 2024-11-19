@@ -436,10 +436,10 @@ void DemTask::execute(tl::Progress *progressBar)
 
         /// DSM ENU
         {
-            tl::Affine<double, 2> georeference_enu(mGSD, -mGSD, cgal_bbox.xmin(), cgal_bbox.ymax(), 0.);
+            tl::Affine<double, 2> georeference_enu(mGsd, -mGsd, cgal_bbox.xmin(), cgal_bbox.ymax(), 0.);
             tl::BoundingBoxD bbox(tl::Point3d(cgal_bbox.xmin(), cgal_bbox.ymin(), cgal_bbox.zmin()),
                                   tl::Point3d(cgal_bbox.xmax(), cgal_bbox.ymax(), cgal_bbox.zmax()));
-            cv::Mat dsm_raster_enu = extractDSMfromPointCloud(points, bbox, mGSD, georeference_enu.inverse());
+            cv::Mat dsm_raster_enu = extractDSMfromPointCloud(points, bbox, mGsd, georeference_enu.inverse());
 
             CGAL::Point_set_3<Point_3> points_dsm;
 
@@ -457,7 +457,7 @@ void DemTask::execute(tl::Progress *progressBar)
             //if (mDSM) {
 
                 DelaunayTriangulation dtm_clean(points_dsm.points().begin(), points_dsm.points().end());
-                dsm_raster_enu = extractDTMfromTIN(dtm_clean, bbox, georeference_enu, mGSD);
+                dsm_raster_enu = extractDTMfromTIN(dtm_clean, bbox, georeference_enu, mGsd);
 
                 tl::Path mds_path = mDemPath;
                 mds_path.append("dsm_enu.tif");

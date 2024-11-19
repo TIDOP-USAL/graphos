@@ -149,6 +149,9 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                 try {
 
+                    tl::Chrono chrono;
+                    chrono.run();
+
                     tl::Path file(image.path().toStdWString());
                     tl::Path file_name = file.fileName();
 
@@ -251,7 +254,7 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                     layer.push_back(entity);
 
-                    tl::Message::info("Write orthoimage: {}", ortho_file.fileName().toString());
+                    tl::Message::info("Write orthoimage {} in {:.2} minutes", ortho_file.fileName().toString(), chrono.stop() / 60.);
 
                 } catch (const std::exception &e) {
                     tl::printException(e);

@@ -52,6 +52,8 @@ void ZBuffer::run()
 
     try {
 
+        auto gsd = mGeoreference.scale().x();
+
         tl::Rect<int> rect_image = mOrthorectification->rectImage();
         tl::Rect<int> rect_dtm = mOrthorectification->rectDtm();
 
@@ -112,11 +114,13 @@ void ZBuffer::run()
 
                     /// Estoy expandiendo despues de comprobar si se sale de los limites de la imagen... Solucionar cuando refactorice
                     /// Habría que calcular la intersección de window_aux con la ventana imagen total.
-                    tl::WindowI window_aux = tl::expandWindow(window_image_in, 1);
-                    if (rect_image.contains(window_aux.pt1) &&
-                        rect_image.contains(window_aux.pt2)) {
-                        window_image_in = window_aux;
-                    }
+                    
+                    // Al expadir la ventana estoy cambiando el origen de las coordenadas de la imagen
+                    //tl::WindowI window_aux = tl::expandWindow(window_image_in, 1);
+                    //if (rect_image.contains(window_aux.pt1) &&
+                    //    rect_image.contains(window_aux.pt2)) {
+                    //    window_image_in = window_aux;
+                    //}
 
                     cv::Point2f cv_photo_image_coordinates[4];
                     cv::Point2f cv_ortho_image_coordinates[4];
@@ -154,7 +158,7 @@ void ZBuffer::run()
                             double old_row = mY.at<int>(pt_image.y, pt_image.x);
                             double old_col = mX.at<int>(pt_image.y, pt_image.x);
 
-                            if (z_buffer_distance == 0. || distance < z_buffer_distance + 0.25){
+                            if (z_buffer_distance == 0. || distance < z_buffer_distance + gsd * 5./*0.25*/){
                                 cv::Mat mask_image = cv::Mat::zeros(window_image_in.height(), window_image_in.width(), CV_8U);
                                 std::vector<cv::Point> pts;
                                 for (int k = 0; k < photo_image_coordinates.size(); k++) {
