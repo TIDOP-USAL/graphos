@@ -28,6 +28,7 @@
 #include <tidop/geometry/entities/point.h>
 
 #include "graphos/core/mvp.h"
+#include "graphos/core/reports/orthophoto.h"
 
 namespace graphos
 {
@@ -57,10 +58,11 @@ public:
     virtual auto orthoPath() const -> tl::Path = 0;
     virtual void setOrthoPath(const tl::Path &orthoPath) = 0;
     virtual auto dtmPath() const -> tl::Path = 0;
-    virtual auto epsCode() const -> QString = 0;
     virtual void clearProject() = 0;
     virtual auto useCuda() const -> bool = 0;
     virtual auto gsd() const -> double = 0;
+    virtual auto crs() const -> QString = 0;
+    virtual auto interpolation() const -> QString = 0;
 
     /*!
      * \brief Retrieves the offset values.
@@ -68,9 +70,10 @@ public:
      */
     virtual auto offset() const -> tl::Point3<double> = 0;
 
-public slots:
-
-    virtual void setGSD(double gsd) = 0;
+    virtual void setGsd(double gsd) = 0;
+    virtual void setCrs(const QString &crs) = 0;
+    virtual void setInterpolation(const QString &interpolation) = 0;
+    virtual void setReport(const OrthophotoReport &report) = 0;
 
     virtual void loadSettings() = 0;
     virtual void saveSettings() = 0;

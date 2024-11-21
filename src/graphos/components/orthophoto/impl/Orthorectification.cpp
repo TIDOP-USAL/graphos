@@ -38,14 +38,10 @@ namespace graphos
 
 Orthorectification::Orthorectification(const tl::Path &dtm,
                                        const Camera &camera,
-                                       const CameraPose &cameraPose,
-                                       const tl::EcefToEnu &ecefToEnu, 
-                                       const std::shared_ptr<tl::CrsTransform> &crsTransfom)
+                                       const CameraPose &cameraPose)
   : mDtmReader(tl::ImageReaderFactory::create(dtm)),
     mCamera(camera),
     mCameraPose(cameraPose),
-    mEcefToEnu(ecefToEnu),
-    mCrsTransfom(crsTransfom),
     mIniZ(0.),
     mNoDataValue(-std::numeric_limits<double>().max()),
     bCuda(false)

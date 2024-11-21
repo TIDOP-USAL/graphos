@@ -74,9 +74,7 @@ void Footprint::execute(tl::Progress *progressBar)
 
             Orthorectification orthorectification(mDtm,
                                                   mCameras[image.cameraId()],
-                                                  image.cameraPose(),
-                                                  mEcefToEnu,
-                                                  mCrsTransfom);
+                                                  image.cameraPose());
             std::shared_ptr<tl::GPolygon> entity = std::make_shared<tl::GPolygon>(orthorectification.footprint());
             std::shared_ptr<tl::TableRegister> data = std::make_shared <tl::TableRegister>(layer.tableFields());
             data->setValue(0, image.name().toStdString());

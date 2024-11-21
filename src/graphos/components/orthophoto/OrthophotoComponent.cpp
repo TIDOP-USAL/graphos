@@ -24,9 +24,11 @@
 
 #include "OrthophotoComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoPresenter.h"
+#endif // GRAPHOS_GUI
 #include "graphos/components/orthophoto/impl//OrthophotoCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
@@ -55,18 +57,24 @@ void OrthophotoComponent::init()
 
 void OrthophotoComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new OrthophotoModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void OrthophotoComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new OrthophotoViewImp());
+#endif // GRAPHOS_GUI
 }
 
 void OrthophotoComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new OrthophotoPresenterImp(dynamic_cast<OrthophotoView *>(view()),
                                             dynamic_cast<OrthophotoModel *>(model())));
+#endif // GRAPHOS_GUI
 }
 
 void OrthophotoComponent::createCommand()
@@ -118,5 +126,12 @@ void OrthophotoComponent::onFailed()
     app_status->activeFlag(AppStatus::Flag::ortho, false);
 }
 
+void OrthophotoComponent::setCrs(const QString &crs)
+{
+#ifdef GRAPHOS_GUI
+    if (view())
+        dynamic_cast<OrthophotoView *>(view())->setCrs(crs);
+#endif // GRAPHOS_GUI
+}
 
 } // namespace graphos

@@ -552,6 +552,20 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
         componentsManager.registerComponent(&orthophoto_component,
                                             ComponentsManager::Flags::separator_before);
+
+#   ifdef GRAPHOS_HAVE_CRS
+        QObject::connect(&orthophoto_component, &OrthophotoComponent::select_crs, [&]() {
+
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+            &orthophoto_component, &OrthophotoComponent::setCrs);
+
+        crs_component.open();
+
+        QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+            &orthophoto_component, &OrthophotoComponent::setCrs);
+
+            });
+#   endif // GRAPHOS_HAVE_CRS
 #endif // GRAPHOS_HAVE_ORTHOPHOTO
 
 #ifdef GRAPHOS_HAVE_FEATVIEWER

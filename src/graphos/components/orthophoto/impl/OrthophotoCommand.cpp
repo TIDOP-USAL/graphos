@@ -49,6 +49,10 @@ OrthophotoCommand::OrthophotoCommand()
     this->addArgument<double>("gsd", 'g', "Ground sample distance", 0.1);
     //this->addArgument<Path>("dsm", "Digital Surface Model");
     this->addArgument<std::string>("crs", "Coordinate Reference System", "");
+    auto arg_interpolation = Argument::make<std::string>("interpolation", 'i', "Interpolation", "BILINEAR");
+    std::vector<std::string> interpolation_methods{"NEAREST", "BILINEAR", "BICUBIC"};
+    arg_interpolation->setValidator(std::make_shared<ValuesValidator<std::string>>(interpolation_methods));
+    this->addArgument(arg_interpolation);
 
 #ifdef HAVE_CUDA
     tl::Message::pauseMessages();
@@ -86,6 +90,7 @@ bool OrthophotoCommand::run()
         auto gsd =  this->value<double>("gsd");
         //auto dsm =  this->value<Path>("dsm");
         auto crs =  this->value<std::string>("crs");
+        auto interpolation =  this->value<std::string>("interpolation");
         if (!mDisableCuda)
             mDisableCuda = this->value<bool>("disable_cuda");
 
@@ -130,6 +135,7 @@ bool OrthophotoCommand::run()
                                        dsm,
                                        offset,
                                        crs,
+                                       interpolation,
                                        !mDisableCuda);
         orthophoto_task.run();
 

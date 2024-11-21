@@ -55,9 +55,7 @@ public:
 
     Orthorectification(const tl::Path &dtm,
                        const Camera &camera,
-                       const CameraPose &cameraPose,
-                       const tl::EcefToEnu &ecefToEnu, 
-                       const std::shared_ptr<tl::CrsTransform> &crsTransfom);
+                       const CameraPose &cameraPose);
 
     ~Orthorectification()
     {
@@ -105,8 +103,6 @@ private:
     Camera mCamera;
     Camera mUndistortCamera;
     CameraPose mCameraPose;
-    tl::EcefToEnu mEcefToEnu;
-    std::shared_ptr<tl::CrsTransform> mCrsTransfom;
     std::unique_ptr<tl::ImageReader> mDtmReader;
     cv::Mat mDtm;
     tl::Window<tl::Point<double>> mWindowDtmTerrainExtension;

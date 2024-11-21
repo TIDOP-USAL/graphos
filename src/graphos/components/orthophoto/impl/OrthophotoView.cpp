@@ -29,7 +29,8 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QSpinBox>
-
+#include <QLineEdit>
+#include <QComboBox>
 
 namespace graphos
 {
@@ -53,12 +54,33 @@ void OrthophotoViewImp::initUI()
     auto grid_layout = new QGridLayout();
     this->setLayout(grid_layout);
 
-    mLabelResolution = new QLabel(this);
-    grid_layout->addWidget(mLabelResolution, 0, 0, 1, 1);
-    mDoubleSpinBoxResolution = new QDoubleSpinBox(this);
-    mDoubleSpinBoxResolution->setSingleStep(0.1);
-    grid_layout->addWidget(mDoubleSpinBoxResolution, 0, 1, 1, 1);
+    mLabelCRS = new QLabel(this);
+    grid_layout->addWidget(mLabelCRS, 0, 0, 1, 1);
+    mLineEditCRS = new QLineEdit(this);
+    mLineEditCRS->setMaximumWidth(200);
+    mLineEditCRS->setDisabled(true);
+    grid_layout->addWidget(mLineEditCRS, 0, 1, 1, 1);
+    mQPushButtonCRS = new QPushButton(this);
+    mQPushButtonCRS->setMaximumSize(QSize(31, 28));
+    mQPushButtonCRS->setText("...");
+    grid_layout->addWidget(mQPushButtonCRS, 0, 2, 1, 1);
 
+    mLabelGSD = new QLabel(this);
+    grid_layout->addWidget(mLabelGSD, 1, 0, 1, 1);
+    mDoubleSpinBoxGSD = new QDoubleSpinBox(this);
+    mDoubleSpinBoxGSD->setSingleStep(0.1);
+    grid_layout->addWidget(mDoubleSpinBoxGSD, 1, 1, 1, 1);
+
+    mLabelInterpolation = new QLabel(this);
+    grid_layout->addWidget(mLabelInterpolation, 2, 0, 1, 1);
+    mComboBoxInterpolation = new QComboBox(this);
+    mComboBoxInterpolation->addItem("");
+    mComboBoxInterpolation->addItem("");
+    mComboBoxInterpolation->addItem("");
+    mComboBoxInterpolation->setItemData(0, "NEAREST");
+    mComboBoxInterpolation->setItemData(1, "BILINEAR");
+    mComboBoxInterpolation->setItemData(2, "BICUBIC");
+    grid_layout->addWidget(mComboBoxInterpolation, 2, 1, 1, 1);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
@@ -72,7 +94,10 @@ void OrthophotoViewImp::initUI()
 
 void OrthophotoViewImp::initSignalAndSlots()
 {
-    connect(mDoubleSpinBoxResolution, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &OrthophotoView::resolutionChanged);
+    connect(mLineEditCRS, &QLineEdit::textChanged, this, &OrthophotoView::crs_change);
+    connect(mLineEditCRS, &QLineEdit::textChanged, this, &OrthophotoViewImp::update);
+    connect(mQPushButtonCRS, &QAbstractButton::clicked, this, &OrthophotoView::select_crs);
+    connect(mDoubleSpinBoxGSD, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &OrthophotoView::resolutionChanged);
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(mButtonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, &OrthophotoView::run);
@@ -83,8 +108,12 @@ void OrthophotoViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("OrthophotoView", "Orthophoto"));
 
-    mLabelResolution->setText(QApplication::translate("ResolutionView", "Resolution (m):"));
-
+    mLabelGSD->setText(QApplication::translate("OrthophotoView", "Resolution (m):"));
+    mLabelCRS->setText(QApplication::translate("OrthophotoView", "CRS"));
+    mLabelInterpolation->setText(QApplication::translate("OrthophotoView", "Interpolation"));
+    mComboBoxInterpolation->setItemText(0, QApplication::translate("OrthophotoView", "Nearest"));
+    mComboBoxInterpolation->setItemText(1, QApplication::translate("OrthophotoView", "Bilinear"));
+    mComboBoxInterpolation->setItemText(2, QApplication::translate("OrthophotoView", "Bicubic"));
 
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("BilateralFilterView", "Cancel"));
     mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("BilateralFilterView", "Run"));
@@ -93,7 +122,11 @@ void OrthophotoViewImp::retranslate()
 
 void OrthophotoViewImp::clear()
 {
-    mDoubleSpinBoxResolution->setValue(0.05);
+    const QSignalBlocker signal_blocker(mDoubleSpinBoxGSD);
+    mDoubleSpinBoxGSD->setValue(0.05);
+
+    const QSignalBlocker blocker_crs(mLineEditCRS);
+    mLineEditCRS->clear();
 }
 
 void OrthophotoViewImp::update()
@@ -101,16 +134,34 @@ void OrthophotoViewImp::update()
 
 auto OrthophotoViewImp::gsd() const -> double
 {
-    return mDoubleSpinBoxResolution->value();
+    return mDoubleSpinBoxGSD->value();
 }
 
-
-void OrthophotoViewImp::setGSD(double gsd)
+auto OrthophotoViewImp::crs() const -> QString
 {
-    const QSignalBlocker blocker(mDoubleSpinBoxResolution);
-    mDoubleSpinBoxResolution->setValue(gsd);
+    return mLineEditCRS->text();
 }
 
+auto OrthophotoViewImp::interpolation() const -> QString
+{
+    return mComboBoxInterpolation->currentData().toString();
+}
+
+void OrthophotoViewImp::setGsd(double gsd)
+{
+    const QSignalBlocker blocker(mDoubleSpinBoxGSD);
+    mDoubleSpinBoxGSD->setValue(gsd);
+}
+
+void OrthophotoViewImp::setCrs(const QString &crs)
+{
+    mLineEditCRS->setText(crs);
+}
+
+void OrthophotoViewImp::setInterpolation(const QString &interpolation)
+{
+    mComboBoxInterpolation->setCurrentIndex(mComboBoxInterpolation->findData(interpolation));
+}
 
 
 } // namespace graphos

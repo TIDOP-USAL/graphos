@@ -33,6 +33,8 @@
 #include <tidop/core/path.h>
 #include <tidop/geometry/entities/window.h>
 
+#include "graphos/core/reports/orthophoto.h"
+
 namespace tl 
 {
 class Progress;
@@ -58,9 +60,12 @@ public:
                    const tl::Path &mdt,
                    tl::Point3<double> offset,
                    const std::string &epsg,
+                   const std::string &interpolation = "BILINEAR",
                    bool cuda = false);
 
     ~OrthophotoTask() override;
+
+    auto report() const -> OrthophotoReport;
 
     void setGSD(double gsd);
     void setPhotos(const std::vector<Image> &images);
@@ -89,6 +94,8 @@ private:
     tl::Path mMdt;
     tl::Point3<double> mOffset;
     std::string mEpsg;
+    std::string mInterpolation;
+    OrthophotoReport mOrthophotoReport;
     bool bCuda;
 
 };

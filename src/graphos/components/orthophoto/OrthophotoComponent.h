@@ -41,9 +41,17 @@ public:
     OrthophotoComponent(Application *application);
     ~OrthophotoComponent() override;
 
+public slots:
+
+    void setCrs(const QString &crs);
+
 private:
 
     void init();
+
+signals:
+
+    void select_crs();
 
 // ComponentBase
 

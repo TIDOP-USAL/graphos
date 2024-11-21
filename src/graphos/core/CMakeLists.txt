@@ -109,6 +109,8 @@ add_files_to_project(${PROJECT_NAME}
                          dense/mvs.h
                          dense/DenseExport.h
                          mesh/PoissonRecon.h
+                         reports/dem.h
+                         reports/orthophoto.h
                          utils.h
                          camera/Calibration.h
                          camera/Camera.h

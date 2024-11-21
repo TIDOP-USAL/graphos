@@ -30,7 +30,8 @@
 class QDialogButtonBox;
 class QLabel;
 class QDoubleSpinBox;
-
+class QComboBox;
+class QLineEdit;
 
 namespace graphos
 {
@@ -50,11 +51,15 @@ public:
 
 public:
 
-    double gsd() const override;
+    auto gsd() const -> double override;
+    auto crs() const -> QString override;
+    auto interpolation() const -> QString override;
 
 public slots:
 
-    void setGSD(double gsd) override;
+    void setGsd(double gsd) override;
+    void setCrs(const QString &crs) override;
+    void setInterpolation(const QString &interpolation) override;
 
 // DialogView
 
@@ -74,8 +79,13 @@ private slots:
 
 protected:
 
-    QLabel *mLabelResolution;
-    QDoubleSpinBox *mDoubleSpinBoxResolution;
+    QLabel *mLabelCRS;
+    QLineEdit *mLineEditCRS;
+    QPushButton *mQPushButtonCRS;
+    QLabel *mLabelGSD;
+    QDoubleSpinBox *mDoubleSpinBoxGSD;
+    QLabel *mLabelInterpolation;
+    QComboBox *mComboBoxInterpolation;
     QDialogButtonBox *mButtonBox;
 
 };

@@ -66,8 +66,9 @@ public:
 				   const tl::Crs &crs,
 				   /// 
 				   const tl::Path &footprint = tl::Path(),
-				   double scale = -1,
-				   double crop = 1,
+				   double gsd = -1.,
+				   const std::string &interpolation = "BILINEAR",
+				   double crop = 1.,
 				   bool bCuda = false);
 	~OrthoimageTask();
 
@@ -89,7 +90,8 @@ private:
 	tl::Crs mCrs;
 	std::unique_ptr<tl::VectorWriter> mFootprintWriter;
 	std::unique_ptr<tl::VectorWriter> mGraphOrthosWriter;
-	double mScale;
+	double mGsd;
+	std::string mInterpolation;
 	double mCrop;
 	bool bCuda;
 

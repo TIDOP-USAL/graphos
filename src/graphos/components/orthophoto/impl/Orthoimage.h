@@ -61,7 +61,9 @@ public:
 			   const tl::Crs &crs,
 			   const tl::Rect<int> &rectOrtho,
 			   const tl::Affine<double, 2> &georeference,
+			   const std::string &interpolation = "BILINEAR",
 			   bool cuda = false);
+
 	~Orthoimage();
 
 	void run(const tl::Path &ortho,
@@ -79,6 +81,7 @@ private:
 	tl::Affine<double, 2> mGeoreference;
 	std::unique_ptr<tl::ImageWriter> mOrthophotoWriter;
 	tl::Window<tl::Point<double>> mWindowOrthoTerrain;
+	std::string mInterpolation;
 	bool bCuda;
 };
 

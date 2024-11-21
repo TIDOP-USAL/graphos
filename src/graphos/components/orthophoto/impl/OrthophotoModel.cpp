@@ -57,9 +57,24 @@ OrthophotoModelImp::~OrthophotoModelImp()
     }
 }
 
-void OrthophotoModelImp::setGSD(double gsd)
+void OrthophotoModelImp::setGsd(double gsd)
 {
     mProject->orthophoto().gsd = gsd;
+}
+
+void OrthophotoModelImp::setCrs(const QString &crs)
+{
+    mProject->orthophoto().epsgCode = crs;
+}
+
+void OrthophotoModelImp::setInterpolation(const QString &interpolation)
+{
+    mProject->orthophoto().interpolation = interpolation;
+}
+
+void OrthophotoModelImp::setReport(const OrthophotoReport &report)
+{
+    mProject->setOrthophotoReport(report);
 }
 
 void OrthophotoModelImp::loadSettings()
@@ -160,19 +175,6 @@ auto OrthophotoModelImp::dtmPath() const -> tl::Path
     return mProject->dem().dsmPath;
 }
 
-auto OrthophotoModelImp::epsCode() const -> QString
-{
-    auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-    auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
-    tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-    auto lla = crs_transfom_geocentric_to_geographic.transform(offset());
-    int zone = tl::utmZoneFromLongitude(lla.x);
-    QString epsg_code = "EPSG:326";
-    epsg_code.append(QString::number(zone));
-    return epsg_code;
-    //return mProject->crs();
-}
-
 void OrthophotoModelImp::clearProject()
 {
     /// TODO: 
@@ -187,6 +189,28 @@ auto OrthophotoModelImp::useCuda() const -> bool
 auto OrthophotoModelImp::gsd() const -> double
 {
     return mProject->orthophoto().gsd;
+}
+
+auto OrthophotoModelImp::interpolation() const -> QString
+{
+    return mProject->orthophoto().interpolation;
+}
+
+auto OrthophotoModelImp::crs() const -> QString
+{
+    QString epsg_code = mProject->orthophoto().epsgCode;
+
+    if (epsg_code.isEmpty()) {
+        auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+        auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+        tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+        auto lla = crs_transfom_geocentric_to_geographic.transform(offset());
+        int zone = tl::utmZoneFromLongitude(lla.x);
+        epsg_code = "EPSG:326";
+        epsg_code.append(QString::number(zone));
+    }
+
+    return epsg_code;
 }
 
 auto OrthophotoModelImp::offset() const -> tl::Point3<double> 

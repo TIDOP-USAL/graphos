@@ -23,7 +23,6 @@
 
 #include "DemView.h"
 
-#include <QComboBox>
 #include <QSpinBox>
 #include <QPushButton>
 #include <QCheckBox>
@@ -59,8 +58,8 @@ void DemViewImp::initUI()
 
     auto grid_layout = new QGridLayout();
     this->setLayout(grid_layout);
-    mLabelCRS = new QLabel(this);
 
+    mLabelCRS = new QLabel(this);
     grid_layout->addWidget(mLabelCRS, 0, 0, 1, 1);
     mLineEditCRS = new QLineEdit(this);
     mLineEditCRS->setMaximumWidth(200);

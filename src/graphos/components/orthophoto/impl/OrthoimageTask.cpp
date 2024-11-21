@@ -72,7 +72,8 @@ OrthoimageTask::OrthoimageTask(const std::vector<Image> &images,
                                      const tl::Crs &crs,
                                      ///
                                      const tl::Path &footprint,
-                                     double scale,
+                                     double gsd,
+                                     const std::string &interpolation,
                                      double crop,
                                      bool cuda)
   : mImages(images),
@@ -82,7 +83,8 @@ OrthoimageTask::OrthoimageTask(const std::vector<Image> &images,
     mEcefToEnu(ecefToEnu), 
     mCrsTransfom(crsTransfom),
     mCrs(crs),
-    mScale(scale),
+    mGsd(gsd),
+    mInterpolation(interpolation),
     mCrop(crop),
     bCuda(cuda)
 {
@@ -167,17 +169,17 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                     Orthorectification orthorectification(mDtm,
                                                           mCameras[image.cameraId()],
-                                                          image.cameraPose(),
+                                                          image.cameraPose()/*,
                                                           mEcefToEnu,
-                                                          mCrsTransfom);
+                                                          mCrsTransfom*/);
                     orthorectification.setCuda(bCuda);
                     if (!orthorectification.isValid()) continue;
 
                     std::shared_ptr<tl::GPolygon> entity = std::make_shared<tl::GPolygon>(orthorectification.footprint());
 
-                    double scale = mScale;
-                    if (mScale == -1) {
-                        /// Calculo de transformación afin entre coordenadas terreno e imagen para la orto para determinar una escala optima
+                    double gsd = mGsd;
+                    if (mGsd == -1) {
+                        /// Calculo de transformación afin entre coordenadas terreno e imagen para la orto para determinar un GSD optimo
                         std::vector<tl::Point<double>> t_coor;
                         t_coor.push_back(entity->at(0));
                         t_coor.push_back(entity->at(1));
@@ -193,7 +195,7 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                         tl::Affine<double, 2> affine_terrain_image = tl::Affine2DEstimator<double>::estimate(i_coor, t_coor);
                         //affine_terrain_image.compute(i_coor, t_coor);
-                        scale = (affine_terrain_image.scale().x() + affine_terrain_image.scale().y()) / 2.;
+                        gsd = (affine_terrain_image.scale().x() + affine_terrain_image.scale().y()) / 2.;
                     }
 
                     // Se reserva tamaño para la orto
@@ -201,11 +203,11 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                     window_ortho_terrain = expandWindow(window_ortho_terrain,
                                                         window_ortho_terrain.width() * (mCrop - 1.) / 2.,
                                                         window_ortho_terrain.height() * (mCrop - 1.) / 2.);
-                    int rows_ortho = static_cast<int>(std::round(window_ortho_terrain.height() / scale));
-                    int cols_ortho = static_cast<int>(std::round(window_ortho_terrain.width() / scale));
+                    int rows_ortho = static_cast<int>(std::round(window_ortho_terrain.height() / gsd));
+                    int cols_ortho = static_cast<int>(std::round(window_ortho_terrain.width() / gsd));
                     tl::Rect<int> rect_ortho = tl::Rect<int>(0, 0, cols_ortho, rows_ortho);
 
-                    tl::Affine<double, 2> affine_ortho(scale, -scale,
+                    tl::Affine<double, 2> affine_ortho(gsd, -gsd,
                                                        window_ortho_terrain.pt1.x,
                                                        window_ortho_terrain.pt2.y, 0.0);
                     /// Grafico ortofotos
@@ -233,7 +235,16 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                     cv::Mat visibility_map = visibilityMap(orthorectification, zBuffer);
 
-                    Orthoimage orthoimage(file, &orthorectification, mEcefToEnu, mCrsTransfom, mCrs, rect_ortho, affine_ortho, bCuda);
+                    Orthoimage orthoimage(file,
+                                          &orthorectification, 
+                                          mEcefToEnu, 
+                                          mCrsTransfom,
+                                          mCrs, 
+                                          rect_ortho, 
+                                          affine_ortho,
+                                          mInterpolation,
+                                          bCuda);
+
                     orthoimage.run(ortho_file, visibility_map);
 
                     std::shared_ptr<tl::TableRegister> data(new tl::TableRegister(layer.tableFields()/*fields*/));
