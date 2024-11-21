@@ -677,7 +677,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     if (summary.termination_type == ceres::CONVERGENCE) break;
                 }
 
-                // Calculo de los errores en el ajuste de haces:
+                // Calculo de los errores en el ajuste de haces
+
                 if (mControlPoints){
 
                     std::vector<Eigen::Vector3d> src;
@@ -750,8 +751,12 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         tl::Message::info("Ground Control Point {}: Error -> {}", gcp_name[i], errors[i]);
                     }
 
+                    mOrientationReport.alignmentErrorMean = colmap::Mean(errors);
+                    mOrientationReport.alignmentErrorMedian = colmap::Median(errors);
+
                     tl::Message::info("Georeference error: {} (mean), {} (median)",
-                                      colmap::Mean(errors), colmap::Median(errors));
+                                      mOrientationReport.alignmentErrorMean, mOrientationReport.alignmentErrorMedian);
+
                 } else if (mRTK || mGPS){
 
                     std::vector<double> errors;
@@ -777,7 +782,10 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         }
                     }
 
-                    tl::Message::info("Alignment error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
+                    mOrientationReport.alignmentErrorMean = colmap::Mean(errors);
+                    mOrientationReport.alignmentErrorMedian = colmap::Median(errors);
+
+                    tl::Message::info("Alignment error: {} (mean), {} (median)",mOrientationReport.alignmentErrorMean, mOrientationReport.alignmentErrorMedian);
                 }
 
                 // Fin calculo de errores en el ajuste de haces
