@@ -69,7 +69,7 @@ void OrthophotoViewImp::initUI()
     grid_layout->addWidget(mLabelGSD, 1, 0, 1, 1);
     mDoubleSpinBoxGSD = new QDoubleSpinBox(this);
     mDoubleSpinBoxGSD->setSingleStep(0.1);
-    grid_layout->addWidget(mDoubleSpinBoxGSD, 1, 1, 1, 1);
+    grid_layout->addWidget(mDoubleSpinBoxGSD, 1, 1, 1, 2);
 
     mLabelInterpolation = new QLabel(this);
     grid_layout->addWidget(mLabelInterpolation, 2, 0, 1, 1);
@@ -80,12 +80,12 @@ void OrthophotoViewImp::initUI()
     mComboBoxInterpolation->setItemData(0, "NEAREST");
     mComboBoxInterpolation->setItemData(1, "BILINEAR");
     mComboBoxInterpolation->setItemData(2, "BICUBIC");
-    grid_layout->addWidget(mComboBoxInterpolation, 2, 1, 1, 1);
+    grid_layout->addWidget(mComboBoxInterpolation, 2, 1, 1, 2);
 
     mButtonBox = new QDialogButtonBox(this);
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    grid_layout->addWidget(mButtonBox, 7, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 7, 0, 1, 3);
 
     this->retranslate();
     this->clear();

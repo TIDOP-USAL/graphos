@@ -52,7 +52,7 @@ ImportCamerasModelImp::ImportCamerasModelImp(Project *project,
     bFieldNamesFromFirstRow(true),
     mDelimiter(","),
     mIniLine(0),
-    mInputCrs(""),
+    mCrs(""),
     mItemModelCSV(new QStandardItemModel(this)),
     mItemModelCameras(new QStandardItemModel(this))
 {
@@ -76,10 +76,10 @@ void ImportCamerasModelImp::setCsvFile(const QString &csv)
 
 void ImportCamerasModelImp::init()
 {
-    QString crs = mProject->crs();
-    if (!crs.isEmpty()) {
-        mOutputCrs = crs;
-    }
+    //QString crs = mProject->crs();
+    //if (!crs.isEmpty()) {
+    //    mOutputCrs = crs;
+    //}
 }
 
 void ImportCamerasModelImp::clear()
@@ -88,7 +88,7 @@ void ImportCamerasModelImp::clear()
     bFieldNamesFromFirstRow = true;
     mDelimiter = ",";
     mIniLine = 0;
-    mInputCrs = "";
+    mCrs = "";
     mItemModelCSV->clear();
     mItemModelCameras->clear();
 }
@@ -570,14 +570,9 @@ void ImportCamerasModelImp::setKappaFieldId(int id)
     previewImportCamerasFormated();
 }
 
-void ImportCamerasModelImp::setInputCRS(const QString &crs)
+void ImportCamerasModelImp::setCrs(const QString &crs)
 {
-    mInputCrs = crs;
-}
-
-void ImportCamerasModelImp::setOutputCRS(const QString &crs)
-{
-    mOutputCrs = crs;
+    mCrs = crs;
 }
 
 void ImportCamerasModelImp::importCameras()
@@ -612,12 +607,12 @@ void ImportCamerasModelImp::importCameras()
         QString phi;
         QString kappa;
 
-        QString epsg_out = mProject->crs();
-        std::shared_ptr<tl::Crs> crs_in(new tl::Crs(mInputCrs.toStdString()));
-        std::shared_ptr<tl::Crs> crs_out(new tl::Crs(mOutputCrs.toStdString()));
-        mProject->setCrs(mOutputCrs);
+        //QString epsg_out = mProject->crs();
+        //std::shared_ptr<tl::Crs> crs_in(new tl::Crs(mInputCrs.toStdString()));
+        //std::shared_ptr<tl::Crs> crs_out(new tl::Crs(mOutputCrs.toStdString()));
+        //mProject->setCrs(mOutputCrs);
 
-        bool bTrfCrs = crs_in->isValid() && crs_out->isValid();
+        //bool bTrfCrs = crs_in->isValid() && crs_out->isValid();
 
         while (!stream.atEnd()) {
 
@@ -748,19 +743,20 @@ void ImportCamerasModelImp::importCameras()
 
                     CameraPose camera_pose;
                     camera_pose.setSource(mCsvFile);
-                    if (bTrfCrs) {
-                        tl::CrsTransform crs_trf(crs_in, crs_out);
+                    //if (bTrfCrs) {
+                    //    tl::CrsTransform crs_trf(crs_in, crs_out);
 
-                        tl::Point3<double> pt_in;
-                        pt_in = tl::Point3<double>(x.toDouble(), y.toDouble(), z.toDouble());
+                    //    tl::Point3<double> pt_in;
+                    //    pt_in = tl::Point3<double>(x.toDouble(), y.toDouble(), z.toDouble());
 
-                        tl::Point3<double> pt_out = crs_trf.transform(pt_in);
+                    //    tl::Point3<double> pt_out = crs_trf.transform(pt_in);
 
-                        camera_pose.setPosition(pt_out);
-                        camera_pose.setCrs(mOutputCrs);
-                    } else {
+                    //    camera_pose.setPosition(pt_out);
+                    //    camera_pose.setCrs(mOutputCrs);
+                    //} else {
                         camera_pose.setPosition(tl::Point3<double>(x.toDouble(), y.toDouble(), z.toDouble()));
-                    }
+                        camera_pose.setCrs(mCrs);
+                    //}
 
                     tl::Quaternion<double> quaternion = tl::Quaternion<double>::identity();
                     if (mRotationType.compare("Yaw, Pitch, Roll") == 0) {
@@ -831,17 +827,17 @@ void ImportCamerasModelImp::importCameras()
     /// 
 }
 
-bool ImportCamerasModelImp::checkCRS(const QString &crs)
-{
-    tl::Message::pauseMessages();
-    tl::Crs _crs(crs.toStdString());
-    tl::Message::resumeMessages();
-    return _crs.isValid();
-}
-
-QString ImportCamerasModelImp::outputCRS() const
-{
-    return mOutputCrs;
-}
+//bool ImportCamerasModelImp::checkCRS(const QString &crs)
+//{
+//    tl::Message::pauseMessages();
+//    tl::Crs _crs(crs.toStdString());
+//    tl::Message::resumeMessages();
+//    return _crs.isValid();
+//}
+//
+//QString ImportCamerasModelImp::outputCRS() const
+//{
+//    return mOutputCrs;
+//}
 
 } // namespace graphos

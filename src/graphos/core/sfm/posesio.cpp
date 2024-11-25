@@ -329,49 +329,49 @@ auto CameraPosesWriterFactory::create(const std::string& format) -> std::unique_
     return writer;
 }
 
-tl::Point3<double> offsetRead(const tl::Path &path)
-{
-    tl::Point3<double> coordinates;
+//tl::Point3<double> offsetRead(const tl::Path &path)
+//{
+//    tl::Point3<double> coordinates;
+//
+//    try {
+//
+//        std::ifstream stream(path.toString(), std::ios::in);
+//
+//        TL_ASSERT(stream.is_open(), "File not open: {}", path.toString());
+//
+//        std::string line;
+//        std::getline(stream, line);
+//        auto v = tl::split<double>(line, ' ');
+//
+//        coordinates.x = v.at(0);
+//        coordinates.y = v.at(1);
+//        coordinates.z = v.at(2);
+//
+//        stream.close();
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("");
+//    }
+//
+//    return coordinates;
+//}
 
-    try {
-
-        std::ifstream stream(path.toString(), std::ios::in);
-
-        TL_ASSERT(stream.is_open(), "File not open: {}", path.toString());
-
-        std::string line;
-        std::getline(stream, line);
-        auto v = tl::split<double>(line, ' ');
-
-        coordinates.x = v.at(0);
-        coordinates.y = v.at(1);
-        coordinates.z = v.at(2);
-
-        stream.close();
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-
-    return coordinates;
-}
-
-void offsetWrite(const tl::Path &path, const tl::Point3<double> &coordinates)
-{
-    try {
-
-        std::ofstream stream(path.toString(), std::ios::trunc);
-        if (stream.is_open()) {
-            stream << QString::number(coordinates.x, 'f', 6).toStdString() << " "
-                   << QString::number(coordinates.y, 'f', 6).toStdString() << " "
-                   << QString::number(coordinates.z, 'f', 6).toStdString() << std::endl;
-
-            stream.close();
-        }
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-}
+//void offsetWrite(const tl::Path &path, const tl::Point3<double> &coordinates)
+//{
+//    try {
+//
+//        std::ofstream stream(path.toString(), std::ios::trunc);
+//        if (stream.is_open()) {
+//            stream << QString::number(coordinates.x, 'f', 6).toStdString() << " "
+//                   << QString::number(coordinates.y, 'f', 6).toStdString() << " "
+//                   << QString::number(coordinates.z, 'f', 6).toStdString() << std::endl;
+//
+//            stream.close();
+//        }
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("");
+//    }
+//}
 
 } // namespace graphos

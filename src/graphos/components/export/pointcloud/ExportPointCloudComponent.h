@@ -24,6 +24,10 @@
 #ifndef GRAPHOS_EXPORT_POINT_CLOUD_COMPONENT_H
 #define GRAPHOS_EXPORT_POINT_CLOUD_COMPONENT_H
 
+/* TidopLib */
+#include <tidop/core/flags.h>
+
+/* GRAPHOS */
 #include "graphos/core/Component.h"
 
 
@@ -38,8 +42,30 @@ class ExportPointCloudComponent
 
 public:
 
+    enum class Format
+    {
+        ply = (1 << 0),
+        las = (1 << 1)
+    };
+
+public:
+
     ExportPointCloudComponent(Application *application);
     ~ExportPointCloudComponent() override = default;
+
+    void setCrs(const QString &crs);
+
+#ifdef GRAPHOS_GUI
+
+    void enableFormat(Format format);
+    void disableFormat(Format format);
+    bool isFormatEnabled(Format format) const;
+
+#endif // GRAPHOS_GUI
+
+signals:
+
+    void select_crs();
 
 private:
 
@@ -62,8 +88,14 @@ protected slots:
     void onRunning() override;
     void onFinished() override;
     void onFailed() override;
-};
 
+private:
+
+    tl::EnumFlags<Format> mFormat;
+
+
+};
+ALLOW_BITWISE_FLAG_OPERATIONS(ExportPointCloudComponent::Format)
 
 } // namespace graphos
 

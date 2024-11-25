@@ -33,6 +33,9 @@
 #include <tidop/core/log.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
+#include <tidop/GeoTools/GeoTools.h>
+
+#include <QFileInfo>
 
 
 using namespace tl;
@@ -43,7 +46,8 @@ namespace graphos
 
 DemCommand::DemCommand()
   : Command("dem", "Create DSM and/or DTM"),
-    mProject(nullptr)
+    mProject(nullptr),
+    mGeoTools(tl::GeoTools::getInstance())
 {
     this->addArgument<Path>("prj", 'p', "Project file");
     this->addArgument<double>("gsd", 'g', "Ground sample distance", 0.1);
@@ -64,6 +68,29 @@ DemCommand::~DemCommand()
     }
 }
 
+auto DemCommand::crs() const -> std::string
+{
+    std::string epsg_code;
+
+    try {
+
+        epsg_code = mProject->dem().epsgCode.toStdString();
+
+        if (epsg_code.empty()) {
+            auto enu_crs = mProject->enuCrs().toStdString();
+            auto v = tl::split<std::string>(enu_crs, ';');
+            auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+            epsg_code = "EPSG:326";
+            epsg_code.append(std::to_string(zone.first));
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
+
+    return epsg_code;
+}
+
 bool DemCommand::run()
 {
     bool r = false;
@@ -72,7 +99,7 @@ bool DemCommand::run()
 
     try {
 
-        tl::Path project_path = this->value<Path>("prj");
+        auto project_path = this->value<Path>("prj");
         auto gsd =  this->value<double>("gsd");
         auto dsm =  this->value<bool>("dsm");
         auto dtm =  this->value<bool>("dtm");
@@ -94,23 +121,11 @@ bool DemCommand::run()
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
 
-        tl::Point3<double> offset = offsetRead(mProject->offset());
+        //tl::Point3<double> offset = offsetRead(mProject->offset());
 
-        if (crs.empty()){
+        if (crs.empty()) crs = this->crs();
 
-            // Esto no tiene que hacerse ya que vamos a tener las coordenadas geograficas directamente
-            auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-            auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
-            tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-            auto lla = crs_transfom_geocentric_to_geographic.transform(offset);
-
-            //auto zone = tl::utmZoneFromLonLat(lla.x, lla.y);
-            int zone = tl::utmZoneFromLongitude(lla.x);
-            crs = "EPSG:326";
-            crs.append(std::to_string(zone));
-        }
-
-        DemTask dem_task(mProject->denseModel(), offset, dem_path, gsd, crs, dsm, dtm);
+        DemTask dem_task(mProject->denseModel(), mProject->enuCrs().toStdString(), crs, dem_path, gsd, dsm, dtm);
         dem_task.run();
 
         tl::Path dsm_file = dem_path;
@@ -126,7 +141,7 @@ bool DemCommand::run()
         }
 
         mProject->dem().gsd = gsd;
-
+        mProject->dem().epsgCode = QString::fromStdString(crs);
         mProject->setDemReport(dem_task.report());
 
         mProject->save(project_path);

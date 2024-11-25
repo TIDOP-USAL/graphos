@@ -27,13 +27,14 @@
 #include "graphos/core/utils.h"
 #include "graphos/core/project.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudTask.h"
+#include "graphos/core/sfm/posesio.h"
 
 #include <tidop/core/msg/message.h>
 #include <tidop/core/log.h>
 
 #include <QFileInfo>
+#include <tidop/geospatial/util.h>
 
-#include "graphos/core/sfm/posesio.h"
 
 
 using namespace tl;
@@ -43,11 +44,17 @@ namespace graphos
 
 
 ExportPointCloudCommand::ExportPointCloudCommand()
-  : Command("export_point_cloud", "Export point cloud")
+  : Command("export_point_cloud", "Export point cloud"),
+    mProject(nullptr)
 {
     this->addArgument<Path>("prj", 'p', "Project file");
     this->addArgument<Path>("file", 'f', "Export file");
-    this->addArgument<std::string>("crs", "CRS of the point cloud (default: CRS of the project )", "");
+    auto ply_format = Argument::make<std::string>("ply:format", "PLY format", "binary");
+    ply_format->setValidator(ValuesValidator<std::string>::create({"binary", "text"}));
+    this->addArgument(ply_format);
+    this->addOption("ply:colors", "Export point cloud colors", true);
+    this->addOption("ply:normals", "Export point cloud normals", true);
+    this->addArgument<std::string>("crs", "CRS of the point cloud", "");
 
     this->addExample("export_point_cloud -p 253/253.xml --file point_cloud.ply");
 
@@ -56,6 +63,29 @@ ExportPointCloudCommand::ExportPointCloudCommand()
 
 ExportPointCloudCommand::~ExportPointCloudCommand()
 {
+    if (mProject) {
+        delete mProject;
+        mProject = nullptr;
+    }
+}
+
+auto ExportPointCloudCommand::crs() const -> std::string
+{
+    std::string epsg_code;
+
+    try {
+
+        auto enu_crs = mProject->enuCrs().toStdString();
+        auto v = tl::split<std::string>(enu_crs, ';');
+        auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+        epsg_code = "EPSG:326";
+        epsg_code.append(std::to_string(zone.first));
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
+
+    return epsg_code;
 }
 
 bool ExportPointCloudCommand::run()
@@ -69,6 +99,9 @@ bool ExportPointCloudCommand::run()
         auto project_path = this->value<Path>("prj");
         auto file =  this->value<Path>("file");
         auto crs = this->value<std::string>("crs");
+        auto ply_format = this->value<std::string>("ply:format");
+        auto colors = this->value<bool>("ply:colors");
+        auto normals = this->value<bool>("ply:normals");
 
         tl::Path log_path = project_path;
         log_path.replaceExtension(".log");
@@ -77,15 +110,21 @@ bool ExportPointCloudCommand::run()
         TL_ASSERT(project_path.exists(), "Project doesn't exist");
         TL_ASSERT(project_path.isFile(), "Project file doesn't exist");
 
-        ProjectImp project;
-        project.load(project_path);
+        mProject = new ProjectImp;
+        mProject->load(project_path);
 
-        ExportPointCloudTask export_point_cloud_task(project.denseModel(),
-                                                     offsetRead(project.offset()),
+        ExportPointCloudTask export_point_cloud_task(mProject->denseModel(),
                                                      file,
-                                                     crs.empty() ? project.crs().toStdString() : crs);
+                                                     mProject->enuCrs().toStdString(),
+                                                     crs.empty() ? this->crs() : crs,
+                                                     ply_format == "binary",
+                                                     colors, 
+                                                     normals);
 
-        export_point_cloud_task.run();
+        size_t size = static_cast<size_t>(mProject->denseReport().points / 80.) * 20 + mProject->denseReport().points;
+
+        ProgressBarColor progress(0, size);
+        export_point_cloud_task.run(&progress);
 
     } catch (const std::exception &e) {
 

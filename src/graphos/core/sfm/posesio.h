@@ -217,8 +217,8 @@ public:
 };
 
 
-auto offsetRead(const tl::Path& path) -> tl::Point3<double>;
-void offsetWrite(const tl::Path &path, const tl::Point3<double> &coordinates);
+//auto offsetRead(const tl::Path& path) -> tl::Point3<double>;
+//void offsetWrite(const tl::Path &path, const tl::Point3<double> &coordinates);
 
 } // namespace graphos
 

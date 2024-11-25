@@ -27,6 +27,7 @@
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudModel.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudView.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudPresenter.h"
+#include "graphos/widgets/PlyFormatWidget.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudCommand.h"
 #include "graphos/core/project.h"
@@ -45,11 +46,38 @@ ExportPointCloudComponent::ExportPointCloudComponent(Application *application)
     init();
 }
 
+#ifdef GRAPHOS_GUI
+
+void ExportPointCloudComponent::enableFormat(Format format)
+{
+    if (format == Format::ply && mFormat.isDisabled(format)) {
+        mFormat.enable(format);
+        dynamic_cast<ExportPointCloudPresenter *>(presenter())->setPlyFormatWidget(std::make_unique<PlyFormatWidget>());
+    } 
+}
+
+void ExportPointCloudComponent::disableFormat(Format format)
+{
+    if (format == Format::ply && mFormat.isDisabled(format)) {
+        mFormat.disable(format);
+        dynamic_cast<ExportPointCloudPresenter *>(presenter())->setPlyFormatWidget(nullptr);
+    }
+}
+
+bool ExportPointCloudComponent::isFormatEnabled(Format format) const
+{
+    return mFormat.isEnabled(format);
+}
+
+#endif // GRAPHOS_GUI
+
 void ExportPointCloudComponent::init()
 {
     setName("Export Point Cloud");
     setMenu("file_export");
     setIcon(QIcon::fromTheme("export"));
+
+    mFormat.enable(Format::ply);
 
     createCommand();
 }
@@ -65,6 +93,10 @@ void ExportPointCloudComponent::createView()
 {
 #ifdef GRAPHOS_GUI
     setView(new ExportPointCloudViewImp());
+
+    connect(dynamic_cast<ExportPointCloudView *>(view()), &ExportPointCloudView::select_crs,
+            this, &ExportPointCloudComponent::select_crs);
+
 #endif // GRAPHOS_GUI
 }
 
@@ -74,6 +106,9 @@ void ExportPointCloudComponent::createPresenter()
     setPresenter(new ExportPointCloudPresenterImp(dynamic_cast<ExportPointCloudView *>(view()),
                                                   dynamic_cast<ExportPointCloudModel *>(model()),
                                                   app()->status()));
+
+    if (mFormat.isEnabled(Format::ply))
+        dynamic_cast<ExportPointCloudPresenter *>(presenter())->setPlyFormatWidget(std::make_unique<PlyFormatWidget>());
 #endif // GRAPHOS_GUI
 }
 
@@ -118,6 +153,14 @@ void ExportPointCloudComponent::onFailed()
     TL_ASSERT(app_status != nullptr, "AppStatus is null");
 
     TaskComponent::onFailed();
+}
+
+void ExportPointCloudComponent::setCrs(const QString &crs)
+{
+#ifdef GRAPHOS_GUI
+    if (view())
+        dynamic_cast<ExportPointCloudView *>(view())->setCrs(crs);
+#endif // GRAPHOS_GUI
 }
 
 } // namespace graphos

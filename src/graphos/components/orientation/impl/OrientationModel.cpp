@@ -63,9 +63,9 @@ void OrientationModelImp::setSparseModel(const tl::Path &sparseModel)
     mProject->setSparseModel(sparseModel);
 }
 
-void OrientationModelImp::setOffset(const tl::Path &offset)
+void OrientationModelImp::setEnuCrs(const QString &enuCrs)
 {
-    mProject->setOffset(offset);
+    mProject->setEnuCrs(enuCrs);
 }
 
 void OrientationModelImp::setGroundPoints(const tl::Path &groundPoints)

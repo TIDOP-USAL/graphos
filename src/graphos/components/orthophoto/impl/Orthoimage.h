@@ -56,9 +56,10 @@ public:
 
 	Orthoimage(const tl::Path &image,
 			   Orthorectification *orthorectification,
-			   const tl::EcefToEnu &ecefToEnu, 
-               const std::shared_ptr<tl::CrsTransform> &crsTransfom,
-			   const tl::Crs &crs,
+			   //const tl::EcefToEnu &ecefToEnu, 
+      //         const std::shared_ptr<tl::CrsTransform> &crsTransfom,
+			   const std::string &enuCrs,
+			   const std::string &crs,
 			   const tl::Rect<int> &rectOrtho,
 			   const tl::Affine<double, 2> &georeference,
 			   const std::string &interpolation = "BILINEAR",
@@ -73,9 +74,10 @@ private:
 
 	std::unique_ptr<tl::ImageReader> mImageReader;
 	Orthorectification *mOrthorectification;
-	tl::EcefToEnu mEcefToEnu;
-    std::shared_ptr<tl::CrsTransform> mCrsTransfom;
-	tl::Crs mCrs;
+	//tl::EcefToEnu mEcefToEnu;
+ //   std::shared_ptr<tl::CrsTransform> mCrsTransfom;
+	std::string mEnuCrs;
+	std::string mCrs;
 	tl::Rect<int> mRectOrtho;
 	//tl::geom::Affine<tl::Point<double>> mGeoreference;
 	tl::Affine<double, 2> mGeoreference;

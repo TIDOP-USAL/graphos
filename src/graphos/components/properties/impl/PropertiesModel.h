@@ -26,6 +26,8 @@
 
 #include "graphos/components/properties/PropertiesModel.h"
 
+#include <tidop/core/path.h>
+
 namespace graphos
 {
 
@@ -44,6 +46,10 @@ public:
                                 QObject *parent = nullptr);
     ~PropertiesModelImp() override;
 
+private:
+
+    auto image(const tl::Path &image) const -> Properties;
+
 signals:
 
 // PropertiesModel interface
@@ -54,6 +60,7 @@ public:
     auto denseModel() const -> Properties override;
     auto meshModel() const -> Properties override;
     auto dem() const -> Properties override;
+    auto orthophoto() const -> Properties override;
     auto exif(size_t imageId) const -> Properties override;
     auto parse(const QString& parser, const QString& file) const -> Properties override;
     auto parse(const QStringList& parsers, const QStringList& files) const -> Properties override;

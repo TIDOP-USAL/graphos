@@ -172,67 +172,67 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     sfm_path.append("sfm");
 
     // Ahora no es correcto. Se está haciendo ajuste de haces
-    if (mView->fixPoses()/*mModel->rtkOrientations()*/) {
+    //if (mView->fixPoses()/*mModel->rtkOrientations()*/) {
 
-        orientation_process = std::make_unique<ImportPosesTask>(images,
-                                                                mModel->cameras(),
-                                                                sfm_path,
-                                                                mModel->database(),
-                                                                mView->fixCalibration(),
-                                                                mView->fixPoses());
+    //    orientation_process = std::make_unique<ImportPosesTask>(images,
+    //                                                            mModel->cameras(),
+    //                                                            sfm_path,
+    //                                                            mModel->database(),
+    //                                                            mView->fixCalibration(),
+    //                                                            mView->fixPoses());
 
-        orientation_process->subscribe([&](const tl::TaskFinalizedEvent *event) {
+    //    orientation_process->subscribe([&](const tl::TaskFinalizedEvent *event) {
 
-            auto task = dynamic_cast<ImportPosesTask const *>(event->task());
-            auto cameras = task->cameras();
+    //        auto task = dynamic_cast<ImportPosesTask const *>(event->task());
+    //        auto cameras = task->cameras();
 
-            tl::Path path = mModel->projectFolder();
-            path.append("sfm");
+    //        tl::Path path = mModel->projectFolder();
+    //        path.append("sfm");
 
-            tl::Path offset_path = path;
-            offset_path.append("offset.txt");
+    //        tl::Path offset_path = path;
+    //        offset_path.append("offset.txt");
 
-            tl::Path poses_path = path;
-            poses_path.append("poses.bin");
+    //        tl::Path poses_path = path;
+    //        poses_path.append("poses.bin");
 
-            tl::Path sparse_model_path = path;
-            sparse_model_path.append("sparse.ply");
+    //        tl::Path sparse_model_path = path;
+    //        sparse_model_path.append("sparse.ply");
 
-            tl::Path ground_points_path = path;
-            ground_points_path.append("ground_points.bin");
+    //        tl::Path ground_points_path = path;
+    //        ground_points_path.append("ground_points.bin");
 
-            TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
-            TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
-            TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
+    //        TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
+    //        TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
+    //        TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
 
-            mModel->setSparseModel(sparse_model_path);
-            mModel->setOffset(offset_path);
-            mModel->setGroundPoints(ground_points_path);
+    //        mModel->setSparseModel(sparse_model_path);
+    //        //mModel->setEnuCrs(offset_path);
+    //        mModel->setGroundPoints(ground_points_path);
 
-            auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
-            poses_reader->read(poses_path);
-            auto poses = poses_reader->cameraPoses();
+    //        auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
+    //        poses_reader->read(poses_path);
+    //        auto poses = poses_reader->cameraPoses();
 
-            //TODO: Ahora es redundante tenerlo en estos dos ficheros...
-            for (const auto &camera_pose : poses) {
-                mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
-            }
+    //        //TODO: Ahora es redundante tenerlo en estos dos ficheros...
+    //        for (const auto &camera_pose : poses) {
+    //            mModel->addPhotoOrientation(camera_pose.first, camera_pose.second);
+    //        }
 
-            tl::Message::info("Oriented {} images", poses.size());
+    //        tl::Message::info("Oriented {} images", poses.size());
 
-            for (const auto &camera : cameras) {
-                mModel->updateCamera(camera.first, camera.second);
-            }
+    //        for (const auto &camera : cameras) {
+    //            mModel->updateCamera(camera.first, camera.second);
+    //        }
 
-            auto report = task->report();
-            report.type = "Absolute";
-            report.time += event->task()->time();
-            report.orientedImages = static_cast<int>(poses.size());
-            mModel->setOrientationReport(report);
+    //        auto report = task->report();
+    //        report.type = "Absolute";
+    //        report.time += event->task()->time();
+    //        report.orientedImages = static_cast<int>(poses.size());
+    //        mModel->setOrientationReport(report);
 
-        });
+    //    });
 
-    } else {
+    //} else {
 
         orientation_process = std::make_unique<ReconstructionTask>(mModel->database(),
                                                                    sfm_path,
@@ -265,19 +265,15 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                 tl::Path poses_path = path;
                 poses_path.append("poses.bin");
 
-                tl::Path offset_path = path;
-                offset_path.append("offset.txt");
-
                 TL_ASSERT(sparse_model_path.exists(), "3D reconstruction fail");
                 TL_ASSERT(ground_points_path.exists(), "3D reconstruction fail");
                 TL_ASSERT(poses_path.exists(), "3D reconstruction fail");
-                TL_ASSERT(!mView->absoluteOrientation() || (mView->absoluteOrientation() && offset_path.exists()), "3D reconstruction fail");
 
                 mModel->setSparseModel(sparse_model_path);
-                mModel->setOffset(tl::Path(""));
+                mModel->setEnuCrs(QString::fromStdString(task->enuCrs()));
                 mModel->setGroundPoints(ground_points_path);
                 if (mView->absoluteOrientation())
-                    mModel->setOffset(offset_path);
+                    mModel->setEnuCrs(QString::fromStdString(task->enuCrs()));
 
                 auto poses_reader = CameraPosesReaderFactory::create("GRAPHOS");
                 poses_reader->read(poses_path);
@@ -308,7 +304,7 @@ auto OrientationPresenterImp::createTask() -> std::unique_ptr<tl::Task>
             }
         });
 
-    }
+    //}
 
     if (progressHandler()) {
         progressHandler()->setRange(0, 1);

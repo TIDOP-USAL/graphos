@@ -702,7 +702,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
         this->densify();
         if (mAutoSegmentation) this->autoSegmentation();
 
-        //this->clearTemporalFiles();
+        this->clearTemporalFiles();
 
         Ply ply(denseModel());
         mReport.points = static_cast<int>(ply.size());
@@ -716,7 +716,7 @@ void MvsDensifier::execute(tl::Progress *progressBar)
         if (progressBar) (*progressBar)();
 
     } catch (...) {
-        //this->clearTemporalFiles();
+        this->clearTemporalFiles();
         TL_THROW_EXCEPTION_WITH_NESTED("MVS error");
     }
 

@@ -29,6 +29,8 @@
 namespace graphos
 {
 
+class PlyFormatWidget;
+
 /*!
  * \brief ExportPointCloudPresenter interface
  */
@@ -43,10 +45,11 @@ public:
     ExportPointCloudPresenter() = default;
     ~ExportPointCloudPresenter() override = default;
 
+    virtual void setPlyFormatWidget(const std::shared_ptr<PlyFormatWidget> &plyFormatWidget) = 0;
+
 public slots:
 
-    virtual void exportPointCloud(const QString &file) = 0;
-
+    virtual void setFormat(const QString &format) = 0;
 };
 
 } // namespace graphos

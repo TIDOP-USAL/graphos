@@ -148,7 +148,7 @@ void GroundControlPointsModelImp::loadGroundControlPoints()
 
     auto reader = GCPsReaderFactory::create("GRAPHOS");
     reader->read(gcp_file);
-    //reader->epsgCode();
+    mCrs = QString::fromStdString(reader->epsgCode());
     auto gcps = reader->gcps();
 
     for (auto &gcp : gcps) {
@@ -381,9 +381,9 @@ void GroundControlPointsModelImp::setSparseModel(const tl::Path &sparseModel)
     mProject->setSparseModel(sparseModel);
 }
 
-void GroundControlPointsModelImp::setOffset(const tl::Path &offset)
+void GroundControlPointsModelImp::setEnuCrs(const QString &enuCrs)
 {
-    mProject->setOffset(offset);
+    mProject->setEnuCrs(enuCrs);
 }
 
 void GroundControlPointsModelImp::addPhotoOrientation(size_t imageId,
@@ -482,8 +482,6 @@ void GroundControlPointsModelImp::save()
 
         file.close();
     }
-
-    mProject->setCrs(mCrs);
 }
 
 } // namespace graphos

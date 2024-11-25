@@ -51,6 +51,7 @@ public slots:
     void selectDenseModel();
     void selectMeshModel();
     void selectDem();
+    void selectOrthophoto();
     void selectImage(size_t imageId);
     void parseDocument(const QString &parser, const QString &file);
     void parseDocuments(const QStringList &parsers, const QStringList &files);

@@ -29,6 +29,7 @@
 namespace graphos
 {
 
+class Project;
 
 class ExportPointCloudCommand
   : public Command
@@ -41,10 +42,17 @@ public:
 
 private:
 
+    auto crs() const -> std::string;
+
 // Command
+
+public:
 
     bool run() override;
 
+private:
+
+    Project *mProject;
 };
 
 

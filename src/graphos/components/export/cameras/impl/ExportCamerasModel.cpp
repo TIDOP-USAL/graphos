@@ -48,9 +48,9 @@ auto ExportCamerasModelImp::poses() const -> const std::unordered_map<size_t, Ca
     return mProject->poses();
 }
 
-auto ExportCamerasModelImp::offset() const -> tl::Point3<double>
+auto ExportCamerasModelImp::enuCrs() const -> QString
 {
-    return offsetRead(mProject->offset());
+    return mProject->enuCrs();
 }
 
 void ExportCamerasModelImp::init()

@@ -537,12 +537,12 @@ int main(int argc, char *argv[])
         QObject::connect(&dem_component, &DemComponent::select_crs, [&]() {
 
             QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-            &dem_component, &DemComponent::setCRS);
+            &dem_component, &DemComponent::setCrs);
 
         crs_component.open();
 
         QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-            &dem_component, &DemComponent::setCRS);
+            &dem_component, &DemComponent::setCrs);
 
             });
 #   endif // GRAPHOS_HAVE_CRS
@@ -725,6 +725,8 @@ int main(int argc, char *argv[])
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_mesh_model,
                          &properties_component, &PropertiesComponent::selectMeshModel);
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_dem,
+                         &properties_component, &PropertiesComponent::selectDem);
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_orthophoto,
                          &properties_component, &PropertiesComponent::selectDem);
 #endif // GRAPHOS_HAVE_PROPERTIES
 

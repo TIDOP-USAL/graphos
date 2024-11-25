@@ -122,7 +122,7 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
                                                                             mModel->cameras(),
                                                                             ortho_dir,
                                                                             mModel->dtmPath(),
-                                                                            mModel->offset(),
+                                                                            mModel->enuCrs().toStdString(),
                                                                             mView->crs().toStdString(),
                                                                             mView->interpolation().toStdString(),
                                                                             mModel->useCuda());

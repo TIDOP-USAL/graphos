@@ -112,20 +112,25 @@ bool OrthophotoCommand::run()
         tl::Path ground_points_path(mProject->reconstructionPath());
         ground_points_path.append("ground_points.bin");
 
-        tl::Point3<double> offset = offsetRead(mProject->offset());
+        //tl::Point3<double> offset = offsetRead(mProject->offset());
+        auto enu_crs = mProject->enuCrs().toStdString();
 
-        if (crs.empty()){
+        if (crs.empty()) {
 
-            // Esto no tiene que hacerse ya que vamos a tener las coordenadas geograficas directamente
-            auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-            auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
-            tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-            auto lla = crs_transfom_geocentric_to_geographic.transform(offset);
+            //// Esto no tiene que hacerse ya que vamos a tener las coordenadas geograficas directamente
+            //auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+            //auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+            //tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+            //auto lla = crs_transfom_geocentric_to_geographic.transform(offset);
 
-            //auto zone = tl::utmZoneFromLonLat(lla.x, lla.y);
-            int zone = tl::utmZoneFromLongitude(lla.x);
+            ////auto zone = tl::utmZoneFromLonLat(lla.x, lla.y);
+            //int zone = tl::utmZoneFromLongitude(lla.x);
+            //crs = "EPSG:326";
+            //crs.append(std::to_string(zone));
+            auto v = tl::split<std::string>(enu_crs, ';');
+            auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
             crs = "EPSG:326";
-            crs.append(std::to_string(zone));
+            crs.append(std::to_string(zone.first));
         }
 
         OrthophotoTask orthophoto_task(gsd,
@@ -133,7 +138,7 @@ bool OrthophotoCommand::run()
                                        mProject->cameras(),
                                        orthophoto_path,
                                        dsm,
-                                       offset,
+                                       enu_crs,
                                        crs,
                                        interpolation,
                                        !mDisableCuda);

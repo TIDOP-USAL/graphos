@@ -62,6 +62,7 @@ public slots:
 public:
 
     QString delimiter() const override;
+    auto crs() const->QString override;
 
 public slots:
 
@@ -83,9 +84,10 @@ public slots:
     void setPitchColumn(const QString &pitchColumn) override;
     void setRollColumn(const QString &rollColumn) override;
     void setParseOk(bool parseOk) override;
-    void setValidInputCRS(bool valid) override;
-    void setValidOutputCRS(bool valid) override;
-    void setOutputCRS(const QString &crs) override;
+    //void setValidInputCRS(bool valid) override;
+    //void setValidOutputCRS(bool valid) override;
+    //void setOutputCRS(const QString &crs) override;
+    void setCrs(const QString &crs) override;
 
 // DialogView interface
 
@@ -126,9 +128,8 @@ protected:
     QLabel *mLabelZColumn;
     QComboBox *mComboBoxZColumn;
     QLabel *mLabelCrs;
-    QLineEdit *mLineEditCrsInput;
-    QLabel *mLabelCrsOut;
-    QLineEdit *mLineEditCrsOutput;
+    QLineEdit *mLineEditCRS;
+    QPushButton *mQPushButtonCRS;
     QGroupBox *mGroupBoxRotations;
     QGridLayout *gridLayoutRotations;
     QLabel *mLabelRotation;
@@ -163,8 +164,6 @@ protected:
     QTableView *mTableViewFormatCameras;
     QDialogButtonBox *mButtonBox;
     bool mParseOk;
-    bool mValidCrsIn;
-    bool mValidCrsOut;
 };
 
 } // namespace graphos

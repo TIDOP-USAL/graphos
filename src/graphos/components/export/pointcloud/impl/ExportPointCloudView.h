@@ -26,6 +26,11 @@
 
 #include "graphos/components/export/pointcloud/ExportPointCloudView.h"
 
+class QGridLayout;
+class QDialogButtonBox;
+class QLabel;
+class QLineEdit;
+
 namespace graphos
 {
 
@@ -42,11 +47,38 @@ public:
 
 // ExportPointCloudView interface
 
-    void setGraphosProjectsPath(const QString &directory) override;
+public:
+
+    auto format() -> QString override;
+    void addFormat(QWidget *format) override;
+    void setFormat(const QString &format) override;
+
+    auto crs() const -> QString override;
+    void setCrs(const QString &crs) override;
+
+// DialogView interface
 
 private:
 
-    void init();
+    void initUI() override;
+    void initSignalAndSlots() override;
+
+public slots:
+
+    void clear() override;
+
+private slots:
+
+    void update() override;
+    void retranslate() override;
+
+private:
+
+    QLabel *mLabelCRS;
+    QLineEdit *mLineEditCRS;
+    QPushButton *mPushButtonCRS;
+    QGridLayout *mGridLayoutFormat;
+    QDialogButtonBox *mButtonBox;
 
 };
 

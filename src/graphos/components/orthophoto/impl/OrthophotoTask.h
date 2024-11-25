@@ -58,7 +58,7 @@ public:
                    const std::map<int, Camera> &cameras,
                    const tl::Path &orthoPath,
                    const tl::Path &mdt,
-                   tl::Point3<double> offset,
+                   const std::string &enuCrs,
                    const std::string &epsg,
                    const std::string &interpolation = "BILINEAR",
                    bool cuda = false);
@@ -92,7 +92,7 @@ private:
     std::map<int, Camera> mCameras;
     tl::Path mOrthoPath;
     tl::Path mMdt;
-    tl::Point3<double> mOffset;
+    std::string mEnuCrs;
     std::string mEpsg;
     std::string mInterpolation;
     OrthophotoReport mOrthophotoReport;

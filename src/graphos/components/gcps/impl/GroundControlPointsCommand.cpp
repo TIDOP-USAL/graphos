@@ -111,7 +111,7 @@ bool GroundControlPointsCommand::run()
         writer->setImages(project.images());
         writer->write(gcp_file);
 
-        project.setCrs(QString::fromStdString(crs));
+        //project.setCrs(QString::fromStdString(crs));
         project.save(project_path);
 
     } catch (const std::exception &e) {

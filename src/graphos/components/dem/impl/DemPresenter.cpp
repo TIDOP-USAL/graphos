@@ -107,10 +107,10 @@ auto DemPresenterImp::createTask() -> std::unique_ptr<tl::Task>
     dem_path.append("dem");
 
     std::unique_ptr<tl::Task> dtm_task = std::make_unique<DemTask>(mModel->denseModel(),
-                                                                   mModel->offset(),
+                                                                   mModel->enuCrs().toStdString(),
+                                                                   mView->crs().toStdString(),
                                                                    dem_path,
                                                                    mView->gsd(),
-                                                                   mView->crs().toStdString(),
                                                                    mView->isDsmEnable(),
                                                                    mView->isDsmEnable());
 

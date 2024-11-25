@@ -51,17 +51,17 @@ void ImportCamerasPresenterImp::previewCSV() const
     mModel->previewImportCameras();
 }
 
-void ImportCamerasPresenterImp::checkInputCRS(const QString &crs) const
-{
-    mView->setValidInputCRS(mModel->checkCRS(crs));
-    mModel->setInputCRS(crs);
-}
-
-void ImportCamerasPresenterImp::checkOutputCRS(const QString &crs) const
-{
-    mView->setValidOutputCRS(mModel->checkCRS(crs));
-    mModel->setOutputCRS(crs);
-}
+//void ImportCamerasPresenterImp::checkInputCRS(const QString &crs) const
+//{
+//    mView->setValidInputCRS(mModel->checkCRS(crs));
+//    mModel->setInputCRS(crs);
+//}
+//
+//void ImportCamerasPresenterImp::checkOutputCRS(const QString &crs) const
+//{
+//    mView->setValidOutputCRS(mModel->checkCRS(crs));
+//    mModel->setOutputCRS(crs);
+//}
 
 void ImportCamerasPresenterImp::open()
 {
@@ -71,7 +71,7 @@ void ImportCamerasPresenterImp::open()
                                                 tr("Comma-separated values (*.csv);;Plain text (*.txt)"));
     if (!file.isEmpty()) {
         mModel->setCsvFile(file);
-        mView->setOutputCRS(mModel->outputCRS());
+        //mView->setOutputCRS(mModel->outputCRS());
         previewCSV();
     } else {
         return;
@@ -89,8 +89,8 @@ void ImportCamerasPresenterImp::init()
 void ImportCamerasPresenterImp::initSignalAndSlots()
 {
     connect(mView, &ImportCamerasView::previewCSV, this, &ImportCamerasPresenterImp::previewCSV);
-    connect(mView, &ImportCamerasView::crsInputChanged, this, &ImportCamerasPresenterImp::checkInputCRS);
-    connect(mView, &ImportCamerasView::crsOutputChanged, this, &ImportCamerasPresenterImp::checkOutputCRS);
+    //connect(mView, &ImportCamerasView::crsInputChanged, this, &ImportCamerasPresenterImp::checkInputCRS);
+    //connect(mView, &ImportCamerasView::crsOutputChanged, this, &ImportCamerasPresenterImp::checkOutputCRS);
 
     connect(mView, &ImportCamerasView::loadFieldNamesFromFirstRow, mModel, &ImportCamerasModel::setFieldNamesFromFirstRow);
     connect(mView, &ImportCamerasView::skipLines, mModel, &ImportCamerasModel::setInitialLine);
@@ -133,7 +133,12 @@ void ImportCamerasPresenterImp::initSignalAndSlots()
 
     connect(mView, &ImportCamerasView::accepted, this, &ImportCamerasPresenter::importedCameras);
 
-    connect(mView, &ImportCamerasView::accepted, mModel, &ImportCamerasModel::importCameras);
+    connect(mView, &ImportCamerasView::accepted, [&]()
+    {
+        mModel->setCrs(mView->crs());
+        mModel->importCameras();
+    });
+
     connect(mView, &DialogView::help, [&]() {
         emit help("cameras.html");
     });

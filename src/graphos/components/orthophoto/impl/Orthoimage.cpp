@@ -28,6 +28,8 @@
 
 #include <tidop/core/progress.h>
 #include <tidop/graphic/layer.h>
+#include <tidop/geotools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
 
 #ifdef HAVE_OPENCV_CUDAARITHM
 #include <opencv2/cudaarithm.hpp>
@@ -83,17 +85,19 @@ cv::Mat createBlackPixelMask(const cv::Mat &image, double areaThreshold, bool up
 
 Orthoimage::Orthoimage(const tl::Path &image,
                        Orthorectification *orthorectification,
-                       const tl::EcefToEnu &ecefToEnu, 
-                       const std::shared_ptr<tl::CrsTransform> &crsTransfom,
-                       const tl::Crs &crs,
+                       //const tl::EcefToEnu &ecefToEnu, 
+                       //const std::shared_ptr<tl::CrsTransform> &crsTransfom,
+                       const std::string &enuCrs,
+                       const std::string &crs,
                        const tl::Rect<int> &rectOrtho,
                        const tl::Affine<double, 2> &georeference,
                        const std::string &interpolation,
                        bool cuda)
   : mImageReader(tl::ImageReaderFactory::create(image)),
     mOrthorectification(orthorectification),
-    mEcefToEnu(ecefToEnu), 
-    mCrsTransfom(crsTransfom),
+    //mEcefToEnu(ecefToEnu), 
+    //mCrsTransfom(crsTransfom),
+    mEnuCrs(enuCrs),
     mCrs(crs),
     mRectOrtho(rectOrtho),
     mGeoreference(georeference),
@@ -112,16 +116,23 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
 
         auto convertEnuToProjected = [&](const tl::Point3d &point) -> tl::Point3d 
         {
-            auto point_ecef = mEcefToEnu.inverse(point);
-            auto point_utm = mCrsTransfom->transform(point_ecef);
-            return point_utm;
+            //auto point_ecef = mEcefToEnu.inverse(point);
+            //auto point_utm = mCrsTransfom->transform(point_ecef);
+            tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
+            tl::Point3d projected = static_cast<tl::Point3d>(point);
+            geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, projected.x, projected.y, projected.z);
+            return projected;
         };
 
         auto convertProjectedToEnu = [&](const tl::Point3d &point) -> tl::Point3d 
         {
-            auto point_ecef = mCrsTransfom->transform(point, tl::CrsTransform::Order::inverse);
-            auto point_projected = mEcefToEnu.direct(point_ecef);
-            return point_projected;
+            //auto point_ecef = mCrsTransfom->transform(point, tl::CrsTransform::Order::inverse);
+            //auto point_projected = mEcefToEnu.direct(point_ecef);
+            //return point_projected;
+            tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
+            tl::Point3d enu = static_cast<tl::Point3d>(point);
+            geo_tools->ptrCRSsTools()->crsOperation(mCrs, mEnuCrs, enu.x, enu.y, enu.z);
+            return enu;
         };
 
     try {
@@ -736,7 +747,8 @@ void Orthoimage::run(const tl::Path &ortho, const cv::Mat &visibilityMap)
         //convertImageFromEnuToProjected(mat_ortho, georeference, orthoimage);
 
         //mOrthophotoWriter->create(orthoimage.rows, orthoimage.cols, channels_ortho, data_type_ortho);
-        mOrthophotoWriter->setCRS(mCrs.toWktFormat());
+        tl::Crs crs(mCrs);
+        mOrthophotoWriter->setCRS(crs.toWktFormat());
         mOrthophotoWriter->setGeoreference(affine_ortho_projected);
         mOrthophotoWriter->write(mat_ortho);
         mOrthophotoWriter->close();

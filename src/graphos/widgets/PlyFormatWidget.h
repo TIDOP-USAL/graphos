@@ -21,63 +21,82 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_PRESENTER_H
-#define GRAPHOS_PROPERTIES_PRESENTER_H
+#ifndef GRAPHOS_POINT_CLOUD_PLY_FORMAT_WIDGET_H
+#define GRAPHOS_POINT_CLOUD_PLY_FORMAT_WIDGET_H
 
-#include "graphos/components/properties/PropertiesPresenter.h"
+#include <tidop/core/flags.h>
+
+#include "graphos/widgets/GraphosWidget.h"
+
+
+class QGroupBox;
+class QLabel;
+class QCheckBox;
+class QRadioButton;
 
 namespace graphos
 {
 
-class AppStatus;
-class PropertiesView;
-class PropertiesModel;
 
-class PropertiesPresenterImp
-  : public PropertiesPresenter
+class PlyFormatWidget
+  : public GraphosWidgetView
 {
+
     Q_OBJECT
 
 public:
 
-    PropertiesPresenterImp(PropertiesView *view,
-                           PropertiesModel *model,
-                           AppStatus *status);
-    ~PropertiesPresenterImp() override = default;
+    enum class Format
+    {
+        binary = (1 << 0),
+        text = (1 << 1),
+    };
 
-// PropertiesPresenter interface
+public:
 
-public slots:
+    PlyFormatWidget(QWidget *parent = nullptr);
+    ~PlyFormatWidget() override = default;
 
-    void selectSparseModel() override;
-    void selectDenseModel() override;
-    void selectMeshModel() override;
-    void selectDem() override;
-    void selectOrthophoto() override;
-    void setImageActive(size_t imageId) override;
-    void parseDocument(const QString &parser, const QString &file) override;
-    void parseDocuments(const QStringList &parsers, const QStringList &files) override;
+public:
 
-// Presenter interface
+    auto format() const -> Format;
+    void setFormat(Format format);
+    void enableExportColors(bool active);
+    auto isExportColorsEnabled() const -> bool;
+    void enableExportNormals(bool active);
+    auto isExportNormalsEnabled() const -> bool;
 
-public slots:
-
-    void open() override;
+// GraphosWidgetView interface
 
 private:
 
-    void init() override;
+    void initUI() override;
     void initSignalAndSlots() override;
 
+public slots:
+
+    void clear() override;
+
+private slots:
+
+    void update() override;
+    void retranslate() override;
+
+protected:
+
+    QGroupBox *mGroupBoxFormat;
+    QRadioButton *mRadioButtonBinary;
+    QRadioButton *mRadioButtonText;
+    QCheckBox *mCheckBoxColors;
+    QCheckBox *mCheckBoxNormals;
+
 private:
 
-    PropertiesView *mView;
-    PropertiesModel *mModel;
-    AppStatus *mAppStatus;
-
+    tl::EnumFlags<Format> mFormat;
 };
+ALLOW_BITWISE_FLAG_OPERATIONS(PlyFormatWidget::Format)
 
 } // namespace graphos
 
 
-#endif // GRAPHOS_PROPERTIES_PRESENTER_H
+#endif // GRAPHOS_POINT_CLOUD_PLY_FORMAT_WIDGET_H

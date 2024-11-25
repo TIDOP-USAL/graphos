@@ -61,10 +61,12 @@ public:
 				   const tl::Path &orthoPath,
 				   const tl::Path &graphOrthos,
 				   /// Reemplazar
-                   const tl::EcefToEnu &ecefToEnu, 
-                   const std::shared_ptr<tl::CrsTransform> &crsTransfom,
-				   const tl::Crs &crs,
+                   //const tl::EcefToEnu &ecefToEnu, 
+                   //const std::shared_ptr<tl::CrsTransform> &crsTransfom,
 				   /// 
+				   const std::string &enuCrs,
+				   const std::string &crs,
+
 				   const tl::Path &footprint = tl::Path(),
 				   double gsd = -1.,
 				   const std::string &interpolation = "BILINEAR",
@@ -85,9 +87,10 @@ private:
 	tl::Path mDtm;
 	tl::Path mOrthoPath;
 	//tl::Point3<double> mOffset;
-	tl::EcefToEnu mEcefToEnu;
-    std::shared_ptr<tl::CrsTransform> mCrsTransfom;
-	tl::Crs mCrs;
+	//tl::EcefToEnu mEcefToEnu;
+ //   std::shared_ptr<tl::CrsTransform> mCrsTransfom;
+    std::string mEnuCrs;
+	std::string mCrs;
 	std::unique_ptr<tl::VectorWriter> mFootprintWriter;
 	std::unique_ptr<tl::VectorWriter> mGraphOrthosWriter;
 	double mGsd;

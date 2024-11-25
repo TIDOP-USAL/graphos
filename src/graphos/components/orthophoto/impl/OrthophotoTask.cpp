@@ -1589,7 +1589,7 @@ OrthophotoTask::OrthophotoTask(double gsd,
                                const std::map<int, Camera> &cameras,
                                const tl::Path &orthoPath,
                                const tl::Path &mdt,
-                               tl::Point3<double> offset,
+                               const std::string &enuCrs,
                                const std::string &epsg,
                                const std::string &interpolation,
                                bool cuda)
@@ -1599,7 +1599,7 @@ OrthophotoTask::OrthophotoTask(double gsd,
     mCameras(cameras),
     mOrthoPath(orthoPath),
     mMdt(mdt),
-    mOffset(offset),
+    mEnuCrs(enuCrs),
     mEpsg(epsg),
     mInterpolation(interpolation),
     bCuda(cuda)
@@ -1797,20 +1797,20 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
         tl::Crs crs(mEpsg);
 
         /// Conversión del DTM a coordenadas ENU para poder trabajar con las orientaciones
-        tl::Point3<double> ecef_center = mOffset;
+        //tl::Point3<double> ecef_center = mOffset;
 
-        auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
-        auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
+        //auto epsg_geographic = std::make_shared<tl::Crs>("EPSG:4326");
+        //auto epsg_geocentric = std::make_shared<tl::Crs>("EPSG:4978");
 
-        tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
-        auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
-        auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
-        tl::EcefToEnu ecef_to_enu(ecef_center, rotation);
+        //tl::CrsTransform crs_transfom_geocentric_to_geographic(epsg_geocentric, epsg_geographic);
+        //auto lla = crs_transfom_geocentric_to_geographic.transform(ecef_center);
+        //auto rotation = tl::rotationEnuToEcef(lla.x, lla.y);
+        //tl::EcefToEnu ecef_to_enu(ecef_center, rotation);
 
-        auto epsg_utm = std::make_shared<tl::Crs>(mEpsg);
-        TL_ASSERT(epsg_utm->isProjected(), "Only projected CRS's are allowed");
+        //auto epsg_utm = std::make_shared<tl::Crs>(mEpsg);
+        //TL_ASSERT(epsg_utm->isProjected(), "Only projected CRS's are allowed");
 
-        auto crs_transfom = std::make_shared<tl::CrsTransform>(epsg_geocentric, epsg_utm);
+        //auto crs_transfom = std::make_shared<tl::CrsTransform>(epsg_geocentric, epsg_utm);
 
         tl::Path dsm_path = mMdt;
         dsm_path.replaceBaseName("dsm_enu");
@@ -1821,9 +1821,10 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
                                        dsm_path,
                                        mOrthoPath,
                                        graph_orthos,
-                                       ecef_to_enu,
-                                       crs_transfom,
-                                       crs,
+                                       //ecef_to_enu,
+                                       //crs_transfom,
+                                       mEnuCrs,
+                                       mEpsg,
                                        footprint_file,
                                        mGSD,
                                        mInterpolation,

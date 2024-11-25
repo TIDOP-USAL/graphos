@@ -61,6 +61,7 @@ public:
     virtual void clearProject() = 0;
     virtual auto useCuda() const -> bool = 0;
     virtual auto gsd() const -> double = 0;
+    virtual auto enuCrs() const -> QString = 0;
     virtual auto crs() const -> QString = 0;
     virtual auto interpolation() const -> QString = 0;
 
@@ -68,7 +69,7 @@ public:
      * \brief Retrieves the offset values.
      * \return An array containing the offset values [x, y, z].
      */
-    virtual auto offset() const -> tl::Point3<double> = 0;
+    //virtual auto offset() const -> tl::Point3<double> = 0;
 
     virtual void setGsd(double gsd) = 0;
     virtual void setCrs(const QString &crs) = 0;

@@ -31,6 +31,8 @@
 
 #include <tidop/core/progress.h>
 #include <tidop/graphic/layer.h>
+#include <tidop/geotools/GeoTools.h>
+#include <tidop/geotools/CRSsTools.h>
 
 namespace graphos
 {
@@ -67,10 +69,11 @@ OrthoimageTask::OrthoimageTask(const std::vector<Image> &images,
                                      const tl::Path &orthoPath,
                                      const tl::Path &graphOrthos,
                                      /// Reemplazar
-                                     const tl::EcefToEnu &ecefToEnu, 
-                                     const std::shared_ptr<tl::CrsTransform> &crsTransfom,
-                                     const tl::Crs &crs,
+                                     //const tl::EcefToEnu &ecefToEnu, 
+                                     //const std::shared_ptr<tl::CrsTransform> &crsTransfom,
                                      ///
+                                     const std::string &enuCrs,
+                                     const std::string &crs,
                                      const tl::Path &footprint,
                                      double gsd,
                                      const std::string &interpolation,
@@ -80,8 +83,9 @@ OrthoimageTask::OrthoimageTask(const std::vector<Image> &images,
     mCameras(cameras),
     mDtm(dtm),
     mOrthoPath(orthoPath),
-    mEcefToEnu(ecefToEnu), 
-    mCrsTransfom(crsTransfom),
+    //mEcefToEnu(ecefToEnu), 
+    //mCrsTransfom(crsTransfom),
+    mEnuCrs(enuCrs),
     mCrs(crs),
     mGsd(gsd),
     mInterpolation(interpolation),
@@ -109,12 +113,13 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
         /// Transformación entre coordenadas ENU y UTM
         
-        auto convertEnuToUTM = [&](const tl::Point3d &point) -> tl::Point3d 
-        {
-            auto point_ecef = mEcefToEnu.inverse({point.x, point.y, point.z});
-            auto point_utm = mCrsTransfom->transform(point_ecef);
-            return point_utm;
-        };
+        //auto convertEnuToUTM = [&](const tl::Point3d &point) -> tl::Point3d 
+        //{
+        //    auto point_ecef = mEcefToEnu.inverse({point.x, point.y, point.z});
+        //    auto point_utm = mCrsTransfom->transform(point_ecef);
+        //    return point_utm;
+        //};
+        tl::GeoTools *geo_tools = tl::GeoTools::getInstance();
 
         TL_ASSERT(mFootprintWriter->isOpen(), "Footprint open error");
         TL_ASSERT(mGraphOrthosWriter->isOpen(), "Graph Orthos open error");
@@ -124,7 +129,8 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                                               254));
 
         mFootprintWriter->create();
-        mFootprintWriter->setCRS(mCrs.toWktFormat());
+        tl::Crs crs(mCrs);
+        mFootprintWriter->setCRS(crs.toWktFormat());
 
         tl::GLayer layer;
         layer.setName("footprint");
@@ -135,7 +141,7 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                                                     254));
 
         mGraphOrthosWriter->create();
-        mGraphOrthosWriter->setCRS(mCrs.toWktFormat());
+        mGraphOrthosWriter->setCRS(crs.toWktFormat());
 
         tl::GLayer layer_ortho_graph;
         layer_ortho_graph.setName("ortho_graph");
@@ -215,14 +221,29 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                         tl::Rect<double> rect(window_ortho_terrain.pt1, window_ortho_terrain.pt2);
                         rect.normalized();
                         std::shared_ptr<tl::GPolygon> entity_ortho = std::make_shared<tl::GPolygon>();
-                        auto top_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(rect.topLeft()));
-                        auto top_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(rect.topRight()));
-                        auto bottom_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(rect.bottomRight()));
-                        auto bottom_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(rect.bottomLeft()));
+                        //auto top_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(rect.topLeft()));
+                        //auto top_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(rect.topRight()));
+                        //auto bottom_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(rect.bottomRight()));
+                        //auto bottom_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(rect.bottomLeft()));
+
+                        
+
+                        tl::Point3d top_left_utm = static_cast<tl::Point3d>(rect.topLeft());
+                        geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_utm.x, top_left_utm.y, top_left_utm.z);
                         entity_ortho->push_back(static_cast<tl::Point2d>(top_left_utm));
+
+                        tl::Point3d top_right_utm = static_cast<tl::Point3d>(rect.topRight());
+                        geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_utm.x, top_right_utm.y, top_right_utm.z);
                         entity_ortho->push_back(static_cast<tl::Point2d>(top_right_utm));
+
+                        tl::Point3d bottom_right_utm = static_cast<tl::Point3d>(rect.bottomRight());
+                        geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_utm.x, bottom_right_utm.y, bottom_right_utm.z);
                         entity_ortho->push_back(static_cast<tl::Point2d>(bottom_right_utm));
+
+                        tl::Point3d bottom_left_utm = static_cast<tl::Point3d>(rect.bottomLeft());
+                        geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_utm.x, bottom_left_utm.y, bottom_left_utm.z);
                         entity_ortho->push_back(static_cast<tl::Point2d>(bottom_left_utm));
+
                         std::shared_ptr<tl::TableRegister> data_ortho(new tl::TableRegister(layer_ortho_graph.tableFields()));
                         data_ortho->setValue(0, ortho_file.toString());
                         entity_ortho->setData(data_ortho);
@@ -237,8 +258,9 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
 
                     Orthoimage orthoimage(file,
                                           &orthorectification, 
-                                          mEcefToEnu, 
-                                          mCrsTransfom,
+                                          //mEcefToEnu, 
+                                          //mCrsTransfom,
+                                          mEnuCrs,
                                           mCrs, 
                                           rect_ortho, 
                                           affine_ortho,
@@ -252,10 +274,18 @@ void OrthoimageTask::execute(tl::Progress *progressBar)
                     entity->setData(data);
 
                     {
-                        auto top_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(entity->at(0)));
-                        auto top_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(entity->at(1)));
-                        auto bottom_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(entity->at(2)));
-                        auto bottom_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(entity->at(3)));
+                        //auto top_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(entity->at(0)));
+                        //auto top_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(entity->at(1)));
+                        //auto bottom_right_utm = convertEnuToUTM(static_cast<tl::Point3d>(entity->at(2)));
+                        //auto bottom_left_utm = convertEnuToUTM(static_cast<tl::Point3d>(entity->at(3)));
+                        tl::Point3d top_left_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(entity->at(0)));
+                        geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_left_utm.x, top_left_utm.y, top_left_utm.z);
+                        tl::Point3d top_right_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(entity->at(1)));
+                        geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, top_right_utm.x, top_right_utm.y, top_right_utm.z);
+                        tl::Point3d bottom_right_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(entity->at(2)));
+                        geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_right_utm.x, bottom_right_utm.y, bottom_right_utm.z);
+                        tl::Point3d bottom_left_utm = static_cast<tl::Point3d>(static_cast<tl::Point3d>(entity->at(2)));
+                        geo_tools->ptrCRSsTools()->crsOperation(mEnuCrs, mCrs, bottom_left_utm.x, bottom_left_utm.y, bottom_left_utm.z);
 
                         entity->at(0) = static_cast<tl::Point2d>(top_left_utm);
                         entity->at(1) = static_cast<tl::Point2d>(top_right_utm);

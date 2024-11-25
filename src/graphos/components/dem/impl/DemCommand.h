@@ -26,6 +26,11 @@
 
 #include "graphos/core/command.h"
 
+namespace tl
+{
+class GeoTools;
+}
+
 namespace graphos
 {
 
@@ -42,13 +47,18 @@ public:
 
 private:
 
+    auto crs() const -> std::string;
+
 // Command
+
+public:
 
     bool run() override;
 
 private:
 
     Project *mProject;
+    tl::GeoTools *mGeoTools;
 };
 
 

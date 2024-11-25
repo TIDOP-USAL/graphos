@@ -72,7 +72,7 @@ public:
     auto projectPath() const -> tl::Path override;
     auto reconstructionPath() const -> tl::Path override;
     void setSparseModel(const tl::Path &sparseModel) override;
-    void setOffset(const tl::Path &offset) override;
+    void setEnuCrs(const QString &enuCrs) override;
     void addPhotoOrientation(size_t imageId,
                              const CameraPose &orientation) override;
     auto poses() const -> const CameraPoses& override;

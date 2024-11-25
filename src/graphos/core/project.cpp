@@ -118,15 +118,15 @@ void ProjectImp::setDatabase(const tl::Path &database)
     mDatabase.normalize();
 }
 
-QString ProjectImp::crs() const
-{
-    return mCrs;
-}
-
-void ProjectImp::setCrs(const QString &crs)
-{
-    mCrs = crs;
-}
+//QString ProjectImp::crs() const
+//{
+//    return mCrs;
+//}
+//
+//void ProjectImp::setCrs(const QString &crs)
+//{
+//    mCrs = crs;
+//}
 
 void ProjectImp::addImage(const Image &img)
 {
@@ -200,12 +200,12 @@ const std::map<int, Camera> &ProjectImp::cameras() const
 
 Camera ProjectImp::findCamera(const QString &make, const QString &model) const
 {
-    Camera camera;
-    for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
-        camera = it->second;
-        if (camera.make().compare(make.toStdString()) == 0 &&
-            camera.model().compare(model.toStdString()) == 0) {
-            return camera;
+    for (const auto& camera : mCameras)
+    {
+        Camera _camera = camera.second;
+        if (_camera.make() == make.toStdString() &&
+            _camera.model() == model.toStdString()) {
+            return _camera;
         }
     }
 
@@ -224,10 +224,11 @@ Camera ProjectImp::findCamera(int idCamera) const
 
 bool ProjectImp::existCamera(const QString &make, const QString &model) const
 {
-    for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
-        Camera camera = it->second;
-        if (camera.make().compare(make.toStdString()) == 0 &&
-            camera.model().compare(model.toStdString()) == 0) {
+    for (const auto& camera : mCameras)
+    {
+        Camera _camera = camera.second;
+        if (_camera.make() == make.toStdString() &&
+            _camera.model() == model.toStdString()) {
             return true;
         }
     }
@@ -267,12 +268,11 @@ bool ProjectImp::removeCamera(int idCamera)
 
 int ProjectImp::cameraId(const QString &make, const QString &model) const
 {
-    Camera camera;
-    for (auto it = mCameras.begin(); it != mCameras.end(); it++) {
-        camera = it->second;
-        if (camera.make().compare(make.toStdString()) == 0 &&
-            camera.model().compare(model.toStdString()) == 0) {
-            return it->first;
+    for (const auto &camera : mCameras)
+    {
+        if (camera.second.make() == make.toStdString() &&
+            camera.second.model() == model.toStdString()) {
+            return camera.first;
         }
     }
     return 0;
@@ -406,14 +406,14 @@ void ProjectImp::setSparseModel(const tl::Path &sparseModel)
     mSparseModel = sparseModel;
 }
 
-tl::Path ProjectImp::offset() const
+QString ProjectImp::enuCrs() const
 {
-    return mOffset;
+    return mEnuCrs;
 }
 
-void ProjectImp::setOffset(const tl::Path &offset)
+void ProjectImp::setEnuCrs(const QString &enuCrs)
 {
-    mOffset = offset;
+    mEnuCrs = enuCrs;
 }
 
 tl::Path ProjectImp::groundPoints() const
@@ -456,7 +456,7 @@ void ProjectImp::clearReconstruction()
 {
     mPhotoOrientation.clear();
     mSparseModel.clear();
-    mOffset.clear();
+    mEnuCrs.clear();
     mOrientationReport = OrientationReport();
     this->clearDensification();
 }
@@ -709,7 +709,7 @@ void ProjectImp::save(const tl::Path &file)
                 writeCameras(stream);
                 writeImages(stream);
                 writeDatabase(stream);
-                writeCrs(stream);
+                //writeCrs(stream);
                 writeFeatures(stream);
                 writeMatches(stream);
                 writeOrientations(stream);
@@ -830,8 +830,8 @@ void ProjectImp::read(QXmlStreamReader &stream)
                     this->readGeneral(stream);
                 } else if (stream.name() == "Database") {
                     this->readDatabase(stream);
-                } else if (stream.name() == "ProjectCRS") {
-                    this->readCrs(stream);
+                //} else if (stream.name() == "ProjectCRS") {
+                //    this->readCrs(stream);
                 } else if (stream.name() == "Cameras") {
                     this->readCameras(stream);
                 } else if (stream.name() == "Images") {
@@ -878,10 +878,10 @@ void ProjectImp::readDatabase(QXmlStreamReader &stream)
     this->setDatabase(stream.readElementText().toStdWString());
 }
 
-void ProjectImp::readCrs(QXmlStreamReader &stream)
-{
-    this->setCrs(stream.readElementText());
-}
+//void ProjectImp::readCrs(QXmlStreamReader &stream)
+//{
+//    this->setCrs(stream.readElementText());
+//}
 
 void ProjectImp::readImages(QXmlStreamReader &stream)
 {
@@ -1202,8 +1202,8 @@ void ProjectImp::readOrientations(QXmlStreamReader &stream)
             this->readReconstructionPath(stream);
         } else*/ if (stream.name() == "SparseModel") {
             this->readOrientationSparseModel(stream);
-        } else if (stream.name() == "Offset") {
-            this->readOffset(stream);
+        } else if (stream.name() == "EnuCrs") {
+            this->readEnuCrs(stream);
         } else if (stream.name() == "GroundPoints") {
             this->readGroundPoints(stream);
         } else if (stream.name() == "Image") {
@@ -1225,9 +1225,9 @@ void ProjectImp::readOrientationSparseModel(QXmlStreamReader &stream)
     this->setSparseModel(stream.readElementText().toStdWString());
 }
 
-void ProjectImp::readOffset(QXmlStreamReader &stream)
+void ProjectImp::readEnuCrs(QXmlStreamReader &stream)
 {
-    this->setOffset(stream.readElementText().toStdWString());
+    this->setEnuCrs(stream.readElementText());
 }
 
 void ProjectImp::readGroundPoints(QXmlStreamReader &stream)
@@ -1557,10 +1557,10 @@ void ProjectImp::writeDatabase(QXmlStreamWriter &stream) const
     stream.writeTextElement("Database", QString::fromStdWString(this->database().toWString()));
 }
 
-void ProjectImp::writeCrs(QXmlStreamWriter &stream) const
-{
-    stream.writeTextElement("ProjectCRS", this->crs());
-}
+//void ProjectImp::writeCrs(QXmlStreamWriter &stream) const
+//{
+//    stream.writeTextElement("ProjectCRS", this->crs());
+//}
 
 void ProjectImp::writeCameras(QXmlStreamWriter &stream) const
 {
@@ -1808,9 +1808,9 @@ void ProjectImp::writeOrientationSparseModel(QXmlStreamWriter &stream) const
 
 void ProjectImp::writeOffset(QXmlStreamWriter &stream) const
 {
-    QString offset = QString::fromStdWString(this->offset().toWString());
-    if (!offset.isEmpty())
-        stream.writeTextElement("Offset", offset);
+    QString enu_crs = this->enuCrs();
+    if (!enu_crs.isEmpty())
+        stream.writeTextElement("EnuCrs", enu_crs);
 }
 
 void ProjectImp::writeGroundPoints(QXmlStreamWriter &stream) const
@@ -1901,7 +1901,7 @@ void ProjectImp::writeDenseReport(QXmlStreamWriter &stream) const
         stream.writeTextElement("Points", QString::number(mDenseReport.points));
         stream.writeTextElement("Method", QString::fromStdString(mDenseReport.method));
         stream.writeTextElement("Time", QString::number(mDenseReport.time, 'f', 10));
-        stream.writeTextElement("Cuda", mDenseReport.time ? "true" : "false");
+        stream.writeTextElement("Cuda", mDenseReport.time > 0. ? "true" : "false");
 
         stream.writeEndElement(); // Report
     }

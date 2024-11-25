@@ -143,15 +143,15 @@ public:
      */
     virtual void setDatabase(const tl::Path &database) = 0;
 
-    /*!
-     * \brief Sistema de referencia (código EPSG)
-     */
-    virtual QString crs() const = 0;
+    ///*!
+    // * \brief Sistema de referencia (código EPSG)
+    // */
+    //virtual QString crs() const = 0;
 
-    /*!
-     * \brief Establece el sistema de referencia (código EPSG)
-     */
-    virtual void setCrs(const QString &crs) = 0;
+    ///*!
+    // * \brief Establece el sistema de referencia (código EPSG)
+    // */
+    //virtual void setCrs(const QString &crs) = 0;
 
     /*!
      * \brief Añade una imagen al proyecto
@@ -229,8 +229,8 @@ public:
 
     virtual tl::Path sparseModel() const = 0;
     virtual void setSparseModel(const tl::Path &sparseModel) = 0;
-    virtual tl::Path offset() const = 0;
-    virtual void setOffset(const tl::Path &offset) = 0;
+    virtual QString enuCrs() const = 0;
+    virtual void setEnuCrs(const QString &enuCrs) = 0;
     virtual tl::Path groundPoints() const = 0;
     virtual void setGroundPoints(const tl::Path &groundPoints) = 0;
     virtual tl::Path reconstructionPath() const = 0;
@@ -319,8 +319,8 @@ public:
     QString version() const override;
     tl::Path database() const override;
     void setDatabase(const tl::Path &database) override;
-    QString crs() const override;
-    void setCrs(const QString &crs) override;
+    //QString crs() const override;
+    //void setCrs(const QString &crs) override;
     void addImage(const Image &img) override;
     bool updateImage(size_t imageId, const Image &image) override;
     void removeImage(size_t imageId) override;
@@ -362,8 +362,8 @@ public:
 
     tl::Path sparseModel() const override;
     void setSparseModel(const tl::Path &sparseModel) override;
-    tl::Path offset() const override;
-    void setOffset(const tl::Path &offset) override;
+    QString enuCrs() const override;
+    void setEnuCrs(const QString &enuCrs) override;
     tl::Path groundPoints() const override;
     void setGroundPoints(const tl::Path &groundPoints) override;
     tl::Path reconstructionPath() const override;
@@ -422,7 +422,7 @@ protected:
     void read(QXmlStreamReader &stream);
     void readGeneral(QXmlStreamReader &stream);
     void readDatabase(QXmlStreamReader &stream);
-    void readCrs(QXmlStreamReader &stream);
+    //void readCrs(QXmlStreamReader &stream);
     void readImages(QXmlStreamReader &stream);
     Image readImage(QXmlStreamReader &stream);
     CameraPose readCameraPosition(QXmlStreamReader &stream);
@@ -442,7 +442,7 @@ protected:
     void readOrientations(QXmlStreamReader &stream);
     //void readReconstructionPath(QXmlStreamReader &stream);
     void readOrientationSparseModel(QXmlStreamReader &stream);
-    void readOffset(QXmlStreamReader &stream);
+    void readEnuCrs(QXmlStreamReader &stream);
     void readGroundPoints(QXmlStreamReader &stream);
     void readPhotoOrientations(QXmlStreamReader &stream);
     void readOrientationReport(QXmlStreamReader& stream);
@@ -465,7 +465,7 @@ protected:
     void writeVersion(QXmlStreamWriter &stream) const;
     void writeGeneral(QXmlStreamWriter &stream) const;
     void writeDatabase(QXmlStreamWriter &stream) const;
-    void writeCrs(QXmlStreamWriter &stream) const;
+    //void writeCrs(QXmlStreamWriter &stream) const;
     void writeCameras(QXmlStreamWriter &stream) const;
     void writeCamera(QXmlStreamWriter &stream, int id, const Camera &camera) const;
     void writeCalibration(QXmlStreamWriter &stream, std::shared_ptr<Calibration> calibration) const;
@@ -527,7 +527,7 @@ protected:
     std::unordered_map<size_t, CameraPose> mPhotoOrientation;
 
     tl::Path mSparseModel;
-    tl::Path mOffset;
+    QString mEnuCrs;
     tl::Path mGroundPoints;
     OrientationReport mOrientationReport;
     //tl::Path mReconstructionPath;
