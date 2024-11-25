@@ -275,7 +275,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
         }
 
 
-
+        // TODO: Igual mejor que sea un bucle
         if (summary.termination_type == ceres::NO_CONVERGENCE) {
 
             ba_terminate = false;
@@ -645,6 +645,40 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     if (summary.termination_type == ceres::CONVERGENCE) break;
                 }
+
+                ///// Fijo las cámaras y recalculo los intrinsecos
+                //{
+                //    ba_options.refine_focal_length = true;
+                //    ba_options.refine_principal_point = false;
+                //    ba_options.refine_extra_params = true;
+                //    ba_options.refine_extrinsics = false;
+
+                //    BundleAdjustmentConfig ba_config;
+                //    for (const colmap::image_t image_id : reg_image_ids) {
+                //        ba_config.AddImage(image_id);
+                //    }
+
+                //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
+                //    bundle_adjuster.solve(&reconstruction);
+                //    summary = bundle_adjuster.summary();
+
+                //}
+
+                //// Punto principal en el ajuste
+                //{
+                //    ba_options.refine_principal_point = true;
+
+                //    BundleAdjustmentConfig ba_config;
+                //    for (const colmap::image_t image_id : reg_image_ids) {
+                //        ba_config.AddImage(image_id);
+                //    }
+
+                //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
+                //    bundle_adjuster.solve(&reconstruction);
+                //    summary = bundle_adjuster.summary();
+
+                //}
+                /////
 
                 // Calculo de los errores en el ajuste de haces:
                 if (mControlPoints){
