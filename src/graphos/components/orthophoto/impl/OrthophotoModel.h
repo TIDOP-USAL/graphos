@@ -54,14 +54,17 @@ public:
     auto orthoPath() const -> tl::Path override;
     void setOrthoPath(const tl::Path &orthoPath) override;
     auto dtmPath() const -> tl::Path override;
-    auto epsCode() const -> QString override;
+    auto enuCrs() const -> QString override;
+    auto crs() const -> QString override;
     void clearProject() override;
     auto useCuda() const -> bool override;
     auto gsd() const -> double override;
+    auto interpolation() const -> QString override;
 
-public slots:
-
-    void setGSD(double gsd);
+    void setGsd(double gsd);
+    void setCrs(const QString &crs) override;
+    void setInterpolation(const QString &interpolation) override;
+    void setReport(const OrthophotoReport &report) override;
 
     void loadSettings() override;
     void saveSettings() override;

@@ -53,7 +53,9 @@ void OrthophotoPresenterImp::open()
 {
     mModel->loadSettings();
 
-    mView->setGSD(mModel->gsd());
+    mView->setGsd(mModel->gsd());
+    mView->setCrs(mModel->crs());
+    mView->setInterpolation(mModel->interpolation());
 
     mView->exec();
 }
@@ -92,11 +94,14 @@ void OrthophotoPresenterImp::onFinished(tl::TaskFinalizedEvent *event)
     ortho_path.append("ortho");
     ortho_path.append("ortho.tif");
     mModel->setOrthoPath(ortho_path);
+    mModel->setGsd(mView->gsd());
+    mModel->setCrs(mView->crs());
+    mModel->setInterpolation(mView->interpolation());
 }
 
 std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 {
-    tl::Path ortho_path = mModel->orthoPath();
+    //tl::Path ortho_path = mModel->orthoPath();
     //if(!ortho_path.exists()) {
     //    int i_ret = QMessageBox(QMessageBox::Warning,
     //                            tr("Previous results"),
@@ -109,18 +114,27 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 
     mModel->clearProject();
 
-    mModel->setGSD(mView->gsd());
-
     tl::Path ortho_dir = mModel->projectFolder();
     ortho_dir.append("ortho");
 
-    std::unique_ptr<tl::Task> ortho_process = std::make_unique<OrthophotoTask>(mView->gsd(),
-                                                                               mModel->images(),
-                                                                               mModel->cameras(),
-                                                                               ortho_dir,
-                                                                               mModel->dtmPath(),
-                                                                               mModel->epsCode(),
-                                                                               mModel->useCuda());
+    std::unique_ptr<tl::Task> ortho_task = std::make_unique<OrthophotoTask>(mView->gsd(),
+                                                                            mModel->images(),
+                                                                            mModel->cameras(),
+                                                                            ortho_dir,
+                                                                            mModel->dtmPath(),
+                                                                            mModel->enuCrs().toStdString(),
+                                                                            mView->crs().toStdString(),
+                                                                            mView->interpolation().toStdString(),
+                                                                            mModel->useCuda());
+
+    ortho_task->subscribe([&](const tl::TaskFinalizedEvent *event) {
+
+        auto task = dynamic_cast<OrthophotoTask const *>(event->task());
+
+        auto report = task->report();
+        mModel->setReport(report);
+
+    });
 
     if(progressHandler()) {
         progressHandler()->setRange(0, 0);
@@ -130,7 +144,7 @@ std::unique_ptr<tl::Task> OrthophotoPresenterImp::createTask()
 
     mView->hide();
 
-    return ortho_process;
+    return ortho_task;
 }
 
 void OrthophotoPresenterImp::cancel()

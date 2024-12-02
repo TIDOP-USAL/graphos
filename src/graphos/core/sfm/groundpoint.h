@@ -88,12 +88,18 @@ public:
      */
     void setPoint(const tl::Point3<double> &point);
 
+    auto error() const -> double/*tl::Vector3d*/;
+
+    void setError(/*const tl::Vector3d &*/double error);
+
     /*!
      * \brief Add a point to the track of the ground control point.
      * \param imageId The ID of the image.
      * \param point The point to add to the track.
      */
     void addPointToTrack(size_t imageId, const tl::Point<double> &point);
+
+    void addErrorToTrack(size_t imageId, const tl::Vector2d &error);
 
     /*!
      * \brief Set the track of the ground control point.
@@ -119,7 +125,7 @@ private:
 
     std::string mName;  ///< The name of the ground control point.
     GCPTrack mTrack;    ///< The track of the ground control point.
-
+    /*tl::Vector3d*/double mError;
 };
 
 

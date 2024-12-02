@@ -34,10 +34,13 @@
 //#include <tidop/geometry/transform/affine.h>
 #include <tidop/geometry/rect.h>
 #include <tidop/geospatial/diffrect.h>
+#include <tidop/geospatial/crstransf.h>
 #include <tidop/graphic/entities/polygon.h>
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/sfm/poses.h"
+
+
 
 namespace graphos
 {
@@ -64,7 +67,7 @@ public:
     tl::Point3<double> imageToTerrain(const tl::Point<int> &imagePoint) const;
     tl::Point3<double> photocoordinatesToTerrain(const tl::Point<double> &photocoordinates) const;
     tl::Point<double> imageToPhotocoordinates(const tl::Point<int> &imagePoint) const;
-    tl::Point<int> photocoordinatesToImage(const tl::Point<double> &photocoordinates) const;
+    tl::Point<double> photocoordinatesToImage(const tl::Point<double> &photocoordinates) const;
     tl::Point3<double> dtmToTerrain(const tl::Point<int> &imagePoint) const;
     tl::Point<int> terrainToDTM(const tl::Point3<double> &terrainPoint) const;
     double z(const tl::Point<double> &terrainPoint) const;

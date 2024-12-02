@@ -42,15 +42,31 @@ public:
     OrthophotoView(QWidget *parent) : TaskView(parent) {}
     ~OrthophotoView() override = default;
 
+    /*!
+     * \brief gsd Retrieves the Ground Sample Distance (GSD).
+     * \return The GSD value.
+     */
     virtual auto gsd() const -> double = 0;
+
+    virtual auto crs() const -> QString = 0;
+    virtual auto interpolation() const -> QString = 0;
 
 public slots:
 
-    virtual void setGSD(double gsd) = 0;
+    /*!
+     * \brief setGsd Sets the Ground Sample Distance (GSD).
+     * \param[in] gsd The GSD value to set.
+     */
+    virtual void setGsd(double gsd) = 0;
+
+    virtual void setCrs(const QString &crs) = 0;
+    virtual void setInterpolation(const QString &interpolation) = 0;
 
 signals:
 
     void resolutionChanged(double);
+    void crs_change();
+    void select_crs();
 
 };
 

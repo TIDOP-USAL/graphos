@@ -21,51 +21,41 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORTHO_ZBUFFER
-#define GRAPHOS_CORE_ORTHO_ZBUFFER
+#ifndef GRAPHOS_ORTHOPHOTO_COMMAND_H
+#define GRAPHOS_ORTHOPHOTO_COMMAND_H
 
-#include "graphos/graphos_global.h"
-
-#include <opencv2/core/mat.hpp>
-
-#include "graphos/core/ortho/Orthorectification.h"
+#include "graphos/core/command.h"
 
 namespace graphos
 {
 
-/*!
- * \brief ZBuffer
- */
-class ZBuffer
+class Project;
+class Image;
+
+class OrthophotoCommand
+  : public Command
 {
+
 public:
 
-    ZBuffer(Orthorectification *orthorectification,
-            const tl::Rect<int> &rectOrtho,
-            const tl::Affine<double, 2> &georeference);
-    ~ZBuffer();
-
-    void run();
-
-    cv::Mat distances() const;
-    cv::Mat mapX() const;
-    cv::Mat mapY() const;
-
-    void clear();
+    OrthophotoCommand();
+    ~OrthophotoCommand() override;
 
 private:
 
-    Orthorectification *mOrthorectification;
-    tl::Rect<int> mRectOrtho;
-    tl::Affine<double, 2> mGeoreference;
-    tl::Window<tl::Point<double>> mWindowOrthoTerrain;
-    cv::Mat mDistances;
-    cv::Mat mY;
-    cv::Mat mX;
+    auto images() -> std::vector<Image>;
 
+// Command
+
+    bool run() override;
+
+private:
+
+    Project *mProject;
+    bool mDisableCuda;
 };
 
 
-} // End namespace graphos
+} // namespace graphos
 
-#endif // GRAPHOS_CORE_ORTHO_ZBUFFER
+#endif // GRAPHOS_ORTHOPHOTO_COMMAND_H

@@ -23,7 +23,6 @@
 
 #include "DemView.h"
 
-#include <QComboBox>
 #include <QSpinBox>
 #include <QPushButton>
 #include <QCheckBox>

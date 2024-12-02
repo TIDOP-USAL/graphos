@@ -24,11 +24,11 @@
 #ifndef GRAPHOS_DEM_TASK_H
 #define GRAPHOS_DEM_TASK_H
 
+#include <QObject>
+
 #include <tidop/core/task.h>
 #include <tidop/core/progress.h>
 #include <tidop/geometry/entities/point.h>
-
-#include <QObject>
 
 #include "graphos/core/reports/dem.h"
 

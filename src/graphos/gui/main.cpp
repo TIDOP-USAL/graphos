@@ -211,15 +211,15 @@ int main(int argc, char *argv[])
     gdal_data_path.append("gdal\\data");
     tl::Path proj_data_path(graphos_path);
     proj_data_path.append("proj");
+    CPLSetConfigOption( "GDAL_DATA", gdal_data_path.toString().c_str());
 #   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
-        CPLSetConfigOption("PROJ_DATA", proj_data_path.toString().c_str());
-        CPLSetConfigOption("PROJ_LIB", proj_data_path.toString().c_str());
+        CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
+        CPLSetConfigOption( "PROJ_LIB", proj_data_path.toString().c_str());
 #   else
         std::string s_proj = proj_data_path.toString();
         const char *proj_data[] {s_proj.c_str(), nullptr};
         OSRSetPROJSearchPaths(proj_data);
 #   endif
-    CPLSetConfigOption("GDAL_DATA", gdal_data_path.toString().c_str());
 #endif // TL_OS_WINDOWS
 
 #ifdef DEBUG
@@ -395,10 +395,10 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_GUI
 
         //    TL_TODO("Añadir como opción")
-#if defined WIN32
-        HWND hwnd = GetConsoleWindow();
-        ShowWindow(hwnd, 0);
-#endif
+//#if defined WIN32
+//        HWND hwnd = GetConsoleWindow();
+//        ShowWindow(hwnd, 0);
+//#endif
 
         app.freeMemory();
 
@@ -440,19 +440,6 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_HAVE_IMPORT_CAMERAS
         componentsManager.registerComponent(&import_cameras_component);
-
-#   ifdef GRAPHOS_HAVE_CRS
-        QObject::connect(&import_cameras_component, &ImportCamerasComponent::select_crs, [&]() {
-            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-                             &import_cameras_component, &ImportCamerasComponent::setCrs);
-
-        crs_component.open();
-
-            QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-                                &import_cameras_component, &ImportCamerasComponent::setCrs);
-            });
-#   endif // GRAPHOS_HAVE_CRS
-
 #endif // GRAPHOS_HAVE_IMPORT_CAMERAS
 
 #ifdef GRAPHOS_HAVE_CAMERAS
@@ -469,17 +456,6 @@ int main(int argc, char *argv[])
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::export_point_cloud,
                          export_point_cloud_component.action(), &QAction::trigger);
 
-#   ifdef GRAPHOS_HAVE_CRS
-        QObject::connect(&export_point_cloud_component, &ExportPointCloudComponent::select_crs, [&]() {
-            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-            &export_point_cloud_component, &ExportPointCloudComponent::setCrs);
-
-        crs_component.open();
-
-        QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
-            &export_point_cloud_component, &ExportPointCloudComponent::setCrs);
-            });
-#   endif // GRAPHOS_HAVE_CRS
 #endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
         
 #ifdef GRAPHOS_HAVE_EXPORT_MESH
@@ -576,6 +552,20 @@ int main(int argc, char *argv[])
 #ifdef GRAPHOS_HAVE_ORTHOPHOTO
         componentsManager.registerComponent(&orthophoto_component,
                                             ComponentsManager::Flags::separator_before);
+
+#   ifdef GRAPHOS_HAVE_CRS
+        QObject::connect(&orthophoto_component, &OrthophotoComponent::select_crs, [&]() {
+
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+            &orthophoto_component, &OrthophotoComponent::setCrs);
+
+        crs_component.open();
+
+        QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+            &orthophoto_component, &OrthophotoComponent::setCrs);
+
+            });
+#   endif // GRAPHOS_HAVE_CRS
 #endif // GRAPHOS_HAVE_ORTHOPHOTO
 
 #ifdef GRAPHOS_HAVE_FEATVIEWER
@@ -736,6 +726,8 @@ int main(int argc, char *argv[])
                          &properties_component, &PropertiesComponent::selectMeshModel);
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_dem,
                          &properties_component, &PropertiesComponent::selectDem);
+        QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_orthophoto,
+                         &properties_component, &PropertiesComponent::selectOrthophoto);
 #endif // GRAPHOS_HAVE_PROPERTIES
 
 #ifdef GRAPHOS_HAVE_SETTINGS
@@ -760,9 +752,9 @@ int main(int argc, char *argv[])
 
         r = app.exec();
 
-#if defined WIN32
-        ShowWindow(hwnd, 1);
-#endif
+//#if defined WIN32
+//        ShowWindow(hwnd, 1);
+//#endif
 
 #endif // GRAPHOS_GUI
     }

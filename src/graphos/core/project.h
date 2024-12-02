@@ -43,7 +43,8 @@
 #include "graphos/core/sfm/OrientationReport.h"
 #include "graphos/core/dense/dense.h"
 #include "graphos/core/mesh/PoissonRecon.h"
-#include "reports/dem.h"
+#include "graphos/core/reports/dem.h"
+#include "graphos/core/reports/orthophoto.h"
 
 class QXmlStreamWriter;
 class QXmlStreamReader;
@@ -62,8 +63,10 @@ struct DemData
 
 struct OrthophotoData
 {
+    QString epsgCode;
     tl::Path path;
     double gsd = 0.05;
+    QString interpolation = "Linear";
 };
 
 
@@ -266,6 +269,8 @@ public:
     virtual const OrthophotoData &orthophoto() const = 0;
     virtual OrthophotoData &orthophoto() = 0;
     virtual void setOrthophoto(const OrthophotoData &orthophoto) = 0;
+    virtual OrthophotoReport orthophotoReport() const = 0;
+    virtual void setOrthophotoReport(const OrthophotoReport &report) = 0;
     virtual void clearOrthophoto() = 0;
 
     virtual tl::Matrix<double, 4, 4> &transform() = 0;
@@ -397,6 +402,8 @@ public:
     const OrthophotoData &orthophoto() const override;
     OrthophotoData &orthophoto() override;
     void setOrthophoto(const OrthophotoData &orthophoto) override;
+    OrthophotoReport orthophotoReport() const override;
+    void setOrthophotoReport(const OrthophotoReport &report) override;
     void clearOrthophoto() override;
 
     void clear() override;
@@ -453,6 +460,7 @@ protected:
     void readDem(QXmlStreamReader &stream);
     void readDemReport(QXmlStreamReader &stream);
     void readOrthophoto(QXmlStreamReader &stream);
+    void readOrthophotoReport(QXmlStreamReader &stream);
 
     void writeVersion(QXmlStreamWriter &stream) const;
     void writeGeneral(QXmlStreamWriter &stream) const;
@@ -491,6 +499,7 @@ protected:
     void writeDem(QXmlStreamWriter &stream) const;
     void writeDemReport(QXmlStreamWriter &stream) const;
     void writeOrthophoto(QXmlStreamWriter &stream) const;
+    void writeOrthophotoReport(QXmlStreamWriter &stream) const;
 
     QSize readSize(QXmlStreamReader &stream) const;
     int readInt(QXmlStreamReader &stream) const;
@@ -531,6 +540,7 @@ protected:
     DemData mDem;
     DemReport mDemReport;
     OrthophotoData mOrthophoto;
+    OrthophotoReport mOrthophotoReport;
     static std::mutex sMutex;
     int mCameraCount;
     //tl::Path mOrthophoto;

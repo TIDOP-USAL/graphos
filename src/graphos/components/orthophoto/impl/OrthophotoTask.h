@@ -31,6 +31,9 @@
 
 #include <tidop/core/task.h>
 #include <tidop/core/path.h>
+#include <tidop/geometry/entities/window.h>
+
+#include "graphos/core/reports/orthophoto.h"
 
 namespace tl 
 {
@@ -55,17 +58,26 @@ public:
                    const std::map<int, Camera> &cameras,
                    const tl::Path &orthoPath,
                    const tl::Path &mdt,
-                   const QString &epsg,
+                   const std::string &enuCrs,
+                   const std::string &epsg,
+                   const std::string &interpolation = "BILINEAR",
                    bool cuda = false);
 
     ~OrthophotoTask() override;
+
+    auto report() const -> OrthophotoReport;
 
     void setGSD(double gsd);
     void setPhotos(const std::vector<Image> &images);
     void setOrthoPath(const tl::Path &orthoPath);
     void setMdt(const tl::Path &mdt);
-    void setCrs(const QString &epsg);
+    void setCrs(const std::string &epsg);
     void setCuda(bool active);
+
+private:
+
+    std::vector<tl::WindowD> findGrid(const tl::Path &mdt, double gsd);
+    std::vector<std::vector<tl::WindowD>> findGrid2(const tl::Path &mdt, double gsd, int gridSize);
 
 // tl::TaskBase interface
 
@@ -80,7 +92,10 @@ private:
     std::map<int, Camera> mCameras;
     tl::Path mOrthoPath;
     tl::Path mMdt;
-    QString mEpsg;
+    std::string mEnuCrs;
+    std::string mEpsg;
+    std::string mInterpolation;
+    OrthophotoReport mOrthophotoReport;
     bool bCuda;
 
 };

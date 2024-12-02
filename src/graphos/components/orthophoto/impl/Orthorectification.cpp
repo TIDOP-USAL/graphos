@@ -21,7 +21,7 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/ortho/Orthorectification.h"
+#include "graphos/components/orthophoto/impl/Orthorectification.h"
 
 #include "graphos/core/camera/Undistort.h"
 
@@ -143,7 +143,7 @@ tl::Point<double> Orthorectification::imageToPhotocoordinates(const tl::Point<in
     return mAffineImageToPhotocoordinates.transform(tl::Point<double>(imagePoint));
 }
 
-tl::Point<int> Orthorectification::photocoordinatesToImage(const tl::Point<double> &photocoordinates) const
+tl::Point<double> Orthorectification::photocoordinatesToImage(const tl::Point<double> &photocoordinates) const
 {
     return mAffineImageToPhotocoordinates.inverse().transform(photocoordinates);
 }

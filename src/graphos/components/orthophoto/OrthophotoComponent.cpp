@@ -24,9 +24,12 @@
 
 #include "OrthophotoComponent.h"
 
+#ifdef GRAPHOS_GUI
 #include "graphos/components/orthophoto/impl/OrthophotoModel.h"
 #include "graphos/components/orthophoto/impl/OrthophotoView.h"
 #include "graphos/components/orthophoto/impl/OrthophotoPresenter.h"
+#endif // GRAPHOS_GUI
+#include "graphos/components/orthophoto/impl//OrthophotoCommand.h"
 #include "graphos/core/project.h"
 #include "graphos/core/AppStatus.h"
 
@@ -39,30 +42,48 @@ namespace graphos
 OrthophotoComponent::OrthophotoComponent(Application *application)
   : TaskComponent(application)
 {
-    ComponentBase::setName(tr("Orthophoto"));
-    ComponentBase::setMenu("tools");
+    init();
 }
 
 OrthophotoComponent::~OrthophotoComponent() = default;
 
+void OrthophotoComponent::init()
+{
+    setName(tr("Orthophoto"));
+    setMenu("tools");
+    //setIcon(QIcon::fromTheme("ortho"));
+    createCommand();
+}
+
 void OrthophotoComponent::createModel()
 {
+#ifdef GRAPHOS_GUI
     setModel(new OrthophotoModelImp(app()->project()));
+#endif // GRAPHOS_GUI
 }
 
 void OrthophotoComponent::createView()
 {
+#ifdef GRAPHOS_GUI
     setView(new OrthophotoViewImp());
+
+    connect(dynamic_cast<OrthophotoView *>(view()), &OrthophotoView::select_crs,
+            this, &OrthophotoComponent::select_crs);
+#endif // GRAPHOS_GUI
 }
 
 void OrthophotoComponent::createPresenter()
 {
+#ifdef GRAPHOS_GUI
     setPresenter(new OrthophotoPresenterImp(dynamic_cast<OrthophotoView *>(view()),
                                             dynamic_cast<OrthophotoModel *>(model())));
+#endif // GRAPHOS_GUI
 }
 
 void OrthophotoComponent::createCommand()
-{}
+{
+    setCommand(std::make_shared<OrthophotoCommand>());
+}
 
 void OrthophotoComponent::update()
 {
@@ -108,5 +129,12 @@ void OrthophotoComponent::onFailed()
     app_status->activeFlag(AppStatus::Flag::ortho, false);
 }
 
+void OrthophotoComponent::setCrs(const QString &crs)
+{
+#ifdef GRAPHOS_GUI
+    if (view())
+        dynamic_cast<OrthophotoView *>(view())->setCrs(crs);
+#endif // GRAPHOS_GUI
+}
 
 } // namespace graphos

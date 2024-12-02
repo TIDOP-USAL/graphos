@@ -23,7 +23,7 @@
 
 include(TidopUtils)
 
-if(BUILD_ORTHOPHOTO_COMPONENT AND BUILD_GUI)
+if(BUILD_ORTHOPHOTO_COMPONENT)
 
     project(Orthophoto LANGUAGES CXX)
     
@@ -40,20 +40,38 @@ if(BUILD_ORTHOPHOTO_COMPONENT AND BUILD_GUI)
     add_files_to_project(${PROJECT_NAME}
                          SOURCE_FILES
                              OrthophotoComponent.cpp
+                             impl/OrthophotoTask.cpp
+                             impl/OrthoimageTask.cpp
+                             impl/OrthophotoCommand.cpp
+                             impl/Footprint.cpp
+                             impl/Orthoimage.cpp
+                             impl/Orthorectification.cpp
+                             impl/ZBuffer.cpp
+                         HEADER_FILES
+                             OrthophotoComponent.h
+                             impl/OrthophotoTask.h
+                             impl/OrthoimageTask.h
+                             impl/OrthophotoCommand.h
+                             impl/Footprint.h
+                             impl/Orthoimage.h
+                             impl/Orthorectification.h
+                             impl/ZBuffer.h)
+							 
+if (BUILD_GUI)        
+    add_files_to_project(${PROJECT_NAME}
+                         SOURCE_FILES
                              impl/OrthophotoModel.cpp
                              impl/OrthophotoView.cpp
                              impl/OrthophotoPresenter.cpp
-                             impl/OrthophotoTask.cpp
                          HEADER_FILES
-                             OrthophotoComponent.h
                              OrthophotoModel.h
                              OrthophotoView.h
                              OrthophotoPresenter.h
                              impl/OrthophotoModel.h
                              impl/OrthophotoView.h
-                             impl/OrthophotoPresenter.h
-                             impl/OrthophotoTask.h)
-            
+                             impl/OrthophotoPresenter.h)
+endif(BUILD_GUI)
+          
     add_library(${PROJECT_NAME} ${LIB_TYPE}
                 ${PROJECT_SOURCE_FILES}
                 ${PROJECT_HEADER_FILES})
@@ -63,7 +81,7 @@ if(BUILD_ORTHOPHOTO_COMPONENT AND BUILD_GUI)
     
     target_link_libraries(${PROJECT_NAME} PRIVATE 
                           Qt5::Core
-                          Qt5::Widgets
+                          $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                           Graphos::Core
                           Eigen3::Eigen
                           glog::glog)
@@ -89,4 +107,4 @@ else()
 
     message(STATUS "  Graphos::Orthophoto disabled")    
     
-endif(BUILD_ORTHOPHOTO_COMPONENT AND BUILD_GUI)
+endif(BUILD_ORTHOPHOTO_COMPONENT)

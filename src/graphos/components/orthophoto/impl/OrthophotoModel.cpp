@@ -25,12 +25,18 @@
 
 #include "graphos/core/camera/Camera.h"
 #include "graphos/core/sfm/poses.h"
+#include "graphos/core/sfm/posesio.h"
+
+#include <tidop/geospatial/crs.h>
+#include <tidop/geospatial/crstransf.h>
+#include <tidop/geospatial/util.h>
 
 #include <QSettings>
 #include <QFileInfo>
 
 /// TODO: mover
 #include <colmap/base/reconstruction.h>
+
 
 namespace graphos
 {
@@ -51,9 +57,24 @@ OrthophotoModelImp::~OrthophotoModelImp()
     }
 }
 
-void OrthophotoModelImp::setGSD(double gsd)
+void OrthophotoModelImp::setGsd(double gsd)
 {
     mProject->orthophoto().gsd = gsd;
+}
+
+void OrthophotoModelImp::setCrs(const QString &crs)
+{
+    mProject->orthophoto().epsgCode = crs;
+}
+
+void OrthophotoModelImp::setInterpolation(const QString &interpolation)
+{
+    mProject->orthophoto().interpolation = interpolation;
+}
+
+void OrthophotoModelImp::setReport(const OrthophotoReport &report)
+{
+    mProject->setOrthophotoReport(report);
 }
 
 void OrthophotoModelImp::loadSettings()
@@ -90,17 +111,6 @@ auto OrthophotoModelImp::images() const -> Images
 {
     Images images;
 
-    tl::Point3<double> offset;
-
-    std::ifstream ifs;
-    ifs.open(mProject->offset().toString(), std::ifstream::in);
-    if(ifs.is_open()) {
-
-        ifs >> offset.x >> offset.y >> offset.z;
-
-        ifs.close();
-    }
-
     for(const auto &image : mProject->images()) {
 
         Image photo(image.second);
@@ -117,7 +127,7 @@ auto OrthophotoModelImp::images() const -> Images
             rotation_matrix.at(2, 2) = -photoOrientation.rotationMatrix().at(2, 2);
             photoOrientation.setRotationMatrix(rotation_matrix);
 
-            photoOrientation.setPosition(photoOrientation.position() + offset);
+            photoOrientation.setPosition(photoOrientation.position() /*+ offset*/);
 
             photo.setCameraPose(photoOrientation);
 
@@ -154,9 +164,9 @@ auto OrthophotoModelImp::dtmPath() const -> tl::Path
     return mProject->dem().dsmPath;
 }
 
-auto OrthophotoModelImp::epsCode() const -> QString
+auto OrthophotoModelImp::enuCrs() const -> QString
 {
-    return mProject->crs();
+    return mProject->enuCrs();
 }
 
 void OrthophotoModelImp::clearProject()
@@ -173,6 +183,34 @@ auto OrthophotoModelImp::useCuda() const -> bool
 auto OrthophotoModelImp::gsd() const -> double
 {
     return mProject->orthophoto().gsd;
+}
+
+auto OrthophotoModelImp::interpolation() const -> QString
+{
+    return mProject->orthophoto().interpolation;
+}
+
+auto OrthophotoModelImp::crs() const -> QString
+{
+    QString epsg_code = mProject->orthophoto().epsgCode;
+
+    try {
+
+        epsg_code = mProject->orthophoto().epsgCode;
+
+        if (epsg_code.isEmpty()) {
+            auto enu_crs = enuCrs();
+            auto v = tl::split<std::string>(enu_crs.toStdString(), ';');
+            auto zone = tl::utmZoneFromLonLat(tl::stringToNumber<double>(v.at(1)), tl::stringToNumber<double>(v.at(2)));
+            epsg_code = "EPSG:326";
+            epsg_code.append(QString::number(zone.first));
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
+
+    return epsg_code;
 }
 
 void OrthophotoModelImp::init()

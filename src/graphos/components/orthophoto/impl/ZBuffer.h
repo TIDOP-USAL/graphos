@@ -21,63 +21,51 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_PRESENTER_H
-#define GRAPHOS_PROPERTIES_PRESENTER_H
+#ifndef GRAPHOS_CORE_ORTHO_ZBUFFER
+#define GRAPHOS_CORE_ORTHO_ZBUFFER
 
-#include "graphos/components/properties/PropertiesPresenter.h"
+#include "graphos/graphos_global.h"
+
+#include <opencv2/core/mat.hpp>
+
+#include "graphos/components/orthophoto/impl/Orthorectification.h"
 
 namespace graphos
 {
 
-class AppStatus;
-class PropertiesView;
-class PropertiesModel;
-
-class PropertiesPresenterImp
-  : public PropertiesPresenter
+/*!
+ * \brief ZBuffer
+ */
+class ZBuffer
 {
-    Q_OBJECT
-
 public:
 
-    PropertiesPresenterImp(PropertiesView *view,
-                           PropertiesModel *model,
-                           AppStatus *status);
-    ~PropertiesPresenterImp() override = default;
+    ZBuffer(Orthorectification *orthorectification,
+            const tl::Rect<int> &rectOrtho,
+            const tl::Affine<double, 2> &georeference);
+    ~ZBuffer();
 
-// PropertiesPresenter interface
+    void run();
 
-public slots:
+    cv::Mat distances() const;
+    cv::Mat mapX() const;
+    cv::Mat mapY() const;
 
-    void selectSparseModel() override;
-    void selectDenseModel() override;
-    void selectMeshModel() override;
-    void selectDem() override;
-    void selectOrthophoto() override;
-    void setImageActive(size_t imageId) override;
-    void parseDocument(const QString &parser, const QString &file) override;
-    void parseDocuments(const QStringList &parsers, const QStringList &files) override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
+    void clear();
 
 private:
 
-    void init() override;
-    void initSignalAndSlots() override;
-
-private:
-
-    PropertiesView *mView;
-    PropertiesModel *mModel;
-    AppStatus *mAppStatus;
+    Orthorectification *mOrthorectification;
+    tl::Rect<int> mRectOrtho;
+    tl::Affine<double, 2> mGeoreference;
+    tl::Window<tl::Point<double>> mWindowOrthoTerrain;
+    cv::Mat mDistances;
+    cv::Mat mY;
+    cv::Mat mX;
 
 };
 
-} // namespace graphos
 
+} // End namespace graphos
 
-#endif // GRAPHOS_PROPERTIES_PRESENTER_H
+#endif // GRAPHOS_CORE_ORTHO_ZBUFFER

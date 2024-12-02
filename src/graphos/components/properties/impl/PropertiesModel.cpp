@@ -75,7 +75,37 @@ auto PropertiesModelImp::exif(size_t imageId) const -> Properties
 
         Image image = mProject->findImageById(imageId);
 
-        auto image_reader = tl::ImageReaderFactory::create(image.path().toStdString());
+        exif = this->image(image.path().toStdString());
+
+        if (mProject->isPhotoOriented(imageId)) {
+            auto orientation = mProject->photoOrientation(imageId);
+            auto position = orientation.position();
+            auto q = orientation.quaternion();
+
+            exif["Orientation"].emplace_back(QString("X"), QString::number(position.x, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Y"), QString::number(position.y, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Z"), QString::number(position.z, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Qx"), QString::number(q.x, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Qy"), QString::number(q.y, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Qz"), QString::number(q.z, 'g', 3));
+            exif["Orientation"].emplace_back(QString("Qw"), QString::number(q.w, 'g', 3));
+
+        }
+
+    } catch (...) {
+        TL_THROW_EXCEPTION_WITH_NESTED("");
+    }
+
+    return exif;
+}
+
+auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
+{
+    Properties exif;
+
+    try {
+
+        auto image_reader = tl::ImageReaderFactory::create(image);
         image_reader->open();
         if (image_reader->isOpen()) {
 
@@ -808,21 +838,6 @@ auto PropertiesModelImp::exif(size_t imageId) const -> Properties
             image_reader->close();
         }
 
-        if (mProject->isPhotoOriented(imageId)) {
-            auto orientation = mProject->photoOrientation(imageId);
-            auto position = orientation.position();
-            auto q = orientation.quaternion();
-
-            exif["Orientation"].emplace_back(QString("X"), QString::number(position.x, 'g', 3));
-            exif["Orientation"].emplace_back(QString("Y"), QString::number(position.y, 'g', 3));
-            exif["Orientation"].emplace_back(QString("Z"), QString::number(position.z, 'g', 3));
-            exif["Orientation"].emplace_back(QString("Qx"), QString::number(q.x, 'g', 3));
-            exif["Orientation"].emplace_back(QString("Qy"), QString::number(q.y, 'g', 3));
-            exif["Orientation"].emplace_back(QString("Qz"), QString::number(q.z, 'g', 3));
-            exif["Orientation"].emplace_back(QString("Qw"), QString::number(q.w, 'g', 3));
-
-        }
-
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("");
     }
@@ -830,7 +845,7 @@ auto PropertiesModelImp::exif(size_t imageId) const -> Properties
     return exif;
 }
 
-auto PropertiesModelImp::parse(const QString& parser, const QString& file) const -> Properties
+auto PropertiesModelImp::parse(const QString& parser, const QString &file) const -> Properties
 {
     try {
         auto properties_parser = PropertiesParserFactory::create(parser);
@@ -967,20 +982,40 @@ auto PropertiesModelImp::dem() const -> Properties
 {
     Properties dem_info;
 
+    auto &dem_data = mProject->dem();
+
+    dem_info = this->image(dem_data.dsmPath);
+
+    dem_info["DEM parameters"].emplace_back(QString("GSD"), QString::number(dem_data.gsd));
+    dem_info["DEM parameters"].emplace_back(QString("CRS"), dem_data.epsgCode);
+
     auto dem_report = mProject->demReport();
-
     if (!dem_report.isEmpty()) {
-
         dem_info["DEM results"].emplace_back(QString("Processig time"), QString::number(dem_report.time / 60., 'g', 2).append(" minutes"));
-        dem_info["DEM parameters"].emplace_back(QString("GSD"), QString::number(dem_report.gsd));
-
-        auto mesh_report = mProject->meshReport();
-        if (!mesh_report.isEmpty()) {
-            
-        }
     }
 
     return dem_info;
+}
+
+auto PropertiesModelImp::orthophoto() const -> Properties
+{
+    Properties orthophoto_info;
+
+    auto &orthophoto_parameters = mProject->orthophoto();
+
+    orthophoto_info = this->image(orthophoto_parameters.path);
+
+    orthophoto_info["Orthophoto parameters"].emplace_back(QString("GSD"), QString::number(orthophoto_parameters.gsd));
+    orthophoto_info["Orthophoto parameters"].emplace_back(QString("CRS"), orthophoto_parameters.epsgCode);
+    orthophoto_info["Orthophoto interpolation"].emplace_back(QString("Interpolation"), orthophoto_parameters.interpolation);
+
+    auto orthophoto_report = mProject->orthophotoReport();
+    if (!orthophoto_report.isEmpty()) {
+        orthophoto_info["Orthophoto results"].emplace_back(QString("Processig time"), QString::number(orthophoto_report.time / 60., 'g', 2).append(" minutes"));
+        // Tamaño, nº bits, bandas
+    }
+
+    return orthophoto_info;
 }
 
 } // namespace graphos

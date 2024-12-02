@@ -26,12 +26,13 @@
 #include "graphos/core/project.h"
 #include "graphos/core/sfm/posesio.h"
 
-#include <QFileInfo>
-#include <QFile>
-#include <QTextStream>
 #include <tidop/geospatial/crs.h>
 #include <tidop/geospatial/crstransf.h>
 #include <tidop/geospatial/util.h>
+
+#include <QFileInfo>
+#include <QFile>
+#include <QTextStream>
 
 
 namespace graphos
@@ -59,7 +60,6 @@ auto DemModelImp::crs() const -> QString
     QString epsg_code;
 
     try {
-
 
         epsg_code = mProject->dem().epsgCode;
 

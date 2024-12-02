@@ -605,10 +605,22 @@ void ProjectImp::setOrthophoto(const OrthophotoData &orthophoto)
     mOrthophoto = orthophoto;
 }
 
+OrthophotoReport ProjectImp::orthophotoReport() const
+{
+    return mOrthophotoReport;
+}
+
+void ProjectImp::setOrthophotoReport(const OrthophotoReport &report)
+{
+    mOrthophotoReport = report;
+}
+
 void ProjectImp::clearOrthophoto()
 {
+    mOrthophoto.epsgCode.clear();
     mOrthophoto.path.clear();
     mOrthophoto.gsd = 0.05;
+    mOrthophoto.interpolation = "BILINEAR";
 }
 
 void ProjectImp::clear()
@@ -1500,10 +1512,28 @@ void ProjectImp::readOrthophoto(QXmlStreamReader &stream)
             this->mOrthophoto.path = stream.readElementText().toStdWString();
         } else if (stream.name() == "GSD") {
             this->mOrthophoto.gsd = stream.readElementText().toDouble();
+        } else if (stream.name() == "CRS") {
+            this->mOrthophoto.epsgCode = stream.readElementText();
+        } else if (stream.name() == "Interpolation") {
+            this->mOrthophoto.interpolation = stream.readElementText();
+        } else if (stream.name() == "Report") {
+            this->readOrthophotoReport(stream);
         } else
             stream.skipCurrentElement();
     }
 
+}
+
+void ProjectImp::readOrthophotoReport(QXmlStreamReader &stream)
+{
+    while (stream.readNextStartElement()) {
+        if (stream.name() == "Time") {
+            mOrthophotoReport.time = readDouble(stream);
+        } else if (stream.name() == "GSD") {
+            mOrthophotoReport.gsd = stream.readElementText().toDouble();
+        } else
+            stream.skipCurrentElement();
+    }
 }
 
 void ProjectImp::writeVersion(QXmlStreamWriter &stream) const
@@ -1983,6 +2013,7 @@ void ProjectImp::writeDem(QXmlStreamWriter &stream) const
         stream.writeTextElement("DSMPath", QString::fromStdWString(mDem.dsmPath.toWString()));
         stream.writeTextElement("CRS", mDem.epsgCode);
         stream.writeTextElement("GSD", QString::number(mDem.gsd));
+
         this->writeDemReport(stream);
     }
     stream.writeEndElement();
@@ -2007,10 +2038,27 @@ void ProjectImp::writeOrthophoto(QXmlStreamWriter &stream) const
 
     stream.writeStartElement("Orthophoto");
     {
+        stream.writeTextElement("CRS", mOrthophoto.epsgCode);
         stream.writeTextElement("Path", QString::fromStdWString(mOrthophoto.path.toWString()));
         stream.writeTextElement("GSD", QString::number(mOrthophoto.gsd));
+        stream.writeTextElement("Interpolation", mOrthophoto.interpolation);
+                
+        this->writeOrthophotoReport(stream);
     }
     stream.writeEndElement();
+}
+
+void ProjectImp::writeOrthophotoReport(QXmlStreamWriter &stream) const
+{
+    if (!mOrthophotoReport.isEmpty()) {
+
+        stream.writeStartElement("Report");
+
+        stream.writeTextElement("Time", QString::number(mOrthophotoReport.time, 'f', 10));
+        stream.writeTextElement("GSD", QString::number(mOrthophotoReport.gsd, 'f', 10));
+
+        stream.writeEndElement(); // Report
+    }
 }
 
 QSize ProjectImp::readSize(QXmlStreamReader &stream) const

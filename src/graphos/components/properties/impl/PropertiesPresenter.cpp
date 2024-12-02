@@ -118,6 +118,18 @@ void PropertiesPresenterImp::selectDem()
     }
 }
 
+void PropertiesPresenterImp::selectOrthophoto()
+{
+    try {
+
+        auto properties = mModel->orthophoto();
+        mView->setProperties(properties);
+
+    } catch (std::exception& e) {
+        tl::printException(e);
+    }
+}
+
 void PropertiesPresenterImp::setImageActive(size_t imageId)
 {
     try {

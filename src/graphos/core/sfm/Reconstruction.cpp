@@ -455,7 +455,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             if (mControlPoints || mRTK || mGPS) {
 
                 std::vector<GCP> control_points_enu;
-
+                std::vector<GroundControlPoint> ground_control_points;
+                std::string ground_control_points_crs;
                 /// Lectura de los puntos de control
                 if (mControlPoints) {
 
@@ -464,10 +465,10 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     gcp_file.append("georef.xml");
                     auto gcp_reader = GCPsReaderFactory::create("GRAPHOS");
                     gcp_reader->read(gcp_file);
-                    auto gcps = gcp_reader->gcps();
-                    auto epsg_code = gcp_reader->epsgCode();
+                    ground_control_points = gcp_reader->gcps();
+                    ground_control_points_crs = gcp_reader->epsgCode();
 
-                    TL_ASSERT(!epsg_code.empty(), "Unknow CRS for ground control points");
+                    TL_ASSERT(!ground_control_points_crs.empty(), "Unknow CRS for ground control points");
 
                     if (mEnuCrs.empty()) {
 
@@ -475,11 +476,11 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         /// Cálculo del centro
                         tl::Point3<double> geographic_center;
                         double i = 1.;
-                        for (const auto &gcp : gcps) {
+                        for (const auto &gcp : ground_control_points) {
                             auto coordinates = gcp;
-                            if (epsg_code != "EPSG:4326")
-                                mGeoTools->ptrCRSsTools()->crsOperation(epsg_code, "EPSG:4326", coordinates.x, coordinates.y, coordinates.z);
-                            geographic_center += coordinates / static_cast<double>(gcps.size());
+                            if (ground_control_points_crs != "EPSG:4326")
+                                mGeoTools->ptrCRSsTools()->crsOperation(ground_control_points_crs, "EPSG:4326", coordinates.x, coordinates.y, coordinates.z);
+                            geographic_center += coordinates / static_cast<double>(ground_control_points.size());
                         }
 
                         tl::Path enu_path = mOutputPath;
@@ -507,7 +508,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     colmap::Database database;
                     database.Open(mDatabase.toString());
 
-                    for (auto &ground_control_point : gcps) {
+                    for (auto &ground_control_point : ground_control_points) {
 
                         std::vector<colmap::TriangulationEstimator::PointData> points_data;
                         std::vector<colmap::TriangulationEstimator::PoseData> poses_data;
@@ -549,8 +550,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                             src.push_back(xyz);
 
                             auto gcps_enu = ground_control_point;
-                            if (epsg_code != "EPSG:4326")
-                                mGeoTools->ptrCRSsTools()->crsOperation(epsg_code, mEnuCrs, gcps_enu.x, gcps_enu.y, gcps_enu.z);
+                            if (ground_control_points_crs != "EPSG:4326")
+                                mGeoTools->ptrCRSsTools()->crsOperation(ground_control_points_crs, mEnuCrs, gcps_enu.x, gcps_enu.y, gcps_enu.z);
 
                             GCP _gcp;
                             _gcp.point = {gcps_enu.x, gcps_enu.y, gcps_enu.z};
@@ -646,41 +647,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     if (summary.termination_type == ceres::CONVERGENCE) break;
                 }
 
-                ///// Fijo las cámaras y recalculo los intrinsecos
-                //{
-                //    ba_options.refine_focal_length = true;
-                //    ba_options.refine_principal_point = false;
-                //    ba_options.refine_extra_params = true;
-                //    ba_options.refine_extrinsics = false;
+                // Calculo de los errores en el ajuste de haces
 
-                //    BundleAdjustmentConfig ba_config;
-                //    for (const colmap::image_t image_id : reg_image_ids) {
-                //        ba_config.AddImage(image_id);
-                //    }
-
-                //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
-                //    bundle_adjuster.solve(&reconstruction);
-                //    summary = bundle_adjuster.summary();
-
-                //}
-
-                //// Punto principal en el ajuste
-                //{
-                //    ba_options.refine_principal_point = true;
-
-                //    BundleAdjustmentConfig ba_config;
-                //    for (const colmap::image_t image_id : reg_image_ids) {
-                //        ba_config.AddImage(image_id);
-                //    }
-
-                //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
-                //    bundle_adjuster.solve(&reconstruction);
-                //    summary = bundle_adjuster.summary();
-
-                //}
-                /////
-
-                // Calculo de los errores en el ajuste de haces:
                 if (mControlPoints){
 
                     std::vector<Eigen::Vector3d> src;
@@ -698,7 +666,10 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     tri_options.ransac_options.min_inlier_ratio = 0.02;
                     tri_options.ransac_options.max_num_trials = 10000;
 
-                    for (auto &ground_control_point : control_points_enu) {
+                    // Hay que calcular los residuos
+
+                    /// Esto creo que puede ser ground_control_points ya que no se usan las coordenadas ENU
+                    for (size_t i = 0; i < control_points_enu.size(); ++i) {
 
                         std::vector<colmap::TriangulationEstimator::PointData> points_data;
                         std::vector<colmap::TriangulationEstimator::PoseData> poses_data;
@@ -709,11 +680,12 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                                 if (image.second.CameraId() == camera.second.CameraId()) {
 
-                                    auto &track = ground_control_point.track;
+                                    auto &track = control_points_enu[i].track;
 
-                                    if (track.existPoint(image_ids_colmap_to_graphos[image.second.ImageId()])) {
+                                    size_t graphos_image_id = image_ids_colmap_to_graphos[image.second.ImageId()];
+                                    if (track.existPoint(graphos_image_id)) {
 
-                                        tl::Point<double> point = track.point(image_ids_colmap_to_graphos[image.second.ImageId()]);
+                                        tl::Point<double> point = track.point(graphos_image_id);
 
                                         colmap::TriangulationEstimator::PointData point_data;
                                         point_data.point = Eigen::Vector2d(point.x, point.y);
@@ -725,6 +697,16 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                                         pose_data.proj_center = image.second.ProjectionCenter();
                                         pose_data.camera = &camera.second;
                                         poses_data.push_back(pose_data);
+
+                                        /// Residuals. Lo calculo en coordenadas ENU
+                                        /// Hay que rotar el punto primero.
+                                        Eigen::Vector3d gcp(control_points_enu[i].point.x(), control_points_enu[i].point.y(), control_points_enu[i].point.z());
+                                        auto rotate_point = image.second.RotationMatrix() * gcp + image.second.Tvec();
+                                        auto x = rotate_point.x() / rotate_point.z();
+                                        auto y = rotate_point.y() / rotate_point.z();
+                                        auto residuals = camera.second.WorldToImage({x, y});
+                                        residuals -= point_data.point;
+                                        ground_control_points[i].addErrorToTrack(graphos_image_id, {residuals.x(), residuals.y()});
                                     }
 
                                 }
@@ -737,8 +719,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         std::vector<char> inlier_mask;
                         if (colmap::EstimateTriangulation(tri_options, points_data, poses_data, &inlier_mask, &xyz)) {
                             src.push_back(xyz);
-                            dst.emplace_back(ground_control_point.point.x(), ground_control_point.point.y(), ground_control_point.point.z());
-                            gcp_name.push_back(ground_control_point.name);
+                            dst.emplace_back(control_points_enu[i].point.x(), control_points_enu[i].point.y(), control_points_enu[i].point.z());
+                            gcp_name.push_back(control_points_enu[i].name);
                         }
 
                     }
@@ -748,13 +730,26 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     errors.reserve(dst.size());
 
                     for (size_t i = 0; i < dst.size(); ++i) {
-                        errors.push_back((src[i] - dst[i]).norm());
+                        auto error = (src[i] - dst[i]).norm();
+                        ground_control_points[i].setError(error);
+                        errors.push_back(error);
 
                         tl::Message::info("Ground Control Point {}: Error -> {}", gcp_name[i], errors[i]);
                     }
 
+                    tl::Path gcp_file = mOutputPath;
+                    gcp_file.append("georef.xml");
+                    auto gcp_writer = GCPsWriterFactory::create("GRAPHOS");
+                    gcp_writer->setEPSGCode(ground_control_points_crs);
+                    gcp_writer->setGCPs(ground_control_points);
+                    gcp_writer->write(gcp_file);
+
+                    mOrientationReport.alignmentErrorMean = colmap::Mean(errors);
+                    mOrientationReport.alignmentErrorMedian = colmap::Median(errors);
+
                     tl::Message::info("Absolute orientation error: {} (mean), {} (median)",
-                                      colmap::Mean(errors), colmap::Median(errors));
+                                      mOrientationReport.alignmentErrorMean, mOrientationReport.alignmentErrorMedian);
+
 
                 } else if (mRTK || mGPS){
 
@@ -781,7 +776,10 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                         }
                     }
 
-                    tl::Message::info("Alignment error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
+                    mOrientationReport.alignmentErrorMean = colmap::Mean(errors);
+                    mOrientationReport.alignmentErrorMedian = colmap::Median(errors);
+
+                    tl::Message::info("Alignment error: {} (mean), {} (median)",mOrientationReport.alignmentErrorMean, mOrientationReport.alignmentErrorMedian);
                 }
 
                 // Fin calculo de errores en el ajuste de haces

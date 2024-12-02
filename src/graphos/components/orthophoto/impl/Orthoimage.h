@@ -21,52 +21,75 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_CORE_ORTHO_FOOTPRINT_H
-#define GRAPHOS_CORE_ORTHO_FOOTPRINT_H
+#ifndef GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H
+#define GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H
 
 #include <tidop/core/path.h>
 #include <tidop/core/task.h>
+#include <tidop/img/imgreader.h>
+#include <tidop/img/imgwriter.h>
+#include <tidop/math/geometry/affine.h>
 #include <tidop/vect/vectwriter.h>
+#include <tidop/geometry/rect.h>
 #include <tidop/geospatial/crs.h>
+#include <tidop/geospatial/crstransf.h>
 
 #include "graphos/core/image.h"
 #include "graphos/core/camera/Camera.h"
 
+
 namespace graphos
 {
 
+class Orthorectification;
+class ZBuffer;
+
+cv::Mat createBlackPixelMask(const cv::Mat &image, double areaThreshold = 4, bool upper = false);
+
 /*!
- * \brief Footprint
+ * \brief Orthoimage
  */
-class Footprint
-  : public tl::TaskBase
+class Orthoimage
 {
 
 public:
 
-    Footprint(const std::vector<Image> &images,
-              const std::map<int, Camera> &cameras,
-              const tl::Path &dtm,
-              const tl::Crs &crs,
-              const tl::Path &footprint);
-    ~Footprint();
+	Orthoimage(const tl::Path &image,
+			   Orthorectification *orthorectification,
+			   //const tl::EcefToEnu &ecefToEnu, 
+      //         const std::shared_ptr<tl::CrsTransform> &crsTransfom,
+			   const std::string &enuCrs,
+			   const std::string &crs,
+			   const tl::Rect<int> &rectOrtho,
+			   const tl::Affine<double, 2> &georeference,
+			   const std::string &interpolation = "BILINEAR",
+			   bool cuda = false);
 
-    // Heredado vía TaskBase
+	~Orthoimage();
+
+	void run(const tl::Path &ortho,
+			 const cv::Mat &visibilityMap = cv::Mat());
 
 private:
 
-    void execute(tl::Progress *progressBar = nullptr) override;
-
-private:
-
-    std::vector<Image> mImages;
-    std::map<int, Camera> mCameras;
-    tl::Path mDtm;
-    tl::Crs mCrs;
-    std::unique_ptr<tl::VectorWriter> mFootprintWriter;
+	std::unique_ptr<tl::ImageReader> mImageReader;
+	Orthorectification *mOrthorectification;
+	//tl::EcefToEnu mEcefToEnu;
+ //   std::shared_ptr<tl::CrsTransform> mCrsTransfom;
+	std::string mEnuCrs;
+	std::string mCrs;
+	tl::Rect<int> mRectOrtho;
+	//tl::geom::Affine<tl::Point<double>> mGeoreference;
+	tl::Affine<double, 2> mGeoreference;
+	std::unique_ptr<tl::ImageWriter> mOrthophotoWriter;
+	tl::Window<tl::Point<double>> mWindowOrthoTerrain;
+	std::string mInterpolation;
+	bool bCuda;
 };
+
 
 
 } // End namespace graphos
 
-#endif // GRAPHOS_CORE_ORTHO_FOOTPRINT_H
+
+#endif // GRAPHOS_CORE_ORTHO_ORTHOIMAGE_H

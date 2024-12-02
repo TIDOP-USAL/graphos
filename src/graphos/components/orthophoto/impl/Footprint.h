@@ -21,63 +21,57 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_PROPERTIES_PRESENTER_H
-#define GRAPHOS_PROPERTIES_PRESENTER_H
+#ifndef GRAPHOS_CORE_ORTHO_FOOTPRINT_H
+#define GRAPHOS_CORE_ORTHO_FOOTPRINT_H
 
-#include "graphos/components/properties/PropertiesPresenter.h"
+#include <tidop/core/path.h>
+#include <tidop/core/task.h>
+#include <tidop/vect/vectwriter.h>
+#include <tidop/geospatial/crs.h>
+#include <tidop/geospatial/crstransf.h>
+
+#include "graphos/core/image.h"
+#include "graphos/core/camera/Camera.h"
 
 namespace graphos
 {
 
-class AppStatus;
-class PropertiesView;
-class PropertiesModel;
-
-class PropertiesPresenterImp
-  : public PropertiesPresenter
+/*!
+ * \brief Footprint
+ */
+class Footprint
+  : public tl::TaskBase
 {
-    Q_OBJECT
 
 public:
 
-    PropertiesPresenterImp(PropertiesView *view,
-                           PropertiesModel *model,
-                           AppStatus *status);
-    ~PropertiesPresenterImp() override = default;
+    Footprint(const std::vector<Image> &images,
+              const std::map<int, Camera> &cameras,
+              const tl::Path &dtm,
+              const tl::EcefToEnu &ecefToEnu, 
+              const std::shared_ptr<tl::CrsTransform> &crsTransfom,
+		      const tl::Crs &crs,
+              const tl::Path &footprint);
+    ~Footprint();
 
-// PropertiesPresenter interface
-
-public slots:
-
-    void selectSparseModel() override;
-    void selectDenseModel() override;
-    void selectMeshModel() override;
-    void selectDem() override;
-    void selectOrthophoto() override;
-    void setImageActive(size_t imageId) override;
-    void parseDocument(const QString &parser, const QString &file) override;
-    void parseDocuments(const QStringList &parsers, const QStringList &files) override;
-
-// Presenter interface
-
-public slots:
-
-    void open() override;
+    // Heredado vía TaskBase
 
 private:
 
-    void init() override;
-    void initSignalAndSlots() override;
+    void execute(tl::Progress *progressBar = nullptr) override;
 
 private:
 
-    PropertiesView *mView;
-    PropertiesModel *mModel;
-    AppStatus *mAppStatus;
-
+    std::vector<Image> mImages;
+    std::map<int, Camera> mCameras;
+    tl::Path mDtm;
+    tl::Crs mCrs;
+	tl::EcefToEnu mEcefToEnu;
+    std::shared_ptr<tl::CrsTransform> mCrsTransfom;
+    std::unique_ptr<tl::VectorWriter> mFootprintWriter;
 };
 
-} // namespace graphos
 
+} // End namespace graphos
 
-#endif // GRAPHOS_PROPERTIES_PRESENTER_H
+#endif // GRAPHOS_CORE_ORTHO_FOOTPRINT_H

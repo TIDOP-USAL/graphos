@@ -21,9 +21,9 @@
  *                                                                      *
  ************************************************************************/
 
-#include "graphos/core/ortho/Footprint.h"
+#include "graphos/components/orthophoto/impl/Footprint.h"
 
-#include "graphos/core/ortho/Orthorectification.h"
+#include "graphos/components/orthophoto/impl/Orthorectification.h"
 
 #include <tidop/graphic/layer.h>
 #include <tidop/graphic/entities/polygon.h>
@@ -35,11 +35,15 @@ namespace graphos
 Footprint::Footprint(const std::vector<Image> &images,
                      const std::map<int, Camera> &cameras,
                      const tl::Path &dtm,
+                     const tl::EcefToEnu &ecefToEnu, 
+                     const std::shared_ptr<tl::CrsTransform> &crsTransfom,
                      const tl::Crs &crs,
                      const tl::Path &footprint)
   : mImages(images),
     mCameras(cameras),
     mDtm(dtm),
+    mEcefToEnu(ecefToEnu), 
+    mCrsTransfom(crsTransfom),
     mCrs(crs)
 {
     footprint.parentPath().createDirectories();
@@ -68,7 +72,9 @@ void Footprint::execute(tl::Progress *progressBar)
 
         for (const auto &image : mImages) {
 
-            Orthorectification orthorectification(mDtm, mCameras[image.cameraId()], image.cameraPose());
+            Orthorectification orthorectification(mDtm,
+                                                  mCameras[image.cameraId()],
+                                                  image.cameraPose());
             std::shared_ptr<tl::GPolygon> entity = std::make_shared<tl::GPolygon>(orthorectification.footprint());
             std::shared_ptr<tl::TableRegister> data = std::make_shared <tl::TableRegister>(layer.tableFields());
             data->setValue(0, image.name().toStdString());

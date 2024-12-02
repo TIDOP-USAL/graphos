@@ -108,6 +108,31 @@ void GCPTrack::removePoint(size_t imageId)
     if (point != mImageIdPoint.end()) {
         mImageIdPoint.erase(point);
     }
+
+    auto residual = mError.find(imageId);
+    if (residual != mError.end()) {
+        mError.erase(residual);
+    }
+}
+
+auto GCPTrack::error(size_t imageId) const -> tl::Vector2d
+{
+    auto _error = mError.find(imageId);
+    if (_error != mError.end()) {
+        return mError.at(imageId);
+    }
+
+    return {0, 0};
+}
+
+void GCPTrack::setError(size_t imageId, double x, double y)
+{
+    mError[imageId] = {x, y};
+}
+
+void GCPTrack::setError(size_t imageId, const tl::Vector2d &error)
+{
+    mError[imageId] = error;
 }
 
 

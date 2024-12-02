@@ -205,19 +205,26 @@ void GraphicViewer::wheelEvent(QWheelEvent *event)
 {
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
+    constexpr double min_scale = 0.1;
+    constexpr double max_scale = 10.0;
+
+    double current_scale = transform().m11();
+
     double factor = (event->modifiers() & Qt::ControlModifier) ? mZoomCtrlFactor : mZoomFactor;
-    if (event->angleDelta().y() > 0)
+
+    if (event->angleDelta().y() > 0) {
         // Zoom +
-        scale(factor, factor);
-    else {
+        if (current_scale * factor <= max_scale)
+            scale(factor, factor);
+    } else {
         // Zoom -
-        factor = 1.0 / factor;
-        scale(factor, factor);
+        double new_scale = current_scale / factor;
+        if (new_scale >= min_scale)
+            scale(1.0 / factor, 1.0 / factor);
     }
 
     event->accept();
 }
-
 #endif
 
 void GraphicViewer::mouseMoveEvent(QMouseEvent *event)
