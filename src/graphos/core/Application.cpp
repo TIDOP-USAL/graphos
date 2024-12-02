@@ -55,22 +55,37 @@ Application::Application(int &argc, char **argv)
 {
 
     tl::Path app_path(argv[0]);
-
-#ifdef TL_OS_WINDOWS
     tl::Path graphos_path = app_path.parentPath().parentPath();
-    tl::Path gdal_data_path(graphos_path);
-    gdal_data_path.append("gdal\\data");
-    tl::Path proj_data_path(graphos_path);
-    proj_data_path.append("proj");
-    CPLSetConfigOption("GDAL_DATA", gdal_data_path.toString().c_str());
+
+    tl::Path gdal_data = CPLGetConfigOption("GRAPHOS_GDAL", "");
+    tl::Path proj_lib = CPLGetConfigOption("GRAPHOS_PROJ", "");
+
+    if (gdal_data.empty()) {
+        gdal_data = graphos_path;
+        gdal_data.append("gdal\\data");
+    }
+
+    if (proj_lib.empty()) {
+        proj_lib = graphos_path;
+        proj_lib.append("proj");
+    }
+
+//#ifdef TL_OS_WINDOWS
+    
+    //tl::Path gdal_data_path(graphos_path);
+    //gdal_data_path.append("gdal\\data");
+    //tl::Path proj_data_path(graphos_path);
+    //proj_data_path.append("proj");
+    CPLSetConfigOption("GDAL_DATA", gdal_data.absolutePath().toString().c_str());
 #   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
-    CPLSetConfigOption("PROJ_DATA", proj_data_path.toString().c_str());
+    //CPLSetConfigOption("PROJ_DATA", proj_lib.absolutePath().toString().c_str());
+    CPLSetConfigOption("PROJ_LIB", proj_lib.absolutePath().toString().c_str());
 #   else
-    std::string s_proj = proj_data_path.toString();
+    std::string s_proj = proj_lib.toString();
     const char *proj_data[]{s_proj.c_str(), nullptr};
     OSRSetPROJSearchPaths(proj_data);
 #   endif
-#endif // TL_OS_WINDOWS
+//#endif // TL_OS_WINDOWS
 }
 
 Application::~Application()

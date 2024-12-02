@@ -202,25 +202,18 @@ void messageHandlerQt(QtMsgType type, const QMessageLogContext &context, const Q
 
 int main(int argc, char *argv[])
 {
+    Application app(argc, argv);
+    Application::setApplicationName("GRAPHOS");
+    Application::setApplicationDisplayName("GRAPHOS");
+    Application::setApplicationVersion(GRAPHOS_VERSION);
+    Application::setOrganizationName("TIDOP");
 
-    tl::Path app_path(argv[0]);
+    tl::Console &console = tl::Console::instance();
+    console.setMessageLevel(tl::MessageLevel::all);
+    console.setTitle(Application::applicationName().toStdString());
+    console.setConsoleUnicode();
+    tl::Message::addMessageHandler(&console);
 
-#ifdef TL_OS_WINDOWS
-    tl::Path graphos_path = app_path.parentPath().parentPath();
-    tl::Path gdal_data_path(graphos_path);
-    gdal_data_path.append("gdal\\data");
-    tl::Path proj_data_path(graphos_path);
-    proj_data_path.append("proj");
-    CPLSetConfigOption( "GDAL_DATA", gdal_data_path.toString().c_str());
-#   if GDAL_VERSION_NUM >= GDAL_COMPUTE_VERSION(3,7,0)
-        CPLSetConfigOption( "PROJ_DATA", proj_data_path.toString().c_str());
-        CPLSetConfigOption( "PROJ_LIB", proj_data_path.toString().c_str());
-#   else
-        std::string s_proj = proj_data_path.toString();
-        const char *proj_data[] {s_proj.c_str(), nullptr};
-        OSRSetPROJSearchPaths(proj_data);
-#   endif
-#endif // TL_OS_WINDOWS
 
 #ifdef DEBUG
     qInstallMessageHandler(messageHandlerQt);
@@ -236,12 +229,6 @@ int main(int argc, char *argv[])
         tl::printException(e);
         return(1);
     }
-
-    Application app(argc, argv);
-    Application::setApplicationName("GRAPHOS");
-    Application::setApplicationDisplayName("GRAPHOS");
-    Application::setApplicationVersion(GRAPHOS_VERSION);
-    Application::setOrganizationName("TIDOP");
 
     ProjectImp project;
     app.setProject(&project);
@@ -370,12 +357,6 @@ int main(int argc, char *argv[])
 
 
     //TabComponent tab_component(&app);
-
-    tl::Console &console = tl::Console::instance();
-    console.setMessageLevel(tl::MessageLevel::all);
-    console.setTitle(Application::applicationName().toStdString());
-    console.setConsoleUnicode();
-    tl::Message::addMessageHandler(&console);
 
     // Log file
     tl::Log &log = tl::Log::instance();
@@ -704,10 +685,10 @@ int main(int argc, char *argv[])
 #endif // GRAPHOS_HAVE_FEATVIEWER
 
 
-#ifdef GRAPHOS_HAVE_GCPS
-        QObject::connect(&gcps_component, SIGNAL(finished()),
-                         componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
-#endif // GRAPHOS_HAVE_GCPS
+//#ifdef GRAPHOS_HAVE_GCPS
+//        QObject::connect(&gcps_component, SIGNAL(finished()),
+//                         componentsManager.mainWindowPresenter(), SLOT(loadOrientation()));
+//#endif // GRAPHOS_HAVE_GCPS
 
 #ifdef GRAPHOS_HAVE_MATCH_VIEWER
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::openMatchesViewer,
