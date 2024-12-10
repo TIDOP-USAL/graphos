@@ -246,7 +246,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
         reconstruction.FilterObservationsWithNegativeDepth();
 
         colmap::BundleAdjustmentOptions ba_options = *option_manager.bundle_adjustment;
-        ba_options.solver_options.minimizer_progress_to_stdout = true;
+        ba_options.solver_options.minimizer_progress_to_stdout = false;
         ba_options.solver_options.logging_type = ceres::LoggingType::SILENT;
 
         BundleAdjustmentIterationCallback iteration_callback;
@@ -594,16 +594,19 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 for (const colmap::image_t image_id : reg_image_ids) {
                     ba_config.AddImage(image_id);
                     if (mRTK){
-                        ba_config.setCamPositionRTK(image_id);
+                        //cameras_enu
+                        ba_config.setCamPositionRTK(image_id, cameras_enu[image_ids_colmap_to_graphos[image_id]]);
                         //ba_config.setCamPositionError(image_id, 100.);
                     } else if (mGPS && !mControlPoints){ // Si hay puntos de control puede empeorar si se usa
-                        ba_config.setCamPositionGPS(image_id);
+                        ba_config.setCamPositionGPS(image_id, cameras_enu[image_ids_colmap_to_graphos[image_id]]);
                     }
                 }
 
                 if (mControlPoints) {
-                    TL_ASSERT(control_points_enu.size() > 3, "A minimum of 3 ground control points is required");
-                    ba_config.setGroundControlPoints(control_points_enu);
+                    TL_ASSERT(control_points_enu.size() > 3 || mRTK, "A minimum of 3 ground control points is required");
+                    if (control_points_enu.size() > 3) {
+                        ba_config.setGroundControlPoints(control_points_enu);
+                    }
                 }
 
                 ba_config.setImageIdsGraphosToColmap(image_ids_graphos_to_colmap); //Por ahora...
@@ -616,7 +619,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 //ba_options.solver_options.function_tolerance = 0.0;
 //                ba_options.solver_options.gradient_tolerance = 1e-10;
 //                ba_options.solver_options.parameter_tolerance = 1e-8;
-//                ba_options.solver_options.minimizer_progress_to_stdout = false;
+                ba_options.solver_options.minimizer_progress_to_stdout = false;
 //                ba_options.solver_options.max_num_iterations = 50;
                 ba_options.solver_options.max_linear_solver_iterations = 500;
 //                ba_options.solver_options.max_num_consecutive_invalid_steps = 10;
@@ -666,9 +669,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     tri_options.ransac_options.min_inlier_ratio = 0.02;
                     tri_options.ransac_options.max_num_trials = 10000;
 
-                    // Hay que calcular los residuos
-
-                    /// Esto creo que puede ser ground_control_points ya que no se usan las coordenadas ENU
                     for (size_t i = 0; i < control_points_enu.size(); ++i) {
 
                         std::vector<colmap::TriangulationEstimator::PointData> points_data;
@@ -699,7 +699,6 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                                         poses_data.push_back(pose_data);
 
                                         /// Residuals. Lo calculo en coordenadas ENU
-                                        /// Hay que rotar el punto primero.
                                         Eigen::Vector3d gcp(control_points_enu[i].point.x(), control_points_enu[i].point.y(), control_points_enu[i].point.z());
                                         auto rotate_point = image.second.RotationMatrix() * gcp + image.second.Tvec();
                                         auto x = rotate_point.x() / rotate_point.z();
