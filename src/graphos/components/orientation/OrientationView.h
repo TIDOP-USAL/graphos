@@ -45,8 +45,8 @@ public:
     virtual auto isEnabledCalibration() const -> bool = 0;
     virtual auto absoluteOrientation() const -> bool = 0;
     virtual auto isEnabledAbsoluteOrientation() const -> bool = 0;
-    virtual auto fixPoses() const -> bool = 0;
-    virtual auto isEnabledPoses() const -> bool = 0;
+    virtual auto rtkPositioningAccuracy() const -> bool = 0;
+    virtual auto isRtkPositioningAccuracyEnabled() const -> bool = 0;
 
 public slots:
 
@@ -54,15 +54,13 @@ public slots:
     virtual void enabledCalibration(bool enabled) = 0;
     virtual void setAbsoluteOrientation(bool active) = 0;
     virtual void enabledAbsoluteOrientation(bool enabled) = 0;
-    virtual void setPoses(bool active) = 0;
-    virtual void enabledPoses(bool enabled) = 0;
+    virtual void setRtkPositioningAccuracy(bool active) = 0;
+    virtual void enabledRtkPositioningAccuracy(bool enabled) = 0;
 
 signals:
 
     void run();
-    void calibrationChange(bool);
-    void absoluteOrientationChange(bool);
-    void posesChange(bool);
+
 };
 
 } // namespace graphos

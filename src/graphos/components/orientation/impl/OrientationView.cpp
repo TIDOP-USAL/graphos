@@ -35,8 +35,8 @@ namespace graphos
 OrientationViewImp::OrientationViewImp(QWidget *parent)
   : OrientationView(parent),
     mCheckBoxFixCalibration(new QCheckBox(this)),
-    mCheckBoxFixPoses(new QCheckBox(this)),
     mCheckBoxAbsoluteOrientation(new QCheckBox(this)),
+    mCheckBoxRtkPositioningAccuracy(new QCheckBox(this)),
     mButtonBox(new QDialogButtonBox(this))
 {
     OrientationViewImp::initUI();
@@ -52,8 +52,8 @@ void OrientationViewImp::initUI()
     this->setLayout(grid_layout);
 
     grid_layout->addWidget(mCheckBoxFixCalibration, 0, 0, 1, 2);
-    grid_layout->addWidget(mCheckBoxFixPoses, 1, 0, 1, 2);
-    grid_layout->addWidget(mCheckBoxAbsoluteOrientation, 2, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxAbsoluteOrientation, 1, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxRtkPositioningAccuracy, 2, 0, 1, 2);
 
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
@@ -67,7 +67,6 @@ void OrientationViewImp::initUI()
 void OrientationViewImp::initSignalAndSlots()
 {
     connect(mCheckBoxFixCalibration, SIGNAL(clicked(bool)), this, SIGNAL(calibrationChange(bool)));
-    connect(mCheckBoxFixPoses, SIGNAL(clicked(bool)), this, SIGNAL(posesChange(bool)));
     connect(mCheckBoxAbsoluteOrientation, SIGNAL(clicked(bool)), this, SIGNAL(absoluteOrientationChange(bool)));
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -78,9 +77,10 @@ void OrientationViewImp::initSignalAndSlots()
 void OrientationViewImp::clear()
 {
     mCheckBoxFixCalibration->setChecked(false);
-    mCheckBoxFixPoses->setChecked(false);
     mCheckBoxAbsoluteOrientation->setChecked(false);
     mCheckBoxAbsoluteOrientation->setEnabled(false);
+    mCheckBoxRtkPositioningAccuracy->setChecked(false);
+    mCheckBoxRtkPositioningAccuracy->setEnabled(false);
 }
 
 void OrientationViewImp::update()
@@ -91,7 +91,7 @@ void OrientationViewImp::retranslate()
 {
     this->setWindowTitle(QApplication::translate("OrientationView", "Orientation", nullptr));
     mCheckBoxFixCalibration->setText(QApplication::translate("OrientationView", "Fix Calibration", nullptr));
-    mCheckBoxFixPoses->setText(QApplication::translate("OrientationView", "Fix Poses", nullptr));
+    mCheckBoxRtkPositioningAccuracy->setText(QApplication::translate("OrientationView", "RTK positioning accurary from EXIF", nullptr));
     mCheckBoxAbsoluteOrientation->setText(QApplication::translate("OrientationView", "Absolute Orientation", nullptr));
     mButtonBox->button(QDialogButtonBox::Cancel)->setText(QApplication::translate("OrientationView", "Cancel"));
     mButtonBox->button(QDialogButtonBox::Apply)->setText(QApplication::translate("OrientationView", "Run"));
@@ -118,14 +118,14 @@ auto OrientationViewImp::isEnabledAbsoluteOrientation() const -> bool
     return mCheckBoxAbsoluteOrientation->isEnabled();
 }
 
-auto OrientationViewImp::fixPoses() const -> bool
+auto OrientationViewImp::rtkPositioningAccuracy() const -> bool
 {
-    return mCheckBoxFixPoses->isChecked();;
+    return mCheckBoxRtkPositioningAccuracy->isChecked();
 }
 
-auto OrientationViewImp::isEnabledPoses() const -> bool
+auto OrientationViewImp::isRtkPositioningAccuracyEnabled() const -> bool
 {
-    return mCheckBoxFixPoses->isEnabled();
+    return mCheckBoxRtkPositioningAccuracy->isEnabled();
 }
 
 void OrientationViewImp::setCalibration(bool active)
@@ -148,14 +148,15 @@ void OrientationViewImp::enabledAbsoluteOrientation(bool enabled)
     mCheckBoxAbsoluteOrientation->setEnabled(enabled);
 }
 
-void OrientationViewImp::setPoses(bool active)
+void OrientationViewImp::setRtkPositioningAccuracy(bool active)
 {
-    mCheckBoxFixPoses->setChecked(active);
+    mCheckBoxRtkPositioningAccuracy->setChecked(active);
 }
 
-void OrientationViewImp::enabledPoses(bool enabled)
+void OrientationViewImp::enabledRtkPositioningAccuracy(bool enabled)
 {
-    mCheckBoxFixPoses->setEnabled(enabled);
+    mCheckBoxRtkPositioningAccuracy->setEnabled(enabled);
 }
+
 
 } // namespace graphos

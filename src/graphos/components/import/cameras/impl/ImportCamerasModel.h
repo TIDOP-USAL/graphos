@@ -79,7 +79,9 @@ public slots:
     void setPhiFieldId(int id) override;
     void setKappaFieldId(int id) override;
     void setCrs(const QString &crs) override;
+    void writePriorPoses();
     void importCameras() override;
+    void importCamerasFromMRK(const QString &file) override;
 
 // Model interface
 

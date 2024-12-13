@@ -29,6 +29,7 @@
 #include <tidop/core/defs.h>
 
 #include <QFileDialog>
+#include <tidop/core/exception.h>
 
 namespace graphos
 {
@@ -65,14 +66,29 @@ void ImportCamerasPresenterImp::previewCSV() const
 
 void ImportCamerasPresenterImp::open()
 {
+    QString selected_filter;
     QString file = QFileDialog::getOpenFileName(Q_NULLPTR,
                                                 tr("Orientation cameras file"),
                                                 "",
-                                                tr("Comma-separated values (*.csv);;Plain text (*.txt)"));
+                                                tr("MRK File (*.mrk);;Comma-separated values (*.csv);;Plain text (*.txt)"),
+                                                &selected_filter);
     if (!file.isEmpty()) {
-        mModel->setCsvFile(file);
-        //mView->setOutputCRS(mModel->outputCRS());
-        previewCSV();
+        if (selected_filter.compare("MRK File (*.mrk)") == 0) {
+
+            try {
+                mModel->importCamerasFromMRK(file);
+                emit importedCameras();
+            } catch(std::exception &e){
+                tl::printException(e);
+            }
+
+            return;
+
+        } else {
+            mModel->setCsvFile(file);
+            //mView->setOutputCRS(mModel->outputCRS());
+            previewCSV();
+        }
     } else {
         return;
     }

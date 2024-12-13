@@ -74,6 +74,7 @@ public slots:
     virtual void setKappaFieldId(int id) = 0;
     virtual void setCrs(const QString &crs) = 0;
     virtual void importCameras() = 0;
+    virtual void importCamerasFromMRK(const QString &file) = 0;
 
 signals:
 

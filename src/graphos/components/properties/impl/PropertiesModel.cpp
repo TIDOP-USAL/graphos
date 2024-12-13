@@ -176,7 +176,7 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
             value = image_metadata->metadata("EXIF_ExposureMode", active);
             if (active) {
 
-                QString exposure_mode = 0;
+                QString exposure_mode;
                 if (value == "0") {
                     exposure_mode = "Auto";
                 } else if (value == "1") {
@@ -185,14 +185,14 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
                     exposure_mode = "Auto bracket";
                 }
 
-                if (exposure_mode != QString("0"))
+                if (!exposure_mode.isEmpty())
                     exif["Camera"].emplace_back(QString("Exposure mode"), exposure_mode);
             }
 
             value = image_metadata->metadata("EXIF_ExposureProgram", active);
             if (active) {
 
-                QString exposure_program = 0;
+                QString exposure_program;
                 if (value == "1") {
                     exposure_program = "Manual";
                 } else if (value == "2") {
@@ -211,7 +211,7 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
                     exposure_program = "Landscape";
                 }
 
-                if (exposure_program != QString("0"))
+                if (!exposure_program.isEmpty())
                     exif["Camera"].emplace_back(QString("Exposure program"), exposure_program);
             }
 
@@ -813,6 +813,21 @@ auto PropertiesModelImp::image(const tl::Path &image) const -> Properties
             value = image_metadata->metadata("XMP_RtkFlag", active);
             if (active) {
                 exif["XMP"].emplace_back(QString("Rtk Flag"), QString::fromStdString(value));
+            }
+
+            value = image_metadata->metadata("XMP_RtkStdLon", active);
+            if (active) {
+                exif["XMP"].emplace_back(QString("Longitude Accuracy"), QString::fromStdString(value));
+            }
+
+            value = image_metadata->metadata("XMP_RtkStdLat", active);
+            if (active) {
+                exif["XMP"].emplace_back(QString("Latitude Accuracy"), QString::fromStdString(value));
+            }
+
+            value = image_metadata->metadata("XMP_RtkStdHgt", active);
+            if (active) {
+                exif["XMP"].emplace_back(QString("Altitude Accuracy"), QString::fromStdString(value));
             }
 
             ///// TIFF

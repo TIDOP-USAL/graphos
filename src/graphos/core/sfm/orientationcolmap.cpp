@@ -1282,683 +1282,683 @@ auto ColmapReconstructionConvert::readCalibration(size_t cameraId) const -> std:
 
 
 
-ImportPosesTask::ImportPosesTask(const std::vector<Image> &images,
-                                 const std::map<int, Camera> &cameras,
-                                 tl::Path outputPath,
-                                 tl::Path database,
-                                 bool fixCalibration,
-                                 bool fixPoses)
-  : mImages(images),
-    mCameras(cameras),
-    mOutputPath(std::move(outputPath)),
-    mDatabase(std::move(database)),
-    mFixCalibration(fixCalibration),
-    mFixPoses(fixPoses)
-{
-    computeOffset();
-}
-
-ImportPosesTask::~ImportPosesTask() = default;
-
-auto ImportPosesTask::cameras() const -> std::map<int, Camera>
-{
-    return mCameras;
-}
-
-void ImportPosesTask::setFixCalibration(bool fixCalibration)
-{
-    mFixCalibration = fixCalibration;
-}
-
-void ImportPosesTask::setFixPoses(bool fixPoses)
-{
-    mFixPoses = fixPoses;
-}
-
-auto ImportPosesTask::report() const -> OrientationReport
-{
-    return mOrientationReport;
-}
-
-void ImportPosesTask::execute(tl::Progress *progressBar)
-{
-    try {
-
-        
-        {
-            colmap::Database database(mDatabase.toString());
-
-            for (const auto &image : mImages) {
-
-                tl::Path image_path(image.path().toStdString());
-
-                for (const auto &colmap_image : database.ReadAllImages()) {
-                    tl::Path colmap_image_path(colmap_image.Name());
-
-                    if (image_path.equivalent(colmap_image_path)) {
-                        mGraphosToColmapId[image.id()] = static_cast<int>(colmap_image.ImageId());
-                        break;
-                    }
-                }
-
-            }
-
-            database.Close();
-        }
-
-
-        tl::TemporalDir temp_dir;
-        tl::Path temp_path = temp_dir.path();
-
-        temporalReconstruction(temp_path);
-
-        if (status() == Status::stopping) return;
-
-        /// Triangulación y ajuste de haces
-        {
-
-            mOutputPath.createDirectories();
-
-            bool clear_points = false;
-
-            std::string input_path = temp_path.toString();
-            std::string reconstruction_path = mOutputPath.toString();
-
-            colmap::OptionManager options;
-            options.AddDatabaseOptions();
-            options.AddImageOptions();
-            options.AddRequiredOption("input_path", &input_path);
-            options.AddRequiredOption("reconstruction_path", &reconstruction_path);
-            options.AddDefaultOption("clear_points", &clear_points, "Whether to clear all existing points and observations");
-            options.AddMapperOptions();
-
-            TL_ASSERT(mOutputPath.exists(), "ERROR: 'reconstruction_path' is not a directory");
-
-            auto &mapper_options = options.mapper;
-
-            tl::Message::info("Loading model");
-
-            colmap::Reconstruction reconstruction;
-            reconstruction.Read(temp_path.toString());
-
-            for (const auto &image : mImages) {
-
-                CameraPose camera_pose = image.cameraPose();
-                if (camera_pose.isEmpty()) {
-                    continue; /// Se saltan las imagenes no orientadas
-                }
-
-                size_t image_id = image.id();
-                reconstruction.Image(mGraphosToColmapId[image_id]).Name() = image.path().toStdString();
-
-            }
-
-            tl::Message::info("Loading database");
-
-            colmap::DatabaseCache database_cache;
-
-            {
-                tl::Chrono timer("Elapsed time:");
-                timer.run();
-
-                colmap::Database database(mDatabase.toString());
-
-                size_t min_num_matches = static_cast<size_t>(mapper_options->min_num_matches);
-                database_cache.Load(database, min_num_matches,
-                                    mapper_options->ignore_watermarks,
-                                    mapper_options->image_names);
-
-                if (clear_points) {
-                    reconstruction.DeleteAllPoints2DAndPoints3D();
-                    reconstruction.TranscribeImageIdsToDatabase(database);
-                }
-
-                database.Close();
-
-                std::cout << std::endl;
-                timer.stop();
-            }
-
-            std::cout << std::endl;
-
-            if (status() == tl::Task::Status::stopping) return;
-
-            TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation");
-
-            colmap::IncrementalMapper mapper(&database_cache);
-            mapper.BeginReconstruction(&reconstruction);
-
-            //////////////////////////////////////////////////////////////////////////////
-            // Triangulation
-            //////////////////////////////////////////////////////////////////////////////
-
-            auto triangulation_options = mapper_options->Triangulation();
-
-            const auto &reg_image_ids = reconstruction.RegImageIds();
-
-            for (unsigned int image_id : reg_image_ids)
-            {
-
-                if (status() == Status::stopping) return;
-
-                const auto &image = reconstruction.Image(image_id);
-
-                const size_t num_existing_points3D = image.NumPoints3D();
-
-                std::cout << "  => Image sees " << num_existing_points3D << " / "
-                          << image.NumObservations() << " points" << '\n';
-
-                mapper.TriangulateImage(triangulation_options, image_id);
-
-                std::cout << "  => Triangulated "
-                          << (image.NumPoints3D() - num_existing_points3D) << " points"
-                          << std::endl;
-            }
-
-            //////////////////////////////////////////////////////////////////////////////
-            // Retriangulation
-            //////////////////////////////////////////////////////////////////////////////
-
-            tl::Message::info("Retriangulation");
-
-            CompleteAndMergeTracks(*mapper_options, &mapper);
-
-            //////////////////////////////////////////////////////////////////////////////
-            // Bundle adjustment
-            //////////////////////////////////////////////////////////////////////////////
-
-            ceres::Solver::Summary summary;
-
-            auto ba_options = mapper_options->GlobalBundleAdjustment();
-
-            ba_options.refine_focal_length = !mFixCalibration;
-            ba_options.refine_principal_point = false;
-            ba_options.refine_extra_params = !mFixCalibration;
-            ba_options.refine_extrinsics = true;// !mFixPoses;
-
-            // Configure bundle adjustment.
-            //colmap::BundleAdjustmentConfig ba_config;
-            graphos::BundleAdjustmentConfig ba_config;
-            for (const colmap::image_t image_id : reconstruction.RegImageIds()) {
-                ba_config.AddImage(image_id);
-                ba_config.setCamPositionError(image_id, 0.01);
-            }
-
-            if (status() == Status::stopping) return;
-
-            for (int i = 0; i < mapper_options->ba_global_max_refinements; ++i) {
-                // Avoid degeneracies in bundle adjustment.
-                reconstruction.FilterObservationsWithNegativeDepth();
-
-                size_t num_observations = reconstruction.ComputeNumObservations();
-
-                //colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-                graphos::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-                TL_ASSERT(bundle_adjuster.solve(&reconstruction), "Bundle adjust error");
-
-                summary = bundle_adjuster.summary();
-
-                size_t num_changed_observations = 0;
-                num_changed_observations += CompleteAndMergeTracks(*mapper_options, &mapper);
-                num_changed_observations += FilterPoints(*mapper_options, &mapper);
-                double changed = static_cast<double>(num_changed_observations) / static_cast<double>(num_observations);
-                std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed) << std::endl;
-                if (changed < mapper_options->ba_global_max_refinement_change) {
-                    break;
-                }
-            }
-
-            if (status() == Status::stopping) return;
-
-            // Se incluye el punto principal en el ajuste
-            if (!mFixCalibration) {
-                ba_options.refine_principal_point = true;
-                for (int i = 0; i < mapper_options->ba_global_max_refinements; ++i) {
-                    // Avoid degeneracies in bundle adjustment.
-                    reconstruction.FilterObservationsWithNegativeDepth();
-
-                    size_t num_observations = reconstruction.ComputeNumObservations();
-
-                    //PrintHeading1("Bundle adjustment");
-                    //colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-                    graphos::BundleAdjuster bundle_adjuster(ba_options, ba_config);
-                    if (!bundle_adjuster.solve(&reconstruction)) throw std::runtime_error(std::string("Reconstruction error"));
-
-                    summary = bundle_adjuster.summary();
-
-                    size_t num_changed_observations = 0;
-                    num_changed_observations += CompleteAndMergeTracks(*mapper_options, &mapper);
-                    num_changed_observations += FilterPoints(*mapper_options, &mapper);
-                    double changed = static_cast<double>(num_changed_observations) / static_cast<double>(num_observations);
-                    std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed) << std::endl;
-                    if (changed < mapper_options->ba_global_max_refinement_change) {
-                        break;
-                    }
-                }
-            }
-
-            mOrientationReport.iterations = summary.num_successful_steps + summary.num_unsuccessful_steps;
-            mOrientationReport.initialCost = std::sqrt(summary.initial_cost / summary.num_residuals_reduced);
-            mOrientationReport.finalCost = std::sqrt(summary.final_cost / summary.num_residuals_reduced);
-            mOrientationReport.termination = "CONVERGENCE";
-
-            TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
-
-            tl::Message::info("Extracting colors");
-            reconstruction.ExtractColorsForAllImages("");
-
-            bool discard_reconstruction = false;
-            mapper.EndReconstruction(discard_reconstruction);
-
-            ColmapReconstructionConvert convert(&reconstruction, mImages);
-            std::vector<GroundPoint> ground_points = convert.groundPoints();
-            auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
-            gp_writer->setGroundPoints(ground_points);
-            tl::Path ground_points_path(mOutputPath);
-            ground_points_path.append("ground_points.bin");
-            gp_writer->write(ground_points_path);
-
-            // Write Camera Poses
-
-            auto camera_poses = convert.cameraPoses();
-            auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
-            poses_writer->setCameraPoses(camera_poses);
-            tl::Path poses_path(mOutputPath);
-            poses_path.append("poses.bin");
-            poses_writer->write(poses_path);
-
-            if (status() == Status::stopping) return;
-
-            for (auto &camera : mCameras) {
-
-                std::shared_ptr<Calibration> calibration = convert.readCalibration(camera.first);
-
-                if (calibration) {
-                    camera.second.setCalibration(calibration);
-                }
-            }
-
-            /// Write Sparse Cloud
-
-            tl::Path sparse_path(mOutputPath);
-            sparse_path.append("sparse.ply");
-            OrientationExport orientationExport(&reconstruction);
-            orientationExport.exportPLY(sparse_path);
-
-            /// writeOffset
-            tl::Path offset_path(mOutputPath);
-            offset_path.append("offset.txt");
-            std::ofstream stream(offset_path.toString(), std::ios::trunc);
-            if (stream.is_open()) {
-                stream << QString::number(mOffset.x, 'f', 6).toStdString() << " "
-                       << QString::number(mOffset.y, 'f', 6).toStdString() << " "
-                       << QString::number(mOffset.z, 'f', 6).toStdString() << '\n';
-
-                tl::Message::info("Camera offset: {},{},{}", mOffset.x, mOffset.y, mOffset.z);
-
-                stream.close();
-            }
-
-
-            std::vector<double> errors;
-            errors.reserve(mImages.size());
-            tl::Message::info("Images: {}", mImages.size());
-
-            for (size_t i = 0; i < mImages.size(); ++i) {
-                
-                if (reconstruction.ExistsImage(mGraphosToColmapId[mImages[i].id()])) {
-
-                    const colmap::Image &image = reconstruction.Image(mGraphosToColmapId[mImages[i].id()]);
-                    tl::Point3<double> position = mImages[i].cameraPose().position();
-                    position -= mOffset;
-                    Eigen::Vector3d pos_ini;
-                    pos_ini[0] = position.x;
-                    pos_ini[1] = position.y;
-                    pos_ini[2] = position.z;
-
-                    auto pos_final = image.ProjectionCenter();
-                    auto error_xyz = pos_final - pos_ini;
-                    double error = (pos_final - pos_ini).norm();
-                    tl::Message::info("Error [x: {}, y: {}, z: {}]", error_xyz.x(), error_xyz.y(), error_xyz.z());
-                    errors.push_back(error);
-                }
-            }
-
-            tl::Message::info("Alignment error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
-
-        }
-
-        tl::Message::success("Import Orientation finished {:.2} minutes", time() / 60.);
-
-        if (progressBar) (*progressBar)();
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("Import orientation error");
-    }
-
-}
-
-void ImportPosesTask::computeOffset()
-{
-    int i = 1;
-    for (const auto &image : mImages) {
-        CameraPose camera_pose = image.cameraPose();
-        if (camera_pose.isEmpty()) continue;
-        mOffset += (camera_pose.position() - mOffset) / i;
-        i++;
-    }
-}
-
-void ImportPosesTask::temporalReconstruction(const tl::Path &tempPath)
-{
-    try {
-
-        writeImages(tempPath);
-
-        if (status() == Status::stopping) return;
-
-        writeCameras(tempPath);
-
-        if (status() == Status::stopping) return;
-
-        writePoints(tempPath);
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-}
-
-void ImportPosesTask::writeImages(const tl::Path &tempPath)
-{
-    try {
-
-        tl::Path images_path(tempPath);
-        images_path.append("images.txt");
-
-        std::ofstream ofs;
-        ofs.open(images_path.toString(), std::ofstream::out | std::ofstream::trunc);
-
-        if (!ofs.is_open()) throw std::runtime_error(std::string("Open fail: images.txt"));
-
-        for (const auto &image : mImages) {
-
-            CameraPose camera_pose = image.cameraPose();
-            if (camera_pose.isEmpty()) {
-                continue; /// Se saltan las imagenes no orientadas
-            }
-
-            tl::Quaternion<double> quaternion = camera_pose.quaternion();
-            TL_TODO("Las rutas con espacios pueden dar problemas")
-            std::string file_name = image.path().toStdString();
-            tl::Point3<double> position = camera_pose.position();
-
-            if (!isCoordinatesLocal()) {
-                position -= mOffset;
-            }
-
-            tl::Vector<double, 3> vector_camera_position = position.vector();
-
-            tl::RotationMatrix<double> r_ip_ic = tl::RotationMatrix<double>::identity();
-            r_ip_ic.at(1, 1) = -1;
-            r_ip_ic.at(2, 2) = -1;
-
-            tl::RotationMatrix<double> rotation_matrix;
-            tl::RotationConverter<double>::convert(quaternion, rotation_matrix);
-
-            tl::RotationMatrix<double> rotation = r_ip_ic * rotation_matrix.transpose();
-            tl::RotationConverter<double>::convert(rotation, quaternion);
-            quaternion.normalize();
-
-            vector_camera_position = rotation * -vector_camera_position;
-
-            ofs << std::fixed << mGraphosToColmapId[image.id()] << " " << QString::number(quaternion.w, 'g', 10).toStdString() << " "
-                << QString::number(quaternion.x, 'g', 10).toStdString() << " "
-                << QString::number(quaternion.y, 'g', 10).toStdString() << " "
-                << QString::number(quaternion.z, 'g', 10).toStdString() << " "
-                << QString::number(vector_camera_position[0], 'g', 10).toStdString() << " "
-                << QString::number(vector_camera_position[1], 'g', 10).toStdString() << " "
-                << QString::number(vector_camera_position[2], 'g', 10).toStdString() << " 1 " << file_name << '\n';
-            ofs << '\n';
-
-        }
-
-        ofs.close();
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-}
-
-void ImportPosesTask::writeCameras(const tl::Path &tempPath) const
-{
-    try {
-
-        tl::Path cameras_path(tempPath);
-        cameras_path.append("cameras.txt");
-
-        std::ofstream ofs;
-        ofs.open(cameras_path.toString(), std::ofstream::out | std::ofstream::trunc);
-
-        if (!ofs.is_open()) throw std::runtime_error(std::string("Open fail: cameras.txt"));
-
-        ofs << "# Camera list with one line of data per camera: \n";
-        ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
-        ofs << "# Number of cameras: " << mCameras.size() << "\n";
-
-        for (const auto &_camera : mCameras) {
-
-            size_t camera_id = _camera.first;
-            Camera camera = _camera.second;
-
-            auto camera_type = cameraToColmapType(camera).toStdString();
-            auto calibration = camera.calibration();
-
-            if (calibration) {
-
-                ofs << camera_id << " " << camera_type << " " << camera.width() << " " << camera.height() << " ";
-
-                if (camera_type == "SIMPLE_RADIAL" ||
-                    camera_type == "RADIAL" ||
-                    camera_type == "FULL_RADIAL" ||
-                    camera_type == "SIMPLE_RADIAL_FISHEYE" ||
-                    camera_type == "RADIAL_FISHEYE") {
-
-                    double focal = calibration->existParameter(Calibration::Parameters::focal) ?
-                                   calibration->parameter(Calibration::Parameters::focal) :
-                                   std::min(camera.width(), camera.height());
-
-                    ofs << QString::number(focal, 'g', 10).toStdString() << " ";
-
-                } else {
-
-                    double focal_x = calibration->existParameter(Calibration::Parameters::focalx) ?
-                                     calibration->parameter(Calibration::Parameters::focalx) :
-                                     std::min(camera.width(), camera.height());
-                    double focal_y = calibration->existParameter(Calibration::Parameters::focaly) ?
-                                     calibration->parameter(Calibration::Parameters::focaly) :
-                                     std::min(camera.width(), camera.height());
-
-                    ofs << QString::number(focal_x, 'g', 10).toStdString() << " " << QString::number(focal_y, 'g', 10).toStdString() << " ";
-
-                }
-
-                double cx = calibration->existParameter(Calibration::Parameters::cx) ?
-                            calibration->parameter(Calibration::Parameters::cx) :
-                            camera.width() / 2.;
-                double cy = calibration->existParameter(Calibration::Parameters::cy) ?
-                            calibration->parameter(Calibration::Parameters::cy) :
-                            camera.height() / 2.;
-
-                ofs << QString::number(cx, 'g', 10).toStdString() << " "
-                    << QString::number(cy, 'g', 10).toStdString();
-
-                if (camera_type == "SIMPLE_RADIAL" ||
-                    camera_type == "RADIAL" ||
-                    camera_type == "FULL_RADIAL" ||
-                    camera_type == "OPENCV" ||
-                    camera_type == "OPENCV_FISHEYE" ||
-                    camera_type == "FULL_OPENCV" ||
-                    camera_type == "SIMPLE_RADIAL_FISHEYE" ||
-                    camera_type == "RADIAL_FISHEYE" ||
-                    camera_type == "THIN_PRISM_FISHEYE") {
-
-                    double k1 = calibration->existParameter(Calibration::Parameters::k1) ?
-                                calibration->parameter(Calibration::Parameters::k1) : 0.0;
-
-                    ofs << " " << QString::number(k1, 'g', 10).toStdString();
-
-                }
-
-                if (camera_type == "RADIAL" ||
-                    camera_type == "FULL_RADIAL" ||
-                    camera_type == "OPENCV" ||
-                    camera_type == "OPENCV_FISHEYE" ||
-                    camera_type == "FULL_OPENCV" ||
-                    camera_type == "RADIAL_FISHEYE" ||
-                    camera_type == "THIN_PRISM_FISHEYE") {
-
-                    double k2 = calibration->existParameter(Calibration::Parameters::k2) ?
-                                calibration->parameter(Calibration::Parameters::k2) : 0.0;
-
-                    ofs << " " << QString::number(k2, 'g', 10).toStdString();
-
-                }
-
-                if (camera_type == "OPENCV" ||
-                    camera_type == "FULL_OPENCV" ||
-                    camera_type == "THIN_PRISM_FISHEYE" ||
-                    camera_type == "FULL_RADIAL") {
-
-                    double p1 = calibration->existParameter(Calibration::Parameters::p1) ?
-                                calibration->parameter(Calibration::Parameters::p1) : 0.0;
-                    double p2 = calibration->existParameter(Calibration::Parameters::p2) ?
-                                calibration->parameter(Calibration::Parameters::p2) : 0.0;
-
-                    ofs << " " << QString::number(p1, 'g', 10).toStdString()
-                        << " " << QString::number(p2, 'g', 10).toStdString();
-
-                }
-
-                if (camera_type == "OPENCV_FISHEYE" ||
-                    camera_type == "FULL_OPENCV" ||
-                    camera_type == "THIN_PRISM_FISHEYE" ||
-                    camera_type == "FULL_RADIAL") {
-
-                    double k3 = calibration->existParameter(Calibration::Parameters::k3) ?
-                                calibration->parameter(Calibration::Parameters::k3) : 0.0;
-
-                    ofs << " " << QString::number(k3, 'g', 10).toStdString();
-
-                }
-
-                if (camera_type == "OPENCV_FISHEYE" ||
-                    camera_type == "FULL_OPENCV" ||
-                    camera_type == "THIN_PRISM_FISHEYE") {
-
-                    double k4 = calibration->existParameter(Calibration::Parameters::k4) ?
-                                calibration->parameter(Calibration::Parameters::k4) : 0.0;
-
-                    ofs << " " << QString::number(k4, 'g', 10).toStdString();
-
-                }
-
-                if (camera_type == "FULL_OPENCV") {
-                    double k5 = calibration->existParameter(Calibration::Parameters::k5) ?
-                                calibration->parameter(Calibration::Parameters::k5) : 0.0;
-                    double k6 = calibration->existParameter(Calibration::Parameters::k6) ?
-                                calibration->parameter(Calibration::Parameters::k6) : 0.0;
-
-                    ofs << " " << QString::number(k5, 'g', 10).toStdString()
-                        << " " << QString::number(k6, 'g', 10).toStdString();
-
-                }
-
-            } else {
-
-                double focal = std::min(camera.width(), camera.height());
-                double cx = camera.width() / 2.;
-                double cy = camera.height() / 2.;
-
-                ofs << camera_id << " " << camera_type << " " << camera.width() << " " << camera.height() << " ";
-
-                if (camera_type == "SIMPLE_RADIAL" ||
-                    camera_type == "RADIAL" ||
-                    camera_type == "FULL_RADIAL" ||
-                    camera_type == "SIMPLE_RADIAL_FISHEYE" ||
-                    camera_type == "RADIAL_FISHEYE") {
-
-                    ofs << focal << " ";
-
-                } else {
-
-                    ofs << focal << " " << focal << " ";
-
-                }
-
-                ofs << cx << " " << cy;
-
-                if (camera_type == "SIMPLE_RADIAL")
-                    ofs << " 0.0";
-
-                if (camera_type == "RADIAL")
-                    ofs << " 0.0 0.0";
-
-                if (camera_type == "OPENCV")
-                    ofs << " 0.0 0.0 0.0 0.0";
-
-                if (camera_type == "OPENCV_FISHEYE")
-                    ofs << " 0.0 0.0 0.0 0.0";
-
-                if (camera_type == "FULL_OPENCV")
-                    ofs << " 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
-
-                if (camera_type == "SIMPLE_RADIAL_FISHEYE")
-                    ofs << " 0.0";
-
-                if (camera_type == "RADIAL_FISHEYE")
-                    ofs << " 0.0 0.0";
-
-                if (camera_type == "THIN_PRISM_FISHEYE")
-                    ofs << " 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
-
-                if (camera_type == "FULL_RADIAL")
-                    ofs << " 0.0 0.0 0.0 0.0 0.0 0.0";
-
-            }
-
-            ofs << '\n';
-        }
-
-
-        ofs.close();
-
-    } catch (...) {
-        TL_THROW_EXCEPTION_WITH_NESTED("");
-    }
-
-}
-
-void ImportPosesTask::writePoints(const tl::Path &tempPath)
-{
-    tl::Path points3d_path(tempPath);
-    points3d_path.append("points3D.txt");
-
-    std::ofstream ofs;
-    ofs.open(points3d_path.toString(), std::ofstream::out | std::ofstream::trunc);
-    ofs.close();
-}
-
-bool ImportPosesTask::isCoordinatesLocal() const
-{
-    bool local = true;
-
-    for (const auto &image : mImages) {
-        CameraPose camera_pose = image.cameraPose();
-        if (camera_pose.crs() != "") local = false;
-    }
-
-    return local;
-}
+//ImportPosesTask::ImportPosesTask(const std::vector<Image> &images,
+//                                 const std::map<int, Camera> &cameras,
+//                                 tl::Path outputPath,
+//                                 tl::Path database,
+//                                 bool fixCalibration,
+//                                 bool fixPoses)
+//  : mImages(images),
+//    mCameras(cameras),
+//    mOutputPath(std::move(outputPath)),
+//    mDatabase(std::move(database)),
+//    mFixCalibration(fixCalibration),
+//    mFixPoses(fixPoses)
+//{
+//    computeOffset();
+//}
+//
+//ImportPosesTask::~ImportPosesTask() = default;
+//
+//auto ImportPosesTask::cameras() const -> std::map<int, Camera>
+//{
+//    return mCameras;
+//}
+//
+//void ImportPosesTask::setFixCalibration(bool fixCalibration)
+//{
+//    mFixCalibration = fixCalibration;
+//}
+//
+//void ImportPosesTask::setFixPoses(bool fixPoses)
+//{
+//    mFixPoses = fixPoses;
+//}
+//
+//auto ImportPosesTask::report() const -> OrientationReport
+//{
+//    return mOrientationReport;
+//}
+//
+//void ImportPosesTask::execute(tl::Progress *progressBar)
+//{
+//    try {
+//
+//        
+//        {
+//            colmap::Database database(mDatabase.toString());
+//
+//            for (const auto &image : mImages) {
+//
+//                tl::Path image_path(image.path().toStdString());
+//
+//                for (const auto &colmap_image : database.ReadAllImages()) {
+//                    tl::Path colmap_image_path(colmap_image.Name());
+//
+//                    if (image_path.equivalent(colmap_image_path)) {
+//                        mGraphosToColmapId[image.id()] = static_cast<int>(colmap_image.ImageId());
+//                        break;
+//                    }
+//                }
+//
+//            }
+//
+//            database.Close();
+//        }
+//
+//
+//        tl::TemporalDir temp_dir;
+//        tl::Path temp_path = temp_dir.path();
+//
+//        temporalReconstruction(temp_path);
+//
+//        if (status() == Status::stopping) return;
+//
+//        /// Triangulación y ajuste de haces
+//        {
+//
+//            mOutputPath.createDirectories();
+//
+//            bool clear_points = false;
+//
+//            std::string input_path = temp_path.toString();
+//            std::string reconstruction_path = mOutputPath.toString();
+//
+//            colmap::OptionManager options;
+//            options.AddDatabaseOptions();
+//            options.AddImageOptions();
+//            options.AddRequiredOption("input_path", &input_path);
+//            options.AddRequiredOption("reconstruction_path", &reconstruction_path);
+//            options.AddDefaultOption("clear_points", &clear_points, "Whether to clear all existing points and observations");
+//            options.AddMapperOptions();
+//
+//            TL_ASSERT(mOutputPath.exists(), "ERROR: 'reconstruction_path' is not a directory");
+//
+//            auto &mapper_options = options.mapper;
+//
+//            tl::Message::info("Loading model");
+//
+//            colmap::Reconstruction reconstruction;
+//            reconstruction.Read(temp_path.toString());
+//
+//            for (const auto &image : mImages) {
+//
+//                CameraPose camera_pose = image.cameraPose();
+//                if (camera_pose.isEmpty()) {
+//                    continue; /// Se saltan las imagenes no orientadas
+//                }
+//
+//                size_t image_id = image.id();
+//                reconstruction.Image(mGraphosToColmapId[image_id]).Name() = image.path().toStdString();
+//
+//            }
+//
+//            tl::Message::info("Loading database");
+//
+//            colmap::DatabaseCache database_cache;
+//
+//            {
+//                tl::Chrono timer("Elapsed time:");
+//                timer.run();
+//
+//                colmap::Database database(mDatabase.toString());
+//
+//                size_t min_num_matches = static_cast<size_t>(mapper_options->min_num_matches);
+//                database_cache.Load(database, min_num_matches,
+//                                    mapper_options->ignore_watermarks,
+//                                    mapper_options->image_names);
+//
+//                if (clear_points) {
+//                    reconstruction.DeleteAllPoints2DAndPoints3D();
+//                    reconstruction.TranscribeImageIdsToDatabase(database);
+//                }
+//
+//                database.Close();
+//
+//                std::cout << std::endl;
+//                timer.stop();
+//            }
+//
+//            std::cout << std::endl;
+//
+//            if (status() == tl::Task::Status::stopping) return;
+//
+//            TL_ASSERT(reconstruction.NumRegImages() >= 2, "Need at least two images for triangulation");
+//
+//            colmap::IncrementalMapper mapper(&database_cache);
+//            mapper.BeginReconstruction(&reconstruction);
+//
+//            //////////////////////////////////////////////////////////////////////////////
+//            // Triangulation
+//            //////////////////////////////////////////////////////////////////////////////
+//
+//            auto triangulation_options = mapper_options->Triangulation();
+//
+//            const auto &reg_image_ids = reconstruction.RegImageIds();
+//
+//            for (unsigned int image_id : reg_image_ids)
+//            {
+//
+//                if (status() == Status::stopping) return;
+//
+//                const auto &image = reconstruction.Image(image_id);
+//
+//                const size_t num_existing_points3D = image.NumPoints3D();
+//
+//                std::cout << "  => Image sees " << num_existing_points3D << " / "
+//                          << image.NumObservations() << " points" << '\n';
+//
+//                mapper.TriangulateImage(triangulation_options, image_id);
+//
+//                std::cout << "  => Triangulated "
+//                          << (image.NumPoints3D() - num_existing_points3D) << " points"
+//                          << std::endl;
+//            }
+//
+//            //////////////////////////////////////////////////////////////////////////////
+//            // Retriangulation
+//            //////////////////////////////////////////////////////////////////////////////
+//
+//            tl::Message::info("Retriangulation");
+//
+//            CompleteAndMergeTracks(*mapper_options, &mapper);
+//
+//            //////////////////////////////////////////////////////////////////////////////
+//            // Bundle adjustment
+//            //////////////////////////////////////////////////////////////////////////////
+//
+//            ceres::Solver::Summary summary;
+//
+//            auto ba_options = mapper_options->GlobalBundleAdjustment();
+//
+//            ba_options.refine_focal_length = !mFixCalibration;
+//            ba_options.refine_principal_point = false;
+//            ba_options.refine_extra_params = !mFixCalibration;
+//            ba_options.refine_extrinsics = true;// !mFixPoses;
+//
+//            // Configure bundle adjustment.
+//            //colmap::BundleAdjustmentConfig ba_config;
+//            graphos::BundleAdjustmentConfig ba_config;
+//            for (const colmap::image_t image_id : reconstruction.RegImageIds()) {
+//                ba_config.AddImage(image_id);
+//                ba_config.setCamPositionError(image_id, 0.01);
+//            }
+//
+//            if (status() == Status::stopping) return;
+//
+//            for (int i = 0; i < mapper_options->ba_global_max_refinements; ++i) {
+//                // Avoid degeneracies in bundle adjustment.
+//                reconstruction.FilterObservationsWithNegativeDepth();
+//
+//                size_t num_observations = reconstruction.ComputeNumObservations();
+//
+//                //colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+//                graphos::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+//                TL_ASSERT(bundle_adjuster.solve(&reconstruction), "Bundle adjust error");
+//
+//                summary = bundle_adjuster.summary();
+//
+//                size_t num_changed_observations = 0;
+//                num_changed_observations += CompleteAndMergeTracks(*mapper_options, &mapper);
+//                num_changed_observations += FilterPoints(*mapper_options, &mapper);
+//                double changed = static_cast<double>(num_changed_observations) / static_cast<double>(num_observations);
+//                std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed) << std::endl;
+//                if (changed < mapper_options->ba_global_max_refinement_change) {
+//                    break;
+//                }
+//            }
+//
+//            if (status() == Status::stopping) return;
+//
+//            // Se incluye el punto principal en el ajuste
+//            if (!mFixCalibration) {
+//                ba_options.refine_principal_point = true;
+//                for (int i = 0; i < mapper_options->ba_global_max_refinements; ++i) {
+//                    // Avoid degeneracies in bundle adjustment.
+//                    reconstruction.FilterObservationsWithNegativeDepth();
+//
+//                    size_t num_observations = reconstruction.ComputeNumObservations();
+//
+//                    //PrintHeading1("Bundle adjustment");
+//                    //colmap::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+//                    graphos::BundleAdjuster bundle_adjuster(ba_options, ba_config);
+//                    if (!bundle_adjuster.solve(&reconstruction)) throw std::runtime_error(std::string("Reconstruction error"));
+//
+//                    summary = bundle_adjuster.summary();
+//
+//                    size_t num_changed_observations = 0;
+//                    num_changed_observations += CompleteAndMergeTracks(*mapper_options, &mapper);
+//                    num_changed_observations += FilterPoints(*mapper_options, &mapper);
+//                    double changed = static_cast<double>(num_changed_observations) / static_cast<double>(num_observations);
+//                    std::cout << colmap::StringPrintf("  => Changed observations: %.6f", changed) << std::endl;
+//                    if (changed < mapper_options->ba_global_max_refinement_change) {
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            mOrientationReport.iterations = summary.num_successful_steps + summary.num_unsuccessful_steps;
+//            mOrientationReport.initialCost = std::sqrt(summary.initial_cost / summary.num_residuals_reduced);
+//            mOrientationReport.finalCost = std::sqrt(summary.final_cost / summary.num_residuals_reduced);
+//            mOrientationReport.termination = "CONVERGENCE";
+//
+//            TL_ASSERT(summary.termination_type == ceres::CONVERGENCE, "Bundle adjust: NO CONVERGENCE");
+//
+//            tl::Message::info("Extracting colors");
+//            reconstruction.ExtractColorsForAllImages("");
+//
+//            bool discard_reconstruction = false;
+//            mapper.EndReconstruction(discard_reconstruction);
+//
+//            ColmapReconstructionConvert convert(&reconstruction, mImages);
+//            std::vector<GroundPoint> ground_points = convert.groundPoints();
+//            auto gp_writer = GroundPointsWriterFactory::create("GRAPHOS");
+//            gp_writer->setGroundPoints(ground_points);
+//            tl::Path ground_points_path(mOutputPath);
+//            ground_points_path.append("ground_points.bin");
+//            gp_writer->write(ground_points_path);
+//
+//            // Write Camera Poses
+//
+//            auto camera_poses = convert.cameraPoses();
+//            auto poses_writer = CameraPosesWriterFactory::create("GRAPHOS");
+//            poses_writer->setCameraPoses(camera_poses);
+//            tl::Path poses_path(mOutputPath);
+//            poses_path.append("poses.bin");
+//            poses_writer->write(poses_path);
+//
+//            if (status() == Status::stopping) return;
+//
+//            for (auto &camera : mCameras) {
+//
+//                std::shared_ptr<Calibration> calibration = convert.readCalibration(camera.first);
+//
+//                if (calibration) {
+//                    camera.second.setCalibration(calibration);
+//                }
+//            }
+//
+//            /// Write Sparse Cloud
+//
+//            tl::Path sparse_path(mOutputPath);
+//            sparse_path.append("sparse.ply");
+//            OrientationExport orientationExport(&reconstruction);
+//            orientationExport.exportPLY(sparse_path);
+//
+//            /// writeOffset
+//            tl::Path offset_path(mOutputPath);
+//            offset_path.append("offset.txt");
+//            std::ofstream stream(offset_path.toString(), std::ios::trunc);
+//            if (stream.is_open()) {
+//                stream << QString::number(mOffset.x, 'f', 6).toStdString() << " "
+//                       << QString::number(mOffset.y, 'f', 6).toStdString() << " "
+//                       << QString::number(mOffset.z, 'f', 6).toStdString() << '\n';
+//
+//                tl::Message::info("Camera offset: {},{},{}", mOffset.x, mOffset.y, mOffset.z);
+//
+//                stream.close();
+//            }
+//
+//
+//            std::vector<double> errors;
+//            errors.reserve(mImages.size());
+//            tl::Message::info("Images: {}", mImages.size());
+//
+//            for (size_t i = 0; i < mImages.size(); ++i) {
+//                
+//                if (reconstruction.ExistsImage(mGraphosToColmapId[mImages[i].id()])) {
+//
+//                    const colmap::Image &image = reconstruction.Image(mGraphosToColmapId[mImages[i].id()]);
+//                    tl::Point3<double> position = mImages[i].cameraPose().position();
+//                    position -= mOffset;
+//                    Eigen::Vector3d pos_ini;
+//                    pos_ini[0] = position.x;
+//                    pos_ini[1] = position.y;
+//                    pos_ini[2] = position.z;
+//
+//                    auto pos_final = image.ProjectionCenter();
+//                    auto error_xyz = pos_final - pos_ini;
+//                    double error = (pos_final - pos_ini).norm();
+//                    tl::Message::info("Error [x: {}, y: {}, z: {}]", error_xyz.x(), error_xyz.y(), error_xyz.z());
+//                    errors.push_back(error);
+//                }
+//            }
+//
+//            tl::Message::info("Alignment error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
+//
+//        }
+//
+//        tl::Message::success("Import Orientation finished {:.2} minutes", time() / 60.);
+//
+//        if (progressBar) (*progressBar)();
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("Import orientation error");
+//    }
+//
+//}
+//
+//void ImportPosesTask::computeOffset()
+//{
+//    int i = 1;
+//    for (const auto &image : mImages) {
+//        CameraPose camera_pose = image.cameraPose();
+//        if (camera_pose.isEmpty()) continue;
+//        mOffset += (camera_pose.position() - mOffset) / i;
+//        i++;
+//    }
+//}
+//
+//void ImportPosesTask::temporalReconstruction(const tl::Path &tempPath)
+//{
+//    try {
+//
+//        writeImages(tempPath);
+//
+//        if (status() == Status::stopping) return;
+//
+//        writeCameras(tempPath);
+//
+//        if (status() == Status::stopping) return;
+//
+//        writePoints(tempPath);
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("");
+//    }
+//}
+//
+//void ImportPosesTask::writeImages(const tl::Path &tempPath)
+//{
+//    try {
+//
+//        tl::Path images_path(tempPath);
+//        images_path.append("images.txt");
+//
+//        std::ofstream ofs;
+//        ofs.open(images_path.toString(), std::ofstream::out | std::ofstream::trunc);
+//
+//        if (!ofs.is_open()) throw std::runtime_error(std::string("Open fail: images.txt"));
+//
+//        for (const auto &image : mImages) {
+//
+//            CameraPose camera_pose = image.cameraPose();
+//            if (camera_pose.isEmpty()) {
+//                continue; /// Se saltan las imagenes no orientadas
+//            }
+//
+//            tl::Quaternion<double> quaternion = camera_pose.quaternion();
+//            TL_TODO("Las rutas con espacios pueden dar problemas")
+//            std::string file_name = image.path().toStdString();
+//            tl::Point3<double> position = camera_pose.position();
+//
+//            if (!isCoordinatesLocal()) {
+//                position -= mOffset;
+//            }
+//
+//            tl::Vector<double, 3> vector_camera_position = position.vector();
+//
+//            tl::RotationMatrix<double> r_ip_ic = tl::RotationMatrix<double>::identity();
+//            r_ip_ic.at(1, 1) = -1;
+//            r_ip_ic.at(2, 2) = -1;
+//
+//            tl::RotationMatrix<double> rotation_matrix;
+//            tl::RotationConverter<double>::convert(quaternion, rotation_matrix);
+//
+//            tl::RotationMatrix<double> rotation = r_ip_ic * rotation_matrix.transpose();
+//            tl::RotationConverter<double>::convert(rotation, quaternion);
+//            quaternion.normalize();
+//
+//            vector_camera_position = rotation * -vector_camera_position;
+//
+//            ofs << std::fixed << mGraphosToColmapId[image.id()] << " " << QString::number(quaternion.w, 'g', 10).toStdString() << " "
+//                << QString::number(quaternion.x, 'g', 10).toStdString() << " "
+//                << QString::number(quaternion.y, 'g', 10).toStdString() << " "
+//                << QString::number(quaternion.z, 'g', 10).toStdString() << " "
+//                << QString::number(vector_camera_position[0], 'g', 10).toStdString() << " "
+//                << QString::number(vector_camera_position[1], 'g', 10).toStdString() << " "
+//                << QString::number(vector_camera_position[2], 'g', 10).toStdString() << " 1 " << file_name << '\n';
+//            ofs << '\n';
+//
+//        }
+//
+//        ofs.close();
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("");
+//    }
+//}
+//
+//void ImportPosesTask::writeCameras(const tl::Path &tempPath) const
+//{
+//    try {
+//
+//        tl::Path cameras_path(tempPath);
+//        cameras_path.append("cameras.txt");
+//
+//        std::ofstream ofs;
+//        ofs.open(cameras_path.toString(), std::ofstream::out | std::ofstream::trunc);
+//
+//        if (!ofs.is_open()) throw std::runtime_error(std::string("Open fail: cameras.txt"));
+//
+//        ofs << "# Camera list with one line of data per camera: \n";
+//        ofs << "#   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]\n";
+//        ofs << "# Number of cameras: " << mCameras.size() << "\n";
+//
+//        for (const auto &_camera : mCameras) {
+//
+//            size_t camera_id = _camera.first;
+//            Camera camera = _camera.second;
+//
+//            auto camera_type = cameraToColmapType(camera).toStdString();
+//            auto calibration = camera.calibration();
+//
+//            if (calibration) {
+//
+//                ofs << camera_id << " " << camera_type << " " << camera.width() << " " << camera.height() << " ";
+//
+//                if (camera_type == "SIMPLE_RADIAL" ||
+//                    camera_type == "RADIAL" ||
+//                    camera_type == "FULL_RADIAL" ||
+//                    camera_type == "SIMPLE_RADIAL_FISHEYE" ||
+//                    camera_type == "RADIAL_FISHEYE") {
+//
+//                    double focal = calibration->existParameter(Calibration::Parameters::focal) ?
+//                                   calibration->parameter(Calibration::Parameters::focal) :
+//                                   std::min(camera.width(), camera.height());
+//
+//                    ofs << QString::number(focal, 'g', 10).toStdString() << " ";
+//
+//                } else {
+//
+//                    double focal_x = calibration->existParameter(Calibration::Parameters::focalx) ?
+//                                     calibration->parameter(Calibration::Parameters::focalx) :
+//                                     std::min(camera.width(), camera.height());
+//                    double focal_y = calibration->existParameter(Calibration::Parameters::focaly) ?
+//                                     calibration->parameter(Calibration::Parameters::focaly) :
+//                                     std::min(camera.width(), camera.height());
+//
+//                    ofs << QString::number(focal_x, 'g', 10).toStdString() << " " << QString::number(focal_y, 'g', 10).toStdString() << " ";
+//
+//                }
+//
+//                double cx = calibration->existParameter(Calibration::Parameters::cx) ?
+//                            calibration->parameter(Calibration::Parameters::cx) :
+//                            camera.width() / 2.;
+//                double cy = calibration->existParameter(Calibration::Parameters::cy) ?
+//                            calibration->parameter(Calibration::Parameters::cy) :
+//                            camera.height() / 2.;
+//
+//                ofs << QString::number(cx, 'g', 10).toStdString() << " "
+//                    << QString::number(cy, 'g', 10).toStdString();
+//
+//                if (camera_type == "SIMPLE_RADIAL" ||
+//                    camera_type == "RADIAL" ||
+//                    camera_type == "FULL_RADIAL" ||
+//                    camera_type == "OPENCV" ||
+//                    camera_type == "OPENCV_FISHEYE" ||
+//                    camera_type == "FULL_OPENCV" ||
+//                    camera_type == "SIMPLE_RADIAL_FISHEYE" ||
+//                    camera_type == "RADIAL_FISHEYE" ||
+//                    camera_type == "THIN_PRISM_FISHEYE") {
+//
+//                    double k1 = calibration->existParameter(Calibration::Parameters::k1) ?
+//                                calibration->parameter(Calibration::Parameters::k1) : 0.0;
+//
+//                    ofs << " " << QString::number(k1, 'g', 10).toStdString();
+//
+//                }
+//
+//                if (camera_type == "RADIAL" ||
+//                    camera_type == "FULL_RADIAL" ||
+//                    camera_type == "OPENCV" ||
+//                    camera_type == "OPENCV_FISHEYE" ||
+//                    camera_type == "FULL_OPENCV" ||
+//                    camera_type == "RADIAL_FISHEYE" ||
+//                    camera_type == "THIN_PRISM_FISHEYE") {
+//
+//                    double k2 = calibration->existParameter(Calibration::Parameters::k2) ?
+//                                calibration->parameter(Calibration::Parameters::k2) : 0.0;
+//
+//                    ofs << " " << QString::number(k2, 'g', 10).toStdString();
+//
+//                }
+//
+//                if (camera_type == "OPENCV" ||
+//                    camera_type == "FULL_OPENCV" ||
+//                    camera_type == "THIN_PRISM_FISHEYE" ||
+//                    camera_type == "FULL_RADIAL") {
+//
+//                    double p1 = calibration->existParameter(Calibration::Parameters::p1) ?
+//                                calibration->parameter(Calibration::Parameters::p1) : 0.0;
+//                    double p2 = calibration->existParameter(Calibration::Parameters::p2) ?
+//                                calibration->parameter(Calibration::Parameters::p2) : 0.0;
+//
+//                    ofs << " " << QString::number(p1, 'g', 10).toStdString()
+//                        << " " << QString::number(p2, 'g', 10).toStdString();
+//
+//                }
+//
+//                if (camera_type == "OPENCV_FISHEYE" ||
+//                    camera_type == "FULL_OPENCV" ||
+//                    camera_type == "THIN_PRISM_FISHEYE" ||
+//                    camera_type == "FULL_RADIAL") {
+//
+//                    double k3 = calibration->existParameter(Calibration::Parameters::k3) ?
+//                                calibration->parameter(Calibration::Parameters::k3) : 0.0;
+//
+//                    ofs << " " << QString::number(k3, 'g', 10).toStdString();
+//
+//                }
+//
+//                if (camera_type == "OPENCV_FISHEYE" ||
+//                    camera_type == "FULL_OPENCV" ||
+//                    camera_type == "THIN_PRISM_FISHEYE") {
+//
+//                    double k4 = calibration->existParameter(Calibration::Parameters::k4) ?
+//                                calibration->parameter(Calibration::Parameters::k4) : 0.0;
+//
+//                    ofs << " " << QString::number(k4, 'g', 10).toStdString();
+//
+//                }
+//
+//                if (camera_type == "FULL_OPENCV") {
+//                    double k5 = calibration->existParameter(Calibration::Parameters::k5) ?
+//                                calibration->parameter(Calibration::Parameters::k5) : 0.0;
+//                    double k6 = calibration->existParameter(Calibration::Parameters::k6) ?
+//                                calibration->parameter(Calibration::Parameters::k6) : 0.0;
+//
+//                    ofs << " " << QString::number(k5, 'g', 10).toStdString()
+//                        << " " << QString::number(k6, 'g', 10).toStdString();
+//
+//                }
+//
+//            } else {
+//
+//                double focal = std::min(camera.width(), camera.height());
+//                double cx = camera.width() / 2.;
+//                double cy = camera.height() / 2.;
+//
+//                ofs << camera_id << " " << camera_type << " " << camera.width() << " " << camera.height() << " ";
+//
+//                if (camera_type == "SIMPLE_RADIAL" ||
+//                    camera_type == "RADIAL" ||
+//                    camera_type == "FULL_RADIAL" ||
+//                    camera_type == "SIMPLE_RADIAL_FISHEYE" ||
+//                    camera_type == "RADIAL_FISHEYE") {
+//
+//                    ofs << focal << " ";
+//
+//                } else {
+//
+//                    ofs << focal << " " << focal << " ";
+//
+//                }
+//
+//                ofs << cx << " " << cy;
+//
+//                if (camera_type == "SIMPLE_RADIAL")
+//                    ofs << " 0.0";
+//
+//                if (camera_type == "RADIAL")
+//                    ofs << " 0.0 0.0";
+//
+//                if (camera_type == "OPENCV")
+//                    ofs << " 0.0 0.0 0.0 0.0";
+//
+//                if (camera_type == "OPENCV_FISHEYE")
+//                    ofs << " 0.0 0.0 0.0 0.0";
+//
+//                if (camera_type == "FULL_OPENCV")
+//                    ofs << " 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
+//
+//                if (camera_type == "SIMPLE_RADIAL_FISHEYE")
+//                    ofs << " 0.0";
+//
+//                if (camera_type == "RADIAL_FISHEYE")
+//                    ofs << " 0.0 0.0";
+//
+//                if (camera_type == "THIN_PRISM_FISHEYE")
+//                    ofs << " 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
+//
+//                if (camera_type == "FULL_RADIAL")
+//                    ofs << " 0.0 0.0 0.0 0.0 0.0 0.0";
+//
+//            }
+//
+//            ofs << '\n';
+//        }
+//
+//
+//        ofs.close();
+//
+//    } catch (...) {
+//        TL_THROW_EXCEPTION_WITH_NESTED("");
+//    }
+//
+//}
+//
+//void ImportPosesTask::writePoints(const tl::Path &tempPath)
+//{
+//    tl::Path points3d_path(tempPath);
+//    points3d_path.append("points3D.txt");
+//
+//    std::ofstream ofs;
+//    ofs.open(points3d_path.toString(), std::ofstream::out | std::ofstream::trunc);
+//    ofs.close();
+//}
+//
+//bool ImportPosesTask::isCoordinatesLocal() const
+//{
+//    bool local = true;
+//
+//    for (const auto &image : mImages) {
+//        CameraPose camera_pose = image.cameraPose();
+//        if (camera_pose.crs() != "") local = false;
+//    }
+//
+//    return local;
+//}
 
 
 

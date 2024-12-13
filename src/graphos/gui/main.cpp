@@ -375,11 +375,10 @@ int main(int argc, char *argv[])
 
 #ifdef GRAPHOS_GUI
 
-        //    TL_TODO("Añadir como opción")
-//#if defined WIN32
-//        HWND hwnd = GetConsoleWindow();
-//        ShowWindow(hwnd, 0);
-//#endif
+#if defined WIN32
+        HWND hwnd = GetConsoleWindow();
+        ShowWindow(hwnd, 0);
+#endif
 
         app.freeMemory();
 
@@ -731,11 +730,11 @@ int main(int argc, char *argv[])
 
         componentsManager.mainWindowPresenter()->open();
 
-        r = app.exec();
+        r = Application::exec();
 
-//#if defined WIN32
-//        ShowWindow(hwnd, 1);
-//#endif
+#if defined WIN32
+        ShowWindow(hwnd, 1);
+#endif
 
 #endif // GRAPHOS_GUI
     }

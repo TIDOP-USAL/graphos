@@ -575,6 +575,38 @@ void ImportCamerasModelImp::setCrs(const QString &crs)
     mCrs = crs;
 }
 
+void ImportCamerasModelImp::writePriorPoses()
+{
+    colmap::Database database(mProject->database().toString());
+
+    for (const auto &pair_image : mProject->images()) {
+
+        Image image = pair_image.second;
+
+        tl::Path image_path(image.path().toStdString());
+
+        for (auto image_colmap : database.ReadAllImages()) {
+
+            tl::Path image_path_colmap(image_colmap.Name());
+
+            if (image_path.equivalent(image_path_colmap)) {
+                //colmap::Image image_colmap = database.ReadImageWithName(image_path);
+                image_colmap.TvecPrior(0) = image.cameraPose().position().x;
+                image_colmap.TvecPrior(1) = image.cameraPose().position().y;
+                image_colmap.TvecPrior(2) = image.cameraPose().position().z;
+                image_colmap.QvecPrior(0) = image.cameraPose().quaternion().w;
+                image_colmap.QvecPrior(1) = image.cameraPose().quaternion().x;
+                image_colmap.QvecPrior(2) = image.cameraPose().quaternion().y;
+                image_colmap.QvecPrior(3) = image.cameraPose().quaternion().z;
+                database.UpdateImage(image_colmap);
+
+                break;
+            }
+        }
+
+    }
+}
+
 void ImportCamerasModelImp::importCameras()
 {
 
@@ -792,52 +824,124 @@ void ImportCamerasModelImp::importCameras()
         file.close();
     }
 
+    writePriorPoses();
 
-    /// TODO: Esto no deber�a estar aqui
+}
 
-    colmap::Database database(mProject->database().toString());
+struct ImageData
+{
+    int sequence;
+    double seconds_of_week;
+    int gps_week;
+    double offset_north;
+    double offset_east;
+    double offset_vertical;
+    double latitude;
+    double longitude;
+    double height;
+    double std_dev_north;
+    double std_dev_east;
+    double std_dev_vertical;
+    int rtk_status;
+    std::string image_name;
+};
 
-    for (const auto &pair_image : mProject->images()) {
+void ImportCamerasModelImp::importCamerasFromMRK(const QString &file)
+{
+    try {
 
-        Image image = pair_image.second;
+        std::ifstream stream(file.toStdString());
+        TL_ASSERT(stream.is_open(), "Error when opening the file {}", file.toStdString());
 
-        tl::Path image_path(image.path().toStdString());
+        std::string line;
+        while (std::getline(stream, line)) {
 
-        for (auto image_colmap : database.ReadAllImages()) {
+            auto columns = tl::split<std::string>(line, '\t');
 
-            tl::Path image_path_colmap(image_colmap.Name());
+            TL_ASSERT(columns.size() == 11, "");
 
-            if (image_path.equivalent(image_path_colmap)) {
-                //colmap::Image image_colmap = database.ReadImageWithName(image_path);
-                image_colmap.TvecPrior(0) = image.cameraPose().position().x;
-                image_colmap.TvecPrior(1) = image.cameraPose().position().y;
-                image_colmap.TvecPrior(2) = image.cameraPose().position().z;
-                image_colmap.QvecPrior(0) = image.cameraPose().quaternion().w;
-                image_colmap.QvecPrior(1) = image.cameraPose().quaternion().x;
-                image_colmap.QvecPrior(2) = image.cameraPose().quaternion().y;
-                image_colmap.QvecPrior(3) = image.cameraPose().quaternion().z;
-                database.UpdateImage(image_colmap);
+            ImageData entry;
+            entry.sequence = std::stoi(columns[0]);
+            entry.seconds_of_week = std::stod(columns[1]);
 
-                break;
+            size_t pos1 = columns[2].find("[");
+            size_t pos2 = columns[2].find("]");
+            if (pos1 != std::string::npos && pos2 != std::string::npos) {
+                entry.gps_week = std::stoi(columns[2].substr(pos1 + 1, pos2 - pos1 + 1));
+            }
+
+            tl::trim(columns[3]);
+            auto offset_north = tl::split<std::string>(columns[3]);
+            entry.offset_north = std::stod(offset_north.at(0));
+
+            tl::trim(columns[4]);
+            auto offset_east = tl::split<std::string>(columns[4]);
+            entry.offset_east = std::stod(offset_east.at(0));
+
+            tl::trim(columns[5]);
+            auto offset_vertical = tl::split<std::string>(columns[5]);
+            entry.offset_vertical = std::stod(offset_vertical.at(0));
+
+            tl::trim(columns[6]);
+            auto latitude = tl::split<std::string>(columns[6]);
+            entry.latitude = std::stod(latitude.at(0));
+
+            tl::trim(columns[7]);
+            auto longitude = tl::split<std::string>(columns[7]);
+            entry.longitude = std::stod(longitude.at(0));
+
+            tl::trim(columns[8]);
+            auto height = tl::split<std::string>(columns[8]);
+            entry.height = std::stod(height.at(0));
+
+            // Dividir las desviaciones estándar y el estado RTK
+            auto std_dev = tl::split<std::string>(columns[9], ',');
+            entry.std_dev_north = std::stod(tl::trim_copy(std_dev[0]));
+            entry.std_dev_east = std::stod(tl::trim_copy(std_dev[1]));
+            entry.std_dev_vertical = std::stod(tl::trim_copy(std_dev[2]));
+
+            tl::trim(columns[10]);
+            auto rtk_status = tl::split<std::string>(columns[10]);
+            entry.rtk_status = std::stoi(rtk_status.at(0));
+
+            std::ostringstream sequence_pattern;
+            sequence_pattern << "_" << std::setw(4) << std::setfill('0') << entry.sequence;
+            std::string pattern = sequence_pattern.str();
+
+            for (const auto &image_pair : mProject->images()) {
+
+                auto image = image_pair.second;
+                auto name = image.name().toStdString();
+
+                // Buscar si el índice aparece en el nombre del archivo
+                if (name.find(pattern) != std::string::npos) {
+
+                    tl::Point3<double> pt(entry.longitude, entry.latitude, entry.height);
+
+                    CameraPose camera_pose;
+                    camera_pose.setSource(file);
+                    camera_pose.setPosition(pt);
+                    camera_pose.setCrs("EPSG:4326");
+                    camera_pose.setAccuracy({entry.std_dev_east, entry.std_dev_north, entry.std_dev_vertical});
+                    camera_pose.setRtkFlag(entry.rtk_status);
+
+                    image.setCameraPose(camera_pose);
+                    mProject->updateImage(image_pair.first, image);
+                    tl::Message::info("Camera coordinates found for {} : [{},{},{}]", image.name().toStdString().c_str(), pt.x, pt.y, pt.z);
+
+                    break;
+                }
             }
         }
 
-    }
+        stream.close();
 
-    /// 
+        writePriorPoses();
+
+    } catch (...){
+        TL_THROW_EXCEPTION_WITH_NESTED("Error reading mrk file");
+    }
 }
 
-//bool ImportCamerasModelImp::checkCRS(const QString &crs)
-//{
-//    tl::Message::pauseMessages();
-//    tl::Crs _crs(crs.toStdString());
-//    tl::Message::resumeMessages();
-//    return _crs.isValid();
-//}
-//
-//QString ImportCamerasModelImp::outputCRS() const
-//{
-//    return mOutputCrs;
-//}
 
 } // namespace graphos

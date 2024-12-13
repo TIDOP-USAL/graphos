@@ -33,9 +33,11 @@ namespace graphos
 
 
 CameraPose::CameraPose()
-    : mRotation(nullptr),
+    : mAccuracy({10., 10., 10.}),
+      mRotation(nullptr),
       mCrs(""),
-      mSource("")
+      mSource(""),
+      mRtkFlag(0)
 {
 }
 
@@ -43,9 +45,11 @@ CameraPose::CameraPose(const CameraPose &pose) = default;
 
 CameraPose::CameraPose(CameraPose &&pose) noexcept
   : mPosition(std::move(pose.mPosition)),
+    mAccuracy(std::move(pose.mAccuracy)),
     mRotation(std::move(pose.mRotation)),
     mCrs(std::move(pose.mCrs)),
-    mSource(std::move(pose.mSource))
+    mSource(std::move(pose.mSource)),
+    mRtkFlag(pose.mRtkFlag)
 {
 
 }
@@ -53,9 +57,11 @@ CameraPose::CameraPose(CameraPose &&pose) noexcept
 CameraPose::CameraPose(double x, double y, double z,
                        const RotationMatrix<double> &rotationMatrix)
     : mPosition(x, y, z),
+      mAccuracy({10., 10., 10.}),
       mRotation(new RotationMatrix<double>(rotationMatrix)),
       mCrs(""),
-      mSource("")
+      mSource(""),
+      mRtkFlag(0)
 {
 
 }
@@ -63,31 +69,34 @@ CameraPose::CameraPose(double x, double y, double z,
 CameraPose::CameraPose(const Point3<double> &center,
                        const RotationMatrix<double> &rotationMatrix)
     : mPosition(center),
+      mAccuracy({10., 10., 10.}),
       mRotation(new RotationMatrix<double>(rotationMatrix)),
       mCrs(""),
-      mSource("")
+      mSource(""),
+      mRtkFlag(0)
 {
-
 }
 
 CameraPose::CameraPose(double x, double y, double z,
                        const Quaternion<double> &quaternion)
     : mPosition(x, y, z),
+      mAccuracy({10., 10., 10.}),
       mRotation(new Quaternion<double>(quaternion)),
       mCrs(""),
-      mSource("")
+      mSource(""),
+      mRtkFlag(0)
 {
-
 }
 
 CameraPose::CameraPose(const Point3<double> &center,
                        const Quaternion<double> &quaternion)
     : mPosition(center),
+      mAccuracy({10., 10., 10.}),
       mRotation(new Quaternion<double>(quaternion)),
       mCrs(""),
-      mSource("")
+      mSource(""),
+      mRtkFlag(0)
 {
-
 }
 
 CameraPose::~CameraPose() = default;
@@ -96,9 +105,11 @@ auto CameraPose::operator=(const CameraPose &pose) -> CameraPose &
 {
     if (this != &pose) {
         mPosition = pose.mPosition;
+        mAccuracy = pose.mAccuracy;
         mRotation = pose.mRotation;
         mCrs = pose.mCrs;
         mSource = pose.mSource;
+        mRtkFlag = pose.mRtkFlag;
     }
 
     return *this;
@@ -108,9 +119,11 @@ auto CameraPose::operator=(CameraPose &&pose) noexcept -> CameraPose&
 {
     if (this != &pose) {
         mPosition = std::move(pose.mPosition);
+        mAccuracy = std::move(pose.mAccuracy);
         mRotation = std::move(pose.mRotation);
         mCrs = std::move(pose.mCrs);
         mSource = std::move(pose.mSource);
+        mRtkFlag = pose.mRtkFlag;
     }
 
     return *this;
@@ -124,6 +137,16 @@ auto CameraPose::position() const -> Point3<double>
 void CameraPose::setPosition(const Point3<double> &position)
 {
     mPosition = position;
+}
+
+auto CameraPose::accuracy() const -> tl::Vector3d
+{
+    return mAccuracy;
+}
+
+void CameraPose::setAccuracy(const tl::Vector3d &accuracy)
+{
+    mAccuracy = accuracy;
 }
 
 auto CameraPose::quaternion() const -> Quaterniond
@@ -178,6 +201,16 @@ auto CameraPose::crs() const -> QString
 void CameraPose::setCrs(const QString &crs)
 {
     mCrs = crs;
+}
+
+auto CameraPose::rtkFlag() const -> int
+{
+    return mRtkFlag;
+}
+
+void CameraPose::setRtkFlag(int rtkFlag)
+{
+    mRtkFlag = rtkFlag;
 }
 
 auto CameraPose::source() const -> QString

@@ -49,8 +49,8 @@ public:
     auto isEnabledCalibration() const -> bool override;
     auto absoluteOrientation() const -> bool override;
     auto isEnabledAbsoluteOrientation() const -> bool override;
-    auto fixPoses() const -> bool override;
-    auto isEnabledPoses() const -> bool override;
+    auto rtkPositioningAccuracy() const -> bool override;
+    auto isRtkPositioningAccuracyEnabled() const -> bool override;
 
 public slots:
 
@@ -58,8 +58,8 @@ public slots:
     void enabledCalibration(bool enabled) override;
     void setAbsoluteOrientation(bool active) override;
     void enabledAbsoluteOrientation(bool enabled) override;
-    void setPoses(bool active) override;
-    void enabledPoses(bool enabled) override;
+    void setRtkPositioningAccuracy(bool active) override;
+    void enabledRtkPositioningAccuracy(bool enabled) override;
 
 // DialogView interface
 
@@ -80,8 +80,8 @@ private slots:
 protected:
 
     QCheckBox *mCheckBoxFixCalibration;
-    QCheckBox *mCheckBoxFixPoses;
     QCheckBox *mCheckBoxAbsoluteOrientation;
+    QCheckBox *mCheckBoxRtkPositioningAccuracy;
     QDialogButtonBox *mButtonBox;
 
 };

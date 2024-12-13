@@ -129,6 +129,10 @@ public:
      */
     void setPosition(const tl::Point3<double> &position);
 
+    auto accuracy() const -> tl::Vector3d;
+
+    void setAccuracy(const tl::Vector3d &accuracy);
+
     /*!
      * \brief Get the orientation of the camera as a quaternion.
      *
@@ -171,6 +175,10 @@ public:
       */
     void setCrs(const QString &crs);
 
+    auto rtkFlag() const -> int;
+
+    void setRtkFlag(int rtkFlag);
+
     /*!
      * \brief Get the source of the camera pose data.
      *
@@ -198,10 +206,12 @@ public:
 
 private:
 
-    tl::Point3<double> mPosition;
+    tl::Point3d mPosition;
+    tl::Vector3d mAccuracy;
     std::shared_ptr<tl::Orientation> mRotation;
     QString mCrs;
     QString mSource;
+    int mRtkFlag;
 };
 
 

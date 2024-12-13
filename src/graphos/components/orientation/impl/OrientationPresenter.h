@@ -25,6 +25,7 @@
 #define GRAPHOS_ORIENTATION_PRESENTER_H
 
 #include "graphos/components/orientation/OrientationPresenter.h"
+#include "graphos/core/sfm/Reconstruction.h"
 
 namespace graphos
 {
@@ -41,7 +42,11 @@ public:
 
     OrientationPresenterImp(OrientationView *view,
                             OrientationModel *model);
-    ~OrientationPresenterImp() override;
+    ~OrientationPresenterImp() override = default;
+
+private:
+
+    ReconstructionTask::Options reconstructionOptions() const;
 
 // TaskPresenter interface
 

@@ -52,86 +52,31 @@ class BundleAdjustmentConfig
   : public colmap::BundleAdjustmentConfig
 {
 
-public:
-
-    /// Opciones de OpenMVG
-    //double pose_center_robust_fitting_error;
-    //bool bUse_loss_function_;
-
 private:
 
-    std::unordered_map<colmap::image_t, double> cam_position_errors_;
-    std::unordered_map<colmap::image_t, tl::Point3d> cam_positions;
-    std::vector<GCP> control_points_;
-    std::unordered_map<size_t, uint32_t> image_ids_graphos_to_colmap;
-    std::unordered_map<uint32_t, size_t> image_ids_colmap_to_graphos;
-
+    std::unordered_map<colmap::image_t, tl::Vector3d> mCamPositionErrors;
+    std::unordered_map<colmap::image_t, tl::Point3d> mCameraPositions;
+    std::vector<GCP> mControlPpoints;
+    std::unordered_map<size_t, uint32_t> mImageIdsGraphosToColmap;
+    std::unordered_map<uint32_t, size_t> mImageIdsColmapToGraphos;
 
 public:
 
-    BundleAdjustmentConfig() : colmap::BundleAdjustmentConfig()
-    {
-    }
+    BundleAdjustmentConfig();
 
-    void setCamPositionError(colmap::image_t image_id, double position_error)
-    {
-        cam_position_errors_[image_id] = position_error;
-    }
+    void setCameraPositionAccuracy(colmap::image_t imageId, const tl::Point3d &pose, const tl::Vector3d &accuracy);
+    auto cameraPositionAccuracy(colmap::image_t imageId) const -> tl::Vector3d;
 
-    double getCamPositionError(colmap::image_t image_id) const
-    {
-        auto it = cam_position_errors_.find(image_id);
-        return (it != cam_position_errors_.end()) ? it->second : 0.;
-    }
-
-    void setCamPositionRTK(colmap::image_t image_id, const tl::Point3d &pose)
-    {
-        cam_position_errors_[image_id] = 0.01;
-        cam_positions[image_id] = pose;
-    }
-
-    void setCamPositionGPS(colmap::image_t image_id, const tl::Point3d &pose)
-    {
-        cam_position_errors_[image_id] = 0.5;
-        cam_positions[image_id] = pose;
-    }
-
-    tl::Point3d getCamPosition(colmap::image_t image_id) const
-    {
-        auto it = cam_positions.find(image_id);
-        return (it != cam_positions.end()) ? it->second : tl::Point3d(0., 0., 0.);
-    }
-
-    std::vector<GCP> controlPoints() const
-    {
-        return control_points_;
-    }
-
-    void setGroundControlPoints(const std::vector<GCP> &controlPoints)
-    {
-        control_points_ = controlPoints;
-    }
-
-    void setImageIdsGraphosToColmap(const std::unordered_map<size_t, uint32_t> &convert)
-    {
-        image_ids_graphos_to_colmap = convert;
-    }
-
-    uint32_t colmapId(size_t graphosId) const
-    {
-        return image_ids_graphos_to_colmap.at(graphosId);
-    }
-
-    void setImageIdsColmapToGraphos(const std::unordered_map<uint32_t, size_t> &convert)
-    {
-        image_ids_colmap_to_graphos = convert;
-    }
-
-    size_t graphosId(uint32_t graphosId) const
-    {
-        return image_ids_colmap_to_graphos.at(graphosId);
-    }
+    auto cameraPosition(colmap::image_t imageId) const -> tl::Point3d;
+    auto controlPoints() const -> std::vector<GCP>;
+    void setGroundControlPoints(const std::vector<GCP> &controlPoints);
+    void setImageIdsGraphosToColmap(const std::unordered_map<size_t, uint32_t> &convert);
+    auto colmapId(size_t graphosId) const -> uint32_t;
+    void setImageIdsColmapToGraphos(const std::unordered_map<uint32_t, size_t> &convert);
+    auto graphosId(uint32_t graphosId) const -> size_t;
 };
+
+
 
 
 class BundleAdjuster
@@ -144,14 +89,12 @@ public:
 
     bool solve(colmap::Reconstruction *reconstruction);
 
-    // Get the Ceres solver summary for the last call to `Solve`.
     const ceres::Solver::Summary &summary() const;
 
 private:
 
     void setUp(colmap::Reconstruction *reconstruction,
                ceres::LossFunction *lossFunction);
-    //void tearDown(colmap::Reconstruction *reconstruction);
 
     void addImageToProblem(colmap::image_t imageId, 
                            colmap::Reconstruction *reconstruction,
@@ -177,53 +120,8 @@ protected:
     ceres::Solver::Summary summary_;
     std::unordered_set<colmap::camera_t> camera_ids_;
     std::unordered_map<colmap::point3D_t, size_t> point3D_num_observations_;
-    //std::vector<size_t> groundControlPoints;
+
 };
-
-
-
-//
-//struct BundleAdjusterOptions
-//{
-//    bool bVerbose_;
-//    unsigned int nb_threads_;
-//    bool bCeres_summary_;
-//    int linear_solver_type_;
-//    int preconditioner_type_;
-//    int sparse_linear_algebra_library_type_;
-//    double parameter_tolerance_;
-//    double gradient_tolerance_;
-//    bool bUse_loss_function_;
-//    int max_num_iterations_;
-//    int max_linear_solver_iterations_;
-//
-//    BundleAdjusterOptions(bool bVerbose = true, bool bmultithreaded = true)
-//    {
-//#ifdef OPENMVG_USE_OPENMP
-//        nb_threads_ = omp_get_max_threads();
-//#endif // OPENMVG_USE_OPENMP
-//        if (!bmultithreaded)
-//            nb_threads_ = 1;
-//
-//        bCeres_summary_ = false;
-//
-//        // Default configuration use a DENSE representation
-//        linear_solver_type_ = ceres::DENSE_SCHUR;
-//        preconditioner_type_ = ceres::JACOBI;
-//        // If Sparse linear solver are available
-//        // Descending priority order by efficiency (SUITE_SPARSE > CX_SPARSE > EIGEN_SPARSE)
-//        if (ceres::IsSparseLinearAlgebraLibraryTypeAvailable(ceres::SUITE_SPARSE)) {
-//            sparse_linear_algebra_library_type_ = ceres::SUITE_SPARSE;
-//            linear_solver_type_ = ceres::SPARSE_SCHUR;
-//        } else {
-//            if (ceres::IsSparseLinearAlgebraLibraryTypeAvailable(ceres::EIGEN_SPARSE)) {
-//                sparse_linear_algebra_library_type_ = ceres::EIGEN_SPARSE;
-//                linear_solver_type_ = ceres::SPARSE_SCHUR;
-//            }
-//        }
-//    }
-//};
-
 
 
 } // namespace graphos

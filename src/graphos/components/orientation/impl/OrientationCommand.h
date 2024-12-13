@@ -36,7 +36,7 @@ class OrientationCommand
 public:
 
     OrientationCommand();
-    ~OrientationCommand() override;
+    ~OrientationCommand() override = default;
 
 private:
 

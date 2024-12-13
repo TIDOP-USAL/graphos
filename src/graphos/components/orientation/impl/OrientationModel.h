@@ -55,9 +55,10 @@ public:
                              const CameraPose &orientation) override;
     auto database() const -> tl::Path override;
     auto projectFolder() const -> tl::Path override;
-    auto gpsPositions() const -> bool override;
-    auto rtkOrientations() const -> bool override;
-    auto hasControlPoints() const -> bool override;
+    auto hasCameraPoses() const -> bool override;
+    auto hasRtkPoses() const -> bool override;
+    auto hasGroundControlPoints() const -> bool override;
+    auto groundControlPointsFile() const -> tl::Path override;
     auto existReconstruction() const -> bool override;
     void clearProject() override;
     auto cameras() const -> const std::map<int, Camera>& override;

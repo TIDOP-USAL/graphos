@@ -159,9 +159,14 @@ void LoadImagesTask::loadImage(size_t imageId)
             size_t pos2 = gps_altitude.find(')');
 
             if (pos1 != std::string::npos && pos2 != std::string::npos) {
-                altitude = std::stod(gps_altitude.substr(pos1 + 1, pos2 - pos1 + 1));
-            }
+                altitude = tl::stringToNumber<double>(gps_altitude.substr(pos1 + 1, pos2 - pos1 + 1));
 
+                bool active;
+                auto value = image_metadata->metadata("EXIF_GPSAltitudeRef", active);
+                if (active) {
+                    if ("0x01" == value) altitude = -altitude;
+                }
+            }
         }
 
         if (latitude_active && longitude_active && altitude_active) {
@@ -172,6 +177,37 @@ void LoadImagesTask::loadImage(size_t imageId)
             camera_pose.setPosition(pt);
             camera_pose.setCrs("EPSG:4326");
             camera_pose.setSource("EXIF");
+
+            bool active = false;
+            std::string rtk_flag = image_metadata->metadata("XMP_RtkFlag", active);
+            if (active) {
+                camera_pose.setRtkFlag(tl::stringToNumber<int>(rtk_flag));
+            }
+
+            tl::Vector3d accuracy;
+
+            bool active_std_lon = false;
+            std::string rtk_std_lon = image_metadata->metadata("XMP_RtkStdLon", active_std_lon);
+            if (active_std_lon) {
+                accuracy[0] = tl::stringToNumber<double>(rtk_std_lon);
+            }
+
+            bool active_std_lat = false;
+            std::string rtk_std_lat = image_metadata->metadata("XMP_RtkStdLat", active_std_lat);
+            if (active_std_lat) {
+                accuracy[1] = tl::stringToNumber<double>(rtk_std_lat);
+            }
+
+            bool active_std_hgt = false;
+            std::string rtk_std_hgt = image_metadata->metadata("XMP_RtkStdHgt", active_std_hgt);
+            if (active_std_hgt) {
+                accuracy[2] = tl::stringToNumber<double>(rtk_std_hgt);
+            }
+
+            if (active_std_lon && active_std_lat && active_std_hgt) {
+                camera_pose.setAccuracy(accuracy);
+            }
+
             (*mImages)[imageId].setCameraPose(camera_pose);
 
         }

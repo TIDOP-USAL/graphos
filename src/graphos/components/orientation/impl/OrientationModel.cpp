@@ -100,40 +100,52 @@ auto OrientationModelImp::projectFolder() const -> tl::Path
     return mProject->projectFolder();
 }
 
-auto OrientationModelImp::gpsPositions() const -> bool
+auto OrientationModelImp::hasCameraPoses() const -> bool
 {
-    bool gps_orientation = false;
+    bool has_camera_poses = false;
 
-    auto it = mProject->images().begin();
-    CameraPose camera_pose = it->second.cameraPose();
-    if (!camera_pose.isEmpty())
-        gps_orientation = true;
+    for (const auto &images : mProject->images()) {
 
-    return gps_orientation;
-}
-
-bool OrientationModelImp::rtkOrientations() const
-{
-    bool rtk_orientations = false;
-
-    auto it = mProject->images().begin();
-    CameraPose camera_pose = it->second.cameraPose();
-    if (!camera_pose.isEmpty()) {
-        tl::Quaternion<double> q = camera_pose.quaternion();
-        if (q == tl::Quaternion<double>::zero())
-            rtk_orientations = false;
-        else
-            rtk_orientations = true;
+        CameraPose camera_pose = images.second.cameraPose();
+        if (!camera_pose.isEmpty()) {
+            has_camera_poses = true;
+            break;
+        }
     }
 
-    return rtk_orientations;
+    return has_camera_poses;
 }
 
-auto OrientationModelImp::hasControlPoints() const -> bool
+auto OrientationModelImp::hasRtkPoses() const -> bool
+{
+    bool has_rtk_poses = false;
+
+    for (const auto &images : mProject->images()) {
+
+        CameraPose camera_pose = images.second.cameraPose();
+        if (!camera_pose.isEmpty()) {
+            if (camera_pose.rtkFlag() > 0) {
+                has_rtk_poses = true;
+                break;
+            }
+        }
+    }
+
+    return has_rtk_poses;
+}
+
+auto OrientationModelImp::hasGroundControlPoints() const -> bool
 {
     tl::Path gcp_file = mProject->projectFolder();
     gcp_file.append("sfm").append("georef.xml");
     return gcp_file.exists();
+}
+
+auto OrientationModelImp::groundControlPointsFile() const -> tl::Path
+{
+    tl::Path gcp_file = mProject->projectFolder();
+    gcp_file.append("sfm").append("georef.xml");
+    return gcp_file;
 }
 
 auto OrientationModelImp::existReconstruction() const -> bool

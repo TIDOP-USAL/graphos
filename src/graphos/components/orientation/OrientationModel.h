@@ -59,9 +59,10 @@ public:
     virtual void addPhotoOrientation(size_t imageId, const CameraPose &orientation) = 0;
     virtual auto database() const -> tl::Path = 0;
     virtual auto projectFolder() const -> tl::Path = 0;
-    virtual auto gpsPositions() const -> bool = 0;
-    virtual auto rtkOrientations() const -> bool = 0;
-    virtual auto hasControlPoints() const -> bool = 0;
+    virtual auto hasCameraPoses() const -> bool = 0;
+    virtual auto hasRtkPoses() const -> bool = 0;
+    virtual auto hasGroundControlPoints() const -> bool = 0;
+    virtual auto groundControlPointsFile() const -> tl::Path = 0;
     virtual auto existReconstruction() const -> bool = 0;
     virtual void clearProject() = 0;
     virtual auto cameras() const -> const std::map<int, Camera>& = 0;

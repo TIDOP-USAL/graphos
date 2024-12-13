@@ -930,32 +930,43 @@ Image ProjectImp::readImage(QXmlStreamReader &stream)
 CameraPose ProjectImp::readCameraPosition(QXmlStreamReader &stream)
 {
     CameraPose cameraPose;
-    tl::Point3<double> p;
-    tl::Quaterniond q;
+    tl::Point3<double> position;
+    tl::Vector3d accuracy;
+    tl::Quaterniond quaternion;
 
     while (stream.readNextStartElement()) {
         if (stream.name() == "CRS") {
             cameraPose.setCrs(stream.readElementText());
         } else if (stream.name() == "X") {
-            p.x = readDouble(stream);
+            position.x = readDouble(stream);
         } else if (stream.name() == "Y") {
-            p.y = readDouble(stream);
+            position.y = readDouble(stream);
         } else if (stream.name() == "Z") {
-            p.z = readDouble(stream);
+            position.z = readDouble(stream);
+        } else if (stream.name() == "SX") {
+            accuracy.x() = readDouble(stream);
+        } else if (stream.name() == "SY") {
+            accuracy.y() = readDouble(stream);
+        } else if (stream.name() == "SZ") {
+            accuracy.z() = readDouble(stream);
         } else if (stream.name() == "Source") {
             cameraPose.setSource(stream.readElementText());
         } else if (stream.name() == "QX") {
-            q.x = readDouble(stream);
+            quaternion.x = readDouble(stream);
         } else if (stream.name() == "QY") {
-            q.y = readDouble(stream);
+            quaternion.y = readDouble(stream);
         } else if (stream.name() == "QZ") {
-            q.z = readDouble(stream);
+            quaternion.z = readDouble(stream);
         } else if (stream.name() == "QW") {
-            q.w = readDouble(stream);
+            quaternion.w = readDouble(stream);
+        } else if (stream.name() == "RtkFlag") {
+            cameraPose.setRtkFlag(readInt(stream));
         }
     }
-    cameraPose.setPosition(p);
-    cameraPose.setQuaternion(q);
+
+    cameraPose.setPosition(position);
+    cameraPose.setAccuracy(accuracy);
+    cameraPose.setQuaternion(quaternion);
     return cameraPose;
 }
 
@@ -1626,9 +1637,6 @@ void ProjectImp::writeImage(QXmlStreamWriter &stream, const std::pair<size_t, Im
         stream.writeTextElement("File", image.second.path());
         stream.writeTextElement("CameraId", QString::number(image.second.cameraId()));
         writeCameraPosition(stream, image.second.cameraPose());
-        //    stream.writeTextElement("LongitudeExif", QString::number(image.longitudeExif()));
-        //    stream.writeTextElement("LatitudeExif", QString::number(image.latitudeExif()));
-        //    stream.writeTextElement("AltitudeExif", QString::number(image.altitudeExif()));
     }
     stream.writeEndElement();
 }
@@ -1640,14 +1648,18 @@ void ProjectImp::writeCameraPosition(QXmlStreamWriter &stream,
         stream.writeStartElement("CameraPosition");
         {
             stream.writeTextElement("CRS", cameraPosition.crs());
-            stream.writeTextElement("X", QString::number(cameraPosition.position().x, 'f', 10));
-            stream.writeTextElement("Y", QString::number(cameraPosition.position().y, 'f', 10));
-            stream.writeTextElement("Z", QString::number(cameraPosition.position().z, 'f', 10));
+            stream.writeTextElement("X", QString::number(cameraPosition.position().x, 'f', 8));
+            stream.writeTextElement("Y", QString::number(cameraPosition.position().y, 'f', 8));
+            stream.writeTextElement("Z", QString::number(cameraPosition.position().z, 'f', 3));
+            stream.writeTextElement("SX", QString::number(cameraPosition.accuracy().x(), 'f', 3));
+            stream.writeTextElement("SY", QString::number(cameraPosition.accuracy().y(), 'f', 3));
+            stream.writeTextElement("SZ", QString::number(cameraPosition.accuracy().z(), 'f', 3));
             stream.writeTextElement("QX", QString::number(cameraPosition.quaternion().x, 'f', 10));
             stream.writeTextElement("QY", QString::number(cameraPosition.quaternion().y, 'f', 10));
             stream.writeTextElement("QZ", QString::number(cameraPosition.quaternion().z, 'f', 10));
             stream.writeTextElement("QW", QString::number(cameraPosition.quaternion().w, 'f', 10));
             stream.writeTextElement("Source", cameraPosition.source());
+            stream.writeTextElement("RtkFlag", QString::number(cameraPosition.rtkFlag()));
         }
         stream.writeEndElement();
     }

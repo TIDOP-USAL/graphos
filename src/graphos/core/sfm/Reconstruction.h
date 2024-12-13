@@ -58,6 +58,17 @@ class ReconstructionTask
 
 public:
 
+    enum class Options
+    {
+        fix_calibration = (1 << 0),
+        absolute_orientation = (1 << 1),
+        use_rtk_positioning_accuracy = (1 << 2),
+        use_poses = (1 << 3),
+        use_gcp = (1 << 4)
+    };
+
+public:
+
     /*!
      * \brief Constructor.
      *
@@ -70,16 +81,14 @@ public:
      * \param[in] cameras Camera.
      * \param[in] fixCalibration Flag indicating whether to fix the calibration parameters.
      * \param[in] absoluteOrientation Absolute orientation.
+     * \param[in] groundControlPoints Ground control points file
      */
     ReconstructionTask(tl::Path database,
                        tl::Path outputPath,
                        const std::vector<Image> &images,
                        const std::map<int, Camera> &cameras,
-                       bool fixCalibration,
-                       bool absoluteOrientation,
-                       bool gps,
-                       bool rtk,
-                       bool controlPoints);
+                       Options options,
+                       tl::Path groundControlPoints = tl::Path());
 
     ~ReconstructionTask() override;
 
@@ -119,29 +128,28 @@ protected:
 
 private:
 
-    bool mFixCalibration;
-    bool mAbsoluteOrientation;
-    bool mGPS;
-    bool mRTK;
-    bool mControlPoints;
-
-    int mMinCommonImages;
-    bool mRobustAlignment;
-    double mRobustAlignmentMaxError;
-
     tl::Path mDatabase;
     tl::Path mOutputPath;
     std::vector<Image> mImages;
     std::map<int, Camera> mCameras;
+    tl::EnumFlags<Options> mOptions;
+    //bool mFixCalibration;
+    //bool mAbsoluteOrientation;
+    tl::Path mGroundControlPoints;
+    int mMinCommonImages;
+    bool mRobustAlignment;
+    double mRobustAlignmentMaxError;
     colmap::IncrementalMapperOptions *mIncrementalMapperOptions;
     colmap::IncrementalMapperController *mMapper;
     std::shared_ptr<colmap::ReconstructionManager> mReconstructionManager;
+    tl::GeoTools *mGeoTools;
     std::unordered_map<size_t, double> mCameraPosesErrors;
     OrientationReport mOrientationReport;
-    tl::GeoTools *mGeoTools;
     std::string mEnuCrs;
+    //bool mHasCameraPoses;
+    //bool mHasControlPoints;
 };
-
+ALLOW_BITWISE_FLAG_OPERATIONS(ReconstructionTask::Options)
 
 } // namespace graphos
 

@@ -80,29 +80,53 @@ ReconstructionTask::ReconstructionTask(tl::Path database,
                                        tl::Path outputPath,
                                        const std::vector<Image> &images,
                                        const std::map<int, Camera> &cameras,
-                                       bool fixCalibration,
-                                       bool absoluteOrientation,
-                                       bool gps,
-                                       bool rtk,
-                                       bool controlPoints)
-  : mFixCalibration(fixCalibration),
-    mAbsoluteOrientation(absoluteOrientation),
-    mGPS(gps),
-    mRTK(rtk),
-    mControlPoints(controlPoints),
-    mMinCommonImages(absolute_orientation_min_common_images),
-    mRobustAlignment(absolute_orientation_robust_alignment),
-    mRobustAlignmentMaxError(absolute_orientation_robust_alignment_max_error),
-    mDatabase(std::move(database)),
+                                       Options options,
+                                       tl::Path groundControlPoints)
+  : mDatabase(std::move(database)),
     mOutputPath(std::move(outputPath)),
     mImages(images),
     mCameras(cameras),
+    mOptions(options),
+    mGroundControlPoints(std::move(groundControlPoints)),
+    mMinCommonImages(absolute_orientation_min_common_images),
+    mRobustAlignment(absolute_orientation_robust_alignment),
+    mRobustAlignmentMaxError(absolute_orientation_robust_alignment_max_error),
     mIncrementalMapperOptions(new colmap::IncrementalMapperOptions),
     mMapper(nullptr),
     mReconstructionManager(new colmap::ReconstructionManager),
     mGeoTools(tl::GeoTools::getInstance())
 {
+    if (mOptions.isEnabled(Options::absolute_orientation)) {
 
+        if (!mGroundControlPoints.exists() && mOptions.isEnabled(Options::use_gcp)) {
+            tl::Message::warning("'Options::use_gcp' is active but there are no checkpoints. 'Options::use_gcp' is deactivated.");
+                mOptions.disable(Options::use_gcp);
+        }
+
+        if (mOptions.isEnabled(Options::use_poses)) {
+
+            bool found_poses = false;
+                for (const auto &image : mImages) {
+
+                    if (!image.cameraPose().isEmpty()) {
+                        found_poses = true;
+                        break;
+                    }
+                }
+
+            if (!found_poses) {
+                tl::Message::warning("'Options::use_poses' is active but there are no camera poses. 'Options::use_poses' is deactivated.");
+                mOptions.disable(Options::use_poses);
+            }
+        }
+
+        if (mOptions.isDisabled(Options::use_gcp) &&
+            mOptions.isDisabled(Options::use_poses)) {
+
+            tl::Message::warning("'Options::absolute_orientation' is enabled but no control points or camera positions are available. Absolute orientation is disabled.");
+            mOptions.disable(Options::absolute_orientation);
+        }
+    }
 }
 
 ReconstructionTask::~ReconstructionTask()
@@ -190,9 +214,9 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
         }
 
         /// ¿Si se establece como fija la calibración?
-        mIncrementalMapperOptions->ba_refine_focal_length = !mFixCalibration;
+        mIncrementalMapperOptions->ba_refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
         mIncrementalMapperOptions->ba_refine_principal_point = false;
-        mIncrementalMapperOptions->ba_refine_extra_params = !mFixCalibration;
+        mIncrementalMapperOptions->ba_refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
 
         mMapper = new colmap::IncrementalMapperController(mIncrementalMapperOptions, "", mDatabase.toString(), mReconstructionManager.get());
 
@@ -232,9 +256,9 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
         TL_ASSERT(mReconstructionManager->Size() > 0, "Reconstruction fail");
 
         colmap::OptionManager option_manager;
-        option_manager.bundle_adjustment->refine_focal_length = !mFixCalibration;
-        option_manager.bundle_adjustment->refine_principal_point = !mFixCalibration;
-        option_manager.bundle_adjustment->refine_extra_params = !mFixCalibration;
+        option_manager.bundle_adjustment->refine_focal_length = !mOptions.isEnabled(Options::fix_calibration);
+        option_manager.bundle_adjustment->refine_principal_point = !mOptions.isEnabled(Options::fix_calibration);
+        option_manager.bundle_adjustment->refine_extra_params = !mOptions.isEnabled(Options::fix_calibration);
 
         colmap::Reconstruction &reconstruction = mReconstructionManager->Get(0);
 
@@ -303,7 +327,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
         
 
-        if (mAbsoluteOrientation) {
+        if (mOptions.isEnabled(Options::absolute_orientation)) {
 
             /// Conversión de identificadores de imagen de GRAPHOS a COLMAP
             std::unordered_map<uint32_t, size_t> image_ids_colmap_to_graphos;
@@ -325,35 +349,33 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             }
 
             // OpenMVG utiliza este parámetro. Creo que la equivalencia es la mediana calculada 
-            double pose_center_robust_fitting_error = 0.0;
+            //double pose_center_robust_fitting_error = 0.0;
             std::unordered_map<size_t, tl::Point3<double>> cameras_enu;
 
-            if (mGPS || mRTK) {
+            if (mOptions.isEnabled(Options::use_poses)) {
 
                 std::unordered_map<size_t, tl::Point3<double>> cameras_geographic;
-
+                
                 for (const auto &image : mImages) {
-
+                
                     if (image_ids_graphos_to_colmap[image.id()] == 0) continue;
-
+                
                     // Conversion a coordendas ENU
-
+                
                     if (image.cameraPose().isEmpty()) continue;
-
+                
                     auto camera_epsg = image.cameraPose().crs();
                     auto camera_crs = std::make_shared<tl::Crs>(camera_epsg.toStdString());
                     TL_ASSERT(camera_crs->isValid(), "Invalid CRS: {}", camera_epsg.toStdString());
-                    
-                    // Conversión con GeoTools
-                    TL_TODO("Estoy suponiendo que las alturas son elipsoidades... Hay que comprobarlo")
-
+                
                     auto epsg_code = camera_epsg.toStdString();
                     auto camera_coordinates = image.cameraPose().position();
                     if (epsg_code != "EPSG:4326")
                         mGeoTools->ptrCRSsTools()->crsOperation(epsg_code, "EPSG:4326", camera_coordinates.x, camera_coordinates.y, camera_coordinates.z);
-
+                
                     cameras_geographic[image.id()] = camera_coordinates;
                 }
+
 
                 /// Cálculo del centro
 
@@ -386,7 +408,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 std::vector<std::string> ref_image_names;
                 std::vector<Eigen::Vector3d> ref_locations;
 
-                for (const auto &camera_enu : cameras_enu){
+                for (const auto &camera_enu : cameras_enu) {
                     auto graphos_id = camera_enu.first;
                     auto enu_coordinates = camera_enu.second;
                     auto colmap_id = image_ids_graphos_to_colmap[graphos_id];
@@ -426,12 +448,14 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     }
                 }
 
-                pose_center_robust_fitting_error = colmap::Median(errors);
+                //pose_center_robust_fitting_error = colmap::Median(errors);
                 tl::Message::info("Similarity transformation: Alignment error: {} (mean), {} (median)", colmap::Mean(errors), colmap::Median(errors));
 
                 if (status() == Status::stopping) return;
 
-            } 
+            }
+
+            //} 
 
 
             // RTK
@@ -439,7 +463,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             //BundleAdjustmentConfig ba_config;
             //for (const colmap::image_t image_id : reconstruction.RegImageIds()) {
             //    ba_config.AddImage(image_id);
-            //    ba_config.setCamPositionError(image_id, 0.01);
+            //    ba_config.setCameraPositionAccuracy(image_id, 0.01);
             //}
             // En OpenMVG utiliza la mediana del error calculado en la transformacíón de semejanza
             // problem.AddResidualBlock(
@@ -452,13 +476,15 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
             // ceres::CostFunction *control_point_cost_function = ControlPointCostFunction::create(point3D, weight_cp);
             //problem_->AddResidualBlock(control_point_cost_function, new ceres::HuberLoss(Square(colmap::Median(errors))), gcp.point.data());
 
-            if (mControlPoints || mRTK || mGPS) {
+            if (mOptions.isEnabled(Options::absolute_orientation)) {
+
+                /// Lectura de los puntos de control
 
                 std::vector<GCP> control_points_enu;
                 std::vector<GroundControlPoint> ground_control_points;
                 std::string ground_control_points_crs;
-                /// Lectura de los puntos de control
-                if (mControlPoints) {
+
+                if (mOptions.isEnabled(Options::use_gcp)) {
 
 
                     tl::Path gcp_file = mOutputPath;
@@ -565,8 +591,9 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                     }
 
-                    /// Esto solo si no tenemos datos GPS
-                    if (!(mGPS || mRTK)) {
+                    /// Esto solo si no tenemos datos GNSS
+                    
+                    if (mOptions.isDisabled(Options::use_poses)) {
 
                         TL_ASSERT(src.size() > 3, "Similarity transformation: Insufficient number of points");
 
@@ -588,22 +615,40 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     }
                 }
 
-
                 // Configure bundle adjustment.
                 BundleAdjustmentConfig ba_config;
                 for (const colmap::image_t image_id : reg_image_ids) {
                     ba_config.AddImage(image_id);
-                    if (mRTK){
-                        //cameras_enu
-                        ba_config.setCamPositionRTK(image_id, cameras_enu[image_ids_colmap_to_graphos[image_id]]);
-                        //ba_config.setCamPositionError(image_id, 100.);
-                    } else if (mGPS && !mControlPoints){ // Si hay puntos de control puede empeorar si se usa
-                        ba_config.setCamPositionGPS(image_id, cameras_enu[image_ids_colmap_to_graphos[image_id]]);
+                    if (mOptions.isEnabled(Options::use_poses)){
+
+                        size_t image_graphos_id = image_ids_colmap_to_graphos[image_id];
+                        tl::Vector3d accuracy{0., 0., 0.};
+                        for (auto &image : mImages) {
+                            if (image.id() == image_graphos_id) {
+                                auto camera_pose = image.cameraPose();
+                                if (!camera_pose.isEmpty()) {
+                                    if (mOptions.isDisabled(Options::use_rtk_positioning_accuracy)) {
+                                        accuracy = camera_pose.accuracy();
+                                    } else if (camera_pose.rtkFlag() == 50){
+                                        accuracy = {0.01, 0.01, 0.03};
+                                    } else if (camera_pose.rtkFlag() == 34){
+                                        accuracy = {0.2, 0.2, 0.5};
+                                    } else if (camera_pose.rtkFlag() == 16) {
+                                        accuracy = {10., 10., 10.};
+                                    }
+                                }
+                                break;
+                            }
+                        }
+
+                        ba_config.setCameraPositionAccuracy(image_id, cameras_enu[image_graphos_id], accuracy);
+
                     }
                 }
 
-                if (mControlPoints) {
-                    TL_ASSERT(control_points_enu.size() > 3 || mRTK, "A minimum of 3 ground control points is required");
+
+                if (mOptions.isEnabled(Options::use_gcp)) {
+                    TL_ASSERT(control_points_enu.size() > 3 || mOptions.isEnabled(Options::use_poses), "A minimum of 3 ground control points is required");
                     if (control_points_enu.size() > 3) {
                         ba_config.setGroundControlPoints(control_points_enu);
                     }
@@ -624,7 +669,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                 ba_options.solver_options.max_linear_solver_iterations = 500;
 //                ba_options.solver_options.max_num_consecutive_invalid_steps = 10;
 //                ba_options.solver_options.max_consecutive_nonmonotonic_steps = 10;
-//                ba_options.solver_options.num_threads = 4; // 1;
+                ba_options.solver_options.num_threads = 4; // 1;
 //#if CERES_VERSION_MAJOR < 2
 //                solver_options.num_linear_solver_threads = -1;
 //#endif  // CERES_VERSION_MAJOR
@@ -652,7 +697,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                 // Calculo de los errores en el ajuste de haces
 
-                if (mControlPoints){
+                if (mOptions.isEnabled(Options::use_gcp)){
 
                     std::vector<Eigen::Vector3d> src;
                     std::vector<Eigen::Vector3d> dst;
@@ -746,17 +791,18 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     mOrientationReport.alignmentErrorMean = colmap::Mean(errors);
                     mOrientationReport.alignmentErrorMedian = colmap::Median(errors);
 
-                    tl::Message::info("Absolute orientation error: {} (mean), {} (median)",
+                    tl::Message::info("Ground Control Points error: {} (mean), {} (median)",
                                       mOrientationReport.alignmentErrorMean, mOrientationReport.alignmentErrorMedian);
 
 
-                } else if (mRTK || mGPS){
+                } 
+
+                if (mOptions.isEnabled(Options::use_poses)){
 
                     std::vector<double> errors;
                     errors.reserve(mImages.size());
-                    tl::Message::info("Images: {}", mImages.size());
 
-                    for (const auto& image : mImages)
+                    for (const auto &image : mImages)
                     {
 
                         if (reconstruction.ExistsImage(image_ids_graphos_to_colmap[image.id()])) {
@@ -770,7 +816,17 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
                             auto pos_final = colmap_image.ProjectionCenter();
                             auto error_xyz = pos_final - pos_ini;
-                            double error = (pos_final - pos_ini).norm();
+                            double error = (error_xyz).norm();
+                            //tl::Message::info("Camera pose error: {} -> Error:{}", image.name().toStdString(), error);
+
+                            std::cout << std::fixed << std::setprecision(6)
+                                << image.name().toStdString() << "\t"
+                                << pos_ini.x() << "\t" << pos_ini.y() << "\t" << pos_ini.z() << "\t"
+                                << 10 << "\t" << error << "\t"
+                                << error_xyz.x() << "\t" << error_xyz.y() << "\t" << error_xyz.z() << "\t"
+                                << pos_final.x() << "\t" << pos_final.y() << "\t" << pos_final.z()
+                                << std::endl;
+
                             errors.push_back(error);
                         }
                     }
@@ -778,7 +834,7 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                     mOrientationReport.alignmentErrorMean = colmap::Mean(errors);
                     mOrientationReport.alignmentErrorMedian = colmap::Median(errors);
 
-                    tl::Message::info("Alignment error: {} (mean), {} (median)",mOrientationReport.alignmentErrorMean, mOrientationReport.alignmentErrorMedian);
+                    tl::Message::info("Alignment error: {} (mean), {} (median)", mOrientationReport.alignmentErrorMean, mOrientationReport.alignmentErrorMedian);
                 }
 
                 // Fin calculo de errores en el ajuste de haces

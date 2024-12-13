@@ -362,24 +362,24 @@ tl::Degrees<double> formatDegreesFromExif(const std::string &exifAngle, const st
 {
     tl::Degrees<double> angle;
 
-    size_t pos1 = exifAngle.find("(");
-    size_t pos2 = exifAngle.find(")");
+    size_t pos1 = exifAngle.find('(');
+    size_t pos2 = exifAngle.find(')');
 
     if (pos1 != std::string::npos && pos2 != std::string::npos) {
         int degrees = std::stoi(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1));
-        if (ref.compare("S") == 0 || ref.compare("W") == 0) degrees = -degrees;
+        if (ref == "S" || ref == "W") degrees = -degrees;
         angle.setDegrees(degrees);
     }
 
-    pos1 = exifAngle.find("(", pos2);
-    pos2 = exifAngle.find(")", pos1);
+    pos1 = exifAngle.find('(', pos2);
+    pos2 = exifAngle.find(')', pos1);
 
     if (pos1 != std::string::npos && pos2 != std::string::npos) {
         angle.setMinutes(std::stoi(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1)));
     }
 
-    pos1 = exifAngle.find("(", pos2);
-    pos2 = exifAngle.find(")", pos1);
+    pos1 = exifAngle.find('(', pos2);
+    pos2 = exifAngle.find(')', pos1);
 
     if (pos1 != std::string::npos && pos2 != std::string::npos) {
         angle.setSeconds(std::stod(exifAngle.substr(pos1 + 1, pos2 - pos1 + 1)));
