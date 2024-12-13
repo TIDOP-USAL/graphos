@@ -78,14 +78,15 @@ void LoadThumbnailTask::execute(tl::Progress *progressBar)
             int h = image_reader->rows();
             double scale = 1.;
             if (w > h) {
-                scale = 200. / static_cast<double>(w);
+                scale = 400. / static_cast<double>(w);
             } else {
-                scale = 200. / static_cast<double>(h);
+                scale = 400. / static_cast<double>(h);
             }
 
             cv::Mat bmp = image_reader->read(scale, scale);
-
-            QImage image = graphos::cvMatToQImage(bmp);
+            cv::Mat resized = bmp;
+            cv::resize(bmp, resized, cv::Size(), 0.5, 0.5, cv::INTER_LINEAR);
+            QImage image = graphos::cvMatToQImage(resized);
 
             image_reader->close();
 

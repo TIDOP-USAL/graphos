@@ -66,6 +66,9 @@ void OrthophotoComponent::createView()
 {
 #ifdef GRAPHOS_GUI
     setView(new OrthophotoViewImp());
+
+    connect(dynamic_cast<OrthophotoView *>(view()), &OrthophotoView::select_crs,
+            this, &OrthophotoComponent::select_crs);
 #endif // GRAPHOS_GUI
 }
 

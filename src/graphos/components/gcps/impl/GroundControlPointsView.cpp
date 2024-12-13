@@ -211,7 +211,7 @@ void GroundControlPointsViewImp::setPoints(const std::list<std::pair<QString, QP
 {
     //QBrush brush(Qt::NoBrush);
 
-    QPen pen(QColor("#FF0000"), 1);
+    QPen pen(QColor("#FF0000"), 2);
     pen.setCosmetic(true);
     QPen select_pen(QColor("#FF0000"), 2);
     select_pen.setCosmetic(true);
@@ -233,7 +233,7 @@ void GroundControlPointsViewImp::setPoints(const std::list<std::pair<QString, QP
     }
 
     for (auto &point : points) {
-        auto cross_graphic_item_left = new CrossGraphicItem(point.second, 20);
+        auto cross_graphic_item_left = new CrossGraphicItem(point.second, 50);
         cross_graphic_item_left->setPen(pen);
         cross_graphic_item_left->setFlag(QGraphicsItem::ItemIsSelectable, true);
         cross_graphic_item_left->setToolTip(point.first);

@@ -133,26 +133,26 @@ public:
     auto size() const -> size_t;
 
     /*!
-     * \brief Get the 3D point at the specified index.
+     * \brief Get the 2D point at the specified index.
      *
      * \param idx The index of the point.
-     * \return The 3D point at the specified index.
+     * \return The 2D point at the specified index.
      */
     auto point(size_t idx) const -> tl::Point<double>;
     auto point(size_t idx) -> tl::Point<double>&;
 
     /*!
-     * \brief Get the mapping of image IDs to 3D points in the track.
+     * \brief Get the mapping of image IDs to 2D points in the track.
      *
-     * \return A reference to the unordered map containing image IDs and 3D points.
+     * \return A reference to the unordered map containing image IDs and 2D points.
      */
     auto points() const -> const std::unordered_map<size_t, tl::Point<double>>&;
 
     /*!
-     * \brief Add a 3D point associated with an image ID to the track.
+     * \brief Add a 2D point associated with an image ID to the track.
      *
      * \param imageId The image ID associated with the point.
-     * \param point The 3D point to add.
+     * \param point The 2D point to add.
      */
     void addPoint(size_t imageId, const tl::Point<double> &point);
 
@@ -171,9 +171,14 @@ public:
      */
     void removePoint(size_t imageId);
 
+    auto error(size_t imageId) const -> tl::Vector2d;
+    void setError(size_t imageId, double x, double y);
+    void setError(size_t imageId, const tl::Vector2d &error);
+
 private:
 
     std::unordered_map<size_t, tl::Point<double>> mImageIdPoint;
+    std::unordered_map<size_t, tl::Vector2d> mError;
 };
 
 

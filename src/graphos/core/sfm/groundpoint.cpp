@@ -66,6 +66,16 @@ void GroundControlPoint::setPoint(const tl::Point3<double> &point)
     this->z = point.z;
 }
 
+auto GroundControlPoint::error() const -> double/*tl::Vector3d*/
+{
+    return mError;
+}
+
+void GroundControlPoint::setError(/*const tl::Vector3d &*/double error)
+{
+    mError = error;
+}
+
 void GroundControlPoint::removeTrackPoint(size_t imageId)
 {
     mTrack.removePoint(imageId);
@@ -74,6 +84,11 @@ void GroundControlPoint::removeTrackPoint(size_t imageId)
 void GroundControlPoint::addPointToTrack(size_t imageId, const tl::Point<double> &point)
 {
     mTrack.addPoint(imageId, point);
+}
+
+void GroundControlPoint::addErrorToTrack(size_t imageId, const tl::Vector2d &error)
+{
+    mTrack.setError(imageId, error);
 }
 
 void GroundControlPoint::setTrack(const GCPTrack &track)
@@ -188,7 +203,7 @@ private:
     {
         GroundControlPoint gcp;
         GCPTrack track;
-
+        QString error;
         while (stream.readNextStartElement()) {
             if (stream.name() == "Name") {
                 gcp.setName(stream.readElementText().toStdString());
@@ -199,7 +214,7 @@ private:
             } else if (stream.name() == "z") {
                 gcp.z = stream.readElementText().toDouble();
             } else if (stream.name() == "error") {
-                QString error = stream.readElementText();
+                gcp.setError(stream.readElementText().toDouble());
             } else if (stream.name() == "ImagePoints") {
 
                 while (stream.readNextStartElement()) {
@@ -208,7 +223,7 @@ private:
 
                         size_t image_id = 0;
                         tl::Point<double> point_2d;
-
+                        tl::Vector2d error;
                         for (auto &attr : stream.attributes()) {
                             if (attr.name().compare(QString("image_id")) == 0) {
                                 image_id = attr.value().toULongLong();
@@ -221,12 +236,17 @@ private:
                                 point_2d.x = stream.readElementText().toDouble();
                             } else if (stream.name() == "y") {
                                 point_2d.y = stream.readElementText().toDouble();
+                            } else if (stream.name() == "ex") {
+                                error[0] = stream.readElementText().toDouble();
+                            } else if (stream.name() == "ey") {
+                                error[1] = stream.readElementText().toDouble();
                             } else {
                                 stream.skipCurrentElement();
                             }
                         }
 
                         track.addPoint(image_id, point_2d);
+                        track.setError(image_id, error);
 
                     } else
                         stream.skipCurrentElement();
@@ -459,7 +479,7 @@ public:
                     stream.writeTextElement("x", QString::number(gcp.x, 'f', 6));
                     stream.writeTextElement("y", QString::number(gcp.y, 'f', 6));
                     stream.writeTextElement("z", QString::number(gcp.z, 'f', 6));
-                    stream.writeTextElement("error", "");
+                    stream.writeTextElement("error", QString::number(gcp.error(), 'f', 3));
                     stream.writeStartElement("ImagePoints");
 
                     for (const auto &point : gcp.track().points()) {
@@ -468,7 +488,10 @@ public:
                         stream.writeAttribute("image_id", QString::number(point.first));
                         stream.writeTextElement("x", QString::number(point.second.x));
                         stream.writeTextElement("y", QString::number(point.second.y));
+                        stream.writeTextElement("ex", QString::number(gcp.track().error(point.first).x()));
+                        stream.writeTextElement("ey", QString::number(gcp.track().error(point.first).y()));
                         stream.writeEndElement();
+
                     }
 
                     stream.writeEndElement();

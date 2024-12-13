@@ -55,18 +55,17 @@ class BundleAdjustmentConfig
 public:
 
     /// Opciones de OpenMVG
-    double pose_center_robust_fitting_error;
-    bool bUse_loss_function_;
+    //double pose_center_robust_fitting_error;
+    //bool bUse_loss_function_;
 
 private:
 
     std::unordered_map<colmap::image_t, double> cam_position_errors_;
-    //std::vector<GroundControlPoint> control_points_;
+    std::unordered_map<colmap::image_t, tl::Point3d> cam_positions;
     std::vector<GCP> control_points_;
     std::unordered_map<size_t, uint32_t> image_ids_graphos_to_colmap;
     std::unordered_map<uint32_t, size_t> image_ids_colmap_to_graphos;
-    //Eigen::Vector3d _offset;
-    
+
 
 public:
 
@@ -85,44 +84,33 @@ public:
         return (it != cam_position_errors_.end()) ? it->second : 0.;
     }
 
-    void setCamPositionRTK(colmap::image_t image_id)
+    void setCamPositionRTK(colmap::image_t image_id, const tl::Point3d &pose)
     {
-        cam_position_errors_[image_id] = 2.2;
+        cam_position_errors_[image_id] = 0.01;
+        cam_positions[image_id] = pose;
     }
 
-    void setCamPositionGPS(colmap::image_t image_id)
+    void setCamPositionGPS(colmap::image_t image_id, const tl::Point3d &pose)
     {
-        cam_position_errors_[image_id] = 1.1;
+        cam_position_errors_[image_id] = 0.5;
+        cam_positions[image_id] = pose;
     }
-    //std::vector<GroundControlPoint> controlPoints() const
-    //{
-    //    return control_points_;
-    //}
+
+    tl::Point3d getCamPosition(colmap::image_t image_id) const
+    {
+        auto it = cam_positions.find(image_id);
+        return (it != cam_positions.end()) ? it->second : tl::Point3d(0., 0., 0.);
+    }
 
     std::vector<GCP> controlPoints() const
     {
         return control_points_;
     }
 
-    //void setGroundControlPoints(const std::vector<GroundControlPoint> &controlPoints)
-    //{
-    //    control_points_ = controlPoints;
-    //}
-
     void setGroundControlPoints(const std::vector<GCP> &controlPoints)
     {
         control_points_ = controlPoints;
     }
-
-    //void setOffet(const Eigen::Vector3d &offset)
-    //{
-    //    _offset = offset;
-    //}
-
-    //Eigen::Vector3d offset() const
-    //{
-    //    return _offset;
-    //}
 
     void setImageIdsGraphosToColmap(const std::unordered_map<size_t, uint32_t> &convert)
     {

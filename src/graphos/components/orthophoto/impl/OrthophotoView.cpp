@@ -60,10 +60,10 @@ void OrthophotoViewImp::initUI()
     mLineEditCRS->setMaximumWidth(200);
     mLineEditCRS->setDisabled(true);
     grid_layout->addWidget(mLineEditCRS, 0, 1, 1, 1);
-    mQPushButtonCRS = new QPushButton(this);
-    mQPushButtonCRS->setMaximumSize(QSize(31, 28));
-    mQPushButtonCRS->setText("...");
-    grid_layout->addWidget(mQPushButtonCRS, 0, 2, 1, 1);
+    mPushButtonCRS = new QPushButton(this);
+    mPushButtonCRS->setMaximumSize(QSize(31, 28));
+    mPushButtonCRS->setText("...");
+    grid_layout->addWidget(mPushButtonCRS, 0, 2, 1, 1);
 
     mLabelGSD = new QLabel(this);
     grid_layout->addWidget(mLabelGSD, 1, 0, 1, 1);
@@ -96,7 +96,7 @@ void OrthophotoViewImp::initSignalAndSlots()
 {
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &OrthophotoView::crs_change);
     connect(mLineEditCRS, &QLineEdit::textChanged, this, &OrthophotoViewImp::update);
-    connect(mQPushButtonCRS, &QAbstractButton::clicked, this, &OrthophotoView::select_crs);
+    connect(mPushButtonCRS, &QAbstractButton::clicked, this, &OrthophotoView::select_crs);
     connect(mDoubleSpinBoxGSD, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &OrthophotoView::resolutionChanged);
 
     connect(mButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);

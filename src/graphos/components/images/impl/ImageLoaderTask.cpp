@@ -166,33 +166,6 @@ void LoadImagesTask::loadImage(size_t imageId)
 
         if (latitude_active && longitude_active && altitude_active) {
 
-            /// Se va a trabajar internamente con coordenadas ENU así que se quitá la transformación
-            //std::string epsg_out;
-            //if (!mCrsOut) {
-            //    int zone = tl::utmZoneFromLongitude(longitude_degrees.value());
-            //    epsg_out = "EPSG:326";
-            //    epsg_out.append(std::to_string(zone));
-            //    mCrsOut = std::make_shared<tl::Crs>(epsg_out);
-            //} else {
-            //    epsg_out = mEPSG.toStdString();
-            //}
-
-            //try {
-
-            //    tl::CrsTransform crs_trf(mCrsIn, mCrsOut);
-            //    tl::Point3<double> pt_in(longitude_degrees.value(), latitude_degrees.value(), altitude);
-            //    tl::Point3<double> pt_out = crs_trf.transform(pt_in);
-
-            //    CameraPose camera_pose;
-            //    camera_pose.setPosition(pt_out);
-            //    camera_pose.setCrs(epsg_out.c_str());
-            //    camera_pose.setSource("EXIF");
-            //    (*mImages)[imageId].setCameraPose(camera_pose);
-
-            //} catch (std::exception &e) {
-            //    tl::printException(e);
-            //}
-
             tl::Point3<double> pt(longitude_degrees.value(), latitude_degrees.value(), altitude);
 
             CameraPose camera_pose;

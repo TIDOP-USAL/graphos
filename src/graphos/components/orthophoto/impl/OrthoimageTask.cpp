@@ -41,6 +41,8 @@ namespace graphos
 cv::Mat visibilityMap(const Orthorectification &orthorectification,
                       const ZBuffer &zBuffer)
 {
+    tl::ChronoAuto chrono("Visibility map");
+
     cv::Mat z_buffer_x = zBuffer.mapX();
     cv::Mat z_buffer_y = zBuffer.mapY();
 

@@ -44,18 +44,23 @@ public:
     }
 
     template <typename T>
-    auto operator()(const T* const tvec, T* residuals) const -> bool
+    auto operator()(const T *const qvec, const T *const tvec, T* residuals) const -> bool
     {
-        residuals[0] = static_cast<T>(mWeight) * (tvec[0] - static_cast<T>(mPosition(0)));
-        residuals[1] = static_cast<T>(mWeight) * (tvec[1] - static_cast<T>(mPosition(1)));
-        residuals[2] = static_cast<T>(mWeight) * (tvec[2] - static_cast<T>(mPosition(2)));
+        Eigen::Quaternion<T> q(qvec[0], -qvec[1], -qvec[2], -qvec[3]);
+        Eigen::Matrix<T, 3, 1> t(tvec[0], tvec[1], tvec[2]);
+
+        auto projection_center =  q * -t;
+
+        residuals[0] = static_cast<T>(mWeight) * (static_cast<T>(projection_center[0]) - static_cast<T>(mPosition[0]));
+        residuals[1] = static_cast<T>(mWeight) * (static_cast<T>(projection_center[1]) - static_cast<T>(mPosition[1]));
+        residuals[2] = static_cast<T>(mWeight) * (static_cast<T>(projection_center[2]) - static_cast<T>(mPosition[2]));
 
         return true;
     }
 
     static auto create(const Eigen::Vector3d &translation, double positionWeight) -> ceres::CostFunction*
     {
-        return new ceres::AutoDiffCostFunction<CameraPositionCostFunction, 3, 3>(
+        return new ceres::AutoDiffCostFunction<CameraPositionCostFunction, 3, 4, 3>(
             new CameraPositionCostFunction(translation, positionWeight));
     }
 
@@ -282,7 +287,6 @@ void BundleAdjuster::setUp(colmap::Reconstruction *reconstruction,
     //// GRAPHOS
     //Se cargan los puntos de control. Los puntos de control son constantes
     for (auto &gcp : config_.controlPoints()) {
-        //0.5 Es lo que usa openMVG por defecto
         addControlPointToProblem(gcp, reconstruction, 0.2, lossFunction);
     }
     //// GRAPHOS
@@ -405,15 +409,14 @@ void BundleAdjuster::addImageToProblem(const colmap::image_t imageId,
 
             //// GRAPHOS
             double position_error = config_.getCamPositionError(imageId);
-            //double position_weight = (1. / position_error) * 100.;
-            // https://github.com/openMVG/openMVG/issues/1822#issuecomment-766335311
-            double position_weight = config_.getCamPositionError(imageId) * image.NumPoints3D();
+            double position_weight = (1. / position_error);
 
             // Añadir restricciones de posición de la cámara
             if (position_error > 0) {
-                ceres::CostFunction *position_cost_function = CameraPositionCostFunction::create(image.Tvec(), position_weight);
-                // Para RTK no se utiliza función de coste
-                problem_->AddResidualBlock(position_cost_function, nullptr, tvec_data);
+                Eigen::Vector3d point_3d(config_.getCamPosition(imageId).x, config_.getCamPosition(imageId).y, config_.getCamPosition(imageId).z);
+                ceres::CostFunction *position_cost_function = CameraPositionCostFunction::create(point_3d, position_weight);
+                // Para RTK no se utiliza función de coste. Hay que añadirla para GPS
+                problem_->AddResidualBlock(position_cost_function, position_error == 0.5 ? lossFunction : nullptr, qvec_data, tvec_data);
                 
             }
 

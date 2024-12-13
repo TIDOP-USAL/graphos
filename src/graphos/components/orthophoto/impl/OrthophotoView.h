@@ -81,7 +81,7 @@ protected:
 
     QLabel *mLabelCRS;
     QLineEdit *mLineEditCRS;
-    QPushButton *mQPushButtonCRS;
+    QPushButton *mPushButtonCRS;
     QLabel *mLabelGSD;
     QDoubleSpinBox *mDoubleSpinBoxGSD;
     QLabel *mLabelInterpolation;

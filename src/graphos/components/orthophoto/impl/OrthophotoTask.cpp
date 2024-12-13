@@ -1828,7 +1828,7 @@ void OrthophotoTask::execute(tl::Progress *progressBar)
                                        footprint_file,
                                        mGSD,
                                        mInterpolation,
-                                       0.8,
+                                       1.0,
                                        bCuda);
 
         orthoimage_task.run(progressBar);

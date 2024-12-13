@@ -70,21 +70,21 @@ void DemViewImp::initUI()
     grid_layout->addWidget(mPushButtonCRS, 0, 2, 1, 1);
 
     mCheckBoxDsm = new QCheckBox(this);
-    grid_layout->addWidget(mCheckBoxDsm, 1, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxDsm, 1, 0, 1, 3);
 
     mCheckBoxDtm = new QCheckBox(this);
-    grid_layout->addWidget(mCheckBoxDtm, 2, 0, 1, 2);
+    grid_layout->addWidget(mCheckBoxDtm, 2, 0, 1, 3);
 
     mLabelGSD = new QLabel(this);
-    grid_layout->addWidget(mLabelGSD, 3, 0);
+    grid_layout->addWidget(mLabelGSD, 3, 0, 1, 1);
     mDoubleSpinBoxGSD = new QDoubleSpinBox(this);
     mDoubleSpinBoxGSD->setDecimals(3);
     mDoubleSpinBoxGSD->setSingleStep(0.1);
-    grid_layout->addWidget(mDoubleSpinBoxGSD, 3, 1);
+    grid_layout->addWidget(mDoubleSpinBoxGSD, 3, 1, 1, 2);
 
     mButtonBox->setOrientation(Qt::Orientation::Horizontal);
     mButtonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel | QDialogButtonBox::Help);
-    grid_layout->addWidget(mButtonBox, 4, 0, 1, 2);
+    grid_layout->addWidget(mButtonBox, 4, 0, 1, 3);
 
     this->retranslate();
     this->clear();

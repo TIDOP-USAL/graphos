@@ -117,9 +117,13 @@ void GroundControlPointsModelImp::writeGroundControlPoints(QXmlStreamWriter &str
                 size_t image_id = mItemModelImagePoints->index(row, 1).data(Qt::UserRole + 1).toULongLong();
                 QString x = mItemModelImagePoints->index(row, 2).data().toString();
                 QString y = mItemModelImagePoints->index(row, 3).data().toString();
+                QString ex = mItemModelImagePoints->index(row, 4).data().toString();
+                QString ey = mItemModelImagePoints->index(row, 5).data().toString();
                 stream.writeAttribute("image_id", QString::number(image_id));
                 stream.writeTextElement("x", x);
                 stream.writeTextElement("y", y);
+                stream.writeTextElement("ey", ex);
+                stream.writeTextElement("ey", ey);
                 stream.writeEndElement();
             }
             stream.writeEndElement();
@@ -140,7 +144,7 @@ void GroundControlPointsModelImp::loadGroundControlPoints()
     mItemModelGroundControlPoints->setHorizontalHeaderLabels(header);
 
     mItemModelImagePoints->setColumnCount(4);
-    QStringList headerImagePoints{"CP", "Image", "X", "Y"};
+    QStringList headerImagePoints{"CP", "Image", "X", "Y", "Error X", "Error Y"};
     mItemModelImagePoints->setHorizontalHeaderLabels(headerImagePoints);
 
     tl::Path gcp_file = mProject->projectFolder();
@@ -159,7 +163,7 @@ void GroundControlPointsModelImp::loadGroundControlPoints()
         standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 6)));
         standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 6)));
         standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 6)));
-        standardItem.append(new QStandardItem(QString()));
+        standardItem.append(new QStandardItem(QString::number(gcp.error(), 'f', 6)));
 
         for (auto &pair : gcp.track().points()) {
 
@@ -172,13 +176,16 @@ void GroundControlPointsModelImp::loadGroundControlPoints()
             QString image = mProject->findImageById(image_id).name();            
             QString x = QString::number(point.x);
             QString y = QString::number(point.y);
-
+            QString ex = QString::number(gcp.track().error(image_id).x());
+            QString ey = QString::number(gcp.track().error(image_id).y());
 
             QList<QStandardItem *> standardItem;
             standardItem.append(new QStandardItem(name));
             standardItem.append(new QStandardItem(image));
             standardItem.append(new QStandardItem(x));
             standardItem.append(new QStandardItem(y));
+            standardItem.append(new QStandardItem(ex));
+            standardItem.append(new QStandardItem(ey));
             standardItem[1]->setData(static_cast<qulonglong>(image_id));
             mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
                                              standardItem);
@@ -204,7 +211,7 @@ void GroundControlPointsModelImp::loadGroundControlPoints(const GroundControlPoi
     mItemModelGroundControlPoints->setHorizontalHeaderLabels(header);
 
     mItemModelImagePoints->setColumnCount(4);
-    QStringList headerImagePoints{"CP", "Image", "X", "Y"};
+    QStringList headerImagePoints{"CP", "Image", "X", "Y", "Error X", "Error Y"};
     mItemModelImagePoints->setHorizontalHeaderLabels(headerImagePoints);
 
     tl::Path gcp_file = mProject->projectFolder();
@@ -224,7 +231,7 @@ void GroundControlPointsModelImp::loadGroundControlPoints(const GroundControlPoi
         standardItem.append(new QStandardItem(QString::number(gcp.x, 'f', 6)));
         standardItem.append(new QStandardItem(QString::number(gcp.y, 'f', 6)));
         standardItem.append(new QStandardItem(QString::number(gcp.z, 'f', 6)));
-        standardItem.append(new QStandardItem(QString()));
+        standardItem.append(new QStandardItem(QString::number(gcp.error(), 'f', 6)));
 
         for (auto &pair : gcp.track().points()) {
 
@@ -238,12 +245,16 @@ void GroundControlPointsModelImp::loadGroundControlPoints(const GroundControlPoi
             QString x = QString::number(point.x);
             QString y = QString::number(point.y);
 
+            QString ex = QString::number(gcp.track().error(image_id).x());
+            QString ey = QString::number(gcp.track().error(image_id).y());
 
             QList<QStandardItem *> standardItem;
             standardItem.append(new QStandardItem(name));
             standardItem.append(new QStandardItem(image));
             standardItem.append(new QStandardItem(x));
             standardItem.append(new QStandardItem(y));
+            standardItem.append(new QStandardItem(ex));
+            standardItem.append(new QStandardItem(ey));
             standardItem[1]->setData(static_cast<qulonglong>(image_id));
             mItemModelImagePoints->insertRow(mItemModelImagePoints->rowCount(),
                 standardItem);

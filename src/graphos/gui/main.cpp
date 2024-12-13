@@ -708,7 +708,7 @@ int main(int argc, char *argv[])
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_dem,
                          &properties_component, &PropertiesComponent::selectDem);
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::select_orthophoto,
-                         &properties_component, &PropertiesComponent::selectDem);
+                         &properties_component, &PropertiesComponent::selectOrthophoto);
 #endif // GRAPHOS_HAVE_PROPERTIES
 
 #ifdef GRAPHOS_HAVE_SETTINGS
