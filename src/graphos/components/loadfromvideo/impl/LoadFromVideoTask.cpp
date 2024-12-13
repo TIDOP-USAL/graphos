@@ -258,6 +258,9 @@ void LoadFromVideoTask::execute(tl::Progress *progressBar)
         int camera_id = static_cast<int>(mCameras->size());
         mCameras->push_back(camera);
 
+        //https://exiftool.org/forum/index.php?topic=13015.0
+        //exiftool -n -p "$gpsdatetime,$gpslatitude,$gpslongitude,$gpsaltitude,$gpsvelocityeast,$gpsvelocitynorth" -ee video.mp4 > metadata.csv
+
         std::shared_ptr<tl::ImageMetadata> image_metadata = tl::ImageMetadataFactory::create("JPEG");
         image_metadata->setMetadata("EXIF_PixelXDimension", std::to_string(width));
         image_metadata->setMetadata("EXIF_PixelYDimension", std::to_string(height));

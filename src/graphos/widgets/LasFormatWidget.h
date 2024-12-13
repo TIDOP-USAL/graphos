@@ -21,39 +21,63 @@
  *                                                                      *
  ************************************************************************/
 
-#ifndef GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_INTERFACE_H
-#define GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_INTERFACE_H
+#ifndef GRAPHOS_POINT_CLOUD_LAS_FORMAT_WIDGET_H
+#define GRAPHOS_POINT_CLOUD_LAS_FORMAT_WIDGET_H
 
-#include "graphos/core/task/TaskPresenter.h"
+#include <tidop/core/flags.h>
+
+#include "graphos/widgets/GraphosWidget.h"
+
+
+class QLabel;
+class QCheckBox;
 
 namespace graphos
 {
 
-class PlyFormatWidget;
-class LasFormatWidget;
 
-/*!
- * \brief ExportPointCloudPresenter interface
- */
-class ExportPointCloudPresenter
-  : public TaskPresenter
+class LasFormatWidget
+  : public GraphosWidgetView
 {
 
     Q_OBJECT
 
 public:
 
-    ExportPointCloudPresenter() = default;
-    ~ExportPointCloudPresenter() override = default;
+    LasFormatWidget(QWidget *parent = nullptr);
+    ~LasFormatWidget() override = default;
 
-    virtual void setPlyFormatWidget(const std::shared_ptr<PlyFormatWidget> &plyFormatWidget) = 0;
-    virtual void setLasFormatWidget(const std::shared_ptr<LasFormatWidget> &lasFormatWidget) = 0;
+public:
+
+    void enableExportColors(bool active);
+    auto isExportColorsEnabled() const -> bool;
+    void enableExportNormals(bool active);
+    auto isExportNormalsEnabled() const -> bool;
+
+// GraphosWidgetView interface
+
+private:
+
+    void initUI() override;
+    void initSignalAndSlots() override;
 
 public slots:
 
-    virtual void setFormat(const QString &format) = 0;
+    void clear() override;
+
+private slots:
+
+    void update() override;
+    void retranslate() override;
+
+protected:
+
+    QCheckBox *mCheckBoxColors;
+    QCheckBox *mCheckBoxNormals;
+
 };
 
 } // namespace graphos
 
-#endif // GRAPHOS_EXPORT_POINT_CLOUD_PRESENTER_INTERFACE_H
+
+#endif // GRAPHOS_POINT_CLOUD_LAS_FORMAT_WIDGET_H

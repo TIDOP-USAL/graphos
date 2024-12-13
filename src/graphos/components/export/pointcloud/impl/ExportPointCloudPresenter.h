@@ -51,6 +51,7 @@ public:
 public:
 
     void setPlyFormatWidget(const std::shared_ptr<PlyFormatWidget> &plyFormatWidget) override;
+    void setLasFormatWidget(const std::shared_ptr<LasFormatWidget> &lasFormatWidget) override;
 
 public slots:
 
@@ -84,6 +85,7 @@ private:
     ExportPointCloudView *mView;
     ExportPointCloudModel *mModel;
     std::shared_ptr<PlyFormatWidget> mPlyFormatWidget;
+    std::shared_ptr<LasFormatWidget> mLasFormatWidget;
     AppStatus *mAppStatus;
     QString mExportFile;
 };

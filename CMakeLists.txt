@@ -262,6 +262,7 @@ else()
     message(STATUS "Not Found TidopLib")
 endif()
 
+find_package(COPCLIB REQUIRED)
 
 ##########################################################################
 # BOOST (REQUIRED)                                                       #

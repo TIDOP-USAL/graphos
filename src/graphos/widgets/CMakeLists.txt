@@ -44,6 +44,7 @@ add_files_to_project(${PROJECT_NAME}
                          BundlerFormatWidget.cpp
                          MveFormatWidget.cpp
                          PlyFormatWidget.cpp
+                         LasFormatWidget.cpp
                          PointCloudCSVFormatWidget.cpp
                          OriTxtFormatWidget.cpp
                          GraphicItem.cpp
@@ -70,6 +71,7 @@ add_files_to_project(${PROJECT_NAME}
                          BundlerFormatWidget.h
                          MveFormatWidget.h
                          PlyFormatWidget.h
+                         LasFormatWidget.h
                          PointCloudCSVFormatWidget.h
                          OriTxtFormatWidget.h
                          GraphicItem.h

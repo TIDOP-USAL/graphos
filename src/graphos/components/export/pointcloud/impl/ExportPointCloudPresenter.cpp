@@ -27,6 +27,7 @@
 #include "graphos/components/export/pointcloud/ExportPointCloudView.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudTask.h"
 #include "graphos/widgets/PlyFormatWidget.h"
+#include "graphos/widgets/LasFormatWidget.h"
 #include "graphos/core/task/Progress.h"
 #include "graphos/core/Application.h"
 #include "graphos/core/AppStatus.h"
@@ -72,6 +73,7 @@ auto ExportPointCloudPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 {
     std::unique_ptr<tl::Task> export_point_cloud_task;
 
+    /// Provisional
     if (mPlyFormatWidget && mPlyFormatWidget->windowTitle() == mView->format()) {
         export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mModel->pointCloud(),
                                                                          mExportFile.toStdString(),
@@ -80,6 +82,14 @@ auto ExportPointCloudPresenterImp::createTask() -> std::unique_ptr<tl::Task>
                                                                          mPlyFormatWidget->format() == PlyFormatWidget::Format::binary,
                                                                          mPlyFormatWidget->isExportColorsEnabled(),
                                                                          mPlyFormatWidget->isExportNormalsEnabled());
+    } else if (mLasFormatWidget && mLasFormatWidget->windowTitle() == mView->format()) {
+        export_point_cloud_task = std::make_unique<ExportPointCloudTask>(mModel->pointCloud(),
+                                                                         mExportFile.toStdString(),
+                                                                         mModel->enuCrs().toStdString(),
+                                                                         mModel->crs().toStdString(),
+                                                                         false,
+                                                                         mLasFormatWidget->isExportColorsEnabled(),
+                                                                         mLasFormatWidget->isExportNormalsEnabled());
     }
 
 
@@ -103,8 +113,10 @@ void ExportPointCloudPresenterImp::cancel()
 void ExportPointCloudPresenterImp::open()
 {
     QString filters;
-    if (mPlyFormatWidget) {
-        filters.append("PLY (*.ply)");
+    if (mPlyFormatWidget) filters.append("PLY (*.ply)");
+    if (mLasFormatWidget) {
+        if (!filters.isEmpty()) filters.append(";;");
+        filters.append("LAS (*.las *.laz)");
     }
 
     QString selected_filter;
@@ -118,15 +130,18 @@ void ExportPointCloudPresenterImp::open()
 
         if (selected_filter.compare("PLY (*.ply)") == 0) {
             mView->setFormat(mPlyFormatWidget->windowTitle());
+        } else if (selected_filter.compare("LAS (*.las *.laz)") == 0) {
+            mView->setFormat(mLasFormatWidget->windowTitle());
         } else {
             tl::Message::error("Unsupported format");
+            return;
         }
+
+        mView->setCrs(mModel->crs());
+
+        mView->exec();
     }
 
-
-    mView->setCrs(mModel->crs());
-
-    mView->exec();
 }
 
 void ExportPointCloudPresenterImp::setPlyFormatWidget(const std::shared_ptr<PlyFormatWidget> &plyFormatWidget)
@@ -135,6 +150,14 @@ void ExportPointCloudPresenterImp::setPlyFormatWidget(const std::shared_ptr<PlyF
 
     mView->addFormat(mPlyFormatWidget.get());
     mView->setFormat(mPlyFormatWidget->windowTitle());
+}
+
+void ExportPointCloudPresenterImp::setLasFormatWidget(const std::shared_ptr<LasFormatWidget> &lasFormatWidget)
+{
+    mLasFormatWidget = lasFormatWidget;
+
+    mView->addFormat(mLasFormatWidget.get());
+    mView->setFormat(mLasFormatWidget->windowTitle());
 }
 
 void ExportPointCloudPresenterImp::setFormat(const QString &format)
