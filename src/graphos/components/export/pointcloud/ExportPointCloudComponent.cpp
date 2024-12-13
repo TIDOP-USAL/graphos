@@ -28,6 +28,7 @@
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudView.h"
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudPresenter.h"
 #include "graphos/widgets/PlyFormatWidget.h"
+#include "graphos/widgets/LasFormatWidget.h"
 #endif // GRAPHOS_GUI
 #include "graphos/components/export/pointcloud/impl/ExportPointCloudCommand.h"
 #include "graphos/core/project.h"
@@ -53,7 +54,10 @@ void ExportPointCloudComponent::enableFormat(Format format)
     if (format == Format::ply && mFormat.isDisabled(format)) {
         mFormat.enable(format);
         dynamic_cast<ExportPointCloudPresenter *>(presenter())->setPlyFormatWidget(std::make_unique<PlyFormatWidget>());
-    } 
+    } else if (format == Format::las && mFormat.isDisabled(format)) {
+        mFormat.enable(format);
+        dynamic_cast<ExportPointCloudPresenter *>(presenter())->setLasFormatWidget(std::make_unique<LasFormatWidget>());
+    }
 }
 
 void ExportPointCloudComponent::disableFormat(Format format)
@@ -61,6 +65,9 @@ void ExportPointCloudComponent::disableFormat(Format format)
     if (format == Format::ply && mFormat.isDisabled(format)) {
         mFormat.disable(format);
         dynamic_cast<ExportPointCloudPresenter *>(presenter())->setPlyFormatWidget(nullptr);
+    } else if (format == Format::las && mFormat.isDisabled(format)) {
+        mFormat.disable(format);
+        dynamic_cast<ExportPointCloudPresenter *>(presenter())->setLasFormatWidget(nullptr);
     }
 }
 
@@ -78,6 +85,7 @@ void ExportPointCloudComponent::init()
     setIcon(QIcon::fromTheme("export"));
 
     mFormat.enable(Format::ply);
+    //mFormat.enable(Format::las);
 
     createCommand();
 }
@@ -109,6 +117,8 @@ void ExportPointCloudComponent::createPresenter()
 
     if (mFormat.isEnabled(Format::ply))
         dynamic_cast<ExportPointCloudPresenter *>(presenter())->setPlyFormatWidget(std::make_unique<PlyFormatWidget>());
+    if(mFormat.isEnabled(Format::las))
+        dynamic_cast<ExportPointCloudPresenter *>(presenter())->setLasFormatWidget(std::make_unique<LasFormatWidget>());
 #endif // GRAPHOS_GUI
 }
 
