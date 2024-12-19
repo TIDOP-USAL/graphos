@@ -103,29 +103,14 @@ auto OrientationViewImp::fixCalibration() const -> bool
     return mCheckBoxFixCalibration->isChecked();
 }
 
-auto OrientationViewImp::isEnabledCalibration() const -> bool
-{
-    return mCheckBoxFixCalibration->isEnabled();
-}
-
 auto OrientationViewImp::absoluteOrientation() const -> bool
 {
     return mCheckBoxAbsoluteOrientation->isChecked();
 }
 
-auto OrientationViewImp::isEnabledAbsoluteOrientation() const -> bool
-{
-    return mCheckBoxAbsoluteOrientation->isEnabled();
-}
-
 auto OrientationViewImp::rtkPositioningAccuracy() const -> bool
 {
     return mCheckBoxRtkPositioningAccuracy->isChecked();
-}
-
-auto OrientationViewImp::isRtkPositioningAccuracyEnabled() const -> bool
-{
-    return mCheckBoxRtkPositioningAccuracy->isEnabled();
 }
 
 void OrientationViewImp::setCalibration(bool active)

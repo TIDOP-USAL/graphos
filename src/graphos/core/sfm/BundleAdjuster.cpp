@@ -255,11 +255,15 @@ auto BundleAdjustmentConfig::graphosId(uint32_t graphosId) const -> size_t
     return mImageIdsColmapToGraphos.at(graphosId);
 }
 
+void BundleAdjustmentConfig::setRobustFittingError(double robustFittingError)
+{
+    mRobustFittingError = robustFittingError;
+}
 
-
-
-
-
+auto BundleAdjustmentConfig::robustFittingError() const
+{
+    return mRobustFittingError;
+}
 
 
 BundleAdjuster::BundleAdjuster(colmap::BundleAdjustmentOptions options,
@@ -275,12 +279,12 @@ bool BundleAdjuster::solve(colmap::Reconstruction *reconstruction)
     CHECK_NOTNULL(reconstruction);
     CHECK(!problem_) << "Cannot use the same BundleAdjuster multiple times";
 
-    //// OpenMVG
-    //ceres::LossFunction *loss_function = new ceres::HuberLoss(4.0 * 4.0);
+    // OpenMVG
+    //ceres::LossFunction *loss_function = new ceres::HuberLoss(2 * 2);
     //ceres::Problem::Options problem_options;
     //problem_options.loss_function_ownership = ceres::DO_NOT_TAKE_OWNERSHIP;
     //problem_.reset(new ceres::Problem(problem_options));
-    //// OpenMVG
+    // OpenMVG
 
     problem_.reset(new ceres::Problem());
     ceres::LossFunction *loss_function = options_.CreateLossFunction();
@@ -361,7 +365,7 @@ void BundleAdjuster::setUp(colmap::Reconstruction *reconstruction,
     //// GRAPHOS
     //Se cargan los puntos de control. Los puntos de control son constantes
     for (auto &gcp : config_.controlPoints()) {
-        addControlPointToProblem(gcp, reconstruction, 0.2, lossFunction);
+        addControlPointToProblem(gcp, reconstruction, /*0.55*/0.2/*0.2*/, lossFunction);
     }
     //// GRAPHOS
     
@@ -428,7 +432,6 @@ void BundleAdjuster::addImageToProblem(const colmap::image_t imageId,
                 case colmap::ThinPrismFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::ThinPrismFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
                     break;
                 default: throw std::domain_error("Camera model does not exist");
-                    break;
             }
 
             problem_->AddResidualBlock(cost_function, lossFunction, point3D.XYZ().data(), camera_params_data);
@@ -458,7 +461,7 @@ void BundleAdjuster::addImageToProblem(const colmap::image_t imageId,
                     break;
                 case colmap::ThinPrismFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentCostFunction<colmap::ThinPrismFisheyeCameraModel>::Create(point2D.XY());
                     break;
-                default: throw std::domain_error("Camera model does not exist"); break;
+                default: throw std::domain_error("Camera model does not exist");
             }
 
             problem_->AddResidualBlock(cost_function, lossFunction, qvec_data, tvec_data, point3D.XYZ().data(), camera_params_data);
@@ -491,8 +494,11 @@ void BundleAdjuster::addImageToProblem(const colmap::image_t imageId,
             if (position_accuracy.x() > 0) {
                 Eigen::Vector3d point_3d(config_.cameraPosition(imageId).x, config_.cameraPosition(imageId).y, config_.cameraPosition(imageId).z);
                 ceres::CostFunction *position_cost_function = CameraPositionCostFunction::create(point_3d, position_weight);
-                // Para RTK (50) no se utiliza función de coste.
-                problem_->AddResidualBlock(position_cost_function, position_accuracy.x() >= 0.2 ? lossFunction : nullptr, qvec_data, tvec_data);
+                // Para RTK (50) no se utiliza función de perdida.
+                // Para el resto se aplica la función de perdida Huber para minimizar el impacto de los valores atípicos.
+                // Al pasar 'nullptr' no se aplica ninguna pérdida robusta, y el residuo se penaliza de forma cuadrática por defecto.
+                ceres::LossFunction *loss_function = new ceres::HuberLoss(config_.robustFittingError() * config_.robustFittingError());
+                problem_->AddResidualBlock(position_cost_function, position_accuracy.x() >= 0.2 ? loss_function : nullptr, qvec_data, tvec_data);
             }
 
             //// GRAPHOS
@@ -558,8 +564,8 @@ void BundleAdjuster::addPointToProblem(const colmap::point3D_t point3DId,
                 break;
             case colmap::ThinPrismFisheyeCameraModel::kModelId: cost_function = colmap::BundleAdjustmentConstantPoseCostFunction<colmap::ThinPrismFisheyeCameraModel>::Create(image.Qvec(), image.Tvec(), point2D.XY());
                 break;
-            default: throw std::domain_error("Camera model does not exist");
-                break;
+            default: 
+                throw std::domain_error("Camera model does not exist");
         }
 
         problem_->AddResidualBlock(cost_function, lossFunction, point3D.XYZ().data(), camera.ParamsData());
@@ -618,7 +624,8 @@ void BundleAdjuster::addControlPointToProblem(GCP &ground_points,
             break;
         }
 
-        problem_->AddResidualBlock(cost_function, lossFunction, qvec_data, tvec_data, camera.ParamsData());
+        ceres::LossFunction *loss_function = new ceres::HuberLoss(4*4);
+        problem_->AddResidualBlock(cost_function, loss_function, qvec_data, tvec_data, camera.ParamsData());
 
     }
 

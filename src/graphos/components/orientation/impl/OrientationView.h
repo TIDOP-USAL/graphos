@@ -46,11 +46,8 @@ public:
 public:
 
     auto fixCalibration() const -> bool override;
-    auto isEnabledCalibration() const -> bool override;
     auto absoluteOrientation() const -> bool override;
-    auto isEnabledAbsoluteOrientation() const -> bool override;
     auto rtkPositioningAccuracy() const -> bool override;
-    auto isRtkPositioningAccuracyEnabled() const -> bool override;
 
 public slots:
 

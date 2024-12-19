@@ -133,23 +133,23 @@ bool OrientationCommand::run()
 
         if (absolute_orientation) {
 
-            options = options | ReconstructionTask::Options::absolute_orientation;
+            options |= ReconstructionTask::Options::absolute_orientation;
 
             if (use_gcp) {
-                options = options | ReconstructionTask::Options::use_gcp;
+                options |= ReconstructionTask::Options::use_gcp;
             }
 
             if (use_poses) {
-                options = options | ReconstructionTask::Options::use_poses;
+                options |= ReconstructionTask::Options::use_poses;
 
                 if (use_rtk_accuracy) {
-                    options = options | ReconstructionTask::Options::use_rtk_positioning_accuracy;
+                    options |= ReconstructionTask::Options::use_rtk_positioning_accuracy;
                 }
             }
         }
 
         if (fix_calibration) {
-            options = options | ReconstructionTask::Options::fix_calibration;
+            options |= ReconstructionTask::Options::fix_calibration;
         }
 
         ReconstructionTask reconstruction(database_path,

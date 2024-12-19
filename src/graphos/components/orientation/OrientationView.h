@@ -42,11 +42,8 @@ public:
     ~OrientationView() override = default;
 
     virtual auto fixCalibration() const -> bool = 0;
-    virtual auto isEnabledCalibration() const -> bool = 0;
     virtual auto absoluteOrientation() const -> bool = 0;
-    virtual auto isEnabledAbsoluteOrientation() const -> bool = 0;
     virtual auto rtkPositioningAccuracy() const -> bool = 0;
-    virtual auto isRtkPositioningAccuracyEnabled() const -> bool = 0;
 
 public slots:
 

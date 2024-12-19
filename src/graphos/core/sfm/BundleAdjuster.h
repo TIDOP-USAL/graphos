@@ -60,6 +60,8 @@ private:
     std::unordered_map<size_t, uint32_t> mImageIdsGraphosToColmap;
     std::unordered_map<uint32_t, size_t> mImageIdsColmapToGraphos;
 
+    double mRobustFittingError = 4.;
+
 public:
 
     BundleAdjustmentConfig();
@@ -74,6 +76,9 @@ public:
     auto colmapId(size_t graphosId) const -> uint32_t;
     void setImageIdsColmapToGraphos(const std::unordered_map<uint32_t, size_t> &convert);
     auto graphosId(uint32_t graphosId) const -> size_t;
+
+    void setRobustFittingError(double robustFittingError);
+    auto robustFittingError() const;;
 };
 
 

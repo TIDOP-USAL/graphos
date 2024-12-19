@@ -255,7 +255,7 @@ ReconstructionTask::Options OrientationPresenterImp::reconstructionOptions() con
         if (mModel->hasCameraPoses()) {
             options |= ReconstructionTask::Options::use_poses;
 
-            if (mView->isRtkPositioningAccuracyEnabled()) {
+            if (mView->rtkPositioningAccuracy()) {
                 options |= ReconstructionTask::Options::use_rtk_positioning_accuracy;
             }
         }
