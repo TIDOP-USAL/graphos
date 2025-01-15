@@ -436,6 +436,20 @@ int main(int argc, char *argv[])
         QObject::connect(componentsManager.mainWindowView(), &MainWindowView::export_point_cloud,
                          export_point_cloud_component.action(), &QAction::trigger);
 
+#   ifdef GRAPHOS_HAVE_CRS
+        QObject::connect(&export_point_cloud_component, &ExportPointCloudComponent::select_crs, [&]() {
+
+            QObject::connect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                &export_point_cloud_component, &ExportPointCloudComponent::setCrs);
+
+            crs_component.open();
+
+            QObject::disconnect(&crs_component, &CoordinateReferenceSystemComponent::crs_changed,
+                &export_point_cloud_component, &ExportPointCloudComponent::setCrs);
+
+            });
+#   endif // GRAPHOS_HAVE_CRS
+
 #endif // GRAPHOS_HAVE_EXPORT_POINT_CLOUD
         
 #ifdef GRAPHOS_HAVE_EXPORT_MESH

@@ -111,6 +111,7 @@ target_link_libraries(${PROJECT_NAME}
                       TidopLib::Vect
                       TidopLib::Graphic
                       TidopLib::GeoTools
+                      TidopLib::PointCloudTools
                       Qt5::Core
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                       $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Help>

@@ -72,34 +72,12 @@ void LogWidget::setLogLevel(MessageLevel level)
     sLevel = level;
 }
 
-//void LogWidget::print(const std::string &msg, const std::string &date, MessageLevel level)
-//{
-//    std::lock_guard<std::mutex> lck(LogWidget::mtx);
-//
-//    QString _msg = QString(date.c_str()) + " " + msg.c_str();
-//
-//    QListWidgetItem *qListWidgetItem = new QListWidgetItem(_msg);
-//    qListWidgetItem->setData(Qt::UserRole, QVariant(static_cast<int>(level)));
-//
-//    if (level == MessageLevel::error)
-//        qListWidgetItem->setForeground(Qt::red);
-//    else if (level == MessageLevel::warning)
-//        qListWidgetItem->setForeground(Qt::magenta);
-//
-//    mListWidget->insertItem(mListWidget->count(), qListWidgetItem);
-//
-//    if (!sFilterLevel.isEnabled(level)) {
-//        mListWidget->setRowHidden(mListWidget->count() - 1, true);
-//    }
-//}
-
 void LogWidget::print(String msg, tl::MessageLevel level) const
 {
     std::lock_guard<std::mutex> lck(LogWidget::mtx);
 
     auto date = tl::formatTimeToString("%d/%b/%Y %H:%M:%S");
 
-    //QString _msg = QString(date.c_str()) + " " + msg.c_str();
     std::stringstream ss;
     ss << date << " " << msg;
     std::string message = ss.str();

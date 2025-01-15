@@ -94,7 +94,8 @@ auto ExportPointCloudPresenterImp::createTask() -> std::unique_ptr<tl::Task>
 
 
     if (progressHandler()) {
-        progressHandler()->setRange(0, mModel->pointCloudSize()+11);
+        double scale = mModel->pointCloudSize() / 90.;
+        progressHandler()->setRange(0, 10. * scale + mModel->pointCloudSize());
         progressHandler()->setTitle("Export Point Cloud");
         progressHandler()->setDescription("Export Point Cloud processing...");
         progressHandler()->setCloseAuto(true);

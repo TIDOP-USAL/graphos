@@ -70,6 +70,8 @@ if(BUILD_EXPORT_POINT_CLOUD_COMPONENT)
                 ALIAS ${PROJECT_NAME})
   
     target_link_libraries(${PROJECT_NAME} PRIVATE 
+                          TidopLib::GeoTools
+                          TidopLib::PointCloudTools
                           Qt5::Core
                           $<$<BOOL:${GRAPHOS_GUI}>:Qt5::Widgets>
                           Graphos::Core

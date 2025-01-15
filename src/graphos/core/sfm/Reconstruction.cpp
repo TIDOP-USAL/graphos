@@ -98,9 +98,11 @@ ReconstructionTask::ReconstructionTask(tl::Path database,
 {
     if (mOptions.isEnabled(Options::absolute_orientation)) {
 
-        if (!mGroundControlPoints.exists() && mOptions.isEnabled(Options::use_gcp)) {
-            tl::Message::warning("'Options::use_gcp' is active but there are no checkpoints. 'Options::use_gcp' is deactivated.");
-            mOptions.disable(Options::use_gcp);
+        if (!mGroundControlPoints.exists()) {
+            if (mOptions.isEnabled(Options::use_gcp)) {
+                tl::Message::warning("'Options::use_gcp' is active but there are no GCPs. 'Options::use_gcp' is deactivated.");
+                mOptions.disable(Options::use_gcp);
+            }
         } else {
             ///TODO: Hay problemas al combinar puntos de control y posiciones de las camaras
             ///      Da mas prioridad a las posiciones de las cámaras
@@ -290,22 +292,32 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
         ceres::Solver::Summary summary;
 
-        {
-            ba_terminate = false;
+        //{
+        //    ba_terminate = false;
 
-            BundleAdjuster bundle_adjuster(ba_options, ba_config);
-            bundle_adjuster.solve(&reconstruction);
+        //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
+        //    bundle_adjuster.solve(&reconstruction);
 
-            if (status() == Status::stopping) return;
+        //    if (status() == Status::stopping) return;
 
-            ba_terminate = true;
-            summary = bundle_adjuster.summary();
-        }
-
+        //    ba_terminate = true;
+        //    summary = bundle_adjuster.summary();
+        //}
 
         // TODO: Igual mejor que sea un bucle
-        if (summary.termination_type == ceres::NO_CONVERGENCE) {
+        //if (summary.termination_type == ceres::NO_CONVERGENCE) {
 
+        //    ba_terminate = false;
+
+        //    BundleAdjuster bundle_adjuster(ba_options, ba_config);
+        //    bundle_adjuster.solve(&reconstruction);
+
+        //    if (status() == Status::stopping) return;
+
+        //    ba_terminate = true;
+        //    summary = bundle_adjuster.summary();
+        //}
+        for (int i = 0; i < 5; ++i) {
             ba_terminate = false;
 
             BundleAdjuster bundle_adjuster(ba_options, ba_config);
@@ -315,6 +327,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
 
             ba_terminate = true;
             summary = bundle_adjuster.summary();
+
+            if (summary.termination_type == ceres::CONVERGENCE) break;
         }
 
         mOrientationReport.iterations = summary.num_successful_steps + summary.num_unsuccessful_steps;
@@ -637,8 +651,8 @@ void ReconstructionTask::execute(tl::Progress *progressBar)
                                     if (mOptions.isEnabled(Options::use_rtk_positioning_accuracy)) {
                                         accuracy = camera_pose.accuracy();
                                     } else if (camera_pose.rtkFlag() == 50){
-                                        //accuracy = {0.01, 0.01, 0.03};
-                                        accuracy = {0.01, 0.01, 0.01};
+                                        accuracy = {0.01, 0.01, 0.03};
+                                        //accuracy = {0.01, 0.01, 0.01};
                                     } else if (camera_pose.rtkFlag() == 34){
                                         accuracy = {0.2, 0.2, 0.5};
                                     } else if (camera_pose.rtkFlag() == 16) {

@@ -32,6 +32,16 @@
 #include "graphos/core/task/Progress.h"
 
 
+/////// Prueba para guardar como LAS
+#include <pdal/io/LasWriter.hpp>
+#include <pdal/PointTable.hpp>
+#include <pdal/PointView.hpp>
+#include <pdal/Options.hpp>
+#include <pdal/Stage.hpp>
+#include <pdal/io/BufferReader.hpp>
+#include <pdal/StageFactory.hpp>
+//////
+
 namespace graphos
 {
 
@@ -70,48 +80,135 @@ void ExportPointCloudTask::execute(tl::Progress *progressBar)
         size_t size = ply_reader.size();
         ply_reader.read();
 
-        
-        if (progressBar) (*progressBar)(static_cast<size_t>(size / 80.) * 10);
-
-        Ply ply;
-        ply.open(mExportPointCloud, Ply::OpenMode::out);
-        ply.setProperty("x", PlyProperty::ply_double);
-        ply.setProperty("y", PlyProperty::ply_double);
-        ply.setProperty("z", PlyProperty::ply_double);
-        if (ply_reader.hasColors() && mColors) {
-            ply.setProperty("red", PlyProperty::ply_int);
-            ply.setProperty("green", PlyProperty::ply_int);
-            ply.setProperty("blue", PlyProperty::ply_int);
-        }
-        if (ply_reader.hasNormals() && mNormals) {
-            ply.setProperty("nx", PlyProperty::ply_float);
-            ply.setProperty("ny", PlyProperty::ply_float);
-            ply.setProperty("nz", PlyProperty::ply_float);
-        }
-
         tl::GeoTools *ptrGeoTools = tl::GeoTools::getInstance();
 
-        for (size_t i = 0; i < size; i++) {
+        if (progressBar) (*progressBar)(5 * size / 90.);
 
-            auto point = ply_reader.point<double>(i);
-            ptrGeoTools->ptrCRSsTools()->crsOperation(mCrsEnu, mCrs, point.x, point.y, point.z);
-            ply.addPoint<double>(point);
-            if (ply_reader.hasColors() && mColors)
-                ply.addColor(ply_reader.color(i));
-            if (ply_reader.hasNormals() && mNormals)
-                ply.addNormals<float>(ply_reader.normals<float>(i));
+        if (tl::compareInsensitiveCase(mExportPointCloud.extension().toString(), ".ply")) {
+            Ply ply;
+            ply.open(mExportPointCloud, Ply::OpenMode::out);
+            ply.setProperty("x", PlyProperty::ply_double);
+            ply.setProperty("y", PlyProperty::ply_double);
+            ply.setProperty("z", PlyProperty::ply_double);
+            if (ply_reader.hasColors() && mColors) {
+                ply.setProperty("red", PlyProperty::ply_int);
+                ply.setProperty("green", PlyProperty::ply_int);
+                ply.setProperty("blue", PlyProperty::ply_int);
+            }
+            if (ply_reader.hasNormals() && mNormals) {
+                ply.setProperty("nx", PlyProperty::ply_float);
+                ply.setProperty("ny", PlyProperty::ply_float);
+                ply.setProperty("nz", PlyProperty::ply_float);
+            }
 
-            if (progressBar) (*progressBar)();
+
+
+            for (size_t i = 0; i < size; i++) {
+
+                auto point = ply_reader.point<double>(i);
+
+                if (!mCrsEnu.empty() && !mCrs.empty())
+                    ptrGeoTools->ptrCRSsTools()->crsOperation(mCrsEnu, mCrs, point.x, point.y, point.z);
+
+                ply.addPoint<double>(point);
+                if (ply_reader.hasColors() && mColors)
+                    ply.addColor(ply_reader.color(i));
+                if (ply_reader.hasNormals() && mNormals)
+                    ply.addNormals<float>(ply_reader.normals<float>(i));
+
+                if (progressBar) (*progressBar)();
+            }
+
+            ply.save(mBynary);
+
+            ply_reader.close();
+            ply.close();
+
+        } else {
+
+            // Configuración de PDAL para la escritura de LAS
+            pdal::PointTable table;
+            table.layout()->registerDim(pdal::Dimension::Id::X);
+            table.layout()->registerDim(pdal::Dimension::Id::Y);
+            table.layout()->registerDim(pdal::Dimension::Id::Z);
+            if (ply_reader.hasColors() && mColors) {
+                table.layout()->registerDim(pdal::Dimension::Id::Red);
+                table.layout()->registerDim(pdal::Dimension::Id::Green);
+                table.layout()->registerDim(pdal::Dimension::Id::Blue);
+            }
+            if (ply_reader.hasNormals() && mNormals) {
+                table.layout()->registerDim(pdal::Dimension::Id::NormalX);
+                table.layout()->registerDim(pdal::Dimension::Id::NormalY);
+                table.layout()->registerDim(pdal::Dimension::Id::NormalZ);
+            }
+
+            auto pointView = std::make_shared<pdal::PointView>(table);
+
+            for (size_t i = 0; i < size; i++) {
+
+                auto point = ply_reader.point<double>(i);
+
+                if (!mCrsEnu.empty() && !mCrs.empty())
+                    ptrGeoTools->ptrCRSsTools()->crsOperation(mCrsEnu, mCrs, point.x, point.y, point.z);
+
+                pointView->setField(pdal::Dimension::Id::X, i, point.x);
+                pointView->setField(pdal::Dimension::Id::Y, i, point.y);
+                pointView->setField(pdal::Dimension::Id::Z, i, point.z);
+
+                if (ply_reader.hasColors() && mColors) {
+                    auto color = ply_reader.color(i);
+                    pointView->setField(pdal::Dimension::Id::Red, i, color.red());
+                    pointView->setField(pdal::Dimension::Id::Green, i, color.green());
+                    pointView->setField(pdal::Dimension::Id::Blue, i, color.blue());
+                }
+
+                if (ply_reader.hasNormals() && mNormals) {
+                    auto normal = ply_reader.normals<float>(i);
+                    pointView->setField(pdal::Dimension::Id::NormalX, i, normal.x);
+                    pointView->setField(pdal::Dimension::Id::NormalY, i, normal.y);
+                    pointView->setField(pdal::Dimension::Id::NormalZ, i, normal.z);
+                }
+
+                if (progressBar) (*progressBar)();
+            }
+
+            pdal::BufferReader bufferReader;
+            bufferReader.addView(pointView);
+
+            pdal::StageFactory factory;
+            pdal::Stage *writer;
+            bool b_copc = false;
+            if (b_copc) 
+                writer = factory.createStage("writers.copc");
+            else 
+                writer = factory.createStage("writers.las");
+
+            pdal::Options writerOptions;
+            writerOptions.add("filename", mExportPointCloud.toString());
+            if (!mCrsEnu.empty() && !mCrs.empty()) {
+                writerOptions.add("a_srs", mCrs);
+                if (ptrGeoTools->ptrCRSsTools()->getIsCRSGeographic(mCrs)) {
+                    writerOptions.add("scale_x", "0.0000001");
+                    writerOptions.add("scale_y", "0.0000001");
+                    writerOptions.add("scale_z", "0.01");
+                    writerOptions.add("offset_x", "auto");
+                    writerOptions.add("offset_y", "auto");
+                    writerOptions.add("offset_z", "auto");
+                }
+            }
+            writer->setOptions(writerOptions);
+
+            writer->setInput(bufferReader);
+            writer->prepare(table);
+            writer->execute(table);
+
+            ply_reader.close();
+
         }
-
-        ply.save(mBynary);
-
-        ply_reader.close();
-        ply.close();
 
         tl::Message::success("Point cloud export finished in {:.2} minutes", this->time() / 60.);
 
-        if (progressBar) (*progressBar)(static_cast<size_t>(static_cast<double>(size) / 80.) * 10);
+        if (progressBar) (*progressBar)(5 * size / 90.);
 
     } catch (...) {
         TL_THROW_EXCEPTION_WITH_NESTED("Export point cloud task error");

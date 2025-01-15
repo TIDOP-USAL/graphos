@@ -85,7 +85,7 @@ void ExportPointCloudComponent::init()
     setIcon(QIcon::fromTheme("export"));
 
     mFormat.enable(Format::ply);
-    //mFormat.enable(Format::las);
+    mFormat.enable(Format::las);
 
     createCommand();
 }
